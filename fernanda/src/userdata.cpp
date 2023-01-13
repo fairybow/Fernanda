@@ -132,7 +132,7 @@ const QString Ud::valueName(ConfigVal valueType)
     case ConfigVal::Font:
         result = "font";
         break;
-    case ConfigVal::FontSize:
+    case ConfigVal::FontSlider:
         result = "font_size";
         break;
     case ConfigVal::PosCol:
@@ -229,12 +229,12 @@ QString Ud::timestamp()
 
 std::string Ud::dll()
 {
-    const auto paths = QStringList{ "/lib", "/usr/lib", "/usr/local/lib" } << qEnvironmentVariable("LD_LIBRARY_PATH").split(',');
-    for (const auto& search_path : paths)
+    const auto search_paths = QStringList{ "/lib", "/usr/lib", "/usr/local/lib" } << qEnvironmentVariable("LD_LIBRARY_PATH").split(',');
+    for (const auto& search_path : search_paths)
     {
-        for (const auto& libname : { "7z.so", "p7zip/7z.so" })
+        for (const auto& library_name : { "7z.so", "p7zip/7z.so" })
         {
-            const auto candidate = std::filesystem::path{ search_path.toStdString() } / libname;
+            const auto candidate = std::filesystem::path{ search_path.toStdString() } / library_name;
             if (std::filesystem::exists(candidate))
                 return candidate;
         }

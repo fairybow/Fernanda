@@ -24,38 +24,37 @@ ColorBar::ColorBar(QWidget* parent)
 
 void ColorBar::delayedStartUp()
 {
-    QTimer::singleShot(1500, this, [&]() { pastels(); });
-}
-
-void ColorBar::pastels()
-{
-    run(Color::Pastels);
-}
-
-void ColorBar::green()
-{
-    run(Color::Green);
-}
-
-void ColorBar::red()
-{
-    run(Color::Red);
-}
-
-void ColorBar::align(Qt::AlignmentFlag alignment)
-{
-    layout->setAlignment(alignment);
+    QTimer::singleShot(1500, this, [&]() { run(Run::Pastels); });
 }
 
 void ColorBar::toggleSelf(bool checked)
 {
-    hasColorBar = checked;
+    hasSelf = checked;
+    Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::T_ColorBar, checked);
 }
 
-void ColorBar::run(Color theme)
+void ColorBar::setAlignment(QString alignment)
 {
-    if (theme == Color::None) return;
-    if (!hasColorBar) return;
+    (alignment == "Bottom")
+        ? layout->setAlignment(Qt::AlignBottom)
+        : layout->setAlignment(Qt::AlignTop);
+    Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::BarAlign, alignment);
+}
+
+bool ColorBar::hasStartUp()
+{
+    return runOnStartUp;
+}
+
+void ColorBar::toggleStartUp(bool checked)
+{
+    runOnStartUp = checked;
+}
+
+void ColorBar::run(Run theme)
+{
+    if (theme == Run::None) return;
+    if (!hasSelf) return;
     style(theme);
     auto bar_fill = new QTimeLine(125, this);
     connect(bar_fill, &QTimeLine::frameChanged, bar, &QProgressBar::setValue);
@@ -65,17 +64,17 @@ void ColorBar::run(Color theme)
     bar_fill->start();
 }
 
-void ColorBar::style(Color theme)
+void ColorBar::style(Run theme)
 {
     QString style_sheet;
     switch (theme) {
-    case Color::Red:
+    case Run::Red:
         style_sheet = Io::readFile(":/themes/bar/red.qss");
         break;
-    case Color::Green:
+    case Run::Green:
         style_sheet = Io::readFile(":/themes/bar/green.qss");
         break;
-    case Color::Pastels:
+    case Run::Pastels:
         style_sheet = Io::readFile(":/themes/bar/pastels.qss");
         break;
     }

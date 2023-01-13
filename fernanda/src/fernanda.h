@@ -17,7 +17,6 @@
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QFileDialog>
-#include <QGraphicsBlurEffect>
 #include <QJsonDocument>
 #include <QMainWindow>
 #include <QMap>
@@ -27,12 +26,8 @@
 #include <QNetworkReply>
 #include <QShowEvent>
 #include <QShortcut>
-#include <QSizePolicy>
 #include <QSlider>
 #include <QStatusBar>
-#include <QStackedLayout>
-#include <QTextOption>
-#include <QTextTable>
 #include <QUrl>
 #include <QWidgetAction>
 
@@ -56,10 +51,7 @@ private:
     QStatusBar* statusBar = new QStatusBar(this);
     Splitter* splitter = new Splitter(this);
     Pane* pane = new Pane(this);
-    QLabel* shadow = new QLabel(this);
-    QLabel* overlay = new QLabel(this);
-    TextEditor* textEditor = new TextEditor(this);
-    QLabel* underlay = new QLabel(this);
+    Editor* editor = new Editor(this);
     ColorBar* colorBar = new ColorBar(this);
     QActionGroup* windowThemes = new QActionGroup(this);
     QActionGroup* editorThemes = new QActionGroup(this);
@@ -77,10 +69,7 @@ private:
     std::optional<Story> activeStory;
     bool isDev = false;
     bool isInitialized = false;
-    bool hasStartUpBar = true;
-    bool hasWinTheme = true;
-    bool hasTheme = true;
-    bool hasShadow = true;
+    bool hasWindowTheme = true;
 
     enum class Toggle {
         None = 0,
@@ -89,17 +78,12 @@ private:
         Theme,
         WinTheme
     };
-    enum class WinStyle {
-        BaseOnly,
-        WithTheme
-    };
 
     bool confirmStoryClose(bool isQuit = false);
-    void openUd(FsPath path);
+    void openLocalFolder(FsPath path);
     const QStringList devPrintRenames(QVector<Io::ArcRename> renames);
-    const QString ferName(bool dev = false);
+    const QString name(bool dev = false);
     void addWidgets();
-    QWidget* stackWidgets(QVector<QWidget*> widgets);
     void connections();
     void shortcuts();
     void makeMenuBar();
@@ -109,32 +93,61 @@ private:
     void makeToggleMenu();
     void makeHelpMenu();
     void makeDevMenu();
-    QActionGroup* makeViewToggles(QVector<Res::DataPair>& dataLabelPairs, void (Fernanda::* slot)());
     void loadConfigs(FsPath story);
     void loadWinConfigs();
     void loadViewConfig(QVector<QAction*> actions, Ud::ConfigGroup group, Ud::ConfigVal valueType, QVariant fallback);
     void loadMenuToggle(QAction* action, Ud::ConfigGroup group, Ud::ConfigVal valueType, QVariant fallback);
     void openStory(FsPath fileName, Story::Op opt = Story::Op::Normal);
     void actionCycle(QActionGroup* group);
-    const QString windowStyle(WinStyle baseOnly = WinStyle::WithTheme);
     void toggleGlobals(bool& globalBool, Ud::ConfigGroup group, Ud::ConfigVal valueType, bool value, Toggle type = Toggle::None);
     void toggleWidget(QWidget* widget, Ud::ConfigGroup group, Ud::ConfigVal valueType, bool value);
 
+    template<typename T>
+    inline QActionGroup* makeViewToggles(QVector<Res::DataPair>& dataLabelPairs, T slot)
+    {
+        auto group = new QActionGroup(this);
+        for (auto& pair : dataLabelPairs)
+        {
+            auto& data = pair.path;
+            auto label = pair.label.toUtf8();
+            auto action = new QAction(tr(label), this);
+            action->setData(Path::toQString(data));
+            connect(action, &QAction::toggled, this, slot);
+            action->setCheckable(true);
+            group->addAction(action);
+        }
+        group->setExclusive(true);
+        return group;
+    }
+
+    template<typename T>
+    inline T getSetting(QActionGroup* settingsGroup)
+    {
+        T result{};
+        if constexpr (std::is_same<T, int>::value)
+            result = -1;
+        if constexpr (std::is_same<T, QString>::value)
+            result = nullptr;
+        if (auto selection = settingsGroup->checkedAction(); selection != nullptr)
+        {
+            if constexpr (std::is_same<T, int>::value)
+                result = selection->data().toInt();
+            if constexpr (std::is_same<T, QString>::value)
+                result = selection->data().toString();
+        }
+        return result;
+    }
+
 private slots:
     void adjustTitle();
-    void setWindowStyle();
-    void setEditorStyle();
-    void setEditorFont();
-    void handleEditorZoom(TextEditor::Zoom direction);
+    void setStyle();
+    void handleEditorZoom(PlainTextEdit::Zoom direction);
     void aotToggled(bool checked);
-    void setTabStop();
-    void setWrapMode();
-    void setBarAlignment();
-    void fileSave();
-    void helpMakeSampleProject();
-    void helpMakeSampleRes();
-    void helpUpdate();
-    void devWrite(QString name, QString value);
+    void fileMenuSave();
+    void helpMenuMakeSampleProject();
+    void helpMenuMakeSampleRes();
+    void helpMenuUpdate();
+    void devMenuWrite(QString name, QString value);
     void handleEditorOpen(QString key = nullptr);
     void sendEditedText();
     bool replyHasProject();
@@ -143,24 +156,28 @@ private slots:
     void domRename(QString newName, QString key);
     void domCut(QString key);
     void cycleCoreEditorThemes();
-    void triggerOverlay(TextEditor::Overlay state);
 
 signals:
     void sendColorBarToggle(bool checked);
-    void sendLineHighlightToggle(bool checked);
-    void sendKeyfilterToggle(bool checked);
-    void sendLineNumberAreaToggle(bool checked);
-    void sendScrollsToggle(bool checked);
-    void sendExtraScrollsToggle(bool checked);
-    void sendBlockCursorToggle(bool checked);
-    void sendCursorBlinkToggle(bool checked);
-    void sendItems(QVector<QStandardItem*> items);
-    void sendEditsList(QStringList editedFiles);
-    void startAutoTempSave();
+    void sendSetBarAlignment(QString alignment);
+    bool askHasStartUpBar();
+    void toggleStartUpBar(bool checked);
     void updatePositions(const int cursorBlockNumber, const int cursorPosInBlock);
     void updateCounts(const QString text, const int blockCount);
     void updateSelection(const QString selectedText, const int lineCount);
+    void sendLineHighlightToggle(bool checked);
+    void sendKeyfilterToggle(bool checked);
+    void sendBlockCursorToggle(bool checked);
+    void sendCursorBlinkToggle(bool checked);
     void askEditorClose(bool isFinal = false);
+    void sendSetTabStop(int distance);
+    void sendSetWrapMode(QString mode);
+    void sendItems(QVector<QStandardItem*> items);
+    void sendEditsList(QStringList editedFiles);
+    void startAutoTempSave();
+    void sendLineNumberAreaToggle(bool checked);
+    void sendScrollsToggle(bool checked);
+    void sendExtraScrollsToggle(bool checked);
     void storyMenuVisible(bool setVisible);
 };
 

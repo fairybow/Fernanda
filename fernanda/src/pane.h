@@ -4,6 +4,7 @@
 
 #include "delegate.h"
 #include "io.h"
+#include "text.h"
 
 #include <QAbstractItemView>
 #include <QAction>

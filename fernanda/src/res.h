@@ -3,13 +3,10 @@
 #pragma once
 
 #include "path.h"
-#include "uni.h"
 
 #include <algorithm>
 
 #include <QDirIterator>
-#include <QRegularExpressionMatch>
-#include <QRegularExpressionMatchIterator>
 #include <QVector>
 
 namespace Res
@@ -50,20 +47,6 @@ namespace Res
                 return lhs.label < rhs.label;
             });
         return dataAndLabels;
-    }
-
-    inline const QString createStyleSheetFromTheme(QString styleSheet, QString themeSheet)
-    {
-        QRegularExpressionMatchIterator matches = Uni::regex(Uni::Re::ThemeSheetLine).globalMatch(themeSheet);
-        while (matches.hasNext())
-        {
-            QRegularExpressionMatch match = matches.next();
-            if (!match.hasMatch()) continue;
-            QString variable = match.captured(0).replace(Uni::regex(Uni::Re::ThemeSheetValue), nullptr);
-            QString value = match.captured(0).replace(Uni::regex(Uni::Re::ThemeSheetVariable), nullptr);
-            styleSheet.replace(QRegularExpression(variable), value);
-        }
-        return styleSheet;
     }
 }
 

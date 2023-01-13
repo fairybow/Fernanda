@@ -139,7 +139,7 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\editor.cpp">
+    <ClCompile Include="src\plaintextedit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\fernanda.cpp">
@@ -166,13 +166,16 @@
     <ClCompile Include="src\dom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\uni.cpp">
+    <ClCompile Include="src\text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\keyfilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\indicator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -200,7 +203,7 @@
     <ClInclude Include="src\index.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\uni.h">
+    <ClInclude Include="src\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\path.h">
@@ -317,6 +320,15 @@
     <ClInclude Include="src\story.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\icon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\style.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\fernanda.h">
@@ -325,7 +337,7 @@
     <QtMoc Include="src\pane.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\editor.h">
+    <QtMoc Include="src\plaintextedit.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\delegate.h">
@@ -344,6 +356,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\startcop.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\editor.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

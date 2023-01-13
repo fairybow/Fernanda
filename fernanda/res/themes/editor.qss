@@ -1,9 +1,4 @@
-#overlay, #underlay
-{
-	background: @bgColor;
-}
-
-#textEditor
+#editor
 {
 	color: @fontColor;
 	selection-background-color: @selectionBgColor;
@@ -14,4 +9,9 @@
 {
 	background-color: @lnaBg;
 	color: @lnaFont;
+}
+
+#overlay, #underlay
+{
+	background: @bgColor;
 }

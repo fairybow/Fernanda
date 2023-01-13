@@ -143,15 +143,16 @@
     <ClCompile Include="src\archiver.cpp" />
     <ClCompile Include="src\dom.cpp" />
     <ClCompile Include="src\colorbar.cpp" />
+    <ClCompile Include="src\editor.cpp" />
     <ClCompile Include="src\indicator.cpp" />
     <ClCompile Include="src\keyfilter.cpp" />
     <ClCompile Include="src\story.cpp" />
-    <ClCompile Include="src\uni.cpp" />
+    <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\userdata.cpp" />
     <ClCompile Include="src\fernanda.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pane.cpp" />
-    <ClCompile Include="src\editor.cpp" />
+    <ClCompile Include="src\plaintextedit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\resource.rc" />
@@ -194,14 +195,18 @@
     <ClInclude Include="src\archiver.h" />
     <ClInclude Include="src\dom.h" />
     <QtMoc Include="src\indicator.h" />
+    <QtMoc Include="src\editor.h" />
+    <ClInclude Include="src\icon.h" />
     <ClInclude Include="src\index.h" />
     <ClInclude Include="src\keyfilter.h" />
+    <ClInclude Include="src\layout.h" />
     <ClInclude Include="src\path.h" />
     <QtMoc Include="src\splitter.h" />
     <QtMoc Include="src\popup.h" />
     <QtMoc Include="src\startcop.h" />
     <ClInclude Include="src\story.h" />
-    <ClInclude Include="src\uni.h" />
+    <ClInclude Include="src\style.h" />
+    <ClInclude Include="src\text.h" />
     <ClInclude Include="src\version.h" />
     <QtMoc Include="src\fernanda.h" />
     <ClInclude Include="src\io.h" />
@@ -210,7 +215,7 @@
     <QtMoc Include="src\pane.h" />
     <QtMoc Include="src\delegate.h" />
     <ClInclude Include="src\res.h" />
-    <QtMoc Include="src\editor.h" />
+    <QtMoc Include="src\plaintextedit.h" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="res\fonts.qrc" />

@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "icon.h"
 #include "index.h"
-#include "uni.h"
 
 #include <QColor>
 #include <QFont>
@@ -78,12 +78,16 @@ private:
         if (Index::isDir(index))
         {
             (option.state & QStyle::State_Open)
-                ? painter->drawText(geometry.icon, Uni::ico(Uni::Ico::FolderOpen))
-                : painter->drawText(geometry.icon, Uni::ico(Uni::Ico::FolderClosed));
+                ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::FolderOpen))
+                : (Index::hasChildren(index))
+                    ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::Folders))
+                    : painter->drawText(geometry.icon, Icon::draw(Icon::Name::Folder));
         }
         else if (Index::isFile(index))
         {
-            painter->drawText(geometry.icon, Uni::ico(Uni::Ico::File));
+            (Index::hasChildren(index))
+                ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::Files))
+                : painter->drawText(geometry.icon, Icon::draw(Icon::Name::File));
             if (isDirty(Index::key(index)))
             {
                 QFont font = painter->font();
@@ -93,7 +97,7 @@ private:
             }
         }
         else
-            painter->drawText(geometry.icon, Uni::ico(Uni::Ico::QuestionMark));
+            painter->drawText(geometry.icon, Icon::draw(Icon::Name::QuestionMark));
         painter->drawText(geometry.text, name);
         painter->restore();
     }

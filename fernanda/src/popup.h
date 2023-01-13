@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "uni.h"
+#include "text.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -31,7 +31,7 @@ public:
         QMessageBox about;
         about.setStyleSheet(styleSheet);
         about.setWindowTitle("Fernanda");
-        about.setText(Uni::about());
+        about.setText(Text::about());
         about.setIconPixmap(QPixmap(QStringLiteral(":/icons/fernanda_64.png")));
         auto ok = about.addButton(QMessageBox::Ok);
         auto qt = about.addButton(tr("About Qt"), QMessageBox::AcceptRole);
@@ -45,10 +45,10 @@ public:
         QMessageBox alert;
         alert.setStyleSheet(styleSheet);
         alert.setWindowTitle("Hey!");
-        alert.setText(Uni::change(isQuit));
+        alert.setText(Text::change(isQuit));
         alert.addButton(QMessageBox::Yes);
         auto no = alert.addButton(QMessageBox::No);
-        auto save_and = alert.addButton(tr(Uni::saveAndButtons(isQuit).toLocal8Bit()), QMessageBox::ActionRole);
+        auto save_and = alert.addButton(tr(Text::saveAndButtons(isQuit).toLocal8Bit()), QMessageBox::ActionRole);
         alert.setDefaultButton(no);
         alert.exec();
         if (alert.clickedButton() == no)
@@ -64,7 +64,7 @@ public:
         QMessageBox shortcuts;
         shortcuts.setStyleSheet(styleSheet);
         shortcuts.setWindowTitle("Fernanda");
-        shortcuts.setText(Uni::shortcuts());
+        shortcuts.setText(Text::shortcuts());
         auto ok = shortcuts.addButton(QMessageBox::Ok);
         shortcuts.setDefaultButton(ok);
         shortcuts.exec();
@@ -75,21 +75,21 @@ public:
         QMessageBox alert;
         alert.setStyleSheet(styleSheet);
         alert.setWindowTitle("Hey!");
-        alert.setText(Uni::samples());
+        alert.setText(Text::samples());
         auto ok = alert.addButton(QMessageBox::Ok);
-        auto open = alert.addButton(tr(Uni::openUdButton().toLocal8Bit()), QMessageBox::AcceptRole);
+        auto open = alert.addButton(tr(Text::openUdButton().toLocal8Bit()), QMessageBox::AcceptRole);
         alert.setDefaultButton(ok);
         alert.exec();
         if (alert.clickedButton() == open) return Action::Open;
         return Action::Accept;
     }
 
-    static void update(Uni::Version result, QString latestVersion, QString styleSheet = nullptr)
+    static void update(Text::Version result, QString latestVersion, QString styleSheet = nullptr)
     {
         QMessageBox check;
         check.setStyleSheet(styleSheet);
         check.setWindowTitle("Fernanda");
-        check.setText(Uni::version(result, latestVersion));
+        check.setText(Text::version(result, latestVersion));
         check.setIconPixmap(QPixmap(QStringLiteral(":/icons/fernanda_64.png")));
         auto ok = check.addButton(QMessageBox::Ok);
         check.setDefaultButton(ok);

@@ -12,30 +12,22 @@
 	padding-top: 1px;
 }
 
+#editor, #pane
+{
+	border: none;
+}
+
 #indicator
 {
 	padding-left: 1px;
 	padding-right: 1px;
 }
 
-#pane, #textEditor
-{
-	border: none;
-}
-
 #scrollNext, #scrollPrevious
 {
-	width: 15px;
-}
-
-#scrollNext
-{
-	text-decoration: underline;
-}
-
-#scrollPrevious
-{
-	text-decoration: overline;
+	font-size: 11pt;
+	font-weight: 1000;
+	width: 16px;
 }
 
 #hScrollBar:horizontal
@@ -50,5 +42,5 @@
 
 #vScrollBar:vertical
 {
-	width: 15px;
+	width: 16px;
 }

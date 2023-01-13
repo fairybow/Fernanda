@@ -9,7 +9,7 @@
 - [x] ~~Redo Dependency Tree~~
 - [ ] Moveable documents folder
 - [ ] Popup if temps exist on start (but would need to reload last project first, and then check if temps exist?)
-- [ ] Add dialogs to free functions?
+- [x] ~~Add dialogs to free functions? (added class)~~
 - [ ] Move the startup `ColorBar` singleshot to a different window event? `showEvent` doesn't seem to be working for this
 - [ ] Move the `nullptr` checks closer to the functions that create the `nullptr`, if possible (viz., don't wait till the info is sent to `Story` to cancel a nullptr from `Pane renameItem()`)
 - [ ] Combine all the messagebox functions into something that generates most of it as a default config
@@ -146,7 +146,7 @@
 
 ### Sample
 
-### Uni
+### Text
 
 ### Ud
 

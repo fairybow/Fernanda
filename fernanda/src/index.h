@@ -33,6 +33,7 @@ namespace Index
 	inline const QString key(QModelIndex index) { return userRoleData<QString>(index, 1); }
 	inline const QString name(QModelIndex index) { return userRoleData<QString>(index, 2); }
 	inline bool isExpanded(QModelIndex index) { return userRoleData<bool>(index, 3); }
+	inline bool hasChildren(QModelIndex index) { return userRoleData<bool>(index, 4); }
 
 	inline bool isThis(QModelIndex index, QString indexType)
 	{

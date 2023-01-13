@@ -2,96 +2,62 @@
 
 #pragma once
 
-#include "keyfilter.h"
-#include "path.h"
-#include "uni.h"
+#include "plaintextedit.h"
+#include "style.h"
 
-#include <QAbstractSlider>
-#include <QColor>
-#include <QContextMenuEvent>
-#include <QFont>
-#include <QFontDatabase>
-#include <QFontMetrics>
-#include <QLatin1Char>
-#include <QObject>
-#include <QPainter>
-#include <QPaintEvent>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QRect>
-#include <QResizeEvent>
-#include <QScrollBar>
-#include <QShortcut>
-#include <QSize>
-#include <QTextBlock>
-#include <QTextFormat>
-#include <QTextEdit>
+#include <QAction>
+#include <QGraphicsBlurEffect>
+#include <QLabel>
+#include <QSizePolicy>
+#include <Qt>
+#include <QTextOption>
 #include <QTimer>
-#include <QWheelEvent>
-#include <QWidget>
 
-class TextEditor : public QPlainTextEdit
+class Editor : public QWidget
 {
-    using FsPath = std::filesystem::path;
-
     Q_OBJECT
 
 public:
-    TextEditor(QWidget* parent = nullptr);
+    Editor(QWidget* parent);
 
     enum class Action {
         None = 0,
         AcceptNew
     };
-    enum class Overlay {
-        Hide,
-        Show
-    };
-    enum class Scroll {
-        Next,
-        Previous
-    };
-    enum class Zoom {
-        In,
-        Out
-    };
 
-    QString cursorColorHex;
-    QString cursorUnderColorHex;
+    bool hasTheme = true;
+    bool hasShadow = true;
 
     const QStringList devGetCursorPositions();
-    void lineNumberAreaPaintEvent(QPaintEvent* event);
-    int lineNumberAreaWidth();
     Action handleKeySwap(QString oldKey, QString newKey);
     void handleTextSwap(QString key, QString text);
-    int selectedLineCount();
-    void scrollNavClicked(Scroll direction);
-    void handleFont(FsPath fontPath, int size);
+    void setStyle(QAction* selection);
+    void handleFont(QAction* selection, int sliderValue);
+
+    QString toPlainText() const { return plainTextEdit->toPlainText(); }
+    int cursorBlockNumber() const { return plainTextEdit->textCursor().blockNumber(); }
+    int cursorPositionInBlock() const { return plainTextEdit->textCursor().positionInBlock(); }
+    QString selectedText() const { return plainTextEdit->textCursor().selectedText(); }
+    int selectedLineCount() const { return plainTextEdit->selectedLineCount(); }
+    bool hasSelection() const { return plainTextEdit->textCursor().hasSelection(); }
+    int blockCount() const { return plainTextEdit->blockCount(); }
+    void scrollNavClicked(PlainTextEdit::Scroll direction) { plainTextEdit->scrollNavClicked(direction); }
+    void setFocus() { plainTextEdit->setFocus(); }
 
 public slots:
+    void setTabStop(int distance);
+    void setWrapMode(QString mode);
     void toggleLineHighlight(bool checked);
     void toggleKeyfilter(bool checked);
-    void toggleLineNumberArea(bool checked);
-    void toggleScrolls(bool checked);
-    void toggleExtraScrolls(bool checked);
     void toggleBlockCursor(bool checked);
     void toggleCursorBlink(bool checked);
     void close(bool isFinal);
 
-protected:
-    void resizeEvent(QResizeEvent* event) override;
-    void paintEvent(QPaintEvent* event) override;
-    void wheelEvent(QWheelEvent* event) override;
-    void keyPressEvent(QKeyEvent* event) override;
-    void contextMenuEvent(QContextMenuEvent* event) override;
-
 private:
-    Keyfilter* keyfilter = new Keyfilter;
-    QWidget* lineNumberArea;
-    QPushButton* scrollUp = new QPushButton(this);
-    QPushButton* scrollPrevious = new QPushButton(this);
-    QPushButton* scrollNext = new QPushButton(this);
-    QPushButton* scrollDown = new QPushButton(this);
+    PlainTextEdit* plainTextEdit = new PlainTextEdit(this);
+    QLabel* shadow = new QLabel(this);
+    QLabel* overlay = new QLabel(this);
+    QLabel* underlay = new QLabel(this);
     QTimer* cursorBlink = new QTimer(this);
 
     struct CursorPositions {
@@ -109,52 +75,22 @@ private:
     bool hasBlockCursor = true;
     bool cursorVisible = true;
 
-    void keyPresses(QVector<QKeyEvent*> events);
-    const QChar currentChar();
-    const Keyfilter::ProximalChars proximalChars();
-    bool shortcutFilter(QKeyEvent* event);
-    void quoteWrap(QKeyEvent* event);
     void connections();
-    const QRect reshapeCursor(QChar currentChar);
-    const QColor recolorCursor(bool under = false);
-    const QColor highlight();
     void storeCursors(QString key);
     void recallCursors(QString key);
-    void recallUndoStacks(QString key); // WIP
-
-private slots:
-    void updateLineNumberAreaWidth(int newBlockCount);
-    void highlightCurrentLine();
-    void updateLineNumberArea(const QRect& rect, int dy);
 
 signals:
     bool askHasProject();
-    void askFontSliderZoom(Zoom direction);
+    void askFontSliderZoom(PlainTextEdit::Zoom direction);
+    void textChanged();
+    void cursorPositionChanged();
+    void selectionChanged();
+    void startBlinker();
+    void askToggleLineNumberArea(bool checked);
+    void askToggleScrolls(bool checked);
+    void askToggleExtraScrolls(bool checked);
     void askNavPrevious();
     void askNavNext();
-    void startBlinker();
-    void askOverlay(Overlay state);
-    bool askHasOverlay();
-};
-
-class LineNumberArea : public QWidget
-{
-public:
-    LineNumberArea(TextEditor* editor) : QWidget(editor), textEditor(editor) {}
-
-    QSize sizeHint() const override
-    {
-        return QSize(textEditor->lineNumberAreaWidth(), 0);
-    }
-
-protected:
-    void paintEvent(QPaintEvent* event) override
-    {
-        textEditor->lineNumberAreaPaintEvent(event);
-    }
-
-private:
-    TextEditor* textEditor;
 };
 
 // editor.h, Fernanda

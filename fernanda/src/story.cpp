@@ -221,11 +221,13 @@ QStandardItem* Story::items_recursor(QXmlStreamReader& reader)
 	auto key = reader.attributes().value(dom->attrKey).toString();
 	auto name = dom->element<QString>(key, Dom::Element::Name);
 	auto expanded = reader.attributes().value(dom->attrExpanded).toString();
+	auto parent = dom->element<QDomElement>(key).hasChildNodes();
 	auto result = new QStandardItem;
 	result->setData(type, Qt::UserRole);
 	result->setData(key, Qt::UserRole + 1);
 	result->setData(name, Qt::UserRole + 2);
 	result->setData(expanded, Qt::UserRole + 3);
+	result->setData(parent, Qt::UserRole + 4);
 	reader.readNext();
 	while (!reader.isEndElement())
 	{
@@ -296,7 +298,7 @@ bool Story::isEdited(QString key)
 void Story::bak()
 {
 	auto underscore = "_";
-	auto timestamp = Ud::timestamp().replace(Uni::regex(Uni::Re::Forbidden), underscore).replace(Uni::regex(Uni::Re::Space), underscore).replace(Uni::regex(Uni::Re::NewLine), nullptr).toLower();
+	auto timestamp = Ud::timestamp().replace(Text::regex(Text::Re::Forbidden), underscore).replace(Text::regex(Text::Re::Space), underscore).replace(Text::regex(Text::Re::NewLine), nullptr).toLower();
 	timestamp.replace(QRegularExpression("(__)"), underscore).replace(QRegularExpression("(_$)"), nullptr);
 	auto bak_file_name = name<QString>() + ".story." + timestamp + ".bak";
 	auto bak_path = Ud::userData(Ud::Op::GetRollback) / Path::toFs(bak_file_name);

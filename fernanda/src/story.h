@@ -5,7 +5,7 @@
 #include "archiver.h"
 #include "dom.h"
 #include "sample.h"
-#include "uni.h"
+#include "text.h"
 
 #include <QStandardItem>
 #include <QXmlStreamReader>

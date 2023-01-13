@@ -5,47 +5,41 @@
 main
 	- fernanda.h
 		- colorbar.h
-			- io.h
-				- path.h
+			- io.h (+ path.h)
+			- userdata.h (+ path.h)
 		- editor.h
-			- keyfilter.h
-			- path.h
-			- uni.h
-				- version.h
+			- plaintextedit.h
+				- icon.h
+				- keyfilter.h
+				- layout.h
+				- text.h (+ version.h)
+				- userdata.h (+ path.h)
+			- style.h
+				- io.h (+ path.h)
+				- text.h (+ version.h)
 		- indicator.h
-			- uni.h
-				- version.h
+			- text.h (+ version.h)
 		- pane.h
 			- delegate.h
+				- icon.h
 				- index.h
-				- uni.h
-					- version.h
-			- io.h
-				- path.h
+			- io.h (+ path.h)
+			- text.h (+ version.h)
 		- popup.h
-			- uni.h
-				- version.h
+			- text.h (+ version.h)
 		- res.h
 			- path.h
-			- uni.h
-				- version.h
 		- splitter.h
-			- userdata.h
-				- path.h
+			- userdata.h (+ path.h)
 		- story.h
 			- archiver.h
-				- io.h
-					- path.h
-				- userdata.h
-					- path.h
+				- io.h (+ path.h)
+				- userdata.h (+ path.h)
 			- dom.h
-				- io.h
-					- path.h
+				- io.h (+ path.h)
 			- sample.h
-				- io.h
-					- path.h
-			- uni.h
-				- version.h
+				- io.h (+ path.h)
+			- text.h (+ version.h)
 	- startcop.h
 
 ## List
@@ -67,6 +61,7 @@ main
 ### colorbar.h
 ```
 #include "io.h"
+#include "userdata.h"
 
 #include <QProgressBar>
 #include <QTimeLine>
@@ -77,8 +72,8 @@ main
 
 ### delegate.h
 ```
+#include "icon.h"
 #include "index.h"
-#include "uni.h"
 
 #include <QColor>
 #include <QFont>
@@ -104,33 +99,16 @@ main
 
 ### editor.h
 ```
-#include "keyfilter.h"
-#include "path.h"
-#include "uni.h"
+#include "plaintextedit.h"
+#include "style.h"
 
-#include <QAbstractSlider>
-#include <QColor>
-#include <QContextMenuEvent>
-#include <QFont>
-#include <QFontDatabase>
-#include <QFontMetrics>
-#include <QLatin1Char>
-#include <QObject>
-#include <QPainter>
-#include <QPaintEvent>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QRect>
-#include <QResizeEvent>
-#include <QScrollBar>
-#include <QShortcut>
-#include <QSize>
-#include <QTextBlock>
-#include <QTextFormat>
-#include <QTextEdit>
+#include <QAction>
+#include <QGraphicsBlurEffect>
+#include <QLabel>
+#include <QSizePolicy>
+#include <Qt>
+#include <QTextOption>
 #include <QTimer>
-#include <QWheelEvent>
-#include <QWidget>
 ```
 
 ### fernanda.h
@@ -150,7 +128,6 @@ main
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QFileDialog>
-#include <QGraphicsBlurEffect>
 #include <QJsonDocument>
 #include <QMainWindow>
 #include <QMap>
@@ -160,14 +137,15 @@ main
 #include <QNetworkReply>
 #include <QShowEvent>
 #include <QShortcut>
-#include <QSizePolicy>
 #include <QSlider>
 #include <QStatusBar>
-#include <QStackedLayout>
-#include <QTextOption>
-#include <QTextTable>
 #include <QUrl>
 #include <QWidgetAction>
+```
+
+### icon.h
+```
+#include <QString>
 ```
 
 ### index.h
@@ -182,7 +160,7 @@ main
 
 ### indicator.h
 ```
-#include "uni.h"
+#include "text.h"
 
 #include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
@@ -212,10 +190,18 @@ main
 #include <QVector>
 ```
 
+### layout.h
+```
+#include <QStackedLayout>
+#include <QVector>
+#include <QWidget>
+```
+
 ### pane.h
 ```
 #include "delegate.h"
 #include "io.h"
+#include "text.h"
 
 #include <QAbstractItemView>
 #include <QAction>
@@ -242,13 +228,41 @@ main
 #include <qsystemdetection.h>
 
 #include <QDir>
-#include <QFileInfo>
 #include <QString>
+```
+
+### plaintextedit.h
+```
+#include "icon.h"
+#include "keyfilter.h"
+#include "layout.h"
+#include "text.h"
+#include "userdata.h"
+
+#include <QAbstractSlider>
+#include <QColor>
+#include <QContextMenuEvent>
+#include <QFont>
+#include <QFontDatabase>
+#include <QFontMetrics>
+#include <QLatin1Char>
+#include <QObject>
+#include <QPainter>
+#include <QPaintEvent>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QResizeEvent>
+#include <QScrollBar>
+#include <QSize>
+#include <QTextBlock>
+#include <QTextFormat>
+#include <QTextEdit>
+#include <QWheelEvent>
 ```
 
 ### popup.h
 ```
-#include "uni.h"
+#include "text.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -261,14 +275,10 @@ main
 ### res.h
 ```
 #include "path.h"
-#include "uni.h"
 
 #include <algorithm>
 
 #include <QDirIterator>
-#include <QRegularExpressionMatch>
-#include <QRegularExpressionMatchIterator>
-#include <QStringList>
 #include <QVector>
 ```
 
@@ -307,14 +317,23 @@ main
 #include "archiver.h"
 #include "dom.h"
 #include "sample.h"
-#include "uni.h"
+#include "text.h"
 
 #include <QStandardItem>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 ```
 
-### uni.h
+### style.h
+```
+#include "io.h"
+#include "text.h"
+
+#include <QRegularExpressionMatch>
+#include <QRegularExpressionMatchIterator>
+```
+
+### text.h
 ```
 #include "version.h"
 
@@ -327,19 +346,13 @@ main
 ```
 #include "path.h"
 
-#include <filesystem>
-#include <string>
 #include <time.h>
 
-#include <qsystemdetection.h>
-
 #include <QCoreApplication>
-#include <QDir>
 #include <QFile>
 #include <QRect>
 #include <QSettings>
 #include <QStandardPaths>
-#include <QString>
 #include <QStringList>
 #include <QVariant>
 ```

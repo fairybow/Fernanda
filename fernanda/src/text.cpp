@@ -1,60 +1,28 @@
-// uni.cpp, Fernanda
+// text.cpp, Fernanda
 
-#include "uni.h"
+#include "text.h"
 
-const QString Uni::operator%(QString lhs, const char* rhs)
+const QString Text::operator%(QString lhs, const char* rhs)
 {
 	return lhs + QStringLiteral("<p>") + rhs;
 }
 
-const QString Uni::operator%(QString lhs, QString rhs)
+const QString Text::operator%(QString lhs, QString rhs)
 {
 	return lhs + QStringLiteral("<p>") + rhs;
 }
 
-const QString Uni::operator/(QString lhs, const char* rhs)
+const QString Text::operator/(QString lhs, const char* rhs)
 {
 	return lhs + QStringLiteral("<br>") + rhs;
 }
 
-const QString Uni::operator/(QString lhs, QString rhs)
+const QString Text::operator/(QString lhs, QString rhs)
 {
 	return lhs + QStringLiteral("<br>") + rhs;
 }
 
-const QString Uni::ico(Ico name)
-{
-	QString result;
-	switch (name) {
-	case Ico::Balloon:
-		result = QStringLiteral("\U0001F388");
-		break;
-	case Ico::File:
-		result = QStringLiteral("\U0001F4C4");
-		break;
-	case Ico::FolderClosed:
-		result = QStringLiteral("\U0001F4C1");
-		break;
-	case Ico::FolderOpen:
-		result = QStringLiteral("\U0001F4C2");
-		break;
-	case Ico::Pushpin:
-		result = QStringLiteral("\U0001F4CC");
-		break;
-	case Ico::QuestionMark:
-		result = QStringLiteral("\U00002754");
-		break;
-	case Ico::TriangleDown:
-		result = QStringLiteral("\U000025BC");
-		break;
-	case Ico::TriangleUp:
-		result = QStringLiteral("\U000025B2");
-		break;
-	}
-	return result;
-}
-
-const QRegularExpression Uni::regex(Re operation)
+const QRegularExpression Text::regex(Re operation)
 {
 	QRegularExpression result;
 	switch (operation) {
@@ -95,7 +63,7 @@ const QRegularExpression Uni::regex(Re operation)
 	return result;
 }
 
-const QString Uni::multiplyThese(QString character, int defaultArg)
+const QString Text::multiplyThese(QString character, int defaultArg)
 {
 	if (defaultArg < 1)
 		defaultArg = 1;
@@ -105,33 +73,33 @@ const QString Uni::multiplyThese(QString character, int defaultArg)
 	return result;
 }
 
-const QString Uni::spaces(int spaces)
+const QString Text::spaces(int spaces)
 {
 	return multiplyThese(" ", 3);
 }
 
-const QString Uni::newLines(int lines)
+const QString Text::newLines(int lines)
 {
 	return multiplyThese("\n", 2);
 }
 
-const QString Uni::heading(const char* text)
+const QString Text::heading(const char* text)
 {
 	return QStringLiteral("<h3><b>") + text + QStringLiteral("</b></h3>");
 }
 
-const QString Uni::bold(const char* text)
+const QString Text::bold(const char* text)
 {
 	return QStringLiteral("<b>") + text + QStringLiteral("</b>");
 }
 
-const QString Uni::pad(const char* text)
+const QString Text::pad(const char* text)
 {
 	QString padding = spaces();
 	return padding + text + padding;
 }
 
-const QString Uni::table(QStringList columns)
+const QString Text::table(QStringList columns)
 {
 	QString result = QStringLiteral("<table><td>");
 	for (auto& column : columns)
@@ -144,14 +112,14 @@ const QString Uni::table(QStringList columns)
 	return result;
 }
 
-const QString Uni::link(const char* url, QString displayName)
+const QString Text::link(const char* url, QString displayName)
 {
 	if (displayName.isEmpty())
 		displayName = QString(url).replace(regex(Re::UrlBeginning), nullptr);
 	return QStringLiteral("<a href='") + url + QStringLiteral("'>") + displayName + QStringLiteral("</a>");
 }
 
-const QString Uni::change(bool isQuit)
+const QString Text::change(bool isQuit)
 {
 	QString result;
 	auto base = QStringLiteral("You have ") + bold("unsaved changes") + QStringLiteral(". Are you sure you want to ");
@@ -161,19 +129,19 @@ const QString Uni::change(bool isQuit)
 	return result;
 }
 
-const QString Uni::saveAndButtons(bool isQuit)
+const QString Text::saveAndButtons(bool isQuit)
 {
 	if (isQuit)
 		return pad("Save and quit");
 	return pad("Save and change");
 }
 
-const QString Uni::openUdButton()
+const QString Text::openUdButton()
 {
 	return pad("Open the user data folder");
 }
 
-const QString Uni::samples()
+const QString Text::samples()
 {
 	return
 	{
@@ -182,7 +150,7 @@ const QString Uni::samples()
 	};
 }
 
-const QString Uni::menuShortcuts()
+const QString Text::menuShortcuts()
 {
 	return
 	{
@@ -192,7 +160,7 @@ const QString Uni::menuShortcuts()
 	};
 }
 
-const QString Uni::windowShortcuts()
+const QString Text::windowShortcuts()
 {
 	return
 	{
@@ -210,7 +178,7 @@ const QString Uni::windowShortcuts()
 	};
 }
 
-inline const QString Uni::editorShortcuts()
+inline const QString Text::editorShortcuts()
 {
 	return
 	{
@@ -221,22 +189,22 @@ inline const QString Uni::editorShortcuts()
 	};
 }
 
-const QString Uni::shortcuts()
+const QString Text::shortcuts()
 {
 	return heading("Shortcuts") % table({ menuShortcuts(), windowShortcuts(), editorShortcuts() });
 }
 
-const QString Uni::repo()
+const QString Text::repo()
 {
 	return link("https://github.com/fairybow/fernanda");
 }
 
-const QString Uni::releases()
+const QString Text::releases()
 {
 	return link("https://github.com/fairybow/fernanda/releases");
 }
 
-const QString Uni::about()
+const QString Text::about()
 {
 	return
 	{
@@ -249,7 +217,7 @@ const QString Uni::about()
 	};
 }
 
-const QString Uni::version(Version check, QString latestVersion)
+const QString Text::version(Version check, QString latestVersion)
 {
 	QString base =
 	{
@@ -288,4 +256,4 @@ const QString Uni::version(Version check, QString latestVersion)
 	};
 }
 
-// uni.cpp, Fernanda
+// text.cpp, Fernanda

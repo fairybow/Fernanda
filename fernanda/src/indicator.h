@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "uni.h"
+#include "text.h"
 
 #include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>

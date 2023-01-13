@@ -1,12 +1,4 @@
-#overlay, #shadow, #underlay
-{
-	background: transparent;
-	background-image: url(none);
-	background-repeat: repeat-xy;
-	margin-right: 15px;
-}
-
-#textEditor
+#editor
 {
 	background-color: transparent;
 }
@@ -15,4 +7,12 @@
 {
 	background-color: rgba(88, 88, 88, 0.5);
 	color: rgba(255, 255, 255, 1);
+}
+
+#overlay, #shadow, #underlay
+{
+	background: transparent;
+	background-image: url(none);
+	background-repeat: repeat-xy;
+	margin-right: 16px;
 }

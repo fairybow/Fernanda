@@ -3,6 +3,7 @@
 #pragma once
 
 #include "io.h"
+#include "userdata.h"
 
 #include <QProgressBar>
 #include <QTimeLine>
@@ -17,31 +18,31 @@ class ColorBar : public QWidget
 public:
     ColorBar(QWidget* parent = nullptr);
 
-    void delayedStartUp();
-    void pastels();
-    void green();
-    void red();
-    void align(Qt::AlignmentFlag alignment);
-
-public slots:
-    void toggleSelf(bool checked);
-
-private:
-    QProgressBar* bar = new QProgressBar(this);
-    QVBoxLayout* layout = new QVBoxLayout(this);
-    QTimer* barTimer = new QTimer(this);
-
-    enum class Color {
+    enum class Run {
         None = 0,
         Green,
         Red,
         Pastels
     };
 
-    bool hasColorBar = true;
+    void run(Run theme = Run::None);
+    void delayedStartUp();
 
-    void run(Color theme = Color::None);
-    void style(Color theme);
+public slots:
+    void toggleSelf(bool checked);
+    void setAlignment(QString alignment);
+    bool hasStartUp();
+    void toggleStartUp(bool checked);
+
+private:
+    QProgressBar* bar = new QProgressBar(this);
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    QTimer* barTimer = new QTimer(this);
+
+    bool hasSelf = true;
+    bool runOnStartUp = true;
+
+    void style(Run theme);
 };
 
 // colorbar.h, Fernanda

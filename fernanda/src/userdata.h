@@ -4,19 +4,13 @@
 
 #include "path.h"
 
-#include <filesystem>
-#include <string>
 #include <time.h>
 
-#include <qsystemdetection.h>
-
 #include <QCoreApplication>
-#include <QDir>
 #include <QFile>
 #include <QRect>
 #include <QSettings>
 #include <QStandardPaths>
-#include <QString>
 #include <QStringList>
 #include <QVariant>
 
@@ -38,7 +32,7 @@ namespace Ud
         CountWord,
         EditorTheme,
         Font,
-        FontSize,
+        FontSlider,
         PosCol,
         PosLine,
         Position,

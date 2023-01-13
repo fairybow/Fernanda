@@ -9,7 +9,6 @@
 #include <qsystemdetection.h>
 
 #include <QDir>
-#include <QFileInfo>
 #include <QString>
 
 namespace Path

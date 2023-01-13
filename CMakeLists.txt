@@ -28,19 +28,23 @@ qt_add_executable(fernanda
     src/dom.h
     src/editor.h
     src/fernanda.h
+    src/icon.h
     src/index.h
     src/indicator.h
     src/io.h
     src/keyfilter.h
+    src/layout.h
     src/pane.h
     src/path.h
+    src/plaintextedit.h
     src/popup.h
     src/res.h
     src/sample.h
     src/splitter.h
     src/startcop.h
     src/story.h
-    src/uni.h
+    src/style.h
+    src/text.h
     src/userdata.h
     src/version.h
     
@@ -53,8 +57,9 @@ qt_add_executable(fernanda
     src/keyfilter.cpp
     src/main.cpp
     src/pane.cpp
+    src/plaintextedit.cpp
     src/story.cpp
-    src/uni.cpp
+    src/text.cpp
     src/userdata.cpp
     
     res/fonts.qrc

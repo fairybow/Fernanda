@@ -1,4 +1,4 @@
-// uni.h, Fernanda
+// text.h, Fernanda
 
 #pragma once
 
@@ -8,18 +8,8 @@
 #include <QString>
 #include <QStringList>
 
-namespace Uni
+namespace Text
 {
-	enum class Ico {
-		Balloon,
-		File,
-		FolderClosed,
-		FolderOpen,
-		Pushpin,
-		QuestionMark,
-		TriangleDown,
-		TriangleUp
-	};
 	enum class Re {
 		Forbidden,
 		NewLine,
@@ -43,7 +33,6 @@ namespace Uni
 	const QString operator%(QString lhs, QString rhs);
 	const QString operator/(QString lhs, const char* rhs);
 	const QString operator/(QString lhs, QString rhs);
-	const QString ico(Ico name);
 	const QRegularExpression regex(Re operation);
 	const QString multiplyThese(QString character, int defaultArg = 1);
 	const QString spaces(int spaces = 3);
@@ -67,4 +56,4 @@ namespace Uni
 	const QString version(Version check, QString latestVersion);
 }
 
-// uni.h, Fernanda
+// text.h, Fernanda

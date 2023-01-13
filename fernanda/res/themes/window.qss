@@ -132,6 +132,13 @@ QSizeGrip
 	color: @scrollButtonFont;
 }
 
+#scrollUp, #scrollDown
+{
+	font-size: 11pt;
+	font-weight: 1000;
+	width: 16px;
+}
+
 #scrollPrevious:hover, #scrollUp:hover, #scrollDown:hover, #scrollNext:hover
 {
 	background: @scrollButtonHover;
