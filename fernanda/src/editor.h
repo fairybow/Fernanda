@@ -4,6 +4,7 @@
 
 #include "plaintextedit.h"
 #include "style.h"
+#include "userdata.h"
 
 #include <QAction>
 #include <QGraphicsBlurEffect>
@@ -25,10 +26,20 @@ public:
         AcceptNew
     };
 
-    bool hasTheme = true;
-    bool hasShadow = true;
+    enum class Has {
+        BlockCursor,
+        CursorBlink,
+        ExtraScrolls,
+        Keyfilter,
+        LineHighlight,
+        LineNumberArea,
+        Scrolls,
+        Shadow,
+        Theme
+    };
 
     const QStringList devGetCursorPositions();
+    void toggle(bool checked, Has has);
     Action handleKeySwap(QString oldKey, QString newKey);
     void handleTextSwap(QString key, QString text);
     void setStyle(QAction* selection);
@@ -47,10 +58,6 @@ public:
 public slots:
     void setTabStop(int distance);
     void setWrapMode(QString mode);
-    void toggleLineHighlight(bool checked);
-    void toggleKeyfilter(bool checked);
-    void toggleBlockCursor(bool checked);
-    void toggleCursorBlink(bool checked);
     void close(bool isFinal);
 
 private:
@@ -69,6 +76,8 @@ private:
     };
 
     QVector<CursorPositions> cursorPositions;
+    bool hasTheme = true;
+    bool hasShadow = true;
     bool hasLineHighlight = true;
     bool hasKeyfilter = true;
     bool hasCursorBlink = true;
@@ -91,6 +100,7 @@ signals:
     void askToggleExtraScrolls(bool checked);
     void askNavPrevious();
     void askNavNext();
+    QAction* askTheme();
 };
 
 // editor.h, Fernanda

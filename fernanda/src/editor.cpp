@@ -35,6 +35,52 @@ const QStringList Editor::devGetCursorPositions()
     return result;
 }
 
+void Editor::toggle(bool checked, Has has)
+{
+    switch (has) {
+    case Has::BlockCursor:
+        hasBlockCursor = checked;
+        plainTextEdit->cursorPositionChanged();
+        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Cursor, checked);
+        break;
+    case Has::CursorBlink:
+        hasCursorBlink = checked;
+        startBlinker();
+        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_CursorBlink, checked);
+        break;
+    case Has::ExtraScrolls:
+        askToggleExtraScrolls(checked);
+        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Nav, checked);
+        break;
+    case Has::Keyfilter:
+        hasKeyfilter = checked;
+        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Keyfilter, checked);
+        break;
+    case Has::LineHighlight:
+        hasLineHighlight = checked;
+        plainTextEdit->highlightCurrentLine();
+        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_LineHighlight, checked);
+        break;
+    case Has::LineNumberArea:
+        askToggleLineNumberArea(checked);
+        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Lna, checked);
+        break;
+    case Has::Scrolls:
+        askToggleScrolls(checked);
+        break;
+    case Has::Shadow:
+        hasShadow = checked;
+        setStyle(askTheme());
+        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Shadow, checked);
+        break;
+    case Has::Theme:
+        hasTheme = checked;
+        setStyle(askTheme());
+        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_EditorTheme, checked);
+        break;
+    }
+}
+
 Editor::Action Editor::handleKeySwap(QString oldKey, QString newKey)
 {
     if (oldKey == newKey)
@@ -109,33 +155,6 @@ void Editor::setWrapMode(QString mode)
     Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::Wrap, mode);
 }
 
-void Editor::toggleLineHighlight(bool checked)
-{
-    hasLineHighlight = checked;
-    plainTextEdit->highlightCurrentLine();
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_LineHighlight, checked);
-}
-
-void Editor::toggleKeyfilter(bool checked)
-{
-    hasKeyfilter = checked;
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Keyfilter, checked);
-}
-
-void Editor::toggleBlockCursor(bool checked)
-{
-    hasBlockCursor = checked;
-    plainTextEdit->cursorPositionChanged();
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Cursor, checked);
-}
-
-void Editor::toggleCursorBlink(bool checked)
-{
-    hasCursorBlink = checked;
-    startBlinker();
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_CursorBlink, checked);
-}
-
 void Editor::close(bool isFinal)
 {
     plainTextEdit->clear();
@@ -154,7 +173,7 @@ void Editor::connections()
     connect(this, &Editor::startBlinker, this, [&]()
         {
             if (!hasCursorBlink) return;
-            cursorBlink->start(200);
+            cursorBlink->start(100);
         });
     connect(cursorBlink, &QTimer::timeout, this, [&]()
         {

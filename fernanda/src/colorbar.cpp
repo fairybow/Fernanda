@@ -22,33 +22,17 @@ ColorBar::ColorBar(QWidget* parent)
         });
 }
 
-void ColorBar::delayedStartUp()
+void ColorBar::toggle(bool checked, Has has)
 {
-    QTimer::singleShot(1500, this, [&]() { run(Run::Pastels); });
-}
-
-void ColorBar::toggleSelf(bool checked)
-{
-    hasSelf = checked;
-    Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::T_ColorBar, checked);
-}
-
-void ColorBar::setAlignment(QString alignment)
-{
-    (alignment == "Bottom")
-        ? layout->setAlignment(Qt::AlignBottom)
-        : layout->setAlignment(Qt::AlignTop);
-    Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::BarAlign, alignment);
-}
-
-bool ColorBar::hasStartUp()
-{
-    return runOnStartUp;
-}
-
-void ColorBar::toggleStartUp(bool checked)
-{
-    runOnStartUp = checked;
+    switch (has) {
+    case Has::RunOnStartUp:
+        hasRunOnStartUp = checked;
+        break;
+    case Has::Self:
+        hasSelf = checked;
+        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::T_ColorBar, checked);
+        break;
+    }
 }
 
 void ColorBar::run(Run theme)
@@ -62,6 +46,24 @@ void ColorBar::run(Run theme)
     bar->show();
     barTimer->start(1000);
     bar_fill->start();
+}
+
+void ColorBar::delayedStartUp()
+{
+    QTimer::singleShot(1500, this, [&]() { run(Run::Pastels); });
+}
+
+void ColorBar::setAlignment(QString alignment)
+{
+    (alignment == "Bottom")
+        ? layout->setAlignment(Qt::AlignBottom)
+        : layout->setAlignment(Qt::AlignTop);
+    Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::BarAlign, alignment);
+}
+
+bool ColorBar::hasStartUp()
+{
+    return hasRunOnStartUp;
 }
 
 void ColorBar::style(Run theme)

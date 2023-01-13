@@ -5,8 +5,8 @@
 #include "icon.h"
 #include "keyfilter.h"
 #include "layout.h"
+#include "path.h"
 #include "text.h"
-#include "userdata.h"
 
 #include <QAbstractSlider>
 #include <QColor>

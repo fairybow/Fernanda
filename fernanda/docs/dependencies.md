@@ -12,13 +12,15 @@ main
 				- icon.h
 				- keyfilter.h
 				- layout.h
+				- path.h
 				- text.h (+ version.h)
-				- userdata.h (+ path.h)
 			- style.h
 				- io.h (+ path.h)
 				- text.h (+ version.h)
+			- userdata.h (+ path.h)
 		- indicator.h
 			- text.h (+ version.h)
+			- userdata.h (+ path.h)
 		- pane.h
 			- delegate.h
 				- icon.h
@@ -101,6 +103,7 @@ main
 ```
 #include "plaintextedit.h"
 #include "style.h"
+#include "userdata.h"
 
 #include <QAction>
 #include <QGraphicsBlurEffect>
@@ -161,6 +164,7 @@ main
 ### indicator.h
 ```
 #include "text.h"
+#include "userdata.h"
 
 #include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
@@ -228,6 +232,7 @@ main
 #include <qsystemdetection.h>
 
 #include <QDir>
+#include <QtGlobal>
 #include <QString>
 ```
 
@@ -236,8 +241,8 @@ main
 #include "icon.h"
 #include "keyfilter.h"
 #include "layout.h"
+#include "path.h"
 #include "text.h"
-#include "userdata.h"
 
 #include <QAbstractSlider>
 #include <QColor>

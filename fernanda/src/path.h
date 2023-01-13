@@ -9,6 +9,7 @@
 #include <qsystemdetection.h>
 
 #include <QDir>
+#include <QtGlobal>
 #include <QString>
 
 namespace Path
@@ -36,6 +37,21 @@ namespace Path
 		if (sanitize)
 			result.replace(R"(\)", R"(/)");
 		return result;
+	}
+
+	inline void copy(Fs::path fileName, Fs::path newName)
+	{
+
+#if QT_VERSION > QT_VERSION_CHECK(6, 1, 2) // https://bugreports.qt.io/browse/QTBUG-94977
+
+		QFile::copy(fileName, newName);
+
+#else
+
+		QFile::copy(toQString(fileName), toQString(newName));
+
+#endif
+
 	}
 
 #ifdef Q_OS_LINUX

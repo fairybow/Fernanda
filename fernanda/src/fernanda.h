@@ -69,15 +69,7 @@ private:
     std::optional<Story> activeStory;
     bool isDev = false;
     bool isInitialized = false;
-    bool hasWindowTheme = true;
-
-    enum class Toggle {
-        None = 0,
-        Count,
-        Pos,
-        Theme,
-        WinTheme
-    };
+    bool hasTheme = true;
 
     bool confirmStoryClose(bool isQuit = false);
     void openLocalFolder(FsPath path);
@@ -99,7 +91,6 @@ private:
     void loadMenuToggle(QAction* action, Ud::ConfigGroup group, Ud::ConfigVal valueType, QVariant fallback);
     void openStory(FsPath fileName, Story::Op opt = Story::Op::Normal);
     void actionCycle(QActionGroup* group);
-    void toggleGlobals(bool& globalBool, Ud::ConfigGroup group, Ud::ConfigVal valueType, bool value, Toggle type = Toggle::None);
     void toggleWidget(QWidget* widget, Ud::ConfigGroup group, Ud::ConfigVal valueType, bool value);
 
     template<typename T>
@@ -158,26 +149,19 @@ private slots:
     void cycleCoreEditorThemes();
 
 signals:
-    void sendColorBarToggle(bool checked);
-    void sendSetBarAlignment(QString alignment);
+    void askSetBarAlignment(QString alignment);
     bool askHasStartUpBar();
-    void toggleStartUpBar(bool checked);
-    void updatePositions(const int cursorBlockNumber, const int cursorPosInBlock);
-    void updateCounts(const QString text, const int blockCount);
-    void updateSelection(const QString selectedText, const int lineCount);
-    void sendLineHighlightToggle(bool checked);
-    void sendKeyfilterToggle(bool checked);
-    void sendBlockCursorToggle(bool checked);
-    void sendCursorBlinkToggle(bool checked);
+    void askToggleStartUpBar(bool checked);
+    void askToggleScrolls(bool checked);
+    void askUpdatePositions(const int cursorBlockNumber, const int cursorPosInBlock);
+    void askUpdateCounts(const QString text, const int blockCount);
+    void askUpdateSelection(const QString selectedText, const int lineCount);
     void askEditorClose(bool isFinal = false);
     void sendSetTabStop(int distance);
     void sendSetWrapMode(QString mode);
     void sendItems(QVector<QStandardItem*> items);
     void sendEditsList(QStringList editedFiles);
     void startAutoTempSave();
-    void sendLineNumberAreaToggle(bool checked);
-    void sendScrollsToggle(bool checked);
-    void sendExtraScrollsToggle(bool checked);
     void storyMenuVisible(bool setVisible);
 };
 

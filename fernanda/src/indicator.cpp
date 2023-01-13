@@ -25,28 +25,59 @@ Indicator::Indicator(QWidget* parent)
         });
 }
 
+void Indicator::toggle(bool checked, Has has)
+{
+    switch (has) {
+    case Has::CharCount:
+        hasCharCount = checked;
+        askSignalTextChanged();
+        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::CountChar, checked);
+        break;
+    case Has::ColPos:
+        hasColPos = checked;
+        askSignalCursorPositionChanged();
+        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::PosCol, checked);
+        break;
+    case Has::LineCount:
+        hasLineCount = checked;
+        askSignalTextChanged();
+        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::CountLine, checked);
+        break;
+    case Has::LinePos:
+        hasLinePos = checked;
+        askSignalCursorPositionChanged();
+        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::PosLine, checked);
+        break;
+    case Has::WordCount:
+        hasWordCount = checked;
+        askSignalTextChanged();
+        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::CountWord, checked);
+        break;
+    }
+}
+
 void Indicator::updatePositions(const int cursorBlockNumber, const int cursorPosInBlock)
 {
-    if (!hideOrShow(positions, has.linePos, has.colPos)) return;
+    if (!hideOrShow(positions, hasLinePos, hasColPos)) return;
     QStringList elements;
-    if (has.linePos)
+    if (hasLinePos)
         elements << QStringLiteral("ln ") + QString::number(cursorBlockNumber + 1);
-    if (has.colPos)
+    if (hasColPos)
         elements << QStringLiteral("col ") + QString::number(cursorPosInBlock + 1);
     positions->setText(elements.join(QStringLiteral(", ")));
 }
 
 void Indicator::updateCounts(const QString text, const int blockCount)
 {
-    if (!hideOrShow(counts, has.lineCount, has.wordCount, has.charCount)) return;
+    if (!hideOrShow(counts, hasLineCount, hasWordCount, hasCharCount)) return;
     const auto word_count = text.split(Text::regex(Text::Re::Split), Qt::SkipEmptyParts).count();
     const auto char_count = text.count();
     QStringList elements;
-    if (has.lineCount)
+    if (hasLineCount)
         elements << QString::number(blockCount) + QStringLiteral(" lines");
-    if (has.wordCount)
+    if (hasWordCount)
         elements << QString::number(word_count) + QStringLiteral(" words");
-    if (has.charCount)
+    if (hasCharCount)
         elements << QString::number(char_count) + QStringLiteral(" chars");
     counts->setText(elements.join(QStringLiteral(", ")));
 }

@@ -128,17 +128,11 @@ void Fernanda::addWidgets()
 void Fernanda::connections()
 {
     shortcuts();
-    connect(this, &Fernanda::sendColorBarToggle, colorBar, &ColorBar::toggleSelf);
-    connect(this, &Fernanda::sendSetBarAlignment, colorBar, &ColorBar::setAlignment);
+    connect(this, &Fernanda::askSetBarAlignment, colorBar, &ColorBar::setAlignment);
     connect(this, &Fernanda::askHasStartUpBar, colorBar, &ColorBar::hasStartUp);
-    connect(this, &Fernanda::toggleStartUpBar, colorBar, &ColorBar::toggleStartUp);
-    connect(this, &Fernanda::updatePositions, indicator, &Indicator::updatePositions);
-    connect(this, &Fernanda::updateCounts, indicator, &Indicator::updateCounts);
-    connect(this, &Fernanda::updateSelection, indicator, &Indicator::updateSelection);
-    connect(this, &Fernanda::sendLineHighlightToggle, editor, &Editor::toggleLineHighlight);
-    connect(this, &Fernanda::sendKeyfilterToggle, editor, &Editor::toggleKeyfilter);
-    connect(this, &Fernanda::sendBlockCursorToggle, editor, &Editor::toggleBlockCursor);
-    connect(this, &Fernanda::sendCursorBlinkToggle, editor, &Editor::toggleCursorBlink);
+    connect(this, &Fernanda::askUpdatePositions, indicator, &Indicator::updatePositions);
+    connect(this, &Fernanda::askUpdateCounts, indicator, &Indicator::updateCounts);
+    connect(this, &Fernanda::askUpdateSelection, indicator, &Indicator::updateSelection);
     connect(this, &Fernanda::askEditorClose, editor, &Editor::close);
     connect(this, &Fernanda::sendSetTabStop, editor, &Editor::setTabStop);
     connect(this, &Fernanda::sendSetWrapMode, editor, &Editor::setWrapMode);
@@ -157,9 +151,8 @@ void Fernanda::connections()
     connect(pane, &Pane::askSendToEditor, this, &Fernanda::handleEditorOpen);
     connect(pane, &Pane::askTitleCheck, this, &Fernanda::adjustTitle);
     connect(this, &Fernanda::startAutoTempSave, this, [&]() { autoTempSave->start(30000); });
-    connect(this, &Fernanda::sendLineNumberAreaToggle, editor, [&](bool checked) { editor->askToggleLineNumberArea(checked); });
-    connect(this, &Fernanda::sendScrollsToggle, editor, [&](bool checked) { editor->askToggleScrolls(checked); });
-    connect(this, &Fernanda::sendExtraScrollsToggle, editor, [&](bool checked) { editor->askToggleExtraScrolls(checked); });
+    connect(this, &Fernanda::askToggleStartUpBar, colorBar, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::RunOnStartUp); });
+    connect(this, &Fernanda::askToggleScrolls, editor, [&](bool checked) { editor->toggle(checked, Editor::Has::Scrolls); });
     connect(autoTempSave, &QTimer::timeout, this, [&]()
         {
             activeStory.value().autoTempSave(editor->toPlainText());
@@ -168,18 +161,21 @@ void Fernanda::connections()
     connect(editor, &Editor::askNavPrevious, pane, [&]() { pane->nav(Pane::Nav::Previous); });
     connect(editor, &Editor::cursorPositionChanged, this, [&]()
         {
-            updatePositions(editor->cursorBlockNumber(), editor->cursorPositionInBlock());
+            askUpdatePositions(editor->cursorBlockNumber(), editor->cursorPositionInBlock());
         });
     connect(editor, &Editor::textChanged, this, [&]()
         {
-            updateCounts(editor->toPlainText(), editor->blockCount());
+            askUpdateCounts(editor->toPlainText(), editor->blockCount());
         });
     connect(editor, &Editor::selectionChanged, this, [&]()
         {
             (editor->hasSelection())
-                ? updateSelection(editor->selectedText(), editor->selectedLineCount())
+                ? askUpdateSelection(editor->selectedText(), editor->selectedLineCount())
                 : editor->textChanged();
         });
+    connect(editor, &Editor::askTheme, this, [&]() { return editorThemes->checkedAction(); });
+    connect(indicator, &Indicator::askSignalCursorPositionChanged, this, [&]() { editor->cursorPositionChanged(); });
+    connect(indicator, &Indicator::askSignalTextChanged, this, [&]() { editor->textChanged(); });
     connect(manager, &QNetworkAccessManager::finished, this, [](QNetworkReply* reply) { reply->deleteLater(); });
     connect(pane, &Pane::askSetExpansion, this, [&](QString key, bool isExpanded)
         {
@@ -305,7 +301,7 @@ void Fernanda::makeSetMenu()
         Res::DataPair{ "WrapAnywhere", "Wrap anywhere" },
         Res::DataPair{ "WrapAt", "Wrap at word boundaries or anywhere" }
     };
-    barAlignments = makeViewToggles(bar_alignments, [&]() { sendSetBarAlignment(getSetting<QString>(barAlignments)); });
+    barAlignments = makeViewToggles(bar_alignments, [&]() { askSetBarAlignment(getSetting<QString>(barAlignments)); });
     auto toggle_col_pos = new QAction(tr("&Column position"), this);
     auto toggle_line_pos = new QAction(tr("&Line position"), this);
     auto toggle_char_count = new QAction(tr("&Character count"), this);
@@ -324,30 +320,12 @@ void Fernanda::makeSetMenu()
     editorThemes = makeViewToggles(editor_theme_list, [&]() { editor->setStyle(editorThemes->checkedAction()); });
     tabStops = makeViewToggles(tab_list, [&]() { sendSetTabStop(getSetting<int>(tabStops)); });
     wrapModes = makeViewToggles(wrap_list, [&]() { sendSetWrapMode(getSetting<QString>(wrapModes)); });
-    connect(toggle_col_pos, &QAction::toggled, this, [&](bool checked)
-        {
-            toggleGlobals(indicator->has.colPos, Ud::ConfigGroup::Window, Ud::ConfigVal::PosCol, checked, Toggle::Pos);
-        });
-    connect(toggle_line_pos, &QAction::toggled, this, [&](bool checked)
-        {
-            toggleGlobals(indicator->has.linePos, Ud::ConfigGroup::Window, Ud::ConfigVal::PosLine, checked, Toggle::Pos);
-        });
-    connect(toggle_char_count, &QAction::toggled, this, [&](bool checked)
-        {
-            toggleGlobals(indicator->has.charCount, Ud::ConfigGroup::Window, Ud::ConfigVal::CountChar, checked, Toggle::Count);
-        });
-    connect(toggle_line_count, &QAction::toggled, this, [&](bool checked)
-        {
-            toggleGlobals(indicator->has.lineCount, Ud::ConfigGroup::Window, Ud::ConfigVal::CountLine, checked, Toggle::Count);
-        });
-    connect(toggle_word_count, &QAction::toggled, this, [&](bool checked)
-        {
-            toggleGlobals(indicator->has.wordCount, Ud::ConfigGroup::Window, Ud::ConfigVal::CountWord, checked, Toggle::Count);
-        });
-    connect(fontSlider, &QSlider::valueChanged, this, [&](int value)
-        {
-            editor->handleFont(editorFonts->checkedAction(), value);
-        });
+    connect(toggle_col_pos, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::ColPos); });
+    connect(toggle_line_pos, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::LinePos); });
+    connect(toggle_char_count, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::CharCount); });
+    connect(toggle_line_count, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::LineCount); });
+    connect(toggle_word_count, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::WordCount); });
+    connect(fontSlider, &QSlider::valueChanged, this, [&](int value) { editor->handleFont(editorFonts->checkedAction(), value); });
     for (const auto& action : {
         toggle_col_pos,
         toggle_line_pos,
@@ -414,7 +392,7 @@ void Fernanda::makeToggleMenu()
         {
             toggleWidget(aot, Ud::ConfigGroup::Window, Ud::ConfigVal::T_AotBtn, checked);
         });
-    connect(toggle_bar, &QAction::toggled, this, [&](bool checked) { sendColorBarToggle(checked); });
+    connect(toggle_bar, &QAction::toggled, this, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::Self); });
     connect(toggle_indicator, &QAction::toggled, this, [&](bool checked)
         {
             toggleWidget(indicator, Ud::ConfigGroup::Window, Ud::ConfigVal::T_Indicator, checked);
@@ -429,22 +407,18 @@ void Fernanda::makeToggleMenu()
         });
     connect(toggle_win_theme, &QAction::toggled, this, [&](bool checked)
         {
-            toggleGlobals(hasWindowTheme, Ud::ConfigGroup::Window, Ud::ConfigVal::T_WinTheme, checked, Toggle::WinTheme);
+            hasTheme = checked;
+            setStyle();
+            Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::T_WinTheme, checked);
         });
-    connect(toggle_cursor_blink, &QAction::toggled, this, [&](bool checked) { sendCursorBlinkToggle(checked); });
-    connect(toggle_block_cursor, &QAction::toggled, this, [&](bool checked) { sendBlockCursorToggle(checked); });
-    connect(toggle_line_highlight, &QAction::toggled, this, [&](bool checked) { sendLineHighlightToggle(checked); });
-    connect(toggle_shadow, &QAction::toggled, this, [&](bool checked)
-        {
-            toggleGlobals(editor->hasShadow, Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Shadow, checked, Toggle::Theme);
-        });
-    connect(toggle_theme, &QAction::toggled, this, [&](bool checked)
-        {
-            toggleGlobals(editor->hasTheme, Ud::ConfigGroup::Editor, Ud::ConfigVal::T_EditorTheme, checked, Toggle::Theme);
-        });
-    connect(toggle_keyfilter, &QAction::toggled, this, [&](bool checked) { sendKeyfilterToggle(checked); });
-    connect(toggle_line_numbers, &QAction::toggled, this, [&](bool checked) { sendLineNumberAreaToggle(checked); });
-    connect(toggle_scrolls, &QAction::toggled, this, [&](bool checked) { sendExtraScrollsToggle(checked); });
+    connect(toggle_cursor_blink, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorBlink); });
+    connect(toggle_block_cursor, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::BlockCursor); });
+    connect(toggle_line_highlight, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineHighlight); });
+    connect(toggle_shadow, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Shadow); });
+    connect(toggle_theme, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Theme); });
+    connect(toggle_keyfilter, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Keyfilter); });
+    connect(toggle_line_numbers, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineNumberArea); });
+    connect(toggle_scrolls, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::ExtraScrolls); });
     connect(load_recent, &QAction::toggled, this, [&](bool checked)
         {
             Ud::saveConfig(Ud::ConfigGroup::Data, Ud::ConfigVal::T_Lmr, checked); // move to story?
@@ -613,7 +587,7 @@ void Fernanda::loadConfigs(FsPath story)
     auto is_empty = story.empty();
     auto load_most_recent = Ud::loadConfig(Ud::ConfigGroup::Data, Ud::ConfigVal::T_Lmr, false, Ud::Type::Bool).toBool();
     if (load_most_recent || !is_empty)
-        toggleStartUpBar(false);
+        askToggleStartUpBar(false);
     if (!is_empty)
     {
         openStory(story);
@@ -703,28 +677,6 @@ void Fernanda::actionCycle(QActionGroup* group)
         actions.first()->setChecked(true);
 }
 
-void Fernanda::toggleGlobals(bool& globalBool, Ud::ConfigGroup group, Ud::ConfigVal valueType, bool value, Toggle type)
-{
-    globalBool = value;
-    Ud::saveConfig(group, valueType, value);
-    switch (type) {
-    case Toggle::None:
-        break;
-    case Toggle::Count:
-        editor->textChanged();
-        break;
-    case Toggle::Pos:
-        editor->cursorPositionChanged();
-        break;
-    case Toggle::WinTheme:
-        setStyle();
-        break;
-    case Toggle::Theme:
-        editor->setStyle(editorThemes->checkedAction());
-        break;
-    }
-}
-
 void Fernanda::toggleWidget(QWidget* widget, Ud::ConfigGroup group, Ud::ConfigVal valueType, bool value)
 {
     widget->setVisible(value);
@@ -751,9 +703,9 @@ void Fernanda::setStyle()
     if (auto selection = windowThemes->checkedAction(); selection != nullptr)
     {
         auto theme_path = Path::toFs(selection->data());
-        auto window_style = Style::windowStyle(theme_path, hasWindowTheme);
+        auto window_style = Style::windowStyle(theme_path, hasTheme);
         setStyleSheet(window_style);
-        sendScrollsToggle(hasWindowTheme);
+        askToggleScrolls(hasTheme);
         Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::WinTheme, Path::toQString(theme_path));
     }
 }

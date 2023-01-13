@@ -23,11 +23,21 @@
 	padding-right: 1px;
 }
 
+#scrollNext
+{
+	text-decoration: underline;
+}
+
 #scrollNext, #scrollPrevious
 {
-	font-size: 11pt;
-	font-weight: 1000;
+	font-size: 7pt;
+	font-weight: normal;
 	width: 16px;
+}
+
+#scrollPrevious
+{
+	text-decoration: overline;
 }
 
 #hScrollBar:horizontal

@@ -18,6 +18,10 @@ class ColorBar : public QWidget
 public:
     ColorBar(QWidget* parent = nullptr);
 
+    enum class Has {
+        RunOnStartUp,
+        Self
+    };
     enum class Run {
         None = 0,
         Green,
@@ -25,14 +29,13 @@ public:
         Pastels
     };
 
+    void toggle(bool checked, Has has);
     void run(Run theme = Run::None);
     void delayedStartUp();
 
 public slots:
-    void toggleSelf(bool checked);
     void setAlignment(QString alignment);
     bool hasStartUp();
-    void toggleStartUp(bool checked);
 
 private:
     QProgressBar* bar = new QProgressBar(this);
@@ -40,7 +43,7 @@ private:
     QTimer* barTimer = new QTimer(this);
 
     bool hasSelf = true;
-    bool runOnStartUp = true;
+    bool hasRunOnStartUp = true;
 
     void style(Run theme);
 };

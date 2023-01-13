@@ -134,8 +134,8 @@ QSizeGrip
 
 #scrollUp, #scrollDown
 {
-	font-size: 11pt;
-	font-weight: 1000;
+	font-size: 7pt;
+	font-weight: normal;
 	width: 16px;
 }
 

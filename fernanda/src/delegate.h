@@ -85,9 +85,11 @@ private:
         }
         else if (Index::isFile(index))
         {
-            (Index::hasChildren(index))
-                ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::Files))
-                : painter->drawText(geometry.icon, Icon::draw(Icon::Name::File));
+            (option.state & QStyle::State_Open)
+                ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::File))
+                : (Index::hasChildren(index))
+                    ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::Files))
+                    : painter->drawText(geometry.icon, Icon::draw(Icon::Name::File));
             if (isDirty(Index::key(index)))
             {
                 QFont font = painter->font();

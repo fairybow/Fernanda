@@ -143,7 +143,6 @@ void PlainTextEdit::toggleLineNumberArea(bool checked)
 {
     lineNumberArea->setVisible(checked);
     updateLineNumberAreaWidth(0);
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Lna, checked);
 }
 
 void PlainTextEdit::toggleScrolls(bool checked)
@@ -156,7 +155,6 @@ void PlainTextEdit::toggleExtraScrolls(bool checked)
 {
     scrollPrevious->setVisible(checked);
     scrollNext->setVisible(checked);
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Nav, checked);
 }
 
 void PlainTextEdit::resizeEvent(QResizeEvent* event)

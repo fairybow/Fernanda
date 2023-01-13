@@ -3,6 +3,7 @@
 #pragma once
 
 #include "text.h"
+#include "userdata.h"
 
 #include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
@@ -16,13 +17,15 @@ class Indicator : public QWidget
 public:
     Indicator(QWidget* parent = nullptr);
 
-    struct Has {
-        bool linePos = true;
-        bool colPos = true;
-        bool lineCount = true;
-        bool wordCount = true;
-        bool charCount = true;
-    } has;
+    enum class Has {
+        CharCount,
+        ColPos,
+        LineCount,
+        LinePos,
+        WordCount
+    };
+
+    void toggle(bool checked, Has has);
 
 public slots:
     void updatePositions(const int cursorBlockNumber, const int cursorPosInBlock);
@@ -35,11 +38,19 @@ private:
     QLabel* separator = new QLabel(this);
     QLabel* counts = new QLabel(this);
 
+    bool hasLinePos = true;
+    bool hasColPos = true;
+    bool hasLineCount = true;
+    bool hasWordCount = true;
+    bool hasCharCount = true;
+
     bool hideOrShow(QLabel* label, bool feature1, bool feature2, bool feature3 = false);
     QGraphicsOpacityEffect* opacity(double qreal);
 
 signals:
     void toggled();
+    void askSignalTextChanged();
+    void askSignalCursorPositionChanged();
 };
 
 // indicator.h, Fernanda

@@ -26,16 +26,16 @@ namespace Icon
 		QString result;
 		switch (name) {
 		case Name::ArrowDown:
-			result = QStringLiteral("\U000023F7");
+			result = QStringLiteral("\U000025BC");
 			break;
 		case Name::ArrowNext:
-			result = QStringLiteral("\U000023F7");
+			result = QStringLiteral("\U000025BC");
 			break;
 		case Name::ArrowPrevious:
-			result = QStringLiteral("\U000023F6");
+			result = QStringLiteral("\U000025B2");
 			break;
 		case Name::ArrowUp:
-			result = QStringLiteral("\U000023F6");
+			result = QStringLiteral("\U000025B2");
 			break;
 		case Name::Balloon:
 			result = QStringLiteral("\U0001F388");
