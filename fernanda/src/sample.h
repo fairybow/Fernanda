@@ -48,7 +48,7 @@ namespace Sample
 			auto qf_target = QFile(target);
 			if (qf_target.exists())
 				qf_target.moveToTrash();
-			Fs::copy_file(source, target);
+			QFile::copy(source, target);
 			qf_target.setPermissions(QFile::ReadUser | QFile::WriteUser);
 		}
 	}

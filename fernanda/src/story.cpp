@@ -305,7 +305,7 @@ void Story::bak()
 	auto qf_bak = QFile(bak_path);
 	if (qf_bak.exists())
 		qf_bak.moveToTrash();
-	std::filesystem::copy_file(activeArcPath, bak_path);
+	QFile::copy(activeArcPath, bak_path);
 }
 
 // story.cpp, Fernanda

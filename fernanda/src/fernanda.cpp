@@ -312,7 +312,10 @@ void Fernanda::makeSetMenu()
     auto toggle_line_count = new QAction(tr("&Line count"), this);
     auto toggle_word_count = new QAction(tr("&Word count"), this);
     windowThemes = makeViewToggles(win_theme_list, &Fernanda::setStyle);
-    editorFonts = makeViewToggles(font_list, [&]() { editor->handleFont(editorFonts->checkedAction(), fontSlider->value()); });
+    editorFonts = makeViewToggles(font_list, [&]()
+        {
+            editor->handleFont(editorFonts->checkedAction(), fontSlider->value());
+        });
     auto font_size_label = new QAction(tr("&Editor font size:"), this);
     auto font_size = new QWidgetAction(this);
     font_size->setDefaultWidget(fontSlider);
@@ -344,7 +347,6 @@ void Fernanda::makeSetMenu()
     connect(fontSlider, &QSlider::valueChanged, this, [&](int value)
         {
             editor->handleFont(editorFonts->checkedAction(), value);
-            Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::FontSlider, value);
         });
     for (const auto& action : {
         toggle_col_pos,
@@ -362,9 +364,8 @@ void Fernanda::makeSetMenu()
     loadMenuToggle(toggle_line_count, Ud::ConfigGroup::Window, Ud::ConfigVal::CountLine, true);
     loadMenuToggle(toggle_word_count, Ud::ConfigGroup::Window, Ud::ConfigVal::CountWord, true);
     loadViewConfig(windowThemes->actions(), Ud::ConfigGroup::Window, Ud::ConfigVal::WinTheme, ":/themes/window/Light.fernanda_wintheme");
-    loadViewConfig(editorFonts->actions(), Ud::ConfigGroup::Editor, Ud::ConfigVal::Font, "Cascadia Mono");
-    auto value = Ud::loadConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::FontSlider, 14, Ud::Type::Int).toInt();
-    fontSlider->setValue(value);
+    fontSlider->setValue(Ud::loadConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::FontSlider, 16, Ud::Type::Int).toInt());
+    loadViewConfig(editorFonts->actions(), Ud::ConfigGroup::Editor, Ud::ConfigVal::Font, ":/fonts/Cascadia Mono.ttf");
     loadViewConfig(editorThemes->actions(), Ud::ConfigGroup::Editor, Ud::ConfigVal::EditorTheme, ":/themes/editor/Amber.fernanda_theme");
     loadViewConfig(tabStops->actions(), Ud::ConfigGroup::Editor, Ud::ConfigVal::TabStop, "40");
     loadViewConfig(wrapModes->actions(), Ud::ConfigGroup::Editor, Ud::ConfigVal::Wrap, "WrapAt");

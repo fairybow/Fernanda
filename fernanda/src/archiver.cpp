@@ -16,7 +16,7 @@ void Archiver::create(FsPath arcPath, QVector<Io::ArcWRPaths> wRPaths)
 		else
 		{
 			Path::makeDirs(temp_w_path.parent_path());
-			std::filesystem::copy_file(entry.readFullPath.value(), temp_w_path);
+			QFile::copy(entry.readFullPath.value(), temp_w_path);
 			QFile(temp_w_path).setPermissions(QFile::ReadUser | QFile::WriteUser);
 		}
 	}

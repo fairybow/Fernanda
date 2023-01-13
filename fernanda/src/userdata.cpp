@@ -248,7 +248,7 @@ const std::string Ud::dll()
 {
     auto dll_path = userData(Op::GetDLL) / "7z.dll";
     if (!QFile(dll_path).exists())
-        Fs::copy_file(Fs::path(":/lib/7zip/7z64.dll"), dll_path);
+        QFile::copy(Fs::path(":/lib/7zip/7z64.dll"), dll_path);
     return dll_path.string();
 }
 

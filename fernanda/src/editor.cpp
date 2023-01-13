@@ -19,6 +19,7 @@ Editor::Editor(QWidget* parent)
     shadow->setObjectName(QStringLiteral("shadow"));
     overlay->setObjectName(QStringLiteral("overlay"));
     underlay->setObjectName(QStringLiteral("underlay"));
+    connections();
 }
 
 const QStringList Editor::devGetCursorPositions()
@@ -79,6 +80,7 @@ void Editor::handleFont(QAction* selection, int sliderValue)
     auto path = selection->data();
     plainTextEdit->handleFont(Path::toFs(path), sliderValue);
     Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::Font, path);
+    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::FontSlider, sliderValue);
 }
 
 void Editor::setTabStop(int distance)
