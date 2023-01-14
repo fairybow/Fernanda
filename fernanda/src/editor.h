@@ -6,9 +6,9 @@
 #include "style.h"
 #include "userdata.h"
 
-#include <QAction>
 #include <QGraphicsBlurEffect>
 #include <QLabel>
+#include <QShortcut>
 #include <QSizePolicy>
 #include <Qt>
 #include <QTextOption>
@@ -85,8 +85,10 @@ private:
     bool cursorVisible = true;
 
     void connections();
+    void shortcuts();
     void storeCursors(QString key);
     void recallCursors(QString key);
+    void cycleCoreThemes();
 
 signals:
     bool askHasProject();
@@ -101,6 +103,8 @@ signals:
     void askNavPrevious();
     void askNavNext();
     QAction* askTheme();
+    QActionGroup* askThemes();
+    QActionGroup* askFonts();
 };
 
 // editor.h, Fernanda

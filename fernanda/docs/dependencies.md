@@ -105,9 +105,9 @@
 #include "style.h"
 #include "userdata.h"
 
-#include <QAction>
 #include <QGraphicsBlurEffect>
 #include <QLabel>
+#include <QShortcut>
 #include <QSizePolicy>
 #include <Qt>
 #include <QTextOption>
@@ -126,7 +126,6 @@
 #include "story.h"
 
 #include <QAbstractButton>
-#include <QActionGroup>
 #include <QCloseEvent>
 #include <QCoreApplication>
 #include <QDesktopServices>
@@ -139,7 +138,6 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QShowEvent>
-#include <QShortcut>
 #include <QSlider>
 #include <QStatusBar>
 #include <QUrl>
@@ -334,6 +332,8 @@
 #include "io.h"
 #include "text.h"
 
+#include <QAction>
+#include <QActionGroup>
 #include <QRegularExpressionMatch>
 #include <QRegularExpressionMatchIterator>
 ```

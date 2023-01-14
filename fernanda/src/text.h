@@ -37,6 +37,7 @@ namespace Text
 	const QString multiplyThese(QString character, int defaultArg = 1);
 	const QString spaces(int spaces = 3);
 	const QString newLines(int lines = 2);
+	const QString tableColumnSpacing(int columns = 9);
 	const QString heading(const char* text);
 	const QString bold(const char* text);
 	const QString pad(const char* text);
@@ -47,8 +48,7 @@ namespace Text
 	const QString openUdButton();
 	const QString samples();
 	const QString menuShortcuts();
-	const QString windowShortcuts();
-	const QString editorShortcuts();
+	const QString windowEditorShortcuts();
 	const QString shortcuts();
 	const QString repo();
 	const QString releases();

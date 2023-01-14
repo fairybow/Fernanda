@@ -8,6 +8,7 @@ Fernanda::Fernanda(bool dev, FsPath story, QWidget* parent)
     Ud::setName(name(dev));
     addWidgets();
     connections();
+    shortcuts();
     Ud::userData();
     makeMenuBar();
     loadConfigs(story);
@@ -127,7 +128,6 @@ void Fernanda::addWidgets()
 
 void Fernanda::connections()
 {
-    shortcuts();
     connect(this, &Fernanda::askSetBarAlignment, colorBar, &ColorBar::setAlignment);
     connect(this, &Fernanda::askHasStartUpBar, colorBar, &ColorBar::hasStartUp);
     connect(this, &Fernanda::askUpdatePositions, indicator, &Indicator::updatePositions);
@@ -139,7 +139,7 @@ void Fernanda::connections()
     connect(this, &Fernanda::sendItems, pane, &Pane::receiveItems);
     connect(this, &Fernanda::sendEditsList, pane, &Pane::receiveEditsList);
     connect(aot, &QPushButton::toggled, this, &Fernanda::aotToggled);
-    connect(editor, &Editor::askFontSliderZoom, this, &Fernanda::handleEditorZoom);
+    connect(editor, &Editor::askFontSliderZoom, this, &Fernanda::handleFontSlider);
     connect(editor, &Editor::askHasProject, this, &Fernanda::replyHasProject);
     connect(editor, &Editor::textChanged, this, &Fernanda::sendEditedText);
     connect(editor, &Editor::textChanged, this, &Fernanda::adjustTitle);
@@ -174,6 +174,8 @@ void Fernanda::connections()
                 : editor->textChanged();
         });
     connect(editor, &Editor::askTheme, this, [&]() { return editorThemes->checkedAction(); });
+    connect(editor, &Editor::askThemes, this, [&]() { return editorThemes; });
+    connect(editor, &Editor::askFonts, this, [&]() { return editorFonts; });
     connect(indicator, &Indicator::askSignalCursorPositionChanged, this, [&]() { editor->cursorPositionChanged(); });
     connect(indicator, &Indicator::askSignalTextChanged, this, [&]() { editor->textChanged(); });
     connect(manager, &QNetworkAccessManager::finished, this, [](QNetworkReply* reply) { reply->deleteLater(); });
@@ -185,44 +187,9 @@ void Fernanda::connections()
 
 void Fernanda::shortcuts()
 {
-    auto cycle_core_themes = new QShortcut(Qt::Key_F11, this);
-    auto cycle_fonts = new QShortcut(Qt::ALT | Qt::Key_F10, this);
-    auto cycle_editor_themes = new QShortcut(Qt::ALT | Qt::Key_F11, this);
     auto cycle_window_themes = new QShortcut(Qt::ALT | Qt::Key_F12, this);
-    auto nav_previous = new QShortcut(Qt::ALT | Qt::Key_Insert, this);
-    auto nav_next = new QShortcut(Qt::ALT | Qt::Key_Delete, this);
-    auto zoom_out = new QShortcut(Qt::ALT | Qt::Key_Minus, this);
-    auto zoom_in = new QShortcut(Qt::ALT | Qt::Key_Equal, this);
-    connect(cycle_core_themes, &QShortcut::activated, this, &Fernanda::cycleCoreEditorThemes);
-    connect(cycle_fonts, &QShortcut::activated, this, [&]() { actionCycle(editorFonts); });
-    connect(cycle_editor_themes, &QShortcut::activated, this, [&]() { actionCycle(editorThemes); });
-    connect(cycle_window_themes, &QShortcut::activated, this, [&]() { actionCycle(windowThemes); });
-    connect(nav_previous, &QShortcut::activated, this, [&]()
-        {
-            editor->scrollNavClicked(PlainTextEdit::Scroll::Previous);
-        });
-    connect(nav_next, &QShortcut::activated, this, [&]()
-        {
-            editor->scrollNavClicked(PlainTextEdit::Scroll::Next);
-        });
-    connect(zoom_out, &QShortcut::activated, this, [&]()
-        {
-            handleEditorZoom(PlainTextEdit::Zoom::Out);
-        });
-    connect(zoom_in, &QShortcut::activated, this, [&]()
-        {
-            handleEditorZoom(PlainTextEdit::Zoom::In);
-        });
-    for (const auto& shortcut : {
-        cycle_core_themes,
-        cycle_fonts,
-        cycle_editor_themes,
-        cycle_window_themes,
-        nav_previous,
-        nav_next,
-        zoom_out,
-        zoom_in
-        })
+    connect(cycle_window_themes, &QShortcut::activated, this, [&]() { Style::actionCycle(windowThemes); });
+    for (const auto& shortcut : { cycle_window_themes })
         shortcut->setAutoRepeat(false);
 }
 
@@ -655,28 +622,6 @@ void Fernanda::openStory(FsPath fileName, Story::Op opt)
     Ud::saveConfig(Ud::ConfigGroup::Data, Ud::ConfigVal::Project, Path::toQString(fileName));
 }
 
-void Fernanda::actionCycle(QActionGroup* group)
-{
-    auto actions = group->actions();
-    auto current_theme = group->checkedAction();
-    if (current_theme != actions.last())
-    {
-        auto set_next = false;
-        for (auto& action : actions)
-        {
-            if (set_next)
-            {
-                action->setChecked(true);
-                break;
-            }
-            if (action == current_theme)
-                set_next = true;
-        }
-    }
-    else
-        actions.first()->setChecked(true);
-}
-
 void Fernanda::toggleWidget(QWidget* widget, Ud::ConfigGroup group, Ud::ConfigVal valueType, bool value)
 {
     widget->setVisible(value);
@@ -710,7 +655,7 @@ void Fernanda::setStyle()
     }
 }
 
-void Fernanda::handleEditorZoom(PlainTextEdit::Zoom direction)
+void Fernanda::handleFontSlider(PlainTextEdit::Zoom direction)
 {
     switch (direction) {
     case PlainTextEdit::Zoom::In:
@@ -864,32 +809,6 @@ void Fernanda::domCut(QString key)
         return;
     }
     askEditorClose();
-}
-
-void Fernanda::cycleCoreEditorThemes()
-{
-
-    auto actions = editorThemes->actions();
-    auto current_theme = editorThemes->checkedAction();
-    auto text = current_theme->text();
-    auto break_it = false;
-    auto theme_1 = QStringLiteral("Amber");
-    auto theme_2 = QStringLiteral("Green");
-    for (auto& action : actions)
-    {
-        auto action_text = action->text();
-        if (text != theme_1 && text != theme_2 && action_text == theme_1)
-            break_it = true;
-        else if (text == theme_1 && action_text == theme_2)
-            break_it = true;
-        else if (text == theme_2 && action_text == QStringLiteral("Grey"))
-            break_it = true;
-        if (break_it)
-        {
-            action->setChecked(true);
-            break;
-        }
-    }
 }
 
 // fernanda.cpp, Fernanda

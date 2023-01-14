@@ -75,12 +75,17 @@ const QString Text::multiplyThese(QString character, int defaultArg)
 
 const QString Text::spaces(int spaces)
 {
-	return multiplyThese(" ", 3);
+	return multiplyThese(" ", spaces);
 }
 
 const QString Text::newLines(int lines)
 {
-	return multiplyThese("\n", 2);
+	return multiplyThese("\n", lines);
+}
+
+const QString Text::tableColumnSpacing(int columns)
+{
+	return multiplyThese("<td>\n</td>", columns);
 }
 
 const QString Text::heading(const char* text)
@@ -104,10 +109,10 @@ const QString Text::table(QStringList columns)
 	QString result = QStringLiteral("<table><td>");
 	for (auto& column : columns)
 	{
-		if (column != columns.last())
-			result.append(column).append(QStringLiteral("</td><td>\n</td><td>"));
-		else
-			result.append(column).append(QStringLiteral("</td><table>"));
+		result.append(column).append(QStringLiteral("</td>") + tableColumnSpacing());
+		(column != columns.last())
+			? result.append(QStringLiteral("<td>"))
+			: result.append(QStringLiteral("</table>"));
 	}
 	return result;
 }
@@ -160,11 +165,11 @@ const QString Text::menuShortcuts()
 	};
 }
 
-const QString Text::windowShortcuts()
+const QString Text::windowEditorShortcuts()
 {
 	return
 	{
-		bold("Window:") %
+		bold("Window/Editor:") %
 		QStringLiteral("F11: Cycle editor themes (Amber, Green, Grey)") /
 		QStringLiteral("Alt + F10: Cycle fonts") /
 		QStringLiteral("Alt + F11: Cycle editor themes (all)") /
@@ -174,15 +179,7 @@ const QString Text::windowShortcuts()
 		QStringLiteral("Alt + Minus (-) /") /
 		QStringLiteral("Ctrl + Mouse Wheel Down: Decrease font size") /
 		QStringLiteral("Alt + Plus (+) /") /
-		QStringLiteral("Ctrl + Mouse Wheel Up: Increase font size")
-	};
-}
-
-inline const QString Text::editorShortcuts()
-{
-	return
-	{
-		bold("Editor:") %
+		QStringLiteral("Ctrl + Mouse Wheel Up: Increase font size") /
 		QStringLiteral("Ctrl + Y: Redo") /
 		QStringLiteral("Ctrl + Z: Undo") /
 		QStringLiteral("Ctrl + Shift + C: Wrap selection or block in quotes")
@@ -191,7 +188,7 @@ inline const QString Text::editorShortcuts()
 
 const QString Text::shortcuts()
 {
-	return heading("Shortcuts") % table({ menuShortcuts(), windowShortcuts(), editorShortcuts() });
+	return heading("Shortcuts") % table({ menuShortcuts(), windowEditorShortcuts() });
 }
 
 const QString Text::repo()

@@ -5,6 +5,8 @@
 #include "io.h"
 #include "text.h"
 
+#include <QAction>
+#include <QActionGroup>
 #include <QRegularExpressionMatch>
 #include <QRegularExpressionMatchIterator>
 
@@ -65,6 +67,28 @@ namespace Style
             style_sheet = style_sheet + Text::newLines() + createStyleSheetFromTheme(Io::readFile(":/themes/window.qss"), theme_sheet);
         }
         return style_sheet;
+    }
+
+    inline void actionCycle(QActionGroup* group)
+    {
+        auto actions = group->actions();
+        auto current_theme = group->checkedAction();
+        if (current_theme != actions.last())
+        {
+            auto set_next = false;
+            for (auto& action : actions)
+            {
+                if (set_next)
+                {
+                    action->setChecked(true);
+                    break;
+                }
+                if (action == current_theme)
+                    set_next = true;
+            }
+        }
+        else
+            actions.first()->setChecked(true);
     }
 }
 

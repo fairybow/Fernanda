@@ -12,7 +12,6 @@
 #include "story.h"
 
 #include <QAbstractButton>
-#include <QActionGroup>
 #include <QCloseEvent>
 #include <QCoreApplication>
 #include <QDesktopServices>
@@ -25,7 +24,6 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QShowEvent>
-#include <QShortcut>
 #include <QSlider>
 #include <QStatusBar>
 #include <QUrl>
@@ -90,7 +88,6 @@ private:
     void loadViewConfig(QVector<QAction*> actions, Ud::ConfigGroup group, Ud::ConfigVal valueType, QVariant fallback);
     void loadMenuToggle(QAction* action, Ud::ConfigGroup group, Ud::ConfigVal valueType, QVariant fallback);
     void openStory(FsPath fileName, Story::Op opt = Story::Op::Normal);
-    void actionCycle(QActionGroup* group);
     void toggleWidget(QWidget* widget, Ud::ConfigGroup group, Ud::ConfigVal valueType, bool value);
 
     template<typename T>
@@ -132,7 +129,7 @@ private:
 private slots:
     void adjustTitle();
     void setStyle();
-    void handleEditorZoom(PlainTextEdit::Zoom direction);
+    void handleFontSlider(PlainTextEdit::Zoom direction);
     void aotToggled(bool checked);
     void fileMenuSave();
     void helpMenuMakeSampleProject();
@@ -146,7 +143,6 @@ private slots:
     void domAdd(QString newName, Path::Type type, QString parentKey);
     void domRename(QString newName, QString key);
     void domCut(QString key);
-    void cycleCoreEditorThemes();
 
 signals:
     void askSetBarAlignment(QString alignment);
