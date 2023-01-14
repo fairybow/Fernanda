@@ -217,7 +217,7 @@ const QString Text::about()
 	};
 }
 
-const QString Text::version(Version check, QString latestVersion)
+const QString Text::version(VersionCheck check, QString latestVersion)
 {
 	QString base =
 	{
@@ -227,7 +227,7 @@ const QString Text::version(Version check, QString latestVersion)
 	};
 	QString message;
 	switch (check) {
-	case Version::Error:
+	case VersionCheck::Error:
 		message =
 		{
 			QStringLiteral("Unable to verify version.") %
@@ -235,10 +235,10 @@ const QString Text::version(Version check, QString latestVersion)
 			releases()
 		};
 		break;
-	case Version::Latest:
+	case VersionCheck::Latest:
 		message = QStringLiteral("You have the latest version.");
 		break;
-	case Version::Old:
+	case VersionCheck::Old:
 		message =
 		{
 			bold("New version:") /

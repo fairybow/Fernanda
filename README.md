@@ -1,4 +1,4 @@
-# <img src="fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
+# <img src="fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda <a name="top"></a>
 
 <p align="center">
 	<kbd>
@@ -13,11 +13,22 @@
 	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-6.4.1-brightgreen?logo=qt" alt="Qt: 6.4.1"/></a>
 	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-4.0.0_beta-blue" alt="Bit7z: 4.0.0-beta"/></a>
 	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip-22.01-ffbf00" alt="7zip: 22.01"/></a>
+	<a href="https://github.com/fairybow/fernanda/search?l=c%2B%2B"><img src="https://img.shields.io/badge/20-5B5B5B?logo=c%2B%2B" alt="C++20"/></a>
 </p>
 
-## :tea: **Hello**
+## :tea: **Hello** <a name="hello"></a>
 
 Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+
+- [About](#about)
+- [Roadmap](#roadmap)
+- [Build](#build)
+- [Features](#features)
+- [Installation](#install)
+- [Thanks](#thanks)
+- [Bye](#bye)
+
+## :heartpulse: **About** <a name="about"></a>
 
 This is a personal project, a work-in-progress, and I am *so* not a programmer. Still, I decided I didn't like existing novel-writing software very much, and I wanted to make something all my own. My hope is that it's easy to use, lightly-customizable, and distraction-free, for faster, more peaceful drafting.
 
@@ -25,7 +36,9 @@ Fernanda's look was inspired by the good, quiet feeling of using [WordStar](http
 
 Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
 
-## :compass: **Roadmap**
+[&#9166;](#top)
+
+## :compass: **Roadmap** <a name="roadmap"></a>
 
 - [Releases (Windows x64)](https://github.com/fairybow/fernanda/releases)
 
@@ -47,7 +60,9 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 
 More to come.
 
-## :honeybee: **Build**
+[&#9166;](#top)
+
+## :honeybee: **Build** <a name="build"></a>
 
 Fernanda is built with:
 - C++
@@ -74,19 +89,61 @@ Among the fonts used are:
 
 Solarized theme palettes by [@altercation](https://github.com/altercation/solarized)
 
-## :star: **Features**
+[&#9166;](#top)
 
-Fernanda's `.story` files are 7-zip (`.7z`, non-compressed) archives. They can be associated with Fernanda and then opened in the usual ways. However, they can also be opened with [7-zip](https://www.7-zip.org/), and the contents copied elsewhere. If you want to rename, move, or delete items within a `.story` project file, be sure to delete `story.xml` so that it can be recreated with the new paths. You will, however, lose any parentings/reorderings that are at the same directory level (like a file parented by another file).
+## :star: **Features** <a name="features"></a>
 
-Fernanda also incorporates whatever `.ttf` and `.otf` fonts that you put in the user folder, along with custom themes (example themes can be created via the `Help` menu).
+General:
+- Most things are togglable
+- Settings are auto-saved
+- Incorporation of custom themes and fonts (`.ttf` and `.otf`)
+- Examples (project and custom themes and font) available via the `Help` menu
+- Save backups (in [`{userdata}\backup\.rollback`](#folders))
 
-## :smiley_cat: **Thanks**
+Keyfilters:
+- Auto-closing for `"", (), {}, []`
+- When cursor is position between auto-closed items, 2 spaces will skip the cursor past the closing item and close the gap
+- Auto em-/en-dash formatting from hyphen/minus key
+
+Shortcuts:
+- `Ctrl + Shift + C` wraps a selection or block in quotes
+
+Story files:
+- They're 7-zip (`.7z`, non-compressed) archives
+- They'll be associated with Fernanda by the installer and can be opened in the usual ways
+- They can also be opened with [7-zip](https://www.7-zip.org/), and the contents viewed and/or copied elsewhere
+- Items deleted (cut) within Fernanda are moved to a `.cut` folder within the `.story` archive
+
+If you want to manually rename, move, or delete items within a `.story` file via 7-zip, be sure to delete `story.xml`, too, so that it can be remade on next open. (You will lose any reorderings that are at the same directory level, as well as same-level, file-on-file parenting).
+
+[&#9166;](#top)
+
+## :floppy_disk: **Installation** <a name="install"></a>
+
+You can install via the installer.
+
+To **update**, run the latest installer and overwrite.
+
+To **remove**, run the uninstaller, found in the installation folder. (Or remove all the below folders; however, running the uninstaller should also remove file association / certain registry information.)
+
+Fernanda's data folders can be found in the following locations:<a name="folders"></a>
+- `%HOMEPATH%\.fernanda` (e.g. `C:\Users\{username}\.fernanda`): This is the user data folder (using "-dev" creates a separate `.fernanda (dev)`)
+- `%PROGRAMFILES%\Fernanda` (e.g. `C:\Program Files\Fernanda`): The default install location
+- `%HOMEPATH%\Documents\Fernanda` (e.g. `C:\Users\{username}\Documents\Fernanda`): Where `.story` files are kept
+
+They can be opened via the `Help` menu.
+
+[&#9166;](#top)
+
+## :smiley_cat: **Thanks** <a name="thanks"></a>
 
 A major thanks to [@philipplenk](https://codemetas.de/) for their teaching and interest and support in helping me work toward a small dream like this (and for helping me make Fernanda available for [Arch Linux](https://aur.archlinux.org/packages/fernanda)).
 
 A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless work on the very amazing [bit7z library](https://github.com/rikyoz/bit7z).
 
-## :heartpulse: **Bye**
+[&#9166;](#top)
+
+## :heartpulse: **Bye** <a name="bye"></a>
 
 Older screens:
 
@@ -96,3 +153,5 @@ Older screens:
 		<br>Fernanda running on Windows 11. (Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>)
 	</kbd>
 </p>
+
+[&#9166;](#top)

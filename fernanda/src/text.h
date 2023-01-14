@@ -23,7 +23,7 @@ namespace Text
 		ThemeSheetVariable,
 		UrlBeginning
 	};
-	enum class Version {
+	enum class VersionCheck {
 		Error,
 		Latest,
 		Old
@@ -53,7 +53,7 @@ namespace Text
 	const QString repo();
 	const QString releases();
 	const QString about();
-	const QString version(Version check, QString latestVersion);
+	const QString version(VersionCheck check, QString latestVersion);
 }
 
 // text.h, Fernanda

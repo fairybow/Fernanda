@@ -776,7 +776,7 @@ void Fernanda::helpMenuUpdate()
     auto reply = manager->get(request);
     connect(reply, &QNetworkReply::finished, [=]()
         {
-            Text::Version result{};
+            Text::VersionCheck result{};
             QString latest = nullptr;
             if (reply->error() == QNetworkReply::NoError)
             {
@@ -785,11 +785,11 @@ void Fernanda::helpMenuUpdate()
                 QMap<QString, QVariant> map = list[0].toMap();
                 latest = map["tag_name"].toString();
                 (latest == QString(VER_FILEVERSION_STR))
-                    ? result = Text::Version::Latest
-                    : result = Text::Version::Old;
+                    ? result = Text::VersionCheck::Latest
+                    : result = Text::VersionCheck::Old;
             }
             else
-                result = Text::Version::Error;
+                result = Text::VersionCheck::Error;
             Popup::update(result, latest);
         });
 }
