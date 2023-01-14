@@ -20,13 +20,13 @@
 
 Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
 
-- [About](https://github.com/fairybow/fernanda#about)
-- [Roadmap](https://github.com/fairybow/fernanda#roadmap)
-- [Build](https://github.com/fairybow/fernanda#build)
-- [Features](https://github.com/fairybow/fernanda#features)
-- [Installation](https://github.com/fairybow/fernanda#install)
-- [Thanks](https://github.com/fairybow/fernanda#thanks)
-- [Bye](https://github.com/fairybow/fernanda#bye)
+- [About](#about)
+- [Roadmap](#roadmap)
+- [Build](#build)
+- [Features](#features)
+- [Installation](#install)
+- [Thanks](#thanks)
+- [Bye](#bye)
 
 ## :heartpulse: **About** <a name="about"></a>
 
@@ -36,7 +36,7 @@ Fernanda's look was inspired by the good, quiet feeling of using [WordStar](http
 
 Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
 
-[&#9166;](https://github.com/fairybow/fernanda#top)
+[&#9166;](#top)
 
 ## :compass: **Roadmap** <a name="roadmap"></a>
 
@@ -50,7 +50,7 @@ Right now, I'm kind of going where the wind takes me. Fernanda is for drafting. 
 
 In my mind, near-finished work can be revised in other programs. So, some things you might find in other binder-style writing programs aren't necessarily on the table for me right now (but also not necessarily out-of-the-question, either). I'm not interested in adding spellcheck, for example. I think for my purposes it would be distracting. Nor am I interested in any kind of highly-involved formatting or pre-publishing processes. I am, however, planning on adding a way to mark files for compilation for general export (one big file, or several if you want, where things more drafty than others, or notes, can be left out). Ways to view outlines or organize smaller notes or scraps (or even map them) is not necessarily out-of-the-question.
 
-If I think of something big, I'll try to add it right here. Otherwise, these things, of varying importance or levels of commitment, will also appear in [todo.md](https://github.com/fairybow/fernanda/blob/main/fernanda/docs/todo.md).
+If I think of something big, I'll try to add it right here. Otherwise, these things, of varying importance or levels of commitment, will also appear in [todo.md](./fernanda/docs/todo.md).
 
 - Persist undo/redo stacks between file changes
 - Separators and possibly customizable file icons, for better mental organization at-a-glance
@@ -60,7 +60,7 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 
 More to come.
 
-[&#9166;](https://github.com/fairybow/fernanda#top)
+[&#9166;](#top)
 
 ## :honeybee: **Build** <a name="build"></a>
 
@@ -89,7 +89,7 @@ Among the fonts used are:
 
 Solarized theme palettes by [@altercation](https://github.com/altercation/solarized)
 
-[&#9166;](https://github.com/fairybow/fernanda#top)
+[&#9166;](#top)
 
 ## :star: **Features** <a name="features"></a>
 
@@ -116,7 +116,7 @@ Story files:
 
 If you want to manually rename, move, or delete items within a `.story` file via 7-zip, be sure to delete `story.xml`, too, so that it can be remade on next open. (You will lose any reorderings that are at the same directory level, as well as same-level, file-on-file parenting).
 
-[&#9166;](https://github.com/fairybow/fernanda#top)
+[&#9166;](#top)
 
 ## :floppy_disk: **Installation** <a name="install"></a>
 
@@ -133,7 +133,7 @@ Fernanda's data folders can be found in the following locations:<a name="folders
 
 They can be opened via the `Help` menu.
 
-[&#9166;](https://github.com/fairybow/fernanda#top)
+[&#9166;](#top)
 
 ## :smiley_cat: **Thanks** <a name="thanks"></a>
 
@@ -141,7 +141,7 @@ A major thanks to [@philipplenk](https://codemetas.de/) for their teaching and i
 
 A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless work on the very amazing [bit7z library](https://github.com/rikyoz/bit7z).
 
-[&#9166;](https://github.com/fairybow/fernanda#top)
+[&#9166;](#top)
 
 ## :heartpulse: **Bye** <a name="bye"></a>
 
@@ -154,4 +154,4 @@ Older screens:
 	</kbd>
 </p>
 
-[&#9166;](https://github.com/fairybow/fernanda#top)
+[&#9166;](#top)
