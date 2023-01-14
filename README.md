@@ -2,7 +2,7 @@
 
 <p align="center">
 	<kbd>
-		<img src="fernanda/docs/screens/main_screen_1.png" alt="PNG of 'Fernanda v0.9.1.20 running on Windows 11.'" width="500px"/>
+		<img src="./fernanda/docs/screens/main_screen_1.png" alt="PNG of 'Fernanda v0.9.1.20 running on Windows 11.'" width="500px"/>
 		<br>Fernanda v0.9.1.20 running on Windows 11.
 	</kbd>
 </p>
@@ -10,10 +10,10 @@
 	<a href="https://github.com/fairybow/fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/fernanda?include_prereleases&color=f34b7d" alt="release"/></a>
 	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/fernanda?color=orange" alt="license: GPL-3.0"/></a>
 	<br>
-	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-6.4.1-brightgreen?logo=qt" alt="Qt: 6.4.1"/></a>
-	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-4.0.0_beta-blue" alt="Bit7z: 4.0.0-beta"/></a>
-	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip-22.01-ffbf00" alt="7zip: 22.01"/></a>
-	<a href="https://github.com/fairybow/fernanda/search?l=c%2B%2B"><img src="https://img.shields.io/badge/20-5B5B5B?logo=c%2B%2B" alt="C++20"/></a>
+	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-v6.4.1-brightgreen?logo=qt" alt="Qt v6.4.1"/></a>
+	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-v4.0.0--beta-blue" alt="Bit7z v4.0.0-beta"/></a>
+	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip-v22.01-ffbf00" alt="7zip v22.01"/></a>
+	<a href="https://github.com/fairybow/fernanda/search?l=c%2B%2B"><img src="https://img.shields.io/badge/C%2B%2B20-5B5B5B?logo=c%2B%2B" alt="C++20"/></a>
 </p>
 
 ## :tea: **Hello** <a name="hello"></a>
@@ -24,6 +24,9 @@ Fernanda is a plain text editor for drafting long-form fiction. (At least, that'
 - [Roadmap](#roadmap)
 - [Build](#build)
 - [Features](#features)
+	- [Keyfilters](#features-keyfilters)
+	- [Shortcuts](#features-shortcuts)
+	- [`.story`](#features-files)
 - [Installation](#install)
 - [Thanks](#thanks)
 - [Bye](#bye)
@@ -34,7 +37,7 @@ This is a personal project, a work-in-progress, and I am *so* not a programmer. 
 
 Fernanda's look was inspired by the good, quiet feeling of using [WordStar](https://en.wikipedia.org/wiki/WordStar) on [DOSBox](https://www.dosbox.com/) to draft, and its interface was inspired by [Atom](https://github.com/atom/atom).
 
-Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
+Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="./fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
 
 [&#9166;](#top)
 
@@ -93,22 +96,35 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 ## :star: **Features** <a name="features"></a>
 
-General:
+**General:**
 - Most things are togglable
 - Settings are auto-saved
 - Incorporation of custom themes and fonts (`.ttf` and `.otf`)
 - Examples (project and custom themes and font) available via the `Help` menu
 - Save backups (in [`{userdata}\backup\.rollback`](#folders))
 
-Keyfilters:
+---
+
+**Keyfilters:** <a name="features-keyfilters"></a>
 - Auto-closing for `"", (), {}, []`
-- When cursor is position between auto-closed items, 2 spaces will skip the cursor past the closing item and close the gap
+- 2 spaces will skip the cursor past a closing item, closing the gap (see below)
 - Auto em-/en-dash formatting from hyphen/minus key
 
-Shortcuts:
+<p align="center">
+	<kbd>
+		<img src="./fernanda/docs/screens/keyfilters_1.gif" alt="GIF of 'Keyfilters'" width="500px"/>
+		<br>Keyfilters
+	</kbd>
+</p>
+
+---
+
+**Shortcuts:** <a name="features-shortcuts"></a>
 - `Ctrl + Shift + C` wraps a selection or block in quotes
 
-Story files:
+---
+
+**`.story`:** <a name="features-files"></a>
 - They're 7-zip (`.7z`, non-compressed) archives
 - They'll be associated with Fernanda by the installer and can be opened in the usual ways
 - They can also be opened with [7-zip](https://www.7-zip.org/), and the contents viewed and/or copied elsewhere
@@ -120,16 +136,25 @@ If you want to manually rename, move, or delete items within a `.story` file via
 
 ## :floppy_disk: **Installation** <a name="install"></a>
 
-You can install via the installer.
+You can grab the installer on the [Releases](https://github.com/fairybow/fernanda/releases/) page.
 
-To **update**, run the latest installer and overwrite.
+**Update:**
+- Run the latest installer and overwrite.
 
-To **remove**, run the uninstaller, found in the installation folder. (Or remove all the below folders; however, running the uninstaller should also remove file association / certain registry information.)
+**Remove:**
+- Run the uninstaller, found in the installation folder
+- Or remove all the below folders (however, running the uninstaller should also remove file association / certain registry information)
 
-Fernanda's data folders can be found in the following locations:<a name="folders"></a>
-- `%HOMEPATH%\.fernanda` (e.g. `C:\Users\{username}\.fernanda`): This is the user data folder (using "-dev" creates a separate `.fernanda (dev)`)
-- `%PROGRAMFILES%\Fernanda` (e.g. `C:\Program Files\Fernanda`): The default install location
-- `%HOMEPATH%\Documents\Fernanda` (e.g. `C:\Users\{username}\Documents\Fernanda`): Where `.story` files are kept
+**Folder locations:** <a name="folders"></a>
+- `%HOMEPATH%\.fernanda`
+	- e.g. `C:\Users\{username}\.fernanda`
+	- This is the user data folder (using "-dev" creates a separate folder, `.fernanda (dev)`)
+- `%PROGRAMFILES%\Fernanda`
+	- e.g. `C:\Program Files\Fernanda`
+	- The default install location
+- `%HOMEPATH%\Documents\Fernanda`
+	- e.g. `C:\Users\{username}\Documents\Fernanda`
+	- Where `.story` files are kept
 
 They can be opened via the `Help` menu.
 
@@ -149,7 +174,7 @@ Older screens:
 
 <p align="center">
 	<kbd>
-		<img src="fernanda/docs/screens/old_main_screen.png" alt="PNG of 'Fernanda running on Windows 11.'" width="500px"/>
+		<img src="./fernanda/docs/screens/old_main_screen.png" alt="PNG of 'Fernanda running on Windows 11.'" width="500px"/>
 		<br>Fernanda running on Windows 11. (Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>)
 	</kbd>
 </p>

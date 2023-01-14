@@ -1,6 +1,7 @@
 # To-Do
 
 ## General
+- [ ] Keep screen awake?
 - [ ] Installer script needs to detect if Fernanda is running
 - [ ] Remove all non-standard abbreviations (like "cur" for current)
 - [ ] Moveable documents folder
@@ -37,6 +38,7 @@
 
 ### Known issues
 - [ ] Known issue: Windows scale > 100% negates the effects of `setTextCursor(0)`
+- [ ] AOT toggling affects stored window position setting (which, when toggled while maximized makes unmaximizing not change the window size)
 - [ ] Known issue: Cycling fonts and themes, and then forcing repaint by editing open document (to be marked dirty or clean) is causing outlines (often blue, sometimes red) to appear around the icons in Pane (Delegate)
 - [ ] ^ Cycling themes not needed. Appears to be best reproducable by cycling editor fonts quickly and then typing (with light window theme)
 - [ ] ^ The issue may be largely solved, but cycling from Dark to Light does produce a dark blue outline around Open Folder and File icons (but not Closed Folder, from what I could tell?)
