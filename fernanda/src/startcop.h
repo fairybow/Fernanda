@@ -2,14 +2,14 @@
 
 #pragma once
 
-/*#include <qsystemdetection.h>
+#include <qsystemdetection.h>
 
 #ifdef Q_OS_WINDOWS
 
 #include <windows.h>
 #include <winuser.h>
 
-#endif*/
+#endif
 
 #include <QApplication>
 #include <QLocalServer>
@@ -67,7 +67,8 @@ private slots:
                 widget->setWindowState((widget->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
             //auto name = widget->windowTitle().toStdWString();
             //auto handle = FindWindow(0, name.c_str());
-            //SwitchToThisWindow(handle, FALSE); // [This function is not intended for general use. It may be altered or unavailable in subsequent versions of Windows.]
+            //SwitchToThisWindow(handle, FALSE);
+            // [This function is not intended for general use. It may be altered or unavailable in subsequent versions of Windows.]
             widget->activateWindow();
             break;
         }
