@@ -225,7 +225,17 @@ QString Ud::timestamp()
     return QString::fromLocal8Bit(std::ctime(&now));
 }
 
-#ifdef Q_OS_LINUX
+#ifdef Q_OS_WINDOWS
+
+const std::string Ud::dll()
+{
+    auto dll_path = userData(Op::GetDLL) / "7z.dll";
+    if (!QFile(dll_path).exists())
+        Path::copy(Fs::path(":/lib/7zip/7z64.dll"), dll_path);
+    return dll_path.string();
+}
+
+#elif Q_OS_LINUX
 
 std::string Ud::dll()
 {
@@ -240,16 +250,6 @@ std::string Ud::dll()
         }
     }
     throw std::runtime_error("Unable to locate shared 7z library. Have you installed all dependencies?");
-}
-
-#else
-
-const std::string Ud::dll()
-{
-    auto dll_path = userData(Op::GetDLL) / "7z.dll";
-    if (!QFile(dll_path).exists())
-        Path::copy(Fs::path(":/lib/7zip/7z64.dll"), dll_path);
-    return dll_path.string();
 }
 
 #endif

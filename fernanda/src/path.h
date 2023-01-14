@@ -39,37 +39,39 @@ namespace Path
 		return result;
 	}
 
-	inline void copy(Fs::path fileName, Fs::path newName)
-	{
-
 #if QT_VERSION > QT_VERSION_CHECK(6, 1, 2) // https://bugreports.qt.io/browse/QTBUG-94977
 
+	inline void copy(Fs::path fileName, Fs::path newName)
+	{
 		QFile::copy(fileName, newName);
+	}
 
 #else
 
+	inline void copy(Fs::path fileName, Fs::path newName)
+	{
 		QFile::copy(toQString(fileName), toQString(newName));
+	}
 
 #endif
 
-	}
+#ifdef Q_OS_WINDOWS
 
 	inline std::string toB7z(Fs::path path)
 	{
-		
-#ifdef Q_OS_LINUX
-
-		return path.string();
-
-#else
-
 		auto result = toQString(path);
 		result.replace(R"(/)", R"(\)");
 		return result.toStdString();
+	}
+
+#elif Q_OS_LINUX
+
+	inline std::string toB7z(Fs::path path)
+	{
+		return path.string();
+	}
 
 #endif
-
-	}
 
 	inline void makeParent(Fs::path path)
 	{
