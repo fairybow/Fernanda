@@ -2,8 +2,8 @@
 
 <p align="center">
 	<kbd>
-		<img src="fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda running on Windows 11.'" width="500px"/>
-		<br>Fernanda running on Windows 11. (Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>)
+		<img src="fernanda/docs/screens/main_screen_1.png" alt="PNG of 'Fernanda v0.9.1.20 running on Windows 11.'" width="500px"/>
+		<br>Fernanda v0.9.1.20 running on Windows 11.
 	</kbd>
 </p>
 <p align="center">
@@ -92,25 +92,7 @@ Older screens:
 
 <p align="center">
 	<kbd>
-		<img src="fernanda/docs/screens/gif_1_old.gif" alt="GIF of 'Very early Fernanda running on Windows 11.'" width="360px"/>
-		<br>Very early Fernanda running on Windows 11.
-	</kbd>
-</p>
-<p align="center">
-	<kbd>
-		<img src="fernanda/docs/screens/gif_2_old.gif" alt="GIF of 'Slightly less early Fernanda running on Windows 11.'" width="360px"/>
-		<br>Slightly less early Fernanda running on Windows 11.
-	</kbd>
-</p>
-<p align="center">
-	<kbd>
-		<img src="fernanda/docs/screens/screen_2_old.png" alt="Picture of 'Dark window & blue editor / light window & amber editor.'" width="360px"/>
-		<br>Dark window & blue editor / light window & amber editor.
-	</kbd>
-</p>
-<p align="center">
-	<kbd>
-		<img src="fernanda/docs/screens/screen_3_old.png" alt="Picture of 'Dark window & green editor / light window & grey editor.'" width="360px"/>
-		<br>Dark window & green editor / light window & grey editor.
+		<img src="fernanda/docs/screens/old_main_screen.png" alt="PNG of 'Fernanda running on Windows 11.'" width="500px"/>
+		<br>Fernanda running on Windows 11. (Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>)
 	</kbd>
 </p>
