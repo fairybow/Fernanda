@@ -70,10 +70,19 @@ void Pane::nav(Nav direction)
         }
     }
     auto destination_index = currentIndex();
-    if (itemModel->itemFromIndex(destination_index)->rowCount() && !isExpanded(destination_index))
+    auto destination_index_child_rows = itemModel->itemFromIndex(destination_index)->rowCount();
+    if (destination_index_child_rows && !isExpanded(destination_index))
+    {
         expand(destination_index);
-    else
-        clicked(destination_index);
+        if (direction == Nav::Previous)
+            for (auto i = 0; i < destination_index_child_rows; ++i)
+            {
+                destination_index = indexBelow(destination_index);
+                setCurrentIndex(destination_index);
+            }
+    }
+    if (Index::isDir(destination_index)) return;
+    clicked(destination_index);
 }
 
 void Pane::receiveItems(QVector<QStandardItem*> items)
