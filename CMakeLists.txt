@@ -45,6 +45,7 @@ qt_add_executable(fernanda
     src/story.h
     src/style.h
     src/text.h
+    src/toolbutton.h
     src/userdata.h
     src/version.h
     

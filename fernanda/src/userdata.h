@@ -26,6 +26,7 @@ namespace Ud
 
     enum class ConfigVal {
         Aot,
+        Awake,
         BarAlign,
         CountChar,
         CountLine,
@@ -39,6 +40,7 @@ namespace Ud
         Project,
         Splitter,
         State,
+        T_AwakeBtn,
         T_AotBtn,
         T_ColorBar,
         T_CursorBlink,

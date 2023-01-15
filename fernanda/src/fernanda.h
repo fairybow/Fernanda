@@ -10,8 +10,14 @@
 #include "res.h"
 #include "splitter.h"
 #include "story.h"
+#include "toolbutton.h"
 
-#include <QAbstractButton>
+#ifdef Q_OS_WINDOWS
+
+#include <WinBase.h>
+
+#endif
+
 #include <QCloseEvent>
 #include <QCoreApplication>
 #include <QDesktopServices>
@@ -60,7 +66,9 @@ private:
     QSlider* fontSlider = new QSlider(Qt::Horizontal);
     Indicator* indicator = new Indicator(this);
     QLabel* spacer = new QLabel(this);
-    QPushButton* aot = new QPushButton(this);
+    ToolButton* awake = new ToolButton(this);
+    ToolButton* aot = new ToolButton(this);
+    QTimer* awakeTimer = new QTimer(this);
     QTimer* autoTempSave = new QTimer(this);
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
 
@@ -130,6 +138,7 @@ private slots:
     void adjustTitle();
     void setStyle();
     void handleFontSlider(PlainTextEdit::Zoom direction);
+    void setAwakeness();
     void aotToggled(bool checked);
     void fileMenuSave();
     void helpMenuMakeSampleProject();
@@ -157,6 +166,7 @@ signals:
     void sendSetWrapMode(QString mode);
     void sendItems(QVector<QStandardItem*> items);
     void sendEditsList(QStringList editedFiles);
+    void startAwakeTimer();
     void startAutoTempSave();
     void storyMenuVisible(bool setVisible);
 };

@@ -114,6 +114,9 @@ const QString Ud::valueName(ConfigVal valueType)
     case ConfigVal::Aot:
         result = "always_on_top";
         break;
+    case ConfigVal::Awake:
+        result = "stay_awake";
+        break;
     case ConfigVal::BarAlign:
         result = "bar_alignment";
         break;
@@ -152,6 +155,9 @@ const QString Ud::valueName(ConfigVal valueType)
         break;
     case ConfigVal::State:
         result = "state";
+        break;
+    case ConfigVal::T_AwakeBtn:
+        result = "stay_awake_button";
         break;
     case ConfigVal::T_AotBtn:
         result = "aot_button";
@@ -225,17 +231,7 @@ QString Ud::timestamp()
     return QString::fromLocal8Bit(std::ctime(&now));
 }
 
-#ifdef Q_OS_WINDOWS
-
-const std::string Ud::dll()
-{
-    auto dll_path = userData(Op::GetDLL) / "7z.dll";
-    if (!QFile(dll_path).exists())
-        Path::copy(Fs::path(":/lib/7zip/7z64.dll"), dll_path);
-    return dll_path.string();
-}
-
-#elif Q_OS_LINUX
+#ifdef Q_OS_LINUX
 
 std::string Ud::dll()
 {
@@ -250,6 +246,16 @@ std::string Ud::dll()
         }
     }
     throw std::runtime_error("Unable to locate shared 7z library. Have you installed all dependencies?");
+}
+
+#else
+
+const std::string Ud::dll()
+{
+    auto dll_path = userData(Op::GetDLL) / "7z.dll";
+    if (!QFile(dll_path).exists())
+        Path::copy(Fs::path(":/lib/7zip/7z64.dll"), dll_path);
+    return dll_path.string();
 }
 
 #endif

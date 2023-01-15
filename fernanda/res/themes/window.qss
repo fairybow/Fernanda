@@ -1,17 +1,3 @@
-#aot
-{
-	background: @statusBarButton;
-	border: transparent;
-	border-radius: 3px;
-	color: @statusBarButtonFont;
-}
-
-#aot:hover, #devPrint:hover
-{
-	background: @statusBarButtonHover;
-	color: @statusBarButtonFontHover;
-}
-
 #colorBar
 {
 	background: transparent;
@@ -97,6 +83,46 @@
 	background: #eee;
 }
 
+#hScrollBar:horizontal, #pvScrollBar:vertical, #vScrollBar:vertical
+{
+	background: @scrollBg;
+	margin: 0px 0 0px 0;
+}
+
+#hScrollBar::handle:horizontal, #pvScrollBar::handle:vertical, #vScrollBar::handle:vertical
+{
+	background: @scrollHandle;
+	min-height: 0px;
+}
+
+#hScrollBar::handle:horizontal:hover, #pvScrollBar::handle:vertical:hover, #vScrollBar::handle:vertical:hover
+{
+	background: @scrollHandleHover;
+}
+
+#hScrollBar::handle:horizontal:pressed, #pvScrollBar::handle:vertical:pressed, #vScrollBar::handle:vertical:pressed
+{
+	background: @scrollHandlePress;
+}
+
+#hScrollBar::add-line:horizontal, #hScrollBar::sub-line:horizontal, #pvScrollBar::add-line:vertical, #pvScrollBar::sub-line:vertical, #vScrollBar::add-line:vertical, #vScrollBar::sub-line:vertical
+{
+	border: none;
+	height: 0px;
+}
+
+#hScrollBar::left-arrow:horizontal, #hScrollBar::right-arrow:horizontal, #pvScrollBar::up-arrow:vertical, #pvScrollBar::down-arrow:vertical, #vScrollBar::up-arrow:vertical, #vScrollBar::down-arrow:vertical
+{
+	border: none;
+	height: 0px;
+	width: 0px;
+}
+
+#hScrollBar::add-page:horizontal, #hScrollBar::sub-page:horizontal, #pvScrollBar::add-page:vertical, #pvScrollBar::sub-page:vertical, #vScrollBar::add-page:vertical, #vScrollBar::sub-page:vertical
+{
+	background: none;
+}
+
 #indicator
 {
 	color: @indicatorFont;
@@ -161,42 +187,16 @@ QSizeGrip
 	border: none;
 }
 
-#hScrollBar:horizontal, #pvScrollBar:vertical, #vScrollBar:vertical
+#toolButton
 {
-	background: @scrollBg;
-	margin: 0px 0 0px 0;
+	background: @statusBarButton;
+	border: transparent;
+	border-radius: 3px;
+	color: @statusBarButtonFont;
 }
 
-#hScrollBar::handle:horizontal, #pvScrollBar::handle:vertical, #vScrollBar::handle:vertical
+#toolButton:hover, #devPrint:hover
 {
-	background: @scrollHandle;
-	min-height: 0px;
-}
-
-#hScrollBar::handle:horizontal:hover, #pvScrollBar::handle:vertical:hover, #vScrollBar::handle:vertical:hover
-{
-	background: @scrollHandleHover;
-}
-
-#hScrollBar::handle:horizontal:pressed, #pvScrollBar::handle:vertical:pressed, #vScrollBar::handle:vertical:pressed
-{
-	background: @scrollHandlePress;
-}
-
-#hScrollBar::add-line:horizontal, #hScrollBar::sub-line:horizontal, #pvScrollBar::add-line:vertical, #pvScrollBar::sub-line:vertical, #vScrollBar::add-line:vertical, #vScrollBar::sub-line:vertical
-{
-	border: none;
-	height: 0px;
-}
-
-#hScrollBar::left-arrow:horizontal, #hScrollBar::right-arrow:horizontal, #pvScrollBar::up-arrow:vertical, #pvScrollBar::down-arrow:vertical, #vScrollBar::up-arrow:vertical, #vScrollBar::down-arrow:vertical
-{
-	border: none;
-	height: 0px;
-	width: 0px;
-}
-
-#hScrollBar::add-page:horizontal, #hScrollBar::sub-page:horizontal, #pvScrollBar::add-page:vertical, #pvScrollBar::sub-page:vertical, #vScrollBar::add-page:vertical, #vScrollBar::sub-page:vertical
-{
-	background: none;
+	background: @statusBarButtonHover;
+	color: @statusBarButtonFontHover;
 }

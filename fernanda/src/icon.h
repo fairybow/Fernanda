@@ -11,14 +11,14 @@ namespace Icon
 		ArrowNext,
 		ArrowPrevious,
 		ArrowUp,
-		Balloon,
 		File,
 		Files,
 		Folder,
 		Folders,
 		FolderOpen,
 		Pushpin,
-		QuestionMark
+		QuestionMark,
+		Tea
 	};
 
 	inline const QString draw(Name name)
@@ -36,9 +36,6 @@ namespace Icon
 			break;
 		case Name::ArrowUp:
 			result = QStringLiteral("\U000025B2");
-			break;
-		case Name::Balloon:
-			result = QStringLiteral("\U0001F388");
 			break;
 		case Name::File:
 			result = QStringLiteral("\U0001F4C4");
@@ -60,6 +57,9 @@ namespace Icon
 			break;
 		case Name::QuestionMark:
 			result = QStringLiteral("\U00002754");
+			break;
+		case Name::Tea:
+			result = QStringLiteral("\U0001F375");
 			break;
 		}
 		return result;

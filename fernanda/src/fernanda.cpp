@@ -109,13 +109,11 @@ void Fernanda::addWidgets()
     statusBar->setSizeGripEnabled(true);
     setMenuBar(menuBar);
     setStatusBar(statusBar);
-    aot->setCheckable(true);
+    awake->setText(Icon::draw(Icon::Name::Tea));
     aot->setText(Icon::draw(Icon::Name::Pushpin));
-    auto aot_effect = new QGraphicsOpacityEffect(this);
-    aot_effect->setOpacity(0.8);
-    aot->setGraphicsEffect(aot_effect);
     statusBar->addPermanentWidget(indicator, 0);
     statusBar->addPermanentWidget(spacer, 1);
+    statusBar->addPermanentWidget(awake, 0);
     statusBar->addPermanentWidget(aot, 0);
     statusBar->setMaximumHeight(22);
     setObjectName(QStringLiteral("mainWindow"));
@@ -123,7 +121,8 @@ void Fernanda::addWidgets()
     statusBar->setObjectName(QStringLiteral("statusBar"));
     fontSlider->setObjectName(QStringLiteral("fontSlider"));
     spacer->setObjectName(QStringLiteral("spacer"));
-    aot->setObjectName(QStringLiteral("aot"));
+    awake->setObjectName(QStringLiteral("toolButton"));
+    aot->setObjectName(QStringLiteral("toolButton"));
 }
 
 void Fernanda::connections()
@@ -138,7 +137,8 @@ void Fernanda::connections()
     connect(this, &Fernanda::sendSetWrapMode, editor, &Editor::setWrapMode);
     connect(this, &Fernanda::sendItems, pane, &Pane::receiveItems);
     connect(this, &Fernanda::sendEditsList, pane, &Pane::receiveEditsList);
-    connect(aot, &QPushButton::toggled, this, &Fernanda::aotToggled);
+    connect(awakeTimer, &QTimer::timeout, this, &Fernanda::setAwakeness);
+    connect(aot, &ToolButton::toggled, this, &Fernanda::aotToggled);
     connect(editor, &Editor::askFontSliderZoom, this, &Fernanda::handleFontSlider);
     connect(editor, &Editor::askHasProject, this, &Fernanda::replyHasProject);
     connect(editor, &Editor::textChanged, this, &Fernanda::sendEditedText);
@@ -150,9 +150,22 @@ void Fernanda::connections()
     connect(pane, &Pane::askHasProject, this, &Fernanda::replyHasProject);
     connect(pane, &Pane::askSendToEditor, this, &Fernanda::handleEditorOpen);
     connect(pane, &Pane::askTitleCheck, this, &Fernanda::adjustTitle);
+    connect(this, &Fernanda::startAwakeTimer, this, [&]() { awakeTimer->start(15000); });
     connect(this, &Fernanda::startAutoTempSave, this, [&]() { autoTempSave->start(30000); });
     connect(this, &Fernanda::askToggleStartUpBar, colorBar, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::RunOnStartUp); });
     connect(this, &Fernanda::askToggleScrolls, editor, [&](bool checked) { editor->toggle(checked, Editor::Has::Scrolls); });
+    connect(awake, &ToolButton::toggled, this, [&](bool checked)
+        {
+
+#ifdef Q_OS_WINDOWS
+
+            if (checked)
+                startAwakeTimer();
+            Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Awake, checked);
+
+#endif
+
+        });
     connect(autoTempSave, &QTimer::timeout, this, [&]()
         {
             activeStory.value().autoTempSave(editor->toPlainText());
@@ -345,6 +358,7 @@ void Fernanda::makeToggleMenu()
     auto toggle_indicator = new QAction(tr("&Indicator"), this);
     auto toggle_pane = new QAction(tr("&Pane"), this);
     auto toggle_statusbar = new QAction(tr("&Status bar"), this);
+    auto toggle_awake = new QAction(tr("&Stay-awake button"), this);
     auto toggle_win_theme = new QAction(tr("&Window theme"), this);
     auto toggle_cursor_blink = new QAction(tr("&Blink"), this);
     auto toggle_block_cursor = new QAction(tr("&Block"), this);
@@ -357,7 +371,9 @@ void Fernanda::makeToggleMenu()
     auto load_recent = new QAction(tr("&Load most recent project on open"), this);
     connect(toggle_aot, &QAction::toggled, this, [&](bool checked)
         {
-            toggleWidget(aot, Ud::ConfigGroup::Window, Ud::ConfigVal::T_AotBtn, checked);
+            if (aot->isChecked())
+                aot->setChecked(false);
+            aot->toggle(Ud::ConfigVal::T_AotBtn, checked);
         });
     connect(toggle_bar, &QAction::toggled, this, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::Self); });
     connect(toggle_indicator, &QAction::toggled, this, [&](bool checked)
@@ -371,6 +387,12 @@ void Fernanda::makeToggleMenu()
     connect(toggle_statusbar, &QAction::toggled, this, [&](bool checked)
         {
             toggleWidget(statusBar, Ud::ConfigGroup::Window, Ud::ConfigVal::T_StatusBar, checked);
+        });
+    connect(toggle_awake, &QAction::toggled, this, [&](bool checked)
+        {
+            if (awake->isChecked())
+                awake->setChecked(false);
+            awake->toggle(Ud::ConfigVal::T_AwakeBtn, checked);
         });
     connect(toggle_win_theme, &QAction::toggled, this, [&](bool checked)
         {
@@ -396,6 +418,7 @@ void Fernanda::makeToggleMenu()
         toggle_indicator,
         toggle_pane,
         toggle_statusbar,
+        toggle_awake,
         toggle_win_theme,
         toggle_cursor_blink,
         toggle_block_cursor,
@@ -413,6 +436,7 @@ void Fernanda::makeToggleMenu()
     loadMenuToggle(toggle_indicator, Ud::ConfigGroup::Window, Ud::ConfigVal::T_Indicator, false);
     loadMenuToggle(toggle_pane, Ud::ConfigGroup::Window, Ud::ConfigVal::T_Pane, true);
     loadMenuToggle(toggle_statusbar, Ud::ConfigGroup::Window, Ud::ConfigVal::T_StatusBar, true);
+    loadMenuToggle(toggle_awake, Ud::ConfigGroup::Window, Ud::ConfigVal::T_AwakeBtn, false);
     loadMenuToggle(toggle_win_theme, Ud::ConfigGroup::Window, Ud::ConfigVal::T_WinTheme, true);
     loadMenuToggle(toggle_cursor_blink, Ud::ConfigGroup::Editor, Ud::ConfigVal::T_CursorBlink, true);
     loadMenuToggle(toggle_block_cursor, Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Cursor, true);
@@ -424,7 +448,15 @@ void Fernanda::makeToggleMenu()
     loadMenuToggle(toggle_scrolls, Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Nav, true);
     loadMenuToggle(load_recent, Ud::ConfigGroup::Data, Ud::ConfigVal::T_Lmr, false);
     auto toggle = menuBar->addMenu(tr("&Toggle"));
-    for (const auto& action : { toggle_aot, toggle_bar, toggle_indicator, toggle_pane, toggle_statusbar, toggle_win_theme })
+    for (const auto& action : { toggle_aot, toggle_bar, toggle_indicator, toggle_pane, toggle_statusbar,
+
+#ifdef Q_OS_WINDOWS
+
+        toggle_awake,
+
+#endif
+
+        toggle_win_theme })
         toggle->addAction(action);
     toggle->addSeparator();
     auto cursor = toggle->addMenu(tr("&Cursor"));
@@ -574,8 +606,8 @@ void Fernanda::loadWinConfigs()
     if (win_state == 1) setWindowState(Qt::WindowState::WindowMinimized);
     else if (win_state == 2) setWindowState(Qt::WindowState::WindowMaximized);
     else if (win_state == 4) setWindowState(Qt::WindowState::WindowFullScreen);
-    auto checked = Ud::loadConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Aot, false).toBool();
-    aot->setChecked(checked);
+    awake->setChecked(Ud::loadConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Awake, false).toBool());
+    aot->setChecked(Ud::loadConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Aot, false).toBool());
 }
 
 void Fernanda::loadViewConfig(QVector<QAction*> actions, Ud::ConfigGroup group, Ud::ConfigVal valueType, QVariant fallback)
@@ -667,18 +699,29 @@ void Fernanda::handleFontSlider(PlainTextEdit::Zoom direction)
     }
 }
 
+void Fernanda::setAwakeness()
+{
+
+#ifdef Q_OS_WINDOWS
+
+    if (!awake->isChecked())
+        SetThreadExecutionState(ES_CONTINUOUS);
+    else
+    {
+        SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
+        startAwakeTimer();
+    }
+
+#endif
+
+}
+
 void Fernanda::aotToggled(bool checked)
 {
     if (checked)
-    {
         setWindowFlags(windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
-        aot->setText(Icon::draw(Icon::Name::Balloon));
-    }
     else
-    {
         setWindowFlags(windowFlags() ^ (Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint));
-        aot->setText(Icon::draw(Icon::Name::Pushpin));
-    }
     show();
     Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Aot, checked);
 }

@@ -361,6 +361,9 @@
     <QtMoc Include="src\editor.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\toolbutton.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="res\fonts.qrc">

@@ -55,20 +55,20 @@ namespace Path
 
 #endif
 
-#ifdef Q_OS_WINDOWS
+#ifdef Q_OS_LINUX
+
+	inline std::string toB7z(Fs::path path)
+	{
+		return path.string();
+	}
+
+#else
 
 	inline std::string toB7z(Fs::path path)
 	{
 		auto result = toQString(path);
 		result.replace(R"(/)", R"(\)");
 		return result.toStdString();
-	}
-
-#elif Q_OS_LINUX
-
-	inline std::string toB7z(Fs::path path)
-	{
-		return path.string();
 	}
 
 #endif

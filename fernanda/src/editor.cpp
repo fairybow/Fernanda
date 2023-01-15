@@ -174,7 +174,7 @@ void Editor::connections()
     connect(this, &Editor::startBlinker, this, [&]()
         {
             if (!hasCursorBlink) return;
-            cursorBlink->start(100);
+            cursorBlink->start(1000);
         });
     connect(cursorBlink, &QTimer::timeout, this, [&]()
         {

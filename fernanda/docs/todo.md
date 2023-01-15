@@ -1,7 +1,6 @@
 # To-Do
 
 ## General
-- [ ] Keep screen awake?
 - [ ] Installer script needs to detect if Fernanda is running
 - [ ] Remove all non-standard abbreviations (like "cur" for current)
 - [ ] Moveable documents folder
@@ -22,6 +21,7 @@
 - [ ] Implement QStringLiterals where possible
 - [ ] Temp save before cut?
 - [ ] Delete trailing spaces on save
+- [x] ~~Keep screen awake?~~
 - [x] ~~Mutex for running only one instance (sorta)~~
 - [x] ~~Add dialogs to free functions? (added class)~~
 - [x] ~~Change/remove all "`metaDoc`" names~~

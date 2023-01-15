@@ -42,6 +42,8 @@
 			- sample.h
 				- io.h (+ path.h)
 			- text.h (+ version.h)
+		- toolbutton.h
+			- userdata.h (+ path.h)
 	- startcop.h
 
 ## List
@@ -124,8 +126,14 @@
 #include "res.h"
 #include "splitter.h"
 #include "story.h"
+#include "toolbutton.h"
 
-#include <QAbstractButton>
+#ifdef Q_OS_WINDOWS
+
+#include <WinBase.h>
+
+#endif
+
 #include <QCloseEvent>
 #include <QCoreApplication>
 #include <QDesktopServices>
@@ -345,6 +353,15 @@
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
+```
+
+### toolbutton.h
+```
+#include "userdata.h"
+
+#include <QEvent>
+#include <QGraphicsOpacityEffect>
+#include <QPushButton>
 ```
 
 ### userdata.h
