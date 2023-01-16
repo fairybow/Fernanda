@@ -39,7 +39,7 @@ namespace Path
 		return result;
 	}
 
-#if QT_VERSION > QT_VERSION_CHECK(6, 1, 2) // https://bugreports.qt.io/browse/QTBUG-94977
+#if QT_VERSION > QT_VERSION_CHECK(6, 2, 4)
 
 	inline void copy(Fs::path fileName, Fs::path newName)
 	{

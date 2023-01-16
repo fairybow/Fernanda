@@ -2,10 +2,10 @@
 
 #include "fernanda.h"
 
-Fernanda::Fernanda(bool dev, FsPath story, QWidget* parent)
-    : QMainWindow(parent)
+Fernanda::Fernanda(bool isDev, FsPath story, QWidget* parent)
+    : isDev(isDev), QMainWindow(parent)
 {
-    Ud::setName(name(dev));
+    Ud::setName(name());
     addWidgets();
     connections();
     shortcuts();
@@ -91,14 +91,10 @@ const QStringList Fernanda::devPrintRenames(QVector<Io::ArcRename> renames)
     return result;
 }
 
-const QString Fernanda::name(bool dev)
+const QString Fernanda::name()
 {
     QString result;
-    if (dev)
-        isDev = dev;
-    (isDev)
-        ? result = "Fernanda (dev)"
-        : result = "Fernanda";
+    (isDev) ? result = "Fernanda (dev)" : result = "Fernanda";
     return result;
 }
 
@@ -109,8 +105,6 @@ void Fernanda::addWidgets()
     statusBar->setSizeGripEnabled(true);
     setMenuBar(menuBar);
     setStatusBar(statusBar);
-    awake->setText(Icon::draw(Icon::Name::Tea));
-    aot->setText(Icon::draw(Icon::Name::Pushpin));
     statusBar->addPermanentWidget(indicator, 0);
     statusBar->addPermanentWidget(spacer, 1);
     statusBar->addPermanentWidget(awake, 0);
@@ -137,8 +131,6 @@ void Fernanda::connections()
     connect(this, &Fernanda::sendSetWrapMode, editor, &Editor::setWrapMode);
     connect(this, &Fernanda::sendItems, pane, &Pane::receiveItems);
     connect(this, &Fernanda::sendEditsList, pane, &Pane::receiveEditsList);
-    connect(awakeTimer, &QTimer::timeout, this, &Fernanda::setAwakeness);
-    connect(aot, &ToolButton::toggled, this, &Fernanda::aotToggled);
     connect(editor, &Editor::askFontSliderZoom, this, &Fernanda::handleFontSlider);
     connect(editor, &Editor::askHasProject, this, &Fernanda::replyHasProject);
     connect(editor, &Editor::textChanged, this, &Fernanda::sendEditedText);
@@ -150,22 +142,9 @@ void Fernanda::connections()
     connect(pane, &Pane::askHasProject, this, &Fernanda::replyHasProject);
     connect(pane, &Pane::askSendToEditor, this, &Fernanda::handleEditorOpen);
     connect(pane, &Pane::askTitleCheck, this, &Fernanda::adjustTitle);
-    connect(this, &Fernanda::startAwakeTimer, this, [&]() { awakeTimer->start(15000); });
     connect(this, &Fernanda::startAutoTempSave, this, [&]() { autoTempSave->start(30000); });
     connect(this, &Fernanda::askToggleStartUpBar, colorBar, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::RunOnStartUp); });
     connect(this, &Fernanda::askToggleScrolls, editor, [&](bool checked) { editor->toggle(checked, Editor::Has::Scrolls); });
-    connect(awake, &ToolButton::toggled, this, [&](bool checked)
-        {
-
-#ifdef Q_OS_WINDOWS
-
-            if (checked)
-                startAwakeTimer();
-            Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Awake, checked);
-
-#endif
-
-        });
     connect(autoTempSave, &QTimer::timeout, this, [&]()
         {
             activeStory.value().autoTempSave(editor->toPlainText());
@@ -373,7 +352,7 @@ void Fernanda::makeToggleMenu()
         {
             if (aot->isChecked())
                 aot->setChecked(false);
-            aot->toggle(Ud::ConfigVal::T_AotBtn, checked);
+            aot->toggle(checked);
         });
     connect(toggle_bar, &QAction::toggled, this, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::Self); });
     connect(toggle_indicator, &QAction::toggled, this, [&](bool checked)
@@ -392,7 +371,7 @@ void Fernanda::makeToggleMenu()
         {
             if (awake->isChecked())
                 awake->setChecked(false);
-            awake->toggle(Ud::ConfigVal::T_AwakeBtn, checked);
+            awake->toggle(checked);
         });
     connect(toggle_win_theme, &QAction::toggled, this, [&](bool checked)
         {
@@ -699,33 +678,6 @@ void Fernanda::handleFontSlider(PlainTextEdit::Zoom direction)
     }
 }
 
-void Fernanda::setAwakeness()
-{
-
-#ifdef Q_OS_WINDOWS
-
-    if (!awake->isChecked())
-        SetThreadExecutionState(ES_CONTINUOUS);
-    else
-    {
-        SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
-        startAwakeTimer();
-    }
-
-#endif
-
-}
-
-void Fernanda::aotToggled(bool checked)
-{
-    if (checked)
-        setWindowFlags(windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
-    else
-        setWindowFlags(windowFlags() ^ (Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint));
-    show();
-    Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Aot, checked);
-}
-
 void Fernanda::fileMenuSave()
 {
     if (!activeStory.has_value()) return;
@@ -760,7 +712,7 @@ void Fernanda::helpMenuMakeSampleRes()
 
 void Fernanda::helpMenuUpdate()
 {
-    auto request = QNetworkRequest(QUrl(QStringLiteral("https://api.github.com/repos/fairybow/fernanda/releases")));
+    auto request = QNetworkRequest(QUrl(Text::ghApi()));
     auto reply = manager->get(request);
     connect(reply, &QNetworkReply::finished, [=]()
         {

@@ -195,7 +195,7 @@ QSizeGrip
 	color: @statusBarButtonFont;
 }
 
-#toolButton:hover, #devPrint:hover
+#toolButton:hover
 {
 	background: @statusBarButtonHover;
 	color: @statusBarButtonFontHover;

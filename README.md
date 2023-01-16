@@ -27,6 +27,7 @@ Fernanda is a plain text editor for drafting long-form fiction. (At least, that'
 	- [Keyfilters](#features-keyfilters)
 	- [Shortcuts](#features-shortcuts)
 	- [`.story`](#features-files)
+	- [Tools](#features-tools)
 - [Installation](#install)
 - [Thanks](#thanks)
 - [Bye](#bye)
@@ -131,6 +132,14 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 - Items deleted (cut) within Fernanda are moved to a `.cut` folder within the `.story` archive
 
 If you want to manually rename, move, or delete items within a `.story` file via 7-zip, be sure to delete `story.xml`, too, so that it can be remade on next open. (You will lose any reorderings that are at the same directory level, as well as same-level, file-on-file parenting).
+
+---
+
+**Tools:** <a name="features-tools"></a>
+- :pushpin: **Always-on-top:**
+	- Pin Fernanda to the top of your window order
+- :tea:	**Stay awake:**
+	- Keep the screen awake without input (Windows only)
 
 [&#9166;](#top)
 

@@ -105,6 +105,7 @@ signals:
 
 class LineNumberArea : public QWidget
 {
+
 public:
     LineNumberArea(PlainTextEdit* parent) : QWidget(parent), parent(parent) {}
 

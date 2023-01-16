@@ -33,11 +33,11 @@ public:
         setStretchFactor(editor, 100);
     }
 
-    void loadConfig(QRect geo)
+    void loadConfig(QRect geometry)
     {
         auto state = Ud::loadConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Splitter, QVariant()).toByteArray();
         if (state.isEmpty() || state.isNull())
-            setSizes(QVector<int>{ static_cast<int>(geo.width() * 0.2), static_cast<int>(geo.width() * 0.8) });
+            setSizes(QVector<int>{ static_cast<int>(geometry.width() * 0.2), static_cast<int>(geometry.width() * 0.8) });
         else
             restoreState(state);
     }

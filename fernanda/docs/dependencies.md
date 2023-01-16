@@ -43,6 +43,7 @@
 				- io.h (+ path.h)
 			- text.h (+ version.h)
 		- toolbutton.h
+			- icon.h
 			- userdata.h (+ path.h)
 	- startcop.h
 
@@ -128,18 +129,11 @@
 #include "story.h"
 #include "toolbutton.h"
 
-#ifdef Q_OS_WINDOWS
-
-#include <WinBase.h>
-
-#endif
-
 #include <QCloseEvent>
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QJsonDocument>
-#include <QMainWindow>
 #include <QMap>
 #include <QMenuBar>
 #include <QMoveEvent>
@@ -357,11 +351,22 @@
 
 ### toolbutton.h
 ```
+#include "icon.h"
 #include "userdata.h"
+
+#include <optional>
+
+#ifdef Q_OS_WINDOWS
+
+#include <Windows.h>
+
+#endif
 
 #include <QEvent>
 #include <QGraphicsOpacityEffect>
+#include <QMainWindow>
 #include <QPushButton>
+#include <QTimer>
 ```
 
 ### userdata.h

@@ -201,6 +201,11 @@ const QString Text::releases()
 	return link("https://github.com/fairybow/fernanda/releases");
 }
 
+const QString Text::ghApi()
+{
+	return QStringLiteral("https://api.github.com/repos/fairybow/fernanda/releases");
+}
+
 const QString Text::about()
 {
 	return

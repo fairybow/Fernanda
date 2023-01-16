@@ -52,6 +52,7 @@ namespace Text
 	const QString shortcuts();
 	const QString repo();
 	const QString releases();
+	const QString ghApi();
 	const QString about();
 	const QString version(VersionCheck check, QString latestVersion);
 }

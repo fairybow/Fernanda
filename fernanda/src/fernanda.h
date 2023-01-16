@@ -12,18 +12,11 @@
 #include "story.h"
 #include "toolbutton.h"
 
-#ifdef Q_OS_WINDOWS
-
-#include <WinBase.h>
-
-#endif
-
 #include <QCloseEvent>
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QJsonDocument>
-#include <QMainWindow>
 #include <QMap>
 #include <QMenuBar>
 #include <QMoveEvent>
@@ -42,7 +35,7 @@ class Fernanda : public QMainWindow
     Q_OBJECT
 
 public:
-    Fernanda(bool dev, FsPath story, QWidget* parent = nullptr);
+    Fernanda(bool isDev, FsPath story, QWidget* parent = nullptr);
 
 protected:
     void showEvent(QShowEvent* event) override;
@@ -66,10 +59,9 @@ private:
     QSlider* fontSlider = new QSlider(Qt::Horizontal);
     Indicator* indicator = new Indicator(this);
     QLabel* spacer = new QLabel(this);
-    ToolButton* awake = new ToolButton(this);
-    ToolButton* aot = new ToolButton(this);
-    QTimer* awakeTimer = new QTimer(this);
-    QTimer* autoTempSave = new QTimer(this);
+    ToolButton* awake = new ToolButton(ToolButton::Type::StayAwake, this);
+    ToolButton* aot = new ToolButton(ToolButton::Type::AlwaysOnTop, this);
+    QTimer* autoTempSave = new QTimer(this); // move to editor or story
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
 
     std::optional<Story> activeStory;
@@ -80,7 +72,7 @@ private:
     bool confirmStoryClose(bool isQuit = false);
     void openLocalFolder(FsPath path);
     const QStringList devPrintRenames(QVector<Io::ArcRename> renames);
-    const QString name(bool dev = false);
+    const QString name();
     void addWidgets();
     void connections();
     void shortcuts();
@@ -138,8 +130,6 @@ private slots:
     void adjustTitle();
     void setStyle();
     void handleFontSlider(PlainTextEdit::Zoom direction);
-    void setAwakeness();
-    void aotToggled(bool checked);
     void fileMenuSave();
     void helpMenuMakeSampleProject();
     void helpMenuMakeSampleRes();
@@ -166,7 +156,6 @@ signals:
     void sendSetWrapMode(QString mode);
     void sendItems(QVector<QStandardItem*> items);
     void sendEditsList(QStringList editedFiles);
-    void startAwakeTimer();
     void startAutoTempSave();
     void storyMenuVisible(bool setVisible);
 };
