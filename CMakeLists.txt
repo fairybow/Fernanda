@@ -61,6 +61,7 @@ qt_add_executable(fernanda
     src/plaintextedit.cpp
     src/story.cpp
     src/text.cpp
+    src/toolbutton.cpp
     src/userdata.cpp
     
     res/fonts.qrc
