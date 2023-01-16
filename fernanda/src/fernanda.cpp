@@ -115,8 +115,6 @@ void Fernanda::addWidgets()
     statusBar->setObjectName(QStringLiteral("statusBar"));
     fontSlider->setObjectName(QStringLiteral("fontSlider"));
     spacer->setObjectName(QStringLiteral("spacer"));
-    awake->setObjectName(QStringLiteral("toolButton"));
-    aot->setObjectName(QStringLiteral("toolButton"));
 }
 
 void Fernanda::connections()
@@ -142,7 +140,7 @@ void Fernanda::connections()
     connect(pane, &Pane::askHasProject, this, &Fernanda::replyHasProject);
     connect(pane, &Pane::askSendToEditor, this, &Fernanda::handleEditorOpen);
     connect(pane, &Pane::askTitleCheck, this, &Fernanda::adjustTitle);
-    connect(this, &Fernanda::startAutoTempSave, this, [&]() { autoTempSave->start(30000); });
+    connect(this, &Fernanda::startAutoTempSave, this, [&]() { autoTempSave->start(20000); });
     connect(this, &Fernanda::askToggleStartUpBar, colorBar, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::RunOnStartUp); });
     connect(this, &Fernanda::askToggleScrolls, editor, [&](bool checked) { editor->toggle(checked, Editor::Has::Scrolls); });
     connect(autoTempSave, &QTimer::timeout, this, [&]()
