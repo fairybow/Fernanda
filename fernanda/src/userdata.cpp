@@ -250,7 +250,7 @@ std::string Ud::dll()
 
 #else
 
-const std::string Ud::dll()
+std::string Ud::dll()
 {
     auto dll_path = userData(Op::GetDLL) / "7z.dll";
     if (!QFile(dll_path).exists())

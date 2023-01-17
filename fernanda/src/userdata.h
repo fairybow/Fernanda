@@ -91,7 +91,7 @@ namespace Ud
     const QString valueName(ConfigVal valueType);
     void clear(Fs::path dirPath, bool clearSelf = false);
     QString timestamp();
-    const std::string dll();
+    std::string dll();
 }
 
 // userdata.h, Fernanda
