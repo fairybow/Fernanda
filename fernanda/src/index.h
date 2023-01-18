@@ -40,7 +40,7 @@ namespace Index
 		if (type(index) == indexType) return true;
 		return false;
 	}
-	inline bool isDir(QModelIndex index) { return isThis(index, "dir"); }
+	inline bool isDir(QModelIndex index) { return isThis(index, "directory"); }
 	inline bool isFile(QModelIndex index) { return isThis(index, "file"); }
 }
 

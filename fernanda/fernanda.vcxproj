@@ -216,7 +216,7 @@
     <ClInclude Include="src\userdata.h" />
     <QtMoc Include="src\pane.h" />
     <QtMoc Include="src\delegate.h" />
-    <ClInclude Include="src\res.h" />
+    <ClInclude Include="src\resource.h" />
     <QtMoc Include="src\plaintextedit.h" />
   </ItemGroup>
   <ItemGroup>

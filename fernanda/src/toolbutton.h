@@ -34,9 +34,9 @@ public:
 
 private:
     Type type{};
-    Ud::ConfigGroup configGroup = Ud::ConfigGroup::Window;
-    Ud::ConfigVal widgetConfig;
-    Ud::ConfigVal actionConfig;
+    UserData::IniGroup configGroup = UserData::IniGroup::Window;
+    UserData::IniValue widgetConfig;
+    UserData::IniValue actionConfig;
     QMainWindow* parentWindow;
     std::optional<QTimer*> stayAwakeTimer;
     QGraphicsOpacityEffect* opacity = new QGraphicsOpacityEffect(this);

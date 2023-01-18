@@ -12,7 +12,7 @@
 
 namespace Style
 {
-    namespace Fs = std::filesystem;
+    namespace StdFs = std::filesystem;
 
     enum class WinStyle {
         BaseOnly,
@@ -39,7 +39,7 @@ namespace Style
         return styleSheet;
     }
 
-    inline const EditorGroup editorStyle(Fs::path themePath, bool hasTheme, bool hasShadow)
+    inline const EditorGroup editorStyle(StdFs::path themePath, bool hasTheme, bool hasShadow)
     {
         auto style_sheet = Io::readFile(":/themes/editor_base.qss");
         QString cursor_color = nullptr;
@@ -58,7 +58,7 @@ namespace Style
         return EditorGroup{ style_sheet, cursor_color, under_cursor_color };
     }
 
-    inline const QString windowStyle(Fs::path themePath, bool hasTheme, WinStyle baseOnly = WinStyle::WithTheme)
+    inline const QString windowStyle(StdFs::path themePath, bool hasTheme, WinStyle baseOnly = WinStyle::WithTheme)
     {
         auto style_sheet = Io::readFile(":/themes/window_base.qss");
         if (hasTheme && baseOnly != WinStyle::BaseOnly)

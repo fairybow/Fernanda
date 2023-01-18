@@ -14,54 +14,54 @@
 #include <QStringList>
 #include <QVariant>
 
-namespace Ud
+namespace UserData
 {
-    namespace Fs = std::filesystem;
+    namespace StdFs = std::filesystem;
 
-    enum class ConfigGroup {
+    enum class IniGroup {
         Data,
         Editor,
         Window
     };
 
-    enum class ConfigVal {
-        Aot,
-        Awake,
-        BarAlign,
-        CountChar,
-        CountLine,
-        CountWord,
+    enum class IniValue {
+        AlwaysOnTop,
+        CharCount,
+        ColorBarAlignment,
+        ColumnPosition,
+        EditorFont,
+        EditorFontSize,
         EditorTheme,
-        Font,
-        FontSlider,
-        PosCol,
-        PosLine,
-        Position,
-        Project,
-        Splitter,
-        State,
-        T_AwakeBtn,
-        T_AotBtn,
-        T_ColorBar,
-        T_CursorBlink,
-        T_Cursor,
-        T_EditorTheme,
-        T_Indicator,
-        T_Keyfilter,
-        T_Lmr,
-        T_Lna,
-        T_LineHighlight,
-        T_Nav,
-        T_Pane,
-        T_Shadow,
-        T_StatusBar,
-        T_WinTheme,
-        TabStop,
-        WinTheme,
-        Wrap
+        LineCount,
+        LinePosition,
+        MostRecent,
+        SplitterPosition,
+        StayAwake,
+        TabStop,   
+        ToggleColorBar,
+        ToggleCursorBlink,
+        ToggleCursorBlock,
+        ToggleEditorShadow,
+        ToggleEditorTheme,
+        ToggleIndicator,
+        ToggleKeyFilters,
+        ToggleLineNumberArea,
+        ToggleLineHighlight,
+        ToggleLoadMostRecent,
+        TogglePane,
+        ToggleScrollsPrevNext,
+        ToggleStatusBar,
+        ToggleToolAOT,
+        ToggleToolSA,
+        ToggleWindowTheme,
+        WordCount,
+        WrapMode,
+        WindowPosition,
+        WindowState,
+        WindowTheme,
     };
 
-    enum class Op {
+    enum class Operation {
         Config,
         Create,
         GetBackup,
@@ -84,12 +84,12 @@ namespace Ud
     } dataVars;
 
     void setName(QString name);
-    const Fs::path userData(Op operation = Op::Create);
-    void saveConfig(ConfigGroup group, ConfigVal valueType, QVariant value);
-    QVariant loadConfig(ConfigGroup group, ConfigVal valueType, QVariant fallback = QVariant(), Ud::Type type = Ud::Type::QVariant);
-    const QString groupName(ConfigGroup group);
-    const QString valueName(ConfigVal valueType);
-    void clear(Fs::path dirPath, bool clearSelf = false);
+    const StdFs::path doThis(Operation operation = Operation::Create);
+    void saveConfig(IniGroup group, IniValue valueType, QVariant value);
+    QVariant loadConfig(IniGroup group, IniValue valueType, QVariant fallback = QVariant(), UserData::Type type = UserData::Type::QVariant);
+    const QString groupName(IniGroup group);
+    const QString valueName(IniValue valueType);
+    void clear(StdFs::path dirPath, bool clearSelf = false);
     QString timestamp();
     std::string dll();
 }

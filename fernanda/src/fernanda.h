@@ -7,7 +7,7 @@
 #include "indicator.h"
 #include "pane.h"
 #include "popup.h"
-#include "res.h"
+#include "resource.h"
 #include "splitter.h"
 #include "story.h"
 #include "toolbutton.h"
@@ -30,12 +30,12 @@
 
 class Fernanda : public QMainWindow
 {
-    using FsPath = std::filesystem::path;
+    using StdFsPath = std::filesystem::path;
 
     Q_OBJECT
 
 public:
-    Fernanda(bool isDev, FsPath story, QWidget* parent = nullptr);
+    Fernanda(bool isDev, StdFsPath story, QWidget* parent = nullptr);
 
 protected:
     void showEvent(QShowEvent* event) override;
@@ -55,12 +55,12 @@ private:
     QActionGroup* editorFonts = new QActionGroup(this);
     QActionGroup* tabStops = new QActionGroup(this);
     QActionGroup* wrapModes = new QActionGroup(this);
-    QActionGroup* barAlignments = new QActionGroup(this);
+    QActionGroup* colorBarAlignments = new QActionGroup(this);
     QSlider* fontSlider = new QSlider(Qt::Horizontal);
     Indicator* indicator = new Indicator(this);
     QLabel* spacer = new QLabel(this);
-    ToolButton* awake = new ToolButton(ToolButton::Type::StayAwake, this);
-    ToolButton* aot = new ToolButton(ToolButton::Type::AlwaysOnTop, this);
+    ToolButton* stayAwake = new ToolButton(ToolButton::Type::StayAwake, this);
+    ToolButton* alwaysOnTop = new ToolButton(ToolButton::Type::AlwaysOnTop, this);
     QTimer* autoTempSave = new QTimer(this); // move to editor or story
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
 
@@ -70,8 +70,8 @@ private:
     bool hasTheme = true;
 
     bool confirmStoryClose(bool isQuit = false);
-    void openLocalFolder(FsPath path);
-    const QStringList devPrintRenames(QVector<Io::ArcRename> renames);
+    void openLocalFolder(StdFsPath path);
+    const QStringList devPrintRenames(QVector<Io::ArchiveRename> renames);
     const QString name();
     void addWidgets();
     void connections();
@@ -83,15 +83,15 @@ private:
     void makeToggleMenu();
     void makeHelpMenu();
     void makeDevMenu();
-    void loadConfigs(FsPath story);
+    void loadConfigs(StdFsPath story);
     void loadWinConfigs();
-    void loadViewConfig(QVector<QAction*> actions, Ud::ConfigGroup group, Ud::ConfigVal valueType, QVariant fallback);
-    void loadMenuToggle(QAction* action, Ud::ConfigGroup group, Ud::ConfigVal valueType, QVariant fallback);
-    void openStory(FsPath fileName, Story::Op opt = Story::Op::Normal);
-    void toggleWidget(QWidget* widget, Ud::ConfigGroup group, Ud::ConfigVal valueType, bool value);
+    void loadViewConfig(QVector<QAction*> actions, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback);
+    void loadMenuToggle(QAction* action, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback);
+    void openStory(StdFsPath fileName, Story::Mode mode = Story::Mode::Normal);
+    void toggleWidget(QWidget* widget, UserData::IniGroup group, UserData::IniValue valueType, bool value);
 
     template<typename T>
-    inline QActionGroup* makeViewToggles(QVector<Res::DataPair>& dataLabelPairs, T slot)
+    inline QActionGroup* makeViewToggles(QVector<Resource::DataPair>& dataLabelPairs, T slot)
     {
         auto group = new QActionGroup(this);
         for (auto& pair : dataLabelPairs)
@@ -138,7 +138,7 @@ private slots:
     void handleEditorOpen(QString key = nullptr);
     void sendEditedText();
     bool replyHasProject();
-    void domMove(QString pivotKey, QString fulcrumKey, Io::Move pos);
+    void domMove(QString pivotKey, QString fulcrumKey, Io::Move position);
     void domAdd(QString newName, Path::Type type, QString parentKey);
     void domRename(QString newName, QString key);
     void domCut(QString key);
@@ -148,7 +148,7 @@ signals:
     bool askHasStartUpBar();
     void askToggleStartUpBar(bool checked);
     void askToggleScrolls(bool checked);
-    void askUpdatePositions(const int cursorBlockNumber, const int cursorPosInBlock);
+    void askUpdatePositions(const int cursorBlockNumber, const int cursorPositionInBlock);
     void askUpdateCounts(const QString text, const int blockCount);
     void askUpdateSelection(const QString selectedText, const int lineCount);
     void askEditorClose(bool isFinal = false);

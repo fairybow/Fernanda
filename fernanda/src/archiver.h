@@ -20,26 +20,26 @@ inline void operator<<(std::vector<std::string>& lhs, const std::string& rhs)
 
 class Archiver
 {
-    using FsPath = std::filesystem::path;
+    using StdFsPath = std::filesystem::path;
 
 public:
-    void create(FsPath arcPath, QVector<Io::ArcWRPaths> wRPaths);
-    const QString read(FsPath arcPath, FsPath rPath);
-    bool extractMatch(FsPath arcPath, FsPath relPath, FsPath exPath);
-    void extract(FsPath arcPath, FsPath exPath);
-    void add(FsPath arcPath, FsPath rPath, FsPath wPath);
-    void add(FsPath arcPath, QVector<Io::ArcWRPaths> wRPaths);
-    void add(FsPath arcPath, Io::ArcWrite textAndWPath);
-    void save(FsPath arcPath, QVector<Io::ArcRename> renamePaths);
-    void cut(FsPath arcPath, QVector<Io::ArcRename> cuts);
+    void create(StdFsPath archivePath, QVector<Io::ArchiveWriteReadPaths> writeReadPaths);
+    const QString read(StdFsPath archivePath, StdFsPath readPath);
+    bool extractMatch(StdFsPath archivePath, StdFsPath relativePath, StdFsPath extractPath);
+    void extract(StdFsPath archivePath, StdFsPath extractPath);
+    void add(StdFsPath archivePath, StdFsPath readPath, StdFsPath writePath);
+    void add(StdFsPath archivePath, QVector<Io::ArchiveWriteReadPaths> writeReadPaths);
+    void add(StdFsPath archivePath, Io::ArchiveWrite textAndWritePath);
+    void save(StdFsPath archivePath, QVector<Io::ArchiveRename> renamePaths);
+    void cut(StdFsPath archivePath, QVector<Io::ArchiveRename> cuts);
 
 private:
     const bit7z::BitInOutFormat& format = bit7z::BitFormat::SevenZip;
     bit7z::BitCompressionLevel level = bit7z::BitCompressionLevel::None;
 
-    void rename(FsPath arcPath, std::map<std::string, std::string> renames);
-    void del(FsPath arcPath, std::vector<std::string> relPaths);
-    void blanks(FsPath arcPath, std::map<std::string, Path::Type> additions);
+    void rename(StdFsPath archivePath, std::map<std::string, std::string> renames);
+    void del(StdFsPath archivePath, std::vector<std::string> relativePaths);
+    void blanks(StdFsPath archivePath, std::map<std::string, Path::Type> additions);
 };
 
 // archiver.h, Fernanda

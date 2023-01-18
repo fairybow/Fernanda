@@ -19,16 +19,16 @@ public:
 
     enum class Has {
         CharCount,
-        ColPos,
+        ColumnPosition,
         LineCount,
-        LinePos,
+        LinePosition,
         WordCount
     };
 
     void toggle(bool checked, Has has);
 
 public slots:
-    void updatePositions(const int cursorBlockNumber, const int cursorPosInBlock);
+    void updatePositions(const int cursorBlockNumber, const int cursorPositionInBlock);
     void updateCounts(const QString text, const int blockCount);
     void updateSelection(const QString selectedText, const int lineCount);
 
@@ -38,8 +38,8 @@ private:
     QLabel* separator = new QLabel(this);
     QLabel* counts = new QLabel(this);
 
-    bool hasLinePos = true;
-    bool hasColPos = true;
+    bool hasLinePosition = true;
+    bool hasColumnPosition = true;
     bool hasLineCount = true;
     bool hasWordCount = true;
     bool hasCharCount = true;

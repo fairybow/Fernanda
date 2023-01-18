@@ -41,13 +41,13 @@ const QStringList Pane::devGetEditedKeys()
     return delegate->paintEdited;
 }
 
-void Pane::nav(Nav direction)
+void Pane::navigate(Go direction)
 {
     auto current_index = currentIndex();
     if (!isExpanded(current_index))
         expand(current_index);
     QModelIndex next;
-    (direction == Nav::Previous)
+    (direction == Go::Previous)
         ? next = indexAbove(current_index)
         : next = indexBelow(current_index);
     if (next.isValid())
@@ -60,7 +60,7 @@ void Pane::nav(Nav direction)
         {
             auto last_valid_index = currentIndex();
             QModelIndex wrap_around;
-            (direction == Nav::Previous)
+            (direction == Go::Previous)
                 ? wrap_around = indexBelow(last_valid_index)
                 : wrap_around = indexAbove(last_valid_index);
             if (wrap_around.isValid())
@@ -74,7 +74,7 @@ void Pane::nav(Nav direction)
     if (destination_index_child_rows && !isExpanded(destination_index))
     {
         expand(destination_index);
-        if (direction == Nav::Previous)
+        if (direction == Go::Previous)
             for (auto i = 0; i < destination_index_child_rows; ++i)
             {
                 destination_index = indexBelow(destination_index);
@@ -239,7 +239,7 @@ QStandardItem* Pane::tempItem(Path::Type type)
     QStandardItem* result = new QStandardItem();
     switch (type) {
     case Path::Type::Dir:
-        result->setData("dir", Qt::UserRole);
+        result->setData("directory", Qt::UserRole);
         break;
     case Path::Type::File:
         result->setData("file", Qt::UserRole);

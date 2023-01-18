@@ -42,29 +42,29 @@ void Editor::toggle(bool checked, Has has)
     case Has::BlockCursor:
         hasBlockCursor = checked;
         plainTextEdit->cursorPositionChanged();
-        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Cursor, checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlock, checked);
         break;
     case Has::CursorBlink:
         hasCursorBlink = checked;
         startBlinker();
-        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_CursorBlink, checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlink, checked);
         break;
     case Has::ExtraScrolls:
         askToggleExtraScrolls(checked);
-        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Nav, checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleScrollsPrevNext, checked);
         break;
     case Has::Keyfilter:
         hasKeyfilter = checked;
-        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Keyfilter, checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleKeyFilters, checked);
         break;
     case Has::LineHighlight:
         hasLineHighlight = checked;
         plainTextEdit->highlightCurrentLine();
-        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_LineHighlight, checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleLineHighlight, checked);
         break;
     case Has::LineNumberArea:
         askToggleLineNumberArea(checked);
-        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Lna, checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleLineNumberArea, checked);
         break;
     case Has::Scrolls:
         askToggleScrolls(checked);
@@ -72,12 +72,12 @@ void Editor::toggle(bool checked, Has has)
     case Has::Shadow:
         hasShadow = checked;
         setStyle(askTheme());
-        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_Shadow, checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorShadow, checked);
         break;
     case Has::Theme:
         hasTheme = checked;
         setStyle(askTheme());
-        Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::T_EditorTheme, checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorTheme, checked);
         break;
     }
 }
@@ -110,7 +110,7 @@ void Editor::handleTextSwap(QString key, QString text)
 void Editor::setStyle(QAction* selection)
 {
     if (selection == nullptr) return;
-    auto theme_path = Path::toFs(selection->data());
+    auto theme_path = Path::toStdFs(selection->data());
     auto editor_style = Style::editorStyle(theme_path, hasTheme, hasShadow);
     shadow->setStyleSheet(editor_style.styleSheet);
     overlay->setStyleSheet(editor_style.styleSheet);
@@ -118,16 +118,16 @@ void Editor::setStyle(QAction* selection)
     plainTextEdit->setStyleSheet(editor_style.styleSheet);
     plainTextEdit->cursorColorHex = editor_style.cursorColor;
     plainTextEdit->cursorUnderColorHex = editor_style.underCursorColor;
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::EditorTheme, Path::toQString(theme_path));
+    UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorTheme, Path::toQString(theme_path));
 }
 
 void Editor::handleFont(QAction* selection, int sliderValue)
 {
     if (selection == nullptr) return;
     auto path = selection->data();
-    plainTextEdit->handleFont(Path::toFs(path), sliderValue);
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::Font, path);
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::FontSlider, sliderValue);
+    plainTextEdit->handleFont(Path::toStdFs(path), sliderValue);
+    UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorFont, path);
+    UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorFontSize, sliderValue);
 }
 
 void Editor::setTabStop(int distance)
@@ -135,7 +135,7 @@ void Editor::setTabStop(int distance)
     if (distance == -1)
         distance = 40;
     plainTextEdit->setTabStopDistance(distance);
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::TabStop, distance);
+    UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::TabStop, distance);
 }
 
 void Editor::setWrapMode(QString mode)
@@ -153,7 +153,7 @@ void Editor::setWrapMode(QString mode)
         mode = "WrapAt";
         plainTextEdit->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     }
-    Ud::saveConfig(Ud::ConfigGroup::Editor, Ud::ConfigVal::Wrap, mode);
+    UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::WrapMode, mode);
 }
 
 void Editor::close(bool isFinal)
@@ -192,8 +192,8 @@ void Editor::connections()
     connect(plainTextEdit, &PlainTextEdit::askCursorVisible, this, [&]() { return cursorVisible; });
     connect(plainTextEdit, &PlainTextEdit::cursorPositionChanged, this, [&]() { cursorPositionChanged(); });
     connect(plainTextEdit, &PlainTextEdit::selectionChanged, this, [&]() { selectionChanged(); });
-    connect(plainTextEdit, &PlainTextEdit::askNavNext, this, [&]() { askNavNext(); });
-    connect(plainTextEdit, &PlainTextEdit::askNavPrevious, this, [&]() { askNavPrevious(); });
+    connect(plainTextEdit, &PlainTextEdit::askGoNext, this, [&]() { askGoNext(); });
+    connect(plainTextEdit, &PlainTextEdit::askGoPrevious, this, [&]() { askGoPrevious(); });
     connect(plainTextEdit, &PlainTextEdit::cursorPositionChanged, this, [&]()
         {
             if (plainTextEdit->textCursor().hasSelection() || !hasCursorBlink) return;

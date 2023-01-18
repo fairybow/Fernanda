@@ -13,7 +13,7 @@
 
 namespace Io
 {
-	namespace Fs = std::filesystem;
+	namespace StdFs = std::filesystem;
 
 	enum class Move {
 		Above,
@@ -22,26 +22,26 @@ namespace Io
 		Viewport
 	};
 
-	struct ArcWRPaths {
-		Fs::path writeRelPath;
-		std::optional<Fs::path> readFullPath;
+	struct ArchiveWriteReadPaths {
+		StdFs::path writeRelPath;
+		std::optional<StdFs::path> readFullPath;
 	};
-	struct ArcWrite {
+	struct ArchiveWrite {
 		QString text;
-		Fs::path writeRelPath;
+		StdFs::path writeRelPath;
 	};
-	struct ArcRename {
+	struct ArchiveRename {
 		QString key;
-		Fs::path relPath;
-		std::optional<Fs::path> origRelPath;
+		StdFs::path relativePath;
+		std::optional<StdFs::path> originalRelativePath;
 		std::optional<Path::Type> typeIfNewOrCut;
 	};
 
-	const Fs::path storyRoot = QStringLiteral("story").toStdString();
-	const QString ext = QStringLiteral(".txt");
-	const QString tempExt = QStringLiteral(".txt~");
+	const StdFs::path storyRoot = QStringLiteral("story").toStdString();
+	const QString extension = QStringLiteral(".txt");
+	const QString tempExtension = QStringLiteral(".txt~");
 
-	inline const QString readFile(Fs::path filePath)
+	inline const QString readFile(StdFs::path filePath)
 	{
 		QString text;
 		QFile file(filePath);
@@ -54,7 +54,7 @@ namespace Io
 		return text;
 	}
 
-	inline void writeFile(Fs::path filePath, QString text)
+	inline void writeFile(StdFs::path filePath, QString text)
 	{
 		Path::makeParent(filePath);
 		QFile file(filePath);

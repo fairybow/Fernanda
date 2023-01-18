@@ -29,7 +29,7 @@
 			- text.h (+ version.h)
 		- popup.h
 			- text.h (+ version.h)
-		- res.h
+		- resource.h
 			- path.h
 		- splitter.h
 			- userdata.h (+ path.h)
@@ -124,7 +124,7 @@
 #include "indicator.h"
 #include "pane.h"
 #include "popup.h"
-#include "res.h"
+#include "resource.h"
 #include "splitter.h"
 #include "story.h"
 #include "toolbutton.h"
@@ -277,7 +277,7 @@
 #include <QWidget>
 ```
 
-### res.h
+### resource.h
 ```
 #include "path.h"
 

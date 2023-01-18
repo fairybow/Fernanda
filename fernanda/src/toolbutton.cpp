@@ -18,7 +18,7 @@ ToolButton::ToolButton(Type type, QMainWindow* parentWindow)
 void ToolButton::toggle(bool value)
 {
     setVisible(value);
-    Ud::saveConfig(configGroup, widgetConfig, value);
+    UserData::saveConfig(configGroup, widgetConfig, value);
 }
 
 bool ToolButton::eventFilter(QObject* watched, QEvent* event)
@@ -39,15 +39,15 @@ void ToolButton::typeDependentSetup()
     case Type::AlwaysOnTop:
     {
         setText(Icon::draw(Icon::Name::Pushpin));
-        widgetConfig = Ud::ConfigVal::T_AotBtn;
-        actionConfig = Ud::ConfigVal::Aot;
+        widgetConfig = UserData::IniValue::ToggleToolAOT;
+        actionConfig = UserData::IniValue::AlwaysOnTop;
     }
     break;
     case Type::StayAwake:
     {
         setText(Icon::draw(Icon::Name::Tea));
-        widgetConfig = Ud::ConfigVal::T_AwakeBtn;
-        actionConfig = Ud::ConfigVal::Awake;
+        widgetConfig = UserData::IniValue::ToggleToolSA;
+        actionConfig = UserData::IniValue::StayAwake;
         stayAwakeTimer = new QTimer(this);
         connect(this, &ToolButton::startAwakeTimer, this, [&]() { stayAwakeTimer.value()->start(29000); });
         connect(stayAwakeTimer.value(), &QTimer::timeout, this, &ToolButton::stayAwake);
@@ -92,7 +92,7 @@ void ToolButton::action(bool checked)
         startAwakeTimer();
         break;
     }
-    Ud::saveConfig(configGroup, actionConfig, checked);
+    UserData::saveConfig(configGroup, actionConfig, checked);
 }
 
 // toolbutton.cpp, Fernanda

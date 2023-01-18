@@ -14,24 +14,24 @@
 
 namespace Path
 {
-	namespace Fs = std::filesystem;
+	namespace StdFs = std::filesystem;
 
 	enum class Type {
 		Dir,
 		File
 	};
 
-	inline Fs::path toFs(QString qStringPath)
+	inline StdFs::path toStdFs(QString qStringPath)
 	{
-		return Fs::path(qStringPath.toStdString());
+		return StdFs::path(qStringPath.toStdString());
 	}
 
-	inline Fs::path toFs(QVariant qVariantPath)
+	inline StdFs::path toStdFs(QVariant qVariantPath)
 	{
-		return Fs::path(qVariantPath.toString().toStdString());
+		return StdFs::path(qVariantPath.toString().toStdString());
 	}
 
-	inline QString toQString(Fs::path path, bool sanitize = false)
+	inline QString toQString(StdFs::path path, bool sanitize = false)
 	{
 		auto result = QString::fromStdString(path.make_preferred().string());
 		if (sanitize)
@@ -41,14 +41,14 @@ namespace Path
 
 #if QT_VERSION > QT_VERSION_CHECK(6, 2, 4)
 
-	inline void copy(Fs::path fileName, Fs::path newName)
+	inline void copy(StdFs::path fileName, StdFs::path newName)
 	{
 		QFile::copy(fileName, newName);
 	}
 
 #else
 
-	inline void copy(Fs::path fileName, Fs::path newName)
+	inline void copy(StdFs::path fileName, StdFs::path newName)
 	{
 		QFile::copy(toQString(fileName), toQString(newName));
 	}
@@ -57,14 +57,14 @@ namespace Path
 
 #ifdef Q_OS_LINUX
 
-	inline std::string toB7z(Fs::path path)
+	inline std::string toB7z(StdFs::path path)
 	{
 		return path.string();
 	}
 
 #else
 
-	inline std::string toB7z(Fs::path path)
+	inline std::string toB7z(StdFs::path path)
 	{
 		auto result = toQString(path);
 		result.replace(R"(/)", R"(\)");
@@ -73,30 +73,30 @@ namespace Path
 
 #endif
 
-	inline void makeParent(Fs::path path)
+	inline void makeParent(StdFs::path path)
 	{
 		auto parent = path.parent_path();
 		if (QDir(parent).exists()) return;
-		Fs::create_directories(parent);
+		StdFs::create_directories(parent);
 	}
 
 	template<typename T, typename U>
 	inline const T getName(U path)
 	{
 		if constexpr (std::is_same<T, QString>::value && std::is_same<U, QString>::value)
-			return QString::fromStdString(toFs(path).stem().string());
-		if constexpr (std::is_same<T, QString>::value && std::is_same<U, Fs::path>::value)
+			return QString::fromStdString(toStdFs(path).stem().string());
+		if constexpr (std::is_same<T, QString>::value && std::is_same<U, StdFs::path>::value)
 			return QString::fromStdString(path.stem().string());
-		if constexpr (std::is_same<T, Fs::path>::value && std::is_same<U, QString>::value)
-			return toFs(path).stem();
-		if constexpr (std::is_same<T, Fs::path>::value && std::is_same<U, Fs::path>::value)
+		if constexpr (std::is_same<T, StdFs::path>::value && std::is_same<U, QString>::value)
+			return toStdFs(path).stem();
+		if constexpr (std::is_same<T, StdFs::path>::value && std::is_same<U, StdFs::path>::value)
 			return path.stem();
 	}
 
-	inline void makeDirs(Fs::path dirPath)
+	inline void makeDirs(StdFs::path dirPath)
 	{
 		if (QDir(dirPath).exists()) return;
-		Fs::create_directories(dirPath);
+		StdFs::create_directories(dirPath);
 	}
 }
 

@@ -31,39 +31,39 @@ void Indicator::toggle(bool checked, Has has)
     case Has::CharCount:
         hasCharCount = checked;
         askSignalTextChanged();
-        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::CountChar, checked);
+        UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::CharCount, checked);
         break;
-    case Has::ColPos:
-        hasColPos = checked;
+    case Has::ColumnPosition:
+        hasColumnPosition = checked;
         askSignalCursorPositionChanged();
-        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::PosCol, checked);
+        UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::ColumnPosition, checked);
         break;
     case Has::LineCount:
         hasLineCount = checked;
         askSignalTextChanged();
-        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::CountLine, checked);
+        UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::LineCount, checked);
         break;
-    case Has::LinePos:
-        hasLinePos = checked;
+    case Has::LinePosition:
+        hasLinePosition = checked;
         askSignalCursorPositionChanged();
-        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::PosLine, checked);
+        UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::LinePosition, checked);
         break;
     case Has::WordCount:
         hasWordCount = checked;
         askSignalTextChanged();
-        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::CountWord, checked);
+        UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::WordCount, checked);
         break;
     }
 }
 
-void Indicator::updatePositions(const int cursorBlockNumber, const int cursorPosInBlock)
+void Indicator::updatePositions(const int cursorBlockNumber, const int cursorPositionInBlock)
 {
-    if (!hideOrShow(positions, hasLinePos, hasColPos)) return;
+    if (!hideOrShow(positions, hasLinePosition, hasColumnPosition)) return;
     QStringList elements;
-    if (hasLinePos)
+    if (hasLinePosition)
         elements << QStringLiteral("ln ") + QString::number(cursorBlockNumber + 1);
-    if (hasColPos)
-        elements << QStringLiteral("col ") + QString::number(cursorPosInBlock + 1);
+    if (hasColumnPosition)
+        elements << QStringLiteral("col ") + QString::number(cursorPositionInBlock + 1);
     positions->setText(elements.join(QStringLiteral(", ")));
 }
 

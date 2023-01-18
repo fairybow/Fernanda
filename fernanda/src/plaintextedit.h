@@ -30,7 +30,7 @@
 
 class PlainTextEdit : public QPlainTextEdit
 {
-    using FsPath = std::filesystem::path;
+    using StdFsPath = std::filesystem::path;
 
     Q_OBJECT
 
@@ -53,7 +53,7 @@ public:
     int lineNumberAreaWidth();
     int selectedLineCount();
     void scrollNavClicked(Scroll direction);
-    void handleFont(FsPath fontPath, int sliderValue);
+    void handleFont(StdFsPath fontPath, int sliderValue);
 
 public slots:
     void highlightCurrentLine();
@@ -98,8 +98,8 @@ signals:
     bool askHasCursorBlink();
     bool askHasBlockCursor();
     bool askCursorVisible();
-    void askNavPrevious();
-    void askNavNext();
+    void askGoPrevious();
+    void askGoNext();
     bool askOverlayVisible();
 };
 

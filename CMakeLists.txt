@@ -38,7 +38,7 @@ qt_add_executable(fernanda
     src/path.h
     src/plaintextedit.h
     src/popup.h
-    src/res.h
+    src/resource.h
     src/sample.h
     src/splitter.h
     src/startcop.h

@@ -19,7 +19,7 @@ public:
         setObjectName("splitter");
         connect(this, &QSplitter::splitterMoved, this, [&]()
             {
-                Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Splitter, saveState());
+                UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::SplitterPosition, saveState());
             });
     }
 
@@ -35,7 +35,7 @@ public:
 
     void loadConfig(QRect geometry)
     {
-        auto state = Ud::loadConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::Splitter, QVariant()).toByteArray();
+        auto state = UserData::loadConfig(UserData::IniGroup::Window, UserData::IniValue::SplitterPosition, QVariant()).toByteArray();
         if (state.isEmpty() || state.isNull())
             setSizes(QVector<int>{ static_cast<int>(geometry.width() * 0.2), static_cast<int>(geometry.width() * 0.8) });
         else

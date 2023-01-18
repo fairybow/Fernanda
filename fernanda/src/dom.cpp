@@ -2,24 +2,24 @@
 
 #include "dom.h"
 
-void Dom::set(QString xmlDoc)
+void Dom::set(QString xmlDocument)
 {
-	self.setContent(xmlDoc);
+	self.setContent(xmlDocument);
 	initialSelf.setContent(string());
 	cutElements.setContent(QStringLiteral("<root/>"));
 }
 
-const QString Dom::string(Doc doc)
+const QString Dom::string(Document document)
 {
 	QString result = nullptr;
-	switch (doc) {
-	case Doc::Current:
+	switch (document) {
+	case Document::Current:
 		result = self.toString();
 		break;
-	case Doc::Cuts:
+	case Document::Cuts:
 		result = cutElements.toString();
 		break;
-	case Doc::Initial:
+	case Document::Initial:
 		result = initialSelf.toString();
 		break;
 	}
@@ -28,7 +28,7 @@ const QString Dom::string(Doc doc)
 
 bool Dom::hasChanges()
 {
-	if (string() != string(Doc::Initial)) return true;
+	if (string() != string(Document::Initial)) return true;
 	return false;
 }
 
@@ -36,11 +36,11 @@ void Dom::move(QString pivotKey, QString fulcrumKey, Io::Move position)
 {
 	auto pivot = element<QDomElement>(pivotKey);
 	auto fulcrum = element<QDomElement>(fulcrumKey);
-	FsPath new_pivot_path;
-	FsPath new_pivot_parent_path;
+	StdFsPath new_pivot_path;
+	StdFsPath new_pivot_parent_path;
 	auto pivot_name = element<QString>(pivotKey, Element::Name);
 	if (isFile(pivot))
-		pivot_name = pivot_name + Io::ext;
+		pivot_name = pivot_name + Io::extension;
 	switch (position) {
 	case Io::Move::Above:
 		fulcrum.parentNode().insertBefore(pivot, fulcrum);
@@ -54,8 +54,8 @@ void Dom::move(QString pivotKey, QString fulcrumKey, Io::Move position)
 		fulcrum.appendChild(pivot);
 		if (isDir(fulcrum))
 		{
-			auto fulcrum_path = element<FsPath>(fulcrumKey, Element::Path);
-			new_pivot_path = fulcrum_path / Path::toFs(pivot_name);
+			auto fulcrum_path = element<StdFsPath>(fulcrumKey, Element::Path);
+			new_pivot_path = fulcrum_path / Path::toStdFs(pivot_name);
 			new_pivot_parent_path = fulcrum_path;
 		}
 		else if (isFile(fulcrum))
@@ -64,18 +64,18 @@ void Dom::move(QString pivotKey, QString fulcrumKey, Io::Move position)
 	case Io::Move::Viewport:
 		self.documentElement().appendChild(pivot);
 		new_pivot_parent_path = Io::storyRoot;
-		new_pivot_path = new_pivot_parent_path / Path::toFs(pivot_name);
+		new_pivot_path = new_pivot_parent_path / Path::toStdFs(pivot_name);
 		break;
 	}
-	FsPath children_base_path;
+	StdFsPath children_base_path;
 	if (isDir(pivot))
 		children_base_path = new_pivot_path;
 	else if (isFile(pivot))
 		children_base_path = new_pivot_parent_path;
 	auto renames = prepareChildRenames_recursor(pivot, children_base_path);
-	renames << Io::ArcRename{ pivotKey, new_pivot_path };
+	renames << Io::ArchiveRename{ pivotKey, new_pivot_path };
 	for (auto& rename : renames)
-		write(rename.key, Path::toQString(rename.relPath, true), Write::Rename);
+		write(rename.key, Path::toQString(rename.relativePath, true), Write::Rename);
 }
 
 void Dom::rename(QString newName, QString key)
@@ -83,14 +83,14 @@ void Dom::rename(QString newName, QString key)
 	if (newName == nullptr) return;
 	auto elem = element<QDomElement>(key);
 	if (isFile(elem))
-		newName = newName + Io::ext;
-	auto parent_path = element<FsPath>(key, Element::ParentDirPath);
-	auto new_path = parent_path / Path::toFs(newName);
-	QVector<Io::ArcRename> renames = { Io::ArcRename{ key, new_path } };
+		newName = newName + Io::extension;
+	auto parent_path = element<StdFsPath>(key, Element::ParentDirPath);
+	auto new_path = parent_path / Path::toStdFs(newName);
+	QVector<Io::ArchiveRename> renames = { Io::ArchiveRename{ key, new_path } };
 	if (isDir(elem))
 		renames << prepareChildRenames_recursor(elem, new_path, ChildRenames::InPlace);
 	for (auto& rename : renames)
-		write(rename.key, Path::toQString(rename.relPath, true), Write::Rename);
+		write(rename.key, Path::toQString(rename.relativePath, true), Write::Rename);
 }
 
 void Dom::add(QString newName, Path::Type type, QString parentKey)
@@ -105,32 +105,32 @@ void Dom::add(QString newName, Path::Type type, QString parentKey)
 		break;
 	case Path::Type::File:
 		tag_name = tagFile;
-		name = newName + Io::ext;
+		name = newName + Io::extension;
 		break;
 	}
 	auto elem = self.createElement(tag_name);
 	auto key = QUuid::createUuid().toString(QUuid::WithoutBraces);
-	elem.setAttribute(attrKey, key);
-	elem.setAttribute(attrExpanded, "false");
+	elem.setAttribute(attributeKey, key);
+	elem.setAttribute(attributeExpanded, "false");
 	QDomElement parent_element;
-	FsPath nearest_dir;
+	StdFsPath nearest_dir;
 	if (parentKey != nullptr)
 	{
 		parent_element = element<QDomElement>(parentKey);
 		if (isDir(parent_element))
-			nearest_dir = element<FsPath>(parentKey, Element::Path);
+			nearest_dir = element<StdFsPath>(parentKey, Element::Path);
 		else
 		{
 			auto parent_dir_key = element<QString>(parentKey, Element::ParentDirKey);
 			if (parent_dir_key != nullptr)
-				nearest_dir = element<FsPath>(parent_dir_key, Element::Path);
+				nearest_dir = element<StdFsPath>(parent_dir_key, Element::Path);
 		}
 	}
 	else
 		parent_element = self.documentElement();
 	if (nearest_dir.empty())
 		nearest_dir = Io::storyRoot;
-	auto path = nearest_dir / Path::toFs(name);
+	auto path = nearest_dir / Path::toStdFs(name);
 	parent_element.appendChild(elem);
 	write(key, Path::toQString(path, true), Write::Rename);
 }
@@ -146,51 +146,51 @@ QStringList Dom::cut(QString key)
 	return result;
 }
 
-QVector<Io::ArcRename> Dom::cuts()
+QVector<Io::ArchiveRename> Dom::cuts()
 {
-	QVector<Io::ArcRename> result;
+	QVector<Io::ArchiveRename> result;
 	auto cut_elements = elements(cutElements);
 	for (auto& cut_element : cut_elements)
 	{
-		auto key = cut_element.attribute(attrKey);
-		auto rename = Path::toFs(cut_element.attribute(attrRename));
-		auto rel_path = Path::toFs(cut_element.attribute(attrRelPath));
+		auto key = cut_element.attribute(attributeKey);
+		auto rename = Path::toStdFs(cut_element.attribute(attrRename));
+		auto relative_path = Path::toStdFs(cut_element.attribute(attributeRelativePath));
 		Path::Type type{};
 		(isDir(cut_element))
 			? type = Path::Type::Dir
 			: type = Path::Type::File;
-		(rel_path.empty())
-			? result << Io::ArcRename{ key, rename, std::optional<FsPath>(), type }
-			: result << Io::ArcRename{ key, (rename.empty() ? rel_path : rename), std::optional<FsPath>(rel_path), type};
+		(relative_path.empty())
+			? result << Io::ArchiveRename{ key, rename, std::optional<StdFsPath>(), type }
+			: result << Io::ArchiveRename{ key, (rename.empty() ? relative_path : rename), std::optional<StdFsPath>(relative_path), type};
 	}
 	return result;
 }
 
-QVector<Io::ArcRename> Dom::renames(Finalize finalize)
+QVector<Io::ArchiveRename> Dom::renames(Finalize finalize)
 {
-	QVector<Io::ArcRename> result;
+	QVector<Io::ArchiveRename> result;
 	for (auto& renamed_element : elementsByAttribute(attrRename))
 	{
-		auto key = renamed_element.attribute(attrKey);
-		auto rename = Path::toFs(renamed_element.attribute(attrRename));
-		auto rel_path = Path::toFs(renamed_element.attribute(attrRelPath));
-		if (rel_path == rename)
+		auto key = renamed_element.attribute(attributeKey);
+		auto rename = Path::toStdFs(renamed_element.attribute(attrRename));
+		auto relative_path = Path::toStdFs(renamed_element.attribute(attributeRelativePath));
+		if (relative_path == rename)
 			renamed_element.removeAttribute(attrRename);
 		else
 		{
-			if (rel_path.empty())
+			if (relative_path.empty())
 			{
 				Path::Type type{};
 				(isDir(renamed_element))
 					? type = Path::Type::Dir
 					: type = Path::Type::File;
-				result << Io::ArcRename{ key, rename, std::optional<FsPath>(), type };
+				result << Io::ArchiveRename{ key, rename, std::optional<StdFsPath>(), type };
 			}
 			else
-				result << Io::ArcRename{ key, rename, rel_path };
+				result << Io::ArchiveRename{ key, rename, relative_path };
 			if (finalize == Finalize::Yes)
 			{
-				renamed_element.setAttribute(attrRelPath, Path::toQString(rename));
+				renamed_element.setAttribute(attributeRelativePath, Path::toQString(rename, true));
 				renamed_element.removeAttribute(attrRename);
 			}
 		}
@@ -200,7 +200,7 @@ QVector<Io::ArcRename> Dom::renames(Finalize finalize)
 
 QDomElement Dom::element_recursor(QDomElement node, QString key, QDomElement result)
 {
-	if (node.attribute(attrKey) == key)
+	if (node.attribute(attributeKey) == key)
 		result = node;
 	auto child_node = node.firstChildElement();
 	while (!child_node.isNull())
@@ -213,10 +213,10 @@ QDomElement Dom::element_recursor(QDomElement node, QString key, QDomElement res
 	return result;
 }
 
-QVector<QDomElement> Dom::elements(QDomDocument doc)
+QVector<QDomElement> Dom::elements(QDomDocument document)
 {
 	QVector<QDomElement> result;
-	auto root = doc.documentElement();
+	auto root = document.documentElement();
 	auto next_node = root.firstChildElement();
 	while (!next_node.isNull())
 	{
@@ -273,13 +273,13 @@ QVector<QDomElement> Dom::elementsByAttribute_recursor(QDomElement node, QString
 	return result;
 }
 
-void Dom::movePaths(FsPath& newPivotPath, FsPath& newPivotParentPath, QString pivotName, QString fulcrumKey)
+void Dom::movePaths(StdFsPath& newPivotPath, StdFsPath& newPivotParentPath, QString pivotName, QString fulcrumKey)
 {
 	auto fulcrum_parent_key = element<QString>(fulcrumKey, Element::ParentDirKey);
 	(fulcrum_parent_key == nullptr)
 		? newPivotParentPath = Io::storyRoot
-		: newPivotParentPath = element<FsPath>(fulcrum_parent_key, Element::Path);
-	newPivotPath = newPivotParentPath / Path::toFs(pivotName);
+		: newPivotParentPath = element<StdFsPath>(fulcrum_parent_key, Element::Path);
+	newPivotPath = newPivotParentPath / Path::toStdFs(pivotName);
 }
 
 QStringList Dom::childKeys_recursor(QDomElement node, QStringList result)
@@ -288,52 +288,52 @@ QStringList Dom::childKeys_recursor(QDomElement node, QStringList result)
 	while (!child_node.isNull())
 	{
 		if (isFile(child_node))
-			result << child_node.attribute(attrKey);
+			result << child_node.attribute(attributeKey);
 		result << childKeys_recursor(child_node);
 		child_node = child_node.nextSiblingElement();
 	}
 	return result;
 }
 
-QVector<Io::ArcRename> Dom::prepareChildRenames_recursor(QDomElement node, FsPath stemPathParent, ChildRenames renameType, QVector<Io::ArcRename> result)
+QVector<Io::ArchiveRename> Dom::prepareChildRenames_recursor(QDomElement node, StdFsPath stemPathParent, ChildRenames renameType, QVector<Io::ArchiveRename> result)
 {
 	auto child = node.firstChildElement();
 	while (!child.isNull())
 	{
-		auto child_key = child.attribute(attrKey);
+		auto child_key = child.attribute(attributeKey);
 		QString child_name;
 		if (isDir(child))
 			child_name = element<QString>(child_key, Element::Name);
 		else if (isFile(child))
-			child_name = element<QString>(child_key, Element::Name) + Io::ext;
+			child_name = element<QString>(child_key, Element::Name) + Io::extension;
 		auto nearest_dir_key = element<QString>(child_key, Element::ParentDirKey);
 		auto nearest_dir_name = element<QString>(nearest_dir_key, Element::Name);
 		auto stem_path_name = Path::getName<QString>(stemPathParent);
-		FsPath next_stem_path;
+		StdFsPath next_stem_path;
 		if (stem_path_name == nearest_dir_name || renameType == ChildRenames::InPlace)
 			next_stem_path = stemPathParent;
 		else
-			next_stem_path = stemPathParent / Path::toFs(nearest_dir_name);
-		auto rel_path = next_stem_path / Path::toFs(child_name);
-		result << Io::ArcRename{ child_key, rel_path };
+			next_stem_path = stemPathParent / Path::toStdFs(nearest_dir_name);
+		auto relative_path = next_stem_path / Path::toStdFs(child_name);
+		result << Io::ArchiveRename{ child_key, relative_path };
 		result << prepareChildRenames_recursor(child, next_stem_path, renameType);
 		child = child.nextSiblingElement();
 	}
 	return result;
 }
 
-Dom::FsPath Dom::filterPath(QDomElement elem, Filter filter)
+Dom::StdFsPath Dom::filterPath(QDomElement elem, Filter filter)
 {
-	FsPath result;
+	StdFsPath result;
 	switch (filter) {
 	case Filter::OrigToNullptr:
-		if (elem.hasAttribute(attrRelPath))
-			result = Path::toFs(elem.attribute(attrRelPath));
+		if (elem.hasAttribute(attributeRelativePath))
+			result = Path::toStdFs(elem.attribute(attributeRelativePath));
 		break;
 	case Filter::RenameToOrig:
 		(elem.hasAttribute(attrRename))
-			? result = Path::toFs(elem.attribute(attrRename))
-			: result = Path::toFs(elem.attribute(attrRelPath));
+			? result = Path::toStdFs(elem.attribute(attrRename))
+			: result = Path::toStdFs(elem.attribute(attributeRelativePath));
 		break;
 	}
 	return result;

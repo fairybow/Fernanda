@@ -13,20 +13,20 @@
 
 class Story
 {
-    using FsPath = std::filesystem::path;
+    using StdFsPath = std::filesystem::path;
 
 public:
-    enum class Op {
+    enum class Mode {
         Normal,
         Sample
     };
 
-    Story(FsPath filePath, Op opt = Op::Normal);
+    Story(StdFsPath filePath, Mode mode = Mode::Normal);
 
-    const QString devGetDom(Dom::Doc doc = Dom::Doc::Current);
-    QVector<Io::ArcRename> devGetRenames();
+    const QString devGetDom(Dom::Document document = Dom::Document::Current);
+    QVector<Io::ArchiveRename> devGetRenames();
     const QStringList devGetEditedKeys();
-    const FsPath devGetActiveTemp();
+    const StdFsPath devGetActiveTemp();
     QVector<QStandardItem*> items();
     const QString key();
     const QString tempSaveOld_openNew(QString newKey, QString oldText = nullptr);
@@ -43,14 +43,14 @@ public:
     template<typename T>
     inline const T name()
     {
-        return Path::getName<T>(activeArcPath);
+        return Path::getName<T>(activeArchivePath);
     }
 
 private:
     Archiver* archiver = new Archiver;
     Dom* dom = new Dom;
 
-    FsPath activeArcPath;
+    StdFsPath activeArchivePath;
     QString activeKey = nullptr;
     QString cleanText = nullptr;
     QStringList editedKeys;
@@ -60,15 +60,15 @@ private:
         Remove
     };
 
-    void make(Op opt);
+    void make(Mode mode);
     const QString xml();
     void newXml();
-    void newXml_recursor(QXmlStreamWriter& writer, FsPath rPath, FsPath rootPath = FsPath());
+    void newXml_recursor(QXmlStreamWriter& writer, StdFsPath readPath, StdFsPath rootPath = StdFsPath());
     QStandardItem* items_recursor(QXmlStreamReader& reader);
     void tempSave(QString key, QString text);
     const QString tempOpen(QString newKey);
-    const FsPath tempPath(QString key);
-    void amendEditsList(AmendEdits op, QString key = nullptr);
+    const StdFsPath tempPath(QString key);
+    void amendEditsList(AmendEdits operation, QString key = nullptr);
     bool isEdited(QString key);
     void bak();
 };

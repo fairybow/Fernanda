@@ -30,7 +30,7 @@ void ColorBar::toggle(bool checked, Has has)
         break;
     case Has::Self:
         hasSelf = checked;
-        Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::T_ColorBar, checked);
+        UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::ToggleColorBar, checked);
         break;
     }
 }
@@ -58,7 +58,7 @@ void ColorBar::setAlignment(QString alignment)
     (alignment == "Bottom")
         ? layout->setAlignment(Qt::AlignBottom)
         : layout->setAlignment(Qt::AlignTop);
-    Ud::saveConfig(Ud::ConfigGroup::Window, Ud::ConfigVal::BarAlign, alignment);
+    UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::ColorBarAlignment, alignment);
 }
 
 bool ColorBar::hasStartUp()

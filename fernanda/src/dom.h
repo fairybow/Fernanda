@@ -11,14 +11,14 @@
 
 class Dom
 {
-    using FsPath = std::filesystem::path;
+    using StdFsPath = std::filesystem::path;
 
 public:
     enum class ChildRenames {
         InPlace,
         Move
     };
-    enum class Doc {
+    enum class Document {
         Current,
         Cuts,
         Initial
@@ -44,22 +44,22 @@ public:
         Rename
     };
 
-    const QString attrKey = QStringLiteral("key");
-    const QString attrRelPath = QStringLiteral("rel_path");
-    const QString attrExpanded = QStringLiteral("expanded");
-    const QString tagDir = QStringLiteral("dir");
+    const QString attributeKey = QStringLiteral("key");
+    const QString attributeRelativePath = QStringLiteral("relative_path");
+    const QString attributeExpanded = QStringLiteral("expanded");
+    const QString tagDir = QStringLiteral("directory");
     const QString tagFile = QStringLiteral("file");
     const QString tagRoot = QStringLiteral("root");
 
-    void set(QString xmlDoc);
-    const QString string(Doc doc = Doc::Current);
+    void set(QString xmlDocument);
+    const QString string(Document document = Document::Current);
     bool hasChanges();
     void move(QString pivotKey, QString fulcrumKey, Io::Move position);
     void rename(QString newName, QString key);
     void add(QString newName, Path::Type type, QString parentKey);
     QStringList cut(QString key);
-    QVector<Io::ArcRename> cuts();
-    QVector<Io::ArcRename> renames(Finalize finalize = Finalize::No);
+    QVector<Io::ArchiveRename> cuts();
+    QVector<Io::ArchiveRename> renames(Finalize finalize = Finalize::No);
 
     template<typename T>
     inline T element(QString key, Element property = Element::Element)
@@ -89,29 +89,29 @@ public:
             {
                 auto parent = found_element.parentNode();
                 if (isDir(parent))
-                    result = parent.toElement().attribute(attrKey);
+                    result = parent.toElement().attribute(attributeKey);
                 else if (isRoot(parent))
                     result = nullptr;
                 else
-                    result = element<QString>(parent.toElement().attribute(attrKey), Element::ParentDirKey);
+                    result = element<QString>(parent.toElement().attribute(attributeKey), Element::ParentDirKey);
             }
             break;
         case Element::ParentDirPath:
-            if constexpr (std::is_same<T, FsPath>::value)
+            if constexpr (std::is_same<T, StdFsPath>::value)
             {
                 auto parent = found_element.parentNode();
                 if (isDir(parent) || isRoot(parent))
                     result = filterPath(parent.toElement());
                 else
-                    result = element<FsPath>(parent.toElement().attribute(attrKey), Element::ParentDirPath);
+                    result = element<StdFsPath>(parent.toElement().attribute(attributeKey), Element::ParentDirPath);
             }
             break;
         case Element::OrigPath:
-            if constexpr (std::is_same<T, FsPath>::value)
+            if constexpr (std::is_same<T, StdFsPath>::value)
                 result = filterPath(found_element, Filter::OrigToNullptr);
             break;
         case Element::Path:
-            if constexpr (std::is_same<T, FsPath>::value)
+            if constexpr (std::is_same<T, StdFsPath>::value)
                 result = filterPath(found_element);
             break;
         }
@@ -125,7 +125,7 @@ public:
         switch (property) {
         case Write::Expanded:
             if constexpr (std::is_same<T, bool>::value)
-                target.setAttribute(attrExpanded, QString(value ? "true" : "false"));
+                target.setAttribute(attributeExpanded, QString(value ? "true" : "false"));
             break;
         case Write::Rename:
             if constexpr (std::is_same<T, QString>::value)
@@ -142,14 +142,14 @@ private:
     const QString attrRename = QStringLiteral("rename");
 
     QDomElement element_recursor(QDomElement node, QString key, QDomElement result = QDomElement());
-    QVector<QDomElement> elements(QDomDocument doc);
+    QVector<QDomElement> elements(QDomDocument document);
     QVector<QDomElement> elements_recursor(QDomElement node, QVector<QDomElement> result = QVector<QDomElement>());
     QVector<QDomElement> elementsByAttribute(QString attribute, QString value = nullptr);
     QVector<QDomElement> elementsByAttribute_recursor(QDomElement node, QString attribute, QString value = nullptr, QVector<QDomElement> result = QVector<QDomElement>());
-    void movePaths(FsPath& newPivotPath, FsPath& newPivotParentPath, QString pivotName, QString fulcrumKey);
+    void movePaths(StdFsPath& newPivotPath, StdFsPath& newPivotParentPath, QString pivotName, QString fulcrumKey);
     QStringList childKeys_recursor(QDomElement node, QStringList result = QStringList());
-    QVector<Io::ArcRename> prepareChildRenames_recursor(QDomElement node, FsPath stemPathParent, ChildRenames renameType = ChildRenames::Move, QVector<Io::ArcRename> result = QVector<Io::ArcRename>());
-    FsPath filterPath(QDomElement elem, Filter filter = Filter::RenameToOrig);
+    QVector<Io::ArchiveRename> prepareChildRenames_recursor(QDomElement node, StdFsPath stemPathParent, ChildRenames renameType = ChildRenames::Move, QVector<Io::ArchiveRename> result = QVector<Io::ArchiveRename>());
+    StdFsPath filterPath(QDomElement elem, Filter filter = Filter::RenameToOrig);
 
     template<typename T>
     inline bool isThis(T nodeOrElement, QString nodeOrTagName)

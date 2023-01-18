@@ -2,65 +2,65 @@
 
 #include "userdata.h"
 
-void Ud::setName(QString name)
+void UserData::setName(QString name)
 {
     dataVars.appName = name.toLower();
 }
 
-const Ud::Fs::path Ud::userData(Op operation)
+const UserData::StdFs::path UserData::doThis(Operation operation)
 {
-    auto user_data = Path::toFs(QDir::homePath()) / Path::toFs("." + dataVars.appName);
+    auto user_data = Path::toStdFs(QDir::homePath()) / Path::toStdFs("." + dataVars.appName);
     auto active_temp = user_data / ".active_temp";
     auto backup = user_data / "backup";
     auto dll = user_data / "dll";
     auto rollback = backup / ".rollback";
-    auto config = user_data / Path::toFs(dataVars.appName + ".ini");
-    auto docs = Path::toFs(QStandardPaths::locate(QStandardPaths::DocumentsLocation, nullptr, QStandardPaths::LocateDirectory));
+    auto config = user_data / Path::toStdFs(dataVars.appName + ".ini");
+    auto docs = Path::toStdFs(QStandardPaths::locate(QStandardPaths::DocumentsLocation, nullptr, QStandardPaths::LocateDirectory));
     auto user_docs = docs / "Fernanda";
-    Fs::path result;
+    StdFs::path result;
     switch (operation) {
-    case Op::Config:
+    case Operation::Config:
         result = config;
         break;
-    case Op::Create:
+    case Operation::Create:
         for (const auto& data_folder : { user_data, active_temp, backup, dll, rollback, user_docs })
             Path::makeDirs(data_folder);
-        result = Fs::path();
+        result = StdFs::path();
         break;
-    case Op::GetBackup:
+    case Operation::GetBackup:
         result = backup;
         break;
-    case Op::GetDLL:
+    case Operation::GetDLL:
         result = dll;
         break;
-    case Op::GetDocs:
+    case Operation::GetDocs:
         result = user_docs;
         break;
-    case Op::GetRollback:
+    case Operation::GetRollback:
         result = rollback;
         break;
-    case Op::GetTemp:
+    case Operation::GetTemp:
         result = active_temp;
         break;
-    case Op::GetUserData:
+    case Operation::GetUserData:
         result = user_data;
         break;
     }
     return result;
 }
 
-void Ud::saveConfig(ConfigGroup group, ConfigVal valueType, QVariant value)
+void UserData::saveConfig(IniGroup group, IniValue valueType, QVariant value)
 {
-    auto config = Path::toQString(userData(Op::Config));
+    auto config = Path::toQString(doThis(Operation::Config));
     QSettings ini(config, QSettings::IniFormat);
     ini.beginGroup(groupName(group));
     ini.setValue(valueName(valueType), value);
     ini.endGroup();
 }
 
-QVariant Ud::loadConfig(ConfigGroup group, ConfigVal valueType, QVariant fallback, Ud::Type type)
+QVariant UserData::loadConfig(IniGroup group, IniValue valueType, QVariant fallback, UserData::Type type)
 {
-    auto config = userData(Op::Config);
+    auto config = doThis(Operation::Config);
     if (!QFile(config).exists()) return fallback;
     QSettings ini(Path::toQString(config), QSettings::IniFormat);
     auto group_name = groupName(group);
@@ -71,15 +71,15 @@ QVariant Ud::loadConfig(ConfigGroup group, ConfigVal valueType, QVariant fallbac
     auto result = ini.value(value_name);
     auto bad_result = false;
     switch (type) {
-    case Ud::Type::Bool:
+    case UserData::Type::Bool:
         if (result != "true" && result != "false")
             bad_result = true;
         break;
-    case Ud::Type::Int:
+    case UserData::Type::Int:
         if (result.toInt() < 1)
             bad_result = true;
         break;
-    case Ud::Type::QRect:
+    case UserData::Type::QRect:
         if (!result.canConvert<QRect>())
             bad_result = true;
         break;
@@ -90,142 +90,142 @@ QVariant Ud::loadConfig(ConfigGroup group, ConfigVal valueType, QVariant fallbac
     return result;
 }
 
-const QString Ud::groupName(ConfigGroup group)
+const QString UserData::groupName(IniGroup group)
 {
     QString result;
     switch (group) {
-    case ConfigGroup::Data:
+    case IniGroup::Data:
         result = "data";
         break;
-    case ConfigGroup::Editor:
+    case IniGroup::Editor:
         result = "editor";
         break;
-    case ConfigGroup::Window:
+    case IniGroup::Window:
         result = "window";
         break;
     }
     return result;
 }
 
-const QString Ud::valueName(ConfigVal valueType)
+const QString UserData::valueName(IniValue valueType)
 {
     QString result;
     switch (valueType) {
-    case ConfigVal::Aot:
-        result = "always_on_top";
+    case IniValue::AlwaysOnTop:
+        result = "window__always_on_top";
         break;
-    case ConfigVal::Awake:
-        result = "stay_awake";
+    case IniValue::CharCount:
+        result = "set__character_count";
         break;
-    case ConfigVal::BarAlign:
-        result = "bar_alignment";
+    case IniValue::ColorBarAlignment:
+        result = "set__color_bar_alignment";
         break;
-    case ConfigVal::CountChar:
-        result = "count_characters";
+    case IniValue::ColumnPosition:
+        result = "set__column_position";
         break;
-    case ConfigVal::CountLine:
-        result = "count_lines";
+    case IniValue::EditorFont:
+        result = "set__editor_font";
         break;
-    case ConfigVal::CountWord:
-        result = "count_words";
+    case IniValue::EditorFontSize:
+        result = "set__editor_font_size";
         break;
-    case ConfigVal::EditorTheme:
-        result = "theme";
+    case IniValue::EditorTheme:
+        result = "set__editor_theme";
         break;
-    case ConfigVal::Font:
-        result = "font";
+    case IniValue::LineCount:
+        result = "set__line_count";
         break;
-    case ConfigVal::FontSlider:
-        result = "font_size";
+    case IniValue::LinePosition:
+        result = "set__line_position";
         break;
-    case ConfigVal::PosCol:
-        result = "position_column";
+    case IniValue::MostRecent:
+        result = "data__most_recent_project";
         break;
-    case ConfigVal::PosLine:
-        result = "position_line";
+    case IniValue::SplitterPosition:
+        result = "window__splitter_position";
         break;
-    case ConfigVal::Position:
-        result = "position";
+    case IniValue::StayAwake:
+        result = "window__stay_awake";
         break;
-    case ConfigVal::Project:
-        result = "project";
+    case IniValue::TabStop:
+        result = "set__tab_stop_distance";
         break;
-    case ConfigVal::Splitter:
-        result = "splitter";
+    case IniValue::ToggleColorBar:
+        result = "toggle__color_bar";
         break;
-    case ConfigVal::State:
-        result = "state";
+    case IniValue::ToggleCursorBlink:
+        result = "toggle__cursor_blink";
         break;
-    case ConfigVal::T_AwakeBtn:
-        result = "stay_awake_button";
+    case IniValue::ToggleCursorBlock:
+        result = "toggle__cursor_block";
         break;
-    case ConfigVal::T_AotBtn:
-        result = "aot_button";
+    case IniValue::ToggleEditorShadow:
+        result = "toggle__editor_shadow";
         break;
-    case ConfigVal::T_ColorBar:
-        result = "color_bar";
+    case IniValue::ToggleEditorTheme:
+        result = "toggle__editor_theme";
         break;
-    case ConfigVal::T_CursorBlink:
-        result = "cursor_blink";
+    case IniValue::ToggleIndicator:
+        result = "toggle__indicator";
         break;
-    case ConfigVal::T_Cursor:
-        result = "block_cursor";
+    case IniValue::ToggleKeyFilters:
+        result = "toggle__key_filters";
         break;
-    case ConfigVal::T_EditorTheme:
-        result = "theme_on";
+    case IniValue::ToggleLineNumberArea:
+        result = "toggle__line_number_area";
         break;
-    case ConfigVal::T_Indicator:
-        result = "indicator";
+    case IniValue::ToggleLineHighlight:
+        result = "toggle__line_highlight";
         break;
-    case ConfigVal::T_Keyfilter:
-        result = "key_filter";
+    case IniValue::ToggleLoadMostRecent:
+        result = "toggle__load_most_recent_project";
         break;
-    case ConfigVal::T_Lmr:
-        result = "load_most_recent";
+    case IniValue::TogglePane:
+        result = "toggle__pane";
         break;
-    case ConfigVal::T_Lna:
-        result = "line_number_area";
+    case IniValue::ToggleScrollsPrevNext:
+        result = "toggle__scrolls_previous_next";
         break;
-    case ConfigVal::T_LineHighlight:
-        result = "line_highlight";
+    case IniValue::ToggleStatusBar:
+        result = "toggle__status_bar";
         break;
-    case ConfigVal::T_Nav:
-        result = "nav_scrolls";
+    case IniValue::ToggleToolAOT:
+        result = "toggle__tool_always_on_top";
         break;
-    case ConfigVal::T_Pane:
-        result = "pane";
+    case IniValue::ToggleToolSA:
+        result = "toggle__tool_stay_awake";
         break;
-    case ConfigVal::T_Shadow:
-        result = "shadow";
+    case IniValue::ToggleWindowTheme:
+        result = "toggle__window_theme";
         break;
-    case ConfigVal::T_StatusBar:
-        result = "statusbar";
+    case IniValue::WordCount:
+        result = "set__word_count";
         break;
-    case ConfigVal::T_WinTheme:
-        result = "wintheme_on";
+    case IniValue::WrapMode:
+        result = "set__wrap_mode";
         break;
-    case ConfigVal::TabStop:
-        result = "tab";
+    case IniValue::WindowPosition:
+        result = "window__window_position";
         break;
-    case ConfigVal::WinTheme:
-        result = "wintheme";
+    case IniValue::WindowState:
+        result = "window__window_state";
         break;
-    case ConfigVal::Wrap:
-        result = "wrap";
+    case IniValue::WindowTheme:
+        result = "set__window_theme";
         break;
     }
     return result;
 }
 
-void Ud::clear(Fs::path dirPath, bool clearSelf)
+void UserData::clear(StdFs::path dirPath, bool clearSelf)
 {
-    for (const auto& item : Fs::directory_iterator(dirPath))
-        Fs::remove_all(item);
+    for (const auto& item : StdFs::directory_iterator(dirPath))
+        StdFs::remove_all(item);
     if (!clearSelf) return;
-    Fs::remove(dirPath);
+    StdFs::remove(dirPath);
 }
 
-QString Ud::timestamp()
+QString UserData::timestamp()
 {
     const time_t now = std::time(0);
     return QString::fromLocal8Bit(std::ctime(&now));
@@ -233,15 +233,15 @@ QString Ud::timestamp()
 
 #ifdef Q_OS_LINUX
 
-std::string Ud::dll()
+std::string UserData::dll()
 {
     const auto search_paths = QStringList{ "/lib", "/usr/lib", "/usr/local/lib" } << qEnvironmentVariable("LD_LIBRARY_PATH").split(',');
     for (const auto& search_path : search_paths)
     {
         for (const auto& library_name : { "7z.so", "p7zip/7z.so" })
         {
-            const auto candidate = std::filesystem::path{ search_path.toStdString() } / library_name;
-            if (std::filesystem::exists(candidate))
+            const auto candidate = StdFs::path{ search_path.toStdString() } / library_name;
+            if (StdFs::exists(candidate))
                 return candidate;
         }
     }
@@ -250,11 +250,11 @@ std::string Ud::dll()
 
 #else
 
-std::string Ud::dll()
+std::string UserData::dll()
 {
-    auto dll_path = userData(Op::GetDLL) / "7z.dll";
+    auto dll_path = doThis(Operation::GetDLL) / "7z.dll";
     if (!QFile(dll_path).exists())
-        Path::copy(Fs::path(":/lib/7zip/7z64.dll"), dll_path);
+        Path::copy(StdFs::path(":/lib/7zip/7z64.dll"), dll_path);
     return dll_path.string();
 }
 

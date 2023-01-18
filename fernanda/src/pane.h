@@ -28,13 +28,13 @@ class Pane : public QTreeView
 public:
     Pane(QWidget* parent = nullptr);
 
-    enum class Nav {
+    enum class Go {
         Next,
         Previous
     };
 
     const QStringList devGetEditedKeys();
-    void nav(Nav direction);
+    void navigate(Go direction);
 
 public slots:
     void receiveItems(QVector<QStandardItem*> items);

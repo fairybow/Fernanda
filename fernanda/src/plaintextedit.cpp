@@ -102,11 +102,11 @@ void PlainTextEdit::scrollNavClicked(Scroll direction)
     }
     if (early_return) return;
     (direction == Scroll::Next)
-        ? askNavNext()
-        : askNavPrevious();
+        ? askGoNext()
+        : askGoPrevious();
 }
 
-void PlainTextEdit::handleFont(FsPath fontPath, int sliderValue)
+void PlainTextEdit::handleFont(StdFsPath fontPath, int sliderValue)
 {
     QFont q_font;
     auto family = Path::toQString(fontPath.stem());

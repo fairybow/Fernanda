@@ -2,16 +2,13 @@
 
 ## General
 - [ ] Installer script needs to detect if Fernanda is running
-- [ ] Remove all non-standard abbreviations (like "cur" for current)
 - [ ] Moveable documents folder
 - [ ] Popup if temps exist on start (but would need to reload last project first, and then check if temps exist?)
 - [ ] Move the startup `ColorBar` singleshot to a different window event? `showEvent` doesn't seem to be working for this
 - [ ] Move the `nullptr` checks closer to the functions that create the `nullptr`, if possible (viz., don't wait till the info is sent to `Story` to cancel a nullptr from `Pane renameItem()`)
-- [ ] Combine all the messagebox functions into something that generates most of it as a default config
 - [ ] Replace certain bool args with enums for descriptive actions taken (like "finalize" in `dom->renames()`)
 - [ ] Alphabetize enums and generally clean up headers
 - [ ] Custom highlight colors for line highlight and `Delegate` highlight (like with cursor)?
-- [ ] Remove the regular-scrolls-toggled-off for no theme; can just style appropriately in base
 - [ ] Add border variables to stylesheets--for the most part, these can just be `transparent`, but allows for user to decide in customs
 - [ ] Hold current story file from being edited while Fernanda is open? (Not sure this is possible. Plus, will need a way to temporarily request access for `Archiver` for editing)
 - [ ] Export selected / all
@@ -21,6 +18,8 @@
 - [ ] Implement QStringLiterals where possible
 - [ ] Temp save before cut?
 - [ ] Delete trailing spaces on save
+- [x] ~~Remove all non-standard abbreviations (like "cur" for current)~~
+- [x] ~~Combine all the messagebox functions into something that generates most of it as a default config~~
 - [x] ~~Keep screen awake?~~
 - [x] ~~Mutex for running only one instance (sorta)~~
 - [x] ~~Add dialogs to free functions? (added class)~~
@@ -31,7 +30,7 @@
 - [x] ~~Prompt to save or abandon changes (and then clear temp folder either way) on switching projects (opening if a project already exists)~~
 - [x] ~~Show open `.story` in window title?~~
 - [x] ~~Move closing popup to an `unsavedChanges()`, which should also do the temp clearing, with clearing self dependent on a bool that will also toggle the message (are you sure you want to close, vs. are you sure you want to switch stories)~~
-- [x] ~~Handle cutting of multiple items (deleting folder or parent file), activeKey of cut file isn't being nullptred when parent dir is cut, for example, and then all contained cut file keys remain in edits list~~
+- [x] ~~Handle cutting of multiple items (deleting folder or parent file), activeKey of cut file isn't being nullptred when parent directory is cut, for example, and then all contained cut file keys remain in edits list~~
 - [x] ~~Convert paths to `std::filesystem::path`~~
 - [x] ~~Activate dev menu via command arg~~
 - [x] ~~Redo Dependency Tree~~
@@ -48,7 +47,7 @@
 ### Archiver
 - [ ] Switch to streams (i.e., for `add()` and `create()`)
 - [ ] Rename/refactor functions to better reflect their roles / be more descriptive
-- [x] ~~Saving after deleting an item that has children causes a crash in `rename()` (It might be just deleting things that have moved. They may be receiving the non-existant rename path instead of rel_path?)~~
+- [x] ~~Saving after deleting an item that has children causes a crash in `rename()` (It might be just deleting things that have moved. They may be receiving the non-existant rename path instead of relative_path?)~~
 
 ### Dom
 - [ ] Mark files as exportable
@@ -58,9 +57,8 @@
 - [ ] Separate menu into its own class?
 - [ ] Auto-hide menu option
 - [ ] Auto-hide scrollbar
-- [ ] Rename menu locals to reflect the alphabetical order of the items
-- [ ] Rename `viewToggles()` to match
-- [ ] What can be connected to the `storyOpened()`/`storyClosed()` signals?
+- [x] ~~Rename menu locals to reflect the alphabetical order of the items~~
+- [x] ~~Rename `viewToggles()` to match~~
 - [x] ~~Order the items in menus Window and Editor (and General, if applicable)~~
 - [x] ~~Add path to user data folder to the sample themes popup~~
 - [x] ~~^ Or a button to open UD folder?~~
@@ -131,12 +129,12 @@
 
 - [x] ~~May not need `makePosix()`; Bit7z only accepts `\\` paths for searching~~
 
-### Res
+### Resource
 
 - [x] ~~There surely must be a smarter way to incorporate `.otf` into the fonts RC list (applies to MainWindow, too)~~
 - [x] ~~Convert to `std::filesystem::path`~~
 
 ### Ud
 
-- [ ] Split up the enums with namespaces for editor, data, and window (removing arg requirement for a ConfigGroup) (Unclear on how to do this at the moment)
+- [ ] Split up the enums with namespaces for editor, data, and window (removing arg requirement for a IniGroup) (Unclear on how to do this at the moment)
 - [x] ~~Enums for group (and possibly value)~~

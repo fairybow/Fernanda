@@ -2,20 +2,20 @@
 
 #include "story.h"
 
-Story::Story(FsPath filePath, Op opt)
+Story::Story(StdFsPath filePath, Mode mode)
 {
-	activeArcPath = filePath;
-	if (!QFile(activeArcPath).exists())
-		make(opt);
+	activeArchivePath = filePath;
+	if (!QFile(activeArchivePath).exists())
+		make(mode);
 	dom->set(xml());
 }
 
-const QString Story::devGetDom(Dom::Doc doc)
+const QString Story::devGetDom(Dom::Document document)
 {
-	return dom->string(doc);
+	return dom->string(document);
 }
 
-QVector<Io::ArcRename> Story::devGetRenames()
+QVector<Io::ArchiveRename> Story::devGetRenames()
 {
 	return dom->renames();
 }
@@ -25,9 +25,9 @@ const QStringList Story::devGetEditedKeys()
 	return editedKeys;
 }
 
-const Story::FsPath Story::devGetActiveTemp()
+const Story::StdFsPath Story::devGetActiveTemp()
 {
-	return Ud::userData(Ud::Op::GetTemp) / name<FsPath>();
+	return UserData::doThis(UserData::Operation::GetTemp) / name<StdFsPath>();
 }
 
 QVector<QStandardItem*> Story::items()
@@ -126,40 +126,40 @@ void Story::save(QString text)
 	auto cuts = dom->cuts();
 	auto renames = dom->renames(Dom::Finalize::Yes);
 	if (!cuts.isEmpty())
-		archiver->cut(activeArcPath, cuts);
+		archiver->cut(activeArchivePath, cuts);
 	if (!renames.isEmpty())
-		archiver->save(activeArcPath, renames);
+		archiver->save(activeArchivePath, renames);
 	if (!editedKeys.isEmpty())
 	{
-		QVector<Io::ArcWRPaths> edits;
+		QVector<Io::ArchiveWriteReadPaths> edits;
 		for (auto& edited_key : editedKeys)
-			edits << Io::ArcWRPaths{ dom->element<FsPath>(edited_key, Dom::Element::Path), tempPath(edited_key) };
-		archiver->add(activeArcPath, edits);
+			edits << Io::ArchiveWriteReadPaths{ dom->element<StdFsPath>(edited_key, Dom::Element::Path), tempPath(edited_key) };
+		archiver->add(activeArchivePath, edits);
 		editedKeys.clear();
 		tempOpen(activeKey);
 	}
-	archiver->add(activeArcPath, Io::ArcWrite{ dom->string(), "story.xml" });
+	archiver->add(activeArchivePath, Io::ArchiveWrite{ dom->string(), "story.xml" });
 	dom->set(xml());
 }
 
-void Story::make(Op opt)
+void Story::make(Mode mode)
 {
-	QVector<Io::ArcWRPaths> wr_paths;
-	wr_paths << Io::ArcWRPaths{ Io::storyRoot };
-	if (opt == Op::Sample)
+	QVector<Io::ArchiveWriteReadPaths> wr_paths;
+	wr_paths << Io::ArchiveWriteReadPaths{ Io::storyRoot };
+	if (mode == Mode::Sample)
 		wr_paths << Sample::make();
-	archiver->create(activeArcPath, wr_paths);
+	archiver->create(activeArchivePath, wr_paths);
 }
 
 const QString Story::xml()
 {
 	QString result;
 	auto xml_file = "story.xml";
-	result = archiver->read(activeArcPath, xml_file);
+	result = archiver->read(activeArchivePath, xml_file);
 	if (result == nullptr)
 	{
 		newXml();
-		result = archiver->read(activeArcPath, xml_file);
+		result = archiver->read(activeArchivePath, xml_file);
 	}
 	return result;
 }
@@ -167,49 +167,49 @@ const QString Story::xml()
 void Story::newXml()
 {
 	QTemporaryDir temp_dir;
-	auto temp_dir_path = Path::toFs(temp_dir.path());
+	auto temp_dir_path = Path::toStdFs(temp_dir.path());
 	QString xml;
-	archiver->extract(activeArcPath, temp_dir_path);
+	archiver->extract(activeArchivePath, temp_dir_path);
 	QXmlStreamWriter writer(&xml);
 	writer.setAutoFormatting(true);
 	writer.writeStartDocument();
 	writer.writeStartElement(dom->tagRoot);
-	writer.writeAttribute(dom->attrRelPath, Path::toQString(Io::storyRoot));
+	writer.writeAttribute(dom->attributeRelativePath, Path::toQString(Io::storyRoot));
 	newXml_recursor(writer, temp_dir_path / Io::storyRoot);
 	writer.writeEndDocument();
 	QTemporaryDir temp_dir_2;
 	auto xml_file = "story.xml";
-	auto temp_dir_2_path = Path::toFs(temp_dir_2.path());
+	auto temp_dir_2_path = Path::toStdFs(temp_dir_2.path());
 	auto temp_xml_path = temp_dir_2_path / xml_file;
 	Io::writeFile(temp_xml_path, xml);
-	archiver->add(activeArcPath, temp_xml_path, xml_file);
+	archiver->add(activeArchivePath, temp_xml_path, xml_file);
 }
 
-void Story::newXml_recursor(QXmlStreamWriter& writer, FsPath rPath, FsPath rootPath)
+void Story::newXml_recursor(QXmlStreamWriter& writer, StdFsPath readPath, StdFsPath rootPath)
 {
 	if (rootPath.empty())
-		rootPath = rPath;
-	QDirIterator it(Path::toQString(rPath), QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+		rootPath = readPath;
+	QDirIterator it(Path::toQString(readPath), QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
 	auto expanded_value = "false";
 	while (it.hasNext())
 	{
 		it.next();
-		auto rel_path = Io::storyRoot / std::filesystem::relative(Path::toFs(it.filePath()), rootPath);
+		auto relative_path = Io::storyRoot / std::filesystem::relative(Path::toStdFs(it.filePath()), rootPath);
 		if (it.fileInfo().isDir())
 		{
 			writer.writeStartElement(dom->tagDir);
-			writer.writeAttribute(dom->attrRelPath, Path::toQString(rel_path, true));
-			writer.writeAttribute(dom->attrKey, QUuid::createUuid().toString(QUuid::WithoutBraces));
-			writer.writeAttribute(dom->attrExpanded, expanded_value);
-			newXml_recursor(writer, rPath / Path::toFs(it.fileName()), rootPath);
+			writer.writeAttribute(dom->attributeRelativePath, Path::toQString(relative_path, true));
+			writer.writeAttribute(dom->attributeKey, QUuid::createUuid().toString(QUuid::WithoutBraces));
+			writer.writeAttribute(dom->attributeExpanded, expanded_value);
+			newXml_recursor(writer, readPath / Path::toStdFs(it.fileName()), rootPath);
 			writer.writeEndElement();
 		}
 		else
 		{
 			writer.writeStartElement(dom->tagFile);
-			writer.writeAttribute(dom->attrRelPath, Path::toQString(rel_path, true));
-			writer.writeAttribute(dom->attrKey, QUuid::createUuid().toString(QUuid::WithoutBraces));
-			writer.writeAttribute(dom->attrExpanded, expanded_value);
+			writer.writeAttribute(dom->attributeRelativePath, Path::toQString(relative_path, true));
+			writer.writeAttribute(dom->attributeKey, QUuid::createUuid().toString(QUuid::WithoutBraces));
+			writer.writeAttribute(dom->attributeExpanded, expanded_value);
 			writer.writeEndElement();
 		}
 	}
@@ -218,9 +218,9 @@ void Story::newXml_recursor(QXmlStreamWriter& writer, FsPath rPath, FsPath rootP
 QStandardItem* Story::items_recursor(QXmlStreamReader& reader)
 {
 	auto type = reader.name().toString();
-	auto key = reader.attributes().value(dom->attrKey).toString();
+	auto key = reader.attributes().value(dom->attributeKey).toString();
 	auto name = dom->element<QString>(key, Dom::Element::Name);
-	auto expanded = reader.attributes().value(dom->attrExpanded).toString();
+	auto expanded = reader.attributes().value(dom->attributeExpanded).toString();
 	auto parent = dom->element<QDomElement>(key).hasChildNodes();
 	auto result = new QStandardItem;
 	result->setData(type, Qt::UserRole);
@@ -252,9 +252,9 @@ void Story::tempSave(QString key, QString text)
 const QString Story::tempOpen(QString newKey)
 {
 	activeKey = newKey;
-	auto arc_r_path = dom->element<FsPath>(newKey, Dom::Element::OrigPath);
-	(!arc_r_path.empty())
-		? cleanText = archiver->read(activeArcPath, arc_r_path)
+	auto archive_read_path = dom->element<StdFsPath>(newKey, Dom::Element::OrigPath);
+	(!archive_read_path.empty())
+		? cleanText = archiver->read(activeArchivePath, archive_read_path)
 		: cleanText = nullptr;
 	auto temp_path = tempPath(newKey);
 	QString result;
@@ -264,20 +264,20 @@ const QString Story::tempOpen(QString newKey)
 	return result;
 }
 
-const Story::FsPath Story::tempPath(QString key)
+const Story::StdFsPath Story::tempPath(QString key)
 {
-	auto rel_path = Path::toFs(key + Io::tempExt);
-	auto temps_dir = Ud::userData(Ud::Op::GetTemp);
-	auto proj_temp = temps_dir / name<FsPath>();
-	return proj_temp / rel_path;
+	auto relative_path = Path::toStdFs(key + Io::tempExtension);
+	auto temps_dir = UserData::doThis(UserData::Operation::GetTemp);
+	auto project_temp = temps_dir / name<StdFsPath>();
+	return project_temp / relative_path;
 }
 
-void Story::amendEditsList(AmendEdits op, QString key)
+void Story::amendEditsList(AmendEdits operation, QString key)
 {
 	if (key == nullptr && activeKey == nullptr) return;
 	if (key == nullptr)
 		key = activeKey;
-	switch (op) {
+	switch (operation) {
 	case AmendEdits::Add:
 		if (!editedKeys.contains(key))
 			editedKeys << key;
@@ -298,14 +298,14 @@ bool Story::isEdited(QString key)
 void Story::bak()
 {
 	auto underscore = "_";
-	auto timestamp = Ud::timestamp().replace(Text::regex(Text::Re::Forbidden), underscore).replace(Text::regex(Text::Re::Space), underscore).replace(Text::regex(Text::Re::NewLine), nullptr).toLower();
+	auto timestamp = UserData::timestamp().replace(Text::regex(Text::Re::Forbidden), underscore).replace(Text::regex(Text::Re::Space), underscore).replace(Text::regex(Text::Re::NewLine), nullptr).toLower();
 	timestamp.replace(QRegularExpression("(__)"), underscore).replace(QRegularExpression("(_$)"), nullptr);
 	auto bak_file_name = name<QString>() + ".story." + timestamp + ".bak";
-	auto bak_path = Ud::userData(Ud::Op::GetRollback) / Path::toFs(bak_file_name);
-	auto qf_bak = QFile(bak_path);
-	if (qf_bak.exists())
-		qf_bak.moveToTrash();
-	Path::copy(activeArcPath, bak_path);
+	auto bak_path = UserData::doThis(UserData::Operation::GetRollback) / Path::toStdFs(bak_file_name);
+	auto q_file_bak = QFile(bak_path);
+	if (q_file_bak.exists())
+		q_file_bak.moveToTrash();
+	Path::copy(activeArchivePath, bak_path);
 }
 
 // story.cpp, Fernanda

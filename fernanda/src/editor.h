@@ -100,8 +100,8 @@ signals:
     void askToggleLineNumberArea(bool checked);
     void askToggleScrolls(bool checked);
     void askToggleExtraScrolls(bool checked);
-    void askNavPrevious();
-    void askNavNext();
+    void askGoPrevious();
+    void askGoNext();
     QAction* askTheme();
     QActionGroup* askThemes();
     QActionGroup* askFonts();
