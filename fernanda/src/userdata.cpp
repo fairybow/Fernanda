@@ -15,17 +15,20 @@ const UserData::StdFs::path UserData::doThis(Operation operation)
     auto dll = user_data / "dll";
     auto rollback = backup / ".rollback";
     auto config = user_data / Path::toStdFs(dataVars.appName + ".ini");
-    auto docs = Path::toStdFs(QStandardPaths::locate(QStandardPaths::DocumentsLocation, nullptr, QStandardPaths::LocateDirectory));
-    auto user_docs = docs / "Fernanda";
+    auto documents = Path::toStdFs(QStandardPaths::locate(QStandardPaths::DocumentsLocation, nullptr, QStandardPaths::LocateDirectory));
+    auto user_documents = documents / "Fernanda";
     StdFs::path result;
     switch (operation) {
     case Operation::Config:
         result = config;
         break;
     case Operation::Create:
-        for (const auto& data_folder : { user_data, active_temp, backup, dll, rollback, user_docs })
+        for (const auto& data_folder : { user_data, active_temp, backup, dll, rollback, user_documents })
             Path::makeDirs(data_folder);
         result = StdFs::path();
+        break;
+    case Operation::GetActiveTemp:
+        result = active_temp;
         break;
     case Operation::GetBackup:
         result = backup;
@@ -33,14 +36,11 @@ const UserData::StdFs::path UserData::doThis(Operation operation)
     case Operation::GetDLL:
         result = dll;
         break;
-    case Operation::GetDocs:
-        result = user_docs;
+    case Operation::GetDocuments:
+        result = user_documents;
         break;
     case Operation::GetRollback:
         result = rollback;
-        break;
-    case Operation::GetTemp:
-        result = active_temp;
         break;
     case Operation::GetUserData:
         result = user_data;

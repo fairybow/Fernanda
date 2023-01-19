@@ -64,11 +64,11 @@ namespace UserData
     enum class Operation {
         Config,
         Create,
+        GetActiveTemp,
         GetBackup,
         GetDLL,
-        GetDocs,
+        GetDocuments,
         GetRollback,
-        GetTemp,
         GetUserData
     };
 

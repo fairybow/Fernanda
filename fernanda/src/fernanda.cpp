@@ -48,7 +48,7 @@ void Fernanda::closeEvent(QCloseEvent* event)
         colorBar->run(ColorBar::Run::Green);
         return;
     }
-    UserData::clear(UserData::doThis(UserData::Operation::GetTemp), true);
+    UserData::clear(UserData::doThis(UserData::Operation::GetActiveTemp), true);
     event->accept();
 }
 
@@ -206,12 +206,12 @@ void Fernanda::makeFileMenu()
         action->setAutoRepeat(false);
     connect(new_story_project, &QAction::triggered, this, [&]()
         {
-            auto file_name = QFileDialog::getSaveFileName(this, tr("Create a new story project..."), Path::toQString(UserData::doThis(UserData::Operation::GetDocs)), tr("Fernanda story file (*.story)"));
+            auto file_name = QFileDialog::getSaveFileName(this, tr("Create a new story project..."), Path::toQString(UserData::doThis(UserData::Operation::GetDocuments)), tr("Fernanda story file (*.story)"));
             openStory(Path::toStdFs(file_name));
         });
     connect(open_story_project, &QAction::triggered, this, [&]()
         {
-            auto file_name = QFileDialog::getOpenFileName(this, tr("Open an existing story project..."), Path::toQString(UserData::doThis(UserData::Operation::GetDocs)), tr("Fernanda story file (*.story)"));
+            auto file_name = QFileDialog::getOpenFileName(this, tr("Open an existing story project..."), Path::toQString(UserData::doThis(UserData::Operation::GetDocuments)), tr("Fernanda story file (*.story)"));
             openStory(Path::toStdFs(file_name));
         });
     connect(save, &QAction::triggered, this, &Fernanda::fileMenuSave);
@@ -465,7 +465,7 @@ void Fernanda::makeHelpMenu()
     connect(shortcuts, &QAction::triggered, this, [&]() { Popup::shortcuts(); });
     connect(documents, &QAction::triggered, this, [&]()
         {
-            openLocalFolder(UserData::doThis(UserData::Operation::GetDocs));
+            openLocalFolder(UserData::doThis(UserData::Operation::GetDocuments));
         });
     connect(installation_folder, &QAction::triggered, this, [&]()
         {
@@ -538,7 +538,7 @@ void Fernanda::makeDevMenu()
         });
     connect(open_documents, &QAction::triggered, this, [&]()
         {
-            openLocalFolder(UserData::doThis(UserData::Operation::GetDocs));
+            openLocalFolder(UserData::doThis(UserData::Operation::GetDocuments));
         });
     connect(open_installation_folder, &QAction::triggered, this, [&]()
         {
@@ -626,7 +626,7 @@ void Fernanda::openStory(StdFsPath fileName, Story::Mode mode)
     }
     auto change = confirmStoryClose();
     if (!change) return;
-    UserData::clear(UserData::doThis(UserData::Operation::GetTemp));
+    UserData::clear(UserData::doThis(UserData::Operation::GetActiveTemp));
     activeStory = Story(fileName, mode);
     auto& story = activeStory.value();
     storyMenuVisible(true);
@@ -687,7 +687,7 @@ void Fernanda::fileMenuSave()
     auto& story = activeStory.value();
     if (!story.hasChanges()) return;
     story.save(editor->toPlainText());
-    UserData::clear(UserData::doThis(UserData::Operation::GetTemp));
+    UserData::clear(UserData::doThis(UserData::Operation::GetActiveTemp));
     editor->textChanged();
     sendItems(story.items());
     colorBar->run(ColorBar::Run::Green);
@@ -695,7 +695,7 @@ void Fernanda::fileMenuSave()
 
 void Fernanda::helpMenuMakeSampleProject()
 {
-    auto path = UserData::doThis(UserData::Operation::GetDocs) / "Candide.story";
+    auto path = UserData::doThis(UserData::Operation::GetDocuments) / "Candide.story";
     openStory(path, Story::Mode::Sample);
 }
 
@@ -739,8 +739,7 @@ void Fernanda::helpMenuUpdate()
 
 void Fernanda::devMenuWrite(QString name, QString value)
 {
-    auto docs = UserData::doThis(UserData::Operation::GetDocs);
-    Io::writeFile(docs / name.toStdString(), value);
+    Io::writeFile(UserData::doThis(UserData::Operation::GetDocuments) / name.toStdString(), value);
 }
 
 void Fernanda::handleEditorOpen(QString key)

@@ -27,7 +27,7 @@ const QStringList Story::devGetEditedKeys()
 
 const Story::StdFsPath Story::devGetActiveTemp()
 {
-	return UserData::doThis(UserData::Operation::GetTemp) / name<StdFsPath>();
+	return UserData::doThis(UserData::Operation::GetActiveTemp) / name<StdFsPath>();
 }
 
 QVector<QStandardItem*> Story::items()
@@ -267,7 +267,7 @@ const QString Story::tempOpen(QString newKey)
 const Story::StdFsPath Story::tempPath(QString key)
 {
 	auto relative_path = Path::toStdFs(key + Io::tempExtension);
-	auto temps_dir = UserData::doThis(UserData::Operation::GetTemp);
+	auto temps_dir = UserData::doThis(UserData::Operation::GetActiveTemp);
 	auto project_temp = temps_dir / name<StdFsPath>();
 	return project_temp / relative_path;
 }

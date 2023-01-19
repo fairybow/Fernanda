@@ -8,6 +8,7 @@
 </p>
 <p align="center">
 	<a href="https://github.com/fairybow/fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/fernanda?include_prereleases&color=f34b7d" alt="release"/></a>
+	<a href="#roadmap"><img src="https://img.shields.io/badge/Windows%20x64%20%7C%20Arch%20Linux-lightgrey" alt="platforms"/></a>
 	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/fernanda?color=orange" alt="license: GPL-3.0"/></a>
 	<br>
 	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-v6.4.1-brightgreen?logo=qt" alt="Qt v6.4.1"/></a>
