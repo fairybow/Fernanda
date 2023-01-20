@@ -141,7 +141,7 @@ If you want to manually rename, move, or delete items within a `.story` file via
 	- Pin Fernanda to the top of your window order
 - :tea:	**Stay awake:**
 	- Keep the screen awake without input (Windows only)
-- :clock4: **Timer:**
+- :timer_clock: **Timer:**
 	- A silent timer
 
 [&#9166;](#top)
