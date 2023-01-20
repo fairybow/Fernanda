@@ -1,8 +1,9 @@
-// toolbutton.h, Fernanda
+// tool.h, Fernanda
 
 #pragma once
 
 #include "icon.h"
+#include "popup.h"
 #include "userdata.h"
 
 #include <optional>
@@ -19,38 +20,40 @@
 #include <QPushButton>
 #include <QTimer>
 
-class ToolButton : public QPushButton
+class Tool : public QPushButton
 {
     Q_OBJECT
 
 public:
     enum class Type {
         AlwaysOnTop,
-        StayAwake
+        StayAwake,
+        Timer
     };
 
-    ToolButton(Type type, QMainWindow* parentWindow = nullptr);
+    Tool(Type type, QMainWindow* parentWindow = nullptr);
     void toggle(bool value);
+
+public slots:
+    void setTimerValue(int value);
 
 private:
     Type type{};
     UserData::IniGroup configGroup = UserData::IniGroup::Window;
     UserData::IniValue widgetConfig;
-    UserData::IniValue actionConfig;
+    std::optional<UserData::IniValue> actionConfig;
+    std::optional<QTimer*> timer;
+    std::optional<int> time;
     QMainWindow* parentWindow;
-    std::optional<QTimer*> stayAwakeTimer;
     QGraphicsOpacityEffect* opacity = new QGraphicsOpacityEffect(this);
 
     bool eventFilter(QObject* watched, QEvent* event);
     void typeDependentSetup();
-    void alwaysOnTop(bool checked);
+    void alwaysOnTop();
     void stayAwake();
 
-private slots:
-    void action(bool checked);
-
 signals:
-    void startAwakeTimer();
+    void startTimer();
 };
 
-// toolbutton.h, Fernanda
+// tool.h, Fernanda

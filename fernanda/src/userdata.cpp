@@ -195,8 +195,14 @@ const QString UserData::valueName(IniValue valueType)
     case IniValue::ToggleToolSA:
         result = "toggle__tool_stay_awake";
         break;
+    case IniValue::ToggleToolTimer:
+        result = "toggle__tool_timer";
+        break;
     case IniValue::ToggleWindowTheme:
         result = "toggle__window_theme";
+        break;
+    case IniValue::ToolTimer:
+        result = "set__tool_timer";
         break;
     case IniValue::WordCount:
         result = "set__word_count";

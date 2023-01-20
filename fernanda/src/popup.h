@@ -76,6 +76,13 @@ public:
         version_check.exec();
     }
 
+    static void timeUp(QString styleSheet = nullptr)
+    {
+        QMessageBox time_up;
+        box(time_up, Text::timeUp());
+        time_up.exec();
+    }
+
 private:
     static void box(QMessageBox& box, QString text, bool hasOk = true, bool hasIcon = false, QString title = nullptr, QWidget* parent = nullptr, QString styleSheet = nullptr)
     {

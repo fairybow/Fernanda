@@ -6,11 +6,10 @@
 #include "editor.h"
 #include "indicator.h"
 #include "pane.h"
-#include "popup.h"
 #include "resource.h"
 #include "splitter.h"
 #include "story.h"
-#include "toolbutton.h"
+#include "tool.h"
 
 #include <QCloseEvent>
 #include <QCoreApplication>
@@ -56,12 +55,14 @@ private:
     QActionGroup* tabStops = new QActionGroup(this);
     QActionGroup* wrapModes = new QActionGroup(this);
     QActionGroup* colorBarAlignments = new QActionGroup(this);
+    QActionGroup* timerValues = new QActionGroup(this);
     QSlider* fontSlider = new QSlider(Qt::Horizontal);
     Indicator* indicator = new Indicator(this);
     QLabel* spacer = new QLabel(this);
-    ToolButton* stayAwake = new ToolButton(ToolButton::Type::StayAwake, this);
-    ToolButton* alwaysOnTop = new ToolButton(ToolButton::Type::AlwaysOnTop, this);
-    QTimer* autoTempSave = new QTimer(this); // move to editor or story
+    Tool* alwaysOnTop = new Tool(Tool::Type::AlwaysOnTop, this);
+    Tool* stayAwake = new Tool(Tool::Type::StayAwake, this);
+    Tool* timer = new Tool(Tool::Type::Timer, this);
+    QTimer* autoTempSave = new QTimer(this); // move to editor or story?
     QNetworkAccessManager* manager = new QNetworkAccessManager(this);
 
     std::optional<Story> activeStory;
@@ -145,6 +146,7 @@ private slots:
 
 signals:
     void askSetBarAlignment(QString alignment);
+    void askSetTimerValue(int value);
     bool askHasStartUpBar();
     void askToggleStartUpBar(bool checked);
     void askToggleScrolls(bool checked);
@@ -158,6 +160,7 @@ signals:
     void sendEditsList(QStringList editedFiles);
     void startAutoTempSave();
     void storyMenuVisible(bool setVisible);
+    void askPaneAdd(Path::Type type);
 };
 
 // fernanda.h, Fernanda

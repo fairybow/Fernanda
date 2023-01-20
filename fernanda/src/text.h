@@ -55,6 +55,7 @@ namespace Text
 	const QString ghApi();
 	const QString about();
 	const QString version(VersionCheck check, QString latestVersion);
+	const QString timeUp();
 }
 
 // text.h, Fernanda

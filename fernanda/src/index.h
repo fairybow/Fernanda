@@ -12,7 +12,7 @@
 namespace Index
 {
 	template<typename T>
-	inline const T userRoleData(QModelIndex index, int role = 0)
+	inline const T getData(QModelIndex index, int role = 0)
 	{
 		T result{};
 		if constexpr (std::is_same<T, QString>::value)
@@ -29,11 +29,11 @@ namespace Index
 		}
 		return result;
 	}
-	inline const QString type(QModelIndex index) { return userRoleData<QString>(index); }
-	inline const QString key(QModelIndex index) { return userRoleData<QString>(index, 1); }
-	inline const QString name(QModelIndex index) { return userRoleData<QString>(index, 2); }
-	inline bool isExpanded(QModelIndex index) { return userRoleData<bool>(index, 3); }
-	inline bool hasChildren(QModelIndex index) { return userRoleData<bool>(index, 4); }
+	inline const QString type(QModelIndex index) { return getData<QString>(index); }
+	inline const QString key(QModelIndex index) { return getData<QString>(index, 1); }
+	inline const QString name(QModelIndex index) { return getData<QString>(index, 2); }
+	inline bool isExpanded(QModelIndex index) { return getData<bool>(index, 3); }
+	inline bool hasChildren(QModelIndex index) { return getData<bool>(index, 4); }
 
 	inline bool isThis(QModelIndex index, QString indexType)
 	{

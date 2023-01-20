@@ -56,22 +56,22 @@
     <None Include="res\themes\bar\pastels.qss">
       <Filter>Resource Files\Stylesheets\Bar Stylesheets</Filter>
     </None>
-    <None Include="res\themes\editor\Amber.fernanda_theme">
+    <None Include="res\themes\editor\Amber.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
-    <None Include="res\themes\editor\Blue.fernanda_theme">
+    <None Include="res\themes\editor\Blue.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
-    <None Include="res\themes\editor\Green.fernanda_theme">
+    <None Include="res\themes\editor\Green.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
-    <None Include="res\themes\editor\Grey.fernanda_theme">
+    <None Include="res\themes\editor\Grey.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
-    <None Include="res\themes\window\Dark.fernanda_wintheme">
+    <None Include="res\themes\window\Dark.fernanda_window">
       <Filter>Resource Files\Stylesheets\Window Themes</Filter>
     </None>
-    <None Include="res\themes\window\Light.fernanda_wintheme">
+    <None Include="res\themes\window\Light.fernanda_window">
       <Filter>Resource Files\Stylesheets\Window Themes</Filter>
     </None>
     <None Include="res\themes\window.qss">
@@ -80,13 +80,13 @@
     <None Include="res\themes\editor.qss">
       <Filter>Resource Files\Stylesheets</Filter>
     </None>
-    <None Include="res\themes\window\Solarized Dark.fernanda_wintheme">
+    <None Include="res\themes\window\Solarized Dark.fernanda_window">
       <Filter>Resource Files\Stylesheets\Window Themes</Filter>
     </None>
-    <None Include="res\themes\editor\Pocket.fernanda_theme">
+    <None Include="res\themes\editor\Pocket.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
-    <None Include="res\themes\editor\Solarized Light.fernanda_theme">
+    <None Include="res\themes\editor\Solarized Light.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
     <None Include="res\themes\shadow.qss">
@@ -98,25 +98,25 @@
     <None Include="res\themes\window_base.qss">
       <Filter>Resource Files\Stylesheets</Filter>
     </None>
-    <None Include="res\sample\Sample.fernanda_theme">
+    <None Include="res\sample\Sample.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Sample Themes</Filter>
     </None>
-    <None Include="res\sample\Sample.fernanda_wintheme">
+    <None Include="res\sample\Sample.fernanda_window">
       <Filter>Resource Files\Stylesheets\Sample Themes</Filter>
     </None>
-    <None Include="res\themes\window\Solarized Light.fernanda_wintheme">
+    <None Include="res\themes\window\Solarized Light.fernanda_window">
       <Filter>Resource Files\Stylesheets\Window Themes</Filter>
     </None>
-    <None Include="res\themes\editor\Snooze.fernanda_theme">
+    <None Include="res\themes\editor\Snooze.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
-    <None Include="res\themes\editor\Snooze-Alt.fernanda_theme">
+    <None Include="res\themes\editor\Snooze-Alt.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
-    <None Include="res\themes\editor\Pocket-Alt.fernanda_theme">
+    <None Include="res\themes\editor\Pocket-Alt.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
-    <None Include="res\themes\editor\Solarized Dark.fernanda_theme">
+    <None Include="res\themes\editor\Solarized Dark.fernanda_editor">
       <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
     </None>
     <None Include="..\README.md">
@@ -178,7 +178,7 @@
     <ClCompile Include="src\editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\toolbutton.cpp">
+    <ClCompile Include="src\tool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -364,7 +364,7 @@
     <QtMoc Include="src\editor.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\toolbutton.h">
+    <QtMoc Include="src\tool.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

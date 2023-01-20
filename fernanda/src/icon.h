@@ -18,7 +18,8 @@ namespace Icon
 		FolderOpen,
 		Pushpin,
 		QuestionMark,
-		Tea
+		Tea,
+		Timer
 	};
 
 	inline const QString draw(Name name)
@@ -60,6 +61,9 @@ namespace Icon
 			break;
 		case Name::Tea:
 			result = QStringLiteral("\U0001F375");
+			break;
+		case Name::Timer:
+			result = QStringLiteral("\U000023F2");
 			break;
 		}
 		return result;

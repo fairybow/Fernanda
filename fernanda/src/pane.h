@@ -39,6 +39,7 @@ public:
 public slots:
     void receiveItems(QVector<QStandardItem*> items);
     void receiveEditsList(QStringList editedFiles);
+    void add(Path::Type type);
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent* event) override;
@@ -52,9 +53,12 @@ private:
 
     void refresh();
     void expandItems_recursor(QStandardItem* item);
-    void addTempItem(QPoint eventPosition, Path::Type type);
+    void addTempItem(Path::Type type, QPoint eventPosition);
     QStandardItem* tempItem(Path::Type type);
     const QString rename();
+
+private slots:
+    void onClick(const QModelIndex& index);
 
 signals:
     bool askHasProject();

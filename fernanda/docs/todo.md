@@ -69,7 +69,7 @@
 - [x] ~~Combine two cursor toggles into one submenu~~
 - [x] ~~Toggle-specific menu~~
 
-### Editor / LineNumberArea
+### Editor / PlainTextEdit / LineNumberArea
 - [ ] It is not clear to me that `updateLineNumberAreaWidth(int newBlockCount)` actually uses `newBlockCount` arg
 - [ ] Save undo/redo stacks
 - [ ] Editor spacing and kerning sliders
@@ -123,6 +123,9 @@
 - [x] ~~Cutting a file can result in error in edited keys list~~
 - [x] ~~`devGetEditedKeys()` deleted keys currently remain.~~
 
+### Tools
+- [ ] Actual countdown visible for timer
+
 ## Namespaces
 
 ### Path
@@ -134,7 +137,7 @@
 - [x] ~~There surely must be a smarter way to incorporate `.otf` into the fonts RC list (applies to MainWindow, too)~~
 - [x] ~~Convert to `std::filesystem::path`~~
 
-### Ud
+### UserData
 
 - [ ] Split up the enums with namespaces for editor, data, and window (removing arg requirement for a IniGroup) (Unclear on how to do this at the moment)
 - [x] ~~Enums for group (and possibly value)~~

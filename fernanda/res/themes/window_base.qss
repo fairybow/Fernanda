@@ -41,7 +41,7 @@
 	text-decoration: overline;
 }
 
-#toolButton
+#tool
 {
 	font-size: 10pt;
 	min-width: 33px;
@@ -51,7 +51,7 @@
 	padding-top: 1px;
 }
 
-#toolButton:hover
+#tool:hover
 {
 	font-size: 11pt;
 }

@@ -27,8 +27,6 @@
 				- index.h
 			- io.h (+ path.h)
 			- text.h (+ version.h)
-		- popup.h
-			- text.h (+ version.h)
 		- resource.h
 			- path.h
 		- splitter.h
@@ -42,8 +40,10 @@
 			- sample.h
 				- io.h (+ path.h)
 			- text.h (+ version.h)
-		- toolbutton.h
+		- tool.h
 			- icon.h
+			- popup.h
+				- text.h (+ version.h)
 			- userdata.h (+ path.h)
 	- startcop.h
 
@@ -123,11 +123,10 @@
 #include "editor.h"
 #include "indicator.h"
 #include "pane.h"
-#include "popup.h"
 #include "resource.h"
 #include "splitter.h"
 #include "story.h"
-#include "toolbutton.h"
+#include "tool.h"
 
 #include <QCloseEvent>
 #include <QCoreApplication>
@@ -349,9 +348,10 @@
 #include <QStringList>
 ```
 
-### toolbutton.h
+### tool.h
 ```
 #include "icon.h"
+#include "popup.h"
 #include "userdata.h"
 
 #include <optional>

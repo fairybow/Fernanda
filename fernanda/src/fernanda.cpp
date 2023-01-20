@@ -107,13 +107,14 @@ void Fernanda::addWidgets()
     setStatusBar(statusBar);
     statusBar->addPermanentWidget(indicator, 0);
     statusBar->addPermanentWidget(spacer, 1);
-    statusBar->addPermanentWidget(stayAwake, 0);
     statusBar->addPermanentWidget(alwaysOnTop, 0);
+    statusBar->addPermanentWidget(stayAwake, 0);
+    statusBar->addPermanentWidget(timer, 0);
     statusBar->setMaximumHeight(22);
     setObjectName(QStringLiteral("mainWindow"));
     menuBar->setObjectName(QStringLiteral("menuBar"));
     statusBar->setObjectName(QStringLiteral("statusBar"));
-    fontSlider->setObjectName(QStringLiteral("fontSlider"));
+    fontSlider->setObjectName(QStringLiteral("menuSlider"));
     spacer->setObjectName(QStringLiteral("spacer"));
 }
 
@@ -129,6 +130,8 @@ void Fernanda::connections()
     connect(this, &Fernanda::sendSetWrapMode, editor, &Editor::setWrapMode);
     connect(this, &Fernanda::sendItems, pane, &Pane::receiveItems);
     connect(this, &Fernanda::sendEditsList, pane, &Pane::receiveEditsList);
+    connect(this, &Fernanda::askPaneAdd, pane, &Pane::add);
+    connect(this, &Fernanda::askSetTimerValue, timer, &Tool::setTimerValue);
     connect(editor, &Editor::askFontSliderZoom, this, &Fernanda::handleFontSlider);
     connect(editor, &Editor::askHasProject, this, &Fernanda::replyHasProject);
     connect(editor, &Editor::textChanged, this, &Fernanda::sendEditedText);
@@ -227,11 +230,13 @@ void Fernanda::makeFileMenu()
 
 void Fernanda::makeStoryMenu()
 {
-    auto item1 = new QAction(tr("&(Empty)"), this);
-    connect(item1, &QAction::triggered, this, [&]() {});
-    item1->setEnabled(false);
+    auto new_folder = new QAction(tr("&New folder..."), this);
+    auto new_file = new QAction(tr("&New file..."), this);
+    connect(new_folder, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::Dir); });
+    connect(new_file, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::File); });
     auto story = menuBar->addMenu(tr("&Story"));
-    story->addAction(item1);
+    for (const auto& action : { new_folder, new_file })
+        story->addAction(action);
     story->menuAction()->setVisible(false);
     connect(this, &Fernanda::storyMenuVisible, story->menuAction(), &QAction::setVisible);
 }
@@ -243,9 +248,14 @@ void Fernanda::makeSetMenu()
         Resource::DataPair{ "Top", "Top" },
         Resource::DataPair{ "Bottom", "Bottom" }
     };
-    auto window_themes_list = Resource::iterate(":/themes/window/", { "*.fernanda_wintheme" }, user_data);
+    QVector<Resource::DataPair> timer_values_list = {
+        Resource::DataPair{ "300000", "5 minutes" },
+        Resource::DataPair{ "600000", "10 minutes" },
+        Resource::DataPair{ "900000", "15 minutes" }
+    };
+    auto window_themes_list = Resource::iterate(":/themes/window/", { "*.fernanda_window" }, user_data);
     auto fonts_list = Resource::iterate(":/fonts/", { "*.otf", "*.ttf" }, user_data);
-    auto editor_themes_list = Resource::iterate(":/themes/editor/", { "*.fernanda_theme" }, user_data);
+    auto editor_themes_list = Resource::iterate(":/themes/editor/", { "*.fernanda_editor" }, user_data);
     QVector<Resource::DataPair> tab_stops_list = {
         Resource::DataPair{ "20", "20 px" },
         Resource::DataPair{ "40", "40 px" },
@@ -264,6 +274,7 @@ void Fernanda::makeSetMenu()
     auto character_count_set = new QAction(tr("&Character count"), this);
     auto line_count_set = new QAction(tr("&Line count"), this);
     auto word_count_set = new QAction(tr("&Word count"), this);
+    timerValues = makeViewToggles(timer_values_list, [&]() { askSetTimerValue(getSetting<int>(timerValues)); });
     windowThemes = makeViewToggles(window_themes_list, &Fernanda::setStyle);
     editorFonts = makeViewToggles(fonts_list, [&]()
         {
@@ -283,25 +294,21 @@ void Fernanda::makeSetMenu()
     connect(line_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::LineCount); });
     connect(word_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::WordCount); });
     connect(fontSlider, &QSlider::valueChanged, this, [&](int value) { editor->handleFont(editorFonts->checkedAction(), value); });
-    for (const auto& action : {
-        column_position_set,
-        line_position_set,
-        character_count_set,
-        line_count_set,
-        word_count_set
-        })
+    for (const auto& action : { column_position_set, line_position_set, character_count_set, line_count_set, word_count_set })
         action->setCheckable(true);
-    font_size_label->setEnabled(false);
+    for (const auto& action : { font_size_label })
+        action->setEnabled(false);
     loadViewConfig(colorBarAlignments->actions(), UserData::IniGroup::Window, UserData::IniValue::ColorBarAlignment, "Top");
     loadMenuToggle(column_position_set, UserData::IniGroup::Window, UserData::IniValue::ColumnPosition, true);
     loadMenuToggle(line_position_set, UserData::IniGroup::Window, UserData::IniValue::LinePosition, true);
     loadMenuToggle(character_count_set, UserData::IniGroup::Window, UserData::IniValue::CharCount, false);
     loadMenuToggle(line_count_set, UserData::IniGroup::Window, UserData::IniValue::LineCount, true);
     loadMenuToggle(word_count_set, UserData::IniGroup::Window, UserData::IniValue::WordCount, true);
-    loadViewConfig(windowThemes->actions(), UserData::IniGroup::Window, UserData::IniValue::WindowTheme, ":/themes/window/Light.fernanda_wintheme");
+    loadViewConfig(timerValues->actions(), UserData::IniGroup::Window, UserData::IniValue::ToolTimer, "300000");
+    loadViewConfig(windowThemes->actions(), UserData::IniGroup::Window, UserData::IniValue::WindowTheme, ":/themes/window/Light.fernanda_window");
     fontSlider->setValue(UserData::loadConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorFontSize, 16, UserData::Type::Int).toInt());
     loadViewConfig(editorFonts->actions(), UserData::IniGroup::Editor, UserData::IniValue::EditorFont, ":/fonts/Cascadia Mono.ttf");
-    loadViewConfig(editorThemes->actions(), UserData::IniGroup::Editor, UserData::IniValue::EditorTheme, ":/themes/editor/Amber.fernanda_theme");
+    loadViewConfig(editorThemes->actions(), UserData::IniGroup::Editor, UserData::IniValue::EditorTheme, ":/themes/editor/Amber.fernanda_editor");
     loadViewConfig(tabStops->actions(), UserData::IniGroup::Editor, UserData::IniValue::TabStop, "40");
     loadViewConfig(wrapModes->actions(), UserData::IniGroup::Editor, UserData::IniValue::WrapMode, "WrapAt");
     auto set = menuBar->addMenu(tr("&Set"));
@@ -313,6 +320,8 @@ void Fernanda::makeSetMenu()
     indicator_items->addSeparator();
     for (const auto& action : { character_count_set, line_count_set, word_count_set })
         indicator_items->addAction(action);
+    auto timer_values = set->addMenu(tr("&Timer"));
+    timer_values->addActions(timerValues->actions());
     auto window_themes = set->addMenu(tr("&Window theme"));
     window_themes->addActions(windowThemes->actions());
     set->addSeparator();
@@ -336,6 +345,7 @@ void Fernanda::makeToggleMenu()
     auto status_bar_toggle = new QAction(tr("&Status bar"), this);
     auto aot_toggle = new QAction(tr("&Always-on-top"), this);
     auto stay_awake_toggle = new QAction(tr("&Stay awake"), this);
+    auto timer_toggle = new QAction(tr("&Timer"), this);
     auto window_theme_toggle = new QAction(tr("&Window theme"), this);
     auto cursor_blink_toggle = new QAction(tr("&Blink"), this);
     auto cursor_block_toggle = new QAction(tr("&Block"), this);
@@ -359,18 +369,9 @@ void Fernanda::makeToggleMenu()
         {
             toggleWidget(statusBar, UserData::IniGroup::Window, UserData::IniValue::ToggleStatusBar, checked);
         });
-    connect(aot_toggle, &QAction::toggled, this, [&](bool checked)
-        {
-            if (alwaysOnTop->isChecked())
-                alwaysOnTop->setChecked(false);
-            alwaysOnTop->toggle(checked);
-        });
-    connect(stay_awake_toggle, &QAction::toggled, this, [&](bool checked)
-        {
-            if (stayAwake->isChecked())
-                stayAwake->setChecked(false);
-            stayAwake->toggle(checked);
-        });
+    connect(aot_toggle, &QAction::toggled, this, [&](bool checked) { alwaysOnTop->toggle(checked); });
+    connect(stay_awake_toggle, &QAction::toggled, this, [&](bool checked) { stayAwake->toggle(checked); });
+    connect(timer_toggle, &QAction::toggled, this, [&](bool checked) { timer->toggle(checked); });
     connect(window_theme_toggle, &QAction::toggled, this, [&](bool checked)
         {
             hasTheme = checked;
@@ -396,6 +397,7 @@ void Fernanda::makeToggleMenu()
         status_bar_toggle,
         aot_toggle,
         stay_awake_toggle,
+        timer_toggle,
         window_theme_toggle,
         cursor_blink_toggle,
         cursor_block_toggle,
@@ -414,6 +416,7 @@ void Fernanda::makeToggleMenu()
     loadMenuToggle(status_bar_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleStatusBar, true);
     loadMenuToggle(aot_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleToolAOT, false);
     loadMenuToggle(stay_awake_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleToolSA, false);
+    loadMenuToggle(timer_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleToolTimer, false);
     loadMenuToggle(window_theme_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleWindowTheme, true);
     loadMenuToggle(cursor_blink_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlink, true);
     loadMenuToggle(cursor_block_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlock, true);
@@ -428,14 +431,16 @@ void Fernanda::makeToggleMenu()
     for (const auto& action : { color_bar_toggle, indicator_toggle, pane_toggle, status_bar_toggle })
         toggle->addAction(action);
     auto tools = toggle->addMenu(tr("&Tools"));
-    for (const auto& action : { aot_toggle
+    for (const auto& action : {
+        aot_toggle,
         
 #ifdef Q_OS_WINDOWS
 
-        , stay_awake_toggle
+        stay_awake_toggle,
 
 #endif
 
+        timer_toggle
         })
         tools->addAction(action);
     for (const auto& action : { window_theme_toggle })

@@ -24,6 +24,7 @@ public:
     using QStyledItemDelegate::QStyledItemDelegate;
 
     QStringList paintEdited;
+    QString paintActive;
     QSize paneSize;
 
 private:
@@ -49,11 +50,18 @@ private:
         return Geometry{ icon_rect, text_rect, highlight_rect };
     }
 
-    bool isDirty(QString key) const
+    bool isDirty(const QModelIndex& index) const
     {
         for (const auto& entry : paintEdited)
-            if (key == entry)
+            if (Index::key(index) == entry)
                 return true;
+        return false;
+    }
+
+    bool isSelected(const QModelIndex& index) const
+    {
+        if (Index::key(index) == paintActive)
+            return true;
         return false;
     }
 
@@ -90,13 +98,15 @@ private:
                 : (Index::hasChildren(index))
                     ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::Files))
                     : painter->drawText(geometry.icon, Icon::draw(Icon::Name::File));
-            if (isDirty(Index::key(index)))
+            if (isDirty(index))
             {
                 QFont font = painter->font();
                 font.setItalic(true);
                 painter->setFont(font);
                 name = "*" + name;
             }
+            if (isSelected(index))
+                name = "> " + name;
         }
         else
             painter->drawText(geometry.icon, Icon::draw(Icon::Name::QuestionMark));

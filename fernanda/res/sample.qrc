@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>sample/Sample.fernanda_theme</file>
-        <file>sample/Sample.fernanda_wintheme</file>
+        <file>sample/Sample.fernanda_editor</file>
+        <file>sample/Sample.fernanda_window</file>
         <file>sample/Dot Matrix.ttf</file>
         <file>sample/Candide/Chapters 1-10/Chapter 1.txt</file>
         <file>sample/Candide/Chapters 1-10/Chapter 2.txt</file>

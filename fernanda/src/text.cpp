@@ -258,4 +258,9 @@ const QString Text::version(VersionCheck check, QString latestVersion)
 	};
 }
 
+const QString Text::timeUp()
+{
+	return QStringLiteral("Time's up!") + spaces(15);
+}
+
 // text.cpp, Fernanda

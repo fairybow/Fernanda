@@ -4,85 +4,6 @@
 	border: none;
 }
 
-#fontSlider::groove:horizontal
-{
-	border: 1px solid #fff;
-	background: transparent;
-	height: 6px;
-	margin-left: 18px;
-	margin-right: 18px;
-}
-
-#fontSlider::sub-page:horizontal
-{
-	background: qlineargradient(
-		x1: 0,
-		y1: 0,
-		x2: 1,
-		y2: 0,
-		stop: 0 #7ce1f9,
-		stop: 0.25 #3bb0f3,
-		stop: 0.75 #9194f2,
-		stop: 1 #f9b3f9
-	);
-	border: 1px solid #777;
-	height: 6px;
-	margin-left: 18px;
-}
-
-#fontSlider::add-page:horizontal
-{
-	background: transparent;
-	border: 1px solid #777;
-	height: 6px;
-	margin-right: 18px;
-}
-
-#fontSlider::handle:horizontal
-{
-	background: qlineargradient(
-		x1:0,
-		y1:0,
-		x2:1,
-		y2:1,
-		stop:0 #eee,
-		stop:1 #ccc
-	);
-	border: none;
-	width: 8px;
-	margin-top: -6px;
-	margin-bottom: -6px;
-}
-
-#fontSlider::handle:horizontal:hover
-{
-	background: qlineargradient(
-		x1:0,
-		y1:0,
-		x2:1,
-		y2:1,
-		stop:0 #fff,
-		stop:1 #ddd
-	);
-}
-
-#fontSlider::sub-page:horizontal:disabled
-{
-	background: #bbb;
-	border-color: #999;
-}
-
-#fontSlider::add-page:horizontal:disabled
-{
-	background: #eee;
-	border-color: #999;
-}
-
-#fontSlider::handle:horizontal:disabled
-{
-	background: #eee;
-}
-
 #hScrollBar:horizontal, #pvScrollBar:vertical, #vScrollBar:vertical
 {
 	background: @scrollBg;
@@ -135,10 +56,89 @@
 	color: @menuFont;
 }
 
-#menuBar::item:selected, QMenu::item:selected, #fontSlider:hover
+#menuBar::item:selected, QMenu::item:selected, #menuSlider:hover
 {
 	background: @menuHover;
 	color: @menuFontHover;
+}
+
+#menuSlider::groove:horizontal
+{
+	border: 1px solid #fff;
+	background: transparent;
+	height: 6px;
+	margin-left: 18px;
+	margin-right: 18px;
+}
+
+#menuSlider::sub-page:horizontal
+{
+	background: qlineargradient(
+		x1: 0,
+		y1: 0,
+		x2: 1,
+		y2: 0,
+		stop: 0 #7ce1f9,
+		stop: 0.25 #3bb0f3,
+		stop: 0.75 #9194f2,
+		stop: 1 #f9b3f9
+	);
+	border: 1px solid #777;
+	height: 6px;
+	margin-left: 18px;
+}
+
+#menuSlider::add-page:horizontal
+{
+	background: transparent;
+	border: 1px solid #777;
+	height: 6px;
+	margin-right: 18px;
+}
+
+#menuSlider::handle:horizontal
+{
+	background: qlineargradient(
+		x1:0,
+		y1:0,
+		x2:1,
+		y2:1,
+		stop:0 #eee,
+		stop:1 #ccc
+	);
+	border: none;
+	width: 8px;
+	margin-top: -6px;
+	margin-bottom: -6px;
+}
+
+#menuSlider::handle:horizontal:hover
+{
+	background: qlineargradient(
+		x1:0,
+		y1:0,
+		x2:1,
+		y2:1,
+		stop:0 #fff,
+		stop:1 #ddd
+	);
+}
+
+#menuSlider::sub-page:horizontal:disabled
+{
+	background: #bbb;
+	border-color: #999;
+}
+
+#menuSlider::add-page:horizontal:disabled
+{
+	background: #eee;
+	border-color: #999;
+}
+
+#menuSlider::handle:horizontal:disabled
+{
+	background: #eee;
 }
 
 #pane
@@ -188,7 +188,7 @@ QSizeGrip
 	border: none;
 }
 
-#toolButton
+#tool
 {
 	background: @statusBarButton;
 	border: transparent;
@@ -196,7 +196,7 @@ QSizeGrip
 	color: @statusBarButtonFont;
 }
 
-#toolButton:hover
+#tool:hover
 {
 	background: @statusBarButtonHover;
 	color: @statusBarButtonFontHover;

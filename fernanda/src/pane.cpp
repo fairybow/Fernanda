@@ -19,11 +19,7 @@ Pane::Pane(QWidget* parent)
     setDropIndicatorShown(true);
     setDragDropMode(QAbstractItemView::InternalMove);
     setContextMenuPolicy(Qt::DefaultContextMenu);
-    connect(this, &Pane::clicked, this, [&](const QModelIndex& index)
-        {
-            if (Index::isFile(index))
-                askSendToEditor(Index::key(index));
-        });
+    connect(this, &Pane::clicked, this, &Pane::onClick);
     connect(this, &Pane::expanded, this, [&](const QModelIndex& index)
         {
             askSetExpansion(Index::key(index), true);
@@ -102,6 +98,11 @@ void Pane::receiveEditsList(QStringList editedFiles)
     refresh();
 }
 
+void Pane::add(Path::Type type)
+{
+    addTempItem(type, QPoint(-1, -1));
+}
+
 void Pane::mouseDoubleClickEvent(QMouseEvent* event)
 {
     if (currentIndex().isValid() && currentIndex().model()->hasChildren())
@@ -155,11 +156,11 @@ void Pane::contextMenuEvent(QContextMenuEvent* event)
         });
     connect(new_folder, &QAction::triggered, this, [&]()
         {
-            addTempItem(position, Path::Type::Dir);
+            addTempItem(Path::Type::Dir, position);
         });
     connect(new_file, &QAction::triggered, this, [&]()
         {
-            addTempItem(position, Path::Type::File);
+            addTempItem(Path::Type::File, position);
         });
     if (Index::isFile(index))
     {
@@ -208,7 +209,7 @@ void Pane::expandItems_recursor(QStandardItem* item)
             expandItems_recursor(item->child(i));
 }
 
-void Pane::addTempItem(QPoint eventPosition, Path::Type type)
+void Pane::addTempItem(Path::Type type, QPoint eventPosition)
 {
     auto temp_item = tempItem(type);
     auto parent_index = indexAt(eventPosition);
@@ -256,6 +257,16 @@ const QString Pane::rename()
     if (has_input && !text.isEmpty())
         return text.replace(Text::regex(Text::Re::Forbidden), "_");
     return nullptr;
+}
+
+void Pane::onClick(const QModelIndex& index)
+{
+    if (Index::isFile(index))
+    {
+        auto key = Index::key(index);
+        delegate->paintActive = key;
+        askSendToEditor(key);
+    }
 }
 
 // pane.cpp, Fernanda

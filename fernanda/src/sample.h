@@ -38,8 +38,8 @@ namespace Sample
 	{
 		QVector<SampleRCPair> pairs{
 			SampleRCPair{ ":/sample/Dot Matrix.ttf", StdFs::path(path / "Dot Matrix.ttf") },
-			SampleRCPair{ ":/sample/Sample.fernanda_theme", StdFs::path(path / "Sample.fernanda_theme") },
-			SampleRCPair{ ":/sample/Sample.fernanda_wintheme", StdFs::path(path / "Sample.fernanda_wintheme") }
+			SampleRCPair{ ":/sample/Sample.fernanda_editor", StdFs::path(path / "Sample.fernanda_editor") },
+			SampleRCPair{ ":/sample/Sample.fernanda_window", StdFs::path(path / "Sample.fernanda_window") }
 		};
 		for (auto& pair : pairs)
 		{
