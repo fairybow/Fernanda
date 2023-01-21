@@ -63,17 +63,17 @@ const QRegularExpression Text::regex(Re operation)
 	return result;
 }
 
-const QString Text::multiplyThese(QString character, int defaultArg)
+const QString Text::multiplyThese(QString character, int defaultArgument)
 {
-	if (defaultArg < 1)
-		defaultArg = 1;
+	if (defaultArgument < 1)
+		defaultArgument = 1;
 	QString result;
-	for (auto i = 0; i < defaultArg; ++i)
+	for (auto i = 0; i < defaultArgument; ++i)
 		result.append(character);
 	return result;
 }
 
-const QString Text::spaces(int spaces)
+const QString Text::multiSpaces(int spaces)
 {
 	return multiplyThese(" ", spaces);
 }
@@ -98,9 +98,15 @@ const QString Text::bold(const char* text)
 	return QStringLiteral("<b>") + text + QStringLiteral("</b>");
 }
 
-const QString Text::pad(const char* text)
+const QString Text::pad(const char* text, int spaces)
 {
-	QString padding = spaces();
+	QString padding = multiSpaces(spaces);
+	return padding + text + padding;
+}
+
+const QString Text::pad(QString text, int spaces)
+{
+	QString padding = multiSpaces(spaces);
 	return padding + text + padding;
 }
 
@@ -260,7 +266,7 @@ const QString Text::version(VersionCheck check, QString latestVersion)
 
 const QString Text::timeUp()
 {
-	return QStringLiteral("Time's up!") + spaces(15);
+	return QStringLiteral("Time's up!") + multiSpaces(10);
 }
 
 // text.cpp, Fernanda

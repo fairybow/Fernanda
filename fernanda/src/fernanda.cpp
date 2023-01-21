@@ -131,7 +131,7 @@ void Fernanda::connections()
     connect(this, &Fernanda::sendItems, pane, &Pane::receiveItems);
     connect(this, &Fernanda::sendEditsList, pane, &Pane::receiveEditsList);
     connect(this, &Fernanda::askPaneAdd, pane, &Pane::add);
-    connect(this, &Fernanda::askSetTimerValue, timer, &Tool::setTimerValue);
+    connect(this, &Fernanda::askSetCountdown, timer, &Tool::setCountdown);
     connect(editor, &Editor::askFontSliderZoom, this, &Fernanda::handleFontSlider);
     connect(editor, &Editor::askHasProject, this, &Fernanda::replyHasProject);
     connect(editor, &Editor::textChanged, this, &Fernanda::sendEditedText);
@@ -176,6 +176,7 @@ void Fernanda::connections()
         {
             activeStory.value().setItemExpansion(key, isExpanded);
         });
+    connect(timer, &Tool::resetCountdown, this, [&]() { return getSetting<int>(timerValues); });
 }
 
 void Fernanda::shortcuts()
@@ -249,18 +250,23 @@ void Fernanda::makeSetMenu()
         Resource::DataPair{ "Bottom", "Bottom" }
     };
     QVector<Resource::DataPair> timer_values_list = {
-        Resource::DataPair{ "300000", "5 minutes" },
-        Resource::DataPair{ "600000", "10 minutes" },
-        Resource::DataPair{ "900000", "15 minutes" }
+        Resource::DataPair{ "300", "5 minutes" },
+        Resource::DataPair{ "600", "10 minutes" },
+        Resource::DataPair{ "900", "15 minutes" },
+        Resource::DataPair{ "1200", "20 minutes" },
+        Resource::DataPair{ "1500", "25 minutes" },
+        Resource::DataPair{ "1800", "30 minutes" }
     };
+    if (isDev)
+        timer_values_list << QVector<Resource::DataPair>{ Resource::DataPair{ "5", "5 seconds (Test)" }, Resource::DataPair{ "30", "30 seconds (Test)" } };
     auto window_themes_list = Resource::iterate(":/themes/window/", { "*.fernanda_window" }, user_data);
     auto fonts_list = Resource::iterate(":/fonts/", { "*.otf", "*.ttf" }, user_data);
     auto editor_themes_list = Resource::iterate(":/themes/editor/", { "*.fernanda_editor" }, user_data);
     QVector<Resource::DataPair> tab_stops_list = {
-        Resource::DataPair{ "20", "20 px" },
-        Resource::DataPair{ "40", "40 px" },
-        Resource::DataPair{ "60", "60 px" },
-        Resource::DataPair{ "80", "80 px" }
+        Resource::DataPair{ "20", "20 pixels" },
+        Resource::DataPair{ "40", "40 pixels" },
+        Resource::DataPair{ "60", "60 pixels" },
+        Resource::DataPair{ "80", "80 pixels" }
     };
     QVector<Resource::DataPair> wrap_modes_list = {
         Resource::DataPair{ "NoWrap", "No wrap" },
@@ -274,7 +280,7 @@ void Fernanda::makeSetMenu()
     auto character_count_set = new QAction(tr("&Character count"), this);
     auto line_count_set = new QAction(tr("&Line count"), this);
     auto word_count_set = new QAction(tr("&Word count"), this);
-    timerValues = makeViewToggles(timer_values_list, [&]() { askSetTimerValue(getSetting<int>(timerValues)); });
+    timerValues = makeViewToggles(timer_values_list, [&]() { askSetCountdown(getSetting<int>(timerValues)); });
     windowThemes = makeViewToggles(window_themes_list, &Fernanda::setStyle);
     editorFonts = makeViewToggles(fonts_list, [&]()
         {
@@ -304,7 +310,7 @@ void Fernanda::makeSetMenu()
     loadMenuToggle(character_count_set, UserData::IniGroup::Window, UserData::IniValue::CharCount, false);
     loadMenuToggle(line_count_set, UserData::IniGroup::Window, UserData::IniValue::LineCount, true);
     loadMenuToggle(word_count_set, UserData::IniGroup::Window, UserData::IniValue::WordCount, true);
-    loadViewConfig(timerValues->actions(), UserData::IniGroup::Window, UserData::IniValue::ToolTimer, "300000");
+    loadViewConfig(timerValues->actions(), UserData::IniGroup::Window, UserData::IniValue::ToolTimer, "900");
     loadViewConfig(windowThemes->actions(), UserData::IniGroup::Window, UserData::IniValue::WindowTheme, ":/themes/window/Light.fernanda_window");
     fontSlider->setValue(UserData::loadConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorFontSize, 16, UserData::Type::Int).toInt());
     loadViewConfig(editorFonts->actions(), UserData::IniGroup::Editor, UserData::IniValue::EditorFont, ":/fonts/Cascadia Mono.ttf");

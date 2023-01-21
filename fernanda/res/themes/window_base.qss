@@ -43,7 +43,7 @@
 
 #tool
 {
-	font-size: 10pt;
+	font-size: 9pt;
 	min-width: 33px;
 	padding-bottom: 1px;
 	padding-left: 5px;
@@ -53,7 +53,7 @@
 
 #tool:hover
 {
-	font-size: 11pt;
+	font-size: 10pt;
 }
 
 #vScrollBar:vertical

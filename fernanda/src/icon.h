@@ -60,7 +60,7 @@ namespace Icon
 			result = QStringLiteral("\U00002754");
 			break;
 		case Name::Tea:
-			result = QStringLiteral("\U0001F375");
+			result = QStringLiteral("\U0001F9CB");
 			break;
 		case Name::Timer:
 			result = QStringLiteral("\U000023F2");

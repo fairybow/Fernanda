@@ -8,12 +8,14 @@
 </p>
 <p align="center">
 	<a href="https://github.com/fairybow/fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/fernanda?include_prereleases&color=f34b7d" alt="release"/></a>
-	<a href="#roadmap"><img src="https://img.shields.io/badge/Windows%20x64%20%7C%20Arch%20Linux-lightgrey" alt="platforms"/></a>
 	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/fernanda?color=orange" alt="license: GPL-3.0"/></a>
 	<br>
 	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-v6.4.1-brightgreen?logo=qt" alt="Qt v6.4.1"/></a>
 	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-v4.0.0--beta-blue" alt="Bit7z v4.0.0-beta"/></a>
 	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip-v22.01-ffbf00" alt="7zip v22.01"/></a>
+	<br>
+	<a href="#roadmap"><img src="https://img.shields.io/badge/Windows-5B5B5B?logo=windows" alt="platforms"/></a>
+	<a href="#roadmap"><img src="https://img.shields.io/badge/Arch%20Linux-5B5B5B?logo=archlinux" alt="platforms"/></a>
 	<a href="https://github.com/fairybow/fernanda/search?l=c%2B%2B"><img src="https://img.shields.io/badge/C%2B%2B20-5B5B5B?logo=c%2B%2B" alt="C++20"/></a>
 </p>
 
@@ -139,10 +141,10 @@ If you want to manually rename, move, or delete items within a `.story` file via
 **Tools:** <a name="features-tools"></a>
 - :pushpin: **Always-on-top:**
 	- Pin Fernanda to the top of your window order
-- :tea:	**Stay awake:**
+- :bubble_tea:	**Stay awake:**
 	- Keep the screen awake without input (Windows only)
 - :timer_clock: **Timer:**
-	- A silent timer
+	- A countdown timer
 
 [&#9166;](#top)
 

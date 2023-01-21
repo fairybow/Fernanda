@@ -146,7 +146,7 @@ private slots:
 
 signals:
     void askSetBarAlignment(QString alignment);
-    void askSetTimerValue(int value);
+    void askSetCountdown(int seconds);
     bool askHasStartUpBar();
     void askToggleStartUpBar(bool checked);
     void askToggleScrolls(bool checked);

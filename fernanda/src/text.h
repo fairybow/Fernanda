@@ -34,13 +34,14 @@ namespace Text
 	const QString operator/(QString lhs, const char* rhs);
 	const QString operator/(QString lhs, QString rhs);
 	const QRegularExpression regex(Re operation);
-	const QString multiplyThese(QString character, int defaultArg = 1);
-	const QString spaces(int spaces = 3);
+	const QString multiplyThese(QString character, int defaultArgument = 1);
+	const QString multiSpaces(int spaces = 3);
 	const QString newLines(int lines = 2);
 	const QString tableColumnSpacing(int columns = 9);
 	const QString heading(const char* text);
 	const QString bold(const char* text);
-	const QString pad(const char* text);
+	const QString pad(const char* text, int spaces = 3);
+	const QString pad(QString text, int spaces = 3);
 	const QString table(QStringList columns);
 	const QString link(const char* url, QString displayName = nullptr);
 	const QString change(bool isQuit = false);

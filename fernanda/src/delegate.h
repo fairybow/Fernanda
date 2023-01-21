@@ -41,11 +41,11 @@ private:
         auto rect_width = option_rect.width();
         auto rect_top = option_rect.top();
         auto rect_left = option_rect.left();
-        auto option_size = QSize(rect_height, rect_height);
-        auto size_height = option_size.height();
-        auto size_width = option_size.width();
-        auto icon_rect = QRect((rect_left - size_width + 15), rect_top, size_width, size_height);
-        auto text_rect = QRect((rect_left + 16), (rect_top + 2), rect_width, rect_height);
+        auto icon_square = QSize(rect_height, rect_height);
+        auto icon_height = icon_square.height();
+        auto icon_width = icon_square.width();
+        auto icon_rect = QRect((rect_left - icon_width + 15), rect_top, icon_width, icon_height);
+        auto text_rect = QRect((rect_left + 16), (rect_top + 1), (rect_width - 20), rect_height);
         auto highlight_rect = QRect(0, rect_top, paneSize.width(), rect_height);
         return Geometry{ icon_rect, text_rect, highlight_rect };
     }
@@ -79,6 +79,7 @@ private:
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override
     {
         painter->save();
+        QFont font = painter->font();
         auto geometry = getRectSizes(option);
         if (option.state & QStyle::State_MouseOver || option.state & QStyle::State_Selected)
             painter->fillRect(geometry.highlight, highlight());
@@ -100,7 +101,6 @@ private:
                     : painter->drawText(geometry.icon, Icon::draw(Icon::Name::File));
             if (isDirty(index))
             {
-                QFont font = painter->font();
                 font.setItalic(true);
                 painter->setFont(font);
                 name = "*" + name;

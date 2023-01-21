@@ -35,7 +35,7 @@ public:
     void toggle(bool value);
 
 public slots:
-    void setTimerValue(int value);
+    void setCountdown(int seconds);
 
 private:
     Type type{};
@@ -43,7 +43,7 @@ private:
     UserData::IniValue widgetConfig;
     std::optional<UserData::IniValue> actionConfig;
     std::optional<QTimer*> timer;
-    std::optional<int> time;
+    std::optional<int> countdown;
     QMainWindow* parentWindow;
     QGraphicsOpacityEffect* opacity = new QGraphicsOpacityEffect(this);
 
@@ -52,8 +52,13 @@ private:
     void alwaysOnTop();
     void stayAwake();
 
+private slots:
+    void startCountdown(bool checked);
+    void countdownDisplay();
+
 signals:
-    void startTimer();
+    void startAwakeTimer();
+    int resetCountdown();
 };
 
 // tool.h, Fernanda

@@ -22,10 +22,10 @@ void Tool::toggle(bool value)
     UserData::saveConfig(configGroup, widgetConfig, value);
 }
 
-void Tool::setTimerValue(int value)
+void Tool::setCountdown(int seconds)
 {
-    time = value;
-    UserData::saveConfig(configGroup, UserData::IniValue::ToolTimer, value);
+    countdown = seconds;
+    UserData::saveConfig(configGroup, UserData::IniValue::ToolTimer, seconds);
 }
 
 bool Tool::eventFilter(QObject* watched, QEvent* event)
@@ -68,7 +68,7 @@ void Tool::typeDependentSetup()
         timer = new QTimer(this);
         auto& timer_value = timer.value();
         timer_value->setTimerType(Qt::VeryCoarseTimer);
-        connect(this, &Tool::startTimer, this, [&]() { timer_value->start(29000); });
+        connect(this, &Tool::startAwakeTimer, this, [&]() { timer_value->start(29000); });
         connect(timer_value, &QTimer::timeout, this, [&]() { stayAwake(); });
     }
     break;
@@ -76,19 +76,7 @@ void Tool::typeDependentSetup()
     {
         setText(Icon::draw(Icon::Name::Timer));
         widgetConfig = UserData::IniValue::ToggleToolTimer;
-        timer = new QTimer(this);
-        auto& timer_value = timer.value();
-        timer_value->setTimerType(Qt::PreciseTimer);
-        timer_value->setSingleShot(true);
-        connect(this, &Tool::toggled, this, [&](bool checked)
-            {
-                (checked) ? timer_value->start(time.value()) : timer_value->stop();
-            });
-        connect(timer.value(), &QTimer::timeout, this, [&]()
-            {
-                Popup::timeUp();
-                setChecked(false);
-            });
+        connect(this, &Tool::toggled, this, &Tool::startCountdown);
     }
     break;
     }
@@ -113,11 +101,44 @@ void Tool::stayAwake()
     else
     {
         SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
-        startTimer();
+        startAwakeTimer();
     }
 
 #endif
 
+}
+
+void Tool::startCountdown(bool checked)
+{
+    if (!timer.has_value())
+    {
+        timer = new QTimer(this);
+        auto& timer_value = timer.value();
+        timer_value->setTimerType(Qt::PreciseTimer);
+        connect(timer_value, &QTimer::timeout, this, &Tool::countdownDisplay);
+    }
+    auto& timer_value = timer.value();
+    if (!checked)
+    {
+        setText(Icon::draw(Icon::Name::Timer));
+        timer_value->stop();
+        countdown = resetCountdown();
+        return;
+    }
+    timer_value->start(1000);
+}
+
+void Tool::countdownDisplay()
+{
+    auto& countdown_value = countdown.value();
+    setText(Text::pad(Icon::draw(Icon::Name::Timer) + " " + QString::number(countdown_value), 2));
+    if (countdown_value < 1)
+    {
+        Popup::timeUp();
+        setChecked(false);
+        return;
+    }
+    --countdown_value;
 }
 
 // tool.cpp, Fernanda

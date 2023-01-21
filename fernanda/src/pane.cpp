@@ -266,6 +266,7 @@ void Pane::onClick(const QModelIndex& index)
         auto key = Index::key(index);
         delegate->paintActive = key;
         askSendToEditor(key);
+        refresh();
     }
 }
 
