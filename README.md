@@ -14,8 +14,8 @@
 	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-v4.0.0--beta-blue" alt="Bit7z v4.0.0-beta"/></a>
 	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip-v22.01-ffbf00" alt="7zip v22.01"/></a>
 	<br>
-	<a href="#roadmap"><img src="https://img.shields.io/badge/Windows-5B5B5B?logo=windows" alt="platforms"/></a>
-	<a href="#roadmap"><img src="https://img.shields.io/badge/Arch%20Linux-5B5B5B?logo=archlinux" alt="platforms"/></a>
+	<a href="#install"><img src="https://img.shields.io/badge/Windows%20(x64)-5B5B5B?logo=windows" alt="Platform Windows (x64)"/></a>
+	<a href="#install"><img src="https://img.shields.io/badge/Arch%20Linux-5B5B5B?logo=archlinux" alt="Platform Arch Linux"/></a>
 	<a href="https://github.com/fairybow/fernanda/search?l=c%2B%2B"><img src="https://img.shields.io/badge/C%2B%2B20-5B5B5B?logo=c%2B%2B" alt="C++20"/></a>
 </p>
 
@@ -39,17 +39,15 @@ Fernanda is a plain text editor for drafting long-form fiction. (At least, that'
 
 This is a personal project, a work-in-progress, and I am *so* not a programmer. Still, I decided I didn't like existing novel-writing software very much, and I wanted to make something all my own. My hope is that it's easy to use, lightly-customizable, and distraction-free, for faster, more peaceful drafting.
 
-Fernanda's look was inspired by the good, quiet feeling of using [WordStar](https://en.wikipedia.org/wiki/WordStar) on [DOSBox](https://www.dosbox.com/) to draft, and its interface was inspired by [Atom](https://github.com/atom/atom).
+You can try it [here](#install).
+
+Fernanda's look was inspired by the nice and quiet feeling of using [WordStar](https://en.wikipedia.org/wiki/WordStar) on [DOSBox](https://www.dosbox.com/) to draft, and its interface was inspired by [Atom](https://github.com/atom/atom).
 
 Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="./fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
 
 [&#9166;](#top)
 
 ## :compass: **Roadmap** <a name="roadmap"></a>
-
-- [Releases (Windows x64)](https://github.com/fairybow/fernanda/releases)
-
-- [AUR](https://aur.archlinux.org/packages/fernanda)
 
 An early Windows release is available for testing, and an early Arch Linux package is also available on the AUR (courtesy of [@philipplenk](https://github.com/philipplenk)).
 
@@ -140,17 +138,24 @@ If you want to manually rename, move, or delete items within a `.story` file via
 
 **Tools:** <a name="features-tools"></a>
 - :pushpin: **Always-on-top:**
-	- Pin Fernanda to the top of your window order
+	- Pin Fernanda to the top of your window order (will interfere with popups!)
 - :bubble_tea:	**Stay awake:**
 	- Keep the screen awake without input (Windows only)
 - :timer_clock: **Timer:**
-	- A countdown timer
+	- A silent countdown timer (left-click to start or pause; right-click to reset)
+
+<p align="center">
+	<kbd>
+		<img src="./fernanda/docs/screens/timer_1.gif" alt="GIF of 'Timer'" width="300px"/>
+		<br>Timer
+	</kbd>
+</p>
 
 [&#9166;](#top)
 
 ## :floppy_disk: **Installation** <a name="install"></a>
 
-You can grab the installer on the [Releases](https://github.com/fairybow/fernanda/releases/) page.
+You can grab the installer on the [Releases](https://github.com/fairybow/fernanda/releases/) page. (AUR [here](https://aur.archlinux.org/packages/fernanda).)
 
 **Update:**
 - Run the latest installer and overwrite.

@@ -28,6 +28,27 @@ void Tool::setCountdown(int seconds)
     UserData::saveConfig(configGroup, UserData::IniValue::ToolTimer, seconds);
 }
 
+void Tool::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        setChecked(!isChecked());
+        return;
+    }
+    if (type == Type::Timer)
+    {
+        if (countdown > 0 && countdown < resetCountdown())
+        {
+            if (timer.value()->isActive())
+                timer.value()->stop();
+            else
+                timer.value()->start(1000);
+            return;
+        }
+    }
+    QPushButton::mousePressEvent(event);
+}
+
 bool Tool::eventFilter(QObject* watched, QEvent* event)
 {
     Tool* button = qobject_cast<Tool*>(watched);
@@ -108,6 +129,16 @@ void Tool::stayAwake()
 
 }
 
+const QString Tool::time(int seconds)
+{
+    auto time_seconds = seconds % 60;
+    QString seconds_string;
+    (time_seconds <= 9)
+        ? seconds_string = "0" + QString::number(time_seconds)
+        : seconds_string = QString::number(time_seconds);
+    return QString::number((seconds / 60) % 60) + "." + seconds_string;
+}
+
 void Tool::startCountdown(bool checked)
 {
     if (!timer.has_value())
@@ -131,7 +162,7 @@ void Tool::startCountdown(bool checked)
 void Tool::countdownDisplay()
 {
     auto& countdown_value = countdown.value();
-    setText(Text::pad(Icon::draw(Icon::Name::Timer) + " " + QString::number(countdown_value), 2));
+    setText(Text::pad(Icon::draw(Icon::Name::Timer) + " " + time(countdown_value), 2));
     if (countdown_value < 1)
     {
         Popup::timeUp();

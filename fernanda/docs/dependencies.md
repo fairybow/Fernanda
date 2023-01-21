@@ -365,7 +365,9 @@
 #include <QEvent>
 #include <QGraphicsOpacityEffect>
 #include <QMainWindow>
+#include <QMouseEvent>
 #include <QPushButton>
+#include <Qt>
 #include <QTimer>
 ```
 
@@ -373,7 +375,7 @@
 ```
 #include "path.h"
 
-#include <time.h>
+#include <ctime>
 
 #include <QCoreApplication>
 #include <QFile>

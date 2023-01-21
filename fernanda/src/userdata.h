@@ -4,7 +4,7 @@
 
 #include "path.h"
 
-#include <time.h>
+#include <ctime>
 
 #include <QCoreApplication>
 #include <QFile>

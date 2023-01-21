@@ -17,7 +17,9 @@
 #include <QEvent>
 #include <QGraphicsOpacityEffect>
 #include <QMainWindow>
+#include <QMouseEvent>
 #include <QPushButton>
+#include <Qt>
 #include <QTimer>
 
 class Tool : public QPushButton
@@ -37,6 +39,9 @@ public:
 public slots:
     void setCountdown(int seconds);
 
+protected:
+    void mousePressEvent(QMouseEvent* event) override;
+
 private:
     Type type{};
     UserData::IniGroup configGroup = UserData::IniGroup::Window;
@@ -51,6 +56,7 @@ private:
     void typeDependentSetup();
     void alwaysOnTop();
     void stayAwake();
+    const QString time(int seconds);
 
 private slots:
     void startCountdown(bool checked);
