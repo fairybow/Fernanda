@@ -298,7 +298,7 @@ bool Story::isEdited(QString key)
 void Story::bak()
 {
 	auto underscore = "_";
-	auto timestamp = UserData::timestamp().replace(Text::regex(Text::Re::Forbidden), underscore).replace(Text::regex(Text::Re::Space), underscore).replace(Text::regex(Text::Re::NewLine), nullptr).toLower();
+	auto timestamp = UserData::timestamp().replace(Text::regex(Text::Regex::Forbidden), underscore).replace(Text::regex(Text::Regex::Space), underscore).replace(Text::regex(Text::Regex::NewLine), nullptr).toLower();
 	timestamp.replace(QRegularExpression("(__)"), underscore).replace(QRegularExpression("(_$)"), nullptr);
 	auto bak_file_name = name<QString>() + ".story." + timestamp + ".bak";
 	auto bak_path = UserData::doThis(UserData::Operation::GetRollback) / Path::toStdFs(bak_file_name);

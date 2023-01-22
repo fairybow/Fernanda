@@ -13,7 +13,8 @@
 #hScrollBar::handle:horizontal, #pvScrollBar::handle:vertical, #vScrollBar::handle:vertical
 {
 	background: @scrollHandle;
-	border: 2px solid @scrollBg;
+	border-left: 2px solid @scrollBg;
+	border-right: 2px solid @scrollBg;
 	min-height: 0px;
 }
 

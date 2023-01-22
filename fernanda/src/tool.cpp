@@ -39,10 +39,10 @@ void Tool::mousePressEvent(QMouseEvent* event)
     {
         if (countdown > 0 && countdown < resetCountdown())
         {
-            if (timer.value()->isActive())
-                timer.value()->stop();
-            else
-                timer.value()->start(1000);
+            auto& timer_value = timer.value();
+            (timer_value->isActive())
+                ? timer_value->stop()
+                : timer_value->start(1000);
             return;
         }
     }

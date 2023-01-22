@@ -10,7 +10,7 @@
 
 namespace Text
 {
-	enum class Re {
+	enum class Regex {
 		Forbidden,
 		NewLine,
 		ParagraphSeparator,
@@ -33,7 +33,7 @@ namespace Text
 	const QString operator%(QString lhs, QString rhs);
 	const QString operator/(QString lhs, const char* rhs);
 	const QString operator/(QString lhs, QString rhs);
-	const QRegularExpression regex(Re operation);
+	const QRegularExpression regex(Regex operation);
 	const QString multiplyThese(QString character, int defaultArgument = 1);
 	const QString multiSpaces(int spaces = 3);
 	const QString newLines(int lines = 2);

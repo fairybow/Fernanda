@@ -22,41 +22,41 @@ const QString Text::operator/(QString lhs, QString rhs)
 	return lhs + QStringLiteral("<br>") + rhs;
 }
 
-const QRegularExpression Text::regex(Re operation)
+const QRegularExpression Text::regex(Regex operation)
 {
 	QRegularExpression result;
 	switch (operation) {
-	case Re::Forbidden:
+	case Regex::Forbidden:
 		result = QRegularExpression(QStringLiteral(R"((<|>|:|\/|\\|\||\?|\*|\"))"));
 		break;
-	case Re::NewLine:
+	case Regex::NewLine:
 		result = QRegularExpression(QStringLiteral("(\\n)"));
 		break;
-	case Re::ParagraphSeparator:
+	case Regex::ParagraphSeparator:
 		result = QRegularExpression(QStringLiteral("(\U00002029)"));
 		break;
-	case Re::Space:
+	case Regex::Space:
 		result = QRegularExpression(QStringLiteral("(\\s)"));
 		break;
-	case Re::Split:
+	case Regex::Split:
 		result = QRegularExpression(QStringLiteral("(\\s|\\n|\\r|\U00002029|^)+"));
 		break;
-	case Re::ThemeSheetCursor:
+	case Regex::ThemeSheetCursor:
 		result = QRegularExpression(QStringLiteral("(@cursorColor; = )(.*)(;)"));
 		break;
-	case Re::ThemeSheetCursorUnder:
+	case Regex::ThemeSheetCursorUnder:
 		result = QRegularExpression(QStringLiteral("(@cursorUnderColor; = )(.*)(;)"));
 		break;
-	case Re::ThemeSheetLine:
+	case Regex::ThemeSheetLine:
 		result = QRegularExpression(QStringLiteral("(@.*\\n?)"));
 		break;
-	case Re::ThemeSheetValue:
+	case Regex::ThemeSheetValue:
 		result = QRegularExpression(QStringLiteral("(\\s=.*;)"));
 		break;
-	case Re::ThemeSheetVariable:
+	case Regex::ThemeSheetVariable:
 		result = QRegularExpression(QStringLiteral("(@.*=\\s)"));
 		break;
-	case Re::UrlBeginning:
+	case Regex::UrlBeginning:
 		result = QRegularExpression(QStringLiteral("(https:\\/\\/|www.)"));
 		break;
 	}
@@ -126,7 +126,7 @@ const QString Text::table(QStringList columns)
 const QString Text::link(const char* url, QString displayName)
 {
 	if (displayName.isEmpty())
-		displayName = QString(url).replace(regex(Re::UrlBeginning), nullptr);
+		displayName = QString(url).replace(regex(Regex::UrlBeginning), nullptr);
 	return QStringLiteral("<a href='") + url + QStringLiteral("'>") + displayName + QStringLiteral("</a>");
 }
 

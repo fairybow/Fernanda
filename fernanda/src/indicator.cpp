@@ -70,7 +70,7 @@ void Indicator::updatePositions(const int cursorBlockNumber, const int cursorPos
 void Indicator::updateCounts(const QString text, const int blockCount)
 {
     if (!hideOrShow(counts, hasLineCount, hasWordCount, hasCharCount)) return;
-    const auto word_count = text.split(Text::regex(Text::Re::Split), Qt::SkipEmptyParts).count();
+    const auto word_count = text.split(Text::regex(Text::Regex::Split), Qt::SkipEmptyParts).count();
     const auto char_count = text.count();
     QStringList elements;
     if (hasLineCount)

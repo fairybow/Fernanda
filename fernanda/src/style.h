@@ -27,13 +27,13 @@ namespace Style
 
     inline const QString createStyleSheetFromTheme(QString styleSheet, QString themeSheet)
     {
-        QRegularExpressionMatchIterator matches = Text::regex(Text::Re::ThemeSheetLine).globalMatch(themeSheet);
+        QRegularExpressionMatchIterator matches = Text::regex(Text::Regex::ThemeSheetLine).globalMatch(themeSheet);
         while (matches.hasNext())
         {
             QRegularExpressionMatch match = matches.next();
             if (!match.hasMatch()) continue;
-            QString variable = match.captured(0).replace(Text::regex(Text::Re::ThemeSheetValue), nullptr);
-            QString value = match.captured(0).replace(Text::regex(Text::Re::ThemeSheetVariable), nullptr);
+            QString variable = match.captured(0).replace(Text::regex(Text::Regex::ThemeSheetValue), nullptr);
+            QString value = match.captured(0).replace(Text::regex(Text::Regex::ThemeSheetVariable), nullptr);
             styleSheet.replace(QRegularExpression(variable), value);
         }
         return styleSheet;
@@ -48,8 +48,8 @@ namespace Style
         {
             auto theme_sheet = Io::readFile(themePath);
             style_sheet = style_sheet + Text::newLines() + createStyleSheetFromTheme(Io::readFile(":/themes/editor.qss"), theme_sheet);
-            QRegularExpressionMatch match_cursor = Text::regex(Text::Re::ThemeSheetCursor).match(theme_sheet);
-            QRegularExpressionMatch match_under_cursor = Text::regex(Text::Re::ThemeSheetCursorUnder).match(theme_sheet);
+            QRegularExpressionMatch match_cursor = Text::regex(Text::Regex::ThemeSheetCursor).match(theme_sheet);
+            QRegularExpressionMatch match_under_cursor = Text::regex(Text::Regex::ThemeSheetCursorUnder).match(theme_sheet);
             cursor_color = match_cursor.captured(2);
             under_cursor_color = match_under_cursor.captured(2);
         }

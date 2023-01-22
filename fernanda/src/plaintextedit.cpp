@@ -14,8 +14,11 @@ PlainTextEdit::PlainTextEdit(QWidget* parent)
     addScrollBarWidget(scrollPrevious, Qt::AlignTop);
     addScrollBarWidget(scrollNext, Qt::AlignBottom);
     addScrollBarWidget(scrollDown, Qt::AlignBottom);
-    scrollUp->setAutoRepeat(true);
-    scrollDown->setAutoRepeat(true);
+    for (const auto& button : { scrollUp, scrollDown })
+    {
+        button->setAutoRepeat(true);
+        button->setAutoRepeatDelay(500);
+    }
     scrollUp->setText(Icon::draw(Icon::Name::ArrowUp));
     scrollPrevious->setText(Icon::draw(Icon::Name::ArrowPrevious));
     scrollNext->setText(Icon::draw(Icon::Name::ArrowNext));
@@ -31,6 +34,7 @@ PlainTextEdit::PlainTextEdit(QWidget* parent)
     scrollNext->setObjectName("scrollNext");
     scrollDown->setObjectName("scrollDown");
     connections();
+    scrollButtonEnabledHandler();
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
 }
@@ -77,7 +81,7 @@ int PlainTextEdit::selectedLineCount()
 {
     auto cursor = textCursor();
     if (!cursor.hasSelection()) return 1;
-    return cursor.selectedText().count(Text::regex(Text::Re::ParagraphSeparator)) + 1;
+    return cursor.selectedText().count(Text::regex(Text::Regex::ParagraphSeparator)) + 1;
 }
 
 void PlainTextEdit::scrollNavClicked(Scroll direction)
@@ -86,14 +90,14 @@ void PlainTextEdit::scrollNavClicked(Scroll direction)
     auto early_return = false;
     switch (direction) {
     case Scroll::Next:
-        if (verticalScrollBar()->sliderPosition() != verticalScrollBar()->maximum())
+        if (!isMaximumScroll())
         {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
             early_return = true;
         }
         break;
     case Scroll::Previous:
-        if (verticalScrollBar()->sliderPosition() != verticalScrollBar()->minimum())
+        if (!isMinimumScroll())
         {
             verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMinimum);
             early_return = true;
@@ -101,9 +105,7 @@ void PlainTextEdit::scrollNavClicked(Scroll direction)
         break;
     }
     if (early_return) return;
-    (direction == Scroll::Next)
-        ? askGoNext()
-        : askGoPrevious();
+    (direction == Scroll::Next) ? askGoNext() : askGoPrevious();
 }
 
 void PlainTextEdit::handleFont(StdFsPath fontPath, int sliderValue)
@@ -205,7 +207,7 @@ void PlainTextEdit::keyPressEvent(QKeyEvent* event)
     cursor.beginEditBlock();
     keyPresses(keyfilter->filter(event, chars));
     cursor.endEditBlock();
-    if (cursor.atEnd() && verticalScrollBar()->sliderPosition() != verticalScrollBar()->maximum())
+    if (cursor.atEnd() && !isMaximumScroll())
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 }
 
@@ -302,16 +304,18 @@ void PlainTextEdit::connections()
     connect(this, &PlainTextEdit::blockCountChanged, this, &PlainTextEdit::updateLineNumberAreaWidth);
     connect(this, &PlainTextEdit::updateRequest, this, &PlainTextEdit::updateLineNumberArea);
     connect(this, &PlainTextEdit::cursorPositionChanged, this, &PlainTextEdit::highlightCurrentLine);
+    connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
     connect(scrollNext, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Next); });
     connect(scrollPrevious, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Previous); });
     connect(scrollUp, &QPushButton::clicked, this, [&]()
         {
-            for (auto i = 2; i > 0; --i)
+            for (auto i = 4; i > 0; --i)
                 verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
         });
     connect(scrollDown, &QPushButton::clicked, this, [&]()
         {
-            for (auto i = 2; i > 0; --i)
+            for (auto i = 4; i > 0; --i)
                 verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
         });
 }
@@ -353,6 +357,22 @@ const QColor PlainTextEdit::highlight()
         ? result = QColor(255, 255, 255, 30)
         : result = QColor(0, 0, 0, 0);
     return result;
+}
+
+bool PlainTextEdit::isMinimumScroll()
+{
+    return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->minimum());
+}
+
+bool PlainTextEdit::isMaximumScroll()
+{
+    return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->maximum());
+}
+
+void PlainTextEdit::scrollButtonEnabledHandler()
+{
+    (isMinimumScroll()) ? scrollUp->setEnabled(false) : scrollUp->setEnabled(true);
+    (isMaximumScroll()) ? scrollDown->setEnabled(false) : scrollDown->setEnabled(true);
 }
 
 void PlainTextEdit::updateLineNumberAreaWidth(int newBlockCount)

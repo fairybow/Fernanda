@@ -85,8 +85,11 @@ private:
     const QRect reshapeCursor(QChar currentChar);
     const QColor recolorCursor(bool under = false);
     const QColor highlight();
+    bool isMinimumScroll();
+    bool isMaximumScroll();
 
 private slots:
+    void scrollButtonEnabledHandler();
     void updateLineNumberAreaWidth(int newBlockCount);
     void updateLineNumberArea(const QRect& rect, int dy);
 
