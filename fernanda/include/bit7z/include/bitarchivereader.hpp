@@ -19,62 +19,63 @@ struct IOutArchive;
 struct IArchiveExtractCallback;
 
 namespace bit7z {
+
 /**
- * @brief The BitArchiveReader class allows to read metadata of archives, as well as extract them.
+ * @brief The BitArchiveReader class allows reading metadata of archives, as well as extracting them.
  */
 class BitArchiveReader final : public BitAbstractArchiveOpener, public BitInputArchive {
     public:
         /**
          * @brief Constructs a BitArchiveReader object, opening the input file archive.
          *
-         * @note When bit7z is compiled using the BIT7Z_AUTO_FORMAT macro define, the format
+         * @note When bit7z is compiled using the `BIT7Z_AUTO_FORMAT` option, the format
          * argument has default value BitFormat::Auto (automatic format detection of the input archive).
-         * On the contrary, when BIT7Z_AUTO_FORMAT is not defined (i.e., no auto format detection available)
+         * On the contrary, when `BIT7Z_AUTO_FORMAT` is not defined (i.e., no auto format detection available),
          * the format argument must be specified.
          *
-         * @param lib       the 7z library used.
-         * @param in_file   the input archive file path.
-         * @param format    the input archive format.
-         * @param password  the password needed for opening the input archive.
+         * @param lib           the 7z library used.
+         * @param in_archive    the path to the archive to be read.
+         * @param format        the format of the input archive.
+         * @param password      the password needed for opening the input archive.
          */
         BitArchiveReader( const Bit7zLibrary& lib,
-                          const tstring& in_file,
+                          const tstring& in_archive,
                           const BitInFormat& format BIT7Z_DEFAULT_FORMAT,
                           const tstring& password = {} );
 
         /**
          * @brief Constructs a BitArchiveReader object, opening the archive in the input buffer.
          *
-         * @note When bit7z is compiled using the BIT7Z_AUTO_FORMAT macro define, the format
+         * @note When bit7z is compiled using the `BIT7Z_AUTO_FORMAT` option, the format
          * argument has default value BitFormat::Auto (automatic format detection of the input archive).
-         * On the contrary, when BIT7Z_AUTO_FORMAT is not defined (i.e., no auto format detection available)
+         * On the contrary, when `BIT7Z_AUTO_FORMAT` is not defined (i.e., no auto format detection available),
          * the format argument must be specified.
          *
-         * @param lib       the 7z library used.
-         * @param in_buffer the input buffer containing the archive.
-         * @param format    the input archive format.
-         * @param password  the password needed for opening the input archive.
+         * @param lib           the 7z library used.
+         * @param in_archive    the input buffer containing the archive to be read.
+         * @param format        the format of the input archive.
+         * @param password      the password needed for opening the input archive.
          */
         BitArchiveReader( const Bit7zLibrary& lib,
-                          const vector< byte_t >& in_buffer,
+                          const std::vector< byte_t >& in_archive,
                           const BitInFormat& format BIT7Z_DEFAULT_FORMAT,
                           const tstring& password = {} );
 
         /**
          * @brief Constructs a BitArchiveReader object, opening the archive from the standard input stream.
          *
-         * @note When bit7z is compiled using the BIT7Z_AUTO_FORMAT macro define, the format
+         * @note When bit7z is compiled using the `BIT7Z_AUTO_FORMAT` option, the format
          * argument has default value BitFormat::Auto (automatic format detection of the input archive).
-         * On the contrary, when BIT7Z_AUTO_FORMAT is not defined (i.e., no auto format detection available)
+         * On the contrary, when `BIT7Z_AUTO_FORMAT` is not defined (i.e., no auto format detection available),
          * the format argument must be specified.
          *
-         * @param lib       the 7z library used.
-         * @param in_stream the standard input stream of the archive.
-         * @param format    the input archive format.
-         * @param password  the password needed for opening the input archive.
+         * @param lib           the 7z library used.
+         * @param in_archive    the standard input stream of the archive to be read.
+         * @param format        the format of the input archive.
+         * @param password      the password needed for opening the input archive.
          */
         BitArchiveReader( const Bit7zLibrary& lib,
-                          std::istream& in_stream,
+                          std::istream& in_archive,
                           const BitInFormat& format BIT7Z_DEFAULT_FORMAT,
                           const tstring& password = {} );
 
@@ -143,6 +144,9 @@ class BitArchiveReader final : public BitAbstractArchiveOpener, public BitInputA
          */
         BIT7Z_NODISCARD bool isSolid() const;
 };
+
+using BitArchiveInfo BIT7Z_MAYBE_UNUSED BIT7Z_DEPRECATED_MSG("Since v4.0; please use BitArchiveReader.") = BitArchiveReader;
+
 }  // namespace bit7z
 
 #endif // BITARCHIVEREADER_HPP

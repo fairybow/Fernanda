@@ -115,31 +115,31 @@ const QString UserData::valueName(IniValue valueType)
         result = "window__always_on_top";
         break;
     case IniValue::CharCount:
-        result = "set__character_count";
+        result = "set_____character_count";
         break;
     case IniValue::ColorBarAlignment:
-        result = "set__color_bar_alignment";
+        result = "set_____color_bar_alignment";
         break;
     case IniValue::ColumnPosition:
-        result = "set__column_position";
+        result = "set_____column_position";
         break;
     case IniValue::EditorFont:
-        result = "set__editor_font";
+        result = "set_____editor_font";
         break;
     case IniValue::EditorFontSize:
-        result = "set__editor_font_size";
+        result = "set_____editor_font_size";
         break;
     case IniValue::EditorTheme:
-        result = "set__editor_theme";
+        result = "set_____editor_theme";
         break;
     case IniValue::LineCount:
-        result = "set__line_count";
+        result = "set_____line_count";
         break;
     case IniValue::LinePosition:
-        result = "set__line_position";
+        result = "set_____line_position";
         break;
     case IniValue::MostRecent:
-        result = "data__most_recent_project";
+        result = "data____most_recent_project";
         break;
     case IniValue::SplitterPosition:
         result = "window__splitter_position";
@@ -148,7 +148,7 @@ const QString UserData::valueName(IniValue valueType)
         result = "window__stay_awake";
         break;
     case IniValue::TabStop:
-        result = "set__tab_stop_distance";
+        result = "set_____tab_stop_distance";
         break;
     case IniValue::ToggleColorBar:
         result = "toggle__color_bar";
@@ -202,13 +202,13 @@ const QString UserData::valueName(IniValue valueType)
         result = "toggle__window_theme";
         break;
     case IniValue::ToolTimer:
-        result = "set__tool_timer";
+        result = "set_____tool_timer";
         break;
     case IniValue::WordCount:
-        result = "set__word_count";
+        result = "set_____word_count";
         break;
     case IniValue::WrapMode:
-        result = "set__wrap_mode";
+        result = "set_____wrap_mode";
         break;
     case IniValue::WindowPosition:
         result = "window__window_position";
@@ -217,7 +217,7 @@ const QString UserData::valueName(IniValue valueType)
         result = "window__window_state";
         break;
     case IniValue::WindowTheme:
-        result = "set__window_theme";
+        result = "set_____window_theme";
         break;
     }
     return result;

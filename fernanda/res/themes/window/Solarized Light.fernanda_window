@@ -16,13 +16,13 @@
 
 @indicatorFont; = #586e75;
 
-@scrollBg; = #93a1a1;
+@scrollBg; = #fdf6e3;
 @scrollButtonBg; = #fdf6e3;
 @scrollButtonHover; = #eee8d5;
 @scrollButtonFont; = #586e75;
 @scrollButtonFontHover; = #dc322f;
-@scrollHandle; = #fdf6e3;
-@scrollHandleHover; = #eee8d5;
-@scrollHandlePress; = #586e75;
+@scrollHandle; = #bbb6a7;
+@scrollHandleHover; = #93a1a1;
+@scrollHandlePress; = #839496;
 
 @border; = #073642;

@@ -21,8 +21,8 @@ void Archiver::create(StdFsPath archivePath, QVector<Io::ArchiveWriteReadPaths> 
 		}
 	}
 	Bit7zLibrary library{ UserData::dll() };
-	BitFileCompressor compressor{ library, format };
-	compressor.setCompressionLevel(level);
+	BitFileCompressor compressor{ library, archiveFormat };
+	compressor.setCompressionLevel(compressionLevel);
 	compressor.compressDirectory(Path::toB7z(temp_dir_path / Io::storyRoot), archivePath.string());
 }
 
@@ -41,7 +41,7 @@ bool Archiver::extractMatch(StdFsPath archivePath, StdFsPath relativePath, StdFs
 {
 	try {
 		Bit7zLibrary library{ UserData::dll() };
-		BitFileExtractor extractor{ library, format };
+		BitFileExtractor extractor{ library, archiveFormat };
 		extractor.extractMatching(Path::toB7z(archivePath), Path::toB7z(relativePath), Path::toB7z(extractPath));
 	}
 	catch (const BitException&) {
@@ -53,16 +53,16 @@ bool Archiver::extractMatch(StdFsPath archivePath, StdFsPath relativePath, StdFs
 void Archiver::extract(StdFsPath archivePath, StdFsPath extractPath)
 {
 	Bit7zLibrary library{ UserData::dll() };
-	BitFileExtractor extractor{ library, format };
+	BitFileExtractor extractor{ library, archiveFormat };
 	extractor.extract(Path::toB7z(archivePath), Path::toB7z(extractPath));
 }
 
 void Archiver::add(StdFsPath archivePath, StdFsPath readPath, StdFsPath writePath)
 {
 	Bit7zLibrary library{ UserData::dll() };
-	BitFileCompressor compressor{ library, format };
-	compressor.setCompressionLevel(level);
-	compressor.setUpdateMode(UpdateMode::Overwrite);
+	BitFileCompressor compressor{ library, archiveFormat };
+	compressor.setCompressionLevel(compressionLevel);
+	compressor.setUpdateMode(UpdateMode::Update);
 	std::map<std::string, std::string> in_map;
 	in_map[readPath.string()] = Path::toB7z(writePath);
 	compressor.compress(in_map, Path::toB7z(archivePath));
@@ -71,9 +71,9 @@ void Archiver::add(StdFsPath archivePath, StdFsPath readPath, StdFsPath writePat
 void Archiver::add(StdFsPath archivePath, QVector<Io::ArchiveWriteReadPaths> writeReadPaths)
 {
 	Bit7zLibrary library{ UserData::dll() };
-	BitFileCompressor compressor{ library, format };
-	compressor.setCompressionLevel(level);
-	compressor.setUpdateMode(UpdateMode::Overwrite);
+	BitFileCompressor compressor{ library, archiveFormat };
+	compressor.setCompressionLevel(compressionLevel);
+	compressor.setUpdateMode(UpdateMode::Update);
 	std::map<std::string, std::string> in_map;
 	for (auto& wr_path : writeReadPaths)
 		in_map[wr_path.readFullPath.value().string()] = Path::toB7z(wr_path.writeRelPath);
@@ -87,9 +87,9 @@ void Archiver::add(StdFsPath archivePath, Io::ArchiveWrite textAndWritePath)
 	auto temp_path = Path::toStdFs(temp_dir.path()) / Path::getName<StdFsPath>(w_path);
 	Io::writeFile(temp_path, textAndWritePath.text);
 	Bit7zLibrary library{ UserData::dll() };
-	BitFileCompressor compressor{ library, format };
-	compressor.setCompressionLevel(level);
-	compressor.setUpdateMode(UpdateMode::Overwrite);
+	BitFileCompressor compressor{ library, archiveFormat };
+	compressor.setCompressionLevel(compressionLevel);
+	compressor.setUpdateMode(UpdateMode::Update);
 	std::map<std::string, std::string> in_map;
 	in_map[temp_path.string()] = Path::toB7z(w_path);
 	compressor.compress(in_map, Path::toB7z(archivePath));
@@ -137,7 +137,7 @@ void Archiver::cut(StdFsPath archivePath, QVector<Io::ArchiveRename> cuts)
 void Archiver::rename(StdFsPath archivePath, std::map<std::string, std::string> renames)
 {
 	Bit7zLibrary library{ UserData::dll() };
-	BitArchiveEditor editor{ library, Path::toB7z(archivePath), format };
+	BitArchiveEditor editor{ library, Path::toB7z(archivePath), archiveFormat };
 	for (const auto& [key, value] : renames)
 		editor.renameItem(Path::toB7z(value), Path::toB7z(key));
 	editor.applyChanges();
@@ -146,7 +146,7 @@ void Archiver::rename(StdFsPath archivePath, std::map<std::string, std::string> 
 void Archiver::del(StdFsPath archivePath, std::vector<std::string> relativePaths)
 {
 	Bit7zLibrary library{ UserData::dll() };
-	BitArchiveEditor editor{ library, Path::toB7z(archivePath), format };
+	BitArchiveEditor editor{ library, Path::toB7z(archivePath), archiveFormat };
 	for (const auto& relative_path : relativePaths)
 		editor.deleteItem(Path::toB7z(relative_path));
 	editor.applyChanges();
@@ -155,9 +155,9 @@ void Archiver::del(StdFsPath archivePath, std::vector<std::string> relativePaths
 void Archiver::blanks(StdFsPath archivePath, std::map<std::string, Path::Type> additions)
 {
 	Bit7zLibrary library{ UserData::dll() };
-	BitFileCompressor compressor{ library, format };
-	compressor.setCompressionLevel(level);
-	compressor.setUpdateMode(UpdateMode::Overwrite);
+	BitFileCompressor compressor{ library, archiveFormat };
+	compressor.setCompressionLevel(compressionLevel);
+	compressor.setUpdateMode(UpdateMode::Update);
 	QTemporaryDir temp_dir;
 	auto temp_dir_path = Path::toStdFs(temp_dir.path());
 	for (const auto& [key, value] : additions)

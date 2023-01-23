@@ -34,8 +34,8 @@ public:
     void cut(StdFsPath archivePath, QVector<Io::ArchiveRename> cuts);
 
 private:
-    const bit7z::BitInOutFormat& format = bit7z::BitFormat::SevenZip;
-    bit7z::BitCompressionLevel level = bit7z::BitCompressionLevel::None;
+    const bit7z::BitInOutFormat& archiveFormat = bit7z::BitFormat::SevenZip;
+    bit7z::BitCompressionLevel compressionLevel = bit7z::BitCompressionLevel::None;
 
     void rename(StdFsPath archivePath, std::map<std::string, std::string> renames);
     void del(StdFsPath archivePath, std::vector<std::string> relativePaths);

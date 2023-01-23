@@ -2,8 +2,8 @@
 
 #pragma once
 
-#define VER_FILEVERSION             0,13,1,31
-#define VER_FILEVERSION_STR         "v0.13.1-beta31"
+#define VER_FILEVERSION             0,14,0,32
+#define VER_FILEVERSION_STR         "v0.14.0-beta32"
 #define VER_PRODUCTVERSION          VER_FILEVERSION
 #define VER_PRODUCTVERSION_STR      VER_FILEVERSION_STR
 #define VER_COMPANYNAME_STR         "@fairybow"

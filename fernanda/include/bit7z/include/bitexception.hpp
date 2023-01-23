@@ -18,6 +18,7 @@
 #include "bitwindows.hpp"
 
 namespace bit7z {
+
 using std::system_error;
 using FailedFiles = std::vector< std::pair< tstring, std::error_code > >;
 
@@ -30,7 +31,11 @@ std::error_code last_error_code() noexcept;
  */
 class BitException final : public system_error {
     public:
+#ifdef _WIN32
         using native_code_type = HRESULT;
+#else
+        using native_code_type = int;
+#endif
 
         /**
          * @brief Constructs a BitException object with the given message, and the specific files that failed.
@@ -50,12 +55,8 @@ class BitException final : public system_error {
          */
         BitException( const char* message, std::error_code code, const tstring& file );
 
-#if !defined(BIT7Z_USE_NATIVE_STRING) && defined(_WIN32)
-        BitException( const char* message, std::error_code code, const std::wstring& file );
-#endif
-
         /**
-         * @brief Constructs a BitException object with the given message
+         * @brief Constructs a BitException object with the given message.
          *
          * @param message   the message associated with the exception object.
          * @param code      the HRESULT code associated with the exception object.
@@ -63,9 +64,20 @@ class BitException final : public system_error {
         explicit BitException( const std::string& message, std::error_code code );
 
         /**
-         * @return the native error code (e.g., HRESULT) corresponding to the exception's std::error_code
+         * @return the native error code (e.g., HRESULT on Windows, int elsewhere)
+         * corresponding to the exception's std::error_code.
          */
         BIT7Z_NODISCARD native_code_type nativeCode() const noexcept;
+
+        /**
+         * @return the HRESULT error code corresponding to the exception's std::error_code.
+         */
+        BIT7Z_NODISCARD HRESULT hresultCode() const noexcept;
+
+        /**
+         * @return the POSIX error code corresponding to the exception's std::error_code.
+         */
+        BIT7Z_NODISCARD int posixCode() const noexcept;
 
         /**
          * @return the vector of files that caused the exception to be thrown, along with the corresponding
@@ -76,5 +88,7 @@ class BitException final : public system_error {
     private:
         FailedFiles mFailedFiles;
 };
+
 }  // namespace bit7z
+
 #endif // BITEXCEPTION_HPP

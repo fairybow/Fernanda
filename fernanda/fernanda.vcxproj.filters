@@ -215,6 +215,24 @@
     <ClInclude Include="src\keyfilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\archiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\story.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\icon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\layout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\style.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\bit7z\include\bit7z.hpp">
       <Filter>Header Files\Includes\bit7z</Filter>
     </ClInclude>
@@ -313,24 +331,6 @@
     </ClInclude>
     <ClInclude Include="include\bit7z\include\bitwindows.hpp">
       <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="src\archiver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dom.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\story.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\icon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\layout.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\style.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

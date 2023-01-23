@@ -17,6 +17,7 @@
 #include "bitdefines.hpp"
 
 namespace bit7z {
+
 using std::function;
 
 class BitInFormat;
@@ -50,6 +51,17 @@ using FileCallback = function< void( tstring ) >;
 using PasswordCallback = function< tstring() >;
 
 /**
+ * @brief Enumeration representing how a handler should deal when an output file already exists.
+ */
+enum struct OverwriteMode {
+    None = 0, ///< The handler will throw an exception if the output file or buffer already exists.
+    Overwrite, ///< The handler will overwrite the old file or buffer with the new one.
+    Skip, ///< The handler will skip writing to the output file or buffer.
+//TODO:    RenameOutput,
+//TODO:    RenameExisting
+};
+
+/**
  * @brief Abstract class representing a generic archive handler.
  */
 class BitAbstractArchiveHandler {
@@ -80,13 +92,13 @@ class BitAbstractArchiveHandler {
         BIT7Z_NODISCARD tstring password() const;
 
         /**
-         * @return true if the directory structure must be preserved while extracting or compressing
-         *         the archive, false otherwise.
+         * @return a boolean value indicating whether the directory structure must be preserved while extracting
+         * or compressing the archive.
          */
         BIT7Z_NODISCARD bool retainDirectories() const noexcept;
 
         /**
-         * @return true if a password is defined, false otherwise.
+         * @return a boolean value indicating whether a password is defined or not.
          */
         BIT7Z_NODISCARD bool isPasswordDefined() const noexcept;
 
@@ -116,12 +128,17 @@ class BitAbstractArchiveHandler {
         BIT7Z_NODISCARD PasswordCallback passwordCallback() const;
 
         /**
+         * @return the current OverwriteMode.
+         */
+        BIT7Z_NODISCARD OverwriteMode overwriteMode() const;
+
+        /**
          * @brief Sets up a password to be used by the archive handler.
          *
          * The password will be used to encrypt/decrypt archives by using the default
          * cryptographic method of the archive format.
          *
-         * @note Calling setPassword when the input archive is not encrypted does not have effect on
+         * @note Calling setPassword when the input archive is not encrypted does not have any effect on
          * the extraction process.
          *
          * @note Calling setPassword when the output format doesn't support archive encryption
@@ -130,7 +147,7 @@ class BitAbstractArchiveHandler {
          *
          * @note After a password has been set, it will be used for every subsequent operation.
          * To disable the use of the password, you need to call the clearPassword method, which is equivalent
-         * to call setPassword(L"").
+         * to calling setPassword(L"").
          *
          * @param password  the password to be used.
          */
@@ -146,7 +163,7 @@ class BitAbstractArchiveHandler {
         void clearPassword() noexcept;
 
         /**
-         * @brief Sets whether methods output will preserve the input's directory structure or not.
+         * @brief Sets whether the operations' output will preserve the input's directory structure or not.
          *
          * @param retain  the setting for preserving or not the input directory structure
          */
@@ -163,7 +180,7 @@ class BitAbstractArchiveHandler {
          * @brief Sets the function to be called when the processed size of the ongoing operation is updated.
          *
          * @note The completion percentage of the current operation can be obtained by calculating
-         * static_cast<int>( ( 100.0 * processed_size ) / total_size ).
+         * `static_cast<int>( ( 100.0 * processed_size ) / total_size )`.
          *
          * @param callback  the progress callback to be used.
          */
@@ -174,7 +191,7 @@ class BitAbstractArchiveHandler {
          * ongoing operation are known.
          *
          * @note The ratio percentage of a compression operation can be obtained by calculating
-         * static_cast<int>( ( 100.0 * output_size ) / input_size ).
+         * `static_cast<int>( ( 100.0 * output_size ) / input_size )`.
          *
          * @param callback  the ratio callback to be used.
          */
@@ -194,14 +211,24 @@ class BitAbstractArchiveHandler {
          */
         void setPasswordCallback( const PasswordCallback& callback );
 
+        /**
+         * @brief Sets how the handler should behave when it tries to output to an existing file or buffer.
+         *
+         * @param mode  the OverwriteMode to be used by the handler.
+         */
+        void setOverwriteMode( OverwriteMode mode );
+
     protected:
+        explicit BitAbstractArchiveHandler( const Bit7zLibrary& lib,
+                                            tstring password = {},
+                                            OverwriteMode overwrite_mode = OverwriteMode::None );
+
+    private:
         const Bit7zLibrary& mLibrary;
         tstring mPassword;
         bool mRetainDirectories;
+        OverwriteMode mOverwriteMode;
 
-        explicit BitAbstractArchiveHandler( const Bit7zLibrary& lib, tstring password = {} );
-
-    private:
         //CALLBACKS
         TotalCallback mTotalCallback;
         ProgressCallback mProgressCallback;
@@ -209,6 +236,7 @@ class BitAbstractArchiveHandler {
         FileCallback mFileCallback;
         PasswordCallback mPasswordCallback;
 };
+
 }  // namespace bit7z
 
 #endif // BITABSTRACTARCHIVEHANDLER_HPP
