@@ -192,6 +192,12 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 
 <p align="center">
 	<kbd>
+		<img src="./fernanda/docs/screens/banner.png" alt="PNG of 'Banner'" width="500px"/>
+		<br>Banner<br><br>Themes: window Light / editor Pocket;<br>Font: Fixedsys Excelsior by <a href="https://github.com/kika/fixedsys">@kika</a>.
+	</kbd>
+</p>
+<p align="center">
+	<kbd>
 		<img src="./fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32 running on Windows 11.'" width="500px"/>
 		<br>Fernanda v0.14.0-beta32 running on Windows 11.<br><br>Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>;<br>Themes: window Solarized Light / editor Snooze;<br>Font: Mononoki by <a href="https://github.com/madmalik/mononoki">@madmalik</a>.
 	</kbd>
