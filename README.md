@@ -2,8 +2,8 @@
 
 <p align="center">
 	<kbd>
-		<img src="./fernanda/docs/screens/main_screen_1.png" alt="PNG of 'Fernanda v0.9.1.20 running on Windows 11.'" width="500px"/>
-		<br>Fernanda v0.9.1.20 running on Windows 11.
+		<img src="./fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32'" width="500px"/>
+		<br>Fernanda v0.14.0-beta32
 	</kbd>
 </p>
 <p align="center">
@@ -33,6 +33,7 @@ Fernanda is a plain text editor for drafting long-form fiction. (At least, that'
 	- [Tools](#features-tools)
 - [Installation](#install)
 - [Thanks](#thanks)
+- [Screens](#screens)
 - [Bye](#bye)
 
 ## :heartpulse: **About** <a name="about"></a>
@@ -187,15 +188,37 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 
 [&#9166;](#top)
 
-## :heartpulse: **Bye** <a name="bye"></a>
-
-Older screens:
+## :hibiscus: **Screens** <a name="screens"></a>
 
 <p align="center">
 	<kbd>
-		<img src="./fernanda/docs/screens/old_main_screen.png" alt="PNG of 'Fernanda running on Windows 11.'" width="500px"/>
-		<br>Fernanda running on Windows 11. (Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>)
+		<img src="./fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32 running on Windows 11.'" width="500px"/>
+		<br>Fernanda v0.14.0-beta32 running on Windows 11.<br><br>Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>;<br>Themes: window Solarized Light / editor Snooze;<br>Font: Mononoki by <a href="https://github.com/madmalik/mononoki">@madmalik</a>.
 	</kbd>
 </p>
+<p align="center">
+	<kbd>
+		<img src="./fernanda/docs/screens/light_pocket.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Light / editor Pocket'" width="300px"/>
+		<br>Fernanda v0.14.0-beta32<br>Themes: window Light / editor Pocket
+	</kbd>
+	<kbd>
+		<img src="./fernanda/docs/screens/dark_pocket_alt.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Dark / editor Pocket-Alt'" width="300px"/>
+		<br>Fernanda v0.14.0-beta32<br>Themes: window Dark / editor Pocket-Alt
+	</kbd>
+</p>
+<p align="center">
+	<kbd>
+		<img src="./fernanda/docs/screens/solarized_light_snooze_alt.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Solarized Light / editor Snooze-Alt'" width="300px"/>
+		<br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Light / editor Snooze-Alt
+	</kbd>
+	<kbd>
+		<img src="./fernanda/docs/screens/solarized_dark_snooze.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Solarized Dark / editor Snooze'" width="300px"/>
+		<br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Dark / editor Snooze
+	</kbd>
+</p>
+
+[&#9166;](#top)
+
+## :heartpulse: **Bye** <a name="bye"></a>
 
 [&#9166;](#top)
