@@ -16,7 +16,7 @@ set(CMAKE_AUTOUIC ON)
 include(FetchContent)
 FetchContent_Declare(bit7z
 	GIT_REPOSITORY https://github.com/rikyoz/bit7z.git
-	GIT_TAG        v4.0.0-beta
+	GIT_TAG        v4.0.0-rc
 )
 FetchContent_MakeAvailable(bit7z)
 
