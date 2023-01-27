@@ -153,7 +153,7 @@ QVector<Io::ArchiveRename> Dom::cuts()
 	for (auto& cut_element : cut_elements)
 	{
 		auto key = cut_element.attribute(attributeKey);
-		auto rename = Path::toStdFs(cut_element.attribute(attrRename));
+		auto rename = Path::toStdFs(cut_element.attribute(attributeRename));
 		auto relative_path = Path::toStdFs(cut_element.attribute(attributeRelativePath));
 		Path::Type type{};
 		(isDir(cut_element))
@@ -169,13 +169,13 @@ QVector<Io::ArchiveRename> Dom::cuts()
 QVector<Io::ArchiveRename> Dom::renames(Finalize finalize)
 {
 	QVector<Io::ArchiveRename> result;
-	for (auto& renamed_element : elementsByAttribute(attrRename))
+	for (auto& renamed_element : elementsByAttribute(attributeRename))
 	{
 		auto key = renamed_element.attribute(attributeKey);
-		auto rename = Path::toStdFs(renamed_element.attribute(attrRename));
+		auto rename = Path::toStdFs(renamed_element.attribute(attributeRename));
 		auto relative_path = Path::toStdFs(renamed_element.attribute(attributeRelativePath));
 		if (relative_path == rename)
-			renamed_element.removeAttribute(attrRename);
+			renamed_element.removeAttribute(attributeRename);
 		else
 		{
 			if (relative_path.empty())
@@ -191,9 +191,24 @@ QVector<Io::ArchiveRename> Dom::renames(Finalize finalize)
 			if (finalize == Finalize::Yes)
 			{
 				renamed_element.setAttribute(attributeRelativePath, Path::toQString(rename, true));
-				renamed_element.removeAttribute(attrRename);
+				renamed_element.removeAttribute(attributeRename);
 			}
 		}
+	}
+	return result;
+}
+
+QVector<QDomElement> Dom::elements(QDomDocument document)
+{
+	if (document.isNull())
+		document = self;
+	QVector<QDomElement> result;
+	auto root = document.documentElement();
+	auto next_node = root.firstChildElement();
+	while (!next_node.isNull())
+	{
+		result << elements_recursor(next_node);
+		next_node = next_node.nextSiblingElement();
 	}
 	return result;
 }
@@ -209,19 +224,6 @@ QDomElement Dom::element_recursor(QDomElement node, QString key, QDomElement res
 		if (!elem.isNull())
 			result = elem;
 		child_node = child_node.nextSiblingElement();
-	}
-	return result;
-}
-
-QVector<QDomElement> Dom::elements(QDomDocument document)
-{
-	QVector<QDomElement> result;
-	auto root = document.documentElement();
-	auto next_node = root.firstChildElement();
-	while (!next_node.isNull())
-	{
-		result << elements_recursor(next_node);
-		next_node = next_node.nextSiblingElement();
 	}
 	return result;
 }
@@ -331,8 +333,8 @@ Dom::StdFsPath Dom::filterPath(QDomElement elem, Filter filter)
 			result = Path::toStdFs(elem.attribute(attributeRelativePath));
 		break;
 	case Filter::RenameToOrig:
-		(elem.hasAttribute(attrRename))
-			? result = Path::toStdFs(elem.attribute(attrRename))
+		(elem.hasAttribute(attributeRename))
+			? result = Path::toStdFs(elem.attribute(attributeRename))
 			: result = Path::toStdFs(elem.attribute(attributeRelativePath));
 		break;
 	}

@@ -142,13 +142,32 @@ void Story::save(QString text)
 	dom->set(xml());
 }
 
+const Story::TotalCounts Story::totalCounts()
+{
+	auto result = TotalCounts{};
+	QString file_content;
+	for (auto& element : dom->elements())
+	{
+		if (element.tagName() != dom->tagFile) continue;
+		auto key = element.attribute(dom->attributeKey);
+		auto temp_path = tempPath(key);
+		(QFile(temp_path).exists())
+			? file_content = Io::readFile(temp_path)
+			: file_content = archiver->read(activeArchivePath, dom->element<StdFsPath>(key, Dom::Element::OrigPath));
+		result.lines = result.lines + file_content.split(Text::regex(Text::Regex::NewLine)).count();
+		result.words = result.words + file_content.split(Text::regex(Text::Regex::Split), Qt::SkipEmptyParts).count();
+		result.characters = result.characters + file_content.count();
+	}
+	return result;
+}
+
 void Story::make(Mode mode)
 {
-	QVector<Io::ArchiveWriteReadPaths> wr_paths;
-	wr_paths << Io::ArchiveWriteReadPaths{ Io::storyRoot };
+	QVector<Io::ArchiveWriteReadPaths> write_read_paths;
+	write_read_paths << Io::ArchiveWriteReadPaths{ Io::storyRoot };
 	if (mode == Mode::Sample)
-		wr_paths << Sample::make();
-	archiver->create(activeArchivePath, wr_paths);
+		write_read_paths << Sample::make();
+	archiver->create(activeArchivePath, write_read_paths);
 }
 
 const QString Story::xml()

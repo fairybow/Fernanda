@@ -266,7 +266,23 @@ const QString Text::version(VersionCheck check, QString latestVersion)
 
 const QString Text::timeUp()
 {
-	return QStringLiteral("Time's up!") + multiSpaces(10);
+	return QStringLiteral("Time's up!");
+}
+
+const QString Text::totalCounts(int lines, int words, int characters)
+{
+	return
+	{
+		heading("Total Counts") %
+		table({
+			QStringLiteral("Lines:") /
+			QStringLiteral("Words:") /
+			QStringLiteral("Characters:"),
+			QString::number(lines) /
+			QString::number(words) /
+			QString::number(characters)
+			})
+	};
 }
 
 // text.cpp, Fernanda

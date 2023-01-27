@@ -14,11 +14,6 @@ namespace Style
 {
     namespace StdFs = std::filesystem;
 
-    enum class WinStyle {
-        BaseOnly,
-        WithTheme
-    };
-
     struct EditorGroup {
         QString styleSheet = nullptr;
         QString cursorColor = nullptr;
@@ -58,10 +53,10 @@ namespace Style
         return EditorGroup{ style_sheet, cursor_color, under_cursor_color };
     }
 
-    inline const QString windowStyle(StdFs::path themePath, bool hasTheme, WinStyle baseOnly = WinStyle::WithTheme)
+    inline const QString windowStyle(StdFs::path themePath, bool hasTheme)
     {
         auto style_sheet = Io::readFile(":/themes/window_base.qss");
-        if (hasTheme && baseOnly != WinStyle::BaseOnly)
+        if (hasTheme)
         {
             auto theme_sheet = Io::readFile(themePath);
             style_sheet = style_sheet + Text::newLines() + createStyleSheetFromTheme(Io::readFile(":/themes/window.qss"), theme_sheet);

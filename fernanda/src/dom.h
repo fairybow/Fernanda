@@ -60,6 +60,7 @@ public:
     QStringList cut(QString key);
     QVector<Io::ArchiveRename> cuts();
     QVector<Io::ArchiveRename> renames(Finalize finalize = Finalize::No);
+    QVector<QDomElement> elements(QDomDocument document = QDomDocument());
 
     template<typename T>
     inline T element(QString key, Element property = Element::Element)
@@ -129,7 +130,7 @@ public:
             break;
         case Write::Rename:
             if constexpr (std::is_same<T, QString>::value)
-                target.setAttribute(attrRename, value);
+                target.setAttribute(attributeRename, value);
             break;
         }
     }
@@ -139,10 +140,9 @@ private:
     QDomDocument initialSelf;
     QDomDocument cutElements;
 
-    const QString attrRename = QStringLiteral("rename");
+    const QString attributeRename = QStringLiteral("rename");
 
     QDomElement element_recursor(QDomElement node, QString key, QDomElement result = QDomElement());
-    QVector<QDomElement> elements(QDomDocument document);
     QVector<QDomElement> elements_recursor(QDomElement node, QVector<QDomElement> result = QVector<QDomElement>());
     QVector<QDomElement> elementsByAttribute(QString attribute, QString value = nullptr);
     QVector<QDomElement> elementsByAttribute_recursor(QDomElement node, QString attribute, QString value = nullptr, QVector<QDomElement> result = QVector<QDomElement>());

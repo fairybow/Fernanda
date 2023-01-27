@@ -59,6 +59,7 @@ qt_add_executable(fernanda
     src/main.cpp
     src/pane.cpp
     src/plaintextedit.cpp
+    src/popup.cpp
     src/story.cpp
     src/text.cpp
     src/tool.cpp

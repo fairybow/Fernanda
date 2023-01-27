@@ -57,6 +57,7 @@ namespace Text
 	const QString about();
 	const QString version(VersionCheck check, QString latestVersion);
 	const QString timeUp();
+	const QString totalCounts(int lines, int words, int characters);
 }
 
 // text.h, Fernanda

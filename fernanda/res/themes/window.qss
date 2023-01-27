@@ -173,6 +173,12 @@ QSizeGrip
 	color: @scrollButtonFontHover;
 }
 
+#scrollPrevious:pressed, #scrollUp:pressed, #scrollDown:pressed, #scrollNext:pressed
+{
+	background: @scrollButtonPress;
+	color: @scrollButtonFontPress;
+}
+
 #splitter::handle
 {
 	background: @splitterHandle;

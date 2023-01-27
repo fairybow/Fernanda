@@ -21,6 +21,12 @@ public:
         Sample
     };
 
+    struct TotalCounts {
+        int lines = 0;
+        int words = 0;
+        int characters = 0;
+    };
+
     Story(StdFsPath filePath, Mode mode = Mode::Normal);
 
     const QString devGetDom(Dom::Document document = Dom::Document::Current);
@@ -39,6 +45,7 @@ public:
     void add(QString newName, Path::Type type, QString parentKey);
     bool cut(QString key);
     void save(QString text = nullptr);
+    const TotalCounts totalCounts();
 
     template<typename T>
     inline const T name()

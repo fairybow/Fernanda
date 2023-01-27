@@ -3,7 +3,7 @@
 @menuFont; = #777e8b;
 @menuFontHover; = #bbb;
 
-@paneBg; = #35383e;
+@paneBg; = #2e323a;
 @paneFont; = #6f7581;
 
 @splitterHandle; = #202225;
@@ -19,10 +19,10 @@
 @scrollBg; = #202225;
 @scrollButtonBg; = #202225;
 @scrollButtonHover; = #333;
+@scrollButtonPress; = #404040;
 @scrollButtonFont; = #4b4f57;
 @scrollButtonFontHover; = #bbb;
+@scrollButtonFontPress; = #202225;
 @scrollHandle; = #292b2f;
 @scrollHandleHover; = #333;
 @scrollHandlePress; = #404040;
-
-@border; = #171717;

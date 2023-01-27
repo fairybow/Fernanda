@@ -57,14 +57,14 @@ namespace Path
 
 #ifdef Q_OS_LINUX
 
-	inline std::string toB7z(StdFs::path path)
+	inline std::string toBit7z(StdFs::path path)
 	{
 		return path.string();
 	}
 
 #else
 
-	inline std::string toB7z(StdFs::path path)
+	inline std::string toBit7z(StdFs::path path)
 	{
 		auto result = toQString(path);
 		result.replace(R"(/)", R"(\)");

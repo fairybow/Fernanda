@@ -233,10 +233,19 @@ void Fernanda::makeStoryMenu()
 {
     auto new_folder = new QAction(tr("&New folder..."), this);
     auto new_file = new QAction(tr("&New file..."), this);
+    auto total_counts = new QAction(tr("&Total counts..."), this);
     connect(new_folder, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::Dir); });
     connect(new_file, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::File); });
+    connect(total_counts, &QAction::triggered, this, [&]()
+        {
+            auto totals = activeStory.value().totalCounts();
+            Popup::totalCounts(totals.lines, totals.words, totals.characters);
+        });
     auto story = menuBar->addMenu(tr("&Story"));
     for (const auto& action : { new_folder, new_file })
+        story->addAction(action);
+    story->addSeparator();
+    for (const auto& action : { total_counts })
         story->addAction(action);
     story->menuAction()->setVisible(false);
     connect(this, &Fernanda::storyMenuVisible, story->menuAction(), &QAction::setVisible);

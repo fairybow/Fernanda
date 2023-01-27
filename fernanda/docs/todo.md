@@ -1,6 +1,7 @@
 # To-Do
 
 ## General
+- [ ] Ability to "mark" files as countable/compilable, for both exporting a draft and calculating totals
 - [ ] Installer script needs to detect if Fernanda is running
 - [ ] Moveable documents folder
 - [ ] Popup if temps exist on start (but would need to reload last project first, and then check if temps exist?)
@@ -13,11 +14,11 @@
 - [ ] Hold current story file from being edited while Fernanda is open? (Not sure this is possible. Plus, will need a way to temporarily request access for `Archiver` for editing)
 - [ ] Export selected / all
 - [ ] Export to PDF using Markdown or Fountain
-- [ ] Total word count (export-marked or all)
 - [ ] Is there a way to link swatches?
 - [ ] Implement QStringLiterals where possible
 - [ ] Temp save before cut?
 - [ ] Delete trailing spaces on save
+- [x] ~~Total word count (export-marked or all) - partly done~~
 - [x] ~~Remove all non-standard abbreviations (like "cur" for current)~~
 - [x] ~~Combine all the messagebox functions into something that generates most of it as a default config~~
 - [x] ~~Keep screen awake?~~
@@ -36,6 +37,7 @@
 - [x] ~~Redo Dependency Tree~~
 
 ### Known issues
+- [ ] Total Counts will not be accurate if no temp has yet been made of edited file (this can happen when editing between first click and first auto-save)
 - [ ] Known issue: Windows scale > 100% negates the effects of `setTextCursor(0)`
 - [ ] AOT toggling affects stored window position setting (which, when toggled while maximized makes unmaximizing not change the window size)
 - [ ] Known issue: Cycling fonts and themes, and then forcing repaint by editing open document (to be marked dirty or clean) is causing outlines (often blue, sometimes red) to appear around the icons in Pane (Delegate)
@@ -49,8 +51,8 @@
 - [ ] Rename/refactor functions to better reflect their roles / be more descriptive
 - [x] ~~Saving after deleting an item that has children causes a crash in `rename()` (It might be just deleting things that have moved. They may be receiving the non-existant rename path instead of relative_path?)~~
 
-### Dom
-- [ ] Mark files as exportable
+### Dom[^1]
+- [ ] Probably should combine `elements()` and `elementsByAttribute()`
 
 ### Fernanda (MainWindow)
 
@@ -90,7 +92,7 @@
 - [x] ~~Remove annoying white block under cursor -_-~~
 
 ### Indicator
-- [ ] Deactivate for extremely large strings / convert to non-automatic counting (refresh symbol)
+- [ ] Deactivate for extremely large strings / convert to non-automatic counting (refresh symbol)?
 
 ### Keyfilter
 - [ ] Auto-format ellipses
@@ -115,8 +117,9 @@
 
 - [ ] Accept args (on file click, prompt to save if needed and open new file; possibly also switch to dev mode)
 
-### Story
+### Story[^1]
 
+- [ ] Total Counts variant for compiled documents only
 - [ ] Only hold X amount of backups per file
 - [x] ~~Probably don't need to keep full file path for root~~
 - [x] ~~Cutting a file can result in a temp save of cut file appearing in root of `.story` on save (possibly fixed by clearing activeKey in Story on file cut)~~
@@ -124,7 +127,7 @@
 - [x] ~~`devGetEditedKeys()` deleted keys currently remain.~~
 
 ### Tools
-- [ ] Actual countdown visible for timer
+- [x] ~~Actual countdown visible for timer~~
 
 ## Namespaces
 
@@ -141,3 +144,5 @@
 
 - [ ] Split up the enums with namespaces for editor, data, and window (removing arg requirement for a IniGroup) (Unclear on how to do this at the moment)
 - [x] ~~Enums for group (and possibly value)~~
+
+[^1]: This class is a huge mess
