@@ -227,6 +227,8 @@ void Fernanda::makeFileMenu()
     file->addAction(save);
     file->addSeparator();
     file->addAction(quit);
+    save->setEnabled(false);
+    connect(this, &Fernanda::storyMenuVisible, save, &QAction::setEnabled);
 }
 
 void Fernanda::makeStoryMenu()
@@ -234,12 +236,21 @@ void Fernanda::makeStoryMenu()
     auto new_folder = new QAction(tr("&New folder..."), this);
     auto new_file = new QAction(tr("&New file..."), this);
     auto total_counts = new QAction(tr("&Total counts..."), this);
+    auto export_directory = new QAction(tr("&Export to directory (last saved state)..."), this);
+    auto export_PDF = new QAction(tr("&Export to PDF (current state)..."), this);
     connect(new_folder, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::Dir); });
     connect(new_file, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::File); });
-    connect(total_counts, &QAction::triggered, this, [&]()
+    connect(total_counts, &QAction::triggered, this, &Fernanda::storyMenuTotals);
+    connect(export_directory, &QAction::triggered, this, [&]()
         {
-            auto totals = activeStory.value().totalCounts();
-            Popup::totalCounts(totals.lines, totals.words, totals.characters);
+            auto directory = QFileDialog::getExistingDirectory(this, "Choose a directory...", Path::toQString(UserData::doThis(UserData::Operation::GetDocuments)));
+            activeStory.value().exportTo(Path::toStdFs(directory), Story::To::Directory);
+        });
+    connect(export_PDF, &QAction::triggered, this, [&]()
+        {
+            auto& story = activeStory.value();
+            auto file_name = QFileDialog::getSaveFileName(this, tr("Create a new PDF..."), Path::toQString(UserData::doThis(UserData::Operation::GetDocuments) / story.name<StdFsPath>()), tr("Portable Document Format (*.pdf)"));
+            story.exportTo(Path::toStdFs(file_name), Story::To::PDF);
         });
     auto story = menuBar->addMenu(tr("&Story"));
     for (const auto& action : { new_folder, new_file })
@@ -247,6 +258,9 @@ void Fernanda::makeStoryMenu()
     story->addSeparator();
     for (const auto& action : { total_counts })
         story->addAction(action);
+    auto exporting = story->addMenu(tr("&Export"));
+    for (const auto& action : { export_directory, export_PDF })
+        exporting->addAction(action);
     story->menuAction()->setVisible(false);
     connect(this, &Fernanda::storyMenuVisible, story->menuAction(), &QAction::setVisible);
 }
@@ -322,8 +336,8 @@ void Fernanda::makeSetMenu()
     loadViewConfig(timerValues->actions(), UserData::IniGroup::Window, UserData::IniValue::ToolTimer, "900");
     loadViewConfig(windowThemes->actions(), UserData::IniGroup::Window, UserData::IniValue::WindowTheme, ":/themes/window/Light.fernanda_window");
     fontSlider->setValue(UserData::loadConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorFontSize, 16, UserData::Type::Int).toInt());
-    loadViewConfig(editorFonts->actions(), UserData::IniGroup::Editor, UserData::IniValue::EditorFont, ":/fonts/Cascadia Mono.ttf");
-    loadViewConfig(editorThemes->actions(), UserData::IniGroup::Editor, UserData::IniValue::EditorTheme, ":/themes/editor/Amber.fernanda_editor");
+    loadViewConfig(editorFonts->actions(), UserData::IniGroup::Editor, UserData::IniValue::EditorFont, ":/fonts/Mononoki.ttf");
+    loadViewConfig(editorThemes->actions(), UserData::IniGroup::Editor, UserData::IniValue::EditorTheme, ":/themes/editor/Snooze.fernanda_editor");
     loadViewConfig(tabStops->actions(), UserData::IniGroup::Editor, UserData::IniValue::TabStop, "40");
     loadViewConfig(wrapModes->actions(), UserData::IniGroup::Editor, UserData::IniValue::WrapMode, "WrapAt");
     auto set = menuBar->addMenu(tr("&Set"));
@@ -703,7 +717,6 @@ void Fernanda::handleFontSlider(PlainTextEdit::Zoom direction)
 
 void Fernanda::fileMenuSave()
 {
-    if (!activeStory.has_value()) return;
     auto& story = activeStory.value();
     if (!story.hasChanges()) return;
     story.save(editor->toPlainText());
@@ -711,6 +724,14 @@ void Fernanda::fileMenuSave()
     editor->textChanged();
     sendItems(story.items());
     colorBar->run(ColorBar::Run::Green);
+}
+
+void Fernanda::storyMenuTotals()
+{
+    auto& story = activeStory.value();
+    story.autoTempSave(editor->toPlainText());
+    auto totals = story.totalCounts();
+    Popup::totalCounts(totals.lines, totals.words, totals.characters);
 }
 
 void Fernanda::helpMenuMakeSampleProject()
@@ -735,7 +756,7 @@ void Fernanda::helpMenuMakeSampleRes()
 
 void Fernanda::helpMenuUpdate()
 {
-    auto request = QNetworkRequest(QUrl(Text::ghApi()));
+    auto request = QNetworkRequest(QUrl(Text::gitHubApi()));
     auto reply = manager->get(request);
     connect(reply, &QNetworkReply::finished, [=]()
         {

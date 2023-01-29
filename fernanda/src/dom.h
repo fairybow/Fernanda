@@ -61,6 +61,7 @@ public:
     QVector<Io::ArchiveRename> cuts();
     QVector<Io::ArchiveRename> renames(Finalize finalize = Finalize::No);
     QVector<QDomElement> elements(QDomDocument document = QDomDocument());
+    QVector<QDomElement> elements(QString attribute, QString value = nullptr);
 
     template<typename T>
     inline T element(QString key, Element property = Element::Element)
@@ -144,7 +145,6 @@ private:
 
     QDomElement element_recursor(QDomElement node, QString key, QDomElement result = QDomElement());
     QVector<QDomElement> elements_recursor(QDomElement node, QVector<QDomElement> result = QVector<QDomElement>());
-    QVector<QDomElement> elementsByAttribute(QString attribute, QString value = nullptr);
     QVector<QDomElement> elementsByAttribute_recursor(QDomElement node, QString attribute, QString value = nullptr, QVector<QDomElement> result = QVector<QDomElement>());
     void movePaths(StdFsPath& newPivotPath, StdFsPath& newPivotParentPath, QString pivotName, QString fulcrumKey);
     QStringList childKeys_recursor(QDomElement node, QStringList result = QStringList());

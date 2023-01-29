@@ -36,8 +36,11 @@ set vs_fernanda="%SystemDrive%\Dev\%fer_repo%"
 set qt="%SystemDrive%\Qt\%qt_ver%\%qt_compiler%"
 set qwin="%qt%\plugins\platforms\qwindows.dll"
 set qwinstyle="%qt%\plugins\styles\qwindowsvistastyle.dll"
+set qschannelbackend="%qt%\plugins\tls\qschannelbackend.dll"
 set qt_core="%qt%\bin\Qt6Core.dll"
 set qt_gui="%qt%\bin\Qt6Gui.dll"
+set qt_network="%qt%\bin\Qt6Network.dll"
+set qt_printsupport="%qt%\bin\Qt6PrintSupport.dll"
 set qt_widgets="%qt%\bin\Qt6Widgets.dll"
 set qt_xml="%qt%\bin\Qt6Xml.dll"
 
@@ -48,13 +51,11 @@ set vs_license="%vs_fernanda%\LICENSE"
 set data="%fer_dir%\data"
 set platforms="%data%\platforms"
 set styles="%data%\styles"
+set tls="%data%\tls"
 
 md %platforms%
 md %styles%
-
-::
-echo Do not use this version of me for serious writing!> "%fer_dir%\For testing.txt"
-::
+md %tls%
 
 echo repo: %fer_repo%> "%fer_dir%\build.txt"
 echo version: %fer_ver%>> "%fer_dir%\build.txt"
@@ -65,8 +66,11 @@ echo f|xcopy /v /y /f "%vs_readme%" "%fer_dir%\README.md"
 echo f|xcopy /v /y /f "%vs_license%" "%fer_dir%\LICENSE"
 echo f|xcopy /v /y /f "%qwin%" "%platforms%\qwindows.dll"
 echo f|xcopy /v /y /f "%qwinstyle%" "%styles%\qwindowsvistastyle.dll"
+echo f|xcopy /v /y /f "%qschannelbackend%" "%tls%\qschannelbackend.dll"
 echo f|xcopy /v /y /f "%qt_core%" "%data%\Qt6Core.dll"
 echo f|xcopy /v /y /f "%qt_gui%" "%data%\Qt6Gui.dll"
+echo f|xcopy /v /y /f "%qt_network%" "%data%\Qt6Network.dll"
+echo f|xcopy /v /y /f "%qt_printsupport%" "%data%\Qt6PrintSupport.dll"
 echo f|xcopy /v /y /f "%qt_widgets%" "%data%\Qt6Widgets.dll"
 echo f|xcopy /v /y /f "%qt_xml%" "%data%\Qt6Xml.dll"
 

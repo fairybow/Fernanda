@@ -12,12 +12,12 @@
 - [ ] Custom highlight colors for line highlight and `Delegate` highlight (like with cursor)?
 - [ ] Add border variables to stylesheets--for the most part, these can just be `transparent`, but allows for user to decide in customs
 - [ ] Hold current story file from being edited while Fernanda is open? (Not sure this is possible. Plus, will need a way to temporarily request access for `Archiver` for editing)
-- [ ] Export selected / all
 - [ ] Export to PDF using Markdown or Fountain
 - [ ] Is there a way to link swatches?
 - [ ] Implement QStringLiterals where possible
 - [ ] Temp save before cut?
 - [ ] Delete trailing spaces on save
+- [x] ~~Export selected / all, partly done~~
 - [x] ~~Total word count (export-marked or all) - partly done~~
 - [x] ~~Remove all non-standard abbreviations (like "cur" for current)~~
 - [x] ~~Combine all the messagebox functions into something that generates most of it as a default config~~
@@ -37,28 +37,30 @@
 - [x] ~~Redo Dependency Tree~~
 
 ### Known issues
-- [ ] Total Counts will not be accurate if no temp has yet been made of edited file (this can happen when editing between first click and first auto-save)
-- [ ] Known issue: Windows scale > 100% negates the effects of `setTextCursor(0)`
+- [ ] Windows scale > 100% negates the effects of `setTextCursor(0)`
 - [ ] AOT toggling affects stored window position setting (which, when toggled while maximized makes unmaximizing not change the window size)
-- [ ] Known issue: Cycling fonts and themes, and then forcing repaint by editing open document (to be marked dirty or clean) is causing outlines (often blue, sometimes red) to appear around the icons in Pane (Delegate)
+- [ ] Cycling fonts and themes, and then forcing repaint by editing open document (to be marked dirty or clean) is causing outlines (often blue, sometimes red) to appear around the icons in Pane (Delegate)
 - [ ] ^ Cycling themes not needed. Appears to be best reproducable by cycling editor fonts quickly and then typing (with light window theme)
 - [ ] ^ The issue may be largely solved, but cycling from Dark to Light does produce a dark blue outline around Open Folder and File icons (but not Closed Folder, from what I could tell?)
+- [x] ~~Total Counts will not be accurate if no temp has yet been made of edited file (this can happen when editing between first click and first auto-save)~~
 
 ## Classes
 
-### Archiver
+### Archiver[^1]
 - [ ] Switch to streams (i.e., for `add()` and `create()`)
 - [ ] Rename/refactor functions to better reflect their roles / be more descriptive
 - [x] ~~Saving after deleting an item that has children causes a crash in `rename()` (It might be just deleting things that have moved. They may be receiving the non-existant rename path instead of relative_path?)~~
 
 ### Dom[^1]
-- [ ] Probably should combine `elements()` and `elementsByAttribute()`
+- [x] ~~Probably should combine `elements()` and `elementsByAttribute()`~~
 
 ### Fernanda (MainWindow)
 
+- [ ] Instead of `activeStory` check for Save option, tie it to signal to show/hide story menu and make disabled
 - [ ] Separate menu into its own class?
 - [ ] Auto-hide menu option
 - [ ] Auto-hide scrollbar
+- [x] ~~For exporting, call `story->name<StdFsPath>()` from outside class and fill in, rather than appending it in Story, to support renamed exporting (probably not for directory)~~
 - [x] ~~Rename menu locals to reflect the alphabetical order of the items~~
 - [x] ~~Rename `viewToggles()` to match~~
 - [x] ~~Order the items in menus Window and Editor (and General, if applicable)~~
@@ -112,6 +114,9 @@
 - [ ] For `paint()` and `updateEditorGeometry()` - these override public functions, and idk if that matters
 - [ ] `updateEditorGeometry()` is currently unused
 - [ ] May need to remove and re-add icons / labels. They seem to be doubling up sometimes--visible r/g/b or pink outlines?
+
+### Popup
+- [ ] Ensure popups happen on the same monitor...
 
 ### StartCop
 

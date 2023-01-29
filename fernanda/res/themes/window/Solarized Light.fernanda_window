@@ -19,7 +19,7 @@
 @scrollBg; = #fdf6e3;
 @scrollButtonBg; = #fdf6e3;
 @scrollButtonHover; = #eee8d5;
-@scrollButtonPress; = #839496;
+@scrollButtonPress; = #bbb6a7;
 @scrollButtonFont; = #586e75;
 @scrollButtonFontHover; = #dc322f;
 @scrollButtonFontPress; = #fdf6e3;

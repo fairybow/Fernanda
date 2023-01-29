@@ -60,14 +60,16 @@ Fernanda's `.story` files rely on:
 - Bit7z by [@rikyoz](https://github.com/rikyoz/bit7z)
 - and, thus, 7-zip by [Igor Pavlov](https://www.7-zip.org/)
 
-Among the fonts used are:
+Our current default font is:
+- Mononoki by [@madmalik](https://github.com/madmalik/mononoki)
+
+Among the other fonts used are:
 - Cascadia Mono by [@microsoft](https://github.com/microsoft/cascadia-code)
-- Cozette :purple_heart: by [@slavfox](https://github.com/slavfox/Cozette) (vectorized bitmap font, so looks crisp only at certain sizes)
+- Cozette by [@slavfox](https://github.com/slavfox/Cozette) (vectorized bitmap font, so looks crisp only at certain sizes)
 - Day Roman by Apostrophic Labs
 - Dot Matrix by [Dionaea Fonts](https://dionaea.com/information/fonts.php) (`Help > Create sample themes...`)
 - Fixedsys Excelsior by [@kika](https://github.com/kika/fixedsys)
 - Iosevka by [@be5invis](https://github.com/be5invis/Iosevka)
-- Mononoki by [@madmalik](https://github.com/madmalik/mononoki)
 - More Perfect DOS VGA by [Zeh Fernando](https://zehfernando.com/) and [@L∆MEUR](https://laemeur.sdf.org/fonts/)
 - Nouveau IBM by Arto Hatanp‰‰
 - OpenDyslexic by [Abbie Gonzalez](https://opendyslexic.org/)
@@ -85,6 +87,8 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 - Incorporation of custom themes and fonts (`.ttf` and `.otf`)
 - Examples (project and custom themes and font) available via the `Help` menu
 - Save backups (in [`{userdata}\backup\.rollback`](#folders))
+- Global line, word, and character totals
+- Export to PDF or directory
 
 ---
 
@@ -103,7 +107,17 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 ---
 
 **Shortcuts:** <a name="features-shortcuts"></a>
-- `Ctrl + Shift + C` wraps a selection or block in quotes
+- `F11`: Cycle editor themes (Amber, Green, Grey)
+- `Alt` + `F10`: Cycle fonts
+- `Alt` + `F11`: Cycle editor themes (all)
+- `Alt` + `F12`: Cycle window themes
+- `Alt` + `Insert`: Nav previous
+- `Alt` + `Delete`: Nav next
+- `Alt` + `Minus (-)` / `Ctrl` + `Mouse Wheel Down`: Decrease font size
+- `Alt` + `Plus (+)` / `Ctrl` + `Mouse Wheel Up`: Increase font size
+- `Ctrl` + `Y`: Redo
+- `Ctrl` + `Z`: Undo
+- `Ctrl` + `Shift` + `C`: Wrap selection or block in quotes
 
 ---
 
@@ -173,7 +187,7 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 - Persist undo/redo stacks between file changes
 - Separators and possibly customizable file icons, for better mental organization at-a-glance
 - Simple storage of links and research materials
-- Exporting
+- Markdown and Fountain preview/export support
 
 More to come.
 

@@ -7,7 +7,9 @@
 #include "sample.h"
 #include "text.h"
 
+#include <QPrinter>
 #include <QStandardItem>
+#include <QTextDocument>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -19,6 +21,10 @@ public:
     enum class Mode {
         Normal,
         Sample
+    };
+    enum class To {
+        Directory,
+        PDF
     };
 
     struct TotalCounts {
@@ -46,6 +52,7 @@ public:
     bool cut(QString key);
     void save(QString text = nullptr);
     const TotalCounts totalCounts();
+    void exportTo(StdFsPath path, To type);
 
     template<typename T>
     inline const T name()
@@ -78,6 +85,7 @@ private:
     void amendEditsList(AmendEdits operation, QString key = nullptr);
     bool isEdited(QString key);
     void bak();
+    void toPdf(StdFsPath path);
 };
 
 // story.h, Fernanda

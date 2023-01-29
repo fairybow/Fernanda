@@ -207,7 +207,7 @@ const QString Text::releases()
 	return link("https://github.com/fairybow/fernanda/releases");
 }
 
-const QString Text::ghApi()
+const QString Text::gitHubApi()
 {
 	return QStringLiteral("https://api.github.com/repos/fairybow/fernanda/releases");
 }
@@ -266,7 +266,7 @@ const QString Text::version(VersionCheck check, QString latestVersion)
 
 const QString Text::timeUp()
 {
-	return QStringLiteral("Time's up!");
+	return QStringLiteral("Time's up!") + multiSpaces(10);
 }
 
 const QString Text::totalCounts(int lines, int words, int characters)

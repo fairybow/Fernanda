@@ -161,6 +161,18 @@ const Story::TotalCounts Story::totalCounts()
 	return result;
 }
 
+void Story::exportTo(StdFsPath path, To type)
+{
+	switch (type) {
+	case To::Directory:
+		archiver->extract(activeArchivePath, path / name<StdFsPath>());
+		break;
+	case To::PDF:
+		toPdf(path);
+		break;
+	}
+}
+
 void Story::make(Mode mode)
 {
 	QVector<Io::ArchiveWriteReadPaths> write_read_paths;
@@ -325,6 +337,27 @@ void Story::bak()
 	if (q_file_bak.exists())
 		q_file_bak.moveToTrash();
 	Path::copy(activeArchivePath, bak_path);
+}
+
+void Story::toPdf(StdFsPath path)
+{
+	QPrinter printer;
+	printer.setOutputFormat(QPrinter::PdfFormat);
+	printer.setOutputFileName(Path::toQString(path));
+	QTextDocument doc;
+	QString content;
+	for (auto& element : dom->elements())
+	{
+		if (element.tagName() != dom->tagFile) continue;
+		auto key = element.attribute(dom->attributeKey);
+		auto temp_path = tempPath(key);
+		(QFile(temp_path).exists())
+			? content = content + Io::readFile(temp_path)
+			: content = content + archiver->read(activeArchivePath, dom->element<StdFsPath>(key, Dom::Element::OrigPath));
+		content = content + Text::newLines();
+	}
+	doc.setPlainText(content);
+	doc.print(&printer);
 }
 
 // story.cpp, Fernanda

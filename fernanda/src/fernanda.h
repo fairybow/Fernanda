@@ -132,6 +132,7 @@ private slots:
     void setStyle();
     void handleFontSlider(PlainTextEdit::Zoom direction);
     void fileMenuSave();
+    void storyMenuTotals();
     void helpMenuMakeSampleProject();
     void helpMenuMakeSampleRes();
     void helpMenuUpdate();

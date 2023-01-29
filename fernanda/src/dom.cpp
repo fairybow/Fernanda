@@ -169,7 +169,7 @@ QVector<Io::ArchiveRename> Dom::cuts()
 QVector<Io::ArchiveRename> Dom::renames(Finalize finalize)
 {
 	QVector<Io::ArchiveRename> result;
-	for (auto& renamed_element : elementsByAttribute(attributeRename))
+	for (auto& renamed_element : elements(attributeRename))
 	{
 		auto key = renamed_element.attribute(attributeKey);
 		auto rename = Path::toStdFs(renamed_element.attribute(attributeRename));
@@ -213,6 +213,19 @@ QVector<QDomElement> Dom::elements(QDomDocument document)
 	return result;
 }
 
+QVector<QDomElement> Dom::elements(QString attribute, QString value)
+{
+	QVector<QDomElement> result;
+	auto root = self.documentElement();
+	auto next_node = root.firstChildElement();
+	while (!next_node.isNull())
+	{
+		result << elementsByAttribute_recursor(next_node, attribute, value);
+		next_node = next_node.nextSiblingElement();
+	}
+	return result;
+}
+
 QDomElement Dom::element_recursor(QDomElement node, QString key, QDomElement result)
 {
 	if (node.attribute(attributeKey) == key)
@@ -237,19 +250,6 @@ QVector<QDomElement> Dom::elements_recursor(QDomElement node, QVector<QDomElemen
 	{
 		result << elements_recursor(child_node);
 		child_node = child_node.nextSiblingElement();
-	}
-	return result;
-}
-
-QVector<QDomElement> Dom::elementsByAttribute(QString attribute, QString value)
-{
-	QVector<QDomElement> result;
-	auto root = self.documentElement();
-	auto next_node = root.firstChildElement();
-	while (!next_node.isNull())
-	{
-		result << elementsByAttribute_recursor(next_node, attribute, value);
-		next_node = next_node.nextSiblingElement();
 	}
 	return result;
 }

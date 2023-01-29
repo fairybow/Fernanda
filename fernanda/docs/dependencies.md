@@ -323,7 +323,9 @@
 #include "sample.h"
 #include "text.h"
 
+#include <QPrinter>
 #include <QStandardItem>
+#include <QTextDocument>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 ```
