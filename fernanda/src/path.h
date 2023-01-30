@@ -1,12 +1,12 @@
 /*
-*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
-*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
-*
-*   https://github.com/fairybow/fernanda
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+ *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
+ *
+ *  <https://github.com/fairybow/fernanda>
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // path.h, Fernanda
 
@@ -21,6 +21,7 @@
 #include <QDir>
 #include <QtGlobal>
 #include <QString>
+#include <QVariant>
 
 namespace Path
 {
@@ -81,16 +82,34 @@ namespace Path
 #endif
 
 	template<typename T, typename U>
-	inline const T getName(U path)
+	inline const T getName(U path, bool keepExtension = false)
 	{
+		T result{};
 		if constexpr (std::is_same<T, QString>::value && std::is_same<U, QString>::value)
-			return QString::fromStdString(toStdFs(path).stem().string());
+		{
+			(keepExtension)
+				? result = QString::fromStdString(toStdFs(path).filename().string())
+				: result = QString::fromStdString(toStdFs(path).stem().string());
+		}
 		if constexpr (std::is_same<T, QString>::value && std::is_same<U, StdFs::path>::value)
-			return QString::fromStdString(path.stem().string());
-		if constexpr (std::is_same<T, StdFs::path>::value && std::is_same<U, QString>::value)
-			return toStdFs(path).stem();
+		{
+			(keepExtension)
+				? result = QString::fromStdString(path.filename().string())
+				: result = QString::fromStdString(path.stem().string());
+		}
+		if constexpr ((std::is_same<T, StdFs::path>::value && std::is_same<U, QString>::value) || (std::is_same<T, StdFs::path>::value && std::is_same<U, QVariant>::value))
+		{
+			(keepExtension)
+				? result = toStdFs(path).filename()
+				: result = toStdFs(path).stem();
+		}
 		if constexpr (std::is_same<T, StdFs::path>::value && std::is_same<U, StdFs::path>::value)
-			return path.stem();
+		{
+			(keepExtension)
+				? result = path.filename()
+				: result = path.stem();
+		}
+		return result;
 	}
 }
 

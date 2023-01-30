@@ -233,6 +233,7 @@
 #include <QDir>
 #include <QtGlobal>
 #include <QString>
+#include <QVariant>
 ```
 
 ### plaintextedit.h

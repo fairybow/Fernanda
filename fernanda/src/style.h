@@ -1,12 +1,12 @@
 /*
-*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
-*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
-*
-*   https://github.com/fairybow/fernanda
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+ *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
+ *
+ *  <https://github.com/fairybow/fernanda>
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // style.h, Fernanda
 
@@ -94,6 +94,17 @@ namespace Style
         }
         else
             actions.first()->setChecked(true);
+    }
+
+    inline void dump(QActionGroup* group, StdFs::path path)
+    {
+        auto dump_directory = path / "__dump";
+        Path::makeDirs(dump_directory);
+        for (auto& action : group->actions())
+        {
+            auto data = action->data();
+            Path::copy(Path::toStdFs(data), dump_directory / Path::getName<StdFs::path>(data, true));
+        }
     }
 }
 

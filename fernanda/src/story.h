@@ -1,12 +1,12 @@
 /*
-*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
-*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
-*
-*   https://github.com/fairybow/fernanda
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+ *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
+ *
+ *  <https://github.com/fairybow/fernanda>
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // story.h, Fernanda
 
@@ -34,7 +34,8 @@ public:
     };
     enum class To {
         Directory,
-        PDF
+        PDF,
+        PlainText
     };
 
     struct TotalCounts {
@@ -93,7 +94,10 @@ private:
     void amendEditsList(AmendEdits operation, QString key = nullptr);
     bool isEdited(QString key);
     void bak();
+    const QString readAllForExport();
     void toPdf(StdFsPath path);
+
+    void toPlainText(StdFsPath path) { Io::writeFile(path, readAllForExport()); }
 };
 
 // story.h, Fernanda

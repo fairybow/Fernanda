@@ -1,12 +1,12 @@
 /*
-*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
-*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
-*
-*   https://github.com/fairybow/fernanda
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+ *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
+ *
+ *  <https://github.com/fairybow/fernanda>
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // fernanda.h, Fernanda
 
@@ -99,6 +99,7 @@ private:
     void loadMenuToggle(QAction* action, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback);
     void openStory(StdFsPath fileName, Story::Mode mode = Story::Mode::Normal);
     void toggleWidget(QWidget* widget, UserData::IniGroup group, UserData::IniValue valueType, bool value);
+    void storyMenuFileExport(const char* caption, const char* extensionFilter, Story::To type);
 
     void openLocalFolder(StdFsPath path) { QDesktopServices::openUrl(QUrl::fromLocalFile(Path::toQString(path))); }
 

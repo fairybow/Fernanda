@@ -1,19 +1,19 @@
 /*
-*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
-*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
-*
-*   https://github.com/fairybow/fernanda
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+ *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
+ *
+ *  <https://github.com/fairybow/fernanda>
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // version.h, Fernanda
 
 #pragma once
 
-#define VER_FILEVERSION             0,16,1,35
-#define VER_FILEVERSION_STR         "v0.16.1-beta35"
+#define VER_FILEVERSION             0,17,0,36
+#define VER_FILEVERSION_STR         "v0.17.0-beta36"
 #define VER_PRODUCTVERSION          VER_FILEVERSION
 #define VER_PRODUCTVERSION_STR      VER_FILEVERSION_STR
 #define VER_COMPANYNAME_STR         "@fairybow"

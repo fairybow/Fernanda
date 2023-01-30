@@ -1,12 +1,12 @@
 /*
-*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
-*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
-*
-*   https://github.com/fairybow/fernanda
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+ *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
+ *
+ *  <https://github.com/fairybow/fernanda>
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // story.cpp, Fernanda
 
@@ -134,6 +134,9 @@ void Story::exportTo(StdFsPath path, To type)
 		break;
 	case To::PDF:
 		toPdf(path);
+		break;
+	case To::PlainText:
+		toPlainText(path);
 		break;
 	}
 }
@@ -304,13 +307,9 @@ void Story::bak()
 	Path::copy(activeArchivePath, bak_path);
 }
 
-void Story::toPdf(StdFsPath path)
+const QString Story::readAllForExport()
 {
-	QPrinter printer;
-	printer.setOutputFormat(QPrinter::PdfFormat);
-	printer.setOutputFileName(Path::toQString(path));
-	QTextDocument doc;
-	QString content;
+	QString result;
 	auto elements = dom->elements();
 	auto& last_element = elements.last();
 	for (auto& element : elements)
@@ -319,12 +318,21 @@ void Story::toPdf(StdFsPath path)
 		auto key = element.attribute(dom->attributeKey);
 		auto temp_path = tempPath(key);
 		(QFile(temp_path).exists())
-			? content = content + Io::readFile(temp_path)
-			: content = content + archiver->read(activeArchivePath, dom->element<StdFsPath>(key, Dom::Element::OrigPath));
+			? result = result + Io::readFile(temp_path)
+			: result = result + archiver->read(activeArchivePath, dom->element<StdFsPath>(key, Dom::Element::OrigPath));
 		if (element != last_element)
-			content = content + Text::newLines();
+			result = result + Text::newLines();
 	}
-	doc.setPlainText(content);
+	return result;
+}
+
+void Story::toPdf(StdFsPath path)
+{
+	QPrinter printer;
+	printer.setOutputFormat(QPrinter::PdfFormat);
+	printer.setOutputFileName(Path::toQString(path));
+	QTextDocument doc;
+	doc.setPlainText(readAllForExport());
 	doc.print(&printer);
 }
 

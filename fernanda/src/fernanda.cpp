@@ -1,12 +1,12 @@
 /*
-*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
-*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
-*
-*   https://github.com/fairybow/fernanda
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program. If not, see <https://www.gnu.org/licenses/>.
-*/
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+ *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
+ *
+ *  <https://github.com/fairybow/fernanda>
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 // fernanda.cpp, Fernanda
 
@@ -226,12 +226,15 @@ void Fernanda::makeFileMenu()
     connect(save, &QAction::triggered, this, &Fernanda::fileMenuSave);
     connect(quit, &QAction::triggered, this, &QCoreApplication::quit, Qt::QueuedConnection);
     auto file = menuBar->addMenu(tr("&File"));
-    for (const auto& action : { new_story_project, open_story_project })
+    for (const auto& action : {
+        new_story_project,
+        open_story_project,
+        file->addSeparator(),
+        save,
+        file->addSeparator(),
+        quit
+        })
         file->addAction(action);
-    file->addSeparator();
-    file->addAction(save);
-    file->addSeparator();
-    file->addAction(quit);
     save->setEnabled(false);
     connect(this, &Fernanda::storyMenuVisible, save, &QAction::setEnabled);
 }
@@ -243,6 +246,7 @@ void Fernanda::makeStoryMenu()
     auto total_counts = new QAction(tr("&Total counts..."), this);
     auto export_directory = new QAction(tr("&Export to directory (last saved state)..."), this);
     auto export_PDF = new QAction(tr("&Export to PDF (current state)..."), this);
+    auto export_plain_text = new QAction(tr("&Export to plain text (current state)..."), this);
     connect(new_folder, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::Dir); });
     connect(new_file, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::File); });
     connect(total_counts, &QAction::triggered, this, &Fernanda::storyMenuTotals);
@@ -253,19 +257,23 @@ void Fernanda::makeStoryMenu()
         });
     connect(export_PDF, &QAction::triggered, this, [&]()
         {
-            auto& story = activeStory.value();
-            auto file_name = QFileDialog::getSaveFileName(this, tr("Create a new PDF..."), Path::toQString(UserData::doThis(UserData::Operation::GetDocuments) / story.name<StdFsPath>()), tr("Portable Document Format (*.pdf)"));
-            story.exportTo(Path::toStdFs(file_name), Story::To::PDF);
+            storyMenuFileExport("Create a new PDF...", "Portable Document Format (*.pdf)", Story::To::PDF);
+        });
+    connect(export_plain_text, &QAction::triggered, this, [&]()
+        {
+            storyMenuFileExport("Create a new text document...", "Text documents (*.txt)", Story::To::PlainText);
         });
     auto story = menuBar->addMenu(tr("&Story"));
-    for (const auto& action : { new_folder, new_file })
+    for (const auto& action : {
+        new_folder,
+        new_file,
+        story->addSeparator(),
+        total_counts,
+        story->addSeparator()
+        })
         story->addAction(action);
-    story->addSeparator();
-    for (const auto& action : { total_counts })
-        story->addAction(action);
-    story->addSeparator();
     auto exporting = story->addMenu(tr("&Export"));
-    for (const auto& action : { export_directory, export_PDF })
+    for (const auto& action : { export_directory, export_PDF, export_plain_text })
         exporting->addAction(action);
     story->menuAction()->setVisible(false);
     connect(this, &Fernanda::storyMenuVisible, story->menuAction(), &QAction::setVisible);
@@ -518,19 +526,20 @@ void Fernanda::makeHelpMenu()
     connect(create_sample_project, &QAction::triggered, this, &Fernanda::helpMenuMakeSampleProject);
     connect(create_sample_themes, &QAction::triggered, this, &Fernanda::helpMenuMakeSampleRes);
     auto help = menuBar->addMenu(tr("&Help"));
-    for (const auto& action : { about, check_for_updates, shortcuts })
+    for (const auto& action : { about, check_for_updates, shortcuts, help->addSeparator() })
         help->addAction(action);
-    help->addSeparator();
     auto open = help->addMenu(tr("&Open"));
     for (const auto& action : { documents, installation_folder, user_data_folder })
         open->addAction(action);
-    help->addSeparator();
-    for (const auto& action : { create_sample_project, create_sample_themes })
+    for (const auto& action : { help->addSeparator(), create_sample_project, create_sample_themes })
         help->addAction(action);
 }
 
 void Fernanda::makeDevMenu()
 {
+    auto dump_editor_themes = new QAction(tr("&Dump editor theme files"), this);
+    auto dump_fonts = new QAction(tr("&Dump font files"), this);
+    auto dump_window_themes = new QAction(tr("&Dump window theme files"), this);
     auto print_cursor_positions = new QAction(tr("&Print cursor positions"), this);
     auto print_cuts = new QAction(tr("&Print cuts"), this);
     auto print_dom = new QAction(tr("&Print DOM"), this);
@@ -542,6 +551,18 @@ void Fernanda::makeDevMenu()
     auto open_installation_folder = new QAction(tr("&Open installation folder..."), this);
     auto open_temps = new QAction(tr("&Open temps..."), this);
     auto open_user_data = new QAction(tr("&Open user data..."), this);
+    connect(dump_editor_themes, &QAction::triggered, this, [&]()
+        {
+            Style::dump(editorThemes, UserData::doThis(UserData::Operation::GetDocuments));
+        });
+    connect(dump_fonts, &QAction::triggered, this, [&]()
+        {
+            Style::dump(editorFonts, UserData::doThis(UserData::Operation::GetDocuments));
+        });
+    connect(dump_window_themes, &QAction::triggered, this, [&]()
+        {
+            Style::dump(windowThemes, UserData::doThis(UserData::Operation::GetDocuments));
+        });
     connect(print_cursor_positions, &QAction::triggered, this, [&]()
         {
             devMenuWrite("__Cursor positions.txt", editor->devGetCursorPositions().join(Text::newLines()));
@@ -594,10 +615,24 @@ void Fernanda::makeDevMenu()
             openLocalFolder(UserData::doThis(UserData::Operation::GetUserData));
         });
     auto dev = menuBar->addMenu(tr("&Dev"));
-    for (const auto& action : { print_cursor_positions, print_cuts, print_dom, print_dom_initial, print_edited_keys_delegate, print_edited_keys_story, print_renames })
-        dev->addAction(action);
-    dev->addSeparator();
-    for (const auto& action : { open_documents, open_installation_folder, open_temps, open_user_data })
+    for (const auto& action : {
+        dump_editor_themes,
+        dump_fonts,
+        dump_window_themes,
+        dev->addSeparator(),
+        print_cursor_positions,
+        print_cuts,
+        print_dom,
+        print_dom_initial,
+        print_edited_keys_delegate,
+        print_edited_keys_story,
+        print_renames,
+        dev->addSeparator(),
+        open_documents,
+        open_installation_folder,
+        open_temps,
+        open_user_data
+        })
         dev->addAction(action);
 }
 
@@ -680,6 +715,13 @@ void Fernanda::toggleWidget(QWidget* widget, UserData::IniGroup group, UserData:
 {
     widget->setVisible(value);
     UserData::saveConfig(group, valueType, value);
+}
+
+void Fernanda::storyMenuFileExport(const char* caption, const char* extensionFilter, Story::To type)
+{
+    auto& story = activeStory.value();
+    auto file_name = QFileDialog::getSaveFileName(this, tr(caption), Path::toQString(UserData::doThis(UserData::Operation::GetDocuments) / story.name<StdFsPath>()), tr(extensionFilter));
+    story.exportTo(Path::toStdFs(file_name), type);
 }
 
 void Fernanda::adjustTitle()
