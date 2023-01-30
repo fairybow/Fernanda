@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // plaintextedit.cpp, Fernanda
 
 #include "plaintextedit.h"
@@ -359,25 +369,10 @@ const QColor PlainTextEdit::highlight()
     return result;
 }
 
-bool PlainTextEdit::isMinimumScroll()
-{
-    return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->minimum());
-}
-
-bool PlainTextEdit::isMaximumScroll()
-{
-    return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->maximum());
-}
-
 void PlainTextEdit::scrollButtonEnabledHandler()
 {
     (isMinimumScroll()) ? scrollUp->setEnabled(false) : scrollUp->setEnabled(true);
     (isMaximumScroll()) ? scrollDown->setEnabled(false) : scrollDown->setEnabled(true);
-}
-
-void PlainTextEdit::updateLineNumberAreaWidth(int newBlockCount)
-{
-    setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
 }
 
 void PlainTextEdit::updateLineNumberArea(const QRect& rect, int dy)

@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // archiver.h, Fernanda
 
 #pragma once
@@ -13,10 +23,7 @@
 
 #include <QTemporaryDir>
 
-inline void operator<<(std::vector<std::string>& lhs, const std::string& rhs)
-{
-    return lhs.push_back(rhs);
-}
+inline void operator<<(std::vector<std::string>& lhs, const std::string& rhs) { return lhs.push_back(rhs); }
 
 class Archiver
 {

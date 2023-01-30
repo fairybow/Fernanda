@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // keyfilter.cpp, Fernanda
 
 #include "keyfilter.h"
@@ -62,11 +72,6 @@ QVector<QKeyEvent*> Keyfilter::filter(QKeyEvent* event, ProximalChars chars)
             : result << event;
     }
     return result;
-}
-
-QVector<QKeyEvent*> Keyfilter::autoClose(QKeyEvent* event, QKeyEvent* closer)
-{
-    return QVector<QKeyEvent*>{ event, closer, & left };
 }
 
 QVector<QKeyEvent*> Keyfilter::dontDuplicate(QKeyEvent* event, ProximalChars chars, char current)

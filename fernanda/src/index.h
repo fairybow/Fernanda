@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // index.h, Fernanda
 
 #pragma once
@@ -29,6 +39,7 @@ namespace Index
 		}
 		return result;
 	}
+
 	inline const QString type(QModelIndex index) { return getData<QString>(index); }
 	inline const QString key(QModelIndex index) { return getData<QString>(index, 1); }
 	inline const QString name(QModelIndex index) { return getData<QString>(index, 2); }
@@ -40,6 +51,7 @@ namespace Index
 		if (type(index) == indexType) return true;
 		return false;
 	}
+
 	inline bool isDir(QModelIndex index) { return isThis(index, "directory"); }
 	inline bool isFile(QModelIndex index) { return isThis(index, "file"); }
 }

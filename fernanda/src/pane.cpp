@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // pane.cpp, Fernanda
 
 #include "pane.h"
@@ -30,11 +40,6 @@ Pane::Pane(QWidget* parent)
             askSetExpansion(Index::key(index), false);
             askTitleCheck();
         });
-}
-
-const QStringList Pane::devGetEditedKeys()
-{
-    return delegate->paintEdited;
 }
 
 void Pane::navigate(Go direction)
@@ -96,11 +101,6 @@ void Pane::receiveEditsList(QStringList editedFiles)
     if (editedFiles == delegate->paintEdited) return;
     delegate->paintEdited = editedFiles;
     refresh();
-}
-
-void Pane::add(Path::Type type)
-{
-    addTempItem(type, QPoint(-1, -1));
 }
 
 void Pane::mouseDoubleClickEvent(QMouseEvent* event)
@@ -192,11 +192,6 @@ void Pane::resizeEvent(QResizeEvent* event)
     delegate->paneSize = event->size();
     QTreeView::resizeEvent(event);
     refresh();
-}
-
-void Pane::refresh()
-{
-    dataChanged(QModelIndex(), QModelIndex());
 }
 
 void Pane::expandItems_recursor(QStandardItem* item)

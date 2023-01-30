@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // fernanda.cpp, Fernanda
 
 #include "fernanda.h"
@@ -68,11 +78,6 @@ bool Fernanda::confirmStoryClose(bool isQuit)
         break;
     }
     return result;
-}
-
-void Fernanda::openLocalFolder(StdFsPath path)
-{
-    QDesktopServices::openUrl(QUrl::fromLocalFile(Path::toQString(path)));
 }
 
 const QStringList Fernanda::devPrintRenames(QVector<Io::ArchiveRename> renames)
@@ -258,6 +263,7 @@ void Fernanda::makeStoryMenu()
     story->addSeparator();
     for (const auto& action : { total_counts })
         story->addAction(action);
+    story->addSeparator();
     auto exporting = story->addMenu(tr("&Export"));
     for (const auto& action : { export_directory, export_PDF })
         exporting->addAction(action);
@@ -776,11 +782,6 @@ void Fernanda::helpMenuUpdate()
                 result = Text::VersionCheck::Error;
             Popup::update(result, latest);
         });
-}
-
-void Fernanda::devMenuWrite(QString name, QString value)
-{
-    Io::writeFile(UserData::doThis(UserData::Operation::GetDocuments) / name.toStdString(), value);
 }
 
 void Fernanda::handleEditorOpen(QString key)

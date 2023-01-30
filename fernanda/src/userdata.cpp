@@ -1,11 +1,16 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // userdata.cpp, Fernanda
 
 #include "userdata.h"
-
-void UserData::setName(QString name)
-{
-    dataVars.appName = name.toLower();
-}
 
 const UserData::StdFs::path UserData::doThis(Operation operation)
 {

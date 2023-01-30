@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // keyfilter.h, Fernanda
 
 #pragma once
@@ -37,12 +47,13 @@ private:
     std::unordered_set<QChar> spaceSkips{ '}', ']', ',', '!', ')', '.', '?', '"' };
     std::unordered_set<QChar> commaSkips{ '}', ']', ')', '"' };
 
-    QVector<QKeyEvent*> autoClose(QKeyEvent* event, QKeyEvent* closer);
     QVector<QKeyEvent*> dontDuplicate(QKeyEvent* event, ProximalChars chars, char current);
     QVector<QKeyEvent*> commaSkip(QKeyEvent* event, ProximalChars chars);
     bool checkCurrent(ProximalChars chars, char current);
     bool checkPrevious(ProximalChars chars, char previous);
     bool checkPrevAndBeforeLast(ProximalChars chars, char previous, char beforeLast);
+
+    QVector<QKeyEvent*> autoClose(QKeyEvent* event, QKeyEvent* closer) { return QVector<QKeyEvent*>{ event, closer, & left }; }
 };
 
 // keyfilter.h, Fernanda

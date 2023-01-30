@@ -8,18 +8,15 @@
 - [ ] Move the startup `ColorBar` singleshot to a different window event? `showEvent` doesn't seem to be working for this
 - [ ] Move the `nullptr` checks closer to the functions that create the `nullptr`, if possible (viz., don't wait till the info is sent to `Story` to cancel a nullptr from `Pane renameItem()`)
 - [ ] Replace certain bool args with enums for descriptive actions taken (like "finalize" in `dom->renames()`)
-- [ ] Alphabetize enums and generally clean up headers
 - [ ] Custom highlight colors for line highlight and `Delegate` highlight (like with cursor)?
 - [ ] Add border variables to stylesheets--for the most part, these can just be `transparent`, but allows for user to decide in customs
 - [ ] Hold current story file from being edited while Fernanda is open? (Not sure this is possible. Plus, will need a way to temporarily request access for `Archiver` for editing)
 - [ ] Export to PDF using Markdown or Fountain
 - [ ] Is there a way to link swatches?
-- [ ] Implement QStringLiterals where possible
 - [ ] Temp save before cut?
 - [ ] Delete trailing spaces on save
 - [x] ~~Export selected / all, partly done~~
 - [x] ~~Total word count (export-marked or all) - partly done~~
-- [x] ~~Remove all non-standard abbreviations (like "cur" for current)~~
 - [x] ~~Combine all the messagebox functions into something that generates most of it as a default config~~
 - [x] ~~Keep screen awake?~~
 - [x] ~~Mutex for running only one instance (sorta)~~
@@ -35,6 +32,15 @@
 - [x] ~~Convert paths to `std::filesystem::path`~~
 - [x] ~~Activate dev menu via command arg~~
 - [x] ~~Redo Dependency Tree~~
+
+## Code Guidelines
+- [ ] One-line implementations to headers, bottom of proper class section namespace (before templates) (if header-only, bottom of section/namespace if possible)
+- [ ] Header-onlys =< 100 lines
+- [ ] `pascalCase`: member/global variables, function names and parameters
+- [ ] `snake_case`: local-variables
+- [ ] `CamelCase`: enums, classes, structs
+- [ ] No uncommon/unhelpful abbreviations
+- [ ] Names functionally descriptive, e.g. `editor->toggle(checked, Editor::Has::Scrolls);` or `pane->navigate(Pane::Go::Next);`
 
 ### Known issues
 - [ ] Windows scale > 100% negates the effects of `setTextCursor(0)`

@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // plaintextedit.h, Fernanda
 
 #pragma once
@@ -85,13 +95,15 @@ private:
     const QRect reshapeCursor(QChar currentChar);
     const QColor recolorCursor(bool under = false);
     const QColor highlight();
-    bool isMinimumScroll();
-    bool isMaximumScroll();
+
+    bool isMinimumScroll() { return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->minimum()); }
+    bool isMaximumScroll() { return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->maximum()); }
 
 private slots:
     void scrollButtonEnabledHandler();
-    void updateLineNumberAreaWidth(int newBlockCount);
     void updateLineNumberArea(const QRect& rect, int dy);
+
+    void updateLineNumberAreaWidth(int newBlockCount) { setViewportMargins(lineNumberAreaWidth(), 0, 0, 0); }
 
 signals:
     bool askHasProject();
@@ -112,16 +124,10 @@ class LineNumberArea : public QWidget
 public:
     LineNumberArea(PlainTextEdit* parent) : QWidget(parent), parent(parent) {}
 
-    QSize sizeHint() const override
-    {
-        return QSize(parent->lineNumberAreaWidth(), 0);
-    }
+    QSize sizeHint() const override { return QSize(parent->lineNumberAreaWidth(), 0); }
 
 protected:
-    void paintEvent(QPaintEvent* event) override
-    {
-        parent->lineNumberAreaPaintEvent(event);
-    }
+    void paintEvent(QPaintEvent* event) override { parent->lineNumberAreaPaintEvent(event); }
 
 private:
     PlainTextEdit* parent;

@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // indicator.cpp, Fernanda
 
 #include "indicator.h"
@@ -80,11 +90,6 @@ void Indicator::updateCounts(const QString text, const int blockCount)
     if (hasCharCount)
         elements << QString::number(char_count) + QStringLiteral(" chars");
     counts->setText(elements.join(QStringLiteral(", ")));
-}
-
-void Indicator::updateSelection(const QString selectedText, const int lineCount)
-{
-    updateCounts(selectedText, lineCount);
 }
 
 bool Indicator::hideOrShow(QLabel* label, bool feature1, bool feature2, bool feature3)

@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // story.cpp, Fernanda
 
 #include "story.h"
@@ -8,26 +18,6 @@ Story::Story(StdFsPath filePath, Mode mode)
 	if (!QFile(activeArchivePath).exists())
 		make(mode);
 	dom->set(xml());
-}
-
-const QString Story::devGetDom(Dom::Document document)
-{
-	return dom->string(document);
-}
-
-QVector<Io::ArchiveRename> Story::devGetRenames()
-{
-	return dom->renames();
-}
-
-const QStringList Story::devGetEditedKeys()
-{
-	return editedKeys;
-}
-
-const Story::StdFsPath Story::devGetActiveTemp()
-{
-	return UserData::doThis(UserData::Operation::GetActiveTemp) / name<StdFsPath>();
 }
 
 QVector<QStandardItem*> Story::items()
@@ -48,11 +38,6 @@ QVector<QStandardItem*> Story::items()
 			reader.readNextStartElement();
 	}
 	return result;
-}
-
-const QString Story::key()
-{
-	return activeKey;
 }
 
 const QString Story::tempSaveOld_openNew(QString newKey, QString oldText)
@@ -80,26 +65,6 @@ bool Story::hasChanges()
 {
 	if (!editedKeys.isEmpty() || dom->hasChanges()) return true;
 	return false;
-}
-
-void Story::setItemExpansion(QString key, bool isExpanded)
-{
-	dom->write(key, isExpanded, Dom::Write::Expanded);
-}
-
-void Story::move(QString pivotKey, QString fulcrumKey, Io::Move position)
-{
-	dom->move(pivotKey, fulcrumKey, position);
-}
-
-void Story::rename(QString newName, QString key)
-{
-	dom->rename(newName, key);
-}
-
-void Story::add(QString newName, Path::Type type, QString parentKey)
-{
-	dom->add(newName, type, parentKey);
 }
 
 bool Story::cut(QString key)
@@ -346,7 +311,9 @@ void Story::toPdf(StdFsPath path)
 	printer.setOutputFileName(Path::toQString(path));
 	QTextDocument doc;
 	QString content;
-	for (auto& element : dom->elements())
+	auto elements = dom->elements();
+	auto& last_element = elements.last();
+	for (auto& element : elements)
 	{
 		if (element.tagName() != dom->tagFile) continue;
 		auto key = element.attribute(dom->attributeKey);
@@ -354,7 +321,8 @@ void Story::toPdf(StdFsPath path)
 		(QFile(temp_path).exists())
 			? content = content + Io::readFile(temp_path)
 			: content = content + archiver->read(activeArchivePath, dom->element<StdFsPath>(key, Dom::Element::OrigPath));
-		content = content + Text::newLines();
+		if (element != last_element)
+			content = content + Text::newLines();
 	}
 	doc.setPlainText(content);
 	doc.print(&printer);
