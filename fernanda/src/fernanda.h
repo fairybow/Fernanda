@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // fernanda.h, Fernanda
 
 #pragma once
@@ -71,7 +81,6 @@ private:
     bool hasTheme = true;
 
     bool confirmStoryClose(bool isQuit = false);
-    void openLocalFolder(StdFsPath path);
     const QStringList devPrintRenames(QVector<Io::ArchiveRename> renames);
     const QString name();
     void addWidgets();
@@ -90,6 +99,8 @@ private:
     void loadMenuToggle(QAction* action, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback);
     void openStory(StdFsPath fileName, Story::Mode mode = Story::Mode::Normal);
     void toggleWidget(QWidget* widget, UserData::IniGroup group, UserData::IniValue valueType, bool value);
+
+    void openLocalFolder(StdFsPath path) { QDesktopServices::openUrl(QUrl::fromLocalFile(Path::toQString(path))); }
 
     template<typename T>
     inline QActionGroup* makeViewToggles(QVector<Resource::DataPair>& dataLabelPairs, T slot)
@@ -136,7 +147,6 @@ private slots:
     void helpMenuMakeSampleProject();
     void helpMenuMakeSampleRes();
     void helpMenuUpdate();
-    void devMenuWrite(QString name, QString value);
     void handleEditorOpen(QString key = nullptr);
     void sendEditedText();
     bool replyHasProject();
@@ -144,6 +154,8 @@ private slots:
     void domAdd(QString newName, Path::Type type, QString parentKey);
     void domRename(QString newName, QString key);
     void domCut(QString key);
+
+    void devMenuWrite(QString name, QString value) { Io::writeFile(UserData::doThis(UserData::Operation::GetDocuments) / name.toStdString(), value); }
 
 signals:
     void askSetBarAlignment(QString alignment);

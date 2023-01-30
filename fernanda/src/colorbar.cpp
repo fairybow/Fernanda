@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // colorbar.cpp, Fernanda
 
 #include "colorbar.h"
@@ -48,22 +58,12 @@ void ColorBar::run(Run theme)
     bar_fill->start();
 }
 
-void ColorBar::delayedStartUp()
-{
-    QTimer::singleShot(1500, this, [&]() { run(Run::Pastels); });
-}
-
 void ColorBar::setAlignment(QString alignment)
 {
     (alignment == "Bottom")
         ? layout->setAlignment(Qt::AlignBottom)
         : layout->setAlignment(Qt::AlignTop);
     UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::ColorBarAlignment, alignment);
-}
-
-bool ColorBar::hasStartUp()
-{
-    return hasRunOnStartUp;
 }
 
 void ColorBar::style(Run theme)

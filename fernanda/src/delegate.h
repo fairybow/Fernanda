@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // delegate.h, Fernanda
 
 #pragma once
@@ -65,11 +75,6 @@ private:
         return false;
     }
 
-    const QColor highlight() const
-    {
-        return QColor(0, 0, 0, 33);
-    }
-
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override
     {
         auto geometry = getRectSizes(option);
@@ -113,6 +118,8 @@ private:
         painter->drawText(geometry.text, name);
         painter->restore();
     }
+
+    const QColor highlight() const { return QColor(0, 0, 0, 33); }
 };
 
 // delegate.h, Fernanda

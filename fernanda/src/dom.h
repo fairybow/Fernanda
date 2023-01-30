@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // dom.h, Fernanda
 
 #pragma once
@@ -169,22 +179,13 @@ private:
     }
 
     template<typename T>
-    inline bool isDir(T nodeOrElement)
-    {
-        return isThis(nodeOrElement, tagDir);
-    }
+    inline bool isDir(T nodeOrElement) { return isThis(nodeOrElement, tagDir); }
 
     template<typename T>
-    inline bool isFile(T nodeOrElement)
-    {
-        return isThis(nodeOrElement, tagFile);
-    }
+    inline bool isFile(T nodeOrElement) { return isThis(nodeOrElement, tagFile); }
 
     template<typename T>
-    inline bool isRoot(T nodeOrElement)
-    {
-        return isThis(nodeOrElement, tagRoot);
-    }
+    inline bool isRoot(T nodeOrElement) {  return isThis(nodeOrElement, tagRoot); }
 };
 
 // dom.h, Fernanda

@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // pane.h, Fernanda
 
 #pragma once
@@ -33,13 +43,15 @@ public:
         Previous
     };
 
-    const QStringList devGetEditedKeys();
     void navigate(Go direction);
+
+    const QStringList devGetEditedKeys() { return delegate->paintEdited; }
 
 public slots:
     void receiveItems(QVector<QStandardItem*> items);
     void receiveEditsList(QStringList editedFiles);
-    void add(Path::Type type);
+
+    void add(Path::Type type) { addTempItem(type, QPoint(-1, -1)); }
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent* event) override;
@@ -51,11 +63,12 @@ private:
     QStandardItemModel* itemModel = new QStandardItemModel(this);
     PaneDelegate* delegate = new PaneDelegate(this);
 
-    void refresh();
     void expandItems_recursor(QStandardItem* item);
     void addTempItem(Path::Type type, QPoint eventPosition);
     QStandardItem* tempItem(Path::Type type);
     const QString rename();
+
+    void refresh() { dataChanged(QModelIndex(), QModelIndex()); }
 
 private slots:
     void onClick(const QModelIndex& index);

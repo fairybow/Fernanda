@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // story.h, Fernanda
 
 #pragma once
@@ -35,30 +45,28 @@ public:
 
     Story(StdFsPath filePath, Mode mode = Mode::Normal);
 
-    const QString devGetDom(Dom::Document document = Dom::Document::Current);
-    QVector<Io::ArchiveRename> devGetRenames();
-    const QStringList devGetEditedKeys();
-    const StdFsPath devGetActiveTemp();
     QVector<QStandardItem*> items();
-    const QString key();
     const QString tempSaveOld_openNew(QString newKey, QString oldText = nullptr);
     void autoTempSave(QString text);
     QStringList edits(QString currentText);
     bool hasChanges();
-    void setItemExpansion(QString key, bool isExpanded);
-    void move(QString pivotKey, QString fulcrumKey, Io::Move position);
-    void rename(QString newName, QString key);
-    void add(QString newName, Path::Type type, QString parentKey);
     bool cut(QString key);
     void save(QString text = nullptr);
     const TotalCounts totalCounts();
     void exportTo(StdFsPath path, To type);
 
+    const QString key() { return activeKey; }
+    const QString devGetDom(Dom::Document document = Dom::Document::Current) { return dom->string(document); }
+    QVector<Io::ArchiveRename> devGetRenames() { return dom->renames(); }
+    const QStringList devGetEditedKeys() { return editedKeys; }
+    const StdFsPath devGetActiveTemp() { return UserData::doThis(UserData::Operation::GetActiveTemp) / name<StdFsPath>(); }
+    void setItemExpansion(QString key, bool isExpanded) { dom->write(key, isExpanded, Dom::Write::Expanded); }
+    void move(QString pivotKey, QString fulcrumKey, Io::Move position) { dom->move(pivotKey, fulcrumKey, position); }
+    void rename(QString newName, QString key) { dom->rename(newName, key); }
+    void add(QString newName, Path::Type type, QString parentKey) { dom->add(newName, type, parentKey); }
+
     template<typename T>
-    inline const T name()
-    {
-        return Path::getName<T>(activeArchivePath);
-    }
+    inline const T name() { return Path::getName<T>(activeArchivePath); }
 
 private:
     Archiver* archiver = new Archiver;

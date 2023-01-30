@@ -1,3 +1,13 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // colorbar.h, Fernanda
 
 #pragma once
@@ -31,11 +41,13 @@ public:
 
     void toggle(bool checked, Has has);
     void run(Run theme = Run::None);
-    void delayedStartUp();
+
+    void delayedStartUp() { QTimer::singleShot(1500, this, [&]() { run(Run::Pastels); }); }
 
 public slots:
     void setAlignment(QString alignment);
-    bool hasStartUp();
+
+    bool hasStartUp() { return hasRunOnStartUp; }
 
 private:
     QProgressBar* bar = new QProgressBar(this);

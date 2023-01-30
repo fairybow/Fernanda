@@ -1,26 +1,16 @@
+/*
+*   Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+*   Copyright(C) 2022 - 2023  @fairybow (https://github.com/fairybow)
+*
+*   https://github.com/fairybow/fernanda
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // text.cpp, Fernanda
 
 #include "text.h"
-
-const QString Text::operator%(QString lhs, const char* rhs)
-{
-	return lhs + QStringLiteral("<p>") + rhs;
-}
-
-const QString Text::operator%(QString lhs, QString rhs)
-{
-	return lhs + QStringLiteral("<p>") + rhs;
-}
-
-const QString Text::operator/(QString lhs, const char* rhs)
-{
-	return lhs + QStringLiteral("<br>") + rhs;
-}
-
-const QString Text::operator/(QString lhs, QString rhs)
-{
-	return lhs + QStringLiteral("<br>") + rhs;
-}
 
 const QRegularExpression Text::regex(Regex operation)
 {
@@ -73,31 +63,6 @@ const QString Text::multiplyThese(QString character, int defaultArgument)
 	return result;
 }
 
-const QString Text::multiSpaces(int spaces)
-{
-	return multiplyThese(" ", spaces);
-}
-
-const QString Text::newLines(int lines)
-{
-	return multiplyThese("\n", lines);
-}
-
-const QString Text::tableColumnSpacing(int columns)
-{
-	return multiplyThese("<td>\n</td>", columns);
-}
-
-const QString Text::heading(const char* text)
-{
-	return QStringLiteral("<h3><b>") + text + QStringLiteral("</b></h3>");
-}
-
-const QString Text::bold(const char* text)
-{
-	return QStringLiteral("<b>") + text + QStringLiteral("</b>");
-}
-
 const QString Text::pad(const char* text, int spaces)
 {
 	QString padding = multiSpaces(spaces);
@@ -147,11 +112,6 @@ const QString Text::saveAndButtons(bool isQuit)
 	return pad("Save and change");
 }
 
-const QString Text::openUdButton()
-{
-	return pad("Open the user data folder");
-}
-
 const QString Text::samples()
 {
 	return
@@ -190,26 +150,6 @@ const QString Text::windowEditorShortcuts()
 		QStringLiteral("Ctrl + Z: Undo") /
 		QStringLiteral("Ctrl + Shift + C: Wrap selection or block in quotes")
 	};
-}
-
-const QString Text::shortcuts()
-{
-	return heading("Shortcuts") % table({ menuShortcuts(), windowEditorShortcuts() });
-}
-
-const QString Text::repo()
-{
-	return link("https://github.com/fairybow/fernanda");
-}
-
-const QString Text::releases()
-{
-	return link("https://github.com/fairybow/fernanda/releases");
-}
-
-const QString Text::gitHubApi()
-{
-	return QStringLiteral("https://api.github.com/repos/fairybow/fernanda/releases");
 }
 
 const QString Text::about()
@@ -262,11 +202,6 @@ const QString Text::version(VersionCheck check, QString latestVersion)
 		base %
 		message
 	};
-}
-
-const QString Text::timeUp()
-{
-	return QStringLiteral("Time's up!") + multiSpaces(10);
 }
 
 const QString Text::totalCounts(int lines, int words, int characters)
