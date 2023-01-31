@@ -115,10 +115,9 @@ void Tool::typeDependentSetup()
 
 void Tool::alwaysOnTop()
 {
-    if (isChecked())
-        parentWindow->setWindowFlags(parentWindow->windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
-    else
-        parentWindow->setWindowFlags(parentWindow->windowFlags() ^ (Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint));
+    (isChecked())
+        ? parentWindow->setWindowFlags(parentWindow->windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint)
+        : parentWindow->setWindowFlags(parentWindow->windowFlags() ^ (Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint));
     parentWindow->show();
 }
 
