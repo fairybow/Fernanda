@@ -8,7 +8,7 @@
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// fernanda.h, Fernanda
+// mainwindow.h, Fernanda
 
 #pragma once
 
@@ -37,14 +37,14 @@
 #include <QUrl>
 #include <QWidgetAction>
 
-class Fernanda : public QMainWindow
+class MainWindow : public QMainWindow
 {
     using StdFsPath = std::filesystem::path;
 
     Q_OBJECT
 
 public:
-    Fernanda(bool isDev, StdFsPath story, QWidget* parent = nullptr);
+    MainWindow(bool isDev, StdFsPath story, QWidget* parent = nullptr);
 
 protected:
     void showEvent(QShowEvent* event) override;
@@ -177,4 +177,4 @@ signals:
     void askPaneAdd(Path::Type type);
 };
 
-// fernanda.h, Fernanda
+// mainwindow.h, Fernanda

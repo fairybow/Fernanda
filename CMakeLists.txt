@@ -27,13 +27,13 @@ qt_add_executable(fernanda
     src/delegate.h
     src/dom.h
     src/editor.h
-    src/fernanda.h
     src/icon.h
     src/index.h
     src/indicator.h
     src/io.h
     src/keyfilter.h
     src/layout.h
+    src/mainwindow.h
     src/pane.h
     src/path.h
     src/plaintextedit.h
@@ -53,10 +53,10 @@ qt_add_executable(fernanda
     src/colorbar.cpp
     src/dom.cpp
     src/editor.cpp
-    src/fernanda.cpp
     src/indicator.cpp
     src/keyfilter.cpp
     src/main.cpp
+    src/mainwindow.cpp
     src/pane.cpp
     src/plaintextedit.cpp
     src/popup.cpp

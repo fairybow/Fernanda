@@ -3,7 +3,7 @@
 ## Tree
 
 - main
-	- fernanda.h
+	- mainwindow.h
 		- colorbar.h
 			- io.h (+ path.h)
 			- userdata.h (+ path.h)
@@ -117,34 +117,6 @@
 #include <QTimer>
 ```
 
-### fernanda.h
-```
-#include "colorbar.h"
-#include "editor.h"
-#include "indicator.h"
-#include "pane.h"
-#include "resource.h"
-#include "splitter.h"
-#include "story.h"
-#include "tool.h"
-
-#include <QCloseEvent>
-#include <QCoreApplication>
-#include <QDesktopServices>
-#include <QFileDialog>
-#include <QJsonDocument>
-#include <QMap>
-#include <QMenuBar>
-#include <QMoveEvent>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QShowEvent>
-#include <QSlider>
-#include <QStatusBar>
-#include <QUrl>
-#include <QWidgetAction>
-```
-
 ### icon.h
 ```
 #include <QString>
@@ -198,6 +170,34 @@
 #include <QStackedLayout>
 #include <QVector>
 #include <QWidget>
+```
+
+### mainwindow.h
+```
+#include "colorbar.h"
+#include "editor.h"
+#include "indicator.h"
+#include "pane.h"
+#include "resource.h"
+#include "splitter.h"
+#include "story.h"
+#include "tool.h"
+
+#include <QCloseEvent>
+#include <QCoreApplication>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QJsonDocument>
+#include <QMap>
+#include <QMenuBar>
+#include <QMoveEvent>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QShowEvent>
+#include <QSlider>
+#include <QStatusBar>
+#include <QUrl>
+#include <QWidgetAction>
 ```
 
 ### pane.h

@@ -60,25 +60,6 @@
 ### Dom[^1]
 - [x] ~~Probably should combine `elements()` and `elementsByAttribute()`~~
 
-### Fernanda (MainWindow)
-
-- [ ] Instead of `activeStory` check for Save option, tie it to signal to show/hide story menu and make disabled
-- [ ] Separate menu into its own class?
-- [ ] Auto-hide menu option
-- [ ] Auto-hide scrollbar
-- [x] ~~For exporting, call `story->name<StdFsPath>()` from outside class and fill in, rather than appending it in Story, to support renamed exporting (probably not for directory)~~
-- [x] ~~Rename menu locals to reflect the alphabetical order of the items~~
-- [x] ~~Rename `viewToggles()` to match~~
-- [x] ~~Order the items in menus Window and Editor (and General, if applicable)~~
-- [x] ~~Add path to user data folder to the sample themes popup~~
-- [x] ~~^ Or a button to open UD folder?~~
-- [x] ~~Open UD folders from Help menu~~
-- [x] ~~Make Dev menu instead of Status Bar items~~
-- [x] ~~I don't think `toggleWidget()` or `toggleGlobals()` are slots~~
-- [x] ~~View menu function is gross and bad~~
-- [x] ~~Combine two cursor toggles into one submenu~~
-- [x] ~~Toggle-specific menu~~
-
 ### Editor / PlainTextEdit / LineNumberArea
 - [ ] It is not clear to me that `updateLineNumberAreaWidth(int newBlockCount)` actually uses `newBlockCount` arg
 - [ ] Save undo/redo stacks
@@ -110,6 +91,24 @@
 - [ ] On enter-press if the next `char` is closing parenthesis, quote, etc., then apply a skip before new line?
 - [x] ~~Avoid passing entire document lol~~
 
+### MainWindow
+- [ ] Instead of `activeStory` check for Save option, tie it to signal to show/hide story menu and make disabled
+- [ ] Separate menu into its own class?
+- [ ] Auto-hide menu option
+- [ ] Auto-hide scrollbar
+- [x] ~~For exporting, call `story->name<StdFsPath>()` from outside class and fill in, rather than appending it in Story, to support renamed exporting (probably not for directory)~~
+- [x] ~~Rename menu locals to reflect the alphabetical order of the items~~
+- [x] ~~Rename `viewToggles()` to match~~
+- [x] ~~Order the items in menus Window and Editor (and General, if applicable)~~
+- [x] ~~Add path to user data folder to the sample themes popup~~
+- [x] ~~^ Or a button to open UD folder?~~
+- [x] ~~Open UD folders from Help menu~~
+- [x] ~~Make Dev menu instead of Status Bar items~~
+- [x] ~~I don't think `toggleWidget()` or `toggleGlobals()` are slots~~
+- [x] ~~View menu function is gross and bad~~
+- [x] ~~Combine two cursor toggles into one submenu~~
+- [x] ~~Toggle-specific menu~~
+
 ### Pane
 - [ ] Persist selected-item highlight between saves/moves
 - [ ] `persistentEditor()` or an input dialog for `rename()`? (`openPersistentEditor(itemModel->indexFromItem(temp_item));`)
@@ -125,11 +124,9 @@
 - [ ] Ensure popups happen on the same monitor...
 
 ### StartCop
-
 - [ ] Accept args (on file click, prompt to save if needed and open new file; possibly also switch to dev mode)
 
 ### Story[^1]
-
 - [ ] Total Counts variant for compiled documents only
 - [ ] Only hold X amount of backups per file
 - [x] ~~Probably don't need to keep full file path for root~~
@@ -143,16 +140,13 @@
 ## Namespaces
 
 ### Path
-
 - [x] ~~May not need `makePosix()`; Bit7z only accepts `\\` paths for searching~~
 
 ### Resource
-
 - [x] ~~There surely must be a smarter way to incorporate `.otf` into the fonts RC list (applies to MainWindow, too)~~
 - [x] ~~Convert to `std::filesystem::path`~~
 
 ### UserData
-
 - [ ] Split up the enums with namespaces for editor, data, and window (removing arg requirement for a IniGroup) (Unclear on how to do this at the moment)
 - [x] ~~Enums for group (and possibly value)~~
 

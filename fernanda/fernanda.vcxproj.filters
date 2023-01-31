@@ -142,7 +142,7 @@
     <ClCompile Include="src\plaintextedit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\fernanda.cpp">
+    <ClCompile Include="src\mainwindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
@@ -337,7 +337,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="src\fernanda.h">
+    <QtMoc Include="src\mainwindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\pane.h">

@@ -10,7 +10,7 @@
 
 // main.cpp, Fernanda
 
-#include "fernanda.h"
+#include "mainwindow.h"
 #include "startcop.h"
 
 int main(int argc, char *argv[])
@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     for (auto& arg : app.arguments())
         if (arg.endsWith(".story"))
             opener = Path::toStdFs(arg);
-    Fernanda window(app.arguments().contains("-dev"), opener);
+    MainWindow window(app.arguments().contains("-dev"), opener);
     {
         auto font = app.font();
         font.setStyleStrategy(QFont::PreferAntialias);

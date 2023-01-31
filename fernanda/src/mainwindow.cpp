@@ -8,11 +8,11 @@
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// fernanda.cpp, Fernanda
+// mainwindow.cpp, Fernanda
 
-#include "fernanda.h"
+#include "mainwindow.h"
 
-Fernanda::Fernanda(bool isDev, StdFsPath story, QWidget* parent)
+MainWindow::MainWindow(bool isDev, StdFsPath story, QWidget* parent)
     : isDev(isDev), QMainWindow(parent)
 {
     UserData::setName(name());
@@ -24,7 +24,7 @@ Fernanda::Fernanda(bool isDev, StdFsPath story, QWidget* parent)
     loadConfigs(story);
 }
 
-void Fernanda::showEvent(QShowEvent* event)
+void MainWindow::showEvent(QShowEvent* event)
 {
     QMainWindow::showEvent(event);
     if (isInitialized || event->spontaneous()) return;
@@ -33,19 +33,19 @@ void Fernanda::showEvent(QShowEvent* event)
     isInitialized = true;
 }
 
-void Fernanda::resizeEvent(QResizeEvent* event)
+void MainWindow::resizeEvent(QResizeEvent* event)
 {
     QMainWindow::resizeEvent(event);
     UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::WindowPosition, geometry());
 }
 
-void Fernanda::moveEvent(QMoveEvent* event)
+void MainWindow::moveEvent(QMoveEvent* event)
 {
     QMainWindow::moveEvent(event);
     UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::WindowPosition, geometry());
 }
 
-void Fernanda::closeEvent(QCloseEvent* event)
+void MainWindow::closeEvent(QCloseEvent* event)
 {
     auto state = windowState();
     UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::WindowState, state.toInt());
@@ -62,7 +62,7 @@ void Fernanda::closeEvent(QCloseEvent* event)
     event->accept();
 }
 
-bool Fernanda::confirmStoryClose(bool isQuit)
+bool MainWindow::confirmStoryClose(bool isQuit)
 {
     if (!activeStory.has_value() || !activeStory.value().hasChanges()) return true;
     auto result = false;
@@ -80,7 +80,7 @@ bool Fernanda::confirmStoryClose(bool isQuit)
     return result;
 }
 
-const QStringList Fernanda::devPrintRenames(QVector<Io::ArchiveRename> renames)
+const QStringList MainWindow::devPrintRenames(QVector<Io::ArchiveRename> renames)
 {
     QStringList result;
     auto i = 0;
@@ -96,14 +96,14 @@ const QStringList Fernanda::devPrintRenames(QVector<Io::ArchiveRename> renames)
     return result;
 }
 
-const QString Fernanda::name()
+const QString MainWindow::name()
 {
     QString result;
     (isDev) ? result = "Fernanda (dev)" : result = "Fernanda";
     return result;
 }
 
-void Fernanda::addWidgets()
+void MainWindow::addWidgets()
 {
     setCentralWidget(Layout::stackWidgets({ colorBar, splitter }));
     splitter->addWidgets({ pane, editor });
@@ -123,34 +123,34 @@ void Fernanda::addWidgets()
     spacer->setObjectName(QStringLiteral("spacer"));
 }
 
-void Fernanda::connections()
+void MainWindow::connections()
 {
-    connect(this, &Fernanda::askSetBarAlignment, colorBar, &ColorBar::setAlignment);
-    connect(this, &Fernanda::askHasStartUpBar, colorBar, &ColorBar::hasStartUp);
-    connect(this, &Fernanda::askUpdatePositions, indicator, &Indicator::updatePositions);
-    connect(this, &Fernanda::askUpdateCounts, indicator, &Indicator::updateCounts);
-    connect(this, &Fernanda::askUpdateSelection, indicator, &Indicator::updateSelection);
-    connect(this, &Fernanda::askEditorClose, editor, &Editor::close);
-    connect(this, &Fernanda::sendSetTabStop, editor, &Editor::setTabStop);
-    connect(this, &Fernanda::sendSetWrapMode, editor, &Editor::setWrapMode);
-    connect(this, &Fernanda::sendItems, pane, &Pane::receiveItems);
-    connect(this, &Fernanda::sendEditsList, pane, &Pane::receiveEditsList);
-    connect(this, &Fernanda::askPaneAdd, pane, &Pane::add);
-    connect(this, &Fernanda::askSetCountdown, timer, &Tool::setCountdown);
-    connect(editor, &Editor::askFontSliderZoom, this, &Fernanda::handleFontSlider);
-    connect(editor, &Editor::askHasProject, this, &Fernanda::replyHasProject);
-    connect(editor, &Editor::textChanged, this, &Fernanda::sendEditedText);
-    connect(editor, &Editor::textChanged, this, &Fernanda::adjustTitle);
-    connect(pane, &Pane::askDomMove, this, &Fernanda::domMove);
-    connect(pane, &Pane::askAddElement, this, &Fernanda::domAdd);
-    connect(pane, &Pane::askRenameElement, this, &Fernanda::domRename);
-    connect(pane, &Pane::askCutElement, this, &Fernanda::domCut);
-    connect(pane, &Pane::askHasProject, this, &Fernanda::replyHasProject);
-    connect(pane, &Pane::askSendToEditor, this, &Fernanda::handleEditorOpen);
-    connect(pane, &Pane::askTitleCheck, this, &Fernanda::adjustTitle);
-    connect(this, &Fernanda::startAutoTempSave, this, [&]() { autoTempSave->start(20000); });
-    connect(this, &Fernanda::askToggleStartUpBar, colorBar, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::RunOnStartUp); });
-    connect(this, &Fernanda::askToggleScrolls, editor, [&](bool checked) { editor->toggle(checked, Editor::Has::Scrolls); });
+    connect(this, &MainWindow::askSetBarAlignment, colorBar, &ColorBar::setAlignment);
+    connect(this, &MainWindow::askHasStartUpBar, colorBar, &ColorBar::hasStartUp);
+    connect(this, &MainWindow::askUpdatePositions, indicator, &Indicator::updatePositions);
+    connect(this, &MainWindow::askUpdateCounts, indicator, &Indicator::updateCounts);
+    connect(this, &MainWindow::askUpdateSelection, indicator, &Indicator::updateSelection);
+    connect(this, &MainWindow::askEditorClose, editor, &Editor::close);
+    connect(this, &MainWindow::sendSetTabStop, editor, &Editor::setTabStop);
+    connect(this, &MainWindow::sendSetWrapMode, editor, &Editor::setWrapMode);
+    connect(this, &MainWindow::sendItems, pane, &Pane::receiveItems);
+    connect(this, &MainWindow::sendEditsList, pane, &Pane::receiveEditsList);
+    connect(this, &MainWindow::askPaneAdd, pane, &Pane::add);
+    connect(this, &MainWindow::askSetCountdown, timer, &Tool::setCountdown);
+    connect(editor, &Editor::askFontSliderZoom, this, &MainWindow::handleFontSlider);
+    connect(editor, &Editor::askHasProject, this, &MainWindow::replyHasProject);
+    connect(editor, &Editor::textChanged, this, &MainWindow::sendEditedText);
+    connect(editor, &Editor::textChanged, this, &MainWindow::adjustTitle);
+    connect(pane, &Pane::askDomMove, this, &MainWindow::domMove);
+    connect(pane, &Pane::askAddElement, this, &MainWindow::domAdd);
+    connect(pane, &Pane::askRenameElement, this, &MainWindow::domRename);
+    connect(pane, &Pane::askCutElement, this, &MainWindow::domCut);
+    connect(pane, &Pane::askHasProject, this, &MainWindow::replyHasProject);
+    connect(pane, &Pane::askSendToEditor, this, &MainWindow::handleEditorOpen);
+    connect(pane, &Pane::askTitleCheck, this, &MainWindow::adjustTitle);
+    connect(this, &MainWindow::startAutoTempSave, this, [&]() { autoTempSave->start(20000); });
+    connect(this, &MainWindow::askToggleStartUpBar, colorBar, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::RunOnStartUp); });
+    connect(this, &MainWindow::askToggleScrolls, editor, [&](bool checked) { editor->toggle(checked, Editor::Has::Scrolls); });
     connect(autoTempSave, &QTimer::timeout, this, [&]()
         {
             activeStory.value().autoTempSave(editor->toPlainText());
@@ -184,7 +184,7 @@ void Fernanda::connections()
     connect(timer, &Tool::resetCountdown, this, [&]() { return getSetting<int>(timerValues); });
 }
 
-void Fernanda::shortcuts()
+void MainWindow::shortcuts()
 {
     auto cycle_window_themes = new QShortcut(Qt::ALT | Qt::Key_F12, this);
     connect(cycle_window_themes, &QShortcut::activated, this, [&]() { Style::actionCycle(windowThemes); });
@@ -192,7 +192,7 @@ void Fernanda::shortcuts()
         shortcut->setAutoRepeat(false);
 }
 
-void Fernanda::makeMenuBar()
+void MainWindow::makeMenuBar()
 {
     makeFileMenu();
     makeStoryMenu();
@@ -203,7 +203,7 @@ void Fernanda::makeMenuBar()
     makeDevMenu();
 }
 
-void Fernanda::makeFileMenu()
+void MainWindow::makeFileMenu()
 {
     auto new_story_project = new QAction(tr("&New story project..."), this);
     auto open_story_project = new QAction(tr("&Open an existing story project..."), this);
@@ -223,7 +223,7 @@ void Fernanda::makeFileMenu()
             auto file_name = QFileDialog::getOpenFileName(this, tr("Open an existing story project..."), Path::toQString(UserData::doThis(UserData::Operation::GetDocuments)), tr("Fernanda story file (*.story)"));
             openStory(Path::toStdFs(file_name));
         });
-    connect(save, &QAction::triggered, this, &Fernanda::fileMenuSave);
+    connect(save, &QAction::triggered, this, &MainWindow::fileMenuSave);
     connect(quit, &QAction::triggered, this, &QCoreApplication::quit, Qt::QueuedConnection);
     auto file = menuBar->addMenu(tr("&File"));
     for (const auto& action : {
@@ -236,10 +236,10 @@ void Fernanda::makeFileMenu()
         })
         file->addAction(action);
     save->setEnabled(false);
-    connect(this, &Fernanda::storyMenuVisible, save, &QAction::setEnabled);
+    connect(this, &MainWindow::storyMenuVisible, save, &QAction::setEnabled);
 }
 
-void Fernanda::makeStoryMenu()
+void MainWindow::makeStoryMenu()
 {
     auto new_folder = new QAction(tr("&New folder..."), this);
     auto new_file = new QAction(tr("&New file..."), this);
@@ -249,7 +249,7 @@ void Fernanda::makeStoryMenu()
     auto export_plain_text = new QAction(tr("&Export to plain text (current state)..."), this);
     connect(new_folder, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::Dir); });
     connect(new_file, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::File); });
-    connect(total_counts, &QAction::triggered, this, &Fernanda::storyMenuTotals);
+    connect(total_counts, &QAction::triggered, this, &MainWindow::storyMenuTotals);
     connect(export_directory, &QAction::triggered, this, [&]()
         {
             auto directory = QFileDialog::getExistingDirectory(this, "Choose a directory...", Path::toQString(UserData::doThis(UserData::Operation::GetDocuments)));
@@ -276,10 +276,10 @@ void Fernanda::makeStoryMenu()
     for (const auto& action : { export_directory, export_PDF, export_plain_text })
         exporting->addAction(action);
     story->menuAction()->setVisible(false);
-    connect(this, &Fernanda::storyMenuVisible, story->menuAction(), &QAction::setVisible);
+    connect(this, &MainWindow::storyMenuVisible, story->menuAction(), &QAction::setVisible);
 }
 
-void Fernanda::makeSetMenu()
+void MainWindow::makeSetMenu()
 {
     auto user_data = UserData::doThis(UserData::Operation::GetUserData);
     QVector<Resource::DataPair> color_bar_alignments_list = {
@@ -318,7 +318,7 @@ void Fernanda::makeSetMenu()
     auto line_count_set = new QAction(tr("&Line count"), this);
     auto word_count_set = new QAction(tr("&Word count"), this);
     timerValues = makeViewToggles(timer_values_list, [&]() { askSetCountdown(getSetting<int>(timerValues)); });
-    windowThemes = makeViewToggles(window_themes_list, &Fernanda::setStyle);
+    windowThemes = makeViewToggles(window_themes_list, &MainWindow::setStyle);
     editorFonts = makeViewToggles(fonts_list, [&]()
         {
             editor->handleFont(editorFonts->checkedAction(), fontSlider->value());
@@ -380,7 +380,7 @@ void Fernanda::makeSetMenu()
     wrap_mode->addActions(wrapModes->actions());
 }
 
-void Fernanda::makeToggleMenu()
+void MainWindow::makeToggleMenu()
 {
     auto color_bar_toggle = new QAction(tr("&Color bar"), this);
     auto indicator_toggle = new QAction(tr("&Indicator"), this);
@@ -498,7 +498,7 @@ void Fernanda::makeToggleMenu()
     toggle->addAction(load_most_recent_toggle);
 }
 
-void Fernanda::makeHelpMenu()
+void MainWindow::makeHelpMenu()
 {
     auto about = new QAction(tr("&About..."), this);
     auto check_for_updates = new QAction(tr("&Check for updates..."), this);
@@ -509,7 +509,7 @@ void Fernanda::makeHelpMenu()
     auto create_sample_project = new QAction(tr("&Create sample project"), this);
     auto create_sample_themes = new QAction(tr("&Create sample themes..."), this);
     connect(about, &QAction::triggered, this, [&]() { Popup::about(this); });
-    connect(check_for_updates, &QAction::triggered, this, &Fernanda::helpMenuUpdate);
+    connect(check_for_updates, &QAction::triggered, this, &MainWindow::helpMenuUpdate);
     connect(shortcuts, &QAction::triggered, this, [&]() { Popup::shortcuts(); });
     connect(documents, &QAction::triggered, this, [&]()
         {
@@ -523,8 +523,8 @@ void Fernanda::makeHelpMenu()
         {
             openLocalFolder(UserData::doThis(UserData::Operation::GetUserData));
         });
-    connect(create_sample_project, &QAction::triggered, this, &Fernanda::helpMenuMakeSampleProject);
-    connect(create_sample_themes, &QAction::triggered, this, &Fernanda::helpMenuMakeSampleRes);
+    connect(create_sample_project, &QAction::triggered, this, &MainWindow::helpMenuMakeSampleProject);
+    connect(create_sample_themes, &QAction::triggered, this, &MainWindow::helpMenuMakeSampleRes);
     auto help = menuBar->addMenu(tr("&Help"));
     for (const auto& action : { about, check_for_updates, shortcuts, help->addSeparator() })
         help->addAction(action);
@@ -535,7 +535,7 @@ void Fernanda::makeHelpMenu()
         help->addAction(action);
 }
 
-void Fernanda::makeDevMenu()
+void MainWindow::makeDevMenu()
 {
     auto dump_editor_themes = new QAction(tr("&Dump editor theme files"), this);
     auto dump_fonts = new QAction(tr("&Dump font files"), this);
@@ -636,7 +636,7 @@ void Fernanda::makeDevMenu()
         dev->addAction(action);
 }
 
-void Fernanda::loadConfigs(StdFsPath story)
+void MainWindow::loadConfigs(StdFsPath story)
 {
     loadWinConfigs();
     splitter->loadConfig(geometry());
@@ -655,7 +655,7 @@ void Fernanda::loadConfigs(StdFsPath story)
     openStory(project);
 }
 
-void Fernanda::loadWinConfigs()
+void MainWindow::loadWinConfigs()
 {
     auto geometry = UserData::loadConfig(UserData::IniGroup::Window, UserData::IniValue::WindowPosition, QRect(0, 0, 1000, 666), UserData::Type::QRect).toRect();
     setGeometry(geometry);
@@ -667,7 +667,7 @@ void Fernanda::loadWinConfigs()
     alwaysOnTop->setChecked(UserData::loadConfig(UserData::IniGroup::Window, UserData::IniValue::AlwaysOnTop, false).toBool());
 }
 
-void Fernanda::loadViewConfig(QVector<QAction*> actions, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback)
+void MainWindow::loadViewConfig(QVector<QAction*> actions, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback)
 {
     auto resource = UserData::loadConfig(group, valueType, fallback);
     for (auto& action : actions)
@@ -685,14 +685,14 @@ void Fernanda::loadViewConfig(QVector<QAction*> actions, UserData::IniGroup grou
     actions.first()->setChecked(true);
 }
 
-void Fernanda::loadMenuToggle(QAction* action, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback)
+void MainWindow::loadMenuToggle(QAction* action, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback)
 {
     auto toggle_state = UserData::loadConfig(group, valueType, fallback, UserData::Type::Bool).toBool();
     action->setChecked(!toggle_state);
     action->setChecked(toggle_state);
 }
 
-void Fernanda::openStory(StdFsPath fileName, Story::Mode mode)
+void MainWindow::openStory(StdFsPath fileName, Story::Mode mode)
 {
     if (fileName.empty())
     {
@@ -711,20 +711,20 @@ void Fernanda::openStory(StdFsPath fileName, Story::Mode mode)
     UserData::saveConfig(UserData::IniGroup::Data, UserData::IniValue::MostRecent, Path::toQString(fileName));
 }
 
-void Fernanda::toggleWidget(QWidget* widget, UserData::IniGroup group, UserData::IniValue valueType, bool value)
+void MainWindow::toggleWidget(QWidget* widget, UserData::IniGroup group, UserData::IniValue valueType, bool value)
 {
     widget->setVisible(value);
     UserData::saveConfig(group, valueType, value);
 }
 
-void Fernanda::storyMenuFileExport(const char* caption, const char* extensionFilter, Story::To type)
+void MainWindow::storyMenuFileExport(const char* caption, const char* extensionFilter, Story::To type)
 {
     auto& story = activeStory.value();
     auto file_name = QFileDialog::getSaveFileName(this, tr(caption), Path::toQString(UserData::doThis(UserData::Operation::GetDocuments) / story.name<StdFsPath>()), tr(extensionFilter));
     story.exportTo(Path::toStdFs(file_name), type);
 }
 
-void Fernanda::adjustTitle()
+void MainWindow::adjustTitle()
 {
     auto current_title = windowTitle();
     auto title = name();
@@ -739,7 +739,7 @@ void Fernanda::adjustTitle()
     setWindowTitle(title);
 }
 
-void Fernanda::setStyle()
+void MainWindow::setStyle()
 {
     if (auto selection = windowThemes->checkedAction(); selection != nullptr)
     {
@@ -751,7 +751,7 @@ void Fernanda::setStyle()
     }
 }
 
-void Fernanda::handleFontSlider(PlainTextEdit::Zoom direction)
+void MainWindow::handleFontSlider(PlainTextEdit::Zoom direction)
 {
     switch (direction) {
     case PlainTextEdit::Zoom::In:
@@ -763,7 +763,7 @@ void Fernanda::handleFontSlider(PlainTextEdit::Zoom direction)
     }
 }
 
-void Fernanda::fileMenuSave()
+void MainWindow::fileMenuSave()
 {
     auto& story = activeStory.value();
     if (!story.hasChanges()) return;
@@ -774,7 +774,7 @@ void Fernanda::fileMenuSave()
     colorBar->run(ColorBar::Run::Green);
 }
 
-void Fernanda::storyMenuTotals()
+void MainWindow::storyMenuTotals()
 {
     auto& story = activeStory.value();
     story.autoTempSave(editor->toPlainText());
@@ -782,13 +782,13 @@ void Fernanda::storyMenuTotals()
     Popup::totalCounts(totals.lines, totals.words, totals.characters);
 }
 
-void Fernanda::helpMenuMakeSampleProject()
+void MainWindow::helpMenuMakeSampleProject()
 {
     auto path = UserData::doThis(UserData::Operation::GetDocuments) / "Candide.story";
     openStory(path, Story::Mode::Sample);
 }
 
-void Fernanda::helpMenuMakeSampleRes()
+void MainWindow::helpMenuMakeSampleRes()
 {
     auto path = UserData::doThis(UserData::Operation::GetUserData);
     Sample::makeRc(path);
@@ -802,7 +802,7 @@ void Fernanda::helpMenuMakeSampleRes()
     }
 }
 
-void Fernanda::helpMenuUpdate()
+void MainWindow::helpMenuUpdate()
 {
     auto request = QNetworkRequest(QUrl(Text::gitHubApi()));
     auto reply = manager->get(request);
@@ -826,7 +826,7 @@ void Fernanda::helpMenuUpdate()
         });
 }
 
-void Fernanda::handleEditorOpen(QString key)
+void MainWindow::handleEditorOpen(QString key)
 {
     QString old_key = nullptr;
     if (activeStory.has_value())
@@ -845,26 +845,26 @@ void Fernanda::handleEditorOpen(QString key)
     }
 }
 
-void Fernanda::sendEditedText()
+void MainWindow::sendEditedText()
 {
     if (!activeStory.has_value()) return;
     sendEditsList(activeStory.value().edits(editor->toPlainText()));
 }
 
-bool Fernanda::replyHasProject()
+bool MainWindow::replyHasProject()
 {
     if (activeStory.has_value()) return true;
     return false;
 }
 
-void Fernanda::domMove(QString pivotKey, QString fulcrumKey, Io::Move position)
+void MainWindow::domMove(QString pivotKey, QString fulcrumKey, Io::Move position)
 {
     auto& story = activeStory.value();
     story.move(pivotKey, fulcrumKey, position);
     sendItems(story.items());
 }
 
-void Fernanda::domAdd(QString newName, Path::Type type, QString parentKey)
+void MainWindow::domAdd(QString newName, Path::Type type, QString parentKey)
 {
     auto& story = activeStory.value();
     story.add(newName, type, parentKey);
@@ -872,14 +872,14 @@ void Fernanda::domAdd(QString newName, Path::Type type, QString parentKey)
     editor->textChanged();
 }
 
-void Fernanda::domRename(QString newName, QString key)
+void MainWindow::domRename(QString newName, QString key)
 {
     auto& story = activeStory.value();
     story.rename(newName, key);
     sendItems(story.items());
 }
 
-void Fernanda::domCut(QString key)
+void MainWindow::domCut(QString key)
 {
     auto& story = activeStory.value();
     auto active_key_cut = story.cut(key);
@@ -892,4 +892,4 @@ void Fernanda::domCut(QString key)
     askEditorClose();
 }
 
-// fernanda.cpp, Fernanda
+// mainwindow.cpp, Fernanda

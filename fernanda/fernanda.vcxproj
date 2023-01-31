@@ -151,7 +151,7 @@
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\tool.cpp" />
     <ClCompile Include="src\userdata.cpp" />
-    <ClCompile Include="src\fernanda.cpp" />
+    <ClCompile Include="src\mainwindow.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pane.cpp" />
     <ClCompile Include="src\plaintextedit.cpp" />
@@ -211,7 +211,7 @@
     <ClInclude Include="src\style.h" />
     <ClInclude Include="src\text.h" />
     <ClInclude Include="src\version.h" />
-    <QtMoc Include="src\fernanda.h" />
+    <QtMoc Include="src\mainwindow.h" />
     <ClInclude Include="src\io.h" />
     <ClInclude Include="src\sample.h" />
     <ClInclude Include="src\userdata.h" />
