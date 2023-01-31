@@ -1,6 +1,6 @@
 !include "MUI.nsh"
 !include "${NSISDIR}\Contrib\Modern UI\System.nsh"
-!include "FileAssociation.nsh"
+!include "..\include\nsis\FileAssociation.nsh"
 !include "FileFunc.nsh"
 !include "LogicLib.nsh"
 
