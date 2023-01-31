@@ -49,21 +49,22 @@ public:
     };
 
     const QStringList devGetCursorPositions();
+    void devRemoveStyle();
     void toggle(bool checked, Has has);
     Action handleKeySwap(QString oldKey, QString newKey);
     void handleTextSwap(QString key, QString text);
     void setStyle(QAction* selection);
     void handleFont(QAction* selection, int sliderValue);
 
-    QString toPlainText() const { return plainTextEdit->toPlainText(); }
+    int blockCount() const { return plainTextEdit->blockCount(); }
     int cursorBlockNumber() const { return plainTextEdit->textCursor().blockNumber(); }
     int cursorPositionInBlock() const { return plainTextEdit->textCursor().positionInBlock(); }
-    QString selectedText() const { return plainTextEdit->textCursor().selectedText(); }
-    int selectedLineCount() const { return plainTextEdit->selectedLineCount(); }
     bool hasSelection() const { return plainTextEdit->textCursor().hasSelection(); }
-    int blockCount() const { return plainTextEdit->blockCount(); }
     void scrollNavClicked(PlainTextEdit::Scroll direction) { plainTextEdit->scrollNavClicked(direction); }
+    int selectedLineCount() const { return plainTextEdit->selectedLineCount(); }
+    QString selectedText() const { return plainTextEdit->textCursor().selectedText(); }
     void setFocus() { plainTextEdit->setFocus(); }
+    QString toPlainText() const { return plainTextEdit->toPlainText(); }
 
 public slots:
     void setTabStop(int distance);
@@ -101,20 +102,20 @@ private:
     void cycleCoreThemes();
 
 signals:
-    bool askHasProject();
+    QActionGroup* askFonts();
     void askFontSliderZoom(PlainTextEdit::Zoom direction);
-    void textChanged();
+    void askGoNext();
+    void askGoPrevious();
+    bool askHasProject();
+    QAction* askTheme();
+    QActionGroup* askThemes();
+    void askToggleExtraScrolls(bool checked);
+    void askToggleLineNumberArea(bool checked);
+    void askToggleScrolls(bool checked);
     void cursorPositionChanged();
     void selectionChanged();
     void startBlinker();
-    void askToggleLineNumberArea(bool checked);
-    void askToggleScrolls(bool checked);
-    void askToggleExtraScrolls(bool checked);
-    void askGoPrevious();
-    void askGoNext();
-    QAction* askTheme();
-    QActionGroup* askThemes();
-    QActionGroup* askFonts();
+    void textChanged();
 };
 
 // editor.h, Fernanda

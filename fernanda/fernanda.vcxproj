@@ -146,6 +146,7 @@
     <ClCompile Include="src\editor.cpp" />
     <ClCompile Include="src\indicator.cpp" />
     <ClCompile Include="src\keyfilter.cpp" />
+    <ClCompile Include="src\path.cpp" />
     <ClCompile Include="src\popup.cpp" />
     <ClCompile Include="src\story.cpp" />
     <ClCompile Include="src\text.cpp" />

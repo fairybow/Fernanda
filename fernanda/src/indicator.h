@@ -59,9 +59,9 @@ private:
     QGraphicsOpacityEffect* opacity(double qreal);
 
 signals:
-    void toggled();
-    void askSignalTextChanged();
     void askSignalCursorPositionChanged();
+    void askSignalTextChanged();
+    void toggled();
 };
 
 // indicator.h, Fernanda

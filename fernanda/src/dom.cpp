@@ -36,12 +36,6 @@ const QString Dom::string(Document document)
 	return result;
 }
 
-bool Dom::hasChanges()
-{
-	if (string() != string(Document::Initial)) return true;
-	return false;
-}
-
 void Dom::move(QString pivotKey, QString fulcrumKey, Io::Move position)
 {
 	auto pivot = element<QDomElement>(pivotKey);

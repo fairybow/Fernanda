@@ -68,13 +68,6 @@ private:
         return false;
     }
 
-    bool isSelected(const QModelIndex& index) const
-    {
-        if (Index::key(index) == paintActive)
-            return true;
-        return false;
-    }
-
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override
     {
         auto geometry = getRectSizes(option);
@@ -120,6 +113,7 @@ private:
     }
 
     const QColor highlight() const { return QColor(0, 0, 0, 33); }
+    bool isSelected(const QModelIndex& index) const { return (Index::key(index) == paintActive); }
 };
 
 // delegate.h, Fernanda

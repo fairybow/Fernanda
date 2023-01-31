@@ -96,8 +96,8 @@ private:
     const QColor recolorCursor(bool under = false);
     const QColor highlight();
 
-    bool isMinimumScroll() { return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->minimum()); }
     bool isMaximumScroll() { return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->maximum()); }
+    bool isMinimumScroll() { return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->minimum()); }
 
 private slots:
     void scrollButtonEnabledHandler();
@@ -106,15 +106,15 @@ private slots:
     void updateLineNumberAreaWidth(int newBlockCount) { setViewportMargins(lineNumberAreaWidth(), 0, 0, 0); }
 
 signals:
-    bool askHasProject();
-    void askFontSliderZoom(Zoom direction);
-    bool askHasLineHighlight();
-    bool askHasKeyfilter();
-    bool askHasCursorBlink();
-    bool askHasBlockCursor();
     bool askCursorVisible();
-    void askGoPrevious();
+    void askFontSliderZoom(Zoom direction);
     void askGoNext();
+    void askGoPrevious();
+    bool askHasBlockCursor();
+    bool askHasCursorBlink();
+    bool askHasKeyfilter();
+    bool askHasLineHighlight();
+    bool askHasProject();
     bool askOverlayVisible();
 };
 

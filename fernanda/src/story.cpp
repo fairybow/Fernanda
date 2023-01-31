@@ -61,12 +61,6 @@ QStringList Story::edits(QString currentText)
 	return editedKeys;
 }
 
-bool Story::hasChanges()
-{
-	if (!editedKeys.isEmpty() || dom->hasChanges()) return true;
-	return false;
-}
-
 bool Story::cut(QString key)
 {
 	auto result = false;
@@ -286,12 +280,6 @@ void Story::amendEditsList(AmendEdits operation, QString key)
 			editedKeys.removeAll(key);
 		break;
 	}
-}
-
-bool Story::isEdited(QString key)
-{
-	if (editedKeys.contains(key)) return true;
-	return false;
 }
 
 void Story::bak()

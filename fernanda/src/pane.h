@@ -74,14 +74,14 @@ private slots:
     void onClick(const QModelIndex& index);
 
 signals:
+    void askAddElement(QString newName, Path::Type type, QString parentKey);
+    void askCutElement(QString key);
+    void askDomMove(QString pivotKey, QString fulcrumKey, Io::Move position);
     bool askHasProject();
     void askTitleCheck();
-    void askSendToEditor(QString key);
-    void askDomMove(QString pivotKey, QString fulcrumKey, Io::Move position);
-    void askAddElement(QString newName, Path::Type type, QString parentKey);
     void askRenameElement(QString newName, QString key);
+    void askSendToEditor(QString key);
     void askSetExpansion(QString key, bool isExpanded);
-    void askCutElement(QString key);
 };
 
 // pane.h, Fernanda

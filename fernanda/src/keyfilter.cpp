@@ -93,25 +93,4 @@ QVector<QKeyEvent*> Keyfilter::commaSkip(QKeyEvent* event, ProximalChars chars)
     return result;
 }
 
-bool Keyfilter::checkCurrent(ProximalChars chars, char current)
-{
-    if (!chars.current.isNull() && chars.current == current)
-        return true;
-    return false;
-}
-
-bool Keyfilter::checkPrevious(ProximalChars chars, char previous)
-{
-    if (!chars.previous.isNull() && chars.previous == previous)
-        return true;
-    return false;
-}
-
-bool Keyfilter::checkPrevAndBeforeLast(ProximalChars chars, char previous, char beforeLast)
-{
-    if (!chars.previous.isNull() && !chars.beforeLast.isNull() && chars.previous == previous && chars.beforeLast == beforeLast)
-        return true;
-    return false;
-}
-
 // keyfilter.cpp, Fernanda

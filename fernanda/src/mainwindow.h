@@ -82,7 +82,6 @@ private:
 
     bool confirmStoryClose(bool isQuit = false);
     const QStringList devPrintRenames(QVector<Io::ArchiveRename> renames);
-    const QString name();
     void addWidgets();
     void connections();
     void shortcuts();
@@ -101,6 +100,7 @@ private:
     void toggleWidget(QWidget* widget, UserData::IniGroup group, UserData::IniValue valueType, bool value);
     void storyMenuFileExport(const char* caption, const char* extensionFilter, Story::To type);
 
+    const QString name() { return QString((isDev) ? "Fernanda (dev)" : "Fernanda"); }
     void openLocalFolder(StdFsPath path) { QDesktopServices::openUrl(QUrl::fromLocalFile(Path::toQString(path))); }
 
     template<typename T>
@@ -150,31 +150,32 @@ private slots:
     void helpMenuUpdate();
     void handleEditorOpen(QString key = nullptr);
     void sendEditedText();
-    bool replyHasProject();
     void domMove(QString pivotKey, QString fulcrumKey, Io::Move position);
     void domAdd(QString newName, Path::Type type, QString parentKey);
     void domRename(QString newName, QString key);
     void domCut(QString key);
 
     void devMenuWrite(QString name, QString value) { Io::writeFile(UserData::doThis(UserData::Operation::GetDocuments) / name.toStdString(), value); }
+    bool replyHasProject() { return activeStory.has_value(); }
 
 signals:
+    void askEditorClose(bool isFinal = false);
+    bool askHasStartUpBar();
+    void askPaneAdd(Path::Type type);
     void askSetBarAlignment(QString alignment);
     void askSetCountdown(int seconds);
-    bool askHasStartUpBar();
-    void askToggleStartUpBar(bool checked);
     void askToggleScrolls(bool checked);
-    void askUpdatePositions(const int cursorBlockNumber, const int cursorPositionInBlock);
+    void askToggleStartUpBar(bool checked);
     void askUpdateCounts(const QString text, const int blockCount);
+    void askUpdatePositions(const int cursorBlockNumber, const int cursorPositionInBlock);
     void askUpdateSelection(const QString selectedText, const int lineCount);
-    void askEditorClose(bool isFinal = false);
+    void sendEditsList(QStringList editedFiles);
+    void sendItems(QVector<QStandardItem*> items);
     void sendSetTabStop(int distance);
     void sendSetWrapMode(QString mode);
-    void sendItems(QVector<QStandardItem*> items);
-    void sendEditsList(QStringList editedFiles);
     void startAutoTempSave();
     void storyMenuVisible(bool setVisible);
-    void askPaneAdd(Path::Type type);
+    
 };
 
 // mainwindow.h, Fernanda

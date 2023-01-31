@@ -46,6 +46,14 @@ const QStringList Editor::devGetCursorPositions()
     return result;
 }
 
+void Editor::devRemoveStyle()
+{
+    for (auto& widget : QVector<QWidget*>{ shadow, overlay, underlay, plainTextEdit })
+        widget->setStyleSheet(nullptr);
+    plainTextEdit->cursorColorHex = nullptr;
+    plainTextEdit->cursorUnderColorHex = nullptr;
+}
+
 void Editor::toggle(bool checked, Has has)
 {
     switch (has) {
@@ -122,10 +130,8 @@ void Editor::setStyle(QAction* selection)
     if (selection == nullptr) return;
     auto theme_path = Path::toStdFs(selection->data());
     auto editor_style = Style::editorStyle(theme_path, hasTheme, hasShadow);
-    shadow->setStyleSheet(editor_style.styleSheet);
-    overlay->setStyleSheet(editor_style.styleSheet);
-    underlay->setStyleSheet(editor_style.styleSheet);
-    plainTextEdit->setStyleSheet(editor_style.styleSheet);
+    for (auto& widget : QVector<QWidget*>{ shadow, overlay, underlay, plainTextEdit })
+        widget->setStyleSheet(editor_style.styleSheet);
     plainTextEdit->cursorColorHex = editor_style.cursorColor;
     plainTextEdit->cursorUnderColorHex = editor_style.underCursorColor;
     UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorTheme, Path::toQString(theme_path));

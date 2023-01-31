@@ -50,12 +50,12 @@ public:
     const QString tempSaveOld_openNew(QString newKey, QString oldText = nullptr);
     void autoTempSave(QString text);
     QStringList edits(QString currentText);
-    bool hasChanges();
     bool cut(QString key);
     void save(QString text = nullptr);
     const TotalCounts totalCounts();
     void exportTo(StdFsPath path, To type);
 
+    bool hasChanges() { return (!editedKeys.isEmpty() || dom->hasChanges()); }
     const QString key() { return activeKey; }
     const QString devGetDom(Dom::Document document = Dom::Document::Current) { return dom->string(document); }
     QVector<Io::ArchiveRename> devGetRenames() { return dom->renames(); }
@@ -92,11 +92,11 @@ private:
     const QString tempOpen(QString newKey);
     const StdFsPath tempPath(QString key);
     void amendEditsList(AmendEdits operation, QString key = nullptr);
-    bool isEdited(QString key);
     void bak();
     const QString readAllForExport();
     void toPdf(StdFsPath path);
 
+    bool isEdited(QString key) { return (editedKeys.contains(key)); }
     void toPlainText(StdFsPath path) { Io::writeFile(path, readAllForExport()); }
 };
 

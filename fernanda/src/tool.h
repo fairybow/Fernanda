@@ -74,8 +74,8 @@ private slots:
     void countdownDisplay();
 
 signals:
-    void startAwakeTimer();
     int resetCountdown();
+    void startAwakeTimer();
 };
 
 // tool.h, Fernanda

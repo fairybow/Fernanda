@@ -96,13 +96,6 @@ const QStringList MainWindow::devPrintRenames(QVector<Io::ArchiveRename> renames
     return result;
 }
 
-const QString MainWindow::name()
-{
-    QString result;
-    (isDev) ? result = "Fernanda (dev)" : result = "Fernanda";
-    return result;
-}
-
 void MainWindow::addWidgets()
 {
     setCentralWidget(Layout::stackWidgets({ colorBar, splitter }));
@@ -244,9 +237,9 @@ void MainWindow::makeStoryMenu()
     auto new_folder = new QAction(tr("&New folder..."), this);
     auto new_file = new QAction(tr("&New file..."), this);
     auto total_counts = new QAction(tr("&Total counts..."), this);
-    auto export_directory = new QAction(tr("&Export to directory (last saved state)..."), this);
-    auto export_PDF = new QAction(tr("&Export to PDF (current state)..."), this);
-    auto export_plain_text = new QAction(tr("&Export to plain text (current state)..."), this);
+    auto export_directory = new QAction(tr("&To directory (last saved state)..."), this);
+    auto export_PDF = new QAction(tr("&To PDF (current state)..."), this);
+    auto export_plain_text = new QAction(tr("&To plain text (current state)..."), this);
     connect(new_folder, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::Dir); });
     connect(new_file, &QAction::triggered, this, [&]() { askPaneAdd(Path::Type::File); });
     connect(total_counts, &QAction::triggered, this, &MainWindow::storyMenuTotals);
@@ -537,6 +530,7 @@ void MainWindow::makeHelpMenu()
 
 void MainWindow::makeDevMenu()
 {
+    auto remove_all_themes = new QAction(tr("&Remove all themes"), this);
     auto dump_editor_themes = new QAction(tr("&Dump editor theme files"), this);
     auto dump_fonts = new QAction(tr("&Dump font files"), this);
     auto dump_window_themes = new QAction(tr("&Dump window theme files"), this);
@@ -551,6 +545,11 @@ void MainWindow::makeDevMenu()
     auto open_installation_folder = new QAction(tr("&Open installation folder..."), this);
     auto open_temps = new QAction(tr("&Open temps..."), this);
     auto open_user_data = new QAction(tr("&Open user data..."), this);
+    connect(remove_all_themes, &QAction::triggered, this, [&]()
+        {
+            setStyleSheet(nullptr);
+            editor->devRemoveStyle();
+        });
     connect(dump_editor_themes, &QAction::triggered, this, [&]()
         {
             Style::dump(editorThemes, UserData::doThis(UserData::Operation::GetDocuments));
@@ -616,6 +615,8 @@ void MainWindow::makeDevMenu()
         });
     auto dev = menuBar->addMenu(tr("&Dev"));
     for (const auto& action : {
+        remove_all_themes,
+        dev->addSeparator(),
         dump_editor_themes,
         dump_fonts,
         dump_window_themes,
@@ -849,12 +850,6 @@ void MainWindow::sendEditedText()
 {
     if (!activeStory.has_value()) return;
     sendEditsList(activeStory.value().edits(editor->toPlainText()));
-}
-
-bool MainWindow::replyHasProject()
-{
-    if (activeStory.has_value()) return true;
-    return false;
 }
 
 void MainWindow::domMove(QString pivotKey, QString fulcrumKey, Io::Move position)

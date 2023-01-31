@@ -58,16 +58,16 @@ namespace Text
 	inline const QString operator%(QString lhs, QString rhs) { return lhs + QStringLiteral("<p>") + rhs; }
 	inline const QString operator/(QString lhs, const char* rhs) { return lhs + QStringLiteral("<br>") + rhs; }
 	inline const QString operator/(QString lhs, QString rhs) { return lhs + QStringLiteral("<br>") + rhs; }
+	inline const QString bold(const char* text) { return QStringLiteral("<b>") + text + QStringLiteral("</b>"); }
+	inline const QString gitHubApi() { return QStringLiteral("https://api.github.com/repos/fairybow/fernanda/releases"); }
+	inline const QString heading(const char* text) { return QStringLiteral("<h3><b>") + text + QStringLiteral("</b></h3>"); }
 	inline const QString multiSpaces(int spaces = 3) { return multiplyThese(" ", spaces); }
 	inline const QString newLines(int lines = 2) { return multiplyThese("\n", lines); }
-	inline const QString tableColumnSpacing(int columns = 9) { return multiplyThese("<td>\n</td>", columns); }
-	inline const QString heading(const char* text) { return QStringLiteral("<h3><b>") + text + QStringLiteral("</b></h3>"); }
-	inline const QString bold(const char* text) { return QStringLiteral("<b>") + text + QStringLiteral("</b>"); }
 	inline const QString openUdButton() { return pad("Open the user data folder"); }
-	inline const QString shortcuts() { return heading("Shortcuts") % table({ menuShortcuts(), windowEditorShortcuts() }); }
-	inline const QString repo() { return link("https://github.com/fairybow/fernanda"); }
 	inline const QString releases() { return link("https://github.com/fairybow/fernanda/releases"); }
-	inline const QString gitHubApi() { return QStringLiteral("https://api.github.com/repos/fairybow/fernanda/releases"); }
+	inline const QString repo() { return link("https://github.com/fairybow/fernanda"); }
+	inline const QString shortcuts() { return heading("Shortcuts") % table({ menuShortcuts(), windowEditorShortcuts() }); }
+	inline const QString tableColumnSpacing(int columns = 9) { return multiplyThese("<td>\n</td>", columns); }
 	inline const QString timeUp() { return QStringLiteral("Time's up!") + multiSpaces(10); }
 }
 

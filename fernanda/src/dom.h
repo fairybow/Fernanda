@@ -63,7 +63,6 @@ public:
 
     void set(QString xmlDocument);
     const QString string(Document document = Document::Current);
-    bool hasChanges();
     void move(QString pivotKey, QString fulcrumKey, Io::Move position);
     void rename(QString newName, QString key);
     void add(QString newName, Path::Type type, QString parentKey);
@@ -72,6 +71,8 @@ public:
     QVector<Io::ArchiveRename> renames(Finalize finalize = Finalize::No);
     QVector<QDomElement> elements(QDomDocument document = QDomDocument());
     QVector<QDomElement> elements(QString attribute, QString value = nullptr);
+
+    bool hasChanges() { return (string() != string(Document::Initial)); }
 
     template<typename T>
     inline T element(QString key, Element property = Element::Element)
