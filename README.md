@@ -2,7 +2,7 @@
 
 <p align="center">
 	<kbd>
-		<img src="./fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32'" width="500px"/>
+		<img src="./fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32'"/>
 		<br>Fernanda v0.14.0-beta32
 	</kbd>
 </p>
@@ -101,7 +101,7 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 <p align="center">
 	<kbd>
-		<img src="./fernanda/docs/screens/keyfilters_1.gif" alt="GIF of 'Keyfilters'" width="500px"/>
+		<img src="./fernanda/docs/screens/keyfilters_1.gif" alt="GIF of 'Keyfilters'"/>
 		<br>Keyfilters
 	</kbd>
 </p>
@@ -143,7 +143,7 @@ If you want to manually rename, move, or delete items within a `.story` file via
 
 <p align="center">
 	<kbd>
-		<img src="./fernanda/docs/screens/timer_1.gif" alt="GIF of 'Timer'" width="300px"/>
+		<img src="./fernanda/docs/screens/timer_1.gif" alt="GIF of 'Timer'"/>
 		<br>Timer
 	</kbd>
 </p>
@@ -205,38 +205,70 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 
 ## :hibiscus: **Screens** <a name="screens"></a>
 
-<p align="center">
-	<kbd>
-		<img src="./fernanda/docs/screens/banner.png" alt="PNG of 'Banner'" width="500px"/>
-		<br>Banner<br><br>Themes: window Light / editor Pocket;<br>Font: Fixedsys Excelsior by <a href="https://github.com/kika/fixedsys">@kika</a>.
-	</kbd>
-</p>
-<p align="center">
-	<kbd>
-		<img src="./fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32 running on Windows 11.'" width="500px"/>
-		<br>Fernanda v0.14.0-beta32 running on Windows 11.<br><br>Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>;<br>Themes: window Solarized Light / editor Snooze;<br>Font: Mononoki by <a href="https://github.com/madmalik/mononoki">@madmalik</a>.
-	</kbd>
-</p>
-<p align="center">
-	<kbd>
-		<img src="./fernanda/docs/screens/light_pocket.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Light / editor Pocket'" width="300px"/>
-		<br>Fernanda v0.14.0-beta32<br>Themes: window Light / editor Pocket
-	</kbd>
-	<kbd>
-		<img src="./fernanda/docs/screens/dark_pocket_alt.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Dark / editor Pocket-Alt'" width="300px"/>
-		<br>Fernanda v0.14.0-beta32<br>Themes: window Dark / editor Pocket-Alt
-	</kbd>
-</p>
-<p align="center">
-	<kbd>
-		<img src="./fernanda/docs/screens/solarized_light_snooze_alt.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Solarized Light / editor Snooze-Alt'" width="300px"/>
-		<br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Light / editor Snooze-Alt
-	</kbd>
-	<kbd>
-		<img src="./fernanda/docs/screens/solarized_dark_snooze.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Solarized Dark / editor Snooze'" width="300px"/>
-		<br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Dark / editor Snooze
-	</kbd>
-</p>
+<table>
+	<thead>
+		<tr>
+			<th colspan="2">
+				<p align="center">
+					<kbd>
+						<img src="./fernanda/docs/screens/banner.png" alt="PNG of 'Banner'"/>
+						<br>Banner<br><br>Themes: window Light / editor Pocket;<br>Font: Fixedsys Excelsior by <a href="https://github.com/kika/fixedsys">@kika</a>.
+					</kbd>
+				</p>
+			</th>
+		</tr>
+	</thead>
+	<thead>
+		<tr>
+			<th colspan="2">
+				<p align="center">
+					<kbd>
+						<img src="./fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32 running on Windows 11.'"/>
+						<br>Fernanda v0.14.0-beta32 running on Windows 11.<br><br>Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>;<br>Themes: window Solarized Light / editor Snooze;<br>Font: Mononoki by <a href="https://github.com/madmalik/mononoki">@madmalik</a>.
+					</kbd>
+				</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+				<p align="center">
+					<kbd>
+						<img src="./fernanda/docs/screens/light_pocket.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Light / editor Pocket'"/>
+						<br>Fernanda v0.14.0-beta32<br>Themes: window Light / editor Pocket
+					</kbd>
+				</p>
+			</td>
+			<td>
+				<p align="center">
+					<kbd>
+						<img src="./fernanda/docs/screens/dark_pocket_alt.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Dark / editor Pocket-Alt'"/>
+						<br>Fernanda v0.14.0-beta32<br>Themes: window Dark / editor Pocket-Alt
+					</kbd>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p align="center">
+					<kbd>
+						<img src="./fernanda/docs/screens/solarized_light_snooze_alt.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Solarized Light / editor Snooze-Alt'"/>
+						<br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Light / editor Snooze-Alt
+					</kbd>
+				</p>
+			</td>
+			<td>
+				<p align="center">
+					<kbd>
+						<img src="./fernanda/docs/screens/solarized_dark_snooze.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Solarized Dark / editor Snooze'"/>
+						<br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Dark / editor Snooze
+					</kbd>
+				</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
 
 [&#9166;](#top)
 
