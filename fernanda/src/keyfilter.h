@@ -12,12 +12,12 @@
 
 #pragma once
 
-#include "unordered_set"
-
 #include <QChar>
 #include <QKeyEvent>
 #include <QTextCursor>
 #include <QVector>
+
+#include "unordered_set"
 
 class Keyfilter
 {

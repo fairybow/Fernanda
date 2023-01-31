@@ -14,10 +14,10 @@
 
 #include "path.h"
 
-#include <algorithm>
-
 #include <QDirIterator>
 #include <QVector>
+
+#include <algorithm>
 
 namespace Resource
 {

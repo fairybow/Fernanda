@@ -16,14 +16,6 @@
 #include "popup.h"
 #include "userdata.h"
 
-#include <optional>
-
-#ifdef Q_OS_WINDOWS
-
-#include <Windows.h>
-
-#endif
-
 #include <QEvent>
 #include <QGraphicsOpacityEffect>
 #include <QMainWindow>
@@ -31,6 +23,14 @@
 #include <QPushButton>
 #include <Qt>
 #include <QTimer>
+
+#ifdef Q_OS_WINDOWS
+
+#include <Windows.h>
+
+#endif
+
+#include <optional>
 
 class Tool : public QPushButton
 {

@@ -12,16 +12,15 @@
 
 #pragma once
 
-#include "bit7z/include/bit7z.hpp"
-#include "bit7z/include/bitarchiveeditor.hpp"
-
 #include "io.h"
 #include "userdata.h"
 
+#include "bit7z/include/bit7z.hpp"
+#include "bit7z/include/bitarchiveeditor.hpp"
+#include <QTemporaryDir>
+
 #include <map>
 #include <vector>
-
-#include <QTemporaryDir>
 
 inline void operator<<(std::vector<std::string>& lhs, const std::string& rhs) { return lhs.push_back(rhs); }
 

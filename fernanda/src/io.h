@@ -14,12 +14,12 @@
 
 #include "path.h"
 
-#include <optional>
-#include <utility>
-
 #include <QFile>
 #include <QIODevice>
 #include <QTextStream>
+
+#include <optional>
+#include <utility>
 
 namespace Io
 {

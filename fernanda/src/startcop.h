@@ -12,22 +12,21 @@
 
 #pragma once
 
-/*#include <qsystemdetection.h>
-
-#ifdef Q_OS_WINDOWS
-
-#include <Windows.h>
-#include <WinUser.h>
-
-#endif*/
-
 #include <QApplication>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QObject>
 #include <Qt>
 #include <QString>
+//#include <qsystemdetection.h>
 #include <QWidget>
+
+/*#ifdef Q_OS_WINDOWS
+
+#include <Windows.h>
+#include <WinUser.h>
+
+#endif*/
 
 class StartCop : public QObject
 {

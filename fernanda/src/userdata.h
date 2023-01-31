@@ -14,8 +14,6 @@
 
 #include "path.h"
 
-#include <ctime>
-
 #include <QCoreApplication>
 #include <QFile>
 #include <QRect>
@@ -23,6 +21,8 @@
 #include <QStandardPaths>
 #include <QStringList>
 #include <QVariant>
+
+#include <ctime>
 
 namespace UserData
 {

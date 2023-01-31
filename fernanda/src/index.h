@@ -12,12 +12,12 @@
 
 #pragma once
 
-#include <type_traits>
-
 #include <QModelIndex>
 #include <QString>
 #include <Qt>
 #include <QVariant>
+
+#include <type_traits>
 
 namespace Index
 {

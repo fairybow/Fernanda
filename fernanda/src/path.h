@@ -12,16 +12,15 @@
 
 #pragma once
 
-#include <filesystem>
-#include <string>
-#include <type_traits>
-
-#include <qsystemdetection.h>
-
 #include <QDir>
 #include <QtGlobal>
 #include <QString>
+#include <qsystemdetection.h>
 #include <QVariant>
+
+#include <filesystem>
+#include <string>
+#include <type_traits>
 
 namespace Path
 {

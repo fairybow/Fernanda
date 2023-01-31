@@ -41,6 +41,8 @@
 - [ ] `CamelCase`: enums, classes, structs
 - [ ] No uncommon/unhelpful abbreviations
 - [ ] Names functionally descriptive, e.g. `editor->toggle(checked, Editor::Has::Scrolls);` or `pane->navigate(Pane::Go::Next);`
+- [ ] `#include` block order: me, you, them.
+- [ ] Double-space compiler instructions
 
 ### Known issues
 - [ ] Windows scale > 100% negates the effects of `setTextCursor(0)`

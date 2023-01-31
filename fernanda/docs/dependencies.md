@@ -51,16 +51,15 @@
 
 ### archiver.h
 ```
-#include "bit7z/include/bit7z.hpp"
-#include "bit7z/include/bitarchiveeditor.hpp"
-
 #include "io.h"
 #include "userdata.h"
 
+#include "bit7z/include/bit7z.hpp"
+#include "bit7z/include/bitarchiveeditor.hpp"
+#include <QTemporaryDir>
+
 #include <map>
 #include <vector>
-
-#include <QTemporaryDir>
 ```
 
 ### colorbar.h
@@ -124,12 +123,12 @@
 
 ### index.h
 ```
-#include <type_traits>
-
 #include <QModelIndex>
 #include <QString>
 #include <Qt>
 #include <QVariant>
+
+#include <type_traits>
 ```
 
 ### indicator.h
@@ -147,22 +146,22 @@
 ```
 #include "path.h"
 
-#include <optional>
-#include <utility>
-
 #include <QFile>
 #include <QIODevice>
 #include <QTextStream>
+
+#include <optional>
+#include <utility>
 ```
 
 ### keyfilter.h
 ```
-#include "unordered_set"
-
 #include <QChar>
 #include <QKeyEvent>
 #include <QTextCursor>
 #include <QVector>
+
+#include "unordered_set"
 ```
 
 ### layout.h
@@ -224,16 +223,15 @@
 
 ### path.h
 ```
-#include <filesystem>
-#include <string>
-#include <type_traits>
-
-#include <qsystemdetection.h>
-
 #include <QDir>
 #include <QtGlobal>
 #include <QString>
+#include <qsystemdetection.h>
 #include <QVariant>
+
+#include <filesystem>
+#include <string>
+#include <type_traits>
 ```
 
 ### plaintextedit.h
@@ -281,10 +279,10 @@
 ```
 #include "path.h"
 
-#include <algorithm>
-
 #include <QDirIterator>
 #include <QVector>
+
+#include <algorithm>
 ```
 
 ### sample.h
@@ -314,7 +312,15 @@
 #include <QObject>
 #include <Qt>
 #include <QString>
+//#include <qsystemdetection.h>
 #include <QWidget>
+
+/*#ifdef Q_OS_WINDOWS
+
+#include <Windows.h>
+#include <WinUser.h>
+
+#endif*/
 ```
 
 ### story.h
@@ -357,14 +363,6 @@
 #include "popup.h"
 #include "userdata.h"
 
-#include <optional>
-
-#ifdef Q_OS_WINDOWS
-
-#include <Windows.h>
-
-#endif
-
 #include <QEvent>
 #include <QGraphicsOpacityEffect>
 #include <QMainWindow>
@@ -372,13 +370,19 @@
 #include <QPushButton>
 #include <Qt>
 #include <QTimer>
+
+#ifdef Q_OS_WINDOWS
+
+#include <Windows.h>
+
+#endif
+
+#include <optional>
 ```
 
 ### userdata.h
 ```
 #include "path.h"
-
-#include <ctime>
 
 #include <QCoreApplication>
 #include <QFile>
@@ -387,6 +391,8 @@
 #include <QStandardPaths>
 #include <QStringList>
 #include <QVariant>
+
+#include <ctime>
 ```
 
 ### version.h
