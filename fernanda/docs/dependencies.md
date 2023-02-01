@@ -27,6 +27,8 @@
 				- index.h
 			- io.h (+ path.h)
 			- text.h (+ version.h)
+		- preview.h
+			- layout.h
 		- resource.h
 			- path.h
 		- splitter.h
@@ -273,6 +275,24 @@
 #include <QPixmap>
 #include <QPushButton>
 #include <QWidget>
+```
+
+### preview.h
+```
+#include "layout.h"
+
+#include <QDesktopServices>
+#include <QEvent>
+#include <QObject>
+#include <Qt>
+#include <QWebChannel>
+#include <QWebEnginePage>
+//#include <QWebEngineProfile>
+//#include <QWebEngineScriptCollection>
+#include <QWebEngineView>
+#include <QWidget>
+
+#include <memory>
 ```
 
 ### resource.h

@@ -10,7 +10,7 @@
 	<a href="https://github.com/fairybow/fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/fernanda?include_prereleases&color=f34b7d" alt="Latest Release"/></a>
 	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/fernanda?color=orange" alt="License: GPL-3.0"/></a>
 	<br>
-	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-v6.4.1-brightgreen?logo=qt" alt="Qt v6.4.1"/></a>
+	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-v6.4.2-brightgreen?logo=qt" alt="Qt v6.4.2"/></a>
 	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-v4.0.0--RC-blue" alt="Bit7z v4.0.0-RC"/></a>
 	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip-v22.01-ffbf00" alt="7zip v22.01"/></a>
 	<br>
@@ -79,6 +79,10 @@ Among the other fonts used are:
 
 Solarized theme palettes by [@altercation](https://github.com/altercation/solarized)
 
+Markdown preview support provided with:
+- [Marked.js](https://github.com/markedjs/marked)
+- and [Markdown.css](https://bitbucket.org/kevinburke/markdowncss)
+
 [&#9166;](#top)
 
 ## :star: **Features** <a name="features"></a>
@@ -91,6 +95,7 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 - Save backups (in [`{userdata}\backup\.rollback`](#folders))
 - Global line, word, and character totals
 - Export to PDF or directory
+- Markdown preview
 
 ---
 
@@ -189,7 +194,7 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 - Persist undo/redo stacks between file changes
 - Separators and possibly customizable file icons, for better mental organization at-a-glance
 - Simple storage of links and research materials
-- Markdown and Fountain preview/export support
+- Fountain preview/export support
 
 More to come.
 

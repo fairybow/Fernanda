@@ -6,3 +6,5 @@
 #define slots
 #define signals
 #define QStringLiteral(str) (QString(QtPrivate::qMakeStringPrivate(QT_UNICODE_LITERAL(str))))
+#define Q_PROPERTY(__VA_ARGS__) QT_ANNOTATE_CLASS(qt_property, __VA_ARGS__)
+#define Q_PROPERTY(text) Q_PROPERTY(text)

@@ -5,7 +5,7 @@ project(fernanda VERSION 0.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Network PrintSupport Widgets Xml)
+find_package(Qt6 REQUIRED COMPONENTS Network PrintSupport WebChannel WebEngineCore WebEngineWidgets Widgets Xml)
 
 qt_standard_project_setup()
 
@@ -38,6 +38,7 @@ qt_add_executable(fernanda
     src/path.h
     src/plaintextedit.h
     src/popup.h
+    src/preview.h
     src/resource.h
     src/sample.h
     src/splitter.h
@@ -58,8 +59,10 @@ qt_add_executable(fernanda
     src/main.cpp
     src/mainwindow.cpp
     src/pane.cpp
+    src/path.cpp
     src/plaintextedit.cpp
     src/popup.cpp
+    src/preview.cpp
     src/story.cpp
     src/text.cpp
     src/tool.cpp
@@ -68,6 +71,7 @@ qt_add_executable(fernanda
     res/fonts.qrc
     res/icons.qrc
     res/lib.qrc
+    res/preview.qrc
     res/resource.rc
     res/sample.qrc
     res/themes.qrc
@@ -77,6 +81,9 @@ target_include_directories(fernanda PRIVATE include)
 target_include_directories(fernanda PRIVATE src)
 target_link_libraries(fernanda PRIVATE Qt6::Network)
 target_link_libraries(fernanda PRIVATE Qt6::PrintSupport)
+target_link_libraries(fernanda PRIVATE Qt6::WebChannel)
+target_link_libraries(fernanda PRIVATE Qt6::WebEngineCore)
+target_link_libraries(fernanda PRIVATE Qt6::WebEngineWidgets)
 target_link_libraries(fernanda PRIVATE Qt6::Widgets)
 target_link_libraries(fernanda PRIVATE Qt6::Xml)
 

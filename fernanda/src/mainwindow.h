@@ -16,6 +16,7 @@
 #include "editor.h"
 #include "indicator.h"
 #include "pane.h"
+#include "preview.h"
 #include "resource.h"
 #include "splitter.h"
 #include "story.h"
@@ -23,7 +24,6 @@
 
 #include <QCloseEvent>
 #include <QCoreApplication>
-#include <QDesktopServices>
 #include <QFileDialog>
 #include <QJsonDocument>
 #include <QMap>
@@ -58,6 +58,7 @@ private:
     Splitter* splitter = new Splitter(this);
     Pane* pane = new Pane(this);
     Editor* editor = new Editor(this);
+    Preview* preview = new Preview(this);
     ColorBar* colorBar = new ColorBar(this);
     QActionGroup* windowThemes = new QActionGroup(this);
     QActionGroup* editorThemes = new QActionGroup(this);

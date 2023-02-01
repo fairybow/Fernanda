@@ -99,7 +99,7 @@ const QStringList MainWindow::devPrintRenames(QVector<Io::ArchiveRename> renames
 void MainWindow::addWidgets()
 {
     setCentralWidget(Layout::stackWidgets({ colorBar, splitter }));
-    splitter->addWidgets({ pane, editor });
+    splitter->addWidgets({ pane, editor, preview });
     statusBar->setSizeGripEnabled(true);
     setMenuBar(menuBar);
     setStatusBar(statusBar);
@@ -157,6 +157,11 @@ void MainWindow::connections()
     connect(editor, &Editor::textChanged, this, [&]()
         {
             askUpdateCounts(editor->toPlainText(), editor->blockCount());
+        });
+    connect(editor, &Editor::textChanged, this, [&]()
+        {
+            if (preview->isVisible())
+                preview->setText(editor->toPlainText());
         });
     connect(editor, &Editor::selectionChanged, this, [&]()
         {
@@ -378,6 +383,7 @@ void MainWindow::makeToggleMenu()
     auto color_bar_toggle = new QAction(tr("&Color bar"), this);
     auto indicator_toggle = new QAction(tr("&Indicator"), this);
     auto pane_toggle = new QAction(tr("&Pane"), this);
+    auto preview_toggle = new QAction(tr("&Preview"), this);
     auto status_bar_toggle = new QAction(tr("&Status bar"), this);
     auto aot_toggle = new QAction(tr("&Always-on-top"), this);
     auto stay_awake_toggle = new QAction(tr("&Stay awake"), this);
@@ -400,6 +406,10 @@ void MainWindow::makeToggleMenu()
     connect(pane_toggle, &QAction::toggled, this, [&](bool checked)
         {
             toggleWidget(pane, UserData::IniGroup::Window, UserData::IniValue::TogglePane, checked);
+        });
+    connect(preview_toggle, &QAction::toggled, this, [&](bool checked)
+        {
+            toggleWidget(preview, UserData::IniGroup::Window, UserData::IniValue::TogglePreview, checked);
         });
     connect(status_bar_toggle, &QAction::toggled, this, [&](bool checked)
         {
@@ -430,6 +440,7 @@ void MainWindow::makeToggleMenu()
         color_bar_toggle,
         indicator_toggle,
         pane_toggle,
+        preview_toggle,
         status_bar_toggle,
         aot_toggle,
         stay_awake_toggle,
@@ -449,6 +460,7 @@ void MainWindow::makeToggleMenu()
     loadMenuToggle(color_bar_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleColorBar, true);
     loadMenuToggle(indicator_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleIndicator, true);
     loadMenuToggle(pane_toggle, UserData::IniGroup::Window, UserData::IniValue::TogglePane, true);
+    loadMenuToggle(preview_toggle, UserData::IniGroup::Window, UserData::IniValue::TogglePreview, false);
     loadMenuToggle(status_bar_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleStatusBar, true);
     loadMenuToggle(aot_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleToolAOT, false);
     loadMenuToggle(stay_awake_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleToolSA, false);
@@ -464,7 +476,7 @@ void MainWindow::makeToggleMenu()
     loadMenuToggle(scrolls_previous_next_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleScrollsPrevNext, true);
     loadMenuToggle(load_most_recent_toggle, UserData::IniGroup::Data, UserData::IniValue::ToggleLoadMostRecent, false);
     auto toggle = menuBar->addMenu(tr("&Toggle"));
-    for (const auto& action : { color_bar_toggle, indicator_toggle, pane_toggle, status_bar_toggle })
+    for (const auto& action : { color_bar_toggle, indicator_toggle, pane_toggle, preview_toggle, status_bar_toggle })
         toggle->addAction(action);
     auto tools = toggle->addMenu(tr("&Tools"));
     for (const auto& action : {

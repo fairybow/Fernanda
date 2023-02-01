@@ -31,13 +31,13 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>6.4.1_msvc2019_64</QtInstall>
-    <QtModules>core;gui;network;widgets;printsupport;xml</QtModules>
+    <QtInstall>6.4.2_msvc2019_64</QtInstall>
+    <QtModules>core;gui;network;widgets;printsupport;webchannel;webenginecore;xml;webenginewidgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.4.1_msvc2019_64</QtInstall>
-    <QtModules>core;gui;network;widgets;printsupport;xml</QtModules>
+    <QtInstall>6.4.2_msvc2019_64</QtInstall>
+    <QtModules>core;gui;network;widgets;printsupport;webchannel;webenginecore;xml;webenginewidgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -111,6 +111,7 @@
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
     <None Include="docs\palette.md" />
+    <None Include="res\preview\index.html" />
     <None Include="res\sample\Sample.fernanda_editor" />
     <None Include="res\sample\Sample.fernanda_window" />
     <None Include="res\themes\bar\green.qss" />
@@ -135,8 +136,7 @@
     <None Include="res\themes\window\Solarized Light.fernanda_window" />
     <None Include="res\themes\window\Solarized Dark.fernanda_window" />
     <None Include="res\themes\window_base.qss" />
-    <None Include="util\nsis\FileAssociation.nsh" />
-    <None Include="util\nsis\win_installer.nsi" />
+    <None Include="util\win_installer.nsi" />
     <None Include="util\win_pack.bat" />
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +148,7 @@
     <ClCompile Include="src\keyfilter.cpp" />
     <ClCompile Include="src\path.cpp" />
     <ClCompile Include="src\popup.cpp" />
+    <ClCompile Include="src\preview.cpp" />
     <ClCompile Include="src\story.cpp" />
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\tool.cpp" />
@@ -208,6 +209,7 @@
     <QtMoc Include="src\splitter.h" />
     <QtMoc Include="src\popup.h" />
     <QtMoc Include="src\startcop.h" />
+    <QtMoc Include="src\preview.h" />
     <ClInclude Include="src\story.h" />
     <ClInclude Include="src\style.h" />
     <ClInclude Include="src\text.h" />
@@ -227,6 +229,7 @@
     <QtRcc Include="res\lib.qrc" />
     <QtRcc Include="res\sample.qrc" />
     <QtRcc Include="res\themes.qrc" />
+    <QtRcc Include="res\preview.qrc" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />

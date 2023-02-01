@@ -36,6 +36,14 @@ namespace Layout
             stack_layout->addWidget(widget);
         return stack_layout;
     }
+
+    inline QStackedLayout* stackLayout(QWidget* widget, QWidget* parent = nullptr)
+    {
+        QStackedLayout* stack_layout = new QStackedLayout(parent);
+        stack_layout->setStackingMode(QStackedLayout::StackAll);
+        stack_layout->addWidget(widget);
+        return stack_layout;
+    }
 }
 
 // layout.h, Fernanda

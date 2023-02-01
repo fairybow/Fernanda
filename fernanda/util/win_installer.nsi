@@ -10,7 +10,7 @@
 ; - open on close
 
 ; ---------- Qt ----------
-!define Q_VERSION "6.4.1"
+!define Q_VERSION "6.4.2"
 !define Q_COMPILER "msvc2019_64"
 
 ; ---------- App ----------
@@ -29,6 +29,7 @@ DirText "Choose a directory"
 !define F_DIR "C:\Dev\fernanda"
 !define Q_DIR "C:\Qt\${Q_VERSION}\${Q_COMPILER}"
 !define Q_BIN "${Q_DIR}\bin"
+!define Q_RESOURCES "${Q_DIR}\resources"
 !define Q_PLUGINS "${Q_DIR}\plugins"
 
 ; ---------- Files ----------
@@ -75,12 +76,27 @@ Section "Install"
 	; Write data
 	SetOutPath "${DATA}"
 	File "${F_DIR}\x64\Release\fernanda.exe"
+	File "${Q_RESOURCES}\icudtl.dat"
 	File "${Q_BIN}\Qt6Core.dll"
 	File "${Q_BIN}\Qt6Gui.dll"
 	File "${Q_BIN}\Qt6Network.dll"
+	File "${Q_BIN}\Qt6OpenGL.dll"
+	File "${Q_BIN}\Qt6Positioning.dll"
 	File "${Q_BIN}\Qt6PrintSupport.dll"
+	File "${Q_BIN}\Qt6Qml.dll"
+	File "${Q_BIN}\Qt6QmlModels.dll"
+	File "${Q_BIN}\Qt6Quick.dll"
+	File "${Q_BIN}\Qt6QuickWidgets.dll"
+	File "${Q_BIN}\Qt6WebChannel.dll"
+	File "${Q_BIN}\Qt6WebEngineCore.dll"
+	File "${Q_BIN}\Qt6WebEngineWidgets.dll"
 	File "${Q_BIN}\Qt6Widgets.dll"
 	File "${Q_BIN}\Qt6Xml.dll"
+	File "${Q_RESOURCES}\qtwebengine_devtools_resources.pak"
+	File "${Q_RESOURCES}\qtwebengine_resources.pak"
+	File "${Q_RESOURCES}\qtwebengine_resources_100p.pak"
+	File "${Q_RESOURCES}\qtwebengine_resources_200p.pak"
+	File "${Q_BIN}\QtWebEngineProcess.exe"
 
 	; Write platforms and styles
 	SetOutPath "${PLATFORMS}"

@@ -40,7 +40,10 @@ public:
         setCollapsible(0, true);
         auto editor = 1;
         setCollapsible(editor, false);
-        setStretchFactor(editor, 100);
+        setStretchFactor(editor, 1);
+        auto preview = 2;
+        setCollapsible(preview, true);
+        setStretchFactor(preview, 1);
     }
 
     void loadConfig(QRect geometry)

@@ -188,6 +188,9 @@ const QString UserData::valueName(IniValue valueType)
     case IniValue::TogglePane:
         result = "toggle__pane";
         break;
+    case IniValue::TogglePreview:
+        result = "toggle__preview";
+        break;
     case IniValue::ToggleScrollsPrevNext:
         result = "toggle__scrolls_previous_next";
         break;

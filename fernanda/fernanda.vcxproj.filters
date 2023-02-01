@@ -44,6 +44,9 @@
     <Filter Include="Utilities">
       <UniqueIdentifier>{1f28c557-9bae-4a87-8d91-126db766873e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Preview">
+      <UniqueIdentifier>{d5b7a2ba-4c82-4119-baf6-67b5571ef5a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
@@ -125,13 +128,13 @@
     <None Include="docs\palette.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="util\nsis\win_installer.nsi">
-      <Filter>Utilities</Filter>
-    </None>
     <None Include="util\win_pack.bat">
       <Filter>Utilities</Filter>
     </None>
-    <None Include="util\nsis\FileAssociation.nsh">
+    <None Include="res\preview\index.html">
+      <Filter>Resource Files\Preview</Filter>
+    </None>
+    <None Include="util\win_installer.nsi">
       <Filter>Utilities</Filter>
     </None>
   </ItemGroup>
@@ -185,6 +188,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\path.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\preview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -373,6 +379,9 @@
     <QtMoc Include="src\tool.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\preview.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="res\fonts.qrc">
@@ -388,6 +397,9 @@
       <Filter>Resource Files</Filter>
     </QtRcc>
     <QtRcc Include="res\lib.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <QtRcc Include="res\preview.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>
