@@ -50,7 +50,7 @@ void Tool::mousePressEvent(QMouseEvent* event)
         if (countdown > 0 && countdown < resetCountdown())
         {
             auto& timer_value = timer.value();
-            (timer_value->isActive())
+            timer_value->isActive()
                 ? timer_value->stop()
                 : timer_value->start(1000);
             return;
@@ -115,7 +115,7 @@ void Tool::typeDependentSetup()
 
 void Tool::alwaysOnTop()
 {
-    (isChecked())
+    isChecked()
         ? parentWindow->setWindowFlags(parentWindow->windowFlags() | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint)
         : parentWindow->setWindowFlags(parentWindow->windowFlags() ^ (Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint));
     parentWindow->show();

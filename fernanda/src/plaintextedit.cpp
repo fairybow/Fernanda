@@ -335,7 +335,7 @@ const QRect PlainTextEdit::reshapeCursor(QChar currentChar)
     if (askHasBlockCursor())
     {
         QFontMetrics metrics(font());
-        (currentChar.isNull())
+        currentChar.isNull()
             ? setCursorWidth(metrics.averageCharWidth())
             : setCursorWidth(metrics.horizontalAdvance(currentChar));
     }
@@ -353,7 +353,7 @@ const QColor PlainTextEdit::recolorCursor(bool under)
         result = QColor(0, 0, 0, 0);
     else
     {
-        (under)
+        under
             ? result = QColor(cursorUnderColorHex)
             : result = QColor(cursorColorHex);
     }
@@ -363,7 +363,7 @@ const QColor PlainTextEdit::recolorCursor(bool under)
 const QColor PlainTextEdit::highlight()
 {
     QColor result;
-    (askHasLineHighlight())
+    askHasLineHighlight()
         ? result = QColor(255, 255, 255, 30)
         : result = QColor(0, 0, 0, 0);
     return result;
@@ -371,13 +371,13 @@ const QColor PlainTextEdit::highlight()
 
 void PlainTextEdit::scrollButtonEnabledHandler()
 {
-    (isMinimumScroll()) ? scrollUp->setEnabled(false) : scrollUp->setEnabled(true);
-    (isMaximumScroll()) ? scrollDown->setEnabled(false) : scrollDown->setEnabled(true);
+    isMinimumScroll() ? scrollUp->setEnabled(false) : scrollUp->setEnabled(true);
+    isMaximumScroll() ? scrollDown->setEnabled(false) : scrollDown->setEnabled(true);
 }
 
 void PlainTextEdit::updateLineNumberArea(const QRect& rect, int dy)
 {
-    (dy)
+    dy
         ? lineNumberArea->scroll(0, dy)
         : lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
     if (rect.contains(viewport()->rect()))

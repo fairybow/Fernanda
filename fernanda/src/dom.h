@@ -186,7 +186,7 @@ private:
     inline bool isFile(T nodeOrElement) { return isThis(nodeOrElement, tagFile); }
 
     template<typename T>
-    inline bool isRoot(T nodeOrElement) {  return isThis(nodeOrElement, tagRoot); }
+    inline bool isRoot(T nodeOrElement) { return isThis(nodeOrElement, tagRoot); }
 };
 
 // dom.h, Fernanda

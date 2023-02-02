@@ -99,7 +99,7 @@ const QString Text::change(bool isQuit)
 {
 	QString result;
 	auto base = QStringLiteral("You have ") + bold("unsaved changes") + QStringLiteral(". Are you sure you want to ");
-	(isQuit)
+	isQuit
 		? result = base + QStringLiteral("quit?")
 		: result = base + QStringLiteral("change stories?");
 	return result;

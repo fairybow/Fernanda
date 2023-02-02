@@ -45,19 +45,19 @@ namespace Path
 	{
 		T result{};
 		if constexpr (std::is_same<T, QString>::value && std::is_same<U, QString>::value)
-			(keepExtension)
+			keepExtension
 				? result = QString::fromStdString(toStdFs(path).filename().string())
 				: result = QString::fromStdString(toStdFs(path).stem().string());
 		if constexpr (std::is_same<T, QString>::value && std::is_same<U, StdFs::path>::value)
-			(keepExtension)
+			keepExtension
 				? result = QString::fromStdString(path.filename().string())
 				: result = QString::fromStdString(path.stem().string());
 		if constexpr (std::is_same<T, StdFs::path>::value && (std::is_same<U, QString>::value || std::is_same<U, QVariant>::value))
-			(keepExtension)
+			keepExtension
 				? result = toStdFs(path).filename()
 				: result = toStdFs(path).stem();
 		if constexpr (std::is_same<T, StdFs::path>::value && std::is_same<U, StdFs::path>::value)
-			(keepExtension)
+			keepExtension
 				? result = path.filename()
 				: result = path.stem();
 		return result;

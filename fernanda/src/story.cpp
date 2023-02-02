@@ -110,7 +110,7 @@ const Story::TotalCounts Story::totalCounts()
 		if (element.tagName() != dom->tagFile) continue;
 		auto key = element.attribute(dom->attributeKey);
 		auto temp_path = tempPath(key);
-		(QFile(temp_path).exists())
+		QFile(temp_path).exists()
 			? file_content = Io::readFile(temp_path)
 			: file_content = archiver->read(activeArchivePath, dom->element<StdFsPath>(key, Dom::Element::OrigPath));
 		result.lines = result.lines + file_content.split(Text::regex(Text::Regex::NewLine)).count();
@@ -246,12 +246,12 @@ const QString Story::tempOpen(QString newKey)
 {
 	activeKey = newKey;
 	auto archive_read_path = dom->element<StdFsPath>(newKey, Dom::Element::OrigPath);
-	(!archive_read_path.empty())
+	!archive_read_path.empty()
 		? cleanText = archiver->read(activeArchivePath, archive_read_path)
 		: cleanText = nullptr;
 	auto temp_path = tempPath(newKey);
 	QString result;
-	(QFile(temp_path).exists())
+	QFile(temp_path).exists()
 		? result = Io::readFile(temp_path)
 		: result = cleanText;
 	return result;
@@ -305,7 +305,7 @@ const QString Story::readAllForExport()
 		if (element.tagName() != dom->tagFile) continue;
 		auto key = element.attribute(dom->attributeKey);
 		auto temp_path = tempPath(key);
-		(QFile(temp_path).exists())
+		QFile(temp_path).exists()
 			? result = result + Io::readFile(temp_path)
 			: result = result + archiver->read(activeArchivePath, dom->element<StdFsPath>(key, Dom::Element::OrigPath));
 		if (element != last_element)

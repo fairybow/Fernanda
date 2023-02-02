@@ -27,13 +27,13 @@ namespace Index
 		T result{};
 		if constexpr (std::is_same<T, QString>::value)
 		{
-			(index.isValid())
+			index.isValid()
 				? result = index.data(Qt::UserRole + role).toString()
 				: result = nullptr;
 		}
 		if constexpr (std::is_same<T, bool>::value)
 		{
-			(index.isValid())
+			index.isValid()
 				? result = index.data(Qt::UserRole + role).toBool()
 				: result = false;
 		}

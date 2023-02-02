@@ -37,7 +37,7 @@ namespace Sample
 			it.next();
 			auto read_path = Path::toStdFs(it.filePath());
 			auto relative_path = StdFs::relative(read_path, rootPath);
-			(it.fileInfo().isDir())
+			it.fileInfo().isDir()
 				? result << Io::ArchiveWriteReadPaths{ Io::storyRoot / relative_path }
 				: result << Io::ArchiveWriteReadPaths{ Io::storyRoot / relative_path, read_path };
 		}

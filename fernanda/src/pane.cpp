@@ -216,7 +216,7 @@ void Pane::addTempItem(Path::Type type, QPoint eventPosition)
             itemModel->appendRow(temp_item);
         break;
     case Path::Type::File:
-        (parent_index.isValid())
+        parent_index.isValid()
             ? itemModel->itemFromIndex(parent_index)->appendRow(temp_item)
             : itemModel->appendRow(temp_item);
         break;

@@ -35,7 +35,7 @@ QVector<QKeyEvent*> Keyfilter::filter(QKeyEvent* event, ProximalChars chars)
         result << commaSkip(event, chars);
         break;
     case Qt::Key_Minus:
-        (checkPrevious(chars, '-'))
+        checkPrevious(chars, '-')
             ? result << &backspace << &emDash
             : result << event;
         break;
@@ -52,7 +52,7 @@ QVector<QKeyEvent*> Keyfilter::filter(QKeyEvent* event, ProximalChars chars)
         result << commaSkip(event, chars);
         break;
     case Qt::Key_QuoteDbl:
-        (checkCurrent(chars, '"'))
+        checkCurrent(chars, '"')
             ? result << &right
             : result << autoClose(event, event);
         break;
@@ -67,7 +67,7 @@ QVector<QKeyEvent*> Keyfilter::filter(QKeyEvent* event, ProximalChars chars)
     }
     break;
     default:
-        (checkPrevAndBeforeLast(chars, ' ', ' '))
+        checkPrevAndBeforeLast(chars, ' ', ' ')
             ? result << &backspace << event
             : result << event;
     }
@@ -77,7 +77,7 @@ QVector<QKeyEvent*> Keyfilter::filter(QKeyEvent* event, ProximalChars chars)
 QVector<QKeyEvent*> Keyfilter::dontDuplicate(QKeyEvent* event, ProximalChars chars, char current)
 {
     QVector<QKeyEvent*> result;
-    (checkCurrent(chars, current))
+    checkCurrent(chars, current)
         ? result << &right
         : result << event;
     return result;

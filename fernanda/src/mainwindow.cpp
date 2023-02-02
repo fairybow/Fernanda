@@ -88,7 +88,7 @@ const QStringList MainWindow::devPrintRenames(QVector<Io::ArchiveRename> renames
     {
         ++i;
         QString entry = QString::number(i) + "\nKey: " + rename.key + "\nRelative Path: " + Path::toQString(rename.relativePath);
-        (rename.originalRelativePath.has_value())
+        rename.originalRelativePath.has_value()
             ? entry = entry + "\nOriginal Path: " + Path::toQString(rename.originalRelativePath.value())
             : entry = entry + "\nNew: " + QString((rename.typeIfNewOrCut.value() == Path::Type::Dir) ? "directory" : "file");
         result << entry;
@@ -166,7 +166,7 @@ void MainWindow::connections()
         });
     connect(editor, &Editor::selectionChanged, this, [&]()
         {
-            (editor->hasSelection())
+            editor->hasSelection()
                 ? askUpdateSelection(editor->selectedText(), editor->selectedLineCount())
                 : editor->textChanged();
         });
@@ -753,7 +753,7 @@ void MainWindow::adjustTitle()
     if (activeStory.has_value())
     {
         auto& story = activeStory.value();
-        (story.hasChanges())
+        story.hasChanges()
             ? title = "*" + story.name<QString>() + " - " + title
             : title = story.name<QString>() + " - " + title;
     }

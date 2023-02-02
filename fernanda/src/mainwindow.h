@@ -102,7 +102,7 @@ private:
     void toggleWidget(QWidget* widget, UserData::IniGroup group, UserData::IniValue valueType, bool value);
     void storyMenuFileExport(const char* caption, const char* extensionFilter, Story::To type);
 
-    const QString name() { return QString((isDev) ? "Fernanda (dev)" : "Fernanda"); }
+    const QString name() { return QString(isDev ? "Fernanda (dev)" : "Fernanda"); }
     void openLocalFolder(StdFsPath path) { QDesktopServices::openUrl(QUrl::fromLocalFile(Path::toQString(path))); }
 
     template<typename T>

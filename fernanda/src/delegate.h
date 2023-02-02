@@ -86,7 +86,7 @@ private:
         {
             (option.state & QStyle::State_Open)
                 ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::FolderOpen))
-                : (Index::hasChildren(index))
+                : Index::hasChildren(index)
                     ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::Folders))
                     : painter->drawText(geometry.icon, Icon::draw(Icon::Name::Folder));
         }
@@ -94,7 +94,7 @@ private:
         {
             (option.state & QStyle::State_Open)
                 ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::File))
-                : (Index::hasChildren(index))
+                : Index::hasChildren(index)
                     ? painter->drawText(geometry.icon, Icon::draw(Icon::Name::Files))
                     : painter->drawText(geometry.icon, Icon::draw(Icon::Name::File));
             if (isDirty(index))

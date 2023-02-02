@@ -160,10 +160,10 @@ QVector<Io::ArchiveRename> Dom::cuts()
 		auto rename = Path::toStdFs(cut_element.attribute(attributeRename));
 		auto relative_path = Path::toStdFs(cut_element.attribute(attributeRelativePath));
 		Path::Type type{};
-		(isDir(cut_element))
+		isDir(cut_element)
 			? type = Path::Type::Dir
 			: type = Path::Type::File;
-		(relative_path.empty())
+		relative_path.empty()
 			? result << Io::ArchiveRename{ key, rename, std::optional<StdFsPath>(), type }
 			: result << Io::ArchiveRename{ key, (rename.empty() ? relative_path : rename), std::optional<StdFsPath>(relative_path), type};
 	}
@@ -185,7 +185,7 @@ QVector<Io::ArchiveRename> Dom::renames(Finalize finalize)
 			if (relative_path.empty())
 			{
 				Path::Type type{};
-				(isDir(renamed_element))
+				isDir(renamed_element)
 					? type = Path::Type::Dir
 					: type = Path::Type::File;
 				result << Io::ArchiveRename{ key, rename, std::optional<StdFsPath>(), type };
@@ -337,7 +337,7 @@ Dom::StdFsPath Dom::filterPath(QDomElement elem, Filter filter)
 			result = Path::toStdFs(elem.attribute(attributeRelativePath));
 		break;
 	case Filter::RenameToOrig:
-		(elem.hasAttribute(attributeRename))
+		elem.hasAttribute(attributeRename)
 			? result = Path::toStdFs(elem.attribute(attributeRename))
 			: result = Path::toStdFs(elem.attribute(attributeRelativePath));
 		break;
