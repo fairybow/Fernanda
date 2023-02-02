@@ -45,6 +45,7 @@ namespace UserData
         LineCount,
         LinePosition,
         MostRecent,
+        PreviewType,
         SplitterPosition,
         StayAwake,
         TabStop,

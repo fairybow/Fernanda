@@ -48,7 +48,7 @@ Fernanda's look was inspired by the nice and quiet feeling of using [WordStar](h
 
 Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="./fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
 
-[&#9166;](#top)
+[:leftwards_arrow_with_hook:](#top)
 
 ## :honeybee: **Build** <a name="build"></a>
 
@@ -79,11 +79,14 @@ Among the other fonts used are:
 
 Solarized theme palettes by [@altercation](https://github.com/altercation/solarized)
 
-Markdown preview support provided with:
+[Markdown](https://www.markdownguide.org/)/[Fountain](https://fountain.io/) preview support provided with:
 - [Marked.js](https://github.com/markedjs/marked)
-- and [Markdown.css](https://bitbucket.org/kevinburke/markdowncss)
+- [Markdown.css](https://bitbucket.org/kevinburke/markdowncss)
+- and [Fountain.js](https://github.com/mattdaly/Fountain.js)
 
-[&#9166;](#top)
+> **Note:** Markdown/Fountain support is, at the moment, extremely barebones!
+
+[:leftwards_arrow_with_hook:](#top)
 
 ## :star: **Features** <a name="features"></a>
 
@@ -95,7 +98,7 @@ Markdown preview support provided with:
 - Save backups (in [`{userdata}\backup\.rollback`](#folders))
 - Global line, word, and character totals
 - Export to PDF or directory
-- Markdown preview
+- Markdown/Fountain preview
 
 ---
 
@@ -153,7 +156,7 @@ If you want to manually rename, move, or delete items within a `.story` file via
 	</kbd>
 </p>
 
-[&#9166;](#top)
+[:leftwards_arrow_with_hook:](#top)
 
 ## :floppy_disk: **Installation** <a name="install"></a>
 
@@ -179,7 +182,7 @@ You can grab the installer on the [Releases](https://github.com/fairybow/fernand
 
 They can be opened via the `Help` menu.
 
-[&#9166;](#top)
+[:leftwards_arrow_with_hook:](#top)
 
 ## :compass: **Roadmap** <a name="roadmap"></a>
 
@@ -194,11 +197,11 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 - Persist undo/redo stacks between file changes
 - Separators and possibly customizable file icons, for better mental organization at-a-glance
 - Simple storage of links and research materials
-- Fountain preview/export support
+- Markdown/Fountain export
 
 More to come.
 
-[&#9166;](#top)
+[:leftwards_arrow_with_hook:](#top)
 
 ## :smiley_cat: **Thanks** <a name="thanks"></a>
 
@@ -206,7 +209,7 @@ A major thanks to [@philipplenk](https://codemetas.de/) for their teaching and i
 
 A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless work on the very amazing [Bit7z library](https://github.com/rikyoz/bit7z).
 
-[&#9166;](#top)
+[:leftwards_arrow_with_hook:](#top)
 
 ## :hibiscus: **Screens** <a name="screens"></a>
 
@@ -275,8 +278,8 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 	</tbody>
 </table>
 
-[&#9166;](#top)
+[:leftwards_arrow_with_hook:](#top)
 
 ## :heartpulse: **Bye** <a name="bye"></a>
 
-[&#9166;](#top)
+[:leftwards_arrow_with_hook:](#top)

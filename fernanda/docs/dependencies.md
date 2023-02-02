@@ -29,6 +29,7 @@
 			- text.h (+ version.h)
 		- preview.h
 			- layout.h
+			- userdata.h (+ path.h)
 		- resource.h
 			- path.h
 		- splitter.h
@@ -280,6 +281,7 @@
 ### preview.h
 ```
 #include "layout.h"
+#include "userdata.h"
 
 #include <QDesktopServices>
 #include <QEvent>

@@ -13,6 +13,7 @@
 #pragma once
 
 #include "layout.h"
+#include "userdata.h"
 
 #include <QDesktopServices>
 #include <QEvent>
@@ -72,15 +73,25 @@ class Preview : public QWidget
 public:
     Preview(QWidget* parent = nullptr);
 
-    void setText(const QString& text);
+    void setText(const QString& text) { content.setText(text); }
+
+public slots:
+    void setType(QString typeName);
 
 private:
+    enum class Type {
+        Fountain,
+        Markdown
+    };
+
     std::unique_ptr<QWebEngineView> view;
     WebDocument content;
+    Type type = Type::Markdown;
 
     bool eventFilter(QObject* watched, QEvent* event);
     void check(bool isVisible);
     void open();
+    void refresh();
 };
 
 // preview.h, Fernanda

@@ -19,9 +19,13 @@ Preview::Preview(QWidget* parent)
     setContentsMargins(0, 0, 0, 0);
 }
 
-void Preview::setText(const QString& text)
+void Preview::setType(QString typeName)
 {
-    content.setText(text);
+    (typeName == "Fountain")
+        ? type = Type::Fountain
+        : type = Type::Markdown;
+    UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::PreviewType, typeName);
+    refresh();
 }
 
 bool Preview::eventFilter(QObject* watched, QEvent* event)
@@ -31,6 +35,12 @@ bool Preview::eventFilter(QObject* watched, QEvent* event)
     if (event->type() == QEvent::Hide || event->type() == QEvent::Show)
     {
         check(isVisible());
+        return true;
+    }
+    else if (event->type() == QEvent::Resize)
+    {
+        if (size().width() == 0)
+            refresh();
         return true;
     }
     return false;
@@ -62,7 +72,16 @@ void Preview::open()
     QWebChannel* channel = new QWebChannel(view_value);
     channel->registerObject(QStringLiteral("content"), &content);
     page->setWebChannel(channel);
-    view_value->setUrl(QUrl("qrc:/preview/index.html"));
+    (type == Type::Fountain)
+        ? view_value->setUrl(QUrl("qrc:/preview/fountain.html"))
+        : view_value->setUrl(QUrl("qrc:/preview/markdown.html"));
+}
+
+void Preview::refresh()
+{
+    if (!isVisible()) return;
+    hide();
+    show();
 }
 
 // preview.cpp, Fernanda

@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="include/fountain-js.css">
+        <script src="include/fountain.min.js"></script>
+        <script src="qrc:/qtwebchannel/qwebchannel.js"></script>
+    </head>
+    <body>
+        <div id="placeholder"></div>
+        <script>
+            'use strict';
+            var placeholder = document.getElementById('placeholder');
+            var updateText = function (text) {
+                var output = fountain.parse(text);
+                placeholder.innerHTML = output.html.title_page + output.html.script;
+            }
+            new QWebChannel(qt.webChannelTransport,
+                function(channel) {
+                    var content = channel.objects.content;
+                    updateText(content.text);
+                    content.textChanged.connect(updateText);
+                }
+            );
+        </script>
+    </body>
+</html>

@@ -131,11 +131,14 @@
     <None Include="util\win_pack.bat">
       <Filter>Utilities</Filter>
     </None>
-    <None Include="res\preview\index.html">
-      <Filter>Resource Files\Preview</Filter>
-    </None>
     <None Include="util\win_installer.nsi">
       <Filter>Utilities</Filter>
+    </None>
+    <None Include="res\preview\markdown.html">
+      <Filter>Resource Files\Preview</Filter>
+    </None>
+    <None Include="res\preview\fountain.html">
+      <Filter>Resource Files\Preview</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file>preview/index.html</file>
+        <file>preview/include/fountain.min.js</file>
+        <file>preview/include/fountain-js.css</file>
         <file>preview/include/markdown.css</file>
         <file>preview/include/marked.min.js</file>
+        <file>preview/fountain.html</file>
+        <file>preview/markdown.html</file>
     </qresource>
 </RCC>

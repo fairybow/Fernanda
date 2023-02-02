@@ -66,6 +66,7 @@ private:
     QActionGroup* tabStops = new QActionGroup(this);
     QActionGroup* wrapModes = new QActionGroup(this);
     QActionGroup* colorBarAlignments = new QActionGroup(this);
+    QActionGroup* previewTypes = new QActionGroup(this);
     QActionGroup* timerValues = new QActionGroup(this);
     QSlider* fontSlider = new QSlider(Qt::Horizontal);
     Indicator* indicator = new Indicator(this);
@@ -165,6 +166,7 @@ signals:
     void askPaneAdd(Path::Type type);
     void askSetBarAlignment(QString alignment);
     void askSetCountdown(int seconds);
+    void askSetPreviewType(QString typeName);
     void askToggleScrolls(bool checked);
     void askToggleStartUpBar(bool checked);
     void askUpdateCounts(const QString text, const int blockCount);

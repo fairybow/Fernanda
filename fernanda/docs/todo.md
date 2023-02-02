@@ -145,6 +145,7 @@
 - [x] ~~May not need `makePosix()`; Bit7z only accepts `\\` paths for searching~~
 
 ### Resource
+- [ ] DataPair should be split up. A lot of instances' lhs-es aren't even paths.
 - [x] ~~There surely must be a smarter way to incorporate `.otf` into the fonts RC list (applies to MainWindow, too)~~
 - [x] ~~Convert to `std::filesystem::path`~~
 

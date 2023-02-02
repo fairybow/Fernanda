@@ -129,6 +129,7 @@ void MainWindow::connections()
     connect(this, &MainWindow::sendItems, pane, &Pane::receiveItems);
     connect(this, &MainWindow::sendEditsList, pane, &Pane::receiveEditsList);
     connect(this, &MainWindow::askPaneAdd, pane, &Pane::add);
+    connect(this, &MainWindow::askSetPreviewType, preview, &Preview::setType);
     connect(this, &MainWindow::askSetCountdown, timer, &Tool::setCountdown);
     connect(editor, &Editor::askFontSliderZoom, this, &MainWindow::handleFontSlider);
     connect(editor, &Editor::askHasProject, this, &MainWindow::replyHasProject);
@@ -284,6 +285,10 @@ void MainWindow::makeSetMenu()
         Resource::DataPair{ "Top", "Top" },
         Resource::DataPair{ "Bottom", "Bottom" }
     };
+    QVector<Resource::DataPair> preview_types_list = {
+        Resource::DataPair{ "Fountain", "Fountain" },
+        Resource::DataPair{ "Markdown", "Markdown" }
+    };
     QVector<Resource::DataPair> timer_values_list = {
         Resource::DataPair{ "300", "5 minutes" },
         Resource::DataPair{ "600", "10 minutes" },
@@ -315,6 +320,7 @@ void MainWindow::makeSetMenu()
     auto character_count_set = new QAction(tr("&Character count"), this);
     auto line_count_set = new QAction(tr("&Line count"), this);
     auto word_count_set = new QAction(tr("&Word count"), this);
+    previewTypes = makeViewToggles(preview_types_list, [&]() { askSetPreviewType(getSetting<QString>(previewTypes)); });
     timerValues = makeViewToggles(timer_values_list, [&]() { askSetCountdown(getSetting<int>(timerValues)); });
     windowThemes = makeViewToggles(window_themes_list, &MainWindow::setStyle);
     editorFonts = makeViewToggles(fonts_list, [&]()
@@ -345,6 +351,7 @@ void MainWindow::makeSetMenu()
     loadMenuToggle(character_count_set, UserData::IniGroup::Window, UserData::IniValue::CharCount, false);
     loadMenuToggle(line_count_set, UserData::IniGroup::Window, UserData::IniValue::LineCount, true);
     loadMenuToggle(word_count_set, UserData::IniGroup::Window, UserData::IniValue::WordCount, true);
+    loadViewConfig(previewTypes->actions(), UserData::IniGroup::Window, UserData::IniValue::PreviewType, "Markdown");
     loadViewConfig(timerValues->actions(), UserData::IniGroup::Window, UserData::IniValue::ToolTimer, "900");
     loadViewConfig(windowThemes->actions(), UserData::IniGroup::Window, UserData::IniValue::WindowTheme, ":/themes/window/Light.fernanda_window");
     fontSlider->setValue(UserData::loadConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorFontSize, 16, UserData::Type::Int).toInt());
@@ -361,6 +368,8 @@ void MainWindow::makeSetMenu()
     indicator_items->addSeparator();
     for (const auto& action : { character_count_set, line_count_set, word_count_set })
         indicator_items->addAction(action);
+    auto preview_types = set->addMenu(tr("&Preview"));
+    preview_types->addActions(previewTypes->actions());
     auto timer_values = set->addMenu(tr("&Timer"));
     timer_values->addActions(timerValues->actions());
     auto window_themes = set->addMenu(tr("&Window theme"));

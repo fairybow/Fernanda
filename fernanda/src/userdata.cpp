@@ -146,6 +146,9 @@ const QString UserData::valueName(IniValue valueType)
     case IniValue::MostRecent:
         result = "data____most_recent_project";
         break;
+    case IniValue::PreviewType:
+        result = "set_____preview_type";
+        break;
     case IniValue::SplitterPosition:
         result = "window__splitter_position";
         break;
