@@ -31,6 +31,7 @@ namespace UserData
     enum class IniGroup {
         Data,
         Editor,
+        Preview,
         Window
     };
 

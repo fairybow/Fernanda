@@ -287,10 +287,9 @@
 #include <QEvent>
 #include <QObject>
 #include <Qt>
+#include <QUrl>
 #include <QWebChannel>
 #include <QWebEnginePage>
-//#include <QWebEngineProfile>
-//#include <QWebEngineScriptCollection>
 #include <QWebEngineView>
 #include <QWidget>
 

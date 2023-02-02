@@ -81,8 +81,8 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 [Markdown](https://www.markdownguide.org/)/[Fountain](https://fountain.io/) preview support provided with:
 - [Marked.js](https://github.com/markedjs/marked)
-- [Markdown.css](https://bitbucket.org/kevinburke/markdowncss)
-- and [Fountain.js](https://github.com/mattdaly/Fountain.js)
+- github-markdown-css by [@sindresorhus](https://github.com/sindresorhus/github-markdown-css)
+- and Fountain.js by [@mattdaly](https://github.com/mattdaly/Fountain.js)
 
 > **Note:** Markdown/Fountain support is, at the moment, extremely barebones!
 

@@ -21,10 +21,8 @@ Preview::Preview(QWidget* parent)
 
 void Preview::setType(QString typeName)
 {
-    (typeName == "Fountain")
-        ? type = Type::Fountain
-        : type = Type::Markdown;
-    UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::PreviewType, typeName);
+    (typeName == "Fountain") ? type = Type::Fountain : type = Type::Markdown;
+    UserData::saveConfig(UserData::IniGroup::Preview, UserData::IniValue::PreviewType, typeName);
     refresh();
 }
 
@@ -50,31 +48,16 @@ void Preview::check(bool isVisible)
 {
     if (isVisible && view.get() == nullptr)
     {
-        view = std::unique_ptr<QWebEngineView>(new QWebEngineView(this));
-        open();
+        QString url = (type == Type::Fountain) ? "qrc:/preview/fountain.html" : "qrc:/preview/markdown.html";
+        view = std::unique_ptr<WebEngineView>(new WebEngineView(url, content, this));
+        setLayout(Layout::stackLayout(view.get(), this));
     }
     else if (!isVisible && view.get() != nullptr)
     {
-        //QWebEngineProfile::defaultProfile()->clearHttpCache();
-        //QWebEngineProfile::defaultProfile()->scripts()->clear();
-        delete layout();
+        setText(nullptr);
         view.reset();
+        delete layout();
     }
-}
-
-void Preview::open()
-{
-    auto view_value = view.get();
-    setLayout(Layout::stackLayout(view_value, this));
-    view_value->setContextMenuPolicy(Qt::NoContextMenu);
-    WebEnginePage* page = new WebEnginePage(view_value);
-    view_value->setPage(page);
-    QWebChannel* channel = new QWebChannel(view_value);
-    channel->registerObject(QStringLiteral("content"), &content);
-    page->setWebChannel(channel);
-    (type == Type::Fountain)
-        ? view_value->setUrl(QUrl("qrc:/preview/fountain.html"))
-        : view_value->setUrl(QUrl("qrc:/preview/markdown.html"));
 }
 
 void Preview::refresh()

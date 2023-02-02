@@ -19,10 +19,9 @@
 #include <QEvent>
 #include <QObject>
 #include <Qt>
+#include <QUrl>
 #include <QWebChannel>
 #include <QWebEnginePage>
-//#include <QWebEngineProfile>
-//#include <QWebEngineScriptCollection>
 #include <QWebEngineView>
 #include <QWidget>
 
@@ -31,20 +30,20 @@
 class WebDocument : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString text MEMBER held_text NOTIFY textChanged FINAL)
+    Q_PROPERTY(QString text MEMBER heldText NOTIFY textChanged FINAL)
 
 public:
     explicit WebDocument(QObject* parent = nullptr) : QObject(parent) {}
 
     void setText(const QString& text)
     {
-        if (text == held_text) return;
-        held_text = text;
-        textChanged(held_text);
+        if (text == heldText) return;
+        heldText = text;
+        textChanged(heldText);
     }
 
 private:
-    QString held_text;
+    QString heldText;
 
 signals:
     void textChanged(const QString& text);
@@ -60,15 +59,36 @@ public:
 protected:
     bool acceptNavigationRequest(const QUrl& url, NavigationType, bool) override
     {
-        if (url.scheme() == QString("qrc")) return true;
+        if (url.scheme() == QStringLiteral("qrc")) return true;
         QDesktopServices::openUrl(url);
         return false;
     }
 };
 
+class WebEngineView : public QWebEngineView
+{
+    Q_OBJECT
+
+public:
+    WebEngineView(const QUrl& url, WebDocument& content, QWidget* parent = nullptr) : QWebEngineView(parent)
+    {
+        setContextMenuPolicy(Qt::NoContextMenu);
+        channel->registerObject(QStringLiteral("content"), &content);
+        page->setWebChannel(channel);
+        setPage(page);
+        setUrl(url);
+    }
+
+private:
+    WebEnginePage* page = new WebEnginePage(this);
+    QWebChannel* channel = new QWebChannel(this);
+};
+
 class Preview : public QWidget
 {
     Q_OBJECT
+
+    using StdFsPath = std::filesystem::path;
 
 public:
     Preview(QWidget* parent = nullptr);
@@ -84,13 +104,12 @@ private:
         Markdown
     };
 
-    std::unique_ptr<QWebEngineView> view;
+    std::unique_ptr<WebEngineView> view;
     WebDocument content;
-    Type type = Type::Markdown;
+    Type type{};
 
     bool eventFilter(QObject* watched, QEvent* event);
     void check(bool isVisible);
-    void open();
     void refresh();
 };
 

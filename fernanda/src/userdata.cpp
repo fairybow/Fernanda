@@ -105,6 +105,9 @@ const QString UserData::groupName(IniGroup group)
     case IniGroup::Editor:
         result = "editor";
         break;
+    case IniGroup::Preview:
+        result = "preview";
+        break;
     case IniGroup::Window:
         result = "window";
         break;

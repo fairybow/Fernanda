@@ -111,7 +111,9 @@
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
     <None Include="docs\palette.md" />
+    <None Include="res\preview\fountain-overwrite.css" />
     <None Include="res\preview\fountain.html" />
+    <None Include="res\preview\markdown-overwrite.css" />
     <None Include="res\preview\markdown.html" />
     <None Include="res\sample\Sample.fernanda_editor" />
     <None Include="res\sample\Sample.fernanda_window" />

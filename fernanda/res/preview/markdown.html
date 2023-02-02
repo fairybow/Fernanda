@@ -1,26 +1,27 @@
 <!doctype html>
 <meta charset="utf-8">
 <html lang="en">
-    <head>
-        <link rel="stylesheet" href="include/markdown.css">
-        <script src="include/marked.min.js"></script>
-        <script src="qrc:/qtwebchannel/qwebchannel.js"></script>
-    </head>
-    <body>
-        <div id="placeholder"></div>
-        <script>
-            'use strict';
-            var placeholder = document.getElementById('placeholder');
-            var updateText = function(text) {
-                placeholder.innerHTML = marked.parse(text);
+<head>
+    <link rel="stylesheet" href="include/github-markdown.css">
+    <link rel="stylesheet" href="markdown-overwrite.css">
+    <script src="include/marked.min.js"></script>
+    <script src="qrc:/qtwebchannel/qwebchannel.js"></script>
+</head>
+<body>
+    <div id="text_area" class="markdown-body" width="100%"></div>
+    <script>
+        'use strict';
+        var text_area = document.getElementById('text_area');
+        var updateText = function(text) {
+            text_area.innerHTML = marked.parse(text);
+        }
+        new QWebChannel(qt.webChannelTransport,
+            function(channel) {
+                var content = channel.objects.content;
+                updateText(content.text);
+                content.textChanged.connect(updateText);
             }
-            new QWebChannel(qt.webChannelTransport,
-                function(channel) {
-                    var content = channel.objects.content;
-                    updateText(content.text);
-                    content.textChanged.connect(updateText);
-                }
-            );
-        </script>
-    </body>
+        );
+    </script>
+</body>
 </html>
