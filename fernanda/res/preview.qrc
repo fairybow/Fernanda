@@ -6,9 +6,9 @@
         <file>preview/markdown-overwrite.css</file>
         <file>preview/include/fountain.min.js</file>
         <file>preview/include/fountain-js.css</file>
-        <file>preview/include/github-markdown.css</file>
-        <file>preview/include/github-markdown-dark.css</file>
-        <file>preview/include/github-markdown-light.css</file>
+        <file>preview/include/github-markdown.min.css</file>
+        <file>preview/include/github-markdown-dark.min.css</file>
+        <file>preview/include/github-markdown-light.min.css</file>
         <file>preview/include/marked.min.js</file>
     </qresource>
 </RCC>
