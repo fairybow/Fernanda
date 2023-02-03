@@ -46,6 +46,8 @@
 - [ ] Double-space compiler instructions
 
 ### Known issues
+- [ ] Preview "resets" MainWindow on startup (if toggled from off to on) - [QTBUG-110116](https://bugreports.qt.io/browse/QTBUG-110116)
+- [ ] Preview continues to use memory after being toggled off
 - [ ] Windows scale > 100% negates the effects of `setTextCursor(0)`
 - [ ] AOT toggling affects stored window position setting (which, when toggled while maximized makes unmaximizing not change the window size)
 - [ ] Cycling fonts and themes, and then forcing repaint by editing open document (to be marked dirty or clean) is causing outlines (often blue, sometimes red) to appear around the icons in Pane (Delegate)
@@ -127,8 +129,8 @@
 - [ ] Ensure popups happen on the same monitor...
 
 ### Preview
-- [ ] Replace fountain CSS
-- [ ] Minify fountain CSS
+- [x] ~~Replace fountain CSS~~
+- [x] ~~Minify fountain CSS~~
 
 ### StartCop
 - [ ] Accept args (on file click, prompt to save if needed and open new file; possibly also switch to dev mode)

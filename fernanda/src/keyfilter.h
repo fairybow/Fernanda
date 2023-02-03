@@ -1,5 +1,4 @@
-/*
- *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+/*  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
  *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
  *
  *  <https://github.com/fairybow/fernanda>
@@ -17,7 +16,7 @@
 #include <QTextCursor>
 #include <QVector>
 
-#include "unordered_set"
+#include <unordered_set>
 
 class Keyfilter
 {

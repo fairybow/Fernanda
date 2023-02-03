@@ -453,7 +453,6 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Exceptions
-
 !7z32.dll
 !7z64.dll
 !bit7z.pdb

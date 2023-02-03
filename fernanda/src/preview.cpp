@@ -1,5 +1,4 @@
-/*
- *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+/*  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
  *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
  *
  *  <https://github.com/fairybow/fernanda>
@@ -46,15 +45,18 @@ bool Preview::eventFilter(QObject* watched, QEvent* event)
 
 void Preview::check(bool isVisible)
 {
-    if (isVisible && view.get() == nullptr)
+    auto view_get = view.get();
+    if (isVisible && view_get == nullptr)
     {
         QString url = (type == Type::Fountain) ? "qrc:/preview/fountain.html" : "qrc:/preview/markdown.html";
         view = std::unique_ptr<WebEngineView>(new WebEngineView(url, content, this));
         setLayout(Layout::stackLayout(view.get(), this));
+        askEmitTextChanged();
     }
-    else if (!isVisible && view.get() != nullptr)
+    else if (!isVisible && view_get != nullptr)
     {
         setText(nullptr);
+        view_get->deleteLater();
         view.reset();
         delete layout();
     }

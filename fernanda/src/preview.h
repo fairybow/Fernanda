@@ -1,5 +1,4 @@
-/*
- *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+/*  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
  *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
  *
  *  <https://github.com/fairybow/fernanda>
@@ -111,6 +110,9 @@ private:
     bool eventFilter(QObject* watched, QEvent* event);
     void check(bool isVisible);
     void refresh();
+
+signals:
+    void askEmitTextChanged();
 };
 
 // preview.h, Fernanda

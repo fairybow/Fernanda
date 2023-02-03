@@ -1,5 +1,4 @@
-/*
- *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+/*  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
  *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
  *
  *  <https://github.com/fairybow/fernanda>
@@ -180,6 +179,7 @@ void MainWindow::connections()
         {
             activeStory.value().setItemExpansion(key, isExpanded);
         });
+    connect(preview, &Preview::askEmitTextChanged, this, [&]() { editor->textChanged(); });
     connect(timer, &Tool::resetCountdown, this, [&]() { return getSetting<int>(timerValues); });
 }
 
