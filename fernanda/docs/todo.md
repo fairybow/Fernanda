@@ -1,6 +1,7 @@
 # To-Do
 
 ## General
+- [ ] Export All vs Export Selected/Single
 - [ ] Ability to "mark" files as countable/compilable, for both exporting a draft and calculating totals
 - [ ] Installer script needs to detect if Fernanda is running
 - [ ] Moveable documents folder
@@ -124,6 +125,10 @@
 
 ### Popup
 - [ ] Ensure popups happen on the same monitor...
+
+### Preview
+- [ ] Replace fountain CSS
+- [ ] Minify fountain CSS
 
 ### StartCop
 - [ ] Accept args (on file click, prompt to save if needed and open new file; possibly also switch to dev mode)

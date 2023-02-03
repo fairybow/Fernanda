@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="include/fountain-js.css">
+    <link rel="stylesheet" href="include/fountain.min.css">
     <link rel="stylesheet" href="fountain-overwrite.css">
     <script src="include/fountain.min.js"></script>
     <script src="qrc:/qtwebchannel/qwebchannel.js"></script>
@@ -14,10 +14,10 @@
         var text_area = document.getElementById('text_area');
         var updateText = function (text) {
             var output = fountain.parse(text);
-            text_area.innerHTML = output.html.title_page + output.html.script;
+            text_area.innerHTML = '<div id="script">' + output.html.title_page + '<p>' + output.html.script + '</div>';
         }
         new QWebChannel(qt.webChannelTransport,
-            function(channel) {
+            function (channel) {
                 var content = channel.objects.content;
                 updateText(content.text);
                 content.textChanged.connect(updateText);

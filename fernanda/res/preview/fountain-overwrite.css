@@ -1,2 +1,7 @@
 body {
+    background-color: ivory;
+    color: #444;
+    font-family: Courier New, Courier, monospace;
+    padding-left: 2em;
+    padding-right: 2em;
 }
