@@ -36,7 +36,7 @@ bool Preview::eventFilter(QObject* watched, QEvent* event)
     }
     else if (event->type() == QEvent::Resize)
     {
-        if (size().width() == 0)
+        if (size().width() <= 30)
             refresh();
         return true;
     }
@@ -45,18 +45,17 @@ bool Preview::eventFilter(QObject* watched, QEvent* event)
 
 void Preview::check(bool isVisible)
 {
-    auto view_get = view.get();
-    if (isVisible && view_get == nullptr)
+    if ((isVisible || size().width() > 15) && view.get() == nullptr)
     {
         QString url = (type == Type::Fountain) ? "qrc:/preview/fountain.html" : "qrc:/preview/markdown.html";
         view = std::unique_ptr<WebEngineView>(new WebEngineView(url, content, this));
         setLayout(Layout::stackLayout(view.get(), this));
         askEmitTextChanged();
     }
-    else if (!isVisible && view_get != nullptr)
+    else if ((!isVisible || size().width() <= 14) && view.get() != nullptr)
     {
         setText(nullptr);
-        view_get->deleteLater();
+        view.get()->deleteLater(); // try loading dlls + web proc exe from mainwindow instead and then unloading there
         view.reset();
         delete layout();
     }

@@ -139,6 +139,9 @@
     <None Include="res\themes\window\Solarized Light.fernanda_window" />
     <None Include="res\themes\window\Solarized Dark.fernanda_window" />
     <None Include="res\themes\window_base.qss" />
+    <None Include="util\promote_copy.ps1" />
+    <None Include="util\promote.bat" />
+    <None Include="util\promote_recycle.ps1" />
     <None Include="util\win_installer.nsi" />
     <None Include="util\win_pack.bat" />
   </ItemGroup>

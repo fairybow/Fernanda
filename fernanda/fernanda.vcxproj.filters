@@ -146,6 +146,15 @@
     <None Include="res\preview\fountain-overwrite.css">
       <Filter>Resource Files\Preview</Filter>
     </None>
+    <None Include="util\promote_recycle.ps1">
+      <Filter>Utilities</Filter>
+    </None>
+    <None Include="util\promote_copy.ps1">
+      <Filter>Utilities</Filter>
+    </None>
+    <None Include="util\promote.bat">
+      <Filter>Utilities</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
