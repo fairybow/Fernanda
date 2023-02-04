@@ -134,16 +134,16 @@
     <None Include="util\installer.nsi">
       <Filter>Utilities</Filter>
     </None>
-    <None Include="res\preview\markdown.html">
+    <None Include="res\preview\markdown.min.html">
       <Filter>Resource Files\Preview</Filter>
     </None>
-    <None Include="res\preview\fountain.html">
+    <None Include="res\preview\fountain.min.html">
       <Filter>Resource Files\Preview</Filter>
     </None>
-    <None Include="res\preview\markdown-overwrite.css">
+    <None Include="res\preview\markdown-overwrite.min.css">
       <Filter>Resource Files\Preview</Filter>
     </None>
-    <None Include="res\preview\fountain-overwrite.css">
+    <None Include="res\preview\fountain-overwrite.min.css">
       <Filter>Resource Files\Preview</Filter>
     </None>
     <None Include="util\promote.bat">

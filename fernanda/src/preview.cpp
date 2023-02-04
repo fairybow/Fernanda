@@ -47,7 +47,7 @@ void Preview::check(bool isVisible)
 {
     if ((isVisible || size().width() > 15) && view.get() == nullptr)
     {
-        QString url = (type == Type::Fountain) ? "qrc:/preview/fountain.html" : "qrc:/preview/markdown.html";
+        QString url = (type == Type::Fountain) ? "qrc:/preview/fountain.min.html" : "qrc:/preview/markdown.min.html";
         view = std::unique_ptr<WebEngineView>(new WebEngineView(url, content, this));
         setLayout(Layout::stackLayout(view.get(), this));
         askEmitTextChanged();
