@@ -7,7 +7,7 @@ set fer_ver=
 
 :dev
 set opt_1=
-set /p opt_1=build from dev repo? (y/n):
+set /p opt_1=Build from dev repo? (Y/N):
 if not '%opt_1%'=='' set opt_1=%opt_1:~0,1%
 if /i '%opt_1%'=='y' goto yes
 if /i '%opt_1%'=='n' goto no

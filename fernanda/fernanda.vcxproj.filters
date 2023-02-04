@@ -128,10 +128,10 @@
     <None Include="docs\palette.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="util\win_pack.bat">
+    <None Include="util\pack.old.bat">
       <Filter>Utilities</Filter>
     </None>
-    <None Include="util\win_installer.nsi">
+    <None Include="util\installer.nsi">
       <Filter>Utilities</Filter>
     </None>
     <None Include="res\preview\markdown.html">
@@ -145,12 +145,6 @@
     </None>
     <None Include="res\preview\fountain-overwrite.css">
       <Filter>Resource Files\Preview</Filter>
-    </None>
-    <None Include="util\promote_recycle.ps1">
-      <Filter>Utilities</Filter>
-    </None>
-    <None Include="util\promote_copy.ps1">
-      <Filter>Utilities</Filter>
     </None>
     <None Include="util\promote.bat">
       <Filter>Utilities</Filter>
