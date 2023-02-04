@@ -12,7 +12,7 @@ echo "%releasing%" invalid
 echo.
 goto ask_release
 
-taskkill devenv.exe
+:: close VS!
 
 :promote
 
