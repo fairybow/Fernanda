@@ -43,6 +43,8 @@ start /w "C:\Program Files (x86)\NSIS\makensis.exe" "C:\Dev\fernanda\fernanda\ut
 echo f|xcopy /v /y /f "C:\Dev\fernanda\fernanda\util\fernanda-setup-x64-windows.exe" "%OneDrive%\Desktop\fernanda-setup-x64-windows.exe"
 del "C:\Dev\fernanda\fernanda\util\fernanda-setup-x64-windows.exe"
 
+start https://github.com/fairybow/fernanda
+
 :end
 pause
 exit

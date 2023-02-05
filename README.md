@@ -18,7 +18,7 @@
 	<a href="#install"><img src="https://img.shields.io/badge/Arch%20Linux-5B5B5B?logo=archlinux" alt="Platform Arch Linux"/></a>
 	<a href="https://github.com/fairybow/fernanda/search?l=c%2B%2B"><img src="https://img.shields.io/badge/C%2B%2B20-5B5B5B?logo=c%2B%2B" alt="C++20"/></a>
 	<br>
-	<a href="https://shields.io/"><img src="https://img.shields.io/badge/omg-these%20are%20so%20cute-f34b7d"/></a>
+	<a href="https://shields.io/"><img src="https://img.shields.io/badge/omg-these%20are%20so%20cute-00b3b3"/></a>
 </p>
 
 ## :tea: **Hello** <a name="hello"></a>

@@ -149,6 +149,9 @@
     <None Include="util\promote.bat">
       <Filter>Utilities</Filter>
     </None>
+    <None Include="docs\tools.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

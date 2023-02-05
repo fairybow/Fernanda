@@ -111,6 +111,7 @@
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
     <None Include="docs\palette.md" />
+    <None Include="docs\tools.md" />
     <None Include="res\preview\fountain-overwrite.min.css" />
     <None Include="res\preview\fountain.min.html" />
     <None Include="res\preview\markdown-overwrite.min.css" />
