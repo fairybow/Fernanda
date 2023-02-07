@@ -43,6 +43,7 @@ qt_add_executable(fernanda
     src/sample.h
     src/splitter.h
     src/startcop.h
+    src/statusbarbutton.h
     src/story.h
     src/style.h
     src/text.h
