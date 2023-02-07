@@ -106,10 +106,7 @@ void Indicator::updateCounts(bool isSelection)
 {
     auto has_any_count = hasAnyCount();
     if (!has_any_count) return;
-
     auto counts_info = askForCounts(isSelection);
-
-
     QStringList elements;
     if (hasLineCount)
         elements << QString::number(counts_info.blockCount) + QStringLiteral(" lines");
