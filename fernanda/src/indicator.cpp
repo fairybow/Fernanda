@@ -31,10 +31,9 @@ Indicator::Indicator(QWidget* parent)
     layout->addWidget(refresh);
     connect(this, &Indicator::toggled, this, [&]()
         {
-            if (positions->isHidden() || counts->isHidden())
-                separator->hide();
-            else
-                separator->show();
+            (positions->isHidden() || counts->isHidden())
+                ? separator->hide()
+                : separator->show();
         });
     connect(this, &Indicator::toggleAutoCount, this, [&](bool checked)
         {
