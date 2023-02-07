@@ -195,7 +195,7 @@ QSizeGrip
 	border: none;
 }
 
-#tool
+#statusBarButton
 {
 	background: @statusBarButton;
 	border: transparent;
@@ -203,7 +203,7 @@ QSizeGrip
 	color: @statusBarButtonFont;
 }
 
-#tool:hover
+#statusBarButton:hover
 {
 	background: @statusBarButtonHover;
 	color: @statusBarButtonFontHover;

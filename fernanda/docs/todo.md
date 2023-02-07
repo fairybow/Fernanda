@@ -86,7 +86,9 @@
 - [x] ~~Remove annoying white block under cursor -_-~~
 
 ### Indicator
-- [ ] Deactivate for extremely large strings / convert to non-automatic counting (refresh symbol)?
+- [ ] Dim opacity when non-auto-count?
+- [x] ~~Deactivate for extremely large strings~~
+- [x] ~~^ Check character count at open, set Indicator, and then toggle auto counting based on character length (add a refresh symbol)~~
 
 ### Keyfilter
 - [ ] Auto-format ellipses

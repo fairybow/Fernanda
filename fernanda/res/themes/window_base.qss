@@ -41,7 +41,7 @@
 	text-decoration: overline;
 }
 
-#tool
+#statusBarButton
 {
 	font-size: 9pt;
 	min-width: 33px;
@@ -51,7 +51,7 @@
 	padding-top: 1px;
 }
 
-#tool:hover
+#statusBarButton:hover
 {
 	font-size: 10pt;
 }

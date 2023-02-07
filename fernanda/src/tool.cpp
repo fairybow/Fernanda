@@ -1,10 +1,12 @@
-/*  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+/*
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
  *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
  *
  *  <https://github.com/fairybow/fernanda>
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 // tool.cpp, Fernanda
@@ -12,14 +14,9 @@
 #include "tool.h"
 
 Tool::Tool(Type type, QMainWindow* parentWindow)
-    : type(type), parentWindow(parentWindow), QPushButton(parentWindow)
+    : type(type), parentWindow(parentWindow), StatusBarButton(parentWindow)
 {
-    setObjectName(QStringLiteral("tool"));
-    installEventFilter(this);
     setCheckable(true);
-    opacity->setOpacity(0.4);
-    setGraphicsEffect(opacity);
-    connect(this, &Tool::toggled, this, [&](bool checked) { opacity->setEnabled(!opacity->isEnabled()); });
     typeDependentSetup();
 }
 
@@ -56,18 +53,6 @@ void Tool::mousePressEvent(QMouseEvent* event)
         }
     }
     QPushButton::mousePressEvent(event);
-}
-
-bool Tool::eventFilter(QObject* watched, QEvent* event)
-{
-    Tool* button = qobject_cast<Tool*>(watched);
-    if (!button) return false;
-    if (event->type() == QEvent::Enter || event->type() == QEvent::Leave)
-    {
-        opacity->setEnabled(!opacity->isEnabled());
-        return true;
-    }
-    return false;
 }
 
 void Tool::typeDependentSetup()

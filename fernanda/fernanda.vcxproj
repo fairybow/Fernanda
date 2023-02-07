@@ -203,6 +203,7 @@
     <ClInclude Include="include\bit7z\include\bitwindows.hpp" />
     <ClInclude Include="src\archiver.h" />
     <QtMoc Include="src\tool.h" />
+    <QtMoc Include="src\statusbarbutton.h" />
     <ClInclude Include="src\dom.h" />
     <QtMoc Include="src\indicator.h" />
     <QtMoc Include="src\editor.h" />

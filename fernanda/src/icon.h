@@ -1,10 +1,12 @@
-/*  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+/*
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
  *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
  *
  *  <https://github.com/fairybow/fernanda>
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 // icon.h, Fernanda
@@ -27,6 +29,7 @@ namespace Icon
 		FolderOpen,
 		Pushpin,
 		QuestionMark,
+		Refresh,
 		Tea,
 		Timer
 	};
@@ -67,6 +70,9 @@ namespace Icon
 			break;
 		case Name::QuestionMark:
 			result = QStringLiteral("\U00002754");
+			break;
+		case Name::Refresh:
+			result = QStringLiteral("\U0001F504");
 			break;
 		case Name::Tea:
 			result = QStringLiteral("\U0001F9CB");

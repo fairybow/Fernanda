@@ -1,10 +1,12 @@
-/*  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+/*
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
  *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
  *
  *  <https://github.com/fairybow/fernanda>
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 // mainwindow.cpp, Fernanda
@@ -119,9 +121,6 @@ void MainWindow::connections()
 {
     connect(this, &MainWindow::askSetBarAlignment, colorBar, &ColorBar::setAlignment);
     connect(this, &MainWindow::askHasStartUpBar, colorBar, &ColorBar::hasStartUp);
-    connect(this, &MainWindow::askUpdatePositions, indicator, &Indicator::updatePositions);
-    connect(this, &MainWindow::askUpdateCounts, indicator, &Indicator::updateCounts);
-    connect(this, &MainWindow::askUpdateSelection, indicator, &Indicator::updateSelection);
     connect(this, &MainWindow::askEditorClose, editor, &Editor::close);
     connect(this, &MainWindow::sendSetTabStop, editor, &Editor::setTabStop);
     connect(this, &MainWindow::sendSetWrapMode, editor, &Editor::setWrapMode);
@@ -148,16 +147,6 @@ void MainWindow::connections()
         {
             activeStory.value().autoTempSave(editor->toPlainText());
         });
-    connect(editor, &Editor::askGoNext, pane, [&]() { pane->navigate(Pane::Go::Next); });
-    connect(editor, &Editor::askGoPrevious, pane, [&]() { pane->navigate(Pane::Go::Previous); });
-    connect(editor, &Editor::cursorPositionChanged, this, [&]()
-        {
-            askUpdatePositions(editor->cursorBlockNumber(), editor->cursorPositionInBlock());
-        });
-    connect(editor, &Editor::textChanged, this, [&]()
-        {
-            askUpdateCounts(editor->toPlainText(), editor->blockCount());
-        });
     connect(editor, &Editor::textChanged, this, [&]()
         {
             if (preview->isVisible())
@@ -166,14 +155,26 @@ void MainWindow::connections()
     connect(editor, &Editor::selectionChanged, this, [&]()
         {
             editor->hasSelection()
-                ? askUpdateSelection(editor->selectedText(), editor->selectedLineCount())
-                : editor->textChanged();
+                ? indicator->signalFilter(Indicator::Type::Selection, true)
+                : indicator->signalFilter(Indicator::Type::Counts, true);
         });
     connect(editor, &Editor::askTheme, this, [&]() { return editorThemes->checkedAction(); });
     connect(editor, &Editor::askThemes, this, [&]() { return editorThemes; });
     connect(editor, &Editor::askFonts, this, [&]() { return editorFonts; });
-    connect(indicator, &Indicator::askSignalCursorPositionChanged, this, [&]() { editor->cursorPositionChanged(); });
-    connect(indicator, &Indicator::askSignalTextChanged, this, [&]() { editor->textChanged(); });
+    connect(editor, &Editor::textChanged, indicator, [&]() { indicator->signalFilter(Indicator::Type::Counts); });
+    connect(editor, &Editor::cursorPositionChanged, indicator, [&]() { indicator->signalFilter(Indicator::Type::Positions); });
+    connect(editor, &Editor::askGoNext, pane, [&]() { pane->navigate(Pane::Go::Next); });
+    connect(editor, &Editor::askGoPrevious, pane, [&]() { pane->navigate(Pane::Go::Previous); });
+    connect(indicator, &Indicator::askForCounts, this, [&](bool isSelection)
+        {
+            if (isSelection) return Indicator::Counts{ editor->selectedText(), editor->selectedLineCount()};
+            return Indicator::Counts{ editor->toPlainText(), editor->blockCount() };
+        });
+    connect(indicator, &Indicator::askForPositions, this, [&]()
+        {
+            return Indicator::Positions{ editor->cursorBlockNumber(), editor->cursorPositionInBlock() };
+        });
+    connect(indicator, &Indicator::askEditorFocusReturn, editor, [&]() { editor->setFocus(); });
     connect(manager, &QNetworkAccessManager::finished, this, [](QNetworkReply* reply) { reply->deleteLater(); });
     connect(pane, &Pane::askSetExpansion, this, [&](QString key, bool isExpanded)
         {
@@ -336,11 +337,11 @@ void MainWindow::makeSetMenu()
     timerValues = makeViewToggles(timer_values_list, [&]() { askSetCountdown(getSetting<int>(timerValues)); });
     windowThemes = makeViewToggles(window_themes_list, &MainWindow::setStyle);
     connect(fontSlider, &QSlider::valueChanged, this, [&](int value) { editor->handleFont(editorFonts->checkedAction(), value); });
-    connect(column_position_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::ColumnPosition); });
-    connect(line_position_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::LinePosition); });
-    connect(character_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::CharCount); });
-    connect(line_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::LineCount); });
-    connect(word_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, Indicator::Has::WordCount); });
+    connect(column_position_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::ColumnPosition); });
+    connect(line_position_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::LinePosition); });
+    connect(character_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::CharCount); });
+    connect(line_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::LineCount); });
+    connect(word_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::WordCount); });
     for (const auto& action : { font_size_label })
         action->setEnabled(false);
     for (const auto& action : { column_position_set, line_position_set, character_count_set, line_count_set, word_count_set })
@@ -863,6 +864,8 @@ void MainWindow::handleEditorOpen(QString key)
             auto text = activeStory.value().tempSaveOld_openNew(key, editor->toPlainText());
             editor->handleTextSwap(key, text);
             startAutoTempSave();
+            if (!indicator->autoCountActive())
+                indicator->signalFilter(Indicator::Type::Counts, true);
         }
         break;
     }

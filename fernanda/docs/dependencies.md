@@ -19,6 +19,8 @@
 				- text.h (+ version.h)
 			- userdata.h (+ path.h)
 		- indicator.h
+			- icon.h
+			- statusbarbutton.h
 			- text.h (+ version.h)
 			- userdata.h (+ path.h)
 		- pane.h
@@ -47,6 +49,7 @@
 			- icon.h
 			- popup.h
 				- text.h (+ version.h)
+			- statusbarbutton.h
 			- userdata.h (+ path.h)
 	- startcop.h
 
@@ -136,10 +139,11 @@
 
 ### indicator.h
 ```
+#include "icon.h"
+#include "statusbarbutton.h"
 #include "text.h"
 #include "userdata.h"
 
-#include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QWidget>
@@ -344,6 +348,13 @@
 #endif*/
 ```
 
+### statusbarbutton.h
+```
+#include <QEvent>
+#include <QGraphicsOpacityEffect>
+#include <QPushButton>
+```
+
 ### story.h
 ```
 #include "archiver.h"
@@ -382,13 +393,11 @@
 ```
 #include "icon.h"
 #include "popup.h"
+#include "statusbarbutton.h"
 #include "userdata.h"
 
-#include <QEvent>
-#include <QGraphicsOpacityEffect>
 #include <QMainWindow>
 #include <QMouseEvent>
-#include <QPushButton>
 #include <Qt>
 #include <QTimer>
 

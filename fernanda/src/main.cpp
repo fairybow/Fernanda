@@ -1,10 +1,12 @@
-/*  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+/*
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
  *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
  *
  *  <https://github.com/fairybow/fernanda>
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 // main.cpp, Fernanda
@@ -24,13 +26,11 @@ int main(int argc, char *argv[])
         if (arg.endsWith(".story"))
             opener = Path::toStdFs(arg);
     MainWindow window(app.arguments().contains("-dev"), opener);
-    {
-        auto font = app.font();
-        font.setStyleStrategy(QFont::PreferAntialias);
-        font.setHintingPreference(QFont::HintingPreference::PreferNoHinting);
-        font.setPointSizeF(9);
-        app.setFont(font);
-    }
+    auto font = app.font();
+    font.setStyleStrategy(QFont::PreferAntialias);
+    font.setHintingPreference(QFont::HintingPreference::PreferNoHinting);
+    font.setPointSizeF(9);
+    app.setFont(font);
     window.show();
     return app.exec();
 }

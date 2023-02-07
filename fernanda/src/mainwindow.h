@@ -1,10 +1,12 @@
-/*  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+/*
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
  *  Copyright (C) 2022-2023 @fairybow <https://github.com/fairybow>
  *
  *  <https://github.com/fairybow/fernanda>
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 // mainwindow.h, Fernanda
@@ -168,16 +170,12 @@ signals:
     void askSetPreviewType(QString typeName);
     void askToggleScrolls(bool checked);
     void askToggleStartUpBar(bool checked);
-    void askUpdateCounts(const QString text, const int blockCount);
-    void askUpdatePositions(const int cursorBlockNumber, const int cursorPositionInBlock);
-    void askUpdateSelection(const QString selectedText, const int lineCount);
     void sendEditsList(QStringList editedFiles);
     void sendItems(QVector<QStandardItem*> items);
     void sendSetTabStop(int distance);
     void sendSetWrapMode(QString mode);
     void startAutoTempSave();
-    void storyMenuVisible(bool setVisible);
-    
+    void storyMenuVisible(bool setVisible);    
 };
 
 // mainwindow.h, Fernanda

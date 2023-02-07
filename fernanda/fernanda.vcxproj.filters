@@ -397,6 +397,9 @@
     <QtMoc Include="src\preview.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="src\statusbarbutton.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="res\fonts.qrc">
