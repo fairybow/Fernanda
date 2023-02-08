@@ -108,7 +108,7 @@ namespace UserData
     QString timestamp();
     std::string dll();
 
-    inline void setName(QString name) { dataVars.appName = name.toLower(); }
+    inline void setName(QString name) { dataVars.appName = name; }
 }
 
 // UserData.h, Fernanda

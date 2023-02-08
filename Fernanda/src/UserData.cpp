@@ -15,7 +15,7 @@
 
 const UserData::StdFs::path UserData::doThis(Operation operation)
 {
-    auto user_data = Path::toStdFs(QDir::homePath()) / Path::toStdFs("." + dataVars.appName);
+    auto user_data = Path::toStdFs(QDir::homePath()) / Path::toStdFs("." + dataVars.appName.toLower());
     auto active_temp = user_data / ".active_temp";
     auto backup = user_data / "backup";
     auto dll = user_data / "dll";
