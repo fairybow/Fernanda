@@ -45,7 +45,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(bool isDev, StdFsPath story, QWidget* parent = nullptr);
+    MainWindow(bool hasDevArgument, StdFsPath story, QWidget* parent = nullptr);
 
 protected:
     void showEvent(QShowEvent* event) override;

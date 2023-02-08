@@ -13,10 +13,11 @@
 
 #include "MainWindow.h"
 
-MainWindow::MainWindow(bool isDev, StdFsPath story, QWidget* parent)
-    : isDev(isDev), QMainWindow(parent)
+MainWindow::MainWindow(bool hasDevArgument, StdFsPath story, QWidget* parent)
+    : isDev(hasDevArgument), QMainWindow(parent)
 {
     UserData::setName(name());
+    adjustTitle();
     addWidgets();
     connections();
     shortcuts();
