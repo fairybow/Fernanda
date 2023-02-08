@@ -222,8 +222,8 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 			<th colspan="2">
 				<p align="center">
 					<kbd>
-						<img src="./Fernanda/docs/screens/banner.png" alt="PNG of 'Banner'"/>
-						<br>Banner<br><br>Themes: window Light / editor Pocket;<br>Font: Fixedsys Excelsior by <a href="https://github.com/kika/fixedsys">@kika</a>.
+						<img src="./Fernanda/docs/screens/banner-old.png" alt="PNG of 'Banner'"/>
+						<br>Old banner<br><br>Themes: window Light / editor Pocket;<br>Font: Fixedsys Excelsior by <a href="https://github.com/kika/fixedsys">@kika</a>.
 					</kbd>
 				</p>
 			</th>
