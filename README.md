@@ -2,7 +2,7 @@
 
 <p align="center">
 	<kbd>
-		<img src="./fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32'"/>
+		<img src="./Fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32'"/>
 		<br>Fernanda v0.14.0-beta32
 	</kbd>
 </p>
