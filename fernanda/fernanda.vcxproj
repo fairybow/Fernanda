@@ -110,8 +110,8 @@
     <None Include="..\.gitignore" />
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
-    <None Include="docs\palette.md" />
-    <None Include="docs\tools.md" />
+    <None Include="docs\Palette.md" />
+    <None Include="docs\Tools.md" />
     <None Include="res\preview\fountain-overwrite.min.css" />
     <None Include="res\preview\fountain.min.html" />
     <None Include="res\preview\markdown-overwrite.min.css" />
@@ -140,34 +140,34 @@
     <None Include="res\themes\window\Solarized Light.fernanda_window" />
     <None Include="res\themes\window\Solarized Dark.fernanda_window" />
     <None Include="res\themes\window_base.qss" />
-    <None Include="util\promote.bat" />
-    <None Include="util\installer.nsi" />
-    <None Include="util\pack.old.bat" />
+    <None Include="util\Promote.bat" />
+    <None Include="util\Installer.nsi" />
+    <None Include="util\Pack.old.bat" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\archiver.cpp" />
-    <ClCompile Include="src\dom.cpp" />
-    <ClCompile Include="src\colorbar.cpp" />
-    <ClCompile Include="src\editor.cpp" />
-    <ClCompile Include="src\indicator.cpp" />
-    <ClCompile Include="src\keyfilter.cpp" />
-    <ClCompile Include="src\path.cpp" />
-    <ClCompile Include="src\popup.cpp" />
-    <ClCompile Include="src\preview.cpp" />
-    <ClCompile Include="src\story.cpp" />
-    <ClCompile Include="src\text.cpp" />
-    <ClCompile Include="src\tool.cpp" />
-    <ClCompile Include="src\userdata.cpp" />
-    <ClCompile Include="src\mainwindow.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\pane.cpp" />
-    <ClCompile Include="src\plaintextedit.cpp" />
+    <ClCompile Include="src\Archiver.cpp" />
+    <ClCompile Include="src\Dom.cpp" />
+    <ClCompile Include="src\ColorBar.cpp" />
+    <ClCompile Include="src\Editor.cpp" />
+    <ClCompile Include="src\Indicator.cpp" />
+    <ClCompile Include="src\Keyfilter.cpp" />
+    <ClCompile Include="src\Path.cpp" />
+    <ClCompile Include="src\Popup.cpp" />
+    <ClCompile Include="src\Preview.cpp" />
+    <ClCompile Include="src\Story.cpp" />
+    <ClCompile Include="src\Text.cpp" />
+    <ClCompile Include="src\Tool.cpp" />
+    <ClCompile Include="src\UserData.cpp" />
+    <ClCompile Include="src\MainWindow.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Pane.cpp" />
+    <ClCompile Include="src\PlainTextEdit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="src\colorbar.h" />
+    <QtMoc Include="src\ColorBar.h" />
     <ClInclude Include="include\bit7z\include\bit7z.hpp" />
     <ClInclude Include="include\bit7z\include\bit7zlibrary.hpp" />
     <ClInclude Include="include\bit7z\include\bitabstractarchivecreator.hpp" />
@@ -201,33 +201,33 @@
     <ClInclude Include="include\bit7z\include\bitstreamextractor.hpp" />
     <ClInclude Include="include\bit7z\include\bittypes.hpp" />
     <ClInclude Include="include\bit7z\include\bitwindows.hpp" />
-    <ClInclude Include="src\archiver.h" />
-    <QtMoc Include="src\tool.h" />
-    <QtMoc Include="src\statusbarbutton.h" />
-    <ClInclude Include="src\dom.h" />
-    <QtMoc Include="src\indicator.h" />
-    <QtMoc Include="src\editor.h" />
-    <ClInclude Include="src\icon.h" />
-    <ClInclude Include="src\index.h" />
-    <ClInclude Include="src\keyfilter.h" />
-    <ClInclude Include="src\layout.h" />
-    <ClInclude Include="src\path.h" />
-    <QtMoc Include="src\splitter.h" />
-    <QtMoc Include="src\popup.h" />
-    <QtMoc Include="src\startcop.h" />
-    <QtMoc Include="src\preview.h" />
-    <ClInclude Include="src\story.h" />
-    <ClInclude Include="src\style.h" />
-    <ClInclude Include="src\text.h" />
-    <ClInclude Include="src\version.h" />
-    <QtMoc Include="src\mainwindow.h" />
-    <ClInclude Include="src\io.h" />
-    <ClInclude Include="src\sample.h" />
-    <ClInclude Include="src\userdata.h" />
-    <QtMoc Include="src\pane.h" />
-    <QtMoc Include="src\delegate.h" />
-    <ClInclude Include="src\resource.h" />
-    <QtMoc Include="src\plaintextedit.h" />
+    <ClInclude Include="src\Archiver.h" />
+    <QtMoc Include="src\Tool.h" />
+    <QtMoc Include="src\StatusBarButton.h" />
+    <ClInclude Include="src\Dom.h" />
+    <QtMoc Include="src\Indicator.h" />
+    <QtMoc Include="src\Editor.h" />
+    <ClInclude Include="src\Icon.h" />
+    <ClInclude Include="src\Index.h" />
+    <ClInclude Include="src\Keyfilter.h" />
+    <ClInclude Include="src\Layout.h" />
+    <ClInclude Include="src\Path.h" />
+    <QtMoc Include="src\Splitter.h" />
+    <QtMoc Include="src\Popup.h" />
+    <QtMoc Include="src\StartCop.h" />
+    <QtMoc Include="src\Preview.h" />
+    <ClInclude Include="src\Story.h" />
+    <ClInclude Include="src\Style.h" />
+    <ClInclude Include="src\Text.h" />
+    <ClInclude Include="src\Version.h" />
+    <QtMoc Include="src\MainWindow.h" />
+    <ClInclude Include="src\Io.h" />
+    <ClInclude Include="src\Sample.h" />
+    <ClInclude Include="src\UserData.h" />
+    <QtMoc Include="src\Pane.h" />
+    <QtMoc Include="src\Delegate.h" />
+    <ClInclude Include="src\Resource.h" />
+    <QtMoc Include="src\PlainTextEdit.h" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="res\fonts.qrc" />
@@ -239,8 +239,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
-    <Text Include="docs\dependencies.md" />
-    <Text Include="docs\todo.md" />
+    <Text Include="docs\Dependencies.md" />
+    <Text Include="docs\To-do.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

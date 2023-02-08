@@ -1,4 +1,4 @@
-# <img src="fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda <a name="top"></a>
+# <img src="fernanda/res/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda <a name="top"></a>
 
 <p align="center">
 	<kbd>
@@ -46,7 +46,7 @@ You can try it [here](#install).
 
 Fernanda's look was inspired by the nice and quiet feeling of using [WordStar](https://en.wikipedia.org/wiki/WordStar) on [DOSBox](https://www.dosbox.com/) to draft, and its interface was inspired by [Atom](https://github.com/atom/atom).
 
-Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="./fernanda/res/icons/fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
+Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="./fernanda/res/icons/Fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
 
 [:leftwards_arrow_with_hook:](#top)
 
@@ -167,12 +167,15 @@ You can grab the installer on the [Releases](https://github.com/fairybow/fernand
 
 **Remove:**
 - Run the uninstaller, found in the installation folder
-- Or remove all the below folders (however, running the uninstaller should also remove file association / certain registry information)
+- Or remove the installation folder (however, running the uninstaller should also remove file association / certain registry information)
+
+Fernanda should create the following folders on your OS:
 
 **Folder locations:** <a name="folders"></a>
 - `%HOMEPATH%\.fernanda`
 	- e.g. `C:\Users\{username}\.fernanda`
 	- This is the user data folder (using "-dev" creates a separate folder, `.fernanda (dev)`)
+	- Backup (`.bak`) saves are here
 - `%PROGRAMFILES%\Fernanda`
 	- e.g. `C:\Program Files\Fernanda`
 	- The default install location
@@ -192,7 +195,7 @@ Right now, I'm kind of going where the wind takes me. Fernanda is for drafting. 
 
 In my mind, near-finished work can be revised in other programs. So, some things you might find in other binder-style writing programs aren't necessarily on the table for me right now (but also not necessarily out-of-the-question, either). I'm not interested in adding spellcheck, for example. I think for my purposes it would be distracting. Nor am I interested in any kind of highly-involved formatting or pre-publishing processes. I am, however, planning on adding a way to mark files for compilation for general export (one big file, or several if you want, where things more drafty than others, or notes, can be left out). Ways to view outlines or organize smaller notes or scraps (or even map them) is not necessarily out-of-the-question.
 
-If I think of something big, I'll try to add it right here. Otherwise, these things, of varying importance or levels of commitment, will also appear in [todo.md](./fernanda/docs/todo.md).
+If I think of something big, I'll try to add it right here. Otherwise, these things, of varying importance or levels of commitment, will also appear in [To-do.md](./fernanda/docs/To-do.md).
 
 - Persist undo/redo stacks between file changes
 - Separators and possibly customizable file icons, for better mental organization at-a-glance

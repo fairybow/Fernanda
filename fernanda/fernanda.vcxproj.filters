@@ -125,13 +125,13 @@
     <None Include="..\README.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\palette.md">
+    <None Include="docs\Palette.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="util\pack.old.bat">
+    <None Include="util\Pack.old.bat">
       <Filter>Utilities</Filter>
     </None>
-    <None Include="util\installer.nsi">
+    <None Include="util\Installer.nsi">
       <Filter>Utilities</Filter>
     </None>
     <None Include="res\preview\markdown.min.html">
@@ -146,10 +146,10 @@
     <None Include="res\preview\fountain-overwrite.min.css">
       <Filter>Resource Files\Preview</Filter>
     </None>
-    <None Include="util\promote.bat">
+    <None Include="util\Promote.bat">
       <Filter>Utilities</Filter>
     </None>
-    <None Include="docs\tools.md">
+    <None Include="docs\Tools.md">
       <Filter>Docs</Filter>
     </None>
   </ItemGroup>
@@ -157,55 +157,55 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\plaintextedit.cpp">
+    <ClCompile Include="src\PlainTextEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\mainwindow.cpp">
+    <ClCompile Include="src\MainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\pane.cpp">
+    <ClCompile Include="src\Pane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\userdata.cpp">
+    <ClCompile Include="src\UserData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\colorbar.cpp">
+    <ClCompile Include="src\ColorBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\story.cpp">
+    <ClCompile Include="src\Story.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\archiver.cpp">
+    <ClCompile Include="src\Archiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dom.cpp">
+    <ClCompile Include="src\Dom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\text.cpp">
+    <ClCompile Include="src\Text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\keyfilter.cpp">
+    <ClCompile Include="src\Keyfilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\indicator.cpp">
+    <ClCompile Include="src\Indicator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\editor.cpp">
+    <ClCompile Include="src\Editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\tool.cpp">
+    <ClCompile Include="src\Tool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\popup.cpp">
+    <ClCompile Include="src\Popup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\path.cpp">
+    <ClCompile Include="src\Path.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\preview.cpp">
+    <ClCompile Include="src\Preview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -215,49 +215,49 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\resource.h">
+    <ClInclude Include="src\Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\userdata.h">
+    <ClInclude Include="src\UserData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\io.h">
+    <ClInclude Include="src\Io.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\sample.h">
+    <ClInclude Include="src\Sample.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\version.h">
+    <ClInclude Include="src\Version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\index.h">
+    <ClInclude Include="src\Index.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\text.h">
+    <ClInclude Include="src\Text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\path.h">
+    <ClInclude Include="src\Path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\keyfilter.h">
+    <ClInclude Include="src\Keyfilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\archiver.h">
+    <ClInclude Include="src\Archiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\dom.h">
+    <ClInclude Include="src\Dom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\story.h">
+    <ClInclude Include="src\Story.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\icon.h">
+    <ClInclude Include="src\Icon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\layout.h">
+    <ClInclude Include="src\Layout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\style.h">
+    <ClInclude Include="src\Style.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\bit7z\include\bit7z.hpp">
@@ -361,43 +361,43 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="src\mainwindow.h">
+    <QtMoc Include="src\MainWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\pane.h">
+    <QtMoc Include="src\Pane.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\plaintextedit.h">
+    <QtMoc Include="src\PlainTextEdit.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\delegate.h">
+    <QtMoc Include="src\Delegate.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\colorbar.h">
+    <QtMoc Include="src\ColorBar.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\splitter.h">
+    <QtMoc Include="src\Splitter.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\indicator.h">
+    <QtMoc Include="src\Indicator.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\popup.h">
+    <QtMoc Include="src\Popup.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\startcop.h">
+    <QtMoc Include="src\StartCop.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\editor.h">
+    <QtMoc Include="src\Editor.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\tool.h">
+    <QtMoc Include="src\Tool.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\preview.h">
+    <QtMoc Include="src\Preview.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\statusbarbutton.h">
+    <QtMoc Include="src\StatusBarButton.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -423,10 +423,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
-    <Text Include="docs\todo.md">
+    <Text Include="docs\To-do.md">
       <Filter>Docs</Filter>
     </Text>
-    <Text Include="docs\dependencies.md">
+    <Text Include="docs\Dependencies.md">
       <Filter>Docs</Filter>
     </Text>
   </ItemGroup>
