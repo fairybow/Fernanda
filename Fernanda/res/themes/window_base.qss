@@ -3,14 +3,14 @@
 	border: none;
 }
 
-#indicator, #menuBar, #pane, QDialog, QDialog QLabel, QDialog QPushButton, QMenu, #scrollPrevious, #scrollUp, #scrollDown, #scrollNext, #statusBar
-{
-	font-size: 9pt;
-}
-
 #hScrollBar:horizontal
 {
 	height: 10px;
+}
+
+#indicator, #menuBar, #pane, QDialog, QDialog QLabel, QDialog QPushButton, QMenu, #scrollPrevious, #scrollUp, #scrollDown, #scrollNext, #statusBar
+{
+	font-size: 9pt;
 }
 
 #indicator

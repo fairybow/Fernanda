@@ -10,12 +10,16 @@
 	margin: 0px 0 0px 0;
 }
 
+#hScrollBar::handle:horizontal
+{
+	min-width: 16px;
+}
+
 #hScrollBar::handle:horizontal, #pvScrollBar::handle:vertical, #vScrollBar::handle:vertical
 {
 	background: @scrollHandle;
 	border-left: 2px solid @scrollBg;
 	border-right: 2px solid @scrollBg;
-	min-height: 0px;
 }
 
 #hScrollBar::handle:horizontal:hover, #pvScrollBar::handle:vertical:hover, #vScrollBar::handle:vertical:hover
@@ -146,6 +150,11 @@
 {
 	background: @paneBg;
 	color: @paneFont;
+}
+
+#pvScrollBar::handle:vertical, #vScrollBar::handle:vertical
+{
+	min-height: 16px;
 }
 
 QSizeGrip
