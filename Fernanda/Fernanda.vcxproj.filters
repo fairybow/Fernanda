@@ -1,0 +1,433 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>qml;cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Translation Files">
+      <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
+      <Extensions>ts</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Includes">
+      <UniqueIdentifier>{d743d864-b650-4c9b-890e-6361ddc9b1f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Stylesheets">
+      <UniqueIdentifier>{23bccbdc-c410-4bba-95b6-044e60d463c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Stylesheets\Editor Themes">
+      <UniqueIdentifier>{38029b03-9f1b-42d0-8ad1-33bfce392b5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Stylesheets\Window Themes">
+      <UniqueIdentifier>{d7a2a167-b848-4309-b714-3f7c75a3da07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Stylesheets\Bar Stylesheets">
+      <UniqueIdentifier>{9d191d76-a216-4879-bfdd-a41759fea584}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Includes\bit7z">
+      <UniqueIdentifier>{494aa906-9c37-4693-9cae-92d695af3152}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Stylesheets\Sample Themes">
+      <UniqueIdentifier>{58f267fe-da2f-47a1-9f74-967be5f1a6c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Docs">
+      <UniqueIdentifier>{1373b218-cb6e-4516-af8a-6a7620a77718}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{1f28c557-9bae-4a87-8d91-126db766873e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Preview">
+      <UniqueIdentifier>{d5b7a2ba-4c82-4119-baf6-67b5571ef5a5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.gitignore" />
+    <None Include="res\themes\bar\green.qss">
+      <Filter>Resource Files\Stylesheets\Bar Stylesheets</Filter>
+    </None>
+    <None Include="res\themes\bar\red.qss">
+      <Filter>Resource Files\Stylesheets\Bar Stylesheets</Filter>
+    </None>
+    <None Include="res\themes\bar\pastels.qss">
+      <Filter>Resource Files\Stylesheets\Bar Stylesheets</Filter>
+    </None>
+    <None Include="res\themes\editor\Amber.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="res\themes\editor\Blue.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="res\themes\editor\Green.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="res\themes\editor\Grey.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="res\themes\window\Dark.fernanda_window">
+      <Filter>Resource Files\Stylesheets\Window Themes</Filter>
+    </None>
+    <None Include="res\themes\window\Light.fernanda_window">
+      <Filter>Resource Files\Stylesheets\Window Themes</Filter>
+    </None>
+    <None Include="res\themes\window.qss">
+      <Filter>Resource Files\Stylesheets</Filter>
+    </None>
+    <None Include="res\themes\editor.qss">
+      <Filter>Resource Files\Stylesheets</Filter>
+    </None>
+    <None Include="res\themes\window\Solarized Dark.fernanda_window">
+      <Filter>Resource Files\Stylesheets\Window Themes</Filter>
+    </None>
+    <None Include="res\themes\editor\Pocket.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="res\themes\editor\Solarized Light.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="res\themes\shadow.qss">
+      <Filter>Resource Files\Stylesheets</Filter>
+    </None>
+    <None Include="res\themes\editor_base.qss">
+      <Filter>Resource Files\Stylesheets</Filter>
+    </None>
+    <None Include="res\themes\window_base.qss">
+      <Filter>Resource Files\Stylesheets</Filter>
+    </None>
+    <None Include="res\sample\Sample.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Sample Themes</Filter>
+    </None>
+    <None Include="res\sample\Sample.fernanda_window">
+      <Filter>Resource Files\Stylesheets\Sample Themes</Filter>
+    </None>
+    <None Include="res\themes\window\Solarized Light.fernanda_window">
+      <Filter>Resource Files\Stylesheets\Window Themes</Filter>
+    </None>
+    <None Include="res\themes\editor\Snooze.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="res\themes\editor\Snooze-Alt.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="res\themes\editor\Pocket-Alt.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="res\themes\editor\Solarized Dark.fernanda_editor">
+      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
+    </None>
+    <None Include="..\README.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\Palette.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="util\Pack.old.bat">
+      <Filter>Utilities</Filter>
+    </None>
+    <None Include="util\Installer.nsi">
+      <Filter>Utilities</Filter>
+    </None>
+    <None Include="res\preview\markdown.min.html">
+      <Filter>Resource Files\Preview</Filter>
+    </None>
+    <None Include="res\preview\fountain.min.html">
+      <Filter>Resource Files\Preview</Filter>
+    </None>
+    <None Include="res\preview\markdown-overwrite.min.css">
+      <Filter>Resource Files\Preview</Filter>
+    </None>
+    <None Include="res\preview\fountain-overwrite.min.css">
+      <Filter>Resource Files\Preview</Filter>
+    </None>
+    <None Include="util\Promote.bat">
+      <Filter>Utilities</Filter>
+    </None>
+    <None Include="docs\Tools.md">
+      <Filter>Docs</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\PlainTextEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pane.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UserData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ColorBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Story.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Archiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Keyfilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Indicator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Popup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Path.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Preview.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UserData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Index.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Keyfilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Archiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Story.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Icon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Style.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bit7z.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bit7zlibrary.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitabstractarchivecreator.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitabstractarchivehandler.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitabstractarchiveopener.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitarchiveeditor.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitarchiveitem.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitarchiveiteminfo.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitarchiveitemoffset.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitarchivereader.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitarchivewriter.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitcompressionlevel.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitcompressionmethod.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitcompressor.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitdefines.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\biterror.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitexception.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitextractor.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitfilecompressor.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitfileextractor.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitformat.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitfs.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitgenericitem.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitinputarchive.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bititemsvector.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitmemcompressor.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitmemextractor.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitoutputarchive.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitpropvariant.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitstreamcompressor.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitstreamextractor.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bittypes.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bit7z\include\bitwindows.hpp">
+      <Filter>Header Files\Includes\bit7z</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\MainWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Pane.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\PlainTextEdit.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Delegate.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ColorBar.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Splitter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Indicator.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Popup.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\StartCop.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Editor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Tool.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Preview.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\StatusBarButton.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="res\fonts.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <QtRcc Include="res\sample.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <QtRcc Include="res\themes.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <QtRcc Include="res\icons.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <QtRcc Include="res\lib.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <QtRcc Include="res\preview.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\CMakeLists.txt" />
+    <Text Include="docs\To-do.md">
+      <Filter>Docs</Filter>
+    </Text>
+    <Text Include="docs\Dependencies.md">
+      <Filter>Docs</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
