@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>lib/7zip/7z32.dll</file>
+        <file>lib/7zip/7z64.dll</file>
+    </qresource>
+</RCC>

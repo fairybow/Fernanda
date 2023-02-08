@@ -1,0 +1,17 @@
+#editor
+{
+	color: @fontColor;
+	selection-background-color: @selectionBgColor;
+	selection-color: @selectionColor;
+}
+
+#lineNumberArea
+{
+	background-color: @lnaBg;
+	color: @lnaFont;
+}
+
+#overlay, #underlay
+{
+	background: @bgColor;
+}

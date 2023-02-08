@@ -1,0 +1,13 @@
+#colorBar::chunk
+{
+	background: qlineargradient(
+		x1: 0,
+		y1: 0,
+		x2: 1,
+		y2: 0,
+		stop: 0 #b43a3a,
+		stop: 0.25 #fd1d1d,
+		stop: 0.75 #fd6430,
+		stop: 1 #fcb045
+	);
+}

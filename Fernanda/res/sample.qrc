@@ -1,0 +1,40 @@
+<RCC>
+    <qresource prefix="/">
+        <file>sample/Sample.fernanda_editor</file>
+        <file>sample/Sample.fernanda_window</file>
+        <file>sample/Dot Matrix.ttf</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 1.txt</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 2.txt</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 3.txt</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 4.txt</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 5.txt</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 6.txt</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 7.txt</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 8.txt</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 9.txt</file>
+        <file>sample/Candide/Chapters 1-10/Chapter 10.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 11.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 12.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 13.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 14.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 15.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 16.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 17.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 18.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 19.txt</file>
+        <file>sample/Candide/Chapters 11-20/Chapter 20.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 21.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 22.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 23.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 24.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 25.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 26.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 27.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 28.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 29.txt</file>
+        <file>sample/Candide/Chapters 21-30/Chapter 30.txt</file>
+        <file>sample/Candide/Misc/Footnotes.txt</file>
+        <file>sample/Candide/Misc/Project Gutenberg License.txt</file>
+        <file>sample/Candide/Misc/Title Page and Introduction.txt</file>
+    </qresource>
+</RCC>

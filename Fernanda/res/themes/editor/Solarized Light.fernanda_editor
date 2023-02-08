@@ -1,0 +1,8 @@
+@bgColor; = #fdf6e3;
+@fontColor; = #586e75;
+@selectionBgColor; = #586e75;
+@selectionColor; = #fdf6e3;
+@lnaBg; = #eee8d5;
+@lnaFont; = #93a1a1;
+@cursorColor; = #586e75;
+@cursorUnderColor; = #2aa198;

@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>preview/fountain.min.html</file>
+        <file>preview/fountain-overwrite.min.css</file>
+        <file>preview/markdown.min.html</file>
+        <file>preview/markdown-overwrite.min.css</file>
+        <file>preview/include/CourierPrime.woff</file>
+        <file>preview/include/CourierPrime.woff2</file>
+        <file>preview/include/fountain.min.css</file>
+        <file>preview/include/fountain.min.js</file>
+        <file>preview/include/github-markdown.min.css</file>
+        <file>preview/include/github-markdown-dark.min.css</file>
+        <file>preview/include/github-markdown-light.min.css</file>
+        <file>preview/include/marked.min.js</file>
+    </qresource>
+</RCC>
