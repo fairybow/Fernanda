@@ -1,3 +1,0 @@
-Original Fixedsys Excelsior by Darien Valentine
-Fixedsys Excelsior font with programming ligatures by Kirill Pertsev
-https://github.com/kika/fixedsys
