@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7373CD16-2203-4B72-B5ED-4F8F7304803B}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.22621.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.22621.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <ProjectName>Fernanda</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>6.4.2_msvc2019_64</QtInstall>
+    <QtModules>core;gui;network;widgets;printsupport;webchannel;webenginecore;xml;webenginewidgets</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>6.4.2_msvc2019_64</QtInstall>
+    <QtModules>core;gui;network;widgets;printsupport;webchannel;webenginecore;xml;webenginewidgets</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard_C>Default</LanguageStandard_C>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>include/bit7z/lib/64/d/bit7z.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:MSVCRT.lib %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <AdditionalDependencies>include/bit7z/lib/64/r/bit7z.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\.gitignore" />
+    <None Include="..\README.md" />
+    <None Include="cpp.hint" />
+    <None Include="docs\Palette.md" />
+    <None Include="docs\Tools.md" />
+    <None Include="res\preview\fountain-overwrite.min.css" />
+    <None Include="res\preview\fountain.min.html" />
+    <None Include="res\preview\markdown-overwrite.min.css" />
+    <None Include="res\preview\markdown.min.html" />
+    <None Include="res\sample\Sample.fernanda_editor" />
+    <None Include="res\sample\Sample.fernanda_window" />
+    <None Include="res\themes\bar\green.qss" />
+    <None Include="res\themes\bar\red.qss" />
+    <None Include="res\themes\bar\pastels.qss" />
+    <None Include="res\themes\editor.qss" />
+    <None Include="res\themes\editor\Amber.fernanda_editor" />
+    <None Include="res\themes\editor\Blue.fernanda_editor" />
+    <None Include="res\themes\editor\Green.fernanda_editor" />
+    <None Include="res\themes\editor\Grey.fernanda_editor" />
+    <None Include="res\themes\editor\Pocket-Alt.fernanda_editor" />
+    <None Include="res\themes\editor\Pocket.fernanda_editor" />
+    <None Include="res\themes\editor\Solarized Dark.fernanda_editor" />
+    <None Include="res\themes\editor\Solarized Light.fernanda_editor" />
+    <None Include="res\themes\editor\Snooze-Alt.fernanda_editor" />
+    <None Include="res\themes\editor\Snooze.fernanda_editor" />
+    <None Include="res\themes\editor_base.qss" />
+    <None Include="res\themes\shadow.qss" />
+    <None Include="res\themes\window.qss" />
+    <None Include="res\themes\window\Dark.fernanda_window" />
+    <None Include="res\themes\window\Light.fernanda_window" />
+    <None Include="res\themes\window\Solarized Light.fernanda_window" />
+    <None Include="res\themes\window\Solarized Dark.fernanda_window" />
+    <None Include="res\themes\window_base.qss" />
+    <None Include="util\Promote.bat" />
+    <None Include="util\Installer.nsi" />
+    <None Include="util\Pack.old.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Archiver.cpp" />
+    <ClCompile Include="src\Dom.cpp" />
+    <ClCompile Include="src\ColorBar.cpp" />
+    <ClCompile Include="src\Editor.cpp" />
+    <ClCompile Include="src\Indicator.cpp" />
+    <ClCompile Include="src\Keyfilter.cpp" />
+    <ClCompile Include="src\Path.cpp" />
+    <ClCompile Include="src\Popup.cpp" />
+    <ClCompile Include="src\Preview.cpp" />
+    <ClCompile Include="src\Story.cpp" />
+    <ClCompile Include="src\Text.cpp" />
+    <ClCompile Include="src\Tool.cpp" />
+    <ClCompile Include="src\UserData.cpp" />
+    <ClCompile Include="src\MainWindow.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Pane.cpp" />
+    <ClCompile Include="src\PlainTextEdit.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\ColorBar.h" />
+    <ClInclude Include="include\bit7z\include\bit7z.hpp" />
+    <ClInclude Include="include\bit7z\include\bit7zlibrary.hpp" />
+    <ClInclude Include="include\bit7z\include\bitabstractarchivecreator.hpp" />
+    <ClInclude Include="include\bit7z\include\bitabstractarchivehandler.hpp" />
+    <ClInclude Include="include\bit7z\include\bitabstractarchiveopener.hpp" />
+    <ClInclude Include="include\bit7z\include\bitarchiveeditor.hpp" />
+    <ClInclude Include="include\bit7z\include\bitarchiveitem.hpp" />
+    <ClInclude Include="include\bit7z\include\bitarchiveiteminfo.hpp" />
+    <ClInclude Include="include\bit7z\include\bitarchiveitemoffset.hpp" />
+    <ClInclude Include="include\bit7z\include\bitarchivereader.hpp" />
+    <ClInclude Include="include\bit7z\include\bitarchivewriter.hpp" />
+    <ClInclude Include="include\bit7z\include\bitcompressionlevel.hpp" />
+    <ClInclude Include="include\bit7z\include\bitcompressionmethod.hpp" />
+    <ClInclude Include="include\bit7z\include\bitcompressor.hpp" />
+    <ClInclude Include="include\bit7z\include\bitdefines.hpp" />
+    <ClInclude Include="include\bit7z\include\biterror.hpp" />
+    <ClInclude Include="include\bit7z\include\bitexception.hpp" />
+    <ClInclude Include="include\bit7z\include\bitextractor.hpp" />
+    <ClInclude Include="include\bit7z\include\bitfilecompressor.hpp" />
+    <ClInclude Include="include\bit7z\include\bitfileextractor.hpp" />
+    <ClInclude Include="include\bit7z\include\bitformat.hpp" />
+    <ClInclude Include="include\bit7z\include\bitfs.hpp" />
+    <ClInclude Include="include\bit7z\include\bitgenericitem.hpp" />
+    <ClInclude Include="include\bit7z\include\bitinputarchive.hpp" />
+    <ClInclude Include="include\bit7z\include\bititemsvector.hpp" />
+    <ClInclude Include="include\bit7z\include\bitmemcompressor.hpp" />
+    <ClInclude Include="include\bit7z\include\bitmemextractor.hpp" />
+    <ClInclude Include="include\bit7z\include\bitoutputarchive.hpp" />
+    <ClInclude Include="include\bit7z\include\bitpropvariant.hpp" />
+    <ClInclude Include="include\bit7z\include\bitstreamcompressor.hpp" />
+    <ClInclude Include="include\bit7z\include\bitstreamextractor.hpp" />
+    <ClInclude Include="include\bit7z\include\bittypes.hpp" />
+    <ClInclude Include="include\bit7z\include\bitwindows.hpp" />
+    <ClInclude Include="src\Archiver.h" />
+    <QtMoc Include="src\Tool.h" />
+    <QtMoc Include="src\StatusBarButton.h" />
+    <ClInclude Include="src\Dom.h" />
+    <QtMoc Include="src\Indicator.h" />
+    <QtMoc Include="src\Editor.h" />
+    <ClInclude Include="src\Icon.h" />
+    <ClInclude Include="src\Index.h" />
+    <ClInclude Include="src\Keyfilter.h" />
+    <ClInclude Include="src\Layout.h" />
+    <ClInclude Include="src\Path.h" />
+    <QtMoc Include="src\Splitter.h" />
+    <QtMoc Include="src\Popup.h" />
+    <QtMoc Include="src\StartCop.h" />
+    <QtMoc Include="src\Preview.h" />
+    <ClInclude Include="src\Story.h" />
+    <ClInclude Include="src\Style.h" />
+    <ClInclude Include="src\Text.h" />
+    <ClInclude Include="src\Version.h" />
+    <QtMoc Include="src\MainWindow.h" />
+    <ClInclude Include="src\Io.h" />
+    <ClInclude Include="src\Sample.h" />
+    <ClInclude Include="src\UserData.h" />
+    <QtMoc Include="src\Pane.h" />
+    <QtMoc Include="src\Delegate.h" />
+    <ClInclude Include="src\Resource.h" />
+    <QtMoc Include="src\PlainTextEdit.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="res\fonts.qrc" />
+    <QtRcc Include="res\icons.qrc" />
+    <QtRcc Include="res\lib.qrc" />
+    <QtRcc Include="res\sample.qrc" />
+    <QtRcc Include="res\themes.qrc" />
+    <QtRcc Include="res\preview.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\CMakeLists.txt" />
+    <Text Include="docs\Dependencies.md" />
+    <Text Include="docs\To-do.md" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
