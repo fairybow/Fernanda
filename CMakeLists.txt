@@ -31,7 +31,7 @@ qt_add_executable(Fernanda
     src/Index.h
     src/Indicator.h
     src/Io.h
-    src/Keyfilter.h
+    src/KeyFilter.h
     src/Layout.h
     src/MainWindow.h
     src/Pane.h
@@ -56,7 +56,7 @@ qt_add_executable(Fernanda
     src/Dom.cpp
     src/Editor.cpp
     src/Indicator.cpp
-    src/Keyfilter.cpp
+    src/KeyFilter.cpp
     src/Main.cpp
     src/MainWindow.cpp
     src/Pane.cpp

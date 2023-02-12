@@ -80,6 +80,12 @@ public:
         setUrl(url);
     }
 
+    void scrollToBlock(int blockNumber)
+    {
+        auto javascript = QString("document.getElementById('preview-block-%1').scrollIntoView({behavior: 'smooth'});").arg(blockNumber);
+        page->runJavaScript(javascript);
+    }
+
 private:
     WebEnginePage* page = new WebEnginePage(this);
     QWebChannel* channel = new QWebChannel(this);
@@ -94,10 +100,18 @@ class Preview : public QWidget
 public:
     Preview(QWidget* parent = nullptr);
 
+    enum class Has {
+        ScrollSync
+    };
+
+    void toggle(bool checked, Has has);
+
     void setText(const QString& text) { content.setText(text); }
+    bool needsBlockNumbers() { return hasScrollSync; }
 
 public slots:
     void setType(QString typeName);
+    void scrollToBlock(int blockNumber);
 
 private:
     enum class Type {
@@ -108,6 +122,8 @@ private:
     std::unique_ptr<WebEngineView> view;
     WebDocument content;
     Type type{};
+
+    bool hasScrollSync = true;
 
     bool eventFilter(QObject* watched, QEvent* event);
     void check(bool isVisible);

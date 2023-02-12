@@ -20,11 +20,29 @@ Preview::Preview(QWidget* parent)
     setContentsMargins(0, 0, 0, 0);
 }
 
+void Preview::toggle(bool checked, Has has)
+{
+    switch (has) {
+    case Has::ScrollSync:
+        hasScrollSync = checked;
+        UserData::saveConfig(UserData::IniGroup::Preview, UserData::IniValue::ToggleScrollSync, checked);
+        break;
+    }
+    askEmitTextChanged();
+}
+
 void Preview::setType(QString typeName)
 {
     (typeName == "Fountain") ? type = Type::Fountain : type = Type::Markdown;
     UserData::saveConfig(UserData::IniGroup::Preview, UserData::IniValue::PreviewType, typeName);
     refresh();
+}
+
+void Preview::scrollToBlock(int blockNumber)
+{
+    auto view_get = view.get();
+    if (view_get == nullptr) return;
+    view_get->scrollToBlock(blockNumber);
 }
 
 bool Preview::eventFilter(QObject* watched, QEvent* event)
@@ -49,7 +67,7 @@ void Preview::check(bool isVisible)
 {
     if ((isVisible || size().width() > 15) && view.get() == nullptr)
     {
-        QString url = (type == Type::Fountain) ? "qrc:/preview/fountain.min.html" : "qrc:/preview/markdown.min.html";
+        QString url = (type == Type::Fountain) ? "qrc:/preview/fountain.html" : "qrc:/preview/markdown.html";
         view = std::unique_ptr<WebEngineView>(new WebEngineView(url, content, this));
         setLayout(Layout::stackLayout(view.get(), this));
         askEmitTextChanged();
@@ -57,7 +75,7 @@ void Preview::check(bool isVisible)
     else if ((!isVisible || size().width() <= 14) && view.get() != nullptr)
     {
         setText(nullptr);
-        view.get()->deleteLater(); // try loading dlls + web proc exe from mainwindow instead and then unloading there
+        view.get()->deleteLater(); // unconvinced that this is working as intended
         view.reset();
         delete layout();
     }

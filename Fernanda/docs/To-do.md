@@ -144,6 +144,8 @@
 - [ ] Ensure popups happen on the same monitor...
 
 ### Preview
+- [ ] Ink support
+- [ ] Print to PDF context menu
 - [ ] Scrollbar should begin tied to position in editor. Can be moved independently but when snapped, scrolls with editor.
 - [x] ~~Replace fountain CSS~~
 - [x] ~~Minify fountain CSS~~

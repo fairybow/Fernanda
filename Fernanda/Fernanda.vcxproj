@@ -113,10 +113,11 @@
     <None Include="cpp.hint" />
     <None Include="docs\Palette.md" />
     <None Include="docs\Tools.md" />
-    <None Include="res\preview\fountain-overwrite.min.css" />
-    <None Include="res\preview\fountain.min.html" />
-    <None Include="res\preview\markdown-overwrite.min.css" />
-    <None Include="res\preview\markdown.min.html" />
+    <None Include="res\preview\fountain-overwrite.css" />
+    <None Include="res\preview\fountain.html" />
+    <None Include="res\preview\markdown-overwrite.css" />
+    <None Include="res\preview\markdown.html" />
+    <None Include="res\preview\testfountain.js" />
     <None Include="res\sample\Sample.fernanda_editor" />
     <None Include="res\sample\Sample.fernanda_window" />
     <None Include="res\themes\bar\green.qss" />
@@ -151,7 +152,7 @@
     <ClCompile Include="src\ColorBar.cpp" />
     <ClCompile Include="src\Editor.cpp" />
     <ClCompile Include="src\Indicator.cpp" />
-    <ClCompile Include="src\Keyfilter.cpp" />
+    <ClCompile Include="src\KeyFilter.cpp" />
     <ClCompile Include="src\Path.cpp" />
     <ClCompile Include="src\Popup.cpp" />
     <ClCompile Include="src\Preview.cpp" />
@@ -210,7 +211,7 @@
     <QtMoc Include="src\Editor.h" />
     <ClInclude Include="src\Icon.h" />
     <ClInclude Include="src\Index.h" />
-    <ClInclude Include="src\Keyfilter.h" />
+    <ClInclude Include="src\KeyFilter.h" />
     <ClInclude Include="src\Layout.h" />
     <ClInclude Include="src\Path.h" />
     <QtMoc Include="src\Splitter.h" />

@@ -14,7 +14,7 @@
 #pragma once
 
 #include "Icon.h"
-#include "Keyfilter.h"
+#include "KeyFilter.h"
 #include "Layout.h"
 #include "Path.h"
 #include "Text.h"
@@ -117,6 +117,7 @@ signals:
     bool askHasLineHighlight();
     bool askHasProject();
     bool askOverlayVisible();
+    void sendBlockNumber(int blockNumber);
 };
 
 class LineNumberArea : public QWidget

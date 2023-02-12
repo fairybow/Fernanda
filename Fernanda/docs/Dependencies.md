@@ -10,7 +10,7 @@
 		- Editor.h
 			- PlainTextEdit.h
 				- Icon.h
-				- Keyfilter.h
+				- KeyFilter.h
 				- Layout.h
 				- Path.h
 				- Text.h (+ Version.h)
@@ -161,7 +161,7 @@
 #include <utility>
 ```
 
-### Keyfilter.h
+### KeyFilter.h
 ```
 #include <QChar>
 #include <QKeyEvent>
@@ -244,7 +244,7 @@
 ### PlainTextEdit.h
 ```
 #include "Icon.h"
-#include "Keyfilter.h"
+#include "KeyFilter.h"
 #include "Layout.h"
 #include "Path.h"
 #include "Text.h"
