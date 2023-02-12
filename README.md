@@ -28,7 +28,7 @@ Fernanda is a plain text editor for drafting long-form fiction. (At least, that'
 - [About](#about)
 - [Build](#build)
 - [Features](#features)
-	- [Keyfilters](#features-keyfilters)
+	- [Key filters](#features-key_filters)
 	- [Shortcuts](#features-shortcuts)
 	- [`.story`](#features-files)
 	- [Tools](#features-tools)
@@ -102,15 +102,15 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 ---
 
-**Keyfilters:** <a name="features-keyfilters"></a>
+**Key filters:** <a name="features-key_filters"></a>
 - Auto-closing for `"", (), {}, []`
 - 2 spaces will skip the cursor past a closing item, closing the gap (see below)
 - Auto em-/en-dash formatting from hyphen/minus key
 
 <p align="center">
 	<kbd>
-		<img src="./Fernanda/docs/screens/keyfilters_1.gif" alt="GIF of 'Keyfilters'"/>
-		<br>Keyfilters
+		<img src="./Fernanda/docs/screens/key_filters_1.gif" alt="GIF of 'Key filters'"/>
+		<br>Key filters
 	</kbd>
 </p>
 
@@ -222,7 +222,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 			<th colspan="2">
 				<p align="center">
 					<kbd>
-						<img src="./Fernanda/docs/screens/banner-old.png" alt="PNG of 'Banner'"/>
+						<img src="./Fernanda/docs/screens/banner_old.png" alt="PNG of 'Banner'"/>
 						<br>Old banner<br><br>Themes: window Light / editor Pocket;<br>Font: Fixedsys Excelsior by <a href="https://github.com/kika/fixedsys">@kika</a>.
 					</kbd>
 				</p>

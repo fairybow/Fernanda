@@ -421,7 +421,7 @@ void MainWindow::makeToggleMenu()
     connect(current_line_highlight_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineHighlight); });
     connect(editor_shadow_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Shadow); });
     connect(editor_theme_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Theme); });
-    connect(key_filter_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Keyfilter); });
+    connect(key_filter_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::KeyFilter); });
     connect(line_number_area_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineNumberArea); });
     connect(scrolls_previous_next_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::ExtraScrolls); });
     connect(scroll_sync, &QAction::toggled, this, [&](bool checked) { preview->toggle(checked, Preview::Has::ScrollSync); });

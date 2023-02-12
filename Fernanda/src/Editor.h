@@ -41,7 +41,7 @@ public:
         BlockCursor,
         CursorBlink,
         ExtraScrolls,
-        Keyfilter,
+        KeyFilter,
         LineHighlight,
         LineNumberArea,
         Scrolls,
@@ -92,7 +92,7 @@ private:
     bool hasTheme = true;
     bool hasShadow = true;
     bool hasLineHighlight = true;
-    bool hasKeyfilter = true;
+    bool hasKeyFilter = true;
     bool hasCursorBlink = true;
     bool hasBlockCursor = true;
     bool cursorVisible = true;

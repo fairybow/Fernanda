@@ -209,14 +209,14 @@ void PlainTextEdit::keyPressEvent(QKeyEvent* event)
         event->ignore();
         return;
     }
-    if (!askHasKeyfilter())
+    if (!askHasKeyFilter())
     {
         QPlainTextEdit::keyPressEvent(event);
         return;
     }
     auto chars = proximalChars();
     cursor.beginEditBlock();
-    keyPresses(keyfilter->filter(event, chars));
+    keyPresses(keyFilter->filter(event, chars));
     cursor.endEditBlock();
     if (cursor.atEnd() && !isMaximumScroll())
         verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
@@ -243,11 +243,11 @@ const QChar PlainTextEdit::currentChar()
     return QChar();
 }
 
-const Keyfilter::ProximalChars PlainTextEdit::proximalChars()
+const KeyFilter::ProximalChars PlainTextEdit::proximalChars()
 {
     auto text = textCursor().block().text();
     auto current_position = textCursor().positionInBlock();
-    auto result = Keyfilter::ProximalChars{};
+    auto result = KeyFilter::ProximalChars{};
     if (current_position < text.size())
         result.current = text.at(current_position);
     if (current_position > 0)

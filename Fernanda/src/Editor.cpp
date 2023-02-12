@@ -72,8 +72,8 @@ void Editor::toggle(bool checked, Has has)
         askToggleExtraScrolls(checked);
         UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleScrollsPrevNext, checked);
         break;
-    case Has::Keyfilter:
-        hasKeyfilter = checked;
+    case Has::KeyFilter:
+        hasKeyFilter = checked;
         UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleKeyFilters, checked);
         break;
     case Has::LineHighlight:
@@ -216,7 +216,7 @@ void Editor::connections()
     connect(plainTextEdit, &PlainTextEdit::askHasProject, this, [&]() { return askHasProject(); });
     connect(plainTextEdit, &PlainTextEdit::textChanged, this, [&]() { textChanged(); });
     connect(plainTextEdit, &PlainTextEdit::askHasLineHighlight, this, [&]() { return hasLineHighlight; });
-    connect(plainTextEdit, &PlainTextEdit::askHasKeyfilter, this, [&]() { return hasKeyfilter; });
+    connect(plainTextEdit, &PlainTextEdit::askHasKeyFilter, this, [&]() { return hasKeyFilter; });
     connect(plainTextEdit, &PlainTextEdit::askHasCursorBlink, this, [&]() { return hasCursorBlink; });
     connect(plainTextEdit, &PlainTextEdit::askHasBlockCursor, this, [&]() { return hasBlockCursor; });
     connect(plainTextEdit, &PlainTextEdit::askCursorVisible, this, [&]() { return cursorVisible; });

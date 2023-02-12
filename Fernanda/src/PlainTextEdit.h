@@ -81,7 +81,7 @@ protected:
 
 private:
     QWidget* lineNumberArea;
-    Keyfilter* keyfilter = new Keyfilter;
+    KeyFilter* keyFilter = new KeyFilter;
     QPushButton* scrollUp = new QPushButton(this);
     QPushButton* scrollPrevious = new QPushButton(this);
     QPushButton* scrollNext = new QPushButton(this);
@@ -89,7 +89,7 @@ private:
 
     void keyPresses(QVector<QKeyEvent*> events);
     const QChar currentChar();
-    const Keyfilter::ProximalChars proximalChars();
+    const KeyFilter::ProximalChars proximalChars();
     bool shortcutFilter(QKeyEvent* event);
     void quoteWrap(QKeyEvent* event);
     void connections();
@@ -113,7 +113,7 @@ signals:
     void askGoPrevious();
     bool askHasBlockCursor();
     bool askHasCursorBlink();
-    bool askHasKeyfilter();
+    bool askHasKeyFilter();
     bool askHasLineHighlight();
     bool askHasProject();
     bool askOverlayVisible();

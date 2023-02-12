@@ -20,7 +20,7 @@
 
 #include <unordered_set>
 
-class Keyfilter
+class KeyFilter
 {
 
 public:

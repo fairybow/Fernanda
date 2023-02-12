@@ -103,7 +103,7 @@
 - [x] ~~Deactivate for extremely large strings~~
 - [x] ~~^ Check character count at open, set Indicator, and then toggle auto counting based on character length (add a refresh symbol)~~
 
-### Keyfilter
+### KeyFilter
 - [ ] Auto-format ellipses
 - [ ] Auto-delete spaces before punctuation
 - [ ] Quote wrapping does not account for non-American punctuation/quote order

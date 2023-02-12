@@ -13,7 +13,7 @@
 
 #include "KeyFilter.h"
 
-QVector<QKeyEvent*> Keyfilter::filter(QKeyEvent* event, ProximalChars chars)
+QVector<QKeyEvent*> KeyFilter::filter(QKeyEvent* event, ProximalChars chars)
 {
     QVector<QKeyEvent*> result;
     switch (event->key()) {
@@ -75,7 +75,7 @@ QVector<QKeyEvent*> Keyfilter::filter(QKeyEvent* event, ProximalChars chars)
     return result;
 }
 
-QVector<QKeyEvent*> Keyfilter::dontDuplicate(QKeyEvent* event, ProximalChars chars, char current)
+QVector<QKeyEvent*> KeyFilter::dontDuplicate(QKeyEvent* event, ProximalChars chars, char current)
 {
     QVector<QKeyEvent*> result;
     checkCurrent(chars, current)
@@ -84,7 +84,7 @@ QVector<QKeyEvent*> Keyfilter::dontDuplicate(QKeyEvent* event, ProximalChars cha
     return result;
 }
 
-QVector<QKeyEvent*> Keyfilter::commaSkip(QKeyEvent* event, ProximalChars chars)
+QVector<QKeyEvent*> KeyFilter::commaSkip(QKeyEvent* event, ProximalChars chars)
 {
     QVector<QKeyEvent*> result;
     if (!chars.current.isNull() && commaSkips.count(chars.current) > 0 && chars.previous == ',')
