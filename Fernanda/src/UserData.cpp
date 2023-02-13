@@ -201,9 +201,9 @@ const QString UserData::valueName(IniValue valueType)
     case IniValue::ToggleScrollsPrevNext:
         result = "toggle__scrolls_previous_next";
         break;
-    case IniValue::ToggleScrollSync:
+    /*case IniValue::ToggleScrollSync:
         result = "toggle__scroll_sync";
-        break;
+        break;*/
     case IniValue::ToggleStatusBar:
         result = "toggle__status_bar";
         break;

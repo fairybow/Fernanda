@@ -117,7 +117,6 @@
     <None Include="res\preview\fountain.html" />
     <None Include="res\preview\markdown-overwrite.css" />
     <None Include="res\preview\markdown.html" />
-    <None Include="res\preview\testfountain.js" />
     <None Include="res\sample\Sample.fernanda_editor" />
     <None Include="res\sample\Sample.fernanda_window" />
     <None Include="res\themes\bar\green.qss" />

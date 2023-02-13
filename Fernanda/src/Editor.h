@@ -56,7 +56,7 @@ public:
     void handleTextSwap(QString key, QString text);
     void setStyle(QAction* selection);
     void handleFont(QAction* selection, int sliderValue);
-    QString toPlainText(bool numberBlocks) const;
+    //QString toPlainText(bool numberBlocks) const;
 
     int blockCount() const { return plainTextEdit->blockCount(); }
     int cursorBlockNumber() const { return plainTextEdit->textCursor().blockNumber(); }
@@ -116,7 +116,7 @@ signals:
     void askToggleScrolls(bool checked);
     void cursorPositionChanged();
     void selectionChanged();
-    void sendBlockNumber(int blockNumber);
+    //void sendBlockNumber(int blockNumber);
     void startBlinker();
     void textChanged();
 };

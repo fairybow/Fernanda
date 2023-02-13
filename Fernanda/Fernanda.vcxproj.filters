@@ -152,9 +152,6 @@
     <None Include="docs\Tools.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="res\preview\testfountain.js">
-      <Filter>Resource Files\Preview</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

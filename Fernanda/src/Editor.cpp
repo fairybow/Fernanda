@@ -147,7 +147,7 @@ void Editor::handleFont(QAction* selection, int sliderValue)
     UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorFontSize, sliderValue);
 }
 
-QString Editor::toPlainText(bool numberBlocks) const
+/*QString Editor::toPlainText(bool numberBlocks) const
 {
     if (!numberBlocks) return toPlainText();
     QStringList lines = toPlainText().split(Text::regex(Text::Regex::NewLine));
@@ -158,7 +158,7 @@ QString Editor::toPlainText(bool numberBlocks) const
         ++block_number;
     }
     return lines.join("\n");
-}
+}*/
 
 void Editor::setTabStop(int distance)
 {
@@ -224,7 +224,7 @@ void Editor::connections()
     connect(plainTextEdit, &PlainTextEdit::selectionChanged, this, [&]() { selectionChanged(); });
     connect(plainTextEdit, &PlainTextEdit::askGoNext, this, [&]() { askGoNext(); });
     connect(plainTextEdit, &PlainTextEdit::askGoPrevious, this, [&]() { askGoPrevious(); });
-    connect(plainTextEdit, &PlainTextEdit::sendBlockNumber, this, [&](int blockNumber) { sendBlockNumber(blockNumber); });
+    //connect(plainTextEdit, &PlainTextEdit::sendBlockNumber, this, [&](int blockNumber) { sendBlockNumber(blockNumber); });
     connect(plainTextEdit, &PlainTextEdit::cursorPositionChanged, this, [&]()
         {
             if (plainTextEdit->textCursor().hasSelection() || !hasCursorBlink) return;

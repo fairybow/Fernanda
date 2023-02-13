@@ -52,7 +52,7 @@ public:
     {
         auto state = UserData::loadConfig(UserData::IniGroup::Window, UserData::IniValue::SplitterPosition, QVariant()).toByteArray();
         if (state.isEmpty() || state.isNull())
-            setSizes(QVector<int>{ static_cast<int>(geometry.width() * 0.2), static_cast<int>(geometry.width() * 0.8) });
+            setSizes(QVector<int>{ static_cast<int>(geometry.width() * 0.2), static_cast<int>(geometry.width() * 0.4), static_cast<int>(geometry.width() * 0.4) });
         else
             restoreState(state);
     }

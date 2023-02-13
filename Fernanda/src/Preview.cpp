@@ -20,7 +20,7 @@ Preview::Preview(QWidget* parent)
     setContentsMargins(0, 0, 0, 0);
 }
 
-void Preview::toggle(bool checked, Has has)
+/*void Preview::toggle(bool checked, Has has)
 {
     switch (has) {
     case Has::ScrollSync:
@@ -29,7 +29,7 @@ void Preview::toggle(bool checked, Has has)
         break;
     }
     askEmitTextChanged();
-}
+}*/
 
 void Preview::setType(QString typeName)
 {
@@ -38,12 +38,12 @@ void Preview::setType(QString typeName)
     refresh();
 }
 
-void Preview::scrollToBlock(int blockNumber)
+/*void Preview::scrollToBlock(int blockNumber)
 {
     auto view_get = view.get();
     if (view_get == nullptr) return;
     view_get->scrollToBlock(blockNumber);
-}
+}*/
 
 bool Preview::eventFilter(QObject* watched, QEvent* event)
 {

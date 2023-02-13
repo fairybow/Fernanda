@@ -97,7 +97,7 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 - Examples (project and custom themes and font) available via the `Help` menu
 - Save backups (in [`{userdata}\backup\.rollback`](#folders))
 - Global line, word, and character totals
-- Export to PDF or directory
+- Export to PDF, text, or directory
 - Markdown/Fountain preview
 
 ---
@@ -189,7 +189,7 @@ They can be opened via the `Help` menu.
 
 ## :compass: **Roadmap** <a name="roadmap"></a>
 
-An early Windows release is available for testing, and an early Arch Linux package is also available on the AUR (courtesy of [@philipplenk](https://github.com/philipplenk)).
+Fernanda is available for Windows (beta pre-release) [above](#install), and an early Arch Linux package is also available on the AUR (courtesy of [@philipplenk](https://github.com/philipplenk)).
 
 Right now, I'm kind of going where the wind takes me. Fernanda is for drafting. Specifically, for me, it's for encouraging a more productive drafting headspace, and any features that seem like a must for making that happen easier, I'm going to try and add.
 
@@ -201,6 +201,7 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 - Separators and possibly customizable file icons, for better mental organization at-a-glance
 - Simple storage of links and research materials
 - Markdown/Fountain export
+- Scroll sync between editor and preview
 
 More to come.
 

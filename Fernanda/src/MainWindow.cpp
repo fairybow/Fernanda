@@ -132,7 +132,7 @@ void MainWindow::connections()
     connect(this, &MainWindow::askSetCountdown, timer, &Tool::setCountdown);
     connect(editor, &Editor::askFontSliderZoom, this, &MainWindow::handleFontSlider);
     connect(editor, &Editor::askHasProject, this, &MainWindow::replyHasProject);
-    connect(editor, &Editor::sendBlockNumber, preview, &Preview::scrollToBlock);
+    //connect(editor, &Editor::sendBlockNumber, preview, &Preview::scrollToBlock);
     connect(editor, &Editor::textChanged, this, &MainWindow::sendEditedText);
     connect(editor, &Editor::textChanged, this, &MainWindow::adjustTitle);
     connect(pane, &Pane::askDomMove, this, &MainWindow::domMove);
@@ -152,7 +152,7 @@ void MainWindow::connections()
     connect(editor, &Editor::textChanged, this, [&]()
         {
             if (!preview->isVisible()) return;
-            preview->setText(editor->toPlainText(preview->needsBlockNumbers()));
+            preview->setText(editor->toPlainText(/*preview->needsBlockNumbers()*/));
         });
     connect(editor, &Editor::selectionChanged, this, [&]()
         {
@@ -402,7 +402,7 @@ void MainWindow::makeToggleMenu()
     auto key_filter_toggle = new QAction(tr("&Key filters"), this);
     auto line_number_area_toggle = new QAction(tr("&Line number area"), this);
     auto scrolls_previous_next_toggle = new QAction(tr("&Scrolls previous and next"), this);
-    auto scroll_sync = new QAction(tr("&Preview scroll sync (WIP - Markdown only)"), this);
+    //auto scroll_sync = new QAction(tr("&Preview scroll sync"), this);
     auto color_bar_toggle = new QAction(tr("&Color bar"), this);
     auto indicator_toggle = new QAction(tr("&Indicator"), this);
     auto pane_toggle = new QAction(tr("&Pane"), this);
@@ -424,7 +424,7 @@ void MainWindow::makeToggleMenu()
     connect(key_filter_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::KeyFilter); });
     connect(line_number_area_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineNumberArea); });
     connect(scrolls_previous_next_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::ExtraScrolls); });
-    connect(scroll_sync, &QAction::toggled, this, [&](bool checked) { preview->toggle(checked, Preview::Has::ScrollSync); });
+    //connect(scroll_sync, &QAction::toggled, this, [&](bool checked) { preview->toggle(checked, Preview::Has::ScrollSync); });
     connect(color_bar_toggle, &QAction::toggled, this, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::Self); });
     connect(indicator_toggle, &QAction::toggled, this, [&](bool checked)
         {
@@ -461,7 +461,7 @@ void MainWindow::makeToggleMenu()
         key_filter_toggle,
         line_number_area_toggle,
         scrolls_previous_next_toggle,
-        scroll_sync,
+        //scroll_sync,
         color_bar_toggle,
         indicator_toggle,
         pane_toggle,
@@ -482,7 +482,7 @@ void MainWindow::makeToggleMenu()
     loadMenuToggle(key_filter_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleKeyFilters, true);
     loadMenuToggle(line_number_area_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleLineNumberArea, true);
     loadMenuToggle(scrolls_previous_next_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleScrollsPrevNext, true);
-    loadMenuToggle(scroll_sync, UserData::IniGroup::Preview, UserData::IniValue::ToggleScrollSync, true);
+    //loadMenuToggle(scroll_sync, UserData::IniGroup::Preview, UserData::IniValue::ToggleScrollSync, true);
     loadMenuToggle(color_bar_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleColorBar, true);
     loadMenuToggle(indicator_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleIndicator, true);
     loadMenuToggle(pane_toggle, UserData::IniGroup::Window, UserData::IniValue::TogglePane, true);
@@ -501,9 +501,9 @@ void MainWindow::makeToggleMenu()
     for (const auto& action : { current_line_highlight_toggle, editor_shadow_toggle, editor_theme_toggle, key_filter_toggle, line_number_area_toggle, scrolls_previous_next_toggle })
         toggle->addAction(action);
     toggle->addSeparator();
-    for (const auto& action : { scroll_sync })
+    /*for (const auto& action : { scroll_sync })
         toggle->addAction(action);
-    toggle->addSeparator();
+    toggle->addSeparator();*/
     for (const auto& action : { color_bar_toggle, indicator_toggle, pane_toggle, preview_toggle, status_bar_toggle })
         toggle->addAction(action);
     auto tools = toggle->addMenu(tr("&Tools"));

@@ -117,7 +117,7 @@ signals:
     bool askHasLineHighlight();
     bool askHasProject();
     bool askOverlayVisible();
-    void sendBlockNumber(int blockNumber);
+    //void sendBlockNumber(int blockNumber);
 };
 
 class LineNumberArea : public QWidget

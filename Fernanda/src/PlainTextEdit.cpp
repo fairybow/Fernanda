@@ -317,7 +317,7 @@ void PlainTextEdit::connections()
     connect(this, &PlainTextEdit::cursorPositionChanged, this, &PlainTextEdit::highlightCurrentLine);
     connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
-    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [&]() { sendBlockNumber(firstVisibleBlock().blockNumber()); });
+    //connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [&]() { sendBlockNumber(firstVisibleBlock().blockNumber()); });
     connect(scrollNext, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Next); });
     connect(scrollPrevious, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Previous); });
     connect(scrollUp, &QPushButton::clicked, this, [&]()

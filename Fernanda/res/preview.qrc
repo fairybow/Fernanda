@@ -10,7 +10,6 @@
         <file>preview/include/github-markdown-dark.min.css</file>
         <file>preview/include/github-markdown-light.min.css</file>
         <file>preview/include/marked.min.js</file>
-        <file>preview/testfountain.js</file>
         <file>preview/fountain.html</file>
         <file>preview/fountain-overwrite.css</file>
         <file>preview/markdown.html</file>
