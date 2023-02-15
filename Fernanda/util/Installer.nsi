@@ -17,7 +17,7 @@
 !define APP "Fernanda"
 !define PUB "@fairybow"
 Name "${APP}"
-Outfile "Fernanda-setup-x64-Windows.exe"
+Outfile "Fernanda-setup-Windows-x64.exe"
 
 ; ---------- Directories ----------
 InstallDir "$PROGRAMFILES64\${APP}"

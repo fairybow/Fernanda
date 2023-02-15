@@ -49,7 +49,7 @@ namespace Style
     {
         auto style_sheet = Io::readFile(":/themes/editor_base.qss");
         QString cursor_color = nullptr;
-        QString under_cursor_color = nullptr;
+        QString under_cursor_color = "#f0f0f0";
         if (hasTheme)
         {
             auto theme_sheet = Io::readFile(themePath);

@@ -4,11 +4,23 @@
 <head>
     <link rel="stylesheet" href="include/github-markdown.min.css">
     <link rel="stylesheet" href="markdown-overwrite.css">
-    <script src="include/marked.min.js"></script>
-    <script src="qrc:/qtwebchannel/qwebchannel.js"></script>
 </head>
 <body>
     <div id="text_area"></div>
-    <script>"use strict"; var text_area = document.getElementById("text_area"), updateText = function (e) { text_area.innerHTML = '<div class="markdown-body" width="100%">' + marked.parse(e) + "</div>" }; new QWebChannel(qt.webChannelTransport, function (e) { var t = e.objects.content; updateText(t.text), t.textChanged.connect(updateText) })</script>
+    <script type="text/javascript" src="include/markdown-it.min.js"></script>
+    <script type="text/javascript" src="qrc:/qtwebchannel/qwebchannel.js"></script>
+    <script>
+        'use strict';
+        var text_area = document.getElementById('text_area');
+        var updateText = function (text) {
+            var markdown = window.markdownit({ html: true });
+            text_area.innerHTML = '<div class="markdown-body" width="100%">' + markdown.render(text) + '</div>'
+        };
+        new QWebChannel(qt.webChannelTransport,
+            function (channel) {
+                var content = channel.objects.content;
+                updateText(content.text), content.textChanged.connect(updateText)
+        })
+    </script>
 </body>
 </html>

@@ -4,11 +4,23 @@
 <head>
     <link rel="stylesheet" href="include/fountain.min.css">
     <link rel="stylesheet" href="fountain-overwrite.css">
-    <script src="include/fountain.min.js"></script>
-    <script src="qrc:/qtwebchannel/qwebchannel.js"></script>
 </head>
 <body>
     <div id="text_area"></div>
-    <script>"use strict"; var text_area = document.getElementById("text_area"), updateText = function (t) { var e = fountain.parse(t); text_area.innerHTML = '<div id="script">' + e.html.title_page + "<p>" + e.html.script + "</div>" }; new QWebChannel(qt.webChannelTransport, function (t) { var e = t.objects.content; updateText(e.text), e.textChanged.connect(updateText) })</script>
+    <script type="text/javascript" src="include/fountain.min.js"></script>
+    <script type="text/javascript" src="qrc:/qtwebchannel/qwebchannel.js"></script>
+    <script>
+        'use strict';
+        var text_area = document.getElementById('text_area');
+        var updateText = function (text) {
+            var screenplay = fountain.parse(text);
+            text_area.innerHTML = '<div id="script">' + screenplay.html.title_page + '<p>' + screenplay.html.script + '</div>'
+        };
+        new QWebChannel(qt.webChannelTransport,
+            function (channel) {
+                var content = channel.objects.content;
+                updateText(content.text), content.textChanged.connect(updateText)
+        })
+    </script>
 </body>
 </html>

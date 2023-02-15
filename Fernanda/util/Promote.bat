@@ -40,8 +40,8 @@ start /w devenv.exe "C:\Dev\Fernanda\Fernanda.sln" /build Release x64
 echo Building NSIS installer . . .
 start /w "C:\Program Files (x86)\NSIS\makensis.exe" "C:\Dev\Fernanda\Fernanda\util\Installer.nsi"
 
-echo f|xcopy /v /y /f "C:\Dev\Fernanda\Fernanda\util\Fernanda-setup-x64-Windows.exe" "%OneDrive%\Desktop\Fernanda-setup-x64-Windows.exe"
-del "C:\Dev\Fernanda\Fernanda\util\Fernanda-setup-x64-Windows.exe"
+echo f|xcopy /v /y /f "C:\Dev\Fernanda\Fernanda\util\Fernanda-setup-Windows-x64.exe" "%OneDrive%\Desktop\Fernanda-setup-Windows-x64.exe"
+del "C:\Dev\Fernanda\Fernanda\util\Fernanda-setup-Windows-x64.exe"
 
 start https://github.com/fairybow/Fernanda
 

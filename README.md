@@ -58,7 +58,7 @@ Fernanda is built with:
 - [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/)
 - and [NSIS](https://nsis.sourceforge.io/)
 
-Fernanda's `.story` files rely on:
+Fernanda relies on:
 - Bit7z by [@rikyoz](https://github.com/rikyoz/bit7z)
 - and, thus, 7-zip by [Igor Pavlov](https://www.7-zip.org/)
 
@@ -80,7 +80,7 @@ Among the other fonts used are:
 Solarized theme palettes by [@altercation](https://github.com/altercation/solarized)
 
 [Markdown](https://www.markdownguide.org/)/[Fountain](https://fountain.io/) preview support provided with:
-- [Marked.js](https://github.com/markedjs/marked)
+- [Markdown-it](https://github.com/markdown-it/markdown-it)
 - github-markdown-css by [@sindresorhus](https://github.com/sindresorhus/github-markdown-css)
 - and Fountain.js by [@mattdaly](https://github.com/mattdaly/Fountain.js)
 
@@ -202,6 +202,7 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 - Simple storage of links and research materials
 - Markdown/Fountain export
 - Scroll sync between editor and preview
+- Pane, preview, status bar, and file menu auto-collapse (and expand on area hover)
 
 More to come.
 
