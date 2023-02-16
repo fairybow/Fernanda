@@ -63,6 +63,7 @@
 - [ ] Preview continues to use memory after being toggled off
 - [ ] Windows scale > 100% negates the effects of `setTextCursor(0)`
 - [ ] AOT toggling affects stored window position setting (which, when toggled while maximized makes unmaximizing not change the window size)
+- [ ] Program will sometimes start with artifacting / color halos around pane icons (like below). Toggling window theme off and on seems to fix it?
 - [ ] Cycling fonts and themes, and then forcing repaint by editing open document (to be marked dirty or clean) is causing outlines (often blue, sometimes red) to appear around the icons in Pane (Delegate)
 - [ ] ^ Cycling themes not needed. Appears to be best reproducable by cycling editor fonts quickly and then typing (with light window theme)
 - [ ] ^ The issue may be largely solved, but cycling from Dark to Light does produce a dark blue outline around Open Folder and File icons (but not Closed Folder, from what I could tell?)
@@ -146,7 +147,7 @@
 ### Preview
 - [ ] Ink support
 - [ ] Print to PDF context menu
-- [ ] Scrollbar should begin tied to position in editor. Can be moved independently but when snapped, scrolls with editor.
+- [x] ~~Scrollbar should begin tied to position in editor. Can be moved independently but when snapped, scrolls with editor.~~
 - [x] ~~Replace fountain CSS~~
 - [x] ~~Minify fountain CSS~~
 

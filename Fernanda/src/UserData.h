@@ -64,7 +64,7 @@ namespace UserData
         TogglePane,
         TogglePreview,
         ToggleScrollsPrevNext,
-        //ToggleScrollSync,
+        ToggleScrollSync,
         ToggleStatusBar,
         ToggleToolAOT,
         ToggleToolSA,

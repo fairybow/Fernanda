@@ -1,4 +1,5 @@
-# <img src="Fernanda/res/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda <a name="top"></a>
+# <img src="Fernanda/res/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
+<a id="top"></a>
 
 <p align="center">
 	<kbd>
@@ -21,24 +22,25 @@
 	<a href="https://shields.io/"><img src="https://img.shields.io/badge/omg-these%20are%20so%20cute-00b3b3"/></a>
 </p>
 
-## :tea: **Hello** <a name="hello"></a>
+## :tea: **Hello**
 
 Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
 
-- [About](#about)
-- [Build](#build)
-- [Features](#features)
+- [About](#heartpulse-about)
+- [Build](#honeybee-build)
+- [Features](#star-features)
 	- [Key filters](#features-key_filters)
 	- [Shortcuts](#features-shortcuts)
 	- [`.story`](#features-files)
 	- [Tools](#features-tools)
-- [Installation](#install)
-- [Roadmap](#roadmap)
-- [Thanks](#thanks)
-- [Screens](#screens)
-- [Bye](#bye)
+- [Installation](#floppy_disk-installation)
+- [Roadmap](#compass-roadmap)
+- [Thanks](#smiley_cat-thanks)
+- [Screens](#hibiscus-screens)
+- [Bye](#heartpulse-bye)
 
-## :heartpulse: **About** <a name="about"></a>
+## :heartpulse: **About**
+<a id="heartpulse-about"></a>
 
 This is a personal project, a work-in-progress, and I am *so* not a programmer. Still, I decided I didn't like existing novel-writing software very much, and I wanted to make something all my own. My hope is that it's easy to use, lightly-customizable, and distraction-free, for faster, more peaceful drafting.
 
@@ -50,7 +52,8 @@ Fernanda got its name because I just really like the name a lot. But, as it turn
 
 [:leftwards_arrow_with_hook:](#top)
 
-## :honeybee: **Build** <a name="build"></a>
+## :honeybee: **Build**
+<a id="honeybee-build"></a>
 
 Fernanda is built with:
 - C++
@@ -81,14 +84,15 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 [Markdown](https://www.markdownguide.org/)/[Fountain](https://fountain.io/) preview support provided with:
 - [Markdown-it](https://github.com/markdown-it/markdown-it)
+	- Several Markdown-it plugins, like:
+		- markdown-it-source-map by [@tylingsoft](https://github.com/tylingsoft/markdown-it-source-map)
 - github-markdown-css by [@sindresorhus](https://github.com/sindresorhus/github-markdown-css)
 - and Fountain.js by [@mattdaly](https://github.com/mattdaly/Fountain.js)
 
-> **Note:** Markdown/Fountain support is, at the moment, extremely barebones!
-
 [:leftwards_arrow_with_hook:](#top)
 
-## :star: **Features** <a name="features"></a>
+## :star: **Features**
+<a id="star-features"></a>
 
 **General:**
 - Most things are togglable
@@ -102,7 +106,8 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 ---
 
-**Key filters:** <a name="features-key_filters"></a>
+**Key filters:**
+<a id="features-key_filters"></a>
 - Auto-closing for `"", (), {}, []`
 - 2 spaces will skip the cursor past a closing item, closing the gap (see below)
 - Auto em-/en-dash formatting from hyphen/minus key
@@ -116,7 +121,8 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 ---
 
-**Shortcuts:** <a name="features-shortcuts"></a>
+**Shortcuts:**
+<a id="features-shortcuts"></a>
 - `F11`: Cycle editor themes (Amber, Green, Grey)
 - `Alt` + `F10`: Cycle fonts
 - `Alt` + `F11`: Cycle editor themes (all)
@@ -131,7 +137,8 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 ---
 
-**`.story`:** <a name="features-files"></a>
+**`.story`:**
+<a id="features-files"></a>
 - They're 7-zip (`.7z`, non-compressed) archives
 - They'll be associated with Fernanda by the installer and can be opened in the usual ways
 - They can also be opened with [7-zip](https://www.7-zip.org/), and the contents viewed and/or copied elsewhere
@@ -141,7 +148,8 @@ If you want to manually rename, move, or delete items within a `.story` file via
 
 ---
 
-**Tools:** <a name="features-tools"></a>
+**Tools:**
+<a id="features-tools"></a>
 - :pushpin: **Always-on-top:**
 	- Pin Fernanda to the top of your window order (will interfere with popups!)
 - :bubble_tea:	**Stay awake:**
@@ -158,7 +166,8 @@ If you want to manually rename, move, or delete items within a `.story` file via
 
 [:leftwards_arrow_with_hook:](#top)
 
-## :floppy_disk: **Installation** <a name="install"></a>
+## :floppy_disk: **Installation**
+<a id="floppy_disk-installation"></a>
 
 You can grab the installer on the [Releases](https://github.com/fairybow/Fernanda/releases/) page. (AUR [here](https://aur.archlinux.org/packages/Fernanda).)
 
@@ -171,7 +180,8 @@ You can grab the installer on the [Releases](https://github.com/fairybow/Fernand
 
 Fernanda should create the following folders on your OS:
 
-**Folder locations:** <a name="folders"></a>
+**Folder locations:**
+<a id="folders"></a>
 - `%HOMEPATH%\.fernanda`
 	- e.g. `C:\Users\{username}\.fernanda`
 	- This is the user data folder (using "-dev" creates a separate folder, `.fernanda (dev)`)
@@ -187,7 +197,8 @@ They can be opened via the `Help` menu.
 
 [:leftwards_arrow_with_hook:](#top)
 
-## :compass: **Roadmap** <a name="roadmap"></a>
+## :compass: **Roadmap**
+<a id="compass-roadmap"></a>
 
 Fernanda is available for Windows (beta pre-release) [above](#install), and an early Arch Linux package is also available on the AUR (courtesy of [@philipplenk](https://github.com/philipplenk)).
 
@@ -201,14 +212,15 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 - Separators and possibly customizable file icons, for better mental organization at-a-glance
 - Simple storage of links and research materials
 - Markdown/Fountain export
-- Scroll sync between editor and preview
+- Scroll sync for Fountain between editor and preview
 - Pane, preview, status bar, and file menu auto-collapse (and expand on area hover)
 
 More to come.
 
 [:leftwards_arrow_with_hook:](#top)
 
-## :smiley_cat: **Thanks** <a name="thanks"></a>
+## :smiley_cat: **Thanks**
+<a id="smiley_cat-thanks"></a>
 
 A major thanks to [@philipplenk](https://codemetas.de/) for their teaching and interest and support in helping me work toward a small dream like this (and for helping me make Fernanda available for [Arch Linux](https://aur.archlinux.org/packages/Fernanda)).
 
@@ -216,7 +228,8 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 
 [:leftwards_arrow_with_hook:](#top)
 
-## :hibiscus: **Screens** <a name="screens"></a>
+## :hibiscus: **Screens**
+<a id="hibiscus-screens"></a>
 
 <table>
 	<thead>
@@ -285,6 +298,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 
 [:leftwards_arrow_with_hook:](#top)
 
-## :heartpulse: **Bye** <a name="bye"></a>
+## :heartpulse: **Bye**
+<a id="heartpulse-bye"></a>
 
 [:leftwards_arrow_with_hook:](#top)
