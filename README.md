@@ -22,11 +22,11 @@
 	<a href="https://shields.io/"><img src="https://img.shields.io/badge/omg-these%20are%20so%20cute-00b3b3"/></a>
 </p>
 
-## :tea: **Hello**
+## :blossom: **Hello**
 
 Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
 
-- [About](#heartpulse-about)
+- [About](#tea-about)
 - [Build](#honeybee-build)
 - [Features](#star-features)
 	- [Key filters](#features-key_filters)
@@ -37,20 +37,20 @@ Fernanda is a plain text editor for drafting long-form fiction. (At least, that'
 - [Roadmap](#compass-roadmap)
 - [Thanks](#smiley_cat-thanks)
 - [Screens](#hibiscus-screens)
-- [Bye](#heartpulse-bye)
+- [Goodbye](#heartpulse-goodbye)
 
-## :heartpulse: **About**
-<a id="heartpulse-about"></a>
+## :tea: **About**
+<a id="tea-about"></a>
 
 This is a personal project, a work-in-progress, and I am *so* not a programmer. Still, I decided I didn't like existing novel-writing software very much, and I wanted to make something all my own. My hope is that it's easy to use, lightly-customizable, and distraction-free, for faster, more peaceful drafting.
 
-You can try it [here](#install).
+You can try it [here](#floppy_disk-installation).
 
 Fernanda's look was inspired by the nice and quiet feeling of using [WordStar](https://en.wikipedia.org/wiki/WordStar) on [DOSBox](https://www.dosbox.com/) to draft, and its interface was inspired by [Atom](https://github.com/atom/atom).
 
 Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="./Fernanda/res/icons/Fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
 
-[:leftwards_arrow_with_hook:](#top)
+[:arrow_up:](#top)
 
 ## :honeybee: **Build**
 <a id="honeybee-build"></a>
@@ -89,7 +89,7 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 - github-markdown-css by [@sindresorhus](https://github.com/sindresorhus/github-markdown-css)
 - and Fountain.js by [@mattdaly](https://github.com/mattdaly/Fountain.js)
 
-[:leftwards_arrow_with_hook:](#top)
+[:arrow_up:](#top)
 
 ## :star: **Features**
 <a id="star-features"></a>
@@ -164,7 +164,7 @@ If you want to manually rename, move, or delete items within a `.story` file via
 	</kbd>
 </p>
 
-[:leftwards_arrow_with_hook:](#top)
+[:arrow_up:](#top)
 
 ## :floppy_disk: **Installation**
 <a id="floppy_disk-installation"></a>
@@ -195,12 +195,12 @@ Fernanda should create the following folders on your OS:
 
 They can be opened via the `Help` menu.
 
-[:leftwards_arrow_with_hook:](#top)
+[:arrow_up:](#top)
 
 ## :compass: **Roadmap**
 <a id="compass-roadmap"></a>
 
-Fernanda is available for Windows (beta pre-release) [above](#install), and an early Arch Linux package is also available on the AUR (courtesy of [@philipplenk](https://github.com/philipplenk)).
+Fernanda is available for Windows (beta pre-release) [above](#floppy_disk-installation), and an early Arch Linux package is also available on the AUR (courtesy of [@philipplenk](https://github.com/philipplenk)).
 
 Right now, I'm kind of going where the wind takes me. Fernanda is for drafting. Specifically, for me, it's for encouraging a more productive drafting headspace, and any features that seem like a must for making that happen easier, I'm going to try and add.
 
@@ -217,7 +217,7 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 
 More to come.
 
-[:leftwards_arrow_with_hook:](#top)
+[:arrow_up:](#top)
 
 ## :smiley_cat: **Thanks**
 <a id="smiley_cat-thanks"></a>
@@ -226,7 +226,7 @@ A major thanks to [@philipplenk](https://codemetas.de/) for their teaching and i
 
 A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless work on the very amazing [Bit7z library](https://github.com/rikyoz/bit7z).
 
-[:leftwards_arrow_with_hook:](#top)
+[:arrow_up:](#top)
 
 ## :hibiscus: **Screens**
 <a id="hibiscus-screens"></a>
@@ -296,9 +296,9 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 	</tbody>
 </table>
 
-[:leftwards_arrow_with_hook:](#top)
+[:arrow_up:](#top)
 
-## :heartpulse: **Bye**
-<a id="heartpulse-bye"></a>
+## :heartpulse: **Goodbye**
+<a id="heartpulse-goodbye"></a>
 
-[:leftwards_arrow_with_hook:](#top)
+[:arrow_up:](#top)
