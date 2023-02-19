@@ -70,6 +70,7 @@ namespace Text
 	inline const QString shortcuts() { return heading("Shortcuts") % table({ menuShortcuts(), windowEditorShortcuts() }); }
 	inline const QString tableColumnSpacing(int columns = 9) { return multiplyThese("<td>\n</td>", columns); }
 	inline const QString timeUp() { return QStringLiteral("Time's up!") + multiSpaces(10); }
+	inline const QString checkForUpdates() { return pad("Check for updates"); }
 }
 
 // Text.h, Fernanda

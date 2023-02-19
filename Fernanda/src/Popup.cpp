@@ -13,17 +13,22 @@
 
 #include "Popup.h"
 
-void Popup::about(QWidget* parent)
+bool Popup::about(QWidget* parent)
 {
+    auto result = false;
     QMessageBox about;
     box(about, Text::about(), true, true);
+    auto update = about.addButton(tr(Text::checkForUpdates().toLocal8Bit()), QMessageBox::AcceptRole);
     auto qt = about.addButton(tr("About Qt"), QMessageBox::AcceptRole);
     connect(qt, &QPushButton::clicked, parent, QApplication::aboutQt);
     about.exec();
+    if (about.clickedButton() == update) result = true;
+    return result;
 }
 
 Popup::OnClose Popup::confirm(bool isQuit)
 {
+    auto result = OnClose::Close;
     QMessageBox alert;
     box(alert, Text::change(isQuit), false, false, "Hey!");
     alert.addButton(QMessageBox::Yes);
@@ -31,12 +36,9 @@ Popup::OnClose Popup::confirm(bool isQuit)
     auto save_and = alert.addButton(tr(Text::saveAndButtons(isQuit).toLocal8Bit()), QMessageBox::ActionRole);
     alert.setDefaultButton(no);
     alert.exec();
-    if (alert.clickedButton() == no)
-        return OnClose::Return;
-    else if (alert.clickedButton() == save_and)
-        return OnClose::SaveAndClose;
-    else
-        return OnClose::Close;
+    if (alert.clickedButton() == no) result = OnClose::Return;
+    else if (alert.clickedButton() == save_and) result = OnClose::SaveAndClose;
+    return result;
 }
 
 void Popup::shortcuts()

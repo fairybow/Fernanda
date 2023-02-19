@@ -21,6 +21,22 @@ Story::Story(StdFsPath filePath, Mode mode)
 	dom->set(xml());
 }
 
+const QStringList Story::devGetRenames()
+{
+	QStringList result;
+	auto i = 0;
+	for (auto& rename : dom->renames())
+	{
+		++i;
+		QString entry = QString::number(i) + "\nKey: " + rename.key + "\nRelative Path: " + Path::toQString(rename.relativePath);
+		rename.originalRelativePath.has_value()
+			? entry = entry + "\nOriginal Path: " + Path::toQString(rename.originalRelativePath.value())
+			: entry = entry + "\nNew: " + QString((rename.typeIfNewOrCut.value() == Path::Type::Dir) ? "directory" : "file");
+		result << entry;
+	}
+	return result;
+}
+
 QVector<QStandardItem*> Story::items()
 {
 	QVector<QStandardItem*> result;

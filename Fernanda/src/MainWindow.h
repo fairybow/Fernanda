@@ -29,7 +29,6 @@
 #include <QJsonDocument>
 #include <QMap>
 #include <QMenuBar>
-#include <QMoveEvent>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QShowEvent>
@@ -49,8 +48,6 @@ public:
 
 protected:
     void showEvent(QShowEvent* event) override;
-    void resizeEvent(QResizeEvent* event) override;
-    void moveEvent(QMoveEvent* event) override;
     void closeEvent(QCloseEvent* event) override;
 
 private:
@@ -83,8 +80,8 @@ private:
     bool isInitialized = false;
     bool hasTheme = true;
 
+    const QStringList devGetSize();
     bool confirmStoryClose(bool isQuit = false);
-    const QStringList devPrintRenames(QVector<Io::ArchiveRename> renames);
     void addWidgets();
     void connections();
     void shortcuts();

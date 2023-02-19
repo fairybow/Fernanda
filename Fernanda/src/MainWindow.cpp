@@ -35,22 +35,9 @@ void MainWindow::showEvent(QShowEvent* event)
     isInitialized = true;
 }
 
-void MainWindow::resizeEvent(QResizeEvent* event)
-{
-    QMainWindow::resizeEvent(event);
-    UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::WindowPosition, geometry());
-}
-
-void MainWindow::moveEvent(QMoveEvent* event)
-{
-    QMainWindow::moveEvent(event);
-    UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::WindowPosition, geometry());
-}
-
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     auto state = windowState();
-    UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::WindowState, state.toInt());
     setWindowState(Qt::WindowState::WindowActive);
     auto quit = confirmStoryClose(true);
     if (!quit)
@@ -60,8 +47,22 @@ void MainWindow::closeEvent(QCloseEvent* event)
         colorBar->run(ColorBar::Run::Green);
         return;
     }
+    splitter->saveConfig();
+    UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::WindowState, state.toInt());
+    UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::WindowPosition, geometry());
     UserData::clear(UserData::doThis(UserData::Operation::GetActiveTemp), true);
     event->accept();
+}
+
+const QStringList MainWindow::devGetSize()
+{
+    QStringList result;
+    auto& size = geometry();
+    result << "X: " + QString::number(size.x());
+    result << "Y: " + QString::number(size.y());
+    result << "Width: " + QString::number(size.width());
+    result << "Height: " + QString::number(size.height());
+    return result;
 }
 
 bool MainWindow::confirmStoryClose(bool isQuit)
@@ -78,22 +79,6 @@ bool MainWindow::confirmStoryClose(bool isQuit)
         fileMenuSave();
         result = true;
         break;
-    }
-    return result;
-}
-
-const QStringList MainWindow::devPrintRenames(QVector<Io::ArchiveRename> renames)
-{
-    QStringList result;
-    auto i = 0;
-    for (auto& rename : renames)
-    {
-        ++i;
-        QString entry = QString::number(i) + "\nKey: " + rename.key + "\nRelative Path: " + Path::toQString(rename.relativePath);
-        rename.originalRelativePath.has_value()
-            ? entry = entry + "\nOriginal Path: " + Path::toQString(rename.originalRelativePath.value())
-            : entry = entry + "\nNew: " + QString((rename.typeIfNewOrCut.value() == Path::Type::Dir) ? "directory" : "file");
-        result << entry;
     }
     return result;
 }
@@ -183,6 +168,7 @@ void MainWindow::connections()
             activeStory.value().setItemExpansion(key, isExpanded);
         });
     connect(preview, &Preview::askEmitTextChanged, this, [&]() { editor->textChanged(); });
+    connect(splitter, &Splitter::askWindowSize, this, [&]() { return geometry(); });
     connect(timer, &Tool::resetCountdown, this, [&]() { return getSetting<int>(timerValues); });
 }
 
@@ -533,7 +519,11 @@ void MainWindow::makeHelpMenu()
     auto user_data_folder = new QAction(tr("&User data..."), this);
     auto create_sample_project = new QAction(tr("&Create sample project"), this);
     auto create_sample_themes = new QAction(tr("&Create sample themes..."), this);
-    connect(about, &QAction::triggered, this, [&]() { Popup::about(this); });
+    connect(about, &QAction::triggered, this, [&]()
+        {
+            if (!Popup::about(this)) return;
+            helpMenuUpdate();
+        });
     connect(check_for_updates, &QAction::triggered, this, &MainWindow::helpMenuUpdate);
     connect(shortcuts, &QAction::triggered, this, [&]() { Popup::shortcuts(); });
     connect(documents, &QAction::triggered, this, [&]()
@@ -573,6 +563,9 @@ void MainWindow::makeDevMenu()
     auto print_edited_keys_delegate = new QAction(tr("&Print edited keys (Delegate)"), this);
     auto print_edited_keys_story = new QAction(tr("&Print edited keys (Story)"), this);
     auto print_renames = new QAction(tr("&Print renames"), this);
+    auto print_splitter_startup = new QAction(tr("&Print Splitter startup sizes"), this);
+    auto print_splitter_states = new QAction(tr("&Print stored Splitter states"), this);
+    auto print_window_position = new QAction(tr("&Print window position"), this);
     auto open_documents = new QAction(tr("&Open documents..."), this);
     auto open_installation_folder = new QAction(tr("&Open installation folder..."), this);
     auto open_temps = new QAction(tr("&Open temps..."), this);
@@ -625,8 +618,22 @@ void MainWindow::makeDevMenu()
     connect(print_renames, &QAction::triggered, this, [&]()
         {
             if (!activeStory.has_value()) return;
-            auto renames = devPrintRenames(activeStory.value().devGetRenames());
-            devMenuWrite("__Renames.txt", renames.join(Text::newLines()));
+            auto renames = activeStory.value().devGetRenames();
+            devMenuWrite("__Pending renames.txt", renames.join(Text::newLines()));
+        });
+    connect(print_splitter_startup, &QAction::triggered, this, [&]()
+        {
+            auto states = splitter->devGetStartUpSizes();
+            devMenuWrite("__Splitter startup sizes.txt", states.join(Text::newLines()));
+        });
+    connect(print_splitter_states, &QAction::triggered, this, [&]()
+        {
+            auto states = splitter->devGetStates();
+            devMenuWrite("__Stored Splitter states.txt", states.join(Text::newLines()));
+        });
+    connect(print_window_position, &QAction::triggered, this, [&]()
+        {
+            devMenuWrite("__Window position.txt", devGetSize().join(Text::newLines()));
         });
     connect(open_documents, &QAction::triggered, this, [&]()
         {
@@ -660,6 +667,9 @@ void MainWindow::makeDevMenu()
         print_edited_keys_delegate,
         print_edited_keys_story,
         print_renames,
+        print_splitter_startup,
+        print_splitter_states,
+        print_window_position,
         dev->addSeparator(),
         open_documents,
         open_installation_folder,
@@ -672,7 +682,7 @@ void MainWindow::makeDevMenu()
 void MainWindow::loadConfigs(StdFsPath story)
 {
     loadWinConfigs();
-    splitter->loadConfig(geometry());
+    splitter->loadConfig();
     auto is_empty = story.empty();
     auto load_most_recent = UserData::loadConfig(UserData::IniGroup::Data, UserData::IniValue::ToggleLoadMostRecent, false, UserData::Type::Bool).toBool();
     if (load_most_recent || !is_empty)

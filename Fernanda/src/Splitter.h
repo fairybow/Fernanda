@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include "SplitterHandle.h"
 #include "UserData.h"
 
 #include <QByteArray>
@@ -25,37 +26,49 @@ class Splitter : public QSplitter
     Q_OBJECT
 
 public:
-    Splitter(QWidget* parent = nullptr)
-        : QSplitter(parent)
-    {
-        setObjectName("splitter");
-        connect(this, &QSplitter::splitterMoved, this, [&]()
-            {
-                UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::SplitterPosition, saveState());
-            });
-    }
+    Splitter(QWidget* parent = nullptr);
 
-    void addWidgets(QVector<QWidget*> widgets)
-    {
-        for (auto& widget : widgets)
-            addWidget(widget);
-        setCollapsible(0, true);
-        auto editor = 1;
-        setCollapsible(editor, false);
-        setStretchFactor(editor, 1);
-        auto preview = 2;
-        setCollapsible(preview, true);
-        setStretchFactor(preview, 1);
-    }
+    const QStringList devRecordStartUpSizes();
+    const QStringList devGetStates();
+    void addWidgets(QVector<QWidget*> widgets);
+    void saveConfig();
+    void loadConfig();
 
-    void loadConfig(QRect geometry)
-    {
-        auto state = UserData::loadConfig(UserData::IniGroup::Window, UserData::IniValue::SplitterPosition, QVariant()).toByteArray();
-        if (state.isEmpty() || state.isNull())
-            setSizes(QVector<int>{ static_cast<int>(geometry.width() * 0.2), static_cast<int>(geometry.width() * 0.4), static_cast<int>(geometry.width() * 0.4) });
-        else
-            restoreState(state);
-    }
+    const QStringList devGetStartUpSizes() { return devStartUpSizes; }
+
+protected:
+    SplitterHandle* createHandle() override;
+
+private:
+    enum class State {
+        Collapsed,
+        Expanded
+    };
+
+    struct Info {
+        int index = -1;
+        int handleIndex = -1;
+        int width = -1;
+        State state = State::Expanded;
+    };
+
+    QStringList devStartUpSizes = QStringList();
+    Info pane = Info{ 0, 1 };
+    Info editor = Info{ 1 };
+    Info preview = Info{ 2, 2 };
+    QVector<Info> widgets = { pane, editor, preview };
+
+    void collapse(Info& widgetInfo);
+    void expand(Info& widgetInfo);
+    void uncollapseAll();
+
+private slots:
+    void storeWidths();
+    void toggleExpansion(SplitterHandle* handlePointer);
+    void checkStates(int position, int index);
+
+signals:
+    QRect askWindowSize();
 };
 
 // Splitter.h, Fernanda

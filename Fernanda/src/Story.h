@@ -47,6 +47,7 @@ public:
 
     Story(StdFsPath filePath, Mode mode = Mode::Normal);
 
+    const QStringList devGetRenames();
     QVector<QStandardItem*> items();
     const QString tempSaveOld_openNew(QString newKey, QString oldText = nullptr);
     void autoTempSave(QString text);
@@ -59,7 +60,6 @@ public:
     bool hasChanges() { return (!editedKeys.isEmpty() || dom->hasChanges()); }
     const QString key() { return activeKey; }
     const QString devGetDom(Dom::Document document = Dom::Document::Current) { return dom->string(document); }
-    QVector<Io::ArchiveRename> devGetRenames() { return dom->renames(); }
     const QStringList devGetEditedKeys() { return editedKeys; }
     const StdFsPath devGetActiveTemp() { return UserData::doThis(UserData::Operation::GetActiveTemp) / name<StdFsPath>(); }
     void setItemExpansion(QString key, bool isExpanded) { dom->write(key, isExpanded, Dom::Write::Expanded); }

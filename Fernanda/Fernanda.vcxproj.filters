@@ -208,6 +208,9 @@
     <ClCompile Include="src\Preview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Splitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\resource.rc">
@@ -398,6 +401,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\StatusBarButton.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\SplitterHandle.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

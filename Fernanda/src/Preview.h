@@ -9,7 +9,7 @@
  *
  */
 
- // Preview.h, Fernanda
+// Preview.h, Fernanda
 
 #pragma once
 

@@ -35,6 +35,7 @@
 		- Resource.h
 			- Path.h
 		- Splitter.h
+			- SplitterHandle.h
 			- UserData.h (+ Path.h)
 		- Story.h
 			- Archiver.h
@@ -196,7 +197,6 @@
 #include <QJsonDocument>
 #include <QMap>
 #include <QMenuBar>
-#include <QMoveEvent>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QShowEvent>
@@ -321,12 +321,22 @@
 
 ### Splitter.h
 ```
+#include "SplitterHandle.h"
 #include "UserData.h"
 
 #include <QByteArray>
 #include <QSplitter>
 #include <QVector>
 #include <QWidget>
+```
+
+### SplitterHandle.h
+```
+#include <QEasingCurve>
+#include <QEvent>
+#include <QPropertyAnimation>
+#include <QSplitterHandle>
+#include <QTimer>
 ```
 
 ### StartCop.h

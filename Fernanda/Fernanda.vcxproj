@@ -155,6 +155,7 @@
     <ClCompile Include="src\Path.cpp" />
     <ClCompile Include="src\Popup.cpp" />
     <ClCompile Include="src\Preview.cpp" />
+    <ClCompile Include="src\Splitter.cpp" />
     <ClCompile Include="src\Story.cpp" />
     <ClCompile Include="src\Text.cpp" />
     <ClCompile Include="src\Tool.cpp" />
@@ -217,6 +218,7 @@
     <QtMoc Include="src\Popup.h" />
     <QtMoc Include="src\StartCop.h" />
     <QtMoc Include="src\Preview.h" />
+    <QtMoc Include="src\SplitterHandle.h" />
     <ClInclude Include="src\Story.h" />
     <ClInclude Include="src\Style.h" />
     <ClInclude Include="src\Text.h" />

@@ -9,7 +9,7 @@
  *
  */
 
- // StatusBarButton.h, Fernanda
+// StatusBarButton.h, Fernanda
 
 #pragma once
 
@@ -37,8 +37,8 @@ private:
 
     bool eventFilter(QObject* watched, QEvent* event)
     {
-        StatusBarButton* button = qobject_cast<StatusBarButton*>(watched);
-        if (!button) return false;
+        StatusBarButton* object = qobject_cast<StatusBarButton*>(watched);
+        if (!object) return false;
         if (event->type() == QEvent::Enter || event->type() == QEvent::Leave)
         {
             opacity->setEnabled(!opacity->isEnabled());
@@ -46,7 +46,6 @@ private:
         }
         return false;
     }
-
 };
 
 // StatusBarButton.h, Fernanda

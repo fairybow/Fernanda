@@ -37,7 +37,7 @@ public:
         SaveAndClose
     };
 
-    static void about(QWidget* parent);
+    static bool about(QWidget* parent);
     static OnClose confirm(bool isQuit);
     static void shortcuts();
     static Action sample();

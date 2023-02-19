@@ -18,7 +18,7 @@ goto ask_release
 
 echo Promoting .
 powershell.exe -ExecutionPolicy ByPass ^
-"$shell = New-Object -ComObject 'Shell.Application'; $paths = Get-ChildItem -Path 'C:\Dev\Fernanda' -Force -Exclude '.git'; ForEach ($path in $paths) { $shell.NameSpace(0).ParseName($path.FullName).InvokeVerb('delete') }"
+"$shell = New-Object -ComObject 'Shell.Application'; $paths = Get-ChildItem -Path 'C:\Dev\Fernanda' -Force -Exclude '.git', '.github'; ForEach ($path in $paths) { $shell.NameSpace(0).ParseName($path.FullName).InvokeVerb('delete') }"
 
 echo Promoting . .
 powershell.exe -ExecutionPolicy ByPass ^

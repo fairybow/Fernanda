@@ -9,7 +9,7 @@
  *
  */
 
- // Preview.cpp, Fernanda
+// Preview.cpp, Fernanda
 
 #include "Preview.h"
 
@@ -47,8 +47,8 @@ void Preview::scrollToBlock(int blockNumber)
 
 bool Preview::eventFilter(QObject* watched, QEvent* event)
 {
-    Preview* widget = qobject_cast<Preview*>(watched);
-    if (!widget) return false;
+    Preview* object = qobject_cast<Preview*>(watched);
+    if (!object) return false;
     if (event->type() == QEvent::Hide || event->type() == QEvent::Show)
     {
         check(isVisible());

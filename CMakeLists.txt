@@ -42,6 +42,7 @@ qt_add_executable(Fernanda
     src/Resource.h
     src/Sample.h
     src/Splitter.h
+    src/SplitterHandle.h
     src/StartCop.h
     src/StatusBarButton.h
     src/Story.h
@@ -64,6 +65,7 @@ qt_add_executable(Fernanda
     src/PlainTextEdit.cpp
     src/Popup.cpp
     src/Preview.cpp
+    src/Splitter.cpp
     src/Story.cpp
     src/Text.cpp
     src/Tool.cpp

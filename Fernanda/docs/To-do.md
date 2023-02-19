@@ -1,6 +1,8 @@
 # To-do
 
 ## General
+- [ ] Remove blank switch options
+- [ ] Double-up on identical switch cases
 - [ ] Export All vs Export Selected/Single
 - [ ] Ability to "mark" files as countable/compilable, for both exporting a draft and calculating totals
 - [ ] Installer script needs to detect if Fernanda is running
@@ -145,11 +147,18 @@
 - [ ] Ensure popups happen on the same monitor...
 
 ### Preview
+- [ ] Moving pane before preview has saved in state will override the default preview size, and so toggling it on after that will toggle it on with width 0
 - [ ] Ink support
 - [ ] Print to PDF context menu
 - [x] ~~Scrollbar should begin tied to position in editor. Can be moved independently but when snapped, scrolls with editor.~~
 - [x] ~~Replace fountain CSS~~
 - [x] ~~Minify fountain CSS~~
+
+### Splitter[^1]
+- [ ] Increase trigger area, slightly beyond visible boundaries
+- [ ] Preview handle should animate to the left and not right
+- [ ] Add ability to hover mouse for length of time and activate collapse/expand
+- [x] ~~Toggle collapse/expand on click~~
 
 ### StartCop
 - [ ] Accept args (on file click, prompt to save if needed and open new file; possibly also switch to dev mode)
