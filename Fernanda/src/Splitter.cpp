@@ -126,7 +126,7 @@ void Splitter::storeWidths()
     for (auto& widget_info : widgets)
     {
         if (widget_info.state != State::Expanded) continue;
-        auto size = sizes().at(widget_info.index);
+        auto& size = sizes().at(widget_info.index);
         if (widget_info.width && size)
             widget_info.width = size;
     }
@@ -146,7 +146,6 @@ void Splitter::toggleExpansion(SplitterHandle* handlePointer)
 
 void Splitter::checkStates(int position, int index)
 {
-    storeWidths();
     for (auto& widget_info : widgets)
     {
         auto& handle_index = widget_info.handleIndex;

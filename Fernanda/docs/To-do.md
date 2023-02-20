@@ -147,9 +147,11 @@
 - [ ] Ensure popups happen on the same monitor...
 
 ### Preview
-- [ ] Moving pane before preview has saved in state will override the default preview size, and so toggling it on after that will toggle it on with width 0
+- [ ] Need a default size to open to from toggle if not set (-1)
+- [ ] Toggling preview on will have to trigger the above, because if never toggled on, it will toggle into existence with no width
 - [ ] Ink support
 - [ ] Print to PDF context menu
+- [x] ~~While dragging a collapsed panel open will not override the saved size, dragging it closed will (remove line 149 probably and do storeWidths on mouse release, signalled by handle, instead...avoid saving periodically when dragging)~~
 - [x] ~~Scrollbar should begin tied to position in editor. Can be moved independently but when snapped, scrolls with editor.~~
 - [x] ~~Replace fountain CSS~~
 - [x] ~~Minify fountain CSS~~
