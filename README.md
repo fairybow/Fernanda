@@ -124,7 +124,7 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 **Samples:**
 <a id="features-samples"></a>
 
-A sample project, `Candide.story`, can be created from the `Help` menu, along with sample themes and a sample font.
+A sample project, `Candide.story`, can be created from the `Help` menu, along with sample [themes](#features-themes) and a sample font.
 
 ---
 
@@ -151,7 +151,7 @@ A sample project, `Candide.story`, can be created from the `Help` menu, along wi
 - They can also be opened with [7-zip](https://www.7-zip.org/), and the contents viewed and/or copied elsewhere
 - Items deleted (cut) within Fernanda are moved to a `.cut` folder within the `.story` archive
 
-If you want to manually rename, move, or delete items within a `.story` file via 7-zip, be sure to delete `story.xml`, too, so that it can be remade on next open. (You will lose any reorderings that are at the same directory level, as well as same-level, file-on-file parenting).
+The Story files are, of course, meant to be opened and edited with Fernanda. However, if you need to, you can also access their content via 7-Zip. If you choose to manually rename, move, or delete items within a `.story` file outside Fernanda, be sure to delete `story.xml` (at the root), too, so that it can be remade on next open. (You will lose any reorderings that are at the same directory level, as well as same-level, file-on-file parenting).
 
 ---
 

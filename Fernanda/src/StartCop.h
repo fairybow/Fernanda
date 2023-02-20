@@ -65,7 +65,6 @@ private:
     }
 
 private slots:
-
     void focusMainWindow()
     {
         for (auto& widget : QApplication::allWidgets())

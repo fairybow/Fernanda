@@ -157,6 +157,7 @@
 - [x] ~~Minify fountain CSS~~
 
 ### Splitter[^1]
+- [ ] On open, if you drag to collapse a widget, it will expand to default instead of saved size (is there a way to determine the percentage open needed to mimic the saved state from qbytearray?)
 - [ ] Increase trigger area, slightly beyond visible boundaries
 - [ ] Preview handle should animate to the left and not right
 - [ ] Add ability to hover mouse for length of time and activate collapse/expand

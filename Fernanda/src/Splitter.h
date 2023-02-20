@@ -58,11 +58,14 @@ private:
     Info preview = Info{ 2, 2 };
     QVector<Info> widgets = { pane, editor, preview };
 
+    bool isInitialized = false;
+
     void collapse(Info& widgetInfo);
     void expand(Info& widgetInfo);
     void uncollapseAll();
 
 private slots:
+    void initialize();
     void storeWidths();
     void toggleExpansion(SplitterHandle* handlePointer);
     void checkStates(int position, int index);

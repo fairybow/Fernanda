@@ -58,6 +58,10 @@ private:
             setFixedWidth(splitter()->handleWidth());
             result = true;
             break;
+        case QEvent::MouseButtonRelease:
+            askIsInitialized();
+            result = true;
+            break;
         case QEvent::MouseButtonDblClick:
             expanding->stop();
             askStoreWidths();
@@ -69,6 +73,7 @@ private:
     }
 
 signals:
+    void askIsInitialized();
     void askStoreWidths();
     void askToggleExpansion(SplitterHandle* handlePointer);
 };

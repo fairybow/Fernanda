@@ -89,6 +89,7 @@ void Splitter::loadConfig()
 SplitterHandle* Splitter::createHandle()
 {
     auto handle = new SplitterHandle(orientation(), this);
+    connect(handle, &SplitterHandle::askIsInitialized, this, &Splitter::initialize);
     connect(handle, &SplitterHandle::askStoreWidths, this, &Splitter::storeWidths);
     connect(handle, &SplitterHandle::askToggleExpansion, this, &Splitter::toggleExpansion);
     return handle;
@@ -106,7 +107,9 @@ void Splitter::expand(Info& widgetInfo)
     widgetInfo.state = State::Expanded;
     auto& handle_index = widgetInfo.handleIndex;
     auto& stored_width = widgetInfo.width;
-    moveSplitter(((handle_index < 2) ? stored_width : (askWindowSize().width() - stored_width)), handle_index);
+    (widgetInfo.width < 1)
+        ? moveSplitter(((handle_index < 2) ? (askWindowSize().width() * 0.2) : (askWindowSize().width() * 0.4)), handle_index)
+        : moveSplitter(((handle_index < 2) ? stored_width : (askWindowSize().width() - stored_width)), handle_index);
 }
 
 void Splitter::uncollapseAll()
@@ -119,6 +122,18 @@ void Splitter::uncollapseAll()
         if (stored_width != -1)
             moveSplitter(((handle_index < 2) ? stored_width : (askWindowSize().width() - stored_width)), handle_index);
     }
+}
+
+void Splitter::initialize()
+{
+    if (isInitialized) return;
+    for (auto& widget_info : widgets)
+    {
+        if (widget_info.width) continue;
+        widget_info.state = State::Collapsed;
+    }
+    storeWidths();
+    isInitialized = true;
 }
 
 void Splitter::storeWidths()
