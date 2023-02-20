@@ -4,7 +4,7 @@
 <p align="center">
 	<kbd>
 		<img src="./Fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32'"/>
-		<br>Fernanda v0.14.0-beta32
+		<br><br>Fernanda v0.14.0-beta32<br><br>
 	</kbd>
 </p>
 <p align="center">
@@ -30,8 +30,10 @@ Fernanda is a plain text editor for drafting long-form fiction. (At least, that'
 - [Build](#honeybee-build)
 - [Features](#star-features)
 	- [Key filters](#features-key_filters)
+	- [Samples](#features-samples)
 	- [Shortcuts](#features-shortcuts)
 	- [`.story`](#features-files)
+	- [Themes](#features-themes)
 	- [Tools](#features-tools)
 - [Installation](#floppy_disk-installation)
 - [Roadmap](#compass-roadmap)
@@ -97,8 +99,6 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 **General:**
 - Most things are togglable
 - Settings are auto-saved
-- Incorporation of custom themes and fonts (`.ttf` and `.otf`)
-- Examples (project and custom themes and font) available via the `Help` menu
 - Save backups (in [`{userdata}\backup\.rollback`](#folders))
 - Global line, word, and character totals
 - Export to PDF, text, or directory
@@ -115,9 +115,16 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 <p align="center">
 	<kbd>
 		<img src="./Fernanda/docs/screens/key_filters_1.gif" alt="GIF of 'Key filters'"/>
-		<br>Key filters
+		<br><br>Key filters<br><br>
 	</kbd>
 </p>
+
+---
+
+**Samples:**
+<a id="features-samples"></a>
+
+A sample project, `Candide.story`, can be created from the `Help` menu, along with sample themes and a sample font.
 
 ---
 
@@ -148,6 +155,22 @@ If you want to manually rename, move, or delete items within a `.story` file via
 
 ---
 
+**Themes:**
+<a id="features-themes"></a>
+
+Fernanda comes with several two-tone editor themes inspired by retro displays and a few window themes, too. But it's also made to incorporate any custom themes you create and place in your user data folder. For template theme files ([`Sample.fernanda_editor`](./Fernanda/res/sample/Sample.fernanda_editor) and [`Sample.fernanda_window`](./Fernanda/res/sample/Sample.fernanda_window)), check the `Help` menu.
+
+(Fernanda will also incorporate any `.ttf` and `.otf` font files you drop in your user data folder, too.)
+
+<p align="center">
+	<kbd>
+		<img src="./Fernanda/docs/screens/lol.png" alt="PNG of 'Fernanda with awkward-looking custom themes'"/>
+		<br><br>You can even make it look like this, if you're a real monster.<br><br>
+	</kbd>
+</p>
+
+---
+
 **Tools:**
 <a id="features-tools"></a>
 - :pushpin: **Always-on-top:**
@@ -160,7 +183,7 @@ If you want to manually rename, move, or delete items within a `.story` file via
 <p align="center">
 	<kbd>
 		<img src="./Fernanda/docs/screens/timer_1.gif" alt="GIF of 'Timer'"/>
-		<br>Timer
+		<br><br>Timer<br><br>
 	</kbd>
 </p>
 
@@ -238,7 +261,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 				<p align="center">
 					<kbd>
 						<img src="./Fernanda/docs/screens/banner_old.png" alt="PNG of 'Banner'"/>
-						<br>Old banner<br><br>Themes: window Light / editor Pocket;<br>Font: Fixedsys Excelsior by <a href="https://github.com/kika/fixedsys">@kika</a>.
+						<br><br>Old banner<br><br>Themes: window Light / editor Pocket;<br>Font: Fixedsys Excelsior by <a href="https://github.com/kika/fixedsys">@kika</a>.<br><br>
 					</kbd>
 				</p>
 			</th>
@@ -250,7 +273,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 				<p align="center">
 					<kbd>
 						<img src="./Fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32 running on Windows 11.'"/>
-						<br>Fernanda v0.14.0-beta32 running on Windows 11.<br><br>Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>;<br>Themes: window Solarized Light / editor Snooze;<br>Font: Mononoki by <a href="https://github.com/madmalik/mononoki">@madmalik</a>.
+						<br><br>Fernanda v0.14.0-beta32 running on Windows 11.<br><br>Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>;<br>Themes: window Solarized Light / editor Snooze;<br>Font: Mononoki by <a href="https://github.com/madmalik/mononoki">@madmalik</a>.<br><br>
 					</kbd>
 				</p>
 			</th>
@@ -262,7 +285,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 				<p align="center">
 					<kbd>
 						<img src="./Fernanda/docs/screens/light_pocket.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Light / editor Pocket'"/>
-						<br>Fernanda v0.14.0-beta32<br>Themes: window Light / editor Pocket
+						<br><br>Fernanda v0.14.0-beta32<br>Themes: window Light / editor Pocket<br><br>
 					</kbd>
 				</p>
 			</td>
@@ -270,7 +293,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 				<p align="center">
 					<kbd>
 						<img src="./Fernanda/docs/screens/dark_pocket_alt.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Dark / editor Pocket-Alt'"/>
-						<br>Fernanda v0.14.0-beta32<br>Themes: window Dark / editor Pocket-Alt
+						<br><br>Fernanda v0.14.0-beta32<br>Themes: window Dark / editor Pocket-Alt<br><br>
 					</kbd>
 				</p>
 			</td>
@@ -280,7 +303,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 				<p align="center">
 					<kbd>
 						<img src="./Fernanda/docs/screens/solarized_light_snooze_alt.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Solarized Light / editor Snooze-Alt'"/>
-						<br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Light / editor Snooze-Alt
+						<br><br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Light / editor Snooze-Alt<br><br>
 					</kbd>
 				</p>
 			</td>
@@ -288,7 +311,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 				<p align="center">
 					<kbd>
 						<img src="./Fernanda/docs/screens/solarized_dark_snooze.png" alt="PNG of 'Fernanda v0.14.0-beta32 - Themes: window Solarized Dark / editor Snooze'"/>
-						<br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Dark / editor Snooze
+						<br><br>Fernanda v0.14.0-beta32<br>Themes: window Solarized Dark / editor Snooze<br><br>
 					</kbd>
 				</p>
 			</td>
