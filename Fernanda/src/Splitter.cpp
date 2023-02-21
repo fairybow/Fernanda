@@ -107,9 +107,10 @@ void Splitter::expand(Info& widgetInfo)
     widgetInfo.state = State::Expanded;
     auto& handle_index = widgetInfo.handleIndex;
     auto& stored_width = widgetInfo.width;
+    auto window_width = askWindowSize().width();
     (widgetInfo.width < 1)
-        ? moveSplitter(((handle_index < 2) ? (askWindowSize().width() * 0.2) : (askWindowSize().width() * 0.4)), handle_index)
-        : moveSplitter(((handle_index < 2) ? stored_width : (askWindowSize().width() - stored_width)), handle_index);
+        ? moveSplitter(((handle_index < 2) ? (window_width * 0.2) : (window_width - (window_width * 0.4))), handle_index)
+        : moveSplitter(((handle_index < 2) ? stored_width : (window_width - stored_width)), handle_index);
 }
 
 void Splitter::uncollapseAll()
@@ -141,7 +142,7 @@ void Splitter::storeWidths()
     for (auto& widget_info : widgets)
     {
         if (widget_info.state != State::Expanded) continue;
-        auto& size = sizes().at(widget_info.index);
+        auto size = sizes().at(widget_info.index);
         if (widget_info.width && size)
             widget_info.width = size;
     }
