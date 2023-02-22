@@ -1,0 +1,40 @@
+<!--
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+ *  Copyright (C) 2022-2023 fairybow <https://github.com/fairybow>
+ *
+ *  <https://github.com/fairybow/Fernanda>
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
+ -->
+<!-- fountain.html, Fernanda -->
+
+<!doctype html>
+<meta charset="utf-8">
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="include/fountain.min.css">
+    <link rel="stylesheet" href="fountain-overwrite.css">
+</head>
+<body>
+    <div id="text_area"></div>
+    <script type="text/javascript" src="include/fountain.min.js"></script>
+    <script type="text/javascript" src="qrc:/qtwebchannel/qwebchannel.js"></script>
+    <script type="text/javascript">
+        'use strict';
+        const text_area = document.getElementById('text_area');
+        let updateText = function (text) {
+            let screenplay = fountain.parse(text);
+            text_area.innerHTML = '<div id="script">' + screenplay.html.title_page + '<p>' + screenplay.html.script + '</div>'
+        };
+        new QWebChannel(qt.webChannelTransport,
+            function (channel) {
+                let content = channel.objects.content;
+                updateText(content.text), content.textChanged.connect(updateText)
+            })
+    </script>
+</body>
+</html>
+
+<!-- fountain.html, Fernanda -->

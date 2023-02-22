@@ -1,4 +1,4 @@
-# <img src="Fernanda/res/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
+# <img src="Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
 <a id="top"></a>
 
 <p align="center">
@@ -8,49 +8,48 @@
 	</kbd>
 </p>
 <p align="center">
-	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=f34b7d" alt="Latest Release"/></a>
-	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=orange" alt="License: GPL-3.0"/></a>
+	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=ffa600&label=&style=flat" alt="Latest Release"/></a>
+	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=ff6361&label=&style=flat" alt="License: GPL-3.0"/></a>
 	<br>
-	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-v6.4.2-brightgreen?logo=qt" alt="Qt v6.4.2"/></a>
-	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-v4.0.0--RC-blue" alt="Bit7z v4.0.0-RC"/></a>
-	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip-v22.01-ffbf00" alt="7zip v22.01"/></a>
+	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip%20v22.01-bc5090?style=flat" alt="7zip v22.01"/></a>
+	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z%20v4.0.0--RC-58508d?style=flat" alt="Bit7z v4.0.0-RC"/></a>
+	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt%20v6.4.2-003f5c?style=flat" alt="Qt v6.4.2"/></a>
 	<br>
-	<a href="#floppy_disk-installation"><img src="https://img.shields.io/badge/Windows%20(x64)-5B5B5B?logo=windows" alt="Platform Windows (x64)"/></a>
-	<a href="#floppy_disk-installation"><img src="https://img.shields.io/badge/Arch%20Linux-5B5B5B?logo=archlinux" alt="Platform Arch Linux"/></a>
-	<a href="https://github.com/fairybow/Fernanda/search?l=c%2B%2B"><img src="https://img.shields.io/badge/C%2B%2B20-5B5B5B?logo=c%2B%2B" alt="C++20"/></a>
-	<br>
-	<a href="https://shields.io/"><img src="https://img.shields.io/badge/omg-these%20are%20so%20cute-00b3b3"/></a>
+	<a href="#framed_picture-installation"><img src="https://img.shields.io/badge/Windows%20(x64)-666b5e?logo=windows&style=flat" alt="Platform Windows (x64)"/></a>
+	<a href="#framed_picture-installation"><img src="https://img.shields.io/badge/Arch%20Linux-666b5e?logo=archlinux&style=flat" alt="Platform Arch Linux"/></a>
 </p>
 
-## :blossom: **Hello**
+## :tea: **Hello**
 
 Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
 
-- [About](#tea-about)
+> Keep in mind, this software is *in-progress*
+
+- [About](#fallen_leaf-about)
 - [Build](#honeybee-build)
-- [Features](#star-features)
+- [Features](#sunrise_over_mountains-features)
 	- [Key filters](#features-key_filters)
 	- [Samples](#features-samples)
 	- [Shortcuts](#features-shortcuts)
 	- [`.story`](#features-files)
 	- [Themes](#features-themes)
 	- [Tools](#features-tools)
-- [Installation](#floppy_disk-installation)
-- [Roadmap](#compass-roadmap)
-- [Thanks](#smiley_cat-thanks)
-- [Screens](#hibiscus-screens)
-- [Goodbye](#heartpulse-goodbye)
+- [Installation](#framed_picture-installation)
+- [Roadmap](#luggage-roadmap)
+- [Thanks](#fox_face-thanks)
+- [Screens](#moon_cake-screens)
+- [Goodbye](#tangerine-goodbye)
 
-## :tea: **About**
-<a id="tea-about"></a>
+## :fallen_leaf: **About**
+<a id="fallen_leaf-about"></a>
 
 This is a personal project, a work-in-progress, and I am *so* not a programmer. Still, I decided I didn't like existing novel-writing software very much, and I wanted to make something all my own. My hope is that it's easy to use, lightly-customizable, and distraction-free, for faster, more peaceful drafting.
 
-You can try it [here](#floppy_disk-installation).
+You can try it [here](#framed_picture-installation).
 
 Fernanda's look was inspired by the nice and quiet feeling of using [WordStar](https://en.wikipedia.org/wiki/WordStar) on [DOSBox](https://www.dosbox.com/) to draft, and its interface was inspired by [Atom](https://github.com/atom/atom).
 
-Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="./Fernanda/res/icons/Fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
+Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="./Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
 
 [:arrow_up:](#top)
 
@@ -93,8 +92,8 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 [:arrow_up:](#top)
 
-## :star: **Features**
-<a id="star-features"></a>
+## :sunrise_over_mountains: **Features**
+<a id="sunrise_over_mountains-features"></a>
 
 **General:**
 - Most things are togglable
@@ -158,7 +157,7 @@ The Story files are, of course, meant to be opened and edited with Fernanda. How
 **Themes:**
 <a id="features-themes"></a>
 
-Fernanda comes with several two-tone editor themes inspired by retro displays and a few window themes, too. But it's also made to incorporate any custom themes you create and place in your user data folder. For template theme files ([`Sample.fernanda_editor`](./Fernanda/res/sample/Sample.fernanda_editor) and [`Sample.fernanda_window`](./Fernanda/res/sample/Sample.fernanda_window)), check the `Help` menu.
+Fernanda comes with several two-tone editor themes inspired by retro displays and a few window themes, too. But it's also made to incorporate any custom themes you create and place in your user data folder. For template theme files ([`Sample.fernanda_editor`](./Fernanda/resources/sample/Sample.fernanda_editor) and [`Sample.fernanda_window`](./Fernanda/resources/sample/Sample.fernanda_window)), check the `Help` menu.
 
 (Fernanda will also incorporate any `.ttf` and `.otf` font files you drop in your user data folder, too.)
 
@@ -189,8 +188,8 @@ Fernanda comes with several two-tone editor themes inspired by retro displays an
 
 [:arrow_up:](#top)
 
-## :floppy_disk: **Installation**
-<a id="floppy_disk-installation"></a>
+## :framed_picture: **Installation**
+<a id="framed_picture-installation"></a>
 
 You can grab the installer on the [Releases](https://github.com/fairybow/Fernanda/releases/) page. (AUR [here](https://aur.archlinux.org/packages/Fernanda).)
 
@@ -220,10 +219,10 @@ They can be opened via the `Help` menu.
 
 [:arrow_up:](#top)
 
-## :compass: **Roadmap**
-<a id="compass-roadmap"></a>
+## :luggage: **Roadmap**
+<a id="luggage-roadmap"></a>
 
-Fernanda is available for Windows (beta pre-release) [above](#floppy_disk-installation), and an early Arch Linux package is also available on the AUR (courtesy of [@philipplenk](https://github.com/philipplenk)).
+Fernanda is available for Windows (beta pre-release) [above](#framed_picture-installation), and an early Arch Linux package is also available on the AUR (courtesy of [@philipplenk](https://github.com/philipplenk)).
 
 Right now, I'm kind of going where the wind takes me. Fernanda is for drafting. Specifically, for me, it's for encouraging a more productive drafting headspace, and any features that seem like a must for making that happen easier, I'm going to try and add.
 
@@ -242,8 +241,8 @@ More to come.
 
 [:arrow_up:](#top)
 
-## :smiley_cat: **Thanks**
-<a id="smiley_cat-thanks"></a>
+## :fox_face: **Thanks**
+<a id="fox_face-thanks"></a>
 
 A major thanks to [@philipplenk](https://codemetas.de/) for their teaching and interest and support in helping me work toward a small dream like this (and for helping me make Fernanda available for [Arch Linux](https://aur.archlinux.org/packages/Fernanda)).
 
@@ -251,8 +250,8 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 
 [:arrow_up:](#top)
 
-## :hibiscus: **Screens**
-<a id="hibiscus-screens"></a>
+## :moon_cake: **Screens**
+<a id="moon_cake-screens"></a>
 
 <table>
 	<thead>
@@ -321,7 +320,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 
 [:arrow_up:](#top)
 
-## :heartpulse: **Goodbye**
-<a id="heartpulse-goodbye"></a>
+## :tangerine: **Goodbye**
+<a id="tangerine-goodbye"></a>
 
 [:arrow_up:](#top)

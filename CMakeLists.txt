@@ -22,66 +22,66 @@ FetchContent_MakeAvailable(bit7z)
 
 qt_add_executable(Fernanda
     
-    src/Archiver.h
-    src/ColorBar.h
-    src/Delegate.h
-    src/Dom.h
-    src/Editor.h
-    src/Icon.h
-    src/Index.h
-    src/Indicator.h
-    src/Io.h
-    src/KeyFilter.h
-    src/Layout.h
-    src/MainWindow.h
-    src/Pane.h
-    src/Path.h
-    src/PlainTextEdit.h
-    src/Popup.h
-    src/Preview.h
-    src/Resource.h
-    src/Sample.h
-    src/Splitter.h
-    src/SplitterHandle.h
-    src/StartCop.h
-    src/StatusBarButton.h
-    src/Story.h
-    src/Style.h
-    src/Text.h
-    src/Tool.h
-    src/UserData.h
-    src/Version.h
+    source/Archiver.h
+    source/ColorBar.h
+    source/Delegate.h
+    source/Dom.h
+    source/Editor.h
+    source/Icon.h
+    source/Index.h
+    source/Indicator.h
+    source/Io.h
+    source/KeyFilter.h
+    source/Layout.h
+    source/MainWindow.h
+    source/Pane.h
+    source/Path.h
+    source/PlainTextEdit.h
+    source/Popup.h
+    source/Preview.h
+    source/Resource.h
+    source/Sample.h
+    source/Splitter.h
+    source/SplitterHandle.h
+    source/StartCop.h
+    source/StatusBarButton.h
+    source/Story.h
+    source/Style.h
+    source/Text.h
+    source/Tool.h
+    source/UserData.h
+    source/Version.h
     
-    src/Archiver.cpp
-    src/ColorBar.cpp
-    src/Dom.cpp
-    src/Editor.cpp
-    src/Indicator.cpp
-    src/KeyFilter.cpp
-    src/Main.cpp
-    src/MainWindow.cpp
-    src/Pane.cpp
-    src/Path.cpp
-    src/PlainTextEdit.cpp
-    src/Popup.cpp
-    src/Preview.cpp
-    src/Splitter.cpp
-    src/Story.cpp
-    src/Text.cpp
-    src/Tool.cpp
-    src/UserData.cpp
+    source/Archiver.cpp
+    source/ColorBar.cpp
+    source/Dom.cpp
+    source/Editor.cpp
+    source/Indicator.cpp
+    source/KeyFilter.cpp
+    source/Main.cpp
+    source/MainWindow.cpp
+    source/Pane.cpp
+    source/Path.cpp
+    source/PlainTextEdit.cpp
+    source/Popup.cpp
+    source/Preview.cpp
+    source/Splitter.cpp
+    source/Story.cpp
+    source/Text.cpp
+    source/Tool.cpp
+    source/UserData.cpp
     
-    res/fonts.qrc
-    res/icons.qrc
-    res/lib.qrc
-    res/preview.qrc
-    res/resource.rc
-    res/sample.qrc
-    res/themes.qrc
+    resources/fonts.qrc
+    resources/icons.qrc
+    resources/lib.qrc
+    resources/preview.qrc
+    resources/resource.rc
+    resources/sample.qrc
+    resources/themes.qrc
 )
 
 target_include_directories(Fernanda PRIVATE include)
-target_include_directories(Fernanda PRIVATE src)
+target_include_directories(Fernanda PRIVATE source)
 target_link_libraries(Fernanda PRIVATE Qt6::Network)
 target_link_libraries(Fernanda PRIVATE Qt6::PrintSupport)
 target_link_libraries(Fernanda PRIVATE Qt6::WebChannel)

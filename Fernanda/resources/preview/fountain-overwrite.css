@@ -1,0 +1,55 @@
+/*
+ *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+ *  Copyright (C) 2022-2023 fairybow <https://github.com/fairybow>
+ *
+ *  <https://github.com/fairybow/Fernanda>
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/* fountain-overwrite.css, Fernanda */
+
+@font-face {
+    font-family: 'Courier Prime';
+    src: url('include/CourierPrime-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap
+}
+
+@font-face {
+    font-family: 'Courier Prime';
+    src: url('include/CourierPrime-BoldItalic.woff') format('woff');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap
+}
+
+@font-face {
+    font-family: 'Courier Prime';
+    src: url('include/CourierPrime-Italic.woff') format('woff');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap
+}
+
+@font-face {
+    font-family: 'Courier Prime';
+    src: url('include/CourierPrime.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap
+}
+
+body {
+    background-color: #f8f8ff;
+    color: #1e1e1e;
+    font-family: 'Courier Prime';
+    font-size: 12pt;
+    padding-left: 2em;
+    padding-right: 2em
+}
+
+/* fountain-overwrite.css, Fernanda */

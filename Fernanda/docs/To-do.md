@@ -115,6 +115,7 @@
 - [x] ~~Avoid passing entire document lol~~
 
 ### MainWindow
+- [ ] Maximizing window and then closing without edits (so as to not receive "unsaved" prompt) causes window to not remember geometry correctly on next startup (though it returns to state...it's just that, when prompted to save, it will actually be able to correctly unmaximize on next load--what's happening differently in the other case?)
 - [ ] Instead of `activeStory` check for Save option, tie it to signal to show/hide story menu and make disabled
 - [ ] Separate menu into its own class?
 - [ ] Auto-hide menu option
@@ -160,8 +161,11 @@
 - [ ] On open, if you drag to collapse a widget, it will expand to default instead of saved size (is there a way to determine the percentage open needed to mimic the saved state from qbytearray?)
 - [ ] Increase trigger area, slightly beyond visible boundaries
 - [ ] Preview handle should animate to the left and not right
-- [ ] Add ability to hover mouse for length of time and activate collapse/expand
+- [x] ~~Add ability to hover mouse for length of time and activate collapse/expand~~
 - [x] ~~Toggle collapse/expand on click~~
+
+### SplitterHandle[^1]
+- [ ] Make all the RBFLs a function that returns list of valid widgets meeting the criteria
 
 ### StartCop
 - [ ] Accept args (on file click, prompt to save if needed and open new file; possibly also switch to dev mode)
