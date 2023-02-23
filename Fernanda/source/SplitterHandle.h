@@ -51,7 +51,7 @@ private:
         switch (event->type()) {
         case QEvent::Enter:
             expanding->start();
-            hoverTrigger->start(800);
+            hoverTrigger->start(750);
             result = true;
             break;
         case QEvent::Leave:

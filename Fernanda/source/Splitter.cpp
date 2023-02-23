@@ -100,7 +100,7 @@ SplitterHandle* Splitter::createHandle()
     return handle;
 }
 
-int Splitter::flip(int index)
+int Splitter::toDefault(int index)
 {
     auto window_width = askWindowSize().width();
     return (index < 2) ? (window_width * 2/10) : (window_width - (window_width * 4/10));
@@ -110,7 +110,7 @@ void Splitter::collapse(Info& widgetInfo)
 {
     widgetInfo.state = State::Collapsed;
     auto& handle_index = widgetInfo.handleIndex;
-    moveSplitter(flip(handle_index, 0), handle_index);
+    moveSplitter(toWindowX(handle_index, 0), handle_index);
 }
 
 void Splitter::expand(Info& widgetInfo, bool isHover)
@@ -119,8 +119,8 @@ void Splitter::expand(Info& widgetInfo, bool isHover)
     auto& handle_index = widgetInfo.handleIndex;
     auto& stored_width = widgetInfo.width;
     (stored_width < 1)
-        ? moveSplitter(flip(handle_index), handle_index)
-        : moveSplitter(flip(handle_index, stored_width), handle_index);
+        ? moveSplitter(toDefault(handle_index), handle_index)
+        : moveSplitter(toWindowX(handle_index, stored_width), handle_index);
 }
 
 void Splitter::uncollapseAll()
@@ -131,7 +131,7 @@ void Splitter::uncollapseAll()
         auto& handle_index = widget_info.handleIndex;
         auto& stored_width = widget_info.width;
         if (stored_width != -1)
-            moveSplitter(flip(handle_index, stored_width), handle_index);
+            moveSplitter(toWindowX(handle_index, stored_width), handle_index);
     }
 }
 
@@ -218,7 +218,7 @@ void Splitter::unhoverAll()
     for (auto& widget_info : widgets)
     {
         if (!isHoverExpanded(widget_info)) continue;
-        QTimer::singleShot(800, this, [&]()
+        QTimer::singleShot(250, this, [&]()
             {
                 if (!widget(widget_info.index)->underMouse() && !handle(widget_info.handleIndex)->underMouse())
                     collapse(widget_info);

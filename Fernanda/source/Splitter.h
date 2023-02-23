@@ -61,13 +61,13 @@ private:
 
     bool isInitialized = false;
 
-    int flip(int index);
+    int toDefault(int index);
     void collapse(Info& widgetInfo);
     void expand(Info& widgetInfo, bool isHover = false);
     void uncollapseAll();
     bool eventFilter(QObject* watched, QEvent* event);
 
-    int flip(int index, int size) { return (index < 2) ? size : askWindowSize().width() - size; }
+    int toWindowX(int index, int size) { return (index < 2) ? size : askWindowSize().width() - size; }
     bool match(SplitterHandle* handlePtr, Info& widgetInfo) const { return (handlePtr == handle(widgetInfo.handleIndex)); }
     bool isCollapsed(Info& widgetInfo) const { return (widgetInfo.state == State::Collapsed); }
     bool isExpanded(Info& widgetInfo) const { return (widgetInfo.state == State::Expanded); }
