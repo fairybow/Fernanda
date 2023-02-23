@@ -60,7 +60,6 @@ namespace UserData
         ToggleLineNumberArea,
         ToggleLineHighlight,
         ToggleLoadMostRecent,
-        TogglePane,
         TogglePreview,
         ToggleScrollsPrevNext,
         ToggleScrollSync,

@@ -218,7 +218,7 @@ void Splitter::unhoverAll()
     for (auto& widget_info : widgets)
     {
         if (!isHoverExpanded(widget_info)) continue;
-        QTimer::singleShot(1500, this, [&]()
+        QTimer::singleShot(800, this, [&]()
             {
                 if (!widget(widget_info.index)->underMouse() && !handle(widget_info.handleIndex)->underMouse())
                     collapse(widget_info);

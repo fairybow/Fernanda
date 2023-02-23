@@ -192,9 +192,6 @@ const QString UserData::valueName(IniValue valueType)
     case IniValue::ToggleLoadMostRecent:
         result = "toggle__load_most_recent_project";
         break;
-    case IniValue::TogglePane:
-        result = "toggle__pane";
-        break;
     case IniValue::TogglePreview:
         result = "toggle__preview";
         break;

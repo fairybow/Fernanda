@@ -391,7 +391,6 @@ void MainWindow::makeToggleMenu()
     auto scroll_sync = new QAction(tr("&Preview scroll sync"), this);
     auto color_bar_toggle = new QAction(tr("&Color bar"), this);
     auto indicator_toggle = new QAction(tr("&Indicator"), this);
-    auto pane_toggle = new QAction(tr("&Pane"), this);
     auto preview_toggle = new QAction(tr("&Preview"), this);
     auto status_bar_toggle = new QAction(tr("&Status bar"), this);
     auto aot_toggle = new QAction(tr("&Always-on-top"), this);
@@ -415,10 +414,6 @@ void MainWindow::makeToggleMenu()
     connect(indicator_toggle, &QAction::toggled, this, [&](bool checked)
         {
             toggleWidget(indicator, UserData::IniGroup::Window, UserData::IniValue::ToggleIndicator, checked);
-        });
-    connect(pane_toggle, &QAction::toggled, this, [&](bool checked)
-        {
-            toggleWidget(pane, UserData::IniGroup::Window, UserData::IniValue::TogglePane, checked);
         });
     connect(preview_toggle, &QAction::toggled, this, [&](bool checked)
         {
@@ -450,7 +445,6 @@ void MainWindow::makeToggleMenu()
         scroll_sync,
         color_bar_toggle,
         indicator_toggle,
-        pane_toggle,
         preview_toggle,
         status_bar_toggle,
         aot_toggle,
@@ -471,7 +465,6 @@ void MainWindow::makeToggleMenu()
     loadMenuToggle(scroll_sync, UserData::IniGroup::Preview, UserData::IniValue::ToggleScrollSync, true);
     loadMenuToggle(color_bar_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleColorBar, true);
     loadMenuToggle(indicator_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleIndicator, true);
-    loadMenuToggle(pane_toggle, UserData::IniGroup::Window, UserData::IniValue::TogglePane, true);
     loadMenuToggle(preview_toggle, UserData::IniGroup::Window, UserData::IniValue::TogglePreview, false);
     loadMenuToggle(status_bar_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleStatusBar, true);
     loadMenuToggle(aot_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleToolAOT, false);
@@ -490,7 +483,7 @@ void MainWindow::makeToggleMenu()
     for (const auto& action : { scroll_sync })
         toggle->addAction(action);
     toggle->addSeparator();
-    for (const auto& action : { color_bar_toggle, indicator_toggle, pane_toggle, preview_toggle, status_bar_toggle })
+    for (const auto& action : { color_bar_toggle, indicator_toggle, preview_toggle, status_bar_toggle })
         toggle->addAction(action);
     auto tools = toggle->addMenu(tr("&Tools"));
     for (const auto& action : {
