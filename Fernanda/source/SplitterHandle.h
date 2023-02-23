@@ -51,12 +51,13 @@ private:
         switch (event->type()) {
         case QEvent::Enter:
             expanding->start();
-            hoverTrigger->start(500);
+            hoverTrigger->start(800);
             result = true;
             break;
         case QEvent::Leave:
             expanding->stop();
             hoverTrigger->stop();
+            askUnhoverAll();
             setFixedWidth(splitter()->handleWidth());
             result = true;
             break;
@@ -76,10 +77,11 @@ private:
     }
 
 signals:
-    void askHoverExpand(SplitterHandle* handlePointer);
+    void askHoverExpand(SplitterHandle* handlePtr);
     void askIsInitialized();
     void askStoreWidths();
-    void askToggleExpansion(SplitterHandle* handlePointer);
+    void askToggleExpansion(SplitterHandle* handlePtr);
+    void askUnhoverAll();
 };
 
 // SplitterHandle.h, Fernanda

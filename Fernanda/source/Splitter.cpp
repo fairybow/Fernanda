@@ -48,8 +48,7 @@ const QStringList Splitter::devGetStates()
         auto entry = "Widget index: " + QString::number(widget_info.index);
         entry.append("\nAssociated handle index: " + QString::number(widget_info.handleIndex));
         entry.append("\nLast saved width: " + QString::number(widget_info.width));
-        auto& widget_state = widget_info.state;
-        QString state = (widget_state == State::Collapsed) ? "Collapsed" : (widget_state == State::Expanded) ? "Expanded" : "HoverExpanded";
+        QString state = isCollapsed(widget_info) ? "Collapsed" : isExpanded(widget_info) ? "Expanded" : "HoverExpanded";
         entry.append("\nCurrent state: " + state);
         result << entry;
     }
@@ -93,18 +92,25 @@ void Splitter::loadConfig()
 SplitterHandle* Splitter::createHandle()
 {
     auto handle = new SplitterHandle(orientation(), this);
+    connect(handle, &SplitterHandle::askHoverExpand, this, &Splitter::hoverExpand);
     connect(handle, &SplitterHandle::askIsInitialized, this, &Splitter::initialize);
     connect(handle, &SplitterHandle::askStoreWidths, this, &Splitter::storeWidths);
     connect(handle, &SplitterHandle::askToggleExpansion, this, &Splitter::toggleExpansion);
-    connect(handle, &SplitterHandle::askHoverExpand, this, &Splitter::hoverExpand);
+    connect(handle, &SplitterHandle::askUnhoverAll, this, &Splitter::unhoverAll);
     return handle;
+}
+
+int Splitter::flip(int index)
+{
+    auto window_width = askWindowSize().width();
+    return (index < 2) ? (window_width * 2/10) : (window_width - (window_width * 4/10));
 }
 
 void Splitter::collapse(Info& widgetInfo)
 {
     widgetInfo.state = State::Collapsed;
     auto& handle_index = widgetInfo.handleIndex;
-    moveSplitter(((handle_index < 2) ? 0 : (askWindowSize().width()) - handleWidth()), handle_index);
+    moveSplitter(flip(handle_index, 0), handle_index);
 }
 
 void Splitter::expand(Info& widgetInfo, bool isHover)
@@ -112,30 +118,20 @@ void Splitter::expand(Info& widgetInfo, bool isHover)
     isHover ? widgetInfo.state = State::HoverExpanded : widgetInfo.state = State::Expanded;
     auto& handle_index = widgetInfo.handleIndex;
     auto& stored_width = widgetInfo.width;
-    auto window_width = askWindowSize().width();
-    (widgetInfo.width < 1)
-        ? moveSplitter(((handle_index < 2) ? (window_width * 2/10) : (window_width - (window_width * 4/10))), handle_index)
-        : moveSplitter(((handle_index < 2) ? stored_width : (window_width - stored_width)), handle_index);
+    (stored_width < 1)
+        ? moveSplitter(flip(handle_index), handle_index)
+        : moveSplitter(flip(handle_index, stored_width), handle_index);
 }
 
 void Splitter::uncollapseAll()
 {
     for (auto& widget_info : widgets)
     {
-        if (widget_info.state != State::Collapsed) continue;
+        if (!isCollapsed(widget_info)) continue;
         auto& handle_index = widget_info.handleIndex;
         auto& stored_width = widget_info.width;
         if (stored_width != -1)
-            moveSplitter(((handle_index < 2) ? stored_width : (askWindowSize().width() - stored_width)), handle_index);
-    }
-}
-
-void Splitter::unhoverAll()
-{
-    for (auto& widget_info : widgets)
-    {
-        if (widget_info.state != State::HoverExpanded) continue;
-        collapse(widget_info);
+            moveSplitter(flip(handle_index, stored_width), handle_index);
     }
 }
 
@@ -149,6 +145,34 @@ bool Splitter::eventFilter(QObject* watched, QEvent* event)
         return true;
     }
     return false;
+}
+
+void Splitter::checkStates(int position, int index)
+{
+    for (auto& widget_info : widgets)
+    {
+        auto& handle_index = widget_info.handleIndex;
+        if (index != handle_index) continue;
+        if (isHoverExpanded(widget_info)) continue;
+        auto& widget_state = widget_info.state;
+        (handle_index < 2)
+            ? (position != 0)
+            ? widget_state = State::Expanded
+            : widget_state = State::Collapsed
+            : (position != (askWindowSize().width() - handleWidth()))
+            ? widget_state = State::Expanded
+            : widget_state = State::Collapsed;
+    }
+}
+
+void Splitter::hoverExpand(SplitterHandle* handlePtr)
+{
+    for (auto& widget_info : widgets)
+    {
+        if (!match(handlePtr, widget_info)) continue;
+        if (isCollapsed(widget_info))
+            expand(widget_info, true);
+    }
 }
 
 void Splitter::initialize()
@@ -171,51 +195,34 @@ void Splitter::storeWidths()
 {
     for (auto& widget_info : widgets)
     {
-        if (widget_info.state != State::Expanded) continue;
+        if (!isExpanded(widget_info)) continue;
         auto size = sizes().at(widget_info.index);
         if (widget_info.width && size)
             widget_info.width = size;
     }
 }
 
-void Splitter::toggleExpansion(SplitterHandle* handlePointer)
+void Splitter::toggleExpansion(SplitterHandle* handlePtr)
 {
     for (auto& widget_info : widgets)
     {
-        auto& handle_index = widget_info.handleIndex;
-        if (handlePointer != handle(handle_index)) continue;
-        (widget_info.state == State::Expanded)
+        if (!match(handlePtr, widget_info)) continue;
+        (isExpanded(widget_info))
             ? collapse(widget_info)
             : expand(widget_info);
     }
 }
 
-void Splitter::hoverExpand(SplitterHandle* handlePointer)
+void Splitter::unhoverAll()
 {
     for (auto& widget_info : widgets)
     {
-        auto& handle_index = widget_info.handleIndex;
-        if (handlePointer != handle(handle_index)) continue;
-        if (widget_info.state == State::Collapsed)
-            expand(widget_info, true);
-    }
-}
-
-void Splitter::checkStates(int position, int index)
-{
-    for (auto& widget_info : widgets)
-    {
-        auto& handle_index = widget_info.handleIndex;
-        if (index != handle_index) continue;
-        auto& widget_state = widget_info.state;
-        if (widget_state == State::HoverExpanded) continue;
-        (handle_index < 2)
-            ? (position != 0)
-                ? widget_state = State::Expanded
-                : widget_state = State::Collapsed
-            : (position != (askWindowSize().width() - handleWidth()))
-                ? widget_state = State::Expanded
-                : widget_state = State::Collapsed;
+        if (!isHoverExpanded(widget_info)) continue;
+        QTimer::singleShot(1500, this, [&]()
+            {
+                if (!widget(widget_info.index)->underMouse() && !handle(widget_info.handleIndex)->underMouse())
+                    collapse(widget_info);
+            });
     }
 }
 

@@ -46,7 +46,6 @@ namespace Index
 	inline const QString name(QModelIndex index) { return getData<QString>(index, 2); }
 	inline bool isExpanded(QModelIndex index) { return getData<bool>(index, 3); }
 	inline bool hasChildren(QModelIndex index) { return getData<bool>(index, 4); }
-
 	inline bool isThis(QModelIndex index, QString indexType) { return (type(index) == indexType); }
 	inline bool isDir(QModelIndex index) { return isThis(index, "directory"); }
 	inline bool isFile(QModelIndex index) { return isThis(index, "file"); }

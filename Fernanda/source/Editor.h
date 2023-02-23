@@ -36,7 +36,6 @@ public:
         None = 0,
         AcceptNew
     };
-
     enum class Has {
         BlockCursor,
         CursorBlink,

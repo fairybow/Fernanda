@@ -35,7 +35,6 @@ namespace UserData
         Preview,
         Window
     };
-
     enum class IniValue {
         AlwaysOnTop,
         CharCount,
@@ -77,7 +76,6 @@ namespace UserData
         WindowState,
         WindowTheme,
     };
-
     enum class Operation {
         Config,
         Create,
@@ -88,7 +86,6 @@ namespace UserData
         GetRollback,
         GetUserData
     };
-
     enum class Type {
         Bool,
         Int,

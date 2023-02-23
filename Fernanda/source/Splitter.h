@@ -61,18 +61,26 @@ private:
 
     bool isInitialized = false;
 
+    int flip(int index);
     void collapse(Info& widgetInfo);
     void expand(Info& widgetInfo, bool isHover = false);
     void uncollapseAll();
-    void unhoverAll();
     bool eventFilter(QObject* watched, QEvent* event);
 
+    int flip(int index, int size) { return (index < 2) ? size : askWindowSize().width() - size; }
+    bool match(SplitterHandle* handlePtr, Info& widgetInfo) const { return (handlePtr == handle(widgetInfo.handleIndex)); }
+    bool isCollapsed(Info& widgetInfo) const { return (widgetInfo.state == State::Collapsed); }
+    bool isExpanded(Info& widgetInfo) const { return (widgetInfo.state == State::Expanded); }
+    bool isHoverExpanded(Info& widgetInfo) const { return (widgetInfo.state == State::HoverExpanded); }
+
+
 private slots:
+    void checkStates(int position, int index);
+    void hoverExpand(SplitterHandle* handlePtr);
     void initialize();
     void storeWidths();
-    void toggleExpansion(SplitterHandle* handlePointer);
-    void hoverExpand(SplitterHandle* handlePointer);
-    void checkStates(int position, int index);
+    void toggleExpansion(SplitterHandle* handlePtr);
+    void unhoverAll();
 
 signals:
     QRect askWindowSize();
