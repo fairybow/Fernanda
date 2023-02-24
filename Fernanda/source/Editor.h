@@ -37,8 +37,10 @@ public:
         AcceptNew
     };
     enum class Has {
-        BlockCursor,
         CursorBlink,
+        CursorBlock,
+        CursorCenterOnScroll,
+        CursorTypewriter,
         ExtraScrolls,
         KeyFilter,
         LineHighlight,
@@ -92,7 +94,8 @@ private:
     bool hasLineHighlight = true;
     bool hasKeyFilter = true;
     bool hasCursorBlink = true;
-    bool hasBlockCursor = true;
+    bool hasCursorBlock = true;
+    bool hasCursorTypewriter = false;
     bool cursorVisible = true;
 
     void connections();
@@ -109,6 +112,7 @@ signals:
     bool askHasProject();
     QAction* askTheme();
     QActionGroup* askThemes();
+    void askToggleCenterOnScroll(bool checked);
     void askToggleExtraScrolls(bool checked);
     void askToggleLineNumberArea(bool checked);
     void askToggleScrolls(bool checked);

@@ -58,15 +58,24 @@ void Editor::devRemoveStyle()
 void Editor::toggle(bool checked, Has has)
 {
     switch (has) {
-    case Has::BlockCursor:
-        hasBlockCursor = checked;
-        plainTextEdit->cursorPositionChanged();
-        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlock, checked);
-        break;
     case Has::CursorBlink:
         hasCursorBlink = checked;
         startBlinker();
         UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlink, checked);
+        break;
+    case Has::CursorBlock:
+        hasCursorBlock = checked;
+        plainTextEdit->cursorPositionChanged();
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlock, checked);
+        break;
+    case Has::CursorCenterOnScroll:
+        askToggleCenterOnScroll(checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorCenterOnScroll, checked);
+        break;
+    case Has::CursorTypewriter:
+        hasCursorTypewriter = checked;
+        plainTextEdit->textChanged();
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorTypewriter, checked);
         break;
     case Has::ExtraScrolls:
         askToggleExtraScrolls(checked);
@@ -185,6 +194,7 @@ void Editor::close(bool isFinal)
 
 void Editor::connections()
 {
+    connect(this, &Editor::askToggleCenterOnScroll, plainTextEdit, &PlainTextEdit::toggleCenterOnScroll);
     connect(this, &Editor::askToggleLineNumberArea, plainTextEdit, &PlainTextEdit::toggleLineNumberArea);
     connect(this, &Editor::askToggleScrolls, plainTextEdit, &PlainTextEdit::toggleScrolls);
     connect(this, &Editor::askToggleExtraScrolls, plainTextEdit, &PlainTextEdit::toggleExtraScrolls);
@@ -205,7 +215,8 @@ void Editor::connections()
     connect(plainTextEdit, &PlainTextEdit::askHasLineHighlight, this, [&]() { return hasLineHighlight; });
     connect(plainTextEdit, &PlainTextEdit::askHasKeyFilter, this, [&]() { return hasKeyFilter; });
     connect(plainTextEdit, &PlainTextEdit::askHasCursorBlink, this, [&]() { return hasCursorBlink; });
-    connect(plainTextEdit, &PlainTextEdit::askHasBlockCursor, this, [&]() { return hasBlockCursor; });
+    connect(plainTextEdit, &PlainTextEdit::askHasCursorBlock, this, [&]() { return hasCursorBlock; });
+    connect(plainTextEdit, &PlainTextEdit::askHasCursorTypewriter, this, [&]() { return hasCursorTypewriter; });
     connect(plainTextEdit, &PlainTextEdit::askCursorVisible, this, [&]() { return cursorVisible; });
     connect(plainTextEdit, &PlainTextEdit::cursorPositionChanged, this, [&]() { cursorPositionChanged(); });
     connect(plainTextEdit, &PlainTextEdit::selectionChanged, this, [&]() { selectionChanged(); });

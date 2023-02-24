@@ -31,7 +31,7 @@ public:
         expanding->setDuration(100);
         expanding->setEasingCurve(QEasingCurve::OutQuad);
         expanding->setStartValue(splitter()->handleWidth());
-        expanding->setEndValue(splitter()->handleWidth() * 1.5);
+        expanding->setEndValue(splitter()->handleWidth() * 1.6);
         connect(hoverTrigger, &QTimer::timeout, this, [&]()
             {
                 askHoverExpand(this);
@@ -62,7 +62,7 @@ private:
             result = true;
             break;
         case QEvent::MouseButtonRelease:
-            askIsInitialized();
+            askStoreWidths();
             result = true;
             break;
         case QEvent::MouseButtonDblClick:
@@ -78,7 +78,6 @@ private:
 
 signals:
     void askHoverExpand(SplitterHandle* handlePtr);
-    void askIsInitialized();
     void askStoreWidths();
     void askToggleExpansion(SplitterHandle* handlePtr);
     void askUnhoverAll();

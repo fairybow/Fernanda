@@ -184,7 +184,7 @@ void PlainTextEdit::paintEvent(QPaintEvent* event)
     auto current_char = currentChar();
     auto rect = reshapeCursor(current_char);
     painter.fillRect(rect, recolorCursor());
-    if (!current_char.isNull() && askHasBlockCursor())
+    if (!current_char.isNull() && askHasCursorBlock())
     {
         painter.setPen(recolorCursor(true));
         painter.drawText(rect, current_char);
@@ -315,6 +315,8 @@ void PlainTextEdit::connections()
     connect(this, &PlainTextEdit::blockCountChanged, this, &PlainTextEdit::updateLineNumberAreaWidth);
     connect(this, &PlainTextEdit::updateRequest, this, &PlainTextEdit::updateLineNumberArea);
     connect(this, &PlainTextEdit::cursorPositionChanged, this, &PlainTextEdit::highlightCurrentLine);
+    connect(this, &PlainTextEdit::cursorPositionChanged, this, &PlainTextEdit::typewriter);
+    connect(this, &PlainTextEdit::textChanged, this, &PlainTextEdit::typewriter);
     connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [&]() { sendBlockNumber(firstVisibleBlock().blockNumber()); });
@@ -334,7 +336,7 @@ void PlainTextEdit::connections()
 
 const QRect PlainTextEdit::reshapeCursor(QChar currentChar)
 {
-    if (askHasBlockCursor())
+    if (askHasCursorBlock())
     {
         QFontMetrics metrics(font());
         currentChar.isNull()
@@ -384,6 +386,12 @@ void PlainTextEdit::updateLineNumberArea(const QRect& rect, int dy)
         : lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
     if (rect.contains(viewport()->rect()))
         updateLineNumberAreaWidth(0);
+}
+
+void PlainTextEdit::typewriter()
+{
+    if (!askHasCursorTypewriter()) return;
+    centerCursor();
 }
 
 // PlainTextEdit.cpp, Fernanda

@@ -72,6 +72,8 @@ public slots:
     void toggleScrolls(bool checked);
     void toggleExtraScrolls(bool checked);
 
+    void toggleCenterOnScroll(bool checked) { setCenterOnScroll(checked); }
+
 protected:
     void resizeEvent(QResizeEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
@@ -103,6 +105,7 @@ private:
 private slots:
     void scrollButtonEnabledHandler();
     void updateLineNumberArea(const QRect& rect, int dy);
+    void typewriter();
 
     void updateLineNumberAreaWidth(int newBlockCount) { setViewportMargins(lineNumberAreaWidth(), 0, 0, 0); }
 
@@ -111,8 +114,9 @@ signals:
     void askFontSliderZoom(Zoom direction);
     void askGoNext();
     void askGoPrevious();
-    bool askHasBlockCursor();
     bool askHasCursorBlink();
+    bool askHasCursorBlock();
+    bool askHasCursorTypewriter();
     bool askHasKeyFilter();
     bool askHasLineHighlight();
     bool askHasProject();
@@ -122,7 +126,6 @@ signals:
 
 class LineNumberArea : public QWidget
 {
-
 public:
     LineNumberArea(PlainTextEdit* parent) : QWidget(parent), parent(parent) {}
 

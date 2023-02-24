@@ -382,6 +382,8 @@ void MainWindow::makeToggleMenu()
     auto load_most_recent_toggle = new QAction(tr("&Load most recent project on open"), this);
     auto cursor_blink_toggle = new QAction(tr("&Blink"), this);
     auto cursor_block_toggle = new QAction(tr("&Block"), this);
+    auto cursor_center_on_scroll_toggle = new QAction(tr("&Center on scroll"), this);
+    auto cursor_typewriter_toggle = new QAction(tr("&Typewriter"), this);
     auto current_line_highlight_toggle = new QAction(tr("&Current line highlight"), this);
     auto editor_shadow_toggle = new QAction(tr("&Editor shadow"), this);
     auto editor_theme_toggle = new QAction(tr("&Editor theme"), this);
@@ -393,7 +395,7 @@ void MainWindow::makeToggleMenu()
     auto indicator_toggle = new QAction(tr("&Indicator"), this);
     auto preview_toggle = new QAction(tr("&Preview"), this);
     auto status_bar_toggle = new QAction(tr("&Status bar"), this);
-    auto aot_toggle = new QAction(tr("&Always-on-top"), this);
+    auto aot_toggle = new QAction(tr("&Always on top"), this);
     auto stay_awake_toggle = new QAction(tr("&Stay awake"), this);
     auto timer_toggle = new QAction(tr("&Timer"), this);
     auto window_theme_toggle = new QAction(tr("&Window theme"), this);
@@ -402,7 +404,9 @@ void MainWindow::makeToggleMenu()
             UserData::saveConfig(UserData::IniGroup::Data, UserData::IniValue::ToggleLoadMostRecent, checked); // move to story?
         });
     connect(cursor_blink_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorBlink); });
-    connect(cursor_block_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::BlockCursor); });
+    connect(cursor_block_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorBlock); });
+    connect(cursor_center_on_scroll_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorCenterOnScroll); });
+    connect(cursor_typewriter_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorTypewriter); });
     connect(current_line_highlight_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineHighlight); });
     connect(editor_shadow_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Shadow); });
     connect(editor_theme_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Theme); });
@@ -436,6 +440,8 @@ void MainWindow::makeToggleMenu()
         load_most_recent_toggle,
         cursor_blink_toggle,
         cursor_block_toggle,
+        cursor_center_on_scroll_toggle,
+        cursor_typewriter_toggle,
         current_line_highlight_toggle,
         editor_shadow_toggle,
         editor_theme_toggle,
@@ -456,6 +462,8 @@ void MainWindow::makeToggleMenu()
     loadMenuToggle(load_most_recent_toggle, UserData::IniGroup::Data, UserData::IniValue::ToggleLoadMostRecent, false);
     loadMenuToggle(cursor_blink_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlink, true);
     loadMenuToggle(cursor_block_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlock, true);
+    loadMenuToggle(cursor_center_on_scroll_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorCenterOnScroll, false);
+    loadMenuToggle(cursor_typewriter_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorTypewriter, false);
     loadMenuToggle(current_line_highlight_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleLineHighlight, true);
     loadMenuToggle(editor_shadow_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorShadow, true);
     loadMenuToggle(editor_theme_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorTheme, true);
@@ -475,7 +483,7 @@ void MainWindow::makeToggleMenu()
     toggle->addAction(load_most_recent_toggle);
     toggle->addSeparator();
     auto cursor = toggle->addMenu(tr("&Cursor"));
-    for (const auto& action : { cursor_blink_toggle, cursor_block_toggle })
+    for (const auto& action : { cursor_blink_toggle, cursor_block_toggle, cursor_center_on_scroll_toggle, cursor_typewriter_toggle })
         cursor->addAction(action);
     for (const auto& action : { current_line_highlight_toggle, editor_shadow_toggle, editor_theme_toggle, key_filter_toggle, line_number_area_toggle, scrolls_previous_next_toggle })
         toggle->addAction(action);

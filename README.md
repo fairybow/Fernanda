@@ -1,5 +1,5 @@
-# <img src="Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
 <a id="top"></a>
+# <img src="Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
 
 <p align="center">
 	<kbd>
@@ -8,18 +8,19 @@
 	</kbd>
 </p>
 <p align="center">
-	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=ffa600&label=&style=flat" alt="Latest Release"/></a>
-	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=ff6361&label=&style=flat" alt="License: GPL-3.0"/></a>
+	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=b21a4d&label=&style=flat" alt="Latest Release"/></a>
+	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=1465a8&label=&style=flat" alt="License: GPL-3.0"/></a>
 	<br>
-	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip%20v22.01-bc5090?style=flat" alt="7zip v22.01"/></a>
-	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z%20v4.0.0--RC-58508d?style=flat" alt="Bit7z v4.0.0-RC"/></a>
-	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt%20v6.4.2-003f5c?style=flat" alt="Qt v6.4.2"/></a>
+	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip%20v22.01-ff6189?style=flat" alt="7zip v22.01"/></a>
+	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z%20v4.0.0--RC-556dfd?style=flat" alt="Bit7z v4.0.0-RC"/></a>
+	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt%20v6.4.2-bad900?style=flat" alt="Qt v6.4.2"/></a>
 	<br>
-	<a href="#framed_picture-installation"><img src="https://img.shields.io/badge/Windows%20(x64)-666b5e?logo=windows&style=flat" alt="Platform Windows (x64)"/></a>
-	<a href="#framed_picture-installation"><img src="https://img.shields.io/badge/Arch%20Linux-666b5e?logo=archlinux&style=flat" alt="Platform Arch Linux"/></a>
+	<a href="#framed_picture-installation"><img src="https://img.shields.io/badge/Windows%20%2F%20Arch%20Linux%20--%20x64-757666?style=flat" alt="Platforms: Windows / Arch Linux - x64"/></a>
 </p>
 
 ## :tea: **Hello**
+<a id="tea-hello"></a>
+<a id="toc"></a>
 
 Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
 
@@ -172,7 +173,7 @@ Fernanda comes with several two-tone editor themes inspired by retro displays an
 
 **Tools:**
 <a id="features-tools"></a>
-- :pushpin: **Always-on-top:**
+- :pushpin: **Always on top:**
 	- Pin Fernanda to the top of your window order (will interfere with popups!)
 - :bubble_tea:	**Stay awake:**
 	- Keep the screen awake without input (Windows only)

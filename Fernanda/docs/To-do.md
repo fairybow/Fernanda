@@ -82,6 +82,8 @@
 - [x] ~~Probably should combine `elements()` and `elementsByAttribute()`~~
 
 ### Editor / PlainTextEdit / LineNumberArea
+- [ ] "Ribbon" mode
+- [ ] A toggleable for every relevant `QPlainTextEdit` toggleable (`centerOnScroll` for example)
 - [ ] It is not clear to me that `updateLineNumberAreaWidth(int newBlockCount)` actually uses `newBlockCount` arg
 - [ ] Save undo/redo stacks
 - [ ] Editor spacing and kerning sliders
@@ -91,6 +93,7 @@
 - [ ] Wrap for parentheses and other closables
 - [ ] If a filter was just applied, backspace should function as undo
 - [ ] Make thin cursor change color when there's a selection?
+- [x] ~~Typewriter mode~~
 - [x] ~~Avoid passing entire document for cursor underpaint lol~~
 - [x] ~~Toggle chonky cursor vs regular~~
 - [x] ~~Style horizontal scrollbar~~

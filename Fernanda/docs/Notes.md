@@ -14,3 +14,10 @@
 	<br>
 	<a href="https://shields.io/"><img src="https://img.shields.io/badge/omg-these%20are%20so%20cute-00b3b3"/></a>
 </p>
+
+```
+auto view = viewport();
+auto height = view->height();
+auto y = (height / 2) - cursorRect().y();
+viewport()->setGeometry(view->x(), y, view->width(), height);
+```

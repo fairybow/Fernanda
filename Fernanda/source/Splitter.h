@@ -66,18 +66,19 @@ private:
     void expand(Info& widgetInfo, bool isHover = false);
     void uncollapseAll();
     bool eventFilter(QObject* watched, QEvent* event);
+    void initialize();
 
     int toWindowX(int index, int size) { return (index < 2) ? size : askWindowSize().width() - size; }
     bool match(SplitterHandle* handlePtr, Info& widgetInfo) const { return (handlePtr == handle(widgetInfo.handleIndex)); }
     bool isCollapsed(Info& widgetInfo) const { return (widgetInfo.state == State::Collapsed); }
     bool isExpanded(Info& widgetInfo) const { return (widgetInfo.state == State::Expanded); }
     bool isHoverExpanded(Info& widgetInfo) const { return (widgetInfo.state == State::HoverExpanded); }
+    bool hasHover(Info& widgetInfo) const { return (widget(widgetInfo.index)->underMouse() || handle(widgetInfo.handleIndex)->underMouse()); }
 
 
 private slots:
     void checkStates(int position, int index);
     void hoverExpand(SplitterHandle* handlePtr);
-    void initialize();
     void storeWidths();
     void toggleExpansion(SplitterHandle* handlePtr);
     void unhoverAll();
