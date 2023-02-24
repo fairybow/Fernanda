@@ -11,7 +11,7 @@
 	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=b21a4d&label=&style=flat" alt="Latest Release"/></a>
 	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=1465a8&label=&style=flat" alt="License: GPL-3.0"/></a>
 	<br>
-	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7zip%20v22.01-ff6189?style=flat" alt="7zip v22.01"/></a>
+	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7--Zip%20v22.01-ff6189?style=flat" alt="7-Zip v22.01"/></a>
 	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z%20v4.0.0--RC-556dfd?style=flat" alt="Bit7z v4.0.0-RC"/></a>
 	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt%20v6.4.2-bad900?style=flat" alt="Qt v6.4.2"/></a>
 	<br>
@@ -65,7 +65,7 @@ Fernanda is built with:
 
 Fernanda relies on:
 - Bit7z by [@rikyoz](https://github.com/rikyoz/bit7z)
-- and, thus, 7-zip by [Igor Pavlov](https://www.7-zip.org/)
+- and, thus, 7-Zip by [Igor Pavlov](https://www.7-zip.org/)
 
 Our current default font is:
 - Mononoki by [@madmalik](https://github.com/madmalik/mononoki)
@@ -104,6 +104,13 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 - Export to PDF, text, or directory
 - Markdown/Fountain preview
 
+<p align="center">
+	<kbd>
+		<img src="./Fernanda/docs/screens/pane_collapse.gif" alt="GIF of 'Pane collapse'"/>
+		<br><br>Double-click the file pane to collapse or expand, and hover to open temporarily<br><br>
+	</kbd>
+</p>
+
 ---
 
 **Key filters:**
@@ -114,7 +121,7 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 
 <p align="center">
 	<kbd>
-		<img src="./Fernanda/docs/screens/key_filters_1.gif" alt="GIF of 'Key filters'"/>
+		<img src="./Fernanda/docs/screens/key_filters.gif" alt="GIF of 'Key filters'"/>
 		<br><br>Key filters<br><br>
 	</kbd>
 </p>
@@ -148,10 +155,17 @@ A sample project, `Candide.story`, can be created from the `Help` menu, along wi
 <a id="features-files"></a>
 - They're 7-zip (`.7z`, non-compressed) archives
 - They'll be associated with Fernanda by the installer and can be opened in the usual ways
-- They can also be opened with [7-zip](https://www.7-zip.org/), and the contents viewed and/or copied elsewhere
+- They can also be opened with [7-Zip](https://www.7-zip.org/), and the contents viewed and/or copied elsewhere
 - Items deleted (cut) within Fernanda are moved to a `.cut` folder within the `.story` archive
 
 The Story files are, of course, meant to be opened and edited with Fernanda. However, if you need to, you can also access their content via 7-Zip. If you choose to manually rename, move, or delete items within a `.story` file outside Fernanda, be sure to delete `story.xml` (at the root), too, so that it can be remade on next open. (You will lose any reorderings that are at the same directory level, as well as same-level, file-on-file parenting).
+
+<p align="center">
+	<kbd>
+		<img src="./Fernanda/docs/screens/files.png" alt="PNG of 'Files'"/>
+		<br><br>A .story file's content can be accessed via 7-Zip if needed<br><br>
+	</kbd>
+</p>
 
 ---
 
@@ -182,7 +196,7 @@ Fernanda comes with several two-tone editor themes inspired by retro displays an
 
 <p align="center">
 	<kbd>
-		<img src="./Fernanda/docs/screens/timer_1.gif" alt="GIF of 'Timer'"/>
+		<img src="./Fernanda/docs/screens/timer.gif" alt="GIF of 'Timer'"/>
 		<br><br>Timer<br><br>
 	</kbd>
 </p>
@@ -236,7 +250,7 @@ If I think of something big, I'll try to add it right here. Otherwise, these thi
 - Simple storage of links and research materials
 - Markdown/Fountain export
 - Scroll sync for Fountain between editor and preview
-- Pane, preview, status bar, and file menu auto-collapse (and expand on area hover)
+- StatusBar and/or file menu auto-collapse (and expand on hover)
 
 More to come.
 
