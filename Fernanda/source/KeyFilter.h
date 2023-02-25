@@ -51,7 +51,7 @@ private:
     QVector<QKeyEvent*> dontDuplicate(QKeyEvent* event, ProximalChars chars, char current);
     QVector<QKeyEvent*> commaSkip(QKeyEvent* event, ProximalChars chars);
     
-    QVector<QKeyEvent*> autoClose(QKeyEvent* event, QKeyEvent* closer) { return QVector<QKeyEvent*>{ event, closer, & left }; }
+    QVector<QKeyEvent*> autoClose(QKeyEvent* event, QKeyEvent* closer) { return QVector<QKeyEvent*>{ event, closer, &left }; }
     bool checkCurrent(ProximalChars chars, char current) { return (!chars.current.isNull() && chars.current == current); }
     bool checkPrevious(ProximalChars chars, char previous) { return (!chars.previous.isNull() && chars.previous == previous); }
     bool checkPrevAndBeforeLast(ProximalChars chars, char previous, char beforeLast) { return (!chars.previous.isNull() && !chars.beforeLast.isNull() && chars.previous == previous && chars.beforeLast == beforeLast); }

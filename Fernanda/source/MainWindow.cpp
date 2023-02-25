@@ -384,7 +384,7 @@ void MainWindow::makeToggleMenu()
     auto editor_cursor_block = new QAction(tr("&Block"), this);
     auto editor_cursor_center_on_scroll = new QAction(tr("&Center on scroll"), this);
     auto editor_cursor_ensure_visible = new QAction(tr("&Ensure visible"), this);
-    auto editor_cursor_typewriter = new QAction(tr("&Typewriter"), this);
+    auto editor_cursor_typewriter = new QAction(tr("&Typewriter positioning"), this);
     auto editor_current_line_highlight = new QAction(tr("&Current line highlight"), this);
     auto editor_shadow = new QAction(tr("&Editor shadow"), this);
     auto editor_theme = new QAction(tr("&Editor theme"), this);

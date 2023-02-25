@@ -79,7 +79,8 @@ protected:
     void paintEvent(QPaintEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
-    void contextMenuEvent(QContextMenuEvent* event) override;
+
+    void contextMenuEvent(QContextMenuEvent* event) override { if (!askOverlayVisible()) QPlainTextEdit::contextMenuEvent(event); }
 
 private:
     QWidget* lineNumberArea;
@@ -89,7 +90,6 @@ private:
     QPushButton* scrollNext = new QPushButton(this);
     QPushButton* scrollDown = new QPushButton(this);
 
-    void keyPresses(QVector<QKeyEvent*> events);
     const QChar currentChar();
     const KeyFilter::ProximalChars proximalChars();
     bool shortcutFilter(QKeyEvent* event);
@@ -98,6 +98,7 @@ private:
     const QRect reshapeCursor(QChar currentChar);
     const QColor recolorCursor(bool under = false);
     const QColor highlight();
+    void keyPresses(QVector<QKeyEvent*> events);
 
     bool isMaximumScroll() { return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->maximum()); }
     bool isMinimumScroll() { return (verticalScrollBar()->sliderPosition() == verticalScrollBar()->minimum()); }
@@ -105,8 +106,8 @@ private:
 private slots:
     void scrollButtonEnabledHandler();
     void updateLineNumberArea(const QRect& rect, int dy);
-    void typewriter();
 
+    void typewriter() { if (askHasCursorTypewriter()) centerCursor(); }
     void updateLineNumberAreaWidth(int newBlockCount) { setViewportMargins(lineNumberAreaWidth(), 0, 0, 0); }
 
 signals:

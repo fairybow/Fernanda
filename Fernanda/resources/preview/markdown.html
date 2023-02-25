@@ -26,10 +26,10 @@
         'use strict';
         const text_area = document.getElementById('text_area');
         let updateText = function (text) {
-            let md = window.markdownit({ breaks: true /*, html: true*/ });
-            const markdownitSourceMap = (md) => {
-                const temp = md.renderer.renderToken.bind(md.renderer);
-                md.renderer.renderToken = function (tokens, idx, options) {
+            let parser = window.markdownit({ breaks: true /*, html: true*/ });
+            const markdownitSourceMap = (parser) => {
+                const temp = parser.renderer.renderToken.bind(parser.renderer);
+                parser.renderer.renderToken = function (tokens, idx, options) {
                     let token = tokens[idx];
                     if (token.level >= 0 && token.map !== null && token.type.endsWith('_open')) {
                         token.attrPush(['id', 'preview-block-' + token.map[0]])
@@ -37,9 +37,9 @@
                     return temp(tokens, idx, options)
                 }
             }
-            md.use(markdownitSourceMap)
+            parser.use(markdownitSourceMap)
                 .use(window.markdownitEmoji);
-            text_area.innerHTML = '<div class="markdown-body" width="100%">' + md.render(text) + '</div>'
+            text_area.innerHTML = '<div class="markdown-body" width="100%">' + parser.render(text) + '</div>'
         };
         new QWebChannel(qt.webChannelTransport,
             function (channel) {

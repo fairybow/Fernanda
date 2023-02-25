@@ -214,22 +214,9 @@ void PlainTextEdit::keyPressEvent(QKeyEvent* event)
         QPlainTextEdit::keyPressEvent(event);
         return;
     }
-    auto chars = proximalChars();
     cursor.beginEditBlock();
-    keyPresses(keyFilter->filter(event, chars));
+    keyPresses(keyFilter->filter(event, proximalChars()));
     cursor.endEditBlock();
-}
-
-void PlainTextEdit::contextMenuEvent(QContextMenuEvent* event)
-{
-    if (askOverlayVisible()) return;
-    QPlainTextEdit::contextMenuEvent(event);
-}
-
-void PlainTextEdit::keyPresses(QVector<QKeyEvent*> events)
-{
-    for (auto& event : events)
-        QPlainTextEdit::keyPressEvent(event);
 }
 
 const QChar PlainTextEdit::currentChar()
@@ -317,11 +304,7 @@ void PlainTextEdit::connections()
     connect(this, &PlainTextEdit::textChanged, this, &PlainTextEdit::typewriter);
     connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
-    connect(this, &PlainTextEdit::textChanged, this, [&]()
-        {
-            if (!askHasCursorEnsureVisible()) return;
-            ensureCursorVisible();
-        });
+    connect(this, &PlainTextEdit::textChanged, this, [&]() { if (askHasCursorEnsureVisible()) ensureCursorVisible(); });
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [&]() { sendBlockNumber(firstVisibleBlock().blockNumber()); });
     connect(scrollNext, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Next); });
     connect(scrollPrevious, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Previous); });
@@ -356,14 +339,11 @@ const QRect PlainTextEdit::reshapeCursor(QChar currentChar)
 const QColor PlainTextEdit::recolorCursor(bool under)
 {
     QColor result;
-    if (!askCursorVisible() && askHasCursorBlink())
-        result = QColor(0, 0, 0, 0);
-    else
-    {
-        under
+    (!askCursorVisible() && askHasCursorBlink())
+        ? result = QColor(0, 0, 0, 0)
+        : under
             ? result = QColor(cursorUnderColorHex)
             : result = QColor(cursorColorHex);
-    }
     return result;
 }
 
@@ -374,6 +354,14 @@ const QColor PlainTextEdit::highlight()
         ? result = QColor(255, 255, 255, 30)
         : result = QColor(0, 0, 0, 0);
     return result;
+}
+
+void PlainTextEdit::keyPresses(QVector<QKeyEvent*> events)
+{
+    blockSignals(true);
+    for (auto& event : events)
+        QPlainTextEdit::keyPressEvent(event);
+    blockSignals(false);
 }
 
 void PlainTextEdit::scrollButtonEnabledHandler()
@@ -389,12 +377,6 @@ void PlainTextEdit::updateLineNumberArea(const QRect& rect, int dy)
         : lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
     if (rect.contains(viewport()->rect()))
         updateLineNumberAreaWidth(0);
-}
-
-void PlainTextEdit::typewriter()
-{
-    if (!askHasCursorTypewriter()) return;
-    centerCursor();
 }
 
 // PlainTextEdit.cpp, Fernanda

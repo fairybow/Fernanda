@@ -58,7 +58,7 @@
 ```
 - [ ] Keep space around compiler instructions
 - [ ] Prefer ternary operator
-- [ ] Prefer early return
+- [ ] Prefer early return (unless it prevents a convenient one-liner)
 
 ### Known issues
 - [ ] Preview "resets" MainWindow on startup (if toggled from off to on) - [QTBUG-110116](https://bugreports.qt.io/browse/QTBUG-110116)
@@ -110,6 +110,7 @@
 - [x] ~~^ Check character count at open, set Indicator, and then toggle auto counting based on character length (add a refresh symbol)~~
 
 ### KeyFilter
+- [ ] `autoClose()` (or in PTE `proximalChars()`) on end-of-line / blank line causes crash (possibly just at beginning of any block)
 - [ ] Auto-format ellipses
 - [ ] Auto-delete spaces before punctuation
 - [ ] Quote wrapping does not account for non-American punctuation/quote order
@@ -162,6 +163,7 @@
 - [x] ~~Minify fountain CSS~~
 
 ### Splitter[^1]
+- [ ] Collapsing/expanding can sometimes flicker (I am guessing there's an incorrect change-of-state happening somewhere)
 - [ ] On open, if you drag to collapse a widget, it will expand to default instead of saved size (is there a way to determine the percentage open needed to mimic the saved state from qbytearray?)
 - [ ] Increase trigger area, slightly beyond visible boundaries
 - [ ] Preview handle should animate to the left and not right
