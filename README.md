@@ -15,16 +15,14 @@
 	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z%20v4.0.0--RC-556dfd?style=flat" alt="Bit7z v4.0.0-RC"/></a>
 	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt%20v6.4.2-bad900?style=flat" alt="Qt v6.4.2"/></a>
 	<br>
-	<a href="#framed_picture-installation"><img src="https://img.shields.io/badge/Windows%20%2F%20Arch%20Linux%20--%20x64-757666?style=flat" alt="Platforms: Windows / Arch Linux - x64"/></a>
+	<a href="#framed_picture-installation"><img src="https://img.shields.io/badge/Windows%20%26%20Arch%20Linux%20%28x64%29-757666?style=flat" alt="Platforms: Windows & Arch Linux (x64)"/></a>
 </p>
 
 ## :tea: **Hello**
 <a id="tea-hello"></a>
 <a id="toc"></a>
 
-Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
-
-> Keep in mind, this software is *in-progress*
+> Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
 
 - [About](#fallen_leaf-about)
 - [Build](#honeybee-build)
@@ -43,6 +41,8 @@ Fernanda is a plain text editor for drafting long-form fiction. (At least, that'
 
 ## :fallen_leaf: **About**
 <a id="fallen_leaf-about"></a>
+
+> **Note**<br>Keep in mind, this software is *in-progress*
 
 This is a personal project, a work-in-progress, and I am *so* not a programmer. Still, I decided I didn't like existing novel-writing software very much, and I wanted to make something all my own. My hope is that it's easy to use, lightly-customizable, and distraction-free, for faster, more peaceful drafting.
 
@@ -63,11 +63,11 @@ Fernanda is built with:
 - [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/)
 - and [NSIS](https://nsis.sourceforge.io/)
 
-Fernanda relies on:
+It relies on:
 - Bit7z by [@rikyoz](https://github.com/rikyoz/bit7z)
 - and, thus, 7-Zip by [Igor Pavlov](https://www.7-zip.org/)
 
-Our current default font is:
+The current default font is:
 - Mononoki by [@madmalik](https://github.com/madmalik/mononoki)
 
 Among the other fonts used are:
@@ -82,14 +82,14 @@ Among the other fonts used are:
 - OpenDyslexic by [Abbie Gonzalez](https://opendyslexic.org/)
 - and Ysabeau by [@CatharsisFonts](https://github.com/CatharsisFonts/Ysabeau)
 
-Solarized theme palettes by [@altercation](https://github.com/altercation/solarized)
-
-[Markdown](https://www.markdownguide.org/)/[Fountain](https://fountain.io/) preview support provided with:
-- [Markdown-it](https://github.com/markdown-it/markdown-it)
-	- Several Markdown-it plugins, like:
-		- markdown-it-source-map by [@tylingsoft](https://github.com/tylingsoft/markdown-it-source-map)
-- github-markdown-css by [@sindresorhus](https://github.com/sindresorhus/github-markdown-css)
-- and Fountain.js by [@mattdaly](https://github.com/mattdaly/Fountain.js)
+Plus:
+- Solarized theme palettes by [@altercation](https://github.com/altercation/solarized)
+- [Markdown](https://www.markdownguide.org/)/[Fountain](https://fountain.io/) preview support provided with:
+	- [Markdown-it](https://github.com/markdown-it/markdown-it)
+		- Several Markdown-it plugins, like:
+			- markdown-it-source-map by [@tylingsoft](https://github.com/tylingsoft/markdown-it-source-map)
+	- github-markdown-css by [@sindresorhus](https://github.com/sindresorhus/github-markdown-css)
+	- and Fountain.js by [@mattdaly](https://github.com/mattdaly/Fountain.js)
 
 [:arrow_up:](#top)
 
