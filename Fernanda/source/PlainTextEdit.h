@@ -116,6 +116,7 @@ signals:
     void askGoPrevious();
     bool askHasCursorBlink();
     bool askHasCursorBlock();
+    bool askHasCursorEnsureVisible();
     bool askHasCursorTypewriter();
     bool askHasKeyFilter();
     bool askHasLineHighlight();

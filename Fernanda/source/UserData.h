@@ -54,6 +54,7 @@ namespace UserData
         ToggleCursorBlink,
         ToggleCursorBlock,
         ToggleCursorCenterOnScroll,
+        ToggleCursorEnsureVisible,
         ToggleCursorTypewriter,
         ToggleEditorShadow,
         ToggleEditorTheme,

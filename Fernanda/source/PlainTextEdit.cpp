@@ -218,8 +218,6 @@ void PlainTextEdit::keyPressEvent(QKeyEvent* event)
     cursor.beginEditBlock();
     keyPresses(keyFilter->filter(event, chars));
     cursor.endEditBlock();
-    if (cursor.atEnd() && !isMaximumScroll())
-        verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
 }
 
 void PlainTextEdit::contextMenuEvent(QContextMenuEvent* event)
@@ -319,6 +317,11 @@ void PlainTextEdit::connections()
     connect(this, &PlainTextEdit::textChanged, this, &PlainTextEdit::typewriter);
     connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
+    connect(this, &PlainTextEdit::textChanged, this, [&]()
+        {
+            if (!askHasCursorEnsureVisible()) return;
+            ensureCursorVisible();
+        });
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [&]() { sendBlockNumber(firstVisibleBlock().blockNumber()); });
     connect(scrollNext, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Next); });
     connect(scrollPrevious, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Previous); });

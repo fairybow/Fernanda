@@ -107,7 +107,7 @@ Solarized theme palettes by [@altercation](https://github.com/altercation/solari
 <p align="center">
 	<kbd>
 		<img src="./Fernanda/docs/screens/pane_collapse.gif" alt="GIF of 'Pane collapse'"/>
-		<br><br>Double-click the file pane to collapse or expand, and hover to open temporarily<br><br>
+		<br><br>Double-click the file pane's handle to collapse or expand, and hover to open temporarily<br><br>
 	</kbd>
 </p>
 

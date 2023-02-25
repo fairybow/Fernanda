@@ -118,6 +118,7 @@
 - [x] ~~Avoid passing entire document lol~~
 
 ### MainWindow
+- [ ] Restore settings/toggles to fallbacks
 - [ ] Maximizing window and then closing without edits (so as to not receive "unsaved" prompt) causes window to not remember geometry correctly on next startup (though it returns to state...it's just that, when prompted to save, it will actually be able to correctly unmaximize on next load--what's happening differently in the other case?)
 - [ ] Instead of `activeStory` check for Save option, tie it to signal to show/hide story menu and make disabled
 - [ ] Separate menu into its own class?

@@ -72,6 +72,10 @@ void Editor::toggle(bool checked, Has has)
         askToggleCenterOnScroll(checked);
         UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorCenterOnScroll, checked);
         break;
+    case Has::CursorEnsureVisible:
+        hasCursorEnsureVisible = checked;
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorEnsureVisible, checked);
+        break;
     case Has::CursorTypewriter:
         hasCursorTypewriter = checked;
         plainTextEdit->textChanged();
@@ -216,6 +220,7 @@ void Editor::connections()
     connect(plainTextEdit, &PlainTextEdit::askHasKeyFilter, this, [&]() { return hasKeyFilter; });
     connect(plainTextEdit, &PlainTextEdit::askHasCursorBlink, this, [&]() { return hasCursorBlink; });
     connect(plainTextEdit, &PlainTextEdit::askHasCursorBlock, this, [&]() { return hasCursorBlock; });
+    connect(plainTextEdit, &PlainTextEdit::askHasCursorEnsureVisible, this, [&]() { return hasCursorEnsureVisible; });
     connect(plainTextEdit, &PlainTextEdit::askHasCursorTypewriter, this, [&]() { return hasCursorTypewriter; });
     connect(plainTextEdit, &PlainTextEdit::askCursorVisible, this, [&]() { return cursorVisible; });
     connect(plainTextEdit, &PlainTextEdit::cursorPositionChanged, this, [&]() { cursorPositionChanged(); });

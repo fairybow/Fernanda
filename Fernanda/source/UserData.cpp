@@ -174,6 +174,9 @@ const QString UserData::valueName(IniValue valueType)
     case IniValue::ToggleCursorCenterOnScroll:
         result = "toggle__cursor_center_on_scroll";
         break;
+    case IniValue::ToggleCursorEnsureVisible:
+        result = "toggle__cursor_ensure_visible";
+        break;
     case IniValue::ToggleCursorTypewriter:
         result = "toggle__cursor_typewriter";
         break;

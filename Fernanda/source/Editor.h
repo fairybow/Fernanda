@@ -40,6 +40,7 @@ public:
         CursorBlink,
         CursorBlock,
         CursorCenterOnScroll,
+        CursorEnsureVisible,
         CursorTypewriter,
         ExtraScrolls,
         KeyFilter,
@@ -95,6 +96,7 @@ private:
     bool hasKeyFilter = true;
     bool hasCursorBlink = true;
     bool hasCursorBlock = true;
+    bool hasCursorEnsureVisible = true;
     bool hasCursorTypewriter = false;
     bool cursorVisible = true;
 

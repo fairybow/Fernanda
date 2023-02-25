@@ -270,15 +270,15 @@ void MainWindow::makeStoryMenu()
 void MainWindow::makeSetMenu()
 {
     auto user_data = UserData::doThis(UserData::Operation::GetUserData);
-    auto fonts_list = Resource::iterate(":/fonts/", { "*.otf", "*.ttf" }, user_data);
+    auto editor_fonts_list = Resource::iterate(":/fonts/", { "*.otf", "*.ttf" }, user_data);
     auto editor_themes_list = Resource::iterate(":/themes/editor/", { "*.fernanda_editor" }, user_data);
-    QVector<Resource::DataPair> tab_stops_list = {
+    QVector<Resource::DataPair> editor_tabs_list = {
         Resource::DataPair{ "20", "20 pixels" },
         Resource::DataPair{ "40", "40 pixels" },
         Resource::DataPair{ "60", "60 pixels" },
         Resource::DataPair{ "80", "80 pixels" }
     };
-    QVector<Resource::DataPair> wrap_modes_list = {
+    QVector<Resource::DataPair> editor_wraps_list = {
         Resource::DataPair{ "NoWrap", "No wrap" },
         Resource::DataPair{ "WordWrap", "Wrap at word boundaries" },
         Resource::DataPair{ "WrapAnywhere", "Wrap anywhere" },
@@ -288,11 +288,11 @@ void MainWindow::makeSetMenu()
         Resource::DataPair{ "Fountain", "Fountain" },
         Resource::DataPair{ "Markdown", "Markdown" }
     };
-    QVector<Resource::DataPair> color_bar_alignments_list = {
+    QVector<Resource::DataPair> window_color_bar_alignments_list = {
         Resource::DataPair{ "Top", "Top" },
         Resource::DataPair{ "Bottom", "Bottom" }
     };
-    QVector<Resource::DataPair> timer_values_list = {
+    QVector<Resource::DataPair> window_tool_timer_list = {
         Resource::DataPair{ "300", "5 minutes" },
         Resource::DataPair{ "600", "10 minutes" },
         Resource::DataPair{ "900", "15 minutes" },
@@ -301,38 +301,38 @@ void MainWindow::makeSetMenu()
         Resource::DataPair{ "1800", "30 minutes" }
     };
     if (isDev)
-        timer_values_list << QVector<Resource::DataPair>{ Resource::DataPair{ "5", "5 seconds (Test)" }, Resource::DataPair{ "30", "30 seconds (Test)" } };
+        window_tool_timer_list << QVector<Resource::DataPair>{ Resource::DataPair{ "5", "5 seconds (Test)" }, Resource::DataPair{ "30", "30 seconds (Test)" } };
     auto window_themes_list = Resource::iterate(":/themes/window/", { "*.fernanda_window" }, user_data);
-    editorFonts = makeViewToggles(fonts_list, [&]()
+    editorFonts = makeViewToggles(editor_fonts_list, [&]()
         {
             editor->handleFont(editorFonts->checkedAction(), fontSlider->value());
         });
-    auto font_size_label = new QAction(tr("&Editor font size:"), this);
-    auto font_size = new QWidgetAction(this);
-    font_size->setDefaultWidget(fontSlider);
+    auto editor_font_size_label = new QAction(tr("&Editor font size:"), this);
+    auto editor_font_size = new QWidgetAction(this);
+    editor_font_size->setDefaultWidget(fontSlider);
     fontSlider->setMinimum(8);
     fontSlider->setMaximum(40);
     editorThemes = makeViewToggles(editor_themes_list, [&]() { editor->setStyle(editorThemes->checkedAction()); });
-    tabStops = makeViewToggles(tab_stops_list, [&]() { sendSetTabStop(getSetting<int>(tabStops)); });
-    wrapModes = makeViewToggles(wrap_modes_list, [&]() { sendSetWrapMode(getSetting<QString>(wrapModes)); });
+    tabStops = makeViewToggles(editor_tabs_list, [&]() { sendSetTabStop(getSetting<int>(tabStops)); });
+    wrapModes = makeViewToggles(editor_wraps_list, [&]() { sendSetWrapMode(getSetting<QString>(wrapModes)); });
     previewTypes = makeViewToggles(preview_types_list, [&]() { askSetPreviewType(getSetting<QString>(previewTypes)); });
-    colorBarAlignments = makeViewToggles(color_bar_alignments_list, [&]() { askSetBarAlignment(getSetting<QString>(colorBarAlignments)); });
-    auto column_position_set = new QAction(tr("&Column position"), this);
-    auto line_position_set = new QAction(tr("&Line position"), this);
-    auto character_count_set = new QAction(tr("&Character count"), this);
-    auto line_count_set = new QAction(tr("&Line count"), this);
-    auto word_count_set = new QAction(tr("&Word count"), this);
-    timerValues = makeViewToggles(timer_values_list, [&]() { askSetCountdown(getSetting<int>(timerValues)); });
+    colorBarAlignments = makeViewToggles(window_color_bar_alignments_list, [&]() { askSetBarAlignment(getSetting<QString>(colorBarAlignments)); });
+    auto window_indicator_column_position = new QAction(tr("&Column position"), this);
+    auto window_indicator_line_position = new QAction(tr("&Line position"), this);
+    auto window_indicator_char_count = new QAction(tr("&Character count"), this);
+    auto window_indicator_line_count = new QAction(tr("&Line count"), this);
+    auto window_indicator_word_count = new QAction(tr("&Word count"), this);
+    timerValues = makeViewToggles(window_tool_timer_list, [&]() { askSetCountdown(getSetting<int>(timerValues)); });
     windowThemes = makeViewToggles(window_themes_list, &MainWindow::setStyle);
     connect(fontSlider, &QSlider::valueChanged, this, [&](int value) { editor->handleFont(editorFonts->checkedAction(), value); });
-    connect(column_position_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::ColumnPosition); });
-    connect(line_position_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::LinePosition); });
-    connect(character_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::CharCount); });
-    connect(line_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::LineCount); });
-    connect(word_count_set, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::WordCount); });
-    for (const auto& action : { font_size_label })
+    connect(window_indicator_column_position, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::ColumnPosition); });
+    connect(window_indicator_line_position, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::LinePosition); });
+    connect(window_indicator_char_count, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::CharCount); });
+    connect(window_indicator_line_count, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::LineCount); });
+    connect(window_indicator_word_count, &QAction::toggled, this, [&](bool checked) { indicator->toggle(checked, UserData::IniValue::WordCount); });
+    for (const auto& action : { editor_font_size_label })
         action->setEnabled(false);
-    for (const auto& action : { column_position_set, line_position_set, character_count_set, line_count_set, word_count_set })
+    for (const auto& action : { window_indicator_column_position, window_indicator_line_position, window_indicator_char_count, window_indicator_line_count, window_indicator_word_count })
         action->setCheckable(true);
     fontSlider->setValue(UserData::loadConfig(UserData::IniGroup::Editor, UserData::IniValue::EditorFontSize, 16, UserData::Type::Int).toInt());
     loadViewConfig(editorFonts->actions(), UserData::IniGroup::Editor, UserData::IniValue::EditorFont, ":/fonts/Mononoki.ttf");
@@ -341,18 +341,18 @@ void MainWindow::makeSetMenu()
     loadViewConfig(wrapModes->actions(), UserData::IniGroup::Editor, UserData::IniValue::WrapMode, "WrapAt");
     loadViewConfig(previewTypes->actions(), UserData::IniGroup::Preview, UserData::IniValue::PreviewType, "Markdown");
     loadViewConfig(colorBarAlignments->actions(), UserData::IniGroup::Window, UserData::IniValue::ColorBarAlignment, "Top");
-    loadMenuToggle(column_position_set, UserData::IniGroup::Window, UserData::IniValue::ColumnPosition, true);
-    loadMenuToggle(line_position_set, UserData::IniGroup::Window, UserData::IniValue::LinePosition, true);
-    loadMenuToggle(character_count_set, UserData::IniGroup::Window, UserData::IniValue::CharCount, false);
-    loadMenuToggle(line_count_set, UserData::IniGroup::Window, UserData::IniValue::LineCount, true);
-    loadMenuToggle(word_count_set, UserData::IniGroup::Window, UserData::IniValue::WordCount, true);
+    loadMenuToggle(window_indicator_column_position, UserData::IniGroup::Window, UserData::IniValue::ColumnPosition, true);
+    loadMenuToggle(window_indicator_line_position, UserData::IniGroup::Window, UserData::IniValue::LinePosition, true);
+    loadMenuToggle(window_indicator_char_count, UserData::IniGroup::Window, UserData::IniValue::CharCount, false);
+    loadMenuToggle(window_indicator_line_count, UserData::IniGroup::Window, UserData::IniValue::LineCount, true);
+    loadMenuToggle(window_indicator_word_count, UserData::IniGroup::Window, UserData::IniValue::WordCount, true);
     loadViewConfig(timerValues->actions(), UserData::IniGroup::Window, UserData::IniValue::ToolTimer, "900");
     loadViewConfig(windowThemes->actions(), UserData::IniGroup::Window, UserData::IniValue::WindowTheme, ":/themes/window/Light.fernanda_window");
     auto set = menuBar->addMenu(tr("&Set"));
     auto editor_font = set->addMenu(tr("&Editor font"));
     editor_font->addActions(editorFonts->actions());
-    set->addAction(font_size_label);
-    set->addAction(font_size);
+    set->addAction(editor_font_size_label);
+    set->addAction(editor_font_size);
     auto editor_theme = set->addMenu(tr("&Editor theme"));
     editor_theme->addActions(editorThemes->actions());
     auto tab_stop_distance = set->addMenu(tr("&Tab stop distance"));
@@ -366,10 +366,10 @@ void MainWindow::makeSetMenu()
     auto color_bar_alignment = set->addMenu(tr("&Color bar alignment"));
     color_bar_alignment->addActions(colorBarAlignments->actions());
     auto indicator_items = set->addMenu(tr("&Indicator"));
-    for (const auto& action : { column_position_set, line_position_set })
+    for (const auto& action : { window_indicator_column_position, window_indicator_line_position })
         indicator_items->addAction(action);
     indicator_items->addSeparator();
-    for (const auto& action : { character_count_set, line_count_set, word_count_set })
+    for (const auto& action : { window_indicator_char_count, window_indicator_line_count, window_indicator_word_count })
         indicator_items->addAction(action);
     auto timer_values = set->addMenu(tr("&Timer"));
     timer_values->addActions(timerValues->actions());
@@ -379,134 +379,138 @@ void MainWindow::makeSetMenu()
 
 void MainWindow::makeToggleMenu()
 {
-    auto load_most_recent_toggle = new QAction(tr("&Load most recent project on open"), this);
-    auto cursor_blink_toggle = new QAction(tr("&Blink"), this);
-    auto cursor_block_toggle = new QAction(tr("&Block"), this);
-    auto cursor_center_on_scroll_toggle = new QAction(tr("&Center on scroll"), this);
-    auto cursor_typewriter_toggle = new QAction(tr("&Typewriter"), this);
-    auto current_line_highlight_toggle = new QAction(tr("&Current line highlight"), this);
-    auto editor_shadow_toggle = new QAction(tr("&Editor shadow"), this);
-    auto editor_theme_toggle = new QAction(tr("&Editor theme"), this);
-    auto key_filter_toggle = new QAction(tr("&Key filters"), this);
-    auto line_number_area_toggle = new QAction(tr("&Line number area"), this);
-    auto scrolls_previous_next_toggle = new QAction(tr("&Scrolls previous and next"), this);
-    auto scroll_sync = new QAction(tr("&Preview scroll sync"), this);
-    auto color_bar_toggle = new QAction(tr("&Color bar"), this);
-    auto indicator_toggle = new QAction(tr("&Indicator"), this);
-    auto preview_toggle = new QAction(tr("&Preview"), this);
-    auto status_bar_toggle = new QAction(tr("&Status bar"), this);
-    auto aot_toggle = new QAction(tr("&Always on top"), this);
-    auto stay_awake_toggle = new QAction(tr("&Stay awake"), this);
-    auto timer_toggle = new QAction(tr("&Timer"), this);
-    auto window_theme_toggle = new QAction(tr("&Window theme"), this);
-    connect(load_most_recent_toggle, &QAction::toggled, this, [&](bool checked)
+    auto data_load_most_recent = new QAction(tr("&Load most recent project on open"), this);
+    auto editor_cursor_blink = new QAction(tr("&Blink"), this);
+    auto editor_cursor_block = new QAction(tr("&Block"), this);
+    auto editor_cursor_center_on_scroll = new QAction(tr("&Center on scroll"), this);
+    auto editor_cursor_ensure_visible = new QAction(tr("&Ensure visible"), this);
+    auto editor_cursor_typewriter = new QAction(tr("&Typewriter"), this);
+    auto editor_current_line_highlight = new QAction(tr("&Current line highlight"), this);
+    auto editor_shadow = new QAction(tr("&Editor shadow"), this);
+    auto editor_theme = new QAction(tr("&Editor theme"), this);
+    auto editor_key_filter = new QAction(tr("&Key filters"), this);
+    auto editor_line_number_area = new QAction(tr("&Line number area"), this);
+    auto editor_scrolls_previous_next = new QAction(tr("&Scrolls previous and next"), this);
+    auto preview_scroll_sync = new QAction(tr("&Preview scroll sync"), this);
+    auto window_color_bar = new QAction(tr("&Color bar"), this);
+    auto window_indicator = new QAction(tr("&Indicator"), this);
+    auto window_preview = new QAction(tr("&Preview"), this);
+    auto window_status_bar = new QAction(tr("&Status bar"), this);
+    auto window_tools_aot = new QAction(tr("&Always on top"), this);
+    auto window_tools_stay_awake = new QAction(tr("&Stay awake"), this);
+    auto window_tools_timer = new QAction(tr("&Timer"), this);
+    auto window_theme = new QAction(tr("&Window theme"), this);
+    connect(data_load_most_recent, &QAction::toggled, this, [&](bool checked)
         {
             UserData::saveConfig(UserData::IniGroup::Data, UserData::IniValue::ToggleLoadMostRecent, checked); // move to story?
         });
-    connect(cursor_blink_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorBlink); });
-    connect(cursor_block_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorBlock); });
-    connect(cursor_center_on_scroll_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorCenterOnScroll); });
-    connect(cursor_typewriter_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorTypewriter); });
-    connect(current_line_highlight_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineHighlight); });
-    connect(editor_shadow_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Shadow); });
-    connect(editor_theme_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Theme); });
-    connect(key_filter_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::KeyFilter); });
-    connect(line_number_area_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineNumberArea); });
-    connect(scrolls_previous_next_toggle, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::ExtraScrolls); });
-    connect(scroll_sync, &QAction::toggled, this, [&](bool checked) { preview->toggle(checked, Preview::Has::ScrollSync); });
-    connect(color_bar_toggle, &QAction::toggled, this, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::Self); });
-    connect(indicator_toggle, &QAction::toggled, this, [&](bool checked)
+    connect(editor_cursor_blink, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorBlink); });
+    connect(editor_cursor_block, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorBlock); });
+    connect(editor_cursor_center_on_scroll, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorCenterOnScroll); });
+    connect(editor_cursor_ensure_visible, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorEnsureVisible); });
+    connect(editor_cursor_typewriter, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::CursorTypewriter); });
+    connect(editor_current_line_highlight, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineHighlight); });
+    connect(editor_shadow, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Shadow); });
+    connect(editor_theme, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::Theme); });
+    connect(editor_key_filter, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::KeyFilter); });
+    connect(editor_line_number_area, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::LineNumberArea); });
+    connect(editor_scrolls_previous_next, &QAction::toggled, this, [&](bool checked) { editor->toggle(checked, Editor::Has::ExtraScrolls); });
+    connect(preview_scroll_sync, &QAction::toggled, this, [&](bool checked) { preview->toggle(checked, Preview::Has::ScrollSync); });
+    connect(window_color_bar, &QAction::toggled, this, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::Self); });
+    connect(window_indicator, &QAction::toggled, this, [&](bool checked)
         {
             toggleWidget(indicator, UserData::IniGroup::Window, UserData::IniValue::ToggleIndicator, checked);
         });
-    connect(preview_toggle, &QAction::toggled, this, [&](bool checked)
+    connect(window_preview, &QAction::toggled, this, [&](bool checked)
         {
             toggleWidget(preview, UserData::IniGroup::Window, UserData::IniValue::TogglePreview, checked);
         });
-    connect(status_bar_toggle, &QAction::toggled, this, [&](bool checked)
+    connect(window_status_bar, &QAction::toggled, this, [&](bool checked)
         {
             toggleWidget(statusBar, UserData::IniGroup::Window, UserData::IniValue::ToggleStatusBar, checked);
         });
-    connect(aot_toggle, &QAction::toggled, this, [&](bool checked) { alwaysOnTop->toggle(checked); });
-    connect(stay_awake_toggle, &QAction::toggled, this, [&](bool checked) { stayAwake->toggle(checked); });
-    connect(timer_toggle, &QAction::toggled, this, [&](bool checked) { timer->toggle(checked); });
-    connect(window_theme_toggle, &QAction::toggled, this, [&](bool checked)
+    connect(window_tools_aot, &QAction::toggled, this, [&](bool checked) { alwaysOnTop->toggle(checked); });
+    connect(window_tools_stay_awake, &QAction::toggled, this, [&](bool checked) { stayAwake->toggle(checked); });
+    connect(window_tools_timer, &QAction::toggled, this, [&](bool checked) { timer->toggle(checked); });
+    connect(window_theme, &QAction::toggled, this, [&](bool checked)
         {
             hasTheme = checked;
             setStyle();
             UserData::saveConfig(UserData::IniGroup::Window, UserData::IniValue::ToggleWindowTheme, checked);
         });
     for (const auto& action : {
-        load_most_recent_toggle,
-        cursor_blink_toggle,
-        cursor_block_toggle,
-        cursor_center_on_scroll_toggle,
-        cursor_typewriter_toggle,
-        current_line_highlight_toggle,
-        editor_shadow_toggle,
-        editor_theme_toggle,
-        key_filter_toggle,
-        line_number_area_toggle,
-        scrolls_previous_next_toggle,
-        scroll_sync,
-        color_bar_toggle,
-        indicator_toggle,
-        preview_toggle,
-        status_bar_toggle,
-        aot_toggle,
-        stay_awake_toggle,
-        timer_toggle,
-        window_theme_toggle
+        data_load_most_recent,
+        editor_cursor_blink,
+        editor_cursor_block,
+        editor_cursor_center_on_scroll,
+        editor_cursor_ensure_visible,
+        editor_cursor_typewriter,
+        editor_current_line_highlight,
+        editor_shadow,
+        editor_theme,
+        editor_key_filter,
+        editor_line_number_area,
+        editor_scrolls_previous_next,
+        preview_scroll_sync,
+        window_color_bar,
+        window_indicator,
+        window_preview,
+        window_status_bar,
+        window_tools_aot,
+        window_tools_stay_awake,
+        window_tools_timer,
+        window_theme
         })
         action->setCheckable(true);
-    loadMenuToggle(load_most_recent_toggle, UserData::IniGroup::Data, UserData::IniValue::ToggleLoadMostRecent, false);
-    loadMenuToggle(cursor_blink_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlink, true);
-    loadMenuToggle(cursor_block_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlock, true);
-    loadMenuToggle(cursor_center_on_scroll_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorCenterOnScroll, false);
-    loadMenuToggle(cursor_typewriter_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorTypewriter, false);
-    loadMenuToggle(current_line_highlight_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleLineHighlight, true);
-    loadMenuToggle(editor_shadow_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorShadow, true);
-    loadMenuToggle(editor_theme_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorTheme, true);
-    loadMenuToggle(key_filter_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleKeyFilters, true);
-    loadMenuToggle(line_number_area_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleLineNumberArea, true);
-    loadMenuToggle(scrolls_previous_next_toggle, UserData::IniGroup::Editor, UserData::IniValue::ToggleScrollsPrevNext, true);
-    loadMenuToggle(scroll_sync, UserData::IniGroup::Preview, UserData::IniValue::ToggleScrollSync, true);
-    loadMenuToggle(color_bar_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleColorBar, true);
-    loadMenuToggle(indicator_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleIndicator, true);
-    loadMenuToggle(preview_toggle, UserData::IniGroup::Window, UserData::IniValue::TogglePreview, false);
-    loadMenuToggle(status_bar_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleStatusBar, true);
-    loadMenuToggle(aot_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleToolAOT, false);
-    loadMenuToggle(stay_awake_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleToolSA, false);
-    loadMenuToggle(timer_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleToolTimer, false);
-    loadMenuToggle(window_theme_toggle, UserData::IniGroup::Window, UserData::IniValue::ToggleWindowTheme, true);
+    loadMenuToggle(data_load_most_recent, UserData::IniGroup::Data, UserData::IniValue::ToggleLoadMostRecent, false);
+    loadMenuToggle(editor_cursor_blink, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlink, true);
+    loadMenuToggle(editor_cursor_block, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorBlock, true);
+    loadMenuToggle(editor_cursor_center_on_scroll, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorCenterOnScroll, false);
+    loadMenuToggle(editor_cursor_ensure_visible, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorEnsureVisible, true);
+    loadMenuToggle(editor_cursor_typewriter, UserData::IniGroup::Editor, UserData::IniValue::ToggleCursorTypewriter, false);
+    loadMenuToggle(editor_current_line_highlight, UserData::IniGroup::Editor, UserData::IniValue::ToggleLineHighlight, true);
+    loadMenuToggle(editor_shadow, UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorShadow, true);
+    loadMenuToggle(editor_theme, UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorTheme, true);
+    loadMenuToggle(editor_key_filter, UserData::IniGroup::Editor, UserData::IniValue::ToggleKeyFilters, true);
+    loadMenuToggle(editor_line_number_area, UserData::IniGroup::Editor, UserData::IniValue::ToggleLineNumberArea, true);
+    loadMenuToggle(editor_scrolls_previous_next, UserData::IniGroup::Editor, UserData::IniValue::ToggleScrollsPrevNext, true);
+    loadMenuToggle(preview_scroll_sync, UserData::IniGroup::Preview, UserData::IniValue::ToggleScrollSync, true);
+    loadMenuToggle(window_color_bar, UserData::IniGroup::Window, UserData::IniValue::ToggleColorBar, true);
+    loadMenuToggle(window_indicator, UserData::IniGroup::Window, UserData::IniValue::ToggleIndicator, true);
+    loadMenuToggle(window_preview, UserData::IniGroup::Window, UserData::IniValue::TogglePreview, false);
+    loadMenuToggle(window_status_bar, UserData::IniGroup::Window, UserData::IniValue::ToggleStatusBar, true);
+    loadMenuToggle(window_tools_aot, UserData::IniGroup::Window, UserData::IniValue::ToggleToolAOT, false);
+    loadMenuToggle(window_tools_stay_awake, UserData::IniGroup::Window, UserData::IniValue::ToggleToolSA, false);
+    loadMenuToggle(window_tools_timer, UserData::IniGroup::Window, UserData::IniValue::ToggleToolTimer, false);
+    loadMenuToggle(window_theme, UserData::IniGroup::Window, UserData::IniValue::ToggleWindowTheme, true);
     auto toggle = menuBar->addMenu(tr("&Toggle"));
-    toggle->addAction(load_most_recent_toggle);
+    toggle->addAction(data_load_most_recent);
     toggle->addSeparator();
     auto cursor = toggle->addMenu(tr("&Cursor"));
-    for (const auto& action : { cursor_blink_toggle, cursor_block_toggle, cursor_center_on_scroll_toggle, cursor_typewriter_toggle })
+    for (const auto& action : { editor_cursor_blink, editor_cursor_block, editor_cursor_center_on_scroll, editor_cursor_ensure_visible, editor_cursor_typewriter })
         cursor->addAction(action);
-    for (const auto& action : { current_line_highlight_toggle, editor_shadow_toggle, editor_theme_toggle, key_filter_toggle, line_number_area_toggle, scrolls_previous_next_toggle })
+    for (const auto& action : { editor_current_line_highlight, editor_shadow, editor_theme, editor_key_filter, editor_line_number_area, editor_scrolls_previous_next })
         toggle->addAction(action);
     toggle->addSeparator();
-    for (const auto& action : { scroll_sync })
+    for (const auto& action : { preview_scroll_sync })
         toggle->addAction(action);
     toggle->addSeparator();
-    for (const auto& action : { color_bar_toggle, indicator_toggle, preview_toggle, status_bar_toggle })
+    for (const auto& action : { window_color_bar, window_indicator, window_preview, window_status_bar })
         toggle->addAction(action);
     auto tools = toggle->addMenu(tr("&Tools"));
     for (const auto& action : {
-        aot_toggle,
+        window_tools_aot,
 
 #ifdef Q_OS_WINDOWS
 
-        stay_awake_toggle,
+        window_tools_stay_awake,
 
 #endif
 
-        timer_toggle
+        window_tools_timer
         })
         tools->addAction(action);
-    for (const auto& action : { window_theme_toggle })
+    for (const auto& action : { window_theme })
         toggle->addAction(action);   
 }
 

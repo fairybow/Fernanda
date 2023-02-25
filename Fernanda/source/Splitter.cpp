@@ -65,8 +65,8 @@ void Splitter::addWidgets(QVector<QWidget*> widgets)
     setStretchFactor(pane.index, 0);
     setStretchFactor(editor.index, 1);
     setStretchFactor(preview.index, 1);
-    widgets.at(0)->installEventFilter(this);
-    widgets.at(2)->installEventFilter(this);
+    widgets.at(pane.index)->installEventFilter(this);
+    widgets.at(preview.index)->installEventFilter(this);
 }
 
 void Splitter::saveConfig()
