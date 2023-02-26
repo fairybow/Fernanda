@@ -87,7 +87,7 @@ void Editor::toggle(bool checked, Has has)
         break;
     case Has::KeyFilter:
         hasKeyFilter = checked;
-        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleKeyFilters, checked);
+        UserData::saveConfig(UserData::IniGroup::Editor, UserData::IniValue::ToggleKeyFilter, checked);
         break;
     case Has::LineHighlight:
         hasLineHighlight = checked;

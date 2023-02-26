@@ -83,6 +83,7 @@ signals:
     void askRenameElement(QString newName, QString key);
     void askSendToEditor(QString key);
     void askSetExpansion(QString key, bool isExpanded);
+    void inactiveSurfaceDoubleClicked(QWidget* widgetPtr);
 };
 
 // Pane.h, Fernanda

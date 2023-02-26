@@ -127,6 +127,7 @@ void MainWindow::connections()
     connect(pane, &Pane::askHasProject, this, &MainWindow::replyHasProject);
     connect(pane, &Pane::askSendToEditor, this, &MainWindow::handleEditorOpen);
     connect(pane, &Pane::askTitleCheck, this, &MainWindow::adjustTitle);
+    connect(pane, &Pane::inactiveSurfaceDoubleClicked, splitter, &Splitter::surfaceDoubleClicked);
     connect(this, &MainWindow::startAutoTempSave, this, [&]() { autoTempSave->start(20000); });
     connect(this, &MainWindow::askToggleStartUpBar, colorBar, [&](bool checked) { colorBar->toggle(checked, ColorBar::Has::RunOnStartUp); });
     connect(this, &MainWindow::askToggleScrolls, editor, [&](bool checked) { editor->toggle(checked, Editor::Has::Scrolls); });
@@ -388,7 +389,7 @@ void MainWindow::makeToggleMenu()
     auto editor_current_line_highlight = new QAction(tr("&Current line highlight"), this);
     auto editor_shadow = new QAction(tr("&Editor shadow"), this);
     auto editor_theme = new QAction(tr("&Editor theme"), this);
-    auto editor_key_filter = new QAction(tr("&Key filters"), this);
+    auto editor_key_filter = new QAction(tr("&Key filtering"), this);
     auto editor_line_number_area = new QAction(tr("&Line number area"), this);
     auto editor_scrolls_previous_next = new QAction(tr("&Scrolls previous and next"), this);
     auto preview_scroll_sync = new QAction(tr("&Preview scroll sync"), this);
@@ -471,7 +472,7 @@ void MainWindow::makeToggleMenu()
     loadMenuToggle(editor_current_line_highlight, UserData::IniGroup::Editor, UserData::IniValue::ToggleLineHighlight, true);
     loadMenuToggle(editor_shadow, UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorShadow, true);
     loadMenuToggle(editor_theme, UserData::IniGroup::Editor, UserData::IniValue::ToggleEditorTheme, true);
-    loadMenuToggle(editor_key_filter, UserData::IniGroup::Editor, UserData::IniValue::ToggleKeyFilters, true);
+    loadMenuToggle(editor_key_filter, UserData::IniGroup::Editor, UserData::IniValue::ToggleKeyFilter, true);
     loadMenuToggle(editor_line_number_area, UserData::IniGroup::Editor, UserData::IniValue::ToggleLineNumberArea, true);
     loadMenuToggle(editor_scrolls_previous_next, UserData::IniGroup::Editor, UserData::IniValue::ToggleScrollsPrevNext, true);
     loadMenuToggle(preview_scroll_sync, UserData::IniGroup::Preview, UserData::IniValue::ToggleScrollSync, true);
@@ -628,12 +629,12 @@ void MainWindow::makeDevMenu()
         });
     connect(print_splitter_startup, &QAction::triggered, this, [&]()
         {
-            auto states = splitter->devGetStartUpSizes();
+            auto states = splitter->devPrintInitialSizes();
             devMenuWrite("__Splitter startup sizes.txt", states.join(Text::newLines()));
         });
     connect(print_splitter_states, &QAction::triggered, this, [&]()
         {
-            auto states = splitter->devGetStates();
+            auto states = splitter->devPrintInfos();
             devMenuWrite("__Stored Splitter states.txt", states.join(Text::newLines()));
         });
     connect(print_window_position, &QAction::triggered, this, [&]()

@@ -189,8 +189,8 @@ const QString UserData::valueName(IniValue valueType)
     case IniValue::ToggleIndicator:
         result = "toggle__indicator";
         break;
-    case IniValue::ToggleKeyFilters:
-        result = "toggle__key_filters";
+    case IniValue::ToggleKeyFilter:
+        result = "toggle__key_filter";
         break;
     case IniValue::ToggleLineNumberArea:
         result = "toggle__line_number_area";

@@ -49,6 +49,7 @@ namespace Index
 	inline bool isThis(QModelIndex index, QString indexType) { return (type(index) == indexType); }
 	inline bool isDir(QModelIndex index) { return isThis(index, "directory"); }
 	inline bool isFile(QModelIndex index) { return isThis(index, "file"); }
+	inline bool isRoot(QModelIndex index) { return isThis(index, "root"); }
 }
 
 // Index.h, Fernanda

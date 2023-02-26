@@ -59,7 +59,7 @@ namespace UserData
         ToggleEditorShadow,
         ToggleEditorTheme,
         ToggleIndicator,
-        ToggleKeyFilters,
+        ToggleKeyFilter,
         ToggleLineNumberArea,
         ToggleLineHighlight,
         ToggleLoadMostRecent,

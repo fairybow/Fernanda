@@ -28,56 +28,60 @@ class Splitter : public QSplitter
 public:
     Splitter(QWidget* parent = nullptr);
 
-    const QStringList devRecordStartUpSizes();
-    const QStringList devGetStates();
+    const QStringList devPrintInfos();
+    const QStringList devPrintInitialSizes();
     void addWidgets(QVector<QWidget*> widgets);
     void saveConfig();
     void loadConfig();
 
-    const QStringList devGetStartUpSizes() { return devStartUpSizes; }
+public slots:
+    void surfaceDoubleClicked(QWidget* widgetPtr);
 
 protected:
     SplitterHandle* createHandle() override;
 
 private:
+    enum class Alignment {
+        Left,
+        Right
+    };
     enum class State {
         Collapsed,
         Expanded,
-        HoverExpanded
+        Hovering
     };
 
     struct Info {
-        int index = -1;
-        int handleIndex = -1;
+        Alignment alignment;
+        int index;
+        int handleIndex;
+        QWidget* widget;
+        QWidget* handle;
         int width = -1;
         State state = State::Expanded;
+        bool alignedLeft() const { return (alignment == Alignment::Left); }
+        bool alignedRight() const { return (alignment == Alignment::Right); }
+        bool isCollapsed() const { return (state == State::Collapsed); }
+        bool isExpanded() const { return (state == State::Expanded); }
+        bool isHovering() const { return (state == State::Hovering); }
+        bool hasWidgetHover() const { return (widget->underMouse() || handle->underMouse()); }
     };
 
-    QStringList devStartUpSizes = QStringList();
-    Info pane = Info{ 0, 1 };
-    Info editor = Info{ 1 };
-    Info preview = Info{ 2, 2 };
-    QVector<Info> widgets = { pane, editor, preview };
-
+    QVector<int> initialSizes;
+    QVector<Info> infos;
     bool isInitialized = false;
 
-    int toDefault(int index);
-    void collapse(Info& widgetInfo);
-    void expand(Info& widgetInfo, bool isHover = false);
+    QVector<int> recordInitialSizes();
+    void collapse(Info& info);
+    void expand(Info& info, bool isHover = false);
     void uncollapseAll();
     bool eventFilter(QObject* watched, QEvent* event);
     void initialize();
 
-    int toWindowX(int index, int size) { return (index < 2) ? size : askWindowSize().width() - size; }
-    bool match(SplitterHandle* handlePtr, Info& widgetInfo) const { return (handlePtr == handle(widgetInfo.handleIndex)); }
-    bool isCollapsed(Info& widgetInfo) const { return (widgetInfo.state == State::Collapsed); }
-    bool isExpanded(Info& widgetInfo) const { return (widgetInfo.state == State::Expanded); }
-    bool isHoverExpanded(Info& widgetInfo) const { return (widgetInfo.state == State::HoverExpanded); }
-    bool hasHover(Info& widgetInfo) const { return (widget(widgetInfo.index)->underMouse() || handle(widgetInfo.handleIndex)->underMouse()); }
-
+    int toWindowX(Info& info, int size) { return info.alignedLeft() ? size : askWindowSize().width() - size; }
 
 private slots:
-    void checkStates(int position, int index);
+    void checkStates(int position, int handleIndex);
     void hoverExpand(SplitterHandle* handlePtr);
     void storeWidths();
     void toggleExpansion(SplitterHandle* handlePtr);

@@ -27,7 +27,7 @@
 - [About](#fallen_leaf-about)
 - [Build](#honeybee-build)
 - [Features](#sunrise_over_mountains-features)
-	- [Key filters](#features-key_filters)
+	- [Key filtering](#features-key_filtering)
 	- [Samples](#features-samples)
 	- [Shortcuts](#features-shortcuts)
 	- [`.story`](#features-files)
@@ -113,16 +113,16 @@ Plus:
 
 ---
 
-**Key filters:**
-<a id="features-key_filters"></a>
+**Key filtering:**
+<a id="features-key_filtering"></a>
 - Auto-closing for `"", (), {}, []`
 - 2 spaces will skip the cursor past a closing item, closing the gap (see below)
 - Auto em-/en-dash formatting from hyphen/minus key
 
 <p align="center">
 	<kbd>
-		<img src="./Fernanda/docs/screens/key_filters.gif" alt="GIF of 'Key filters'"/>
-		<br><br>Key filters<br><br>
+		<img src="./Fernanda/docs/screens/key_filtering.gif" alt="GIF of 'Key filtering'"/>
+		<br><br>Key filtering<br><br>
 	</kbd>
 </p>
 

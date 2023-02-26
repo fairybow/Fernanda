@@ -163,6 +163,7 @@
 - [x] ~~Minify fountain CSS~~
 
 ### Splitter[^1]
+- [ ] `initialize()` - is there a reason I'm not marking anything expanded here?
 - [ ] Collapsing/expanding can sometimes flicker (I am guessing there's an incorrect change-of-state happening somewhere)
 - [ ] On open, if you drag to collapse a widget, it will expand to default instead of saved size (is there a way to determine the percentage open needed to mimic the saved state from qbytearray?)
 - [ ] Increase trigger area, slightly beyond visible boundaries

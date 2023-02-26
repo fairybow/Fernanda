@@ -106,7 +106,14 @@ void Pane::receiveEditsList(QStringList editedFiles)
 
 void Pane::mouseDoubleClickEvent(QMouseEvent* event)
 {
-    if (currentIndex().isValid() && currentIndex().model()->hasChildren())
+    auto position = event->pos();
+    auto index = indexAt(position);
+    if (!index.isValid() || Index::isRoot(index))
+    {
+        inactiveSurfaceDoubleClicked(this);
+        return;
+    }
+    if (index.model()->hasChildren())
         QTreeView::mouseDoubleClickEvent(event);
 }
 

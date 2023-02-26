@@ -20,38 +20,28 @@ Splitter::Splitter(QWidget* parent)
     connect(this, &Splitter::splitterMoved, this, &Splitter::checkStates);
 }
 
-const QStringList Splitter::devRecordStartUpSizes()
+const QStringList Splitter::devPrintInfos()
 {
-    auto widget_sizes = sizes();
     QStringList result;
-    auto window_size = askWindowSize();
-    auto window_entry = QString("Window size on startup: ");
-    window_entry.append(QString::number(window_size.height()));
-    window_entry.append(", " + QString::number(window_size.width()));
-    result << window_entry;
-    for (auto i = 0; i < count(); ++i)
+    result << "(-1 = unset)";
+    for (auto& info : infos)
     {
-        auto entry = QString("Widget index " + QString::number(i) + ": ");
-        entry.append(QString::number(widget(i)->height()));
-        entry.append(", " + QString::number(widget_sizes.at(i)));
+        auto entry = "Alignment: " + QString(info.alignedLeft() ? "Left" : "Right");
+        auto state = QString(info.isCollapsed() ? "Collapsed" : info.isExpanded() ? "Expanded" : "Hovering");
+        entry.append("\nWidget index: " + QString::number(info.index))
+            .append("\nAssociated handle index: " + QString::number(info.handleIndex))
+            .append("\nLast saved width: " + QString::number(info.width))
+            .append("\nCurrent state: " + state);
         result << entry;
     }
     return result;
 }
 
-const QStringList Splitter::devGetStates()
+const QStringList Splitter::devPrintInitialSizes()
 {
     QStringList result;
-    result << "(-1 = unset)";
-    for (auto& widget_info : widgets)
-    {
-        auto entry = "Widget index: " + QString::number(widget_info.index);
-        entry.append("\nAssociated handle index: " + QString::number(widget_info.handleIndex));
-        entry.append("\nLast saved width: " + QString::number(widget_info.width));
-        QString state = isCollapsed(widget_info) ? "Collapsed" : isExpanded(widget_info) ? "Expanded" : "HoverExpanded";
-        entry.append("\nCurrent state: " + state);
-        result << entry;
-    }
+    for (auto i = 0; i < initialSizes.count(); ++i)
+        result << QString(QString::number(i) + ": " + QString::number(initialSizes.at(i)));
     return result;
 }
 
@@ -59,14 +49,29 @@ void Splitter::addWidgets(QVector<QWidget*> widgets)
 {
     for (auto& widget : widgets)
         addWidget(widget);
-    setCollapsible(pane.index, true);
-    setCollapsible(editor.index, false);
-    setCollapsible(preview.index, true);
-    setStretchFactor(pane.index, 0);
-    setStretchFactor(editor.index, 1);
-    setStretchFactor(preview.index, 1);
-    widgets.at(pane.index)->installEventFilter(this);
-    widgets.at(preview.index)->installEventFilter(this);
+    for (auto i = 0; i < count(); ++i)
+    {
+        if (i != 1)
+        {
+            setCollapsible(i, true);
+            widgets.at(i)->installEventFilter(this);
+            auto alignment = (i < 1) ? Alignment::Left : Alignment::Right;
+            auto is_left = (alignment == Alignment::Left);
+            is_left
+                ? setStretchFactor(i, 0)
+                : setStretchFactor(i, 1);
+            auto handle_index = is_left ? i + 1 : i;
+            infos << Info{
+                alignment,
+                i,
+                handle_index,
+                widget(i),
+                handle(handle_index)
+            };
+        }
+        else
+            setCollapsible(i, false);
+    }
 }
 
 void Splitter::saveConfig()
@@ -81,12 +86,27 @@ void Splitter::loadConfig()
     if (state.isEmpty() || state.isNull())
     {
         auto width = askWindowSize().width();
-        setSizes(QVector<int>{ width * 2/10, width * 4/10, width * 4/10 });
+        setSizes(QVector<int>{ width * (2 / 10), width * (4 / 10), width * (4 / 10) });
     }
     else
         restoreState(state);
     setHandleWidth(6);
-    devStartUpSizes = devRecordStartUpSizes();
+    QTimer::singleShot(0, this, [&]()
+        {
+            initialSizes = recordInitialSizes();
+            storeWidths();
+        });
+}
+
+void Splitter::surfaceDoubleClicked(QWidget* widgetPtr)
+{
+    for (auto& info : infos)
+    {
+        if (info.widget != widgetPtr) continue;
+        info.isExpanded()
+            ? collapse(info)
+            : expand(info);
+    }
 }
 
 SplitterHandle* Splitter::createHandle()
@@ -99,38 +119,34 @@ SplitterHandle* Splitter::createHandle()
     return handle;
 }
 
-int Splitter::toDefault(int index)
+QVector<int> Splitter::recordInitialSizes()
 {
-    auto window_width = askWindowSize().width();
-    return (index < 2) ? (window_width * 2/10) : (window_width - (window_width * 4/10));
+    QVector<int> result;
+    for (auto i = 0; i < count(); ++i)
+        result << sizes().at(i);
+    return result;
 }
 
-void Splitter::collapse(Info& widgetInfo)
+void Splitter::collapse(Info& info)
 {
-    widgetInfo.state = State::Collapsed;
-    auto& handle_index = widgetInfo.handleIndex;
-    moveSplitter(toWindowX(handle_index, 0), handle_index);
+    info.state = State::Collapsed;
+    moveSplitter(toWindowX(info, 0), info.handleIndex);
 }
 
-void Splitter::expand(Info& widgetInfo, bool isHover)
+void Splitter::expand(Info& info, bool isHover)
 {
-    isHover ? widgetInfo.state = State::HoverExpanded : widgetInfo.state = State::Expanded;
-    auto& handle_index = widgetInfo.handleIndex;
-    auto& stored_width = widgetInfo.width;
-    (stored_width < 1)
-        ? moveSplitter(toDefault(handle_index), handle_index)
-        : moveSplitter(toWindowX(handle_index, stored_width), handle_index);
+    isHover ? info.state = State::Hovering : info.state = State::Expanded;
+    moveSplitter(toWindowX(info, info.width), info.handleIndex);
 }
 
 void Splitter::uncollapseAll()
 {
-    for (auto& widget_info : widgets)
+    for (auto& info : infos)
     {
-        if (!isCollapsed(widget_info)) continue;
-        auto& handle_index = widget_info.handleIndex;
-        auto& stored_width = widget_info.width;
-        if (stored_width != -1)
-            moveSplitter(toWindowX(handle_index, stored_width), handle_index);
+        if (!info.isCollapsed()) continue;
+        auto width = info.width;
+        if (width >= 0)
+            moveSplitter(toWindowX(info, width), info.handleIndex);
     }
 }
 
@@ -148,39 +164,37 @@ bool Splitter::eventFilter(QObject* watched, QEvent* event)
 
 void Splitter::initialize()
 {
-    for (auto& widget_info : widgets)
+    for (auto& info : infos)
     {
-        if (widget_info.width) continue;
-        widget_info.state = State::Collapsed;
+        if (info.width) continue;
+        info.state = State::Collapsed;
         isInitialized = true;
     }
 }
 
-void Splitter::checkStates(int position, int index)
+void Splitter::checkStates(int position, int handleIndex)
 {
-    for (auto& widget_info : widgets)
+    for (auto& info : infos)
     {
-        auto& handle_index = widget_info.handleIndex;
-        if (index != handle_index) continue;
-        if (isHoverExpanded(widget_info)) continue;
-        auto& widget_state = widget_info.state;
-        (handle_index < 2)
-            ? (position != 0)
-                ? widget_state = State::Expanded
-                : widget_state = State::Collapsed
+        if (handleIndex != info.handleIndex) continue;
+        if (info.isHovering()) continue;
+        info.alignedLeft()
+            ? position
+                ? info.state = State::Expanded
+                : info.state = State::Collapsed
             : (position != (askWindowSize().width() - handleWidth()))
-                ? widget_state = State::Expanded
-                : widget_state = State::Collapsed;
+                ? info.state = State::Expanded
+                : info.state = State::Collapsed;
     }
 }
 
 void Splitter::hoverExpand(SplitterHandle* handlePtr)
 {
-    for (auto& widget_info : widgets)
+    for (auto& info : infos)
     {
-        if (!match(handlePtr, widget_info)) continue;
-        if (isCollapsed(widget_info))
-            expand(widget_info, true);
+        if (handlePtr != info.handle) continue;
+        if (info.isCollapsed())
+            expand(info, true);
     }
 }
 
@@ -188,35 +202,35 @@ void Splitter::storeWidths()
 {
     if (!isInitialized)
         initialize();
-    for (auto& widget_info : widgets)
+    for (auto& info : infos)
     {
-        if (!isExpanded(widget_info)) continue;
-        auto size = sizes().at(widget_info.index);
-        if (widget_info.width && size)
-            widget_info.width = size;
+        if (!info.isExpanded()) continue;
+        auto size = sizes().at(info.index);
+        if (info.width && size)
+            info.width = size;
     }
 }
 
 void Splitter::toggleExpansion(SplitterHandle* handlePtr)
 {
-    for (auto& widget_info : widgets)
+    for (auto& info : infos)
     {
-        if (!match(handlePtr, widget_info)) continue;
-        (isExpanded(widget_info))
-            ? collapse(widget_info)
-            : expand(widget_info);
+        if (handlePtr != info.handle) continue;
+        info.isExpanded()
+            ? collapse(info)
+            : expand(info);
     }
 }
 
 void Splitter::unhoverAll()
 {
-    for (auto& widget_info : widgets)
+    for (auto& info : infos)
     {
-        if (!isHoverExpanded(widget_info)) continue;
+        if (!info.isHovering()) continue;
         QTimer::singleShot(250, this, [&]()
             {
-                if (!hasHover(widget_info))
-                    collapse(widget_info);
+                if (!info.hasWidgetHover())
+                    collapse(info);
             });
     }
 }
