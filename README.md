@@ -107,7 +107,7 @@ Plus:
 <p align="center">
 	<kbd>
 		<img src="./Fernanda/docs/screens/pane_collapse.gif" alt="GIF of 'Pane collapse'"/>
-		<br><br>Double-click the file pane's handle to collapse or expand, and hover to open temporarily<br><br>
+		<br><br>Double-click the file pane (handle or unused surface) to collapse it.<br>Then hover over the handle to open temporarily<br>(and double-click again if you want to keep it that way).<br><br>
 	</kbd>
 </p>
 

@@ -82,7 +82,6 @@
 - [x] ~~Probably should combine `elements()` and `elementsByAttribute()`~~
 
 ### Editor / PlainTextEdit / LineNumberArea
-- [ ] "Ribbon" mode
 - [ ] A toggleable for every relevant `QPlainTextEdit` toggleable (`centerOnScroll` for example)
 - [ ] It is not clear to me that `updateLineNumberAreaWidth(int newBlockCount)` actually uses `newBlockCount` arg
 - [ ] Save undo/redo stacks
@@ -110,12 +109,12 @@
 - [x] ~~^ Check character count at open, set Indicator, and then toggle auto counting based on character length (add a refresh symbol)~~
 
 ### KeyFilter
-- [ ] `autoClose()` (or in PTE `proximalChars()`) on end-of-line / blank line causes crash (possibly just at beginning of any block)
 - [ ] Auto-format ellipses
 - [ ] Auto-delete spaces before punctuation
 - [ ] Quote wrapping does not account for non-American punctuation/quote order
 - [ ] Add guillemets (both versions)?
 - [ ] On enter-press if the next `char` is closing parenthesis, quote, etc., then apply a skip before new line?
+- [x] ~~`autoClose()` (or in PTE `proximalChars()`) on end-of-line / blank line causes crash (possibly just at beginning of any block)~~
 - [x] ~~Avoid passing entire document lol~~
 
 ### MainWindow
@@ -165,14 +164,11 @@
 ### Splitter[^1]
 - [ ] `initialize()` - is there a reason I'm not marking anything expanded here?
 - [ ] Collapsing/expanding can sometimes flicker (I am guessing there's an incorrect change-of-state happening somewhere)
-- [ ] On open, if you drag to collapse a widget, it will expand to default instead of saved size (is there a way to determine the percentage open needed to mimic the saved state from qbytearray?)
 - [ ] Increase trigger area, slightly beyond visible boundaries
 - [ ] Preview handle should animate to the left and not right
+- [x] ~~On open, if you drag to collapse a widget, it will expand to default instead of saved size (is there a way to determine the percentage open needed to mimic the saved state from qbytearray?)~~
 - [x] ~~Add ability to hover mouse for length of time and activate collapse/expand~~
 - [x] ~~Toggle collapse/expand on click~~
-
-### SplitterHandle[^1]
-- [ ] Make all the RBFLs a function that returns list of valid widgets meeting the criteria
 
 ### StartCop
 - [ ] Accept args (on file click, prompt to save if needed and open new file; possibly also switch to dev mode)
