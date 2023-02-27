@@ -70,7 +70,10 @@ void Splitter::addWidgets(QVector<QWidget*> widgets)
             };
         }
         else
+        {
+            setStretchFactor(i, 1);
             setCollapsible(i, false);
+        }
     }
 }
 
