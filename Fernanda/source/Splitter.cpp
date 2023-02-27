@@ -138,7 +138,9 @@ void Splitter::collapse(Info& info)
 
 void Splitter::expand(Info& info, bool isHover)
 {
-    isHover ? info.state = State::Hovering : info.state = State::Expanded;
+    isHover
+        ? info.state = State::Hovering
+        : info.state = State::Expanded;
     moveSplitter(toWindowX(info, info.width), info.handleIndex);
 }
 

@@ -55,10 +55,9 @@ private:
             result = true;
             break;
         case QEvent::Leave:
-            expanding->stop();
+            resetAnimation();
             hoverTrigger->stop();
             askUnhoverAll();
-            setFixedWidth(splitter()->handleWidth());
             result = true;
             break;
         case QEvent::MouseButtonRelease:
@@ -66,7 +65,6 @@ private:
             result = true;
             break;
         case QEvent::MouseButtonDblClick:
-            expanding->stop();
             hoverTrigger->stop();
             askStoreWidths();
             askToggleExpansion(this);
@@ -74,6 +72,15 @@ private:
             break;
         }
         return result;
+    }
+
+    void resetAnimation()
+    {
+        QTimer::singleShot(0, this, [&]()
+            {
+                expanding->stop();
+                setFixedWidth(splitter()->handleWidth());
+            });
     }
 
 signals:

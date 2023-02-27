@@ -2,20 +2,15 @@
 # <img src="Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
 
 <p align="center">
-	<kbd>
-		<img src="./Fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32'"/>
-		<br><br>Fernanda v0.14.0-beta32<br><br>
-	</kbd>
-</p>
-<p align="center">
-	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=b21a4d&label=&style=flat" alt="Latest Release"/></a>
-	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=1465a8&label=&style=flat" alt="License: GPL-3.0"/></a>
+	<img src="./Fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.26.1-beta57'"/>
+	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=d74f4b&style=flat&labelColor=lightgrey" alt="Latest Release"/></a>
+	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=1c404d&style=flat&labelColor=lightgrey" alt="License: GPL-3.0"/></a>
 	<br>
-	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7--Zip%20v22.01-ff6189?style=flat" alt="7-Zip v22.01"/></a>
-	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z%20v4.0.0--RC-556dfd?style=flat" alt="Bit7z v4.0.0-RC"/></a>
-	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt%20v6.4.2-bad900?style=flat" alt="Qt v6.4.2"/></a>
+	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7--Zip-v22.01-eae9e8?style=flat&labelColor=lightgrey" alt="7-Zip v22.01"/></a>
+	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-v4.0.0--RC-orange?style=flat&labelColor=lightgrey" alt="Bit7z v4.0.0-RC"/></a>
+	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-v6.4.2-green?style=flat&labelColor=lightgrey" alt="Qt v6.4.2"/></a>
 	<br>
-	<a href="#framed_picture-installation"><img src="https://img.shields.io/badge/Windows%20%26%20Arch%20Linux%20%28x64%29-757666?style=flat" alt="Platforms: Windows & Arch Linux (x64)"/></a>
+	<a href="#framed_picture-installation"><img src="https://img.shields.io/badge/platforms-Windows%20%26%20Arch%20Linux%20%28x64%29-blue?style=flat&labelColor=lightgrey" alt="Platforms: Windows & Arch Linux (x64)"/></a>
 </p>
 
 ## :tea: **Hello**
@@ -274,8 +269,8 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 			<th colspan="2">
 				<p align="center">
 					<kbd>
-						<img src="./Fernanda/docs/screens/banner_old.png" alt="PNG of 'Banner'"/>
-						<br><br>Old banner<br><br>Themes: window Light / editor Pocket;<br>Font: Fixedsys Excelsior by <a href="https://github.com/kika/fixedsys">@kika</a>.<br><br>
+						<img src="./Fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.26.1-beta57 running on Windows 11.'"/>
+						<br><br>Fernanda v0.26.1-beta57 running on Windows 11.<br><br>Themes: window Light / editor Snooze;<br>Font: Mononoki by <a href="https://github.com/madmalik/mononoki">@madmalik</a>.<br><br>
 					</kbd>
 				</p>
 			</th>
@@ -286,7 +281,7 @@ A major thanks, too, to [@rikyoz](https://github.com/rikyoz/) for their tireless
 			<th colspan="2">
 				<p align="center">
 					<kbd>
-						<img src="./Fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.14.0-beta32 running on Windows 11.'"/>
+						<img src="./Fernanda/docs/screens/main_screen_old.png" alt="PNG of 'Fernanda v0.14.0-beta32 running on Windows 11.'"/>
 						<br><br>Fernanda v0.14.0-beta32 running on Windows 11.<br><br>Wallpaper: "Red sky background" by <a href="https://www.deviantart.com/masterteacher/art/Red-sky-background-356199141">MasterTeacher</a>;<br>Themes: window Solarized Light / editor Snooze;<br>Font: Mononoki by <a href="https://github.com/madmalik/mononoki">@madmalik</a>.<br><br>
 					</kbd>
 				</p>
