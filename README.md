@@ -2,7 +2,7 @@
 # <img src="Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
 
 <p align="center">
-	<img src="./Fernanda/docs/screens/main_screen.png" alt="PNG of 'Fernanda v0.26.1-beta57'"/>
+	<img src="./Fernanda/docs/screens/main_screen_2.png" alt="PNG of 'Fernanda v0.26.1-beta57'"/>
 	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=d74f4b&style=flat&labelColor=lightgrey" alt="Latest Release"/></a>
 	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=1c404d&style=flat&labelColor=lightgrey" alt="License: GPL-3.0"/></a>
 	<br>
