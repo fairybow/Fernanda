@@ -183,7 +183,7 @@ Fernanda comes with several two-tone editor themes inspired by retro displays an
 **Tools:**
 <a id="features-tools"></a>
 - :pushpin: **Always on top:**
-	- Pin Fernanda to the top of your window order (will interfere with popups!)
+	- Pin Fernanda to the top of your window order
 - :bubble_tea:	**Stay awake:**
 	- Keep the screen awake without input (Windows only)
 - :timer_clock: **Timer:**

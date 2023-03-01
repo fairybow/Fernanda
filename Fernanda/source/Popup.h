@@ -38,15 +38,15 @@ public:
     };
 
     static bool about(QWidget* parent);
-    static OnClose confirm(bool isQuit);
-    static void shortcuts();
-    static Action sample();
-    static void update(Text::VersionCheck result, QString latestVersion);
-    static void timeUp();
-    static void totalCounts(int lines, int words, int characters);
+    static OnClose confirm(QWidget* parent, bool isQuit);
+    static void shortcuts(QWidget* parent);
+    static Action sample(QWidget* parent);
+    static void update(QWidget* parent, Text::VersionCheck result, QString latestVersion);
+    static void timeUp(QWidget* parent);
+    static void totalCounts(QWidget* parent, int lines, int words, int characters);
 
 private:
-    static void box(QMessageBox& box, QString text, bool hasOk = true, bool hasIcon = false, QString title = nullptr, QWidget* parent = nullptr);
+    static void box(QMessageBox& box, QString text, bool hasOk = true, bool hasIcon = false, QString title = nullptr);
 };
 
 // Popup.h, Fernanda

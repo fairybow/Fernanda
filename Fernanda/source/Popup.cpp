@@ -16,7 +16,7 @@
 bool Popup::about(QWidget* parent)
 {
     auto result = false;
-    QMessageBox about;
+    QMessageBox about(parent);
     box(about, Text::about(), true, true);
     auto update = about.addButton(tr(Text::checkForUpdates().toLocal8Bit()), QMessageBox::AcceptRole);
     auto qt = about.addButton(tr("About Qt"), QMessageBox::AcceptRole);
@@ -26,10 +26,10 @@ bool Popup::about(QWidget* parent)
     return result;
 }
 
-Popup::OnClose Popup::confirm(bool isQuit)
+Popup::OnClose Popup::confirm(QWidget* parent, bool isQuit)
 {
     auto result = OnClose::Close;
-    QMessageBox alert;
+    QMessageBox alert(parent);
     box(alert, Text::change(isQuit), false, false, "Hey!");
     alert.addButton(QMessageBox::Yes);
     auto no = alert.addButton(QMessageBox::No);
@@ -41,16 +41,16 @@ Popup::OnClose Popup::confirm(bool isQuit)
     return result;
 }
 
-void Popup::shortcuts()
+void Popup::shortcuts(QWidget* parent)
 {
-    QMessageBox shortcuts;
+    QMessageBox shortcuts(parent);
     box(shortcuts, Text::shortcuts());
     shortcuts.exec();
 }
 
-Popup::Action Popup::sample()
+Popup::Action Popup::sample(QWidget* parent)
 {
-    QMessageBox alert;
+    QMessageBox alert(parent);
     box(alert, Text::samples(), true, false, "Hey!");
     auto open = alert.addButton(tr(Text::openUdButton().toLocal8Bit()), QMessageBox::AcceptRole);
     alert.exec();
@@ -58,28 +58,28 @@ Popup::Action Popup::sample()
     return Action::Accept;
 }
 
-void Popup::update(Text::VersionCheck result, QString latestVersion)
+void Popup::update(QWidget* parent, Text::VersionCheck result, QString latestVersion)
 {
-    QMessageBox version_check;
+    QMessageBox version_check(parent);
     box(version_check, Text::version(result, latestVersion), true, true);
     version_check.exec();
 }
 
-void Popup::timeUp()
+void Popup::timeUp(QWidget* parent)
 {
-    QMessageBox time_up;
+    QMessageBox time_up(parent);
     box(time_up, Text::timeUp());
     time_up.exec();
 }
 
-void Popup::totalCounts(int lines, int words, int characters)
+void Popup::totalCounts(QWidget* parent, int lines, int words, int characters)
 {
-    QMessageBox total_counts;
+    QMessageBox total_counts(parent);
     box(total_counts, Text::totalCounts(lines, words, characters));
     total_counts.exec();
 }
 
-void Popup::box(QMessageBox& box, QString text, bool hasOk, bool hasIcon, QString title, QWidget* parent)
+void Popup::box(QMessageBox& box, QString text, bool hasOk, bool hasIcon, QString title)
 {
     (title == nullptr)
         ? box.setWindowTitle("Fernanda")

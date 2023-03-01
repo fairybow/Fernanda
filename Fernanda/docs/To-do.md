@@ -149,7 +149,7 @@
 - [ ] May need to remove and re-add icons / labels. They seem to be doubling up sometimes--visible r/g/b or pink outlines?
 
 ### Popup
-- [ ] Ensure popups happen on the same monitor...
+- [x] ~~Ensure popups happen on the same monitor...~~
 
 ### Preview
 - [ ] Need a default size to open to from toggle if not set (-1)

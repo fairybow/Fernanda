@@ -69,7 +69,7 @@ bool MainWindow::confirmStoryClose(bool isQuit)
 {
     if (!activeStory.has_value() || !activeStory.value().hasChanges()) return true;
     auto result = false;
-    switch (Popup::confirm(isQuit)) {
+    switch (Popup::confirm(this, isQuit)) {
     case Popup::OnClose::Close:
         result = true;
         break;
@@ -531,7 +531,7 @@ void MainWindow::makeHelpMenu()
             helpMenuUpdate();
         });
     connect(check_for_updates, &QAction::triggered, this, &MainWindow::helpMenuUpdate);
-    connect(shortcuts, &QAction::triggered, this, [&]() { Popup::shortcuts(); });
+    connect(shortcuts, &QAction::triggered, this, [&]() { Popup::shortcuts(this); });
     connect(documents, &QAction::triggered, this, [&]()
         {
             openLocalFolder(UserData::doThis(UserData::Operation::GetDocuments));
@@ -828,7 +828,7 @@ void MainWindow::storyMenuTotals()
     auto& story = activeStory.value();
     story.autoTempSave(editor->toPlainText());
     auto totals = story.totalCounts();
-    Popup::totalCounts(totals.lines, totals.words, totals.characters);
+    Popup::totalCounts(this, totals.lines, totals.words, totals.characters);
 }
 
 void MainWindow::helpMenuMakeSampleProject()
@@ -842,7 +842,7 @@ void MainWindow::helpMenuMakeSampleRes()
     auto path = UserData::doThis(UserData::Operation::GetUserData);
     Sample::makeRc(path);
     colorBar->run(ColorBar::Run::Pastels);
-    switch (Popup::sample()) {
+    switch (Popup::sample(this)) {
     case Popup::Action::Accept:
         break;
     case Popup::Action::Open:
@@ -871,7 +871,7 @@ void MainWindow::helpMenuUpdate()
             }
             else
                 result = Text::VersionCheck::Error;
-            Popup::update(result, latest);
+            Popup::update(this, result, latest);
         });
 }
 

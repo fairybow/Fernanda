@@ -158,7 +158,7 @@ void Tool::countdownDisplay()
     setText(Text::pad(Icon::draw(Icon::Name::Timer) + " " + time(countdown_value), 2));
     if (countdown_value < 1)
     {
-        Popup::timeUp();
+        Popup::timeUp(parentWindow);
         setChecked(false);
         return;
     }
