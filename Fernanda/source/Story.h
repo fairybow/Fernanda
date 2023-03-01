@@ -68,7 +68,7 @@ public:
     void add(QString newName, Path::Type type, QString parentKey) { dom->add(newName, type, parentKey); }
 
     template<typename T>
-    inline const T name() { return Path::getName<T>(activeArchivePath); }
+    const T name() { return Path::getName<T>(activeArchivePath); }
 
 private:
     Archiver* archiver = new Archiver;

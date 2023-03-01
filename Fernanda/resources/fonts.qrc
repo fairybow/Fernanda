@@ -6,13 +6,13 @@
         <file>fonts/Courier Prime.ttf</file>
         <file>fonts/Day Roman.ttf</file>
         <file>fonts/Fixedsys Excelsior.ttf</file>
+        <file>fonts/IBM Plex Sans.ttf</file>
         <file>fonts/Iosevka.ttf</file>
         <file>fonts/Mononoki.ttf</file>
         <file>fonts/More Perfect DOS VGA.ttf</file>
         <file>fonts/Noto Serif.ttf</file>
         <file>fonts/Nouveau IBM.ttf</file>
         <file>fonts/OpenDyslexic.otf</file>
-        <file>fonts/Roboto.ttf</file>
         <file>fonts/Source Sans Pro.ttf</file>
         <file>fonts/Ysabeau.ttf</file>
     </qresource>

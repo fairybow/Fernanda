@@ -63,7 +63,7 @@ public:
     int cursorBlockNumber() const { return plainTextEdit->textCursor().blockNumber(); }
     int cursorPositionInBlock() const { return plainTextEdit->textCursor().positionInBlock(); }
     bool hasSelection() const { return plainTextEdit->textCursor().hasSelection(); }
-    void scrollNavClicked(PlainTextEdit::Scroll direction) { plainTextEdit->scrollNavClicked(direction); }
+    void scroll(PlainTextEdit::Step direction) { plainTextEdit->scroll(direction); }
     int selectedLineCount() const { return plainTextEdit->selectedLineCount(); }
     QString selectedText() const { return plainTextEdit->textCursor().selectedText(); }
     void setFocus() { plainTextEdit->setFocus(); }

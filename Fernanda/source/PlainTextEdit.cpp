@@ -95,28 +95,49 @@ int PlainTextEdit::selectedLineCount()
     return cursor.selectedText().count(Text::regex(Text::Regex::ParagraphSeparator)) + 1;
 }
 
-void PlainTextEdit::scrollNavClicked(Scroll direction)
+void PlainTextEdit::scroll(Step direction)
 {
-    if (!askHasProject()) return;
-    auto early_return = false;
-    switch (direction) {
-    case Scroll::Next:
-        if (!isMaximumScroll())
-        {
-            verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMaximum);
-            early_return = true;
+    auto scroll_bar = verticalScrollBar();
+    if (direction == Step::Next || direction == Step::Previous)
+    {
+        if (!askHasProject()) return;
+        auto early_return = false;
+        switch (direction) {
+        case Step::Next:
+            if (!isMaximumScroll())
+            {
+                scroll_bar->triggerAction(QAbstractSlider::SliderToMaximum);
+                early_return = true;
+            }
+            break;
+        case Step::Previous:
+            if (!isMinimumScroll())
+            {
+                scroll_bar->triggerAction(QAbstractSlider::SliderToMinimum);
+                early_return = true;
+            }
+            break;
         }
-        break;
-    case Scroll::Previous:
-        if (!isMinimumScroll())
-        {
-            verticalScrollBar()->triggerAction(QAbstractSlider::SliderToMinimum);
-            early_return = true;
-        }
-        break;
+        if (early_return) return;
+        (direction == Step::Next) ? askGoNext() : askGoPrevious();
     }
-    if (early_return) return;
-    (direction == Scroll::Next) ? askGoNext() : askGoPrevious();
+    else
+    {
+        auto scroll_value = scroll_bar->value();
+        auto steps = scroll_bar->singleStep() * 10;
+        slide->setDuration(200);
+        slide->setEasingCurve(QEasingCurve::OutQuad);
+        slide->setStartValue(scroll_value);
+        switch (direction) {
+        case Step::Down:
+            slide->setEndValue(scroll_value + steps);
+            break;
+        case Step::Up:
+            slide->setEndValue(scroll_value - steps);
+            break;
+        }
+        slide->start();
+    }
 }
 
 void PlainTextEdit::handleFont(StdFsPath fontPath, int sliderValue)
@@ -306,18 +327,10 @@ void PlainTextEdit::connections()
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &PlainTextEdit::scrollButtonEnabledHandler);
     connect(this, &PlainTextEdit::textChanged, this, [&]() { if (askHasCursorEnsureVisible()) ensureCursorVisible(); });
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [&]() { sendBlockNumber(firstVisibleBlock().blockNumber()); });
-    connect(scrollNext, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Next); });
-    connect(scrollPrevious, &QPushButton::clicked, this, [&]() { scrollNavClicked(Scroll::Previous); });
-    connect(scrollUp, &QPushButton::clicked, this, [&]()
-        {
-            for (auto i = 4; i > 0; --i)
-                verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepSub);
-        });
-    connect(scrollDown, &QPushButton::clicked, this, [&]()
-        {
-            for (auto i = 4; i > 0; --i)
-                verticalScrollBar()->triggerAction(QAbstractSlider::SliderSingleStepAdd);
-        });
+    connect(scrollNext, &QPushButton::clicked, this, [&]() { scroll(Step::Next); });
+    connect(scrollPrevious, &QPushButton::clicked, this, [&]() { scroll(Step::Previous); });
+    connect(scrollUp, &QPushButton::clicked, this, [&]() { scroll(Step::Up); });
+    connect(scrollDown, &QPushButton::clicked, this, [&]() { scroll(Step::Down); });
 }
 
 const QRect PlainTextEdit::reshapeCursor(QChar currentChar)

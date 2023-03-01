@@ -248,8 +248,8 @@ void Editor::shortcuts()
     connect(cycle_core_themes, &QShortcut::activated, this, &Editor::cycleCoreThemes);
     connect(cycle_fonts, &QShortcut::activated, this, [&]() { Style::actionCycle(askFonts()); });
     connect(cycle_themes, &QShortcut::activated, this, [&]() { Style::actionCycle(askThemes()); });
-    connect(nav_previous, &QShortcut::activated, this, [&]() { scrollNavClicked(PlainTextEdit::Scroll::Previous); });
-    connect(nav_next, &QShortcut::activated, this, [&]() { scrollNavClicked(PlainTextEdit::Scroll::Next); });
+    connect(nav_previous, &QShortcut::activated, this, [&]() { scroll(PlainTextEdit::Step::Previous); });
+    connect(nav_next, &QShortcut::activated, this, [&]() { scroll(PlainTextEdit::Step::Next); });
     connect(zoom_out, &QShortcut::activated, this, [&]() { askFontSliderZoom(PlainTextEdit::Zoom::Out); });
     connect(zoom_in, &QShortcut::activated, this, [&]() { askFontSliderZoom(PlainTextEdit::Zoom::In); });
     for (const auto& shortcut : { cycle_fonts, cycle_core_themes, cycle_themes, zoom_out, zoom_in, nav_previous, nav_next })

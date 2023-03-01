@@ -2,7 +2,7 @@
 # <img src="Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
 
 <p align="center">
-	<img src="./Fernanda/docs/screens/main_screen_2.png" alt="PNG of 'Fernanda v0.26.1-beta57'"/>
+	<img src="./Fernanda/docs/screens/main_screen_2_alt.png" alt="PNG of 'Fernanda v0.26.1-beta57'"/>
 	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=d74f4b&style=flat&labelColor=lightgrey" alt="Latest Release"/></a>
 	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=1c404d&style=flat&labelColor=lightgrey" alt="License: GPL-3.0"/></a>
 	<br>
@@ -43,7 +43,7 @@ This is a personal project, a work-in-progress, and I am *so* not a programmer. 
 
 You can try it [here](#framed_picture-installation).
 
-Fernanda's look was inspired by the nice and quiet feeling of using [WordStar](https://en.wikipedia.org/wiki/WordStar) on [DOSBox](https://www.dosbox.com/) to draft, and its interface was inspired by [Atom](https://github.com/atom/atom).
+Fernanda's look was inspired by the cozy feeling of using [WordStar](https://en.wikipedia.org/wiki/WordStar) on [DOSBox](https://www.dosbox.com/) to draft, and its interface was inspired by [Atom](https://github.com/atom/atom).
 
 Fernanda got its name because I just really like the name a lot. But, as it turns out, Fernanda means an ["adventurous, bold journey"](https://en.wikipedia.org/wiki/Fernanda) (the kind one might be *called* to, say), and I think that's neat. <img src="./Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="16px"/>
 

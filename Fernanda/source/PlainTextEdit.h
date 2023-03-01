@@ -30,6 +30,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QPlainTextEdit>
+#include <QPropertyAnimation>
 #include <QPushButton>
 #include <QResizeEvent>
 #include <QScrollBar>
@@ -48,9 +49,11 @@ class PlainTextEdit : public QPlainTextEdit
 public:
     PlainTextEdit(QWidget* editor);
 
-    enum class Scroll {
+    enum class Step {
+        Down,
         Next,
-        Previous
+        Previous,
+        Up
     };
     enum class Zoom {
         In,
@@ -63,7 +66,7 @@ public:
     void lineNumberAreaPaintEvent(QPaintEvent* event);
     int lineNumberAreaWidth();
     int selectedLineCount();
-    void scrollNavClicked(Scroll direction);
+    void scroll(Step direction);
     void handleFont(StdFsPath fontPath, int sliderValue);
 
 public slots:
@@ -89,6 +92,7 @@ private:
     QPushButton* scrollPrevious = new QPushButton(this);
     QPushButton* scrollNext = new QPushButton(this);
     QPushButton* scrollDown = new QPushButton(this);
+    QPropertyAnimation* slide = new QPropertyAnimation(verticalScrollBar(), "sliderPosition");
 
     const QChar currentChar();
     const KeyFilter::ProximalChars proximalChars();

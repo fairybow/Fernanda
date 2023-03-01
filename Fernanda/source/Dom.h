@@ -76,7 +76,7 @@ public:
     bool hasChanges() { return (string() != string(Document::Initial)); }
 
     template<typename T>
-    inline T element(QString key, Element property = Element::Element)
+    T element(QString key, Element property = Element::Element)
     {
         QDomElement found_element;
         auto root = self.documentElement();
@@ -133,7 +133,7 @@ public:
     }
 
     template<typename T>
-    inline void write(QString key, T value, Write property)
+    void write(QString key, T value, Write property)
     {
         QDomElement target = element<QDomElement>(key);
         switch (property) {
@@ -164,7 +164,7 @@ private:
     StdFsPath filterPath(QDomElement elem, Filter filter = Filter::RenameToOrig);
 
     template<typename T>
-    inline bool isThis(T nodeOrElement, QString nodeOrTagName)
+    bool isThis(T nodeOrElement, QString nodeOrTagName)
     {
         auto result = false;
         if constexpr (std::is_same<T, QDomElement>::value)
@@ -181,13 +181,13 @@ private:
     }
 
     template<typename T>
-    inline bool isDir(T nodeOrElement) { return isThis(nodeOrElement, tagDir); }
+    bool isDir(T nodeOrElement) { return isThis(nodeOrElement, tagDir); }
 
     template<typename T>
-    inline bool isFile(T nodeOrElement) { return isThis(nodeOrElement, tagFile); }
+    bool isFile(T nodeOrElement) { return isThis(nodeOrElement, tagFile); }
 
     template<typename T>
-    inline bool isRoot(T nodeOrElement) { return isThis(nodeOrElement, tagRoot); }
+    bool isRoot(T nodeOrElement) { return isThis(nodeOrElement, tagRoot); }
 };
 
 // Dom.h, Fernanda

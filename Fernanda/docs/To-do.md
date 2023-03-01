@@ -92,6 +92,7 @@
 - [ ] Wrap for parentheses and other closables
 - [ ] If a filter was just applied, backspace should function as undo
 - [ ] Make thin cursor change color when there's a selection?
+- [x] ~~Animate scroll bar~~
 - [x] ~~Typewriter mode~~
 - [x] ~~Avoid passing entire document for cursor underpaint lol~~
 - [x] ~~Toggle chonky cursor vs regular~~
@@ -164,6 +165,7 @@
 ### Splitter[^1]
 - [ ] `initialize()` - is there a reason I'm not marking anything expanded here?
 - [ ] Collapsing/expanding can sometimes flicker (I am guessing there's an incorrect change-of-state happening somewhere)
+- [ ] Animate collapse/expand (very lightly)
 - [ ] Increase trigger area, slightly beyond visible boundaries
 - [ ] Preview handle should animate to the left and not right
 - [x] ~~On open, if you drag to collapse a widget, it will expand to default instead of saved size (is there a way to determine the percentage open needed to mimic the saved state from qbytearray?)~~

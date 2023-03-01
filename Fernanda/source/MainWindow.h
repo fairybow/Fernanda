@@ -104,7 +104,7 @@ private:
     void openLocalFolder(StdFsPath path) { QDesktopServices::openUrl(QUrl::fromLocalFile(Path::toQString(path))); }
 
     template<typename T>
-    inline QActionGroup* makeViewToggles(QVector<Resource::DataPair>& dataLabelPairs, T slot)
+    QActionGroup* makeViewToggles(QVector<Resource::DataPair>& dataLabelPairs, T slot)
     {
         auto group = new QActionGroup(this);
         for (auto& pair : dataLabelPairs)
@@ -122,7 +122,7 @@ private:
     }
 
     template<typename T>
-    inline T getSetting(QActionGroup* settingsGroup)
+    T getSetting(QActionGroup* settingsGroup)
     {
         T result{};
         if constexpr (std::is_same<T, int>::value)
