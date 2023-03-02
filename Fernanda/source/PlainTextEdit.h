@@ -92,7 +92,6 @@ private:
     QPushButton* scrollPrevious = new QPushButton(this);
     QPushButton* scrollNext = new QPushButton(this);
     QPushButton* scrollDown = new QPushButton(this);
-    QPropertyAnimation* slide = new QPropertyAnimation(verticalScrollBar(), "sliderPosition");
 
     const QChar currentChar();
     const KeyFilter::ProximalChars proximalChars();

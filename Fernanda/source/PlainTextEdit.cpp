@@ -125,6 +125,7 @@ void PlainTextEdit::scroll(Step direction)
     {
         auto scroll_value = scroll_bar->value();
         auto steps = scroll_bar->singleStep() * 10;
+        auto slide = new QPropertyAnimation(scroll_bar, "sliderPosition");
         slide->setDuration(200);
         slide->setEasingCurve(QEasingCurve::OutQuad);
         slide->setStartValue(scroll_value);
@@ -136,7 +137,7 @@ void PlainTextEdit::scroll(Step direction)
             slide->setEndValue(scroll_value - steps);
             break;
         }
-        slide->start();
+        slide->start(QAbstractAnimation::DeleteWhenStopped);
     }
 }
 

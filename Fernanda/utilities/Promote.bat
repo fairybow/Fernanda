@@ -12,7 +12,7 @@ echo "%releasing%" invalid
 echo.
 goto ask_release
 
-:: close VS!
+:: ask VS to close
 
 :promote
 
@@ -24,6 +24,11 @@ echo Promoting . .
 powershell.exe -ExecutionPolicy ByPass ^
 "$shell = New-Object -ComObject 'Shell.Application'; $paths = (Get-Item -Path 'C:\Dev\Fernanda-dev\x64' -Force), (Get-Item -Path 'C:\Dev\Fernanda-dev\Fernanda\x64' -Force), (Get-Item -Path 'C:\Dev\Fernanda-dev\.vs' -Force); ForEach ($path in $paths) { $shell.NameSpace(0).ParseName($path.FullName).InvokeVerb('delete') }"
 
+:: clean up temps
+powershell.exe -ExecutionPolicy ByPass ^
+"$shell = New-Object -ComObject 'Shell.Application'; $paths = Get-ChildItem -Path 'C:\Dev\Fernanda-dev' -Recurse -Force -Include '*.*~'; ForEach ($path in $paths) { $shell.NameSpace(0).ParseName($path.FullName).InvokeVerb('delete') }"
+
+:: copy from -dev to main
 echo Promoting . . .
 powershell.exe -ExecutionPolicy ByPass ^
 "Copy-Item -Path 'C:\Dev\Fernanda-dev\*' -Destination 'C:\Dev\Fernanda' -Exclude '.git' -Recurse"
