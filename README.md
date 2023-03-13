@@ -3,10 +3,10 @@
 
 <p align="center">
 	<img src="./Fernanda/docs/screens/main_screen_2_alt.png" alt="PNG of 'Fernanda v0.26.1-beta57'"/>
-	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=d74f4b&style=flat&labelColor=lightgrey" alt="Latest Release"/></a>
+	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=eae9e8&style=flat&labelColor=lightgrey" alt="Latest Release"/></a>
 	<a href="LICENSE"><img src="https://img.shields.io/github/license/fairybow/Fernanda?color=1c404d&style=flat&labelColor=lightgrey" alt="License: GPL-3.0"/></a>
 	<br>
-	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7--Zip-v22.01-eae9e8?style=flat&labelColor=lightgrey" alt="7-Zip v22.01"/></a>
+	<a href="https://www.7-zip.org/"><img src="https://img.shields.io/badge/7--Zip-v22.01-d74f4b?style=flat&labelColor=lightgrey" alt="7-Zip v22.01"/></a>
 	<a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-v4.0.0--RC-orange?style=flat&labelColor=lightgrey" alt="Bit7z v4.0.0-RC"/></a>
 	<a href="https://www.qt.io/"><img src="https://img.shields.io/badge/Qt-v6.4.2-green?style=flat&labelColor=lightgrey" alt="Qt v6.4.2"/></a>
 	<br>
@@ -240,6 +240,7 @@ In my mind, near-finished work can be revised in other programs. So, some things
 
 If I think of something big, I'll try to add it right here. Otherwise, these things, of varying importance or levels of commitment, will also appear in [To-do.md](./Fernanda/docs/To-do.md).
 
+- More traditional appearance and font selection menus, using system fonts
 - Persist undo/redo stacks between file changes
 - Separators and possibly customizable file icons, for better mental organization at-a-glance
 - Simple storage of links and research materials

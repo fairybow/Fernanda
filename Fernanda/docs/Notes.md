@@ -1,3 +1,8 @@
+### Qt MT Options
+- Qt Positioning
+- Qt WebChannel
+- Qt WebEngine
+
 ### Old shields
 
 <p align="center">

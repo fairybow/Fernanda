@@ -1,6 +1,10 @@
 # To-do
 
 ## General
+- [ ] Convert two liners to one liners where applicable (when early return on a single liner)
+- [ ] Startup "recovery" folder (if active temp exists and has contents, move it to recovery location)
+- [ ] Add known issues, and relevant things, to GitHub issues
+- [ ] An "appearance" menu popup, with the themes and font size slider, adding system fonts selection (plus a SMALLER amount of fonts Fernanda comes with, with Mononoki as default), then remove custom fonts feature
 - [ ] Remove blank switch options
 - [ ] Double-up on identical switch cases
 - [ ] Export All vs Export Selected/Single
@@ -92,6 +96,8 @@
 - [ ] Wrap for parentheses and other closables
 - [ ] If a filter was just applied, backspace should function as undo
 - [ ] Make thin cursor change color when there's a selection?
+- [ ] Weight slider
+- [ ] Then remove fonts that can't accomodate - be picky!
 - [x] ~~Animate scroll bar~~
 - [x] ~~Typewriter mode~~
 - [x] ~~Avoid passing entire document for cursor underpaint lol~~
@@ -114,6 +120,7 @@
 - [ ] Auto-delete spaces before punctuation
 - [ ] Quote wrapping does not account for non-American punctuation/quote order
 - [ ] Add guillemets (both versions)?
+- [ ] A selector for quote key appropriate dialog punctuation (diff options for inward vs outward guillemets)
 - [ ] On enter-press if the next `char` is closing parenthesis, quote, etc., then apply a skip before new line?
 - [x] ~~`autoClose()` (or in PTE `proximalChars()`) on end-of-line / blank line causes crash (possibly just at beginning of any block)~~
 - [x] ~~Avoid passing entire document lol~~
@@ -139,6 +146,7 @@
 - [x] ~~Toggle-specific menu~~
 
 ### Pane
+- [ ] Nav shortcuts should temporarily expand Pane if collapsed
 - [ ] Persist selected-item highlight between saves/moves
 - [ ] `persistentEditor()` or an input dialog for `rename()`? (`openPersistentEditor(itemModel->indexFromItem(temp_item));`)
 - [x] ~~Style scrollbars~~
