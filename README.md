@@ -1,6 +1,8 @@
 <a id="top"></a>
 # <img src="Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
 
+> **Warning**<br>A rewrite is *in-progress*! Among the improvements will be: system fonts (eliminating current memory issues with fonts); a more centralized (and traditional) menu for live-styling application appearance, font, etc.; Windows installer changes.
+
 <p align="center">
 	<img src="./Fernanda/docs/screens/main_screen_2_alt.png" alt="PNG of 'Fernanda v0.26.1-beta57'"/>
 	<a href="https://github.com/fairybow/Fernanda/releases/"><img src="https://img.shields.io/github/v/release/fairybow/Fernanda?include_prereleases&color=eae9e8&style=flat&labelColor=lightgrey" alt="Latest Release"/></a>
@@ -72,8 +74,8 @@ Among the other fonts used are:
 - Dot Matrix by [Dionaea Fonts](https://dionaea.com/information/fonts.php) (`Help > Create sample themes...`)
 - Fixedsys Excelsior by [@kika](https://github.com/kika/fixedsys)
 - Iosevka by [@be5invis](https://github.com/be5invis/Iosevka)
-- More Perfect DOS VGA by [Zeh Fernando](https://zehfernando.com/) and [@L∆MEUR](https://laemeur.sdf.org/fonts/)
-- Nouveau IBM by Arto Hatanp‰‰
+- More Perfect DOS VGA by [Zeh Fernando](https://zehfernando.com/) and [@L√ÜMEUR](https://laemeur.sdf.org/fonts/)
+- Nouveau IBM by Arto Hatanp√§√§
 - OpenDyslexic by [Abbie Gonzalez](https://opendyslexic.org/)
 - and Ysabeau by [@CatharsisFonts](https://github.com/CatharsisFonts/Ysabeau)
 
