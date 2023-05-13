@@ -1,7 +1,7 @@
 <a id="top"></a>
 # <img src="Fernanda/resources/icons/Fernanda.ico" alt="Colorful conch shell icon." width="26px"/> Fernanda
 
-> **Warning**<br>A rewrite is *in-progress*! Among the improvements will be: system fonts (eliminating current memory issues with fonts); a more centralized (and traditional) menu for live-styling application appearance, font, etc.; Windows installer changes.
+> **Warning**<br>A rewrite is [*in-progress*](https://github.com/fairybow/Fernanda-dev)!<br>Among the improvements will be: system fonts; a more centralized menu for live-styling application appearance; tabs and a non-project "notepad" mode; and some Windows installer changes.
 
 <p align="center">
 	<img src="./Fernanda/docs/screens/main_screen_2_alt.png" alt="PNG of 'Fernanda v0.26.1-beta57'"/>
