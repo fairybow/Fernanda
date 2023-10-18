@@ -1,0 +1,3 @@
+[submodule "Fernanda/external/bit7z"]
+	path = Fernanda/external/bit7z
+	url = https://github.com/fairybow/Fernanda-bit7z

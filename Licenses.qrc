@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/licenses">
+        <file>LICENSE</file>
+        <file>Fernanda/external/material-icons/LICENSE</file>
+        <file>Fernanda/external/mononoki/LICENSE</file>
+        <file>Fernanda/external/solarized/LICENSE</file>
+        <file>Fernanda/external/qt/LICENSE</file>
+    </qresource>
+</RCC>

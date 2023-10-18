@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/editor">
+        <file>Shadow.qss</file>
+    </qresource>
+</RCC>

@@ -452,6 +452,9 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+#Doxygen
+.doxygen/
+
 # Exceptions
 !7z32.dll
 !7z64.dll

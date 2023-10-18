@@ -1,0 +1,60 @@
+/* Light */
+
+/* ---------------------------------- */
+
+@mainwindow_background; = #f4f4f4;
+@meter_color; = #545454;
+
+
+
+/* --- Menu bar --------------------- */
+
+@menubar_background; = #f4f4f4;
+@menubar_color; = #545454;
+
+@menubar_itemselected_background; = #c8c8c8;
+@menubar_itemselected_color; = #007fff;
+
+@menubar_itempressed_background; = #c8c8c8;
+@menubar_itempressed_color; = #007fff;
+
+
+
+/* --- Tab bar ---------------------- */
+
+@tabbar_background; = #eaeaea;
+
+@tabbar_tab_background; = #e2e2e2;
+@tabbar_tab_color; = #545454;
+
+@tabbar_tabhover_background; = #d9d9d9;
+@tabbar_tabhover_color; = #007fff;
+
+@tabbar_tabpressed_background; = #d9d9d9;
+@tabbar_tabpressed_color; = #007fff;
+
+@tabbar_tabselected_background; = #f4f4f4;
+
+@tabbutton_background; = transparent;
+@tabbutton_color; = #545454;
+
+@tabbutton_hover_background; = #c8c8c8;
+@tabbutton_hover_color; = #007fff;
+
+@tabbutton_pressed_background; = #c8c8c8;
+@tabbutton_pressed_color; = #545454;
+
+
+
+/* --- Status bar ------------------- */
+
+@statusbar_background; = #f4f4f4;
+
+@toolbutton_background; = transparent;
+@toolbutton_color; = #545454;
+
+@toolbutton_hover_background; = #c8c8c8;
+@toolbutton_hover_color; = #007fff;
+
+@toolbutton_pressed_background; = #c8c8c8;
+@toolbutton_pressed_color; = #545454;

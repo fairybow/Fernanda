@@ -1,0 +1,23 @@
+Cursor
+{
+	color = @cursorColor;
+	under-color = @cursorUnderColor;
+}
+
+#Editor
+{
+	color: @fontColor;
+	selection-background-color: @selectionBgColor;
+	selection-color: @selectionColor;
+}
+
+#Editor-overlay, #Editor-underlay
+{
+	background: @bgColor;
+}
+
+#Editor-line-number-area
+{
+	background-color: @lnaBg;
+	color: @lnaFont;
+}

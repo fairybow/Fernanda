@@ -1,0 +1,194 @@
+#MainWindow
+{
+	background-color: @mainwindow_background;
+}
+
+#MenuBar, QMenu
+{
+	background: @menubar_background;
+	color: @menubar_color;
+}
+
+#MenuBar::item:selected, QMenu::item:selected
+{
+	background: @menubar_itemselected_background;
+	color: @menubar_itemselected_color;
+}
+
+#MenuBar::item:pressed
+{
+	background: @menubar_itempressed_background;
+	color: @menubar_itempressed_color;
+}
+
+#Meter
+{
+	color: @meter_color;
+}
+
+QSizeGrip
+{
+	height: 0;
+	width: 0;
+}
+
+#Slider::groove:horizontal
+{
+	border: 1px solid #fff;
+	background: transparent;
+	height: 6px;
+	margin-left: 18px;
+	margin-right: 18px;
+}
+
+#Slider::sub-page:horizontal
+{
+	background: qlineargradient(
+		x1: 0,
+		y1: 0,
+		x2: 1,
+		y2: 0,
+		stop: 0 #7ce1f9,
+		stop: 0.25 #3bb0f3,
+		stop: 0.75 #9194f2,
+		stop: 1 #f9b3f9
+	);
+	border: 1px solid #777;
+	height: 6px;
+	margin-left: 18px;
+}
+
+#Slider::add-page:horizontal
+{
+	background: transparent;
+	border: 1px solid #777;
+	height: 6px;
+	margin-right: 18px;
+}
+
+#Slider::handle:horizontal
+{
+	background: qlineargradient(
+		x1:0,
+		y1:0,
+		x2:1,
+		y2:1,
+		stop:0 #eee,
+		stop:1 #ccc
+	);
+	border: none;
+	width: 8px;
+	margin-top: -6px;
+	margin-bottom: -6px;
+}
+
+#Slider::handle:horizontal:hover
+{
+	background: qlineargradient(
+		x1:0,
+		y1:0,
+		x2:1,
+		y2:1,
+		stop:0 #fff,
+		stop:1 #ddd
+	);
+}
+
+#Slider::sub-page:horizontal:disabled
+{
+	background: #bbb;
+	border-color: #999;
+}
+
+#Slider::add-page:horizontal:disabled
+{
+	background: #eee;
+	border-color: #999;
+}
+
+#Slider::handle:horizontal:disabled
+{
+	background: #eee;
+}
+
+#StatusBar
+{
+	background-color: @statusbar_background;
+	border: none;
+}
+
+#StatusBar::item
+{
+	border: none;
+}
+
+#TabBar
+{
+	background: @tabbar_background;
+}
+
+#TabBar::tab
+{
+	background: @tabbar_tab_background;
+	color: @tabbar_tab_color;
+}
+
+#TabBar::tab:hover
+{
+	background: @tabbar_tabhover_background;
+	color: @tabbar_tabhover_color;
+}
+
+#TabBar::tab:pressed
+{
+	background: @tabbar_tabpressed_background;
+	color: @tabbar_tabpressed_color;
+}
+
+#TabBar::tab:selected
+{
+	background: @tabbar_tabselected_background;
+}
+
+#TabButton
+{
+	background: @tabbutton_background;
+	color: @tabbutton_color;
+}
+
+#TabButton[tab-hover="true"]
+{
+	color: @tabbutton_hover_color;
+}
+
+#TabButton:hover
+{
+	background: @tabbutton_hover_background;
+	color: @tabbutton_hover_color;
+}
+
+#TabButton:pressed
+{
+	background: @tabbutton_pressed_background;
+	color: @tabbutton_pressed_color;
+}
+
+#ToolButton, #MeterButton
+{
+	background: @toolbutton_background;
+	border: transparent;
+	border-radius: 3px;
+	color: @toolbutton_color;
+}
+
+#ToolButton:hover, #MeterButton:hover
+{
+	background: @toolbutton_hover_background;
+	color: @toolbutton_hover_color;
+}
+
+#ToolButton:pressed, #MeterButton:pressed
+{
+	background: @toolbutton_pressed_background;
+	color: @toolbutton_pressed_color;
+}

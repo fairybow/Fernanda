@@ -1,178 +1,144 @@
-/*
- *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
- *  Copyright (C) 2022-2023 fairybow <https://github.com/fairybow>
- *
- *  <https://github.com/fairybow/Fernanda>
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program. If not, see <https://www.gnu.org/licenses/>.
- *
- */
-
-// MainWindow.h, Fernanda
-
 #pragma once
 
-#include "ColorBar.h"
-#include "Editor.h"
-#include "Indicator.h"
-#include "Pane.h"
-#include "Preview.h"
-#include "Resource.h"
-#include "Splitter.h"
-#include "Story.h"
-#include "Tool.h"
+#include "common/Delayer.hpp"
+#include "common/Layout.hpp"
+#include "common/Path.hpp"
+#include "common/Widget.hpp"
+#include "documents/DocumentsManager.h"
+#include "editor/Editor.h"
+#include "menu-bar/MenuBar.h"
+//#include "Previewer/Previewer.hpp"
+#include "tab-bar/TabBar.h"
+#include "tools/AlwaysOnTop.hpp"
+#include "tools/StayAwake.hpp"
+#include "tools/PomodoroTimer.h"
+#include "user/User.hpp"
+#include "Indicator.hpp"
+#include "IniKeys.hpp"
+#include "Meter.h"
+#include "StatusBar.hpp"
+#include "Stylist.h"
 
 #include <QCloseEvent>
 #include <QCoreApplication>
-#include <QFileDialog>
-#include <QJsonDocument>
-#include <QMap>
-#include <QMenuBar>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
+#include <QDesktopServices>
+#include <QDirIterator>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QMoveEvent>
+#include <QResizeEvent>
 #include <QShowEvent>
-#include <QSlider>
-#include <QStatusBar>
+#include <QString>
+#include <QStyle>
 #include <QUrl>
-#include <QWidgetAction>
+#include <QUuid>
+#include <QVariant>
 
-class MainWindow : public QMainWindow
+#include <filesystem>
+#include <functional>
+
+class MainWindow : public Widget<QMainWindow>
 {
-    using StdFsPath = std::filesystem::path;
-
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    MainWindow(bool hasDevArgument, StdFsPath story, QWidget* parent = nullptr);
+	using StdFsPath = std::filesystem::path;
+	using PromptResult = QMessageBox::StandardButton;
+
+	MainWindow(const char* name, bool isDev = false, StdFsPath file = StdFsPath(), QWidget* parent = nullptr);
+
+	StdFsPath userData() const { return m_user->data(); }
+
+public slots:
+	void onSecondLaunch();
 
 protected:
-    void showEvent(QShowEvent* event) override;
-    void closeEvent(QCloseEvent* event) override;
+	virtual void closeEvent(QCloseEvent* event) override;
+	virtual void moveEvent(QMoveEvent* event) override;
+	virtual void resizeEvent(QResizeEvent* event) override;
+	virtual void showEvent(QShowEvent* event) override;
 
 private:
-    QMenuBar* menuBar = new QMenuBar(this);
-    QStatusBar* statusBar = new QStatusBar(this);
-    Splitter* splitter = new Splitter(this);
-    Pane* pane = new Pane(this);
-    Editor* editor = new Editor(this);
-    Preview* preview = new Preview(this);
-    ColorBar* colorBar = new ColorBar(this);
-    QActionGroup* windowThemes = new QActionGroup(this);
-    QActionGroup* editorThemes = new QActionGroup(this);
-    QActionGroup* editorFonts = new QActionGroup(this);
-    QActionGroup* tabStops = new QActionGroup(this);
-    QActionGroup* wrapModes = new QActionGroup(this);
-    QActionGroup* colorBarAlignments = new QActionGroup(this);
-    QActionGroup* previewTypes = new QActionGroup(this);
-    QActionGroup* timerValues = new QActionGroup(this);
-    QSlider* fontSlider = new QSlider(Qt::Horizontal);
-    Indicator* indicator = new Indicator(this);
-    QLabel* spacer = new QLabel(this);
-    Tool* alwaysOnTop = new Tool(Tool::Type::AlwaysOnTop, this);
-    Tool* stayAwake = new Tool(Tool::Type::StayAwake, this);
-    Tool* timer = new Tool(Tool::Type::Timer, this);
-    QTimer* autoTempSave = new QTimer(this); // move to editor or story?
-    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+	const bool m_isDev;
+	bool m_isInitialized = false;
 
-    std::optional<Story> activeStory;
-    bool isDev = false;
-    bool isInitialized = false;
-    bool hasTheme = true;
+	User* m_user = new User(QCoreApplication::applicationName(), this);
+	DocsManager* m_docsManager = new DocsManager(
+		{ m_user->documents(), m_user->temp(), m_user->backup() },
+		this, 99);
+	//Project* m_project = new Project(this);
+	MenuBar* m_menuBar = new MenuBar("MenuBar", m_user->data(), m_isDev);
+	StatusBar* m_statusBar = new StatusBar("StatusBar");
+	Indicator* m_indicator = new Indicator("Indicator");
+	TabBar* m_tabBar = new TabBar("TabBar", 100, 200);
+	Editor* m_editor = new Editor("Editor", QFont("mononoki", 14));
+	//Previewer* m_previewer = new Previewer("Previewer");
+	Meter* m_meter = new Meter("Meter");
+	PomodoroTimer* m_pomodoroTimer = new PomodoroTimer(this);
+	StayAwake* m_stayAwake = new StayAwake;
+	AlwaysOnTop* m_alwaysOnTop = new AlwaysOnTop(this);
+	Stylist* m_stylist = new Stylist({ this, m_editor }, this);
+	Delayer* m_tabFlagCheckDelayer = new Delayer(this, 1000);
 
-    const QStringList devGetSize();
-    bool confirmStoryClose(bool isQuit = false);
-    void addWidgets();
-    void connections();
-    void shortcuts();
-    void makeMenuBar();
-    void makeFileMenu();
-    void makeStoryMenu();
-    void makeSetMenu();
-    void makeToggleMenu();
-    void makeHelpMenu();
-    void makeDevMenu();
-    void loadConfigs(StdFsPath story);
-    void loadWinConfigs();
-    void loadViewConfig(QVector<QAction*> actions, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback);
-    void loadMenuToggle(QAction* action, UserData::IniGroup group, UserData::IniValue valueType, QVariant fallback);
-    void openStory(StdFsPath fileName, Story::Mode mode = Story::Mode::Normal);
-    void toggleWidget(QWidget* widget, UserData::IniGroup group, UserData::IniValue valueType, bool value);
-    void storyMenuFileExport(const char* caption, const char* extensionFilter, Story::To type);
+	MainWindow* spawn();
+	void setupWidgets();
+	void connections();
+	void docsManagerConnections();
+	void tabBarConnections();
+	void editorConnections();
+	void meterConnections();
+	//void previewerConnections();
+	void menuBarConnections();
+	void menuBarStyleConfigConnections();
+	void menuBarEditorConfigConnections();
+	void menuBarMeterConfigConnections();
+	void menuBarToolConfigConnections();
+	void menuBarMiscConfigConnections();
+	void menuBarDevConnections();
+	void loadConfigs();
+	void loadEditorConfigs();
+	//void loadPreviewerConfigs();
+	void loadMenuBarStyleConfigs();
+	void loadMenuBarEditorConfigs();
+	void loadMenuBarMeterConfigs();
+	void loadMenuBarToolConfigs();
+	void loadMenuBarMiscConfigs();
+	void saveGeometry();
+	void closeEventConfigs(Qt::WindowStates priorState);
+	void setUserFont(const QFont& font);
+	PromptResult singleSavePrompt();
+	void openSystemFolder(const StdFsPath& path);
+	void openFileTab(const StdFsPath& path, DocsManager::PathType pathType = DocsManager::PathType::Extant);
+	bool updateActiveDocRecord();
 
-    const QString name() { return QString(isDev ? "Fernanda (dev)" : "Fernanda"); }
-    void openLocalFolder(StdFsPath path) { QDesktopServices::openUrl(QUrl::fromLocalFile(Path::toQString(path))); }
+	void openNewTab() { onAddTabClick(); };
 
-    template<typename T>
-    QActionGroup* makeViewToggles(QVector<Resource::DataPair>& dataLabelPairs, T slot)
-    {
-        auto group = new QActionGroup(this);
-        for (auto& pair : dataLabelPairs)
-        {
-            auto& data = pair.path;
-            auto label = pair.label.toUtf8();
-            auto action = new QAction(tr(label), this);
-            action->setData(Path::toQString(data));
-            connect(action, &QAction::toggled, this, slot);
-            action->setCheckable(true);
-            group->addAction(action);
-        }
-        group->setExclusive(true);
-        return group;
-    }
+	template<typename T>
+	void saveConfigPassthrough(T value, const QString& valueKey, QObject* associatedObject,
+		std::function<void()> configurableAction = nullptr)
+	{
+		if (configurableAction)
+			configurableAction();
+		m_user->save(value, valueKey, associatedObject);
+	}
 
-    template<typename T>
-    T getSetting(QActionGroup* settingsGroup)
-    {
-        T result{};
-        if constexpr (std::is_same<T, int>::value)
-            result = -1;
-        if constexpr (std::is_same<T, QString>::value)
-            result = nullptr;
-        if (auto selection = settingsGroup->checkedAction(); selection != nullptr)
-        {
-            if constexpr (std::is_same<T, int>::value)
-                result = selection->data().toInt();
-            if constexpr (std::is_same<T, QString>::value)
-                result = selection->data().toString();
-        }
-        return result;
-    }
+	template<typename T>
+	void loadConfigPassthrough(const QString& valueKey, QObject* associatedObject,
+		std::function<void(T)> configurableAction, T fallbackValue = T())
+	{
+		auto value = m_user->load<T>(valueKey, associatedObject, fallbackValue);
+		configurableAction(value);
+	}
+
+	template<typename T>
+	T loadConfig(const QString& valueKey, QObject* associatedObject, T fallbackValue = T())
+	{
+		return m_user->load<T>(valueKey, associatedObject, fallbackValue);
+	}
 
 private slots:
-    void adjustTitle();
-    void setStyle();
-    void handleFontSlider(PlainTextEdit::Zoom direction);
-    void fileMenuSave();
-    void storyMenuTotals();
-    void helpMenuMakeSampleProject();
-    void helpMenuMakeSampleRes();
-    void helpMenuUpdate();
-    void handleEditorOpen(QString key = nullptr);
-    void sendEditedText();
-    void domMove(QString pivotKey, QString fulcrumKey, Io::Move position);
-    void domAdd(QString newName, Path::Type type, QString parentKey);
-    void domRename(QString newName, QString key);
-    void domCut(QString key);
-
-    void devMenuWrite(QString name, QString value) { Io::writeFile(UserData::doThis(UserData::Operation::GetDocuments) / name.toStdString(), value); }
-    bool replyHasProject() { return activeStory.has_value(); }
-
-signals:
-    void askEditorClose(bool isFinal = false);
-    bool askHasStartUpBar();
-    void askPaneAdd(Path::Type type);
-    void askSetBarAlignment(QString alignment);
-    void askSetCountdown(int seconds);
-    void askSetPreviewType(QString typeName);
-    void askToggleScrolls(bool checked);
-    void askToggleStartUpBar(bool checked);
-    void sendEditsList(QStringList editedFiles);
-    void sendItems(QVector<QStandardItem*> items);
-    void sendSetTabStop(int distance);
-    void sendSetWrapMode(QString mode);
-    void startAutoTempSave();
-    void storyMenuVisible(bool setVisible);    
+	void onTabServe(const QUuid& id);
+	void onAddTabClick();
+	void onCloseTabClick(const QUuid& id);
+	bool onSaveFile();
 };
-
-// MainWindow.h, Fernanda

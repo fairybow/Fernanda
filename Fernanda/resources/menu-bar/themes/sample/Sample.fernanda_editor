@@ -1,0 +1,10 @@
+/* Dark */
+
+@bgColor; = #1f1f1f;
+@fontColor; = #e2e2e2;
+@selectionBgColor; = #e52b50;
+@selectionColor; = #333333;
+@lnaBg; = #333333;
+@lnaFont; = #e2e2e2;
+@cursorColor; = #e52b50;
+@cursorUnderColor; = #1f1f1f;

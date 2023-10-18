@@ -1,0 +1,65 @@
+#Editor
+{
+	border: none;
+}
+
+#Indicator
+{
+	background: transparent;
+	border: none;
+}
+
+#MenuBar, #Meter, QDialog, QDialog QLabel, QDialog QPushButton, QMenu, #StatusBar, #TabBar
+{
+	font-size: 9pt;
+}
+
+#Meter
+{
+	padding-left: 1px;
+	padding-right: 1px;
+}
+
+#MeterButton
+{
+	font-size: 12pt;
+	padding: 1px;
+}
+
+#MeterButton:hover
+{
+	font-size: 13pt;
+}
+
+#TabBar::scroller
+{
+	width: 0px;
+}
+
+#TabButton
+{
+	background: transparent;
+	border-radius: 3px;
+	font-size: 12pt;
+	font-weight: normal;
+	padding: 0px;
+}
+
+#TabButton[flagged="true"]
+{
+	font-size: 9pt;
+}
+
+#ToolButton
+{
+	font-size: 9pt;
+	min-width: 33px;
+	padding: 1px;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+#ToolButton:hover
+{
+	font-size: 10pt;
+}

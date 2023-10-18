@@ -1,439 +1,410 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
+    <Filter Include="Source">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>qml;cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Translation Files">
+    <Filter Include="Translation">
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
-    <Filter Include="Header Files\Includes">
-      <UniqueIdentifier>{d743d864-b650-4c9b-890e-6361ddc9b1f1}</UniqueIdentifier>
+    <Filter Include="Source\Editor">
+      <UniqueIdentifier>{e30ec776-d711-4399-afbf-081ee41eaef8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Stylesheets">
-      <UniqueIdentifier>{23bccbdc-c410-4bba-95b6-044e60d463c3}</UniqueIdentifier>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Resource Files\Stylesheets\Editor Themes">
-      <UniqueIdentifier>{38029b03-9f1b-42d0-8ad1-33bfce392b5d}</UniqueIdentifier>
+    <Filter Include="Source\Common">
+      <UniqueIdentifier>{fd287913-ab0b-46c5-9b7f-2afd98a423e1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Stylesheets\Window Themes">
-      <UniqueIdentifier>{d7a2a167-b848-4309-b714-3f7c75a3da07}</UniqueIdentifier>
+    <Filter Include="Resources\Stylist">
+      <UniqueIdentifier>{e0d401ed-2981-400b-bdc3-f88077792799}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Stylesheets\Bar Stylesheets">
-      <UniqueIdentifier>{9d191d76-a216-4879-bfdd-a41759fea584}</UniqueIdentifier>
+    <Filter Include="Source\User">
+      <UniqueIdentifier>{2b037859-aa2a-44e5-a02f-b50dc09f1bc3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Includes\bit7z">
-      <UniqueIdentifier>{494aa906-9c37-4693-9cae-92d695af3152}</UniqueIdentifier>
+    <Filter Include="Notes">
+      <UniqueIdentifier>{7779faed-9209-4cf7-98f8-545bb5e086c8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Stylesheets\Sample Themes">
-      <UniqueIdentifier>{58f267fe-da2f-47a1-9f74-967be5f1a6c8}</UniqueIdentifier>
+    <Filter Include="Installer">
+      <UniqueIdentifier>{413766c5-980f-496a-892c-117358b38d56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Docs">
-      <UniqueIdentifier>{1373b218-cb6e-4516-af8a-6a7620a77718}</UniqueIdentifier>
+    <Filter Include="Resources\Editor">
+      <UniqueIdentifier>{f9fcb0a7-8900-457a-b2c4-5b9d6c57862d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utilities">
-      <UniqueIdentifier>{1f28c557-9bae-4a87-8d91-126db766873e}</UniqueIdentifier>
+    <Filter Include="Resources\External">
+      <UniqueIdentifier>{5c6cfbb3-c534-4b22-a326-fc8fcd4122a4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Preview">
-      <UniqueIdentifier>{d5b7a2ba-4c82-4119-baf6-67b5571ef5a5}</UniqueIdentifier>
+    <Filter Include="Source\Tools">
+      <UniqueIdentifier>{754514d6-3538-451d-897e-36ad4a7af95e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Indicator">
+      <UniqueIdentifier>{42fcc18a-eacc-44e8-a26a-87fcae06bdf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\MenuBar">
+      <UniqueIdentifier>{cf7edd88-3cc2-40a1-ae98-d087bc88fa10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\TabBar">
+      <UniqueIdentifier>{3593e33a-7daf-4099-b338-22c663399dc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\MenuBar">
+      <UniqueIdentifier>{798f4803-2761-43a4-9f60-23d3ee80f967}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\MenuBar\Themes">
+      <UniqueIdentifier>{2eb54143-8727-42dc-8e4b-9c56e1a76a59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\MenuBar\Themes\Editor">
+      <UniqueIdentifier>{f2b59bd6-f94c-4249-9afc-229dc926eae6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\MenuBar\Themes\Sample">
+      <UniqueIdentifier>{faed79c5-94e2-4c40-9734-51e4e3b253fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\MenuBar\Themes\Window">
+      <UniqueIdentifier>{99991278-b82e-4a4d-90da-1add4c529a4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Previewer">
+      <UniqueIdentifier>{ebe74914-e259-4ef3-8569-7bdfb34f58d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Documents">
+      <UniqueIdentifier>{4148ff82-b621-4d53-97fd-fc587ea06125}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md" />
     <None Include="..\.gitignore" />
-    <None Include="..\README.md">
-      <Filter>Docs</Filter>
+    <None Include="resources\stylist\MainWindowBase.qss">
+      <Filter>Resources\Stylist</Filter>
     </None>
-    <None Include="docs\Palette.md">
-      <Filter>Docs</Filter>
+    <None Include="resources\stylist\Editor.qss">
+      <Filter>Resources\Stylist</Filter>
     </None>
-    <None Include="docs\Tools.md">
-      <Filter>Docs</Filter>
+    <None Include="resources\stylist\EditorBase.qss">
+      <Filter>Resources\Stylist</Filter>
     </None>
-    <None Include="utilities\Promote.bat">
-      <Filter>Utilities</Filter>
+    <None Include="resources\stylist\MainWindow.qss">
+      <Filter>Resources\Stylist</Filter>
     </None>
-    <None Include="utilities\Installer.nsi">
-      <Filter>Utilities</Filter>
+    <None Include="notes\Snippets.md">
+      <Filter>Notes</Filter>
     </None>
-    <None Include="resources\preview\fountain.html">
-      <Filter>Resource Files\Preview</Filter>
-    </None>
-    <None Include="resources\preview\fountain-overwrite.css">
-      <Filter>Resource Files\Preview</Filter>
-    </None>
-    <None Include="resources\preview\markdown.html">
-      <Filter>Resource Files\Preview</Filter>
-    </None>
-    <None Include="resources\preview\markdown-overwrite.css">
-      <Filter>Resource Files\Preview</Filter>
-    </None>
-    <None Include="resources\themes\bar\green.qss">
-      <Filter>Resource Files\Stylesheets\Bar Stylesheets</Filter>
-    </None>
-    <None Include="resources\themes\bar\pastels.qss">
-      <Filter>Resource Files\Stylesheets\Bar Stylesheets</Filter>
-    </None>
-    <None Include="resources\themes\bar\red.qss">
-      <Filter>Resource Files\Stylesheets\Bar Stylesheets</Filter>
-    </None>
-    <None Include="resources\themes\editor\Amber.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor\Blue.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor\Green.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor\Grey.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor\Pocket.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor\Pocket-Alt.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor\Snooze.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor\Snooze-Alt.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor\Solarized Dark.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor\Solarized Light.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Editor Themes</Filter>
-    </None>
-    <None Include="resources\sample\Sample.fernanda_editor">
-      <Filter>Resource Files\Stylesheets\Sample Themes</Filter>
-    </None>
-    <None Include="resources\sample\Sample.fernanda_window">
-      <Filter>Resource Files\Stylesheets\Sample Themes</Filter>
-    </None>
-    <None Include="resources\themes\window\Dark.fernanda_window">
-      <Filter>Resource Files\Stylesheets\Window Themes</Filter>
-    </None>
-    <None Include="resources\themes\window\Light.fernanda_window">
-      <Filter>Resource Files\Stylesheets\Window Themes</Filter>
-    </None>
-    <None Include="resources\themes\window\Solarized Dark.fernanda_window">
-      <Filter>Resource Files\Stylesheets\Window Themes</Filter>
-    </None>
-    <None Include="resources\themes\window\Solarized Light.fernanda_window">
-      <Filter>Resource Files\Stylesheets\Window Themes</Filter>
-    </None>
-    <None Include="resources\themes\editor.qss">
-      <Filter>Resource Files\Stylesheets</Filter>
-    </None>
-    <None Include="resources\themes\editor_base.qss">
-      <Filter>Resource Files\Stylesheets</Filter>
-    </None>
-    <None Include="resources\themes\shadow.qss">
-      <Filter>Resource Files\Stylesheets</Filter>
-    </None>
-    <None Include="resources\themes\window.qss">
-      <Filter>Resource Files\Stylesheets</Filter>
-    </None>
-    <None Include="resources\themes\window_base.qss">
-      <Filter>Resource Files\Stylesheets</Filter>
-    </None>
-    <None Include="docs\Notes.md">
-      <Filter>Docs</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="installer\Fonts.nsh">
+      <Filter>Installer</Filter>
+    </None>
+    <None Include="installer\Installer.nsi">
+      <Filter>Installer</Filter>
+    </None>
+    <None Include="resources\editor\Shadow.qss">
+      <Filter>Resources\Editor</Filter>
+    </None>
+    <None Include="resources\indicator\Green.qss">
+      <Filter>Resources\Indicator</Filter>
+    </None>
+    <None Include="resources\indicator\Pastels.qss">
+      <Filter>Resources\Indicator</Filter>
+    </None>
+    <None Include="resources\indicator\Red.qss">
+      <Filter>Resources\Indicator</Filter>
+    </None>
+    <None Include="notes\Git.md">
+      <Filter>Notes</Filter>
+    </None>
+    <None Include="notes\Documents and tabs.md">
+      <Filter>Notes</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Amber.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Blue.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Dark.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Green.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Grey.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Light.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Pocket.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Pocket-Alt.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Snooze.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Snooze-Alt.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Solarized Dark.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\editor\Solarized Light.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\sample\Sample.fernanda_editor">
+      <Filter>Resources\MenuBar\Themes\Sample</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\sample\Sample.fernanda_window">
+      <Filter>Resources\MenuBar\Themes\Sample</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\window\Dark.fernanda_window">
+      <Filter>Resources\MenuBar\Themes\Window</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\window\Light.fernanda_window">
+      <Filter>Resources\MenuBar\Themes\Window</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\window\Solarized Dark (Modified).fernanda_window">
+      <Filter>Resources\MenuBar\Themes\Window</Filter>
+    </None>
+    <None Include="resources\menu-bar\themes\window\Solarized Light (Modified).fernanda_window">
+      <Filter>Resources\MenuBar\Themes\Window</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\bit7z\include\bit7z.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bit7zlibrary.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitabstractarchivecreator.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitabstractarchivehandler.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitabstractarchiveopener.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitarchiveeditor.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitarchiveitem.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitarchiveiteminfo.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitarchiveitemoffset.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitarchivereader.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitarchivewriter.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitcompressionlevel.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitcompressionmethod.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitcompressor.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitdefines.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\biterror.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitexception.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitextractor.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitfilecompressor.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitfileextractor.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitformat.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitfs.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitgenericitem.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitinputarchive.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bititemsvector.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitmemcompressor.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitmemextractor.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitoutputarchive.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitpropvariant.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitstreamcompressor.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitstreamextractor.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bittypes.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="include\bit7z\include\bitwindows.hpp">
-      <Filter>Header Files\Includes\bit7z</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Archiver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Dom.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Icon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Index.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Io.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\KeyFilter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Layout.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Path.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Sample.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Story.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Style.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Text.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\UserData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\CMakeLists.txt" />
-    <Text Include="docs\To-do.md">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="docs\Dependencies.md">
-      <Filter>Docs</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="source\ColorBar.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="source\Delegate.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="source\Editor.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="source\Indicator.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="source\MainWindow.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source</Filter>
     </QtMoc>
-    <QtMoc Include="source\Pane.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="source\editor\Editor.h">
+      <Filter>Source\Editor</Filter>
     </QtMoc>
-    <QtMoc Include="source\PlainTextEdit.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="source\editor\TrueEditor.h">
+      <Filter>Source\Editor</Filter>
     </QtMoc>
-    <QtMoc Include="source\Popup.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="source\Indicator.hpp">
+      <Filter>Source</Filter>
     </QtMoc>
-    <QtMoc Include="source\Preview.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="source\user\User.hpp">
+      <Filter>Source\User</Filter>
     </QtMoc>
-    <QtMoc Include="source\Splitter.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="source\editor\BlockCursor.hpp">
+      <Filter>Source\Editor</Filter>
     </QtMoc>
-    <QtMoc Include="source\SplitterHandle.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="source\Meter.h">
+      <Filter>Source</Filter>
     </QtMoc>
-    <QtMoc Include="source\StartCop.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="source\tools\AlwaysOnTop.hpp">
+      <Filter>Source\Tools</Filter>
     </QtMoc>
-    <QtMoc Include="source\StatusBarButton.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="source\tools\StayAwake.hpp">
+      <Filter>Source\Tools</Filter>
     </QtMoc>
-    <QtMoc Include="source\Tool.h">
-      <Filter>Header Files</Filter>
+    <QtMoc Include="source\tools\PomodoroTimer.h">
+      <Filter>Source\Tools</Filter>
+    </QtMoc>
+    <QtMoc Include="source\common\UiButton.hpp">
+      <Filter>Source\Common</Filter>
+    </QtMoc>
+    <QtMoc Include="source\tools\ToolButton.hpp">
+      <Filter>Source\Tools</Filter>
+    </QtMoc>
+    <QtMoc Include="source\menu-bar\MenuBar.h">
+      <Filter>Source\MenuBar</Filter>
+    </QtMoc>
+    <QtMoc Include="source\menu-bar\Slider.hpp">
+      <Filter>Source\MenuBar</Filter>
+    </QtMoc>
+    <QtMoc Include="source\menu-bar\VersionChecker.hpp">
+      <Filter>Source\MenuBar</Filter>
+    </QtMoc>
+    <QtMoc Include="source\tab-bar\CloseTab.hpp">
+      <Filter>Source\TabBar</Filter>
+    </QtMoc>
+    <QtMoc Include="source\tab-bar\ScrollTabs.hpp">
+      <Filter>Source\TabBar</Filter>
+    </QtMoc>
+    <QtMoc Include="source\tab-bar\TabBar.h">
+      <Filter>Source\TabBar</Filter>
+    </QtMoc>
+    <QtMoc Include="source\tab-bar\TrueTabBar.hpp">
+      <Filter>Source\TabBar</Filter>
+    </QtMoc>
+    <QtMoc Include="source\LaunchCop.hpp">
+      <Filter>Source</Filter>
+    </QtMoc>
+    <QtMoc Include="source\common\Delayer.hpp">
+      <Filter>Source\Common</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\UserData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Archiver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\ColorBar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Dom.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Editor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Indicator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\KeyFilter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\Main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="source\MainWindow.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="source\Pane.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\editor\LineNumberArea.cpp">
+      <Filter>Source\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="source\Path.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\editor\TrueEditor.cpp">
+      <Filter>Source\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="source\PlainTextEdit.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Stylist.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="source\Popup.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\editor\Editor.cpp">
+      <Filter>Source\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="source\Preview.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\common\Fx.hpp">
+      <Filter>Source\Common</Filter>
     </ClCompile>
-    <ClCompile Include="source\Splitter.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\Meter.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="source\Story.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\tools\PomodoroTimer.cpp">
+      <Filter>Source\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="source\Text.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\menu-bar\ActionGroup.cpp">
+      <Filter>Source\MenuBar</Filter>
     </ClCompile>
-    <ClCompile Include="source\Tool.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\menu-bar\MenuBar.cpp">
+      <Filter>Source\MenuBar</Filter>
+    </ClCompile>
+    <ClCompile Include="source\tab-bar\TabBar.cpp">
+      <Filter>Source\TabBar</Filter>
+    </ClCompile>
+    <ClCompile Include="source\documents\DocumentsManager.cpp">
+      <Filter>Source\Documents</Filter>
+    </ClCompile>
+    <ClCompile Include="source\documents\DocumentsCache.cpp">
+      <Filter>Source\Documents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="resources\fonts.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
-    <QtRcc Include="resources\icons.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
-    <QtRcc Include="resources\lib.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
-    <QtRcc Include="resources\preview.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
-    <QtRcc Include="resources\sample.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
-    <QtRcc Include="resources\themes.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
+    <ClInclude Include="source\Version.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\editor\LineNumberArea.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\Layout.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\Io.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\StatusBar.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\HtmlString.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Stylist.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\Path.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\user\Settings.hpp">
+      <Filter>Source\User</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\Widget.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\RegexPatterns.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\StylePatterns.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\IniKeys.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\Utility.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Logger.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\StringTools.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\Emoji.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\menu-bar\ActionGroup.h">
+      <Filter>Source\MenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="source\menu-bar\ComboBox.hpp">
+      <Filter>Source\MenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="source\menu-bar\LiveFontDialog.hpp">
+      <Filter>Source\MenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="source\menu-bar\Popup.hpp">
+      <Filter>Source\MenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="source\menu-bar\PopupText.hpp">
+      <Filter>Source\MenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="source\tab-bar\AddTab.hpp">
+      <Filter>Source\TabBar</Filter>
+    </ClInclude>
+    <ClInclude Include="source\menu-bar\LicenseDialog.hpp">
+      <Filter>Source\MenuBar</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Dimmer.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\previewer\Previewer.hpp">
+      <Filter>Source\Previewer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\previewer\WebDocument.hpp">
+      <Filter>Source\Previewer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\previewer\WebEnginePage.hpp">
+      <Filter>Source\Previewer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\previewer\WebEngineView.hpp">
+      <Filter>Source\Previewer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\common\TextRecord.hpp">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="source\documents\DocumentsCache.h">
+      <Filter>Source\Documents</Filter>
+    </ClInclude>
+    <ClInclude Include="source\documents\IdBank.hpp">
+      <Filter>Source\Documents</Filter>
+    </ClInclude>
+    <ClInclude Include="source\documents\DocumentsManager.h">
+      <Filter>Source\Documents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resources\resource.rc">
-      <Filter>Resource Files</Filter>
+    <ResourceCompile Include="resources\Resource.rc">
+      <Filter>Resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="external\bit7z\Fernanda-bit7z\DLLs.qrc">
+      <Filter>Resources\External</Filter>
+    </QtRcc>
+    <QtRcc Include="external\External.qrc">
+      <Filter>Resources\External</Filter>
+    </QtRcc>
+    <QtRcc Include="..\Licenses.qrc">
+      <Filter>Resources</Filter>
+    </QtRcc>
+    <QtRcc Include="resources\editor\Editor.qrc">
+      <Filter>Resources\Editor</Filter>
+    </QtRcc>
+    <QtRcc Include="resources\indicator\Indicator.qrc">
+      <Filter>Resources\Indicator</Filter>
+    </QtRcc>
+    <QtRcc Include="resources\stylist\Stylist.qrc">
+      <Filter>Resources\Stylist</Filter>
+    </QtRcc>
+    <QtRcc Include="resources\menu-bar\MenuBar.qrc">
+      <Filter>Resources\MenuBar</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

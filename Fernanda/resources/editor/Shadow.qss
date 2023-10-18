@@ -1,0 +1,40 @@
+#Editor-shadow
+{
+	background: transparent;
+	border-top: 22px solid black;
+	border-left: 22px solid black;
+	border-right: 22px solid black;
+	border-bottom: 22px solid black;
+	border-top-color: qlineargradient(
+		x1:0,
+		y1:0,
+		x2:0,
+		y2:1,
+		stop: 0 rgba(0, 0, 0, 0.3),
+		stop: 1 transparent
+	);
+	border-left-color: qlineargradient(
+		x1:0,
+		y1:0,
+		x2:1,
+		y2:0,
+		stop: 0 rgba(0, 0, 0, 0.3),
+		stop: 1 transparent
+	);
+	border-right-color: qlineargradient(
+		x1:1,
+		y1:0,
+		x2:0,
+		y2:0,
+		stop: 0 rgba(0, 0, 0, 0.3),
+		stop: 1 transparent
+	);
+	border-bottom-color: qlineargradient(
+		x1:0,
+		y1:1,
+		x2:0,
+		y2:0,
+		stop: 0 rgba(0, 0, 0, 0.3),
+		stop: 1 transparent
+	);
+}

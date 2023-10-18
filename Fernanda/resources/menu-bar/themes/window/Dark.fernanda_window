@@ -1,0 +1,86 @@
+/*
+
+Light/dark palette:
+
++------------------+----------+---------+---------------+
+| Light Background | 0        | #ffffff | (255,255,255) |
+| Tones            | 1        | #f4f4f4 | (244,244,244) |
+|                  | 2        | #eaeaea | (234,234,234) |
++------------------+----------+---------+---------------+
+| Dark Content     | 3.0      | #e2e2e2 | (226,226,226) |
+| Tones            | 3.1      | #d9d9d9 | (217,217,217) |
++------------------+----------+---------+---------------+
+|                  | 4        | #c8c8c8 | (200,200,200) |
+| Content Tones    | 5        | #848484 | (132,132,132) |
+|                  | 6        | #545454 | (84,84,84)    |
++------------------+----------+---------+---------------+
+| Light Content    | 7.0      | #444444 | (68,68,68)    |
+| Tones            | 7.1      | #3c3c3c | (60,60,60)    |
++------------------+----------+---------+---------------+
+| Dark Background  | 8        | #333333 | (51,51,51)    |
+| Tones            | 9        | #1f1f1f | (31,31,31)    |
+|                  | 10       | #000000 | (0,0,0)       |
++------------------+----------+---------+---------------+
+| Accent Colors    | Azure    | #007fff | (0,127,255)   |
+|                  | Amaranth | #e52b50 | (229,43,80)   |
++------------------+----------+---------+---------------+
+*/
+
+/* ---------------------------------- */
+
+@mainwindow_background; = #1f1f1f;
+@meter_color; = #c8c8c8;
+
+
+
+/* --- Menu bar --------------------- */
+
+@menubar_background; = #1f1f1f;
+@menubar_color; = #c8c8c8;
+
+@menubar_itemselected_background; = #545454;
+@menubar_itemselected_color; = #e52b50;
+
+@menubar_itempressed_background; = #545454;
+@menubar_itempressed_color; = #e52b50;
+
+
+
+/* --- Tab bar ---------------------- */
+
+@tabbar_background; = #333333;
+
+@tabbar_tab_background; = #3c3c3c;
+@tabbar_tab_color; = #c8c8c8;
+
+@tabbar_tabhover_background; = #444444;
+@tabbar_tabhover_color; = #e52b50;
+
+@tabbar_tabpressed_background; = #444444;
+@tabbar_tabpressed_color; = #e52b50;
+
+@tabbar_tabselected_background; = #1f1f1f;
+
+@tabbutton_background; = transparent;
+@tabbutton_color; = #c8c8c8;
+
+@tabbutton_hover_background; = #545454;
+@tabbutton_hover_color; = #e52b50;
+
+@tabbutton_pressed_background; = #545454;
+@tabbutton_pressed_color; = #c8c8c8;
+
+
+
+/* --- Status bar ------------------- */
+
+@statusbar_background; = #1f1f1f;
+
+@toolbutton_background; = transparent;
+@toolbutton_color; = #c8c8c8;
+
+@toolbutton_hover_background; = #545454;
+@toolbutton_hover_color; = #e52b50;
+
+@toolbutton_pressed_background; = #545454;
+@toolbutton_pressed_color; = #c8c8c8;

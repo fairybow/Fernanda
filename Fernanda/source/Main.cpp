@@ -1,38 +1,68 @@
-/*
- *  Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
- *  Copyright (C) 2022-2023 fairybow <https://github.com/fairybow>
- *
- *  <https://github.com/fairybow/Fernanda>
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program. If not, see <https://www.gnu.org/licenses/>.
- *
- */
-
-// Main.cpp, Fernanda
-
+#include "common/Path.hpp"
+#include "common/Utility.hpp"
+#include "LaunchCop.hpp"
+#include "Logger.hpp"
 #include "MainWindow.h"
-#include "StartCop.h"
 
-int main(int argc, char *argv[])
+#include <QApplication>
+#include <QFont>
+
+#include <filesystem>
+
+using StdFsPath = std::filesystem::path;
+
+void appSetup();
+StdFsPath pathArg(QApplication& application);
+void setFont(QApplication& application);
+
+int main(int argc, char* argv[])
 {
-    StartCop guard("Fernanda.app");
-    if (guard.exists()) return 0;
-    QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-    QApplication::setDesktopSettingsAware(true);
-    QApplication app(argc, argv);
-    std::filesystem::path opener = std::filesystem::path();
-    for (auto& arg : app.arguments())
-        if (arg.endsWith(".story"))
-            opener = Path::toStdFs(arg);
-    MainWindow window(app.arguments().contains("-dev"), opener);
-    auto font = app.font();
-    font.setStyleStrategy(QFont::PreferAntialias);
-    font.setHintingPreference(QFont::HintingPreference::PreferNoHinting);
-    font.setPointSizeF(9);
-    app.setFont(font);
-    window.show();
-    return app.exec();
+	auto main_window_name = "MainWindow";
+
+	LaunchCop launch_cop("Fernanda", main_window_name);
+	if (launch_cop.isRunning())
+		return 0;
+
+	appSetup();
+	QApplication fernanda(argc, argv);
+	setFont(fernanda);
+
+	MainWindow main_window(main_window_name,
+		fernanda.arguments().contains("-dev"),
+		pathArg(fernanda));
+
+	QObject::connect(&launch_cop, &LaunchCop::launchedAgain,
+		&main_window, &MainWindow::onSecondLaunch);
+
+	main_window.show();
+
+	Logger::install(main_window.userData());
+	Utility::ensureAppVisible(main_window);
+
+	return fernanda.exec();
 }
 
-// Main.cpp, Fernanda
+void appSetup()
+{
+	QApplication::setHighDpiScaleFactorRoundingPolicy(
+		Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+	QApplication::setDesktopSettingsAware(true);
+}
+
+StdFsPath pathArg(QApplication& application)
+{
+	StdFsPath path_arg;
+	for (auto& arg : application.arguments())
+		if (arg.endsWith(".txt")) // handle projects, too
+			path_arg = Path::toStdFs(arg);
+	return path_arg;
+}
+
+void setFont(QApplication& application)
+{
+	auto font = application.font();
+	font.setStyleStrategy(QFont::PreferAntialias);
+	font.setHintingPreference(QFont::HintingPreference::PreferNoHinting);
+	font.setPointSizeF(9);
+	application.setFont(font);
+}

@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/menu-bar">
+        <file>Fernanda_64.png</file>
+        <file>themes/editor/Amber.fernanda_editor</file>
+        <file>themes/editor/Blue.fernanda_editor</file>
+        <file>themes/editor/Dark.fernanda_editor</file>
+        <file>themes/editor/Green.fernanda_editor</file>
+        <file>themes/editor/Grey.fernanda_editor</file>
+        <file>themes/editor/Light.fernanda_editor</file>
+        <file>themes/editor/Pocket.fernanda_editor</file>
+        <file>themes/editor/Pocket-Alt.fernanda_editor</file>
+        <file>themes/editor/Snooze.fernanda_editor</file>
+        <file>themes/editor/Snooze-Alt.fernanda_editor</file>
+        <file>themes/editor/Solarized Dark.fernanda_editor</file>
+        <file>themes/editor/Solarized Light.fernanda_editor</file>
+        <file>themes/sample/Sample.fernanda_editor</file>
+        <file>themes/sample/Sample.fernanda_window</file>
+        <file>themes/window/Dark.fernanda_window</file>
+        <file>themes/window/Light.fernanda_window</file>
+        <file>themes/window/Solarized Dark (Modified).fernanda_window</file>
+        <file>themes/window/Solarized Light (Modified).fernanda_window</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/indicator">
+        <file>Green.qss</file>
+        <file>Pastels.qss</file>
+        <file>Red.qss</file>
+    </qresource>
+</RCC>
