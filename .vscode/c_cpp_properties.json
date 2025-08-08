@@ -1,0 +1,15 @@
+{
+  "configurations": [
+    {
+      "name": "Win64-Qt",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "C:/Qt/**"
+      ],
+      "cStandard": "c17",
+      "cppStandard": "c++20",
+      "intelliSenseMode": "windows-msvc-x64"
+    }
+  ],
+  "version": 4
+}

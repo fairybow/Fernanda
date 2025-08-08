@@ -1,0 +1,338 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Code">
+      <UniqueIdentifier>{d611f2ab-228b-4fe5-8b3f-6f1e85f7829c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Notes">
+      <UniqueIdentifier>{6b3aa444-67c4-4f31-b88d-9cbec8019fb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Docs">
+      <UniqueIdentifier>{2db6761a-888a-414f-88ab-293899c67893}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Source">
+      <UniqueIdentifier>{9c3b974e-975e-48e2-8521-6cf105aa8ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VS Code">
+      <UniqueIdentifier>{09922ec9-295e-412d-b185-dfb58ce0e849}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\WIP">
+      <UniqueIdentifier>{d6903529-1009-43a4-994a-0c68e2a7ce30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\WIP\TabView">
+      <UniqueIdentifier>{ceef0807-d461-405d-b1af-ce34ccdd2915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\WIP\Window">
+      <UniqueIdentifier>{6c4c318c-7a0d-4412-9fb6-d09ed1fab748}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules">
+      <UniqueIdentifier>{28a4e93a-b222-4118-9588-7d73bee25dfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\Coco">
+      <UniqueIdentifier>{995c5be1-db7f-4111-b060-1d1c269ab45c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\Coco\Scripts">
+      <UniqueIdentifier>{e5309825-dba6-4863-9f36-1c5a18a17517}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\Coco\Bookmarks">
+      <UniqueIdentifier>{68fa022c-6847-4cc1-8d0b-ed4af84a8af0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\Coco\Copy">
+      <UniqueIdentifier>{dbb60af9-fed3-4861-873a-1f9232ca7249}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\Coco\Notes">
+      <UniqueIdentifier>{a6c7d92a-3876-4f57-a83a-485098794150}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\Coco\Old">
+      <UniqueIdentifier>{21011ebb-0f47-43da-8d27-8cd48d4d847d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\WIP\PlainTextEdit">
+      <UniqueIdentifier>{fef971cf-e994-44e6-94d1-352ba662e278}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\WIP\Dialogs">
+      <UniqueIdentifier>{5b20d787-3c34-4813-a978-308ed267abeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\WIP\Settings">
+      <UniqueIdentifier>{e2bd1ef3-0873-4d32-9c92-92ed4eb1231e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\WIP\Files">
+      <UniqueIdentifier>{ffd28ba1-582a-49c1-90df-6fd4f9794693}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Translations">
+      <UniqueIdentifier>{d7b68509-289f-4f15-85b1-335b8a71d5d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{de85f392-6027-4e7b-a4b7-fbe6b91a1382}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\WIP\Ecosystems">
+      <UniqueIdentifier>{166f6e43-a3ad-48d9-b6af-24213adb1114}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Main.cpp">
+      <Filter>Code\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\Fx.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\Path.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\PathUtil.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\StartCop.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="wip\window\Window.cpp">
+      <Filter>Code\WIP\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="wip\window\WindowManager.cpp">
+      <Filter>Code\WIP\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\TextIo.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="wip\ecosystems\EcosystemMenuManager.cpp">
+      <Filter>Code\WIP\Ecosystems</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="resources\Icons.qrc">
+      <Filter>Resources</Filter>
+    </QtRcc>
+    <QtRcc Include="translations\TranslationQMFiles.qrc">
+      <Filter>Translations</Filter>
+    </QtRcc>
+    <QtRcc Include="resources\Ui.qrc">
+      <Filter>Resources</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\Fernanda.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.gitignore" />
+    <None Include="..\.vscode\c_cpp_properties.json">
+      <Filter>VS Code</Filter>
+    </None>
+    <None Include="..\.vscode\settings.json">
+      <Filter>VS Code</Filter>
+    </None>
+    <None Include="submodules\Coco\Coco\copy\License Statement.md">
+      <Filter>Submodules\Coco\Copy</Filter>
+    </None>
+    <None Include="submodules\Coco\Coco\bookmarks\Bookmarks.md">
+      <Filter>Submodules\Coco\Bookmarks</Filter>
+    </None>
+    <None Include="submodules\Coco\Coco\notes\Todo.md">
+      <Filter>Submodules\Coco\Notes</Filter>
+    </None>
+    <None Include="submodules\Coco\Coco\scripts\DevWinUpdateFromConsumer.bat">
+      <Filter>Submodules\Coco\Scripts</Filter>
+    </None>
+    <None Include="submodules\Coco\Coco\scripts\WinGitRootUnused.bat">
+      <Filter>Submodules\Coco\Scripts</Filter>
+    </None>
+    <None Include="submodules\Coco\Coco\scripts\WinUpdateSubmodules.bat">
+      <Filter>Submodules\Coco\Scripts</Filter>
+    </None>
+    <None Include="docs\VSProjectSettings.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="cpp.hint" />
+    <None Include="submodules\Coco\Coco\copy\Class.md">
+      <Filter>Submodules\Coco\Copy</Filter>
+    </None>
+    <None Include="submodules\Coco\Coco\copy\Headings.md">
+      <Filter>Submodules\Coco\Copy</Filter>
+    </None>
+    <None Include="submodules\Coco\Coco\scripts\ImageMagickMakeIco.bat">
+      <Filter>Submodules\Coco\Scripts</Filter>
+    </None>
+    <None Include="docs\RoughOverview.puml">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="..\README.md" />
+    <None Include="docs\MinimalOverview.puml">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\MinimalOverview.svg">
+      <Filter>Docs</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="submodules\Coco\Coco\old\OLDPrivate.h">
+      <Filter>Submodules\Coco\Old</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Fx.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Global.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Layout.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Macros.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Path.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\PathUtil.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Private.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Utility.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Debug.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="wip\XPlatform.h">
+      <Filter>Code\WIP</Filter>
+    </ClInclude>
+    <ClInclude Include="wip\FileTypes.h">
+      <Filter>Code\WIP</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\TextIo.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Log.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="wip\dialogs\About.h">
+      <Filter>Code\WIP\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="wip\dialogs\Unsaved.h">
+      <Filter>Code\WIP\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Version.h">
+      <Filter>Code\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BuildMessages.h">
+      <Filter>Code\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tr.h">
+      <Filter>Code\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="wip\settings\Ini.h">
+      <Filter>Code\WIP\Settings</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
+      <Filter>Submodules\Coco</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\Environment.h">
+      <Filter>Code\WIP</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\tab-view\TabView.h">
+      <Filter>Code\WIP\TabView</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\tab-view\TabViewCloseButton.h">
+      <Filter>Code\WIP\TabView</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\tab-view\TabViewTabBar.h">
+      <Filter>Code\WIP\TabView</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\tab-view\TabViewUnderlay.h">
+      <Filter>Code\WIP\TabView</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\window\Window.h">
+      <Filter>Code\WIP\Window</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\window\WindowManager.h">
+      <Filter>Code\WIP\Window</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\ColorBar.h">
+      <Filter>Code\WIP</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\WordCounter.h">
+      <Filter>Code\WIP</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\plain-text-edit\PlainTextEdit.h">
+      <Filter>Code\WIP\PlainTextEdit</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\plain-text-edit\KeyFilter.h">
+      <Filter>Code\WIP\PlainTextEdit</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\settings\FontSelector.h">
+      <Filter>Code\WIP\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\settings\SettingsDialog.h">
+      <Filter>Code\WIP\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\files\IFile.h">
+      <Filter>Code\WIP\Files</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\files\FileManager.h">
+      <Filter>Code\WIP\Files</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\files\IFileView.h">
+      <Filter>Code\WIP\Files</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\files\NoOpFile.h">
+      <Filter>Code\WIP\Files</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\files\NoOpFileView.h">
+      <Filter>Code\WIP\Files</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\files\TextFile.h">
+      <Filter>Code\WIP\Files</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\files\TextFileView.h">
+      <Filter>Code\WIP\Files</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\settings\Settings.h">
+      <Filter>Code\WIP\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\settings\DisplaySlider.h">
+      <Filter>Code\WIP\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\ecosystems\Ecosystem.h">
+      <Filter>Code\WIP\Ecosystems</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\settings\EditorSwitchboard.h">
+      <Filter>Code\WIP\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\Debouncer.h">
+      <Filter>Code\WIP</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\tab-view\TabViewButton.h">
+      <Filter>Code\WIP\TabView</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\ecosystems\EcosystemMenuManager.h">
+      <Filter>Code\WIP\Ecosystems</Filter>
+    </QtMoc>
+    <QtMoc Include="wip\TreeView.h">
+      <Filter>Code\WIP</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtTranslation Include="translations\Translation_es.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
+    <QtTranslation Include="translations\Translation_fr.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
+    <QtTranslation Include="translations\Translation_de.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
+  </ItemGroup>
+</Project>

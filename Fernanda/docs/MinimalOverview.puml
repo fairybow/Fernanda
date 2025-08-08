@@ -1,0 +1,35 @@
+@startuml
+!theme vibrant
+skinparam backgroundColor #999
+skinparam defaultFontColor #000
+skinparam ArrowColor #000
+skinparam shadowing 0.2
+top to bottom direction
+
+rectangle "**Environment**\n<i>main controller</i>\nManages Ecosystems" as ENV #E0E0E0
+
+rectangle "Ecosystems*" as ECOS #F0F0F0
+
+rectangle "**Notepad**\n<i>OS filesystem-based</i>\nFunctions as expected for a notepad" as NOTEPAD #8AFFDA
+
+rectangle "**Notebook**\n<i>Archive-based (.7z files)</i>\nOperates in a self-contained binder style\nPer-Notebook config that falls back to Notepad settings before defaults" as NOTEBOOK #8AE9FF
+
+ENV .down.> ECOS : <i>  controls multiple</i>
+ECOS -down-> NOTEPAD : <i>  1 instance</i>
+ECOS -down-> NOTEBOOK : <i>  0 or more instances</i>
+
+rectangle "[*] Ecosystem" as ECO #F0F0F0 {
+rectangle "WindowManager\n<i>multi-window support</i>" as ECO_WM
+rectangle "FileManager\n<i>model/view separation</i>" as ECO_FM
+rectangle "Settings\n<i>tiered configuration</i>" as ECO_S
+rectangle "...\n<i>other components</i>" as ECO_O
+}
+
+ECO_WM -[hidden]right-> ECO_FM
+ECO_FM -[hidden]right-> ECO_S
+ECO_S -[hidden]right-> ECO_O
+
+'For some reason, this helps align it (kind of)
+NOTEBOOK -[hidden]down-> ECO
+NOTEBOOK -[hidden]down-> ECO
+@enduml

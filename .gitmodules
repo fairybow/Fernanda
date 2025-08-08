@@ -1,0 +1,3 @@
+[submodule "Fernanda/submodules/Coco"]
+	path = Fernanda/submodules/Coco
+	url = https://github.com/fairybow/Coco

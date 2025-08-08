@@ -1,0 +1,128 @@
+@startuml Fernanda Architecture
+
+!define RECTANGLE class
+
+package "Core Application" {
+    RECTANGLE Environment {
+        +notepad_ : Ecosystem
+        +notebooks_ : List<Ecosystem>
+        +userDataDirectory_ : Path
+    }
+}
+
+package "Ecosystem Management" {
+    RECTANGLE Ecosystem {
+        +root_ : Path
+        +windowManager_ : WindowManager
+        +fileManager_ : FileManager
+        +menuManager_ : EcosystemMenuManager
+        +settings_ : Settings
+    }
+    
+    RECTANGLE WindowManager {
+        +windows_ : List<Window>
+        +activeWindow_ : Window
+    }
+    
+    RECTANGLE FileManager {
+        +fileToViews_ : Hash<IFile*, Set<IFileView*>>
+        +pathToFile_ : Hash<Path, IFile*>
+    }
+}
+
+package "File System Abstraction" {
+    RECTANGLE "OS FileSystem" as OSFileSystem {
+        +Regular filesystem access
+    }
+    
+    RECTANGLE "7z FileSystem" as SevenZFileSystem {
+        +Archive-based filesystem
+        +Custom path resolution
+    }
+}
+
+package "File Model/View" {
+    abstract RECTANGLE IFile {
+        +path_ : Path
+        +isEdited() : bool
+        +save() : Save
+        +{abstract} canEdit() : bool
+    }
+    
+    abstract RECTANGLE IFileView {
+        +model_ : IFile*
+        +hasSelection() : bool
+        +{abstract} setupWidget() : QWidget*
+    }
+    
+    RECTANGLE TextFile {
+        +document_ : QTextDocument*
+    }
+    
+    RECTANGLE TextFileView {
+        +plainTextEdit_ : PlainTextEdit*
+    }
+    
+    RECTANGLE NoOpFile {
+        +Read-only files
+    }
+    
+    RECTANGLE NoOpFileView {
+        +Display-only widget
+    }
+}
+
+package "UI Components" {
+    RECTANGLE Window {
+        +TabView as central widget
+        +MenuBar, StatusBar
+    }
+    
+    RECTANGLE TabView {
+        +File views as tabs
+        +Tab dragging support
+    }
+}
+
+' Relationships
+Environment ||--|| Ecosystem : "notepad"
+Environment ||--o{ Ecosystem : "notebooks"
+
+Ecosystem ||--|| WindowManager
+Ecosystem ||--|| FileManager
+Ecosystem ||--|| EcosystemMenuManager
+
+WindowManager ||--o{ Window
+FileManager ||--o{ IFile
+FileManager ||--o{ IFileView
+
+IFile <|-- TextFile
+IFile <|-- NoOpFile
+IFileView <|-- TextFileView
+IFileView <|-- NoOpFileView
+
+IFileView }|--|| IFile : "model"
+
+Window ||--|| TabView
+TabView ||--o{ IFileView
+
+' File System Usage
+Ecosystem ..> OSFileSystem : "notepad uses"
+Ecosystem ..> SevenZFileSystem : "notebooks use"
+
+note top of Environment
+Main application controller
+Manages notepad + notebook ecosystems
+end note
+
+note top of Ecosystem
+Self-contained file management system
+Works with different filesystem backends
+end note
+
+note bottom of IFile
+Polymorphic file model
+Subclasses handle different file types
+end note
+
+@enduml
