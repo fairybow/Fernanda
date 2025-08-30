@@ -11,6 +11,7 @@
 #include "Coco/Path.h"
 
 #include "Commander.h"
+#include "ColorBarModule.h"
 #include "EventBus.h"
 #include "FileService.h"
 #include "MenuModule.h"
@@ -84,6 +85,7 @@ private:
 
     MenuModule* menus_ = new MenuModule(commander_, eventBus_, this);
     SettingsModule* settings_ = new SettingsModule(commander_, eventBus_, this);
+    ColorBarModule* colorBars_ = new ColorBarModule(commander_, eventBus_, this);
 
     void initialize_();
 

@@ -85,7 +85,7 @@ private:
             auto result = saveHelper_->saveAt(
                 call.context,
                 to<int>(call.params, "index", -1));
-            emit eventBus->saveExecuted(call.context, result);
+            emit eventBus->windowSaveExecuted(call.context, result);
             return toQVariant(result);
         });
 
@@ -93,7 +93,7 @@ private:
             auto result = saveHelper_->saveAsAt(
                 call.context,
                 to<int>(call.params, "index", -1));
-            emit eventBus->saveExecuted(call.context, result);
+            emit eventBus->windowSaveExecuted(call.context, result);
             return toQVariant(result);
         });
 
@@ -103,7 +103,7 @@ private:
                 auto result = saveHelper_->saveIndexesInWindow(
                     call.context,
                     to<QList<int>>(call.params, "indexes"));
-                emit eventBus->saveExecuted(
+                emit eventBus->windowSaveExecuted(
                     call.context,
                     result); // Right now, only planning to use these with
                              // ColorBar, but may want to have a more specific
@@ -113,7 +113,7 @@ private:
 
         commander->addCallHandler(Calls::SaveWindow, [&](const Call& call) {
             auto result = saveHelper_->saveWindow(call.context);
-            emit eventBus->saveWindowExecuted(
+            emit eventBus->windowSaveExecuted(
                 call.context,
                 result); // Re: ColorBar
             return toQVariant(result);
@@ -121,7 +121,7 @@ private:
 
         commander->addCallHandler(Calls::SaveAll, [&] {
             auto result = saveHelper_->saveAll();
-            emit eventBus->saveAllExecuted(result); // Re: ColorBar
+            emit eventBus->workspaceSaveExecuted(result); // Re: ColorBar
             return toQVariant(result);
         });
 
