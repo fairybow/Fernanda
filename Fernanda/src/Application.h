@@ -43,6 +43,8 @@ public:
 
         // auto args = arguments();
 
+        // Make session objects
+
         // Temporary opening procedures:
         notepad_ = new Workspace(notepadRoot_, this);
         notepad_->setPathInterceptor(
