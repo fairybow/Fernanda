@@ -7,9 +7,6 @@
 #include "AboutDialog.h"
 #include "Application.h"
 #include "Commander.h"
-#include "EventBus.h"
-#include "IFileModel.h"
-#include "IFileView.h"
 #include "Utility.h"
 #include "Window.h"
 #include "WindowService.h"
@@ -17,10 +14,8 @@
 
 namespace Fernanda {
 
-void Workspace::initialize_()
+void Workspace::addCommandHandlers_()
 {
-    windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
-
     commander_->addInterceptor(Commands::OpenFile, [&](Command& cmd) {
         if (pathInterceptor_
             && pathInterceptor_(to<QString>(cmd.params, "path"))) {
@@ -30,7 +25,7 @@ void Workspace::initialize_()
         return false;
     });
 
-    commander_->addCommandHandler(Commands::NewWindow, [&] { newWindow(); });
+    commander_->addCommandHandler(Commands::NewWindow, [&] { newWindow_(); });
 
     commander_->addCommandHandler(
         Commands::CloseWindow,
@@ -55,8 +50,6 @@ void Workspace::initialize_()
     commander_->addQueryHandler(Queries::Root, [&] {
         return root_.toQString();
     });
-
-    // emit eventBus_->workspaceInitialized(this); // Later, if needed
 }
 
 } // namespace Fernanda

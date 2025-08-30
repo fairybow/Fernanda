@@ -15,6 +15,7 @@ namespace Fernanda {
 
 void EventBus::initialize_()
 {
+    SIGLOG_(workspaceInitialized, [&] {});
     SIGLOG_(windowCreated, [&](Window* window) {});
     SIGLOG_(visibleWindowCountChanged, [&](int count) {});
 
@@ -44,9 +45,8 @@ void EventBus::initialize_()
                               .arg(toQString(result)));
         });
 
-    SIGLOG_(saveExecuted, [&](Window* window, SaveResult result) {});
-    SIGLOG_(saveWindowExecuted, [&](Window* window, SaveResult result) {});
-    SIGLOG_(saveAllExecuted, [&](SaveResult result) {});
+    SIGLOG_(windowSaveExecuted, [&](Window* window, SaveResult result) {});
+    SIGLOG_(workspaceSaveExecuted, [&](SaveResult result) {});
     SIGLOG_(windowTabCountChanged, [&](Window* window, int count) {});
 
     SIGLOG_(activeFileViewChanged, [&](IFileView* view, Window* window) {

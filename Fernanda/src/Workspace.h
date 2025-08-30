@@ -6,10 +6,12 @@
 #include <QString>
 #include <QVariantMap>
 
+#include "Coco/Bool.h"
 #include "Coco/Debug.h"
 #include "Coco/Log.h"
 #include "Coco/Path.h"
 
+#include "ColorBarModule.h"
 #include "Commander.h"
 #include "EventBus.h"
 #include "FileService.h"
@@ -23,20 +25,20 @@ namespace Fernanda {
 
 // Base class for Notepad and Notebook workspaces (collection of windows, their
 // files, and the filesystems on which they operate). Owns and initializes
-// services and modules, and opens window creation and path filtering to the
-// Application
+// services and modules, and allows path filtering for the Application
 class Workspace : public QObject
 {
     Q_OBJECT
 
 public:
+    COCO_BOOL(InitialWindow);
+
     using PathInterceptor = std::function<bool(const Coco::Path&)>;
 
     explicit Workspace(const Coco::Path& root, QObject* parent = nullptr)
         : QObject(parent)
         , root_(root)
     {
-        initialize_();
     }
 
     // Move tracer to subclasses (Notepad and Notebook) when applicable
@@ -61,14 +63,19 @@ public:
         };
     }
 
-    // This is routed through Workspace instead of handled by WindowService to
-    // allow Application to open windows. This maybe could/should change in the
-    // future
-    void newWindow() // Args for path or session info when applicable
+    // void initialize(const Session& session)
+    // {
+    //   // coreInitialization_();
+    //   // ...open Session...
+    //   // emit eventBus_->workspaceInitialized();
+    // }
+
+    void initialize(InitialWindow initialWindow = InitialWindow::No)
     {
-        auto window = windows_->make();
-        if (!window) return;
-        window->show();
+        coreInitialization_();
+        if (initialWindow) newWindow_();
+
+        emit eventBus_->workspaceInitialized();
     }
 
 private:
@@ -84,13 +91,27 @@ private:
 
     MenuModule* menus_ = new MenuModule(commander_, eventBus_, this);
     SettingsModule* settings_ = new SettingsModule(commander_, eventBus_, this);
+    ColorBarModule* colorBars_ =
+        new ColorBarModule(commander_, eventBus_, this);
 
-    void initialize_();
+    void coreInitialization_()
+    {
+        windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
+        //...
+        addCommandHandlers_();
+    }
+
+    void addCommandHandlers_();
 
     bool windowsCloseAcceptor_(Window* window)
     {
         if (!window) return false;
         return commander_->call<bool>(Calls::CloseWindowViews, {}, window);
+    }
+
+    void newWindow_()
+    {
+        if (auto window = windows_->make()) window->show();
     }
 };
 

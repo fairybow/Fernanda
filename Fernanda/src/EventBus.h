@@ -27,6 +27,10 @@ public:
     virtual ~EventBus() override { COCO_TRACER; }
 
 signals:
+    // Workspace
+
+    void workspaceInitialized();
+
     // WindowService
 
     void windowCreated(Window* window);
@@ -46,9 +50,8 @@ signals:
         SaveResult result,
         const Coco::Path& path,
         const Coco::Path& oldPath = {});
-    void saveExecuted(Window* window, SaveResult result);
-    void saveWindowExecuted(Window* window, SaveResult result);
-    void saveAllExecuted(SaveResult result);
+    void windowSaveExecuted(Window* window, SaveResult result);
+    void workspaceSaveExecuted(SaveResult result);
 
     // ViewService
 

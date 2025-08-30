@@ -6,6 +6,7 @@
 #include <QSet>
 #include <QString>
 #include <QStringList>
+#include <QTimer>
 #include <QVariant>
 #include <QVariantMap>
 
@@ -20,6 +21,12 @@
 // Core, top-level utility functions
 
 namespace Fernanda {
+
+template <typename SlotT>
+inline void timer(QObject* parent, int msecs, SlotT slot)
+{
+    QTimer::singleShot(msecs, parent, slot);
+}
 
 template <Coco::Concepts::QObjectPointer T> inline T to(QObject* object)
 {
