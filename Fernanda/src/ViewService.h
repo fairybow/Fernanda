@@ -365,6 +365,7 @@ private slots:
         if (!meta) return;
 
         auto index = tab_widget->addTab(view, meta->title());
+        tab_widget->setTabFlagged(index, model->isModified());
         tab_widget->setTabToolTip(index, meta->toolTip());
         tab_widget->setCurrentIndex(index);
         view->setFocus();

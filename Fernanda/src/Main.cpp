@@ -78,8 +78,8 @@
 // - Todo: Ensure ColorBar position is included in settings
 // - Todo: Reorg EventBus signal naming (like Commander)
 // - Todo: const check!
-// - Bug: Opening an already-edited file in a second view, the tab is not
-// flagged
+// - Todo: onFileReadied + updating on modification changed, use a singular "set
+// tab properties" function?
 
 int main(int argc, char* argv[])
 {
