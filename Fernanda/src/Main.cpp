@@ -75,6 +75,7 @@
 // - Todo: TabWidgetButton::paintEvent
 // - Todo: Check if we need active Window signal
 // - Todo: Rework/format Coco (again)!
+// - Todo: Ensure ColorBar position is included in settings
 
 int main(int argc, char* argv[])
 {

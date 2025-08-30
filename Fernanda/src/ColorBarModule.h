@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QHash>
 #include <QObject>
 
 #include "Coco/Debug.h"
@@ -30,9 +31,21 @@ public:
     virtual ~ColorBarModule() override { COCO_TRACER; }
 
 private:
+    QHash<Window*, ColorBar*> colorBars_{};
+
     void initialize_()
     {
-        //...
+        connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
+            if (!window) return;
+
+            // ColorBar floats outside layouts
+            colorBars_[window] = new ColorBar(window);
+
+            connect(window, &Window::destroyed, this, [=] {
+                if (!window) return;
+                colorBars_.remove(window);
+            });
+        });
     }
 };
 
