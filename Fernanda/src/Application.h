@@ -48,7 +48,7 @@ public:
         notepad_->setPathInterceptor(
             this,
             &Application::notepadPathInterceptor_);
-        notepad_->newWindow();
+        notepad_->initialize(Workspace::InitialWindow::Yes);
     }
 
 public slots:

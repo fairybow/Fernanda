@@ -27,6 +27,10 @@ public:
     virtual ~EventBus() override { COCO_TRACER; }
 
 signals:
+    // Workspace
+
+    void workspaceInitialized();
+
     // WindowService
 
     void windowCreated(Window* window);

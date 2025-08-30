@@ -15,6 +15,7 @@ namespace Fernanda {
 
 void EventBus::initialize_()
 {
+    SIGLOG_(workspaceInitialized, [&] {});
     SIGLOG_(windowCreated, [&](Window* window) {});
     SIGLOG_(visibleWindowCountChanged, [&](int count) {});
 

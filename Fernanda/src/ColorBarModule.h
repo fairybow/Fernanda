@@ -10,6 +10,7 @@
 #include "EventBus.h"
 #include "IFileModel.h"
 #include "IService.h"
+#include "Utility.h"
 #include "Window.h"
 
 namespace Fernanda {
@@ -48,7 +49,9 @@ private:
             });
         });
 
-        // Connect to a first windows shown signal? How to handle startup?
+        connect(eventBus, &EventBus::workspaceInitialized, this, [&] {
+            timer(this, 1000, [&] { runAll_(ColorBar::Pastel); });
+        });
 
         connect(
             eventBus,
@@ -65,14 +68,17 @@ private:
 
     void run_(Window* window, ColorBar::Color color) const
     {
-        if (!window) return;
+        if (!window || !window->isVisible()) return;
         if (auto color_bar = colorBars_[window]) color_bar->run(color);
     }
 
     void runAll_(ColorBar::Color color) const
     {
-        for (auto& color_bar : colorBars_)
-            if (color_bar) color_bar->run(color);
+        for (auto it = colorBars_.begin(); it != colorBars_.end(); ++it) {
+            auto window = it.key();
+            if (!window || !window->isVisible()) continue;
+            if (auto color_bar = it.value()) color_bar->run(color);
+        }
     }
 
 private slots:
