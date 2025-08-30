@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\AboutDialog.cpp" />
+    <ClCompile Include="src\EventBus.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\TextFileView.cpp" />
+    <ClCompile Include="src\Tr.cpp" />
+    <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="src\WindowService.cpp" />
+    <ClCompile Include="src\Workspace.cpp" />
+    <ClCompile Include="submodules\Coco\Coco\src\Fx.cpp" />
+    <ClCompile Include="submodules\Coco\Coco\src\Path.cpp" />
+    <ClCompile Include="submodules\Coco\Coco\src\PathUtil.cpp" />
+    <ClCompile Include="submodules\Coco\Coco\src\StartCop.cpp" />
+    <ClCompile Include="submodules\Coco\Coco\src\TextIo.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.clang-format" />
+    <None Include="..\.clang-format-ignore" />
+    <None Include="..\.gitattributes" />
+    <None Include="..\.gitignore" />
+    <None Include="..\README.md" />
+    <None Include="cpp.hint" />
+    <None Include="docs\VSProjectSettings.md" />
+    <None Include="resources\ui\TabWidgetButtonAdd.svg" />
+    <None Include="resources\ui\TabWidgetButtonClose.svg" />
+    <None Include="resources\ui\TabWidgetButtonEditedDot.svg" />
+    <None Include="submodules\Coco\Coco\copy\Class.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="src\Application.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\BuildMessages.h" />
+    <QtMoc Include="src\EventBus.h" />
+    <QtMoc Include="src\FileService.h" />
+    <QtMoc Include="src\SettingsModule.h" />
+    <QtMoc Include="src\IFileModel.h" />
+    <QtMoc Include="src\FileMeta.h" />
+    <QtMoc Include="src\TextFileModel.h" />
+    <QtMoc Include="src\IFileView.h" />
+    <QtMoc Include="src\TextFileView.h" />
+    <QtMoc Include="src\NoOpFileView.h" />
+    <QtMoc Include="src\TabWidget.h" />
+    <QtMoc Include="src\ColorBarModule.h" />
+    <QtMoc Include="src\MenuModule.h" />
+    <QtMoc Include="src\ColorBar.h" />
+    <QtMoc Include="src\IService.h" />
+    <QtMoc Include="src\TabWidgetButton.h" />
+    <QtMoc Include="src\TabWidgetCloseButton.h" />
+    <QtMoc Include="src\TabWidgetTabBar.h" />
+    <QtMoc Include="src\TabWidgetUnderlay.h" />
+    <QtMoc Include="src\Commander.h" />
+    <QtMoc Include="src\FileServiceSaveHelper.h" />
+    <QtMoc Include="src\Debouncer.h" />
+    <ClInclude Include="src\FileTypes.h" />
+    <QtMoc Include="src\NoOpFileModel.h" />
+    <ClInclude Include="src\AboutDialog.h" />
+    <ClInclude Include="src\SavePrompt.h" />
+    <ClInclude Include="src\Tr.h" />
+    <ClInclude Include="src\Utility.h" />
+    <ClInclude Include="src\Version.h" />
+    <QtMoc Include="src\Workspace.h" />
+    <QtMoc Include="src\ViewService.h" />
+    <QtMoc Include="src\WindowService.h" />
+    <QtMoc Include="src\Window.h" />
+    <QtMoc Include="src\WordCounterModule.h" />
+    <QtMoc Include="src\ViewServiceCloseHelper.h" />
+    <ClInclude Include="src\XPlatform.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Debug.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Fx.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Global.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Layout.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Log.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Macros.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Path.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\PathUtil.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Private.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\TextIo.h" />
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Utility.h" />
+    <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\Fernanda.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="resources\Icons.qrc" />
+    <QtRcc Include="resources\Ui.qrc" />
+    <QtRcc Include="translations\TranslationQMFiles.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtTranslation Include="translations\Translation_de.ts" />
+    <QtTranslation Include="translations\Translation_es.ts" />
+    <QtTranslation Include="translations\Translation_fr.ts" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E6E7DC76-11E7-4FB4-8C64-E88924DA156D}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>6.9.1_msvc2022_64</QtInstall>
+    <QtModules>core;gui;network;widgets;svg</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>6.9.1_msvc2022_64</QtInstall>
+    <QtModules>core;gui;network;widgets;svg</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)submodules\Coco\Coco\include;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)submodules\Coco\Coco\include;$(ProjectDir)external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ui/TabWidgetButtonAdd.svg</file>
+        <file>ui/TabWidgetButtonClose.svg</file>
+        <file>ui/TabWidgetButtonEditedDot.svg</file>
+    </qresource>
+</RCC>

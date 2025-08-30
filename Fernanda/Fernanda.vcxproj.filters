@@ -1,0 +1,301 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{335afb79-82b0-4005-b500-5e083370a85a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Docs">
+      <UniqueIdentifier>{f4465ad0-c7a6-4ea3-8326-ed1b9283e457}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules">
+      <UniqueIdentifier>{594d5cb6-7083-494b-9183-11fa702184eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\Coco">
+      <UniqueIdentifier>{43907bb5-aad3-4793-b8b0-5d5e6f0920d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core">
+      <UniqueIdentifier>{b0e90ed9-0a21-49a1-a052-ce49dadb3fff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Submodules\Coco\Copy">
+      <UniqueIdentifier>{20207325-d757-4430-be74-68c750d82a84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\Files">
+      <UniqueIdentifier>{ddd9e179-34d3-40e6-93b5-be612778d970}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\Files\Models">
+      <UniqueIdentifier>{b039b6f9-5816-4714-87c1-3da0592bc5a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\Files\Views">
+      <UniqueIdentifier>{783e034b-b5e9-4c9b-9bdb-3c9d574fff81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\UI">
+      <UniqueIdentifier>{233668b0-b04a-47ae-98f5-3d46cc79f3e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Auxiliary">
+      <UniqueIdentifier>{bda3c9fb-5a9a-42fd-8bbb-e93311f86fdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\Services">
+      <UniqueIdentifier>{0cb6ad4f-25d7-4cfd-b279-e0458071c557}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\Workspaces">
+      <UniqueIdentifier>{5f50bb95-fbb7-49c3-98a1-68332f2331d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{9e2ad22f-c630-4309-9e3b-b6d53d9b2395}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\UI\TabWidget">
+      <UniqueIdentifier>{4f99141d-7bdf-4545-b990-e1b970c28766}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Translations">
+      <UniqueIdentifier>{bbbe929e-1ae3-4343-bb09-41aed0f08c06}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Main.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\Fx.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\Path.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\PathUtil.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\StartCop.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Coco\Coco\src\TextIo.cpp">
+      <Filter>Submodules\Coco</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Window.cpp">
+      <Filter>Code\Core\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WindowService.cpp">
+      <Filter>Code\Core\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tr.cpp">
+      <Filter>Code\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextFileView.cpp">
+      <Filter>Code\Core\Files\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AboutDialog.cpp">
+      <Filter>Code\Auxiliary</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Workspace.cpp">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EventBus.cpp">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
+    <None Include="..\.gitignore" />
+    <None Include="docs\VSProjectSettings.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="cpp.hint" />
+    <None Include="..\.clang-format-ignore" />
+    <None Include="..\.clang-format" />
+    <None Include="submodules\Coco\Coco\copy\Class.md">
+      <Filter>Submodules\Coco\Copy</Filter>
+    </None>
+    <None Include="resources\ui\TabWidgetButtonEditedDot.svg">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="resources\ui\TabWidgetButtonAdd.svg">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="resources\ui\TabWidgetButtonClose.svg">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\.gitattributes" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
+      <Filter>Submodules\Coco</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Application.h">
+      <Filter>Code\Core</Filter>
+    </QtMoc>
+    <QtMoc Include="src\IFileModel.h">
+      <Filter>Code\Core\Files\Models</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TextFileModel.h">
+      <Filter>Code\Core\Files\Models</Filter>
+    </QtMoc>
+    <QtMoc Include="src\IFileView.h">
+      <Filter>Code\Core\Files\Views</Filter>
+    </QtMoc>
+    <QtMoc Include="src\NoOpFileView.h">
+      <Filter>Code\Core\Files\Views</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TextFileView.h">
+      <Filter>Code\Core\Files\Views</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FileMeta.h">
+      <Filter>Code\Core\Files\Models</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Window.h">
+      <Filter>Code\Core\UI</Filter>
+    </QtMoc>
+    <QtMoc Include="src\WordCounterModule.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\MenuModule.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ColorBarModule.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FileService.h">
+      <Filter>Code\Core\Services</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ViewService.h">
+      <Filter>Code\Core\Services</Filter>
+    </QtMoc>
+    <QtMoc Include="src\WindowService.h">
+      <Filter>Code\Core\Services</Filter>
+    </QtMoc>
+    <QtMoc Include="src\EventBus.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Workspace.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </QtMoc>
+    <QtMoc Include="src\IService.h">
+      <Filter>Code\Core\Services</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TabWidget.h">
+      <Filter>Code\Core\UI\TabWidget</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TabWidgetCloseButton.h">
+      <Filter>Code\Core\UI\TabWidget</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TabWidgetButton.h">
+      <Filter>Code\Core\UI\TabWidget</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TabWidgetTabBar.h">
+      <Filter>Code\Core\UI\TabWidget</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TabWidgetUnderlay.h">
+      <Filter>Code\Core\UI\TabWidget</Filter>
+    </QtMoc>
+    <QtMoc Include="src\SettingsModule.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ColorBar.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\NoOpFileModel.h">
+      <Filter>Code\Core\Files\Models</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Commander.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FileServiceSaveHelper.h">
+      <Filter>Code\Core\Services</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ViewServiceCloseHelper.h">
+      <Filter>Code\Core\Services</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Debouncer.h">
+      <Filter>Code\Core</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\BuildMessages.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Debug.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Fx.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Global.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Layout.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Log.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Macros.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\PathUtil.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Private.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\TextIo.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Utility.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XPlatform.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileTypes.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tr.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Version.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AboutDialog.h">
+      <Filter>Code\Auxiliary</Filter>
+    </ClInclude>
+    <ClInclude Include="submodules\Coco\Coco\include\Coco\Path.h">
+      <Filter>Submodules\Coco</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SavePrompt.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\Fernanda.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="resources\Icons.qrc">
+      <Filter>Resources</Filter>
+    </QtRcc>
+    <QtRcc Include="resources\Ui.qrc">
+      <Filter>Resources</Filter>
+    </QtRcc>
+    <QtRcc Include="translations\TranslationQMFiles.qrc">
+      <Filter>Translations</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtTranslation Include="translations\Translation_de.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
+    <QtTranslation Include="translations\Translation_es.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
+    <QtTranslation Include="translations\Translation_fr.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,15 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define COCO_TRACER
+#define emit
+#define Q_OBJECT public: QT_WARNING_PUSH Q_OBJECT_NO_OVERRIDE_WARNING static const QMetaObject staticMetaObject; virtual const QMetaObject *metaObject() const; virtual void *qt_metacast(const char *); virtual int qt_metacall(QMetaObject::Call, int, void **); QT_TR_FUNCTIONS private: QT_OBJECT_GADGET_COMMON QT_DEFINE_TAG_STRUCT(QPrivateSignal); QT_WARNING_POP QT_ANNOTATE_CLASS(qt_qobject, "")
+#define Q_OBJECT
+#define Q_PROPERTY(__VA_ARGS__) QT_ANNOTATE_CLASS(qt_property, __VA_ARGS__)
+#define Q_PROPERTY(text) Q_PROPERTY(text)
+#define qDebug QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).debug
+#define qDebug
+#define qWarning QMessageLogger(QT_MESSAGELOG_FILE, QT_MESSAGELOG_LINE, QT_MESSAGELOG_FUNC).warning
+#define qWarning
+#define signals
+#define slots
