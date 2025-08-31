@@ -11,7 +11,26 @@
 
 namespace Fernanda::Ini {
 
-//...
+namespace Internal {
+
+    template <typename T>
+    inline T
+    get(Commander* commander, const char* key, const QVariant& defaultValue)
+    {
+        return commander->query<T>(
+            Queries::Setting,
+            { { "key", key }, { "default", defaultValue } });
+    }
+
+    inline void
+    set(Commander* commander, const char* key, const QVariant& value)
+    {
+        commander->execute(
+            Commands::SetSetting,
+            { { "key", key }, { "value", value } });
+    }
+
+} // namespace Internal
 
 namespace EditorFont {
 
@@ -34,21 +53,12 @@ namespace EditorFont {
         QFont font{};
         if (!commander) return font;
 
-        auto family = commander->query<QString>(
-            Queries::Setting,
-            { { "key", FAMILY_KEY }, { "default", DEFAULT_FAMILY } });
-
-        auto size = commander->query<int>(
-            Queries::Setting,
-            { { "key", PT_SIZE_KEY }, { "default", DEFAULT_PT_SIZE } });
-
-        auto is_bold = commander->query<bool>(
-            Queries::Setting,
-            { { "key", BOLD_KEY }, { "default", DEFAULT_BOLD } });
-
-        auto is_italic = commander->query<bool>(
-            Queries::Setting,
-            { { "key", ITALIC_KEY }, { "default", DEFAULT_ITALIC } });
+        auto family =
+            Internal::get<QString>(commander, FAMILY_KEY, DEFAULT_FAMILY);
+        auto size = Internal::get<int>(commander, PT_SIZE_KEY, DEFAULT_PT_SIZE);
+        auto is_bold = Internal::get<bool>(commander, BOLD_KEY, DEFAULT_BOLD);
+        auto is_italic =
+            Internal::get<bool>(commander, ITALIC_KEY, DEFAULT_ITALIC);
 
         font.setFamily(family);
         font.setPointSize(qBound(PT_SIZE_MIN, size, PT_SIZE_MAX));
@@ -58,18 +68,15 @@ namespace EditorFont {
         return font;
     }
 
-    // Old
-    //inline void save(const QFont& font, Settings* settings)
-    //{
-    //    if (!settings || !settings->isWritable()) return;
+    inline void save(const QFont& font, Commander* commander)
+    {
+        if (!commander) return;
 
-    //    settings->beginGroup(Groups::EDITORS_FONT);
-    //    settings->setValue(FAMILY_KEY, font.family());
-    //    settings->setValue(PT_SIZE_KEY, font.pointSize());
-    //    settings->setValue(BOLD_KEY, font.bold());
-    //    settings->setValue(ITALIC_KEY, font.italic());
-    //    settings->endGroup();
-    //}
+        Internal::set(commander, FAMILY_KEY, font.family());
+        Internal::set(commander, PT_SIZE_KEY, font.pointSize());
+        Internal::set(commander, BOLD_KEY, font.bold());
+        Internal::set(commander, ITALIC_KEY, font.italic());
+    }
 
 } // namespace EditorFont
 

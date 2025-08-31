@@ -55,7 +55,13 @@ private:
             openDialog_();
         });
 
-        //commander->addCommandHandler(Commands::SetSetting, [] {});
+        commander->addCommandHandler(Commands::SetSetting, [&](const Command& cmd)
+            {
+                if (!settings_ || !settings_->isWritable()) return;
+                settings_->setValue(
+                    to<QString>(cmd.params, "key"),
+                    cmd.params.value("value"));
+            });
 
         commander->addQueryHandler(Queries::Setting, [&](const QVariantMap& params) {
                 return settings_->value(
