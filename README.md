@@ -22,11 +22,11 @@ Mac and Linux support is planned.
 
 ```
 Application
-??? Workspace(s)
-    ??? Commander
-    ??? EventBus
-    ??? Services (Windows, Files, Views...)
-    ??? Modules (ColorBars, Menus, WordCounters...)
+└── Workspace(s)
+    ├── Commander
+    ├── EventBus
+    ├── Services (Windows, Files, Views...)
+    └── Modules (ColorBars, Menus, WordCounters...)
 ```
 
 # Building
