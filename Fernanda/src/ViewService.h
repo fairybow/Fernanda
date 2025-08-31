@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 #include <QHash>
 #include <QObject>
 #include <QSet>
@@ -7,9 +9,12 @@
 #include <QVariant>
 #include <QVariantMap>
 #include <QWidget>
+#include <QFont>
 
 #include "Coco/Debug.h"
+#include "Coco/Concepts.h"
 
+#include "Ini.h"
 #include "Commander.h"
 #include "EventBus.h"
 #include "FileMeta.h"
@@ -295,6 +300,16 @@ private:
         view->selectAll();
     }
 
+    template <
+        Coco::Concepts::QWidgetPointer FileViewT,
+        Coco::Concepts::QObjectPointer FileModelT>
+    [[nodiscard]] FileViewT make_(FileModelT model, QWidget* parent)
+    {
+        auto view = new std::remove_pointer_t<FileViewT>(model, parent);
+        view->initialize();
+        return view;
+    }
+
 private slots:
     void onWindowCreated_(Window* window)
     {
@@ -346,17 +361,24 @@ private slots:
         IFileView* view = nullptr;
 
         if (auto text_model = to<TextFileModel*>(model)) {
-            view = new TextFileView(text_model, window);
+            //auto text_view = new TextFileView(text_model, window);
+            //text_view->initialize(); // We need to initialize before we can apply any settings
+
+            auto text_view = make_<TextFileView*>(text_model, window);
+            text_view->setFont(Ini::EditorFont::load(commander));
+            view = text_view;
+            
         } else if (auto no_op_model = to<NoOpFileModel*>(model)) {
-            view = new NoOpFileView(no_op_model, window);
+            //view = new NoOpFileView(no_op_model, window);
+            //view->initialize();
+
+            view = make_<NoOpFileView*>(no_op_model, window);
         } else {
             return;
         }
 
         if (!view) return;
-
         ++viewsPerModel_[model];
-        view->initialize();
 
         auto tab_widget = tabWidget(window);
         if (!tab_widget) return; // Delete view if this fails (shouldn't)?

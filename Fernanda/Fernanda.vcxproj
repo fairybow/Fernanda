@@ -67,6 +67,7 @@
     <ClInclude Include="src\FileTypes.h" />
     <QtMoc Include="src\NoOpFileModel.h" />
     <ClInclude Include="src\AboutDialog.h" />
+    <ClInclude Include="src\Ini.h" />
     <ClInclude Include="src\SavePrompt.h" />
     <QtMoc Include="src\TieredSettings.h" />
     <ClInclude Include="src\Tr.h" />

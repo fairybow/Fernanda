@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QSettings>
 #include <QPointer>
+#include <QVariant>
+#include <QVariantMap>
 
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
@@ -11,6 +13,7 @@
 #include "Commander.h"
 #include "EventBus.h"
 #include "IService.h"
+#include "Utility.h"
 // #include "TieredSettings.h"
 
 namespace Fernanda {
@@ -53,7 +56,12 @@ private:
         });
 
         //commander->addCommandHandler(Commands::SetSetting, [] {});
-        //commander->addQueryHandler(Queries::Setting, [] {});
+
+        commander->addQueryHandler(Queries::Setting, [&](const QVariantMap& params) {
+                return settings_->value(
+                    to<QString>(params, "key"),
+                    params.value("default"));
+            });
     }
 
     void openDialog_()

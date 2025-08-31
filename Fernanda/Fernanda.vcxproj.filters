@@ -273,6 +273,9 @@
     <ClInclude Include="src\SavePrompt.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Ini.h">
+      <Filter>Code\Auxiliary</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">
