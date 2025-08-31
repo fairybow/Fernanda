@@ -50,6 +50,9 @@ public:
         /// When using a path translator for Notebooks, which work on archives,
         /// we also need a way to take the Notepad config path as fallback
         /// without translation
+        ///
+        /// This is an option but may be overkill: an app-wide communication
+        /// strategy, like Commander/EventBus, but for Workspaces and App...
     }
 
     // Move tracer to subclasses (Notepad and Notebook) when applicable
