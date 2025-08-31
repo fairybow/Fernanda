@@ -56,6 +56,8 @@ namespace Commands {
     constexpr auto PreviousWindow = "cmd.window_serv.workspace:previous_window";
     constexpr auto ViewNextWindow = "cmd.window_serv.workspace:next_window";
 
+    constexpr auto SetSetting = "cmd.settings_mod.workspace:set";
+
 } // namespace Commands
 
 // Calls are Commands that return a value (they can also be executed as Commands
@@ -104,6 +106,8 @@ namespace Queries {
         "query.view_serv.workspace:has_modified_files";
     constexpr auto WorkspaceAnyFiles =
         "query.view_serv.workspace:has_any_files";
+
+    constexpr auto Setting = "query.settings_mod.workspace:get";
 
 } // namespace Queries
 

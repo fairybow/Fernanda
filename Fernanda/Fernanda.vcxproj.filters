@@ -205,6 +205,18 @@
     <QtMoc Include="src\Debouncer.h">
       <Filter>Code\Core</Filter>
     </QtMoc>
+    <QtMoc Include="src\TieredSettings.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\SettingsDialog.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FontSelector.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\DisplaySlider.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
@@ -269,6 +281,9 @@
     </ClInclude>
     <ClInclude Include="src\SavePrompt.h">
       <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ini.h">
+      <Filter>Code\Auxiliary</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

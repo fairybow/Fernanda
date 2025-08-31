@@ -20,6 +20,15 @@ Mac and Linux support is planned.
 - **Event-driven**: Commander/EventBus pattern for component communication
 - **Modular**: Services handle core logic, modules provide optional features
 
+```
+Application
+└── Workspace(s)
+    ├── Commander
+    ├── EventBus
+    ├── Services (Windows, Files, Views...)
+    └── Modules (ColorBars, Menus, WordCounters...)
+```
+
 # Building
 
 Open `Fernanda.vcxproj` in Visual Studio and build.

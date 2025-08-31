@@ -13,12 +13,12 @@ namespace Fernanda {
 
 QWidget* TextFileView::setupWidget()
 {
-    plainTextEdit_ = new QPlainTextEdit(this);
+    editor_ = new QPlainTextEdit(this);
 
     if (auto text_model = to<TextFileModel*>(model()))
-        plainTextEdit_->setDocument(text_model->document());
+        editor_->setDocument(text_model->document());
 
-    connect(plainTextEdit_, &QPlainTextEdit::selectionChanged, this, [&] {
+    connect(editor_, &QPlainTextEdit::selectionChanged, this, [&] {
         emit selectionChanged();
     });
 
@@ -26,7 +26,7 @@ QWidget* TextFileView::setupWidget()
         emit clipboardDataChanged();
     });
 
-    return plainTextEdit_;
+    return editor_;
 }
 
 } // namespace Fernanda

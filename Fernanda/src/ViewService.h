@@ -1,5 +1,8 @@
 #pragma once
 
+#include <type_traits>
+
+#include <QFont>
 #include <QHash>
 #include <QObject>
 #include <QSet>
@@ -8,6 +11,7 @@
 #include <QVariantMap>
 #include <QWidget>
 
+#include "Coco/Concepts.h"
 #include "Coco/Debug.h"
 
 #include "Commander.h"
@@ -16,6 +20,7 @@
 #include "IFileModel.h"
 #include "IFileView.h"
 #include "IService.h"
+#include "Ini.h"
 #include "NoOpFileModel.h"
 #include "NoOpFileView.h"
 #include "TabWidget.h"
@@ -223,6 +228,12 @@ private:
             if (!model) return;
             --viewsPerModel_[model];
         });
+
+        connect(
+            eventBus,
+            &EventBus::settingEditorFontChanged,
+            this,
+            &ViewService::onSettingEditorFontChanged_);
     }
 
     // Active file view can be set nullptr!
@@ -295,6 +306,16 @@ private:
         view->selectAll();
     }
 
+    template <
+        Coco::Concepts::QWidgetPointer FileViewT,
+        Coco::Concepts::QObjectPointer FileModelT>
+    [[nodiscard]] FileViewT make_(FileModelT model, QWidget* parent)
+    {
+        auto view = new std::remove_pointer_t<FileViewT>(model, parent);
+        view->initialize();
+        return view;
+    }
+
 private slots:
     void onWindowCreated_(Window* window)
     {
@@ -346,17 +367,18 @@ private slots:
         IFileView* view = nullptr;
 
         if (auto text_model = to<TextFileModel*>(model)) {
-            view = new TextFileView(text_model, window);
+            auto text_view = make_<TextFileView*>(text_model, window);
+            text_view->setFont(Ini::EditorFont::load(commander));
+            view = text_view;
+
         } else if (auto no_op_model = to<NoOpFileModel*>(model)) {
-            view = new NoOpFileView(no_op_model, window);
+            view = make_<NoOpFileView*>(no_op_model, window);
         } else {
             return;
         }
 
         if (!view) return;
-
         ++viewsPerModel_[model];
-        view->initialize();
 
         auto tab_widget = tabWidget(window);
         if (!tab_widget) return; // Delete view if this fails (shouldn't)?
@@ -381,7 +403,7 @@ private slots:
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 
-            for (int i = 0; i < tab_widget->count(); ++i) {
+            for (auto i = 0; i < tab_widget->count(); ++i) {
                 auto view = tab_widget->widgetAt<IFileView*>(i);
                 if (view && view->model() == model) {
                     tab_widget->setTabFlagged(i, modified);
@@ -404,13 +426,26 @@ private slots:
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 
-            for (int i = 0; i < tab_widget->count(); ++i) {
+            for (auto i = 0; i < tab_widget->count(); ++i) {
                 auto view = tab_widget->widgetAt<IFileView*>(i);
                 if (view && view->model() == model) {
                     tab_widget->setTabText(i, meta->title());
                     tab_widget->setTabToolTip(i, meta->toolTip());
                 }
             }
+        }
+    }
+
+    void onSettingEditorFontChanged_(const QFont& font)
+    {
+        for (auto window :
+             commander->query<QSet<Window*>>(Queries::WindowSet)) {
+            auto tab_widget = tabWidget(window);
+            if (!tab_widget) continue;
+
+            for (auto i = 0; i < tab_widget->count(); ++i)
+                if (auto text_view = tab_widget->widgetAt<TextFileView*>(i))
+                    text_view->setFont(font);
         }
     }
 };

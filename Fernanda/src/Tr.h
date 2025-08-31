@@ -112,6 +112,13 @@ namespace Tr {
 
     } // namespace Menus
 
+    namespace FontSelector {
+
+        TR_(bold, tr("Bold"));
+        TR_(italic, tr("Italic"));
+
+    } // namespace FontSelector
+
 } // namespace Tr
 
 } // namespace Fernanda
@@ -121,13 +128,6 @@ namespace Tr {
 /// OLD (REMOVE AS IMPLEMENTED):
 
 /*
-namespace FontSelector {
-
-    TR_(bold, tr("Bold"));
-    TR_(italic, tr("Italic"));
-
-} // namespace FontSelector
-
 namespace EditorsSb {
 
     TR_(centerOnScroll, tr("Center on scroll"));

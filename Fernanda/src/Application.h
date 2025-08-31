@@ -6,6 +6,7 @@
 #include "Coco/Debug.h"
 #include "Coco/Log.h"
 #include "Coco/Path.h"
+#include "Coco/PathUtil.h"
 
 #include "FileTypes.h"
 #include "Version.h"
@@ -38,10 +39,12 @@ public:
         setApplicationName(VERSION_APP_NAME_STRING);
         setApplicationVersion(VERSION_FULL_STRING);
 
-        Coco::PathUtil::mkdir(userDataDirectory_);
+        //Coco::PathUtil::mkdir(userDataDirectory_);
         Coco::PathUtil::mkdir(notepadRoot_);
 
         // auto args = arguments();
+
+        // Make session objects
 
         // Temporary opening procedures:
         notepad_ = new Workspace(notepadRoot_, this);
@@ -58,7 +61,8 @@ public slots:
     }
 
 private:
-    Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
+    /// Should this be here or in Workspace?
+    //Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
     Coco::Path notepadRoot_ = Coco::Path::Documents("Fernanda");
 
     Workspace* notepad_ = nullptr; // Replace with subclass when applicable

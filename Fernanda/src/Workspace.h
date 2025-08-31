@@ -10,6 +10,7 @@
 #include "Coco/Debug.h"
 #include "Coco/Log.h"
 #include "Coco/Path.h"
+#include "Coco/PathUtil.h"
 
 #include "ColorBarModule.h"
 #include "Commander.h"
@@ -31,14 +32,27 @@ class Workspace : public QObject
     Q_OBJECT
 
 public:
-    COCO_BOOL(InitialWindow);
-
     using PathInterceptor = std::function<bool(const Coco::Path&)>;
+    COCO_BOOL(InitialWindow);
 
     explicit Workspace(const Coco::Path& root, QObject* parent = nullptr)
         : QObject(parent)
         , root_(root)
     {
+        /// Unsure about passing config paths via App. Notebooks will know their
+        /// config path is `archive/settings.ini`, why pass that via App? May
+        /// instead want this approach: all Workspaces have a base config path
+        /// (this will act as a fallback in Notebooks and primary in Notepad).
+        /// We can have a protected method to add a new (overriding) config path
+        ///
+        /// Similar can be said of root...
+        ///
+        /// When using a path translator for Notebooks, which work on archives,
+        /// we also need a way to take the Notepad config path as fallback
+        /// without translation
+        ///
+        /// This is an option but may be overkill: an app-wide communication
+        /// strategy, like Commander/EventBus, but for Workspaces and App...
     }
 
     // Move tracer to subclasses (Notepad and Notebook) when applicable
@@ -80,22 +94,28 @@ public:
 
 private:
     Coco::Path root_;
+
+    Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
+    Coco::Path baseConfig_ = userDataDirectory_ / "Settings.ini";
+
     PathInterceptor pathInterceptor_ = nullptr;
 
     Commander* commander_ = new Commander(this);
     EventBus* eventBus_ = new EventBus(this);
-
     WindowService* windows_ = new WindowService(commander_, eventBus_, this);
     ViewService* views_ = new ViewService(commander_, eventBus_, this);
     FileService* files_ = new FileService(commander_, eventBus_, this);
-
     MenuModule* menus_ = new MenuModule(commander_, eventBus_, this);
-    SettingsModule* settings_ = new SettingsModule(commander_, eventBus_, this);
     ColorBarModule* colorBars_ =
         new ColorBarModule(commander_, eventBus_, this);
+    SettingsModule* settings_ =
+        new SettingsModule(baseConfig_, commander_, eventBus_, this);
 
     void coreInitialization_()
     {
+        /// Should this be here or App???
+        Coco::PathUtil::mkdir(userDataDirectory_);
+
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
         addCommandHandlers_();

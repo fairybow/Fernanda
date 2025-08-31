@@ -80,6 +80,13 @@
 // - Todo: const check!
 // - Todo: onFileReadied + updating on modification changed, use a singular "set
 // tab properties" function?
+// - Todo: How to handle Notebook paths? VPath wrapper class? We'll need
+// something that for Notepad works as a normal path but for Notebooks allows us
+// to, when needed (which is most of the time, save its Notepad settings
+// fallback path), redirect relative archive paths to OS temp folders, i.e.
+// `notebook1-root/file.txt` becomes, under the hood,
+// `os-temp-dir/notebook1/file.txt`
+// - Todo: Ensure all signals are logged in EventBus
 
 int main(int argc, char* argv[])
 {
