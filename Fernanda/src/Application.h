@@ -61,6 +61,7 @@ public slots:
     }
 
 private:
+    /// Should this be here or in Workspace?
     //Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
     Coco::Path notepadRoot_ = Coco::Path::Documents("Fernanda");
 

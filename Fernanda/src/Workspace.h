@@ -40,12 +40,16 @@ public:
         , root_(root)
     {
         /// Unsure about passing config paths via App. Notebooks will know their
-        /// config path is archive root, why pass that via App? May instead want
-        /// this approach: all Workspaces have a base config path (this will act
-        /// as a fallback in Notebooks and primary in Notepad). We can have a
-        /// protected method to add a new (overriding) config path
+        /// config path is `archive/settings.ini`, why pass that via App? May
+        /// instead want this approach: all Workspaces have a base config path
+        /// (this will act as a fallback in Notebooks and primary in Notepad).
+        /// We can have a protected method to add a new (overriding) config path
         ///
         /// Similar can be said of root...
+        ///
+        /// When using a path translator for Notebooks, which work on archives,
+        /// we also need a way to take the Notepad config path as fallback
+        /// without translation
     }
 
     // Move tracer to subclasses (Notepad and Notebook) when applicable
@@ -85,14 +89,6 @@ public:
         emit eventBus_->workspaceInitialized();
     }
 
-protected:
-    void setOverridingConfigPath(const Coco::Path& configPath)
-    {
-        // Notebook will call this to set overriding config, which will take
-        // precedence. The base config path (Notepad's primary config) will act
-        // as fallback for Notebook
-    }
-
 private:
     Coco::Path root_;
 
@@ -109,16 +105,14 @@ private:
     MenuModule* menus_ = new MenuModule(commander_, eventBus_, this);
     ColorBarModule* colorBars_ =
         new ColorBarModule(commander_, eventBus_, this);
-    /*SettingsModule* settings_ = new SettingsModule(
-        config_,
-        fallbackConfig_,
-        commander_,
-        eventBus_,
-        this);*/
+    SettingsModule* settings_ =
+        new SettingsModule(baseConfig_, commander_, eventBus_, this);
 
     void coreInitialization_()
     {
+        /// Should this be here or App???
         Coco::PathUtil::mkdir(userDataDirectory_);
+
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
         addCommandHandlers_();
