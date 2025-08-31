@@ -10,6 +10,7 @@
 #include "Coco/Debug.h"
 #include "Coco/Log.h"
 #include "Coco/Path.h"
+#include "Coco/PathUtil.h"
 
 #include "ColorBarModule.h"
 #include "Commander.h"
@@ -34,32 +35,18 @@ public:
     using PathInterceptor = std::function<bool(const Coco::Path&)>;
     COCO_BOOL(InitialWindow);
 
-    explicit Workspace(
-        const Coco::Path& root,
-        //const Coco::Path& configPath,
-        //const Coco::Path& fallbackConfigPath,
-        QObject* parent = nullptr)
+    explicit Workspace(const Coco::Path& root, QObject* parent = nullptr)
         : QObject(parent)
         , root_(root)
-        //, config_(configPath)
-        //, fallbackConfig_(fallbackConfigPath)
     {
         /// Unsure about passing config paths via App. Notebooks will know their
         /// config path is archive root, why pass that via App? May instead want
         /// this approach: all Workspaces have a base config path (this will act
         /// as a fallback in Notebooks and primary in Notepad). We can have a
         /// protected method to add a new (overriding) config path
-        /// 
+        ///
         /// Similar can be said of root...
     }
-
-    /*Workspace(
-        const Coco::Path& root,
-        const Coco::Path& configPath,
-        QObject* parent = nullptr)
-        : Workspace(root, configPath, {}, parent)
-    {
-    }*/
 
     // Move tracer to subclasses (Notepad and Notebook) when applicable
     virtual ~Workspace() override { COCO_TRACER; }
@@ -98,10 +85,19 @@ public:
         emit eventBus_->workspaceInitialized();
     }
 
+protected:
+    void setOverridingConfigPath(const Coco::Path& configPath)
+    {
+        // Notebook will call this to set overriding config, which will take
+        // precedence. The base config path (Notepad's primary config) will act
+        // as fallback for Notebook
+    }
+
 private:
     Coco::Path root_;
-    //Coco::Path config_;
-    //Coco::Path fallbackConfig_{};
+
+    Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
+    Coco::Path baseConfig_ = userDataDirectory_ / "Settings.ini";
 
     PathInterceptor pathInterceptor_ = nullptr;
 
@@ -122,6 +118,7 @@ private:
 
     void coreInitialization_()
     {
+        Coco::PathUtil::mkdir(userDataDirectory_);
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
         addCommandHandlers_();
