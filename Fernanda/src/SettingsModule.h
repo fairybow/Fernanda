@@ -1,7 +1,9 @@
 #pragma once
 
 #include <QObject>
+#include <QDialog>
 #include <QSettings>
+#include <QPointer>
 
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
@@ -42,10 +44,36 @@ private:
     QSettings* settings_;
     // TieredSettings* settings_;
 
+    QPointer<QDialog> dialog_ = nullptr;
+
     void initialize_()
     {
-        commander->addCommandHandler(Commands::SetSetting, [] {});
-        commander->addQueryHandler(Queries::Setting, [] {});
+        commander->addCommandHandler(Commands::SettingsDialog, [&] {
+            openDialog_();
+        });
+
+        //commander->addCommandHandler(Commands::SetSetting, [] {});
+        //commander->addQueryHandler(Queries::Setting, [] {});
+    }
+
+    void openDialog_()
+    {
+        if (dialog_) {
+            dialog_->raise();
+            dialog_->activateWindow();
+            return;
+        }
+
+        dialog_ = new QDialog(); // Pass settings to this
+
+        connect(dialog_, &QDialog::finished, this, [&](int result) {
+            (void)result;
+            if (dialog_) dialog_->deleteLater();
+        });
+
+        // after subclass, connect to emission of signals changed
+
+        dialog_->open();
     }
 };
 
