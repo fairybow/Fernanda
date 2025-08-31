@@ -205,6 +205,9 @@
     <QtMoc Include="src\Debouncer.h">
       <Filter>Code\Core</Filter>
     </QtMoc>
+    <QtMoc Include="src\TieredSettings.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
