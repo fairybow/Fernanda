@@ -86,6 +86,7 @@
 // fallback path), redirect relative archive paths to OS temp folders, i.e.
 // `notebook1-root/file.txt` becomes, under the hood,
 // `os-temp-dir/notebook1/file.txt`
+// - Todo: Ensure all signals are logged in EventBus
 
 int main(int argc, char* argv[])
 {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QFont>
 #include <QObject>
 #include <QString>
 
@@ -64,7 +65,7 @@ signals:
 
     // SettingsModule
 
-    void settingChanged(const QString& key, const QVariant& value);
+    void settingEditorFontChanged(const QFont& font);
 
     // Maybe:
 

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <QObject>
 #include <QDialog>
-#include <QSettings>
+#include <QFont>
+#include <QObject>
 #include <QPointer>
+#include <QSettings>
 #include <QVariant>
 #include <QVariantMap>
 
@@ -13,6 +14,8 @@
 #include "Commander.h"
 #include "EventBus.h"
 #include "IService.h"
+#include "Ini.h"
+#include "SettingsDialog.h"
 #include "Utility.h"
 // #include "TieredSettings.h"
 
@@ -36,7 +39,7 @@ public:
               configPath.toQString(),
               QSettings::IniFormat,
               this)) //, settings_(new TieredSettings(configPath,
-                     //fallbackConfigPath, this))
+                     // fallbackConfigPath, this))
     {
         initialize_();
     }
@@ -45,9 +48,7 @@ public:
 
 private:
     QSettings* settings_;
-    // TieredSettings* settings_;
-
-    QPointer<QDialog> dialog_ = nullptr;
+    QPointer<SettingsDialog> dialog_ = nullptr;
 
     void initialize_()
     {
@@ -55,15 +56,18 @@ private:
             openDialog_();
         });
 
-        commander->addCommandHandler(Commands::SetSetting, [&](const Command& cmd)
-            {
+        commander->addCommandHandler(
+            Commands::SetSetting,
+            [&](const Command& cmd) {
                 if (!settings_ || !settings_->isWritable()) return;
                 settings_->setValue(
                     to<QString>(cmd.params, "key"),
                     cmd.params.value("value"));
             });
 
-        commander->addQueryHandler(Queries::Setting, [&](const QVariantMap& params) {
+        commander->addQueryHandler(
+            Queries::Setting,
+            [&](const QVariantMap& params) {
                 return settings_->value(
                     to<QString>(params, "key"),
                     params.value("default"));
@@ -78,14 +82,21 @@ private:
             return;
         }
 
-        dialog_ = new QDialog(); // Pass settings to this
+        dialog_ = new SettingsDialog(Ini::EditorFont::load(commander));
+        dialog_->setFontChangeHandler([&](const QFont& font) {
+            emit eventBus->settingEditorFontChanged(font);
+        });
 
-        connect(dialog_, &QDialog::finished, this, [&](int result) {
+        connect(
+            dialog_,
+            &SettingsDialog::fontPersistenceRequested,
+            this,
+            [&](const QFont& font) { Ini::EditorFont::save(font, commander); });
+
+        connect(dialog_, &SettingsDialog::finished, this, [&](int result) {
             (void)result;
             if (dialog_) dialog_->deleteLater();
         });
-
-        // after subclass, connect to emission of signals changed
 
         dialog_->open();
     }

@@ -208,6 +208,15 @@
     <QtMoc Include="src\TieredSettings.h">
       <Filter>Code\Auxiliary</Filter>
     </QtMoc>
+    <QtMoc Include="src\SettingsDialog.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FontSelector.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\DisplaySlider.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
