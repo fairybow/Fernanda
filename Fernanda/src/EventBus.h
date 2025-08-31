@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QString>
 
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
@@ -58,10 +59,12 @@ signals:
     void windowTabCountChanged(Window* window, int count);
 
     // View may be nullptr!
-    void activeFileViewChanged(
-        IFileView* view,
-        Window* window);
+    void activeFileViewChanged(IFileView* view, Window* window);
     void viewClosed(IFileView* view);
+
+    // SettingsModule
+
+    void settingChanged(const QString& key, const QVariant& value);
 
     // Maybe:
 
@@ -70,7 +73,6 @@ signals:
     // void windowShown(Window* window);
     // void windowClosed(Window* window);
     // void lastWindowClosed(); (in WinService, uncomment later)
-    // void settingChanged(const QString& key, const QVariant& value);
     // void settingsDialogRequested(Window* window);
 
 private:

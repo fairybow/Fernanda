@@ -31,15 +31,35 @@ class Workspace : public QObject
     Q_OBJECT
 
 public:
+    using PathInterceptor = std::function<bool(const Coco::Path&)>;
     COCO_BOOL(InitialWindow);
 
-    using PathInterceptor = std::function<bool(const Coco::Path&)>;
-
-    explicit Workspace(const Coco::Path& root, QObject* parent = nullptr)
+    explicit Workspace(
+        const Coco::Path& root,
+        //const Coco::Path& configPath,
+        //const Coco::Path& fallbackConfigPath,
+        QObject* parent = nullptr)
         : QObject(parent)
         , root_(root)
+        //, config_(configPath)
+        //, fallbackConfig_(fallbackConfigPath)
     {
+        /// Unsure about passing config paths via App. Notebooks will know their
+        /// config path is archive root, why pass that via App? May instead want
+        /// this approach: all Workspaces have a base config path (this will act
+        /// as a fallback in Notebooks and primary in Notepad). We can have a
+        /// protected method to add a new (overriding) config path
+        /// 
+        /// Similar can be said of root...
     }
+
+    /*Workspace(
+        const Coco::Path& root,
+        const Coco::Path& configPath,
+        QObject* parent = nullptr)
+        : Workspace(root, configPath, {}, parent)
+    {
+    }*/
 
     // Move tracer to subclasses (Notepad and Notebook) when applicable
     virtual ~Workspace() override { COCO_TRACER; }
@@ -80,19 +100,25 @@ public:
 
 private:
     Coco::Path root_;
+    //Coco::Path config_;
+    //Coco::Path fallbackConfig_{};
+
     PathInterceptor pathInterceptor_ = nullptr;
 
     Commander* commander_ = new Commander(this);
     EventBus* eventBus_ = new EventBus(this);
-
     WindowService* windows_ = new WindowService(commander_, eventBus_, this);
     ViewService* views_ = new ViewService(commander_, eventBus_, this);
     FileService* files_ = new FileService(commander_, eventBus_, this);
-
     MenuModule* menus_ = new MenuModule(commander_, eventBus_, this);
-    SettingsModule* settings_ = new SettingsModule(commander_, eventBus_, this);
     ColorBarModule* colorBars_ =
         new ColorBarModule(commander_, eventBus_, this);
+    /*SettingsModule* settings_ = new SettingsModule(
+        config_,
+        fallbackConfig_,
+        commander_,
+        eventBus_,
+        this);*/
 
     void coreInitialization_()
     {
