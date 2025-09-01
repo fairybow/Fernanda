@@ -65,20 +65,14 @@ signals:
 
     // SettingsModule
 
-    /// I think we forego having human readable font in INI and settle for
-    /// single QFont serialized, that was the generic settingChanged signal
-    /// should work and allow more scalable settings
-    // void settingEditorFontChanged(const QFont& font);
     void settingChanged(const QString& key, const QVariant& value);
 
     // Maybe:
 
-    // void workspaceInitialized(Workspace* workspace);
     // void workspaceShuttingDown(Workspace* workspace);
     // void windowShown(Window* window);
     // void windowClosed(Window* window);
     // void lastWindowClosed(); (in WinService, uncomment later)
-    // void settingsDialogRequested(Window* window);
 
 private:
     void initialize_();
