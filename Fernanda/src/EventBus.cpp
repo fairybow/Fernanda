@@ -1,5 +1,5 @@
-#include <QFont>
 #include <QString>
+#include <QVariant>
 
 #include "Coco/Log.h"
 #include "Coco/Path.h"
@@ -58,7 +58,7 @@ void EventBus::initialize_()
     });
 
     SIGLOG_(viewClosed, [&](IFileView* view) {});
-    SIGLOG_(settingEditorFontChanged, [&](const QFont& font) {});
+    SIGLOG_(settingChanged, [&](const QString& key, const QVariant& value) {});
 }
 
 } // namespace Fernanda

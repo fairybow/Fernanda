@@ -1,10 +1,8 @@
 #pragma once
 
-#include <QDialog>
 #include <QFont>
 #include <QObject>
 #include <QPointer>
-#include <QSettings>
 #include <QVariant>
 #include <QVariantMap>
 
@@ -15,14 +13,13 @@
 #include "EventBus.h"
 #include "IService.h"
 #include "Ini.h"
+#include "Settings.h"
 #include "SettingsDialog.h"
 #include "Utility.h"
-// #include "TieredSettings.h"
 
 namespace Fernanda {
 
-/// For now, let's use a simple QSettings and get to Notebook's two-tier
-/// settings later
+//...
 class SettingsModule : public IService
 {
     Q_OBJECT
@@ -30,28 +27,32 @@ class SettingsModule : public IService
 public:
     SettingsModule(
         const Coco::Path& configPath,
-        // const Coco::Path& fallbackConfigPath,
         Commander* commander,
         EventBus* eventBus,
         QObject* parent = nullptr)
         : IService(commander, eventBus, parent)
-        , settings_(new QSettings(
-              configPath.toQString(),
-              QSettings::IniFormat,
-              this)) //, settings_(new TieredSettings(configPath,
-                     // fallbackConfigPath, this))
+        , baseConfigPath_(configPath)
     {
         initialize_();
     }
 
     virtual ~SettingsModule() override { COCO_TRACER; }
 
+    void setOverrideConfigPath(const Coco::Path& configPath)
+    {
+        if (!settings_) return;
+        settings_->setOverride(configPath);
+    }
+
 private:
-    QSettings* settings_;
+    Coco::Path baseConfigPath_;
+    Settings* settings_ = nullptr;
     QPointer<SettingsDialog> dialog_ = nullptr;
 
     void initialize_()
     {
+        settings_ = new Settings(baseConfigPath_, this);
+
         commander->addCommandHandler(Commands::SettingsDialog, [&] {
             openDialog_();
         });
@@ -82,16 +83,26 @@ private:
             return;
         }
 
-        dialog_ = new SettingsDialog(Ini::EditorFont::load(commander));
+        auto initial_font = settings_->value<QFont>(
+            Ini::Editor::FONT_KEY,
+            Ini::Editor::defaultFont());
+        // Other initials later...
+
+        dialog_ = new SettingsDialog(initial_font);
+
         dialog_->setFontChangeHandler([&](const QFont& font) {
-            emit eventBus->settingEditorFontChanged(font);
+            emit eventBus->settingChanged(Ini::Editor::FONT_KEY, toQVariant(font));
         });
+        //...
 
         connect(
             dialog_,
-            &SettingsDialog::fontPersistenceRequested,
+            &SettingsDialog::fontSaveRequested,
             this,
-            [&](const QFont& font) { Ini::EditorFont::save(font, commander); });
+            [&](const QFont& font) {
+                settings_->setValue(Ini::Editor::FONT_KEY, toQVariant(font));
+            });
+        //...
 
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {
             (void)result;

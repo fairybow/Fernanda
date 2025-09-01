@@ -52,7 +52,7 @@ public:
     }
 
 signals:
-    void fontPersistenceRequested(const QFont& font);
+    void fontSaveRequested(const QFont& font);
 
 private:
     static constexpr auto DEBOUCE_MS_ = 500;
@@ -94,8 +94,7 @@ private slots:
     void onFontDebounce_()
     {
         if (!hasPendingFont_) return;
-
-        emit fontPersistenceRequested(pendingFont_);
+        emit fontSaveRequested(pendingFont_);
         hasPendingFont_ = false;
     }
 };

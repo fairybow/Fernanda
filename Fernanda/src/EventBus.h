@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QFont>
 #include <QObject>
 #include <QString>
+#include <QVariant>
 
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
@@ -68,7 +68,8 @@ signals:
     /// I think we forego having human readable font in INI and settle for
     /// single QFont serialized, that was the generic settingChanged signal
     /// should work and allow more scalable settings
-    void settingEditorFontChanged(const QFont& font);
+    // void settingEditorFontChanged(const QFont& font);
+    void settingChanged(const QString& key, const QVariant& value);
 
     // Maybe:
 

@@ -71,7 +71,7 @@
     <QtMoc Include="src\FontSelector.h" />
     <ClInclude Include="src\Ini.h" />
     <ClInclude Include="src\SavePrompt.h" />
-    <QtMoc Include="src\TieredSettings.h" />
+    <QtMoc Include="src\Settings.h" />
     <QtMoc Include="src\SettingsDialog.h" />
     <ClInclude Include="src\Tr.h" />
     <ClInclude Include="src\Utility.h" />

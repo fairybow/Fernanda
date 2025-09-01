@@ -56,8 +56,8 @@ private:
         boldCheckBox_->setTristate(false);
         italicCheckBox_->setTristate(false);
         sizeSlider_->setRange(
-            Ini::EditorFont::PT_SIZE_MIN,
-            Ini::EditorFont::PT_SIZE_MAX);
+            Ini::Editor::FONT_PT_SIZE_MIN,
+            Ini::Editor::FONT_PT_SIZE_MAX);
 
         // Populate
         fontsBox_->setCurrentText(currentFont_.family());
