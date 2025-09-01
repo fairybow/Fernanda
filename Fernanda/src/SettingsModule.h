@@ -100,7 +100,10 @@ private:
             &SettingsDialog::fontSaveRequested,
             this,
             [&](const QFont& font) {
-                settings_->setValue(Ini::Editor::FONT_KEY, toQVariant(font));
+                if (settings_->isWritable())
+                    settings_->setValue(
+                        Ini::Editor::FONT_KEY,
+                        toQVariant(font));
             });
         //...
 

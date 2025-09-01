@@ -26,7 +26,6 @@ public:
         QObject* parent = nullptr)
         : QObject(parent)
         , baseConfigPath_(baseConfigPath)
-        , baseSettings_(make_(baseConfigPath_))
     {
         initialize_();
     }
@@ -112,6 +111,8 @@ private:
             qWarning() << "Base config path cannot be empty!";
             return;
         }
+
+        baseSettings_ = make_(baseConfigPath_);
     }
 
     QSettings* make_(const Coco::Path& path)
