@@ -65,6 +65,9 @@ signals:
 
     // SettingsModule
 
+    /// I think we forego having human readable font in INI and settle for
+    /// single QFont serialized, that was the generic settingChanged signal
+    /// should work and allow more scalable settings
     void settingEditorFontChanged(const QFont& font);
 
     // Maybe:
