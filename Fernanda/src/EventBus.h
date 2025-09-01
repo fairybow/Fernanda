@@ -37,6 +37,7 @@ signals:
 
     void windowCreated(Window* window);
     void visibleWindowCountChanged(int count);
+    void lastWindowClosed();
 
     // Window may be nullptr!
     void activeWindowChanged(Window* window);
@@ -72,7 +73,6 @@ signals:
     // void workspaceShuttingDown(Workspace* workspace);
     // void windowShown(Window* window);
     // void windowClosed(Window* window);
-    // void lastWindowClosed(); (in WinService, uncomment later)
 
 private:
     void initialize_();

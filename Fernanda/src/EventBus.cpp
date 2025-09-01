@@ -19,6 +19,7 @@ void EventBus::initialize_()
     SIGLOG_(workspaceInitialized, [&] {});
     SIGLOG_(windowCreated, [&](Window* window) {});
     SIGLOG_(visibleWindowCountChanged, [&](int count) {});
+    SIGLOG_(lastWindowClosed, [&] {});
 
     SIGLOG_(activeWindowChanged, [&](Window* window) {
         COCO_LOG_THIS(QString("\n\tActive window = %0").arg(toQString(window)));

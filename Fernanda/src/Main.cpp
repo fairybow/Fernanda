@@ -89,8 +89,6 @@
 // - Todo: Ensure all signals are logged in EventBus
 // - Todo: How to update SettingsDialog if settings are changed via commander
 // from outside?
-// - Todo: Ensure SettingsDialog closes if last window in Workspace closes!
-// (Check Stylist)
 
 int main(int argc, char* argv[])
 {

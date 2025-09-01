@@ -73,6 +73,10 @@ private:
                     to<QString>(params, "key"),
                     params.value("default"));
             });
+
+        connect(eventBus, &EventBus::lastWindowClosed, this, [&] {
+            if (dialog_) dialog_->close();
+        });
     }
 
     void openDialog_()
