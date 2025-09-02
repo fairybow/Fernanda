@@ -7,7 +7,6 @@
 #include <QVariantMap>
 
 #include "Coco/Bool.h"
-#include "Coco/Debug.h"
 #include "Coco/Log.h"
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -16,8 +15,6 @@
 #include "Commander.h"
 #include "EventBus.h"
 #include "FileService.h"
-#include "MenuModule.h"
-#include "SettingsModule.h"
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
@@ -47,6 +44,12 @@ public:
         ///
         /// Similar can be said of root...
         ///
+        /// Additionally, root means, essentially, the starting directory for
+        /// opening files. For Notepad, this is your typical Documents/App
+        /// folder. For Notebooks, this is the archive root. The plan is that
+        /// Notepad's root will eventually be mutable and saved via config or
+        /// session, whereas Notebook's will be static.
+        ///
         /// When using a path translator for Notebooks, which work on archives,
         /// we also need a way to take the Notepad config path as fallback
         /// without translation
@@ -55,8 +58,7 @@ public:
         /// strategy, like Commander/EventBus, but for Workspaces and App...
     }
 
-    // Move tracer to subclasses (Notepad and Notebook) when applicable
-    virtual ~Workspace() override { COCO_TRACER; }
+    virtual ~Workspace() override = default;
 
     PathInterceptor pathInterceptor() const noexcept
     {
@@ -81,7 +83,7 @@ public:
     // {
     //   // coreInitialization_();
     //   // ...open Session...
-    //   // emit eventBus_->workspaceInitialized();
+    //   // emit eventBus->workspaceInitialized();
     // }
 
     void initialize(InitialWindow initialWindow = InitialWindow::No)
@@ -89,33 +91,24 @@ public:
         coreInitialization_();
         if (initialWindow) newWindow_();
 
-        emit eventBus_->workspaceInitialized();
+        emit eventBus->workspaceInitialized();
     }
+
+protected:
+    Commander* commander = new Commander(this);
+    EventBus* eventBus = new EventBus(this);
 
 private:
     Coco::Path root_;
 
-    Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
-    Coco::Path baseConfig_ = userDataDirectory_ / "Settings.ini";
-
     PathInterceptor pathInterceptor_ = nullptr;
-
-    Commander* commander_ = new Commander(this);
-    EventBus* eventBus_ = new EventBus(this);
-    WindowService* windows_ = new WindowService(commander_, eventBus_, this);
-    ViewService* views_ = new ViewService(commander_, eventBus_, this);
-    FileService* files_ = new FileService(commander_, eventBus_, this);
-    MenuModule* menus_ = new MenuModule(commander_, eventBus_, this);
-    ColorBarModule* colorBars_ =
-        new ColorBarModule(commander_, eventBus_, this);
-    SettingsModule* settings_ =
-        new SettingsModule(baseConfig_, commander_, eventBus_, this);
+    WindowService* windows_ = new WindowService(commander, eventBus, this);
+    ViewService* views_ = new ViewService(commander, eventBus, this);
+    FileService* files_ = new FileService(commander, eventBus, this);
+    ColorBarModule* colorBars_ = new ColorBarModule(commander, eventBus, this);
 
     void coreInitialization_()
     {
-        /// Should this be here or App???
-        Coco::PathUtil::mkdir(userDataDirectory_);
-
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
         addCommandHandlers_();
@@ -126,7 +119,7 @@ private:
     bool windowsCloseAcceptor_(Window* window)
     {
         if (!window) return false;
-        return commander_->call<bool>(Calls::CloseWindowViews, {}, window);
+        return commander->call<bool>(Calls::CloseWindowViews, {}, window);
     }
 
     void newWindow_()

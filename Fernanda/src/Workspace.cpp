@@ -16,7 +16,7 @@ namespace Fernanda {
 
 void Workspace::addCommandHandlers_()
 {
-    commander_->addInterceptor(Commands::OpenFile, [&](Command& cmd) {
+    commander->addInterceptor(Commands::OpenFile, [&](Command& cmd) {
         if (pathInterceptor_
             && pathInterceptor_(to<QString>(cmd.params, "path"))) {
             return true;
@@ -25,15 +25,15 @@ void Workspace::addCommandHandlers_()
         return false;
     });
 
-    commander_->addCommandHandler(Commands::NewWindow, [&] { newWindow_(); });
+    commander->addCommandHandler(Commands::NewWindow, [&] { newWindow_(); });
 
-    commander_->addCommandHandler(
+    commander->addCommandHandler(
         Commands::CloseWindow,
         [&](const Command& cmd) {
             if (cmd.context) cmd.context->close();
         });
 
-    commander_->addCommandHandler(Commands::CloseAllWindows, [&] {
+    commander->addCommandHandler(Commands::CloseAllWindows, [&] {
         // Close each window individually, triggering the CloseAcceptor for each
         for (auto window : windows_->windowsReversed()) {
             if (!window) continue;
@@ -41,13 +41,13 @@ void Workspace::addCommandHandlers_()
         }
     });
 
-    commander_->addCommandHandler(Commands::Quit, [] { Application::quit(); });
+    commander->addCommandHandler(Commands::Quit, [] { Application::quit(); });
 
-    commander_->addCommandHandler(Commands::AboutDialog, [] {
+    commander->addCommandHandler(Commands::AboutDialog, [] {
         AboutDialog::exec();
     });
 
-    commander_->addQueryHandler(Queries::Root, [&] {
+    commander->addQueryHandler(Queries::Root, [&] {
         return root_.toQString();
     });
 }

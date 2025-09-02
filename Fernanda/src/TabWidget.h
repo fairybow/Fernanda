@@ -706,9 +706,9 @@ protected:
     }
 
 private:
-    static constexpr auto MIME_TYPE_ = "application/x-tab-view-tab";
+    static constexpr auto MIME_TYPE_ = "application/x-tab-widget-tab";
     DragValidator dragValidator_ = nullptr;
-    bool tabsDraggable_ = true;
+    bool tabsDraggable_ = false;
     QPoint dragStartPosition_{};
 
     struct TabDragContext_

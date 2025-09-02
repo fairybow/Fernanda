@@ -63,6 +63,7 @@
 // - Todo: In MenuMod toggles, note what each toggle's conditions are and when
 // it should update
 // - Todo: Tab dragging validator!
+// - Todo: Ensure Workspace scoped menu toggles are updated on tab drag
 // - Todo: Probably merge calls/commands?
 // - Todo: "Scope" the version macros (prepending FERNANDA_)?
 // - Todo: Finish event bus signal logging
@@ -89,6 +90,7 @@
 // - Todo: Ensure all signals are logged in EventBus
 // - Todo: How to update SettingsDialog if settings are changed via commander
 // from outside?
+// - Todo: MenuModule -> NotepadMenuModule (with base MenuModule for both)?
 
 int main(int argc, char* argv[])
 {
