@@ -399,3 +399,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+## Overrides
+
+!Fernanda/external/bit7z/lib/x64/
+!Fernanda/external/bit7z/lib/x64/Debug/
+!Fernanda/external/bit7z/lib/x64/Debug/bit7z.pdb
+!Fernanda/external/bit7z/lib/x64/Release/
