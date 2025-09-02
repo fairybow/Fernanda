@@ -325,7 +325,7 @@ private slots:
 
         if (zOrderedVolatileWindows_.isEmpty()) {
             setActiveWindow_(nullptr);
-            /// emit eventBus->lastWindowClosed();
+            emit eventBus->lastWindowClosed();
 
             // Let Qt focus the next window from another WindowManager, if any
         } else {

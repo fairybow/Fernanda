@@ -231,9 +231,9 @@ private:
 
         connect(
             eventBus,
-            &EventBus::settingEditorFontChanged,
+            &EventBus::settingChanged,
             this,
-            &ViewService::onSettingEditorFontChanged_);
+            &ViewService::onSettingChanged_);
     }
 
     // Active file view can be set nullptr!
@@ -368,7 +368,11 @@ private slots:
 
         if (auto text_model = to<TextFileModel*>(model)) {
             auto text_view = make_<TextFileView*>(text_model, window);
-            text_view->setFont(Ini::EditorFont::load(commander));
+            auto font = commander->query<QFont>(
+                Queries::Setting,
+                { { "key", Ini::Editor::FONT_KEY },
+                  { "default", Ini::Editor::defaultFont() } });
+            text_view->setFont(font);
             view = text_view;
 
         } else if (auto no_op_model = to<NoOpFileModel*>(model)) {
@@ -436,8 +440,13 @@ private slots:
         }
     }
 
-    void onSettingEditorFontChanged_(const QFont& font)
+    void onSettingChanged_(const QString& key, const QVariant& value)
     {
+        // Gotta handle multiple for editor stuff
+        if (key != Ini::Editor::FONT_KEY) return;
+
+        auto font = to<QFont>(value);
+
         for (auto window :
              commander->query<QSet<Window*>>(Queries::WindowSet)) {
             auto tab_widget = tabWidget(window);

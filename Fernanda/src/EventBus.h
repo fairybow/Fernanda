@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QFont>
 #include <QObject>
 #include <QString>
+#include <QVariant>
 
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
@@ -37,6 +37,7 @@ signals:
 
     void windowCreated(Window* window);
     void visibleWindowCountChanged(int count);
+    void lastWindowClosed();
 
     // Window may be nullptr!
     void activeWindowChanged(Window* window);
@@ -65,16 +66,13 @@ signals:
 
     // SettingsModule
 
-    void settingEditorFontChanged(const QFont& font);
+    void settingChanged(const QString& key, const QVariant& value);
 
     // Maybe:
 
-    // void workspaceInitialized(Workspace* workspace);
     // void workspaceShuttingDown(Workspace* workspace);
     // void windowShown(Window* window);
     // void windowClosed(Window* window);
-    // void lastWindowClosed(); (in WinService, uncomment later)
-    // void settingsDialogRequested(Window* window);
 
 private:
     void initialize_();

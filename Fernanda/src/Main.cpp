@@ -87,6 +87,8 @@
 // `notebook1-root/file.txt` becomes, under the hood,
 // `os-temp-dir/notebook1/file.txt`
 // - Todo: Ensure all signals are logged in EventBus
+// - Todo: How to update SettingsDialog if settings are changed via commander
+// from outside?
 
 int main(int argc, char* argv[])
 {

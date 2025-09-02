@@ -1,5 +1,5 @@
-#include <QFont>
 #include <QString>
+#include <QVariant>
 
 #include "Coco/Log.h"
 #include "Coco/Path.h"
@@ -19,6 +19,7 @@ void EventBus::initialize_()
     SIGLOG_(workspaceInitialized, [&] {});
     SIGLOG_(windowCreated, [&](Window* window) {});
     SIGLOG_(visibleWindowCountChanged, [&](int count) {});
+    SIGLOG_(lastWindowClosed, [&] {});
 
     SIGLOG_(activeWindowChanged, [&](Window* window) {
         COCO_LOG_THIS(QString("\n\tActive window = %0").arg(toQString(window)));
@@ -58,7 +59,7 @@ void EventBus::initialize_()
     });
 
     SIGLOG_(viewClosed, [&](IFileView* view) {});
-    SIGLOG_(settingEditorFontChanged, [&](const QFont& font) {});
+    SIGLOG_(settingChanged, [&](const QString& key, const QVariant& value) {});
 }
 
 } // namespace Fernanda
