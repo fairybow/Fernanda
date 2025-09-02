@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include <QObject>
 
 #include "Coco/Debug.h"
@@ -8,7 +10,6 @@
 #include "Commander.h"
 #include "EventBus.h"
 #include "MenuModule.h"
-#include "SettingsModule.h"
 #include "Workspace.h"
 
 namespace Fernanda {
@@ -20,27 +21,53 @@ class Notepad : public Workspace
     Q_OBJECT
 
 public:
+    using PathInterceptor = std::function<bool(const Coco::Path&)>;
+
     explicit Notepad(
-        const Coco::Path& config, // could move config/base to workspace
-        const Coco::Path& root,
+        const Coco::Path& configPath,
+        const Coco::Path& rootPath,
         QObject* parent = nullptr)
-        : Workspace(root, parent)
-        , config_(config)
+        : Workspace(configPath, rootPath, parent)
     {
         initialize_();
     }
 
     virtual ~Notepad() override { COCO_TRACER; }
 
-private:
-    Coco::Path config_;
+    PathInterceptor pathInterceptor() const noexcept
+    {
+        return pathInterceptor_;
+    }
 
+    void setPathInterceptor(const PathInterceptor& pathInterceptor)
+    {
+        pathInterceptor_ = pathInterceptor;
+    }
+
+    template <typename ClassT>
+    void setPathInterceptor(
+        ClassT* object,
+        bool (ClassT::*method)(const Coco::Path&))
+    {
+        pathInterceptor_ = [object, method](const Coco::Path& path) {
+            return (object->*method)(path);
+        };
+    }
+
+private:
+    PathInterceptor pathInterceptor_ = nullptr;
     MenuModule* menus_ = new MenuModule(commander, eventBus, this);
-    SettingsModule* settings_ = nullptr;
 
     void initialize_()
     {
-        settings_ = new SettingsModule(config_, commander, eventBus, this);
+        commander->addInterceptor(Commands::OpenFile, [&](Command& cmd) {
+            if (pathInterceptor_
+                && pathInterceptor_(to<QString>(cmd.params, "path"))) {
+                return true;
+            }
+
+            return false;
+        });
     }
 };
 

@@ -16,15 +16,6 @@ namespace Fernanda {
 
 void Workspace::addCommandHandlers_()
 {
-    commander->addInterceptor(Commands::OpenFile, [&](Command& cmd) {
-        if (pathInterceptor_
-            && pathInterceptor_(to<QString>(cmd.params, "path"))) {
-            return true;
-        }
-
-        return false;
-    });
-
     commander->addCommandHandler(Commands::NewWindow, [&] { newWindow_(); });
 
     commander->addCommandHandler(

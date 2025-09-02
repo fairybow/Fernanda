@@ -24,8 +24,7 @@ public:
         const Coco::Path& overridingConfig,
         const Coco::Path& root,
         QObject* parent = nullptr)
-        : Workspace(root, parent)
-        , baseConfig_(baseConfig) // Normal path
+        : Workspace(baseConfig, root, parent)
         , overridingConfig_(overridingConfig) // Archive path
     {
         initialize_();
@@ -34,15 +33,11 @@ public:
     virtual ~Notebook() override { COCO_TRACER; }
 
 private:
-    Coco::Path baseConfig_;
     Coco::Path overridingConfig_;
-
-    SettingsModule* settings_ = nullptr;
 
     void initialize_()
     {
-        settings_ = new SettingsModule(baseConfig_, commander, eventBus, this);
-        settings_->setOverrideConfigPath(overridingConfig_);
+        settings->setOverrideConfigPath(overridingConfig_);
     }
 };
 

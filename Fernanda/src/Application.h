@@ -75,6 +75,9 @@ private:
         notepad_->setPathInterceptor(
             this,
             &Application::notepadPathInterceptor_);
+
+        // Will only open new window if: 1) there is no Notebook from sessions;
+        // 2) there is no Notepad window from sessions
         notepad_->initialize(Workspace::InitialWindow::Yes);
     }
 
@@ -86,6 +89,7 @@ private:
             userDataDirectory_ / "TestNotebookSettings.ini",
             {}, /// Fine for now
             this);
+
         testNotebook_->initialize(Workspace::InitialWindow::Yes);
     }
 
