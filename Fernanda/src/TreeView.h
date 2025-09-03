@@ -21,7 +21,7 @@ public:
 
     virtual ~TreeView() override { COCO_TRACER; }
 
-protected:
+private:
     void initialize_()
     {
         //...

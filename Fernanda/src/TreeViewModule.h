@@ -1,8 +1,10 @@
 #pragma once
 
+#include <QDockWidget>
 #include <QHash>
 #include <QObject>
-#include <QDockWidget>
+#include <QStatusBar>
+#include <QToolButton>
 
 #include "Coco/Debug.h"
 
@@ -32,13 +34,14 @@ public:
     virtual ~TreeViewModule() override { COCO_TRACER; }
 
 private:
-    //QHash<Window*, TreeView*> treeViews_{};
+    // QHash<Window*, TreeView*> treeViews_{};
 
     void initialize_()
     {
         connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
             if (!window) return;
 
+            /// Set initial visibility and size based on settings
             auto dock_widget = new QDockWidget(window);
             auto tree_view = new TreeView(dock_widget);
             dock_widget->setWidget(tree_view);
@@ -48,6 +51,17 @@ private:
                 { dock_widget },
                 { (window->width() / 3) },
                 Qt::Horizontal);
+
+            auto toggler = new QToolButton;
+            auto status_bar = window->statusBar();
+            status_bar->addPermanentWidget(toggler);
+            connect(toggler, &QToolButton::pressed, this, [=] {
+                if (dock_widget->isFloating()) {
+                    dock_widget->setFloating(false);
+                } else {
+                    dock_widget->setVisible(!dock_widget->isVisible());
+                }
+            });
 
             connect(window, &Window::destroyed, this, [=] {
                 if (!window) return;
