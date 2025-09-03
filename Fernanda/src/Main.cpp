@@ -16,6 +16,10 @@
 // - Is closing/saving "done"?
 // - Possibly base tree view then two subclasses with OS file model and custom
 // archive model
+// - StatusBar module (or just managed by window service) (may emit status bar
+// created to alert WordCounterModule, TreeViewModule (for toggle button), etc
+// - Utility status bar method (if we subclass status bar, to add spacer in
+// middle and addleft/addright)
 
 // (Now/Next) Notebook needs:
 // - Determine where best to set the file model for tree views
