@@ -52,16 +52,18 @@ private:
                 { (window->width() / 3) },
                 Qt::Horizontal);
 
-            auto toggler = new QToolButton;
-            auto status_bar = window->statusBar();
-            status_bar->addPermanentWidget(toggler);
-            connect(toggler, &QToolButton::pressed, this, [=] {
-                if (dock_widget->isFloating()) {
-                    dock_widget->setFloating(false);
-                } else {
-                    dock_widget->setVisible(!dock_widget->isVisible());
-                }
-            });
+            // Should always be created
+            if (auto status_bar = window->statusBar()) {
+                auto toggler = new QToolButton;
+                status_bar->addPermanentWidget(toggler);
+                connect(toggler, &QToolButton::pressed, this, [=] {
+                    if (dock_widget->isFloating()) {
+                        dock_widget->setFloating(false);
+                    } else {
+                        dock_widget->setVisible(!dock_widget->isVisible());
+                    }
+                });
+            }
 
             connect(window, &Window::destroyed, this, [=] {
                 if (!window) return;

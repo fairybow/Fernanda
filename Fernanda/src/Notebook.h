@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QLabel>
 #include <QObject>
+#include <QStatusBar>
 
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
@@ -8,6 +10,7 @@
 #include "Commander.h"
 #include "EventBus.h"
 #include "SettingsModule.h"
+#include "Window.h"
 #include "Workspace.h"
 
 namespace Fernanda {
@@ -38,6 +41,14 @@ private:
     void initialize_()
     {
         settings->setOverrideConfigPath(overridingConfig_);
+
+        connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
+            auto status_bar = window->statusBar();
+            if (!status_bar) return; // <- Shouldn't happen
+            auto temp_label = new QLabel;
+            temp_label->setText("[Archive Name]");
+            status_bar->addPermanentWidget(temp_label);
+        });
     }
 };
 
