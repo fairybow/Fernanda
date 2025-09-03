@@ -21,6 +21,8 @@
 
 namespace Fernanda {
 
+COCO_BOOL(NewWindow);
+
 // Base class for Notepad and Notebook workspaces (collection of windows, their
 // files, and the filesystems on which they operate). Owns and initializes
 // services and modules, and allows path filtering for the Application
@@ -29,8 +31,6 @@ class Workspace : public QObject
     Q_OBJECT
 
 public:
-    COCO_BOOL(InitialWindow);
-
     Workspace(
         const Coco::Path& configPath,
         const Coco::Path& rootPath,
@@ -71,9 +71,9 @@ public:
     //   // emit eventBus->workspaceInitialized();
     // }
 
-    void open(InitialWindow initialWindow = InitialWindow::No)
+    void open(NewWindow withWindow = NewWindow::No)
     {
-        if (initialWindow) newWindow_();
+        if (withWindow) newWindow_();
         emit eventBus->workspaceInitialized();
     }
 

@@ -18,6 +18,8 @@
 // archive model
 
 // (Now/Next) Notebook needs:
+// - Determine where best to set the file model for tree views
+// - Show/hide tree view button on status bar
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
 // - How to handle Notebook paths? VPath wrapper class? We'll need
 // something that for Notepad works as a normal path but for Notebooks allows us
@@ -30,6 +32,7 @@
 // - Archive file watcher
 
 // Now/Next (But can wait till after Notebook):
+// - WordCounter
 // - Autosaving
 // - How to update SettingsDialog if settings are changed via commander
 // from outside?
