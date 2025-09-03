@@ -50,6 +50,12 @@ private:
             status_bar->addPermanentWidget(temp_label);
         });
     }
+
+    virtual QAbstractItemModel* makeTreeViewModel_() override
+    {
+        /// Temp
+        return nullptr;
+    }
 };
 
 } // namespace Fernanda

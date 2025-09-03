@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QAbstractItemModel>
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
@@ -114,6 +115,8 @@ private:
     {
         if (auto window = windows_->make()) window->show();
     }
+
+    virtual QAbstractItemModel* makeTreeViewModel_() = 0;
 };
 
 } // namespace Fernanda

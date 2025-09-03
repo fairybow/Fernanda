@@ -3,6 +3,7 @@
 #include <functional>
 
 #include <QObject>
+#include <QFileSystemModel>
 
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
@@ -68,6 +69,11 @@ private:
 
             return false;
         });
+    }
+
+    virtual QAbstractItemModel* makeTreeViewModel_() override
+    {
+        return new QFileSystemModel(this);
     }
 };
 

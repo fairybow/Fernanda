@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QAbstractItemModel>
 #include <QDockWidget>
 #include <QHash>
 #include <QObject>
@@ -38,12 +39,21 @@ private:
 
     void initialize_()
     {
+        /// Make slot
         connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
             if (!window) return;
 
             /// Set initial visibility and size based on settings later
             auto dock_widget = new QDockWidget(window);
             auto tree_view = new TreeView(dock_widget);
+
+            auto model =
+                commander->call<QAbstractItemModel*>(Calls::NewTreeViewModel);
+            if (model)
+            {
+                tree_view->setModel(model);
+            }
+
             dock_widget->setWidget(tree_view);
             window->addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
 
