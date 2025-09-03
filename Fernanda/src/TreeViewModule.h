@@ -41,7 +41,7 @@ private:
         connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
             if (!window) return;
 
-            /// Set initial visibility and size based on settings
+            /// Set initial visibility and size based on settings later
             auto dock_widget = new QDockWidget(window);
             auto tree_view = new TreeView(dock_widget);
             dock_widget->setWidget(tree_view);
