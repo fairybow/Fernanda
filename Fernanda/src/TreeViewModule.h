@@ -2,6 +2,7 @@
 
 #include <QHash>
 #include <QObject>
+#include <QDockWidget>
 
 #include "Coco/Debug.h"
 
@@ -31,21 +32,26 @@ public:
     virtual ~TreeViewModule() override { COCO_TRACER; }
 
 private:
-    QHash<Window*, TreeView*> treeViews_{};
+    //QHash<Window*, TreeView*> treeViews_{};
 
     void initialize_()
     {
         connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
             if (!window) return;
 
-            // Wrap in a QDockWidget
+            auto dock_widget = new QDockWidget(window);
+            auto tree_view = new TreeView(dock_widget);
+            dock_widget->setWidget(tree_view);
+            window->addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
 
-            // ColorBar floats outside layouts
-            // colorBars_[window] = new ColorBar(window);
+            window->resizeDocks(
+                { dock_widget },
+                { (window->width() / 3) },
+                Qt::Horizontal);
 
             connect(window, &Window::destroyed, this, [=] {
                 if (!window) return;
-                // colorBars_.remove(window);
+                // treeViews_.remove(window);
             });
         });
     }

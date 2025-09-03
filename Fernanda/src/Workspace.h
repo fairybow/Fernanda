@@ -14,6 +14,7 @@
 #include "EventBus.h"
 #include "FileService.h"
 #include "SettingsModule.h"
+#include "TreeViewModule.h"
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
@@ -38,6 +39,8 @@ public:
         , config(configPath)
         , root_(rootPath)
     {
+        initialize_();
+
         /// Unsure about passing config paths via App. Notebooks will know their
         /// config path is `archive/settings.ini`, why pass that via App? May
         /// instead want this approach: all Workspaces have a base config path
@@ -62,18 +65,15 @@ public:
 
     virtual ~Workspace() override = default;
 
-    // void initialize(const Session& session)
+    // void open(const Session& session)
     // {
-    //   // coreInitialization_();
     //   // ...open Session...
     //   // emit eventBus->workspaceInitialized();
     // }
 
-    void initialize(InitialWindow initialWindow = InitialWindow::No)
+    void open(InitialWindow initialWindow = InitialWindow::No)
     {
-        coreInitialization_();
         if (initialWindow) newWindow_();
-
         emit eventBus->workspaceInitialized();
     }
 
@@ -91,9 +91,10 @@ private:
     WindowService* windows_ = new WindowService(commander, eventBus, this);
     ViewService* views_ = new ViewService(commander, eventBus, this);
     FileService* files_ = new FileService(commander, eventBus, this);
+    TreeViewModule* treeViews_ = new TreeViewModule(commander, eventBus, this);
     ColorBarModule* colorBars_ = new ColorBarModule(commander, eventBus, this);
 
-    void coreInitialization_()
+    void initialize_()
     {
         settings = new SettingsModule(config, commander, eventBus, this);
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);

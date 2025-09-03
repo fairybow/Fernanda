@@ -40,6 +40,11 @@
 // - File watcher for Notepad
 
 // Minor:
+// - Clean includes (always include if used)
+// - Go through services and see what needs to be tracked and isn't (i.e. could
+// improve discovery with enough significance to implement it), and what is
+// tracked that doesn't need to be (i.e., may need to track file views, but
+// don't necessarily need to track tree views)
 // - Split files to .h/.cpp when "finished"
 // - explicit on ctors that could have one arg (not multiple)
 // - Fix all nested namespace to use `namespace Main::Sub {` syntax

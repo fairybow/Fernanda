@@ -78,7 +78,7 @@ private:
 
         // Will only open new window if: 1) there is no Notebook from sessions;
         // 2) there is no Notepad window from sessions
-        notepad_->initialize(Workspace::InitialWindow::Yes);
+        notepad_->open(Workspace::InitialWindow::Yes);
     }
 
     void initializeTestNotebook_()
@@ -90,7 +90,7 @@ private:
             {}, /// Fine for now
             this);
 
-        testNotebook_->initialize(Workspace::InitialWindow::Yes);
+        testNotebook_->open(Workspace::InitialWindow::Yes);
     }
 
     bool notepadPathInterceptor_(const Coco::Path& path)
