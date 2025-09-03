@@ -19,7 +19,7 @@ class Notebook : public Workspace
     Q_OBJECT
 
 public:
-    explicit Notebook(
+    Notebook(
         const Coco::Path& baseConfig,
         const Coco::Path& overridingConfig,
         const Coco::Path& root,

@@ -21,7 +21,7 @@ class ColorBarModule : public IService
     Q_OBJECT
 
 public:
-    explicit ColorBarModule(
+    ColorBarModule(
         Commander* commander,
         EventBus* eventBus,
         QObject* parent = nullptr)

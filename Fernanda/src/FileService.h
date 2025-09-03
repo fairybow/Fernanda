@@ -39,7 +39,7 @@ class FileService : public IService
     Q_OBJECT
 
 public:
-    explicit FileService(
+    FileService(
         Commander* commander,
         EventBus* eventBus,
         QObject* parent = nullptr)

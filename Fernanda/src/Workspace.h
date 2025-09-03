@@ -30,7 +30,7 @@ class Workspace : public QObject
 public:
     COCO_BOOL(InitialWindow);
 
-    explicit Workspace(
+    Workspace(
         const Coco::Path& configPath,
         const Coco::Path& rootPath,
         QObject* parent = nullptr)

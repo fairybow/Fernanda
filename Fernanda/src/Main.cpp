@@ -14,6 +14,8 @@
 // - File extensions for Save As
 // - Ensure ViewService tracks views when tab is moved!
 // - Is closing/saving "done"?
+// - Possibly base tree view then two subclasses with OS file model and custom
+// archive model
 
 // (Now/Next) Notebook needs:
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
@@ -39,6 +41,7 @@
 
 // Minor:
 // - Split files to .h/.cpp when "finished"
+// - explicit on ctors that could have one arg (not multiple)
 // - Fix all nested namespace to use `namespace Main::Sub {` syntax
 // (instead of `namespace Main { namespace Sub {`)
 // - Un-generalize TabWidget

@@ -39,7 +39,7 @@ class MenuModule : public IService
     Q_OBJECT
 
 public:
-    explicit MenuModule(
+    MenuModule(
         Commander* commander,
         EventBus* eventBus,
         QObject* parent = nullptr)

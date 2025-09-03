@@ -16,7 +16,7 @@ class WordCounterModule : public IService
     Q_OBJECT
 
 public:
-    explicit WordCounterModule(
+    WordCounterModule(
         Commander* commander,
         EventBus* eventBus,
         QObject* parent = nullptr)

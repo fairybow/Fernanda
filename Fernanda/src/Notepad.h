@@ -23,7 +23,7 @@ class Notepad : public Workspace
 public:
     using PathInterceptor = std::function<bool(const Coco::Path&)>;
 
-    explicit Notepad(
+    Notepad(
         const Coco::Path& configPath,
         const Coco::Path& rootPath,
         QObject* parent = nullptr)

@@ -36,7 +36,7 @@ class WindowService : public IService
 public:
     COCO_BOOL(HaltOnRefusal);
 
-    explicit WindowService(
+    WindowService(
         Commander* commander,
         EventBus* eventBus,
         QObject* parent = nullptr)
