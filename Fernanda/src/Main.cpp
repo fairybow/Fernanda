@@ -48,6 +48,9 @@
 
 // Minor:
 // - Clean includes (always include if used)
+// - Could be the case that given our architecture, all services and modules
+// don't really need to have any public methods (save ctor/dtor), as anything
+// else is a query/command/call
 // - Go through services and see what needs to be tracked and isn't (i.e. could
 // improve discovery with enough significance to implement it), and what is
 // tracked that doesn't need to be (i.e., may need to track file views, but
