@@ -13,6 +13,7 @@
 // - Todo: Prepopulate file name for Save As dialog
 // - Todo: File extensions for Save As
 // - Todo: Ensure ViewService tracks views when tab is moved!
+// - Todo: Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
 // - Todo: MenuModule -> NotepadMenuModule (with base MenuModule for both)?
@@ -26,6 +27,7 @@
 // - Tree view service/module
 
 // Now/Next (But can wait till after Notebook):
+// - Todo: Autosaving
 // - Todo: How to update SettingsDialog if settings are changed via commander
 // from outside?
 // - Todo: Ensure ColorBar position is included in settings
