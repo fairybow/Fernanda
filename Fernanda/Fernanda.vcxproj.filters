@@ -217,6 +217,12 @@
     <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Auxiliary</Filter>
     </QtMoc>
+    <QtMoc Include="src\Notepad.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Notebook.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">

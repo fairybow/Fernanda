@@ -9,8 +9,9 @@
 #include "Coco/PathUtil.h"
 
 #include "FileTypes.h"
+#include "Notebook.h"
+#include "Notepad.h"
 #include "Version.h"
-#include "Workspace.h" // Replace with subclasses when applicable
 
 namespace Fernanda {
 
@@ -39,19 +40,15 @@ public:
         setApplicationName(VERSION_APP_NAME_STRING);
         setApplicationVersion(VERSION_FULL_STRING);
 
-        //Coco::PathUtil::mkdir(userDataDirectory_);
-        Coco::PathUtil::mkdir(notepadRoot_);
+        Coco::PathUtil::mkdir(userDataDirectory_);
 
         // auto args = arguments();
 
         // Make session objects
 
-        // Temporary opening procedures:
-        notepad_ = new Workspace(notepadRoot_, this);
-        notepad_->setPathInterceptor(
-            this,
-            &Application::notepadPathInterceptor_);
-        notepad_->initialize(Workspace::InitialWindow::Yes);
+        initializeNotepad_();
+        // Notebooks...
+        initializeTestNotebook_();
     }
 
 public slots:
@@ -61,13 +58,40 @@ public slots:
     }
 
 private:
-    /// Should this be here or in Workspace?
-    //Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
+    Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
+    Coco::Path notepadConfig_ = userDataDirectory_ / "Settings.ini";
     Coco::Path notepadRoot_ = Coco::Path::Documents("Fernanda");
 
-    Workspace* notepad_ = nullptr; // Replace with subclass when applicable
-    // TestNotebook* testNotebook_ = nullptr;
+    Notepad* notepad_ = nullptr; // Replace with subclass when applicable
+    Notebook* testNotebook_ = nullptr; /// Remove later
     // QList<Notebook*> notebooks_{};
+
+    void initializeNotepad_()
+    {
+        Coco::PathUtil::mkdir(notepadRoot_);
+
+        // Temporary opening procedures:
+        notepad_ = new Notepad(notepadConfig_, notepadRoot_, this);
+        notepad_->setPathInterceptor(
+            this,
+            &Application::notepadPathInterceptor_);
+
+        // Will only open new window if: 1) there is no Notebook from sessions;
+        // 2) there is no Notepad window from sessions
+        notepad_->initialize(Workspace::InitialWindow::Yes);
+    }
+
+    void initializeTestNotebook_()
+    {
+        // Temporary opening procedures:
+        testNotebook_ = new Notebook(
+            notepadConfig_,
+            userDataDirectory_ / "TestNotebookSettings.ini",
+            {}, /// Fine for now
+            this);
+
+        testNotebook_->initialize(Workspace::InitialWindow::Yes);
+    }
 
     bool notepadPathInterceptor_(const Coco::Path& path)
     {
