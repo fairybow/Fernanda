@@ -22,6 +22,8 @@
 // fallback path), redirect relative archive paths to OS temp folders, i.e.
 // `notebook1-root/file.txt` becomes, under the hood,
 // `os-temp-dir/notebook1/file.txt`
+// - An Open dialog onto the archive (good god how)
+// - Tree view service/module
 
 // Now/Next (But can wait till after Notebook):
 // - Todo: How to update SettingsDialog if settings are changed via commander
