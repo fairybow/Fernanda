@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "Coco/Debug.h"
+#include "Coco/Path.h"
 
 namespace Fernanda {
 
@@ -20,6 +21,13 @@ public:
     }
 
     virtual ~TreeView() override { COCO_TRACER; }
+
+signals:
+    /// We may handle expanding/closing folders in the tree view itself?
+    // void fileClicked(const Coco::Path& path);
+    void fileDoubleClicked(const Coco::Path& path); // To open files
+    // void folderClicked(const Coco::Path& path);
+    // void folderDoubleClicked(const Coco::Path& path);
 
 private:
     void initialize_()

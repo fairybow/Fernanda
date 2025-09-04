@@ -22,8 +22,7 @@
 // middle and addleft/addright)
 
 // (Now/Next) Notebook needs:
-// - Determine where best to set the file model for tree views
-// - Show/hide tree view button on status bar
+// - Plan archive structure
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
 // - How to handle Notebook paths? VPath wrapper class? We'll need
 // something that for Notepad works as a normal path but for Notebooks allows us
@@ -47,6 +46,7 @@
 // - File watcher for Notepad
 
 // Minor:
+// - Clean TreeViewModule::initialize_()
 // - Clean includes (always include if used)
 // - Could be the case that given our architecture, all services and modules
 // don't really need to have any public methods (save ctor/dtor), as anything
