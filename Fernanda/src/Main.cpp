@@ -22,6 +22,11 @@
 // middle and addleft/addright)
 
 // (Now/Next) Notebook needs:
+// - See how we handle all paths for file opening (including settings) and how
+// Notebook will handle those. It may be the case that we do NOT pass the
+// overriding config via Notebook ctor, because we can route all paths through
+// the Workspace, and Notebook can know to prepend the temp dir path to all
+// relevant paths it sees
 // - Plan archive structure
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
 // - How to handle Notebook paths? VPath wrapper class? We'll need
