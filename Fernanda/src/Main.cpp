@@ -37,15 +37,13 @@
 // fallback path), redirect relative archive paths to OS temp folders, i.e.
 // `notebook1-root/file.txt` becomes, under the hood,
 // `os-temp-dir/notebook1/file.txt`
-// - An Open dialog onto the archive (good god how)
-// - Tree view service/module
 // - Archive file watcher
 // - File watcher for open temp dir files
 
 // Archive structure (i.e. MyProject.story):
-// - Contents (working directory)
-// - Model.xml (largely mirrors Contents dir structure, but includes custom
-// orderings)
+// - Content (single-level working directory containing all files, named for their UUIDs)
+// - Trash (directory, inside Content)
+// - Model.xml (contains Contents dir display structure and parenting/orderings)
 // - Settings.ini (Notebook's config override)
 
 // Now/Next (But can wait till after Notebook):
