@@ -38,7 +38,7 @@ public:
         QObject* parent = nullptr)
         : QObject(parent)
         , config(configPath)
-        , root_(rootPath)
+        , root(rootPath)
     {
         initialize_();
 
@@ -79,6 +79,7 @@ public:
     }
 
 protected:
+    Coco::Path root;
     Coco::Path config;
 
     Commander* commander = new Commander(this);
@@ -87,8 +88,6 @@ protected:
     SettingsModule* settings = nullptr;
 
 private:
-    Coco::Path root_; // Maybe protected later
-
     WindowService* windows_ = new WindowService(commander, eventBus, this);
     ViewService* views_ = new ViewService(commander, eventBus, this);
     FileService* files_ = new FileService(commander, eventBus, this);

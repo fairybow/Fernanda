@@ -2,6 +2,7 @@
 
 #include <QLabel>
 #include <QObject>
+#include <QStandardItemModel> /// Temp
 #include <QStatusBar>
 
 #include "Coco/Debug.h"
@@ -53,8 +54,10 @@ private:
 
     virtual QAbstractItemModel* makeTreeViewModel_() override
     {
-        /// Temp
-        return nullptr;
+        // TODO: Replace with ArchiveModel when implemented
+        auto model = new QStandardItemModel(this);
+        // Configure archive-specific settings
+        return model;
     }
 };
 

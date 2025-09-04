@@ -40,7 +40,7 @@ void Workspace::addCommandHandlers_()
     });
 
     commander->addQueryHandler(Queries::Root, [&] {
-        return root_.toQString();
+        return root.toQString();
     });
 
     commander->addCallHandler(Calls::NewTreeViewModel, [&] {

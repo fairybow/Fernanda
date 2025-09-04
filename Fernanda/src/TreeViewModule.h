@@ -13,6 +13,7 @@
 #include "EventBus.h"
 #include "IService.h"
 #include "TreeView.h"
+#include "Utility.h"
 #include "Window.h"
 
 namespace Fernanda {
@@ -47,11 +48,14 @@ private:
             auto dock_widget = new QDockWidget(window);
             auto tree_view = new TreeView(dock_widget);
 
-            auto model =
-                commander->call<QAbstractItemModel*>(Calls::NewTreeViewModel);
-            if (model)
+            if (auto model = commander->call<QAbstractItemModel*>(
+                Calls::NewTreeViewModel))
             {
                 tree_view->setModel(model);
+                if (auto root_index = getItemModelRootIndex(model);
+                    root_index.isValid()) {
+                    tree_view->setRootIndex(root_index);
+                }
             }
 
             dock_widget->setWidget(tree_view);

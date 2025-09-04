@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QAbstractItemModel>
 #include <QMapIterator>
+#include <QModelIndex>
 #include <QObject>
 #include <QPointer>
 #include <QSet>
@@ -172,6 +174,17 @@ inline bool isMultiWindow(IFileModel* model, QSet<Window*> windows)
     }
 
     return false;
+}
+
+inline QModelIndex getItemModelRootIndex(QAbstractItemModel* model)
+{
+    return model->property("root").value<QModelIndex>();
+}
+
+inline void
+storeItemModelRootIndex(QAbstractItemModel* model, const QModelIndex& index)
+{
+    model->setProperty("root", index);
 }
 
 } // namespace Fernanda

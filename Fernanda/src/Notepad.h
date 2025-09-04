@@ -2,8 +2,9 @@
 
 #include <functional>
 
-#include <QObject>
 #include <QFileSystemModel>
+#include <QModelIndex>
+#include <QObject>
 
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
@@ -11,6 +12,7 @@
 #include "Commander.h"
 #include "EventBus.h"
 #include "MenuModule.h"
+#include "Utility.h"
 #include "Workspace.h"
 
 namespace Fernanda {
@@ -73,7 +75,12 @@ private:
 
     virtual QAbstractItemModel* makeTreeViewModel_() override
     {
-        return new QFileSystemModel(this);
+        auto model = new QFileSystemModel(this);
+        auto root_index = model->setRootPath(root.toQString());
+        storeItemModelRootIndex(model, root_index);
+        model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+        // Any other Notepad-specific model setup
+        return model;
     }
 };
 
