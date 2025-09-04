@@ -27,6 +27,10 @@
 // overriding config via Notebook ctor, because we can route all paths through
 // the Workspace, and Notebook can know to prepend the temp dir path to all
 // relevant paths it sees
+// - We may be able to get away with, for example, having Notebook set an
+// Interceptor for its FileService. The paths it receives should be relative
+// paths, and so we can prepend the temp dir to this before allowing it to
+// proceed with the open
 // - Plan archive structure
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
 // - How to handle Notebook paths? VPath wrapper class? We'll need
