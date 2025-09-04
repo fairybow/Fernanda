@@ -29,7 +29,6 @@
 // Interceptor for its FileService. The paths it receives should be relative
 // paths, and so we can prepend the temp dir to this before allowing it to
 // proceed with the open
-// - Plan archive structure
 // - Determine how Model.xml will be verified on archive open each time
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
 // - How to handle Notebook paths? VPath wrapper class? We'll need
@@ -42,6 +41,12 @@
 // - Tree view service/module
 // - Archive file watcher
 // - File watcher for open temp dir files
+
+// Archive structure:
+// - Contents (working directory)
+// - Model.xml (largely mirrors Contents dir structure, but includes custom
+// orderings)
+// - Settings.ini (Notebook's config override)
 
 // Now/Next (But can wait till after Notebook):
 // - WordCounter
