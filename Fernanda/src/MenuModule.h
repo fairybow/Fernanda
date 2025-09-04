@@ -58,6 +58,8 @@ private:
         QAction* fileNewTab = nullptr;
         QAction* fileNewWindow = nullptr;
         QAction* fileOpen = nullptr;
+        QAction* fileNewNotebook = nullptr;
+        QAction* fileOpenNotebook = nullptr;
         QAction* fileCloseWindow = nullptr;
         QAction* fileCloseAllWindows = nullptr;
         QAction* fileQuit = nullptr;
@@ -195,6 +197,10 @@ private:
             Qt::CTRL | Qt::Key_W);
 
         actions.fileOpen = initializeFileOpenAction_(window);
+
+        /// New Notebook
+
+        /// Open Notebook
 
         /// Eventually, we may want to handle Call results for saves performed
         /// by the menu
