@@ -128,6 +128,7 @@
 // - explicit on ctors that could have one arg (not multiple)
 // - Fix all nested namespace to use `namespace Main::Sub {` syntax
 // (instead of `namespace Main { namespace Sub {`)
+// - Use delete (not deleteLater) everywhere to discover logic problems
 
 // Coco:
 // - Rework/format Coco (again)!
