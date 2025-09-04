@@ -42,7 +42,7 @@
 // - Archive file watcher
 // - File watcher for open temp dir files
 
-// Archive structure (i.e. MyProject.story):
+// Archive structure (i.e. MyProject.fnx):
 // - Content (single-level working directory containing all files, named for their UUIDs)
 // - Trash (directory, inside Content)
 // - Model.xml (contains Contents dir display structure and parenting/orderings)
