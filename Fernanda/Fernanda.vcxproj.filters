@@ -319,6 +319,9 @@
     <QtRcc Include="translations\TranslationQMFiles.qrc">
       <Filter>Translations</Filter>
     </QtRcc>
+    <QtRcc Include="external\External.qrc">
+      <Filter>Resources</Filter>
+    </QtRcc>
   </ItemGroup>
   <ItemGroup>
     <QtTranslation Include="translations\Translation_de.ts">

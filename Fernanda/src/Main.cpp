@@ -18,7 +18,8 @@
 // created to alert WordCounterModule, TreeViewModule (for toggle button), etc
 
 // (Now/Next) Notebook needs:
-// - New Story file in Notepad menu
+// - New Story file in Notepad menu (will create and then open)
+// - Open Story file in Notepad menu (will filter specifically for .story)
 // - How do we handle saving as each window closes when we are closing the
 // Notebook?
 // - See how we handle all paths for file opening (including settings) and how

@@ -21,5 +21,5 @@ core;gui;network;widgets;svg
 Configuration Properties > C/C++ > General > Additional Include Directories
 
 ```
-$(ProjectDir)src;$(ProjectDir)submodules\Coco\Coco\include;$(ProjectDir)external;%(AdditionalIncludeDirectories)
+$(ProjectDir)src;$(ProjectDir)submodules\Coco\Coco\include;$(ProjectDir)external\bit7z\include;%(AdditionalIncludeDirectories)
 ```
