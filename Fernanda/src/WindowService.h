@@ -34,9 +34,9 @@ class WindowService : public IService
     Q_OBJECT
 
 public:
-    COCO_BOOL(HaltOnRefusal);
+    /*COCO_BOOL(HaltOnRefusal);*/
 
-    explicit WindowService(
+    WindowService(
         Commander* commander,
         EventBus* eventBus,
         QObject* parent = nullptr)
@@ -46,9 +46,6 @@ public:
     }
 
     virtual ~WindowService() override { COCO_TRACER; }
-
-    bool stackUnder() const noexcept { return stackUnder_; }
-    void setStackUnder(bool stackUnder) { stackUnder_ = stackUnder; }
 
     Window::CloseAcceptor closeAcceptor() const noexcept
     {
@@ -104,7 +101,7 @@ public:
         }
     }
 
-    void closeAll(HaltOnRefusal haltOnRefusal = HaltOnRefusal::No)
+    /*void closeAll(HaltOnRefusal haltOnRefusal = HaltOnRefusal::No)
     {
         for (auto& window : windowsReversed())
             if (!window->close() && haltOnRefusal) return;
@@ -120,6 +117,12 @@ public:
     {
         for (auto& window : windowsReversed())
             window->deleteLater();
+    }*/
+
+    void activateAll() const
+    {
+        if (!activeWindow_) return;
+        activeWindow_->activate(); // Stack under will take effect
     }
 
     /// Make private, since we aren't making this a generalized manager anymore
@@ -190,12 +193,7 @@ protected:
         if (event->type() == QEvent::WindowActivate) {
             if (auto active_window = to<Window*>(watched)) {
                 setActiveWindow_(active_window);
-
-                if (stackUnder_) {
-                    XPlatform::stackUnder(
-                        zOrderedVolatileWindows_,
-                        active_window);
-                }
+                XPlatform::stackUnder(zOrderedVolatileWindows_, active_window);
             }
         } else if (
             event->type() == QEvent::Show || event->type() == QEvent::Hide) {
@@ -211,7 +209,6 @@ protected:
 private:
     static constexpr auto DEFAULT_GEOMETRY_ = QRect{ 100, 100, 600, 500 };
     static constexpr auto GEOMETRY_OFFSET_ = 50;
-    bool stackUnder_ = true;
     Window::CloseAcceptor closeAcceptor_ = nullptr;
     QList<Window*> zOrderedVolatileWindows_{}; // Highest window is always last
     QSet<Window*> windows_{};
@@ -323,9 +320,11 @@ private slots:
         zOrderedVolatileWindows_.removeAll(window);
         windows_.remove(window);
 
+        auto last_window_closed = false;
+
         if (zOrderedVolatileWindows_.isEmpty()) {
             setActiveWindow_(nullptr);
-            emit eventBus->lastWindowClosed();
+            last_window_closed = true;
 
             // Let Qt focus the next window from another WindowManager, if any
         } else {
@@ -350,6 +349,7 @@ private slots:
         }
 
         emit eventBus->windowDestroyed(window);
+        if (last_window_closed) emit eventBus->lastWindowClosed();
     }
 
     void onApplicationFocusChanged_(QWidget* old, QWidget* now)

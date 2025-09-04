@@ -64,6 +64,8 @@ namespace Commands {
 // with no return value)
 namespace Calls {
 
+    constexpr auto NewTreeViewModel = "call.workspace.workspace:new_tree_view_model";
+
     constexpr auto Save = "call.file_serv.workspace:save";
     constexpr auto SaveAs = "call.file_serv.workspace:save_as";
     constexpr auto SaveIndexesInWindow =

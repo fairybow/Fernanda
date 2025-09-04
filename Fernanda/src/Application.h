@@ -47,8 +47,7 @@ public:
         // Make session objects
 
         initializeNotepad_();
-        // Notebooks...
-        initializeTestNotebook_();
+        // Any Notebooks needed via Session
     }
 
 public slots:
@@ -62,9 +61,8 @@ private:
     Coco::Path notepadConfig_ = userDataDirectory_ / "Settings.ini";
     Coco::Path notepadRoot_ = Coco::Path::Documents("Fernanda");
 
-    Notepad* notepad_ = nullptr; // Replace with subclass when applicable
-    Notebook* testNotebook_ = nullptr; /// Remove later
-    // QList<Notebook*> notebooks_{};
+    Notepad* notepad_ = nullptr;
+    QList<Notebook*> notebooks_{};
 
     void initializeNotepad_()
     {
@@ -78,26 +76,36 @@ private:
 
         // Will only open new window if: 1) there is no Notebook from sessions;
         // 2) there is no Notepad window from sessions
-        notepad_->initialize(Workspace::InitialWindow::Yes);
+        notepad_->open(NewWindow::Yes);
     }
 
-    void initializeTestNotebook_()
+    void makeNotebook_(const Coco::Path& archive)
     {
         // Temporary opening procedures:
-        testNotebook_ = new Notebook(
-            notepadConfig_,
-            userDataDirectory_ / "TestNotebookSettings.ini",
-            {}, /// Fine for now
-            this);
+        auto notebook = new Notebook(notepadConfig_, archive, this);
+        notebooks_ << notebook;
 
-        testNotebook_->initialize(Workspace::InitialWindow::Yes);
+        connect(notebook, &Notebook::lastWindowClosed, this, [=] {
+            // Clean-up
+            delete notebook;
+        });
+
+        notebook->open(NewWindow::Yes);
     }
 
     bool notepadPathInterceptor_(const Coco::Path& path)
     {
         if (FileTypes::is(FileTypes::SevenZip, path)) {
-            // For now, just don't open 7zips
             COCO_LOG_THIS("Interceptor true.");
+
+            for (auto& notebook : notebooks_) {
+                if (notebook->root() == path) {
+                    notebook->activate();
+                    return true;
+                }
+            }
+
+            makeNotebook_(path);
             return true;
         }
 

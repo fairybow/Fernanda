@@ -24,7 +24,7 @@ class FontSelector : public QWidget
     Q_OBJECT
 
 public:
-    FontSelector(const QFont& initialFont, QWidget* parent = nullptr)
+    explicit FontSelector(const QFont& initialFont, QWidget* parent = nullptr)
         : QWidget(parent)
         , currentFont_(initialFont)
     {

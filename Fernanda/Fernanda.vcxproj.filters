@@ -49,6 +49,12 @@
     <Filter Include="Translations">
       <UniqueIdentifier>{bbbe929e-1ae3-4343-bb09-41aed0f08c06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Core\UI\TreeView">
+      <UniqueIdentifier>{56c60f89-b35e-4f3c-a689-e2f8c6e5c423}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Auxiliary\SettingsDialog">
+      <UniqueIdentifier>{f61f8d7e-472d-4a04-8fae-d2e55b150670}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -208,20 +214,26 @@
     <QtMoc Include="src\Settings.h">
       <Filter>Code\Auxiliary</Filter>
     </QtMoc>
-    <QtMoc Include="src\SettingsDialog.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
-    <QtMoc Include="src\FontSelector.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
-    <QtMoc Include="src\DisplaySlider.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
     <QtMoc Include="src\Notepad.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
     <QtMoc Include="src\Notebook.h">
       <Filter>Code\Core\Workspaces</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TreeView.h">
+      <Filter>Code\Core\UI\TreeView</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TreeViewModule.h">
+      <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\SettingsDialog.h">
+      <Filter>Code\Auxiliary\SettingsDialog</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FontSelector.h">
+      <Filter>Code\Auxiliary\SettingsDialog</Filter>
+    </QtMoc>
+    <QtMoc Include="src\DisplaySlider.h">
+      <Filter>Code\Auxiliary\SettingsDialog</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

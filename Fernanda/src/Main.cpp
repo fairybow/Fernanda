@@ -14,8 +14,22 @@
 // - File extensions for Save As
 // - Ensure ViewService tracks views when tab is moved!
 // - Is closing/saving "done"?
+// - StatusBar module (or just managed by window service) (may emit status bar
+// created to alert WordCounterModule, TreeViewModule (for toggle button), etc
 
 // (Now/Next) Notebook needs:
+// - How do we handle saving as each window closes when we are closing the
+// Notebook?
+// - See how we handle all paths for file opening (including settings) and how
+// Notebook will handle those. It may be the case that we do NOT pass the
+// overriding config via Notebook ctor, because we can route all paths through
+// the Workspace, and Notebook can know to prepend the temp dir path to all
+// relevant paths it sees
+// - We may be able to get away with, for example, having Notebook set an
+// Interceptor for its FileService. The paths it receives should be relative
+// paths, and so we can prepend the temp dir to this before allowing it to
+// proceed with the open
+// - Determine how Model.xml will be verified on archive open each time
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
 // - How to handle Notebook paths? VPath wrapper class? We'll need
 // something that for Notepad works as a normal path but for Notebooks allows us
@@ -26,8 +40,16 @@
 // - An Open dialog onto the archive (good god how)
 // - Tree view service/module
 // - Archive file watcher
+// - File watcher for open temp dir files
+
+// Archive structure (i.e. MyProject.story):
+// - Contents (working directory)
+// - Model.xml (largely mirrors Contents dir structure, but includes custom
+// orderings)
+// - Settings.ini (Notebook's config override)
 
 // Now/Next (But can wait till after Notebook):
+// - WordCounter
 // - Autosaving
 // - How to update SettingsDialog if settings are changed via commander
 // from outside?
@@ -35,12 +57,22 @@
 // - On closing with a save prompt, when save is chosen, we may want a
 // delay to show color bar and the tab unflagging as visual confirmation before
 // closing (perhaps an API ColorBarModule can plug into to delay)
-// - File watcher for Notepad
+// - File watcher for open Notepad files
+// - Key filters
+// - Translations and translation change at run-time via menu
 
 // Minor:
+// - Check where we've relied on connecting to EventBus::windowDestroyed vs
+// Window::destroyed...
+// - Clean TreeViewModule::initialize_()
+// - Could be the case that given our architecture, all services and modules
+// don't really need to have any public methods (save ctor/dtor), as anything
+// else is a query/command/call
+// - Go through services and see what needs to be tracked and isn't (i.e. could
+// improve discovery with enough significance to implement it), and what is
+// tracked that doesn't need to be (i.e., may need to track file views, but
+// don't necessarily need to track tree views)
 // - Split files to .h/.cpp when "finished"
-// - Fix all nested namespace to use `namespace Main::Sub {` syntax
-// (instead of `namespace Main { namespace Sub {`)
 // - Un-generalize TabWidget
 // - TabWidgetButton::paintEvent
 // - Remove final period on class purpose statements if present
@@ -74,8 +106,6 @@
 // - Ensure all pvt/"internal" functions/members have trailing underscore
 // - Ensure all protected functions/members do NOT have trailing
 // underscore
-// - Consistent order for args in event bus / slots (Window, View, Model,
-// Index)
 // - Reorg EventBus signal naming (like Commander)
 // - Ensure all signals are logged in EventBus
 // - Comments on declarations that we want viewable on Intellisense popup
@@ -90,6 +120,14 @@
 // the call/query template parameter (and not running to<T> on the result)
 // - Wherever there is a window parameter for a command/call, we probably
 // want to just use the context instead of the params map
+
+// Code uniformity/clean-up:
+// - Consistent order for args in event bus / slots (Window, View, Model,
+// Index)
+// - Clean includes (always include if used)
+// - explicit on ctors that could have one arg (not multiple)
+// - Fix all nested namespace to use `namespace Main::Sub {` syntax
+// (instead of `namespace Main { namespace Sub {`)
 
 // Coco:
 // - Rework/format Coco (again)!

@@ -1,3 +1,4 @@
+#include <QAbstractItemModel>
 #include <QString>
 #include <QVariant>
 #include <QVariantMap>
@@ -39,7 +40,11 @@ void Workspace::addCommandHandlers_()
     });
 
     commander->addQueryHandler(Queries::Root, [&] {
-        return root_.toQString();
+        return rootPath.toQString();
+    });
+
+    commander->addCallHandler(Calls::NewTreeViewModel, [&] {
+        return toQVariant(makeTreeViewModel_());
     });
 }
 

@@ -14,7 +14,7 @@ class IService : public QObject
     Q_OBJECT
 
 public:
-    explicit IService(
+    IService(
         Commander* commander,
         EventBus* eventBus,
         QObject* parent = nullptr)

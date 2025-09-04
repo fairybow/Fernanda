@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QAbstractItemModel>
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
@@ -14,11 +15,14 @@
 #include "EventBus.h"
 #include "FileService.h"
 #include "SettingsModule.h"
+#include "TreeViewModule.h"
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
 
 namespace Fernanda {
+
+COCO_BOOL(NewWindow);
 
 // Base class for Notepad and Notebook workspaces (collection of windows, their
 // files, and the filesystems on which they operate). Owns and initializes
@@ -28,16 +32,16 @@ class Workspace : public QObject
     Q_OBJECT
 
 public:
-    COCO_BOOL(InitialWindow);
-
-    explicit Workspace(
+    Workspace(
         const Coco::Path& configPath,
         const Coco::Path& rootPath,
         QObject* parent = nullptr)
         : QObject(parent)
         , config(configPath)
-        , root_(rootPath)
+        , rootPath(rootPath)
     {
+        initialize_();
+
         /// Unsure about passing config paths via App. Notebooks will know their
         /// config path is `archive/settings.ini`, why pass that via App? May
         /// instead want this approach: all Workspaces have a base config path
@@ -62,22 +66,26 @@ public:
 
     virtual ~Workspace() override = default;
 
-    // void initialize(const Session& session)
+    // void open(const Session& session)
     // {
-    //   // coreInitialization_();
     //   // ...open Session...
     //   // emit eventBus->workspaceInitialized();
     // }
 
-    void initialize(InitialWindow initialWindow = InitialWindow::No)
+    void open(NewWindow withWindow = NewWindow::No)
     {
-        coreInitialization_();
-        if (initialWindow) newWindow_();
-
+        if (withWindow) newWindow_();
         emit eventBus->workspaceInitialized();
     }
 
+    void activate() const { windows_->activateAll(); }
+    Coco::Path root() const noexcept { return rootPath; }
+
+signals:
+    void lastWindowClosed();
+
 protected:
+    Coco::Path rootPath;
     Coco::Path config;
 
     Commander* commander = new Commander(this);
@@ -86,19 +94,22 @@ protected:
     SettingsModule* settings = nullptr;
 
 private:
-    Coco::Path root_; // Maybe protected later
-
     WindowService* windows_ = new WindowService(commander, eventBus, this);
     ViewService* views_ = new ViewService(commander, eventBus, this);
     FileService* files_ = new FileService(commander, eventBus, this);
+    TreeViewModule* treeViews_ = new TreeViewModule(commander, eventBus, this);
     ColorBarModule* colorBars_ = new ColorBarModule(commander, eventBus, this);
 
-    void coreInitialization_()
+    void initialize_()
     {
         settings = new SettingsModule(config, commander, eventBus, this);
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
         addCommandHandlers_();
+
+        connect(eventBus, &EventBus::lastWindowClosed, this, [&] {
+            emit lastWindowClosed();
+        });
     }
 
     void addCommandHandlers_();
@@ -113,6 +124,8 @@ private:
     {
         if (auto window = windows_->make()) window->show();
     }
+
+    virtual QAbstractItemModel* makeTreeViewModel_() = 0;
 };
 
 } // namespace Fernanda

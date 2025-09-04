@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QAbstractItemModel>
 #include <QMapIterator>
+#include <QModelIndex>
 #include <QObject>
 #include <QPointer>
 #include <QSet>
@@ -65,22 +67,22 @@ template <typename T> inline QVariant toQVariant(const QPointer<T>& value)
     return QVariant::fromValue<T*>(value.get());
 }
 
+// Maybe make this a query, for organizational/clarity purposes. This works
+// fine, but feels off in terms of design. We also may want a treeView function!
 inline TabWidget* tabWidget(Window* window)
 {
-    // Later, if we ever have different central widgets (unlikely), this could
-    // be a commander query
     if (!window) return nullptr;
     return to<TabWidget*>(window->centralWidget());
 }
 
+// ^ ditto
 inline int tabCount(Window* window)
 {
-    // Later, if we ever have different central widgets (unlikely), this could
-    // be a commander query
     if (auto tab_widget = tabWidget(window)) return tab_widget->count();
     return -1;
 }
 
+// ^ ditto
 inline IFileView* viewAt(Window* window, int index)
 {
     if (!window) return nullptr;
@@ -93,6 +95,7 @@ inline IFileView* viewAt(Window* window, int index)
     return tab_widget->widgetAt<IFileView*>(i);
 }
 
+// ^ ditto
 inline IFileModel* modelAt(Window* window, int index)
 {
     auto view = viewAt(window, index);
@@ -171,6 +174,17 @@ inline bool isMultiWindow(IFileModel* model, QSet<Window*> windows)
     }
 
     return false;
+}
+
+inline QModelIndex getItemModelRootIndex(QAbstractItemModel* model)
+{
+    return model->property("root").value<QModelIndex>();
+}
+
+inline void
+storeItemModelRootIndex(QAbstractItemModel* model, const QModelIndex& index)
+{
+    model->setProperty("root", index);
 }
 
 } // namespace Fernanda
