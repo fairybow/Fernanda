@@ -38,7 +38,7 @@ public:
         QObject* parent = nullptr)
         : QObject(parent)
         , config(configPath)
-        , root(rootPath)
+        , rootPath(rootPath)
     {
         initialize_();
 
@@ -78,8 +78,14 @@ public:
         emit eventBus->workspaceInitialized();
     }
 
+    void activate() const { windows_->activateAll(); }
+    Coco::Path root() const noexcept { return rootPath; }
+
+signals:
+    void lastWindowClosed();
+
 protected:
-    Coco::Path root;
+    Coco::Path rootPath;
     Coco::Path config;
 
     Commander* commander = new Commander(this);
@@ -100,6 +106,10 @@ private:
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
         addCommandHandlers_();
+
+        connect(eventBus, &EventBus::lastWindowClosed, this, [&] {
+            emit lastWindowClosed();
+        });
     }
 
     void addCommandHandlers_();

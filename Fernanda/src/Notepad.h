@@ -76,7 +76,7 @@ private:
     virtual QAbstractItemModel* makeTreeViewModel_() override
     {
         auto model = new QFileSystemModel(this);
-        auto root_index = model->setRootPath(root.toQString());
+        auto root_index = model->setRootPath(rootPath.toQString());
         storeItemModelRootIndex(model, root_index);
         model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
         // Any other Notepad-specific model setup

@@ -25,11 +25,9 @@ class Notebook : public Workspace
 public:
     Notebook(
         const Coco::Path& baseConfig,
-        const Coco::Path& overridingConfig,
         const Coco::Path& root,
         QObject* parent = nullptr)
         : Workspace(baseConfig, root, parent)
-        , overridingConfig_(overridingConfig) // Archive path
     {
         initialize_();
     }
@@ -37,11 +35,10 @@ public:
     virtual ~Notebook() override { COCO_TRACER; }
 
 private:
-    Coco::Path overridingConfig_;
-
     void initialize_()
     {
-        settings->setOverrideConfigPath(overridingConfig_);
+        // Set this after extraction
+        //settings->setOverrideConfigPath(root / Settings.ini);
 
         connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
             auto status_bar = window->statusBar();
