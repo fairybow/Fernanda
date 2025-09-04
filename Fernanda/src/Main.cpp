@@ -42,7 +42,7 @@
 // - Archive file watcher
 // - File watcher for open temp dir files
 
-// Archive structure:
+// Archive structure (i.e. MyProject.story):
 // - Contents (working directory)
 // - Model.xml (largely mirrors Contents dir structure, but includes custom
 // orderings)
