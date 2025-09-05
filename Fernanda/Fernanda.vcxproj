@@ -77,7 +77,6 @@
     <QtMoc Include="src\Settings.h" />
     <QtMoc Include="src\SettingsDialog.h" />
     <ClInclude Include="src\Tr.h" />
-    <QtMoc Include="src\TreeView.h" />
     <QtMoc Include="src\TreeViewModule.h" />
     <ClInclude Include="src\Utility.h" />
     <ClInclude Include="src\Version.h" />

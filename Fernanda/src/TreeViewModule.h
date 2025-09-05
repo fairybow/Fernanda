@@ -11,21 +11,29 @@
 
 #include <QAbstractItemModel>
 #include <QDockWidget>
+#include <QFileSystemModel>
 #include <QHash>
+#include <QModelIndex>
 #include <QObject>
 #include <QStatusBar>
 #include <QToolButton>
+#include <QTreeView>
+#include <QVariant>
+#include <QVariantMap>
 
 #include "Coco/Debug.h"
+#include "Coco/Path.h"
+#include "Coco/Utility.h"
 
 #include "Commander.h"
 #include "EventBus.h"
 #include "IService.h"
-#include "TreeView.h"
 #include "Utility.h"
 #include "Window.h"
 
 namespace Fernanda {
+
+COCO_TRIVIAL_QCLASS(TreeView, QTreeView);
 
 // Coordinator for Window TreeViews
 class TreeViewModule : public IService
@@ -46,11 +54,12 @@ public:
 
 private:
     // QHash<Window*, TreeView*> treeViews_{};
-    // A set instead, perhaps, just for quick updates across all Workspace TreeViews
+    // A set instead, perhaps, just for quick updates across all Workspace
+    // TreeViews
 
     void initialize_()
     {
-        /// Make slot
+        /// Make slot and multiple methods later
         connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
             if (!window) return;
 
@@ -59,8 +68,7 @@ private:
             auto tree_view = new TreeView(dock_widget);
 
             if (auto model = commander->call<QAbstractItemModel*>(
-                Calls::NewTreeViewModel))
-            {
+                    Calls::NewTreeViewModel)) {
                 tree_view->setModel(model);
                 if (auto root_index = getItemModelRootIndex(model);
                     root_index.isValid()) {
@@ -76,6 +84,32 @@ private:
                 { (window->width() / 3) },
                 Qt::Horizontal);
 
+            connect(
+                tree_view,
+                &TreeView::doubleClicked,
+                this,
+                [&, tree_view, window](const QModelIndex& index) {
+                    auto model = tree_view->model();
+                    if (!model) return;
+
+                    Coco::Path path{};
+
+                    if (auto fs_model = to<QFileSystemModel*>(model)) {
+                        path = fs_model->filePath(index);
+                    } // else if (auto archive_model = to<ArchiveModel*>(model))
+                      // { path = archive_model->filePath(index);
+                    //}
+
+                    if (!path.isEmpty()) {
+                        commander->execute(
+                            Commands::OpenFile,
+                            { { "path", path.toQString() } },
+                            window);
+                    }
+                });
+
+            /// Button
+
             // Should always be created
             if (auto status_bar = window->statusBar()) {
                 auto toggler = new QToolButton;
@@ -88,6 +122,8 @@ private:
                     }
                 });
             }
+
+            /// Window clean up (maybe)
 
             connect(window, &Window::destroyed, this, [=] {
                 if (!window) return;

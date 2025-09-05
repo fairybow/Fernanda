@@ -46,6 +46,8 @@
 // - Settings.ini (Notebook's config override)
 
 // Now/Next (But can wait till after Notebook):
+// - WindowService: Keep a member of last size instead of using last window
+// (since it doesn't register on app open)
 // - WordCounter
 // - Autosaving
 // - How to update SettingsDialog if settings are changed via commander
@@ -119,6 +121,7 @@
 // want to just use the context instead of the params map
 
 // Code uniformity/clean-up:
+// - Find all quotes and make sure they're in TR if needed
 // - Consistent order for args in event bus / slots (Window, View, Model,
 // Index)
 // - Clean includes (always include if used)
