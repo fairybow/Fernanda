@@ -117,7 +117,7 @@ namespace SavePrompt {
         auto main_layout = Coco::Layout::make<QVBoxLayout*>(&dialog);
 
         // Message label
-        auto messageLabel = new QLabel(&dialog);
+        auto messageLabel = new QLabel(&dialog); /// vvv TR
         QString messageText = QString("You have unsaved changes in %1 file(s). "
                                       "Select which files to save:")
                                   .arg(modifiedModels.size());
