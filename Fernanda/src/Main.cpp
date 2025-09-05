@@ -23,8 +23,6 @@
 // - File extensions for Save As
 // - Ensure ViewService tracks views when tab is moved!
 // - Is closing/saving "done"?
-// - StatusBar module (or just managed by window service) (may emit status bar
-// created to alert WordCounterModule, TreeViewModule (for toggle button), etc
 
 // (Now/Next) Notebook needs:
 // - New Story file in Notepad menu (will create and then open)
