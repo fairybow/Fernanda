@@ -119,6 +119,9 @@
       <Filter>Resources</Filter>
     </None>
     <None Include="..\.gitattributes" />
+    <None Include="submodules\Coco\Coco\copy\License Statement.md">
+      <Filter>Submodules\Coco\Copy</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">

@@ -37,6 +37,7 @@
     <None Include="resources\ui\TabWidgetButtonClose.svg" />
     <None Include="resources\ui\TabWidgetButtonEditedDot.svg" />
     <None Include="submodules\Coco\Coco\copy\Class.md" />
+    <None Include="submodules\Coco\Coco\copy\License Statement.md" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\Application.h" />
