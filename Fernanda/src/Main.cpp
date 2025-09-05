@@ -1,3 +1,12 @@
+/*
+ * Fernanda  Copyright (C) 2025  fairybow
+ *
+ * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
+ * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
+ *
+ * Uses Qt 6 - <https://www.qt.io/>
+ */
+
 #include <QStringList>
 
 #include "Coco/StartCop.h"
@@ -18,17 +27,12 @@
 // created to alert WordCounterModule, TreeViewModule (for toggle button), etc
 
 // (Now/Next) Notebook needs:
+// - New Story file in Notepad menu (will create and then open)
+// - Open Story file in Notepad menu (will filter specifically for .story)
 // - How do we handle saving as each window closes when we are closing the
 // Notebook?
-// - See how we handle all paths for file opening (including settings) and how
-// Notebook will handle those. It may be the case that we do NOT pass the
-// overriding config via Notebook ctor, because we can route all paths through
-// the Workspace, and Notebook can know to prepend the temp dir path to all
-// relevant paths it sees
-// - We may be able to get away with, for example, having Notebook set an
-// Interceptor for its FileService. The paths it receives should be relative
-// paths, and so we can prepend the temp dir to this before allowing it to
-// proceed with the open
+// - How will our FileService open Notebook files? Will need to account for the
+// UUID
 // - Determine how Model.xml will be verified on archive open each time
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
 // - How to handle Notebook paths? VPath wrapper class? We'll need
@@ -37,15 +41,14 @@
 // fallback path), redirect relative archive paths to OS temp folders, i.e.
 // `notebook1-root/file.txt` becomes, under the hood,
 // `os-temp-dir/notebook1/file.txt`
-// - An Open dialog onto the archive (good god how)
-// - Tree view service/module
 // - Archive file watcher
 // - File watcher for open temp dir files
 
-// Archive structure (i.e. MyProject.story):
-// - Contents (working directory)
-// - Model.xml (largely mirrors Contents dir structure, but includes custom
-// orderings)
+// Archive structure (i.e. MyProject.fnx):
+// - Content (single-level working directory containing all files, named for
+// their UUIDs)
+// - Trash (directory, inside Content)
+// - Model.xml (contains Contents dir display structure and parenting/orderings)
 // - Settings.ini (Notebook's config override)
 
 // Now/Next (But can wait till after Notebook):
@@ -128,6 +131,7 @@
 // - explicit on ctors that could have one arg (not multiple)
 // - Fix all nested namespace to use `namespace Main::Sub {` syntax
 // (instead of `namespace Main { namespace Sub {`)
+// - Use delete (not deleteLater) everywhere to discover logic problems
 
 // Coco:
 // - Rework/format Coco (again)!

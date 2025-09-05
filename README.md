@@ -46,4 +46,4 @@ Work in progress (no releases available).
 
 # License
 
-Fernanda is licensed under the GNU GPL 3 License. See the [LICENSE](LICENSE) file for more information.
+Fernanda is free and open source software. Both the application and its source code are available under the GNU GPL 3 License with additional Section 7 terms invoked. See the [LICENSE](LICENSE) and [ADDITIONAL_TERMS](ADDITIONAL_TERMS) files for complete details.
