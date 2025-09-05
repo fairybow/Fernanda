@@ -34,9 +34,12 @@ public:
 signals:
     /// We may handle expanding/closing folders in the tree view itself?
     // void fileClicked(const Coco::Path& path);
-    void fileDoubleClicked(const Coco::Path& path); // To open files
+    // void fileDoubleClicked(const Coco::Path& path); // To open files
     // void folderClicked(const Coco::Path& path);
     // void folderDoubleClicked(const Coco::Path& path);
+
+    /// Perhaps emit an "itemDoubleClicked" signal and send the model index to
+    /// the module, since our TreeView will be using one of two models
 
 private:
     void initialize_()

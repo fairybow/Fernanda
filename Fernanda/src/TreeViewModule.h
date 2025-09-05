@@ -46,6 +46,7 @@ public:
 
 private:
     // QHash<Window*, TreeView*> treeViews_{};
+    // A set instead, perhaps, just for quick updates across all Workspace TreeViews
 
     void initialize_()
     {

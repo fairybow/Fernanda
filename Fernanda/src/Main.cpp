@@ -29,18 +29,14 @@
 // - Open Story file in Notepad menu (will filter specifically for .story)
 // - How do we handle saving as each window closes when we are closing the
 // Notebook?
-// - How will our FileService open Notebook files? Will need to account for the
-// UUID
 // - Determine how Model.xml will be verified on archive open each time
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
-// - How to handle Notebook paths? VPath wrapper class? We'll need
-// something that for Notepad works as a normal path but for Notebooks allows us
-// to, when needed (which is most of the time, save its Notepad settings
-// fallback path), redirect relative archive paths to OS temp folders, i.e.
-// `notebook1-root/file.txt` becomes, under the hood,
-// `os-temp-dir/notebook1/file.txt`
 // - Archive file watcher
 // - File watcher for open temp dir files
+// - Notebook archives will unpack to temp dir (with the temp dir saved as
+// member). The files are named like UUID.txt. This information will be
+// correlated with Model.xml, which provides the visual information users see in
+// a Notebook TreeView
 
 // Archive structure (i.e. MyProject.fnx):
 // - Content (single-level working directory containing all files, named for
