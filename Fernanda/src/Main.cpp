@@ -27,6 +27,8 @@
 // (Now/Next) Notebook needs:
 // - New Story file in Notepad menu (will create and then open)
 // - Open Story file in Notepad menu (will filter specifically for .story)
+// - Open Notepad in Notebook menu
+// - Import/Export in Notebook menu
 // - How do we handle saving as each window closes when we are closing the
 // Notebook?
 // - Determine how Model.xml will be verified on archive open each time
