@@ -34,21 +34,40 @@ class Notebook : public Workspace
 
 public:
     Notebook(
-        const Coco::Path& baseConfig,
-        const Coco::Path& root,
+        const Coco::Path& archivePath,
+        const Coco::Path& globalConfig,
+        const Coco::Path& userDataDir,
         QObject* parent = nullptr)
-        : Workspace(baseConfig, root, parent)
+        : Workspace(globalConfig, parent)
+        , archivePath_(archivePath)
+        , userDataDir_(userDataDir)
     {
         initialize_();
     }
 
     virtual ~Notebook() override { COCO_TRACER; }
 
+    Coco::Path archivePath() const noexcept { return archivePath_; }
+    Coco::Path root() const noexcept { return root_; }
+
 private:
+    Coco::Path archivePath_;
+    Coco::Path userDataDir_;
+
+    Coco::Path root_{};
+
     void initialize_()
     {
-        // Set this after extraction
+        // 1. Extract
+
+        // 2. Set root
+
+        // 3. Set settings override
         // settings->setOverrideConfigPath(root / Settings.ini);
+
+        commander->addQueryHandler(Queries::NotebookRoot, [&] {
+            return root_.toQString();
+        });
 
         connect(
             eventBus,

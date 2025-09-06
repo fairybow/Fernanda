@@ -351,7 +351,7 @@ private:
         auto path = Coco::PathUtil::Dialog::file(
             window,
             Tr::Dialogs::openFileCaption(),
-            commander->query<QString>(Queries::Root));
+            commander->query<QString>(Queries::NotepadBaseDir));
 
         return path;
     }

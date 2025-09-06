@@ -42,12 +42,10 @@ class Workspace : public QObject
 
 public:
     Workspace(
-        const Coco::Path& configPath,
-        const Coco::Path& rootPath,
+        const Coco::Path& globalConfig,
         QObject* parent = nullptr)
         : QObject(parent)
-        , config(configPath)
-        , rootPath(rootPath)
+        , globalConfig_(globalConfig)
     {
         initialize_();
     }
@@ -67,21 +65,19 @@ public:
     }
 
     void activate() const { windows_->activateAll(); }
-    Coco::Path root() const noexcept { return rootPath; }
 
 signals:
     void lastWindowClosed();
 
 protected:
-    Coco::Path rootPath;
-    Coco::Path config;
-
     Commander* commander = new Commander(this);
     EventBus* eventBus = new EventBus(this);
 
     SettingsModule* settings = nullptr;
 
 private:
+    Coco::Path globalConfig_;
+
     WindowService* windows_ = new WindowService(commander, eventBus, this);
     ViewService* views_ = new ViewService(commander, eventBus, this);
     FileService* files_ = new FileService(commander, eventBus, this);
@@ -90,7 +86,7 @@ private:
 
     void initialize_()
     {
-        settings = new SettingsModule(config, commander, eventBus, this);
+        settings = new SettingsModule(globalConfig_, commander, eventBus, this);
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
         addCommandHandlers_();

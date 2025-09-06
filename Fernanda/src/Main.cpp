@@ -25,6 +25,10 @@
 // - Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
+// - Need to address the problem of FileServiceSaveHelper::saveAsDialog_. May
+// need a callback, to keep the module applicable to both Workspace types
+// - Notebook Save As likely just means an enter-name dialog and append it to
+// the end/top-level of the virtual structure
 // - Both menus, New File (Save As with an empty txt)?
 // - Rethink Root:
 // - May want to change Workspace root member. Notebooks will take the archive
@@ -131,6 +135,7 @@
 // want to just use the context instead of the params map
 
 // Code uniformity/clean-up:
+// - Commander arg names may go in Constants
 // - Find all quotes and make sure they're in TR if needed
 // - Consistent order for args in event bus / slots (Window, View, Model,
 // Index)

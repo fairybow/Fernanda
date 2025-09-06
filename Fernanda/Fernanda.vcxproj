@@ -66,6 +66,7 @@
     <QtMoc Include="src\FileServiceSaveHelper.h" />
     <QtMoc Include="src\Debouncer.h" />
     <QtMoc Include="src\DisplaySlider.h" />
+    <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\FileTypes.h" />
     <QtMoc Include="src\NoOpFileModel.h" />
     <ClInclude Include="src\AboutDialog.h" />
