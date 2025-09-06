@@ -9,7 +9,7 @@
 
 Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
 
-Fernanda aims to combine cozy, distraction-free plain text editing with powerful project organization for fiction writers. Work on standalone documents in Notepad mode, or organize entire manuscripts with research materials as a self-contained Notebook kept in project-specific files (.fnx). Notebooks are standard 7zip archives containing your writing and materials, so they remain accessible even outside Fernanda. Planned features include multimedia viewing for research materials (PDFs, images, etc.) directly within the writing environment.
+Fernanda aims to combine cozy, distraction-free plain text editing with powerful project organization for fiction writers. Work on standalone documents in Notepad mode, or organize entire manuscripts with research materials as a self-contained Notebook kept in project-specific files (`.fnx`). Notebooks are standard 7zip archives containing your writing and materials, so they remain accessible even outside Fernanda. Planned features include multimedia viewing for research materials (PDFs, images, etc.) directly within the writing environment.
 
 Built with Qt, Bit7z, Visual Studio, and C++.
 
