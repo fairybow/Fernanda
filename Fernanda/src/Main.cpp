@@ -49,7 +49,8 @@
 // Archive structure (i.e. MyProject.fnx):
 // - Content (single-level working directory containing all files, named for
 // their UUIDs)
-// - Trash (directory, inside Content)
+// - Trash/Reference/Etc is conceptual. All is in content, but separated in view
+// with Model.xml info
 // - Model.xml (contains Contents dir display structure and parenting/orderings)
 // - Settings.ini (Notebook's config override)
 
