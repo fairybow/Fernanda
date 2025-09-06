@@ -23,35 +23,44 @@
 // - File extensions for Save As
 // - Ensure ViewService tracks views when tab is moved!
 // - Is closing/saving "done"?
-// - StatusBar module (or just managed by window service) (may emit status bar
-// created to alert WordCounterModule, TreeViewModule (for toggle button), etc
 
 // (Now/Next) Notebook needs:
+// - Need to address the problem of FileServiceSaveHelper::saveAsDialog_. May
+// need a callback, to keep the module applicable to both Workspace types
+// - Notebook Save As likely just means an enter-name dialog and append it to
+// the end/top-level of the virtual structure
+// - Both menus, New File (Save As with an empty txt)?
+// - Rethink Root:
+// - May want to change Workspace root member. Notebooks will take the archive
+// path on construction, but their "root" for working documents will be
+// TempExtractionDir/Content/. For Notepad, this root will be Documents/Fernanda
+// (for now always, but later settable)
 // - New Story file in Notepad menu (will create and then open)
 // - Open Story file in Notepad menu (will filter specifically for .story)
+// - Open Notepad in Notebook menu
+// - Import/Export in Notebook menu
 // - How do we handle saving as each window closes when we are closing the
 // Notebook?
-// - How will our FileService open Notebook files? Will need to account for the
-// UUID
 // - Determine how Model.xml will be verified on archive open each time
 // - MenuModule -> NotepadMenuModule (with base MenuModule for both)?
-// - How to handle Notebook paths? VPath wrapper class? We'll need
-// something that for Notepad works as a normal path but for Notebooks allows us
-// to, when needed (which is most of the time, save its Notepad settings
-// fallback path), redirect relative archive paths to OS temp folders, i.e.
-// `notebook1-root/file.txt` becomes, under the hood,
-// `os-temp-dir/notebook1/file.txt`
 // - Archive file watcher
 // - File watcher for open temp dir files
+// - Notebook archives will unpack to temp dir (with the temp dir saved as
+// member). The files are named like UUID.txt. This information will be
+// correlated with Model.xml, which provides the visual information users see in
+// a Notebook TreeView
 
 // Archive structure (i.e. MyProject.fnx):
 // - Content (single-level working directory containing all files, named for
 // their UUIDs)
-// - Trash (directory, inside Content)
+// - Trash/Reference/Etc is conceptual. All is in content, but separated in view
+// with Model.xml info
 // - Model.xml (contains Contents dir display structure and parenting/orderings)
 // - Settings.ini (Notebook's config override)
 
 // Now/Next (But can wait till after Notebook):
+// - WindowService: Keep a member of last size instead of using last window
+// (since it doesn't register on app open)
 // - WordCounter
 // - Autosaving
 // - How to update SettingsDialog if settings are changed via commander
@@ -65,9 +74,10 @@
 // - Translations and translation change at run-time via menu
 
 // Minor:
+// - Check that we ever actually need Window::destroyed to emit pointer...
 // - Check where we've relied on connecting to EventBus::windowDestroyed vs
 // Window::destroyed...
-// - Clean TreeViewModule::initialize_()
+// - Clean TreeViewModule::onWindowCreated_()
 // - Could be the case that given our architecture, all services and modules
 // don't really need to have any public methods (save ctor/dtor), as anything
 // else is a query/command/call
@@ -125,6 +135,8 @@
 // want to just use the context instead of the params map
 
 // Code uniformity/clean-up:
+// - Commander arg names may go in Constants
+// - Find all quotes and make sure they're in TR if needed
 // - Consistent order for args in event bus / slots (Window, View, Model,
 // Index)
 // - Clean includes (always include if used)

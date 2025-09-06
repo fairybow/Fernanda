@@ -42,35 +42,12 @@ class Workspace : public QObject
 
 public:
     Workspace(
-        const Coco::Path& configPath,
-        const Coco::Path& rootPath,
+        const Coco::Path& globalConfig,
         QObject* parent = nullptr)
         : QObject(parent)
-        , config(configPath)
-        , rootPath(rootPath)
+        , globalConfig_(globalConfig)
     {
         initialize_();
-
-        /// Unsure about passing config paths via App. Notebooks will know their
-        /// config path is `archive/settings.ini`, why pass that via App? May
-        /// instead want this approach: all Workspaces have a base config path
-        /// (this will act as a fallback in Notebooks and primary in Notepad).
-        /// We can have a protected method to add a new (overriding) config path
-        ///
-        /// Similar can be said of root...
-        ///
-        /// Additionally, root means, essentially, the starting directory for
-        /// opening files. For Notepad, this is your typical Documents/App
-        /// folder. For Notebooks, this is the archive root. The plan is that
-        /// Notepad's root will eventually be mutable and saved via config or
-        /// session, whereas Notebook's will be static.
-        ///
-        /// When using a path translator for Notebooks, which work on archives,
-        /// we also need a way to take the Notepad config path as fallback
-        /// without translation
-        ///
-        /// This is an option but may be overkill: an app-wide communication
-        /// strategy, like Commander/EventBus, but for Workspaces and App...
     }
 
     virtual ~Workspace() override = default;
@@ -88,21 +65,19 @@ public:
     }
 
     void activate() const { windows_->activateAll(); }
-    Coco::Path root() const noexcept { return rootPath; }
 
 signals:
     void lastWindowClosed();
 
 protected:
-    Coco::Path rootPath;
-    Coco::Path config;
-
     Commander* commander = new Commander(this);
     EventBus* eventBus = new EventBus(this);
 
     SettingsModule* settings = nullptr;
 
 private:
+    Coco::Path globalConfig_;
+
     WindowService* windows_ = new WindowService(commander, eventBus, this);
     ViewService* views_ = new ViewService(commander, eventBus, this);
     FileService* files_ = new FileService(commander, eventBus, this);
@@ -111,7 +86,7 @@ private:
 
     void initialize_()
     {
-        settings = new SettingsModule(config, commander, eventBus, this);
+        settings = new SettingsModule(globalConfig_, commander, eventBus, this);
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
         addCommandHandlers_();

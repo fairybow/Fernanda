@@ -48,10 +48,6 @@ void Workspace::addCommandHandlers_()
         AboutDialog::exec();
     });
 
-    commander->addQueryHandler(Queries::Root, [&] {
-        return rootPath.toQString();
-    });
-
     commander->addCallHandler(Calls::NewTreeViewModel, [&] {
         return toQVariant(makeTreeViewModel_());
     });

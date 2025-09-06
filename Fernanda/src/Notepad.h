@@ -11,6 +11,7 @@
 
 #include <functional>
 
+#include <QAbstractItemModel>
 #include <QFileSystemModel>
 #include <QModelIndex>
 #include <QObject>
@@ -22,6 +23,7 @@
 #include "EventBus.h"
 #include "MenuModule.h"
 #include "Utility.h"
+#include "Version.h"
 #include "Workspace.h"
 
 namespace Fernanda {
@@ -35,11 +37,8 @@ class Notepad : public Workspace
 public:
     using PathInterceptor = std::function<bool(const Coco::Path&)>;
 
-    Notepad(
-        const Coco::Path& configPath,
-        const Coco::Path& rootPath,
-        QObject* parent = nullptr)
-        : Workspace(configPath, rootPath, parent)
+    Notepad(const Coco::Path& globalConfig, QObject* parent = nullptr)
+        : Workspace(globalConfig, parent)
     {
         initialize_();
     }
@@ -67,6 +66,8 @@ public:
     }
 
 private:
+    Coco::Path currentBaseDir_ = Coco::Path::Documents(VERSION_APP_NAME_STRING);
+
     PathInterceptor pathInterceptor_ = nullptr;
     MenuModule* menus_ = new MenuModule(commander, eventBus, this);
 
@@ -80,12 +81,16 @@ private:
 
             return false;
         });
+
+        commander->addQueryHandler(Queries::NotepadBaseDir, [&] {
+            return currentBaseDir_.toQString();
+        });
     }
 
     virtual QAbstractItemModel* makeTreeViewModel_() override
     {
         auto model = new QFileSystemModel(this);
-        auto root_index = model->setRootPath(rootPath.toQString());
+        auto root_index = model->setRootPath(currentBaseDir_.toQString());
         storeItemModelRootIndex(model, root_index);
         model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
         // Any other Notepad-specific model setup

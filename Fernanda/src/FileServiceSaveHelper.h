@@ -233,7 +233,9 @@ private:
         return result;
     }
 
-    /// WIP
+    /// WIP: Important! This doesn't really apply to Notebooks! We won't need to
+    /// set extension (always .txt) or find a spot in the directory (will be
+    /// appended to the end of the virtual directory structure)
     PathChange saveAsDialog_(Window* window, IFileModel* model) const
     {
         if (!model) return {};
@@ -247,9 +249,10 @@ private:
         auto new_path = Coco::PathUtil::Dialog::save(
             window,
             Tr::Dialogs::saveFileCaption(),
-            old_path.isEmpty() ? commander_->query<QString>(Queries::Root)
-                               : old_path); /// Filter arg is last arg (not
-                                            /// present here), do later
+            old_path.isEmpty()
+                ? commander_->query<QString>(Queries::NotepadBaseDir)
+                : old_path); /// Filter arg is last arg (not
+                             /// present here), do later
 
         return { old_path, new_path };
     }

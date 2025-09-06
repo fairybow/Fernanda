@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QAbstractItemModel>
 #include <QLabel>
 #include <QObject>
 #include <QStandardItemModel> /// Temp
@@ -33,29 +34,46 @@ class Notebook : public Workspace
 
 public:
     Notebook(
-        const Coco::Path& baseConfig,
-        const Coco::Path& root,
+        const Coco::Path& archivePath,
+        const Coco::Path& globalConfig,
+        const Coco::Path& userDataDir,
         QObject* parent = nullptr)
-        : Workspace(baseConfig, root, parent)
+        : Workspace(globalConfig, parent)
+        , archivePath_(archivePath)
+        , userDataDir_(userDataDir)
     {
         initialize_();
     }
 
     virtual ~Notebook() override { COCO_TRACER; }
 
+    Coco::Path archivePath() const noexcept { return archivePath_; }
+    Coco::Path root() const noexcept { return root_; }
+
 private:
+    Coco::Path archivePath_;
+    Coco::Path userDataDir_;
+
+    Coco::Path root_{};
+
     void initialize_()
     {
-        // Set this after extraction
-        //settings->setOverrideConfigPath(root / Settings.ini);
+        // 1. Extract
 
-        connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
-            auto status_bar = window->statusBar();
-            if (!status_bar) return; // <- Shouldn't happen
-            auto temp_label = new QLabel;
-            temp_label->setText("[Archive Name]");
-            status_bar->addPermanentWidget(temp_label);
+        // 2. Set root
+
+        // 3. Set settings override
+        // settings->setOverrideConfigPath(root / Settings.ini);
+
+        commander->addQueryHandler(Queries::NotebookRoot, [&] {
+            return root_.toQString();
         });
+
+        connect(
+            eventBus,
+            &EventBus::windowCreated,
+            this,
+            &Notebook::onWindowCreated_);
     }
 
     virtual QAbstractItemModel* makeTreeViewModel_() override
@@ -64,6 +82,24 @@ private:
         auto model = new QStandardItemModel(this);
         // Configure archive-specific settings
         return model;
+    }
+
+    void addWorkspaceIndicator_(Window* window)
+    {
+        if (!window) return;
+
+        auto status_bar = window->statusBar();
+        if (!status_bar) return; // <- Shouldn't happen
+        auto temp_label = new QLabel;
+        temp_label->setText("[Archive Name]");
+        status_bar->addPermanentWidget(temp_label);
+    }
+
+private slots:
+    void onWindowCreated_(Window* window)
+    {
+        if (!window) return;
+        addWorkspaceIndicator_(window);
     }
 };
 

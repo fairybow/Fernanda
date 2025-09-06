@@ -73,7 +73,8 @@ namespace Commands {
 // with no return value)
 namespace Calls {
 
-    constexpr auto NewTreeViewModel = "call.workspace.workspace:new_tree_view_model";
+    constexpr auto NewTreeViewModel =
+        "call.workspace.workspace:new_tree_view_model";
 
     constexpr auto Save = "call.file_serv.workspace:save";
     constexpr auto SaveAs = "call.file_serv.workspace:save_as";
@@ -95,7 +96,8 @@ namespace Calls {
 // Queries are for returning read-only values and take optional parameters
 namespace Queries {
 
-    constexpr auto Root = "query.workspace.workspace:root";
+    constexpr auto NotepadBaseDir = "query.notepad.workspace:base_dir";
+    constexpr auto NotebookRoot = "query.notebook.workspace:root";
 
     constexpr auto ActiveWindow = "query.window_serv.workspace:active_window";
     constexpr auto WindowList = "query.window_serv.workspace:list";

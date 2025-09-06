@@ -46,17 +46,11 @@ private:
 
     void initialize_()
     {
-        connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
-            if (!window) return;
-
-            // ColorBar floats outside layouts
-            colorBars_[window] = new ColorBar(window);
-
-            connect(window, &Window::destroyed, this, [=] {
-                if (!window) return;
-                colorBars_.remove(window);
-            });
-        });
+        connect(
+            eventBus,
+            &EventBus::windowCreated,
+            this,
+            &ColorBarModule::onWindowCreated_);
 
         connect(eventBus, &EventBus::workspaceInitialized, this, [&] {
             timer(this, 1000, [&] { runAll_(ColorBar::Pastel); });
@@ -91,6 +85,19 @@ private:
     }
 
 private slots:
+    void onWindowCreated_(Window* window)
+    {
+        if (!window) return;
+
+        // ColorBar floats outside layouts
+        colorBars_[window] = new ColorBar(window);
+
+        connect(window, &Window::destroyed, this, [=] {
+            if (!window) return;
+            colorBars_.remove(window);
+        });
+    }
+
     void onWindowSaveExecuted_(Window* window, SaveResult result) const
     {
         if (!window) return;

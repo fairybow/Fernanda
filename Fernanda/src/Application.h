@@ -17,6 +17,7 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
+#include "Constants.h"
 #include "FileTypes.h"
 #include "Notebook.h"
 #include "Notepad.h"
@@ -67,18 +68,15 @@ public slots:
 
 private:
     Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
-    Coco::Path notepadConfig_ = userDataDirectory_ / "Settings.ini";
-    Coco::Path notepadRoot_ = Coco::Path::Documents("Fernanda");
+    Coco::Path globalConfig_ = userDataDirectory_ / CONFIG_FILE_NAME;
 
     Notepad* notepad_ = nullptr;
     QList<Notebook*> notebooks_{};
 
     void initializeNotepad_()
     {
-        Coco::PathUtil::mkdir(notepadRoot_);
-
         // Temporary opening procedures:
-        notepad_ = new Notepad(notepadConfig_, notepadRoot_, this);
+        notepad_ = new Notepad(globalConfig_, this);
         notepad_->setPathInterceptor(
             this,
             &Application::notepadPathInterceptor_);
@@ -91,7 +89,8 @@ private:
     void makeNotebook_(const Coco::Path& archive)
     {
         // Temporary opening procedures:
-        auto notebook = new Notebook(notepadConfig_, archive, this);
+        auto notebook =
+            new Notebook(archive, globalConfig_, userDataDirectory_, this);
         notebooks_ << notebook;
 
         connect(notebook, &Notebook::lastWindowClosed, this, [=] {
@@ -108,7 +107,7 @@ private:
             COCO_LOG_THIS("Interceptor true.");
 
             for (auto& notebook : notebooks_) {
-                if (notebook->root() == path) {
+                if (notebook->archivePath() == path) {
                     notebook->activate();
                     return true;
                 }
