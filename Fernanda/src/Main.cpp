@@ -25,6 +25,10 @@
 // - Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
+// - May need to fully rethink the close/save procedures
+// - A callback for closing tabs that saves the file to the temp file before
+// closing the model. Still, we need to persist that there are changes so it can
+// be marked dirty when reopened...
 // - Need to address the problem of FileServiceSaveHelper::saveAsDialog_. May
 // need a callback, to keep the module applicable to both Workspace types
 // - Notebook Save As likely just means an enter-name dialog and append it to
