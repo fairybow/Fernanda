@@ -25,6 +25,11 @@
 // - Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
+// - Rethink Root:
+// - May want to change Workspace root member. Notebooks will take the archive
+// path on construction, but their "root" for working documents will be
+// TempExtractionDir/Content/. For Notepad, this root will be Documents/Fernanda
+// (for now always, but later settable)
 // - New Story file in Notepad menu (will create and then open)
 // - Open Story file in Notepad menu (will filter specifically for .story)
 // - Open Notepad in Notebook menu

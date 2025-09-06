@@ -11,6 +11,7 @@
 
 #include <functional>
 
+#include <QAbstractItemModel>
 #include <QFileSystemModel>
 #include <QModelIndex>
 #include <QObject>

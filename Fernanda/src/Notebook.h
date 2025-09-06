@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QAbstractItemModel>
 #include <QLabel>
 #include <QObject>
 #include <QStandardItemModel> /// Temp
