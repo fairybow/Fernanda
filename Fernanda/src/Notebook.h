@@ -61,7 +61,7 @@ private:
 
     void initialize_()
     {
-        name_ = archivePath_.filename().toQString();
+        name_ = archivePath_.stemQString();
 
         // 1. Extract
 
@@ -97,7 +97,7 @@ private:
         auto status_bar = window->statusBar();
         if (!status_bar) return; // <- Shouldn't happen
         auto temp_label = new QLabel;
-        temp_label->setText("[Archive Name]");
+        temp_label->setText(name_);
         status_bar->addPermanentWidget(temp_label);
     }
 
