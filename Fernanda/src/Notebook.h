@@ -54,11 +54,16 @@ private:
     Coco::Path archivePath_;
     Coco::Path userDataDir_;
 
+    QString name_{};
     Coco::Path root_{};
+    Coco::Path content_{};
 
     void initialize_()
     {
+        name_ = archivePath_.filename().toQString();
+
         // 1. Extract
+
 
         // 2. Set root
 
