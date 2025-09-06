@@ -65,7 +65,6 @@ private:
 
         // 1. Extract
 
-
         // 2. Set root
 
         // 3. Set settings override
