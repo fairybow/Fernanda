@@ -48,7 +48,7 @@ public:
     virtual ~Notebook() override { COCO_TRACER; }
 
     Coco::Path archivePath() const noexcept { return archivePath_; }
-    Coco::Path root() const noexcept { return root_; }
+    //Coco::Path root() const noexcept { return root_; } // Probably internal-only
 
 private:
     Coco::Path archivePath_;
