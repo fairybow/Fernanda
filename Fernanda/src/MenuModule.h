@@ -24,7 +24,6 @@
 #include <Qt>
 
 #include "Coco/Bool.h"
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
@@ -57,7 +56,7 @@ public:
         initialize_();
     }
 
-    virtual ~MenuModule() override { COCO_TRACER; }
+    virtual ~MenuModule() override = default;
 
 private:
     COCO_BOOL(AutoRepeat);

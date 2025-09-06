@@ -21,7 +21,7 @@
 
 #include "Commander.h"
 #include "EventBus.h"
-#include "MenuModule.h"
+#include "NotepadMenuModule.h"
 #include "Utility.h"
 #include "Version.h"
 #include "Workspace.h"
@@ -69,7 +69,8 @@ private:
     Coco::Path currentBaseDir_ = Coco::Path::Documents(VERSION_APP_NAME_STRING);
 
     PathInterceptor pathInterceptor_ = nullptr;
-    MenuModule* menus_ = new MenuModule(commander, eventBus, this);
+    NotepadMenuModule* menus_ =
+        new NotepadMenuModule(commander, eventBus, this);
 
     void initialize_()
     {

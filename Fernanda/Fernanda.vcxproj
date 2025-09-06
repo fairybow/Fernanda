@@ -32,6 +32,7 @@
     <None Include="..\.gitignore" />
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
+    <None Include="docs\Menus.md" />
     <None Include="docs\VSProjectSettings.md" />
     <None Include="resources\ui\TabWidgetButtonAdd.svg" />
     <None Include="resources\ui\TabWidgetButtonClose.svg" />
@@ -74,8 +75,8 @@
     <ClInclude Include="src\Ini.h" />
     <QtMoc Include="src\Notebook.h" />
     <QtMoc Include="src\Notepad.h" />
-    <ClInclude Include="src\NotebookMenuModule.h" />
-    <ClInclude Include="src\NotepadMenuModule.h" />
+    <QtMoc Include="src\NotebookMenuModule.h" />
+    <QtMoc Include="src\NotepadMenuModule.h" />
     <ClInclude Include="src\SavePrompt.h" />
     <QtMoc Include="src\Settings.h" />
     <QtMoc Include="src\SettingsDialog.h" />

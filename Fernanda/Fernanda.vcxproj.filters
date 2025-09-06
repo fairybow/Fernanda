@@ -122,6 +122,9 @@
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
     </None>
+    <None Include="docs\Menus.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -235,6 +238,12 @@
     <QtMoc Include="src\MenuModule.h">
       <Filter>Code\Auxiliary\MenuModules</Filter>
     </QtMoc>
+    <QtMoc Include="src\NotepadMenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
+    </QtMoc>
+    <QtMoc Include="src\NotebookMenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
@@ -305,12 +314,6 @@
     </ClInclude>
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\NotebookMenuModule.h">
-      <Filter>Code\Auxiliary\MenuModules</Filter>
-    </ClInclude>
-    <ClInclude Include="src\NotepadMenuModule.h">
-      <Filter>Code\Auxiliary\MenuModules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

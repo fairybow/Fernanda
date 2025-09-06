@@ -23,6 +23,7 @@
 #include "SettingsModule.h"
 #include "Window.h"
 #include "Workspace.h"
+//#include "NotebookMenuModule.h"
 
 namespace Fernanda {
 
