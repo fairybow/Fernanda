@@ -25,6 +25,7 @@
 // - Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
+// - Both menus, New File (Save As with an empty txt)?
 // - Rethink Root:
 // - May want to change Workspace root member. Notebooks will take the archive
 // path on construction, but their "root" for working documents will be
