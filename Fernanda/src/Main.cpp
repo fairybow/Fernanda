@@ -70,6 +70,7 @@
 // - Translations and translation change at run-time via menu
 
 // Minor:
+// - Check that we ever actually need Window::destroyed to emit pointer...
 // - Check where we've relied on connecting to EventBus::windowDestroyed vs
 // Window::destroyed...
 // - Clean TreeViewModule::onWindowCreated_()
