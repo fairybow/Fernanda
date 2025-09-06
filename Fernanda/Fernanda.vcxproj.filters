@@ -52,6 +52,9 @@
     <Filter Include="Code\Auxiliary\SettingsDialog">
       <UniqueIdentifier>{f61f8d7e-472d-4a04-8fae-d2e55b150670}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Auxiliary\MenuModules">
+      <UniqueIdentifier>{c288fd8e-1a64-402c-8ff1-8132a5c162e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -151,9 +154,6 @@
     <QtMoc Include="src\WordCounterModule.h">
       <Filter>Code\Auxiliary</Filter>
     </QtMoc>
-    <QtMoc Include="src\MenuModule.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
     <QtMoc Include="src\ColorBarModule.h">
       <Filter>Code\Auxiliary</Filter>
     </QtMoc>
@@ -232,6 +232,9 @@
     <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Auxiliary\SettingsDialog</Filter>
     </QtMoc>
+    <QtMoc Include="src\MenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
@@ -302,6 +305,12 @@
     </ClInclude>
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\NotebookMenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
+    </ClInclude>
+    <ClInclude Include="src\NotepadMenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
