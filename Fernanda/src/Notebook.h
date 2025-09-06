@@ -48,15 +48,13 @@ private:
     void initialize_()
     {
         // Set this after extraction
-        //settings->setOverrideConfigPath(root / Settings.ini);
+        // settings->setOverrideConfigPath(root / Settings.ini);
 
-        connect(eventBus, &EventBus::windowCreated, this, [&](Window* window) {
-            auto status_bar = window->statusBar();
-            if (!status_bar) return; // <- Shouldn't happen
-            auto temp_label = new QLabel;
-            temp_label->setText("[Archive Name]");
-            status_bar->addPermanentWidget(temp_label);
-        });
+        connect(
+            eventBus,
+            &EventBus::windowCreated,
+            this,
+            &Notebook::onWindowCreated_);
     }
 
     virtual QAbstractItemModel* makeTreeViewModel_() override
@@ -65,6 +63,24 @@ private:
         auto model = new QStandardItemModel(this);
         // Configure archive-specific settings
         return model;
+    }
+
+    void addWorkspaceIndicator_(Window* window)
+    {
+        if (!window) return;
+
+        auto status_bar = window->statusBar();
+        if (!status_bar) return; // <- Shouldn't happen
+        auto temp_label = new QLabel;
+        temp_label->setText("[Archive Name]");
+        status_bar->addPermanentWidget(temp_label);
+    }
+
+private slots:
+    void onWindowCreated_(Window* window)
+    {
+        if (!window) return;
+        addWorkspaceIndicator_(window);
     }
 };
 

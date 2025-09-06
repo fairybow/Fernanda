@@ -71,7 +71,7 @@
 // Minor:
 // - Check where we've relied on connecting to EventBus::windowDestroyed vs
 // Window::destroyed...
-// - Clean TreeViewModule::initialize_()
+// - Clean TreeViewModule::onWindowCreated_()
 // - Could be the case that given our architecture, all services and modules
 // don't really need to have any public methods (save ctor/dtor), as anything
 // else is a query/command/call
