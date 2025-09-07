@@ -321,6 +321,9 @@
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\TempNewMenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">
