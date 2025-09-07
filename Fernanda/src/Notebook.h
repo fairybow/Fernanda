@@ -20,10 +20,10 @@
 
 #include "Commander.h"
 #include "EventBus.h"
+#include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "Window.h"
 #include "Workspace.h"
-//#include "NotebookMenuModule.h"
 
 namespace Fernanda {
 
@@ -49,7 +49,8 @@ public:
     virtual ~Notebook() override { COCO_TRACER; }
 
     Coco::Path archivePath() const noexcept { return archivePath_; }
-    //Coco::Path root() const noexcept { return root_; } // Probably internal-only
+    // Coco::Path root() const noexcept { return root_; } // Probably
+    // internal-only
 
 private:
     Coco::Path archivePath_;
@@ -58,6 +59,9 @@ private:
     QString name_{};
     Coco::Path root_{};
     Coco::Path content_{};
+
+    NotebookMenuModule* menus_ =
+        new NotebookMenuModule(commander, eventBus, this);
 
     void initialize_()
     {

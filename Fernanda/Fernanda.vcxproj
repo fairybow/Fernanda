@@ -58,7 +58,6 @@
     <QtMoc Include="src\NoOpFileView.h" />
     <QtMoc Include="src\TabWidget.h" />
     <QtMoc Include="src\ColorBarModule.h" />
-    <QtMoc Include="src\MenuModule.h" />
     <QtMoc Include="src\ColorBar.h" />
     <QtMoc Include="src\IService.h" />
     <QtMoc Include="src\TabWidgetButton.h" />
@@ -82,7 +81,7 @@
     <ClInclude Include="src\SavePrompt.h" />
     <QtMoc Include="src\Settings.h" />
     <QtMoc Include="src\SettingsDialog.h" />
-    <QtMoc Include="src\TempNewMenuModule.h" />
+    <QtMoc Include="src\MenuModule.h" />
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewModule.h" />
     <ClInclude Include="src\Utility.h" />

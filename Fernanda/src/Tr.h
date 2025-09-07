@@ -120,13 +120,19 @@ namespace Tr {
 
         // Notepad
 
-        TR_(fileOpen, tr("Open..."));
-        TR_(fileSave, tr("Save"));
-        TR_(fileSaveAs, tr("Save as..."));
-        TR_(fileSaveWindow, tr("Save all in window"));
-        TR_(fileSaveAll, tr("Save all"));
+        TR_(notepadFileOpen, tr("Open..."));
+        TR_(notepadFileSave, tr("Save"));
+        TR_(notepadFileSaveAs, tr("Save as..."));
+        TR_(notepadFileSaveAllInWindow, tr("Save all in window"));
+        TR_(notepadFileSaveAll, tr("Save all"));
 
         // Notebook
+
+        TR_(notebookFileSave, tr("Save"));
+        TR_(notebookFileSaveAs, tr("Save as..."));
+        TR_(notebookFileImport, tr("Import..."));
+        TR_(notebookFileExport, tr("Export..."));
+        TR_(notebookFileOpenNotepad, tr("Open notepad"));
 
         // Open Notepad, Save, what else?
 

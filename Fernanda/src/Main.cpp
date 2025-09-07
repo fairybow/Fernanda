@@ -154,6 +154,7 @@
 // (instead of `namespace Main { namespace Sub {`)
 // - Use delete (not deleteLater) everywhere to discover logic problems
 // - Find unused functions
+// - Rename MenuModule and Workspace to Abstract...
 
 // Coco:
 // - Rework/format Coco (again)!

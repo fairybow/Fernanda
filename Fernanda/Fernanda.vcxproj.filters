@@ -241,16 +241,13 @@
     <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Auxiliary\SettingsDialog</Filter>
     </QtMoc>
-    <QtMoc Include="src\MenuModule.h">
-      <Filter>Code\Auxiliary\MenuModules</Filter>
-    </QtMoc>
     <QtMoc Include="src\NotepadMenuModule.h">
       <Filter>Code\Auxiliary\MenuModules</Filter>
     </QtMoc>
     <QtMoc Include="src\NotebookMenuModule.h">
       <Filter>Code\Auxiliary\MenuModules</Filter>
     </QtMoc>
-    <QtMoc Include="src\TempNewMenuModule.h">
+    <QtMoc Include="src\MenuModule.h">
       <Filter>Code\Auxiliary\MenuModules</Filter>
     </QtMoc>
   </ItemGroup>
