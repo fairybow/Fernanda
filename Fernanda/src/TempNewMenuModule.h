@@ -40,10 +40,7 @@ public:
     virtual ~MenuModule() override = default;
 
 protected:
-    COCO_BOOL(AutoRepeat);
-
-private:
-    struct Actions_
+    struct BaseActions
     {
         QAction* fileNewTab = nullptr;
         QAction* fileNewWindow = nullptr;
@@ -78,8 +75,32 @@ private:
         } toggles;
     };
 
-    QHash<Window*, Actions_> windowActions_{};
+    QHash<Window*, BaseActions> baseActions{};
 
+    COCO_BOOL(AutoRepeat);
+
+    QAction* makeAction_(
+        Window* window,
+        const QString& commandId,
+        const QString& text,
+        AutoRepeat autoRepeat,
+        const QKeySequence& keySequence)
+    {
+        if (!window) return nullptr;
+
+        auto action = new QAction(text, window);
+        connect(action, &QAction::triggered, window, [=] {
+            commander->execute(commandId, {}, window);
+        });
+        action->setAutoRepeat(autoRepeat);
+        action->setShortcut(keySequence);
+
+        return action;
+    }
+
+    virtual void initializeWorkspaceActions_(Window* window) = 0;
+
+private:
     void initialize_()
     {
         connect(
@@ -91,11 +112,21 @@ private:
         //...
     }
 
+    void initializeBaseActions_(Window* window)
+    {
+        if (!window) return;
+
+        BaseActions actions{};
+
+        //...
+    }
+
 private slots:
     void onWindowCreated_(Window* window)
     {
         if (!window) return;
-        //initializeActions_(window);
+        initializeBaseActions_(window);
+        initializeWorkspaceActions_(window);
         //setupMenuBar_(window);
     }
 };
