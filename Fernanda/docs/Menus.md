@@ -2,7 +2,7 @@
 
 ## Notes/Todo
 
-Save will be fundamentally different for each Workspace. Save, Save As, Save All, Save All In Window, etc, for Notepad. But for Notebook we only have Save, which will save the entire archive.
+Save will be fundamentally different for both Workspaces. Save, Save As, Save All, Save All In Window, etc, for Notepad. But for Notebook we only have Save, which will save the entire archive.
 
 This means closing may also be different, as we may not need to save when closing an edited file (and we'll persist changes on the temp files until saved or discarded on exit).
 
@@ -15,8 +15,6 @@ This means closing may also be different, as we may not need to save when closin
 - Save As (Toggle)
 - Save All in Window (Toggle)
 - Save All (Toggle)
-- New Notebook
-- Open Notebook
 
 ## Notebook
 
@@ -34,6 +32,8 @@ This means closing may also be different, as we may not need to save when closin
 
 - New Tab
 - New Window
+- New Notebook
+- Open Notebook
 - Close (Toggle)
 - Close All in Window (Toggle)
 - Close All (Toggle)

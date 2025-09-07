@@ -25,6 +25,8 @@
 // - Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
+// - Open Notepad item will need to activate active window of already open
+// Notepad else open new window
 // - Get all menu actions down and note what Command they use (and other
 // procedures if applicable) before implementing any of them
 // - May need to fully rethink the close/save procedures (fill out Closing.md

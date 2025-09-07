@@ -250,6 +250,9 @@
     <QtMoc Include="src\NotebookMenuModule.h">
       <Filter>Code\Auxiliary\MenuModules</Filter>
     </QtMoc>
+    <QtMoc Include="src\TempNewMenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
@@ -320,9 +323,6 @@
     </ClInclude>
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TempNewMenuModule.h">
-      <Filter>Code\Auxiliary\MenuModules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

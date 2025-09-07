@@ -37,6 +37,19 @@ public:
     virtual ~NotepadMenuModule() override { COCO_TRACER; }
 
 private:
+    struct Actions_
+    {
+        QAction* fileOpen = nullptr;
+
+        struct Toggles
+        {
+            QAction* fileSave = nullptr;
+            QAction* fileSaveAs = nullptr;
+            QAction* fileSaveAllInWindow = nullptr;
+            QAction* fileSaveAll = nullptr;
+        } toggles;
+    };
+
     void initialize_()
     {
         //...
