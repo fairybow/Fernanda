@@ -153,6 +153,7 @@
 // - Fix all nested namespace to use `namespace Main::Sub {` syntax
 // (instead of `namespace Main { namespace Sub {`)
 // - Use delete (not deleteLater) everywhere to discover logic problems
+// - Find unused functions
 
 // Coco:
 // - Rework/format Coco (again)!

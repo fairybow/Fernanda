@@ -9,8 +9,11 @@
 
 #pragma once
 
-#include <QObject>
+#include <QAction>
 #include <QHash>
+#include <QMenu>
+#include <QMenuBar>
+#include <QObject>
 
 #include "Coco/Bool.h"
 
@@ -50,7 +53,7 @@ protected:
         QAction* fileCloseAllWindows = nullptr;
         QAction* fileQuit = nullptr;
 
-        QAction* settingsOpen = nullptr;
+        QAction* settings = nullptr;
 
         QAction* helpAbout = nullptr;
 
@@ -79,12 +82,12 @@ protected:
 
     COCO_BOOL(AutoRepeat);
 
-    QAction* makeAction_(
+    QAction* make(
         Window* window,
         const QString& commandId,
         const QString& text,
-        AutoRepeat autoRepeat,
-        const QKeySequence& keySequence)
+        const QKeySequence& keySequence = {},
+        AutoRepeat autoRepeat = AutoRepeat::No)
     {
         if (!window) return nullptr;
 
@@ -92,8 +95,8 @@ protected:
         connect(action, &QAction::triggered, window, [=] {
             commander->execute(commandId, {}, window);
         });
-        action->setAutoRepeat(autoRepeat);
         action->setShortcut(keySequence);
+        action->setAutoRepeat(autoRepeat);
 
         return action;
     }
@@ -118,7 +121,194 @@ private:
 
         BaseActions actions{};
 
-        //...
+        actions.fileNewTab = make(
+            window,
+            Commands::NewTab,
+            Tr::Menus::fileNewTab(),
+            Qt::CTRL | Qt::Key_D);
+
+        actions.fileNewWindow = make(
+            window,
+            Commands::NewWindow,
+            Tr::Menus::fileNewWindow(),
+            Qt::CTRL | Qt::Key_W);
+
+        /// How will these connect? Commander/EventBus are owned by the
+        /// Workspaces and new Notebooks are opened by Application (sometimes
+        /// via Notepad, with the Interceptor)
+
+        actions.fileNewNotebook =
+            make(window, "", Tr::Menus::fileNewNotebook());
+
+        actions.fileOpenNotebook =
+            make(window, "", Tr::Menus::fileOpenNotebook());
+
+        actions.toggles.fileClose =
+            make(window, Calls::CloseView, Tr::Menus::fileClose());
+
+        actions.toggles.fileCloseAllInWindow = make(
+            window,
+            Calls::CloseWindowViews,
+            Tr::Menus::fileCloseAllInWindow());
+
+        actions.toggles.fileCloseAll =
+            make(window, Calls::CloseAllViews, Tr::Menus::fileCloseAll());
+
+        actions.fileCloseWindow =
+            make(window, Commands::CloseWindow, Tr::Menus::fileCloseWindow());
+
+        actions.fileCloseAllWindows = make(
+            window,
+            Commands::CloseAllWindows,
+            Tr::Menus::fileCloseAllWindows());
+
+        actions.fileQuit = make(
+            window,
+            Commands::Quit,
+            Tr::Menus::fileQuit(),
+            Qt::CTRL | Qt::Key_Q);
+
+        actions.toggles.editUndo = make(
+            window,
+            Commands::Undo,
+            Tr::Menus::editUndo(),
+            Qt::CTRL | Qt::Key_Z,
+            AutoRepeat::Yes);
+
+        actions.toggles.editRedo = make(
+            window,
+            Commands::Redo,
+            Tr::Menus::editRedo(),
+            Qt::CTRL | Qt::Key_Y,
+            AutoRepeat::Yes);
+
+        actions.toggles.editCut = make(
+            window,
+            Commands::Cut,
+            Tr::Menus::editCut(),
+            Qt::CTRL | Qt::Key_X);
+
+        actions.toggles.editCopy = make(
+            window,
+            Commands::Copy,
+            Tr::Menus::editCopy(),
+            Qt::CTRL | Qt::Key_C);
+
+        actions.toggles.editPaste = make(
+            window,
+            Commands::Paste,
+            Tr::Menus::editPaste(),
+            Qt::CTRL | Qt::Key_V,
+            AutoRepeat::Yes);
+
+        actions.toggles.editDelete = make(
+            window,
+            Commands::Delete,
+            Tr::Menus::editDelete(),
+            Qt::Key_Delete);
+
+        actions.toggles.editSelectAll = make(
+            window,
+            Commands::SelectAll,
+            Tr::Menus::editSelectAll(),
+            Qt::CTRL | Qt::Key_A);
+
+        actions.toggles.viewPreviousTab = make(
+            window,
+            Commands::PreviousTab,
+            Tr::Menus::viewPreviousTab(),
+            Qt::ALT | Qt::Key_1);
+
+        actions.toggles.viewNextTab = make(
+            window,
+            Commands::NextTab,
+            Tr::Menus::viewNextTab(),
+            Qt::ALT | Qt::Key_2);
+
+        actions.toggles.viewPreviousWindow = make(
+            window,
+            Commands::PreviousWindow,
+            Tr::Menus::viewPreviousWindow(),
+            Qt::ALT | Qt::Key_QuoteLeft);
+
+        actions.toggles.viewNextWindow = make(
+            window,
+            Commands::ViewNextWindow,
+            Tr::Menus::viewNextWindow(),
+            Qt::ALT | Qt::Key_3);
+
+        actions.settings =
+            make(window, Commands::SettingsDialog, Tr::Menus::settings());
+
+        actions.helpAbout =
+            make(window, Commands::AboutDialog, Tr::Menus::helpAbout());
+
+        baseActions[window] = actions;
+        // setInitialActionStates_(window);
+    }
+
+    void setupMenuBar_(Window* window)
+    {
+        if (!window) return;
+        auto& actions = baseActions[window];
+        auto menu_bar = new QMenuBar(window);
+
+        auto file_menu = new QMenu(Tr::Menus::file(), menu_bar);
+        file_menu->addAction(actions.fileNewTab);
+        file_menu->addAction(actions.fileNewWindow);
+        file_menu->addSeparator();
+
+        // file_menu->addAction(actions.fileOpen);
+        file_menu->addSeparator();
+
+        // file_menu->addAction(actions.toggles.fileSave);
+        // file_menu->addAction(actions.toggles.fileSaveAs);
+        // file_menu->addAction(actions.toggles.fileSaveWindow);
+        // file_menu->addAction(actions.toggles.fileSaveAll);
+        file_menu->addSeparator();
+
+        file_menu->addAction(actions.toggles.fileClose);
+        file_menu->addAction(actions.toggles.fileCloseAllInWindow);
+        file_menu->addAction(actions.toggles.fileCloseAll);
+        file_menu->addSeparator();
+
+        file_menu->addAction(actions.fileCloseWindow);
+        file_menu->addAction(actions.fileCloseAllWindows);
+        file_menu->addSeparator();
+
+        file_menu->addAction(actions.fileQuit);
+        menu_bar->addMenu(file_menu);
+
+        auto edit_menu = new QMenu(Tr::Menus::edit(), menu_bar);
+        edit_menu->addAction(actions.toggles.editUndo);
+        edit_menu->addAction(actions.toggles.editRedo);
+        edit_menu->addSeparator();
+
+        edit_menu->addAction(actions.toggles.editCut);
+        edit_menu->addAction(actions.toggles.editCopy);
+        edit_menu->addAction(actions.toggles.editPaste);
+        edit_menu->addAction(actions.toggles.editDelete);
+        edit_menu->addSeparator();
+
+        edit_menu->addAction(actions.toggles.editSelectAll);
+        menu_bar->addMenu(edit_menu);
+
+        auto view_menu = new QMenu(Tr::Menus::view(), menu_bar);
+        view_menu->addAction(actions.toggles.viewPreviousTab);
+        view_menu->addAction(actions.toggles.viewNextTab);
+        view_menu->addSeparator();
+
+        view_menu->addAction(actions.toggles.viewPreviousWindow);
+        view_menu->addAction(actions.toggles.viewNextWindow);
+        menu_bar->addMenu(view_menu);
+
+        menu_bar->addAction(actions.settings);
+
+        auto help_menu = new QMenu(Tr::Menus::help(), menu_bar);
+        help_menu->addAction(actions.helpAbout);
+        menu_bar->addMenu(help_menu);
+
+        window->setMenuBar(menu_bar);
     }
 
 private slots:
@@ -127,7 +317,7 @@ private slots:
         if (!window) return;
         initializeBaseActions_(window);
         initializeWorkspaceActions_(window);
-        //setupMenuBar_(window);
+        setupMenuBar_(window);
     }
 };
 

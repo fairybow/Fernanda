@@ -15,7 +15,7 @@
 
 #include "Commander.h"
 #include "EventBus.h"
-#include "MenuModule.h"
+#include "TempNewMenuModule.h"
 
 namespace Fernanda {
 
@@ -35,6 +35,12 @@ public:
     }
 
     virtual ~NotepadMenuModule() override { COCO_TRACER; }
+
+protected:
+    virtual void initializeWorkspaceActions_(Window* window) override
+    {
+        //...
+    }
 
 private:
     struct Actions_

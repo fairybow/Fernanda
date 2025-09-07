@@ -42,12 +42,12 @@ namespace Fernanda {
 // Creates and manages menu bars, actions, and keyboard shortcuts for Windows,
 // dynamically updating menu states based on Workspace context and routing
 // actions through the Commander
-class MenuModule : public IService
+class OLDMenuModule : public IService
 {
     Q_OBJECT
 
 public:
-    MenuModule(
+    OLDMenuModule(
         Commander* commander,
         EventBus* eventBus,
         QObject* parent = nullptr)
@@ -56,7 +56,7 @@ public:
         initialize_();
     }
 
-    virtual ~MenuModule() override = default;
+    virtual ~OLDMenuModule() override = default;
 
 private:
     COCO_BOOL(AutoRepeat);
@@ -110,7 +110,7 @@ private:
             eventBus,
             &EventBus::windowCreated,
             this,
-            &MenuModule::onWindowCreated_);
+            &OLDMenuModule::onWindowCreated_);
 
         connect(
             eventBus,
@@ -130,31 +130,31 @@ private:
             eventBus,
             &EventBus::fileModificationChanged,
             this,
-            &MenuModule::onFileModificationChanged_);
+            &OLDMenuModule::onFileModificationChanged_);
 
         connect(
             eventBus,
             &EventBus::activeFileViewChanged,
             this,
-            &MenuModule::onActiveFileViewChanged_);
+            &OLDMenuModule::onActiveFileViewChanged_);
 
         connect(
             eventBus,
             &EventBus::windowTabCountChanged,
             this,
-            &MenuModule::onWindowTabCountChanged_);
+            &OLDMenuModule::onWindowTabCountChanged_);
 
         connect(
             eventBus,
             &EventBus::visibleWindowCountChanged,
             this,
-            &MenuModule::onVisibleWindowCountChanged_);
+            &OLDMenuModule::onVisibleWindowCountChanged_);
 
         connect(
             eventBus,
             &EventBus::viewClosed,
             this,
-            &MenuModule::onViewClosed_);
+            &OLDMenuModule::onViewClosed_);
     }
 
     QAction* makeAction_(
