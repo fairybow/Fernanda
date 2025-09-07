@@ -52,6 +52,9 @@
     <Filter Include="Code\Auxiliary\SettingsDialog">
       <UniqueIdentifier>{f61f8d7e-472d-4a04-8fae-d2e55b150670}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Auxiliary\MenuModules">
+      <UniqueIdentifier>{c288fd8e-1a64-402c-8ff1-8132a5c162e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -119,6 +122,15 @@
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
     </None>
+    <None Include="docs\Menus.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\Saving.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\Closing.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -149,9 +161,6 @@
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
     <QtMoc Include="src\WordCounterModule.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
-    <QtMoc Include="src\MenuModule.h">
       <Filter>Code\Auxiliary</Filter>
     </QtMoc>
     <QtMoc Include="src\ColorBarModule.h">
@@ -231,6 +240,15 @@
     </QtMoc>
     <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Auxiliary\SettingsDialog</Filter>
+    </QtMoc>
+    <QtMoc Include="src\NotepadMenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
+    </QtMoc>
+    <QtMoc Include="src\NotebookMenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
+    </QtMoc>
+    <QtMoc Include="src\MenuModule.h">
+      <Filter>Code\Auxiliary\MenuModules</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

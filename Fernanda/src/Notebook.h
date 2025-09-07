@@ -20,6 +20,7 @@
 
 #include "Commander.h"
 #include "EventBus.h"
+#include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "Window.h"
 #include "Workspace.h"
@@ -48,16 +49,24 @@ public:
     virtual ~Notebook() override { COCO_TRACER; }
 
     Coco::Path archivePath() const noexcept { return archivePath_; }
-    Coco::Path root() const noexcept { return root_; }
+    // Coco::Path root() const noexcept { return root_; } // Probably
+    // internal-only
 
 private:
     Coco::Path archivePath_;
     Coco::Path userDataDir_;
 
+    QString name_{};
     Coco::Path root_{};
+    Coco::Path content_{};
+
+    NotebookMenuModule* menus_ =
+        new NotebookMenuModule(commander, eventBus, this);
 
     void initialize_()
     {
+        name_ = archivePath_.stemQString();
+
         // 1. Extract
 
         // 2. Set root
@@ -91,7 +100,7 @@ private:
         auto status_bar = window->statusBar();
         if (!status_bar) return; // <- Shouldn't happen
         auto temp_label = new QLabel;
-        temp_label->setText("[Archive Name]");
+        temp_label->setText(name_);
         status_bar->addPermanentWidget(temp_label);
     }
 

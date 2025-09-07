@@ -25,6 +25,15 @@
 // - Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
+// - Open Notepad item will need to activate active window of already open
+// Notepad else open new window
+// - Get all menu actions down and note what Command they use (and other
+// procedures if applicable) before implementing any of them
+// - May need to fully rethink the close/save procedures (fill out Closing.md
+// and Saving.md after menu changes)
+// - A callback for closing tabs that saves the file to the temp file before
+// closing the model. Still, we need to persist that there are changes so it can
+// be marked dirty when reopened...
 // - Need to address the problem of FileServiceSaveHelper::saveAsDialog_. May
 // need a callback, to keep the module applicable to both Workspace types
 // - Notebook Save As likely just means an enter-name dialog and append it to
@@ -35,8 +44,8 @@
 // path on construction, but their "root" for working documents will be
 // TempExtractionDir/Content/. For Notepad, this root will be Documents/Fernanda
 // (for now always, but later settable)
-// - New Story file in Notepad menu (will create and then open)
-// - Open Story file in Notepad menu (will filter specifically for .story)
+// - New Notebook file in Notepad menu (will create and then open)
+// - Open Notebook file in Notepad menu (will filter specifically for .fnx)
 // - Open Notepad in Notebook menu
 // - Import/Export in Notebook menu
 // - How do we handle saving as each window closes when we are closing the
@@ -144,6 +153,8 @@
 // - Fix all nested namespace to use `namespace Main::Sub {` syntax
 // (instead of `namespace Main { namespace Sub {`)
 // - Use delete (not deleteLater) everywhere to discover logic problems
+// - Find unused functions
+// - Rename MenuModule and Workspace to Abstract...
 
 // Coco:
 // - Rework/format Coco (again)!

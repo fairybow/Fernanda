@@ -11,6 +11,7 @@
 
 #include <QApplication>
 #include <QStringList>
+#include <QSet>
 
 #include "Coco/Debug.h"
 #include "Coco/Log.h"
@@ -71,7 +72,7 @@ private:
     Coco::Path globalConfig_ = userDataDirectory_ / CONFIG_FILE_NAME;
 
     Notepad* notepad_ = nullptr;
-    QList<Notebook*> notebooks_{};
+    QSet<Notebook*> notebooks_{};
 
     void initializeNotepad_()
     {
@@ -95,6 +96,7 @@ private:
 
         connect(notebook, &Notebook::lastWindowClosed, this, [=] {
             // Clean-up
+            notebooks_.remove(notebook);
             delete notebook;
         });
 
