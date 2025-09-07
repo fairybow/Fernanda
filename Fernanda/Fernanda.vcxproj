@@ -32,7 +32,9 @@
     <None Include="..\.gitignore" />
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
+    <None Include="docs\Closing.md" />
     <None Include="docs\Menus.md" />
+    <None Include="docs\Saving.md" />
     <None Include="docs\VSProjectSettings.md" />
     <None Include="resources\ui\TabWidgetButtonAdd.svg" />
     <None Include="resources\ui\TabWidgetButtonClose.svg" />

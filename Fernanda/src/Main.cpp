@@ -25,7 +25,10 @@
 // - Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
-// - May need to fully rethink the close/save procedures
+// - Get all menu actions down and note what Command they use (and other
+// procedures if applicable) before implementing any of them
+// - May need to fully rethink the close/save procedures (fill out Closing.md
+// and Saving.md after menu changes)
 // - A callback for closing tabs that saves the file to the temp file before
 // closing the model. Still, we need to persist that there are changes so it can
 // be marked dirty when reopened...
