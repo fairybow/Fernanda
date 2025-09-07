@@ -10,6 +10,9 @@
 #pragma once
 
 #include <QObject>
+#include <QHash>
+
+#include "Coco/Bool.h"
 
 #include "Commander.h"
 #include "EventBus.h"
@@ -35,6 +38,9 @@ public:
     }
 
     virtual ~MenuModule() override = default;
+
+protected:
+    COCO_BOOL(AutoRepeat);
 
 private:
     struct Actions_
@@ -72,9 +78,25 @@ private:
         } toggles;
     };
 
+    QHash<Window*, Actions_> windowActions_{};
+
     void initialize_()
     {
+        connect(
+            eventBus,
+            &EventBus::windowCreated,
+            this,
+            &MenuModule::onWindowCreated_);
+
         //...
+    }
+
+private slots:
+    void onWindowCreated_(Window* window)
+    {
+        if (!window) return;
+        //initializeActions_(window);
+        //setupMenuBar_(window);
     }
 };
 
