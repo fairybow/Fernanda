@@ -72,7 +72,7 @@ namespace Commands {
 
     /// Notebook:
 
-    constexpr auto NewTab = "cmd.file_serv.window:new_tab";
+    //constexpr auto NewTab = "cmd.file_serv.window:new_tab";
 
 } // namespace Commands
 

@@ -45,35 +45,21 @@ protected:
         if (!window) return;
         Actions_ actions{};
 
-        /// WIP
-        actions.fileOpen = make(window, "", Tr::Menus::notepadFileOpen());
+        /// Add commands but reimplement them one at a time
 
-        /// WIP
-        actions.toggles.fileSave = make(
-            window,
-            Calls::Save,
-            Tr::Menus::notepadFileSave(),
-            Qt::CTRL | Qt::Key_S);
+        // File/Open
+        actions.fileOpenFile =
+            make(window, "", Tr::Menus::Notepad::fileOpenFile());
 
-        /// WIP
-        actions.toggles.fileSaveAs = make(
-            window,
-            Calls::SaveAs,
-            Tr::Menus::notepadFileSaveAs(),
-            Qt::CTRL | Qt::ALT | Qt::Key_S);
-
-        /// WIP
-        actions.toggles.fileSaveAllInWindow = make(
-            window,
-            Calls::SaveWindow,
-            Tr::Menus::notepadFileSaveAllInWindow());
-
-        /// WIP
-        actions.toggles.fileSaveAll = make(
-            window,
-            Calls::SaveAll,
-            Tr::Menus::notepadFileSaveAll(),
-            Qt::CTRL | Qt::SHIFT | Qt::Key_S);
+        // File/Save
+        actions.toggles.fileSaveFile =
+            make(window, "", Tr::Menus::Notepad::fileSaveFile());
+        actions.toggles.fileSaveFileAs =
+            make(window, "", Tr::Menus::Notepad::fileSaveFileAs());
+        actions.toggles.fileSaveAllFilesInWindow =
+            make(window, "", Tr::Menus::Notepad::fileSaveAllFilesInWindow());
+        actions.toggles.fileSaveAllFiles =
+            make(window, "", Tr::Menus::Notepad::fileSaveAllFiles());
 
         actions_[window] = actions;
         // setInitialToggleStates_(window);
@@ -86,7 +72,7 @@ protected:
         if (!fileMenu || !window) return false;
         auto& actions = actions_[window];
 
-        fileMenu->addAction(actions.fileOpen);
+        fileMenu->addAction(actions.fileOpenFile);
         return true;
     }
 
@@ -97,10 +83,10 @@ protected:
         if (!fileMenu || !window) return false;
         auto& actions = actions_[window];
 
-        fileMenu->addAction(actions.toggles.fileSave);
-        fileMenu->addAction(actions.toggles.fileSaveAs);
-        fileMenu->addAction(actions.toggles.fileSaveAllInWindow);
-        fileMenu->addAction(actions.toggles.fileSaveAll);
+        fileMenu->addAction(actions.toggles.fileSaveFile);
+        fileMenu->addAction(actions.toggles.fileSaveFileAs);
+        fileMenu->addAction(actions.toggles.fileSaveAllFilesInWindow);
+        fileMenu->addAction(actions.toggles.fileSaveAllFiles);
         return true;
     }
 

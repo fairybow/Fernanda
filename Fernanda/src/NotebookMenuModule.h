@@ -45,21 +45,21 @@ protected:
         if (!window) return;
         Actions_ actions{};
 
-        /// WIP
-        actions.fileSave = make(window, "", Tr::Menus::notebookFileSave());
+        /// Add commands but reimplement them one at a time
 
-        /// WIP
-        actions.fileSaveAs = make(window, "", Tr::Menus::notebookFileSaveAs());
-
-        /// WIP
-        actions.fileImport = make(window, "", Tr::Menus::notebookFileImport());
-
-        /// WIP
-        actions.fileExport = make(window, "", Tr::Menus::notebookFileExport());
-
-        /// WIP
+        // File/Open
+        actions.fileImportFile =
+            make(window, "", Tr::Menus::Notebook::fileImportFile());
         actions.fileOpenNotepad =
-            make(window, "", Tr::Menus::notebookFileOpenNotepad());
+            make(window, "", Tr::Menus::Notebook::fileOpenNotepad());
+
+        // File/Save
+        actions.toggles.fileSaveArchive =
+            make(window, "", Tr::Menus::Notebook::fileSaveArchive());
+        actions.fileSaveArchiveAs =
+            make(window, "", Tr::Menus::Notebook::fileSaveArchiveAs());
+        actions.fileExportFile =
+            make(window, "", Tr::Menus::Notebook::fileExportFile());
 
         actions_[window] = actions;
     }
@@ -71,7 +71,8 @@ protected:
         if (!fileMenu || !window) return false;
         auto& actions = actions_[window];
 
-        fileMenu->addAction(actions.fileImport);
+        fileMenu->addAction(actions.fileImportFile);
+        fileMenu->addAction(actions.fileOpenNotepad);
         return true;
     }
 
@@ -82,31 +83,20 @@ protected:
         if (!fileMenu || !window) return false;
         auto& actions = actions_[window];
 
-        fileMenu->addAction(actions.fileSave);
-        fileMenu->addAction(actions.fileSaveAs);
-        fileMenu->addAction(actions.fileExport);
-        return true;
-    }
-
-    [[nodiscard]]
-    virtual bool
-    addWorkspaceMiscFileActions_(QMenu* fileMenu, Window* window) override
-    {
-        if (!fileMenu || !window) return false;
-        auto& actions = actions_[window];
-
-        fileMenu->addAction(actions.fileOpenNotepad);
+        fileMenu->addAction(actions.toggles.fileSaveArchive);
+        fileMenu->addAction(actions.fileSaveArchiveAs);
+        fileMenu->addAction(actions.fileExportFile);
         return true;
     }
 
 private:
     struct Actions_
     {
-        QAction* fileSaveArchiveAs = nullptr;
         QAction* fileImportFile = nullptr;
-        QAction* fileExportFile = nullptr;
-
         QAction* fileOpenNotepad = nullptr;
+
+        QAction* fileSaveArchiveAs = nullptr;
+        QAction* fileExportFile = nullptr;
 
         struct Toggles
         {

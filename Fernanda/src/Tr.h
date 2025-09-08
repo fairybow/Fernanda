@@ -94,8 +94,8 @@ namespace Tr {
 
             TR_(fileNewTab, tr("New tab"));
             TR_(fileNewWindow, tr("New window"));
-
             TR_(fileNewNotebook, tr("New notebook"));
+
             TR_(fileOpenNotebook, tr("Open notebook"));
 
             TR_(fileCloseTab, tr("Close"));
@@ -137,12 +137,12 @@ namespace Tr {
 
         namespace Notebook {
 
+            TR_(fileImportFile, tr("Import..."));
+            TR_(fileOpenNotepad, tr("Open notepad"));
+
             TR_(fileSaveArchive, tr("Save"));
             TR_(fileSaveArchiveAs, tr("Save as..."));
-            TR_(fileImportFile, tr("Import..."));
             TR_(fileExportFile, tr("Export..."));
-
-            TR_(fileOpenNotepad, tr("Open notepad"));
 
         } // namespace Notebook
 

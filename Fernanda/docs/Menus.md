@@ -12,26 +12,23 @@ Need to determine what's going to be a shared action (but may still have a diffe
 
 ### File
 
-- Open
-- Save (Toggle)
-- Save As (Toggle)
-- Save All in Window (Toggle)
-- Save All (Toggle)
-- Close (Toggle)
-- Close All in Window (Toggle)
-- Close All (Toggle)
-- Close Window
-- Close All Windows
+- Open File
+
+- Save File (Toggle)
+- Save File As (Toggle)
+- Save All Files in Window (Toggle)
+- Save All Files (Toggle)
 
 ## Notebook
 
 ### File
 
-- Save Notebook (Toggle)
-- Save Notebook As
-- Import
-- Export
+- Import File
 - Open Notepad
+
+- Save Archive/Notebook (Toggle)
+- Save Archive/Notebook As
+- Export File
 
 ## Common
 
@@ -40,12 +37,15 @@ Need to determine what's going to be a shared action (but may still have a diffe
 - New Tab (different per Workspace)
 - New Window
 - New Notebook
+
 - Open Notebook
+
 - Close Tab (Toggle)
 - Close All Tabs in Window (Toggle)
 - Close All Tabs (Toggle)
 - Close Window (possibly different per Workspace)
 - Close All Windows (possibly different per Workspace)
+
 - Quit
 
 ### Edit
