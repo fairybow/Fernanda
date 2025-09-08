@@ -44,8 +44,8 @@ Need to determine what's going to be a shared action (but may still have a diffe
 - Close Tab (Toggle)
 - Close All Tabs in Window (Toggle)
 - Close All Tabs (Toggle)
-- Close Window
-- Close All Windows
+- Close Window (possibly different per Workspace)
+- Close All Windows (possibly different per Workspace)
 - Quit
 
 ### Edit
