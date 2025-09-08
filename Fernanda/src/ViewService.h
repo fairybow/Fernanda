@@ -378,7 +378,7 @@ private slots:
         if (auto text_model = to<TextFileModel*>(model)) {
             auto text_view = make_<TextFileView*>(text_model, window);
             auto font = commander->query<QFont>(
-                Queries::Setting,
+                Queries::GetSetting,
                 { { "key", Ini::Editor::FONT_KEY },
                   { "default", Ini::Editor::defaultFont() } });
             text_view->setFont(font);

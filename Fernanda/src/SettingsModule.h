@@ -76,7 +76,7 @@ private:
             });
 
         commander->addQueryHandler(
-            Queries::Setting,
+            Queries::GetSetting,
             [&](const QVariantMap& params) {
                 return settings_->value(
                     to<QString>(params, "key"),
@@ -104,7 +104,9 @@ private:
         dialog_ = new SettingsDialog(initial_font);
 
         dialog_->setFontChangeHandler([&](const QFont& font) {
-            emit eventBus->settingChanged(Ini::Editor::FONT_KEY, toQVariant(font));
+            emit eventBus->settingChanged(
+                Ini::Editor::FONT_KEY,
+                toQVariant(font));
         });
         //...
 

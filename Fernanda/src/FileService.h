@@ -92,24 +92,28 @@ private:
                 createExistingFile_(path, cmd.context);
             });
 
-        commander->addCallHandler(Calls::Save, [&](const Call& call) {
-            auto result = saveHelper_->saveAt(
-                call.context,
-                to<int>(call.params, "index", -1));
-            emit eventBus->windowSaveExecuted(call.context, result);
-            return toQVariant(result);
-        });
-
-        commander->addCallHandler(Calls::SaveAs, [&](const Call& call) {
-            auto result = saveHelper_->saveAsAt(
-                call.context,
-                to<int>(call.params, "index", -1));
-            emit eventBus->windowSaveExecuted(call.context, result);
-            return toQVariant(result);
-        });
+        commander->addCallHandler(
+            Calls::NotepadSaveFile,
+            [&](const Call& call) {
+                auto result = saveHelper_->saveAt(
+                    call.context,
+                    to<int>(call.params, "index", -1));
+                emit eventBus->windowSaveExecuted(call.context, result);
+                return toQVariant(result);
+            });
 
         commander->addCallHandler(
-            Calls::SaveIndexesInWindow,
+            Calls::NotepadSaveFileAs,
+            [&](const Call& call) {
+                auto result = saveHelper_->saveAsAt(
+                    call.context,
+                    to<int>(call.params, "index", -1));
+                emit eventBus->windowSaveExecuted(call.context, result);
+                return toQVariant(result);
+            });
+
+        commander->addCallHandler(
+            Calls::NotepadSaveIndexesInWindow,
             [&](const Call& call) {
                 auto result = saveHelper_->saveIndexesInWindow(
                     call.context,
@@ -122,15 +126,17 @@ private:
                 return toQVariant(result);
             });
 
-        commander->addCallHandler(Calls::SaveWindow, [&](const Call& call) {
-            auto result = saveHelper_->saveWindow(call.context);
-            emit eventBus->windowSaveExecuted(
-                call.context,
-                result); // Re: ColorBar
-            return toQVariant(result);
-        });
+        commander->addCallHandler(
+            Calls::NotepadSaveWindowFile,
+            [&](const Call& call) {
+                auto result = saveHelper_->saveWindow(call.context);
+                emit eventBus->windowSaveExecuted(
+                    call.context,
+                    result); // Re: ColorBar
+                return toQVariant(result);
+            });
 
-        commander->addCallHandler(Calls::SaveAll, [&] {
+        commander->addCallHandler(Calls::NotepadSaveAllFiles, [&] {
             auto result = saveHelper_->saveAll();
             emit eventBus->workspaceSaveExecuted(result); // Re: ColorBar
             return toQVariant(result);

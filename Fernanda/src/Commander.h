@@ -40,13 +40,13 @@ namespace Commands {
 
     constexpr auto SetSetting = "cmd.settings_mod.workspace:set";
 
-    /// Menu rework:
+    /// Rework/rethink:
 
-    /// Common:
-
+    constexpr auto NewTab = "cmd.file_serv.window:new_tab";
     constexpr auto NewWindow = "cmd.workspace.workspace:new_window";
     /// NewNotebook
     /// OpenNotebook
+    constexpr auto OpenFile = "cmd.file_serv.window:open_file";
     constexpr auto CloseWindow = "cmd.workspace.workspace:close_window";
     constexpr auto CloseAllWindows =
         "cmd.workspace.workspace:close_all_windows";
@@ -65,15 +65,6 @@ namespace Commands {
     constexpr auto SettingsDialog = "cmd.workspace.workspace:settings_dialog";
     constexpr auto AboutDialog = "cmd.workspace.application:about_dialog";
 
-    /// Notepad:
-
-    constexpr auto NewTab = "cmd.file_serv.window:new_tab";
-    constexpr auto OpenFile = "cmd.file_serv.window:open_file";
-
-    /// Notebook:
-
-    //constexpr auto NewTab = "cmd.file_serv.window:new_tab";
-
 } // namespace Commands
 
 // Calls are Commands that return a value (they can also be executed as Commands
@@ -82,31 +73,26 @@ namespace Calls {
 
     constexpr auto NewTreeViewModel =
         "call.workspace.workspace:new_tree_view_model";
-    constexpr auto SaveIndexesInWindow =
-        "call.file_serv.workspace:save_indexes_in_window";
 
-    /// Menu rework:
-
-    /// Common:
+    /// Rework/rethink:
 
     constexpr auto CloseView = "call.view_serv.window:close_view";
     constexpr auto CloseWindowViews =
         "call.view_serv.window:close_window_views";
     constexpr auto CloseAllViews = "call.view_serv.workspace:close_all_views";
 
-    /// Notepad:
+    constexpr auto NotepadSaveFile = "call.file_serv.workspace:save";
+    constexpr auto NotepadSaveFileAs = "call.file_serv.workspace:save_as";
+    constexpr auto NotepadSaveWindowFile =
+        "call.file_serv.workspace:save_window";
+    constexpr auto NotepadSaveAllFiles = "call.file_serv.workspace:save_all";
+    constexpr auto NotepadSaveIndexesInWindow =
+        "call.file_serv.workspace:save_indexes_in_window";
 
-    constexpr auto Save = "call.file_serv.workspace:save";
-    constexpr auto SaveAs = "call.file_serv.workspace:save_as";
-    constexpr auto SaveWindow = "call.file_serv.workspace:save_window";
-    constexpr auto SaveAll = "call.file_serv.workspace:save_all";
-
-    /// Notebook:
-
-    ///Import
-    ///Save
-    ///SaveAs
-    ///Export
+    /// NotebookImport
+    /// NotebookSave
+    /// NotebookSaveAs
+    /// NotebookExport
 
 } // namespace Calls
 
@@ -137,7 +123,7 @@ namespace Queries {
     constexpr auto WorkspaceAnyFiles =
         "query.view_serv.workspace:has_any_files";
 
-    constexpr auto Setting = "query.settings_mod.workspace:get";
+    constexpr auto GetSetting = "query.settings_mod.workspace:get";
 
 } // namespace Queries
 

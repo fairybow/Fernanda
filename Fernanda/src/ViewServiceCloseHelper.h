@@ -76,7 +76,7 @@ public:
                 return false;
             case SaveChoice::Save: {
                 auto result = commander_->call<SaveResult>(
-                    Calls::Save,
+                    Calls::NotepadSaveFile,
                     { { "index", i } },
                     window);
 
@@ -146,7 +146,7 @@ public:
 
                 if (!indexes_to_save_choices.isEmpty()) {
                     auto result = commander_->call<SaveResult>(
-                        Calls::SaveIndexesInWindow,
+                        Calls::NotepadSaveIndexesInWindow,
                         { { "indexes", toQVariant(indexes_to_save_choices) } },
                         window);
 
