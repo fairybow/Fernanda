@@ -89,10 +89,10 @@ namespace Calls {
     constexpr auto NotepadSaveIndexesInWindow =
         "call.file_serv.workspace:save_indexes_in_window";
 
-    /// NotebookImport
-    /// NotebookSave
-    /// NotebookSaveAs
-    /// NotebookExport
+    /// NotebookImportFile
+    /// NotebookSaveArchive
+    /// NotebookSaveArchiveAs
+    /// NotebookExportFile
 
 } // namespace Calls
 
