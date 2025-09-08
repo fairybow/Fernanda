@@ -6,6 +6,8 @@ Save will be fundamentally different for both Workspaces. Save, Save As, Save Al
 
 This means closing may also be different, as we may not need to save when closing an edited file (and we'll persist changes on the temp files until saved or discarded on exit).
 
+Need to determine what's going to be a shared action (but may still have a differing implementation, like New Tab, which can be shared, but will be registered in Notepad and Notebook (and not FileService or Workspace), so will perform a different action for each Workspace (but same menu code)).
+
 ## Notepad
 
 ### File
@@ -15,12 +17,17 @@ This means closing may also be different, as we may not need to save when closin
 - Save As (Toggle)
 - Save All in Window (Toggle)
 - Save All (Toggle)
+- Close (Toggle)
+- Close All in Window (Toggle)
+- Close All (Toggle)
+- Close Window
+- Close All Windows
 
 ## Notebook
 
 ### File
 
-- Save Notebook
+- Save Notebook (Toggle)
 - Save Notebook As
 - Import
 - Export
@@ -30,13 +37,13 @@ This means closing may also be different, as we may not need to save when closin
 
 ### File
 
-- New Tab
+- New Tab (different per Workspace)
 - New Window
 - New Notebook
 - Open Notebook
-- Close (Toggle)
-- Close All in Window (Toggle)
-- Close All (Toggle)
+- Close Tab (Toggle)
+- Close All Tabs in Window (Toggle)
+- Close All Tabs (Toggle)
 - Close Window
 - Close All Windows
 - Quit

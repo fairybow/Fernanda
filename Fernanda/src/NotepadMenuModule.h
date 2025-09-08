@@ -81,7 +81,7 @@ protected:
 
     [[nodiscard]]
     virtual bool
-    addWorkspaceOpenActions_(QMenu* fileMenu, Window* window) override
+    addWorkspaceFileOpenActions_(QMenu* fileMenu, Window* window) override
     {
         if (!fileMenu || !window) return false;
         auto& actions = actions_[window];
@@ -92,7 +92,7 @@ protected:
 
     [[nodiscard]]
     virtual bool
-    addWorkspaceSaveActions_(QMenu* fileMenu, Window* window) override
+    addWorkspaceFileSaveActions_(QMenu* fileMenu, Window* window) override
     {
         if (!fileMenu || !window) return false;
         auto& actions = actions_[window];
@@ -107,14 +107,14 @@ protected:
 private:
     struct Actions_
     {
-        QAction* fileOpen = nullptr;
+        QAction* fileOpenFile = nullptr;
 
         struct Toggles
         {
-            QAction* fileSave = nullptr;
-            QAction* fileSaveAs = nullptr;
-            QAction* fileSaveAllInWindow = nullptr;
-            QAction* fileSaveAll = nullptr;
+            QAction* fileSaveFile = nullptr;
+            QAction* fileSaveFileAs = nullptr;
+            QAction* fileSaveAllFilesInWindow = nullptr;
+            QAction* fileSaveAllFiles = nullptr;
         } toggles;
     };
 

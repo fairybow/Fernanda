@@ -38,20 +38,19 @@ namespace Commands {
     // class. The scopes are the logical hierarchy of the program: Application,
     // Workspace, or Window.
 
+    constexpr auto SetSetting = "cmd.settings_mod.workspace:set";
+
+    /// Menu rework:
+
+    /// Common:
+
     constexpr auto NewWindow = "cmd.workspace.workspace:new_window";
+    /// NewNotebook
+    /// OpenNotebook
     constexpr auto CloseWindow = "cmd.workspace.workspace:close_window";
     constexpr auto CloseAllWindows =
         "cmd.workspace.workspace:close_all_windows";
     constexpr auto Quit = "cmd.workspace.application:quit";
-    constexpr auto SettingsDialog = "cmd.workspace.workspace:settings_dialog";
-    constexpr auto AboutDialog = "cmd.workspace.application:about_dialog";
-
-    constexpr auto NewTab = "cmd.file_serv.window:new_tab";
-    constexpr auto OpenFile = "cmd.file_serv.window:open_file";
-
-    // A file can be open anywhere in the Workspace and is not tied to just a
-    // window
-
     constexpr auto Undo = "cmd.view_serv.workspace:undo";
     constexpr auto Redo = "cmd.view_serv.workspace:redo";
     constexpr auto Cut = "cmd.view_serv.workspace:cut";
@@ -61,11 +60,19 @@ namespace Commands {
     constexpr auto SelectAll = "cmd.view_serv.workspace:select_all";
     constexpr auto PreviousTab = "cmd.view_serv.window:previous_tab";
     constexpr auto NextTab = "cmd.view_serv.window:next_tab";
-
     constexpr auto PreviousWindow = "cmd.window_serv.workspace:previous_window";
     constexpr auto ViewNextWindow = "cmd.window_serv.workspace:next_window";
+    constexpr auto SettingsDialog = "cmd.workspace.workspace:settings_dialog";
+    constexpr auto AboutDialog = "cmd.workspace.application:about_dialog";
 
-    constexpr auto SetSetting = "cmd.settings_mod.workspace:set";
+    /// Notepad:
+
+    constexpr auto NewTab = "cmd.file_serv.window:new_tab";
+    constexpr auto OpenFile = "cmd.file_serv.window:open_file";
+
+    /// Notebook:
+
+    constexpr auto NewTab = "cmd.file_serv.window:new_tab";
 
 } // namespace Commands
 
@@ -75,21 +82,31 @@ namespace Calls {
 
     constexpr auto NewTreeViewModel =
         "call.workspace.workspace:new_tree_view_model";
-
-    constexpr auto Save = "call.file_serv.workspace:save";
-    constexpr auto SaveAs = "call.file_serv.workspace:save_as";
     constexpr auto SaveIndexesInWindow =
         "call.file_serv.workspace:save_indexes_in_window";
-    constexpr auto SaveWindow = "call.file_serv.workspace:save_window";
-    constexpr auto SaveAll = "call.file_serv.workspace:save_all";
 
-    // While files are Workspace scope, file views are not. Additionally, rename
-    // these constants, because we don't close files directly, we close views!
+    /// Menu rework:
+
+    /// Common:
 
     constexpr auto CloseView = "call.view_serv.window:close_view";
     constexpr auto CloseWindowViews =
         "call.view_serv.window:close_window_views";
     constexpr auto CloseAllViews = "call.view_serv.workspace:close_all_views";
+
+    /// Notepad:
+
+    constexpr auto Save = "call.file_serv.workspace:save";
+    constexpr auto SaveAs = "call.file_serv.workspace:save_as";
+    constexpr auto SaveWindow = "call.file_serv.workspace:save_window";
+    constexpr auto SaveAll = "call.file_serv.workspace:save_all";
+
+    /// Notebook:
+
+    ///Import
+    ///Save
+    ///SaveAs
+    ///Export
 
 } // namespace Calls
 

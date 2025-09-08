@@ -90,51 +90,61 @@ namespace Tr {
         TR_(settings, tr("Settings"));
         TR_(help, tr("Help"));
 
-        // Common
+        namespace Common {
 
-        TR_(fileNewTab, tr("New tab"));
-        TR_(fileNewWindow, tr("New window"));
-        TR_(fileNewNotebook, tr("New notebook"));
-        TR_(fileOpenNotebook, tr("Open notebook"));
-        TR_(fileClose, tr("Close"));
-        TR_(fileCloseAllInWindow, tr("Close all in window"));
-        TR_(fileCloseAll, tr("Close all"));
-        TR_(fileCloseWindow, tr("Close window"));
-        TR_(fileCloseAllWindows, tr("Close all windows"));
-        TR_(fileQuit, tr("Quit"));
+            TR_(fileNewTab, tr("New tab"));
+            TR_(fileNewWindow, tr("New window"));
 
-        TR_(editUndo, tr("Undo"));
-        TR_(editRedo, tr("Redo"));
-        TR_(editCut, tr("Cut"));
-        TR_(editCopy, tr("Copy"));
-        TR_(editPaste, tr("Paste"));
-        TR_(editDelete, tr("Delete"));
-        TR_(editSelectAll, tr("Select all"));
+            TR_(fileNewNotebook, tr("New notebook"));
+            TR_(fileOpenNotebook, tr("Open notebook"));
 
-        TR_(viewPreviousTab, tr("Previous tab"));
-        TR_(viewNextTab, tr("Next tab"));
-        TR_(viewPreviousWindow, tr("Previous window"));
-        TR_(viewNextWindow, tr("Next window"));
+            TR_(fileCloseTab, tr("Close"));
+            TR_(fileCloseAllTabsInWindow, tr("Close all in window"));
+            TR_(fileCloseAllTabs, tr("Close all"));
 
-        TR_(helpAbout, tr("About"));
+            TR_(fileCloseWindow, tr("Close window"));
+            TR_(fileCloseAllWindows, tr("Close all windows"));
 
-        // Notepad
+            TR_(fileQuit, tr("Quit"));
 
-        TR_(notepadFileOpen, tr("Open..."));
-        TR_(notepadFileSave, tr("Save"));
-        TR_(notepadFileSaveAs, tr("Save as..."));
-        TR_(notepadFileSaveAllInWindow, tr("Save all in window"));
-        TR_(notepadFileSaveAll, tr("Save all"));
+            TR_(editUndo, tr("Undo"));
+            TR_(editRedo, tr("Redo"));
+            TR_(editCut, tr("Cut"));
+            TR_(editCopy, tr("Copy"));
+            TR_(editPaste, tr("Paste"));
+            TR_(editDelete, tr("Delete"));
+            TR_(editSelectAll, tr("Select all"));
 
-        // Notebook
+            TR_(viewPreviousTab, tr("Previous tab"));
+            TR_(viewNextTab, tr("Next tab"));
+            TR_(viewPreviousWindow, tr("Previous window"));
+            TR_(viewNextWindow, tr("Next window"));
 
-        TR_(notebookFileSave, tr("Save"));
-        TR_(notebookFileSaveAs, tr("Save as..."));
-        TR_(notebookFileImport, tr("Import..."));
-        TR_(notebookFileExport, tr("Export..."));
-        TR_(notebookFileOpenNotepad, tr("Open notepad"));
+            TR_(helpAbout, tr("About"));
 
-        // Open Notepad, Save, what else?
+        } // namespace Common
+
+        namespace Notepad {
+
+            TR_(fileOpenFile, tr("Open..."));
+
+            TR_(fileSaveFile, tr("Save"));
+            TR_(fileSaveFileAs, tr("Save as..."));
+            TR_(fileSaveAllFilesInWindow, tr("Save all in window"));
+            TR_(fileSaveAllFiles, tr("Save all"));
+
+        } // namespace Notepad
+
+        namespace Notebook {
+
+            TR_(fileSaveArchive, tr("Save"));
+            TR_(fileSaveArchiveAs, tr("Save as..."));
+            TR_(fileImportFile, tr("Import..."));
+            TR_(fileExportFile, tr("Export..."));
+
+            TR_(fileOpenNotepad, tr("Open notepad"));
+
+        } // namespace Notebook
 
     } // namespace Menus
 

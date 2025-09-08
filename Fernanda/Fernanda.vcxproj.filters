@@ -125,12 +125,6 @@
     <None Include="docs\Menus.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\Saving.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\Closing.md">
-      <Filter>Docs</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">

@@ -71,6 +71,8 @@ private:
             pathToFileModel_,
             this);
 
+        /// Can't do this anymore! Probably register in the Workspace subclasses
+        /// themselves
         commander->addCommandHandler(Commands::NewTab, [&](const Command& cmd) {
             createNewTextFile_(cmd.context);
         });

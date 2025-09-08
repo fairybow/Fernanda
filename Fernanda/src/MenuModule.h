@@ -47,10 +47,13 @@ protected:
     {
         QAction* fileNewTab = nullptr;
         QAction* fileNewWindow = nullptr;
+
         QAction* fileNewNotebook = nullptr;
         QAction* fileOpenNotebook = nullptr;
+
         QAction* fileCloseWindow = nullptr;
         QAction* fileCloseAllWindows = nullptr;
+
         QAction* fileQuit = nullptr;
 
         QAction* settings = nullptr;
@@ -59,9 +62,9 @@ protected:
 
         struct Toggles
         {
-            QAction* fileClose = nullptr;
-            QAction* fileCloseAllInWindow = nullptr;
-            QAction* fileCloseAll = nullptr;
+            QAction* fileCloseTab = nullptr;
+            QAction* fileCloseAllTabsInWindow = nullptr;
+            QAction* fileCloseAllTabs = nullptr;
 
             QAction* editUndo = nullptr;
             QAction* editRedo = nullptr;
@@ -104,13 +107,19 @@ protected:
     virtual void initializeWorkspaceActions_(Window* window) = 0;
 
     [[nodiscard]]
-    virtual bool addWorkspaceOpenActions_(QMenu* fileMenu, Window* window)
+    virtual bool addWorkspaceFileOpenActions_(QMenu* fileMenu, Window* window)
     {
         return false;
     }
 
     [[nodiscard]]
-    virtual bool addWorkspaceSaveActions_(QMenu* fileMenu, Window* window)
+    virtual bool addWorkspaceFileSaveActions_(QMenu* fileMenu, Window* window)
+    {
+        return false;
+    }
+
+    [[nodiscard]]
+    virtual bool addWorkspaceFileCloseActions_(QMenu* fileMenu, Window* window)
     {
         return false;
     }
@@ -138,11 +147,11 @@ private:
         if (!window) return;
         BaseActions actions{};
 
-        actions.fileNewTab = make(
+        /*actions.fileNewTab = make(
             window,
             Commands::NewTab,
             Tr::Menus::fileNewTab(),
-            Qt::CTRL | Qt::Key_D);
+            Qt::CTRL | Qt::Key_D);*/
 
         actions.fileNewWindow = make(
             window,
@@ -162,7 +171,7 @@ private:
         actions.fileOpenNotebook =
             make(window, "", Tr::Menus::fileOpenNotebook());
 
-        actions.toggles.fileClose =
+        /*actions.toggles.fileClose =
             make(window, Calls::CloseView, Tr::Menus::fileClose());
 
         actions.toggles.fileCloseAllInWindow = make(
@@ -171,15 +180,15 @@ private:
             Tr::Menus::fileCloseAllInWindow());
 
         actions.toggles.fileCloseAll =
-            make(window, Calls::CloseAllViews, Tr::Menus::fileCloseAll());
+            make(window, Calls::CloseAllViews, Tr::Menus::fileCloseAll());*/
 
-        actions.fileCloseWindow =
+        /*actions.fileCloseWindow =
             make(window, Commands::CloseWindow, Tr::Menus::fileCloseWindow());
 
         actions.fileCloseAllWindows = make(
             window,
             Commands::CloseAllWindows,
-            Tr::Menus::fileCloseAllWindows());
+            Tr::Menus::fileCloseAllWindows());*/
 
         actions.fileQuit = make(
             window,
@@ -277,20 +286,14 @@ private:
         file_menu->addAction(actions.fileNewWindow);
         file_menu->addSeparator();
 
-        if (addWorkspaceOpenActions_(file_menu, window))
+        if (addWorkspaceFileOpenActions_(file_menu, window))
             file_menu->addSeparator();
 
-        if (addWorkspaceSaveActions_(file_menu, window))
+        if (addWorkspaceFileSaveActions_(file_menu, window))
             file_menu->addSeparator();
 
-        file_menu->addAction(actions.toggles.fileClose);
-        file_menu->addAction(actions.toggles.fileCloseAllInWindow);
-        file_menu->addAction(actions.toggles.fileCloseAll);
-        file_menu->addSeparator();
-
-        file_menu->addAction(actions.fileCloseWindow);
-        file_menu->addAction(actions.fileCloseAllWindows);
-        file_menu->addSeparator();
+        if (addWorkspaceFileCloseActions_(file_menu, window))
+            file_menu->addSeparator();
 
         if (addWorkspaceMiscFileActions_(file_menu, window))
             file_menu->addSeparator();

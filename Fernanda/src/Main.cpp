@@ -25,6 +25,9 @@
 // - Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
+// - For now, maybe use separate Notepad/Notebook close procedures (can combine
+// if needed later)
+// - Additionally, proceed one at a time, starting with basic close
 // - Open Notepad item will need to activate active window of already open
 // Notepad else open new window
 // - Get all menu actions down and note what Command they use (and other

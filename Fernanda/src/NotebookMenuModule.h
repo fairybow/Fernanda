@@ -46,13 +46,13 @@ protected:
         Actions_ actions{};
 
         /// WIP
-        actions.fileImport = make(window, "", Tr::Menus::notebookFileImport());
-
-        /// WIP
         actions.fileSave = make(window, "", Tr::Menus::notebookFileSave());
 
         /// WIP
         actions.fileSaveAs = make(window, "", Tr::Menus::notebookFileSaveAs());
+
+        /// WIP
+        actions.fileImport = make(window, "", Tr::Menus::notebookFileImport());
 
         /// WIP
         actions.fileExport = make(window, "", Tr::Menus::notebookFileExport());
@@ -66,7 +66,7 @@ protected:
 
     [[nodiscard]]
     virtual bool
-    addWorkspaceOpenActions_(QMenu* fileMenu, Window* window) override
+    addWorkspaceFileOpenActions_(QMenu* fileMenu, Window* window) override
     {
         if (!fileMenu || !window) return false;
         auto& actions = actions_[window];
@@ -77,7 +77,7 @@ protected:
 
     [[nodiscard]]
     virtual bool
-    addWorkspaceSaveActions_(QMenu* fileMenu, Window* window) override
+    addWorkspaceFileSaveActions_(QMenu* fileMenu, Window* window) override
     {
         if (!fileMenu || !window) return false;
         auto& actions = actions_[window];
@@ -102,11 +102,16 @@ protected:
 private:
     struct Actions_
     {
-        QAction* fileImport = nullptr;
-        QAction* fileSave = nullptr;
-        QAction* fileSaveAs = nullptr;
-        QAction* fileExport = nullptr;
+        QAction* fileSaveArchiveAs = nullptr;
+        QAction* fileImportFile = nullptr;
+        QAction* fileExportFile = nullptr;
+
         QAction* fileOpenNotepad = nullptr;
+
+        struct Toggles
+        {
+            QAction* fileSaveArchive = nullptr;
+        } toggles;
     };
 
     QHash<Window*, Actions_> actions_{};
