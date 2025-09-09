@@ -25,6 +25,8 @@
 // - Is closing/saving "done"?
 
 // (Now/Next) Notebook needs:
+// - Re: Saving/Closing issues: possibly, FileService should provide the "how to
+// save" mechanics, while Workspaces provide the "what to save and when" policy
 // - For now, maybe use separate Notepad/Notebook close procedures (can combine
 // if needed later)
 // - Additionally, proceed one at a time, starting with basic close
