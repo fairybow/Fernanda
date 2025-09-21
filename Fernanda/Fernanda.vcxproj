@@ -32,7 +32,8 @@
     <None Include="..\.gitignore" />
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
-    <None Include="docs\Menus.md" />
+    <None Include="docs\Commander Audit.md" />
+    <None Include="docs\Menu Audit.md" />
     <None Include="docs\VSProjectSettings.md" />
     <None Include="resources\ui\TabWidgetButtonAdd.svg" />
     <None Include="resources\ui\TabWidgetButtonClose.svg" />
@@ -146,12 +147,12 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>6.9.1_msvc2022_64</QtInstall>
+    <QtInstall>6.9.2_msvc2022_64</QtInstall>
     <QtModules>core;gui;network;widgets;svg</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.9.1_msvc2022_64</QtInstall>
+    <QtInstall>6.9.2_msvc2022_64</QtInstall>
     <QtModules>core;gui;network;widgets;svg</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
