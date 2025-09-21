@@ -29,6 +29,9 @@ namespace Fernanda {
 
 class Window;
 
+/// TODO: Redo this to merge commands/calls
+/// TODO: Commands and Queries should be in Constants (separate from this) or similar
+
 // Commands are operations registered in their respective domains that can be
 // run in any class using the Workspace's Commander. Commands take a Command
 // struct argument, but it's optional

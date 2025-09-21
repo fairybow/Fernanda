@@ -21,6 +21,7 @@ namespace Fernanda::Ini {
 
 namespace Editor {
 
+    /// Move anything to constants?
     constexpr auto FONT_KEY = "Editor/Font";
     constexpr auto FONT_PT_SIZE_MIN = 8;
     constexpr auto FONT_PT_SIZE_MAX = 72;
