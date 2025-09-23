@@ -80,7 +80,7 @@ public:
             geometry.isNull() ? nextWindowGeometry_() : geometry);
         add(window);
 
-        emit eventBus->windowCreated(window);
+        emit bus->windowCreated(window);
         return window;
     }
 
@@ -203,7 +203,7 @@ protected:
         } else if (
             event->type() == QEvent::Show || event->type() == QEvent::Hide) {
             if (auto window = to<Window*>(watched))
-                emit eventBus->visibleWindowCountChanged(visibleCount());
+                emit bus->visibleWindowCountChanged(visibleCount());
         } else if (event->type() == QEvent::Close) {
             //...
         }
@@ -244,7 +244,7 @@ private:
             zOrderedVolatileWindows_ << activeWindow;
         }
 
-        emit eventBus->activeWindowChanged(activeWindow_);
+        emit bus->activeWindowChanged(activeWindow_);
     }
 
     // These are windows that have called Window::show() (Don't mistake this as
@@ -353,8 +353,8 @@ private slots:
             }
         }
 
-        emit eventBus->windowDestroyed(window);
-        if (last_window_closed) emit eventBus->lastWindowClosed();
+        emit bus->windowDestroyed(window);
+        if (last_window_closed) emit bus->lastWindowClosed();
     }
 
     void onApplicationFocusChanged_(QWidget* old, QWidget* now)

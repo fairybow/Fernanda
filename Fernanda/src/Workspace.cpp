@@ -16,7 +16,6 @@
 
 #include "AboutDialog.h"
 #include "Application.h"
-#include "Commander.h"
 #include "Utility.h"
 #include "Window.h"
 #include "WindowService.h"
@@ -26,15 +25,15 @@ namespace Fernanda {
 
 void Workspace::addCommandHandlers_()
 {
-    commander->addCommandHandler(Commands::NewWindow, [&] { newWindow_(); });
+    bus->addCommandHandler(Commands::NewWindow, [&] { newWindow_(); });
 
-    commander->addCommandHandler(
+    bus->addCommandHandler(
         Commands::CloseWindow,
         [&](const Command& cmd) {
             if (cmd.context) cmd.context->close();
         });
 
-    commander->addCommandHandler(Commands::CloseAllWindows, [&] {
+    bus->addCommandHandler(Commands::CloseAllWindows, [&] {
         // Close each window individually, triggering the CloseAcceptor for each
         for (auto window : windows_->windowsReversed()) {
             if (!window) continue;
@@ -42,13 +41,13 @@ void Workspace::addCommandHandlers_()
         }
     });
 
-    commander->addCommandHandler(Commands::Quit, [] { Application::quit(); });
+    bus->addCommandHandler(Commands::Quit, [] { Application::quit(); });
 
-    commander->addCommandHandler(Commands::AboutDialog, [] {
+    bus->addCommandHandler(Commands::AboutDialog, [] {
         AboutDialog::exec();
     });
 
-    commander->addCallHandler(Calls::NewTreeViewModel, [&] {
+    bus->addCallHandler(Calls::NewTreeViewModel, [&] {
         return toQVariant(makeTreeViewModel_());
     });
 }

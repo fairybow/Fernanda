@@ -18,8 +18,7 @@
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "Window.h"
@@ -60,8 +59,7 @@ private:
     Coco::Path root_{};
     Coco::Path content_{};
 
-    NotebookMenuModule* menus_ =
-        new NotebookMenuModule(commander, eventBus, this);
+    NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
     void initialize_()
     {
@@ -74,15 +72,11 @@ private:
         // 3. Set settings override
         // settings->setOverrideConfigPath(root / Settings.ini);
 
-        commander->addQueryHandler(Queries::NotebookRoot, [&] {
+        bus->addQueryHandler(Queries::NotebookRoot, [&] {
             return root_.toQString();
         });
 
-        connect(
-            eventBus,
-            &EventBus::windowCreated,
-            this,
-            &Notebook::onWindowCreated_);
+        connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
     }
 
     virtual QAbstractItemModel* makeTreeViewModel_() override

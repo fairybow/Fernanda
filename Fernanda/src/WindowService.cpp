@@ -13,38 +13,36 @@
 #include <QVariantMap>
 
 #include "Application.h"
-#include "Commander.h"
+#include "Bus.h"
 #include "WindowService.h"
 
 namespace Fernanda {
 
 void WindowService::initialize_()
 {
-    commander->addCommandHandler(Commands::PreviousWindow, [&] {
+    bus->addCommandHandler(Commands::PreviousWindow, [&] {
         activatePrevious_();
     });
 
-    commander->addCommandHandler(Commands::ViewNextWindow, [&] {
-        activateNext_();
-    });
+    bus->addCommandHandler(Commands::ViewNextWindow, [&] { activateNext_(); });
 
-    commander->addQueryHandler(Queries::ActiveWindow, [&] {
+    bus->addQueryHandler(Queries::ActiveWindow, [&] {
         return toQVariant(activeWindow_);
     });
 
-    commander->addQueryHandler(Queries::WindowList, [&] {
+    bus->addQueryHandler(Queries::WindowList, [&] {
         return toQVariant(windows());
     });
 
-    commander->addQueryHandler(Queries::ReverseWindowList, [&] {
+    bus->addQueryHandler(Queries::ReverseWindowList, [&] {
         return toQVariant(windowsReversed());
     });
 
-    commander->addQueryHandler(Queries::WindowSet, [&] {
+    bus->addQueryHandler(Queries::WindowSet, [&] {
         return toQVariant(windowsUnordered());
     });
 
-    commander->addQueryHandler(Queries::VisibleWindowCount, [&] {
+    bus->addQueryHandler(Queries::VisibleWindowCount, [&] {
         return visibleCount();
     });
 

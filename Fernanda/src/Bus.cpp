@@ -7,24 +7,23 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-/*
 #include <QString>
 #include <QVariant>
 
 #include "Coco/Log.h"
 #include "Coco/Path.h"
 
-#include "EventBus.h"
+#include "Bus.h"
 #include "IFileModel.h"
 #include "IFileView.h"
 #include "Utility.h"
 #include "Window.h"
 
-#define SIGLOG_(Signal, Slot) connect(this, &EventBus::Signal, this, Slot)
+#define SIGLOG_(Signal, Slot) connect(this, &Bus::Signal, this, Slot)
 
 namespace Fernanda {
 
-void EventBus::initialize_()
+void Bus::initialize_()
 {
     SIGLOG_(workspaceInitialized, [&] {});
     SIGLOG_(windowCreated, [&](Window* window) {});
@@ -75,5 +74,3 @@ void EventBus::initialize_()
 } // namespace Fernanda
 
 #undef SIGLOG_
-
-*/

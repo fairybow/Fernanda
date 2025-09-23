@@ -128,7 +128,7 @@ private:
     void initialize_()
     {
         connect(
-            eventBus,
+            bus,
             &EventBus::windowCreated,
             this,
             &MenuModule::onWindowCreated_);

@@ -40,9 +40,7 @@ class Workspace : public QObject
     Q_OBJECT
 
 public:
-    Workspace(
-        const Coco::Path& globalConfig,
-        QObject* parent = nullptr)
+    Workspace(const Coco::Path& globalConfig, QObject* parent = nullptr)
         : QObject(parent)
         , globalConfig_(globalConfig)
     {
@@ -54,13 +52,13 @@ public:
     // void open(const Session& session)
     // {
     //   // ...open Session...
-    //   // emit eventBus->workspaceInitialized();
+    //   // emit bus->workspaceInitialized();
     // }
 
     void open(NewWindow withWindow = NewWindow::No)
     {
         if (withWindow) newWindow_();
-        emit eventBus->workspaceInitialized();
+        emit bus->workspaceInitialized();
     }
 
     void activate() const { windows_->activateAll(); }
@@ -70,7 +68,6 @@ signals:
 
 protected:
     Bus* bus = new Bus(this);
-
     SettingsModule* settings = nullptr;
 
 private:
@@ -89,7 +86,7 @@ private:
         //...
         addCommandHandlers_();
 
-        connect(eventBus, &EventBus::lastWindowClosed, this, [&] {
+        connect(bus, &Bus::lastWindowClosed, this, [&] {
             emit lastWindowClosed();
         });
     }
@@ -99,7 +96,7 @@ private:
     bool windowsCloseAcceptor_(Window* window)
     {
         if (!window) return false;
-        return commander->call<bool>(Calls::CloseWindowViews, {}, window);
+        return bus->call<bool>(Calls::CloseWindowViews, {}, window);
     }
 
     void newWindow_()

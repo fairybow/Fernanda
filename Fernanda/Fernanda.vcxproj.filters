@@ -93,7 +93,7 @@
     <ClCompile Include="src\Workspace.cpp">
       <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
-    <ClCompile Include="src\EventBus.cpp">
+    <ClCompile Include="src\Bus.cpp">
       <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
   </ItemGroup>
@@ -314,12 +314,6 @@
     </ClInclude>
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EventBus.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Commander.h">
-      <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

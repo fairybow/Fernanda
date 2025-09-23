@@ -19,8 +19,7 @@
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "NotepadMenuModule.h"
 #include "Utility.h"
 #include "Version.h"
@@ -69,12 +68,11 @@ private:
     Coco::Path currentBaseDir_ = Coco::Path::Documents(VERSION_APP_NAME_STRING);
 
     PathInterceptor pathInterceptor_ = nullptr;
-    NotepadMenuModule* menus_ =
-        new NotepadMenuModule(commander, eventBus, this);
+    NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
     void initialize_()
     {
-        commander->addInterceptor(Commands::OpenFile, [&](Command& cmd) {
+        bus->addInterceptor(Commands::OpenFile, [&](Command& cmd) {
             if (pathInterceptor_
                 && pathInterceptor_(to<QString>(cmd.params, "path"))) {
                 return true;
@@ -83,7 +81,7 @@ private:
             return false;
         });
 
-        commander->addQueryHandler(Queries::NotepadBaseDir, [&] {
+        bus->addQueryHandler(Queries::NotepadBaseDir, [&] {
             return currentBaseDir_.toQString();
         });
     }

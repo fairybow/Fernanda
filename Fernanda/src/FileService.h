@@ -63,7 +63,7 @@ private:
     {
         saveHelper_ = new FileServiceSaveHelper(
             commander,
-            eventBus,
+            bus,
             pathToFileModel_,
             this);
 
@@ -81,7 +81,7 @@ private:
 
                 // Check if model already exists for this path
                 if (auto existing_model = pathToFileModel_[path]) {
-                    emit eventBus->fileReadied(existing_model, cmd.context);
+                    emit bus->fileReadied(existing_model, cmd.context);
                     return;
                 }
 
@@ -94,7 +94,7 @@ private:
                 auto result = saveHelper_->saveAt(
                     call.context,
                     to<int>(call.params, "index", -1));
-                emit eventBus->windowSaveExecuted(call.context, result);
+                emit bus->windowSaveExecuted(call.context, result);
                 return toQVariant(result);
             });
 
@@ -104,7 +104,7 @@ private:
                 auto result = saveHelper_->saveAsAt(
                     call.context,
                     to<int>(call.params, "index", -1));
-                emit eventBus->windowSaveExecuted(call.context, result);
+                emit bus->windowSaveExecuted(call.context, result);
                 return toQVariant(result);
             });
 
@@ -114,7 +114,7 @@ private:
                 auto result = saveHelper_->saveIndexesInWindow(
                     call.context,
                     to<QList<int>>(call.params, "indexes"));
-                emit eventBus->windowSaveExecuted(
+                emit bus->windowSaveExecuted(
                     call.context,
                     result); // Right now, only planning to use these with
                              // ColorBar, but may want to have a more specific
@@ -126,7 +126,7 @@ private:
             Calls::NotepadSaveWindowFile,
             [&](const Call& call) {
                 auto result = saveHelper_->saveWindow(call.context);
-                emit eventBus->windowSaveExecuted(
+                emit bus->windowSaveExecuted(
                     call.context,
                     result); // Re: ColorBar
                 return toQVariant(result);
@@ -134,12 +134,12 @@ private:
 
         commander->addCallHandler(Calls::NotepadSaveAllFiles, [&] {
             auto result = saveHelper_->saveAll();
-            emit eventBus->workspaceSaveExecuted(result); // Re: ColorBar
+            emit bus->workspaceSaveExecuted(result); // Re: ColorBar
             return toQVariant(result);
         });
 
         connect(
-            eventBus,
+            bus,
             &EventBus::viewClosed,
             this,
             &FileService::onViewClosed_);
@@ -152,20 +152,20 @@ private:
             &IFileModel::modificationChanged,
             this,
             [&, model](bool modified) {
-                emit eventBus->fileModificationChanged(model, modified);
+                emit bus->fileModificationChanged(model, modified);
             });
 
         auto meta = model->meta();
 
         if (meta) {
             connect(meta, &FileMeta::changed, this, [&, model] {
-                emit eventBus->fileMetaChanged(model);
+                emit bus->fileMetaChanged(model);
             });
         }
 
         // Emit initial states (needed?)
-        emit eventBus->fileModificationChanged(model, model->isModified());
-        emit eventBus->fileMetaChanged(model);
+        emit bus->fileModificationChanged(model, model->isModified());
+        emit bus->fileMetaChanged(model);
     }
 
     void createNewTextFile_(Window* window)
@@ -173,7 +173,7 @@ private:
         if (!window) return;
         auto model = new TextFileModel({}, this);
         connectNewModel_(model);
-        emit eventBus->fileReadied(model, window);
+        emit bus->fileReadied(model, window);
     }
 
     void createExistingFile_(const Coco::Path& path, Window* window)
@@ -196,7 +196,7 @@ private:
 
         pathToFileModel_[path] = model;
         connectNewModel_(model);
-        emit eventBus->fileReadied(model, window);
+        emit bus->fileReadied(model, window);
     }
 
     IFileModel* createTextFileFromDisk_(const Coco::Path& path)

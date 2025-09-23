@@ -12,7 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AboutDialog.cpp" />
-    <ClCompile Include="src\EventBus.cpp" />
+    <ClCompile Include="src\Bus.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\TextFileView.cpp" />
     <ClCompile Include="src\Tr.cpp" />
@@ -46,7 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h" />
-    <ClInclude Include="src\EventBus.h" />
     <QtMoc Include="src\FileService.h" />
     <QtMoc Include="src\SettingsModule.h" />
     <QtMoc Include="src\IFileModel.h" />
@@ -63,7 +62,6 @@
     <QtMoc Include="src\TabWidgetCloseButton.h" />
     <QtMoc Include="src\TabWidgetTabBar.h" />
     <QtMoc Include="src\TabWidgetUnderlay.h" />
-    <ClInclude Include="src\Commander.h" />
     <QtMoc Include="src\FileServiceSaveHelper.h" />
     <QtMoc Include="src\Debouncer.h" />
     <QtMoc Include="src\DisplaySlider.h" />

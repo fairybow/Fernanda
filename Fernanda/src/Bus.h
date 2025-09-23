@@ -23,10 +23,16 @@
 
 #include "Coco/Debug.h"
 #include "Coco/Log.h"
+#include "Coco/Path.h"
+
+#include "Utility.h"
 
 namespace Fernanda {
 
+class IFileModel;
+class IFileView;
 class Window;
+enum class SaveResult;
 
 struct Command
 {
@@ -40,7 +46,6 @@ struct Command
     }
 };
 
-// Make concepts internal later
 template <typename T>
 concept HasCommandParam = std::is_invocable_v<T, const Command&>;
 
@@ -61,14 +66,6 @@ concept ReturnsQVariant = ReturnsX<T, Args..., QVariant>;
 template <typename T, typename... Args>
 concept ReturnsBool = ReturnsX<T, Args..., bool>;
 
-template <typename T>
-concept ValidInterceptor =
-    (HasCommandParam<T> && ReturnsBool<T, const Command&>)
-    || (HasNoParams<T> && ReturnsBool<T>);
-
-template <typename T>
-concept ValidHandler = HasCommandParam<T> || HasNoParams<T>;
-
 class Bus : public QObject
 {
     Q_OBJECT
@@ -77,6 +74,7 @@ public:
     explicit Bus(QObject* parent = nullptr)
         : QObject(parent)
     {
+        initialize_();
     }
 
     virtual ~Bus() override { COCO_TRACER; }
@@ -84,30 +82,21 @@ public:
     template <typename InterceptorT>
     void addInterceptor(const QString& id, InterceptorT&& interceptor)
     {
-        // We need to handle the following variants:
-        //
-        // interceptor(const Command&)->bool
-        // interceptor()->bool
-        //
-        // All the following registrations need to work:
-        //
-        // bus->addInterceptor("id", [&](const Command&) { return
-        // true; });
-        //
-        // bus->addInterceptor("id", [&] { return
-        // true; });
+        // Handles:
+        // (const Command&)->bool and
+        // ()->bool
 
         if constexpr (
             HasCommandParam<InterceptorT>
             && ReturnsBool<InterceptorT, const Command&>) {
 
-            // Handle Command& -> bool
+            // (const Command&)->bool
             interceptors_[id] << interceptor;
 
         } else if constexpr (
             HasNoParams<InterceptorT> && ReturnsBool<InterceptorT>) {
 
-            // Handle () -> bool
+            // ()->bool
             interceptors_[id] << [interceptor = std::forward<InterceptorT>(
                                       interceptor)](const Command& cmd) {
                 (void)cmd;
@@ -116,39 +105,28 @@ public:
 
         } else {
             static_assert(
-                ValidInterceptor<InterceptorT>,
-                "Invalid interceptor signature");
+                (HasCommandParam<InterceptorT>
+                 && ReturnsBool<InterceptorT, const Command&>)
+                    || (HasNoParams<InterceptorT> && ReturnsBool<InterceptorT>),
+                "Interceptor must be callable as (const Command&)->bool or "
+                "()->bool");
         }
     }
 
     template <typename HandlerT>
     void addCommandHandler(const QString& id, HandlerT&& handler)
     {
-        // We need to handle the following variants:
-        //
-        // handler(const Command&)->QVariant
-        // handler(const Command&)->void
-        // handler()->QVariant
-        // handler()->void
-        //
-        // All the following registrations need to work:
-        //
-        // bus->addCommandHandler("id", [&](const Command&) { return
-        // QVariant{}; });
-        //
-        // bus->addCommandHandler("id", [&] { return
-        // QVariant{}; });
-        //
-        // bus->addCommandHandler("id", [&](const Command&)
-        // {});
-        //
-        // bus->addCommandHandler("id", [&] {});
+        // Handles:
+        // (const Command&)->void,
+        // (const Command&)->T,
+        // ()->void, and
+        // ()->T
 
         if constexpr (HasCommandParam<HandlerT>) {
 
             if constexpr (ReturnsVoid<HandlerT, const Command&>) {
 
-                // Handle Command& -> void
+                // (const Command&)->void
                 commandHandlers_[id] = [handler = std::forward<HandlerT>(
                                             handler)](const Command& cmd) {
                     handler(cmd);
@@ -157,7 +135,7 @@ public:
 
             } else {
 
-                // Handle Command& -> T
+                // (const Command&)->T
                 commandHandlers_[id] = [handler = std::forward<HandlerT>(
                                             handler)](const Command& cmd) {
                     if constexpr (ReturnsQVariant<HandlerT, const Command&>) {
@@ -172,7 +150,7 @@ public:
 
             if constexpr (ReturnsVoid<HandlerT>) {
 
-                // Handle () -> void
+                // ()->void
                 commandHandlers_[id] = [handler = std::forward<HandlerT>(
                                             handler)](const Command& cmd) {
                     (void)cmd;
@@ -182,7 +160,7 @@ public:
 
             } else {
 
-                // Handle () -> T
+                // ()->T
                 commandHandlers_[id] = [handler = std::forward<HandlerT>(
                                             handler)](const Command& cmd) {
                     (void)cmd;
@@ -195,7 +173,10 @@ public:
             }
 
         } else {
-            static_assert(ValidHandler<HandlerT>, "Invalid handler signature");
+            static_assert(
+                HasCommandParam<HandlerT> || HasNoParams<HandlerT>,
+                "Handler must be callable as (const Command&)->void, (const "
+                "Command&)->T, ()->void or ()->T");
         }
     }
 
@@ -204,38 +185,145 @@ public:
         (void)runCommand_(id, cmd);
     }
 
-    // Add execute overloads
+    void execute(
+        const QString& id,
+        const QVariantMap& params = {},
+        Window* context = nullptr)
+    {
+        (void)runCommand_(id, { params, context });
+    }
 
     [[nodiscard]] QVariant call(const QString& id, const Command& cmd)
     {
         return runCommand_(id, cmd);
     }
 
-    // Add call overloads (don't forget template returns)
+    [[nodiscard]] QVariant call(
+        const QString& id,
+        const QVariantMap& params = {},
+        Window* context = nullptr)
+    {
+        return runCommand_(id, { params, context });
+    }
+
+    template <typename T>
+    [[nodiscard]] T call(const QString& id, const Command& cmd)
+    {
+        return runCommand_(id, cmd).value<T>();
+    }
+
+    template <typename T>
+    [[nodiscard]] T call(
+        const QString& id,
+        const QVariantMap& params = {},
+        Window* context = nullptr)
+    {
+        return runCommand_(id, { params, context }).value<T>();
+    }
 
     // NO queries. Calls can be used as queries. It isn't a big deal!
+
+signals:
+    // Workspace
+
+    void workspaceInitialized();
+
+    // WindowService
+
+    void windowCreated(Window* window);
+    void visibleWindowCountChanged(int count);
+    void lastWindowClosed();
+
+    // Window may be nullptr!
+    void activeWindowChanged(Window* window);
+    void windowDestroyed(Window* window);
+
+    // FileService
+
+    void fileReadied(IFileModel* model, Window* window);
+    void fileModificationChanged(IFileModel* model, bool modified);
+    void fileMetaChanged(IFileModel* model);
+    void fileSaved(SaveResult result, const Coco::Path& path);
+    void fileSavedAs(
+        SaveResult result,
+        const Coco::Path& path,
+        const Coco::Path& oldPath = {});
+    void windowSaveExecuted(Window* window, SaveResult result);
+    void workspaceSaveExecuted(SaveResult result);
+
+    // ViewService
+
+    void windowTabCountChanged(Window* window, int count);
+
+    // View may be nullptr!
+    void activeFileViewChanged(IFileView* view, Window* window);
+    void viewClosed(IFileView* view);
+
+    // SettingsModule
+
+    void settingChanged(const QString& key, const QVariant& value);
+
+    // Maybe:
+
+    // void workspaceShuttingDown(Workspace* workspace);
+    // void windowShown(Window* window);
+    // void windowClosed(Window* window);
 
 private:
     QHash<QString, std::function<QVariant(const Command&)>> commandHandlers_{};
     QHash<QString, QList<std::function<bool(const Command&)>>> interceptors_{};
 
+    void initialize_();
+
     [[nodiscard]] QVariant runCommand_(const QString& id, const Command& cmd)
     {
         for (auto& interceptor : interceptors_[id]) {
             if (interceptor(cmd)) {
-                // log intercepted
+                logCmdIntercepted_(id, cmd);
                 return {};
             }
         }
 
         if (auto handler = commandHandlers_.value(id)) {
             auto result = handler(cmd);
-            // log executed with result
+            logCmdRan_(id, cmd, result);
             return result;
         } else {
-            // log no handler
+            logCmdNoHandler_(id, cmd);
             return {};
         }
+    }
+
+    void logCmdIntercepted_(const QString& id, const Command& cmd)
+    {
+        constexpr auto log_format =
+            "\n\tIntercepted: \"%0\"\n\tParams: %1\n\tContext: %2";
+        COCO_LOG_THIS(QString(log_format)
+                          .arg(id)
+                          .arg(toQString(cmd.params))
+                          .arg(toQString(cmd.context)));
+    }
+
+    void
+    logCmdRan_(const QString& id, const Command& cmd, const QVariant& result)
+    {
+        constexpr auto log_format = "\n\tExecuted: \"%0\"\n\tParams: "
+                                    "%1\n\tContext: %2\n\tResult: %3";
+        COCO_LOG_THIS(QString(log_format)
+                          .arg(id)
+                          .arg(toQString(cmd.params))
+                          .arg(toQString(cmd.context))
+                          .arg(toQString(result)));
+    }
+
+    void logCmdNoHandler_(const QString& id, const Command& cmd)
+    {
+        constexpr auto log_format =
+            "\n\tNo handler found: \"%0\"\n\tParams: %1\n\tContext: %2";
+        COCO_LOG_THIS(QString(log_format)
+                          .arg(id)
+                          .arg(toQString(cmd.params))
+                          .arg(toQString(cmd.context)));
     }
 };
 
