@@ -21,6 +21,7 @@
 
 #include "Bus.h"
 #include "ColorBarModule.h"
+#include "Constants.h"
 #include "FileService.h"
 #include "SettingsModule.h"
 #include "TreeViewModule.h"
@@ -96,7 +97,7 @@ private:
     bool windowsCloseAcceptor_(Window* window)
     {
         if (!window) return false;
-        return bus->call<bool>(Calls::CloseWindowViews, {}, window);
+        return bus->call<bool>(Cmd::CloseWindowViews, window);
     }
 
     void newWindow_()

@@ -19,6 +19,7 @@
 #include "Coco/Debug.h"
 
 #include "Bus.h"
+#include "Constants.h"
 #include "SavePrompt.h"
 #include "TabWidget.h"
 #include "Utility.h"
@@ -60,7 +61,7 @@ public:
         auto model = modelAt(window, i);
         if (!model) return false;
 
-        auto windows = bus_->query<QSet<Window*>>(Queries::WindowSet);
+        auto windows = bus_->call<QSet<Window*>>(Cmd::WindowSet);
 
         if (model->isModified() && !isMultiWindow(model, windows)) {
             tab_widget->setCurrentIndex(i);
@@ -71,7 +72,7 @@ public:
                 return false;
             case SaveChoice::Save: {
                 auto result = bus_->call<SaveResult>(
-                    Calls::NotepadSaveFile,
+                    Cmd::NotepadSaveFile,
                     { { "index", i } },
                     window);
 
@@ -106,7 +107,7 @@ public:
         QHash<IFileModel*, int> model_to_index{};
         QList<IFileModel*> modified_models{};
 
-        auto windows = bus_->query<QSet<Window*>>(Queries::WindowSet);
+        auto windows = bus_->call<QSet<Window*>>(Cmd::WindowSet);
 
         for (auto i = tab_widget->count() - 1; i >= 0; --i) {
             auto view = viewAt(window, i);
@@ -141,7 +142,7 @@ public:
 
                 if (!indexes_to_save_choices.isEmpty()) {
                     auto result = bus_->call<SaveResult>(
-                        Calls::NotepadSaveIndexesInWindow,
+                        Cmd::NotepadSaveIndexesInWindow,
                         { { "indexes", toQVariant(indexes_to_save_choices) } },
                         window);
 
@@ -166,7 +167,7 @@ public:
     bool closeAll()
     {
         for (auto& window :
-             bus_->query<QList<Window*>>(Queries::ReverseWindowList)) {
+             bus_->call<QList<Window*>>(Cmd::ReverseWindowList)) {
             if (!window) continue;
             if (!closeAllInWindow(window)) return false;
         }

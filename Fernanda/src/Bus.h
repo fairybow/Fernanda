@@ -27,6 +27,13 @@
 
 #include "Utility.h"
 
+/// TODO (for registering handlers)
+/// - Make sure we aren't casting return values to QVar when registering (it
+/// isn't needed!)
+/// - Can we just return Coco::Path without QString conversion?
+/// - Check where we can remove Utility.h include (toQVariant unneeded)
+/// - Also check lambda args
+
 namespace Fernanda {
 
 class IFileModel;
@@ -193,6 +200,11 @@ public:
         (void)runCommand_(id, { params, context });
     }
 
+    void execute(const QString& id, Window* context)
+    {
+        (void)runCommand_(id, { {}, context });
+    }
+
     [[nodiscard]] QVariant call(const QString& id, const Command& cmd)
     {
         return runCommand_(id, cmd);
@@ -204,6 +216,11 @@ public:
         Window* context = nullptr)
     {
         return runCommand_(id, { params, context });
+    }
+
+    [[nodiscard]] QVariant call(const QString& id, Window* context)
+    {
+        return runCommand_(id, { {}, context });
     }
 
     template <typename T>
@@ -219,6 +236,12 @@ public:
         Window* context = nullptr)
     {
         return runCommand_(id, { params, context }).value<T>();
+    }
+
+    template <typename T>
+    [[nodiscard]] T call(const QString& id, Window* context)
+    {
+        return runCommand_(id, { {}, context }).value<T>();
     }
 
     // NO queries. Calls can be used as queries. It isn't a big deal!

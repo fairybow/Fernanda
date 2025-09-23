@@ -6,15 +6,8 @@ namespace Fernanda {
 
 constexpr auto CONFIG_FILE_NAME = "Settings.ini";
 
-} // namespace Fernanda
-
-/*
-
-// Commands are operations registered in their respective domains that can be
-// run in any class using the Workspace's Commander. Commands take a Command
-// struct argument, but it's optional
-namespace Commands {
-
+/// RENAME CmdIds or similar
+namespace Cmd {
     // Scheme: type.domain.scope:action. The domain is the handler-registering
     // class. The scopes are the logical hierarchy of the program: Application,
     // Workspace, or Window.
@@ -46,12 +39,6 @@ namespace Commands {
     constexpr auto SettingsDialog = "cmd.workspace.workspace:settings_dialog";
     constexpr auto AboutDialog = "cmd.workspace.application:about_dialog";
 
-} // namespace Commands
-
-// Calls are Commands that return a value (they can also be executed as Commands
-// with no return value)
-namespace Calls {
-
     constexpr auto NewTreeViewModel =
         "call.workspace.workspace:new_tree_view_model";
 
@@ -74,11 +61,6 @@ namespace Calls {
     /// NotebookSaveArchive
     /// NotebookSaveArchiveAs
     /// NotebookExportFile
-
-} // namespace Calls
-
-// Queries are for returning read-only values and take optional parameters
-namespace Queries {
 
     constexpr auto NotepadBaseDir = "query.notepad.workspace:base_dir";
     constexpr auto NotebookRoot = "query.notebook.workspace:root";
@@ -105,6 +87,34 @@ namespace Queries {
         "query.view_serv.workspace:has_any_files";
 
     constexpr auto GetSetting = "query.settings_mod.workspace:get";
+
+} // namespace Commands
+
+} // namespace Fernanda
+
+/*
+
+// Commands are operations registered in their respective domains that can be
+// run in any class using the Workspace's Commander. Commands take a Command
+// struct argument, but it's optional
+namespace Commands {
+
+
+
+} // namespace Commands
+
+// Calls are Commands that return a value (they can also be executed as Commands
+// with no return value)
+namespace Calls {
+
+
+
+} // namespace Calls
+
+// Queries are for returning read-only values and take optional parameters
+namespace Queries {
+
+
 
 } // namespace Queries
 

@@ -24,6 +24,7 @@
 #include "Coco/Debug.h"
 
 #include "Bus.h"
+#include "Constants.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
 #include "IFileView.h"
@@ -65,70 +66,66 @@ private:
     {
         closeHelper_ = new ViewServiceCloseHelper(bus, this);
 
-        bus->addCallHandler(Calls::CloseView, [&](const Command& cmd) {
+        bus->addCommandHandler(Cmd::CloseView, [&](const Command& cmd) {
             return closeHelper_->closeAt(
                 cmd.context,
                 to<int>(cmd.params, "index", -1));
         });
 
-        bus->addCallHandler(
-            Calls::CloseWindowViews,
+        bus->addCommandHandler(Cmd::CloseWindowViews,
             [&](const Command& cmd) {
                 return closeHelper_->closeAllInWindow(cmd.context);
             });
 
-        bus->addCallHandler(Calls::CloseAllViews, [&] {
+        bus->addCommandHandler(Cmd::CloseAllViews, [&] {
             return closeHelper_->closeAll();
         });
 
-        bus->addCommandHandler(Commands::Undo, [&](const Command& cmd) {
+        bus->addCommandHandler(Cmd::Undo, [&](const Command& cmd) {
             undoAt_(cmd.context, to<int>(cmd.params, "index", -1));
         });
 
-        bus->addCommandHandler(Commands::Redo, [&](const Command& cmd) {
+        bus->addCommandHandler(Cmd::Redo, [&](const Command& cmd) {
             redoAt_(cmd.context, to<int>(cmd.params, "index", -1));
         });
 
-        bus->addCommandHandler(Commands::Cut, [&](const Command& cmd) {
+        bus->addCommandHandler(Cmd::Cut, [&](const Command& cmd) {
             cutAt_(cmd.context, to<int>(cmd.params, "index", -1));
         });
 
-        bus->addCommandHandler(Commands::Copy, [&](const Command& cmd) {
+        bus->addCommandHandler(Cmd::Copy, [&](const Command& cmd) {
             copyAt_(cmd.context, to<int>(cmd.params, "index", -1));
         });
 
-        bus->addCommandHandler(Commands::Paste, [&](const Command& cmd) {
+        bus->addCommandHandler(Cmd::Paste, [&](const Command& cmd) {
             pasteAt_(cmd.context, to<int>(cmd.params, "index", -1));
         });
 
-        bus->addCommandHandler(Commands::Delete, [&](const Command& cmd) {
+        bus->addCommandHandler(Cmd::Delete, [&](const Command& cmd) {
             deleteAt_(cmd.context, to<int>(cmd.params, "index", -1));
         });
 
-        bus->addCommandHandler(
-            Commands::SelectAll,
+        bus->addCommandHandler(Cmd::SelectAll,
             [&](const Command& cmd) {
                 selectAllAt_(cmd.context, to<int>(cmd.params, "index", -1));
             });
 
-        bus->addCommandHandler(
-            Commands::PreviousTab,
+        bus->addCommandHandler(Cmd::PreviousTab,
             [&](const Command& cmd) {
                 if (cmd.context)
                     if (auto tab_widget = tabWidget(cmd.context))
                         tab_widget->activatePrevious();
             });
 
-        bus->addCommandHandler(
-            Commands::NextTab,
+        bus->addCommandHandler(Cmd::NextTab,
             [&](const Command& cmd) {
                 if (cmd.context)
                     if (auto tab_widget = tabWidget(cmd.context))
                         tab_widget->activateNext();
             });
 
-        bus->addQueryHandler(
-            Queries::ActiveFileView,
+        bus->addCommandHandler(
+            Cmd::ActiveFileView,
             [&](const QVariantMap& params) {
                 auto window = to<Window*>(params, "window");
                 if (!window) return QVariant{};
@@ -137,16 +134,16 @@ private:
                 return toQVariant(active_view);
             });
 
-        bus->addQueryHandler(
-            Queries::ViewCountForModel,
+        bus->addCommandHandler(
+            Cmd::ViewCountForModel,
             [&](const QVariantMap& params) {
                 auto model = to<IFileModel*>(params, "model");
                 if (!model) return -1;
                 return viewsPerModel_[model];
             });
 
-        bus->addQueryHandler(
-            Queries::WindowAnyViewsOnModifiedFiles,
+        bus->addCommandHandler(
+            Cmd::WindowAnyViewsOnModifiedFiles,
             [&](const QVariantMap& params) {
                 auto window = to<Window*>(params, "window");
                 if (!window) return false;
@@ -161,8 +158,8 @@ private:
                 return false;
             });
 
-        bus->addQueryHandler(
-            Queries::WindowAnyFiles,
+        bus->addCommandHandler(
+            Cmd::WindowAnyFiles,
             [&](const QVariantMap& params) {
                 auto window = to<Window*>(params, "window");
                 if (!window) return false;
@@ -171,13 +168,12 @@ private:
                 return tab_widget ? tab_widget->count() > 0 : false;
             });
 
-        bus->addQueryHandler(
-            Queries::WorkspaceAnyViewsOnModifiedFiles,
+        bus->addCommandHandler(
+            Cmd::WorkspaceAnyViewsOnModifiedFiles,
             [&] {
-                for (auto window :
-                     commander->query<QSet<Window*>>(Queries::WindowSet)) {
-                    if (commander->query<bool>(
-                            Queries::WindowAnyViewsOnModifiedFiles,
+            for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
+                if (bus->call<bool>(
+                            Cmd::WindowAnyViewsOnModifiedFiles,
                             { { "window", toQVariant(window) } })) {
                         return true;
                     }
@@ -185,11 +181,10 @@ private:
                 return false;
             });
 
-        bus->addQueryHandler(Queries::WorkspaceAnyFiles, [&] {
-            for (auto window :
-                 commander->query<QSet<Window*>>(Queries::WindowSet)) {
-                if (commander->query<bool>(
-                        Queries::WindowAnyFiles,
+        bus->addCommandHandler(Cmd::WorkspaceAnyFiles, [&] {
+            for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
+                if (bus->call<bool>(
+                        Cmd::WindowAnyFiles,
                         { { "window", toQVariant(window) } })) {
                     return true;
                 }
@@ -338,7 +333,7 @@ private slots:
             [&, window](int index) { setActiveFileView_(window, index); });
 
         connect(tab_widget, &TabWidget::addTabRequested, this, [=] {
-            bus->execute(Commands::NewTab, {}, window);
+            bus->execute(Cmd::NewTab, window);
         });
 
         connect(
@@ -346,8 +341,7 @@ private slots:
             &TabWidget::closeTabRequested,
             this,
             [&, window](int index) {
-                bus->execute(
-                    Calls::CloseView,
+                bus->execute(Cmd::CloseView,
                     { { "index", index } },
                     window);
             });

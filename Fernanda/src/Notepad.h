@@ -20,6 +20,7 @@
 #include "Coco/Path.h"
 
 #include "Bus.h"
+#include "Constants.h"
 #include "NotepadMenuModule.h"
 #include "Utility.h"
 #include "Version.h"
@@ -72,7 +73,7 @@ private:
 
     void initialize_()
     {
-        bus->addInterceptor(Commands::OpenFile, [&](Command& cmd) {
+        bus->addInterceptor(Cmd::OpenFile, [&](Command& cmd) {
             if (pathInterceptor_
                 && pathInterceptor_(to<QString>(cmd.params, "path"))) {
                 return true;
@@ -81,7 +82,7 @@ private:
             return false;
         });
 
-        bus->addQueryHandler(Queries::NotepadBaseDir, [&] {
+        bus->addCommandHandler(Cmd::NotepadBaseDir, [&] {
             return currentBaseDir_.toQString();
         });
     }

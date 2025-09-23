@@ -19,6 +19,7 @@
 #include "Coco/Path.h"
 
 #include "Bus.h"
+#include "Constants.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "Window.h"
@@ -72,7 +73,7 @@ private:
         // 3. Set settings override
         // settings->setOverrideConfigPath(root / Settings.ini);
 
-        bus->addQueryHandler(Queries::NotebookRoot, [&] {
+        bus->addCommandHandler(Cmd::NotebookRoot, [&] {
             return root_.toQString();
         });
 

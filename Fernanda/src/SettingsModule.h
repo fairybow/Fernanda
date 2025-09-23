@@ -60,12 +60,11 @@ private:
     {
         settings_ = new Settings(baseConfigPath_, this);
 
-        commander->addCommandHandler(Commands::SettingsDialog, [&] {
+        bus->addCommandHandler(Cmd::SettingsDialog, [&] {
             openDialog_();
         });
 
-        commander->addCommandHandler(
-            Commands::SetSetting,
+        bus->addCommandHandler(Cmd::SetSetting,
             [&](const Command& cmd) {
                 if (!settings_ || !settings_->isWritable()) return;
                 settings_->setValue(
@@ -73,15 +72,14 @@ private:
                     cmd.params.value("value"));
             });
 
-        commander->addQueryHandler(
-            Queries::GetSetting,
+        bus->addCommandHandler(Cmd::GetSetting,
             [&](const QVariantMap& params) {
                 return settings_->value(
                     to<QString>(params, "key"),
                     params.value("default"));
             });
 
-        connect(eventBus, &EventBus::lastWindowClosed, this, [&] {
+        connect(bus, &Bus::lastWindowClosed, this, [&] {
             if (dialog_) dialog_->close();
         });
     }
@@ -102,7 +100,7 @@ private:
         dialog_ = new SettingsDialog(initial_font);
 
         dialog_->setFontChangeHandler([&](const QFont& font) {
-            emit eventBus->settingChanged(
+            emit bus->settingChanged(
                 Ini::Editor::FONT_KEY,
                 toQVariant(font));
         });

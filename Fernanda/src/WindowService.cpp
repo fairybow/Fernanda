@@ -14,35 +14,25 @@
 
 #include "Application.h"
 #include "Bus.h"
+#include "Constants.h"
 #include "WindowService.h"
 
 namespace Fernanda {
 
 void WindowService::initialize_()
 {
-    bus->addCommandHandler(Commands::PreviousWindow, [&] {
-        activatePrevious_();
+    bus->addCommandHandler(Cmd::PreviousWindow, [&] { activatePrevious_(); });
+    bus->addCommandHandler(Cmd::ViewNextWindow, [&] { activateNext_(); });
+    bus->addCommandHandler(Cmd::ActiveWindow, [&] { return activeWindow_; });
+    bus->addCommandHandler(Cmd::WindowList, [&] { return windows(); });
+
+    bus->addCommandHandler(Cmd::ReverseWindowList, [&] {
+        return windowsReversed();
     });
 
-    bus->addCommandHandler(Commands::ViewNextWindow, [&] { activateNext_(); });
+    bus->addCommandHandler(Cmd::WindowSet, [&] { return windowsUnordered(); });
 
-    bus->addQueryHandler(Queries::ActiveWindow, [&] {
-        return toQVariant(activeWindow_);
-    });
-
-    bus->addQueryHandler(Queries::WindowList, [&] {
-        return toQVariant(windows());
-    });
-
-    bus->addQueryHandler(Queries::ReverseWindowList, [&] {
-        return toQVariant(windowsReversed());
-    });
-
-    bus->addQueryHandler(Queries::WindowSet, [&] {
-        return toQVariant(windowsUnordered());
-    });
-
-    bus->addQueryHandler(Queries::VisibleWindowCount, [&] {
+    bus->addCommandHandler(Cmd::VisibleWindowCount, [&] {
         return visibleCount();
     });
 

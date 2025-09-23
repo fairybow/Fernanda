@@ -56,8 +56,8 @@ private:
     void initialize_()
     {
         connect(
-            eventBus,
-            &EventBus::windowCreated,
+            bus,
+            &Bus::windowCreated,
             this,
             &TreeViewModule::onWindowCreated_);
     }
@@ -74,7 +74,7 @@ private slots:
         auto tree_view = new TreeView(dock_widget);
 
         if (auto model =
-                commander->call<QAbstractItemModel*>(Calls::NewTreeViewModel)) {
+                bus->call<QAbstractItemModel*>(Cmd::NewTreeViewModel)) {
             tree_view->setModel(model);
             if (auto root_index = getItemModelRootIndex(model);
                 root_index.isValid()) {
@@ -107,8 +107,8 @@ private slots:
                 //}
 
                 if (!path.isEmpty()) {
-                    commander->execute(
-                        Commands::OpenFile,
+                    bus->execute(
+                        Cmd::OpenFile,
                         { { "path", path.toQString() } },
                         window);
                 }
