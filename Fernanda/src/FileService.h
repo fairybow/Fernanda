@@ -64,7 +64,6 @@ private:
     {
         saveHelper_ = new FileServiceSaveHelper(bus, pathToFileModel_, this);
 
-        /*
         /// Can't do this anymore! Probably register in the Workspace subclasses
         /// themselves
         bus->addCommandHandler(Cmd::NewTab, [&](const Command& cmd) {
@@ -89,7 +88,7 @@ private:
                 cmd.context,
                 to<int>(cmd.params, "index", -1));
             emit bus->windowSaveExecuted(cmd.context, result);
-            return toQVariant(result);
+            return result;
         });
 
         bus->addCommandHandler(Cmd::NotepadSaveFileAs, [&](const Command& cmd) {
@@ -97,7 +96,7 @@ private:
                 cmd.context,
                 to<int>(cmd.params, "index", -1));
             emit bus->windowSaveExecuted(cmd.context, result);
-            return toQVariant(result);
+            return result;
         });
 
         bus->addCommandHandler(
@@ -111,7 +110,7 @@ private:
                     result); // Right now, only planning to use these with
                              // ColorBar, but may want to have a more specific
                              // notification
-                return toQVariant(result);
+                return result;
             });
 
         bus->addCommandHandler(
@@ -121,15 +120,14 @@ private:
                 emit bus->windowSaveExecuted(
                     cmd.context,
                     result); // Re: ColorBar
-                return toQVariant(result);
+                return result;
             });
 
         bus->addCommandHandler(Cmd::NotepadSaveAllFiles, [&] {
             auto result = saveHelper_->saveAll();
             emit bus->workspaceSaveExecuted(result); // Re: ColorBar
-            return toQVariant(result);
+            return result;
         });
-        */
 
         connect(bus, &Bus::viewClosed, this, &FileService::onViewClosed_);
     }
