@@ -54,24 +54,33 @@ struct Command
 };
 
 template <typename T>
-concept HasCommandParam = std::is_invocable_v<T, const Command&>;
+concept InterceptorWithCommand = std::is_invocable_r_v<bool, T, const Command&>;
 
 template <typename T>
-concept HasNoParams =
-    std::is_invocable_v<T> && !std::is_invocable_v<T, const Command&>;
+concept InterceptorWithoutCommand =
+    std::is_invocable_r_v<bool, T>
+    && !std::is_invocable_r_v<bool, T, const Command&>;
 
-template <typename T, typename... Args, typename X>
-concept ReturnsX = std::is_invocable_v<T, Args...>
-                   && std::is_same_v<std::invoke_result_t<T, Args...>, X>;
+template <typename T>
+concept HandlerWithCommandReturnsVoid =
+    std::is_invocable_r_v<void, T, const Command&>;
+
+template <typename T>
+concept HandlerWithCommandReturnsValue =
+    std::is_invocable_v<T, const Command&>
+    && !std::is_invocable_r_v<void, T, const Command&>;
+
+template <typename T>
+concept HandlerWithoutCommandReturnsVoid =
+    std::is_invocable_r_v<void, T> && !std::is_invocable_v<T, const Command&>;
+
+template <typename T>
+concept HandlerWithoutCommandReturnsValue =
+    std::is_invocable_v<T> && !std::is_invocable_r_v<void, T>
+    && !std::is_invocable_v<T, const Command&>;
 
 template <typename T, typename... Args>
-concept ReturnsVoid = ReturnsX<T, Args..., void>;
-
-template <typename T, typename... Args>
-concept ReturnsQVariant = ReturnsX<T, Args..., QVariant>;
-
-template <typename T, typename... Args>
-concept ReturnsBool = ReturnsX<T, Args..., bool>;
+concept ReturnsQVariant = std::is_invocable_r_v<QVariant, T, Args...>;
 
 class Bus : public QObject
 {
@@ -93,15 +102,12 @@ public:
         // (const Command&)->bool and
         // ()->bool
 
-        if constexpr (
-            HasCommandParam<InterceptorT>
-            && ReturnsBool<InterceptorT, const Command&>) {
+        if constexpr (InterceptorWithCommand<InterceptorT>) {
 
             // (const Command&)->bool
             interceptors_[id] << interceptor;
 
-        } else if constexpr (
-            HasNoParams<InterceptorT> && ReturnsBool<InterceptorT>) {
+        } else if constexpr (InterceptorWithoutCommand<InterceptorT>) {
 
             // ()->bool
             interceptors_[id] << [interceptor = std::forward<InterceptorT>(
@@ -112,9 +118,8 @@ public:
 
         } else {
             static_assert(
-                (HasCommandParam<InterceptorT>
-                 && ReturnsBool<InterceptorT, const Command&>)
-                    || (HasNoParams<InterceptorT> && ReturnsBool<InterceptorT>),
+                InterceptorWithCommand<InterceptorT>
+                    || InterceptorWithoutCommand<InterceptorT>,
                 "Interceptor must be callable as (const Command&)->bool or "
                 "()->bool");
         }
@@ -129,59 +134,56 @@ public:
         // ()->void, and
         // ()->T
 
-        if constexpr (HasCommandParam<HandlerT>) {
+        if constexpr (HandlerWithCommandReturnsVoid<HandlerT>) {
 
-            if constexpr (ReturnsVoid<HandlerT, const Command&>) {
+            // (const Command&)->void
+            commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
+                                       const Command& cmd) {
+                handler(cmd);
+                return QVariant{};
+            };
 
-                // (const Command&)->void
-                commandHandlers_[id] = [handler = std::forward<HandlerT>(
-                                            handler)](const Command& cmd) {
-                    handler(cmd);
-                    return {};
-                };
+        } else if constexpr (HandlerWithCommandReturnsValue<HandlerT>) {
 
-            } else {
+            // (const Command&)->T
+            commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
+                                       const Command& cmd) {
+                if constexpr (ReturnsQVariant<HandlerT, const Command&>) {
+                    return handler(cmd);
+                } else {
+                    return QVariant::fromValue(handler(cmd));
+                }
+            };
 
-                // (const Command&)->T
-                commandHandlers_[id] = [handler = std::forward<HandlerT>(
-                                            handler)](const Command& cmd) {
-                    if constexpr (ReturnsQVariant<HandlerT, const Command&>) {
-                        return handler(cmd);
-                    } else {
-                        return QVariant::fromValue(handler(cmd));
-                    }
-                };
-            }
+        } else if constexpr (HandlerWithoutCommandReturnsVoid<HandlerT>) {
 
-        } else if constexpr (HasNoParams<HandlerT>) {
+            // ()->void
+            commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
+                                       const Command& cmd) {
+                (void)cmd;
+                handler();
+                return QVariant{};
+            };
 
-            if constexpr (ReturnsVoid<HandlerT>) {
+        } else if constexpr (HandlerWithoutCommandReturnsValue<HandlerT>) {
 
-                // ()->void
-                commandHandlers_[id] = [handler = std::forward<HandlerT>(
-                                            handler)](const Command& cmd) {
-                    (void)cmd;
-                    handler();
-                    return {};
-                };
-
-            } else {
-
-                // ()->T
-                commandHandlers_[id] = [handler = std::forward<HandlerT>(
-                                            handler)](const Command& cmd) {
-                    (void)cmd;
-                    if constexpr (ReturnsQVariant<HandlerT>) {
-                        return handler();
-                    } else {
-                        return QVariant::fromValue(handler());
-                    }
-                };
-            }
+            // ()->T
+            commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
+                                       const Command& cmd) {
+                (void)cmd;
+                if constexpr (ReturnsQVariant<HandlerT>) {
+                    return handler();
+                } else {
+                    return QVariant::fromValue(handler());
+                }
+            };
 
         } else {
             static_assert(
-                HasCommandParam<HandlerT> || HasNoParams<HandlerT>,
+                HandlerWithCommandReturnsVoid<HandlerT>
+                    || HandlerWithCommandReturnsValue<HandlerT>
+                    || HandlerWithoutCommandReturnsVoid<HandlerT>
+                    || HandlerWithoutCommandReturnsValue<HandlerT>,
                 "Handler must be callable as (const Command&)->void, (const "
                 "Command&)->T, ()->void or ()->T");
         }

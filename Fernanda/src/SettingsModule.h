@@ -60,7 +60,7 @@ private:
     {
         settings_ = new Settings(baseConfigPath_, this);
 
-        bus->addCommandHandler(Cmd::SettingsDialog, [&] {
+        /*bus->addCommandHandler(Cmd::SettingsDialog, [&] {
             openDialog_();
         });
 
@@ -77,7 +77,7 @@ private:
                 return settings_->value(
                     to<QString>(params, "key"),
                     params.value("default"));
-            });
+            });*/
 
         connect(bus, &Bus::lastWindowClosed, this, [&] {
             if (dialog_) dialog_->close();
@@ -104,7 +104,7 @@ private:
                 Ini::Editor::FONT_KEY,
                 toQVariant(font));
         });
-        //...
+        // Connect other setting handlers
 
         connect(
             dialog_,
@@ -116,7 +116,7 @@ private:
                         Ini::Editor::FONT_KEY,
                         toQVariant(font));
             });
-        //...
+        // Listen to other setting signals
 
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {
             (void)result;

@@ -66,7 +66,7 @@ private:
     {
         closeHelper_ = new ViewServiceCloseHelper(bus, this);
 
-        bus->addCommandHandler(Cmd::CloseView, [&](const Command& cmd) {
+        /*bus->addCommandHandler(Cmd::CloseView, [&](const Command& cmd) {
             return closeHelper_->closeAt(
                 cmd.context,
                 to<int>(cmd.params, "index", -1));
@@ -124,15 +124,13 @@ private:
                         tab_widget->activateNext();
             });
 
-        bus->addCommandHandler(
-            Cmd::ActiveFileView,
-            [&](const QVariantMap& params) {
-                auto window = to<Window*>(params, "window");
-                if (!window) return QVariant{};
+        bus->addCommandHandler(Cmd::ActiveFileView, [&](const Command& cmd) {
+            auto window = to<Window*>(cmd.params, "window");
+            if (!window) return QVariant{};
 
-                auto active_view = activeFileViews_.value(window, nullptr);
-                return toQVariant(active_view);
-            });
+            auto active_view = activeFileViews_.value(window, nullptr);
+            return active_view;
+        });
 
         bus->addCommandHandler(
             Cmd::ViewCountForModel,
@@ -190,24 +188,15 @@ private:
                 }
             }
             return false;
+        });*/
+
+        connect(bus, &Bus::windowCreated, this, &ViewService::onWindowCreated_);
+
+        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
+            activeFileViews_.remove(window);
         });
 
-        connect(
-            bus,
-            &Bus::windowCreated,
-            this,
-            &ViewService::onWindowCreated_);
-
-        connect(bus,
-            &Bus::windowDestroyed,
-            this,
-            [&](Window* window) { activeFileViews_.remove(window); });
-
-        connect(
-            bus,
-            &Bus::fileReadied,
-            this,
-            &ViewService::onFileReadied_);
+        connect(bus, &Bus::fileReadied, this, &ViewService::onFileReadied_);
 
         connect(
             bus,
@@ -341,9 +330,7 @@ private slots:
             &TabWidget::closeTabRequested,
             this,
             [&, window](int index) {
-                bus->execute(Cmd::CloseView,
-                    { { "index", index } },
-                    window);
+                bus->execute(Cmd::CloseView, { { "index", index } }, window);
             });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
@@ -366,8 +353,8 @@ private slots:
 
         if (auto text_model = to<TextFileModel*>(model)) {
             auto text_view = make_<TextFileView*>(text_model, window);
-            auto font = bus->query<QFont>(
-                Queries::GetSetting,
+            auto font = bus->call<QFont>(
+                Cmd::GetSetting,
                 { { "key", Ini::Editor::FONT_KEY },
                   { "default", Ini::Editor::defaultFont() } });
             text_view->setFont(font);
@@ -400,7 +387,7 @@ private slots:
         if (!model) return;
 
         // Find all tabs containing views of this model
-        for (auto window : bus->query<QSet<Window*>>(Queries::WindowSet)) {
+        for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 
@@ -422,7 +409,7 @@ private slots:
 
         // Find all tabs containing views of this model and update their
         // text/tooltip
-        for (auto window : bus->query<QSet<Window*>>(Queries::WindowSet)) {
+        for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 
@@ -443,7 +430,7 @@ private slots:
 
         auto font = to<QFont>(value);
 
-        for (auto window : bus->query<QSet<Window*>>(Queries::WindowSet)) {
+        for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 

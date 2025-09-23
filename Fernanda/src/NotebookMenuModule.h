@@ -17,6 +17,7 @@
 #include "Coco/Debug.h"
 
 #include "Bus.h"
+#include "Constants.h"
 #include "MenuModule.h"
 
 namespace Fernanda {

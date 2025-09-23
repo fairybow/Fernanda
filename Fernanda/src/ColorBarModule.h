@@ -44,23 +44,23 @@ private:
     {
         connect(
             bus,
-            &EventBus::windowCreated,
+            &Bus::windowCreated,
             this,
             &ColorBarModule::onWindowCreated_);
 
-        connect(bus, &EventBus::workspaceInitialized, this, [&] {
+        connect(bus, &Bus::workspaceInitialized, this, [&] {
             timer(this, 1000, [&] { runAll_(ColorBar::Pastel); });
         });
 
         connect(
             bus,
-            &EventBus::windowSaveExecuted,
+            &Bus::windowSaveExecuted,
             this,
             &ColorBarModule::onWindowSaveExecuted_);
 
         connect(
             bus,
-            &EventBus::workspaceSaveExecuted,
+            &Bus::workspaceSaveExecuted,
             this,
             &ColorBarModule::onWorkspaceSaveExecuted_);
     }

@@ -26,6 +26,7 @@
 #include "Coco/Utility.h"
 
 #include "Bus.h"
+#include "Constants.h"
 #include "IService.h"
 #include "Utility.h"
 #include "Window.h"

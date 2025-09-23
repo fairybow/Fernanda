@@ -19,6 +19,7 @@
 #include "Coco/PathUtil.h"
 
 #include "Bus.h"
+#include "Constants.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
 #include "TabWidget.h"
@@ -104,7 +105,7 @@ public:
 
         // Reverse windows here or not?
         for (auto& window :
-             commander_->query<QList<Window*>>(Queries::ReverseWindowList)) {
+             bus_->call<QList<Window*>>(Cmd::ReverseWindowList)) {
             if (!window) continue;
 
             for (auto& i : reverseUniqueModelIndexes_(window)) {
@@ -201,7 +202,7 @@ private:
         if (!meta || !meta->isOnDisk()) return SaveResult::NoOp;
 
         auto result = model->save();
-        emit eventBus_->fileSaved(result, meta->path());
+        emit bus_->fileSaved(result, meta->path());
         return result;
     }
 
@@ -225,7 +226,7 @@ private:
             pathToFileModel_[pathChange.now] = model;
         }
 
-        emit eventBus_->fileSavedAs(result, pathChange.now, pathChange.old);
+        emit bus_->fileSavedAs(result, pathChange.now, pathChange.old);
         return result;
     }
 
@@ -245,10 +246,9 @@ private:
         auto new_path = Coco::PathUtil::Dialog::save(
             window,
             Tr::Dialogs::saveFileCaption(),
-            old_path.isEmpty()
-                ? commander_->query<QString>(Queries::NotepadBaseDir)
-                : old_path); /// Filter arg is last arg (not
-                             /// present here), do later
+            old_path.isEmpty() ? bus_->call<QString>(Cmd::NotepadBaseDir)
+                               : old_path); /// Filter arg is last arg (not
+                                            /// present here), do later
 
         return { old_path, new_path };
     }

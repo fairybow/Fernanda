@@ -21,6 +21,7 @@
 #include "Coco/Bool.h"
 
 #include "Bus.h"
+#include "Constants.h"
 #include "IService.h"
 #include "Tr.h"
 
@@ -96,7 +97,7 @@ protected:
 
         auto action = new QAction(text, window);
         connect(action, &QAction::triggered, window, [=] {
-            commander->execute(commandId, {}, window);
+            bus->execute(commandId, window);
         });
         action->setShortcut(keySequence);
         action->setAutoRepeat(autoRepeat);
@@ -127,11 +128,7 @@ protected:
 private:
     void initialize_()
     {
-        connect(
-            bus,
-            &EventBus::windowCreated,
-            this,
-            &MenuModule::onWindowCreated_);
+        connect(bus, &Bus::windowCreated, this, &MenuModule::onWindowCreated_);
 
         //...
     }
@@ -252,8 +249,8 @@ private:
         file_menu->addSeparator();
 
         // Misc
-        //if (addWorkspaceMiscFileActions_(file_menu, window))
-            //file_menu->addSeparator();
+        // if (addWorkspaceMiscFileActions_(file_menu, window))
+        // file_menu->addSeparator();
 
         // Quit
         file_menu->addAction(actions.fileQuit);

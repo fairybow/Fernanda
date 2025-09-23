@@ -73,7 +73,7 @@ private:
 
     void initialize_()
     {
-        bus->addInterceptor(Cmd::OpenFile, [&](Command& cmd) {
+        bus->addInterceptor(Cmd::OpenFile, [&](const Command& cmd) {
             if (pathInterceptor_
                 && pathInterceptor_(to<QString>(cmd.params, "path"))) {
                 return true;
