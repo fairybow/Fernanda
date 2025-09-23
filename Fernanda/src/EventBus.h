@@ -7,6 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
+/*
 #pragma once
 
 #include <QObject>
@@ -88,3 +89,4 @@ private:
 };
 
 } // namespace Fernanda
+*/

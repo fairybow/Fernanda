@@ -7,6 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
+/*
 #pragma once
 
 #include <functional>
@@ -30,7 +31,8 @@ namespace Fernanda {
 class Window;
 
 /// TODO: Redo this to merge commands/calls
-/// TODO: Commands and Queries should be in Constants (separate from this) or similar
+/// TODO: Commands and Queries should be in Constants (separate from this) or
+/// similar
 
 // Commands are operations registered in their respective domains that can be
 // run in any class using the Workspace's Commander. Commands take a Command
@@ -401,3 +403,4 @@ private:
 };
 
 } // namespace Fernanda
+*/

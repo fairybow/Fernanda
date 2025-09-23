@@ -20,8 +20,7 @@
 
 #include "Coco/Bool.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "IService.h"
 #include "Tr.h"
 
@@ -35,11 +34,8 @@ class MenuModule : public IService
     Q_OBJECT
 
 public:
-    MenuModule(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+    MenuModule(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
         initialize_();
     }

@@ -19,9 +19,8 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
+#include "Bus.h"
 #include "ColorBarModule.h"
-#include "Commander.h"
-#include "EventBus.h"
 #include "FileService.h"
 #include "SettingsModule.h"
 #include "TreeViewModule.h"
@@ -70,23 +69,22 @@ signals:
     void lastWindowClosed();
 
 protected:
-    Commander* commander = new Commander(this);
-    EventBus* eventBus = new EventBus(this);
+    Bus* bus = new Bus(this);
 
     SettingsModule* settings = nullptr;
 
 private:
     Coco::Path globalConfig_;
 
-    WindowService* windows_ = new WindowService(commander, eventBus, this);
-    ViewService* views_ = new ViewService(commander, eventBus, this);
-    FileService* files_ = new FileService(commander, eventBus, this);
-    TreeViewModule* treeViews_ = new TreeViewModule(commander, eventBus, this);
-    ColorBarModule* colorBars_ = new ColorBarModule(commander, eventBus, this);
+    WindowService* windows_ = new WindowService(bus, this);
+    ViewService* views_ = new ViewService(bus, this);
+    FileService* files_ = new FileService(bus, this);
+    TreeViewModule* treeViews_ = new TreeViewModule(bus, this);
+    ColorBarModule* colorBars_ = new ColorBarModule(bus, this);
 
     void initialize_()
     {
-        settings = new SettingsModule(globalConfig_, commander, eventBus, this);
+        settings = new SettingsModule(globalConfig_, bus, this);
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
         addCommandHandlers_();

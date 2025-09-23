@@ -18,8 +18,7 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
 #include "TabWidget.h"
@@ -40,13 +39,11 @@ class FileServiceSaveHelper : public QObject
 
 public:
     FileServiceSaveHelper(
-        Commander* commander,
-        EventBus* eventBus,
+        Bus* bus,
         QHash<Coco::Path, IFileModel*>& pathToFileModel,
         QObject* parent = nullptr)
         : QObject(parent)
-        , commander_(commander)
-        , eventBus_(eventBus)
+        , bus_(bus)
         , pathToFileModel_(pathToFileModel)
     {
     }
@@ -126,8 +123,7 @@ private:
         Coco::Path now{};
     };
 
-    Commander* commander_; // FileService's
-    EventBus* eventBus_; // FileService's
+    Bus* bus_; // FileService's
     QHash<Coco::Path, IFileModel*>& pathToFileModel_;
 
     void

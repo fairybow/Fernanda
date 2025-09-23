@@ -23,8 +23,7 @@
 #include "Coco/PathUtil.h"
 #include "Coco/TextIo.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "FileMeta.h"
 #include "FileServiceSaveHelper.h"
 #include "FileTypes.h"
@@ -48,11 +47,8 @@ class FileService : public IService
     Q_OBJECT
 
 public:
-    FileService(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+    FileService(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
         initialize_();
     }

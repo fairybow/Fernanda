@@ -16,8 +16,7 @@
 
 #include "Coco/Debug.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "MenuModule.h"
 
 namespace Fernanda {
@@ -28,11 +27,8 @@ class NotepadMenuModule : public MenuModule
     Q_OBJECT
 
 public:
-    NotepadMenuModule(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : MenuModule(commander, eventBus, parent)
+    NotepadMenuModule(Bus* bus, QObject* parent = nullptr)
+        : MenuModule(bus, parent)
     {
         initialize_();
     }

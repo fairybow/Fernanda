@@ -25,8 +25,7 @@
 #include "Coco/Path.h"
 #include "Coco/Utility.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "IService.h"
 #include "Utility.h"
 #include "Window.h"
@@ -41,11 +40,8 @@ class TreeViewModule : public IService
     Q_OBJECT
 
 public:
-    TreeViewModule(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+    TreeViewModule(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
         initialize_();
     }

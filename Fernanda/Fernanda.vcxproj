@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h" />
-    <QtMoc Include="src\EventBus.h" />
+    <ClInclude Include="src\EventBus.h" />
     <QtMoc Include="src\FileService.h" />
     <QtMoc Include="src\SettingsModule.h" />
     <QtMoc Include="src\IFileModel.h" />
@@ -63,10 +63,11 @@
     <QtMoc Include="src\TabWidgetCloseButton.h" />
     <QtMoc Include="src\TabWidgetTabBar.h" />
     <QtMoc Include="src\TabWidgetUnderlay.h" />
-    <QtMoc Include="src\Commander.h" />
+    <ClInclude Include="src\Commander.h" />
     <QtMoc Include="src\FileServiceSaveHelper.h" />
     <QtMoc Include="src\Debouncer.h" />
     <QtMoc Include="src\DisplaySlider.h" />
+    <QtMoc Include="src\Bus.h" />
     <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\FileTypes.h" />
     <QtMoc Include="src\NoOpFileModel.h" />

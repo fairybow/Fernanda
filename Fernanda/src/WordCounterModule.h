@@ -13,8 +13,7 @@
 
 #include "Coco/Debug.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "IService.h"
 
 namespace Fernanda {
@@ -25,11 +24,8 @@ class WordCounterModule : public IService
     Q_OBJECT
 
 public:
-    WordCounterModule(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+    WordCounterModule(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
         initialize_();
     }

@@ -7,6 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
+/*
 #include <QString>
 #include <QVariant>
 
@@ -74,3 +75,5 @@ void EventBus::initialize_()
 } // namespace Fernanda
 
 #undef SIGLOG_
+
+*/

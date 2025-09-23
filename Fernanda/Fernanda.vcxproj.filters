@@ -172,9 +172,6 @@
     <QtMoc Include="src\WindowService.h">
       <Filter>Code\Core\Services</Filter>
     </QtMoc>
-    <QtMoc Include="src\EventBus.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </QtMoc>
     <QtMoc Include="src\Workspace.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
@@ -204,9 +201,6 @@
     </QtMoc>
     <QtMoc Include="src\NoOpFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
-    </QtMoc>
-    <QtMoc Include="src\Commander.h">
-      <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
     <QtMoc Include="src\FileServiceSaveHelper.h">
       <Filter>Code\Core\Services</Filter>
@@ -246,6 +240,9 @@
     </QtMoc>
     <QtMoc Include="src\MenuModule.h">
       <Filter>Code\Auxiliary\MenuModules</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Bus.h">
+      <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -317,6 +314,12 @@
     </ClInclude>
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EventBus.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Commander.h">
+      <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

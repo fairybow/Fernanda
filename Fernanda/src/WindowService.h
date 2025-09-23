@@ -23,9 +23,8 @@
 #include "Coco/Debug.h"
 #include "Coco/Utility.h"
 
-#include "Commander.h"
+#include "Bus.h"
 #include "Debouncer.h"
-#include "EventBus.h"
 #include "IService.h"
 #include "Utility.h"
 #include "Window.h"
@@ -45,11 +44,8 @@ class WindowService : public IService
 public:
     /*COCO_BOOL(HaltOnRefusal);*/
 
-    WindowService(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+    WindowService(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
         initialize_();
     }

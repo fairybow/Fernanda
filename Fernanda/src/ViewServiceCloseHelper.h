@@ -18,8 +18,7 @@
 
 #include "Coco/Debug.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "SavePrompt.h"
 #include "TabWidget.h"
 #include "Utility.h"
@@ -38,13 +37,9 @@ class ViewServiceCloseHelper : public QObject
     Q_OBJECT
 
 public:
-    ViewServiceCloseHelper(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
+    ViewServiceCloseHelper(Bus* bus, QObject* parent = nullptr)
         : QObject(parent)
-        , commander_(commander)
-        , eventBus_(eventBus)
+        , bus_(bus)
     {
     }
 
@@ -180,8 +175,7 @@ public:
     }
 
 private:
-    Commander* commander_; // ViewService's
-    EventBus* eventBus_; // ViewService's
+    Bus* bus_; // ViewService's
 };
 
 } // namespace Fernanda

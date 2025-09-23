@@ -23,8 +23,7 @@
 #include "Coco/Concepts.h"
 #include "Coco/Debug.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
 #include "IFileView.h"
@@ -49,11 +48,8 @@ class ViewService : public IService
     Q_OBJECT
 
 public:
-    ViewService(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+    ViewService(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
         initialize_();
     }

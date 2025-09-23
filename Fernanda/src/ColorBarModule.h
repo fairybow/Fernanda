@@ -14,9 +14,8 @@
 
 #include "Coco/Debug.h"
 
+#include "Bus.h"
 #include "ColorBar.h"
-#include "Commander.h"
-#include "EventBus.h"
 #include "IFileModel.h"
 #include "IService.h"
 #include "Utility.h"
@@ -30,11 +29,8 @@ class ColorBarModule : public IService
     Q_OBJECT
 
 public:
-    ColorBarModule(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+    ColorBarModule(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
         initialize_();
     }

@@ -18,8 +18,7 @@
 #include "Coco/Debug.h"
 #include "Coco/Path.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
 #include "IService.h"
 #include "Ini.h"
 #include "Settings.h"
@@ -36,10 +35,9 @@ class SettingsModule : public IService
 public:
     SettingsModule(
         const Coco::Path& configPath,
-        Commander* commander,
-        EventBus* eventBus,
+        Bus* bus,
         QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+        : IService(bus, parent)
         , baseConfigPath_(configPath)
     {
         initialize_();
