@@ -125,14 +125,15 @@ private:
             });
 
         bus->addCommandHandler(Cmd::ActiveFileView, [&](const Command& cmd) {
-            auto window = to<Window*>(cmd.params, "window");
-            if (!window) return QVariant{};
+            if (cmd.context)
+                if (auto active_view =
+                        activeFileViews_.value(cmd.context, nullptr))
+                    return active_view;
 
-            auto active_view = activeFileViews_.value(window, nullptr);
-            return active_view;
-        });
+            return nullptr;
+        });*/
 
-        bus->addCommandHandler(
+        /*bus->addCommandHandler(
             Cmd::ViewCountForModel,
             [&](const QVariantMap& params) {
                 auto model = to<IFileModel*>(params, "model");
@@ -352,6 +353,7 @@ private slots:
         IFileView* view = nullptr;
 
         if (auto text_model = to<TextFileModel*>(model)) {
+
             auto text_view = make_<TextFileView*>(text_model, window);
             auto font = bus->call<QFont>(
                 Cmd::GetSetting,

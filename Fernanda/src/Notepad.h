@@ -73,7 +73,7 @@ private:
 
     void initialize_()
     {
-        bus->addInterceptor(Cmd::OpenFile, [&](const Command& cmd) {
+        /*bus->addInterceptor(Cmd::OpenFile, [&](const Command& cmd) {
             if (pathInterceptor_
                 && pathInterceptor_(to<QString>(cmd.params, "path"))) {
                 return true;
@@ -84,7 +84,7 @@ private:
 
         bus->addCommandHandler(Cmd::NotepadBaseDir, [&] {
             return currentBaseDir_.toQString();
-        });
+        });*/
     }
 
     virtual QAbstractItemModel* makeTreeViewModel_() override

@@ -73,9 +73,9 @@ private:
         // 3. Set settings override
         // settings->setOverrideConfigPath(root / Settings.ini);
 
-        bus->addCommandHandler(Cmd::NotebookRoot, [&] {
+        /*bus->addCommandHandler(Cmd::NotebookRoot, [&] {
             return root_.toQString();
-        });
+        });*/
 
         connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
     }

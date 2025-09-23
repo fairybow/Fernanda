@@ -19,6 +19,7 @@
 #include "Coco/Path.h"
 
 #include "Bus.h"
+#include "Constants.h"
 #include "IService.h"
 #include "Ini.h"
 #include "Settings.h"
@@ -72,16 +73,15 @@ private:
                     cmd.params.value("value"));
             });
 
-        bus->addCommandHandler(Cmd::GetSetting,
-            [&](const QVariantMap& params) {
+        bus->addCommandHandler(Cmd::GetSetting, [&](const Command& cmd) {
                 return settings_->value(
-                    to<QString>(params, "key"),
-                    params.value("default"));
-            });*/
+                to<QString>(cmd.params, "key"),
+                cmd.params.value("default"));
+            });
 
         connect(bus, &Bus::lastWindowClosed, this, [&] {
             if (dialog_) dialog_->close();
-        });
+        });*/
     }
 
     void openDialog_()

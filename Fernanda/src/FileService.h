@@ -64,7 +64,7 @@ private:
     {
         saveHelper_ = new FileServiceSaveHelper(bus, pathToFileModel_, this);
 
-        /// Can't do this anymore! Probably register in the Workspace subclasses
+        /*/// Can't do this anymore! Probably register in the Workspace subclasses
         /// themselves
         bus->addCommandHandler(Cmd::NewTab, [&](const Command& cmd) {
             createNewTextFile_(cmd.context);
@@ -127,7 +127,7 @@ private:
             auto result = saveHelper_->saveAll();
             emit bus->workspaceSaveExecuted(result); // Re: ColorBar
             return result;
-        });
+        });*/
 
         connect(bus, &Bus::viewClosed, this, &FileService::onViewClosed_);
     }
