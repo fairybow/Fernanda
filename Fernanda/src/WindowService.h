@@ -42,8 +42,6 @@ class WindowService : public IService
     Q_OBJECT
 
 public:
-    /*COCO_BOOL(HaltOnRefusal);*/
-
     WindowService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -105,24 +103,6 @@ public:
             bubbleDelay_(delayMsecs);
         }
     }
-
-    /*void closeAll(HaltOnRefusal haltOnRefusal = HaltOnRefusal::No)
-    {
-        for (auto& window : windowsReversed())
-            if (!window->close() && haltOnRefusal) return;
-    }
-
-    void deleteAll()
-    {
-        for (auto& window : windowsReversed())
-            delete window;
-    }
-
-    void deleteAllLater()
-    {
-        for (auto& window : windowsReversed())
-            window->deleteLater();
-    }*/
 
     void activateAll() const
     {

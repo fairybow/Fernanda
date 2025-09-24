@@ -77,7 +77,7 @@
 // (since it doesn't register on app open)
 // - WordCounter
 // - Autosaving
-// - How to update SettingsDialog if settings are changed via commander
+// - How to update SettingsDialog if settings are changed via bus
 // from outside?
 // - Ensure ColorBar position is included in settings
 // - On closing with a save prompt, when save is chosen, we may want a

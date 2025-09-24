@@ -66,6 +66,15 @@ private:
     {
         closeHelper_ = new ViewServiceCloseHelper(bus, this);
 
+        bus->addCommandHandler(
+            WorkspaceCmd::MODEL_VIEWS_COUNT,
+            [&](const Command& cmd) {
+                if (auto model = cmd.param<IFileModel*>("model"))
+                    return viewsPerModel_[model];
+
+                return -1;
+            });
+
         /*bus->addCommandHandler(Cmd::CloseView, [&](const Command& cmd) {
             return closeHelper_->closeAt(
                 cmd.context,
@@ -124,7 +133,9 @@ private:
                         tab_widget->activateNext();
             });
 
-        bus->addCommandHandler(Cmd::ActiveFileView, [&](const Command& cmd) {
+        */
+
+        /*bus->addCommandHandler(Cids::ActiveFileView, [&](const Command& cmd) {
             if (cmd.context)
                 if (auto active_view =
                         activeFileViews_.value(cmd.context, nullptr))
@@ -133,14 +144,7 @@ private:
             return nullptr;
         });*/
 
-        /*bus->addCommandHandler(
-            Cmd::ViewCountForModel,
-            [&](const QVariantMap& params) {
-                auto model = to<IFileModel*>(params, "model");
-                if (!model) return -1;
-                return viewsPerModel_[model];
-            });
-
+        /*
         bus->addCommandHandler(
             Cmd::WindowAnyViewsOnModifiedFiles,
             [&](const QVariantMap& params) {

@@ -97,7 +97,7 @@ private:
     bool windowsCloseAcceptor_(Window* window)
     {
         if (!window) return false;
-        return bus->call<bool>(Cmd::CloseWindowViews, window);
+        ///return bus->call<bool>(Cmd::CloseWindowViews, window);
     }
 
     void newWindow_()

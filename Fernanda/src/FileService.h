@@ -211,7 +211,7 @@ private slots:
         if (!meta) return;
 
         auto view_count = bus->call<int>(
-            Cmd::ViewCountForModel,
+            WorkspaceCmd::MODEL_VIEWS_COUNT,
             { { "model", toQVariant(model) } });
 
         if (view_count < 1) {

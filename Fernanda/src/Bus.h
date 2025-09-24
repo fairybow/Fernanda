@@ -51,6 +51,17 @@ struct Command
         , context(context)
     {
     }
+
+    template <typename T> inline T param(const QString& key) const
+    {
+        if (!params.contains(key)) {
+            constexpr auto log_format =
+                "\n\tParameter '%0' not found in command params";
+            COCO_LOG_THIS(QString(log_format).arg(key));
+        }
+
+        return params.value(key).value<T>();
+    }
 };
 
 template <typename T>

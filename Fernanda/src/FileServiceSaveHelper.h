@@ -105,9 +105,8 @@ public:
 
         // Reverse windows here or not?
         for (auto& window :
-             bus_->call<QList<Window*>>(Cmd::ReverseWindowList)) {
+             bus_->call<QList<Window*>>(WorkspaceCmd::WINDOWS_R_LIST)) {
             if (!window) continue;
-
             for (auto& i : reverseUniqueModelIndexes_(window)) {
                 auto result_i = offDiskModifiedCascade_(window, i);
                 setFailOrSuccess_(result_i, any_fails, any_successes);
@@ -246,9 +245,11 @@ private:
         auto new_path = Coco::PathUtil::Dialog::save(
             window,
             Tr::Dialogs::saveFileCaption(),
-            old_path.isEmpty() ? bus_->call<QString>(Cmd::NotepadBaseDir)
-                               : old_path); /// Filter arg is last arg (not
-                                            /// present here), do later
+            old_path.isEmpty()
+                ? bus_->call<QString>(Commands::Notepad::BASE_DIR)
+                : old_path);
+        /// Filter arg is last arg (not
+        /// present here), do later
 
         return { old_path, new_path };
     }
