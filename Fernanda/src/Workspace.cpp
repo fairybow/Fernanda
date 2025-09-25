@@ -26,7 +26,9 @@ namespace Fernanda {
 
 void Workspace::addCommandHandlers_()
 {
-    /*bus->addCommandHandler(Cmd::NewWindow, [&] { newWindow_(); });
+    bus->addCommandHandler(WorkspaceCmd::NEW_WINDOW, [&] { newWindow_(); });
+
+    /*
     bus->addCommandHandler(Cmd::CloseWindow, [&](const Command& cmd) {
         if (cmd.context) cmd.context->close();
     });

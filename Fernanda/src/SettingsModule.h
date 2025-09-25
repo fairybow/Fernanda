@@ -61,27 +61,30 @@ private:
     {
         settings_ = new Settings(baseConfigPath_, this);
 
-        /*bus->addCommandHandler(Cmd::SettingsDialog, [&] {
-            openDialog_();
-        });
+        bus->addCommandHandler(
+            WorkspaceCmd::SETTINGS_GET,
+            [&](const Command& cmd) {
+                return settings_->value(
+                    cmd.param<QString>("key"),
+                    cmd.param("default"));
+            });
 
-        bus->addCommandHandler(Cmd::SetSetting,
+        bus->addCommandHandler(
+            WorkspaceCmd::SETTINGS_SET,
             [&](const Command& cmd) {
                 if (!settings_ || !settings_->isWritable()) return;
                 settings_->setValue(
-                    to<QString>(cmd.params, "key"),
-                    cmd.params.value("value"));
+                    cmd.param<QString>("key"),
+                    cmd.param("value"));
             });
 
-        bus->addCommandHandler(Cmd::GetSetting, [&](const Command& cmd) {
-                return settings_->value(
-                to<QString>(cmd.params, "key"),
-                cmd.params.value("default"));
-            });
+        bus->addCommandHandler(WorkspaceCmd::SETTINGS_DIALOG, [&] {
+            openDialog_();
+        });
 
         connect(bus, &Bus::lastWindowClosed, this, [&] {
             if (dialog_) dialog_->close();
-        });*/
+        });
     }
 
     void openDialog_()
@@ -100,9 +103,7 @@ private:
         dialog_ = new SettingsDialog(initial_font);
 
         dialog_->setFontChangeHandler([&](const QFont& font) {
-            emit bus->settingChanged(
-                Ini::Editor::FONT_KEY,
-                toQVariant(font));
+            emit bus->settingChanged(Ini::Editor::FONT_KEY, toQVariant(font));
         });
         // Connect other setting handlers
 

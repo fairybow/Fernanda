@@ -131,6 +131,9 @@
     <None Include="docs\Commander Audit.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\Todos.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">

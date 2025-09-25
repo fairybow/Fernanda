@@ -52,15 +52,20 @@ struct Command
     {
     }
 
-    template <typename T> inline T param(const QString& key) const
+    [[nodiscard]] QVariant param(const QString& key) const
     {
         if (!params.contains(key)) {
             constexpr auto log_format =
                 "\n\tParameter '%0' not found in command params";
-            COCO_LOG_THIS(QString(log_format).arg(key));
+            COCO_LOG(QString(log_format).arg(key));
         }
 
-        return params.value(key).value<T>();
+        return params.value(key);
+    }
+
+    template <typename T> [[nodiscard]] T param(const QString& key) const
+    {
+        return param.value<T>();
     }
 };
 

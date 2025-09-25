@@ -75,6 +75,38 @@ private:
                 return -1;
             });
 
+        /// Ensure we pass -1 if we want to do active view!
+
+        bus->addCommandHandler(WorkspaceCmd::UNDO, [&](const Command& cmd) {
+            undoAt_(cmd.context, cmd.param<int>("index"));
+        });
+
+        bus->addCommandHandler(WorkspaceCmd::REDO, [&](const Command& cmd) {
+            redoAt_(cmd.context, cmd.param<int>("index"));
+        });
+
+        bus->addCommandHandler(WorkspaceCmd::CUT, [&](const Command& cmd) {
+            cutAt_(cmd.context, cmd.param<int>("index"));
+        });
+
+        bus->addCommandHandler(WorkspaceCmd::COPY, [&](const Command& cmd) {
+            copyAt_(cmd.context, cmd.param<int>("index"));
+        });
+
+        bus->addCommandHandler(WorkspaceCmd::PASTE, [&](const Command& cmd) {
+            pasteAt_(cmd.context, cmd.param<int>("index"));
+        });
+
+        bus->addCommandHandler(WorkspaceCmd::DELETE, [&](const Command& cmd) {
+            deleteAt_(cmd.context, cmd.param<int>("index"));
+        });
+
+        bus->addCommandHandler(
+            WorkspaceCmd::SELECT_ALL,
+            [&](const Command& cmd) {
+                selectAllAt_(cmd.context, cmd.param<int>("index"));
+            });
+
         /*bus->addCommandHandler(Cmd::CloseView, [&](const Command& cmd) {
             return closeHelper_->closeAt(
                 cmd.context,
@@ -89,35 +121,6 @@ private:
         bus->addCommandHandler(Cmd::CloseAllViews, [&] {
             return closeHelper_->closeAll();
         });
-
-        bus->addCommandHandler(Cmd::Undo, [&](const Command& cmd) {
-            undoAt_(cmd.context, to<int>(cmd.params, "index", -1));
-        });
-
-        bus->addCommandHandler(Cmd::Redo, [&](const Command& cmd) {
-            redoAt_(cmd.context, to<int>(cmd.params, "index", -1));
-        });
-
-        bus->addCommandHandler(Cmd::Cut, [&](const Command& cmd) {
-            cutAt_(cmd.context, to<int>(cmd.params, "index", -1));
-        });
-
-        bus->addCommandHandler(Cmd::Copy, [&](const Command& cmd) {
-            copyAt_(cmd.context, to<int>(cmd.params, "index", -1));
-        });
-
-        bus->addCommandHandler(Cmd::Paste, [&](const Command& cmd) {
-            pasteAt_(cmd.context, to<int>(cmd.params, "index", -1));
-        });
-
-        bus->addCommandHandler(Cmd::Delete, [&](const Command& cmd) {
-            deleteAt_(cmd.context, to<int>(cmd.params, "index", -1));
-        });
-
-        bus->addCommandHandler(Cmd::SelectAll,
-            [&](const Command& cmd) {
-                selectAllAt_(cmd.context, to<int>(cmd.params, "index", -1));
-            });
 
         bus->addCommandHandler(Cmd::PreviousTab,
             [&](const Command& cmd) {
@@ -327,7 +330,7 @@ private slots:
             [&, window](int index) { setActiveFileView_(window, index); });
 
         connect(tab_widget, &TabWidget::addTabRequested, this, [=] {
-            bus->execute(Cmd::NewTab, window);
+            /// bus->execute(Cmd::NewTab, window);
         });
 
         connect(
@@ -335,7 +338,7 @@ private slots:
             &TabWidget::closeTabRequested,
             this,
             [&, window](int index) {
-                bus->execute(Cmd::CloseView, { { "index", index } }, window);
+                ///bus->execute(Cmd::CloseView, { { "index", index } }, window);
             });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
@@ -393,7 +396,8 @@ private slots:
         if (!model) return;
 
         // Find all tabs containing views of this model
-        for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
+        for (auto window :
+             bus->call<QSet<Window*>>(WorkspaceCmd::WINDOWS_SET)) {
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 
@@ -415,7 +419,8 @@ private slots:
 
         // Find all tabs containing views of this model and update their
         // text/tooltip
-        for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
+        for (auto window :
+             bus->call<QSet<Window*>>(WorkspaceCmd::WINDOWS_SET)) {
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 
@@ -436,7 +441,8 @@ private slots:
 
         auto font = to<QFont>(value);
 
-        for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
+        for (auto window :
+             bus->call<QSet<Window*>>(WorkspaceCmd::WINDOWS_SET)) {
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 

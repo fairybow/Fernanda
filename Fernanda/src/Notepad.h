@@ -82,7 +82,7 @@ private:
             return false;
         });*/
 
-        bus->addCommandHandler(Commands::Notepad::BASE_DIR, [&] {
+        bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {
             return currentBaseDir_.toQString();
         });
     }

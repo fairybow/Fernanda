@@ -245,8 +245,7 @@ private:
         auto new_path = Coco::PathUtil::Dialog::save(
             window,
             Tr::Dialogs::saveFileCaption(),
-            old_path.isEmpty()
-                ? bus_->call<QString>(Commands::Notepad::BASE_DIR)
+            old_path.isEmpty() ? bus_->call<QString>(PolyCmd::BASE_DIR)
                 : old_path);
         /// Filter arg is last arg (not
         /// present here), do later

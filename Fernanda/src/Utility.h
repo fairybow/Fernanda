@@ -54,14 +54,14 @@ template <typename T> inline T to(const QVariant& variant)
     return variant.value<T>();
 }
 
-template <typename T>
-inline T
-to(const QVariantMap& variantMap,
-   const QString& key,
-   const QVariant& defaultValue = {})
-{
-    return variantMap.value(key, defaultValue).value<T>();
-}
+//template <typename T>
+//inline T
+//to(const QVariantMap& variantMap,
+//   const QString& key,
+//   const QVariant& defaultValue = {})
+//{
+//    return variantMap.value(key, defaultValue).value<T>();
+//}
 
 template <typename T> inline QVariant toQVariant(const T& value)
 {

@@ -50,6 +50,7 @@ public:
         setOrganizationDomain(VERSION_DOMAIN);
         setApplicationName(VERSION_APP_NAME_STRING);
         setApplicationVersion(VERSION_FULL_STRING);
+        setQuitOnLastWindowClosed(false);
 
         Coco::PathUtil::mkdir(userDataDirectory_);
 
