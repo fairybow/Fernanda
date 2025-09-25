@@ -77,16 +77,28 @@ private:
             return root_.toQString();
         });*/
 
+        bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
+            /// createNewTextFile_(cmd.context); //<- Old (in FileService)
+            COCO_TRACER;
+            qDebug() << "Implement";
+        });
+
+        bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
+            // return makeTreeViewModel_();
+            COCO_TRACER;
+            qDebug() << "Implement";
+        });
+
         connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
     }
 
-    virtual QAbstractItemModel* makeTreeViewModel_() override
-    {
-        // TODO: Replace with ArchiveModel when implemented
-        auto model = new QStandardItemModel(this);
-        // Configure archive-specific settings
-        return model;
-    }
+    //virtual QAbstractItemModel* makeTreeViewModel_() override
+    //{
+    //    // TODO: Replace with ArchiveModel when implemented
+    //    auto model = new QStandardItemModel(this);
+    //    // Configure archive-specific settings
+    //    return model;
+    //}
 
     void addWorkspaceIndicator_(Window* window)
     {

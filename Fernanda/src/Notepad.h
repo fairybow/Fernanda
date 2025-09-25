@@ -82,20 +82,33 @@ private:
             return false;
         });*/
 
-        bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {
+        /// NOT YET
+        /*bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {
             return currentBaseDir_.toQString();
+        });*/
+
+        bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
+            ///createNewTextFile_(cmd.context); //<- Old (in FileService)
+            COCO_TRACER;
+            qDebug() << "Implement";
+        });
+
+        bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
+            //return makeTreeViewModel_();
+            COCO_TRACER;
+            qDebug() << "Implement";
         });
     }
 
-    virtual QAbstractItemModel* makeTreeViewModel_() override
-    {
-        auto model = new QFileSystemModel(this);
-        auto root_index = model->setRootPath(currentBaseDir_.toQString());
-        storeItemModelRootIndex(model, root_index);
-        model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-        // Any other Notepad-specific model setup
-        return model;
-    }
+    //virtual QAbstractItemModel* makeTreeViewModel_() override
+    //{
+    //    auto model = new QFileSystemModel(this);
+    //    auto root_index = model->setRootPath(currentBaseDir_.toQString());
+    //    storeItemModelRootIndex(model, root_index);
+    //    model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+    //    // Any other Notepad-specific model setup
+    //    return model;
+    //}
 };
 
 } // namespace Fernanda

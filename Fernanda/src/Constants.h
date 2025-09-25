@@ -6,8 +6,10 @@ namespace Fernanda {
 
 constexpr auto CONFIG_FILE_NAME = "Settings.ini";
 
+/// * = unhandled!
+
 // Commands that apply to any Workspace
-namespace WorkspaceCmd {
+namespace Commands {
 
     constexpr auto WINDOWS_ACTIVE = "windows:active";
     constexpr auto WINDOWS_LIST = "windows:list";
@@ -30,29 +32,27 @@ namespace WorkspaceCmd {
     constexpr auto SETTINGS_SET = "settings:set";
     constexpr auto SETTINGS_DIALOG = "settings:dialog";
 
-} // namespace WorkspaceCmd
+} // namespace Commands
 
-// Commands whose functionality depends on the workspace type
+// Commands whose functionality depends on the workspace type (called by objects
+// that do not know about the workspace type and don't need to)
 namespace PolyCmd {
 
     /// Not clear this will be here or only ever called by objects that care
     /// about Notepad?
-    constexpr auto BASE_DIR = "notepad:base_dir";
+    /// Check if this has Notebook equivalent, is base class, etc.
+    /// constexpr auto BASE_DIR = "notepad:base_dir";
 
-    /// Called by objects that do not know about the workspace type and don't
-    /// need to
-    constexpr auto NEW_TAB = "notex:new_tab";
-    constexpr auto NEW_TREE_VIEW_MODEL = "notex:new_tree_view_model";
+    constexpr auto NEW_TAB = "notex:new_tab"; /// *
+    constexpr auto NEW_TREE_VIEW_MODEL = "notex:new_tree_view_model"; /// *
+    constexpr auto OPEN_FILE = "notex:open_file"; /// *
 
 } // namespace PolyCmd
 
-/// The following old commands need reimplementing (unless they were unused
-/// before). We should also determine if any will be Notepad or Notebook
-/// specific, like NewTab):
+/// The following old commands need reimplementing:
 
 ///// NewNotebook
 ///// OpenNotebook
-// constexpr auto OpenFile = "cmd.file_serv.window:open_file";
 // constexpr auto CloseWindow = "cmd.workspace.workspace:close_window";
 // constexpr auto CloseAllWindows =
 //     "cmd.workspace.workspace:close_all_windows";

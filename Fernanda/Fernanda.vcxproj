@@ -63,7 +63,7 @@
     <QtMoc Include="src\TabWidgetCloseButton.h" />
     <QtMoc Include="src\TabWidgetTabBar.h" />
     <QtMoc Include="src\TabWidgetUnderlay.h" />
-    <QtMoc Include="src\FileServiceSaveHelper.h" />
+    <ClInclude Include="src\FileServiceSaveHelper.h" />
     <QtMoc Include="src\Debouncer.h" />
     <QtMoc Include="src\DisplaySlider.h" />
     <QtMoc Include="src\Bus.h" />
@@ -90,7 +90,7 @@
     <QtMoc Include="src\WindowService.h" />
     <QtMoc Include="src\Window.h" />
     <QtMoc Include="src\WordCounterModule.h" />
-    <QtMoc Include="src\ViewServiceCloseHelper.h" />
+    <ClInclude Include="src\ViewServiceCloseHelper.h" />
     <ClInclude Include="src\XPlatform.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h" />

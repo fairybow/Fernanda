@@ -75,7 +75,7 @@ private slots:
         auto tree_view = new TreeView(dock_widget);
 
         if (auto model =
-                bus->call<QAbstractItemModel*>(Cmd::NewTreeViewModel)) {
+                bus->call<QAbstractItemModel*>(PolyCmd::NEW_TREE_VIEW_MODEL)) {
             tree_view->setModel(model);
             if (auto root_index = getItemModelRootIndex(model);
                 root_index.isValid()) {
@@ -109,7 +109,7 @@ private slots:
 
                 if (!path.isEmpty()) {
                     bus->execute(
-                        Cmd::OpenFile,
+                        PolyCmd::OPEN_FILE,
                         { { "path", path.toQString() } },
                         window);
                 }

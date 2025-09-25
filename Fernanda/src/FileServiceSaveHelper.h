@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QHash>
 #include <QList>
@@ -105,7 +105,7 @@ public:
 
         // Reverse windows here or not?
         for (auto& window :
-             bus_->call<QList<Window*>>(WorkspaceCmd::WINDOWS_R_LIST)) {
+             bus_->call<QList<Window*>>(Commands::WINDOWS_R_LIST)) {
             if (!window) continue;
             for (auto& i : reverseUniqueModelIndexes_(window)) {
                 auto result_i = offDiskModifiedCascade_(window, i);
@@ -273,4 +273,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+}*/ // namespace Fernanda

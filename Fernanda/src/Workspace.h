@@ -97,15 +97,15 @@ private:
     bool windowsCloseAcceptor_(Window* window)
     {
         if (!window) return false;
-        ///return bus->call<bool>(Cmd::CloseWindowViews, window);
+        /// return bus->call<bool>(Cmd::CloseWindowViews, window);
+        COCO_TRACER;
+        qDebug() << "Implement";
     }
 
     void newWindow_()
     {
         if (auto window = windows_->make()) window->show();
     }
-
-    virtual QAbstractItemModel* makeTreeViewModel_() = 0;
 };
 
 } // namespace Fernanda

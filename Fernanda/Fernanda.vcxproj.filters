@@ -199,12 +199,6 @@
     <QtMoc Include="src\NoOpFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
     </QtMoc>
-    <QtMoc Include="src\FileServiceSaveHelper.h">
-      <Filter>Code\Core\Services</Filter>
-    </QtMoc>
-    <QtMoc Include="src\ViewServiceCloseHelper.h">
-      <Filter>Code\Core\Services</Filter>
-    </QtMoc>
     <QtMoc Include="src\Debouncer.h">
       <Filter>Code\Core</Filter>
     </QtMoc>
@@ -320,6 +314,12 @@
     </ClInclude>
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileServiceSaveHelper.h">
+      <Filter>Code\Core\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewServiceCloseHelper.h">
+      <Filter>Code\Core\Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -21,16 +21,14 @@ namespace Fernanda {
 
 void WindowService::initialize_()
 {
-    bus->addCommandHandler(WorkspaceCmd::WINDOWS_ACTIVE, [&] {
+    bus->addCommandHandler(Commands::WINDOWS_ACTIVE, [&] {
         return activeWindow_.get();
     });
-    bus->addCommandHandler(WorkspaceCmd::WINDOWS_LIST, [&] {
-        return windows();
-    });
-    bus->addCommandHandler(WorkspaceCmd::WINDOWS_R_LIST, [&] {
+    bus->addCommandHandler(Commands::WINDOWS_LIST, [&] { return windows(); });
+    bus->addCommandHandler(Commands::WINDOWS_R_LIST, [&] {
         return windowsReversed();
     });
-    bus->addCommandHandler(WorkspaceCmd::WINDOWS_SET, [&] {
+    bus->addCommandHandler(Commands::WINDOWS_SET, [&] {
         return windowsUnordered();
     });
 

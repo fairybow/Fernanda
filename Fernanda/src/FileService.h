@@ -26,7 +26,7 @@
 #include "Bus.h"
 #include "Constants.h"
 #include "FileMeta.h"
-#include "FileServiceSaveHelper.h"
+// #include "FileServiceSaveHelper.h"
 #include "FileTypes.h"
 #include "IFileModel.h"
 #include "IFileView.h"
@@ -58,18 +58,14 @@ public:
 
 private:
     QHash<Coco::Path, IFileModel*> pathToFileModel_{};
-    FileServiceSaveHelper* saveHelper_ = nullptr;
+    // FileServiceSaveHelper* saveHelper_ = nullptr;
 
     void initialize_()
     {
-        saveHelper_ = new FileServiceSaveHelper(bus, pathToFileModel_, this);
+        // saveHelper_ = new FileServiceSaveHelper(bus, pathToFileModel_, this);
 
-        /*/// Can't do this anymore! Probably register in the Workspace subclasses
-        /// themselves
-        bus->addCommandHandler(Cmd::NewTab, [&](const Command& cmd) {
-            createNewTextFile_(cmd.context);
-        });
-
+        /*
+        * /// Move this:
         bus->addCommandHandler(Cmd::OpenFile, [&](const Command& cmd) {
             auto path = Coco::Path(to<QString>(cmd.params, "path"));
             if (path.isEmpty() || !path.exists()) return;
@@ -211,7 +207,7 @@ private slots:
         if (!meta) return;
 
         auto view_count = bus->call<int>(
-            WorkspaceCmd::MODEL_VIEWS_COUNT,
+            Commands::MODEL_VIEWS_COUNT,
             { { "model", toQVariant(model) } });
 
         if (view_count < 1) {

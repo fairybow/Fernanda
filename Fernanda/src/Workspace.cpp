@@ -26,7 +26,7 @@ namespace Fernanda {
 
 void Workspace::addCommandHandlers_()
 {
-    bus->addCommandHandler(WorkspaceCmd::NEW_WINDOW, [&] { newWindow_(); });
+    bus->addCommandHandler(Commands::NEW_WINDOW, [&] { newWindow_(); });
 
     /*
     bus->addCommandHandler(Cmd::CloseWindow, [&](const Command& cmd) {
@@ -40,9 +40,7 @@ void Workspace::addCommandHandlers_()
         }
     });
     bus->addCommandHandler(Cmd::Quit, [] { Application::quit(); });
-    bus->addCommandHandler(Cmd::AboutDialog, [] { AboutDialog::exec(); });
-    bus->addCommandHandler(Cmd::NewTreeViewModel, [&] {
-        return makeTreeViewModel_();
-    });*/ }
+    bus->addCommandHandler(Cmd::AboutDialog, [] { AboutDialog::exec(); });*/
+}
 
 } // namespace Fernanda

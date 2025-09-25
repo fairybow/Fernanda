@@ -27,6 +27,7 @@
 /// - Plan Application Quit
 /// - Reimplement Notepad menu
 /// - Build Notebook menu
+/// - Ensure we pass -1 as index param for edit commands
 /// - Implement Notebook TreeView model
 /// - Implement model.xml
 /// - Implement .fnx

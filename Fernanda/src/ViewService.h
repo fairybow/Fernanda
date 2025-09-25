@@ -36,7 +36,7 @@
 #include "TextFileModel.h"
 #include "TextFileView.h"
 #include "Utility.h"
-#include "ViewServiceCloseHelper.h"
+// #include "ViewServiceCloseHelper.h"
 #include "Window.h"
 
 namespace Fernanda {
@@ -59,15 +59,15 @@ public:
 
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
-    ViewServiceCloseHelper* closeHelper_ = nullptr;
     QHash<IFileModel*, int> viewsPerModel_{};
+    // ViewServiceCloseHelper* closeHelper_ = nullptr;
 
     void initialize_()
     {
-        closeHelper_ = new ViewServiceCloseHelper(bus, this);
+        // closeHelper_ = new ViewServiceCloseHelper(bus, this);
 
         bus->addCommandHandler(
-            WorkspaceCmd::MODEL_VIEWS_COUNT,
+            Commands::MODEL_VIEWS_COUNT,
             [&](const Command& cmd) {
                 if (auto model = cmd.param<IFileModel*>("model"))
                     return viewsPerModel_[model];
@@ -75,37 +75,35 @@ private:
                 return -1;
             });
 
-        /// Ensure we pass -1 if we want to do active view!
+        /// Ensure we pass -1 in menus if we want to do active view!
 
-        bus->addCommandHandler(WorkspaceCmd::UNDO, [&](const Command& cmd) {
+        bus->addCommandHandler(Commands::UNDO, [&](const Command& cmd) {
             undoAt_(cmd.context, cmd.param<int>("index"));
         });
 
-        bus->addCommandHandler(WorkspaceCmd::REDO, [&](const Command& cmd) {
+        bus->addCommandHandler(Commands::REDO, [&](const Command& cmd) {
             redoAt_(cmd.context, cmd.param<int>("index"));
         });
 
-        bus->addCommandHandler(WorkspaceCmd::CUT, [&](const Command& cmd) {
+        bus->addCommandHandler(Commands::CUT, [&](const Command& cmd) {
             cutAt_(cmd.context, cmd.param<int>("index"));
         });
 
-        bus->addCommandHandler(WorkspaceCmd::COPY, [&](const Command& cmd) {
+        bus->addCommandHandler(Commands::COPY, [&](const Command& cmd) {
             copyAt_(cmd.context, cmd.param<int>("index"));
         });
 
-        bus->addCommandHandler(WorkspaceCmd::PASTE, [&](const Command& cmd) {
+        bus->addCommandHandler(Commands::PASTE, [&](const Command& cmd) {
             pasteAt_(cmd.context, cmd.param<int>("index"));
         });
 
-        bus->addCommandHandler(WorkspaceCmd::DELETE, [&](const Command& cmd) {
+        bus->addCommandHandler(Commands::DELETE, [&](const Command& cmd) {
             deleteAt_(cmd.context, cmd.param<int>("index"));
         });
 
-        bus->addCommandHandler(
-            WorkspaceCmd::SELECT_ALL,
-            [&](const Command& cmd) {
-                selectAllAt_(cmd.context, cmd.param<int>("index"));
-            });
+        bus->addCommandHandler(Commands::SELECT_ALL, [&](const Command& cmd) {
+            selectAllAt_(cmd.context, cmd.param<int>("index"));
+        });
 
         /*bus->addCommandHandler(Cmd::CloseView, [&](const Command& cmd) {
             return closeHelper_->closeAt(
@@ -331,6 +329,8 @@ private slots:
 
         connect(tab_widget, &TabWidget::addTabRequested, this, [=] {
             /// bus->execute(Cmd::NewTab, window);
+            COCO_TRACER;
+            qDebug() << "Implement";
         });
 
         connect(
@@ -338,7 +338,10 @@ private slots:
             &TabWidget::closeTabRequested,
             this,
             [&, window](int index) {
-                ///bus->execute(Cmd::CloseView, { { "index", index } }, window);
+                /// bus->execute(Cmd::CloseView, { { "index", index } },
+                /// window);
+                COCO_TRACER;
+                qDebug() << "Implement";
             });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
@@ -363,7 +366,7 @@ private slots:
 
             auto text_view = make_<TextFileView*>(text_model, window);
             auto font = bus->call<QFont>(
-                Cmd::GetSetting,
+                Commands::SETTINGS_GET,
                 { { "key", Ini::Editor::FONT_KEY },
                   { "default", Ini::Editor::defaultFont() } });
             text_view->setFont(font);
@@ -396,8 +399,7 @@ private slots:
         if (!model) return;
 
         // Find all tabs containing views of this model
-        for (auto window :
-             bus->call<QSet<Window*>>(WorkspaceCmd::WINDOWS_SET)) {
+        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 
@@ -419,8 +421,7 @@ private slots:
 
         // Find all tabs containing views of this model and update their
         // text/tooltip
-        for (auto window :
-             bus->call<QSet<Window*>>(WorkspaceCmd::WINDOWS_SET)) {
+        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 
@@ -441,8 +442,7 @@ private slots:
 
         auto font = to<QFont>(value);
 
-        for (auto window :
-             bus->call<QSet<Window*>>(WorkspaceCmd::WINDOWS_SET)) {
+        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
             auto tab_widget = tabWidget(window);
             if (!tab_widget) continue;
 

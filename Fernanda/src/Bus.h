@@ -65,7 +65,7 @@ struct Command
 
     template <typename T> [[nodiscard]] T param(const QString& key) const
     {
-        return param.value<T>();
+        return param(key).value<T>();
     }
 };
 

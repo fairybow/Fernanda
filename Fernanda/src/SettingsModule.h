@@ -61,24 +61,18 @@ private:
     {
         settings_ = new Settings(baseConfigPath_, this);
 
-        bus->addCommandHandler(
-            WorkspaceCmd::SETTINGS_GET,
-            [&](const Command& cmd) {
-                return settings_->value(
-                    cmd.param<QString>("key"),
-                    cmd.param("default"));
-            });
+        bus->addCommandHandler(Commands::SETTINGS_GET, [&](const Command& cmd) {
+            return settings_->value(
+                cmd.param<QString>("key"),
+                cmd.param("default"));
+        });
 
-        bus->addCommandHandler(
-            WorkspaceCmd::SETTINGS_SET,
-            [&](const Command& cmd) {
-                if (!settings_ || !settings_->isWritable()) return;
-                settings_->setValue(
-                    cmd.param<QString>("key"),
-                    cmd.param("value"));
-            });
+        bus->addCommandHandler(Commands::SETTINGS_SET, [&](const Command& cmd) {
+            if (!settings_ || !settings_->isWritable()) return;
+            settings_->setValue(cmd.param<QString>("key"), cmd.param("value"));
+        });
 
-        bus->addCommandHandler(WorkspaceCmd::SETTINGS_DIALOG, [&] {
+        bus->addCommandHandler(Commands::SETTINGS_DIALOG, [&] {
             openDialog_();
         });
 

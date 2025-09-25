@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QHash>
 #include <QList>
@@ -179,4 +179,4 @@ private:
     Bus* bus_; // ViewService's
 };
 
-} // namespace Fernanda
+}*/ // namespace Fernanda
