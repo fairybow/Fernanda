@@ -41,9 +41,8 @@ namespace PolyCmd {
 
     /// Called by objects that do not know about the workspace type and don't
     /// need to
-    constexpr auto NEW_TAB = "workspace_subclasses:new_tab";
-    constexpr auto NEW_TREE_VIEW_MODEL =
-        "workspace_subclasses:new_tree_view_model";
+    constexpr auto NEW_TAB = "notex:new_tab";
+    constexpr auto NEW_TREE_VIEW_MODEL = "notex:new_tree_view_model";
 
 } // namespace PolyCmd
 
