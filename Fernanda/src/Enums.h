@@ -1,11 +1,8 @@
 #pragma once
 
-/// Find all SaveResult and SaveChoice uses and then put them in Enum and remove
-/// headers where appropriate from files that used these enums (and replace with
-/// this).
-
 namespace Fernanda {
 
+// TODO: Properly integrate again if needed
 enum class SaveChoice
 {
     Cancel = 0,
@@ -13,6 +10,7 @@ enum class SaveChoice
     Discard
 };
 
+// TODO: Properly integrate again if needed
 enum class SaveResult
 {
     NoOp = 0,

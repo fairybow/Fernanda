@@ -51,23 +51,20 @@
         }                                                                      \
     }
 
+FORMATTER_(QString, x.toStdString());
+FORMATTER_(Coco::Path, x.toString());
 FORMATTER_(QVariantMap, Fernanda::toString(x));
 FORMATTER_(Fernanda::SaveResult, Fernanda::toString(x));
 FORMATTER_(Fernanda::SaveChoice, Fernanda::toString(x));
-FORMATTER_(QString, x.toStdString());
-FORMATTER_(Coco::Path, x.toString());
 
-FORMATTER_(
-    QVariant,
-    x.toString()
-        .toStdString()); // Won't work for something complex. Could use a custom
-                         // converter that just calls variant.toString for
-                         // everything except specified types (like Coco::Path,
-                         // QObject pointers, etc): i.e.,
-                         // `FernandaTemp::toString(x)`
+// TODO: Won't work for something complex. Could use a custom
+// converter that just calls variant.toString for
+// everything except specified types (like Coco::Path,
+// QObject pointers, etc): i.e.,
+// `FernandaTemp::toString(x)`
+FORMATTER_(QVariant, x.toString().toStdString());
 
-template <typename T>
-    requires Coco::Concepts::QObjectPointer<T>
+template <Coco::Concepts::QObjectPointer T>
 struct std::formatter<T>
 {
     DEFAULT_PARSE_

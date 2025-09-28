@@ -34,38 +34,27 @@ void Bus::initialize_()
     SIGLOG_(activeWindowChanged, [&](Window* window) {
         INFO("Active window = {}", window);
     });
-
     SIGLOG_(windowDestroyed, [&](Window* window) {});
     SIGLOG_(fileReadied, [&](IFileModel* model, Window* window) {});
     SIGLOG_(fileModificationChanged, [&](IFileModel* model, bool modified) {});
     SIGLOG_(fileMetaChanged, [&](IFileModel* model) {});
-
     SIGLOG_(fileSaved, [&](SaveResult result, const Coco::Path& path) {
         INFO("File [{}] saved: {}", path, result);
     });
-
     SIGLOG_(
         fileSavedAs,
         [&](SaveResult result,
             const Coco::Path& path,
             const Coco::Path& oldPath) {
-            ///COCO_LOG_THIS(QString("\n\tFile [%0] saved as [%1]: %2")
-                              ///.arg(oldPath.toQString())
-                              ///.arg(path.toQString())
-                              ///.arg(toQString(result)));
+            INFO("File [{}] saved as [{}]: {}", oldPath, path, result);
         });
-
     SIGLOG_(windowSaveExecuted, [&](Window* window, SaveResult result) {});
     SIGLOG_(workspaceSaveExecuted, [&](SaveResult result) {});
     SIGLOG_(windowTabCountChanged, [&](Window* window, int count) {});
-
     SIGLOG_(activeFileViewChanged, [&](IFileView* view, Window* window) {
         if (!window) return;
-        ///COCO_LOG_THIS(QString("\n\tActive file view for %0 = %1")
-                          ///.arg(toQString(window))
-                          ///.arg(toQString(view)));
+        INFO("Active view for {} = {}", window, view);
     });
-
     SIGLOG_(viewClosed, [&](IFileView* view) {});
     SIGLOG_(settingChanged, [&](const QString& key, const QVariant& value) {});
 }
