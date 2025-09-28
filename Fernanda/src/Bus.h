@@ -25,6 +25,9 @@
 
 #include "Debug.h"
 
+///
+#include "Window.h"
+
 /// TODO (for registering handlers)
 /// - Make sure we aren't casting return values to QVar when registering (it
 /// isn't needed!)
@@ -36,7 +39,7 @@ namespace Fernanda {
 
 class IFileModel;
 class IFileView;
-class Window;
+//class Window;
 enum class SaveResult;
 
 struct Command
@@ -340,21 +343,21 @@ private:
         }
     }
 
-    void logCmdIntercepted_(const QString& id, const Command& cmd)
+    void logCmdIntercepted_(const QString& id, const Command& cmd) const
     {
         constexpr auto log_format = "Intercepted: {}, Params: {}, Context: {}";
         INFO(log_format, id, cmd.params, cmd.context);
     }
 
     void
-    logCmdRan_(const QString& id, const Command& cmd, const QVariant& result)
+    logCmdRan_(const QString& id, const Command& cmd, const QVariant& result) const
     {
         constexpr auto log_format =
             "Executed: {}, Params: {}, Context: {}, Result: {}";
         INFO(log_format, id, cmd.params, cmd.context, result);
     }
 
-    void logCmdNoHandler_(const QString& id, const Command& cmd)
+    void logCmdNoHandler_(const QString& id, const Command& cmd) const
     {
         constexpr auto log_format =
             "No handler found!: {}, Params: {}, Context: {}";

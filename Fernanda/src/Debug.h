@@ -20,9 +20,9 @@
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QMessageLogContext>
+#include <QObject>
 #include <QString>
 #include <QtLogging>
-#include <QObject>
 
 #include "Coco/Path.h"
 
@@ -99,8 +99,8 @@ struct Log
     int line;
     const char* function;
 
-    // Could subclass QMessageLogContext and add an optional "this" pointer, and provide a print overload that takes "this" as first arg?
-    // Would have to cast the QMessageLogContext back to the subclass in the handler... Would it work? Bad idea?
+    // Todo: Add category, potentially also a way to pass "this" as first param
+    // and attach print of it before message
 
     template <typename... Args>
     inline void print(const char* format, Args&&... args)
@@ -115,12 +115,6 @@ struct Log
             Internal::handler(type, context, QString::fromUtf8(format));
         }
     }
-
-    /*template <typename... Args>
-    inline void print(const char* format, Args&&... args)
-    {
-        print(nullptr, format, std::forward<Args>(args)...);
-    }*/
 };
 
 } // namespace Fernanda::Debug
