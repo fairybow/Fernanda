@@ -21,7 +21,6 @@
 #include "Coco/Concepts.h"
 #include "Coco/Path.h"
 
-#include "Enums.h"
 #include "ToString.h"
 
 #define DEFAULT_PARSE_                                                         \
@@ -54,8 +53,6 @@
 FORMATTER_(QString, x.toStdString());
 FORMATTER_(Coco::Path, x.toString());
 FORMATTER_(QVariantMap, Fernanda::toString(x));
-FORMATTER_(Fernanda::SaveResult, Fernanda::toString(x));
-FORMATTER_(Fernanda::SaveChoice, Fernanda::toString(x));
 
 // TODO: Won't work for something complex. Could use a custom
 // converter that just calls variant.toString for

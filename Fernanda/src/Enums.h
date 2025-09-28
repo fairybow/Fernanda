@@ -18,4 +18,34 @@ enum class SaveResult
     Fail
 };
 
+namespace Enum {
+
+    inline QString toQString(SaveResult saveResult) noexcept
+    {
+        switch (saveResult) {
+        default:
+        case SaveResult::NoOp:
+            return "SaveResult::NoOp";
+        case SaveResult::Success:
+            return "SaveResult::Success";
+        case SaveResult::Fail:
+            return "SaveResult::Fail";
+        }
+    }
+
+    inline QString toQString(SaveChoice saveChoice) noexcept
+    {
+        switch (saveChoice) {
+        default:
+        case SaveChoice::Cancel:
+            return "SaveChoice::Cancel";
+        case SaveChoice::Save:
+            return "SaveChoice::Save";
+        case SaveChoice::Discard:
+            return "SaveChoice::Discard";
+        }
+    }
+
+} // namespace Enum
+
 } // namespace Fernanda

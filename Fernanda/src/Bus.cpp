@@ -39,14 +39,18 @@ void Bus::initialize_()
     SIGLOG_(fileModificationChanged, [&](IFileModel* model, bool modified) {});
     SIGLOG_(fileMetaChanged, [&](IFileModel* model) {});
     SIGLOG_(fileSaved, [&](SaveResult result, const Coco::Path& path) {
-        INFO("File [{}] saved: {}", path, result);
+        INFO("File [{}] saved: {}", path, Enum::toQString(result));
     });
     SIGLOG_(
         fileSavedAs,
         [&](SaveResult result,
             const Coco::Path& path,
             const Coco::Path& oldPath) {
-            INFO("File [{}] saved as [{}]: {}", oldPath, path, result);
+            INFO(
+                "File [{}] saved as [{}]: {}",
+                oldPath,
+                path,
+                Enum::toQString(result));
         });
     SIGLOG_(windowSaveExecuted, [&](Window* window, SaveResult result) {});
     SIGLOG_(workspaceSaveExecuted, [&](SaveResult result) {});
