@@ -99,12 +99,6 @@
     <ClCompile Include="src\Bus.cpp">
       <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
-    <ClCompile Include="src\Formatters.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ToString.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
@@ -334,6 +328,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="src\ToString.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Enums.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>

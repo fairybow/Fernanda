@@ -13,10 +13,8 @@
   <ItemGroup>
     <ClCompile Include="src\AboutDialog.cpp" />
     <ClCompile Include="src\Bus.cpp" />
-    <ClCompile Include="src\Formatters.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\TextFileView.cpp" />
-    <ClCompile Include="src\ToString.cpp" />
     <ClCompile Include="src\Tr.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\WindowService.cpp" />
@@ -66,6 +64,7 @@
     <QtMoc Include="src\TabWidgetTabBar.h" />
     <QtMoc Include="src\TabWidgetUnderlay.h" />
     <ClInclude Include="src\Debug.h" />
+    <ClInclude Include="src\Enums.h" />
     <ClInclude Include="src\FileServiceSaveHelper.h" />
     <QtMoc Include="src\Debouncer.h" />
     <QtMoc Include="src\DisplaySlider.h" />

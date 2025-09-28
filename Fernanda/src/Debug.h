@@ -77,7 +77,6 @@ inline void setLogging(bool logging)
 inline void initialize(bool logging, const Coco::Path& logFile = {})
 {
     setLogging(logging);
-
     std::lock_guard<std::mutex> lock(Internal::handlerMutex);
     Internal::qtHandler = qInstallMessageHandler(Internal::handler);
 

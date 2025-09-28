@@ -13,16 +13,10 @@
 
 #include "Coco/Path.h"
 
+#include "Enums.h"
 #include "FileMeta.h"
 
 namespace Fernanda {
-
-enum class SaveResult
-{
-    NoOp = 0,
-    Success,
-    Fail
-};
 
 // Abstract interface for document content and editing operations, managing
 // document state, modification tracking, undo/redo functionality, and save

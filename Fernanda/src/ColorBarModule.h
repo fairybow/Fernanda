@@ -15,7 +15,7 @@
 #include "Bus.h"
 #include "ColorBar.h"
 #include "Debug.h"
-#include "IFileModel.h"
+#include "Enums.h"
 #include "IService.h"
 #include "Utility.h"
 #include "Window.h"

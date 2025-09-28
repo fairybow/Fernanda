@@ -21,8 +21,7 @@
 #include "Coco/Concepts.h"
 #include "Coco/Path.h"
 
-//#include "IFileModel.h"
-//#include "SavePrompt.h"
+#include "Enums.h"
 #include "ToString.h"
 
 #define DEFAULT_PARSE_                                                         \
@@ -52,9 +51,9 @@
         }                                                                      \
     }
 
-FORMATTER_(QVariantMap, FernandaTemp::toString(x));
-//FORMATTER_(SaveResult, FernandaTemp::toString(x));
-//FORMATTER_(SaveChoice, FernandaTemp::toString(x));
+FORMATTER_(QVariantMap, Fernanda::toString(x));
+FORMATTER_(Fernanda::SaveResult, Fernanda::toString(x));
+FORMATTER_(Fernanda::SaveChoice, Fernanda::toString(x));
 FORMATTER_(QString, x.toStdString());
 FORMATTER_(Coco::Path, x.toString());
 
@@ -75,7 +74,7 @@ struct std::formatter<T>
 
     auto format(T object, std::format_context& ctx) const
     {
-        return std::format_to(ctx.out(), "{}", FernandaTemp::toString(object));
+        return std::format_to(ctx.out(), "{}", Fernanda::toString(object));
     }
 };
 

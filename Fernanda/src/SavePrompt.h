@@ -26,17 +26,11 @@
 #include "Coco/Path.h"
 
 #include "Debug.h"
+#include "Enums.h"
 #include "IFileModel.h"
 #include "Tr.h"
 
 namespace Fernanda {
-
-enum class SaveChoice
-{
-    Cancel = 0,
-    Save,
-    Discard
-};
 
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
 // unsaved changes, supporting both single and multiple file scenarios as well

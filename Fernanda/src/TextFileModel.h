@@ -19,6 +19,7 @@
 #include "Coco/TextIo.h"
 
 #include "Debug.h"
+#include "Enums.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
 

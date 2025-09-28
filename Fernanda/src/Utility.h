@@ -23,6 +23,7 @@
 
 #include "Coco/Concepts.h"
 
+#include "Enums.h"
 #include "IFileModel.h"
 #include "IFileView.h"
 #include "SavePrompt.h"

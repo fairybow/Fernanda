@@ -15,6 +15,7 @@
 
 #include "Bus.h"
 #include "Debug.h"
+#include "Enums.h"
 #include "IFileModel.h"
 #include "IFileView.h"
 #include "Utility.h"
