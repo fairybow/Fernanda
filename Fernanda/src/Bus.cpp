@@ -40,9 +40,7 @@ void Bus::initialize_()
     SIGLOG_(fileMetaChanged, [&](IFileModel* model) {});
 
     SIGLOG_(fileSaved, [&](SaveResult result, const Coco::Path& path) {
-        ///COCO_LOG_THIS(QString("\n\tFile [%0] saved: %1")
-                          ///.arg(path.toQString())
-                          ///.arg(toQString(result)));
+        INFO("File [{}] saved: {}", path, result);
     });
 
     SIGLOG_(

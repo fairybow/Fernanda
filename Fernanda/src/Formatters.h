@@ -21,6 +21,8 @@
 #include "Coco/Concepts.h"
 #include "Coco/Path.h"
 
+//#include "IFileModel.h"
+//#include "SavePrompt.h"
 #include "ToString.h"
 
 #define DEFAULT_PARSE_                                                         \
@@ -51,6 +53,8 @@
     }
 
 FORMATTER_(QVariantMap, FernandaTemp::toString(x));
+//FORMATTER_(SaveResult, FernandaTemp::toString(x));
+//FORMATTER_(SaveChoice, FernandaTemp::toString(x));
 FORMATTER_(QString, x.toStdString());
 FORMATTER_(Coco::Path, x.toString());
 

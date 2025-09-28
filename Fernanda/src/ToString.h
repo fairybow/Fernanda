@@ -82,4 +82,40 @@ inline std::string toString(const QVariantMap& variantMap)
     return toQString(variantMap).toStdString();
 }
 
+//inline QString toQString(SaveResult saveResult) noexcept
+//{
+//    switch (saveResult) {
+//    default:
+//    case SaveResult::NoOp:
+//        return "SaveResult::NoOp";
+//    case SaveResult::Success:
+//        return "SaveResult::Success";
+//    case SaveResult::Fail:
+//        return "SaveResult::Fail";
+//    }
+//}
+//
+//inline QString toQString(SaveChoice saveChoice) noexcept
+//{
+//    switch (saveChoice) {
+//    default:
+//    case SaveChoice::Cancel:
+//        return "SaveChoice::Cancel";
+//    case SaveChoice::Save:
+//        return "SaveChoice::Save";
+//    case SaveChoice::Discard:
+//        return "SaveChoice::Discard";
+//    }
+//}
+//
+//inline std::string toString(SaveResult saveResult) noexcept
+//{
+//    return toQString(saveResult).toStdString();
+//}
+//
+//inline std::string toString(SaveChoice saveChoice) noexcept
+//{
+//    return toQString(saveChoice).toStdString();
+//}
+
 } // namespace FernandaTemp
