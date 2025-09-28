@@ -21,12 +21,12 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 #include "Coco/Utility.h"
 
 #include "Bus.h"
 #include "Constants.h"
+#include "Debug.h"
 #include "IService.h"
 #include "Utility.h"
 #include "Window.h"
@@ -47,7 +47,7 @@ public:
         initialize_();
     }
 
-    virtual ~TreeViewModule() override { COCO_TRACER; }
+    virtual ~TreeViewModule() override { TRACER; }
 
 private:
     // QHash<Window*, TreeView*> treeViews_{};
@@ -74,10 +74,27 @@ private slots:
         auto dock_widget = new QDockWidget(window);
         auto tree_view = new TreeView(dock_widget);
 
-        if (auto model =
-                bus->call<QAbstractItemModel*>(PolyCmd::NEW_TREE_VIEW_MODEL)) {
-            tree_view->setModel(model);
-            if (auto root_index = getItemModelRootIndex(model);
+        // Test the raw QVariant first
+        auto raw_result = bus->call(PolyCmd::NEW_TREE_VIEW_MODEL);
+        qDebug() << "Raw QVariant result:" << raw_result;
+        qDebug() << "QVariant is valid:" << raw_result.isValid();
+        qDebug() << "QVariant type:" << raw_result.typeName();
+        qDebug() << "Can convert to QAbstractItemModel*:"
+                 << raw_result.canConvert<QAbstractItemModel*>();
+        qDebug() << "Can convert to QFileSystemModel*:"
+                 << raw_result.canConvert<QFileSystemModel*>();
+
+        // Try extracting as the exact type first
+        auto fs_model = raw_result.value<QFileSystemModel*>();
+        qDebug() << "Extracted as QFileSystemModel*:" << fs_model;
+
+        // Then try the base class
+        auto abs_model = raw_result.value<QAbstractItemModel*>();
+        qDebug() << "Extracted as QAbstractItemModel*:" << abs_model;
+
+        if (abs_model) {
+            tree_view->setModel(abs_model);
+            if (auto root_index = Util::getItemModelRootIndex(abs_model);
                 root_index.isValid()) {
                 tree_view->setRootIndex(root_index);
             }
@@ -101,7 +118,7 @@ private slots:
 
                 Coco::Path path{};
 
-                if (auto fs_model = to<QFileSystemModel*>(model)) {
+                if (auto fs_model = Util::to<QFileSystemModel*>(model)) {
                     path = fs_model->filePath(index);
                 } // else if (auto archive_model = to<ArchiveModel*>(model))
                   // { path = archive_model->filePath(index);

@@ -321,6 +321,15 @@
     <ClInclude Include="src\ViewServiceCloseHelper.h">
       <Filter>Code\Core\Services</Filter>
     </ClInclude>
+    <ClInclude Include="src\Debug.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Formatters.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ToString.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">

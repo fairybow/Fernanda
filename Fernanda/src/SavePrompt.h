@@ -22,10 +22,10 @@
 #include <QWidget>
 #include <Qt>
 
-#include "Coco/Debug.h"
 #include "Coco/Layout.h"
 #include "Coco/Path.h"
 
+#include "Debug.h"
 #include "IFileModel.h"
 #include "Tr.h"
 

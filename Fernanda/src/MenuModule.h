@@ -24,6 +24,7 @@
 #include "Constants.h"
 #include "IService.h"
 #include "Tr.h"
+#include "Window.h"
 
 namespace Fernanda {
 
@@ -97,7 +98,7 @@ protected:
 
         auto action = new QAction(text, window);
         connect(action, &QAction::triggered, window, [=] {
-            bus->execute(commandId, window);
+            bus->execute(commandId, window); /// Pass args tho!
         });
         action->setShortcut(keySequence);
         action->setAutoRepeat(autoRepeat);

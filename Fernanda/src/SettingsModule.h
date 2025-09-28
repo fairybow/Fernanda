@@ -15,11 +15,11 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 
 #include "Bus.h"
 #include "Constants.h"
+#include "Debug.h"
 #include "IService.h"
 #include "Ini.h"
 #include "Settings.h"
@@ -44,7 +44,7 @@ public:
         initialize_();
     }
 
-    virtual ~SettingsModule() override { COCO_TRACER; }
+    virtual ~SettingsModule() override { TRACER; }
 
     void setOverrideConfigPath(const Coco::Path& configPath)
     {
@@ -97,7 +97,9 @@ private:
         dialog_ = new SettingsDialog(initial_font);
 
         dialog_->setFontChangeHandler([&](const QFont& font) {
-            emit bus->settingChanged(Ini::Editor::FONT_KEY, toQVariant(font));
+            emit bus->settingChanged(
+                Ini::Editor::FONT_KEY,
+                Util::toQVariant(font));
         });
         // Connect other setting handlers
 
@@ -109,7 +111,7 @@ private:
                 if (settings_->isWritable())
                     settings_->setValue(
                         Ini::Editor::FONT_KEY,
-                        toQVariant(font));
+                        Util::toQVariant(font));
             });
         // Listen to other setting signals
 

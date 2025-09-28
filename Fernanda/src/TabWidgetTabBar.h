@@ -16,7 +16,7 @@
 #include <QWidget>
 #include <QtMinMax>
 
-#include "Coco/Debug.h"
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -31,7 +31,7 @@ public:
         initialize_();
     }
 
-    virtual ~TabWidgetTabBar() override { COCO_TRACER; }
+    virtual ~TabWidgetTabBar() override { TRACER; }
 
     virtual QSize minimumSizeHint() const override { return { 0, height() }; }
 

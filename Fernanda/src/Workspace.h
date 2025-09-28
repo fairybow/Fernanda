@@ -98,8 +98,9 @@ private:
     {
         if (!window) return false;
         /// return bus->call<bool>(Cmd::CloseWindowViews, window);
-        COCO_TRACER;
+        TRACER;
         qDebug() << "Implement";
+        return true;
     }
 
     void newWindow_()

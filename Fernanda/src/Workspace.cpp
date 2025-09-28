@@ -27,20 +27,7 @@ namespace Fernanda {
 void Workspace::addCommandHandlers_()
 {
     bus->addCommandHandler(Commands::NEW_WINDOW, [&] { newWindow_(); });
-
-    /*
-    bus->addCommandHandler(Cmd::CloseWindow, [&](const Command& cmd) {
-        if (cmd.context) cmd.context->close();
-    });
-    bus->addCommandHandler(Cmd::CloseAllWindows, [&] {
-        // Close each window individually, triggering the CloseAcceptor for each
-        for (auto window : windows_->windowsReversed()) {
-            if (!window) continue;
-            if (!window->close()) return;
-        }
-    });
-    bus->addCommandHandler(Cmd::Quit, [] { Application::quit(); });
-    bus->addCommandHandler(Cmd::AboutDialog, [] { AboutDialog::exec(); });*/
+    bus->addCommandHandler(Commands::ABOUT_DIALOG, [] { AboutDialog::exec(); });
 }
 
 } // namespace Fernanda

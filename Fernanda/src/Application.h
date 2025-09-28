@@ -13,12 +13,11 @@
 #include <QStringList>
 #include <QSet>
 
-#include "Coco/Debug.h"
-#include "Coco/Log.h"
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
 #include "Constants.h"
+#include "Debug.h"
 #include "FileTypes.h"
 #include "Notebook.h"
 #include "Notepad.h"
@@ -42,7 +41,7 @@ public:
     {
     }
 
-    virtual ~Application() override { COCO_TRACER; }
+    virtual ~Application() override { TRACER; }
 
     void initialize()
     {
@@ -52,6 +51,7 @@ public:
         setApplicationVersion(VERSION_FULL_STRING);
         setQuitOnLastWindowClosed(false);
 
+        Debug::initialize(true); // file later
         Coco::PathUtil::mkdir(userDataDirectory_);
 
         // auto args = arguments();
@@ -107,7 +107,7 @@ private:
     bool notepadPathInterceptor_(const Coco::Path& path)
     {
         if (FileTypes::is(FileTypes::SevenZip, path)) {
-            COCO_LOG_THIS("Interceptor true.");
+            INFO("Interceptor true.");
 
             for (auto& notebook : notebooks_) {
                 if (notebook->archivePath() == path) {

@@ -21,11 +21,9 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Coco/Debug.h"
-#include "Coco/Log.h"
 #include "Coco/Path.h"
 
-#include "Utility.h"
+#include "Debug.h"
 
 /// TODO (for registering handlers)
 /// - Make sure we aren't casting return values to QVar when registering (it
@@ -55,9 +53,7 @@ struct Command
     [[nodiscard]] QVariant param(const QString& key) const
     {
         if (!params.contains(key)) {
-            constexpr auto log_format =
-                "\n\tParameter '%0' not found in command params";
-            COCO_LOG(QString(log_format).arg(key));
+            INFO("Parameter {} not found in command params!", key);
         }
 
         return params.value(key);
@@ -79,20 +75,20 @@ concept InterceptorWithoutCommand =
 
 template <typename T>
 concept HandlerWithCommandReturnsVoid =
-    std::is_invocable_r_v<void, T, const Command&>;
+    std::same_as<void, std::invoke_result_t<T, const Command&>>;
 
 template <typename T>
 concept HandlerWithCommandReturnsValue =
     std::is_invocable_v<T, const Command&>
-    && !std::is_invocable_r_v<void, T, const Command&>;
-
+    && !std::same_as<void, std::invoke_result_t<T, const Command&>>;
 template <typename T>
 concept HandlerWithoutCommandReturnsVoid =
-    std::is_invocable_r_v<void, T> && !std::is_invocable_v<T, const Command&>;
+    std::is_invocable_v<T> && std::same_as<void, std::invoke_result_t<T>>
+    && !std::is_invocable_v<T, const Command&>;
 
 template <typename T>
 concept HandlerWithoutCommandReturnsValue =
-    std::is_invocable_v<T> && !std::is_invocable_r_v<void, T>
+    std::is_invocable_v<T> && !std::same_as<void, std::invoke_result_t<T>>
     && !std::is_invocable_v<T, const Command&>;
 
 template <typename T, typename... Args>
@@ -109,7 +105,7 @@ public:
         initialize_();
     }
 
-    virtual ~Bus() override { COCO_TRACER; }
+    virtual ~Bus() override { TRACER; }
 
     template <typename InterceptorT>
     void addInterceptor(const QString& id, InterceptorT&& interceptor)
@@ -118,12 +114,16 @@ public:
         // (const Command&)->bool and
         // ()->bool
 
+        INFO("Registering interceptor for: {}", id);
+
         if constexpr (InterceptorWithCommand<InterceptorT>) {
+            INFO("-> InterceptorWithCommand branch");
 
             // (const Command&)->bool
             interceptors_[id] << interceptor;
 
         } else if constexpr (InterceptorWithoutCommand<InterceptorT>) {
+            INFO("-> InterceptorWithoutCommand branch");
 
             // ()->bool
             interceptors_[id] << [interceptor = std::forward<InterceptorT>(
@@ -150,7 +150,10 @@ public:
         // ()->void, and
         // ()->T
 
+        INFO("Registering handler for: {}", id);
+
         if constexpr (HandlerWithCommandReturnsVoid<HandlerT>) {
+            INFO("-> HandlerWithCommandReturnsVoid branch");
 
             // (const Command&)->void
             commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
@@ -160,6 +163,7 @@ public:
             };
 
         } else if constexpr (HandlerWithCommandReturnsValue<HandlerT>) {
+            INFO("-> HandlerWithCommandReturnsValue branch");
 
             // (const Command&)->T
             commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
@@ -172,6 +176,7 @@ public:
             };
 
         } else if constexpr (HandlerWithoutCommandReturnsVoid<HandlerT>) {
+            INFO("-> HandlerWithoutCommandReturnsVoid branch");
 
             // ()->void
             commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
@@ -182,6 +187,7 @@ public:
             };
 
         } else if constexpr (HandlerWithoutCommandReturnsValue<HandlerT>) {
+            INFO("-> HandlerWithoutCommandReturnsValue branch");
 
             // ()->T
             commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
@@ -200,8 +206,8 @@ public:
                     || HandlerWithCommandReturnsValue<HandlerT>
                     || HandlerWithoutCommandReturnsVoid<HandlerT>
                     || HandlerWithoutCommandReturnsValue<HandlerT>,
-                "Handler must be callable as (const Command&)->void, (const "
-                "Command&)->T, ()->void or ()->T");
+                "Command handler must be callable as (const Command&)->T, "
+                "(const Command&)->void, ()->T or ()->void");
         }
     }
 
@@ -305,7 +311,6 @@ signals:
     void settingChanged(const QString& key, const QVariant& value);
 
     // Maybe:
-
     // void workspaceShuttingDown(Workspace* workspace);
     // void windowShown(Window* window);
     // void windowClosed(Window* window);
@@ -337,34 +342,23 @@ private:
 
     void logCmdIntercepted_(const QString& id, const Command& cmd)
     {
-        constexpr auto log_format =
-            "\n\tIntercepted: \"%0\"\n\tParams: %1\n\tContext: %2";
-        COCO_LOG_THIS(QString(log_format)
-                          .arg(id)
-                          .arg(toQString(cmd.params))
-                          .arg(toQString(cmd.context)));
+        constexpr auto log_format = "Intercepted: {}, Params: {}, Context: {}";
+        INFO(log_format, id, cmd.params, cmd.context);
     }
 
     void
     logCmdRan_(const QString& id, const Command& cmd, const QVariant& result)
     {
-        constexpr auto log_format = "\n\tExecuted: \"%0\"\n\tParams: "
-                                    "%1\n\tContext: %2\n\tResult: %3";
-        COCO_LOG_THIS(QString(log_format)
-                          .arg(id)
-                          .arg(toQString(cmd.params))
-                          .arg(toQString(cmd.context))
-                          .arg(toQString(result)));
+        constexpr auto log_format =
+            "Executed: {}, Params: {}, Context: {}, Result: {}";
+        INFO(log_format, id, cmd.params, cmd.context, result);
     }
 
     void logCmdNoHandler_(const QString& id, const Command& cmd)
     {
         constexpr auto log_format =
-            "\n\tNo handler found: \"%0\"\n\tParams: %1\n\tContext: %2";
-        COCO_LOG_THIS(QString(log_format)
-                          .arg(id)
-                          .arg(toQString(cmd.params))
-                          .arg(toQString(cmd.context)));
+            "No handler found!: {}, Params: {}, Context: {}";
+        INFO(log_format, id, cmd.params, cmd.context);
     }
 };
 

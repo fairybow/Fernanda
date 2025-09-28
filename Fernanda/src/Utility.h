@@ -31,7 +31,9 @@
 
 // Core, top-level utility functions
 
-namespace Fernanda {
+// Maybe put these under Utility and change them all so they're easier to find when removing (or not)
+
+namespace Fernanda::Util {
 
 template <typename SlotT>
 inline void timer(QObject* parent, int msecs, SlotT slot)

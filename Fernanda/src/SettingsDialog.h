@@ -17,10 +17,10 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Coco/Debug.h"
 #include "Coco/Layout.h"
 
 #include "Debouncer.h"
+#include "Debug.h"
 #include "FontSelector.h"
 
 namespace Fernanda {
@@ -39,7 +39,7 @@ public:
         initialize_(initialFont);
     }
 
-    virtual ~SettingsDialog() override { COCO_TRACER; }
+    virtual ~SettingsDialog() override { TRACER; }
 
     FontChangeHandler fontChangeHandler() const noexcept
     {

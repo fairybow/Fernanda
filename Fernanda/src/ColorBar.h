@@ -26,8 +26,9 @@
 #include <QtGlobal>
 
 #include "Coco/Concepts.h"
-#include "Coco/Debug.h"
 #include "Coco/Fx.h"
+
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -64,7 +65,7 @@ public:
         initialize_();
     }
 
-    virtual ~ColorBar() override { COCO_TRACER; }
+    virtual ~ColorBar() override { TRACER; }
 
     Position position() const noexcept { return position_; }
     void setPosition(Position position) { position_ = position; }

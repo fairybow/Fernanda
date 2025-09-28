@@ -23,7 +23,7 @@
 #include <QToolButton>
 #include <QVariant>
 
-#include "Coco/Debug.h"
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -40,7 +40,7 @@ public:
         initialize_();
     }
 
-    virtual ~TabWidgetButton() override { COCO_TRACER; }
+    virtual ~TabWidgetButton() override { TRACER; }
 
     // Idk about this
     QString text() const {}

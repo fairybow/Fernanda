@@ -15,9 +15,9 @@
 #include <QWidget>
 #include <Qt>
 
-#include "Coco/Debug.h"
 #include "Coco/Layout.h"
 
+#include "Debug.h"
 #include "IFileView.h"
 #include "NoOpFileModel.h"
 
@@ -36,7 +36,7 @@ public:
     {
     }
 
-    virtual ~NoOpFileView() override { COCO_TRACER; }
+    virtual ~NoOpFileView() override { TRACER; }
 
 protected:
     virtual QWidget* setupWidget() override
