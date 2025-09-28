@@ -24,8 +24,6 @@
 #include "Coco/Path.h"
 
 #include "Debug.h"
-
-///
 #include "Window.h"
 
 /// TODO (for registering handlers)
@@ -39,7 +37,6 @@ namespace Fernanda {
 
 class IFileModel;
 class IFileView;
-//class Window;
 enum class SaveResult;
 
 struct Command
