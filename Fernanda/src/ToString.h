@@ -26,17 +26,25 @@ namespace FernandaTemp { /// RENAME THIS WHEN THE OTHER FUNCTIONS ARE REMOVED
 
 template <Coco::Concepts::QObjectDerived T> inline QString toQString(T* ptr)
 {
-    return QString("%0(%1)")
-        .arg(ptr->metaObject()->className())
-        .arg(QString::asprintf("%p", ptr));
+    if (ptr) {
+        return QString("%0(%1)")
+            .arg(ptr->metaObject()->className())
+            .arg(QString::asprintf("%p", ptr));
+    }
+
+    return "nullptr";
 }
 
 template <Coco::Concepts::QObjectDerived T>
 inline QString toQString(const T* ptr)
 {
-    return QString("%0(%1)")
-        .arg(ptr->metaObject()->className())
-        .arg(QString::asprintf("%p", ptr));
+    if (ptr) {
+        return QString("%0(%1)")
+            .arg(ptr->metaObject()->className())
+            .arg(QString::asprintf("%p", ptr));
+    }
+
+    return "nullptr";
 }
 
 template <Coco::Concepts::QObjectDerived T> inline std::string toString(T* ptr)

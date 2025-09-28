@@ -18,22 +18,27 @@
 #include <QVariant>
 #include <QVariantMap>
 
+#include "Coco/Concepts.h"
 #include "Coco/Path.h"
 
 #include "ToString.h"
 
-//#define DEFAULT_PARSE_                                                         \
-//    constexpr auto parse(format_parse_context& ctx)                            \
-//    {                                                                          \
-//        auto it = ctx.begin();                                                 \
-//        while (it != ctx.end() && *it != '}') {                                \
-//            ++it;                                                              \
-//        }                                                                      \
-//        return it;                                                             \
-//    }
-
 #define DEFAULT_PARSE_                                                         \
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+    constexpr auto parse(format_parse_context& ctx)                            \
+    {                                                                          \
+        auto it = ctx.begin();                                                 \
+        while (it != ctx.end() && *it != '}') {                                \
+            ++it;                                                              \
+        }                                                                      \
+        return it;                                                             \
+    }
+
+// Are these any different?
+
+// Also, should I inherit formatter for std::string instead?
+
+//#define DEFAULT_PARSE_                                                         \
+//    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
 
 #define FORMATTER_(T, Conversion)                                              \
     template <> struct std::formatter<T>                                       \
@@ -55,63 +60,20 @@ FORMATTER_(
         .toStdString()); // Won't work for something complex. Could use a custom
                          // converter that just calls variant.toString for
                          // everything except specified types (like Coco::Path,
-                         // QObject pointers, etc)
+                         // QObject pointers, etc): i.e.,
+                         // `FernandaTemp::toString(x)`
 
-// Sort of works now
 template <typename T>
-    requires std::is_base_of_v<QObject, std::remove_pointer_t<T>>
-struct std::formatter<T, char> : std::formatter<std::string, char>
+    requires Coco::Concepts::QObjectPointer<T>
+struct std::formatter<T>
 {
-    constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+    DEFAULT_PARSE_
 
-    auto format(T obj, std::format_context& ctx) const
+    auto format(T object, std::format_context& ctx) const
     {
-        std::string output;
-        if constexpr (std::is_pointer_v<T>) {
-            if (obj) {
-                output = std::format(
-                    "{}(\"{}\") at {}",
-                    obj->metaObject()->className(),
-                    obj->objectName().toStdString(),
-                    static_cast<const void*>(obj));
-            } else {
-                output = "nullptr";
-            }
-        } else {
-            output = std::format(
-                "{}(\"{}\") at {}",
-                obj.metaObject()->className(),
-                obj.objectName().toStdString(),
-                static_cast<const void*>(&obj));
-        }
-        return std::formatter<std::string, char>::format(output, ctx);
+        return std::format_to(ctx.out(), "{}", FernandaTemp::toString(object));
     }
 };
-
-//template <typename T>
-//    requires std::derived_from<std::remove_cv_t<T>, QObject>
-//struct std::formatter<T*>
-//{
-//    DEFAULT_PARSE_
-//
-//    auto format(T* x, format_context& ctx) const
-//    {
-//        return std::format_to(ctx.out(), "{}", FernandaTemp::toString(x));
-//    }
-//};
-//
-//// Add const T* version to handle const pointers
-//template <typename T>
-//    requires std::derived_from<std::remove_cv_t<T>, QObject>
-//struct std::formatter<const T*>
-//{
-//    DEFAULT_PARSE_
-//
-//    auto format(const T* x, format_context& ctx) const
-//    {
-//        return std::format_to(ctx.out(), "{}", FernandaTemp::toString(x));
-//    }
-//};
 
 #undef FORMATTER_
 #undef DEFAULT_PARSE_
