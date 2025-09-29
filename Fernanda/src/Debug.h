@@ -15,6 +15,7 @@
 #include <format>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include <QDebug>
@@ -27,6 +28,7 @@
 #include "Coco/Path.h"
 
 #include "Formatters.h"
+#include "ToString.h"
 
 namespace Fernanda::Debug {
 
@@ -110,21 +112,32 @@ struct Log
     int line;
     const char* function;
 
-    // Todo: Add category, potentially also a way to pass "this" as first param
-    // and attach print of it before message
-
     template <typename... Args>
-    inline void print(const char* format, Args&&... args)
+    inline void
+    print(const QObject* obj, std::string_view format, Args&&... args)
     {
         if (!Internal::logging.load(std::memory_order::relaxed)) return;
         auto context = QMessageLogContext(file, line, function, nullptr);
 
+        std::string msg{};
+
         if constexpr (sizeof...(args) > 0) {
-            auto msg = std::vformat(format, std::make_format_args(args...));
-            Internal::handler(type, context, QString::fromUtf8(msg));
+            msg = std::vformat(format, std::make_format_args(args...));
         } else {
-            Internal::handler(type, context, QString::fromUtf8(format));
+            msg = format;
         }
+
+        if (obj) {
+            msg = std::format("In {}: {}", Fernanda::toString(obj), msg);
+        }
+
+        Internal::handler(type, context, QString::fromUtf8(msg));
+    }
+
+    template <typename... Args>
+    inline void print(std::string_view format, Args&&... args)
+    {
+        return print(nullptr, format, std::forward<Args>(args)...);
     }
 };
 
@@ -152,25 +165,4 @@ struct Log
 //         out << message << '\n';
 //         file.close();
 //     }
-// }
-
-// #include <QChar>
-// #include <QMessageLogContext>
-//
-// static void _maybePrependNewline(QString& msg)
-//{
-//     // Local statics are only guaranteed thread-safe initialization, not
-//     usage!
-//     // (C++ 11 and on)
-//     static QChar last_char{};
-//     static std::mutex mutex{};
-//
-//     std::lock_guard<std::mutex> lock(mutex);
-//
-//     // `msg` will never be empty. It will always at least have the timestamp
-//     and
-//     // etc.
-//     if (!last_char.isNull() && last_char != '\n') msg.prepend('\n');
-//
-//     last_char = msg.back();
 // }

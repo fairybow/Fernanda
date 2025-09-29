@@ -51,8 +51,8 @@ public:
         setApplicationVersion(VERSION_FULL_STRING);
         setQuitOnLastWindowClosed(false);
 
-        Debug::initialize(true); // file later
         Coco::PathUtil::mkdir(userDataDirectory_);
+        Debug::initialize(true); // file later
 
         // auto args = arguments();
 
@@ -107,7 +107,7 @@ private:
     bool notepadPathInterceptor_(const Coco::Path& path)
     {
         if (FileTypes::is(FileTypes::SevenZip, path)) {
-            INFO("Interceptor true.");
+            INFO("Notepad intercepted {}", path);
 
             for (auto& notebook : notebooks_) {
                 if (notebook->archivePath() == path) {
