@@ -16,10 +16,7 @@
 #include "Version.h"
 
 /// Current goals:
-/// - Better logging
-/// - Edit logging in addCommandHandler
 /// - Comment-out Utility and see what's needed
-/// - Have String::from for needed conversions if doing format logging?
 /// - Reimplement Commands
 /// - Consider if Command is Notebook- or Notepad-specific
 /// - Take NewTab and NewTreeViewModel: need to be same command (with different
