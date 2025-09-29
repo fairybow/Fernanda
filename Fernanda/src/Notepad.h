@@ -22,6 +22,7 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "NotepadMenuModule.h"
+#include "TreeViewModule.h"
 #include "Utility.h"
 #include "Version.h"
 #include "Workspace.h"
@@ -88,7 +89,7 @@ private:
         });*/
 
         bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
-            ///createNewTextFile_(cmd.context); //<- Old (in FileService)
+            /// createNewTextFile_(cmd.context); //<- Old (in FileService)
             TRACER;
             qDebug() << "Implement";
         });
@@ -96,7 +97,7 @@ private:
         bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
             auto model = new QFileSystemModel(this);
             auto root_index = model->setRootPath(currentBaseDir_.toQString());
-            Util::storeItemModelRootIndex(model, root_index);
+            TreeViewModule::saveModelRootIndex(model, root_index);
             model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
             // Any other Notepad-specific model setup
             return model;

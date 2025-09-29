@@ -49,6 +49,17 @@ public:
 
     virtual ~TreeViewModule() override { TRACER; }
 
+    static QModelIndex modelRootIndex(QAbstractItemModel* model)
+    {
+        return model->property("root").value<QModelIndex>();
+    }
+
+    static void
+    saveModelRootIndex(QAbstractItemModel* model, const QModelIndex& index)
+    {
+        model->setProperty("root", index);
+    }
+
 private:
     // QHash<Window*, TreeView*> treeViews_{};
     // A set instead, perhaps, just for quick updates across all Workspace
@@ -74,28 +85,10 @@ private slots:
         auto dock_widget = new QDockWidget(window);
         auto tree_view = new TreeView(dock_widget);
 
-        // Test the raw QVariant first
-        auto raw_result = bus->call(PolyCmd::NEW_TREE_VIEW_MODEL);
-        qDebug() << "Raw QVariant result:" << raw_result;
-        qDebug() << "QVariant is valid:" << raw_result.isValid();
-        qDebug() << "QVariant type:" << raw_result.typeName();
-        qDebug() << "Can convert to QAbstractItemModel*:"
-                 << raw_result.canConvert<QAbstractItemModel*>();
-        qDebug() << "Can convert to QFileSystemModel*:"
-                 << raw_result.canConvert<QFileSystemModel*>();
-
-        // Try extracting as the exact type first
-        auto fs_model = raw_result.value<QFileSystemModel*>();
-        qDebug() << "Extracted as QFileSystemModel*:" << fs_model;
-
-        // Then try the base class
-        auto abs_model = raw_result.value<QAbstractItemModel*>();
-        qDebug() << "Extracted as QAbstractItemModel*:" << abs_model;
-
-        if (abs_model) {
-            tree_view->setModel(abs_model);
-            if (auto root_index = Util::getItemModelRootIndex(abs_model);
-                root_index.isValid()) {
+        if (auto model =
+                bus->call<QAbstractItemModel*>(PolyCmd::NEW_TREE_VIEW_MODEL)) {
+            tree_view->setModel(model);
+            if (auto root_index = modelRootIndex(model); root_index.isValid()) {
                 tree_view->setRootIndex(root_index);
             }
         }

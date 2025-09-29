@@ -24,9 +24,6 @@
 #include "TabWidget.h"
 #include "Window.h"
 
-/// The QObject conversion functions should NOT be "to". It's a cast, not like
-/// converting from QString or similar (toStdString, etc).
-
 namespace Fernanda {
 
 template <typename SlotT>
@@ -114,18 +111,6 @@ namespace Util {
         return false;
     }
 
-    // TODO: Move
-    inline QModelIndex getItemModelRootIndex(QAbstractItemModel* model)
-    {
-        return model->property("root").value<QModelIndex>();
-    }
-
-    // TODO: Move
-    inline void
-    storeItemModelRootIndex(QAbstractItemModel* model, const QModelIndex& index)
-    {
-        model->setProperty("root", index);
-    }
 } // namespace Util
 
 } // namespace Fernanda
