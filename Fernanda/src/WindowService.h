@@ -20,11 +20,11 @@
 #include <QtTypes>
 
 #include "Coco/Bool.h"
-#include "Coco/Debug.h"
 #include "Coco/Utility.h"
 
 #include "Bus.h"
 #include "Debouncer.h"
+#include "Debug.h"
 #include "IService.h"
 #include "Utility.h"
 #include "Window.h"
@@ -48,7 +48,7 @@ public:
         initialize_();
     }
 
-    virtual ~WindowService() override { COCO_TRACER; }
+    virtual ~WindowService() override { TRACER; }
 
     Window::CloseAcceptor closeAcceptor() const noexcept
     {
@@ -176,13 +176,13 @@ protected:
     virtual bool eventFilter(QObject* watched, QEvent* event) override
     {
         if (event->type() == QEvent::WindowActivate) {
-            if (auto active_window = to<Window*>(watched)) {
+            if (auto active_window = Util::to<Window*>(watched)) {
                 setActiveWindow_(active_window);
                 XPlatform::stackUnder(zOrderedVolatileWindows_, active_window);
             }
         } else if (
             event->type() == QEvent::Show || event->type() == QEvent::Hide) {
-            if (auto window = to<Window*>(watched))
+            if (auto window = Util::to<Window*>(watched))
                 emit bus->visibleWindowCountChanged(visibleCount());
         } else if (event->type() == QEvent::Close) {
             //...
@@ -341,7 +341,8 @@ private slots:
     {
         (void)now;
         if (!old) return;
-        if (auto window = to<Window*>(old)) lastFocusedAppWindow_ = window;
+        if (auto window = Util::to<Window*>(old))
+            lastFocusedAppWindow_ = window;
     }
 };
 

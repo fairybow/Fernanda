@@ -18,13 +18,13 @@
 #include <QVariantMap>
 
 #include "Coco/Bool.h"
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 #include "Coco/TextIo.h"
 
 #include "Bus.h"
 #include "Constants.h"
+#include "Debug.h"
 #include "FileMeta.h"
 // #include "FileServiceSaveHelper.h"
 #include "FileTypes.h"
@@ -54,7 +54,7 @@ public:
         initialize_();
     }
 
-    virtual ~FileService() override { COCO_TRACER; }
+    virtual ~FileService() override { TRACER; }
 
 private:
     QHash<Coco::Path, IFileModel*> pathToFileModel_{};
@@ -208,13 +208,14 @@ private slots:
 
         auto view_count = bus->call<int>(
             Commands::MODEL_VIEWS_COUNT,
-            { { "model", toQVariant(model) } });
+            { { "model", Util::toQVariant(model) } });
 
         if (view_count < 1) {
             auto path = meta->path();
             pathToFileModel_.remove(path);
-            COCO_LOG_THIS(QString("Removed model for path: %0")
-                              .arg(path.isEmpty() ? "N/A" : path.toQString()));
+            INFO(
+                "Removed model for path: {}",
+                path.isEmpty() ? "N/A" : path.toString());
             delete model;
         }
     }

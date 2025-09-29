@@ -27,6 +27,7 @@ namespace Commands {
 
     // Todo: Note why this is in Workspace and not WindowService!
     constexpr auto NEW_WINDOW = "workspace:new_window";
+    constexpr auto ABOUT_DIALOG = "workspace:about_dialog";
 
     constexpr auto SETTINGS_GET = "settings:get";
     constexpr auto SETTINGS_SET = "settings:set";
@@ -53,20 +54,13 @@ namespace PolyCmd {
 
 ///// NewNotebook
 ///// OpenNotebook
-// constexpr auto CloseWindow = "cmd.workspace.workspace:close_window";
-// constexpr auto CloseAllWindows =
-//     "cmd.workspace.workspace:close_all_windows";
-// constexpr auto Quit = "cmd.workspace.application:quit";
+
 // constexpr auto PreviousTab = "cmd.view_serv.window:previous_tab";
 // constexpr auto NextTab = "cmd.view_serv.window:next_tab";
 // constexpr auto PreviousWindow =
 // "cmd.window_serv.workspace:previous_window"; constexpr auto
 // ViewNextWindow = "cmd.window_serv.workspace:next_window";
-// constexpr
-// auto AboutDialog = "cmd.workspace.application:about_dialog";
 // constexpr auto CloseView = "call.view_serv.window:close_view";
-// constexpr auto CloseWindowViews =
-//     "call.view_serv.window:close_window_views";
 // constexpr auto CloseAllViews =
 // "call.view_serv.workspace:close_all_views";
 // constexpr auto NotepadSaveFile = "call.file_serv.workspace:save";
@@ -94,5 +88,30 @@ namespace PolyCmd {
 //     "query.view_serv.workspace:has_modified_files";
 // constexpr auto WorkspaceAnyFiles =
 //     "query.view_serv.workspace:has_any_files";
+
+// constexpr auto CloseWindowViews =
+//     "call.view_serv.window:close_window_views";
+
+
+/// From Workspace.cpp:
+
+// constexpr auto CloseWindow = "cmd.workspace.workspace:close_window";
+// constexpr auto CloseAllWindows =
+//     "cmd.workspace.workspace:close_all_windows";
+// constexpr auto Quit = "cmd.workspace.application:quit";
+
+/*
+bus->addCommandHandler(Cmd::CloseWindow, [&](const Command& cmd) {
+    if (cmd.context) cmd.context->close();
+});
+bus->addCommandHandler(Cmd::CloseAllWindows, [&] {
+    // Close each window individually, triggering the CloseAcceptor for each
+    for (auto window : windows_->windowsReversed()) {
+        if (!window) continue;
+        if (!window->close()) return;
+    }
+});
+bus->addCommandHandler(Cmd::Quit, [] { Application::quit(); });
+*/
 
 } // namespace Fernanda

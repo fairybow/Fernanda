@@ -21,10 +21,10 @@
 #include <QWidget>
 
 #include "Coco/Concepts.h"
-#include "Coco/Debug.h"
 
 #include "Bus.h"
 #include "Constants.h"
+#include "Debug.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
 #include "IFileView.h"
@@ -55,7 +55,7 @@ public:
         initialize_();
     }
 
-    virtual ~ViewService() override { COCO_TRACER; }
+    virtual ~ViewService() override { TRACER; }
 
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
@@ -238,7 +238,7 @@ private:
         IFileView* active = nullptr;
 
         if (index > -1)
-            if (auto view = viewAt(window, index)) active = view;
+            if (auto view = Util::viewAt(window, index)) active = view;
 
         activeFileViews_[window] = active;
         emit bus->activeFileViewChanged(active, window);
@@ -246,7 +246,7 @@ private:
 
     void undoAt_(Window* window, int index)
     {
-        auto model = modelAt(window, index);
+        auto model = Util::modelAt(window, index);
         if (!model) return;
 
         if (model->hasUndo()) model->undo();
@@ -254,7 +254,7 @@ private:
 
     void redoAt_(Window* window, int index)
     {
-        auto model = modelAt(window, index);
+        auto model = Util::modelAt(window, index);
         if (!model) return;
 
         if (model->hasRedo()) model->redo();
@@ -262,7 +262,7 @@ private:
 
     void cutAt_(Window* window, int index)
     {
-        auto view = viewAt(window, index);
+        auto view = Util::viewAt(window, index);
         if (!view || !view->supportsEditing()) return;
 
         if (view->hasSelection()) view->cut();
@@ -270,7 +270,7 @@ private:
 
     void copyAt_(Window* window, int index)
     {
-        auto view = viewAt(window, index);
+        auto view = Util::viewAt(window, index);
         if (!view || !view->supportsEditing()) return;
 
         if (view->hasSelection()) view->copy();
@@ -278,7 +278,7 @@ private:
 
     void pasteAt_(Window* window, int index)
     {
-        auto view = viewAt(window, index);
+        auto view = Util::viewAt(window, index);
         if (!view || !view->supportsEditing()) return;
 
         if (view->hasPaste()) view->paste();
@@ -286,7 +286,7 @@ private:
 
     void deleteAt_(Window* window, int index)
     {
-        auto view = viewAt(window, index);
+        auto view = Util::viewAt(window, index);
         if (!view || !view->supportsEditing()) return;
 
         if (view->hasSelection()) view->deleteSelection();
@@ -294,7 +294,7 @@ private:
 
     void selectAllAt_(Window* window, int index)
     {
-        auto view = viewAt(window, index);
+        auto view = Util::viewAt(window, index);
         if (!view || !view->supportsEditing()) return;
 
         view->selectAll();
@@ -329,7 +329,7 @@ private slots:
 
         connect(tab_widget, &TabWidget::addTabRequested, this, [=] {
             /// bus->execute(Cmd::NewTab, window);
-            COCO_TRACER;
+            TRACER;
             qDebug() << "Implement";
         });
 
@@ -340,7 +340,7 @@ private slots:
             [&, window](int index) {
                 /// bus->execute(Cmd::CloseView, { { "index", index } },
                 /// window);
-                COCO_TRACER;
+                TRACER;
                 qDebug() << "Implement";
             });
 
@@ -362,7 +362,7 @@ private slots:
 
         IFileView* view = nullptr;
 
-        if (auto text_model = to<TextFileModel*>(model)) {
+        if (auto text_model = Util::to<TextFileModel*>(model)) {
 
             auto text_view = make_<TextFileView*>(text_model, window);
             auto font = bus->call<QFont>(
@@ -372,7 +372,7 @@ private slots:
             text_view->setFont(font);
             view = text_view;
 
-        } else if (auto no_op_model = to<NoOpFileModel*>(model)) {
+        } else if (auto no_op_model = Util::to<NoOpFileModel*>(model)) {
             view = make_<NoOpFileView*>(no_op_model, window);
         } else {
             return;
@@ -381,7 +381,7 @@ private slots:
         if (!view) return;
         ++viewsPerModel_[model];
 
-        auto tab_widget = tabWidget(window);
+        auto tab_widget = Util::tabWidget(window);
         if (!tab_widget) return; // Delete view if this fails (shouldn't)?
 
         auto meta = model->meta();
@@ -400,7 +400,7 @@ private slots:
 
         // Find all tabs containing views of this model
         for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
-            auto tab_widget = tabWidget(window);
+            auto tab_widget = Util::tabWidget(window);
             if (!tab_widget) continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i) {
@@ -422,7 +422,7 @@ private slots:
         // Find all tabs containing views of this model and update their
         // text/tooltip
         for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
-            auto tab_widget = tabWidget(window);
+            auto tab_widget = Util::tabWidget(window);
             if (!tab_widget) continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i) {
@@ -440,10 +440,10 @@ private slots:
         // Gotta handle multiple for editor stuff
         if (key != Ini::Editor::FONT_KEY) return;
 
-        auto font = to<QFont>(value);
+        auto font = Util::to<QFont>(value);
 
         for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
-            auto tab_widget = tabWidget(window);
+            auto tab_widget = Util::tabWidget(window);
             if (!tab_widget) continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i)

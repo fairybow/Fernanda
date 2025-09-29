@@ -17,8 +17,9 @@
 #include <QPointer>
 #include <QWidget>
 
-#include "Coco/Debug.h"
 #include "Coco/Layout.h"
+
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -39,7 +40,7 @@ public:
 
     virtual ~Window() override
     {
-        COCO_TRACER;
+        TRACER;
         emit destroyed(this);
     }
 

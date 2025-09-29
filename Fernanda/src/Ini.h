@@ -37,7 +37,7 @@ namespace Editor {
         font.setPointSize(DEFAULT_FONT_PT_SIZE);
         font.setBold(DEFAULT_FONT_BOLD);
         font.setItalic(DEFAULT_FONT_ITALIC);
-        return toQVariant(font);
+        return Util::toQVariant(font);
     }
 
 } // namespace Editor

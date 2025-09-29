@@ -16,11 +16,11 @@
 #include <QModelIndex>
 #include <QObject>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 
 #include "Bus.h"
 #include "Constants.h"
+#include "Debug.h"
 #include "NotepadMenuModule.h"
 #include "Utility.h"
 #include "Version.h"
@@ -43,7 +43,7 @@ public:
         initialize_();
     }
 
-    virtual ~Notepad() override { COCO_TRACER; }
+    virtual ~Notepad() override { TRACER; }
 
     PathInterceptor pathInterceptor() const noexcept
     {
@@ -89,26 +89,19 @@ private:
 
         bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
             ///createNewTextFile_(cmd.context); //<- Old (in FileService)
-            COCO_TRACER;
+            TRACER;
             qDebug() << "Implement";
         });
 
         bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
-            //return makeTreeViewModel_();
-            COCO_TRACER;
-            qDebug() << "Implement";
+            auto model = new QFileSystemModel(this);
+            auto root_index = model->setRootPath(currentBaseDir_.toQString());
+            Util::storeItemModelRootIndex(model, root_index);
+            model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+            // Any other Notepad-specific model setup
+            return model;
         });
     }
-
-    //virtual QAbstractItemModel* makeTreeViewModel_() override
-    //{
-    //    auto model = new QFileSystemModel(this);
-    //    auto root_index = model->setRootPath(currentBaseDir_.toQString());
-    //    storeItemModelRootIndex(model, root_index);
-    //    model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-    //    // Any other Notepad-specific model setup
-    //    return model;
-    //}
 };
 
 } // namespace Fernanda

@@ -14,10 +14,9 @@
 #include <QMenu>
 #include <QObject>
 
-#include "Coco/Debug.h"
-
 #include "Bus.h"
 #include "Constants.h"
+#include "Debug.h"
 #include "MenuModule.h"
 
 namespace Fernanda {
@@ -34,7 +33,7 @@ public:
         initialize_();
     }
 
-    virtual ~NotepadMenuModule() override { COCO_TRACER; }
+    virtual ~NotepadMenuModule() override { TRACER; }
 
 protected:
     virtual void initializeWorkspaceActions_(Window* window) override

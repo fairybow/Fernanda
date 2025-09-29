@@ -12,7 +12,7 @@
 #include <QObject>
 #include <QTimer>
 
-#include "Coco/Debug.h"
+#include "Debug.h"
 
 // Utility class for initializing a debouncing timer and connecting it to a slot
 class Debouncer : public QTimer
@@ -29,5 +29,5 @@ public:
         connect(this, &QTimer::timeout, parent, slot);
     }
 
-    virtual ~Debouncer() override { COCO_TRACER; }
+    virtual ~Debouncer() override { TRACER; }
 };

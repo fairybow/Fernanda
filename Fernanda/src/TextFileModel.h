@@ -15,10 +15,11 @@
 #include <QTextBlock>
 #include <QTextDocument>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 #include "Coco/TextIo.h"
 
+#include "Debug.h"
+#include "Enums.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
 
@@ -37,7 +38,7 @@ public:
         initialize_();
     }
 
-    virtual ~TextFileModel() override { COCO_TRACER; }
+    virtual ~TextFileModel() override { TRACER; }
 
     QTextDocument* document() const noexcept { return document_; }
     virtual bool supportsModification() const override { return document_; }

@@ -15,8 +15,9 @@
 #include <QSettings>
 #include <QVariant>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
+
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -39,7 +40,7 @@ public:
         initialize_();
     }
 
-    virtual ~Settings() override { COCO_TRACER; }
+    virtual ~Settings() override { TRACER; }
 
     void setOverride(const Coco::Path& configPath)
     {

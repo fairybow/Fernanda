@@ -15,11 +15,11 @@
 #include <QStandardItemModel> /// Temp
 #include <QStatusBar>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 
 #include "Bus.h"
 #include "Constants.h"
+#include "Debug.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "Window.h"
@@ -46,7 +46,7 @@ public:
         initialize_();
     }
 
-    virtual ~Notebook() override { COCO_TRACER; }
+    virtual ~Notebook() override { TRACER; }
 
     Coco::Path archivePath() const noexcept { return archivePath_; }
     // Coco::Path root() const noexcept { return root_; } // Probably
@@ -79,13 +79,13 @@ private:
 
         bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
             /// createNewTextFile_(cmd.context); //<- Old (in FileService)
-            COCO_TRACER;
+            TRACER;
             qDebug() << "Implement";
         });
 
         bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
             // return makeTreeViewModel_();
-            COCO_TRACER;
+            TRACER;
             qDebug() << "Implement";
         });
 

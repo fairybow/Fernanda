@@ -12,11 +12,10 @@
 #include <QHash>
 #include <QObject>
 
-#include "Coco/Debug.h"
-
 #include "Bus.h"
 #include "ColorBar.h"
-#include "IFileModel.h"
+#include "Debug.h"
+#include "Enums.h"
 #include "IService.h"
 #include "Utility.h"
 #include "Window.h"
@@ -35,7 +34,7 @@ public:
         initialize_();
     }
 
-    virtual ~ColorBarModule() override { COCO_TRACER; }
+    virtual ~ColorBarModule() override { TRACER; }
 
 private:
     QHash<Window*, ColorBar*> colorBars_{};
@@ -49,7 +48,7 @@ private:
             &ColorBarModule::onWindowCreated_);
 
         connect(bus, &Bus::workspaceInitialized, this, [&] {
-            timer(this, 1000, [&] { runAll_(ColorBar::Pastel); });
+            Util::timer(this, 1000, [&] { runAll_(ColorBar::Pastel); });
         });
 
         connect(

@@ -49,10 +49,11 @@
 #include <QtTypes>
 
 #include "Coco/Concepts.h"
-#include "Coco/Debug.h"
 #include "Coco/Layout.h"
 #include "Coco/Utility.h"
+#include "Coco/Debug.h" /// Move trivial class?
 
+#include "Debug.h"
 #include "TabWidgetButton.h"
 #include "TabWidgetCloseButton.h"
 #include "TabWidgetTabBar.h"
@@ -74,7 +75,7 @@ public:
         initialize_();
     }
 
-    virtual ~TabWidget() override { COCO_TRACER; }
+    virtual ~TabWidget() override { TRACER; }
 
     void activatePrevious()
     {

@@ -11,9 +11,8 @@
 
 #include <QObject>
 
-#include "Coco/Debug.h"
-
 #include "Bus.h"
+#include "Debug.h"
 #include "IService.h"
 
 namespace Fernanda {
@@ -30,7 +29,7 @@ public:
         initialize_();
     }
 
-    virtual ~WordCounterModule() override { COCO_TRACER; }
+    virtual ~WordCounterModule() override { TRACER; }
 
 private:
     void initialize_()

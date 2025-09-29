@@ -19,9 +19,9 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Coco/Debug.h"
 #include "Coco/Layout.h"
 
+#include "Debug.h"
 #include "DisplaySlider.h"
 #include "Ini.h"
 #include "Tr.h"
@@ -40,7 +40,7 @@ public:
         initialize_();
     }
 
-    virtual ~FontSelector() override { COCO_TRACER; }
+    virtual ~FontSelector() override { TRACER; }
 
 signals:
     void currentChanged(const QFont& font);

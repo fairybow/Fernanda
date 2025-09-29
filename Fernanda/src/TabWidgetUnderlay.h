@@ -20,8 +20,9 @@
 #include <QWidget>
 #include <QtGlobal>
 
-#include "Coco/Debug.h"
 #include "Coco/Fx.h"
+
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -38,7 +39,7 @@ public:
         initialize_();
     }
 
-    virtual ~TabWidgetUnderlay() override { COCO_TRACER; }
+    virtual ~TabWidgetUnderlay() override { TRACER; }
 
     virtual QSize minimumSizeHint() const override
     {

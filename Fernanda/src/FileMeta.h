@@ -12,8 +12,9 @@
 #include <QObject>
 #include <QString>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
+
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -31,7 +32,7 @@ public:
         updateDerivedProperties_();
     }
 
-    virtual ~FileMeta() override { COCO_TRACER; }
+    virtual ~FileMeta() override { TRACER; }
 
     bool isOnDisk() const noexcept { return !path_.isEmpty(); }
     Coco::Path path() const noexcept { return path_; }

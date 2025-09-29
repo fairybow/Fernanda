@@ -16,6 +16,7 @@
 #include "Version.h"
 
 /// Current goals:
+/// - Comment-out Utility and see what's needed
 /// - Reimplement Commands
 /// - Consider if Command is Notebook- or Notepad-specific
 /// - Take NewTab and NewTreeViewModel: need to be same command (with different
