@@ -10,13 +10,13 @@
 #pragma once
 
 #include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <format>
 #include <mutex>
 #include <string>
 #include <utility>
 
-#include <QDateTime>
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QMessageLogContext>
@@ -32,13 +32,27 @@ namespace Fernanda::Debug {
 
 namespace Internal {
 
-    constexpr auto TIMESTAMP_FORMAT = "HH:mm:ss:zz";
+    constexpr auto TIMESTAMP_FORMAT = "{:%Y-%m-%d | %H:%M:%S}.{:03d}";
     constexpr auto MSG_FORMAT = "{} | {} | {}";
 
     static std::atomic<bool> logging{ false };
     static std::atomic<uint64_t> logCount{ 0 };
     static std::mutex handlerMutex{};
     static QtMessageHandler qtHandler = nullptr;
+
+    static std::string timestamp()
+    {
+        auto now = std::chrono::system_clock::now();
+        auto zone = std::chrono::current_zone();
+        auto local_time = zone->to_local(now);
+
+        return std::format(
+            TIMESTAMP_FORMAT,
+            std::chrono::floor<std::chrono::seconds>(local_time),
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                local_time.time_since_epoch() % std::chrono::seconds{ 1 })
+                .count());
+    }
 
     static void handler(
         QtMsgType type,
@@ -48,9 +62,7 @@ namespace Internal {
         if (!logging.load(std::memory_order::relaxed)) return;
 
         auto count = logCount.fetch_add(1, std::memory_order::relaxed);
-        auto timestamp = QDateTime::currentDateTime().toString(
-            TIMESTAMP_FORMAT); /// Use something faster? Cache?
-        auto new_msg = std::format(MSG_FORMAT, count, timestamp, msg);
+        auto new_msg = std::format(MSG_FORMAT, count, timestamp(), msg);
 
         QtMessageHandler qt_handler = nullptr;
 
