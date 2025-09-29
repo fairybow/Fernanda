@@ -213,8 +213,9 @@ private slots:
         if (view_count < 1) {
             auto path = meta->path();
             pathToFileModel_.remove(path);
-            ///COCO_LOG_THIS(QString("Removed model for path: %0")
-                              ///.arg(path.isEmpty() ? "N/A" : path.toQString()));
+            INFO(
+                "Removed model for path: {}",
+                path.isEmpty() ? "N/A" : path.toString());
             delete model;
         }
     }
