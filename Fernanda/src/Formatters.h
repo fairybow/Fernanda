@@ -33,44 +33,36 @@
         return it;                                                             \
     }
 
-// Are these any different?
-
-// Also, should I inherit formatter for std::string instead?
-
-//#define DEFAULT_PARSE_                                                         \
-//    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
-
-#define FORMATTER_(T, Conversion)                                              \
-    template <> struct std::formatter<T>                                       \
+#define STRING_FORMATTER_(T, Conversion)                                       \
+    template <> struct std::formatter<T> : std::formatter<std::string>         \
     {                                                                          \
-        DEFAULT_PARSE_                                                         \
         auto format(const T& x, format_context& ctx) const                     \
         {                                                                      \
-            return std::format_to(ctx.out(), "{}", Conversion);                \
+            return std::formatter<std::string>::format(Conversion, ctx);       \
         }                                                                      \
     }
 
-FORMATTER_(QString, x.toStdString());
-FORMATTER_(Coco::Path, x.toString());
-FORMATTER_(QVariantMap, Fernanda::toString(x));
+STRING_FORMATTER_(QString, x.toStdString());
+STRING_FORMATTER_(Coco::Path, x.toString());
+STRING_FORMATTER_(QVariantMap, Fernanda::toString(x));
 
 // TODO: Won't work for something complex. Could use a custom
 // converter that just calls variant.toString for
 // everything except specified types (like Coco::Path,
 // QObject pointers, etc): i.e.,
 // `FernandaTemp::toString(x)`
-FORMATTER_(QVariant, x.toString().toStdString());
+STRING_FORMATTER_(QVariant, x.toString().toStdString());
 
 template <Coco::Concepts::QObjectPointer T>
-struct std::formatter<T>
+struct std::formatter<T> : std::formatter<std::string>
 {
-    DEFAULT_PARSE_
-
     auto format(T object, std::format_context& ctx) const
     {
-        return std::format_to(ctx.out(), "{}", Fernanda::toString(object));
+        return std::formatter<std::string>::format(
+            Fernanda::toString(object),
+            ctx);
     }
 };
 
-#undef FORMATTER_
+#undef STRING_FORMATTER_
 #undef DEFAULT_PARSE_
