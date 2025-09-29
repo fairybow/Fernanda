@@ -81,6 +81,7 @@ template <typename T>
 concept HandlerWithCommandReturnsValue =
     std::is_invocable_v<T, const Command&>
     && !std::same_as<void, std::invoke_result_t<T, const Command&>>;
+
 template <typename T>
 concept HandlerWithoutCommandReturnsVoid =
     std::is_invocable_v<T> && std::same_as<void, std::invoke_result_t<T>>
