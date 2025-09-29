@@ -97,9 +97,7 @@ private:
         dialog_ = new SettingsDialog(initial_font);
 
         dialog_->setFontChangeHandler([&](const QFont& font) {
-            emit bus->settingChanged(
-                Ini::Editor::FONT_KEY,
-                Util::toQVariant(font));
+            emit bus->settingChanged(Ini::Editor::FONT_KEY, toQVariant(font));
         });
         // Connect other setting handlers
 
@@ -111,7 +109,7 @@ private:
                 if (settings_->isWritable())
                     settings_->setValue(
                         Ini::Editor::FONT_KEY,
-                        Util::toQVariant(font));
+                        toQVariant(font));
             });
         // Listen to other setting signals
 

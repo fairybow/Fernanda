@@ -208,7 +208,7 @@ private slots:
 
         auto view_count = bus->call<int>(
             Commands::MODEL_VIEWS_COUNT,
-            { { "model", Util::toQVariant(model) } });
+            { { "model", toQVariant(model) } });
 
         if (view_count < 1) {
             auto path = meta->path();

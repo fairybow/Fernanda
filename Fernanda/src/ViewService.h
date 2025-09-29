@@ -362,7 +362,7 @@ private slots:
 
         IFileView* view = nullptr;
 
-        if (auto text_model = Util::to<TextFileModel*>(model)) {
+        if (auto text_model = cast<TextFileModel*>(model)) {
 
             auto text_view = make_<TextFileView*>(text_model, window);
             auto font = bus->call<QFont>(
@@ -372,7 +372,7 @@ private slots:
             text_view->setFont(font);
             view = text_view;
 
-        } else if (auto no_op_model = Util::to<NoOpFileModel*>(model)) {
+        } else if (auto no_op_model = cast<NoOpFileModel*>(model)) {
             view = make_<NoOpFileView*>(no_op_model, window);
         } else {
             return;
@@ -440,7 +440,7 @@ private slots:
         // Gotta handle multiple for editor stuff
         if (key != Ini::Editor::FONT_KEY) return;
 
-        auto font = Util::to<QFont>(value);
+        auto font = to<QFont>(value);
 
         for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
             auto tab_widget = Util::tabWidget(window);

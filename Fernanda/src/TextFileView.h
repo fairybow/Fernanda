@@ -81,7 +81,7 @@ public:
 
     virtual bool supportsEditing() const override
     {
-        return editor_ && Util::to<TextFileModel*>(model());
+        return editor_ && cast<TextFileModel*>(model());
     }
 
     virtual bool hasPaste() const override

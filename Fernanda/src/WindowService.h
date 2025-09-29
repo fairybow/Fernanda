@@ -176,13 +176,13 @@ protected:
     virtual bool eventFilter(QObject* watched, QEvent* event) override
     {
         if (event->type() == QEvent::WindowActivate) {
-            if (auto active_window = Util::to<Window*>(watched)) {
+            if (auto active_window = cast<Window*>(watched)) {
                 setActiveWindow_(active_window);
                 XPlatform::stackUnder(zOrderedVolatileWindows_, active_window);
             }
         } else if (
             event->type() == QEvent::Show || event->type() == QEvent::Hide) {
-            if (auto window = Util::to<Window*>(watched))
+            if (auto window = cast<Window*>(watched))
                 emit bus->visibleWindowCountChanged(visibleCount());
         } else if (event->type() == QEvent::Close) {
             //...
@@ -341,8 +341,7 @@ private slots:
     {
         (void)now;
         if (!old) return;
-        if (auto window = Util::to<Window*>(old))
-            lastFocusedAppWindow_ = window;
+        if (auto window = cast<Window*>(old)) lastFocusedAppWindow_ = window;
     }
 };
 

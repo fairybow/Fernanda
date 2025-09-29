@@ -321,17 +321,17 @@
     <ClInclude Include="src\ViewServiceCloseHelper.h">
       <Filter>Code\Core\Services</Filter>
     </ClInclude>
-    <ClInclude Include="src\Debug.h">
-      <Filter>Code</Filter>
+    <ClInclude Include="src\Enums.h">
+      <Filter>Code\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Formatters.h">
-      <Filter>Code</Filter>
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Debug.h">
+      <Filter>Code\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\ToString.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Enums.h">
-      <Filter>Code</Filter>
+      <Filter>Code\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

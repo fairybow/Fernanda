@@ -48,7 +48,7 @@ private:
             &ColorBarModule::onWindowCreated_);
 
         connect(bus, &Bus::workspaceInitialized, this, [&] {
-            Util::timer(this, 1000, [&] { runAll_(ColorBar::Pastel); });
+            timer(this, 1000, [&] { runAll_(ColorBar::Pastel); });
         });
 
         connect(

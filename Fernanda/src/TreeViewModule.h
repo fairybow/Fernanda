@@ -118,7 +118,7 @@ private slots:
 
                 Coco::Path path{};
 
-                if (auto fs_model = Util::to<QFileSystemModel*>(model)) {
+                if (auto fs_model = cast<QFileSystemModel*>(model)) {
                     path = fs_model->filePath(index);
                 } // else if (auto archive_model = to<ArchiveModel*>(model))
                   // { path = archive_model->filePath(index);

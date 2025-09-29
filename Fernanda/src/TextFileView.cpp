@@ -24,7 +24,7 @@ QWidget* TextFileView::setupWidget()
 {
     editor_ = new QPlainTextEdit(this);
 
-    if (auto text_model = Util::to<TextFileModel*>(model()))
+    if (auto text_model = cast<TextFileModel*>(model()))
         editor_->setDocument(text_model->document());
 
     connect(editor_, &QPlainTextEdit::selectionChanged, this, [&] {
