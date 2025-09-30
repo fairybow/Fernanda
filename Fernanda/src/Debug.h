@@ -19,10 +19,13 @@
 #include <utility>
 
 #include <QDebug>
+#include <QFile>
+#include <QIODevice>
 #include <QLoggingCategory>
 #include <QMessageLogContext>
 #include <QObject>
 #include <QString>
+#include <QTextStream>
 #include <QtLogging>
 
 #include "Coco/Path.h"
@@ -35,11 +38,15 @@ namespace Fernanda::Debug {
 namespace Internal {
 
     constexpr auto TIMESTAMP_FORMAT = "{:%Y-%m-%d | %H:%M:%S}.{:03d}";
+    constexpr auto VOC_FORMAT = "In {}: {}";
     constexpr auto MSG_FORMAT = "{} | {} | {}";
 
     static std::atomic<bool> logging{ false };
+    //static std::atomic<bool> firstWrite{ true };
     static std::atomic<uint64_t> logCount{ 0 };
-    static std::mutex handlerMutex{};
+
+    static std::mutex mutex{};
+    //static Coco::Path logFilePath{};
     static QtMessageHandler qtHandler = nullptr;
 
     static std::string timestamp()
@@ -69,8 +76,26 @@ namespace Internal {
         QtMessageHandler qt_handler = nullptr;
 
         {
-            std::lock_guard<std::mutex> lock(handlerMutex);
+            std::lock_guard<std::mutex> lock(mutex);
             qt_handler = qtHandler;
+
+            /*if (!logFilePath.isEmpty()) {
+                auto expected = true;
+                auto truncate = firstWrite.compare_exchange_strong(
+                    expected,
+                    false,
+                    std::memory_order::relaxed);
+
+                auto mode = QIODevice::WriteOnly | QIODevice::Text;
+                mode |= truncate ? QIODevice::Truncate : QIODevice::Append;
+                QFile file(logFilePath.toQString());
+
+                if (file.open(mode)) {
+                    QTextStream stream(&file);
+                    stream << QString::fromUtf8(new_msg) << Qt::endl;
+                    file.close();
+                }
+            }*/
         }
 
         if (qt_handler) qt_handler(type, context, QString::fromUtf8(new_msg));
@@ -88,13 +113,13 @@ inline void setLogging(bool logging)
     Internal::logging.store(logging, std::memory_order::relaxed);
 }
 
-inline void initialize(bool logging, const Coco::Path& logFile = {})
+inline void initialize(bool logging, const Coco::Path& logFilePath = {})
 {
     setLogging(logging);
-    std::lock_guard<std::mutex> lock(Internal::handlerMutex);
-    Internal::qtHandler = qInstallMessageHandler(Internal::handler);
 
-    /// Set log file!
+    std::lock_guard<std::mutex> lock(Internal::mutex);
+    //Internal::logFilePath = logFilePath;
+    Internal::qtHandler = qInstallMessageHandler(Internal::handler);
 }
 
 struct Log
@@ -128,7 +153,7 @@ struct Log
         }
 
         if (obj) {
-            msg = std::format("In {}: {}", Fernanda::toString(obj), msg);
+            msg = std::format(Internal::VOC_FORMAT, Fernanda::toString(obj), msg);
         }
 
         Internal::handler(type, context, QString::fromUtf8(msg));
@@ -153,16 +178,3 @@ struct Log
 
 // Temp?
 #define TRACER INFO(__FUNCTION__)
-
-/// Old:
-
-// #include <QFile>
-// #include <QTextStream>
-// void logToFile(const QString& message) {
-//     QFile file("fernanda_appguard_debug.log");
-//     if (file.open(QIODevice::Append | QIODevice::Text)) {
-//         QTextStream out(&file);
-//         out << message << '\n';
-//         file.close();
-//     }
-// }

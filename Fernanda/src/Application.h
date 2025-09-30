@@ -52,7 +52,7 @@ public:
         setQuitOnLastWindowClosed(false);
 
         Coco::PathUtil::mkdir(userDataDirectory_);
-        Debug::initialize(true); // file later
+        Debug::initialize(true, userDataDirectory_ / "log.log");
 
         // auto args = arguments();
 
