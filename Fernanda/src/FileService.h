@@ -192,7 +192,7 @@ private:
         document->setPlainText(text);
         document->setModified(false); // Pretty important!
 
-        // Todo: Handle document is nullptr?
+        // TODO: Handle document is nullptr?
 
         return model;
     }

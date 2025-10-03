@@ -125,13 +125,13 @@
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
     </None>
-    <None Include="docs\Menu Audit.md">
+    <None Include="docs\TempTodos.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\Commander Audit.md">
+    <None Include="docs\TempMenuCommandReference.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\Todos.md">
+    <None Include="docs\StartupFlowchart.md">
       <Filter>Docs</Filter>
     </None>
   </ItemGroup>

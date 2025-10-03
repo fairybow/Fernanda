@@ -2,7 +2,7 @@
 
 #include "../src/Version.h"
 
-// Todo: - Language(s) in string description, instead of just English
+// TODO: - Language(s) in string description, instead of just English
 //       - Why isn't "beta.1" showing up for the "FileVersion"?
 
 // Icon

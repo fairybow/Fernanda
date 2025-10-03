@@ -25,7 +25,7 @@ namespace Commands {
     constexpr auto DELETE = "views:delete";
     constexpr auto SELECT_ALL = "views:select_all";
 
-    // Todo: Note why this is in Workspace and not WindowService!
+    // TODO: Note why this is in Workspace and not WindowService!
     constexpr auto NEW_WINDOW = "workspace:new_window";
     constexpr auto ABOUT_DIALOG = "workspace:about_dialog";
 
