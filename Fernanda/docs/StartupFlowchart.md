@@ -2,8 +2,7 @@
 
 ```mermaid
 flowchart TD
-    Start([Application Starts]) --> Main[main.cpp: Create Application]
-    Main --> StartCop{StartCop: Already running?}
+    Start([Application Starts]) --> StartCop{StartCop: Already running?}
     StartCop -->|Yes| SendArgs[Send args to existing instance]
     SendArgs --> Exit1([Exit])
 
