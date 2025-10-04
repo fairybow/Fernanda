@@ -10,8 +10,8 @@
 #pragma once
 
 #include <QApplication>
-#include <QStringList>
 #include <QSet>
+#include <QStringList>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -52,7 +52,7 @@ public:
         setQuitOnLastWindowClosed(false);
 
         Coco::PathUtil::mkdir(userDataDirectory_);
-        Debug::initialize(true, userDataDirectory_ / "log.log");
+        Debug::initialize(true); // Add file later
 
         // auto args = arguments();
 
@@ -70,7 +70,7 @@ public slots:
 
 private:
     Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
-    Coco::Path globalConfig_ = userDataDirectory_ / CONFIG_FILE_NAME;
+    Coco::Path globalConfig_ = userDataDirectory_ / Constants::CONFIG_FILE_NAME;
 
     Notepad* notepad_ = nullptr;
     QSet<Notebook*> notebooks_{};

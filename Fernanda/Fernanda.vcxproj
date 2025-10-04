@@ -35,6 +35,7 @@
     <None Include="docs\ComponentArchitecture.md" />
     <None Include="docs\StartupFlowchart.md" />
     <None Include="docs\TempMenuCommandReference.md" />
+    <None Include="docs\TempOldCommands.md" />
     <None Include="docs\TempTodos.md" />
     <None Include="docs\VSProjectSettings.md" />
     <None Include="resources\ui\TabWidgetButtonAdd.svg" />
@@ -75,6 +76,7 @@
     <QtMoc Include="src\NoOpFileModel.h" />
     <ClInclude Include="src\AboutDialog.h" />
     <QtMoc Include="src\FontSelector.h" />
+    <ClInclude Include="src\Commands.h" />
     <ClInclude Include="src\Ini.h" />
     <QtMoc Include="src\Notebook.h" />
     <QtMoc Include="src\Notepad.h" />

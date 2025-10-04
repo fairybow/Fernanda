@@ -33,6 +33,8 @@
 #include "Formatters.h"
 #include "ToString.h"
 
+// TODO: Log to file. Comment-out method is too slow. Need to maybe keep file
+// open the entire time, hold static QFile
 namespace Fernanda::Debug {
 
 namespace Internal {
@@ -42,11 +44,11 @@ namespace Internal {
     constexpr auto MSG_FORMAT = "{} | {} | {}";
 
     static std::atomic<bool> logging{ false };
-    //static std::atomic<bool> firstWrite{ true };
+    // static std::atomic<bool> firstWrite{ true };
     static std::atomic<uint64_t> logCount{ 0 };
 
     static std::mutex mutex{};
-    //static Coco::Path logFilePath{};
+    // static Coco::Path logFilePath{};
     static QtMessageHandler qtHandler = nullptr;
 
     static std::string timestamp()
@@ -118,7 +120,7 @@ inline void initialize(bool logging, const Coco::Path& logFilePath = {})
     setLogging(logging);
 
     std::lock_guard<std::mutex> lock(Internal::mutex);
-    //Internal::logFilePath = logFilePath;
+    // Internal::logFilePath = logFilePath;
     Internal::qtHandler = qInstallMessageHandler(Internal::handler);
 }
 
@@ -153,7 +155,8 @@ struct Log
         }
 
         if (obj) {
-            msg = std::format(Internal::VOC_FORMAT, Fernanda::toString(obj), msg);
+            msg =
+                std::format(Internal::VOC_FORMAT, Fernanda::toString(obj), msg);
         }
 
         Internal::handler(type, context, QString::fromUtf8(msg));
@@ -176,5 +179,5 @@ struct Log
 #define CRITICAL LOG(QtCriticalMsg)
 #define FATAL LOG(QtFatalMsg)
 
-// Temp?
+// Temp implementation?
 #define TRACER INFO(__FUNCTION__)

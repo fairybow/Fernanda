@@ -49,14 +49,14 @@
     <Filter Include="Translations">
       <UniqueIdentifier>{bbbe929e-1ae3-4343-bb09-41aed0f08c06}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Auxiliary\SettingsDialog">
-      <UniqueIdentifier>{f61f8d7e-472d-4a04-8fae-d2e55b150670}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Auxiliary\Modules">
       <UniqueIdentifier>{d156e859-f9aa-4d0f-af5c-f75aeff6edb0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Code\Auxiliary\Modules\Menus">
       <UniqueIdentifier>{c288fd8e-1a64-402c-8ff1-8132a5c162e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Auxiliary\Modules\Settings">
+      <UniqueIdentifier>{594b3725-78f6-41a0-844c-bcb5c0fc5aa5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -137,6 +137,9 @@
     <None Include="docs\ComponentArchitecture.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\TempOldCommands.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -214,15 +217,6 @@
     <QtMoc Include="src\Notebook.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
-    <QtMoc Include="src\SettingsDialog.h">
-      <Filter>Code\Auxiliary\SettingsDialog</Filter>
-    </QtMoc>
-    <QtMoc Include="src\FontSelector.h">
-      <Filter>Code\Auxiliary\SettingsDialog</Filter>
-    </QtMoc>
-    <QtMoc Include="src\DisplaySlider.h">
-      <Filter>Code\Auxiliary\SettingsDialog</Filter>
-    </QtMoc>
     <QtMoc Include="src\NotepadMenuModule.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </QtMoc>
@@ -238,14 +232,23 @@
     <QtMoc Include="src\ColorBarModule.h">
       <Filter>Code\Auxiliary\Modules</Filter>
     </QtMoc>
-    <QtMoc Include="src\SettingsModule.h">
-      <Filter>Code\Auxiliary\Modules</Filter>
-    </QtMoc>
     <QtMoc Include="src\TreeViewModule.h">
       <Filter>Code\Auxiliary\Modules</Filter>
     </QtMoc>
     <QtMoc Include="src\WordCounterModule.h">
       <Filter>Code\Auxiliary\Modules</Filter>
+    </QtMoc>
+    <QtMoc Include="src\SettingsModule.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\DisplaySlider.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FontSelector.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\SettingsDialog.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -334,6 +337,9 @@
       <Filter>Code\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\ToString.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Commands.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
   </ItemGroup>

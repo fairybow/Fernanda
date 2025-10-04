@@ -26,13 +26,6 @@
 #include "Debug.h"
 #include "Window.h"
 
-/// TODO (for registering handlers)
-/// - Make sure we aren't casting return values to QVar when registering (it
-/// isn't needed!)
-/// - Can we just return Coco::Path without QString conversion?
-/// - Check where we can remove Utility.h include (toQVariant unneeded)
-/// - Also check lambda args
-
 namespace Fernanda {
 
 class IFileModel;

@@ -32,6 +32,18 @@
 /// - Implement Notebook TreeView model
 /// - Implement model.xml
 /// - Implement .fnx
+/// - Log to file (commented-out method is too slow)
+/// 
+/// Clean-up:
+/// 
+/// - Clean includes (Commands were in Constants briefly)
+/// 
+/// Command handler registering sites:
+/// - Make sure we aren't casting return values to QVar when registering (it
+/// isn't needed!)
+/// - Can we just return Coco::Path without QString conversion?
+/// - Check where we can remove Utility.h include (toQVariant unneeded)
+/// - Also check lambda args
 
 int main(int argc, char* argv[])
 {
