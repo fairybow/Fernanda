@@ -49,9 +49,9 @@
 #include <QtTypes>
 
 #include "Coco/Concepts.h"
+#include "Coco/Debug.h" /// Move trivial class?
 #include "Coco/Layout.h"
 #include "Coco/Utility.h"
-#include "Coco/Debug.h" /// Move trivial class?
 
 #include "Debug.h"
 #include "TabWidgetButton.h"
@@ -72,7 +72,7 @@ public:
     explicit TabWidget(QWidget* parent = nullptr)
         : QWidget(parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~TabWidget() override { TRACER; }
@@ -126,7 +126,7 @@ private:
     TabWidgetUnderlay* underlay_ = new TabWidgetUnderlay(this);
     WidgetStack_* widgetStack_ = new WidgetStack_(this);
 
-    void initialize_()
+    void setup_()
     {
         // Setup
         setAcceptDrops(tabsDraggable_);

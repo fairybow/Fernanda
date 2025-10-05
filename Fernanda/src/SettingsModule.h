@@ -41,7 +41,7 @@ public:
         : IService(bus, parent)
         , baseConfigPath_(configPath)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~SettingsModule() override { TRACER; }
@@ -68,10 +68,7 @@ private:
     Settings* settings_ = nullptr;
     QPointer<SettingsDialog> dialog_ = nullptr;
 
-    void initialize_()
-    {
-        settings_ = new Settings(baseConfigPath_, this);
-    }
+    void setup_() { settings_ = new Settings(baseConfigPath_, this); }
 
     void openDialog_()
     {

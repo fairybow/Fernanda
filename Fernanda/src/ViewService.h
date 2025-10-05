@@ -52,7 +52,7 @@ public:
     ViewService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~ViewService() override { TRACER; }
@@ -73,7 +73,7 @@ private:
     QHash<IFileModel*, int> viewsPerModel_{};
     // ViewServiceCloseHelper* closeHelper_ = nullptr;
 
-    void initialize_()
+    void setup_()
     {
         // closeHelper_ = new ViewServiceCloseHelper(bus, this);
     }
@@ -208,9 +208,9 @@ private slots:
     {
         if (!model || !window) return;
 
-        //IFileView* view = nullptr;
+        // IFileView* view = nullptr;
 
-        //if (auto text_model = cast<TextFileModel*>(model)) {
+        // if (auto text_model = cast<TextFileModel*>(model)) {
 
         //    auto text_view = make_<TextFileView*>(text_model, window);
         //    auto font = bus->call<QFont>(
@@ -226,20 +226,20 @@ private slots:
         //    return;
         //}
 
-        //if (!view) return;
+        // if (!view) return;
         //++viewsPerModel_[model];
 
-        //auto tab_widget = Util::tabWidget(window);
-        //if (!tab_widget) return; // Delete view if this fails (shouldn't)?
+        // auto tab_widget = Util::tabWidget(window);
+        // if (!tab_widget) return; // Delete view if this fails (shouldn't)?
 
-        //auto meta = model->meta();
-        //if (!meta) return;
+        // auto meta = model->meta();
+        // if (!meta) return;
 
-        //auto index = tab_widget->addTab(view, meta->title());
-        //tab_widget->setTabFlagged(index, model->isModified());
-        //tab_widget->setTabToolTip(index, meta->toolTip());
-        //tab_widget->setCurrentIndex(index);
-        //view->setFocus();
+        // auto index = tab_widget->addTab(view, meta->title());
+        // tab_widget->setTabFlagged(index, model->isModified());
+        // tab_widget->setTabToolTip(index, meta->toolTip());
+        // tab_widget->setCurrentIndex(index);
+        // view->setFocus();
     }
 
     void onFileModificationChanged_(IFileModel* model, bool modified)
@@ -264,14 +264,14 @@ private slots:
     {
         if (!model) return;
 
-        //auto meta = model->meta();
-        //if (!meta) return;
+        // auto meta = model->meta();
+        // if (!meta) return;
 
         //// Find all tabs containing views of this model and update their
         //// text/tooltip
-        //for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
-        //    auto tab_widget = Util::tabWidget(window);
-        //    if (!tab_widget) continue;
+        // for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
+        //     auto tab_widget = Util::tabWidget(window);
+        //     if (!tab_widget) continue;
 
         //    for (auto i = 0; i < tab_widget->count(); ++i) {
         //        auto view = tab_widget->widgetAt<IFileView*>(i);

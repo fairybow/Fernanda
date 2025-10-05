@@ -37,7 +37,7 @@ public:
         : QObject(parent)
         , baseConfigPath_(baseConfigPath)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~Settings() override { TRACER; }
@@ -115,7 +115,7 @@ private:
     QSettings* baseSettings_;
     QSettings* overrideSettings_ = nullptr;
 
-    void initialize_()
+    void setup_()
     {
         if (baseConfigPath_.isEmpty()) {
             qWarning() << "Base config path cannot be empty!";

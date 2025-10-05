@@ -32,7 +32,7 @@ public:
     explicit DisplaySlider(QWidget* parent = nullptr)
         : QWidget(parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~DisplaySlider() override { TRACER; }
@@ -82,7 +82,7 @@ private:
     QSlider* slider_ = new QSlider(Qt::Horizontal, this);
     QLabel* display_ = new QLabel(this);
 
-    void initialize_()
+    void setup_()
     {
         // Setup
         slider_->setTickPosition(QSlider::NoTicks);

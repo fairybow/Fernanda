@@ -37,7 +37,7 @@ public:
         : QWidget(parent)
         , currentFont_(initialFont)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~FontSelector() override { TRACER; }
@@ -57,7 +57,7 @@ private:
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
 private:
-    void initialize_()
+    void setup_()
     {
         // Setup
         QFontDatabase db{};

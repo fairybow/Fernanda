@@ -62,7 +62,7 @@ public:
         : QWidget(parentWindow)
         , window_(parentWindow)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~ColorBar() override { TRACER; }
@@ -131,7 +131,7 @@ private:
     std::optional<QLinearGradient> redGradient_{};
     std::optional<QLinearGradient> pastelGradient_{};
 
-    void initialize_()
+    void setup_()
     {
         setFixedHeight(3);
         setAttribute(Qt::WA_TransparentForMouseEvents);

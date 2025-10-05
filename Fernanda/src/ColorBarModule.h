@@ -31,7 +31,7 @@ public:
     ColorBarModule(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~ColorBarModule() override { TRACER; }
@@ -50,7 +50,7 @@ protected:
 private:
     QHash<Window*, ColorBar*> colorBars_{};
 
-    void initialize_()
+    void setup_()
     {
         //...
     }

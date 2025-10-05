@@ -35,7 +35,7 @@ public:
     explicit TextFileModel(const Coco::Path& path, QObject* parent = nullptr)
         : IFileModel(path, parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~TextFileModel() override { TRACER; }
@@ -103,7 +103,7 @@ public:
 private:
     QTextDocument* document_ = new QTextDocument(this);
 
-    void initialize_()
+    void setup_()
     {
         auto layout = new QPlainTextDocumentLayout(document_);
         document_->setDocumentLayout(layout);

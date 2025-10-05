@@ -24,7 +24,7 @@
 
 namespace Fernanda {
 
-void Workspace::addCommandHandlers_()
+void Workspace::registerBusCommands_()
 {
     /*bus->addCommandHandler(Commands::NEW_WINDOW, [&] { newWindow_(); });
     bus->addCommandHandler(Commands::ABOUT_DIALOG, [] { AboutDialog::exec(); });*/

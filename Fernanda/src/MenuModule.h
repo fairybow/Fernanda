@@ -39,7 +39,7 @@ public:
     MenuModule(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~MenuModule() override = default;
@@ -139,7 +139,7 @@ protected:
     }*/
 
 private:
-    void initialize_()
+    void setup_()
     {
         //...
     }

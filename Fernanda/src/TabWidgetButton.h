@@ -37,7 +37,7 @@ public:
     explicit TabWidgetButton(QWidget* parent = nullptr)
         : QAbstractButton(parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~TabWidgetButton() override { TRACER; }
@@ -154,7 +154,7 @@ private:
     bool flagged_ = false;
     mutable QHash<QString, QPixmap> pixmapCache_{};
 
-    void initialize_()
+    void setup_()
     {
         setFocusPolicy(Qt::NoFocus);
         setAttribute(Qt::WA_Hover, true);

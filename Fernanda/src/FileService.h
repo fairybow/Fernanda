@@ -51,7 +51,7 @@ public:
     FileService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~FileService() override { TRACER; }
@@ -71,7 +71,7 @@ private:
     QHash<Coco::Path, IFileModel*> pathToFileModel_{};
     // FileServiceSaveHelper* saveHelper_ = nullptr;
 
-    void initialize_()
+    void setup_()
     {
         // saveHelper_ = new FileServiceSaveHelper(bus, pathToFileModel_, this);
     }

@@ -25,7 +25,7 @@
 
 namespace Fernanda {
 
-void Bus::initialize_()
+void Bus::setup_()
 {
     SIGLOG_(workspaceInitialized, [&] {});
     SIGLOG_(windowCreated, [&](Window* window) {});

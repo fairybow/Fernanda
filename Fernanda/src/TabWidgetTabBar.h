@@ -28,7 +28,7 @@ public:
     explicit TabWidgetTabBar(QWidget* parent = nullptr)
         : QTabBar(parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~TabWidgetTabBar() override { TRACER; }
@@ -71,7 +71,7 @@ private:
     int minimumTabWidth_ = 75;
     int maximumTabWidth_ = 75;
 
-    void initialize_()
+    void setup_()
     {
         setMovable(true);
         setAutoHide(false);

@@ -36,7 +36,7 @@ public:
     explicit TabWidgetUnderlay(QWidget* parent = nullptr)
         : QWidget(parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~TabWidgetUnderlay() override { TRACER; }
@@ -87,7 +87,7 @@ private:
     static constexpr auto MIN_PIXMAP_SIZE_ = 80;
     static constexpr auto MAX_PIXMAP_SIZE_ = 100;
 
-    void initialize_()
+    void setup_()
     {
         setAttribute(Qt::WA_StyledBackground);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

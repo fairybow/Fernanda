@@ -16,6 +16,8 @@
 #include "Version.h"
 
 /// Current goals:
+/// - Rename all initialize_ to setup_ and use initialize only for post-ctor
+/// init from outside
 /// - Comment-out Utility and see what's needed
 /// - Reimplement Commands
 /// - Consider if Command is Notebook- or Notepad-specific
@@ -33,11 +35,11 @@
 /// - Implement model.xml
 /// - Implement .fnx
 /// - Log to file (commented-out method is too slow)
-/// 
+///
 /// Clean-up:
-/// 
+///
 /// - Clean includes (Commands were in Constants briefly)
-/// 
+///
 /// Command handler registering sites:
 /// - Make sure we aren't casting return values to QVar when registering (it
 /// isn't needed!)

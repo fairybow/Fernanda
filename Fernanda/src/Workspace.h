@@ -45,7 +45,7 @@ public:
         : QObject(parent)
         , globalConfig_(globalConfig)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~Workspace() override = default;
@@ -80,7 +80,7 @@ private:
     TreeViewModule* treeViews_ = new TreeViewModule(bus, this);
     ColorBarModule* colorBars_ = new ColorBarModule(bus, this);
 
-    void initialize_()
+    void setup_()
     {
         settings = new SettingsModule(globalConfig_, bus, this);
 
@@ -94,18 +94,18 @@ private:
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
 
-        /// Re: this function: uh, weird thought--should Workspace ALSO be an
-        /// IService? Or possibly just providing Workspace protected virtuals
-        /// that register base Workspace commands/events and Notepad/Notebook
-        /// can override and add to that (modeled after IService)
-        addCommandHandlers_();
+        registerBusCommands_();
+        connectBusEvents_();
+    }
 
+    void registerBusCommands_();
+
+    void connectBusEvents_()
+    {
         /*connect(bus, &Bus::lastWindowClosed, this, [&] {
             emit lastWindowClosed();
         });*/
     }
-
-    void addCommandHandlers_();
 
     bool windowsCloseAcceptor_(Window* window)
     {

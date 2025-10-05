@@ -19,7 +19,7 @@
 
 namespace Fernanda {
 
-void WindowService::initialize_()
+void WindowService::setup_()
 {
     connect(
         app(),

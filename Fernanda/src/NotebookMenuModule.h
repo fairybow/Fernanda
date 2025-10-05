@@ -30,7 +30,7 @@ public:
     NotebookMenuModule(Bus* bus, QObject* parent = nullptr)
         : MenuModule(bus, parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~NotebookMenuModule() override { TRACER; }
@@ -102,7 +102,7 @@ private:
 
     QHash<Window*, Actions_> actions_{};
 
-    void initialize_()
+    void setup_()
     {
         //...
     }

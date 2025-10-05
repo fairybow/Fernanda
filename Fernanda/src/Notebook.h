@@ -43,7 +43,7 @@ public:
         , archivePath_(archivePath)
         , userDataDir_(userDataDir)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~Notebook() override { TRACER; }
@@ -62,7 +62,7 @@ private:
 
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
-    void initialize_()
+    void setup_()
     {
         name_ = archivePath_.stemQString();
 
@@ -73,23 +73,32 @@ private:
         // 3. Set settings override
         // settings->setOverrideConfigPath(root / Settings.ini);
 
+        registerBusCommands_();
+        connectBusEvents_();
+    }
+
+    void registerBusCommands_()
+    {
         /*bus->addCommandHandler(Cmd::NotebookRoot, [&] {
             return root_.toQString();
         });*/
 
-        //bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
-        //    /// createNewTextFile_(cmd.context); //<- Old (in FileService)
-        //    TRACER;
-        //    qDebug() << "Implement";
-        //});
+        // bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
+        //     /// createNewTextFile_(cmd.context); //<- Old (in FileService)
+        //     TRACER;
+        //     qDebug() << "Implement";
+        // });
 
-        //bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
-        //    // return makeTreeViewModel_();
-        //    TRACER;
-        //    qDebug() << "Implement";
-        //});
+        // bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
+        //     // return makeTreeViewModel_();
+        //     TRACER;
+        //     qDebug() << "Implement";
+        // });
+    }
 
-        //connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+    void connectBusEvents_()
+    {
+        // connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
     }
 
     //virtual QAbstractItemModel* makeTreeViewModel_() override

@@ -41,6 +41,8 @@ public:
 
     void initialize()
     {
+        if (initialized_) return;
+
         setOrganizationName(VERSION_AUTHOR_STRING);
         setOrganizationDomain(VERSION_DOMAIN);
         setApplicationName(VERSION_APP_NAME_STRING);
@@ -56,6 +58,8 @@ public:
 
         initializeNotepad_();
         // Any Notebooks needed via Session
+
+        initialized_ = true;
     }
 
 public slots:
@@ -65,6 +69,7 @@ public slots:
     }
 
 private:
+    bool initialized_ = false;
     Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
     Coco::Path globalConfig_ = userDataDirectory_ / Constants::CONFIG_FILE_NAME;
 

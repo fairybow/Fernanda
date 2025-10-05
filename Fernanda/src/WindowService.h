@@ -45,7 +45,7 @@ public:
     WindowService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~WindowService() override { TRACER; }
@@ -218,7 +218,7 @@ private:
         cyclingOrder_.clear();
     });
 
-    void initialize_();
+    void setup_();
     void bubbleDelay_(unsigned int msecs) const;
 
     // Note: Can be set to nullptr

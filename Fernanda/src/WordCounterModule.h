@@ -26,7 +26,7 @@ public:
     WordCounterModule(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~WordCounterModule() override { TRACER; }
@@ -43,7 +43,7 @@ protected:
     }
 
 private:
-    void initialize_()
+    void setup_()
     {
         //...
     }

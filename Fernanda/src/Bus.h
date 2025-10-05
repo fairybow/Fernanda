@@ -96,7 +96,7 @@ public:
     explicit Bus(QObject* parent = nullptr)
         : QObject(parent)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~Bus() override { TRACER; }
@@ -313,7 +313,7 @@ private:
     QHash<QString, std::function<QVariant(const Command&)>> commandHandlers_{};
     QHash<QString, QList<std::function<bool(const Command&)>>> interceptors_{};
 
-    void initialize_();
+    void setup_();
 
     [[nodiscard]] QVariant runCommand_(const QString& id, const Command& cmd)
     {

@@ -35,6 +35,7 @@ public:
         if (initialized_) return;
         registerBusCommands();
         connectBusEvents();
+        initialized_ = true;
     }
 
 protected:

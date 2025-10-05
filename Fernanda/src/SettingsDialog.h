@@ -36,7 +36,7 @@ public:
     explicit SettingsDialog(const QFont& initialFont, QWidget* parent = nullptr)
         : QDialog(parent)
     {
-        initialize_(initialFont);
+        setup_(initialFont);
     }
 
     virtual ~SettingsDialog() override { TRACER; }
@@ -73,7 +73,7 @@ private:
     Debouncer* fontDebouncer_ =
         new Debouncer(DEBOUCE_MS_, this, &SettingsDialog::onFontDebounce_);
 
-    void initialize_(const QFont& initialFont)
+    void setup_(const QFont& initialFont)
     {
         fontSelector_ = new FontSelector(initialFont, this);
         setModal(false);
