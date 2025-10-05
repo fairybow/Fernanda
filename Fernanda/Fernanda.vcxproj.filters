@@ -125,10 +125,10 @@
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
     </None>
-    <None Include="docs\TempTodos.md">
+    <None Include="docs\old_TempTodos.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\TempMenuCommandReference.md">
+    <None Include="docs\old_MenuCommandReference.md">
       <Filter>Docs</Filter>
     </None>
     <None Include="docs\StartupFlowchart.md">
@@ -137,7 +137,7 @@
     <None Include="docs\ComponentArchitecture.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\TempOldCommands.md">
+    <None Include="docs\old_TempCommandsReference.md">
       <Filter>Docs</Filter>
     </None>
     <None Include="docs\Roadmap.md">
