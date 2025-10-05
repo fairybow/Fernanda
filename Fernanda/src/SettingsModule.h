@@ -52,6 +52,17 @@ public:
         settings_->setOverride(configPath);
     }
 
+protected:
+    virtual void registerBusCommands() override
+    {
+        //...
+    }
+
+    virtual void connectBusEvents() override
+    {
+        //...
+    }
+
 private:
     Coco::Path baseConfigPath_;
     Settings* settings_ = nullptr;
@@ -60,25 +71,6 @@ private:
     void initialize_()
     {
         settings_ = new Settings(baseConfigPath_, this);
-
-        bus->addCommandHandler(Commands::SETTINGS_GET, [&](const Command& cmd) {
-            return settings_->value(
-                cmd.param<QString>("key"),
-                cmd.param("default"));
-        });
-
-        bus->addCommandHandler(Commands::SETTINGS_SET, [&](const Command& cmd) {
-            if (!settings_ || !settings_->isWritable()) return;
-            settings_->setValue(cmd.param<QString>("key"), cmd.param("value"));
-        });
-
-        bus->addCommandHandler(Commands::SETTINGS_DIALOG, [&] {
-            openDialog_();
-        });
-
-        connect(bus, &Bus::lastWindowClosed, this, [&] {
-            if (dialog_) dialog_->close();
-        });
     }
 
     void openDialog_()

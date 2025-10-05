@@ -30,8 +30,21 @@ public:
 
     virtual ~IService() = default;
 
+    void initialize()
+    {
+        if (initialized_) return;
+        registerBusCommands();
+        connectBusEvents();
+    }
+
 protected:
     Bus* bus;
+
+    virtual void registerBusCommands() = 0;
+    virtual void connectBusEvents() = 0;
+
+private:
+    bool initialized_ = false;
 };
 
 } // namespace Fernanda

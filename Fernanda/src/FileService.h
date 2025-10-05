@@ -56,6 +56,17 @@ public:
 
     virtual ~FileService() override { TRACER; }
 
+protected:
+    virtual void registerBusCommands() override
+    {
+        //...
+    }
+
+    virtual void connectBusEvents() override
+    {
+        //...
+    }
+
 private:
     QHash<Coco::Path, IFileModel*> pathToFileModel_{};
     // FileServiceSaveHelper* saveHelper_ = nullptr;
@@ -63,69 +74,6 @@ private:
     void initialize_()
     {
         // saveHelper_ = new FileServiceSaveHelper(bus, pathToFileModel_, this);
-
-        /*
-        * /// Move this:
-        bus->addCommandHandler(Cmd::OpenFile, [&](const Command& cmd) {
-            auto path = Coco::Path(to<QString>(cmd.params, "path"));
-            if (path.isEmpty() || !path.exists()) return;
-
-            // Check if model already exists for this path
-            if (auto existing_model = pathToFileModel_[path]) {
-                emit bus->fileReadied(existing_model, cmd.context);
-                return;
-            }
-
-            createExistingFile_(path, cmd.context);
-        });
-
-        bus->addCommandHandler(Cmd::NotepadSaveFile, [&](const Command& cmd) {
-            auto result = saveHelper_->saveAt(
-                cmd.context,
-                to<int>(cmd.params, "index", -1));
-            emit bus->windowSaveExecuted(cmd.context, result);
-            return result;
-        });
-
-        bus->addCommandHandler(Cmd::NotepadSaveFileAs, [&](const Command& cmd) {
-            auto result = saveHelper_->saveAsAt(
-                cmd.context,
-                to<int>(cmd.params, "index", -1));
-            emit bus->windowSaveExecuted(cmd.context, result);
-            return result;
-        });
-
-        bus->addCommandHandler(
-            Cmd::NotepadSaveIndexesInWindow,
-            [&](const Command& cmd) {
-                auto result = saveHelper_->saveIndexesInWindow(
-                    cmd.context,
-                    to<QList<int>>(cmd.params, "indexes"));
-                emit bus->windowSaveExecuted(
-                    cmd.context,
-                    result); // Right now, only planning to use these with
-                             // ColorBar, but may want to have a more specific
-                             // notification
-                return result;
-            });
-
-        bus->addCommandHandler(
-            Cmd::NotepadSaveWindowFile,
-            [&](const Command& cmd) {
-                auto result = saveHelper_->saveWindow(cmd.context);
-                emit bus->windowSaveExecuted(
-                    cmd.context,
-                    result); // Re: ColorBar
-                return result;
-            });
-
-        bus->addCommandHandler(Cmd::NotepadSaveAllFiles, [&] {
-            auto result = saveHelper_->saveAll();
-            emit bus->workspaceSaveExecuted(result); // Re: ColorBar
-            return result;
-        });*/
-
-        connect(bus, &Bus::viewClosed, this, &FileService::onViewClosed_);
     }
 
     void connectNewModel_(IFileModel* model)
@@ -206,7 +154,7 @@ private slots:
         auto meta = model->meta();
         if (!meta) return;
 
-        auto view_count = bus->call<int>(
+        /*auto view_count = bus->call<int>(
             Commands::MODEL_VIEWS_COUNT,
             { { "model", toQVariant(model) } });
 
@@ -217,7 +165,7 @@ private slots:
                 "Removed model for path: {}",
                 path.isEmpty() ? "N/A" : path.toString());
             delete model;
-        }
+        }*/
     }
 };
 

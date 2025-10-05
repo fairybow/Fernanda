@@ -36,32 +36,23 @@ public:
 
     virtual ~ColorBarModule() override { TRACER; }
 
+protected:
+    virtual void registerBusCommands() override
+    {
+        //...
+    }
+
+    virtual void connectBusEvents() override
+    {
+        //...
+    }
+
 private:
     QHash<Window*, ColorBar*> colorBars_{};
 
     void initialize_()
     {
-        connect(
-            bus,
-            &Bus::windowCreated,
-            this,
-            &ColorBarModule::onWindowCreated_);
-
-        connect(bus, &Bus::workspaceInitialized, this, [&] {
-            timer(this, 1000, [&] { runAll_(ColorBar::Pastel); });
-        });
-
-        connect(
-            bus,
-            &Bus::windowSaveExecuted,
-            this,
-            &ColorBarModule::onWindowSaveExecuted_);
-
-        connect(
-            bus,
-            &Bus::workspaceSaveExecuted,
-            this,
-            &ColorBarModule::onWorkspaceSaveExecuted_);
+        //...
     }
 
     void run_(Window* window, ColorBar::Color color) const

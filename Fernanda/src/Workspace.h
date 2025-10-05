@@ -83,13 +83,23 @@ private:
     void initialize_()
     {
         settings = new SettingsModule(globalConfig_, bus, this);
+
+        windows_->initialize();
+        views_->initialize();
+        files_->initialize();
+        treeViews_->initialize();
+        colorBars_->initialize();
+        settings->initialize();
+
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
+
+        /// Re: this function: uh, weird thought--should Workspace ALSO be an IService?
         addCommandHandlers_();
 
-        connect(bus, &Bus::lastWindowClosed, this, [&] {
+        /*connect(bus, &Bus::lastWindowClosed, this, [&] {
             emit lastWindowClosed();
-        });
+        });*/
     }
 
     void addCommandHandlers_();

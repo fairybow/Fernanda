@@ -31,6 +31,17 @@ public:
 
     virtual ~WordCounterModule() override { TRACER; }
 
+protected:
+    virtual void registerBusCommands() override
+    {
+        //...
+    }
+
+    virtual void connectBusEvents() override
+    {
+        //...
+    }
+
 private:
     void initialize_()
     {

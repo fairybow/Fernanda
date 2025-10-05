@@ -57,6 +57,17 @@ public:
 
     virtual ~ViewService() override { TRACER; }
 
+protected:
+    virtual void registerBusCommands() override
+    {
+        //...
+    }
+
+    virtual void connectBusEvents() override
+    {
+        //...
+    }
+
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
     QHash<IFileModel*, int> viewsPerModel_{};
@@ -65,169 +76,6 @@ private:
     void initialize_()
     {
         // closeHelper_ = new ViewServiceCloseHelper(bus, this);
-
-        bus->addCommandHandler(
-            Commands::MODEL_VIEWS_COUNT,
-            [&](const Command& cmd) {
-                if (auto model = cmd.param<IFileModel*>("model"))
-                    return viewsPerModel_[model];
-
-                return -1;
-            });
-
-        /// Ensure we pass -1 in menus if we want to do active view!
-
-        bus->addCommandHandler(Commands::UNDO, [&](const Command& cmd) {
-            undoAt_(cmd.context, cmd.param<int>("index"));
-        });
-
-        bus->addCommandHandler(Commands::REDO, [&](const Command& cmd) {
-            redoAt_(cmd.context, cmd.param<int>("index"));
-        });
-
-        bus->addCommandHandler(Commands::CUT, [&](const Command& cmd) {
-            cutAt_(cmd.context, cmd.param<int>("index"));
-        });
-
-        bus->addCommandHandler(Commands::COPY, [&](const Command& cmd) {
-            copyAt_(cmd.context, cmd.param<int>("index"));
-        });
-
-        bus->addCommandHandler(Commands::PASTE, [&](const Command& cmd) {
-            pasteAt_(cmd.context, cmd.param<int>("index"));
-        });
-
-        bus->addCommandHandler(Commands::DELETE, [&](const Command& cmd) {
-            deleteAt_(cmd.context, cmd.param<int>("index"));
-        });
-
-        bus->addCommandHandler(Commands::SELECT_ALL, [&](const Command& cmd) {
-            selectAllAt_(cmd.context, cmd.param<int>("index"));
-        });
-
-        /*bus->addCommandHandler(Cmd::CloseView, [&](const Command& cmd) {
-            return closeHelper_->closeAt(
-                cmd.context,
-                to<int>(cmd.params, "index", -1));
-        });
-
-        bus->addCommandHandler(Cmd::CloseWindowViews,
-            [&](const Command& cmd) {
-                return closeHelper_->closeAllInWindow(cmd.context);
-            });
-
-        bus->addCommandHandler(Cmd::CloseAllViews, [&] {
-            return closeHelper_->closeAll();
-        });
-
-        bus->addCommandHandler(Cmd::PreviousTab,
-            [&](const Command& cmd) {
-                if (cmd.context)
-                    if (auto tab_widget = tabWidget(cmd.context))
-                        tab_widget->activatePrevious();
-            });
-
-        bus->addCommandHandler(Cmd::NextTab,
-            [&](const Command& cmd) {
-                if (cmd.context)
-                    if (auto tab_widget = tabWidget(cmd.context))
-                        tab_widget->activateNext();
-            });
-
-        */
-
-        /*bus->addCommandHandler(Cids::ActiveFileView, [&](const Command& cmd) {
-            if (cmd.context)
-                if (auto active_view =
-                        activeFileViews_.value(cmd.context, nullptr))
-                    return active_view;
-
-            return nullptr;
-        });*/
-
-        /*
-        bus->addCommandHandler(
-            Cmd::WindowAnyViewsOnModifiedFiles,
-            [&](const QVariantMap& params) {
-                auto window = to<Window*>(params, "window");
-                if (!window) return false;
-
-                auto tab_widget = tabWidget(window);
-                if (!tab_widget) return false;
-
-                for (auto i = 0; i < tab_widget->count(); ++i) {
-                    auto model = modelAt(window, i);
-                    if (model && model->isModified()) return true;
-                }
-                return false;
-            });
-
-        bus->addCommandHandler(
-            Cmd::WindowAnyFiles,
-            [&](const QVariantMap& params) {
-                auto window = to<Window*>(params, "window");
-                if (!window) return false;
-
-                auto tab_widget = tabWidget(window);
-                return tab_widget ? tab_widget->count() > 0 : false;
-            });
-
-        bus->addCommandHandler(
-            Cmd::WorkspaceAnyViewsOnModifiedFiles,
-            [&] {
-            for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
-                if (bus->call<bool>(
-                            Cmd::WindowAnyViewsOnModifiedFiles,
-                            { { "window", toQVariant(window) } })) {
-                        return true;
-                    }
-                }
-                return false;
-            });
-
-        bus->addCommandHandler(Cmd::WorkspaceAnyFiles, [&] {
-            for (auto window : bus->call<QSet<Window*>>(Cmd::WindowSet)) {
-                if (bus->call<bool>(
-                        Cmd::WindowAnyFiles,
-                        { { "window", toQVariant(window) } })) {
-                    return true;
-                }
-            }
-            return false;
-        });*/
-
-        connect(bus, &Bus::windowCreated, this, &ViewService::onWindowCreated_);
-
-        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
-            activeFileViews_.remove(window);
-        });
-
-        connect(bus, &Bus::fileReadied, this, &ViewService::onFileReadied_);
-
-        connect(
-            bus,
-            &Bus::fileModificationChanged,
-            this,
-            &ViewService::onFileModificationChanged_);
-
-        connect(
-            bus,
-            &Bus::fileMetaChanged,
-            this,
-            &ViewService::onFileMetaChanged_);
-
-        connect(bus, &Bus::viewClosed, this, [&](IFileView* view) {
-            if (!view) return;
-            auto model = view->model();
-            if (!model) return;
-            --viewsPerModel_[model];
-        });
-
-        connect(
-            bus,
-            &Bus::settingChanged,
-            this,
-            &ViewService::onSettingChanged_);
     }
 
     // Active file view can be set nullptr!
@@ -360,38 +208,38 @@ private slots:
     {
         if (!model || !window) return;
 
-        IFileView* view = nullptr;
+        //IFileView* view = nullptr;
 
-        if (auto text_model = cast<TextFileModel*>(model)) {
+        //if (auto text_model = cast<TextFileModel*>(model)) {
 
-            auto text_view = make_<TextFileView*>(text_model, window);
-            auto font = bus->call<QFont>(
-                Commands::SETTINGS_GET,
-                { { "key", Ini::Editor::FONT_KEY },
-                  { "default", Ini::Editor::defaultFont() } });
-            text_view->setFont(font);
-            view = text_view;
+        //    auto text_view = make_<TextFileView*>(text_model, window);
+        //    auto font = bus->call<QFont>(
+        //        Commands::SETTINGS_GET,
+        //        { { "key", Ini::Editor::FONT_KEY },
+        //          { "default", Ini::Editor::defaultFont() } });
+        //    text_view->setFont(font);
+        //    view = text_view;
 
-        } else if (auto no_op_model = cast<NoOpFileModel*>(model)) {
-            view = make_<NoOpFileView*>(no_op_model, window);
-        } else {
-            return;
-        }
+        //} else if (auto no_op_model = cast<NoOpFileModel*>(model)) {
+        //    view = make_<NoOpFileView*>(no_op_model, window);
+        //} else {
+        //    return;
+        //}
 
-        if (!view) return;
-        ++viewsPerModel_[model];
+        //if (!view) return;
+        //++viewsPerModel_[model];
 
-        auto tab_widget = Util::tabWidget(window);
-        if (!tab_widget) return; // Delete view if this fails (shouldn't)?
+        //auto tab_widget = Util::tabWidget(window);
+        //if (!tab_widget) return; // Delete view if this fails (shouldn't)?
 
-        auto meta = model->meta();
-        if (!meta) return;
+        //auto meta = model->meta();
+        //if (!meta) return;
 
-        auto index = tab_widget->addTab(view, meta->title());
-        tab_widget->setTabFlagged(index, model->isModified());
-        tab_widget->setTabToolTip(index, meta->toolTip());
-        tab_widget->setCurrentIndex(index);
-        view->setFocus();
+        //auto index = tab_widget->addTab(view, meta->title());
+        //tab_widget->setTabFlagged(index, model->isModified());
+        //tab_widget->setTabToolTip(index, meta->toolTip());
+        //tab_widget->setCurrentIndex(index);
+        //view->setFocus();
     }
 
     void onFileModificationChanged_(IFileModel* model, bool modified)
@@ -399,7 +247,7 @@ private slots:
         if (!model) return;
 
         // Find all tabs containing views of this model
-        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
+        /*for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
             auto tab_widget = Util::tabWidget(window);
             if (!tab_widget) continue;
 
@@ -409,36 +257,36 @@ private slots:
                     tab_widget->setTabFlagged(i, modified);
                 }
             }
-        }
+        }*/
     }
 
     void onFileMetaChanged_(IFileModel* model)
     {
         if (!model) return;
 
-        auto meta = model->meta();
-        if (!meta) return;
+        //auto meta = model->meta();
+        //if (!meta) return;
 
-        // Find all tabs containing views of this model and update their
-        // text/tooltip
-        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
-            auto tab_widget = Util::tabWidget(window);
-            if (!tab_widget) continue;
+        //// Find all tabs containing views of this model and update their
+        //// text/tooltip
+        //for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
+        //    auto tab_widget = Util::tabWidget(window);
+        //    if (!tab_widget) continue;
 
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                auto view = tab_widget->widgetAt<IFileView*>(i);
-                if (view && view->model() == model) {
-                    tab_widget->setTabText(i, meta->title());
-                    tab_widget->setTabToolTip(i, meta->toolTip());
-                }
-            }
-        }
+        //    for (auto i = 0; i < tab_widget->count(); ++i) {
+        //        auto view = tab_widget->widgetAt<IFileView*>(i);
+        //        if (view && view->model() == model) {
+        //            tab_widget->setTabText(i, meta->title());
+        //            tab_widget->setTabToolTip(i, meta->toolTip());
+        //        }
+        //    }
+        //}
     }
 
     void onSettingChanged_(const QString& key, const QVariant& value)
     {
         // Gotta handle multiple for editor stuff
-        if (key != Ini::Editor::FONT_KEY) return;
+        /*if (key != Ini::Editor::FONT_KEY) return;
 
         auto font = to<QFont>(value);
 
@@ -449,7 +297,7 @@ private slots:
             for (auto i = 0; i < tab_widget->count(); ++i)
                 if (auto text_view = tab_widget->widgetAt<TextFileView*>(i))
                     text_view->setFont(font);
-        }
+        }*/
     }
 };
 

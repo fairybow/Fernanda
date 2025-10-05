@@ -26,8 +26,8 @@ namespace Fernanda {
 
 void Workspace::addCommandHandlers_()
 {
-    bus->addCommandHandler(Commands::NEW_WINDOW, [&] { newWindow_(); });
-    bus->addCommandHandler(Commands::ABOUT_DIALOG, [] { AboutDialog::exec(); });
+    /*bus->addCommandHandler(Commands::NEW_WINDOW, [&] { newWindow_(); });
+    bus->addCommandHandler(Commands::ABOUT_DIALOG, [] { AboutDialog::exec(); });*/
 }
 
 } // namespace Fernanda

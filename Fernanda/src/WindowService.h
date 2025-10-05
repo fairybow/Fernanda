@@ -173,6 +173,16 @@ public:
     }
 
 protected:
+    virtual void registerBusCommands() override
+    {
+        //...
+    }
+
+    virtual void connectBusEvents() override
+    {
+        //...
+    }
+
     virtual bool eventFilter(QObject* watched, QEvent* event) override
     {
         if (event->type() == QEvent::WindowActivate) {

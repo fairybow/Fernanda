@@ -77,19 +77,19 @@ private:
             return root_.toQString();
         });*/
 
-        bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
-            /// createNewTextFile_(cmd.context); //<- Old (in FileService)
-            TRACER;
-            qDebug() << "Implement";
-        });
+        //bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
+        //    /// createNewTextFile_(cmd.context); //<- Old (in FileService)
+        //    TRACER;
+        //    qDebug() << "Implement";
+        //});
 
-        bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
-            // return makeTreeViewModel_();
-            TRACER;
-            qDebug() << "Implement";
-        });
+        //bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
+        //    // return makeTreeViewModel_();
+        //    TRACER;
+        //    qDebug() << "Implement";
+        //});
 
-        connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+        //connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
     }
 
     //virtual QAbstractItemModel* makeTreeViewModel_() override

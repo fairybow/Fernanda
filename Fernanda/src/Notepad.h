@@ -88,20 +88,20 @@ private:
             return currentBaseDir_.toQString();
         });*/
 
-        bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
-            /// createNewTextFile_(cmd.context); //<- Old (in FileService)
-            TRACER;
-            qDebug() << "Implement";
-        });
+        //bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
+        //    /// createNewTextFile_(cmd.context); //<- Old (in FileService)
+        //    TRACER;
+        //    qDebug() << "Implement";
+        //});
 
-        bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
-            auto model = new QFileSystemModel(this);
-            auto root_index = model->setRootPath(currentBaseDir_.toQString());
-            TreeViewModule::saveModelRootIndex(model, root_index);
-            model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-            // Any other Notepad-specific model setup
-            return model;
-        });
+        //bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
+        //    auto model = new QFileSystemModel(this);
+        //    auto root_index = model->setRootPath(currentBaseDir_.toQString());
+        //    TreeViewModule::saveModelRootIndex(model, root_index);
+        //    model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+        //    // Any other Notepad-specific model setup
+        //    return model;
+        //});
     }
 };
 

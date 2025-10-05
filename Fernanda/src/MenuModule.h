@@ -45,6 +45,18 @@ public:
     virtual ~MenuModule() override = default;
 
 protected:
+    // TODO: How will this work with subclasses?
+    virtual void registerBusCommands() override
+    {
+        //...
+    }
+
+    // TODO: How will this work with subclasses?
+    virtual void connectBusEvents() override
+    {
+        //...
+    }
+
     struct BaseActions
     {
         QAction* fileNewTab = nullptr;
@@ -129,8 +141,6 @@ protected:
 private:
     void initialize_()
     {
-        connect(bus, &Bus::windowCreated, this, &MenuModule::onWindowCreated_);
-
         //...
     }
 

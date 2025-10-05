@@ -60,6 +60,17 @@ public:
         model->setProperty("root", index);
     }
 
+protected:
+    virtual void registerBusCommands() override
+    {
+        //...
+    }
+
+    virtual void connectBusEvents() override
+    {
+        //...
+    }
+
 private:
     // QHash<Window*, TreeView*> treeViews_{};
     // A set instead, perhaps, just for quick updates across all Workspace
@@ -67,11 +78,7 @@ private:
 
     void initialize_()
     {
-        connect(
-            bus,
-            &Bus::windowCreated,
-            this,
-            &TreeViewModule::onWindowCreated_);
+        //...
     }
 
 private slots:
@@ -82,70 +89,70 @@ private slots:
         // Break into multiple methods
 
         /// Set initial visibility and size based on settings later
-        auto dock_widget = new QDockWidget(window);
-        auto tree_view = new TreeView(dock_widget);
+        //auto dock_widget = new QDockWidget(window);
+        //auto tree_view = new TreeView(dock_widget);
 
-        if (auto model =
-                bus->call<QAbstractItemModel*>(PolyCmd::NEW_TREE_VIEW_MODEL)) {
-            tree_view->setModel(model);
-            if (auto root_index = modelRootIndex(model); root_index.isValid()) {
-                tree_view->setRootIndex(root_index);
-            }
-        }
+        //if (auto model =
+        //        bus->call<QAbstractItemModel*>(PolyCmd::NEW_TREE_VIEW_MODEL)) {
+        //    tree_view->setModel(model);
+        //    if (auto root_index = modelRootIndex(model); root_index.isValid()) {
+        //        tree_view->setRootIndex(root_index);
+        //    }
+        //}
 
-        dock_widget->setWidget(tree_view);
-        window->addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
+        //dock_widget->setWidget(tree_view);
+        //window->addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
 
-        window->resizeDocks(
-            { dock_widget },
-            { (window->width() / 3) },
-            Qt::Horizontal);
+        //window->resizeDocks(
+        //    { dock_widget },
+        //    { (window->width() / 3) },
+        //    Qt::Horizontal);
 
-        connect(
-            tree_view,
-            &TreeView::doubleClicked,
-            this,
-            [&, tree_view, window](const QModelIndex& index) {
-                auto model = tree_view->model();
-                if (!model) return;
+        //connect(
+        //    tree_view,
+        //    &TreeView::doubleClicked,
+        //    this,
+        //    [&, tree_view, window](const QModelIndex& index) {
+        //        auto model = tree_view->model();
+        //        if (!model) return;
 
-                Coco::Path path{};
+        //        Coco::Path path{};
 
-                if (auto fs_model = cast<QFileSystemModel*>(model)) {
-                    path = fs_model->filePath(index);
-                } // else if (auto archive_model = to<ArchiveModel*>(model))
-                  // { path = archive_model->filePath(index);
-                //}
+        //        if (auto fs_model = cast<QFileSystemModel*>(model)) {
+        //            path = fs_model->filePath(index);
+        //        } // else if (auto archive_model = to<ArchiveModel*>(model))
+        //          // { path = archive_model->filePath(index);
+        //        //}
 
-                if (!path.isEmpty()) {
-                    bus->execute(
-                        PolyCmd::OPEN_FILE,
-                        { { "path", path.toQString() } },
-                        window);
-                }
-            });
+        //        if (!path.isEmpty()) {
+        //            bus->execute(
+        //                PolyCmd::OPEN_FILE,
+        //                { { "path", path.toQString() } },
+        //                window);
+        //        }
+        //    });
 
-        /// Button
+        ///// Button
 
-        // Should always be created
-        if (auto status_bar = window->statusBar()) {
-            auto toggler = new QToolButton;
-            status_bar->addPermanentWidget(toggler);
-            connect(toggler, &QToolButton::pressed, this, [=] {
-                if (dock_widget->isFloating()) {
-                    dock_widget->setFloating(false);
-                } else {
-                    dock_widget->setVisible(!dock_widget->isVisible());
-                }
-            });
-        }
+        //// Should always be created
+        //if (auto status_bar = window->statusBar()) {
+        //    auto toggler = new QToolButton;
+        //    status_bar->addPermanentWidget(toggler);
+        //    connect(toggler, &QToolButton::pressed, this, [=] {
+        //        if (dock_widget->isFloating()) {
+        //            dock_widget->setFloating(false);
+        //        } else {
+        //            dock_widget->setVisible(!dock_widget->isVisible());
+        //        }
+        //    });
+        //}
 
-        /// Window clean up (maybe)
+        ///// Window clean up (maybe)
 
-        connect(window, &Window::destroyed, this, [=] {
-            if (!window) return;
-            // treeViews_.remove(window);
-        });
+        //connect(window, &Window::destroyed, this, [=] {
+        //    if (!window) return;
+        //    // treeViews_.remove(window);
+        //});
     }
 };
 
