@@ -10,8 +10,8 @@ flowchart TD
     InitApp --> InitNotepad["Initialize Notepad (no window yet)"]
     InitNotepad --> CheckArgs{"Check for path args:<br>- Notepad [.txt, ...]<br>- Notebook [.fnx]"}
 
-    CheckArgs -->|"Has [.txt, ...] only"| Args1
-    CheckArgs -->|"Has [.fnx] only"| Args2
-    CheckArgs -->|"Has both [.txt, ...] & [.fnx]"| Args3
-    CheckArgs -->|"Has no args"| Args4
+    CheckArgs -->|"[.txt, ...] only"| ArgsTxtOpenNotepad["Open Notepad with a tab for each [.txt, ...] path"]
+    CheckArgs -->|"[.fnx] only"| ArgsFnxOpenNotebook["Open Notebook for each [.fnx] path"]
+    CheckArgs -->|"Both [.txt, ...] & [.fnx]"| ArgsTxtFnxOpenNotepadNotebook["Open Notepad with a tab for each [.txt, ...] path & open Notebook for each [.fnx] path"]
+    CheckArgs -->|"Empty"| ArgsNoneOpenNotepad["Open Notepad with a tab for an empty, unsaved file"]
 ```
