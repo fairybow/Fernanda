@@ -33,8 +33,9 @@
 #include "Formatters.h"
 #include "ToString.h"
 
-// TODO: Log to file. Comment-out method is too slow. Need to maybe keep file
+// TODO: Log to file. Commented-out method is too slow. Need to maybe keep file
 // open the entire time, hold static QFile
+// TODO: Move Internal to .cpp
 namespace Fernanda::Debug {
 
 namespace Internal {

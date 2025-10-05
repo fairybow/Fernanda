@@ -8,14 +8,10 @@ flowchart TD
     StartCop -->|No| InitApp["Initialize Application (Called before Qt event loop)"]
 
     InitApp --> InitNotepad["Initialize Notepad (no window yet)"]
-    InitNotepad --> CheckForNotepadArgs{"Has Notepad path args (.txt, ...)?"}
-    InitNotepad --> CheckForNotebookArgs{"Has Notebook path args (.fnx)?"}
+    InitNotepad --> CheckArgs{"Check for path args:<br>- Notepad (.txt, ...)<br>- Notebook (.fnx)"}
 
-    CheckForNotepadArgs -->|Yes| A[...]
-    CheckForNotepadArgs -->|No| B[...]
-
-    CheckForNotebookArgs -->|Yes| C[...]
-    CheckForNotebookArgs -->|No| D[...]
-
-    %% Check for session for Notepad at some point and then also for each Notebook
+    CheckArgs -->|"(.txt, ...)?"| Args1
+    CheckArgs -->|"(.fnx)?"| Args2
+    CheckArgs -->|"(.txt, ...) && (.fnx)?"| Args3
+    CheckArgs -->|"No args?"| Args4
 ```

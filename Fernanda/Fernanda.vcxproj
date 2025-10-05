@@ -33,6 +33,7 @@
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
     <None Include="docs\ComponentArchitecture.md" />
+    <None Include="docs\Roadmap.md" />
     <None Include="docs\StartupFlowchart.md" />
     <None Include="docs\TempMenuCommandReference.md" />
     <None Include="docs\TempOldCommands.md" />
