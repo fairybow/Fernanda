@@ -94,7 +94,10 @@ private:
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
 
-        /// Re: this function: uh, weird thought--should Workspace ALSO be an IService?
+        /// Re: this function: uh, weird thought--should Workspace ALSO be an
+        /// IService? Or possibly just providing Workspace protected virtuals
+        /// that register base Workspace commands/events and Notepad/Notebook
+        /// can override and add to that (modeled after IService)
         addCommandHandlers_();
 
         /*connect(bus, &Bus::lastWindowClosed, this, [&] {
