@@ -27,10 +27,6 @@ namespace Fernanda {
 
 // Top-level application coordinator and entry point that creates and manages
 // Workspaces and handles application lifecycle
-//
-// Note: When no paths or previous sessions (future) are provided to Fernanda on
-// opening, it will open a blank Notepad; otherwise, it will open the correct
-// workspaces for the paths, Notepad and/or Notebook(s)
 class Application : public QApplication
 {
     Q_OBJECT
