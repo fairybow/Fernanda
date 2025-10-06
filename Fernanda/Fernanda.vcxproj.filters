@@ -143,6 +143,12 @@
     <None Include="docs\Roadmap.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\Menus.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\Bus.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">

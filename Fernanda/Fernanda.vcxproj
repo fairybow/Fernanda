@@ -32,7 +32,9 @@
     <None Include="..\.gitignore" />
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
+    <None Include="docs\Bus.md" />
     <None Include="docs\ComponentArchitecture.md" />
+    <None Include="docs\Menus.md" />
     <None Include="docs\Roadmap.md" />
     <None Include="docs\StartupFlowchart.md" />
     <None Include="docs\old_MenuCommandReference.md" />

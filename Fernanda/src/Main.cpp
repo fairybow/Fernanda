@@ -16,8 +16,8 @@
 #include "Version.h"
 
 /// Current goals:
-/// - Rename all initialize_ to setup_ and use initialize only for post-ctor
-/// init from outside
+/// - May not want Notepad/NotebookMenuModule subclasses (but need a logical way
+/// to inject the per-subclass menu items in each one's menu
 /// - Comment-out Utility and see what's needed
 /// - Reimplement Commands
 /// - Consider if Command is Notebook- or Notepad-specific
