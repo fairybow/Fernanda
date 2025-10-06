@@ -16,6 +16,8 @@
 #include "Version.h"
 
 /// Current goals:
+/// - Add menu item summaries
+/// - Open Notepad and Notebook window for testing side by side
 /// - May not want Notepad/NotebookMenuModule subclasses (but need a logical way
 /// to inject the per-subclass menu items in each one's menu
 /// - Comment-out Utility and see what's needed
