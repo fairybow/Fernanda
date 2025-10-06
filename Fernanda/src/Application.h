@@ -43,19 +43,11 @@ public:
     {
         if (initialized_) return;
 
-        setOrganizationName(VERSION_AUTHOR_STRING);
-        setOrganizationDomain(VERSION_DOMAIN);
-        setApplicationName(VERSION_APP_NAME_STRING);
-        setApplicationVersion(VERSION_FULL_STRING);
-        setQuitOnLastWindowClosed(false);
-
-        Coco::PathUtil::mkdir(userDataDirectory_);
-        Debug::initialize(true); // Add file later
-
+        setApplicationProperties_();
+        setup_();
+        // Eventually, get args + session info
         // auto args = arguments();
-
         // Make session objects
-
         initializeNotepad_();
         // Any Notebooks needed via Session
 
@@ -76,6 +68,21 @@ private:
     Notepad* notepad_ = nullptr;
     QSet<Notebook*> notebooks_{};
 
+    void setApplicationProperties_()
+    {
+        setOrganizationName(VERSION_AUTHOR_STRING);
+        setOrganizationDomain(VERSION_DOMAIN);
+        setApplicationName(VERSION_APP_NAME_STRING);
+        setApplicationVersion(VERSION_FULL_STRING);
+        setQuitOnLastWindowClosed(false);
+    }
+
+    void setup_() const
+    {
+        Coco::PathUtil::mkdir(userDataDirectory_);
+        Debug::initialize(true); // Add file later (in user data)
+    }
+
     void initializeNotepad_()
     {
         // Temporary opening procedures:
@@ -86,6 +93,7 @@ private:
 
         // Will only open new window if: 1) there is no Notebook from sessions;
         // 2) there is no Notepad window from sessions
+        // TODO: Move this to initialize()?
         notepad_->open(NewWindow::Yes);
     }
 

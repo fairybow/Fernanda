@@ -7,7 +7,7 @@
 
 ### Stretch
 
-...
+- [ ] Translations (FR, DE, ES)
 
 ## Future
 

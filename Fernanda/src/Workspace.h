@@ -58,6 +58,8 @@ public:
 
     void open(NewWindow withWindow = NewWindow::No)
     {
+        // ... Path args?
+
         if (withWindow) newWindow_();
         emit bus->workspaceInitialized();
     }

@@ -156,8 +156,7 @@ struct Log
         }
 
         if (obj) {
-            msg =
-                std::format(Internal::VOC_FORMAT, Fernanda::toString(obj), msg);
+            msg = std::format(Internal::VOC_FORMAT, toString(obj), msg);
         }
 
         Internal::handler(type, context, QString::fromUtf8(msg));
