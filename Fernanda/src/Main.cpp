@@ -16,10 +16,11 @@
 #include "Version.h"
 
 /// Current goals:
+/// - Base MenuModule has protected menuActions struct member. It can initialize
+/// all shared items that all Workspaces will use. However, each subclass can
+/// just build its own menus with some base class utility functions?
 /// - Add menu item summaries
 /// - Open Notepad and Notebook window for testing side by side
-/// - May not want Notepad/NotebookMenuModule subclasses (but need a logical way
-/// to inject the per-subclass menu items in each one's menu
 /// - Comment-out Utility and see what's needed
 /// - Reimplement Commands
 /// - Consider if Command is Notebook- or Notepad-specific
@@ -41,6 +42,7 @@
 /// Clean-up:
 ///
 /// - Clean includes (Commands were in Constants briefly)
+/// - Check license statements
 ///
 /// Command handler registering sites:
 /// - Make sure we aren't casting return values to QVar when registering (it

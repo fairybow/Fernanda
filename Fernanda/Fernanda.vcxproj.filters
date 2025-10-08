@@ -351,6 +351,9 @@
     <ClInclude Include="src\Commands.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\MenuActions.h">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">

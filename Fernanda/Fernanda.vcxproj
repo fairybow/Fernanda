@@ -85,6 +85,7 @@
     <QtMoc Include="src\Notepad.h" />
     <QtMoc Include="src\NotebookMenuModule.h" />
     <QtMoc Include="src\NotepadMenuModule.h" />
+    <ClInclude Include="src\MenuActions.h" />
     <ClInclude Include="src\SavePrompt.h" />
     <QtMoc Include="src\Settings.h" />
     <QtMoc Include="src\SettingsDialog.h" />
