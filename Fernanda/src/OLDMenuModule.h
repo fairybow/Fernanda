@@ -35,38 +35,10 @@ namespace Fernanda {
 // actions through the Commander
 class MenuModule : public IService
 {
-    Q_OBJECT
-
-public:
-    MenuModule(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
-    {
-        setup_();
-    }
-
-    virtual ~MenuModule() override = default;
+    //ctor etc
 
 protected:
-
-    /// Overload with QVariantMap as 3rd arg?
-    QAction* make(
-        Window* window,
-        const QString& commandId,
-        const QString& text,
-        const QKeySequence& keySequence = {},
-        AutoRepeat autoRepeat = AutoRepeat::No)
-    {
-        if (!window) return nullptr;
-
-        auto action = new QAction(text, window);
-        connect(action, &QAction::triggered, window, [=] {
-            bus->execute(commandId, window); /// Pass args tho!
-        });
-        action->setShortcut(keySequence);
-        action->setAutoRepeat(autoRepeat);
-
-        return action;
-    }
+    // make function
 
 private:
     void setup_()

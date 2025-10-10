@@ -90,9 +90,12 @@ namespace Tr {
         TR_(settings, tr("Settings"));
         TR_(help, tr("Help"));
 
+        TR_(fileNewWindow, tr("New window"));
+
+        /// Remove these once above is implemented
         namespace Common {
 
-            TR_(fileNewTab, tr("New tab"));
+            /*TR_(fileNewTab, tr("New tab"));
             TR_(fileNewWindow, tr("New window"));
             TR_(fileNewNotebook, tr("New notebook"));
 
@@ -120,29 +123,29 @@ namespace Tr {
             TR_(viewPreviousWindow, tr("Previous window"));
             TR_(viewNextWindow, tr("Next window"));
 
-            TR_(helpAbout, tr("About"));
+            TR_(helpAbout, tr("About"));*/
 
         } // namespace Common
 
         namespace Notepad {
 
-            TR_(fileOpenFile, tr("Open..."));
+            /*TR_(fileOpenFile, tr("Open..."));
 
             TR_(fileSaveFile, tr("Save"));
             TR_(fileSaveFileAs, tr("Save as..."));
             TR_(fileSaveAllFilesInWindow, tr("Save all in window"));
-            TR_(fileSaveAllFiles, tr("Save all"));
+            TR_(fileSaveAllFiles, tr("Save all"));*/
 
         } // namespace Notepad
 
         namespace Notebook {
 
-            TR_(fileImportFile, tr("Import..."));
+            /*TR_(fileImportFile, tr("Import..."));
             TR_(fileOpenNotepad, tr("Open notepad"));
 
             TR_(fileSaveArchive, tr("Save"));
             TR_(fileSaveArchiveAs, tr("Save as..."));
-            TR_(fileExportFile, tr("Export..."));
+            TR_(fileExportFile, tr("Export..."));*/
 
         } // namespace Notebook
 
