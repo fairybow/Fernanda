@@ -7,6 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
+/*
 #pragma once
 
 #include <QAction>
@@ -23,6 +24,7 @@
 #include "Bus.h"
 #include "Constants.h"
 #include "IService.h"
+#include "MenuActions.h"
 #include "Tr.h"
 #include "Window.h"
 
@@ -45,60 +47,8 @@ public:
     virtual ~MenuModule() override = default;
 
 protected:
-    // TODO: How will this work with subclasses?
-    virtual void registerBusCommands() override
-    {
-        //...
-    }
 
-    // TODO: How will this work with subclasses?
-    virtual void connectBusEvents() override
-    {
-        //...
-    }
-
-    struct BaseActions
-    {
-        QAction* fileNewTab = nullptr;
-        QAction* fileNewWindow = nullptr;
-        QAction* fileNewNotebook = nullptr;
-
-        QAction* fileOpenNotebook = nullptr;
-
-        QAction* fileCloseWindow = nullptr;
-        QAction* fileCloseAllWindows = nullptr;
-
-        QAction* fileQuit = nullptr;
-
-        QAction* settings = nullptr;
-
-        QAction* helpAbout = nullptr;
-
-        struct Toggles
-        {
-            QAction* fileCloseTab = nullptr;
-            QAction* fileCloseAllTabsInWindow = nullptr;
-            QAction* fileCloseAllTabs = nullptr;
-
-            QAction* editUndo = nullptr;
-            QAction* editRedo = nullptr;
-            QAction* editCut = nullptr;
-            QAction* editCopy = nullptr;
-            QAction* editPaste = nullptr;
-            QAction* editDelete = nullptr;
-            QAction* editSelectAll = nullptr;
-
-            QAction* viewPreviousTab = nullptr;
-            QAction* viewNextTab = nullptr;
-            QAction* viewPreviousWindow = nullptr;
-            QAction* viewNextWindow = nullptr;
-        } toggles;
-    };
-
-    QHash<Window*, BaseActions> baseActions{};
-
-    COCO_BOOL(AutoRepeat);
-
+    /// Overload with QVariantMap as 3rd arg?
     QAction* make(
         Window* window,
         const QString& commandId,
@@ -118,224 +68,200 @@ protected:
         return action;
     }
 
-    virtual void initializeWorkspaceActions_(Window* window) = 0;
-
-    [[nodiscard]]
-    virtual bool addWorkspaceFileOpenActions_(QMenu* fileMenu, Window* window)
-    {
-        return false;
-    }
-
-    [[nodiscard]]
-    virtual bool addWorkspaceFileSaveActions_(QMenu* fileMenu, Window* window)
-    {
-        return false;
-    }
-
-    /*[[nodiscard]]
-    virtual bool addWorkspaceMiscFileActions_(QMenu* fileMenu, Window* window)
-    {
-        return false;
-    }*/
-
 private:
     void setup_()
     {
         //...
+
+        /// Connect to Bus window created and initialize base actions for the
+        /// window?
     }
 
     void initializeBaseActions_(Window* window)
     {
         if (!window) return;
-        BaseActions actions{};
+        // BaseActions actions{};
 
-        /// Add commands but reimplement them one at a time
+        ///// Add commands but reimplement them one at a time
 
-        // File/New
-        actions.fileNewTab = make(window, "", Tr::Menus::Common::fileNewTab());
-        actions.fileNewWindow =
-            make(window, "", Tr::Menus::Common::fileNewWindow());
-        actions.fileNewNotebook =
-            make(window, "", Tr::Menus::Common::fileNewNotebook());
+        //// File/New
+        // actions.fileNewTab = make(window, "",
+        // Tr::Menus::Common::fileNewTab()); actions.fileNewWindow =
+        //     make(window, "", Tr::Menus::Common::fileNewWindow());
+        // actions.fileNewNotebook =
+        //     make(window, "", Tr::Menus::Common::fileNewNotebook());
 
-        // File/Open
-        actions.fileOpenNotebook =
-            make(window, "", Tr::Menus::Common::fileOpenNotebook());
+        //// File/Open
+        // actions.fileOpenNotebook =
+        //     make(window, "", Tr::Menus::Common::fileOpenNotebook());
 
-        // File/Close
-        actions.toggles.fileCloseTab =
-            make(window, "", Tr::Menus::Common::fileCloseTab());
-        actions.toggles.fileCloseAllTabsInWindow =
-            make(window, "", Tr::Menus::Common::fileCloseAllTabsInWindow());
-        actions.toggles.fileCloseAllTabs =
-            make(window, "", Tr::Menus::Common::fileCloseAllTabs());
-        actions.fileCloseWindow =
-            make(window, "", Tr::Menus::Common::fileCloseWindow());
-        actions.fileCloseAllWindows =
-            make(window, "", Tr::Menus::Common::fileCloseAllWindows());
+        //// File/Close
+        // actions.toggles.fileCloseTab =
+        //     make(window, "", Tr::Menus::Common::fileCloseTab());
+        // actions.toggles.fileCloseAllTabsInWindow =
+        //     make(window, "", Tr::Menus::Common::fileCloseAllTabsInWindow());
+        // actions.toggles.fileCloseAllTabs =
+        //     make(window, "", Tr::Menus::Common::fileCloseAllTabs());
+        // actions.fileCloseWindow =
+        //     make(window, "", Tr::Menus::Common::fileCloseWindow());
+        // actions.fileCloseAllWindows =
+        //     make(window, "", Tr::Menus::Common::fileCloseAllWindows());
 
-        // File/Quit
-        actions.fileQuit = make(window, "", Tr::Menus::Common::fileQuit());
+        //// File/Quit
+        // actions.fileQuit = make(window, "", Tr::Menus::Common::fileQuit());
 
-        // Edit
-        actions.toggles.editUndo =
-            make(window, "", Tr::Menus::Common::editUndo());
-        actions.toggles.editRedo =
-            make(window, "", Tr::Menus::Common::editRedo());
-        actions.toggles.editCut =
-            make(window, "", Tr::Menus::Common::editCut());
-        actions.toggles.editCopy =
-            make(window, "", Tr::Menus::Common::editCopy());
-        actions.toggles.editPaste =
-            make(window, "", Tr::Menus::Common::editPaste());
-        actions.toggles.editDelete =
-            make(window, "", Tr::Menus::Common::editDelete());
-        actions.toggles.editSelectAll =
-            make(window, "", Tr::Menus::Common::editSelectAll());
+        //// Edit
+        // actions.toggles.editUndo =
+        //     make(window, "", Tr::Menus::Common::editUndo());
+        // actions.toggles.editRedo =
+        //     make(window, "", Tr::Menus::Common::editRedo());
+        // actions.toggles.editCut =
+        //     make(window, "", Tr::Menus::Common::editCut());
+        // actions.toggles.editCopy =
+        //     make(window, "", Tr::Menus::Common::editCopy());
+        // actions.toggles.editPaste =
+        //     make(window, "", Tr::Menus::Common::editPaste());
+        // actions.toggles.editDelete =
+        //     make(window, "", Tr::Menus::Common::editDelete());
+        // actions.toggles.editSelectAll =
+        //     make(window, "", Tr::Menus::Common::editSelectAll());
 
-        // View
-        actions.toggles.viewPreviousTab =
-            make(window, "", Tr::Menus::Common::viewPreviousTab());
-        actions.toggles.viewNextTab =
-            make(window, "", Tr::Menus::Common::viewNextTab());
-        actions.toggles.viewPreviousWindow =
-            make(window, "", Tr::Menus::Common::viewPreviousWindow());
-        actions.toggles.viewNextWindow =
-            make(window, "", Tr::Menus::Common::viewNextWindow());
+        //// View
+        // actions.toggles.viewPreviousTab =
+        //     make(window, "", Tr::Menus::Common::viewPreviousTab());
+        // actions.toggles.viewNextTab =
+        //     make(window, "", Tr::Menus::Common::viewNextTab());
+        // actions.toggles.viewPreviousWindow =
+        //     make(window, "", Tr::Menus::Common::viewPreviousWindow());
+        // actions.toggles.viewNextWindow =
+        //     make(window, "", Tr::Menus::Common::viewNextWindow());
 
-        // Settings
-        actions.settings = make(window, "", Tr::Menus::settings());
+        //// Settings
+        // actions.settings = make(window, "", Tr::Menus::settings());
 
-        // Help
-        actions.helpAbout = make(window, "", Tr::Menus::Common::helpAbout());
+        //// Help
+        // actions.helpAbout = make(window, "", Tr::Menus::Common::helpAbout());
 
-        baseActions[window] = actions;
-        // setInitialToggleStates_(window);
+        // baseActions[window] = actions;
+        //  setInitialToggleStates_(window);
     }
 
-    void setupMenuBar_(Window* window)
-    {
-        if (!window) return;
-        auto& actions = baseActions[window];
-        auto menu_bar = new QMenuBar(window);
-
-        setupFileMenu_(window, menu_bar);
-        setupEditMenu_(window, menu_bar);
-        setupViewMenu_(window, menu_bar);
-        setupSettingsMenu_(window, menu_bar);
-        setupHelpMenu_(window, menu_bar);
-
-        window->setMenuBar(menu_bar);
-    }
-
-    void setupFileMenu_(Window* window, QMenuBar* menuBar)
-    {
-        if (!window || !menuBar) return;
-        auto& actions = baseActions[window];
-
-        auto file_menu = new QMenu(Tr::Menus::file(), menuBar);
-
-        // New
-        file_menu->addAction(actions.fileNewTab);
-        file_menu->addAction(actions.fileNewWindow);
-        file_menu->addAction(actions.fileNewNotebook);
-        file_menu->addSeparator();
-
-        // Open
-        file_menu->addAction(actions.fileOpenNotebook);
-        if (addWorkspaceFileOpenActions_(file_menu, window))
-            file_menu->addSeparator();
-
-        // Save
-        if (addWorkspaceFileSaveActions_(file_menu, window))
-            file_menu->addSeparator();
-
-        // Close
-        file_menu->addAction(actions.toggles.fileCloseTab);
-        file_menu->addAction(actions.toggles.fileCloseAllTabsInWindow);
-        file_menu->addAction(actions.toggles.fileCloseAllTabs);
-        file_menu->addSeparator();
-        file_menu->addAction(actions.fileCloseWindow);
-        file_menu->addAction(actions.fileCloseAllWindows);
-        file_menu->addSeparator();
-
-        // Misc
-        // if (addWorkspaceMiscFileActions_(file_menu, window))
-        // file_menu->addSeparator();
-
-        // Quit
-        file_menu->addAction(actions.fileQuit);
-        menuBar->addMenu(file_menu);
-    }
-
-    void setupEditMenu_(Window* window, QMenuBar* menuBar)
-    {
-        if (!window || !menuBar) return;
-        auto& actions = baseActions[window];
-
-        auto edit_menu = new QMenu(Tr::Menus::edit(), menuBar);
-        edit_menu->addAction(actions.toggles.editUndo);
-        edit_menu->addAction(actions.toggles.editRedo);
-        edit_menu->addSeparator();
-
-        edit_menu->addAction(actions.toggles.editCut);
-        edit_menu->addAction(actions.toggles.editCopy);
-        edit_menu->addAction(actions.toggles.editPaste);
-        edit_menu->addAction(actions.toggles.editDelete);
-        edit_menu->addSeparator();
-
-        edit_menu->addAction(actions.toggles.editSelectAll);
-        menuBar->addMenu(edit_menu);
-    }
-
-    void setupViewMenu_(Window* window, QMenuBar* menuBar)
-    {
-        if (!window || !menuBar) return;
-        auto& actions = baseActions[window];
-
-        auto view_menu = new QMenu(Tr::Menus::view(), menuBar);
-        view_menu->addAction(actions.toggles.viewPreviousTab);
-        view_menu->addAction(actions.toggles.viewNextTab);
-        view_menu->addSeparator();
-
-        view_menu->addAction(actions.toggles.viewPreviousWindow);
-        view_menu->addAction(actions.toggles.viewNextWindow);
-        menuBar->addMenu(view_menu);
-    }
-
-    void setupSettingsMenu_(Window* window, QMenuBar* menuBar)
-    {
-        if (!window || !menuBar) return;
-        auto& actions = baseActions[window];
-
-        menuBar->addAction(actions.settings);
-    }
-
-    void setupHelpMenu_(Window* window, QMenuBar* menuBar)
-    {
-        if (!window || !menuBar) return;
-        auto& actions = baseActions[window];
-
-        auto help_menu = new QMenu(Tr::Menus::help(), menuBar);
-        help_menu->addAction(actions.helpAbout);
-        menuBar->addMenu(help_menu);
-    }
-
-private slots:
-    void onWindowCreated_(Window* window)
-    {
-        if (!window) return;
-        initializeBaseActions_(window);
-        initializeWorkspaceActions_(window);
-        setupMenuBar_(window);
-    }
+    /// This could be the pure virtual?
+    void setupMenuBar_(Window* window);
 };
 
 } // namespace Fernanda
 
 /// OLD (Remove later):
 
-/*
+void setupMenuBar_(Window* window)
+{
+    if (!window) return;
+    auto& actions = baseActions[window];
+    auto menu_bar = new QMenuBar(window);
+
+    setupFileMenu_(window, menu_bar);
+    setupEditMenu_(window, menu_bar);
+    setupViewMenu_(window, menu_bar);
+    setupSettingsMenu_(window, menu_bar);
+    setupHelpMenu_(window, menu_bar);
+
+    window->setMenuBar(menu_bar);
+}
+
+void setupFileMenu_(Window* window, QMenuBar* menuBar)
+{
+    if (!window || !menuBar) return;
+    auto& actions = baseActions[window];
+
+    auto file_menu = new QMenu(Tr::Menus::file(), menuBar);
+
+    // New
+    file_menu->addAction(actions.fileNewTab);
+    file_menu->addAction(actions.fileNewWindow);
+    file_menu->addAction(actions.fileNewNotebook);
+    file_menu->addSeparator();
+
+    // Open
+    file_menu->addAction(actions.fileOpenNotebook);
+    if (addWorkspaceFileOpenActions_(file_menu, window))
+        file_menu->addSeparator();
+
+    // Save
+    if (addWorkspaceFileSaveActions_(file_menu, window))
+        file_menu->addSeparator();
+
+    // Close
+    file_menu->addAction(actions.toggles.fileCloseTab);
+    file_menu->addAction(actions.toggles.fileCloseAllTabsInWindow);
+    file_menu->addAction(actions.toggles.fileCloseAllTabs);
+    file_menu->addSeparator();
+    file_menu->addAction(actions.fileCloseWindow);
+    file_menu->addAction(actions.fileCloseAllWindows);
+    file_menu->addSeparator();
+
+    // Misc
+    // if (addWorkspaceMiscFileActions_(file_menu, window))
+    // file_menu->addSeparator();
+
+    // Quit
+    file_menu->addAction(actions.fileQuit);
+    menuBar->addMenu(file_menu);
+}
+
+void setupEditMenu_(Window* window, QMenuBar* menuBar)
+{
+    if (!window || !menuBar) return;
+    auto& actions = baseActions[window];
+
+    auto edit_menu = new QMenu(Tr::Menus::edit(), menuBar);
+    edit_menu->addAction(actions.toggles.editUndo);
+    edit_menu->addAction(actions.toggles.editRedo);
+    edit_menu->addSeparator();
+
+    edit_menu->addAction(actions.toggles.editCut);
+    edit_menu->addAction(actions.toggles.editCopy);
+    edit_menu->addAction(actions.toggles.editPaste);
+    edit_menu->addAction(actions.toggles.editDelete);
+    edit_menu->addSeparator();
+
+    edit_menu->addAction(actions.toggles.editSelectAll);
+    menuBar->addMenu(edit_menu);
+}
+
+void setupViewMenu_(Window* window, QMenuBar* menuBar)
+{
+    if (!window || !menuBar) return;
+    auto& actions = baseActions[window];
+
+    auto view_menu = new QMenu(Tr::Menus::view(), menuBar);
+    view_menu->addAction(actions.toggles.viewPreviousTab);
+    view_menu->addAction(actions.toggles.viewNextTab);
+    view_menu->addSeparator();
+
+    view_menu->addAction(actions.toggles.viewPreviousWindow);
+    view_menu->addAction(actions.toggles.viewNextWindow);
+    menuBar->addMenu(view_menu);
+}
+
+void setupSettingsMenu_(Window* window, QMenuBar* menuBar)
+{
+    if (!window || !menuBar) return;
+    auto& actions = baseActions[window];
+
+    menuBar->addAction(actions.settings);
+}
+
+void setupHelpMenu_(Window* window, QMenuBar* menuBar)
+{
+    if (!window || !menuBar) return;
+    auto& actions = baseActions[window];
+
+    auto help_menu = new QMenu(Tr::Menus::help(), menuBar);
+    help_menu->addAction(actions.helpAbout);
+    menuBar->addMenu(help_menu);
+}
+
 #pragma once
 
 #include <QAction>
@@ -435,25 +361,7 @@ private:
 
     void initialize_()
     {
-        connect(
-            eventBus,
-            &EventBus::windowCreated,
-            this,
-            &OLDMenuModule::onWindowCreated_);
-
-        connect(
-            eventBus,
-            &EventBus::windowDestroyed,
-            this,
-            [&](Window* window) {
-                windowActions_.remove(window);
-
-                if (auto cx = activeTabConnections_.take(window);
-                    !cx.isEmpty()) {
-                    for (auto& connection : cx)
-                        disconnect(connection);
-                }
-            });
+        // connected window created and window destroyed
 
         connect(
             eventBus,
@@ -869,12 +777,7 @@ private:
     }
 
 private slots:
-    void onWindowCreated_(Window* window)
-    {
-        if (!window) return;
-        initializeActions_(window);
-        setupMenuBar_(window);
-    }
+    // on window created
 
     void onFileModificationChanged_(IFileModel* model, bool modified)
     {

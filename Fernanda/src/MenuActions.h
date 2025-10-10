@@ -13,7 +13,7 @@
 
 namespace Fernanda {
 
-struct MenuActions
+struct CommonMenuActions
 {
     struct File
     {
@@ -21,18 +21,6 @@ struct MenuActions
         QAction* newWindow = nullptr;
         QAction* newNotebook = nullptr;
         QAction* openNotebook = nullptr;
-        QAction* notepadOpenFile = nullptr;
-        QAction* notebookImportFile = nullptr;
-        QAction* notebookOpenNotepad = nullptr;
-
-        QAction* notepadSave = nullptr;
-        QAction* notepadSaveAs = nullptr;
-        QAction* notepadSaveAll = nullptr;
-        QAction* notepadSaveAllInWindow = nullptr;
-
-        QAction* notebookSave = nullptr;
-        QAction* notebookSaveAs = nullptr;
-        QAction* notebookExportFile = nullptr;
 
         QAction* closeTab = nullptr;
         QAction* closeAllTabsInWindow = nullptr;
@@ -58,6 +46,36 @@ struct MenuActions
     {
         QAction* about = nullptr;
     } help;
+};
+
+struct NotepadMenuActions
+{
+    CommonMenuActions common{};
+
+    struct File
+    {
+        QAction* openFile = nullptr;
+
+        QAction* save = nullptr;
+        QAction* saveAs = nullptr;
+        QAction* saveAll = nullptr;
+        QAction* saveAllInWindow = nullptr;
+    } file;
+};
+
+struct NotebookMenuActions
+{
+    CommonMenuActions common{};
+
+    struct File
+    {
+        QAction* importFile = nullptr;
+        QAction* openNotepad = nullptr;
+
+        QAction* save = nullptr;
+        QAction* saveAs = nullptr;
+        QAction* exportFile = nullptr;
+    } file;
 };
 
 } // namespace Fernanda

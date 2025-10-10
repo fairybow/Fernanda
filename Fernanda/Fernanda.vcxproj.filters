@@ -229,12 +229,6 @@
     <QtMoc Include="src\NotepadMenuModule.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </QtMoc>
-    <QtMoc Include="src\NotebookMenuModule.h">
-      <Filter>Code\Auxiliary\Modules\Menus</Filter>
-    </QtMoc>
-    <QtMoc Include="src\MenuModule.h">
-      <Filter>Code\Auxiliary\Modules\Menus</Filter>
-    </QtMoc>
     <QtMoc Include="src\Bus.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
@@ -258,6 +252,9 @@
     </QtMoc>
     <QtMoc Include="src\SettingsDialog.h">
       <Filter>Code\Auxiliary\Modules\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\NotebookMenuModule.h">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -352,6 +349,12 @@
       <Filter>Code\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\MenuActions.h">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OLDMenuModule.h">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Menus.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </ClInclude>
   </ItemGroup>

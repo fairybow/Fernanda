@@ -43,6 +43,8 @@
 ///
 /// - Clean includes (Commands were in Constants briefly)
 /// - Check license statements
+/// - For Bus, ensure we use the windowDestroyed signal and don't connect to
+/// window destroyed signals inside our onWindowCreated functions...
 ///
 /// Command handler registering sites:
 /// - Make sure we aren't casting return values to QVar when registering (it

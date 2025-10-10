@@ -83,13 +83,14 @@
     <ClInclude Include="src\Ini.h" />
     <QtMoc Include="src\Notebook.h" />
     <QtMoc Include="src\Notepad.h" />
-    <QtMoc Include="src\NotebookMenuModule.h" />
     <QtMoc Include="src\NotepadMenuModule.h" />
     <ClInclude Include="src\MenuActions.h" />
+    <ClInclude Include="src\Menus.h" />
+    <QtMoc Include="src\NotebookMenuModule.h" />
     <ClInclude Include="src\SavePrompt.h" />
     <QtMoc Include="src\Settings.h" />
     <QtMoc Include="src\SettingsDialog.h" />
-    <QtMoc Include="src\MenuModule.h" />
+    <ClInclude Include="src\OLDMenuModule.h" />
     <ClInclude Include="src\Formatters.h" />
     <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Tr.h" />

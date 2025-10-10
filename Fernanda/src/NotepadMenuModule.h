@@ -17,95 +17,124 @@
 #include "Bus.h"
 #include "Constants.h"
 #include "Debug.h"
-#include "MenuModule.h"
+#include "IService.h"
+#include "MenuActions.h"
+#include "Menus.h"
 
 namespace Fernanda {
 
 // ...
-class NotepadMenuModule : public MenuModule
+class NotepadMenuModule : public IService
 {
     Q_OBJECT
 
 public:
     NotepadMenuModule(Bus* bus, QObject* parent = nullptr)
-        : MenuModule(bus, parent)
+        : IService(bus, parent)
     {
-        setup_();
+        // setup_();
     }
 
     virtual ~NotepadMenuModule() override { TRACER; }
 
 protected:
-    virtual void initializeWorkspaceActions_(Window* window) override
+    virtual void registerBusCommands() override {}
+
+    virtual void connectBusEvents() override
     {
-        if (!window) return;
-        Actions_ actions{};
+        connect(
+            bus,
+            &Bus::windowCreated,
+            this,
+            &NotepadMenuModule::onWindowCreated_);
 
-        /// Add commands but reimplement them one at a time
+        connect(bus, &Bus::windowDestroyed,
+            this,
+            [&](Window* window) {
 
-        // File/Open
-        actions.fileOpenFile =
-            make(window, "", Tr::Menus::Notepad::fileOpenFile());
+                // common vvv ?
+            actions_.remove(window);
 
-        // File/Save
-        actions.toggles.fileSaveFile =
-            make(window, "", Tr::Menus::Notepad::fileSaveFile());
-        actions.toggles.fileSaveFileAs =
-            make(window, "", Tr::Menus::Notepad::fileSaveFileAs());
-        actions.toggles.fileSaveAllFilesInWindow =
-            make(window, "", Tr::Menus::Notepad::fileSaveAllFilesInWindow());
-        actions.toggles.fileSaveAllFiles =
-            make(window, "", Tr::Menus::Notepad::fileSaveAllFiles());
-
-        actions_[window] = actions;
-        // setInitialToggleStates_(window);
-    }
-
-    [[nodiscard]]
-    virtual bool
-    addWorkspaceFileOpenActions_(QMenu* fileMenu, Window* window) override
-    {
-        if (!fileMenu || !window) return false;
-        auto& actions = actions_[window];
-
-        fileMenu->addAction(actions.fileOpenFile);
-        return true;
-    }
-
-    [[nodiscard]]
-    virtual bool
-    addWorkspaceFileSaveActions_(QMenu* fileMenu, Window* window) override
-    {
-        if (!fileMenu || !window) return false;
-        auto& actions = actions_[window];
-
-        fileMenu->addAction(actions.toggles.fileSaveFile);
-        fileMenu->addAction(actions.toggles.fileSaveFileAs);
-        fileMenu->addAction(actions.toggles.fileSaveAllFilesInWindow);
-        fileMenu->addAction(actions.toggles.fileSaveAllFiles);
-        return true;
+                /*if (auto cx = activeTabConnections_.take(window);
+                    !cx.isEmpty()) {
+                    for (auto& connection : cx)
+                        disconnect(connection);
+                }*/
+            });
     }
 
 private:
-    struct Actions_
+    QHash<Window*, NotepadMenuActions> actions_{};
+
+private slots:
+    void onWindowCreated_(Window* window)
     {
-        QAction* fileOpenFile = nullptr;
+        if (!window) return;
 
-        struct Toggles
-        {
-            QAction* fileSaveFile = nullptr;
-            QAction* fileSaveFileAs = nullptr;
-            QAction* fileSaveAllFilesInWindow = nullptr;
-            QAction* fileSaveAllFiles = nullptr;
-        } toggles;
-    };
+        NotepadMenuActions actions{};
+        Menus::initializeCommonActions(bus, window, actions.common);
+        // Init notepad actions
+        // Setup menu bar and add it to window
 
-    QHash<Window*, Actions_> actions_{};
-
-    void setup_()
-    {
-        //...
+        // Old:
+        //initializeActions_(window); // common?
+        //setupMenuBar_(window); // common?
     }
 };
 
 } // namespace Fernanda
+
+/// OLD (Remove later):
+
+/*
+protected:
+virtual void initializeWorkspaceActions_(Window* window) override
+{
+    if (!window) return;
+    Actions_ actions{};
+
+    /// Add commands but reimplement them one at a time
+
+    // File/Open
+    actions.fileOpenFile =
+        make(window, "", Tr::Menus::Notepad::fileOpenFile());
+
+    // File/Save
+    actions.toggles.fileSaveFile =
+        make(window, "", Tr::Menus::Notepad::fileSaveFile());
+    actions.toggles.fileSaveFileAs =
+        make(window, "", Tr::Menus::Notepad::fileSaveFileAs());
+    actions.toggles.fileSaveAllFilesInWindow =
+        make(window, "", Tr::Menus::Notepad::fileSaveAllFilesInWindow());
+    actions.toggles.fileSaveAllFiles =
+        make(window, "", Tr::Menus::Notepad::fileSaveAllFiles());
+
+    actions_[window] = actions;
+    // setInitialToggleStates_(window);
+}
+
+[[nodiscard]]
+virtual bool
+addWorkspaceFileOpenActions_(QMenu* fileMenu, Window* window) override
+{
+    if (!fileMenu || !window) return false;
+    auto& actions = actions_[window];
+
+    fileMenu->addAction(actions.fileOpenFile);
+    return true;
+}
+
+[[nodiscard]]
+virtual bool
+addWorkspaceFileSaveActions_(QMenu* fileMenu, Window* window) override
+{
+    if (!fileMenu || !window) return false;
+    auto& actions = actions_[window];
+
+    fileMenu->addAction(actions.toggles.fileSaveFile);
+    fileMenu->addAction(actions.toggles.fileSaveFileAs);
+    fileMenu->addAction(actions.toggles.fileSaveAllFilesInWindow);
+    fileMenu->addAction(actions.toggles.fileSaveAllFiles);
+    return true;
+}
+*/
