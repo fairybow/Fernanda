@@ -16,6 +16,23 @@ New notebook                                workspace:new_notebook
 Open notebook                               workspace:open_notebook
 ```
 
+**New tab:**
+
+- In Notepad: Opens a new tab (a new view on a new, off-disk file model).
+- In Notebook: Adds a new empty file to the archive's temporary extraction folder, adds it to the Model.xml file, refreshes the tree view, and opens a new tab (a new view on a new on-disk file model for the aforementioned new file).
+
+**New window:**
+
+Opens a new window.
+
+**New notebook:**
+
+Opens a file dialog for Notebook creation, then opens the new Notebook.
+
+**Open notebook:**
+
+Opens a file dialog for existing Notebook selection, then opens the selected Notebook.
+
 ```
 [Save section is per subclass]
 ```
