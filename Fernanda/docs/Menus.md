@@ -86,6 +86,8 @@ Delete                      Del             views:delete                     [To
 Select all                  Ctrl+A          views:select_all                 [Toggle]
 ```
 
+Toggle conditions here are based on the active file in the window.
+
 ### Settings
 
 ```
@@ -103,26 +105,71 @@ About                                       workspace:about_dialog
 ### File
 
 ```
-Open File...                Ctrl+E          notepad:open_file
+Open file...                Ctrl+E          notepad:open_file
 -------------------------------------------
 Save                        Ctrl+S          notepad:save_file                [Toggle]
-Save As...                  Ctrl+Alt+S      notepad:save_file_as             [Toggle]
-Save All in Window                          notepad:save_all_in_window       [Toggle]
-Save All                    Ctrl+Shift+S    notepad:save_all                 [Toggle]
+Save as...                  Ctrl+Alt+S      notepad:save_file_as             [Toggle]
+Save all in window                          notepad:save_all_in_window       [Toggle]
+Save all                    Ctrl+Shift+S    notepad:save_all                 [Toggle]
 ```
+
+**Open file...:**
+
+- Opens a file dialog and opens a new tab for each selected file.
+
+**Save (toggle):**
+
+- If file is on disk, saves to its current path. If file is not on disk, opens a save dialog first (like Save As).
+- Toggle condition: Current file is savable and modified.
+
+**Save as... (toggle):**
+
+- Opens a save dialog, saves file to selected path, and updates the file's path.
+- Toggle condition: Current file is savable.
+
+**Save all in window (toggle):**
+
+- Saves all modified files in the current window. For any files not on disk, opens save dialogs.
+- Toggle condition: Window has any modified files.
+
+**Save all (toggle):**
+
+- Saves all modified files across all Notepad windows. For any files not on disk, opens save dialogs.
+- Toggle condition: Workspace has any modified files.
 
 ## Notebook
 
 ### File
 
 ```
-Import File...                              notebook:import_file
-Open Notepad                                notebook:open_notepad
+Import file...                              notebook:import_file
+Open notepad                                notebook:open_notepad
 -------------------------------------------
 Save                        Ctrl+S          notebook:save_archive            [Toggle]
-Save As...                  Ctrl+Alt+S      notebook:save_archive_as
-Export File...                              notebook:export_file
+Save as...                  Ctrl+Alt+S      notebook:save_archive_as
+Export file...                              notebook:export_file
 ```
+
+**Import file...:**
+
+- Opens a file dialog, copies selected file(s) to the archive's temp extraction directory, updates the model, and marks archive as modified.
+
+**Open Notepad:**
+
+- Activates the top-most existing Notepad window if present or creates a new one.
+
+**Save (toggle):**
+
+- Copies the archive's extraction directory to the archive.
+- Toggle condition: Archive modification changes.
+
+**Save As...:**
+
+- Opens a save dialog, copies the archive's extraction directory to a new archive path, and updates the workspace's archive path.
+
+**Export file...:**
+
+- Opens a save dialog and copies the currently active file to the selected OS location.
 
 ## Future Menu Items
 
