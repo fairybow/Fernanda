@@ -27,7 +27,7 @@ namespace Fernanda {
 
 void Bus::setup_()
 {
-    SIGLOG_(workspaceInitialized, [&] {});
+    /*SIGLOG_(workspaceInitialized, [&] {});
     SIGLOG_(windowCreated, [&](Window* window) {});
     SIGLOG_(visibleWindowCountChanged, [&](int count) {});
     SIGLOG_(lastWindowClosed, [&] {});
@@ -60,7 +60,7 @@ void Bus::setup_()
         INFO("Active view for {} = {}", window, view);
     });
     SIGLOG_(viewClosed, [&](IFileView* view) {});
-    SIGLOG_(settingChanged, [&](const QString& key, const QVariant& value) {});
+    SIGLOG_(settingChanged, [&](const QString& key, const QVariant& value) {});*/
 }
 
 } // namespace Fernanda

@@ -60,6 +60,8 @@ Poly commands are registered per Workspace type (Notepad or Notebook) but called
 
 - `dialog`: Opens a non-modal Settings dialog, or raises/activates it if already open.
 
-## Events
+## Events (Signals)
+
+Can be connected to and emitted by Services.
 
 ...

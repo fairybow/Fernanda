@@ -16,17 +16,15 @@
 #include "Version.h"
 
 /// Current goals:
-/// - Base MenuModule has protected menuActions struct member. It can initialize
-/// all shared items that all Workspaces will use. However, each subclass can
-/// just build its own menus with some base class utility functions?
-/// - Add menu item summaries
-/// - Open Notepad and Notebook window for testing side by side
+/// - Implement menu commands
+/// - Document utility commands (like windowsReversed, etc)
+/// - Redo Bus signals (events)
 /// - Comment-out Utility and see what's needed
 /// - Reimplement Commands
-/// - Consider if Command is Notebook- or Notepad-specific
-/// - Take NewTab and NewTreeViewModel: need to be same command (with different
-/// implementation), CANNOT have separate namespaces, because users of those
-/// commands don't know or care about workspace type
+/// - Consider if Command is Notebook- or Notepad-specific, like NewTab and
+/// NewTreeViewModel: need to be same command (with different implementation),
+/// CANNOT have separate namespaces, because users of those commands don't know
+/// or care about workspace type
 /// - Clean-up: ensure all command handler registrations use "param" instead of
 /// "to"
 /// - Plan handling of NewTab, FileSave, FileClose, and similar
