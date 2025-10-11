@@ -14,9 +14,18 @@ New window                  Ctrl+W          workspace:new_window
 -------------------------------------------
 New notebook                                workspace:new_notebook
 Open notebook                               workspace:open_notebook
+-------------------------------------------
+[Save section is per subclass]
+-------------------------------------------
+Close tab                                   poly:close_tab                   [Toggle]
+Close all tabs in window                    poly:close_all_tabs_in_window    [Toggle]
+-------------------------------------------
+Close window                                workspace:close_window
+-------------------------------------------
+Quit                        Ctrl+Q          application:quit
 ```
 
-**New tab:**
+**New tab (poly):**
 
 - In Notepad: Opens a new tab (a new view on a new, off-disk file model).
 - In Notebook: Adds a new empty file to the archive's temporary extraction folder, adds it to the Model.xml file, refreshes the tree view, and opens a new tab (a new view on a new on-disk file model for the aforementioned new file).
@@ -33,20 +42,29 @@ Open notebook                               workspace:open_notebook
 
 - Opens a file dialog for existing Notebook selection, then opens the selected Notebook.
 
-```
-[Save section is per subclass]
-```
+**Close tab (poly, toggle):**
 
-`Close window` will likely utilize `Close all tabs in window`.
+- In Notepad: ...
+- In Notebook: ...
+- Toggle condition: ...
 
-```
-Close tab                                   poly:close_tab                   [Toggle]
-Close all tabs in window                    poly:close_all_tabs_in_window    [Toggle]
--------------------------------------------
-Close window                                workspace:close_window
--------------------------------------------
-Quit                        Ctrl+Q          application:quit
-```
+**Close all tabs in window (poly, toggle):**
+
+- In Notepad: ...
+- In Notebook: ...
+- Toggle condition: ...
+
+**Close window:**
+
+- ...
+
+**Quit:**
+
+- ...
+
+**Notes:**
+
+- `Close window` will likely utilize `Close all tabs in window`.
 
 ### Edit
 
