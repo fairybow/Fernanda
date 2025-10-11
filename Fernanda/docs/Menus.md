@@ -1,7 +1,5 @@
 # Menus
 
-TODO: Add description of each item.
-
 TODO: Ensure we describe poly commands in command doc
 
 ## Common
