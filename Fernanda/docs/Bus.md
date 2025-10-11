@@ -11,8 +11,8 @@ Commands are formatted as `scope:action`.
 ### `workspace`
 
 - `new_window`: Creates and shows a new window in the current workspace.
-- `new_notebook`: Opens a file dialog to create a new Notebook archive (.fnx), then opens it as a new Notebook workspace.
-- `open_notebook`: Opens a file dialog to select an existing Notebook archive (.fnx), then opens it as a new Notebook workspace.
+- `new_notebook`: Opens a file dialog to create a new Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
+- `open_notebook`: Opens a file dialog to select an existing Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
 - `close_window`: Closes the specified window after running the workspace's close acceptor (which typically handles closing all tabs and save prompts).
 - `about_dialog`: Displays an application-modal About dialog with version info and links.
 
@@ -20,25 +20,31 @@ Commands are formatted as `scope:action`.
 
 Poly commands are registered per Workspace type (Notepad or Notebook) but called from Services or Modules that are Workspace agnostic.
 
-- `new_tab`: Creates a new tab with workspace-specific behavior (new off-disk file in Notepad; new archive file in Notebook).
-- `close_tab`: Closes the current tab, with workspace-specific save prompting (prompts in Notepad if modified and last view; no prompt in Notebook).
-- `close_all_tabs_in_window`: Closes all tabs in the current window, with workspace-specific save handling (may prompt in Notepad; no prompt in Notebook unless last window).
+- `new_tab`: Creates a new tab with workspace-specific behavior.
+    - **Notepad**: Opens a new tab (a new view on a new, off-disk file model).
+    - **Notebook**: Adds a new empty file to the archive's temporary extraction folder, adds it to the Model.xml file, refreshes the tree view, and opens a new tab (a new view on a new on-disk file model for the new file).
+- `close_tab`: Closes the current tab with workspace-specific save handling.
+    - **Notepad**: Checks if the model has views in other windows. If yes, just closes this view. If this is the last view on the model and the model is modified, prompts to save. On save/discard, closes the view and emits `viewClosed`. FileService cleans up the model when view count reaches zero.
+    - **Notebook**: Closes the view without prompting. If this was the last view on the model, changes remain in the temp file and the archive stays marked as modified. FileService cleans up the model when view count reaches zero.
+- `close_all_tabs_in_window`: Closes all tabs in the current window with workspace-specific save handling.
+    - **Notepad**: Iterates backward through tabs. Builds a list of unique modified models that only have views in this window (skips models with views in other windows). If the list is not empty, shows multi-file save prompt with checkboxes. User can save selected files, discard all, or cancel. If cancel, aborts. Otherwise, saves chosen files, then closes all views and emits events for each.
+    - **Notebook**: Simply closes all views without prompting. Changes remain in temp files, archive stays marked as modified if applicable.
 
 ### `notepad`
 
-- `open_file`
-- `save_file`
-- `save_file_as`
-- `save_all_in_window`
-- `save_all`
+- `open_file` - Opens a file dialog to select and open file(s), creating a new tab for each.
+- `save_file` - Saves current file to its path (or opens save dialog if not on disk).
+- `save_file_as` - Opens a save dialog to save current file with a new path.
+- `save_all_in_window` - Saves all modified files in the current window (prompting for paths as needed).
+- `save_all` - Saves all modified files across all Notepad windows (prompting for paths as needed).
 
 ### `notebook`
 
-- `import_file`
-- `open_notepad`
-- `save_archive`
-- `save_archive_as`
-- `export_file`
+- `import_file` - Opens a file dialog to copy selected file(s) into the archive's temp directory, marking archive as modified.
+- `open_notepad` - Activates the existing Notepad window or creates a new one if none exists.
+- `save_archive` - Saves the archive's temp directory contents back to the `.fnx` file.
+- `save_archive_as` - Opens a save dialog to save archive with a new path.
+- `export_file` - Opens a save dialog to copy the currently active file from the archive to the OS filesystem.
 
 ### `views`
 
