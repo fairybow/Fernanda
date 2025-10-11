@@ -2,60 +2,59 @@
 
 ## Commands
 
-```
-New tab                     Ctrl+D          poly:new_tab
-New window                  Ctrl+W          workspace:new_window
--------------------------------------------
-New notebook                                workspace:new_notebook
-Open notebook                               workspace:open_notebook
--------------------------------------------
-[Save section is per subclass]
--------------------------------------------
-Close tab                                   poly:close_tab                   [Toggle]
-Close all tabs in window                    poly:close_all_tabs_in_window    [Toggle]
--------------------------------------------
-Close window                                workspace:close_window
--------------------------------------------
-Quit                        Ctrl+Q          application:quit
-```
+Commands are formatted as `scope:action`.
 
-```
-Undo                        Ctrl+Z          views:undo                       [Toggle]
-Redo                        Ctrl+Y          views:redo                       [Toggle]
--------------------------------------------
-Cut                         Ctrl+X          views:cut                        [Toggle]
-Copy                        Ctrl+C          views:copy                       [Toggle]
-Paste                       Ctrl+V          views:paste                      [Toggle]
-Delete                      Del             views:delete                     [Toggle]
--------------------------------------------
-Select all                  Ctrl+A          views:select_all                 [Toggle]
-```
+Should we include registrar (i.e., `scope:registrar.action`)?
 
-```
-Settings                                    settings:dialog
-```
+### `application`
 
-```
-About                                       workspace:about_dialog
-```
+- `quit`
 
-```
-Open file...                Ctrl+E          notepad:open_file
--------------------------------------------
-Save                        Ctrl+S          notepad:save_file                [Toggle]
-Save as...                  Ctrl+Alt+S      notepad:save_file_as             [Toggle]
-Save all in window                          notepad:save_all_in_window       [Toggle]
-Save all                    Ctrl+Shift+S    notepad:save_all                 [Toggle]
-```
+### `workspace`
 
-```
-Import file...                              notebook:import_file
-Open notepad                                notebook:open_notepad
--------------------------------------------
-Save                        Ctrl+S          notebook:save_archive            [Toggle]
-Save as...                  Ctrl+Alt+S      notebook:save_archive_as
-Export file...                              notebook:export_file
-```
+- `new_window`
+- `new_notebook`
+- `open_notebook`
+- `close_window`
+- `about_dialog`
+
+### `poly`
+
+Poly commands are registered per Workspace type (Notepad or Notebook) but called from Services or Modules that are Workspace agnostic.
+
+- `new_tab`
+- `close_tab`
+- `close_all_tabs_in_window`
+
+### `notepad`
+
+- `open_file`
+- `save_file`
+- `save_file_as`
+- `save_all_in_window`
+- `save_all`
+
+### `notebook`
+
+- `import_file`
+- `open_notepad`
+- `save_archive`
+- `save_archive_as`
+- `export_file`
+
+### `views`
+
+- `undo`
+- `redo`
+- `cut`
+- `copy`
+- `paste`
+- `delete`
+- `select_all`
+
+### `settings`
+
+- `dialog`
 
 ## Events
 
