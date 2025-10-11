@@ -52,6 +52,9 @@ public:
         // Any Notebooks needed via Session
 
         initialized_ = true;
+
+        /// Test:
+        makeNotebook_(Coco::Path::Documents("Fernanda/Test 10.fnx"));
     }
 
 public slots:

@@ -28,7 +28,8 @@ namespace Fernanda::Menus {
 
 COCO_BOOL(AutoRepeat);
 
-QAction* makeBusAction(
+// TODO: Overload without cmd params
+inline QAction* makeBusAction(
     Bus* bus,
     Window* window,
     const QString& commandId,
