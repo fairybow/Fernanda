@@ -16,6 +16,8 @@
 #include "Version.h"
 
 /// Current goals:
+/// - For New Window: move all the related window serv functions to private.
+/// Register new window cmd in window serv, use command in Workspace::open
 /// - Implement menu commands
 /// - Document utility commands (like windowsReversed, etc)
 /// - Redo Bus signals (events)

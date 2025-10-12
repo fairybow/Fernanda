@@ -68,8 +68,10 @@ public:
         };
     }
 
-    Window* active() const noexcept { return activeWindow_; }
+    // TODO: Potentially mame private, access via command 
+    //Window* active() const noexcept { return activeWindow_; }
 
+    // TODO: Potentially make private, access via command
     Window* make(const QRect& geometry = {})
     {
         auto window = new Window{};

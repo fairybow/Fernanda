@@ -118,10 +118,10 @@ private:
         return true;
     }
 
-    void newWindow_()
+    /*void newWindow_()
     {
         if (auto window = windows_->make()) window->show();
-    }
+    }*/
 };
 
 } // namespace Fernanda
