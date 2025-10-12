@@ -6,13 +6,15 @@ namespace Fernanda::Commands {
 
 constexpr auto QUIT = "application:quit";
 
-// TODO: Should be WindowService registers
-constexpr auto NEW_WINDOW = "workspace:new_window";
 constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
 constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 constexpr auto CLOSE_WINDOW = "workspace:close_window";
 
 // TODO: Should be application scope (change here and docs) but registered in WS
 constexpr auto ABOUT_DIALOG = "workspace:about_dialog"; /// *
+
+// TODO: Should be WindowService registers
+constexpr auto NEW_WINDOW = "windows:new";
+constexpr auto ACTIVE_WINDOW = "windows:active"; // non-menu
 
 } // namespace Fernanda::Commands

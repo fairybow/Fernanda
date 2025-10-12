@@ -8,7 +8,7 @@ TODO: Ensure we describe poly commands in command doc
 
 ```
 New tab                     Ctrl+D          poly:new_tab
-New window                  Ctrl+W          workspace:new_window
+New window                  Ctrl+W          windows:new
 -------------------------------------------
 New notebook                                workspace:new_notebook
 Open notebook                               workspace:open_notebook
