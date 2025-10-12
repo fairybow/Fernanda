@@ -5,7 +5,7 @@
 Commands are formatted as `scope:action`.
 
 > [!NOTE]
-> * = Used by menus
+> \* = Used by menus
 
 ### `application`
 
