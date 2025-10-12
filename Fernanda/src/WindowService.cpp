@@ -28,14 +28,4 @@ void WindowService::setup_()
         &WindowService::onApplicationFocusChanged_);
 }
 
-// https://stackoverflow.com/a/11487434
-// Questionable
-void WindowService::bubbleDelay_(unsigned int msecs) const
-{
-    auto die_time = QTime::currentTime().addMSecs(msecs);
-
-    while (QTime::currentTime() < die_time)
-        Application::processEvents(QEventLoop::AllEvents, 100);
-}
-
 } // namespace Fernanda

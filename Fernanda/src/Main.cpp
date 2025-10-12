@@ -18,6 +18,10 @@
 /// Current goals:
 /// - For New Window: move all the related window serv functions to private.
 /// Register new window cmd in window serv, use command in Workspace::open
+/// - Window service command handlers should be responsible for showing. Later,
+/// when we open multiple windows, we will have a different command, perhaps (or
+/// different args for the same command), letting the command handler still
+/// handle showing windows
 /// - Implement menu commands
 /// - Document utility commands (like windowsReversed, etc)
 /// - Redo Bus signals (events)

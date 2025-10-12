@@ -68,21 +68,6 @@ public:
         };
     }
 
-    void showAll() const
-    {
-        // Because the Window list is volatile, we use a copy
-        for (auto& window : windows_())
-            window->show();
-    }
-
-    void bubbleShow(unsigned int delayMsecs = 50) const
-    {
-        for (auto& window : windows_()) {
-            window->show();
-            bubbleDelay_(delayMsecs);
-        }
-    }
-
     void activateAll() const
     {
         if (!activeWindow_) return;
@@ -92,7 +77,15 @@ public:
 protected:
     virtual void registerBusCommands() override
     {
-        //...
+        bus->addCommandHandler(Commands::NEW_WINDOW, [&](const Command& cmd) {
+            auto window = make_();
+            window->show();
+            return window;
+        });
+
+        bus->addCommandHandler(Commands::ACTIVE_WINDOW, [&] {
+            return activeWindow_.get();
+        });
     }
 
     virtual void connectBusEvents() override
@@ -109,7 +102,8 @@ protected:
                 XPlatform::stackUnder(zOrderedVolatileWindows_, active_window);
             }
 
-        } else if (event->type() == QEvent::Show || event->type() == QEvent::Hide) {
+        } else if (
+            event->type() == QEvent::Show || event->type() == QEvent::Hide) {
 
             if (auto window = cast<Window*>(watched))
                 emit bus->visibleWindowCountChanged(visibleCount_());
@@ -117,7 +111,6 @@ protected:
         } else if (event->type() == QEvent::Close) {
 
             //...
-
         }
 
         return QObject::eventFilter(watched, event);
@@ -149,12 +142,12 @@ private:
     // TODO: Just a command that returns the member...
     // Window* active() const noexcept { return activeWindow_; }
 
-    Window* make_(const QRect& geometry = {})
+    // TODO: Args for showing the window and setting the position before showing
+    Window* make_()
     {
         auto window = new Window(nullptr);
         window->setAttribute(Qt::WA_DeleteOnClose);
-        window->setGeometry(
-            geometry.isNull() ? nextWindowGeometry_() : geometry);
+        window->setGeometry(nextWindowGeometry_());
 
         zOrderedVolatileWindows_ << window;
         unorderedWindows_ << window;
@@ -170,13 +163,6 @@ private:
 
         emit bus->windowCreated(window);
         return window;
-    }
-
-    Window* make_(const QPoint& pos)
-    {
-        auto geometry = nextWindowGeometry_();
-        geometry.moveTo(pos);
-        return make_(geometry);
     }
 
     QList<Window*> windows_() const
@@ -202,10 +188,10 @@ private:
         return list;
     }
 
-    //QSet<Window*> windowsUnordered_() const noexcept
+    // QSet<Window*> windowsUnordered_() const noexcept
     //{
-    //    return unorderedWindows_;
-    //}
+    //     return unorderedWindows_;
+    // }
 
     int visibleCount_() const
     {
@@ -216,8 +202,6 @@ private:
 
         return i;
     }
-
-    void bubbleDelay_(unsigned int msecs) const;
 
     // Note: Can be set to nullptr
     void setActiveWindow_(Window* activeWindow)
@@ -261,26 +245,27 @@ private:
         return DEFAULT_GEOMETRY_;
     }
 
-    //void startOrContinueCycling_()
+    // void startOrContinueCycling_()
     //{
-    //    if (cyclingOrder_.isEmpty()) {
-    //        cyclingOrder_ = visibleWindows_(); // Snapshot the current order
-    //        currentCyclingIndex_ =
-    //            activeWindow_ ? cyclingOrder_.indexOf(activeWindow_) : 0;
-    //        if (currentCyclingIndex_ < 0) currentCyclingIndex_ = 0;
-    //    }
+    //     if (cyclingOrder_.isEmpty()) {
+    //         cyclingOrder_ = visibleWindows_(); // Snapshot the current order
+    //         currentCyclingIndex_ =
+    //             activeWindow_ ? cyclingOrder_.indexOf(activeWindow_) : 0;
+    //         if (currentCyclingIndex_ < 0) currentCyclingIndex_ = 0;
+    //     }
 
     //    cycleDebouncer_->start();
     //}
 
-    //void activatePrevious_()
+    // void activatePrevious_()
     //{
-    //    if (windows_.count() <= 1) return;
+    //     if (windows_.count() <= 1) return;
 
     //    startOrContinueCycling_();
 
     //    // Move to previous window using our independent index
-    //    currentCyclingIndex_ = (currentCyclingIndex_ - 1 + cyclingOrder_.size())
+    //    currentCyclingIndex_ = (currentCyclingIndex_ - 1 +
+    //    cyclingOrder_.size())
     //                           % cyclingOrder_.size();
 
     //    // Activate the window at the new position
@@ -289,9 +274,9 @@ private:
     //    }
     //}
 
-    //void activateNext_()
+    // void activateNext_()
     //{
-    //    if (windows_.count() <= 1) return;
+    //     if (windows_.count() <= 1) return;
 
     //    startOrContinueCycling_();
 
@@ -316,6 +301,7 @@ private slots:
         auto last_window_closed = false;
 
         if (zOrderedVolatileWindows_.isEmpty()) {
+
             setActiveWindow_(nullptr);
             last_window_closed = true;
 
@@ -341,7 +327,6 @@ private slots:
                 auto& next_window = zOrderedVolatileWindows_.last();
                 next_window->activate();
             }
-
         }
 
         emit bus->windowDestroyed(window);
@@ -357,3 +342,35 @@ private slots:
 };
 
 } // namespace Fernanda
+
+/// Old:
+
+/*
+void bubbleDelay_(unsigned int msecs) const;
+
+// https://stackoverflow.com/a/11487434
+// Questionable
+void WindowService::bubbleDelay_(unsigned int msecs) const
+{
+    auto die_time = QTime::currentTime().addMSecs(msecs);
+
+    while (QTime::currentTime() < die_time)
+        Application::processEvents(QEventLoop::AllEvents, 100);
+}
+
+void showAll() const
+{
+    // Because the Window list is volatile, we use a copy
+    for (auto& window : windows_())
+        window->show();
+}
+
+void bubbleShow(unsigned int delayMsecs = 50) const
+{
+    for (auto& window : windows_()) {
+        window->show();
+        bubbleDelay_(delayMsecs);
+    }
+}
+
+*/
