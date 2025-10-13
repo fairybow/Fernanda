@@ -84,6 +84,10 @@ protected:
         bus->addCommandHandler(Commands::ACTIVE_WINDOW, [&] {
             return activeWindow_.get();
         });
+
+        bus->addCommandHandler(Commands::WINDOWS_SET, [&] {
+            return unorderedWindows_;
+        });
     }
 
     virtual void connectBusEvents() override
@@ -126,20 +130,7 @@ private:
     QPointer<Window> activeWindow_ = nullptr;
     QPointer<Window> lastFocusedAppWindow_ = nullptr;
 
-    // Window cycling
-    /*
-    QList<Window*> cyclingOrder_{};
-    qsizetype currentCyclingIndex_ = -1;
-    Debouncer* cycleDebouncer_ = new Debouncer(2000, this, [&] {
-        currentCyclingIndex_ = -1;
-        cyclingOrder_.clear();
-    });
-    */
-
     void setup_();
-
-    // TODO: Just a command that returns the member...
-    // Window* active() const noexcept { return activeWindow_; }
 
     Window* make_()
     {
@@ -162,72 +153,6 @@ private:
         return window;
     }
 
-    QList<Window*> windows_() const
-    {
-        QList<Window*> list{};
-
-        for (const auto& window : zOrderedVolatileWindows_)
-            if (window) list << window;
-
-        return list;
-    }
-
-    // NOTE: Highest window is first when reversed
-    QList<Window*> windowsReversed_() const
-    {
-        QList<Window*> list{};
-        auto it = zOrderedVolatileWindows_.crbegin();
-        auto end = zOrderedVolatileWindows_.crend();
-
-        for (; it != end; ++it)
-            if (*it) list << *it;
-
-        return list;
-    }
-
-    // QSet<Window*> windowsUnordered_() const noexcept
-    //{
-    //     return unorderedWindows_;
-    // }
-
-    int visibleCount_() const
-    {
-        auto i = 0;
-
-        for (auto& window : unorderedWindows_)
-            if (window && window->isVisible()) ++i;
-
-        return i;
-    }
-
-    // Note: Can be set to nullptr
-    void setActiveWindow_(Window* activeWindow)
-    {
-        if (activeWindow_ == activeWindow) return;
-        activeWindow_ = activeWindow;
-
-        // No need to re-order if there's no, or only one, window
-        if (activeWindow && zOrderedVolatileWindows_.size() > 1) {
-            // Keep an internal z-order
-            zOrderedVolatileWindows_.removeAll(activeWindow);
-            zOrderedVolatileWindows_ << activeWindow;
-        }
-
-        emit bus->activeWindowChanged(activeWindow_.get());
-    }
-
-    // These are windows that have called Window::show() (Don't mistake this as
-    // dealing with minimization!
-    QList<Window*> visibleWindows_() const
-    {
-        QList<Window*> visible{};
-
-        for (auto& window : zOrderedVolatileWindows_)
-            if (window && window->isVisible()) visible << window;
-
-        return visible;
-    }
-
     QRect nextWindowGeometry_() const
     {
         if (activeWindow_) {
@@ -242,50 +167,60 @@ private:
         return DEFAULT_GEOMETRY_;
     }
 
-    // void startOrContinueCycling_()
-    //{
-    //     if (cyclingOrder_.isEmpty()) {
-    //         cyclingOrder_ = visibleWindows_(); // Snapshot the current order
-    //         currentCyclingIndex_ =
-    //             activeWindow_ ? cyclingOrder_.indexOf(activeWindow_) : 0;
-    //         if (currentCyclingIndex_ < 0) currentCyclingIndex_ = 0;
-    //     }
+    // NOTE: Returns a stable copy of the z-ordered window list
+    // (copy won't be affected by subsequent add/remove operations)
+    QList<Window*> windows_() const { return zOrderedVolatileWindows_; }
 
-    //    cycleDebouncer_->start();
-    //}
+    // NOTE: Highest window is first when reversed
+    QList<Window*> windowsReversed_() const
+    {
+        QList<Window*> list{};
+        auto it = zOrderedVolatileWindows_.crbegin();
+        auto end = zOrderedVolatileWindows_.crend();
 
-    // void activatePrevious_()
-    //{
-    //     if (windows_.count() <= 1) return;
+        for (; it != end; ++it)
+            if (*it) list << *it;
 
-    //    startOrContinueCycling_();
+        return list;
+    }
 
-    //    // Move to previous window using our independent index
-    //    currentCyclingIndex_ = (currentCyclingIndex_ - 1 +
-    //    cyclingOrder_.size())
-    //                           % cyclingOrder_.size();
+    // TODO: Ensure this is needed
+    int visibleCount_() const
+    {
+        auto i = 0;
 
-    //    // Activate the window at the new position
-    //    if (currentCyclingIndex_ < cyclingOrder_.size()) {
-    //        cyclingOrder_[currentCyclingIndex_]->activate();
-    //    }
-    //}
+        for (auto& window : unorderedWindows_)
+            if (window && window->isVisible()) ++i;
 
-    // void activateNext_()
-    //{
-    //     if (windows_.count() <= 1) return;
+        return i;
+    }
 
-    //    startOrContinueCycling_();
+    // These are windows that have called Window::show() (Don't mistake this as
+    // dealing with minimization!
+    // TODO: Ensure this is needed
+    QList<Window*> visibleWindows_() const
+    {
+        QList<Window*> visible{};
 
-    //    // Move to next window using our independent index
-    //    currentCyclingIndex_ =
-    //        (currentCyclingIndex_ + 1) % cyclingOrder_.size();
+        for (auto& window : zOrderedVolatileWindows_)
+            if (window && window->isVisible()) visible << window;
 
-    //    // Activate the window at the new position
-    //    if (currentCyclingIndex_ < cyclingOrder_.size()) {
-    //        cyclingOrder_[currentCyclingIndex_]->activate();
-    //    }
-    //}
+        return visible;
+    }
+
+    // Note: Can be set to nullptr
+    void setActiveWindow_(Window* activeWindow)
+    {
+        if (activeWindow_ == activeWindow) return;
+        activeWindow_ = activeWindow;
+
+        // No need to re-order if there's no, or only one, window
+        if (activeWindow && zOrderedVolatileWindows_.size() > 1) {
+            // Keep an internal z-order
+            zOrderedVolatileWindows_.removeAll(activeWindow);
+            zOrderedVolatileWindows_ << activeWindow;
+        }
+    }
 
 private slots:
     void onWindowDestroyed_(Window* window)
@@ -343,6 +278,9 @@ private slots:
 /// Old:
 
 /*
+// in set active window (end):
+emit bus->activeWindowChanged(activeWindow_.get());
+
 void bubbleDelay_(unsigned int msecs) const;
 
 // https://stackoverflow.com/a/11487434
@@ -369,5 +307,65 @@ void bubbleShow(unsigned int delayMsecs = 50) const
         bubbleDelay_(delayMsecs);
     }
 }
+
+QSet<Window*> windowsUnordered_() const noexcept
+{
+    return unorderedWindows_;
+}
+
+// Cycling:
+
+    // Window cycling
+    QList<Window*> cyclingOrder_{};
+    qsizetype currentCyclingIndex_ = -1;
+    Debouncer* cycleDebouncer_ = new Debouncer(2000, this, [&] {
+        currentCyclingIndex_ = -1;
+        cyclingOrder_.clear();
+    });
+
+    // void startOrContinueCycling_()
+    //{
+    //     if (cyclingOrder_.isEmpty()) {
+    //         cyclingOrder_ = visibleWindows_(); // Snapshot the current order
+    //         currentCyclingIndex_ =
+    //             activeWindow_ ? cyclingOrder_.indexOf(activeWindow_) : 0;
+    //         if (currentCyclingIndex_ < 0) currentCyclingIndex_ = 0;
+    //     }
+
+    //    cycleDebouncer_->start();
+    //}
+
+    // void activatePrevious_()
+    //{
+    //     if (windows_.count() <= 1) return;
+
+    //    startOrContinueCycling_();
+
+    //    // Move to previous window using our independent index
+    //    currentCyclingIndex_ = (currentCyclingIndex_ - 1 +
+    //    cyclingOrder_.size())
+    //                           % cyclingOrder_.size();
+
+    //    // Activate the window at the new position
+    //    if (currentCyclingIndex_ < cyclingOrder_.size()) {
+    //        cyclingOrder_[currentCyclingIndex_]->activate();
+    //    }
+    //}
+
+    // void activateNext_()
+    //{
+    //     if (windows_.count() <= 1) return;
+
+    //    startOrContinueCycling_();
+
+    //    // Move to next window using our independent index
+    //    currentCyclingIndex_ =
+    //        (currentCyclingIndex_ + 1) % cyclingOrder_.size();
+
+    //    // Activate the window at the new position
+    //    if (currentCyclingIndex_ < cyclingOrder_.size()) {
+    //        cyclingOrder_[currentCyclingIndex_]->activate();
+    //    }
+    //}
 
 */

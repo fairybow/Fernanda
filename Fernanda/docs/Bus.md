@@ -1,5 +1,7 @@
 # Bus
 
+Commands are dynamically registered and can vary per workspace type. Events are statically defined signals for type safety and Qt integration. This asymmetry is intentional: commands are vocabulary, events are grammar.
+
 ## Commands
 
 Commands are formatted as `scope:action`.
@@ -10,13 +12,13 @@ Commands are formatted as `scope:action`.
 ### `application`
 
 - `quit`*: Terminates the entire application after attempting to close all Notebook and Notepad windows (prompting for saves as needed).
+- `about_dialog`*: Displays an application-modal About dialog with version info and links.
 
 ### `workspace`
 
 - `new_notebook`*: Opens a file dialog to create a new Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
 - `open_notebook`*: Opens a file dialog to select an existing Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
 - `close_window`*: Closes the specified window after running the workspace's close acceptor (which typically handles closing all tabs and save prompts).
-- `about_dialog`*: Displays an application-modal About dialog with version info and links.
 
 ### `poly`
 
@@ -54,6 +56,7 @@ TODO: Verify `active` behavior for min/max, etc
 
 - `new`*: Creates and shows a new window in the current workspace.
 - `active`: Returns the active (top-most) window of the workspace.
+- `set`: Returns a `QSet` of all Workspace windows.
 
 ### `views`
 

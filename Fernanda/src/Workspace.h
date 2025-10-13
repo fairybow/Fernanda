@@ -53,7 +53,7 @@ public:
     // void open(const Session& session)
     // {
     //   // ...open Session...
-    //   // emit bus->workspaceInitialized();
+    //   // emit bus->workspaceOpened();
     // }
 
     void open(NewWindow withWindow = NewWindow::No)
@@ -61,7 +61,8 @@ public:
         // ... Path args?
 
         if (withWindow) bus->execute(Commands::NEW_WINDOW);
-        emit bus->workspaceInitialized();
+
+        emit bus->workspaceOpened();
     }
 
     void activate() const
@@ -121,11 +122,6 @@ private:
         qDebug() << "Implement";
         return true;
     }
-
-    /*void newWindow_()
-    {
-        if (auto window = windows_->make()) window->show();
-    }*/
 };
 
 } // namespace Fernanda

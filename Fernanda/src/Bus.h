@@ -269,18 +269,21 @@ public:
     // NO queries. Calls can be used as queries. It isn't a big deal!
 
 signals:
-    // Workspace
+    /// Re-verified:
+    void windowCreated(Window* window);
+    void workspaceOpened();
 
-    void workspaceInitialized();
+
+    /// Old:
 
     // WindowService
 
-    void windowCreated(Window* window);
+    
     void visibleWindowCountChanged(int count);
     void lastWindowClosed();
 
     // Window may be nullptr!
-    void activeWindowChanged(Window* window);
+    //void activeWindowChanged(Window* window);
     void windowDestroyed(Window* window);
 
     // FileService
