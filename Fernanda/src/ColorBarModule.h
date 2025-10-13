@@ -37,6 +37,9 @@ public:
     virtual ~ColorBarModule() override { TRACER; }
 
 protected:
+    // TODO: Could have commands to run all color bars and call that in save
+    // functions instead of having slightly convoluted, overly-specific save
+    // events (like windowSaveExecuted vs workspaceSaveExecuted)?
     virtual void registerBusCommands() override
     {
         //...
@@ -44,7 +47,17 @@ protected:
 
     virtual void connectBusEvents() override
     {
-        //...
+        connect(
+            bus,
+            &Bus::windowCreated,
+            this,
+            &ColorBarModule::onWindowCreated_);
+
+        connect(
+            bus,
+            &Bus::windowDestroyed,
+            this,
+            &ColorBarModule::onWindowDestroyed_);
     }
 
 private:
@@ -74,14 +87,14 @@ private slots:
     void onWindowCreated_(Window* window)
     {
         if (!window) return;
-
         // ColorBar floats outside layouts
         colorBars_[window] = new ColorBar(window);
+    }
 
-        connect(window, &Window::destroyed, this, [=] {
-            if (!window) return;
-            colorBars_.remove(window);
-        });
+    void onWindowDestroyed_(Window* window)
+    {
+        if (!window) return;
+        colorBars_.remove(window);
     }
 
     void onWindowSaveExecuted_(Window* window, SaveResult result) const

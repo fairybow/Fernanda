@@ -16,12 +16,12 @@
 #include "Version.h"
 
 /// Current goals:
-/// - For New Window: move all the related window serv functions to private.
-/// Register new window cmd in window serv, use command in Workspace::open
-/// - Window service command handlers should be responsible for showing. Later,
-/// when we open multiple windows, we will have a different command, perhaps (or
-/// different args for the same command), letting the command handler still
-/// handle showing windows
+/// - ColorBarModule commands, remove workspaceOpened and also save signals,
+/// probably
+/// - Note this in Bus.md: Window service command handlers should be responsible
+/// for showing. Later, when we open multiple windows, we will have a different
+/// command, perhaps (or different args for the same command), letting the
+/// command handler still handle showing windows
 /// - Implement menu commands
 /// - Document utility commands (like windowsReversed, etc)
 /// - Redo Bus signals (events)
@@ -46,10 +46,12 @@
 /// Clean-up:
 ///
 /// - Search TODO
+/// - Remove "NOTE:" before notes, use only TODO or it's a note
 /// - Clean includes (Commands were in Constants briefly)
 /// - Check license statements
 /// - For Bus, ensure we use the windowDestroyed signal and don't connect to
 /// window destroyed signals inside our onWindowCreated functions...
+/// - Uniform use of nodiscard
 ///
 /// Command handler registering sites:
 /// - Make sure we aren't casting return values to QVar when registering (it

@@ -65,7 +65,7 @@ protected:
 
     virtual void connectBusEvents() override
     {
-        //...
+        connect(bus, &Bus::windowCreated, this, &ViewService::onWindowCreated_);
     }
 
 private:
@@ -193,7 +193,7 @@ private slots:
             });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
-            emit bus->windowTabCountChanged(window, tab_widget->count());
+            //emit bus->windowTabCountChanged(window, tab_widget->count());
         });
 
         // connect(tab_widget, &TabWidget::tabDragged, this, [] {

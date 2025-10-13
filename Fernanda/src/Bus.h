@@ -271,6 +271,7 @@ public:
 signals:
     /// Re-verified:
     void windowCreated(Window* window);
+    void windowDestroyed(Window* window);
     void workspaceOpened();
 
 
@@ -284,7 +285,6 @@ signals:
 
     // Window may be nullptr!
     //void activeWindowChanged(Window* window);
-    void windowDestroyed(Window* window);
 
     // FileService
 

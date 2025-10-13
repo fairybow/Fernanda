@@ -253,11 +253,14 @@ private slots:
                 // an app-wide active window is correct or necessary, but so far
                 // everything seems to work okay...
                 lastFocusedAppWindow_->activate();
+
             } else {
+
                 // If this Manager is not empty, then it should resume focus. If
                 // it is, Qt should have taken care of refocusing
                 auto& next_window = zOrderedVolatileWindows_.last();
                 next_window->activate();
+
             }
         }
 
