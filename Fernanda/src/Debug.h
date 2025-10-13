@@ -147,6 +147,7 @@ struct Log
         if (!Internal::logging.load(std::memory_order::relaxed)) return;
         auto context = QMessageLogContext(file, line, function, nullptr);
 
+        // NOTE: Formatters for Qt types defined in Formatters.h
         std::string msg{};
 
         if constexpr (sizeof...(args) > 0) {

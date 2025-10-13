@@ -60,11 +60,15 @@ public:
     {
         // ... Path args?
 
-        if (withWindow) newWindow_();
+        if (withWindow) bus->execute(Commands::NEW_WINDOW);
         emit bus->workspaceInitialized();
     }
 
-    void activate() const { windows_->activateAll(); }
+    void activate() const
+    {
+        if (auto active_window = bus->call<Window*>(Commands::ACTIVE_WINDOW))
+            active_window->activate();
+    }
 
 signals:
     void lastWindowClosed();

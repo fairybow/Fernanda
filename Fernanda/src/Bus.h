@@ -127,11 +127,13 @@ public:
             };
 
         } else {
+
             static_assert(
                 InterceptorWithCommand<InterceptorT>
                     || InterceptorWithoutCommand<InterceptorT>,
                 "Interceptor must be callable as (const Command&)->bool or "
                 "()->bool");
+
         }
     }
 
@@ -195,6 +197,7 @@ public:
             };
 
         } else {
+
             static_assert(
                 HandlerWithCommandReturnsVoid<HandlerT>
                     || HandlerWithCommandReturnsValue<HandlerT>
@@ -202,6 +205,7 @@ public:
                     || HandlerWithoutCommandReturnsValue<HandlerT>,
                 "Command handler must be callable as (const Command&)->T, "
                 "(const Command&)->void, ()->T or ()->void");
+
         }
     }
 

@@ -23,6 +23,7 @@
 #include "Coco/Utility.h"
 
 #include "Bus.h"
+#include "Commands.h"
 #include "Debouncer.h"
 #include "Debug.h"
 #include "IService.h"
@@ -68,18 +69,15 @@ public:
         };
     }
 
-    void activateAll() const
-    {
-        if (!activeWindow_) return;
-        activeWindow_->activate(); // Stack under will take effect
-    }
-
 protected:
     virtual void registerBusCommands() override
     {
-        bus->addCommandHandler(Commands::NEW_WINDOW, [&](const Command& cmd) {
+        bus->addCommandHandler(Commands::NEW_WINDOW, [&] {
             auto window = make_();
-            window->show();
+            if (window) {
+                window->setGeometry(nextWindowGeometry_());
+                window->show();
+            }
             return window;
         });
 
@@ -105,12 +103,13 @@ protected:
         } else if (
             event->type() == QEvent::Show || event->type() == QEvent::Hide) {
 
-            if (auto window = cast<Window*>(watched))
-                emit bus->visibleWindowCountChanged(visibleCount_());
+            //if (auto window = cast<Window*>(watched))
+                //emit bus->visibleWindowCountChanged(visibleCount_());
 
         } else if (event->type() == QEvent::Close) {
 
             //...
+
         }
 
         return QObject::eventFilter(watched, event);
@@ -142,12 +141,10 @@ private:
     // TODO: Just a command that returns the member...
     // Window* active() const noexcept { return activeWindow_; }
 
-    // TODO: Args for showing the window and setting the position before showing
     Window* make_()
     {
         auto window = new Window(nullptr);
         window->setAttribute(Qt::WA_DeleteOnClose);
-        window->setGeometry(nextWindowGeometry_());
 
         zOrderedVolatileWindows_ << window;
         unorderedWindows_ << window;
@@ -175,7 +172,7 @@ private:
         return list;
     }
 
-    // Highest is first
+    // NOTE: Highest window is first when reversed
     QList<Window*> windowsReversed_() const
     {
         QList<Window*> list{};
@@ -216,7 +213,7 @@ private:
             zOrderedVolatileWindows_ << activeWindow;
         }
 
-        emit bus->activeWindowChanged(activeWindow_);
+        emit bus->activeWindowChanged(activeWindow_.get());
     }
 
     // These are windows that have called Window::show() (Don't mistake this as
