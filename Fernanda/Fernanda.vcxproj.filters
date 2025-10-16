@@ -58,6 +58,9 @@
     <Filter Include="Code\Auxiliary\Modules\Settings">
       <UniqueIdentifier>{594b3725-78f6-41a0-844c-bcb5c0fc5aa5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Auxiliary\Modules\ColorBar">
+      <UniqueIdentifier>{67032abf-8d30-4177-aa58-306cbc9457ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -208,9 +211,6 @@
     <QtMoc Include="src\TabWidgetUnderlay.h">
       <Filter>Code\Core\UI\TabWidget</Filter>
     </QtMoc>
-    <QtMoc Include="src\ColorBar.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
     <QtMoc Include="src\NoOpFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
     </QtMoc>
@@ -232,9 +232,6 @@
     <QtMoc Include="src\Bus.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
-    <QtMoc Include="src\ColorBarModule.h">
-      <Filter>Code\Auxiliary\Modules</Filter>
-    </QtMoc>
     <QtMoc Include="src\TreeViewModule.h">
       <Filter>Code\Auxiliary\Modules</Filter>
     </QtMoc>
@@ -255,6 +252,12 @@
     </QtMoc>
     <QtMoc Include="src\NotebookMenuModule.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ColorBarModule.h">
+      <Filter>Code\Auxiliary\Modules\ColorBar</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ColorBar.h">
+      <Filter>Code\Auxiliary\Modules\ColorBar</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

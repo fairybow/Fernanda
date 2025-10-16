@@ -20,11 +20,13 @@
 #include "Coco/PathUtil.h"
 
 #include "Bus.h"
+#include "ColorBar.h"
 #include "ColorBarModule.h"
 #include "Constants.h"
 #include "FileService.h"
 #include "SettingsModule.h"
 #include "TreeViewModule.h"
+#include "Utility.h"
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
@@ -61,8 +63,7 @@ public:
         // ... Path args?
 
         if (withWindow) bus->execute(Commands::NEW_WINDOW);
-
-        emit bus->workspaceOpened();
+        timer(this, 1300, [&] { bus->execute(Commands::BE_CUTE); });
     }
 
     void activate() const

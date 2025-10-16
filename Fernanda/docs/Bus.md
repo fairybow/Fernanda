@@ -72,6 +72,11 @@ TODO: Verify `active` behavior for min/max, etc
 
 - `dialog`*: Opens a non-modal Settings dialog, or raises/activates it if already open.
 
+### `color_bar`
+
+- `run`: Runs workspace color bars. If a context param (Window) is provided, runs only that window's color bar.
+- `be_cute`: Runs all color bars with pastel gradient.
+
 ## Events (Signals)
 
 Can be connected to and emitted by Services.

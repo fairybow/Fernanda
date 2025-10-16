@@ -14,6 +14,7 @@
 
 #include "Bus.h"
 #include "ColorBar.h"
+#include "Commands.h"
 #include "Debug.h"
 #include "Enums.h"
 #include "IService.h"
@@ -23,6 +24,7 @@
 namespace Fernanda {
 
 // Coordinator for Window ColorBars
+// TODO: Commands for setting position
 class ColorBarModule : public IService
 {
     Q_OBJECT
@@ -42,7 +44,16 @@ protected:
     // events (like windowSaveExecuted vs workspaceSaveExecuted)?
     virtual void registerBusCommands() override
     {
-        //...
+        bus->addCommandHandler(
+            Commands::RUN_COLOR_BAR,
+            [&](const Command& cmd) {
+                auto color = cmd.param<ColorBar::Color>("color");
+                cmd.context ? run_(cmd.context, color) : runAll_(color);
+            });
+
+        bus->addCommandHandler(Commands::BE_CUTE, [&] {
+            runAll_(ColorBar::Color::Pastel);
+        });
     }
 
     virtual void connectBusEvents() override
@@ -95,38 +106,6 @@ private slots:
     {
         if (!window) return;
         colorBars_.remove(window);
-    }
-
-    void onWindowSaveExecuted_(Window* window, SaveResult result) const
-    {
-        if (!window) return;
-
-        switch (result) {
-        default:
-        case SaveResult::NoOp:
-            return;
-        case SaveResult::Success:
-            run_(window, ColorBar::Green);
-            return;
-        case SaveResult::Fail:
-            run_(window, ColorBar::Red);
-            return;
-        }
-    }
-
-    void onWorkspaceSaveExecuted_(SaveResult result) const
-    {
-        switch (result) {
-        default:
-        case SaveResult::NoOp:
-            return;
-        case SaveResult::Success:
-            runAll_(ColorBar::Green);
-            return;
-        case SaveResult::Fail:
-            runAll_(ColorBar::Red);
-            return;
-        }
     }
 };
 

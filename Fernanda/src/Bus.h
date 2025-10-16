@@ -272,10 +272,11 @@ signals:
     /// Re-verified:
     void windowCreated(Window* window);
     void windowDestroyed(Window* window);
-    void workspaceOpened();
 
 
     /// Old:
+
+    //void workspaceOpened();
 
     // WindowService
 
@@ -296,8 +297,8 @@ signals:
         SaveResult result,
         const Coco::Path& path,
         const Coco::Path& oldPath = {});
-    void windowSaveExecuted(Window* window, SaveResult result);
-    void workspaceSaveExecuted(SaveResult result);
+    //void windowSaveExecuted(Window* window, SaveResult result);
+    //void workspaceSaveExecuted(SaveResult result);
 
     // ViewService
 
