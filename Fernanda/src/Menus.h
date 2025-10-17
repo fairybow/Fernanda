@@ -28,7 +28,6 @@ namespace Fernanda::Menus {
 
 COCO_BOOL(AutoRepeat);
 
-// TODO: Overload without cmd params
 inline QAction* makeBusAction(
     Bus* bus,
     Window* window,
@@ -48,6 +47,24 @@ inline QAction* makeBusAction(
     action->setAutoRepeat(autoRepeat);
 
     return action;
+}
+
+inline QAction* makeBusAction(
+    Bus* bus,
+    Window* window,
+    const QString& commandId,
+    const QString& text,
+    const QKeySequence& keySequence = {},
+    AutoRepeat autoRepeat = AutoRepeat::No)
+{
+    return makeBusAction(
+        bus,
+        window,
+        commandId,
+        {},
+        text,
+        keySequence,
+        autoRepeat);
 }
 
 // TODO: Ensure we pass -1 to certain commands as arg (for "current editor"

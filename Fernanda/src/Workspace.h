@@ -63,7 +63,7 @@ public:
         // ... Path args?
 
         if (withWindow) bus->execute(Commands::NEW_WINDOW);
-        timer(this, 1300, [&] { bus->execute(Commands::BE_CUTE); });
+        timer(1300, this, [&] { bus->execute(Commands::BE_CUTE); });
     }
 
     void activate() const

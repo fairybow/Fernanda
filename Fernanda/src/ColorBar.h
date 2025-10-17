@@ -23,12 +23,14 @@
 #include <QTimeLine>
 #include <QTimer>
 #include <QWidget>
-#include <QtGlobal>
+#include <QtTypes>
 
 #include "Coco/Concepts.h"
 #include "Coco/Fx.h"
 
 #include "Debug.h"
+#include "DelayTimer.h"
+#include "Utility.h"
 
 namespace Fernanda {
 
@@ -73,10 +75,10 @@ public:
     void run(Color color, int delay = 0)
     {
         if (!isVisible()) return;
-        startAnimation_(color, delay);
+        startAnimation_(color, qBound(0, delay, 3000));
     }
 
-    void runOnResult(bool result, int delay = 0)
+    void indicate(bool result, int delay = 0)
     {
         result ? run(Green, delay) : run(Red, delay);
     }
@@ -124,7 +126,7 @@ private:
     qreal currentProgress_ = MIN_RANGE_;
     Color currentColor_ = Pastel;
     Position position_ = Top;
-    QTimer* lingerTimer_ = new QTimer(this);
+    DelayTimer* lingerTimer_ = new DelayTimer(1500, this, &ColorBar::reset_);
 
     // Cache
     std::optional<QLinearGradient> greenGradient_{};
@@ -135,12 +137,6 @@ private:
     {
         setFixedHeight(3);
         setAttribute(Qt::WA_TransparentForMouseEvents);
-
-        lingerTimer_->setSingleShot(true);
-        connect(lingerTimer_, &QTimer::timeout, this, [&] {
-            currentProgress_ = MIN_RANGE_;
-            update(); // Trigger repaint when resetting
-        });
 
         if (window_) {
             window_->installEventFilter(this);
@@ -189,29 +185,14 @@ private:
 
     void startAnimation_(Color color, int delay)
     {
-        delay = qBound(0, delay, 3000);
-
         // Store the color for paintEvent to use
         currentColor_ = color;
 
-        constexpr auto fill_time = 300;
-        auto time_line = new QTimeLine(fill_time, this);
-        time_line->setFrameRange(MIN_RANGE_, MAX_RANGE_);
-
-        connect(time_line, &QTimeLine::frameChanged, this, [=](int frame) {
-            currentProgress_ = frame;
-            update(); // Trigger repaint
-        });
-
-        connect(
-            time_line,
-            &QTimeLine::finished,
-            time_line,
-            &QTimeLine::deleteLater);
-
-        QTimer::singleShot(delay, this, [=] {
-            lingerTimer_->start(1500);
-            time_line->start();
+        // Execute animation with delay
+        auto fill_time_line = fillTimeLine_();
+        timer(delay, this, [=] {
+            lingerTimer_->start();
+            fill_time_line->start();
             update(); // Trigger initial repaint
         });
     }
@@ -265,6 +246,37 @@ private:
 
             return *pastelGradient_;
         }
+    }
+
+    QTimeLine* fillTimeLine_()
+    {
+        // Create timeline for smooth 0-100 fill animation over 300ms
+        constexpr auto fill_time = 300;
+        auto time_line = new QTimeLine(fill_time, this);
+        time_line->setFrameRange(MIN_RANGE_, MAX_RANGE_);
+
+        connect(time_line, &QTimeLine::frameChanged, this, &ColorBar::tick_);
+
+        connect(
+            time_line,
+            &QTimeLine::finished,
+            time_line,
+            &QTimeLine::deleteLater);
+
+        return time_line;
+    }
+
+private slots:
+    void tick_(int frame)
+    {
+        currentProgress_ = frame;
+        update(); // Trigger repaint
+    }
+
+    void reset_()
+    {
+        currentProgress_ = MIN_RANGE_;
+        update(); // Trigger repaint when resetting
     }
 };
 

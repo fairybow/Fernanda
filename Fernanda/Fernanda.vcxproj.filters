@@ -214,7 +214,7 @@
     <QtMoc Include="src\NoOpFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
     </QtMoc>
-    <QtMoc Include="src\Debouncer.h">
+    <QtMoc Include="src\DelayTimer.h">
       <Filter>Code\Core</Filter>
     </QtMoc>
     <QtMoc Include="src\Settings.h">

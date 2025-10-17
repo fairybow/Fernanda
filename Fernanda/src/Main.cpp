@@ -16,8 +16,6 @@
 #include "Version.h"
 
 /// Current goals:
-/// - ColorBarModule commands, remove workspaceOpened and also save signals,
-/// probably
 /// - Note this in Bus.md: Window service command handlers should be responsible
 /// for showing. Later, when we open multiple windows, we will have a different
 /// command, perhaps (or different args for the same command), letting the

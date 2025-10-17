@@ -15,19 +15,24 @@
 #include "Debug.h"
 
 // Utility class for initializing a debouncing timer and connecting it to a slot
-class Debouncer : public QTimer
+class DelayTimer : public QObject
 {
     Q_OBJECT
 
 public:
     template <typename SlotT>
-    Debouncer(int interval, QObject* parent, SlotT slot)
-        : QTimer(parent)
+    DelayTimer(int interval, QObject* parent, SlotT slot)
+        : QObject(parent)
     {
-        setSingleShot(true);
-        setInterval(interval);
-        connect(this, &QTimer::timeout, parent, slot);
+        timer_->setSingleShot(true);
+        timer_->setInterval(interval);
+        connect(timer_, &QTimer::timeout, parent, slot);
     }
 
-    virtual ~Debouncer() override { TRACER; }
+    virtual ~DelayTimer() override { TRACER; }
+
+    void start() { timer_->start(); }
+
+private:
+    QTimer* timer_ = new QTimer(this);
 };

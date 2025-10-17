@@ -19,8 +19,8 @@
 
 #include "Coco/Layout.h"
 
-#include "Debouncer.h"
 #include "Debug.h"
+#include "DelayTimer.h"
 #include "FontSelector.h"
 
 namespace Fernanda {
@@ -64,14 +64,12 @@ signals:
     void fontSaveRequested(const QFont& font);
 
 private:
-    static constexpr auto DEBOUCE_MS_ = 500;
-
     FontSelector* fontSelector_ = nullptr;
     FontChangeHandler fontChangeHandler_ = nullptr;
     QFont pendingFont_{};
     bool hasPendingFont_ = false;
-    Debouncer* fontDebouncer_ =
-        new Debouncer(DEBOUCE_MS_, this, &SettingsDialog::onFontDebounce_);
+    DelayTimer* fontDebouncer_ =
+        new DelayTimer(500, this, &SettingsDialog::onFontDebounce_);
 
     void setup_(const QFont& initialFont)
     {
