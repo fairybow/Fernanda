@@ -12,6 +12,7 @@
 #include <QAction>
 #include <QHash>
 #include <QMenu>
+#include <QMenuBar>
 #include <QObject>
 
 #include "Bus.h"
@@ -20,6 +21,7 @@
 #include "IService.h"
 #include "MenuActions.h"
 #include "Menus.h"
+#include "Tr.h"
 
 namespace Fernanda {
 
@@ -48,93 +50,89 @@ protected:
             this,
             &NotepadMenuModule::onWindowCreated_);
 
-        connect(bus, &Bus::windowDestroyed,
-            this,
-            [&](Window* window) {
-
-                // common vvv ?
+        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
+            // TODO: Some or all of this could also be common util functions in
+            // Menus.h
             actions_.remove(window);
 
-                /*if (auto cx = activeTabConnections_.take(window);
-                    !cx.isEmpty()) {
-                    for (auto& connection : cx)
-                        disconnect(connection);
-                }*/
-            });
+            /*if (auto cx = activeTabConnections_.take(window);
+                !cx.isEmpty()) {
+                for (auto& connection : cx)
+                    disconnect(connection);
+            }*/
+        });
     }
 
 private:
     QHash<Window*, NotepadMenuActions> actions_{};
 
+    void addMenuBar_(Window* window)
+    {
+        if (!window) return;
+        auto& actions = actions_[window];
+        auto menu_bar = new QMenuBar(window);
+
+        // File
+        auto file_menu = new QMenu(Tr::Menus::file(), menu_bar);
+        file_menu->addAction(actions.common.file.newTab);
+        file_menu->addAction(actions.common.file.newWindow);
+        file_menu->addSeparator();
+        file_menu->addAction(actions.common.file.newNotebook);
+        file_menu->addAction(actions.common.file.openNotebook);
+        file_menu->addSeparator();
+
+        // Save section per subclass
+
+        file_menu->addSeparator();
+        file_menu->addAction(actions.common.file.closeTab);
+        file_menu->addAction(actions.common.file.closeAllTabsInWindow);
+        file_menu->addSeparator();
+        file_menu->addAction(actions.common.file.closeWindow);
+        file_menu->addSeparator();
+        file_menu->addAction(actions.common.file.quit);
+        menu_bar->addMenu(file_menu);
+
+        // Edit
+        // TODO: Can be a common function in Menus.h
+        auto edit_menu = new QMenu(Tr::Menus::edit(), menu_bar);
+        edit_menu->addAction(actions.common.edit.undo);
+        edit_menu->addAction(actions.common.edit.redo);
+        edit_menu->addSeparator();
+        edit_menu->addAction(actions.common.edit.cut);
+        edit_menu->addAction(actions.common.edit.copy);
+        edit_menu->addAction(actions.common.edit.paste);
+        edit_menu->addAction(actions.common.edit.del);
+        edit_menu->addSeparator();
+        edit_menu->addAction(actions.common.edit.selectAll);
+        menu_bar->addMenu(edit_menu);
+
+        // View (TBI)
+
+        // Settings
+        // Settings action is added directly to the menu bar
+        // TODO: Can be a common function in Menus.h
+        menu_bar->addAction(actions.common.settings);
+
+        // Help
+        // TODO: Can be a common function in Menus.h
+        auto help_menu = new QMenu(Tr::Menus::help(), menu_bar);
+        help_menu->addAction(actions.common.help.about);
+        menu_bar->addMenu(help_menu);
+
+        window->setMenuBar(menu_bar);
+    }
+
 private slots:
     void onWindowCreated_(Window* window)
     {
         if (!window) return;
+        auto& actions = actions_[window];
 
-        NotepadMenuActions actions{};
         Menus::initializeCommonActions(bus, window, actions.common);
         // Init notepad actions
-        // Setup menu bar and add it to window
-
-        // Old:
-        //initializeActions_(window); // common?
-        //setupMenuBar_(window); // common?
+        // initactions(actions)
+        addMenuBar_(window);
     }
 };
 
 } // namespace Fernanda
-
-/// OLD (Remove later):
-
-/*
-protected:
-virtual void initializeWorkspaceActions_(Window* window) override
-{
-    if (!window) return;
-    Actions_ actions{};
-
-    /// Add commands but reimplement them one at a time
-
-    // File/Open
-    actions.fileOpenFile =
-        make(window, "", Tr::Menus::Notepad::fileOpenFile());
-
-    // File/Save
-    actions.toggles.fileSaveFile =
-        make(window, "", Tr::Menus::Notepad::fileSaveFile());
-    actions.toggles.fileSaveFileAs =
-        make(window, "", Tr::Menus::Notepad::fileSaveFileAs());
-    actions.toggles.fileSaveAllFilesInWindow =
-        make(window, "", Tr::Menus::Notepad::fileSaveAllFilesInWindow());
-    actions.toggles.fileSaveAllFiles =
-        make(window, "", Tr::Menus::Notepad::fileSaveAllFiles());
-
-    actions_[window] = actions;
-    // setInitialToggleStates_(window);
-}
-
-[[nodiscard]]
-virtual bool
-addWorkspaceFileOpenActions_(QMenu* fileMenu, Window* window) override
-{
-    if (!fileMenu || !window) return false;
-    auto& actions = actions_[window];
-
-    fileMenu->addAction(actions.fileOpenFile);
-    return true;
-}
-
-[[nodiscard]]
-virtual bool
-addWorkspaceFileSaveActions_(QMenu* fileMenu, Window* window) override
-{
-    if (!fileMenu || !window) return false;
-    auto& actions = actions_[window];
-
-    fileMenu->addAction(actions.toggles.fileSaveFile);
-    fileMenu->addAction(actions.toggles.fileSaveFileAs);
-    fileMenu->addAction(actions.toggles.fileSaveAllFilesInWindow);
-    fileMenu->addAction(actions.toggles.fileSaveAllFiles);
-    return true;
-}
-*/

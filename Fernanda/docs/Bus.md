@@ -54,6 +54,8 @@ Poly commands are registered per Workspace type (Notepad or Notebook) but called
 
 TODO: Verify `active` behavior for min/max, etc
 
+Window service command handlers should be responsible for showing the window. When you call NEW_WINDOW, you expect to see a new window without having to show it yourself. Later, when we must open multiple windows for sessions, if we want to bubble them, we may have a different command that creates N windows at specified positions, and bubble-shows them itself.
+
 - `new`*: Creates and shows a new window in the current workspace.
 - `active`: Returns the active (top-most) window of the workspace.
 - `set`: Returns a `QSet` of all Workspace windows.

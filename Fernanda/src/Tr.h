@@ -90,40 +90,35 @@ namespace Tr {
         TR_(settings, tr("Settings"));
         TR_(help, tr("Help"));
 
+        TR_(fileNewTab, tr("New tab"));
         TR_(fileNewWindow, tr("New window"));
+        TR_(fileNewNotebook, tr("New notebook"));
+        TR_(fileOpenNotebook, tr("Open notebook"));
+        TR_(fileCloseTab, tr("Close"));
+        TR_(fileCloseAllTabsInWindow, tr("Close all in window"));
+        TR_(fileCloseWindow, tr("Close window"));
+        TR_(fileQuit, tr("Quit"));
+
+        TR_(editUndo, tr("Undo"));
+        TR_(editRedo, tr("Redo"));
+        TR_(editCut, tr("Cut"));
+        TR_(editCopy, tr("Copy"));
+        TR_(editPaste, tr("Paste"));
+        TR_(editDelete, tr("Delete"));
+        TR_(editSelectAll, tr("Select all"));
+
+        TR_(helpAbout, tr("About"));
 
         /// Remove these once above is implemented
         namespace Common {
 
-            /*TR_(fileNewTab, tr("New tab"));
-            TR_(fileNewWindow, tr("New window"));
-            TR_(fileNewNotebook, tr("New notebook"));
-
-            TR_(fileOpenNotebook, tr("Open notebook"));
-
-            TR_(fileCloseTab, tr("Close"));
-            TR_(fileCloseAllTabsInWindow, tr("Close all in window"));
+            /*
             TR_(fileCloseAllTabs, tr("Close all"));
-
-            TR_(fileCloseWindow, tr("Close window"));
             TR_(fileCloseAllWindows, tr("Close all windows"));
-
-            TR_(fileQuit, tr("Quit"));
-
-            TR_(editUndo, tr("Undo"));
-            TR_(editRedo, tr("Redo"));
-            TR_(editCut, tr("Cut"));
-            TR_(editCopy, tr("Copy"));
-            TR_(editPaste, tr("Paste"));
-            TR_(editDelete, tr("Delete"));
-            TR_(editSelectAll, tr("Select all"));
-
             TR_(viewPreviousTab, tr("Previous tab"));
             TR_(viewNextTab, tr("Next tab"));
             TR_(viewPreviousWindow, tr("Previous window"));
-            TR_(viewNextWindow, tr("Next window"));
-
-            TR_(helpAbout, tr("About"));*/
+            TR_(viewNextWindow, tr("Next window"));*/
 
         } // namespace Common
 

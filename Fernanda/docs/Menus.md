@@ -6,6 +6,8 @@ TODO: Ensure we describe poly commands in command doc
 
 ### File
 
+TODO: Will new/open notebook be app scope?
+
 ```
 New tab                     Ctrl+D          poly:new_tab
 New window                  Ctrl+W          windows:new
@@ -95,7 +97,7 @@ Settings                                    settings:dialog
 ### Help
 
 ```
-About                                       workspace:about_dialog
+About                                       application:about_dialog
 ```
 
 ## Notepad

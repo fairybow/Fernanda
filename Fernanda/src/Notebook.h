@@ -64,6 +64,8 @@ private:
 
     void setup_()
     {
+        menus_->initialize();
+
         name_ = archivePath_.stemQString();
 
         // 1. Extract

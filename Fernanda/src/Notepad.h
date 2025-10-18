@@ -74,6 +74,8 @@ private:
 
     void setup_()
     {
+        menus_->initialize();
+
         //...
 
         registerBusCommands_();

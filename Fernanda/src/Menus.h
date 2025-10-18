@@ -75,6 +75,13 @@ initializeCommonActions(Bus* bus, Window* window, CommonMenuActions& common)
 {
     if (!bus || !window) return;
 
+    common.file.newTab = makeBusAction(
+        bus,
+        window,
+        Commands::NEW_TAB,
+        {},
+        Tr::Menus::fileNewTab());
+
     common.file.newWindow = makeBusAction(
         bus,
         window,
@@ -82,7 +89,86 @@ initializeCommonActions(Bus* bus, Window* window, CommonMenuActions& common)
         {},
         Tr::Menus::fileNewWindow());
 
-    //...
+    common.file.newNotebook = makeBusAction(
+        bus,
+        window,
+        Commands::NEW_NOTEBOOK,
+        {},
+        Tr::Menus::fileNewNotebook());
+
+    common.file.openNotebook = makeBusAction(
+        bus,
+        window,
+        Commands::OPEN_NOTEBOOK,
+        {},
+        Tr::Menus::fileOpenNotebook());
+
+    common.file.closeTab = makeBusAction(
+        bus,
+        window,
+        Commands::CLOSE_TAB,
+        {},
+        Tr::Menus::fileCloseTab());
+
+    common.file.closeAllTabsInWindow = makeBusAction(
+        bus,
+        window,
+        Commands::CLOSE_ALL_TABS_IN_WINDOW,
+        {},
+        Tr::Menus::fileCloseAllTabsInWindow());
+
+    common.file.closeWindow = makeBusAction(
+        bus,
+        window,
+        Commands::CLOSE_WINDOW,
+        {},
+        Tr::Menus::fileCloseWindow());
+
+    common.file.quit =
+        makeBusAction(bus, window, Commands::QUIT, {}, Tr::Menus::fileQuit());
+
+    common.edit.undo =
+        makeBusAction(bus, window, Commands::UNDO, {}, Tr::Menus::editUndo());
+
+    common.edit.redo =
+        makeBusAction(bus, window, Commands::REDO, {}, Tr::Menus::editRedo());
+
+    common.edit.cut =
+        makeBusAction(bus, window, Commands::CUT, {}, Tr::Menus::editCut());
+
+    common.edit.copy =
+        makeBusAction(bus, window, Commands::COPY, {}, Tr::Menus::editCopy());
+
+    common.edit.paste =
+        makeBusAction(bus, window, Commands::PASTE, {}, Tr::Menus::editPaste());
+
+    common.edit.del = makeBusAction(
+        bus,
+        window,
+        Commands::DELETE,
+        {},
+        Tr::Menus::editDelete());
+
+    common.edit.selectAll = makeBusAction(
+        bus,
+        window,
+        Commands::SELECT_ALL,
+        {},
+        Tr::Menus::editSelectAll());
+
+    common.settings = makeBusAction(
+        bus,
+        window,
+        Commands::SETTINGS_DIALOG,
+        {},
+        Tr::Menus::settings());
+
+    common.help.about = makeBusAction(
+        bus,
+        window,
+        Commands::ABOUT_DIALOG,
+        {},
+        Tr::Menus::helpAbout());
 }
 
 } // namespace Fernanda::Menus

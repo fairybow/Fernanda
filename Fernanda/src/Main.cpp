@@ -15,34 +15,19 @@
 #include "BuildMessages.h"
 #include "Version.h"
 
-/// Current goals:
-/// - Note this in Bus.md: Window service command handlers should be responsible
-/// for showing. Later, when we open multiple windows, we will have a different
-/// command, perhaps (or different args for the same command), letting the
-/// command handler still handle showing windows
-/// - Implement menu commands
-/// - Document utility commands (like windowsReversed, etc)
-/// - Redo Bus signals (events)
-/// - Comment-out Utility and see what's needed
-/// - Reimplement Commands
-/// - Consider if Command is Notebook- or Notepad-specific, like NewTab and
-/// NewTreeViewModel: need to be same command (with different implementation),
-/// CANNOT have separate namespaces, because users of those commands don't know
-/// or care about workspace type
-/// - Clean-up: ensure all command handler registrations use "param" instead of
-/// "to"
-/// - Plan handling of NewTab, FileSave, FileClose, and similar
-/// - Plan Application Quit
-/// - Reimplement Notepad menu
-/// - Build Notebook menu
-/// - Ensure we pass -1 as index param for edit commands
-/// - Implement Notebook TreeView model
-/// - Implement model.xml
-/// - Implement .fnx
-/// - Log to file (commented-out method is too slow)
+/// Next:
+/// - Implementing menus
+/// - Redoing commands for menus as it is reimplemented
+/// - Ensure we pass -1 as index param for edit commands from menus
+/// - Utility commands (windowsReversed, etc)
+/// - Document in Menus.md and Bus.md
+/// - Redo/organize Bus events
+/// - Deciding if OS and Archive FSs need different services
 ///
 /// Clean-up:
-///
+/// - Comment-out Utility and see what's needed
+/// - Ensure all command handler registrations use "param" instead of
+/// "to"
 /// - Search TODO
 /// - Remove "NOTE:" before notes, use only TODO or it's a note
 /// - Clean includes (Commands were in Constants briefly)
@@ -50,13 +35,26 @@
 /// - For Bus, ensure we use the windowDestroyed signal and don't connect to
 /// window destroyed signals inside our onWindowCreated functions...
 /// - Uniform use of nodiscard
+/// - Check lambda args (whether it needs & or = or should explicitly capture)
 ///
-/// Command handler registering sites:
+/// Command handler registering sites clean-up:
 /// - Make sure we aren't casting return values to QVar when registering (it
 /// isn't needed!)
 /// - Can we just return Coco::Path without QString conversion?
 /// - Check where we can remove Utility.h include (toQVariant unneeded)
-/// - Also check lambda args
+/// - Also check lambda args (whether it uses a Command or not)
+
+/// Unsorted (but next at some point):
+/// - Consider if Command is Notebook- or Notepad-specific, like NewTab and
+/// NewTreeViewModel: need to be same command (with different implementation),
+/// CANNOT have separate namespaces, because users of those commands don't know
+/// or care about workspace type
+/// - Plan handling of NewTab, FileSave, FileClose, and similar
+/// - Plan Application Quit
+/// - Implement Notebook TreeView model
+/// - Implement model.xml
+/// - Implement .fnx
+/// - Log to file (commented-out method is too slow)
 
 int main(int argc, char* argv[])
 {
