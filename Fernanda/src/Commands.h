@@ -17,6 +17,13 @@ constexpr auto CLOSE_TAB = "poly:close_tab";
 constexpr auto CLOSE_ALL_TABS_IN_WINDOW = "poly:close_all_tabs_in_window";
 constexpr auto CLOSE_WINDOW = "workspace:close_window";
 
+// Notepad scope
+constexpr auto NOTEPAD_OPEN_FILE = "notepad:open_file";
+constexpr auto NOTEPAD_SAVE = "notepad:save_file";
+constexpr auto NOTEPAD_SAVE_AS = "notepad:save_file_as";
+constexpr auto NOTEPAD_SAVE_ALL_IN_WINDOW = "notepad:save_all_in_window";
+constexpr auto NOTEPAD_SAVE_ALL = "notepad:save_all";
+
 // ViewService scope
 constexpr auto UNDO = "views:undo";
 constexpr auto REDO = "views:redo";

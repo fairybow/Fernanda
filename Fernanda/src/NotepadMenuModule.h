@@ -66,59 +66,68 @@ protected:
 private:
     QHash<Window*, NotepadMenuActions> actions_{};
 
+    // TODO: Remove {} for no arg commands
+    // TODO: Add key sequences
+    void initializeActions_(Window* window)
+    {
+        if (!window) return;
+        auto& actions = actions_[window];
+
+        actions.file.openFile = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_OPEN_FILE,
+            {},
+            Tr::Menus::fileNotepadOpen());
+
+        actions.file.save = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_SAVE,
+            {},
+            Tr::Menus::fileNotepadSave());
+
+        actions.file.saveAs = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_SAVE_AS,
+            {},
+            Tr::Menus::fileNotepadSaveAs());
+
+        actions.file.saveAllInWindow = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_SAVE_ALL_IN_WINDOW,
+            {},
+            Tr::Menus::fileNotepadSaveAllInWindow());
+
+        actions.file.saveAll = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_SAVE_ALL,
+            {},
+            Tr::Menus::fileNotepadSaveAll());
+    }
+
+    // TODO: Make whatever can be a Menus util into one
     void addMenuBar_(Window* window)
     {
         if (!window) return;
         auto& actions = actions_[window];
         auto menu_bar = new QMenuBar(window);
 
-        // File
-        auto file_menu = new QMenu(Tr::Menus::file(), menu_bar);
-        file_menu->addAction(actions.common.file.newTab);
-        file_menu->addAction(actions.common.file.newWindow);
-        file_menu->addSeparator();
-        file_menu->addAction(actions.common.file.newNotebook);
-        file_menu->addAction(actions.common.file.openNotebook);
-        file_menu->addSeparator();
+        Menus::addFileMenu(menu_bar, actions.common, [&](QMenu* menu) {
+            menu->addSeparator();
+            menu->addAction(actions.file.openFile);
+            menu->addSeparator();
+            menu->addAction(actions.file.save);
+            menu->addAction(actions.file.saveAs);
+            menu->addAction(actions.file.saveAllInWindow);
+            menu->addAction(actions.file.saveAll);
+            menu->addSeparator();
+        });
 
-        // Save section per subclass
-
-        file_menu->addSeparator();
-        file_menu->addAction(actions.common.file.closeTab);
-        file_menu->addAction(actions.common.file.closeAllTabsInWindow);
-        file_menu->addSeparator();
-        file_menu->addAction(actions.common.file.closeWindow);
-        file_menu->addSeparator();
-        file_menu->addAction(actions.common.file.quit);
-        menu_bar->addMenu(file_menu);
-
-        // Edit
-        // TODO: Can be a common function in Menus.h
-        auto edit_menu = new QMenu(Tr::Menus::edit(), menu_bar);
-        edit_menu->addAction(actions.common.edit.undo);
-        edit_menu->addAction(actions.common.edit.redo);
-        edit_menu->addSeparator();
-        edit_menu->addAction(actions.common.edit.cut);
-        edit_menu->addAction(actions.common.edit.copy);
-        edit_menu->addAction(actions.common.edit.paste);
-        edit_menu->addAction(actions.common.edit.del);
-        edit_menu->addSeparator();
-        edit_menu->addAction(actions.common.edit.selectAll);
-        menu_bar->addMenu(edit_menu);
-
-        // View (TBI)
-
-        // Settings
-        // Settings action is added directly to the menu bar
-        // TODO: Can be a common function in Menus.h
-        menu_bar->addAction(actions.common.settings);
-
-        // Help
-        // TODO: Can be a common function in Menus.h
-        auto help_menu = new QMenu(Tr::Menus::help(), menu_bar);
-        help_menu->addAction(actions.common.help.about);
-        menu_bar->addMenu(help_menu);
-
+        Menus::addCommonMenus(menu_bar, actions.common);
         window->setMenuBar(menu_bar);
     }
 
@@ -129,9 +138,13 @@ private slots:
         auto& actions = actions_[window];
 
         Menus::initializeCommonActions(bus, window, actions.common);
-        // Init notepad actions
-        // initactions(actions)
+        initializeActions_(window);
         addMenuBar_(window);
+
+        // In future, can be:
+        // init notepad actions: initializeActions_
+        // menus.h does everything else: Menus::make(bus, window, actions, [&]
+        // {}) with file menu inserter
     }
 };
 

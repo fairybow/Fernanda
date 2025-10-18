@@ -30,8 +30,6 @@
 /// "to"
 /// - Search TODO
 /// - Remove "NOTE:" before notes, use only TODO or it's a note
-/// - Clean includes (Commands were in Constants briefly)
-/// - Check license statements
 /// - For Bus, ensure we use the windowDestroyed signal and don't connect to
 /// window destroyed signals inside our onWindowCreated functions...
 /// - Uniform use of nodiscard
@@ -55,6 +53,14 @@
 /// - Implement model.xml
 /// - Implement .fnx
 /// - Log to file (commented-out method is too slow)
+///
+/// Unsorted clean-up:
+/// - Split to h/cpp
+/// - Move Internal namespaces to source
+/// - Ensure Internals are _ postfixed and possibly without the namespace, once
+/// in source
+/// - Clean includes (Commands were in Constants briefly)
+/// - Check license statements
 
 int main(int argc, char* argv[])
 {

@@ -9,8 +9,12 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QAction>
 #include <QKeySequence>
+#include <QMenu>
+#include <QMenuBar>
 #include <QString>
 #include <QVariant>
 #include <QVariantMap>
@@ -26,6 +30,45 @@
 // Utility functions for Notepad and Notebook menu modules
 namespace Fernanda::Menus {
 
+namespace Internal {
+
+    inline void addEditMenu(QMenuBar* menuBar, CommonMenuActions& common)
+    {
+        auto menu = new QMenu(Tr::Menus::edit(), menuBar);
+        menu->addAction(common.edit.undo);
+        menu->addAction(common.edit.redo);
+        menu->addSeparator();
+        menu->addAction(common.edit.cut);
+        menu->addAction(common.edit.copy);
+        menu->addAction(common.edit.paste);
+        menu->addAction(common.edit.del);
+        menu->addSeparator();
+        menu->addAction(common.edit.selectAll);
+        menuBar->addMenu(menu);
+    }
+
+    // TODO: Implement
+    inline void addViewMenu(QMenuBar* menuBar, CommonMenuActions& common)
+    {
+        //...
+    }
+
+    // Right now, Settings action is added directly to the menu bar
+    inline void addSettingsMenu(QMenuBar* menuBar, CommonMenuActions& common)
+    {
+        menuBar->addAction(common.settings);
+    }
+
+    inline void addHelpMenu(QMenuBar* menuBar, CommonMenuActions& common)
+    {
+        auto menu = new QMenu(Tr::Menus::help(), menuBar);
+        menu->addAction(common.help.about);
+        menuBar->addMenu(menu);
+    }
+
+} // namespace Internal
+
+using Inserter = std::function<void(QMenu*)>;
 COCO_BOOL(AutoRepeat);
 
 inline QAction* makeBusAction(
@@ -70,6 +113,8 @@ inline QAction* makeBusAction(
 // TODO: Ensure we pass -1 to certain commands as arg (for "current editor"
 // ops)
 // TODO: Before we continue, must document commands and summarize menu actions
+// TODO: Remove {} for no arg commands
+// TODO: Add key sequences
 inline void
 initializeCommonActions(Bus* bus, Window* window, CommonMenuActions& common)
 {
@@ -169,6 +214,38 @@ initializeCommonActions(Bus* bus, Window* window, CommonMenuActions& common)
         Commands::ABOUT_DIALOG,
         {},
         Tr::Menus::helpAbout());
+}
+
+inline void addFileMenu(
+    QMenuBar* menuBar,
+    CommonMenuActions& common,
+    const Inserter& inserter)
+{
+    auto menu = new QMenu(Tr::Menus::file(), menuBar);
+    menu->addAction(common.file.newTab);
+    menu->addAction(common.file.newWindow);
+    menu->addSeparator();
+    menu->addAction(common.file.newNotebook);
+    menu->addAction(common.file.openNotebook);
+
+    // Save section per subclass
+    inserter(menu);
+
+    menu->addAction(common.file.closeTab);
+    menu->addAction(common.file.closeAllTabsInWindow);
+    menu->addSeparator();
+    menu->addAction(common.file.closeWindow);
+    menu->addSeparator();
+    menu->addAction(common.file.quit);
+    menuBar->addMenu(menu);
+}
+
+inline void addCommonMenus(QMenuBar* menuBar, CommonMenuActions& common)
+{
+    Internal::addEditMenu(menuBar, common);
+    Internal::addViewMenu(menuBar, common);
+    Internal::addSettingsMenu(menuBar, common);
+    Internal::addHelpMenu(menuBar, common);
 }
 
 } // namespace Fernanda::Menus

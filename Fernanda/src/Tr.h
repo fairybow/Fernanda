@@ -90,14 +90,25 @@ namespace Tr {
         TR_(settings, tr("Settings"));
         TR_(help, tr("Help"));
 
+        // File
+
         TR_(fileNewTab, tr("New tab"));
         TR_(fileNewWindow, tr("New window"));
         TR_(fileNewNotebook, tr("New notebook"));
         TR_(fileOpenNotebook, tr("Open notebook"));
+
+        TR_(fileNotepadOpen, tr("Open..."));
+        TR_(fileNotepadSave, tr("Save"));
+        TR_(fileNotepadSaveAs, tr("Save as..."));
+        TR_(fileNotepadSaveAllInWindow, tr("Save all in window"));
+        TR_(fileNotepadSaveAll, tr("Save all"));
+
         TR_(fileCloseTab, tr("Close"));
         TR_(fileCloseAllTabsInWindow, tr("Close all in window"));
         TR_(fileCloseWindow, tr("Close window"));
         TR_(fileQuit, tr("Quit"));
+
+        // Edit
 
         TR_(editUndo, tr("Undo"));
         TR_(editRedo, tr("Redo"));
@@ -106,6 +117,8 @@ namespace Tr {
         TR_(editPaste, tr("Paste"));
         TR_(editDelete, tr("Delete"));
         TR_(editSelectAll, tr("Select all"));
+
+        // Help
 
         TR_(helpAbout, tr("About"));
 
@@ -121,17 +134,6 @@ namespace Tr {
             TR_(viewNextWindow, tr("Next window"));*/
 
         } // namespace Common
-
-        namespace Notepad {
-
-            /*TR_(fileOpenFile, tr("Open..."));
-
-            TR_(fileSaveFile, tr("Save"));
-            TR_(fileSaveFileAs, tr("Save as..."));
-            TR_(fileSaveAllFilesInWindow, tr("Save all in window"));
-            TR_(fileSaveAllFiles, tr("Save all"));*/
-
-        } // namespace Notepad
 
         namespace Notebook {
 
