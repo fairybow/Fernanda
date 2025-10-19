@@ -23,6 +23,10 @@
 /// - Redo/organize Bus events
 /// - Implement menu toggles
 /// - Deciding if OS and Archive FSs need different services
+/// 
+/// Things to log:
+/// - Active window
+/// - Active file view/model
 ///
 /// Clean-up:
 /// - Comment-out Utility and see what's needed
