@@ -131,9 +131,6 @@
     <None Include="docs\old_TempTodos.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\old_MenuCommandReference.md">
-      <Filter>Docs</Filter>
-    </None>
     <None Include="docs\StartupFlowchart.md">
       <Filter>Docs</Filter>
     </None>

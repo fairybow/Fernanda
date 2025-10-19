@@ -74,8 +74,8 @@ inline QAction* makeBusAction(
 
 namespace Internal {
 
-    // TODO: Ensure we pass -1 to certain commands as arg (for "current editor"
-    // ops)
+    // TODO: Instead of passing -1 to certain commands as arg (for "current
+    // editor" ops), use no arg, and move this distinction to ViewService
     // TODO: Before we continue, must document commands and summarize menu
     // actions
     // TODO: Remove {} for no arg commands

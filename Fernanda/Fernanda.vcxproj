@@ -37,7 +37,6 @@
     <None Include="docs\Menus.md" />
     <None Include="docs\Roadmap.md" />
     <None Include="docs\StartupFlowchart.md" />
-    <None Include="docs\old_MenuCommandReference.md" />
     <None Include="docs\old_TempCommandsReference.md" />
     <None Include="docs\old_TempTodos.md" />
     <None Include="docs\Style.md" />
