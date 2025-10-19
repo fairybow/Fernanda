@@ -37,13 +37,13 @@ constexpr auto NOTEBOOK_EXPORT_FILE = "notebook:export_file";
 
 // ViewService scope
 
-constexpr auto UNDO = "views:undo";
-constexpr auto REDO = "views:redo";
-constexpr auto CUT = "views:cut";
-constexpr auto COPY = "views:copy";
-constexpr auto PASTE = "views:paste";
-constexpr auto DELETE = "views:delete";
-constexpr auto SELECT_ALL = "views:select_all";
+constexpr auto UNDO = "views:undo"; /// *
+constexpr auto REDO = "views:redo"; /// *
+constexpr auto CUT = "views:cut"; /// *
+constexpr auto COPY = "views:copy"; /// *
+constexpr auto PASTE = "views:paste"; /// *
+constexpr auto DELETE = "views:delete"; /// *
+constexpr auto SELECT_ALL = "views:select_all"; /// *
 
 // SettingsModule scope
 

@@ -74,8 +74,6 @@ inline QAction* makeBusAction(
 
 namespace Internal {
 
-    // TODO: Instead of passing -1 to certain commands as arg (for "current
-    // editor" ops), use no arg, and move this distinction to ViewService
     // TODO: Before we continue, must document commands and summarize menu
     // actions
     // TODO: Remove {} for no arg commands (may not need args arg after all)
@@ -100,7 +98,6 @@ namespace Internal {
             bus,
             window,
             Commands::NEW_WINDOW,
-            {},
             Tr::Menus::fileNewWindow()); /// *
 
         common.file.newNotebook = makeBusAction(
@@ -149,46 +146,43 @@ namespace Internal {
             bus,
             window,
             Commands::UNDO,
-            {},
-            Tr::Menus::editUndo());
+            Tr::Menus::editUndo()); /// *
 
         common.edit.redo = makeBusAction(
             bus,
             window,
             Commands::REDO,
-            {},
-            Tr::Menus::editRedo());
+            Tr::Menus::editRedo()); /// *
 
-        common.edit.cut =
-            makeBusAction(bus, window, Commands::CUT, {}, Tr::Menus::editCut());
+        common.edit.cut = makeBusAction(
+            bus,
+            window,
+            Commands::CUT,
+            Tr::Menus::editCut()); /// *
 
         common.edit.copy = makeBusAction(
             bus,
             window,
             Commands::COPY,
-            {},
-            Tr::Menus::editCopy());
+            Tr::Menus::editCopy()); /// *
 
         common.edit.paste = makeBusAction(
             bus,
             window,
             Commands::PASTE,
-            {},
-            Tr::Menus::editPaste());
+            Tr::Menus::editPaste()); /// *
 
         common.edit.del = makeBusAction(
             bus,
             window,
             Commands::DELETE,
-            {},
-            Tr::Menus::editDelete());
+            Tr::Menus::editDelete()); /// *
 
         common.edit.selectAll = makeBusAction(
             bus,
             window,
             Commands::SELECT_ALL,
-            {},
-            Tr::Menus::editSelectAll());
+            Tr::Menus::editSelectAll()); /// *
 
         common.settings = makeBusAction(
             bus,
@@ -201,7 +195,6 @@ namespace Internal {
             bus,
             window,
             Commands::ABOUT_DIALOG,
-            {},
             Tr::Menus::helpAbout()); /// *
     }
 

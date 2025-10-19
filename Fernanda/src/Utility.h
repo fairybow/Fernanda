@@ -57,21 +57,21 @@ namespace Util {
     // Maybe make this a query, for organizational/clarity purposes. This works
     // fine, but feels off in terms of design. We also may want a treeView
     // function!
-    inline TabWidget* tabWidget(Window* window)
-    {
-        if (!window) return nullptr;
-        return cast<TabWidget*>(window->centralWidget());
-    }
+    //inline TabWidget* tabWidget(Window* window)
+    //{
+    //    if (!window) return nullptr;
+    //    return cast<TabWidget*>(window->centralWidget());
+    //}
+
+    //// ^ ditto
+    //inline int tabCount(Window* window)
+    //{
+    //    if (auto tab_widget = tabWidget(window)) return tab_widget->count();
+    //    return -1;
+    //}
 
     // ^ ditto
-    inline int tabCount(Window* window)
-    {
-        if (auto tab_widget = tabWidget(window)) return tab_widget->count();
-        return -1;
-    }
-
-    // ^ ditto
-    inline IFileView* viewAt(Window* window, int index)
+    /*inline IFileView* viewAt(Window* window, int index)
     {
         if (!window) return nullptr;
         auto tab_widget = tabWidget(window);
@@ -81,35 +81,35 @@ namespace Util {
         if (i < 0 || i > tab_widget->count() - 1) return nullptr;
 
         return tab_widget->widgetAt<IFileView*>(i);
-    }
+    }*/
 
     // ^ ditto
-    inline IFileModel* modelAt(Window* window, int index)
+    /*inline IFileModel* modelAt(Window* window, int index)
     {
         auto view = viewAt(window, index);
         if (!view) return nullptr;
         return view->model();
-    }
+    }*/
 
     // TODO: Move
-    inline bool isMultiWindow(IFileModel* model, QSet<Window*> windows)
-    {
-        if (!model) return false;
+    //inline bool isMultiWindow(IFileModel* model, QSet<Window*> windows)
+    //{
+    //    if (!model) return false;
 
-        auto window_count = 0;
+    //    auto window_count = 0;
 
-        for (auto window : windows) {
-            for (auto i = 0; i < tabCount(window); ++i) {
-                if (modelAt(window, i) == model) {
-                    ++window_count;
-                    if (window_count >= 2) return true; // Early exit
-                    break; // Move to next window
-                }
-            }
-        }
+    //    for (auto window : windows) {
+    //        for (auto i = 0; i < tabCount(window); ++i) {
+    //            if (modelAt(window, i) == model) {
+    //                ++window_count;
+    //                if (window_count >= 2) return true; // Early exit
+    //                break; // Move to next window
+    //            }
+    //        }
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
 } // namespace Util
 

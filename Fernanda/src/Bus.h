@@ -43,6 +43,8 @@ struct Command
     {
     }
 
+    // Without default value, will log unfound parameter but still return
+    // invalid QVariant
     [[nodiscard]] QVariant param(const QString& key) const
     {
         if (!params.contains(key)) {
@@ -52,9 +54,23 @@ struct Command
         return params.value(key);
     }
 
+    [[nodiscard]] QVariant
+    param(const QString& key, const QVariant& defaultValue) const
+    {
+        return params.value(key, defaultValue);
+    }
+
     template <typename T> [[nodiscard]] T param(const QString& key) const
     {
         return param(key).value<T>();
+    }
+
+    template <typename T>
+    [[nodiscard]] T param(const QString& key, const T& defaultValue) const
+    {
+        auto variant = params.value(key);
+        if (!variant.isValid() || !variant.canConvert<T>()) return defaultValue;
+        return variant.value<T>();
     }
 };
 
@@ -272,6 +288,8 @@ signals:
     /// Re-verified:
     void windowCreated(Window* window);
     void windowDestroyed(Window* window);
+    // View may be nullptr!
+    void activeFileViewChanged(Window* window, IFileView* view);
 
 
     /// Old:
@@ -304,8 +322,7 @@ signals:
 
     void windowTabCountChanged(Window* window, int count);
 
-    // View may be nullptr!
-    void activeFileViewChanged(IFileView* view, Window* window);
+    
     void viewClosed(IFileView* view);
 
     // SettingsModule

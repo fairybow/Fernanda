@@ -18,8 +18,6 @@
 /// Next:
 /// - Implementing menus
 /// - Redoing commands for menus as it is reimplemented
-/// - ViewService edit op overloads for no arg (which will run on current or
-/// nothing if no current exists)
 /// - Utility commands (windowsReversed, etc)
 /// - Document in Menus.md and Bus.md
 /// - Redo/organize Bus events

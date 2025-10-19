@@ -23,6 +23,7 @@
 #include "Coco/Concepts.h"
 
 #include "Bus.h"
+#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileMeta.h"
@@ -35,7 +36,6 @@
 #include "TabWidget.h"
 #include "TextFileModel.h"
 #include "TextFileView.h"
-#include "Utility.h"
 // #include "ViewServiceCloseHelper.h"
 #include "Window.h"
 
@@ -60,7 +60,35 @@ public:
 protected:
     virtual void registerBusCommands() override
     {
-        //...
+        // Possibly viewAt & modelAt
+
+        bus->addCommandHandler(Commands::UNDO, [&](const Command& cmd) {
+            undo_(cmd.context, cmd.param<int>("index", -1));
+        });
+
+        bus->addCommandHandler(Commands::REDO, [&](const Command& cmd) {
+            redo_(cmd.context, cmd.param<int>("index", -1));
+        });
+
+        bus->addCommandHandler(Commands::CUT, [&](const Command& cmd) {
+            cut_(cmd.context, cmd.param<int>("index", -1));
+        });
+
+        bus->addCommandHandler(Commands::COPY, [&](const Command& cmd) {
+            copy_(cmd.context, cmd.param<int>("index", -1));
+        });
+
+        bus->addCommandHandler(Commands::PASTE, [&](const Command& cmd) {
+            paste_(cmd.context, cmd.param<int>("index", -1));
+        });
+
+        bus->addCommandHandler(Commands::DELETE, [&](const Command& cmd) {
+            delete_(cmd.context, cmd.param<int>("index", -1));
+        });
+
+        bus->addCommandHandler(Commands::SELECT_ALL, [&](const Command& cmd) {
+            selectAll_(cmd.context, cmd.param<int>("index", -1));
+        });
     }
 
     virtual void connectBusEvents() override
@@ -78,6 +106,34 @@ private:
         // closeHelper_ = new ViewServiceCloseHelper(bus, this);
     }
 
+    TabWidget* tabWidget_(Window* window)
+    {
+        if (!window) return nullptr;
+        return qobject_cast<TabWidget*>(window->centralWidget());
+    }
+
+    // Passing a negative index defaults to the current index (if any)
+    IFileView* viewAt_(Window* window, int index)
+    {
+        if (!window) return nullptr;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return nullptr;
+
+        auto i = (index < 0) ? tab_widget->currentIndex() : index;
+        if (i < 0 || i > tab_widget->count() - 1) return nullptr;
+
+        return tab_widget->widgetAt<IFileView*>(i);
+    }
+
+    // Passing a negative index defaults to the current index (if any)
+    // TODO: Should this be in FileService?
+    IFileModel* modelAt_(Window* window, int index)
+    {
+        auto view = viewAt_(window, index);
+        if (!view) return nullptr;
+        return view->model();
+    }
+
     // Active file view can be set nullptr!
     void setActiveFileView_(Window* window, int index)
     {
@@ -86,72 +142,73 @@ private:
         IFileView* active = nullptr;
 
         if (index > -1)
-            if (auto view = Util::viewAt(window, index)) active = view;
+            if (auto view = viewAt_(window, index)) active = view;
 
         activeFileViews_[window] = active;
-        emit bus->activeFileViewChanged(active, window);
+        emit bus->activeFileViewChanged(window, active);
     }
 
-    void undoAt_(Window* window, int index)
+    void undo_(Window* window, int index = -1)
     {
-        auto model = Util::modelAt(window, index);
+        auto model = modelAt_(window, index);
         if (!model) return;
 
         if (model->hasUndo()) model->undo();
     }
 
-    void redoAt_(Window* window, int index)
+    void redo_(Window* window, int index = -1)
     {
-        auto model = Util::modelAt(window, index);
+        auto model = modelAt_(window, index);
         if (!model) return;
 
         if (model->hasRedo()) model->redo();
     }
 
-    void cutAt_(Window* window, int index)
+    void cut_(Window* window, int index = -1)
     {
-        auto view = Util::viewAt(window, index);
+        auto view = viewAt_(window, index);
         if (!view || !view->supportsEditing()) return;
 
         if (view->hasSelection()) view->cut();
     }
 
-    void copyAt_(Window* window, int index)
+    void copy_(Window* window, int index = -1)
     {
-        auto view = Util::viewAt(window, index);
+        auto view = viewAt_(window, index);
         if (!view || !view->supportsEditing()) return;
 
         if (view->hasSelection()) view->copy();
     }
 
-    void pasteAt_(Window* window, int index)
+    void paste_(Window* window, int index = -1)
     {
-        auto view = Util::viewAt(window, index);
+        auto view = viewAt_(window, index);
         if (!view || !view->supportsEditing()) return;
 
         if (view->hasPaste()) view->paste();
     }
 
-    void deleteAt_(Window* window, int index)
+    void delete_(Window* window, int index = -1)
     {
-        auto view = Util::viewAt(window, index);
+        auto view = viewAt_(window, index);
         if (!view || !view->supportsEditing()) return;
 
         if (view->hasSelection()) view->deleteSelection();
     }
 
-    void selectAllAt_(Window* window, int index)
+    void selectAll_(Window* window, int index = -1)
     {
-        auto view = Util::viewAt(window, index);
+        auto view = viewAt_(window, index);
         if (!view || !view->supportsEditing()) return;
 
         view->selectAll();
     }
 
+    // TODO: Rename!
     template <
         Coco::Concepts::QWidgetPointer FileViewT,
         Coco::Concepts::QObjectPointer FileModelT>
-    [[nodiscard]] FileViewT make_(FileModelT model, QWidget* parent)
+    FileViewT make_(FileModelT model, QWidget* parent)
     {
         auto view = new std::remove_pointer_t<FileViewT>(model, parent);
         view->initialize();
@@ -163,6 +220,7 @@ private slots:
     {
         if (!window) return;
 
+        // Section-off tab view creation!
         auto tab_widget = new TabWidget(window);
         window->setCentralWidget(tab_widget);
 
@@ -175,10 +233,8 @@ private slots:
             this,
             [&, window](int index) { setActiveFileView_(window, index); });
 
-        connect(tab_widget, &TabWidget::addTabRequested, this, [=] {
-            /// bus->execute(Cmd::NewTab, window);
-            TRACER;
-            qDebug() << "Implement";
+        connect(tab_widget, &TabWidget::addTabRequested, this, [&, window] {
+            bus->execute(Commands::NEW_TAB, window);
         });
 
         connect(
@@ -193,7 +249,7 @@ private slots:
             });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
-            //emit bus->windowTabCountChanged(window, tab_widget->count());
+            // emit bus->windowTabCountChanged(window, tab_widget->count());
         });
 
         // connect(tab_widget, &TabWidget::tabDragged, this, [] {
