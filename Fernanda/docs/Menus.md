@@ -1,7 +1,5 @@
 # Menus
 
-TODO: Ensure we describe poly commands in command doc
-
 TODO: Make sure TR lines up
 
 ## Common

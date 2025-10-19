@@ -40,6 +40,7 @@
     <None Include="docs\old_MenuCommandReference.md" />
     <None Include="docs\old_TempCommandsReference.md" />
     <None Include="docs\old_TempTodos.md" />
+    <None Include="docs\Style.md" />
     <None Include="docs\VSProjectSettings.md" />
     <None Include="resources\ui\TabWidgetButtonAdd.svg" />
     <None Include="resources\ui\TabWidgetButtonClose.svg" />

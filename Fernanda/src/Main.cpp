@@ -22,6 +22,7 @@
 /// - Utility commands (windowsReversed, etc)
 /// - Document in Menus.md and Bus.md
 /// - Redo/organize Bus events
+/// - Implement menu toggles
 /// - Deciding if OS and Archive FSs need different services
 ///
 /// Clean-up:
