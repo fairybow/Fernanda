@@ -215,12 +215,10 @@ private:
         return view;
     }
 
-private slots:
-    void onWindowCreated_(Window* window)
+    void addTabWidget_(Window* window)
     {
         if (!window) return;
 
-        // Section-off tab view creation!
         auto tab_widget = new TabWidget(window);
         window->setCentralWidget(tab_widget);
 
@@ -258,6 +256,13 @@ private slots:
         // connect(tab_widget, &TabWidget::tabDraggedToDesktop, this, [] {
         //     //...
         // });
+    }
+
+private slots:
+    void onWindowCreated_(Window* window)
+    {
+        if (!window) return;
+        addTabWidget_(window);
     }
 
     void onFileReadied_(IFileModel* model, Window* window)

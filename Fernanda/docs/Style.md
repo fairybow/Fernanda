@@ -58,7 +58,7 @@ namespace detail {
 }
 ```
 
-## Getters and Setters
+### Getters and Setters
 
 **Getter naming**: Remove the trailing underscore from the private member name
 
@@ -76,6 +76,46 @@ public:
 private:
     QString buttonText_;
 };
+```
+
+### Functions for Clarity
+
+This:
+
+```cpp
+    void addTabWidget_(Window* window)
+    {
+        if (!window) return;
+
+        auto tab_widget = new TabWidget(window);
+        window->setCentralWidget(tab_widget);
+
+        //...
+    }
+
+private slots:
+    // GOOD:
+    void onWindowCreated_(Window* window)
+    {
+        if (!window) return;
+        addTabWidget_(window);
+    }
+```
+
+is better than this:
+
+```cpp
+private slots:
+    // BAD:
+    void onWindowCreated_(Window* window)
+    {
+        if (!window) return;
+
+        auto tab_widget = new TabWidget(window);
+        window->setCentralWidget(tab_widget);
+
+        //...
+    }
 ```
 
 ### Comments and Documentation
