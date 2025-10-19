@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <concepts>
 #include <optional>
 
 #include <QEvent>

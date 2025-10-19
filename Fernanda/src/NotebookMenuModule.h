@@ -12,6 +12,7 @@
 #include <QAction>
 #include <QHash>
 #include <QMenu>
+#include <QMenuBar>
 #include <QObject>
 
 #include "Bus.h"
@@ -20,6 +21,7 @@
 #include "IService.h"
 #include "MenuActions.h"
 #include "Menus.h"
+#include "Tr.h"
 
 namespace Fernanda {
 
@@ -42,65 +44,90 @@ protected:
 
     virtual void connectBusEvents() override
     {
-        //...
+        connect(
+            bus,
+            &Bus::windowCreated,
+            this,
+            &NotebookMenuModule::onWindowCreated_);
+
+        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
+            // TODO: Some or all of this could also be common util functions in
+            // Menus.h
+            actions_.remove(window);
+
+            /*if (auto cx = activeTabConnections_.take(window);
+                !cx.isEmpty()) {
+                for (auto& connection : cx)
+                    disconnect(connection);
+            }*/
+        });
     }
 
 private:
     QHash<Window*, NotebookMenuActions> actions_{};
+
+    // TODO: Remove {} for no arg commands
+    // TODO: Add key sequences
+    void initializeActions_(Window* window)
+    {
+        if (!window) return;
+        auto& actions = actions_[window];
+
+        actions.file.openNotepad = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_OPEN_NOTEPAD,
+            {},
+            Tr::Menus::fileNotebookOpenNotepad());
+
+        actions.file.importFile = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_IMPORT_FILE,
+            {},
+            Tr::Menus::fileNotebookImportFile());
+
+        actions.file.save = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_SAVE,
+            {},
+            Tr::Menus::fileNotebookSaveArchive());
+
+        actions.file.saveAs = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_SAVE_AS,
+            {},
+            Tr::Menus::fileNotebookSaveArchiveAs());
+
+        actions.file.exportFile = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_EXPORT_FILE,
+            {},
+            Tr::Menus::fileNotebookExportFile());
+    }
+
+private slots:
+    void onWindowCreated_(Window* window)
+    {
+        if (!window) return;
+
+        initializeActions_(window);
+        auto& actions = actions_[window];
+        Menus::addNewMenuBar(bus, window, actions.common, [&](QMenu* menu) {
+            menu->addSeparator();
+            menu->addAction(actions.file.openNotepad);
+            menu->addSeparator();
+            menu->addAction(actions.file.importFile);
+            menu->addSeparator();
+            menu->addAction(actions.file.save);
+            menu->addAction(actions.file.saveAs);
+            menu->addAction(actions.file.exportFile);
+            menu->addSeparator();
+        });
+    }
 };
 
 } // namespace Fernanda
-
-/// OLD (Remove later):
-
-/*
-protected:
-virtual void initializeWorkspaceActions_(Window* window) override
-{
-    if (!window) return;
-    Actions_ actions{};
-
-    /// Add commands but reimplement them one at a time
-
-    // File/Open
-    actions.fileImportFile =
-        make(window, "", Tr::Menus::Notebook::fileImportFile());
-    actions.fileOpenNotepad =
-        make(window, "", Tr::Menus::Notebook::fileOpenNotepad());
-
-    // File/Save
-    actions.toggles.fileSaveArchive =
-        make(window, "", Tr::Menus::Notebook::fileSaveArchive());
-    actions.fileSaveArchiveAs =
-        make(window, "", Tr::Menus::Notebook::fileSaveArchiveAs());
-    actions.fileExportFile =
-        make(window, "", Tr::Menus::Notebook::fileExportFile());
-
-    actions_[window] = actions;
-}
-
-[[nodiscard]]
-virtual bool
-addWorkspaceFileOpenActions_(QMenu* fileMenu, Window* window) override
-{
-    if (!fileMenu || !window) return false;
-    auto& actions = actions_[window];
-
-    fileMenu->addAction(actions.fileImportFile);
-    fileMenu->addAction(actions.fileOpenNotepad);
-    return true;
-}
-
-[[nodiscard]]
-virtual bool
-addWorkspaceFileSaveActions_(QMenu* fileMenu, Window* window) override
-{
-    if (!fileMenu || !window) return false;
-    auto& actions = actions_[window];
-
-    fileMenu->addAction(actions.toggles.fileSaveArchive);
-    fileMenu->addAction(actions.fileSaveArchiveAs);
-    fileMenu->addAction(actions.fileExportFile);
-    return true;
-}
-*/

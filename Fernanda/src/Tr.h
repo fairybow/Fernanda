@@ -103,6 +103,12 @@ namespace Tr {
         TR_(fileNotepadSaveAllInWindow, tr("Save all in window"));
         TR_(fileNotepadSaveAll, tr("Save all"));
 
+        TR_(fileNotebookOpenNotepad, tr("Open notepad"));
+        TR_(fileNotebookImportFile, tr("Import..."));
+        TR_(fileNotebookSaveArchive, tr("Save"));
+        TR_(fileNotebookSaveArchiveAs, tr("Save as..."));
+        TR_(fileNotebookExportFile, tr("Export..."));
+
         TR_(fileCloseTab, tr("Close"));
         TR_(fileCloseAllTabsInWindow, tr("Close all in window"));
         TR_(fileCloseWindow, tr("Close window"));
@@ -134,17 +140,6 @@ namespace Tr {
             TR_(viewNextWindow, tr("Next window"));*/
 
         } // namespace Common
-
-        namespace Notebook {
-
-            /*TR_(fileImportFile, tr("Import..."));
-            TR_(fileOpenNotepad, tr("Open notepad"));
-
-            TR_(fileSaveArchive, tr("Save"));
-            TR_(fileSaveArchiveAs, tr("Save as..."));
-            TR_(fileExportFile, tr("Export..."));*/
-
-        } // namespace Notebook
 
     } // namespace Menus
 

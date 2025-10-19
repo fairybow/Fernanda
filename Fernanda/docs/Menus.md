@@ -2,6 +2,8 @@
 
 TODO: Ensure we describe poly commands in command doc
 
+TODO: Make sure TR lines up
+
 ## Common
 
 ### File
@@ -142,8 +144,9 @@ Save all                    Ctrl+Shift+S    notepad:save_all                 [To
 ### File
 
 ```
-Import file...                              notebook:import_file
 Open notepad                                notebook:open_notepad
+-------------------------------------------
+Import file...                              notebook:import_file
 -------------------------------------------
 Save                        Ctrl+S          notebook:save_archive            [Toggle]
 Save as...                  Ctrl+Alt+S      notebook:save_archive_as

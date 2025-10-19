@@ -109,14 +109,14 @@ private:
             Tr::Menus::fileNotepadSaveAll());
     }
 
-    // TODO: Make whatever can be a Menus util into one
-    void addMenuBar_(Window* window)
+private slots:
+    void onWindowCreated_(Window* window)
     {
         if (!window) return;
-        auto& actions = actions_[window];
-        auto menu_bar = new QMenuBar(window);
 
-        Menus::addFileMenu(menu_bar, actions.common, [&](QMenu* menu) {
+        initializeActions_(window);
+        auto& actions = actions_[window];
+        Menus::addNewMenuBar(bus, window, actions.common, [&](QMenu* menu) {
             menu->addSeparator();
             menu->addAction(actions.file.openFile);
             menu->addSeparator();
@@ -126,25 +126,6 @@ private:
             menu->addAction(actions.file.saveAll);
             menu->addSeparator();
         });
-
-        Menus::addCommonMenus(menu_bar, actions.common);
-        window->setMenuBar(menu_bar);
-    }
-
-private slots:
-    void onWindowCreated_(Window* window)
-    {
-        if (!window) return;
-        auto& actions = actions_[window];
-
-        Menus::initializeCommonActions(bus, window, actions.common);
-        initializeActions_(window);
-        addMenuBar_(window);
-
-        // In future, can be:
-        // init notepad actions: initializeActions_
-        // menus.h does everything else: Menus::make(bus, window, actions, [&]
-        // {}) with file menu inserter
     }
 };
 
