@@ -60,7 +60,7 @@ public:
 protected:
     virtual void registerBusCommands() override
     {
-        // Possibly viewAt & modelAt
+        // Possibly tabWidget, viewAt & modelAt
 
         bus->addCommandHandler(Commands::UNDO, [&](const Command& cmd) {
             undo_(cmd.context, cmd.param<int>("index", -1));
