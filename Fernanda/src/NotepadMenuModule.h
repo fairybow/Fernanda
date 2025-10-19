@@ -73,6 +73,8 @@ private:
         if (!window) return;
         auto& actions = actions_[window];
 
+        /// * = implemented
+
         actions.file.openFile = Menus::makeBusAction(
             bus,
             window,

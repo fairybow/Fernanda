@@ -78,7 +78,7 @@ namespace Internal {
     // editor" ops), use no arg, and move this distinction to ViewService
     // TODO: Before we continue, must document commands and summarize menu
     // actions
-    // TODO: Remove {} for no arg commands
+    // TODO: Remove {} for no arg commands (may not need args arg after all)
     // TODO: Add key sequences
     inline void initializeCommonActions_(
         Bus* bus,
@@ -86,6 +86,8 @@ namespace Internal {
         CommonMenuActions& common)
     {
         if (!bus || !window) return;
+
+        /// * = implemented
 
         common.file.newTab = makeBusAction(
             bus,
@@ -99,7 +101,7 @@ namespace Internal {
             window,
             Commands::NEW_WINDOW,
             {},
-            Tr::Menus::fileNewWindow());
+            Tr::Menus::fileNewWindow()); /// *
 
         common.file.newNotebook = makeBusAction(
             bus,
@@ -200,7 +202,7 @@ namespace Internal {
             window,
             Commands::ABOUT_DIALOG,
             {},
-            Tr::Menus::helpAbout());
+            Tr::Menus::helpAbout()); /// *
     }
 
     inline void addFileMenu_(
