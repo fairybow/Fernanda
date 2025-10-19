@@ -18,6 +18,7 @@ constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 constexpr auto CLOSE_TAB = "poly:close_tab";
 constexpr auto CLOSE_ALL_TABS_IN_WINDOW = "poly:close_all_tabs_in_window";
 constexpr auto CLOSE_WINDOW = "workspace:close_window";
+constexpr auto NEW_TREE_VIEW_MODEL = "poly:new_tree_view_model"; /// non-menu
 
 // Notepad scope
 

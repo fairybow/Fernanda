@@ -16,6 +16,8 @@
 #include "Version.h"
 
 /// Next:
+/// - Tree view stuff
+/// - New Notebook first! Figure out fnx creation
 /// - Implementing menus
 /// - Redoing commands for menus as it is reimplemented
 /// - Utility commands (windowsReversed, etc)

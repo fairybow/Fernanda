@@ -84,6 +84,15 @@ private:
 
     void registerBusCommands_()
     {
+        bus->addCommandHandler(Commands::NEW_TREE_VIEW_MODEL, [&] {
+             auto model = new QFileSystemModel(this);
+             auto root_index = model->setRootPath(currentBaseDir_.toQString());
+             TreeViewModule::saveModelRootIndex(model, root_index);
+             model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+             // Any other Notepad-specific model setup
+             return model;
+        });
+
         /*bus->addInterceptor(Commands::OpenFile, [&](const Command& cmd) {
             if (pathInterceptor_
                 && pathInterceptor_(to<QString>(cmd.params, "path"))) {
@@ -102,16 +111,6 @@ private:
         //     /// createNewTextFile_(cmd.context); //<- Old (in FileService)
         //     TRACER;
         //     qDebug() << "Implement";
-        // });
-
-        // bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
-        //     auto model = new QFileSystemModel(this);
-        //     auto root_index =
-        //     model->setRootPath(currentBaseDir_.toQString());
-        //     TreeViewModule::saveModelRootIndex(model, root_index);
-        //     model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-        //     // Any other Notepad-specific model setup
-        //     return model;
         // });
     }
 

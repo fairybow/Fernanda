@@ -25,6 +25,7 @@
 #include "Coco/Utility.h"
 
 #include "Bus.h"
+#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "IService.h"
@@ -68,17 +69,70 @@ protected:
 
     virtual void connectBusEvents() override
     {
-        //...
+        connect(
+            bus,
+            &Bus::windowCreated,
+            this,
+            &TreeViewModule::onWindowCreated_);
     }
 
 private:
-    // QHash<Window*, TreeView*> treeViews_{};
+    // QHash<Window*, TreeView*> treeViews_{}; // dock widgets?
     // A set instead, perhaps, just for quick updates across all Workspace
     // TreeViews
 
     void setup_()
     {
         //...
+    }
+
+    void addTreeView_(Window* window)
+    {
+        if (!window) return;
+
+        /// Set initial visibility and size based on settings later
+        auto dock_widget = new QDockWidget(window);
+        auto tree_view = new TreeView(dock_widget);
+
+        if (auto model =
+                bus->call<QAbstractItemModel*>(Commands::NEW_TREE_VIEW_MODEL)) {
+            tree_view->setModel(model);
+            if (auto root_index = modelRootIndex(model); root_index.isValid()) {
+                tree_view->setRootIndex(root_index);
+            }
+        }
+
+        dock_widget->setWidget(tree_view);
+        window->addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
+
+        window->resizeDocks(
+            { dock_widget },
+            { window->width() / 3 },
+            Qt::Horizontal);
+
+        connect(
+            tree_view,
+            &TreeView::doubleClicked,
+            this,
+            [&, tree_view, window](const QModelIndex& index) {
+                auto model = tree_view->model();
+                if (!model) return;
+
+                Coco::Path path{};
+
+                if (auto fs_model = cast<QFileSystemModel*>(model)) {
+                    path = fs_model->filePath(index);
+                } // else if (auto archive_model = to<ArchiveModel*>(model))
+                  // { path = archive_model->filePath(index);
+                //}
+
+                if (!path.isEmpty()) {
+                    /*bus->execute(
+                        PolyCmd::OPEN_FILE,
+                        { { "path", path.toQString() } },
+                        window);*/
+                }
+            });
     }
 
 private slots:
@@ -88,51 +142,7 @@ private slots:
 
         // Break into multiple methods
 
-        /// Set initial visibility and size based on settings later
-        // auto dock_widget = new QDockWidget(window);
-        // auto tree_view = new TreeView(dock_widget);
-
-        // if (auto model =
-        //         bus->call<QAbstractItemModel*>(PolyCmd::NEW_TREE_VIEW_MODEL))
-        //         {
-        //     tree_view->setModel(model);
-        //     if (auto root_index = modelRootIndex(model);
-        //     root_index.isValid()) {
-        //         tree_view->setRootIndex(root_index);
-        //     }
-        // }
-
-        // dock_widget->setWidget(tree_view);
-        // window->addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
-
-        // window->resizeDocks(
-        //     { dock_widget },
-        //     { (window->width() / 3) },
-        //     Qt::Horizontal);
-
-        // connect(
-        //     tree_view,
-        //     &TreeView::doubleClicked,
-        //     this,
-        //     [&, tree_view, window](const QModelIndex& index) {
-        //         auto model = tree_view->model();
-        //         if (!model) return;
-
-        //        Coco::Path path{};
-
-        //        if (auto fs_model = cast<QFileSystemModel*>(model)) {
-        //            path = fs_model->filePath(index);
-        //        } // else if (auto archive_model = to<ArchiveModel*>(model))
-        //          // { path = archive_model->filePath(index);
-        //        //}
-
-        //        if (!path.isEmpty()) {
-        //            bus->execute(
-        //                PolyCmd::OPEN_FILE,
-        //                { { "path", path.toQString() } },
-        //                window);
-        //        }
-        //    });
+        addTreeView_(window);
 
         ///// Button
 
