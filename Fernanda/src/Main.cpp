@@ -16,8 +16,11 @@
 #include "Version.h"
 
 /// Next:
+/// - FNX doc and UserData doc
+/// - Replace Coco/TextIo with project version
 /// - Tree view stuff
 /// - New Notebook first! Figure out fnx creation
+/// - FnxModel class for TreeView?
 /// - Implementing menus
 /// - Redoing commands for menus as it is reimplemented
 /// - Utility commands (windowsReversed, etc)

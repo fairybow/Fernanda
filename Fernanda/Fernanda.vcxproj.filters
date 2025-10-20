@@ -152,6 +152,12 @@
     <None Include="docs\Style.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\FNX File.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\UserData.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -306,9 +312,6 @@
     <ClInclude Include="src\Utility.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileTypes.h">
-      <Filter>Code\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Tr.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
@@ -320,9 +323,6 @@
     </ClInclude>
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Path.h">
       <Filter>Submodules\Coco</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SavePrompt.h">
-      <Filter>Code\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Ini.h">
       <Filter>Code\Auxiliary</Filter>
@@ -348,9 +348,6 @@
     <ClInclude Include="src\ToString.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Commands.h">
-      <Filter>Code\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\MenuActions.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </ClInclude>
@@ -359,6 +356,21 @@
     </ClInclude>
     <ClInclude Include="src\Menus.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fnx.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileTypes.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Commands.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SavePrompt.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TextIo.h">
+      <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

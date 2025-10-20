@@ -34,12 +34,14 @@
     <None Include="cpp.hint" />
     <None Include="docs\Bus.md" />
     <None Include="docs\ComponentArchitecture.md" />
+    <None Include="docs\FNX File.md" />
     <None Include="docs\Menus.md" />
     <None Include="docs\Roadmap.md" />
     <None Include="docs\StartupFlowchart.md" />
     <None Include="docs\old_TempCommandsReference.md" />
     <None Include="docs\old_TempTodos.md" />
     <None Include="docs\Style.md" />
+    <None Include="docs\UserData.md" />
     <None Include="docs\VSProjectSettings.md" />
     <None Include="resources\ui\TabWidgetButtonAdd.svg" />
     <None Include="resources\ui\TabWidgetButtonClose.svg" />
@@ -80,6 +82,7 @@
     <ClInclude Include="src\AboutDialog.h" />
     <QtMoc Include="src\FontSelector.h" />
     <ClInclude Include="src\Commands.h" />
+    <ClInclude Include="src\Fnx.h" />
     <ClInclude Include="src\Ini.h" />
     <QtMoc Include="src\Notebook.h" />
     <QtMoc Include="src\Notepad.h" />
@@ -92,6 +95,7 @@
     <QtMoc Include="src\SettingsDialog.h" />
     <ClInclude Include="src\OLDMenuModule.h" />
     <ClInclude Include="src\Formatters.h" />
+    <ClInclude Include="src\TextIo.h" />
     <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewModule.h" />
@@ -159,13 +163,13 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>6.9.2_msvc2022_64</QtInstall>
-    <QtModules>core;gui;network;widgets;svg</QtModules>
+    <QtInstall>6.10.0_msvc2022_64</QtInstall>
+    <QtModules>core;gui;network;widgets;svg;xml</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.9.2_msvc2022_64</QtInstall>
-    <QtModules>core;gui;network;widgets;svg</QtModules>
+    <QtInstall>6.10.0_msvc2022_64</QtInstall>
+    <QtModules>core;gui;network;widgets;svg;xml</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">

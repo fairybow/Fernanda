@@ -16,7 +16,7 @@
 #include <QTextDocument>
 
 #include "Coco/Path.h"
-#include "Coco/TextIo.h"
+#include "Coco/TextIo.h" /// TODO: Replace with Fernanda version
 
 #include "Debug.h"
 #include "Enums.h"

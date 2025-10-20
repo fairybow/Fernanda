@@ -26,8 +26,7 @@ Mac and Linux support is planned.
 ```
 Application
 └── Workspace(s)
-    ├── Commander
-    ├── EventBus
+    ├── Bus (Commander + EventBus)
     ├── Services (Windows, Files, Views...)
     └── Modules (ColorBars, Menus, WordCounters...)
 ```
@@ -38,7 +37,7 @@ Open `Fernanda.vcxproj` in Visual Studio and build.
 
 ## Requirements
 
-- Qt 6.9.1
+- Qt 6.10.0
 - Visual Studio 2022
 - C++ 20
 - Windows only
