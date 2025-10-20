@@ -2,7 +2,7 @@
 
 ```
 Notebook.fnx
-├── content/          # Content directory
+├── content/        # Content directory
 ├── Model.xml       # Content's virtual structure
 └── Settings.ini    # The Notebook's settings (overrides Notepad settings)
 ```
