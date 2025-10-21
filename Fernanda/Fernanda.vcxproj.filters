@@ -152,10 +152,13 @@
     <None Include="docs\Style.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\FNX File.md">
+    <None Include="docs\FNXFile.md">
       <Filter>Docs</Filter>
     </None>
     <None Include="docs\UserData.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\NotebookCreation.md">
       <Filter>Docs</Filter>
     </None>
   </ItemGroup>

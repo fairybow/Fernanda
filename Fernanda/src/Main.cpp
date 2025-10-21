@@ -64,6 +64,7 @@
 /// - Log to file (commented-out method is too slow)
 ///
 /// Unsorted clean-up:
+/// - Standardize callback code for close acceptor and similar
 /// - Find code that needs to be sectioned-off into a function for clarity
 /// (check slots and setup functions, for example)
 /// - Split to h/cpp

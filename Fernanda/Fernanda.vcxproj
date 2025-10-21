@@ -34,8 +34,9 @@
     <None Include="cpp.hint" />
     <None Include="docs\Bus.md" />
     <None Include="docs\ComponentArchitecture.md" />
-    <None Include="docs\FNX File.md" />
+    <None Include="docs\FNXFile.md" />
     <None Include="docs\Menus.md" />
+    <None Include="docs\NotebookCreation.md" />
     <None Include="docs\Roadmap.md" />
     <None Include="docs\StartupFlowchart.md" />
     <None Include="docs\old_TempCommandsReference.md" />

@@ -1,13 +1,15 @@
 #pragma once
 
+#include <QString>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include <QString>
 
 #include "Coco/Path.h"
 
 #include "TextIo.h"
 
+// TODO: Function for creating the Model.xml will be same as restoring it
+// (obviously)
 namespace Fernanda::Fnx {
 
 inline void tempTestWrite()
@@ -15,15 +17,13 @@ inline void tempTestWrite()
     QString xml_content{};
     QXmlStreamWriter xml(&xml_content);
 
-        xml.setAutoFormatting(true);
+    xml.setAutoFormatting(true);
     xml.setAutoFormattingIndent(2);
 
     xml.writeStartDocument();
 
-    // Root with name and archive-path
+    // Root
     xml.writeStartElement("root");
-    xml.writeAttribute("name", "Notebook 1");
-    xml.writeAttribute("archive-path", "/home/documents/Notebook 1.fnx");
 
     // Folder node at top level
     xml.writeStartElement("folder");
@@ -32,7 +32,7 @@ inline void tempTestWrite()
     // File parented by folder
     xml.writeStartElement("file");
     xml.writeAttribute("name", "1");
-    xml.writeAttribute("type", "text");
+    xml.writeAttribute("type", "plaintext");
     xml.writeAttribute("uuid", "xxx1");
     xml.writeEndElement(); // file
 
@@ -41,13 +41,13 @@ inline void tempTestWrite()
     // File node at top level
     xml.writeStartElement("file");
     xml.writeAttribute("name", "Notes");
-    xml.writeAttribute("type", "text");
+    xml.writeAttribute("type", "plaintext");
     xml.writeAttribute("uuid", "xxx2");
 
     // File parented by the top-level file
     xml.writeStartElement("file");
     xml.writeAttribute("name", "Other Notes");
-    xml.writeAttribute("type", "text");
+    xml.writeAttribute("type", "plaintext");
     xml.writeAttribute("uuid", "xxx3");
     xml.writeEndElement(); // file (nested)
 
@@ -57,9 +57,7 @@ inline void tempTestWrite()
     xml.writeEndDocument();
 
     auto path = Coco::Path::Desktop("sample_output.xml");
-    bool success = TextIo::write(
-        xml_content,
-        path);
+    bool success = TextIo::write(xml_content, path);
 
     if (success) {
         INFO("Sample XML saved to: {}", path);
