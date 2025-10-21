@@ -25,6 +25,8 @@ The `Settings.ini` file is optional. It's generated as needed and removing it wi
 </root>
 ```
 
+This could in theory be deleted and then regenerated but we'd lost the file names and virtual directory structure.
+
 ## Content
 
 Each file will be named with a UUID and the appropriate extension (i.e., `.txt`).
