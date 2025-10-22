@@ -8,8 +8,6 @@
 
 #include "TextIo.h"
 
-// TODO: Function for creating the Model.xml will be same as restoring it
-// (obviously)
 namespace Fernanda::Fnx {
 
 inline void tempTestWrite()

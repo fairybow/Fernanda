@@ -72,8 +72,18 @@ private:
     PathInterceptor pathInterceptor_ = nullptr;
     NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
+    /// Testing central model (should Workspace itself have a protected abstract
+    /// model pointer instead?)
+    QFileSystemModel* treeViewModel_ = new QFileSystemModel(this);
+
     void setup_()
     {
+        ///
+        // Via Qt: Setting root path installs a filesystem watcher
+        treeViewModel_->setRootPath(currentBaseDir_.toQString());
+        treeViewModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+        ///
+
         menus_->initialize();
 
         //...
@@ -84,13 +94,15 @@ private:
 
     void registerBusCommands_()
     {
-        bus->addCommandHandler(Commands::NEW_TREE_VIEW_MODEL, [&] {
-             auto model = new QFileSystemModel(this);
-             auto root_index = model->setRootPath(currentBaseDir_.toQString());
-             TreeViewModule::saveModelRootIndex(model, root_index);
-             model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-             // Any other Notepad-specific model setup
-             return model;
+        bus->addCommandHandler(Commands::TREE_VIEW_MODEL, [&] {
+            return treeViewModel_;
+        });
+
+        bus->addCommandHandler(Commands::TREE_VIEW_ROOT_INDEX, [&] {
+            // Generate the index on-demand from the stored path (don't hold it
+            // separately or retrieve via Model::setRootPath)
+            if (!treeViewModel_) return QModelIndex{};
+            return treeViewModel_->index(currentBaseDir_.toQString());
         });
 
         /*bus->addInterceptor(Commands::OpenFile, [&](const Command& cmd) {

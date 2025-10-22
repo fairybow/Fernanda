@@ -50,17 +50,6 @@ public:
 
     virtual ~TreeViewModule() override { TRACER; }
 
-    static QModelIndex modelRootIndex(QAbstractItemModel* model)
-    {
-        return model->property("root").value<QModelIndex>();
-    }
-
-    static void
-    saveModelRootIndex(QAbstractItemModel* model, const QModelIndex& index)
-    {
-        model->setProperty("root", index);
-    }
-
 protected:
     virtual void registerBusCommands() override
     {
@@ -95,11 +84,13 @@ private:
         auto tree_view = new TreeView(dock_widget);
 
         if (auto model =
-                bus->call<QAbstractItemModel*>(Commands::NEW_TREE_VIEW_MODEL)) {
+                bus->call<QAbstractItemModel*>(Commands::TREE_VIEW_MODEL)) {
             tree_view->setModel(model);
-            if (auto root_index = modelRootIndex(model); root_index.isValid()) {
-                tree_view->setRootIndex(root_index);
-            }
+
+            auto root_index =
+                bus->call<QModelIndex>(Commands::TREE_VIEW_ROOT_INDEX);
+
+            if (root_index.isValid()) tree_view->setRootIndex(root_index);
         }
 
         dock_widget->setWidget(tree_view);

@@ -33,7 +33,8 @@ Poly commands are registered per Workspace type (Notepad or Notebook) but called
 - `close_all_tabs_in_window`*: Closes all tabs in the current window with workspace-specific save handling.
     - **Notepad**: Iterates backward through tabs. Builds a list of unique modified models that only have views in this window (skips models with views in other windows). If the list is not empty, shows multi-file save prompt with checkboxes. User can save selected files, discard all, or cancel. If cancel, aborts. Otherwise, saves chosen files, then closes all views and emits events for each.
     - **Notebook**: Simply closes all views without prompting. Changes remain in temp files, archive stays marked as modified if applicable.
-- `new_tree_view_model`: Returns a new model appropriate for the Workspace (OS-based for Notepad and archive-based for Notebooks).
+- `tree_view_model`: Returns the Workspace's file model (OS-based for Notepad and archive-based for Notebooks).
+- `tree_view_root_index`: Returns the Workspace's current TreeView root index.
 
 ### `notepad`
 
