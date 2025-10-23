@@ -46,13 +46,7 @@
 STRING_FORMATTER_(QString, x.toStdString());
 STRING_FORMATTER_(Coco::Path, x.toString());
 STRING_FORMATTER_(QVariantMap, Fernanda::toString(x));
-
-// TODO: Won't work for something complex. Could use a custom
-// converter that just calls variant.toString for
-// everything except specified types (like Coco::Path,
-// QObject pointers, etc): i.e.,
-// `FernandaTemp::toString(x)`
-STRING_FORMATTER_(QVariant, x.toString().toStdString());
+STRING_FORMATTER_(QVariant, Fernanda::toString(x));
 
 template <Coco::Concepts::QObjectPointer T>
 struct std::formatter<T> : std::formatter<std::string>

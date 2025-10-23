@@ -57,6 +57,39 @@ inline std::string toString(const T* ptr)
     return toQString<T>(ptr).toStdString();
 }
 
+// TODO: Double-check this!
+inline QString toQString(const QVariant& variant)
+{
+    // Could nix type name
+    auto x = [variant](const QString& text) {
+        constexpr auto outer_format = "QVariant(%0: %1)";
+        return QString(outer_format).arg(variant.typeName()).arg(text);
+    };
+
+    if (!variant.isValid()) return x("Invalid");
+    if (variant.isNull()) return x("Null");
+
+    if (variant.typeId() == QMetaType::Bool) // More specific than canConvert
+        return x(variant.value<bool>() ? "true" : "false");
+
+    if (variant.canConvert<Coco::Path>())
+        return x(variant.value<Coco::Path>().toQString());
+
+    if (variant.canConvert<QObject*>())
+        return x(toQString(variant.value<QObject*>()));
+
+    if (variant.canConvert<QStringList>())
+        return x(variant.value<QStringList>().join(", "));
+
+    // Fallback to generic conversion
+    return x(variant.toString());
+}
+
+inline std::string toString(const QVariant& variant)
+{
+    return toQString(variant).toStdString();
+}
+
 inline QString toQString(const QVariantMap& variantMap)
 {
     if (variantMap.isEmpty()) return "{}";
@@ -69,8 +102,7 @@ inline QString toQString(const QVariantMap& variantMap)
         it.next();
         list << QString(element_format)
                     .arg(it.key())
-                    .arg(it.value().toString()); /// Use custom converter later
-                                                 /// maybe for QVar
+                    .arg(toQString(it.value()));
     }
 
     return QString(outer_format).arg(list.join(", "));
