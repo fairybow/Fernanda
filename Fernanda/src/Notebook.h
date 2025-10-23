@@ -12,7 +12,6 @@
 #include <QAbstractItemModel>
 #include <QLabel>
 #include <QObject>
-#include <QStandardItemModel> /// Temp
 #include <QStatusBar>
 
 #include "Coco/Path.h"
@@ -40,25 +39,25 @@ public:
         const Coco::Path& userDataDir,
         QObject* parent = nullptr)
         : Workspace(globalConfig, parent)
-        , archivePath_(archivePath)
-        , userDataDir_(userDataDir)
+        //, archivePath_(archivePath)
+        //, userDataDir_(userDataDir)
     {
         setup_();
     }
 
     virtual ~Notebook() override { TRACER; }
 
-    Coco::Path archivePath() const noexcept { return archivePath_; }
+    //Coco::Path archivePath() const noexcept { return archivePath_; }
     // Coco::Path root() const noexcept { return root_; } // Probably
     // internal-only
 
 private:
-    Coco::Path archivePath_;
+    /*Coco::Path archivePath_;
     Coco::Path userDataDir_;
 
     QString name_{};
     Coco::Path root_{};
-    Coco::Path content_{};
+    Coco::Path content_{};*/
 
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
@@ -66,7 +65,7 @@ private:
     {
         menus_->initialize();
 
-        name_ = archivePath_.stemQString();
+        //name_ = archivePath_.stemQString();
 
         // 1. Extract
 
@@ -103,14 +102,6 @@ private:
         // connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
     }
 
-    //virtual QAbstractItemModel* makeTreeViewModel_() override
-    //{
-    //    // TODO: Replace with ArchiveModel when implemented
-    //    auto model = new QStandardItemModel(this);
-    //    // Configure archive-specific settings
-    //    return model;
-    //}
-
     void addWorkspaceIndicator_(Window* window)
     {
         if (!window) return;
@@ -118,7 +109,7 @@ private:
         auto status_bar = window->statusBar();
         if (!status_bar) return; // <- Shouldn't happen
         auto temp_label = new QLabel;
-        temp_label->setText(name_);
+        //temp_label->setText(name_);
         status_bar->addPermanentWidget(temp_label);
     }
 

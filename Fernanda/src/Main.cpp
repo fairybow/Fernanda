@@ -20,6 +20,8 @@
 /// - Replace Coco/TextIo with project version
 /// - Tree view stuff
 /// - New Notebook first! Figure out fnx creation
+/// - As a consequence, also figure out what members Notebook needs
+/// (archive/save dir, temp dir, anything else?)
 /// - FnxModel class for TreeView?
 /// - Implementing menus
 /// - Redoing commands for menus as it is reimplemented
@@ -28,7 +30,7 @@
 /// - Redo/organize Bus events
 /// - Implement menu toggles
 /// - Deciding if OS and Archive FSs need different services
-/// 
+///
 /// Things to log:
 /// - Active window
 /// - Active file view/model

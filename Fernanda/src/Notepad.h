@@ -11,7 +11,6 @@
 
 #include <functional>
 
-#include <QAbstractItemModel>
 #include <QFileSystemModel>
 #include <QModelIndex>
 #include <QObject>
@@ -68,21 +67,15 @@ public:
 
 private:
     Coco::Path currentBaseDir_ = Coco::Path::Documents(VERSION_APP_NAME_STRING);
-
     PathInterceptor pathInterceptor_ = nullptr;
-    NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
-
-    /// Testing central model (should Workspace itself have a protected abstract
-    /// model pointer instead?)
     QFileSystemModel* treeViewModel_ = new QFileSystemModel(this);
+    NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
     void setup_()
     {
-        ///
         // Via Qt: Setting root path installs a filesystem watcher
         treeViewModel_->setRootPath(currentBaseDir_.toQString());
         treeViewModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-        ///
 
         menus_->initialize();
 
