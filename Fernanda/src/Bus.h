@@ -34,6 +34,12 @@ enum class SaveResult;
 
 struct Command
 {
+    // Embarrassing note, but:
+    // Can't have a type/kind enum for registration type (has return, has
+    // command, etc) because there's nothing to store it in! We aren't
+    // registering commands but handlers, obviously (plus, how would "has no
+    // command" make any sense even if we were)?
+
     QVariantMap params{};
     Window* context = nullptr;
 
@@ -149,7 +155,6 @@ public:
                     || InterceptorWithoutCommand<InterceptorT>,
                 "Interceptor must be callable as (const Command&)->bool or "
                 "()->bool");
-
         }
     }
 
@@ -221,7 +226,6 @@ public:
                     || HandlerWithoutCommandReturnsValue<HandlerT>,
                 "Command handler must be callable as (const Command&)->T, "
                 "(const Command&)->void, ()->T or ()->void");
-
         }
     }
 
@@ -291,19 +295,17 @@ signals:
     // View may be nullptr!
     void activeFileViewChanged(Window* window, IFileView* view);
 
-
     /// Old:
 
-    //void workspaceOpened();
+    // void workspaceOpened();
 
     // WindowService
 
-    
     void visibleWindowCountChanged(int count);
     void lastWindowClosed();
 
     // Window may be nullptr!
-    //void activeWindowChanged(Window* window);
+    // void activeWindowChanged(Window* window);
 
     // FileService
 
@@ -315,14 +317,13 @@ signals:
         SaveResult result,
         const Coco::Path& path,
         const Coco::Path& oldPath = {});
-    //void windowSaveExecuted(Window* window, SaveResult result);
-    //void workspaceSaveExecuted(SaveResult result);
+    // void windowSaveExecuted(Window* window, SaveResult result);
+    // void workspaceSaveExecuted(SaveResult result);
 
     // ViewService
 
     void windowTabCountChanged(Window* window, int count);
 
-    
     void viewClosed(IFileView* view);
 
     // SettingsModule
@@ -365,8 +366,10 @@ private:
         INFO(log_format, id, cmd.params, cmd.context);
     }
 
-    void
-    logCmdRan_(const QString& id, const Command& cmd, const QVariant& result) const
+    void logCmdRan_(
+        const QString& id,
+        const Command& cmd,
+        const QVariant& result) const
     {
         constexpr auto log_format =
             "Executed: {}, Params: {}, Context: {}, Result: {}";
