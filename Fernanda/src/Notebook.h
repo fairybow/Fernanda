@@ -64,11 +64,17 @@ private:
         menus_->initialize();
         name_ = fnxPath_.stemQString();
 
-        // 1. Extract
+        // If path is empty, this is an unsaved Notebook, so we should add the
+        // template FNX content to the temp dir. If not, this is existing, and
+        // we unpack the archive to temp dir instead.
+        if (!fnxPath_.exists()) {
+            //
+        } else {
+            //
+        }
 
-        // 2. Set root
+        //...
 
-        // 3. Set settings override
         auto settings_file =
             Coco::Path(workingDir_.path()) / Constants::CONFIG_FILE_NAME;
         bus->execute(
