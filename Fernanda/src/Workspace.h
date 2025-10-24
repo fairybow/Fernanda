@@ -77,27 +77,25 @@ signals:
 
 protected:
     Bus* bus = new Bus(this);
-    SettingsModule* settings = nullptr;
 
 private:
-    Coco::Path globalConfig_;
+    Coco::Path globalConfig_; /// Rename?
 
     WindowService* windows_ = new WindowService(bus, this);
     ViewService* views_ = new ViewService(bus, this);
     FileService* files_ = new FileService(bus, this);
+    SettingsModule* settings_ = new SettingsModule(globalConfig_, bus, this);
     TreeViewModule* treeViews_ = new TreeViewModule(bus, this);
     ColorBarModule* colorBars_ = new ColorBarModule(bus, this);
 
     void setup_()
     {
-        settings = new SettingsModule(globalConfig_, bus, this);
-
         windows_->initialize();
         views_->initialize();
         files_->initialize();
+        settings_->initialize();
         treeViews_->initialize();
         colorBars_->initialize();
-        settings->initialize();
 
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...

@@ -13,6 +13,7 @@
 
 #include <QMapIterator>
 #include <QMetaObject>
+#include <QModelIndex>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -60,10 +61,11 @@ inline std::string toString(const T* ptr)
 // TODO: Double-check this!
 inline QString toQString(const QVariant& variant)
 {
-    // Could nix type name
-    auto x = [variant](const QString& text) {
-        constexpr auto outer_format = "QVariant(%0: %1)";
-        return QString(outer_format).arg(variant.typeName()).arg(text);
+    auto x = [](const QString& text, const QString& type = {}) {
+        constexpr auto format = "QVariant(%0)";
+        constexpr auto format_type = "QVariant(%0{%1})";
+        return type.isEmpty() ? QString(format).arg(text)
+                              : QString(format_type).arg(type).arg(text);
     };
 
     if (!variant.isValid()) return x("Invalid");
@@ -73,13 +75,16 @@ inline QString toQString(const QVariant& variant)
         return x(variant.value<bool>() ? "true" : "false");
 
     if (variant.canConvert<Coco::Path>())
-        return x(variant.value<Coco::Path>().toQString());
+        return x(variant.value<Coco::Path>().toQString(), "Coco::Path");
+
+    if (variant.canConvert<QModelIndex>())
+        return x("QModelIndex");
 
     if (variant.canConvert<QObject*>())
         return x(toQString(variant.value<QObject*>()));
 
     if (variant.canConvert<QStringList>())
-        return x(variant.value<QStringList>().join(", "));
+        return x(variant.value<QStringList>().join(", "), "QStringList");
 
     // Fallback to generic conversion
     return x(variant.toString());
@@ -92,9 +97,9 @@ inline std::string toString(const QVariant& variant)
 
 inline QString toQString(const QVariantMap& variantMap)
 {
-    if (variantMap.isEmpty()) return "{}";
+    if (variantMap.isEmpty()) return "QVariantMap{}";
     constexpr auto element_format = "{ %0, %1 }";
-    constexpr auto outer_format = "{ %0 }";
+    constexpr auto outer_format = "QVariantMap{ %0 }";
     QStringList list{};
     QMapIterator<QString, QVariant> it(variantMap);
 

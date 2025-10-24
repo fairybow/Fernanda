@@ -226,9 +226,6 @@
     <QtMoc Include="src\DelayTimer.h">
       <Filter>Code\Core</Filter>
     </QtMoc>
-    <QtMoc Include="src\Settings.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
     <QtMoc Include="src\Notepad.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
@@ -267,6 +264,9 @@
     </QtMoc>
     <QtMoc Include="src\ColorBar.h">
       <Filter>Code\Auxiliary\Modules\ColorBar</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Settings.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

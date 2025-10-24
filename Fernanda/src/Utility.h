@@ -32,15 +32,15 @@ inline void timer(int msecs, QObject* parent, SlotT slot)
     QTimer::singleShot(msecs, parent, slot);
 }
 
-template <Coco::Concepts::QObjectPointer T> inline T cast(QObject* object)
-{
-    return qobject_cast<T>(object);
-}
-
-template <Coco::Concepts::QObjectPointer T> inline T cast(const QObject* object)
-{
-    return qobject_cast<T>(object);
-}
+//template <Coco::Concepts::QObjectPointer T> inline T cast(QObject* object)
+//{
+//    return qobject_cast<T>(object);
+//}
+//
+//template <Coco::Concepts::QObjectPointer T> inline T cast(const QObject* object)
+//{
+//    return qobject_cast<T>(object);
+//}
 
 template <typename T> inline T to(const QVariant& variant)
 {

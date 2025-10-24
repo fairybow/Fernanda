@@ -26,7 +26,6 @@
 #include "Commands.h"
 #include "Debug.h"
 #include "IService.h"
-#include "Utility.h"
 #include "Window.h"
 #include "XPlatform.h"
 
@@ -98,7 +97,7 @@ protected:
     {
         if (event->type() == QEvent::WindowActivate) {
 
-            if (auto active_window = cast<Window*>(watched)) {
+            if (auto active_window = qobject_cast<Window*>(watched)) {
                 setActiveWindow_(active_window);
                 XPlatform::stackUnder(zOrderedVolatileWindows_, active_window);
             }
@@ -106,7 +105,7 @@ protected:
         } else if (
             event->type() == QEvent::Show || event->type() == QEvent::Hide) {
 
-            //if (auto window = cast<Window*>(watched))
+            //if (auto window = qobject_cast<Window*>(watched))
                 //emit bus->visibleWindowCountChanged(visibleCount_());
 
         } else if (event->type() == QEvent::Close) {
@@ -271,7 +270,8 @@ private slots:
     {
         (void)now;
         if (!old) return;
-        if (auto window = cast<Window*>(old)) lastFocusedAppWindow_ = window;
+        if (auto window = qobject_cast<Window*>(old))
+            lastFocusedAppWindow_ = window;
     }
 };
 

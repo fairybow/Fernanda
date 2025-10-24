@@ -122,10 +122,10 @@ private:
             INFO("Notepad intercepted {}", path);
 
             for (auto& notebook : notebooks_) {
-                if (notebook->archivePath() == path) {
+                /*if (notebook->archivePath() == path) {
                     notebook->activate();
                     return true;
-                }
+                }*/
             }
 
             makeNotebook_(path);

@@ -16,7 +16,6 @@
 #include "IFileModel.h"
 #include "TextFileModel.h"
 #include "TextFileView.h"
-#include "Utility.h"
 
 namespace Fernanda {
 
@@ -24,7 +23,7 @@ QWidget* TextFileView::setupWidget()
 {
     editor_ = new QPlainTextEdit(this);
 
-    if (auto text_model = cast<TextFileModel*>(model()))
+    if (auto text_model = qobject_cast<TextFileModel*>(model()))
         editor_->setDocument(text_model->document());
 
     connect(editor_, &QPlainTextEdit::selectionChanged, this, [&] {

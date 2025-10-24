@@ -118,7 +118,7 @@ private:
     void setup_()
     {
         if (baseConfigPath_.isEmpty()) {
-            qWarning() << "Base config path cannot be empty!";
+            WARN("Base config path cannot be empty!");
             return;
         }
 

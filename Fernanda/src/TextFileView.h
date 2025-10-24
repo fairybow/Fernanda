@@ -23,7 +23,6 @@
 #include "IFileModel.h"
 #include "IFileView.h"
 #include "TextFileModel.h"
-#include "Utility.h"
 
 namespace Fernanda {
 
@@ -81,7 +80,7 @@ public:
 
     virtual bool supportsEditing() const override
     {
-        return editor_ && cast<TextFileModel*>(model());
+        return editor_ && qobject_cast<TextFileModel*>(model());
     }
 
     virtual bool hasPaste() const override

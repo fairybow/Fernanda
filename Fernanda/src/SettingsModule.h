@@ -18,6 +18,7 @@
 #include "Coco/Path.h"
 
 #include "Bus.h"
+#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "IService.h"
@@ -46,16 +47,15 @@ public:
 
     virtual ~SettingsModule() override { TRACER; }
 
-    void setOverrideConfigPath(const Coco::Path& configPath)
-    {
-        if (!settings_) return;
-        settings_->setOverride(configPath);
-    }
-
 protected:
     virtual void registerBusCommands() override
     {
-        //...
+        bus->addCommandHandler(
+            Commands::SET_SETTINGS_OVERRIDE,
+            [&](const Command& cmd) {
+                auto path = cmd.param<Coco::Path>("path");
+                setOverrideConfigPath_(path);
+            });
     }
 
     virtual void connectBusEvents() override
@@ -69,6 +69,12 @@ private:
     QPointer<SettingsDialog> dialog_ = nullptr;
 
     void setup_() { settings_ = new Settings(baseConfigPath_, this); }
+
+    void setOverrideConfigPath_(const Coco::Path& configPath)
+    {
+        if (!settings_) return;
+        settings_->setOverride(configPath);
+    }
 
     void openDialog_()
     {

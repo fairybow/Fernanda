@@ -18,6 +18,7 @@
 #include "Coco/Path.h"
 
 #include "Bus.h"
+#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "NotepadMenuModule.h"

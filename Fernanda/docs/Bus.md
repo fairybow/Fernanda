@@ -74,6 +74,7 @@ Window service command handlers should be responsible for showing the window. Wh
 
 ### `settings`
 
+- `settings:set_override`: Sets the override config path for the Workspace's SettingsModule (used by Notebook to make the archive config override the global/Notepad config).
 - `dialog`*: Opens a non-modal Settings dialog, or raises/activates it if already open.
 
 ### `color_bar`

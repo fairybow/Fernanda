@@ -13,16 +13,20 @@
 #include <QLabel>
 #include <QObject>
 #include <QStatusBar>
+#include <QVariant>
+#include <QVariantMap>
 
 #include "Coco/Path.h"
 
 #include "Bus.h"
+#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "Window.h"
 #include "Workspace.h"
+#include "Utility.h"
 
 namespace Fernanda {
 
@@ -47,7 +51,7 @@ public:
 
     virtual ~Notebook() override { TRACER; }
 
-    //Coco::Path archivePath() const noexcept { return archivePath_; }
+    // Coco::Path archivePath() const noexcept { return archivePath_; }
     // Coco::Path root() const noexcept { return root_; } // Probably
     // internal-only
 
@@ -65,7 +69,7 @@ private:
     {
         menus_->initialize();
 
-        //name_ = archivePath_.stemQString();
+        // name_ = archivePath_.stemQString();
 
         // 1. Extract
 
@@ -73,6 +77,9 @@ private:
 
         // 3. Set settings override
         // settings->setOverrideConfigPath(root / Settings.ini);
+        bus->execute(
+            Commands::SET_SETTINGS_OVERRIDE,
+            { { "path", toQVariant(""_ccpath) } });
 
         registerBusCommands_();
         connectBusEvents_();
@@ -109,7 +116,7 @@ private:
         auto status_bar = window->statusBar();
         if (!status_bar) return; // <- Shouldn't happen
         auto temp_label = new QLabel;
-        //temp_label->setText(name_);
+        // temp_label->setText(name_);
         status_bar->addPermanentWidget(temp_label);
     }
 
