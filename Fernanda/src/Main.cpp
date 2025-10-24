@@ -54,6 +54,7 @@
 /// - Also check lambda args (whether it uses a Command or not)
 
 /// Unsorted (but next at some point):
+/// - Ability to log Coco::Bool
 /// - Consider if Command is Notebook- or Notepad-specific, like NewTab and
 /// NewTreeViewModel: need to be same command (with different implementation),
 /// CANNOT have separate namespaces, because users of those commands don't know

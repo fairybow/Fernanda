@@ -67,7 +67,10 @@ private:
     bool initialized_ = false;
     Coco::Path userDataDirectory_ = Coco::Path::Home(".fernanda");
     Coco::Path globalConfig_ = userDataDirectory_ / Constants::CONFIG_FILE_NAME;
-
+    // TODO: Could pass this to Notepad as a default starting base dir? How will
+    // settings work with that? Notepad settings could be split in two, with one
+    // for settings not usable by Notebook (like this + session info?)
+    Coco::Path docsDirectory_ = Coco::Path::Documents(VERSION_APP_NAME_STRING);
     Notepad* notepad_ = nullptr;
     QSet<Notebook*> notebooks_{};
 
@@ -83,6 +86,7 @@ private:
     void setup_() const
     {
         Coco::PathUtil::mkdir(userDataDirectory_);
+        Coco::PathUtil::mkdir(docsDirectory_);
         Debug::initialize(true); // Add file later (in user data)
     }
 
@@ -100,11 +104,10 @@ private:
         notepad_->open(NewWindow::Yes);
     }
 
-    void makeNotebook_(const Coco::Path& archive)
+    void makeNotebook_(const Coco::Path& fnx)
     {
         // Temporary opening procedures:
-        auto notebook =
-            new Notebook(archive, globalConfig_, userDataDirectory_, this);
+        auto notebook = new Notebook(fnx, globalConfig_, this);
         notebooks_ << notebook;
 
         connect(notebook, &Notebook::lastWindowClosed, this, [=] {
@@ -122,10 +125,10 @@ private:
             INFO("Notepad intercepted {}", path);
 
             for (auto& notebook : notebooks_) {
-                /*if (notebook->archivePath() == path) {
+                if (notebook->fnxPath() == path) {
                     notebook->activate();
                     return true;
-                }*/
+                }
             }
 
             makeNotebook_(path);

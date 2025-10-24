@@ -9,10 +9,10 @@
 
 #pragma once
 
-#include <QAbstractItemModel>
 #include <QLabel>
 #include <QObject>
 #include <QStatusBar>
+#include <QTemporaryDir>
 #include <QVariant>
 #include <QVariantMap>
 
@@ -22,11 +22,12 @@
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "Fnx.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
+#include "Utility.h"
 #include "Window.h"
 #include "Workspace.h"
-#include "Utility.h"
 
 namespace Fernanda {
 
@@ -38,48 +39,41 @@ class Notebook : public Workspace
 
 public:
     Notebook(
-        const Coco::Path& archivePath,
+        const Coco::Path& fnxPath,
         const Coco::Path& globalConfig,
-        const Coco::Path& userDataDir,
         QObject* parent = nullptr)
         : Workspace(globalConfig, parent)
-        //, archivePath_(archivePath)
-        //, userDataDir_(userDataDir)
+        , fnxPath_(fnxPath)
     {
         setup_();
     }
 
     virtual ~Notebook() override { TRACER; }
 
-    // Coco::Path archivePath() const noexcept { return archivePath_; }
-    // Coco::Path root() const noexcept { return root_; } // Probably
-    // internal-only
+    Coco::Path fnxPath() const noexcept { return fnxPath_; }
 
 private:
-    /*Coco::Path archivePath_;
-    Coco::Path userDataDir_;
+    Coco::Path fnxPath_;
 
     QString name_{};
-    Coco::Path root_{};
-    Coco::Path content_{};*/
-
+    QTemporaryDir workingDir_{}; // Could test user data dir
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
     void setup_()
     {
         menus_->initialize();
-
-        // name_ = archivePath_.stemQString();
+        name_ = fnxPath_.stemQString();
 
         // 1. Extract
 
         // 2. Set root
 
         // 3. Set settings override
-        // settings->setOverrideConfigPath(root / Settings.ini);
+        auto settings_file =
+            Coco::Path(workingDir_.path()) / Constants::CONFIG_FILE_NAME;
         bus->execute(
             Commands::SET_SETTINGS_OVERRIDE,
-            { { "path", toQVariant(""_ccpath) } });
+            { { "path", toQVariant(settings_file) } });
 
         registerBusCommands_();
         connectBusEvents_();
@@ -116,7 +110,7 @@ private:
         auto status_bar = window->statusBar();
         if (!status_bar) return; // <- Shouldn't happen
         auto temp_label = new QLabel;
-        // temp_label->setText(name_);
+        temp_label->setText(name_);
         status_bar->addPermanentWidget(temp_label);
     }
 
