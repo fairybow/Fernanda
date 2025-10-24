@@ -136,6 +136,8 @@ private:
 
         auto model = new TextFileModel(path, this);
         auto text = Coco::TextIo::read(path);
+
+        // TODO: Is there a reason we don't have the model set its own text?
         auto document = model->document();
         document->setPlainText(text);
         document->setModified(false); // Pretty important!
