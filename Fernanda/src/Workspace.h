@@ -46,10 +46,6 @@ class Workspace : public QObject
 public:
     Workspace(QObject* parent = nullptr)
         : QObject(parent)
-        , settings_(new SettingsModule(
-              AppDirs::userData() / Constants::CONFIG_FILE_NAME,
-              bus,
-              this))
     {
         setup_();
     }
@@ -83,7 +79,10 @@ protected:
     Bus* bus = new Bus(this);
 
 private:
-    SettingsModule* settings_;
+    SettingsModule* settings_ = new SettingsModule(
+        AppDirs::userData() / Constants::CONFIG_FILE_NAME,
+        bus,
+        this);
     WindowService* windows_ = new WindowService(bus, this);
     ViewService* views_ = new ViewService(bus, this);
     FileService* files_ = new FileService(bus, this);
