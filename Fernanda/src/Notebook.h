@@ -12,11 +12,11 @@
 #include <QLabel>
 #include <QObject>
 #include <QStatusBar>
-#include <QTemporaryDir>
 #include <QVariant>
 #include <QVariantMap>
 
 #include "Coco/Path.h"
+#include "Coco/PathUtil.h"
 
 #include "Bus.h"
 #include "Commands.h"
@@ -25,6 +25,7 @@
 #include "Fnx.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
+#include "TempDir.h"
 #include "Utility.h"
 #include "Window.h"
 #include "Workspace.h"
@@ -40,10 +41,13 @@ class Notebook : public Workspace
 public:
     Notebook(
         const Coco::Path& fnxPath,
-        const Coco::Path& globalConfig,
+        const Coco::Path& userDataDir,
         QObject* parent = nullptr)
-        : Workspace(globalConfig, parent)
+        : Workspace(userDataDir, parent)
         , fnxPath_(fnxPath)
+        , name_(fnxPath_.stemQString())
+        , workingDir_(
+              userDataDir / Constants::TEMP_DIR_NAME / (name_ + "~XXXXXX"))
     {
         setup_();
     }
@@ -54,29 +58,33 @@ public:
 
 private:
     Coco::Path fnxPath_;
+    QString name_;
+    TempDir workingDir_;
 
-    QString name_{};
-    QTemporaryDir workingDir_{}; // Could test user data dir
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
     void setup_()
     {
+        if (!workingDir_.isValid()) {
+            CRITICAL("Notebook temp directory creation failed!");
+            return;
+        }
+
         menus_->initialize();
-        name_ = fnxPath_.stemQString();
 
         // If path is empty, this is an unsaved Notebook, so we should add the
         // template FNX content to the temp dir. If not, this is existing, and
         // we unpack the archive to temp dir instead.
         if (!fnxPath_.exists()) {
-            //
+            // create template in temp dir
+            // mark notebook modified (need to figure out how this will work)
         } else {
             //
         }
 
         //...
 
-        auto settings_file =
-            Coco::Path(workingDir_.path()) / Constants::CONFIG_FILE_NAME;
+        auto settings_file = workingDir_.path() / Constants::CONFIG_FILE_NAME;
         bus->execute(
             Commands::SET_SETTINGS_OVERRIDE,
             { { "path", toQVariant(settings_file) } });

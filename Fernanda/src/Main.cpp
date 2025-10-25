@@ -34,6 +34,10 @@
 /// Things to log:
 /// - Active window
 /// - Active file view/model
+/// 
+/// Coco:
+/// - Redo path
+/// - Move stuff there (search TODO here)
 ///
 /// Clean-up:
 /// - Comment-out Utility and see what's needed

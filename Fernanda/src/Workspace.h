@@ -43,9 +43,13 @@ class Workspace : public QObject
     Q_OBJECT
 
 public:
-    Workspace(const Coco::Path& globalConfig, QObject* parent = nullptr)
+    Workspace(const Coco::Path& userDataDir, QObject* parent = nullptr)
         : QObject(parent)
-        , globalConfig_(globalConfig)
+        , userDataDir(userDataDir)
+        , settings_(new SettingsModule(
+              userDataDir / Constants::CONFIG_FILE_NAME,
+              bus,
+              this))
     {
         setup_();
     }
@@ -76,24 +80,23 @@ signals:
     void lastWindowClosed();
 
 protected:
+    Coco::Path userDataDir;
     Bus* bus = new Bus(this);
 
 private:
-    Coco::Path globalConfig_; /// Rename?
-
+    SettingsModule* settings_;
     WindowService* windows_ = new WindowService(bus, this);
     ViewService* views_ = new ViewService(bus, this);
     FileService* files_ = new FileService(bus, this);
-    SettingsModule* settings_ = new SettingsModule(globalConfig_, bus, this);
     TreeViewModule* treeViews_ = new TreeViewModule(bus, this);
     ColorBarModule* colorBars_ = new ColorBarModule(bus, this);
 
     void setup_()
     {
+        settings_->initialize();
         windows_->initialize();
         views_->initialize();
         files_->initialize();
-        settings_->initialize();
         treeViews_->initialize();
         colorBars_->initialize();
 

@@ -375,6 +375,9 @@
     <ClInclude Include="src\TextIo.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
+    <ClInclude Include="src\TempDir.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">

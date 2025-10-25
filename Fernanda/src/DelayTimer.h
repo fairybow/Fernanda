@@ -14,6 +14,8 @@
 
 #include "Debug.h"
 
+namespace Fernanda {
+
 // Utility class for initializing a debouncing timer and connecting it to a slot
 class DelayTimer : public QObject
 {
@@ -36,3 +38,5 @@ public:
 private:
     QTimer* timer_ = new QTimer(this);
 };
+
+} // namespace Fernanda
