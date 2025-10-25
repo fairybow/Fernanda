@@ -18,6 +18,7 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
+#include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
@@ -39,15 +40,11 @@ class Notebook : public Workspace
     Q_OBJECT
 
 public:
-    Notebook(
-        const Coco::Path& fnxPath,
-        const Coco::Path& userDataDir,
-        QObject* parent = nullptr)
-        : Workspace(userDataDir, parent)
+    Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
+        : Workspace(parent)
         , fnxPath_(fnxPath)
         , name_(fnxPath_.stemQString())
-        , workingDir_(
-              userDataDir / Constants::TEMP_DIR_NAME / (name_ + "~XXXXXX"))
+        , workingDir_(AppDirs::temp() / (name_ + "~XXXXXX"))
     {
         setup_();
     }
@@ -65,10 +62,9 @@ private:
 
     void setup_()
     {
-        if (!workingDir_.isValid()) {
-            CRITICAL("Notebook temp directory creation failed!");
-            return;
-        }
+        // Keep as fatal?
+        if (!workingDir_.isValid())
+            FATAL("Notebook temp directory creation failed!");
 
         menus_->initialize();
 

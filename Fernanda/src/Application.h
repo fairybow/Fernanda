@@ -16,6 +16,7 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
+#include "AppDirs.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileTypes.h"
@@ -43,7 +44,7 @@ public:
     {
         if (initialized_) return;
 
-        setApplicationProperties_();
+        setProperties_();
         setup_();
         // Eventually, get args + session info
         // auto args = arguments();
@@ -65,15 +66,10 @@ public slots:
 
 private:
     bool initialized_ = false;
-    Coco::Path userDataDir_ = Coco::Path::Home(".fernanda");
-    //  TODO: Could pass this to Notepad as a default starting base dir? How
-    //  will settings work with that? Notepad settings could be split in two,
-    //  with one for settings not usable by Notebook (like this + session info?)
-    Coco::Path docsDirectory_ = Coco::Path::Documents(VERSION_APP_NAME_STRING);
     Notepad* notepad_ = nullptr;
     QSet<Notebook*> notebooks_{};
 
-    void setApplicationProperties_()
+    void setProperties_()
     {
         setOrganizationName(VERSION_AUTHOR_STRING);
         setOrganizationDomain(VERSION_DOMAIN);
@@ -84,15 +80,14 @@ private:
 
     void setup_() const
     {
-        Coco::PathUtil::mkdir(userDataDir_ / Constants::TEMP_DIR_NAME);
-        Coco::PathUtil::mkdir(docsDirectory_);
-        Debug::initialize(true); // Add file later (in user data)
+        Debug::initialize(Debug::Logging::Yes); // Add file later (in user data)
+        if (!AppDirs::initialize()) FATAL("App directory creation failed!");
     }
 
     void initializeNotepad_()
     {
         // Temporary opening procedures:
-        notepad_ = new Notepad(userDataDir_, this);
+        notepad_ = new Notepad(this);
         notepad_->setPathInterceptor(
             this,
             &Application::notepadPathInterceptor_);
@@ -106,7 +101,7 @@ private:
     void makeNotebook_(const Coco::Path& fnx)
     {
         // Temporary opening procedures:
-        auto notebook = new Notebook(fnx, userDataDir_, this);
+        auto notebook = new Notebook(fnx, this);
         notebooks_ << notebook;
 
         connect(notebook, &Notebook::lastWindowClosed, this, [=] {

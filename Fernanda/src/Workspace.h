@@ -19,6 +19,7 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
+#include "AppDirs.h"
 #include "Bus.h"
 #include "ColorBar.h"
 #include "ColorBarModule.h"
@@ -43,11 +44,10 @@ class Workspace : public QObject
     Q_OBJECT
 
 public:
-    Workspace(const Coco::Path& userDataDir, QObject* parent = nullptr)
+    Workspace(QObject* parent = nullptr)
         : QObject(parent)
-        , userDataDir(userDataDir)
         , settings_(new SettingsModule(
-              userDataDir / Constants::CONFIG_FILE_NAME,
+              AppDirs::userData() / Constants::CONFIG_FILE_NAME,
               bus,
               this))
     {
@@ -80,7 +80,6 @@ signals:
     void lastWindowClosed();
 
 protected:
-    Coco::Path userDataDir;
     Bus* bus = new Bus(this);
 
 private:

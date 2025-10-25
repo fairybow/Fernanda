@@ -115,7 +115,9 @@ inline void setLogging(bool logging)
     Internal::logging.store(logging, std::memory_order::relaxed);
 }
 
-inline void initialize(bool logging, const Coco::Path& logFilePath = {})
+COCO_BOOL(Logging);
+
+inline void initialize(Logging logging, const Coco::Path& logFilePath = {})
 {
     setLogging(logging);
 

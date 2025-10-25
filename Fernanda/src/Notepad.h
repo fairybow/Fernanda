@@ -17,6 +17,7 @@
 
 #include "Coco/Path.h"
 
+#include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
@@ -38,8 +39,8 @@ class Notepad : public Workspace
 public:
     using PathInterceptor = std::function<bool(const Coco::Path&)>;
 
-    Notepad(const Coco::Path& userDataDir, QObject* parent = nullptr)
-        : Workspace(userDataDir, parent)
+    Notepad(QObject* parent = nullptr)
+        : Workspace(parent)
     {
         setup_();
     }
@@ -67,7 +68,7 @@ public:
     }
 
 private:
-    Coco::Path currentBaseDir_ = Coco::Path::Documents(VERSION_APP_NAME_STRING);
+    Coco::Path currentBaseDir_ = AppDirs::defaultDocs();
     PathInterceptor pathInterceptor_ = nullptr;
     QFileSystemModel* treeViewModel_ = new QFileSystemModel(this);
     NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
