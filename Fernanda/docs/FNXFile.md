@@ -2,11 +2,13 @@
 
 ## Archive Structure
 
+TODO: Recoverable trash
+
 ```
 Notebook.fnx
-├── content/        # Content directory
-├── Model.xml       # Content's virtual structure
-└── Settings.ini    # The Notebook's settings (overrides Notepad settings)
+├── content/            # Content directory
+├── Model.xml           # Content's virtual structure
+└── Settings.ini        # The Notebook's settings (overrides Notepad settings)
 ```
 
 The `Settings.ini` file is optional. It's generated as needed and removing it will result only in settings reverting to Notepad settings (or default).
@@ -19,10 +21,10 @@ This file describes the virtual structure of the Notebook. While the files exist
 <?xml version="1.0"?>
 <notebook>
   <folder name="Chapter 1">
-    <file name="1" type="plaintext" uuid="xxx1"/>
+    <file name="1" uuid="xxx1" type="plaintext" extension=".txt"/>
   </folder>
-  <file name="Notes" type="plaintext" uuid="xxx2">
-    <file name="Other Notes" type="plaintext" uuid="xxx3"/>
+  <file name="Notes" uuid="xxx2" type="plaintext" extension=".txt">
+    <file name="Other Notes" uuid="xxx3" type="plaintext" extension=".txt"/>
   </file>
 </notebook>
 ```

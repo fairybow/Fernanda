@@ -27,6 +27,7 @@ namespace Fernanda {
 
 // See:
 // https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
+// TODO: Trash (should be immutable and separate from active)
 class FnxModel : public QAbstractItemModel
 {
     Q_OBJECT
