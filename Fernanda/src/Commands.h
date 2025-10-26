@@ -44,7 +44,7 @@ constexpr auto REDO = "views:redo"; /// *
 constexpr auto CUT = "views:cut"; /// *
 constexpr auto COPY = "views:copy"; /// *
 constexpr auto PASTE = "views:paste"; /// *
-constexpr auto DELETE = "views:delete"; /// *
+constexpr auto DEL = "views:delete"; /// *
 constexpr auto SELECT_ALL = "views:select_all"; /// *
 
 // SettingsModule scope

@@ -68,14 +68,15 @@ private:
 
         menus_->initialize();
 
-        // If path is empty, this is an unsaved Notebook, so we should add the
-        // template FNX content to the temp dir. If not, this is existing, and
-        // we unpack the archive to temp dir instead.
         if (!fnxPath_.exists()) {
-            // create template in temp dir
-            // mark notebook modified (need to figure out how this will work)
+            // Create scaffold in temp dir
+            // Mark notebook modified (need to figure out how this will work)
+            Fnx::makeScaffold(workingDir_.path());
         } else {
-            //
+            // Extract to temp folder
+            // Verify (compare files to Model.xml
+            // Read Model.xml into memory as DOM doc
+            Fnx::extract(fnxPath_, workingDir_.path());
         }
 
         //...

@@ -82,7 +82,7 @@ protected:
             paste_(cmd.context, cmd.param<int>("index", -1));
         });
 
-        bus->addCommandHandler(Commands::DELETE, [&](const Command& cmd) {
+        bus->addCommandHandler(Commands::DEL, [&](const Command& cmd) {
             delete_(cmd.context, cmd.param<int>("index", -1));
         });
 

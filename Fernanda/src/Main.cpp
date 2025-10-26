@@ -34,10 +34,12 @@
 /// Things to log:
 /// - Active window
 /// - Active file view/model
-/// 
+///
 /// Coco:
-/// - Redo path
+/// - Redo path, potentially reintegrate PathUtil with Path
 /// - Move stuff there (search TODO here)
+/// - Path::copy (or Coco::copy)?
+/// - Move mkdir top level (Coco::mkdir)?
 ///
 /// Clean-up:
 /// - Comment-out Utility and see what's needed

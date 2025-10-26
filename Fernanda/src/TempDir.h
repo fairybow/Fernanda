@@ -18,7 +18,6 @@ namespace Fernanda {
 
 // Utility class for using QTemporaryDir with Coco::Path
 // TODO: Move to Coco
-// TODO: File watcher?
 class TempDir : public QTemporaryDir
 {
 public:

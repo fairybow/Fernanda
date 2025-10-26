@@ -63,7 +63,7 @@ inline QString toQString(const QVariant& variant)
 {
     auto x = [](const QString& text, const QString& type = {}) {
         constexpr auto format = "QVariant(%0)";
-        constexpr auto format_type = "QVariant(%0{%1})";
+        constexpr auto format_type = "QVariant(%0{ %1 })";
         return type.isEmpty() ? QString(format).arg(text)
                               : QString(format_type).arg(type).arg(text);
     };

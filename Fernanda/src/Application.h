@@ -55,7 +55,7 @@ public:
         initialized_ = true;
 
         /// Test:
-        makeNotebook_(Coco::Path::Documents("Fernanda/Test 10.fnx"));
+        makeNotebook_(AppDirs::defaultDocs() / "Test 10.fnx");
     }
 
 public slots:

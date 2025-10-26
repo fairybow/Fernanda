@@ -175,7 +175,7 @@ namespace Internal {
         common.edit.del = makeBusAction(
             bus,
             window,
-            Commands::DELETE,
+            Commands::DEL,
             Tr::Menus::editDelete()); /// *
 
         common.edit.selectAll = makeBusAction(
