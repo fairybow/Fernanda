@@ -97,13 +97,13 @@ inline QDomDocument readModelXml(const Coco::Path& root)
 {
     QDomDocument doc{};
 
-    // auto content = TextIo::read(root / Internal::MODEL_FILE_NAME);
+    auto content = TextIo::read(root / Internal::MODEL_FILE_NAME);
     /// Test:
-    auto content =
-        QString("<?xml version='1.0'?><notebook><folder name='Chapter 1'><file "
-                "name='1' type='plaintext' uuid='xxx1'/></folder><file "
-                "name='Notes' type='plaintext' uuid='xxx2'><file name='Other "
-                "Notes' type='plaintext' uuid='xxx3'/></file></notebook>");
+    //auto content =
+    //    QString("<?xml version='1.0'?><notebook><folder name='Chapter 1'><file "
+    //            "name='1' type='plaintext' uuid='xxx1'/></folder><file "
+    //            "name='Notes' type='plaintext' uuid='xxx2'><file name='Other "
+    //            "Notes' type='plaintext' uuid='xxx3'/></file></notebook>");
     auto result = doc.setContent(content);
 
     if (!result) {

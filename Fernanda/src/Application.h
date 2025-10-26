@@ -55,8 +55,8 @@ public:
         initialized_ = true;
 
         /// Test:
-        makeNotebook_(AppDirs::defaultDocs() / "Unsaved.fnx");
-        //makeNotebook_(AppDirs::defaultDocs() / "Test 10.fnx");
+        //makeNotebook_(AppDirs::defaultDocs() / "Unsaved.fnx");
+        makeNotebook_(AppDirs::defaultDocs() / "Saved.fnx");
     }
 
 public slots:

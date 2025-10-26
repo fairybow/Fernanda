@@ -70,25 +70,25 @@ private:
 
         menus_->initialize();
 
+        // Extraction or creation
+        auto root = workingDir_.path();
+
         if (!fnxPath_.exists()) {
-            // Create scaffold in temp dir
-            // Read Model.xml into memory as DOM doc
-            // Mark notebook modified (need to figure out how this will work)
-            auto root = workingDir_.path();
             Fnx::makeScaffold(root);
-            auto dom = Fnx::readModelXml(root);
-            fnxModel_->setDomDocument(dom);
+            // Mark notebook modified (maybe, maybe not until edited)? (need to
+            // figure out how this will work)
         } else {
-            // Extract to temp folder
-            // Verify (compare files to Model.xml
-            // Read Model.xml into memory as DOM doc
-            Fnx::extract(fnxPath_, workingDir_.path());
-            //... Do the rest later, after we can edit and save a valid FNX
+            Fnx::extract(fnxPath_, root);
+            // Verification (comparing Model file elements to content dir files)
         }
+
+        // Read Model.xml into memory as DOM doc
+        auto dom = Fnx::readModelXml(root);
+        fnxModel_->setDomDocument(dom);
 
         //...
 
-        auto settings_file = workingDir_.path() / Constants::CONFIG_FILE_NAME;
+        auto settings_file = root / Constants::CONFIG_FILE_NAME;
         bus->execute(
             Commands::SET_SETTINGS_OVERRIDE,
             { { "path", toQVariant(settings_file) } });
@@ -103,6 +103,7 @@ private:
             return fnxModel_;
         });
 
+        // TODO: Get element by tag name? (For future, when we have Trash)
         bus->addCommandHandler(Commands::TREE_VIEW_ROOT_INDEX, [&] {
             // The invalid index represents the root document element
             // (<notebook>). TreeView will display its children (the actual
