@@ -61,6 +61,9 @@
     <Filter Include="Code\Auxiliary\Modules\ColorBar">
       <UniqueIdentifier>{67032abf-8d30-4177-aa58-306cbc9457ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Core\Workspaces\Notebook">
+      <UniqueIdentifier>{065829c6-94f2-4c82-b7a5-3e20abb7c64b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -229,9 +232,6 @@
     <QtMoc Include="src\Notepad.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
-    <QtMoc Include="src\Notebook.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </QtMoc>
     <QtMoc Include="src\NotepadMenuModule.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </QtMoc>
@@ -267,6 +267,12 @@
     </QtMoc>
     <QtMoc Include="src\Settings.h">
       <Filter>Code\Auxiliary\Modules\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Notebook.h">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FnxModel.h">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -360,9 +366,6 @@
     <ClInclude Include="src\Menus.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </ClInclude>
-    <ClInclude Include="src\Fnx.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </ClInclude>
     <ClInclude Include="src\FileTypes.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
@@ -380,6 +383,9 @@
     </ClInclude>
     <ClInclude Include="src\AppDirs.h">
       <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fnx.h">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

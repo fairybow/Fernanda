@@ -18,10 +18,16 @@ namespace Fernanda::Fnx {
 
 /// QDomDocument for living structure
 
-inline bool makeScaffold(const Coco::Path& root)
+namespace Internal {
+
+    constexpr auto MODEL_FILE_NAME = "Model.xml";
+
+} // namespace Internal
+
+inline void makeScaffold(const Coco::Path& root)
 {
     // Create content directory
-    if (!Coco::PathUtil::mkdir(root / "content")) return false;
+    if (!Coco::PathUtil::mkdir(root / "content")) return;
 
     // Create empty Model.xml
     QString xml_content{};
@@ -33,10 +39,10 @@ inline bool makeScaffold(const Coco::Path& root)
     xml.writeEndElement();
     xml.writeEndDocument();
 
-    // Model.xml represents a virtual structuring of the contents of the content
-    // folder
+    // Model.xml represents a virtual structuring of the contents of the
+    // content folder
 
-    return TextIo::write(xml_content, root / "Model.xml");
+    TextIo::write(xml_content, root / Internal::MODEL_FILE_NAME);
 }
 
 // TODO: Replace QFile::copy with Coco version, maybe
@@ -48,20 +54,19 @@ inline const Coco::Path& dll()
     return file;
 }
 
-inline void
-extract(const Coco::Path& archivePath, const Coco::Path& extractPath)
+inline void extract(const Coco::Path& archivePath, const Coco::Path& root)
 {
     using namespace bit7z;
 
-    INFO("Extracting archive at {} to {}", archivePath, extractPath);
+    INFO("Extracting archive at {} to {}", archivePath, root);
 
     if (!archivePath.exists()) {
         CRITICAL("Archive file ({}) doesn't exist!", archivePath);
         return;
     }
 
-    if (!extractPath.exists()) {
-        CRITICAL("Extraction directory ({}) doesn't exist!", archivePath);
+    if (!root.exists()) {
+        CRITICAL("Root/extraction directory ({}) doesn't exist!", root);
         return;
     }
 
@@ -71,11 +76,32 @@ extract(const Coco::Path& archivePath, const Coco::Path& extractPath)
                                   archivePath.toString(),
                                   BitFormat::SevenZip };
         archive.test();
-        archive.extractTo(extractPath.toString());
+        archive.extractTo(root.toString());
 
     } catch (const BitException& ex) {
         CRITICAL("FNX archive extraction failed! Error: {}", ex.what());
     }
+}
+
+inline QDomDocument readModelXml(const Coco::Path& root)
+{
+    QDomDocument doc{};
+    QString err_msg{};
+    int err_line{}, err_column{};
+
+    auto content = TextIo::read(root / Internal::MODEL_FILE_NAME);
+
+    if (!doc.setContent(content, &err_msg, &err_line, &err_column)) {
+        CRITICAL(
+            "Failed to parse {}! Error: {} at line {}, column {}.",
+            Internal::MODEL_FILE_NAME,
+            err_msg,
+            err_line,
+            err_column);
+        return {};
+    }
+
+    return doc;
 }
 
 inline void tempTestWrite()

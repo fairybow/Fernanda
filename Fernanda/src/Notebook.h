@@ -24,6 +24,7 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "Fnx.h"
+#include "FnxModel.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
@@ -58,6 +59,7 @@ private:
     QString name_;
     TempDir workingDir_;
 
+    FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
     void setup_()
@@ -70,8 +72,12 @@ private:
 
         if (!fnxPath_.exists()) {
             // Create scaffold in temp dir
+            // Read Model.xml into memory as DOM doc
             // Mark notebook modified (need to figure out how this will work)
-            Fnx::makeScaffold(workingDir_.path());
+            auto root = workingDir_.path();
+            Fnx::makeScaffold(root);
+            auto dom = Fnx::readModelXml(root);
+            fnxModel_->setDomDocument(dom);
         } else {
             // Extract to temp folder
             // Verify (compare files to Model.xml
