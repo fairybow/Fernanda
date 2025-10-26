@@ -1,14 +1,23 @@
+/*
+ * Fernanda  Copyright (C) 2025  fairybow
+ *
+ * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
+ * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
+ *
+ * Uses Qt 6 - <https://www.qt.io/>
+ */
+
 #pragma once
 
 #include <QAbstractItemModel>
 #include <QDomDocument>
+#include <QDomElement>
 #include <QHash>
 #include <QModelIndex>
 #include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QVariant>
-#include <Qt>
 #include <QtTypes>
 
 #include "Debug.h"
@@ -84,20 +93,7 @@ public:
     }
 
     virtual QVariant
-    data(const QModelIndex& index, int role = Qt::DisplayRole) const override
-    {
-        if (!index.isValid()) return {};
-
-        auto element = elementFromIndex_(index);
-
-        if (role == Qt::DisplayRole)
-            return element.attribute("name", "<unnamed>");
-
-        // Future: Qt::DecorationRole for folder/file icons
-        // Future: Qt::ToolTipRole for full path or UUID
-
-        return {};
-    }
+    data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
 private:
     QDomDocument dom_{};

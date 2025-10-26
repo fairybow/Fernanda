@@ -105,6 +105,9 @@
     <ClCompile Include="src\Bus.cpp">
       <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
+    <ClCompile Include="src\FnxModel.cpp">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
