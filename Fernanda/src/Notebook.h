@@ -99,6 +99,17 @@ private:
 
     void registerBusCommands_()
     {
+        bus->addCommandHandler(Commands::TREE_VIEW_MODEL, [&] {
+            return fnxModel_;
+        });
+
+        bus->addCommandHandler(Commands::TREE_VIEW_ROOT_INDEX, [&] {
+            // The invalid index represents the root document element
+            // (<notebook>). TreeView will display its children (the actual
+            // files and virtual folders/structure)
+            return QModelIndex{};
+        });
+
         /*bus->addCommandHandler(Cmd::NotebookRoot, [&] {
             return root_.toQString();
         });*/

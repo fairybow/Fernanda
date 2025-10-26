@@ -362,7 +362,8 @@ private:
 
     void logCmdIntercepted_(const QString& id, const Command& cmd) const
     {
-        constexpr auto log_format = "Intercepted: {}, Params: {}, Context: {}";
+        constexpr auto log_format =
+            "Intercepted: {}\n\tParams: {}\n\tContext: {}";
         INFO(log_format, id, cmd.params, cmd.context);
     }
 
@@ -372,14 +373,14 @@ private:
         const QVariant& result) const
     {
         constexpr auto log_format =
-            "Executed: {}, Params: {}, Context: {}, Result: {}";
+            "Executed: {}\n\tParams: {}\n\tContext: {}\n\tResult: {}";
         INFO(log_format, id, cmd.params, cmd.context, result);
     }
 
     void logCmdNoHandler_(const QString& id, const Command& cmd) const
     {
         constexpr auto log_format =
-            "No handler found!: {}, Params: {}, Context: {}";
+            "No handler found!: {}\n\tParams: {}\n\tContext: {}";
         INFO(log_format, id, cmd.params, cmd.context);
     }
 };

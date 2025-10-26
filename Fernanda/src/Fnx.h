@@ -21,13 +21,14 @@ namespace Fernanda::Fnx {
 namespace Internal {
 
     constexpr auto MODEL_FILE_NAME = "Model.xml";
+    constexpr auto CONTENT_DIR_NAME = "content";
 
 } // namespace Internal
 
 inline void makeScaffold(const Coco::Path& root)
 {
     // Create content directory
-    if (!Coco::PathUtil::mkdir(root / "content")) return;
+    if (!Coco::PathUtil::mkdir(root / Internal::CONTENT_DIR_NAME)) return;
 
     // Create empty Model.xml
     QString xml_content{};
@@ -86,76 +87,27 @@ inline void extract(const Coco::Path& archivePath, const Coco::Path& root)
 inline QDomDocument readModelXml(const Coco::Path& root)
 {
     QDomDocument doc{};
-    QString err_msg{};
-    int err_line{}, err_column{};
 
-    auto content = TextIo::read(root / Internal::MODEL_FILE_NAME);
+    // auto content = TextIo::read(root / Internal::MODEL_FILE_NAME);
+    /// Test:
+    auto content =
+        QString("<?xml version='1.0'?><notebook><folder name='Chapter 1'><file "
+                "name='1' type='plaintext' uuid='xxx1'/></folder><file "
+                "name='Notes' type='plaintext' uuid='xxx2'><file name='Other "
+                "Notes' type='plaintext' uuid='xxx3'/></file></notebook>");
+    auto result = doc.setContent(content);
 
-    if (!doc.setContent(content, &err_msg, &err_line, &err_column)) {
+    if (!result) {
         CRITICAL(
             "Failed to parse {}! Error: {} at line {}, column {}.",
             Internal::MODEL_FILE_NAME,
-            err_msg,
-            err_line,
-            err_column);
+            result.errorMessage,
+            result.errorLine,
+            result.errorColumn);
         return {};
     }
 
     return doc;
-}
-
-inline void tempTestWrite()
-{
-    QString xml_content{};
-    QXmlStreamWriter xml(&xml_content);
-
-    xml.setAutoFormatting(true);
-    xml.setAutoFormattingIndent(2);
-
-    xml.writeStartDocument();
-
-    // Root
-    xml.writeStartElement("root");
-
-    // Folder node at top level
-    xml.writeStartElement("folder");
-    xml.writeAttribute("name", "Chapter 1");
-
-    // File parented by folder
-    xml.writeStartElement("file");
-    xml.writeAttribute("name", "1");
-    xml.writeAttribute("type", "plaintext");
-    xml.writeAttribute("uuid", "xxx1");
-    xml.writeEndElement(); // file
-
-    xml.writeEndElement(); // folder
-
-    // File node at top level
-    xml.writeStartElement("file");
-    xml.writeAttribute("name", "Notes");
-    xml.writeAttribute("type", "plaintext");
-    xml.writeAttribute("uuid", "xxx2");
-
-    // File parented by the top-level file
-    xml.writeStartElement("file");
-    xml.writeAttribute("name", "Other Notes");
-    xml.writeAttribute("type", "plaintext");
-    xml.writeAttribute("uuid", "xxx3");
-    xml.writeEndElement(); // file (nested)
-
-    xml.writeEndElement(); // file (top-level)
-
-    xml.writeEndElement(); // root
-    xml.writeEndDocument();
-
-    auto path = Coco::Path::Desktop("sample_output.xml");
-    bool success = TextIo::write(xml_content, path);
-
-    if (success) {
-        INFO("Sample XML saved to: {}", path);
-    } else {
-        WARN("Failed to save sample XML to: {}", path);
-    }
 }
 
 } // namespace Fernanda::Fnx

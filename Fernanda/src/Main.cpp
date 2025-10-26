@@ -42,6 +42,8 @@
 /// - Move mkdir top level (Coco::mkdir)?
 ///
 /// Clean-up:
+/// - QDomDocument::ParseResult good model for what we need for maybe save
+/// result or similar
 /// - Comment-out Utility and see what's needed
 /// - Ensure all command handler registrations use "param" instead of
 /// "to"

@@ -56,6 +56,7 @@ public:
 
         /// Test:
         makeNotebook_(AppDirs::defaultDocs() / "Unsaved.fnx");
+        //makeNotebook_(AppDirs::defaultDocs() / "Test 10.fnx");
     }
 
 public slots:
@@ -113,6 +114,7 @@ private:
         notebook->open(NewWindow::Yes);
     }
 
+    // TODO: Ensure .fnx extension, too?
     bool notepadPathInterceptor_(const Coco::Path& path)
     {
         if (FileTypes::is(FileTypes::SevenZip, path)) {

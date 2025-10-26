@@ -13,16 +13,18 @@ The `Settings.ini` file is optional. It's generated as needed and removing it wi
 
 ## `Model.xml` Example
 
+This file describes the virtual structure of the Notebook. While the files exist in `content`, the folders and structure only exist in this model.
+
 ```
 <?xml version="1.0"?>
-<root>
+<notebook>
   <folder name="Chapter 1">
     <file name="1" type="plaintext" uuid="xxx1"/>
   </folder>
   <file name="Notes" type="plaintext" uuid="xxx2">
     <file name="Other Notes" type="plaintext" uuid="xxx3"/>
   </file>
-</root>
+</notebook>
 ```
 
 This could in theory be deleted and then regenerated but we'd lost the file names and virtual directory structure.
