@@ -77,6 +77,7 @@ private:
             // Verify (compare files to Model.xml
             // Read Model.xml into memory as DOM doc
             Fnx::extract(fnxPath_, workingDir_.path());
+            //... Do the rest later, after we can edit and save a valid FNX
         }
 
         //...
