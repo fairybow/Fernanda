@@ -9,19 +9,26 @@
 
 #pragma once
 
-#include <QAbstractItemModel>
 #include <QLabel>
 #include <QObject>
-#include <QStandardItemModel> /// Temp
 #include <QStatusBar>
+#include <QVariant>
+#include <QVariantMap>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
+#include "Coco/PathUtil.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "AppDirs.h"
+#include "Bus.h"
+#include "Commands.h"
+#include "Constants.h"
+#include "Debug.h"
+#include "Fnx.h"
+#include "FnxModel.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
+#include "TempDir.h"
+#include "Utility.h"
 #include "Window.h"
 #include "Workspace.h"
 
@@ -34,63 +41,90 @@ class Notebook : public Workspace
     Q_OBJECT
 
 public:
-    Notebook(
-        const Coco::Path& archivePath,
-        const Coco::Path& globalConfig,
-        const Coco::Path& userDataDir,
-        QObject* parent = nullptr)
-        : Workspace(globalConfig, parent)
-        , archivePath_(archivePath)
-        , userDataDir_(userDataDir)
+    Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
+        : Workspace(parent)
+        , fnxPath_(fnxPath)
+        , name_(fnxPath_.stemQString())
+        , workingDir_(AppDirs::temp() / (name_ + "~XXXXXX"))
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~Notebook() override { COCO_TRACER; }
+    virtual ~Notebook() override { TRACER; }
 
-    Coco::Path archivePath() const noexcept { return archivePath_; }
-    // Coco::Path root() const noexcept { return root_; } // Probably
-    // internal-only
+    Coco::Path fnxPath() const noexcept { return fnxPath_; }
 
 private:
-    Coco::Path archivePath_;
-    Coco::Path userDataDir_;
+    Coco::Path fnxPath_;
+    QString name_;
+    TempDir workingDir_;
 
-    QString name_{};
-    Coco::Path root_{};
-    Coco::Path content_{};
+    FnxModel* fnxModel_ = new FnxModel(this);
+    NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
-    NotebookMenuModule* menus_ =
-        new NotebookMenuModule(commander, eventBus, this);
-
-    void initialize_()
+    void setup_()
     {
-        name_ = archivePath_.stemQString();
+        // Keep as fatal?
+        if (!workingDir_.isValid())
+            FATAL("Notebook temp directory creation failed!");
 
-        // 1. Extract
+        menus_->initialize();
 
-        // 2. Set root
+        // Extraction or creation
+        auto root = workingDir_.path();
 
-        // 3. Set settings override
-        // settings->setOverrideConfigPath(root / Settings.ini);
+        if (!fnxPath_.exists()) {
+            Fnx::makeScaffold(root);
+            // Mark notebook modified (maybe, maybe not until edited)? (need to
+            // figure out how this will work)
+        } else {
+            Fnx::extract(fnxPath_, root);
+            // Verification (comparing Model file elements to content dir files)
+        }
 
-        commander->addQueryHandler(Queries::NotebookRoot, [&] {
-            return root_.toQString();
-        });
+        // Read Model.xml into memory as DOM doc
+        auto dom = Fnx::readModelXml(root);
+        fnxModel_->setDomDocument(dom);
 
-        connect(
-            eventBus,
-            &EventBus::windowCreated,
-            this,
-            &Notebook::onWindowCreated_);
+        //...
+
+        auto settings_file = root / Constants::CONFIG_FILE_NAME;
+        bus->execute(
+            Commands::SET_SETTINGS_OVERRIDE,
+            { { "path", toQVariant(settings_file) } });
+
+        registerBusCommands_();
+        connectBusEvents_();
     }
 
-    virtual QAbstractItemModel* makeTreeViewModel_() override
+    void registerBusCommands_()
     {
-        // TODO: Replace with ArchiveModel when implemented
-        auto model = new QStandardItemModel(this);
-        // Configure archive-specific settings
-        return model;
+        bus->addCommandHandler(Commands::TREE_VIEW_MODEL, [&] {
+            return fnxModel_;
+        });
+
+        // TODO: Get element by tag name? (For future, when we have Trash)
+        bus->addCommandHandler(Commands::TREE_VIEW_ROOT_INDEX, [&] {
+            // The invalid index represents the root document element
+            // (<notebook>). TreeView will display its children (the actual
+            // files and virtual folders/structure)
+            return QModelIndex{};
+        });
+
+        /*bus->addCommandHandler(Cmd::NotebookRoot, [&] {
+            return root_.toQString();
+        });*/
+
+        // bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
+        //     /// createNewTextFile_(cmd.context); //<- Old (in FileService)
+        //     TRACER;
+        //     qDebug() << "Implement";
+        // });
+    }
+
+    void connectBusEvents_()
+    {
+        // connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
     }
 
     void addWorkspaceIndicator_(Window* window)

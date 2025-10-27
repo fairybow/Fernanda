@@ -17,13 +17,12 @@
 #include <QWidget>
 #include <QtTypes>
 
-#include "Coco/Debug.h"
 #include "Coco/Layout.h"
 
+#include "Debug.h"
 #include "IFileModel.h"
 #include "IFileView.h"
 #include "TextFileModel.h"
-#include "Utility.h"
 
 namespace Fernanda {
 
@@ -40,7 +39,7 @@ public:
     {
     }
 
-    virtual ~TextFileView() override { COCO_TRACER; }
+    virtual ~TextFileView() override { TRACER; }
 
     // Propagation
 
@@ -81,7 +80,7 @@ public:
 
     virtual bool supportsEditing() const override
     {
-        return editor_ && to<TextFileModel*>(model());
+        return editor_ && qobject_cast<TextFileModel*>(model());
     }
 
     virtual bool hasPaste() const override

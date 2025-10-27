@@ -11,17 +11,19 @@
 
 #include <functional>
 
-#include <QAbstractItemModel>
 #include <QFileSystemModel>
 #include <QModelIndex>
 #include <QObject>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "AppDirs.h"
+#include "Bus.h"
+#include "Commands.h"
+#include "Constants.h"
+#include "Debug.h"
 #include "NotepadMenuModule.h"
+#include "TreeViewModule.h"
 #include "Utility.h"
 #include "Version.h"
 #include "Workspace.h"
@@ -37,13 +39,13 @@ class Notepad : public Workspace
 public:
     using PathInterceptor = std::function<bool(const Coco::Path&)>;
 
-    Notepad(const Coco::Path& globalConfig, QObject* parent = nullptr)
-        : Workspace(globalConfig, parent)
+    Notepad(QObject* parent = nullptr)
+        : Workspace(parent)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~Notepad() override { COCO_TRACER; }
+    virtual ~Notepad() override { TRACER; }
 
     PathInterceptor pathInterceptor() const noexcept
     {
@@ -66,36 +68,62 @@ public:
     }
 
 private:
-    Coco::Path currentBaseDir_ = Coco::Path::Documents(VERSION_APP_NAME_STRING);
-
+    Coco::Path currentBaseDir_ = AppDirs::defaultDocs();
     PathInterceptor pathInterceptor_ = nullptr;
-    NotepadMenuModule* menus_ =
-        new NotepadMenuModule(commander, eventBus, this);
+    QFileSystemModel* fsModel_ = new QFileSystemModel(this);
+    NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
-    void initialize_()
+    void setup_()
     {
-        commander->addInterceptor(Commands::OpenFile, [&](Command& cmd) {
+        // Via Qt: Setting root path installs a filesystem watcher
+        fsModel_->setRootPath(currentBaseDir_.toQString());
+        fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+        menus_->initialize();
+
+        //...
+
+        registerBusCommands_();
+        connectBusEvents_();
+    }
+
+    void registerBusCommands_()
+    {
+        bus->addCommandHandler(Commands::TREE_VIEW_MODEL, [&] {
+            return fsModel_;
+        });
+
+        bus->addCommandHandler(Commands::TREE_VIEW_ROOT_INDEX, [&] {
+            // Generate the index on-demand from the stored path (don't hold it
+            // separately or retrieve via Model::setRootPath)
+            if (!fsModel_) return QModelIndex{};
+            return fsModel_->index(currentBaseDir_.toQString());
+        });
+
+        /*bus->addInterceptor(Commands::OpenFile, [&](const Command& cmd) {
             if (pathInterceptor_
                 && pathInterceptor_(to<QString>(cmd.params, "path"))) {
                 return true;
             }
 
             return false;
-        });
+        });*/
 
-        commander->addQueryHandler(Queries::NotepadBaseDir, [&] {
+        /// NOT YET
+        /*bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {
             return currentBaseDir_.toQString();
-        });
+        });*/
+
+        // bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
+        //     /// createNewTextFile_(cmd.context); //<- Old (in FileService)
+        //     TRACER;
+        //     qDebug() << "Implement";
+        // });
     }
 
-    virtual QAbstractItemModel* makeTreeViewModel_() override
+    void connectBusEvents_()
     {
-        auto model = new QFileSystemModel(this);
-        auto root_index = model->setRootPath(currentBaseDir_.toQString());
-        storeItemModelRootIndex(model, root_index);
-        model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-        // Any other Notepad-specific model setup
-        return model;
+        //...
     }
 };
 

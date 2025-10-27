@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QHash>
 #include <QList>
@@ -18,8 +18,8 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
+#include "Constants.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
 #include "TabWidget.h"
@@ -40,13 +40,11 @@ class FileServiceSaveHelper : public QObject
 
 public:
     FileServiceSaveHelper(
-        Commander* commander,
-        EventBus* eventBus,
+        Bus* bus,
         QHash<Coco::Path, IFileModel*>& pathToFileModel,
         QObject* parent = nullptr)
         : QObject(parent)
-        , commander_(commander)
-        , eventBus_(eventBus)
+        , bus_(bus)
         , pathToFileModel_(pathToFileModel)
     {
     }
@@ -107,9 +105,8 @@ public:
 
         // Reverse windows here or not?
         for (auto& window :
-             commander_->query<QList<Window*>>(Queries::ReverseWindowList)) {
+             bus_->call<QList<Window*>>(Commands::WINDOWS_R_LIST)) {
             if (!window) continue;
-
             for (auto& i : reverseUniqueModelIndexes_(window)) {
                 auto result_i = offDiskModifiedCascade_(window, i);
                 setFailOrSuccess_(result_i, any_fails, any_successes);
@@ -126,8 +123,7 @@ private:
         Coco::Path now{};
     };
 
-    Commander* commander_; // FileService's
-    EventBus* eventBus_; // FileService's
+    Bus* bus_; // FileService's
     QHash<Coco::Path, IFileModel*>& pathToFileModel_;
 
     void
@@ -205,7 +201,7 @@ private:
         if (!meta || !meta->isOnDisk()) return SaveResult::NoOp;
 
         auto result = model->save();
-        emit eventBus_->fileSaved(result, meta->path());
+        emit bus_->fileSaved(result, meta->path());
         return result;
     }
 
@@ -229,7 +225,7 @@ private:
             pathToFileModel_[pathChange.now] = model;
         }
 
-        emit eventBus_->fileSavedAs(result, pathChange.now, pathChange.old);
+        emit bus_->fileSavedAs(result, pathChange.now, pathChange.old);
         return result;
     }
 
@@ -249,10 +245,10 @@ private:
         auto new_path = Coco::PathUtil::Dialog::save(
             window,
             Tr::Dialogs::saveFileCaption(),
-            old_path.isEmpty()
-                ? commander_->query<QString>(Queries::NotepadBaseDir)
-                : old_path); /// Filter arg is last arg (not
-                             /// present here), do later
+            old_path.isEmpty() ? bus_->call<QString>(PolyCmd::BASE_DIR)
+                : old_path);
+        /// Filter arg is last arg (not
+        /// present here), do later
 
         return { old_path, new_path };
     }
@@ -277,4 +273,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+}*/ // namespace Fernanda

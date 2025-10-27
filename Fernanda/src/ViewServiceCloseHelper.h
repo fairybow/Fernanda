@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QHash>
 #include <QList>
@@ -18,8 +18,8 @@
 
 #include "Coco/Debug.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
+#include "Constants.h"
 #include "SavePrompt.h"
 #include "TabWidget.h"
 #include "Utility.h"
@@ -38,13 +38,9 @@ class ViewServiceCloseHelper : public QObject
     Q_OBJECT
 
 public:
-    ViewServiceCloseHelper(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
+    ViewServiceCloseHelper(Bus* bus, QObject* parent = nullptr)
         : QObject(parent)
-        , commander_(commander)
-        , eventBus_(eventBus)
+        , bus_(bus)
     {
     }
 
@@ -65,7 +61,7 @@ public:
         auto model = modelAt(window, i);
         if (!model) return false;
 
-        auto windows = commander_->query<QSet<Window*>>(Queries::WindowSet);
+        auto windows = bus_->call<QSet<Window*>>(Cmd::WindowSet);
 
         if (model->isModified() && !isMultiWindow(model, windows)) {
             tab_widget->setCurrentIndex(i);
@@ -75,8 +71,8 @@ public:
             case SaveChoice::Cancel:
                 return false;
             case SaveChoice::Save: {
-                auto result = commander_->call<SaveResult>(
-                    Calls::Save,
+                auto result = bus_->call<SaveResult>(
+                    Cmd::NotepadSaveFile,
                     { { "index", i } },
                     window);
 
@@ -90,7 +86,7 @@ public:
         auto view = tab_widget->removeTab<IFileView*>(i);
         if (!view) return false;
 
-        emit eventBus_->viewClosed(view);
+        emit bus_->viewClosed(view);
         delete view;
 
         return true;
@@ -111,7 +107,7 @@ public:
         QHash<IFileModel*, int> model_to_index{};
         QList<IFileModel*> modified_models{};
 
-        auto windows = commander_->query<QSet<Window*>>(Queries::WindowSet);
+        auto windows = bus_->call<QSet<Window*>>(Cmd::WindowSet);
 
         for (auto i = tab_widget->count() - 1; i >= 0; --i) {
             auto view = viewAt(window, i);
@@ -145,8 +141,8 @@ public:
                         indexes_to_save_choices << model_to_index[model];
 
                 if (!indexes_to_save_choices.isEmpty()) {
-                    auto result = commander_->call<SaveResult>(
-                        Calls::SaveIndexesInWindow,
+                    auto result = bus_->call<SaveResult>(
+                        Cmd::NotepadSaveIndexesInWindow,
                         { { "indexes", toQVariant(indexes_to_save_choices) } },
                         window);
 
@@ -161,7 +157,7 @@ public:
         // Close all views (how to handle all nullptr (shouldn't happen...)?)
         for (auto view : tab_widget->clear<IFileView*>()) {
             if (!view) continue;
-            emit eventBus_->viewClosed(view);
+            emit bus_->viewClosed(view);
             delete view;
         }
 
@@ -171,7 +167,7 @@ public:
     bool closeAll()
     {
         for (auto& window :
-             commander_->query<QList<Window*>>(Queries::ReverseWindowList)) {
+             bus_->call<QList<Window*>>(Cmd::ReverseWindowList)) {
             if (!window) continue;
             if (!closeAllInWindow(window)) return false;
         }
@@ -180,8 +176,7 @@ public:
     }
 
 private:
-    Commander* commander_; // ViewService's
-    EventBus* eventBus_; // ViewService's
+    Bus* bus_; // ViewService's
 };
 
-} // namespace Fernanda
+}*/ // namespace Fernanda

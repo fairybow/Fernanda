@@ -49,11 +49,20 @@
     <Filter Include="Translations">
       <UniqueIdentifier>{bbbe929e-1ae3-4343-bb09-41aed0f08c06}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Auxiliary\SettingsDialog">
-      <UniqueIdentifier>{f61f8d7e-472d-4a04-8fae-d2e55b150670}</UniqueIdentifier>
+    <Filter Include="Code\Auxiliary\Modules">
+      <UniqueIdentifier>{d156e859-f9aa-4d0f-af5c-f75aeff6edb0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Auxiliary\MenuModules">
+    <Filter Include="Code\Auxiliary\Modules\Menus">
       <UniqueIdentifier>{c288fd8e-1a64-402c-8ff1-8132a5c162e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Auxiliary\Modules\Settings">
+      <UniqueIdentifier>{594b3725-78f6-41a0-844c-bcb5c0fc5aa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Auxiliary\Modules\ColorBar">
+      <UniqueIdentifier>{67032abf-8d30-4177-aa58-306cbc9457ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\Workspaces\Notebook">
+      <UniqueIdentifier>{065829c6-94f2-4c82-b7a5-3e20abb7c64b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,8 +102,11 @@
     <ClCompile Include="src\Workspace.cpp">
       <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
-    <ClCompile Include="src\EventBus.cpp">
+    <ClCompile Include="src\Bus.cpp">
       <Filter>Code\Core\Workspaces</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FnxModel.cpp">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -122,13 +134,37 @@
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
     </None>
+    <None Include="docs\old_TempTodos.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\StartupFlowchart.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\ComponentArchitecture.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\old_TempCommandsReference.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\Roadmap.md">
+      <Filter>Docs</Filter>
+    </None>
     <None Include="docs\Menus.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\Saving.md">
+    <None Include="docs\Bus.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\Closing.md">
+    <None Include="docs\Style.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\FNXFile.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\UserData.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\NotebookCreation.md">
       <Filter>Docs</Filter>
     </None>
   </ItemGroup>
@@ -160,12 +196,6 @@
     <QtMoc Include="src\Window.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
-    <QtMoc Include="src\WordCounterModule.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
-    <QtMoc Include="src\ColorBarModule.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
     <QtMoc Include="src\FileService.h">
       <Filter>Code\Core\Services</Filter>
     </QtMoc>
@@ -174,9 +204,6 @@
     </QtMoc>
     <QtMoc Include="src\WindowService.h">
       <Filter>Code\Core\Services</Filter>
-    </QtMoc>
-    <QtMoc Include="src\EventBus.h">
-      <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
     <QtMoc Include="src\Workspace.h">
       <Filter>Code\Core\Workspaces</Filter>
@@ -199,56 +226,56 @@
     <QtMoc Include="src\TabWidgetUnderlay.h">
       <Filter>Code\Core\UI\TabWidget</Filter>
     </QtMoc>
-    <QtMoc Include="src\SettingsModule.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
-    <QtMoc Include="src\ColorBar.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
     <QtMoc Include="src\NoOpFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
     </QtMoc>
-    <QtMoc Include="src\Commander.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </QtMoc>
-    <QtMoc Include="src\FileServiceSaveHelper.h">
-      <Filter>Code\Core\Services</Filter>
-    </QtMoc>
-    <QtMoc Include="src\ViewServiceCloseHelper.h">
-      <Filter>Code\Core\Services</Filter>
-    </QtMoc>
-    <QtMoc Include="src\Debouncer.h">
+    <QtMoc Include="src\DelayTimer.h">
       <Filter>Code\Core</Filter>
-    </QtMoc>
-    <QtMoc Include="src\Settings.h">
-      <Filter>Code\Auxiliary</Filter>
     </QtMoc>
     <QtMoc Include="src\Notepad.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
-    <QtMoc Include="src\Notebook.h">
+    <QtMoc Include="src\NotepadMenuModule.h">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Bus.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
     <QtMoc Include="src\TreeViewModule.h">
-      <Filter>Code\Auxiliary</Filter>
+      <Filter>Code\Auxiliary\Modules</Filter>
     </QtMoc>
-    <QtMoc Include="src\SettingsDialog.h">
-      <Filter>Code\Auxiliary\SettingsDialog</Filter>
+    <QtMoc Include="src\WordCounterModule.h">
+      <Filter>Code\Auxiliary\Modules</Filter>
     </QtMoc>
-    <QtMoc Include="src\FontSelector.h">
-      <Filter>Code\Auxiliary\SettingsDialog</Filter>
+    <QtMoc Include="src\SettingsModule.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
     </QtMoc>
     <QtMoc Include="src\DisplaySlider.h">
-      <Filter>Code\Auxiliary\SettingsDialog</Filter>
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
     </QtMoc>
-    <QtMoc Include="src\NotepadMenuModule.h">
-      <Filter>Code\Auxiliary\MenuModules</Filter>
+    <QtMoc Include="src\FontSelector.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\SettingsDialog.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
     </QtMoc>
     <QtMoc Include="src\NotebookMenuModule.h">
-      <Filter>Code\Auxiliary\MenuModules</Filter>
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </QtMoc>
-    <QtMoc Include="src\MenuModule.h">
-      <Filter>Code\Auxiliary\MenuModules</Filter>
+    <QtMoc Include="src\ColorBarModule.h">
+      <Filter>Code\Auxiliary\Modules\ColorBar</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ColorBar.h">
+      <Filter>Code\Auxiliary\Modules\ColorBar</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Settings.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Notebook.h">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FnxModel.h">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -297,9 +324,6 @@
     <ClInclude Include="src\Utility.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileTypes.h">
-      <Filter>Code\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Tr.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
@@ -312,14 +336,59 @@
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Path.h">
       <Filter>Submodules\Coco</Filter>
     </ClInclude>
-    <ClInclude Include="src\SavePrompt.h">
-      <Filter>Code\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Ini.h">
       <Filter>Code\Auxiliary</Filter>
     </ClInclude>
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileServiceSaveHelper.h">
+      <Filter>Code\Core\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ViewServiceCloseHelper.h">
+      <Filter>Code\Core\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Enums.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Formatters.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Debug.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ToString.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MenuActions.h">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OLDMenuModule.h">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Menus.h">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileTypes.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Commands.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SavePrompt.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TextIo.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TempDir.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AppDirs.h">
+      <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fnx.h">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

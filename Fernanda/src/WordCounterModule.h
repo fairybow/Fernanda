@@ -11,10 +11,8 @@
 
 #include <QObject>
 
-#include "Coco/Debug.h"
-
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
+#include "Debug.h"
 #include "IService.h"
 
 namespace Fernanda {
@@ -25,19 +23,27 @@ class WordCounterModule : public IService
     Q_OBJECT
 
 public:
-    WordCounterModule(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+    WordCounterModule(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~WordCounterModule() override { COCO_TRACER; }
+    virtual ~WordCounterModule() override { TRACER; }
+
+protected:
+    virtual void registerBusCommands() override
+    {
+        //...
+    }
+
+    virtual void connectBusEvents() override
+    {
+        //...
+    }
 
 private:
-    void initialize_()
+    void setup_()
     {
         //...
     }

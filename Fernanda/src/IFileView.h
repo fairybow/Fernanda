@@ -13,9 +13,9 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Coco/Debug.h"
 #include "Coco/Layout.h"
 
+#include "Debug.h"
 #include "IFileModel.h"
 
 namespace Fernanda {

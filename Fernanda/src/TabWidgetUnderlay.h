@@ -20,8 +20,9 @@
 #include <QWidget>
 #include <QtGlobal>
 
-#include "Coco/Debug.h"
 #include "Coco/Fx.h"
+
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -35,10 +36,10 @@ public:
     explicit TabWidgetUnderlay(QWidget* parent = nullptr)
         : QWidget(parent)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~TabWidgetUnderlay() override { COCO_TRACER; }
+    virtual ~TabWidgetUnderlay() override { TRACER; }
 
     virtual QSize minimumSizeHint() const override
     {
@@ -86,7 +87,7 @@ private:
     static constexpr auto MIN_PIXMAP_SIZE_ = 80;
     static constexpr auto MAX_PIXMAP_SIZE_ = 100;
 
-    void initialize_()
+    void setup_()
     {
         setAttribute(Qt::WA_StyledBackground);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

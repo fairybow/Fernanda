@@ -16,7 +16,7 @@
 #include <QWidget>
 #include <QtMinMax>
 
-#include "Coco/Debug.h"
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -28,10 +28,10 @@ public:
     explicit TabWidgetTabBar(QWidget* parent = nullptr)
         : QTabBar(parent)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~TabWidgetTabBar() override { COCO_TRACER; }
+    virtual ~TabWidgetTabBar() override { TRACER; }
 
     virtual QSize minimumSizeHint() const override { return { 0, height() }; }
 
@@ -71,7 +71,7 @@ private:
     int minimumTabWidth_ = 75;
     int maximumTabWidth_ = 75;
 
-    void initialize_()
+    void setup_()
     {
         setMovable(true);
         setAutoHide(false);

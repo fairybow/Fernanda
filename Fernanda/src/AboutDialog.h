@@ -11,7 +11,7 @@
 
 namespace Fernanda::AboutDialog {
 
-// Note: Application-modal
+// Application-modal
 void exec();
 
 } // namespace Fernanda::AboutDialog

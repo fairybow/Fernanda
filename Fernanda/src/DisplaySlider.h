@@ -17,8 +17,9 @@
 #include <QWidget>
 #include <Qt>
 
-#include "Coco/Debug.h"
 #include "Coco/Layout.h"
+
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -31,10 +32,10 @@ public:
     explicit DisplaySlider(QWidget* parent = nullptr)
         : QWidget(parent)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~DisplaySlider() override { COCO_TRACER; }
+    virtual ~DisplaySlider() override { TRACER; }
 
     int minimum() const { return slider_->minimum(); }
     int maximum() const { return slider_->maximum(); }
@@ -81,7 +82,7 @@ private:
     QSlider* slider_ = new QSlider(Qt::Horizontal, this);
     QLabel* display_ = new QLabel(this);
 
-    void initialize_()
+    void setup_()
     {
         // Setup
         slider_->setTickPosition(QSlider::NoTicks);

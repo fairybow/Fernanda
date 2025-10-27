@@ -15,11 +15,29 @@ ISO C17 (2018) Standard (/std:c17)
 Configuration Properties > Qt Project Settings > Qt Modules
 
 ```
-core;gui;network;widgets;svg
+core;gui;network;widgets;svg;xml
 ```
 
 Configuration Properties > C/C++ > General > Additional Include Directories
 
 ```
 $(ProjectDir)src;$(ProjectDir)submodules\Coco\Coco\include;$(ProjectDir)external\bit7z\include;%(AdditionalIncludeDirectories)
+```
+
+Configuration Properties > C/C++ > Preprocessor > Preprocessor Definitions
+
+```
+_UNICODE;UNICODE;NOMINMAX;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)
+```
+
+(Debug) Configuration Properties > Linker > Input > Additional Dependencies
+
+```
+$(ProjectDir)external\bit7z\lib\x64\Debug\bit7z.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)
+```
+
+(Release) Configuration Properties > Linker > Input > Additional Dependencies
+
+```
+$(ProjectDir)external\bit7z\lib\x64\Release\bit7z.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)
 ```

@@ -12,12 +12,11 @@
 #include <QHash>
 #include <QObject>
 
-#include "Coco/Debug.h"
-
+#include "Bus.h"
 #include "ColorBar.h"
-#include "Commander.h"
-#include "EventBus.h"
-#include "IFileModel.h"
+#include "Commands.h"
+#include "Debug.h"
+#include "Enums.h"
 #include "IService.h"
 #include "Utility.h"
 #include "Window.h"
@@ -25,48 +24,59 @@
 namespace Fernanda {
 
 // Coordinator for Window ColorBars
+// TODO: Commands for setting position
 class ColorBarModule : public IService
 {
     Q_OBJECT
 
 public:
-    ColorBarModule(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+    ColorBarModule(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~ColorBarModule() override { COCO_TRACER; }
+    virtual ~ColorBarModule() override { TRACER; }
+
+protected:
+    // TODO: Could have commands to run all color bars and call that in save
+    // functions instead of having slightly convoluted, overly-specific save
+    // events (like windowSaveExecuted vs workspaceSaveExecuted)?
+    virtual void registerBusCommands() override
+    {
+        bus->addCommandHandler(
+            Commands::RUN_COLOR_BAR,
+            [&](const Command& cmd) {
+                auto color = cmd.param<ColorBar::Color>("color");
+                cmd.context ? run_(cmd.context, color) : runAll_(color);
+            });
+
+        bus->addCommandHandler(Commands::BE_CUTE, [&] {
+            runAll_(ColorBar::Color::Pastel);
+        });
+    }
+
+    virtual void connectBusEvents() override
+    {
+        connect(
+            bus,
+            &Bus::windowCreated,
+            this,
+            &ColorBarModule::onWindowCreated_);
+
+        connect(
+            bus,
+            &Bus::windowDestroyed,
+            this,
+            &ColorBarModule::onWindowDestroyed_);
+    }
 
 private:
     QHash<Window*, ColorBar*> colorBars_{};
 
-    void initialize_()
+    void setup_()
     {
-        connect(
-            eventBus,
-            &EventBus::windowCreated,
-            this,
-            &ColorBarModule::onWindowCreated_);
-
-        connect(eventBus, &EventBus::workspaceInitialized, this, [&] {
-            timer(this, 1000, [&] { runAll_(ColorBar::Pastel); });
-        });
-
-        connect(
-            eventBus,
-            &EventBus::windowSaveExecuted,
-            this,
-            &ColorBarModule::onWindowSaveExecuted_);
-
-        connect(
-            eventBus,
-            &EventBus::workspaceSaveExecuted,
-            this,
-            &ColorBarModule::onWorkspaceSaveExecuted_);
+        //...
     }
 
     void run_(Window* window, ColorBar::Color color) const
@@ -88,46 +98,14 @@ private slots:
     void onWindowCreated_(Window* window)
     {
         if (!window) return;
-
         // ColorBar floats outside layouts
         colorBars_[window] = new ColorBar(window);
-
-        connect(window, &Window::destroyed, this, [=] {
-            if (!window) return;
-            colorBars_.remove(window);
-        });
     }
 
-    void onWindowSaveExecuted_(Window* window, SaveResult result) const
+    void onWindowDestroyed_(Window* window)
     {
         if (!window) return;
-
-        switch (result) {
-        default:
-        case SaveResult::NoOp:
-            return;
-        case SaveResult::Success:
-            run_(window, ColorBar::Green);
-            return;
-        case SaveResult::Fail:
-            run_(window, ColorBar::Red);
-            return;
-        }
-    }
-
-    void onWorkspaceSaveExecuted_(SaveResult result) const
-    {
-        switch (result) {
-        default:
-        case SaveResult::NoOp:
-            return;
-        case SaveResult::Success:
-            runAll_(ColorBar::Green);
-            return;
-        case SaveResult::Fail:
-            runAll_(ColorBar::Red);
-            return;
-        }
+        colorBars_.remove(window);
     }
 };
 

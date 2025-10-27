@@ -2,7 +2,7 @@
 
 [![License GPL 3](https://img.shields.io/badge/License-GPL%203-red.svg)](LICENSE)
 ![Platform Windows](https://img.shields.io/badge/Platform-Windows-blue.svg)
-[![Qt version 6.9](https://img.shields.io/badge/Qt-6.9-green.svg)](https://qt.io/)
+[![Qt version 6.10](https://img.shields.io/badge/Qt-6.10-green.svg)](https://qt.io/)
 [![Bit7z version 4.0](https://img.shields.io/badge/Bit7z-4.0-orange.svg)](https://github.com/rikyoz/bit7z)
 
 # Description
@@ -26,8 +26,7 @@ Mac and Linux support is planned.
 ```
 Application
 └── Workspace(s)
-    ├── Commander
-    ├── EventBus
+    ├── Bus (Commander + EventBus)
     ├── Services (Windows, Files, Views...)
     └── Modules (ColorBars, Menus, WordCounters...)
 ```
@@ -38,7 +37,7 @@ Open `Fernanda.vcxproj` in Visual Studio and build.
 
 ## Requirements
 
-- Qt 6.9.1
+- Qt 6.10.0
 - Visual Studio 2022
 - C++ 20
 - Windows only

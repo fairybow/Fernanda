@@ -15,10 +15,11 @@
 #include <QTextBlock>
 #include <QTextDocument>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
-#include "Coco/TextIo.h"
+#include "Coco/TextIo.h" /// TODO: Replace with Fernanda version
 
+#include "Debug.h"
+#include "Enums.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
 
@@ -34,10 +35,10 @@ public:
     explicit TextFileModel(const Coco::Path& path, QObject* parent = nullptr)
         : IFileModel(path, parent)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~TextFileModel() override { COCO_TRACER; }
+    virtual ~TextFileModel() override { TRACER; }
 
     QTextDocument* document() const noexcept { return document_; }
     virtual bool supportsModification() const override { return document_; }
@@ -102,7 +103,7 @@ public:
 private:
     QTextDocument* document_ = new QTextDocument(this);
 
-    void initialize_()
+    void setup_()
     {
         auto layout = new QPlainTextDocumentLayout(document_);
         document_->setDocumentLayout(layout);

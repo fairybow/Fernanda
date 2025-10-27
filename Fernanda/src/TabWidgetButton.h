@@ -23,7 +23,7 @@
 #include <QToolButton>
 #include <QVariant>
 
-#include "Coco/Debug.h"
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -37,10 +37,10 @@ public:
     explicit TabWidgetButton(QWidget* parent = nullptr)
         : QAbstractButton(parent)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~TabWidgetButton() override { COCO_TRACER; }
+    virtual ~TabWidgetButton() override { TRACER; }
 
     // Idk about this
     QString text() const {}
@@ -154,7 +154,7 @@ private:
     bool flagged_ = false;
     mutable QHash<QString, QPixmap> pixmapCache_{};
 
-    void initialize_()
+    void setup_()
     {
         setFocusPolicy(Qt::NoFocus);
         setAttribute(Qt::WA_Hover, true);

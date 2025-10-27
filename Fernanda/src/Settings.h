@@ -15,8 +15,9 @@
 #include <QSettings>
 #include <QVariant>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
+
+#include "Debug.h"
 
 namespace Fernanda {
 
@@ -36,10 +37,10 @@ public:
         : QObject(parent)
         , baseConfigPath_(baseConfigPath)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~Settings() override { COCO_TRACER; }
+    virtual ~Settings() override { TRACER; }
 
     void setOverride(const Coco::Path& configPath)
     {
@@ -114,10 +115,10 @@ private:
     QSettings* baseSettings_;
     QSettings* overrideSettings_ = nullptr;
 
-    void initialize_()
+    void setup_()
     {
         if (baseConfigPath_.isEmpty()) {
-            qWarning() << "Base config path cannot be empty!";
+            WARN("Base config path cannot be empty!");
             return;
         }
 

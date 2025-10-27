@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>7zip/7-zip.dll</file>
+        <file>7zip/7z.dll</file>
     </qresource>
 </RCC>

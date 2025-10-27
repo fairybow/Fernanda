@@ -11,9 +11,9 @@
 
 #include <QObject>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 
+#include "Debug.h"
 #include "IFileModel.h"
 
 namespace Fernanda {
@@ -30,7 +30,7 @@ public:
     {
     }
 
-    virtual ~NoOpFileModel() override { COCO_TRACER; }
+    virtual ~NoOpFileModel() override { TRACER; }
 };
 
 } // namespace Fernanda

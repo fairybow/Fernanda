@@ -12,117 +12,122 @@
 #include <QAction>
 #include <QHash>
 #include <QMenu>
+#include <QMenuBar>
 #include <QObject>
 
-#include "Coco/Debug.h"
-
-#include "Commander.h"
-#include "EventBus.h"
-#include "MenuModule.h"
+#include "Bus.h"
+#include "Constants.h"
+#include "Debug.h"
+#include "IService.h"
+#include "MenuActions.h"
+#include "Menus.h"
+#include "Tr.h"
 
 namespace Fernanda {
 
 // ...
-class NotepadMenuModule : public MenuModule
+class NotepadMenuModule : public IService
 {
     Q_OBJECT
 
 public:
-    NotepadMenuModule(
-        Commander* commander,
-        EventBus* eventBus,
-        QObject* parent = nullptr)
-        : MenuModule(commander, eventBus, parent)
+    NotepadMenuModule(Bus* bus, QObject* parent = nullptr)
+        : IService(bus, parent)
     {
-        initialize_();
+        // setup_();
     }
 
-    virtual ~NotepadMenuModule() override { COCO_TRACER; }
+    virtual ~NotepadMenuModule() override { TRACER; }
 
 protected:
-    virtual void initializeWorkspaceActions_(Window* window) override
+    virtual void registerBusCommands() override {}
+
+    virtual void connectBusEvents() override
     {
-        if (!window) return;
-        Actions_ actions{};
+        connect(
+            bus,
+            &Bus::windowCreated,
+            this,
+            &NotepadMenuModule::onWindowCreated_);
 
-        /// WIP
-        actions.fileOpen = make(window, "", Tr::Menus::notepadFileOpen());
+        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
+            // TODO: Some or all of this could also be common util functions in
+            // Menus.h
+            actions_.remove(window);
 
-        /// WIP
-        actions.toggles.fileSave = make(
-            window,
-            Calls::Save,
-            Tr::Menus::notepadFileSave(),
-            Qt::CTRL | Qt::Key_S);
-
-        /// WIP
-        actions.toggles.fileSaveAs = make(
-            window,
-            Calls::SaveAs,
-            Tr::Menus::notepadFileSaveAs(),
-            Qt::CTRL | Qt::ALT | Qt::Key_S);
-
-        /// WIP
-        actions.toggles.fileSaveAllInWindow = make(
-            window,
-            Calls::SaveWindow,
-            Tr::Menus::notepadFileSaveAllInWindow());
-
-        /// WIP
-        actions.toggles.fileSaveAll = make(
-            window,
-            Calls::SaveAll,
-            Tr::Menus::notepadFileSaveAll(),
-            Qt::CTRL | Qt::SHIFT | Qt::Key_S);
-
-        actions_[window] = actions;
-        // setInitialToggleStates_(window);
-    }
-
-    [[nodiscard]]
-    virtual bool
-    addWorkspaceOpenActions_(QMenu* fileMenu, Window* window) override
-    {
-        if (!fileMenu || !window) return false;
-        auto& actions = actions_[window];
-
-        fileMenu->addAction(actions.fileOpen);
-        return true;
-    }
-
-    [[nodiscard]]
-    virtual bool
-    addWorkspaceSaveActions_(QMenu* fileMenu, Window* window) override
-    {
-        if (!fileMenu || !window) return false;
-        auto& actions = actions_[window];
-
-        fileMenu->addAction(actions.toggles.fileSave);
-        fileMenu->addAction(actions.toggles.fileSaveAs);
-        fileMenu->addAction(actions.toggles.fileSaveAllInWindow);
-        fileMenu->addAction(actions.toggles.fileSaveAll);
-        return true;
+            /*if (auto cx = activeTabConnections_.take(window);
+                !cx.isEmpty()) {
+                for (auto& connection : cx)
+                    disconnect(connection);
+            }*/
+        });
     }
 
 private:
-    struct Actions_
+    QHash<Window*, NotepadMenuActions> actions_{};
+
+    // TODO: Remove {} for no arg commands
+    // TODO: Add key sequences
+    void initializeActions_(Window* window)
     {
-        QAction* fileOpen = nullptr;
+        if (!window) return;
+        auto& actions = actions_[window];
 
-        struct Toggles
-        {
-            QAction* fileSave = nullptr;
-            QAction* fileSaveAs = nullptr;
-            QAction* fileSaveAllInWindow = nullptr;
-            QAction* fileSaveAll = nullptr;
-        } toggles;
-    };
+        /// * = implemented
 
-    QHash<Window*, Actions_> actions_{};
+        actions.file.openFile = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_OPEN_FILE,
+            {},
+            Tr::Menus::fileNotepadOpen());
 
-    void initialize_()
+        actions.file.save = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_SAVE,
+            {},
+            Tr::Menus::fileNotepadSave());
+
+        actions.file.saveAs = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_SAVE_AS,
+            {},
+            Tr::Menus::fileNotepadSaveAs());
+
+        actions.file.saveAllInWindow = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_SAVE_ALL_IN_WINDOW,
+            {},
+            Tr::Menus::fileNotepadSaveAllInWindow());
+
+        actions.file.saveAll = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_SAVE_ALL,
+            {},
+            Tr::Menus::fileNotepadSaveAll());
+    }
+
+private slots:
+    void onWindowCreated_(Window* window)
     {
-        //...
+        if (!window) return;
+
+        initializeActions_(window);
+        auto& actions = actions_[window];
+        Menus::addNewMenuBar(bus, window, actions.common, [&](QMenu* menu) {
+            menu->addSeparator();
+            menu->addAction(actions.file.openFile);
+            menu->addSeparator();
+            menu->addAction(actions.file.save);
+            menu->addAction(actions.file.saveAs);
+            menu->addAction(actions.file.saveAllInWindow);
+            menu->addAction(actions.file.saveAll);
+            menu->addSeparator();
+        });
     }
 };
 

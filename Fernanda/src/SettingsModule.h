@@ -15,11 +15,12 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Coco/Debug.h"
 #include "Coco/Path.h"
 
-#include "Commander.h"
-#include "EventBus.h"
+#include "Bus.h"
+#include "Commands.h"
+#include "Constants.h"
+#include "Debug.h"
 #include "IService.h"
 #include "Ini.h"
 #include "Settings.h"
@@ -36,21 +37,30 @@ class SettingsModule : public IService
 public:
     SettingsModule(
         const Coco::Path& configPath,
-        Commander* commander,
-        EventBus* eventBus,
+        Bus* bus,
         QObject* parent = nullptr)
-        : IService(commander, eventBus, parent)
+        : IService(bus, parent)
         , baseConfigPath_(configPath)
     {
-        initialize_();
+        setup_();
     }
 
-    virtual ~SettingsModule() override { COCO_TRACER; }
+    virtual ~SettingsModule() override { TRACER; }
 
-    void setOverrideConfigPath(const Coco::Path& configPath)
+protected:
+    virtual void registerBusCommands() override
     {
-        if (!settings_) return;
-        settings_->setOverride(configPath);
+        bus->addCommandHandler(
+            Commands::SET_SETTINGS_OVERRIDE,
+            [&](const Command& cmd) {
+                auto path = cmd.param<Coco::Path>("path");
+                setOverrideConfigPath_(path);
+            });
+    }
+
+    virtual void connectBusEvents() override
+    {
+        //...
     }
 
 private:
@@ -58,34 +68,12 @@ private:
     Settings* settings_ = nullptr;
     QPointer<SettingsDialog> dialog_ = nullptr;
 
-    void initialize_()
+    void setup_() { settings_ = new Settings(baseConfigPath_, this); }
+
+    void setOverrideConfigPath_(const Coco::Path& configPath)
     {
-        settings_ = new Settings(baseConfigPath_, this);
-
-        commander->addCommandHandler(Commands::SettingsDialog, [&] {
-            openDialog_();
-        });
-
-        commander->addCommandHandler(
-            Commands::SetSetting,
-            [&](const Command& cmd) {
-                if (!settings_ || !settings_->isWritable()) return;
-                settings_->setValue(
-                    to<QString>(cmd.params, "key"),
-                    cmd.params.value("value"));
-            });
-
-        commander->addQueryHandler(
-            Queries::Setting,
-            [&](const QVariantMap& params) {
-                return settings_->value(
-                    to<QString>(params, "key"),
-                    params.value("default"));
-            });
-
-        connect(eventBus, &EventBus::lastWindowClosed, this, [&] {
-            if (dialog_) dialog_->close();
-        });
+        if (!settings_) return;
+        settings_->setOverride(configPath);
     }
 
     void openDialog_()
@@ -104,9 +92,9 @@ private:
         dialog_ = new SettingsDialog(initial_font);
 
         dialog_->setFontChangeHandler([&](const QFont& font) {
-            emit eventBus->settingChanged(Ini::Editor::FONT_KEY, toQVariant(font));
+            emit bus->settingChanged(Ini::Editor::FONT_KEY, toQVariant(font));
         });
-        //...
+        // Connect other setting handlers
 
         connect(
             dialog_,
@@ -118,7 +106,7 @@ private:
                         Ini::Editor::FONT_KEY,
                         toQVariant(font));
             });
-        //...
+        // Listen to other setting signals
 
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {
             (void)result;

@@ -28,7 +28,7 @@ public:
         : TabWidgetButton(tabBar)
         , tabBar_(tabBar)
     {
-        initialize_();
+        setup_();
     }
 
     virtual ~TabWidgetCloseButton() override {}
@@ -39,7 +39,7 @@ signals:
 private:
     QTabBar* tabBar_;
 
-    void initialize_()
+    void setup_()
     {
         connect(
             this,

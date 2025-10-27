@@ -1,9 +1,17 @@
+/*
+ * Fernanda  Copyright (C) 2025  fairybow
+ *
+ * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
+ * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
+ *
+ * Uses Qt 6 - <https://www.qt.io/>
+ */
+
 #pragma once
 
-// For reused, non-translatable strings and any other reused constants
-
-namespace Fernanda {
+// For general, reused, non-translatable strings and any other reused constants
+namespace Fernanda::Constants {
 
 constexpr auto CONFIG_FILE_NAME = "Settings.ini";
 
-} // namespace Fernanda
+} // namespace Fernanda::Constants

@@ -62,7 +62,7 @@ inline HandledType type(const Coco::Path& path)
     QFile file(path.toQString());
 
     if (!file.open(QIODevice::ReadOnly)) {
-        COCO_LOG(QString("Unable to open file: %0").arg(path.toQString()));
+        INFO("Unable to open file: {}", path);
         return PlainText; // Maybe replace with Error value
     }
 
@@ -70,7 +70,7 @@ inline HandledType type(const Coco::Path& path)
     auto file_header = file.read(8);
 
     if (file_header.isEmpty()) {
-        COCO_LOG(QString("Empty file: %0").arg(path.toQString()));
+        INFO("Empty file: {}", path);
         return PlainText;
     }
 
