@@ -29,7 +29,7 @@ This file describes the virtual structure of the Notebook. While the files exist
 </notebook>
 ```
 
-This could in theory be deleted and then regenerated but we'd lost the file names and virtual directory structure.
+This could in theory be deleted and then regenerated, but we'd lose the file names and virtual directory structure.
 
 ## Content
 

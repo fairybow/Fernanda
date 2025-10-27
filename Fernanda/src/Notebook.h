@@ -120,12 +120,6 @@ private:
         //     TRACER;
         //     qDebug() << "Implement";
         // });
-
-        // bus->addCommandHandler(PolyCmd::NEW_TREE_VIEW_MODEL, [&] {
-        //     // return makeTreeViewModel_();
-        //     TRACER;
-        //     qDebug() << "Implement";
-        // });
     }
 
     void connectBusEvents_()
