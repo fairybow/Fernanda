@@ -16,20 +16,18 @@
 #include "Version.h"
 
 /// Next:
-/// - FNX doc and UserData doc
+/// - Use same FileService (make Opening Files/Saving Files docs)
+/// - Opening files via TreeView for both Workspaces
+/// - NewTab behavior for both Workspaces
+/// - NewTab doc
+/// - UserData doc
 /// - Replace Coco/TextIo with project version
-/// - Tree view stuff
-/// - New Notebook first! Figure out fnx creation
-/// - As a consequence, also figure out what members Notebook needs
-/// (archive/save dir, temp dir, anything else?)
-/// - FnxModel class for TreeView?
 /// - Implementing menus
 /// - Redoing commands for menus as it is reimplemented
 /// - Utility commands (windowsReversed, etc)
 /// - Document in Menus.md and Bus.md
 /// - Redo/organize Bus events
 /// - Implement menu toggles
-/// - Deciding if OS and Archive FSs need different services
 ///
 /// Things to log:
 /// - Active window
@@ -37,9 +35,11 @@
 ///
 /// Coco:
 /// - Redo path, potentially reintegrate PathUtil with Path
-/// - Move stuff there (search TODO here)
+/// - Figure out Path string caching
+/// - Ensure Path's shared data works
 /// - Path::copy (or Coco::copy)?
-/// - Move mkdir top level (Coco::mkdir)?
+/// - Move mkdir top level (Coco::mkdir) or Path?
+/// - Move other non-Path stuff there (search TODO here)
 ///
 /// Clean-up:
 /// - QDomDocument::ParseResult good model for what we need for maybe save
