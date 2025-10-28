@@ -17,6 +17,7 @@
 
 /// Next:
 /// - Opening files via TreeView in both Workspaces
+/// -- So, hook up TreeView base class signals for clicking first
 /// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - NewTab behavior for both Workspaces
 /// 
@@ -38,6 +39,7 @@
 /// - Notebook auto save
 /// - Notebook internal auto save, change persistence
 ///
+/// Also Next:
 /// - UserData doc
 /// - Replace Coco/TextIo with project version
 /// - Implementing menus
