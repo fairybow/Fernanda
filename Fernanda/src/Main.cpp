@@ -17,10 +17,15 @@
 
 /// Next:
 /// - Opening files via TreeView in both Workspaces
-/// -- So, hook up TreeView base class signals for clicking first
+/// -- So, hook up TreeView base class signals for clicking first (could emit
+/// bus event)
+/// -- Previously, we had TreeViewModule execute Open File command directly
+/// -- Could be picked up by Workspace subclasses instead of FileService this
+/// time? (signal emits QModelIndex)
+/// -- Then Notepad/Notebook needs to get path (OS/UUID+ext in xml)?
 /// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - NewTab behavior for both Workspaces
-/// 
+///
 /// Opening Files doc will cover:
 /// - Use same FileService (make Opening Files/Saving Files docs)
 /// - Talk about the different ways each workspace uses FileService
