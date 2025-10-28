@@ -167,6 +167,12 @@
     <None Include="docs\NotebookCreation.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\OpeningFiles.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\SavingFiles.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
