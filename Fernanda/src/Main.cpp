@@ -16,10 +16,28 @@
 #include "Version.h"
 
 /// Next:
-/// - Use same FileService (make Opening Files/Saving Files docs)
-/// - Opening files via TreeView for both Workspaces
+/// - Opening files via TreeView in both Workspaces
+/// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - NewTab behavior for both Workspaces
-/// - NewTab doc
+/// 
+/// Opening Files doc will cover:
+/// - Use same FileService (make Opening Files/Saving Files docs)
+/// - Talk about the different ways each workspace uses FileService
+/// - Opening files via TreeView and Menu for both Workspaces
+/// - NewTab behavior for both Workspaces
+///
+/// Saving Files doc will cover:
+/// - Notebook auto save will only have to be when last view on model closes
+/// (tab closes if it's last tab for that file) but can still be periodic on
+/// timer too
+/// - It's also possible we may want to just keep all models open in Notebook
+/// even after last view on file closes? Probably not, though
+/// - Notepad saves
+/// - Notepad auto save (methods, dir)
+/// - Notebook save
+/// - Notebook auto save
+/// - Notebook internal auto save, change persistence
+///
 /// - UserData doc
 /// - Replace Coco/TextIo with project version
 /// - Implementing menus
