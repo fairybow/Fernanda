@@ -24,6 +24,7 @@
 /// -- Could be picked up by Workspace subclasses instead of FileService this
 /// time? (signal emits QModelIndex)
 /// -- Then Notepad/Notebook needs to get path (OS/UUID+ext in xml)?
+/// -- Separate SaveServices for each Workspace?
 /// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - NewTab behavior for both Workspaces
 ///

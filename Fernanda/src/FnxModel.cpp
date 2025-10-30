@@ -30,9 +30,9 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
     if (role == Qt::DisplayRole) return element.attribute("name", "<unnamed>");
 
     if (role == Qt::DecorationRole) {
-        if (element.tagName() == Fnx::DIR_TAG) {
+        if (element.tagName() == Fnx::XML_DIR_TAG) {
             return Application::style()->standardIcon(QStyle::SP_DirIcon);
-        } else if (element.tagName() == Fnx::FILE_TAG) {
+        } else if (element.tagName() == Fnx::XML_FILE_TAG) {
             return Application::style()->standardIcon(QStyle::SP_FileIcon);
         }
     }

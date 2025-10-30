@@ -39,49 +39,49 @@ namespace Fernanda::Debug {
 
 namespace Internal {
 
-    constexpr auto TIMESTAMP_FORMAT = "{:%Y-%m-%d | %H:%M:%S}.{:03d}";
-    constexpr auto VOC_FORMAT = "In {}: {}";
-    constexpr auto MSG_FORMAT = "{} | {} | {}";
+    constexpr auto TIMESTAMP_FORMAT_ = "{:%Y-%m-%d | %H:%M:%S}.{:03d}";
+    constexpr auto VOC_FORMAT_ = "In {}: {}";
+    constexpr auto MSG_FORMAT_ = "{} | {} | {}";
 
-    static std::atomic<bool> logging{ false };
+    static std::atomic<bool> logging_{ false };
     // static std::atomic<bool> firstWrite{ true };
-    static std::atomic<uint64_t> logCount{ 0 };
+    static std::atomic<uint64_t> logCount_{ 0 };
 
-    static std::mutex mutex{};
-    // static Coco::Path logFilePath{};
-    static QtMessageHandler qtHandler = nullptr;
+    static std::mutex mutex_{};
+    // static Coco::Path logFilePath_{};
+    static QtMessageHandler qtHandler_ = nullptr;
 
-    static std::string timestamp()
+    static std::string timestamp_()
     {
         auto now = std::chrono::system_clock::now();
         auto zone = std::chrono::current_zone();
         auto local_time = zone->to_local(now);
 
         return std::format(
-            TIMESTAMP_FORMAT,
+            TIMESTAMP_FORMAT_,
             std::chrono::floor<std::chrono::seconds>(local_time),
             std::chrono::duration_cast<std::chrono::milliseconds>(
                 local_time.time_since_epoch() % std::chrono::seconds{ 1 })
                 .count());
     }
 
-    static void handler(
+    static void handler_(
         QtMsgType type,
         const QMessageLogContext& context,
         const QString& msg)
     {
-        if (!logging.load(std::memory_order::relaxed)) return;
+        if (!logging_.load(std::memory_order::relaxed)) return;
 
-        auto count = logCount.fetch_add(1, std::memory_order::relaxed);
-        auto new_msg = std::format(MSG_FORMAT, count, timestamp(), msg);
+        auto count = logCount_.fetch_add(1, std::memory_order::relaxed);
+        auto new_msg = std::format(MSG_FORMAT_, count, timestamp_(), msg);
 
         QtMessageHandler qt_handler = nullptr;
 
         {
-            std::lock_guard<std::mutex> lock(mutex);
-            qt_handler = qtHandler;
+            std::lock_guard<std::mutex> lock(mutex_);
+            qt_handler = qtHandler_;
 
-            /*if (!logFilePath.isEmpty()) {
+            /*if (!logFilePath_.isEmpty()) {
                 auto expected = true;
                 auto truncate = firstWrite.compare_exchange_strong(
                     expected,
@@ -90,7 +90,7 @@ namespace Internal {
 
                 auto mode = QIODevice::WriteOnly | QIODevice::Text;
                 mode |= truncate ? QIODevice::Truncate : QIODevice::Append;
-                QFile file(logFilePath.toQString());
+                QFile file(logFilePath_.toQString());
 
                 if (file.open(mode)) {
                     QTextStream stream(&file);
@@ -107,12 +107,12 @@ namespace Internal {
 
 inline bool logging() noexcept
 {
-    return Internal::logging.load(std::memory_order::relaxed);
+    return Internal::logging_.load(std::memory_order::relaxed);
 }
 
 inline void setLogging(bool logging)
 {
-    Internal::logging.store(logging, std::memory_order::relaxed);
+    Internal::logging_.store(logging, std::memory_order::relaxed);
 }
 
 COCO_BOOL(Logging);
@@ -121,9 +121,9 @@ inline void initialize(Logging logging, const Coco::Path& logFilePath = {})
 {
     setLogging(logging);
 
-    std::lock_guard<std::mutex> lock(Internal::mutex);
-    // Internal::logFilePath = logFilePath;
-    Internal::qtHandler = qInstallMessageHandler(Internal::handler);
+    std::lock_guard<std::mutex> lock(Internal::mutex_);
+    // Internal::logFilePath_ = logFilePath;
+    Internal::qtHandler_ = qInstallMessageHandler(Internal::handler_);
 }
 
 struct Log
@@ -145,7 +145,7 @@ struct Log
     inline void
     print(const QObject* obj, std::string_view format, Args&&... args)
     {
-        if (!Internal::logging.load(std::memory_order::relaxed)) return;
+        if (!Internal::logging_.load(std::memory_order::relaxed)) return;
         auto context = QMessageLogContext(file, line, function, nullptr);
 
         // NOTE: Formatters for Qt types defined in Formatters.h
@@ -158,10 +158,10 @@ struct Log
         }
 
         if (obj) {
-            msg = std::format(Internal::VOC_FORMAT, obj, msg);
+            msg = std::format(Internal::VOC_FORMAT_, obj, msg);
         }
 
-        Internal::handler(type, context, QString::fromUtf8(msg));
+        Internal::handler_(type, context, QString::fromUtf8(msg));
     }
 
     template <typename... Args>

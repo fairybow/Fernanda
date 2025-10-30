@@ -27,16 +27,16 @@ namespace Fernanda::Fnx {
 
 namespace Internal {
 
-    constexpr auto MODEL_FILE_NAME = "Model.xml";
-    constexpr auto ROOT_TAG = "notebook";
+    constexpr auto MODEL_FILE_NAME_ = "Model.xml";
+    constexpr auto XML_ROOT_TAG_ = "notebook";
 
 } // namespace Internal
 
 constexpr auto CONTENT_DIR_NAME = "content";
-constexpr auto DIR_TAG = "folder";
-constexpr auto FILE_TAG = "file";
-constexpr auto ID_ATTR = "uuid";
-constexpr auto EXT_ATTR = "extension";
+constexpr auto XML_DIR_TAG = "folder";
+constexpr auto XML_FILE_TAG = "file";
+constexpr auto XML_UUID_ATTR = "uuid";
+constexpr auto XML_EXT_ATTR = "extension";
 
 inline void makeScaffold(const Coco::Path& root)
 {
@@ -49,14 +49,14 @@ inline void makeScaffold(const Coco::Path& root)
     xml.setAutoFormatting(true);
     xml.setAutoFormattingIndent(2);
     xml.writeStartDocument();
-    xml.writeStartElement(Internal::ROOT_TAG);
+    xml.writeStartElement(Internal::XML_ROOT_TAG_);
     xml.writeEndElement();
     xml.writeEndDocument();
 
     // Model.xml represents a virtual structuring of the contents of the
     // content folder
 
-    TextIo::write(xml_content, root / Internal::MODEL_FILE_NAME);
+    TextIo::write(xml_content, root / Internal::MODEL_FILE_NAME_);
 }
 
 // TODO: Replace QFile::copy with Coco version, maybe
@@ -100,13 +100,13 @@ inline void extract(const Coco::Path& archivePath, const Coco::Path& root)
 inline QDomDocument readModelXml(const Coco::Path& root)
 {
     QDomDocument doc{};
-    auto content = TextIo::read(root / Internal::MODEL_FILE_NAME);
+    auto content = TextIo::read(root / Internal::MODEL_FILE_NAME_);
     auto result = doc.setContent(content);
 
     if (!result) {
         CRITICAL(
             "Failed to parse {}! Error: {} at line {}, column {}.",
-            Internal::MODEL_FILE_NAME,
+            Internal::MODEL_FILE_NAME_,
             result.errorMessage,
             result.errorLine,
             result.errorColumn);
