@@ -17,6 +17,7 @@
 
 /// Next:
 /// - Opening files via TreeView in both Workspaces
+/// -- Need to handle Notebook double click on files (no expand, probably)
 /// -- So, hook up TreeView base class signals for clicking first (could emit
 /// bus event)
 /// -- Previously, we had TreeViewModule execute Open File command directly
@@ -62,6 +63,7 @@
 /// - Redo path, potentially reintegrate PathUtil with Path
 /// - Figure out Path string caching
 /// - Ensure Path's shared data works
+/// - isFolder to isDir
 /// - Path::copy (or Coco::copy)?
 /// - Move mkdir top level (Coco::mkdir) or Path?
 /// - Move other non-Path stuff there (search TODO here)

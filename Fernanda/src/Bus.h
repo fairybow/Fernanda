@@ -16,6 +16,7 @@
 
 #include <QHash>
 #include <QList>
+#include <QModelIndex>
 #include <QObject>
 #include <QString>
 #include <QVariant>
@@ -294,6 +295,7 @@ signals:
     void windowDestroyed(Window* window);
     // View may be nullptr!
     void activeFileViewChanged(Window* window, IFileView* view);
+    void treeViewDoubleClicked(Window* window, const QModelIndex& index);
 
     /// Old:
 

@@ -123,7 +123,26 @@ private:
 
     void connectBusEvents_()
     {
-        //...
+        connect(
+            bus,
+            &Bus::treeViewDoubleClicked,
+            this,
+            &Notepad::onTreeViewDoubleClicked_);
+    }
+
+private slots:
+    void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
+    {
+        if (!window || !index.isValid()) return;
+
+        auto path = Coco::Path(fsModel_->filePath(index));
+        if (path.isFolder()) return;
+
+        qDebug() << "Implement" << path;
+
+        // interceptor (probably not, since this will be passed to an open file
+        // command, which should have interceptor installed) send to
+        // FileService?
     }
 };
 

@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QLabel>
+#include <QModelIndex>
 #include <QObject>
 #include <QStatusBar>
 #include <QVariant>
@@ -124,7 +125,13 @@ private:
 
     void connectBusEvents_()
     {
-        // connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+        //connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+
+        connect(
+            bus,
+            &Bus::treeViewDoubleClicked,
+            this,
+            &Notebook::onTreeViewDoubleClicked_);
     }
 
     void addWorkspaceIndicator_(Window* window)
@@ -139,10 +146,23 @@ private:
     }
 
 private slots:
-    void onWindowCreated_(Window* window)
+    /*void onWindowCreated_(Window* window)
     {
         if (!window) return;
         addWorkspaceIndicator_(window);
+    }*/
+
+    void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
+    {
+        if (!window || !index.isValid()) return;
+
+        if (fnxModel_->isDir(index)) return;
+        auto path = workingDir_.path() / fnxModel_->relativePath(index);
+
+        qDebug() << "Implement" << path;
+
+        // interceptor?
+        // send to FileService?
     }
 };
 

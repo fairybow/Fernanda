@@ -23,6 +23,8 @@
 #include "Debug.h"
 #include "Fnx.h"
 
+#include "Coco/Path.h"
+
 namespace Fernanda {
 
 // See:
@@ -50,6 +52,24 @@ public:
         idToElement_.clear();
         nextId_ = 1; // Reserve 0 for root
         endResetModel();
+    }
+
+    bool isDir(const QModelIndex& index) const
+    {
+        auto element = elementFromIndex_(index);
+        if (element.isNull()) return false;
+        return element.tagName() == Fnx::DIR_TAG;
+    }
+
+    // Notebook has the working directory, so we can't send full path
+    Coco::Path relativePath(const QModelIndex& index)
+    {
+        auto element = elementFromIndex_(index);
+        if (element.isNull() || element.tagName() != Fnx::FILE_TAG) return {};
+
+        auto name =
+            element.attribute(Fnx::ID_ATTR) + element.attribute(Fnx::EXT_ATTR);
+        return Coco::Path(Fnx::CONTENT_DIR_NAME) / name;
     }
 
     virtual QModelIndex

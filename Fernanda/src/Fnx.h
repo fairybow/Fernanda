@@ -25,19 +25,23 @@
 
 namespace Fernanda::Fnx {
 
-/// QDomDocument for living structure
-
 namespace Internal {
 
     constexpr auto MODEL_FILE_NAME = "Model.xml";
-    constexpr auto CONTENT_DIR_NAME = "content";
+    constexpr auto ROOT_TAG = "notebook";
 
 } // namespace Internal
+
+constexpr auto CONTENT_DIR_NAME = "content";
+constexpr auto DIR_TAG = "folder";
+constexpr auto FILE_TAG = "file";
+constexpr auto ID_ATTR = "uuid";
+constexpr auto EXT_ATTR = "extension";
 
 inline void makeScaffold(const Coco::Path& root)
 {
     // Create content directory
-    if (!Coco::PathUtil::mkdir(root / Internal::CONTENT_DIR_NAME)) return;
+    if (!Coco::PathUtil::mkdir(root / CONTENT_DIR_NAME)) return;
 
     // Create empty Model.xml
     QString xml_content{};
@@ -45,7 +49,7 @@ inline void makeScaffold(const Coco::Path& root)
     xml.setAutoFormatting(true);
     xml.setAutoFormattingIndent(2);
     xml.writeStartDocument();
-    xml.writeStartElement("notebook");
+    xml.writeStartElement(Internal::ROOT_TAG);
     xml.writeEndElement();
     xml.writeEndDocument();
 
@@ -96,14 +100,7 @@ inline void extract(const Coco::Path& archivePath, const Coco::Path& root)
 inline QDomDocument readModelXml(const Coco::Path& root)
 {
     QDomDocument doc{};
-
     auto content = TextIo::read(root / Internal::MODEL_FILE_NAME);
-    /// Test:
-    //auto content =
-    //    QString("<?xml version='1.0'?><notebook><folder name='Chapter 1'><file "
-    //            "name='1' type='plaintext' uuid='xxx1'/></folder><file "
-    //            "name='Notes' type='plaintext' uuid='xxx2'><file name='Other "
-    //            "Notes' type='plaintext' uuid='xxx3'/></file></notebook>");
     auto result = doc.setContent(content);
 
     if (!result) {
