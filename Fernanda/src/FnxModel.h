@@ -111,7 +111,7 @@ public:
 
     virtual int columnCount(const QModelIndex& parent = {}) const override
     {
-        return 1; // Just "Name" column for now
+        return 1; // TODO: Just "Name" column for now
     }
 
     virtual QVariant
