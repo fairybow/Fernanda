@@ -32,6 +32,7 @@ constexpr auto TREE_VIEW_ROOT_INDEX = "poly:tree_view_root_index"; /// non-menu
 
 // Notepad scope
 
+// TODO: For this, will wrap FS:OPEN_FILE with the selection dialog for the menu
 constexpr auto NOTEPAD_OPEN_FILE = "notepad:open_file";
 constexpr auto NOTEPAD_SAVE = "notepad:save_file";
 constexpr auto NOTEPAD_SAVE_AS = "notepad:save_file_as";
@@ -40,8 +41,8 @@ constexpr auto NOTEPAD_SAVE_ALL = "notepad:save_all";
 
 // Notebook scope
 
-constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad";
 constexpr auto NOTEBOOK_IMPORT_FILE = "notebook:import_file";
+constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad";
 constexpr auto NOTEBOOK_SAVE = "notebook:save_archive";
 constexpr auto NOTEBOOK_SAVE_AS = "notebook:save_archive_as";
 constexpr auto NOTEBOOK_EXPORT_FILE = "notebook:export_file";
@@ -59,8 +60,7 @@ constexpr auto SELECT_ALL = "views:select_all"; /// *
 // SettingsModule scope
 
 constexpr auto SET_SETTINGS_OVERRIDE = "settings:set_override"; /// *, non-menu
-constexpr auto SETTINGS_DIALOG =
-    "settings:dialog";
+constexpr auto SETTINGS_DIALOG = "settings:dialog";
 
 // WindowService scope
 
@@ -75,6 +75,6 @@ constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 
 // FileService scope
 
-constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// * (TODO: will it be in menu? I think so)
+constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// *, non-menu
 
 } // namespace Fernanda::Commands

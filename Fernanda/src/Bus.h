@@ -33,6 +33,11 @@ class IFileModel;
 class IFileView;
 enum class SaveResult;
 
+template <typename T> inline [[nodiscard]] QVariant qVar(const T& value)
+{
+    return QVariant::fromValue<T>(value);
+}
+
 struct Command
 {
     // Embarrassing note, but:
@@ -78,18 +83,6 @@ struct Command
         auto variant = params.value(key);
         if (!variant.isValid() || !variant.canConvert<T>()) return defaultValue;
         return variant.value<T>();
-    }
-
-    // TODO: Dumb?
-    static [[nodiscard]] QVariantMap setPathParam(const Coco::Path& path)
-    {
-        return { { "path", QVariant::fromValue<Coco::Path>(path) } };
-    }
-
-    // TODO: Dumb?
-    [[nodiscard]] Coco::Path pathParam() const
-    {
-        return param<Coco::Path>("path");
     }
 };
 
@@ -201,7 +194,7 @@ public:
                 if constexpr (ReturnsQVariant<HandlerT, const Command&>) {
                     return handler(cmd);
                 } else {
-                    return QVariant::fromValue(handler(cmd));
+                    return qVar(handler(cmd));
                 }
             };
 
@@ -226,7 +219,7 @@ public:
                 if constexpr (ReturnsQVariant<HandlerT>) {
                     return handler();
                 } else {
-                    return QVariant::fromValue(handler());
+                    return qVar(handler());
                 }
             };
 

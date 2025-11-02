@@ -52,7 +52,7 @@ protected:
         bus->addCommandHandler(
             Commands::SET_SETTINGS_OVERRIDE,
             [&](const Command& cmd) {
-                setOverrideConfigPath_(cmd.pathParam());
+                setOverrideConfigPath_(cmd.param<Coco::Path>("path"));
             });
     }
 

@@ -61,7 +61,7 @@ protected:
         bus->addCommandHandler(
             Commands::OPEN_FILE_AT_PATH,
             [&](const Command& cmd) {
-                auto path = cmd.pathParam();
+                auto path = cmd.param<Coco::Path>("path");
                 if (path.isEmpty() || !path.exists()) return;
 
                 // Check if model already exists and re-ready

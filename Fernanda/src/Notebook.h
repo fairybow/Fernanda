@@ -91,7 +91,7 @@ private:
         auto settings_file = root / Constants::CONFIG_FILE_NAME;
         bus->execute(
             Commands::SET_SETTINGS_OVERRIDE,
-            Command::setPathParam(settings_file));
+            { { "path", qVar(settings_file) } });
 
         registerBusCommands_();
         connectBusEvents_();
@@ -158,10 +158,10 @@ private slots:
         if (fnxModel_->isDir(index)) return;
         auto path = workingDir_.path() / fnxModel_->relativePath(index);
 
-        qDebug() << "Implement" << path;
-
-        // interceptor?
-        // send to FileService?
+        bus->execute(
+            Commands::OPEN_FILE_AT_PATH,
+            { { "path", qVar(path) } },
+            window);
     }
 };
 

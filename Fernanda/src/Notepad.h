@@ -102,9 +102,9 @@ private:
         bus->addInterceptor(
             Commands::OPEN_FILE_AT_PATH,
             [&](const Command& cmd) {
-                if (pathInterceptor_ && pathInterceptor_(cmd.pathParam())) {
+                if (pathInterceptor_
+                    && pathInterceptor_(cmd.param<Coco::Path>("path")))
                     return true;
-                }
 
                 return false;
             });
@@ -138,12 +138,9 @@ private slots:
         auto path = Coco::Path(fsModel_->filePath(index));
         if (path.isFolder()) return;
 
-        // TODO:
-        qDebug() << "No ViewService handling yet!" << path;
-
         bus->execute(
             Commands::OPEN_FILE_AT_PATH,
-            Command::setPathParam(path),
+            { { "path", qVar(path) } },
             window);
     }
 };
