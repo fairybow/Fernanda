@@ -56,6 +56,14 @@
 /// - Redo/organize Bus events
 /// - Implement menu toggles
 ///
+/// - Could rethink Services/Modules distinction to frame Services as proactive
+/// and modules as more reactive, rather than the current
+/// essential/non-essential distinction (seeing a pattern where, for example,
+/// FileService is fairly proactive and ViewService is primarily reactive, with
+/// slots making up the majority of its work)
+/// -- It would be purely nominal based on function, as each would still inherit
+/// IService
+///
 /// Things to log:
 /// - Active window
 /// - Active file view/model

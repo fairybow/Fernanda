@@ -100,14 +100,15 @@ private:
             return fsModel_->index(currentBaseDir_.toQString());
         });
 
-        /*bus->addInterceptor(Commands::OpenFile, [&](const Command& cmd) {
-            if (pathInterceptor_
-                && pathInterceptor_(to<QString>(cmd.params, "path"))) {
-                return true;
-            }
+        bus->addInterceptor(
+            Commands::OPEN_FILE_AT_PATH,
+            [&](const Command& cmd) {
+                if (pathInterceptor_ && pathInterceptor_(cmd.pathParam())) {
+                    return true;
+                }
 
-            return false;
-        });*/
+                return false;
+            });
 
         /// NOT YET
         /*bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {
@@ -138,11 +139,13 @@ private slots:
         auto path = Coco::Path(fsModel_->filePath(index));
         if (path.isFolder()) return;
 
-        qDebug() << "Implement" << path;
+        // TODO:
+        qDebug() << "No ViewService handling yet!" << path;
 
-        // interceptor (probably not, since this will be passed to an open file
-        // command, which should have interceptor installed) send to
-        // FileService?
+        bus->execute(
+            Commands::OPEN_FILE_AT_PATH,
+            Command::setPathParam(path),
+            window);
     }
 };
 

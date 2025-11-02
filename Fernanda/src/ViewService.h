@@ -36,7 +36,6 @@
 #include "TabWidget.h"
 #include "TextFileModel.h"
 #include "TextFileView.h"
-// #include "ViewServiceCloseHelper.h"
 #include "Window.h"
 
 namespace Fernanda {
@@ -94,16 +93,39 @@ protected:
     virtual void connectBusEvents() override
     {
         connect(bus, &Bus::windowCreated, this, &ViewService::onWindowCreated_);
+
+        connect(
+            bus,
+            &Bus::windowDestroyed,
+            this,
+            &ViewService::onWindowDestroyed_);
+
+        connect(
+            bus,
+            &Bus::fileModelReadied,
+            this,
+            &ViewService::onFileModelReadied_);
+
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            &ViewService::onFileModelModificationChanged_);
+
+        connect(
+            bus,
+            &Bus::fileModelMetaChanged,
+            this,
+            &ViewService::onFileModelMetaChanged_);
     }
 
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
     QHash<IFileModel*, int> viewsPerModel_{};
-    // ViewServiceCloseHelper* closeHelper_ = nullptr;
 
     void setup_()
     {
-        // closeHelper_ = new ViewServiceCloseHelper(bus, this);
+        //...
     }
 
     TabWidget* tabWidget_(Window* window)
@@ -204,7 +226,7 @@ private:
         view->selectAll();
     }
 
-    // TODO: Rename!
+    // TODO: Rename?
     template <
         Coco::Concepts::QWidgetPointer FileViewT,
         Coco::Concepts::QObjectPointer FileModelT>
@@ -266,9 +288,15 @@ private slots:
         addTabWidget_(window);
     }
 
-    void onFileReadied_(IFileModel* model, Window* window)
+    void onWindowDestroyed_(Window* window)
     {
-        if (!model || !window) return;
+        if (!window) return;
+        activeFileViews_.remove(window);
+    }
+
+    void onFileModelReadied_(Window* window, IFileModel* model)
+    {
+        if (!window || !model) return;
 
         // IFileView* view = nullptr;
 
@@ -304,7 +332,7 @@ private slots:
         // view->setFocus();
     }
 
-    void onFileModificationChanged_(IFileModel* model, bool modified)
+    void onFileModelModificationChanged_(IFileModel* model, bool modified)
     {
         if (!model) return;
 
@@ -322,7 +350,7 @@ private slots:
         }*/
     }
 
-    void onFileMetaChanged_(IFileModel* model)
+    void onFileModelMetaChanged_(IFileModel* model)
     {
         if (!model) return;
 

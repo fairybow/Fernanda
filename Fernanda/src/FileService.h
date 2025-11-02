@@ -20,19 +20,19 @@
 #include "Coco/Bool.h"
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
-#include "Coco/TextIo.h" /// TODO: Replace with Fernanda version
 
 #include "Bus.h"
+#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileMeta.h"
-// #include "FileServiceSaveHelper.h"
 #include "FileTypes.h"
 #include "IFileModel.h"
 #include "IFileView.h"
 #include "IService.h"
 #include "NoOpFileModel.h"
 #include "TextFileModel.h"
+#include "TextIo.h"
 #include "Tr.h"
 #include "Utility.h"
 #include "Window.h"
@@ -59,7 +59,20 @@ public:
 protected:
     virtual void registerBusCommands() override
     {
-        //...
+        bus->addCommandHandler(
+            Commands::OPEN_FILE_AT_PATH,
+            [&](const Command& cmd) {
+                auto path = cmd.pathParam();
+                if (path.isEmpty() || !path.exists()) return;
+
+                // Check if model already exists and re-ready
+                if (auto existing_model = pathToFileModel_[path]) {
+                    emit bus->fileModelReadied(cmd.context, existing_model);
+                    return;
+                }
+
+                newDiskFileModel_(cmd.context, path);
+            });
     }
 
     virtual void connectBusEvents() override
@@ -69,45 +82,13 @@ protected:
 
 private:
     QHash<Coco::Path, IFileModel*> pathToFileModel_{};
-    // FileServiceSaveHelper* saveHelper_ = nullptr;
 
     void setup_()
     {
-        // saveHelper_ = new FileServiceSaveHelper(bus, pathToFileModel_, this);
+        //...
     }
 
-    void connectNewModel_(IFileModel* model)
-    {
-        connect(
-            model,
-            &IFileModel::modificationChanged,
-            this,
-            [&, model](bool modified) {
-                emit bus->fileModificationChanged(model, modified);
-            });
-
-        auto meta = model->meta();
-
-        if (meta) {
-            connect(meta, &FileMeta::changed, this, [&, model] {
-                emit bus->fileMetaChanged(model);
-            });
-        }
-
-        // Emit initial states (needed?)
-        emit bus->fileModificationChanged(model, model->isModified());
-        emit bus->fileMetaChanged(model);
-    }
-
-    void createNewTextFile_(Window* window)
-    {
-        if (!window) return;
-        auto model = new TextFileModel({}, this);
-        connectNewModel_(model);
-        emit bus->fileReadied(model, window);
-    }
-
-    void createExistingFile_(const Coco::Path& path, Window* window)
+    void newDiskFileModel_(Window* window, const Coco::Path& path)
     {
         if (!window) return;
         if (path.isEmpty() || !path.exists()) return;
@@ -116,26 +97,29 @@ private:
 
         switch (FileTypes::type(path)) {
         case FileTypes::PlainText:
-            model = createTextFileFromDisk_(path);
+            model = newDiskTextFileModel_(path);
             break;
         default:
             model = new NoOpFileModel(path, this);
             break;
         }
 
-        if (!model) return;
+        if (!model) {
+            WARN("Failed to open new file model from disk for {}!", path);
+            return;
+        }
 
         pathToFileModel_[path] = model;
         connectNewModel_(model);
-        emit bus->fileReadied(model, window);
+        emit bus->fileModelReadied(window, model);
     }
 
-    IFileModel* createTextFileFromDisk_(const Coco::Path& path)
+    IFileModel* newDiskTextFileModel_(const Coco::Path& path)
     {
         if (path.isEmpty() || !path.exists()) return nullptr;
 
         auto model = new TextFileModel(path, this);
-        auto text = Coco::TextIo::read(path);
+        auto text = TextIo::read(path);
 
         // TODO: Is there a reason we don't have the model set its own text?
         auto document = model->document();
@@ -146,6 +130,35 @@ private:
 
         return model;
     }
+
+    void connectNewModel_(IFileModel* model)
+    {
+        connect(
+            model,
+            &IFileModel::modificationChanged,
+            this,
+            [&, model](bool modified) {
+                emit bus->fileModelModificationChanged(model, modified);
+            });
+
+        connect(model->meta(), &FileMeta::changed, this, [&, model] {
+            emit bus->fileModelMetaChanged(model);
+        });
+
+        // TODO: Emit initial states (needed?)
+        emit bus->fileModelModificationChanged(model, model->isModified());
+        emit bus->fileModelMetaChanged(model);
+    }
+
+    ///==================================================================
+
+    /*void createNewTextFile_(Window* window)
+    {
+        if (!window) return;
+        auto model = new TextFileModel({}, this);
+        connectNewModel_(model);
+        emit bus->fileModelReadied(window, model);
+    }*/
 
 private slots:
     void onViewClosed_(IFileView* view)

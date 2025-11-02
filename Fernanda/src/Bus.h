@@ -79,6 +79,18 @@ struct Command
         if (!variant.isValid() || !variant.canConvert<T>()) return defaultValue;
         return variant.value<T>();
     }
+
+    // TODO: Dumb?
+    static [[nodiscard]] QVariantMap setPathParam(const Coco::Path& path)
+    {
+        return { { "path", QVariant::fromValue<Coco::Path>(path) } };
+    }
+
+    // TODO: Dumb?
+    [[nodiscard]] Coco::Path pathParam() const
+    {
+        return param<Coco::Path>("path");
+    }
 };
 
 template <typename T>
@@ -291,11 +303,14 @@ public:
 
 signals:
     /// Re-verified:
-    void windowCreated(Window* window);
-    void windowDestroyed(Window* window);
+    void windowCreated(Window* context);
+    void windowDestroyed(Window* context);
     // View may be nullptr!
-    void activeFileViewChanged(Window* window, IFileView* view);
-    void treeViewDoubleClicked(Window* window, const QModelIndex& index);
+    void activeFileViewChanged(Window* context, IFileView* view);
+    void treeViewDoubleClicked(Window* context, const QModelIndex& index);
+    void fileModelReadied(Window* context, IFileModel* model);
+    void fileModelModificationChanged(IFileModel* model, bool modified);
+    void fileModelMetaChanged(IFileModel* model);
 
     /// Old:
 
@@ -311,9 +326,6 @@ signals:
 
     // FileService
 
-    void fileReadied(IFileModel* model, Window* window);
-    void fileModificationChanged(IFileModel* model, bool modified);
-    void fileMetaChanged(IFileModel* model);
     void fileSaved(SaveResult result, const Coco::Path& path);
     void fileSavedAs(
         SaveResult result,

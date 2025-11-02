@@ -70,7 +70,11 @@ constexpr auto WINDOWS_SET = "windows:set"; /// *, non-menu
 
 // ColorBarModule scope
 
-constexpr auto RUN_COLOR_BAR = "color_bar:run"; /// *, non-menu
-constexpr auto BE_CUTE = "color_bar:be_cute"; /// *, non-menu
+constexpr auto RUN_COLOR_BAR = "color_bars:run"; /// *, non-menu
+constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
+
+// FileService scope
+
+constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// * (TODO: will it be in menu? I think so)
 
 } // namespace Fernanda::Commands

@@ -92,7 +92,7 @@ private:
         auto settings_file = root / Constants::CONFIG_FILE_NAME;
         bus->execute(
             Commands::SET_SETTINGS_OVERRIDE,
-            { { "path", toQVariant(settings_file) } });
+            Command::setPathParam(settings_file));
 
         registerBusCommands_();
         connectBusEvents_();
