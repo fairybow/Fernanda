@@ -29,7 +29,6 @@
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
-#include "Utility.h"
 #include "Window.h"
 #include "Workspace.h"
 

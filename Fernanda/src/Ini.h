@@ -13,8 +13,6 @@
 #include <QString>
 #include <QVariant>
 
-#include "Utility.h"
-
 namespace Fernanda::Ini {
 
 //...
@@ -37,7 +35,7 @@ namespace Editor {
         font.setPointSize(DEFAULT_FONT_PT_SIZE);
         font.setBold(DEFAULT_FONT_BOLD);
         font.setItalic(DEFAULT_FONT_ITALIC);
-        return toQVariant(font);
+        return QVariant::fromValue(font);
     }
 
 } // namespace Editor

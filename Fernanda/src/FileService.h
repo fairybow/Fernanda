@@ -34,7 +34,6 @@
 #include "TextFileModel.h"
 #include "TextIo.h"
 #include "Tr.h"
-#include "Utility.h"
 #include "Window.h"
 
 namespace Fernanda {

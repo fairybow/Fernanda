@@ -29,7 +29,6 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "IService.h"
-#include "Utility.h"
 #include "Window.h"
 
 namespace Fernanda {

@@ -18,7 +18,6 @@
 #include "Debug.h"
 #include "Enums.h"
 #include "IService.h"
-#include "Utility.h"
 #include "Window.h"
 
 namespace Fernanda {

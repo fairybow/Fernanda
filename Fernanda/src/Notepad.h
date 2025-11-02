@@ -24,7 +24,6 @@
 #include "Debug.h"
 #include "NotepadMenuModule.h"
 #include "TreeViewModule.h"
-#include "Utility.h"
 #include "Version.h"
 #include "Workspace.h"
 

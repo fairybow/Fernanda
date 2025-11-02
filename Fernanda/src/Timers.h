@@ -16,7 +16,16 @@
 
 namespace Fernanda {
 
-// Utility class for initializing a debouncing timer and connecting it to a slot
+// TODO: Timers namespace?
+
+template <typename SlotT>
+inline void timer(int msecs, QObject* parent, SlotT slot)
+{
+    QTimer::singleShot(msecs, parent, slot);
+}
+
+// Utility class for initializing a debouncing/delay timer and connecting it to
+// a slot
 class DelayTimer : public QObject
 {
     Q_OBJECT

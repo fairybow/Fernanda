@@ -30,8 +30,7 @@
 #include "Coco/Fx.h"
 
 #include "Debug.h"
-#include "DelayTimer.h"
-#include "Utility.h"
+#include "Timers.h"
 
 namespace Fernanda {
 

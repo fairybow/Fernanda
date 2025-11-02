@@ -20,8 +20,8 @@
 #include "Coco/Layout.h"
 
 #include "Debug.h"
-#include "DelayTimer.h"
 #include "FontSelector.h"
+#include "Timers.h"
 
 namespace Fernanda {
 

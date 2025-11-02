@@ -18,7 +18,6 @@
 #include "Enums.h"
 #include "IFileModel.h"
 #include "IFileView.h"
-#include "Utility.h"
 #include "Window.h"
 
 #define SIGLOG_(Signal, Slot) connect(this, &Bus::Signal, this, Slot)

@@ -82,7 +82,6 @@
 /// Clean-up:
 /// - QDomDocument::ParseResult good model for what we need for maybe save
 /// result or similar
-/// - Comment-out Utility and see what's needed
 /// - Ensure all command handler registrations use "param" instead of
 /// "to"
 /// - Search TODO
@@ -96,7 +95,6 @@
 /// - Make sure we aren't casting return values to QVar when registering (it
 /// isn't needed!)
 /// - Can we just return Coco::Path without QString conversion?
-/// - Check where we can remove Utility.h include (toQVariant unneeded)
 /// - Also check lambda args (whether it uses a Command or not)
 
 /// Unsorted (but next at some point):
