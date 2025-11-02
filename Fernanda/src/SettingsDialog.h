@@ -68,8 +68,8 @@ private:
     FontChangeHandler fontChangeHandler_ = nullptr;
     QFont pendingFont_{};
     bool hasPendingFont_ = false;
-    DelayTimer* fontDebouncer_ =
-        new DelayTimer(500, this, &SettingsDialog::onFontDebounce_);
+    Timers::Debouncer* fontDebouncer_ =
+        new Timers::Debouncer(500, this, &SettingsDialog::onFontDebounce_);
 
     void setup_(const QFont& initialFont)
     {

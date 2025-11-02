@@ -16,36 +16,40 @@
 
 namespace Fernanda {
 
-// TODO: Timers namespace?
-
 template <typename SlotT>
 inline void timer(int msecs, QObject* parent, SlotT slot)
 {
     QTimer::singleShot(msecs, parent, slot);
 }
 
-// Utility class for initializing a debouncing/delay timer and connecting it to
-// a slot
-class DelayTimer : public QObject
-{
-    Q_OBJECT
+namespace Timers {
 
-public:
-    template <typename SlotT>
-    DelayTimer(int interval, QObject* parent, SlotT slot)
-        : QObject(parent)
+    // Utility class for initializing a debouncing/delay timer and connecting it
+    // to a slot
+    class Delayer : public QObject
     {
-        timer_->setSingleShot(true);
-        timer_->setInterval(interval);
-        connect(timer_, &QTimer::timeout, parent, slot);
-    }
+        Q_OBJECT
 
-    virtual ~DelayTimer() override { TRACER; }
+    public:
+        template <typename SlotT>
+        Delayer(int interval, QObject* parent, SlotT slot)
+            : QObject(parent)
+        {
+            timer_->setSingleShot(true);
+            timer_->setInterval(interval);
+            connect(timer_, &QTimer::timeout, parent, slot);
+        }
 
-    void start() { timer_->start(); }
+        virtual ~Delayer() override { TRACER; }
 
-private:
-    QTimer* timer_ = new QTimer(this);
-};
+        void start() { timer_->start(); }
+
+    private:
+        QTimer* timer_ = new QTimer(this);
+    };
+
+    using Debouncer = Delayer;
+
+} // namespace Timers
 
 } // namespace Fernanda
