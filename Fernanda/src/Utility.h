@@ -42,17 +42,17 @@ inline void timer(int msecs, QObject* parent, SlotT slot)
 //    return qobject_cast<T>(object);
 //}
 
-template <typename T> inline T to(const QVariant& variant)
-{
-    return variant.value<T>();
-}
+//template <typename T> inline T to(const QVariant& variant)
+//{
+//    return variant.value<T>();
+//}
 
 template <typename T> inline QVariant toQVariant(const T& value)
 {
     return QVariant::fromValue<T>(value);
 }
 
-namespace Util {
+//namespace Util {
 
     // Maybe make this a query, for organizational/clarity purposes. This works
     // fine, but feels off in terms of design. We also may want a treeView
@@ -111,6 +111,6 @@ namespace Util {
     //    return false;
     //}
 
-} // namespace Util
+//} // namespace Util
 
 } // namespace Fernanda
