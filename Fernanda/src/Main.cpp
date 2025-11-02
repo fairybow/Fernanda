@@ -68,6 +68,8 @@
 /// - Path::copy (or Coco::copy)?
 /// - Move mkdir top level (Coco::mkdir) or Path?
 /// - Move other non-Path stuff there (search TODO here)
+/// - I know it's not necessary and is how std::fs::path works, but Path without
+/// separator normalization sucks
 ///
 /// Clean-up:
 /// - QDomDocument::ParseResult good model for what we need for maybe save

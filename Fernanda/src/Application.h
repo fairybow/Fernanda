@@ -57,6 +57,16 @@ public:
         /// Test:
         //makeNotebook_(AppDirs::defaultDocs() / "Unsaved.fnx");
         makeNotebook_(AppDirs::defaultDocs() / "Saved.fnx");
+
+        /*auto test_1 = "X:/Test/Path.file"_ccpath;
+        auto test_2 = "Y:/Drive"_ccpath;
+        auto test_3 = "Part"_ccpath;
+
+        qDebug() << test_1;
+        qDebug() << test_2;
+        qDebug() << test_3;
+
+        qDebug() << test_2 / test_3;*/
     }
 
 public slots:
