@@ -16,14 +16,12 @@
 #include "Version.h"
 
 /// Next:
-/// - Opening files via TreeView in both Workspaces
-/// -- Need to handle Notebook double click on files (no expand, probably)
-/// -- So, hook up TreeView base class signals for clicking first (could emit
+/// - (DONE) Opening files via TreeView in both Workspaces
+/// -- (DONE) So, hook up TreeView base class signals for clicking first (could emit
 /// bus event)
-/// -- Previously, we had TreeViewModule execute Open File command directly
-/// -- Could be picked up by Workspace subclasses instead of FileService this
+/// -- (DONE) Could be picked up by Workspace subclasses instead of FileService this
 /// time? (signal emits QModelIndex)
-/// -- Then Notepad/Notebook needs to get path (OS/UUID+ext in xml)?
+/// -- (DONE) Then Notepad/Notebook needs to get path (OS/UUID+ext in xml)?
 /// -- Separate SaveServices for each Workspace?
 /// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - NewTab behavior for both Workspaces

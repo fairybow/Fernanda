@@ -30,6 +30,8 @@ namespace Fernanda {
 // See:
 // https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
 // TODO: Trash (should be immutable and separate from active)
+// TODO: Double clicking on files should maybe not expand (if they have
+// children), since they also open with double clicks?
 class FnxModel : public QAbstractItemModel
 {
     Q_OBJECT
