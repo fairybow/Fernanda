@@ -109,16 +109,15 @@ private:
                 return false;
             });
 
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            TRACER;
+            qDebug() << "Implement";
+        });
+
         /// NOT YET
         /*bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {
             return currentBaseDir_.toQString();
         });*/
-
-        // bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
-        //     /// createNewTextFile_(cmd.context); //<- Old (in FileService)
-        //     TRACER;
-        //     qDebug() << "Implement";
-        // });
     }
 
     void connectBusEvents_()

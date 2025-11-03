@@ -64,7 +64,7 @@ private:
 
     void setup_()
     {
-        // Keep as fatal?
+        // TODO: Keep as fatal?
         if (!workingDir_.isValid())
             FATAL("Notebook temp directory creation failed!");
 
@@ -75,11 +75,12 @@ private:
 
         if (!fnxPath_.exists()) {
             Fnx::makeScaffold(root);
-            // Mark notebook modified (maybe, maybe not until edited)? (need to
-            // figure out how this will work)
+            // TODO: Mark notebook modified (maybe, maybe not until edited)?
+            // (need to figure out how this will work)
         } else {
             Fnx::extract(fnxPath_, root);
-            // Verification (comparing Model file elements to content dir files)
+            // TODO: Verification (comparing Model file elements to content dir
+            // files)
         }
 
         // Read Model.xml into memory as DOM doc
@@ -111,15 +112,14 @@ private:
             return QModelIndex{};
         });
 
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            TRACER;
+            qDebug() << "Implement";
+        });
+
         /*bus->addCommandHandler(Cmd::NotebookRoot, [&] {
             return root_.toQString();
         });*/
-
-        // bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
-        //     /// createNewTextFile_(cmd.context); //<- Old (in FileService)
-        //     TRACER;
-        //     qDebug() << "Implement";
-        // });
     }
 
     void connectBusEvents_()

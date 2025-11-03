@@ -23,8 +23,9 @@
 /// this time? (signal emits QModelIndex)
 /// -- (DONE) Then Notepad/Notebook needs to get path (OS/UUID+ext in xml)?
 /// -- Separate SaveServices for each Workspace?
-/// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - NewTab behavior for both Workspaces
+/// -- Should FileService have a separate command for off-disk files?
+/// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - Marking Notebook as modified
 ///
 /// Opening Files doc will cover:
