@@ -26,6 +26,7 @@
 /// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - NewTab behavior for both Workspaces
 /// - Marking Notebook as modified
+/// - QSet<T> printing, notably for WINDOWS_SET command result
 ///
 /// Opening Files doc will cover:
 /// - Use same FileService (make Opening Files/Saving Files docs)
