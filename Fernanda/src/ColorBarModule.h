@@ -43,6 +43,7 @@ protected:
     // events (like windowSaveExecuted vs workspaceSaveExecuted)?
     virtual void registerBusCommands() override
     {
+        // TODO: Could make Colors enum private and use string args?
         bus->addCommandHandler(
             Commands::RUN_COLOR_BAR,
             [&](const Command& cmd) {
