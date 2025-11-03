@@ -24,17 +24,6 @@
 
 #include "ToString.h"
 
-// NOTE: Unused
-#define DEFAULT_PARSE_                                                         \
-    constexpr auto parse(format_parse_context& ctx)                            \
-    {                                                                          \
-        auto it = ctx.begin();                                                 \
-        while (it != ctx.end() && *it != '}') {                                \
-            ++it;                                                              \
-        }                                                                      \
-        return it;                                                             \
-    }
-
 #define STRING_FORMATTER_(T, Conversion)                                       \
     template <> struct std::formatter<T> : std::formatter<std::string>         \
     {                                                                          \
@@ -73,4 +62,3 @@ struct std::formatter<Coco::Bool<TagT>> : std::formatter<std::string>
 };
 
 #undef STRING_FORMATTER_
-#undef DEFAULT_PARSE_

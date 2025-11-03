@@ -17,16 +17,15 @@
 
 /// Next:
 /// - (DONE) Opening files via TreeView in both Workspaces
-/// -- (DONE) So, hook up TreeView base class signals for clicking first (could emit
-/// bus event)
-/// -- (DONE) Could be picked up by Workspace subclasses instead of FileService this
-/// time? (signal emits QModelIndex)
+/// -- (DONE) So, hook up TreeView base class signals for clicking first (could
+/// emit bus event)
+/// -- (DONE) Could be picked up by Workspace subclasses instead of FileService
+/// this time? (signal emits QModelIndex)
 /// -- (DONE) Then Notepad/Notebook needs to get path (OS/UUID+ext in xml)?
 /// -- Separate SaveServices for each Workspace?
 /// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - NewTab behavior for both Workspaces
 /// - Marking Notebook as modified
-/// - QSet<T> printing, notably for WINDOWS_SET command result
 ///
 /// Opening Files doc will cover:
 /// - Use same FileService (make Opening Files/Saving Files docs)
@@ -98,6 +97,13 @@
 /// - Also check lambda args (whether it uses a Command or not)
 
 /// Unsorted (but next at some point):
+/// - QSet<T> printing, notably for WINDOWS_SET command result. Won't be able to
+/// with current approach (template type). Need something to store type info
+/// alongside command handler maybe and then handle all printing in Bus
+/// -- Could maybe add a callback for debug printer (returns QString) that can
+/// be added while registering handler and will correctly print the result
+/// (wouldn't need one for params, since we'd likely never pass list, set, or
+/// other template type)
 /// - Ability to log Coco::Bool
 /// - Consider if Command is Notebook- or Notepad-specific, like NewTab and
 /// NewTreeViewModel: need to be same command (with different implementation),
