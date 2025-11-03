@@ -90,4 +90,10 @@ Window service command handlers should be responsible for showing the window. Wh
 
 Can be connected to and emitted by Services.
 
-...
+- `windowCreated(Window* context)`: Emitted when a new window is created
+- `windowDestroyed(Window* context)`: Emitted when a window is destroyed
+- `treeViewDoubleClicked(Window* context, const QModelIndex& index)`: Emitted when a tree view item is double-clicked
+- `fileModelReadied(Window* context, IFileModel* model)`: Emitted when a file model is readied for view creation
+- `fileModelModificationChanged(IFileModel* model, bool modified)`: Emitted when a file model's modification state changes
+- `fileModelMetaChanged(IFileModel* model)`: Emitted when a file model's metadata changes
+- `activeFileViewChanged(Window* context, IFileView* view)`: Emitted when a window's active file view changes
