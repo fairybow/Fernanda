@@ -25,6 +25,7 @@
 /// -- Separate SaveServices for each Workspace?
 /// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - NewTab behavior for both Workspaces
+/// - Marking Notebook as modified
 ///
 /// Opening Files doc will cover:
 /// - Use same FileService (make Opening Files/Saving Files docs)

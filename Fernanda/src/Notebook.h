@@ -124,7 +124,7 @@ private:
 
     void connectBusEvents_()
     {
-        //connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+        // connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
 
         connect(
             bus,
@@ -155,6 +155,10 @@ private slots:
     {
         if (!window || !index.isValid()) return;
 
+        // Notepad uses Path::isDir instead. The asymmetry bugs me, but the
+        // folders here are virtual. We would still get success, since working
+        // dir would be concatenated to an empty path (unless we give dirs
+        // UUIDs), but it would be too abstruse
         if (fnxModel_->isDir(index)) return;
         auto path = workingDir_.path() / fnxModel_->relativePath(index);
 

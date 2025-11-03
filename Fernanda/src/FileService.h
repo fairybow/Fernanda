@@ -104,6 +104,7 @@ private:
         }
 
         if (!model) {
+            // TODO: UI feedback?
             WARN("Failed to open new file model from disk for {}!", path);
             return;
         }

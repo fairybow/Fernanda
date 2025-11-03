@@ -305,6 +305,7 @@ private slots:
         } else if (auto no_op_model = qobject_cast<NoOpFileModel*>(model)) {
             view = newFileView_<NoOpFileView*>(no_op_model, window);
         } else {
+            // TODO: UI feedback?
             WARN("Could not narrow down view type for {}!", model);
             return;
         }
