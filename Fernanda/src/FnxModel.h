@@ -74,6 +74,8 @@ public:
     }
 
     // Notebook has the working directory, so we can't send full path
+    // TODO: Move to Fnx? Read the DOM element there? Is that stupidly
+    // roundabout?
     Coco::Path relativePath(const QModelIndex& index)
     {
         auto element = elementFromIndex_(index);

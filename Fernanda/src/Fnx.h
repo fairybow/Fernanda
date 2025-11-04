@@ -58,10 +58,10 @@ constexpr auto XML_FILE_TAG = "file";
 constexpr auto XML_UUID_ATTR = "uuid";
 constexpr auto XML_EXT_ATTR = "extension";
 
-inline void addBlank(const Coco::Path& dir)
+inline void addBlank(const Coco::Path& workingDir)
 {
     // Create content directory
-    if (!Coco::PathUtil::mkdir(dir / CONTENT_DIR_NAME)) return;
+    if (!Coco::PathUtil::mkdir(workingDir / CONTENT_DIR_NAME)) return;
 
     // Create empty Model.xml
     QString xml_content{};
@@ -76,22 +76,22 @@ inline void addBlank(const Coco::Path& dir)
     // Model.xml represents a virtual structuring of the contents of the
     // content folder
 
-    TextIo::write(xml_content, dir / Internal::MODEL_FILE_NAME_);
+    TextIo::write(xml_content, workingDir / Internal::MODEL_FILE_NAME_);
 }
 
-inline void extract(const Coco::Path& archivePath, const Coco::Path& dir)
+inline void extract(const Coco::Path& archivePath, const Coco::Path& workingDir)
 {
     using namespace bit7z;
 
-    INFO("Extracting archive at {} to {}", archivePath, dir);
+    INFO("Extracting archive at {} to {}", archivePath, workingDir);
 
     if (!archivePath.exists()) {
         CRITICAL("Archive file ({}) doesn't exist!", archivePath);
         return;
     }
 
-    if (!dir.exists()) {
-        CRITICAL("Extraction directory ({}) doesn't exist!", dir);
+    if (!workingDir.exists()) {
+        CRITICAL("Working directory ({}) doesn't exist!", workingDir);
         return;
     }
 
@@ -101,18 +101,18 @@ inline void extract(const Coco::Path& archivePath, const Coco::Path& dir)
                                   archivePath.toString(),
                                   BitFormat::SevenZip };
         archive.test();
-        archive.extractTo(dir.toString());
+        archive.extractTo(workingDir.toString());
 
     } catch (const BitException& ex) {
         CRITICAL("FNX archive extraction failed! Error: {}", ex.what());
     }
 }
 
-inline QDomDocument makeDomDocument(const Coco::Path& extractDir)
+inline QDomDocument makeDomDocument(const Coco::Path& workingDir)
 {
     QDomDocument doc{};
 
-    auto content = TextIo::read(extractDir / Internal::MODEL_FILE_NAME_);
+    auto content = TextIo::read(workingDir / Internal::MODEL_FILE_NAME_);
     auto result = doc.setContent(content);
 
     if (!result) {
