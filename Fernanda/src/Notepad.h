@@ -110,8 +110,8 @@ private:
             });
 
         bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            TRACER;
-            qDebug() << "Implement";
+            if (!cmd.context) return;
+            bus->execute(Commands::NEW_TXT_FILE, cmd.context);
         });
 
         /// NOT YET

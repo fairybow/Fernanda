@@ -61,6 +61,7 @@ protected:
         bus->addCommandHandler(
             Commands::OPEN_FILE_AT_PATH,
             [&](const Command& cmd) {
+                if (!cmd.context) return;
                 auto path = cmd.param<Coco::Path>("path");
                 if (path.isEmpty() || !path.exists()) return;
 
@@ -70,8 +71,16 @@ protected:
                     return;
                 }
 
-                newDiskFileModel_(cmd.context, path);
+                if (auto model = newDiskFileModel_(path))
+                    emit bus->fileModelReadied(cmd.context, model);
             });
+
+        bus->addCommandHandler(Commands::NEW_TXT_FILE, [&](const Command& cmd) {
+            if (!cmd.context) return;
+
+            if (auto model = newOffDiskTextFileModel_())
+                emit bus->fileModelReadied(cmd.context, model);
+        });
     }
 
     virtual void connectBusEvents() override
@@ -87,10 +96,9 @@ private:
         //...
     }
 
-    void newDiskFileModel_(Window* window, const Coco::Path& path)
+    IFileModel* newDiskFileModel_(const Coco::Path& path)
     {
-        if (!window) return;
-        if (path.isEmpty() || !path.exists()) return;
+        if (path.isEmpty() || !path.exists()) return nullptr;
 
         IFileModel* model = nullptr;
 
@@ -106,12 +114,12 @@ private:
         if (!model) {
             // TODO: UI feedback?
             WARN("Failed to open new file model from disk for {}!", path);
-            return;
+            return nullptr;
         }
 
         pathToFileModel_[path] = model;
         connectNewModel_(model);
-        emit bus->fileModelReadied(window, model);
+        return model;
     }
 
     IFileModel* newDiskTextFileModel_(const Coco::Path& path)
@@ -128,6 +136,17 @@ private:
 
         // TODO: Handle document is nullptr?
 
+        return model;
+    }
+
+    // TODO: Will need a newOffDiskFileModel_ function if we ever want new,
+    // blank files that aren't plaintext (think via context menu click on add
+    // tab button). Will be a template function and we can just pass the right
+    // type, since setup will probably be the same for all.
+    IFileModel* newOffDiskTextFileModel_()
+    {
+        auto model = new TextFileModel({}, this);
+        connectNewModel_(model);
         return model;
     }
 
@@ -150,17 +169,8 @@ private:
         emit bus->fileModelMetaChanged(model);
     }
 
-    ///==================================================================
-
-    /*void createNewTextFile_(Window* window)
-    {
-        if (!window) return;
-        auto model = new TextFileModel({}, this);
-        connectNewModel_(model);
-        emit bus->fileModelReadied(window, model);
-    }*/
-
 private slots:
+    // TODO: Implement
     void onViewClosed_(IFileView* view)
     {
         if (!view) return;

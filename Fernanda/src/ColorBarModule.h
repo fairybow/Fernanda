@@ -47,8 +47,16 @@ protected:
         bus->addCommandHandler(
             Commands::RUN_COLOR_BAR,
             [&](const Command& cmd) {
+                if (!cmd.context) return;
                 auto color = cmd.param<ColorBar::Color>("color");
-                cmd.context ? run_(cmd.context, color) : runAll_(color);
+                run_(cmd.context, color);
+            });
+
+        bus->addCommandHandler(
+            Commands::RUN_ALL_COLOR_BARS,
+            [&](const Command& cmd) {
+                auto color = cmd.param<ColorBar::Color>("color");
+                runAll_(color);
             });
 
         bus->addCommandHandler(Commands::BE_CUTE, [&] {

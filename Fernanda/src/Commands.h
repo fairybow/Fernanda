@@ -21,7 +21,7 @@ constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 
 // Workspace scope
 
-constexpr auto NEW_TAB = "poly:new_tab";
+constexpr auto NEW_TAB = "poly:new_tab"; /// * (np, nb wip)
 constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
 constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 constexpr auto CLOSE_TAB = "poly:close_tab";
@@ -71,10 +71,12 @@ constexpr auto WINDOWS_SET = "windows:set"; /// *, non-menu
 // ColorBarModule scope
 
 constexpr auto RUN_COLOR_BAR = "color_bars:run"; /// *, non-menu
+constexpr auto RUN_ALL_COLOR_BARS = "color_bars:run_all"; /// *, non-menu
 constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 
 // FileService scope
 
 constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// *, non-menu
+constexpr auto NEW_TXT_FILE = "file:new_txt"; /// *
 
 } // namespace Fernanda::Commands
