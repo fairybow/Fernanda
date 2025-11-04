@@ -91,7 +91,6 @@ namespace Internal {
             bus,
             window,
             Commands::NEW_TAB,
-            {},
             Tr::Menus::fileNewTab()); /// * (np, nb wip)
 
         common.file.newWindow = makeBusAction(
@@ -104,42 +103,36 @@ namespace Internal {
             bus,
             window,
             Commands::NEW_NOTEBOOK,
-            {},
             Tr::Menus::fileNewNotebook());
 
         common.file.openNotebook = makeBusAction(
             bus,
             window,
             Commands::OPEN_NOTEBOOK,
-            {},
             Tr::Menus::fileOpenNotebook());
 
         common.file.closeTab = makeBusAction(
             bus,
             window,
             Commands::CLOSE_TAB,
-            {},
             Tr::Menus::fileCloseTab());
 
         common.file.closeAllTabsInWindow = makeBusAction(
             bus,
             window,
             Commands::CLOSE_ALL_TABS_IN_WINDOW,
-            {},
             Tr::Menus::fileCloseAllTabsInWindow());
 
         common.file.closeWindow = makeBusAction(
             bus,
             window,
             Commands::CLOSE_WINDOW,
-            {},
             Tr::Menus::fileCloseWindow());
 
         common.file.quit = makeBusAction(
             bus,
             window,
             Commands::QUIT,
-            {},
             Tr::Menus::fileQuit());
 
         common.edit.undo = makeBusAction(
@@ -188,7 +181,6 @@ namespace Internal {
             bus,
             window,
             Commands::SETTINGS_DIALOG,
-            {},
             Tr::Menus::settings());
 
         common.help.about = makeBusAction(
