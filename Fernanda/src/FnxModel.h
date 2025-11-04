@@ -29,6 +29,16 @@ namespace Fernanda {
 
 // See:
 // https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
+//
+// Read-only Qt Model/View adapter for .fnx virtual file structure. Presents a
+// QDomDocument as a tree structure for QTreeView. Translates DOM hierarchy into
+// Qt indices and provides display data. Does NOT modify the DOM or perform I/O
+// - those are Notebook and Fnx responsibilities. (TODO: Is this reasonable?)
+//
+// Workflow: Notebook loads DOM via Fnx -> gives to FnxModel -> FnxModel
+// presents to UI -> Notebook modifies DOM via Fnx -> refreshes FnxModel. (TODO:
+// Check this later)
+//
 // TODO: Trash (should be immutable and separate from active)
 // TODO: Double clicking on files should maybe not expand (if they have
 // children), since they also open with double clicks?

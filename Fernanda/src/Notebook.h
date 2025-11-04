@@ -75,25 +75,26 @@ private:
         menus_->initialize();
 
         // Extraction or creation
-        auto root = workingDir_.path();
+        auto dir = workingDir_.path();
 
         if (!fnxPath_.exists()) {
-            Fnx::makeScaffold(root);
+            Fnx::addBlank(dir);
             // TODO: Mark notebook modified (maybe, maybe not until edited)?
             // (need to figure out how this will work)
         } else {
-            Fnx::extract(fnxPath_, root);
+            Fnx::extract(fnxPath_, dir);
             // TODO: Verification (comparing Model file elements to content dir
             // files)
         }
 
         // Read Model.xml into memory as DOM doc
-        auto dom = Fnx::readModelXml(root);
+        auto dom = Fnx::makeDomDocument(dir);
         fnxModel_->setDomDocument(dom);
 
         //...
 
-        auto settings_file = root / Constants::CONFIG_FILE_NAME;
+        // TODO: Fnx control its own settings name constant?
+        auto settings_file = dir / Constants::CONFIG_FILE_NAME;
         bus->execute(
             Commands::SET_SETTINGS_OVERRIDE,
             { { "path", qVar(settings_file) } });
