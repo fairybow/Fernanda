@@ -37,9 +37,11 @@ namespace Fernanda {
 
 // A binder-style Workspace that operates on a 7zip archive-based filesystem.
 // There can be any number of Notebooks open during the application lifetime
+// 
 // TODO: Will want window titles to reflect archive name (plus show modified
 // state). Will likely need a WinServ command to set all titles and link this to
 // a setModified function here
+// TODO: Solidify what goes where between Notebook, Fnx, and FnxModel
 class Notebook : public Workspace
 {
     Q_OBJECT
