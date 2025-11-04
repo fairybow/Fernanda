@@ -120,6 +120,13 @@ private:
         bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
             TRACER;
             qDebug() << "Implement";
+
+            if (!cmd.context) return;
+            // 1. Create new file in working dir with UUID name
+            // 2. Add new file to FnxModel's DOM
+            // 3. Open the new file in a new tab:
+            // bus->execute(Commands::OPEN_FILE_AT_PATH, cmd.context); // Could
+            // share code from onTreeViewDoubleClicked_
         });
 
         /*bus->addCommandHandler(Cmd::NotebookRoot, [&] {
