@@ -12,6 +12,7 @@
 #include <QLabel>
 #include <QModelIndex>
 #include <QObject>
+#include <QPalette> // TODO: Temp
 #include <QStatusBar>
 #include <QVariant>
 #include <QVariantMap>
@@ -36,6 +37,9 @@ namespace Fernanda {
 
 // A binder-style Workspace that operates on a 7zip archive-based filesystem.
 // There can be any number of Notebooks open during the application lifetime
+// TODO: Will want window titles to reflect archive name (plus show modified
+// state). Will likely need a WinServ command to set all titles and link this to
+// a setModified function here
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -124,7 +128,7 @@ private:
 
     void connectBusEvents_()
     {
-        // connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+        connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
 
         connect(
             bus,
@@ -140,16 +144,23 @@ private:
         auto status_bar = window->statusBar();
         if (!status_bar) return; // <- Shouldn't happen
         auto temp_label = new QLabel;
+
+        // TODO: Temp
+        temp_label->setAutoFillBackground(true);
+        QPalette palette = temp_label->palette();
+        palette.setColor(QPalette::Window, QColor(Qt::cyan));
+        temp_label->setPalette(palette);
+
         temp_label->setText(name_);
         status_bar->addPermanentWidget(temp_label);
     }
 
 private slots:
-    /*void onWindowCreated_(Window* window)
+    void onWindowCreated_(Window* window)
     {
         if (!window) return;
         addWorkspaceIndicator_(window);
-    }*/
+    }
 
     void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
     {
