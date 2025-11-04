@@ -79,35 +79,30 @@ private:
             bus,
             window,
             Commands::NOTEPAD_OPEN_FILE,
-            {},
             Tr::Menus::fileNotepadOpen());
 
         actions.file.save = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE,
-            {},
             Tr::Menus::fileNotepadSave());
 
         actions.file.saveAs = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE_AS,
-            {},
             Tr::Menus::fileNotepadSaveAs());
 
         actions.file.saveAllInWindow = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE_ALL_IN_WINDOW,
-            {},
             Tr::Menus::fileNotepadSaveAllInWindow());
 
         actions.file.saveAll = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE_ALL,
-            {},
             Tr::Menus::fileNotepadSaveAll());
     }
 

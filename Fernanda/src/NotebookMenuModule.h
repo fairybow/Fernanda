@@ -79,35 +79,30 @@ private:
             bus,
             window,
             Commands::NOTEBOOK_OPEN_NOTEPAD,
-            {},
             Tr::Menus::fileNotebookOpenNotepad());
 
         actions.file.importFile = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_IMPORT_FILE,
-            {},
             Tr::Menus::fileNotebookImportFile());
 
         actions.file.save = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_SAVE,
-            {},
             Tr::Menus::fileNotebookSaveArchive());
 
         actions.file.saveAs = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_SAVE_AS,
-            {},
             Tr::Menus::fileNotebookSaveArchiveAs());
 
         actions.file.exportFile = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_EXPORT_FILE,
-            {},
             Tr::Menus::fileNotebookExportFile());
     }
 
