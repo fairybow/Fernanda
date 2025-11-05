@@ -127,9 +127,12 @@ private:
             auto dom = fnxModel_->domDocument();
             if (dom.isNull()) return;
 
-            auto path = Fnx::addTextFile(workingDir_.path(), dom);
-            if (!path.exists()) return;
+            auto result = Fnx::addTextFile(workingDir_.path(), dom);
+            if (!result.isValid()) return;
 
+            // We append here because Fnx.h is not in charge of structure, just
+            // format
+            dom.documentElement().appendChild(result.element);
             fnxModel_->setDomDocument(dom);
 
             // TODO: Big issue - we're, of course, getting the UUID for the tab
@@ -137,7 +140,7 @@ private:
 
             bus->execute(
                 Commands::OPEN_FILE_AT_PATH,
-                { { "path", qVar(path) } },
+                { { "path", qVar(result.path) } },
                 cmd.context);
 
             // 1. Create new file in working dir with UUID name

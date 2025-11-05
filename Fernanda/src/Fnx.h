@@ -135,9 +135,18 @@ inline QDomDocument makeDomDocument(const Coco::Path& workingDir)
     return doc;
 }
 
+struct NewFileResult
+{
+    Coco::Path path{};
+    QDomElement element{};
+    bool isValid() const { return path.exists() && !element.isNull(); }
+    //operator bool() const { return path.exists() && !element.isNull(); }
+};
+
 // TODO: Don't append. Return struct with path + dom element. Let Notebook
 // decide how to append.
-inline Coco::Path addTextFile(const Coco::Path& workingDir, QDomDocument& dom)
+inline NewFileResult
+addTextFile(const Coco::Path& workingDir, QDomDocument& dom)
 {
     auto uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
     auto ext = ".txt";
@@ -153,9 +162,8 @@ inline Coco::Path addTextFile(const Coco::Path& workingDir, QDomDocument& dom)
     element.setAttribute("name", "Untitled");
     element.setAttribute(XML_UUID_ATTR, uuid);
     element.setAttribute(XML_EXT_ATTR, ext);
-    dom.documentElement().appendChild(element);
 
-    return path;
+    return { path, element };
 }
 
 } // namespace Fernanda::Fnx
