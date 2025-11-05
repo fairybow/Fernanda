@@ -137,6 +137,9 @@ private:
 
             // TODO: Big issue - we're, of course, getting the UUID for the tab
             // name. So, what to do about that?
+            // - Meta's temporary title -> setTitleOverride
+            // - provide arg to pass the title to the command below (to
+            // FileService)
 
             bus->execute(
                 Commands::OPEN_FILE_AT_PATH,
