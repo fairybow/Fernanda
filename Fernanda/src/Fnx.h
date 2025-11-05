@@ -12,8 +12,10 @@
 #include <string>
 
 #include <QDomDocument>
+#include <QDomElement>
 #include <QFile>
 #include <QString>
+#include <QUuid>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -52,10 +54,15 @@ namespace Internal {
 // TODO: Should we have isDir type checks in Fnx for use in Notebook and
 // FnxModel? No constants there but pass DOM elements here for checks against
 // the spec...
+// TODO: Make "internal"
 constexpr auto CONTENT_DIR_NAME = "content";
+// TODO: Make "internal"
 constexpr auto XML_DIR_TAG = "folder";
+// TODO: Make "internal"
 constexpr auto XML_FILE_TAG = "file";
+// TODO: Make "internal"
 constexpr auto XML_UUID_ATTR = "uuid";
+// TODO: Make "internal"
 constexpr auto XML_EXT_ATTR = "extension";
 
 inline void addBlank(const Coco::Path& workingDir)
@@ -126,6 +133,29 @@ inline QDomDocument makeDomDocument(const Coco::Path& workingDir)
     }
 
     return doc;
+}
+
+// TODO: Don't append. Return struct with path + dom element. Let Notebook
+// decide how to append.
+inline Coco::Path addTextFile(const Coco::Path& workingDir, QDomDocument& dom)
+{
+    auto uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    auto ext = ".txt";
+    auto file_name = uuid + ext;
+    auto path = workingDir / CONTENT_DIR_NAME / file_name;
+
+    if (!TextIo::write({}, path)) {
+        WARN("Failed to create text file at {}", path);
+        return {};
+    }
+
+    auto element = dom.createElement(XML_FILE_TAG);
+    element.setAttribute("name", "Untitled");
+    element.setAttribute(XML_UUID_ATTR, uuid);
+    element.setAttribute(XML_EXT_ATTR, ext);
+    dom.documentElement().appendChild(element);
+
+    return path;
 }
 
 } // namespace Fernanda::Fnx

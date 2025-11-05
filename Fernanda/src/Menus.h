@@ -74,8 +74,6 @@ inline QAction* makeBusAction(
 
 namespace Internal {
 
-    // TODO: Before we continue, must document commands and summarize menu
-    // actions
     // TODO: Remove {} for no arg commands (may not need args arg after all)
     // TODO: Add key sequences
     inline void initializeCommonActions_(

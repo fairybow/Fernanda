@@ -37,7 +37,7 @@ namespace Fernanda {
 
 // A binder-style Workspace that operates on a 7zip archive-based filesystem.
 // There can be any number of Notebooks open during the application lifetime
-// 
+//
 // TODO: Will want window titles to reflect archive name (plus show modified
 // state). Will likely need a WinServ command to set all titles and link this to
 // a setModified function here
@@ -111,7 +111,8 @@ private:
             return fnxModel_;
         });
 
-        // TODO: Get element by tag name? (For future, when we have Trash)
+        // TODO: Get element by tag/qualified name? (For future, when we have
+        // Trash)
         bus->addCommandHandler(Commands::TREE_VIEW_ROOT_INDEX, [&] {
             // The invalid index represents the root document element
             // (<notebook>). TreeView will display its children (the actual
@@ -119,11 +120,26 @@ private:
             return QModelIndex{};
         });
 
+        // TODO: Trigger rename immediately, when that functionality is
+        // available
         bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            TRACER;
-            qDebug() << "Implement";
-
             if (!cmd.context) return;
+            auto dom = fnxModel_->domDocument();
+            if (dom.isNull()) return;
+
+            auto path = Fnx::addTextFile(workingDir_.path(), dom);
+            if (!path.exists()) return;
+
+            fnxModel_->setDomDocument(dom);
+
+            // TODO: Big issue - we're, of course, getting the UUID for the tab
+            // name. So, what to do about that?
+
+            bus->execute(
+                Commands::OPEN_FILE_AT_PATH,
+                { { "path", qVar(path) } },
+                cmd.context);
+
             // 1. Create new file in working dir with UUID name
             // 2. Add new file to FnxModel's DOM
             // 3. Open the new file in a new tab:

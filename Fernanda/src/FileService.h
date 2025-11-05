@@ -42,6 +42,9 @@ namespace Fernanda {
 // Workspace. Creates and manages file models, handles all save variants
 // (save/save-as/save-all), and ensures models persist until their last view is
 // closed
+// TODO: Rename? FileModelService? Since likely Fnx will help create on-disk
+// files for Notebook, and the save and close ops may be handled by the
+// Workspaces...
 class FileService : public IService
 {
     Q_OBJECT

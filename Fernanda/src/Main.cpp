@@ -67,6 +67,9 @@
 /// Things to log:
 /// - Active window
 /// - Active file view/model
+/// - Debug or Utility function that shows a popup for the message (but isn't
+/// fatal)
+/// -- Could also run red color bar for window
 ///
 /// Coco:
 /// - Redo path, potentially reintegrate PathUtil with Path
