@@ -39,6 +39,12 @@ namespace Internal {
 
     constexpr auto MODEL_FILE_NAME_ = "Model.xml";
     constexpr auto XML_ROOT_TAG_ = "notebook";
+    constexpr auto CONTENT_DIR_NAME = "content";
+    constexpr auto XML_DIR_TAG = "folder";
+    constexpr auto XML_FILE_TAG = "file";
+    constexpr auto XML_NAME_ATTR = "name";
+    constexpr auto XML_UUID_ATTR = "uuid";
+    constexpr auto XML_EXT_ATTR = "extension";
 
     // TODO: Replace QFile::copy with Coco version, maybe
     inline const Coco::Path& dll_()
@@ -49,26 +55,25 @@ namespace Internal {
         return file;
     }
 
+    inline QString makeUuid_()
+    {
+        return QUuid::createUuid().toString(QUuid::WithoutBraces);
+    }
+
 } // namespace Internal
 
-// TODO: Should we have isDir type checks in Fnx for use in Notebook and
-// FnxModel? No constants there but pass DOM elements here for checks against
-// the spec...
-// TODO: Make "internal"
-constexpr auto CONTENT_DIR_NAME = "content";
-// TODO: Make "internal"
-constexpr auto XML_DIR_TAG = "folder";
-// TODO: Make "internal"
-constexpr auto XML_FILE_TAG = "file";
-// TODO: Make "internal"
-constexpr auto XML_UUID_ATTR = "uuid";
-// TODO: Make "internal"
-constexpr auto XML_EXT_ATTR = "extension";
+struct NewFileResult
+{
+    Coco::Path path{};
+    QDomElement element{};
+    bool isValid() const { return path.exists() && !element.isNull(); }
+    // operator bool() const { return path.exists() && !element.isNull(); }
+};
 
 inline void addBlank(const Coco::Path& workingDir)
 {
     // Create content directory
-    if (!Coco::PathUtil::mkdir(workingDir / CONTENT_DIR_NAME)) return;
+    if (!Coco::PathUtil::mkdir(workingDir / Internal::CONTENT_DIR_NAME)) return;
 
     // Create empty Model.xml
     QString xml_content{};
@@ -115,6 +120,8 @@ inline void extract(const Coco::Path& archivePath, const Coco::Path& workingDir)
     }
 }
 
+// TODO: Compress method
+
 inline QDomDocument makeDomDocument(const Coco::Path& workingDir)
 {
     QDomDocument doc{};
@@ -135,35 +142,59 @@ inline QDomDocument makeDomDocument(const Coco::Path& workingDir)
     return doc;
 }
 
-struct NewFileResult
-{
-    Coco::Path path{};
-    QDomElement element{};
-    bool isValid() const { return path.exists() && !element.isNull(); }
-    //operator bool() const { return path.exists() && !element.isNull(); }
-};
-
-// TODO: Don't append. Return struct with path + dom element. Let Notebook
-// decide how to append.
 inline NewFileResult
 addTextFile(const Coco::Path& workingDir, QDomDocument& dom)
 {
-    auto uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    auto uuid = Internal::makeUuid_();
     auto ext = ".txt";
     auto file_name = uuid + ext;
-    auto path = workingDir / CONTENT_DIR_NAME / file_name;
+    auto path = workingDir / Internal::CONTENT_DIR_NAME / file_name;
 
     if (!TextIo::write({}, path)) {
         WARN("Failed to create text file at {}", path);
         return {};
     }
 
-    auto element = dom.createElement(XML_FILE_TAG);
-    element.setAttribute("name", "Untitled");
-    element.setAttribute(XML_UUID_ATTR, uuid);
-    element.setAttribute(XML_EXT_ATTR, ext);
+    auto element = dom.createElement(Internal::XML_FILE_TAG);
+    element.setAttribute(Internal::XML_NAME_ATTR, "Untitled");
+    element.setAttribute(Internal::XML_UUID_ATTR, uuid);
+    element.setAttribute(Internal::XML_EXT_ATTR, ext);
 
     return { path, element };
+}
+
+inline bool isDir(const QDomElement& element)
+{
+    if (element.isNull()) return false;
+    return element.tagName() == Internal::XML_DIR_TAG;
+}
+
+inline bool isFile(const QDomElement& element)
+{
+    if (element.isNull()) return false;
+    return element.tagName() == Internal::XML_FILE_TAG;
+}
+
+inline QString name(const QDomElement& element)
+{
+    return element.attribute(Internal::XML_NAME_ATTR, "<unnamed>");
+}
+
+inline QString uuid(const QDomElement& element)
+{
+    return element.attribute(Internal::XML_UUID_ATTR);
+}
+
+inline QString ext(const QDomElement& element)
+{
+    return element.attribute(Internal::XML_EXT_ATTR);
+}
+
+inline Coco::Path relativePath(const QDomElement& element)
+{
+    if (!isFile(element)) return {};
+    auto file_name = uuid(element) + ext(element);
+    return Coco::Path(Internal::CONTENT_DIR_NAME) / file_name;
 }
 
 } // namespace Fernanda::Fnx

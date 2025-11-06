@@ -202,8 +202,11 @@ private slots:
         // folders here are virtual. We would still get success, since working
         // dir would be concatenated to an empty path (unless we give dirs
         // UUIDs), but it would be too abstruse
-        if (fnxModel_->isDir(index)) return;
-        auto path = workingDir_.path() / fnxModel_->relativePath(index);
+
+        auto element = fnxModel_->elementAt(index);
+        if (Fnx::isDir(element)) return;
+
+        auto path = workingDir_.path() / Fnx::relativePath(element);
 
         bus->execute(
             Commands::OPEN_FILE_AT_PATH,

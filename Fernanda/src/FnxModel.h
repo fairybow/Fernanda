@@ -66,25 +66,11 @@ public:
         endResetModel();
     }
 
-    bool isDir(const QModelIndex& index) const
+    QDomElement elementAt(const QModelIndex& index) const
     {
-        auto element = elementFromIndex_(index);
-        if (element.isNull()) return false;
-        return element.tagName() == Fnx::XML_DIR_TAG;
-    }
-
-    // Notebook has the working directory, so we can't send full path
-    // TODO: Move to Fnx? Read the DOM element there? Is that stupidly
-    // roundabout?
-    Coco::Path relativePath(const QModelIndex& index)
-    {
-        auto element = elementFromIndex_(index);
-        if (element.isNull() || element.tagName() != Fnx::XML_FILE_TAG)
-            return {};
-
-        auto name = element.attribute(Fnx::XML_UUID_ATTR)
-                    + element.attribute(Fnx::XML_EXT_ATTR);
-        return Coco::Path(Fnx::CONTENT_DIR_NAME) / name;
+        if (!index.isValid()) return dom_.documentElement();
+        auto id = reinterpret_cast<quintptr>(index.internalPointer());
+        return idToElement_.value(id);
     }
 
     virtual QModelIndex
@@ -92,7 +78,7 @@ public:
     {
         if (!hasIndex(row, column, parent)) return {};
 
-        auto parent_element = elementFromIndex_(parent);
+        auto parent_element = elementAt(parent);
         auto child_element = nthChildElement_(parent_element, row);
 
         if (child_element.isNull()) return {};
@@ -104,7 +90,7 @@ public:
     {
         if (!child.isValid()) return {};
 
-        auto child_element = elementFromIndex_(child);
+        auto child_element = elementAt(child);
         auto parent_element = child_element.parentNode().toElement();
 
         // Root or invalid
@@ -119,7 +105,7 @@ public:
     {
         if (parent.column() > 0) return 0;
 
-        auto element = elementFromIndex_(parent);
+        auto element = elementAt(parent);
         return childElementCount_(element);
     }
 
@@ -168,14 +154,6 @@ private:
         }
 
         return elementToId_[key];
-    }
-
-    QDomElement elementFromIndex_(const QModelIndex& index) const
-    {
-        if (!index.isValid()) return dom_.documentElement();
-
-        auto id = reinterpret_cast<quintptr>(index.internalPointer());
-        return idToElement_.value(id);
     }
 
     int childElementCount_(const QDomElement& element) const
