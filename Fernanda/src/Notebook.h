@@ -135,23 +135,11 @@ private:
             dom.documentElement().appendChild(result.element);
             fnxModel_->setDomDocument(dom);
 
-            // TODO: Big issue - we're, of course, getting the UUID for the tab
-            // name. So, what to do about that?
-            // - Meta's temporary title -> setTitleOverride
-            // - provide arg to pass the title to the command below (to
-            // FileService)
-
             bus->execute(
                 Commands::OPEN_FILE_AT_PATH,
                 { { "path", qVar(result.path) },
                   { "title", Fnx::name(result.element) } },
                 cmd.context);
-
-            // 1. Create new file in working dir with UUID name
-            // 2. Add new file to FnxModel's DOM
-            // 3. Open the new file in a new tab:
-            // bus->execute(Commands::OPEN_FILE_AT_PATH, cmd.context); // Could
-            // share code from onTreeViewDoubleClicked_
         });
 
         /*bus->addCommandHandler(Cmd::NotebookRoot, [&] {
