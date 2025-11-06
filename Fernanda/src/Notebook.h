@@ -143,7 +143,8 @@ private:
 
             bus->execute(
                 Commands::OPEN_FILE_AT_PATH,
-                { { "path", qVar(result.path) } },
+                { { "path", qVar(result.path) },
+                  { "title", Fnx::name(result.element) } },
                 cmd.context);
 
             // 1. Create new file in working dir with UUID name
@@ -210,7 +211,7 @@ private slots:
 
         bus->execute(
             Commands::OPEN_FILE_AT_PATH,
-            { { "path", qVar(path) } },
+            { { "path", qVar(path) }, { "title", Fnx::name(element) } },
             window);
     }
 };

@@ -65,7 +65,7 @@ protected:
             Commands::OPEN_FILE_AT_PATH,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                auto path = cmd.param<Coco::Path>("path");
+                auto path = cmd.param<Coco::Path>("path", {});
                 if (path.isEmpty() || !path.exists()) return;
 
                 // Check if model already exists and re-ready
@@ -74,7 +74,8 @@ protected:
                     return;
                 }
 
-                if (auto model = newDiskFileModel_(path))
+                auto title = cmd.param<QString>("title", {});
+                if (auto model = newDiskFileModel_(path, title))
                     emit bus->fileModelReadied(cmd.context, model);
             });
 
@@ -99,7 +100,8 @@ private:
         //...
     }
 
-    IFileModel* newDiskFileModel_(const Coco::Path& path)
+    IFileModel*
+    newDiskFileModel_(const Coco::Path& path, const QString& title = {})
     {
         if (path.isEmpty() || !path.exists()) return nullptr;
 
@@ -119,6 +121,10 @@ private:
             WARN("Failed to open new file model from disk for {}!", path);
             return nullptr;
         }
+
+        // Set title if provided (for Notebook files)
+        if (!title.isEmpty())
+            if (auto meta = model->meta()) meta->setTitleOverride(title);
 
         pathToFileModel_[path] = model;
         connectNewModel_(model);

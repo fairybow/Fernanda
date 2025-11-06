@@ -83,8 +83,8 @@ inline QString toQString(const QVariant& variant)
     if (variant.canConvert<QObject*>())
         return x(toQString(variant.value<QObject*>()));
 
-    if (variant.canConvert<QStringList>())
-        return x(variant.value<QStringList>().join(", "), "QStringList");
+    /*if (variant.canConvert<QStringList>())
+        return x(variant.value<QStringList>().join(", "), "QStringList");*/
 
     // Fallback to generic conversion
     auto text = variant.toString();
