@@ -17,7 +17,6 @@
 #include "AboutDialog.h"
 #include "Application.h"
 #include "Constants.h"
-#include "Utility.h"
 #include "Window.h"
 #include "WindowService.h"
 #include "Workspace.h"

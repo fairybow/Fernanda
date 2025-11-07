@@ -83,11 +83,14 @@ inline QString toQString(const QVariant& variant)
     if (variant.canConvert<QObject*>())
         return x(toQString(variant.value<QObject*>()));
 
-    if (variant.canConvert<QStringList>())
-        return x(variant.value<QStringList>().join(", "), "QStringList");
+    /*if (variant.canConvert<QStringList>())
+        return x(variant.value<QStringList>().join(", "), "QStringList");*/
 
     // Fallback to generic conversion
-    return x(variant.toString());
+    auto text = variant.toString();
+    if (text.isEmpty()) return "Non-printable type";
+
+    return x(text);
 }
 
 inline std::string toString(const QVariant& variant)

@@ -160,12 +160,12 @@ private slots:
                 /// save file name for unsaved file
                 if (block_text.length() > 27) title += "...";
 
-                meta->setTemporaryTitle(title);
+                meta->setTitleOverride(title);
                 return;
             }
         }
 
-        meta->clearTemporaryTitle();
+        meta->clearTitleOverride();
     }
 };
 

@@ -9,28 +9,28 @@
 
 #pragma once
 
-#include <QAbstractItemModel>
-#include <QModelIndex>
-#include <QObject>
-#include <QSet>
-#include <QTimer>
-#include <QVariant>
-#include <QWidget>
+//#include <QAbstractItemModel>
+//#include <QModelIndex>
+//#include <QObject>
+//#include <QSet>
+//#include <QTimer>
+//#include <QVariant>
+//#include <QWidget>
+//
+//#include "Coco/Concepts.h"
+//
+//#include "IFileModel.h"
+//#include "IFileView.h"
+//#include "TabWidget.h"
+//#include "Window.h"
 
-#include "Coco/Concepts.h"
+//namespace Fernanda {
 
-#include "IFileModel.h"
-#include "IFileView.h"
-#include "TabWidget.h"
-#include "Window.h"
-
-namespace Fernanda {
-
-template <typename SlotT>
-inline void timer(int msecs, QObject* parent, SlotT slot)
-{
-    QTimer::singleShot(msecs, parent, slot);
-}
+//template <typename SlotT>
+//inline void timer(int msecs, QObject* parent, SlotT slot)
+//{
+//    QTimer::singleShot(msecs, parent, slot);
+//}
 
 //template <Coco::Concepts::QObjectPointer T> inline T cast(QObject* object)
 //{
@@ -42,17 +42,17 @@ inline void timer(int msecs, QObject* parent, SlotT slot)
 //    return qobject_cast<T>(object);
 //}
 
-template <typename T> inline T to(const QVariant& variant)
-{
-    return variant.value<T>();
-}
+//template <typename T> inline T to(const QVariant& variant)
+//{
+//    return variant.value<T>();
+//}
 
-template <typename T> inline QVariant toQVariant(const T& value)
-{
-    return QVariant::fromValue<T>(value);
-}
+//template <typename T> inline QVariant toQVariant(const T& value)
+//{
+//    return QVariant::fromValue<T>(value);
+//}
 
-namespace Util {
+//namespace Util {
 
     // Maybe make this a query, for organizational/clarity purposes. This works
     // fine, but feels off in terms of design. We also may want a treeView
@@ -111,6 +111,6 @@ namespace Util {
     //    return false;
     //}
 
-} // namespace Util
+//} // namespace Util
 
-} // namespace Fernanda
+//} // namespace Fernanda

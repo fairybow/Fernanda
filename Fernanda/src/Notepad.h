@@ -13,9 +13,11 @@
 
 #include <QFileSystemModel>
 #include <QModelIndex>
+#include <QList>
 #include <QObject>
 
 #include "Coco/Path.h"
+#include "Coco/PathUtil.h"
 
 #include "AppDirs.h"
 #include "Bus.h"
@@ -24,7 +26,6 @@
 #include "Debug.h"
 #include "NotepadMenuModule.h"
 #include "TreeViewModule.h"
-#include "Utility.h"
 #include "Version.h"
 #include "Workspace.h"
 
@@ -100,30 +101,70 @@ private:
             return fsModel_->index(currentBaseDir_.toQString());
         });
 
-        /*bus->addInterceptor(Commands::OpenFile, [&](const Command& cmd) {
-            if (pathInterceptor_
-                && pathInterceptor_(to<QString>(cmd.params, "path"))) {
-                return true;
-            }
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            bus->execute(Commands::NEW_TXT_FILE, cmd.context);
+        });
 
-            return false;
-        });*/
+        bus->addCommandHandler(
+            Commands::NOTEPAD_OPEN_FILE,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+
+                auto paths = Coco::PathUtil::Dialog::files(
+                    cmd.context,
+                    Tr::Dialogs::notepadOpenFileCaption(),
+                    currentBaseDir_,
+                    Tr::Dialogs::notepadOpenFileFilter());
+
+                if (paths.isEmpty()) return;
+
+                for (auto& path : paths) {
+                    if (!path.exists()) continue;
+                    bus->execute(
+                        Commands::OPEN_FILE_AT_PATH,
+                        { { "path", qVar(path) } },
+                        cmd.context);
+                }
+            });
+
+        bus->addInterceptor(
+            Commands::OPEN_FILE_AT_PATH,
+            [&](const Command& cmd) {
+                if (pathInterceptor_
+                    && pathInterceptor_(cmd.param<Coco::Path>("path")))
+                    return true;
+
+                return false;
+            });
 
         /// NOT YET
         /*bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {
             return currentBaseDir_.toQString();
         });*/
-
-        // bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
-        //     /// createNewTextFile_(cmd.context); //<- Old (in FileService)
-        //     TRACER;
-        //     qDebug() << "Implement";
-        // });
     }
 
     void connectBusEvents_()
     {
-        //...
+        connect(
+            bus,
+            &Bus::treeViewDoubleClicked,
+            this,
+            &Notepad::onTreeViewDoubleClicked_);
+    }
+
+private slots:
+    void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
+    {
+        if (!window || !index.isValid()) return;
+
+        auto path = Coco::Path(fsModel_->filePath(index));
+        if (path.isFolder()) return;
+
+        bus->execute(
+            Commands::OPEN_FILE_AT_PATH,
+            { { "path", qVar(path) } },
+            window);
     }
 };
 

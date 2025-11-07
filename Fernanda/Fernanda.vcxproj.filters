@@ -64,6 +64,9 @@
     <Filter Include="Code\Core\Workspaces\Notebook">
       <UniqueIdentifier>{065829c6-94f2-4c82-b7a5-3e20abb7c64b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Old %28Remove Later%29">
+      <UniqueIdentifier>{6ff179fe-5e05-4c0f-a145-35d3cd86fbbb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -167,6 +170,12 @@
     <None Include="docs\NotebookCreation.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\OpeningFiles.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\SavingFiles.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -229,7 +238,7 @@
     <QtMoc Include="src\NoOpFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
     </QtMoc>
-    <QtMoc Include="src\DelayTimer.h">
+    <QtMoc Include="src\Timers.h">
       <Filter>Code\Core</Filter>
     </QtMoc>
     <QtMoc Include="src\Notepad.h">
@@ -321,9 +330,6 @@
     <ClInclude Include="src\XPlatform.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utility.h">
-      <Filter>Code\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Tr.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
@@ -363,9 +369,6 @@
     <ClInclude Include="src\MenuActions.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </ClInclude>
-    <ClInclude Include="src\OLDMenuModule.h">
-      <Filter>Code\Auxiliary\Modules\Menus</Filter>
-    </ClInclude>
     <ClInclude Include="src\Menus.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </ClInclude>
@@ -389,6 +392,12 @@
     </ClInclude>
     <ClInclude Include="src\Fnx.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_Utility.h">
+      <Filter>Code\Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_MenuModule.h">
+      <Filter>Code\Old %28Remove Later%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

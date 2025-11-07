@@ -30,8 +30,7 @@
 #include "Coco/Fx.h"
 
 #include "Debug.h"
-#include "DelayTimer.h"
-#include "Utility.h"
+#include "Timers.h"
 
 namespace Fernanda {
 
@@ -127,7 +126,8 @@ private:
     qreal currentProgress_ = MIN_RANGE_;
     Color currentColor_ = Pastel;
     Position position_ = Top;
-    DelayTimer* lingerTimer_ = new DelayTimer(1500, this, &ColorBar::reset_);
+    Timers::Delayer* lingerTimer_ =
+        new Timers::Delayer(1500, this, &ColorBar::reset_);
 
     // Cache
     std::optional<QLinearGradient> greenGradient_{};

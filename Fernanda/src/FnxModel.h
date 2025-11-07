@@ -23,11 +23,25 @@
 #include "Debug.h"
 #include "Fnx.h"
 
+#include "Coco/Path.h"
+
 namespace Fernanda {
 
 // See:
 // https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
+//
+// Read-only Qt Model/View adapter for .fnx virtual file structure. Presents a
+// QDomDocument as a tree structure for QTreeView. Translates DOM hierarchy into
+// Qt indices and provides display data. Does NOT modify the DOM or perform I/O
+// - those are Notebook and Fnx responsibilities. (TODO: Is this reasonable?)
+//
+// Workflow: Notebook loads DOM via Fnx -> gives to FnxModel -> FnxModel
+// presents to UI -> Notebook modifies DOM via Fnx -> refreshes FnxModel. (TODO:
+// Check this later)
+//
 // TODO: Trash (should be immutable and separate from active)
+// TODO: Double clicking on files should maybe not expand (if they have
+// children), since they also open with double clicks?
 class FnxModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -52,12 +66,19 @@ public:
         endResetModel();
     }
 
+    QDomElement elementAt(const QModelIndex& index) const
+    {
+        if (!index.isValid()) return dom_.documentElement();
+        auto id = reinterpret_cast<quintptr>(index.internalPointer());
+        return idToElement_.value(id);
+    }
+
     virtual QModelIndex
     index(int row, int column, const QModelIndex& parent = {}) const override
     {
         if (!hasIndex(row, column, parent)) return {};
 
-        auto parent_element = elementFromIndex_(parent);
+        auto parent_element = elementAt(parent);
         auto child_element = nthChildElement_(parent_element, row);
 
         if (child_element.isNull()) return {};
@@ -69,7 +90,7 @@ public:
     {
         if (!child.isValid()) return {};
 
-        auto child_element = elementFromIndex_(child);
+        auto child_element = elementAt(child);
         auto parent_element = child_element.parentNode().toElement();
 
         // Root or invalid
@@ -84,13 +105,13 @@ public:
     {
         if (parent.column() > 0) return 0;
 
-        auto element = elementFromIndex_(parent);
+        auto element = elementAt(parent);
         return childElementCount_(element);
     }
 
     virtual int columnCount(const QModelIndex& parent = {}) const override
     {
-        return 1; // Just "Name" column for now
+        return 1; // TODO: Just "Name" column for now
     }
 
     virtual QVariant
@@ -133,14 +154,6 @@ private:
         }
 
         return elementToId_[key];
-    }
-
-    QDomElement elementFromIndex_(const QModelIndex& index) const
-    {
-        if (!index.isValid()) return dom_.documentElement();
-
-        auto id = reinterpret_cast<quintptr>(index.internalPointer());
-        return idToElement_.value(id);
     }
 
     int childElementCount_(const QDomElement& element) const

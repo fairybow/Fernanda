@@ -25,7 +25,6 @@
 #include "Ini.h"
 #include "Settings.h"
 #include "SettingsDialog.h"
-#include "Utility.h"
 
 namespace Fernanda {
 
@@ -53,8 +52,7 @@ protected:
         bus->addCommandHandler(
             Commands::SET_SETTINGS_OVERRIDE,
             [&](const Command& cmd) {
-                auto path = cmd.param<Coco::Path>("path");
-                setOverrideConfigPath_(path);
+                setOverrideConfigPath_(cmd.param<Coco::Path>("path"));
             });
     }
 
@@ -92,7 +90,9 @@ private:
         dialog_ = new SettingsDialog(initial_font);
 
         dialog_->setFontChangeHandler([&](const QFont& font) {
-            emit bus->settingChanged(Ini::Editor::FONT_KEY, toQVariant(font));
+            emit bus->settingChanged(
+                Ini::Editor::FONT_KEY,
+                QVariant::fromValue(font));
         });
         // Connect other setting handlers
 
@@ -104,7 +104,7 @@ private:
                 if (settings_->isWritable())
                     settings_->setValue(
                         Ini::Editor::FONT_KEY,
-                        toQVariant(font));
+                        QVariant::fromValue(font));
             });
         // Listen to other setting signals
 

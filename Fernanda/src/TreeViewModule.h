@@ -29,7 +29,6 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "IService.h"
-#include "Utility.h"
 #include "Window.h"
 
 namespace Fernanda {
@@ -105,24 +104,8 @@ private:
             tree_view,
             &TreeView::doubleClicked,
             this,
-            [&, tree_view, window](const QModelIndex& index) {
-                auto model = tree_view->model();
-                if (!model) return;
-
-                Coco::Path path{};
-
-                if (auto fs_model = qobject_cast<QFileSystemModel*>(model)) {
-                    path = fs_model->filePath(index);
-                } // else if (auto archive_model = to<ArchiveModel*>(model))
-                  // { path = archive_model->filePath(index);
-                //}
-
-                if (!path.isEmpty()) {
-                    /*bus->execute(
-                        PolyCmd::OPEN_FILE,
-                        { { "path", path.toQString() } },
-                        window);*/
-                }
+            [&, window](const QModelIndex& index) {
+                emit bus->treeViewDoubleClicked(window, index);
             });
     }
 

@@ -47,17 +47,17 @@ public:
         // emit pathChanged(path_);
     }
 
-    void setTemporaryTitle(const QString& title)
+    void setTitleOverride(const QString& title)
     {
-        if (temporaryTitle_ == title) return;
-        temporaryTitle_ = title;
+        if (titleOverride_ == title) return;
+        titleOverride_ = title;
         updateDerivedProperties_();
     }
 
-    void clearTemporaryTitle()
+    void clearTitleOverride()
     {
-        if (temporaryTitle_.isEmpty()) return;
-        temporaryTitle_.clear();
+        if (titleOverride_.isEmpty()) return;
+        titleOverride_.clear();
         updateDerivedProperties_();
     }
 
@@ -68,7 +68,7 @@ private:
     Coco::Path path_;
 
     QString title_{};
-    QString temporaryTitle_{};
+    QString titleOverride_{};
     QString toolTip_{};
 
     void updateDerivedProperties_()
@@ -76,11 +76,11 @@ private:
         QString old_title = title_;
         QString old_tooltip = toolTip_;
 
-        // Update title: path stem > custom title > "Untitled"
-        if (isOnDisk())
+        // Update title: custom title > path stem > "Untitled"
+        if (!titleOverride_.isEmpty())
+            title_ = titleOverride_;
+        else if (isOnDisk())
             title_ = path_.stemQString();
-        else if (!temporaryTitle_.isEmpty())
-            title_ = temporaryTitle_;
         else
             title_ = "Untitled";
 

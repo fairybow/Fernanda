@@ -16,6 +16,7 @@
 #include <Qt>
 
 #include "Application.h"
+#include "Fnx.h"
 #include "FnxModel.h"
 
 namespace Fernanda {
@@ -24,19 +25,19 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) return {};
 
-    auto element = elementFromIndex_(index);
+    auto element = elementAt(index);
 
-    if (role == Qt::DisplayRole) return element.attribute("name", "<unnamed>");
+    if (role == Qt::DisplayRole) return Fnx::name(element);
 
     if (role == Qt::DecorationRole) {
-        if (element.tagName() == "folder") {
+        if (Fnx::isDir(element)) {
             return Application::style()->standardIcon(QStyle::SP_DirIcon);
-        } else if (element.tagName() == "file") {
+        } else if (Fnx::isFile(element)) {
             return Application::style()->standardIcon(QStyle::SP_FileIcon);
         }
     }
 
-    // TODO: Qt::ToolTipRole for full path or UUID
+    // TODO: Qt::ToolTipRole?
 
     return {};
 }

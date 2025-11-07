@@ -10,7 +10,9 @@
 #pragma once
 
 #include <QLabel>
+#include <QModelIndex>
 #include <QObject>
+#include <QPalette> // TODO: Temp
 #include <QStatusBar>
 #include <QVariant>
 #include <QVariantMap>
@@ -28,7 +30,6 @@
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
-#include "Utility.h"
 #include "Window.h"
 #include "Workspace.h"
 
@@ -36,6 +37,11 @@ namespace Fernanda {
 
 // A binder-style Workspace that operates on a 7zip archive-based filesystem.
 // There can be any number of Notebooks open during the application lifetime
+//
+// TODO: Will want window titles to reflect archive name (plus show modified
+// state). Will likely need a WinServ command to set all titles and link this to
+// a setModified function here
+// TODO: Solidify what goes where between Notebook, Fnx, and FnxModel
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -64,34 +70,36 @@ private:
 
     void setup_()
     {
-        // Keep as fatal?
+        // TODO: Keep as fatal?
         if (!workingDir_.isValid())
             FATAL("Notebook temp directory creation failed!");
 
         menus_->initialize();
 
         // Extraction or creation
-        auto root = workingDir_.path();
+        auto working_dir = workingDir_.path();
 
         if (!fnxPath_.exists()) {
-            Fnx::makeScaffold(root);
-            // Mark notebook modified (maybe, maybe not until edited)? (need to
-            // figure out how this will work)
+            Fnx::addBlank(working_dir);
+            // TODO: Mark notebook modified (maybe, maybe not until edited)?
+            // (need to figure out how this will work)
         } else {
-            Fnx::extract(fnxPath_, root);
-            // Verification (comparing Model file elements to content dir files)
+            Fnx::extract(fnxPath_, working_dir);
+            // TODO: Verification (comparing Model file elements to content dir
+            // files)
         }
 
         // Read Model.xml into memory as DOM doc
-        auto dom = Fnx::readModelXml(root);
+        auto dom = Fnx::makeDomDocument(working_dir);
         fnxModel_->setDomDocument(dom);
 
         //...
 
-        auto settings_file = root / Constants::CONFIG_FILE_NAME;
+        // TODO: Fnx control its own settings name constant?
+        auto settings_file = working_dir / Constants::CONFIG_FILE_NAME;
         bus->execute(
             Commands::SET_SETTINGS_OVERRIDE,
-            { { "path", toQVariant(settings_file) } });
+            { { "path", qVar(settings_file) } });
 
         registerBusCommands_();
         connectBusEvents_();
@@ -103,7 +111,8 @@ private:
             return fnxModel_;
         });
 
-        // TODO: Get element by tag name? (For future, when we have Trash)
+        // TODO: Get element by tag/qualified name? (For future, when we have
+        // Trash)
         bus->addCommandHandler(Commands::TREE_VIEW_ROOT_INDEX, [&] {
             // The invalid index represents the root document element
             // (<notebook>). TreeView will display its children (the actual
@@ -111,20 +120,90 @@ private:
             return QModelIndex{};
         });
 
-        /*bus->addCommandHandler(Cmd::NotebookRoot, [&] {
-            return root_.toQString();
-        });*/
+        // TODO: Trigger rename immediately, when that functionality is
+        // available
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            auto dom = fnxModel_->domDocument();
+            if (dom.isNull()) return;
 
-        // bus->addCommandHandler(PolyCmd::NEW_TAB, [&](const Command& cmd) {
-        //     /// createNewTextFile_(cmd.context); //<- Old (in FileService)
-        //     TRACER;
-        //     qDebug() << "Implement";
-        // });
+            auto result = Fnx::addTextFile(workingDir_.path(), dom);
+            if (!result.isValid()) return;
+
+            // We append here because Fnx.h is not in charge of structure, just
+            // format
+            dom.documentElement().appendChild(result.element);
+            fnxModel_->setDomDocument(dom);
+
+            bus->execute(
+                Commands::OPEN_FILE_AT_PATH,
+                { { "path", qVar(result.path) },
+                  { "title", Fnx::name(result.element) } },
+                cmd.context);
+        });
+
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_IMPORT_FILE,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+
+                auto parent_dir = fnxPath_.parent();
+                if (!parent_dir.exists()) return;
+
+                auto fs_paths = Coco::PathUtil::Dialog::files(
+                    cmd.context,
+                    Tr::Dialogs::notebookImportFileCaption(),
+                    parent_dir,
+                    Tr::Dialogs::notebookImportFileFilter());
+
+                if (fs_paths.isEmpty()) return;
+
+                auto dom = fnxModel_->domDocument();
+                if (dom.isNull()) return;
+
+                auto working_dir = workingDir_.path();
+                QList<Fnx::NewFileResult> imports{};
+
+                for (auto& fs_path : fs_paths) {
+                    if (!fs_path.exists()) continue;
+
+                    auto result =
+                        Fnx::importTextFile(fs_path, working_dir, dom);
+                    if (!result.isValid()) continue;
+
+                    imports << result;
+                }
+
+                if (imports.isEmpty()) return;
+
+                // Ensure the model is updated before we open any files
+                for (auto& i : imports)
+                    if (i.isValid())
+                        dom.documentElement().appendChild(i.element);
+
+                fnxModel_->setDomDocument(dom);
+
+                for (auto& i : imports) {
+                    if (!i.isValid()) continue;
+
+                    bus->execute(
+                        Commands::OPEN_FILE_AT_PATH,
+                        { { "path", qVar(i.path) },
+                          { "title", Fnx::name(i.element) } },
+                        cmd.context);
+                }
+            });
     }
 
     void connectBusEvents_()
     {
-        // connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+        connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+
+        connect(
+            bus,
+            &Bus::treeViewDoubleClicked,
+            this,
+            &Notebook::onTreeViewDoubleClicked_);
     }
 
     void addWorkspaceIndicator_(Window* window)
@@ -134,6 +213,13 @@ private:
         auto status_bar = window->statusBar();
         if (!status_bar) return; // <- Shouldn't happen
         auto temp_label = new QLabel;
+
+        // TODO: Temp
+        temp_label->setAutoFillBackground(true);
+        QPalette palette = temp_label->palette();
+        palette.setColor(QPalette::Window, QColor(Qt::cyan));
+        temp_label->setPalette(palette);
+
         temp_label->setText(name_);
         status_bar->addPermanentWidget(temp_label);
     }
@@ -143,6 +229,26 @@ private slots:
     {
         if (!window) return;
         addWorkspaceIndicator_(window);
+    }
+
+    void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
+    {
+        if (!window || !index.isValid()) return;
+
+        // Notepad uses Path::isDir instead. The asymmetry bugs me, but the
+        // folders here are virtual. We would still get success, since working
+        // dir would be concatenated to an empty path (unless we give dirs
+        // UUIDs), but it would be too abstruse
+
+        auto element = fnxModel_->elementAt(index);
+        if (Fnx::isDir(element)) return;
+
+        auto path = workingDir_.path() / Fnx::relativePath(element);
+
+        bus->execute(
+            Commands::OPEN_FILE_AT_PATH,
+            { { "path", qVar(path) }, { "title", Fnx::name(element) } },
+            window);
     }
 };
 

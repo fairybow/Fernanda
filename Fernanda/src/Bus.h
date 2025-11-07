@@ -16,6 +16,7 @@
 
 #include <QHash>
 #include <QList>
+#include <QModelIndex>
 #include <QObject>
 #include <QString>
 #include <QVariant>
@@ -31,6 +32,11 @@ namespace Fernanda {
 class IFileModel;
 class IFileView;
 enum class SaveResult;
+
+template <typename T> inline [[nodiscard]] QVariant qVar(const T& value)
+{
+    return QVariant::fromValue<T>(value);
+}
 
 struct Command
 {
@@ -188,7 +194,7 @@ public:
                 if constexpr (ReturnsQVariant<HandlerT, const Command&>) {
                     return handler(cmd);
                 } else {
-                    return QVariant::fromValue(handler(cmd));
+                    return qVar(handler(cmd));
                 }
             };
 
@@ -213,7 +219,7 @@ public:
                 if constexpr (ReturnsQVariant<HandlerT>) {
                     return handler();
                 } else {
-                    return QVariant::fromValue(handler());
+                    return qVar(handler());
                 }
             };
 
@@ -290,10 +296,14 @@ public:
 
 signals:
     /// Re-verified:
-    void windowCreated(Window* window);
-    void windowDestroyed(Window* window);
+    void windowCreated(Window* context);
+    void windowDestroyed(Window* context);
     // View may be nullptr!
-    void activeFileViewChanged(Window* window, IFileView* view);
+    void activeFileViewChanged(Window* context, IFileView* view);
+    void treeViewDoubleClicked(Window* context, const QModelIndex& index);
+    void fileModelReadied(Window* context, IFileModel* model);
+    void fileModelModificationChanged(IFileModel* model, bool modified);
+    void fileModelMetaChanged(IFileModel* model);
 
     /// Old:
 
@@ -309,9 +319,6 @@ signals:
 
     // FileService
 
-    void fileReadied(IFileModel* model, Window* window);
-    void fileModificationChanged(IFileModel* model, bool modified);
-    void fileMetaChanged(IFileModel* model);
     void fileSaved(SaveResult result, const Coco::Path& path);
     void fileSavedAs(
         SaveResult result,

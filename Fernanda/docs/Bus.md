@@ -77,13 +77,25 @@ Window service command handlers should be responsible for showing the window. Wh
 - `settings:set_override`: Sets the override config path for the Workspace's SettingsModule (used by Notebook to make the archive config override the global/Notepad config).
 - `dialog`*: Opens a non-modal Settings dialog, or raises/activates it if already open.
 
-### `color_bar`
+### `color_bars`
 
-- `run`: Runs workspace color bars. If a context param (Window) is provided, runs only that window's color bar.
+- `run`: Run the context window's color bar.
+- `run_all`: Run all workspace color bars.
 - `be_cute`: Runs all color bars with pastel gradient.
+
+### `files`
+
+- `open_path`: Opens a file model for the file at the given path and readies it for a view. If the file model already exists, it is re-readied for an additional view. TODO: Add asterisk if in menu!
+- `new_txt`: Opens an off-disk plaintext file and readies it for a view.
 
 ## Events (Signals)
 
 Can be connected to and emitted by Services.
 
-...
+- `windowCreated(Window* context)`: Emitted when a new window is created
+- `windowDestroyed(Window* context)`: Emitted when a window is destroyed
+- `treeViewDoubleClicked(Window* context, const QModelIndex& index)`: Emitted when a tree view item is double-clicked
+- `fileModelReadied(Window* context, IFileModel* model)`: Emitted when a file model is readied for view creation
+- `fileModelModificationChanged(IFileModel* model, bool modified)`: Emitted when a file model's modification state changes
+- `fileModelMetaChanged(IFileModel* model)`: Emitted when a file model's metadata changes
+- `activeFileViewChanged(Window* context, IFileView* view)`: Emitted when a window's active file view changes

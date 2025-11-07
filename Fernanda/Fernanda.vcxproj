@@ -38,7 +38,9 @@
     <None Include="docs\FNXFile.md" />
     <None Include="docs\Menus.md" />
     <None Include="docs\NotebookCreation.md" />
+    <None Include="docs\OpeningFiles.md" />
     <None Include="docs\Roadmap.md" />
+    <None Include="docs\SavingFiles.md" />
     <None Include="docs\StartupFlowchart.md" />
     <None Include="docs\old_TempCommandsReference.md" />
     <None Include="docs\old_TempTodos.md" />
@@ -75,7 +77,7 @@
     <ClInclude Include="src\Debug.h" />
     <ClInclude Include="src\Enums.h" />
     <ClInclude Include="src\FileServiceSaveHelper.h" />
-    <QtMoc Include="src\DelayTimer.h" />
+    <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />
     <QtMoc Include="src\Bus.h" />
     <ClInclude Include="src\Constants.h" />
@@ -96,7 +98,7 @@
     <ClInclude Include="src\SavePrompt.h" />
     <QtMoc Include="src\Settings.h" />
     <QtMoc Include="src\SettingsDialog.h" />
-    <ClInclude Include="src\OLDMenuModule.h" />
+    <ClInclude Include="src\old_MenuModule.h" />
     <ClInclude Include="src\Formatters.h" />
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\TextIo.h" />
@@ -104,7 +106,7 @@
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewModule.h" />
     <ClInclude Include="src\AppDirs.h" />
-    <ClInclude Include="src\Utility.h" />
+    <ClInclude Include="src\old_Utility.h" />
     <ClInclude Include="src\Version.h" />
     <QtMoc Include="src\Workspace.h" />
     <QtMoc Include="src\ViewService.h" />
