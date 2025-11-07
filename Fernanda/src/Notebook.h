@@ -125,15 +125,17 @@ private:
         bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
             if (!cmd.context) return;
             auto dom = fnxModel_->domDocument();
-            if (dom.isNull()) return;
+            if (dom.isNull() || !workingDir_.isValid()) return;
 
-            auto result = Fnx::addTextFile(workingDir_.path(), dom);
+            auto working_dir = workingDir_.path();
+            auto result = Fnx::addTextFile(working_dir, dom);
             if (!result.isValid()) return;
 
             // We append here because Fnx.h is not in charge of structure, just
             // format
             dom.documentElement().appendChild(result.element);
             fnxModel_->setDomDocument(dom);
+            Fnx::writeModelFile(working_dir, dom);
 
             bus->execute(
                 Commands::OPEN_FILE_AT_PATH,
@@ -146,6 +148,8 @@ private:
             Commands::NOTEBOOK_IMPORT_FILE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
+                auto dom = fnxModel_->domDocument();
+                if (dom.isNull() || !workingDir_.isValid()) return;
 
                 auto parent_dir = fnxPath_.parent();
                 if (!parent_dir.exists()) return;
@@ -157,9 +161,6 @@ private:
                     Tr::Dialogs::notebookImportFileFilter());
 
                 if (fs_paths.isEmpty()) return;
-
-                auto dom = fnxModel_->domDocument();
-                if (dom.isNull()) return;
 
                 auto working_dir = workingDir_.path();
                 QList<Fnx::NewFileResult> imports{};
@@ -182,6 +183,7 @@ private:
                         dom.documentElement().appendChild(i.element);
 
                 fnxModel_->setDomDocument(dom);
+                Fnx::writeModelFile(working_dir, dom);
 
                 for (auto& i : imports) {
                     if (!i.isValid()) continue;
