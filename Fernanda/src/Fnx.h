@@ -62,6 +62,7 @@ namespace Internal {
 
 } // namespace Internal
 
+// TODO: Rename?
 struct NewFileResult
 {
     Coco::Path path{};
@@ -157,6 +158,30 @@ addTextFile(const Coco::Path& workingDir, QDomDocument& dom)
 
     auto element = dom.createElement(Internal::XML_FILE_TAG);
     element.setAttribute(Internal::XML_NAME_ATTR, "Untitled");
+    element.setAttribute(Internal::XML_UUID_ATTR, uuid);
+    element.setAttribute(Internal::XML_EXT_ATTR, ext);
+
+    return { path, element };
+}
+
+// TODO: Section off some code from this and addTextFile
+inline NewFileResult importTextFile(
+    const Coco::Path& fsPath,
+    const Coco::Path& workingDir,
+    QDomDocument& dom)
+{
+    auto uuid = Internal::makeUuid_();
+    auto ext = ".txt";
+    auto file_name = uuid + ext;
+    auto path = workingDir / Internal::CONTENT_DIR_NAME / file_name;
+
+    if (!QFile::copy(fsPath.toQString(), path.toQString())) {
+        WARN("Failed to copy text file at {}", fsPath);
+        return {};
+    }
+
+    auto element = dom.createElement(Internal::XML_FILE_TAG);
+    element.setAttribute(Internal::XML_NAME_ATTR, fsPath.stemQString());
     element.setAttribute(Internal::XML_UUID_ATTR, uuid);
     element.setAttribute(Internal::XML_EXT_ATTR, ext);
 

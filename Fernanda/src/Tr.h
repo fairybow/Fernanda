@@ -22,6 +22,7 @@ namespace Fernanda {
 QString
 tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1);
 
+// TODO: Use a coherent naming scheme...
 namespace Tr {
 
     namespace Buttons {
@@ -41,10 +42,14 @@ namespace Tr {
         TR_(notepadOpenFileCaption, tr("Open existing file"));
         TR_(notepadOpenFileFilter,
             tr("Plain text files (*.txt);;All files (*)"));
-        TR_(saveFileCaption, tr("Save file as"));
+        TR_(notepadSaveFileCaption, tr("Save file as"));
+
+        TR_(notebookImportFileCaption, tr("Import existing file"));
+        TR_(notebookImportFileFilter, tr("Plain text files (*.txt)"));
 
         TR_(aboutTitle, tr("About"));
 
+        // TODO: std::format
         inline QString aboutBody()
         {
             auto arg_0 = [] {

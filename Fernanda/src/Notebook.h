@@ -142,9 +142,57 @@ private:
                 cmd.context);
         });
 
-        /*bus->addCommandHandler(Cmd::NotebookRoot, [&] {
-            return root_.toQString();
-        });*/
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_IMPORT_FILE,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+
+                auto parent_dir = fnxPath_.parent();
+                if (!parent_dir.exists()) return;
+
+                auto fs_paths = Coco::PathUtil::Dialog::files(
+                    cmd.context,
+                    Tr::Dialogs::notebookImportFileCaption(),
+                    parent_dir,
+                    Tr::Dialogs::notebookImportFileFilter());
+
+                if (fs_paths.isEmpty()) return;
+
+                auto dom = fnxModel_->domDocument();
+                if (dom.isNull()) return;
+
+                auto working_dir = workingDir_.path();
+                QList<Fnx::NewFileResult> imports{};
+
+                for (auto& fs_path : fs_paths) {
+                    if (!fs_path.exists()) continue;
+
+                    auto result =
+                        Fnx::importTextFile(fs_path, working_dir, dom);
+                    if (!result.isValid()) continue;
+
+                    imports << result;
+                }
+
+                if (imports.isEmpty()) return;
+
+                // Ensure the model is updated before we open any files
+                for (auto& i : imports)
+                    if (i.isValid())
+                        dom.documentElement().appendChild(i.element);
+
+                fnxModel_->setDomDocument(dom);
+
+                for (auto& i : imports) {
+                    if (!i.isValid()) continue;
+
+                    bus->execute(
+                        Commands::OPEN_FILE_AT_PATH,
+                        { { "path", qVar(i.path) },
+                          { "title", Fnx::name(i.element) } },
+                        cmd.context);
+                }
+            });
     }
 
     void connectBusEvents_()

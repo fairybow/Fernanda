@@ -85,7 +85,7 @@ private:
             bus,
             window,
             Commands::NOTEBOOK_IMPORT_FILE,
-            Tr::Menus::fileNotebookImportFile());
+            Tr::Menus::fileNotebookImportFile()); /// *
 
         actions.file.save = Menus::makeBusAction(
             bus,
