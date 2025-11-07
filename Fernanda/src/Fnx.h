@@ -154,7 +154,7 @@ inline QDomDocument makeDomDocument(const Coco::Path& workingDir)
 }
 
 // TODO: Return bool?
-inline void writeModelFile(const Coco::Path& workingDir, QDomDocument& dom)
+inline void writeModelFile(const Coco::Path& workingDir, const QDomDocument& dom)
 {
     if (!workingDir.exists()) {
         CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
