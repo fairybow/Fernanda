@@ -13,9 +13,11 @@
 
 #include <QFileSystemModel>
 #include <QModelIndex>
+#include <QList>
 #include <QObject>
 
 #include "Coco/Path.h"
+#include "Coco/PathUtil.h"
 
 #include "AppDirs.h"
 #include "Bus.h"
@@ -99,6 +101,33 @@ private:
             return fsModel_->index(currentBaseDir_.toQString());
         });
 
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            bus->execute(Commands::NEW_TXT_FILE, cmd.context);
+        });
+
+        bus->addCommandHandler(
+            Commands::NOTEPAD_OPEN_FILE,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+
+                auto paths = Coco::PathUtil::Dialog::files(
+                    cmd.context,
+                    Tr::Dialogs::notepadOpenFileCaption(),
+                    currentBaseDir_,
+                    Tr::Dialogs::notepadOpenFileFilter());
+
+                if (paths.isEmpty()) return;
+
+                for (auto& path : paths) {
+                    if (!path.exists()) continue;
+                    bus->execute(
+                        Commands::OPEN_FILE_AT_PATH,
+                        { { "path", qVar(path) } },
+                        cmd.context);
+                }
+            });
+
         bus->addInterceptor(
             Commands::OPEN_FILE_AT_PATH,
             [&](const Command& cmd) {
@@ -108,11 +137,6 @@ private:
 
                 return false;
             });
-
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            bus->execute(Commands::NEW_TXT_FILE, cmd.context);
-        });
 
         /// NOT YET
         /*bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {

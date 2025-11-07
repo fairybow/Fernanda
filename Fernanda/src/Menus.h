@@ -89,7 +89,7 @@ namespace Internal {
             bus,
             window,
             Commands::NEW_TAB,
-            Tr::Menus::fileNewTab()); /// * (np, nb wip)
+            Tr::Menus::fileNewTab()); /// *
 
         common.file.newWindow = makeBusAction(
             bus,

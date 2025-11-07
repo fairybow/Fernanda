@@ -38,7 +38,9 @@ namespace Tr {
 
     namespace Dialogs {
 
-        TR_(openFileCaption, tr("Open existing file"));
+        TR_(notepadOpenFileCaption, tr("Open existing file"));
+        TR_(notepadOpenFileFilter,
+            tr("Plain text files (*.txt);;All files (*)"));
         TR_(saveFileCaption, tr("Save file as"));
 
         TR_(aboutTitle, tr("About"));

@@ -25,7 +25,8 @@
 /// -- Separate SaveServices for each Workspace?
 /// - (DONE) NewTab behavior for both Workspaces
 /// -- (DONE) Should FileService have a separate command for off-disk files?
-/// - Opening files via Menu in Notepad (Notebook menu won't open, just import)
+/// - (DONE) Opening files via Menu in Notepad (Notebook menu won't open, just import)
+/// - Moving/reorganizing Notebook files in TreeView
 /// - Marking Notebook as modified
 ///
 /// Opening Files doc will cover:
@@ -73,6 +74,7 @@
 ///
 /// Coco:
 /// - Redo path, potentially reintegrate PathUtil with Path
+/// -- Or, better, Io umbrella file (dialogs in there with read/writes?)
 /// - Figure out Path string caching
 /// - Ensure Path's shared data works
 /// - isFolder to isDir

@@ -21,7 +21,7 @@ constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 
 // Workspace scope
 
-constexpr auto NEW_TAB = "poly:new_tab"; /// * (np, nb wip)
+constexpr auto NEW_TAB = "poly:new_tab"; /// *
 constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
 constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 constexpr auto CLOSE_TAB = "poly:close_tab";
@@ -33,7 +33,7 @@ constexpr auto TREE_VIEW_ROOT_INDEX = "poly:tree_view_root_index"; /// non-menu
 // Notepad scope
 
 // TODO: For this, will wrap FS:OPEN_FILE with the selection dialog for the menu
-constexpr auto NOTEPAD_OPEN_FILE = "notepad:open_file";
+constexpr auto NOTEPAD_OPEN_FILE = "notepad:open_file"; /// *
 constexpr auto NOTEPAD_SAVE = "notepad:save_file";
 constexpr auto NOTEPAD_SAVE_AS = "notepad:save_file_as";
 constexpr auto NOTEPAD_SAVE_ALL_IN_WINDOW = "notepad:save_all_in_window";
@@ -77,6 +77,6 @@ constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 // FileService scope
 
 constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// *, non-menu
-constexpr auto NEW_TXT_FILE = "file:new_txt"; /// *
+constexpr auto NEW_TXT_FILE = "file:new_txt"; /// *, non-menu
 
 } // namespace Fernanda::Commands
