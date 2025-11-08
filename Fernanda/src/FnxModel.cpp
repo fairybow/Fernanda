@@ -37,7 +37,7 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
         }
     }
 
-    // TODO: Qt::ToolTipRole?
+    // TODO: Qt::ToolTipRole & others? (See setData)
 
     return {};
 }

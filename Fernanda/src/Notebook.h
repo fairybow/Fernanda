@@ -94,7 +94,13 @@ private:
 
         // Read Model.xml into memory as DOM doc
         auto dom = Fnx::makeDomDocument(working_dir);
-        fnxModel_->setDomDocument(dom);
+        fnxModel_->initialize(dom);
+
+        connect(
+            fnxModel_,
+            &FnxModel::domChanged,
+            this,
+            &Notebook::onFnxModelDomChanged_);
 
         //...
 
@@ -137,7 +143,6 @@ private:
             // We append here because Fnx.h is not in charge of structure, just
             // format
             fnxModel_->insertElement(result.element, dom.documentElement());
-            Fnx::writeModelFile(working_dir, dom);
 
             bus->execute(
                 Commands::OPEN_FILE_AT_PATH,
@@ -179,13 +184,14 @@ private:
 
                 if (imports.isEmpty()) return;
 
-                // Ensure the model is updated before we open any files
-                for (auto& i : imports) {
-                    if (!i.isValid()) continue;
-                    fnxModel_->insertElement(i.element, dom.documentElement());
-                }
+                // - Ensure the model is updated before we open any files
+                // - Batch insert - only writes to disk once
+                QList<QDomElement> elements{};
 
-                Fnx::writeModelFile(working_dir, dom);
+                for (auto& i : imports)
+                    if (i.isValid()) elements << i.element;
+
+                fnxModel_->insertElements(elements, dom.documentElement());
 
                 for (auto& i : imports) {
                     if (!i.isValid()) continue;
@@ -235,6 +241,14 @@ private:
     }
 
 private slots:
+    // TODO: Could remove working dir validity check; also writeModelFile could
+    // return bool
+    void onFnxModelDomChanged_()
+    {
+        if (!workingDir_.isValid()) return;
+        Fnx::writeModelFile(workingDir_.path(), fnxModel_->domDocument());
+    }
+
     void onWindowCreated_(Window* window)
     {
         if (!window) return;
@@ -296,9 +310,6 @@ private slots:
 
             // Model handles insertion and view update
             fnxModel_->insertElement(element, parent_element);
-
-            // Persist to disk
-            Fnx::writeModelFile(workingDir_.path(), dom);
         });
 
         menu->popup(globalPos);

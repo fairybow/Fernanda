@@ -18,6 +18,7 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
+#include <Qt>
 #include <QtTypes>
 
 #include "Debug.h"
@@ -54,6 +55,16 @@ public:
 
     virtual ~FnxModel() override { TRACER; }
 
+    void initialize(const QDomDocument& dom)
+    {
+        beginResetModel();
+        dom_ = dom;
+        elementToId_.clear();
+        idToElement_.clear();
+        nextId_ = 1; // Reserve 0 for root
+        endResetModel();
+    }
+
     QDomDocument domDocument() const { return dom_; }
 
     // QDomNode/QDomElement function like views onto the same underlying DOM
@@ -79,6 +90,32 @@ public:
         beginInsertRows(parent_index, row, row);
         parentElement.appendChild(element);
         endInsertRows();
+        emit domChanged();
+    }
+
+    void insertElements(
+        const QList<QDomElement>& elements,
+        QDomElement parentElement)
+    {
+        if (elements.isEmpty() || parentElement.isNull()) return;
+
+        for (const auto& element : elements) {
+            if (element.isNull()) continue;
+
+            auto parent_index = indexFromElement_(parentElement);
+            auto row = 0;
+            auto child = parentElement.firstChildElement();
+            while (!child.isNull()) {
+                ++row;
+                child = child.nextSiblingElement();
+            }
+
+            beginInsertRows(parent_index, row, row);
+            parentElement.appendChild(element);
+            endInsertRows();
+        }
+
+        emit domChanged();
     }
 
     void updateElement(const QDomElement& element)
@@ -89,16 +126,7 @@ public:
         // QAbstractItemModel::dataChanged in automatically connected when you
         // set a view's model
         emit dataChanged(index, index);
-    }
-
-    void setDomDocument(const QDomDocument& dom)
-    {
-        beginResetModel();
-        dom_ = dom;
-        elementToId_.clear();
-        idToElement_.clear();
-        nextId_ = 1; // Reserve 0 for root
-        endResetModel();
+        emit domChanged();
     }
 
     QDomElement elementAt(const QModelIndex& index) const
@@ -106,6 +134,56 @@ public:
         if (!index.isValid()) return dom_.documentElement();
         auto id = reinterpret_cast<quintptr>(index.internalPointer());
         return idToElement_.value(id);
+    }
+
+    // TODO: Don't trigger line edit on double click. Rather, use the staggered
+    // click that is more common.
+    virtual Qt::ItemFlags flags(const QModelIndex& index) const override
+    {
+        if (!index.isValid()) return Qt::NoItemFlags;
+        return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+    }
+
+    virtual bool setData(
+        const QModelIndex& index,
+        const QVariant& value,
+        int role = Qt::EditRole) override
+    {
+        if (!index.isValid()) return false;
+
+        auto element = elementAt(index);
+        if (element.isNull()) return false;
+
+        switch (role) {
+        case Qt::EditRole:
+        case Qt::DisplayRole: {
+            // Handle rename
+            auto new_name = value.toString();
+            if (new_name.isEmpty()) return false; // Reject empty names
+
+            Fnx::rename(element, new_name);
+            emit dataChanged(index, index, { Qt::DisplayRole, Qt::EditRole });
+            emit domChanged();
+
+            return true;
+        }
+
+        // Future: Handle other roles
+        case Qt::DecorationRole:
+            // Could handle custom icons per element
+            return false;
+
+        case Qt::ToolTipRole:
+            // Could store custom tooltips in XML attributes
+            return false;
+
+        case Qt::CheckStateRole:
+            // Could add checked/unchecked state to elements
+            return false;
+
+        default:
+            return false;
+        }
     }
 
     virtual QModelIndex
@@ -151,6 +229,9 @@ public:
 
     virtual QVariant
     data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+
+signals:
+    void domChanged();
 
 private:
     QDomDocument dom_{};
