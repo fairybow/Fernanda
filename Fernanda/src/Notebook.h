@@ -134,7 +134,8 @@ private:
             // We append here because Fnx.h is not in charge of structure, just
             // format
             dom.documentElement().appendChild(result.element);
-            setDomAndWriteModelXml_(dom);
+            fnxModel_->setDomDocument(dom);
+            Fnx::writeModelFile(working_dir, dom);
 
             bus->execute(
                 Commands::OPEN_FILE_AT_PATH,
@@ -181,7 +182,8 @@ private:
                     if (i.isValid())
                         dom.documentElement().appendChild(i.element);
 
-                setDomAndWriteModelXml_(dom);
+                fnxModel_->setDomDocument(dom);
+                Fnx::writeModelFile(working_dir, dom);
 
                 for (auto& i : imports) {
                     if (!i.isValid()) continue;
@@ -222,13 +224,6 @@ private:
 
         temp_label->setText(name_);
         status_bar->addPermanentWidget(temp_label);
-    }
-
-    void setDomAndWriteModelXml_(const QDomDocument& dom)
-    {
-        if (dom.isNull() || !workingDir_.isValid()) return;
-        fnxModel_->setDomDocument(dom);
-        Fnx::writeModelFile(workingDir_.path(), dom);
     }
 
 private slots:
