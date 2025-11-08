@@ -72,6 +72,7 @@ public:
     // handle) and modifying a copy modifies the underlying shared DOM data.
     // This is why parentElement is passed by value but still modifies the
     // actual document when appendChild is called.
+    // TODO: Expand parent if applicable after appending
     void insertElement(const QDomElement& element, QDomElement parentElement)
     {
         if (element.isNull() || parentElement.isNull()) return;
@@ -93,6 +94,7 @@ public:
         emit domChanged();
     }
 
+    // TODO: Expand parent if applicable after appending
     void insertElements(
         const QList<QDomElement>& elements,
         QDomElement parentElement)
