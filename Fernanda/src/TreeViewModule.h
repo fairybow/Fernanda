@@ -74,15 +74,20 @@ private:
         //...
     }
 
+    // TODO: Set initial visibility and size based on settings
+    // TODO: Section
     void addTreeView_(Window* window)
     {
         if (!window) return;
 
-        /// Set initial visibility and size based on settings later
         auto dock_widget = new QDockWidget(window);
         auto tree_view = new TreeView(dock_widget);
 
         tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
+        tree_view->setEditTriggers(
+            QAbstractItemView::SelectedClicked
+            | QAbstractItemView::EditKeyPressed // F2 (standard)
+        );
 
         if (auto model =
                 bus->call<QAbstractItemModel*>(Commands::TREE_VIEW_MODEL)) {
