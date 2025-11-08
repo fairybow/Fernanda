@@ -90,11 +90,11 @@ private:
 
     void registerBusCommands_()
     {
-        bus->addCommandHandler(Commands::TREE_VIEW_MODEL, [&] {
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
             return fsModel_;
         });
 
-        bus->addCommandHandler(Commands::TREE_VIEW_ROOT_INDEX, [&] {
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
             // Generate the index on-demand from the stored path (don't hold it
             // separately or retrieve via Model::setRootPath)
             if (!fsModel_) return QModelIndex{};

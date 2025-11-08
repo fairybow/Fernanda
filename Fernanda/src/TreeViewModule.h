@@ -53,7 +53,16 @@ public:
 protected:
     virtual void registerBusCommands() override
     {
-        //...
+        bus->addCommandHandler(
+            Commands::RENAME_TREE_VIEW_INDEX,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                auto tree_view = treeViews_[cmd.context];
+                auto index =
+                    cmd.param<QModelIndex>("index", tree_view->currentIndex());
+                if (!index.isValid()) return;
+                tree_view->edit(index);
+            });
     }
 
     virtual void connectBusEvents() override
@@ -63,12 +72,16 @@ protected:
             &Bus::windowCreated,
             this,
             &TreeViewModule::onWindowCreated_);
+
+        connect(
+            bus,
+            &Bus::windowDestroyed,
+            this,
+            &TreeViewModule::onWindowDestroyed_);
     }
 
 private:
-    // QHash<Window*, TreeView*> treeViews_{}; // dock widgets?
-    // A set instead, perhaps, just for quick updates across all Workspace
-    // TreeViews
+    QHash<Window*, TreeView*> treeViews_{};
 
     void setup_()
     {
@@ -83,19 +96,19 @@ private:
 
         auto dock_widget = new QDockWidget(window);
         auto tree_view = new TreeView(dock_widget);
+        treeViews_[window] = tree_view;
 
         tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
         tree_view->setEditTriggers(
             QAbstractItemView::SelectedClicked
-            | QAbstractItemView::EditKeyPressed // F2 (standard)
-        );
+            | QAbstractItemView::EditKeyPressed); // F2 (standard)
 
         if (auto model =
-                bus->call<QAbstractItemModel*>(Commands::TREE_VIEW_MODEL)) {
+                bus->call<QAbstractItemModel*>(Commands::WS_TREE_VIEW_MODEL)) {
             tree_view->setModel(model);
 
             auto root_index =
-                bus->call<QModelIndex>(Commands::TREE_VIEW_ROOT_INDEX);
+                bus->call<QModelIndex>(Commands::WS_TREE_VIEW_ROOT_INDEX);
 
             if (root_index.isValid()) tree_view->setRootIndex(root_index);
         }
@@ -128,6 +141,12 @@ private:
                     tree_view->mapToGlobal(pos),
                     tree_view->indexAt(pos));
             });
+
+        // TODO: Needed?
+        connect(tree_view, &TreeView::destroyed, this, [&, window] {
+            if (!window) return;
+            treeViews_.remove(window);
+        });
     }
 
 private slots:
@@ -153,13 +172,12 @@ private slots:
         //         }
         //     });
         // }
+    }
 
-        ///// Window clean up (maybe)
-
-        // connect(window, &Window::destroyed, this, [=] {
-        //     if (!window) return;
-        //     // treeViews_.remove(window);
-        // });
+    void onWindowDestroyed_(Window* window)
+    {
+        if (!window) return;
+        treeViews_.remove(window);
     }
 };
 

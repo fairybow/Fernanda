@@ -116,13 +116,13 @@ private:
 
     void registerBusCommands_()
     {
-        bus->addCommandHandler(Commands::TREE_VIEW_MODEL, [&] {
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
             return fnxModel_;
         });
 
         // TODO: Get element by tag/qualified name? (For future, when we have
         // Trash)
-        bus->addCommandHandler(Commands::TREE_VIEW_ROOT_INDEX, [&] {
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
             // The invalid index represents the root document element
             // (<notebook>). TreeView will display its children (the actual
             // files and virtual folders/structure)
@@ -311,6 +311,23 @@ private slots:
             // Model handles insertion and view update
             fnxModel_->insertElement(element, parent_element);
         });
+
+        // Add rename action (only if clicking on an actual item)
+        if (index.isValid()) {
+            menu->addSeparator();
+            auto rename_action =
+                menu->addAction(Tr::Menus::notebookTreeViewContextRename());
+            connect(
+                rename_action,
+                &QAction::triggered,
+                this,
+                [&, index, window] {
+                    bus->execute(
+                        Commands::RENAME_TREE_VIEW_INDEX,
+                        { { "index", index } },
+                        window);
+                });
+        }
 
         menu->popup(globalPos);
     }

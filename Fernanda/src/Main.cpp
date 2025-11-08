@@ -25,11 +25,17 @@
 /// -- Separate SaveServices for each Workspace?
 /// - (DONE) NewTab behavior for both Workspaces
 /// -- (DONE) Should FileService have a separate command for off-disk files?
-/// - (DONE) Opening files via Menu in Notepad (Notebook menu won't open, just import)
+/// - (DONE) Opening files via Menu in Notepad (Notebook menu won't open, just
+/// import)
 /// - (DONE) Notebook Import
 /// - Granular FnxModel DOM updates
 /// - Moving/reorganizing Notebook files in TreeView
 /// - Marking Notebook as modified
+/// - Clean up lambda captures! Value capture may be volatile so specify
+/// everything if possible
+/// - Potentially add defensive QHash removals like in TreeViewModule (not just
+/// cleaning on Window destruction but also if the new, other object is
+/// destroyed)
 ///
 /// Opening Files doc will cover:
 /// - Use same FileService (make Opening Files/Saving Files docs)

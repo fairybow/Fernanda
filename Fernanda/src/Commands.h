@@ -27,8 +27,9 @@ constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 constexpr auto CLOSE_TAB = "poly:close_tab";
 constexpr auto CLOSE_ALL_TABS_IN_WINDOW = "poly:close_all_tabs_in_window";
 constexpr auto CLOSE_WINDOW = "workspace:close_window";
-constexpr auto TREE_VIEW_MODEL = "poly:tree_view_model"; /// non-menu
-constexpr auto TREE_VIEW_ROOT_INDEX = "poly:tree_view_root_index"; /// non-menu
+constexpr auto WS_TREE_VIEW_MODEL = "poly:ws_tree_view_model"; /// *, non-menu
+constexpr auto WS_TREE_VIEW_ROOT_INDEX =
+    "poly:ws_tree_view_root_index"; /// *, non-menu
 
 // Notepad scope
 
@@ -78,5 +79,9 @@ constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 
 constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// *, non-menu
 constexpr auto NEW_TXT_FILE = "file:new_txt"; /// *, non-menu
+
+// TreeViewModule scope
+
+constexpr auto RENAME_TREE_VIEW_INDEX = "tree_views:rename_index"; /// *
 
 } // namespace Fernanda::Commands

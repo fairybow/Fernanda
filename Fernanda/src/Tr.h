@@ -149,6 +149,7 @@ namespace Tr {
         } // namespace Common
 
         TR_(notebookTreeViewContextNewFolder, tr("New folder"));
+        TR_(notebookTreeViewContextRename, tr("Rename"));
 
     } // namespace Menus
 
