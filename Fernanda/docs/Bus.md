@@ -99,3 +99,4 @@ Can be connected to and emitted by Services.
 - `fileModelModificationChanged(IFileModel* model, bool modified)`: Emitted when a file model's modification state changes
 - `fileModelMetaChanged(IFileModel* model)`: Emitted when a file model's metadata changes
 - `activeFileViewChanged(Window* context, IFileView* view)`: Emitted when a window's active file view changes
+- `treeViewContextMenuRequested(Window* context, const QPoint& globalPos, const QModelIndex& index)`: Emitted when a TreeView is right-clicked
