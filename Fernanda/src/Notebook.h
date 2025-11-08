@@ -9,10 +9,13 @@
 
 #pragma once
 
+#include <QAction>
 #include <QLabel>
+#include <QMenu>
 #include <QModelIndex>
 #include <QObject>
 #include <QPalette> // TODO: Temp
+#include <QPoint>
 #include <QStatusBar>
 #include <QVariant>
 #include <QVariantMap>
@@ -128,7 +131,7 @@ private:
             if (dom.isNull() || !workingDir_.isValid()) return;
 
             auto working_dir = workingDir_.path();
-            auto result = Fnx::addTextFile(working_dir, dom);
+            auto result = Fnx::addNewTextFile(working_dir, dom);
             if (!result.isValid()) return;
 
             // We append here because Fnx.h is not in charge of structure, just
@@ -206,6 +209,12 @@ private:
             &Bus::treeViewDoubleClicked,
             this,
             &Notebook::onTreeViewDoubleClicked_);
+
+        connect(
+            bus,
+            &Bus::treeViewContextMenuRequested,
+            this,
+            &Notebook::onTreeViewContextMenuRequested_);
     }
 
     void addWorkspaceIndicator_(Window* window)
@@ -251,6 +260,49 @@ private slots:
             Commands::OPEN_FILE_AT_PATH,
             { { "path", qVar(path) }, { "title", Fnx::name(element) } },
             window);
+    }
+
+    void onTreeViewContextMenuRequested_(
+        Window* window,
+        const QPoint& globalPos,
+        const QModelIndex& index)
+    {
+        if (!window) return;
+
+        auto menu = new QMenu(window);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+
+        // Temporary test action
+        auto new_folder =
+            menu->addAction(Tr::Menus::notebookTreeViewContextNewFolder());
+
+        // TODO: Trigger rename immediately
+        connect(new_folder, &QAction::triggered, this, [&, index] {
+            auto dom = fnxModel_->domDocument();
+            if (dom.isNull() || !workingDir_.isValid()) return;
+
+            auto element = Fnx::addNewDir(dom);
+            if (element.isNull()) return;
+
+            // Determine where to insert it
+            QDomElement parent_element{};
+
+            if (index.isValid()) {
+                // Insert as child of clicked element (whether file or folder)
+                parent_element = fnxModel_->elementAt(index);
+            }
+
+            // If no valid parent found, append to root
+            if (parent_element.isNull()) parent_element = dom.documentElement();
+
+            parent_element.appendChild(element);
+
+            // Update model and persist
+            fnxModel_->setDomDocument(dom);
+            Fnx::writeModelFile(workingDir_.path(), dom);
+        });
+
+        menu->popup(globalPos);
     }
 };
 

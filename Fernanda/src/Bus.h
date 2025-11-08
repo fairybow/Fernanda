@@ -18,6 +18,7 @@
 #include <QList>
 #include <QModelIndex>
 #include <QObject>
+#include <QPoint>
 #include <QString>
 #include <QVariant>
 #include <QVariantMap>
@@ -304,6 +305,10 @@ signals:
     void fileModelReadied(Window* context, IFileModel* model);
     void fileModelModificationChanged(IFileModel* model, bool modified);
     void fileModelMetaChanged(IFileModel* model);
+    void treeViewContextMenuRequested(
+        Window* context,
+        const QPoint& globalPos,
+        const QModelIndex& index);
 
     /// Old:
 

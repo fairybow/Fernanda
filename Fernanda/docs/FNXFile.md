@@ -17,6 +17,8 @@ The `Settings.ini` file is optional. It's generated as needed and removing it wi
 
 This file describes the virtual structure of the Notebook. While the files exist in `content`, the folders and structure only exist in this model.
 
+TODO: Type attribute needed?
+
 ```
 <?xml version="1.0"?>
 <notebook>

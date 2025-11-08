@@ -45,11 +45,14 @@ namespace Internal {
     constexpr auto XML_DIR_TAG_ = "folder";
     constexpr auto XML_FILE_TAG_ = "file";
     constexpr auto XML_NAME_ATTR_ = "name";
-    constexpr auto XML_UUID_ATTR_ = "uuid";
-    constexpr auto XML_EXT_ATTR_ = "extension";
+    constexpr auto XML_NAME_ATTR_FILE_DEF_ = "Untitled";
+    constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
+    constexpr auto XML_FILE_UUID_ATTR_ = "uuid";
+    constexpr auto XML_FILE_EXT_ATTR_ = "extension";
 
     constexpr auto WORKING_DIR_MISSING_FMT_ =
         "Working directory ({}) doesn't exist!";
+    constexpr auto NULL_DOM_ = "DOM is null!";
 
     // TODO: Replace QFile::copy with Coco version, maybe
     inline const Coco::Path& dll_()
@@ -154,10 +157,16 @@ inline QDomDocument makeDomDocument(const Coco::Path& workingDir)
 }
 
 // TODO: Return bool?
-inline void writeModelFile(const Coco::Path& workingDir, const QDomDocument& dom)
+inline void
+writeModelFile(const Coco::Path& workingDir, const QDomDocument& dom)
 {
     if (!workingDir.exists()) {
         CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+        return;
+    }
+
+    if (dom.isNull()) {
+        CRITICAL(Internal::NULL_DOM_);
         return;
     }
 
@@ -169,10 +178,15 @@ inline void writeModelFile(const Coco::Path& workingDir, const QDomDocument& dom
 }
 
 inline NewFileResult
-addTextFile(const Coco::Path& workingDir, QDomDocument& dom)
+addNewTextFile(const Coco::Path& workingDir, QDomDocument& dom)
 {
     if (!workingDir.exists()) {
         CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+        return {};
+    }
+
+    if (dom.isNull()) {
+        CRITICAL(Internal::NULL_DOM_);
         return {};
     }
 
@@ -187,21 +201,30 @@ addTextFile(const Coco::Path& workingDir, QDomDocument& dom)
     }
 
     auto element = dom.createElement(Internal::XML_FILE_TAG_);
-    element.setAttribute(Internal::XML_NAME_ATTR_, "Untitled");
-    element.setAttribute(Internal::XML_UUID_ATTR_, uuid);
-    element.setAttribute(Internal::XML_EXT_ATTR_, ext);
+    element.setAttribute(
+        Internal::XML_NAME_ATTR_,
+        Internal::XML_NAME_ATTR_FILE_DEF_);
+    element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
+    element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
 
     return { path, element };
 }
 
-// TODO: Section off some code from this and addTextFile
+// TODO: Section off some code from this and addNewTextFile
 inline NewFileResult importTextFile(
     const Coco::Path& fsPath,
     const Coco::Path& workingDir,
     QDomDocument& dom)
 {
+    if (!fsPath.exists() || fsPath.isFolder()) return {};
+
     if (!workingDir.exists()) {
         CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+        return {};
+    }
+
+    if (dom.isNull()) {
+        CRITICAL(Internal::NULL_DOM_);
         return {};
     }
 
@@ -217,10 +240,35 @@ inline NewFileResult importTextFile(
 
     auto element = dom.createElement(Internal::XML_FILE_TAG_);
     element.setAttribute(Internal::XML_NAME_ATTR_, fsPath.stemQString());
-    element.setAttribute(Internal::XML_UUID_ATTR_, uuid);
-    element.setAttribute(Internal::XML_EXT_ATTR_, ext);
+    element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
+    element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
 
     return { path, element };
+}
+
+inline QDomElement addNewDir(QDomDocument& dom)
+{
+    if (dom.isNull()) {
+        CRITICAL(Internal::NULL_DOM_);
+        return {};
+    }
+
+    auto element = dom.createElement(Internal::XML_DIR_TAG_);
+    element.setAttribute(
+        Internal::XML_NAME_ATTR_,
+        Internal::XML_NAME_ATTR_DIR_DEF_);
+    return element;
+}
+
+// TODO: Are all these element.isNull checks necessary? I sorta don't think so.
+
+// TODO: Notebook or TreeView will handle the LineEdit
+inline void rename(QDomElement& element, const QString& name)
+{
+    if (element.isNull() || !element.hasAttribute(Internal::XML_NAME_ATTR_)
+        || name.isEmpty())
+        return;
+    element.setAttribute(Internal::XML_NAME_ATTR_, name);
 }
 
 inline bool isDir(const QDomElement& element)
@@ -237,17 +285,17 @@ inline bool isFile(const QDomElement& element)
 
 inline QString name(const QDomElement& element)
 {
-    return element.attribute(Internal::XML_NAME_ATTR_, "<unnamed>");
+    return element.attribute(Internal::XML_NAME_ATTR_);
 }
 
 inline QString uuid(const QDomElement& element)
 {
-    return element.attribute(Internal::XML_UUID_ATTR_);
+    return element.attribute(Internal::XML_FILE_UUID_ATTR_);
 }
 
 inline QString ext(const QDomElement& element)
 {
-    return element.attribute(Internal::XML_EXT_ATTR_);
+    return element.attribute(Internal::XML_FILE_EXT_ATTR_);
 }
 
 inline Coco::Path relativePath(const QDomElement& element)

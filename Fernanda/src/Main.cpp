@@ -27,6 +27,7 @@
 /// -- (DONE) Should FileService have a separate command for off-disk files?
 /// - (DONE) Opening files via Menu in Notepad (Notebook menu won't open, just import)
 /// - (DONE) Notebook Import
+/// - Granular FnxModel DOM updates
 /// - Moving/reorganizing Notebook files in TreeView
 /// - Marking Notebook as modified
 ///

@@ -82,6 +82,8 @@ private:
         auto dock_widget = new QDockWidget(window);
         auto tree_view = new TreeView(dock_widget);
 
+        tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
+
         if (auto model =
                 bus->call<QAbstractItemModel*>(Commands::TREE_VIEW_MODEL)) {
             tree_view->setModel(model);
@@ -105,7 +107,20 @@ private:
             &TreeView::doubleClicked,
             this,
             [&, window](const QModelIndex& index) {
+                if (!window) return;
                 emit bus->treeViewDoubleClicked(window, index);
+            });
+
+        connect(
+            tree_view,
+            &TreeView::customContextMenuRequested,
+            this,
+            [&, window, tree_view](const QPoint& pos) {
+                if (!window || !tree_view) return;
+                emit bus->treeViewContextMenuRequested(
+                    window,
+                    tree_view->mapToGlobal(pos),
+                    tree_view->indexAt(pos));
             });
     }
 

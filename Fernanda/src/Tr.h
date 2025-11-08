@@ -148,6 +148,8 @@ namespace Tr {
 
         } // namespace Common
 
+        TR_(notebookTreeViewContextNewFolder, tr("New folder"));
+
     } // namespace Menus
 
     namespace FontSelector {
