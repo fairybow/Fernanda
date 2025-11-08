@@ -27,7 +27,8 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
 
     auto element = elementAt(index);
 
-    if (role == Qt::DisplayRole) return Fnx::name(element);
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
+        return Fnx::name(element);
 
     if (role == Qt::DecorationRole) {
         if (Fnx::isDir(element)) {

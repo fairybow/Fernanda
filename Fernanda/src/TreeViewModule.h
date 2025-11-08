@@ -20,6 +20,7 @@
 #include <QTreeView>
 #include <QVariant>
 #include <QVariantMap>
+#include <Qt>
 
 #include "Coco/Path.h"
 #include "Coco/Utility.h"
