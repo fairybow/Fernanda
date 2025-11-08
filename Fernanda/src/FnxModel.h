@@ -56,6 +56,41 @@ public:
 
     QDomDocument domDocument() const { return dom_; }
 
+    // QDomNode/QDomElement function like views onto the same underlying DOM
+    // document, so copies are relatively cheap (because it's like passing a
+    // handle) and modifying a copy modifies the underlying shared DOM data.
+    // This is why parentElement is passed by value but still modifies the
+    // actual document when appendChild is called.
+    void insertElement(const QDomElement& element, QDomElement parentElement)
+    {
+        if (element.isNull() || parentElement.isNull()) return;
+
+        // Get parent's index (invalid index if parent is root)
+        auto parent_index = indexFromElement_(parentElement);
+
+        // Count existing children to determine insertion row
+        auto row = 0;
+        auto child = parentElement.firstChildElement();
+        while (!child.isNull()) {
+            ++row;
+            child = child.nextSiblingElement();
+        }
+
+        beginInsertRows(parent_index, row, row);
+        parentElement.appendChild(element);
+        endInsertRows();
+    }
+
+    void updateElement(const QDomElement& element)
+    {
+        if (element.isNull()) return;
+        auto index = indexFromElement_(element);
+        if (!index.isValid()) return;
+        // QAbstractItemModel::dataChanged in automatically connected when you
+        // set a view's model
+        emit dataChanged(index, index);
+    }
+
     void setDomDocument(const QDomDocument& dom)
     {
         beginResetModel();
@@ -192,6 +227,25 @@ private:
         }
 
         return row;
+    }
+
+    QModelIndex indexFromElement_(const QDomElement& element) const
+    {
+        if (element.isNull() || element == dom_.documentElement()) return {};
+
+        auto parent = element.parentNode().toElement();
+
+        // Find this element's row among its siblings
+        auto row = 0;
+        auto sibling = parent.firstChildElement();
+        while (!sibling.isNull()) {
+            if (sibling == element) break;
+            ++row;
+            sibling = sibling.nextSiblingElement();
+        }
+
+        auto id = idFromElement_(element);
+        return createIndex(row, 0, id);
     }
 };
 
