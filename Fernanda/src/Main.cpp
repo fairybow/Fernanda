@@ -29,6 +29,7 @@
 /// import)
 /// - (DONE) Notebook Import
 /// - (DONE-ish) Granular FnxModel DOM updates
+/// - Renaming files in tree view needs to update the tab text!
 /// - Trigger rename for adding things (not import though)
 /// - Moving/reorganizing Notebook files in TreeView
 /// -- Collapsed items should expand on hover when moving
