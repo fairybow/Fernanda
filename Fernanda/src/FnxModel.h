@@ -13,7 +13,9 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QHash>
+#include <QMimeData>
 #include <QModelIndex>
+#include <QModelIndexList>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -58,12 +60,12 @@ public:
     void initialize(const QDomDocument& dom)
     {
         if (initialized_) return;
-        //beginResetModel();
+        // beginResetModel();
         dom_ = dom;
-        //elementToId_.clear();
-        //idToElement_.clear();
-        //nextId_ = 1; // Reserve 0 for root
-        //endResetModel();
+        // elementToId_.clear();
+        // idToElement_.clear();
+        // nextId_ = 1; // Reserve 0 for root
+        // endResetModel();
         initialized_ = true;
     }
 
@@ -125,16 +127,17 @@ public:
     // TODO: moveElement
     // TODO: moveElements (maybe)
 
-    //void updateElement(const QDomElement& element)
+    // void updateElement(const QDomElement& element)
     //{
-    //    if (element.isNull()) return;
-    //    auto index = indexFromElement_(element);
-    //    if (!index.isValid()) return;
-    //    // QAbstractItemModel::dataChanged in automatically connected when you
-    //    // set a view's model
-    //    emit dataChanged(index, index);
-    //    emit domChanged();
-    //}
+    //     if (element.isNull()) return;
+    //     auto index = indexFromElement_(element);
+    //     if (!index.isValid()) return;
+    //     // QAbstractItemModel::dataChanged in automatically connected when
+    //     you
+    //     // set a view's model
+    //     emit dataChanged(index, index);
+    //     emit domChanged();
+    // }
 
     bool
     moveElement(const QDomElement& element, QDomElement newParent, int newRow)
@@ -299,12 +302,70 @@ public:
     virtual QVariant
     data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
+    virtual Qt::DropActions supportedDropActions() const override
+    {
+        return Qt::MoveAction;
+    }
+
+    virtual QStringList mimeTypes() const override { return { MIME_TYPE_ }; }
+
+    virtual QMimeData* mimeData(const QModelIndexList& indexes) const override
+    {
+        if (indexes.isEmpty()) return nullptr;
+
+        // Only support dragging single items for now
+        QModelIndex index = indexes.first();
+        if (!index.isValid()) return nullptr;
+
+        auto element = elementAt(index);
+        if (element.isNull()) return nullptr;
+
+        // Store the element's unique key so we can find it on drop
+        auto key = elementKey_(element);
+
+        auto mime_data = new QMimeData();
+        mime_data->setData(MIME_TYPE_, key.toUtf8());
+
+        return mime_data;
+    }
+
+    virtual bool dropMimeData(
+        const QMimeData* data,
+        Qt::DropAction action,
+        int row,
+        int column,
+        const QModelIndex& parent) override
+    {
+        if (!data || action != Qt::MoveAction) return false;
+        if (!data->hasFormat(MIME_TYPE_)) return false;
+
+        // Decode the dragged element
+        auto key = QString::fromUtf8(data->data(MIME_TYPE_));
+
+        if (!elementToId_.contains(key)) return false;
+
+        auto element_id = elementToId_[key];
+        QDomElement element = idToElement_[element_id];
+
+        if (element.isNull()) return false;
+
+        // Determine drop target
+        auto drop_parent = elementAt(parent);
+        if (drop_parent.isNull()) {
+            drop_parent = dom_.documentElement();
+        }
+
+        // Perform the move
+        return moveElement(element, drop_parent, row);
+    }
+
 signals:
     void domChanged();
     void elementRenamed(const QDomElement& element);
 
 private:
     bool initialized_ = false;
+    static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
     mutable QHash<QString, quintptr> elementToId_{}; // Element's UUID -> ID
     mutable QHash<quintptr, QDomElement> idToElement_{}; // ID -> Element
