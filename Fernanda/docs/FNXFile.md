@@ -22,11 +22,11 @@ TODO: Type attribute needed?
 ```
 <?xml version="1.0"?>
 <notebook>
-  <folder name="Chapter 1">
-    <file name="1" uuid="xxx1" extension=".txt"/>
+  <folder name="Chapter 1" uuid="xxx1">
+    <file name="1" uuid="xxx2" extension=".txt"/>
   </folder>
-  <file name="Notes" uuid="xxx2" extension=".txt">
-    <file name="Other Notes" uuid="xxx3" extension=".txt"/>
+  <file name="Notes" uuid="xxx3" extension=".txt">
+    <file name="Other Notes" uuid="xxx4" extension=".txt"/>
   </file>
 </notebook>
 ```

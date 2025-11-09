@@ -57,12 +57,14 @@ public:
 
     void initialize(const QDomDocument& dom)
     {
-        beginResetModel();
+        if (initialized_) return;
+        //beginResetModel();
         dom_ = dom;
-        elementToId_.clear();
-        idToElement_.clear();
-        nextId_ = 1; // Reserve 0 for root
-        endResetModel();
+        //elementToId_.clear();
+        //idToElement_.clear();
+        //nextId_ = 1; // Reserve 0 for root
+        //endResetModel();
+        initialized_ = true;
     }
 
     QDomDocument domDocument() const { return dom_; }
@@ -236,26 +238,18 @@ signals:
     void domChanged();
 
 private:
+    bool initialized_ = false;
     QDomDocument dom_{};
-    mutable QHash<QString, quintptr> elementToId_{}; // Element -> unique ID
+    mutable QHash<QString, quintptr> elementToId_{}; // Element's UUID -> ID
     mutable QHash<quintptr, QDomElement> idToElement_{}; // ID -> Element
     mutable quintptr nextId_ = 1;
 
-    // Generate unique key for an element
     QString elementKey_(const QDomElement& element) const
     {
         if (element.isNull()) return {};
-
-        // Build path like "root/0/2/1" for uniqueness
-        QStringList path{};
-        QDomElement current = element;
-
-        while (!current.isNull() && current != dom_.documentElement()) {
-            path.prepend(QString::number(rowOfElement_(current)));
-            current = current.parentNode().toElement();
-        }
-
-        return path.join('/');
+        auto uuid = Fnx::uuid(element);
+        if (uuid.isEmpty()) return "root";
+        return uuid;
     }
 
     quintptr idFromElement_(const QDomElement& element) const

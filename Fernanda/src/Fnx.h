@@ -257,6 +257,7 @@ inline QDomElement addNewDir(QDomDocument& dom)
     element.setAttribute(
         Internal::XML_NAME_ATTR_,
         Internal::XML_NAME_ATTR_DIR_DEF_);
+    element.setAttribute(Internal::XML_FILE_UUID_ATTR_, Internal::makeUuid_());
     return element;
 }
 
