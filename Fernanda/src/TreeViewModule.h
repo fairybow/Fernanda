@@ -102,6 +102,11 @@ private:
         tree_view->setEditTriggers(
             QAbstractItemView::SelectedClicked
             | QAbstractItemView::EditKeyPressed); // F2 (standard)
+        tree_view->setDragEnabled(true);
+        tree_view->setAcceptDrops(true);
+        tree_view->setDropIndicatorShown(true);
+        tree_view->setDragDropMode(QAbstractItemView::InternalMove);
+        tree_view->setDefaultDropAction(Qt::MoveAction);
 
         if (auto model =
                 bus->call<QAbstractItemModel*>(Commands::WS_TREE_VIEW_MODEL)) {

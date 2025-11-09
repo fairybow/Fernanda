@@ -136,6 +136,61 @@ public:
     //    emit domChanged();
     //}
 
+    bool
+    moveElement(const QDomElement& element, QDomElement newParent, int newRow)
+    {
+        if (element.isNull() || newParent.isNull()) return false;
+
+        auto current_parent = element.parentNode().toElement();
+        if (current_parent.isNull()) return false;
+
+        if (isDescendantOf_(element, newParent)) return false;
+
+        auto source_parent_index = indexFromElement_(current_parent);
+        auto source_row = rowOfElement_(element);
+        auto dest_parent_index = indexFromElement_(newParent);
+
+        auto dest_row = newRow;
+        if (dest_row < 0) {
+            dest_row = childElementCount_(newParent);
+        }
+
+        // No adjustment - Qt handles this correctly
+
+        // After calculating positions, before beginMoveRows:
+        if (current_parent == newParent && source_row == dest_row) {
+            return true; // No move needed
+        }
+
+        if (!beginMoveRows(
+                source_parent_index,
+                source_row,
+                source_row,
+                dest_parent_index,
+                dest_row)) {
+            return false;
+        }
+
+        // Perform DOM manipulation
+        current_parent.removeChild(element);
+
+        // After removal, dest_row might be out of bounds - that's fine
+        if (dest_row >= childElementCount_(newParent)) {
+            newParent.appendChild(element);
+        } else {
+            auto sibling = nthChildElement_(newParent, dest_row);
+            if (!sibling.isNull()) {
+                newParent.insertBefore(element, sibling);
+            } else {
+                newParent.appendChild(element);
+            }
+        }
+
+        endMoveRows();
+        emit domChanged();
+        return true;
+    }
+
     QDomElement elementAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return dom_.documentElement();
@@ -143,12 +198,18 @@ public:
         return idToElement_.value(id);
     }
 
-    // TODO: Don't trigger line edit on double click. Rather, use the staggered
-    // click that is more common.
     virtual Qt::ItemFlags flags(const QModelIndex& index) const override
     {
-        if (!index.isValid()) return Qt::NoItemFlags;
-        return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+        auto default_flags = QAbstractItemModel::flags(index);
+
+        if (!index.isValid()) {
+            // Root can accept drops but isn't draggable/editable
+            return default_flags | Qt::ItemIsDropEnabled;
+        }
+
+        // All items are draggable, droppable, and editable
+        return default_flags | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled
+               | Qt::ItemIsEditable;
     }
 
     virtual bool setData(
@@ -328,6 +389,21 @@ private:
 
         auto id = idFromElement_(element);
         return createIndex(row, 0, id);
+    }
+
+    bool isDescendantOf_(
+        const QDomElement& ancestor,
+        const QDomElement& element) const
+    {
+        if (ancestor.isNull() || element.isNull()) return false;
+
+        auto current = element.parentNode().toElement();
+        while (!current.isNull()) {
+            if (current == ancestor) return true;
+            current = current.parentNode().toElement();
+        }
+
+        return false;
     }
 };
 
