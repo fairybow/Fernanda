@@ -716,7 +716,7 @@ protected:
     }
 
 private:
-    static constexpr auto MIME_TYPE_ = "application/x-tab-widget-tab";
+    static constexpr auto MIME_TYPE_ = "application/x-fernanda-tab-widget-tab";
     DragValidator dragValidator_ = nullptr;
     bool tabsDraggable_ = false;
     QPoint dragStartPosition_{};

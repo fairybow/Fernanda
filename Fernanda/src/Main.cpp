@@ -29,7 +29,10 @@
 /// import)
 /// - (DONE) Notebook Import
 /// - (DONE-ish) Granular FnxModel DOM updates
+/// - Trigger rename for adding things (not import though)
 /// - Moving/reorganizing Notebook files in TreeView
+/// -- Collapsed items should expand on hover when moving
+/// - Expand on insert, too, if applicable
 /// - Marking Notebook as modified
 /// - Clean up lambda captures! Value capture may be volatile so specify
 /// everything if possible
