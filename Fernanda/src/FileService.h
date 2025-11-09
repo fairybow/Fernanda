@@ -85,6 +85,18 @@ protected:
             if (auto model = newOffDiskTextFileModel_())
                 emit bus->fileModelReadied(cmd.context, model);
         });
+
+        bus->addCommandHandler(
+            Commands::SET_PATH_TITLE_OVERRIDE,
+            [&](const Command& cmd) {
+                auto path = cmd.param<Coco::Path>("path", {});
+                auto title = cmd.param<QString>("title", {});
+                if (path.isEmpty() || title.isEmpty()) return;
+
+                if (auto model = pathToFileModel_.value(path))
+                    if (auto meta = model->meta())
+                        meta->setTitleOverride(title);
+            });
     }
 
     virtual void connectBusEvents() override

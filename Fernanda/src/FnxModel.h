@@ -125,16 +125,16 @@ public:
     // TODO: moveElement
     // TODO: moveElements (maybe)
 
-    void updateElement(const QDomElement& element)
-    {
-        if (element.isNull()) return;
-        auto index = indexFromElement_(element);
-        if (!index.isValid()) return;
-        // QAbstractItemModel::dataChanged in automatically connected when you
-        // set a view's model
-        emit dataChanged(index, index);
-        emit domChanged();
-    }
+    //void updateElement(const QDomElement& element)
+    //{
+    //    if (element.isNull()) return;
+    //    auto index = indexFromElement_(element);
+    //    if (!index.isValid()) return;
+    //    // QAbstractItemModel::dataChanged in automatically connected when you
+    //    // set a view's model
+    //    emit dataChanged(index, index);
+    //    emit domChanged();
+    //}
 
     QDomElement elementAt(const QModelIndex& index) const
     {
@@ -170,6 +170,7 @@ public:
 
             Fnx::rename(element, new_name);
             emit dataChanged(index, index, { Qt::DisplayRole, Qt::EditRole });
+            emit elementRenamed(element);
             emit domChanged();
 
             return true;
@@ -239,6 +240,7 @@ public:
 
 signals:
     void domChanged();
+    void elementRenamed(const QDomElement& element);
 
 private:
     bool initialized_ = false;

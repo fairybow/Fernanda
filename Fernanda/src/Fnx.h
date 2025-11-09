@@ -42,7 +42,7 @@ namespace Internal {
     constexpr auto MODEL_FILE_NAME_ = "Model.xml";
     constexpr auto XML_ROOT_TAG_ = "notebook";
     constexpr auto CONTENT_DIR_NAME_ = "content";
-    constexpr auto XML_DIR_TAG_ = "folder";
+    constexpr auto XML_VFOLDER_TAG_ = "vfolder";
     constexpr auto XML_FILE_TAG_ = "file";
     constexpr auto XML_NAME_ATTR_ = "name";
     constexpr auto XML_NAME_ATTR_FILE_DEF_ = "Untitled";
@@ -253,7 +253,7 @@ inline QDomElement addNewDir(QDomDocument& dom)
         return {};
     }
 
-    auto element = dom.createElement(Internal::XML_DIR_TAG_);
+    auto element = dom.createElement(Internal::XML_VFOLDER_TAG_);
     element.setAttribute(
         Internal::XML_NAME_ATTR_,
         Internal::XML_NAME_ATTR_DIR_DEF_);
@@ -272,10 +272,10 @@ inline void rename(QDomElement& element, const QString& name)
     element.setAttribute(Internal::XML_NAME_ATTR_, name);
 }
 
-inline bool isDir(const QDomElement& element)
+inline bool isVirtualFolder(const QDomElement& element)
 {
     if (element.isNull()) return false;
-    return element.tagName() == Internal::XML_DIR_TAG_;
+    return element.tagName() == Internal::XML_VFOLDER_TAG_;
 }
 
 inline bool isFile(const QDomElement& element)

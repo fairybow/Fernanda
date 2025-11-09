@@ -31,7 +31,7 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
         return Fnx::name(element);
 
     if (role == Qt::DecorationRole) {
-        if (Fnx::isDir(element)) {
+        if (Fnx::isVirtualFolder(element)) {
             return Application::style()->standardIcon(QStyle::SP_DirIcon);
         } else if (Fnx::isFile(element)) {
             return Application::style()->standardIcon(QStyle::SP_FileIcon);

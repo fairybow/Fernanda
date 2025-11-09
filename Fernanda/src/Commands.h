@@ -33,7 +33,6 @@ constexpr auto WS_TREE_VIEW_ROOT_INDEX =
 
 // Notepad scope
 
-// TODO: For this, will wrap FS:OPEN_FILE with the selection dialog for the menu
 constexpr auto NOTEPAD_OPEN_FILE = "notepad:open_file"; /// *
 constexpr auto NOTEPAD_SAVE = "notepad:save_file";
 constexpr auto NOTEPAD_SAVE_AS = "notepad:save_file_as";
@@ -79,6 +78,8 @@ constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 
 constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// *, non-menu
 constexpr auto NEW_TXT_FILE = "file:new_txt"; /// *, non-menu
+constexpr auto SET_PATH_TITLE_OVERRIDE =
+    "file:set_path_title_override"; /// *, non-menu
 
 // TreeViewModule scope
 

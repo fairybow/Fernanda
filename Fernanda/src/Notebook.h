@@ -10,7 +10,10 @@
 #pragma once
 
 #include <QAction>
+#include <QDomDocument>
+#include <QDomElement>
 #include <QLabel>
+#include <QList>
 #include <QMenu>
 #include <QModelIndex>
 #include <QObject>
@@ -102,6 +105,12 @@ private:
             this,
             &Notebook::onFnxModelDomChanged_);
 
+        connect(
+            fnxModel_,
+            &FnxModel::elementRenamed,
+            this,
+            &Notebook::onFnxModelElementRenamed_);
+
         //...
 
         // TODO: Fnx control its own settings name constant?
@@ -129,8 +138,7 @@ private:
             return QModelIndex{};
         });
 
-        // TODO: Trigger rename immediately, when that functionality is
-        // available
+        // TODO: Trigger rename immediately (maybe)
         bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
             if (!cmd.context) return;
             auto dom = fnxModel_->domDocument();
@@ -249,6 +257,17 @@ private slots:
         Fnx::writeModelFile(workingDir_.path(), fnxModel_->domDocument());
     }
 
+    void onFnxModelElementRenamed_(const QDomElement& element)
+    {
+        if (!Fnx::isFile(element)) return;
+
+        auto file_path = workingDir_.path() / Fnx::relativePath(element);
+        auto new_name = Fnx::name(element);
+        bus->execute(
+            Commands::SET_PATH_TITLE_OVERRIDE,
+            { { "path", qVar(file_path) }, { "title", new_name } });
+    }
+
     void onWindowCreated_(Window* window)
     {
         if (!window) return;
@@ -257,7 +276,7 @@ private slots:
 
     void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
     {
-        if (!window || !index.isValid()) return;
+        if (!window || !index.isValid() || !workingDir_.isValid()) return;
 
         // Notepad uses Path::isDir instead. The asymmetry bugs me, but the
         // folders here are virtual. We would still get success, since working
@@ -265,7 +284,7 @@ private slots:
         // UUIDs), but it would be too abstruse
 
         auto element = fnxModel_->elementAt(index);
-        if (Fnx::isDir(element)) return;
+        if (Fnx::isVirtualFolder(element)) return;
 
         auto path = workingDir_.path() / Fnx::relativePath(element);
 
@@ -289,7 +308,7 @@ private slots:
         auto new_folder =
             menu->addAction(Tr::Menus::notebookTreeViewContextNewFolder());
 
-        // TODO: Trigger rename immediately
+        // TODO: Trigger rename immediately (maybe)
         connect(new_folder, &QAction::triggered, this, [&, index] {
             auto dom = fnxModel_->domDocument();
             if (dom.isNull() || !workingDir_.isValid()) return;

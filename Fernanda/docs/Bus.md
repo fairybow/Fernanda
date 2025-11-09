@@ -87,6 +87,7 @@ Window service command handlers should be responsible for showing the window. Wh
 
 - `open_path`: Opens a file model for the file at the given path and readies it for a view. If the file model already exists, it is re-readied for an additional view. TODO: Add asterisk if in menu!
 - `new_txt`: Opens an off-disk plaintext file and readies it for a view.
+- `set_path_title_override`: Sets the title override for the file model opened for path.
 
 ### `tree_views`
 
