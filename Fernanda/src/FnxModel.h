@@ -122,6 +122,9 @@ public:
         emit domChanged();
     }
 
+    // TODO: moveElement
+    // TODO: moveElements (maybe)
+
     void updateElement(const QDomElement& element)
     {
         if (element.isNull()) return;
