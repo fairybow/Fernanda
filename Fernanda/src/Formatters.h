@@ -13,6 +13,8 @@
 #include <format>
 #include <string>
 
+#include <QDomElement>
+#include <QModelIndex>
 #include <QObject>
 #include <QString>
 #include <QVariant>
@@ -37,6 +39,8 @@ STRING_FORMATTER_(QString, x.toStdString());
 STRING_FORMATTER_(Coco::Path, x.toString());
 STRING_FORMATTER_(QVariantMap, Fernanda::toString(x));
 STRING_FORMATTER_(QVariant, Fernanda::toString(x));
+STRING_FORMATTER_(QModelIndex, Fernanda::toString(x));
+STRING_FORMATTER_(QDomElement, Fernanda::toString(x));
 
 template <Coco::Concepts::QObjectPointer T>
 struct std::formatter<T> : std::formatter<std::string>
@@ -55,8 +59,7 @@ struct std::formatter<Coco::Bool<TagT>> : std::formatter<std::string>
 {
     auto format(const Coco::Bool<TagT>& b, std::format_context& ctx) const
     {
-        auto name =
-            std::string(TagT::name()) + "::" + (b ? "Yes" : "No");
+        auto name = std::string(TagT::name()) + "::" + (b ? "Yes" : "No");
         return std::formatter<std::string>::format(name, ctx);
     }
 };
