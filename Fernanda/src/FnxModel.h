@@ -159,7 +159,124 @@ public:
     //     emit domChanged();
     // }
 
+    // TODO: Debug version, to catch the QPersistentModelIndex crash
     bool
+    moveElement(const QDomElement& element, QDomElement newParent, int newRow)
+    {
+        DEBUG("=== MOVE ELEMENT START ===");
+        DEBUG("  element: {}", element);
+        DEBUG("  newParent: {}", newParent);
+        DEBUG("  newRow: {}", newRow);
+
+        if (element.isNull() || newParent.isNull()) {
+            WARN(
+                "Early return: element.isNull()={}, newParent.isNull()={}",
+                element.isNull(),
+                newParent.isNull());
+            return false;
+        }
+
+        auto current_parent = element.parentNode().toElement();
+        DEBUG("  current_parent: {}", current_parent);
+
+        if (current_parent.isNull()) {
+            WARN("Early return: current_parent.isNull()=true");
+            return false;
+        }
+
+        if (isDescendantOf_(element, newParent)) {
+            WARN("Early return: newParent is descendant of element");
+            return false;
+        }
+
+        auto source_parent_index = indexFromElement_(current_parent);
+        auto source_row = rowOfElement_(element);
+        auto dest_parent_index = indexFromElement_(newParent);
+
+        DEBUG(
+            "  source_parent_index: {}, valid={}",
+            source_parent_index,
+            source_parent_index.isValid());
+        DEBUG("  source_row: {}", source_row);
+        DEBUG(
+            "  dest_parent_index: {}, valid={}",
+            dest_parent_index,
+            dest_parent_index.isValid());
+
+        auto dest_row = newRow;
+        if (dest_row < 0) {
+            dest_row = childElementCount_(newParent);
+            DEBUG("  dest_row adjusted from {} to {}", newRow, dest_row);
+        } else {
+            DEBUG("  dest_row: {}", dest_row);
+        }
+
+        if (current_parent == newParent && source_row == dest_row) {
+            DEBUG("No-op move: same parent and same row");
+            return true;
+        }
+
+        DEBUG(
+            "Calling beginMoveRows(srcParent={}, srcRow={}, srcRow={}, "
+            "destParent={}, destRow={})",
+            source_parent_index,
+            source_row,
+            source_row,
+            dest_parent_index,
+            dest_row);
+
+        if (!beginMoveRows(
+                source_parent_index,
+                source_row,
+                source_row,
+                dest_parent_index,
+                dest_row)) {
+            WARN("beginMoveRows FAILED - returning false");
+            return false;
+        }
+
+        DEBUG("beginMoveRows succeeded");
+
+        // Perform DOM manipulation
+        DEBUG("Before removeChild - element: {}", element);
+        current_parent.removeChild(element);
+        DEBUG("After removeChild - element: {}", element);
+
+        auto child_count = childElementCount_(newParent);
+        DEBUG("newParent child count before insertion: {}", child_count);
+
+        if (dest_row >= child_count) {
+            DEBUG(
+                "Appending element (dest_row {} >= child_count {})",
+                dest_row,
+                child_count);
+            newParent.appendChild(element);
+        } else {
+            auto sibling = nthChildElement_(newParent, dest_row);
+            DEBUG(
+                "Inserting before sibling at position {}: {}",
+                dest_row,
+                sibling);
+            if (!sibling.isNull()) {
+                newParent.insertBefore(element, sibling);
+            } else {
+                WARN("Sibling was null, appending instead");
+                newParent.appendChild(element);
+            }
+        }
+
+        DEBUG("After insertion - element: {}", element);
+
+        endMoveRows();
+        DEBUG("endMoveRows called");
+
+        emit domChanged();
+        DEBUG("=== MOVE ELEMENT END (success) ===");
+
+        return true;
+    }
+
+    /*bool
     moveElement(const QDomElement& element, QDomElement newParent, int newRow)
     {
         if (element.isNull() || newParent.isNull()) return false;
@@ -213,7 +330,7 @@ public:
         emit domChanged();
 
         return true;
-    }
+    }*/
 
     // TODO: moveElements (maybe)
 
