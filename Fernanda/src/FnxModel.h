@@ -95,6 +95,7 @@ public:
         beginInsertRows(parent_index, row, row);
         parentElement.appendChild(element);
         endInsertRows();
+
         emit domChanged();
     }
 
@@ -124,11 +125,8 @@ public:
         emit domChanged();
     }
 
-    // TODO: moveElement
-    // TODO: moveElements (maybe)
-
     // void updateElement(const QDomElement& element)
-    //{
+    // {
     //     if (element.isNull()) return;
     //     auto index = indexFromElement_(element);
     //     if (!index.isValid()) return;
@@ -177,7 +175,7 @@ public:
         // Perform DOM manipulation
         current_parent.removeChild(element);
 
-        // After removal, dest_row might be out of bounds - that's fine
+        // After removal, dest_row might be out of bounds, which is fine
         if (dest_row >= childElementCount_(newParent)) {
             newParent.appendChild(element);
         } else {
@@ -191,12 +189,16 @@ public:
 
         endMoveRows();
         emit domChanged();
+
         return true;
     }
+
+    // TODO: moveElements (maybe)
 
     QDomElement elementAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return dom_.documentElement();
+
         auto id = reinterpret_cast<quintptr>(index.internalPointer());
         return idToElement_.value(id);
     }
@@ -265,7 +267,6 @@ public:
 
         auto parent_element = elementAt(parent);
         auto child_element = nthChildElement_(parent_element, row);
-
         if (child_element.isNull()) return {};
 
         return createIndex(row, column, idFromElement_(child_element));
@@ -302,6 +303,12 @@ public:
     virtual QVariant
     data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
+    // TODO: Not used yet
+    virtual Qt::DropActions supportedDragActions() const override
+    {
+        return Qt::MoveAction;
+    }
+
     virtual Qt::DropActions supportedDropActions() const override
     {
         return Qt::MoveAction;
@@ -313,7 +320,7 @@ public:
     {
         if (indexes.isEmpty()) return nullptr;
 
-        // Only support dragging single items for now
+        // TODO: Only support dragging single items for now
         QModelIndex index = indexes.first();
         if (!index.isValid()) return nullptr;
 
@@ -322,8 +329,7 @@ public:
 
         // Store the element's unique key so we can find it on drop
         auto key = elementKey_(element);
-
-        auto mime_data = new QMimeData();
+        auto mime_data = new QMimeData;
         mime_data->setData(MIME_TYPE_, key.toUtf8());
 
         return mime_data;
@@ -355,7 +361,6 @@ public:
             drop_parent = dom_.documentElement();
         }
 
-        // Perform the move
         return moveElement(element, drop_parent, row);
     }
 
@@ -365,8 +370,8 @@ signals:
 
 private:
     bool initialized_ = false;
-    static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
+    static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     mutable QHash<QString, quintptr> elementToId_{}; // Element's UUID -> ID
     mutable QHash<quintptr, QDomElement> idToElement_{}; // ID -> Element
     mutable quintptr nextId_ = 1;
@@ -374,8 +379,10 @@ private:
     QString elementKey_(const QDomElement& element) const
     {
         if (element.isNull()) return {};
+
         auto uuid = Fnx::uuid(element);
         if (uuid.isEmpty()) return "root";
+
         return uuid;
     }
 
