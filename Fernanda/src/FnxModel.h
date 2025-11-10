@@ -100,6 +100,7 @@ public:
     }
 
     // TODO: Expand parent if applicable after appending
+    // TODO: Use commented-out version below
     void insertElements(
         const QList<QDomElement>& elements,
         QDomElement parentElement)
@@ -124,6 +125,27 @@ public:
 
         emit domChanged();
     }
+
+    /*void insertElements(
+    const QList<QDomElement>& elements,
+    QDomElement parentElement)
+    {
+        if (elements.isEmpty() || parentElement.isNull()) return;
+
+        auto parent_index = indexFromElement_(parentElement);
+        auto row = childElementCount_(parentElement);  // Count once
+
+        for (const auto& element : elements) {
+            if (element.isNull()) continue;
+
+            beginInsertRows(parent_index, row, row);
+            parentElement.appendChild(element);
+            endInsertRows();
+            ++row;  // Increment for next insertion
+        }
+
+        emit domChanged();
+    }*/
 
     // void updateElement(const QDomElement& element)
     // {
