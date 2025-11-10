@@ -160,6 +160,7 @@ public:
     // }
 
     // TODO: Debug version, to catch the QPersistentModelIndex crash
+    // TODO: Check logic here vs below, side by side
     bool
     moveElement(const QDomElement& element, QDomElement newParent, int newRow)
     {
