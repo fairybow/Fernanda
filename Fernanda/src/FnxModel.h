@@ -408,7 +408,7 @@ private:
         auto child = element.firstChildElement();
 
         while (!child.isNull()) {
-            count++;
+            ++count;
             child = child.nextSiblingElement();
         }
 
@@ -433,7 +433,7 @@ private:
         auto sibling = element.previousSiblingElement();
 
         while (!sibling.isNull()) {
-            row++;
+            ++row;
             sibling = sibling.previousSiblingElement();
         }
 
