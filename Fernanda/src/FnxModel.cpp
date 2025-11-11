@@ -24,8 +24,8 @@ namespace Fernanda {
 QVariant FnxModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) return {};
-
     auto element = elementAt(index);
+    if (element.isNull()) return {};
 
     if (role == Qt::DisplayRole || role == Qt::EditRole)
         return Fnx::name(element);

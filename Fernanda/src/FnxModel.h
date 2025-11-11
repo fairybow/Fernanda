@@ -13,7 +13,9 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QHash>
+#include <QMimeData>
 #include <QModelIndex>
+#include <QModelIndexList>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -31,14 +33,7 @@ namespace Fernanda {
 // See:
 // https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
 //
-// Read-only Qt Model/View adapter for .fnx virtual file structure. Presents a
-// QDomDocument as a tree structure for QTreeView. Translates DOM hierarchy into
-// Qt indices and provides display data. Does NOT modify the DOM or perform I/O
-// - those are Notebook and Fnx responsibilities. (TODO: Is this reasonable?)
-//
-// Workflow: Notebook loads DOM via Fnx -> gives to FnxModel -> FnxModel
-// presents to UI -> Notebook modifies DOM via Fnx -> refreshes FnxModel. (TODO:
-// Check this later)
+// Qt Model/View adapter for .fnx virtual directory structure.
 //
 // TODO: Trash (should be immutable and separate from active)
 // TODO: Double clicking on files should maybe not expand (if they have
@@ -55,100 +50,145 @@ public:
 
     virtual ~FnxModel() override { TRACER; }
 
+    // TODO: For now (perhaps forever), we only set the DOM once
     void initialize(const QDomDocument& dom)
     {
         if (initialized_) return;
-        //beginResetModel();
         dom_ = dom;
-        //elementToId_.clear();
-        //idToElement_.clear();
-        //nextId_ = 1; // Reserve 0 for root
-        //endResetModel();
         initialized_ = true;
     }
 
     QDomDocument domDocument() const { return dom_; }
 
-    // QDomNode/QDomElement function like views onto the same underlying DOM
-    // document, so copies are relatively cheap (because it's like passing a
-    // handle) and modifying a copy modifies the underlying shared DOM data.
-    // This is why parentElement is passed by value but still modifies the
-    // actual document when appendChild is called.
-    // TODO: Expand parent if applicable after appending
+    // QDomElement acts as a handle to shared DOM data.
+    // Passing by value is cheap (like copying a pointer).
+    // Modifications through any copy affect the shared DOM.
+    // Parameter is non-const to document that DOM will be modified.
+    // TODO: Expand parent if applicable after appending (probably a view op)
     void insertElement(const QDomElement& element, QDomElement parentElement)
     {
-        if (element.isNull() || parentElement.isNull()) return;
+        if (!isValid_(element) || !isValid_(parentElement)) return;
 
-        // Get parent's index (invalid index if parent is root)
         auto parent_index = indexFromElement_(parentElement);
-
-        // Count existing children to determine insertion row
-        auto row = 0;
-        auto child = parentElement.firstChildElement();
-        while (!child.isNull()) {
-            ++row;
-            child = child.nextSiblingElement();
-        }
+        auto row = childElementCount_(parentElement);
 
         beginInsertRows(parent_index, row, row);
         parentElement.appendChild(element);
         endInsertRows();
+
         emit domChanged();
     }
 
-    // TODO: Expand parent if applicable after appending
+    // TODO: Expand parent if applicable after appending (probably a view op)
     void insertElements(
         const QList<QDomElement>& elements,
         QDomElement parentElement)
     {
-        if (elements.isEmpty() || parentElement.isNull()) return;
+        if (elements.isEmpty() || !isValid_(parentElement)) return;
+
+        auto parent_index = indexFromElement_(parentElement);
+        auto row = childElementCount_(parentElement);
 
         for (const auto& element : elements) {
-            if (element.isNull()) continue;
-
-            auto parent_index = indexFromElement_(parentElement);
-            auto row = 0;
-            auto child = parentElement.firstChildElement();
-            while (!child.isNull()) {
-                ++row;
-                child = child.nextSiblingElement();
-            }
+            if (!isValid_(element)) continue;
 
             beginInsertRows(parent_index, row, row);
             parentElement.appendChild(element);
             endInsertRows();
+            ++row;
         }
 
         emit domChanged();
     }
 
-    // TODO: moveElement
-    // TODO: moveElements (maybe)
+    // TODO: Add logs to document movement in case we encounter
+    // QPersistentModelIndex crash again
+    bool
+    moveElement(const QDomElement& element, QDomElement newParent, int newRow)
+    {
+        if (!isValid_(element) || !isValid_(newParent)) {
+            WARN("Move attempted on invalid element(s)");
+            return false;
+        }
 
-    //void updateElement(const QDomElement& element)
-    //{
-    //    if (element.isNull()) return;
-    //    auto index = indexFromElement_(element);
-    //    if (!index.isValid()) return;
-    //    // QAbstractItemModel::dataChanged in automatically connected when you
-    //    // set a view's model
-    //    emit dataChanged(index, index);
-    //    emit domChanged();
-    //}
+        auto current_parent = element.parentNode().toElement();
+        if (current_parent.isNull()) return false;
+
+        if (isDescendantOf_(element, newParent)) return false;
+
+        auto source_parent_index = indexFromElement_(current_parent);
+        auto source_row = rowOfElement_(element);
+        auto dest_parent_index = indexFromElement_(newParent);
+
+        auto dest_row = newRow;
+        if (dest_row < 0) {
+            dest_row = childElementCount_(newParent);
+        }
+
+        // Check move isn't pointless
+        if (current_parent == newParent && source_row == dest_row) {
+            return true;
+        }
+
+        if (!beginMoveRows(
+                source_parent_index,
+                source_row,
+                source_row,
+                dest_parent_index,
+                dest_row)) {
+            return false;
+        }
+
+        // Perform DOM manipulation
+        current_parent.removeChild(element);
+
+        // After removal, dest_row might be out of bounds, which is fine
+        if (dest_row >= childElementCount_(newParent)) {
+            newParent.appendChild(element);
+        } else {
+            auto sibling = nthChildElement_(newParent, dest_row);
+            if (!sibling.isNull()) {
+                newParent.insertBefore(element, sibling);
+            } else {
+                newParent.appendChild(element);
+            }
+        }
+
+        endMoveRows();
+        emit domChanged();
+
+        return true;
+    }
+
+    // TODO: moveElements (maybe)
 
     QDomElement elementAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return dom_.documentElement();
+
         auto id = reinterpret_cast<quintptr>(index.internalPointer());
-        return idToElement_.value(id);
+        auto element = idToElement_.value(id);
+
+        if (!isValid_(element)) {
+            WARN("Stale/invalid element for ID {}", id);
+            return {};
+        }
+
+        return element;
     }
 
-    // TODO: Don't trigger line edit on double click. Rather, use the staggered
-    // click that is more common.
     virtual Qt::ItemFlags flags(const QModelIndex& index) const override
     {
-        if (!index.isValid()) return Qt::NoItemFlags;
-        return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+        auto default_flags = QAbstractItemModel::flags(index);
+
+        if (!index.isValid()) {
+            // Root can accept drops but isn't draggable/editable
+            return default_flags | Qt::ItemIsDropEnabled;
+        }
+
+        // All items are draggable, droppable, and editable
+        return default_flags | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled
+               | Qt::ItemIsEditable;
     }
 
     virtual bool setData(
@@ -200,8 +240,8 @@ public:
         if (!hasIndex(row, column, parent)) return {};
 
         auto parent_element = elementAt(parent);
+        if (parent_element.isNull()) return {};
         auto child_element = nthChildElement_(parent_element, row);
-
         if (child_element.isNull()) return {};
 
         return createIndex(row, column, idFromElement_(child_element));
@@ -212,6 +252,7 @@ public:
         if (!child.isValid()) return {};
 
         auto child_element = elementAt(child);
+        if (child_element.isNull()) return {};
         auto parent_element = child_element.parentNode().toElement();
 
         // Root or invalid
@@ -225,8 +266,9 @@ public:
     virtual int rowCount(const QModelIndex& parent = {}) const override
     {
         if (parent.column() > 0) return 0;
-
         auto element = elementAt(parent);
+        if (element.isNull()) return 0;
+
         return childElementCount_(element);
     }
 
@@ -238,6 +280,67 @@ public:
     virtual QVariant
     data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
+    // TODO: Not used yet
+    virtual Qt::DropActions supportedDragActions() const override
+    {
+        return Qt::MoveAction;
+    }
+
+    virtual Qt::DropActions supportedDropActions() const override
+    {
+        return Qt::MoveAction;
+    }
+
+    virtual QStringList mimeTypes() const override { return { MIME_TYPE_ }; }
+
+    virtual QMimeData* mimeData(const QModelIndexList& indexes) const override
+    {
+        if (indexes.isEmpty()) return nullptr;
+
+        // TODO: Only support dragging single items for now
+        QModelIndex index = indexes.first();
+        if (!index.isValid()) return nullptr;
+
+        auto element = elementAt(index);
+        if (element.isNull()) return nullptr;
+
+        // Store the element's key
+        auto key = elementKey_(element);
+        auto mime_data = new QMimeData;
+        mime_data->setData(MIME_TYPE_, key.toUtf8());
+
+        return mime_data;
+    }
+
+    virtual bool dropMimeData(
+        const QMimeData* data,
+        Qt::DropAction action,
+        int row,
+        int column,
+        const QModelIndex& parent) override
+    {
+        if (!data || action != Qt::MoveAction) return false;
+        if (!data->hasFormat(MIME_TYPE_)) return false;
+
+        // Decode the dragged element
+        auto key = QString::fromUtf8(data->data(MIME_TYPE_));
+
+        if (!elementToId_.contains(key)) return false;
+
+        auto element_id = elementToId_[key];
+        QDomElement element = idToElement_[element_id];
+
+        if (!isValid_(element)) return false;
+
+        // Determine drop target
+        auto drop_parent = elementAt(parent);
+        if (drop_parent.isNull()) {
+            drop_parent = dom_.documentElement();
+        }
+
+        return moveElement(element, drop_parent, row);
+    }
+
 signals:
     void domChanged();
     void elementRenamed(const QDomElement& element);
@@ -245,15 +348,37 @@ signals:
 private:
     bool initialized_ = false;
     QDomDocument dom_{};
+    static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
+
+    // ID allocation: 0 = invalid/root element
+    // IDs start at 1 and increment monotonically
+    // IDs are stable across DOM modifications when using UUID-based tracking
+    mutable quintptr nextId_ = 1;
     mutable QHash<QString, quintptr> elementToId_{}; // Element's UUID -> ID
     mutable QHash<quintptr, QDomElement> idToElement_{}; // ID -> Element
-    mutable quintptr nextId_ = 1;
+
+    bool isValid_(const QDomElement& element) const
+    {
+        if (element.isNull()) return false;
+
+        // Must belong to current document
+        if (element.ownerDocument() != dom_) return false;
+
+        // Root element is always valid
+        if (element == dom_.documentElement()) return true;
+
+        // Non-root elements must have an element parent (if orphaned, parent is
+        // null)
+        return !element.parentNode().toElement().isNull();
+    }
 
     QString elementKey_(const QDomElement& element) const
     {
         if (element.isNull()) return {};
+
         auto uuid = Fnx::uuid(element);
         if (uuid.isEmpty()) return "root";
+
         return uuid;
     }
 
@@ -275,11 +400,13 @@ private:
 
     int childElementCount_(const QDomElement& element) const
     {
+        if (element.isNull()) return 0;
+
         auto count = 0;
         auto child = element.firstChildElement();
 
         while (!child.isNull()) {
-            count++;
+            ++count;
             child = child.nextSiblingElement();
         }
 
@@ -288,6 +415,8 @@ private:
 
     QDomElement nthChildElement_(const QDomElement& element, int n) const
     {
+        if (element.isNull()) return {};
+
         auto child = element.firstChildElement();
 
         for (auto i = 0; i < n && !child.isNull(); ++i)
@@ -304,7 +433,7 @@ private:
         auto sibling = element.previousSiblingElement();
 
         while (!sibling.isNull()) {
-            row++;
+            ++row;
             sibling = sibling.previousSiblingElement();
         }
 
@@ -315,19 +444,26 @@ private:
     {
         if (element.isNull() || element == dom_.documentElement()) return {};
 
-        auto parent = element.parentNode().toElement();
-
-        // Find this element's row among its siblings
-        auto row = 0;
-        auto sibling = parent.firstChildElement();
-        while (!sibling.isNull()) {
-            if (sibling == element) break;
-            ++row;
-            sibling = sibling.nextSiblingElement();
-        }
+        auto row = rowOfElement_(element);
+        if (row < 0) return {};
 
         auto id = idFromElement_(element);
         return createIndex(row, 0, id);
+    }
+
+    bool isDescendantOf_(
+        const QDomElement& ancestor,
+        const QDomElement& element) const
+    {
+        if (ancestor.isNull() || element.isNull()) return false;
+
+        auto current = element.parentNode().toElement();
+        while (!current.isNull()) {
+            if (current == ancestor) return true;
+            current = current.parentNode().toElement();
+        }
+
+        return false;
     }
 };
 

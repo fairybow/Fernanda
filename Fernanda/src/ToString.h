@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include <QDomElement>
 #include <QMapIterator>
 #include <QMetaObject>
 #include <QModelIndex>
@@ -58,7 +59,47 @@ inline std::string toString(const T* ptr)
     return toQString<T>(ptr).toStdString();
 }
 
-// TODO: Double-check this!
+inline QString toQString(const QModelIndex& index)
+{
+    if (!index.isValid()) return "QModelIndex(Invalid)";
+
+    return QString("QModelIndex(r:%1, c:%2, %3)")
+        .arg(index.row())
+        .arg(index.column())
+        .arg(QString::asprintf("%p", index.internalPointer()));
+}
+
+inline std::string toString(const QModelIndex& index)
+{
+    return toQString(index).toStdString();
+}
+
+inline QString toQString(const QDomElement& element)
+{
+    if (element.isNull()) return "QDomElement(Null)";
+
+    auto tag = element.tagName();
+    auto attrs = element.attributes();
+
+    if (attrs.isEmpty()) {
+        return QString("QDomElement<%1>").arg(tag);
+    }
+
+    QStringList attr_list{};
+    for (auto i = 0; i < attrs.count(); ++i) {
+        auto attr = attrs.item(i).toAttr();
+        attr_list << QString("%1=\"%2\"").arg(attr.name()).arg(attr.value());
+    }
+
+    return QString("QDomElement<%1 %2>").arg(tag).arg(attr_list.join(" "));
+}
+
+inline std::string toString(const QDomElement& element)
+{
+    return toQString(element).toStdString();
+}
+
+// TODO: Redo this. It's nasty.
 inline QString toQString(const QVariant& variant)
 {
     auto x = [](const QString& text, const QString& type = {}) {
@@ -78,7 +119,7 @@ inline QString toQString(const QVariant& variant)
         return x(variant.value<Coco::Path>().toQString(), "Coco::Path");
 
     if (variant.canConvert<QModelIndex>())
-        return x("QModelIndex");
+        return x(toQString(variant.value<QModelIndex>()));
 
     if (variant.canConvert<QObject*>())
         return x(toQString(variant.value<QObject*>()));
@@ -90,7 +131,7 @@ inline QString toQString(const QVariant& variant)
     auto text = variant.toString();
     if (text.isEmpty()) return "Non-printable type";
 
-    return x(text);
+    return QString("QVariant(\"%0\")").arg(text);
 }
 
 inline std::string toString(const QVariant& variant)
@@ -101,16 +142,14 @@ inline std::string toString(const QVariant& variant)
 inline QString toQString(const QVariantMap& variantMap)
 {
     if (variantMap.isEmpty()) return "QVariantMap{}";
-    constexpr auto element_format = "{ %0, %1 }";
+    constexpr auto inner_format = "{ %0, %1 }";
     constexpr auto outer_format = "QVariantMap{ %0 }";
     QStringList list{};
     QMapIterator<QString, QVariant> it(variantMap);
 
     while (it.hasNext()) {
         it.next();
-        list << QString(element_format)
-                    .arg(it.key())
-                    .arg(toQString(it.value()));
+        list << QString(inner_format).arg(it.key()).arg(toQString(it.value()));
     }
 
     return QString(outer_format).arg(list.join(", "));
