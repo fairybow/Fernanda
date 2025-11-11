@@ -102,6 +102,8 @@ private:
         tree_view->setEditTriggers(
             QAbstractItemView::SelectedClicked
             | QAbstractItemView::EditKeyPressed); // F2 (standard)
+
+        // Drag and drop
         tree_view->setDragEnabled(true);
         tree_view->setAcceptDrops(true);
         tree_view->setDropIndicatorShown(true);
