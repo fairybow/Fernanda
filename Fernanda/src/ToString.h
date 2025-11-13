@@ -11,7 +11,9 @@
 
 #include <string>
 
+#include <QDomAttr>
 #include <QDomElement>
+#include <QDomNamedNodeMap>
 #include <QMapIterator>
 #include <QMetaObject>
 #include <QModelIndex>
@@ -23,55 +25,43 @@
 
 #include "Coco/Concepts.h"
 
-namespace Fernanda {
-
-template <Coco::Concepts::QObjectDerived T> inline QString toQString(T* ptr)
-{
-    if (ptr) {
-        return QString("%0(%1)")
-            .arg(ptr->metaObject()->className())
-            .arg(QString::asprintf("%p", ptr));
+#define TO_STD_(Type, ArgName)                                                 \
+    inline std::string toString(const Type& ArgName)                           \
+    {                                                                          \
+        return toQString(ArgName).toStdString();                               \
     }
 
-    return "nullptr";
+namespace Fernanda {
+
+// Ptr cannot be nullptr
+template <typename T> inline QString ptrAddress(const T* ptr)
+{
+    return QString::asprintf("%p", ptr);
 }
 
+// Ptr cannot be nullptr
+template <typename T> inline QString qObjectPtrAddress(const T* ptr)
+{
+    return QString("%0(%1)")
+        .arg(ptr->metaObject()->className())
+        .arg(ptrAddress<T>(ptr));
+}
+
+// Ptr can be nullptr
 template <Coco::Concepts::QObjectDerived T>
 inline QString toQString(const T* ptr)
 {
-    if (ptr) {
-        return QString("%0(%1)")
-            .arg(ptr->metaObject()->className())
-            .arg(QString::asprintf("%p", ptr));
-    }
-
-    return "nullptr";
-}
-
-template <Coco::Concepts::QObjectDerived T> inline std::string toString(T* ptr)
-{
-    return toQString<T>(ptr).toStdString();
-}
-
-template <Coco::Concepts::QObjectDerived T>
-inline std::string toString(const T* ptr)
-{
-    return toQString<T>(ptr).toStdString();
+    return ptr ? qObjectPtrAddress<T>(ptr) : "nullptr";
 }
 
 inline QString toQString(const QModelIndex& index)
 {
     if (!index.isValid()) return "QModelIndex(Invalid)";
 
-    return QString("QModelIndex(r:%1, c:%2, %3)")
+    return QString("QModelIndex(row:%1, col:%2, %3)")
         .arg(index.row())
         .arg(index.column())
-        .arg(QString::asprintf("%p", index.internalPointer()));
-}
-
-inline std::string toString(const QModelIndex& index)
-{
-    return toQString(index).toStdString();
+        .arg(ptrAddress(index.internalPointer()));
 }
 
 inline QString toQString(const QDomElement& element)
@@ -82,21 +72,16 @@ inline QString toQString(const QDomElement& element)
     auto attrs = element.attributes();
 
     if (attrs.isEmpty()) {
-        return QString("QDomElement<%1>").arg(tag);
+        return QString("QDomElement(\"<%1>\")").arg(tag);
     }
 
     QStringList attr_list{};
     for (auto i = 0; i < attrs.count(); ++i) {
         auto attr = attrs.item(i).toAttr();
-        attr_list << QString("%1=\"%2\"").arg(attr.name()).arg(attr.value());
+        attr_list << QString("%1='%2'").arg(attr.name()).arg(attr.value());
     }
 
-    return QString("QDomElement<%1 %2>").arg(tag).arg(attr_list.join(" "));
-}
-
-inline std::string toString(const QDomElement& element)
-{
-    return toQString(element).toStdString();
+    return QString("QDomElement(<%1 %2>)").arg(tag).arg(attr_list.join(" "));
 }
 
 // TODO: Redo this. It's nasty.
@@ -104,7 +89,7 @@ inline QString toQString(const QVariant& variant)
 {
     auto x = [](const QString& text, const QString& type = {}) {
         constexpr auto format = "QVariant(%0)";
-        constexpr auto format_type = "QVariant(%0{ %1 })";
+        constexpr auto format_type = "QVariant(%0(%1))";
         return type.isEmpty() ? QString(format).arg(text)
                               : QString(format_type).arg(type).arg(text);
     };
@@ -134,11 +119,6 @@ inline QString toQString(const QVariant& variant)
     return QString("QVariant(\"%0\")").arg(text);
 }
 
-inline std::string toString(const QVariant& variant)
-{
-    return toQString(variant).toStdString();
-}
-
 inline QString toQString(const QVariantMap& variantMap)
 {
     if (variantMap.isEmpty()) return "QVariantMap{}";
@@ -155,9 +135,20 @@ inline QString toQString(const QVariantMap& variantMap)
     return QString(outer_format).arg(list.join(", "));
 }
 
-inline std::string toString(const QVariantMap& variantMap)
+// Std
+
+// Ptr can be nullptr
+template <Coco::Concepts::QObjectDerived T>
+inline std::string toString(const T* ptr)
 {
-    return toQString(variantMap).toStdString();
+    return toQString<T>(ptr).toStdString();
 }
 
+TO_STD_(QModelIndex, index);
+TO_STD_(QDomElement, element);
+TO_STD_(QVariant, variant);
+TO_STD_(QVariantMap, variantMap);
+
 } // namespace Fernanda
+
+#undef TO_STD_
