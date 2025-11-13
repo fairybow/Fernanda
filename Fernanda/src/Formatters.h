@@ -17,6 +17,7 @@
 #include <QModelIndex>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QVariant>
 #include <QVariantMap>
 
@@ -37,6 +38,7 @@
 
 STRING_FORMATTER_(QString, x.toStdString());
 STRING_FORMATTER_(Coco::Path, x.toString());
+STRING_FORMATTER_(QStringList, Fernanda::toString(x));
 STRING_FORMATTER_(QVariantMap, Fernanda::toString(x));
 STRING_FORMATTER_(QVariant, Fernanda::toString(x));
 STRING_FORMATTER_(QModelIndex, Fernanda::toString(x));
