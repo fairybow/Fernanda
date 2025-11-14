@@ -97,7 +97,7 @@ private:
 
         // Read Model.xml into memory as DOM doc
         auto dom = Fnx::makeDomDocument(working_dir);
-        fnxModel_->initialize(dom);
+        fnxModel_->setDomDocument(dom);
 
         connect(
             fnxModel_,

@@ -50,12 +50,14 @@ public:
 
     virtual ~FnxModel() override { TRACER; }
 
-    // TODO: For now (perhaps forever), we only set the DOM once
-    void initialize(const QDomDocument& dom)
+    void setDomDocument(const QDomDocument& dom)
     {
-        if (initialized_) return;
+        beginResetModel();
         dom_ = dom;
-        initialized_ = true;
+        clearCache_();
+        endResetModel();
+
+        emit domChanged();
     }
 
     QDomDocument domDocument() const { return dom_; }
@@ -101,8 +103,6 @@ public:
         emit domChanged();
     }
 
-    // TODO: Add logs to document movement in case we encounter
-    // QPersistentModelIndex crash again
     bool
     moveElement(const QDomElement& element, QDomElement newParent, int newRow)
     {
@@ -129,6 +129,15 @@ public:
         if (current_parent == newParent && source_row == dest_row) {
             return true;
         }
+
+        INFO(
+            "Moving element: {}\n\tOld parent: {}\n\tOld row: {}\n\tNew "
+            "parent: {}\n\tNew row: {}",
+            element,
+            current_parent,
+            source_row,
+            newParent,
+            dest_row);
 
         if (!beginMoveRows(
                 source_parent_index,
@@ -170,7 +179,8 @@ public:
         auto element = idToElement_.value(id);
 
         if (!isValid_(element)) {
-            WARN("Stale/invalid element for ID {}", id);
+            WARN("Invalid element for ID: {}", id);
+            clearCache_();
             return {};
         }
 
@@ -207,8 +217,8 @@ public:
             // Handle rename
             auto new_name = value.toString();
             if (new_name.isEmpty()) return false; // Reject empty names
-
             Fnx::rename(element, new_name);
+
             emit dataChanged(index, index, { Qt::DisplayRole, Qt::EditRole });
             emit elementRenamed(element);
             emit domChanged();
@@ -330,7 +340,11 @@ public:
         auto element_id = elementToId_[key];
         QDomElement element = idToElement_[element_id];
 
-        if (!isValid_(element)) return false;
+        if (!isValid_(element)) {
+            WARN("Invalid element in drag data for key: {}", key.toStdString());
+            clearCache_();
+            return false;
+        }
 
         // Determine drop target
         auto drop_parent = elementAt(parent);
@@ -346,9 +360,8 @@ signals:
     void elementRenamed(const QDomElement& element);
 
 private:
-    bool initialized_ = false;
-    QDomDocument dom_{};
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
+    QDomDocument dom_{};
 
     // ID allocation: 0 = invalid/root element
     // IDs start at 1 and increment monotonically
@@ -356,6 +369,14 @@ private:
     mutable quintptr nextId_ = 1;
     mutable QHash<QString, quintptr> elementToId_{}; // Element's UUID -> ID
     mutable QHash<quintptr, QDomElement> idToElement_{}; // ID -> Element
+
+    void clearCache_() const
+    {
+        elementToId_.clear();
+        idToElement_.clear();
+        nextId_ = 1;
+        INFO("DOM cache cleared!");
+    }
 
     bool isValid_(const QDomElement& element) const
     {
@@ -468,3 +489,66 @@ private:
 };
 
 } // namespace Fernanda
+
+// QPMI crash repro:
+
+/*1 - Move 1 from Chapter 1 into Other Notes
+2 - Move Chapter 1 from Root into 1
+3 - Move Other Notes down from Notes into Root (row 1 (bottom))
+4 - Move 1 down from Other Notes into Root (row 2 (bottom))
+5 - Move Chapter 1 down from 1 into Root (row 3 (bottom))
+6 - Move Notes from Root into 1
+7 - Move Other Notes from Root to Root (row 2 (above the bottom item, which is Chapter 1, but when it populates, it will be below Chapter 1))
+8 - Move Notes from 1 into Chapter 1
+9 - Move Chapter 1 from Root into Other Notes*/
+
+// QPMI crash output:
+
+/*57 | 2025-11-13 | 21:58:51.934 | Moving element: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
+    Old parent: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
+    Old row: 0
+    New parent: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
+    New row: 0
+58 | 2025-11-13 | 21:59:10.197 | Moving element: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
+    Old parent: QDomElement("<notebook>")
+    Old row: 0
+    New parent: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
+    New row: 0
+59 | 2025-11-13 | 21:59:13.285 | Moving element: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
+    Old parent: QDomElement(<file uuid='xxx3' name='Notes' extension='.txt'>)
+    Old row: 0
+    New parent: QDomElement("<notebook>")
+    New row: 1
+60 | 2025-11-13 | 21:59:14.433 | Moving element: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
+    Old parent: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
+    Old row: 0
+    New parent: QDomElement("<notebook>")
+    New row: 2
+61 | 2025-11-13 | 21:59:15.434 | Moving element: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
+    Old parent: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
+    Old row: 0
+    New parent: QDomElement("<notebook>")
+    New row: 3
+The thread 13028 has exited with code 0 (0x0).
+62 | 2025-11-13 | 21:59:16.554 | Moving element: QDomElement(<file uuid='xxx3' name='Notes' extension='.txt'>)
+    Old parent: QDomElement("<notebook>")
+    Old row: 0
+    New parent: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
+    New row: 0
+63 | 2025-11-13 | 21:59:18.198 | Moving element: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
+    Old parent: QDomElement("<notebook>")
+    Old row: 0
+    New parent: QDomElement("<notebook>")
+    New row: 2
+64 | 2025-11-13 | 21:59:19.847 | Moving element: QDomElement(<file uuid='xxx3' name='Notes' extension='.txt'>)
+    Old parent: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
+    Old row: 0
+    New parent: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
+    New row: 0
+65 | 2025-11-13 | 21:59:21.185 | Moving element: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
+    Old parent: QDomElement("<notebook>")
+    Old row: 1
+    New parent: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
+    New row: 0
+66 | 2025-11-13 | 21:59:21.233 | ASSERT failure in QPersistentModelIndex::~QPersistentModelIndex: "persistent model indexes corrupted", file C:\Users\qt\work\qt\qtbase\src\corelib\itemmodels\qabstractitemmodel.cpp, line 846
+Debug Error!*/
