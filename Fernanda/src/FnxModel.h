@@ -139,7 +139,7 @@ public:
             newParent,
             dest_row);
 
-        if (!beginMoveRows(
+        /*if (!beginMoveRows(
                 source_parent_index,
                 source_row,
                 source_row,
@@ -161,7 +161,68 @@ public:
             } else {
                 newParent.appendChild(element);
             }
+        }*/
+
+        /// TEST
+
+        /*1 - Move 1 from Chapter 1 into Other Notes
+        2 - Move Chapter 1 from Root into 1
+        3 - Move Other Notes down from Notes into Root (row 1 (bottom))
+        4 - Move 1 down from Other Notes into Root (row 2 (bottom))
+        5 - Move Chapter 1 down from 1 into Root (row 3 (bottom))
+        6 - Move Notes from Root into 1
+        7 - Move Other Notes from Root to Root (row 2 (above the bottom item,
+        which is Chapter 1, but when it populates, it will be below Chapter 1))
+        8 - Move Notes from 1 into Chapter 1
+        9 - Move Chapter 1 from Root into Other Notes*/
+
+        // OR
+
+        /*1 - Move 1 from Chapter 1 into Other Notes
+        2 - Move Chapter 1 from Root into 1
+        3 - Move Other Notes down from Notes into Root (row 1 (bottom))
+        4 - Move 1 down from Other Notes into Root (row 2 (bottom))
+        5 - Move Chapter 1 down from 1 into Root (row 3 (bottom))
+        6 - Move Notes from Root to Root (row 2 (above the bottom item,
+        which is Chapter 1, but when it populates, it will be below Chapter 1))
+        8 - Move Other Notes from Root into Notes*/
+
+        /// Seems to fix it:
+
+        // Adjust destination row for beginMoveRows when moving within same
+        // parent
+        auto dest_row_for_begin = dest_row;
+        auto dest_row_for_dom = dest_row;
+
+        if (current_parent == newParent && dest_row > source_row) {
+            ++dest_row_for_begin; // For beginMoveRows (pre-removal state)
+            --dest_row_for_dom; // For DOM manipulation (post-removal state)
         }
+
+        if (!beginMoveRows(
+                source_parent_index,
+                source_row,
+                source_row,
+                dest_parent_index,
+                dest_row_for_begin)) {
+            return false;
+        }
+
+        // Perform DOM manipulation
+        current_parent.removeChild(element);
+
+        if (dest_row_for_dom >= childElementCount_(newParent)) {
+            newParent.appendChild(element);
+        } else {
+            auto sibling = nthChildElement_(newParent, dest_row_for_dom);
+            if (!sibling.isNull()) {
+                newParent.insertBefore(element, sibling);
+            } else {
+                newParent.appendChild(element);
+            }
+        }
+
+        /// END TEST
 
         endMoveRows();
         emit domChanged();
@@ -489,66 +550,3 @@ private:
 };
 
 } // namespace Fernanda
-
-// QPMI crash repro:
-
-/*1 - Move 1 from Chapter 1 into Other Notes
-2 - Move Chapter 1 from Root into 1
-3 - Move Other Notes down from Notes into Root (row 1 (bottom))
-4 - Move 1 down from Other Notes into Root (row 2 (bottom))
-5 - Move Chapter 1 down from 1 into Root (row 3 (bottom))
-6 - Move Notes from Root into 1
-7 - Move Other Notes from Root to Root (row 2 (above the bottom item, which is Chapter 1, but when it populates, it will be below Chapter 1))
-8 - Move Notes from 1 into Chapter 1
-9 - Move Chapter 1 from Root into Other Notes*/
-
-// QPMI crash output:
-
-/*57 | 2025-11-13 | 21:58:51.934 | Moving element: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
-    Old parent: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
-    Old row: 0
-    New parent: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
-    New row: 0
-58 | 2025-11-13 | 21:59:10.197 | Moving element: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
-    Old parent: QDomElement("<notebook>")
-    Old row: 0
-    New parent: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
-    New row: 0
-59 | 2025-11-13 | 21:59:13.285 | Moving element: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
-    Old parent: QDomElement(<file uuid='xxx3' name='Notes' extension='.txt'>)
-    Old row: 0
-    New parent: QDomElement("<notebook>")
-    New row: 1
-60 | 2025-11-13 | 21:59:14.433 | Moving element: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
-    Old parent: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
-    Old row: 0
-    New parent: QDomElement("<notebook>")
-    New row: 2
-61 | 2025-11-13 | 21:59:15.434 | Moving element: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
-    Old parent: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
-    Old row: 0
-    New parent: QDomElement("<notebook>")
-    New row: 3
-The thread 13028 has exited with code 0 (0x0).
-62 | 2025-11-13 | 21:59:16.554 | Moving element: QDomElement(<file uuid='xxx3' name='Notes' extension='.txt'>)
-    Old parent: QDomElement("<notebook>")
-    Old row: 0
-    New parent: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
-    New row: 0
-63 | 2025-11-13 | 21:59:18.198 | Moving element: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
-    Old parent: QDomElement("<notebook>")
-    Old row: 0
-    New parent: QDomElement("<notebook>")
-    New row: 2
-64 | 2025-11-13 | 21:59:19.847 | Moving element: QDomElement(<file uuid='xxx3' name='Notes' extension='.txt'>)
-    Old parent: QDomElement(<file uuid='xxx2' name='1' extension='.txt'>)
-    Old row: 0
-    New parent: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
-    New row: 0
-65 | 2025-11-13 | 21:59:21.185 | Moving element: QDomElement(<vfolder uuid='xxx1' name='Chapter 1'>)
-    Old parent: QDomElement("<notebook>")
-    Old row: 1
-    New parent: QDomElement(<file uuid='xxx4' name='Other Notes' extension='.txt'>)
-    New row: 0
-66 | 2025-11-13 | 21:59:21.233 | ASSERT failure in QPersistentModelIndex::~QPersistentModelIndex: "persistent model indexes corrupted", file C:\Users\qt\work\qt\qtbase\src\corelib\itemmodels\qabstractitemmodel.cpp, line 846
-Debug Error!*/
