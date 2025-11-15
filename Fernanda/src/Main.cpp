@@ -34,6 +34,7 @@
 /// - (DONE) Moving/reorganizing Notebook files in TreeView
 /// -- Collapsed items should expand on hover when moving
 /// -- Expand on insert, too, if applicable
+/// -- Could store expanded state in elements to unify it across views?
 /// - File closing
 /// - Notebook's persistence auto-save (periodic + before file close)
 /// - Marking Notebook as modified
