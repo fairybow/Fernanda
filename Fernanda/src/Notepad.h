@@ -145,7 +145,17 @@ private:
         /// WIP:
 
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            //...
+            // - Check window?
+            // - Call/exec a close view command registered by ViewService (it
+            // will have the same -1 default val pattern for when called/execed
+            // by menus
+            // - Signal in the ViewService command should take it from
+            // there?
+            //
+            // BUT, keep in mind: Before a view is successfully closed:
+            // - Notepad: a save prompt may have to appear to reject/accept
+            // - Notebook: a persistence autosave may need to happen in the
+            // background
         });
 
         bus->addCommandHandler(
