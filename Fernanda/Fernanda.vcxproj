@@ -38,9 +38,8 @@
     <None Include="docs\FNXFile.md" />
     <None Include="docs\Menus.md" />
     <None Include="docs\NotebookCreation.md" />
-    <None Include="docs\OpeningFiles.md" />
     <None Include="docs\Roadmap.md" />
-    <None Include="docs\SavingFiles.md" />
+    <None Include="docs\Saving.md" />
     <None Include="docs\StartupFlowchart.md" />
     <None Include="docs\old_TempCommandsReference.md" />
     <None Include="docs\old_TempTodos.md" />

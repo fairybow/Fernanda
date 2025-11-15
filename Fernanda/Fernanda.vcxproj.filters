@@ -170,10 +170,7 @@
     <None Include="docs\NotebookCreation.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\OpeningFiles.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\SavingFiles.md">
+    <None Include="docs\Saving.md">
       <Filter>Docs</Filter>
     </None>
   </ItemGroup>

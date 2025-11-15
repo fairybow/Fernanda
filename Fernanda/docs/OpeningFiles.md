@@ -1,9 +1,0 @@
-# Opening Files
-
-## Notepad
-
-...
-
-## Notebook
-
-...
