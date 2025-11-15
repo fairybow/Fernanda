@@ -39,6 +39,8 @@
 /// - Marking Notebook as modified
 /// - Notepad saving
 /// - Notebook saving
+/// - Application quit
+/// 
 /// - Clean up lambda captures! Value capture may be volatile so specify
 /// everything if possible
 /// - Potentially add defensive QHash removals like in TreeViewModule (not just
@@ -115,7 +117,6 @@
 /// Command handler registering sites clean-up:
 /// - Make sure we aren't casting return values to QVar when registering (it
 /// isn't needed!)
-/// - Can we just return Coco::Path without QString conversion?
 /// - Also check lambda args (whether it uses a Command or not)
 
 /// Unsorted (but next at some point):
@@ -127,15 +128,6 @@
 /// (wouldn't need one for params, since we'd likely never pass list, set, or
 /// other template type)
 /// - Ability to log Coco::Bool
-/// - Consider if Command is Notebook- or Notepad-specific, like NewTab and
-/// NewTreeViewModel: need to be same command (with different implementation),
-/// CANNOT have separate namespaces, because users of those commands don't know
-/// or care about workspace type
-/// - Plan handling of NewTab, FileSave, FileClose, and similar
-/// - Plan Application Quit
-/// - Implement Notebook TreeView model
-/// - Implement model.xml
-/// - Implement .fnx
 /// - Log to file (commented-out method is too slow)
 ///
 /// Unsorted clean-up:
