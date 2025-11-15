@@ -31,10 +31,14 @@
 /// - (DONE-ish) Granular FnxModel DOM updates
 /// - (DONE) Renaming files in tree view needs to update the tab text!
 /// - Trigger rename for new folders/files, but not import (maybe)?
-/// - Moving/reorganizing Notebook files in TreeView
+/// - (DONE) Moving/reorganizing Notebook files in TreeView
 /// -- Collapsed items should expand on hover when moving
-/// - Expand on insert, too, if applicable
+/// -- Expand on insert, too, if applicable
+/// - File closing
+/// - Notebook's persistence auto-save (periodic + before file close)
 /// - Marking Notebook as modified
+/// - Notepad saving
+/// - Notebook saving
 /// - Clean up lambda captures! Value capture may be volatile so specify
 /// everything if possible
 /// - Potentially add defensive QHash removals like in TreeViewModule (not just
