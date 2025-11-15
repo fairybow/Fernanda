@@ -29,3 +29,7 @@ Well, first, closing a tab closes a file's *view*, not the file (model) itself. 
 ## Models and views
 
 There's file models and file views. There's also the Workspace type's individual model (`QFileSystemModel` or `FnxModel`) and its views (`TreeView`s).
+
+## Why have Workspaces execute/call commands when they have access to the services' public methods?
+
+Just for consistency, really. I'd rather err on the side of using commands for everything and then, later, if it doesn't seem too confusing, have Workspaces call the methods directly. However, given that everything is being called through commands, most (if not all) of the services' command-related methods are private anyway, since they never need to be called directly.
