@@ -1,5 +1,7 @@
 # Notebook Creation
 
+TODO: Make sure this makes sense still
+
 ```mermaid
 flowchart TD
     Start([User clicks New Notebook]) --> NamePrompt[Show name prompt dialog]

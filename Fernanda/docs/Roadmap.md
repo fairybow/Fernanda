@@ -15,8 +15,8 @@
 - [x] Granular FnxModel DOM updates
 - [x] Renaming files in tree view updates the tab text
 - [x] Moving/reorganizing Notebook files in TreeView
-- [ ] Notebook's persistence auto-save (periodic + before file close)
 - [ ] File closing
+- [ ] Notebook's persistence auto-save (periodic + before file close)
 - [ ] Marking Notebook as modified
 - [ ] Notepad saving
 - [ ] Notebook saving

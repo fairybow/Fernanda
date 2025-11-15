@@ -1,4 +1,4 @@
-# Saving
+# Saving Types
 
 ## Notepad Saving
 
