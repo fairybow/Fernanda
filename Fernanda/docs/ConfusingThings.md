@@ -6,6 +6,10 @@ TODO: Expand this!
 
 ...
 
+## Each Workspace instance has its own Bus
+
+So, interceptors registered in Notepad won't be called when executing commands within a Notebook, for example.
+
 ## What does FileService do?
 
 TODO: Solid indication we should rename the service!
