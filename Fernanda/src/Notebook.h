@@ -226,6 +226,8 @@ private:
                 //...
             });
 
+        // TODO: Notebook will have to prompt not for tab closes but for window
+        // closures (if last window) and app quit
         bus->addCommandHandler(Commands::CLOSE_WINDOW, [&](const Command& cmd) {
             //...
         });
