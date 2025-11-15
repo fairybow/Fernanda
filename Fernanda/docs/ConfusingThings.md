@@ -6,6 +6,12 @@ TODO: Expand this!
 
 ...
 
+## What does FileService do?
+
+TODO: Solid indication we should rename the service!
+
+`FileService` isn't really in charge of *files* per se. It's more in charge of the underlying file models. A file for the Notepad is a regular OS file, but the file for a Notebook is the archive.
+
 ## What happens when a file is opened?
 
 ...

@@ -125,40 +125,6 @@ private:
 
     void registerBusCommands_()
     {
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
-            return fnxModel_;
-        });
-
-        // TODO: Get element by tag/qualified name? (For future, when we have
-        // Trash)
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
-            // The invalid index represents the root document element
-            // (<notebook>). TreeView will display its children (the actual
-            // files and virtual folders/structure)
-            return QModelIndex{};
-        });
-
-        // TODO: Trigger rename immediately (maybe)
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            auto dom = fnxModel_->domDocument();
-            if (dom.isNull() || !workingDir_.isValid()) return;
-
-            auto working_dir = workingDir_.path();
-            auto result = Fnx::addNewTextFile(working_dir, dom);
-            if (!result.isValid()) return;
-
-            // We append here because Fnx.h is not in charge of structure, just
-            // format
-            fnxModel_->insertElement(result.element, dom.documentElement());
-
-            bus->execute(
-                Commands::OPEN_FILE_AT_PATH,
-                { { "path", qVar(result.path) },
-                  { "title", Fnx::name(result.element) } },
-                cmd.context);
-        });
-
         bus->addCommandHandler(
             Commands::NOTEBOOK_IMPORT_FILE,
             [&](const Command& cmd) {
@@ -211,6 +177,58 @@ private:
                         cmd.context);
                 }
             });
+
+        // Poly commands
+
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
+            return fnxModel_;
+        });
+
+        // TODO: Get element by tag/qualified name? (For future, when we have
+        // Trash)
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
+            // The invalid index represents the root document element
+            // (<notebook>). TreeView will display its children (the actual
+            // files and virtual folders/structure)
+            return QModelIndex{};
+        });
+
+        // TODO: Trigger rename immediately (maybe)
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            auto dom = fnxModel_->domDocument();
+            if (dom.isNull() || !workingDir_.isValid()) return;
+
+            auto working_dir = workingDir_.path();
+            auto result = Fnx::addNewTextFile(working_dir, dom);
+            if (!result.isValid()) return;
+
+            // We append here because Fnx.h is not in charge of structure, just
+            // format
+            fnxModel_->insertElement(result.element, dom.documentElement());
+
+            bus->execute(
+                Commands::OPEN_FILE_AT_PATH,
+                { { "path", qVar(result.path) },
+                  { "title", Fnx::name(result.element) } },
+                cmd.context);
+        });
+
+        /// WIP:
+
+        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+            //...
+        });
+
+        bus->addCommandHandler(
+            Commands::CLOSE_ALL_TABS_IN_WINDOW,
+            [&](const Command& cmd) {
+                //...
+            });
+
+        bus->addCommandHandler(Commands::CLOSE_WINDOW, [&](const Command& cmd) {
+            //...
+        });
     }
 
     void connectBusEvents_()

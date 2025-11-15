@@ -149,7 +149,8 @@ private:
                     tree_view->indexAt(pos));
             });
 
-        // TODO: Needed?
+        // TODO: Needed? Check that it actually works, too, since it decays to
+        // QObject before emitting destroyed...
         connect(tree_view, &TreeView::destroyed, this, [&, window] {
             if (!window) return;
             treeViews_.remove(window);

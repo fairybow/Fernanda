@@ -52,19 +52,19 @@
 
 ### Clean-up (High Priority)
 
-- [ ] Clean up lambda captures (value capture may be volatile, specify everything)
-- [ ] Defensive QHash removals (like in TreeViewModule)
-- [ ] Ensure all command handler registrations use "param" instead of "to"
+- [ ] Clean up lambda captures (value capture may be volatile (re: C++ 20's `=` change), specify everything)
+- [ ] Defensive QHash removals, when object is removed not just the window (see TreeViewModule)
 - [ ] Search and resolve all TODO comments
 - [ ] Remove "NOTE:" before notes, use only TODO or it's a note
 - [ ] Use Bus windowDestroyed signal instead of connecting to window destroyed signals in onWindowCreated
-- [ ] Uniform use of nodiscard
-- [ ] Check lambda args (whether it needs & or = or should explicitly capture)
+- [ ] Uniform use of `nodiscard`
 
 ### Command Handler Registration Clean-up
 
 - [ ] Don't cast return values to QVar when registering handlers (it isn't needed)
-- [ ] Check lambda args (whether it uses a Command or not)
+- [ ] If handler isn't using a command, then make sure the lambda arg is empty (instead of `const Command&`)
+- [ ] Check that if handler uses `cmd.context` that its nullptr-checked
+- [ ] Ensure all command handler registrations use `cmd.param` instead of `to`
 
 ### General Clean-up
 

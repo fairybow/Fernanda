@@ -21,12 +21,17 @@ constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 
 // Workspace scope
 
-constexpr auto NEW_TAB = "poly:new_tab"; /// *
 constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
 constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
+constexpr auto CLOSE_WINDOW = "workspace:close_window";
+
+// Poly: same command for all Workspace types but registered differently by
+// each. These commands are meant to be called from a Workspace-agnostic service
+// but with effects unique to each Workspace type
+
+constexpr auto NEW_TAB = "poly:new_tab"; /// *
 constexpr auto CLOSE_TAB = "poly:close_tab";
 constexpr auto CLOSE_ALL_TABS_IN_WINDOW = "poly:close_all_tabs_in_window";
-constexpr auto CLOSE_WINDOW = "workspace:close_window";
 constexpr auto WS_TREE_VIEW_MODEL = "poly:ws_tree_view_model"; /// *, non-menu
 constexpr auto WS_TREE_VIEW_ROOT_INDEX =
     "poly:ws_tree_view_root_index"; /// *, non-menu

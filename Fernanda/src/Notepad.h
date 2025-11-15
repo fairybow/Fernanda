@@ -12,8 +12,8 @@
 #include <functional>
 
 #include <QFileSystemModel>
-#include <QModelIndex>
 #include <QList>
+#include <QModelIndex>
 #include <QObject>
 
 #include "Coco/Path.h"
@@ -90,22 +90,6 @@ private:
 
     void registerBusCommands_()
     {
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
-            return fsModel_;
-        });
-
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
-            // Generate the index on-demand from the stored path (don't hold it
-            // separately or retrieve via Model::setRootPath)
-            if (!fsModel_) return QModelIndex{};
-            return fsModel_->index(currentBaseDir_.toQString());
-        });
-
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            bus->execute(Commands::NEW_TXT_FILE, cmd.context);
-        });
-
         bus->addCommandHandler(
             Commands::NOTEPAD_OPEN_FILE,
             [&](const Command& cmd) {
@@ -128,6 +112,8 @@ private:
                 }
             });
 
+        // Notepad sets an Interceptor for FileService's open file command in
+        // order to intercept Notebook paths
         bus->addInterceptor(
             Commands::OPEN_FILE_AT_PATH,
             [&](const Command& cmd) {
@@ -138,10 +124,39 @@ private:
                 return false;
             });
 
-        /// NOT YET
-        /*bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {
-            return currentBaseDir_.toQString();
-        });*/
+        // Poly commands
+
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
+            return fsModel_;
+        });
+
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
+            // Generate the index on-demand from the stored path (don't hold it
+            // separately or retrieve via Model::setRootPath)
+            if (!fsModel_) return QModelIndex{};
+            return fsModel_->index(currentBaseDir_.toQString());
+        });
+
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            bus->execute(Commands::NEW_TXT_FILE, cmd.context);
+        });
+
+        /// WIP:
+
+        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+            //...
+        });
+
+        bus->addCommandHandler(
+            Commands::CLOSE_ALL_TABS_IN_WINDOW,
+            [&](const Command& cmd) {
+                //...
+            });
+
+        bus->addCommandHandler(Commands::CLOSE_WINDOW, [&](const Command& cmd) {
+            //...
+        });
     }
 
     void connectBusEvents_()
