@@ -26,32 +26,6 @@
 
 //namespace Fernanda {
 
-//template <typename SlotT>
-//inline void timer(int msecs, QObject* parent, SlotT slot)
-//{
-//    QTimer::singleShot(msecs, parent, slot);
-//}
-
-//template <Coco::Concepts::QObjectPointer T> inline T cast(QObject* object)
-//{
-//    return qobject_cast<T>(object);
-//}
-//
-//template <Coco::Concepts::QObjectPointer T> inline T cast(const QObject* object)
-//{
-//    return qobject_cast<T>(object);
-//}
-
-//template <typename T> inline T to(const QVariant& variant)
-//{
-//    return variant.value<T>();
-//}
-
-//template <typename T> inline QVariant toQVariant(const T& value)
-//{
-//    return QVariant::fromValue<T>(value);
-//}
-
 //namespace Util {
 
     // Maybe make this a query, for organizational/clarity purposes. This works
@@ -81,14 +55,6 @@
         if (i < 0 || i > tab_widget->count() - 1) return nullptr;
 
         return tab_widget->widgetAt<IFileView*>(i);
-    }*/
-
-    // ^ ditto
-    /*inline IFileModel* modelAt(Window* window, int index)
-    {
-        auto view = viewAt(window, index);
-        if (!view) return nullptr;
-        return view->model();
     }*/
 
     // TODO: Move

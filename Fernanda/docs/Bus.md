@@ -71,6 +71,9 @@ Window service command handlers should be responsible for showing the window. Wh
 - `paste`*: Pastes clipboard content into the active file view.
 - `delete`*: Deletes the current selection in the active file view.
 - `select_all`*: Selects all content in the active file view.
+- `remove`: Removes and destroys the view at index.
+- `model_view_count`: Returns the number of views open on the model given.
+- `model_at`: Returns the model at index.
 
 ### `settings`
 
@@ -88,6 +91,7 @@ Window service command handlers should be responsible for showing the window. Wh
 - `open_path`: Opens a file model for the file at the given path and readies it for a view. If the file model already exists, it is re-readied for an additional view. TODO: Add asterisk if in menu!
 - `new_txt`: Opens an off-disk plaintext file and readies it for a view.
 - `set_path_title_override`: Sets the title override for the file model opened for path.
+- `destroy`: Destroys the specified model.
 
 ### `tree_views`
 

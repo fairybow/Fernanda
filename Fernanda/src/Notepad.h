@@ -144,8 +144,10 @@ private:
 
         /// WIP:
 
+        // Can discard return in some cases
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             if (!cmd.context) return false;
+            auto index = cmd.param<int>("index", -1);
 
             // Get index param (-1 = current view)
 
@@ -157,7 +159,7 @@ private:
 
             // Handle save prompt result
 
-            // Execute CLOSE_VIEW
+            // Execute REMOVE_VIEW
 
             // If this was the last view, close model, too
         });

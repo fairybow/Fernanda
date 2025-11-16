@@ -89,9 +89,39 @@ protected:
             selectAll_(cmd.context, cmd.param<int>("index", -1));
         });
 
-        // TODO: Implement
-        bus->addCommandHandler(Commands::CLOSE_VIEW, [&](const Command& cmd) {
-            //...
+        /// WIP
+
+        bus->addCommandHandler(Commands::MODEL_AT, [&](const Command& cmd) {
+            return modelAt_(cmd.context, cmd.param<int>("index", -1));
+        });
+
+        bus->addCommandHandler(Commands::REMOVE_VIEW, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            auto tab_widget = tabWidget_(cmd.context);
+            if (!tab_widget) return;
+
+            auto index = cmd.param<int>("index", -1);
+
+            // TODO: Section off into own method (see its duplicated usage in
+            // viewAt_)
+            auto i = (index < 0) ? tab_widget->currentIndex() : index;
+            if (i < 0 || i > tab_widget->count() - 1) return;
+
+            auto view = tab_widget->removeTab<IFileView*>(i);
+            if (!view) return;
+
+            // Update view count
+            if (auto model = view->model())
+                if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
+
+            delete view;
+        });
+
+        bus->addCommandHandler(
+            Commands::MODEL_VIEW_COUNT,
+            [&](const Command& cmd) {
+                auto model = cmd.param<IFileModel*>("model");
+                return viewsPerModel_.value(model, 0);
         });
     }
 
@@ -126,7 +156,7 @@ protected:
 
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
-    QHash<IFileModel*, int> viewsPerModel_{}; // TODO: uint?
+    QHash<IFileModel*, int> viewsPerModel_{};
 
     void setup_()
     {
@@ -257,10 +287,7 @@ private:
             &TabWidget::closeTabRequested,
             this,
             [&, window](int index) {
-                /// bus->execute(Cmd::CloseView, { { "index", index } },
-                /// window);
-                TRACER;
-                qDebug() << "Implement";
+                bus->execute(Commands::CLOSE_TAB, { { "index", index } }, window);
             });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {

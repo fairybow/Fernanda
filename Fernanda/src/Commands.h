@@ -61,7 +61,9 @@ constexpr auto COPY = "views:copy"; /// *
 constexpr auto PASTE = "views:paste"; /// *
 constexpr auto DEL = "views:delete"; /// *
 constexpr auto SELECT_ALL = "views:select_all"; /// *
-constexpr auto CLOSE_VIEW = "views:close";
+constexpr auto REMOVE_VIEW = "views:remove"; /// *, non-menu
+constexpr auto MODEL_VIEW_COUNT = "views:model_view_count"; /// *, non-menu
+constexpr auto MODEL_AT = "views:model_at"; /// *, non-menu
 
 // SettingsModule scope
 
@@ -86,6 +88,7 @@ constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// *, non-menu
 constexpr auto NEW_TXT_FILE = "file:new_txt"; /// *, non-menu
 constexpr auto SET_PATH_TITLE_OVERRIDE =
     "file:set_path_title_override"; /// *, non-menu
+constexpr auto DESTROY_MODEL = "file:destroy"; /// *, non-menu
 
 // TreeViewModule scope
 

@@ -92,6 +92,19 @@ protected:
                     if (auto meta = model->meta())
                         meta->setTitleOverride(title);
             });
+
+        /// WIP
+
+        bus->addCommandHandler(
+            Commands::DESTROY_MODEL,
+            [&](const Command& cmd) {
+                auto model = cmd.param<IFileModel*>("model");
+                if (!model) return;
+
+                auto path = model->meta()->path();
+                pathToFileModel_.remove(path);
+                delete model;
+            });
     }
 
     virtual void connectBusEvents() override

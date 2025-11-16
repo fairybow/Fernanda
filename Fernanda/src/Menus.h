@@ -113,7 +113,7 @@ namespace Internal {
             bus,
             window,
             Commands::CLOSE_TAB,
-            Tr::Menus::fileCloseTab());
+            Tr::Menus::fileCloseTab()); /// * (np wip)
 
         common.file.closeAllTabsInWindow = makeBusAction(
             bus,

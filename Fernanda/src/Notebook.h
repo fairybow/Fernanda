@@ -216,14 +216,18 @@ private:
 
         /// WIP:
 
+        // TODO: We may not use a return value for this implementation of
+        // CLOSE_TAB. It isn't needed, and poly commands don't necessarily need
+        // to have the same signature
+
+        // Removes view without any prompt; model remains open
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             if (!cmd.context) return false;
-
-            // Get index param (-1 = current view)
-
-            // Execute CLOSE_VIEW
-
-            // Model remains open
+            bus->execute(
+                Commands::REMOVE_VIEW,
+                { { "index", cmd.param<int>("index", -1) } },
+                cmd.context);
+            return true;
         });
 
         bus->addCommandHandler(
