@@ -230,6 +230,7 @@ private:
             return true;
         });
 
+        // TODO: Could have a REMOVE_VIEWS that takes only the window as param?
         bus->addCommandHandler(
             Commands::CLOSE_ALL_TABS_IN_WINDOW,
             [&](const Command& cmd) {
