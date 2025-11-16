@@ -40,9 +40,9 @@
 
 namespace Fernanda {
 
-// Creates and manages file views within Windows, routes editing commands,
-// handles view lifecycles, propagates TabWidget signals, and tracks the number
-// of views per model
+// Creates and manages program views (TabWidgets and FileViews) within
+// Windows, routes editing commands, handles view lifecycles, propagates
+// TabWidget signals, and tracks the number of views per model
 class ViewService : public IService
 {
     Q_OBJECT
@@ -188,7 +188,6 @@ private:
     }
 
     // Passing a negative index defaults to the current index (if any)
-    // TODO: Should this be in FileService?
     IFileModel* modelAt_(Window* window, int index)
     {
         auto view = viewAt_(window, index);

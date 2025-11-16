@@ -24,7 +24,7 @@
 - [ ] File closing: Likely, Notepad closes model on last view close
 - [x] File closing: Likely, Notebook leaves models open
 - [ ] File closing: Notebook uses LRU cache (may not need yet) to close some models (this would mean we'd need a persistence save again and a way to re-mark as modified on re-open?)
-- [ ] Notebook: Close all tabs in window
+- [x] Notebook: Close all tabs in window
 - [ ] Notepad: Close all tabs in window
 - [ ] Deleting Notebook on last window closure
 - [ ] Quit procedures
