@@ -22,10 +22,15 @@
 - [x] File closing: MODEL_VIEW_COUNT command for Notepad to query when closing tab
 - [x] File closing: Removing FileService's automatic model closure on last view close
 - [ ] File closing: Likely, Notepad closes model on last view close
-- [ ] File closing: Save prompts for Notepad tab closures
 - [x] File closing: Likely, Notebook leaves models open
 - [ ] File closing: Notebook uses LRU cache (may not need yet) to close some models (this would mean we'd need a persistence save again and a way to re-mark as modified on re-open?)
+- [ ] Notebook: Close all tabs in window
+- [ ] Notepad: Close all tabs in window
+- [ ] Deleting Notebook on last window closure
+- [ ] Quit procedures
+- [ ] Notepad save prompts
 - [ ] Marking Notebook as modified
+- [ ] Notebook save prompts
 - [ ] Notepad saving
 - [ ] Notebook saving
 - [ ] Application quit
