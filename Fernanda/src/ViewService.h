@@ -95,6 +95,13 @@ protected:
             return modelAt_(cmd.context, cmd.param<int>("index", -1));
         });
 
+        bus->addCommandHandler(
+            Commands::MODEL_VIEW_COUNT,
+            [&](const Command& cmd) {
+                auto model = cmd.param<IFileModel*>("model");
+                return viewsPerModel_.value(model, 0);
+            });
+
         bus->addCommandHandler(Commands::REMOVE_VIEW, [&](const Command& cmd) {
             if (!cmd.context) return;
             auto tab_widget = tabWidget_(cmd.context);
@@ -107,21 +114,19 @@ protected:
             auto i = (index < 0) ? tab_widget->currentIndex() : index;
             if (i < 0 || i > tab_widget->count() - 1) return;
 
-            auto view = tab_widget->removeTab<IFileView*>(i);
-            if (!view) return;
-
-            // Update view count
-            if (auto model = view->model())
-                if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
-
-            delete view;
+            deleteView_(tab_widget->removeTab<IFileView*>(i));
         });
 
-        bus->addCommandHandler(
-            Commands::MODEL_VIEW_COUNT,
-            [&](const Command& cmd) {
-                auto model = cmd.param<IFileModel*>("model");
-                return viewsPerModel_.value(model, 0);
+        bus->addCommandHandler(Commands::REMOVE_VIEWS, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            auto tab_widget = tabWidget_(cmd.context);
+            if (!tab_widget) return;
+
+            auto views = tab_widget->clear<IFileView*>();
+            if (views.isEmpty()) return;
+
+            for (auto& view : views)
+                deleteView_(view);
         });
     }
 
@@ -188,6 +193,17 @@ private:
     {
         auto view = viewAt_(window, index);
         return view ? view->model() : nullptr;
+    }
+
+    void deleteView_(IFileView* view)
+    {
+        if (!view) return;
+
+        // Update view count
+        if (auto model = view->model())
+            if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
+
+        delete view;
     }
 
     // Active file view can be set nullptr!
@@ -287,7 +303,10 @@ private:
             &TabWidget::closeTabRequested,
             this,
             [&, window](int index) {
-                bus->execute(Commands::CLOSE_TAB, { { "index", index } }, window);
+                bus->execute(
+                    Commands::CLOSE_TAB,
+                    { { "index", index } },
+                    window);
             });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {

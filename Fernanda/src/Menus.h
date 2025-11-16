@@ -119,7 +119,7 @@ namespace Internal {
             bus,
             window,
             Commands::CLOSE_ALL_TABS_IN_WINDOW,
-            Tr::Menus::fileCloseAllTabsInWindow());
+            Tr::Menus::fileCloseAllTabsInWindow()); /// * (np wip)
 
         common.file.closeWindow = makeBusAction(
             bus,

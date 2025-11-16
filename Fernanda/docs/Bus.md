@@ -72,6 +72,7 @@ Window service command handlers should be responsible for showing the window. Wh
 - `delete`*: Deletes the current selection in the active file view.
 - `select_all`*: Selects all content in the active file view.
 - `remove`: Removes and destroys the view at index.
+- `remove_all`: Removes and destroys all views in the given window.
 - `model_view_count`: Returns the number of views open on the model given.
 - `model_at`: Returns the model at index.
 

@@ -217,8 +217,8 @@ private:
         /// WIP:
 
         // TODO: We may not use a return value for this implementation of
-        // CLOSE_TAB. It isn't needed, and poly commands don't necessarily need
-        // to have the same signature
+        // CLOSE_TAB and CLOSE_ALL_TABS_IN_WINDOW. It isn't needed, and poly
+        // commands don't necessarily need to have the same signature
 
         // Removes view without any prompt; model remains open
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
@@ -230,11 +230,12 @@ private:
             return true;
         });
 
-        // TODO: Could have a REMOVE_VIEWS that takes only the window as param?
         bus->addCommandHandler(
             Commands::CLOSE_ALL_TABS_IN_WINDOW,
             [&](const Command& cmd) {
-                //...
+                if (!cmd.context) return false;
+                bus->execute(Commands::REMOVE_VIEWS, cmd.context);
+                return true;
             });
 
         // TODO: Notebook will have to prompt not for tab closes but for window
