@@ -15,7 +15,3 @@
 ## Notebook Autosave
 
 ...
-
-## Notebook Persistence Autosave
-
-...

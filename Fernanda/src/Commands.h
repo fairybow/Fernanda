@@ -61,6 +61,7 @@ constexpr auto COPY = "views:copy"; /// *
 constexpr auto PASTE = "views:paste"; /// *
 constexpr auto DEL = "views:delete"; /// *
 constexpr auto SELECT_ALL = "views:select_all"; /// *
+constexpr auto CLOSE_VIEW = "views:close";
 
 // SettingsModule scope
 

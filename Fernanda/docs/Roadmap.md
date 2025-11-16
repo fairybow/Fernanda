@@ -17,7 +17,12 @@
 - [x] Renaming files in tree view updates the tab text
 - [x] Moving/reorganizing Notebook files in TreeView
 - [ ] File closing
-- [ ] Notebook's persistence auto-save (periodic + before file close)
+- [ ] File closing: Add decrement logic for ViewService::viewsPerModel_ when a view is closed
+- [ ] File closing: MODEL_VIEW_COUNT command for Notepad to query when closing tab
+- [ ] File closing: Removing FileService's automatic model closure on last view close
+- [ ] File closing: Likely, Notepad closes model on last view close
+- [ ] File closing: Likely, Notebook leaves models open
+- [ ] File closing: Notebook uses LRU cache (may not need yet) to close some models (this would mean we'd need a persistence save again and a way to re-mark as modified on re-open?)
 - [ ] Marking Notebook as modified
 - [ ] Notepad saving
 - [ ] Notebook saving
@@ -52,12 +57,14 @@
 
 ### Clean-up (High Priority)
 
+- [ ] Where possible, make the command handler lambdas just wrap a private method (see ViewService) - much cleaner
 - [ ] Clean up lambda captures (value capture may be volatile (re: C++ 20's `=` change), specify everything)
 - [ ] Defensive QHash removals, when object is removed not just the window (see TreeViewModule)
 - [ ] Search and resolve all TODO comments
 - [ ] Remove "NOTE:" before notes, use only TODO or it's a note
 - [ ] Use Bus windowDestroyed signal instead of connecting to window destroyed signals in onWindowCreated
 - [ ] Uniform use of `nodiscard`
+- [ ] Revise all class descriptions
 
 ### Command Handler Registration Clean-up
 

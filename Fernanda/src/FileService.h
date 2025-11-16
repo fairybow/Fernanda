@@ -38,13 +38,8 @@
 
 namespace Fernanda {
 
-// Coordinates file I/O, model lifecycle, and save operations across the
-// Workspace. Creates and manages file models, handles all save variants
-// (save/save-as/save-all), and ensures models persist until their last view is
-// closed
-// TODO: Rename? FileModelService? Since likely Fnx will help create on-disk
-// files for Notebook, and the save and close ops may be handled by the
-// Workspaces...
+// Creates and manages file models
+// TODO: Rename?
 class FileService : public IService
 {
     Q_OBJECT
@@ -188,30 +183,6 @@ private:
         // TODO: Emit initial states (needed?)
         emit bus->fileModelModificationChanged(model, model->isModified());
         emit bus->fileModelMetaChanged(model);
-    }
-
-private slots:
-    // TODO: Implement
-    void onViewClosed_(IFileView* view)
-    {
-        if (!view) return;
-        auto model = view->model();
-        if (!model) return;
-        auto meta = model->meta();
-        if (!meta) return;
-
-        /*auto view_count = bus->call<int>(
-            Commands::MODEL_VIEWS_COUNT,
-            { { "model", toQVariant(model) } });
-
-        if (view_count < 1) {
-            auto path = meta->path();
-            pathToFileModel_.remove(path);
-            INFO(
-                "Removed model for path: {}",
-                path.isEmpty() ? "N/A" : path.toString());
-            delete model;
-        }*/
     }
 };
 

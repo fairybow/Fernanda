@@ -46,14 +46,14 @@ Quit                        Ctrl+Q          application:quit
 
 **Close tab (poly, toggle):**
 
-- In Notepad: Check if this model has views in other windows. If yes, just close this view. If this is the last view on the model: check if modified. If modified, prompt to save. On save/discard, close the view and emit `viewClosed`. FileService will clean up the model when view count reaches zero.
-- In Notebook: Close the view without prompting. If this was the last view on the model, changes remain in the temp file and the archive stays marked as modified. FileService cleans up the model when view count reaches zero.
+- In Notepad: Check if this model has views in other windows. If yes, just close this view. If this is the last view on the model: check if modified. If modified, prompt to save. On save/discard, close the view and model.
+- In Notebook: Close the view without prompting. Model remains open to persist changes and undo/redo stacks.
 - Toggle condition: Window has any tabs.
 
 **Close all tabs in window (poly, toggle):**
 
-- In Notepad: Iterate backward through tabs. Build a list of unique modified models that only have views in this window (skip models with views in other windows). If the list is not empty, show multi-file save prompt with checkboxes. User chooses: save selected files, discard all, or cancel. If cancel, abort. Otherwise, save chosen files, then close all views and emit events for each.
-- In Notebook: Simply close all views without prompting. Changes remain in temp files, archive stays marked as modified if applicable.
+- In Notepad: Iterate backward through tabs. Build a list of unique modified models that only have views in this window (skip models with views in other windows). If the list is not empty, show multi-file save prompt with checkboxes. User chooses: save selected files, discard all, or cancel. If cancel, abort. Otherwise, save chosen files, then close all views and models.
+- In Notebook: Simply close all views without prompting. Archive stays marked as modified if applicable.
 - Toggle condition: Window has any tabs.
 
 **Close window:**

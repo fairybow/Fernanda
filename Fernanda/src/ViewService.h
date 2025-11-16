@@ -88,6 +88,11 @@ protected:
         bus->addCommandHandler(Commands::SELECT_ALL, [&](const Command& cmd) {
             selectAll_(cmd.context, cmd.param<int>("index", -1));
         });
+
+        // TODO: Implement
+        bus->addCommandHandler(Commands::CLOSE_VIEW, [&](const Command& cmd) {
+            //...
+        });
     }
 
     virtual void connectBusEvents() override
@@ -121,7 +126,7 @@ protected:
 
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
-    QHash<IFileModel*, int> viewsPerModel_{};
+    QHash<IFileModel*, int> viewsPerModel_{}; // TODO: uint?
 
     void setup_()
     {

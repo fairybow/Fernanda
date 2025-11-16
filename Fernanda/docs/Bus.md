@@ -28,11 +28,11 @@ Poly commands are registered per Workspace type (Notepad or Notebook) but called
     - **Notepad**: Opens a new tab (a new view on a new, off-disk file model).
     - **Notebook**: Adds a new empty file to the archive's temporary extraction folder, adds it to the Model.xml file, refreshes the tree view, and opens a new tab (a new view on a new on-disk file model for the new file).
 - `close_tab`*: Closes the current tab with workspace-specific save handling.
-    - **Notepad**: Checks if the model has views in other windows. If yes, just closes this view. If this is the last view on the model and the model is modified, prompts to save. On save/discard, closes the view and emits `viewClosed`. FileService cleans up the model when view count reaches zero.
-    - **Notebook**: Closes the view without prompting. If this was the last view on the model, changes remain in the temp file and the archive stays marked as modified. FileService cleans up the model when view count reaches zero.
+    - **Notepad**: Checks if the model has views in other windows. If yes, just closes this view. If this is the last view on the model and the model is modified, prompts to save. On save/discard, closes the view and model.
+    - **Notebook**: Closes the view without prompting. Model remains open to persist changes and undo/redo stacks.
 - `close_all_tabs_in_window`*: Closes all tabs in the current window with workspace-specific save handling.
-    - **Notepad**: Iterates backward through tabs. Builds a list of unique modified models that only have views in this window (skips models with views in other windows). If the list is not empty, shows multi-file save prompt with checkboxes. User can save selected files, discard all, or cancel. If cancel, aborts. Otherwise, saves chosen files, then closes all views and emits events for each.
-    - **Notebook**: Simply closes all views without prompting. Changes remain in temp files, archive stays marked as modified if applicable.
+    - **Notepad**: Iterates backward through tabs. Builds a list of unique modified models that only have views in this window (skips models with views in other windows). If the list is not empty, shows multi-file save prompt with checkboxes. User can save selected files, discard all, or cancel. If cancel, aborts. Otherwise, saves chosen files, then closes all views and models.
+    - **Notebook**: Simply closes all views without prompting.
 - `ws_tree_view_model`: Returns the Workspace's file model (OS-based for Notepad and archive-based for Notebooks).
 - `ws_tree_view_root_index`: Returns the Workspace's current TreeView root index.
 

@@ -217,7 +217,13 @@ private:
         /// WIP:
 
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            //...
+            if (!cmd.context) return false;
+
+            // Get index param (-1 = current view)
+
+            // Execute CLOSE_VIEW
+
+            // Model remains open
         });
 
         bus->addCommandHandler(

@@ -145,22 +145,21 @@ private:
         /// WIP:
 
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            // - Check window?
-            // - Call/exec a close view command registered by ViewService (it
-            // will have the same -1 default val pattern for when called/execed
-            // by menus
-            // - Signal in the ViewService command should take it from
-            // there?
-            // 
-            // (Following applies to both WS types)
-            //
-            // BUT, keep in mind: Before a view is successfully closed:
-            // - Notepad: a save prompt may have to appear to reject/accept
-            // - Notebook: a persistence autosave may need to happen in the
-            // background
-            //
-            // To solve this, could use an interceptor (via Bus or bespoke, like
-            // Window closeAcceptor) or a callback
+            if (!cmd.context) return false;
+
+            // Get index param (-1 = current view)
+
+            // Check that this is the last view on model
+
+            // If so, check if model is modified
+
+            // If so, prompt save
+
+            // Handle save prompt result
+
+            // Execute CLOSE_VIEW
+
+            // If this was the last view, close model, too
         });
 
         bus->addCommandHandler(
