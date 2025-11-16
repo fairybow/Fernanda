@@ -84,11 +84,11 @@ constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 
 // FileService scope
 
-constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// *, non-menu
-constexpr auto NEW_TXT_FILE = "file:new_txt"; /// *, non-menu
+constexpr auto OPEN_FILE_AT_PATH = "file_models:open_path"; /// *, non-menu
+constexpr auto NEW_TXT_FILE = "file_models:new_txt"; /// *, non-menu
 constexpr auto SET_PATH_TITLE_OVERRIDE =
-    "file:set_path_title_override"; /// *, non-menu
-constexpr auto DESTROY_MODEL = "file:destroy"; /// *, non-menu
+    "file_models:set_path_title_override"; /// *, non-menu
+constexpr auto DESTROY_MODEL = "file_models:destroy"; /// *, non-menu
 
 // TreeViewModule scope
 

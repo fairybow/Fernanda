@@ -86,7 +86,7 @@ Window service command handlers should be responsible for showing the window. Wh
 - `run_all`: Run all workspace color bars.
 - `be_cute`: Runs all color bars with pastel gradient.
 
-### `files`
+### `file_models`
 
 - `open_path`: Opens a file model for the file at the given path and readies it for a view. If the file model already exists, it is re-readied for an additional view. TODO: Add asterisk if in menu!
 - `new_txt`: Opens an off-disk plaintext file and readies it for a view.
