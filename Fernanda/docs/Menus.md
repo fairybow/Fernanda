@@ -1,5 +1,7 @@
 # Menus
 
+TODO: Update tab/window closure items!
+
 TODO: Make sure TR lines up
 
 TODO: Description of menu implementation (no base class, two modules that utilize shared menu-builder methods and utilities and action structs that each have a member containing common actions)

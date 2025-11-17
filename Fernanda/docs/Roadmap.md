@@ -26,6 +26,7 @@
 - [ ] File closing: Notebook uses LRU cache (may not need yet) to close some models (this would mean we'd need a persistence save again and a way to re-mark as modified on re-open?)
 - [x] Notebook: Close all tabs in window
 - [ ] Notepad: Close all tabs in window
+- [ ] Update tab/window closure info in docs (Bus.md and Menus.md)
 - [ ] Deleting Notebook on last window closure
 - [ ] Quit procedures
 - [ ] Notepad save prompts

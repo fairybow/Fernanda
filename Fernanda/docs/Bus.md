@@ -1,5 +1,7 @@
 # Bus
 
+TODO: Update tab/window closure items!
+
 Commands are dynamically registered and can vary per workspace type. Events are statically defined signals for type safety and Qt integration. This asymmetry is intentional: commands are vocabulary, events are grammar.
 
 ## Commands
