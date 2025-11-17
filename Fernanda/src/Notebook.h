@@ -269,14 +269,14 @@ private:
             // (which will automatically destroy its TempDir)
         });
 
+        // Quit procedure (from Notebook's perspective):
+        //...figure out after window closure
+
         // TODO: Should we have a "quit acceptor"? It could run a new
         // CLOSE_ALL_WINDOWS command from the base class? Allow us to handle
         // things in a specific way when the application is closing, instead of
         // just letting each window close (and possibly resulting in multiple
-        // svae prompts, when one would be better)?
-
-        // Quit procedure (from Notebook's perspective):
-        //...
+        // save prompts, when one would be better)?
     }
 
     void connectBusEvents_()
