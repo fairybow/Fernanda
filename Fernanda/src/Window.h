@@ -9,8 +9,6 @@
 
 #pragma once
 
-#include <functional>
-
 #include <QCloseEvent>
 #include <QMainWindow>
 #include <QObject>
@@ -31,7 +29,6 @@ class Window : public QMainWindow
 
 public:
     friend class WindowService;
-    using CloseAcceptor = std::function<bool(Window*)>;
 
     explicit Window(QWidget* parent = nullptr)
         : QMainWindow(parent)
@@ -51,21 +48,6 @@ public:
         activateWindow();
     }
 
-    CloseAcceptor closeAcceptor() const noexcept { return closeAcceptor_; }
-
-    void setCloseAcceptor(const CloseAcceptor& closeAcceptor)
-    {
-        closeAcceptor_ = closeAcceptor;
-    }
-
-    template <typename ClassT>
-    void setCloseAcceptor(ClassT* object, bool (ClassT::*method)(Window*))
-    {
-        closeAcceptor_ = [object, method](Window* window) {
-            return (object->*method)(window);
-        };
-    }
-
 signals:
     void destroyed(Window*);
 
@@ -75,7 +57,6 @@ protected:
 private:
     // Only assigned by WindowService
     QPointer<WindowService> windowService_ = nullptr;
-    CloseAcceptor closeAcceptor_ = nullptr;
 };
 
 } // namespace Fernanda

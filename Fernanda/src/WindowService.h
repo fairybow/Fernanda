@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QEvent>
 #include <QList>
 #include <QObject>
@@ -41,6 +43,8 @@ class WindowService : public IService
     Q_OBJECT
 
 public:
+    using CloseAcceptor = std::function<bool(Window*)>;
+
     WindowService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -49,12 +53,12 @@ public:
 
     virtual ~WindowService() override { TRACER; }
 
-    Window::CloseAcceptor closeAcceptor() const noexcept
+    CloseAcceptor closeAcceptor() const noexcept
     {
         return closeAcceptor_;
     }
 
-    void setCloseAcceptor(const Window::CloseAcceptor& closeAcceptor)
+    void setCloseAcceptor(const CloseAcceptor& closeAcceptor)
     {
         closeAcceptor_ = closeAcceptor;
     }
@@ -120,8 +124,7 @@ private:
     static constexpr auto DEFAULT_GEOMETRY_ = QRect{ 100, 100, 600, 500 };
     static constexpr auto GEOMETRY_OFFSET_ = 50;
 
-    Window::CloseAcceptor closeAcceptor_ = nullptr;
-
+    CloseAcceptor closeAcceptor_ = nullptr;
     QList<Window*> zOrderedVolatileWindows_{}; // Highest window is always last
     QSet<Window*> unorderedWindows_{};
     QPointer<Window> activeWindow_ = nullptr;

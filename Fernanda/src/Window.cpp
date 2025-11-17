@@ -19,11 +19,9 @@ void Window::closeEvent(QCloseEvent* event)
 {
     auto accepted = true;
 
-    if (closeAcceptor_) {
-        accepted = closeAcceptor_(this);
-    } else if (windowService_ && windowService_->closeAcceptor()) {
-        accepted = windowService_->closeAcceptor()(this);
-    }
+    if (windowService_)
+        if (auto acceptor = windowService_->closeAcceptor())
+            accepted = acceptor(this);
 
     accepted ? QMainWindow::closeEvent(event) : event->ignore();
 }
