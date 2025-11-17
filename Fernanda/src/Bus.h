@@ -300,6 +300,7 @@ public:
 
 signals:
     /// Re-verified:
+    void lastWindowClosed();
     void windowCreated(Window* context);
     void windowDestroyed(Window* context);
     // View may be nullptr!
@@ -320,7 +321,6 @@ signals:
     // WindowService
 
     void visibleWindowCountChanged(int count);
-    void lastWindowClosed();
 
     // Window may be nullptr!
     // void activeWindowChanged(Window* window);

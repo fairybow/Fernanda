@@ -98,6 +98,7 @@ private:
         treeViews_->initialize();
         colorBars_->initialize();
 
+        // TODO: Needed?
         windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
         //...
 
@@ -109,11 +110,13 @@ private:
 
     void connectBusEvents_()
     {
-        /*connect(bus, &Bus::lastWindowClosed, this, [&] {
+        // Propagate this Bus signal to App for each individual Workspace
+        connect(bus, &Bus::lastWindowClosed, this, [&] {
             emit lastWindowClosed();
-        });*/
+        });
     }
 
+    // TODO: Needed?
     bool windowsCloseAcceptor_(Window* window)
     {
         if (!window) return false;

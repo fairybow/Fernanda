@@ -165,7 +165,7 @@ private:
         bus->addCommandHandler(
             Commands::CLOSE_ALL_TABS_IN_WINDOW,
             [&](const Command& cmd) {
-                // check cmd.context
+                if (!cmd.context) return false;
 
                 // Get a list of all files (iterating backward) that are not
                 // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
@@ -174,14 +174,16 @@ private:
 
                 // Handle prompt result (Cancel return, Discard proceed without saves, Save (any or all selected)
 
-                // If proceeding, bus->execute(Commands::REMOVE_VIEWS, cmd.context);
+                // If proceeding:
+                bus->execute(Commands::REMOVE_VIEWS, cmd.context);
+                return true;
             });
 
         // TODO: We may NO LONGER NEED window CLOSE ACCEPTOR! Unclear to me at
         // this moment. First, just plan it out here and for Notebook and see
         // what it looks like...
         bus->addCommandHandler(Commands::CLOSE_WINDOW, [&](const Command& cmd) {
-            // check cmd.context
+            if (!cmd.context) return; // return val?
 
             // Unsure:
 

@@ -249,7 +249,7 @@ private:
         // this moment. First, just plan it out here and for Notepad and see
         // what it looks like...
         bus->addCommandHandler(Commands::CLOSE_WINDOW, [&](const Command& cmd) {
-            // check cmd.context
+            if (!cmd.context) return; // return val?
 
             // check windows count
 
@@ -260,9 +260,9 @@ private:
             // Handle prompt result (Cancel return, Discard proceed no save, or
             // Save and proceed if success)
 
-            // If proceeding, bus->execute(Commands::REMOVE_VIEWS, cmd.context);
-
-            // cmd.context->close();
+            // If proceeding:
+            bus->execute(Commands::REMOVE_VIEWS, cmd.context);
+            cmd.context->close();
 
             // If that was last window, window service will emit the
             // lastWindowClosed signal, and App will destroy this Notebook
