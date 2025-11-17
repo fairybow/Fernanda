@@ -23,6 +23,7 @@ constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 
 constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
 constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
+// TODO: Should this be poly?
 constexpr auto CLOSE_WINDOW = "workspace:close_window";
 
 // Poly: same command for all Workspace types but registered differently by

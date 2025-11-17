@@ -149,8 +149,6 @@ private:
             if (!cmd.context) return false;
             auto index = cmd.param<int>("index", -1); // -1 = current
 
-            // Get index param (-1 = current view)
-
             // Check that this is the last view on model
 
             // If so, check if model is modified
