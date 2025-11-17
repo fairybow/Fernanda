@@ -105,13 +105,12 @@ protected:
         } else if (
             event->type() == QEvent::Show || event->type() == QEvent::Hide) {
 
-            //if (auto window = qobject_cast<Window*>(watched))
-                //emit bus->visibleWindowCountChanged(visibleCount_());
+            // if (auto window = qobject_cast<Window*>(watched))
+            // emit bus->visibleWindowCountChanged(visibleCount_());
 
         } else if (event->type() == QEvent::Close) {
 
             //...
-
         }
 
         return QObject::eventFilter(watched, event);
@@ -165,11 +164,11 @@ private:
         return DEFAULT_GEOMETRY_;
     }
 
-    // NOTE: Returns a stable copy of the z-ordered window list
-    // (copy won't be affected by subsequent add/remove operations)
+    // Returns a stable copy of the z-ordered window list (copy won't be
+    // affected by subsequent add/remove operations)
     QList<Window*> windows_() const { return zOrderedVolatileWindows_; }
 
-    // NOTE: Highest window is first when reversed
+    // Highest window is first when reversed
     QList<Window*> windowsReversed_() const
     {
         QList<Window*> list{};
@@ -206,7 +205,7 @@ private:
         return visible;
     }
 
-    // Note: Can be set to nullptr
+    // Can be set to nullptr
     void setActiveWindow_(Window* activeWindow)
     {
         if (activeWindow_ == activeWindow) return;
@@ -247,8 +246,8 @@ private slots:
             // the same WindowManager, then we should activate that one instead
             if (lastFocusedAppWindow_
                 && zOrderedVolatileWindows_.contains(lastFocusedAppWindow_)) {
-                // Note: I am not entirely sure my logic/reasoning for tracking
-                // an app-wide active window is correct or necessary, but so far
+                // I am not entirely sure my logic/reasoning for tracking an
+                // app-wide active window is correct or necessary, but so far
                 // everything seems to work okay...
                 lastFocusedAppWindow_->activate();
 
@@ -258,7 +257,6 @@ private slots:
                 // it is, Qt should have taken care of refocusing
                 auto& next_window = zOrderedVolatileWindows_.last();
                 next_window->activate();
-
             }
         }
 

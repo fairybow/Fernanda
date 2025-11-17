@@ -229,7 +229,7 @@ private:
             if (!cmd.context) return false;
             bus->execute(
                 Commands::REMOVE_VIEW,
-                { { "index", cmd.param<int>("index", -1) } },
+                { { "index", cmd.param<int>("index", -1) } }, // -1 = current
                 cmd.context);
             return true;
         });
@@ -245,9 +245,38 @@ private:
 
         // TODO: Notebook will have to prompt not for tab closes but for window
         // closures (if last window) and app quit
+        // TODO: We may NO LONGER NEED window CLOSE ACCEPTOR! Unclear to me at
+        // this moment. First, just plan it out here and for Notepad and see
+        // what it looks like...
         bus->addCommandHandler(Commands::CLOSE_WINDOW, [&](const Command& cmd) {
-            //...
+            // check cmd.context
+
+            // check windows count
+
+            // if count is 1, check Notebook is modified
+
+            // if Notebook is modified, prompt to Save, Discard, or Cancel
+
+            // Handle prompt result (Cancel return, Discard proceed no save, or
+            // Save and proceed if success)
+
+            // If proceeding, bus->execute(Commands::REMOVE_VIEWS, cmd.context);
+
+            // cmd.context->close();
+
+            // If that was last window, window service will emit the
+            // lastWindowClosed signal, and App will destroy this Notebook
+            // (which will automatically destroy its TempDir)
         });
+
+        // TODO: Should we have a "quit acceptor"? It could run a new
+        // CLOSE_ALL_WINDOWS command from the base class? Allow us to handle
+        // things in a specific way when the application is closing, instead of
+        // just letting each window close (and possibly resulting in multiple
+        // svae prompts, when one would be better)?
+
+        // Quit procedure (from Notebook's perspective):
+        //...
     }
 
     void connectBusEvents_()

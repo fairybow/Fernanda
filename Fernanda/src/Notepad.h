@@ -147,7 +147,7 @@ private:
         // Can discard return in some cases
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             if (!cmd.context) return false;
-            auto index = cmd.param<int>("index", -1);
+            auto index = cmd.param<int>("index", -1); // -1 = current
 
             // Get index param (-1 = current view)
 
@@ -167,12 +167,38 @@ private:
         bus->addCommandHandler(
             Commands::CLOSE_ALL_TABS_IN_WINDOW,
             [&](const Command& cmd) {
-                //...
+                // check cmd.context
+
+                // Get a list of all files (iterating backward) that are not
+                // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
+
+                // Save Prompt (multi-file selection version; Save (with selections, defaulted to all), Discard, or Cancel)
+
+                // Handle prompt result (Cancel return, Discard proceed without saves, Save (any or all selected)
+
+                // If proceeding, bus->execute(Commands::REMOVE_VIEWS, cmd.context);
             });
 
+        // TODO: We may NO LONGER NEED window CLOSE ACCEPTOR! Unclear to me at
+        // this moment. First, just plan it out here and for Notebook and see
+        // what it looks like...
         bus->addCommandHandler(Commands::CLOSE_WINDOW, [&](const Command& cmd) {
-            //...
+            // check cmd.context
+
+            // Unsure:
+
+            // Just check return value of CLOSE_ALL_TABS_IN_WINDOW? If true,
+            // call cmd.context->close()?
         });
+
+        // TODO: Should we have a "quit acceptor"? It could run a new
+        // CLOSE_ALL_WINDOWS command from the base class? Allow us to handle
+        // things in a specific way when the application is closing, instead of
+        // just letting each window close (and possibly resulting in multiple
+        // svae prompts, when one would be better)?
+
+        // Quit procedure (from Notepad's perspective):
+        //...
     }
 
     void connectBusEvents_()

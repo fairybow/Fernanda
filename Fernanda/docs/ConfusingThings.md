@@ -2,6 +2,14 @@
 
 TODO: Expand this!
 
+## Notepad vs. Notebooks
+
+The Notepad (one instance only) exists for the lifetime of the application, even with no windows open. Notebooks are contained editing environments based on archive files that will be destroyed once their last window is closed. Multiple Notebooks can be opened and closed during the lifetime of the application.
+
+## When does the application quit?
+
+Closing the last Notepad window will only quit the application if there are no Notebooks open. Closing the last window of a Notebook will only quit if there are no other Notebooks open and Notepad has no windows open.
+
 ## Why `poly` commands?
 
 ...
