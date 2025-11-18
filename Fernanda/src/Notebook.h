@@ -217,7 +217,7 @@ private:
         /// WIP:
 
         // TODO: We may not use a return value for this implementation of
-        // CLOSE_TAB and CLOSE_ALL_TABS_IN_WINDOW. We may or may not need it? If
+        // CLOSE_TAB and CLOSE_WINDOW_TABS. We may or may not need it? If
         // we're sticking with the base class (Workspace) window close acceptor,
         // then we likely DO need it. And, too, if that's the case, then last
         // window closure may be where we handle the Notebook save prompt? So,
@@ -236,7 +236,7 @@ private:
 
         // TODO: Decide on return value (see above)
         bus->addCommandHandler(
-            Commands::CLOSE_ALL_TABS_IN_WINDOW,
+            Commands::CLOSE_WINDOW_TABS,
             [&](const Command& cmd) {
                 if (!cmd.context) return false;
                 bus->execute(Commands::REMOVE_VIEWS, cmd.context);
@@ -248,20 +248,18 @@ private:
         bus->addCommandHandler(
             Commands::CLOSE_WINDOW_CHECK,
             [&](const Command& cmd) {
-                TRACER; // <- This isn't printing??
-
                 if (!cmd.context) return false;
 
-                // check windows count
+                if (bus->call<int>(Commands::WINDOW_COUNT) < 2) {
+                    // if count is 1, check Notebook is modified
 
-                // if count is 1, check Notebook is modified
+                    // if Notebook is modified, prompt to Save, Discard, or
+                    // Cancel
 
-                // if Notebook is modified, prompt to Save, Discard, or Cancel
+                    // Handle prompt result (Cancel return; Discard proceed, no
+                    // save; or Save and proceed if success)
+                }
 
-                // Handle prompt result (Cancel return, Discard proceed no save,
-                // or Save and proceed if success)
-
-                // If proceeding:
                 bus->execute(Commands::REMOVE_VIEWS, cmd.context);
                 return true;
 

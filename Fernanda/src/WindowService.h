@@ -90,6 +90,10 @@ protected:
         bus->addCommandHandler(Commands::WINDOWS_SET, [&] {
             return unorderedWindows_;
         });
+
+        bus->addCommandHandler(Commands::WINDOW_COUNT, [&] {
+            return static_cast<int>(unorderedWindows_.count());
+        });
     }
 
     virtual void connectBusEvents() override

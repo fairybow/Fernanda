@@ -141,20 +141,17 @@ namespace Internal {
         common.file.closeAllTabsInWindow = makeBusAction(
             bus,
             window,
-            Commands::CLOSE_ALL_TABS_IN_WINDOW,
+            Commands::CLOSE_WINDOW_TABS,
             Tr::Menus::fileCloseAllTabsInWindow()); /// * (np wip)
 
         common.file.closeWindow =
             makeAction(window, Tr::Menus::fileCloseWindow(), [window] {
                 if (!window) return;
                 window->close();
-            });
+            }); /// *
 
-        common.file.quit = makeBusAction(
-            bus,
-            window,
-            Commands::QUIT,
-            Tr::Menus::fileQuit());
+        common.file.quit =
+            makeBusAction(bus, window, Commands::QUIT, Tr::Menus::fileQuit());
 
         common.edit.undo = makeBusAction(
             bus,

@@ -2,6 +2,8 @@
 
 TODO: Update tab/window closure items!
 
+TODO: Could use a namespace/prefix to distinguish "public" commands (i.e., things used in menus) vs "internal" ones (like windows:set).
+
 Commands are dynamically registered and can vary per workspace type. Events are statically defined signals for type safety and Qt integration. This asymmetry is intentional: commands are vocabulary, events are grammar.
 
 ## Commands
@@ -65,6 +67,7 @@ Window service command handlers should be responsible for showing the window. Wh
 - `new`*: Creates and shows a new window in the current workspace.
 - `active`: Returns the active (top-most) window of the workspace.
 - `set`: Returns a `QSet` of all Workspace windows.
+- `count`: Returns the number of Workspace windows.
 
 ### `views`
 

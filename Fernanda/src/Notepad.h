@@ -28,6 +28,7 @@
 #include "TreeViewModule.h"
 #include "Version.h"
 #include "Workspace.h"
+#include "IFileModel.h"
 
 namespace Fernanda {
 
@@ -145,36 +146,122 @@ private:
         /// WIP:
 
         // Can discard return in some cases
+        //bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+        //    if (!cmd.context) return false;
+        //    auto index = cmd.param<int>("index", -1); // -1 = current
+
+        //    auto model = bus->call<IFileModel*>(
+        //        Commands::MODEL_AT,
+        //        { { "index", index } },
+        //        cmd.context);
+        //    if (!model) return false;
+
+        //    auto model_qvar = qVar(model);
+        //    auto is_last_view = bus->call<int>(
+        //                            Commands::MODEL_VIEW_COUNT,
+        //                            { { "model", model_qvar } })
+        //                        <= 1;
+
+        //    if (is_last_view) {
+        //        // Check if model is modified
+
+        //        // If so, prompt save
+
+        //        // Handle save prompt result (Cancel return, Discard proceed,
+        //        // Save and proceed if success)
+        //    }
+
+        //    bus->execute(
+        //        Commands::REMOVE_VIEW,
+        //        { { "index", index } }, // -1 = current
+        //        cmd.context);
+
+        //    // If this was the last view, close model, too
+        //    if (is_last_view)
+        //        bus->execute(
+        //            Commands::DESTROY_MODEL,
+        //            { { "model", model_qvar } },
+        //            cmd.context);
+
+        //    return true;
+        //});
+
+        /// Next step: figure out why this doesn't work lol
+
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return false;
-            auto index = cmd.param<int>("index", -1); // -1 = current
+            INFO("Notepad CLOSE_TAB handler start");
 
-            // Check that this is the last view on model
+            if (!cmd.context) {
+                INFO("No context!");
+                return false;
+            }
 
-            // If so, check if model is modified
+            auto index = cmd.param<int>("index", -1);
+            INFO("Index from params: {}", index);
 
-            // If so, prompt save
+            auto model = bus->call<IFileModel*>(
+                Commands::MODEL_AT,
+                { { "index", index } },
+                cmd.context);
 
-            // Handle save prompt result
+            if (!model) {
+                INFO("No model found at index {}", index);
+                return false;
+            }
 
-            // Execute REMOVE_VIEW
+            INFO("Model found: {}", model);
 
-            // If this was the last view, close model, too
+            auto model_qvar = qVar(model);
+            auto view_count = bus->call<int>(
+                Commands::MODEL_VIEW_COUNT,
+                { { "model", model_qvar } });
 
+            INFO("View count for model: {}", view_count);
+
+            auto is_last_view = view_count <= 1;
+
+            if (is_last_view) {
+                INFO("This is the last view on the model");
+                // Check if model is modified
+                // If so, prompt save
+                // Handle save prompt result
+            }
+
+            INFO("About to call REMOVE_VIEW with index {}", index);
+
+            bus->execute(
+                Commands::REMOVE_VIEW,
+                { { "index", index } },
+                cmd.context);
+
+            INFO("REMOVE_VIEW executed");
+
+            if (is_last_view) {
+                INFO("About to destroy model");
+                bus->execute(
+                    Commands::DESTROY_MODEL,
+                    { { "model", model_qvar } },
+                    cmd.context);
+                INFO("DESTROY_MODEL executed");
+            }
+
+            INFO("Notepad CLOSE_TAB handler returning true");
             return true;
         });
 
         bus->addCommandHandler(
-            Commands::CLOSE_ALL_TABS_IN_WINDOW,
+            Commands::CLOSE_WINDOW_TABS,
             [&](const Command& cmd) {
                 if (!cmd.context) return false;
 
                 // Get a list of all files (iterating backward) that are not
                 // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
 
-                // Save Prompt (multi-file selection version; Save (with selections, defaulted to all), Discard, or Cancel)
+                // Save Prompt (multi-file selection version; Save (with
+                // selections, defaulted to all), Discard, or Cancel)
 
-                // Handle prompt result (Cancel return, Discard proceed without saves, Save (any or all selected)
+                // Handle prompt result (Cancel return, Discard proceed without
+                // saves, Save (any or all selected)
 
                 // If proceeding:
                 bus->execute(Commands::REMOVE_VIEWS, cmd.context);
@@ -184,9 +271,8 @@ private:
         bus->addCommandHandler(
             Commands::CLOSE_WINDOW_CHECK,
             [&](const Command& cmd) {
-                TRACER; // <- This isn't printing??
                 if (!cmd.context) return false;
-                // Can perhaps return CLOSE_ALL_TABS_IN_WINDOW?
+                // Can perhaps return CLOSE_WINDOW_TABS?
                 return true; // <- Temp
             });
 

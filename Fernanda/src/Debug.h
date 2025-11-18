@@ -43,13 +43,13 @@ namespace Internal {
     constexpr auto VOC_FORMAT_ = "In {}: {}";
     constexpr auto MSG_FORMAT_ = "{} | {} | {}";
 
-    static std::atomic<bool> logging_{ false };
-    // static std::atomic<bool> firstWrite{ true };
-    static std::atomic<uint64_t> logCount_{ 0 };
+    inline std::atomic<bool> logging_{ false };
+    // inline std::atomic<bool> firstWrite{ true };
+    inline std::atomic<uint64_t> logCount_{ 0 };
 
-    static std::mutex mutex_{};
-    // static Coco::Path logFilePath_{};
-    static QtMessageHandler qtHandler_ = nullptr;
+    inline std::mutex mutex_{};
+    // inline  Coco::Path logFilePath_{};
+    inline QtMessageHandler qtHandler_ = nullptr;
 
     static std::string timestamp_()
     {

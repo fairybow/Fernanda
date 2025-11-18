@@ -30,7 +30,7 @@ constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 
 constexpr auto NEW_TAB = "poly:new_tab"; /// *
 constexpr auto CLOSE_TAB = "poly:close_tab"; /// * (np wip)
-constexpr auto CLOSE_ALL_TABS_IN_WINDOW =
+constexpr auto CLOSE_WINDOW_TABS =
     "poly:close_all_tabs_in_window"; /// * (np wip)
 constexpr auto CLOSE_WINDOW_CHECK = "poly:close_window_check"; /// *, non-menu
 constexpr auto WS_TREE_VIEW_MODEL = "poly:ws_tree_view_model"; /// *, non-menu
@@ -77,6 +77,7 @@ constexpr auto SETTINGS_DIALOG = "settings:dialog";
 constexpr auto NEW_WINDOW = "windows:new"; /// *
 constexpr auto ACTIVE_WINDOW = "windows:active"; /// *, non-menu
 constexpr auto WINDOWS_SET = "windows:set"; /// *, non-menu
+constexpr auto WINDOW_COUNT = "windows:count"; /// *, non-menu
 
 // ColorBarModule scope
 
