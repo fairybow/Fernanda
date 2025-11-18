@@ -103,7 +103,7 @@ protected:
 
                 auto path = model->meta()->path();
                 pathToFileModel_.remove(path);
-                delete model;
+                delete model; /// Problem here. Dangling pointer when Bus tries to log this! DUH!!!!
             });
     }
 
