@@ -10,6 +10,13 @@ The Notepad (one instance only) exists for the lifetime of the application, even
 
 Closing the last Notepad window will only quit the application if there are no Notebooks open. Closing the last window of a Notebook will only quit if there are no other Notebooks open and Notepad has no windows open.
 
+## Why no Window close command?
+
+Each Workspace type needs to do its own checks in its own way when closing a Window. Since windows can be closed from multiple places (close button or menu), each Window carries its checks with it, in its CloseAcceptor. To avoid making the base Workspace's WindowService protected, Workspace registers a universal CloseAcceptor, but this universal CloseAcceptor calls a poly command that each Workspace type implements in its own way.
+
+> [!NOTE]
+> Windows are only ever be closed by calling their `close()` method.
+
 ## Why `poly` commands?
 
 ...

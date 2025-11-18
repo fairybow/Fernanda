@@ -20,7 +20,6 @@ Commands are formatted as `scope:action`.
 
 - `new_notebook`*: Opens a file dialog to create a new Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
 - `open_notebook`*: Opens a file dialog to select an existing Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
-- `close_window`*: Closes the specified window after running the workspace's close acceptor (which typically handles closing all tabs and save prompts).
 
 ### `poly`
 
@@ -35,6 +34,9 @@ Poly commands are registered per Workspace type (Notepad or Notebook) but called
 - `close_all_tabs_in_window`*: Closes all tabs in the current window with workspace-specific save handling.
     - **Notepad**: Iterates backward through tabs. Builds a list of unique modified models that only have views in this window (skips models with views in other windows). If the list is not empty, shows multi-file save prompt with checkboxes. User can save selected files, discard all, or cancel. If cancel, aborts. Otherwise, saves chosen files, then closes all views and models.
     - **Notebook**: Simply closes all views without prompting.
+- `close_window_check`: Called in base Workspace in its Window close acceptor. Each Workspace type implements its own behavior on how to reject or accept the closure.
+    - **Notepad**: Checks all tabs in the window for modified models and prompts for save.
+    - **Notebook**: Prompts for save if the closing window is the last window.
 - `ws_tree_view_model`: Returns the Workspace's file model (OS-based for Notepad and archive-based for Notebooks).
 - `ws_tree_view_root_index`: Returns the Workspace's current TreeView root index.
 
@@ -104,6 +106,7 @@ Window service command handlers should be responsible for showing the window. Wh
 
 Can be connected to and emitted by Services.
 
+- `lastWindowClosed()`: Emitted when the last window in the workspace is closed
 - `windowCreated(Window* context)`: Emitted when a new window is created
 - `windowDestroyed(Window* context)`: Emitted when a window is destroyed
 - `treeViewDoubleClicked(Window* context, const QModelIndex& index)`: Emitted when a tree view item is double-clicked

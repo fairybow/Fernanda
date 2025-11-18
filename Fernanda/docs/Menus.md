@@ -24,7 +24,7 @@ Open notebook                               workspace:open_notebook
 Close tab                                   poly:close_tab                   [Toggle]
 Close all tabs in window                    poly:close_all_tabs_in_window    [Toggle]
 -------------------------------------------
-Close window                                workspace:close_window
+Close window
 -------------------------------------------
 Quit                        Ctrl+Q          application:quit
 ```
@@ -60,7 +60,7 @@ Quit                        Ctrl+Q          application:quit
 
 **Close window:**
 
-- Calls the window close acceptor, which delegates to "close all tabs in window" logic.
+- Calls the window close method, which in turn calls the close acceptor, allowing necessary checks to happen before accepting or rejecting the close.
 - In Notepad: This may prompt for saves (via close all tabs logic).
 - In Notebook: If this is NOT the last window, close tabs without prompting. If this IS the last window, check if archive is modified. If modified, prompt to save the archive. On save/discard, close tabs and clean up temp directory. On cancel, abort window close.
 - WindowService emits `windowDestroyed` on success. If this was the last window in the workspace, emits `lastWindowClosed`.
@@ -70,11 +70,6 @@ Quit                        Ctrl+Q          application:quit
 - First, iterate through all Notebook workspaces. For each: check if modified, prompt to save archive if needed, close all windows. If any Notebook close is canceled, abort quit.
 - Then, iterate through Notepad windows (reverse z-order). Call close window for each. If any window close is cancelled, abort quit.
 - If all closes succeed, call `Application::quit()`.
-
-**Notes:**
-
-- `Close window` will likely utilize `Close all tabs in window`.
-- Notebook's modified state is cumulative (tracked at workspace level) while Notepad's is granular (tracked per file model).
 
 ### Edit
 

@@ -65,6 +65,7 @@
 
 ### Clean-up (High Priority)
 
+- [ ] Check for places where std::forward would be appropriate (and where args can be forwarding ref)
 - [ ] Where possible, make the command handler lambdas just wrap a private method (see ViewService) - much cleaner
 - [ ] Clean up lambda captures (value capture may be volatile (re: C++ 20's `=` change), specify everything)
 - [ ] Defensive QHash removals, when object is removed not just the window (see TreeViewModule)

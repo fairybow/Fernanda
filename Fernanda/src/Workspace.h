@@ -98,8 +98,7 @@ private:
         treeViews_->initialize();
         colorBars_->initialize();
 
-        // TODO: Needed?
-        windows_->setCloseAcceptor(this, &Workspace::windowsCloseAcceptor_);
+        windows_->setCloseAcceptor(this, &Workspace::windowCloseAcceptor_);
         //...
 
         registerBusCommands_();
@@ -116,21 +115,10 @@ private:
         });
     }
 
-    // TODO: Needed?
-    bool windowsCloseAcceptor_(Window* window)
+    bool windowCloseAcceptor_(Window* window)
     {
         if (!window) return false;
-        TRACER;
-        qDebug() << "Implement";
-
-        // TODO: What we could do, instead of nixing the close acceptor or
-        // registering separate close acceptors per workspace type (which would
-        // mean window would need to be protected), is delegate to a poly
-        // command that runs the necessary window save/archive save check and
-        // performs tab closures in each workspace type and returns bool?
-
-        // Temp:
-        return true;
+        return bus->call<bool>(Commands::CLOSE_WINDOW_CHECK, window);
     }
 };
 

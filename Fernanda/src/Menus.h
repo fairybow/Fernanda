@@ -10,6 +10,7 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 
 #include <QAction>
 #include <QKeySequence>
@@ -33,6 +34,28 @@ namespace Fernanda::Menus {
 using Inserter = std::function<void(QMenu*)>;
 COCO_BOOL(AutoRepeat);
 
+template <typename SlotT>
+inline QAction* makeAction(
+    Window* window,
+    const QString& text,
+    SlotT&& slot,
+    const QKeySequence& keySequence = {},
+    AutoRepeat autoRepeat = AutoRepeat::No)
+{
+    if (!window) return nullptr;
+
+    auto action = new QAction(text, window);
+    action->connect(
+        action,
+        &QAction::triggered,
+        window,
+        std::forward<SlotT>(slot));
+    action->setShortcut(keySequence);
+    action->setAutoRepeat(autoRepeat);
+
+    return action;
+}
+
 inline QAction* makeBusAction(
     Bus* bus,
     Window* window,
@@ -42,16 +65,16 @@ inline QAction* makeBusAction(
     const QKeySequence& keySequence = {},
     AutoRepeat autoRepeat = AutoRepeat::No)
 {
-    if (!window) return nullptr;
+    if (!bus) return nullptr;
 
-    auto action = new QAction(text, window);
-    action->connect(action, &QAction::triggered, window, [=] {
-        bus->execute(commandId, commandParams, window);
-    });
-    action->setShortcut(keySequence);
-    action->setAutoRepeat(autoRepeat);
-
-    return action;
+    return makeAction(
+        window,
+        text,
+        [bus, commandId, commandParams, window] {
+            bus->execute(commandId, commandParams, window);
+        },
+        keySequence,
+        autoRepeat);
 }
 
 inline QAction* makeBusAction(
@@ -121,11 +144,11 @@ namespace Internal {
             Commands::CLOSE_ALL_TABS_IN_WINDOW,
             Tr::Menus::fileCloseAllTabsInWindow()); /// * (np wip)
 
-        common.file.closeWindow = makeBusAction(
-            bus,
-            window,
-            Commands::CLOSE_WINDOW,
-            Tr::Menus::fileCloseWindow());
+        common.file.closeWindow =
+            makeAction(window, Tr::Menus::fileCloseWindow(), [window] {
+                if (!window) return;
+                window->close();
+            });
 
         common.file.quit = makeBusAction(
             bus,

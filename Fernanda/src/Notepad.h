@@ -160,6 +160,8 @@ private:
             // Execute REMOVE_VIEW
 
             // If this was the last view, close model, too
+
+            return true;
         });
 
         bus->addCommandHandler(
@@ -179,17 +181,14 @@ private:
                 return true;
             });
 
-        // TODO: We may NO LONGER NEED window CLOSE ACCEPTOR! Unclear to me at
-        // this moment. First, just plan it out here and for Notebook and see
-        // what it looks like...
-        bus->addCommandHandler(Commands::CLOSE_WINDOW, [&](const Command& cmd) {
-            if (!cmd.context) return; // return val?
-
-            // Unsure:
-
-            // Just check return value of CLOSE_ALL_TABS_IN_WINDOW? If true,
-            // call cmd.context->close()?
-        });
+        bus->addCommandHandler(
+            Commands::CLOSE_WINDOW_CHECK,
+            [&](const Command& cmd) {
+                TRACER; // <- This isn't printing??
+                if (!cmd.context) return false;
+                // Can perhaps return CLOSE_ALL_TABS_IN_WINDOW?
+                return true; // <- Temp
+            });
 
         // Quit procedure (from Notepad's perspective):
         //...figure out after window closure

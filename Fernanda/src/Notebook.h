@@ -245,29 +245,30 @@ private:
 
         // TODO: Notebook will have to prompt not for tab closes but for window
         // closures (if last window) and app quit
-        // TODO: We may NO LONGER NEED window CLOSE ACCEPTOR! Unclear to me at
-        // this moment. First, just plan it out here and for Notepad and see
-        // what it looks like...
-        bus->addCommandHandler(Commands::CLOSE_WINDOW, [&](const Command& cmd) {
-            if (!cmd.context) return; // return val?
+        bus->addCommandHandler(
+            Commands::CLOSE_WINDOW_CHECK,
+            [&](const Command& cmd) {
+                TRACER; // <- This isn't printing??
 
-            // check windows count
+                if (!cmd.context) return false;
 
-            // if count is 1, check Notebook is modified
+                // check windows count
 
-            // if Notebook is modified, prompt to Save, Discard, or Cancel
+                // if count is 1, check Notebook is modified
 
-            // Handle prompt result (Cancel return, Discard proceed no save, or
-            // Save and proceed if success)
+                // if Notebook is modified, prompt to Save, Discard, or Cancel
 
-            // If proceeding:
-            bus->execute(Commands::REMOVE_VIEWS, cmd.context);
-            cmd.context->close();
+                // Handle prompt result (Cancel return, Discard proceed no save,
+                // or Save and proceed if success)
 
-            // If that was last window, window service will emit the
-            // lastWindowClosed signal, and App will destroy this Notebook
-            // (which will automatically destroy its TempDir)
-        });
+                // If proceeding:
+                bus->execute(Commands::REMOVE_VIEWS, cmd.context);
+                return true;
+
+                // If that was last window, window service will emit the
+                // lastWindowClosed signal, and App will destroy this Notebook
+                // (which will automatically destroy its TempDir)
+            });
 
         // Quit procedure (from Notebook's perspective):
         //...figure out after window closure
