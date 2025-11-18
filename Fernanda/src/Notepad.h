@@ -211,10 +211,9 @@ private:
 
             INFO("Model found: {}", model);
 
-            auto model_qvar = qVar(model);
             auto view_count = bus->call<int>(
                 Commands::MODEL_VIEW_COUNT,
-                { { "model", model_qvar } });
+                { { "model", qVar(model) } });
 
             INFO("View count for model: {}", view_count);
 
@@ -240,7 +239,7 @@ private:
                 INFO("About to destroy model");
                 bus->execute(
                     Commands::DESTROY_MODEL,
-                    { { "model", model_qvar } },
+                    { { "model", qVar(model) } },
                     cmd.context);
                 INFO("DESTROY_MODEL executed");
             }
