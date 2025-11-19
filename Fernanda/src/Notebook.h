@@ -227,10 +227,9 @@ private:
         // TODO: Decide on return value (see above)
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             if (!cmd.context) return false;
-            bus->execute(
-                Commands::REMOVE_VIEW,
-                { { "index", cmd.param<int>("index", -1) } }, // -1 = current
-                cmd.context);
+            views->deleteAt(
+                cmd.context,
+                cmd.param<int>("index", -1)); // -1 = current
             return true;
         });
 
@@ -239,7 +238,7 @@ private:
             Commands::CLOSE_WINDOW_TABS,
             [&](const Command& cmd) {
                 if (!cmd.context) return false;
-                bus->execute(Commands::REMOVE_VIEWS, cmd.context);
+                views->deleteAll(cmd.context);
                 return true;
             });
 
@@ -250,7 +249,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return false;
 
-                if (bus->call<int>(Commands::WINDOW_COUNT) < 2) {
+                if (windows->count() < 2) {
                     // if count is 1, check Notebook is modified
 
                     // if Notebook is modified, prompt to Save, Discard, or
@@ -260,7 +259,7 @@ private:
                     // save; or Save and proceed if success)
                 }
 
-                bus->execute(Commands::REMOVE_VIEWS, cmd.context);
+                views->deleteAll(cmd.context);
                 return true;
 
                 // If that was last window, window service will emit the
@@ -328,9 +327,7 @@ private slots:
 
         auto file_path = workingDir_.path() / Fnx::relativePath(element);
         auto new_name = Fnx::name(element);
-        bus->execute(
-            Commands::SET_PATH_TITLE_OVERRIDE,
-            { { "path", qVar(file_path) }, { "title", new_name } });
+        files->setPathTitleOverride(file_path, new_name);
     }
 
     void onWindowCreated_(Window* window)

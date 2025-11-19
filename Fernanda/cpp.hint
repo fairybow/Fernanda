@@ -14,3 +14,8 @@
 #define slots
 #define DEFAULT_PARSE_ constexpr auto parse(format_parse_context& ctx) { auto it = ctx.begin(); while (it != ctx.end() && *it != '}') { ++it; } return it; }
 #define STRING_FORMATTER_(T, Conversion) template <> struct std::formatter<T> : std::formatter<std::string> { auto format(const T& x, format_context& ctx) const { return std::formatter<std::string>::format(Conversion, ctx); } }
+#define INFO LOG(QtInfoMsg)
+#define DEBUG LOG(QtDebugMsg)
+#define WARN LOG(QtWarningMsg)
+#define CRITICAL LOG(QtCriticalMsg)
+#define FATAL LOG(QtFatalMsg)

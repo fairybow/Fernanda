@@ -68,37 +68,38 @@ public:
 
     void activate() const
     {
-        if (auto active_window = bus->call<Window*>(Commands::ACTIVE_WINDOW))
-            active_window->activate();
+        if (auto active_window = windows->active())
+            active_window->activate(); // Stack under will raise any others
     }
 
 signals:
     void lastWindowClosed();
 
 protected:
-    Bus* bus = new Bus(this);
+    // TODO: Getters instead?
 
-private:
-    SettingsModule* settings_ = new SettingsModule(
+    Bus* bus = new Bus(this);
+    SettingsModule* settings = new SettingsModule(
         AppDirs::userData() / Constants::CONFIG_FILE_NAME,
         bus,
         this);
-    WindowService* windows_ = new WindowService(bus, this);
-    ViewService* views_ = new ViewService(bus, this);
-    FileService* files_ = new FileService(bus, this);
-    TreeViewModule* treeViews_ = new TreeViewModule(bus, this);
-    ColorBarModule* colorBars_ = new ColorBarModule(bus, this);
+    WindowService* windows = new WindowService(bus, this);
+    ViewService* views = new ViewService(bus, this);
+    FileService* files = new FileService(bus, this);
+    TreeViewModule* treeViews = new TreeViewModule(bus, this);
+    ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
+private:
     void setup_()
     {
-        settings_->initialize();
-        windows_->initialize();
-        views_->initialize();
-        files_->initialize();
-        treeViews_->initialize();
-        colorBars_->initialize();
+        settings->initialize();
+        windows->initialize();
+        views->initialize();
+        files->initialize();
+        treeViews->initialize();
+        colorBars->initialize();
 
-        windows_->setCloseAcceptor(this, &Workspace::windowCloseAcceptor_);
+        windows->setCloseAcceptor(this, &Workspace::windowCloseAcceptor_);
         //...
 
         registerBusCommands_();
@@ -118,7 +119,9 @@ private:
     bool windowCloseAcceptor_(Window* window)
     {
         if (!window) return false;
-        return bus->call<bool>(Commands::CLOSE_WINDOW_CHECK, window);
+        return bus->call<bool>(
+            Commands::CLOSE_WINDOW_CHECK,
+            window); /// COULD BE VIRTUAL PROTECTED?
     }
 };
 

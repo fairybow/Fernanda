@@ -71,6 +71,9 @@ public:
         };
     }
 
+    int count() const { return static_cast<int>(unorderedWindows_.count()); }
+    Window* active() const { return activeWindow_.get(); }
+
 protected:
     virtual void registerBusCommands() override
     {
@@ -83,16 +86,8 @@ protected:
             return window;
         });
 
-        bus->addCommandHandler(Commands::ACTIVE_WINDOW, [&] {
-            return activeWindow_.get();
-        });
-
         bus->addCommandHandler(Commands::WINDOWS_SET, [&] {
             return unorderedWindows_;
-        });
-
-        bus->addCommandHandler(Commands::WINDOW_COUNT, [&] {
-            return static_cast<int>(unorderedWindows_.count());
         });
     }
 

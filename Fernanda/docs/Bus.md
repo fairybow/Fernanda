@@ -65,9 +65,7 @@ TODO: Verify `active` behavior for min/max, etc
 Window service command handlers should be responsible for showing the window. When you call NEW_WINDOW, you expect to see a new window without having to show it yourself. Later, when we must open multiple windows for sessions, if we want to bubble them, we may have a different command that creates N windows at specified positions, and bubble-shows them itself.
 
 - `new`*: Creates and shows a new window in the current workspace.
-- `active`: Returns the active (top-most) window of the workspace.
 - `set`: Returns a `QSet` of all Workspace windows.
-- `count`: Returns the number of Workspace windows.
 
 ### `views`
 
@@ -78,10 +76,6 @@ Window service command handlers should be responsible for showing the window. Wh
 - `paste`*: Pastes clipboard content into the active file view.
 - `delete`*: Deletes the current selection in the active file view.
 - `select_all`*: Selects all content in the active file view.
-- `remove`: Removes and destroys the view at index.
-- `remove_all`: Removes and destroys all views in the given window.
-- `model_view_count`: Returns the number of views open on the model given.
-- `model_at`: Returns the model at index.
 
 ### `settings`
 
@@ -98,8 +92,6 @@ Window service command handlers should be responsible for showing the window. Wh
 
 - `open_path`: Opens a file model for the file at the given path and readies it for a view. If the file model already exists, it is re-readied for an additional view. TODO: Add asterisk if in menu!
 - `new_txt`: Opens an off-disk plaintext file and readies it for a view.
-- `set_path_title_override`: Sets the title override for the file model opened for path.
-- `destroy`: Destroys the specified model.
 
 ### `tree_views`
 

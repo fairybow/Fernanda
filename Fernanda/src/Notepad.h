@@ -199,10 +199,7 @@ private:
             auto index = cmd.param<int>("index", -1);
             INFO("Index from params: {}", index);
 
-            auto model = bus->call<IFileModel*>(
-                Commands::MODEL_AT,
-                { { "index", index } },
-                cmd.context);
+            auto model = views->modelAt(cmd.context, index);
 
             if (!model) {
                 INFO("No model found at index {}", index);
@@ -211,9 +208,7 @@ private:
 
             INFO("Model found: {}", model);
 
-            auto view_count = bus->call<int>(
-                Commands::MODEL_VIEW_COUNT,
-                { { "model", qVar(model) } });
+            auto view_count = views->viewsOn(model);
 
             INFO("View count for model: {}", view_count);
 
@@ -228,19 +223,13 @@ private:
 
             INFO("About to call REMOVE_VIEW with index {}", index);
 
-            bus->execute(
-                Commands::REMOVE_VIEW,
-                { { "index", index } },
-                cmd.context);
+            views->deleteAt(cmd.context, index);
 
             INFO("REMOVE_VIEW executed");
 
             if (is_last_view) {
                 INFO("About to destroy model");
-                bus->execute(
-                    Commands::DESTROY_MODEL,
-                    { { "model", qVar(model) } },
-                    cmd.context);
+                files->deleteModel(model);
                 INFO("DESTROY_MODEL executed");
             }
 
@@ -263,7 +252,7 @@ private:
                 // saves, Save (any or all selected)
 
                 // If proceeding:
-                bus->execute(Commands::REMOVE_VIEWS, cmd.context);
+                views->deleteAll(cmd.context);
                 return true;
             });
 

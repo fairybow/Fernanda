@@ -53,6 +53,25 @@ public:
 
     virtual ~FileService() override { TRACER; }
 
+    // TODO: Could use a handle (would that be too overly complex) instead of
+    // passing models around?
+    void deleteModel(IFileModel* model)
+    {
+        if (!model) return;
+
+        auto path = model->meta()->path();
+        pathToFileModel_.remove(path);
+        delete model;
+    }
+
+    void setPathTitleOverride(const Coco::Path& path, const QString& title)
+    {
+        if (path.isEmpty() || title.isEmpty()) return;
+
+        if (auto model = pathToFileModel_.value(path))
+            if (auto meta = model->meta()) meta->setTitleOverride(title);
+    }
+
 protected:
     virtual void registerBusCommands() override
     {
@@ -80,31 +99,6 @@ protected:
             if (auto model = newOffDiskTextFileModel_())
                 emit bus->fileModelReadied(cmd.context, model);
         });
-
-        bus->addCommandHandler(
-            Commands::SET_PATH_TITLE_OVERRIDE,
-            [&](const Command& cmd) {
-                auto path = cmd.param<Coco::Path>("path", {});
-                auto title = cmd.param<QString>("title", {});
-                if (path.isEmpty() || title.isEmpty()) return;
-
-                if (auto model = pathToFileModel_.value(path))
-                    if (auto meta = model->meta())
-                        meta->setTitleOverride(title);
-            });
-
-        /// WIP
-
-        bus->addCommandHandler(
-            Commands::DESTROY_MODEL,
-            [&](const Command& cmd) {
-                auto model = cmd.param<IFileModel*>("model");
-                if (!model) return;
-
-                auto path = model->meta()->path();
-                pathToFileModel_.remove(path);
-                delete model; /// Problem here. Dangling pointer when Bus tries to log this! DUH!!!!
-            });
     }
 
     virtual void connectBusEvents() override

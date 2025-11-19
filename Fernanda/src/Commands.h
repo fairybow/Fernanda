@@ -62,10 +62,6 @@ constexpr auto COPY = "views:copy"; /// *
 constexpr auto PASTE = "views:paste"; /// *
 constexpr auto DEL = "views:delete"; /// *
 constexpr auto SELECT_ALL = "views:select_all"; /// *
-constexpr auto REMOVE_VIEW = "views:remove"; /// *, non-menu
-constexpr auto REMOVE_VIEWS = "views:remove_all"; /// *, non-menu
-constexpr auto MODEL_VIEW_COUNT = "views:model_view_count"; /// *, non-menu
-constexpr auto MODEL_AT = "views:model_at"; /// *, non-menu
 
 // SettingsModule scope
 
@@ -75,9 +71,7 @@ constexpr auto SETTINGS_DIALOG = "settings:dialog";
 // WindowService scope
 
 constexpr auto NEW_WINDOW = "windows:new"; /// *
-constexpr auto ACTIVE_WINDOW = "windows:active"; /// *, non-menu
 constexpr auto WINDOWS_SET = "windows:set"; /// *, non-menu
-constexpr auto WINDOW_COUNT = "windows:count"; /// *, non-menu
 
 // ColorBarModule scope
 
@@ -89,9 +83,6 @@ constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 
 constexpr auto OPEN_FILE_AT_PATH = "file_models:open_path"; /// *, non-menu
 constexpr auto NEW_TXT_FILE = "file_models:new_txt"; /// *, non-menu
-constexpr auto SET_PATH_TITLE_OVERRIDE =
-    "file_models:set_path_title_override"; /// *, non-menu
-constexpr auto DESTROY_MODEL = "file_models:destroy"; /// *, non-menu
 
 // TreeViewModule scope
 

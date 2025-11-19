@@ -56,6 +56,50 @@ public:
 
     virtual ~ViewService() override { TRACER; }
 
+    // Index -1 = current
+    void deleteAt(Window* window, int index)
+    {
+        if (!window) return;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
+
+        // TODO: Section off into own method (see its duplicated usage in
+        // viewAt_)
+        auto i = (index < 0) ? tab_widget->currentIndex() : index;
+        if (i < 0 || i > tab_widget->count() - 1) return;
+
+        deleteView_(tab_widget->removeTab<IFileView*>(i));
+    }
+
+    void deleteAll(Window* window)
+    {
+        if (!window) return;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
+
+        auto views = tab_widget->clear<IFileView*>();
+        if (views.isEmpty()) return;
+
+        for (auto& view : views)
+            deleteView_(view);
+    }
+
+    // Index -1 = current. Returns the model at a view position (window + tab
+    // index). Lives in ViewService because the primary input is a view
+    // location, not a file path or model ID. Avoids FileService depending on
+    // ViewService.
+    IFileModel* modelAt(Window* window, int index)
+    {
+        auto view = viewAt_(window, index);
+        return view ? view->model() : nullptr;
+    }
+
+    int viewsOn(IFileModel* model) const
+    {
+        if (!model) return 0;
+        return viewsPerModel_.value(model, 0);
+    }
+
 protected:
     virtual void registerBusCommands() override
     {
@@ -87,46 +131,6 @@ protected:
 
         bus->addCommandHandler(Commands::SELECT_ALL, [&](const Command& cmd) {
             selectAll_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        /// WIP
-
-        bus->addCommandHandler(Commands::MODEL_AT, [&](const Command& cmd) {
-            return modelAt_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        bus->addCommandHandler(
-            Commands::MODEL_VIEW_COUNT,
-            [&](const Command& cmd) {
-                auto model = cmd.param<IFileModel*>("model");
-                return viewsPerModel_.value(model, 0);
-            });
-
-        bus->addCommandHandler(Commands::REMOVE_VIEW, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            auto tab_widget = tabWidget_(cmd.context);
-            if (!tab_widget) return;
-
-            auto index = cmd.param<int>("index", -1);
-
-            // TODO: Section off into own method (see its duplicated usage in
-            // viewAt_)
-            auto i = (index < 0) ? tab_widget->currentIndex() : index;
-            if (i < 0 || i > tab_widget->count() - 1) return;
-
-            deleteView_(tab_widget->removeTab<IFileView*>(i));
-        });
-
-        bus->addCommandHandler(Commands::REMOVE_VIEWS, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            auto tab_widget = tabWidget_(cmd.context);
-            if (!tab_widget) return;
-
-            auto views = tab_widget->clear<IFileView*>();
-            if (views.isEmpty()) return;
-
-            for (auto& view : views)
-                deleteView_(view);
         });
     }
 
@@ -187,13 +191,6 @@ private:
         return tab_widget->widgetAt<IFileView*>(i);
     }
 
-    // Passing a negative index defaults to the current index (if any)
-    IFileModel* modelAt_(Window* window, int index)
-    {
-        auto view = viewAt_(window, index);
-        return view ? view->model() : nullptr;
-    }
-
     void deleteView_(IFileView* view)
     {
         if (!view) return;
@@ -221,13 +218,13 @@ private:
 
     void undo_(Window* window, int index = -1)
     {
-        auto model = modelAt_(window, index);
+        auto model = modelAt(window, index);
         if (model && model->hasUndo()) model->undo();
     }
 
     void redo_(Window* window, int index = -1)
     {
-        auto model = modelAt_(window, index);
+        auto model = modelAt(window, index);
         if (model && model->hasRedo()) model->redo();
     }
 

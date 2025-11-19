@@ -9,6 +9,9 @@
 
 ### Core Functionality (In Progress)
 
+- [ ] Begin removing unneeded commands and calling public methods in Workspaces where appropriate. Determine what commands Workspace uses that are still used by other Services/Modules. Whatever isn't could be a public method.
+- [ ] ^ Open file at path, new .txt, windows set (maybe) commands, etc
+- [ ] ^ Virtual method for window close check
 - [x] Opening files via TreeView in both Workspaces
 - [x] NewTab behavior for both Workspaces
 - [x] Opening files via Menu in Notepad (Notebook menu won't open, just import)
