@@ -71,7 +71,7 @@ public:
         deleteView_(tab_widget->removeTab<IFileView*>(i));
     }
 
-    void deleteAll(Window* window)
+    void deleteAllIn(Window* window)
     {
         if (!window) return;
         auto tab_widget = tabWidget_(window);

@@ -62,8 +62,8 @@ public:
     {
         // ... Path args?
 
-        if (withWindow) bus->execute(Commands::NEW_WINDOW);
-        timer(1300, this, [&] { bus->execute(Commands::BE_CUTE); });
+        if (withWindow) windows->newWindow();
+        timer(1300, this, [&] { colorBars->runAll(ColorBar::Color::Pastel); });
     }
 
     void activate() const
@@ -89,6 +89,10 @@ protected:
     TreeViewModule* treeViews = new TreeViewModule(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
+protected:
+    // So each Workspace type can determine when to allow its windows to close
+    virtual bool canCloseWindow(Window* window) const = 0;
+
 private:
     void setup_()
     {
@@ -99,7 +103,10 @@ private:
         treeViews->initialize();
         colorBars->initialize();
 
-        windows->setCloseAcceptor(this, &Workspace::windowCloseAcceptor_);
+        windows->setCloseAcceptor([&](Window* window) {
+            return window ? canCloseWindow(window) : false;
+        });
+
         //...
 
         registerBusCommands_();
@@ -114,14 +121,6 @@ private:
         connect(bus, &Bus::lastWindowClosed, this, [&] {
             emit lastWindowClosed();
         });
-    }
-
-    bool windowCloseAcceptor_(Window* window)
-    {
-        if (!window) return false;
-        return bus->call<bool>(
-            Commands::CLOSE_WINDOW_CHECK,
-            window); /// COULD BE VIRTUAL PROTECTED?
     }
 };
 

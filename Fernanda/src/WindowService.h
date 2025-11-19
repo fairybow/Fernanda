@@ -74,16 +74,21 @@ public:
     int count() const { return static_cast<int>(unorderedWindows_.count()); }
     Window* active() const { return activeWindow_.get(); }
 
+    Window* newWindow()
+    {
+        auto window = make_();
+        if (window) {
+            window->setGeometry(nextWindowGeometry_());
+            window->show();
+        }
+        return window;
+    }
+
 protected:
     virtual void registerBusCommands() override
     {
         bus->addCommandHandler(Commands::NEW_WINDOW, [&] {
-            auto window = make_();
-            if (window) {
-                window->setGeometry(nextWindowGeometry_());
-                window->show();
-            }
-            return window;
+            return newWindow();
         });
 
         bus->addCommandHandler(Commands::WINDOWS_SET, [&] {

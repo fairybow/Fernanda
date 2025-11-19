@@ -32,7 +32,6 @@ constexpr auto NEW_TAB = "poly:new_tab"; /// *
 constexpr auto CLOSE_TAB = "poly:close_tab"; /// * (np wip)
 constexpr auto CLOSE_WINDOW_TABS =
     "poly:close_all_tabs_in_window"; /// * (np wip)
-constexpr auto CLOSE_WINDOW_CHECK = "poly:close_window_check"; /// *, non-menu
 constexpr auto WS_TREE_VIEW_MODEL = "poly:ws_tree_view_model"; /// *, non-menu
 constexpr auto WS_TREE_VIEW_ROOT_INDEX =
     "poly:ws_tree_view_root_index"; /// *, non-menu
@@ -77,7 +76,6 @@ constexpr auto WINDOWS_SET = "windows:set"; /// *, non-menu
 
 constexpr auto RUN_COLOR_BAR = "color_bars:run"; /// *, non-menu
 constexpr auto RUN_ALL_COLOR_BARS = "color_bars:run_all"; /// *, non-menu
-constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 
 // FileService scope
 

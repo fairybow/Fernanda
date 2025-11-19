@@ -66,6 +66,32 @@ public:
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
 
+protected:
+    virtual bool canCloseWindow(Window* window) const override
+    {
+        // TODO: Notebook will have to prompt not for tab closes but for window
+        // closures (if last window) and app quit
+
+        if (!window) return false;
+
+        if (windows->count() < 2) {
+            // if count is 1, check Notebook is modified
+
+            // if Notebook is modified, prompt to Save, Discard, or
+            // Cancel
+
+            // Handle prompt result (Cancel return; Discard proceed, no
+            // save; or Save and proceed if success)
+        }
+
+        views->deleteAllIn(window);
+        return true;
+
+        // If that was last window, window service will emit the
+        // lastWindowClosed signal, and App will destroy this Notebook
+        // (which will automatically destroy its TempDir)
+    }
+
 private:
     Coco::Path fnxPath_;
     QString name_;
@@ -238,33 +264,8 @@ private:
             Commands::CLOSE_WINDOW_TABS,
             [&](const Command& cmd) {
                 if (!cmd.context) return false;
-                views->deleteAll(cmd.context);
+                views->deleteAllIn(cmd.context);
                 return true;
-            });
-
-        // TODO: Notebook will have to prompt not for tab closes but for window
-        // closures (if last window) and app quit
-        bus->addCommandHandler(
-            Commands::CLOSE_WINDOW_CHECK,
-            [&](const Command& cmd) {
-                if (!cmd.context) return false;
-
-                if (windows->count() < 2) {
-                    // if count is 1, check Notebook is modified
-
-                    // if Notebook is modified, prompt to Save, Discard, or
-                    // Cancel
-
-                    // Handle prompt result (Cancel return; Discard proceed, no
-                    // save; or Save and proceed if success)
-                }
-
-                views->deleteAll(cmd.context);
-                return true;
-
-                // If that was last window, window service will emit the
-                // lastWindowClosed signal, and App will destroy this Notebook
-                // (which will automatically destroy its TempDir)
             });
 
         // Quit procedure (from Notebook's perspective):

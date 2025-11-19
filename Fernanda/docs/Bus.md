@@ -36,9 +36,6 @@ Poly commands are registered per Workspace type (Notepad or Notebook) but called
 - `close_all_tabs_in_window`*: Closes all tabs in the current window with workspace-specific save handling.
     - **Notepad**: Iterates backward through tabs. Builds a list of unique modified models that only have views in this window (skips models with views in other windows). If the list is not empty, shows multi-file save prompt with checkboxes. User can save selected files, discard all, or cancel. If cancel, aborts. Otherwise, saves chosen files, then closes all views and models.
     - **Notebook**: Simply closes all views without prompting.
-- `close_window_check`: Called in base Workspace in its Window close acceptor. Each Workspace type implements its own behavior on how to reject or accept the closure.
-    - **Notepad**: Checks all tabs in the window for modified models and prompts for save.
-    - **Notebook**: Prompts for save if the closing window is the last window.
 - `ws_tree_view_model`: Returns the Workspace's file model (OS-based for Notepad and archive-based for Notebooks).
 - `ws_tree_view_root_index`: Returns the Workspace's current TreeView root index.
 
@@ -86,7 +83,6 @@ Window service command handlers should be responsible for showing the window. Wh
 
 - `run`: Run the context window's color bar.
 - `run_all`: Run all workspace color bars.
-- `be_cute`: Runs all color bars with pastel gradient.
 
 ### `file_models`
 

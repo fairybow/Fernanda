@@ -95,6 +95,7 @@
 - [ ] Ensure Internals are _ postfixed and possibly without namespace once in source
 - [ ] Clean includes (Commands were in Constants briefly)
 - [ ] Check license statements
+- [ ] Would really like to see functions organized by category (e.g., public query methods, then public actions, or whatever)
 
 ### Coco Namespace Improvements
 
