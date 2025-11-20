@@ -72,6 +72,14 @@ public:
             if (auto meta = model->meta()) meta->setTitleOverride(title);
     }
 
+    void openOffDiskTxtIn(Window* window)
+    {
+        if (!window) return;
+
+        if (auto model = newOffDiskTextFileModel_())
+            emit bus->fileModelReadied(window, model);
+    }
+
 protected:
     virtual void registerBusCommands() override
     {
@@ -92,13 +100,6 @@ protected:
                 if (auto model = newDiskFileModel_(path, title))
                     emit bus->fileModelReadied(cmd.context, model);
             });
-
-        bus->addCommandHandler(Commands::NEW_TXT_FILE, [&](const Command& cmd) {
-            if (!cmd.context) return;
-
-            if (auto model = newOffDiskTextFileModel_())
-                emit bus->fileModelReadied(cmd.context, model);
-        });
     }
 
     virtual void connectBusEvents() override

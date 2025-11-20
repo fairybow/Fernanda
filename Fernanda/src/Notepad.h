@@ -148,7 +148,7 @@ private:
 
         bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
             if (!cmd.context) return;
-            bus->execute(Commands::NEW_TXT_FILE, cmd.context);
+            files->openOffDiskTxtIn(cmd.context);
         });
 
         /// WIP

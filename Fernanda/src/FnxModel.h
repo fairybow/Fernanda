@@ -60,13 +60,9 @@ public:
         emit domChanged();
     }
 
+    // TODO: Comment out and see where we can avoid copying DOM, to avoid the bug in Notebook using insertElement. Notebook shouldn't be doing this.
     QDomDocument domDocument() const { return dom_; }
 
-    // QDomElement acts as a handle to shared DOM data.
-    // Passing by value is cheap (like copying a pointer).
-    // Modifications through any copy affect the shared DOM.
-    // Parameter is non-const to document that DOM will be modified.
-    // TODO: Expand parent if applicable after appending (probably a view op)
     void insertElement(const QDomElement& element, QDomElement parentElement)
     {
         if (!isValid_(element) || !isValid_(parentElement)) return;
@@ -103,6 +99,7 @@ public:
         emit domChanged();
     }
 
+    // TODO: Make private?
     bool
     moveElement(const QDomElement& element, QDomElement newParent, int newRow)
     {
@@ -139,56 +136,6 @@ public:
             newParent,
             dest_row);
 
-        /*if (!beginMoveRows(
-                source_parent_index,
-                source_row,
-                source_row,
-                dest_parent_index,
-                dest_row)) {
-            return false;
-        }
-
-        // Perform DOM manipulation
-        current_parent.removeChild(element);
-
-        // After removal, dest_row might be out of bounds, which is fine
-        if (dest_row >= childElementCount_(newParent)) {
-            newParent.appendChild(element);
-        } else {
-            auto sibling = nthChildElement_(newParent, dest_row);
-            if (!sibling.isNull()) {
-                newParent.insertBefore(element, sibling);
-            } else {
-                newParent.appendChild(element);
-            }
-        }*/
-
-        /// TEST
-
-        /*1 - Move 1 from Chapter 1 into Other Notes
-        2 - Move Chapter 1 from Root into 1
-        3 - Move Other Notes down from Notes into Root (row 1 (bottom))
-        4 - Move 1 down from Other Notes into Root (row 2 (bottom))
-        5 - Move Chapter 1 down from 1 into Root (row 3 (bottom))
-        6 - Move Notes from Root into 1
-        7 - Move Other Notes from Root to Root (row 2 (above the bottom item,
-        which is Chapter 1, but when it populates, it will be below Chapter 1))
-        8 - Move Notes from 1 into Chapter 1
-        9 - Move Chapter 1 from Root into Other Notes*/
-
-        // OR
-
-        /*1 - Move 1 from Chapter 1 into Other Notes
-        2 - Move Chapter 1 from Root into 1
-        3 - Move Other Notes down from Notes into Root (row 1 (bottom))
-        4 - Move 1 down from Other Notes into Root (row 2 (bottom))
-        5 - Move Chapter 1 down from 1 into Root (row 3 (bottom))
-        6 - Move Notes from Root to Root (row 2 (above the bottom item,
-        which is Chapter 1, but when it populates, it will be below Chapter 1))
-        8 - Move Other Notes from Root into Notes*/
-
-        /// Seems to fix it:
-
         // Adjust destination row for beginMoveRows when moving within same
         // parent
         auto dest_row_for_begin = dest_row;
@@ -221,8 +168,6 @@ public:
                 newParent.appendChild(element);
             }
         }
-
-        /// END TEST
 
         endMoveRows();
         emit domChanged();

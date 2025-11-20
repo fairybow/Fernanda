@@ -27,6 +27,7 @@
 #include "AppDirs.h"
 #include "TextIo.h"
 
+// TODO: Redo this description!
 // The .fnx file format specification and utilities. Defines everything about
 // the .fnx format: archive I/O, Model.xml structure, DOM element creation, and
 // format constants. Single source of truth for "what is a valid .fnx file."

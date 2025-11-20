@@ -11,7 +11,8 @@
 
 - [ ] Begin removing unneeded commands and calling public methods in Workspaces where appropriate. Determine what commands Workspace uses that are still used by other Services/Modules. Whatever isn't could be a public method.
 - [ ] ^ Open file at path, new .txt, windows set (maybe) commands, etc
-- [ ] ^ Virtual method for window close check
+- [ ] ^ Open file is complicated because of the need for interception (need to reconcile this command, anyway, with the Notepad and Notebook open/import file commands)
+- [x] ^ Virtual method for window close check
 - [x] Opening files via TreeView in both Workspaces
 - [x] NewTab behavior for both Workspaces
 - [x] Opening files via Menu in Notepad (Notebook menu won't open, just import)
@@ -88,6 +89,7 @@
 ### General Clean-up
 
 - [x] Replace Coco/TextIo with project version
+- [ ] Ensure functions are well-named (actions taken on windows have the right preposition, for example (like `openFileIn(window)`))
 - [ ] Standardize callback code for close acceptor and similar
 - [ ] Find code that needs to be sectioned-off into a function for clarity
 - [ ] Split to h/cpp where appropriate

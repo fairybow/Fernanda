@@ -218,8 +218,12 @@ private:
             return QModelIndex{};
         });
 
+        /// TODO: DOM & XML aren't updating...
+
+        // Original:
+
         // TODO: Trigger rename immediately (maybe)
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+        /* bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
             if (!cmd.context) return;
             auto dom = fnxModel_->domDocument();
             if (dom.isNull() || !workingDir_.isValid()) return;
@@ -231,6 +235,56 @@ private:
             // We append here because Fnx.h is not in charge of structure, just
             // format
             fnxModel_->insertElement(result.element, dom.documentElement());
+
+            bus->execute(
+                Commands::OPEN_FILE_AT_PATH,
+                { { "path", qVar(result.path) },
+                  { "title", Fnx::name(result.element) } },
+                cmd.context);
+        });*/
+
+        // Ideal, maybe:
+
+        /*bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            if (!workingDir_.isValid()) return;
+
+            // High-level semantic operation
+            auto result = fnxModel_->createAndInsertNewFile(workingDir_.path());
+            if (!result.isValid()) return;
+
+            bus->execute(
+                Commands::OPEN_FILE_AT_PATH,
+                { { "path", qVar(result.path) },
+                  { "title", result.name } },
+                cmd.context);
+        });*/
+
+        // Debug:
+
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            auto dom = fnxModel_->domDocument();
+            if (dom.isNull() || !workingDir_.isValid()) return;
+
+            INFO("DOM before addNewTextFile: {}", dom.toString());
+
+            auto working_dir = workingDir_.path();
+            auto result = Fnx::addNewTextFile(working_dir, dom);
+            if (!result.isValid()) return;
+
+            INFO(
+                "DOM after addNewTextFile (before insert): {}",
+                dom.toString());
+            INFO("Element to insert: {}", result.element.tagName());
+
+            // We append here because Fnx.h is not in charge of structure, just
+            // format
+            fnxModel_->insertElement(result.element, dom.documentElement());
+
+            INFO(
+                "FnxModel's DOM after insertElement: {}",
+                fnxModel_->domDocument().toString());
 
             bus->execute(
                 Commands::OPEN_FILE_AT_PATH,
@@ -370,6 +424,8 @@ private slots:
         auto new_folder =
             menu->addAction(Tr::Menus::notebookTreeViewContextNewFolder());
 
+        // TODO: Plan "ideal" version (like with New Tab) and pursue that, put
+        // concerns in proper place, re: Fnx vs FnxMode vs Notebook
         // TODO: Trigger rename immediately (maybe)
         connect(new_folder, &QAction::triggered, this, [&, index] {
             auto dom = fnxModel_->domDocument();

@@ -79,7 +79,6 @@ constexpr auto RUN_ALL_COLOR_BARS = "color_bars:run_all"; /// *, non-menu
 // FileService scope
 
 constexpr auto OPEN_FILE_AT_PATH = "file_models:open_path"; /// *, non-menu
-constexpr auto NEW_TXT_FILE = "file_models:new_txt"; /// *, non-menu
 
 // TreeViewModule scope
 
