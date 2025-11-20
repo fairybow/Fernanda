@@ -91,7 +91,9 @@ protected:
 
 protected:
     // So each Workspace type can determine when to allow its windows to close
-    virtual bool canCloseWindow(Window* window) const = 0;
+    /// WIP
+    virtual bool canCloseWindow(Window* window) = 0;
+    // virtual bool canQuit() = 0;
 
 private:
     void setup_()

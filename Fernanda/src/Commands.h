@@ -64,7 +64,6 @@ constexpr auto SELECT_ALL = "views:select_all"; /// *
 
 // SettingsModule scope
 
-constexpr auto SET_SETTINGS_OVERRIDE = "settings:set_override"; /// *, non-menu
 constexpr auto SETTINGS_DIALOG = "settings:dialog";
 
 // WindowService scope

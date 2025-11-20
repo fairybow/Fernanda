@@ -46,14 +46,16 @@ public:
 
     virtual ~SettingsModule() override { TRACER; }
 
+    void setOverrideConfigPath(const Coco::Path& configPath)
+    {
+        if (!settings_) return;
+        settings_->setOverride(configPath);
+    }
+
 protected:
     virtual void registerBusCommands() override
     {
-        bus->addCommandHandler(
-            Commands::SET_SETTINGS_OVERRIDE,
-            [&](const Command& cmd) {
-                setOverrideConfigPath_(cmd.param<Coco::Path>("path"));
-            });
+        //...
     }
 
     virtual void connectBusEvents() override
@@ -67,12 +69,6 @@ private:
     QPointer<SettingsDialog> dialog_ = nullptr;
 
     void setup_() { settings_ = new Settings(baseConfigPath_, this); }
-
-    void setOverrideConfigPath_(const Coco::Path& configPath)
-    {
-        if (!settings_) return;
-        settings_->setOverride(configPath);
-    }
 
     void openDialog_()
     {

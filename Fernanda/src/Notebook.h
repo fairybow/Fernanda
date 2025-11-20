@@ -67,7 +67,8 @@ public:
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
 
 protected:
-    virtual bool canCloseWindow(Window* window) const override
+    /// WIP
+    virtual bool canCloseWindow(Window* window) override
     {
         // TODO: Notebook will have to prompt not for tab closes but for window
         // closures (if last window) and app quit
@@ -141,9 +142,7 @@ private:
 
         // TODO: Fnx control its own settings name constant?
         auto settings_file = working_dir / Constants::CONFIG_FILE_NAME;
-        bus->execute(
-            Commands::SET_SETTINGS_OVERRIDE,
-            { { "path", qVar(settings_file) } });
+        settings->setOverrideConfigPath(settings_file);
 
         registerBusCommands_();
         connectBusEvents_();
@@ -240,8 +239,6 @@ private:
                 cmd.context);
         });
 
-        /// WIP:
-
         // TODO: We may not use a return value for this implementation of
         // CLOSE_TAB and CLOSE_WINDOW_TABS. We may or may not need it? If
         // we're sticking with the base class (Workspace) window close acceptor,
@@ -251,6 +248,7 @@ private:
 
         // Removes view without any prompt; model remains open
         // TODO: Decide on return value (see above)
+        /// WIP
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             if (!cmd.context) return false;
             views->deleteAt(
@@ -260,6 +258,7 @@ private:
         });
 
         // TODO: Decide on return value (see above)
+        /// WIP
         bus->addCommandHandler(
             Commands::CLOSE_WINDOW_TABS,
             [&](const Command& cmd) {

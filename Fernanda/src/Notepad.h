@@ -70,11 +70,11 @@ public:
     }
 
 protected:
-    virtual bool canCloseWindow(Window* window) const override
+    /// WIP
+    virtual bool canCloseWindow(Window* window) override
     {
         if (!window) return false;
-        // Can perhaps return CLOSE_WINDOW_TABS?
-        return true; // <- Temp
+        return closeWindowTabs_(window);
     }
 
 private:
@@ -151,16 +151,14 @@ private:
             bus->execute(Commands::NEW_TXT_FILE, cmd.context);
         });
 
-        /// WIP:
-
+        /// WIP
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             if (!cmd.context) return false;
             auto index = cmd.param<int>("index", -1);
             auto model = views->modelAt(cmd.context, index);
             if (!model) return false;
 
-            auto view_count = views->viewsOn(model);
-            auto is_last_view = view_count <= 1;
+            auto is_last_view = views->viewsOn(model) <= 1;
 
             if (is_last_view) {
                 // Check if model is modified
@@ -173,24 +171,10 @@ private:
             return true;
         });
 
+        /// WIP
         bus->addCommandHandler(
             Commands::CLOSE_WINDOW_TABS,
-            [&](const Command& cmd) {
-                if (!cmd.context) return false;
-
-                // Get a list of all files (iterating backward) that are not
-                // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
-
-                // Save Prompt (multi-file selection version; Save (with
-                // selections, defaulted to all), Discard, or Cancel)
-
-                // Handle prompt result (Cancel return, Discard proceed without
-                // saves, Save (any or all selected)
-
-                // If proceeding:
-                views->deleteAllIn(cmd.context);
-                return true;
-            });
+            [&](const Command& cmd) { return closeWindowTabs_(cmd.context); });
 
         // Quit procedure (from Notepad's perspective):
         //...figure out after window closure
@@ -209,6 +193,25 @@ private:
             &Bus::treeViewDoubleClicked,
             this,
             &Notepad::onTreeViewDoubleClicked_);
+    }
+
+    /// WIP
+    bool closeWindowTabs_(Window* window)
+    {
+        if (!window) return false;
+
+        // Get a list of all files (iterating backward) that are not
+        // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
+
+        // Save Prompt (multi-file selection version; Save (with
+        // selections, defaulted to all), Discard, or Cancel)
+
+        // Handle prompt result (Cancel return, Discard proceed without
+        // saves, Save (any or all selected)
+
+        // If proceeding:
+        views->deleteAllIn(window);
+        return true;
     }
 
 private slots:
