@@ -101,6 +101,24 @@ private:
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
+    /// THE BIG DUMB DOM MAKEOVER
+
+    /*Notebook should own:
+    - Archive lifecycle (extract/compress)
+    - Working directory (TempDir member)
+    - High-level orchestration
+
+    FnxModel should own:
+    - DOM structure and manipulation
+    - Calling Fnx helpers with its internal DOM, e.g. Fnx::doThing(QDomDocument&)
+
+    Fnx should provide:
+    - File I/O helpers
+    - Element factory functions (take DOM reference)
+    - Archive operations
+
+    This keeps FnxModel focused on its Qt model/view role while still being the authority on DOM operations. Notebook's job is saying "here's where files live, create one" not "here's how to create a valid element."*/
+
     void setup_()
     {
         // TODO: Keep as fatal?
@@ -123,8 +141,8 @@ private:
         }
 
         // Read Model.xml into memory as DOM doc
-        auto dom = Fnx::makeDomDocument(working_dir);
-        fnxModel_->setDomDocument(dom);
+        auto dom = Fnx::makeDomDocument(working_dir); /// TODO: Have FnxModel set its own DOM. Give it the working dir in a "set dom" function and it will use Fnx to read and set it?
+        fnxModel_->setDomDocument(dom); /// ^
 
         connect(
             fnxModel_,
@@ -375,7 +393,7 @@ private slots:
         Fnx::writeModelFile(workingDir_.path(), fnxModel_->domDocument());
     }
 
-    void onFnxModelElementRenamed_(const QDomElement& element)
+    void onFnxModelElementRenamed_(const QDomElement& element) /// This signal could return the struct that insertElement would return (path/name), letting FnxModel handle everything?
     {
         if (!Fnx::isFile(element)) return;
 

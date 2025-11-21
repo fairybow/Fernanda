@@ -99,84 +99,6 @@ public:
         emit domChanged();
     }
 
-    // TODO: Make private?
-    bool
-    moveElement(const QDomElement& element, QDomElement newParent, int newRow)
-    {
-        if (!isValid_(element) || !isValid_(newParent)) {
-            WARN("Move attempted on invalid element(s)");
-            return false;
-        }
-
-        auto current_parent = element.parentNode().toElement();
-        if (current_parent.isNull()) return false;
-
-        if (isDescendantOf_(element, newParent)) return false;
-
-        auto source_parent_index = indexFromElement_(current_parent);
-        auto source_row = rowOfElement_(element);
-        auto dest_parent_index = indexFromElement_(newParent);
-
-        auto dest_row = newRow;
-        if (dest_row < 0) {
-            dest_row = childElementCount_(newParent);
-        }
-
-        // Check move isn't pointless
-        if (current_parent == newParent && source_row == dest_row) {
-            return true;
-        }
-
-        INFO(
-            "Moving element: {}\n\tOld parent: {}\n\tOld row: {}\n\tNew "
-            "parent: {}\n\tNew row: {}",
-            element,
-            current_parent,
-            source_row,
-            newParent,
-            dest_row);
-
-        // Adjust destination row for beginMoveRows when moving within same
-        // parent
-        auto dest_row_for_begin = dest_row;
-        auto dest_row_for_dom = dest_row;
-
-        if (current_parent == newParent && dest_row > source_row) {
-            ++dest_row_for_begin; // For beginMoveRows (pre-removal state)
-            --dest_row_for_dom; // For DOM manipulation (post-removal state)
-        }
-
-        if (!beginMoveRows(
-                source_parent_index,
-                source_row,
-                source_row,
-                dest_parent_index,
-                dest_row_for_begin)) {
-            return false;
-        }
-
-        // Perform DOM manipulation
-        current_parent.removeChild(element);
-
-        if (dest_row_for_dom >= childElementCount_(newParent)) {
-            newParent.appendChild(element);
-        } else {
-            auto sibling = nthChildElement_(newParent, dest_row_for_dom);
-            if (!sibling.isNull()) {
-                newParent.insertBefore(element, sibling);
-            } else {
-                newParent.appendChild(element);
-            }
-        }
-
-        endMoveRows();
-        emit domChanged();
-
-        return true;
-    }
-
-    // TODO: moveElements (maybe)
-
     QDomElement elementAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return dom_.documentElement();
@@ -358,7 +280,7 @@ public:
             drop_parent = dom_.documentElement();
         }
 
-        return moveElement(element, drop_parent, row);
+        return moveElement_(element, drop_parent, row);
     }
 
 signals:
@@ -492,6 +414,83 @@ private:
 
         return false;
     }
+
+    bool
+    moveElement_(const QDomElement& element, QDomElement newParent, int newRow)
+    {
+        if (!isValid_(element) || !isValid_(newParent)) {
+            WARN("Move attempted on invalid element(s)");
+            return false;
+        }
+
+        auto current_parent = element.parentNode().toElement();
+        if (current_parent.isNull()) return false;
+
+        if (isDescendantOf_(element, newParent)) return false;
+
+        auto source_parent_index = indexFromElement_(current_parent);
+        auto source_row = rowOfElement_(element);
+        auto dest_parent_index = indexFromElement_(newParent);
+
+        auto dest_row = newRow;
+        if (dest_row < 0) {
+            dest_row = childElementCount_(newParent);
+        }
+
+        // Check move isn't pointless
+        if (current_parent == newParent && source_row == dest_row) {
+            return true;
+        }
+
+        INFO(
+            "Moving element: {}\n\tOld parent: {}\n\tOld row: {}\n\tNew "
+            "parent: {}\n\tNew row: {}",
+            element,
+            current_parent,
+            source_row,
+            newParent,
+            dest_row);
+
+        // Adjust destination row for beginMoveRows when moving within same
+        // parent
+        auto dest_row_for_begin = dest_row;
+        auto dest_row_for_dom = dest_row;
+
+        if (current_parent == newParent && dest_row > source_row) {
+            ++dest_row_for_begin; // For beginMoveRows (pre-removal state)
+            --dest_row_for_dom; // For DOM manipulation (post-removal state)
+        }
+
+        if (!beginMoveRows(
+                source_parent_index,
+                source_row,
+                source_row,
+                dest_parent_index,
+                dest_row_for_begin)) {
+            return false;
+        }
+
+        // Perform DOM manipulation
+        current_parent.removeChild(element);
+
+        if (dest_row_for_dom >= childElementCount_(newParent)) {
+            newParent.appendChild(element);
+        } else {
+            auto sibling = nthChildElement_(newParent, dest_row_for_dom);
+            if (!sibling.isNull()) {
+                newParent.insertBefore(element, sibling);
+            } else {
+                newParent.appendChild(element);
+            }
+        }
+
+        endMoveRows();
+        emit domChanged();
+
+        return true;
+    }
+
+    // TODO: moveElements_ (maybe)
 };
 
 } // namespace Fernanda
