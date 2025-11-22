@@ -60,9 +60,13 @@ public:
         emit domChanged();
     }
 
-    // TODO: Comment out and see where we can avoid copying DOM, to avoid the bug in Notebook using insertElement. Notebook shouldn't be doing this.
+    /// BDDM - TODO: Comment out and see where we can avoid copying DOM, to
+    /// avoid the bug in Notebook using insertElement. Notebook shouldn't be
+    /// doing that. Also, we probably don't want to expose DOM? Could return
+    /// only a string when we need Notebook to copy it to disk?
     QDomDocument domDocument() const { return dom_; }
 
+    /// BDDM - Redo and rename (Notebook shouldn't know about elements)
     void insertElement(const QDomElement& element, QDomElement parentElement)
     {
         if (!isValid_(element) || !isValid_(parentElement)) return;
@@ -78,6 +82,7 @@ public:
     }
 
     // TODO: Expand parent if applicable after appending (probably a view op)
+    /// BDDM - Redo and rename (Notebook shouldn't know about elements)
     void insertElements(
         const QList<QDomElement>& elements,
         QDomElement parentElement)
@@ -99,6 +104,7 @@ public:
         emit domChanged();
     }
 
+    /// BDDM - TODO: Make private later
     QDomElement elementAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return dom_.documentElement();
@@ -285,7 +291,11 @@ public:
 
 signals:
     void domChanged();
-    void elementRenamed(const QDomElement& element);
+    void elementRenamed(
+        const QDomElement&
+            element); /// BDDM - TODO: Don't broadcast element for this, send
+                      /// name and path instead in a struct, like what we'd
+                      /// return for insertion
 
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";

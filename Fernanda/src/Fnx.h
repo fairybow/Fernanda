@@ -27,10 +27,10 @@
 #include "AppDirs.h"
 #include "TextIo.h"
 
-// TODO: Redo this description!
-// 
+/// BDDM - TODO: Redo this description!
+//
 // This needs to handle the entire spec. Should do I/O and DOM-related things.
-// 
+//
 // The .fnx file format specification and utilities. Defines everything about
 // the .fnx format: archive I/O, Model.xml structure, DOM element creation, and
 // format constants. Single source of truth for "what is a valid .fnx file."
@@ -74,7 +74,7 @@ namespace Internal {
 
 } // namespace Internal
 
-// TODO: Rename?
+/// BDDM - TODO: Needed?
 struct NewFileResult
 {
     Coco::Path path{};
@@ -83,6 +83,22 @@ struct NewFileResult
     // operator bool() const { return path.exists() && !element.isNull(); }
 };
 
+namespace Io {
+
+    //
+
+} // namespace Io
+
+namespace Xml {
+
+    //
+
+} // namespace Xml
+
+/// BDDM - TODO: Reimplement everything below and add to new namespaces above as
+/// we reimplement:
+
+/// BDDM - TODO: Rename
 inline void addBlank(const Coco::Path& workingDir)
 {
     // Create content directory
@@ -250,6 +266,7 @@ inline NewFileResult importTextFile(
     return { path, element };
 }
 
+/// BDDM - TODO: Rename, add vdir
 inline QDomElement addNewDir(QDomDocument& dom)
 {
     if (dom.isNull()) {
@@ -267,7 +284,6 @@ inline QDomElement addNewDir(QDomDocument& dom)
 
 // TODO: Are all these element.isNull checks necessary? I sorta don't think so.
 
-// TODO: Notebook or TreeView will handle the LineEdit
 inline void rename(QDomElement& element, const QString& name)
 {
     if (element.isNull() || !element.hasAttribute(Internal::XML_NAME_ATTR_)
