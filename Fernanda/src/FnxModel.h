@@ -35,6 +35,9 @@ namespace Fernanda {
 //
 // Qt Model/View adapter for .fnx virtual directory structure.
 //
+// Owns the internal QDomDocument. Public methods return FileInfo structs, never
+// raw DOM elements. Uses Fnx::Xml helpers internally for DOM operations.
+//
 // TODO: Trash (should be immutable and separate from active)
 // TODO: Double clicking on files should maybe not expand (if they have
 // children), since they also open with double clicks?
@@ -43,6 +46,22 @@ class FnxModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
+    struct FileInfo
+    {
+        Coco::Path relPath{};
+        QString name{};
+
+        FileInfo(const QDomElement& element)
+            : relPath(Fnx::Xml::relPath(element))
+            , name(Fnx::Xml::name(element))
+        {
+        }
+
+        FileInfo() = default;
+        // TODO: Could take workingDir param and concat path and check exists?
+        bool isValid() const { return !relPath.isEmpty() && !name.isEmpty(); }
+    };
+
     FnxModel(QObject* parent)
         : QAbstractItemModel(parent)
     {
@@ -50,75 +69,88 @@ public:
 
     virtual ~FnxModel() override { TRACER; }
 
-    void setDomDocument(const QDomDocument& dom)
+    void load(const Coco::Path& workingDir)
     {
         beginResetModel();
-        dom_ = dom;
+        dom_ = Fnx::Xml::makeDom(workingDir);
         clearCache_();
         endResetModel();
 
         emit domChanged();
     }
 
-    /// BDDM - TODO: Comment out and see where we can avoid copying DOM, to
-    /// avoid the bug in Notebook using insertElement. Notebook shouldn't be
-    /// doing that. Also, we probably don't want to expose DOM? Could return
-    /// only a string when we need Notebook to copy it to disk?
-    QDomDocument domDocument() const { return dom_; }
-
-    /// BDDM - Redo and rename (Notebook shouldn't know about elements)
-    void insertElement(const QDomElement& element, QDomElement parentElement)
+    void write(const Coco::Path& workingDir) const
     {
-        if (!isValid_(element) || !isValid_(parentElement)) return;
-
-        auto parent_index = indexFromElement_(parentElement);
-        auto row = childElementCount_(parentElement);
-
-        beginInsertRows(parent_index, row, row);
-        parentElement.appendChild(element);
-        endInsertRows();
-
-        emit domChanged();
+        Fnx::Xml::writeModelFile(workingDir, dom_);
     }
 
-    // TODO: Expand parent if applicable after appending (probably a view op)
-    /// BDDM - Redo and rename (Notebook shouldn't know about elements)
-    void insertElements(
-        const QList<QDomElement>& elements,
-        QDomElement parentElement)
+    // QString xml() const { return dom_.toString(); }
+
+    FileInfo fileInfoAt(const QModelIndex& index) const
     {
-        if (elements.isEmpty() || !isValid_(parentElement)) return;
-
-        auto parent_index = indexFromElement_(parentElement);
-        auto row = childElementCount_(parentElement);
-
-        for (const auto& element : elements) {
-            if (!isValid_(element)) continue;
-
-            beginInsertRows(parent_index, row, row);
-            parentElement.appendChild(element);
-            endInsertRows();
-            ++row;
-        }
-
-        emit domChanged();
+        if (!index.isValid()) return {};
+        return { elementAt_(index) };
     }
 
-    /// BDDM - TODO: Make private later
-    QDomElement elementAt(const QModelIndex& index) const
+    void addNewVirtualFolder(const QModelIndex& parentIndex = {})
     {
-        if (!index.isValid()) return dom_.documentElement();
+        auto element = Fnx::Xml::addVirtualFolder(dom_);
+        if (element.isNull()) return;
 
-        auto id = reinterpret_cast<quintptr>(index.internalPointer());
-        auto element = idToElement_.value(id);
+        // TODO: Code duplicated below, in addNewTextFile and (partially)
+        // importTextFiles
+        auto parent = elementAt_(parentIndex);
+        if (parent.isNull()) parent = dom_.documentElement();
+        insertElement_(element, parent);
+    }
 
-        if (!isValid_(element)) {
-            WARN("Invalid element for ID: {}", id);
-            clearCache_();
-            return {};
+    // TODO: parentIndex will be used for at least context menu click signal,
+    // which would have index
+    FileInfo addNewTextFile(
+        const Coco::Path& workingDir,
+        const QModelIndex& parentIndex = {})
+    {
+        // Use FnxModel's internal DOM
+        auto element = Fnx::Xml::addNewTextFile(workingDir, dom_);
+        if (element.isNull()) return {};
+
+        // Insert the element
+        auto parent = elementAt_(parentIndex);
+        if (parent.isNull()) parent = dom_.documentElement();
+        insertElement_(element, parent);
+
+        // Return only the non-DOM parts
+        return { element };
+    }
+
+    // TODO: parentIndex will be used later, maybe for context menu import
+    // option
+    QList<FileInfo> importTextFiles(
+        const Coco::Path& workingDir,
+        const QList<Coco::Path>& fsPaths,
+        const QModelIndex& parentIndex = {})
+    {
+        QList<QDomElement> elements{};
+
+        // Create all physical files and elements
+        for (const auto& fs_path : fsPaths) {
+            if (!fs_path.exists()) continue;
+            auto element = Fnx::Xml::importTextFile(workingDir, dom_, fs_path);
+            if (element.isNull()) continue;
+            elements << element;
         }
 
-        return element;
+        if (elements.isEmpty()) return {};
+
+        auto parent = elementAt_(parentIndex);
+        if (parent.isNull()) parent = dom_.documentElement();
+        insertElements_(elements, parent); // Single domChanged emission
+
+        QList<FileInfo> infos{};
+        for (auto& element : elements)
+            infos << FileInfo{ element };
+
+        return infos;
     }
 
     virtual Qt::ItemFlags flags(const QModelIndex& index) const override
@@ -142,7 +174,7 @@ public:
     {
         if (!index.isValid()) return false;
 
-        auto element = elementAt(index);
+        auto element = elementAt_(index);
         if (element.isNull()) return false;
 
         switch (role) {
@@ -151,10 +183,13 @@ public:
             // Handle rename
             auto new_name = value.toString();
             if (new_name.isEmpty()) return false; // Reject empty names
-            Fnx::rename(element, new_name);
+
+            // Renames for files and virtual folders but only notifies for files
+            // specifically plus the full DOM in general
+            Fnx::Xml::rename(element, new_name);
 
             emit dataChanged(index, index, { Qt::DisplayRole, Qt::EditRole });
-            emit elementRenamed(element);
+            if (Fnx::Xml::isFile(element)) emit fileRenamed({ element });
             emit domChanged();
 
             return true;
@@ -183,7 +218,7 @@ public:
     {
         if (!hasIndex(row, column, parent)) return {};
 
-        auto parent_element = elementAt(parent);
+        auto parent_element = elementAt_(parent);
         if (parent_element.isNull()) return {};
         auto child_element = nthChildElement_(parent_element, row);
         if (child_element.isNull()) return {};
@@ -195,7 +230,7 @@ public:
     {
         if (!child.isValid()) return {};
 
-        auto child_element = elementAt(child);
+        auto child_element = elementAt_(child);
         if (child_element.isNull()) return {};
         auto parent_element = child_element.parentNode().toElement();
 
@@ -210,7 +245,7 @@ public:
     virtual int rowCount(const QModelIndex& parent = {}) const override
     {
         if (parent.column() > 0) return 0;
-        auto element = elementAt(parent);
+        auto element = elementAt_(parent);
         if (element.isNull()) return 0;
 
         return childElementCount_(element);
@@ -245,7 +280,7 @@ public:
         QModelIndex index = indexes.first();
         if (!index.isValid()) return nullptr;
 
-        auto element = elementAt(index);
+        auto element = elementAt_(index);
         if (element.isNull()) return nullptr;
 
         // Store the element's key
@@ -281,7 +316,7 @@ public:
         }
 
         // Determine drop target
-        auto drop_parent = elementAt(parent);
+        auto drop_parent = elementAt_(parent);
         if (drop_parent.isNull()) {
             drop_parent = dom_.documentElement();
         }
@@ -291,11 +326,7 @@ public:
 
 signals:
     void domChanged();
-    void elementRenamed(
-        const QDomElement&
-            element); /// BDDM - TODO: Don't broadcast element for this, send
-                      /// name and path instead in a struct, like what we'd
-                      /// return for insertion
+    void fileRenamed(const FileInfo& info);
 
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
@@ -331,11 +362,34 @@ private:
         return !element.parentNode().toElement().isNull();
     }
 
+    bool isValidForInsertion_(const QDomElement& element) const
+    {
+        if (element.isNull()) return false;
+        // Only check document ownership, not parent
+        return element.ownerDocument() == dom_;
+    }
+
+    QDomElement elementAt_(const QModelIndex& index) const
+    {
+        if (!index.isValid()) return dom_.documentElement();
+
+        auto id = reinterpret_cast<quintptr>(index.internalPointer());
+        auto element = idToElement_.value(id);
+
+        if (!isValid_(element)) {
+            WARN("Invalid element for ID: {}", id);
+            clearCache_();
+            return {};
+        }
+
+        return element;
+    }
+
     QString elementKey_(const QDomElement& element) const
     {
         if (element.isNull()) return {};
 
-        auto uuid = Fnx::uuid(element);
+        auto uuid = Fnx::Xml::uuid(element);
         if (uuid.isEmpty()) return "root";
 
         return uuid;
@@ -425,6 +479,9 @@ private:
         return false;
     }
 
+    // The parent element parameters must be by-value because
+    // `dom_.documentElement()` returns a temporary (rvalue). Non-const
+    // references (`QDomElement&`) cannot bind to temporaries
     bool
     moveElement_(const QDomElement& element, QDomElement newParent, int newRow)
     {
@@ -501,6 +558,49 @@ private:
     }
 
     // TODO: moveElements_ (maybe)
+
+    // The parent element parameters must be by-value because
+    // `dom_.documentElement()` returns a temporary (rvalue). Non-const
+    // references (`QDomElement&`) cannot bind to temporaries
+    // TODO: Could test QDomElement& again (here and elsewhere) once new tab is fixed
+    void insertElement_(const QDomElement& element, QDomElement parentElement)
+    {
+        if (!isValidForInsertion_(element) || !isValid_(parentElement)) return;
+
+        auto parent_index = indexFromElement_(parentElement);
+        auto row = childElementCount_(parentElement);
+
+        beginInsertRows(parent_index, row, row);
+        parentElement.appendChild(element);
+        endInsertRows();
+
+        emit domChanged();
+    }
+
+    // TODO: Expand parent if applicable after appending (probably a view op)
+    // The parent element parameters must be by-value because
+    // `dom_.documentElement()` returns a temporary (rvalue). Non-const
+    // references (`QDomElement&`) cannot bind to temporaries
+    void insertElements_(
+        const QList<QDomElement>& elements,
+        QDomElement parentElement)
+    {
+        if (elements.isEmpty() || !isValid_(parentElement)) return;
+
+        auto parent_index = indexFromElement_(parentElement);
+        auto row = childElementCount_(parentElement);
+
+        for (const auto& element : elements) {
+            if (!isValidForInsertion_(element)) continue;
+
+            beginInsertRows(parent_index, row, row);
+            parentElement.appendChild(element);
+            endInsertRows();
+            ++row;
+        }
+
+        emit domChanged();
+    }
 };
 
 } // namespace Fernanda

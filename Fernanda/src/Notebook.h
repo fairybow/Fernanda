@@ -41,13 +41,16 @@
 
 namespace Fernanda {
 
-// A binder-style Workspace that operates on a 7zip archive-based filesystem.
-// There can be any number of Notebooks open during the application lifetime
+// A binder-style Workspace operating on 7zip archive-based filesystems.
+//
+// Owns the archive path and working directory. Uses FnxModel's public API
+// exclusively, never accesses DOM elements directly.
+//
+// There can be any number of Notebooks open during the application lifetime.
 //
 // TODO: Will want window titles to reflect archive name (plus show modified
 // state). Will likely need a WinServ command to set all titles and link this to
 // a setModified function here
-// TODO: Solidify what goes where between Notebook, Fnx, and FnxModel
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -101,29 +104,6 @@ private:
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
-    /// THE BIG DUMB DOM MAKEOVER
-
-    /// Address areas marked "BDDM"
-
-    /*Notebook should own:
-    - Archive lifecycle (extract/compress)
-    - Working directory (TempDir member)
-    - High-level orchestration
-
-    FnxModel should own:
-    - DOM structure and manipulation
-    - Calling Fnx helpers with its internal DOM, e.g.
-    Fnx::doThing(QDomDocument&)
-
-    Fnx should provide:
-    - File I/O helpers
-    - Element factory functions (take DOM reference)
-    - Archive operations
-
-    This keeps FnxModel focused on its Qt model/view role while still being the
-    authority on DOM operations. Notebook's job is saying "here's where files
-    live, create one" not "here's how to create a valid element."*/
-
     void setup_()
     {
         // TODO: Keep as fatal?
@@ -136,21 +116,16 @@ private:
         auto working_dir = workingDir_.path();
 
         if (!fnxPath_.exists()) {
-            Fnx::addBlank(working_dir);
+            Fnx::Io::makeNewWorkingDir(working_dir);
             // TODO: Mark notebook modified (maybe, maybe not until edited)?
             // (need to figure out how this will work)
         } else {
-            Fnx::extract(fnxPath_, working_dir);
+            Fnx::Io::extract(fnxPath_, working_dir);
             // TODO: Verification (comparing Model file elements to content dir
             // files)
         }
 
-        // Read Model.xml into memory as DOM doc
-        auto dom = Fnx::makeDomDocument(
-            working_dir); /// BDDM - TODO: Have FnxModel set its own DOM. Give
-                          /// it the working dir in a "set dom" function and it
-                          /// will use Fnx to read and set it?
-        fnxModel_->setDomDocument(dom); /// BDDM - See above
+        fnxModel_->load(working_dir);
 
         connect(
             fnxModel_,
@@ -160,9 +135,9 @@ private:
 
         connect(
             fnxModel_,
-            &FnxModel::elementRenamed,
+            &FnxModel::fileRenamed,
             this,
-            &Notebook::onFnxModelElementRenamed_);
+            &Notebook::onFnxModelFileRenamed_);
 
         //...
 
@@ -180,8 +155,7 @@ private:
             Commands::NOTEBOOK_IMPORT_FILE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                auto dom = fnxModel_->domDocument();
-                if (dom.isNull() || !workingDir_.isValid()) return;
+                if (!workingDir_.isValid()) return;
 
                 auto parent_dir = fnxPath_.parent();
                 if (!parent_dir.exists()) return;
@@ -195,36 +169,15 @@ private:
                 if (fs_paths.isEmpty()) return;
 
                 auto working_dir = workingDir_.path();
-                QList<Fnx::NewFileResult> imports{};
+                auto infos = fnxModel_->importTextFiles(working_dir, fs_paths);
 
-                for (auto& fs_path : fs_paths) {
-                    if (!fs_path.exists()) continue;
-
-                    auto result =
-                        Fnx::importTextFile(fs_path, working_dir, dom);
-                    if (!result.isValid()) continue;
-
-                    imports << result;
-                }
-
-                if (imports.isEmpty()) return;
-
-                // - Ensure the model is updated before we open any files
-                // - Batch insert - only writes to disk once
-                QList<QDomElement> elements{};
-
-                for (auto& i : imports)
-                    if (i.isValid()) elements << i.element;
-
-                fnxModel_->insertElements(elements, dom.documentElement());
-
-                for (auto& i : imports) {
-                    if (!i.isValid()) continue;
+                for (auto& info : infos) {
+                    if (!info.isValid()) continue;
 
                     bus->execute(
                         Commands::OPEN_FILE_AT_PATH,
-                        { { "path", qVar(i.path) },
-                          { "title", Fnx::name(i.element) } },
+                        { { "path", qVar(working_dir / info.relPath) },
+                          { "title", info.name } },
                         cmd.context);
                 }
             });
@@ -244,78 +197,18 @@ private:
             return QModelIndex{};
         });
 
-        /// TODO: DOM & XML aren't updating...
-
-        // Original:
-
-        // TODO: Trigger rename immediately (maybe)
-        /* bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            auto dom = fnxModel_->domDocument();
-            if (dom.isNull() || !workingDir_.isValid()) return;
-
-            auto working_dir = workingDir_.path();
-            auto result = Fnx::addNewTextFile(working_dir, dom);
-            if (!result.isValid()) return;
-
-            // We append here because Fnx.h is not in charge of structure, just
-            // format
-            fnxModel_->insertElement(result.element, dom.documentElement());
-
-            bus->execute(
-                Commands::OPEN_FILE_AT_PATH,
-                { { "path", qVar(result.path) },
-                  { "title", Fnx::name(result.element) } },
-                cmd.context);
-        });*/
-
-        // Ideal, maybe:
-
-        /*bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
             if (!cmd.context) return;
             if (!workingDir_.isValid()) return;
 
-            // High-level semantic operation
-            auto result = fnxModel_->createAndInsertNewFile(workingDir_.path());
-            if (!result.isValid()) return;
-
-            bus->execute(
-                Commands::OPEN_FILE_AT_PATH,
-                { { "path", qVar(result.path) },
-                  { "title", result.name } },
-                cmd.context);
-        });*/
-
-        // Debug:
-
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            auto dom = fnxModel_->domDocument();
-            if (dom.isNull() || !workingDir_.isValid()) return;
-
-            INFO("DOM before addNewTextFile: {}", dom.toString());
-
             auto working_dir = workingDir_.path();
-            auto result = Fnx::addNewTextFile(working_dir, dom);
-            if (!result.isValid()) return;
-
-            INFO(
-                "DOM after addNewTextFile (before insert): {}",
-                dom.toString());
-            INFO("Element to insert: {}", result.element.tagName());
-
-            // We append here because Fnx.h is not in charge of structure, just
-            // format
-            fnxModel_->insertElement(result.element, dom.documentElement());
-
-            INFO(
-                "FnxModel's DOM after insertElement: {}",
-                fnxModel_->domDocument().toString());
+            auto info = fnxModel_->addNewTextFile(working_dir);
+            if (!info.isValid()) return;
 
             bus->execute(
                 Commands::OPEN_FILE_AT_PATH,
-                { { "path", qVar(result.path) },
-                  { "title", Fnx::name(result.element) } },
+                { { "path", qVar(working_dir / info.relPath) },
+                  { "title", info.name } },
                 cmd.context);
         });
 
@@ -398,19 +291,16 @@ private slots:
     void onFnxModelDomChanged_()
     {
         if (!workingDir_.isValid()) return;
-        Fnx::writeModelFile(workingDir_.path(), fnxModel_->domDocument());
+        fnxModel_->write(workingDir_.path());
     }
 
-    void onFnxModelElementRenamed_(
-        const QDomElement& element) /// This signal could return the struct that
-                                    /// insertElement would return (path/name),
-                                    /// letting FnxModel handle everything?
+    void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
     {
-        if (!Fnx::isFile(element)) return;
+        if (!info.isValid() || !workingDir_.isValid()) return;
 
-        auto file_path = workingDir_.path() / Fnx::relativePath(element);
-        auto new_name = Fnx::name(element);
-        files->setPathTitleOverride(file_path, new_name);
+        files->setPathTitleOverride(
+            workingDir_.path() / info.relPath,
+            info.name);
     }
 
     void onWindowCreated_(Window* window)
@@ -419,23 +309,23 @@ private slots:
         addWorkspaceIndicator_(window);
     }
 
+    // TODO: What if we want to handle virtual folders here, too? Could make
+    // generic Info instead and give it an "isDir" member?
     void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
     {
-        if (!window || !index.isValid() || !workingDir_.isValid()) return;
-
         // Notepad uses Path::isDir instead. The asymmetry bugs me, but the
         // folders here are virtual. We would still get success, since working
         // dir would be concatenated to an empty path (unless we give dirs
         // UUIDs), but it would be too abstruse
 
-        auto element = fnxModel_->elementAt(index);
-        if (Fnx::isVirtualFolder(element)) return;
-
-        auto path = workingDir_.path() / Fnx::relativePath(element);
+        if (!window || !index.isValid() || !workingDir_.isValid()) return;
+        auto info = fnxModel_->fileInfoAt(index);
+        if (!info.isValid()) return;
 
         bus->execute(
             Commands::OPEN_FILE_AT_PATH,
-            { { "path", qVar(path) }, { "title", Fnx::name(element) } },
+            { { "path", qVar(workingDir_.path() / info.relPath) },
+              { "title", info.name } },
             window);
     }
 
@@ -449,33 +339,12 @@ private slots:
         auto menu = new QMenu(window);
         menu->setAttribute(Qt::WA_DeleteOnClose);
 
-        // Temporary test action
         auto new_folder =
             menu->addAction(Tr::Menus::notebookTreeViewContextNewFolder());
 
-        // TODO: Plan "ideal" version (like with New Tab) and pursue that, put
-        // concerns in proper place, re: Fnx vs FnxMode vs Notebook
         // TODO: Trigger rename immediately (maybe)
         connect(new_folder, &QAction::triggered, this, [&, index] {
-            auto dom = fnxModel_->domDocument();
-            if (dom.isNull() || !workingDir_.isValid()) return;
-
-            auto element = Fnx::addNewDir(dom);
-            if (element.isNull()) return;
-
-            // Determine where to insert it
-            QDomElement parent_element{};
-
-            if (index.isValid()) {
-                // Insert as child of clicked element (whether file or folder)
-                parent_element = fnxModel_->elementAt(index);
-            }
-
-            // If no valid parent found, append to root
-            if (parent_element.isNull()) parent_element = dom.documentElement();
-
-            // Model handles insertion and view update
-            fnxModel_->insertElement(element, parent_element);
+            fnxModel_->addNewVirtualFolder(index);
         });
 
         // Add rename action (only if clicking on an actual item)
@@ -489,7 +358,7 @@ private slots:
                 this,
                 [&, index, window] {
                     bus->execute(
-                        Commands::RENAME_TREE_VIEW_INDEX,
+                        Commands::RENAME_TREE_VIEW_INDEX, // TODO: Direct call
                         { { "index", index } },
                         window);
                 });
