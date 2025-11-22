@@ -352,16 +352,12 @@ private slots:
             menu->addSeparator();
             auto rename_action =
                 menu->addAction(Tr::Menus::notebookTreeViewContextRename());
+
             connect(
                 rename_action,
                 &QAction::triggered,
                 this,
-                [&, index, window] {
-                    bus->execute(
-                        Commands::RENAME_TREE_VIEW_INDEX, // TODO: Direct call
-                        { { "index", index } },
-                        window);
-                });
+                [&, index, window] { treeViews->renameAt(window, index); });
         }
 
         menu->popup(globalPos);

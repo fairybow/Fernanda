@@ -89,7 +89,7 @@ Window service command handlers should be responsible for showing the window. Wh
 
 ### `tree_views`
 
-- `rename_index`: Triggers a rename on the provided index (or current index if given an invalid index).
+...
 
 ## Events (Signals)
 

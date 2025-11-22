@@ -82,6 +82,6 @@ constexpr auto OPEN_FILE_AT_PATH = "file_models:open_path"; /// *, non-menu
 
 // TreeViewModule scope
 
-constexpr auto RENAME_TREE_VIEW_INDEX = "tree_views:rename_index"; /// *
+//...
 
 } // namespace Fernanda::Commands

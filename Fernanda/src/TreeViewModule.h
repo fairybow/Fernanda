@@ -50,19 +50,20 @@ public:
 
     virtual ~TreeViewModule() override { TRACER; }
 
+    // TODO: Use default arg for current index, if we wrap this in a command for menus
+    void renameAt(Window* window, const QModelIndex& index = {})
+    {
+        if (!window) return;
+        if (auto tree_view = treeViews_[window]) {
+            auto i = index.isValid() ? index : tree_view->currentIndex();
+            tree_view->edit(i);
+        }
+    }
+
 protected:
     virtual void registerBusCommands() override
     {
-        bus->addCommandHandler(
-            Commands::RENAME_TREE_VIEW_INDEX,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                auto tree_view = treeViews_[cmd.context];
-                auto index =
-                    cmd.param<QModelIndex>("index", tree_view->currentIndex());
-                if (!index.isValid()) return;
-                tree_view->edit(index);
-            });
+        //...
     }
 
     virtual void connectBusEvents() override

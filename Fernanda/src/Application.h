@@ -115,7 +115,7 @@ private:
         auto notebook = new Notebook(fnx, this);
         notebooks_ << notebook;
 
-        connect(notebook, &Notebook::lastWindowClosed, this, [=] {
+        connect(notebook, &Notebook::lastWindowClosed, this, [&, notebook] {
             // Clean-up
             notebooks_.remove(notebook);
             delete notebook;
