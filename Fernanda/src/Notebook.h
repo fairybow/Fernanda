@@ -221,7 +221,6 @@ private:
 
         // Removes view without any prompt; model remains open
         // TODO: Decide on return value (see above)
-        /// WIP
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             if (!cmd.context) return false;
             views->deleteAt(
@@ -231,7 +230,6 @@ private:
         });
 
         // TODO: Decide on return value (see above)
-        /// WIP
         bus->addCommandHandler(
             Commands::CLOSE_WINDOW_TABS,
             [&](const Command& cmd) {

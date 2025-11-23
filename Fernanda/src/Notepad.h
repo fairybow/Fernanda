@@ -70,7 +70,6 @@ public:
     }
 
 protected:
-    /// WIP
     virtual bool canCloseWindow(Window* window) override
     {
         if (!window) return false;
@@ -177,7 +176,20 @@ private:
             [&](const Command& cmd) { return closeWindowTabs_(cmd.context); });
 
         // Quit procedure (from Notepad's perspective):
-        //...figure out after window closure
+        // - (This could all be a closeAllWindows_ command handler? Don't know
+        // if that would work, due to the closeAcceptor. And, honestly, it may
+        // prevent the the following stuff, too)
+        // - Get a list of all file models (iterating backward) that are
+        // modified (see 9e6cd80 ViewCloseHelper)
+        // - Save Prompt (multi-file selection version; Save (with
+        // selections, defaulted to all), Discard, or Cancel)
+        // - Handle prompt result (Cancel return, Discard proceed without
+        // saves, Save (any or all selected)
+        // If proceeding:
+        // - Close all views everywhere
+        // - Delete all file models
+        // - Close all windows?
+        // - return true for quittable?
 
         // TODO: Should we have a "quit acceptor"? It could run a new
         // CLOSE_ALL_WINDOWS command from the base class? Allow us to handle
@@ -200,7 +212,7 @@ private:
     {
         if (!window) return false;
 
-        // Get a list of all files (iterating backward) that are not
+        // Get a list of all file models (iterating backward) that are not
         // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
 
         // Save Prompt (multi-file selection version; Save (with
@@ -211,6 +223,8 @@ private:
 
         // If proceeding:
         views->deleteAllIn(window);
+        // Delete all deletable models (those that were in that window (modified
+        // or not) and not open in other windows)
         return true;
     }
 
