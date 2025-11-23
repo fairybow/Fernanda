@@ -348,12 +348,6 @@
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileServiceSaveHelper.h">
-      <Filter>Code\Core\Services</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ViewServiceCloseHelper.h">
-      <Filter>Code\Core\Services</Filter>
-    </ClInclude>
     <ClInclude Include="src\Enums.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
@@ -397,6 +391,12 @@
       <Filter>Code\Old %28Remove Later%29</Filter>
     </ClInclude>
     <ClInclude Include="src\old_MenuModule.h">
+      <Filter>Code\Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_ViewServiceCloseHelper.h">
+      <Filter>Code\Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_FileServiceSaveHelper.h">
       <Filter>Code\Old %28Remove Later%29</Filter>
     </ClInclude>
   </ItemGroup>

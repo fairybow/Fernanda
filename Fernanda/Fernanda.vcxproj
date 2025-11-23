@@ -76,7 +76,7 @@
     <QtMoc Include="src\TabWidgetUnderlay.h" />
     <ClInclude Include="src\Debug.h" />
     <ClInclude Include="src\Enums.h" />
-    <ClInclude Include="src\FileServiceSaveHelper.h" />
+    <ClInclude Include="src\old_FileServiceSaveHelper.h" />
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />
     <QtMoc Include="src\Bus.h" />
@@ -113,7 +113,7 @@
     <QtMoc Include="src\WindowService.h" />
     <QtMoc Include="src\Window.h" />
     <QtMoc Include="src\WordCounterModule.h" />
-    <ClInclude Include="src\ViewServiceCloseHelper.h" />
+    <ClInclude Include="src\old_ViewServiceCloseHelper.h" />
     <ClInclude Include="src\XPlatform.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h" />
@@ -154,13 +154,13 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>

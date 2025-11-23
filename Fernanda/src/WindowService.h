@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QEvent>
 #include <QList>
 #include <QObject>
@@ -41,6 +43,8 @@ class WindowService : public IService
     Q_OBJECT
 
 public:
+    using CloseAcceptor = std::function<bool(Window*)>;
+
     WindowService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -49,12 +53,12 @@ public:
 
     virtual ~WindowService() override { TRACER; }
 
-    Window::CloseAcceptor closeAcceptor() const noexcept
+    CloseAcceptor closeAcceptor() const noexcept
     {
         return closeAcceptor_;
     }
 
-    void setCloseAcceptor(const Window::CloseAcceptor& closeAcceptor)
+    void setCloseAcceptor(const CloseAcceptor& closeAcceptor)
     {
         closeAcceptor_ = closeAcceptor;
     }
@@ -67,20 +71,24 @@ public:
         };
     }
 
+    int count() const { return static_cast<int>(unorderedWindows_.count()); }
+    Window* active() const { return activeWindow_.get(); }
+
+    Window* newWindow()
+    {
+        auto window = make_();
+        if (window) {
+            window->setGeometry(nextWindowGeometry_());
+            window->show();
+        }
+        return window;
+    }
+
 protected:
     virtual void registerBusCommands() override
     {
         bus->addCommandHandler(Commands::NEW_WINDOW, [&] {
-            auto window = make_();
-            if (window) {
-                window->setGeometry(nextWindowGeometry_());
-                window->show();
-            }
-            return window;
-        });
-
-        bus->addCommandHandler(Commands::ACTIVE_WINDOW, [&] {
-            return activeWindow_.get();
+            return newWindow();
         });
 
         bus->addCommandHandler(Commands::WINDOWS_SET, [&] {
@@ -105,13 +113,12 @@ protected:
         } else if (
             event->type() == QEvent::Show || event->type() == QEvent::Hide) {
 
-            //if (auto window = qobject_cast<Window*>(watched))
-                //emit bus->visibleWindowCountChanged(visibleCount_());
+            // if (auto window = qobject_cast<Window*>(watched))
+            // emit bus->visibleWindowCountChanged(visibleCount_());
 
         } else if (event->type() == QEvent::Close) {
 
             //...
-
         }
 
         return QObject::eventFilter(watched, event);
@@ -121,8 +128,7 @@ private:
     static constexpr auto DEFAULT_GEOMETRY_ = QRect{ 100, 100, 600, 500 };
     static constexpr auto GEOMETRY_OFFSET_ = 50;
 
-    Window::CloseAcceptor closeAcceptor_ = nullptr;
-
+    CloseAcceptor closeAcceptor_ = nullptr;
     QList<Window*> zOrderedVolatileWindows_{}; // Highest window is always last
     QSet<Window*> unorderedWindows_{};
     QPointer<Window> activeWindow_ = nullptr;
@@ -165,11 +171,11 @@ private:
         return DEFAULT_GEOMETRY_;
     }
 
-    // NOTE: Returns a stable copy of the z-ordered window list
-    // (copy won't be affected by subsequent add/remove operations)
+    // Returns a stable copy of the z-ordered window list (copy won't be
+    // affected by subsequent add/remove operations)
     QList<Window*> windows_() const { return zOrderedVolatileWindows_; }
 
-    // NOTE: Highest window is first when reversed
+    // Highest window is first when reversed
     QList<Window*> windowsReversed_() const
     {
         QList<Window*> list{};
@@ -206,7 +212,7 @@ private:
         return visible;
     }
 
-    // Note: Can be set to nullptr
+    // Can be set to nullptr
     void setActiveWindow_(Window* activeWindow)
     {
         if (activeWindow_ == activeWindow) return;
@@ -247,8 +253,8 @@ private slots:
             // the same WindowManager, then we should activate that one instead
             if (lastFocusedAppWindow_
                 && zOrderedVolatileWindows_.contains(lastFocusedAppWindow_)) {
-                // Note: I am not entirely sure my logic/reasoning for tracking
-                // an app-wide active window is correct or necessary, but so far
+                // I am not entirely sure my logic/reasoning for tracking an
+                // app-wide active window is correct or necessary, but so far
                 // everything seems to work okay...
                 lastFocusedAppWindow_->activate();
 
@@ -258,7 +264,6 @@ private slots:
                 // it is, Qt should have taken care of refocusing
                 auto& next_window = zOrderedVolatileWindows_.last();
                 next_window->activate();
-
             }
         }
 

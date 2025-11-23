@@ -40,9 +40,9 @@
 
 namespace Fernanda {
 
-// Creates and manages file views within Windows, routes editing commands,
-// handles view lifecycles, propagates TabWidget signals, and tracks the number
-// of views per model
+// Creates and manages program views (TabWidgets and FileViews) within
+// Windows, routes editing commands, handles view lifecycles, propagates
+// TabWidget signals, and tracks the number of views per model
 class ViewService : public IService
 {
     Q_OBJECT
@@ -55,6 +55,50 @@ public:
     }
 
     virtual ~ViewService() override { TRACER; }
+
+    // Index -1 = current
+    void deleteAt(Window* window, int index)
+    {
+        if (!window) return;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
+
+        // TODO: Section off into own method (see its duplicated usage in
+        // viewAt_)
+        auto i = (index < 0) ? tab_widget->currentIndex() : index;
+        if (i < 0 || i > tab_widget->count() - 1) return;
+
+        deleteView_(tab_widget->removeTab<IFileView*>(i));
+    }
+
+    void deleteAllIn(Window* window)
+    {
+        if (!window) return;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
+
+        auto views = tab_widget->clear<IFileView*>();
+        if (views.isEmpty()) return;
+
+        for (auto& view : views)
+            deleteView_(view);
+    }
+
+    // Index -1 = current. Returns the model at a view position (window + tab
+    // index). Lives in ViewService because the primary input is a view
+    // location, not a file path or model ID. Avoids FileService depending on
+    // ViewService.
+    IFileModel* modelAt(Window* window, int index)
+    {
+        auto view = viewAt_(window, index);
+        return view ? view->model() : nullptr;
+    }
+
+    int viewsOn(IFileModel* model) const
+    {
+        if (!model) return 0;
+        return viewsPerModel_.value(model, 0);
+    }
 
 protected:
     virtual void registerBusCommands() override
@@ -147,12 +191,15 @@ private:
         return tab_widget->widgetAt<IFileView*>(i);
     }
 
-    // Passing a negative index defaults to the current index (if any)
-    // TODO: Should this be in FileService?
-    IFileModel* modelAt_(Window* window, int index)
+    void deleteView_(IFileView* view)
     {
-        auto view = viewAt_(window, index);
-        return view ? view->model() : nullptr;
+        if (!view) return;
+
+        // Update view count
+        if (auto model = view->model())
+            if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
+
+        delete view;
     }
 
     // Active file view can be set nullptr!
@@ -171,13 +218,13 @@ private:
 
     void undo_(Window* window, int index = -1)
     {
-        auto model = modelAt_(window, index);
+        auto model = modelAt(window, index);
         if (model && model->hasUndo()) model->undo();
     }
 
     void redo_(Window* window, int index = -1)
     {
-        auto model = modelAt_(window, index);
+        auto model = modelAt(window, index);
         if (model && model->hasRedo()) model->redo();
     }
 
@@ -252,10 +299,10 @@ private:
             &TabWidget::closeTabRequested,
             this,
             [&, window](int index) {
-                /// bus->execute(Cmd::CloseView, { { "index", index } },
-                /// window);
-                TRACER;
-                qDebug() << "Implement";
+                bus->execute(
+                    Commands::CLOSE_TAB,
+                    { { "index", index } },
+                    window);
             });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {

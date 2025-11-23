@@ -2,9 +2,34 @@
 
 TODO: Expand this!
 
+## Notepad vs. Notebooks
+
+The Notepad (one instance only) exists for the lifetime of the application, even with no windows open. Notebooks are contained editing environments based on archive files that will be destroyed once their last window is closed. Multiple Notebooks can be opened and closed during the lifetime of the application.
+
+## When does the application quit?
+
+Closing the last Notepad window will only quit the application if there are no Notebooks open. Closing the last window of a Notebook will only quit if there are no other Notebooks open and Notepad has no windows open.
+
+## Why no Window close command?
+
+Each Workspace type needs to do its own checks in its own way when closing a Window. Since windows can be closed from multiple places (close button or menu), each Window carries its checks with it, in its CloseAcceptor. To avoid making the base Workspace's WindowService protected, Workspace registers a universal CloseAcceptor, but this universal CloseAcceptor calls a poly command that each Workspace type implements in its own way.
+
+> [!NOTE]
+> Windows are only ever be closed by calling their `close()` method.
+
 ## Why `poly` commands?
 
 ...
+
+## Each Workspace instance has its own Bus
+
+So, interceptors registered in Notepad won't be called when executing commands within a Notebook, for example.
+
+## What does FileService do?
+
+TODO: Solid indication we should rename the service!
+
+`FileService` isn't really in charge of *files* per se. It's more in charge of the underlying file models. A file for the Notepad is a regular OS file, but the file for a Notebook is the archive.
 
 ## What happens when a file is opened?
 
@@ -17,8 +42,6 @@ TODO: Expand this!
 ## What happens when a file is closed?
 
 Well, first, closing a tab closes a file's *view*, not the file (model) itself. The underlying file model can have multiple views onto it, which means all views show the same changes to the model.
-
-`FileService` will automatically destroy a file model when the last view on that model is closed.
 
 ## Models and views
 

@@ -21,12 +21,17 @@ constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 
 // Workspace scope
 
-constexpr auto NEW_TAB = "poly:new_tab"; /// *
 constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
 constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
-constexpr auto CLOSE_TAB = "poly:close_tab";
-constexpr auto CLOSE_ALL_TABS_IN_WINDOW = "poly:close_all_tabs_in_window";
-constexpr auto CLOSE_WINDOW = "workspace:close_window";
+
+// Poly: same command for all Workspace types but registered differently by
+// each. These commands are meant to be called from a Workspace-agnostic service
+// but with effects unique to each Workspace type
+
+constexpr auto NEW_TAB = "poly:new_tab"; /// *
+constexpr auto CLOSE_TAB = "poly:close_tab"; /// * (np wip)
+constexpr auto CLOSE_WINDOW_TABS =
+    "poly:close_all_tabs_in_window"; /// * (np wip)
 constexpr auto WS_TREE_VIEW_MODEL = "poly:ws_tree_view_model"; /// *, non-menu
 constexpr auto WS_TREE_VIEW_ROOT_INDEX =
     "poly:ws_tree_view_root_index"; /// *, non-menu
@@ -59,30 +64,24 @@ constexpr auto SELECT_ALL = "views:select_all"; /// *
 
 // SettingsModule scope
 
-constexpr auto SET_SETTINGS_OVERRIDE = "settings:set_override"; /// *, non-menu
 constexpr auto SETTINGS_DIALOG = "settings:dialog";
 
 // WindowService scope
 
 constexpr auto NEW_WINDOW = "windows:new"; /// *
-constexpr auto ACTIVE_WINDOW = "windows:active"; /// *, non-menu
 constexpr auto WINDOWS_SET = "windows:set"; /// *, non-menu
 
 // ColorBarModule scope
 
 constexpr auto RUN_COLOR_BAR = "color_bars:run"; /// *, non-menu
 constexpr auto RUN_ALL_COLOR_BARS = "color_bars:run_all"; /// *, non-menu
-constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 
 // FileService scope
 
-constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// *, non-menu
-constexpr auto NEW_TXT_FILE = "file:new_txt"; /// *, non-menu
-constexpr auto SET_PATH_TITLE_OVERRIDE =
-    "file:set_path_title_override"; /// *, non-menu
+constexpr auto OPEN_FILE_AT_PATH = "file_models:open_path"; /// *, non-menu
 
 // TreeViewModule scope
 
-constexpr auto RENAME_TREE_VIEW_INDEX = "tree_views:rename_index"; /// *
+//...
 
 } // namespace Fernanda::Commands

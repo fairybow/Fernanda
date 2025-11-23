@@ -34,6 +34,9 @@ class IFileModel;
 class IFileView;
 enum class SaveResult;
 
+// We don't ever need to use this manually in command handler returns. Bus
+// handles this itself. Outside usage is more for converting parameters when
+// executing commands
 template <typename T> inline [[nodiscard]] QVariant qVar(const T& value)
 {
     return QVariant::fromValue<T>(value);
@@ -297,6 +300,7 @@ public:
 
 signals:
     /// Re-verified:
+    void lastWindowClosed();
     void windowCreated(Window* context);
     void windowDestroyed(Window* context);
     // View may be nullptr!
@@ -317,7 +321,6 @@ signals:
     // WindowService
 
     void visibleWindowCountChanged(int count);
-    void lastWindowClosed();
 
     // Window may be nullptr!
     // void activeWindowChanged(Window* window);

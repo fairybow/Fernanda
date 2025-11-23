@@ -1,5 +1,9 @@
 # Bus
 
+TODO: Update tab/window closure items!
+
+TODO: Could use a namespace/prefix to distinguish "public" commands (i.e., things used in menus) vs "internal" ones (like windows:set).
+
 Commands are dynamically registered and can vary per workspace type. Events are statically defined signals for type safety and Qt integration. This asymmetry is intentional: commands are vocabulary, events are grammar.
 
 ## Commands
@@ -18,7 +22,6 @@ Commands are formatted as `scope:action`.
 
 - `new_notebook`*: Opens a file dialog to create a new Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
 - `open_notebook`*: Opens a file dialog to select an existing Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
-- `close_window`*: Closes the specified window after running the workspace's close acceptor (which typically handles closing all tabs and save prompts).
 
 ### `poly`
 
@@ -28,11 +31,11 @@ Poly commands are registered per Workspace type (Notepad or Notebook) but called
     - **Notepad**: Opens a new tab (a new view on a new, off-disk file model).
     - **Notebook**: Adds a new empty file to the archive's temporary extraction folder, adds it to the Model.xml file, refreshes the tree view, and opens a new tab (a new view on a new on-disk file model for the new file).
 - `close_tab`*: Closes the current tab with workspace-specific save handling.
-    - **Notepad**: Checks if the model has views in other windows. If yes, just closes this view. If this is the last view on the model and the model is modified, prompts to save. On save/discard, closes the view and emits `viewClosed`. FileService cleans up the model when view count reaches zero.
-    - **Notebook**: Closes the view without prompting. If this was the last view on the model, changes remain in the temp file and the archive stays marked as modified. FileService cleans up the model when view count reaches zero.
+    - **Notepad**: Checks if the model has views in other windows. If yes, just closes this view. If this is the last view on the model and the model is modified, prompts to save. On save/discard, closes the view and model.
+    - **Notebook**: Closes the view without prompting. Model remains open to persist changes and undo/redo stacks.
 - `close_all_tabs_in_window`*: Closes all tabs in the current window with workspace-specific save handling.
-    - **Notepad**: Iterates backward through tabs. Builds a list of unique modified models that only have views in this window (skips models with views in other windows). If the list is not empty, shows multi-file save prompt with checkboxes. User can save selected files, discard all, or cancel. If cancel, aborts. Otherwise, saves chosen files, then closes all views and emits events for each.
-    - **Notebook**: Simply closes all views without prompting. Changes remain in temp files, archive stays marked as modified if applicable.
+    - **Notepad**: Iterates backward through tabs. Builds a list of unique modified models that only have views in this window (skips models with views in other windows). If the list is not empty, shows multi-file save prompt with checkboxes. User can save selected files, discard all, or cancel. If cancel, aborts. Otherwise, saves chosen files, then closes all views and models.
+    - **Notebook**: Simply closes all views without prompting.
 - `ws_tree_view_model`: Returns the Workspace's file model (OS-based for Notepad and archive-based for Notebooks).
 - `ws_tree_view_root_index`: Returns the Workspace's current TreeView root index.
 
@@ -59,7 +62,6 @@ TODO: Verify `active` behavior for min/max, etc
 Window service command handlers should be responsible for showing the window. When you call NEW_WINDOW, you expect to see a new window without having to show it yourself. Later, when we must open multiple windows for sessions, if we want to bubble them, we may have a different command that creates N windows at specified positions, and bubble-shows them itself.
 
 - `new`*: Creates and shows a new window in the current workspace.
-- `active`: Returns the active (top-most) window of the workspace.
 - `set`: Returns a `QSet` of all Workspace windows.
 
 ### `views`
@@ -74,29 +76,26 @@ Window service command handlers should be responsible for showing the window. Wh
 
 ### `settings`
 
-- `settings:set_override`: Sets the override config path for the Workspace's SettingsModule (used by Notebook to make the archive config override the global/Notepad config).
 - `dialog`*: Opens a non-modal Settings dialog, or raises/activates it if already open.
 
 ### `color_bars`
 
 - `run`: Run the context window's color bar.
 - `run_all`: Run all workspace color bars.
-- `be_cute`: Runs all color bars with pastel gradient.
 
-### `files`
+### `file_models`
 
 - `open_path`: Opens a file model for the file at the given path and readies it for a view. If the file model already exists, it is re-readied for an additional view. TODO: Add asterisk if in menu!
-- `new_txt`: Opens an off-disk plaintext file and readies it for a view.
-- `set_path_title_override`: Sets the title override for the file model opened for path.
 
 ### `tree_views`
 
-- `rename_index`: Triggers a rename on the provided index (or current index if given an invalid index).
+...
 
 ## Events (Signals)
 
 Can be connected to and emitted by Services.
 
+- `lastWindowClosed()`: Emitted when the last window in the workspace is closed
 - `windowCreated(Window* context)`: Emitted when a new window is created
 - `windowDestroyed(Window* context)`: Emitted when a window is destroyed
 - `treeViewDoubleClicked(Window* context, const QModelIndex& index)`: Emitted when a tree view item is double-clicked

@@ -37,6 +37,21 @@ public:
 
     virtual ~ColorBarModule() override { TRACER; }
 
+    void run(Window* window, ColorBar::Color color) const
+    {
+        if (!window || !window->isVisible()) return;
+        if (auto color_bar = colorBars_[window]) color_bar->run(color);
+    }
+
+    void runAll(ColorBar::Color color) const
+    {
+        for (auto it = colorBars_.begin(); it != colorBars_.end(); ++it) {
+            auto window = it.key();
+            if (!window || !window->isVisible()) continue;
+            if (auto color_bar = it.value()) color_bar->run(color);
+        }
+    }
+
 protected:
     // TODO: Could have commands to run all color bars and call that in save
     // functions instead of having slightly convoluted, overly-specific save
@@ -49,19 +64,15 @@ protected:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
                 auto color = cmd.param<ColorBar::Color>("color");
-                run_(cmd.context, color);
+                run(cmd.context, color);
             });
 
         bus->addCommandHandler(
             Commands::RUN_ALL_COLOR_BARS,
             [&](const Command& cmd) {
                 auto color = cmd.param<ColorBar::Color>("color");
-                runAll_(color);
+                runAll(color);
             });
-
-        bus->addCommandHandler(Commands::BE_CUTE, [&] {
-            runAll_(ColorBar::Color::Pastel);
-        });
     }
 
     virtual void connectBusEvents() override
@@ -85,21 +96,6 @@ private:
     void setup_()
     {
         //...
-    }
-
-    void run_(Window* window, ColorBar::Color color) const
-    {
-        if (!window || !window->isVisible()) return;
-        if (auto color_bar = colorBars_[window]) color_bar->run(color);
-    }
-
-    void runAll_(ColorBar::Color color) const
-    {
-        for (auto it = colorBars_.begin(); it != colorBars_.end(); ++it) {
-            auto window = it.key();
-            if (!window || !window->isVisible()) continue;
-            if (auto color_bar = it.value()) color_bar->run(color);
-        }
     }
 
 private slots:

@@ -12,8 +12,8 @@
 #include <functional>
 
 #include <QFileSystemModel>
-#include <QModelIndex>
 #include <QList>
+#include <QModelIndex>
 #include <QObject>
 
 #include "Coco/Path.h"
@@ -24,6 +24,7 @@
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "IFileModel.h"
 #include "NotepadMenuModule.h"
 #include "TreeViewModule.h"
 #include "Version.h"
@@ -68,6 +69,13 @@ public:
         };
     }
 
+protected:
+    virtual bool canCloseWindow(Window* window) override
+    {
+        if (!window) return false;
+        return closeWindowTabs_(window);
+    }
+
 private:
     Coco::Path currentBaseDir_ = AppDirs::defaultDocs();
     PathInterceptor pathInterceptor_ = nullptr;
@@ -90,22 +98,6 @@ private:
 
     void registerBusCommands_()
     {
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
-            return fsModel_;
-        });
-
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
-            // Generate the index on-demand from the stored path (don't hold it
-            // separately or retrieve via Model::setRootPath)
-            if (!fsModel_) return QModelIndex{};
-            return fsModel_->index(currentBaseDir_.toQString());
-        });
-
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            bus->execute(Commands::NEW_TXT_FILE, cmd.context);
-        });
-
         bus->addCommandHandler(
             Commands::NOTEPAD_OPEN_FILE,
             [&](const Command& cmd) {
@@ -128,6 +120,8 @@ private:
                 }
             });
 
+        // Notepad sets an Interceptor for FileService's open file command in
+        // order to intercept Notebook paths
         bus->addInterceptor(
             Commands::OPEN_FILE_AT_PATH,
             [&](const Command& cmd) {
@@ -138,10 +132,70 @@ private:
                 return false;
             });
 
-        /// NOT YET
-        /*bus->addCommandHandler(PolyCmd::BASE_DIR, [&] {
-            return currentBaseDir_.toQString();
-        });*/
+        // Poly commands
+
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
+            return fsModel_;
+        });
+
+        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
+            // Generate the index on-demand from the stored path (don't hold it
+            // separately or retrieve via Model::setRootPath)
+            if (!fsModel_) return QModelIndex{};
+            return fsModel_->index(currentBaseDir_.toQString());
+        });
+
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            files->openOffDiskTxtIn(cmd.context);
+        });
+
+        /// WIP
+        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return false;
+            auto index = cmd.param<int>("index", -1);
+            auto model = views->modelAt(cmd.context, index);
+            if (!model) return false;
+
+            auto is_last_view = views->viewsOn(model) <= 1;
+
+            if (is_last_view) {
+                // Check if model is modified
+                // If so, prompt save
+                // Handle save prompt result
+            }
+
+            views->deleteAt(cmd.context, index);
+            if (is_last_view) files->deleteModel(model);
+            return true;
+        });
+
+        /// WIP
+        bus->addCommandHandler(
+            Commands::CLOSE_WINDOW_TABS,
+            [&](const Command& cmd) { return closeWindowTabs_(cmd.context); });
+
+        // Quit procedure (from Notepad's perspective):
+        // - (This could all be a closeAllWindows_ command handler? Don't know
+        // if that would work, due to the closeAcceptor. And, honestly, it may
+        // prevent the the following stuff, too)
+        // - Get a list of all file models (iterating backward) that are
+        // modified (see 9e6cd80 ViewCloseHelper)
+        // - Save Prompt (multi-file selection version; Save (with
+        // selections, defaulted to all), Discard, or Cancel)
+        // - Handle prompt result (Cancel return, Discard proceed without
+        // saves, Save (any or all selected)
+        // If proceeding:
+        // - Close all views everywhere
+        // - Delete all file models
+        // - Close all windows?
+        // - return true for quittable?
+
+        // TODO: Should we have a "quit acceptor"? It could run a new
+        // CLOSE_ALL_WINDOWS command from the base class? Allow us to handle
+        // things in a specific way when the application is closing, instead of
+        // just letting each window close (and possibly resulting in multiple
+        // save prompts, when one would be better)?
     }
 
     void connectBusEvents_()
@@ -151,6 +205,27 @@ private:
             &Bus::treeViewDoubleClicked,
             this,
             &Notepad::onTreeViewDoubleClicked_);
+    }
+
+    /// WIP
+    bool closeWindowTabs_(Window* window)
+    {
+        if (!window) return false;
+
+        // Get a list of all file models (iterating backward) that are not
+        // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
+
+        // Save Prompt (multi-file selection version; Save (with
+        // selections, defaulted to all), Discard, or Cancel)
+
+        // Handle prompt result (Cancel return, Discard proceed without
+        // saves, Save (any or all selected)
+
+        // If proceeding:
+        views->deleteAllIn(window);
+        // Delete all deletable models (those that were in that window (modified
+        // or not) and not open in other windows)
+        return true;
     }
 
 private slots:

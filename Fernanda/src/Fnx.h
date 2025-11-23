@@ -27,32 +27,23 @@
 #include "AppDirs.h"
 #include "TextIo.h"
 
-// The .fnx file format specification and utilities. Defines everything about
-// the .fnx format: archive I/O, Model.xml structure, DOM element creation, and
-// format constants. Single source of truth for "what is a valid .fnx file."
+// .fnx file format specification and utilities.
 //
-// Notebook uses Fnx for all .fnx operations. FnxModel uses Fnx constants to
-// interpret the DOM structure it presents.
+// Fnx::Io: Archive and working directory operations
+// Fnx::Xml: DOM element factories and queries (stateless helpers)
+//
+// TODO: Are all these element.isNull checks necessary? Not sure...
 namespace Fernanda::Fnx {
 
 namespace Internal {
 
-    constexpr auto XML_INDENT_ = 4;
-
-    constexpr auto MODEL_FILE_NAME_ = "Model.xml";
-    constexpr auto XML_ROOT_TAG_ = "notebook";
-    constexpr auto CONTENT_DIR_NAME_ = "content";
-    constexpr auto XML_VFOLDER_TAG_ = "vfolder";
-    constexpr auto XML_FILE_TAG_ = "file";
-    constexpr auto XML_NAME_ATTR_ = "name";
-    constexpr auto XML_NAME_ATTR_FILE_DEF_ = "Untitled";
-    constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
-    constexpr auto XML_FILE_UUID_ATTR_ = "uuid";
-    constexpr auto XML_FILE_EXT_ATTR_ = "extension";
-
     constexpr auto WORKING_DIR_MISSING_FMT_ =
         "Working directory ({}) doesn't exist!";
-    constexpr auto NULL_DOM_ = "DOM is null!";
+
+    // Io
+
+    constexpr auto IO_MODEL_FILE_NAME_ = "Model.xml";
+    constexpr auto IO_CONTENT_DIR_NAME_ = "content";
 
     // TODO: Replace QFile::copy with Coco version, maybe
     inline const Coco::Path& dll_()
@@ -63,6 +54,19 @@ namespace Internal {
         return file;
     }
 
+    // Xml
+
+    constexpr auto XML_INDENT_ = 2;
+    constexpr auto XML_ROOT_TAG_ = "notebook";
+    constexpr auto XML_VFOLDER_TAG_ = "vfolder";
+    constexpr auto XML_FILE_TAG_ = "file";
+    constexpr auto XML_NAME_ATTR_ = "name";
+    constexpr auto XML_NAME_ATTR_FILE_DEF_ = "Untitled";
+    constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
+    constexpr auto XML_FILE_UUID_ATTR_ = "uuid";
+    constexpr auto XML_FILE_EXT_ATTR_ = "extension";
+    constexpr auto XML_NULL_DOM_ = "DOM is null!";
+
     inline QString makeUuid_()
     {
         return QUuid::createUuid().toString(QUuid::WithoutBraces);
@@ -70,240 +74,242 @@ namespace Internal {
 
 } // namespace Internal
 
-// TODO: Rename?
-struct NewFileResult
-{
-    Coco::Path path{};
-    QDomElement element{};
-    bool isValid() const { return path.exists() && !element.isNull(); }
-    // operator bool() const { return path.exists() && !element.isNull(); }
-};
+// Used by Notebook
+namespace Io {
 
-inline void addBlank(const Coco::Path& workingDir)
-{
-    // Create content directory
-    if (!Coco::PathUtil::mkdir(workingDir / Internal::CONTENT_DIR_NAME_))
-        return;
+    inline void makeNewWorkingDir(const Coco::Path& workingDir)
+    {
+        // Create content directory
+        if (!Coco::PathUtil::mkdir(workingDir / Internal::IO_CONTENT_DIR_NAME_))
+            return;
 
-    // Create empty Model.xml
-    QString xml_content{};
-    QXmlStreamWriter xml(&xml_content);
-    xml.setAutoFormatting(true);
-    xml.setAutoFormattingIndent(Internal::XML_INDENT_);
-    xml.writeStartDocument();
-    xml.writeStartElement(Internal::XML_ROOT_TAG_);
-    xml.writeEndElement();
-    xml.writeEndDocument();
+        // Create empty Model.xml
+        QString xml_content{};
+        QXmlStreamWriter xml(&xml_content);
+        xml.setAutoFormatting(true);
+        xml.setAutoFormattingIndent(Internal::XML_INDENT_);
+        xml.writeStartDocument();
+        xml.writeStartElement(Internal::XML_ROOT_TAG_);
+        xml.writeEndElement();
+        xml.writeEndDocument();
 
-    // Model.xml represents a virtual structuring of the contents of the
-    // content folder
-
-    TextIo::write(xml_content, workingDir / Internal::MODEL_FILE_NAME_);
-}
-
-inline void extract(const Coco::Path& archivePath, const Coco::Path& workingDir)
-{
-    using namespace bit7z;
-
-    INFO("Extracting archive at {} to {}", archivePath, workingDir);
-
-    if (!archivePath.exists()) {
-        CRITICAL("Archive file ({}) doesn't exist!", archivePath);
-        return;
+        // Model.xml represents a virtual structuring of the contents of the
+        // content folder
+        TextIo::write(xml_content, workingDir / Internal::IO_MODEL_FILE_NAME_);
     }
 
-    if (!workingDir.exists()) {
-        CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-        return;
+    inline void
+    extract(const Coco::Path& archivePath, const Coco::Path& workingDir)
+    {
+        using namespace bit7z;
+
+        INFO("Extracting archive at {} to {}", archivePath, workingDir);
+
+        if (!archivePath.exists()) {
+            CRITICAL("Archive file ({}) doesn't exist!", archivePath);
+            return;
+        }
+
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return;
+        }
+
+        try {
+            Bit7zLibrary lib{ Internal::dll_().toString() };
+            BitArchiveReader archive{ lib,
+                                      archivePath.toString(),
+                                      BitFormat::SevenZip };
+            archive.test();
+            archive.extractTo(workingDir.toString());
+
+        } catch (const BitException& ex) {
+            CRITICAL("FNX archive extraction failed! Error: {}", ex.what());
+        }
     }
 
-    try {
-        Bit7zLibrary lib{ Internal::dll_().toString() };
-        BitArchiveReader archive{ lib,
-                                  archivePath.toString(),
-                                  BitFormat::SevenZip };
-        archive.test();
-        archive.extractTo(workingDir.toString());
+    // TODO: Compress method
 
-    } catch (const BitException& ex) {
-        CRITICAL("FNX archive extraction failed! Error: {}", ex.what());
-    }
-}
+} // namespace Io
 
-// TODO: Compress method
+// Used by FnxModel
+namespace Xml {
 
-inline QDomDocument makeDomDocument(const Coco::Path& workingDir)
-{
-    if (!workingDir.exists()) {
-        CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-        return {};
+    inline bool isVirtualFolder(const QDomElement& element)
+    {
+        if (element.isNull()) return false;
+        return element.tagName() == Internal::XML_VFOLDER_TAG_;
     }
 
-    QDomDocument doc{};
-    auto content = TextIo::read(workingDir / Internal::MODEL_FILE_NAME_);
-    auto result = doc.setContent(content);
-
-    if (!result) {
-        CRITICAL(
-            "Failed to parse {}! Error: {} at line {}, column {}.",
-            Internal::MODEL_FILE_NAME_,
-            result.errorMessage,
-            result.errorLine,
-            result.errorColumn);
-        return {};
+    inline bool isFile(const QDomElement& element)
+    {
+        if (element.isNull()) return false;
+        return element.tagName() == Internal::XML_FILE_TAG_;
     }
 
-    return doc;
-}
-
-// TODO: Return bool?
-inline void
-writeModelFile(const Coco::Path& workingDir, const QDomDocument& dom)
-{
-    if (!workingDir.exists()) {
-        CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-        return;
+    inline QString name(const QDomElement& element)
+    {
+        return element.attribute(Internal::XML_NAME_ATTR_);
     }
 
-    if (dom.isNull()) {
-        CRITICAL(Internal::NULL_DOM_);
-        return;
+    inline QString uuid(const QDomElement& element)
+    {
+        return element.attribute(Internal::XML_FILE_UUID_ATTR_);
     }
 
-    auto xml = dom.toString(Internal::XML_INDENT_);
-    auto model_path = workingDir / Internal::MODEL_FILE_NAME_;
-
-    if (!TextIo::write(xml, model_path))
-        CRITICAL("Failed to write model to {}!", model_path);
-}
-
-inline NewFileResult
-addNewTextFile(const Coco::Path& workingDir, QDomDocument& dom)
-{
-    if (!workingDir.exists()) {
-        CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-        return {};
+    inline QString ext(const QDomElement& element)
+    {
+        return element.attribute(Internal::XML_FILE_EXT_ATTR_);
     }
 
-    if (dom.isNull()) {
-        CRITICAL(Internal::NULL_DOM_);
-        return {};
+    inline Coco::Path relPath(const QDomElement& element)
+    {
+        if (!isFile(element)) return {};
+        auto file_name = uuid(element) + ext(element);
+        return Coco::Path(Internal::IO_CONTENT_DIR_NAME_) / file_name;
     }
 
-    auto uuid = Internal::makeUuid_();
-    auto ext = ".txt";
-    auto file_name = uuid + ext;
-    auto path = workingDir / Internal::CONTENT_DIR_NAME_ / file_name;
-
-    if (!TextIo::write({}, path)) {
-        WARN("Failed to create text file at {}", path);
-        return {};
+    inline void rename(QDomElement& element, const QString& name)
+    {
+        if (element.isNull() || !element.hasAttribute(Internal::XML_NAME_ATTR_)
+            || name.isEmpty())
+            return;
+        element.setAttribute(Internal::XML_NAME_ATTR_, name);
     }
 
-    auto element = dom.createElement(Internal::XML_FILE_TAG_);
-    element.setAttribute(
-        Internal::XML_NAME_ATTR_,
-        Internal::XML_NAME_ATTR_FILE_DEF_);
-    element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
-    element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
+    inline QDomDocument makeDom(const Coco::Path& workingDir)
+    {
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return {};
+        }
 
-    return { path, element };
-}
+        QDomDocument doc{};
+        auto content = TextIo::read(workingDir / Internal::IO_MODEL_FILE_NAME_);
+        auto result = doc.setContent(content);
 
-// TODO: Section off some code from this and addNewTextFile
-inline NewFileResult importTextFile(
-    const Coco::Path& fsPath,
-    const Coco::Path& workingDir,
-    QDomDocument& dom)
-{
-    if (!fsPath.exists() || fsPath.isFolder()) return {};
+        if (!result) {
+            CRITICAL(
+                "Failed to parse {}! Error: {} at line {}, column {}.",
+                Internal::IO_MODEL_FILE_NAME_,
+                result.errorMessage,
+                result.errorLine,
+                result.errorColumn);
+            return {};
+        }
 
-    if (!workingDir.exists()) {
-        CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-        return {};
+        return doc;
     }
 
-    if (dom.isNull()) {
-        CRITICAL(Internal::NULL_DOM_);
-        return {};
+    // TODO: Return bool?
+    inline void
+    writeModelFile(const Coco::Path& workingDir, const QDomDocument& dom)
+    {
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return;
+        }
+
+        if (dom.isNull()) {
+            CRITICAL(Internal::XML_NULL_DOM_);
+            return;
+        }
+
+        auto xml = dom.toString(Internal::XML_INDENT_);
+        auto model_path = workingDir / Internal::IO_MODEL_FILE_NAME_;
+
+        if (!TextIo::write(xml, model_path))
+            CRITICAL("Failed to write model to {}!", model_path);
     }
 
-    auto uuid = Internal::makeUuid_();
-    auto ext = ".txt";
-    auto file_name = uuid + ext;
-    auto path = workingDir / Internal::CONTENT_DIR_NAME_ / file_name;
+    inline QDomElement
+    addNewTextFile(const Coco::Path& workingDir, QDomDocument& dom)
+    {
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return {};
+        }
 
-    if (!QFile::copy(fsPath.toQString(), path.toQString())) {
-        WARN("Failed to copy text file at {}", fsPath);
-        return {};
+        if (dom.isNull()) {
+            CRITICAL(Internal::XML_NULL_DOM_);
+            return {};
+        }
+
+        auto uuid = Internal::makeUuid_();
+        auto ext = ".txt";
+        auto file_name = uuid + ext;
+        auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
+
+        if (!TextIo::write({}, path)) {
+            WARN("Failed to create text file at {}", path);
+            return {};
+        }
+
+        auto element = dom.createElement(Internal::XML_FILE_TAG_);
+        element.setAttribute(
+            Internal::XML_NAME_ATTR_,
+            Internal::XML_NAME_ATTR_FILE_DEF_);
+        element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
+        element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
+
+        return element;
     }
 
-    auto element = dom.createElement(Internal::XML_FILE_TAG_);
-    element.setAttribute(Internal::XML_NAME_ATTR_, fsPath.stemQString());
-    element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
-    element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
+    // TODO: Section off some code from this and addNewTextFile
+    inline QDomElement importTextFile(
+        const Coco::Path& workingDir,
+        QDomDocument& dom,
+        const Coco::Path& fsPath)
+    {
+        if (!fsPath.exists() || fsPath.isFolder()) return {};
 
-    return { path, element };
-}
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return {};
+        }
 
-inline QDomElement addNewDir(QDomDocument& dom)
-{
-    if (dom.isNull()) {
-        CRITICAL(Internal::NULL_DOM_);
-        return {};
+        if (dom.isNull()) {
+            CRITICAL(Internal::XML_NULL_DOM_);
+            return {};
+        }
+
+        auto uuid = Internal::makeUuid_();
+        auto ext = ".txt";
+        auto file_name = uuid + ext;
+        auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
+
+        if (!QFile::copy(fsPath.toQString(), path.toQString())) {
+            WARN("Failed to copy text file at {}", fsPath);
+            return {};
+        }
+
+        auto element = dom.createElement(Internal::XML_FILE_TAG_);
+        element.setAttribute(Internal::XML_NAME_ATTR_, fsPath.stemQString());
+        element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
+        element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
+
+        return element;
     }
 
-    auto element = dom.createElement(Internal::XML_VFOLDER_TAG_);
-    element.setAttribute(
-        Internal::XML_NAME_ATTR_,
-        Internal::XML_NAME_ATTR_DIR_DEF_);
-    element.setAttribute(Internal::XML_FILE_UUID_ATTR_, Internal::makeUuid_());
-    return element;
-}
+    inline QDomElement addVirtualFolder(QDomDocument& dom)
+    {
+        if (dom.isNull()) {
+            CRITICAL(Internal::XML_NULL_DOM_);
+            return {};
+        }
 
-// TODO: Are all these element.isNull checks necessary? I sorta don't think so.
+        auto element = dom.createElement(Internal::XML_VFOLDER_TAG_);
 
-// TODO: Notebook or TreeView will handle the LineEdit
-inline void rename(QDomElement& element, const QString& name)
-{
-    if (element.isNull() || !element.hasAttribute(Internal::XML_NAME_ATTR_)
-        || name.isEmpty())
-        return;
-    element.setAttribute(Internal::XML_NAME_ATTR_, name);
-}
+        element.setAttribute(
+            Internal::XML_NAME_ATTR_,
+            Internal::XML_NAME_ATTR_DIR_DEF_);
+        element.setAttribute(
+            Internal::XML_FILE_UUID_ATTR_,
+            Internal::makeUuid_());
 
-inline bool isVirtualFolder(const QDomElement& element)
-{
-    if (element.isNull()) return false;
-    return element.tagName() == Internal::XML_VFOLDER_TAG_;
-}
+        return element;
+    }
 
-inline bool isFile(const QDomElement& element)
-{
-    if (element.isNull()) return false;
-    return element.tagName() == Internal::XML_FILE_TAG_;
-}
-
-inline QString name(const QDomElement& element)
-{
-    return element.attribute(Internal::XML_NAME_ATTR_);
-}
-
-inline QString uuid(const QDomElement& element)
-{
-    return element.attribute(Internal::XML_FILE_UUID_ATTR_);
-}
-
-inline QString ext(const QDomElement& element)
-{
-    return element.attribute(Internal::XML_FILE_EXT_ATTR_);
-}
-
-inline Coco::Path relativePath(const QDomElement& element)
-{
-    if (!isFile(element)) return {};
-    auto file_name = uuid(element) + ext(element);
-    return Coco::Path(Internal::CONTENT_DIR_NAME_) / file_name;
-}
+} // namespace Xml
 
 } // namespace Fernanda::Fnx

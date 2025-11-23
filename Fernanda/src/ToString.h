@@ -102,6 +102,9 @@ inline QString toQString(const QVariant& variant)
     if (variant.canConvert<QDomElement>())
         return toQString(variant.value<QDomElement>());
 
+    if (variant.canConvert<QObject*>())
+        return toQString(variant.value<QObject*>());
+
     switch (variant.typeId()) {
         // TODO: Would need source file to do QVariantMap here
         /*case QMetaType::QVariantMap:
@@ -110,8 +113,9 @@ inline QString toQString(const QVariant& variant)
     case QMetaType::QModelIndex:
         return toQString(variant.value<QModelIndex>());
 
-    case QMetaType::QObjectStar:
-        return toQString(variant.value<QObject*>());
+        // This doesn't work for subclasses apparently:
+        /*case QMetaType::QObjectStar:
+            return toQString(variant.value<QObject*>());*/
 
     case QMetaType::QStringList:
         return variant.value<QStringList>().join(", ");

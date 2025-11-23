@@ -35,6 +35,9 @@ namespace Fernanda {
 //
 // Qt Model/View adapter for .fnx virtual directory structure.
 //
+// Owns the internal QDomDocument. Public methods return FileInfo structs, never
+// raw DOM elements. Uses Fnx::Xml helpers internally for DOM operations.
+//
 // TODO: Trash (should be immutable and separate from active)
 // TODO: Double clicking on files should maybe not expand (if they have
 // children), since they also open with double clicks?
@@ -43,6 +46,22 @@ class FnxModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
+    struct FileInfo
+    {
+        Coco::Path relPath{};
+        QString name{};
+
+        FileInfo(const QDomElement& element)
+            : relPath(Fnx::Xml::relPath(element))
+            , name(Fnx::Xml::name(element))
+        {
+        }
+
+        FileInfo() = default;
+        // TODO: Could take workingDir param and concat path and check exists?
+        bool isValid() const { return !relPath.isEmpty() && !name.isEmpty(); }
+    };
+
     FnxModel(QObject* parent)
         : QAbstractItemModel(parent)
     {
@@ -50,202 +69,88 @@ public:
 
     virtual ~FnxModel() override { TRACER; }
 
-    void setDomDocument(const QDomDocument& dom)
+    void load(const Coco::Path& workingDir)
     {
         beginResetModel();
-        dom_ = dom;
+        dom_ = Fnx::Xml::makeDom(workingDir);
         clearCache_();
         endResetModel();
 
         emit domChanged();
     }
 
-    QDomDocument domDocument() const { return dom_; }
-
-    // QDomElement acts as a handle to shared DOM data.
-    // Passing by value is cheap (like copying a pointer).
-    // Modifications through any copy affect the shared DOM.
-    // Parameter is non-const to document that DOM will be modified.
-    // TODO: Expand parent if applicable after appending (probably a view op)
-    void insertElement(const QDomElement& element, QDomElement parentElement)
+    void write(const Coco::Path& workingDir) const
     {
-        if (!isValid_(element) || !isValid_(parentElement)) return;
-
-        auto parent_index = indexFromElement_(parentElement);
-        auto row = childElementCount_(parentElement);
-
-        beginInsertRows(parent_index, row, row);
-        parentElement.appendChild(element);
-        endInsertRows();
-
-        emit domChanged();
+        Fnx::Xml::writeModelFile(workingDir, dom_);
     }
 
-    // TODO: Expand parent if applicable after appending (probably a view op)
-    void insertElements(
-        const QList<QDomElement>& elements,
-        QDomElement parentElement)
+    // QString xml() const { return dom_.toString(); }
+
+    FileInfo fileInfoAt(const QModelIndex& index) const
     {
-        if (elements.isEmpty() || !isValid_(parentElement)) return;
-
-        auto parent_index = indexFromElement_(parentElement);
-        auto row = childElementCount_(parentElement);
-
-        for (const auto& element : elements) {
-            if (!isValid_(element)) continue;
-
-            beginInsertRows(parent_index, row, row);
-            parentElement.appendChild(element);
-            endInsertRows();
-            ++row;
-        }
-
-        emit domChanged();
+        if (!index.isValid()) return {};
+        return { elementAt_(index) };
     }
 
-    bool
-    moveElement(const QDomElement& element, QDomElement newParent, int newRow)
+    void addNewVirtualFolder(const QModelIndex& parentIndex = {})
     {
-        if (!isValid_(element) || !isValid_(newParent)) {
-            WARN("Move attempted on invalid element(s)");
-            return false;
-        }
+        auto element = Fnx::Xml::addVirtualFolder(dom_);
+        if (element.isNull()) return;
 
-        auto current_parent = element.parentNode().toElement();
-        if (current_parent.isNull()) return false;
-
-        if (isDescendantOf_(element, newParent)) return false;
-
-        auto source_parent_index = indexFromElement_(current_parent);
-        auto source_row = rowOfElement_(element);
-        auto dest_parent_index = indexFromElement_(newParent);
-
-        auto dest_row = newRow;
-        if (dest_row < 0) {
-            dest_row = childElementCount_(newParent);
-        }
-
-        // Check move isn't pointless
-        if (current_parent == newParent && source_row == dest_row) {
-            return true;
-        }
-
-        INFO(
-            "Moving element: {}\n\tOld parent: {}\n\tOld row: {}\n\tNew "
-            "parent: {}\n\tNew row: {}",
-            element,
-            current_parent,
-            source_row,
-            newParent,
-            dest_row);
-
-        /*if (!beginMoveRows(
-                source_parent_index,
-                source_row,
-                source_row,
-                dest_parent_index,
-                dest_row)) {
-            return false;
-        }
-
-        // Perform DOM manipulation
-        current_parent.removeChild(element);
-
-        // After removal, dest_row might be out of bounds, which is fine
-        if (dest_row >= childElementCount_(newParent)) {
-            newParent.appendChild(element);
-        } else {
-            auto sibling = nthChildElement_(newParent, dest_row);
-            if (!sibling.isNull()) {
-                newParent.insertBefore(element, sibling);
-            } else {
-                newParent.appendChild(element);
-            }
-        }*/
-
-        /// TEST
-
-        /*1 - Move 1 from Chapter 1 into Other Notes
-        2 - Move Chapter 1 from Root into 1
-        3 - Move Other Notes down from Notes into Root (row 1 (bottom))
-        4 - Move 1 down from Other Notes into Root (row 2 (bottom))
-        5 - Move Chapter 1 down from 1 into Root (row 3 (bottom))
-        6 - Move Notes from Root into 1
-        7 - Move Other Notes from Root to Root (row 2 (above the bottom item,
-        which is Chapter 1, but when it populates, it will be below Chapter 1))
-        8 - Move Notes from 1 into Chapter 1
-        9 - Move Chapter 1 from Root into Other Notes*/
-
-        // OR
-
-        /*1 - Move 1 from Chapter 1 into Other Notes
-        2 - Move Chapter 1 from Root into 1
-        3 - Move Other Notes down from Notes into Root (row 1 (bottom))
-        4 - Move 1 down from Other Notes into Root (row 2 (bottom))
-        5 - Move Chapter 1 down from 1 into Root (row 3 (bottom))
-        6 - Move Notes from Root to Root (row 2 (above the bottom item,
-        which is Chapter 1, but when it populates, it will be below Chapter 1))
-        8 - Move Other Notes from Root into Notes*/
-
-        /// Seems to fix it:
-
-        // Adjust destination row for beginMoveRows when moving within same
-        // parent
-        auto dest_row_for_begin = dest_row;
-        auto dest_row_for_dom = dest_row;
-
-        if (current_parent == newParent && dest_row > source_row) {
-            ++dest_row_for_begin; // For beginMoveRows (pre-removal state)
-            --dest_row_for_dom; // For DOM manipulation (post-removal state)
-        }
-
-        if (!beginMoveRows(
-                source_parent_index,
-                source_row,
-                source_row,
-                dest_parent_index,
-                dest_row_for_begin)) {
-            return false;
-        }
-
-        // Perform DOM manipulation
-        current_parent.removeChild(element);
-
-        if (dest_row_for_dom >= childElementCount_(newParent)) {
-            newParent.appendChild(element);
-        } else {
-            auto sibling = nthChildElement_(newParent, dest_row_for_dom);
-            if (!sibling.isNull()) {
-                newParent.insertBefore(element, sibling);
-            } else {
-                newParent.appendChild(element);
-            }
-        }
-
-        /// END TEST
-
-        endMoveRows();
-        emit domChanged();
-
-        return true;
+        // TODO: Code duplicated below, in addNewTextFile and (partially)
+        // importTextFiles
+        auto parent = elementAt_(parentIndex);
+        if (parent.isNull()) parent = dom_.documentElement();
+        insertElement_(element, parent);
     }
 
-    // TODO: moveElements (maybe)
-
-    QDomElement elementAt(const QModelIndex& index) const
+    // TODO: parentIndex will be used for at least context menu click signal,
+    // which would have index
+    FileInfo addNewTextFile(
+        const Coco::Path& workingDir,
+        const QModelIndex& parentIndex = {})
     {
-        if (!index.isValid()) return dom_.documentElement();
+        // Use FnxModel's internal DOM
+        auto element = Fnx::Xml::addNewTextFile(workingDir, dom_);
+        if (element.isNull()) return {};
 
-        auto id = reinterpret_cast<quintptr>(index.internalPointer());
-        auto element = idToElement_.value(id);
+        // Insert the element
+        auto parent = elementAt_(parentIndex);
+        if (parent.isNull()) parent = dom_.documentElement();
+        insertElement_(element, parent);
 
-        if (!isValid_(element)) {
-            WARN("Invalid element for ID: {}", id);
-            clearCache_();
-            return {};
+        // Return only the non-DOM parts
+        return { element };
+    }
+
+    // TODO: parentIndex will be used later, maybe for context menu import
+    // option
+    QList<FileInfo> importTextFiles(
+        const Coco::Path& workingDir,
+        const QList<Coco::Path>& fsPaths,
+        const QModelIndex& parentIndex = {})
+    {
+        QList<QDomElement> elements{};
+
+        // Create all physical files and elements
+        for (const auto& fs_path : fsPaths) {
+            if (!fs_path.exists()) continue;
+            auto element = Fnx::Xml::importTextFile(workingDir, dom_, fs_path);
+            if (element.isNull()) continue;
+            elements << element;
         }
 
-        return element;
+        if (elements.isEmpty()) return {};
+
+        auto parent = elementAt_(parentIndex);
+        if (parent.isNull()) parent = dom_.documentElement();
+        insertElements_(elements, parent); // Single domChanged emission
+
+        QList<FileInfo> infos{};
+        for (auto& element : elements)
+            infos << FileInfo{ element };
+
+        return infos;
     }
 
     virtual Qt::ItemFlags flags(const QModelIndex& index) const override
@@ -269,7 +174,7 @@ public:
     {
         if (!index.isValid()) return false;
 
-        auto element = elementAt(index);
+        auto element = elementAt_(index);
         if (element.isNull()) return false;
 
         switch (role) {
@@ -278,10 +183,13 @@ public:
             // Handle rename
             auto new_name = value.toString();
             if (new_name.isEmpty()) return false; // Reject empty names
-            Fnx::rename(element, new_name);
+
+            // Renames for files and virtual folders but only notifies for files
+            // specifically plus the full DOM in general
+            Fnx::Xml::rename(element, new_name);
 
             emit dataChanged(index, index, { Qt::DisplayRole, Qt::EditRole });
-            emit elementRenamed(element);
+            if (Fnx::Xml::isFile(element)) emit fileRenamed({ element });
             emit domChanged();
 
             return true;
@@ -310,7 +218,7 @@ public:
     {
         if (!hasIndex(row, column, parent)) return {};
 
-        auto parent_element = elementAt(parent);
+        auto parent_element = elementAt_(parent);
         if (parent_element.isNull()) return {};
         auto child_element = nthChildElement_(parent_element, row);
         if (child_element.isNull()) return {};
@@ -322,7 +230,7 @@ public:
     {
         if (!child.isValid()) return {};
 
-        auto child_element = elementAt(child);
+        auto child_element = elementAt_(child);
         if (child_element.isNull()) return {};
         auto parent_element = child_element.parentNode().toElement();
 
@@ -337,7 +245,7 @@ public:
     virtual int rowCount(const QModelIndex& parent = {}) const override
     {
         if (parent.column() > 0) return 0;
-        auto element = elementAt(parent);
+        auto element = elementAt_(parent);
         if (element.isNull()) return 0;
 
         return childElementCount_(element);
@@ -372,7 +280,7 @@ public:
         QModelIndex index = indexes.first();
         if (!index.isValid()) return nullptr;
 
-        auto element = elementAt(index);
+        auto element = elementAt_(index);
         if (element.isNull()) return nullptr;
 
         // Store the element's key
@@ -408,17 +316,17 @@ public:
         }
 
         // Determine drop target
-        auto drop_parent = elementAt(parent);
+        auto drop_parent = elementAt_(parent);
         if (drop_parent.isNull()) {
             drop_parent = dom_.documentElement();
         }
 
-        return moveElement(element, drop_parent, row);
+        return moveElement_(element, drop_parent, row);
     }
 
 signals:
     void domChanged();
-    void elementRenamed(const QDomElement& element);
+    void fileRenamed(const FileInfo& info);
 
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
@@ -454,11 +362,34 @@ private:
         return !element.parentNode().toElement().isNull();
     }
 
+    bool isValidForInsertion_(const QDomElement& element) const
+    {
+        if (element.isNull()) return false;
+        // Only check document ownership, not parent
+        return element.ownerDocument() == dom_;
+    }
+
+    QDomElement elementAt_(const QModelIndex& index) const
+    {
+        if (!index.isValid()) return dom_.documentElement();
+
+        auto id = reinterpret_cast<quintptr>(index.internalPointer());
+        auto element = idToElement_.value(id);
+
+        if (!isValid_(element)) {
+            WARN("Invalid element for ID: {}", id);
+            clearCache_();
+            return {};
+        }
+
+        return element;
+    }
+
     QString elementKey_(const QDomElement& element) const
     {
         if (element.isNull()) return {};
 
-        auto uuid = Fnx::uuid(element);
+        auto uuid = Fnx::Xml::uuid(element);
         if (uuid.isEmpty()) return "root";
 
         return uuid;
@@ -546,6 +477,129 @@ private:
         }
 
         return false;
+    }
+
+    // The parent element parameters must be by-value because
+    // `dom_.documentElement()` returns a temporary (rvalue). Non-const
+    // references (`QDomElement&`) cannot bind to temporaries
+    bool
+    moveElement_(const QDomElement& element, QDomElement newParent, int newRow)
+    {
+        if (!isValid_(element) || !isValid_(newParent)) {
+            WARN("Move attempted on invalid element(s)");
+            return false;
+        }
+
+        auto current_parent = element.parentNode().toElement();
+        if (current_parent.isNull()) return false;
+
+        if (isDescendantOf_(element, newParent)) return false;
+
+        auto source_parent_index = indexFromElement_(current_parent);
+        auto source_row = rowOfElement_(element);
+        auto dest_parent_index = indexFromElement_(newParent);
+
+        auto dest_row = newRow;
+        if (dest_row < 0) {
+            dest_row = childElementCount_(newParent);
+        }
+
+        // Check move isn't pointless
+        if (current_parent == newParent && source_row == dest_row) {
+            return true;
+        }
+
+        INFO(
+            "Moving element: {}\n\tOld parent: {}\n\tOld row: {}\n\tNew "
+            "parent: {}\n\tNew row: {}",
+            element,
+            current_parent,
+            source_row,
+            newParent,
+            dest_row);
+
+        // Adjust destination row for beginMoveRows when moving within same
+        // parent
+        auto dest_row_for_begin = dest_row;
+        auto dest_row_for_dom = dest_row;
+
+        if (current_parent == newParent && dest_row > source_row) {
+            ++dest_row_for_begin; // For beginMoveRows (pre-removal state)
+            --dest_row_for_dom; // For DOM manipulation (post-removal state)
+        }
+
+        if (!beginMoveRows(
+                source_parent_index,
+                source_row,
+                source_row,
+                dest_parent_index,
+                dest_row_for_begin)) {
+            return false;
+        }
+
+        // Perform DOM manipulation
+        current_parent.removeChild(element);
+
+        if (dest_row_for_dom >= childElementCount_(newParent)) {
+            newParent.appendChild(element);
+        } else {
+            auto sibling = nthChildElement_(newParent, dest_row_for_dom);
+            if (!sibling.isNull()) {
+                newParent.insertBefore(element, sibling);
+            } else {
+                newParent.appendChild(element);
+            }
+        }
+
+        endMoveRows();
+        emit domChanged();
+
+        return true;
+    }
+
+    // TODO: moveElements_ (maybe)
+
+    // The parent element parameters must be by-value because
+    // `dom_.documentElement()` returns a temporary (rvalue). Non-const
+    // references (`QDomElement&`) cannot bind to temporaries
+    // TODO: Could test QDomElement& again (here and elsewhere) once new tab is fixed
+    void insertElement_(const QDomElement& element, QDomElement parentElement)
+    {
+        if (!isValidForInsertion_(element) || !isValid_(parentElement)) return;
+
+        auto parent_index = indexFromElement_(parentElement);
+        auto row = childElementCount_(parentElement);
+
+        beginInsertRows(parent_index, row, row);
+        parentElement.appendChild(element);
+        endInsertRows();
+
+        emit domChanged();
+    }
+
+    // TODO: Expand parent if applicable after appending (probably a view op)
+    // The parent element parameters must be by-value because
+    // `dom_.documentElement()` returns a temporary (rvalue). Non-const
+    // references (`QDomElement&`) cannot bind to temporaries
+    void insertElements_(
+        const QList<QDomElement>& elements,
+        QDomElement parentElement)
+    {
+        if (elements.isEmpty() || !isValid_(parentElement)) return;
+
+        auto parent_index = indexFromElement_(parentElement);
+        auto row = childElementCount_(parentElement);
+
+        for (const auto& element : elements) {
+            if (!isValidForInsertion_(element)) continue;
+
+            beginInsertRows(parent_index, row, row);
+            parentElement.appendChild(element);
+            endInsertRows();
+            ++row;
+        }
+
+        emit domChanged();
     }
 };
 
