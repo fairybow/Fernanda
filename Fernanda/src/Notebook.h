@@ -89,6 +89,7 @@ protected:
         }
 
         views->deleteAllIn(window);
+        // delete all models
         return true;
 
         // If that was last window, window service will emit the

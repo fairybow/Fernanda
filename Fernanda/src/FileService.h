@@ -11,6 +11,7 @@
 
 #include <QHash>
 #include <QList>
+#include <QSet>
 #include <QObject>
 #include <QString>
 #include <QTextDocument>
@@ -60,8 +61,23 @@ public:
         if (!model) return;
 
         auto path = model->meta()->path();
+        models_.remove(model);
         pathToFileModel_.remove(path);
         delete model;
+    }
+
+    void deleteModels(const QList<IFileModel*>& models)
+    {
+        for (auto& model : models)
+            deleteModel(model);
+    }
+
+    void deleteAll()
+    {
+        for (auto& model : models_)
+            delete model;
+        models_.clear();
+        pathToFileModel_.clear();
     }
 
     void setPathTitleOverride(const Coco::Path& path, const QString& title)
@@ -108,11 +124,19 @@ protected:
     }
 
 private:
+    QSet<IFileModel*> models_{};
     QHash<Coco::Path, IFileModel*> pathToFileModel_{};
 
     void setup_()
     {
         //...
+    }
+
+    // TODO: Do this for similar setups in other Services
+    void registerModel_(IFileModel* model, const Coco::Path& path = {})
+    {
+        if (!path.isEmpty()) pathToFileModel_[path] = model;
+        models_ << model;
     }
 
     IFileModel*
@@ -141,7 +165,7 @@ private:
         if (!title.isEmpty())
             if (auto meta = model->meta()) meta->setTitleOverride(title);
 
-        pathToFileModel_[path] = model;
+        registerModel_(model, path);
         connectNewModel_(model);
         return model;
     }
@@ -170,6 +194,7 @@ private:
     IFileModel* newOffDiskTextFileModel_()
     {
         auto model = new TextFileModel({}, this);
+        registerModel_(model);
         connectNewModel_(model);
         return model;
     }

@@ -55,7 +55,7 @@ public:
         initialized_ = true;
 
         /// Test:
-        //makeNotebook_(AppDirs::defaultDocs() / "Unsaved.fnx");
+        // makeNotebook_(AppDirs::defaultDocs() / "Unsaved.fnx");
         makeNotebook_(AppDirs::defaultDocs() / "Saved.fnx");
 
         /*auto test_1 = "X:/Test/Path.file"_ccpath;
@@ -70,6 +70,7 @@ public:
     }
 
 public slots:
+    // TODO: const ref args?
     void onRelaunchAttempted(QStringList args)
     {
         //...
@@ -86,7 +87,7 @@ private:
         setOrganizationDomain(VERSION_DOMAIN);
         setApplicationName(VERSION_APP_NAME_STRING);
         setApplicationVersion(VERSION_FULL_STRING);
-        setQuitOnLastWindowClosed(false);
+        setQuitOnLastWindowClosed(false); // TODO: Can probably be true once quit structure in place
     }
 
     void setup_() const
@@ -115,6 +116,9 @@ private:
         auto notebook = new Notebook(fnx, this);
         notebooks_ << notebook;
 
+        // TODO: We'll have to move this probably, since we'll need to
+        // potentially quit, too, if this is the last Notebook and no Notepad
+        // windows are open
         connect(notebook, &Notebook::lastWindowClosed, this, [&, notebook] {
             // Clean-up
             notebooks_.remove(notebook);

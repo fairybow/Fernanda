@@ -21,7 +21,7 @@
 - [x] Renaming files in tree view updates the tab text
 - [x] Moving/reorganizing Notebook files in TreeView
 - [ ] File closing
-- [ ] File closing: Do Notebook "close all" and "close window" things first?
+- [x] File closing: Do Notebook "close all" and "close window" things first?
 - [x] File closing: Add decrement logic for ViewService::viewsPerModel_ when a view is closed
 - [x] File closing: MODEL_VIEW_COUNT command for Notepad to query when closing tab
 - [x] File closing: Removing FileService's automatic model closure on last view close
@@ -30,6 +30,7 @@
 - [ ] File closing: Notebook uses LRU cache (may not need yet) to close some models (this would mean we'd need a persistence save again and a way to re-mark as modified on re-open?)
 - [x] Notebook: Close all tabs in window
 - [ ] Notepad: Close all tabs in window
+- [ ] Quitting: Using event filter and Workspace virtual
 - [ ] Update tab/window closure info in docs (Bus.md and Menus.md)
 - [ ] Deleting Notebook on last window closure
 - [ ] Quit procedures
