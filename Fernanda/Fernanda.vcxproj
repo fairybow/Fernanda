@@ -34,6 +34,7 @@
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
     <None Include="docs\Bus.md" />
+    <None Include="docs\Closures.md" />
     <None Include="docs\ComponentArchitecture.md" />
     <None Include="docs\ConfusingThings.md" />
     <None Include="docs\FNXFile.md" />

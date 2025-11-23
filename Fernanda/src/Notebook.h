@@ -183,8 +183,28 @@ private:
                 }
             });
 
-        // Poly commands
+        registerPolys_();
+    }
 
+    void connectBusEvents_()
+    {
+        connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+
+        connect(
+            bus,
+            &Bus::treeViewDoubleClicked,
+            this,
+            &Notebook::onTreeViewDoubleClicked_);
+
+        connect(
+            bus,
+            &Bus::treeViewContextMenuRequested,
+            this,
+            &Notebook::onTreeViewContextMenuRequested_);
+    }
+
+    void registerPolys_()
+    {
         bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
             return fnxModel_;
         });
@@ -213,6 +233,12 @@ private:
                 cmd.context);
         });
 
+        registerPolyClosures_();
+    }
+
+    /// WIP
+    void registerPolyClosures_()
+    {
         // TODO: We may not use a return value for this implementation of
         // CLOSE_TAB and CLOSE_WINDOW_TABS. We may or may not need it? If
         // we're sticking with the base class (Workspace) window close acceptor,
@@ -230,6 +256,10 @@ private:
             return true;
         });
 
+        bus->addCommandHandler(
+            Commands::CLOSE_TAB_EVERYWHERE,
+            [&](const Command& cmd) {});
+
         // TODO: Decide on return value (see above)
         bus->addCommandHandler(
             Commands::CLOSE_WINDOW_TABS,
@@ -239,31 +269,17 @@ private:
                 return true;
             });
 
-        // Quit procedure (from Notebook's perspective):
-        //...figure out after window closure
+        bus->addCommandHandler(
+            Commands::CLOSE_ALL_TABS,
+            [&](const Command& cmd) {});
 
-        // TODO: Should we have a "quit acceptor"? It could run a new
-        // CLOSE_ALL_WINDOWS command from the base class? Allow us to handle
-        // things in a specific way when the application is closing, instead of
-        // just letting each window close (and possibly resulting in multiple
-        // save prompts, when one would be better)?
-    }
+        // Close window, if we remove close acceptor?
 
-    void connectBusEvents_()
-    {
-        connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+        bus->addCommandHandler(
+            Commands::CLOSE_ALL_WINDOWS,
+            [&](const Command& cmd) {});
 
-        connect(
-            bus,
-            &Bus::treeViewDoubleClicked,
-            this,
-            &Notebook::onTreeViewDoubleClicked_);
-
-        connect(
-            bus,
-            &Bus::treeViewContextMenuRequested,
-            this,
-            &Notebook::onTreeViewContextMenuRequested_);
+        // Quit? Doesn't really fit, though...
     }
 
     void addWorkspaceIndicator_(Window* window)

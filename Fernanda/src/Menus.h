@@ -136,22 +136,42 @@ namespace Internal {
             bus,
             window,
             Commands::CLOSE_TAB,
-            Tr::Menus::fileCloseTab()); /// * (np wip)
+            Tr::Menus::fileCloseTab());
 
-        common.file.closeAllTabsInWindow = makeBusAction(
+        common.file.closeTabEverywhere = makeBusAction(
+            bus,
+            window,
+            Commands::CLOSE_TAB_EVERYWHERE,
+            Tr::Menus::fileCloseTabEverywhere());
+
+        common.file.closeWindowTabs = makeBusAction(
             bus,
             window,
             Commands::CLOSE_WINDOW_TABS,
-            Tr::Menus::fileCloseAllTabsInWindow()); /// * (np wip)
+            Tr::Menus::fileCloseWindowTabs());
+
+        common.file.closeAllTabs = makeBusAction(
+            bus,
+            window,
+            Commands::CLOSE_ALL_TABS,
+            Tr::Menus::fileCloseAllTabs());
 
         common.file.closeWindow =
             makeAction(window, Tr::Menus::fileCloseWindow(), [window] {
                 if (!window) return;
                 window->close();
-            }); /// *
+            });
 
-        common.file.quit =
-            makeBusAction(bus, window, Commands::QUIT, Tr::Menus::fileQuit());
+        common.file.closeAllWindows = makeBusAction(
+            bus,
+            window,
+            Commands::CLOSE_ALL_WINDOWS,
+            Tr::Menus::fileCloseAllWindows());
+
+        /// TODO:
+        /// common.file.quit =
+        /// makeBusAction(bus, window, Commands::QUIT, Tr::Menus::fileQuit());
+        common.file.quit = makeAction(window, Tr::Menus::fileQuit(), [] {});
 
         common.edit.undo = makeBusAction(
             bus,
@@ -224,9 +244,12 @@ namespace Internal {
         inserter(menu);
 
         menu->addAction(common.file.closeTab);
-        menu->addAction(common.file.closeAllTabsInWindow);
+        menu->addAction(common.file.closeTabEverywhere);
+        menu->addAction(common.file.closeWindowTabs);
+        menu->addAction(common.file.closeAllTabs);
         menu->addSeparator();
         menu->addAction(common.file.closeWindow);
+        menu->addAction(common.file.closeAllWindows);
         menu->addSeparator();
         menu->addAction(common.file.quit);
         menuBar->addMenu(menu);

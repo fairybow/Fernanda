@@ -23,8 +23,11 @@ struct CommonMenuActions
         QAction* openNotebook = nullptr;
 
         QAction* closeTab = nullptr;
-        QAction* closeAllTabsInWindow = nullptr;
+        QAction* closeTabEverywhere = nullptr;
+        QAction* closeWindowTabs = nullptr;
+        QAction* closeAllTabs = nullptr;
         QAction* closeWindow = nullptr;
+        QAction* closeAllWindows = nullptr;
 
         QAction* quit = nullptr;
     } file;

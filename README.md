@@ -33,12 +33,12 @@ Application
 
 # Building
 
-Open `Fernanda.vcxproj` in Visual Studio and build.
+Open [`Fernanda.sln`](Fernanda.sln) in Visual Studio and build.
 
 ## Requirements
 
 - Qt 6.10.0
-- Visual Studio 2022
+- Visual Studio 2026
 - C++ 20
 - Windows only
 

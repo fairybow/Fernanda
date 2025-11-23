@@ -132,8 +132,20 @@ private:
                 return false;
             });
 
-        // Poly commands
+        registerPolys_();
+    }
 
+    void connectBusEvents_()
+    {
+        connect(
+            bus,
+            &Bus::treeViewDoubleClicked,
+            this,
+            &Notepad::onTreeViewDoubleClicked_);
+    }
+
+    void registerPolys_()
+    {
         bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
             return fsModel_;
         });
@@ -150,7 +162,12 @@ private:
             files->openOffDiskTxtIn(cmd.context);
         });
 
-        /// WIP
+        registerPolyClosures_();
+    }
+
+    /// WIP
+    void registerPolyClosures_()
+    {
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             if (!cmd.context) return false;
             auto index = cmd.param<int>("index", -1);
@@ -170,41 +187,25 @@ private:
             return true;
         });
 
-        /// WIP
+        bus->addCommandHandler(
+            Commands::CLOSE_TAB_EVERYWHERE,
+            [&](const Command& cmd) {});
+
         bus->addCommandHandler(
             Commands::CLOSE_WINDOW_TABS,
             [&](const Command& cmd) { return closeWindowTabs_(cmd.context); });
 
-        // Quit procedure (from Notepad's perspective):
-        // - (This could all be a closeAllWindows_ command handler? Don't know
-        // if that would work, due to the closeAcceptor. And, honestly, it may
-        // prevent the the following stuff, too)
-        // - Get a list of all file models (iterating backward) that are
-        // modified (see 9e6cd80 ViewCloseHelper)
-        // - Save Prompt (multi-file selection version; Save (with
-        // selections, defaulted to all), Discard, or Cancel)
-        // - Handle prompt result (Cancel return, Discard proceed without
-        // saves, Save (any or all selected)
-        // If proceeding:
-        // - Close all views everywhere
-        // - Delete all file models
-        // - Close all windows?
-        // - return true for quittable?
+        bus->addCommandHandler(
+            Commands::CLOSE_ALL_TABS,
+            [&](const Command& cmd) {});
 
-        // TODO: Should we have a "quit acceptor"? It could run a new
-        // CLOSE_ALL_WINDOWS command from the base class? Allow us to handle
-        // things in a specific way when the application is closing, instead of
-        // just letting each window close (and possibly resulting in multiple
-        // save prompts, when one would be better)?
-    }
+        // Close window, if we remove close acceptor?
 
-    void connectBusEvents_()
-    {
-        connect(
-            bus,
-            &Bus::treeViewDoubleClicked,
-            this,
-            &Notepad::onTreeViewDoubleClicked_);
+        bus->addCommandHandler(
+            Commands::CLOSE_ALL_WINDOWS,
+            [&](const Command& cmd) {});
+
+        // Quit? Doesn't really fit, though...
     }
 
     /// WIP

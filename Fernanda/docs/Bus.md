@@ -1,6 +1,6 @@
 # Bus
 
-TODO: Update tab/window closure items!
+TODO: Update tab/window closure items! Or remove and redirect to Closures.md
 
 TODO: Could use a namespace/prefix to distinguish "public" commands (i.e., things used in menus) vs "internal" ones (like windows:set).
 
@@ -15,7 +15,6 @@ Commands are formatted as `scope:action`.
 
 ### `application`
 
-- `quit`*: Terminates the entire application after attempting to close all Notebook and Notepad windows (prompting for saves as needed).
 - `about_dialog`*: Displays an application-modal About dialog with version info and links.
 
 ### `workspace`
