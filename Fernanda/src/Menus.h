@@ -243,9 +243,12 @@ namespace Internal {
         inserter(menu);
 
         menu->addAction(common.file.closeTab);
+        menu->addAction(common.file.closeTabEverywhere);
         menu->addAction(common.file.closeWindowTabs);
+        menu->addAction(common.file.closeAllTabs);
         menu->addSeparator();
         menu->addAction(common.file.closeWindow);
+        menu->addAction(common.file.closeAllWindows);
         menu->addSeparator();
         menu->addAction(common.file.quit);
         menuBar->addMenu(menu);
