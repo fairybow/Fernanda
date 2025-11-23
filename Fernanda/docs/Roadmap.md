@@ -62,6 +62,8 @@
 - [ ] Quit virtual in Workspace
 - [ ] Quit implementation in Notepad
 - [ ] Quit implementation in Notebook
+- [ ] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
+- [ ] Ensure system shutdown is handled with app's quit routine
 - [ ] Decide if Acceptor can be generalized AFTER. Don't get clever early!
 - [ ] Decide after whether we need the other polys (new tab and tree model things)
 - [ ] Finally, find all functions rendered unused by these changes and remove them!
