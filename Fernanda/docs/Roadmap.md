@@ -21,6 +21,7 @@
 - [x] Moving/reorganizing Notebook files in TreeView
 
 - [x] TODO KEY = CR (Closure Rework)
+- [ ] At each step of the way, decide what the "ideal" hook looks like, with proper encapsulation / separation of concerns in mind
 - [ ] CLOSE_TAB in ViewService
 - [ ] Hook type in ViewService
 - [ ] Hook setter in ViewService
@@ -45,7 +46,8 @@
 - [ ] CLOSE_ALL_TABS virtual hook in Workspace
 - [ ] CLOSE_ALL_TABS hook implementation in Notepad
 - [ ] CLOSE_ALL_TABS hook implementation in Notebook
-- [ ] CLOSE_WINDOW (?) in WindowService
+- [ ] CLOSE_WINDOW in WindowService
+- [ ] WindowService will need to handle both programmatic and button closes, will likely need flags idempotence or something to allow each Window to act accordingly for single vs multi window close
 - [ ] Hook type in WindowService
 - [ ] Hook setter in WindowService
 - [ ] CLOSE_WINDOW virtual hook in Workspace
