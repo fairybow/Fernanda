@@ -69,12 +69,17 @@ public:
         };
     }
 
+    /// TODO CR:
+
+    // Quit hook (called by app)
+
 protected:
-    virtual bool canCloseWindow(Window* window) override
-    {
-        if (!window) return false;
-        return closeWindowTabs_(window);
-    }
+    // Close tab hook (given to ViewService)
+    // Close tab everywhere hook (given to ViewService)
+    // Close window tabs hook (given to ViewService)
+    // Close all tabs hook (given to ViewService)
+    // Close window hook (given to WindowService)
+    // Close all windows hook (given to WindowService)
 
 private:
     Coco::Path currentBaseDir_ = AppDirs::defaultDocs();
@@ -245,3 +250,11 @@ private slots:
 };
 
 } // namespace Fernanda
+
+/// TODO CR: Old code:
+
+/*virtual bool canCloseWindow(Window* window) override
+{
+    if (!window) return false;
+    return closeWindowTabs_(window);
+}*/

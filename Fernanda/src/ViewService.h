@@ -56,6 +56,7 @@ public:
 
     virtual ~ViewService() override { TRACER; }
 
+    /// TODO CR: Needed?
     // Index -1 = current
     void deleteAt(Window* window, int index)
     {
@@ -71,6 +72,7 @@ public:
         deleteView_(tab_widget->removeTab<IFileView*>(i));
     }
 
+    /// TODO CR: Needed?
     void deleteAllIn(Window* window)
     {
         if (!window) return;
@@ -84,6 +86,7 @@ public:
             deleteView_(view);
     }
 
+    /// TODO CR: Needed?
     // Index -1 = current. Returns the model at a view position (window + tab
     // index). Lives in ViewService because the primary input is a view
     // location, not a file path or model ID. Avoids FileService depending on
@@ -94,6 +97,7 @@ public:
         return view ? view->model() : nullptr;
     }
 
+    /// TODO CR: Needed?
     int viewsOn(IFileModel* model) const
     {
         if (!model) return 0;

@@ -27,7 +27,7 @@ constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 // each. These commands are meant to be called from a Workspace-agnostic service
 // but with effects unique to each Workspace type
 
-/// Closures (mark finished as implemented)
+/// New plan (see Closures/Roadmap)!
 
 constexpr auto CLOSE_TAB = "poly:close_tab";
 constexpr auto CLOSE_TAB_EVERYWHERE = "poly:close_tab_everywhere";

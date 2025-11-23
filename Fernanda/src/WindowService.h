@@ -53,16 +53,19 @@ public:
 
     virtual ~WindowService() override { TRACER; }
 
+    /// TODO CR: Needed?
     CloseAcceptor closeAcceptor() const noexcept
     {
         return closeAcceptor_;
     }
 
+    /// TODO CR: Needed?
     void setCloseAcceptor(const CloseAcceptor& closeAcceptor)
     {
         closeAcceptor_ = closeAcceptor;
     }
 
+    /// TODO CR: Needed?
     template <typename ClassT>
     void setCloseAcceptor(ClassT* object, bool (ClassT::*method)(Window*))
     {
@@ -128,7 +131,7 @@ private:
     static constexpr auto DEFAULT_GEOMETRY_ = QRect{ 100, 100, 600, 500 };
     static constexpr auto GEOMETRY_OFFSET_ = 50;
 
-    CloseAcceptor closeAcceptor_ = nullptr;
+    CloseAcceptor closeAcceptor_ = nullptr; /// TODO CR: Needed?
     QList<Window*> zOrderedVolatileWindows_{}; // Highest window is always last
     QSet<Window*> unorderedWindows_{};
     QPointer<Window> activeWindow_ = nullptr;

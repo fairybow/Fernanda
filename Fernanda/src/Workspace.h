@@ -89,12 +89,21 @@ protected:
     TreeViewModule* treeViews = new TreeViewModule(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
-    // virtual bool canQuit() = 0;
+    /// TODO CR:
+
+    // Quit hook (called by app)
 
 protected:
-    // So each Workspace type can determine when to allow its windows to close
-    /// WIP
-    virtual bool canCloseWindow(Window* window) = 0;
+    // Close tab hook (given to ViewService)
+    // Close tab everywhere hook (given to ViewService)
+    // Close window tabs hook (given to ViewService)
+    // Close all tabs hook (given to ViewService)
+    // Close window hook (given to WindowService)
+    // Close all windows hook (given to WindowService)
+
+    /// TODO CR: A generalized acceptor (acceptor(T)->bool) for IService? It
+    /// would be up to each subclass to determine when to use it and what T
+    /// is...
 
 private:
     void setup_()
@@ -106,9 +115,18 @@ private:
         treeViews->initialize();
         colorBars->initialize();
 
-        windows->setCloseAcceptor([&](Window* window) {
+        /// TODO CR: Needed? Will obviously need hook, but maybe not one called
+        /// in each window's closeEvent!
+        /*windows->setCloseAcceptor([&](Window* window) {
             return window ? canCloseWindow(window) : false;
-        });
+        });*/
+
+        // Give Close tab hook to ViewService
+        // Give Close tab everywhere hook to ViewService
+        // Give Close window tabs hook to ViewService
+        // Give Close all tabs hook to ViewService
+        // Give Close window hook to WindowService
+        // Give Close all windows hook to WindowService
 
         //...
 

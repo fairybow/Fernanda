@@ -12,7 +12,6 @@
 - [ ] Begin removing unneeded commands and calling public methods in Workspaces where appropriate. Determine what commands Workspace uses that are still used by other Services/Modules. Whatever isn't could be a public method.
 - [ ] ^ Open file at path, new .txt, windows set (maybe) commands, etc
 - [ ] ^ Open file is complicated because of the need for interception (need to reconcile this command, anyway, with the Notepad and Notebook open/import file commands)
-- [x] ^ Virtual method for window close check
 - [x] Opening files via TreeView in both Workspaces
 - [x] NewTab behavior for both Workspaces
 - [x] Opening files via Menu in Notepad (Notebook menu won't open, just import)
@@ -20,20 +19,38 @@
 - [x] Granular FnxModel DOM updates
 - [x] Renaming files in tree view updates the tab text
 - [x] Moving/reorganizing Notebook files in TreeView
-- [ ] File closing
-- [x] File closing: Do Notebook "close all" and "close window" things first?
-- [x] File closing: Add decrement logic for ViewService::viewsPerModel_ when a view is closed
-- [x] File closing: MODEL_VIEW_COUNT command for Notepad to query when closing tab
-- [x] File closing: Removing FileService's automatic model closure on last view close
-- [ ] File closing: Likely, Notepad closes model on last view close
-- [x] File closing: Likely, Notebook leaves models open
-- [ ] File closing: Notebook uses LRU cache (may not need yet) to close some models (this would mean we'd need a persistence save again and a way to re-mark as modified on re-open?)
-- [x] Notebook: Close all tabs in window
-- [ ] Notepad: Close all tabs in window
-- [ ] Quitting: Using event filter and Workspace virtual
-- [ ] Update tab/window closure info in docs (Bus.md and Menus.md)
-- [ ] Deleting Notebook on last window closure
-- [ ] Quit procedures
+
+- [x] TODO KEY = CR (Closure Rework)
+- [ ] CLOSE_TAB in ViewService
+- [ ] CLOSE_TAB virtual hook in Workspace
+- [ ] CLOSE_TAB hook implementation in Notepad
+- [ ] CLOSE_TAB hook implementation in Notebook
+- [ ] CLOSE_TAB_EVERYWHERE in ViewService
+- [ ] CLOSE_TAB_EVERYWHERE virtual hook in Workspace
+- [ ] CLOSE_TAB_EVERYWHERE hook implementation in Notepad
+- [ ] CLOSE_TAB_EVERYWHERE hook implementation in Notebook
+- [ ] CLOSE_WINDOW_TABS in ViewService
+- [ ] CLOSE_WINDOW_TABS virtual hook in Workspace
+- [ ] CLOSE_WINDOW_TABS hook implementation in Notepad
+- [ ] CLOSE_WINDOW_TABS hook implementation in Notebook
+- [ ] CLOSE_ALL_TABS in ViewService
+- [ ] CLOSE_ALL_TABS virtual hook in Workspace
+- [ ] CLOSE_ALL_TABS hook implementation in Notepad
+- [ ] CLOSE_ALL_TABS hook implementation in Notebook
+- [ ] CLOSE_WINDOW (?) in WindowService
+- [ ] CLOSE_WINDOW virtual hook in Workspace
+- [ ] CLOSE_WINDOW hook implementation in Notepad
+- [ ] CLOSE_WINDOW hook implementation in Notebook
+- [ ] CLOSE_ALL_WINDOWS in WindowService
+- [ ] CLOSE_ALL_WINDOWS virtual hook in Workspace
+- [ ] CLOSE_ALL_WINDOWS hook implementation in Notepad
+- [ ] CLOSE_ALL_WINDOWS hook implementation in Notebook
+- [ ] Quit virtual hook in Workspace
+- [ ] Quit hook implementation in Notepad
+- [ ] Quit hook implementation in Notebook
+- [ ] Decide after whether we need the other polys (new tab and tree model things)
+- [ ] Finally, find all functions rendered unused by these changes and remove them!
+
 - [ ] Notepad save prompts
 - [ ] Marking Notebook as modified
 - [ ] Notebook save prompts
@@ -131,3 +148,4 @@
 ## Future
 
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
+- [ ] Notebook LRU cache for models, if needed
