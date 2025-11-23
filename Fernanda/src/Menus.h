@@ -171,6 +171,7 @@ namespace Internal {
         /// TODO:
         /// common.file.quit =
         /// makeBusAction(bus, window, Commands::QUIT, Tr::Menus::fileQuit());
+        common.file.quit = makeAction(window, Tr::Menus::fileQuit(), [] {});
 
         common.edit.undo = makeBusAction(
             bus,
