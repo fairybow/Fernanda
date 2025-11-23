@@ -16,7 +16,6 @@ namespace Fernanda::Commands {
 
 // Application scope
 
-constexpr auto QUIT = "application:quit";
 constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 
 // Workspace scope
@@ -28,10 +27,16 @@ constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 // each. These commands are meant to be called from a Workspace-agnostic service
 // but with effects unique to each Workspace type
 
+/// Closures (mark finished as implemented)
+
+constexpr auto CLOSE_TAB = "poly:close_tab";
+constexpr auto CLOSE_TAB_EVERYWHERE = "poly:close_tab_everywhere";
+constexpr auto CLOSE_WINDOW_TABS = "poly:close_window_tabs";
+constexpr auto CLOSE_ALL_TABS = "poly:close_all_tabs";
+// Close window
+constexpr auto CLOSE_ALL_WINDOWS = "poly:close_all_windows";
+
 constexpr auto NEW_TAB = "poly:new_tab"; /// *
-constexpr auto CLOSE_TAB = "poly:close_tab"; /// * (np wip)
-constexpr auto CLOSE_WINDOW_TABS =
-    "poly:close_all_tabs_in_window"; /// * (np wip)
 constexpr auto WS_TREE_VIEW_MODEL = "poly:ws_tree_view_model"; /// *, non-menu
 constexpr auto WS_TREE_VIEW_ROOT_INDEX =
     "poly:ws_tree_view_root_index"; /// *, non-menu

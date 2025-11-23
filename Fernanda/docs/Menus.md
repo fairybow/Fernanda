@@ -22,11 +22,14 @@ Open notebook                               workspace:open_notebook
 [Save section is per subclass]
 -------------------------------------------
 Close tab                                   poly:close_tab                   [Toggle]
-Close all tabs in window                    poly:close_all_tabs_in_window    [Toggle]
+Close tab everywhere                        poly:close_tab_everywhere        [Toggle]
+Close window tabs                           poly:close_window_tabs           [Toggle]
+Close all tabs                              poly:close_all_tabs              [Toggle]
 -------------------------------------------
 Close window
+Close all windows                           poly:close_all_windows
 -------------------------------------------
-Quit                        Ctrl+Q          application:quit
+Quit                        Ctrl+Q
 ```
 
 **New tab (poly):**
@@ -46,30 +49,7 @@ Quit                        Ctrl+Q          application:quit
 
 - Opens a file dialog for existing Notebook selection, then opens the selected Notebook.
 
-**Close tab (poly, toggle):**
-
-- In Notepad: Check if this model has views in other windows. If yes, just close this view. If this is the last view on the model: check if modified. If modified, prompt to save. On save/discard, close the view and model.
-- In Notebook: Close the view without prompting. Model remains open to persist changes and undo/redo stacks.
-- Toggle condition: Window has any tabs.
-
-**Close all tabs in window (poly, toggle):**
-
-- In Notepad: Iterate backward through tabs. Build a list of unique modified models that only have views in this window (skip models with views in other windows). If the list is not empty, show multi-file save prompt with checkboxes. User chooses: save selected files, discard all, or cancel. If cancel, abort. Otherwise, save chosen files, then close all views and models.
-- In Notebook: Simply close all views without prompting. Archive stays marked as modified if applicable.
-- Toggle condition: Window has any tabs.
-
-**Close window:**
-
-- Calls the window close method, which in turn calls the close acceptor, allowing necessary checks to happen before accepting or rejecting the close.
-- In Notepad: This may prompt for saves (via close all tabs logic).
-- In Notebook: If this is NOT the last window, close tabs without prompting. If this IS the last window, check if archive is modified. If modified, prompt to save the archive. On save/discard, close tabs and clean up temp directory. On cancel, abort window close.
-- WindowService emits `windowDestroyed` on success. If this was the last window in the workspace, emits `lastWindowClosed`.
-
-**Quit:**
-
-- First, iterate through all Notebook workspaces. For each: check if modified, prompt to save archive if needed, close all windows. If any Notebook close is canceled, abort quit.
-- Then, iterate through Notepad windows (reverse z-order). Call close window for each. If any window close is cancelled, abort quit.
-- If all closes succeed, call `Application::quit()`.
+For Close tab, Close tab everywhere, Close window tabs, Close all tabs, Close window, Close all windows, and Quit, see [Fernanda/docs/Closures.md](Closures.md).
 
 ### Edit
 
@@ -177,6 +157,3 @@ Export file...                              notebook:export_file
 - Next tab (in current Window)
 - Previous window (in current Workspace)
 - Next window (in current Workspace)
-- Close all tabs (in all Windows)
-- Close all windows
-- Close this file everywhere (closes all views on this model in all Windows)

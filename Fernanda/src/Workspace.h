@@ -89,11 +89,12 @@ protected:
     TreeViewModule* treeViews = new TreeViewModule(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
+    // virtual bool canQuit() = 0;
+
 protected:
     // So each Workspace type can determine when to allow its windows to close
     /// WIP
     virtual bool canCloseWindow(Window* window) = 0;
-    // virtual bool canQuit() = 0;
 
 private:
     void setup_()
