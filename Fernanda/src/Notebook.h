@@ -69,6 +69,8 @@ public:
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
 
+    /// TODO CR NEW IMPL WIP =========================================
+
     /// TODO CR:
 
     // Quit hook (called by app)
@@ -80,6 +82,8 @@ protected:
     // Close all tabs hook (given to ViewService)
     // Close window hook (given to WindowService)
     // Close all windows hook (given to WindowService)
+
+    /// TODO CR NEW IMPL WIP =========================================
 
 private:
     Coco::Path fnxPath_;

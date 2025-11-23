@@ -51,10 +51,14 @@ public:
 
     virtual ~WindowService() override { TRACER; }
 
+    /// TODO CR NEW IMPL WIP =========================================
+
     /// TODO CR: Decide what will need to be passed by implementing the hook in
     /// WS subclass
     using CloseWindowAcceptor = std::function<bool()>;
     using CloseAllWindowsAcceptor = std::function<bool()>;
+
+    /// TODO CR NEW IMPL WIP =========================================
 
     int count() const { return static_cast<int>(unorderedWindows_.count()); }
     Window* active() const { return activeWindow_.get(); }

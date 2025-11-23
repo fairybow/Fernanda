@@ -57,12 +57,16 @@ public:
 
     virtual ~ViewService() override { TRACER; }
 
+    /// TODO CR NEW IMPL WIP =========================================
+
     /// TODO CR: Decide what will need to be passed by implementing the hook in
     /// WS subclass
     using TabCloseAcceptor = std::function<bool()>;
     using TabCloseEverywhereAcceptor = std::function<bool()>;
     using CloseWindowTabsAcceptor = std::function<bool()>;
     using CloseAllTabsAcceptor = std::function<bool()>;
+
+    /// TODO CR NEW IMPL WIP =========================================
 
     /// TODO CR: Needed?
     // Index -1 = current

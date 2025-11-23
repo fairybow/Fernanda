@@ -89,6 +89,8 @@ protected:
     TreeViewModule* treeViews = new TreeViewModule(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
+    /// TODO CR NEW IMPL WIP =========================================
+
     /// TODO CR:
 
     // Quit hook (called by app)
@@ -100,6 +102,8 @@ protected:
     // Close all tabs hook (given to ViewService)
     // Close window hook (given to WindowService)
     // Close all windows hook (given to WindowService)
+
+    /// TODO CR NEW IMPL WIP =========================================
 
     /// TODO CR: A generalized acceptor (acceptor(T)->bool) for IService? It
     /// would be up to each subclass to determine when to use it and what T
