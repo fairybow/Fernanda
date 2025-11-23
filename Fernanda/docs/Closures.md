@@ -88,8 +88,12 @@ Right now, this is only called by the Window's `close()` method, which in turn c
 
 Notepad:
 - Build two lists
-- 1 contains all models unique to this window (modified or not) and would have no views after closing all window tabs
-- 2 contains only modified models unique to this window
+    - If this is the last window
+        - 1 contains all models
+        - 2 contains all modified models
+    - Else
+        - 1 contains all models unique to this window (modified or not) that would have no views after closing all window tabs
+        - 2 contains only modified models unique to this window
 - If list 2 is not empty
     - Show multi-file save prompt with checkboxes
         - If cancel, return
@@ -97,6 +101,7 @@ Notepad:
 - Close window (or let window close)
 - Views will be closed via Qt ownership when window dies
 - Close all models in list 1
+- If this is the last window, Notepad does not close!
 
 Notebook:
 - If this is the last window
