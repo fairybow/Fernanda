@@ -1,5 +1,7 @@
 # Closures
 
+TODO: The goal is to implement each operation as its own individual function for maximum clarity in what happens for each operation for right now. The exception being Notebook quit procedures, which should be able to simply perform Close All Windows for each Notebook in turn.
+
 TODO: Decide on the necessity of Window CloseAcceptor. Does it enable or hinder the procedures described in this document?
 
 "Closing" a view means removing it from the TabWidget and deleting it.
