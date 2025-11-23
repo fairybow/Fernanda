@@ -43,8 +43,6 @@ class WindowService : public IService
     Q_OBJECT
 
 public:
-    using CloseAcceptor = std::function<bool(Window*)>;
-
     WindowService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -53,26 +51,10 @@ public:
 
     virtual ~WindowService() override { TRACER; }
 
-    /// TODO CR: Needed?
-    CloseAcceptor closeAcceptor() const noexcept
-    {
-        return closeAcceptor_;
-    }
-
-    /// TODO CR: Needed?
-    void setCloseAcceptor(const CloseAcceptor& closeAcceptor)
-    {
-        closeAcceptor_ = closeAcceptor;
-    }
-
-    /// TODO CR: Needed?
-    template <typename ClassT>
-    void setCloseAcceptor(ClassT* object, bool (ClassT::*method)(Window*))
-    {
-        closeAcceptor_ = [object, method](Window* window) {
-            return (object->*method)(window);
-        };
-    }
+    /// TODO CR: Decide what will need to be passed by implementing the hook in
+    /// WS subclass
+    using CloseWindowAcceptor = std::function<bool()>;
+    using CloseAllWindowsAcceptor = std::function<bool()>;
 
     int count() const { return static_cast<int>(unorderedWindows_.count()); }
     Window* active() const { return activeWindow_.get(); }
@@ -131,7 +113,6 @@ private:
     static constexpr auto DEFAULT_GEOMETRY_ = QRect{ 100, 100, 600, 500 };
     static constexpr auto GEOMETRY_OFFSET_ = 50;
 
-    CloseAcceptor closeAcceptor_ = nullptr; /// TODO CR: Needed?
     QList<Window*> zOrderedVolatileWindows_{}; // Highest window is always last
     QSet<Window*> unorderedWindows_{};
     QPointer<Window> activeWindow_ = nullptr;
@@ -284,6 +265,32 @@ private slots:
 };
 
 } // namespace Fernanda
+
+/// TODO CR: Old code:
+
+/*
+CloseAcceptor closeAcceptor_ = nullptr; /// TODO CR: Needed?
+
+/// TODO CR: Needed?
+CloseAcceptor closeAcceptor() const noexcept
+{
+    return closeAcceptor_;
+}
+
+/// TODO CR: Needed?
+void setCloseAcceptor(const CloseAcceptor& closeAcceptor)
+{
+    closeAcceptor_ = closeAcceptor;
+}
+
+/// TODO CR: Needed?
+template <typename ClassT>
+void setCloseAcceptor(ClassT* object, bool (ClassT::*method)(Window*))
+{
+    closeAcceptor_ = [object, method](Window* window) {
+        return (object->*method)(window);
+    };
+}*/
 
 /// Old:
 

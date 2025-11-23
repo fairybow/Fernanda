@@ -10,6 +10,7 @@
 #pragma once
 
 #include <type_traits>
+#include <functional>
 
 #include <QFont>
 #include <QHash>
@@ -55,6 +56,13 @@ public:
     }
 
     virtual ~ViewService() override { TRACER; }
+
+    /// TODO CR: Decide what will need to be passed by implementing the hook in
+    /// WS subclass
+    using TabCloseAcceptor = std::function<bool()>;
+    using TabCloseEverywhereAcceptor = std::function<bool()>;
+    using CloseWindowTabsAcceptor = std::function<bool()>;
+    using CloseAllTabsAcceptor = std::function<bool()>;
 
     /// TODO CR: Needed?
     // Index -1 = current

@@ -15,7 +15,13 @@
 
 namespace Fernanda {
 
-void Window::closeEvent(QCloseEvent* event)
+void Window::closeEvent(QCloseEvent* event) { QMainWindow::closeEvent(event); }
+
+} // namespace Fernanda
+
+/// TODO CR: Old code:
+
+/*void Window::closeEvent(QCloseEvent* event)
 {
     auto accepted = true;
 
@@ -24,6 +30,4 @@ void Window::closeEvent(QCloseEvent* event)
             accepted = acceptor(this);
 
     accepted ? QMainWindow::closeEvent(event) : event->ignore();
-}
-
-} // namespace Fernanda
+}*/

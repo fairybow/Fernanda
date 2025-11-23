@@ -22,32 +22,45 @@
 
 - [x] TODO KEY = CR (Closure Rework)
 - [ ] CLOSE_TAB in ViewService
+- [ ] Hook type in ViewService
+- [ ] Hook setter in ViewService
 - [ ] CLOSE_TAB virtual hook in Workspace
 - [ ] CLOSE_TAB hook implementation in Notepad
 - [ ] CLOSE_TAB hook implementation in Notebook
 - [ ] CLOSE_TAB_EVERYWHERE in ViewService
+- [ ] Hook type in ViewService
+- [ ] Hook setter in ViewService
 - [ ] CLOSE_TAB_EVERYWHERE virtual hook in Workspace
 - [ ] CLOSE_TAB_EVERYWHERE hook implementation in Notepad
 - [ ] CLOSE_TAB_EVERYWHERE hook implementation in Notebook
 - [ ] CLOSE_WINDOW_TABS in ViewService
+- [ ] Hook type in ViewService
+- [ ] Hook setter in ViewService
 - [ ] CLOSE_WINDOW_TABS virtual hook in Workspace
 - [ ] CLOSE_WINDOW_TABS hook implementation in Notepad
 - [ ] CLOSE_WINDOW_TABS hook implementation in Notebook
 - [ ] CLOSE_ALL_TABS in ViewService
+- [ ] Hook type in ViewService
+- [ ] Hook setter in ViewService
 - [ ] CLOSE_ALL_TABS virtual hook in Workspace
 - [ ] CLOSE_ALL_TABS hook implementation in Notepad
 - [ ] CLOSE_ALL_TABS hook implementation in Notebook
 - [ ] CLOSE_WINDOW (?) in WindowService
+- [ ] Hook type in WindowService
+- [ ] Hook setter in WindowService
 - [ ] CLOSE_WINDOW virtual hook in Workspace
 - [ ] CLOSE_WINDOW hook implementation in Notepad
 - [ ] CLOSE_WINDOW hook implementation in Notebook
 - [ ] CLOSE_ALL_WINDOWS in WindowService
+- [ ] Hook type in WindowService
+- [ ] Hook setter in WindowService
 - [ ] CLOSE_ALL_WINDOWS virtual hook in Workspace
 - [ ] CLOSE_ALL_WINDOWS hook implementation in Notepad
 - [ ] CLOSE_ALL_WINDOWS hook implementation in Notebook
-- [ ] Quit virtual hook in Workspace
-- [ ] Quit hook implementation in Notepad
-- [ ] Quit hook implementation in Notebook
+- [ ] Quit virtual in Workspace
+- [ ] Quit implementation in Notepad
+- [ ] Quit implementation in Notebook
+- [ ] Decide if Acceptor can be generalized AFTER. Don't get clever early!
 - [ ] Decide after whether we need the other polys (new tab and tree model things)
 - [ ] Finally, find all functions rendered unused by these changes and remove them!
 
