@@ -149,7 +149,42 @@ protected:
 
         /// TODO CR NEW IMPL WIP =========================================
 
-        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {});
+        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return;
+
+
+
+            });
+
+        /*
+        NOTEBOOK:
+        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return false;
+            views->deleteAt(
+                cmd.context,
+                cmd.param<int>("index", -1)); // -1 = current
+            return true;
+        });
+
+        NOTEPAD:
+        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+            if (!cmd.context) return false;
+            auto index = cmd.param<int>("index", -1);
+            auto model = views->modelAt(cmd.context, index);
+            if (!model) return false;
+
+            auto is_last_view = views->viewsOn(model) <= 1;
+
+            if (is_last_view) {
+                // Check if model is modified
+                // If so, prompt save
+                // Handle save prompt result
+            }
+
+            views->deleteAt(cmd.context, index);
+            if (is_last_view) files->deleteModel(model);
+            return true;
+        });*/
 
         bus->addCommandHandler(
             Commands::CLOSE_TAB_EVERYWHERE,
