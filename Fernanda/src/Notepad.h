@@ -76,8 +76,8 @@ public:
     virtual bool canQuit() { return true; }
 
 protected:
-    virtual bool canCloseTabHook(IFileView*) { return true; }
-    virtual bool canCloseTabEverywhereHook() { return true; }
+    virtual bool canCloseTabHook(IFileModel*) { return true; }
+    virtual bool canCloseTabEverywhereHook(IFileModel*) { return true; }
     virtual bool canCloseWindowTabsHook() { return true; }
     virtual bool canCloseAllTabsHook() { return true; }
     virtual bool canCloseWindowHook() { return true; }

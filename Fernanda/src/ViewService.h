@@ -61,8 +61,13 @@ public:
 
     /// TODO CR: Decide what will need to be passed by implementing the hook in
     /// WS subclass
-    using CanCloseTabHook = std::function<bool(IFileView*)>;
-    using CanCloseTabEverywhereHook = std::function<bool()>;
+    /// TODO CR: Check the param, was view now model, make sure OK
+
+    // For the hooks, passing the model in makes sense, since for hook content
+    // (save prompts), the model is the only thing that matters
+
+    using CanCloseTabHook = std::function<bool(IFileModel*)>;
+    using CanCloseTabEverywhereHook = std::function<bool(IFileModel*)>;
     using CanCloseWindowTabsHook = std::function<bool()>;
     using CanCloseAllTabsHook = std::function<bool()>;
 
@@ -151,7 +156,9 @@ protected:
 
         bus->addCommandHandler(
             Commands::CLOSE_TAB_EVERYWHERE,
-            [&](const Command& cmd) {});
+            [&](const Command& cmd) {
+                closeTabEverywhere_(cmd.context, cmd.param<int>("index", -1));
+            });
 
         bus->addCommandHandler(
             Commands::CLOSE_WINDOW_TABS,
@@ -293,14 +300,24 @@ private:
 
     void closeTab_(Window* window, int index = -1)
     {
-        auto view = viewAt_(window, index);
-        if (!view) return;
+        auto model = modelAt_(window, index);
+        if (!model) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabHook_ || canCloseTabHook_(view)) {
-            auto model = view->model();
+        if (!canCloseTabHook_ || canCloseTabHook_(model)) {
             deleteAt_(window, index);
-            if (model) emit bus->viewDestroyed(model);
+            emit bus->viewDestroyed(model);
+        }
+    }
+
+    void closeTabEverywhere_(Window* window, int index = -1)
+    {
+        auto model = modelAt_(window, index);
+        if (!model) return;
+
+        // Proceed if no hook is set, or if hook approves the close
+        if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_(model)) {
+            //...
         }
     }
 
