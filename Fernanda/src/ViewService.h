@@ -317,7 +317,9 @@ private:
 
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_(model)) {
-            //...
+            // - Get all views on model in all windows
+            // - Remove and delete the views
+            emit bus->viewDestroyed(model);
         }
     }
 
