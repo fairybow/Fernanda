@@ -119,8 +119,6 @@ public:
 protected:
     virtual void registerBusCommands() override
     {
-        // Possibly tabWidget, viewAt & modelAt
-
         bus->addCommandHandler(Commands::UNDO, [&](const Command& cmd) {
             undo_(cmd.context, cmd.param<int>("index", -1));
         });
@@ -148,6 +146,24 @@ protected:
         bus->addCommandHandler(Commands::SELECT_ALL, [&](const Command& cmd) {
             selectAll_(cmd.context, cmd.param<int>("index", -1));
         });
+
+        /// TODO CR NEW IMPL WIP =========================================
+
+        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {});
+
+        bus->addCommandHandler(
+            Commands::CLOSE_TAB_EVERYWHERE,
+            [&](const Command& cmd) {});
+
+        bus->addCommandHandler(
+            Commands::CLOSE_WINDOW_TABS,
+            [&](const Command& cmd) {});
+
+        bus->addCommandHandler(
+            Commands::CLOSE_ALL_TABS,
+            [&](const Command& cmd) {});
+
+        /// TODO CR NEW IMPL WIP =========================================
     }
 
     virtual void connectBusEvents() override
