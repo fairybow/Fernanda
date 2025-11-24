@@ -24,7 +24,7 @@
 - [ ] At each step of the way, decide what the "ideal" hook looks like, with proper encapsulation / separation of concerns in mind
 - [ ] Consider IService Coco::Bool or enum Accept/Reject for clarity
 - [ ] Commands should be wrapped methods where appropriate (e.g., closeTab_, where ViewService will also be calling this method itself as well as allowing execution via Bus)
-- [ ] CLOSE_TAB in ViewService
+- [x] CLOSE_TAB in ViewService
 - [x] Hook type in ViewService
 - [x] Hook setter in ViewService
 - [x] CLOSE_TAB virtual hook in Workspace
