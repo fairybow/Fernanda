@@ -150,41 +150,8 @@ protected:
         /// TODO CR NEW IMPL WIP =========================================
 
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-
-
-
-            });
-
-        /*
-        NOTEBOOK:
-        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return false;
-            views->deleteAt(
-                cmd.context,
-                cmd.param<int>("index", -1)); // -1 = current
-            return true;
+            closeTab_(cmd.context, cmd.param<int>("index", -1));
         });
-
-        NOTEPAD:
-        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return false;
-            auto index = cmd.param<int>("index", -1);
-            auto model = views->modelAt(cmd.context, index);
-            if (!model) return false;
-
-            auto is_last_view = views->viewsOn(model) <= 1;
-
-            if (is_last_view) {
-                // Check if model is modified
-                // If so, prompt save
-                // Handle save prompt result
-            }
-
-            views->deleteAt(cmd.context, index);
-            if (is_last_view) files->deleteModel(model);
-            return true;
-        });*/
 
         bus->addCommandHandler(
             Commands::CLOSE_TAB_EVERYWHERE,
@@ -329,6 +296,47 @@ private:
         if (!view || !view->supportsEditing()) return;
         view->selectAll();
     }
+
+    /// TODO CR NEW IMPL WIP =========================================
+
+    void closeTab_(Window* window, int index = -1)
+    {
+        //
+    }
+
+    /*
+    Find what should be in the hook or not (remember SOC/encapsulation - what's the ideal method here?)
+
+    NOTEBOOK:
+    bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+        if (!cmd.context) return false;
+        views->deleteAt(
+            cmd.context,
+            cmd.param<int>("index", -1)); // -1 = current
+        return true;
+    });
+
+    NOTEPAD:
+    bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+        if (!cmd.context) return false;
+        auto index = cmd.param<int>("index", -1);
+        auto model = views->modelAt(cmd.context, index);
+        if (!model) return false;
+
+        auto is_last_view = views->viewsOn(model) <= 1;
+
+        if (is_last_view) {
+            // Check if model is modified
+            // If so, prompt save
+            // Handle save prompt result
+        }
+
+        views->deleteAt(cmd.context, index);
+        if (is_last_view) files->deleteModel(model);
+        return true;
+    });*/
+
+    /// TODO CR NEW IMPL WIP =========================================
 
     template <
         Coco::Concepts::QWidgetPointer FileViewT,
