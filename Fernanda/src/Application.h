@@ -87,7 +87,7 @@ private:
         setOrganizationDomain(VERSION_DOMAIN);
         setApplicationName(VERSION_APP_NAME_STRING);
         setApplicationVersion(VERSION_FULL_STRING);
-        setQuitOnLastWindowClosed(false); // TODO: Can probably be true once quit structure in place
+        setQuitOnLastWindowClosed(false);
     }
 
     void setup_() const
@@ -147,6 +147,8 @@ private:
 
         return false;
     }
+
+    /// TODO CR: Quit method
 };
 
 inline Application* app()

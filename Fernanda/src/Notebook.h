@@ -73,15 +73,22 @@ public:
 
     /// TODO CR:
 
-    // Quit hook (called by app)
+    // Quit (called by app)
+    virtual bool tryQuit() = 0;
 
 protected:
     // Close tab hook (given to ViewService)
+    virtual bool closeTabHook() = 0;
     // Close tab everywhere hook (given to ViewService)
+    virtual bool closeTabEverywhereHook() = 0;
     // Close window tabs hook (given to ViewService)
+    virtual bool closeWindowTabsHook() = 0;
     // Close all tabs hook (given to ViewService)
+    virtual bool closeAllTabsHook() = 0;
     // Close window hook (given to WindowService)
+    virtual bool closeWindowHook() = 0;
     // Close all windows hook (given to WindowService)
+    virtual bool closeAllWindowsHook() = 0;
 
     /// TODO CR NEW IMPL WIP =========================================
 
@@ -220,40 +227,6 @@ private:
                   { "title", info.name } },
                 cmd.context);
         });
-
-        registerPolyClosures_();
-    }
-
-    void registerPolyClosures_()
-    {
-        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return false;
-            views->deleteAt(
-                cmd.context,
-                cmd.param<int>("index", -1)); // -1 = current
-            return true;
-        });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_TAB_EVERYWHERE,
-            [&](const Command& cmd) {});
-
-        // TODO: Decide on return value (see above)
-        bus->addCommandHandler(
-            Commands::CLOSE_WINDOW_TABS,
-            [&](const Command& cmd) {
-                if (!cmd.context) return false;
-                views->deleteAllIn(cmd.context);
-                return true;
-            });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_TABS,
-            [&](const Command& cmd) {});
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_WINDOWS,
-            [&](const Command& cmd) {});
     }
 
     void addWorkspaceIndicator_(Window* window)
@@ -377,4 +350,36 @@ private slots:
     views->deleteAllIn(window);
     // delete all models
     return true;
+}
+
+void registerPolyClosures_()
+{
+    bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+        if (!cmd.context) return false;
+        views->deleteAt(
+            cmd.context,
+            cmd.param<int>("index", -1)); // -1 = current
+        return true;
+    });
+
+    bus->addCommandHandler(
+        Commands::CLOSE_TAB_EVERYWHERE,
+        [&](const Command& cmd) {});
+
+    // TODO: Decide on return value (see above)
+    bus->addCommandHandler(
+        Commands::CLOSE_WINDOW_TABS,
+        [&](const Command& cmd) {
+            if (!cmd.context) return false;
+            views->deleteAllIn(cmd.context);
+            return true;
+        });
+
+    bus->addCommandHandler(
+        Commands::CLOSE_ALL_TABS,
+        [&](const Command& cmd) {});
+
+    bus->addCommandHandler(
+        Commands::CLOSE_ALL_WINDOWS,
+        [&](const Command& cmd) {});
 }*/

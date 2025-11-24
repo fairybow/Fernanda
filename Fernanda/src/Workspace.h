@@ -93,15 +93,22 @@ protected:
 
     /// TODO CR:
 
-    // Quit hook (called by app)
+    // Quit (called by app)
+    virtual bool tryQuit() = 0;
 
 protected:
     // Close tab hook (given to ViewService)
+    virtual bool closeTabHook() = 0;
     // Close tab everywhere hook (given to ViewService)
+    virtual bool closeTabEverywhereHook() = 0;
     // Close window tabs hook (given to ViewService)
+    virtual bool closeWindowTabsHook() = 0;
     // Close all tabs hook (given to ViewService)
+    virtual bool closeAllTabsHook() = 0;
     // Close window hook (given to WindowService)
+    virtual bool closeWindowHook() = 0;
     // Close all windows hook (given to WindowService)
+    virtual bool closeAllWindowsHook() = 0;
 
     /// TODO CR NEW IMPL WIP =========================================
 
@@ -118,12 +125,6 @@ private:
         files->initialize();
         treeViews->initialize();
         colorBars->initialize();
-
-        /// TODO CR: Needed? Will obviously need hook, but maybe not one called
-        /// in each window's closeEvent!
-        /*windows->setCloseAcceptor([&](Window* window) {
-            return window ? canCloseWindow(window) : false;
-        });*/
 
         // Give Close tab hook to ViewService
         // Give Close tab everywhere hook to ViewService
@@ -150,3 +151,13 @@ private:
 };
 
 } // namespace Fernanda
+
+/// TODO CR: Old code:
+
+/*
+/// TODO CR: Needed? Will obviously need hook, but maybe not one called
+/// in each window's closeEvent!
+windows->setCloseAcceptor([&](Window* window) {
+    return window ? canCloseWindow(window) : false;
+});
+*/

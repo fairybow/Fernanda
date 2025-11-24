@@ -73,15 +73,22 @@ public:
 
     /// TODO CR:
 
-    // Quit hook (called by app)
+    // Quit (called by app)
+    virtual bool tryQuit() = 0;
 
 protected:
     // Close tab hook (given to ViewService)
+    virtual bool closeTabHook() = 0;
     // Close tab everywhere hook (given to ViewService)
+    virtual bool closeTabEverywhereHook() = 0;
     // Close window tabs hook (given to ViewService)
+    virtual bool closeWindowTabsHook() = 0;
     // Close all tabs hook (given to ViewService)
+    virtual bool closeAllTabsHook() = 0;
     // Close window hook (given to WindowService)
+    virtual bool closeWindowHook() = 0;
     // Close all windows hook (given to WindowService)
+    virtual bool closeAllWindowsHook() = 0;
 
     /// TODO CR NEW IMPL WIP =========================================
 
@@ -170,72 +177,6 @@ private:
             if (!cmd.context) return;
             files->openOffDiskTxtIn(cmd.context);
         });
-
-        registerPolyClosures_();
-    }
-
-    /// WIP
-    void registerPolyClosures_()
-    {
-        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return false;
-            auto index = cmd.param<int>("index", -1);
-            auto model = views->modelAt(cmd.context, index);
-            if (!model) return false;
-
-            auto is_last_view = views->viewsOn(model) <= 1;
-
-            if (is_last_view) {
-                // Check if model is modified
-                // If so, prompt save
-                // Handle save prompt result
-            }
-
-            views->deleteAt(cmd.context, index);
-            if (is_last_view) files->deleteModel(model);
-            return true;
-        });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_TAB_EVERYWHERE,
-            [&](const Command& cmd) {});
-
-        bus->addCommandHandler(
-            Commands::CLOSE_WINDOW_TABS,
-            [&](const Command& cmd) { return closeWindowTabs_(cmd.context); });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_TABS,
-            [&](const Command& cmd) {});
-
-        // Close window, if we remove close acceptor?
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_WINDOWS,
-            [&](const Command& cmd) {});
-
-        // Quit? Doesn't really fit, though...
-    }
-
-    /// WIP
-    bool closeWindowTabs_(Window* window)
-    {
-        if (!window) return false;
-
-        // Get a list of all file models (iterating backward) that are not
-        // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
-
-        // Save Prompt (multi-file selection version; Save (with
-        // selections, defaulted to all), Discard, or Cancel)
-
-        // Handle prompt result (Cancel return, Discard proceed without
-        // saves, Save (any or all selected)
-
-        // If proceeding:
-        views->deleteAllIn(window);
-        // Delete all deletable models (those that were in that window (modified
-        // or not) and not open in other windows)
-        return true;
     }
 
 private slots:
@@ -261,4 +202,68 @@ private slots:
 {
     if (!window) return false;
     return closeWindowTabs_(window);
+}
+
+/// WIP
+void registerPolyClosures_()
+{
+    bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+        if (!cmd.context) return false;
+        auto index = cmd.param<int>("index", -1);
+        auto model = views->modelAt(cmd.context, index);
+        if (!model) return false;
+
+        auto is_last_view = views->viewsOn(model) <= 1;
+
+        if (is_last_view) {
+            // Check if model is modified
+            // If so, prompt save
+            // Handle save prompt result
+        }
+
+        views->deleteAt(cmd.context, index);
+        if (is_last_view) files->deleteModel(model);
+        return true;
+    });
+
+    bus->addCommandHandler(
+        Commands::CLOSE_TAB_EVERYWHERE,
+        [&](const Command& cmd) {});
+
+    bus->addCommandHandler(
+        Commands::CLOSE_WINDOW_TABS,
+        [&](const Command& cmd) { return closeWindowTabs_(cmd.context); });
+
+    bus->addCommandHandler(
+        Commands::CLOSE_ALL_TABS,
+        [&](const Command& cmd) {});
+
+    // Close window, if we remove close acceptor?
+
+    bus->addCommandHandler(
+        Commands::CLOSE_ALL_WINDOWS,
+        [&](const Command& cmd) {});
+
+    // Quit? Doesn't really fit, though...
+}
+
+/// WIP
+bool closeWindowTabs_(Window* window)
+{
+    if (!window) return false;
+
+    // Get a list of all file models (iterating backward) that are not
+    // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
+
+    // Save Prompt (multi-file selection version; Save (with
+    // selections, defaulted to all), Discard, or Cancel)
+
+    // Handle prompt result (Cancel return, Discard proceed without
+    // saves, Save (any or all selected)
+
+    // If proceeding:
+    views->deleteAllIn(window);
+    // Delete all deletable models (those that were in that window (modified
+    // or not) and not open in other windows)
+    return true;
 }*/

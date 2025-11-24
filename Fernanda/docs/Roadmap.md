@@ -22,6 +22,7 @@
 
 - [x] TODO KEY = CR (Closure Rework)
 - [ ] At each step of the way, decide what the "ideal" hook looks like, with proper encapsulation / separation of concerns in mind
+- [ ] Consider IService Coco::Bool or enum Accept/Reject for clarity
 - [ ] CLOSE_TAB in ViewService
 - [ ] Hook type in ViewService
 - [ ] Hook setter in ViewService
