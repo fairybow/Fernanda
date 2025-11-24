@@ -197,7 +197,7 @@ private slots:
     void onViewDestroyed_(IFileModel* model)
     {
         if (!model) return;
-        if (views->viewsOn(model) <= 0) files->deleteModel(model);
+        if (views->countFor(model) <= 0) files->deleteModel(model);
     }
 };
 

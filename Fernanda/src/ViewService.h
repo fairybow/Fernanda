@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include <type_traits>
 #include <functional>
+#include <type_traits>
 
 #include <QFont>
 #include <QHash>
@@ -90,7 +90,7 @@ public:
         setCanCloseAllTabsHook,
         canCloseAllTabsHook_);
 
-    int viewsOn(IFileModel* model) const
+    int countFor(IFileModel* model) const
     {
         if (!model) return 0;
         return viewsPerModel_.value(model, 0);
@@ -99,11 +99,11 @@ public:
     /// TODO CR NEW IMPL WIP =========================================
 
     /// TODO CR: Needed?
-    //void deleteAllIn(Window* window)
+    // void deleteAllIn(Window* window)
     //{
-    //    if (!window) return;
-    //    auto tab_widget = tabWidget_(window);
-    //    if (!tab_widget) return;
+    //     if (!window) return;
+    //     auto tab_widget = tabWidget_(window);
+    //     if (!tab_widget) return;
 
     //    auto views = tab_widget->clear<IFileView*>();
     //    if (views.isEmpty()) return;
@@ -326,7 +326,8 @@ private:
     }
 
     /*
-    Find what should be in the hook or not (remember SOC/encapsulation - what's the ideal method here?)
+    Find what should be in the hook or not (remember SOC/encapsulation - what's
+    the ideal method here?)
 
     NOTEBOOK:
     bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
