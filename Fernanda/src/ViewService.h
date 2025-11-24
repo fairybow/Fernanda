@@ -296,7 +296,8 @@ private:
         auto view = viewAt_(window, index);
         if (!view) return;
 
-        if (canCloseTabHook_ && canCloseTabHook_(view)) {
+        // Proceed if no hook is set, or if hook approves the close
+        if (!canCloseTabHook_ || canCloseTabHook_(view)) {
             auto model = view->model();
             deleteAt_(window, index);
             if (model) emit bus->viewDestroyed(model);
