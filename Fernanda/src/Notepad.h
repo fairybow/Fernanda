@@ -73,22 +73,15 @@ public:
 
     /// TODO CR:
 
-    // Quit (called by app)
-    virtual bool tryQuit() = 0;
+    virtual bool canQuit() { return true; }
 
 protected:
-    // Close tab hook (given to ViewService)
-    virtual bool closeTabHook() = 0;
-    // Close tab everywhere hook (given to ViewService)
-    virtual bool closeTabEverywhereHook() = 0;
-    // Close window tabs hook (given to ViewService)
-    virtual bool closeWindowTabsHook() = 0;
-    // Close all tabs hook (given to ViewService)
-    virtual bool closeAllTabsHook() = 0;
-    // Close window hook (given to WindowService)
-    virtual bool closeWindowHook() = 0;
-    // Close all windows hook (given to WindowService)
-    virtual bool closeAllWindowsHook() = 0;
+    virtual bool canCloseTabHook(IFileView*) { return true; }
+    virtual bool canCloseTabEverywhereHook() { return true; }
+    virtual bool canCloseWindowTabsHook() { return true; }
+    virtual bool canCloseAllTabsHook() { return true; }
+    virtual bool canCloseWindowHook() { return true; }
+    virtual bool canCloseAllWindowsHook() { return true; }
 
     /// TODO CR NEW IMPL WIP =========================================
 
@@ -158,6 +151,13 @@ private:
             &Bus::treeViewDoubleClicked,
             this,
             &Notepad::onTreeViewDoubleClicked_);
+
+        /// TODO CR:
+        connect(
+            bus,
+            &Bus::viewDestroyed,
+            this,
+            &Notepad::onViewDestroyed_);
     }
 
     void registerPolys_()
@@ -191,6 +191,13 @@ private slots:
             Commands::OPEN_FILE_AT_PATH,
             { { "path", qVar(path) } },
             window);
+    }
+
+    /// TODO CR:
+    void onViewDestroyed_(IFileModel* model)
+    {
+        if (!model) return;
+        if (views->viewsOn(model) <= 0) files->deleteModel(model);
     }
 };
 

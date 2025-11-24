@@ -20,7 +20,7 @@ Notebook never closes models manually (only via Qt ownership when FileService di
 
 ## Close tab
 
-By poly command.
+By ViewService command.
 
 Notepad:
 - Find view by index
@@ -36,7 +36,7 @@ Notebook: Find view by index and close it. Model remains open.
 
 ## Close tab everywhere
 
-By poly command.
+By ViewService command.
 
 Notepad:
 - Find view by index
@@ -52,7 +52,7 @@ Notebook: Find view by index, then find all other views onto the same model, and
 
 ## Close window tabs
 
-By poly command.
+By ViewService command.
 
 Notepad:
 - Build two lists
@@ -69,7 +69,7 @@ Notebook: Close all views in the window. Models remain open.
 
 ## Close all tabs (in all workspace windows)
 
-By poly command.
+By ViewService command.
 
 Notepad:
 - Get all modified models
@@ -119,7 +119,7 @@ Notebook:
 
 ## Close all windows
 
-By poly command.
+By WindowService command.
 
 Notepad:
 - Get all modified models

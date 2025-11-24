@@ -93,22 +93,15 @@ protected:
 
     /// TODO CR:
 
-    // Quit (called by app)
-    virtual bool tryQuit() = 0;
+    virtual bool canQuit() = 0; // (Called by app)
 
 protected:
-    // Close tab hook (given to ViewService)
-    virtual bool closeTabHook() = 0;
-    // Close tab everywhere hook (given to ViewService)
-    virtual bool closeTabEverywhereHook() = 0;
-    // Close window tabs hook (given to ViewService)
-    virtual bool closeWindowTabsHook() = 0;
-    // Close all tabs hook (given to ViewService)
-    virtual bool closeAllTabsHook() = 0;
-    // Close window hook (given to WindowService)
-    virtual bool closeWindowHook() = 0;
-    // Close all windows hook (given to WindowService)
-    virtual bool closeAllWindowsHook() = 0;
+    virtual bool canCloseTabHook(IFileView*) = 0; // (Given to ViewService)
+    virtual bool canCloseTabEverywhereHook() = 0; // (Given to ViewService)
+    virtual bool canCloseWindowTabsHook() = 0; // (Given to ViewService)
+    virtual bool canCloseAllTabsHook() = 0; // (Given to ViewService)
+    virtual bool canCloseWindowHook() = 0; // (Given to WindowService)
+    virtual bool canCloseAllWindowsHook() = 0; // (Given to WindowService)
 
     /// TODO CR NEW IMPL WIP =========================================
 
@@ -126,10 +119,15 @@ private:
         treeViews->initialize();
         colorBars->initialize();
 
-        // Give Close tab hook to ViewService
-        // Give Close tab everywhere hook to ViewService
-        // Give Close window tabs hook to ViewService
-        // Give Close all tabs hook to ViewService
+        views->setCanCloseTabHook(this, &Workspace::canCloseTabHook);
+        views->setCanCloseTabEverywhereHook(
+            this,
+            &Workspace::canCloseTabEverywhereHook);
+        views->setCanCloseWindowTabsHook(
+            this,
+            &Workspace::canCloseWindowTabsHook);
+        views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabsHook);
+
         // Give Close window hook to WindowService
         // Give Close all windows hook to WindowService
 

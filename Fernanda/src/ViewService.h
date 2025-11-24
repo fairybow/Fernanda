@@ -61,60 +61,56 @@ public:
 
     /// TODO CR: Decide what will need to be passed by implementing the hook in
     /// WS subclass
-    using TabCloseAcceptor = std::function<bool()>;
-    using TabCloseEverywhereAcceptor = std::function<bool()>;
-    using CloseWindowTabsAcceptor = std::function<bool()>;
-    using CloseAllTabsAcceptor = std::function<bool()>;
+    using CanCloseTabHook = std::function<bool(IFileView*)>;
+    using CanCloseTabEverywhereHook = std::function<bool()>;
+    using CanCloseWindowTabsHook = std::function<bool()>;
+    using CanCloseAllTabsHook = std::function<bool()>;
 
-    /// TODO CR NEW IMPL WIP =========================================
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseTabHook,
+        canCloseTabHook,
+        setCanCloseTabHook,
+        canCloseTabHook_);
 
-    /// TODO CR: Needed?
-    // Index -1 = current
-    void deleteAt(Window* window, int index)
-    {
-        if (!window) return;
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget) return;
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseTabEverywhereHook,
+        canCloseTabEverywhereHook,
+        setCanCloseTabEverywhereHook,
+        canCloseTabEverywhereHook_);
 
-        // TODO: Section off into own method (see its duplicated usage in
-        // viewAt_)
-        auto i = (index < 0) ? tab_widget->currentIndex() : index;
-        if (i < 0 || i > tab_widget->count() - 1) return;
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseWindowTabsHook,
+        canCloseWindowTabsHook,
+        setCanCloseWindowTabsHook,
+        canCloseWindowTabsHook_);
 
-        deleteView_(tab_widget->removeTab<IFileView*>(i));
-    }
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseAllTabsHook,
+        canCloseAllTabsHook,
+        setCanCloseAllTabsHook,
+        canCloseAllTabsHook_);
 
-    /// TODO CR: Needed?
-    void deleteAllIn(Window* window)
-    {
-        if (!window) return;
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget) return;
-
-        auto views = tab_widget->clear<IFileView*>();
-        if (views.isEmpty()) return;
-
-        for (auto& view : views)
-            deleteView_(view);
-    }
-
-    /// TODO CR: Needed?
-    // Index -1 = current. Returns the model at a view position (window + tab
-    // index). Lives in ViewService because the primary input is a view
-    // location, not a file path or model ID. Avoids FileService depending on
-    // ViewService.
-    IFileModel* modelAt(Window* window, int index)
-    {
-        auto view = viewAt_(window, index);
-        return view ? view->model() : nullptr;
-    }
-
-    /// TODO CR: Needed?
     int viewsOn(IFileModel* model) const
     {
         if (!model) return 0;
         return viewsPerModel_.value(model, 0);
     }
+
+    /// TODO CR NEW IMPL WIP =========================================
+
+    /// TODO CR: Needed?
+    //void deleteAllIn(Window* window)
+    //{
+    //    if (!window) return;
+    //    auto tab_widget = tabWidget_(window);
+    //    if (!tab_widget) return;
+
+    //    auto views = tab_widget->clear<IFileView*>();
+    //    if (views.isEmpty()) return;
+
+    //    for (auto& view : views)
+    //        deleteView_(view);
+    //}
 
 protected:
     virtual void registerBusCommands() override
@@ -201,6 +197,17 @@ private:
     QHash<Window*, IFileView*> activeFileViews_{};
     QHash<IFileModel*, int> viewsPerModel_{};
 
+    /// TODO CR NEW IMPL WIP =========================================
+
+    /// All views set?
+
+    CanCloseTabHook canCloseTabHook_ = nullptr;
+    CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
+    CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
+    CanCloseAllTabsHook canCloseAllTabsHook_ = nullptr;
+
+    /// TODO CR NEW IMPL WIP =========================================
+
     void setup_()
     {
         //...
@@ -212,7 +219,7 @@ private:
         return qobject_cast<TabWidget*>(window->centralWidget());
     }
 
-    // Passing a negative index defaults to the current index (if any)
+    // Index -1 = current
     IFileView* viewAt_(Window* window, int index)
     {
         if (!window) return nullptr;
@@ -225,40 +232,25 @@ private:
         return tab_widget->widgetAt<IFileView*>(i);
     }
 
-    void deleteView_(IFileView* view)
+    // Index -1 = current. Returns the model at a view position (window + tab
+    // index). Lives in ViewService because the primary input is a view
+    // location, not a file path or model ID. Avoids FileService depending on
+    // ViewService.
+    IFileModel* modelAt_(Window* window, int index)
     {
-        if (!view) return;
-
-        // Update view count
-        if (auto model = view->model())
-            if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
-
-        delete view;
-    }
-
-    // Active file view can be set nullptr!
-    void setActiveFileView_(Window* window, int index)
-    {
-        if (!window) return;
-
-        IFileView* active = nullptr;
-
-        if (index > -1)
-            if (auto view = viewAt_(window, index)) active = view;
-
-        activeFileViews_[window] = active;
-        emit bus->activeFileViewChanged(window, active);
+        auto view = viewAt_(window, index);
+        return view ? view->model() : nullptr;
     }
 
     void undo_(Window* window, int index = -1)
     {
-        auto model = modelAt(window, index);
+        auto model = modelAt_(window, index);
         if (model && model->hasUndo()) model->undo();
     }
 
     void redo_(Window* window, int index = -1)
     {
-        auto model = modelAt(window, index);
+        auto model = modelAt_(window, index);
         if (model && model->hasRedo()) model->redo();
     }
 
@@ -301,7 +293,36 @@ private:
 
     void closeTab_(Window* window, int index = -1)
     {
-        //
+        auto view = viewAt_(window, index);
+        if (!view) return;
+
+        if (canCloseTabHook_ && canCloseTabHook_(view)) {
+            auto model = view->model();
+            deleteAt_(window, index);
+            if (model) emit bus->viewDestroyed(model);
+        }
+    }
+
+    // Index -1 = current
+    void deleteAt_(Window* window, int index)
+    {
+        if (!window) return;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
+
+        // TODO: Section off into own method (see its duplicated usage in
+        // viewAt_)
+        auto i = (index < 0) ? tab_widget->currentIndex() : index;
+        if (i < 0 || i > tab_widget->count() - 1) return;
+
+        auto view = tab_widget->removeTab<IFileView*>(i);
+        if (!view) return;
+
+        // Update view count
+        if (auto model = view->model())
+            if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
+
+        delete view;
     }
 
     /*
@@ -337,6 +358,20 @@ private:
     });*/
 
     /// TODO CR NEW IMPL WIP =========================================
+
+    // Active file view can be set nullptr!
+    void setActiveFileView_(Window* window, int index)
+    {
+        if (!window) return;
+
+        IFileView* active = nullptr;
+
+        if (index > -1)
+            if (auto view = viewAt_(window, index)) active = view;
+
+        activeFileViews_[window] = active;
+        emit bus->activeFileViewChanged(window, active);
+    }
 
     template <
         Coco::Concepts::QWidgetPointer FileViewT,

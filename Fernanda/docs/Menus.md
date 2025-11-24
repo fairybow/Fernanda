@@ -27,7 +27,7 @@ Close window tabs                           views:close_window_tabs          [To
 Close all tabs                              views:close_all_tabs             [Toggle]
 -------------------------------------------
 Close window
-Close all windows
+Close all windows                           windows:close_all
 -------------------------------------------
 Quit                        Ctrl+Q
 ```

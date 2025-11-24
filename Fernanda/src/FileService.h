@@ -56,6 +56,7 @@ public:
 
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
+    /// TODO CR: Needed?
     void deleteModel(IFileModel* model)
     {
         if (!model) return;
@@ -66,12 +67,14 @@ public:
         delete model;
     }
 
+    /// TODO CR: Needed?
     void deleteModels(const QList<IFileModel*>& models)
     {
         for (auto& model : models)
             deleteModel(model);
     }
 
+    /// TODO CR: Needed?
     void deleteAll()
     {
         for (auto& model : models_)

@@ -25,43 +25,43 @@
 - [ ] Consider IService Coco::Bool or enum Accept/Reject for clarity
 - [ ] Commands should be wrapped methods where appropriate (e.g., closeTab_, where ViewService will also be calling this method itself as well as allowing execution via Bus)
 - [ ] CLOSE_TAB in ViewService
-- [ ] Hook type in ViewService
-- [ ] Hook setter in ViewService
-- [ ] CLOSE_TAB virtual hook in Workspace
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_TAB virtual hook in Workspace
 - [ ] CLOSE_TAB hook implementation in Notepad
 - [ ] CLOSE_TAB hook implementation in Notebook
 - [ ] CLOSE_TAB_EVERYWHERE in ViewService
-- [ ] Hook type in ViewService
-- [ ] Hook setter in ViewService
-- [ ] CLOSE_TAB_EVERYWHERE virtual hook in Workspace
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_TAB_EVERYWHERE virtual hook in Workspace
 - [ ] CLOSE_TAB_EVERYWHERE hook implementation in Notepad
 - [ ] CLOSE_TAB_EVERYWHERE hook implementation in Notebook
 - [ ] CLOSE_WINDOW_TABS in ViewService
-- [ ] Hook type in ViewService
-- [ ] Hook setter in ViewService
-- [ ] CLOSE_WINDOW_TABS virtual hook in Workspace
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_WINDOW_TABS virtual hook in Workspace
 - [ ] CLOSE_WINDOW_TABS hook implementation in Notepad
 - [ ] CLOSE_WINDOW_TABS hook implementation in Notebook
 - [ ] CLOSE_ALL_TABS in ViewService
-- [ ] Hook type in ViewService
-- [ ] Hook setter in ViewService
-- [ ] CLOSE_ALL_TABS virtual hook in Workspace
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_ALL_TABS virtual hook in Workspace
 - [ ] CLOSE_ALL_TABS hook implementation in Notepad
 - [ ] CLOSE_ALL_TABS hook implementation in Notebook
 - [ ] CLOSE_WINDOW in WindowService
 - [ ] WindowService will need to handle both programmatic and button closes, will likely need flags idempotence or something to allow each Window to act accordingly for single vs multi window close
 - [ ] Hook type in WindowService
 - [ ] Hook setter in WindowService
-- [ ] CLOSE_WINDOW virtual hook in Workspace
+- [x] CLOSE_WINDOW virtual hook in Workspace
 - [ ] CLOSE_WINDOW hook implementation in Notepad
 - [ ] CLOSE_WINDOW hook implementation in Notebook
 - [ ] CLOSE_ALL_WINDOWS in WindowService
 - [ ] Hook type in WindowService
 - [ ] Hook setter in WindowService
-- [ ] CLOSE_ALL_WINDOWS virtual hook in Workspace
+- [x] CLOSE_ALL_WINDOWS virtual hook in Workspace
 - [ ] CLOSE_ALL_WINDOWS hook implementation in Notepad
 - [ ] CLOSE_ALL_WINDOWS hook implementation in Notebook
-- [ ] Quit virtual in Workspace
+- [x] Quit virtual in Workspace
 - [ ] Quit implementation in Notepad
 - [ ] Quit implementation in Notebook
 - [ ] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
