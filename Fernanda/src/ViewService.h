@@ -215,6 +215,14 @@ private:
         return qobject_cast<TabWidget*>(window->centralWidget());
     }
 
+    // If index is -1, it will become current index
+    int normalizeIndex_(TabWidget* tabWidget, int index) const
+    {
+        if (!tabWidget) return -1;
+        auto i = (index < 0) ? tabWidget->currentIndex() : index;
+        return (i < 0 || i >= tabWidget->count()) ? i : -1;
+    }
+
     // Index -1 = current
     IFileView* viewAt_(Window* window, int index)
     {
@@ -283,14 +291,6 @@ private:
     }
 
     /// TODO CR NEW IMPL WIP =========================================
-
-    // If index is -1, it will become current index
-    int normalizeIndex_(TabWidget* tabWidget, int index) const
-    {
-        if (!tabWidget) return -1;
-        auto i = (index < 0) ? tabWidget->currentIndex() : index;
-        return (i < 0 || i >= tabWidget->count()) ? i : -1;
-    }
 
     void closeTab_(Window* window, int index = -1)
     {
