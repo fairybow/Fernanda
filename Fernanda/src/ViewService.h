@@ -222,8 +222,8 @@ private:
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return nullptr;
 
-        auto i = (index < 0) ? tab_widget->currentIndex() : index;
-        if (i < 0 || i > tab_widget->count() - 1) return nullptr;
+        auto i = normalizeIndex_(tab_widget, index);
+        if (i < 0) return nullptr;
 
         return tab_widget->widgetAt<IFileView*>(i);
     }
@@ -284,14 +284,28 @@ private:
 
     /// TODO CR NEW IMPL WIP =========================================
 
+    // If index is -1, it will become current index
+    int normalizeIndex_(TabWidget* tabWidget, int index) const
+    {
+        if (!tabWidget) return -1;
+        auto i = (index < 0) ? tabWidget->currentIndex() : index;
+        return (i < 0 || i >= tabWidget->count()) ? i : -1;
+    }
+
     void closeTab_(Window* window, int index = -1)
     {
-        auto model = modelAt_(window, index);
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
+
+        auto i = normalizeIndex_(tab_widget, index);
+        if (i < 0) return;
+
+        auto model = modelAt_(window, i);
         if (!model) return;
 
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseTabHook_ || canCloseTabHook_()) {
-            deleteAt_(window, index);
+            deleteAt_(window, i);
             emit bus->viewDestroyed(model);
         }
     }
@@ -317,6 +331,9 @@ private:
                 }
             }
 
+            // Technically we could emit this having destroyed no views, but I
+            // doubt it. That would mean we would've had a model without a view
+            // that we also then somehow managed to close by index
             emit bus->viewDestroyed(model);
         }
     }
@@ -376,10 +393,8 @@ private:
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return;
 
-        // TODO: Section off into own method (see its duplicated usage in
-        // viewAt_)
-        auto i = (index < 0) ? tab_widget->currentIndex() : index;
-        if (i < 0 || i > tab_widget->count() - 1) return;
+        auto i = normalizeIndex_(tab_widget, index);
+        if (i < 0) return;
 
         auto view = tab_widget->removeTab<IFileView*>(i);
         if (!view) return;
