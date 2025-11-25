@@ -30,7 +30,7 @@
 - [x] CLOSE_TAB virtual hook in Workspace
 - [ ] CLOSE_TAB hook implementation in Notepad
 - [ ] CLOSE_TAB hook implementation in Notebook
-- [ ] CLOSE_TAB_EVERYWHERE in ViewService
+- [x] CLOSE_TAB_EVERYWHERE in ViewService
 - [x] Hook type in ViewService
 - [x] Hook setter in ViewService
 - [x] CLOSE_TAB_EVERYWHERE virtual hook in Workspace
@@ -66,10 +66,12 @@
 - [ ] Quit implementation in Notebook
 - [ ] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
 - [ ] Ensure system shutdown is handled with app's quit routine
+- [ ] As part of Window/WindowService cleanup, ensure we still need custom Window::destroyed signal (`connect(view, &QObject::destroyed, this, [&, view] { /*clear view from a list*/ })` works fine)
 - [ ] Decide if Acceptor can be generalized AFTER. Don't get clever early!
 - [ ] Decide after whether we need the other polys (new tab and tree model things)
 - [ ] Finally, find all functions rendered unused by these changes and remove them!
 
+- [ ] All commands should just call functions (like in ViewService), looks much cleaner, easier to follow
 - [ ] Notepad save prompts
 - [ ] Marking Notebook as modified
 - [ ] Notebook save prompts
@@ -168,3 +170,12 @@
 
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Notebook LRU cache for models, if needed
+
+Find what needs automatic clean-up from member lists/hashes/sets and ensure we do so, e.g.:
+
+```
+modelViews_[model] << view;
+connect(view, &QObject::destroyed, this, [&, view, model] {
+    modelViews_[model].remove(view);
+});
+```

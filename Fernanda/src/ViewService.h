@@ -99,6 +99,7 @@ public:
     {
         if (!model) return 0;
         return viewsPerModel_.value(model, 0);
+        //return modelViews_[model].count();
     }
 
     /// TODO CR NEW IMPL WIP =========================================
@@ -162,7 +163,7 @@ protected:
 
         bus->addCommandHandler(
             Commands::CLOSE_WINDOW_TABS,
-            [&](const Command& cmd) {});
+            [&](const Command& cmd) { closeWindowTabs_(cmd.context); });
 
         bus->addCommandHandler(
             Commands::CLOSE_ALL_TABS,
@@ -203,6 +204,7 @@ protected:
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
     QHash<IFileModel*, int> viewsPerModel_{};
+    //QHash<IFileModel*, QSet<IFileView*>> modelViews_{};
 
     /// TODO CR NEW IMPL WIP =========================================
 
@@ -317,9 +319,35 @@ private:
 
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_(model)) {
-            // - Get all views on model in all windows
-            // - Remove and delete the views
+            for (auto& window :
+                 bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
+                auto tab_widget = tabWidget_(window);
+                if (!tab_widget) continue;
+
+                // Iterate backward to avoid index shifting issues
+                // TODO: Maybe avoid some of the redundancy due to using
+                // deleteAt_
+                for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                    auto view = tab_widget->widgetAt<IFileView*>(i);
+                    if (view && view->model() == model) {
+                        deleteAt_(window, i);
+                    }
+                }
+            }
+
             emit bus->viewDestroyed(model);
+        }
+    }
+
+    void closeWindowTabs_(Window* window)
+    {
+        if (!window) return;
+
+        // what does hook need?
+
+        // Proceed if no hook is set, or if hook approves the close
+        if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_()) {
+            //...
         }
     }
 
@@ -337,10 +365,6 @@ private:
 
         auto view = tab_widget->removeTab<IFileView*>(i);
         if (!view) return;
-
-        // Update view count
-        if (auto model = view->model())
-            if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
 
         delete view;
     }
@@ -465,6 +489,10 @@ private slots:
 
         // Only adjust this once we're clear
         ++viewsPerModel_[model];
+        connect(view, &QObject::destroyed, this, [&, view, model] {
+            //modelViews_[model].remove(view);
+            if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
+        });
 
         auto index = tab_widget->addTab(view, meta->title());
         tab_widget->setTabFlagged(index, model->isModified());
