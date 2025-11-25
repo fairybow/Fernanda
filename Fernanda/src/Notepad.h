@@ -71,33 +71,39 @@ public:
 
     /// TODO CR NEW IMPL WIP =========================================
 
-    /// TODO CR:
-
     virtual bool canQuit() { return true; }
 
 protected:
     virtual bool canCloseTabHook(IFileView* view)
     {
-        // - if model is modified and has only this view, raise tab and trigger
-        // save prompt
-        // - if cancel, return false if save, save then return true
-        // - if discard, return true
-
         auto model = view->model();
         if (!model) return false;
 
         if (model->isModified() && views->countFor(model) <= 1)
         {
-            views->raise(view); // would activate window and set tab widget index to current view
-            // run save prompt
-            // etc.
-            return false; // <- temp
+            views->raise(view);
+
+            /*switch (SingleSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save
+                return true;
+            case Discard:
+                return true;
+            }*/
         }
 
-        return true; // <- temp
+        return true;
     }
 
-    virtual bool canCloseTabEverywhereHook() { return true; }
+    virtual bool canCloseTabEverywhereHook()
+    {
+        //...
+
+        return true;
+    }
+
     virtual bool canCloseWindowTabsHook() { return true; }
     virtual bool canCloseAllTabsHook() { return true; }
     virtual bool canCloseWindowHook() { return true; }

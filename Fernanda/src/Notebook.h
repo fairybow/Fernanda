@@ -71,8 +71,6 @@ public:
 
     /// TODO CR NEW IMPL WIP =========================================
 
-    /// TODO CR:
-
     virtual bool canQuit() { return true; }
 
 protected:
