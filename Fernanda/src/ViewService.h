@@ -107,20 +107,6 @@ public:
 
     /// TODO CR NEW IMPL WIP =========================================
 
-    /// TODO CR: Needed?
-    // void deleteAllIn(Window* window)
-    //{
-    //     if (!window) return;
-    //     auto tab_widget = tabWidget_(window);
-    //     if (!tab_widget) return;
-
-    //    auto views = tab_widget->clear<IFileView*>();
-    //    if (views.isEmpty()) return;
-
-    //    for (auto& view : views)
-    //        deleteView_(view);
-    //}
-
 protected:
     virtual void registerBusCommands() override
     {
@@ -315,6 +301,8 @@ private:
         auto model = modelAt_(window, index);
         if (!model) return;
 
+        // Decide what hook needs and restructure as needed
+
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_()) {
             auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
@@ -336,22 +324,48 @@ private:
     void closeWindowTabs_(Window* window)
     {
         if (!window) return;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
 
-        //...
+        // Decide what hook needs and restructure as needed
+
+        QSet<IFileModel*> models{};
+        for (auto i = 0; i < tab_widget->count(); ++i)
+            if (auto view = tab_widget->widgetAt<IFileView*>(i))
+                models << view->model();
 
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_()) {
-            //...
+            deleteAllIn_(window);
+
+            for (auto& model : models)
+                emit bus->viewDestroyed(model);
         }
     }
 
     void closeAllTabs_()
     {
-        //...
+        // Decide what hook needs and restructure as needed
+
+        QSet<IFileModel*> models{};
+        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+
+        for (auto& window : windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            for (auto i = 0; i < tab_widget->count(); ++i)
+                if (auto view = tab_widget->widgetAt<IFileView*>(i))
+                    models << view->model();
+        }
 
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseAllTabsHook_ || canCloseAllTabsHook_()) {
-            //...
+            for (auto& window : windows)
+                deleteAllIn_(window);
+
+            for (auto& model : models)
+                emit bus->viewDestroyed(model);
         }
     }
 
@@ -371,6 +385,19 @@ private:
         if (!view) return;
 
         delete view;
+    }
+
+    void deleteAllIn_(Window* window)
+    {
+        if (!window) return;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
+
+        auto views = tab_widget->clear<IFileView*>();
+        if (views.isEmpty()) return;
+
+        for (auto& view : views)
+            delete view;
     }
 
     /// TODO CR NEW IMPL WIP =========================================
