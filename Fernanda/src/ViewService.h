@@ -170,7 +170,7 @@ protected:
 
         bus->addCommandHandler(
             Commands::CLOSE_ALL_TABS,
-            [&](const Command& cmd) {});
+            [&](const Command& cmd) { closeAllTabs_(); });
 
         /// TODO CR NEW IMPL WIP =========================================
     }
@@ -211,8 +211,6 @@ private:
 
     /// TODO CR NEW IMPL WIP =========================================
 
-    /// All views set?
-
     CanCloseTabHook canCloseTabHook_ = nullptr;
     CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
     CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
@@ -244,10 +242,7 @@ private:
         return tab_widget->widgetAt<IFileView*>(i);
     }
 
-    // Index -1 = current. Returns the model at a view position (window + tab
-    // index). Lives in ViewService because the primary input is a view
-    // location, not a file path or model ID. Avoids FileService depending on
-    // ViewService.
+    // Index -1 = current
     IFileModel* modelAt_(Window* window, int index)
     {
         auto view = viewAt_(window, index);
@@ -322,17 +317,15 @@ private:
 
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_()) {
-            for (auto& window :
-                 bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
+            auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+            for (auto& window : windows) {
                 auto tab_widget = tabWidget_(window);
                 if (!tab_widget) continue;
 
                 // Iterate backward to avoid index shifting issues
                 for (auto i = tab_widget->count() - 1; i >= 0; --i) {
                     auto view = tab_widget->widgetAt<IFileView*>(i);
-                    if (view && view->model() == model) {
-                        deleteAt_(window, i);
-                    }
+                    if (view && view->model() == model) deleteAt_(window, i);
                 }
             }
 
