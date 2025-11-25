@@ -96,7 +96,7 @@ protected:
     virtual bool canQuit() = 0; // (Called by app)
 
 protected:
-    virtual bool canCloseTabHook() = 0; // (Given to ViewService)
+    virtual bool canCloseTabHook(IFileView*) = 0; // (Given to ViewService)
     virtual bool canCloseTabEverywhereHook() = 0; // (Given to ViewService)
     virtual bool canCloseWindowTabsHook() = 0; // (Given to ViewService)
     virtual bool canCloseAllTabsHook() = 0; // (Given to ViewService)

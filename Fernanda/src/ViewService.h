@@ -22,6 +22,7 @@
 #include <QWidget>
 
 #include "Coco/Concepts.h"
+#include "Coco/Utility.h"
 
 #include "Bus.h"
 #include "Commands.h"
@@ -69,7 +70,7 @@ public:
     // For the hooks, passing the model in makes sense, since for hook content
     // (save prompts), the model is the only thing that matters
 
-    using CanCloseTabHook = std::function<bool()>;
+    using CanCloseTabHook = std::function<bool(IFileView*)>;
     using CanCloseTabEverywhereHook = std::function<bool()>;
     using CanCloseWindowTabsHook = std::function<bool()>;
     using CanCloseAllTabsHook = std::function<bool()>;
@@ -103,6 +104,17 @@ public:
         if (!model) return 0;
         return viewsPerModel_.value(model, 0);
         // return modelViews_[model].count();
+    }
+
+    void raise(IFileView* view) const
+    {
+        auto window = Coco::Utility::findParent<Window*>(view);
+        if (!window) return;
+        auto tab_widget = Coco::Utility::findParent<TabWidget*>(view);
+        if (!tab_widget) return;
+
+        window->activate();
+        tab_widget->setCurrentWidget(view);
     }
 
     /// TODO CR NEW IMPL WIP =========================================
@@ -220,7 +232,7 @@ private:
     {
         if (!tabWidget) return -1;
         auto i = (index < 0) ? tabWidget->currentIndex() : index;
-        return (i < 0 || i >= tabWidget->count()) ? i : -1;
+        return (i < 0 || i >= tabWidget->count()) ? -1 : i;
     }
 
     // Index -1 = current
@@ -300,11 +312,13 @@ private:
         auto i = normalizeIndex_(tab_widget, index);
         if (i < 0) return;
 
-        auto model = modelAt_(window, i);
-        if (!model) return;
+        auto view = viewAt_(window, i);
+        if (!view) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabHook_ || canCloseTabHook_()) {
+        if (!canCloseTabHook_ || canCloseTabHook_(view)) {
+            auto model = view->model();
+            if (!model) return;
             deleteAt_(window, i);
             emit bus->viewDestroyed(model);
         }

@@ -38,7 +38,7 @@ public:
     virtual ~Window() override
     {
         TRACER;
-        emit destroyed(this);
+        emit destroyed(this); // TODO: Check we need this!
     }
 
     void activate()
