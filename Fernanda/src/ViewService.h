@@ -61,13 +61,16 @@ public:
 
     /// TODO CR: Decide what will need to be passed by implementing the hook in
     /// WS subclass
-    /// TODO CR: Check the param, was view now model, make sure OK
+    /// TODO CR: Decide on params for these--could be view, model. May need view
+    /// in order to allow Workspaces to raise the tab in question if save
+    /// prompting? KEEP IN MIND, we won't really know what we need until the
+    /// hooks are planned (the "ideal") in Workspaces...
 
     // For the hooks, passing the model in makes sense, since for hook content
     // (save prompts), the model is the only thing that matters
 
-    using CanCloseTabHook = std::function<bool(IFileModel*)>;
-    using CanCloseTabEverywhereHook = std::function<bool(IFileModel*)>;
+    using CanCloseTabHook = std::function<bool()>;
+    using CanCloseTabEverywhereHook = std::function<bool()>;
     using CanCloseWindowTabsHook = std::function<bool()>;
     using CanCloseAllTabsHook = std::function<bool()>;
 
@@ -99,7 +102,7 @@ public:
     {
         if (!model) return 0;
         return viewsPerModel_.value(model, 0);
-        //return modelViews_[model].count();
+        // return modelViews_[model].count();
     }
 
     /// TODO CR NEW IMPL WIP =========================================
@@ -204,7 +207,7 @@ protected:
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
     QHash<IFileModel*, int> viewsPerModel_{};
-    //QHash<IFileModel*, QSet<IFileView*>> modelViews_{};
+    // QHash<IFileModel*, QSet<IFileView*>> modelViews_{};
 
     /// TODO CR NEW IMPL WIP =========================================
 
@@ -306,7 +309,7 @@ private:
         if (!model) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabHook_ || canCloseTabHook_(model)) {
+        if (!canCloseTabHook_ || canCloseTabHook_()) {
             deleteAt_(window, index);
             emit bus->viewDestroyed(model);
         }
@@ -318,15 +321,13 @@ private:
         if (!model) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_(model)) {
+        if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_()) {
             for (auto& window :
                  bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
                 auto tab_widget = tabWidget_(window);
                 if (!tab_widget) continue;
 
                 // Iterate backward to avoid index shifting issues
-                // TODO: Maybe avoid some of the redundancy due to using
-                // deleteAt_
                 for (auto i = tab_widget->count() - 1; i >= 0; --i) {
                     auto view = tab_widget->widgetAt<IFileView*>(i);
                     if (view && view->model() == model) {
@@ -343,10 +344,20 @@ private:
     {
         if (!window) return;
 
-        // what does hook need?
+        //...
 
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_()) {
+            //...
+        }
+    }
+
+    void closeAllTabs_()
+    {
+        //...
+
+        // Proceed if no hook is set, or if hook approves the close
+        if (!canCloseAllTabsHook_ || canCloseAllTabsHook_()) {
             //...
         }
     }
@@ -490,7 +501,7 @@ private slots:
         // Only adjust this once we're clear
         ++viewsPerModel_[model];
         connect(view, &QObject::destroyed, this, [&, view, model] {
-            //modelViews_[model].remove(view);
+            // modelViews_[model].remove(view);
             if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
         });
 
