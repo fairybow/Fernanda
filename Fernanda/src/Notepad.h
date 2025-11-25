@@ -76,7 +76,16 @@ public:
     virtual bool canQuit() { return true; }
 
 protected:
-    virtual bool canCloseTabHook() { return true; }
+    virtual bool canCloseTabHook()
+    {
+        // - if model is modified and has only this view, raise tab and trigger
+        // save prompt
+        // - if cancel, return false if save, save then return true
+        // - if discard, return true
+
+        return true; // <- temp
+    }
+
     virtual bool canCloseTabEverywhereHook() { return true; }
     virtual bool canCloseWindowTabsHook() { return true; }
     virtual bool canCloseAllTabsHook() { return true; }
