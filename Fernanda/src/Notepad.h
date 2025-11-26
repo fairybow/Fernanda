@@ -61,7 +61,7 @@ public:
     virtual bool canQuit() { return true; }
 
 protected:
-    virtual bool canCloseTabHook(IFileView* view)
+    virtual bool canCloseTab(IFileView* view)
     {
         auto model = view->model();
         if (!model) return false;
@@ -84,7 +84,7 @@ protected:
     }
 
     // TODO: Can perhaps raise first (from end) view in each window?
-    virtual bool canCloseTabEverywhereHook(const QList<IFileView*>& views)
+    virtual bool canCloseTabEverywhere(const QList<IFileView*>& views)
     {
         auto model = views.first()->model();
         if (!model) return false;
@@ -107,7 +107,7 @@ protected:
     // TODO: The multi file save prompt could allow clicking on the path or
     // something to switch to the first view on that file we have available
     // (possibly first from the end)
-    virtual bool canCloseWindowTabsHook(const QList<IFileView*>& views)
+    virtual bool canCloseWindowTabs(const QList<IFileView*>& views)
     {
         // Collect unique modified models that only exist in this window
         QSet<IFileModel*> modified_models{};
@@ -137,7 +137,7 @@ protected:
         return true;
     }
 
-    virtual bool canCloseAllTabsHook(const QList<IFileView*>& views)
+    virtual bool canCloseAllTabs(const QList<IFileView*>& views)
     {
         // Collect all unique modified models across all windows
         QSet<IFileModel*> modified_models{};
@@ -166,8 +166,19 @@ protected:
         return true;
     }
 
-    virtual bool canCloseWindowHook() { return true; }
-    virtual bool canCloseAllWindowsHook() { return true; }
+    virtual bool canCloseWindow(Window* window)
+    {
+        //...
+
+        return true;
+    }
+
+    virtual bool canCloseAllWindows(const QList<Window*>& windows)
+    {
+        //...
+
+        return true;
+    }
 
     /// TODO CR NEW IMPL WIP =========================================
 

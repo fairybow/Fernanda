@@ -94,12 +94,15 @@ protected:
     virtual bool canQuit() = 0; // (Called by app)
 
 protected:
-    virtual bool canCloseTabHook(IFileView*) = 0;
-    virtual bool canCloseTabEverywhereHook(const QList<IFileView*>&) = 0;
-    virtual bool canCloseWindowTabsHook(const QList<IFileView*>&) = 0;
-    virtual bool canCloseAllTabsHook(const QList<IFileView*>&) = 0;
-    virtual bool canCloseWindowHook() = 0; // (Given to WindowService)
-    virtual bool canCloseAllWindowsHook() = 0; // (Given to WindowService)
+    virtual bool canCloseTab(IFileView*) { return true; }
+    virtual bool canCloseTabEverywhere(const QList<IFileView*>&)
+    {
+        return true;
+    }
+    virtual bool canCloseWindowTabs(const QList<IFileView*>&) { return true; }
+    virtual bool canCloseAllTabs(const QList<IFileView*>&) { return true; }
+    virtual bool canCloseWindow(Window*) { return true; }
+    virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
 
     /// TODO CR NEW IMPL WIP =========================================
 
@@ -113,17 +116,14 @@ private:
         treeViews->initialize();
         colorBars->initialize();
 
-        views->setCanCloseTabHook(this, &Workspace::canCloseTabHook);
+        views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
             this,
-            &Workspace::canCloseTabEverywhereHook);
-        views->setCanCloseWindowTabsHook(
-            this,
-            &Workspace::canCloseWindowTabsHook);
-        views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabsHook);
-
-        // Give Close window hook to WindowService
-        // Give Close all windows hook to WindowService
+            &Workspace::canCloseTabEverywhere);
+        views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
+        views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
+        windows->setCanCloseHook(this, &Workspace::canCloseWindow);
+        windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
 
         //...
 
