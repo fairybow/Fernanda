@@ -50,7 +50,7 @@
 - [x] CLOSE_ALL_TABS hook implementation in Notebook
 - [ ] AT THIS POINT: Doublecheck ViewServices implementations and hooks
 - [ ] CLOSE_WINDOW in WindowService
-- [ ] WindowService will need to handle both programmatic and button closes, will likely need flags idempotence or something to allow each Window to act accordingly for single vs multi window close
+- [ ] WindowService flag for individual window closes during a multi-window close
 - [ ] Hook type in WindowService
 - [ ] Hook setter in WindowService
 - [x] CLOSE_WINDOW virtual hook in Workspace
