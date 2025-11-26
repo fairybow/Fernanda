@@ -122,7 +122,31 @@ protected:
     // (possibly first from the end)
     virtual bool canCloseWindowTabsHook(const QList<IFileView*>& views)
     {
-        //
+        // Collect unique modified models that only exist in this window
+        QSet<IFileModel*> modified_models{};
+
+        for (auto& view : views) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model) continue;
+            if (!model->isModified()) continue;
+            if (this->views->isMultiWindow(model)) continue;
+
+            modified_models << model;
+        }
+
+        if (!modified_models.isEmpty()) {
+            /*switch (MultiFileSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save (selected)
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
+
         return true;
     }
 

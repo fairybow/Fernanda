@@ -109,6 +109,29 @@ public:
         tab_widget->setCurrentWidget(view);
     }
 
+    bool isMultiWindow(IFileModel* model) const
+    {
+        if (!model) return false;
+
+        auto window_count = 0;
+        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+
+        for (auto& window : windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            for (auto i = 0; i < tab_widget->count(); ++i) {
+                if (modelAt_(window, i) == model) {
+                    ++window_count;
+                    if (window_count >= 2) return true; // Early exit
+                    break; // Move to next window
+                }
+            }
+        }
+
+        return false;
+    }
+
     /// TODO CR NEW IMPL WIP =========================================
 
 protected:
@@ -213,7 +236,7 @@ private:
         //...
     }
 
-    TabWidget* tabWidget_(Window* window)
+    TabWidget* tabWidget_(Window* window) const
     {
         if (!window) return nullptr;
         return qobject_cast<TabWidget*>(window->centralWidget());
@@ -228,7 +251,7 @@ private:
     }
 
     // Index -1 = current
-    IFileView* viewAt_(Window* window, int index)
+    IFileView* viewAt_(Window* window, int index) const
     {
         if (!window) return nullptr;
         auto tab_widget = tabWidget_(window);
@@ -241,7 +264,7 @@ private:
     }
 
     // Index -1 = current
-    IFileModel* modelAt_(Window* window, int index)
+    IFileModel* modelAt_(Window* window, int index) const
     {
         auto view = viewAt_(window, index);
         return view ? view->model() : nullptr;
@@ -578,8 +601,8 @@ private slots:
         if (!model) return;
 
         // Find all tabs containing views of this model
-        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
-
+        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+        for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
 
@@ -602,8 +625,8 @@ private slots:
 
         // Find all tabs containing views of this model and update their
         // text/tooltip
-        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
-
+        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+        for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
 
@@ -626,7 +649,8 @@ private slots:
 
         auto font = to<QFont>(value);
 
-        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET))
+        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+        for (auto& window : windows)
         { auto tab_widget = Util::tabWidget(window); if (!tab_widget)
         continue;
 
@@ -638,23 +662,3 @@ private slots:
 };
 
 } // namespace Fernanda
-
-// TODO: Move
-// inline bool isMultiWindow(IFileModel* model, QSet<Window*> windows)
-//{
-//    if (!model) return false;
-
-//    auto window_count = 0;
-
-//    for (auto window : windows) {
-//        for (auto i = 0; i < tabCount(window); ++i) {
-//            if (modelAt(window, i) == model) {
-//                ++window_count;
-//                if (window_count >= 2) return true; // Early exit
-//                break; // Move to next window
-//            }
-//        }
-//    }
-
-//    return false;
-//}
