@@ -53,10 +53,22 @@ public:
 
     /// TODO CR NEW IMPL WIP =========================================
 
-    /// TODO CR: Decide what will need to be passed by implementing the hook in
-    /// WS subclass
-    using CloseWindowAcceptor = std::function<bool()>;
-    using CloseAllWindowsAcceptor = std::function<bool()>;
+    friend class Window;
+
+    using CanCloseHook = std::function<bool(Window*)>;
+    using CanCloseAllHook = std::function<bool(const QList<Window*>&)>;
+
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseHook,
+        canCloseHook,
+        setCanCloseHook,
+        canCloseHook_);
+
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseAllHook,
+        canCloseAllHook,
+        setCanCloseAllHook,
+        canCloseAllHook_);
 
     /// TODO CR NEW IMPL WIP =========================================
 
@@ -70,6 +82,7 @@ public:
             window->setGeometry(nextWindowGeometry_());
             window->show();
         }
+
         return window;
     }
 
@@ -84,9 +97,17 @@ protected:
             return unorderedWindows_;
         });
 
-        bus->addCommandHandler(Commands::RZWINDOWS, [&] {
-            return windowsReversed_();
+        bus->addCommandHandler(Commands::RZ_WINDOWS, [&] {
+            return rzWindows_();
         });
+
+        /// TODO CR NEW IMPL WIP =========================================
+
+        bus->addCommandHandler(Commands::CLOSE_ALL_WINDOWS, [&] {
+            closeAllWindows_();
+        });
+
+        /// TODO CR NEW IMPL WIP =========================================
     }
 
     virtual void connectBusEvents() override
@@ -126,6 +147,14 @@ private:
     QPointer<Window> activeWindow_ = nullptr;
     QPointer<Window> lastFocusedAppWindow_ = nullptr;
 
+    /// TODO CR NEW IMPL WIP =========================================
+
+    bool isBatchClose_ = false;
+    CanCloseHook canCloseHook_ = nullptr;
+    CanCloseAllHook canCloseAllHook_ = nullptr;
+
+    /// TODO CR NEW IMPL WIP =========================================
+
     void setup_();
 
     Window* make_()
@@ -136,7 +165,7 @@ private:
         zOrderedVolatileWindows_ << window;
         unorderedWindows_ << window;
 
-        window->windowService_ = this;
+        window->service_ = this;
         window->installEventFilter(this);
 
         connect(
@@ -168,7 +197,7 @@ private:
     QList<Window*> windows_() const { return zOrderedVolatileWindows_; }
 
     // Highest window is first when reversed
-    QList<Window*> windowsReversed_() const
+    QList<Window*> rzWindows_() const
     {
         QList<Window*> list{};
         auto it = zOrderedVolatileWindows_.crbegin();
@@ -217,6 +246,22 @@ private:
             zOrderedVolatileWindows_ << activeWindow;
         }
     }
+
+    /// TODO CR NEW IMPL WIP =========================================
+
+    void closeAllWindows_()
+    {
+        auto rz_windows = rzWindows_();
+
+        if (canCloseAllHook_ && !canCloseAllHook_(rz_windows)) return;
+
+        isBatchClose_ = true;
+        for (auto& window : rz_windows)
+            window->close();
+        isBatchClose_ = false;
+    }
+
+    /// TODO CR NEW IMPL WIP =========================================
 
 private slots:
     void onWindowDestroyed_(Window* window)

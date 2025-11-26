@@ -62,7 +62,7 @@ Window service command handlers should be responsible for showing the window. Wh
 
 - `new`*: Creates and shows a new window in the current workspace.
 - `set`: Returns a `QSet` of all Workspace windows.
-- `rzlist`: Returns a `QList` of windows in reverse Z-order
+- `rz_list`: Returns a `QList` of windows in reverse Z-order
 
 ### `views`
 

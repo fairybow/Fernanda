@@ -12,7 +12,6 @@
 #include <QCloseEvent>
 #include <QMainWindow>
 #include <QObject>
-#include <QPointer>
 #include <QWidget>
 
 #include "Coco/Layout.h"
@@ -56,7 +55,7 @@ protected:
 
 private:
     // Only assigned by WindowService
-    QPointer<WindowService> windowService_ = nullptr;
+    WindowService* service_ = nullptr;
 };
 
 } // namespace Fernanda

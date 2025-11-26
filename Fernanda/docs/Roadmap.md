@@ -48,17 +48,17 @@
 - [x] CLOSE_ALL_TABS virtual hook in Workspace
 - [x] CLOSE_ALL_TABS hook implementation in Notepad
 - [x] CLOSE_ALL_TABS hook implementation in Notebook
-- [ ] AT THIS POINT: Doublecheck ViewServices implementations and hooks
+- [x] AT THIS POINT: Doublecheck ViewServices implementations and hooks
 - [ ] CLOSE_WINDOW in WindowService
-- [ ] WindowService flag for individual window closes during a multi-window close
-- [ ] Hook type in WindowService
-- [ ] Hook setter in WindowService
+- [x] WindowService flag for individual window closes during a multi-window close
+- [x] Hook type in WindowService
+- [x] Hook setter in WindowService
 - [x] CLOSE_WINDOW virtual hook in Workspace
 - [ ] CLOSE_WINDOW hook implementation in Notepad
 - [ ] CLOSE_WINDOW hook implementation in Notebook
 - [ ] CLOSE_ALL_WINDOWS in WindowService
-- [ ] Hook type in WindowService
-- [ ] Hook setter in WindowService
+- [x] Hook type in WindowService
+- [x] Hook setter in WindowService
 - [x] CLOSE_ALL_WINDOWS virtual hook in Workspace
 - [ ] CLOSE_ALL_WINDOWS hook implementation in Notepad
 - [ ] CLOSE_ALL_WINDOWS hook implementation in Notebook

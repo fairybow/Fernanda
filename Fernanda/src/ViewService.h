@@ -345,7 +345,7 @@ private:
 
         QList<IFileView*> views{};
 
-        auto rz_windows = bus->call<QList<Window*>>(Commands::RZWINDOWS);
+        auto rz_windows = bus->call<QList<Window*>>(Commands::RZ_WINDOWS);
         for (auto& window : rz_windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
@@ -407,7 +407,7 @@ private:
     {
         QList<IFileView*> views{};
         QSet<IFileModel*> models{};
-        auto rz_windows = bus->call<QList<Window*>>(Commands::RZWINDOWS);
+        auto rz_windows = bus->call<QList<Window*>>(Commands::RZ_WINDOWS);
 
         for (auto& window : rz_windows) {
             auto tab_widget = tabWidget_(window);
