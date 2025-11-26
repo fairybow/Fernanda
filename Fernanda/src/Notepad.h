@@ -25,6 +25,7 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "IFileModel.h"
+#include "IService.h"
 #include "NotepadMenuModule.h"
 #include "TreeViewModule.h"
 #include "Version.h"
@@ -49,25 +50,11 @@ public:
 
     virtual ~Notepad() override { TRACER; }
 
-    PathInterceptor pathInterceptor() const noexcept
-    {
-        return pathInterceptor_;
-    }
-
-    void setPathInterceptor(const PathInterceptor& pathInterceptor)
-    {
-        pathInterceptor_ = pathInterceptor;
-    }
-
-    template <typename ClassT>
-    void setPathInterceptor(
-        ClassT* object,
-        bool (ClassT::*method)(const Coco::Path&))
-    {
-        pathInterceptor_ = [object, method](const Coco::Path& path) {
-            return (object->*method)(path);
-        };
-    }
+    DECLARE_HOOK_ACCESSORS(
+        PathInterceptor,
+        pathInterceptor,
+        setPathInterceptor,
+        pathInterceptor_);
 
     /// TODO CR NEW IMPL WIP =========================================
 
