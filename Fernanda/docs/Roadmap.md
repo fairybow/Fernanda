@@ -28,13 +28,13 @@
 - [x] Hook type in ViewService
 - [x] Hook setter in ViewService
 - [x] CLOSE_TAB virtual hook in Workspace
-- [ ] CLOSE_TAB hook implementation in Notepad
+- [x] CLOSE_TAB hook implementation in Notepad
 - [x] CLOSE_TAB hook implementation in Notebook
 - [x] CLOSE_TAB_EVERYWHERE in ViewService
 - [x] Hook type in ViewService
 - [x] Hook setter in ViewService
 - [x] CLOSE_TAB_EVERYWHERE virtual hook in Workspace
-- [ ] CLOSE_TAB_EVERYWHERE hook implementation in Notepad
+- [x] CLOSE_TAB_EVERYWHERE hook implementation in Notepad
 - [x] CLOSE_TAB_EVERYWHERE hook implementation in Notebook
 - [x] CLOSE_WINDOW_TABS in ViewService
 - [x] Hook type in ViewService

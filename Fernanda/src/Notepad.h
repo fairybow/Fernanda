@@ -79,8 +79,7 @@ protected:
         auto model = view->model();
         if (!model) return false;
 
-        if (model->isModified() && views->countFor(model) <= 1)
-        {
+        if (model->isModified() && views->countFor(model) <= 1) {
             views->raise(view);
 
             /*switch (SingleSavePrompt) {
@@ -97,9 +96,24 @@ protected:
         return true;
     }
 
-    virtual bool canCloseTabEverywhereHook()
+    // TODO: Would we ever need to do anything with the views? Currently, this
+    // is only triggered via menu on current index, so the index will always be
+    // raised
+    virtual bool canCloseTabEverywhereHook(IFileModel* model)
     {
-        //...
+        if (!model) return false;
+
+        if (model->isModified()) {
+            /*switch (SingleSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
 
         return true;
     }
@@ -179,11 +193,7 @@ private:
             &Notepad::onTreeViewDoubleClicked_);
 
         /// TODO CR:
-        connect(
-            bus,
-            &Bus::viewDestroyed,
-            this,
-            &Notepad::onViewDestroyed_);
+        connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
     }
 
     void registerPolys_()

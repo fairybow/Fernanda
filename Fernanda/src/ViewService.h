@@ -71,7 +71,7 @@ public:
     // (save prompts), the model is the only thing that matters
 
     using CanCloseTabHook = std::function<bool(IFileView*)>;
-    using CanCloseTabEverywhereHook = std::function<bool()>;
+    using CanCloseTabEverywhereHook = std::function<bool(IFileModel*)>;
     using CanCloseWindowTabsHook = std::function<bool()>;
     using CanCloseAllTabsHook = std::function<bool()>;
 
@@ -331,7 +331,7 @@ private:
         // Decide what hook needs and restructure as needed
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_()) {
+        if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_(model)) {
             auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
             for (auto& window : windows) {
                 auto tab_widget = tabWidget_(window);

@@ -95,7 +95,7 @@ protected:
 
 protected:
     virtual bool canCloseTabHook(IFileView*) = 0;
-    virtual bool canCloseTabEverywhereHook() = 0; // (Given to ViewService)
+    virtual bool canCloseTabEverywhereHook(IFileModel*) = 0;
     virtual bool canCloseWindowTabsHook() = 0; // (Given to ViewService)
     virtual bool canCloseAllTabsHook() = 0; // (Given to ViewService)
     virtual bool canCloseWindowHook() = 0; // (Given to WindowService)
