@@ -638,3 +638,23 @@ private slots:
 };
 
 } // namespace Fernanda
+
+// TODO: Move
+// inline bool isMultiWindow(IFileModel* model, QSet<Window*> windows)
+//{
+//    if (!model) return false;
+
+//    auto window_count = 0;
+
+//    for (auto window : windows) {
+//        for (auto i = 0; i < tabCount(window); ++i) {
+//            if (modelAt(window, i) == model) {
+//                ++window_count;
+//                if (window_count >= 2) return true; // Early exit
+//                break; // Move to next window
+//            }
+//        }
+//    }
+
+//    return false;
+//}

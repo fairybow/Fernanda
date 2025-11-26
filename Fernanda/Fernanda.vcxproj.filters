@@ -173,9 +173,7 @@
     <None Include="docs\SavingTypes.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\ConfusingThings.md">
-      <Filter>Docs</Filter>
-    </None>
+    <None Include="docs\Closures.md" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -386,9 +384,6 @@
     </ClInclude>
     <ClInclude Include="src\Fnx.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
-    </ClInclude>
-    <ClInclude Include="src\old_Utility.h">
-      <Filter>Code\Old %28Remove Later%29</Filter>
     </ClInclude>
     <ClInclude Include="src\old_MenuModule.h">
       <Filter>Code\Old %28Remove Later%29</Filter>
