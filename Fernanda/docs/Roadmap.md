@@ -40,13 +40,13 @@
 - [x] Hook type in ViewService
 - [x] Hook setter in ViewService
 - [x] CLOSE_WINDOW_TABS virtual hook in Workspace
-- [ ] CLOSE_WINDOW_TABS hook implementation in Notepad
+- [x] CLOSE_WINDOW_TABS hook implementation in Notepad
 - [x] CLOSE_WINDOW_TABS hook implementation in Notebook
 - [x] CLOSE_ALL_TABS in ViewService
 - [x] Hook type in ViewService
 - [x] Hook setter in ViewService
 - [x] CLOSE_ALL_TABS virtual hook in Workspace
-- [ ] CLOSE_ALL_TABS hook implementation in Notepad
+- [x] CLOSE_ALL_TABS hook implementation in Notepad
 - [x] CLOSE_ALL_TABS hook implementation in Notebook
 - [ ] AT THIS POINT: Doublecheck ViewServices implementations and hooks
 - [ ] CLOSE_WINDOW in WindowService

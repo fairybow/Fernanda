@@ -152,7 +152,30 @@ protected:
 
     virtual bool canCloseAllTabsHook(const QList<IFileView*>& views)
     {
-        //
+        // Collect all unique modified models across all windows
+        QSet<IFileModel*> modified_models{};
+
+        for (auto& view : views) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model) continue;
+            if (!model->isModified()) continue;
+
+            modified_models << model;
+        }
+
+        if (!modified_models.isEmpty()) {
+            /*switch (MultiFileSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save (selected)
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
+
         return true;
     }
 
