@@ -60,20 +60,12 @@ public:
 
     /// TODO CR NEW IMPL WIP =========================================
 
-    /// TODO CR: Decide what will need to be passed by implementing the hook in
-    /// WS subclass
-    /// TODO CR: Decide on params for these--could be view, model. May need view
-    /// in order to allow Workspaces to raise the tab in question if save
-    /// prompting? KEEP IN MIND, we won't really know what we need until the
-    /// hooks are planned (the "ideal") in Workspaces...
-
-    // For the hooks, passing the model in makes sense, since for hook content
-    // (save prompts), the model is the only thing that matters
-
     using CanCloseTabHook = std::function<bool(IFileView*)>;
-    using CanCloseTabEverywhereHook = std::function<bool(IFileModel*)>;
-    using CanCloseWindowTabsHook = std::function<bool()>;
-    using CanCloseAllTabsHook = std::function<bool()>;
+    using CanCloseTabEverywhereHook =
+        std::function<bool(const QList<IFileView*>&)>;
+    using CanCloseWindowTabsHook =
+        std::function<bool(const QList<IFileView*>&)>;
+    using CanCloseAllTabsHook = std::function<bool(const QList<IFileView*>&)>;
 
     DECLARE_HOOK_ACCESSORS(
         CanCloseTabHook,
@@ -325,29 +317,39 @@ private:
 
     void closeTabEverywhere_(Window* window, int index = -1)
     {
-        auto model = modelAt_(window, index);
-        if (!model) return;
+        auto target_model = modelAt_(window, index);
+        if (!target_model) return;
 
-        // Decide what hook needs and restructure as needed
+        QList<IFileView*> views{};
+
+        auto rz_windows = bus->call<QList<Window*>>(Commands::RZWINDOWS);
+        for (auto& window : rz_windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            for (auto i = tab_widget->count() - 1; i >= 0; --i)
+                if (auto view = tab_widget->widgetAt<IFileView*>(i))
+                    if (view->model() == target_model) views << view;
+        }
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_(model)) {
-            auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
-            for (auto& window : windows) {
+        if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_(views)) {
+            for (auto& window : rz_windows) {
                 auto tab_widget = tabWidget_(window);
                 if (!tab_widget) continue;
 
                 // Iterate backward to avoid index shifting issues
                 for (auto i = tab_widget->count() - 1; i >= 0; --i) {
                     auto view = tab_widget->widgetAt<IFileView*>(i);
-                    if (view && view->model() == model) deleteAt_(window, i);
+                    if (view && view->model() == target_model)
+                        deleteAt_(window, i);
                 }
             }
 
             // Technically we could emit this having destroyed no views, but I
             // doubt it. That would mean we would've had a model without a view
             // that we also then somehow managed to close by index
-            emit bus->viewDestroyed(model);
+            emit bus->viewDestroyed(target_model);
         }
     }
 
@@ -357,15 +359,20 @@ private:
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return;
 
-        // Decide what hook needs and restructure as needed
-
+        QList<IFileView*> views{};
         QSet<IFileModel*> models{};
-        for (auto i = 0; i < tab_widget->count(); ++i)
-            if (auto view = tab_widget->widgetAt<IFileView*>(i))
-                models << view->model();
+
+        for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+            if (auto view = tab_widget->widgetAt<IFileView*>(i)) {
+                views << view;
+                if (auto model = view->model()) models << model;
+            }
+        }
+
+        if (views.isEmpty()) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_()) {
+        if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_(views)) {
             deleteAllIn_(window);
 
             for (auto& model : models)
@@ -375,23 +382,27 @@ private:
 
     void closeAllTabs_()
     {
-        // Decide what hook needs and restructure as needed
-
+        QList<IFileView*> views{};
         QSet<IFileModel*> models{};
-        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+        auto rz_windows = bus->call<QList<Window*>>(Commands::RZWINDOWS);
 
-        for (auto& window : windows) {
+        for (auto& window : rz_windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
 
-            for (auto i = 0; i < tab_widget->count(); ++i)
-                if (auto view = tab_widget->widgetAt<IFileView*>(i))
-                    models << view->model();
+            for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                if (auto view = tab_widget->widgetAt<IFileView*>(i)) {
+                    views << view;
+                    if (auto model = view->model()) models << model;
+                }
+            }
         }
 
+        if (views.isEmpty()) return;
+
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseAllTabsHook_ || canCloseAllTabsHook_()) {
-            for (auto& window : windows)
+        if (!canCloseAllTabsHook_ || canCloseAllTabsHook_(views)) {
+            for (auto& window : rz_windows)
                 deleteAllIn_(window);
 
             for (auto& model : models)
@@ -615,13 +626,13 @@ private slots:
 
         auto font = to<QFont>(value);
 
-        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET)) {
-            auto tab_widget = Util::tabWidget(window);
-            if (!tab_widget) continue;
+        for (auto window : bus->call<QSet<Window*>>(Commands::WINDOWS_SET))
+        { auto tab_widget = Util::tabWidget(window); if (!tab_widget)
+        continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i)
-                if (auto text_view = tab_widget->widgetAt<TextFileView*>(i))
-                    text_view->setFont(font);
+                if (auto text_view =
+        tab_widget->widgetAt<TextFileView*>(i)) text_view->setFont(font);
         }*/
     }
 };

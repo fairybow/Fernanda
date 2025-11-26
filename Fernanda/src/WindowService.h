@@ -83,6 +83,10 @@ protected:
         bus->addCommandHandler(Commands::WINDOWS_SET, [&] {
             return unorderedWindows_;
         });
+
+        bus->addCommandHandler(Commands::RZWINDOWS, [&] {
+            return windowsReversed_();
+        });
     }
 
     virtual void connectBusEvents() override

@@ -95,17 +95,13 @@ protected:
 
 protected:
     virtual bool canCloseTabHook(IFileView*) = 0;
-    virtual bool canCloseTabEverywhereHook(IFileModel*) = 0;
-    virtual bool canCloseWindowTabsHook() = 0; // (Given to ViewService)
-    virtual bool canCloseAllTabsHook() = 0; // (Given to ViewService)
+    virtual bool canCloseTabEverywhereHook(const QList<IFileView*>&) = 0;
+    virtual bool canCloseWindowTabsHook(const QList<IFileView*>&) = 0;
+    virtual bool canCloseAllTabsHook(const QList<IFileView*>&) = 0;
     virtual bool canCloseWindowHook() = 0; // (Given to WindowService)
     virtual bool canCloseAllWindowsHook() = 0; // (Given to WindowService)
 
     /// TODO CR NEW IMPL WIP =========================================
-
-    /// TODO CR: A generalized acceptor (acceptor(T)->bool) for IService? It
-    /// would be up to each subclass to determine when to use it and what T
-    /// is...
 
 private:
     void setup_()

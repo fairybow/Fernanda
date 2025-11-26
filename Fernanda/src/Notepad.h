@@ -96,11 +96,10 @@ protected:
         return true;
     }
 
-    // TODO: Would we ever need to do anything with the views? Currently, this
-    // is only triggered via menu on current index, so the index will always be
-    // raised
-    virtual bool canCloseTabEverywhereHook(IFileModel* model)
+    // TODO: Can perhaps raise first (from end) view in each window?
+    virtual bool canCloseTabEverywhereHook(const QList<IFileView*>& views)
     {
+        auto model = views.first()->model();
         if (!model) return false;
 
         if (model->isModified()) {
@@ -118,8 +117,21 @@ protected:
         return true;
     }
 
-    virtual bool canCloseWindowTabsHook() { return true; }
-    virtual bool canCloseAllTabsHook() { return true; }
+    // TODO: The multi file save prompt could allow clicking on the path or
+    // something to switch to the first view on that file we have available
+    // (possibly first from the end)
+    virtual bool canCloseWindowTabsHook(const QList<IFileView*>& views)
+    {
+        //
+        return true;
+    }
+
+    virtual bool canCloseAllTabsHook(const QList<IFileView*>& views)
+    {
+        //
+        return true;
+    }
+
     virtual bool canCloseWindowHook() { return true; }
     virtual bool canCloseAllWindowsHook() { return true; }
 
@@ -306,7 +318,8 @@ bool closeWindowTabs_(Window* window)
 
     // If proceeding:
     views->deleteAllIn(window);
-    // Delete all deletable models (those that were in that window (modified
+    // Delete all deletable models (those that were in that window
+(modified
     // or not) and not open in other windows)
     return true;
 }*/

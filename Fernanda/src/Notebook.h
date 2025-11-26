@@ -75,9 +75,19 @@ public:
 
 protected:
     virtual bool canCloseTabHook(IFileView*) { return true; }
-    virtual bool canCloseTabEverywhereHook(IFileModel*) { return true; }
-    virtual bool canCloseWindowTabsHook() { return true; }
-    virtual bool canCloseAllTabsHook() { return true; }
+
+    virtual bool canCloseTabEverywhereHook(const QList<IFileView*>&)
+    {
+        return true;
+    }
+
+    virtual bool canCloseWindowTabsHook(const QList<IFileView*>&)
+    {
+        return true;
+    }
+
+    virtual bool canCloseAllTabsHook(const QList<IFileView*>&) { return true; }
+
     virtual bool canCloseWindowHook() { return true; }
     virtual bool canCloseAllWindowsHook() { return true; }
 
