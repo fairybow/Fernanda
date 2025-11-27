@@ -132,6 +132,37 @@ public:
         return false;
     }
 
+    QList<IFileView*> viewsIn(Window* window) const
+    {
+        if (!window) return {};
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return {};
+
+        QList<IFileView*> views{};
+
+        for (auto i = tab_widget->count() - 1; i >= 0; --i)
+            if (auto view = tab_widget->widgetAt<IFileView*>(i)) views << view;
+
+        return views;
+    }
+
+    QList<IFileView*> views() const
+    {
+        QList<IFileView*> views{};
+
+        auto rz_windows = bus->call<QList<Window*>>(Commands::RZ_WINDOWS);
+        for (auto& window : rz_windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            for (auto i = tab_widget->count() - 1; i >= 0; --i)
+                if (auto view = tab_widget->widgetAt<IFileView*>(i))
+                    views << view;
+        }
+
+        return views;
+    }
+
     /// TODO CR NEW IMPL WIP =========================================
 
 protected:

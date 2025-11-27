@@ -15,6 +15,7 @@
 #include <QList>
 #include <QModelIndex>
 #include <QObject>
+#include <QSet>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -25,6 +26,7 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "IFileModel.h"
+#include "IFileView.h"
 #include "IService.h"
 #include "NotepadMenuModule.h"
 #include "TreeViewModule.h"
@@ -168,14 +170,59 @@ protected:
 
     virtual bool canCloseWindow(Window* window)
     {
-        //...
+        // Collect unique modified models that only exist in this window
+        QSet<IFileModel*> modified_models{};
+
+        for (auto& view : views->viewsIn(window)) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model) continue;
+            if (!model->isModified()) continue;
+            if (views->isMultiWindow(model)) continue;
+
+            modified_models << model;
+        }
+
+        if (!modified_models.isEmpty()) {
+            /*switch (MultiFileSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save (selected)
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
 
         return true;
     }
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows)
     {
-        //...
+        // Collect all unique modified models across all windows
+        QSet<IFileModel*> modified_models{};
+
+        for (auto& view : views->views()) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model) continue;
+            if (!model->isModified()) continue;
+
+            modified_models << model;
+        }
+
+        if (!modified_models.isEmpty()) {
+            /*switch (MultiFileSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save (selected)
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
 
         return true;
     }
