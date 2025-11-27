@@ -15,6 +15,7 @@
     <ClCompile Include="src\Bus.cpp" />
     <ClCompile Include="src\FnxModel.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Menus.cpp" />
     <ClCompile Include="src\TextFileView.cpp" />
     <ClCompile Include="src\Tr.cpp" />
     <ClCompile Include="src\Window.cpp" />

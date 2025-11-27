@@ -111,6 +111,9 @@
     <ClCompile Include="src\FnxModel.cpp">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClCompile>
+    <ClCompile Include="src\Menus.cpp">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

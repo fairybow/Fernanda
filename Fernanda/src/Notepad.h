@@ -60,7 +60,10 @@ public:
 
     /// TODO CR NEW IMPL WIP =========================================
 
-    virtual bool canQuit() { return true; }
+    virtual bool canQuit()
+    {
+        return windows->count() < 1 || windows->closeAll();
+    }
 
 protected:
     virtual bool canCloseTab(IFileView* view)

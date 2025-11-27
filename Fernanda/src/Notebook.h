@@ -71,7 +71,7 @@ public:
 
     /// TODO CR NEW IMPL WIP =========================================
 
-    virtual bool canQuit() { return true; }
+    virtual bool canQuit() { return windows->closeAll(); }
 
 protected:
     virtual bool canCloseWindow(Window* window)

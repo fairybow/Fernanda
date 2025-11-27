@@ -70,6 +70,20 @@ public:
         setCanCloseAllHook,
         canCloseAllHook_);
 
+    bool closeAll()
+    {
+        auto rz_windows = rzWindows_();
+
+        if (canCloseAllHook_ && !canCloseAllHook_(rz_windows)) return false;
+
+        isBatchClose_ = true;
+        for (auto& window : rz_windows)
+            window->close();
+        isBatchClose_ = false;
+
+        return true;
+    }
+
     /// TODO CR NEW IMPL WIP =========================================
 
     int count() const { return static_cast<int>(unorderedWindows_.count()); }
@@ -104,7 +118,7 @@ protected:
         /// TODO CR NEW IMPL WIP =========================================
 
         bus->addCommandHandler(Commands::CLOSE_ALL_WINDOWS, [&] {
-            closeAllWindows_();
+            return closeAll();
         });
 
         /// TODO CR NEW IMPL WIP =========================================
@@ -246,22 +260,6 @@ private:
             zOrderedVolatileWindows_ << activeWindow;
         }
     }
-
-    /// TODO CR NEW IMPL WIP =========================================
-
-    void closeAllWindows_()
-    {
-        auto rz_windows = rzWindows_();
-
-        if (canCloseAllHook_ && !canCloseAllHook_(rz_windows)) return;
-
-        isBatchClose_ = true;
-        for (auto& window : rz_windows)
-            window->close();
-        isBatchClose_ = false;
-    }
-
-    /// TODO CR NEW IMPL WIP =========================================
 
 private slots:
     void onWindowDestroyed_(Window* window)

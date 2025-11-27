@@ -63,8 +63,8 @@
 - [x] CLOSE_ALL_WINDOWS hook implementation in Notepad
 - [x] CLOSE_ALL_WINDOWS hook implementation in Notebook
 - [x] Quit virtual in Workspace
-- [ ] Quit implementation in Notepad
-- [ ] Quit implementation in Notebook
+- [x] Quit implementation in Notepad
+- [x] Quit implementation in Notebook
 - [x] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
 - [ ] App's passive quit (when no windows are open)
 - [ ] Ensure system shutdown is handled with app's quit routine
