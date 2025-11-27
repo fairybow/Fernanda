@@ -171,7 +171,8 @@ namespace Internal {
         /// TODO:
         /// common.file.quit =
         /// makeBusAction(bus, window, Commands::QUIT, Tr::Menus::fileQuit());
-        common.file.quit = makeAction(window, Tr::Menus::fileQuit(), [] {});
+        /// - Must connect to tryQuit instead of Quit
+        /// - Must be in source file, since we must include Application.h
 
         common.edit.undo = makeBusAction(
             bus,

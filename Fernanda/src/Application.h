@@ -76,6 +76,16 @@ public slots:
         //...
     }
 
+    void tryQuit()
+    {
+        for (auto& notebook : notebooks_)
+            if (!notebook->canQuit()) return;
+
+        if (!notepad_->canQuit()) return;
+
+        quit();
+    }
+
 private:
     bool initialized_ = false;
     Notepad* notepad_ = nullptr;
@@ -147,8 +157,6 @@ private:
 
         return false;
     }
-
-    /// TODO CR: Quit method
 };
 
 inline Application* app()

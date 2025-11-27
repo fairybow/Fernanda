@@ -65,7 +65,8 @@
 - [x] Quit virtual in Workspace
 - [ ] Quit implementation in Notepad
 - [ ] Quit implementation in Notebook
-- [ ] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
+- [x] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
+- [ ] App's passive quit (when no windows are open)
 - [ ] Ensure system shutdown is handled with app's quit routine
 - [ ] As part of Window/WindowService cleanup, ensure we still need custom Window::destroyed signal (`connect(view, &QObject::destroyed, this, [&, view] { /*clear view from a list*/ })` works fine)
 - [ ] Decide if Acceptor can be generalized AFTER. Don't get clever early!
