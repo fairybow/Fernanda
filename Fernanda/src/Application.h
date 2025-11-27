@@ -10,7 +10,7 @@
 #pragma once
 
 #include <QApplication>
-#include <QSet>
+#include <QList>
 #include <QStringList>
 
 #include "Coco/Path.h"
@@ -70,16 +70,16 @@ public:
     }
 
 public slots:
-    // TODO: const ref args?
-    void onRelaunchAttempted(QStringList args)
+    void onRelaunchAttempted(const QStringList& args)
     {
         //...
     }
 
     void tryQuit()
     {
-        for (auto& notebook : notebooks_)
-            if (!notebook->canQuit()) return;
+        // TODO: Go by Z-order (most to least recently used)
+        for (auto i = notebooks_.count() - 1; i >= 0; --i)
+            if (!notebooks_.at(i)->canQuit()) return;
 
         if (!notepad_->canQuit()) return;
 
@@ -89,7 +89,7 @@ public slots:
 private:
     bool initialized_ = false;
     Notepad* notepad_ = nullptr;
-    QSet<Notebook*> notebooks_{};
+    QList<Notebook*> notebooks_{};
 
     void setProperties_()
     {
@@ -126,12 +126,8 @@ private:
         auto notebook = new Notebook(fnx, this);
         notebooks_ << notebook;
 
-        // TODO: We'll have to move this probably, since we'll need to
-        // potentially quit, too, if this is the last Notebook and no Notepad
-        // windows are open
         connect(notebook, &Notebook::lastWindowClosed, this, [&, notebook] {
-            // Clean-up
-            notebooks_.remove(notebook);
+            notebooks_.removeAll(notebook);
             delete notebook;
         });
 
