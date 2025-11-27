@@ -76,14 +76,37 @@ public:
 protected:
     virtual bool canCloseWindow(Window* window)
     {
-        //...
+        if (windows->count() > 1) return true;
+
+        // If archive is modified, prompt
+        /*if (modified_) {
+            switch (ArchiveSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save
+                return true;
+            case Discard:
+                return true;
+            }
+        }*/
 
         return true;
     }
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows)
     {
-        //...
+        /*if (modified_) {
+            switch (ArchiveSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save
+                return true;
+            case Discard:
+                return true;
+            }
+        }*/
 
         return true;
     }

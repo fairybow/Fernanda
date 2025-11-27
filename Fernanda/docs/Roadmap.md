@@ -55,13 +55,13 @@
 - [x] Hook setter in WindowService
 - [x] CLOSE_WINDOW virtual hook in Workspace
 - [x] CLOSE_WINDOW hook implementation in Notepad
-- [ ] CLOSE_WINDOW hook implementation in Notebook
-- [ ] CLOSE_ALL_WINDOWS in WindowService
+- [x] CLOSE_WINDOW hook implementation in Notebook
+- [x] CLOSE_ALL_WINDOWS in WindowService
 - [x] Hook type in WindowService
 - [x] Hook setter in WindowService
 - [x] CLOSE_ALL_WINDOWS virtual hook in Workspace
 - [x] CLOSE_ALL_WINDOWS hook implementation in Notepad
-- [ ] CLOSE_ALL_WINDOWS hook implementation in Notebook
+- [x] CLOSE_ALL_WINDOWS hook implementation in Notebook
 - [x] Quit virtual in Workspace
 - [ ] Quit implementation in Notepad
 - [ ] Quit implementation in Notebook
@@ -171,6 +171,7 @@
 
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Notebook LRU cache for models, if needed
+- [ ] Might be nice to have selection option for modified files in Notebook save, to exclude some changes from the archive save; would need to consult with FileService instead of ViewService and get all modified models (which, until/if LRU cache, remain open)
 
 Find what needs automatic clean-up from member lists/hashes/sets and ensure we do so, e.g.:
 
