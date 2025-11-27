@@ -66,8 +66,8 @@
 - [x] Quit implementation in Notepad
 - [x] Quit implementation in Notebook
 - [x] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
-- [ ] App's passive quit (when no windows are open)
-- [ ] Ensure system shutdown is handled with app's quit routine
+- [x] App's passive quit (when no windows are open)
+- [x] Ensure system shutdown is handled with app's quit routine
 - [ ] As part of Window/WindowService cleanup, ensure we still need custom Window::destroyed signal (`connect(view, &QObject::destroyed, this, [&, view] { /*clear view from a list*/ })` works fine)
 - [ ] Decide if Acceptor can be generalized AFTER. Don't get clever early!
 - [ ] Decide after whether we need the other polys (new tab and tree model things)
@@ -130,6 +130,7 @@
 ### General Clean-up
 
 - [x] Replace Coco/TextIo with project version
+- [ ] Ensure setup_ methods are only called by ctor (not in an initialize function); they should have only ctor-friendly setup, too
 - [ ] Ensure functions are well-named (actions taken on windows have the right preposition, for example (like `openFileIn(window)`))
 - [ ] Standardize callback code for close acceptor and similar
 - [ ] Find code that needs to be sectioned-off into a function for clarity

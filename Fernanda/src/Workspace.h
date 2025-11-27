@@ -72,6 +72,8 @@ public:
             active_window->activate(); // Stack under will raise any others
     }
 
+    int windowCount() const { return windows->count(); }
+
 signals:
     void lastWindowClosed();
 
