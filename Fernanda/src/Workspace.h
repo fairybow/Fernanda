@@ -91,7 +91,7 @@ protected:
 
     /// TODO CR NEW IMPL WIP =========================================
 
-    virtual bool canQuit() = 0; // (Called by app)
+    virtual bool canQuit() = 0;
 
 protected:
     virtual bool canCloseTab(IFileView*) { return true; }

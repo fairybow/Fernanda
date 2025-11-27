@@ -97,6 +97,10 @@ inline QAction* makeBusAction(
 
 namespace Internal {
 
+    // TODO: Deal with moving stuff to source file and/or removing this bespoke
+    // method later
+    QAction* makeAppQuitAction_(Window* window);
+
     // TODO: Remove {} for no arg commands (may not need args arg after all)
     // TODO: Add key sequences
     inline void initializeCommonActions_(
@@ -136,43 +140,39 @@ namespace Internal {
             bus,
             window,
             Commands::CLOSE_TAB,
-            Tr::Menus::fileCloseTab());
+            Tr::Menus::fileCloseTab()); /// *
 
         common.file.closeTabEverywhere = makeBusAction(
             bus,
             window,
             Commands::CLOSE_TAB_EVERYWHERE,
-            Tr::Menus::fileCloseTabEverywhere());
+            Tr::Menus::fileCloseTabEverywhere()); /// *
 
         common.file.closeWindowTabs = makeBusAction(
             bus,
             window,
             Commands::CLOSE_WINDOW_TABS,
-            Tr::Menus::fileCloseWindowTabs());
+            Tr::Menus::fileCloseWindowTabs()); /// *
 
         common.file.closeAllTabs = makeBusAction(
             bus,
             window,
             Commands::CLOSE_ALL_TABS,
-            Tr::Menus::fileCloseAllTabs());
+            Tr::Menus::fileCloseAllTabs()); /// *
 
         common.file.closeWindow =
             makeAction(window, Tr::Menus::fileCloseWindow(), [window] {
                 if (!window) return;
                 window->close();
-            });
+            }); /// *
 
         common.file.closeAllWindows = makeBusAction(
             bus,
             window,
             Commands::CLOSE_ALL_WINDOWS,
-            Tr::Menus::fileCloseAllWindows());
+            Tr::Menus::fileCloseAllWindows()); /// *
 
-        /// TODO:
-        /// common.file.quit =
-        /// makeBusAction(bus, window, Commands::QUIT, Tr::Menus::fileQuit());
-        /// - Must connect to tryQuit instead of Quit
-        /// - Must be in source file, since we must include Application.h
+        common.file.quit = makeAppQuitAction_(window); /// *
 
         common.edit.undo = makeBusAction(
             bus,
