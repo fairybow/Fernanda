@@ -321,26 +321,26 @@ signals:
 
     // WindowService
 
-    //void visibleWindowCountChanged(int count);
+    // void visibleWindowCountChanged(int count);
 
     // Window may be nullptr!
     // void activeWindowChanged(Window* window);
 
     // FileService
 
-    //void fileSaved(SaveResult result, const Coco::Path& path);
-    //void fileSavedAs(
-        //SaveResult result,
-        //const Coco::Path& path,
-        //const Coco::Path& oldPath = {});
+    // void fileSaved(SaveResult result, const Coco::Path& path);
+    // void fileSavedAs(
+    // SaveResult result,
+    // const Coco::Path& path,
+    // const Coco::Path& oldPath = {});
     // void windowSaveExecuted(Window* window, SaveResult result);
     // void workspaceSaveExecuted(SaveResult result);
 
     // ViewService
 
-    //void windowTabCountChanged(Window* window, int count);
+    // void windowTabCountChanged(Window* window, int count);
 
-    //void viewClosed(IFileView* view);
+    // void viewClosed(IFileView* view);
 
     // SettingsModule
 

@@ -7,59 +7,80 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include <QString>
-#include <QVariant>
+#include <QModelIndex>
+#include <QPoint>
 
 #include "Coco/Log.h"
 #include "Coco/Path.h"
 
 #include "Bus.h"
 #include "Debug.h"
-#include "Enums.h"
 #include "IFileModel.h"
 #include "IFileView.h"
 #include "Window.h"
 
+// Not technically a good idea, since a comma in the lambda capture will break
+// the macro. It should be fine here, though, where we only ever need &
 #define SIGLOG_(Signal, Slot) connect(this, &Bus::Signal, this, Slot)
 
 namespace Fernanda {
 
 void Bus::setup_()
 {
-    /*SIGLOG_(workspaceInitialized, [&] {});
-    SIGLOG_(windowCreated, [&](Window* window) {});
-    SIGLOG_(visibleWindowCountChanged, [&](int count) {});
-    SIGLOG_(lastWindowClosed, [&] {});
-    SIGLOG_(activeWindowChanged, [&](Window* window) {
-        INFO("Active window = {}", window);
+    SIGLOG_(lastWindowClosed, [&] { INFO("Last window closed"); });
+
+    SIGLOG_(windowCreated, [&](Window* context) {
+        INFO("Window created [{}]", context);
     });
-    SIGLOG_(windowDestroyed, [&](Window* window) {});
-    SIGLOG_(fileReadied, [&](IFileModel* model, Window* window) {});
-    SIGLOG_(fileModificationChanged, [&](IFileModel* model, bool modified) {});
-    SIGLOG_(fileMetaChanged, [&](IFileModel* model) {});
-    SIGLOG_(fileSaved, [&](SaveResult result, const Coco::Path& path) {
-        INFO("File [{}] saved: {}", path, Enum::toQString(result));
+
+    SIGLOG_(windowDestroyed, [&](Window* context) {
+        INFO("Window destroyed [{}]", context);
     });
+
+    SIGLOG_(activeFileViewChanged, [&](Window* context, IFileView* view) {
+        INFO("Active view changed in [{}] to [{}]", context, view);
+    });
+
     SIGLOG_(
-        fileSavedAs,
-        [&](SaveResult result,
-            const Coco::Path& path,
-            const Coco::Path& oldPath) {
+        treeViewDoubleClicked,
+        [&](Window* context, const QModelIndex& index) {
             INFO(
-                "File [{}] saved as [{}]: {}",
-                oldPath,
-                path,
-                Enum::toQString(result));
+                "Tree view double-clicked in [{}]: index [{}]",
+                context,
+                index);
         });
-    SIGLOG_(windowSaveExecuted, [&](Window* window, SaveResult result) {});
-    SIGLOG_(workspaceSaveExecuted, [&](SaveResult result) {});
-    SIGLOG_(windowTabCountChanged, [&](Window* window, int count) {});
-    SIGLOG_(activeFileViewChanged, [&](IFileView* view, Window* window) {
-        if (!window) return;
-        INFO("Active view for {} = {}", window, view);
+
+    SIGLOG_(fileModelReadied, [&](Window* context, IFileModel* model) {
+        INFO("File model readied in [{}]: [{}]", context, model);
     });
-    SIGLOG_(viewClosed, [&](IFileView* view) {});
-    SIGLOG_(settingChanged, [&](const QString& key, const QVariant& value) {});*/
+
+    SIGLOG_(
+        fileModelModificationChanged,
+        [&](IFileModel* model, bool modified) {
+            INFO("File model [{}] modification changed to {}", model, modified);
+        });
+
+    SIGLOG_(fileModelMetaChanged, [&](IFileModel* model) {
+        INFO("File model [{}] metadata changed", model);
+    });
+
+    SIGLOG_(
+        treeViewContextMenuRequested,
+        [&](Window* context,
+            const QPoint& globalPos,
+            const QModelIndex& index) {
+            INFO(
+                "Tree view context menu in [{}] at {} for index [{}]",
+                context,
+                globalPos,
+                index);
+        });
+
+    SIGLOG_(viewDestroyed, [&](IFileModel* model) {
+        INFO("View destroyed for model [{}]", model);
+    });
+
+    // TODO: Updated regularly
 }
 
 } // namespace Fernanda

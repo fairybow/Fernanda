@@ -164,6 +164,13 @@ private:
     void registerBusCommands_()
     {
         bus->addCommandHandler(
+            Commands::NOTEBOOK_OPEN_NOTEPAD,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                //
+            });
+
+        bus->addCommandHandler(
             Commands::NOTEBOOK_IMPORT_FILE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;

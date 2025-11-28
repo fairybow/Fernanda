@@ -2,6 +2,7 @@
 
 ## MVP
 
+- [ ] Open Notepad command for menu
 - [ ] FNX
 - [ ] Functioning Notepad
 - [ ] Functioning Notebooks
@@ -42,6 +43,7 @@
 - [ ] Move mkdir top level (Coco::mkdir) or Path?
 - [ ] Move other non-Path stuff (search TODO)
 - [ ] Path separator normalization
+- [ ] Remove any macros that take slots/lambdas, since a comma in the capture breaks them!
 
 ### Logging & Debug
 
