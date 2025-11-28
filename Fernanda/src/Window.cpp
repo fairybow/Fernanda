@@ -26,10 +26,7 @@ void Window::closeEvent(QCloseEvent* event)
     // Single window close (allows us to close windows normally, via close
     // method or UI button, and still allow the Workspace to accept or reject)
     auto accepted = true;
-
-    if (service_->canCloseHook_)
-        accepted = service_->canCloseHook_(this);
-
+    if (service_->canCloseHook_) accepted = service_->canCloseHook_(this);
     accepted ? QMainWindow::closeEvent(event) : event->ignore();
 }
 

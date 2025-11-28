@@ -11,6 +11,7 @@
 
 #include <functional>
 
+#include <QAbstractItemModel>
 #include <QAction>
 #include <QDomDocument>
 #include <QDomElement>
@@ -82,6 +83,33 @@ public:
     virtual bool canQuit() override { return windows->closeAll(); }
 
 protected:
+    virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
+
+    // TODO: Get element by tag/qualified name? (For future, when we have Trash)
+    virtual QModelIndex treeViewRootIndex() override
+    {
+        // The invalid index represents the root document element (<notebook>).
+        // TreeView will display its children (the actual files and virtual
+        // folders/structure)
+        return {};
+    }
+
+    virtual void newTab(Window* window) override
+    {
+        if (!window) return;
+        if (!workingDir_.isValid()) return;
+
+        auto working_dir = workingDir_.path();
+        auto info = fnxModel_->addNewTextFile(working_dir);
+        if (!info.isValid()) return;
+
+        bus->execute(
+            Commands::OPEN_FILE_AT_PATH,
+            { { "path", qVar(working_dir / info.relPath) },
+              { "title", info.name } },
+            window);
+    }
+
     virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1) return true;
@@ -209,8 +237,6 @@ private:
                         cmd.context);
                 }
             });
-
-        registerPolys_();
     }
 
     void connectBusEvents_()
@@ -228,37 +254,6 @@ private:
             &Bus::treeViewContextMenuRequested,
             this,
             &Notebook::onTreeViewContextMenuRequested_);
-    }
-
-    void registerPolys_()
-    {
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
-            return fnxModel_;
-        });
-
-        // TODO: Get element by tag/qualified name? (For future, when we have
-        // Trash)
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
-            // The invalid index represents the root document element
-            // (<notebook>). TreeView will display its children (the actual
-            // files and virtual folders/structure)
-            return QModelIndex{};
-        });
-
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            if (!workingDir_.isValid()) return;
-
-            auto working_dir = workingDir_.path();
-            auto info = fnxModel_->addNewTextFile(working_dir);
-            if (!info.isValid()) return;
-
-            bus->execute(
-                Commands::OPEN_FILE_AT_PATH,
-                { { "path", qVar(working_dir / info.relPath) },
-                  { "title", info.name } },
-                cmd.context);
-        });
     }
 
     void addWorkspaceIndicator_(Window* window)

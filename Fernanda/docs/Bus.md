@@ -22,7 +22,7 @@ Commands are formatted as `scope:action`.
 - `new_notebook`*: Opens a file dialog to create a new Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
 - `open_notebook`*: Opens a file dialog to select an existing Notebook archive (`.fnx`), then opens it as a new Notebook workspace.
 
-### `poly`
+### `poly` (removed)
 
 Poly commands are registered per Workspace type (Notepad or Notebook) but called from Services or Modules that are Workspace agnostic.
 

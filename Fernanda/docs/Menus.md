@@ -13,7 +13,7 @@ TODO: Description of menu implementation (no base class, two modules that utiliz
 TODO: Will new/open notebook be app scope?
 
 ```
-New tab                     Ctrl+D          poly:new_tab
+New tab                     Ctrl+D          views:new_tab
 New window                  Ctrl+W          windows:new
 -------------------------------------------
 New notebook                                workspace:new_notebook
@@ -32,7 +32,7 @@ Close all windows                           windows:close_all
 Quit                        Ctrl+Q
 ```
 
-**New tab (poly):**
+**New tab (views):**
 
 - In Notepad: Opens a new tab (a new view on a new, off-disk file model).
 - In Notebook: Adds a new empty file to the archive's temporary extraction folder, adds it to the Model.xml file, refreshes the tree view, and opens a new tab (a new view on a new on-disk file model for the aforementioned new file).

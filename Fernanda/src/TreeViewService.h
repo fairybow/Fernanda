@@ -9,9 +9,10 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QAbstractItemModel>
 #include <QDockWidget>
-#include <QFileSystemModel>
 #include <QHash>
 #include <QModelIndex>
 #include <QObject>
@@ -42,6 +43,9 @@ class TreeViewService : public IService
     Q_OBJECT
 
 public:
+    using ModelHook = std::function<QAbstractItemModel*()>;
+    using RootIndexHook = std::function<QModelIndex()>;
+
     TreeViewService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -50,7 +54,16 @@ public:
 
     virtual ~TreeViewService() override { TRACER; }
 
-    // TODO: Use default arg for current index, if we wrap this in a command for menus
+    DECLARE_HOOK_ACCESSORS(ModelHook, modelHook, setModelHook, modelHook_);
+
+    DECLARE_HOOK_ACCESSORS(
+        RootIndexHook,
+        rootIndexHook,
+        setRootIndexHook,
+        rootIndexHook_);
+
+    // TODO: Use default arg for current index, if we wrap this in a command for
+    // menus
     void renameAt(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
@@ -83,6 +96,8 @@ protected:
 
 private:
     QHash<Window*, TreeView*> treeViews_{};
+    ModelHook modelHook_ = nullptr;
+    RootIndexHook rootIndexHook_ = nullptr;
 
     void setup_()
     {
@@ -111,14 +126,12 @@ private:
         tree_view->setDragDropMode(QAbstractItemView::InternalMove);
         tree_view->setDefaultDropAction(Qt::MoveAction);
 
-        if (auto model =
-                bus->call<QAbstractItemModel*>(Commands::WS_TREE_VIEW_MODEL)) {
-            tree_view->setModel(model);
-
-            auto root_index =
-                bus->call<QModelIndex>(Commands::WS_TREE_VIEW_ROOT_INDEX);
-
-            if (root_index.isValid()) tree_view->setRootIndex(root_index);
+        if (modelHook_ && rootIndexHook_) {
+            if (auto model = modelHook_()) {
+                tree_view->setModel(model);
+                auto root_index = rootIndexHook_();
+                if (root_index.isValid()) tree_view->setRootIndex(root_index);
+            }
         }
 
         dock_widget->setWidget(tree_view);

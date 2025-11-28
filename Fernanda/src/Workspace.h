@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QAbstractItemModel>
+#include <QModelIndex>
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
@@ -95,6 +96,10 @@ protected:
     virtual bool canQuit() = 0;
 
 protected:
+    virtual QAbstractItemModel* treeViewModel() = 0;
+    virtual QModelIndex treeViewRootIndex() = 0;
+    virtual void newTab(Window* window) = 0;
+
     virtual bool canCloseTab(IFileView*) { return true; }
     virtual bool canCloseTabEverywhere(const QList<IFileView*>&)
     {
@@ -115,14 +120,19 @@ private:
         treeViews->initialize();
         colorBars->initialize();
 
+        views->setNewTabHook(this, &Workspace::newTab);
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
             this,
             &Workspace::canCloseTabEverywhere);
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
+
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
+
+        treeViews->setModelHook(this, &Workspace::treeViewModel);
+        treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
 
         //...
 

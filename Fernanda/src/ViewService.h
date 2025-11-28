@@ -50,6 +50,7 @@ class ViewService : public IService
     Q_OBJECT
 
 public:
+    using NewTabHook = std::function<void(Window*)>;
     using CanCloseTabHook = std::function<bool(IFileView*)>;
     using CanCloseTabEverywhereHook =
         std::function<bool(const QList<IFileView*>&)>;
@@ -64,6 +65,8 @@ public:
     }
 
     virtual ~ViewService() override { TRACER; }
+
+    DECLARE_HOOK_ACCESSORS(NewTabHook, newTabHook, setNewTabHook, newTabHook_);
 
     DECLARE_HOOK_ACCESSORS(
         CanCloseTabHook,
@@ -191,6 +194,10 @@ protected:
             selectAll_(cmd.context, cmd.param<int>("index", -1));
         });
 
+        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+            newTab_(cmd.context);
+        });
+
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             closeTab_(cmd.context, cmd.param<int>("index", -1));
         });
@@ -242,6 +249,7 @@ protected:
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
     QHash<IFileModel*, int> fileViewsPerModel_{};
+    NewTabHook newTabHook_ = nullptr;
     CanCloseTabHook canCloseTabHook_ = nullptr;
     CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
     CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
@@ -331,6 +339,12 @@ private:
         auto view = viewAt_(window, index);
         if (!view || !view->supportsEditing()) return;
         view->selectAll();
+    }
+
+    void newTab_(Window* window)
+    {
+        if (!window || !newTabHook_) return;
+        newTabHook_(window);
     }
 
     void closeTab_(Window* window, int index = -1)
@@ -518,7 +532,7 @@ private:
             [&, window](int index) { setActiveFileView_(window, index); });
 
         connect(tab_widget, &TabWidget::addTabRequested, this, [&, window] {
-            bus->execute(Commands::NEW_TAB, window);
+            newTab_(window);
         });
 
         connect(

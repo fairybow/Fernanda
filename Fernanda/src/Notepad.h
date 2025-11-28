@@ -11,6 +11,7 @@
 
 #include <functional>
 
+#include <QAbstractItemModel>
 #include <QFileSystemModel>
 #include <QList>
 #include <QModelIndex>
@@ -66,6 +67,21 @@ public:
     }
 
 protected:
+    virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
+
+    virtual QModelIndex treeViewRootIndex() override
+    { // Generate the index on-demand from the stored path (don't hold it
+        // separately or retrieve via Model::setRootPath)
+        if (!fsModel_) return {};
+        return fsModel_->index(currentBaseDir_.toQString());
+    }
+
+    virtual void newTab(Window* window) override
+    {
+        if (!window) return;
+        files->openOffDiskTxtIn(window);
+    }
+
     virtual bool canCloseTab(IFileView* fileView) override
     {
         auto model = fileView->model();
@@ -286,8 +302,6 @@ private:
 
                 return false;
             });
-
-        registerPolys_();
     }
 
     void connectBusEvents_()
@@ -299,25 +313,6 @@ private:
             &Notepad::onTreeViewDoubleClicked_);
 
         connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
-    }
-
-    void registerPolys_()
-    {
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
-            return fsModel_;
-        });
-
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
-            // Generate the index on-demand from the stored path (don't hold it
-            // separately or retrieve via Model::setRootPath)
-            if (!fsModel_) return QModelIndex{};
-            return fsModel_->index(currentBaseDir_.toQString());
-        });
-
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            files->openOffDiskTxtIn(cmd.context);
-        });
     }
 
 private slots:

@@ -9,7 +9,7 @@
 - [ ] Functioning Notepad
 - [ ] Functioning Notebooks
 - [ ] Translations (FR, DE, ES, JA, ZH)
-- [ ] Decide whether we need the other polys (new tab and tree model things)
+- [x] Decide whether we need the other polys (new tab and tree model things)
 - [ ] Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
 - [ ] Notepad save prompts
 - [ ] Marking Notebook as modified
