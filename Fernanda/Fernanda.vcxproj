@@ -15,6 +15,7 @@
     <ClCompile Include="src\Bus.cpp" />
     <ClCompile Include="src\FnxModel.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Menus.cpp" />
     <ClCompile Include="src\TextFileView.cpp" />
     <ClCompile Include="src\Tr.cpp" />
     <ClCompile Include="src\Window.cpp" />
@@ -36,7 +37,6 @@
     <None Include="docs\Bus.md" />
     <None Include="docs\Closures.md" />
     <None Include="docs\ComponentArchitecture.md" />
-    <None Include="docs\ConfusingThings.md" />
     <None Include="docs\FNXFile.md" />
     <None Include="docs\Menus.md" />
     <None Include="docs\NotebookCreation.md" />
@@ -107,14 +107,12 @@
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewModule.h" />
     <ClInclude Include="src\AppDirs.h" />
-    <ClInclude Include="src\old_Utility.h" />
     <ClInclude Include="src\Version.h" />
     <QtMoc Include="src\Workspace.h" />
     <QtMoc Include="src\ViewService.h" />
     <QtMoc Include="src\WindowService.h" />
     <QtMoc Include="src\Window.h" />
     <QtMoc Include="src\WordCounterModule.h" />
-    <ClInclude Include="src\old_ViewServiceCloseHelper.h" />
     <ClInclude Include="src\XPlatform.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h" />

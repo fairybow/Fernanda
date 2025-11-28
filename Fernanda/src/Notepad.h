@@ -15,6 +15,7 @@
 #include <QList>
 #include <QModelIndex>
 #include <QObject>
+#include <QSet>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -25,6 +26,8 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "IFileModel.h"
+#include "IFileView.h"
+#include "IService.h"
 #include "NotepadMenuModule.h"
 #include "TreeViewModule.h"
 #include "Version.h"
@@ -49,32 +52,185 @@ public:
 
     virtual ~Notepad() override { TRACER; }
 
-    PathInterceptor pathInterceptor() const noexcept
-    {
-        return pathInterceptor_;
-    }
+    DECLARE_HOOK_ACCESSORS(
+        PathInterceptor,
+        pathInterceptor,
+        setPathInterceptor,
+        pathInterceptor_);
 
-    void setPathInterceptor(const PathInterceptor& pathInterceptor)
-    {
-        pathInterceptor_ = pathInterceptor;
-    }
+    /// TODO CR NEW IMPL WIP =========================================
 
-    template <typename ClassT>
-    void setPathInterceptor(
-        ClassT* object,
-        bool (ClassT::*method)(const Coco::Path&))
+    virtual bool canQuit()
     {
-        pathInterceptor_ = [object, method](const Coco::Path& path) {
-            return (object->*method)(path);
-        };
+        return windows->count() < 1 || windows->closeAll();
     }
 
 protected:
-    virtual bool canCloseWindow(Window* window) override
+    virtual bool canCloseTab(IFileView* view)
     {
-        if (!window) return false;
-        return closeWindowTabs_(window);
+        auto model = view->model();
+        if (!model) return false;
+
+        if (model->isModified() && views->countFor(model) <= 1) {
+            views->raise(view);
+
+            /*switch (SingleSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
+
+        return true;
     }
+
+    // TODO: Can perhaps raise first (from end) view in each window?
+    virtual bool canCloseTabEverywhere(const QList<IFileView*>& views)
+    {
+        auto model = views.first()->model();
+        if (!model) return false;
+
+        if (model->isModified()) {
+            /*switch (SingleSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
+
+        return true;
+    }
+
+    // TODO: The multi file save prompt could allow clicking on the path or
+    // something to switch to the first view on that file we have available
+    // (possibly first from the end)
+    virtual bool canCloseWindowTabs(const QList<IFileView*>& views)
+    {
+        // Collect unique modified models that only exist in this window
+        QSet<IFileModel*> modified_models{};
+
+        for (auto& view : views) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model) continue;
+            if (!model->isModified()) continue;
+            if (this->views->isMultiWindow(model)) continue;
+
+            modified_models << model;
+        }
+
+        if (!modified_models.isEmpty()) {
+            /*switch (MultiFileSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save (selected)
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
+
+        return true;
+    }
+
+    virtual bool canCloseAllTabs(const QList<IFileView*>& views)
+    {
+        // Collect all unique modified models across all windows
+        QSet<IFileModel*> modified_models{};
+
+        for (auto& view : views) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model) continue;
+            if (!model->isModified()) continue;
+
+            modified_models << model;
+        }
+
+        if (!modified_models.isEmpty()) {
+            /*switch (MultiFileSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save (selected)
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
+
+        return true;
+    }
+
+    virtual bool canCloseWindow(Window* window)
+    {
+        // Collect unique modified models that only exist in this window
+        QSet<IFileModel*> modified_models{};
+
+        for (auto& view : views->viewsIn(window)) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model) continue;
+            if (!model->isModified()) continue;
+            if (views->isMultiWindow(model)) continue;
+
+            modified_models << model;
+        }
+
+        if (!modified_models.isEmpty()) {
+            /*switch (MultiFileSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save (selected)
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
+
+        return true;
+    }
+
+    virtual bool canCloseAllWindows(const QList<Window*>& windows)
+    {
+        // Collect all unique modified models across all windows
+        QSet<IFileModel*> modified_models{};
+
+        for (auto& view : views->views()) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model) continue;
+            if (!model->isModified()) continue;
+
+            modified_models << model;
+        }
+
+        if (!modified_models.isEmpty()) {
+            /*switch (MultiFileSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save (selected)
+                return true;
+            case Discard:
+                return true;
+            }*/
+        }
+
+        return true;
+    }
+
+    /// TODO CR NEW IMPL WIP =========================================
 
 private:
     Coco::Path currentBaseDir_ = AppDirs::defaultDocs();
@@ -142,6 +298,9 @@ private:
             &Bus::treeViewDoubleClicked,
             this,
             &Notepad::onTreeViewDoubleClicked_);
+
+        /// TODO CR:
+        connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
     }
 
     void registerPolys_()
@@ -161,72 +320,6 @@ private:
             if (!cmd.context) return;
             files->openOffDiskTxtIn(cmd.context);
         });
-
-        registerPolyClosures_();
-    }
-
-    /// WIP
-    void registerPolyClosures_()
-    {
-        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return false;
-            auto index = cmd.param<int>("index", -1);
-            auto model = views->modelAt(cmd.context, index);
-            if (!model) return false;
-
-            auto is_last_view = views->viewsOn(model) <= 1;
-
-            if (is_last_view) {
-                // Check if model is modified
-                // If so, prompt save
-                // Handle save prompt result
-            }
-
-            views->deleteAt(cmd.context, index);
-            if (is_last_view) files->deleteModel(model);
-            return true;
-        });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_TAB_EVERYWHERE,
-            [&](const Command& cmd) {});
-
-        bus->addCommandHandler(
-            Commands::CLOSE_WINDOW_TABS,
-            [&](const Command& cmd) { return closeWindowTabs_(cmd.context); });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_TABS,
-            [&](const Command& cmd) {});
-
-        // Close window, if we remove close acceptor?
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_WINDOWS,
-            [&](const Command& cmd) {});
-
-        // Quit? Doesn't really fit, though...
-    }
-
-    /// WIP
-    bool closeWindowTabs_(Window* window)
-    {
-        if (!window) return false;
-
-        // Get a list of all file models (iterating backward) that are not
-        // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
-
-        // Save Prompt (multi-file selection version; Save (with
-        // selections, defaulted to all), Discard, or Cancel)
-
-        // Handle prompt result (Cancel return, Discard proceed without
-        // saves, Save (any or all selected)
-
-        // If proceeding:
-        views->deleteAllIn(window);
-        // Delete all deletable models (those that were in that window (modified
-        // or not) and not open in other windows)
-        return true;
     }
 
 private slots:
@@ -242,6 +335,86 @@ private slots:
             { { "path", qVar(path) } },
             window);
     }
+
+    /// TODO CR:
+    void onViewDestroyed_(IFileModel* model)
+    {
+        if (!model) return;
+        if (views->countFor(model) <= 0) files->deleteModel(model);
+    }
 };
 
 } // namespace Fernanda
+
+/// TODO CR: Old code:
+
+/*virtual bool canCloseWindow(Window* window) override
+{
+    if (!window) return false;
+    return closeWindowTabs_(window);
+}
+
+/// WIP
+void registerPolyClosures_()
+{
+    bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+        if (!cmd.context) return false;
+        auto index = cmd.param<int>("index", -1);
+        auto model = views->modelAt(cmd.context, index);
+        if (!model) return false;
+
+        auto is_last_view = views->viewsOn(model) <= 1;
+
+        if (is_last_view) {
+            // Check if model is modified
+            // If so, prompt save
+            // Handle save prompt result
+        }
+
+        views->deleteAt(cmd.context, index);
+        if (is_last_view) files->deleteModel(model);
+        return true;
+    });
+
+    bus->addCommandHandler(
+        Commands::CLOSE_TAB_EVERYWHERE,
+        [&](const Command& cmd) {});
+
+    bus->addCommandHandler(
+        Commands::CLOSE_WINDOW_TABS,
+        [&](const Command& cmd) { return closeWindowTabs_(cmd.context); });
+
+    bus->addCommandHandler(
+        Commands::CLOSE_ALL_TABS,
+        [&](const Command& cmd) {});
+
+    // Close window, if we remove close acceptor?
+
+    bus->addCommandHandler(
+        Commands::CLOSE_ALL_WINDOWS,
+        [&](const Command& cmd) {});
+
+    // Quit? Doesn't really fit, though...
+}
+
+/// WIP
+bool closeWindowTabs_(Window* window)
+{
+    if (!window) return false;
+
+    // Get a list of all file models (iterating backward) that are not
+    // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
+
+    // Save Prompt (multi-file selection version; Save (with
+    // selections, defaulted to all), Discard, or Cancel)
+
+    // Handle prompt result (Cancel return, Discard proceed without
+    // saves, Save (any or all selected)
+
+    // If proceeding:
+    views->deleteAllIn(window);
+    // Delete all deletable models (those that were in that window
+(modified
+    // or not) and not open in other windows)
+    return true;
+}*/

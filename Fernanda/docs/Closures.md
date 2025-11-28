@@ -1,233 +1,194 @@
 # Closures
 
-TODO: The goal is to implement each operation as its own individual function for maximum clarity in what happens for each operation for right now. The exception being Notebook quit procedures, which should be able to simply perform Close All Windows for each Notebook in turn.
-
-TODO: Decide on the necessity of Window CloseAcceptor. Does it enable or hinder the procedures described in this document?
-
-"Closing" a view means removing it from the TabWidget and deleting it.
-
-"Closing" a model means deleting it.
-
-"Modified archive" (Notebook only) means the working directory has changed from its original state or has no corresponding archive (is new)
-
-Notepad never closes, except on quit.
-
-Notebooks close when their last window closes.
-
-There is only ever 1 Notepad. There can be multiple (or no) Notebooks.
-
-Notebook never closes models manually (only via Qt ownership when FileService dies).
+**General notes:**
+- "Modified archive" (Notebook only): working directory has changed from its original state or has no corresponding archive (is new)
+- Notepad never closes except on quit (remains alive even with no windows)
+- Notebooks close when their last window closes
+- There is only ever 1 Fernanda instance; relaunch is guarded and new args are passed to the current instance
+- There is only ever 1 Notepad instance; there can be multiple (or zero) Notebook instances
+- Notebook never closes models manually (only via Qt ownership when FileService dies)
 
 ## Close tab
 
-By poly command.
+Triggered by ViewService `CLOSE_TAB` command (index param, -1 = current).
 
-Notepad:
-- Find view by index
-- If the model has other views onto it, just close
-- If the model is not modified, just close
-- If this is the last view on the model, prompt for save
-    - If canceled, return
-    - If saved/discarded, proceed
-- Close view
-- If this was the last view on the model, close model
+**ViewService mechanics:**
+- Normalizes index, gets view
+- Calls `canCloseTabHook` (if registered)
+- If approved: deletes view, emits `viewDestroyed(model)`
 
-Notebook: Find view by index and close it. Model remains open.
+**Notepad policy:**
+- If model is modified AND this is the last view on it: raise view, prompt to save
+- Cancel aborts, save/discard proceeds
+- Otherwise proceeds immediately
+- Model deleted if view count is 0
+
+**Notebook policy:**
+- No hook registered, always proceeds
+- View closes, model remains open
 
 ## Close tab everywhere
 
-By poly command.
+Triggered by ViewService `CLOSE_TAB_EVERYWHERE` command (index param, -1 = current).
 
-Notepad:
-- Find view by index
-- Then find all other views onto the same model
-- If the model is modified
-    - Prompt to save
-        - If canceled, return
-        - If saved/discarded, proceed
-- Close all views onto the model
-- Close model
+**ViewService mechanics:**
+- Gets target model from view at index
+- Collects all views across all windows that reference this model
+- Calls `canCloseTabEverywhereHook` with the list of views
+- If approved: deletes all collected views, emits single `viewDestroyed(model)`
 
-Notebook: Find view by index, then find all other views onto the same model, and close them all. Model remains open.
+**Notepad policy:**
+- If model is modified: prompt to save
+- Cancel aborts, save/discard proceeds
+- Otherwise proceeds immediately
+- Model deleted if view count is 0
+
+**Notebook policy:**
+- No hook registered, always proceeds
+- All views close, model remains open
 
 ## Close window tabs
 
-By poly command.
+Triggered by ViewService `CLOSE_WINDOW_TABS` command.
 
-Notepad:
-- Build two lists
-- 1 contains all models unique to this window (modified or not) and would have no views after closing all window tabs
-- 2 contains only modified models unique to this window
-- If list 2 is not empty
-    - Show multi-file save prompt with checkboxes
-        - If cancel, return
-        - If saved/discarded, proceed
-- Close all views in the window
-- Close all models in list 1
+**ViewService mechanics:**
+- Collects all views and their models in the target window
+- Calls `canCloseWindowTabsHook` with the list of views
+- If approved: deletes all views in window, emits `viewDestroyed(model)` for each unique model
 
-Notebook: Close all views in the window. Models remain open.
+**Notepad policy:**
+- Collects modified models that only exist in this window (skips models with views in other windows)
+- If any found: prompt to save
+- Cancel aborts, save selected/discard proceeds
+- Otherwise proceeds immediately
+- Models deleted if view count is 0
+
+**Notebook policy:**
+- No hook registered, always proceeds
+- All views in window close, models remain open
 
 ## Close all tabs (in all workspace windows)
 
-By poly command.
+Triggered by ViewService `CLOSE_ALL_TABS` command.
 
-Notepad:
-- Get all modified models
-- If the list is not empty
-    - Show multi-file save prompt with checkboxes
-        - If cancel, return
-        - If saved/discarded, proceed
-- Close all views in all windows
-- Close all models
+**ViewService mechanics:**
+- Collects all views and their models across all workspace windows
+- Calls `canCloseAllTabsHook` with the list of views
+- If approved: deletes all views in all windows, emits `viewDestroyed(model)` for each unique model
 
-Notebook: Close all views in all windows. Models remain open.
+**Notepad policy:**
+- Collects all modified models across all windows
+- If any found: prompt to save
+- Cancel aborts, save selected/discard proceeds
+- Otherwise proceeds immediately
+- Models deleted when view count is 0
+
+**Notebook policy:**
+- No hook registered, always proceeds
+- All views in all windows close, models remain open
 
 ## Close window
 
-Right now, this is only called by the Window's `close()` method, which in turn calls the registered CloseAcceptor. This may change!
+Triggered by Window's `closeEvent` (user clicking X or calling `close()`).
 
-Notepad:
-- Build two lists
-    - If this is the last window
-        - 1 contains all models
-        - 2 contains all modified models
-    - Else
-        - 1 contains all models unique to this window (modified or not) that would have no views after closing all window tabs
-        - 2 contains only modified models unique to this window
-- If list 2 is not empty
-    - Show multi-file save prompt with checkboxes
-        - If cancel, return
-        - If saved/discarded, proceed
-- Close window (or let window close)
-- Views will be closed via Qt ownership when window dies
-- Close all models in list 1
-- If this is the last window, Notepad does not close!
+**Window/WindowService mechanics:**
+- If `isBatchClose_` flag is set: bypasses hook, accepts close immediately (used by `closeAll()`)
+- Otherwise: calls `canCloseHook` with the window
+- If approved: accepts close event, window destructor runs (views deleted via Qt ownership)
+- If rejected: ignores close event, window remains open
 
-Notebook:
-- If this is the last window
-- And if the archive is modified
-    - Prompt to save
-        - If canceled, return
-        - If saved/discarded, proceed
-    - Close the window
-    - Views will be closed via Qt ownership when window dies
-    - Models will be closed via Qt ownership when FileService dies
-- If this is NOT the last window
-    - Close the window
-    - Views will be closed via Qt ownership when window dies
-    - Models will remain open
+**Notepad policy:**
+- Collects modified models that only exist in this window (skips models with views in other windows)
+- If any found: prompt to save
+- Cancel aborts, save selected/discard proceeds
+- Window closes
+- Does NOT close Notepad workspace (even if last window)
+- Models deleted when view count is 0
+
+**Notebook policy:**
+- If NOT the last window: proceeds immediately
+- If IS the last window AND archive is modified: prompt to save archive
+- Cancel aborts, save/discard proceeds
+- Window closes
+- If last window closes, Notebook workspace dies (models deleted via Qt ownership when FileService dies)
 
 ## Close all windows
 
-By poly command.
+Triggered by WindowService `closeAll()` method and `CLOSE_ALL_WINDOWS` command.
 
-Notepad:
-- Get all modified models
-- If the list is not empty
-    - Show multi-file save prompt with checkboxes
-        - If cancel, return
-        - If saved/discarded, proceed
-- Close windows (or let windows close)
-- Views will be closed via Qt ownership when window dies
-- Close all models
-- This does NOT close Notepad
+**WindowService mechanics:**
+- Gets list of all workspace windows (reverse z-order)
+- Calls `canCloseAllHook` with the list of windows
+- If approved: sets `isBatchClose_` flag, closes all windows in sequence, clears flag
+- If rejected: returns false, no windows close
+- The `isBatchClose_` flag causes individual `closeEvent` handlers to bypass per-window hooks
 
-Notebook:
-- This closes the Notebook
-- If the archive is modified
-    - Prompt to save
-        - If canceled, return
-        - If saved/discarded, proceed
-- Close all windows
-- Views will be closed via Qt ownership when windows die
-- Models will be closed via Qt ownership when FileService dies
+**Notepad policy:**
+- Collects all modified models across all windows
+- If any found: prompt to save
+- Cancel aborts entire operation, save selected/discard proceeds
+- All windows close, views deleted via Qt ownership
+- Does NOT close Notepad workspace
+- Models deleted when view count is 0
+
+**Notebook policy:**
+- If archive is modified: prompt to save archive
+- Cancel aborts, save/discard proceeds
+- All windows close, views deleted via Qt ownership
+- Notebook workspace dies (models deleted via Qt ownership when FileService dies)
 
 ## Quit
 
-Unsure of trigger yet
+Triggered by Application `tryQuit()` method.
 
-For Each Notebook (handle Notebooks first):
-- Try Close all windows (includes possible save prompt per Notebook)
-- If any save prompts are canceled, abort Quit entirely
-- Application will delete Notebook and move to the next one
+**Application mechanics:**
+- Iterates through all Notebooks (reverse order), calls `canQuit()` on each
+- If any Notebook refuses: aborts entire quit operation
+- Calls `canQuit()` on Notepad
+- If Notepad refuses: aborts entire quit operation
+- If all approve: calls `QApplication::quit()`
 
-Notepad:
-- If Notepad has any windows
-    - Get all modified models
-    - If the list is not empty
-        - Show multi-file save prompt with checkboxes
-            - If cancel, return
-            - If saved/discarded, proceed
-    - Close windows (or let windows close)
-    - Views will be closed via Qt ownership when window dies
-    - Models will be closed via Qt ownership when FileService dies (when Notepad dies)
-- Notepad dies with application
+**Notepad policy (`canQuit`):**
+- If no windows exist: returns true immediately
+- Otherwise: calls `windows->closeAll()` and returns result
+- This triggers the full `canCloseAllWindows` hook (save prompt if needed)
 
-Call Application::quit()
+**Notebook policy (`canQuit`):**
+- Calls `windows->closeAll()` and returns result
+- This triggers the full `canCloseAllWindows` hook (save prompt if needed)
+- If approved, Notebook dies when last window closes
 
-## System Shutdown
+## Quit (passive)
 
-TODO: Reference Qt docs for QGuiApplication::commitDataRequest
+Triggered automatically when all windows close naturally (not via explicit `tryQuit()`).
 
-## Potentially irrelevant things
+**Flow:**
+- WindowService detects last window has closed and emits `lastWindowClosed` on Bus
+- Workspace propagates signal to Application
+- Application responds based on workspace type and remaining workspaces
 
-NOTES:
+**When Notebook's last window closes:**
+- Application removes Notebook from list and deletes it
+- Models deleted via Qt ownership when FileService dies
+- If no Notebooks remain AND Notepad has no windows: calls `quit()`
 
-// Quit procedure (from Notebook's perspective):
-//...figure out after window closure
+**When Notepad's last window closes:**
+- If no Notebooks exist: calls `quit()`
+- Otherwise: Notepad remains alive with no windows
 
-// TODO: Should we have a "quit acceptor"? It could run a new
-// CLOSE_ALL_WINDOWS command from the base class? Allow us to handle
-// things in a specific way when the application is closing, instead of
-// just letting each window close (and possibly resulting in multiple
-// save prompts, when one would be better)?
+**Note:** This path bypasses all `canQuit()` checks since windows have already successfully closed (with their own save prompts if needed)
 
+## System shutdown / session end
 
-// Quit procedure (from Notepad's perspective):
-// - (This could all be a closeAllWindows_ command handler? Don't know
-// if that would work, due to the closeAcceptor. And, honestly, it may
-// prevent the the following stuff, too)
-// - Get a list of all file models (iterating backward) that are
-// modified (see 9e6cd80 ViewCloseHelper)
-// - Save Prompt (multi-file selection version; Save (with
-// selections, defaulted to all), Discard, or Cancel)
-// - Handle prompt result (Cancel return, Discard proceed without
-// saves, Save (any or all selected)
-// If proceeding:
-// - Close all views everywhere
-// - Delete all file models
-// - Close all windows?
-// - return true for quittable?
+Triggered by OS shutdown/logout via Qt's `QGuiApplication::commitDataRequest` signal.
 
-// TODO: Should we have a "quit acceptor"? It could run a new
-// CLOSE_ALL_WINDOWS command from the base class? Allow us to handle
-// things in a specific way when the application is closing, instead of
-// just letting each window close (and possibly resulting in multiple
-// save prompts, when one would be better)?
+**Application mechanics:**
+- Iterates through all Notebooks (reverse order), calls `canQuit()` on each
+- If any Notebook refuses: calls `manager.cancel()` to prevent shutdown
+- Calls `canQuit()` on Notepad (if it exists)
+- If Notepad refuses: calls `manager.cancel()` to prevent shutdown
+- If all approve: allows OS to proceed with shutdown
 
-OLD:
-
-**Close tab (poly, toggle):**
-
-- In Notepad: Check if this model has views in other windows. If yes, just close this view. If this is the last view on the model: check if modified. If modified, prompt to save. On save/discard, close the view and model.
-- In Notebook: Close the view without prompting. Model remains open to persist changes and undo/redo stacks.
-- Toggle condition: Window has any tabs.
-
-**Close window tabs (poly, toggle):**
-
-- In Notepad: Iterate backward through tabs. Build a list of unique modified models that only have views in this window (skip models with views in other windows). If the list is not empty, show multi-file save prompt with checkboxes. User chooses: save selected files, discard all, or cancel. If cancel, abort. Otherwise, save chosen files, then close all views and models.
-- In Notebook: Simply close all views without prompting. Archive stays marked as modified if applicable.
-- Toggle condition: Window has any tabs.
-
-**Close window:**
-
-- Calls the window close method, which in turn calls the close acceptor, allowing necessary checks to happen before accepting or rejecting the close.
-- In Notepad: This may prompt for saves (via close all tabs logic).
-- In Notebook: If this is NOT the last window, close tabs without prompting. If this IS the last window, check if archive is modified. If modified, prompt to save the archive. On save/discard, close tabs and clean up temp directory. On cancel, abort window close.
-- WindowService emits `windowDestroyed` on success. If this was the last window in the workspace, emits `lastWindowClosed`.
-
-**Quit:**
-
-- First, iterate through all Notebook workspaces. For each: check if modified, prompt to save archive if needed, close all windows. If any Notebook close is canceled, abort quit.
-- Then, iterate through Notepad windows (reverse z-order). Call close window for each. If any window close is cancelled, abort quit.
-- If all closes succeed, call `Application::quit()`.
+**Workspace behavior:**
+- User can cancel any prompt to prevent shutdown
+- If user approves all prompts, application terminates and OS continues shutdown

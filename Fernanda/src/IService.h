@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include <QObject>
 
 namespace Fernanda {
@@ -49,3 +51,14 @@ private:
 };
 
 } // namespace Fernanda
+
+#define DECLARE_HOOK_ACCESSORS(Type, GetterName, SetterName, MemberName)       \
+    Type GetterName() const noexcept { return MemberName; }                    \
+    void SetterName(const Type& hook) { MemberName = hook; }                   \
+    template <typename ClassT, typename ReturnT, typename... Args>             \
+    void SetterName(ClassT* object, ReturnT (ClassT::*hook)(Args...))          \
+    {                                                                          \
+        MemberName = [object, hook](Args... args) -> ReturnT {                 \
+            return (object->*hook)(std::forward<Args>(args)...);               \
+        };                                                                     \
+    }

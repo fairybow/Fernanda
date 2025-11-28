@@ -21,13 +21,13 @@ Open notebook                               workspace:open_notebook
 -------------------------------------------
 [Save section is per subclass]
 -------------------------------------------
-Close tab                                   poly:close_tab                   [Toggle]
-Close tab everywhere                        poly:close_tab_everywhere        [Toggle]
-Close window tabs                           poly:close_window_tabs           [Toggle]
-Close all tabs                              poly:close_all_tabs              [Toggle]
+Close tab                                   views:close_tab                  [Toggle]
+Close tab everywhere                        views:close_tab_everywhere       [Toggle]
+Close window tabs                           views:close_window_tabs          [Toggle]
+Close all tabs                              views:close_all_tabs             [Toggle]
 -------------------------------------------
 Close window
-Close all windows                           poly:close_all_windows
+Close all windows                           windows:close_all
 -------------------------------------------
 Quit                        Ctrl+Q
 ```

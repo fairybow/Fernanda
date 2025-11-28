@@ -69,33 +69,49 @@ public:
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
 
+    /// TODO CR NEW IMPL WIP =========================================
+
+    virtual bool canQuit() { return windows->closeAll(); }
+
 protected:
-    /// WIP
-    virtual bool canCloseWindow(Window* window) override
+    virtual bool canCloseWindow(Window* window)
     {
-        // TODO: Notebook will have to prompt not for tab closes but for window
-        // closures (if last window) and app quit
+        if (windows->count() > 1) return true;
 
-        if (!window) return false;
+        // If archive is modified, prompt
+        /*if (modified_) {
+            switch (ArchiveSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save
+                return true;
+            case Discard:
+                return true;
+            }
+        }*/
 
-        if (windows->count() < 2) {
-            // if count is 1, check Notebook is modified
-
-            // if Notebook is modified, prompt to Save, Discard, or
-            // Cancel
-
-            // Handle prompt result (Cancel return; Discard proceed, no
-            // save; or Save and proceed if success)
-        }
-
-        views->deleteAllIn(window);
-        // delete all models
         return true;
-
-        // If that was last window, window service will emit the
-        // lastWindowClosed signal, and App will destroy this Notebook
-        // (which will automatically destroy its TempDir)
     }
+
+    virtual bool canCloseAllWindows(const QList<Window*>& windows)
+    {
+        /*if (modified_) {
+            switch (ArchiveSavePrompt) {
+            case Cancel:
+                return false;
+            case Save:
+                // save
+                return true;
+            case Discard:
+                return true;
+            }
+        }*/
+
+        return true;
+    }
+
+    /// TODO CR NEW IMPL WIP =========================================
 
 private:
     Coco::Path fnxPath_;
@@ -232,54 +248,6 @@ private:
                   { "title", info.name } },
                 cmd.context);
         });
-
-        registerPolyClosures_();
-    }
-
-    /// WIP
-    void registerPolyClosures_()
-    {
-        // TODO: We may not use a return value for this implementation of
-        // CLOSE_TAB and CLOSE_WINDOW_TABS. We may or may not need it? If
-        // we're sticking with the base class (Workspace) window close acceptor,
-        // then we likely DO need it. And, too, if that's the case, then last
-        // window closure may be where we handle the Notebook save prompt? So,
-        // we'd do a check there if the closure is the last window...
-
-        // Removes view without any prompt; model remains open
-        // TODO: Decide on return value (see above)
-        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return false;
-            views->deleteAt(
-                cmd.context,
-                cmd.param<int>("index", -1)); // -1 = current
-            return true;
-        });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_TAB_EVERYWHERE,
-            [&](const Command& cmd) {});
-
-        // TODO: Decide on return value (see above)
-        bus->addCommandHandler(
-            Commands::CLOSE_WINDOW_TABS,
-            [&](const Command& cmd) {
-                if (!cmd.context) return false;
-                views->deleteAllIn(cmd.context);
-                return true;
-            });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_TABS,
-            [&](const Command& cmd) {});
-
-        // Close window, if we remove close acceptor?
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_WINDOWS,
-            [&](const Command& cmd) {});
-
-        // Quit? Doesn't really fit, though...
     }
 
     void addWorkspaceIndicator_(Window* window)
@@ -302,7 +270,7 @@ private:
 
 private slots:
     // TODO: Could remove working dir validity check; also writeModelFile could
-    // return bool
+    // return bool?
     void onFnxModelDomChanged_()
     {
         if (!workingDir_.isValid()) return;
@@ -380,3 +348,59 @@ private slots:
 };
 
 } // namespace Fernanda
+
+/// TODO CR: Old code:
+
+/*virtual bool canCloseWindow(Window* window) override
+{
+    // TODO: Notebook will have to prompt not for tab closes but for window
+    // closures (if last window) and app quit
+
+    if (!window) return false;
+
+    if (windows->count() < 2) {
+        // if count is 1, check Notebook is modified
+
+        // if Notebook is modified, prompt to Save, Discard, or
+        // Cancel
+
+        // Handle prompt result (Cancel return; Discard proceed, no
+        // save; or Save and proceed if success)
+    }
+
+    views->deleteAllIn(window);
+    // delete all models
+    return true;
+}
+
+void registerPolyClosures_()
+{
+    bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+        if (!cmd.context) return false;
+        views->deleteAt(
+            cmd.context,
+            cmd.param<int>("index", -1)); // -1 = current
+        return true;
+    });
+
+    bus->addCommandHandler(
+        Commands::CLOSE_TAB_EVERYWHERE,
+        [&](const Command& cmd) {});
+
+    // TODO: Decide on return value (see above)
+    bus->addCommandHandler(
+        Commands::CLOSE_WINDOW_TABS,
+        [&](const Command& cmd) {
+            if (!cmd.context) return false;
+            views->deleteAllIn(cmd.context);
+            return true;
+        });
+
+    bus->addCommandHandler(
+        Commands::CLOSE_ALL_TABS,
+        [&](const Command& cmd) {});
+
+    bus->addCommandHandler(
+        Commands::CLOSE_ALL_WINDOWS,
+        [&](const Command& cmd) {});
+}*/

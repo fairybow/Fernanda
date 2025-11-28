@@ -72,6 +72,8 @@ public:
             active_window->activate(); // Stack under will raise any others
     }
 
+    int windowCount() const { return windows->count(); }
+
 signals:
     void lastWindowClosed();
 
@@ -89,12 +91,22 @@ protected:
     TreeViewModule* treeViews = new TreeViewModule(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
-    // virtual bool canQuit() = 0;
+    /// TODO CR NEW IMPL WIP =========================================
+
+    virtual bool canQuit() = 0;
 
 protected:
-    // So each Workspace type can determine when to allow its windows to close
-    /// WIP
-    virtual bool canCloseWindow(Window* window) = 0;
+    virtual bool canCloseTab(IFileView*) { return true; }
+    virtual bool canCloseTabEverywhere(const QList<IFileView*>&)
+    {
+        return true;
+    }
+    virtual bool canCloseWindowTabs(const QList<IFileView*>&) { return true; }
+    virtual bool canCloseAllTabs(const QList<IFileView*>&) { return true; }
+    virtual bool canCloseWindow(Window*) { return true; }
+    virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
+
+    /// TODO CR NEW IMPL WIP =========================================
 
 private:
     void setup_()
@@ -106,9 +118,14 @@ private:
         treeViews->initialize();
         colorBars->initialize();
 
-        windows->setCloseAcceptor([&](Window* window) {
-            return window ? canCloseWindow(window) : false;
-        });
+        views->setCanCloseTabHook(this, &Workspace::canCloseTab);
+        views->setCanCloseTabEverywhereHook(
+            this,
+            &Workspace::canCloseTabEverywhere);
+        views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
+        views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
+        windows->setCanCloseHook(this, &Workspace::canCloseWindow);
+        windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
 
         //...
 
@@ -128,3 +145,13 @@ private:
 };
 
 } // namespace Fernanda
+
+/// TODO CR: Old code:
+
+/*
+/// TODO CR: Needed? Will obviously need hook, but maybe not one called
+/// in each window's closeEvent!
+windows->setCloseAcceptor([&](Window* window) {
+    return window ? canCloseWindow(window) : false;
+});
+*/

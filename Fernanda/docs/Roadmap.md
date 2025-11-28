@@ -12,7 +12,6 @@
 - [ ] Begin removing unneeded commands and calling public methods in Workspaces where appropriate. Determine what commands Workspace uses that are still used by other Services/Modules. Whatever isn't could be a public method.
 - [ ] ^ Open file at path, new .txt, windows set (maybe) commands, etc
 - [ ] ^ Open file is complicated because of the need for interception (need to reconcile this command, anyway, with the Notepad and Notebook open/import file commands)
-- [x] ^ Virtual method for window close check
 - [x] Opening files via TreeView in both Workspaces
 - [x] NewTab behavior for both Workspaces
 - [x] Opening files via Menu in Notepad (Notebook menu won't open, just import)
@@ -20,20 +19,63 @@
 - [x] Granular FnxModel DOM updates
 - [x] Renaming files in tree view updates the tab text
 - [x] Moving/reorganizing Notebook files in TreeView
-- [ ] File closing
-- [x] File closing: Do Notebook "close all" and "close window" things first?
-- [x] File closing: Add decrement logic for ViewService::viewsPerModel_ when a view is closed
-- [x] File closing: MODEL_VIEW_COUNT command for Notepad to query when closing tab
-- [x] File closing: Removing FileService's automatic model closure on last view close
-- [ ] File closing: Likely, Notepad closes model on last view close
-- [x] File closing: Likely, Notebook leaves models open
-- [ ] File closing: Notebook uses LRU cache (may not need yet) to close some models (this would mean we'd need a persistence save again and a way to re-mark as modified on re-open?)
-- [x] Notebook: Close all tabs in window
-- [ ] Notepad: Close all tabs in window
-- [ ] Quitting: Using event filter and Workspace virtual
-- [ ] Update tab/window closure info in docs (Bus.md and Menus.md)
-- [ ] Deleting Notebook on last window closure
-- [ ] Quit procedures
+
+- [x] TODO KEY = CR (Closure Rework)
+- [ ] At each step of the way, decide what the "ideal" hook looks like, with proper encapsulation / separation of concerns in mind
+- [ ] Consider IService Coco::Bool or enum Accept/Reject for clarity
+- [x] CLOSE_TAB in ViewService
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_TAB virtual hook in Workspace
+- [x] CLOSE_TAB hook implementation in Notepad
+- [x] CLOSE_TAB hook implementation in Notebook
+- [x] CLOSE_TAB_EVERYWHERE in ViewService
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_TAB_EVERYWHERE virtual hook in Workspace
+- [x] CLOSE_TAB_EVERYWHERE hook implementation in Notepad
+- [x] CLOSE_TAB_EVERYWHERE hook implementation in Notebook
+- [x] CLOSE_WINDOW_TABS in ViewService
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_WINDOW_TABS virtual hook in Workspace
+- [x] CLOSE_WINDOW_TABS hook implementation in Notepad
+- [x] CLOSE_WINDOW_TABS hook implementation in Notebook
+- [x] CLOSE_ALL_TABS in ViewService
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_ALL_TABS virtual hook in Workspace
+- [x] CLOSE_ALL_TABS hook implementation in Notepad
+- [x] CLOSE_ALL_TABS hook implementation in Notebook
+- [x] AT THIS POINT: Doublecheck ViewServices implementations and hooks
+- [x] Windows close via close method
+- [x] WindowService flag for individual window closes during a multi-window close
+- [x] Hook type in WindowService
+- [x] Hook setter in WindowService
+- [x] CLOSE_WINDOW virtual hook in Workspace
+- [x] CLOSE_WINDOW hook implementation in Notepad
+- [x] CLOSE_WINDOW hook implementation in Notebook
+- [x] CLOSE_ALL_WINDOWS in WindowService
+- [x] Hook type in WindowService
+- [x] Hook setter in WindowService
+- [x] CLOSE_ALL_WINDOWS virtual hook in Workspace
+- [x] CLOSE_ALL_WINDOWS hook implementation in Notepad
+- [x] CLOSE_ALL_WINDOWS hook implementation in Notebook
+- [x] Quit virtual in Workspace
+- [x] Quit implementation in Notepad
+- [x] Quit implementation in Notebook
+- [x] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
+- [x] App's passive quit (when no windows are open)
+- [x] Ensure system shutdown is handled with app's quit routine
+- [ ] As part of Window/WindowService cleanup, ensure we still need custom Window::destroyed signal (`connect(view, &QObject::destroyed, this, [&, view] { /*clear view from a list*/ })` works fine)
+- [ ] Decide if Acceptor can be generalized AFTER. Don't get clever early!
+- [ ] Decide after whether we need the other polys (new tab and tree model things)
+- [ ] Finally, find all functions rendered unused by these changes and remove them!
+
+- [ ] Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
+
+- [ ] All commands should just call functions (like in ViewService), looks much cleaner, easier to follow
+- [ ] Make sure services aren't calling their own commands, dum-dum
 - [ ] Notepad save prompts
 - [ ] Marking Notebook as modified
 - [ ] Notebook save prompts
@@ -90,6 +132,7 @@
 ### General Clean-up
 
 - [x] Replace Coco/TextIo with project version
+- [ ] Ensure setup_ methods are only called by ctor (not in an initialize function); they should have only ctor-friendly setup, too
 - [ ] Ensure functions are well-named (actions taken on windows have the right preposition, for example (like `openFileIn(window)`))
 - [ ] Standardize callback code for close acceptor and similar
 - [ ] Find code that needs to be sectioned-off into a function for clarity
@@ -131,3 +174,14 @@
 ## Future
 
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
+- [ ] Notebook LRU cache for models, if needed
+- [ ] Might be nice to have selection option for modified files in Notebook save, to exclude some changes from the archive save; would need to consult with FileService instead of ViewService and get all modified models (which, until/if LRU cache, remain open)
+
+Find what needs automatic clean-up from member lists/hashes/sets and ensure we do so, e.g.:
+
+```
+modelViews_[model] << view;
+connect(view, &QObject::destroyed, this, [&, view, model] {
+    modelViews_[model].remove(view);
+});
+```

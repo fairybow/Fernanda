@@ -64,7 +64,7 @@
     <Filter Include="Code\Core\Workspaces\Notebook">
       <UniqueIdentifier>{065829c6-94f2-4c82-b7a5-3e20abb7c64b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Old %28Remove Later%29">
+    <Filter Include="Old %28Remove Later%29">
       <UniqueIdentifier>{6ff179fe-5e05-4c0f-a145-35d3cd86fbbb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -111,6 +111,9 @@
     <ClCompile Include="src\FnxModel.cpp">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClCompile>
+    <ClCompile Include="src\Menus.cpp">
+      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
@@ -137,16 +140,10 @@
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
     </None>
-    <None Include="docs\old_TempTodos.md">
-      <Filter>Docs</Filter>
-    </None>
     <None Include="docs\StartupFlowchart.md">
       <Filter>Docs</Filter>
     </None>
     <None Include="docs\ComponentArchitecture.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\old_TempCommandsReference.md">
       <Filter>Docs</Filter>
     </None>
     <None Include="docs\Roadmap.md">
@@ -173,7 +170,13 @@
     <None Include="docs\SavingTypes.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\ConfusingThings.md">
+    <None Include="docs\old_TempCommandsReference.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_TempTodos.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\Closures.md">
       <Filter>Docs</Filter>
     </None>
   </ItemGroup>
@@ -387,17 +390,11 @@
     <ClInclude Include="src\Fnx.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
-    <ClInclude Include="src\old_Utility.h">
-      <Filter>Code\Old %28Remove Later%29</Filter>
-    </ClInclude>
     <ClInclude Include="src\old_MenuModule.h">
-      <Filter>Code\Old %28Remove Later%29</Filter>
-    </ClInclude>
-    <ClInclude Include="src\old_ViewServiceCloseHelper.h">
-      <Filter>Code\Old %28Remove Later%29</Filter>
+      <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
     <ClInclude Include="src\old_FileServiceSaveHelper.h">
-      <Filter>Code\Old %28Remove Later%29</Filter>
+      <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

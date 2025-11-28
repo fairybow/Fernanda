@@ -10,7 +10,8 @@
 #pragma once
 
 #include <QApplication>
-#include <QSet>
+#include <QList>
+#include <QSessionManager>
 #include <QStringList>
 
 #include "Coco/Path.h"
@@ -36,6 +37,7 @@ public:
     Application(int& argc, char** argv)
         : QApplication(argc, argv)
     {
+        setup_();
     }
 
     virtual ~Application() override { TRACER; }
@@ -44,8 +46,9 @@ public:
     {
         if (initialized_) return;
 
-        setProperties_();
-        setup_();
+        Debug::initialize(Debug::Logging::Yes); // Add file later (in user data)
+        if (!AppDirs::initialize()) FATAL("App directory creation failed!");
+
         // Eventually, get args + session info
         // auto args = arguments();
         // Make session objects
@@ -70,30 +73,40 @@ public:
     }
 
 public slots:
-    // TODO: const ref args?
-    void onRelaunchAttempted(QStringList args)
+    void onRelaunchAttempted(const QStringList& args)
     {
         //...
+    }
+
+    void tryQuit()
+    {
+        // TODO: Go by Z-order (most to least recently used)
+        for (auto i = notebooks_.count() - 1; i >= 0; --i)
+            if (!notebooks_.at(i)->canQuit()) return;
+
+        if (notepad_ && !notepad_->canQuit()) return;
+
+        quit();
     }
 
 private:
     bool initialized_ = false;
     Notepad* notepad_ = nullptr;
-    QSet<Notebook*> notebooks_{};
+    QList<Notebook*> notebooks_{};
 
-    void setProperties_()
+    void setup_()
     {
         setOrganizationName(VERSION_AUTHOR_STRING);
         setOrganizationDomain(VERSION_DOMAIN);
         setApplicationName(VERSION_APP_NAME_STRING);
         setApplicationVersion(VERSION_FULL_STRING);
-        setQuitOnLastWindowClosed(false); // TODO: Can probably be true once quit structure in place
-    }
+        setQuitOnLastWindowClosed(false);
 
-    void setup_() const
-    {
-        Debug::initialize(Debug::Logging::Yes); // Add file later (in user data)
-        if (!AppDirs::initialize()) FATAL("App directory creation failed!");
+        connect(
+            this,
+            &Application::commitDataRequest,
+            this,
+            &Application::onCommitDataRequest_);
     }
 
     void initializeNotepad_()
@@ -103,6 +116,10 @@ private:
         notepad_->setPathInterceptor(
             this,
             &Application::notepadPathInterceptor_);
+
+        connect(notepad_, &Notepad::lastWindowClosed, this, [&] {
+            if (notebooks_.isEmpty()) quit();
+        });
 
         // Will only open new window if: 1) there is no Notebook from sessions;
         // 2) there is no Notepad window from sessions
@@ -116,13 +133,10 @@ private:
         auto notebook = new Notebook(fnx, this);
         notebooks_ << notebook;
 
-        // TODO: We'll have to move this probably, since we'll need to
-        // potentially quit, too, if this is the last Notebook and no Notepad
-        // windows are open
         connect(notebook, &Notebook::lastWindowClosed, this, [&, notebook] {
-            // Clean-up
-            notebooks_.remove(notebook);
+            notebooks_.removeAll(notebook);
             delete notebook;
+            if (notebooks_.isEmpty() && notepad_->windowCount() < 1) quit();
         });
 
         notebook->open(NewWindow::Yes);
@@ -146,6 +160,24 @@ private:
         }
 
         return false;
+    }
+
+private slots:
+    // TODO: Needs tested!
+    void onCommitDataRequest_(QSessionManager& manager)
+    {
+        // TODO: Go by Z-order (most to least recently used)
+        for (auto i = notebooks_.count() - 1; i >= 0; --i) {
+            if (!notebooks_.at(i)->canQuit()) {
+                manager.cancel();
+                return;
+            }
+        }
+
+        if (notepad_ && !notepad_->canQuit()) {
+            manager.cancel();
+            return;
+        }
     }
 };
 

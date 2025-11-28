@@ -43,8 +43,6 @@ class WindowService : public IService
     Q_OBJECT
 
 public:
-    using CloseAcceptor = std::function<bool(Window*)>;
-
     WindowService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -53,23 +51,40 @@ public:
 
     virtual ~WindowService() override { TRACER; }
 
-    CloseAcceptor closeAcceptor() const noexcept
+    /// TODO CR NEW IMPL WIP =========================================
+
+    friend class Window;
+
+    using CanCloseHook = std::function<bool(Window*)>;
+    using CanCloseAllHook = std::function<bool(const QList<Window*>&)>;
+
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseHook,
+        canCloseHook,
+        setCanCloseHook,
+        canCloseHook_);
+
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseAllHook,
+        canCloseAllHook,
+        setCanCloseAllHook,
+        canCloseAllHook_);
+
+    bool closeAll()
     {
-        return closeAcceptor_;
+        auto rz_windows = rzWindows_();
+
+        if (canCloseAllHook_ && !canCloseAllHook_(rz_windows)) return false;
+
+        isBatchClose_ = true;
+        for (auto& window : rz_windows)
+            window->close();
+        isBatchClose_ = false;
+
+        return true;
     }
 
-    void setCloseAcceptor(const CloseAcceptor& closeAcceptor)
-    {
-        closeAcceptor_ = closeAcceptor;
-    }
-
-    template <typename ClassT>
-    void setCloseAcceptor(ClassT* object, bool (ClassT::*method)(Window*))
-    {
-        closeAcceptor_ = [object, method](Window* window) {
-            return (object->*method)(window);
-        };
-    }
+    /// TODO CR NEW IMPL WIP =========================================
 
     int count() const { return static_cast<int>(unorderedWindows_.count()); }
     Window* active() const { return activeWindow_.get(); }
@@ -81,6 +96,7 @@ public:
             window->setGeometry(nextWindowGeometry_());
             window->show();
         }
+
         return window;
     }
 
@@ -94,6 +110,18 @@ protected:
         bus->addCommandHandler(Commands::WINDOWS_SET, [&] {
             return unorderedWindows_;
         });
+
+        bus->addCommandHandler(Commands::RZ_WINDOWS, [&] {
+            return rzWindows_();
+        });
+
+        /// TODO CR NEW IMPL WIP =========================================
+
+        bus->addCommandHandler(Commands::CLOSE_ALL_WINDOWS, [&] {
+            return closeAll();
+        });
+
+        /// TODO CR NEW IMPL WIP =========================================
     }
 
     virtual void connectBusEvents() override
@@ -128,11 +156,18 @@ private:
     static constexpr auto DEFAULT_GEOMETRY_ = QRect{ 100, 100, 600, 500 };
     static constexpr auto GEOMETRY_OFFSET_ = 50;
 
-    CloseAcceptor closeAcceptor_ = nullptr;
     QList<Window*> zOrderedVolatileWindows_{}; // Highest window is always last
     QSet<Window*> unorderedWindows_{};
     QPointer<Window> activeWindow_ = nullptr;
     QPointer<Window> lastFocusedAppWindow_ = nullptr;
+
+    /// TODO CR NEW IMPL WIP =========================================
+
+    bool isBatchClose_ = false;
+    CanCloseHook canCloseHook_ = nullptr;
+    CanCloseAllHook canCloseAllHook_ = nullptr;
+
+    /// TODO CR NEW IMPL WIP =========================================
 
     void setup_();
 
@@ -144,7 +179,7 @@ private:
         zOrderedVolatileWindows_ << window;
         unorderedWindows_ << window;
 
-        window->windowService_ = this;
+        window->service_ = this;
         window->installEventFilter(this);
 
         connect(
@@ -176,7 +211,7 @@ private:
     QList<Window*> windows_() const { return zOrderedVolatileWindows_; }
 
     // Highest window is first when reversed
-    QList<Window*> windowsReversed_() const
+    QList<Window*> rzWindows_() const
     {
         QList<Window*> list{};
         auto it = zOrderedVolatileWindows_.crbegin();
@@ -281,6 +316,32 @@ private slots:
 };
 
 } // namespace Fernanda
+
+/// TODO CR: Old code:
+
+/*
+CloseAcceptor closeAcceptor_ = nullptr; /// TODO CR: Needed?
+
+/// TODO CR: Needed?
+CloseAcceptor closeAcceptor() const noexcept
+{
+    return closeAcceptor_;
+}
+
+/// TODO CR: Needed?
+void setCloseAcceptor(const CloseAcceptor& closeAcceptor)
+{
+    closeAcceptor_ = closeAcceptor;
+}
+
+/// TODO CR: Needed?
+template <typename ClassT>
+void setCloseAcceptor(ClassT* object, bool (ClassT::*method)(Window*))
+{
+    closeAcceptor_ = [object, method](Window* window) {
+        return (object->*method)(window);
+    };
+}*/
 
 /// Old:
 

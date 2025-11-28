@@ -11,8 +11,8 @@
 
 #include <QHash>
 #include <QList>
-#include <QSet>
 #include <QObject>
+#include <QSet>
 #include <QString>
 #include <QTextDocument>
 #include <QVariant>
@@ -54,8 +54,11 @@ public:
 
     virtual ~FileService() override { TRACER; }
 
+    /// TODO CR NEW IMPL WIP =========================================
+
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
+
     void deleteModel(IFileModel* model)
     {
         if (!model) return;
@@ -79,6 +82,8 @@ public:
         models_.clear();
         pathToFileModel_.clear();
     }
+
+    /// TODO CR NEW IMPL WIP =========================================
 
     void setPathTitleOverride(const Coco::Path& path, const QString& title)
     {

@@ -117,6 +117,7 @@ inline void setLogging(bool logging)
 
 COCO_BOOL(Logging);
 
+// To be safe, don't call this before Qt has finished app construction
 inline void initialize(Logging logging, const Coco::Path& logFilePath = {})
 {
     setLogging(logging);
@@ -157,9 +158,7 @@ struct Log
             msg = format;
         }
 
-        if (obj) {
-            msg = std::format(Internal::VOC_FORMAT_, obj, msg);
-        }
+        if (obj) { msg = std::format(Internal::VOC_FORMAT_, obj, msg); }
 
         Internal::handler_(type, context, QString::fromUtf8(msg));
     }
