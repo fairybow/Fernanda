@@ -27,14 +27,7 @@ constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 // each. These commands are meant to be called from a Workspace-agnostic service
 // but with effects unique to each Workspace type
 
-/// TODO CR: New plan (see Closures/Roadmap)!
-
-//constexpr auto CLOSE_TAB = "poly:close_tab";
-//constexpr auto CLOSE_TAB_EVERYWHERE = "poly:close_tab_everywhere";
-//constexpr auto CLOSE_WINDOW_TABS = "poly:close_window_tabs";
-//constexpr auto CLOSE_ALL_TABS = "poly:close_all_tabs";
-//// Close window
-//constexpr auto CLOSE_ALL_WINDOWS = "poly:close_all_windows";
+// TODO: Determine if we need these or just use hooks or whatever
 
 constexpr auto NEW_TAB = "poly:new_tab"; /// *
 constexpr auto WS_TREE_VIEW_MODEL = "poly:ws_tree_view_model"; /// *, non-menu
@@ -66,10 +59,10 @@ constexpr auto COPY = "views:copy"; /// *
 constexpr auto PASTE = "views:paste"; /// *
 constexpr auto DEL = "views:delete"; /// *
 constexpr auto SELECT_ALL = "views:select_all"; /// *
-constexpr auto CLOSE_TAB = "views:close_tab";
-constexpr auto CLOSE_TAB_EVERYWHERE = "views:close_tab_everywhere";
-constexpr auto CLOSE_WINDOW_TABS = "views:close_window_tabs";
-constexpr auto CLOSE_ALL_TABS = "views:close_all_tabs";
+constexpr auto CLOSE_TAB = "views:close_tab"; /// *
+constexpr auto CLOSE_TAB_EVERYWHERE = "views:close_tab_everywhere"; /// *
+constexpr auto CLOSE_WINDOW_TABS = "views:close_window_tabs"; /// *
+constexpr auto CLOSE_ALL_TABS = "views:close_all_tabs"; /// *
 
 // SettingsModule scope
 

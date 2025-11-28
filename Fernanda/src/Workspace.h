@@ -91,8 +91,6 @@ protected:
     TreeViewModule* treeViews = new TreeViewModule(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
-    /// TODO CR NEW IMPL WIP =========================================
-
     virtual bool canQuit() = 0;
 
 protected:
@@ -105,8 +103,6 @@ protected:
     virtual bool canCloseAllTabs(const QList<IFileView*>&) { return true; }
     virtual bool canCloseWindow(Window*) { return true; }
     virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
-
-    /// TODO CR NEW IMPL WIP =========================================
 
 private:
     void setup_()
@@ -145,13 +141,3 @@ private:
 };
 
 } // namespace Fernanda
-
-/// TODO CR: Old code:
-
-/*
-/// TODO CR: Needed? Will obviously need hook, but maybe not one called
-/// in each window's closeEvent!
-windows->setCloseAcceptor([&](Window* window) {
-    return window ? canCloseWindow(window) : false;
-});
-*/

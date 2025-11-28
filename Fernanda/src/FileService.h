@@ -54,8 +54,6 @@ public:
 
     virtual ~FileService() override { TRACER; }
 
-    /// TODO CR NEW IMPL WIP =========================================
-
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
 
@@ -82,8 +80,6 @@ public:
         models_.clear();
         pathToFileModel_.clear();
     }
-
-    /// TODO CR NEW IMPL WIP =========================================
 
     void setPathTitleOverride(const Coco::Path& path, const QString& title)
     {

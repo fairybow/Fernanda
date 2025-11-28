@@ -58,8 +58,6 @@ public:
         setPathInterceptor,
         pathInterceptor_);
 
-    /// TODO CR NEW IMPL WIP =========================================
-
     virtual bool canQuit()
     {
         return windows->count() < 1 || windows->closeAll();
@@ -230,8 +228,6 @@ protected:
         return true;
     }
 
-    /// TODO CR NEW IMPL WIP =========================================
-
 private:
     Coco::Path currentBaseDir_ = AppDirs::defaultDocs();
     PathInterceptor pathInterceptor_ = nullptr;
@@ -299,7 +295,6 @@ private:
             this,
             &Notepad::onTreeViewDoubleClicked_);
 
-        /// TODO CR:
         connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
     }
 
@@ -336,7 +331,6 @@ private slots:
             window);
     }
 
-    /// TODO CR:
     void onViewDestroyed_(IFileModel* model)
     {
         if (!model) return;
@@ -345,76 +339,3 @@ private slots:
 };
 
 } // namespace Fernanda
-
-/// TODO CR: Old code:
-
-/*virtual bool canCloseWindow(Window* window) override
-{
-    if (!window) return false;
-    return closeWindowTabs_(window);
-}
-
-/// WIP
-void registerPolyClosures_()
-{
-    bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-        if (!cmd.context) return false;
-        auto index = cmd.param<int>("index", -1);
-        auto model = views->modelAt(cmd.context, index);
-        if (!model) return false;
-
-        auto is_last_view = views->viewsOn(model) <= 1;
-
-        if (is_last_view) {
-            // Check if model is modified
-            // If so, prompt save
-            // Handle save prompt result
-        }
-
-        views->deleteAt(cmd.context, index);
-        if (is_last_view) files->deleteModel(model);
-        return true;
-    });
-
-    bus->addCommandHandler(
-        Commands::CLOSE_TAB_EVERYWHERE,
-        [&](const Command& cmd) {});
-
-    bus->addCommandHandler(
-        Commands::CLOSE_WINDOW_TABS,
-        [&](const Command& cmd) { return closeWindowTabs_(cmd.context); });
-
-    bus->addCommandHandler(
-        Commands::CLOSE_ALL_TABS,
-        [&](const Command& cmd) {});
-
-    // Close window, if we remove close acceptor?
-
-    bus->addCommandHandler(
-        Commands::CLOSE_ALL_WINDOWS,
-        [&](const Command& cmd) {});
-
-    // Quit? Doesn't really fit, though...
-}
-
-/// WIP
-bool closeWindowTabs_(Window* window)
-{
-    if (!window) return false;
-
-    // Get a list of all file models (iterating backward) that are not
-    // multi-window and are modified (see 9e6cd80 ViewCloseHelper)
-
-    // Save Prompt (multi-file selection version; Save (with
-    // selections, defaulted to all), Discard, or Cancel)
-
-    // Handle prompt result (Cancel return, Discard proceed without
-    // saves, Save (any or all selected)
-
-    // If proceeding:
-    views->deleteAllIn(window);
-    // Delete all deletable models (those that were in that window
-(modified
-    // or not) and not open in other windows)
-    return true;
-}*/

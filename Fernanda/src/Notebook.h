@@ -68,9 +68,6 @@ public:
     virtual ~Notebook() override { TRACER; }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
-
-    /// TODO CR NEW IMPL WIP =========================================
-
     virtual bool canQuit() { return windows->closeAll(); }
 
 protected:
@@ -110,8 +107,6 @@ protected:
 
         return true;
     }
-
-    /// TODO CR NEW IMPL WIP =========================================
 
 private:
     Coco::Path fnxPath_;
@@ -348,59 +343,3 @@ private slots:
 };
 
 } // namespace Fernanda
-
-/// TODO CR: Old code:
-
-/*virtual bool canCloseWindow(Window* window) override
-{
-    // TODO: Notebook will have to prompt not for tab closes but for window
-    // closures (if last window) and app quit
-
-    if (!window) return false;
-
-    if (windows->count() < 2) {
-        // if count is 1, check Notebook is modified
-
-        // if Notebook is modified, prompt to Save, Discard, or
-        // Cancel
-
-        // Handle prompt result (Cancel return; Discard proceed, no
-        // save; or Save and proceed if success)
-    }
-
-    views->deleteAllIn(window);
-    // delete all models
-    return true;
-}
-
-void registerPolyClosures_()
-{
-    bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-        if (!cmd.context) return false;
-        views->deleteAt(
-            cmd.context,
-            cmd.param<int>("index", -1)); // -1 = current
-        return true;
-    });
-
-    bus->addCommandHandler(
-        Commands::CLOSE_TAB_EVERYWHERE,
-        [&](const Command& cmd) {});
-
-    // TODO: Decide on return value (see above)
-    bus->addCommandHandler(
-        Commands::CLOSE_WINDOW_TABS,
-        [&](const Command& cmd) {
-            if (!cmd.context) return false;
-            views->deleteAllIn(cmd.context);
-            return true;
-        });
-
-    bus->addCommandHandler(
-        Commands::CLOSE_ALL_TABS,
-        [&](const Command& cmd) {});
-
-    bus->addCommandHandler(
-        Commands::CLOSE_ALL_WINDOWS,
-        [&](const Command& cmd) {});
-}*/

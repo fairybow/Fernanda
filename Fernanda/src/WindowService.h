@@ -43,6 +43,11 @@ class WindowService : public IService
     Q_OBJECT
 
 public:
+    friend class Window;
+
+    using CanCloseHook = std::function<bool(Window*)>;
+    using CanCloseAllHook = std::function<bool(const QList<Window*>&)>;
+
     WindowService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -50,13 +55,6 @@ public:
     }
 
     virtual ~WindowService() override { TRACER; }
-
-    /// TODO CR NEW IMPL WIP =========================================
-
-    friend class Window;
-
-    using CanCloseHook = std::function<bool(Window*)>;
-    using CanCloseAllHook = std::function<bool(const QList<Window*>&)>;
 
     DECLARE_HOOK_ACCESSORS(
         CanCloseHook,
@@ -83,8 +81,6 @@ public:
 
         return true;
     }
-
-    /// TODO CR NEW IMPL WIP =========================================
 
     int count() const { return static_cast<int>(unorderedWindows_.count()); }
     Window* active() const { return activeWindow_.get(); }
@@ -115,13 +111,9 @@ protected:
             return rzWindows_();
         });
 
-        /// TODO CR NEW IMPL WIP =========================================
-
         bus->addCommandHandler(Commands::CLOSE_ALL_WINDOWS, [&] {
             return closeAll();
         });
-
-        /// TODO CR NEW IMPL WIP =========================================
     }
 
     virtual void connectBusEvents() override
@@ -161,13 +153,9 @@ private:
     QPointer<Window> activeWindow_ = nullptr;
     QPointer<Window> lastFocusedAppWindow_ = nullptr;
 
-    /// TODO CR NEW IMPL WIP =========================================
-
     bool isBatchClose_ = false;
     CanCloseHook canCloseHook_ = nullptr;
     CanCloseAllHook canCloseAllHook_ = nullptr;
-
-    /// TODO CR NEW IMPL WIP =========================================
 
     void setup_();
 
@@ -316,32 +304,6 @@ private slots:
 };
 
 } // namespace Fernanda
-
-/// TODO CR: Old code:
-
-/*
-CloseAcceptor closeAcceptor_ = nullptr; /// TODO CR: Needed?
-
-/// TODO CR: Needed?
-CloseAcceptor closeAcceptor() const noexcept
-{
-    return closeAcceptor_;
-}
-
-/// TODO CR: Needed?
-void setCloseAcceptor(const CloseAcceptor& closeAcceptor)
-{
-    closeAcceptor_ = closeAcceptor;
-}
-
-/// TODO CR: Needed?
-template <typename ClassT>
-void setCloseAcceptor(ClassT* object, bool (ClassT::*method)(Window*))
-{
-    closeAcceptor_ = [object, method](Window* window) {
-        return (object->*method)(window);
-    };
-}*/
 
 /// Old:
 

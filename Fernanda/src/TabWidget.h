@@ -218,49 +218,10 @@ public:
         return widget;
     }
 
-    /// TODO CR: This is for convenience. Either we re-pass window and index in
-    /// ViewService, or we do it here and make ViewService cleaner
-    //QWidget* removeTab(QWidget* widget)
-    //{
-    //     auto index = indexOf(widget);
-    //     auto button = closeButtonAt_(index);
-
-    //    tabBar_->removeTab(index);
-
-    //    if (button) {
-    //        closeButtons_.removeAll(button);
-    //        delete button;
-    //    }
-
-    //    if (widget) // Should happen
-    //    {
-    //        widgetStack_->removeWidget(widget);
-    //        widget->setParent(nullptr);
-    //        tabUserData_.remove(widget);
-    //    }
-
-    //    // Force hover state update after layout change, so if the
-    //    next-to-last
-    //    // tab's close button is now under mouse after the last tab is closed,
-    //    // we can ensure it is highlighted
-    //    updateMouseHoverAfterLayoutChange_();
-
-    //    tabRemoved(index); // Hook
-    //    emit tabCountChanged(); // Right place for this?
-    //    return widget;
-    //}
-
     template <Coco::Concepts::QWidgetPointer T> T removeTab(int index)
     {
         return qobject_cast<T>(removeTab(index));
     }
-
-    /// TODO CR: This is for convenience. Either we re-pass window and index in
-    /// ViewService, or we do it here and make ViewService cleaner
-    // template <Coco::Concepts::QWidgetPointer T> T removeTab(QWidget* widget)
-    //{
-    //    return qobject_cast<T>(removeTab(widget));
-    //}
 
     QWidgetList clear()
     {

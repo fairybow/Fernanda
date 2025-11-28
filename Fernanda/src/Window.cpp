@@ -15,7 +15,6 @@
 
 namespace Fernanda {
 
-/// TODO CR:
 void Window::closeEvent(QCloseEvent* event)
 {
     // For batch close, WindowService uses its own hook
@@ -35,16 +34,3 @@ void Window::closeEvent(QCloseEvent* event)
 }
 
 } // namespace Fernanda
-
-/// TODO CR: Old code:
-
-/*void Window::closeEvent(QCloseEvent* event)
-{
-    auto accepted = true;
-
-    if (windowService_)
-        if (auto acceptor = windowService_->closeAcceptor())
-            accepted = acceptor(this);
-
-    accepted ? QMainWindow::closeEvent(event) : event->ignore();
-}*/

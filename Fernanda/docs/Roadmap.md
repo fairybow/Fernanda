@@ -21,7 +21,7 @@
 - [x] Moving/reorganizing Notebook files in TreeView
 
 - [x] TODO KEY = CR (Closure Rework)
-- [ ] At each step of the way, decide what the "ideal" hook looks like, with proper encapsulation / separation of concerns in mind
+- [x] At each step of the way, decide what the "ideal" hook looks like, with proper encapsulation / separation of concerns in mind
 - [ ] Consider IService Coco::Bool or enum Accept/Reject for clarity
 - [x] CLOSE_TAB in ViewService
 - [x] Hook type in ViewService

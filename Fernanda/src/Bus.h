@@ -313,12 +313,7 @@ signals:
         Window* context,
         const QPoint& globalPos,
         const QModelIndex& index);
-
-    /// TODO CR NEW IMPL WIP =========================================
-
     void viewDestroyed(IFileModel* model);
-
-    /// TODO CR NEW IMPL WIP =========================================
 
     /// Old:
 

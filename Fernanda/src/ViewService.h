@@ -50,6 +50,13 @@ class ViewService : public IService
     Q_OBJECT
 
 public:
+    using CanCloseTabHook = std::function<bool(IFileView*)>;
+    using CanCloseTabEverywhereHook =
+        std::function<bool(const QList<IFileView*>&)>;
+    using CanCloseWindowTabsHook =
+        std::function<bool(const QList<IFileView*>&)>;
+    using CanCloseAllTabsHook = std::function<bool(const QList<IFileView*>&)>;
+
     ViewService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -57,15 +64,6 @@ public:
     }
 
     virtual ~ViewService() override { TRACER; }
-
-    /// TODO CR NEW IMPL WIP =========================================
-
-    using CanCloseTabHook = std::function<bool(IFileView*)>;
-    using CanCloseTabEverywhereHook =
-        std::function<bool(const QList<IFileView*>&)>;
-    using CanCloseWindowTabsHook =
-        std::function<bool(const QList<IFileView*>&)>;
-    using CanCloseAllTabsHook = std::function<bool(const QList<IFileView*>&)>;
 
     DECLARE_HOOK_ACCESSORS(
         CanCloseTabHook,
@@ -163,8 +161,6 @@ public:
         return views;
     }
 
-    /// TODO CR NEW IMPL WIP =========================================
-
 protected:
     virtual void registerBusCommands() override
     {
@@ -196,8 +192,6 @@ protected:
             selectAll_(cmd.context, cmd.param<int>("index", -1));
         });
 
-        /// TODO CR NEW IMPL WIP =========================================
-
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             closeTab_(cmd.context, cmd.param<int>("index", -1));
         });
@@ -215,8 +209,6 @@ protected:
         bus->addCommandHandler(
             Commands::CLOSE_ALL_TABS,
             [&](const Command& cmd) { closeAllTabs_(); });
-
-        /// TODO CR NEW IMPL WIP =========================================
     }
 
     virtual void connectBusEvents() override
@@ -251,16 +243,10 @@ protected:
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
     QHash<IFileModel*, int> viewsPerModel_{};
-    // QHash<IFileModel*, QSet<IFileView*>> modelViews_{};
-
-    /// TODO CR NEW IMPL WIP =========================================
-
     CanCloseTabHook canCloseTabHook_ = nullptr;
     CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
     CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
     CanCloseAllTabsHook canCloseAllTabsHook_ = nullptr;
-
-    /// TODO CR NEW IMPL WIP =========================================
 
     void setup_()
     {
@@ -347,8 +333,6 @@ private:
         if (!view || !view->supportsEditing()) return;
         view->selectAll();
     }
-
-    /// TODO CR NEW IMPL WIP =========================================
 
     void closeTab_(Window* window, int index = -1)
     {
@@ -492,8 +476,6 @@ private:
         for (auto& view : views)
             delete view;
     }
-
-    /// TODO CR NEW IMPL WIP =========================================
 
     // Active file view can be set nullptr!
     void setActiveFileView_(Window* window, int index)
