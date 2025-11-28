@@ -1,5 +1,7 @@
 # Roadmap
 
+TODO: Get a "definitive" list of clean-up items to do at the very, very "end" (e.g. license check, includes check, check commands aren't called by their own registrar, etc).
+
 ## MVP
 
 - [ ] FNX
