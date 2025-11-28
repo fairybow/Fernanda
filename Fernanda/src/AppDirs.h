@@ -20,8 +20,8 @@ namespace Fernanda::AppDirs {
 
 inline const Coco::Path& userData()
 {
-    // Coco::Path::SystemDir won't work as a static variable, since it'll be
-    // initialized before Qt has been initialized
+    // Coco::Path::SystemDir won't work as a static member variable, since it'll
+    // be initialized before Qt has been initialized
     static auto dir = Coco::Path::Home(".fernanda");
     return dir;
 }
@@ -38,6 +38,8 @@ inline const Coco::Path& defaultDocs()
     return dir;
 }
 
+// Cannot be called before QApplication has finished construction, since it
+// relies on Path::SystemDir functions, which only work once Qt is ready
 inline bool initialize()
 {
     auto& t = temp();

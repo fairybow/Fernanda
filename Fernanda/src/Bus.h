@@ -18,6 +18,7 @@
 #include <QList>
 #include <QModelIndex>
 #include <QObject>
+#include <QPoint>
 #include <QString>
 #include <QVariant>
 #include <QVariantMap>
@@ -33,6 +34,9 @@ class IFileModel;
 class IFileView;
 enum class SaveResult;
 
+// We don't ever need to use this manually in command handler returns. Bus
+// handles this itself. Outside usage is more for converting parameters when
+// executing commands
 template <typename T> inline [[nodiscard]] QVariant qVar(const T& value)
 {
     return QVariant::fromValue<T>(value);
@@ -296,6 +300,7 @@ public:
 
 signals:
     /// Re-verified:
+    void lastWindowClosed();
     void windowCreated(Window* context);
     void windowDestroyed(Window* context);
     // View may be nullptr!
@@ -304,6 +309,11 @@ signals:
     void fileModelReadied(Window* context, IFileModel* model);
     void fileModelModificationChanged(IFileModel* model, bool modified);
     void fileModelMetaChanged(IFileModel* model);
+    void treeViewContextMenuRequested(
+        Window* context,
+        const QPoint& globalPos,
+        const QModelIndex& index);
+    void viewDestroyed(IFileModel* model);
 
     /// Old:
 
@@ -311,27 +321,26 @@ signals:
 
     // WindowService
 
-    void visibleWindowCountChanged(int count);
-    void lastWindowClosed();
+    //void visibleWindowCountChanged(int count);
 
     // Window may be nullptr!
     // void activeWindowChanged(Window* window);
 
     // FileService
 
-    void fileSaved(SaveResult result, const Coco::Path& path);
-    void fileSavedAs(
-        SaveResult result,
-        const Coco::Path& path,
-        const Coco::Path& oldPath = {});
+    //void fileSaved(SaveResult result, const Coco::Path& path);
+    //void fileSavedAs(
+        //SaveResult result,
+        //const Coco::Path& path,
+        //const Coco::Path& oldPath = {});
     // void windowSaveExecuted(Window* window, SaveResult result);
     // void workspaceSaveExecuted(SaveResult result);
 
     // ViewService
 
-    void windowTabCountChanged(Window* window, int count);
+    //void windowTabCountChanged(Window* window, int count);
 
-    void viewClosed(IFileView* view);
+    //void viewClosed(IFileView* view);
 
     // SettingsModule
 

@@ -10,6 +10,7 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 
 #include <QAction>
 #include <QKeySequence>
@@ -33,6 +34,28 @@ namespace Fernanda::Menus {
 using Inserter = std::function<void(QMenu*)>;
 COCO_BOOL(AutoRepeat);
 
+template <typename SlotT>
+inline QAction* makeAction(
+    Window* window,
+    const QString& text,
+    SlotT&& slot,
+    const QKeySequence& keySequence = {},
+    AutoRepeat autoRepeat = AutoRepeat::No)
+{
+    if (!window) return nullptr;
+
+    auto action = new QAction(text, window);
+    action->connect(
+        action,
+        &QAction::triggered,
+        window,
+        std::forward<SlotT>(slot));
+    action->setShortcut(keySequence);
+    action->setAutoRepeat(autoRepeat);
+
+    return action;
+}
+
 inline QAction* makeBusAction(
     Bus* bus,
     Window* window,
@@ -42,16 +65,16 @@ inline QAction* makeBusAction(
     const QKeySequence& keySequence = {},
     AutoRepeat autoRepeat = AutoRepeat::No)
 {
-    if (!window) return nullptr;
+    if (!bus) return nullptr;
 
-    auto action = new QAction(text, window);
-    action->connect(action, &QAction::triggered, window, [=] {
-        bus->execute(commandId, commandParams, window);
-    });
-    action->setShortcut(keySequence);
-    action->setAutoRepeat(autoRepeat);
-
-    return action;
+    return makeAction(
+        window,
+        text,
+        [bus, commandId, commandParams, window] {
+            bus->execute(commandId, commandParams, window);
+        },
+        keySequence,
+        autoRepeat);
 }
 
 inline QAction* makeBusAction(
@@ -73,6 +96,10 @@ inline QAction* makeBusAction(
 }
 
 namespace Internal {
+
+    // TODO: Deal with moving stuff to source file and/or removing this bespoke
+    // method later
+    QAction* makeAppQuitAction_(Window* window);
 
     // TODO: Remove {} for no arg commands (may not need args arg after all)
     // TODO: Add key sequences
@@ -113,25 +140,39 @@ namespace Internal {
             bus,
             window,
             Commands::CLOSE_TAB,
-            Tr::Menus::fileCloseTab());
+            Tr::Menus::fileCloseTab()); /// *
 
-        common.file.closeAllTabsInWindow = makeBusAction(
+        common.file.closeTabEverywhere = makeBusAction(
             bus,
             window,
-            Commands::CLOSE_ALL_TABS_IN_WINDOW,
-            Tr::Menus::fileCloseAllTabsInWindow());
+            Commands::CLOSE_TAB_EVERYWHERE,
+            Tr::Menus::fileCloseTabEverywhere()); /// *
 
-        common.file.closeWindow = makeBusAction(
+        common.file.closeWindowTabs = makeBusAction(
             bus,
             window,
-            Commands::CLOSE_WINDOW,
-            Tr::Menus::fileCloseWindow());
+            Commands::CLOSE_WINDOW_TABS,
+            Tr::Menus::fileCloseWindowTabs()); /// *
 
-        common.file.quit = makeBusAction(
+        common.file.closeAllTabs = makeBusAction(
             bus,
             window,
-            Commands::QUIT,
-            Tr::Menus::fileQuit());
+            Commands::CLOSE_ALL_TABS,
+            Tr::Menus::fileCloseAllTabs()); /// *
+
+        common.file.closeWindow =
+            makeAction(window, Tr::Menus::fileCloseWindow(), [window] {
+                if (!window) return;
+                window->close();
+            }); /// *
+
+        common.file.closeAllWindows = makeBusAction(
+            bus,
+            window,
+            Commands::CLOSE_ALL_WINDOWS,
+            Tr::Menus::fileCloseAllWindows()); /// *
+
+        common.file.quit = makeAppQuitAction_(window); /// *
 
         common.edit.undo = makeBusAction(
             bus,
@@ -204,9 +245,12 @@ namespace Internal {
         inserter(menu);
 
         menu->addAction(common.file.closeTab);
-        menu->addAction(common.file.closeAllTabsInWindow);
+        menu->addAction(common.file.closeTabEverywhere);
+        menu->addAction(common.file.closeWindowTabs);
+        menu->addAction(common.file.closeAllTabs);
         menu->addSeparator();
         menu->addAction(common.file.closeWindow);
+        menu->addAction(common.file.closeAllWindows);
         menu->addSeparator();
         menu->addAction(common.file.quit);
         menuBar->addMenu(menu);

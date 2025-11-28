@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QEvent>
 #include <QList>
 #include <QObject>
@@ -41,6 +43,11 @@ class WindowService : public IService
     Q_OBJECT
 
 public:
+    friend class Window;
+
+    using CanCloseHook = std::function<bool(Window*)>;
+    using CanCloseAllHook = std::function<bool(const QList<Window*>&)>;
+
     WindowService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -49,42 +56,63 @@ public:
 
     virtual ~WindowService() override { TRACER; }
 
-    Window::CloseAcceptor closeAcceptor() const noexcept
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseHook,
+        canCloseHook,
+        setCanCloseHook,
+        canCloseHook_);
+
+    DECLARE_HOOK_ACCESSORS(
+        CanCloseAllHook,
+        canCloseAllHook,
+        setCanCloseAllHook,
+        canCloseAllHook_);
+
+    bool closeAll()
     {
-        return closeAcceptor_;
+        auto rz_windows = rzWindows_();
+
+        if (canCloseAllHook_ && !canCloseAllHook_(rz_windows)) return false;
+
+        isBatchClose_ = true;
+        for (auto& window : rz_windows)
+            window->close();
+        isBatchClose_ = false;
+
+        return true;
     }
 
-    void setCloseAcceptor(const Window::CloseAcceptor& closeAcceptor)
-    {
-        closeAcceptor_ = closeAcceptor;
-    }
+    int count() const { return static_cast<int>(unorderedWindows_.count()); }
+    Window* active() const { return activeWindow_.get(); }
 
-    template <typename ClassT>
-    void setCloseAcceptor(ClassT* object, bool (ClassT::*method)(Window*))
+    Window* newWindow()
     {
-        closeAcceptor_ = [object, method](Window* window) {
-            return (object->*method)(window);
-        };
+        auto window = make_();
+        if (window) {
+            window->setGeometry(nextWindowGeometry_());
+            window->show();
+        }
+
+        return window;
     }
 
 protected:
     virtual void registerBusCommands() override
     {
         bus->addCommandHandler(Commands::NEW_WINDOW, [&] {
-            auto window = make_();
-            if (window) {
-                window->setGeometry(nextWindowGeometry_());
-                window->show();
-            }
-            return window;
-        });
-
-        bus->addCommandHandler(Commands::ACTIVE_WINDOW, [&] {
-            return activeWindow_.get();
+            return newWindow();
         });
 
         bus->addCommandHandler(Commands::WINDOWS_SET, [&] {
             return unorderedWindows_;
+        });
+
+        bus->addCommandHandler(Commands::RZ_WINDOWS, [&] {
+            return rzWindows_();
+        });
+
+        bus->addCommandHandler(Commands::CLOSE_ALL_WINDOWS, [&] {
+            return closeAll();
         });
     }
 
@@ -105,13 +133,12 @@ protected:
         } else if (
             event->type() == QEvent::Show || event->type() == QEvent::Hide) {
 
-            //if (auto window = qobject_cast<Window*>(watched))
-                //emit bus->visibleWindowCountChanged(visibleCount_());
+            // if (auto window = qobject_cast<Window*>(watched))
+            // emit bus->visibleWindowCountChanged(visibleCount_());
 
         } else if (event->type() == QEvent::Close) {
 
             //...
-
         }
 
         return QObject::eventFilter(watched, event);
@@ -121,12 +148,14 @@ private:
     static constexpr auto DEFAULT_GEOMETRY_ = QRect{ 100, 100, 600, 500 };
     static constexpr auto GEOMETRY_OFFSET_ = 50;
 
-    Window::CloseAcceptor closeAcceptor_ = nullptr;
-
     QList<Window*> zOrderedVolatileWindows_{}; // Highest window is always last
     QSet<Window*> unorderedWindows_{};
     QPointer<Window> activeWindow_ = nullptr;
     QPointer<Window> lastFocusedAppWindow_ = nullptr;
+
+    bool isBatchClose_ = false;
+    CanCloseHook canCloseHook_ = nullptr;
+    CanCloseAllHook canCloseAllHook_ = nullptr;
 
     void setup_();
 
@@ -138,7 +167,7 @@ private:
         zOrderedVolatileWindows_ << window;
         unorderedWindows_ << window;
 
-        window->windowService_ = this;
+        window->service_ = this;
         window->installEventFilter(this);
 
         connect(
@@ -165,12 +194,12 @@ private:
         return DEFAULT_GEOMETRY_;
     }
 
-    // NOTE: Returns a stable copy of the z-ordered window list
-    // (copy won't be affected by subsequent add/remove operations)
+    // Returns a stable copy of the z-ordered window list (copy won't be
+    // affected by subsequent add/remove operations)
     QList<Window*> windows_() const { return zOrderedVolatileWindows_; }
 
-    // NOTE: Highest window is first when reversed
-    QList<Window*> windowsReversed_() const
+    // Highest window is first when reversed
+    QList<Window*> rzWindows_() const
     {
         QList<Window*> list{};
         auto it = zOrderedVolatileWindows_.crbegin();
@@ -206,7 +235,7 @@ private:
         return visible;
     }
 
-    // Note: Can be set to nullptr
+    // Can be set to nullptr
     void setActiveWindow_(Window* activeWindow)
     {
         if (activeWindow_ == activeWindow) return;
@@ -247,8 +276,8 @@ private slots:
             // the same WindowManager, then we should activate that one instead
             if (lastFocusedAppWindow_
                 && zOrderedVolatileWindows_.contains(lastFocusedAppWindow_)) {
-                // Note: I am not entirely sure my logic/reasoning for tracking
-                // an app-wide active window is correct or necessary, but so far
+                // I am not entirely sure my logic/reasoning for tracking an
+                // app-wide active window is correct or necessary, but so far
                 // everything seems to work okay...
                 lastFocusedAppWindow_->activate();
 
@@ -258,7 +287,6 @@ private slots:
                 // it is, Qt should have taken care of refocusing
                 auto& next_window = zOrderedVolatileWindows_.last();
                 next_window->activate();
-
             }
         }
 

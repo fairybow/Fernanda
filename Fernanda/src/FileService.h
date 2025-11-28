@@ -12,6 +12,7 @@
 #include <QHash>
 #include <QList>
 #include <QObject>
+#include <QSet>
 #include <QString>
 #include <QTextDocument>
 #include <QVariant>
@@ -38,13 +39,8 @@
 
 namespace Fernanda {
 
-// Coordinates file I/O, model lifecycle, and save operations across the
-// Workspace. Creates and manages file models, handles all save variants
-// (save/save-as/save-all), and ensures models persist until their last view is
-// closed
-// TODO: Rename? FileModelService? Since likely Fnx will help create on-disk
-// files for Notebook, and the save and close ops may be handled by the
-// Workspaces...
+// Creates and manages file models
+// TODO: Rename?
 class FileService : public IService
 {
     Q_OBJECT
@@ -57,6 +53,49 @@ public:
     }
 
     virtual ~FileService() override { TRACER; }
+
+    // TODO: Could use a handle (would that be too overly complex) instead of
+    // passing models around?
+
+    void deleteModel(IFileModel* model)
+    {
+        if (!model) return;
+
+        auto path = model->meta()->path();
+        models_.remove(model);
+        pathToFileModel_.remove(path);
+        delete model;
+    }
+
+    void deleteModels(const QList<IFileModel*>& models)
+    {
+        for (auto& model : models)
+            deleteModel(model);
+    }
+
+    void deleteAll()
+    {
+        for (auto& model : models_)
+            delete model;
+        models_.clear();
+        pathToFileModel_.clear();
+    }
+
+    void setPathTitleOverride(const Coco::Path& path, const QString& title)
+    {
+        if (path.isEmpty() || title.isEmpty()) return;
+
+        if (auto model = pathToFileModel_.value(path))
+            if (auto meta = model->meta()) meta->setTitleOverride(title);
+    }
+
+    void openOffDiskTxtIn(Window* window)
+    {
+        if (!window) return;
+
+        if (auto model = newOffDiskTextFileModel_())
+            emit bus->fileModelReadied(window, model);
+    }
 
 protected:
     virtual void registerBusCommands() override
@@ -78,13 +117,6 @@ protected:
                 if (auto model = newDiskFileModel_(path, title))
                     emit bus->fileModelReadied(cmd.context, model);
             });
-
-        bus->addCommandHandler(Commands::NEW_TXT_FILE, [&](const Command& cmd) {
-            if (!cmd.context) return;
-
-            if (auto model = newOffDiskTextFileModel_())
-                emit bus->fileModelReadied(cmd.context, model);
-        });
     }
 
     virtual void connectBusEvents() override
@@ -93,11 +125,19 @@ protected:
     }
 
 private:
+    QSet<IFileModel*> models_{};
     QHash<Coco::Path, IFileModel*> pathToFileModel_{};
 
     void setup_()
     {
         //...
+    }
+
+    // TODO: Do this for similar setups in other Services
+    void registerModel_(IFileModel* model, const Coco::Path& path = {})
+    {
+        if (!path.isEmpty()) pathToFileModel_[path] = model;
+        models_ << model;
     }
 
     IFileModel*
@@ -126,7 +166,7 @@ private:
         if (!title.isEmpty())
             if (auto meta = model->meta()) meta->setTitleOverride(title);
 
-        pathToFileModel_[path] = model;
+        registerModel_(model, path);
         connectNewModel_(model);
         return model;
     }
@@ -155,6 +195,7 @@ private:
     IFileModel* newOffDiskTextFileModel_()
     {
         auto model = new TextFileModel({}, this);
+        registerModel_(model);
         connectNewModel_(model);
         return model;
     }
@@ -176,30 +217,6 @@ private:
         // TODO: Emit initial states (needed?)
         emit bus->fileModelModificationChanged(model, model->isModified());
         emit bus->fileModelMetaChanged(model);
-    }
-
-private slots:
-    // TODO: Implement
-    void onViewClosed_(IFileView* view)
-    {
-        if (!view) return;
-        auto model = view->model();
-        if (!model) return;
-        auto meta = model->meta();
-        if (!meta) return;
-
-        /*auto view_count = bus->call<int>(
-            Commands::MODEL_VIEWS_COUNT,
-            { { "model", toQVariant(model) } });
-
-        if (view_count < 1) {
-            auto path = meta->path();
-            pathToFileModel_.remove(path);
-            INFO(
-                "Removed model for path: {}",
-                path.isEmpty() ? "N/A" : path.toString());
-            delete model;
-        }*/
     }
 };
 

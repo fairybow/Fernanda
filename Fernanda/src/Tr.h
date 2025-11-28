@@ -116,9 +116,13 @@ namespace Tr {
         TR_(fileNotebookSaveArchiveAs, tr("Save as..."));
         TR_(fileNotebookExportFile, tr("Export..."));
 
-        TR_(fileCloseTab, tr("Close"));
-        TR_(fileCloseAllTabsInWindow, tr("Close all in window"));
+        TR_(fileCloseTab, tr("Close tab"));
+        TR_(fileCloseTabEverywhere, tr("Close tab everywhere"));
+        TR_(fileCloseWindowTabs, tr("Close window tabs"));
+        TR_(fileCloseAllTabs, tr("Close all tabs"));
         TR_(fileCloseWindow, tr("Close window"));
+        TR_(fileCloseAllWindows, tr("Close all windows"));
+
         TR_(fileQuit, tr("Quit"));
 
         // Edit
@@ -147,6 +151,9 @@ namespace Tr {
             TR_(viewNextWindow, tr("Next window"));*/
 
         } // namespace Common
+
+        TR_(notebookTreeViewContextNewFolder, tr("New folder"));
+        TR_(notebookTreeViewContextRename, tr("Rename"));
 
     } // namespace Menus
 

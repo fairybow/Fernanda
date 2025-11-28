@@ -17,14 +17,16 @@ The `Settings.ini` file is optional. It's generated as needed and removing it wi
 
 This file describes the virtual structure of the Notebook. While the files exist in `content`, the folders and structure only exist in this model.
 
+TODO: Type attribute needed?
+
 ```
 <?xml version="1.0"?>
 <notebook>
-  <folder name="Chapter 1">
-    <file name="1" uuid="xxx1" type="plaintext" extension=".txt"/>
-  </folder>
-  <file name="Notes" uuid="xxx2" type="plaintext" extension=".txt">
-    <file name="Other Notes" uuid="xxx3" type="plaintext" extension=".txt"/>
+  <vfolder name="Chapter 1" uuid="xxx1">
+    <file name="1" uuid="xxx2" extension=".txt"/>
+  </vfolder>
+  <file name="Notes" uuid="xxx3" extension=".txt">
+    <file name="Other Notes" uuid="xxx4" extension=".txt"/>
   </file>
 </notebook>
 ```

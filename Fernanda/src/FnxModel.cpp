@@ -24,20 +24,21 @@ namespace Fernanda {
 QVariant FnxModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) return {};
+    auto element = elementAt_(index);
+    if (element.isNull()) return {};
 
-    auto element = elementAt(index);
-
-    if (role == Qt::DisplayRole) return Fnx::name(element);
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
+        return Fnx::Xml::name(element);
 
     if (role == Qt::DecorationRole) {
-        if (Fnx::isDir(element)) {
+        if (Fnx::Xml::isVirtualFolder(element)) {
             return Application::style()->standardIcon(QStyle::SP_DirIcon);
-        } else if (Fnx::isFile(element)) {
+        } else if (Fnx::Xml::isFile(element)) {
             return Application::style()->standardIcon(QStyle::SP_FileIcon);
         }
     }
 
-    // TODO: Qt::ToolTipRole?
+    // TODO: Qt::ToolTipRole & others? (See setData)
 
     return {};
 }

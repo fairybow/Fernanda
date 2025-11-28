@@ -20,6 +20,7 @@
 #include <QTreeView>
 #include <QVariant>
 #include <QVariantMap>
+#include <Qt>
 
 #include "Coco/Path.h"
 #include "Coco/Utility.h"
@@ -49,6 +50,16 @@ public:
 
     virtual ~TreeViewModule() override { TRACER; }
 
+    // TODO: Use default arg for current index, if we wrap this in a command for menus
+    void renameAt(Window* window, const QModelIndex& index = {})
+    {
+        if (!window) return;
+        if (auto tree_view = treeViews_[window]) {
+            auto i = index.isValid() ? index : tree_view->currentIndex();
+            tree_view->edit(i);
+        }
+    }
+
 protected:
     virtual void registerBusCommands() override
     {
@@ -62,32 +73,50 @@ protected:
             &Bus::windowCreated,
             this,
             &TreeViewModule::onWindowCreated_);
+
+        connect(
+            bus,
+            &Bus::windowDestroyed,
+            this,
+            &TreeViewModule::onWindowDestroyed_);
     }
 
 private:
-    // QHash<Window*, TreeView*> treeViews_{}; // dock widgets?
-    // A set instead, perhaps, just for quick updates across all Workspace
-    // TreeViews
+    QHash<Window*, TreeView*> treeViews_{};
 
     void setup_()
     {
         //...
     }
 
+    // TODO: Set initial visibility and size based on settings
+    // TODO: Section
     void addTreeView_(Window* window)
     {
         if (!window) return;
 
-        /// Set initial visibility and size based on settings later
         auto dock_widget = new QDockWidget(window);
         auto tree_view = new TreeView(dock_widget);
+        treeViews_[window] = tree_view;
+
+        tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
+        tree_view->setEditTriggers(
+            QAbstractItemView::SelectedClicked
+            | QAbstractItemView::EditKeyPressed); // F2 (standard)
+
+        // Drag and drop
+        tree_view->setDragEnabled(true);
+        tree_view->setAcceptDrops(true);
+        tree_view->setDropIndicatorShown(true);
+        tree_view->setDragDropMode(QAbstractItemView::InternalMove);
+        tree_view->setDefaultDropAction(Qt::MoveAction);
 
         if (auto model =
-                bus->call<QAbstractItemModel*>(Commands::TREE_VIEW_MODEL)) {
+                bus->call<QAbstractItemModel*>(Commands::WS_TREE_VIEW_MODEL)) {
             tree_view->setModel(model);
 
             auto root_index =
-                bus->call<QModelIndex>(Commands::TREE_VIEW_ROOT_INDEX);
+                bus->call<QModelIndex>(Commands::WS_TREE_VIEW_ROOT_INDEX);
 
             if (root_index.isValid()) tree_view->setRootIndex(root_index);
         }
@@ -105,8 +134,28 @@ private:
             &TreeView::doubleClicked,
             this,
             [&, window](const QModelIndex& index) {
+                if (!window) return;
                 emit bus->treeViewDoubleClicked(window, index);
             });
+
+        connect(
+            tree_view,
+            &TreeView::customContextMenuRequested,
+            this,
+            [&, window, tree_view](const QPoint& pos) {
+                if (!window || !tree_view) return;
+                emit bus->treeViewContextMenuRequested(
+                    window,
+                    tree_view->mapToGlobal(pos),
+                    tree_view->indexAt(pos));
+            });
+
+        // TODO: Needed? Check that it actually works, too, since it decays to
+        // QObject before emitting destroyed...
+        connect(tree_view, &TreeView::destroyed, this, [&, window] {
+            if (!window) return;
+            treeViews_.remove(window);
+        });
     }
 
 private slots:
@@ -132,13 +181,12 @@ private slots:
         //         }
         //     });
         // }
+    }
 
-        ///// Window clean up (maybe)
-
-        // connect(window, &Window::destroyed, this, [=] {
-        //     if (!window) return;
-        //     // treeViews_.remove(window);
-        // });
+    void onWindowDestroyed_(Window* window)
+    {
+        if (!window) return;
+        treeViews_.remove(window);
     }
 };
 

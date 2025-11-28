@@ -11,6 +11,9 @@
 
 #include <string>
 
+#include <QDomAttr>
+#include <QDomElement>
+#include <QDomNamedNodeMap>
 #include <QMapIterator>
 #include <QMetaObject>
 #include <QModelIndex>
@@ -22,103 +25,368 @@
 
 #include "Coco/Concepts.h"
 
-namespace Fernanda {
-
-template <Coco::Concepts::QObjectDerived T> inline QString toQString(T* ptr)
-{
-    if (ptr) {
-        return QString("%0(%1)")
-            .arg(ptr->metaObject()->className())
-            .arg(QString::asprintf("%p", ptr));
+#define TO_STD_(Type, ArgName)                                                 \
+    inline std::string toString(const Type& ArgName)                           \
+    {                                                                          \
+        return toQString(ArgName).toStdString();                               \
     }
 
-    return "nullptr";
+namespace Fernanda {
+
+// Ptr cannot be nullptr
+template <typename T> inline QString ptrAddress(const T* ptr)
+{
+    return QString::asprintf("%p", ptr);
 }
 
+// Ptr cannot be nullptr
+template <typename T> inline QString qObjectPtrAddress(const T* ptr)
+{
+    return QString("%0(%1)")
+        .arg(ptr->metaObject()->className())
+        .arg(ptrAddress<T>(ptr));
+}
+
+// Ptr can be nullptr
 template <Coco::Concepts::QObjectDerived T>
 inline QString toQString(const T* ptr)
 {
-    if (ptr) {
-        return QString("%0(%1)")
-            .arg(ptr->metaObject()->className())
-            .arg(QString::asprintf("%p", ptr));
+    return ptr ? qObjectPtrAddress<T>(ptr) : "nullptr";
+}
+
+inline QString toQString(const QModelIndex& index)
+{
+    if (!index.isValid()) return "QModelIndex(Invalid)";
+
+    return QString("QModelIndex(row:%1, col:%2, %3)")
+        .arg(index.row())
+        .arg(index.column())
+        .arg(ptrAddress(index.internalPointer()));
+}
+
+inline QString toQString(const QStringList& stringList)
+{
+    return stringList.join(", ");
+}
+
+inline QString toQString(const QDomElement& element)
+{
+    if (element.isNull()) return "QDomElement(Null)";
+
+    auto tag = element.tagName();
+    auto attrs = element.attributes();
+
+    if (attrs.isEmpty()) {
+        return QString("QDomElement(\"<%1>\")").arg(tag);
     }
 
-    return "nullptr";
+    QStringList attr_list{};
+    for (auto i = 0; i < attrs.count(); ++i) {
+        auto attr = attrs.item(i).toAttr();
+        attr_list << QString("%1='%2'").arg(attr.name()).arg(attr.value());
+    }
+
+    return QString("QDomElement(<%1 %2>)").arg(tag).arg(attr_list.join(" "));
 }
 
-template <Coco::Concepts::QObjectDerived T> inline std::string toString(T* ptr)
+// Like QVariant::toString, we won't generally print "QVariant(value)"
+inline QString toQString(const QVariant& variant)
 {
-    return toQString<T>(ptr).toStdString();
+    if (!variant.isValid()) return "QVariant(Invalid)";
+    if (variant.isNull()) return "QVariant(Null)";
+
+    // Handle custom types before switch
+    if (variant.canConvert<Coco::Path>())
+        return variant.value<Coco::Path>().toQString();
+
+    if (variant.canConvert<QDomElement>())
+        return toQString(variant.value<QDomElement>());
+
+    if (variant.canConvert<QObject*>())
+        return toQString(variant.value<QObject*>());
+
+    switch (variant.typeId()) {
+        // TODO: Would need source file to do QVariantMap here
+        /*case QMetaType::QVariantMap:
+            return toQString(variant.value<QVariantMap>());*/
+
+    case QMetaType::QModelIndex:
+        return toQString(variant.value<QModelIndex>());
+
+        // This doesn't work for subclasses apparently:
+        /*case QMetaType::QObjectStar:
+            return toQString(variant.value<QObject*>());*/
+
+    case QMetaType::QStringList:
+        return variant.value<QStringList>().join(", ");
+
+    default:
+        auto text = variant.toString();
+        return text.isEmpty() ? "QVariant(Non-printable)" : text;
+    }
 }
 
+inline QString toQString(const QVariantMap& variantMap)
+{
+    if (variantMap.isEmpty()) return "QVariantMap()";
+    constexpr auto inner_format = "{ \"%0\", %1 }";
+    constexpr auto outer_format = "QVariantMap(%0)";
+    QStringList list{};
+    QMapIterator<QString, QVariant> it(variantMap);
+
+    while (it.hasNext()) {
+        it.next();
+        list << QString(inner_format).arg(it.key()).arg(toQString(it.value()));
+    }
+
+    return QString(outer_format).arg(list.join(", "));
+}
+
+// Std
+
+// Ptr can be nullptr
 template <Coco::Concepts::QObjectDerived T>
 inline std::string toString(const T* ptr)
 {
     return toQString<T>(ptr).toStdString();
 }
 
-// TODO: Double-check this!
-inline QString toQString(const QVariant& variant)
-{
-    auto x = [](const QString& text, const QString& type = {}) {
-        constexpr auto format = "QVariant(%0)";
-        constexpr auto format_type = "QVariant(%0{ %1 })";
-        return type.isEmpty() ? QString(format).arg(text)
-                              : QString(format_type).arg(type).arg(text);
-    };
-
-    if (!variant.isValid()) return x("Invalid");
-    if (variant.isNull()) return x("Null");
-
-    if (variant.typeId() == QMetaType::Bool) // More specific than canConvert
-        return x(variant.value<bool>() ? "true" : "false");
-
-    if (variant.canConvert<Coco::Path>())
-        return x(variant.value<Coco::Path>().toQString(), "Coco::Path");
-
-    if (variant.canConvert<QModelIndex>())
-        return x("QModelIndex");
-
-    if (variant.canConvert<QObject*>())
-        return x(toQString(variant.value<QObject*>()));
-
-    /*if (variant.canConvert<QStringList>())
-        return x(variant.value<QStringList>().join(", "), "QStringList");*/
-
-    // Fallback to generic conversion
-    auto text = variant.toString();
-    if (text.isEmpty()) return "Non-printable type";
-
-    return x(text);
-}
-
-inline std::string toString(const QVariant& variant)
-{
-    return toQString(variant).toStdString();
-}
-
-inline QString toQString(const QVariantMap& variantMap)
-{
-    if (variantMap.isEmpty()) return "QVariantMap{}";
-    constexpr auto element_format = "{ %0, %1 }";
-    constexpr auto outer_format = "QVariantMap{ %0 }";
-    QStringList list{};
-    QMapIterator<QString, QVariant> it(variantMap);
-
-    while (it.hasNext()) {
-        it.next();
-        list << QString(element_format)
-                    .arg(it.key())
-                    .arg(toQString(it.value()));
-    }
-
-    return QString(outer_format).arg(list.join(", "));
-}
-
-inline std::string toString(const QVariantMap& variantMap)
-{
-    return toQString(variantMap).toStdString();
-}
+TO_STD_(QModelIndex, index);
+TO_STD_(QStringList, stringList);
+TO_STD_(QDomElement, element);
+TO_STD_(QVariant, variant);
+TO_STD_(QVariantMap, variantMap);
 
 } // namespace Fernanda
+
+#undef TO_STD_
+
+// QVariant Output Test:
+
+/*#include <QByteArray>
+#include <QCborArray>
+#include <QCborMap>
+#include <QCborValue>
+#include <QChar>
+#include <QCoreApplication>
+#include <QDate>
+#include <QDateTime>
+#include <QDebug>
+#include <QDomDocument>
+#include <QDomElement>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QLine>
+#include <QLineF>
+#include <QLocale>
+#include <QModelIndex>
+#include <QPoint>
+#include <QPointF>
+#include <QRect>
+#include <QRectF>
+#include <QSize>
+#include <QSizeF>
+#include <QString>
+#include <QStringList>
+#include <QTime>
+#include <QUrl>
+#include <QUuid>
+#include <QVariant>
+#include <QVariantHash>
+#include <QVariantList>
+#include <QVariantMap>
+
+void testVariantToString(const QString& typeName, const QVariant& variant)
+{
+    QString result = variant.toString();
+    qDebug() << qUtf8Printable(QString("%1:").arg(typeName, -25))
+             << qUtf8Printable(result.isEmpty() ? "<empty>" : result);
+}
+
+int main(int argc, char* argv[])
+{
+    QCoreApplication app(argc, argv);
+
+    qDebug() << "=== String Types ===";
+    testVariantToString("QString", QVariant(QString("Hello")));
+    testVariantToString("QByteArray", QVariant(QByteArray("Byte Array")));
+    testVariantToString("QChar", QVariant(QChar('A')));
+
+    qDebug() << "\n=== Numeric Types ===";
+    testVariantToString("Bool", QVariant(true));
+    testVariantToString("Int", QVariant(55));
+    testVariantToString("UInt", QVariant(55u));
+    testVariantToString("Long", QVariant::fromValue(55L));
+    testVariantToString("ULong", QVariant::fromValue(55UL));
+    testVariantToString("LongLong", QVariant(55LL));
+    testVariantToString("ULongLong", QVariant(55ULL));
+    testVariantToString("Short", QVariant::fromValue(static_cast<short>(55)));
+    testVariantToString(
+        "UShort",
+        QVariant::fromValue(static_cast<unsigned short>(55)));
+    testVariantToString("Char", QVariant::fromValue(static_cast<char>('X')));
+    testVariantToString(
+        "SChar",
+        QVariant::fromValue(static_cast<signed char>('Y')));
+    testVariantToString(
+        "UChar",
+        QVariant::fromValue(static_cast<unsigned char>('Z')));
+    testVariantToString("Float", QVariant(3.14f));
+    testVariantToString("Double", QVariant(3.14159));
+
+    qDebug() << "\n=== Date/Time Types ===";
+    testVariantToString("QDate", QVariant(QDate(2025, 11, 12)));
+    testVariantToString("QTime", QVariant(QTime(14, 30, 45)));
+    testVariantToString("QDateTime", QVariant(QDateTime::currentDateTime()));
+
+    qDebug() << "\n=== Simple Qt Types ===";
+    testVariantToString("QUrl", QVariant(QUrl("https://example.com")));
+    testVariantToString("QUuid", QVariant(QUuid::createUuid()));
+    testVariantToString(
+        "QLocale",
+        QVariant(QLocale(QLocale::English, QLocale::UnitedStates)));
+
+    qDebug() << "\n=== Geometric Types ===";
+    testVariantToString("QPoint", QVariant(QPoint(10, 20)));
+    testVariantToString("QPointF", QVariant(QPointF(10.5, 20.5)));
+    testVariantToString("QSize", QVariant(QSize(100, 200)));
+    testVariantToString("QSizeF", QVariant(QSizeF(100.5, 200.5)));
+    testVariantToString("QRect", QVariant(QRect(10, 20, 100, 200)));
+    testVariantToString("QRectF", QVariant(QRectF(10.5, 20.5, 100.5, 200.5)));
+    testVariantToString("QLine", QVariant(QLine(0, 0, 100, 100)));
+    testVariantToString("QLineF", QVariant(QLineF(0.0, 0.0, 100.5, 100.5)));
+
+    qDebug() << "\n=== Container Types ===";
+    testVariantToString(
+        "QStringList",
+        QVariant(QStringList{ "one", "two", "three" }));
+    testVariantToString(
+        "QVariantList",
+        QVariant(QVariantList{ 1, "two", 3.0 }));
+    testVariantToString(
+        "QVariantMap",
+        QVariant(QVariantMap{ { "key1", 1 }, { "key2", "value" } }));
+    testVariantToString(
+        "QVariantHash",
+        QVariant(QVariantHash{ { "key1", 1 }, { "key2", "value" } }));
+
+    qDebug() << "\n=== Model Types ===";
+    testVariantToString("QModelIndex", QVariant::fromValue(QModelIndex()));
+
+    qDebug() << "\n=== JSON Types ===";
+    testVariantToString(
+        "QJsonValue",
+        QVariant::fromValue(QJsonValue("json string")));
+    testVariantToString(
+        "QJsonObject",
+        QVariant::fromValue(QJsonObject{ { "key", "value" } }));
+    testVariantToString(
+        "QJsonArray",
+        QVariant::fromValue(QJsonArray{ "one", "two", "three" }));
+
+    QJsonDocument jsonDoc(QJsonObject{ { "key", "value" } });
+    testVariantToString("QJsonDocument", QVariant::fromValue(jsonDoc));
+
+    qDebug() << "\n=== CBOR Types ===";
+    testVariantToString(
+        "QCborValue",
+        QVariant::fromValue(QCborValue("cbor string")));
+    testVariantToString(
+        "QCborArray",
+        QVariant::fromValue(QCborArray{ "one", "two" }));
+    testVariantToString(
+        "QCborMap",
+        QVariant::fromValue(QCborMap{ { 1, "value" } }));
+    testVariantToString(
+        "QCborSimpleType",
+        QVariant::fromValue(QCborSimpleType::True));
+
+    qDebug() << "\n=== XML Types ===";
+    QDomDocument doc;
+    QDomElement element = doc.createElement("test");
+    element.setAttribute("attr", "value");
+    testVariantToString("QDomElement", QVariant::fromValue(element));
+
+    qDebug() << "\n=== Special Types ===";
+    testVariantToString("Nullptr", QVariant::fromValue(nullptr));
+    testVariantToString("Invalid", QVariant());
+    testVariantToString("Null QString", QVariant(QString()));
+    testVariantToString("QObjectStar", QVariant::fromValue(new QObject));
+
+    return 0;
+}*/
+
+// Output:
+
+/*=== String Types ===
+QString                  : Hello
+QByteArray               : Byte Array
+QChar                    : A
+
+=== Numeric Types ===
+Bool                     : true
+Int                      : 55
+UInt                     : 55
+Long                     : 55
+ULong                    : 55
+LongLong                 : 55
+ULongLong                : 55
+Short                    : 55
+UShort                   : 55
+Char                     : X
+SChar                    : Y
+UChar                    : Z
+Float                    : 3.140000104904175
+Double                   : 3.14159
+
+=== Date/Time Types ===
+QDate                    : 2025-11-12
+QTime                    : 14:30:45.000
+QDateTime                : 2025-11-12T22:06:24.208
+
+=== Simple Qt Types ===
+QUrl                     : https://example.com
+QUuid                    : {d180b01f-c6f1-4a48-a0d6-c8a1b6ac6ae8}
+QLocale                  : <empty>
+
+=== Geometric Types ===
+QPoint                   : <empty>
+QPointF                  : <empty>
+QSize                    : <empty>
+QSizeF                   : <empty>
+QRect                    : <empty>
+QRectF                   : <empty>
+QLine                    : <empty>
+QLineF                   : <empty>
+
+=== Container Types ===
+QStringList              : <empty>
+QVariantList             : <empty>
+QVariantMap              : <empty>
+QVariantHash             : <empty>
+
+=== Model Types ===
+QModelIndex              : <empty>
+
+=== JSON Types ===
+QJsonValue               : json string
+QJsonObject              : <empty>
+QJsonArray               : <empty>
+QJsonDocument            : <empty>
+
+=== CBOR Types ===
+QCborValue               : cbor string
+QCborArray               : <empty>
+QCborMap                 : <empty>
+QCborSimpleType          : 21
+
+=== XML Types ===
+QDomElement              : <empty>
+
+=== Special Types ===
+Nullptr                  : <empty>
+Invalid                  : <empty>
+Null QString             : <empty>
+QObjectStar              : <empty>*/

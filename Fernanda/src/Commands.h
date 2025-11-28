@@ -16,23 +16,26 @@ namespace Fernanda::Commands {
 
 // Application scope
 
-constexpr auto QUIT = "application:quit";
 constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 
 // Workspace scope
 
-constexpr auto NEW_TAB = "poly:new_tab"; /// *
 constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
 constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
-constexpr auto CLOSE_TAB = "poly:close_tab";
-constexpr auto CLOSE_ALL_TABS_IN_WINDOW = "poly:close_all_tabs_in_window";
-constexpr auto CLOSE_WINDOW = "workspace:close_window";
-constexpr auto TREE_VIEW_MODEL = "poly:tree_view_model"; /// non-menu
-constexpr auto TREE_VIEW_ROOT_INDEX = "poly:tree_view_root_index"; /// non-menu
+
+// Poly: same command for all Workspace types but registered differently by
+// each. These commands are meant to be called from a Workspace-agnostic service
+// but with effects unique to each Workspace type
+
+// TODO: Determine if we need these or just use hooks or whatever
+
+constexpr auto NEW_TAB = "poly:new_tab"; /// *
+constexpr auto WS_TREE_VIEW_MODEL = "poly:ws_tree_view_model"; /// *, non-menu
+constexpr auto WS_TREE_VIEW_ROOT_INDEX =
+    "poly:ws_tree_view_root_index"; /// *, non-menu
 
 // Notepad scope
 
-// TODO: For this, will wrap FS:OPEN_FILE with the selection dialog for the menu
 constexpr auto NOTEPAD_OPEN_FILE = "notepad:open_file"; /// *
 constexpr auto NOTEPAD_SAVE = "notepad:save_file";
 constexpr auto NOTEPAD_SAVE_AS = "notepad:save_file_as";
@@ -56,27 +59,33 @@ constexpr auto COPY = "views:copy"; /// *
 constexpr auto PASTE = "views:paste"; /// *
 constexpr auto DEL = "views:delete"; /// *
 constexpr auto SELECT_ALL = "views:select_all"; /// *
+constexpr auto CLOSE_TAB = "views:close_tab"; /// *
+constexpr auto CLOSE_TAB_EVERYWHERE = "views:close_tab_everywhere"; /// *
+constexpr auto CLOSE_WINDOW_TABS = "views:close_window_tabs"; /// *
+constexpr auto CLOSE_ALL_TABS = "views:close_all_tabs"; /// *
 
 // SettingsModule scope
 
-constexpr auto SET_SETTINGS_OVERRIDE = "settings:set_override"; /// *, non-menu
 constexpr auto SETTINGS_DIALOG = "settings:dialog";
 
 // WindowService scope
 
 constexpr auto NEW_WINDOW = "windows:new"; /// *
-constexpr auto ACTIVE_WINDOW = "windows:active"; /// *, non-menu
 constexpr auto WINDOWS_SET = "windows:set"; /// *, non-menu
+constexpr auto RZ_WINDOWS = "windows:rz_list"; /// *, non-menu
+constexpr auto CLOSE_ALL_WINDOWS = "windows:close_all"; /// *
 
 // ColorBarModule scope
 
 constexpr auto RUN_COLOR_BAR = "color_bars:run"; /// *, non-menu
 constexpr auto RUN_ALL_COLOR_BARS = "color_bars:run_all"; /// *, non-menu
-constexpr auto BE_CUTE = "color_bars:be_cute"; /// *, non-menu
 
 // FileService scope
 
-constexpr auto OPEN_FILE_AT_PATH = "files:open_path"; /// *, non-menu
-constexpr auto NEW_TXT_FILE = "file:new_txt"; /// *, non-menu
+constexpr auto OPEN_FILE_AT_PATH = "file_models:open_path"; /// *, non-menu
+
+// TreeViewModule scope
+
+//...
 
 } // namespace Fernanda::Commands

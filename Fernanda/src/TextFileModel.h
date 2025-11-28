@@ -16,12 +16,12 @@
 #include <QTextDocument>
 
 #include "Coco/Path.h"
-#include "Coco/TextIo.h" /// TODO: Replace with Fernanda version
 
 #include "Debug.h"
 #include "Enums.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
+#include "TextIo.h"
 
 namespace Fernanda {
 
@@ -52,7 +52,7 @@ public:
         if (path.isEmpty()) return SaveResult::NoOp;
 
         auto text = document_->toPlainText();
-        auto success = Coco::TextIo::write(text, path);
+        auto success = TextIo::write(text, path);
         if (success) document_->setModified(false);
         return success ? SaveResult::Success : SaveResult::Fail;
     }
@@ -65,7 +65,7 @@ public:
         if (!meta) return SaveResult::NoOp;
 
         auto text = document_->toPlainText();
-        auto success = Coco::TextIo::write(text, newPath);
+        auto success = TextIo::write(text, newPath);
 
         if (success) {
             document_->setModified(false);
