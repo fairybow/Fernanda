@@ -44,7 +44,7 @@ constexpr auto NOTEPAD_SAVE_ALL = "notepad:save_all";
 
 // Notebook scope
 
-constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad";
+constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad"; /// *
 constexpr auto NOTEBOOK_IMPORT_FILE = "notebook:import_file"; /// *
 constexpr auto NOTEBOOK_SAVE = "notebook:save_archive";
 constexpr auto NOTEBOOK_SAVE_AS = "notebook:save_archive_as";

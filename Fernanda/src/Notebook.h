@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QAction>
 #include <QDomDocument>
 #include <QDomElement>
@@ -33,6 +35,7 @@
 #include "Debug.h"
 #include "Fnx.h"
 #include "FnxModel.h"
+#include "IService.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
@@ -56,6 +59,8 @@ class Notebook : public Workspace
     Q_OBJECT
 
 public:
+    using NotepadOpener = std::function<void()>;
+
     Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
         : Workspace(parent)
         , fnxPath_(fnxPath)
@@ -66,6 +71,12 @@ public:
     }
 
     virtual ~Notebook() override { TRACER; }
+
+    DECLARE_HOOK_ACCESSORS(
+        NotepadOpener,
+        notepadOpener,
+        setNotepadOpener,
+        notepadOpener_);
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
     virtual bool canQuit() override { return windows->closeAll(); }
@@ -115,6 +126,7 @@ private:
 
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
+    NotepadOpener notepadOpener_ = nullptr;
 
     void setup_()
     {
@@ -163,12 +175,9 @@ private:
 
     void registerBusCommands_()
     {
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_OPEN_NOTEPAD,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                //
-            });
+        bus->addCommandHandler(Commands::NOTEBOOK_OPEN_NOTEPAD, [&] {
+            if (notepadOpener_) notepadOpener_();
+        });
 
         bus->addCommandHandler(
             Commands::NOTEBOOK_IMPORT_FILE,

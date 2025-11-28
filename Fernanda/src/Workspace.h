@@ -58,6 +58,7 @@ public:
     //   // emit bus->workspaceOpened();
     // }
 
+    // TODO: Do we ever need to "open" without opening a window?
     void open(NewWindow withWindow = NewWindow::No)
     {
         // ... Path args?
@@ -66,13 +67,13 @@ public:
         timer(1300, this, [&] { colorBars->runAll(ColorBar::Color::Pastel); });
     }
 
+    void newWindow() { windows->newWindow(); }
+
     void activate() const
     {
         if (auto active_window = windows->active())
             active_window->activate(); // Stack under will raise any others
     }
-
-    int windowCount() const { return windows->count(); }
 
 signals:
     void lastWindowClosed();

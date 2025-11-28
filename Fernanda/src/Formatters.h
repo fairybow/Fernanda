@@ -16,6 +16,7 @@
 #include <QDomElement>
 #include <QModelIndex>
 #include <QObject>
+#include <QPoint>
 #include <QString>
 #include <QStringList>
 #include <QVariant>
@@ -42,6 +43,7 @@ STRING_FORMATTER_(QStringList, Fernanda::toString(x));
 STRING_FORMATTER_(QVariantMap, Fernanda::toString(x));
 STRING_FORMATTER_(QVariant, Fernanda::toString(x));
 STRING_FORMATTER_(QModelIndex, Fernanda::toString(x));
+STRING_FORMATTER_(QPoint, Fernanda::toString(x));
 STRING_FORMATTER_(QDomElement, Fernanda::toString(x));
 
 template <Coco::Concepts::QObjectPointer T>

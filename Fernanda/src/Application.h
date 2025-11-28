@@ -133,10 +133,16 @@ private:
         auto notebook = new Notebook(fnx, this);
         notebooks_ << notebook;
 
+        notebook->setNotepadOpener([&] {
+            if (!notepad_) return;
+            notepad_->hasWindows() ? notepad_->activate()
+                                   : notepad_->newWindow();
+        });
+
         connect(notebook, &Notebook::lastWindowClosed, this, [&, notebook] {
             notebooks_.removeAll(notebook);
             delete notebook;
-            if (notebooks_.isEmpty() && notepad_->windowCount() < 1) quit();
+            if (notebooks_.isEmpty() && !notepad_->hasWindows()) quit();
         });
 
         notebook->open(NewWindow::Yes);

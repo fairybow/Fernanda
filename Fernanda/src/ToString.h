@@ -18,6 +18,7 @@
 #include <QMetaObject>
 #include <QModelIndex>
 #include <QObject>
+#include <QPoint>
 #include <QString>
 #include <QStringList>
 #include <QVariant>
@@ -64,6 +65,11 @@ inline QString toQString(const QModelIndex& index)
         .arg(ptrAddress(index.internalPointer()));
 }
 
+inline QString toQString(const QPoint& point)
+{
+    return QString("QPoint(x:%0, y:%1)").arg(point.x()).arg(point.y());
+}
+
 inline QString toQString(const QStringList& stringList)
 {
     return stringList.join(", ");
@@ -76,9 +82,7 @@ inline QString toQString(const QDomElement& element)
     auto tag = element.tagName();
     auto attrs = element.attributes();
 
-    if (attrs.isEmpty()) {
-        return QString("QDomElement(\"<%1>\")").arg(tag);
-    }
+    if (attrs.isEmpty()) { return QString("QDomElement(\"<%1>\")").arg(tag); }
 
     QStringList attr_list{};
     for (auto i = 0; i < attrs.count(); ++i) {
@@ -112,6 +116,9 @@ inline QString toQString(const QVariant& variant)
 
     case QMetaType::QModelIndex:
         return toQString(variant.value<QModelIndex>());
+
+    case QMetaType::QPoint:
+        return toQString(variant.value<QPoint>());
 
         // This doesn't work for subclasses apparently:
         /*case QMetaType::QObjectStar:
@@ -152,6 +159,7 @@ inline std::string toString(const T* ptr)
 }
 
 TO_STD_(QModelIndex, index);
+TO_STD_(QPoint, point);
 TO_STD_(QStringList, stringList);
 TO_STD_(QDomElement, element);
 TO_STD_(QVariant, variant);
