@@ -58,13 +58,13 @@ public:
         setPathInterceptor,
         pathInterceptor_);
 
-    virtual bool canQuit()
+    virtual bool canQuit() override
     {
         return windows->count() < 1 || windows->closeAll();
     }
 
 protected:
-    virtual bool canCloseTab(IFileView* view)
+    virtual bool canCloseTab(IFileView* view) override
     {
         auto model = view->model();
         if (!model) return false;
@@ -87,7 +87,7 @@ protected:
     }
 
     // TODO: Can perhaps raise first (from end) view in each window?
-    virtual bool canCloseTabEverywhere(const QList<IFileView*>& views)
+    virtual bool canCloseTabEverywhere(const QList<IFileView*>& views) override
     {
         auto model = views.first()->model();
         if (!model) return false;
@@ -110,7 +110,7 @@ protected:
     // TODO: The multi file save prompt could allow clicking on the path or
     // something to switch to the first view on that file we have available
     // (possibly first from the end)
-    virtual bool canCloseWindowTabs(const QList<IFileView*>& views)
+    virtual bool canCloseWindowTabs(const QList<IFileView*>& views) override
     {
         // Collect unique modified models that only exist in this window
         QSet<IFileModel*> modified_models{};
@@ -140,7 +140,7 @@ protected:
         return true;
     }
 
-    virtual bool canCloseAllTabs(const QList<IFileView*>& views)
+    virtual bool canCloseAllTabs(const QList<IFileView*>& views) override
     {
         // Collect all unique modified models across all windows
         QSet<IFileModel*> modified_models{};
@@ -169,7 +169,7 @@ protected:
         return true;
     }
 
-    virtual bool canCloseWindow(Window* window)
+    virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window
         QSet<IFileModel*> modified_models{};
@@ -199,7 +199,7 @@ protected:
         return true;
     }
 
-    virtual bool canCloseAllWindows(const QList<Window*>& windows)
+    virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
         QSet<IFileModel*> modified_models{};

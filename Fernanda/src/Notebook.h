@@ -68,10 +68,10 @@ public:
     virtual ~Notebook() override { TRACER; }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
-    virtual bool canQuit() { return windows->closeAll(); }
+    virtual bool canQuit() override { return windows->closeAll(); }
 
 protected:
-    virtual bool canCloseWindow(Window* window)
+    virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1) return true;
 
@@ -91,7 +91,7 @@ protected:
         return true;
     }
 
-    virtual bool canCloseAllWindows(const QList<Window*>& windows)
+    virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         /*if (modified_) {
             switch (ArchiveSavePrompt) {
