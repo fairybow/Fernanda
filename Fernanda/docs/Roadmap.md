@@ -2,7 +2,9 @@
 
 ## MVP
 
-- [ ] Open Notepad command for menu
+(Not necessarily in order)
+
+- [x] Open Notepad command for menu
 - [ ] FNX
 - [ ] Functioning Notepad
 - [ ] Functioning Notebooks
@@ -14,7 +16,6 @@
 - [ ] Notebook save prompts
 - [ ] Notepad saving
 - [ ] Notebook saving
-- [ ] Application quit
 - [ ] Notebook Trash (removing items, virtual op only since files will stay put but display in a "trash" section until trash is cleared)
 
 ### Architecture & Commands
