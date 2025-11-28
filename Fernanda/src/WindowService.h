@@ -196,7 +196,8 @@ private:
 
     // Returns a stable copy of the z-ordered window list (copy won't be
     // affected by subsequent add/remove operations)
-    QList<Window*> windows_() const { return zOrderedVolatileWindows_; }
+    // TODO: Unused right now
+    QList<Window*> zWindows_() const { return zOrderedVolatileWindows_; }
 
     // Highest window is first when reversed
     QList<Window*> rzWindows_() const
