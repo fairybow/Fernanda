@@ -2,6 +2,7 @@
 
 TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 
+- [ ] Ensure ambiguous method names and params for model or view are fixed to type of model and type of view (excluding local variables or other places where context is overwhelming)
 - [ ] Begin removing unneeded commands and calling public methods in Workspaces where appropriate. Determine what commands Workspace uses that are still used by other Services/Modules. Whatever isn't could be a public method.
 - [ ] ^ Open file at path, new .txt, windows set (maybe) commands, etc
 - [ ] ^ Open file is complicated because of the need for interception (need to reconcile this command, anyway, with the Notepad and Notebook open/import file commands)

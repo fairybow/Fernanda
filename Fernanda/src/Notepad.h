@@ -334,10 +334,10 @@ private slots:
             window);
     }
 
-    void onViewDestroyed_(IFileModel* model)
+    void onViewDestroyed_(IFileModel* fileModel)
     {
-        if (!model) return;
-        if (views->countFor(model) <= 0) files->deleteModel(model);
+        if (!fileModel) return;
+        if (views->countFor(fileModel) <= 0) files->deleteModel(fileModel);
     }
 };
 

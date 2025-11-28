@@ -28,11 +28,11 @@ class IFileView : public QWidget
     Q_OBJECT
 
 public:
-    explicit IFileView(IFileModel* model, QWidget* parent = nullptr)
+    explicit IFileView(IFileModel* fileModel, QWidget* parent = nullptr)
         : QWidget(parent)
-        , model_(model)
+        , fileModel_(fileModel)
     {
-        if (!model) qWarning() << "IFileModel cannot be nullptr!";
+        if (!fileModel) qWarning() << "IFileModel cannot be nullptr!";
         layout_ = Coco::Layout::makeDense<QVBoxLayout*>(this);
     }
 
@@ -52,7 +52,7 @@ public:
         }
     }
 
-    IFileModel* model() const noexcept { return model_; }
+    IFileModel* model() const noexcept { return fileModel_; }
     //QWidget* widget() const noexcept { return widget_; }
 
     // Do we want only one check for all these properties?
@@ -75,7 +75,7 @@ protected:
     virtual QWidget* setupWidget() = 0;
 
 private:
-    IFileModel* model_;
+    IFileModel* fileModel_;
 
     bool initialized_ = false;
     QVBoxLayout* layout_ = nullptr;

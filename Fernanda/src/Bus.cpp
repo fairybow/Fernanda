@@ -37,8 +37,8 @@ void Bus::setup_()
         INFO("Window destroyed [{}]", context);
     });
 
-    SIGLOG_(activeFileViewChanged, [&](Window* context, IFileView* view) {
-        INFO("Active view changed in [{}] to [{}]", context, view);
+    SIGLOG_(activeFileViewChanged, [&](Window* context, IFileView* fileView) {
+        INFO("Active view changed in [{}] to [{}]", context, fileView);
     });
 
     SIGLOG_(
@@ -50,18 +50,21 @@ void Bus::setup_()
                 index);
         });
 
-    SIGLOG_(fileModelReadied, [&](Window* context, IFileModel* model) {
-        INFO("File model readied in [{}]: [{}]", context, model);
+    SIGLOG_(fileModelReadied, [&](Window* context, IFileModel* fileModel) {
+        INFO("File model readied in [{}]: [{}]", context, fileModel);
     });
 
     SIGLOG_(
         fileModelModificationChanged,
-        [&](IFileModel* model, bool modified) {
-            INFO("File model [{}] modification changed to {}", model, modified);
+        [&](IFileModel* fileModel, bool modified) {
+            INFO(
+                "File model [{}] modification changed to {}",
+                fileModel,
+                modified);
         });
 
-    SIGLOG_(fileModelMetaChanged, [&](IFileModel* model) {
-        INFO("File model [{}] metadata changed", model);
+    SIGLOG_(fileModelMetaChanged, [&](IFileModel* fileModel) {
+        INFO("File model [{}] metadata changed", fileModel);
     });
 
     SIGLOG_(
@@ -76,8 +79,8 @@ void Bus::setup_()
                 index);
         });
 
-    SIGLOG_(viewDestroyed, [&](IFileModel* model) {
-        INFO("View destroyed for model [{}]", model);
+    SIGLOG_(viewDestroyed, [&](IFileModel* fileModel) {
+        INFO("View destroyed for model [{}]", fileModel);
     });
 
     // TODO: Updated regularly

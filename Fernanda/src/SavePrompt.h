@@ -55,10 +55,10 @@ namespace SavePrompt {
     };
 
     /// WIP
-    inline SaveChoice exec(IFileModel* model, QWidget* parent = nullptr)
+    inline SaveChoice exec(IFileModel* fileModel, QWidget* parent = nullptr)
     {
-        if (!model) return SaveChoice::Cancel;
-        auto meta = model->meta();
+        if (!fileModel) return SaveChoice::Cancel;
+        auto meta = fileModel->meta();
         if (!meta) return SaveChoice::Cancel;
 
         QMessageBox box(parent);
@@ -91,16 +91,15 @@ namespace SavePrompt {
     }
 
     /// VERY WIP
-    inline Result
-    exec(QList<IFileModel*> modifiedModels, QWidget* parent = nullptr)
+    inline Result exec(QList<IFileModel*> fileModels, QWidget* parent = nullptr)
     {
-        if (modifiedModels.isEmpty()) return { SaveChoice::Cancel, {} };
+        if (fileModels.isEmpty()) return { SaveChoice::Cancel, {} };
 
         // Single file case - use simpler message box
-        if (modifiedModels.size() == 1) {
-            auto choice = exec(modifiedModels.first(), parent);
+        if (fileModels.size() == 1) {
+            auto choice = exec(fileModels.first(), parent);
             return { choice,
-                     choice == SaveChoice::Save ? modifiedModels
+                     choice == SaveChoice::Save ? fileModels
                                                 : QList<IFileModel*>{} };
         }
 
@@ -114,7 +113,7 @@ namespace SavePrompt {
         auto messageLabel = new QLabel(&dialog); /// vvv TR
         QString messageText = QString("You have unsaved changes in %1 file(s). "
                                       "Select which files to save:")
-                                  .arg(modifiedModels.size());
+                                  .arg(fileModels.size());
         messageLabel->setText(messageText);
         messageLabel->setWordWrap(true);
         main_layout->addWidget(messageLabel);
@@ -125,7 +124,7 @@ namespace SavePrompt {
         auto scrollLayout = Coco::Layout::make<QVBoxLayout*>(scrollWidget);
 
         QList<QCheckBox*> checkBoxes;
-        for (auto model : modifiedModels) {
+        for (auto model : fileModels) {
             auto meta = model->meta();
             auto title = meta ? meta->title() : "Untitled";
             auto checkBox = new QCheckBox(title, scrollWidget);
@@ -181,10 +180,10 @@ namespace SavePrompt {
         if (choice == SaveChoice::Save) {
             // Only return the checked models
             QList<IFileModel*> chosenModels;
-            for (int i = 0; i < checkBoxes.size() && i < modifiedModels.size();
+            for (int i = 0; i < checkBoxes.size() && i < fileModels.size();
                  ++i) {
                 if (checkBoxes[i]->isChecked()) {
-                    chosenModels << modifiedModels[i];
+                    chosenModels << fileModels[i];
                 }
             }
             result = { SaveChoice::Save, chosenModels };

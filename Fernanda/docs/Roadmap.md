@@ -4,7 +4,6 @@
 
 (Not necessarily in order)
 
-- [ ] Model args to fileModel / view args to fileView
 - [x] Open Notepad command for menu
 - [ ] FNX
 - [ ] Functioning Notepad

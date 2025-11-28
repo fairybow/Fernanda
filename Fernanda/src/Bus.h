@@ -306,14 +306,14 @@ signals:
     // View may be nullptr!
     void activeFileViewChanged(Window* context, IFileView* view);
     void treeViewDoubleClicked(Window* context, const QModelIndex& index);
-    void fileModelReadied(Window* context, IFileModel* model);
-    void fileModelModificationChanged(IFileModel* model, bool modified);
-    void fileModelMetaChanged(IFileModel* model);
+    void fileModelReadied(Window* context, IFileModel* fileModel);
+    void fileModelModificationChanged(IFileModel* fileModel, bool modified);
+    void fileModelMetaChanged(IFileModel* fileModel);
     void treeViewContextMenuRequested(
         Window* context,
         const QPoint& globalPos,
         const QModelIndex& index);
-    void viewDestroyed(IFileModel* model);
+    void viewDestroyed(IFileModel* fileModel);
 
     /// Old:
 
