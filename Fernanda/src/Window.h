@@ -37,7 +37,9 @@ public:
     virtual ~Window() override
     {
         TRACER;
-        emit destroyed(this); // TODO: Check we need this!
+
+        // So we can emit via Bus::windowDestroyed without decay
+        emit destroyed(this);
     }
 
     void activate()
