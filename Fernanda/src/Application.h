@@ -80,8 +80,6 @@ public slots:
 
     void tryQuit()
     {
-        setQuitOnLastWindowClosed(false);
-
         // TODO: Go by Z-order (most to least recently used)
         for (auto i = notebooks_.count() - 1; i >= 0; --i)
             if (!notebooks_.at(i)->canQuit()) return;
@@ -119,7 +117,7 @@ private:
             this,
             &Application::notepadPathInterceptor_);
 
-        connect(notepad_, &Notebook::lastWindowClosed, this, [&] {
+        connect(notepad_, &Notepad::lastWindowClosed, this, [&] {
             if (notebooks_.isEmpty()) quit();
         });
 

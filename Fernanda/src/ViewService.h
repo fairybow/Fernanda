@@ -545,10 +545,7 @@ private:
             &TabWidget::closeTabRequested,
             this,
             [&, window](int index) {
-                bus->execute(
-                    Commands::CLOSE_TAB,
-                    { { "index", index } },
-                    window);
+                closeTab_(window, index);
             });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {

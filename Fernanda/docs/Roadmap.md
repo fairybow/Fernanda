@@ -72,7 +72,10 @@
 - [ ] Decide after whether we need the other polys (new tab and tree model things)
 - [ ] Finally, find all functions rendered unused by these changes and remove them!
 
+- [ ] Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
+
 - [ ] All commands should just call functions (like in ViewService), looks much cleaner, easier to follow
+- [ ] Make sure services aren't calling their own commands, dum-dum
 - [ ] Notepad save prompts
 - [ ] Marking Notebook as modified
 - [ ] Notebook save prompts

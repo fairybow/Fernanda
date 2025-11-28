@@ -170,12 +170,14 @@
     <None Include="docs\SavingTypes.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\Closures.md" />
     <None Include="docs\old_TempCommandsReference.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
     <None Include="docs\old_TempTodos.md">
       <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\Closures.md">
+      <Filter>Docs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
