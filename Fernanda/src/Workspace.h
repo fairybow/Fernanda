@@ -27,7 +27,7 @@
 #include "FileService.h"
 #include "SettingsModule.h"
 #include "Timers.h"
-#include "TreeViewModule.h"
+#include "TreeViewService.h"
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
@@ -89,7 +89,7 @@ protected:
     WindowService* windows = new WindowService(bus, this);
     ViewService* views = new ViewService(bus, this);
     FileService* files = new FileService(bus, this);
-    TreeViewModule* treeViews = new TreeViewModule(bus, this);
+    TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
     virtual bool canQuit() = 0;

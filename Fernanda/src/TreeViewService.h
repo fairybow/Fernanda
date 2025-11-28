@@ -37,18 +37,18 @@ namespace Fernanda {
 COCO_TRIVIAL_QCLASS(TreeView, QTreeView);
 
 // Coordinator for Window TreeViews
-class TreeViewModule : public IService
+class TreeViewService : public IService
 {
     Q_OBJECT
 
 public:
-    TreeViewModule(Bus* bus, QObject* parent = nullptr)
+    TreeViewService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
         setup_();
     }
 
-    virtual ~TreeViewModule() override { TRACER; }
+    virtual ~TreeViewService() override { TRACER; }
 
     // TODO: Use default arg for current index, if we wrap this in a command for menus
     void renameAt(Window* window, const QModelIndex& index = {})
@@ -72,13 +72,13 @@ protected:
             bus,
             &Bus::windowCreated,
             this,
-            &TreeViewModule::onWindowCreated_);
+            &TreeViewService::onWindowCreated_);
 
         connect(
             bus,
             &Bus::windowDestroyed,
             this,
-            &TreeViewModule::onWindowDestroyed_);
+            &TreeViewService::onWindowDestroyed_);
     }
 
 private:

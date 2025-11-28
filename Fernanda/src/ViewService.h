@@ -92,8 +92,7 @@ public:
     int countFor(IFileModel* model) const
     {
         if (!model) return 0;
-        return viewsPerModel_.value(model, 0);
-        // return modelViews_[model].count();
+        return fileViewsPerModel_.value(model, 0);
     }
 
     void raise(IFileView* view) const
@@ -130,7 +129,7 @@ public:
         return false;
     }
 
-    QList<IFileView*> viewsIn(Window* window) const
+    QList<IFileView*> fileViewsIn(Window* window) const
     {
         if (!window) return {};
         auto tab_widget = tabWidget_(window);
@@ -144,7 +143,7 @@ public:
         return views;
     }
 
-    QList<IFileView*> views() const
+    QList<IFileView*> fileViews() const
     {
         QList<IFileView*> views{};
 
@@ -242,7 +241,7 @@ protected:
 
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
-    QHash<IFileModel*, int> viewsPerModel_{};
+    QHash<IFileModel*, int> fileViewsPerModel_{};
     CanCloseTabHook canCloseTabHook_ = nullptr;
     CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
     CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
@@ -348,7 +347,7 @@ private:
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseTabHook_ || canCloseTabHook_(view)) {
             auto model = view->model();
-            deleteAt_(window, i);
+            deleteFileViewAt_(window, i);
             if (model) emit bus->viewDestroyed(model);
         }
     }
@@ -380,7 +379,7 @@ private:
                 for (auto i = tab_widget->count() - 1; i >= 0; --i) {
                     auto view = tab_widget->widgetAt<IFileView*>(i);
                     if (view && view->model() == target_model)
-                        deleteAt_(window, i);
+                        deleteFileViewAt_(window, i);
                 }
             }
 
@@ -411,7 +410,7 @@ private:
 
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_(views)) {
-            deleteAllIn_(window);
+            deleteAllFileViewsIn_(window);
 
             for (auto& model : models)
                 emit bus->viewDestroyed(model);
@@ -441,7 +440,7 @@ private:
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseAllTabsHook_ || canCloseAllTabsHook_(views)) {
             for (auto& window : rz_windows)
-                deleteAllIn_(window);
+                deleteAllFileViewsIn_(window);
 
             for (auto& model : models)
                 emit bus->viewDestroyed(model);
@@ -449,7 +448,7 @@ private:
     }
 
     // Index -1 = current
-    void deleteAt_(Window* window, int index)
+    void deleteFileViewAt_(Window* window, int index)
     {
         if (!window) return;
         auto tab_widget = tabWidget_(window);
@@ -464,7 +463,7 @@ private:
         delete view;
     }
 
-    void deleteAllIn_(Window* window)
+    void deleteAllFileViewsIn_(Window* window)
     {
         if (!window) return;
         auto tab_widget = tabWidget_(window);
@@ -526,9 +525,7 @@ private:
             tab_widget,
             &TabWidget::closeTabRequested,
             this,
-            [&, window](int index) {
-                closeTab_(window, index);
-            });
+            [&, window](int index) { closeTab_(window, index); });
 
         connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
             // emit bus->windowTabCountChanged(window, tab_widget->count());
@@ -591,10 +588,10 @@ private slots:
         }
 
         // Only adjust this once we're clear
-        ++viewsPerModel_[model];
+        ++fileViewsPerModel_[model];
         connect(view, &QObject::destroyed, this, [&, view, model] {
-            // modelViews_[model].remove(view);
-            if (--viewsPerModel_[model] <= 0) viewsPerModel_.remove(model);
+            if (--fileViewsPerModel_[model] <= 0)
+                fileViewsPerModel_.remove(model);
         });
 
         auto index = tab_widget->addTab(view, meta->title());
@@ -610,7 +607,7 @@ private slots:
     {
         if (!model) return;
 
-        // Find all tabs containing views of this model
+        // Find all tabs containing views on this model
         auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
         for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);

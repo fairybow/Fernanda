@@ -29,7 +29,7 @@
 #include "IFileView.h"
 #include "IService.h"
 #include "NotepadMenuModule.h"
-#include "TreeViewModule.h"
+#include "TreeViewService.h"
 #include "Version.h"
 #include "Workspace.h"
 
@@ -66,13 +66,13 @@ public:
     }
 
 protected:
-    virtual bool canCloseTab(IFileView* view) override
+    virtual bool canCloseTab(IFileView* fileView) override
     {
-        auto model = view->model();
+        auto model = fileView->model();
         if (!model) return false;
 
         if (model->isModified() && views->countFor(model) <= 1) {
-            views->raise(view);
+            views->raise(fileView);
 
             /*switch (SingleSavePrompt) {
             case Cancel:
@@ -89,9 +89,10 @@ protected:
     }
 
     // TODO: Can perhaps raise first (from end) view in each window?
-    virtual bool canCloseTabEverywhere(const QList<IFileView*>& views) override
+    virtual bool
+    canCloseTabEverywhere(const QList<IFileView*>& fileViews) override
     {
-        auto model = views.first()->model();
+        auto model = fileViews.first()->model();
         if (!model) return false;
 
         if (model->isModified()) {
@@ -112,17 +113,17 @@ protected:
     // TODO: The multi file save prompt could allow clicking on the path or
     // something to switch to the first view on that file we have available
     // (possibly first from the end)
-    virtual bool canCloseWindowTabs(const QList<IFileView*>& views) override
+    virtual bool canCloseWindowTabs(const QList<IFileView*>& fileViews) override
     {
         // Collect unique modified models that only exist in this window
         QSet<IFileModel*> modified_models{};
 
-        for (auto& view : views) {
+        for (auto& view : fileViews) {
             if (!view) continue;
             auto model = view->model();
             if (!model) continue;
             if (!model->isModified()) continue;
-            if (this->views->isMultiWindow(model)) continue;
+            if (views->isMultiWindow(model)) continue;
 
             modified_models << model;
         }
@@ -142,12 +143,12 @@ protected:
         return true;
     }
 
-    virtual bool canCloseAllTabs(const QList<IFileView*>& views) override
+    virtual bool canCloseAllTabs(const QList<IFileView*>& fileViews) override
     {
         // Collect all unique modified models across all windows
         QSet<IFileModel*> modified_models{};
 
-        for (auto& view : views) {
+        for (auto& view : fileViews) {
             if (!view) continue;
             auto model = view->model();
             if (!model) continue;
@@ -176,7 +177,7 @@ protected:
         // Collect unique modified models that only exist in this window
         QSet<IFileModel*> modified_models{};
 
-        for (auto& view : views->viewsIn(window)) {
+        for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
             if (!model) continue;
@@ -206,7 +207,7 @@ protected:
         // Collect all unique modified models across all windows
         QSet<IFileModel*> modified_models{};
 
-        for (auto& view : views->views()) {
+        for (auto& view : views->fileViews()) {
             if (!view) continue;
             auto model = view->model();
             if (!model) continue;

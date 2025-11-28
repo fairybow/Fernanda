@@ -106,7 +106,7 @@
     <ClInclude Include="src\TextIo.h" />
     <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Tr.h" />
-    <QtMoc Include="src\TreeViewModule.h" />
+    <QtMoc Include="src\TreeViewService.h" />
     <ClInclude Include="src\AppDirs.h" />
     <ClInclude Include="src\Version.h" />
     <QtMoc Include="src\Workspace.h" />
