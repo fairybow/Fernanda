@@ -60,6 +60,7 @@ class Notebook : public Workspace
     Q_OBJECT
 
 public:
+    // TODO: Also a signal, connected only to Notebooks, you fool
     using NotepadOpener = std::function<void()>;
 
     Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
@@ -103,6 +104,8 @@ protected:
         auto info = fnxModel_->addNewTextFile(working_dir);
         if (!info.isValid()) return;
 
+        // TODO: Once New Tab is signal based (if), we can likely drop the
+        // interceptor and reroute just here
         bus->execute(
             Commands::OPEN_FILE_AT_PATH,
             { { "path", qVar(working_dir / info.relPath) },

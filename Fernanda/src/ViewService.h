@@ -50,7 +50,9 @@ class ViewService : public IService
     Q_OBJECT
 
 public:
+    // TODO: This is probably more a signal, since no return value
     using NewTabHook = std::function<void(Window*)>;
+
     using CanCloseTabHook = std::function<bool(IFileView*)>;
     using CanCloseTabEverywhereHook =
         std::function<bool(const QList<IFileView*>&)>;

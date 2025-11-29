@@ -1,10 +1,13 @@
 # Roadmap
 
+Separate into features and code stuff / todos
+
 ## MVP
 
 (Not necessarily in order)
 
 - [x] Open Notepad command for menu
+- [ ] Menu item state toggling
 - [ ] FNX
 - [ ] Functioning Notepad
 - [ ] Functioning Notebooks
@@ -29,10 +32,8 @@
 
 ## Stretch
 
-- [ ] TreeView (NB): Collapsed items should expand on hover while dragging
-- [ ] TreeView (NB): Items should expand when items are dragged into them
-- [ ] TreeView (NB): Persist expanded states for items in Model.xml, so program remembers
-- [ ] Trigger rename for new folders/files, but not import (maybe)?
+- [ ] Status bar tools (AOT, Timer, Screen)
+- [ ] Styling/themes
 
 ### Coco
 
@@ -62,6 +63,10 @@
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Notebook LRU cache for models, if needed
 - [ ] Might be nice to have selection option for modified files in Notebook save, to exclude some changes from the archive save; would need to consult with FileService instead of ViewService and get all modified models (which, until/if LRU cache, remain open)
+- [ ] Trigger rename for new folders/files, but not import (maybe)?
+- [ ] TreeView (NB): Collapsed items should expand on hover while dragging
+- [ ] TreeView (NB): Items should expand when items are dragged into them
+- [ ] TreeView (NB): Persist expanded states for items in Model.xml, so program remembers
 
 ## Finished
 
