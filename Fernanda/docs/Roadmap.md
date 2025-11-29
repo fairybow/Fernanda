@@ -28,7 +28,6 @@
 - [x] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query FnxModel for it somehow? Possible?
 - [x] Marking Notebook as modified (TODO NBM)
 - [x] Fnx file elements, add or remove edited attribute when model modification changes (TODO NBM)
-- [ ] Add note ensuring these modified attributes are all removed when saving the archive (TODO NBM)
 - [x] FnxModel storing original DOM string + modified check method (TODO NBM)
 - [ ] Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
 - [ ] Notepad save prompts
@@ -36,6 +35,7 @@
 - [ ] Notepad saving
 - [ ] Notebook saving
 - [ ] Ensure edited attributes are cleared and written before compressing and replacing archive
+- [ ] Ensure DOM snapshot is replaced on save
 - [ ] Notebook Trash (removing items, virtual op only since files will stay put but display in a "trash" section until trash is cleared)
 
 ### Coco

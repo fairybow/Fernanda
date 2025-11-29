@@ -19,12 +19,6 @@ TODO: edited to transient_edited and the clear function can just remove all attr
 > [!NOTE]
 > Fernanda will add a `Settings.ini` file which can be removed and regenerated as needed. It lives in the archive root but is not part of the FNX spec per se.
 
-| Component       | Value         | Notes                              |
-|-----------------|---------------|------------------------------------|
-| Archive format  | 7zip          | Via bit7z library                  |
-| Model file      | `Model.xml`   | Required, root of archive          |
-| Content dir     | `content/`    | Required, stores physical files    |
-
 ## Content Directory
 
 Files in `content/` are named by UUID with a normalized extension by type, i.e.: `a1b2c3d4-e5f6-7890-abcd-ef1234567890.txt`

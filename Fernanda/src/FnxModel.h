@@ -75,7 +75,7 @@ public:
         dom_ = Fnx::Xml::makeDom(workingDir);
 
         /// TODO NBM
-        originalXml_ = dom_.toString();
+        domSnapshot_ = dom_.toString();
 
         clearCache_();
         endResetModel();
@@ -91,7 +91,7 @@ public:
         // - QDomDocument::toString() is deterministic for the same structure
         // - Element/attribute order is preserved
         // - Whitespace handling is consistent
-        return originalXml_ != dom_.toString();
+        return domSnapshot_ != dom_.toString();
     }
 
     /// TODO NBM
@@ -360,7 +360,7 @@ private:
     QDomDocument dom_{};
 
     /// TODO NBM
-    QString originalXml_{};
+    QString domSnapshot_{};
 
     // ID allocation: 0 = invalid/root element
     // IDs start at 1 and increment monotonically
