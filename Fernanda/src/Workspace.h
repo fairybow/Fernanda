@@ -65,6 +65,8 @@ public:
         // ... Path args?
 
         if (withWindow) windows->newWindow();
+
+        // TODO: Don't run if no windows...
         timer(1300, this, [&] { colorBars->runAll(ColorBar::Color::Pastel); });
     }
 

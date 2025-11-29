@@ -60,9 +60,6 @@ class Notebook : public Workspace
     Q_OBJECT
 
 public:
-    // TODO: Also a signal, connected only to Notebooks, you fool
-    using NotepadOpener = std::function<void()>;
-
     Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
         : Workspace(parent)
         , fnxPath_(fnxPath)
@@ -74,14 +71,11 @@ public:
 
     virtual ~Notebook() override { TRACER; }
 
-    DECLARE_HOOK_ACCESSORS(
-        NotepadOpener,
-        notepadOpener,
-        setNotepadOpener,
-        notepadOpener_);
-
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
     virtual bool canQuit() override { return windows->closeAll(); }
+
+signals:
+    void openNotepadRequested();
 
 protected:
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
@@ -157,7 +151,6 @@ private:
 
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
-    NotepadOpener notepadOpener_ = nullptr;
 
     void setup_()
     {
@@ -207,7 +200,7 @@ private:
     void registerBusCommands_()
     {
         bus->addCommandHandler(Commands::NOTEBOOK_OPEN_NOTEPAD, [&] {
-            if (notepadOpener_) notepadOpener_();
+            emit openNotepadRequested();
         });
 
         bus->addCommandHandler(
