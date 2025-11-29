@@ -73,10 +73,23 @@ public:
     {
         beginResetModel();
         dom_ = Fnx::Xml::makeDom(workingDir);
+
+        /// TODO NBM
+        originalXml_ = dom_.toString();
+
         clearCache_();
         endResetModel();
 
         emit domChanged();
+    }
+
+    /// TODO NBM
+    bool isModified() const
+    {
+        // - QDomDocument::toString() is deterministic for the same structure
+        // - Element/attribute order is preserved
+        // - Whitespace handling is consistent
+        return originalXml_ != dom_.toString();
     }
 
     void write(const Coco::Path& workingDir) const
@@ -329,6 +342,9 @@ signals:
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
+
+    /// TODO NBM
+    QString originalXml_{};
 
     // ID allocation: 0 = invalid/root element
     // IDs start at 1 and increment monotonically

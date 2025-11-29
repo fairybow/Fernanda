@@ -22,8 +22,13 @@
 
 ## Miscellaneous Todos
 
-- [ ] Window titles and flag (TODO NBM)
+- [ ] Openings.md to explain New Tab procedures (and Notebook tab titles, too) and perhaps new windows and app open
+- [x] Window titles and flag (TODO NBM)
+- [ ] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query FnxModel for it somehow? Possible?
 - [ ] Marking Notebook as modified (TODO NBM)
+- [ ] Fnx file elements, add or remove edited attribute when model modification changes (TODO NBM)
+- [ ] Add note ensuring these modified attributes are all removed when saving the archive (TODO NBM)
+- [x] FnxModel storing original DOM string + modified check method (TODO NBM)
 - [ ] Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
 - [ ] Notepad save prompts
 - [ ] Notebook save prompts

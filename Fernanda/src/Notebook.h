@@ -155,7 +155,7 @@ private:
     // DOM element attributes (with a default of false always present) and
     // modification state can be tracked by comparing DOM to an original copy?
     // Is that stupid?
-    bool modified_ = false;
+    // bool modified_ = false;
 
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
@@ -178,7 +178,8 @@ private:
             Fnx::Io::makeNewWorkingDir(working_dir);
 
             /// TODO NBM
-            setModified_(true);
+            // May or may not want to mark here
+            // setModified_(true);
 
             //...
 
@@ -265,14 +266,29 @@ private:
             &Bus::treeViewContextMenuRequested,
             this,
             &Notebook::onTreeViewContextMenuRequested_);
+
+        /// TODO NBM
+        connect(bus, &Bus::fileModelModificationChanged, this, [&] {
+            // Set DOM element modified or remove attribute
+            // - Need to figure out how we're getting DOM to change elements
+            // from outside. By path?
+            windows->setFlagged(fnxModel_->isModified());
+        });
     }
 
     /// TODO NBM
-    void setModified_(bool modified)
+    /*void setModified_(bool modified)
     {
         modified_ = modified;
         windows->setFlagged(modified);
-    }
+    }*/
+
+    /// TODO NBM
+    // bool isModified() const
+    //{
+    //     //
+    //     return fnxModel_->isModified()
+    // }
 
     void addWorkspaceIndicator_(Window* window)
     {
@@ -303,7 +319,8 @@ private slots:
         /// TODO NBM
         // Initial DOM load emission doesn't call this slot, so we're good to
         // set modified on all subsequent emissions here
-        setModified_(true);
+        // setModified_(true);
+        windows->setFlagged(fnxModel_->isModified());
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
