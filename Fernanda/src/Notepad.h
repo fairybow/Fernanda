@@ -134,6 +134,8 @@ protected:
         // Collect unique modified models that only exist in this window
         QSet<IFileModel*> modified_models{};
 
+        // TODO: May need to call on FileService for some of these queries. What
+        // would respect separation of concerns?
         for (auto& view : fileViews) {
             if (!view) continue;
             auto model = view->model();

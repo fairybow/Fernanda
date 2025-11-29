@@ -57,6 +57,15 @@ public:
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
 
+    /// TODO NBM
+    bool anyModified() const
+    {
+        for (auto& model : fileModels_)
+            if (model && model->isModified()) return true;
+
+        return false;
+    }
+
     void deleteModel(IFileModel* fileModel)
     {
         if (!fileModel) return;

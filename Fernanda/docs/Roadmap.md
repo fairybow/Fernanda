@@ -1,39 +1,35 @@
 # Roadmap
 
-Separate into features and code stuff / todos
+## Features
 
-## MVP
+### MVP
 
-(Not necessarily in order)
-
-- [x] Open Notepad command for menu
+- [ ] FNX (extract, compress, model, model manipulation, saving, trash)
 - [ ] Menu item state toggling
-- [ ] FNX
-- [ ] Functioning Notepad
-- [ ] Functioning Notebooks
+- [ ] Fully functioning Notepad (complete menus, open files, save them)
+- [ ] Fully functioning Notebooks (complete menus, open archive, make files, save archive)
+- [ ] Tab dragging (tab to window, tab to new window)
+- [ ] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH)
-- [x] Decide whether we need the other polys (new tab and tree model things)
+
+### Stretch
+
+- [ ] Spellcheck
+- [ ] Find and replace
+- [ ] Status bar tools (AOT, Timer, Screen)
+- [ ] Styling/themes
+- [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
+
+## Miscellaneous Todos
+
+- [ ] Window titles and flag (TODO NBM)
+- [ ] Marking Notebook as modified (TODO NBM)
 - [ ] Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
 - [ ] Notepad save prompts
-- [ ] Marking Notebook as modified
 - [ ] Notebook save prompts
 - [ ] Notepad saving
 - [ ] Notebook saving
 - [ ] Notebook Trash (removing items, virtual op only since files will stay put but display in a "trash" section until trash is cleared)
-
-### Architecture & Commands
-
-- [ ] Implementing menus
-- [ ] Redoing commands for menus as it is reimplemented
-- [ ] Utility commands (windowsReversed, etc)
-- [ ] Redo/organize Bus events
-- [ ] Implement menu toggles
-- [ ] Rethink Services/Modules distinction (proactive vs reactive framing)
-
-## Stretch
-
-- [ ] Status bar tools (AOT, Timer, Screen)
-- [ ] Styling/themes
 
 ### Coco
 
@@ -54,13 +50,12 @@ Separate into features and code stuff / todos
 - [ ] Debug/Utility function that shows a popup for messages (non-fatal)
 - [ ] Red color bar for window on errors
 - [ ] QSet<T> printing (for WINDOWS_SET command result) - needs type info storage or debug printer callback
-- [ ] Ability to log Coco::Bool
+- [x] Ability to log Coco::Bool
 - [ ] Log to file (commented-out method is too slow)
 - [ ] Callback for debug printer that can be added while registering handler?
 
 ### General
 
-- [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Notebook LRU cache for models, if needed
 - [ ] Might be nice to have selection option for modified files in Notebook save, to exclude some changes from the archive save; would need to consult with FileService instead of ViewService and get all modified models (which, until/if LRU cache, remain open)
 - [ ] Trigger rename for new folders/files, but not import (maybe)?
@@ -68,7 +63,7 @@ Separate into features and code stuff / todos
 - [ ] TreeView (NB): Items should expand when items are dragged into them
 - [ ] TreeView (NB): Persist expanded states for items in Model.xml, so program remembers
 
-## Finished
+### Finished
 
 - [x] Opening files via TreeView in both Workspaces
 - [x] NewTab behavior for both Workspaces
@@ -79,7 +74,7 @@ Separate into features and code stuff / todos
 - [x] Moving/reorganizing Notebook files in TreeView
 - [x] Replace Coco/TextIo with project version
 
-### Closures
+#### Closures
 
 - [x] At each step of the way, decide what the "ideal" hook looks like, with proper encapsulation / separation of concerns in mind
 - [x] Consider IService Coco::Bool or enum Accept/Reject for clarity

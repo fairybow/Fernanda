@@ -84,8 +84,6 @@ public:
         Fnx::Xml::writeModelFile(workingDir, dom_);
     }
 
-    // QString xml() const { return dom_.toString(); }
-
     FileInfo fileInfoAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return {};

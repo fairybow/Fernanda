@@ -18,6 +18,7 @@
 #include <QPointer>
 #include <QRect>
 #include <QSet>
+#include <QString>
 #include <QWidget>
 #include <QtTypes>
 
@@ -28,6 +29,7 @@
 #include "Commands.h"
 #include "Debug.h"
 #include "IService.h"
+#include "Version.h"
 #include "Window.h"
 #include "XPlatform.h"
 
@@ -89,11 +91,28 @@ public:
     {
         auto window = make_();
         if (window) {
+            /// TODO NBM
+            window->setWindowTitle(windowTitle_());
+
             window->setGeometry(nextWindowGeometry_());
             window->show();
         }
 
         return window;
+    }
+
+    /// TODO NBM
+    void setFlagged(bool flagged)
+    {
+        windowsFlagged_ = flagged;
+        setAllTitles_();
+    }
+
+    /// TODO NBM
+    void setSubtitle(const QString& subtitle)
+    {
+        windowsSubtitle_ = subtitle;
+        setAllTitles_();
     }
 
 protected:
@@ -157,6 +176,10 @@ private:
     CanCloseHook canCloseHook_ = nullptr;
     CanCloseAllHook canCloseAllHook_ = nullptr;
 
+    /// TODO NBM
+    bool windowsFlagged_ = false;
+    QString windowsSubtitle_{};
+
     void setup_();
 
     Window* make_()
@@ -178,6 +201,24 @@ private:
 
         emit bus->windowCreated(window);
         return window;
+    }
+
+    /// TODO NBM
+    QString windowTitle_() const
+    {
+        // * subtitle - title
+        QString title = windowsFlagged_ ? "* " : "";
+        if (!windowsSubtitle_.isEmpty()) title += windowsSubtitle_ + " - ";
+        title += VERSION_APP_NAME_STRING;
+        return title;
+    }
+
+    /// TODO NBM
+    void setAllTitles_()
+    {
+        auto title = windowTitle_();
+        for (auto& window : unorderedWindows_)
+            if (window) window->setWindowTitle(title);
     }
 
     QRect nextWindowGeometry_() const
@@ -210,17 +251,6 @@ private:
             if (*it) list << *it;
 
         return list;
-    }
-
-    // TODO: Ensure this is needed
-    int visibleCount_() const
-    {
-        auto i = 0;
-
-        for (auto& window : unorderedWindows_)
-            if (window && window->isVisible()) ++i;
-
-        return i;
     }
 
     // These are windows that have called Window::show() (Don't mistake this as
@@ -309,6 +339,17 @@ private slots:
 /// Old:
 
 /*
+// TODO: Ensure this is needed
+int visibleCount_() const
+{
+    auto i = 0;
+
+    for (auto& window : unorderedWindows_)
+        if (window && window->isVisible()) ++i;
+
+    return i;
+}
+
 // in set active window (end):
 emit bus->activeWindowChanged(activeWindow_.get());
 
