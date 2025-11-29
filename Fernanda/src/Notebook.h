@@ -112,7 +112,7 @@ protected:
         if (windows->count() > 1) return true;
 
         // If archive is modified, prompt
-        /*if (modified_) {
+        /*if (isModified_()) {
             switch (ArchiveSavePrompt) {
             case Cancel:
                 return false;
@@ -129,7 +129,7 @@ protected:
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
-        /*if (modified_) {
+        /*if (isModified_()) {
             switch (ArchiveSavePrompt) {
             case Cancel:
                 return false;
@@ -169,16 +169,13 @@ private:
 
         /// TODO NBM
         windows->setSubtitle(name_);
+        showModified_();
 
         // Extraction or creation
         auto working_dir = workingDir_.path();
 
         if (!fnxPath_.exists()) {
             Fnx::Io::makeNewWorkingDir(working_dir);
-
-            /// TODO NBM
-            // May or may not want to mark here
-            // setModified_(true);
 
             //...
 
@@ -267,12 +264,21 @@ private:
             &Notebook::onTreeViewContextMenuRequested_);
 
         /// TODO NBM
-        connect(bus, &Bus::fileModelModificationChanged, this, [&] {
-            // Set DOM element modified or remove attribute
-            // - Need to figure out how we're getting DOM to change elements
-            // from outside. By path?
-        });
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            &Notebook::onFileModelModificationChanged_);
     }
+
+    /// TODO NBM
+    bool isModified_() const
+    {
+        return !fnxPath_.exists() || fnxModel_->isModified();
+    }
+
+    /// TODO NBM
+    void showModified_() { windows->setFlagged(isModified_()); }
 
     void addWorkspaceIndicator_(Window* window)
     {
@@ -302,8 +308,7 @@ private slots:
 
         /// TODO NBM
         // Initial DOM load emission doesn't call this slot
-        //
-        // Could call a showModified function or something?
+        showModified_();
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
@@ -373,6 +378,13 @@ private slots:
         }
 
         menu->popup(globalPos);
+    }
+
+    void onFileModelModificationChanged_(IFileModel* fileModel, bool modified)
+    {
+        auto meta = fileModel->meta();
+        if (!meta) return;
+        fnxModel_->setFileEdited(Fnx::Io::uuid(meta->path()), modified);
     }
 };
 

@@ -84,6 +84,8 @@ public:
     }
 
     /// TODO NBM
+    // TODO: Problem with this method if we ever decide to store
+    // expanded/collapsed state in the DOM...
     bool isModified() const
     {
         // - QDomDocument::toString() is deterministic for the same structure
@@ -92,9 +94,25 @@ public:
         return originalXml_ != dom_.toString();
     }
 
+    /// TODO NBM
+    void setFileEdited(const QString& uuid, bool edited)
+    {
+        // Find element by UUID in the cache
+        if (!elementToId_.contains(uuid)) return;
+
+        auto id = elementToId_[uuid];
+        QDomElement element = idToElement_[id];
+
+        if (!Fnx::Xml::isFile(element)) return;
+
+        Fnx::Xml::setEdited(element, edited);
+        emit domChanged();
+    }
+
     void write(const Coco::Path& workingDir) const
     {
         Fnx::Xml::writeModelFile(workingDir, dom_);
+        INFO("DOM written: {}", dom_.toString());
     }
 
     FileInfo fileInfoAt(const QModelIndex& index) const
@@ -328,9 +346,7 @@ public:
 
         // Determine drop target
         auto drop_parent = elementAt_(parent);
-        if (drop_parent.isNull()) {
-            drop_parent = dom_.documentElement();
-        }
+        if (drop_parent.isNull()) drop_parent = dom_.documentElement();
 
         return moveElement_(element, drop_parent, row);
     }
@@ -514,14 +530,10 @@ private:
         auto dest_parent_index = indexFromElement_(newParent);
 
         auto dest_row = newRow;
-        if (dest_row < 0) {
-            dest_row = childElementCount_(newParent);
-        }
+        if (dest_row < 0) dest_row = childElementCount_(newParent);
 
         // Check move isn't pointless
-        if (current_parent == newParent && source_row == dest_row) {
-            return true;
-        }
+        if (current_parent == newParent && source_row == dest_row) return true;
 
         INFO(
             "Moving element: {}\n\tOld parent: {}\n\tOld row: {}\n\tNew "
@@ -576,7 +588,8 @@ private:
     // The parent element parameters must be by-value because
     // `dom_.documentElement()` returns a temporary (rvalue). Non-const
     // references (`QDomElement&`) cannot bind to temporaries
-    // TODO: Could test QDomElement& again (here and elsewhere) once new tab is fixed
+    // TODO: Could test QDomElement& again (here and elsewhere) once new tab is
+    // fixed
     void insertElement_(const QDomElement& element, QDomElement parentElement)
     {
         if (!isValidForInsertion_(element) || !isValid_(parentElement)) return;

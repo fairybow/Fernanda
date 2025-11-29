@@ -133,6 +133,8 @@ namespace Io {
 
     // TODO: Compress method
 
+    inline QString uuid(const Coco::Path& path) { return path.stemQString(); }
+
 } // namespace Io
 
 // Used by FnxModel
