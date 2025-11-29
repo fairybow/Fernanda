@@ -150,12 +150,11 @@ private:
     TempDir workingDir_;
 
     /// TODO NBM
-    // TODO: Replace this with an fnxModel_->domModified() &&
+    // TODO: Maybe use fnxModel_->domModified() &&
     // fileService->anyModified()? Or perhaps store edited state of files in the
     // DOM element attributes (with a default of false always present) and
     // modification state can be tracked by comparing DOM to an original copy?
     // Is that stupid?
-    // bool modified_ = false;
 
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
@@ -272,23 +271,8 @@ private:
             // Set DOM element modified or remove attribute
             // - Need to figure out how we're getting DOM to change elements
             // from outside. By path?
-            windows->setFlagged(fnxModel_->isModified());
         });
     }
-
-    /// TODO NBM
-    /*void setModified_(bool modified)
-    {
-        modified_ = modified;
-        windows->setFlagged(modified);
-    }*/
-
-    /// TODO NBM
-    // bool isModified() const
-    //{
-    //     //
-    //     return fnxModel_->isModified()
-    // }
 
     void addWorkspaceIndicator_(Window* window)
     {
@@ -317,10 +301,9 @@ private slots:
         fnxModel_->write(workingDir_.path());
 
         /// TODO NBM
-        // Initial DOM load emission doesn't call this slot, so we're good to
-        // set modified on all subsequent emissions here
-        // setModified_(true);
-        windows->setFlagged(fnxModel_->isModified());
+        // Initial DOM load emission doesn't call this slot
+        //
+        // Could call a showModified function or something?
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)

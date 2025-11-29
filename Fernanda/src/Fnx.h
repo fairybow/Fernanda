@@ -33,6 +33,8 @@
 // Fnx::Xml: DOM element factories and queries (stateless helpers)
 //
 // TODO: Are all these element.isNull checks necessary? Not sure...
+// TODO: For mutators, probably pass QDomElement by value (otherwise by const
+// ref). There are issues with passing QDomElement& for mutators
 namespace Fernanda::Fnx {
 
 namespace Internal {
@@ -65,6 +67,7 @@ namespace Internal {
     constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
     constexpr auto XML_FILE_UUID_ATTR_ = "uuid";
     constexpr auto XML_FILE_EXT_ATTR_ = "extension";
+    constexpr auto XML_FILE_EDITED_ATTR_ = "edited";
     constexpr auto XML_NULL_DOM_ = "DOM is null!";
 
     inline QString makeUuid_()
@@ -147,6 +150,11 @@ namespace Xml {
         return element.tagName() == Internal::XML_FILE_TAG_;
     }
 
+    inline bool isEdited(const QDomElement& element)
+    {
+        return element.hasAttribute(Internal::XML_FILE_EDITED_ATTR_);
+    }
+
     inline QString name(const QDomElement& element)
     {
         return element.attribute(Internal::XML_NAME_ATTR_);
@@ -169,12 +177,35 @@ namespace Xml {
         return Coco::Path(Internal::IO_CONTENT_DIR_NAME_) / file_name;
     }
 
-    inline void rename(QDomElement& element, const QString& name)
+    inline void rename(QDomElement element, const QString& name)
     {
         if (element.isNull() || !element.hasAttribute(Internal::XML_NAME_ATTR_)
             || name.isEmpty())
             return;
         element.setAttribute(Internal::XML_NAME_ATTR_, name);
+    }
+
+    // Setting false removes the attribute (the attribute is itself the boolean)
+    inline void setEdited(QDomElement element, bool edited)
+    {
+        if (element.isNull() || !isFile(element)) return;
+        edited ? element.setAttribute(Internal::XML_FILE_EDITED_ATTR_, "")
+               : element.removeAttribute(Internal::XML_FILE_EDITED_ATTR_);
+    }
+
+    inline void clearEditedRecursive(QDomElement parent)
+    {
+        auto child = parent.firstChildElement();
+        while (!child.isNull()) {
+            if (isFile(child)) setEdited(child, false);
+            clearEditedRecursive(child);
+            child = child.nextSiblingElement();
+        }
+    }
+
+    inline void clearEditedRecursive(QDomDocument& dom)
+    {
+        clearEditedRecursive(dom.documentElement());
     }
 
     inline QDomDocument makeDom(const Coco::Path& workingDir)
