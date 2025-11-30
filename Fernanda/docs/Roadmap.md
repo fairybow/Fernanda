@@ -23,7 +23,7 @@
 
 ## Miscellaneous Todos
 
-- [ ] Openings.md to explain New Tab procedures (and Notebook tab titles, too) and perhaps new windows and app open
+- [x] Openings.md to explain New Tab procedures (and Notebook tab titles, too) and perhaps new windows and app open
 - [x] Window titles and flag (TODO NBM)
 - [x] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query FnxModel for it somehow? Possible?
 - [x] Marking Notebook as modified (TODO NBM)

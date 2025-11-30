@@ -73,17 +73,13 @@ public:
     {
         beginResetModel();
         dom_ = Fnx::Xml::makeDom(workingDir);
-
-        /// TODO NBM
         domSnapshot_ = dom_.toString();
-
         clearCache_();
         endResetModel();
 
         emit domChanged();
     }
 
-    /// TODO NBM
     // TODO: Problem with this method if we ever decide to store
     // expanded/collapsed state in the DOM...
     bool isModified() const
@@ -94,16 +90,31 @@ public:
         return domSnapshot_ != dom_.toString();
     }
 
-    /// TODO NBM
     void setFileEdited(const QString& uuid, bool edited)
     {
-        // Find element by UUID in the cache
-        if (!elementToId_.contains(uuid)) return;
+        QDomElement element{};
 
-        auto id = elementToId_[uuid];
-        QDomElement element = idToElement_[id];
+        // Try cache first
+        if (elementToId_.contains(uuid)) {
+            auto id = elementToId_[uuid];
+            element = idToElement_[id];
+        } else {
+            // Fallback: search DOM directly
+            element = findElementByUuid_(uuid);
+
+            if (element.isNull()) {
+                WARN("Cannot find element with UUID: {}", uuid);
+                return;
+            }
+
+            // Populate cache now that we found it
+            idFromElement_(element);
+        }
 
         if (!Fnx::Xml::isFile(element)) return;
+
+        // Avoid unnecessary domChanged emissions
+        if (Fnx::Xml::isEdited(element) == edited) return;
 
         Fnx::Xml::setEdited(element, edited);
         emit domChanged();
@@ -358,8 +369,6 @@ signals:
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
-
-    /// TODO NBM
     QString domSnapshot_{};
 
     // ID allocation: 0 = invalid/root element
@@ -439,6 +448,33 @@ private:
         }
 
         return elementToId_[key];
+    }
+
+    // Cache is lazily populated during tree traversal; unopened branches won't
+    // be cached yet.
+    QDomElement findElementByUuid_(const QString& uuid) const
+    {
+        if (uuid.isEmpty()) return {};
+        return findElementByUuidRecursive_(dom_.documentElement(), uuid);
+    }
+
+    QDomElement findElementByUuidRecursive_(
+        const QDomElement& parent,
+        const QString& uuid) const
+    {
+        auto child = parent.firstChildElement();
+
+        while (!child.isNull()) {
+            if (Fnx::Xml::uuid(child) == uuid) return child;
+
+            // Search children
+            auto found = findElementByUuidRecursive_(child, uuid);
+            if (!found.isNull()) return found;
+
+            child = child.nextSiblingElement();
+        }
+
+        return {};
     }
 
     int childElementCount_(const QDomElement& element) const

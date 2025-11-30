@@ -1,6 +1,14 @@
-﻿# FNX File Format Specification
+﻿# FNX File Format Specification (Draft)
 
 An `.fnx` file (Fernanda Notebook) is a 7zip archive containing a virtual file system for Notebook workspaces.
+
+| Class/Namespace | Responsibility                                                                            |
+|-----------------|-------------------------------------------------------------------------------------------|
+| `Fnx`           | Defines the file type and requirements                                                    |
+| `Fnx::Io`       | Archive I/O, path utilities                                                               |
+| `Fnx::Xml`      | DOM element factories & queries (stateless helpers)                                       |
+| `FnxModel`      | Qt model/view adapter, DOM ownership                                                      |
+| `Notebook`      | Policy, working directory lifecycle, wires things together using Fnx::Io and FnxModel API |
 
 ## Archive Structure
 

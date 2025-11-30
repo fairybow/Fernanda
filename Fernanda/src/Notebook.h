@@ -149,13 +149,6 @@ private:
     QString name_;
     TempDir workingDir_;
 
-    /// TODO NBM
-    // TODO: Maybe use fnxModel_->domModified() &&
-    // fileService->anyModified()? Or perhaps store edited state of files in the
-    // DOM element attributes (with a default of false always present) and
-    // modification state can be tracked by comparing DOM to an original copy?
-    // Is that stupid?
-
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
@@ -167,7 +160,6 @@ private:
 
         menus_->initialize();
 
-        /// TODO NBM
         windows->setSubtitle(name_);
         showModified_();
 
@@ -263,7 +255,6 @@ private:
             this,
             &Notebook::onTreeViewContextMenuRequested_);
 
-        /// TODO NBM
         connect(
             bus,
             &Bus::fileModelModificationChanged,
@@ -271,13 +262,11 @@ private:
             &Notebook::onFileModelModificationChanged_);
     }
 
-    /// TODO NBM
     bool isModified_() const
     {
         return !fnxPath_.exists() || fnxModel_->isModified();
     }
 
-    /// TODO NBM
     void showModified_() { windows->setFlagged(isModified_()); }
 
     void addWorkspaceIndicator_(Window* window)
@@ -306,7 +295,6 @@ private slots:
         if (!workingDir_.isValid()) return;
         fnxModel_->write(workingDir_.path());
 
-        /// TODO NBM
         // Initial DOM load emission doesn't call this slot
         showModified_();
     }
