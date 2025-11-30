@@ -73,15 +73,57 @@ public:
     {
         beginResetModel();
         dom_ = Fnx::Xml::makeDom(workingDir);
+        domSnapshot_ = dom_.toString();
         clearCache_();
         endResetModel();
 
         emit domChanged();
     }
 
+    // TODO: Problem with this method if we ever decide to store
+    // expanded/collapsed state in the DOM...
+    bool isModified() const
+    {
+        // - QDomDocument::toString() is deterministic for the same structure
+        // - Element/attribute order is preserved
+        // - Whitespace handling is consistent
+        return domSnapshot_ != dom_.toString();
+    }
+
+    void setFileEdited(const QString& uuid, bool edited)
+    {
+        QDomElement element{};
+
+        // Try cache first
+        if (elementToId_.contains(uuid)) {
+            auto id = elementToId_[uuid];
+            element = idToElement_[id];
+        } else {
+            // Fallback: search DOM directly
+            element = findElementByUuid_(uuid);
+
+            if (element.isNull()) {
+                WARN("Cannot find element with UUID: {}", uuid);
+                return;
+            }
+
+            // Populate cache now that we found it
+            idFromElement_(element);
+        }
+
+        if (!Fnx::Xml::isFile(element)) return;
+
+        // Avoid unnecessary domChanged emissions
+        if (Fnx::Xml::isEdited(element) == edited) return;
+
+        Fnx::Xml::setEdited(element, edited);
+        emit domChanged();
+    }
+
     void write(const Coco::Path& workingDir) const
     {
         Fnx::Xml::writeModelFile(workingDir, dom_);
+        INFO("DOM written: {}", dom_.toString());
     }
 
     FileInfo fileInfoAt(const QModelIndex& index) const
@@ -315,9 +357,7 @@ public:
 
         // Determine drop target
         auto drop_parent = elementAt_(parent);
-        if (drop_parent.isNull()) {
-            drop_parent = dom_.documentElement();
-        }
+        if (drop_parent.isNull()) drop_parent = dom_.documentElement();
 
         return moveElement_(element, drop_parent, row);
     }
@@ -329,6 +369,7 @@ signals:
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
+    QString domSnapshot_{};
 
     // ID allocation: 0 = invalid/root element
     // IDs start at 1 and increment monotonically
@@ -407,6 +448,33 @@ private:
         }
 
         return elementToId_[key];
+    }
+
+    // Cache is lazily populated during tree traversal; unopened branches won't
+    // be cached yet.
+    QDomElement findElementByUuid_(const QString& uuid) const
+    {
+        if (uuid.isEmpty()) return {};
+        return findElementByUuidRecursive_(dom_.documentElement(), uuid);
+    }
+
+    QDomElement findElementByUuidRecursive_(
+        const QDomElement& parent,
+        const QString& uuid) const
+    {
+        auto child = parent.firstChildElement();
+
+        while (!child.isNull()) {
+            if (Fnx::Xml::uuid(child) == uuid) return child;
+
+            // Search children
+            auto found = findElementByUuidRecursive_(child, uuid);
+            if (!found.isNull()) return found;
+
+            child = child.nextSiblingElement();
+        }
+
+        return {};
     }
 
     int childElementCount_(const QDomElement& element) const
@@ -498,14 +566,10 @@ private:
         auto dest_parent_index = indexFromElement_(newParent);
 
         auto dest_row = newRow;
-        if (dest_row < 0) {
-            dest_row = childElementCount_(newParent);
-        }
+        if (dest_row < 0) dest_row = childElementCount_(newParent);
 
         // Check move isn't pointless
-        if (current_parent == newParent && source_row == dest_row) {
-            return true;
-        }
+        if (current_parent == newParent && source_row == dest_row) return true;
 
         INFO(
             "Moving element: {}\n\tOld parent: {}\n\tOld row: {}\n\tNew "
@@ -560,7 +624,8 @@ private:
     // The parent element parameters must be by-value because
     // `dom_.documentElement()` returns a temporary (rvalue). Non-const
     // references (`QDomElement&`) cannot bind to temporaries
-    // TODO: Could test QDomElement& again (here and elsewhere) once new tab is fixed
+    // TODO: Could test QDomElement& again (here and elsewhere) once new tab is
+    // fixed
     void insertElement_(const QDomElement& element, QDomElement parentElement)
     {
         if (!isValidForInsertion_(element) || !isValid_(parentElement)) return;

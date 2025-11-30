@@ -4,16 +4,17 @@
 
 ### MVP
 
-- [ ] FNX (extract, compress, model, model manipulation, saving, trash)
+- [ ] FNX (extract, compress, model, model manipulation, saving)
 - [ ] Menu item state toggling
 - [ ] Fully functioning Notepad (complete menus, open files, save them)
-- [ ] Fully functioning Notebooks (complete menus, open archive, make files, save archive)
+- [ ] Fully functioning Notebooks (complete menus, open archive, make files, save archive, element removal)
 - [ ] Tab dragging (tab to window, tab to new window)
 - [ ] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH)
 
 ### Stretch
 
+- [ ] Notebook Trash
 - [ ] Spellcheck
 - [ ] Find and replace
 - [ ] Status bar tools (AOT, Timer, Screen)
@@ -22,13 +23,19 @@
 
 ## Miscellaneous Todos
 
-- [ ] Window titles and flag (TODO NBM)
-- [ ] Marking Notebook as modified (TODO NBM)
+- [x] Openings.md to explain New Tab procedures (and Notebook tab titles, too) and perhaps new windows and app open
+- [x] Window titles and flag (TODO NBM)
+- [x] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query FnxModel for it somehow? Possible?
+- [x] Marking Notebook as modified (TODO NBM)
+- [x] Fnx file elements, add or remove edited attribute when model modification changes (TODO NBM)
+- [x] FnxModel storing original DOM string + modified check method (TODO NBM)
 - [ ] Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
 - [ ] Notepad save prompts
 - [ ] Notebook save prompts
 - [ ] Notepad saving
 - [ ] Notebook saving
+- [ ] Ensure edited attributes are cleared and written before compressing and replacing archive
+- [ ] Ensure DOM snapshot is replaced on save
 - [ ] Notebook Trash (removing items, virtual op only since files will stay put but display in a "trash" section until trash is cleared)
 
 ### Coco

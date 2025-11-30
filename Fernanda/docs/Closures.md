@@ -1,13 +1,11 @@
-# Closures
+# Closures (Draft)
 
 **General notes:**
 - "Modified archive" (Notebook only): working directory has changed from its original state or has no corresponding archive (is new)
-- Notepad never closes except on quit (remains alive even with no windows)
+- Notepad never closes
 - Notebooks close when their last window closes
-- There is only ever 1 Fernanda instance; relaunch is guarded and new args are passed to the current instance
-- There is only ever 1 Notepad instance; there can be multiple (or zero) Notebook instances
-- Notebook never closes models manually (only via Qt ownership when FileService dies)
 - Notepad deletes models when their view counts become 0
+- Notebook never closes file models manually (only via Qt ownership when FileService dies)
 
 ## Close tab
 

@@ -38,13 +38,13 @@
     <None Include="docs\Closures.md" />
     <None Include="docs\CodeCleanup.md" />
     <None Include="docs\ComponentArchitecture.md" />
-    <None Include="docs\FNXFile.md" />
+    <None Include="docs\FNX.md" />
     <None Include="docs\Menus.md" />
     <None Include="docs\NotebookCreation.md" />
+    <None Include="docs\Openings.md" />
     <None Include="docs\Roadmap.md" />
-    <None Include="docs\SavingTypes.md" />
+    <None Include="docs\Saves.md" />
     <None Include="docs\StartupFlowchart.md" />
-    <None Include="docs\old_TempCommandsReference.md" />
     <None Include="docs\old_TempTodos.md" />
     <None Include="docs\Style.md" />
     <None Include="docs\UserData.md" />

@@ -91,9 +91,7 @@ public:
     {
         auto window = make_();
         if (window) {
-            /// TODO NBM
             window->setWindowTitle(windowTitle_());
-
             window->setGeometry(nextWindowGeometry_());
             window->show();
         }
@@ -101,14 +99,12 @@ public:
         return window;
     }
 
-    /// TODO NBM
     void setFlagged(bool flagged)
     {
         windowsFlagged_ = flagged;
         setAllTitles_();
     }
 
-    /// TODO NBM
     void setSubtitle(const QString& subtitle)
     {
         windowsSubtitle_ = subtitle;
@@ -176,7 +172,6 @@ private:
     CanCloseHook canCloseHook_ = nullptr;
     CanCloseAllHook canCloseAllHook_ = nullptr;
 
-    /// TODO NBM
     bool windowsFlagged_ = false;
     QString windowsSubtitle_{};
 
@@ -203,7 +198,6 @@ private:
         return window;
     }
 
-    /// TODO NBM
     QString windowTitle_() const
     {
         // * subtitle - title
@@ -213,7 +207,6 @@ private:
         return title;
     }
 
-    /// TODO NBM
     void setAllTitles_()
     {
         auto title = windowTitle_();
