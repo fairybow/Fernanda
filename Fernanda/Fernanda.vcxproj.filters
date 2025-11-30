@@ -185,6 +185,9 @@
     <None Include="docs\CodeCleanup.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\SoCAudit.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">

@@ -44,6 +44,7 @@
     <None Include="docs\Openings.md" />
     <None Include="docs\Roadmap.md" />
     <None Include="docs\Saves.md" />
+    <None Include="docs\SoCAudit.md" />
     <None Include="docs\StartupFlowchart.md" />
     <None Include="docs\old_TempTodos.md" />
     <None Include="docs\Style.md" />

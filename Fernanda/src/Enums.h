@@ -12,14 +12,6 @@
 namespace Fernanda {
 
 // TODO: Properly integrate again if needed
-enum class SaveChoice
-{
-    Cancel = 0,
-    Save,
-    Discard
-};
-
-// TODO: Properly integrate again if needed
 enum class SaveResult
 {
     NoOp = 0,
@@ -39,19 +31,6 @@ namespace Enum {
             return "SaveResult::Success";
         case SaveResult::Fail:
             return "SaveResult::Fail";
-        }
-    }
-
-    inline QString toQString(SaveChoice saveChoice) noexcept
-    {
-        switch (saveChoice) {
-        default:
-        case SaveChoice::Cancel:
-            return "SaveChoice::Cancel";
-        case SaveChoice::Save:
-            return "SaveChoice::Save";
-        case SaveChoice::Discard:
-            return "SaveChoice::Discard";
         }
     }
 
