@@ -14,12 +14,17 @@
 #include <Qt>
 
 #include "Coco/Layout.h"
-#include "Coco/Path.h"
 
 #include "Debug.h"
 #include "Tr.h"
 
-namespace Fernanda {
+namespace Fernanda::SavePrompt {
+
+struct FileInfo
+{
+    QString title{};
+    Coco::Path path{}; // May be empty for off-disk files
+};
 
 enum class Choice
 {
@@ -31,16 +36,18 @@ enum class Choice
 struct MultiSaveResult
 {
     Choice choice{};
-    QSet<Coco::Path> selectedFiles{};
+    QList<int> selectedIndices{};
 };
 
-// set app modal if no parent
-static Choice exec(const Coco::Path& path, QWidget* parent = nullptr) {}
+namespace Internal {
 
-static MultiSaveResult
-exec(const QList<Coco::Path>& paths, QWidget* parent = nullptr)
-{
-}
+    void setCommonProperties_(QDialog& dialog);
+
+} // namespace Internal
+
+Choice exec(const FileInfo& info, QWidget* parent = nullptr);
+
+MultiSaveResult exec(const QList<FileInfo>& infos, QWidget* parent = nullptr);
 
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
 // unsaved changes, supporting both single and multiple file scenarios as well
@@ -221,4 +228,4 @@ exec(const QList<Coco::Path>& paths, QWidget* parent = nullptr)
 
 //} // namespace SavePrompt
 
-} // namespace Fernanda
+} // namespace Fernanda::SavePrompt
