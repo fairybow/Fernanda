@@ -33,6 +33,7 @@
 - [ ] Notepad save prompts
 - [ ] Notebook save prompts
 - [ ] Notepad saving
+- [ ] Re-examine the save functions in IFileModel etc. Move these? How to handle this?
 - [ ] Notebook saving
 - [ ] Ensure edited attributes are cleared and written before compressing and replacing archive
 - [ ] Ensure DOM snapshot is replaced on save
