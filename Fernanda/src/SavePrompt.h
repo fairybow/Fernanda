@@ -10,10 +10,11 @@
 #pragma once
 
 #include <QDialog>
-#include <QSet>
-#include <Qt>
+#include <QList>
+#include <QWidget>
 
 #include "Coco/Layout.h"
+#include "Coco/Path.h"
 
 #include "Debug.h"
 #include "Tr.h"

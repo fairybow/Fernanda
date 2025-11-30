@@ -21,6 +21,13 @@
 - [ ] Styling/themes
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 
+### Docs
+
+- [ ] Number and order for core docs
+- [ ] Core docs should explain the program from start to finish (i.e., Openings.md, Modifications.md, Saves.md, Closures.md, etc.)
+- [ ] Save prompts doc?
+- [ ] How files get titles doc?
+
 ## Miscellaneous Todos
 
 - [ ] Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
