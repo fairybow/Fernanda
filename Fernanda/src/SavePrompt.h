@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <QDialog>
+#include <QMessageBox>
 #include <QList>
 #include <QWidget>
 
@@ -46,7 +46,36 @@ namespace Internal {
 
 } // namespace Internal
 
-Choice exec(const FileInfo& info, QWidget* parent = nullptr);
+Choice exec(const FileInfo& info, QWidget* parent = nullptr)
+{
+    QMessageBox box(parent);
+    Internal::setCommonProperties_(box);
+
+    // Build display text
+    QString text = Tr::Dialogs::savePromptSingleFileBody();
+    text += QString("<p><b>%1</b></p>").arg(info.title);
+
+    if (!info.path.isEmpty())
+        text += QString("<p>%1</p>").arg(info.path.toQString());
+
+    box.setText(text);
+
+    auto save = box.addButton(Tr::Buttons::save(), QMessageBox::AcceptRole);
+    auto discard =
+        box.addButton(Tr::Buttons::discard(), QMessageBox::DestructiveRole);
+    auto cancel = box.addButton(Tr::Buttons::cancel(), QMessageBox::RejectRole);
+
+    box.setDefaultButton(save);
+    box.setEscapeButton(cancel);
+
+    box.exec();
+
+    auto clicked = box.clickedButton();
+
+    if (clicked == save) return Choice::Save;
+    if (clicked == discard) return Choice::Discard;
+    return Choice::Cancel;
+}
 
 MultiSaveResult exec(const QList<FileInfo>& infos, QWidget* parent = nullptr);
 

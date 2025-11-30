@@ -32,12 +32,12 @@
 
 - [ ] Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
 - [ ] Notepad save prompts
+- [ ] Notepad saving calls on FS to save files and we will possibly move backups to UserData folder (TODO SAVES)
 - [ ] Notebook save prompts
-- [ ] Notepad saving
-- [ ] Re-examine the save functions in IFileModel etc. Move these? How to handle this?
-- [ ] Notebook saving
-- [ ] Ensure edited attributes are cleared and written before compressing and replacing archive
-- [ ] Ensure DOM snapshot is replaced on save
+- [ ] Notebook has two tier saving, first call on FS to save individual files to working dir, then run own save process to compress working dir and replace archive (saving old archive for backup) (TODO SAVES)
+- [ ] Move saving functionality to FileService from IFileModel (TODO SAVES)
+- [ ] Ensure edited attributes are cleared and written before compressing and replacing archive (TODO SAVES)
+- [ ] Ensure DOM snapshot is replaced on save (TODO SAVES)
 - [ ] Notebook Trash (removing items, virtual op only since files will stay put but display in a "trash" section until trash is cleared)
 
 ### Coco
