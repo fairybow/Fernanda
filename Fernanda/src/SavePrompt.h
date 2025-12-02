@@ -9,8 +9,11 @@
 
 #pragma once
 
-#include <QMessageBox>
+#include <QDialog>
 #include <QList>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QString>
 #include <QWidget>
 
 #include "Coco/Layout.h"
@@ -42,7 +45,11 @@ struct MultiSaveResult
 
 namespace Internal {
 
-    void setCommonProperties_(QDialog& dialog);
+    void setCommonProperties_(QDialog& dialog)
+    {
+        dialog.setWindowTitle(Tr::Dialogs::savePromptTitle());
+        dialog.setMinimumSize(400, 200);
+    }
 
 } // namespace Internal
 
@@ -51,14 +58,12 @@ Choice exec(const FileInfo& info, QWidget* parent = nullptr)
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
 
-    // Build display text
-    QString text = Tr::Dialogs::savePromptSingleFileBody();
-    text += QString("<p><b>%1</b></p>").arg(info.title);
-
-    if (!info.path.isEmpty())
-        text += QString("<p>%1</p>").arg(info.path.toQString());
-
-    box.setText(text);
+    box.setText(
+        info.path.isEmpty()
+            ? Tr::Dialogs::savePromptBodyFormat().arg(info.title)
+            : Tr::Dialogs::savePromptBodyFormatWithPath()
+                  .arg(info.title)
+                  .arg(info.path.toQString()));
 
     auto save = box.addButton(Tr::Buttons::save(), QMessageBox::AcceptRole);
     auto discard =
@@ -71,13 +76,15 @@ Choice exec(const FileInfo& info, QWidget* parent = nullptr)
     box.exec();
 
     auto clicked = box.clickedButton();
-
     if (clicked == save) return Choice::Save;
     if (clicked == discard) return Choice::Discard;
     return Choice::Cancel;
 }
 
-MultiSaveResult exec(const QList<FileInfo>& infos, QWidget* parent = nullptr);
+MultiSaveResult exec(const QList<FileInfo>& infos, QWidget* parent = nullptr)
+{
+    //...
+}
 
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
 // unsaved changes, supporting both single and multiple file scenarios as well

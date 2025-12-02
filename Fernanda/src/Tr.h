@@ -84,10 +84,13 @@ namespace Tr {
                          .arg(VERSION_RELEASE_NAME_STRING));
         }
 
-        TR_(savePromptTitle, tr("Unsaved Changes"));
-        TR_(savePromptSingleFileBodyFormat,
+        TR_(savePromptTitle, tr("Save your changes"));
+        TR_(savePromptBodyFormat,
             tr("Would you like to save your "
                "changes?<p><b>File:</b></p><p>%0</p>"));
+        TR_(savePromptBodyFormatWithPath,
+            tr("Would you like to save your "
+               "changes?<p><b>File:</b></p><p>%0</p><p>(%1)</p>"));
 
     } // namespace Dialogs
 
