@@ -95,7 +95,6 @@ protected:
         update();
     }
 
-    /// WIP
     virtual void paintEvent(QPaintEvent* event) override
     {
         QPainter painter(this);
@@ -130,11 +129,18 @@ protected:
         if (pixmap.isNull()) return;
 
         // Paint centered
-        auto pixmap_rect = pixmap.rect();
-        auto x = rect.x() + (rect.width() - pixmap_rect.width()) / 2;
-        auto y = rect.y() + (rect.height() - pixmap_rect.height()) / 2;
+        //auto pixmap_rect = pixmap.rect();
+        //auto x = rect.x() + (rect.width() - pixmap_rect.width()) / 2;
+        //auto y = rect.y() + (rect.height() - pixmap_rect.height()) / 2;
 
-        painter.drawPixmap(x, y, pixmap);
+        //painter.drawPixmap(x, y, pixmap);
+
+        // Paint centered (use logical size for centering calculations)
+        auto logical_size = pixmap.deviceIndependentSize();
+        auto x = rect.x() + (rect.width() - logical_size.width()) / 2;
+        auto y = rect.y() + (rect.height() - logical_size.height()) / 2;
+
+        painter.drawPixmap(QPointF(x, y), pixmap);
     }
 
     virtual void resizeEvent(QResizeEvent* event) override
@@ -195,7 +201,6 @@ private:
             return {};
         }
 
-        // Account for high DPI displays
         auto device_pixel_ratio = devicePixelRatio();
         auto pixmap_size = targetSize * device_pixel_ratio;
 
@@ -207,7 +212,11 @@ private:
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
-        renderer.render(&painter);
+        //renderer.render(&painter);
+
+        // Render to the LOGICAL bounds (painter coordinates are logical when
+        // the pixmap has devicePixelRatio set)
+        renderer.render(&painter, QRectF(QPointF(0, 0), QSizeF(targetSize)));
 
         return pixmap;
     }
