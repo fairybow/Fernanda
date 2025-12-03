@@ -37,6 +37,7 @@ TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 - [ ] Check that if handler uses `cmd.context` that its nullptr-checked
 - [ ] Ensure all command handler registrations use `cmd.param` instead of `to`
 - [ ] QDomDocument::ParseResult as model for save result or similar
+- [ ] Lambda captures (whether by ref/val/etc)
 
 Find what needs automatic clean-up from member lists/hashes/sets and ensure we do so, e.g.:
 

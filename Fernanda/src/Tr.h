@@ -92,6 +92,10 @@ namespace Tr {
             tr("Would you like to save your "
                "changes?<p><b>File:</b></p><p>%0</p><p>(%1)</p>"));
 
+        TR_(savePromptMultiBodyFormat,
+            tr("You have unsaved changes in %0 file(s). Select which files to "
+               "save:"));
+
     } // namespace Dialogs
 
     namespace Menus {
