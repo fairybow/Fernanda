@@ -11,13 +11,17 @@
 
 #include <QEnterEvent>
 #include <QEvent>
+#include <QHash>
 #include <QObject>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
+#include <QPointF>
 #include <QRect>
+#include <QRectF>
 #include <QSize>
+#include <QSizeF>
 #include <QString>
 #include <QSvgRenderer>
 #include <QToolButton>
@@ -98,11 +102,11 @@ protected:
     virtual void paintEvent(QPaintEvent* event) override
     {
         QPainter painter(this);
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+        setPainterProperties_(painter);
+
+        auto widget_rect = rect();
 
         // Draw background based on button state
-        auto rect = this->rect();
         auto pressed = isDown();
         auto under_mouse = underMouse();
 
@@ -111,9 +115,15 @@ protected:
             QPainterPath path{};
 
             // Shrink and round out the highlight
-            auto highlight_rect =
-                rect.adjusted(INSET_, INSET_, -INSET_, -INSET_);
-            path.addRoundedRect(highlight_rect, CORNER_RADIUS_, CORNER_RADIUS_);
+            auto highlight_rect = widget_rect.adjusted(
+                HIGHLIGHT_INSET_,
+                HIGHLIGHT_INSET_,
+                -HIGHLIGHT_INSET_,
+                -HIGHLIGHT_INSET_);
+            path.addRoundedRect(
+                highlight_rect,
+                HIGHLIGHT_CORNER_RADIUS_,
+                HIGHLIGHT_CORNER_RADIUS_);
 
             // Fill
             if (pressed)
@@ -128,19 +138,7 @@ protected:
         auto pixmap = getCachedPixmap_(svg_path);
         if (pixmap.isNull()) return;
 
-        // Paint centered
-        //auto pixmap_rect = pixmap.rect();
-        //auto x = rect.x() + (rect.width() - pixmap_rect.width()) / 2;
-        //auto y = rect.y() + (rect.height() - pixmap_rect.height()) / 2;
-
-        //painter.drawPixmap(x, y, pixmap);
-
-        // Paint centered (use logical size for centering calculations)
-        auto logical_size = pixmap.deviceIndependentSize();
-        auto x = rect.x() + (rect.width() - logical_size.width()) / 2;
-        auto y = rect.y() + (rect.height() - logical_size.height()) / 2;
-
-        painter.drawPixmap(QPointF(x, y), pixmap);
+        drawCenteredPixmap_(painter, pixmap, widget_rect);
     }
 
     virtual void resizeEvent(QResizeEvent* event) override
@@ -151,8 +149,9 @@ protected:
 
 private:
     static constexpr auto FLAG_PROPERTY_ = "flagged";
-    static constexpr auto CORNER_RADIUS_ = 4;
-    static constexpr auto INSET_ = 2;
+    static constexpr auto HIGHLIGHT_CORNER_RADIUS_ = 4;
+    static constexpr auto HIGHLIGHT_INSET_ = 2;
+    static constexpr auto CACHE_FORMAT_ = "%1_%2x%3";
 
     QString svgPath_{};
     QString flagSvgPath_{};
@@ -171,6 +170,12 @@ private:
         return flagged_ && !flagSvgPath_.isEmpty() && !underMouse();
     }
 
+    void setPainterProperties_(QPainter& painter) const
+    {
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    }
+
     void invalidateCache_() { pixmapCache_.clear(); }
 
     QPixmap getCachedPixmap_(const QString& svgPath) const
@@ -179,7 +184,7 @@ private:
 
         // Key includes effective size
         auto target_size = getEffectiveIconSize_();
-        auto cache_key = QString("%1_%2x%3")
+        auto cache_key = QString(CACHE_FORMAT_)
                              .arg(svgPath)
                              .arg(target_size.width())
                              .arg(target_size.height());
@@ -209,14 +214,11 @@ private:
         pixmap.fill(Qt::transparent);
 
         QPainter painter(&pixmap);
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-
-        //renderer.render(&painter);
+        setPainterProperties_(painter);
 
         // Render to the LOGICAL bounds (painter coordinates are logical when
         // the pixmap has devicePixelRatio set)
-        renderer.render(&painter, QRectF(QPointF(0, 0), QSizeF(targetSize)));
+        renderer.render(&painter, QRectF({ 0, 0 }, { targetSize }));
 
         return pixmap;
     }
@@ -227,6 +229,20 @@ private:
 
         return { qMin(svgSize_.width(), size.width()),
                  qMin(svgSize_.height(), size.height()) };
+    }
+
+    void drawCenteredPixmap_(
+        QPainter& painter,
+        const QPixmap& pixmap,
+        const QRect& widgetRect) const
+    {
+        // Paint centered (use logical size for centering calculations)
+        auto logical_size = pixmap.deviceIndependentSize();
+        auto x =
+            widgetRect.x() + (widgetRect.width() - logical_size.width()) / 2;
+        auto y =
+            widgetRect.y() + (widgetRect.height() - logical_size.height()) / 2;
+        painter.drawPixmap(QPointF(x, y), pixmap);
     }
 };
 
