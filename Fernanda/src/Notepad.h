@@ -20,6 +20,7 @@
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
+#include "Coco/Utility.h"
 
 #include "AppDirs.h"
 #include "Bus.h"
@@ -30,6 +31,7 @@
 #include "IFileView.h"
 #include "IService.h"
 #include "NotepadMenuModule.h"
+#include "SavePrompt.h"
 #include "TreeViewService.h"
 #include "Version.h"
 #include "Workspace.h"
@@ -86,19 +88,31 @@ protected:
     {
         auto model = fileView->model();
         if (!model) return false;
+        auto meta = model->meta();
+        if (!meta) return false;
 
         if (model->isModified() && views->countFor(model) <= 1) {
             views->raise(fileView);
 
-            /*switch (SingleSavePrompt) {
-            case Cancel:
+            SavePrompt::FileInfo info{ meta->title(), meta->path() };
+            // TODO: Is there a better way to get windows (here and view
+            // service) without having their tracking really complicate things,
+            // like tab dragging? This might be fine?
+            auto window = Coco::Utility::findParent<Window*>(fileView);
+            
+            // TODO: Redo text
+            // Title: Fernanda
+            // Body: Do you want to save changes to path.txt?
+
+            switch (SavePrompt::exec(info, window)) {
+            case SavePrompt::Cancel:
                 return false;
-            case Save:
-                // save
+            case SavePrompt::Save:
+                // TODO: Save, once we've moved it to FileService
                 return true;
-            case Discard:
+            case SavePrompt::Discard:
                 return true;
-            }*/
+            }
         }
 
         return true;

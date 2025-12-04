@@ -87,10 +87,10 @@ namespace Tr {
         TR_(savePromptTitle, tr("Save your changes"));
         TR_(savePromptBodyFormat,
             tr("Would you like to save your "
-               "changes?<p><b>File:</b></p><p>%0</p>"));
+               "changes?<p><b>File:</b><br>%0</p>"));
         TR_(savePromptBodyFormatWithPath,
             tr("Would you like to save your "
-               "changes?<p><b>File:</b></p><p>%0</p><p>(%1)</p>"));
+               "changes?<p><b>File:</b><br>%0 (%1)</p>"));
 
         TR_(savePromptMultiBodyFormat,
             tr("You have unsaved changes in %0 file(s). Select which files to "

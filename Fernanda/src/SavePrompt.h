@@ -30,6 +30,7 @@
 // unsaved changes, supporting both single and multiple file (with selection)
 namespace Fernanda::SavePrompt {
 
+// TODO: Change to just text, maybe (QString only)
 struct FileInfo
 {
     QString title{};
