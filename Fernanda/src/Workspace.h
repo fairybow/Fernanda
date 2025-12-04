@@ -102,7 +102,7 @@ protected:
     virtual QModelIndex treeViewRootIndex() = 0;
     virtual void newTab(Window* window) = 0;
 
-    virtual bool canCloseTab(IFileView*) { return true; }
+    virtual bool canCloseTab(Window*, int index) { return true; }
     virtual bool canCloseTabEverywhere(const QList<IFileView*>&)
     {
         return true;

@@ -53,7 +53,9 @@ public:
     // TODO: This is probably more a signal, since no return value
     using NewTabHook = std::function<void(Window*)>;
 
-    using CanCloseTabHook = std::function<bool(IFileView*)>;
+    using CanCloseTabHook = std::function<bool(Window*, int)>;
+
+    // TODO: Rework params?
     using CanCloseTabEverywhereHook =
         std::function<bool(const QList<IFileView*>&)>;
     using CanCloseWindowTabsHook =
@@ -102,15 +104,27 @@ public:
         return fileViewsPerModel_.value(fileModel, 0);
     }
 
-    void raise(IFileView* view) const
+    // Index -1 = current
+    IFileView* fileViewAt(Window* window, int index) const
     {
-        auto window = Coco::Utility::findParent<Window*>(view);
+        if (!window) return nullptr;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return nullptr;
+
+        auto i = normalizeIndex_(tab_widget, index);
+        if (i < 0) return nullptr;
+
+        return tab_widget->widgetAt<IFileView*>(i);
+    }
+
+    void raise(Window* window, int index) const
+    {
         if (!window) return;
-        auto tab_widget = Coco::Utility::findParent<TabWidget*>(view);
+        auto tab_widget = tabWidget_(window);
         if (!tab_widget) return;
 
         window->activate();
-        tab_widget->setCurrentWidget(view);
+        tab_widget->setCurrentIndex(index);
     }
 
     bool isMultiWindow(IFileModel* fileModel) const
@@ -279,22 +293,9 @@ private:
     }
 
     // Index -1 = current
-    IFileView* viewAt_(Window* window, int index) const
-    {
-        if (!window) return nullptr;
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget) return nullptr;
-
-        auto i = normalizeIndex_(tab_widget, index);
-        if (i < 0) return nullptr;
-
-        return tab_widget->widgetAt<IFileView*>(i);
-    }
-
-    // Index -1 = current
     IFileModel* fileModelAt_(Window* window, int index) const
     {
-        auto view = viewAt_(window, index);
+        auto view = fileViewAt(window, index);
         return view ? view->model() : nullptr;
     }
 
@@ -312,35 +313,35 @@ private:
 
     void cut_(Window* window, int index = -1)
     {
-        auto view = viewAt_(window, index);
+        auto view = fileViewAt(window, index);
         if (!view || !view->supportsEditing()) return;
         if (view->hasSelection()) view->cut();
     }
 
     void copy_(Window* window, int index = -1)
     {
-        auto view = viewAt_(window, index);
+        auto view = fileViewAt(window, index);
         if (!view || !view->supportsEditing()) return;
         if (view->hasSelection()) view->copy();
     }
 
     void paste_(Window* window, int index = -1)
     {
-        auto view = viewAt_(window, index);
+        auto view = fileViewAt(window, index);
         if (!view || !view->supportsEditing()) return;
         if (view->hasPaste()) view->paste();
     }
 
     void delete_(Window* window, int index = -1)
     {
-        auto view = viewAt_(window, index);
+        auto view = fileViewAt(window, index);
         if (!view || !view->supportsEditing()) return;
         if (view->hasSelection()) view->deleteSelection();
     }
 
     void selectAll_(Window* window, int index = -1)
     {
-        auto view = viewAt_(window, index);
+        auto view = fileViewAt(window, index);
         if (!view || !view->supportsEditing()) return;
         view->selectAll();
     }
@@ -359,11 +360,11 @@ private:
         auto i = normalizeIndex_(tab_widget, index);
         if (i < 0) return;
 
-        auto view = viewAt_(window, i);
+        auto view = fileViewAt(window, i);
         if (!view) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabHook_ || canCloseTabHook_(view)) {
+        if (!canCloseTabHook_ || canCloseTabHook_(window, i)) {
             auto model = view->model();
             deleteFileViewAt_(window, i);
             if (model) emit bus->viewDestroyed(model);
@@ -502,7 +503,7 @@ private:
         IFileView* active = nullptr;
 
         if (index > -1)
-            if (auto view = viewAt_(window, index)) active = view;
+            if (auto view = fileViewAt(window, index)) active = view;
 
         activeFileViews_[window] = active;
         emit bus->activeFileViewChanged(window, active);

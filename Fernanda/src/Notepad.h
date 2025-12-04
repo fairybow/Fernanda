@@ -84,28 +84,22 @@ protected:
         files->openOffDiskTxtIn(window);
     }
 
-    virtual bool canCloseTab(IFileView* fileView) override
+    virtual bool canCloseTab(Window* window, int index) override
     {
-        auto model = fileView->model();
+        auto view = views->fileViewAt(window, index);
+        if (!view) return false;
+        auto model = view->model();
         if (!model) return false;
         auto meta = model->meta();
         if (!meta) return false;
 
         if (model->isModified() && views->countFor(model) <= 1) {
-            views->raise(fileView);
+            views->raise(window, index);
 
             // TODO: Add a preferred extension so off-disk files can say
             // "TempTitle.txt"
             auto text = meta->path().isEmpty() ? meta->title()
                                                : meta->path().toQString();
-            // TODO: Is there a better way to get windows (here and view
-            // service) without having their tracking really complicate things,
-            // like tab dragging? This might be fine?
-            auto window = Coco::Utility::findParent<Window*>(fileView);
-
-            // TODO: Redo text
-            // Title: Fernanda
-            // Body: Do you want to save changes to path.txt?
 
             switch (SavePrompt::exec(text, window)) {
             case SavePrompt::Cancel:
