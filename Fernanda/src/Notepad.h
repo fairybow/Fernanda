@@ -196,18 +196,18 @@ protected:
         return true;
     }
 
-    // TODO: If we want to have the multi-file save prompt allow clicking file
-    // names to raise each view, we may need to not use windows list parameter.
-    // We could remove that parameter here (and for canCloseWindows) or just use
-    // it to check windows is empty (which it shouldn't be when we call this
-    // hook...). We'd then maybe want to use views->rzFileViews but have it
-    // return something like QMap<Window*, QList<IFileView*>>? How would we let
-    // SavePrompt tell us in an SoC kind of way how to raise what? Also worth
-    // mentioning that we should be raising by window and index. We could
-    // perhaps preserve coordinates for each IFileView in the return (maybe a
-    // struct, like ViewService::At{ window, index }?) and use that? The
-    // SavePrompt need only know about Window, which is kind of fine, since it's
-    // treated as a fairly universal presence so far
+    // TODO: (Unsure if possible) If we want to have the multi-file save prompt
+    // allow clicking file names to raise each view, we may need to not use
+    // windows list parameter. We could remove that parameter here (and for
+    // canCloseWindows) or just use it to check windows is empty (which it
+    // shouldn't be when we call this hook...). We'd then maybe want to use
+    // views->rzFileViews but have it return something like QMap<Window*,
+    // QList<IFileView*>>? How would we let SavePrompt tell us in an SoC kind of
+    // way how to raise what? Also worth mentioning that we should be raising by
+    // window and index. We could perhaps preserve coordinates for each
+    // IFileView in the return (maybe a struct, like ViewService::At{ window,
+    // index }?) and use that? The SavePrompt need only know about Window, which
+    // is kind of fine, since it's treated as a fairly universal presence so far
     virtual bool canCloseAllTabs(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
