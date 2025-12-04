@@ -103,10 +103,7 @@ protected:
     virtual void newTab(Window* window) = 0;
 
     virtual bool canCloseTab(Window*, int index) { return true; }
-    virtual bool canCloseTabEverywhere(const QList<IFileView*>&)
-    {
-        return true;
-    }
+    virtual bool canCloseTabEverywhere(Window*, int index) { return true; }
     virtual bool canCloseWindowTabs(const QList<IFileView*>&) { return true; }
     virtual bool canCloseAllTabs(const QList<IFileView*>&) { return true; }
     virtual bool canCloseWindow(Window*) { return true; }

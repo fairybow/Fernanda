@@ -54,10 +54,9 @@ public:
     using NewTabHook = std::function<void(Window*)>;
 
     using CanCloseTabHook = std::function<bool(Window*, int)>;
+    using CanCloseTabEverywhereHook = std::function<bool(Window*, int)>;
 
     // TODO: Rework params?
-    using CanCloseTabEverywhereHook =
-        std::function<bool(const QList<IFileView*>&)>;
     using CanCloseWindowTabsHook =
         std::function<bool(const QList<IFileView*>&)>;
     using CanCloseAllTabsHook = std::function<bool(const QList<IFileView*>&)>;
@@ -389,7 +388,8 @@ private:
         }
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabEverywhereHook_ || canCloseTabEverywhereHook_(views)) {
+        if (!canCloseTabEverywhereHook_
+            || canCloseTabEverywhereHook_(window, index)) {
             for (auto& window : rz_windows) {
                 auto tab_widget = tabWidget_(window);
                 if (!tab_widget) continue;

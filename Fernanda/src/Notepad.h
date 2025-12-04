@@ -72,7 +72,8 @@ protected:
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
 
     virtual QModelIndex treeViewRootIndex() override
-    { // Generate the index on-demand from the stored path (don't hold it
+    {
+        // Generate the index on-demand from the stored path (don't hold it
         // separately or retrieve via Model::setRootPath)
         if (!fsModel_) return {};
         return fsModel_->index(currentBaseDir_.toQString());
@@ -115,25 +116,32 @@ protected:
         return true;
     }
 
-    // TODO: Can perhaps raise first (from end) view in each window?
-    // TODO: Although, could somehow pass window or view or both and just raise
-    // for the current window/tab this was used on (it's only called via menu)
-    virtual bool
-    canCloseTabEverywhere(const QList<IFileView*>& fileViews) override
+    virtual bool canCloseTabEverywhere(Window* window, int index) override
     {
-        auto model = fileViews.first()->model();
+        auto view = views->fileViewAt(window, index);
+        if (!view) return false;
+        auto model = view->model();
         if (!model) return false;
+        auto meta = model->meta();
+        if (!meta) return false;
 
         if (model->isModified()) {
-            /*switch (SingleSavePrompt) {
-            case Cancel:
+            // Close Tab Everywhere is currently only called via menu (so on the
+            // current tab), so this is not techincally needed
+            views->raise(window, index);
+
+            auto text = meta->path().isEmpty() ? meta->title()
+                                               : meta->path().toQString();
+
+            switch (SavePrompt::exec(text, window)) {
+            case SavePrompt::Choice::Cancel:
                 return false;
-            case Save:
-                // save
+            case SavePrompt::Choice::Save:
+                // TODO: Save, once we've moved it to FileService
                 return true;
-            case Discard:
+            case SavePrompt::Choice::Discard:
                 return true;
-            }*/
+            }
         }
 
         return true;
