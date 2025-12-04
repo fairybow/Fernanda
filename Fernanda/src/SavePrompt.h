@@ -17,6 +17,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QString>
+#include <QStringList>
 #include <QWidget>
 #include <Qt>
 
@@ -29,13 +30,6 @@
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
 // unsaved changes, supporting both single and multiple file (with selection)
 namespace Fernanda::SavePrompt {
-
-// TODO: Change to just text, maybe (QString only)
-struct FileInfo
-{
-    QString title{};
-    Coco::Path path{}; // May be empty for off-disk files
-};
 
 enum Choice
 {
@@ -56,7 +50,7 @@ namespace Internal {
     {
         // QDialog defaults to non-modal
         dialog.setWindowModality(Qt::WindowModal);
-        dialog.setWindowTitle(Tr::Dialogs::savePromptTitle());
+        // dialog.setWindowTitle(Tr::Dialogs::savePromptTitle());
         dialog.setMinimumSize(400, 200);
     }
 
@@ -77,17 +71,12 @@ inline QString toQString(Choice choice) noexcept
     }
 }
 
-inline Choice exec(const FileInfo& info, QWidget* parent = nullptr)
+inline Choice exec(const QString& fileName, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
 
-    box.setText(
-        info.path.isEmpty()
-            ? Tr::Dialogs::savePromptBodyFormat().arg(info.title)
-            : Tr::Dialogs::savePromptBodyFormatWithPath()
-                  .arg(info.title)
-                  .arg(info.path.toQString()));
+    box.setText(Tr::Dialogs::savePromptBodyFormat().arg(fileName));
 
     auto save = box.addButton(Tr::Buttons::save(), QMessageBox::AcceptRole);
     auto discard =
@@ -106,13 +95,13 @@ inline Choice exec(const FileInfo& info, QWidget* parent = nullptr)
 }
 
 inline MultiSaveResult
-exec(const QList<FileInfo>& infos, QWidget* parent = nullptr)
+exec(const QStringList& fileNames, QWidget* parent = nullptr)
 {
-    if (infos.isEmpty()) return { Cancel, {} };
+    if (fileNames.isEmpty()) return { Cancel, {} };
 
     // Delegate to single-file prompt
-    if (infos.size() == 1) {
-        auto choice = exec(infos.first(), parent);
+    if (fileNames.size() == 1) {
+        auto choice = exec(fileNames.first(), parent);
         return { choice, (choice == Save) ? QList<int>{ 0 } : QList<int>{} };
     }
 
@@ -124,7 +113,7 @@ exec(const QList<FileInfo>& infos, QWidget* parent = nullptr)
     // Message label
     auto message_label = new QLabel(&dialog);
     message_label->setText(
-        Tr::Dialogs::savePromptMultiBodyFormat().arg(infos.size()));
+        Tr::Dialogs::savePromptMultiBodyFormat().arg(fileNames.size()));
     message_label->setWordWrap(true);
     main_layout->addWidget(message_label);
 
@@ -134,15 +123,8 @@ exec(const QList<FileInfo>& infos, QWidget* parent = nullptr)
     auto scroll_layout = Coco::Layout::make<QVBoxLayout*>(scroll_widget);
 
     QList<QCheckBox*> checkboxes{};
-    constexpr auto checkbox_format = "%1 (%2)";
-
-    for (const auto& info : infos) {
-        auto text = info.path.isEmpty()
-                        ? info.title
-                        : QString(checkbox_format)
-                              .arg(info.title, info.path.toQString());
-
-        auto checkbox = new QCheckBox(text, scroll_widget);
+    for (const auto& file_name : fileNames) {
+        auto checkbox = new QCheckBox(file_name, scroll_widget);
         checkbox->setChecked(true);
         scroll_layout->addWidget(checkbox);
         checkboxes << checkbox;

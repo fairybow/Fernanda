@@ -94,7 +94,9 @@ protected:
         if (model->isModified() && views->countFor(model) <= 1) {
             views->raise(fileView);
 
-            SavePrompt::FileInfo info{ meta->title(), meta->path() };
+            // TODO: Add a preferred extension so off-disk files can say "TempTitle.txt"
+            auto text = meta->path().isEmpty() ? meta->title()
+                                               : meta->path().toQString();
             // TODO: Is there a better way to get windows (here and view
             // service) without having their tracking really complicate things,
             // like tab dragging? This might be fine?
@@ -104,7 +106,7 @@ protected:
             // Title: Fernanda
             // Body: Do you want to save changes to path.txt?
 
-            switch (SavePrompt::exec(info, window)) {
+            switch (SavePrompt::exec(text, window)) {
             case SavePrompt::Cancel:
                 return false;
             case SavePrompt::Save:
