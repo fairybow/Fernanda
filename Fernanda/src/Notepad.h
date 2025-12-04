@@ -158,7 +158,7 @@ protected:
 
         // TODO: May need to call on FileService for some of these queries. What
         // would respect separation of concerns?
-        for (auto& view : views->fileViewsIn(window)) {
+        for (auto& view : views->rFileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
             if (!model || !model->isModified()) continue;
@@ -196,13 +196,25 @@ protected:
         return true;
     }
 
+    // TODO: If we want to have the multi-file save prompt allow clicking file
+    // names to raise each view, we may need to not use windows list parameter.
+    // We could remove that parameter here (and for canCloseWindows) or just use
+    // it to check windows is empty (which it shouldn't be when we call this
+    // hook...). We'd then maybe want to use views->rzFileViews but have it
+    // return something like QMap<Window*, QList<IFileView*>>? How would we let
+    // SavePrompt tell us in an SoC kind of way how to raise what? Also worth
+    // mentioning that we should be raising by window and index. We could
+    // perhaps preserve coordinates for each IFileView in the return (maybe a
+    // struct, like ViewService::At{ window, index }?) and use that? The
+    // SavePrompt need only know about Window, which is kind of fine, since it's
+    // treated as a fairly universal presence so far
     virtual bool canCloseAllTabs(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
         QList<IFileModel*> modified_models{};
 
         for (auto& window : windows) {
-            for (auto& view : views->fileViewsIn(window)) {
+            for (auto& view : views->rFileViewsIn(window)) {
                 if (!view) continue;
                 auto model = view->model();
                 if (!model || !model->isModified()) continue;
@@ -241,60 +253,90 @@ protected:
         return true;
     }
 
+    // TODO: Factor out common code (likely all this and close all tabs into a
+    // check save for all tabs or similar) but only after we've solved the
+    // multi-file click and raise problem
     virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window
         QSet<IFileModel*> modified_models{};
 
-        for (auto& view : views->fileViewsIn(window)) {
+        for (auto& view : views->rFileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
-            if (!model) continue;
-            if (!model->isModified()) continue;
+            if (!model || !model->isModified()) continue;
             if (views->isMultiWindow(model)) continue;
+            if (modified_models.contains(model)) continue;
 
             modified_models << model;
         }
 
-        if (!modified_models.isEmpty()) {
-            /*switch (MultiFileSavePrompt) {
-            case Cancel:
-                return false;
-            case Save:
-                // save (selected)
-                return true;
-            case Discard:
-                return true;
-            }*/
+        if (modified_models.isEmpty()) return true;
+
+        QStringList names{};
+        for (auto& model : modified_models) {
+            auto meta = model->meta();
+            if (!meta) continue;
+            names
+                << (meta->path().isEmpty() ? meta->title()
+                                           : meta->path().toQString());
+        }
+
+        auto result = SavePrompt::exec(names, window);
+        switch (result.choice) {
+        case SavePrompt::Cancel:
+            return false;
+        case SavePrompt::Save:
+            // TODO: for (int idx : result.selectedIndices) { save
+            // modified_models[idx] }
+            return true;
+        case SavePrompt::Discard:
+            return true;
         }
 
         return true;
     }
 
+    // TODO: Factor out common code (likely all this and close all tabs into a
+    // check save for all tabs or similar) but only after we've solved the
+    // multi-file click and raise problem
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        QSet<IFileModel*> modified_models{};
+        QList<IFileModel*> modified_models{};
 
-        for (auto& view : views->fileViews()) {
-            if (!view) continue;
-            auto model = view->model();
-            if (!model) continue;
-            if (!model->isModified()) continue;
+        for (auto& window : windows) {
+            for (auto& view : views->rFileViewsIn(window)) {
+                if (!view) continue;
+                auto model = view->model();
+                if (!model || !model->isModified()) continue;
+                if (modified_models.contains(model)) continue;
 
-            modified_models << model;
+                modified_models << model;
+            }
         }
 
-        if (!modified_models.isEmpty()) {
-            /*switch (MultiFileSavePrompt) {
-            case Cancel:
-                return false;
-            case Save:
-                // save (selected)
-                return true;
-            case Discard:
-                return true;
-            }*/
+        if (modified_models.isEmpty()) return true;
+
+        QStringList names{};
+        for (auto& model : modified_models) {
+            auto meta = model->meta();
+            if (!meta) continue;
+            names
+                << (meta->path().isEmpty() ? meta->title()
+                                           : meta->path().toQString());
+        }
+
+        auto result = SavePrompt::exec(names, windows.last());
+        switch (result.choice) {
+        case SavePrompt::Cancel:
+            return false;
+        case SavePrompt::Save:
+            // TODO: for (int idx : result.selectedIndices) { save
+            // modified_models[idx] }
+            return true;
+        case SavePrompt::Discard:
+            return true;
         }
 
         return true;

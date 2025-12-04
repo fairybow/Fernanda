@@ -146,7 +146,7 @@ public:
         return tab_widget->widgetAt<IFileView*>(i);
     }
 
-    QList<IFileView*> fileViewsIn(Window* window) const
+    QList<IFileView*> rFileViewsIn(Window* window) const
     {
         if (!window) return {};
         auto tab_widget = tabWidget_(window);
@@ -160,7 +160,8 @@ public:
         return views;
     }
 
-    QList<IFileView*> fileViews() const
+    // Unused currently
+    QList<IFileView*> rzFileViews() const
     {
         QList<IFileView*> views{};
 

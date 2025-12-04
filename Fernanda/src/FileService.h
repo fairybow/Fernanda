@@ -41,6 +41,8 @@ namespace Fernanda {
 
 // Creates and manages file models
 // TODO: Rename?
+// TODO: When saving files, we should move originals to a back-up location
+// (Notebook's archive save will do the same)
 class FileService : public IService
 {
     Q_OBJECT
