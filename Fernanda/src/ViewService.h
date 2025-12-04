@@ -70,6 +70,8 @@ public:
 
     DECLARE_HOOK_ACCESSORS(NewTabHook, newTabHook, setNewTabHook, newTabHook_);
 
+    // TODO: Could pass window in hooks...
+
     DECLARE_HOOK_ACCESSORS(
         CanCloseTabHook,
         canCloseTabHook,

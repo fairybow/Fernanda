@@ -94,14 +94,15 @@ protected:
         if (model->isModified() && views->countFor(model) <= 1) {
             views->raise(fileView);
 
-            // TODO: Add a preferred extension so off-disk files can say "TempTitle.txt"
+            // TODO: Add a preferred extension so off-disk files can say
+            // "TempTitle.txt"
             auto text = meta->path().isEmpty() ? meta->title()
                                                : meta->path().toQString();
             // TODO: Is there a better way to get windows (here and view
             // service) without having their tracking really complicate things,
             // like tab dragging? This might be fine?
             auto window = Coco::Utility::findParent<Window*>(fileView);
-            
+
             // TODO: Redo text
             // Title: Fernanda
             // Body: Do you want to save changes to path.txt?
@@ -121,6 +122,8 @@ protected:
     }
 
     // TODO: Can perhaps raise first (from end) view in each window?
+    // TODO: Although, could somehow pass window or view or both and just raise
+    // for the current window/tab this was used on (it's only called via menu)
     virtual bool
     canCloseTabEverywhere(const QList<IFileView*>& fileViews) override
     {
