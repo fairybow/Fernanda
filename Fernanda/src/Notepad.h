@@ -17,10 +17,11 @@
 #include <QModelIndex>
 #include <QObject>
 #include <QSet>
+#include <QString>
+#include <QStringList>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
-#include "Coco/Utility.h"
 
 #include "AppDirs.h"
 #include "Bus.h"
@@ -99,10 +100,10 @@ protected:
 
             // TODO: Add a preferred extension so off-disk files can say
             // "TempTitle.txt"
-            auto text = meta->path().isEmpty() ? meta->title()
+            auto name = meta->path().isEmpty() ? meta->title()
                                                : meta->path().toQString();
 
-            switch (SavePrompt::exec(text, window)) {
+            switch (SavePrompt::exec(name, window)) {
             case SavePrompt::Cancel:
                 return false;
             case SavePrompt::Save:
@@ -130,16 +131,16 @@ protected:
             // current tab), so this is not techincally needed
             views->raise(window, index);
 
-            auto text = meta->path().isEmpty() ? meta->title()
+            auto name = meta->path().isEmpty() ? meta->title()
                                                : meta->path().toQString();
 
-            switch (SavePrompt::exec(text, window)) {
-            case SavePrompt::Choice::Cancel:
+            switch (SavePrompt::exec(name, window)) {
+            case SavePrompt::Cancel:
                 return false;
-            case SavePrompt::Choice::Save:
+            case SavePrompt::Save:
                 // TODO: Save, once we've moved it to FileService
                 return true;
-            case SavePrompt::Choice::Discard:
+            case SavePrompt::Discard:
                 return true;
             }
         }
@@ -150,62 +151,91 @@ protected:
     // TODO: The multi file save prompt could allow clicking on the path or
     // something to switch to the first view on that file we have available
     // (possibly first from the end)
-    virtual bool canCloseWindowTabs(const QList<IFileView*>& fileViews) override
+    virtual bool canCloseWindowTabs(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        QSet<IFileModel*> modified_models{};
+        QList<IFileModel*> modified_models{};
 
         // TODO: May need to call on FileService for some of these queries. What
         // would respect separation of concerns?
-        for (auto& view : fileViews) {
+        for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
-            if (!model) continue;
-            if (!model->isModified()) continue;
+            if (!model || !model->isModified()) continue;
             if (views->isMultiWindow(model)) continue;
+            if (modified_models.contains(model)) continue;
 
             modified_models << model;
         }
 
-        if (!modified_models.isEmpty()) {
-            /*switch (MultiFileSavePrompt) {
-            case Cancel:
-                return false;
-            case Save:
-                // save (selected)
-                return true;
-            case Discard:
-                return true;
-            }*/
+        if (modified_models.isEmpty()) return true;
+
+        QStringList names{};
+        for (auto& model : modified_models) {
+            auto meta = model->meta();
+            if (!meta) continue;
+            names
+                << (meta->path().isEmpty() ? meta->title()
+                                           : meta->path().toQString());
+        }
+
+        auto result = SavePrompt::exec(names, window);
+        switch (result.choice) {
+        case SavePrompt::Cancel:
+            return false;
+        case SavePrompt::Save:
+            // TODO: If any of the files need a Save As, we'll want to raise
+            // when we prompt there
+            // TODO: for (auto& index : result.selectedIndices) { save
+            // modified_models[idx] }
+            return true;
+        case SavePrompt::Discard:
+            return true;
         }
 
         return true;
     }
 
-    virtual bool canCloseAllTabs(const QList<IFileView*>& fileViews) override
+    virtual bool canCloseAllTabs(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        QSet<IFileModel*> modified_models{};
+        QList<IFileModel*> modified_models{};
 
-        for (auto& view : fileViews) {
-            if (!view) continue;
-            auto model = view->model();
-            if (!model) continue;
-            if (!model->isModified()) continue;
+        for (auto& window : windows) {
+            for (auto& view : views->fileViewsIn(window)) {
+                if (!view) continue;
+                auto model = view->model();
+                if (!model || !model->isModified()) continue;
+                if (modified_models.contains(model)) continue;
 
-            modified_models << model;
+                modified_models << model;
+            }
         }
 
-        if (!modified_models.isEmpty()) {
-            /*switch (MultiFileSavePrompt) {
-            case Cancel:
-                return false;
-            case Save:
-                // save (selected)
-                return true;
-            case Discard:
-                return true;
-            }*/
+        if (modified_models.isEmpty()) return true;
+
+        QStringList names{};
+        for (auto& model : modified_models) {
+            auto meta = model->meta();
+            if (!meta) continue;
+            names
+                << (meta->path().isEmpty() ? meta->title()
+                                           : meta->path().toQString());
+        }
+
+        // Make top window the dialog owner (the list here is reverse z-order)
+        auto result = SavePrompt::exec(names, windows.last());
+        switch (result.choice) {
+        case SavePrompt::Cancel:
+            return false;
+        case SavePrompt::Save:
+            // TODO: If any of the files need a Save As, we'll want to raise
+            // when we prompt there
+            // TODO: for (auto& index : result.selectedIndices) { save
+            // modified_models[idx] }
+            return true;
+        case SavePrompt::Discard:
+            return true;
         }
 
         return true;
