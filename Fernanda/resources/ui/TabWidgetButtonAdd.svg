@@ -36,6 +36,6 @@
      stroke="#404040"
      stroke-width="5.33"
      stroke-linecap="round"
-     style="fill:none;stroke-opacity:1;stroke:#4d4d4d"
+     style="fill:#4c4c4c;fill-opacity:1;stroke:#404040;stroke-opacity:1"
      id="path1" />
 </svg>

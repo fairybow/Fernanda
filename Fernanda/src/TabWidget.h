@@ -112,10 +112,11 @@ private:
     static constexpr auto MAX_TAB_WIDTH_ = 225;
     static constexpr auto ADD_BUTTON_SIZE_ = QSize(30, 30);
     static constexpr auto CLOSE_BUTTON_SIZE_ = QSize(24, 24);
-    static constexpr auto BUTTON_SVG_SIZE_ = QSize(14, 14);
+    static constexpr auto BUTTON_SVG_SIZE_ = QSize(18, 18);
 
+    // TODO:
     // QToolButton* dummyL_ = new QToolButton(this);
-    //  Scroll left here, eventually
+    // Scroll left here, eventually
     TabWidgetTabBar* tabBar_ = new TabWidgetTabBar(this);
     // Scroll right here, eventually
     TabWidgetButton* addButton_ = new TabWidgetButton(this);

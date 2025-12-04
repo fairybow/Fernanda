@@ -31,8 +31,8 @@ class NoOpFileView : public IFileView
     Q_OBJECT
 
 public:
-    explicit NoOpFileView(NoOpFileModel* model, QWidget* parent = nullptr)
-        : IFileView(model, parent)
+    explicit NoOpFileView(NoOpFileModel* fileModel, QWidget* parent = nullptr)
+        : IFileView(fileModel, parent)
     {
     }
 

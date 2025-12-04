@@ -136,7 +136,12 @@ private:
         connect(notebook, &Notebook::lastWindowClosed, this, [&, notebook] {
             notebooks_.removeAll(notebook);
             delete notebook;
-            if (notebooks_.isEmpty() && notepad_->windowCount() < 1) quit();
+            if (notebooks_.isEmpty() && !notepad_->hasWindows()) quit();
+        });
+
+        connect(notebook, &Notebook::openNotepadRequested, this, [&] {
+            notepad_->hasWindows() ? notepad_->activate()
+                                   : notepad_->newWindow();
         });
 
         notebook->open(NewWindow::Yes);

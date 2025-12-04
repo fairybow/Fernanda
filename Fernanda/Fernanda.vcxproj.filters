@@ -67,6 +67,9 @@
     <Filter Include="Old %28Remove Later%29">
       <UniqueIdentifier>{6ff179fe-5e05-4c0f-a145-35d3cd86fbbb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Docs\Charts">
+      <UniqueIdentifier>{6168626a-ec23-4724-a575-f9e3e979d3d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -140,12 +143,6 @@
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
     </None>
-    <None Include="docs\StartupFlowchart.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\ComponentArchitecture.md">
-      <Filter>Docs</Filter>
-    </None>
     <None Include="docs\Roadmap.md">
       <Filter>Docs</Filter>
     </None>
@@ -158,25 +155,37 @@
     <None Include="docs\Style.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\FNXFile.md">
+    <None Include="docs\FNX.md">
       <Filter>Docs</Filter>
     </None>
     <None Include="docs\UserData.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="docs\NotebookCreation.md">
+    <None Include="docs\Saves.md">
       <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\SavingTypes.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\old_TempCommandsReference.md">
-      <Filter>Old %28Remove Later%29</Filter>
     </None>
     <None Include="docs\old_TempTodos.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
     <None Include="docs\Closures.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\Openings.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\NotebookCreation.md">
+      <Filter>Docs\Charts</Filter>
+    </None>
+    <None Include="docs\ComponentArchitecture.md">
+      <Filter>Docs\Charts</Filter>
+    </None>
+    <None Include="docs\StartupFlowchart.md">
+      <Filter>Docs\Charts</Filter>
+    </None>
+    <None Include="docs\CodeCleanup.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\SoCAudit.md">
       <Filter>Docs</Filter>
     </None>
   </ItemGroup>
@@ -253,9 +262,6 @@
     <QtMoc Include="src\Bus.h">
       <Filter>Code\Core\Workspaces</Filter>
     </QtMoc>
-    <QtMoc Include="src\TreeViewModule.h">
-      <Filter>Code\Auxiliary\Modules</Filter>
-    </QtMoc>
     <QtMoc Include="src\WordCounterModule.h">
       <Filter>Code\Auxiliary\Modules</Filter>
     </QtMoc>
@@ -288,6 +294,9 @@
     </QtMoc>
     <QtMoc Include="src\FnxModel.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TreeViewService.h">
+      <Filter>Code\Core\Services</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

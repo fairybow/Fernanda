@@ -57,27 +57,27 @@ public:
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
 
-    void deleteModel(IFileModel* model)
+    void deleteModel(IFileModel* fileModel)
     {
-        if (!model) return;
+        if (!fileModel) return;
 
-        auto path = model->meta()->path();
-        models_.remove(model);
+        auto path = fileModel->meta()->path();
+        fileModels_.remove(fileModel);
         pathToFileModel_.remove(path);
-        delete model;
+        delete fileModel;
     }
 
-    void deleteModels(const QList<IFileModel*>& models)
+    void deleteModels(const QList<IFileModel*>& fileModels)
     {
-        for (auto& model : models)
+        for (auto& model : fileModels)
             deleteModel(model);
     }
 
     void deleteAll()
     {
-        for (auto& model : models_)
+        for (auto& model : fileModels_)
             delete model;
-        models_.clear();
+        fileModels_.clear();
         pathToFileModel_.clear();
     }
 
@@ -125,7 +125,7 @@ protected:
     }
 
 private:
-    QSet<IFileModel*> models_{};
+    QSet<IFileModel*> fileModels_{};
     QHash<Coco::Path, IFileModel*> pathToFileModel_{};
 
     void setup_()
@@ -134,10 +134,10 @@ private:
     }
 
     // TODO: Do this for similar setups in other Services
-    void registerModel_(IFileModel* model, const Coco::Path& path = {})
+    void registerModel_(IFileModel* fileModel, const Coco::Path& path = {})
     {
-        if (!path.isEmpty()) pathToFileModel_[path] = model;
-        models_ << model;
+        if (!path.isEmpty()) pathToFileModel_[path] = fileModel;
+        fileModels_ << fileModel;
     }
 
     IFileModel*
@@ -200,23 +200,25 @@ private:
         return model;
     }
 
-    void connectNewModel_(IFileModel* model)
+    void connectNewModel_(IFileModel* fileModel)
     {
         connect(
-            model,
+            fileModel,
             &IFileModel::modificationChanged,
             this,
-            [&, model](bool modified) {
-                emit bus->fileModelModificationChanged(model, modified);
+            [&, fileModel](bool modified) {
+                emit bus->fileModelModificationChanged(fileModel, modified);
             });
 
-        connect(model->meta(), &FileMeta::changed, this, [&, model] {
-            emit bus->fileModelMetaChanged(model);
+        connect(fileModel->meta(), &FileMeta::changed, this, [&, fileModel] {
+            emit bus->fileModelMetaChanged(fileModel);
         });
 
         // TODO: Emit initial states (needed?)
-        emit bus->fileModelModificationChanged(model, model->isModified());
-        emit bus->fileModelMetaChanged(model);
+        emit bus->fileModelModificationChanged(
+            fileModel,
+            fileModel->isModified());
+        emit bus->fileModelMetaChanged(fileModel);
     }
 };
 

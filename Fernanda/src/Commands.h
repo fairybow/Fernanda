@@ -23,17 +23,6 @@ constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
 constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 
-// Poly: same command for all Workspace types but registered differently by
-// each. These commands are meant to be called from a Workspace-agnostic service
-// but with effects unique to each Workspace type
-
-// TODO: Determine if we need these or just use hooks or whatever
-
-constexpr auto NEW_TAB = "poly:new_tab"; /// *
-constexpr auto WS_TREE_VIEW_MODEL = "poly:ws_tree_view_model"; /// *, non-menu
-constexpr auto WS_TREE_VIEW_ROOT_INDEX =
-    "poly:ws_tree_view_root_index"; /// *, non-menu
-
 // Notepad scope
 
 constexpr auto NOTEPAD_OPEN_FILE = "notepad:open_file"; /// *
@@ -44,7 +33,7 @@ constexpr auto NOTEPAD_SAVE_ALL = "notepad:save_all";
 
 // Notebook scope
 
-constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad";
+constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad"; /// *
 constexpr auto NOTEBOOK_IMPORT_FILE = "notebook:import_file"; /// *
 constexpr auto NOTEBOOK_SAVE = "notebook:save_archive";
 constexpr auto NOTEBOOK_SAVE_AS = "notebook:save_archive_as";
@@ -59,6 +48,7 @@ constexpr auto COPY = "views:copy"; /// *
 constexpr auto PASTE = "views:paste"; /// *
 constexpr auto DEL = "views:delete"; /// *
 constexpr auto SELECT_ALL = "views:select_all"; /// *
+constexpr auto NEW_TAB = "views:new_tab"; /// *
 constexpr auto CLOSE_TAB = "views:close_tab"; /// *
 constexpr auto CLOSE_TAB_EVERYWHERE = "views:close_tab_everywhere"; /// *
 constexpr auto CLOSE_WINDOW_TABS = "views:close_window_tabs"; /// *
@@ -84,7 +74,7 @@ constexpr auto RUN_ALL_COLOR_BARS = "color_bars:run_all"; /// *, non-menu
 
 constexpr auto OPEN_FILE_AT_PATH = "file_models:open_path"; /// *, non-menu
 
-// TreeViewModule scope
+// TreeViewService scope
 
 //...
 

@@ -36,14 +36,16 @@
     <None Include="cpp.hint" />
     <None Include="docs\Bus.md" />
     <None Include="docs\Closures.md" />
+    <None Include="docs\CodeCleanup.md" />
     <None Include="docs\ComponentArchitecture.md" />
-    <None Include="docs\FNXFile.md" />
+    <None Include="docs\FNX.md" />
     <None Include="docs\Menus.md" />
     <None Include="docs\NotebookCreation.md" />
+    <None Include="docs\Openings.md" />
     <None Include="docs\Roadmap.md" />
-    <None Include="docs\SavingTypes.md" />
+    <None Include="docs\Saves.md" />
+    <None Include="docs\SoCAudit.md" />
     <None Include="docs\StartupFlowchart.md" />
-    <None Include="docs\old_TempCommandsReference.md" />
     <None Include="docs\old_TempTodos.md" />
     <None Include="docs\Style.md" />
     <None Include="docs\UserData.md" />
@@ -105,7 +107,7 @@
     <ClInclude Include="src\TextIo.h" />
     <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Tr.h" />
-    <QtMoc Include="src\TreeViewModule.h" />
+    <QtMoc Include="src\TreeViewService.h" />
     <ClInclude Include="src\AppDirs.h" />
     <ClInclude Include="src\Version.h" />
     <QtMoc Include="src\Workspace.h" />
@@ -169,12 +171,12 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>6.10.0_msvc2022_64</QtInstall>
+    <QtInstall>6.10.1_msvc2022_64</QtInstall>
     <QtModules>core;gui;network;widgets;svg;xml</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.10.0_msvc2022_64</QtInstall>
+    <QtInstall>6.10.1_msvc2022_64</QtInstall>
     <QtModules>core;gui;network;widgets;svg;xml</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>

@@ -14,11 +14,10 @@
 #include <QLabel>
 #include <QList>
 #include <QMessageBox>
-#include <QObject>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QString>
-#include <QVBoxLayout>
+#include <QStringList>
 #include <QWidget>
 #include <Qt>
 
@@ -26,177 +25,159 @@
 #include "Coco/Path.h"
 
 #include "Debug.h"
-#include "Enums.h"
-#include "IFileModel.h"
 #include "Tr.h"
 
-namespace Fernanda {
-
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
-// unsaved changes, supporting both single and multiple file scenarios as well
-// as selection
-namespace SavePrompt {
+// unsaved changes, supporting both single and multiple file (with selection)
+namespace Fernanda::SavePrompt {
 
-    namespace Internal {
+enum Choice
+{
+    Cancel,
+    Save,
+    Discard
+};
 
-        inline void setCommonProperties_(QDialog& dialog)
-        {
-            dialog.setWindowModality(Qt::WindowModal);
-            dialog.setWindowTitle(Tr::Dialogs::savePromptTitle());
-            dialog.setMinimumSize(400, 200);
-        }
+struct MultiSaveResult
+{
+    Choice choice{};
+    QList<int> selectedIndices{};
+};
 
-    } // namespace Internal
+namespace Internal {
 
-    struct Result
+    inline void setCommonProperties_(QDialog& dialog)
     {
-        SaveChoice choice{};
-        QList<IFileModel*> chosenSaves{};
-    };
-
-    /// WIP
-    inline SaveChoice exec(IFileModel* model, QWidget* parent = nullptr)
-    {
-        if (!model) return SaveChoice::Cancel;
-        auto meta = model->meta();
-        if (!meta) return SaveChoice::Cancel;
-
-        QMessageBox box(parent);
-        Internal::setCommonProperties_(box);
-        box.setText(
-            Tr::Dialogs::savePromptSingleFileBodyFormat().arg(meta->title()));
-
-        auto save = box.addButton(Tr::Buttons::save(), QMessageBox::AcceptRole);
-        auto discard =
-            box.addButton(Tr::Buttons::discard(), QMessageBox::AcceptRole);
-        auto cancel =
-            box.addButton(Tr::Buttons::cancel(), QMessageBox::AcceptRole);
-        box.setDefaultButton(save);
-        box.setEscapeButton(cancel);
-
-        box.exec();
-
-        SaveChoice result{};
-        auto clicked = box.clickedButton();
-
-        if (clicked == save) {
-            result = SaveChoice::Save;
-        } else if (clicked == discard) {
-            result = SaveChoice::Discard;
-        } else if (clicked == cancel) {
-            result = SaveChoice::Cancel;
-        }
-
-        return result;
+        // QDialog defaults to non-modal
+        dialog.setWindowModality(Qt::WindowModal);
+        // dialog.setWindowTitle(Tr::Dialogs::savePromptTitle());
+        dialog.setMinimumSize(400, 200);
     }
 
-    /// VERY WIP
-    inline Result
-    exec(QList<IFileModel*> modifiedModels, QWidget* parent = nullptr)
-    {
-        if (modifiedModels.isEmpty()) return { SaveChoice::Cancel, {} };
+    // TODO: Other sections from the exec functions?
 
-        // Single file case - use simpler message box
-        if (modifiedModels.size() == 1) {
-            auto choice = exec(modifiedModels.first(), parent);
-            return { choice,
-                     choice == SaveChoice::Save ? modifiedModels
-                                                : QList<IFileModel*>{} };
-        }
+} // namespace Internal
 
-        QDialog dialog(parent);
-        Internal::setCommonProperties_(dialog);
+inline QString toQString(Choice choice) noexcept
+{
+    switch (choice) {
+    default:
+    case Cancel:
+        return "SavePrompt::Cancel";
+    case Save:
+        return "SavePrompt::Save";
+    case Discard:
+        return "SavePrompt::Discard";
+    }
+}
 
-        // Main layout
-        auto main_layout = Coco::Layout::make<QVBoxLayout*>(&dialog);
+inline Choice exec(const QString& fileName, QWidget* parent = nullptr)
+{
+    QMessageBox box(parent);
+    Internal::setCommonProperties_(box);
 
-        // Message label
-        auto messageLabel = new QLabel(&dialog); /// vvv TR
-        QString messageText = QString("You have unsaved changes in %1 file(s). "
-                                      "Select which files to save:")
-                                  .arg(modifiedModels.size());
-        messageLabel->setText(messageText);
-        messageLabel->setWordWrap(true);
-        main_layout->addWidget(messageLabel);
+    box.setText(Tr::Dialogs::savePromptBodyFormat().arg(fileName));
 
-        // Scroll area with checkboxes
-        auto scrollArea = new QScrollArea(&dialog);
-        auto scrollWidget = new QWidget();
-        auto scrollLayout = Coco::Layout::make<QVBoxLayout*>(scrollWidget);
+    auto save = box.addButton(Tr::Buttons::save(), QMessageBox::AcceptRole);
+    auto discard =
+        box.addButton(Tr::Buttons::discard(), QMessageBox::DestructiveRole);
+    auto cancel = box.addButton(Tr::Buttons::cancel(), QMessageBox::RejectRole);
 
-        QList<QCheckBox*> checkBoxes;
-        for (auto model : modifiedModels) {
-            auto meta = model->meta();
-            auto title = meta ? meta->title() : "Untitled";
-            auto checkBox = new QCheckBox(title, scrollWidget);
-            checkBox->setChecked(true); // All checked by default
-            scrollLayout->addWidget(checkBox);
-            checkBoxes << checkBox;
-        }
+    box.setDefaultButton(save);
+    box.setEscapeButton(cancel);
 
-        scrollWidget->setLayout(scrollLayout);
-        scrollArea->setWidget(scrollWidget);
-        scrollArea->setWidgetResizable(true);
-        scrollArea->setMaximumHeight(300); // Limit scroll area height
-        main_layout->addWidget(scrollArea);
+    box.exec();
 
-        // Button layout
-        auto buttonLayout = new QHBoxLayout;
-        buttonLayout->addStretch();
+    auto clicked = box.clickedButton();
+    if (clicked == save) return Save;
+    if (clicked == discard) return Discard;
+    return Cancel;
+}
 
-        auto saveButton = new QPushButton(Tr::Buttons::save(), &dialog);
-        auto discardButton = new QPushButton(Tr::Buttons::discard(), &dialog);
-        auto cancelButton = new QPushButton(Tr::Buttons::cancel(), &dialog);
+inline MultiSaveResult
+exec(const QStringList& fileNames, QWidget* parent = nullptr)
+{
+    if (fileNames.isEmpty()) return { Cancel, {} };
 
-        saveButton->setDefault(true);
-
-        buttonLayout->addWidget(saveButton);
-        buttonLayout->addWidget(discardButton);
-        buttonLayout->addWidget(cancelButton);
-        main_layout->addLayout(buttonLayout);
-
-        // Connect buttons
-        SaveChoice choice = SaveChoice::Cancel;
-
-        // Should we use saveButton->connect...
-        QObject::connect(saveButton, &QPushButton::clicked, [&]() {
-            choice = SaveChoice::Save;
-            dialog.accept();
-        });
-
-        QObject::connect(discardButton, &QPushButton::clicked, [&]() {
-            choice = SaveChoice::Discard;
-            dialog.accept();
-        });
-
-        QObject::connect(cancelButton, &QPushButton::clicked, [&]() {
-            choice = SaveChoice::Cancel;
-            dialog.reject();
-        });
-
-        // Execute dialog
-        dialog.exec();
-
-        Result result{};
-        if (choice == SaveChoice::Save) {
-            // Only return the checked models
-            QList<IFileModel*> chosenModels;
-            for (int i = 0; i < checkBoxes.size() && i < modifiedModels.size();
-                 ++i) {
-                if (checkBoxes[i]->isChecked()) {
-                    chosenModels << modifiedModels[i];
-                }
-            }
-            result = { SaveChoice::Save, chosenModels };
-        } else if (choice == SaveChoice::Discard) {
-            result = { SaveChoice::Discard, {} };
-        } else {
-            result = { SaveChoice::Cancel, {} };
-        }
-
-        return result;
+    // Delegate to single-file prompt
+    if (fileNames.size() == 1) {
+        auto choice = exec(fileNames.first(), parent);
+        return { choice, (choice == Save) ? QList<int>{ 0 } : QList<int>{} };
     }
 
-} // namespace SavePrompt
+    QDialog dialog(parent);
+    Internal::setCommonProperties_(dialog);
 
-} // namespace Fernanda
+    auto main_layout = Coco::Layout::make<QVBoxLayout*>(&dialog);
+
+    // Message label
+    auto message_label = new QLabel(&dialog);
+    message_label->setText(
+        Tr::Dialogs::savePromptMultiBodyFormat().arg(fileNames.size()));
+    message_label->setWordWrap(true);
+    main_layout->addWidget(message_label);
+
+    // Scroll area with checkboxes
+    auto scroll_area = new QScrollArea(&dialog);
+    auto scroll_widget = new QWidget;
+    auto scroll_layout = Coco::Layout::make<QVBoxLayout*>(scroll_widget);
+
+    QList<QCheckBox*> checkboxes{};
+    for (const auto& file_name : fileNames) {
+        auto checkbox = new QCheckBox(file_name, scroll_widget);
+        checkbox->setChecked(true);
+        scroll_layout->addWidget(checkbox);
+        checkboxes << checkbox;
+    }
+
+    scroll_area->setWidget(scroll_widget);
+    scroll_area->setWidgetResizable(true);
+    scroll_area->setMaximumHeight(300);
+    main_layout->addWidget(scroll_area);
+
+    // Buttons
+    auto button_layout = new QHBoxLayout;
+    button_layout->addStretch();
+
+    auto save_button = new QPushButton(Tr::Buttons::save(), &dialog);
+    auto discard_button = new QPushButton(Tr::Buttons::discard(), &dialog);
+    auto cancel_button = new QPushButton(Tr::Buttons::cancel(), &dialog);
+
+    save_button->setDefault(true);
+
+    button_layout->addWidget(save_button);
+    button_layout->addWidget(discard_button);
+    button_layout->addWidget(cancel_button);
+    main_layout->addLayout(button_layout);
+
+    // Track result
+    Choice choice = Cancel;
+
+    dialog.connect(save_button, &QPushButton::clicked, [&] {
+        choice = Save;
+        dialog.accept();
+    });
+
+    dialog.connect(discard_button, &QPushButton::clicked, [&] {
+        choice = Discard;
+        dialog.accept();
+    });
+
+    dialog.connect(cancel_button, &QPushButton::clicked, [&] {
+        choice = Cancel;
+        dialog.reject();
+    });
+
+    dialog.exec();
+
+    if (choice == Save) {
+        QList<int> selected{};
+        for (auto i = 0; i < checkboxes.size(); ++i)
+            if (checkboxes[i]->isChecked()) selected << i;
+        return { Save, selected };
+    }
+
+    return { choice, {} };
+}
+
+} // namespace Fernanda::SavePrompt

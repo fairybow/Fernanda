@@ -34,8 +34,8 @@ class TextFileView : public IFileView
     Q_OBJECT
 
 public:
-    explicit TextFileView(TextFileModel* model, QWidget* parent = nullptr)
-        : IFileView(model, parent)
+    explicit TextFileView(TextFileModel* fileModel, QWidget* parent = nullptr)
+        : IFileView(fileModel, parent)
     {
     }
 

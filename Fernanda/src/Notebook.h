@@ -9,6 +9,9 @@
 
 #pragma once
 
+#include <functional>
+
+#include <QAbstractItemModel>
 #include <QAction>
 #include <QDomDocument>
 #include <QDomElement>
@@ -33,6 +36,7 @@
 #include "Debug.h"
 #include "Fnx.h"
 #include "FnxModel.h"
+#include "IService.h"
 #include "NotebookMenuModule.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
@@ -68,15 +72,47 @@ public:
     virtual ~Notebook() override { TRACER; }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
-    virtual bool canQuit() { return windows->closeAll(); }
+    virtual bool canQuit() override { return windows->closeAll(); }
+
+signals:
+    void openNotepadRequested();
 
 protected:
-    virtual bool canCloseWindow(Window* window)
+    virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
+
+    // TODO: Get element by tag/qualified name? (For future, when we have Trash)
+    virtual QModelIndex treeViewRootIndex() override
+    {
+        // The invalid index represents the root document element (<notebook>).
+        // TreeView will display its children (the actual files and virtual
+        // folders/structure)
+        return {};
+    }
+
+    virtual void newTab(Window* window) override
+    {
+        if (!window) return;
+        if (!workingDir_.isValid()) return;
+
+        auto working_dir = workingDir_.path();
+        auto info = fnxModel_->addNewTextFile(working_dir);
+        if (!info.isValid()) return;
+
+        // TODO: Once New Tab is signal based (if), we can likely drop the
+        // interceptor and reroute just here
+        bus->execute(
+            Commands::OPEN_FILE_AT_PATH,
+            { { "path", qVar(working_dir / info.relPath) },
+              { "title", info.name } },
+            window);
+    }
+
+    virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1) return true;
 
         // If archive is modified, prompt
-        /*if (modified_) {
+        /*if (isModified_()) {
             switch (ArchiveSavePrompt) {
             case Cancel:
                 return false;
@@ -91,9 +127,9 @@ protected:
         return true;
     }
 
-    virtual bool canCloseAllWindows(const QList<Window*>& windows)
+    virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
-        /*if (modified_) {
+        /*if (isModified_()) {
             switch (ArchiveSavePrompt) {
             case Cancel:
                 return false;
@@ -124,13 +160,17 @@ private:
 
         menus_->initialize();
 
+        windows->setSubtitle(name_);
+        showModified_();
+
         // Extraction or creation
         auto working_dir = workingDir_.path();
 
         if (!fnxPath_.exists()) {
             Fnx::Io::makeNewWorkingDir(working_dir);
-            // TODO: Mark notebook modified (maybe, maybe not until edited)?
-            // (need to figure out how this will work)
+
+            //...
+
         } else {
             Fnx::Io::extract(fnxPath_, working_dir);
             // TODO: Verification (comparing Model file elements to content dir
@@ -163,6 +203,10 @@ private:
 
     void registerBusCommands_()
     {
+        bus->addCommandHandler(Commands::NOTEBOOK_OPEN_NOTEPAD, [&] {
+            emit openNotepadRequested();
+        });
+
         bus->addCommandHandler(
             Commands::NOTEBOOK_IMPORT_FILE,
             [&](const Command& cmd) {
@@ -193,8 +237,6 @@ private:
                         cmd.context);
                 }
             });
-
-        registerPolys_();
     }
 
     void connectBusEvents_()
@@ -212,38 +254,20 @@ private:
             &Bus::treeViewContextMenuRequested,
             this,
             &Notebook::onTreeViewContextMenuRequested_);
+
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            &Notebook::onFileModelModificationChanged_);
     }
 
-    void registerPolys_()
+    bool isModified_() const
     {
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
-            return fnxModel_;
-        });
-
-        // TODO: Get element by tag/qualified name? (For future, when we have
-        // Trash)
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
-            // The invalid index represents the root document element
-            // (<notebook>). TreeView will display its children (the actual
-            // files and virtual folders/structure)
-            return QModelIndex{};
-        });
-
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            if (!workingDir_.isValid()) return;
-
-            auto working_dir = workingDir_.path();
-            auto info = fnxModel_->addNewTextFile(working_dir);
-            if (!info.isValid()) return;
-
-            bus->execute(
-                Commands::OPEN_FILE_AT_PATH,
-                { { "path", qVar(working_dir / info.relPath) },
-                  { "title", info.name } },
-                cmd.context);
-        });
+        return !fnxPath_.exists() || fnxModel_->isModified();
     }
+
+    void showModified_() { windows->setFlagged(isModified_()); }
 
     void addWorkspaceIndicator_(Window* window)
     {
@@ -270,6 +294,9 @@ private slots:
     {
         if (!workingDir_.isValid()) return;
         fnxModel_->write(workingDir_.path());
+
+        // Initial DOM load emission doesn't call this slot
+        showModified_();
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
@@ -339,6 +366,13 @@ private slots:
         }
 
         menu->popup(globalPos);
+    }
+
+    void onFileModelModificationChanged_(IFileModel* fileModel, bool modified)
+    {
+        auto meta = fileModel->meta();
+        if (!meta) return;
+        fnxModel_->setFileEdited(Fnx::Io::uuid(meta->path()), modified);
     }
 };
 

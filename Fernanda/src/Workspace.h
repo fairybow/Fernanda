@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QAbstractItemModel>
+#include <QModelIndex>
 #include <QObject>
 #include <QString>
 #include <QVariantMap>
@@ -27,7 +28,7 @@
 #include "FileService.h"
 #include "SettingsModule.h"
 #include "Timers.h"
-#include "TreeViewModule.h"
+#include "TreeViewService.h"
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
@@ -58,21 +59,24 @@ public:
     //   // emit bus->workspaceOpened();
     // }
 
+    // TODO: Do we ever need to "open" without opening a window?
     void open(NewWindow withWindow = NewWindow::No)
     {
         // ... Path args?
 
         if (withWindow) windows->newWindow();
+
+        // TODO: Don't run if no windows...
         timer(1300, this, [&] { colorBars->runAll(ColorBar::Color::Pastel); });
     }
+
+    void newWindow() { windows->newWindow(); }
 
     void activate() const
     {
         if (auto active_window = windows->active())
             active_window->activate(); // Stack under will raise any others
     }
-
-    int windowCount() const { return windows->count(); }
 
 signals:
     void lastWindowClosed();
@@ -88,19 +92,20 @@ protected:
     WindowService* windows = new WindowService(bus, this);
     ViewService* views = new ViewService(bus, this);
     FileService* files = new FileService(bus, this);
-    TreeViewModule* treeViews = new TreeViewModule(bus, this);
+    TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
     virtual bool canQuit() = 0;
 
 protected:
-    virtual bool canCloseTab(IFileView*) { return true; }
-    virtual bool canCloseTabEverywhere(const QList<IFileView*>&)
-    {
-        return true;
-    }
-    virtual bool canCloseWindowTabs(const QList<IFileView*>&) { return true; }
-    virtual bool canCloseAllTabs(const QList<IFileView*>&) { return true; }
+    virtual QAbstractItemModel* treeViewModel() = 0;
+    virtual QModelIndex treeViewRootIndex() = 0;
+    virtual void newTab(Window* window) = 0;
+
+    virtual bool canCloseTab(Window*, int index) { return true; }
+    virtual bool canCloseTabEverywhere(Window*, int index) { return true; }
+    virtual bool canCloseWindowTabs(Window*) { return true; }
+    virtual bool canCloseAllTabs(const QList<Window*>&) { return true; }
     virtual bool canCloseWindow(Window*) { return true; }
     virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
 
@@ -114,14 +119,19 @@ private:
         treeViews->initialize();
         colorBars->initialize();
 
+        views->setNewTabHook(this, &Workspace::newTab);
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
             this,
             &Workspace::canCloseTabEverywhere);
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
+
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
+
+        treeViews->setModelHook(this, &Workspace::treeViewModel);
+        treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
 
         //...
 

@@ -306,14 +306,14 @@ signals:
     // View may be nullptr!
     void activeFileViewChanged(Window* context, IFileView* view);
     void treeViewDoubleClicked(Window* context, const QModelIndex& index);
-    void fileModelReadied(Window* context, IFileModel* model);
-    void fileModelModificationChanged(IFileModel* model, bool modified);
-    void fileModelMetaChanged(IFileModel* model);
+    void fileModelReadied(Window* context, IFileModel* fileModel);
+    void fileModelModificationChanged(IFileModel* fileModel, bool modified);
+    void fileModelMetaChanged(IFileModel* fileModel);
     void treeViewContextMenuRequested(
         Window* context,
         const QPoint& globalPos,
         const QModelIndex& index);
-    void viewDestroyed(IFileModel* model);
+    void viewDestroyed(IFileModel* fileModel);
 
     /// Old:
 
@@ -321,26 +321,26 @@ signals:
 
     // WindowService
 
-    //void visibleWindowCountChanged(int count);
+    // void visibleWindowCountChanged(int count);
 
     // Window may be nullptr!
     // void activeWindowChanged(Window* window);
 
     // FileService
 
-    //void fileSaved(SaveResult result, const Coco::Path& path);
-    //void fileSavedAs(
-        //SaveResult result,
-        //const Coco::Path& path,
-        //const Coco::Path& oldPath = {});
+    // void fileSaved(SaveResult result, const Coco::Path& path);
+    // void fileSavedAs(
+    // SaveResult result,
+    // const Coco::Path& path,
+    // const Coco::Path& oldPath = {});
     // void windowSaveExecuted(Window* window, SaveResult result);
     // void workspaceSaveExecuted(SaveResult result);
 
     // ViewService
 
-    //void windowTabCountChanged(Window* window, int count);
+    // void windowTabCountChanged(Window* window, int count);
 
-    //void viewClosed(IFileView* view);
+    // void viewClosed(IFileView* view);
 
     // SettingsModule
 

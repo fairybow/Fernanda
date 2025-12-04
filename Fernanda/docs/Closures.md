@@ -1,12 +1,11 @@
-# Closures
+# Closures (Draft)
 
 **General notes:**
 - "Modified archive" (Notebook only): working directory has changed from its original state or has no corresponding archive (is new)
-- Notepad never closes except on quit (remains alive even with no windows)
+- Notepad never closes
 - Notebooks close when their last window closes
-- There is only ever 1 Fernanda instance; relaunch is guarded and new args are passed to the current instance
-- There is only ever 1 Notepad instance; there can be multiple (or zero) Notebook instances
-- Notebook never closes models manually (only via Qt ownership when FileService dies)
+- Notepad deletes models when their view counts become 0
+- Notebook never closes file models manually (only via Qt ownership when FileService dies)
 
 ## Close tab
 
@@ -15,17 +14,15 @@ Triggered by ViewService `CLOSE_TAB` command (index param, -1 = current).
 **ViewService mechanics:**
 - Normalizes index, gets view
 - Calls `canCloseTabHook` (if registered)
-- If approved: deletes view, emits `viewDestroyed(model)`
+- If approved: removes view from `TabWidget` and deletes it, emits `viewDestroyed(model)`
 
 **Notepad policy:**
 - If model is modified AND this is the last view on it: raise view, prompt to save
 - Cancel aborts, save/discard proceeds
 - Otherwise proceeds immediately
-- Model deleted if view count is 0
 
 **Notebook policy:**
 - No hook registered, always proceeds
-- View closes, model remains open
 
 ## Close tab everywhere
 
@@ -35,17 +32,15 @@ Triggered by ViewService `CLOSE_TAB_EVERYWHERE` command (index param, -1 = curre
 - Gets target model from view at index
 - Collects all views across all windows that reference this model
 - Calls `canCloseTabEverywhereHook` with the list of views
-- If approved: deletes all collected views, emits single `viewDestroyed(model)`
+- If approved: removes all collected views from `TabWidget` and deletes them, emits single `viewDestroyed(model)`
 
 **Notepad policy:**
 - If model is modified: prompt to save
 - Cancel aborts, save/discard proceeds
 - Otherwise proceeds immediately
-- Model deleted if view count is 0
 
 **Notebook policy:**
 - No hook registered, always proceeds
-- All views close, model remains open
 
 ## Close window tabs
 
@@ -54,18 +49,16 @@ Triggered by ViewService `CLOSE_WINDOW_TABS` command.
 **ViewService mechanics:**
 - Collects all views and their models in the target window
 - Calls `canCloseWindowTabsHook` with the list of views
-- If approved: deletes all views in window, emits `viewDestroyed(model)` for each unique model
+- If approved: removes all views in window and deletes them, emits `viewDestroyed(model)` for each unique model
 
 **Notepad policy:**
 - Collects modified models that only exist in this window (skips models with views in other windows)
 - If any found: prompt to save
 - Cancel aborts, save selected/discard proceeds
 - Otherwise proceeds immediately
-- Models deleted if view count is 0
 
 **Notebook policy:**
 - No hook registered, always proceeds
-- All views in window close, models remain open
 
 ## Close all tabs (in all workspace windows)
 
@@ -74,18 +67,16 @@ Triggered by ViewService `CLOSE_ALL_TABS` command.
 **ViewService mechanics:**
 - Collects all views and their models across all workspace windows
 - Calls `canCloseAllTabsHook` with the list of views
-- If approved: deletes all views in all windows, emits `viewDestroyed(model)` for each unique model
+- If approved: removes all views in all windows and deletes them, emits `viewDestroyed(model)` for each unique model
 
 **Notepad policy:**
 - Collects all modified models across all windows
 - If any found: prompt to save
 - Cancel aborts, save selected/discard proceeds
 - Otherwise proceeds immediately
-- Models deleted when view count is 0
 
 **Notebook policy:**
 - No hook registered, always proceeds
-- All views in all windows close, models remain open
 
 ## Close window
 
@@ -101,15 +92,12 @@ Triggered by Window's `closeEvent` (user clicking X or calling `close()`).
 - Collects modified models that only exist in this window (skips models with views in other windows)
 - If any found: prompt to save
 - Cancel aborts, save selected/discard proceeds
-- Window closes
 - Does NOT close Notepad workspace (even if last window)
-- Models deleted when view count is 0
 
 **Notebook policy:**
 - If NOT the last window: proceeds immediately
 - If IS the last window AND archive is modified: prompt to save archive
 - Cancel aborts, save/discard proceeds
-- Window closes
 - If last window closes, Notebook workspace dies (models deleted via Qt ownership when FileService dies)
 
 ## Close all windows
@@ -119,7 +107,7 @@ Triggered by WindowService `closeAll()` method and `CLOSE_ALL_WINDOWS` command.
 **WindowService mechanics:**
 - Gets list of all workspace windows (reverse z-order)
 - Calls `canCloseAllHook` with the list of windows
-- If approved: sets `isBatchClose_` flag, closes all windows in sequence, clears flag
+- If approved: sets `isBatchClose_` flag, closes all windows in sequence (views deleted via Qt ownership), clears flag
 - If rejected: returns false, no windows close
 - The `isBatchClose_` flag causes individual `closeEvent` handlers to bypass per-window hooks
 
@@ -127,14 +115,11 @@ Triggered by WindowService `closeAll()` method and `CLOSE_ALL_WINDOWS` command.
 - Collects all modified models across all windows
 - If any found: prompt to save
 - Cancel aborts entire operation, save selected/discard proceeds
-- All windows close, views deleted via Qt ownership
 - Does NOT close Notepad workspace
-- Models deleted when view count is 0
 
 **Notebook policy:**
 - If archive is modified: prompt to save archive
 - Cancel aborts, save/discard proceeds
-- All windows close, views deleted via Qt ownership
 - Notebook workspace dies (models deleted via Qt ownership when FileService dies)
 
 ## Quit

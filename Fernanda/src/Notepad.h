@@ -11,11 +11,14 @@
 
 #include <functional>
 
+#include <QAbstractItemModel>
 #include <QFileSystemModel>
 #include <QList>
 #include <QModelIndex>
 #include <QObject>
 #include <QSet>
+#include <QString>
+#include <QStringList>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -29,7 +32,8 @@
 #include "IFileView.h"
 #include "IService.h"
 #include "NotepadMenuModule.h"
-#include "TreeViewModule.h"
+#include "SavePrompt.h"
+#include "TreeViewService.h"
 #include "Version.h"
 #include "Workspace.h"
 
@@ -58,50 +62,87 @@ public:
         setPathInterceptor,
         pathInterceptor_);
 
-    virtual bool canQuit()
+    bool hasWindows() const { return windows->count() > 0; }
+
+    virtual bool canQuit() override
     {
         return windows->count() < 1 || windows->closeAll();
     }
 
 protected:
-    virtual bool canCloseTab(IFileView* view)
+    virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
+
+    virtual QModelIndex treeViewRootIndex() override
     {
+        // Generate the index on-demand from the stored path (don't hold it
+        // separately or retrieve via Model::setRootPath)
+        if (!fsModel_) return {};
+        return fsModel_->index(currentBaseDir_.toQString());
+    }
+
+    virtual void newTab(Window* window) override
+    {
+        if (!window) return;
+        files->openOffDiskTxtIn(window);
+    }
+
+    virtual bool canCloseTab(Window* window, int index) override
+    {
+        auto view = views->fileViewAt(window, index);
+        if (!view) return false;
         auto model = view->model();
         if (!model) return false;
+        auto meta = model->meta();
+        if (!meta) return false;
 
         if (model->isModified() && views->countFor(model) <= 1) {
-            views->raise(view);
+            views->raise(window, index);
 
-            /*switch (SingleSavePrompt) {
-            case Cancel:
+            // TODO: Add a preferred extension so off-disk files can say
+            // "TempTitle.txt"
+            auto name = meta->path().isEmpty() ? meta->title()
+                                               : meta->path().toQString();
+
+            switch (SavePrompt::exec(name, window)) {
+            case SavePrompt::Cancel:
                 return false;
-            case Save:
-                // save
+            case SavePrompt::Save:
+                // TODO: Save, once we've moved it to FileService
                 return true;
-            case Discard:
+            case SavePrompt::Discard:
                 return true;
-            }*/
+            }
         }
 
         return true;
     }
 
-    // TODO: Can perhaps raise first (from end) view in each window?
-    virtual bool canCloseTabEverywhere(const QList<IFileView*>& views)
+    virtual bool canCloseTabEverywhere(Window* window, int index) override
     {
-        auto model = views.first()->model();
+        auto view = views->fileViewAt(window, index);
+        if (!view) return false;
+        auto model = view->model();
         if (!model) return false;
+        auto meta = model->meta();
+        if (!meta) return false;
 
         if (model->isModified()) {
-            /*switch (SingleSavePrompt) {
-            case Cancel:
+            // Close Tab Everywhere is currently only called via menu (so on the
+            // current tab), so this is not techincally needed
+            views->raise(window, index);
+
+            auto name = meta->path().isEmpty() ? meta->title()
+                                               : meta->path().toQString();
+
+            switch (SavePrompt::exec(name, window)) {
+            case SavePrompt::Cancel:
                 return false;
-            case Save:
-                // save
+            case SavePrompt::Save:
+                // TODO: Save, once we've moved it to FileService
                 return true;
-            case Discard:
+            case SavePrompt::Discard:
                 return true;
-            }*/
+            }
         }
 
         return true;
@@ -110,71 +151,102 @@ protected:
     // TODO: The multi file save prompt could allow clicking on the path or
     // something to switch to the first view on that file we have available
     // (possibly first from the end)
-    virtual bool canCloseWindowTabs(const QList<IFileView*>& views)
+    virtual bool canCloseWindowTabs(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        QSet<IFileModel*> modified_models{};
+        QList<IFileModel*> modified_models{};
 
-        for (auto& view : views) {
+        // TODO: May need to call on FileService for some of these queries. What
+        // would respect separation of concerns?
+        for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
-            if (!model) continue;
-            if (!model->isModified()) continue;
-            if (this->views->isMultiWindow(model)) continue;
+            if (!model || !model->isModified()) continue;
+            if (views->isMultiWindow(model)) continue;
+            if (modified_models.contains(model)) continue;
 
             modified_models << model;
         }
 
-        if (!modified_models.isEmpty()) {
-            /*switch (MultiFileSavePrompt) {
-            case Cancel:
-                return false;
-            case Save:
-                // save (selected)
-                return true;
-            case Discard:
-                return true;
-            }*/
+        if (modified_models.isEmpty()) return true;
+
+        QStringList names{};
+        for (auto& model : modified_models) {
+            auto meta = model->meta();
+            if (!meta) continue;
+            names
+                << (meta->path().isEmpty() ? meta->title()
+                                           : meta->path().toQString());
+        }
+
+        auto result = SavePrompt::exec(names, window);
+        switch (result.choice) {
+        case SavePrompt::Cancel:
+            return false;
+        case SavePrompt::Save:
+            // TODO: If any of the files need a Save As, we'll want to raise
+            // when we prompt there
+            // TODO: for (auto& index : result.selectedIndices) { save
+            // modified_models[idx] }
+            return true;
+        case SavePrompt::Discard:
+            return true;
         }
 
         return true;
     }
 
-    virtual bool canCloseAllTabs(const QList<IFileView*>& views)
+    virtual bool canCloseAllTabs(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        QSet<IFileModel*> modified_models{};
+        QList<IFileModel*> modified_models{};
 
-        for (auto& view : views) {
-            if (!view) continue;
-            auto model = view->model();
-            if (!model) continue;
-            if (!model->isModified()) continue;
+        for (auto& window : windows) {
+            for (auto& view : views->fileViewsIn(window)) {
+                if (!view) continue;
+                auto model = view->model();
+                if (!model || !model->isModified()) continue;
+                if (modified_models.contains(model)) continue;
 
-            modified_models << model;
+                modified_models << model;
+            }
         }
 
-        if (!modified_models.isEmpty()) {
-            /*switch (MultiFileSavePrompt) {
-            case Cancel:
-                return false;
-            case Save:
-                // save (selected)
-                return true;
-            case Discard:
-                return true;
-            }*/
+        if (modified_models.isEmpty()) return true;
+
+        QStringList names{};
+        for (auto& model : modified_models) {
+            auto meta = model->meta();
+            if (!meta) continue;
+            names
+                << (meta->path().isEmpty() ? meta->title()
+                                           : meta->path().toQString());
+        }
+
+        // Make top window the dialog owner (the list here is reverse z-order)
+        auto result = SavePrompt::exec(names, windows.last());
+        switch (result.choice) {
+        case SavePrompt::Cancel:
+            return false;
+        case SavePrompt::Save:
+            // TODO: If any of the files need a Save As, we'll want to raise
+            // when we prompt there
+            // TODO: for (auto& index : result.selectedIndices) { save
+            // modified_models[idx] }
+            return true;
+        case SavePrompt::Discard:
+            return true;
         }
 
         return true;
     }
 
-    virtual bool canCloseWindow(Window* window)
+    virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window
         QSet<IFileModel*> modified_models{};
 
-        for (auto& view : views->viewsIn(window)) {
+        for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
             if (!model) continue;
@@ -199,12 +271,12 @@ protected:
         return true;
     }
 
-    virtual bool canCloseAllWindows(const QList<Window*>& windows)
+    virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
         QSet<IFileModel*> modified_models{};
 
-        for (auto& view : views->views()) {
+        for (auto& view : views->fileViews()) {
             if (!view) continue;
             auto model = view->model();
             if (!model) continue;
@@ -283,8 +355,6 @@ private:
 
                 return false;
             });
-
-        registerPolys_();
     }
 
     void connectBusEvents_()
@@ -296,25 +366,6 @@ private:
             &Notepad::onTreeViewDoubleClicked_);
 
         connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
-    }
-
-    void registerPolys_()
-    {
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_MODEL, [&] {
-            return fsModel_;
-        });
-
-        bus->addCommandHandler(Commands::WS_TREE_VIEW_ROOT_INDEX, [&] {
-            // Generate the index on-demand from the stored path (don't hold it
-            // separately or retrieve via Model::setRootPath)
-            if (!fsModel_) return QModelIndex{};
-            return fsModel_->index(currentBaseDir_.toQString());
-        });
-
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            files->openOffDiskTxtIn(cmd.context);
-        });
     }
 
 private slots:
@@ -331,10 +382,10 @@ private slots:
             window);
     }
 
-    void onViewDestroyed_(IFileModel* model)
+    void onViewDestroyed_(IFileModel* fileModel)
     {
-        if (!model) return;
-        if (views->countFor(model) <= 0) files->deleteModel(model);
+        if (!fileModel) return;
+        if (views->countFor(fileModel) <= 0) files->deleteModel(fileModel);
     }
 };
 
