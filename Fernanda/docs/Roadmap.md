@@ -20,6 +20,7 @@
 - [ ] Status bar tools (AOT, Timer, Screen)
 - [ ] Styling/themes
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
+- [ ] Multi-file save prompt file name clicks raising relevant window/file view
 
 ### Docs
 
