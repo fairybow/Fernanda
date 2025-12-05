@@ -9,11 +9,11 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QObject>
 
 #include "Coco/Path.h"
 
-#include "Enums.h"
 #include "FileMeta.h"
 
 namespace Fernanda {
@@ -36,14 +36,8 @@ public:
 
     FileMeta* meta() const noexcept { return meta_; }
 
+    virtual QByteArray data() const { return {}; }
     virtual bool supportsModification() const { return false; }
-    virtual SaveResult save() { return SaveResult::NoOp; }
-
-    virtual SaveResult saveAs(const Coco::Path& newPath)
-    {
-        return SaveResult::NoOp;
-    }
-
     virtual bool isModified() const { return false; }
     virtual bool hasUndo() const { return false; }
     virtual bool hasRedo() const { return false; }
@@ -60,3 +54,14 @@ private:
 };
 
 } // namespace Fernanda
+
+/*
+TODO SAVES
+
+virtual SaveResult save() { return SaveResult::NoOp; }
+
+virtual SaveResult saveAs(const Coco::Path& newPath)
+{
+    return SaveResult::NoOp;
+}
+*/

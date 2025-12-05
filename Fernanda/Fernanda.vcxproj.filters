@@ -360,9 +360,6 @@
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Enums.h">
-      <Filter>Code\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Formatters.h">
       <Filter>Code\Core</Filter>
     </ClInclude>

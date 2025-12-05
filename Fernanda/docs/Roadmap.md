@@ -35,6 +35,7 @@
 - [x] SavePrompt: Notepad save prompts
 - [x] SavePrompt: Notebook save prompts
 
+(Search TODO SAVES)
 - [ ] Saves: FileService should be saving, not IFileModel?
 - [ ] Saves: Need a backup folder in AppDirs and a system for copying originals to backup before save
 - [ ] Saves: IFileModel needs some sort of content function returning QByteArray
