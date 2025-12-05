@@ -259,7 +259,7 @@ protected:
     virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        QSet<IFileModel*> modified_models{};
+        QList<IFileModel*> modified_models{};
 
         for (auto& view : views->rFileViewsIn(window)) {
             if (!view) continue;
