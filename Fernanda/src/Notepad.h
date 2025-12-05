@@ -86,6 +86,13 @@ protected:
         files->openOffDiskTxtIn(window);
     }
 
+    // TODO: Once save operations are implemented, factor out common patterns:
+    // - Modified model collection (single window vs all windows, with/without
+    // multi-window filter)
+    // - Display name extraction from FileMeta (also add FileMeta preferred
+    // extension)
+    // - SavePrompt switch handling
+
     virtual bool canCloseTab(Window* window, int index) override
     {
         auto view = views->fileViewAt(window, index);

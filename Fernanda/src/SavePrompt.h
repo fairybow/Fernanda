@@ -71,12 +71,12 @@ inline QString toQString(Choice choice) noexcept
     }
 }
 
-inline Choice exec(const QString& fileName, QWidget* parent = nullptr)
+inline Choice exec(const QString& fileDisplayName, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
 
-    box.setText(Tr::Dialogs::savePromptBodyFormat().arg(fileName));
+    box.setText(Tr::Dialogs::savePromptBodyFormat().arg(fileDisplayName));
 
     auto save = box.addButton(Tr::Buttons::save(), QMessageBox::AcceptRole);
     auto discard =
@@ -95,13 +95,13 @@ inline Choice exec(const QString& fileName, QWidget* parent = nullptr)
 }
 
 inline MultiSaveResult
-exec(const QStringList& fileNames, QWidget* parent = nullptr)
+exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
 {
-    if (fileNames.isEmpty()) return { Cancel, {} };
+    if (fileDisplayNames.isEmpty()) return { Cancel, {} };
 
     // Delegate to single-file prompt
-    if (fileNames.size() == 1) {
-        auto choice = exec(fileNames.first(), parent);
+    if (fileDisplayNames.size() == 1) {
+        auto choice = exec(fileDisplayNames.first(), parent);
         return { choice, (choice == Save) ? QList<int>{ 0 } : QList<int>{} };
     }
 
@@ -113,7 +113,7 @@ exec(const QStringList& fileNames, QWidget* parent = nullptr)
     // Message label
     auto message_label = new QLabel(&dialog);
     message_label->setText(
-        Tr::Dialogs::savePromptMultiBodyFormat().arg(fileNames.size()));
+        Tr::Dialogs::savePromptMultiBodyFormat().arg(fileDisplayNames.size()));
     message_label->setWordWrap(true);
     main_layout->addWidget(message_label);
 
@@ -123,7 +123,7 @@ exec(const QStringList& fileNames, QWidget* parent = nullptr)
     auto scroll_layout = Coco::Layout::make<QVBoxLayout*>(scroll_widget);
 
     QList<QCheckBox*> checkboxes{};
-    for (const auto& file_name : fileNames) {
+    for (const auto& file_name : fileDisplayNames) {
         auto checkbox = new QCheckBox(file_name, scroll_widget);
         checkbox->setChecked(true);
         scroll_layout->addWidget(checkbox);
