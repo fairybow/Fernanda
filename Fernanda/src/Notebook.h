@@ -38,6 +38,7 @@
 #include "FnxModel.h"
 #include "IService.h"
 #include "NotebookMenuModule.h"
+#include "SavePrompt.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
 #include "Window.h"

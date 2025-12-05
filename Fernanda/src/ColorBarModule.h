@@ -16,7 +16,6 @@
 #include "ColorBar.h"
 #include "Commands.h"
 #include "Debug.h"
-#include "Enums.h"
 #include "IService.h"
 #include "Window.h"
 
