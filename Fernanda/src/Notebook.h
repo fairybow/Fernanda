@@ -111,35 +111,39 @@ protected:
     {
         if (windows->count() > 1) return true;
 
-        // If archive is modified, prompt
-        /*if (isModified_()) {
-            switch (ArchiveSavePrompt) {
-            case Cancel:
+        // Is last window
+        if (isModified_()) {
+            switch (SavePrompt::exec(fnxPath_.toQString(), window)) {
+            case SavePrompt::Cancel:
                 return false;
-            case Save:
-                // save
+            case SavePrompt::Save:
+                // TODO: Two-tier process: save our edited models to disk in the
+                // working dir; compress working dir and replace the original
+                // (sending original to a backup folder)
                 return true;
-            case Discard:
+            case SavePrompt::Discard:
                 return true;
             }
-        }*/
+        }
 
         return true;
     }
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
-        /*if (isModified_()) {
-            switch (ArchiveSavePrompt) {
-            case Cancel:
+        if (isModified_()) {
+            switch (SavePrompt::exec(fnxPath_.toQString(), windows.last())) {
+            case SavePrompt::Cancel:
                 return false;
-            case Save:
-                // save
+            case SavePrompt::Save:
+                // TODO: Two-tier process: save our edited models to disk in the
+                // working dir; compress working dir and replace the original
+                // (sending original to a backup folder)
                 return true;
-            case Discard:
+            case SavePrompt::Discard:
                 return true;
             }
-        }*/
+        }
 
         return true;
     }
