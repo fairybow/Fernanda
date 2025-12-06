@@ -42,6 +42,7 @@
 - [ ] Saves: TextIo can probably be more generalized and work on QByteArray
 - [ ] Saves: Notepad and Notebook would register their respective "Save" command handlers, since their saves are different and not just FileService::save
 - [ ] Saves: Notepad does just call FS::save
+- [ ] Saves: Notepad success on multi-save should just run green color bar; failure, though, should show red color bar and a pop-up of which specific files failed to save
 - [ ] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
 - [ ] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
 - [ ] Saves: (Notebook) Ensure DOM snapshot is replaced on save
