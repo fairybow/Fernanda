@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QObject>
 #include <QPlainTextDocumentLayout>
 #include <QString>
@@ -18,10 +19,8 @@
 #include "Coco/Path.h"
 
 #include "Debug.h"
-#include "Enums.h"
 #include "FileMeta.h"
 #include "IFileModel.h"
-#include "TextIo.h"
 
 namespace Fernanda {
 
@@ -41,43 +40,27 @@ public:
     virtual ~TextFileModel() override { TRACER; }
 
     QTextDocument* document() const noexcept { return document_; }
+
+    virtual QByteArray data() const override
+    {
+        return document_->toPlainText().toUtf8();
+    }
+
+    virtual void setData(const QByteArray& data) override
+    {
+        if (document_) document_->setPlainText(QString::fromUtf8(data));
+    }
+
     virtual bool supportsModification() const override { return document_; }
-
-    virtual SaveResult save() override
-    {
-        auto meta = this->meta();
-        if (!meta) return SaveResult::NoOp;
-
-        auto path = meta->path();
-        if (path.isEmpty()) return SaveResult::NoOp;
-
-        auto text = document_->toPlainText();
-        auto success = TextIo::write(text, path);
-        if (success) document_->setModified(false);
-        return success ? SaveResult::Success : SaveResult::Fail;
-    }
-
-    virtual SaveResult saveAs(const Coco::Path& newPath) override
-    {
-        if (newPath.isEmpty()) return SaveResult::NoOp;
-
-        auto meta = this->meta();
-        if (!meta) return SaveResult::NoOp;
-
-        auto text = document_->toPlainText();
-        auto success = TextIo::write(text, newPath);
-
-        if (success) {
-            document_->setModified(false);
-            meta->setPath(newPath);
-        }
-
-        return success ? SaveResult::Success : SaveResult::Fail;
-    }
 
     virtual bool isModified() const override
     {
         return document_ && document_->isModified();
+    }
+
+    virtual void setModified(bool modified) override
+    {
+        if (document_) document_->setModified(modified);
     }
 
     virtual bool hasUndo() const override
@@ -170,3 +153,41 @@ private slots:
 };
 
 } // namespace Fernanda
+
+/*
+TODO SAVES
+
+// This file:
+
+virtual SaveResult save() override
+{
+    auto meta = this->meta();
+    if (!meta) return SaveResult::NoOp;
+
+    auto path = meta->path();
+    if (path.isEmpty()) return SaveResult::NoOp;
+
+    auto text = document_->toPlainText();
+    auto success = TextIo::write(text, path);
+    if (success) document_->setModified(false);
+    return success ? SaveResult::Success : SaveResult::Fail;
+}
+
+virtual SaveResult saveAs(const Coco::Path& newPath) override
+{
+    if (newPath.isEmpty()) return SaveResult::NoOp;
+
+    auto meta = this->meta();
+    if (!meta) return SaveResult::NoOp;
+
+    auto text = document_->toPlainText();
+    auto success = TextIo::write(text, newPath);
+
+    if (success) {
+        document_->setModified(false);
+        meta->setPath(newPath);
+    }
+
+    return success ? SaveResult::Success : SaveResult::Fail;
+}
+*/

@@ -35,18 +35,21 @@
 - [x] SavePrompt: Notepad save prompts
 - [x] SavePrompt: Notebook save prompts
 
+(Search TODO SAVES)
 - [ ] Saves: FileService should be saving, not IFileModel?
 - [ ] Saves: Need a backup folder in AppDirs and a system for copying originals to backup before save
 - [ ] Saves: IFileModel needs some sort of content function returning QByteArray
 - [ ] Saves: TextIo can probably be more generalized and work on QByteArray
 - [ ] Saves: Notepad and Notebook would register their respective "Save" command handlers, since their saves are different and not just FileService::save
 - [ ] Saves: Notepad does just call FS::save
+- [ ] Saves: Notepad success on multi-save should just run green color bar; failure, though, should show red color bar and a pop-up of which specific files failed to save
 - [ ] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
 - [ ] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
 - [ ] Saves: (Notebook) Ensure DOM snapshot is replaced on save
 
 ### Coco
 
+- [ ] Basically redo the whole thing!
 - [ ] Redo path, potentially reintegrate PathUtil with Path (or Io umbrella file)
 - [ ] Figure out Path string caching
 - [ ] Ensure Path's shared data works

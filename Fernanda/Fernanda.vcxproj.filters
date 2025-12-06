@@ -70,6 +70,9 @@
     <Filter Include="Docs\Charts">
       <UniqueIdentifier>{6168626a-ec23-4724-a575-f9e3e979d3d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Core\Workspaces\Bus">
+      <UniqueIdentifier>{84840505-6dd6-477e-9f05-bce414d0344a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -108,14 +111,14 @@
     <ClCompile Include="src\Workspace.cpp">
       <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
-    <ClCompile Include="src\Bus.cpp">
-      <Filter>Code\Core\Workspaces</Filter>
-    </ClCompile>
     <ClCompile Include="src\FnxModel.cpp">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClCompile>
     <ClCompile Include="src\Menus.cpp">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Bus.cpp">
+      <Filter>Code\Core\Workspaces\Bus</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -259,9 +262,6 @@
     <QtMoc Include="src\NotepadMenuModule.h">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </QtMoc>
-    <QtMoc Include="src\Bus.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </QtMoc>
     <QtMoc Include="src\WordCounterModule.h">
       <Filter>Code\Auxiliary\Modules</Filter>
     </QtMoc>
@@ -297,6 +297,12 @@
     </QtMoc>
     <QtMoc Include="src\TreeViewService.h">
       <Filter>Code\Core\Services</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Bus.h">
+      <Filter>Code\Core\Workspaces\Bus</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Commander.h">
+      <Filter>Code\Core\Workspaces\Bus</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -360,9 +366,6 @@
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Enums.h">
-      <Filter>Code\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Formatters.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
@@ -381,13 +384,10 @@
     <ClInclude Include="src\FileTypes.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
-    <ClInclude Include="src\Commands.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </ClInclude>
     <ClInclude Include="src\SavePrompt.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
-    <ClInclude Include="src\TextIo.h">
+    <ClInclude Include="src\Io.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
     <ClInclude Include="src\TempDir.h">
@@ -404,6 +404,9 @@
     </ClInclude>
     <ClInclude Include="src\old_FileServiceSaveHelper.h">
       <Filter>Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Commands.h">
+      <Filter>Code\Core\Workspaces\Bus</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -77,8 +77,8 @@
     <QtMoc Include="src\TabWidgetCloseButton.h" />
     <QtMoc Include="src\TabWidgetTabBar.h" />
     <QtMoc Include="src\TabWidgetUnderlay.h" />
+    <QtMoc Include="src\Commander.h" />
     <ClInclude Include="src\Debug.h" />
-    <ClInclude Include="src\Enums.h" />
     <ClInclude Include="src\old_FileServiceSaveHelper.h" />
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />
@@ -104,7 +104,7 @@
     <ClInclude Include="src\old_MenuModule.h" />
     <ClInclude Include="src\Formatters.h" />
     <ClInclude Include="src\TempDir.h" />
-    <ClInclude Include="src\TextIo.h" />
+    <ClInclude Include="src\Io.h" />
     <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewService.h" />

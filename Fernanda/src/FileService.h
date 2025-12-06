@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QHash>
 #include <QList>
 #include <QObject>
@@ -18,7 +19,6 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Coco/Bool.h"
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
@@ -33,7 +33,7 @@
 #include "IService.h"
 #include "NoOpFileModel.h"
 #include "TextFileModel.h"
-#include "TextIo.h"
+#include "Io.h"
 #include "Tr.h"
 #include "Window.h"
 
@@ -48,6 +48,13 @@ class FileService : public IService
     Q_OBJECT
 
 public:
+    enum SaveResult
+    {
+        NoOp,
+        Success,
+        Failure
+    };
+
     FileService(Bus* bus, QObject* parent = nullptr)
         : IService(bus, parent)
     {
@@ -69,20 +76,6 @@ public:
         delete fileModel;
     }
 
-    void deleteModels(const QList<IFileModel*>& fileModels)
-    {
-        for (auto& model : fileModels)
-            deleteModel(model);
-    }
-
-    void deleteAll()
-    {
-        for (auto& model : fileModels_)
-            delete model;
-        fileModels_.clear();
-        pathToFileModel_.clear();
-    }
-
     void setPathTitleOverride(const Coco::Path& path, const QString& title)
     {
         if (path.isEmpty() || title.isEmpty()) return;
@@ -97,6 +90,36 @@ public:
 
         if (auto model = newOffDiskTextFileModel_())
             emit bus->fileModelReadied(window, model);
+    }
+
+    SaveResult save(IFileModel* model)
+    {
+        if (!model || !model->supportsModification()) return NoOp;
+        auto path = model->meta()->path();
+        if (path.isEmpty()) return NoOp;
+
+        return writeModelToDisk_(model, path);
+    }
+
+    SaveResult saveAs(IFileModel* model, const Coco::Path& newPath)
+    {
+        if (!model || !model->supportsModification()) return NoOp;
+        if (newPath.isEmpty()) return NoOp;
+
+        // Prevent overwriting a different model's file
+        if (auto existing = pathToFileModel_.value(newPath))
+            if (existing != model) return Failure;
+
+        auto result = writeModelToDisk_(model, newPath);
+
+        if (result == Success) {
+            auto old_path = model->meta()->path();
+            if (!old_path.isEmpty()) pathToFileModel_.remove(old_path);
+            pathToFileModel_[newPath] = model;
+            model->meta()->setPath(newPath);
+        }
+
+        return result;
     }
 
 protected:
@@ -178,12 +201,8 @@ private:
         if (path.isEmpty() || !path.exists()) return nullptr;
 
         auto model = new TextFileModel(path, this);
-        auto text = TextIo::read(path);
-
-        // TODO: Is there a reason we don't have the model set its own text?
-        auto document = model->document();
-        document->setPlainText(text);
-        document->setModified(false); // Pretty important!
+        model->setData(Io::read(path));
+        model->setModified(false); // Pretty important!
 
         // TODO: Handle document is nullptr?
 
@@ -199,6 +218,7 @@ private:
         auto model = new TextFileModel({}, this);
         registerModel_(model);
         connectNewModel_(model);
+
         return model;
     }
 
@@ -222,6 +242,46 @@ private:
             fileModel->isModified());
         emit bus->fileModelMetaChanged(fileModel);
     }
+
+    SaveResult writeModelToDisk_(IFileModel* model, const Coco::Path& path)
+    {
+        auto data = model->data();
+        auto success = Io::write(data, path);
+        if (success) model->setModified(false);
+
+        return success ? Success : Failure;
+    }
 };
 
+inline QString toQString(FileService::SaveResult saveResult) noexcept
+{
+    switch (saveResult) {
+    default:
+    case FileService::NoOp:
+        return "FileService::NoOp";
+    case FileService::Success:
+        return "FileService::Success";
+    case FileService::Failure:
+        return "FileService::Failure";
+    }
+}
+
 } // namespace Fernanda
+
+/*
+TODO SAVES
+
+void deleteModels(const QList<IFileModel*>& fileModels)
+{
+    for (auto& model : fileModels)
+        deleteModel(model);
+}
+
+void deleteAll()
+{
+    for (auto& model : fileModels_)
+        delete model;
+    fileModels_.clear();
+    pathToFileModel_.clear();
+}
+*/
