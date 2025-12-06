@@ -89,6 +89,10 @@ namespace Tr {
         TR_(savePromptMultiBodyFormat,
             tr("You have unsaved changes in %0 files:"));
 
+        TR_(saveFailPromptBodyFormat, tr("There was a problem saving %0."));
+        TR_(saveFailPromptMultiBodyFormat,
+            tr("There was a problem saving these files: %0"));
+
     } // namespace Dialogs
 
     namespace Menus {

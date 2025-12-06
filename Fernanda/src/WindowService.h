@@ -72,7 +72,7 @@ public:
 
     bool closeAll()
     {
-        auto rz_windows = rzWindows_();
+        auto rz_windows = rzWindows();
 
         if (canCloseAllHook_ && !canCloseAllHook_(rz_windows)) return false;
 
@@ -86,6 +86,19 @@ public:
 
     int count() const { return static_cast<int>(unorderedWindows_.count()); }
     Window* active() const { return activeWindow_.get(); }
+
+    // Highest window is first when reversed
+    QList<Window*> rzWindows() const
+    {
+        QList<Window*> list{};
+        auto it = zOrderedVolatileWindows_.crbegin();
+        auto end = zOrderedVolatileWindows_.crend();
+
+        for (; it != end; ++it)
+            if (*it) list << *it;
+
+        return list;
+    }
 
     Window* newWindow()
     {
@@ -123,7 +136,7 @@ protected:
         });
 
         bus->addCommandHandler(Commands::RZ_WINDOWS, [&] {
-            return rzWindows_();
+            return rzWindows();
         });
 
         bus->addCommandHandler(Commands::CLOSE_ALL_WINDOWS, [&] {
@@ -232,19 +245,6 @@ private:
     // affected by subsequent add/remove operations)
     // TODO: Unused right now
     QList<Window*> zWindows_() const { return zOrderedVolatileWindows_; }
-
-    // Highest window is first when reversed
-    QList<Window*> rzWindows_() const
-    {
-        QList<Window*> list{};
-        auto it = zOrderedVolatileWindows_.crbegin();
-        auto end = zOrderedVolatileWindows_.crend();
-
-        for (; it != end; ++it)
-            if (*it) list << *it;
-
-        return list;
-    }
 
     // These are windows that have called Window::show() (Don't mistake this as
     // dealing with minimization!

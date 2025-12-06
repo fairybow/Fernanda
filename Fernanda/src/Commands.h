@@ -26,10 +26,10 @@ constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 // Notepad scope
 
 constexpr auto NOTEPAD_OPEN_FILE = "notepad:open_file"; /// *
-constexpr auto NOTEPAD_SAVE = "notepad:save_file";
-constexpr auto NOTEPAD_SAVE_AS = "notepad:save_file_as";
-constexpr auto NOTEPAD_SAVE_ALL_IN_WINDOW = "notepad:save_all_in_window";
-constexpr auto NOTEPAD_SAVE_ALL = "notepad:save_all";
+constexpr auto NOTEPAD_SAVE = "notepad:save_file"; /// *
+constexpr auto NOTEPAD_SAVE_AS = "notepad:save_file_as"; /// *
+constexpr auto NOTEPAD_SAVE_ALL_IN_WINDOW = "notepad:save_all_in_window"; /// *
+constexpr auto NOTEPAD_SAVE_ALL = "notepad:save_all"; /// *
 
 // Notebook scope
 
