@@ -371,11 +371,49 @@ private:
 
                 for (auto& path : paths) {
                     if (!path.exists()) continue;
+                    // TODO: Still calling this here so we have the path
+                    // filtered by the interceptor (to open .fnx)!
                     bus->execute(
                         Commands::OPEN_FILE_AT_PATH,
                         { { "path", qVar(path) } },
                         cmd.context);
                 }
+            });
+
+        bus->addCommandHandler(Commands::NOTEPAD_SAVE, [&](const Command& cmd) {
+            if (!cmd.context) return;
+            auto current_view = views->fileViewAt(cmd.context, -1);
+            if (!current_view) return;
+            auto model = current_view->model();
+            if (!model) return;
+
+            save_(cmd.context, model);
+        });
+
+        bus->addCommandHandler(
+            Commands::NOTEPAD_SAVE_AS,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                auto current_view = views->fileViewAt(cmd.context, -1);
+                if (!current_view) return;
+                auto model = current_view->model();
+                if (!model) return;
+
+                saveAs_(cmd.context, model);
+            });
+
+        bus->addCommandHandler(
+            Commands::NOTEPAD_SAVE_ALL_IN_WINDOW,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                //...
+            });
+
+        bus->addCommandHandler(
+            Commands::NOTEPAD_SAVE_ALL,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                //...
             });
 
         // Notepad sets an Interceptor for FileService's open file command in
@@ -400,6 +438,42 @@ private:
             &Notepad::onTreeViewDoubleClicked_);
 
         connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
+    }
+
+    void save_(Window* window, IFileModel* fileModel)
+    {
+        if (!window) return;
+        if (!fileModel || !fileModel->supportsModification()) return;
+        if (!fileModel->isModified()) return;
+
+        if (fileModel->meta()->isOnDisk()) {
+            files->save(fileModel);
+        } else {
+            // Off-disk: need Save As dialog
+            auto path = Coco::PathUtil::Dialog::save(
+                window,
+                Tr::Dialogs::notepadSaveFileAsCaption(),
+                currentBaseDir_);
+
+            if (!path.isEmpty()) files->saveAs(fileModel, path);
+        }
+    }
+
+    void saveAs_(Window* window, IFileModel* fileModel)
+    {
+        if (!window) return;
+        if (!fileModel || !fileModel->supportsModification()) return;
+        // Allow Save As on unmodified files!
+
+        auto meta = fileModel->meta();
+        auto initial_path = meta->isOnDisk() ? meta->path() : currentBaseDir_;
+
+        auto path = Coco::PathUtil::Dialog::save(
+            window,
+            Tr::Dialogs::notepadSaveFileAsCaption(),
+            initial_path);
+
+        if (!path.isEmpty()) files->saveAs(fileModel, path);
     }
 
 private slots:

@@ -79,7 +79,7 @@ private:
             bus,
             window,
             Commands::NOTEBOOK_OPEN_NOTEPAD,
-            Tr::Menus::fileNotebookOpenNotepad());
+            Tr::Menus::fileNotebookOpenNotepad()); /// *
 
         actions.file.importFile = Menus::makeBusAction(
             bus,
