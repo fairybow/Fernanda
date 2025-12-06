@@ -86,12 +86,13 @@ protected:
         files->openOffDiskTxtIn(window);
     }
 
-    // TODO: Once save operations are implemented, factor out common patterns:
-    // - Modified model collection (single window vs all windows, with/without
-    // multi-window filter)
-    // - Display name extraction from FileMeta (also add FileMeta preferred
-    // extension)
-    // - SavePrompt switch handling
+    /// TODO SAVES: Once save operations are implemented, factor out common
+    /// patterns (in closures here and commands below):
+    /// - Modified model collection (single window vs all windows, with/without
+    /// multi-window filter)
+    /// - Display name extraction from FileMeta (also add FileMeta preferred
+    /// extension)
+    /// - SavePrompt switch handling
 
     virtual bool canCloseTab(Window* window, int index) override
     {
@@ -102,6 +103,8 @@ protected:
         auto meta = model->meta();
         if (!meta) return false;
 
+        // If this model has other views (and so won't be closed with the view),
+        // we don't need to worry about saving
         if (!model->isModified() || views->countFor(model) > 1) return true;
 
         // TODO: Add a preferred extension so off-disk files can say
@@ -123,10 +126,7 @@ protected:
                 result = files->save(model);
             } else {
                 // Off-disk: need Save As dialog
-
                 views->raise(window, index);
-
-                // TODO: ColorBar/Failure dialog
 
                 // If dialog is aborted, return false to block hook caller
                 // and show red color bar feedback
@@ -169,26 +169,60 @@ protected:
         auto meta = model->meta();
         if (!meta) return false;
 
-        if (model->isModified()) {
-            // Close Tab Everywhere is currently only called via menu (so on the
-            // current tab), so this is not techincally needed
-            views->raise(window, index);
+        if (!model->isModified()) return true;
 
-            auto name = meta->path().isEmpty() ? meta->title()
-                                               : meta->path().toQString();
+        auto name =
+            meta->path().isEmpty() ? meta->title() : meta->path().toQString();
 
-            switch (SavePrompt::exec(name, window)) {
-            case SavePrompt::Cancel:
+        switch (SavePrompt::exec(name, window)) {
+
+        default:
+        case SavePrompt::Cancel:
+            return false;
+
+        case SavePrompt::Save: {
+
+            FileService::SaveResult result{};
+
+            if (meta->isOnDisk()) {
+                result = files->save(model);
+            } else {
+                // Off-disk: need Save As dialog
+
+                // Close Tab Everywhere is currently only called via menu (so on
+                // the current tab), so this is not techincally needed
+                views->raise(window, index);
+
+                // If dialog is aborted, return false to block hook caller
+                // and show red color bar feedback
+                auto path = Coco::PathUtil::Dialog::save(
+                    window,
+                    Tr::Dialogs::notepadSaveFileAsCaption(),
+                    currentBaseDir_);
+
+                if (path.isEmpty()) {
+                    colorBars->red(window);
+                    return false;
+                }
+
+                result = files->saveAs(model, path);
+            }
+
+            if (result == FileService::Success) {
+                colorBars->green(window);
+                return true;
+            } else {
+                colorBars->red(window);
+                // TODO: Show a dialog stating the file failed to save
+                // TODO: Make a namespace to do this, similar to SavePrompt
+                // showSaveFailedDialog_(window, model);
                 return false;
-            case SavePrompt::Save:
-                // TODO: Save, once we've moved it to FileService
-                return true;
-            case SavePrompt::Discard:
-                return true;
             }
         }
 
-        return true;
+        case SavePrompt::Discard:
+            return true;
+        }
     }
 
     virtual bool canCloseWindowTabs(Window* window) override
@@ -378,18 +412,10 @@ private:
 
     /// TODO SAVES
 
-    // TODO: Rethink as needed
     struct MultiSaveResult_
     {
-        bool aborted = false; // Canceling a Save As dialog should probably
-                              // abort all saves and also run the red color bar?
-        QList<IFileModel*>
-            failed{}; // The aborted file model could just be added here and
-                      // this would also let us know to run red color bar...
-        int succeeded = 0; // Needed?
-
-        // bool operator overload instead?
-        bool ok() const noexcept { return !aborted && failed.isEmpty(); }
+        QList<IFileModel*> failed{};
+        explicit operator bool() const noexcept { return failed.isEmpty(); }
     };
 
     // TODO: Need a function that performs multi-save and returns the above
@@ -445,25 +471,36 @@ private:
             if (!current_view) return;
             auto model = current_view->model();
             if (!model || !model->supportsModification()) return;
+
             if (!model->isModified()) return;
 
-            // TODO: Get result!!!
+            FileService::SaveResult result{};
 
             if (model->meta()->isOnDisk()) {
-                files->save(model);
+                result = files->save(model);
             } else {
                 // Off-disk: need Save As dialog
 
-                // TODO: Raise tab, somehow
-
-                // TODO: ColorBar/Failure dialog
+                // TODO: Pretty sure this only ever hits the current
+                // window/view, so we don't need to raise for Save As
 
                 auto path = Coco::PathUtil::Dialog::save(
                     cmd.context,
                     Tr::Dialogs::notepadSaveFileAsCaption(),
                     currentBaseDir_);
 
-                if (!path.isEmpty()) files->saveAs(model, path);
+                if (path.isEmpty()) {
+                    colorBars->red(cmd.context);
+                    return;
+                }
+                result = files->saveAs(model, path);
+            }
+
+            if (result == FileService::Success) {
+                colorBars->green(cmd.context);
+            } else {
+                colorBars->red(cmd.context);
+                // TODO: showSaveFailedDialog_(cmd.context, model);
             }
         });
 
@@ -475,24 +512,34 @@ private:
                 if (!current_view) return;
                 auto model = current_view->model();
                 if (!model || !model->supportsModification()) return;
+
                 // Allow Save As on unmodified files!
 
                 auto meta = model->meta();
                 auto initial_path =
                     meta->isOnDisk() ? meta->path() : currentBaseDir_;
 
-                // TODO: Get result!!!
-
-                // TODO: Raise tab, somehow
-
-                // TODO: ColorBar/Failure dialog
+                // TODO: Pretty sure this only ever hits the current
+                // window/view, so we don't need to raise for Save As
 
                 auto path = Coco::PathUtil::Dialog::save(
                     cmd.context,
                     Tr::Dialogs::notepadSaveFileAsCaption(),
                     initial_path);
 
-                if (!path.isEmpty()) files->saveAs(model, path);
+                if (path.isEmpty()) {
+                    colorBars->red(cmd.context);
+                    return;
+                }
+
+                auto result = files->saveAs(model, path);
+
+                if (result == FileService::Success) {
+                    colorBars->green(cmd.context);
+                } else {
+                    colorBars->red(cmd.context);
+                    // TODO: showSaveFailedDialog_(cmd.context, model);
+                }
             });
 
         bus->addCommandHandler(
