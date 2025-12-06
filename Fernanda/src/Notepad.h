@@ -440,6 +440,23 @@ private:
         connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
     }
 
+    // TODO: Rethink as needed
+    struct MultiSaveResult_
+    {
+        bool aborted = false; // Canceling a Save As dialog should probably
+                              // abort all saves and also run the red color bar?
+        QList<IFileModel*>
+            failed{}; // The aborted file model could just be added here and
+                      // this would also let us know to run red color bar...
+        int succeeded = 0; // Needed?
+
+        // bool operator overload instead?
+        bool ok() const noexcept { return !aborted && failed.isEmpty(); }
+    };
+
+    // TODO: Need a function that performs multi-save and returns the above struct
+
+    // TODO: Return FileService::SaveResult
     void save_(Window* window, IFileModel* fileModel)
     {
         if (!window) return;
@@ -450,6 +467,9 @@ private:
             files->save(fileModel);
         } else {
             // Off-disk: need Save As dialog
+
+            // TODO: Raise tab, somehow
+
             auto path = Coco::PathUtil::Dialog::save(
                 window,
                 Tr::Dialogs::notepadSaveFileAsCaption(),
@@ -459,6 +479,7 @@ private:
         }
     }
 
+    // TODO: Return FileService::SaveResult
     void saveAs_(Window* window, IFileModel* fileModel)
     {
         if (!window) return;
@@ -467,6 +488,8 @@ private:
 
         auto meta = fileModel->meta();
         auto initial_path = meta->isOnDisk() ? meta->path() : currentBaseDir_;
+
+        // TODO: Raise tab, somehow
 
         auto path = Coco::PathUtil::Dialog::save(
             window,
