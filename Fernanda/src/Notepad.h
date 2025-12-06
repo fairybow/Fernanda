@@ -253,21 +253,35 @@ protected:
                                            : meta->path().toQString());
         }
 
-        auto result = SavePrompt::exec(names, window);
-        switch (result.choice) {
+        auto prompt_result = SavePrompt::exec(names, window);
+
+        switch (prompt_result.choice) {
+
+        default:
         case SavePrompt::Cancel:
             return false;
-        case SavePrompt::Save:
-            // TODO: If any of the files need a Save As, we'll want to raise
-            // when we prompt there
-            // TODO: for (auto& index : result.selectedIndices) { save
-            // modified_models[idx] }
-            return true;
+
+        case SavePrompt::Save: {
+            // Build list of models to save from selected indices
+            QList<IFileModel*> to_save{};
+            for (auto& i : prompt_result.selectedIndices)
+                to_save << modified_models[i];
+
+            auto result = multiSave_(to_save, window);
+
+            if (result) {
+                colorBars->green(window);
+                return true;
+            } else {
+                colorBars->red(window);
+                // TODO: showSaveFailedDialog_(window, result.failed);
+                return false;
+            }
+        }
+
         case SavePrompt::Discard:
             return true;
         }
-
-        return true;
     }
 
     virtual bool canCloseAllTabs(const QList<Window*>& windows) override
@@ -418,8 +432,45 @@ private:
         explicit operator bool() const noexcept { return failed.isEmpty(); }
     };
 
-    // TODO: Need a function that performs multi-save and returns the above
-    // struct
+    MultiSaveResult_
+    multiSave_(const QList<IFileModel*>& fileModels, Window* window)
+    {
+        MultiSaveResult_ result{};
+
+        for (auto& model : fileModels) {
+            auto meta = model->meta();
+            if (!meta) {
+                result.failed << model;
+                continue;
+            }
+
+            FileService::SaveResult save_result{};
+
+            if (meta->isOnDisk()) {
+                save_result = files->save(model);
+            } else {
+                // Raise tab before showing Save As dialog
+                views->raise(window, model);
+
+                auto path = Coco::PathUtil::Dialog::save(
+                    window,
+                    Tr::Dialogs::notepadSaveFileAsCaption(),
+                    currentBaseDir_);
+
+                if (path.isEmpty()) {
+                    // User cancelled, abort entire operation
+                    result.failed << model;
+                    return result;
+                }
+
+                save_result = files->saveAs(model, path);
+            }
+
+            if (save_result != FileService::Success) result.failed << model;
+        }
+
+        return result;
+    }
 
     /// TODO SAVES (END)
 
