@@ -25,6 +25,8 @@ QWidget* TextFileView::setupWidget()
 
     if (auto text_model = qobject_cast<TextFileModel*>(model()))
         editor_->setDocument(text_model->document());
+    else
+        FATAL("Could not set editor document!");
 
     connect(editor_, &QPlainTextEdit::selectionChanged, this, [&] {
         emit selectionChanged();

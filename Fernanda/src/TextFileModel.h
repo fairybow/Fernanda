@@ -39,6 +39,8 @@ public:
 
     virtual ~TextFileModel() override { TRACER; }
 
+    QTextDocument* document() const noexcept { return document_; }
+
     virtual QByteArray data() const override
     {
         return document_->toPlainText().toUtf8();
