@@ -230,8 +230,6 @@ protected:
         // Collect unique modified models that only exist in this window
         QList<IFileModel*> modified_models{};
 
-        // TODO: May need to call on FileService for some of these queries. What
-        // would respect separation of concerns?
         for (auto& view : views->rFileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
@@ -312,26 +310,37 @@ protected:
         }
 
         // Make top window the dialog owner (the list here is reverse z-order)
-        auto result = SavePrompt::exec(names, windows.last());
-        switch (result.choice) {
+        auto prompt_result = SavePrompt::exec(names, windows.last());
+
+        switch (prompt_result.choice) {
+
+        default:
         case SavePrompt::Cancel:
             return false;
-        case SavePrompt::Save:
-            // TODO: If any of the files need a Save As, we'll want to raise
-            // when we prompt there
-            // TODO: for (auto& index : result.selectedIndices) { save
-            // modified_models[idx] }
-            return true;
+
+        case SavePrompt::Save: {
+            // Build list of models to save from selected indices
+            QList<IFileModel*> to_save{};
+            for (auto& i : prompt_result.selectedIndices)
+                to_save << modified_models[i];
+
+            auto result = multiSave_(to_save);
+
+            if (result) {
+                colorBars->green(); // All windows
+                return true;
+            } else {
+                colorBars->red();
+                // TODO: showSaveFailedDialog_(windows.last(), result.failed);
+                return false;
+            }
+        }
+
         case SavePrompt::Discard:
             return true;
         }
-
-        return true;
     }
 
-    // TODO: Factor out common code (likely all this and close all tabs into a
-    // check save for all tabs or similar) but only after we've solved the
-    // multi-file click and raise problem
     virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window
@@ -363,14 +372,17 @@ protected:
         case SavePrompt::Cancel:
             return false;
         case SavePrompt::Save:
-            // TODO: for (int idx : result.selectedIndices) { save
-            // modified_models[idx] }
+            // TODO: for (auto& i : result.selectedIndices) { save
+            // modified_models[i] }
+
+            // TODO: Green color bar doesn't need to run, since the window will
+            // close, but red should still run, since windows will not close
             return true;
         case SavePrompt::Discard:
             return true;
         }
 
-        return true;
+        return true; // TODO: Remove this if possible
     }
 
     // TODO: Factor out common code (likely all this and close all tabs into a
@@ -408,14 +420,17 @@ protected:
         case SavePrompt::Cancel:
             return false;
         case SavePrompt::Save:
-            // TODO: for (int idx : result.selectedIndices) { save
-            // modified_models[idx] }
+            // TODO: for (auto& i : result.selectedIndices) { save
+            // modified_models[i] }
+
+            // TODO: Green color bar doesn't need to run, since the window will
+            // close, but red should still run, since windows will not close
             return true;
         case SavePrompt::Discard:
             return true;
         }
 
-        return true;
+        return true; // TODO: Remove this if possible
     }
 
 private:
@@ -433,7 +448,7 @@ private:
     };
 
     MultiSaveResult_
-    multiSave_(const QList<IFileModel*>& fileModels, Window* window)
+    multiSave_(const QList<IFileModel*>& fileModels, Window* window = nullptr)
     {
         MultiSaveResult_ result{};
 
@@ -450,10 +465,21 @@ private:
                 save_result = files->save(model);
             } else {
                 // Raise tab before showing Save As dialog
-                views->raise(window, model);
+
+                // If window is valid, raise it and then set target_window to
+                // that same window. Otherwise, raise the model and set
+                // target_window to whatever window raise(model) returns
+                auto target_window = window
+                                         ? (views->raise(window, model), window)
+                                         : views->raise(model);
+
+                if (!target_window) {
+                    result.failed << model;
+                    continue;
+                }
 
                 auto path = Coco::PathUtil::Dialog::save(
-                    window,
+                    target_window,
                     Tr::Dialogs::notepadSaveFileAsCaption(),
                     currentBaseDir_);
 

@@ -112,6 +112,8 @@ public:
         tab_widget->setCurrentIndex(index);
     }
 
+    /// TODO SAVES
+
     void raise(Window* window, IFileModel* model) const
     {
         if (!window || !model) return;
@@ -128,6 +130,33 @@ public:
             }
         }
     }
+
+    Window* raise(IFileModel* model) const
+    {
+        if (!model) return nullptr;
+        auto rz_windows = bus->call<QList<Window*>>(Commands::RZ_WINDOWS);
+        if (rz_windows.isEmpty()) return nullptr;
+
+        for (auto& window : rz_windows)
+        {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            // Find first tab from the right with this model
+            for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                if (auto view = tab_widget->widgetAt<IFileView*>(i)) {
+                    if (view->model() == model) {
+                        raise(window, i);
+                        return window;
+                    }
+                }
+            }
+        }
+
+        return nullptr;
+    }
+
+    /// TODO SAVES (END)
 
     bool isMultiWindow(IFileModel* fileModel) const
     {
