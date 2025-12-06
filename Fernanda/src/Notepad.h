@@ -102,26 +102,62 @@ protected:
         auto meta = model->meta();
         if (!meta) return false;
 
-        if (model->isModified() && views->countFor(model) <= 1) {
-            views->raise(window, index);
+        if (!model->isModified() || views->countFor(model) > 1) return true;
 
-            // TODO: Add a preferred extension so off-disk files can say
-            // "TempTitle.txt"
-            auto name = meta->path().isEmpty() ? meta->title()
-                                               : meta->path().toQString();
+        // TODO: Add a preferred extension so off-disk files can say
+        // "TempTitle.txt"
+        auto name =
+            meta->path().isEmpty() ? meta->title() : meta->path().toQString();
 
-            switch (SavePrompt::exec(name, window)) {
-            case SavePrompt::Cancel:
+        switch (SavePrompt::exec(name, window)) {
+
+        default:
+        case SavePrompt::Cancel:
+            return false;
+
+        case SavePrompt::Save: {
+
+            FileService::SaveResult result{};
+
+            if (meta->isOnDisk()) {
+                result = files->save(model);
+            } else {
+                // Off-disk: need Save As dialog
+
+                views->raise(window, index);
+
+                // TODO: ColorBar/Failure dialog
+
+                // If dialog is aborted, return false to block hook caller
+                // and show red color bar feedback
+                auto path = Coco::PathUtil::Dialog::save(
+                    window,
+                    Tr::Dialogs::notepadSaveFileAsCaption(),
+                    currentBaseDir_);
+
+                if (path.isEmpty()) {
+                    colorBars->red(window);
+                    return false;
+                }
+
+                result = files->saveAs(model, path);
+            }
+
+            if (result == FileService::Success) {
+                colorBars->green(window);
+                return true;
+            } else {
+                colorBars->red(window);
+                // TODO: Show a dialog stating the file failed to save
+                // TODO: Make a namespace to do this, similar to SavePrompt
+                // showSaveFailedDialog_(window, model);
                 return false;
-            case SavePrompt::Save:
-                // TODO: Save, once we've moved it to FileService
-                return true;
-            case SavePrompt::Discard:
-                return true;
             }
         }
 
-        return true;
+        case SavePrompt::Discard:
+            return true;
+        }
     }
 
     virtual bool canCloseTabEverywhere(Window* window, int index) override
@@ -340,6 +376,27 @@ private:
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
     NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
+    /// TODO SAVES
+
+    // TODO: Rethink as needed
+    struct MultiSaveResult_
+    {
+        bool aborted = false; // Canceling a Save As dialog should probably
+                              // abort all saves and also run the red color bar?
+        QList<IFileModel*>
+            failed{}; // The aborted file model could just be added here and
+                      // this would also let us know to run red color bar...
+        int succeeded = 0; // Needed?
+
+        // bool operator overload instead?
+        bool ok() const noexcept { return !aborted && failed.isEmpty(); }
+    };
+
+    // TODO: Need a function that performs multi-save and returns the above
+    // struct
+
+    /// TODO SAVES (END)
+
     void setup_()
     {
         // Via Qt: Setting root path installs a filesystem watcher
@@ -380,14 +437,34 @@ private:
                 }
             });
 
+        /// TODO SAVES
+
         bus->addCommandHandler(Commands::NOTEPAD_SAVE, [&](const Command& cmd) {
             if (!cmd.context) return;
             auto current_view = views->fileViewAt(cmd.context, -1);
             if (!current_view) return;
             auto model = current_view->model();
-            if (!model) return;
+            if (!model || !model->supportsModification()) return;
+            if (!model->isModified()) return;
 
-            save_(cmd.context, model);
+            // TODO: Get result!!!
+
+            if (model->meta()->isOnDisk()) {
+                files->save(model);
+            } else {
+                // Off-disk: need Save As dialog
+
+                // TODO: Raise tab, somehow
+
+                // TODO: ColorBar/Failure dialog
+
+                auto path = Coco::PathUtil::Dialog::save(
+                    cmd.context,
+                    Tr::Dialogs::notepadSaveFileAsCaption(),
+                    currentBaseDir_);
+
+                if (!path.isEmpty()) files->saveAs(model, path);
+            }
         });
 
         bus->addCommandHandler(
@@ -397,9 +474,25 @@ private:
                 auto current_view = views->fileViewAt(cmd.context, -1);
                 if (!current_view) return;
                 auto model = current_view->model();
-                if (!model) return;
+                if (!model || !model->supportsModification()) return;
+                // Allow Save As on unmodified files!
 
-                saveAs_(cmd.context, model);
+                auto meta = model->meta();
+                auto initial_path =
+                    meta->isOnDisk() ? meta->path() : currentBaseDir_;
+
+                // TODO: Get result!!!
+
+                // TODO: Raise tab, somehow
+
+                // TODO: ColorBar/Failure dialog
+
+                auto path = Coco::PathUtil::Dialog::save(
+                    cmd.context,
+                    Tr::Dialogs::notepadSaveFileAsCaption(),
+                    initial_path);
+
+                if (!path.isEmpty()) files->saveAs(model, path);
             });
 
         bus->addCommandHandler(
@@ -415,6 +508,8 @@ private:
                 if (!cmd.context) return;
                 //...
             });
+
+        /// TODO SAVES (END)
 
         // Notepad sets an Interceptor for FileService's open file command in
         // order to intercept Notebook paths
@@ -438,65 +533,6 @@ private:
             &Notepad::onTreeViewDoubleClicked_);
 
         connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
-    }
-
-    // TODO: Rethink as needed
-    struct MultiSaveResult_
-    {
-        bool aborted = false; // Canceling a Save As dialog should probably
-                              // abort all saves and also run the red color bar?
-        QList<IFileModel*>
-            failed{}; // The aborted file model could just be added here and
-                      // this would also let us know to run red color bar...
-        int succeeded = 0; // Needed?
-
-        // bool operator overload instead?
-        bool ok() const noexcept { return !aborted && failed.isEmpty(); }
-    };
-
-    // TODO: Need a function that performs multi-save and returns the above struct
-
-    // TODO: Return FileService::SaveResult
-    void save_(Window* window, IFileModel* fileModel)
-    {
-        if (!window) return;
-        if (!fileModel || !fileModel->supportsModification()) return;
-        if (!fileModel->isModified()) return;
-
-        if (fileModel->meta()->isOnDisk()) {
-            files->save(fileModel);
-        } else {
-            // Off-disk: need Save As dialog
-
-            // TODO: Raise tab, somehow
-
-            auto path = Coco::PathUtil::Dialog::save(
-                window,
-                Tr::Dialogs::notepadSaveFileAsCaption(),
-                currentBaseDir_);
-
-            if (!path.isEmpty()) files->saveAs(fileModel, path);
-        }
-    }
-
-    // TODO: Return FileService::SaveResult
-    void saveAs_(Window* window, IFileModel* fileModel)
-    {
-        if (!window) return;
-        if (!fileModel || !fileModel->supportsModification()) return;
-        // Allow Save As on unmodified files!
-
-        auto meta = fileModel->meta();
-        auto initial_path = meta->isOnDisk() ? meta->path() : currentBaseDir_;
-
-        // TODO: Raise tab, somehow
-
-        auto path = Coco::PathUtil::Dialog::save(
-            window,
-            Tr::Dialogs::notepadSaveFileAsCaption(),
-            initial_path);
-
-        if (!path.isEmpty()) files->saveAs(fileModel, path);
     }
 
 private slots:

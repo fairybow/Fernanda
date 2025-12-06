@@ -36,18 +36,28 @@ public:
 
     virtual ~ColorBarModule() override { TRACER; }
 
-    void run(Window* window, ColorBar::Color color) const
+    void green(Window* window = nullptr) const { run(ColorBar::Green, window); }
+
+    void red(Window* window = nullptr) const { run(ColorBar::Red, window); }
+
+    void pastel(Window* window = nullptr) const
     {
-        if (!window || !window->isVisible()) return;
-        if (auto color_bar = colorBars_[window]) color_bar->run(color);
+        run(ColorBar::Pastel, window);
     }
 
-    void runAll(ColorBar::Color color) const
+    void run(ColorBar::Color color, Window* window = nullptr) const
     {
-        for (auto it = colorBars_.begin(); it != colorBars_.end(); ++it) {
-            auto window = it.key();
-            if (!window || !window->isVisible()) continue;
-            if (auto color_bar = it.value()) color_bar->run(color);
+        if (colorBars_.isEmpty()) return;
+
+        if (window) {
+            if (!window->isVisible()) return;
+            if (auto color_bar = colorBars_[window]) color_bar->run(color);
+        } else {
+            for (auto it = colorBars_.begin(); it != colorBars_.end(); ++it) {
+                auto window = it.key();
+                if (!window || !window->isVisible()) continue;
+                if (auto color_bar = it.value()) color_bar->run(color);
+            }
         }
     }
 
@@ -58,7 +68,7 @@ protected:
     virtual void registerBusCommands() override
     {
         // TODO: Could make Colors enum private and use string args?
-        bus->addCommandHandler(
+        /*bus->addCommandHandler(
             Commands::RUN_COLOR_BAR,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
@@ -71,7 +81,7 @@ protected:
             [&](const Command& cmd) {
                 auto color = cmd.param<ColorBar::Color>("color");
                 runAll(color);
-            });
+            });*/
     }
 
     virtual void connectBusEvents() override

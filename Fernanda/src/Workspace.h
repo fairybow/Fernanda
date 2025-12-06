@@ -67,7 +67,7 @@ public:
         if (withWindow) windows->newWindow();
 
         // TODO: Don't run if no windows...
-        timer(1300, this, [&] { colorBars->runAll(ColorBar::Color::Pastel); });
+        timer(1300, this, [&] { colorBars->pastel(); });
     }
 
     void newWindow() { windows->newWindow(); }

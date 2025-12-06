@@ -67,8 +67,8 @@ constexpr auto CLOSE_ALL_WINDOWS = "windows:close_all"; /// *
 
 // ColorBarModule scope
 
-constexpr auto RUN_COLOR_BAR = "color_bars:run"; /// *, non-menu
-constexpr auto RUN_ALL_COLOR_BARS = "color_bars:run_all"; /// *, non-menu
+//constexpr auto RUN_COLOR_BAR = "color_bars:run"; /// *, non-menu
+//constexpr auto RUN_ALL_COLOR_BARS = "color_bars:run_all"; /// *, non-menu
 
 // FileService scope
 
