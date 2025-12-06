@@ -18,9 +18,9 @@
 
 namespace Fernanda {
 
-// Abstract interface for document content and editing operations, managing
-// document state, modification tracking, undo/redo functionality, and save
-// operations without handling metadata
+// Interface for document content and editing operations, managing document
+// state, modification tracking, and undo/redo functionality without handling
+// metadata
 class IFileModel : public QObject
 {
     Q_OBJECT
@@ -37,8 +37,10 @@ public:
     FileMeta* meta() const noexcept { return meta_; }
 
     virtual QByteArray data() const { return {}; }
+    virtual void setData(const QByteArray& data) {}
     virtual bool supportsModification() const { return false; }
     virtual bool isModified() const { return false; }
+    virtual void setModified(bool modified) {}
     virtual bool hasUndo() const { return false; }
     virtual bool hasRedo() const { return false; }
     virtual void undo() {}
@@ -54,14 +56,3 @@ private:
 };
 
 } // namespace Fernanda
-
-/*
-TODO SAVES
-
-virtual SaveResult save() { return SaveResult::NoOp; }
-
-virtual SaveResult saveAs(const Coco::Path& newPath)
-{
-    return SaveResult::NoOp;
-}
-*/

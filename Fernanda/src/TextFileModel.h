@@ -39,11 +39,14 @@ public:
 
     virtual ~TextFileModel() override { TRACER; }
 
-    QTextDocument* document() const noexcept { return document_; }
-
     virtual QByteArray data() const override
     {
         return document_->toPlainText().toUtf8();
+    }
+
+    virtual void setData(const QByteArray& data) override
+    {
+        if (document_) document_->setPlainText(QString::fromUtf8(data));
     }
 
     virtual bool supportsModification() const override { return document_; }
@@ -51,6 +54,11 @@ public:
     virtual bool isModified() const override
     {
         return document_ && document_->isModified();
+    }
+
+    virtual void setModified(bool modified) override
+    {
+        if (document_) document_->setModified(modified);
     }
 
     virtual bool hasUndo() const override
@@ -146,33 +154,6 @@ private slots:
 
 /*
 TODO SAVES
-
-// Enums
-
-// TODO: Properly integrate again if needed
-enum class SaveResult
-{
-    NoOp = 0,
-    Success,
-    Fail
-};
-
-namespace Enum {
-
-    inline QString toQString(SaveResult saveResult) noexcept
-    {
-        switch (saveResult) {
-        default:
-        case SaveResult::NoOp:
-            return "SaveResult::NoOp";
-        case SaveResult::Success:
-            return "SaveResult::Success";
-        case SaveResult::Fail:
-            return "SaveResult::Fail";
-        }
-    }
-
-} // namespace Enum
 
 // This file:
 
