@@ -2,6 +2,8 @@
 
 TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 
+- [ ] Find appropriate places for Coco::Bool (like closure hook returns)
+- [ ] Check consistency in dtor (virtual/override) and ctor (explicit or not)
 - [ ] Documentation gaps
 - [ ] Ensure (as much as possible) separation of concerns / encapsulation
 - [ ] Tr clean-up

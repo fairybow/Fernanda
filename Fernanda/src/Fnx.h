@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include <QByteArray>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QFile>
@@ -25,7 +26,7 @@
 #include "bit7z/bitarchivewriter.hpp"
 
 #include "AppDirs.h"
-#include "TextIo.h"
+#include "Io.h"
 
 // .fnx file format specification and utilities.
 //
@@ -86,8 +87,8 @@ namespace Io {
         if (!Coco::PathUtil::mkdir(workingDir / Internal::IO_CONTENT_DIR_NAME_))
             return;
 
-        // Create empty Model.xml
-        QString xml_content{};
+        // Create base Model.xml
+        QByteArray xml_content{};
         QXmlStreamWriter xml(&xml_content);
         xml.setAutoFormatting(true);
         xml.setAutoFormattingIndent(Internal::XML_INDENT_);
@@ -98,7 +99,9 @@ namespace Io {
 
         // Model.xml represents a virtual structuring of the contents of the
         // content folder
-        TextIo::write(xml_content, workingDir / Internal::IO_MODEL_FILE_NAME_);
+        Fernanda::Io::write(
+            xml_content,
+            workingDir / Internal::IO_MODEL_FILE_NAME_);
     }
 
     inline void
@@ -218,7 +221,8 @@ namespace Xml {
         }
 
         QDomDocument doc{};
-        auto content = TextIo::read(workingDir / Internal::IO_MODEL_FILE_NAME_);
+        auto content =
+            Fernanda::Io::read(workingDir / Internal::IO_MODEL_FILE_NAME_);
         auto result = doc.setContent(content);
 
         if (!result) {
@@ -248,10 +252,10 @@ namespace Xml {
             return;
         }
 
-        auto xml = dom.toString(Internal::XML_INDENT_);
+        auto xml = dom.toByteArray(Internal::XML_INDENT_);
         auto model_path = workingDir / Internal::IO_MODEL_FILE_NAME_;
 
-        if (!TextIo::write(xml, model_path))
+        if (!Fernanda::Io::write(xml, model_path))
             CRITICAL("Failed to write model to {}!", model_path);
     }
 
@@ -273,7 +277,7 @@ namespace Xml {
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
-        if (!TextIo::write({}, path)) {
+        if (!Fernanda::Io::write({}, path)) {
             WARN("Failed to create text file at {}", path);
             return {};
         }

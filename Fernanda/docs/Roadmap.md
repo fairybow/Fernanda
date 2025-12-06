@@ -48,6 +48,7 @@
 
 ### Coco
 
+- [ ] Basically redo the whole thing!
 - [ ] Redo path, potentially reintegrate PathUtil with Path (or Io umbrella file)
 - [ ] Figure out Path string caching
 - [ ] Ensure Path's shared data works

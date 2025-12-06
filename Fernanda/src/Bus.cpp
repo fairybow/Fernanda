@@ -10,7 +10,6 @@
 #include <QModelIndex>
 #include <QPoint>
 
-#include "Coco/Log.h"
 #include "Coco/Path.h"
 
 #include "Bus.h"

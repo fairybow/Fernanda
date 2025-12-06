@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QHash>
 #include <QList>
 #include <QObject>
@@ -33,7 +34,7 @@
 #include "IService.h"
 #include "NoOpFileModel.h"
 #include "TextFileModel.h"
-#include "TextIo.h"
+#include "Io.h"
 #include "Tr.h"
 #include "Window.h"
 
@@ -178,11 +179,9 @@ private:
         if (path.isEmpty() || !path.exists()) return nullptr;
 
         auto model = new TextFileModel(path, this);
-        auto text = TextIo::read(path);
-
-        // TODO: Is there a reason we don't have the model set its own text?
         auto document = model->document();
-        document->setPlainText(text);
+        auto text = Io::read(path);
+        document->setPlainText(QString::fromUtf8(text));
         document->setModified(false); // Pretty important!
 
         // TODO: Handle document is nullptr?

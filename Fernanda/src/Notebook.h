@@ -64,8 +64,7 @@ public:
     Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
         : Workspace(parent)
         , fnxPath_(fnxPath)
-        , name_(fnxPath_.stemQString())
-        , workingDir_(AppDirs::temp() / (name_ + "~XXXXXX"))
+        , workingDir_(AppDirs::temp() / (fnxPath_.fileQString() + "~XXXXXX"))
     {
         setup_();
     }
@@ -151,7 +150,6 @@ protected:
 
 private:
     Coco::Path fnxPath_;
-    QString name_;
     TempDir workingDir_;
 
     FnxModel* fnxModel_ = new FnxModel(this);
@@ -165,7 +163,7 @@ private:
 
         menus_->initialize();
 
-        windows->setSubtitle(name_);
+        windows->setSubtitle(fnxPath_.fileQString());
         showModified_();
 
         // Extraction or creation
@@ -288,7 +286,7 @@ private:
         palette.setColor(QPalette::Window, QColor(Qt::cyan));
         temp_label->setPalette(palette);
 
-        temp_label->setText(name_);
+        temp_label->setText(fnxPath_.fileQString());
         status_bar->addPermanentWidget(temp_label);
     }
 
