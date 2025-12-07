@@ -42,14 +42,21 @@
 - [x] Saves: Notepad and Notebook would register their respective "Save" command handlers, since their saves are different and not just FileService::save
 - [x] Saves: Notepad does just call FS::save
 - [x] Saves: Notepad success on multi-save should just run green color bar; failure, though, should show red color bar and a pop-up of which specific files failed to save
-- [ ] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
-- [ ] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
-- [ ] Saves: (Notebook) Ensure DOM snapshot is replaced on save
+- [x] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
+- [x] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
+- [x] Saves: (Notebook) Ensure DOM snapshot is replaced on save
+- [ ] Saves: Remove red color bar on Save As dialog abort
+- [ ] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
+- [ ] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
+- [ ] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
+- [ ] Saves: Probably want a diagnostic/debug window that shows all files saved?
+- [ ] Saves: Bug: Unknown repro: had SaveFailMessageBox showing the successful files as a test, and when I added a new tab to a Notebook and then used Save As, I received two SaveFailMessageBox prompts for some reason? Should have only been one. I think they were for the same file, but not sure. Seems concerning!
 - [ ] Saves: Backup folder with auto clean-up
 
 ### Coco
 
 - [ ] Basically redo the whole thing!
+- [ ] Path dir iterator
 - [ ] Redo path, potentially reintegrate PathUtil with Path (or Io umbrella file)
 - [ ] Figure out Path string caching
 - [ ] Ensure Path's shared data works

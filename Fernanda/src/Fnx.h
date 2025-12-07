@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include <QDir>
 #include <QByteArray>
 #include <QDomDocument>
 #include <QDomElement>
@@ -134,9 +135,6 @@ namespace Io {
         }
     }
 
-    /// TODO SAVES: Important:
-    /// - Also, critical, adding the workingDir adds the workingDir itself, too,
-    /// not its contents, so we're getting malformed FNX
     inline bool
     compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
     {
@@ -154,7 +152,18 @@ namespace Io {
             BitArchiveWriter archive{ lib, BitFormat::SevenZip };
             archive.setOverwriteMode(OverwriteMode::Overwrite);
 
-            archive.addDirectory(workingDir.toString());
+            // TODO: Coco::Path version of this?
+            QDir dir(workingDir.toQString());
+            auto entries =
+                dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+            for (auto& entry : entries) {
+                auto entry_path = workingDir / entry;
+                entry_path.isFolder()
+                    ? archive.addDirectory(entry_path.toString())
+                    : archive.addFile(entry_path.toString());
+            }
+
             // TODO: Move original to backup + clean backup if over n files
             archive.compressTo(archivePath.toString());
             return true;

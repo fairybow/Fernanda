@@ -457,18 +457,6 @@ private:
                 showModified_();
                 colorBars->green();
 
-                /// TEST:
-                /*colorBars->red();
-
-                QStringList fail_paths{};
-                for (auto& model : modified_models) {
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    fail_paths << meta->path().toQString();
-                }
-
-                SaveFailMessageBox::exec(fail_paths, cmd.context);*/
-
                 // TODO: Update workspace indicator labels (if we keep them)
             });
 
