@@ -56,6 +56,7 @@
 ### Coco
 
 - [ ] Basically redo the whole thing!
+- [ ] Remove always inline macro!
 - [ ] Path dir iterator
 - [ ] Redo path, potentially reintegrate PathUtil with Path (or Io umbrella file)
 - [ ] Figure out Path string caching
