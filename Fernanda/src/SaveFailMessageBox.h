@@ -50,7 +50,9 @@ inline void exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
 
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    auto list = "<ul><li>" + fileDisplayNames.join("</li><li>") + "</li></ul>";
+    //auto list = "<ul><li>" + fileDisplayNames.join("</li><li>") + "</li></ul>";
+    auto list = QString::fromUtf8("\n\u2022 ")
+                + fileDisplayNames.join(QString::fromUtf8("\n\u2022 "));
     box.setText(Tr::Dialogs::saveFailPromptMultiBodyFormat().arg(list));
     box.exec();
 }
