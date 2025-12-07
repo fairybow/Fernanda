@@ -10,6 +10,7 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 
 #include <QAbstractItemModel>
 #include <QAction>
@@ -451,9 +452,9 @@ private:
                     return;
                 }
 
-                fnxPath_ = new_path;
+                /// TODO SAVES
 
-                /// !!!!!
+                fnxPath_ = new_path;
 
                 // TODO: Centralize all the things that would need updated when
                 // working dir changes, refactor appropriately
@@ -478,7 +479,7 @@ private:
                 settings->setOverrideConfigPath(
                     workingDir_.path() / Constants::CONFIG_FILE_NAME);
 
-                /// !!!!!
+                /// TODO SAVES (END)
 
                 windows->setSubtitle(fnxPath_.fileQString());
                 fnxModel_->resetSnapshot();
