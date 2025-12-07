@@ -45,12 +45,17 @@ inline void exec(const QString& fileDisplayName, QWidget* parent = nullptr)
 inline void exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
 {
     if (fileDisplayNames.isEmpty()) return;
+
     // Delegate to single-file prompt
-    if (fileDisplayNames.size() == 1) exec(fileDisplayNames.first(), parent);
+    if (fileDisplayNames.size() == 1) {
+        exec(fileDisplayNames.first(), parent);
+        return;
+    }
 
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    //auto list = "<ul><li>" + fileDisplayNames.join("</li><li>") + "</li></ul>";
+    // auto list = "<ul><li>" + fileDisplayNames.join("</li><li>") +
+    // "</li></ul>";
     auto list = QString::fromUtf8("\n\u2022 ")
                 + fileDisplayNames.join(QString::fromUtf8("\n\u2022 "));
     box.setText(Tr::Dialogs::saveFailPromptMultiBodyFormat().arg(list));
