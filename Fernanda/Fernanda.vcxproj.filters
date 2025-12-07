@@ -408,6 +408,9 @@
     <ClInclude Include="src\Commands.h">
       <Filter>Code\Core\Workspaces\Bus</Filter>
     </ClInclude>
+    <ClInclude Include="src\SaveFailMessageBox.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">

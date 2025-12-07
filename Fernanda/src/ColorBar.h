@@ -56,8 +56,8 @@ public:
     enum Color
     {
         Green,
-        Pastel,
-        Red
+        Red,
+        Pastel
     };
 
     explicit ColorBar(QMainWindow* parentWindow = nullptr)

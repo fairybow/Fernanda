@@ -44,7 +44,7 @@ namespace Tr {
         TR_(notepadOpenFileCaption, tr("Open existing file"));
         TR_(notepadOpenFileFilter,
             tr("Plain text files (*.txt);;All files (*)"));
-        TR_(notepadSaveFileCaption, tr("Save file as"));
+        TR_(notepadSaveFileAsCaption, tr("Save file as"));
 
         TR_(notebookImportFileCaption, tr("Import existing file"));
         TR_(notebookImportFileFilter, tr("Plain text files (*.txt)"));
@@ -88,6 +88,10 @@ namespace Tr {
             tr("Do you want to save changes to %0?"));
         TR_(savePromptMultiBodyFormat,
             tr("You have unsaved changes in %0 files:"));
+
+        TR_(saveFailPromptBodyFormat, tr("There was a problem saving %0."));
+        TR_(saveFailPromptMultiBodyFormat,
+            tr("There was a problem saving these files: %0"));
 
     } // namespace Dialogs
 

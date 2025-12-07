@@ -22,9 +22,7 @@
 #include <Qt>
 
 #include "Coco/Layout.h"
-#include "Coco/Path.h"
 
-#include "Debug.h"
 #include "Tr.h"
 
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
@@ -48,7 +46,7 @@ namespace Internal {
 
     inline void setCommonProperties_(QDialog& dialog)
     {
-        // QDialog defaults to non-modal
+        // QDialog defaults to non-modal (though QMessageBox defaults to modal)
         dialog.setWindowModality(Qt::WindowModal);
         // dialog.setWindowTitle(Tr::Dialogs::savePromptTitle());
         dialog.setMinimumSize(400, 200);

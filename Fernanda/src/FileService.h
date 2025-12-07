@@ -31,9 +31,9 @@
 #include "IFileModel.h"
 #include "IFileView.h"
 #include "IService.h"
+#include "Io.h"
 #include "NoOpFileModel.h"
 #include "TextFileModel.h"
-#include "Io.h"
 #include "Tr.h"
 #include "Window.h"
 
@@ -92,7 +92,7 @@ public:
             emit bus->fileModelReadied(window, model);
     }
 
-    SaveResult save(IFileModel* model)
+    [[nodiscard]] SaveResult save(IFileModel* model)
     {
         if (!model || !model->supportsModification()) return NoOp;
         auto path = model->meta()->path();
@@ -101,7 +101,8 @@ public:
         return writeModelToDisk_(model, path);
     }
 
-    SaveResult saveAs(IFileModel* model, const Coco::Path& newPath)
+    [[nodiscard]] SaveResult
+    saveAs(IFileModel* model, const Coco::Path& newPath)
     {
         if (!model || !model->supportsModification()) return NoOp;
         if (newPath.isEmpty()) return NoOp;
