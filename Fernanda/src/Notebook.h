@@ -261,7 +261,7 @@ private:
     {
         // TODO: Keep as fatal?
         if (!workingDir_.isValid())
-            FATAL("Notebook temp directory creation failed!");
+            FATAL("Notebook working directory creation failed!");
 
         menus_->initialize();
 
