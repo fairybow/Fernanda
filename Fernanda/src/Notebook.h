@@ -452,6 +452,34 @@ private:
                 }
 
                 fnxPath_ = new_path;
+
+                /// !!!!!
+
+                // TODO: Centralize all the things that would need updated when
+                // working dir changes, refactor appropriately
+
+                auto new_working_dir = TempDir(
+                    AppDirs::temp() / (fnxPath_.fileQString() + "~XXXXXX"));
+                if (!new_working_dir.isValid()) FATAL("lol rip");
+                auto old_dir = workingDir_.path();
+                auto new_dir = new_working_dir.path();
+
+                if (!Coco::PathUtil::copyContents(old_dir, new_dir))
+                    FATAL("lol rip 2");
+
+                for (auto& model : files->fileModels()) {
+                    if (!model) continue;
+                    auto meta = model->meta();
+                    if (!meta) continue;
+                    meta->setPath(meta->path().rebase(old_dir, new_dir));
+                }
+
+                workingDir_ = std::move(new_working_dir);
+                settings->setOverrideConfigPath(
+                    workingDir_.path() / Constants::CONFIG_FILE_NAME);
+
+                /// !!!!!
+
                 windows->setSubtitle(fnxPath_.fileQString());
                 fnxModel_->resetSnapshot();
                 showModified_();

@@ -92,6 +92,10 @@ public:
             emit bus->fileModelReadied(window, model);
     }
 
+    /// TODO SAVES
+
+    QSet<IFileModel*> fileModels() const noexcept { return fileModels_; }
+
     [[nodiscard]] SaveResult save(IFileModel* model)
     {
         if (!model || !model->supportsModification()) return NoOp;
@@ -114,14 +118,14 @@ public:
         auto result = writeModelToDisk_(model, newPath);
 
         if (result == Success) {
-            auto old_path = model->meta()->path();
-            if (!old_path.isEmpty()) pathToFileModel_.remove(old_path);
-            pathToFileModel_[newPath] = model;
+            // Signal handles hash update!
             model->meta()->setPath(newPath);
         }
 
         return result;
     }
+
+    /// TODO SAVES (END)
 
 protected:
     virtual void registerBusCommands() override
@@ -164,6 +168,14 @@ private:
     {
         if (!path.isEmpty()) pathToFileModel_[path] = fileModel;
         fileModels_ << fileModel;
+        connect(
+            fileModel->meta(),
+            &FileMeta::pathChanged,
+            this,
+            [&, fileModel](const Coco::Path& old, const Coco::Path& now) {
+                if (!old.isEmpty()) pathToFileModel_.remove(old);
+                if (!now.isEmpty()) pathToFileModel_[now] = fileModel;
+            });
     }
 
     IFileModel*

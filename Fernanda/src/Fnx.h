@@ -15,7 +15,6 @@
 #include <QByteArray>
 #include <QDomDocument>
 #include <QDomElement>
-#include <QFile>
 #include <QString>
 #include <QUuid>
 #include <QXmlStreamReader>
@@ -49,12 +48,11 @@ namespace Internal {
     constexpr auto IO_MODEL_FILE_NAME_ = "Model.xml";
     constexpr auto IO_CONTENT_DIR_NAME_ = "content";
 
-    // TODO: Replace QFile::copy with Coco version, maybe
     inline const Coco::Path& dll_()
     {
         // Could be temp file?
         static auto file = AppDirs::userData() / "7z.dll";
-        if (!file.exists()) QFile::copy(":/7zip/7z.dll", file.toQString());
+        if (!file.exists()) Coco::PathUtil::copy(":/7zip/7z.dll", file);
         return file;
     }
 
@@ -353,7 +351,7 @@ namespace Xml {
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
-        if (!QFile::copy(fsPath.toQString(), path.toQString())) {
+        if (!Coco::PathUtil::copy(fsPath, path)) {
             WARN("Failed to copy text file at {}", fsPath);
             return {};
         }

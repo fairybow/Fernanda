@@ -42,9 +42,10 @@ public:
     void setPath(const Coco::Path& path)
     {
         if (path_ == path) return;
+        Coco::Path old = path_;
         path_ = path;
+        emit pathChanged(old, path_);
         updateDerivedProperties_();
-        // emit pathChanged(path_);
     }
 
     void setTitleOverride(const QString& title)
@@ -63,6 +64,7 @@ public:
 
 signals:
     void changed();
+    void pathChanged(const Coco::Path& old, const Coco::Path& now);
 
 private:
     Coco::Path path_;
