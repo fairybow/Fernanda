@@ -53,6 +53,8 @@ public:
 
     virtual ~Workspace() override = default;
 
+    virtual bool tryQuit() = 0;
+
     // void open(const Session& session)
     // {
     //   // ...open Session...
@@ -94,8 +96,6 @@ protected:
     FileService* files = new FileService(bus, this);
     TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
-
-    virtual bool canQuit() = 0;
 
 protected:
     virtual QAbstractItemModel* treeViewModel() = 0;

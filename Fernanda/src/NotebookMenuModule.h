@@ -91,13 +91,13 @@ private:
             bus,
             window,
             Commands::NOTEBOOK_SAVE,
-            Tr::Menus::fileNotebookSaveArchive());
+            Tr::Menus::fileNotebookSaveArchive()); /// *
 
         actions.file.saveAs = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_SAVE_AS,
-            Tr::Menus::fileNotebookSaveArchiveAs());
+            Tr::Menus::fileNotebookSaveArchiveAs()); /// *
 
         actions.file.exportFile = Menus::makeBusAction(
             bus,

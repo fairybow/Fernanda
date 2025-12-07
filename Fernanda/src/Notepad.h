@@ -65,7 +65,7 @@ public:
 
     bool hasWindows() const { return windows->count() > 0; }
 
-    virtual bool canQuit() override
+    virtual bool tryQuit() override
     {
         return windows->count() < 1 || windows->closeAll();
     }

@@ -52,10 +52,6 @@ namespace Fernanda {
 // exclusively, never accesses DOM elements directly.
 //
 // There can be any number of Notebooks open during the application lifetime.
-//
-// TODO: Will want window titles to reflect archive name (plus show modified
-// state). Will likely need a WinServ command to set all titles and link this to
-// a setModified function here
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -72,7 +68,7 @@ public:
     virtual ~Notebook() override { TRACER; }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
-    virtual bool canQuit() override { return windows->closeAll(); }
+    virtual bool tryQuit() override { return windows->closeAll(); }
 
 signals:
     void openNotepadRequested();
@@ -106,6 +102,8 @@ protected:
               { "title", info.name } },
             window);
     }
+
+    /// TODO SAVES
 
     virtual bool canCloseWindow(Window* window) override
     {
@@ -147,6 +145,8 @@ protected:
 
         return true;
     }
+
+    /// TODO SAVES (END)
 
 private:
     Coco::Path fnxPath_;
@@ -240,6 +240,24 @@ private:
                         cmd.context);
                 }
             });
+
+        /// TODO SAVES
+
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_SAVE,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                //...
+            });
+
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_SAVE_AS,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                //...
+            });
+
+        /// TODO SAVES (END)
     }
 
     void connectBusEvents_()

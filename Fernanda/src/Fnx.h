@@ -134,7 +134,33 @@ namespace Io {
         }
     }
 
-    // TODO: Compress method
+    inline bool
+    compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
+    {
+        using namespace bit7z;
+
+        INFO("Compressing archive at {} to {}", archivePath, workingDir);
+
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return false;
+        }
+
+        try {
+            Bit7zLibrary lib{ Internal::dll_().toString() };
+            BitArchiveWriter archive{ lib, BitFormat::SevenZip };
+            archive.addDirectory(workingDir.toString());
+
+            // Overwrites if exists
+            // TODO: Move original to backup + clean backup if over n files
+            archive.compressTo(archivePath.toString());
+
+            return true;
+        } catch (const BitException& ex) {
+            CRITICAL("FNX archive compression failed! Error: {}", ex.what());
+            return false;
+        }
+    }
 
     inline QString uuid(const Coco::Path& path) { return path.stemQString(); }
 
