@@ -105,6 +105,10 @@ protected:
 
     /// TODO SAVES
 
+    // Can call fnxModel_->load to reset DOM snapshot (and might be a better
+    // idea, since it ensures DOM is consistent with newly saved Model.xml, BUT
+    // it will cause our expanded items to collapse
+
     virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1) return true;

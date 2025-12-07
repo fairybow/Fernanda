@@ -80,6 +80,12 @@ public:
         emit domChanged();
     }
 
+    void write(const Coco::Path& workingDir) const
+    {
+        Fnx::Xml::writeModelFile(workingDir, dom_);
+        INFO("DOM written: {}", dom_.toString());
+    }
+
     // TODO: Problem with this method if we ever decide to store
     // expanded/collapsed state in the DOM...
     bool isModified() const
@@ -118,12 +124,6 @@ public:
 
         Fnx::Xml::setEdited(element, edited);
         emit domChanged();
-    }
-
-    void write(const Coco::Path& workingDir) const
-    {
-        Fnx::Xml::writeModelFile(workingDir, dom_);
-        INFO("DOM written: {}", dom_.toString());
     }
 
     FileInfo fileInfoAt(const QModelIndex& index) const
