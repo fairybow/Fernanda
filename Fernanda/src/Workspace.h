@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QAbstractItemModel>
+#include <QList>
 #include <QModelIndex>
 #include <QObject>
 #include <QString>
@@ -26,6 +27,7 @@
 #include "ColorBarModule.h"
 #include "Constants.h"
 #include "FileService.h"
+#include "IFileModel.h"
 #include "SettingsModule.h"
 #include "Timers.h"
 #include "TreeViewService.h"
@@ -84,6 +86,13 @@ signals:
     void lastWindowClosed();
 
 protected:
+    // Used in subclasses only (TODO: Make sure this is the best place...)
+    struct MultiSaveResult
+    {
+        QList<IFileModel*> failed{};
+        explicit operator bool() const noexcept { return failed.isEmpty(); }
+    };
+
     // TODO: Getters instead?
 
     Bus* bus = new Bus(this);

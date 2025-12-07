@@ -208,7 +208,6 @@ public:
         return views;
     }
 
-    // TODO: Unused currently
     QList<IFileView*> rzFileViews() const
     {
         QList<IFileView*> views{};

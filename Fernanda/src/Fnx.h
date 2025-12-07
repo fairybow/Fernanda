@@ -224,7 +224,7 @@ namespace Xml {
                : element.removeAttribute(Internal::XML_FILE_EDITED_ATTR_);
     }
 
-    inline void clearEditedRecursive(QDomElement parent)
+    /*inline void clearEditedRecursive(QDomElement parent)
     {
         auto child = parent.firstChildElement();
         while (!child.isNull()) {
@@ -237,7 +237,7 @@ namespace Xml {
     inline void clearEditedRecursive(QDomDocument& dom)
     {
         clearEditedRecursive(dom.documentElement());
-    }
+    }*/
 
     inline QDomDocument makeDom(const Coco::Path& workingDir)
     {

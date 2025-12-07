@@ -522,16 +522,10 @@ private:
 
     /// TODO SAVES
 
-    struct MultiSaveResult_
-    {
-        QList<IFileModel*> failed{};
-        explicit operator bool() const noexcept { return failed.isEmpty(); }
-    };
-
-    MultiSaveResult_
+    MultiSaveResult
     multiSave_(const QList<IFileModel*>& fileModels, Window* window = nullptr)
     {
-        MultiSaveResult_ result{};
+        MultiSaveResult result{};
 
         for (auto& model : fileModels) {
             auto meta = model->meta();
