@@ -135,9 +135,6 @@ namespace Io {
     }
 
     /// TODO SAVES: Important:
-    /// - We may not be able to use BitArchiveWriter. It is used for creating or
-    /// updating archives but doesn't appear to allow overwriting them entirely
-    /// (which I'm not sure we want to do, but IDK, I think so)
     /// - Also, critical, adding the workingDir adds the workingDir itself, too,
     /// not its contents, so we're getting malformed FNX
     inline bool
@@ -155,6 +152,8 @@ namespace Io {
         try {
             Bit7zLibrary lib{ Internal::dll_().toString() };
             BitArchiveWriter archive{ lib, BitFormat::SevenZip };
+            archive.setOverwriteMode(OverwriteMode::Overwrite);
+
             archive.addDirectory(workingDir.toString());
             // TODO: Move original to backup + clean backup if over n files
             archive.compressTo(archivePath.toString());
