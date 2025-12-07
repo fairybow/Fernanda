@@ -47,8 +47,8 @@
 - [x] Saves: (Notebook) Ensure DOM snapshot is replaced on save
 - [ ] Saves: Remove red color bar on Save As dialog abort
 - [ ] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
-- [ ] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
-- [ ] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
+- [x] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
+- [x] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
 - [ ] Saves: Probably want a diagnostic/debug window that shows all files saved?
 - [x] Saves: Bug: (EASY - missing return statement for single-item delegation in SaveFailMessageBox::exec for string list) Unknown repro: had SaveFailMessageBox showing the successful files as a test, and when I added a new tab to a Notebook and then used Save As, I received two SaveFailMessageBox prompts for some reason? Should have only been one. I think they were for the same file, but not sure. Seems concerning!
 - [ ] Saves: Backup folder with auto clean-up

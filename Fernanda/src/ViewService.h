@@ -408,11 +408,8 @@ private:
         if (!view) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabHook_ || canCloseTabHook_(window, i)) {
-            auto model = view->model();
+        if (!canCloseTabHook_ || canCloseTabHook_(window, i))
             deleteFileViewAt_(window, i);
-            if (model) emit bus->viewDestroyed(model);
-        }
     }
 
     void closeTabEverywhere_(Window* window, int index = -1)
@@ -435,33 +432,16 @@ private:
                         deleteFileViewAt_(window, i);
                 }
             }
-
-            // Technically we could emit this having destroyed no views, but I
-            // doubt it. That would mean we would've had a model without a view
-            // that we also then somehow managed to close by index
-            emit bus->viewDestroyed(target_model);
         }
     }
 
     void closeWindowTabs_(Window* window)
     {
         if (!window) return;
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget || tab_widget->isEmpty()) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_(window)) {
-
-            QSet<IFileModel*> models{};
-            for (auto i = tab_widget->count() - 1; i >= 0; --i)
-                if (auto view = tab_widget->widgetAt<IFileView*>(i))
-                    if (auto model = view->model()) models << model;
-
+        if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_(window))
             deleteAllFileViewsIn_(window);
-
-            for (auto& model : models)
-                emit bus->viewDestroyed(model);
-        }
     }
 
     void closeAllTabs_()
@@ -470,23 +450,9 @@ private:
         if (rz_windows.isEmpty()) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseAllTabsHook_ || canCloseAllTabsHook_(rz_windows)) {
-            QSet<IFileModel*> models{};
-            for (auto& window : rz_windows) {
-                auto tab_widget = tabWidget_(window);
-                if (!tab_widget || tab_widget->isEmpty()) continue;
-
-                for (auto i = tab_widget->count() - 1; i >= 0; --i)
-                    if (auto view = tab_widget->widgetAt<IFileView*>(i))
-                        if (auto model = view->model()) models << model;
-            }
-
+        if (!canCloseAllTabsHook_ || canCloseAllTabsHook_(rz_windows))
             for (auto& window : rz_windows)
                 deleteAllFileViewsIn_(window);
-
-            for (auto& model : models)
-                emit bus->viewDestroyed(model);
-        }
     }
 
     // Index -1 = current
@@ -634,6 +600,8 @@ private slots:
         connect(view, &QObject::destroyed, this, [&, view, fileModel] {
             if (--fileViewsPerModel_[fileModel] <= 0)
                 fileViewsPerModel_.remove(fileModel);
+
+            emit bus->viewDestroyed(fileModel);
         });
 
         auto index = tab_widget->addTab(view, meta->title());
