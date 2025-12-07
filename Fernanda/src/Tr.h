@@ -48,6 +48,8 @@ namespace Tr {
 
         TR_(notebookImportFileCaption, tr("Import existing file"));
         TR_(notebookImportFileFilter, tr("Plain text files (*.txt)"));
+        TR_(notebookSaveAsCaption, tr("Save as"));
+        TR_(notebookSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
 
         TR_(aboutTitle, tr("About"));
 

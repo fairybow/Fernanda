@@ -134,6 +134,12 @@ namespace Io {
         }
     }
 
+    /// TODO SAVES: Important:
+    /// - We may not be able to use BitArchiveWriter. It is used for creating or
+    /// updating archives but doesn't appear to allow overwriting them entirely
+    /// (which I'm not sure we want to do, but IDK, I think so)
+    /// - Also, critical, adding the workingDir adds the workingDir itself, too,
+    /// not its contents, so we're getting malformed FNX
     inline bool
     compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
     {
@@ -150,12 +156,10 @@ namespace Io {
             Bit7zLibrary lib{ Internal::dll_().toString() };
             BitArchiveWriter archive{ lib, BitFormat::SevenZip };
             archive.addDirectory(workingDir.toString());
-
-            // Overwrites if exists
             // TODO: Move original to backup + clean backup if over n files
             archive.compressTo(archivePath.toString());
-
             return true;
+
         } catch (const BitException& ex) {
             CRITICAL("FNX archive compression failed! Error: {}", ex.what());
             return false;
