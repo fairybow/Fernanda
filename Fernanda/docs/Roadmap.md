@@ -45,8 +45,9 @@
 - [x] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
 - [x] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
 - [x] Saves: (Notebook) Ensure DOM snapshot is replaced on save
-- [ ] Saves: Remove red color bar on Save As dialog abort
-- [ ] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
+- [x] Saves: Remove red color bar on Save As dialog abort
+- [ ] Saves: Decide how to handle red color bar on Notepad multiSave_
+- [x] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
 - [x] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
 - [x] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
 - [ ] Saves: Probably want a diagnostic/debug window that shows all files saved?

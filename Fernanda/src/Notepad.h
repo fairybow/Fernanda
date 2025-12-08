@@ -137,7 +137,7 @@ protected:
                     currentBaseDir_);
 
                 if (path.isEmpty()) {
-                    colorBars->red(window);
+                    // colorBars->red(window);
                     return false;
                 }
 
@@ -200,7 +200,7 @@ protected:
                     currentBaseDir_);
 
                 if (path.isEmpty()) {
-                    colorBars->red(window);
+                    // colorBars->red(window);
                     return false;
                 }
 
@@ -411,7 +411,7 @@ protected:
                 // Window should close immediately, so no need to run color bar
                 // - still,
                 // let's see what it looks like before removing it
-                colorBars->green(window);
+                // colorBars->green(window);
                 return true;
             } else {
                 colorBars->red(window);
@@ -484,7 +484,7 @@ protected:
                 // Window should close immediately, so no need to run color bar
                 // - still,
                 // let's see what it looks like before removing it
-                colorBars->green();
+                // colorBars->green();
                 return true;
             } else {
                 colorBars->red();
@@ -645,7 +645,7 @@ private:
                                       // the current temp title + preferred ext
 
                 if (path.isEmpty()) {
-                    colorBars->red(cmd.context);
+                    // colorBars->red(cmd.context);
                     return;
                 }
 
@@ -686,7 +686,7 @@ private:
                     initial_path);
 
                 if (path.isEmpty()) {
-                    colorBars->red(cmd.context);
+                    // colorBars->red(cmd.context);
                     return;
                 }
 

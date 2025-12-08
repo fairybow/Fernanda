@@ -114,7 +114,8 @@ protected:
 
     // Want to note in docs that if the Notebook archive doesn't exist yet, it
     // will save without running a Save As dialog, because the path will already
-    // have been selected when creating the new Notebook
+    // have been selected when creating the new Notebook (so, Notebook's only
+    // Save As dialog is just when selecting Save As)
 
     // Re: rzFileViews in these: is that fine? Could iterate through provided
     // windows?
@@ -173,10 +174,10 @@ protected:
 
             fnxModel_->resetSnapshot();
             showModified_();
-            colorBars->green(); // TODO: May remove, since this is last
-                                // window. Let's see what it looks like
-                                // first (surely, window will close too
-                                // quickly for this to do anything)
+            // colorBars->green(); // TODO: May remove, since this is last
+            //  window. Let's see what it looks like
+            //  first (surely, window will close too
+            //  quickly for this to do anything)
 
             return true;
         }
@@ -237,10 +238,10 @@ protected:
 
             fnxModel_->resetSnapshot();
             showModified_();
-            colorBars->green(); // TODO: May remove, since this is last
-                                // window. Let's see what it looks like
-                                // first (surely, window will close too
-                                // quickly for this to do anything)
+            // colorBars->green(); // TODO: May remove, since this is last
+            //  window. Let's see what it looks like
+            //  first (surely, window will close too
+            //  quickly for this to do anything)
 
             return true;
         }
@@ -408,7 +409,7 @@ private:
                     Tr::Dialogs::notebookSaveAsFilter());
 
                 if (new_path.isEmpty()) {
-                    colorBars->red();
+                    // colorBars->red();
                     return;
                 }
 
@@ -454,19 +455,29 @@ private:
 
                 /// TODO SAVES
 
-                fnxPath_ = new_path;
-
                 // TODO: Centralize all the things that would need updated when
                 // working dir changes, refactor appropriately
 
+                // TODO: Should the temp dir format and name be an FNX utility?
+                // Anything else?
+
+                fnxPath_ = new_path;
+
                 auto new_working_dir = TempDir(
                     AppDirs::temp() / (fnxPath_.fileQString() + "~XXXXXX"));
-                if (!new_working_dir.isValid()) FATAL("lol rip");
+                if (!new_working_dir.isValid())
+                    FATAL(
+                        "Notebook working directory creation "
+                        "failed!");
                 auto old_dir = workingDir_.path();
                 auto new_dir = new_working_dir.path();
 
                 if (!Coco::PathUtil::copyContents(old_dir, new_dir))
-                    FATAL("lol rip 2");
+                    FATAL(
+                        "Failed to copy old Notebook working directory "
+                        "contents from {} to {}!",
+                        old_dir,
+                        new_dir);
 
                 for (auto& model : files->fileModels()) {
                     if (!model) continue;
@@ -476,12 +487,13 @@ private:
                 }
 
                 workingDir_ = std::move(new_working_dir);
+
                 settings->setOverrideConfigPath(
                     workingDir_.path() / Constants::CONFIG_FILE_NAME);
+                windows->setSubtitle(fnxPath_.fileQString());
 
                 /// TODO SAVES (END)
 
-                windows->setSubtitle(fnxPath_.fileQString());
                 fnxModel_->resetSnapshot();
                 showModified_();
                 colorBars->green();
