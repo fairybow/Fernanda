@@ -99,7 +99,7 @@ private:
 
         actions.file.saveAll = Menus::makeBusAction(
             bus,
-            window, // TODO: Window not needed!
+            window,
             Commands::NOTEPAD_SAVE_ALL,
             Tr::Menus::fileNotepadSaveAll());
     }

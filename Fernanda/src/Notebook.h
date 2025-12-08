@@ -24,6 +24,7 @@
 #include <QPalette> // TODO: Temp
 #include <QPoint>
 #include <QStatusBar>
+#include <QStringList>
 #include <QVariant>
 #include <QVariantMap>
 
@@ -138,7 +139,7 @@ protected:
 
             if (!save_result) {
                 colorBars->red();
-                auto fail_paths = saveFailDisplayNames_(save_result);
+                auto fail_paths = saveFailDisplayNames_(save_result.failed);
                 SaveFailMessageBox::exec(fail_paths, window);
 
                 return false;
@@ -179,7 +180,7 @@ protected:
 
             if (!save_result) {
                 colorBars->red();
-                auto fail_paths = saveFailDisplayNames_(save_result);
+                auto fail_paths = saveFailDisplayNames_(save_result.failed);
                 SaveFailMessageBox::exec(fail_paths, windows.last());
 
                 return false;
@@ -312,7 +313,7 @@ private:
 
                 if (!save_result) {
                     colorBars->red();
-                    auto fail_paths = saveFailDisplayNames_(save_result);
+                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
                     SaveFailMessageBox::exec(fail_paths, cmd.context);
 
                     return;
@@ -349,7 +350,7 @@ private:
 
                 if (!save_result) {
                     colorBars->red();
-                    auto fail_paths = saveFailDisplayNames_(save_result);
+                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
                     SaveFailMessageBox::exec(fail_paths, cmd.context);
 
                     return;
@@ -494,8 +495,10 @@ private:
         MultiSaveResult_ result{};
         for (auto& model : modified_models) {
             switch (files->save(model)) {
+
             case FileService::Success:
                 break;
+
             case FileService::NoOp:
             case FileService::Failure:
             default:
@@ -507,12 +510,12 @@ private:
         return result;
     }
 
-    QStringList saveFailDisplayNames_(const MultiSaveResult_& saveResult) const
+    QStringList saveFailDisplayNames_(const QList<IFileModel*>& failed) const
     {
-        if (saveResult) return {};
+        if (failed.isEmpty()) return {};
         QStringList fail_paths{};
 
-        for (auto& model : saveResult.failed) {
+        for (auto& model : failed) {
             if (!model) continue;
             auto meta = model->meta();
             if (!meta) continue;
