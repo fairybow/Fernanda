@@ -66,6 +66,7 @@
 - [ ] Saves: MultiSave struct: add success count and aborted bool, allowing us to show no color bar if only aborted, green color bar if no fails but any successes before aborted, and red if any fails before aborted
 - [ ] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
 - [ ] Saves: We aren't closing views during the save process, so we don't necessarily need to go backward? Make double sure, but could have fileViews and rFileViews only (where the former returns views 0 to n in each window, top down, and the latter returns views n to 0 in each window, bottom up
+- [ ] Saves: Yeahhhhh, definitely don't iterate through tabs backward now that nothing is closing
 
 ### Coco
 
