@@ -251,6 +251,7 @@ protected:
 
             auto result = multiSave_(to_save, window);
 
+            // Fails take priority
             if (result.anyFails()) {
                 colorBars->red(window);
                 auto fail_display_names = fileDisplayNames_(result.failed);
@@ -259,6 +260,7 @@ protected:
                 return false;
             }
 
+            // If any saves occurred, we indicate that (but still block)
             if (result.aborted) {
                 if (result.anySuccesses()) colorBars->green(window);
                 return false;
@@ -309,24 +311,28 @@ protected:
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
+            if (to_save.isEmpty()) return true; // Shouldn't happen
+
             auto result = multiSave_(to_save);
 
-            if (result) {
-                colorBars->green(); // All windows
-                return true;
-            } else {
+            // Fails take priority
+            if (result.anyFails()) {
                 colorBars->red();
-
                 auto fail_display_names = fileDisplayNames_(result.failed);
+                SaveFailMessageBox::exec(fail_display_names, windows.last());
 
-                // Use active window, since we may have switched which window is
-                // on top (TODO: could just do that above, for the sake of
-                // consistency)
-                SaveFailMessageBox::exec(
-                    fail_display_names,
-                    this->windows->active());
                 return false;
             }
+
+            // If any saves occurred, we indicate that (but still block)
+            if (result.aborted) {
+                if (result.anySuccesses()) colorBars->green();
+                return false;
+            }
+
+            // All saves succeeded
+            colorBars->green();
+            return true;
         }
 
         case SavePrompt::Discard:
@@ -367,19 +373,27 @@ protected:
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
+            if (to_save.isEmpty()) return true; // Shouldn't happen
+
             auto result = multiSave_(to_save, window);
 
-            if (result) {
-                // No green color bar (window closing)
-                return true;
-            } else {
+            // Fails take priority
+            if (result.anyFails()) {
                 colorBars->red(window);
-
                 auto fail_display_names = fileDisplayNames_(result.failed);
-
                 SaveFailMessageBox::exec(fail_display_names, window);
+
                 return false;
             }
+
+            // If any saves occurred, we indicate that (but still block)
+            if (result.aborted) {
+                if (result.anySuccesses()) colorBars->green(window);
+                return false;
+            }
+
+            // All saves succeeded (no green color bar (window closing))
+            return true;
         }
 
         case SavePrompt::Discard:
@@ -422,24 +436,28 @@ protected:
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
+            if (to_save.isEmpty()) return true; // Shouldn't happen
+
             auto result = multiSave_(to_save);
 
-            if (result) {
-                // No green color bar (window closing)
-                return true;
-            } else {
+            // Fails take priority
+            if (result.anyFails()) {
                 colorBars->red();
-
                 auto fail_display_names = fileDisplayNames_(result.failed);
+                // Use active window, since we may have switched which window is on top?:
+                SaveFailMessageBox::exec(fail_display_names, windows.last());
 
-                // Use active window, since we may have switched which window is
-                // on top (TODO: could just do that above, for the sake of
-                // consistency)
-                SaveFailMessageBox::exec(
-                    fail_display_names,
-                    this->windows->active());
                 return false;
             }
+
+            // If any saves occurred, we indicate that (but still block)
+            if (result.aborted) {
+                if (result.anySuccesses()) colorBars->green();
+                return false;
+            }
+
+            // All saves succeeded (no green color bar (window closing))
+            return true;
         }
 
         case SavePrompt::Discard:
@@ -704,13 +722,17 @@ private:
 
                 auto result = multiSave_(modified_models, cmd.context);
 
-                if (result) {
-                    colorBars->green(cmd.context);
-                } else {
+                // Fails take priority
+                if (result.anyFails()) {
                     colorBars->red(cmd.context);
                     auto fail_display_names = fileDisplayNames_(result.failed);
                     SaveFailMessageBox::exec(fail_display_names, cmd.context);
+
+                    return;
                 }
+
+                // If any saves occurred, we indicate that
+                if (result.anySuccesses()) colorBars->green(cmd.context);
             });
 
         bus->addCommandHandler(
@@ -737,13 +759,17 @@ private:
 
                 auto result = multiSave_(modified_models);
 
-                if (result) {
-                    colorBars->green();
-                } else {
+                // Fails take priority
+                if (result.anyFails()) {
                     colorBars->red();
                     auto fail_display_names = fileDisplayNames_(result.failed);
                     SaveFailMessageBox::exec(fail_display_names, cmd.context);
+
+                    return;
                 }
+
+                // If any saves occurred, we indicate that
+                if (result.anySuccesses()) colorBars->green();
             });
 
         /// TODO SAVES (END)
