@@ -35,6 +35,7 @@
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
 #include "IFileModel.h"
@@ -133,32 +134,11 @@ protected:
             return false;
 
         case SavePrompt::Save: {
-            QList<IFileModel*> modified_models{};
-            for (auto& view : views->rzFileViews()) {
-                if (!view) continue;
-                auto model = view->model();
-                if (!model || !model->isModified()) continue;
-                if (modified_models.contains(model)) continue;
+            auto save_result = saveModifiedModels_();
 
-                modified_models << model;
-            }
-
-            MultiSaveResult file_result{};
-            for (auto& model : modified_models) {
-                if (files->save(model) != FileService::Success)
-                    file_result.failed << model;
-            }
-
-            if (!file_result) {
+            if (!save_result) {
                 colorBars->red();
-
-                QStringList fail_paths{};
-                for (auto& model : file_result.failed) {
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    fail_paths << meta->path().toQString();
-                }
-
+                auto fail_paths = saveFailDisplayNames_(save_result);
                 SaveFailMessageBox::exec(fail_paths, window);
 
                 return false;
@@ -169,15 +149,13 @@ protected:
             if (!Fnx::Io::compress(fnxPath_, workingDir_.path())) {
                 colorBars->red();
                 SaveFailMessageBox::exec(fnxPath_.toQString(), window);
+
                 return false;
             }
 
             fnxModel_->resetSnapshot();
             showModified_();
-            // colorBars->green(); // TODO: May remove, since this is last
-            //  window. Let's see what it looks like
-            //  first (surely, window will close too
-            //  quickly for this to do anything)
+            // No green color bar (window closing)
 
             return true;
         }
@@ -197,32 +175,11 @@ protected:
             return false;
 
         case SavePrompt::Save: {
-            QList<IFileModel*> modified_models{};
-            for (auto& view : views->rzFileViews()) {
-                if (!view) continue;
-                auto model = view->model();
-                if (!model || !model->isModified()) continue;
-                if (modified_models.contains(model)) continue;
+            auto save_result = saveModifiedModels_();
 
-                modified_models << model;
-            }
-
-            MultiSaveResult file_result{};
-            for (auto& model : modified_models) {
-                if (files->save(model) != FileService::Success)
-                    file_result.failed << model;
-            }
-
-            if (!file_result) {
+            if (!save_result) {
                 colorBars->red();
-
-                QStringList fail_paths{};
-                for (auto& model : file_result.failed) {
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    fail_paths << meta->path().toQString();
-                }
-
+                auto fail_paths = saveFailDisplayNames_(save_result);
                 SaveFailMessageBox::exec(fail_paths, windows.last());
 
                 return false;
@@ -233,15 +190,13 @@ protected:
             if (!Fnx::Io::compress(fnxPath_, workingDir_.path())) {
                 colorBars->red();
                 SaveFailMessageBox::exec(fnxPath_.toQString(), windows.last());
+
                 return false;
             }
 
             fnxModel_->resetSnapshot();
             showModified_();
-            // colorBars->green(); // TODO: May remove, since this is last
-            //  window. Let's see what it looks like
-            //  first (surely, window will close too
-            //  quickly for this to do anything)
+            // No green color bar (window closing)
 
             return true;
         }
@@ -353,32 +308,11 @@ private:
                 if (!cmd.context) return;
                 if (!isModified_()) return;
 
-                QList<IFileModel*> modified_models{};
-                for (auto& view : views->rzFileViews()) {
-                    if (!view) continue;
-                    auto model = view->model();
-                    if (!model || !model->isModified()) continue;
-                    if (modified_models.contains(model)) continue;
+                auto save_result = saveModifiedModels_();
 
-                    modified_models << model;
-                }
-
-                MultiSaveResult file_result{};
-                for (auto& model : modified_models) {
-                    if (files->save(model) != FileService::Success)
-                        file_result.failed << model;
-                }
-
-                if (!file_result) {
+                if (!save_result) {
                     colorBars->red();
-
-                    QStringList fail_paths{};
-                    for (auto& model : file_result.failed) {
-                        auto meta = model->meta();
-                        if (!meta) continue;
-                        fail_paths << meta->path().toQString();
-                    }
-
+                    auto fail_paths = saveFailDisplayNames_(save_result);
                     SaveFailMessageBox::exec(fail_paths, cmd.context);
 
                     return;
@@ -389,6 +323,7 @@ private:
                 if (!Fnx::Io::compress(fnxPath_, workingDir_.path())) {
                     colorBars->red();
                     SaveFailMessageBox::exec(fnxPath_.toQString(), cmd.context);
+
                     return;
                 }
 
@@ -408,38 +343,13 @@ private:
                     fnxPath_,
                     Tr::Dialogs::notebookSaveAsFilter());
 
-                if (new_path.isEmpty()) {
-                    // colorBars->red();
-                    return;
-                }
+                if (new_path.isEmpty()) return;
 
-                // Save modified file models
-                QList<IFileModel*> modified_models{};
-                for (auto& view : views->rzFileViews()) {
-                    if (!view) continue;
-                    auto model = view->model();
-                    if (!model || !model->isModified()) continue;
-                    if (modified_models.contains(model)) continue;
+                auto save_result = saveModifiedModels_();
 
-                    modified_models << model;
-                }
-
-                MultiSaveResult file_result{};
-                for (auto& model : modified_models) {
-                    if (files->save(model) != FileService::Success)
-                        file_result.failed << model;
-                }
-
-                if (!file_result) {
+                if (!save_result) {
                     colorBars->red();
-
-                    QStringList fail_paths{};
-                    for (auto& model : file_result.failed) {
-                        auto meta = model->meta();
-                        if (!meta) continue;
-                        fail_paths << meta->path().toQString();
-                    }
-
+                    auto fail_paths = saveFailDisplayNames_(save_result);
                     SaveFailMessageBox::exec(fail_paths, cmd.context);
 
                     return;
@@ -450,6 +360,7 @@ private:
                 if (!Fnx::Io::compress(new_path, workingDir_.path())) {
                     colorBars->red();
                     SaveFailMessageBox::exec(new_path.toQString(), cmd.context);
+
                     return;
                 }
 
@@ -551,6 +462,68 @@ private:
         temp_label->setText("Name on open: " + fnxPath_.fileQString());
         status_bar->addPermanentWidget(temp_label);
     }
+
+    /// TODO SAVES
+
+    struct MultiSaveResult_
+    {
+        QList<IFileModel*> failed{};
+        explicit operator bool() const noexcept { return failed.isEmpty(); }
+    };
+
+    MultiSaveResult_ saveModifiedModels_() const
+    {
+        // Save modified file models. We're using a list here and going by view
+        // so any fails will be displayed in a consistent order
+        QList<IFileModel*> modified_models{};
+
+        // TODO: Potentially change rzFileViews to fileViews and just give them
+        // in regular order (but still top window first)
+        for (auto& view : views->rzFileViews()) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model || !model->isModified()) continue;
+            if (modified_models.contains(model)) continue;
+
+            modified_models << model;
+        }
+
+        if (modified_models.isEmpty()) return {};
+
+        // No save prompts for Notebook's always-on-disk files
+        MultiSaveResult_ result{};
+        for (auto& model : modified_models) {
+            switch (files->save(model)) {
+            case FileService::Success:
+                break;
+            case FileService::NoOp:
+            case FileService::Failure:
+            default:
+                result.failed << model;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    QStringList saveFailDisplayNames_(const MultiSaveResult_& saveResult) const
+    {
+        if (saveResult) return {};
+        QStringList fail_paths{};
+
+        for (auto& model : saveResult.failed) {
+            if (!model) continue;
+            auto meta = model->meta();
+            if (!meta) continue;
+
+            fail_paths << meta->path().toQString();
+        }
+
+        return fail_paths;
+    }
+
+    /// TODO SAVES (END)
 
 private slots:
     // TODO: Could remove working dir validity check; also writeModelFile could

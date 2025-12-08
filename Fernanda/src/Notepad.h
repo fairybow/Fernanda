@@ -408,10 +408,7 @@ protected:
             auto result = multiSave_(to_save, window);
 
             if (result) {
-                // Window should close immediately, so no need to run color bar
-                // - still,
-                // let's see what it looks like before removing it
-                // colorBars->green(window);
+                // No green color bar (window closing)
                 return true;
             } else {
                 colorBars->red(window);
@@ -481,10 +478,7 @@ protected:
             auto result = multiSave_(to_save);
 
             if (result) {
-                // Window should close immediately, so no need to run color bar
-                // - still,
-                // let's see what it looks like before removing it
-                // colorBars->green();
+                // No green color bar (window closing)
                 return true;
             } else {
                 colorBars->red();
@@ -521,6 +515,34 @@ private:
     NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
     /// TODO SAVES
+
+    /// Remember, we want the following re: Save As dialogs:
+    /// - If user cancels dialog, that isn't itself a failure
+    /// - If anything was saved (and nothing failed) before canceling, we show
+    /// green
+    /// - If anything failed before canceling, we show red and fail prompt
+    /// - If nothing failed or succeeded before canceling, we show nothing
+    /// - For single file, Save As: canceled, no color bar; success green; fail
+    /// red
+    /// - For single file save: shouldn't be any opportunity for no color bar;
+    /// red fail; green success (obvs) Go through every save method again and
+    /// make sure we're following the above
+
+    struct MultiSaveResult_
+    {
+        int successCount = 0; // probably needed
+        bool aborted = false; // probably needed
+        QList<IFileModel*> failed{};
+
+        explicit operator bool() const noexcept
+        {
+            // TODO: Rethink, see what's needed
+            return !aborted && failed.isEmpty();
+        }
+
+        bool anySuccesses() const noexcept { return successCount > 0; }
+        bool anyFails() const noexcept { return !failed.isEmpty(); }
+    };
 
     MultiSaveResult
     multiSave_(const QList<IFileModel*>& fileModels, Window* window = nullptr)
@@ -644,10 +666,7 @@ private:
                     currentBaseDir_); // TODO: For this and similar, want to add
                                       // the current temp title + preferred ext
 
-                if (path.isEmpty()) {
-                    // colorBars->red(cmd.context);
-                    return;
-                }
+                if (path.isEmpty()) return;
 
                 result = files->saveAs(model, path);
             }
@@ -685,10 +704,7 @@ private:
                     Tr::Dialogs::notepadSaveFileAsCaption(),
                     initial_path);
 
-                if (path.isEmpty()) {
-                    // colorBars->red(cmd.context);
-                    return;
-                }
+                if (path.isEmpty()) return;
 
                 auto result = files->saveAs(model, path);
 

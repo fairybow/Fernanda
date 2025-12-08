@@ -86,13 +86,6 @@ signals:
     void lastWindowClosed();
 
 protected:
-    // Used in subclasses only (TODO: Make sure this is the best place...)
-    struct MultiSaveResult
-    {
-        QList<IFileModel*> failed{};
-        explicit operator bool() const noexcept { return failed.isEmpty(); }
-    };
-
     // TODO: Getters instead?
 
     Bus* bus = new Bus(this);
