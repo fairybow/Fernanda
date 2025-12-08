@@ -2,12 +2,22 @@
 
 ## Features
 
+### Up Next (See Miscellaneous Todos)
+
+- [x] Save prompts
+- [ ] Saves
+- [x] Warking dir renames
+- [ ] New Notebook dialog
+- [ ] Notebook export file
+- [ ] FnxModel + TreeView element removal
+- [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
+
 ### MVP
 
 - [ ] FNX (extract, compress, model, model manipulation, saving)
 - [ ] Menu item state toggling
-- [ ] Fully functioning Notepad (complete menus, open files, save them)
-- [ ] Fully functioning Notebooks (complete menus, open archive, make files, save archive, element removal)
+- [ ] Fully functioning Notepad (complete file/edit menus, open files, save them)
+- [ ] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
 - [ ] Tab dragging (tab to window, tab to new window)
 - [ ] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH)
@@ -52,7 +62,6 @@
 - [x] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
 - [ ] Saves: Probably want a diagnostic/debug window that shows all files saved?
 - [x] Saves: Bug: (EASY - missing return statement for single-item delegation in SaveFailMessageBox::exec for string list) Unknown repro: had SaveFailMessageBox showing the successful files as a test, and when I added a new tab to a Notebook and then used Save As, I received two SaveFailMessageBox prompts for some reason? Should have only been one. I think they were for the same file, but not sure. Seems concerning!
-- [ ] Saves: Backup folder with auto clean-up
 
 ### Coco
 
