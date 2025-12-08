@@ -21,6 +21,7 @@
 - [ ] Tab dragging (tab to window, tab to new window)
 - [ ] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH)
+- [ ] Basic editor settings
 
 ### Stretch
 
