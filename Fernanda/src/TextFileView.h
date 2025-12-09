@@ -19,8 +19,8 @@
 
 #include "Coco/Layout.h"
 
+#include "AbstractFileModel.h"
 #include "Debug.h"
-#include "IFileModel.h"
 #include "IFileView.h"
 #include "TextFileModel.h"
 

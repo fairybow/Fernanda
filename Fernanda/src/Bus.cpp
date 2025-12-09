@@ -12,9 +12,9 @@
 
 #include "Coco/Path.h"
 
+#include "AbstractFileModel.h"
 #include "Bus.h"
 #include "Debug.h"
-#include "IFileModel.h"
 #include "IFileView.h"
 #include "Window.h"
 
@@ -49,20 +49,22 @@ void Bus::setup_()
                 index);
         });
 
-    SIGLOG_(fileModelReadied, [&](Window* context, IFileModel* fileModel) {
-        INFO("File model readied in [{}]: [{}]", context, fileModel);
-    });
+    SIGLOG_(
+        fileModelReadied,
+        [&](Window* context, AbstractFileModel* fileModel) {
+            INFO("File model readied in [{}]: [{}]", context, fileModel);
+        });
 
     SIGLOG_(
         fileModelModificationChanged,
-        [&](IFileModel* fileModel, bool modified) {
+        [&](AbstractFileModel* fileModel, bool modified) {
             INFO(
                 "File model [{}] modification changed to {}",
                 fileModel,
                 modified);
         });
 
-    SIGLOG_(fileModelMetaChanged, [&](IFileModel* fileModel) {
+    SIGLOG_(fileModelMetaChanged, [&](AbstractFileModel* fileModel) {
         INFO("File model [{}] metadata changed", fileModel);
     });
 
@@ -78,7 +80,7 @@ void Bus::setup_()
                 index);
         });
 
-    SIGLOG_(viewDestroyed, [&](IFileModel* fileModel) {
+    SIGLOG_(viewDestroyed, [&](AbstractFileModel* fileModel) {
         INFO("View destroyed for model [{}]", fileModel);
     });
 

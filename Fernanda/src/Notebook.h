@@ -31,6 +31,7 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
+#include "AbstractFileModel.h"
 #include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
@@ -39,7 +40,6 @@
 #include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
-#include "IFileModel.h"
 #include "IService.h"
 #include "NotebookMenuModule.h"
 #include "SaveFailMessageBox.h"
@@ -468,7 +468,7 @@ private:
 
     struct MultiSaveResult_
     {
-        QList<IFileModel*> failed{};
+        QList<AbstractFileModel*> failed{};
         explicit operator bool() const noexcept { return failed.isEmpty(); }
     };
 
@@ -476,7 +476,7 @@ private:
     {
         // Save modified file models. We're using a list here and going by view
         // so any fails will be displayed consistent with UI order
-        QList<IFileModel*> modified_models{};
+        QList<AbstractFileModel*> modified_models{};
 
         for (auto& view : views->fileViews()) {
             if (!view) continue;
@@ -508,7 +508,8 @@ private:
         return result;
     }
 
-    QStringList saveFailDisplayNames_(const QList<IFileModel*>& failed) const
+    QStringList
+    saveFailDisplayNames_(const QList<AbstractFileModel*>& failed) const
     {
         if (failed.isEmpty()) return {};
         QStringList fail_paths{};
@@ -607,7 +608,8 @@ private slots:
         menu->popup(globalPos);
     }
 
-    void onFileModelModificationChanged_(IFileModel* fileModel, bool modified)
+    void
+    onFileModelModificationChanged_(AbstractFileModel* fileModel, bool modified)
     {
         auto meta = fileModel->meta();
         if (!meta) return;

@@ -24,12 +24,12 @@
 #include "Coco/Concepts.h"
 #include "Coco/Utility.h"
 
+#include "AbstractFileModel.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileMeta.h"
-#include "IFileModel.h"
 #include "IFileView.h"
 #include "IService.h"
 #include "Ini.h"
@@ -94,7 +94,7 @@ public:
         setCanCloseAllTabsHook,
         canCloseAllTabsHook_);
 
-    int countFor(IFileModel* fileModel) const
+    int countFor(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return 0;
         return fileViewsPerModel_.value(fileModel, 0);
@@ -112,7 +112,7 @@ public:
 
     /// TODO SAVES
 
-    void raise(Window* window, IFileModel* model) const
+    void raise(Window* window, AbstractFileModel* model) const
     {
         if (!window || !model) return;
         auto tab_widget = tabWidget_(window);
@@ -131,7 +131,7 @@ public:
 
     // Returns the first window found (from top to bottom) with this model (if
     // any)
-    Window* raise(IFileModel* model) const
+    Window* raise(AbstractFileModel* model) const
     {
         if (!model) return nullptr;
         auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
@@ -155,7 +155,7 @@ public:
         return nullptr;
     }
 
-    bool isMultiWindow(IFileModel* fileModel) const
+    bool isMultiWindow(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return false;
 
@@ -311,7 +311,7 @@ protected:
 
 private:
     QHash<Window*, IFileView*> activeFileViews_{};
-    QHash<IFileModel*, int> fileViewsPerModel_{};
+    QHash<AbstractFileModel*, int> fileViewsPerModel_{};
     NewTabHook newTabHook_ = nullptr;
     CanCloseTabHook canCloseTabHook_ = nullptr;
     CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
@@ -338,7 +338,7 @@ private:
     }
 
     // Index -1 = current
-    IFileModel* fileModelAt_(Window* window, int index) const
+    AbstractFileModel* fileModelAt_(Window* window, int index) const
     {
         auto view = fileViewAt(window, index);
         return view ? view->model() : nullptr;
@@ -564,7 +564,7 @@ private slots:
     }
 
     // TODO: New view settings
-    void onFileModelReadied_(Window* window, IFileModel* fileModel)
+    void onFileModelReadied_(Window* window, AbstractFileModel* fileModel)
     {
         if (!window || !fileModel) return;
         auto tab_widget = tabWidget_(window);
@@ -616,7 +616,8 @@ private slots:
 
     // TODO: Separate method with callback for iteration over all tabs-per-model
     // (use in below method, too)
-    void onFileModelModificationChanged_(IFileModel* fileModel, bool modified)
+    void
+    onFileModelModificationChanged_(AbstractFileModel* fileModel, bool modified)
     {
         if (!fileModel) return;
 
@@ -637,7 +638,7 @@ private slots:
 
     // TODO: Separate method with callback for iteration over all tabs-per-model
     // (use in above method, too)
-    void onFileModelMetaChanged_(IFileModel* fileModel)
+    void onFileModelMetaChanged_(AbstractFileModel* fileModel)
     {
         if (!fileModel) return;
         auto meta = fileModel->meta();

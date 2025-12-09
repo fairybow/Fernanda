@@ -63,7 +63,7 @@
     <ClInclude Include="src\BuildMessages.h" />
     <QtMoc Include="src\FileService.h" />
     <QtMoc Include="src\SettingsModule.h" />
-    <QtMoc Include="src\IFileModel.h" />
+    <QtMoc Include="src\AbstractFileModel.h" />
     <QtMoc Include="src\FileMeta.h" />
     <QtMoc Include="src\TextFileModel.h" />
     <QtMoc Include="src\IFileView.h" />
