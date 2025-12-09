@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QAbstractItemModel>
+#include <QList>
 #include <QModelIndex>
 #include <QObject>
 #include <QString>
@@ -26,6 +27,7 @@
 #include "ColorBarModule.h"
 #include "Constants.h"
 #include "FileService.h"
+#include "IFileModel.h"
 #include "SettingsModule.h"
 #include "Timers.h"
 #include "TreeViewService.h"
@@ -52,6 +54,8 @@ public:
     }
 
     virtual ~Workspace() override = default;
+
+    virtual bool tryQuit() = 0;
 
     // void open(const Session& session)
     // {
@@ -94,8 +98,6 @@ protected:
     FileService* files = new FileService(bus, this);
     TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
-
-    virtual bool canQuit() = 0;
 
 protected:
     virtual QAbstractItemModel* treeViewModel() = 0;

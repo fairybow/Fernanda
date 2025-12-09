@@ -35,8 +35,8 @@ constexpr auto NOTEPAD_SAVE_ALL = "notepad:save_all"; /// *
 
 constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad"; /// *
 constexpr auto NOTEBOOK_IMPORT_FILE = "notebook:import_file"; /// *
-constexpr auto NOTEBOOK_SAVE = "notebook:save_archive";
-constexpr auto NOTEBOOK_SAVE_AS = "notebook:save_archive_as";
+constexpr auto NOTEBOOK_SAVE = "notebook:save_archive"; /// *
+constexpr auto NOTEBOOK_SAVE_AS = "notebook:save_archive_as"; /// *
 constexpr auto NOTEBOOK_EXPORT_FILE = "notebook:export_file";
 
 // ViewService scope
@@ -62,7 +62,7 @@ constexpr auto SETTINGS_DIALOG = "settings:dialog";
 
 constexpr auto NEW_WINDOW = "windows:new"; /// *
 constexpr auto WINDOWS_SET = "windows:set"; /// *, non-menu
-constexpr auto RZ_WINDOWS = "windows:rz_list"; /// *, non-menu
+constexpr auto WINDOWS = "windows:list"; /// *, non-menu
 constexpr auto CLOSE_ALL_WINDOWS = "windows:close_all"; /// *
 
 // ColorBarModule scope

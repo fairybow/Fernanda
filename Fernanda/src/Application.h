@@ -80,11 +80,12 @@ public slots:
 
     void tryQuit()
     {
-        // TODO: Go by Z-order (most to least recently used)
+        // TODO: Go by Z-order (most to least recently used). Currently, we go
+        // by most to least recently opened
         for (auto i = notebooks_.count() - 1; i >= 0; --i)
-            if (!notebooks_.at(i)->canQuit()) return;
+            if (!notebooks_.at(i)->tryQuit()) return;
 
-        if (notepad_ && !notepad_->canQuit()) return;
+        if (notepad_ && !notepad_->tryQuit()) return;
 
         quit();
     }
@@ -171,15 +172,16 @@ private slots:
     // TODO: Needs tested!
     void onCommitDataRequest_(QSessionManager& manager)
     {
-        // TODO: Go by Z-order (most to least recently used)
+        // TODO: Go by Z-order (most to least recently used). Currently, we go
+        // by most to least recently opened
         for (auto i = notebooks_.count() - 1; i >= 0; --i) {
-            if (!notebooks_.at(i)->canQuit()) {
+            if (!notebooks_.at(i)->tryQuit()) {
                 manager.cancel();
                 return;
             }
         }
 
-        if (notepad_ && !notepad_->canQuit()) {
+        if (notepad_ && !notepad_->tryQuit()) {
             manager.cancel();
             return;
         }

@@ -40,8 +40,6 @@
 #include "TextFileView.h"
 #include "Window.h"
 
-// Re: indexes/iteration: API = reverse order; Internal: regular
-
 namespace Fernanda {
 
 // Creates and manages program views (TabWidgets and FileViews) within
@@ -120,43 +118,42 @@ public:
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return;
 
-        // Find first tab from the right with this model
-        for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-            if (auto view = tab_widget->widgetAt<IFileView*>(i)) {
-                if (view->model() == model) {
-                    raise(window, i);
-                    return;
-                }
-            }
+        // Find first tab from the left with this model
+        for (auto i = 0; i < tab_widget->count(); ++i) {
+            auto view = tab_widget->widgetAt<IFileView*>(i);
+            if (!view) continue;
+            if (view->model() != model) continue;
+
+            raise(window, i);
+            return;
         }
     }
 
+    // Returns the first window found (from top to bottom) with this model (if
+    // any)
     Window* raise(IFileModel* model) const
     {
         if (!model) return nullptr;
-        auto rz_windows = bus->call<QList<Window*>>(Commands::RZ_WINDOWS);
-        if (rz_windows.isEmpty()) return nullptr;
+        auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
+        if (windows.isEmpty()) return nullptr;
 
-        for (auto& window : rz_windows)
-        {
+        for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
 
-            // Find first tab from the right with this model
-            for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-                if (auto view = tab_widget->widgetAt<IFileView*>(i)) {
-                    if (view->model() == model) {
-                        raise(window, i);
-                        return window;
-                    }
-                }
+            // Find first tab from the left with this model
+            for (auto i = 0; i < tab_widget->count(); ++i) {
+                auto view = tab_widget->widgetAt<IFileView*>(i);
+                if (!view) continue;
+                if (view->model() != model) continue;
+
+                raise(window, i);
+                return window;
             }
         }
 
         return nullptr;
     }
-
-    /// TODO SAVES (END)
 
     bool isMultiWindow(IFileModel* fileModel) const
     {
@@ -194,7 +191,7 @@ public:
         return tab_widget->widgetAt<IFileView*>(i);
     }
 
-    QList<IFileView*> rFileViewsIn(Window* window) const
+    QList<IFileView*> fileViewsIn(Window* window) const
     {
         if (!window) return {};
         auto tab_widget = tabWidget_(window);
@@ -202,29 +199,32 @@ public:
 
         QList<IFileView*> views{};
 
-        for (auto i = tab_widget->count() - 1; i >= 0; --i)
+        for (auto i = 0; i < tab_widget->count(); ++i)
             if (auto view = tab_widget->widgetAt<IFileView*>(i)) views << view;
 
         return views;
     }
 
-    // TODO: Unused currently
-    QList<IFileView*> rzFileViews() const
+    QList<IFileView*> fileViews() const
     {
+        auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
+        if (windows.isEmpty()) return {};
+
         QList<IFileView*> views{};
 
-        auto rz_windows = bus->call<QList<Window*>>(Commands::RZ_WINDOWS);
-        for (auto& window : rz_windows) {
+        for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
 
-            for (auto i = tab_widget->count() - 1; i >= 0; --i)
+            for (auto i = 0; i < tab_widget->count(); ++i)
                 if (auto view = tab_widget->widgetAt<IFileView*>(i))
                     views << view;
         }
 
         return views;
     }
+
+    /// TODO SAVES (END)
 
 protected:
     virtual void registerBusCommands() override
@@ -409,11 +409,8 @@ private:
         if (!view) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabHook_ || canCloseTabHook_(window, i)) {
-            auto model = view->model();
+        if (!canCloseTabHook_ || canCloseTabHook_(window, i))
             deleteFileViewAt_(window, i);
-            if (model) emit bus->viewDestroyed(model);
-        }
     }
 
     void closeTabEverywhere_(Window* window, int index = -1)
@@ -424,8 +421,10 @@ private:
         // Proceed if no hook is set, or if hook approves the close
         if (!canCloseTabEverywhereHook_
             || canCloseTabEverywhereHook_(window, index)) {
-            auto rz_windows = bus->call<QList<Window*>>(Commands::RZ_WINDOWS);
-            for (auto& window : rz_windows) {
+            auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
+            if (windows.isEmpty()) return;
+
+            for (auto& window : windows) {
                 auto tab_widget = tabWidget_(window);
                 if (!tab_widget || tab_widget->isEmpty()) continue;
 
@@ -436,58 +435,27 @@ private:
                         deleteFileViewAt_(window, i);
                 }
             }
-
-            // Technically we could emit this having destroyed no views, but I
-            // doubt it. That would mean we would've had a model without a view
-            // that we also then somehow managed to close by index
-            emit bus->viewDestroyed(target_model);
         }
     }
 
     void closeWindowTabs_(Window* window)
     {
         if (!window) return;
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget || tab_widget->isEmpty()) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_(window)) {
-
-            QSet<IFileModel*> models{};
-            for (auto i = tab_widget->count() - 1; i >= 0; --i)
-                if (auto view = tab_widget->widgetAt<IFileView*>(i))
-                    if (auto model = view->model()) models << model;
-
+        if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_(window))
             deleteAllFileViewsIn_(window);
-
-            for (auto& model : models)
-                emit bus->viewDestroyed(model);
-        }
     }
 
     void closeAllTabs_()
     {
-        auto rz_windows = bus->call<QList<Window*>>(Commands::RZ_WINDOWS);
-        if (rz_windows.isEmpty()) return;
+        auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
+        if (windows.isEmpty()) return;
 
         // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseAllTabsHook_ || canCloseAllTabsHook_(rz_windows)) {
-            QSet<IFileModel*> models{};
-            for (auto& window : rz_windows) {
-                auto tab_widget = tabWidget_(window);
-                if (!tab_widget || tab_widget->isEmpty()) continue;
-
-                for (auto i = tab_widget->count() - 1; i >= 0; --i)
-                    if (auto view = tab_widget->widgetAt<IFileView*>(i))
-                        if (auto model = view->model()) models << model;
-            }
-
-            for (auto& window : rz_windows)
+        if (!canCloseAllTabsHook_ || canCloseAllTabsHook_(windows))
+            for (auto& window : windows)
                 deleteAllFileViewsIn_(window);
-
-            for (auto& model : models)
-                emit bus->viewDestroyed(model);
-        }
     }
 
     // Index -1 = current
@@ -635,6 +603,8 @@ private slots:
         connect(view, &QObject::destroyed, this, [&, view, fileModel] {
             if (--fileViewsPerModel_[fileModel] <= 0)
                 fileViewsPerModel_.remove(fileModel);
+
+            emit bus->viewDestroyed(fileModel);
         });
 
         auto index = tab_widget->addTab(view, meta->title());

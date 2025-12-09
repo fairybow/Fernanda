@@ -2,15 +2,26 @@
 
 ## Features
 
+### Up Next (See Miscellaneous Todos)
+
+- [x] Save prompts
+- [ ] Saves
+- [x] Warking dir renames
+- [ ] New Notebook dialog
+- [ ] Notebook export file
+- [ ] FnxModel + TreeView element removal
+- [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
+
 ### MVP
 
 - [ ] FNX (extract, compress, model, model manipulation, saving)
 - [ ] Menu item state toggling
-- [ ] Fully functioning Notepad (complete menus, open files, save them)
-- [ ] Fully functioning Notebooks (complete menus, open archive, make files, save archive, element removal)
+- [ ] Fully functioning Notepad (complete file/edit menus, open files, save them)
+- [ ] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
 - [ ] Tab dragging (tab to window, tab to new window)
 - [ ] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH)
+- [ ] Basic editor settings
 
 ### Stretch
 
@@ -36,20 +47,31 @@
 - [x] SavePrompt: Notebook save prompts
 
 (Search TODO SAVES)
-- [ ] Saves: FileService should be saving, not IFileModel?
-- [ ] Saves: Need a backup folder in AppDirs and a system for copying originals to backup before save
-- [ ] Saves: IFileModel needs some sort of content function returning QByteArray
-- [ ] Saves: TextIo can probably be more generalized and work on QByteArray
-- [ ] Saves: Notepad and Notebook would register their respective "Save" command handlers, since their saves are different and not just FileService::save
-- [ ] Saves: Notepad does just call FS::save
-- [ ] Saves: Notepad success on multi-save should just run green color bar; failure, though, should show red color bar and a pop-up of which specific files failed to save
-- [ ] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
-- [ ] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
-- [ ] Saves: (Notebook) Ensure DOM snapshot is replaced on save
+- [x] Saves: FileService should be saving, not IFileModel
+- [x] Saves: IFileModel needs some sort of content function returning QByteArray
+- [x] Saves: TextIo can probably be more generalized and work on QByteArray
+- [x] Saves: Notepad and Notebook would register their respective "Save" command handlers, since their saves are different and not just FileService::save
+- [x] Saves: Notepad does just call FS::save
+- [x] Saves: Notepad success on multi-save should just run green color bar; failure, though, should show red color bar and a pop-up of which specific files failed to save
+- [x] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
+- [x] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
+- [x] Saves: (Notebook) Ensure DOM snapshot is replaced on save
+- [x] Saves: Remove red color bar on Save As dialog abort
+- [x] Saves: Decide how to handle red color bar on Notepad multiSave_
+- [x] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
+- [x] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
+- [x] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
+- [ ] Saves: Probably want a diagnostic/debug window that shows all files saved?
+- [x] Saves: Bug: (EASY - missing return statement for single-item delegation in SaveFailMessageBox::exec for string list) Unknown repro: had SaveFailMessageBox showing the successful files as a test, and when I added a new tab to a Notebook and then used Save As, I received two SaveFailMessageBox prompts for some reason? Should have only been one. I think they were for the same file, but not sure. Seems concerning!
+- [x] Saves: MultiSave struct: add success count and aborted bool, allowing us to show no color bar if only aborted, green color bar if no fails but any successes before aborted, and red if any fails before aborted
+- [x] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
+- [x] Saves: Change to normal order for file views collected
 
 ### Coco
 
 - [ ] Basically redo the whole thing!
+- [ ] Remove always inline macro!
+- [ ] Path dir iterator
 - [ ] Redo path, potentially reintegrate PathUtil with Path (or Io umbrella file)
 - [ ] Figure out Path string caching
 - [ ] Ensure Path's shared data works

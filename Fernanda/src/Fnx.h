@@ -11,10 +11,10 @@
 
 #include <string>
 
+#include <QDir>
 #include <QByteArray>
 #include <QDomDocument>
 #include <QDomElement>
-#include <QFile>
 #include <QString>
 #include <QUuid>
 #include <QXmlStreamReader>
@@ -48,12 +48,11 @@ namespace Internal {
     constexpr auto IO_MODEL_FILE_NAME_ = "Model.xml";
     constexpr auto IO_CONTENT_DIR_NAME_ = "content";
 
-    // TODO: Replace QFile::copy with Coco version, maybe
     inline const Coco::Path& dll_()
     {
         // Could be temp file?
         static auto file = AppDirs::userData() / "7z.dll";
-        if (!file.exists()) QFile::copy(":/7zip/7z.dll", file.toQString());
+        if (!file.exists()) Coco::PathUtil::copy(":/7zip/7z.dll", file);
         return file;
     }
 
@@ -134,7 +133,44 @@ namespace Io {
         }
     }
 
-    // TODO: Compress method
+    inline bool
+    compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
+    {
+        using namespace bit7z;
+
+        INFO("Compressing archive at {} to {}", archivePath, workingDir);
+
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return false;
+        }
+
+        try {
+            Bit7zLibrary lib{ Internal::dll_().toString() };
+            BitArchiveWriter archive{ lib, BitFormat::SevenZip };
+            archive.setOverwriteMode(OverwriteMode::Overwrite);
+
+            // TODO: Coco::Path version of this?
+            QDir dir(workingDir.toQString());
+            auto entries =
+                dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+            for (auto& entry : entries) {
+                auto entry_path = workingDir / entry;
+                entry_path.isFolder()
+                    ? archive.addDirectory(entry_path.toString())
+                    : archive.addFile(entry_path.toString());
+            }
+
+            // TODO: Move original to backup + clean backup if over n files
+            archive.compressTo(archivePath.toString());
+            return true;
+
+        } catch (const BitException& ex) {
+            CRITICAL("FNX archive compression failed! Error: {}", ex.what());
+            return false;
+        }
+    }
 
     inline QString uuid(const Coco::Path& path) { return path.stemQString(); }
 
@@ -198,7 +234,7 @@ namespace Xml {
                : element.removeAttribute(Internal::XML_FILE_EDITED_ATTR_);
     }
 
-    inline void clearEditedRecursive(QDomElement parent)
+    /*inline void clearEditedRecursive(QDomElement parent)
     {
         auto child = parent.firstChildElement();
         while (!child.isNull()) {
@@ -211,7 +247,7 @@ namespace Xml {
     inline void clearEditedRecursive(QDomDocument& dom)
     {
         clearEditedRecursive(dom.documentElement());
-    }
+    }*/
 
     inline QDomDocument makeDom(const Coco::Path& workingDir)
     {
@@ -315,7 +351,7 @@ namespace Xml {
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
-        if (!QFile::copy(fsPath.toQString(), path.toQString())) {
+        if (!Coco::PathUtil::copy(fsPath, path)) {
             WARN("Failed to copy text file at {}", fsPath);
             return {};
         }

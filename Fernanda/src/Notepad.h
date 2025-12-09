@@ -65,7 +65,7 @@ public:
 
     bool hasWindows() const { return windows->count() > 0; }
 
-    virtual bool canQuit() override
+    virtual bool tryQuit() override
     {
         return windows->count() < 1 || windows->closeAll();
     }
@@ -108,10 +108,7 @@ protected:
         // we don't need to worry about saving
         if (!model->isModified() || views->countFor(model) > 1) return true;
 
-        // TODO: Add a preferred extension so off-disk files can say
-        // "TempTitle.txt"
-        auto name =
-            meta->path().isEmpty() ? meta->title() : meta->path().toQString();
+        auto name = fileDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
 
@@ -136,10 +133,7 @@ protected:
                     Tr::Dialogs::notepadSaveFileAsCaption(),
                     currentBaseDir_);
 
-                if (path.isEmpty()) {
-                    colorBars->red(window);
-                    return false;
-                }
+                if (path.isEmpty()) return false;
 
                 result = files->saveAs(model, path);
             }
@@ -170,8 +164,7 @@ protected:
 
         if (!model->isModified()) return true;
 
-        auto name =
-            meta->path().isEmpty() ? meta->title() : meta->path().toQString();
+        auto name = fileDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
 
@@ -199,10 +192,7 @@ protected:
                     Tr::Dialogs::notepadSaveFileAsCaption(),
                     currentBaseDir_);
 
-                if (path.isEmpty()) {
-                    colorBars->red(window);
-                    return false;
-                }
+                if (path.isEmpty()) return false;
 
                 result = files->saveAs(model, path);
             }
@@ -227,7 +217,7 @@ protected:
         // Collect unique modified models that only exist in this window
         QList<IFileModel*> modified_models{};
 
-        for (auto& view : views->rFileViewsIn(window)) {
+        for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
             if (!model || !model->isModified()) continue;
@@ -239,16 +229,9 @@ protected:
 
         if (modified_models.isEmpty()) return true;
 
-        QStringList names{};
-        for (auto& model : modified_models) {
-            auto meta = model->meta();
-            if (!meta) continue;
-            names
-                << (meta->path().isEmpty() ? meta->title()
-                                           : meta->path().toQString());
-        }
+        auto display_names = fileDisplayNames_(modified_models);
 
-        auto prompt_result = SavePrompt::exec(names, window);
+        auto prompt_result = SavePrompt::exec(display_names, window);
 
         switch (prompt_result.choice) {
 
@@ -262,27 +245,30 @@ protected:
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
+            /// TODO SAVES: Good (I think) - mirror in others:
+
+            if (to_save.isEmpty()) return true; // Shouldn't happen
+
             auto result = multiSave_(to_save, window);
 
-            if (result) {
-                colorBars->green(window);
-                return true;
-            } else {
+            // Fails take priority
+            if (result.anyFails()) {
                 colorBars->red(window);
-
-                QStringList fail_display_names{};
-                for (auto& model : result.failed) {
-                    if (!model) continue;
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    fail_display_names
-                        << (meta->path().isEmpty() ? meta->title()
-                                                   : meta->path().toQString());
-                }
-
+                auto fail_display_names = fileDisplayNames_(result.failed);
                 SaveFailMessageBox::exec(fail_display_names, window);
+
                 return false;
             }
+
+            // If any saves occurred, we indicate that (but still block)
+            if (result.aborted) {
+                if (result.anySuccesses()) colorBars->green(window);
+                return false;
+            }
+
+            // All saves succeeded
+            colorBars->green(window);
+            return true;
         }
 
         case SavePrompt::Discard:
@@ -296,7 +282,7 @@ protected:
         QList<IFileModel*> modified_models{};
 
         for (auto& window : windows) {
-            for (auto& view : views->rFileViewsIn(window)) {
+            for (auto& view : views->fileViewsIn(window)) {
                 if (!view) continue;
                 auto model = view->model();
                 if (!model || !model->isModified()) continue;
@@ -308,17 +294,10 @@ protected:
 
         if (modified_models.isEmpty()) return true;
 
-        QStringList names{};
-        for (auto& model : modified_models) {
-            auto meta = model->meta();
-            if (!meta) continue;
-            names
-                << (meta->path().isEmpty() ? meta->title()
-                                           : meta->path().toQString());
-        }
+        auto display_names = fileDisplayNames_(modified_models);
 
-        // Make top window the dialog owner (the list here is reverse z-order)
-        auto prompt_result = SavePrompt::exec(names, windows.last());
+        // Make top window the dialog owner (top window is last)
+        auto prompt_result = SavePrompt::exec(display_names, windows.last());
 
         switch (prompt_result.choice) {
 
@@ -332,32 +311,28 @@ protected:
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
+            if (to_save.isEmpty()) return true; // Shouldn't happen
+
             auto result = multiSave_(to_save);
 
-            if (result) {
-                colorBars->green(); // All windows
-                return true;
-            } else {
+            // Fails take priority
+            if (result.anyFails()) {
                 colorBars->red();
+                auto fail_display_names = fileDisplayNames_(result.failed);
+                SaveFailMessageBox::exec(fail_display_names, windows.last());
 
-                QStringList fail_display_names{};
-                for (auto& model : result.failed) {
-                    if (!model) continue;
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    fail_display_names
-                        << (meta->path().isEmpty() ? meta->title()
-                                                   : meta->path().toQString());
-                }
-
-                // Use active window, since we may have switched which window is
-                // on top (TODO: could just do that above, for the sake of
-                // consistency)
-                SaveFailMessageBox::exec(
-                    fail_display_names,
-                    this->windows->active());
                 return false;
             }
+
+            // If any saves occurred, we indicate that (but still block)
+            if (result.aborted) {
+                if (result.anySuccesses()) colorBars->green();
+                return false;
+            }
+
+            // All saves succeeded
+            colorBars->green();
+            return true;
         }
 
         case SavePrompt::Discard:
@@ -370,7 +345,7 @@ protected:
         // Collect unique modified models that only exist in this window
         QList<IFileModel*> modified_models{};
 
-        for (auto& view : views->rFileViewsIn(window)) {
+        for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
             if (!model || !model->isModified()) continue;
@@ -382,16 +357,9 @@ protected:
 
         if (modified_models.isEmpty()) return true;
 
-        QStringList names{};
-        for (auto& model : modified_models) {
-            auto meta = model->meta();
-            if (!meta) continue;
-            names
-                << (meta->path().isEmpty() ? meta->title()
-                                           : meta->path().toQString());
-        }
+        auto display_names = fileDisplayNames_(modified_models);
 
-        auto prompt_result = SavePrompt::exec(names, window);
+        auto prompt_result = SavePrompt::exec(display_names, window);
 
         switch (prompt_result.choice) {
 
@@ -405,30 +373,27 @@ protected:
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
+            if (to_save.isEmpty()) return true; // Shouldn't happen
+
             auto result = multiSave_(to_save, window);
 
-            if (result) {
-                // Window should close immediately, so no need to run color bar
-                // - still,
-                // let's see what it looks like before removing it
-                colorBars->green(window);
-                return true;
-            } else {
+            // Fails take priority
+            if (result.anyFails()) {
                 colorBars->red(window);
-
-                QStringList fail_display_names{};
-                for (auto& model : result.failed) {
-                    if (!model) continue;
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    fail_display_names
-                        << (meta->path().isEmpty() ? meta->title()
-                                                   : meta->path().toQString());
-                }
-
+                auto fail_display_names = fileDisplayNames_(result.failed);
                 SaveFailMessageBox::exec(fail_display_names, window);
+
                 return false;
             }
+
+            // If any saves occurred, we indicate that (but still block)
+            if (result.aborted) {
+                if (result.anySuccesses()) colorBars->green(window);
+                return false;
+            }
+
+            // All saves succeeded (no green color bar (window closing))
+            return true;
         }
 
         case SavePrompt::Discard:
@@ -442,7 +407,7 @@ protected:
         QList<IFileModel*> modified_models{};
 
         for (auto& window : windows) {
-            for (auto& view : views->rFileViewsIn(window)) {
+            for (auto& view : views->fileViewsIn(window)) {
                 if (!view) continue;
                 auto model = view->model();
                 if (!model || !model->isModified()) continue;
@@ -454,17 +419,10 @@ protected:
 
         if (modified_models.isEmpty()) return true;
 
-        QStringList names{};
-        for (auto& model : modified_models) {
-            auto meta = model->meta();
-            if (!meta) continue;
-            names
-                << (meta->path().isEmpty() ? meta->title()
-                                           : meta->path().toQString());
-        }
+        auto display_names = fileDisplayNames_(modified_models);
 
-        // Make top window the dialog owner (the list here is reverse z-order)
-        auto prompt_result = SavePrompt::exec(names, windows.last());
+        // Make top window the dialog owner (top window is last)
+        auto prompt_result = SavePrompt::exec(display_names, windows.last());
 
         switch (prompt_result.choice) {
 
@@ -478,35 +436,29 @@ protected:
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
+            if (to_save.isEmpty()) return true; // Shouldn't happen
+
             auto result = multiSave_(to_save);
 
-            if (result) {
-                // Window should close immediately, so no need to run color bar
-                // - still,
-                // let's see what it looks like before removing it
-                colorBars->green();
-                return true;
-            } else {
+            // Fails take priority
+            if (result.anyFails()) {
                 colorBars->red();
-
-                QStringList fail_display_names{};
-                for (auto& model : result.failed) {
-                    if (!model) continue;
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    fail_display_names
-                        << (meta->path().isEmpty() ? meta->title()
-                                                   : meta->path().toQString());
-                }
-
+                auto fail_display_names = fileDisplayNames_(result.failed);
                 // Use active window, since we may have switched which window is
-                // on top (TODO: could just do that above, for the sake of
-                // consistency)
-                SaveFailMessageBox::exec(
-                    fail_display_names,
-                    this->windows->active());
+                // on top?:
+                SaveFailMessageBox::exec(fail_display_names, windows.last());
+
                 return false;
             }
+
+            // If any saves occurred, we indicate that (but still block)
+            if (result.aborted) {
+                if (result.anySuccesses()) colorBars->green();
+                return false;
+            }
+
+            // All saves succeeded (no green color bar (window closing))
+            return true;
         }
 
         case SavePrompt::Discard:
@@ -522,11 +474,50 @@ private:
 
     /// TODO SAVES
 
+    /// Remember, we want the following re: Save As dialogs:
+    /// - If user cancels dialog, that isn't itself a failure
+    /// - If anything was saved (and nothing failed) before canceling, we show
+    /// green
+    /// - If anything failed before canceling, we show red and fail prompt
+    /// - If nothing failed or succeeded before canceling, we show nothing
+    /// - For single file, Save As: canceled, no color bar; success green; fail
+    /// red
+    /// - For single file save: shouldn't be any opportunity for no color bar;
+    /// red fail; green success (obvs) Go through every save method again and
+    /// make sure we're following the above
+
     struct MultiSaveResult_
     {
+        int successCount = 0;
+        bool aborted = false;
         QList<IFileModel*> failed{};
-        explicit operator bool() const noexcept { return failed.isEmpty(); }
+
+        bool anySuccesses() const noexcept { return successCount > 0; }
+        bool anyFails() const noexcept { return !failed.isEmpty(); }
     };
+
+    QString fileDisplayName_(IFileModel* fileModel) const
+    {
+        if (!fileModel) return {};
+        auto meta = fileModel->meta();
+        if (!meta) return {};
+
+        // TODO: Add a preferred extension so off-disk files can say
+        // "TempTitle.txt"
+        return meta->path().isEmpty() ? meta->title()
+                                      : meta->path().toQString();
+    }
+
+    QStringList fileDisplayNames_(const QList<IFileModel*>& fileModels) const
+    {
+        if (fileModels.isEmpty()) return {};
+        QStringList names{};
+
+        for (auto& model : fileModels)
+            if (model) names << fileDisplayName_(model);
+
+        return names;
+    }
 
     MultiSaveResult_
     multiSave_(const QList<IFileModel*>& fileModels, Window* window = nullptr)
@@ -566,14 +557,25 @@ private:
 
                 if (path.isEmpty()) {
                     // User cancelled, abort entire operation
-                    result.failed << model;
+                    result.aborted = true;
                     return result;
                 }
 
                 save_result = files->saveAs(model, path);
             }
 
-            if (save_result != FileService::Success) result.failed << model;
+            switch (save_result) {
+
+            case FileService::Success:
+                ++result.successCount;
+                break;
+
+            case FileService::NoOp:
+            case FileService::Failure:
+            default:
+                result.failed << model;
+                break;
+            }
         }
 
         return result;
@@ -629,12 +631,12 @@ private:
             if (!current_view) return;
             auto model = current_view->model();
             if (!model || !model->supportsModification()) return;
-
             if (!model->isModified()) return;
 
-            FileService::SaveResult result{};
-
             auto meta = model->meta();
+            if (!meta) return;
+
+            FileService::SaveResult result{};
 
             if (meta->isOnDisk()) {
                 result = files->save(model);
@@ -650,10 +652,7 @@ private:
                     currentBaseDir_); // TODO: For this and similar, want to add
                                       // the current temp title + preferred ext
 
-                if (path.isEmpty()) {
-                    colorBars->red(cmd.context);
-                    return;
-                }
+                if (path.isEmpty()) return;
 
                 result = files->saveAs(model, path);
             }
@@ -662,8 +661,7 @@ private:
                 colorBars->green(cmd.context);
             } else {
                 colorBars->red(cmd.context);
-                auto name = meta->path().isEmpty() ? meta->title()
-                                                   : meta->path().toQString();
+                auto name = fileDisplayName_(model);
                 SaveFailMessageBox::exec(name, cmd.context);
             }
         });
@@ -677,9 +675,11 @@ private:
                 auto model = current_view->model();
                 if (!model || !model->supportsModification()) return;
 
+                auto meta = model->meta();
+                if (!meta) return;
+
                 // Allow Save As on unmodified files!
 
-                auto meta = model->meta();
                 auto initial_path =
                     meta->isOnDisk() ? meta->path() : currentBaseDir_;
 
@@ -691,10 +691,7 @@ private:
                     Tr::Dialogs::notepadSaveFileAsCaption(),
                     initial_path);
 
-                if (path.isEmpty()) {
-                    colorBars->red(cmd.context);
-                    return;
-                }
+                if (path.isEmpty()) return;
 
                 auto result = files->saveAs(model, path);
 
@@ -702,9 +699,7 @@ private:
                     colorBars->green(cmd.context);
                 } else {
                     colorBars->red(cmd.context);
-                    auto name = meta->path().isEmpty()
-                                    ? meta->title()
-                                    : meta->path().toQString();
+                    auto name = fileDisplayName_(model);
                     SaveFailMessageBox::exec(name, cmd.context);
                 }
             });
@@ -715,7 +710,7 @@ private:
                 if (!cmd.context) return;
 
                 QList<IFileModel*> modified_models{};
-                for (auto& view : views->rFileViewsIn(cmd.context)) {
+                for (auto& view : views->fileViewsIn(cmd.context)) {
                     if (!view) continue;
                     auto model = view->model();
                     if (!model || !model->isModified()) continue;
@@ -728,37 +723,30 @@ private:
 
                 auto result = multiSave_(modified_models, cmd.context);
 
-                if (result) {
-                    colorBars->green(cmd.context);
-                } else {
+                // Fails take priority
+                if (result.anyFails()) {
                     colorBars->red(cmd.context);
-
-                    QStringList fail_display_names{};
-                    for (auto& model : result.failed) {
-                        if (!model) continue;
-                        auto meta = model->meta();
-                        if (!meta) continue;
-                        fail_display_names
-                            << (meta->path().isEmpty()
-                                    ? meta->title()
-                                    : meta->path().toQString());
-                    }
-
+                    auto fail_display_names = fileDisplayNames_(result.failed);
                     SaveFailMessageBox::exec(fail_display_names, cmd.context);
+
+                    return;
                 }
+
+                // If any saves occurred, we indicate that
+                if (result.anySuccesses()) colorBars->green(cmd.context);
             });
 
         bus->addCommandHandler(
             Commands::NOTEPAD_SAVE_ALL,
             [&](const Command& cmd) {
-                (void)cmd; // TODO: Cmd-less factory in Menus.h
+                if (!cmd.context) return;
 
                 QList<IFileModel*> modified_models{};
 
-                for (auto& window : windows->rzWindows()) {
-                    // TODO: Could use views->rzFileViews instead of getting all
+                for (auto& window : windows->windows()) {
+                    // TODO: Could use views->fileViews instead of getting all
                     // windows - sorta doesn't matter
-                    for (auto& view : views->rFileViewsIn(window)) {
+                    for (auto& view : views->fileViewsIn(window)) {
                         if (!view) continue;
                         auto model = view->model();
                         if (!model || !model->isModified()) continue;
@@ -772,26 +760,17 @@ private:
 
                 auto result = multiSave_(modified_models);
 
-                if (result) {
-                    colorBars->green();
-                } else {
+                // Fails take priority
+                if (result.anyFails()) {
                     colorBars->red();
+                    auto fail_display_names = fileDisplayNames_(result.failed);
+                    SaveFailMessageBox::exec(fail_display_names, cmd.context);
 
-                    QStringList fail_display_names{};
-                    for (auto& model : result.failed) {
-                        if (!model) continue;
-                        auto meta = model->meta();
-                        if (!meta) continue;
-                        fail_display_names
-                            << (meta->path().isEmpty()
-                                    ? meta->title()
-                                    : meta->path().toQString());
-                    }
-
-                    SaveFailMessageBox::exec(
-                        fail_display_names,
-                        windows->active());
+                    return;
                 }
+
+                // If any saves occurred, we indicate that
+                if (result.anySuccesses()) colorBars->green();
             });
 
         /// TODO SAVES (END)
@@ -837,7 +816,9 @@ private slots:
     void onViewDestroyed_(IFileModel* fileModel)
     {
         if (!fileModel) return;
-        if (views->countFor(fileModel) <= 0) files->deleteModel(fileModel);
+        if (views->countFor(fileModel) > 0) return;
+
+        files->deleteModel(fileModel);
     }
 };
 

@@ -48,6 +48,8 @@ namespace Tr {
 
         TR_(notebookImportFileCaption, tr("Import existing file"));
         TR_(notebookImportFileFilter, tr("Plain text files (*.txt)"));
+        TR_(notebookSaveAsCaption, tr("Save as"));
+        TR_(notebookSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
 
         TR_(aboutTitle, tr("About"));
 
@@ -55,8 +57,9 @@ namespace Tr {
         inline QString aboutBody()
         {
             auto arg_0 = [] {
-                return tr("<b>Fernanda</b> is a plain text editor for drafting "
-                          "long-form fiction. (At least, that's the plan.)");
+                return tr(
+                    "<b>Fernanda</b> is a plain text editor for drafting "
+                    "long-form fiction. (At least, that's the plan.)");
             };
 
             auto arg_1 = [] {
@@ -79,13 +82,13 @@ namespace Tr {
                 .arg(arg_0())
                 .arg(arg_1())
                 .arg(arg_2().arg(VERSION_DOMAIN))
-                .arg(arg_3()
-                         .arg(VERSION_FULL_STRING)
-                         .arg(VERSION_RELEASE_NAME_STRING));
+                .arg(
+                    arg_3()
+                        .arg(VERSION_FULL_STRING)
+                        .arg(VERSION_RELEASE_NAME_STRING));
         }
 
-        TR_(savePromptBodyFormat,
-            tr("Do you want to save changes to %0?"));
+        TR_(savePromptBodyFormat, tr("Do you want to save changes to %0?"));
         TR_(savePromptMultiBodyFormat,
             tr("You have unsaved changes in %0 files:"));
 
