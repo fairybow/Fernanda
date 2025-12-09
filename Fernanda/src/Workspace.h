@@ -102,7 +102,7 @@ protected:
 protected:
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
-    virtual void newTab(Window* window) = 0;
+    virtual void newTab(Window* window) = 0; // TODO: Make a signal
 
     virtual bool canCloseTab(Window*, int index) { return true; }
     virtual bool canCloseTabEverywhere(Window*, int index) { return true; }
