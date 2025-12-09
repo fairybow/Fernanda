@@ -26,12 +26,12 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
+#include "AbstractService.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileMeta.h"
-#include "IService.h"
 #include "Ini.h"
 #include "NoOpFileModel.h"
 #include "NoOpFileView.h"
@@ -45,7 +45,7 @@ namespace Fernanda {
 // Creates and manages program views (TabWidgets and FileViews) within
 // Windows, routes editing commands, handles view lifecycles, propagates
 // TabWidget signals, and tracks the number of views per model
-class ViewService : public IService
+class ViewService : public AbstractService
 {
     Q_OBJECT
 
@@ -59,7 +59,7 @@ public:
     using CanCloseAllTabsHook = std::function<bool(const QList<Window*>&)>;
 
     ViewService(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
     {
         setup_();
     }

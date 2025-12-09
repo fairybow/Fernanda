@@ -32,6 +32,7 @@
 #include "Coco/PathUtil.h"
 
 #include "AbstractFileModel.h"
+#include "AbstractService.h"
 #include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
@@ -40,7 +41,6 @@
 #include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
-#include "IService.h"
 #include "NotebookMenuModule.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"

@@ -25,10 +25,10 @@
 #include "Coco/Bool.h"
 #include "Coco/Utility.h"
 
+#include "AbstractService.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Debug.h"
-#include "IService.h"
 #include "Version.h"
 #include "Window.h"
 #include "XPlatform.h"
@@ -40,7 +40,7 @@ namespace Fernanda {
 // Workspace. It allows our application windows to function as siblings (but
 // without parentage, since QMainWindow cannot be parented by QObject, i.e., our
 // Workspaces)
-class WindowService : public IService
+class WindowService : public AbstractService
 {
     Q_OBJECT
 
@@ -51,7 +51,7 @@ public:
     using CanCloseAllHook = std::function<bool(const QList<Window*>&)>;
 
     WindowService(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
     {
         setup_();
     }

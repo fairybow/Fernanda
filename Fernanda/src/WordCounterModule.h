@@ -11,20 +11,20 @@
 
 #include <QObject>
 
+#include "AbstractService.h"
 #include "Bus.h"
 #include "Debug.h"
-#include "IService.h"
 
 namespace Fernanda {
 
 // Coordinator for Window WordCounters
-class WordCounterModule : public IService
+class WordCounterModule : public AbstractService
 {
     Q_OBJECT
 
 public:
     WordCounterModule(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
     {
         setup_();
     }

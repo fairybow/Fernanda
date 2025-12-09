@@ -24,13 +24,13 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
+#include "AbstractService.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileMeta.h"
 #include "FileTypes.h"
-#include "IService.h"
 #include "Io.h"
 #include "NoOpFileModel.h"
 #include "TextFileModel.h"
@@ -43,7 +43,7 @@ namespace Fernanda {
 // TODO: Rename?
 // TODO: When saving files, we should move originals to a back-up location
 // (Notebook's archive save will do the same)
-class FileService : public IService
+class FileService : public AbstractService
 {
     Q_OBJECT
 
@@ -56,7 +56,7 @@ public:
     };
 
     FileService(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
     {
         setup_();
     }

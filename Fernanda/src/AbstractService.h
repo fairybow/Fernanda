@@ -17,20 +17,18 @@ namespace Fernanda {
 
 class Bus;
 
-// Base class for Workspace's Services and Modules, providing protected
-// Commander and EventBus member pointers
-class IService : public QObject
+class AbstractService : public QObject
 {
     Q_OBJECT
 
 public:
-    IService(Bus* bus, QObject* parent = nullptr)
+    AbstractService(Bus* bus, QObject* parent = nullptr)
         : QObject(parent)
         , bus(bus)
     {
     }
 
-    virtual ~IService() = default;
+    virtual ~AbstractService() = default;
 
     void initialize()
     {

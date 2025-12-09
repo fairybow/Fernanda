@@ -72,7 +72,7 @@
     <QtMoc Include="src\TabWidget.h" />
     <QtMoc Include="src\ColorBarModule.h" />
     <QtMoc Include="src\ColorBar.h" />
-    <QtMoc Include="src\IService.h" />
+    <QtMoc Include="src\AbstractService.h" />
     <QtMoc Include="src\TabWidgetButton.h" />
     <QtMoc Include="src\TabWidgetCloseButton.h" />
     <QtMoc Include="src\TabWidgetTabBar.h" />

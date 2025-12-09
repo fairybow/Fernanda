@@ -15,10 +15,10 @@
 #include <QMenuBar>
 #include <QObject>
 
+#include "AbstractService.h"
 #include "Bus.h"
 #include "Constants.h"
 #include "Debug.h"
-#include "IService.h"
 #include "MenuActions.h"
 #include "Menus.h"
 #include "Tr.h"
@@ -26,13 +26,13 @@
 namespace Fernanda {
 
 // ...
-class NotepadMenuModule : public IService
+class NotepadMenuModule : public AbstractService
 {
     Q_OBJECT
 
 public:
     NotepadMenuModule(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
     {
         // setup_();
     }

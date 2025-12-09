@@ -23,7 +23,7 @@
 
 #include "Bus.h"
 #include "Constants.h"
-#include "IService.h"
+#include "AbstractService.h"
 #include "MenuActions.h"
 #include "Tr.h"
 #include "Window.h"
@@ -258,7 +258,7 @@ void setupHelpMenu_(Window* window, QMenuBar* menuBar)
 #include "EventBus.h"
 #include "IFileModel.h"
 #include "AbstractFileView.h"
-#include "IService.h"
+#include "AbstractService.h"
 #include "TabWidget.h"
 #include "Tr.h"
 #include "Utility.h"

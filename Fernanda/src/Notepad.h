@@ -25,12 +25,12 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
+#include "AbstractService.h"
 #include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
-#include "IService.h"
 #include "NotepadMenuModule.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"

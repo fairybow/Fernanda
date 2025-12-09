@@ -12,24 +12,24 @@
 #include <QHash>
 #include <QObject>
 
+#include "AbstractService.h"
 #include "Bus.h"
 #include "ColorBar.h"
 #include "Commands.h"
 #include "Debug.h"
-#include "IService.h"
 #include "Window.h"
 
 namespace Fernanda {
 
 // Coordinator for Window ColorBars
 // TODO: Commands for setting position
-class ColorBarModule : public IService
+class ColorBarModule : public AbstractService
 {
     Q_OBJECT
 
 public:
     ColorBarModule(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
     {
         setup_();
     }
