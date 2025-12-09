@@ -257,7 +257,7 @@ void setupHelpMenu_(Window* window, QMenuBar* menuBar)
 #include "Commander.h"
 #include "EventBus.h"
 #include "IFileModel.h"
-#include "IFileView.h"
+#include "AbstractFileView.h"
 #include "IService.h"
 #include "TabWidget.h"
 #include "Tr.h"

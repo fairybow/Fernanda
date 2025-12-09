@@ -17,8 +17,8 @@
 
 #include "Coco/Layout.h"
 
+#include "AbstractFileView.h"
 #include "Debug.h"
-#include "IFileView.h"
 #include "NoOpFileModel.h"
 
 namespace Fernanda {
@@ -26,13 +26,13 @@ namespace Fernanda {
 // Read-only placeholder view for unsupported file types, displaying simple
 // placeholder content potentially for binary files or other non-viewable
 // formats
-class NoOpFileView : public IFileView
+class NoOpFileView : public AbstractFileView
 {
     Q_OBJECT
 
 public:
     explicit NoOpFileView(NoOpFileModel* fileModel, QWidget* parent = nullptr)
-        : IFileView(fileModel, parent)
+        : AbstractFileView(fileModel, parent)
     {
     }
 

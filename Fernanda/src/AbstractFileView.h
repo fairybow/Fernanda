@@ -23,12 +23,14 @@ namespace Fernanda {
 // Abstract UI interface for file content display and editing, providing common
 // view operations (cut/copy/paste/select) and view state management without
 // business logic
-class IFileView : public QWidget
+class AbstractFileView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit IFileView(AbstractFileModel* fileModel, QWidget* parent = nullptr)
+    explicit AbstractFileView(
+        AbstractFileModel* fileModel,
+        QWidget* parent = nullptr)
         : QWidget(parent)
         , fileModel_(fileModel)
     {
@@ -36,7 +38,7 @@ public:
         layout_ = Coco::Layout::makeDense<QVBoxLayout*>(this);
     }
 
-    virtual ~IFileView() = default;
+    virtual ~AbstractFileView() = default;
 
     // Warning! Each view must be initialized after creation.
     void initialize()

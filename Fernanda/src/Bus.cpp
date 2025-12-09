@@ -13,9 +13,9 @@
 #include "Coco/Path.h"
 
 #include "AbstractFileModel.h"
+#include "AbstractFileView.h"
 #include "Bus.h"
 #include "Debug.h"
-#include "IFileView.h"
 #include "Window.h"
 
 // Not technically a good idea, since a comma in the lambda capture will break
@@ -36,9 +36,11 @@ void Bus::setup_()
         INFO("Window destroyed [{}]", context);
     });
 
-    SIGLOG_(activeFileViewChanged, [&](Window* context, IFileView* fileView) {
-        INFO("Active view changed in [{}] to [{}]", context, fileView);
-    });
+    SIGLOG_(
+        activeFileViewChanged,
+        [&](Window* context, AbstractFileView* fileView) {
+            INFO("Active view changed in [{}] to [{}]", context, fileView);
+        });
 
     SIGLOG_(
         treeViewDoubleClicked,

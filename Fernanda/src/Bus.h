@@ -24,7 +24,7 @@ namespace Fernanda {
 
 // Just include?
 class AbstractFileModel;
-class IFileView;
+class AbstractFileView;
 
 class Bus : public Commander
 {
@@ -44,8 +44,8 @@ signals:
     void lastWindowClosed();
     void windowCreated(Window* context);
     void windowDestroyed(Window* context);
-    // View may be nullptr!
-    void activeFileViewChanged(Window* context, IFileView* view);
+    // File view may be nullptr!
+    void activeFileViewChanged(Window* context, AbstractFileView* fileView);
     void treeViewDoubleClicked(Window* context, const QModelIndex& index);
     void fileModelReadied(Window* context, AbstractFileModel* fileModel);
     void
@@ -82,7 +82,7 @@ signals:
 
     // void windowTabCountChanged(Window* window, int count);
 
-    // void viewClosed(IFileView* view);
+    // void viewClosed(AbstractFileView* fileView);
 
     // SettingsModule
 

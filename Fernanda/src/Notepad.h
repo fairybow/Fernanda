@@ -24,12 +24,12 @@
 #include "Coco/PathUtil.h"
 
 #include "AbstractFileModel.h"
+#include "AbstractFileView.h"
 #include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
-#include "IFileView.h"
 #include "IService.h"
 #include "NotepadMenuModule.h"
 #include "SaveFailMessageBox.h"
