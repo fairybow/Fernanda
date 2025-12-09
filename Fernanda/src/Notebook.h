@@ -119,8 +119,8 @@ protected:
     // have been selected when creating the new Notebook (so, Notebook's only
     // Save As dialog is just when selecting Save As)
 
-    // Re: rzFileViews in these: is that fine? Could iterate through provided
-    // windows?
+    // Re: views->fileViews in these: is that fine? Could iterate through
+    // provided windows?
 
     virtual bool canCloseWindow(Window* window) override
     {
@@ -475,12 +475,10 @@ private:
     MultiSaveResult_ saveModifiedModels_() const
     {
         // Save modified file models. We're using a list here and going by view
-        // so any fails will be displayed in a consistent order
+        // so any fails will be displayed consistent with UI order
         QList<IFileModel*> modified_models{};
 
-        // TODO: Potentially change rzFileViews to fileViews and just give them
-        // in regular order (but still top window first)
-        for (auto& view : views->rzFileViews()) {
+        for (auto& view : views->fileViews()) {
             if (!view) continue;
             auto model = view->model();
             if (!model || !model->isModified()) continue;

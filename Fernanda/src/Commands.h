@@ -62,7 +62,7 @@ constexpr auto SETTINGS_DIALOG = "settings:dialog";
 
 constexpr auto NEW_WINDOW = "windows:new"; /// *
 constexpr auto WINDOWS_SET = "windows:set"; /// *, non-menu
-constexpr auto RZ_WINDOWS = "windows:rz_list"; /// *, non-menu
+constexpr auto WINDOWS = "windows:list"; /// *, non-menu
 constexpr auto CLOSE_ALL_WINDOWS = "windows:close_all"; /// *
 
 // ColorBarModule scope

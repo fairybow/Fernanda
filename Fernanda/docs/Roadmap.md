@@ -57,16 +57,15 @@
 - [x] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
 - [x] Saves: (Notebook) Ensure DOM snapshot is replaced on save
 - [x] Saves: Remove red color bar on Save As dialog abort
-- [ ] Saves: Decide how to handle red color bar on Notepad multiSave_
+- [x] Saves: Decide how to handle red color bar on Notepad multiSave_
 - [x] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
 - [x] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
 - [x] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
 - [ ] Saves: Probably want a diagnostic/debug window that shows all files saved?
 - [x] Saves: Bug: (EASY - missing return statement for single-item delegation in SaveFailMessageBox::exec for string list) Unknown repro: had SaveFailMessageBox showing the successful files as a test, and when I added a new tab to a Notebook and then used Save As, I received two SaveFailMessageBox prompts for some reason? Should have only been one. I think they were for the same file, but not sure. Seems concerning!
-- [ ] Saves: MultiSave struct: add success count and aborted bool, allowing us to show no color bar if only aborted, green color bar if no fails but any successes before aborted, and red if any fails before aborted
-- [ ] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
-- [ ] Saves: We aren't closing views during the save process, so we don't necessarily need to go backward? Make double sure, but could have fileViews and rFileViews only (where the former returns views 0 to n in each window, top down, and the latter returns views n to 0 in each window, bottom up
-- [ ] Saves: Yeahhhhh, definitely don't iterate through tabs backward now that nothing is closing
+- [x] Saves: MultiSave struct: add success count and aborted bool, allowing us to show no color bar if only aborted, green color bar if no fails but any successes before aborted, and red if any fails before aborted
+- [x] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
+- [x] Saves: Change to normal order for file views collected
 
 ### Coco
 

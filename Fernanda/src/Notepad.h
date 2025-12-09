@@ -217,7 +217,7 @@ protected:
         // Collect unique modified models that only exist in this window
         QList<IFileModel*> modified_models{};
 
-        for (auto& view : views->rFileViewsIn(window)) {
+        for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
             if (!model || !model->isModified()) continue;
@@ -282,7 +282,7 @@ protected:
         QList<IFileModel*> modified_models{};
 
         for (auto& window : windows) {
-            for (auto& view : views->rFileViewsIn(window)) {
+            for (auto& view : views->fileViewsIn(window)) {
                 if (!view) continue;
                 auto model = view->model();
                 if (!model || !model->isModified()) continue;
@@ -296,7 +296,7 @@ protected:
 
         auto display_names = fileDisplayNames_(modified_models);
 
-        // Make top window the dialog owner (the list here is reverse z-order)
+        // Make top window the dialog owner (top window is last)
         auto prompt_result = SavePrompt::exec(display_names, windows.last());
 
         switch (prompt_result.choice) {
@@ -345,7 +345,7 @@ protected:
         // Collect unique modified models that only exist in this window
         QList<IFileModel*> modified_models{};
 
-        for (auto& view : views->rFileViewsIn(window)) {
+        for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
             if (!model || !model->isModified()) continue;
@@ -407,7 +407,7 @@ protected:
         QList<IFileModel*> modified_models{};
 
         for (auto& window : windows) {
-            for (auto& view : views->rFileViewsIn(window)) {
+            for (auto& view : views->fileViewsIn(window)) {
                 if (!view) continue;
                 auto model = view->model();
                 if (!model || !model->isModified()) continue;
@@ -421,7 +421,7 @@ protected:
 
         auto display_names = fileDisplayNames_(modified_models);
 
-        // Make top window the dialog owner (the list here is reverse z-order)
+        // Make top window the dialog owner (top window is last)
         auto prompt_result = SavePrompt::exec(display_names, windows.last());
 
         switch (prompt_result.choice) {
@@ -444,7 +444,8 @@ protected:
             if (result.anyFails()) {
                 colorBars->red();
                 auto fail_display_names = fileDisplayNames_(result.failed);
-                // Use active window, since we may have switched which window is on top?:
+                // Use active window, since we may have switched which window is
+                // on top?:
                 SaveFailMessageBox::exec(fail_display_names, windows.last());
 
                 return false;
@@ -709,7 +710,7 @@ private:
                 if (!cmd.context) return;
 
                 QList<IFileModel*> modified_models{};
-                for (auto& view : views->rFileViewsIn(cmd.context)) {
+                for (auto& view : views->fileViewsIn(cmd.context)) {
                     if (!view) continue;
                     auto model = view->model();
                     if (!model || !model->isModified()) continue;
@@ -742,10 +743,10 @@ private:
 
                 QList<IFileModel*> modified_models{};
 
-                for (auto& window : windows->rzWindows()) {
-                    // TODO: Could use views->rzFileViews instead of getting all
+                for (auto& window : windows->windows()) {
+                    // TODO: Could use views->fileViews instead of getting all
                     // windows - sorta doesn't matter
-                    for (auto& view : views->rFileViewsIn(window)) {
+                    for (auto& view : views->fileViewsIn(window)) {
                         if (!view) continue;
                         auto model = view->model();
                         if (!model || !model->isModified()) continue;
