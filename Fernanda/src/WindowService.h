@@ -93,8 +93,7 @@ public:
         // Whenever a window becomes active (is on top), it's always removed (if
         // applicable) and re-added to the zOrderedVolatileWindows_ list. So,
         // our windows are ordered there from bottom (index 0) to top (index n).
-        // We reverse the list here, so we're returning windows from top to
-        // bottom).
+
         QList<Window*> list{};
         auto it = zOrderedVolatileWindows_.crbegin();
         auto end = zOrderedVolatileWindows_.crend();
