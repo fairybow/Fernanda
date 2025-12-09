@@ -72,12 +72,12 @@ public:
 
     bool closeAll()
     {
-        auto rz_windows = rzWindows();
+        auto windows = this->windows();
 
-        if (canCloseAllHook_ && !canCloseAllHook_(rz_windows)) return false;
+        if (canCloseAllHook_ && !canCloseAllHook_(windows)) return false;
 
         isBatchClose_ = true;
-        for (auto& window : rz_windows)
+        for (auto& window : windows)
             window->close();
         isBatchClose_ = false;
 
@@ -87,9 +87,14 @@ public:
     int count() const { return static_cast<int>(unorderedWindows_.count()); }
     Window* active() const { return activeWindow_.get(); }
 
-    // Highest window is first when reversed
-    QList<Window*> rzWindows() const
+    // Highest window is first
+    QList<Window*> windows() const
     {
+        // Whenever a window becomes active (is on top), it's always removed (if
+        // applicable) and re-added to the zOrderedVolatileWindows_ list. So,
+        // our windows are ordered there from bottom (index 0) to top (index n).
+        // We reverse the list here, so we're returning windows from top to
+        // bottom).
         QList<Window*> list{};
         auto it = zOrderedVolatileWindows_.crbegin();
         auto end = zOrderedVolatileWindows_.crend();
@@ -99,6 +104,8 @@ public:
 
         return list;
     }
+
+    // QList<Window*> rWindows() const { return zOrderedVolatileWindows_; }
 
     Window* newWindow()
     {
@@ -135,9 +142,7 @@ protected:
             return unorderedWindows_;
         });
 
-        bus->addCommandHandler(Commands::RZ_WINDOWS, [&] {
-            return rzWindows();
-        });
+        bus->addCommandHandler(Commands::WINDOWS, [&] { return windows(); });
 
         bus->addCommandHandler(Commands::CLOSE_ALL_WINDOWS, [&] {
             return closeAll();
@@ -240,11 +245,6 @@ private:
 
         return DEFAULT_GEOMETRY_;
     }
-
-    // Returns a stable copy of the z-ordered window list (copy won't be
-    // affected by subsequent add/remove operations)
-    // TODO: Unused right now
-    QList<Window*> zWindows_() const { return zOrderedVolatileWindows_; }
 
     // These are windows that have called Window::show() (Don't mistake this as
     // dealing with minimization!

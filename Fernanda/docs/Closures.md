@@ -105,7 +105,7 @@ Triggered by Window's `closeEvent` (user clicking X or calling `close()`).
 Triggered by WindowService `closeAll()` method and `CLOSE_ALL_WINDOWS` command.
 
 **WindowService mechanics:**
-- Gets list of all workspace windows (reverse z-order)
+- Gets list of all workspace windows (top to bottom)
 - Calls `canCloseAllHook` with the list of windows
 - If approved: sets `isBatchClose_` flag, closes all windows in sequence (views deleted via Qt ownership), clears flag
 - If rejected: returns false, no windows close
@@ -127,7 +127,7 @@ Triggered by WindowService `closeAll()` method and `CLOSE_ALL_WINDOWS` command.
 Triggered by Application `tryQuit()` method.
 
 **Application mechanics:**
-- Iterates through all Notebooks (reverse order), calls `canQuit()` on each
+- Iterates through all Notebooks (most to least recently opened), calls `canQuit()` on each
 - If any Notebook refuses: aborts entire quit operation
 - Calls `canQuit()` on Notepad
 - If Notepad refuses: aborts entire quit operation
@@ -168,7 +168,7 @@ Triggered automatically when all windows close naturally (not via explicit `tryQ
 Triggered by OS shutdown/logout via Qt's `QGuiApplication::commitDataRequest` signal.
 
 **Application mechanics:**
-- Iterates through all Notebooks (reverse order), calls `canQuit()` on each
+- Iterates through all Notebooks (most to least recently opened), calls `canQuit()` on each
 - If any Notebook refuses: calls `manager.cancel()` to prevent shutdown
 - Calls `canQuit()` on Notepad (if it exists)
 - If Notepad refuses: calls `manager.cancel()` to prevent shutdown

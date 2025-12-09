@@ -10,6 +10,7 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 
 #include <QAbstractItemModel>
 #include <QAction>
@@ -23,6 +24,7 @@
 #include <QPalette> // TODO: Temp
 #include <QPoint>
 #include <QStatusBar>
+#include <QStringList>
 #include <QVariant>
 #include <QVariantMap>
 
@@ -34,6 +36,7 @@
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
 #include "IFileModel.h"
@@ -113,10 +116,11 @@ protected:
 
     // Want to note in docs that if the Notebook archive doesn't exist yet, it
     // will save without running a Save As dialog, because the path will already
-    // have been selected when creating the new Notebook
+    // have been selected when creating the new Notebook (so, Notebook's only
+    // Save As dialog is just when selecting Save As)
 
-    // Re: rzFileViews in these: is that fine? Could iterate through provided
-    // windows?
+    // Re: views->fileViews in these: is that fine? Could iterate through
+    // provided windows?
 
     virtual bool canCloseWindow(Window* window) override
     {
@@ -131,32 +135,11 @@ protected:
             return false;
 
         case SavePrompt::Save: {
-            QList<IFileModel*> modified_models{};
-            for (auto& view : views->rzFileViews()) {
-                if (!view) continue;
-                auto model = view->model();
-                if (!model || !model->isModified()) continue;
-                if (modified_models.contains(model)) continue;
+            auto save_result = saveModifiedModels_();
 
-                modified_models << model;
-            }
-
-            MultiSaveResult file_result{};
-            for (auto& model : modified_models) {
-                if (files->save(model) != FileService::Success)
-                    file_result.failed << model;
-            }
-
-            if (!file_result) {
+            if (!save_result) {
                 colorBars->red();
-
-                QStringList fail_paths{};
-                for (auto& model : file_result.failed) {
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    fail_paths << meta->path().toQString();
-                }
-
+                auto fail_paths = saveFailDisplayNames_(save_result.failed);
                 SaveFailMessageBox::exec(fail_paths, window);
 
                 return false;
@@ -167,15 +150,13 @@ protected:
             if (!Fnx::Io::compress(fnxPath_, workingDir_.path())) {
                 colorBars->red();
                 SaveFailMessageBox::exec(fnxPath_.toQString(), window);
+
                 return false;
             }
 
             fnxModel_->resetSnapshot();
             showModified_();
-            colorBars->green(); // TODO: May remove, since this is last
-                                // window. Let's see what it looks like
-                                // first (surely, window will close too
-                                // quickly for this to do anything)
+            // No green color bar (window closing)
 
             return true;
         }
@@ -195,32 +176,11 @@ protected:
             return false;
 
         case SavePrompt::Save: {
-            QList<IFileModel*> modified_models{};
-            for (auto& view : views->rzFileViews()) {
-                if (!view) continue;
-                auto model = view->model();
-                if (!model || !model->isModified()) continue;
-                if (modified_models.contains(model)) continue;
+            auto save_result = saveModifiedModels_();
 
-                modified_models << model;
-            }
-
-            MultiSaveResult file_result{};
-            for (auto& model : modified_models) {
-                if (files->save(model) != FileService::Success)
-                    file_result.failed << model;
-            }
-
-            if (!file_result) {
+            if (!save_result) {
                 colorBars->red();
-
-                QStringList fail_paths{};
-                for (auto& model : file_result.failed) {
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    fail_paths << meta->path().toQString();
-                }
-
+                auto fail_paths = saveFailDisplayNames_(save_result.failed);
                 SaveFailMessageBox::exec(fail_paths, windows.last());
 
                 return false;
@@ -231,15 +191,13 @@ protected:
             if (!Fnx::Io::compress(fnxPath_, workingDir_.path())) {
                 colorBars->red();
                 SaveFailMessageBox::exec(fnxPath_.toQString(), windows.last());
+
                 return false;
             }
 
             fnxModel_->resetSnapshot();
             showModified_();
-            colorBars->green(); // TODO: May remove, since this is last
-                                // window. Let's see what it looks like
-                                // first (surely, window will close too
-                                // quickly for this to do anything)
+            // No green color bar (window closing)
 
             return true;
         }
@@ -261,7 +219,7 @@ private:
     {
         // TODO: Keep as fatal?
         if (!workingDir_.isValid())
-            FATAL("Notebook temp directory creation failed!");
+            FATAL("Notebook working directory creation failed!");
 
         menus_->initialize();
 
@@ -351,32 +309,11 @@ private:
                 if (!cmd.context) return;
                 if (!isModified_()) return;
 
-                QList<IFileModel*> modified_models{};
-                for (auto& view : views->rzFileViews()) {
-                    if (!view) continue;
-                    auto model = view->model();
-                    if (!model || !model->isModified()) continue;
-                    if (modified_models.contains(model)) continue;
+                auto save_result = saveModifiedModels_();
 
-                    modified_models << model;
-                }
-
-                MultiSaveResult file_result{};
-                for (auto& model : modified_models) {
-                    if (files->save(model) != FileService::Success)
-                        file_result.failed << model;
-                }
-
-                if (!file_result) {
+                if (!save_result) {
                     colorBars->red();
-
-                    QStringList fail_paths{};
-                    for (auto& model : file_result.failed) {
-                        auto meta = model->meta();
-                        if (!meta) continue;
-                        fail_paths << meta->path().toQString();
-                    }
-
+                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
                     SaveFailMessageBox::exec(fail_paths, cmd.context);
 
                     return;
@@ -387,6 +324,7 @@ private:
                 if (!Fnx::Io::compress(fnxPath_, workingDir_.path())) {
                     colorBars->red();
                     SaveFailMessageBox::exec(fnxPath_.toQString(), cmd.context);
+
                     return;
                 }
 
@@ -406,38 +344,13 @@ private:
                     fnxPath_,
                     Tr::Dialogs::notebookSaveAsFilter());
 
-                if (new_path.isEmpty()) {
+                if (new_path.isEmpty()) return;
+
+                auto save_result = saveModifiedModels_();
+
+                if (!save_result) {
                     colorBars->red();
-                    return;
-                }
-
-                // Save modified file models
-                QList<IFileModel*> modified_models{};
-                for (auto& view : views->rzFileViews()) {
-                    if (!view) continue;
-                    auto model = view->model();
-                    if (!model || !model->isModified()) continue;
-                    if (modified_models.contains(model)) continue;
-
-                    modified_models << model;
-                }
-
-                MultiSaveResult file_result{};
-                for (auto& model : modified_models) {
-                    if (files->save(model) != FileService::Success)
-                        file_result.failed << model;
-                }
-
-                if (!file_result) {
-                    colorBars->red();
-
-                    QStringList fail_paths{};
-                    for (auto& model : file_result.failed) {
-                        auto meta = model->meta();
-                        if (!meta) continue;
-                        fail_paths << meta->path().toQString();
-                    }
-
+                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
                     SaveFailMessageBox::exec(fail_paths, cmd.context);
 
                     return;
@@ -448,11 +361,51 @@ private:
                 if (!Fnx::Io::compress(new_path, workingDir_.path())) {
                     colorBars->red();
                     SaveFailMessageBox::exec(new_path.toQString(), cmd.context);
+
                     return;
                 }
 
+                /// TODO SAVES
+
+                // TODO: Centralize all the things that would need updated when
+                // working dir changes, refactor appropriately
+
+                // TODO: Should the temp dir format and name be an FNX utility?
+                // Anything else?
+
                 fnxPath_ = new_path;
+
+                auto new_working_dir = TempDir(
+                    AppDirs::temp() / (fnxPath_.fileQString() + "~XXXXXX"));
+                if (!new_working_dir.isValid())
+                    FATAL(
+                        "Notebook working directory creation "
+                        "failed!");
+                auto old_dir = workingDir_.path();
+                auto new_dir = new_working_dir.path();
+
+                if (!Coco::PathUtil::copyContents(old_dir, new_dir))
+                    FATAL(
+                        "Failed to copy old Notebook working directory "
+                        "contents from {} to {}!",
+                        old_dir,
+                        new_dir);
+
+                for (auto& model : files->fileModels()) {
+                    if (!model) continue;
+                    auto meta = model->meta();
+                    if (!meta) continue;
+                    meta->setPath(meta->path().rebase(old_dir, new_dir));
+                }
+
+                workingDir_ = std::move(new_working_dir);
+
+                settings->setOverrideConfigPath(
+                    workingDir_.path() / Constants::CONFIG_FILE_NAME);
                 windows->setSubtitle(fnxPath_.fileQString());
+
+                /// TODO SAVES (END)
+
                 fnxModel_->resetSnapshot();
                 showModified_();
                 colorBars->green();
@@ -510,6 +463,68 @@ private:
         temp_label->setText("Name on open: " + fnxPath_.fileQString());
         status_bar->addPermanentWidget(temp_label);
     }
+
+    /// TODO SAVES
+
+    struct MultiSaveResult_
+    {
+        QList<IFileModel*> failed{};
+        explicit operator bool() const noexcept { return failed.isEmpty(); }
+    };
+
+    MultiSaveResult_ saveModifiedModels_() const
+    {
+        // Save modified file models. We're using a list here and going by view
+        // so any fails will be displayed consistent with UI order
+        QList<IFileModel*> modified_models{};
+
+        for (auto& view : views->fileViews()) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model || !model->isModified()) continue;
+            if (modified_models.contains(model)) continue;
+
+            modified_models << model;
+        }
+
+        if (modified_models.isEmpty()) return {};
+
+        // No save prompts for Notebook's always-on-disk files
+        MultiSaveResult_ result{};
+        for (auto& model : modified_models) {
+            switch (files->save(model)) {
+
+            case FileService::Success:
+                break;
+
+            case FileService::NoOp:
+            case FileService::Failure:
+            default:
+                result.failed << model;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    QStringList saveFailDisplayNames_(const QList<IFileModel*>& failed) const
+    {
+        if (failed.isEmpty()) return {};
+        QStringList fail_paths{};
+
+        for (auto& model : failed) {
+            if (!model) continue;
+            auto meta = model->meta();
+            if (!meta) continue;
+
+            fail_paths << meta->path().toQString();
+        }
+
+        return fail_paths;
+    }
+
+    /// TODO SAVES (END)
 
 private slots:
     // TODO: Could remove working dir validity check; also writeModelFile could
