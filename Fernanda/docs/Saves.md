@@ -4,7 +4,7 @@ TODO: Find Coco::PathUtil dialogs and remove from places that shouldn't be using
 
 ## Current State
 
-`IFileModel::save()` does the I/O directly. This conflates two concerns:
+`AbstractFileModel::save()` does the I/O directly. This conflates two concerns:
 1. **Content management** (what the model holds, modification state, undo/redo)
 2. **Persistence** (reading/writing to disk)
 
@@ -14,7 +14,7 @@ TODO: Find Coco::PathUtil dialogs and remove from places that shouldn't be using
 
 | Component | Responsibility |
 |-----------|----------------|
-| **IFileModel** | Content state, modification tracking, undo/redo, provides content for reading |
+| **AbstractFileModel** | Content state, modification tracking, undo/redo, provides content for reading |
 | **FileService** | Actual I/O operations (`save`, `saveAs`, `load`) |
 | **Workspace** | Policy decisions (when to prompt, what to do with user's choice) |
 | **SavePrompt** | Pure UI - display info, collect choices |
@@ -48,7 +48,7 @@ It knows nothing about saving, models, or services. It's just: "Here are some fi
 // In Notepad's canCloseWindowTabs hook:
 
 // 1. Collect modified models (Workspace knows policy)
-QList<IFileModel*> modifiedModels = collectModifiedModelsUniqueToWindow(window);
+QList<AbstractFileModel*> modifiedModels = collectModifiedModelsUniqueToWindow(window);
 
 // 2. Build display data (Workspace bridges domain → UI)
 QList<SavePrompt::FileInfo> displayList;
@@ -102,7 +102,7 @@ return Accept::Yes;
 └─────────────────────────────────────────────┘
                      ↕
 ┌─────────────────────────────────────────────┐
-│  IFileModel                                 │  ← Domain layer
+│  AbstractFileModel                                 │  ← Domain layer
 │  (content, state, provides data for I/O)    │
 └─────────────────────────────────────────────┘
 ```
@@ -112,11 +112,11 @@ return Accept::Yes;
 ```cpp
 class FileService : public IService {
 public:
-    SaveResult save(IFileModel* model);                    // Save to existing path
-    SaveResult saveAs(IFileModel* model, const Coco::Path& path);  // Save to new path
+    SaveResult save(AbstractFileModel* model);                    // Save to existing path
+    SaveResult saveAs(AbstractFileModel* model, const Coco::Path& path);  // Save to new path
     
 private:
-    SaveResult writeToPath(IFileModel* model, const Coco::Path& path);
+    SaveResult writeToPath(AbstractFileModel* model, const Coco::Path& path);
 };
 ```
 

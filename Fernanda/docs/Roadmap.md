@@ -47,8 +47,8 @@
 - [x] SavePrompt: Notebook save prompts
 
 (Search TODO SAVES)
-- [x] Saves: FileService should be saving, not IFileModel
-- [x] Saves: IFileModel needs some sort of content function returning QByteArray
+- [x] Saves: FileService should be saving, not AbstractFileModel
+- [x] Saves: AbstractFileModel needs some sort of content function returning QByteArray
 - [x] Saves: TextIo can probably be more generalized and work on QByteArray
 - [x] Saves: Notepad and Notebook would register their respective "Save" command handlers, since their saves are different and not just FileService::save
 - [x] Saves: Notepad does just call FS::save

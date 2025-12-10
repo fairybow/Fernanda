@@ -80,13 +80,13 @@ I'll systematically audit your codebase. Let me start reading through the key fi
 
 **Fix:** 
 - Move `save()` / `saveAs()` implementations to `FileService`
-- Add `IFileModel::content()` method (returns QString for text models)
+- Add `AbstractFileModel::content()` method (returns QString for text models)
 - FileService calls `model->content()` and handles the I/O
 - Model's `setModified(false)` is called by FileService after successful write
 
 ```cpp
 // FileService
-SaveResult save(IFileModel* model) {
+SaveResult save(AbstractFileModel* model) {
     auto text_model = qobject_cast<TextFileModel*>(model);
     if (!text_model) return SaveResult::NoOp;
     
@@ -108,7 +108,7 @@ SaveResult save(IFileModel* model) {
 **Violation:** FileService directly takes a `Window*` and emits to Bus with it. FileService should manage *models*, not know about window context.
 
 **Fix:**
-- FileService should just return the model: `IFileModel* createOffDiskTextModel()`
+- FileService should just return the model: `AbstractFileModel* createOffDiskTextModel()`
 - The *caller* (Workspace's `newTab` hook) receives the model and emits `fileModelReadied` with appropriate window context
 - Or: make this a command that ViewService or Workspace triggers
 
@@ -121,7 +121,7 @@ SaveResult save(IFileModel* model) {
 **Violation:** FileService reads file content and directly sets `document->setPlainText(text)`. This couples FileService to `QTextDocument` internals.
 
 **Fix:**
-- Add `IFileModel::loadFromPath(const Coco::Path&)` or `loadContent(const QString&)`
+- Add `AbstractFileModel::loadFromPath(const Coco::Path&)` or `loadContent(const QString&)`
 - TextFileModel implements this to set its document text
 - FileService calls `model->loadContent(TextIo::read(path))` — model handles its own internal setup
 
@@ -134,13 +134,13 @@ SaveResult save(IFileModel* model) {
 **Violation:** ViewService does `qobject_cast<TextFileModel*>` and `qobject_cast<NoOpFileModel*>` to decide which view type to create. This creates tight coupling between ViewService and concrete model types.
 
 **Fix:** Use a factory pattern or registry:
-- Option A: `IFileModel` has virtual `createView()` method (model creates its own view)
+- Option A: `AbstractFileModel` has virtual `createView()` method (model creates its own view)
 - Option B: Register model-type → view-type mappings in ViewService
-- Option C: `IFileModel::viewTypeHint()` returns an enum, ViewService switches on that
+- Option C: `AbstractFileModel::viewTypeHint()` returns an enum, ViewService switches on that
 
 ```cpp
 // Option C (simplest):
-// In IFileModel:
+// In AbstractFileModel:
 enum class ViewType { Text, NoOp, Image /* future */ };
 virtual ViewType viewType() const = 0;
 
@@ -157,18 +157,18 @@ case ViewType::NoOp: view = new NoOpFileView(...); break;
 
 **Location:** `Notepad.h:85-250`, `Notebook.h:110-145`
 
-**Violation:** Workspace hooks iterate through `IFileView*` lists and call `view->model()` to collect models. The Workspace should work at the model level, not dig through views.
+**Violation:** Workspace hooks iterate through `AbstractFileView*` lists and call `view->model()` to collect models. The Workspace should work at the model level, not dig through views.
 
 **Fix:** ViewService should provide model-centric queries:
-- `QList<IFileModel*> modifiedModelsIn(Window*)` 
-- `QList<IFileModel*> modifiedModelsUniqueToWindow(Window*)`
-- `QList<IFileModel*> allModifiedModels()`
+- `QList<AbstractFileModel*> modifiedModelsIn(Window*)` 
+- `QList<AbstractFileModel*> modifiedModelsUniqueToWindow(Window*)`
+- `QList<AbstractFileModel*> allModifiedModels()`
 
 The hooks receive models directly, not views:
 
 ```cpp
 // Change hook signature:
-using CanCloseWindowTabsHook = std::function<bool(const QList<IFileModel*>&)>;
+using CanCloseWindowTabsHook = std::function<bool(const QList<AbstractFileModel*>&)>;
 
 // ViewService builds the model list before calling hook
 ```
@@ -218,11 +218,11 @@ Actually, looking at `WindowService.cpp`, it already uses an event filter. The `
 
 ---
 
-## 9. **SavePrompt Takes IFileModel***
+## 9. **SavePrompt Takes AbstractFileModel***
 
 **Location:** `SavePrompt.h` (entire file)
 
-**Violation:** SavePrompt depends on `IFileModel*` and `FileMeta*`. A dialog utility should be domain-agnostic.
+**Violation:** SavePrompt depends on `AbstractFileModel*` and `FileMeta*`. A dialog utility should be domain-agnostic.
 
 **Fix:** (Already discussed)
 - SavePrompt takes `QList<FileInfo>` where FileInfo is `{title, subtitle}`
