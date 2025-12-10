@@ -102,7 +102,10 @@ protected:
 protected:
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
-    virtual void newTab(Window* window) = 0; // TODO: Make a signal
+    virtual void
+    newTab(Window* window) = 0; // TODO: Make a signal (Bus signal or
+                                // ViewService signal? Should it be connect here
+                                // to a still-pure-virtual method?)
 
     virtual bool canCloseTab(Window*, int index) { return true; }
     virtual bool canCloseTabEverywhere(Window*, int index) { return true; }
