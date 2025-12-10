@@ -13,24 +13,25 @@
 
 #include "Coco/Path.h"
 
+#include "AbstractFileModel.h"
 #include "Debug.h"
-#include "IFileModel.h"
 
 namespace Fernanda {
 
-// Placeholder file model for potentially non-viewable file types, providing
-// basic IFileModel interface without logic
-class NoOpFileModel : public IFileModel
+class NoOpFileModel : public AbstractFileModel
 {
     Q_OBJECT
 
 public:
     explicit NoOpFileModel(const Coco::Path& path, QObject* parent = nullptr)
-        : IFileModel(path, parent)
+        : AbstractFileModel(path, parent)
     {
     }
 
     virtual ~NoOpFileModel() override { TRACER; }
+
+    virtual QByteArray data() const override { return {}; }
+    virtual bool supportsModification() const override { return false; }
 };
 
 } // namespace Fernanda

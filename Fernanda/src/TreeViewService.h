@@ -26,11 +26,11 @@
 #include "Coco/Path.h"
 #include "Coco/Utility.h"
 
+#include "AbstractService.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
-#include "IService.h"
 #include "Window.h"
 
 namespace Fernanda {
@@ -38,7 +38,7 @@ namespace Fernanda {
 COCO_TRIVIAL_QCLASS(TreeView, QTreeView);
 
 // Coordinator for Window TreeViews
-class TreeViewService : public IService
+class TreeViewService : public AbstractService
 {
     Q_OBJECT
 
@@ -47,7 +47,7 @@ public:
     using RootIndexHook = std::function<QModelIndex()>;
 
     TreeViewService(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
     {
         setup_();
     }

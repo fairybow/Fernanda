@@ -24,14 +24,14 @@
 #include "Coco/Concepts.h"
 #include "Coco/Utility.h"
 
+#include "AbstractFileModel.h"
+#include "AbstractFileView.h"
+#include "AbstractService.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileMeta.h"
-#include "IFileModel.h"
-#include "IFileView.h"
-#include "IService.h"
 #include "Ini.h"
 #include "NoOpFileModel.h"
 #include "NoOpFileView.h"
@@ -45,7 +45,7 @@ namespace Fernanda {
 // Creates and manages program views (TabWidgets and FileViews) within
 // Windows, routes editing commands, handles view lifecycles, propagates
 // TabWidget signals, and tracks the number of views per model
-class ViewService : public IService
+class ViewService : public AbstractService
 {
     Q_OBJECT
 
@@ -59,7 +59,7 @@ public:
     using CanCloseAllTabsHook = std::function<bool(const QList<Window*>&)>;
 
     ViewService(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
     {
         setup_();
     }
@@ -94,7 +94,7 @@ public:
         setCanCloseAllTabsHook,
         canCloseAllTabsHook_);
 
-    int countFor(IFileModel* fileModel) const
+    int countFor(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return 0;
         return fileViewsPerModel_.value(fileModel, 0);
@@ -112,7 +112,7 @@ public:
 
     /// TODO SAVES
 
-    void raise(Window* window, IFileModel* model) const
+    void raise(Window* window, AbstractFileModel* model) const
     {
         if (!window || !model) return;
         auto tab_widget = tabWidget_(window);
@@ -120,7 +120,7 @@ public:
 
         // Find first tab from the left with this model
         for (auto i = 0; i < tab_widget->count(); ++i) {
-            auto view = tab_widget->widgetAt<IFileView*>(i);
+            auto view = tab_widget->widgetAt<AbstractFileView*>(i);
             if (!view) continue;
             if (view->model() != model) continue;
 
@@ -131,7 +131,7 @@ public:
 
     // Returns the first window found (from top to bottom) with this model (if
     // any)
-    Window* raise(IFileModel* model) const
+    Window* raise(AbstractFileModel* model) const
     {
         if (!model) return nullptr;
         auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
@@ -143,7 +143,7 @@ public:
 
             // Find first tab from the left with this model
             for (auto i = 0; i < tab_widget->count(); ++i) {
-                auto view = tab_widget->widgetAt<IFileView*>(i);
+                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                 if (!view) continue;
                 if (view->model() != model) continue;
 
@@ -155,7 +155,7 @@ public:
         return nullptr;
     }
 
-    bool isMultiWindow(IFileModel* fileModel) const
+    bool isMultiWindow(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return false;
 
@@ -179,7 +179,7 @@ public:
     }
 
     // Index -1 = current
-    IFileView* fileViewAt(Window* window, int index) const
+    AbstractFileView* fileViewAt(Window* window, int index) const
     {
         if (!window) return nullptr;
         auto tab_widget = tabWidget_(window);
@@ -188,36 +188,37 @@ public:
         auto i = normalizeIndex_(tab_widget, index);
         if (i < 0) return nullptr;
 
-        return tab_widget->widgetAt<IFileView*>(i);
+        return tab_widget->widgetAt<AbstractFileView*>(i);
     }
 
-    QList<IFileView*> fileViewsIn(Window* window) const
+    QList<AbstractFileView*> fileViewsIn(Window* window) const
     {
         if (!window) return {};
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return {};
 
-        QList<IFileView*> views{};
+        QList<AbstractFileView*> views{};
 
         for (auto i = 0; i < tab_widget->count(); ++i)
-            if (auto view = tab_widget->widgetAt<IFileView*>(i)) views << view;
+            if (auto view = tab_widget->widgetAt<AbstractFileView*>(i))
+                views << view;
 
         return views;
     }
 
-    QList<IFileView*> fileViews() const
+    QList<AbstractFileView*> fileViews() const
     {
         auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
         if (windows.isEmpty()) return {};
 
-        QList<IFileView*> views{};
+        QList<AbstractFileView*> views{};
 
         for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i)
-                if (auto view = tab_widget->widgetAt<IFileView*>(i))
+                if (auto view = tab_widget->widgetAt<AbstractFileView*>(i))
                     views << view;
         }
 
@@ -310,8 +311,8 @@ protected:
     }
 
 private:
-    QHash<Window*, IFileView*> activeFileViews_{};
-    QHash<IFileModel*, int> fileViewsPerModel_{};
+    QHash<Window*, AbstractFileView*> activeFileViews_{};
+    QHash<AbstractFileModel*, int> fileViewsPerModel_{};
     NewTabHook newTabHook_ = nullptr;
     CanCloseTabHook canCloseTabHook_ = nullptr;
     CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
@@ -338,7 +339,7 @@ private:
     }
 
     // Index -1 = current
-    IFileModel* fileModelAt_(Window* window, int index) const
+    AbstractFileModel* fileModelAt_(Window* window, int index) const
     {
         auto view = fileViewAt(window, index);
         return view ? view->model() : nullptr;
@@ -430,7 +431,7 @@ private:
 
                 // Iterate backward to avoid index shifting issues
                 for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-                    auto view = tab_widget->widgetAt<IFileView*>(i);
+                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                     if (view && view->model() == target_model)
                         deleteFileViewAt_(window, i);
                 }
@@ -468,7 +469,7 @@ private:
         auto i = normalizeIndex_(tab_widget, index);
         if (i < 0) return;
 
-        auto view = tab_widget->removeTab<IFileView*>(i);
+        auto view = tab_widget->removeTab<AbstractFileView*>(i);
         if (!view) return;
 
         delete view;
@@ -480,7 +481,7 @@ private:
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return;
 
-        auto views = tab_widget->clear<IFileView*>();
+        auto views = tab_widget->clear<AbstractFileView*>();
         if (views.isEmpty()) return;
 
         for (auto& view : views)
@@ -492,7 +493,7 @@ private:
     {
         if (!window) return;
 
-        IFileView* active = nullptr;
+        AbstractFileView* active = nullptr;
 
         if (index > -1)
             if (auto view = fileViewAt(window, index)) active = view;
@@ -564,13 +565,13 @@ private slots:
     }
 
     // TODO: New view settings
-    void onFileModelReadied_(Window* window, IFileModel* fileModel)
+    void onFileModelReadied_(Window* window, AbstractFileModel* fileModel)
     {
         if (!window || !fileModel) return;
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return;
 
-        IFileView* view = nullptr;
+        AbstractFileView* view = nullptr;
 
         if (auto text_model = qobject_cast<TextFileModel*>(fileModel)) {
 
@@ -616,7 +617,8 @@ private slots:
 
     // TODO: Separate method with callback for iteration over all tabs-per-model
     // (use in below method, too)
-    void onFileModelModificationChanged_(IFileModel* fileModel, bool modified)
+    void
+    onFileModelModificationChanged_(AbstractFileModel* fileModel, bool modified)
     {
         if (!fileModel) return;
 
@@ -628,7 +630,7 @@ private slots:
 
             for (auto i = 0; i < tab_widget->count(); ++i) {
 
-                auto view = tab_widget->widgetAt<IFileView*>(i);
+                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                 if (view && view->model() == fileModel)
                     tab_widget->setTabFlagged(i, modified);
             }
@@ -637,7 +639,7 @@ private slots:
 
     // TODO: Separate method with callback for iteration over all tabs-per-model
     // (use in above method, too)
-    void onFileModelMetaChanged_(IFileModel* fileModel)
+    void onFileModelMetaChanged_(AbstractFileModel* fileModel)
     {
         if (!fileModel) return;
         auto meta = fileModel->meta();
@@ -652,7 +654,7 @@ private slots:
 
             for (auto i = 0; i < tab_widget->count(); ++i) {
 
-                auto view = tab_widget->widgetAt<IFileView*>(i);
+                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                 if (view && view->model() == fileModel) {
                     tab_widget->setTabText(i, meta->title());
                     tab_widget->setTabToolTip(i, meta->toolTip());

@@ -199,14 +199,8 @@
     <QtMoc Include="src\Application.h">
       <Filter>Code\Core</Filter>
     </QtMoc>
-    <QtMoc Include="src\IFileModel.h">
-      <Filter>Code\Core\Files\Models</Filter>
-    </QtMoc>
     <QtMoc Include="src\TextFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
-    </QtMoc>
-    <QtMoc Include="src\IFileView.h">
-      <Filter>Code\Core\Files\Views</Filter>
     </QtMoc>
     <QtMoc Include="src\NoOpFileView.h">
       <Filter>Code\Core\Files\Views</Filter>
@@ -231,9 +225,6 @@
     </QtMoc>
     <QtMoc Include="src\Workspace.h">
       <Filter>Code\Core\Workspaces</Filter>
-    </QtMoc>
-    <QtMoc Include="src\IService.h">
-      <Filter>Code\Core\Services</Filter>
     </QtMoc>
     <QtMoc Include="src\TabWidget.h">
       <Filter>Code\Core\UI\TabWidget</Filter>
@@ -303,6 +294,15 @@
     </QtMoc>
     <QtMoc Include="src\Commander.h">
       <Filter>Code\Core\Workspaces\Bus</Filter>
+    </QtMoc>
+    <QtMoc Include="src\AbstractFileModel.h">
+      <Filter>Code\Core\Files\Models</Filter>
+    </QtMoc>
+    <QtMoc Include="src\AbstractFileView.h">
+      <Filter>Code\Core\Files\Views</Filter>
+    </QtMoc>
+    <QtMoc Include="src\AbstractService.h">
+      <Filter>Code\Core\Services</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

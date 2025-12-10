@@ -18,21 +18,21 @@
 
 #include "Coco/Path.h"
 
+#include "AbstractFileModel.h"
 #include "Debug.h"
 #include "FileMeta.h"
-#include "IFileModel.h"
 
 namespace Fernanda {
 
 // Text document implementation using QTextDocument (editing, undo/redo, and
 // modification tracking). Provides automatic title generation for unsaved files
-class TextFileModel : public IFileModel
+class TextFileModel : public AbstractFileModel
 {
     Q_OBJECT
 
 public:
     explicit TextFileModel(const Coco::Path& path, QObject* parent = nullptr)
-        : IFileModel(path, parent)
+        : AbstractFileModel(path, parent)
     {
         setup_();
     }

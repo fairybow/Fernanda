@@ -17,11 +17,11 @@
 
 #include "Coco/Path.h"
 
+#include "AbstractService.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
-#include "IService.h"
 #include "Ini.h"
 #include "Settings.h"
 #include "SettingsDialog.h"
@@ -29,7 +29,7 @@
 namespace Fernanda {
 
 //...
-class SettingsModule : public IService
+class SettingsModule : public AbstractService
 {
     Q_OBJECT
 
@@ -38,7 +38,7 @@ public:
         const Coco::Path& configPath,
         Bus* bus,
         QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
         , baseConfigPath_(configPath)
     {
         setup_();

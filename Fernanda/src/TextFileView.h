@@ -19,9 +19,9 @@
 
 #include "Coco/Layout.h"
 
+#include "AbstractFileModel.h"
+#include "AbstractFileView.h"
 #include "Debug.h"
-#include "IFileModel.h"
-#include "IFileView.h"
 #include "TextFileModel.h"
 
 namespace Fernanda {
@@ -29,13 +29,13 @@ namespace Fernanda {
 // Text editing view using QPlainTextEdit for content display and editing
 // operations (cut/copy/paste/select/undo/redo) with clipboard- and
 // selection-change notification
-class TextFileView : public IFileView
+class TextFileView : public AbstractFileView
 {
     Q_OBJECT
 
 public:
     explicit TextFileView(TextFileModel* fileModel, QWidget* parent = nullptr)
-        : IFileView(fileModel, parent)
+        : AbstractFileView(fileModel, parent)
     {
     }
 

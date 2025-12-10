@@ -15,30 +15,32 @@
 
 #include "Coco/Layout.h"
 
+#include "AbstractFileModel.h"
 #include "Debug.h"
-#include "IFileModel.h"
 
 namespace Fernanda {
 
 // Abstract UI interface for file content display and editing, providing common
 // view operations (cut/copy/paste/select) and view state management without
 // business logic
-class IFileView : public QWidget
+class AbstractFileView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit IFileView(IFileModel* fileModel, QWidget* parent = nullptr)
+    explicit AbstractFileView(
+        AbstractFileModel* fileModel,
+        QWidget* parent = nullptr)
         : QWidget(parent)
         , fileModel_(fileModel)
     {
-        if (!fileModel) qWarning() << "IFileModel cannot be nullptr!";
+        if (!fileModel) FATAL("AbstractFileModel cannot be nullptr!");
         layout_ = Coco::Layout::makeDense<QVBoxLayout*>(this);
     }
 
-    virtual ~IFileView() = default;
+    virtual ~AbstractFileView() = default;
 
-    // Must be called from outside after creating the view
+    // Warning! Each view must be initialized after creation.
     void initialize()
     {
         if (initialized_) return;
@@ -52,11 +54,10 @@ public:
         }
     }
 
-    IFileModel* model() const noexcept { return fileModel_; }
-    //QWidget* widget() const noexcept { return widget_; }
+    AbstractFileModel* model() const noexcept { return fileModel_; }
 
-    // Do we want only one check for all these properties?
-    virtual bool supportsEditing() const { return false; }
+    virtual bool supportsEditing() const = 0;
+
     virtual bool hasPaste() const { return false; }
     virtual bool hasSelection() const { return false; }
     virtual void cut() {}
@@ -75,7 +76,7 @@ protected:
     virtual QWidget* setupWidget() = 0;
 
 private:
-    IFileModel* fileModel_;
+    AbstractFileModel* fileModel_;
 
     bool initialized_ = false;
     QVBoxLayout* layout_ = nullptr;

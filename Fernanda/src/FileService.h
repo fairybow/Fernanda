@@ -22,15 +22,15 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
+#include "AbstractFileModel.h"
+#include "AbstractFileView.h"
+#include "AbstractService.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileMeta.h"
 #include "FileTypes.h"
-#include "IFileModel.h"
-#include "IFileView.h"
-#include "IService.h"
 #include "Io.h"
 #include "NoOpFileModel.h"
 #include "TextFileModel.h"
@@ -43,7 +43,7 @@ namespace Fernanda {
 // TODO: Rename?
 // TODO: When saving files, we should move originals to a back-up location
 // (Notebook's archive save will do the same)
-class FileService : public IService
+class FileService : public AbstractService
 {
     Q_OBJECT
 
@@ -56,7 +56,7 @@ public:
     };
 
     FileService(Bus* bus, QObject* parent = nullptr)
-        : IService(bus, parent)
+        : AbstractService(bus, parent)
     {
         setup_();
     }
@@ -66,7 +66,7 @@ public:
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
 
-    void deleteModel(IFileModel* fileModel)
+    void deleteModel(AbstractFileModel* fileModel)
     {
         if (!fileModel) return;
 
@@ -94,32 +94,32 @@ public:
 
     /// TODO SAVES
 
-    QSet<IFileModel*> fileModels() const noexcept { return fileModels_; }
+    QSet<AbstractFileModel*> fileModels() const noexcept { return fileModels_; }
 
-    [[nodiscard]] SaveResult save(IFileModel* model)
+    [[nodiscard]] SaveResult save(AbstractFileModel* fileModel)
     {
-        if (!model || !model->supportsModification()) return NoOp;
-        auto path = model->meta()->path();
+        if (!fileModel || !fileModel->supportsModification()) return NoOp;
+        auto path = fileModel->meta()->path();
         if (path.isEmpty()) return NoOp;
 
-        return writeModelToDisk_(model, path);
+        return writeModelToDisk_(fileModel, path);
     }
 
     [[nodiscard]] SaveResult
-    saveAs(IFileModel* model, const Coco::Path& newPath)
+    saveAs(AbstractFileModel* fileModel, const Coco::Path& newPath)
     {
-        if (!model || !model->supportsModification()) return NoOp;
+        if (!fileModel || !fileModel->supportsModification()) return NoOp;
         if (newPath.isEmpty()) return NoOp;
 
         // Prevent overwriting a different model's file
         if (auto existing = pathToFileModel_.value(newPath))
-            if (existing != model) return Failure;
+            if (existing != fileModel) return Failure;
 
-        auto result = writeModelToDisk_(model, newPath);
+        auto result = writeModelToDisk_(fileModel, newPath);
 
         if (result == Success) {
             // Signal handles hash update!
-            model->meta()->setPath(newPath);
+            fileModel->meta()->setPath(newPath);
         }
 
         return result;
@@ -155,8 +155,8 @@ protected:
     }
 
 private:
-    QSet<IFileModel*> fileModels_{};
-    QHash<Coco::Path, IFileModel*> pathToFileModel_{};
+    QSet<AbstractFileModel*> fileModels_{};
+    QHash<Coco::Path, AbstractFileModel*> pathToFileModel_{};
 
     void setup_()
     {
@@ -164,7 +164,8 @@ private:
     }
 
     // TODO: Do this for similar setups in other Services
-    void registerModel_(IFileModel* fileModel, const Coco::Path& path = {})
+    void
+    registerModel_(AbstractFileModel* fileModel, const Coco::Path& path = {})
     {
         if (!path.isEmpty()) pathToFileModel_[path] = fileModel;
         fileModels_ << fileModel;
@@ -178,12 +179,12 @@ private:
             });
     }
 
-    IFileModel*
+    AbstractFileModel*
     newDiskFileModel_(const Coco::Path& path, const QString& title = {})
     {
         if (path.isEmpty() || !path.exists()) return nullptr;
 
-        IFileModel* model = nullptr;
+        AbstractFileModel* model = nullptr;
 
         switch (FileTypes::type(path)) {
         case FileTypes::PlainText:
@@ -209,7 +210,7 @@ private:
         return model;
     }
 
-    IFileModel* newDiskTextFileModel_(const Coco::Path& path)
+    AbstractFileModel* newDiskTextFileModel_(const Coco::Path& path)
     {
         if (path.isEmpty() || !path.exists()) return nullptr;
 
@@ -226,7 +227,7 @@ private:
     // blank files that aren't plaintext (think via context menu click on add
     // tab button). Will be a template function and we can just pass the right
     // type, since setup will probably be the same for all.
-    IFileModel* newOffDiskTextFileModel_()
+    AbstractFileModel* newOffDiskTextFileModel_()
     {
         auto model = new TextFileModel({}, this);
         registerModel_(model);
@@ -235,11 +236,11 @@ private:
         return model;
     }
 
-    void connectNewModel_(IFileModel* fileModel)
+    void connectNewModel_(AbstractFileModel* fileModel)
     {
         connect(
             fileModel,
-            &IFileModel::modificationChanged,
+            &AbstractFileModel::modificationChanged,
             this,
             [&, fileModel](bool modified) {
                 emit bus->fileModelModificationChanged(fileModel, modified);
@@ -256,7 +257,8 @@ private:
         emit bus->fileModelMetaChanged(fileModel);
     }
 
-    SaveResult writeModelToDisk_(IFileModel* model, const Coco::Path& path)
+    SaveResult
+    writeModelToDisk_(AbstractFileModel* model, const Coco::Path& path)
     {
         auto data = model->data();
         auto success = Io::write(data, path);
@@ -284,7 +286,7 @@ inline QString toQString(FileService::SaveResult saveResult) noexcept
 /*
 TODO SAVES
 
-void deleteModels(const QList<IFileModel*>& fileModels)
+void deleteModels(const QList<AbstractFileModel*>& fileModels)
 {
     for (auto& model : fileModels)
         deleteModel(model);

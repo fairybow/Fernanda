@@ -12,8 +12,8 @@
 #include <QTextDocument>
 #include <QWidget>
 
+#include "AbstractFileModel.h"
 #include "Application.h"
-#include "IFileModel.h"
 #include "TextFileModel.h"
 #include "TextFileView.h"
 

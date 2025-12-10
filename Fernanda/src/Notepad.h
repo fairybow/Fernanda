@@ -23,14 +23,14 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
+#include "AbstractFileModel.h"
+#include "AbstractFileView.h"
+#include "AbstractService.h"
 #include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
-#include "IFileModel.h"
-#include "IFileView.h"
-#include "IService.h"
 #include "NotepadMenuModule.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
@@ -215,7 +215,7 @@ protected:
     virtual bool canCloseWindowTabs(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        QList<IFileModel*> modified_models{};
+        QList<AbstractFileModel*> modified_models{};
 
         for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
@@ -241,7 +241,7 @@ protected:
 
         case SavePrompt::Save: {
             // Build list of models to save from selected indices
-            QList<IFileModel*> to_save{};
+            QList<AbstractFileModel*> to_save{};
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
@@ -279,7 +279,7 @@ protected:
     virtual bool canCloseAllTabs(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        QList<IFileModel*> modified_models{};
+        QList<AbstractFileModel*> modified_models{};
 
         for (auto& window : windows) {
             for (auto& view : views->fileViewsIn(window)) {
@@ -307,7 +307,7 @@ protected:
 
         case SavePrompt::Save: {
             // Build list of models to save from selected indices
-            QList<IFileModel*> to_save{};
+            QList<AbstractFileModel*> to_save{};
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
@@ -343,7 +343,7 @@ protected:
     virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        QList<IFileModel*> modified_models{};
+        QList<AbstractFileModel*> modified_models{};
 
         for (auto& view : views->fileViewsIn(window)) {
             if (!view) continue;
@@ -369,7 +369,7 @@ protected:
 
         case SavePrompt::Save: {
             // Build list of models to save from selected indices
-            QList<IFileModel*> to_save{};
+            QList<AbstractFileModel*> to_save{};
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
@@ -404,7 +404,7 @@ protected:
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        QList<IFileModel*> modified_models{};
+        QList<AbstractFileModel*> modified_models{};
 
         for (auto& window : windows) {
             for (auto& view : views->fileViewsIn(window)) {
@@ -432,7 +432,7 @@ protected:
 
         case SavePrompt::Save: {
             // Build list of models to save from selected indices
-            QList<IFileModel*> to_save{};
+            QList<AbstractFileModel*> to_save{};
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
 
@@ -490,13 +490,13 @@ private:
     {
         int successCount = 0;
         bool aborted = false;
-        QList<IFileModel*> failed{};
+        QList<AbstractFileModel*> failed{};
 
         bool anySuccesses() const noexcept { return successCount > 0; }
         bool anyFails() const noexcept { return !failed.isEmpty(); }
     };
 
-    QString fileDisplayName_(IFileModel* fileModel) const
+    QString fileDisplayName_(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return {};
         auto meta = fileModel->meta();
@@ -508,7 +508,8 @@ private:
                                       : meta->path().toQString();
     }
 
-    QStringList fileDisplayNames_(const QList<IFileModel*>& fileModels) const
+    QStringList
+    fileDisplayNames_(const QList<AbstractFileModel*>& fileModels) const
     {
         if (fileModels.isEmpty()) return {};
         QStringList names{};
@@ -519,8 +520,9 @@ private:
         return names;
     }
 
-    MultiSaveResult_
-    multiSave_(const QList<IFileModel*>& fileModels, Window* window = nullptr)
+    MultiSaveResult_ multiSave_(
+        const QList<AbstractFileModel*>& fileModels,
+        Window* window = nullptr)
     {
         MultiSaveResult_ result{};
 
@@ -709,7 +711,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
 
-                QList<IFileModel*> modified_models{};
+                QList<AbstractFileModel*> modified_models{};
                 for (auto& view : views->fileViewsIn(cmd.context)) {
                     if (!view) continue;
                     auto model = view->model();
@@ -741,7 +743,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
 
-                QList<IFileModel*> modified_models{};
+                QList<AbstractFileModel*> modified_models{};
 
                 for (auto& window : windows->windows()) {
                     // TODO: Could use views->fileViews instead of getting all
@@ -813,7 +815,7 @@ private slots:
             window);
     }
 
-    void onViewDestroyed_(IFileModel* fileModel)
+    void onViewDestroyed_(AbstractFileModel* fileModel)
     {
         if (!fileModel) return;
         if (views->countFor(fileModel) > 0) return;

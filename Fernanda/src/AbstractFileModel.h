@@ -18,27 +18,27 @@
 
 namespace Fernanda {
 
-// Interface for document content and editing operations, managing document
-// state, modification tracking, and undo/redo functionality without handling
-// metadata
-class IFileModel : public QObject
+class AbstractFileModel : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit IFileModel(const Coco::Path& path, QObject* parent = nullptr)
+    explicit AbstractFileModel(
+        const Coco::Path& path,
+        QObject* parent = nullptr)
         : QObject(parent)
         , meta_(new FileMeta(path, this))
     {
     }
 
-    virtual ~IFileModel() = default;
+    virtual ~AbstractFileModel() = default;
 
     FileMeta* meta() const noexcept { return meta_; }
 
-    virtual QByteArray data() const { return {}; }
+    virtual QByteArray data() const = 0;
+    virtual bool supportsModification() const = 0;
+
     virtual void setData(const QByteArray& data) {}
-    virtual bool supportsModification() const { return false; }
     virtual bool isModified() const { return false; }
     virtual void setModified(bool modified) {}
     virtual bool hasUndo() const { return false; }
