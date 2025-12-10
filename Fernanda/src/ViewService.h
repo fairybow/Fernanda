@@ -21,6 +21,7 @@
 #include <QVariantMap>
 #include <QWidget>
 
+#include "Coco/Bool.h"
 #include "Coco/Concepts.h"
 #include "Coco/Utility.h"
 
@@ -191,6 +192,8 @@ public:
         return tab_widget->widgetAt<AbstractFileView*>(i);
     }
 
+    // TODO: May use this for applying settings! If not, though, make private or
+    // remove
     QList<AbstractFileView*> fileViewsIn(Window* window) const
     {
         if (!window) return {};
@@ -206,6 +209,8 @@ public:
         return views;
     }
 
+    // TODO: May use this for applying settings! If not, though, make private or
+    // remove
     QList<AbstractFileView*> fileViews() const
     {
         auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
@@ -223,6 +228,47 @@ public:
         }
 
         return views;
+    }
+
+    COCO_BOOL(ExcludeMultiWindow);
+
+    QList<AbstractFileModel*> modifiedViewModelsIn(
+        Window* window,
+        ExcludeMultiWindow excludeMultiWindow = ExcludeMultiWindow::No) const
+    {
+        if (!window) return {};
+
+        // We're using a list here and going by view so it's consistent with UI
+        // order
+        QList<AbstractFileModel*> result{};
+
+        for (auto view : fileViewsIn(window)) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model || !model->isModified()) continue;
+            if (excludeMultiWindow && isMultiWindow(model)) continue;
+            if (result.contains(model)) continue;
+
+            result << model;
+        }
+
+        return result;
+    }
+
+    QList<AbstractFileModel*> modifiedViewModels() const
+    {
+        QList<AbstractFileModel*> result{};
+
+        for (auto view : fileViews()) {
+            if (!view) continue;
+            auto model = view->model();
+            if (!model || !model->isModified()) continue;
+            if (result.contains(model)) continue;
+
+            result << model;
+        }
+
+        return result;
     }
 
     /// TODO SAVES (END)

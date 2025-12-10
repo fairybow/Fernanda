@@ -215,22 +215,12 @@ protected:
     virtual bool canCloseWindowTabs(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& view : views->fileViewsIn(window)) {
-            if (!view) continue;
-            auto model = view->model();
-            if (!model || !model->isModified()) continue;
-            if (views->isMultiWindow(model)) continue;
-            if (modified_models.contains(model)) continue;
-
-            modified_models << model;
-        }
-
+        auto modified_models = views->modifiedViewModelsIn(
+            window,
+            ViewService::ExcludeMultiWindow::Yes);
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-
         auto prompt_result = SavePrompt::exec(display_names, window);
 
         switch (prompt_result.choice) {
@@ -279,23 +269,10 @@ protected:
     virtual bool canCloseAllTabs(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& window : windows) {
-            for (auto& view : views->fileViewsIn(window)) {
-                if (!view) continue;
-                auto model = view->model();
-                if (!model || !model->isModified()) continue;
-                if (modified_models.contains(model)) continue;
-
-                modified_models << model;
-            }
-        }
-
+        auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-
         // Make top window the dialog owner (top window is last)
         auto prompt_result = SavePrompt::exec(display_names, windows.last());
 
@@ -343,22 +320,12 @@ protected:
     virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& view : views->fileViewsIn(window)) {
-            if (!view) continue;
-            auto model = view->model();
-            if (!model || !model->isModified()) continue;
-            if (views->isMultiWindow(model)) continue;
-            if (modified_models.contains(model)) continue;
-
-            modified_models << model;
-        }
-
+        auto modified_models = views->modifiedViewModelsIn(
+            window,
+            ViewService::ExcludeMultiWindow::Yes);
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-
         auto prompt_result = SavePrompt::exec(display_names, window);
 
         switch (prompt_result.choice) {
@@ -404,23 +371,10 @@ protected:
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& window : windows) {
-            for (auto& view : views->fileViewsIn(window)) {
-                if (!view) continue;
-                auto model = view->model();
-                if (!model || !model->isModified()) continue;
-                if (modified_models.contains(model)) continue;
-
-                modified_models << model;
-            }
-        }
-
+        auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-
         // Make top window the dialog owner (top window is last)
         auto prompt_result = SavePrompt::exec(display_names, windows.last());
 
@@ -711,16 +665,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
 
-                QList<AbstractFileModel*> modified_models{};
-                for (auto& view : views->fileViewsIn(cmd.context)) {
-                    if (!view) continue;
-                    auto model = view->model();
-                    if (!model || !model->isModified()) continue;
-                    if (modified_models.contains(model)) continue;
-
-                    modified_models << model;
-                }
-
+                auto modified_models = views->modifiedViewModelsIn(cmd.context);
                 if (modified_models.isEmpty()) return;
 
                 auto result = multiSave_(modified_models, cmd.context);
@@ -743,21 +688,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
 
-                QList<AbstractFileModel*> modified_models{};
-
-                for (auto& window : windows->windows()) {
-                    // TODO: Could use views->fileViews instead of getting all
-                    // windows - sorta doesn't matter
-                    for (auto& view : views->fileViewsIn(window)) {
-                        if (!view) continue;
-                        auto model = view->model();
-                        if (!model || !model->isModified()) continue;
-                        if (modified_models.contains(model)) continue;
-
-                        modified_models << model;
-                    }
-                }
-
+                auto modified_models = views->modifiedViewModels();
                 if (modified_models.isEmpty()) return;
 
                 auto result = multiSave_(modified_models);

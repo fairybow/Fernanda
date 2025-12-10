@@ -474,19 +474,7 @@ private:
 
     MultiSaveResult_ saveModifiedModels_() const
     {
-        // Save modified file models. We're using a list here and going by view
-        // so any fails will be displayed consistent with UI order
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& view : views->fileViews()) {
-            if (!view) continue;
-            auto model = view->model();
-            if (!model || !model->isModified()) continue;
-            if (modified_models.contains(model)) continue;
-
-            modified_models << model;
-        }
-
+        auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return {};
 
         // No save prompts for Notebook's always-on-disk files
