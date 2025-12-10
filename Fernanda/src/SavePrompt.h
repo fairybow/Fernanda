@@ -36,6 +36,19 @@ enum Choice
     Discard
 };
 
+inline QString toQString(Choice choice) noexcept
+{
+    switch (choice) {
+    default:
+    case Cancel:
+        return "SavePrompt::Cancel";
+    case Save:
+        return "SavePrompt::Save";
+    case Discard:
+        return "SavePrompt::Discard";
+    }
+}
+
 struct MultiSaveResult
 {
     Choice choice{};
@@ -55,19 +68,6 @@ namespace Internal {
     // TODO: Other sections from the exec functions?
 
 } // namespace Internal
-
-inline QString toQString(Choice choice) noexcept
-{
-    switch (choice) {
-    default:
-    case Cancel:
-        return "SavePrompt::Cancel";
-    case Save:
-        return "SavePrompt::Save";
-    case Discard:
-        return "SavePrompt::Discard";
-    }
-}
 
 inline Choice exec(const QString& fileDisplayName, QWidget* parent = nullptr)
 {

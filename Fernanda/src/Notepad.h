@@ -101,52 +101,32 @@ protected:
         if (!view) return false;
         auto model = view->model();
         if (!model) return false;
-        auto meta = model->meta();
-        if (!meta) return false;
 
         // If this model has other views (and so won't be closed with the view),
         // we don't need to worry about saving
         if (!model->isModified() || views->countFor(model) > 1) return true;
 
+        views->raise(window, index);
         auto name = fileDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
-
         default:
         case SavePrompt::Cancel:
             return false;
 
-        case SavePrompt::Save: {
-
-            FileService::SaveResult result{};
-
-            if (meta->isOnDisk()) {
-                result = files->save(model);
-            } else {
-                // Off-disk: need Save As dialog
-                views->raise(window, index);
-
-                // If dialog is aborted, return false to block hook caller
-                // and show red color bar feedback
-                auto path = Coco::PathUtil::Dialog::save(
-                    window,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    currentBaseDir_);
-
-                if (path.isEmpty()) return false;
-
-                result = files->saveAs(model, path);
-            }
-
-            if (result == FileService::Success) {
+        case SavePrompt::Save:
+            switch (singleSave_(model, window)) {
+            default:
+            case FileService::NoOp:
+                return false;
+            case FileService::Success:
                 colorBars->green(window);
                 return true;
-            } else {
+            case FileService::Failure:
                 colorBars->red(window);
                 SaveFailMessageBox::exec(name, window);
                 return false;
             }
-        }
 
         case SavePrompt::Discard:
             return true;
@@ -159,49 +139,29 @@ protected:
         if (!view) return false;
         auto model = view->model();
         if (!model) return false;
-        auto meta = model->meta();
-        if (!meta) return false;
 
         if (!model->isModified()) return true;
 
+        // Called via menu (on current window + tab), so no need to raise
         auto name = fileDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
-
         default:
         case SavePrompt::Cancel:
             return false;
 
         case SavePrompt::Save: {
-
-            FileService::SaveResult result{};
-
-            if (meta->isOnDisk()) {
-                result = files->save(model);
-            } else {
-                // Off-disk: need Save As dialog
-
-                // Close Tab Everywhere is currently only called via menu (so on
-                // the current tab), so this is not techincally needed
-                views->raise(window, index);
-
-                // If dialog is aborted, return false to block hook caller
-                // and show red color bar feedback
-                auto path = Coco::PathUtil::Dialog::save(
-                    window,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    currentBaseDir_);
-
-                if (path.isEmpty()) return false;
-
-                result = files->saveAs(model, path);
-            }
-
-            if (result == FileService::Success) {
-                colorBars->green(window);
+            switch (singleSave_(model, window)) {
+            default:
+            case FileService::NoOp:
+                return false;
+            case FileService::Success:
+                colorBars->green(window); // TODO: Could do all windows (close
+                                          // everywhere, after all)?
                 return true;
-            } else {
-                colorBars->red(window);
+            case FileService::Failure:
+                colorBars->red(window); // TODO: Could do all windows (close
+                                        // everywhere, after all)?
                 SaveFailMessageBox::exec(name, window);
                 return false;
             }
@@ -234,8 +194,6 @@ protected:
             QList<AbstractFileModel*> to_save{};
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
-
-            /// TODO SAVES: Good (I think) - mirror in others:
 
             if (to_save.isEmpty()) return true; // Shouldn't happen
 
@@ -428,18 +386,6 @@ private:
 
     /// TODO SAVES
 
-    /// Remember, we want the following re: Save As dialogs:
-    /// - If user cancels dialog, that isn't itself a failure
-    /// - If anything was saved (and nothing failed) before canceling, we show
-    /// green
-    /// - If anything failed before canceling, we show red and fail prompt
-    /// - If nothing failed or succeeded before canceling, we show nothing
-    /// - For single file, Save As: canceled, no color bar; success green; fail
-    /// red
-    /// - For single file save: shouldn't be any opportunity for no color bar;
-    /// red fail; green success (obvs) Go through every save method again and
-    /// make sure we're following the above
-
     struct MultiSaveResult_
     {
         int successCount = 0;
@@ -474,10 +420,33 @@ private:
         return names;
     }
 
+    FileService::SaveResult
+    singleSave_(AbstractFileModel* model, Window* window)
+    {
+        if (!model || !window) return FileService::NoOp;
+        auto meta = model->meta();
+        if (!meta) return FileService::NoOp;
+
+        if (meta->isOnDisk())
+            return files->save(model);
+        else {
+            auto path = Coco::PathUtil::Dialog::save(
+                window,
+                Tr::Dialogs::notepadSaveFileAsCaption(),
+                currentBaseDir_); // TODO: For this and similar, want to add the
+                                  // current temp title + preferred ext
+
+            if (path.isEmpty()) return FileService::NoOp;
+            return files->saveAs(model, path);
+        }
+    }
+
     MultiSaveResult_ multiSave_(
         const QList<AbstractFileModel*>& fileModels,
         Window* window = nullptr)
     {
+        if (fileModels.isEmpty()) return {};
+
         MultiSaveResult_ result{};
 
         for (auto& model : fileModels) {
@@ -492,8 +461,6 @@ private:
             if (meta->isOnDisk()) {
                 save_result = files->save(model);
             } else {
-                // Raise tab before showing Save As dialog
-
                 // If window is valid, raise it and then set target_window to
                 // that same window. Otherwise, raise the model and set
                 // target_window to whatever window raise(model) returns
@@ -586,39 +553,24 @@ private:
             auto current_view = views->fileViewAt(cmd.context, -1);
             if (!current_view) return;
             auto model = current_view->model();
-            if (!model || !model->supportsModification()) return;
+            if (!model) return;
+
             if (!model->isModified()) return;
 
-            auto meta = model->meta();
-            if (!meta) return;
+            // Called via menu (on current window + tab), so no need to raise
 
-            FileService::SaveResult result{};
-
-            if (meta->isOnDisk()) {
-                result = files->save(model);
-            } else {
-                // Off-disk: need Save As dialog
-
-                // TODO: Pretty sure this only ever hits the current
-                // window/view, so we don't need to raise for Save As
-
-                auto path = Coco::PathUtil::Dialog::save(
-                    cmd.context,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    currentBaseDir_); // TODO: For this and similar, want to add
-                                      // the current temp title + preferred ext
-
-                if (path.isEmpty()) return;
-
-                result = files->saveAs(model, path);
-            }
-
-            if (result == FileService::Success) {
+            switch (singleSave_(model, cmd.context)) {
+            default:
+            case FileService::NoOp:
+                break;
+            case FileService::Success:
                 colorBars->green(cmd.context);
-            } else {
+                break;
+            case FileService::Failure:
                 colorBars->red(cmd.context);
                 auto name = fileDisplayName_(model);
                 SaveFailMessageBox::exec(name, cmd.context);
+                break;
             }
         });
 
@@ -629,18 +581,18 @@ private:
                 auto current_view = views->fileViewAt(cmd.context, -1);
                 if (!current_view) return;
                 auto model = current_view->model();
-                if (!model || !model->supportsModification()) return;
+                if (!model) return;
 
+                // Allow Save As on unmodified files!
+                if (!model->supportsModification()) return;
                 auto meta = model->meta();
                 if (!meta) return;
 
-                // Allow Save As on unmodified files!
+                // Called via menu (on current window + tab), so no need to
+                // raise
 
                 auto initial_path =
                     meta->isOnDisk() ? meta->path() : currentBaseDir_;
-
-                // TODO: Pretty sure this only ever hits the current
-                // window/view, so we don't need to raise for Save As
 
                 auto path = Coco::PathUtil::Dialog::save(
                     cmd.context,
@@ -649,14 +601,18 @@ private:
 
                 if (path.isEmpty()) return;
 
-                auto result = files->saveAs(model, path);
-
-                if (result == FileService::Success) {
+                switch (files->saveAs(model, path)) {
+                default:
+                case FileService::NoOp:
+                    break;
+                case FileService::Success:
                     colorBars->green(cmd.context);
-                } else {
+                    break;
+                case FileService::Failure:
                     colorBars->red(cmd.context);
                     auto name = fileDisplayName_(model);
                     SaveFailMessageBox::exec(name, cmd.context);
+                    break;
                 }
             });
 
