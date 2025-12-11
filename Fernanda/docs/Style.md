@@ -59,6 +59,10 @@ auto line_count = 0;
 auto get_line_count = [&] { return x; };
 ```
 
+**Parameter Names**
+
+When listing parameters of type `AbstractFileModel` or `AbstractFileView` use parameter names of `fileModel` and `fileView` (not `model` and `view`, since there are multiple types of models and views in the program). It's okay, however, to use the shorter names as local variable names if the context is clear.
+
 ### Trailing Underscore Convention
 
 **Private/internal members and non-members**: Add trailing underscore `_`

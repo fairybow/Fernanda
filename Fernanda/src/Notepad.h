@@ -402,10 +402,9 @@ private:
         auto meta = fileModel->meta();
         if (!meta) return {};
 
-        // TODO: Add a preferred extension so off-disk files can say
-        // "TempTitle.txt"
-        return meta->path().isEmpty() ? meta->title()
-                                      : meta->path().toQString();
+        auto path = meta->path();
+        return path.isEmpty() ? meta->title() + fileModel->preferredExtension()
+                              : path.toQString();
     }
 
     QStringList
@@ -430,13 +429,7 @@ private:
         if (meta->isOnDisk())
             return files->save(fileModel);
         else {
-            auto path = Coco::PathUtil::Dialog::save(
-                window,
-                Tr::Dialogs::notepadSaveFileAsCaption(),
-                currentBaseDir_, // TODO: For this and similar, want to add the
-                                 // current temp title + preferred ext
-                Tr::Dialogs::notepadSaveAsFilter());
-
+            auto path = promptSaveAsPath_(window, fileModel);
             if (path.isEmpty()) return FileService::NoOp;
             return files->saveAs(fileModel, path);
         }
@@ -474,11 +467,7 @@ private:
                     continue;
                 }
 
-                auto path = Coco::PathUtil::Dialog::save(
-                    target_window,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    currentBaseDir_,
-                    Tr::Dialogs::notepadSaveAsFilter());
+                auto path = promptSaveAsPath_(target_window, model);
 
                 if (path.isEmpty()) {
                     // User cancelled, abort entire operation
@@ -504,6 +493,27 @@ private:
         }
 
         return result;
+    }
+
+    Coco::Path
+    promptSaveAsPath_(Window* window, AbstractFileModel* fileModel) const
+    {
+        if (!window || !fileModel) return {};
+        auto meta = fileModel->meta();
+        if (!meta) return {};
+
+        auto path = meta->path();
+        Coco::Path start_path =
+            path.isEmpty()
+                ? currentBaseDir_
+                      / (meta->title() + fileModel->preferredExtension())
+                : path;
+
+        return Coco::PathUtil::Dialog::save(
+            window,
+            Tr::Dialogs::notepadSaveFileAsCaption(),
+            start_path,
+            Tr::Dialogs::notepadSaveAsFilter());
     }
 
     /// TODO SAVES (END)
@@ -593,17 +603,7 @@ private:
                 // Called via menu (on current window + tab), so no need to
                 // raise
 
-                /// TODO SAVES: Single save as method with optional initial path
-                /// arg?
-                auto initial_path =
-                    meta->isOnDisk() ? meta->path() : currentBaseDir_;
-
-                auto path = Coco::PathUtil::Dialog::save(
-                    cmd.context,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    initial_path,
-                    Tr::Dialogs::notepadSaveAsFilter());
-
+                auto path = promptSaveAsPath_(cmd.context, model);
                 if (path.isEmpty()) return;
 
                 switch (files->saveAs(model, path)) {

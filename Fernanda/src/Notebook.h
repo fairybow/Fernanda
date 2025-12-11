@@ -115,6 +115,8 @@ protected:
     // have been selected when creating the new Notebook (so, Notebook's only
     // Save As dialog is just when selecting Save As)
 
+    /// EXPORT can use title override + preferred extension!
+
     virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1 || !isModified_()) return true;
@@ -159,9 +161,11 @@ private:
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
+    static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
+        "Notebook file entries must have an extant path! [{}]";
+
     void setup_()
     {
-        // TODO: Keep as fatal?
         if (!workingDir_.isValid())
             FATAL("Notebook working directory creation failed!");
 
@@ -221,7 +225,7 @@ private:
                 if (!workingDir_.isValid()) return;
 
                 auto parent_dir = fnxPath_.parent();
-                if (!parent_dir.exists()) return;
+                if (!parent_dir.exists()) return; // Shouldn't happen
 
                 auto fs_paths = Coco::PathUtil::Dialog::files(
                     cmd.context,
@@ -284,25 +288,31 @@ private:
 
                 auto new_working_dir = TempDir(
                     AppDirs::temp() / (fnxPath_.fileQString() + "~XXXXXX"));
-                if (!new_working_dir.isValid())
+                if (!new_working_dir.isValid()) {
                     FATAL(
                         "Notebook working directory creation "
                         "failed!");
+                }
+
                 auto old_dir = workingDir_.path();
                 auto new_dir = new_working_dir.path();
 
-                if (!Coco::PathUtil::copyContents(old_dir, new_dir))
+                if (!Coco::PathUtil::copyContents(old_dir, new_dir)) {
                     FATAL(
                         "Failed to copy old Notebook working directory "
                         "contents from {} to {}!",
                         old_dir,
                         new_dir);
+                }
 
                 for (auto& model : files->fileModels()) {
                     if (!model) continue;
                     auto meta = model->meta();
                     if (!meta) continue;
-                    meta->setPath(meta->path().rebase(old_dir, new_dir));
+                    auto path = meta->path();
+                    if (!path.exists()) FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
+
+                    meta->setPath(path.rebase(old_dir, new_dir));
                 }
 
                 workingDir_ = std::move(new_working_dir);
@@ -356,7 +366,7 @@ private:
         if (!window) return;
 
         auto status_bar = window->statusBar();
-        if (!status_bar) return; // <- Shouldn't happen
+        if (!status_bar) return; // Shouldn't happen
         auto temp_label = new QLabel;
 
         // TODO: Temp
@@ -412,8 +422,10 @@ private:
             if (!model) continue;
             auto meta = model->meta();
             if (!meta) continue;
+            auto path = meta->path();
+            if (!path.exists()) FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
 
-            fail_paths << meta->path().toQString();
+            fail_paths << path.toQString();
         }
 
         return fail_paths;
@@ -539,7 +551,7 @@ private slots:
         auto meta = fileModel->meta();
         if (!meta) return;
         auto path = meta->path();
-        if (!path.exists()) return;
+        if (!path.exists()) FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
 
         // Notebook's individual archive files should always have a path.
         fnxModel_->setFileEdited(Fnx::Io::uuid(path), modified);
