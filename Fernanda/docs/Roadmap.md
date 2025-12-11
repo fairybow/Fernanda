@@ -67,10 +67,10 @@
 - [x] Saves: MultiSave struct: add success count and aborted bool, allowing us to show no color bar if only aborted, green color bar if no fails but any successes before aborted, and red if any fails before aborted
 - [x] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
 - [x] Saves: Change to normal order for file views collected
-- [ ] Saves: Consolidate Notepad Save As dialog occurences into one function
+- [x] Saves: Consolidate Notepad Save As dialog occurences into one function
 - [ ] Saves: Document! Outline first everything that needs to be covered
 
-- [ ] Preferred extension for off-disk files
+- [x] Preferred extension for off-disk files
 - [ ] Getting the preferred or current extension to set the selected filter (if it isn't automatically)?
 - [ ] Document this also
 
