@@ -77,19 +77,22 @@ private:
             bus,
             window,
             Commands::NOTEPAD_OPEN_FILE,
-            Tr::Menus::fileNotepadOpen());
+            Tr::Menus::fileNotepadOpen(),
+            Menus::Shortcuts::OPEN_FILE);
 
         actions.file.save = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE,
-            Tr::Menus::fileNotepadSave());
+            Tr::Menus::fileNotepadSave(),
+            Menus::Shortcuts::SAVE);
 
         actions.file.saveAs = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE_AS,
-            Tr::Menus::fileNotepadSaveAs());
+            Tr::Menus::fileNotepadSaveAs(),
+            Menus::Shortcuts::SAVE_AS);
 
         actions.file.saveAllInWindow = Menus::makeBusAction(
             bus,
@@ -101,7 +104,8 @@ private:
             bus,
             window,
             Commands::NOTEPAD_SAVE_ALL,
-            Tr::Menus::fileNotepadSaveAll());
+            Tr::Menus::fileNotepadSaveAll(),
+            Menus::Shortcuts::SAVE_ALL);
     }
 
 private slots:

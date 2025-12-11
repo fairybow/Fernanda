@@ -31,6 +31,28 @@
 // Utility functions for Notepad and Notebook menu modules
 namespace Fernanda::Menus {
 
+namespace Shortcuts {
+
+    constexpr auto NEW_TAB = Qt::CTRL | Qt::Key_N;
+    constexpr auto NEW_WINDOW = Qt::CTRL | Qt::SHIFT | Qt::Key_N;
+    constexpr auto OPEN_FILE = Qt::CTRL | Qt::Key_O;
+    constexpr auto SAVE = Qt::CTRL | Qt::Key_S;
+    constexpr auto SAVE_AS = Qt::CTRL | Qt::SHIFT | Qt::Key_S;
+    constexpr auto SAVE_ALL = Qt::CTRL | Qt::ALT | Qt::Key_S;
+    constexpr auto CLOSE_TAB = Qt::CTRL | Qt::Key_W;
+    constexpr auto CLOSE_WINDOW = Qt::CTRL | Qt::SHIFT | Qt::Key_W;
+    constexpr auto QUIT = Qt::CTRL | Qt::Key_Q;
+
+    constexpr auto UNDO = Qt::CTRL | Qt::Key_Z;
+    constexpr auto REDO = Qt::CTRL | Qt::Key_Y;
+    constexpr auto CUT = Qt::CTRL | Qt::Key_X;
+    constexpr auto COPY = Qt::CTRL | Qt::Key_C;
+    constexpr auto PASTE = Qt::CTRL | Qt::Key_V;
+    constexpr auto DEL = Qt::Key_Delete;
+    constexpr auto SELECT_ALL = Qt::CTRL | Qt::Key_A;
+
+} // namespace Shortcuts
+
 using Inserter = std::function<void(QMenu*)>;
 COCO_BOOL(AutoRepeat);
 
@@ -116,13 +138,15 @@ namespace Internal {
             bus,
             window,
             Commands::NEW_TAB,
-            Tr::Menus::fileNewTab()); /// *
+            Tr::Menus::fileNewTab(),
+            Shortcuts::NEW_TAB); /// *
 
         common.file.newWindow = makeBusAction(
             bus,
             window,
             Commands::NEW_WINDOW,
-            Tr::Menus::fileNewWindow()); /// *
+            Tr::Menus::fileNewWindow(),
+            Shortcuts::NEW_WINDOW); /// *
 
         common.file.newNotebook = makeBusAction(
             bus,
@@ -140,7 +164,8 @@ namespace Internal {
             bus,
             window,
             Commands::CLOSE_TAB,
-            Tr::Menus::fileCloseTab()); /// *
+            Tr::Menus::fileCloseTab(),
+            Shortcuts::CLOSE_TAB); /// *
 
         common.file.closeTabEverywhere = makeBusAction(
             bus,
@@ -160,11 +185,14 @@ namespace Internal {
             Commands::CLOSE_ALL_TABS,
             Tr::Menus::fileCloseAllTabs()); /// *
 
-        common.file.closeWindow =
-            makeAction(window, Tr::Menus::fileCloseWindow(), [window] {
+        common.file.closeWindow = makeAction(
+            window,
+            Tr::Menus::fileCloseWindow(),
+            [window] {
                 if (!window) return;
                 window->close();
-            }); /// *
+            },
+            Shortcuts::CLOSE_WINDOW); /// *
 
         common.file.closeAllWindows = makeBusAction(
             bus,
@@ -178,43 +206,50 @@ namespace Internal {
             bus,
             window,
             Commands::UNDO,
-            Tr::Menus::editUndo()); /// *
+            Tr::Menus::editUndo(),
+            Shortcuts::UNDO); /// *
 
         common.edit.redo = makeBusAction(
             bus,
             window,
             Commands::REDO,
-            Tr::Menus::editRedo()); /// *
+            Tr::Menus::editRedo(),
+            Shortcuts::REDO); /// *
 
         common.edit.cut = makeBusAction(
             bus,
             window,
             Commands::CUT,
-            Tr::Menus::editCut()); /// *
+            Tr::Menus::editCut(),
+            Shortcuts::CUT); /// *
 
         common.edit.copy = makeBusAction(
             bus,
             window,
             Commands::COPY,
-            Tr::Menus::editCopy()); /// *
+            Tr::Menus::editCopy(),
+            Shortcuts::COPY); /// *
 
         common.edit.paste = makeBusAction(
             bus,
             window,
             Commands::PASTE,
-            Tr::Menus::editPaste()); /// *
+            Tr::Menus::editPaste(),
+            Shortcuts::PASTE); /// *
 
         common.edit.del = makeBusAction(
             bus,
             window,
             Commands::DEL,
-            Tr::Menus::editDelete()); /// *
+            Tr::Menus::editDelete(),
+            Shortcuts::DEL); /// *
 
         common.edit.selectAll = makeBusAction(
             bus,
             window,
             Commands::SELECT_ALL,
-            Tr::Menus::editSelectAll()); /// *
+            Tr::Menus::editSelectAll(),
+            Shortcuts::SELECT_ALL); /// *
 
         common.settings = makeBusAction(
             bus,
