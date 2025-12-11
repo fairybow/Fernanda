@@ -477,7 +477,8 @@ private:
                 auto path = Coco::PathUtil::Dialog::save(
                     target_window,
                     Tr::Dialogs::notepadSaveFileAsCaption(),
-                    currentBaseDir_);
+                    currentBaseDir_,
+                    Tr::Dialogs::notepadSaveAsFilter());
 
                 if (path.isEmpty()) {
                     // User cancelled, abort entire operation

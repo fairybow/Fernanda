@@ -39,6 +39,7 @@
 - [ ] Core docs should explain the program from start to finish (i.e., Openings.md, Modifications.md, Saves.md, Closures.md, etc.)
 - [ ] Save prompts doc?
 - [ ] How files get titles doc?
+- [ ] AbstractFileModel and View usage and purpose
 
 ## Miscellaneous Todos
 
