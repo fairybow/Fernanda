@@ -43,8 +43,11 @@ namespace Tr {
 
         TR_(notepadOpenFileCaption, tr("Open existing file"));
         TR_(notepadOpenFileFilter,
-            tr("Plain text files (*.txt);;All files (*)"));
+            tr("Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All "
+               "files (*)"));
         TR_(notepadSaveFileAsCaption, tr("Save file as"));
+        TR_(notepadSaveAsFilter,
+            tr("Plain text files (*.txt);;All files (*)"));
 
         TR_(notebookImportFileCaption, tr("Import existing file"));
         TR_(notebookImportFileFilter, tr("Plain text files (*.txt)"));

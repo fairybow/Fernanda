@@ -67,6 +67,10 @@
 - [x] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
 - [x] Saves: Change to normal order for file views collected
 
+- [ ] Consolidate Notepad Save As dialog occurences into one function
+- [ ] Preferred extension for off-disk files
+- [ ] Getting the preferred or current extension to set the selected filter (if it isn't automatically)?
+
 ### Coco
 
 - [ ] Basically redo the whole thing!

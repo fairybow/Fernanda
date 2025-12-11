@@ -433,8 +433,9 @@ private:
             auto path = Coco::PathUtil::Dialog::save(
                 window,
                 Tr::Dialogs::notepadSaveFileAsCaption(),
-                currentBaseDir_); // TODO: For this and similar, want to add the
-                                  // current temp title + preferred ext
+                currentBaseDir_, // TODO: For this and similar, want to add the
+                                 // current temp title + preferred ext
+                Tr::Dialogs::notepadSaveAsFilter());
 
             if (path.isEmpty()) return FileService::NoOp;
             return files->saveAs(fileModel, path);
@@ -599,7 +600,8 @@ private:
                 auto path = Coco::PathUtil::Dialog::save(
                     cmd.context,
                     Tr::Dialogs::notepadSaveFileAsCaption(),
-                    initial_path);
+                    initial_path,
+                    Tr::Dialogs::notepadSaveAsFilter());
 
                 if (path.isEmpty()) return;
 
