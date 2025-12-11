@@ -78,11 +78,6 @@ public:
         startAnimation_(color, qBound(0, delay, 3000));
     }
 
-    void indicate(bool result, int delay = 0)
-    {
-        result ? run(Green, delay) : run(Red, delay);
-    }
-
     virtual bool eventFilter(QObject* watched, QEvent* event) override
     {
         if (watched == window_) {
@@ -127,7 +122,7 @@ private:
     Color currentColor_ = Pastel;
     Position position_ = Top;
     Timers::Delayer* lingerTimer_ =
-        new Timers::Delayer(1500, this, &ColorBar::reset_);
+        new Timers::Delayer(1000, this, &ColorBar::reset_);
 
     // Cache
     std::optional<QLinearGradient> greenGradient_{};
@@ -251,8 +246,9 @@ private:
 
     QTimeLine* fillTimeLine_()
     {
-        // Create timeline for smooth 0-100 fill animation over 300ms
-        constexpr auto fill_time = 300;
+        // Create timeline for smooth 0-100 fill animation
+
+        constexpr auto fill_time = 150;
         auto time_line = new QTimeLine(fill_time, this);
         time_line->setFrameRange(MIN_RANGE_, MAX_RANGE_);
 

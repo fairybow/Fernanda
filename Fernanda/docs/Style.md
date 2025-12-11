@@ -11,6 +11,31 @@ QStringList list;   // No
 QStringList list{}; // Yes
 ```
 
+### Guard Clauses
+
+Prefer organizing guard clauses / early returns. Put common items together, but don't group with unrelated checks. (This is subjective.)
+
+```cpp
+// Good:
+void doSomething(Window* window, int index)
+{
+    if (!window || index < 0) return; // Together
+
+    if (!isModified(window, index)) return; // Separate from the others
+
+    //...
+}
+
+// Bad:
+void doSomething(Window* window, int index)
+{
+    if (!window || index < 0 || !isModified(window, index))
+        return; // Not the same kind of check!
+
+    //...
+}
+```
+
 ### Naming Conventions
 
 **Members and Functions**: camelCase
