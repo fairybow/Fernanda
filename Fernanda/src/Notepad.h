@@ -591,6 +591,8 @@ private:
                 // Called via menu (on current window + tab), so no need to
                 // raise
 
+                /// TODO SAVES: Single save as method with optional initial path
+                /// arg?
                 auto initial_path =
                     meta->isOnDisk() ? meta->path() : currentBaseDir_;
 
