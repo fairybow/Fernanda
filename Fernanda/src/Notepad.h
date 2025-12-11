@@ -421,14 +421,14 @@ private:
     }
 
     FileService::SaveResult
-    singleSave_(AbstractFileModel* model, Window* window)
+    singleSave_(AbstractFileModel* fileModel, Window* window)
     {
-        if (!model || !window) return FileService::NoOp;
-        auto meta = model->meta();
+        if (!fileModel || !window) return FileService::NoOp;
+        auto meta = fileModel->meta();
         if (!meta) return FileService::NoOp;
 
         if (meta->isOnDisk())
-            return files->save(model);
+            return files->save(fileModel);
         else {
             auto path = Coco::PathUtil::Dialog::save(
                 window,
@@ -437,7 +437,7 @@ private:
                                   // current temp title + preferred ext
 
             if (path.isEmpty()) return FileService::NoOp;
-            return files->saveAs(model, path);
+            return files->saveAs(fileModel, path);
         }
     }
 

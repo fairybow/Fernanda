@@ -2,6 +2,15 @@
 
 ## Code
 
+### Initializations
+
+Always initialize local variables, including containers
+
+```cpp
+QStringList list;   // No
+QStringList list{}; // Yes
+```
+
 ### Naming Conventions
 
 **Members and Functions**: camelCase
