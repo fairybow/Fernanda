@@ -37,7 +37,8 @@
 
 - [ ] Number and order for core docs
 - [ ] Core docs should explain the program from start to finish (i.e., Openings.md, Modifications.md, Saves.md, Closures.md, etc.)
-- [ ] Save prompts doc?
+- [ ] Save prompts doc (preferred extension, how start paths are chosen/created)
+- [ ] Saves of all types. Outline first everything that needs to be covered
 - [ ] How files get titles doc?
 - [ ] AbstractFileModel and View usage and purpose
 
@@ -68,11 +69,22 @@
 - [x] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
 - [x] Saves: Change to normal order for file views collected
 - [x] Saves: Consolidate Notepad Save As dialog occurences into one function
-- [ ] Saves: Document! Outline first everything that needs to be covered
+- [x] Saves: Preferred extension for off-disk files
 
-- [x] Preferred extension for off-disk files
-- [ ] Getting the preferred or current extension to set the selected filter (if it isn't automatically)?
-- [ ] Document this also
+New Notebook is probably next priority! That way, we're forced to isolate the Save As logic.
+
+- [ ] New Notebook: Naming dialog (no path chosen)
+- [ ] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
+- [ ] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
+- [ ] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later
+- [ ] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
+- [ ] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed
+- [ ] New Notebook: For closure/quit, archive will be created and saved. If successful, we close the Notebook as normal (I think??? Am I missing anything?)
+- [ ] New Notebook: For Save / Save As (the former will trigger the latter anyway), the new Notebook will be saved like in the existing Save As handler. However, we'd only need to change the working directory if the path stem changed? This is a good argument for either just using a UUID or random string as the name (or simply keeping whatever name the Notebook had when it was opened/created, even if it's inconsistent with current name)
+
+After New Notebook:
+
+- [ ] Need starting paths for Open Notebook, New Notebook (maybe). It's possible we may want Notepad to use an application wide base path (maybe set in Workspace and all Workspaces can access it) and settings can adjust it?
 
 ### Coco
 

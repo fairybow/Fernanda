@@ -110,11 +110,6 @@ protected:
 
     /// TODO SAVES
 
-    // Want to note in docs that if the Notebook archive doesn't exist yet, it
-    // will save without running a Save As dialog, because the path will already
-    // have been selected when creating the new Notebook (so, Notebook's only
-    // Save As dialog is just when selecting Save As)
-
     /// EXPORT can use title override + preferred extension!
 
     virtual bool canCloseWindow(Window* window) override
