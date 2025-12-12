@@ -5,8 +5,8 @@
 ### Up Next (See Miscellaneous Todos)
 
 - [x] Save prompts
-- [ ] Saves
-- [x] Warking dir renames
+- [x] Saves
+- [x] Working dir renames
 - [ ] New Notebook dialog
 - [ ] Notebook export file
 - [ ] FnxModel + TreeView element removal
@@ -76,7 +76,7 @@ New Notebook is probably next priority! That way, we're forced to isolate the Sa
 - [ ] New Notebook: Naming dialog (no path chosen)
 - [ ] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
 - [ ] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
-- [ ] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later
+- [ ] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later (only problem is which settings? We have notepad and individual Notebook INIs...do we want/need an application-wide settings? How should we display that in the settings dialog for each Workspace?)
 - [ ] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
 - [ ] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed
 - [ ] New Notebook: For closure/quit, archive will be created and saved. If successful, we close the Notebook as normal (I think??? Am I missing anything?)
