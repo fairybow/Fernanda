@@ -111,6 +111,8 @@ protected:
 
     /// EXPORT can use title override + preferred extension!
     /// Or probably better to use extension from DOM...
+    ///
+    /// Note in docs that Save As will not change working dir name
 
     virtual bool canCloseWindow(Window* window) override
     {
