@@ -9,8 +9,8 @@
 
 #pragma once
 
+#include <QDialog>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QString>
 #include <QWidget>
@@ -21,13 +21,16 @@ namespace Fernanda::NewNotebookPrompt {
 
 inline QString exec()
 {
-    QMessageBox box{};
-    box.setMinimumSize(400, 200);
-    auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
+    /// TODO: QDialogButtonBox in other prompts, and also can translate like:
+    /// button_box->button(QDialogButtonBox::Cancel)->setText(Tr::cancel());
+
+    QDialog dialog{};
+    dialog.setMinimumSize(400, 200);
+    /*auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
     box.setDefaultButton(ok);
     box.setEscapeButton(ok);
-    box.setText("text");
-    box.exec();
+    box.setText("text");*/
+    dialog.exec();
 
     return {}; // temp
 }
