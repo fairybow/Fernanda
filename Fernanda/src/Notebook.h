@@ -106,6 +106,9 @@ protected:
     /// Or probably better to use extension from DOM...
     ///
     /// Note in docs that Save As will not change working dir name
+    ///
+    /// NEXT UP: Unfactor save archive and then add the Save As-es to
+    /// closures/quit/save
 
     virtual bool canCloseWindow(Window* window) override
     {
