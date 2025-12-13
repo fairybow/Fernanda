@@ -11,8 +11,8 @@
 
 #include <string>
 
-#include <QDir>
 #include <QByteArray>
+#include <QDir>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QString>

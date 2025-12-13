@@ -27,7 +27,7 @@ namespace Internal {
     {
         box.setMinimumSize(400, 200);
 
-        auto ok = box.addButton(Tr::Buttons::ok(), QMessageBox::AcceptRole);
+        auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
         box.setDefaultButton(ok);
         box.setEscapeButton(ok);
     }
@@ -38,7 +38,7 @@ inline void exec(const QString& fileDisplayName, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    box.setText(Tr::Dialogs::saveFailPromptBodyFormat().arg(fileDisplayName));
+    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(fileDisplayName));
     box.exec();
 }
 
@@ -58,7 +58,7 @@ inline void exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     // "</li></ul>";
     auto list = QString::fromUtf8("\n\u2022 ")
                 + fileDisplayNames.join(QString::fromUtf8("\n\u2022 "));
-    box.setText(Tr::Dialogs::saveFailPromptMultiBodyFormat().arg(list));
+    box.setText(Tr::nxSaveFailBoxMultiBodyFormat().arg(list));
     box.exec();
 }
 

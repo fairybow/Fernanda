@@ -135,7 +135,7 @@ protected:
     {
         if (!isModified_()) return true;
 
-                /// Add Save As
+        /// Add Save As
 
         auto window = windows.last();
 
@@ -203,9 +203,7 @@ private:
 
         //...
 
-        // TODO: Fnx control its own settings name constant?
-        auto settings_file = working_dir / Constants::CONFIG_FILE_NAME;
-        settings->setOverrideConfigPath(settings_file);
+        settings->setOverrideConfigPath(working_dir / "Settings.ini");
 
         registerBusCommands_();
         connectBusEvents_();
@@ -225,9 +223,9 @@ private:
 
                 auto fs_paths = Coco::PathUtil::Dialog::files(
                     cmd.context,
-                    Tr::Dialogs::notebookImportFileCaption(),
+                    Tr::nbImportFileCaption(),
                     startDir,
-                    Tr::Dialogs::notebookImportFileFilter());
+                    Tr::nbImportFileFilter());
 
                 if (fs_paths.isEmpty()) return;
 
@@ -264,9 +262,11 @@ private:
 
                 auto new_path = Coco::PathUtil::Dialog::save(
                     cmd.context,
-                    Tr::Dialogs::notebookSaveAsCaption(),
-                    fnxPath_, /// Even if doesn't exist, will still have startDir / name.fnx, so need to use this for Save As'ing
-                    Tr::Dialogs::notebookSaveAsFilter());
+                    Tr::nbSaveAsCaption(),
+                    fnxPath_, /// Even if doesn't exist, will still have
+                              /// startDir / name.fnx, so need to use this for
+                              /// Save As'ing
+                    Tr::nbSaveAsFilter());
 
                 if (new_path.isEmpty()) return;
 
@@ -315,9 +315,10 @@ private:
 
                 workingDir_ = std::move(new_working_dir);
 
-                settings->setOverrideConfigPath(
-                    workingDir_.path() / Constants::CONFIG_FILE_NAME);
-                windows->setSubtitle(fnxPath_.fileQString()); /// keep this though
+                //settings->setOverrideConfigPath(
+                    //workingDir_.path() / Constants::CONFIG_FILE_NAME);
+                windows->setSubtitle(
+                    fnxPath_.fileQString()); /// keep this though
 
                 /// TODO SAVES (END)
 

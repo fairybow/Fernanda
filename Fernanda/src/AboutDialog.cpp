@@ -28,15 +28,14 @@ void exec()
 
     box.setWindowModality(Qt::ApplicationModal);
     box.setIconPixmap(QIcon(":/icons/Fernanda.svg").pixmap(64, 64));
-    box.setWindowTitle(Tr::Dialogs::aboutTitle());
-    box.setText(Tr::Dialogs::aboutBody());
+    box.setWindowTitle(Tr::nxAboutTitle());
+    box.setText(Tr::nxAboutBody());
     box.setTextInteractionFlags(Qt::LinksAccessibleByMouse);
 
-    auto ok = box.addButton(Tr::Buttons::ok(), QMessageBox::AcceptRole);
-    // auto licenses = box.addButton(Tr::Buttons::licenses(),
+    auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
+    // auto licenses = box.addButton(Tr::licenses(),
     // QMessageBox::AcceptRole);
-    auto about_qt =
-        box.addButton(Tr::Buttons::aboutQt(), QMessageBox::AcceptRole);
+    auto about_qt = box.addButton(Tr::aboutQt(), QMessageBox::AcceptRole);
 
     auto a = app();
     a->connect(about_qt, &QPushButton::clicked, a, Application::aboutQt);

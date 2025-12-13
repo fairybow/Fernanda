@@ -74,12 +74,11 @@ inline Choice exec(const QString& fileDisplayName, QWidget* parent = nullptr)
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
 
-    box.setText(Tr::Dialogs::savePromptBodyFormat().arg(fileDisplayName));
+    box.setText(Tr::nxSavePromptBodyFormat().arg(fileDisplayName));
 
-    auto save = box.addButton(Tr::Buttons::save(), QMessageBox::AcceptRole);
-    auto discard =
-        box.addButton(Tr::Buttons::discard(), QMessageBox::DestructiveRole);
-    auto cancel = box.addButton(Tr::Buttons::cancel(), QMessageBox::RejectRole);
+    auto save = box.addButton(Tr::save(), QMessageBox::AcceptRole);
+    auto discard = box.addButton(Tr::discard(), QMessageBox::DestructiveRole);
+    auto cancel = box.addButton(Tr::cancel(), QMessageBox::RejectRole);
 
     box.setDefaultButton(save);
     box.setEscapeButton(cancel);
@@ -111,7 +110,7 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     // Message label
     auto message_label = new QLabel(&dialog);
     message_label->setText(
-        Tr::Dialogs::savePromptMultiBodyFormat().arg(fileDisplayNames.size()));
+        Tr::nxSavePromptMultiBodyFormat().arg(fileDisplayNames.size()));
     message_label->setWordWrap(true);
     main_layout->addWidget(message_label);
 
@@ -137,10 +136,11 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     auto button_layout = new QHBoxLayout;
     button_layout->addStretch();
 
-    auto save_button = new QPushButton(Tr::Buttons::save(), &dialog);
-    auto discard_button = new QPushButton(Tr::Buttons::discard(), &dialog);
-    auto cancel_button = new QPushButton(Tr::Buttons::cancel(), &dialog);
+    auto save_button = new QPushButton(Tr::save(), &dialog);
+    auto discard_button = new QPushButton(Tr::discard(), &dialog);
+    auto cancel_button = new QPushButton(Tr::cancel(), &dialog);
 
+    // TODO: Check this works (and also how to set escape button?):
     save_button->setDefault(true);
 
     button_layout->addWidget(save_button);

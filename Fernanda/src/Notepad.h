@@ -504,15 +504,14 @@ private:
         auto path = meta->path();
         Coco::Path start_path =
             path.isEmpty()
-                ? startDir
-                      / (meta->title() + fileModel->preferredExtension())
+                ? startDir / (meta->title() + fileModel->preferredExtension())
                 : path;
 
         return Coco::PathUtil::Dialog::save(
             window,
-            Tr::Dialogs::notepadSaveFileAsCaption(),
+            Tr::npSaveAsCaption(),
             start_path,
-            Tr::Dialogs::notepadSaveAsFilter());
+            Tr::npSaveAsFilter());
     }
 
     /// TODO SAVES (END)
@@ -540,9 +539,9 @@ private:
 
                 auto paths = Coco::PathUtil::Dialog::files(
                     cmd.context,
-                    Tr::Dialogs::notepadOpenFileCaption(),
+                    Tr::npOpenFileCaption(),
                     startDir,
-                    Tr::Dialogs::notepadOpenFileFilter());
+                    Tr::npOpenFileFilter());
 
                 if (paths.isEmpty()) return;
 

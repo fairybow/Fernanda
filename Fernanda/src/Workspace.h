@@ -89,10 +89,13 @@ protected:
     // TODO: Getters instead?
 
     Bus* bus = new Bus(this);
-    SettingsModule* settings = new SettingsModule(
-        AppDirs::userData() / Constants::CONFIG_FILE_NAME,
-        bus,
-        this);
+
+    // TODO: If we want this to be explicitly "Notepad.ini" then it shouldn't be
+    // in base class. And yet, if we want to use it as the base for each
+    // individual Notebook's own settings, it isn't strictly Notepad.ini, then
+    // is it?
+    SettingsModule* settings =
+        new SettingsModule(AppDirs::userData() / "Settings.ini", bus, this);
     WindowService* windows = new WindowService(bus, this);
     ViewService* views = new ViewService(bus, this);
     FileService* files = new FileService(bus, this);
