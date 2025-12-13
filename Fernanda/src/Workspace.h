@@ -99,6 +99,11 @@ protected:
     TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
+    // Since this is currently hardcoded, it goes here to be shared between
+    // Workspace types. When it's made configurable, it will likely belong to
+    // App
+    Coco::Path startDir = AppDirs::defaultDocs();
+
 protected:
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;

@@ -116,6 +116,8 @@ protected:
     {
         if (windows->count() > 1 || !isModified_()) return true;
 
+        /// Add Save As
+
         // Is last window
         switch (SavePrompt::exec(fnxPath_.toQString(), window)) {
         default:
@@ -132,6 +134,8 @@ protected:
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         if (!isModified_()) return true;
+
+                /// Add Save As
 
         auto window = windows.last();
 
@@ -219,13 +223,10 @@ private:
                 if (!cmd.context) return;
                 if (!workingDir_.isValid()) return;
 
-                auto parent_dir = fnxPath_.parent();
-                if (!parent_dir.exists()) return; // Shouldn't happen
-
                 auto fs_paths = Coco::PathUtil::Dialog::files(
                     cmd.context,
                     Tr::Dialogs::notebookImportFileCaption(),
-                    parent_dir,
+                    startDir,
                     Tr::Dialogs::notebookImportFileFilter());
 
                 if (fs_paths.isEmpty()) return;
@@ -264,7 +265,7 @@ private:
                 auto new_path = Coco::PathUtil::Dialog::save(
                     cmd.context,
                     Tr::Dialogs::notebookSaveAsCaption(),
-                    fnxPath_,
+                    fnxPath_, /// Even if doesn't exist, will still have startDir / name.fnx, so need to use this for Save As'ing
                     Tr::Dialogs::notebookSaveAsFilter());
 
                 if (new_path.isEmpty()) return;
@@ -278,6 +279,8 @@ private:
 
                 // TODO: Should the temp dir format and name be an FNX utility?
                 // Anything else?
+
+                /// REMOVE:
 
                 fnxPath_ = new_path;
 
@@ -314,7 +317,7 @@ private:
 
                 settings->setOverrideConfigPath(
                     workingDir_.path() / Constants::CONFIG_FILE_NAME);
-                windows->setSubtitle(fnxPath_.fileQString());
+                windows->setSubtitle(fnxPath_.fileQString()); /// keep this though
 
                 /// TODO SAVES (END)
 
@@ -426,6 +429,7 @@ private:
         return fail_paths;
     }
 
+    /// "Unfactor"
     bool saveArchive_(Window* window, const Coco::Path& saveAsPath = {})
     {
         Coco::Path path = saveAsPath.isEmpty() ? fnxPath_ : saveAsPath;

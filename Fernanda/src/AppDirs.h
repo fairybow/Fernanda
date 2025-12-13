@@ -15,7 +15,7 @@
 #include "Debug.h"
 #include "Version.h"
 
-// For creating and retrieving application paths
+// For creating and retrieving non-configurable application paths
 namespace Fernanda::AppDirs {
 
 inline const Coco::Path& userData()
@@ -26,7 +26,7 @@ inline const Coco::Path& userData()
     return dir;
 }
 
-// TODO SAVES: Backups folder
+/// TODO SAVES: Backups folder
 
 inline const Coco::Path& temp()
 {
@@ -34,6 +34,7 @@ inline const Coco::Path& temp()
     return dir;
 }
 
+// TODO: Make configurable
 inline const Coco::Path& defaultDocs()
 {
     static auto dir = Coco::Path::Documents(VERSION_APP_NAME_STRING);
@@ -50,8 +51,8 @@ inline bool initialize()
     auto temp_ok = t.exists() || Coco::PathUtil::mkdir(t);
     auto docs_ok = d.exists() || Coco::PathUtil::mkdir(d);
 
-    if (!temp_ok) CRITICAL("Temp directory non-existent!: {}", t);
-    if (!docs_ok) CRITICAL("Docs directory non-existent!: {}", d);
+    if (!temp_ok) FATAL("Temp directory non-existent!: {}", t);
+    if (!docs_ok) FATAL("Docs directory non-existent!: {}", d);
 
     return temp_ok && docs_ok;
 }

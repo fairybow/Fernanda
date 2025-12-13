@@ -78,7 +78,7 @@ protected:
         // Generate the index on-demand from the stored path (don't hold it
         // separately or retrieve via Model::setRootPath)
         if (!fsModel_) return {};
-        return fsModel_->index(currentBaseDir_.toQString());
+        return fsModel_->index(startDir.toQString());
     }
 
     virtual void newTab(Window* window) override
@@ -379,7 +379,6 @@ protected:
     }
 
 private:
-    Coco::Path currentBaseDir_ = AppDirs::defaultDocs();
     PathInterceptor pathInterceptor_ = nullptr;
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
     NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
@@ -505,7 +504,7 @@ private:
         auto path = meta->path();
         Coco::Path start_path =
             path.isEmpty()
-                ? currentBaseDir_
+                ? startDir
                       / (meta->title() + fileModel->preferredExtension())
                 : path;
 
@@ -521,7 +520,7 @@ private:
     void setup_()
     {
         // Via Qt: Setting root path installs a filesystem watcher
-        fsModel_->setRootPath(currentBaseDir_.toQString());
+        fsModel_->setRootPath(startDir.toQString());
         fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
 
         menus_->initialize();
@@ -542,7 +541,7 @@ private:
                 auto paths = Coco::PathUtil::Dialog::files(
                     cmd.context,
                     Tr::Dialogs::notepadOpenFileCaption(),
-                    currentBaseDir_,
+                    startDir,
                     Tr::Dialogs::notepadOpenFileFilter());
 
                 if (paths.isEmpty()) return;
