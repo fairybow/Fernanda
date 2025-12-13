@@ -408,6 +408,9 @@
     <ClInclude Include="src\SaveFailMessageBox.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
+    <ClInclude Include="src\NewNotebookPrompt.h">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">
