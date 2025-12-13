@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QString>
@@ -18,18 +19,15 @@
 
 namespace Fernanda::NewNotebookPrompt {
 
-namespace Internal {
-
-    inline void setCommonProperties_(QMessageBox& box)
-    {
-        //
-    }
-
-} // namespace Internal
-
-inline void exec(QWidget* parent = nullptr)
+inline void exec()
 {
-    //
+    QMessageBox box{};
+    box.setMinimumSize(400, 200);
+    auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
+    box.setDefaultButton(ok);
+    box.setEscapeButton(ok);
+    box.setText("text");
+    box.exec();
 }
 
 } // namespace Fernanda::NewNotebookPrompt

@@ -10,7 +10,6 @@
 #pragma once
 
 #include <functional>
-#include <utility>
 
 #include <QAbstractItemModel>
 #include <QAction>
@@ -111,6 +110,7 @@ protected:
     /// TODO SAVES
 
     /// EXPORT can use title override + preferred extension!
+    /// Or probably better to use extension from DOM...
 
     virtual bool canCloseWindow(Window* window) override
     {
@@ -263,7 +263,7 @@ private:
                 auto new_path = Coco::PathUtil::Dialog::save(
                     cmd.context,
                     Tr::nbSaveAsCaption(),
-                    fnxPath_, /// Even if doesn't exist, will still have
+                    fnxPath_, /// Even if doesn't exist, will still be
                               /// startDir / name.fnx, so need to use this for
                               /// Save As'ing
                     Tr::nbSaveAsFilter());
@@ -274,57 +274,15 @@ private:
 
                 if (!saveArchive_(cmd.context, new_path)) return;
 
-                // TODO: Centralize all the things that would need updated when
-                // working dir changes, refactor appropriately
-
                 // TODO: Should the temp dir format and name be an FNX utility?
                 // Anything else?
 
-                /// REMOVE:
-
                 fnxPath_ = new_path;
-
-                auto new_working_dir = TempDir(
-                    AppDirs::temp() / (fnxPath_.fileQString() + "~XXXXXX"));
-                if (!new_working_dir.isValid()) {
-                    FATAL(
-                        "Notebook working directory creation "
-                        "failed!");
-                }
-
-                auto old_dir = workingDir_.path();
-                auto new_dir = new_working_dir.path();
-
-                if (!Coco::PathUtil::copyContents(old_dir, new_dir)) {
-                    FATAL(
-                        "Failed to copy old Notebook working directory "
-                        "contents from {} to {}!",
-                        old_dir,
-                        new_dir);
-                }
-
-                for (auto& model : files->fileModels()) {
-                    if (!model) continue;
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    auto path = meta->path();
-                    if (!path.exists()) FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
-
-                    meta->setPath(path.rebase(old_dir, new_dir));
-                }
-
-                workingDir_ = std::move(new_working_dir);
-
-                //settings->setOverrideConfigPath(
-                    //workingDir_.path() / Constants::CONFIG_FILE_NAME);
-                windows->setSubtitle(
-                    fnxPath_.fileQString()); /// keep this though
+                windows->setSubtitle(fnxPath_.fileQString());
 
                 /// TODO SAVES (END)
 
                 colorBars->green();
-
-                // TODO: Update workspace indicator labels (if we keep them)
             });
 
         /// TODO SAVES (END)
