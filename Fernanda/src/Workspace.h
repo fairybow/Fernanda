@@ -84,6 +84,7 @@ public:
 
 signals:
     void lastWindowClosed();
+    void newNotebookRequested(const Coco::Path& fnxPath);
 
 protected:
     // TODO: Getters instead?

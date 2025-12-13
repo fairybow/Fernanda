@@ -19,7 +19,7 @@
 
 namespace Fernanda::NewNotebookPrompt {
 
-inline void exec()
+inline QString exec()
 {
     QMessageBox box{};
     box.setMinimumSize(400, 200);
@@ -28,6 +28,8 @@ inline void exec()
     box.setEscapeButton(ok);
     box.setText("text");
     box.exec();
+
+    return {}; // temp
 }
 
 } // namespace Fernanda::NewNotebookPrompt

@@ -50,7 +50,6 @@
 
 #include "Coco/Concepts.h"
 #include "Coco/Debug.h" /// Move trivial class?
-#include "Coco/Layout.h"
 #include "Coco/Utility.h"
 
 #include "Debug.h"
@@ -145,8 +144,13 @@ private:
         mainStack_->setCurrentIndex(0);
 
         // Layout
-        auto main_layout = Coco::Layout::makeDense<QVBoxLayout*>(this);
-        auto top_layout = Coco::Layout::makeDense<QHBoxLayout*>();
+        auto main_layout = new QVBoxLayout(this);
+        main_layout->setContentsMargins(0, 0, 0, 0);
+        main_layout->setSpacing(0);
+
+        auto top_layout = new QHBoxLayout;
+        top_layout->setContentsMargins(0, 0, 0, 0);
+        top_layout->setSpacing(0);
 
         // top_layout->addWidget(dummyL_, 0);
         top_layout->addWidget(tabBar_, 0);

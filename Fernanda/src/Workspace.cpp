@@ -25,6 +25,17 @@ namespace Fernanda {
 
 void Workspace::registerBusCommands_()
 {
+    bus->addCommandHandler(Commands::NEW_NOTEBOOK, [&] { 
+        
+        // - Get name from dialog
+        // - concat: startDir + name + .fnx
+        // - check exists already
+        // - if exists, error dialog
+        // - else, emit newNotebookRequested with path in signal
+        
+        });
+
+    bus->addCommandHandler(Commands::OPEN_NOTEBOOK, [] {});
     bus->addCommandHandler(Commands::ABOUT_DIALOG, [] { AboutDialog::exec(); });
 }
 

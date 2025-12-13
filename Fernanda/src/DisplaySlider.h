@@ -17,8 +17,6 @@
 #include <QWidget>
 #include <Qt>
 
-#include "Coco/Layout.h"
-
 #include "Debug.h"
 
 namespace Fernanda {
@@ -94,7 +92,7 @@ private:
         setDisplayText_();
 
         // Layout
-        auto layout = Coco::Layout::make<QHBoxLayout*>(this);
+        auto layout = new QHBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0); // Keep spacing but no margin
         layout->addWidget(slider_);
         layout->addWidget(display_);

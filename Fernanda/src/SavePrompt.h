@@ -11,6 +11,7 @@
 
 #include <QCheckBox>
 #include <QDialog>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QList>
 #include <QMessageBox>
@@ -18,10 +19,9 @@
 #include <QScrollArea>
 #include <QString>
 #include <QStringList>
+#include <QVBoxLayout>
 #include <QWidget>
 #include <Qt>
-
-#include "Coco/Layout.h"
 
 #include "Tr.h"
 
@@ -105,7 +105,7 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     QDialog dialog(parent);
     Internal::setCommonProperties_(dialog);
 
-    auto main_layout = Coco::Layout::make<QVBoxLayout*>(&dialog);
+    auto main_layout = new QVBoxLayout(&dialog);
 
     // Message label
     auto message_label = new QLabel(&dialog);
@@ -117,7 +117,7 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     // Scroll area with checkboxes
     auto scroll_area = new QScrollArea(&dialog);
     auto scroll_widget = new QWidget;
-    auto scroll_layout = Coco::Layout::make<QVBoxLayout*>(scroll_widget);
+    auto scroll_layout = new QVBoxLayout(scroll_widget);
 
     QList<QCheckBox*> checkboxes{};
     for (const auto& file_name : fileDisplayNames) {

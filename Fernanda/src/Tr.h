@@ -56,6 +56,7 @@ namespace Tr {
     // Joint-workspace dialogs:
 
     TR_(nxAboutTitle, tr("About"));
+    TR_(nxNewNotebookTitle, tr("New Notebook"));
 
     // TODO: std::format
     inline QString nxAboutBody()

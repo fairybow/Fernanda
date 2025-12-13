@@ -20,7 +20,7 @@ constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 
 // Workspace scope
 
-constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
+constexpr auto NEW_NOTEBOOK = "workspace:new_notebook"; /// *
 constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
 
 // Notepad scope

@@ -17,8 +17,6 @@
 #include <QWidget>
 #include <QtTypes>
 
-#include "Coco/Layout.h"
-
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
 #include "Debug.h"
