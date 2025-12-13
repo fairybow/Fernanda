@@ -25,12 +25,12 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "AbstractService.h"
 #include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "Fnx.h"
 #include "NotepadMenuModule.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
@@ -56,12 +56,6 @@ public:
     }
 
     virtual ~Notepad() override { TRACER; }
-
-    DECLARE_HOOK_ACCESSORS(
-        PathInterceptor,
-        pathInterceptor,
-        setPathInterceptor,
-        pathInterceptor_);
 
     bool hasWindows() const { return windows->count() > 0; }
 
@@ -379,7 +373,6 @@ protected:
     }
 
 private:
-    PathInterceptor pathInterceptor_ = nullptr;
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
     NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
@@ -547,12 +540,10 @@ private:
 
                 for (auto& path : paths) {
                     if (!path.exists()) continue;
-                    // TODO: Still calling this here so we have the path
-                    // filtered by the interceptor (to open .fnx)!
-                    bus->execute(
-                        Commands::OPEN_FILE_AT_PATH,
-                        { { "path", qVar(path) } },
-                        cmd.context);
+
+                    Fnx::Io::isFnxFile(path)
+                        ? emit openNotebookRequested(path)
+                        : files->openFilePathIn(cmd.context, path);
                 }
             });
 
@@ -666,18 +657,6 @@ private:
             });
 
         /// TODO SAVES (END)
-
-        // Notepad sets an Interceptor for FileService's open file command in
-        // order to intercept Notebook paths
-        bus->addInterceptor(
-            Commands::OPEN_FILE_AT_PATH,
-            [&](const Command& cmd) {
-                if (pathInterceptor_
-                    && pathInterceptor_(cmd.param<Coco::Path>("path")))
-                    return true;
-
-                return false;
-            });
     }
 
     void connectBusEvents_()
@@ -699,10 +678,8 @@ private slots:
         auto path = Coco::Path(fsModel_->filePath(index));
         if (path.isFolder()) return;
 
-        bus->execute(
-            Commands::OPEN_FILE_AT_PATH,
-            { { "path", qVar(path) } },
-            window);
+        Fnx::Io::isFnxFile(path) ? emit openNotebookRequested(path)
+                                 : files->openFilePathIn(window, path);
     }
 
     void onViewDestroyed_(AbstractFileModel* fileModel)

@@ -37,10 +37,12 @@ void exec()
     // QMessageBox::AcceptRole);
     auto about_qt = box.addButton(Tr::aboutQt(), QMessageBox::AcceptRole);
 
-    auto a = app();
-    a->connect(about_qt, &QPushButton::clicked, a, Application::aboutQt);
+    box.connect(about_qt, &QPushButton::clicked, app(), Application::aboutQt);
 
     box.setDefaultButton(ok);
+    box.setEscapeButton(ok);
+
+    // TODO: Move to open/show
     box.exec();
 }
 

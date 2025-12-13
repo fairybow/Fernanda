@@ -51,6 +51,8 @@ namespace Shortcuts {
     constexpr auto DEL = Qt::Key_Delete;
     constexpr auto SELECT_ALL = Qt::CTRL | Qt::Key_A;
 
+    // TODO: Any remaining key sequences
+
 } // namespace Shortcuts
 
 using Inserter = std::function<void(QMenu*)>;
@@ -117,6 +119,26 @@ inline QAction* makeBusAction(
         autoRepeat);
 }
 
+// TODO: Go through all handler implementations and see which should use this
+// (handlers that don't use a Command parameter)
+inline QAction* makeCmdlessBusAction(
+    Bus* bus,
+    Window* window,
+    const QString& commandId,
+    const QString& text,
+    const QKeySequence& keySequence = {},
+    AutoRepeat autoRepeat = AutoRepeat::No)
+{
+    if (!bus) return nullptr;
+
+    return makeAction(
+        window,
+        text,
+        [bus, commandId] { bus->execute(commandId); },
+        keySequence,
+        autoRepeat);
+}
+
 namespace Internal {
 
     // TODO: Deal with moving stuff to source file and/or removing this bespoke
@@ -148,17 +170,17 @@ namespace Internal {
             Tr::Menus::fileNewWindow(),
             Shortcuts::NEW_WINDOW); /// *
 
-        common.file.newNotebook = makeBusAction(
+        common.file.newNotebook = makeCmdlessBusAction(
             bus,
             window,
             Commands::NEW_NOTEBOOK,
-            Tr::Menus::fileNewNotebook());
+            Tr::Menus::fileNewNotebook()); /// *
 
-        common.file.openNotebook = makeBusAction(
+        common.file.openNotebook = makeCmdlessBusAction(
             bus,
             window,
             Commands::OPEN_NOTEBOOK,
-            Tr::Menus::fileOpenNotebook());
+            Tr::Menus::fileOpenNotebook()); /// *
 
         common.file.closeTab = makeBusAction(
             bus,
@@ -257,7 +279,7 @@ namespace Internal {
             Commands::SETTINGS_DIALOG,
             Tr::Menus::settings());
 
-        common.help.about = makeBusAction(
+        common.help.about = makeCmdlessBusAction(
             bus,
             window,
             Commands::ABOUT_DIALOG,

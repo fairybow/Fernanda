@@ -97,14 +97,7 @@ protected:
         auto working_dir = workingDir_.path();
         auto info = fnxModel_->addNewTextFile(working_dir);
         if (!info.isValid()) return;
-
-        // TODO: Once New Tab is signal based (if), we can likely drop the
-        // interceptor and reroute just here
-        bus->execute(
-            Commands::OPEN_FILE_AT_PATH,
-            { { "path", qVar(working_dir / info.relPath) },
-              { "title", info.name } },
-            window);
+        files->openFilePathIn(window, working_dir / info.relPath, info.name);
     }
 
     /// TODO SAVES
@@ -236,12 +229,10 @@ private:
 
                 for (auto& info : infos) {
                     if (!info.isValid()) continue;
-
-                    bus->execute(
-                        Commands::OPEN_FILE_AT_PATH,
-                        { { "path", qVar(working_dir / info.relPath) },
-                          { "title", info.name } },
-                        cmd.context);
+                    files->openFilePathIn(
+                        cmd.context,
+                        working_dir / info.relPath,
+                        info.name);
                 }
             });
 
@@ -463,11 +454,10 @@ private slots:
         auto info = fnxModel_->fileInfoAt(index);
         if (!info.isValid()) return;
 
-        bus->execute(
-            Commands::OPEN_FILE_AT_PATH,
-            { { "path", qVar(workingDir_.path() / info.relPath) },
-              { "title", info.name } },
-            window);
+        files->openFilePathIn(
+            window,
+            workingDir_.path() / info.relPath,
+            info.name);
     }
 
     void onTreeViewContextMenuRequested_(

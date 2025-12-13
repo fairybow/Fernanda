@@ -34,21 +34,21 @@ namespace Tr {
     //TR_(licenses, tr("Licenses"));
     TR_(aboutQt, tr("About Qt"));
     TR_(save, tr("Save"));
-    TR_(discard, tr("Discard"));
+    TR_(dontSave, tr("Don't save"));
     TR_(cancel, tr("Cancel"));
 
     // Notepad dialogs:
 
-    TR_(npOpenFileCaption, tr("Open existing file"));
+    TR_(npOpenFileCaption, tr("Open file"));
     TR_(npOpenFileFilter,
         tr("Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All "
            "files (*)"));
-    TR_(npSaveAsCaption, tr("Save file as"));
+    TR_(npSaveAsCaption, tr("Save as"));
     TR_(npSaveAsFilter, tr("Plain text files (*.txt);;All files (*)"));
 
     // Notebook dialogs:
 
-    TR_(nbImportFileCaption, tr("Import existing file"));
+    TR_(nbImportFileCaption, tr("Import file"));
     TR_(nbImportFileFilter, tr("Plain text files (*.txt)"));
     TR_(nbSaveAsCaption, tr("Save as"));
     TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
@@ -57,6 +57,10 @@ namespace Tr {
 
     TR_(nxAboutTitle, tr("About"));
     TR_(nxNewNotebookTitle, tr("New Notebook"));
+    TR_(nxNewNotebookBody, tr("Name:"));
+    TR_(nxNewNotebookExistsErrBodyFormat, tr("A Notebook already exists at %0"));
+    TR_(nxOpenNotebookCaption, tr("Open Notebook file"));
+    TR_(nxOpenNotebookFilter, tr("Fernanda Notebook files (*.fnx)"));
 
     // TODO: std::format
     inline QString nxAboutBody()
@@ -97,7 +101,7 @@ namespace Tr {
     TR_(nxSavePromptMultiBodyFormat,
         tr("You have unsaved changes in %0 files:"));
 
-    TR_(nxSaveFailBoxBodyFormat, tr("There was a problem saving %0."));
+    TR_(nxSaveFailBoxBodyFormat, tr("There was a problem saving %0"));
     TR_(nxSaveFailBoxMultiBodyFormat,
         tr("There was a problem saving these files: %0"));
 

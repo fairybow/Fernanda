@@ -114,13 +114,12 @@ private:
     {
         // Temporary opening procedures:
         notepad_ = new Notepad(this);
-        notepad_->setPathInterceptor(
-            this,
-            &Application::notepadPathInterceptor_);
 
         connect(notepad_, &Notepad::lastWindowClosed, this, [&] {
             if (notebooks_.isEmpty()) quit();
         });
+
+        connectWorkspace_(notepad_);
 
         // Will only open new window if: 1) there is no Notebook from sessions;
         // 2) there is no Notepad window from sessions
@@ -128,10 +127,9 @@ private:
         notepad_->open(NewWindow::Yes);
     }
 
-    void makeNotebook_(const Coco::Path& fnx)
+    void makeNotebook_(const Coco::Path& fnxPath)
     {
-        // Temporary opening procedures:
-        auto notebook = new Notebook(fnx, this);
+        auto notebook = new Notebook(fnxPath, this);
         notebooks_ << notebook;
 
         connect(notebook, &Notebook::lastWindowClosed, this, [&, notebook] {
@@ -145,27 +143,38 @@ private:
                                    : notepad_->newWindow();
         });
 
+        connectWorkspace_(notebook);
+
         notebook->open(NewWindow::Yes);
     }
 
-    // TODO: Ensure .fnx extension, too?
-    bool notepadPathInterceptor_(const Coco::Path& path)
+    // For joint Workspace connections
+    void connectWorkspace_(Workspace* workspace)
     {
-        if (FileTypes::is(FileTypes::SevenZip, path)) {
-            INFO("Notepad intercepted {}", path);
+        if (!workspace) return;
 
-            for (auto& notebook : notebooks_) {
-                if (notebook->fnxPath() == path) {
-                    notebook->activate();
-                    return true;
+        connect(
+            workspace,
+            &Workspace::newNotebookRequested,
+            this,
+            [&](const Coco::Path& fnxPath) { makeNotebook_(fnxPath); });
+
+        connect(
+            workspace,
+            &Workspace::openNotebookRequested,
+            this,
+            [&](const Coco::Path& fnxPath) {
+                // Shouldn't need to check Fnx::isFnxFile. The promise of this
+                // signal is "open Notebook" not "open maybe a Notebook"!
+                for (auto& notebook : notebooks_) {
+                    if (notebook->fnxPath() == fnxPath) {
+                        notebook->activate();
+                        return;
+                    }
                 }
-            }
 
-            makeNotebook_(path);
-            return true;
-        }
-
-        return false;
+                makeNotebook_(fnxPath);
+            });
     }
 
 private slots:

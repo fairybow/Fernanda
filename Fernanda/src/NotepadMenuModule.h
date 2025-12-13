@@ -66,8 +66,8 @@ protected:
 private:
     QHash<Window*, NotepadMenuActions> actions_{};
 
-    // TODO: Remove {} for no arg commands
-    // TODO: Add key sequences
+    // TODO: Go through all handler implementations and see which should use
+    // this (handlers that don't use a Command parameter)
     void initializeActions_(Window* window)
     {
         if (!window) return;

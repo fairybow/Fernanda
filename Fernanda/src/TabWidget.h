@@ -228,6 +228,7 @@ public:
         return qobject_cast<T>(removeTab(index));
     }
 
+    // TODO: Rename to take/removeAll (clear implies deletion)?
     QWidgetList clear()
     {
         QWidgetList widgets{};
@@ -236,6 +237,7 @@ public:
         return widgets;
     }
 
+    // TODO: Rename to take/removeAll (clear implies deletion)?
     template <Coco::Concepts::QWidgetPointer T> QList<T> clear()
     {
         QList<T> widgets{};

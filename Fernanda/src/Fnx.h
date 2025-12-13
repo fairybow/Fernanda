@@ -26,6 +26,7 @@
 #include "bit7z/bitarchivewriter.hpp"
 
 #include "AppDirs.h"
+#include "FileTypes.h"
 #include "Io.h"
 
 // .fnx file format specification and utilities.
@@ -77,8 +78,15 @@ namespace Internal {
 
 } // namespace Internal
 
+constexpr auto EXT = ".fnx";
+
 // Used by Notebook
 namespace Io {
+
+    inline bool isFnxFile(const Coco::Path& path)
+    {
+        return path.ext() == EXT && FileTypes::is(FileTypes::SevenZip, path);
+    }
 
     inline void makeNewWorkingDir(const Coco::Path& workingDir)
     {

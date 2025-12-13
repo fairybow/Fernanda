@@ -124,6 +124,7 @@ public:
 
     virtual ~Commander() = default;
 
+    // Interceptors are currently unused
     template <typename InterceptorT>
     void addInterceptor(const QString& id, InterceptorT&& interceptor)
     {

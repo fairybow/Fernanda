@@ -125,28 +125,31 @@ public:
         return result;
     }
 
+    void openFilePathIn(
+        Window* window,
+        const Coco::Path& path,
+        const QString& title = {})
+    {
+        if (!window) return;
+        if (path.isEmpty() || !path.isFile() || !path.exists()) return;
+
+        // Check if model already exists and re-ready
+        if (auto existing_model = pathToFileModel_[path]) {
+            emit bus->fileModelReadied(window, existing_model);
+            return;
+        }
+
+        // Else, make a new one and ready it
+        if (auto model = newDiskFileModel_(path, title))
+            emit bus->fileModelReadied(window, model);
+    }
+
     /// TODO SAVES (END)
 
 protected:
     virtual void registerBusCommands() override
     {
-        bus->addCommandHandler(
-            Commands::OPEN_FILE_AT_PATH,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                auto path = cmd.param<Coco::Path>("path", {});
-                if (path.isEmpty() || !path.exists()) return;
-
-                // Check if model already exists and re-ready
-                if (auto existing_model = pathToFileModel_[path]) {
-                    emit bus->fileModelReadied(cmd.context, existing_model);
-                    return;
-                }
-
-                auto title = cmd.param<QString>("title", {});
-                if (auto model = newDiskFileModel_(path, title))
-                    emit bus->fileModelReadied(cmd.context, model);
-            });
+        //...
     }
 
     virtual void connectBusEvents() override
