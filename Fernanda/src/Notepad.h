@@ -75,11 +75,11 @@ protected:
         return fsModel_->index(startDir.toQString());
     }
 
-    virtual void newTab(Window* window) override
+    /*virtual void newTab(Window* window) override
     {
         if (!window) return;
         files->openOffDiskTxtIn(window);
-    }
+    }*/
 
     virtual bool canCloseTab(Window* window, int index) override
     {

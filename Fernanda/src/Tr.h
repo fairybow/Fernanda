@@ -31,7 +31,7 @@ namespace Tr {
     // Buttons:
 
     TR_(ok, tr("OK"));
-    //TR_(licenses, tr("Licenses"));
+    // TR_(licenses, tr("Licenses"));
     TR_(aboutQt, tr("About Qt"));
     TR_(save, tr("Save"));
     TR_(dontSave, tr("Don't save"));
@@ -58,7 +58,8 @@ namespace Tr {
     TR_(nxAboutTitle, tr("About"));
     TR_(nxNewNotebookTitle, tr("New Notebook"));
     TR_(nxNewNotebookBody, tr("Name:"));
-    TR_(nxNewNotebookExistsErrBodyFormat, tr("A Notebook already exists at %0"));
+    TR_(nxNewNotebookExistsErrBodyFormat,
+        tr("A Notebook already exists at %0"));
     TR_(nxOpenNotebookCaption, tr("Open Notebook file"));
     TR_(nxOpenNotebookFilter, tr("Fernanda Notebook files (*.fnx)"));
 
@@ -107,36 +108,39 @@ namespace Tr {
 
     // Menus:
 
-    TR_(fileMenu, tr("&File"));
-    TR_(editMenu, tr("&Edit"));
-    TR_(viewMenu, tr("&View"));
-    TR_(settingsMenu, tr("&Settings"));
-    TR_(helpMenu, tr("&Help"));
-
-    /// Unverified:
-
     // TODO: Mnemonics
+
+    TR_(nxFileMenu, tr("&File"));
+    TR_(nxEditMenu, tr("&Edit"));
+    TR_(nxViewMenu, tr("&View"));
+    TR_(nxSettingsMenu, tr("&Settings"));
+    TR_(nxHelpMenu, tr("&Help"));
+
+    TR_(npNewTab, tr("New tab"));
+    TR_(npOpenFile, tr("Open..."));
+    TR_(npSave, tr("Save"));
+    TR_(npSaveAs, tr("Save as..."));
+    TR_(npSaveAllInWindow, tr("Save all in window"));
+    TR_(npSaveAll, tr("Save all"));
+
+    TR_(nbNewFile, tr("New file"));
+    TR_(nbNewFolder, tr("New folder"));
+    TR_(nbRename, tr("Rename"));
+    TR_(nbImportFile, tr("Import file..."));
+    TR_(nbOpenNotepad, tr("Open Notepad"));
+    TR_(nbSave, tr("Save"));
+    TR_(nbSaveAs, tr("Save as..."));
+    TR_(nbExportFile, tr("Export file..."));
+
+    /// Not updated:
 
     namespace Menus {
 
         // File
 
-        TR_(fileNewTab, tr("&New tab"));
         TR_(fileNewWindow, tr("New &window"));
         TR_(fileNewNotebook, tr("New notebook"));
         TR_(fileOpenNotebook, tr("Open notebook"));
-
-        TR_(fileNotepadOpen, tr("&Open..."));
-        TR_(fileNotepadSave, tr("&Save"));
-        TR_(fileNotepadSaveAs, tr("S&ave as..."));
-        TR_(fileNotepadSaveAllInWindow, tr("Save all &in window"));
-        TR_(fileNotepadSaveAll, tr("Save a&ll"));
-
-        TR_(fileNotebookOpenNotepad, tr("&Open notepad"));
-        TR_(fileNotebookImportFile, tr("&Import..."));
-        TR_(fileNotebookSaveArchive, tr("&Save"));
-        TR_(fileNotebookSaveArchiveAs, tr("S&ave as..."));
-        TR_(fileNotebookExportFile, tr("&Export..."));
 
         TR_(fileCloseTab, tr("Close tab"));
         TR_(fileCloseTabEverywhere, tr("Close tab everywhere"));

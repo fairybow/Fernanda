@@ -67,7 +67,7 @@ public:
 
     virtual ~ViewService() override { TRACER; }
 
-    DECLARE_HOOK_ACCESSORS(NewTabHook, newTabHook, setNewTabHook, newTabHook_);
+    //DECLARE_HOOK_ACCESSORS(NewTabHook, newTabHook, setNewTabHook, newTabHook_);
 
     DECLARE_HOOK_ACCESSORS(
         CanCloseTabHook,
@@ -298,9 +298,9 @@ protected:
             selectAll_(cmd.context, cmd.param<int>("index", -1));
         });
 
-        bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
+        /*bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
             newTab_(cmd.context);
-        });
+        });*/
 
         bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
             closeTab_(cmd.context, cmd.param<int>("index", -1));
@@ -353,7 +353,7 @@ protected:
 private:
     QHash<Window*, AbstractFileView*> activeFileViews_{};
     QHash<AbstractFileModel*, int> fileViewsPerModel_{};
-    NewTabHook newTabHook_ = nullptr;
+    //NewTabHook newTabHook_ = nullptr;
     CanCloseTabHook canCloseTabHook_ = nullptr;
     CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
     CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
@@ -432,11 +432,11 @@ private:
         view->selectAll();
     }
 
-    void newTab_(Window* window)
+    /*void newTab_(Window* window)
     {
         if (!window || !newTabHook_) return;
         newTabHook_(window);
-    }
+    }*/
 
     void closeTab_(Window* window, int index = -1)
     {
@@ -570,7 +570,7 @@ private:
             [&, window](int index) { setActiveFileView_(window, index); });
 
         connect(tab_widget, &TabWidget::addTabRequested, this, [&, window] {
-            newTab_(window);
+            //newTab_(window);
         });
 
         connect(

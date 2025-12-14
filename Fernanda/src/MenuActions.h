@@ -17,7 +17,6 @@ struct CommonMenuActions
 {
     struct File
     {
-        QAction* newTab = nullptr;
         QAction* newWindow = nullptr;
         QAction* newNotebook = nullptr;
         QAction* openNotebook = nullptr;
@@ -57,6 +56,7 @@ struct NotepadMenuActions
 
     struct File
     {
+        QAction* newTab = nullptr;
         QAction* openFile = nullptr;
 
         QAction* save = nullptr;
@@ -72,6 +72,9 @@ struct NotebookMenuActions
 
     struct File
     {
+        QAction* newFile = nullptr;
+        QAction* newFolder = nullptr;
+        QAction* renameItem = nullptr;
         QAction* importFile = nullptr;
         QAction* openNotepad = nullptr;
 

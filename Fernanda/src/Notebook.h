@@ -94,7 +94,7 @@ protected:
         return {};
     }
 
-    virtual void newTab(Window* window) override
+    /*virtual void newTab(Window* window) override
     {
         if (!window) return;
         if (!workingDir_.isValid()) return;
@@ -103,7 +103,7 @@ protected:
         auto info = fnxModel_->addNewTextFile(working_dir);
         if (!info.isValid()) return;
         files->openFilePathIn(window, working_dir / info.relPath, info.name);
-    }
+    }*/
 
     virtual bool canCloseWindow(Window* window) override
     {

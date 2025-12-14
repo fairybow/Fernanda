@@ -158,13 +158,6 @@ namespace Internal {
 
         /// * = implemented
 
-        common.file.newTab = makeBusAction(
-            bus,
-            window,
-            Commands::NEW_TAB,
-            Tr::Menus::fileNewTab(),
-            Shortcuts::NEW_TAB); /// *
-
         common.file.newWindow = makeBusAction(
             bus,
             window,
@@ -279,7 +272,7 @@ namespace Internal {
             bus,
             window,
             Commands::SETTINGS_DIALOG,
-            Tr::settingsMenu());
+            Tr::nxSettingsMenu());
 
         common.help.about = makeCmdlessBusAction(
             bus,
@@ -291,17 +284,20 @@ namespace Internal {
     inline void addFileMenu_(
         QMenuBar* menuBar,
         CommonMenuActions& common,
-        const Inserter& inserter)
+        const Inserter& opensInserter,
+        const Inserter& savesInserter)
     {
-        auto menu = new QMenu(Tr::fileMenu(), menuBar);
-        menu->addAction(common.file.newTab);
+        auto menu = new QMenu(Tr::nxFileMenu(), menuBar);
+        opensInserter(menu);
         menu->addAction(common.file.newWindow);
         menu->addSeparator();
         menu->addAction(common.file.newNotebook);
         menu->addAction(common.file.openNotebook);
+        menu->addSeparator();
 
         // Save section per subclass
-        inserter(menu);
+        savesInserter(menu);
+        menu->addSeparator();
 
         menu->addAction(common.file.closeTab);
         menu->addAction(common.file.closeTabEverywhere);
@@ -317,7 +313,7 @@ namespace Internal {
 
     inline void addEditMenu_(QMenuBar* menuBar, CommonMenuActions& common)
     {
-        auto menu = new QMenu(Tr::editMenu(), menuBar);
+        auto menu = new QMenu(Tr::nxEditMenu(), menuBar);
         menu->addAction(common.edit.undo);
         menu->addAction(common.edit.redo);
         menu->addSeparator();
@@ -344,7 +340,7 @@ namespace Internal {
 
     inline void addHelpMenu_(QMenuBar* menuBar, CommonMenuActions& common)
     {
-        auto menu = new QMenu(Tr::helpMenu(), menuBar);
+        auto menu = new QMenu(Tr::nxHelpMenu(), menuBar);
         menu->addAction(common.help.about);
         menuBar->addMenu(menu);
     }
@@ -352,13 +348,18 @@ namespace Internal {
     inline void addMenus_(
         QMenuBar* menuBar,
         CommonMenuActions& common,
-        const Inserter& fileMenuInserter)
+        const Inserter& fileMenuOpensInserter,
+        const Inserter& fileMenuSavesInserter)
     {
-        Internal::addFileMenu_(menuBar, common, fileMenuInserter);
-        Internal::addEditMenu_(menuBar, common);
-        Internal::addViewMenu_(menuBar, common);
-        Internal::addSettingsMenu_(menuBar, common);
-        Internal::addHelpMenu_(menuBar, common);
+        addFileMenu_(
+            menuBar,
+            common,
+            fileMenuOpensInserter,
+            fileMenuSavesInserter);
+        addEditMenu_(menuBar, common);
+        addViewMenu_(menuBar, common);
+        addSettingsMenu_(menuBar, common);
+        addHelpMenu_(menuBar, common);
     }
 
 } // namespace Internal
@@ -367,13 +368,18 @@ inline void addNewMenuBar(
     Bus* bus,
     Window* window,
     CommonMenuActions& common,
-    const Inserter& fileMenuInserter)
+    const Inserter& fileMenuOpensInserter,
+    const Inserter& fileMenuSavesInserter)
 {
     if (!bus || !window) return;
     auto menu_bar = new QMenuBar(window);
 
     Internal::initializeCommonActions_(bus, window, common);
-    Internal::addMenus_(menu_bar, common, fileMenuInserter);
+    Internal::addMenus_(
+        menu_bar,
+        common,
+        fileMenuOpensInserter,
+        fileMenuSavesInserter);
     window->setMenuBar(menu_bar);
 }
 

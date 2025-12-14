@@ -75,37 +75,55 @@ private:
 
         /// * = implemented
 
-        actions.file.openNotepad = Menus::makeBusAction(
+        actions.file.newFile = Menus::makeBusAction(
             bus,
             window,
-            Commands::NOTEBOOK_OPEN_NOTEPAD,
-            Tr::Menus::fileNotebookOpenNotepad()); /// *
+            Commands::NOTEBOOK_NEW_FILE,
+            Tr::nbNewFile());
+
+        actions.file.newFolder = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_NEW_FOLDER,
+            Tr::nbNewFolder());
+
+        actions.file.renameItem = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_RENAME_ITEM,
+            Tr::nbRename());
 
         actions.file.importFile = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_IMPORT_FILE,
-            Tr::Menus::fileNotebookImportFile()); /// *
+            Tr::nbImportFile()); /// *
+
+        actions.file.openNotepad = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_OPEN_NOTEPAD,
+            Tr::nbOpenNotepad()); /// *
 
         actions.file.save = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_SAVE,
-            Tr::Menus::fileNotebookSaveArchive(),
+            Tr::nbSave(),
             Menus::Shortcuts::SAVE); /// *
 
         actions.file.saveAs = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_SAVE_AS,
-            Tr::Menus::fileNotebookSaveArchiveAs(),
+            Tr::nbSaveAs(),
             Menus::Shortcuts::SAVE_AS); /// *
 
         actions.file.exportFile = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_EXPORT_FILE,
-            Tr::Menus::fileNotebookExportFile());
+            Tr::nbExportFile());
     }
 
 private slots:
@@ -115,17 +133,22 @@ private slots:
 
         initializeActions_(window);
         auto& actions = actions_[window];
-        Menus::addNewMenuBar(bus, window, actions.common, [&](QMenu* menu) {
-            menu->addSeparator();
-            menu->addAction(actions.file.openNotepad);
-            menu->addSeparator();
-            menu->addAction(actions.file.importFile);
-            menu->addSeparator();
-            menu->addAction(actions.file.save);
-            menu->addAction(actions.file.saveAs);
-            menu->addAction(actions.file.exportFile);
-            menu->addSeparator();
-        });
+        Menus::addNewMenuBar(
+            bus,
+            window,
+            actions.common,
+            [&](QMenu* menu) {
+                menu->addAction(actions.file.newFile);
+                menu->addAction(actions.file.newFolder);
+                menu->addAction(actions.file.renameItem);
+                menu->addAction(actions.file.importFile);
+                menu->addAction(actions.file.openNotepad);
+            },
+            [&](QMenu* menu) {
+                menu->addAction(actions.file.save);
+                menu->addAction(actions.file.saveAs);
+                menu->addAction(actions.file.exportFile);
+            });
     }
 };
 
