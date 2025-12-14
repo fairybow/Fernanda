@@ -15,7 +15,7 @@
 
 // TODO: Go through and Find All References and delete unused
 
-// Note: Qt Linguist requires the tr method to be in place
+// Qt Linguist requires the tr method to be in place
 #define TR_(Name, TrCall)                                                      \
     inline QString Name() { return TrCall; }
 
