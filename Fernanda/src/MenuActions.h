@@ -75,6 +75,7 @@ struct NotebookMenuActions
         QAction* newFile = nullptr;
         QAction* newFolder = nullptr;
         QAction* renameItem = nullptr;
+        QAction* removeItem = nullptr;
         QAction* importFile = nullptr;
         QAction* openNotepad = nullptr;
 

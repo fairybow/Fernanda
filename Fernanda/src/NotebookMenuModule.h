@@ -93,6 +93,12 @@ private:
             Commands::NOTEBOOK_RENAME_ITEM,
             Tr::nbRename());
 
+        actions.file.removeItem = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_REMOVE_ITEM,
+            Tr::nbRemove());
+
         actions.file.importFile = Menus::makeBusAction(
             bus,
             window,

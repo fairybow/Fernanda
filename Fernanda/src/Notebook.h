@@ -259,9 +259,34 @@ private:
 
     void registerBusCommands_()
     {
-        bus->addCommandHandler(Commands::NOTEBOOK_OPEN_NOTEPAD, [&] {
-            emit openNotepadRequested();
-        });
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_NEW_FILE,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                // Old new tab behavior
+            });
+
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_NEW_FOLDER,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                // Adds folder to top level (like old new tab behavior but with
+                // vfolder
+            });
+
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_RENAME_ITEM,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                // Renames current item (based on current view in window)
+            });
+
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_REMOVE_ITEM,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                // Removes current item (based on current view in window)
+            });
 
         bus->addCommandHandler(
             Commands::NOTEBOOK_IMPORT_FILE,
@@ -288,6 +313,10 @@ private:
                         info.name);
                 }
             });
+
+        bus->addCommandHandler(Commands::NOTEBOOK_OPEN_NOTEPAD, [&] {
+            emit openNotepadRequested();
+        });
 
         bus->addCommandHandler(
             Commands::NOTEBOOK_SAVE,
@@ -372,8 +401,9 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
 
-                // - Run an export file method for current file in this window
-                // - The separate method would get file info by model index
+                // Exports current item (based on current view in window)
+
+                // - Get file info by model index, maybe
                 // - Then just copy using startDir / FileInfo::name() +
                 // FileInfo::relPath().ext() as start dir in prompt
             });
@@ -545,15 +575,16 @@ private slots:
     {
         if (!window) return;
 
-        /// TODO:
-        /// - Need a new file item
-        /// - Need to add export for valid indexes only
-        /// - New file / new folder / export file / rename all need options in
-        /// main menu, too
-        /// - This is a hint that New tab is really same as New file
-        /// - Which means, even though it was obvious before, it's even more
-        /// glaring now: Need two separate commands (probably with different
-        /// names) for New tab (Notepad) and New file (Notebook)
+        // TODO/REDO:
+        // - Add new file
+        // - Add new folder (use a method that command handler uses)
+        // - Add rename (valid model indexes only; use a method that command
+        // handler uses)
+        // - Add remove (valid model indexes only)
+        // - Add import
+        // - These actions, unlike the command handlers, will take the model
+        // index into account and, for example, add file or folder as child of
+        // model index, or import as child, etc
 
         auto menu = new QMenu(window);
         menu->setAttribute(Qt::WA_DeleteOnClose);

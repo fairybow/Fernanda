@@ -513,6 +513,13 @@ private:
     void registerBusCommands_()
     {
         bus->addCommandHandler(
+            Commands::NOTEPAD_NEW_TAB,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                //...
+            });
+
+        bus->addCommandHandler(
             Commands::NOTEPAD_OPEN_FILE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;

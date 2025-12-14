@@ -126,6 +126,7 @@ namespace Tr {
     TR_(nbNewFile, tr("New file"));
     TR_(nbNewFolder, tr("New folder"));
     TR_(nbRename, tr("Rename"));
+    TR_(nbRemove, tr("Remove"));
     TR_(nbImportFile, tr("Import file..."));
     TR_(nbOpenNotepad, tr("Open Notepad"));
     TR_(nbSave, tr("Save"));
