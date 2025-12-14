@@ -310,6 +310,8 @@ private:
             &Notebook::onFileModelModificationChanged_);
     }
 
+    /// Maybe "unfactor" also - need to Save As if fnxPath_ doesn't exist,
+    /// always. Remove to clarify intent/approach
     bool isModified_() const
     {
         return !fnxPath_.exists() || fnxModel_->isModified();
