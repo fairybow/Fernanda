@@ -72,7 +72,12 @@ public:
     virtual ~Notebook() override { TRACER; }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
-    virtual bool tryQuit() override { return windows->closeAll(); }
+
+    virtual bool tryQuit() override
+    {
+        // Delegates to the canCloseAllWindows hook
+        return windows->closeAll();
+    }
 
 signals:
     void openNotepadRequested();
@@ -115,7 +120,9 @@ protected:
 
     virtual bool canCloseWindow(Window* window) override
     {
-        if (windows->count() > 1 || !isModified_()) return true;
+        //if (windows->count() > 1 || !isModified_()) return true;
+        if (windows->count() > 1) return true;
+        if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
         /// Add Save As
 
@@ -134,7 +141,8 @@ protected:
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
-        if (!isModified_()) return true;
+        //if (!isModified_()) return true;
+        if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
         /// Add Save As
 
@@ -248,7 +256,8 @@ private:
             Commands::NOTEBOOK_SAVE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                if (!isModified_()) return;
+                //if (!isModified_()) return;
+                if (fnxPath_.exists() && !fnxModel_->isModified()) return;
 
                 if (!saveArchive_(cmd.context)) return;
                 colorBars->green();
@@ -310,12 +319,16 @@ private:
 
     /// Maybe "unfactor" also - need to Save As if fnxPath_ doesn't exist,
     /// always. Remove to clarify intent/approach
-    bool isModified_() const
+    /*bool isModified_() const
     {
         return !fnxPath_.exists() || fnxModel_->isModified();
-    }
+    }*/
 
-    void showModified_() { windows->setFlagged(isModified_()); }
+    void showModified_()
+    {
+        // windows->setFlagged(isModified_());
+        windows->setFlagged(!fnxPath_.exists() || fnxModel_->isModified());
+    }
 
     void addWorkspaceIndicator_(Window* window)
     {
