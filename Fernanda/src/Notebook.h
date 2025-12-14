@@ -262,9 +262,7 @@ private:
                 auto new_path = Coco::PathUtil::Dialog::save(
                     cmd.context,
                     Tr::nbSaveAsCaption(),
-                    fnxPath_, /// Even if doesn't exist, will still be
-                              /// startDir / name.fnx, so need to use this for
-                              /// Save As'ing
+                    fnxPath_,
                     Tr::nbSaveAsFilter());
 
                 if (new_path.isEmpty()) return;
@@ -452,11 +450,6 @@ private slots:
     // generic Info instead and give it an "isDir" member?
     void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
     {
-        // Notepad uses Path::isDir instead. The asymmetry bugs me, but the
-        // folders here are virtual. We would still get success, since working
-        // dir would be concatenated to an empty path (unless we give dirs
-        // UUIDs), but it would be too abstruse
-
         if (!window || !index.isValid()) return;
         if (!workingDir_.isValid()) return;
         auto info = fnxModel_->fileInfoAt(index);
