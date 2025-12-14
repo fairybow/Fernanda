@@ -18,6 +18,7 @@
 - [ ] Menu item state toggling
 - [ ] Fully functioning Notepad (complete file/edit menus, open files, save them)
 - [ ] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
+- [ ] TreeView redocking/toggling
 - [ ] Tab dragging (tab to window, tab to new window)
 - [ ] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH)
@@ -91,6 +92,7 @@ After New Notebook:
 Next up:
 
 - [ ] Notebook export file
+- [ ] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
 - [ ] Fixing New Tab
 - [ ] Menu action toggling based on current view/model, window, workspace states

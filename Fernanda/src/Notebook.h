@@ -383,6 +383,17 @@ private:
             });
 
         /// TODO SAVES (END)
+
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_EXPORT_FILE,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+
+                // - Run an export file method for current file in this window
+                // - The separate method would get file info by model index
+                // - Then just copy using startDir / FileInfo::name() +
+                // FileInfo::relPath().ext() as start dir in prompt
+            });
     }
 
     void connectBusEvents_()
@@ -555,9 +566,20 @@ private slots:
     {
         if (!window) return;
 
+        /// TODO:
+        /// - Need a new file item
+        /// - Need to add export for valid indexes only
+        /// - New file / new folder / export file / rename all need options in
+        /// main menu, too
+        /// - This is a hint that New tab is really same as New file
+        /// - Which means, even though it was obvious before, it's even more
+        /// glaring now: Need two separate commands (probably with different
+        /// names) for New tab (Notepad) and New file (Notebook)
+
         auto menu = new QMenu(window);
         menu->setAttribute(Qt::WA_DeleteOnClose);
 
+        // TODO: Add new file
         auto new_folder =
             menu->addAction(Tr::Menus::notebookTreeViewContextNewFolder());
 
