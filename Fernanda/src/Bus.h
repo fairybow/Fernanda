@@ -40,6 +40,11 @@ public:
     virtual ~Bus() override { TRACER; }
 
 signals:
+    // TODO: These should be used mostly to communicate from service to service?
+    // I think if this is being used to talk from service to Workspace, then we
+    // can just use a direct signal...
+    // - Go through and check all (FInd All Ref) for this
+
     /// Re-verified:
     void lastWindowClosed();
     void windowCreated(Window* context);
