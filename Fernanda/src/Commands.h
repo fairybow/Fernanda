@@ -25,6 +25,7 @@ constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook"; /// *
 
 // Notepad scope
 
+constexpr auto NOTEPAD_NEW_TAB = "notepad:new_tab";
 constexpr auto NOTEPAD_OPEN_FILE = "notepad:open_file"; /// *
 constexpr auto NOTEPAD_SAVE = "notepad:save_file"; /// *
 constexpr auto NOTEPAD_SAVE_AS = "notepad:save_file_as"; /// *
@@ -33,6 +34,9 @@ constexpr auto NOTEPAD_SAVE_ALL = "notepad:save_all"; /// *
 
 // Notebook scope
 
+constexpr auto NOTEBOOK_NEW_FILE = "notebook:new_file";
+constexpr auto NOTEBOOK_NEW_FOLDER = "notebook:new_folder";
+constexpr auto NOTEBOOK_RENAME = "notebook:rename";
 constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad"; /// *
 constexpr auto NOTEBOOK_IMPORT_FILE = "notebook:import_file"; /// *
 constexpr auto NOTEBOOK_SAVE = "notebook:save_archive"; /// *

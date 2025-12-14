@@ -91,6 +91,16 @@ After New Notebook:
 
 Next up:
 
+- [ ] Save code refactors
+- [ ] Removing unified New Tab command
+- [ ] Replacing New Tab with New Tab in Notepad, New File and New Folder in Notebook
+- [ ] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
+- [ ] Menu changes to accomodate, which includes an extra inserter
+- [ ] Notebook independent methods for context menu actions (new file, new folder, export file, rename)
+- [ ] Ensuring all NB context menu items are added only when index is valid for them
+- [ ] NB commands for the new independent methods (new file, new folder, export file, rename)
+- [ ] Adding all 4 to menu
+- [ ] Deciding where rename will go in menu (file? edit?)
 - [ ] Notebook export file
 - [ ] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
