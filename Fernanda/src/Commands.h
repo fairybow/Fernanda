@@ -20,8 +20,8 @@ constexpr auto ABOUT_DIALOG = "application:about_dialog"; /// *
 
 // Workspace scope
 
-constexpr auto NEW_NOTEBOOK = "workspace:new_notebook";
-constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook";
+constexpr auto NEW_NOTEBOOK = "workspace:new_notebook"; /// *
+constexpr auto OPEN_NOTEBOOK = "workspace:open_notebook"; /// *
 
 // Notepad scope
 
@@ -67,12 +67,11 @@ constexpr auto CLOSE_ALL_WINDOWS = "windows:close_all"; /// *
 
 // ColorBarModule scope
 
-//constexpr auto RUN_COLOR_BAR = "color_bars:run"; /// *, non-menu
-//constexpr auto RUN_ALL_COLOR_BARS = "color_bars:run_all"; /// *, non-menu
+//...
 
 // FileService scope
 
-constexpr auto OPEN_FILE_AT_PATH = "file_models:open_path"; /// *, non-menu
+//...
 
 // TreeViewService scope
 

@@ -2,6 +2,40 @@
 
 ## Code
 
+### Initializations
+
+Always initialize local variables, including containers
+
+```cpp
+QStringList list;   // No
+QStringList list{}; // Yes
+```
+
+### Guard Clauses
+
+Prefer organizing guard clauses / early returns. Put common items together, but don't group with unrelated checks. (This is subjective.)
+
+```cpp
+// Good:
+void doSomething(Window* window, int index)
+{
+    if (!window || index < 0) return; // Together
+
+    if (!isModified(window, index)) return; // Separate from the others
+
+    //...
+}
+
+// Bad:
+void doSomething(Window* window, int index)
+{
+    if (!window || index < 0 || !isModified(window, index))
+        return; // Not the same kind of check!
+
+    //...
+}
+```
+
 ### Naming Conventions
 
 **Members and Functions**: camelCase
@@ -24,6 +58,10 @@ enum class FileState;
 auto line_count = 0;
 auto get_line_count = [&] { return x; };
 ```
+
+**Parameter Names**
+
+When listing parameters of type `AbstractFileModel` or `AbstractFileView` use parameter names of `fileModel` and `fileView` (not `model` and `view`, since there are multiple types of models and views in the program). It's okay, however, to use the shorter names as local variable names if the context is clear.
 
 ### Trailing Underscore Convention
 

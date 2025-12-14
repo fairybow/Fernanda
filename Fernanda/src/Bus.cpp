@@ -86,7 +86,7 @@ void Bus::setup_()
         INFO("View destroyed for model [{}]", fileModel);
     });
 
-    // TODO: Updated regularly
+    // TODO: Update regularly
 }
 
 } // namespace Fernanda

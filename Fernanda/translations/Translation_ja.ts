@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="de">
+<TS version="2.1" language="ja">
 <context>
     <name>Fernanda::Tr</name>
     <message>
@@ -152,6 +152,26 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/Tr.h" line="113"/>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="114"/>
+        <source>View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="115"/>
+        <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="116"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/Tr.h" line="120"/>
         <source>New tab</source>
         <translation type="unfinished"></translation>
@@ -199,26 +219,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="141"/>
-        <source>Close window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="142"/>
-        <source>Close all windows</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="144"/>
-        <source>Quit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="113"/>
-        <source>Edit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/Tr.h" line="131"/>
         <source>Open notepad</source>
         <translation type="unfinished"></translation>
@@ -251,6 +251,21 @@
     <message>
         <location filename="../src/Tr.h" line="140"/>
         <source>Close all tabs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="141"/>
+        <source>Close window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="142"/>
+        <source>Close all windows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="144"/>
+        <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -289,6 +304,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/Tr.h" line="158"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/Tr.h" line="160"/>
         <source>New folder</source>
         <translation type="unfinished"></translation>
@@ -296,26 +316,6 @@
     <message>
         <location filename="../src/Tr.h" line="161"/>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="114"/>
-        <source>View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="115"/>
-        <source>Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="116"/>
-        <source>Help</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="158"/>
-        <source>About</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

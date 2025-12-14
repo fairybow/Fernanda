@@ -24,79 +24,88 @@ namespace Fernanda {
 QString
 tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1);
 
+// NP = Notepad; NB = Notebook; NX = Either
 // TODO: Use a coherent naming scheme...
 namespace Tr {
 
-    namespace Buttons {
+    // Buttons:
 
-        // Maybe split and/or associate with particular widgets or scenarios
-        TR_(ok, tr("OK"));
-        TR_(licenses, tr("Licenses"));
-        TR_(aboutQt, tr("About Qt"));
-        TR_(save, tr("Save"));
-        TR_(discard, tr("Discard"));
-        TR_(cancel, tr("Cancel"));
+    TR_(ok, tr("OK"));
+    //TR_(licenses, tr("Licenses"));
+    TR_(aboutQt, tr("About Qt"));
+    TR_(save, tr("Save"));
+    TR_(dontSave, tr("Don't save"));
+    TR_(cancel, tr("Cancel"));
 
-    } // namespace Buttons
+    // Notepad dialogs:
 
-    namespace Dialogs {
+    TR_(npOpenFileCaption, tr("Open file"));
+    TR_(npOpenFileFilter,
+        tr("Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All "
+           "files (*)"));
+    TR_(npSaveAsCaption, tr("Save as"));
+    TR_(npSaveAsFilter, tr("Plain text files (*.txt);;All files (*)"));
 
-        TR_(notepadOpenFileCaption, tr("Open existing file"));
-        TR_(notepadOpenFileFilter,
-            tr("Plain text files (*.txt);;All files (*)"));
-        TR_(notepadSaveFileAsCaption, tr("Save file as"));
+    // Notebook dialogs:
 
-        TR_(notebookImportFileCaption, tr("Import existing file"));
-        TR_(notebookImportFileFilter, tr("Plain text files (*.txt)"));
-        TR_(notebookSaveAsCaption, tr("Save as"));
-        TR_(notebookSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
+    TR_(nbImportFileCaption, tr("Import file"));
+    TR_(nbImportFileFilter, tr("Plain text files (*.txt)"));
+    TR_(nbSaveAsCaption, tr("Save as"));
+    TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
 
-        TR_(aboutTitle, tr("About"));
+    // Joint-workspace dialogs:
 
-        // TODO: std::format
-        inline QString aboutBody()
-        {
-            auto arg_0 = [] {
-                return tr(
-                    "<b>Fernanda</b> is a plain text editor for drafting "
-                    "long-form fiction. (At least, that's the plan.)");
-            };
+    TR_(nxAboutTitle, tr("About"));
+    TR_(nxNewNotebookTitle, tr("New Notebook"));
+    TR_(nxNewNotebookBody, tr("Name:"));
+    TR_(nxNewNotebookExistsErrBodyFormat, tr("A Notebook already exists at %0"));
+    TR_(nxOpenNotebookCaption, tr("Open Notebook file"));
+    TR_(nxOpenNotebookFilter, tr("Fernanda Notebook files (*.fnx)"));
 
-            auto arg_1 = [] {
-                return tr("It's a personal project and a work-in-progress.");
-            };
+    // TODO: std::format
+    inline QString nxAboutBody()
+    {
+        auto arg_0 = [] {
+            return tr(
+                "<b>Fernanda</b> is a plain text editor for drafting "
+                "long-form fiction. (At least, that's the plan.)");
+        };
 
-            auto arg_2 = [] {
-                return tr("See <a href=\"%0\">%0</a> for more information.");
-            };
+        auto arg_1 = [] {
+            return tr("It's a personal project and a work-in-progress.");
+        };
 
-            auto arg_3 = [] {
-                return tr("<b>Version</b> %0 (%1)");
-            };
+        auto arg_2 = [] {
+            return tr("See <a href=\"%0\">%0</a> for more information.");
+        };
 
-            auto body = [] {
-                return QString("<p>%0</p><p>%1</p><p>%2</p><p>%3</p>");
-            };
+        auto arg_3 = [] {
+            return tr("<b>Version</b> %0 (%1)");
+        };
 
-            return body()
-                .arg(arg_0())
-                .arg(arg_1())
-                .arg(arg_2().arg(VERSION_DOMAIN))
-                .arg(
-                    arg_3()
-                        .arg(VERSION_FULL_STRING)
-                        .arg(VERSION_RELEASE_NAME_STRING));
-        }
+        auto body = [] {
+            return QString("<p>%0</p><p>%1</p><p>%2</p><p>%3</p>");
+        };
 
-        TR_(savePromptBodyFormat, tr("Do you want to save changes to %0?"));
-        TR_(savePromptMultiBodyFormat,
-            tr("You have unsaved changes in %0 files:"));
+        return body()
+            .arg(arg_0())
+            .arg(arg_1())
+            .arg(arg_2().arg(VERSION_DOMAIN))
+            .arg(
+                arg_3()
+                    .arg(VERSION_FULL_STRING)
+                    .arg(VERSION_RELEASE_NAME_STRING));
+    }
 
-        TR_(saveFailPromptBodyFormat, tr("There was a problem saving %0."));
-        TR_(saveFailPromptMultiBodyFormat,
-            tr("There was a problem saving these files: %0"));
+    TR_(nxSavePromptBodyFormat, tr("Do you want to save changes to %0?"));
+    TR_(nxSavePromptMultiBodyFormat,
+        tr("You have unsaved changes in %0 files:"));
 
-    } // namespace Dialogs
+    TR_(nxSaveFailBoxBodyFormat, tr("There was a problem saving %0"));
+    TR_(nxSaveFailBoxMultiBodyFormat,
+        tr("There was a problem saving these files: %0"));
+
+    /// Unverified:
 
     namespace Menus {
 
@@ -147,19 +156,6 @@ namespace Tr {
         // Help
 
         TR_(helpAbout, tr("About"));
-
-        /// Remove these once above is implemented
-        namespace Common {
-
-            /*
-            TR_(fileCloseAllTabs, tr("Close all"));
-            TR_(fileCloseAllWindows, tr("Close all windows"));
-            TR_(viewPreviousTab, tr("Previous tab"));
-            TR_(viewNextTab, tr("Next tab"));
-            TR_(viewPreviousWindow, tr("Previous window"));
-            TR_(viewNextWindow, tr("Next window"));*/
-
-        } // namespace Common
 
         TR_(notebookTreeViewContextNewFolder, tr("New folder"));
         TR_(notebookTreeViewContextRename, tr("Rename"));

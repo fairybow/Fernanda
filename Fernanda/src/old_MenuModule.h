@@ -256,7 +256,7 @@ void setupHelpMenu_(Window* window, QMenuBar* menuBar)
 
 #include "Commander.h"
 #include "EventBus.h"
-#include "IFileModel.h"
+#include "AbstractFileModel.h"
 #include "AbstractFileView.h"
 #include "AbstractService.h"
 #include "TabWidget.h"
@@ -540,7 +540,7 @@ private:
 
     void setInitialActionStates_(Window* window)
     {
-        auto active_view = commander->query<IFileView*>(
+        auto active_view = commander->query<AbstractFileView*>(
             Queries::ActiveFileView,
             { { "window", toQVariant(window) } });
         onActiveFileViewChanged_(active_view, window);
@@ -630,7 +630,7 @@ private:
         }
     }
 
-    void connectNewActiveView_(Window* window, IFileView* view)
+    void connectNewActiveView_(Window* window, AbstractFileView* view)
     {
         if (!window || !view) return;
         auto model = view->model();
@@ -640,7 +640,7 @@ private:
 
         cx << connect(
             model,
-            &IFileModel::modificationChanged,
+            &AbstractFileModel::modificationChanged,
             this,
             [=](bool modified) {
                 updatePerViewSaveStates_(window, model);
@@ -651,7 +651,7 @@ private:
 
         cx << connect(
             model,
-            &IFileModel::undoAvailable,
+            &AbstractFileModel::undoAvailable,
             this,
             [=](bool available) {
                 // Maybe add nullptr checks later?
@@ -661,28 +661,28 @@ private:
 
         cx << connect(
             model,
-            &IFileModel::redoAvailable,
+            &AbstractFileModel::redoAvailable,
             this,
             [=](bool available) {
                 auto& toggles = windowActions_[window].toggles;
                 toggles.editRedo->setEnabled(available);
             });
 
-        cx << connect(view, &IFileView::selectionChanged, this, [=] {
+        cx << connect(view, &AbstractFileView::selectionChanged, this, [=] {
             auto& toggles = windowActions_[window].toggles;
             toggles.editCut->setEnabled(view->hasSelection());
             toggles.editCopy->setEnabled(view->hasSelection());
             toggles.editDelete->setEnabled(view->hasSelection());
         });
 
-        cx << connect(view, &IFileView::clipboardDataChanged, this, [=] {
+        cx << connect(view, &AbstractFileView::clipboardDataChanged, this, [=] {
             auto& toggles = windowActions_[window].toggles;
             toggles.editPaste->setEnabled(view->hasPaste());
         });
     }
 
     // Accepts nullptr View!
-    void updatePerViewMenuStates_(Window* window, IFileView* view)
+    void updatePerViewMenuStates_(Window* window, AbstractFileView* view)
     {
         if (!window) return;
         auto& toggles = windowActions_[window].toggles;
@@ -700,7 +700,7 @@ private:
         toggles.editSelectAll->setEnabled(view && view->supportsEditing());
     }
 
-    void updatePerViewSaveStates_(Window* window, IFileModel* model)
+    void updatePerViewSaveStates_(Window* window, AbstractFileModel* model)
     {
         if (!window) return;
         auto& toggles = windowActions_[window].toggles;
@@ -751,7 +751,7 @@ private:
 private slots:
     // on window created
 
-    void onFileModificationChanged_(IFileModel* model, bool modified)
+    void onFileModificationChanged_(AbstractFileModel* model, bool modified)
     {
         (void)model;
         (void)modified;
@@ -766,7 +766,7 @@ private slots:
     }
 
     // Active View can be nullptr (but will not connect)!
-    void onActiveFileViewChanged_(IFileView* view, Window* window)
+    void onActiveFileViewChanged_(AbstractFileView* view, Window* window)
     {
         if (!window) return;
 
@@ -786,7 +786,7 @@ private slots:
         updatePerWorkspaceMenuStates_(count);
     }
 
-    void onViewClosed_(IFileView* view)
+    void onViewClosed_(AbstractFileView* view)
     {
         (void)view;
 

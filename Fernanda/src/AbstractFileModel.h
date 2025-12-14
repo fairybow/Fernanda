@@ -11,6 +11,7 @@
 
 #include <QByteArray>
 #include <QObject>
+#include <QString>
 
 #include "Coco/Path.h"
 
@@ -34,6 +35,7 @@ public:
     virtual ~AbstractFileModel() = default;
 
     FileMeta* meta() const noexcept { return meta_; }
+    virtual QString preferredExtension() const { return {}; }
 
     virtual QByteArray data() const = 0;
     virtual bool supportsModification() const = 0;

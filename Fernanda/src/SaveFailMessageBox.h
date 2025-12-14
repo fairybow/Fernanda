@@ -23,13 +23,17 @@ namespace Fernanda::SaveFailMessageBox {
 
 namespace Internal {
 
+    constexpr auto BULLET_ = "\n\u2022 ";
+
     inline void setCommonProperties_(QMessageBox& box)
     {
+        box.setWindowModality(Qt::WindowModal);
         box.setMinimumSize(400, 200);
 
-        auto ok = box.addButton(Tr::Buttons::ok(), QMessageBox::AcceptRole);
+        auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
         box.setDefaultButton(ok);
         box.setEscapeButton(ok);
+        box.setTextInteractionFlags(Qt::TextSelectableByMouse);
     }
 
 } // namespace Internal
@@ -38,7 +42,9 @@ inline void exec(const QString& fileDisplayName, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    box.setText(Tr::Dialogs::saveFailPromptBodyFormat().arg(fileDisplayName));
+    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(fileDisplayName));
+
+    // TODO: Move to open/show
     box.exec();
 }
 
@@ -48,17 +54,18 @@ inline void exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
 
     // Delegate to single-file prompt
     if (fileDisplayNames.size() == 1) {
+        // TODO: Move to open/show
         exec(fileDisplayNames.first(), parent);
         return;
     }
 
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    // auto list = "<ul><li>" + fileDisplayNames.join("</li><li>") +
-    // "</li></ul>";
-    auto list = QString::fromUtf8("\n\u2022 ")
-                + fileDisplayNames.join(QString::fromUtf8("\n\u2022 "));
-    box.setText(Tr::Dialogs::saveFailPromptMultiBodyFormat().arg(list));
+    auto list = QString::fromUtf8(Internal::BULLET_)
+                + fileDisplayNames.join(QString::fromUtf8(Internal::BULLET_));
+    box.setText(Tr::nxSaveFailBoxMultiBodyFormat().arg(list));
+
+    // TODO: Move to open/show
     box.exec();
 }
 

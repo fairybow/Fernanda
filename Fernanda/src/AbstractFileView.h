@@ -13,8 +13,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Coco/Layout.h"
-
 #include "AbstractFileModel.h"
 #include "Debug.h"
 
@@ -35,7 +33,9 @@ public:
         , fileModel_(fileModel)
     {
         if (!fileModel) FATAL("AbstractFileModel cannot be nullptr!");
-        layout_ = Coco::Layout::makeDense<QVBoxLayout*>(this);
+        layout_ = new QVBoxLayout(this);
+        layout_->setContentsMargins(0, 0, 0, 0);
+        layout_->setSpacing(0);
     }
 
     virtual ~AbstractFileView() = default;

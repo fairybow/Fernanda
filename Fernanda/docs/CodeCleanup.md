@@ -3,6 +3,7 @@
 TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 
 - [ ] Probably remove those extra "return true"s at the end of the closure hook switch statements, since the switch should cover it
+- [ ] Find appropriate QStringLiteral places
 - [ ] Find appropriate places for Coco::Bool (like closure hook returns)
 - [ ] Check consistency in dtor (virtual/override) and ctor (explicit or not)
 - [ ] Documentation gaps

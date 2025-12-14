@@ -19,8 +19,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Coco/Layout.h"
-
 #include "Debug.h"
 #include "DisplaySlider.h"
 #include "Ini.h"
@@ -75,8 +73,8 @@ private:
         sizeSlider_->setValue(currentFont_.pointSize());
 
         // Layout
-        auto main_layout = Coco::Layout::make<QVBoxLayout*>(this);
-        auto top_layout = Coco::Layout::make<QHBoxLayout*>();
+        auto main_layout = new QVBoxLayout(this);
+        auto top_layout = new QHBoxLayout;
 
         top_layout->addWidget(fontsBox_, 1);
         top_layout->addWidget(boldCheckBox_, 0);

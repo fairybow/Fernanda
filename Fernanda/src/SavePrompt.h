@@ -9,8 +9,10 @@
 
 #pragma once
 
+#include <QAbstractButton>
 #include <QCheckBox>
 #include <QDialog>
+#include <QDialogButtonBox>
 #include <QLabel>
 #include <QList>
 #include <QMessageBox>
@@ -18,10 +20,9 @@
 #include <QScrollArea>
 #include <QString>
 #include <QStringList>
+#include <QVBoxLayout>
 #include <QWidget>
 #include <Qt>
-
-#include "Coco/Layout.h"
 
 #include "Tr.h"
 
@@ -36,26 +37,6 @@ enum Choice
     Discard
 };
 
-struct MultiSaveResult
-{
-    Choice choice{};
-    QList<int> selectedIndices{};
-};
-
-namespace Internal {
-
-    inline void setCommonProperties_(QDialog& dialog)
-    {
-        // QDialog defaults to non-modal (though QMessageBox defaults to modal)
-        dialog.setWindowModality(Qt::WindowModal);
-        // dialog.setWindowTitle(Tr::Dialogs::savePromptTitle());
-        dialog.setMinimumSize(400, 200);
-    }
-
-    // TODO: Other sections from the exec functions?
-
-} // namespace Internal
-
 inline QString toQString(Choice choice) noexcept
 {
     switch (choice) {
@@ -69,21 +50,40 @@ inline QString toQString(Choice choice) noexcept
     }
 }
 
+struct MultiSaveResult
+{
+    Choice choice{};
+    QList<int> selectedIndices{};
+};
+
+namespace Internal {
+
+    inline void setCommonProperties_(QDialog& dialog)
+    {
+        // QDialog defaults to non-modal (though QMessageBox defaults to modal)
+        dialog.setWindowModality(Qt::WindowModal);
+        dialog.setMinimumSize(400, 200);
+    }
+
+} // namespace Internal
+
 inline Choice exec(const QString& fileDisplayName, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
+    box.setTextInteractionFlags(Qt::NoTextInteraction);
 
-    box.setText(Tr::Dialogs::savePromptBodyFormat().arg(fileDisplayName));
+    box.setText(Tr::nxSavePromptBodyFormat().arg(fileDisplayName));
 
-    auto save = box.addButton(Tr::Buttons::save(), QMessageBox::AcceptRole);
-    auto discard =
-        box.addButton(Tr::Buttons::discard(), QMessageBox::DestructiveRole);
-    auto cancel = box.addButton(Tr::Buttons::cancel(), QMessageBox::RejectRole);
+    // QMessageBox should handle platform-specific button ordering automatically
+    auto save = box.addButton(Tr::save(), QMessageBox::AcceptRole);
+    auto discard = box.addButton(Tr::dontSave(), QMessageBox::DestructiveRole);
+    auto cancel = box.addButton(Tr::cancel(), QMessageBox::RejectRole);
 
     box.setDefaultButton(save);
     box.setEscapeButton(cancel);
 
+    // TODO: Move to open/show
     box.exec();
 
     auto clicked = box.clickedButton();
@@ -106,19 +106,20 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     QDialog dialog(parent);
     Internal::setCommonProperties_(dialog);
 
-    auto main_layout = Coco::Layout::make<QVBoxLayout*>(&dialog);
+    auto main_layout = new QVBoxLayout(&dialog);
 
     // Message label
     auto message_label = new QLabel(&dialog);
+    message_label->setTextInteractionFlags(Qt::NoTextInteraction);
     message_label->setText(
-        Tr::Dialogs::savePromptMultiBodyFormat().arg(fileDisplayNames.size()));
+        Tr::nxSavePromptMultiBodyFormat().arg(fileDisplayNames.size()));
     message_label->setWordWrap(true);
     main_layout->addWidget(message_label);
 
     // Scroll area with checkboxes
     auto scroll_area = new QScrollArea(&dialog);
     auto scroll_widget = new QWidget;
-    auto scroll_layout = Coco::Layout::make<QVBoxLayout*>(scroll_widget);
+    auto scroll_layout = new QVBoxLayout(scroll_widget);
 
     QList<QCheckBox*> checkboxes{};
     for (const auto& file_name : fileDisplayNames) {
@@ -134,48 +135,53 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     main_layout->addWidget(scroll_area);
 
     // Buttons
-    auto button_layout = new QHBoxLayout;
-    button_layout->addStretch();
 
-    auto save_button = new QPushButton(Tr::Buttons::save(), &dialog);
-    auto discard_button = new QPushButton(Tr::Buttons::discard(), &dialog);
-    auto cancel_button = new QPushButton(Tr::Buttons::cancel(), &dialog);
+    // To ensure platform-specific ordering, we'll use QDialogButtonBox
+    auto button_box = new QDialogButtonBox(&dialog);
+    auto save = button_box->addButton(Tr::save(), QDialogButtonBox::AcceptRole);
+    button_box->addButton(Tr::dontSave(), QDialogButtonBox::DestructiveRole);
+    auto cancel = button_box->addButton(Tr::cancel(), QDialogButtonBox::RejectRole);
 
-    save_button->setDefault(true);
+    save->setDefault(true);
+    // Escape button behavior is automatic with RejectRole
 
-    button_layout->addWidget(save_button);
-    button_layout->addWidget(discard_button);
-    button_layout->addWidget(cancel_button);
-    main_layout->addLayout(button_layout);
+    dialog.connect(
+        button_box,
+        &QDialogButtonBox::clicked,
+        &dialog,
+        [&dialog, button_box](QAbstractButton* button) {
+            switch (button_box->buttonRole(button)) {
+            default:
+            case QDialogButtonBox::RejectRole:
+                dialog.done(Cancel);
+                break;
+            case QDialogButtonBox::AcceptRole:
+                dialog.done(Save);
+                break;
+            case QDialogButtonBox::DestructiveRole:
+                dialog.done(Discard);
+                break;
+            }
+        });
 
-    // Track result
-    Choice choice = Cancel;
+    main_layout->addWidget(button_box);
 
-    dialog.connect(save_button, &QPushButton::clicked, [&] {
-        choice = Save;
-        dialog.accept();
-    });
+    // TODO: Move to open/show
+    auto result = dialog.exec();
 
-    dialog.connect(discard_button, &QPushButton::clicked, [&] {
-        choice = Discard;
-        dialog.accept();
-    });
+    switch (result) {
+    default:
+    case Cancel:
+    case Discard:
+        return { static_cast<Choice>(result), {} };
 
-    dialog.connect(cancel_button, &QPushButton::clicked, [&] {
-        choice = Cancel;
-        dialog.reject();
-    });
-
-    dialog.exec();
-
-    if (choice == Save) {
+    case Save: {
         QList<int> selected{};
         for (auto i = 0; i < checkboxes.size(); ++i)
             if (checkboxes[i]->isChecked()) selected << i;
         return { Save, selected };
     }
-
-    return { choice, {} };
+    }
 }
 
 } // namespace Fernanda::SavePrompt

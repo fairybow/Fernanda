@@ -25,12 +25,12 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "AbstractService.h"
 #include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "Fnx.h"
 #include "NotepadMenuModule.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
@@ -57,12 +57,6 @@ public:
 
     virtual ~Notepad() override { TRACER; }
 
-    DECLARE_HOOK_ACCESSORS(
-        PathInterceptor,
-        pathInterceptor,
-        setPathInterceptor,
-        pathInterceptor_);
-
     bool hasWindows() const { return windows->count() > 0; }
 
     virtual bool tryQuit() override
@@ -78,7 +72,7 @@ protected:
         // Generate the index on-demand from the stored path (don't hold it
         // separately or retrieve via Model::setRootPath)
         if (!fsModel_) return {};
-        return fsModel_->index(currentBaseDir_.toQString());
+        return fsModel_->index(startDir.toQString());
     }
 
     virtual void newTab(Window* window) override
@@ -101,52 +95,32 @@ protected:
         if (!view) return false;
         auto model = view->model();
         if (!model) return false;
-        auto meta = model->meta();
-        if (!meta) return false;
 
         // If this model has other views (and so won't be closed with the view),
         // we don't need to worry about saving
         if (!model->isModified() || views->countFor(model) > 1) return true;
 
+        views->raise(window, index);
         auto name = fileDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
-
         default:
         case SavePrompt::Cancel:
             return false;
 
-        case SavePrompt::Save: {
-
-            FileService::SaveResult result{};
-
-            if (meta->isOnDisk()) {
-                result = files->save(model);
-            } else {
-                // Off-disk: need Save As dialog
-                views->raise(window, index);
-
-                // If dialog is aborted, return false to block hook caller
-                // and show red color bar feedback
-                auto path = Coco::PathUtil::Dialog::save(
-                    window,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    currentBaseDir_);
-
-                if (path.isEmpty()) return false;
-
-                result = files->saveAs(model, path);
-            }
-
-            if (result == FileService::Success) {
+        case SavePrompt::Save:
+            switch (singleSave_(model, window)) {
+            default:
+            case FileService::NoOp:
+                return false;
+            case FileService::Success:
                 colorBars->green(window);
                 return true;
-            } else {
+            case FileService::Failure:
                 colorBars->red(window);
                 SaveFailMessageBox::exec(name, window);
                 return false;
             }
-        }
 
         case SavePrompt::Discard:
             return true;
@@ -159,49 +133,29 @@ protected:
         if (!view) return false;
         auto model = view->model();
         if (!model) return false;
-        auto meta = model->meta();
-        if (!meta) return false;
 
         if (!model->isModified()) return true;
 
+        // Called via menu (on current window + tab), so no need to raise
         auto name = fileDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
-
         default:
         case SavePrompt::Cancel:
             return false;
 
         case SavePrompt::Save: {
-
-            FileService::SaveResult result{};
-
-            if (meta->isOnDisk()) {
-                result = files->save(model);
-            } else {
-                // Off-disk: need Save As dialog
-
-                // Close Tab Everywhere is currently only called via menu (so on
-                // the current tab), so this is not techincally needed
-                views->raise(window, index);
-
-                // If dialog is aborted, return false to block hook caller
-                // and show red color bar feedback
-                auto path = Coco::PathUtil::Dialog::save(
-                    window,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    currentBaseDir_);
-
-                if (path.isEmpty()) return false;
-
-                result = files->saveAs(model, path);
-            }
-
-            if (result == FileService::Success) {
-                colorBars->green(window);
+            switch (singleSave_(model, window)) {
+            default:
+            case FileService::NoOp:
+                return false;
+            case FileService::Success:
+                colorBars->green(window); // TODO: Could do all windows (close
+                                          // everywhere, after all)?
                 return true;
-            } else {
-                colorBars->red(window);
+            case FileService::Failure:
+                colorBars->red(window); // TODO: Could do all windows (close
+                                        // everywhere, after all)?
                 SaveFailMessageBox::exec(name, window);
                 return false;
             }
@@ -215,22 +169,12 @@ protected:
     virtual bool canCloseWindowTabs(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& view : views->fileViewsIn(window)) {
-            if (!view) continue;
-            auto model = view->model();
-            if (!model || !model->isModified()) continue;
-            if (views->isMultiWindow(model)) continue;
-            if (modified_models.contains(model)) continue;
-
-            modified_models << model;
-        }
-
+        auto modified_models = views->modifiedViewModelsIn(
+            window,
+            ViewService::ExcludeMultiWindow::Yes);
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-
         auto prompt_result = SavePrompt::exec(display_names, window);
 
         switch (prompt_result.choice) {
@@ -244,8 +188,6 @@ protected:
             QList<AbstractFileModel*> to_save{};
             for (auto& i : prompt_result.selectedIndices)
                 to_save << modified_models[i];
-
-            /// TODO SAVES: Good (I think) - mirror in others:
 
             if (to_save.isEmpty()) return true; // Shouldn't happen
 
@@ -279,23 +221,10 @@ protected:
     virtual bool canCloseAllTabs(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& window : windows) {
-            for (auto& view : views->fileViewsIn(window)) {
-                if (!view) continue;
-                auto model = view->model();
-                if (!model || !model->isModified()) continue;
-                if (modified_models.contains(model)) continue;
-
-                modified_models << model;
-            }
-        }
-
+        auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-
         // Make top window the dialog owner (top window is last)
         auto prompt_result = SavePrompt::exec(display_names, windows.last());
 
@@ -343,22 +272,12 @@ protected:
     virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& view : views->fileViewsIn(window)) {
-            if (!view) continue;
-            auto model = view->model();
-            if (!model || !model->isModified()) continue;
-            if (views->isMultiWindow(model)) continue;
-            if (modified_models.contains(model)) continue;
-
-            modified_models << model;
-        }
-
+        auto modified_models = views->modifiedViewModelsIn(
+            window,
+            ViewService::ExcludeMultiWindow::Yes);
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-
         auto prompt_result = SavePrompt::exec(display_names, window);
 
         switch (prompt_result.choice) {
@@ -404,23 +323,10 @@ protected:
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& window : windows) {
-            for (auto& view : views->fileViewsIn(window)) {
-                if (!view) continue;
-                auto model = view->model();
-                if (!model || !model->isModified()) continue;
-                if (modified_models.contains(model)) continue;
-
-                modified_models << model;
-            }
-        }
-
+        auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-
         // Make top window the dialog owner (top window is last)
         auto prompt_result = SavePrompt::exec(display_names, windows.last());
 
@@ -467,24 +373,10 @@ protected:
     }
 
 private:
-    Coco::Path currentBaseDir_ = AppDirs::defaultDocs();
-    PathInterceptor pathInterceptor_ = nullptr;
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
     NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
     /// TODO SAVES
-
-    /// Remember, we want the following re: Save As dialogs:
-    /// - If user cancels dialog, that isn't itself a failure
-    /// - If anything was saved (and nothing failed) before canceling, we show
-    /// green
-    /// - If anything failed before canceling, we show red and fail prompt
-    /// - If nothing failed or succeeded before canceling, we show nothing
-    /// - For single file, Save As: canceled, no color bar; success green; fail
-    /// red
-    /// - For single file save: shouldn't be any opportunity for no color bar;
-    /// red fail; green success (obvs) Go through every save method again and
-    /// make sure we're following the above
 
     struct MultiSaveResult_
     {
@@ -502,10 +394,9 @@ private:
         auto meta = fileModel->meta();
         if (!meta) return {};
 
-        // TODO: Add a preferred extension so off-disk files can say
-        // "TempTitle.txt"
-        return meta->path().isEmpty() ? meta->title()
-                                      : meta->path().toQString();
+        auto path = meta->path();
+        return path.isEmpty() ? meta->title() + fileModel->preferredExtension()
+                              : path.toQString();
     }
 
     QStringList
@@ -520,10 +411,28 @@ private:
         return names;
     }
 
+    FileService::SaveResult
+    singleSave_(AbstractFileModel* fileModel, Window* window)
+    {
+        if (!fileModel || !window) return FileService::NoOp;
+        auto meta = fileModel->meta();
+        if (!meta) return FileService::NoOp;
+
+        if (meta->isOnDisk())
+            return files->save(fileModel);
+        else {
+            auto path = promptSaveAs_(window, fileModel);
+            if (path.isEmpty()) return FileService::NoOp;
+            return files->saveAs(fileModel, path);
+        }
+    }
+
     MultiSaveResult_ multiSave_(
         const QList<AbstractFileModel*>& fileModels,
         Window* window = nullptr)
     {
+        if (fileModels.isEmpty()) return {};
+
         MultiSaveResult_ result{};
 
         for (auto& model : fileModels) {
@@ -538,8 +447,6 @@ private:
             if (meta->isOnDisk()) {
                 save_result = files->save(model);
             } else {
-                // Raise tab before showing Save As dialog
-
                 // If window is valid, raise it and then set target_window to
                 // that same window. Otherwise, raise the model and set
                 // target_window to whatever window raise(model) returns
@@ -552,10 +459,7 @@ private:
                     continue;
                 }
 
-                auto path = Coco::PathUtil::Dialog::save(
-                    target_window,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    currentBaseDir_);
+                auto path = promptSaveAs_(target_window, model);
 
                 if (path.isEmpty()) {
                     // User cancelled, abort entire operation
@@ -583,12 +487,31 @@ private:
         return result;
     }
 
+    Coco::Path promptSaveAs_(Window* window, AbstractFileModel* fileModel) const
+    {
+        if (!window || !fileModel) return {};
+        auto meta = fileModel->meta();
+        if (!meta) return {};
+
+        auto path = meta->path();
+        Coco::Path start_path =
+            path.isEmpty()
+                ? startDir / (meta->title() + fileModel->preferredExtension())
+                : path;
+
+        return Coco::PathUtil::Dialog::save(
+            window,
+            Tr::npSaveAsCaption(),
+            start_path,
+            Tr::npSaveAsFilter());
+    }
+
     /// TODO SAVES (END)
 
     void setup_()
     {
         // Via Qt: Setting root path installs a filesystem watcher
-        fsModel_->setRootPath(currentBaseDir_.toQString());
+        fsModel_->setRootPath(startDir.toQString());
         fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
 
         menus_->initialize();
@@ -608,20 +531,18 @@ private:
 
                 auto paths = Coco::PathUtil::Dialog::files(
                     cmd.context,
-                    Tr::Dialogs::notepadOpenFileCaption(),
-                    currentBaseDir_,
-                    Tr::Dialogs::notepadOpenFileFilter());
+                    Tr::npOpenFileCaption(),
+                    startDir,
+                    Tr::npOpenFileFilter());
 
                 if (paths.isEmpty()) return;
 
                 for (auto& path : paths) {
                     if (!path.exists()) continue;
-                    // TODO: Still calling this here so we have the path
-                    // filtered by the interceptor (to open .fnx)!
-                    bus->execute(
-                        Commands::OPEN_FILE_AT_PATH,
-                        { { "path", qVar(path) } },
-                        cmd.context);
+
+                    Fnx::Io::isFnxFile(path)
+                        ? emit openNotebookRequested(path)
+                        : files->openFilePathIn(cmd.context, path);
                 }
             });
 
@@ -632,39 +553,25 @@ private:
             auto current_view = views->fileViewAt(cmd.context, -1);
             if (!current_view) return;
             auto model = current_view->model();
-            if (!model || !model->supportsModification()) return;
+            if (!model) return;
+
             if (!model->isModified()) return;
 
-            auto meta = model->meta();
-            if (!meta) return;
+            // Called via menu (on current window + tab), so no need to raise
 
-            FileService::SaveResult result{};
-
-            if (meta->isOnDisk()) {
-                result = files->save(model);
-            } else {
-                // Off-disk: need Save As dialog
-
-                // TODO: Pretty sure this only ever hits the current
-                // window/view, so we don't need to raise for Save As
-
-                auto path = Coco::PathUtil::Dialog::save(
-                    cmd.context,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    currentBaseDir_); // TODO: For this and similar, want to add
-                                      // the current temp title + preferred ext
-
-                if (path.isEmpty()) return;
-
-                result = files->saveAs(model, path);
-            }
-
-            if (result == FileService::Success) {
+            switch (singleSave_(model, cmd.context)) {
+            default:
+            case FileService::NoOp:
+                break;
+            case FileService::Success:
                 colorBars->green(cmd.context);
-            } else {
+                break;
+            case FileService::Failure: {
                 colorBars->red(cmd.context);
                 auto name = fileDisplayName_(model);
                 SaveFailMessageBox::exec(name, cmd.context);
+                break;
+            }
             }
         });
 
@@ -675,34 +582,31 @@ private:
                 auto current_view = views->fileViewAt(cmd.context, -1);
                 if (!current_view) return;
                 auto model = current_view->model();
-                if (!model || !model->supportsModification()) return;
+                if (!model) return;
 
+                // Allow Save As on unmodified files!
+                if (!model->supportsModification()) return;
                 auto meta = model->meta();
                 if (!meta) return;
 
-                // Allow Save As on unmodified files!
+                // Called via menu (on current window + tab), so no need to
+                // raise
 
-                auto initial_path =
-                    meta->isOnDisk() ? meta->path() : currentBaseDir_;
-
-                // TODO: Pretty sure this only ever hits the current
-                // window/view, so we don't need to raise for Save As
-
-                auto path = Coco::PathUtil::Dialog::save(
-                    cmd.context,
-                    Tr::Dialogs::notepadSaveFileAsCaption(),
-                    initial_path);
-
+                auto path = promptSaveAs_(cmd.context, model);
                 if (path.isEmpty()) return;
 
-                auto result = files->saveAs(model, path);
-
-                if (result == FileService::Success) {
+                switch (files->saveAs(model, path)) {
+                default:
+                case FileService::NoOp:
+                    break;
+                case FileService::Success:
                     colorBars->green(cmd.context);
-                } else {
+                    break;
+                case FileService::Failure:
                     colorBars->red(cmd.context);
                     auto name = fileDisplayName_(model);
                     SaveFailMessageBox::exec(name, cmd.context);
+                    break;
                 }
             });
 
@@ -711,16 +615,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
 
-                QList<AbstractFileModel*> modified_models{};
-                for (auto& view : views->fileViewsIn(cmd.context)) {
-                    if (!view) continue;
-                    auto model = view->model();
-                    if (!model || !model->isModified()) continue;
-                    if (modified_models.contains(model)) continue;
-
-                    modified_models << model;
-                }
-
+                auto modified_models = views->modifiedViewModelsIn(cmd.context);
                 if (modified_models.isEmpty()) return;
 
                 auto result = multiSave_(modified_models, cmd.context);
@@ -743,21 +638,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
 
-                QList<AbstractFileModel*> modified_models{};
-
-                for (auto& window : windows->windows()) {
-                    // TODO: Could use views->fileViews instead of getting all
-                    // windows - sorta doesn't matter
-                    for (auto& view : views->fileViewsIn(window)) {
-                        if (!view) continue;
-                        auto model = view->model();
-                        if (!model || !model->isModified()) continue;
-                        if (modified_models.contains(model)) continue;
-
-                        modified_models << model;
-                    }
-                }
-
+                auto modified_models = views->modifiedViewModels();
                 if (modified_models.isEmpty()) return;
 
                 auto result = multiSave_(modified_models);
@@ -776,18 +657,6 @@ private:
             });
 
         /// TODO SAVES (END)
-
-        // Notepad sets an Interceptor for FileService's open file command in
-        // order to intercept Notebook paths
-        bus->addInterceptor(
-            Commands::OPEN_FILE_AT_PATH,
-            [&](const Command& cmd) {
-                if (pathInterceptor_
-                    && pathInterceptor_(cmd.param<Coco::Path>("path")))
-                    return true;
-
-                return false;
-            });
     }
 
     void connectBusEvents_()
@@ -809,10 +678,8 @@ private slots:
         auto path = Coco::Path(fsModel_->filePath(index));
         if (path.isFolder()) return;
 
-        bus->execute(
-            Commands::OPEN_FILE_AT_PATH,
-            { { "path", qVar(path) } },
-            window);
+        Fnx::Io::isFnxFile(path) ? emit openNotebookRequested(path)
+                                 : files->openFilePathIn(window, path);
     }
 
     void onViewDestroyed_(AbstractFileModel* fileModel)

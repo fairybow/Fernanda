@@ -99,8 +99,8 @@ Can be connected to and emitted by Services.
 - `windowCreated(Window* context)`: Emitted when a new window is created
 - `windowDestroyed(Window* context)`: Emitted when a window is destroyed
 - `treeViewDoubleClicked(Window* context, const QModelIndex& index)`: Emitted when a tree view item is double-clicked
-- `fileModelReadied(Window* context, IFileModel* model)`: Emitted when a file model is readied for view creation
-- `fileModelModificationChanged(IFileModel* model, bool modified)`: Emitted when a file model's modification state changes
-- `fileModelMetaChanged(IFileModel* model)`: Emitted when a file model's metadata changes
-- `activeFileViewChanged(Window* context, IFileView* view)`: Emitted when a window's active file view changes
+- `fileModelReadied(Window* context, AbstractFileModel* model)`: Emitted when a file model is readied for view creation
+- `fileModelModificationChanged(AbstractFileModel* model, bool modified)`: Emitted when a file model's modification state changes
+- `fileModelMetaChanged(AbstractFileModel* model)`: Emitted when a file model's metadata changes
+- `activeFileViewChanged(Window* context, AbstractFileView* view)`: Emitted when a window's active file view changes
 - `treeViewContextMenuRequested(Window* context, const QPoint& globalPos, const QModelIndex& index)`: Emitted when a TreeView is right-clicked

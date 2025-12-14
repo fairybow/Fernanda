@@ -29,7 +29,7 @@ QAction* makeAppQuitAction_(Window* window)
         app(),
         &Application::tryQuit,
         Qt::QueuedConnection);
-    action->setShortcut({ Qt::CTRL | Qt::Key_Q });
+    action->setShortcut(Shortcuts::QUIT);
     action->setAutoRepeat(AutoRepeat::No);
 
     return action;

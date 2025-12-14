@@ -71,7 +71,7 @@ public:
         if (withWindow) windows->newWindow();
 
         // TODO: Don't run if no windows...
-        timer(1300, this, [&] { colorBars->pastel(); });
+        timer(1200, this, [&] { colorBars->pastel(); });
     }
 
     void newWindow() { windows->newWindow(); }
@@ -84,25 +84,38 @@ public:
 
 signals:
     void lastWindowClosed();
+    void newNotebookRequested(const Coco::Path& fnxPath);
+    void openNotebookRequested(const Coco::Path& fnxPath);
 
 protected:
     // TODO: Getters instead?
 
     Bus* bus = new Bus(this);
-    SettingsModule* settings = new SettingsModule(
-        AppDirs::userData() / Constants::CONFIG_FILE_NAME,
-        bus,
-        this);
+
+    // TODO: If we want this to be explicitly "Notepad.ini" then it shouldn't be
+    // in base class. And yet, if we want to use it as the base for each
+    // individual Notebook's own settings, it isn't strictly Notepad.ini, then
+    // is it?
+    SettingsModule* settings =
+        new SettingsModule(AppDirs::userData() / "Settings.ini", bus, this);
     WindowService* windows = new WindowService(bus, this);
     ViewService* views = new ViewService(bus, this);
     FileService* files = new FileService(bus, this);
     TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
+    // Since this is currently hardcoded, it goes here to be shared between
+    // Workspace types. When it's made configurable, it will likely belong to
+    // App
+    Coco::Path startDir = AppDirs::defaultDocs();
+
 protected:
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
-    virtual void newTab(Window* window) = 0; // TODO: Make a signal
+    virtual void
+    newTab(Window* window) = 0; // TODO: Make a signal (Bus signal or
+                                // ViewService signal? Should it be connect here
+                                // to a still-pure-virtual method?)
 
     virtual bool canCloseTab(Window*, int index) { return true; }
     virtual bool canCloseTabEverywhere(Window*, int index) { return true; }

@@ -14,8 +14,6 @@
 #include <QObject>
 #include <QWidget>
 
-#include "Coco/Layout.h"
-
 #include "Debug.h"
 
 namespace Fernanda {

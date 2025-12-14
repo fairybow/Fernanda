@@ -17,8 +17,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Coco/Layout.h"
-
 #include "Debug.h"
 #include "FontSelector.h"
 #include "Timers.h"
@@ -76,7 +74,9 @@ private:
         fontSelector_ = new FontSelector(initialFont, this);
         setModal(false);
 
-        auto layout = Coco::Layout::makeDense<QVBoxLayout*>(this);
+        auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
         layout->addWidget(fontSelector_);
 
         connect(

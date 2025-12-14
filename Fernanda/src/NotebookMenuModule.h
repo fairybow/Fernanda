@@ -66,8 +66,8 @@ protected:
 private:
     QHash<Window*, NotebookMenuActions> actions_{};
 
-    // TODO: Remove {} for no arg commands
-    // TODO: Add key sequences
+    // TODO: Go through all handler implementations and see which should use
+    // this (handlers that don't use a Command parameter)
     void initializeActions_(Window* window)
     {
         if (!window) return;
@@ -91,13 +91,15 @@ private:
             bus,
             window,
             Commands::NOTEBOOK_SAVE,
-            Tr::Menus::fileNotebookSaveArchive()); /// *
+            Tr::Menus::fileNotebookSaveArchive(),
+            Menus::Shortcuts::SAVE); /// *
 
         actions.file.saveAs = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_SAVE_AS,
-            Tr::Menus::fileNotebookSaveArchiveAs()); /// *
+            Tr::Menus::fileNotebookSaveArchiveAs(),
+            Menus::Shortcuts::SAVE_AS); /// *
 
         actions.file.exportFile = Menus::makeBusAction(
             bus,

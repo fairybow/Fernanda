@@ -10,7 +10,6 @@
 #pragma once
 
 #include <functional>
-#include <utility>
 
 #include <QAbstractItemModel>
 #include <QAction>
@@ -73,7 +72,12 @@ public:
     virtual ~Notebook() override { TRACER; }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
-    virtual bool tryQuit() override { return windows->closeAll(); }
+
+    virtual bool tryQuit() override
+    {
+        // Delegates to the canCloseAllWindows hook
+        return windows->closeAll();
+    }
 
 signals:
     void openNotepadRequested();
@@ -98,45 +102,42 @@ protected:
         auto working_dir = workingDir_.path();
         auto info = fnxModel_->addNewTextFile(working_dir);
         if (!info.isValid()) return;
-
-        // TODO: Once New Tab is signal based (if), we can likely drop the
-        // interceptor and reroute just here
-        bus->execute(
-            Commands::OPEN_FILE_AT_PATH,
-            { { "path", qVar(working_dir / info.relPath) },
-              { "title", info.name } },
-            window);
+        files->openFilePathIn(window, working_dir / info.relPath, info.name);
     }
 
     /// TODO SAVES
 
-    // Can call fnxModel_->load to reset DOM snapshot (and might be a better
-    // idea, since it ensures DOM is consistent with newly saved Model.xml, BUT
-    // it will cause our expanded items to collapse
-
-    // Want to note in docs that if the Notebook archive doesn't exist yet, it
-    // will save without running a Save As dialog, because the path will already
-    // have been selected when creating the new Notebook (so, Notebook's only
-    // Save As dialog is just when selecting Save As)
-
-    // Re: views->fileViews in these: is that fine? Could iterate through
-    // provided windows?
+    /// EXPORT can use title override + preferred extension!
+    /// Or probably better to use extension from DOM...
+    ///
+    /// Note in docs that Save As will not change working dir name
+    ///
+    /// NEXT UP: Unfactor save archive and then add the Save As-es to
+    /// closures/quit/save
+    ///
+    /// Can probably just use fnxPath as start path for save as always (it'll
+    /// either be real or the startDir / name.fnx
 
     virtual bool canCloseWindow(Window* window) override
     {
+        // if (windows->count() > 1 || !isModified_()) return true;
         if (windows->count() > 1) return true;
-        if (!isModified_()) return true;
+        if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
-        // Is last window
+        // Last window and needs saving
         switch (SavePrompt::exec(fnxPath_.toQString(), window)) {
-
         default:
         case SavePrompt::Cancel:
             return false;
-
         case SavePrompt::Save: {
-            auto save_result = saveModifiedModels_();
+            Coco::Path path = fnxPath_;
 
+            if (!fnxPath_.exists()) {
+                path = promptSaveAs_(window);
+                if (path.isEmpty()) return false;
+            }
+
+            auto save_result = saveModifiedModels_();
             if (!save_result) {
                 colorBars->red();
                 auto fail_paths = saveFailDisplayNames_(save_result.failed);
@@ -147,17 +148,15 @@ protected:
 
             fnxModel_->write(workingDir_.path());
 
-            if (!Fnx::Io::compress(fnxPath_, workingDir_.path())) {
+            if (!Fnx::Io::compress(path, workingDir_.path())) {
                 colorBars->red();
-                SaveFailMessageBox::exec(fnxPath_.toQString(), window);
+                SaveFailMessageBox::exec(path.toQString(), window);
 
                 return false;
             }
 
-            fnxModel_->resetSnapshot();
-            showModified_();
-            // No green color bar (window closing)
-
+            // No resetSnapshot, showModified, or green color bar (last
+            // window closing)
             return true;
         }
         case SavePrompt::Discard:
@@ -167,38 +166,44 @@ protected:
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
-        if (!isModified_()) return true;
+        // if (!isModified_()) return true;
+        if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
-        switch (SavePrompt::exec(fnxPath_.toQString(), windows.last())) {
+        auto window = windows.last();
 
+        // Needs saving
+        switch (SavePrompt::exec(fnxPath_.toQString(), window)) {
         default:
         case SavePrompt::Cancel:
             return false;
-
         case SavePrompt::Save: {
-            auto save_result = saveModifiedModels_();
+            Coco::Path path = fnxPath_;
 
+            if (!fnxPath_.exists()) {
+                path = promptSaveAs_(window);
+                if (path.isEmpty()) return false;
+            }
+
+            auto save_result = saveModifiedModels_();
             if (!save_result) {
                 colorBars->red();
                 auto fail_paths = saveFailDisplayNames_(save_result.failed);
-                SaveFailMessageBox::exec(fail_paths, windows.last());
+                SaveFailMessageBox::exec(fail_paths, window);
 
                 return false;
             }
 
             fnxModel_->write(workingDir_.path());
 
-            if (!Fnx::Io::compress(fnxPath_, workingDir_.path())) {
+            if (!Fnx::Io::compress(path, workingDir_.path())) {
                 colorBars->red();
-                SaveFailMessageBox::exec(fnxPath_.toQString(), windows.last());
+                SaveFailMessageBox::exec(path.toQString(), window);
 
                 return false;
             }
 
-            fnxModel_->resetSnapshot();
-            showModified_();
-            // No green color bar (window closing)
-
+            // No resetSnapshot, showModified, or green color bar (all windows
+            // closing)
             return true;
         }
         case SavePrompt::Discard:
@@ -209,15 +214,18 @@ protected:
     /// TODO SAVES (END)
 
 private:
+    // Intended path (may not exist yet)
     Coco::Path fnxPath_;
     TempDir workingDir_;
 
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
+    static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
+        "Notebook file entries must have an extant path! [{}]";
+
     void setup_()
     {
-        // TODO: Keep as fatal?
         if (!workingDir_.isValid())
             FATAL("Notebook working directory creation failed!");
 
@@ -256,9 +264,7 @@ private:
 
         //...
 
-        // TODO: Fnx control its own settings name constant?
-        auto settings_file = working_dir / Constants::CONFIG_FILE_NAME;
-        settings->setOverrideConfigPath(settings_file);
+        settings->setOverrideConfigPath(working_dir / "Settings.ini");
 
         registerBusCommands_();
         connectBusEvents_();
@@ -276,14 +282,11 @@ private:
                 if (!cmd.context) return;
                 if (!workingDir_.isValid()) return;
 
-                auto parent_dir = fnxPath_.parent();
-                if (!parent_dir.exists()) return;
-
                 auto fs_paths = Coco::PathUtil::Dialog::files(
                     cmd.context,
-                    Tr::Dialogs::notebookImportFileCaption(),
-                    parent_dir,
-                    Tr::Dialogs::notebookImportFileFilter());
+                    Tr::nbImportFileCaption(),
+                    startDir,
+                    Tr::nbImportFileFilter());
 
                 if (fs_paths.isEmpty()) return;
 
@@ -292,12 +295,10 @@ private:
 
                 for (auto& info : infos) {
                     if (!info.isValid()) continue;
-
-                    bus->execute(
-                        Commands::OPEN_FILE_AT_PATH,
-                        { { "path", qVar(working_dir / info.relPath) },
-                          { "title", info.name } },
-                        cmd.context);
+                    files->openFilePathIn(
+                        cmd.context,
+                        working_dir / info.relPath,
+                        info.name);
                 }
             });
 
@@ -307,10 +308,19 @@ private:
             Commands::NOTEBOOK_SAVE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                if (!isModified_()) return;
+                // if (!isModified_()) return;
+                if (fnxPath_.exists() && !fnxModel_->isModified()) return;
+
+                Coco::Path path = fnxPath_;
+                auto saved_as = false;
+
+                if (!fnxPath_.exists()) {
+                    path = promptSaveAs_(cmd.context);
+                    if (path.isEmpty()) return;
+                    saved_as = true;
+                }
 
                 auto save_result = saveModifiedModels_();
-
                 if (!save_result) {
                     colorBars->red();
                     auto fail_paths = saveFailDisplayNames_(save_result.failed);
@@ -321,11 +331,16 @@ private:
 
                 fnxModel_->write(workingDir_.path());
 
-                if (!Fnx::Io::compress(fnxPath_, workingDir_.path())) {
+                if (!Fnx::Io::compress(path, workingDir_.path())) {
                     colorBars->red();
-                    SaveFailMessageBox::exec(fnxPath_.toQString(), cmd.context);
+                    SaveFailMessageBox::exec(path.toQString(), cmd.context);
 
                     return;
+                }
+
+                if (saved_as) {
+                    fnxPath_ = path;
+                    windows->setSubtitle(fnxPath_.fileQString());
                 }
 
                 fnxModel_->resetSnapshot();
@@ -338,16 +353,10 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
 
-                auto new_path = Coco::PathUtil::Dialog::save(
-                    cmd.context,
-                    Tr::Dialogs::notebookSaveAsCaption(),
-                    fnxPath_,
-                    Tr::Dialogs::notebookSaveAsFilter());
-
+                auto new_path = promptSaveAs_(cmd.context);
                 if (new_path.isEmpty()) return;
 
                 auto save_result = saveModifiedModels_();
-
                 if (!save_result) {
                     colorBars->red();
                     auto fail_paths = saveFailDisplayNames_(save_result.failed);
@@ -365,52 +374,12 @@ private:
                     return;
                 }
 
-                /// TODO SAVES
-
-                // TODO: Centralize all the things that would need updated when
-                // working dir changes, refactor appropriately
-
-                // TODO: Should the temp dir format and name be an FNX utility?
-                // Anything else?
-
                 fnxPath_ = new_path;
-
-                auto new_working_dir = TempDir(
-                    AppDirs::temp() / (fnxPath_.fileQString() + "~XXXXXX"));
-                if (!new_working_dir.isValid())
-                    FATAL(
-                        "Notebook working directory creation "
-                        "failed!");
-                auto old_dir = workingDir_.path();
-                auto new_dir = new_working_dir.path();
-
-                if (!Coco::PathUtil::copyContents(old_dir, new_dir))
-                    FATAL(
-                        "Failed to copy old Notebook working directory "
-                        "contents from {} to {}!",
-                        old_dir,
-                        new_dir);
-
-                for (auto& model : files->fileModels()) {
-                    if (!model) continue;
-                    auto meta = model->meta();
-                    if (!meta) continue;
-                    meta->setPath(meta->path().rebase(old_dir, new_dir));
-                }
-
-                workingDir_ = std::move(new_working_dir);
-
-                settings->setOverrideConfigPath(
-                    workingDir_.path() / Constants::CONFIG_FILE_NAME);
                 windows->setSubtitle(fnxPath_.fileQString());
-
-                /// TODO SAVES (END)
 
                 fnxModel_->resetSnapshot();
                 showModified_();
                 colorBars->green();
-
-                // TODO: Update workspace indicator labels (if we keep them)
             });
 
         /// TODO SAVES (END)
@@ -439,19 +408,25 @@ private:
             &Notebook::onFileModelModificationChanged_);
     }
 
-    bool isModified_() const
+    /// Maybe "unfactor" also - need to Save As if fnxPath_ doesn't exist,
+    /// always. Remove to clarify intent/approach
+    /*bool isModified_() const
     {
         return !fnxPath_.exists() || fnxModel_->isModified();
-    }
+    }*/
 
-    void showModified_() { windows->setFlagged(isModified_()); }
+    void showModified_()
+    {
+        // windows->setFlagged(isModified_());
+        windows->setFlagged(!fnxPath_.exists() || fnxModel_->isModified());
+    }
 
     void addWorkspaceIndicator_(Window* window)
     {
         if (!window) return;
 
         auto status_bar = window->statusBar();
-        if (!status_bar) return; // <- Shouldn't happen
+        if (!status_bar) return; // Shouldn't happen
         auto temp_label = new QLabel;
 
         // TODO: Temp
@@ -474,26 +449,14 @@ private:
 
     MultiSaveResult_ saveModifiedModels_() const
     {
-        // Save modified file models. We're using a list here and going by view
-        // so any fails will be displayed consistent with UI order
-        QList<AbstractFileModel*> modified_models{};
-
-        for (auto& view : views->fileViews()) {
-            if (!view) continue;
-            auto model = view->model();
-            if (!model || !model->isModified()) continue;
-            if (modified_models.contains(model)) continue;
-
-            modified_models << model;
-        }
-
+        auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return {};
 
         // No save prompts for Notebook's always-on-disk files
         MultiSaveResult_ result{};
+
         for (auto& model : modified_models) {
             switch (files->save(model)) {
-
             case FileService::Success:
                 break;
 
@@ -512,17 +475,32 @@ private:
     saveFailDisplayNames_(const QList<AbstractFileModel*>& failed) const
     {
         if (failed.isEmpty()) return {};
+
         QStringList fail_paths{};
 
         for (auto& model : failed) {
             if (!model) continue;
             auto meta = model->meta();
             if (!meta) continue;
+            auto path = meta->path();
+            if (!path.exists()) FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
 
-            fail_paths << meta->path().toQString();
+            fail_paths << path.toQString();
         }
 
         return fail_paths;
+    }
+
+    Coco::Path promptSaveAs_(Window* window) const
+    {
+        if (!window) return {};
+
+        // Save As start path will always be fnxPath_
+        return Coco::PathUtil::Dialog::save(
+            window,
+            Tr::nbSaveAsCaption(),
+            fnxPath_,
+            Tr::nbSaveAsFilter());
     }
 
     /// TODO SAVES (END)
@@ -533,15 +511,16 @@ private slots:
     void onFnxModelDomChanged_()
     {
         if (!workingDir_.isValid()) return;
-        fnxModel_->write(workingDir_.path());
 
+        fnxModel_->write(workingDir_.path());
         // Initial DOM load emission doesn't call this slot
         showModified_();
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
     {
-        if (!info.isValid() || !workingDir_.isValid()) return;
+        if (!info.isValid()) return;
+        if (!workingDir_.isValid()) return;
 
         files->setPathTitleOverride(
             workingDir_.path() / info.relPath,
@@ -558,20 +537,15 @@ private slots:
     // generic Info instead and give it an "isDir" member?
     void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
     {
-        // Notepad uses Path::isDir instead. The asymmetry bugs me, but the
-        // folders here are virtual. We would still get success, since working
-        // dir would be concatenated to an empty path (unless we give dirs
-        // UUIDs), but it would be too abstruse
-
-        if (!window || !index.isValid() || !workingDir_.isValid()) return;
+        if (!window || !index.isValid()) return;
+        if (!workingDir_.isValid()) return;
         auto info = fnxModel_->fileInfoAt(index);
         if (!info.isValid()) return;
 
-        bus->execute(
-            Commands::OPEN_FILE_AT_PATH,
-            { { "path", qVar(workingDir_.path() / info.relPath) },
-              { "title", info.name } },
-            window);
+        files->openFilePathIn(
+            window,
+            workingDir_.path() / info.relPath,
+            info.name);
     }
 
     void onTreeViewContextMenuRequested_(
@@ -611,9 +585,14 @@ private slots:
     void
     onFileModelModificationChanged_(AbstractFileModel* fileModel, bool modified)
     {
+        if (!fileModel) return;
         auto meta = fileModel->meta();
         if (!meta) return;
-        fnxModel_->setFileEdited(Fnx::Io::uuid(meta->path()), modified);
+        auto path = meta->path();
+        if (!path.exists()) FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
+
+        // Notebook's individual archive files should always have a path.
+        fnxModel_->setFileEdited(Fnx::Io::uuid(path), modified);
     }
 };
 

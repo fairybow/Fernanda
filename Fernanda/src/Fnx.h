@@ -11,8 +11,8 @@
 
 #include <string>
 
-#include <QDir>
 #include <QByteArray>
+#include <QDir>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QString>
@@ -26,6 +26,7 @@
 #include "bit7z/bitarchivewriter.hpp"
 
 #include "AppDirs.h"
+#include "FileTypes.h"
 #include "Io.h"
 
 // .fnx file format specification and utilities.
@@ -79,6 +80,13 @@ namespace Internal {
 
 // Used by Notebook
 namespace Io {
+
+    constexpr auto EXT = ".fnx";
+
+    inline bool isFnxFile(const Coco::Path& path)
+    {
+        return path.ext() == EXT && FileTypes::is(FileTypes::SevenZip, path);
+    }
 
     inline void makeNewWorkingDir(const Coco::Path& workingDir)
     {

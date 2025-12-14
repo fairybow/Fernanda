@@ -82,13 +82,16 @@ struct Command
     }
 };
 
-template <typename T>
+// Interceptors have been removed, because I think the need for one at all may
+// be a strong sign that a command is being registered in the wrong place!
+
+/*template <typename T>
 concept InterceptorWithCommand = std::is_invocable_r_v<bool, T, const Command&>;
 
 template <typename T>
 concept InterceptorWithoutCommand =
     std::is_invocable_r_v<bool, T>
-    && !std::is_invocable_r_v<bool, T, const Command&>;
+    && !std::is_invocable_r_v<bool, T, const Command&>;*/
 
 template <typename T>
 concept HandlerWithCommandReturnsVoid =
@@ -124,7 +127,7 @@ public:
 
     virtual ~Commander() = default;
 
-    template <typename InterceptorT>
+    /*template <typename InterceptorT>
     void addInterceptor(const QString& id, InterceptorT&& interceptor)
     {
         // Handles:
@@ -157,7 +160,7 @@ public:
                 "Interceptor must be callable as (const Command&)->bool or "
                 "()->bool");
         }
-    }
+    }*/
 
     template <typename HandlerT>
     void addCommandHandler(const QString& id, HandlerT&& handler)
@@ -291,16 +294,17 @@ public:
 
 private:
     QHash<QString, std::function<QVariant(const Command&)>> commandHandlers_{};
-    QHash<QString, QList<std::function<bool(const Command&)>>> interceptors_{};
+    // QHash<QString, QList<std::function<bool(const Command&)>>>
+    // interceptors_{};
 
     [[nodiscard]] QVariant runCommand_(const QString& id, const Command& cmd)
     {
-        for (auto& interceptor : interceptors_[id]) {
+        /*for (auto& interceptor : interceptors_[id]) {
             if (interceptor(cmd)) {
                 logCmdIntercepted_(id, cmd);
                 return {};
             }
-        }
+        }*/
 
         if (auto handler = commandHandlers_.value(id)) {
             auto result = handler(cmd);
@@ -312,12 +316,12 @@ private:
         }
     }
 
-    void logCmdIntercepted_(const QString& id, const Command& cmd) const
+    /*void logCmdIntercepted_(const QString& id, const Command& cmd) const
     {
         constexpr auto log_format =
             "Intercepted: {}\n\tParams: {}\n\tContext: {}";
         INFO(log_format, id, cmd.params, cmd.context);
-    }
+    }*/
 
     void logCmdRan_(
         const QString& id,
