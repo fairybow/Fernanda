@@ -78,10 +78,10 @@ namespace Internal {
 
 } // namespace Internal
 
-constexpr auto EXT = ".fnx";
-
 // Used by Notebook
 namespace Io {
+
+    constexpr auto EXT = ".fnx";
 
     inline bool isFnxFile(const Coco::Path& path)
     {

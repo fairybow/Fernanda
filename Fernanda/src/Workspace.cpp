@@ -35,7 +35,7 @@ void Workspace::registerBusCommands_()
     bus->addCommandHandler(Commands::NEW_NOTEBOOK, [&] {
         auto name = NewNotebookPrompt::exec();
         if (name.isEmpty()) return;
-        emit newNotebookRequested(startDir / (name + Fnx::EXT));
+        emit newNotebookRequested(startDir / (name + Fnx::Io::EXT));
     });
 
     bus->addCommandHandler(Commands::OPEN_NOTEBOOK, [&] {
