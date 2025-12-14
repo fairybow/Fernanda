@@ -64,8 +64,11 @@ inline QString exec()
     dialog.connect(
         line_edit,
         &QLineEdit::textChanged,
-        [ok](const QString& text) {
-            ok->setEnabled(!text.trimmed().isEmpty());
+        [ok, cancel](const QString& text) {
+            auto ok_enabled = !text.trimmed().isEmpty();
+            ok->setEnabled(ok_enabled);
+            ok->setDefault(ok_enabled);
+            cancel->setDefault(!ok_enabled);
         });
 
     dialog.connect(

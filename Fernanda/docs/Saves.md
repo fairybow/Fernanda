@@ -121,3 +121,15 @@ private:
 ```
 
 The model provides content (perhaps via `model->content()` or similar), FileService handles the actual `QFile` operations.
+
+TODO: Add this to new doc:
+
+| Scenario | Archive Exists | Modified | Action |
+|----------|---------------|----------|--------|
+| Closure | Yes | No | Close immediately |
+| Closure | Yes | Yes | Prompt → Save to existing path |
+| Closure | No | (always "modified") | Prompt → Save As dialog → Save |
+| NOTEBOOK_SAVE | Yes | No | No-op |
+| NOTEBOOK_SAVE | Yes | Yes | Save to existing path |
+| NOTEBOOK_SAVE | No | (always "modified") | Save As dialog → Save → Update path/subtitle |
+| NOTEBOOK_SAVE_AS | Any | Any | Save As dialog → Save → Update path/subtitle |

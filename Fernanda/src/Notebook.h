@@ -124,16 +124,41 @@ protected:
         if (windows->count() > 1) return true;
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
-        /// Add Save As somewhere, somehow. Perhaps mirror Notepads::singleSave_
-
-        // Is last window
+        // Last window and needs saving
         switch (SavePrompt::exec(fnxPath_.toQString(), window)) {
         default:
         case SavePrompt::Cancel:
             return false;
-        case SavePrompt::Save:
-            return saveArchive_(window);
-            // No green color bar (last window closing)
+        case SavePrompt::Save: {
+            Coco::Path path = fnxPath_;
+
+            if (!fnxPath_.exists()) {
+                path = promptSaveAs_(window);
+                if (path.isEmpty()) return false;
+            }
+
+            auto save_result = saveModifiedModels_();
+            if (!save_result) {
+                colorBars->red();
+                auto fail_paths = saveFailDisplayNames_(save_result.failed);
+                SaveFailMessageBox::exec(fail_paths, window);
+
+                return false;
+            }
+
+            fnxModel_->write(workingDir_.path());
+
+            if (!Fnx::Io::compress(path, workingDir_.path())) {
+                colorBars->red();
+                SaveFailMessageBox::exec(path.toQString(), window);
+
+                return false;
+            }
+
+            // No resetSnapshot, showModified, or green color bar (last
+            // window closing)
+            return true;
+        }
         case SavePrompt::Discard:
             return true;
         }
@@ -144,17 +169,43 @@ protected:
         // if (!isModified_()) return true;
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
-        /// Add Save As somewhere, somehow. Perhaps mirror Notepads::singleSave_
-
         auto window = windows.last();
 
+        // Needs saving
         switch (SavePrompt::exec(fnxPath_.toQString(), window)) {
         default:
         case SavePrompt::Cancel:
             return false;
-        case SavePrompt::Save:
-            return saveArchive_(window);
-            // No green color bar (all windows closing)
+        case SavePrompt::Save: {
+            Coco::Path path = fnxPath_;
+
+            if (!fnxPath_.exists()) {
+                path = promptSaveAs_(window);
+                if (path.isEmpty()) return false;
+            }
+
+            auto save_result = saveModifiedModels_();
+            if (!save_result) {
+                colorBars->red();
+                auto fail_paths = saveFailDisplayNames_(save_result.failed);
+                SaveFailMessageBox::exec(fail_paths, window);
+
+                return false;
+            }
+
+            fnxModel_->write(workingDir_.path());
+
+            if (!Fnx::Io::compress(path, workingDir_.path())) {
+                colorBars->red();
+                SaveFailMessageBox::exec(path.toQString(), window);
+
+                return false;
+            }
+
+            // No resetSnapshot, showModified, or green color bar (all windows
+            // closing)
+            return true;
+        }
         case SavePrompt::Discard:
             return true;
         }
@@ -259,10 +310,40 @@ private:
                 // if (!isModified_()) return;
                 if (fnxPath_.exists() && !fnxModel_->isModified()) return;
 
-                /// Add Save As somewhere, somehow. Perhaps mirror
-                /// Notepads::singleSave_
+                Coco::Path path = fnxPath_;
+                auto saved_as = false;
 
-                if (!saveArchive_(cmd.context)) return;
+                if (!fnxPath_.exists()) {
+                    path = promptSaveAs_(cmd.context);
+                    if (path.isEmpty()) return;
+                    saved_as = true;
+                }
+
+                auto save_result = saveModifiedModels_();
+                if (!save_result) {
+                    colorBars->red();
+                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
+                    SaveFailMessageBox::exec(fail_paths, cmd.context);
+
+                    return;
+                }
+
+                fnxModel_->write(workingDir_.path());
+
+                if (!Fnx::Io::compress(path, workingDir_.path())) {
+                    colorBars->red();
+                    SaveFailMessageBox::exec(path.toQString(), cmd.context);
+
+                    return;
+                }
+
+                if (saved_as) {
+                    fnxPath_ = path;
+                    windows->setSubtitle(fnxPath_.fileQString());
+                }
+
+                fnxModel_->resetSnapshot();
+                showModified_();
                 colorBars->green();
             });
 
@@ -271,27 +352,32 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
 
-                auto new_path = Coco::PathUtil::Dialog::save(
-                    cmd.context,
-                    Tr::nbSaveAsCaption(),
-                    fnxPath_,
-                    Tr::nbSaveAsFilter());
-
+                auto new_path = promptSaveAs_(cmd.context);
                 if (new_path.isEmpty()) return;
 
-                /// TODO SAVES
+                auto save_result = saveModifiedModels_();
+                if (!save_result) {
+                    colorBars->red();
+                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
+                    SaveFailMessageBox::exec(fail_paths, cmd.context);
 
-                // Hmm...
-                if (!saveArchive_(cmd.context, new_path)) return;
+                    return;
+                }
 
-                // TODO: Should the temp dir format and name be an FNX utility?
-                // Anything else?
+                fnxModel_->write(workingDir_.path());
+
+                if (!Fnx::Io::compress(new_path, workingDir_.path())) {
+                    colorBars->red();
+                    SaveFailMessageBox::exec(new_path.toQString(), cmd.context);
+
+                    return;
+                }
 
                 fnxPath_ = new_path;
                 windows->setSubtitle(fnxPath_.fileQString());
 
-                /// TODO SAVES (END)
-
+                fnxModel_->resetSnapshot();
+                showModified_();
                 colorBars->green();
             });
 
@@ -404,33 +490,16 @@ private:
         return fail_paths;
     }
 
-    /// "Unfactor"
-    bool saveArchive_(Window* window, const Coco::Path& saveAsPath = {})
+    Coco::Path promptSaveAs_(Window* window) const
     {
-        Coco::Path path = saveAsPath.isEmpty() ? fnxPath_ : saveAsPath;
-        auto save_result = saveModifiedModels_();
+        if (!window) return {};
 
-        if (!save_result) {
-            colorBars->red();
-            auto fail_paths = saveFailDisplayNames_(save_result.failed);
-            SaveFailMessageBox::exec(fail_paths, window);
-
-            return false;
-        }
-
-        fnxModel_->write(workingDir_.path());
-
-        if (!Fnx::Io::compress(path, workingDir_.path())) {
-            colorBars->red();
-            SaveFailMessageBox::exec(path.toQString(), window);
-
-            return false;
-        }
-
-        fnxModel_->resetSnapshot();
-        showModified_();
-
-        return true;
+        // Save As start path will always be fnxPath_
+        return Coco::PathUtil::Dialog::save(
+            window,
+            Tr::nbSaveAsCaption(),
+            fnxPath_,
+            Tr::nbSaveAsFilter());
     }
 
     /// TODO SAVES (END)
