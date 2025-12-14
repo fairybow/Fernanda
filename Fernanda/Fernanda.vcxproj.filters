@@ -73,6 +73,9 @@
     <Filter Include="Code\Core\Workspaces\Bus">
       <UniqueIdentifier>{84840505-6dd6-477e-9f05-bce414d0344a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Docs\Todos">
+      <UniqueIdentifier>{1c3b61bf-1f84-4986-9a82-798d30675210}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -146,35 +149,11 @@
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
     </None>
-    <None Include="docs\Roadmap.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\Menus.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\Bus.md">
-      <Filter>Docs</Filter>
-    </None>
     <None Include="docs\Style.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\FNX.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\UserData.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\Saves.md">
       <Filter>Docs</Filter>
     </None>
     <None Include="docs\old_TempTodos.md">
       <Filter>Old %28Remove Later%29</Filter>
-    </None>
-    <None Include="docs\Closures.md">
-      <Filter>Docs</Filter>
-    </None>
-    <None Include="docs\Openings.md">
-      <Filter>Docs</Filter>
     </None>
     <None Include="docs\NotebookCreation.md">
       <Filter>Docs\Charts</Filter>
@@ -185,11 +164,38 @@
     <None Include="docs\StartupFlowchart.md">
       <Filter>Docs\Charts</Filter>
     </None>
-    <None Include="docs\CodeCleanup.md">
+    <None Include="docs\temp_DocsPlan.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\Roadmap.md">
+      <Filter>Docs\Todos</Filter>
+    </None>
+    <None Include="docs\CodeCleanup.md">
+      <Filter>Docs\Todos</Filter>
+    </None>
     <None Include="docs\SoCAudit.md">
-      <Filter>Docs</Filter>
+      <Filter>Docs\Todos</Filter>
+    </None>
+    <None Include="docs\old_Bus.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_Closures.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_FNX.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_Menus.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_Openings.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_Saves.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_UserData.md">
+      <Filter>Old %28Remove Later%29</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
