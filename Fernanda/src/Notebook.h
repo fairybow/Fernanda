@@ -109,6 +109,9 @@ protected:
     ///
     /// NEXT UP: Unfactor save archive and then add the Save As-es to
     /// closures/quit/save
+    ///
+    /// Can probably just use fnxPath as start path for save as always (it'll
+    /// either be real or the startDir / name.fnx
 
     virtual bool canCloseWindow(Window* window) override
     {
