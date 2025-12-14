@@ -35,6 +35,7 @@ namespace Shortcuts {
 
     // TODO: Any remaining key sequences
     // TODO: Use platform independent key sequences where applicable
+    // See: https://doc.qt.io/qt-6/qkeysequence.html
 
     constexpr auto NEW_TAB = Qt::CTRL | Qt::Key_N;
     constexpr auto NEW_WINDOW = Qt::CTRL | Qt::SHIFT | Qt::Key_N;
@@ -278,7 +279,7 @@ namespace Internal {
             bus,
             window,
             Commands::SETTINGS_DIALOG,
-            Tr::Menus::settings());
+            Tr::settingsMenu());
 
         common.help.about = makeCmdlessBusAction(
             bus,
@@ -292,7 +293,7 @@ namespace Internal {
         CommonMenuActions& common,
         const Inserter& inserter)
     {
-        auto menu = new QMenu(Tr::Menus::file(), menuBar);
+        auto menu = new QMenu(Tr::fileMenu(), menuBar);
         menu->addAction(common.file.newTab);
         menu->addAction(common.file.newWindow);
         menu->addSeparator();
@@ -316,7 +317,7 @@ namespace Internal {
 
     inline void addEditMenu_(QMenuBar* menuBar, CommonMenuActions& common)
     {
-        auto menu = new QMenu(Tr::Menus::edit(), menuBar);
+        auto menu = new QMenu(Tr::editMenu(), menuBar);
         menu->addAction(common.edit.undo);
         menu->addAction(common.edit.redo);
         menu->addSeparator();
@@ -343,7 +344,7 @@ namespace Internal {
 
     inline void addHelpMenu_(QMenuBar* menuBar, CommonMenuActions& common)
     {
-        auto menu = new QMenu(Tr::Menus::help(), menuBar);
+        auto menu = new QMenu(Tr::helpMenu(), menuBar);
         menu->addAction(common.help.about);
         menuBar->addMenu(menu);
     }

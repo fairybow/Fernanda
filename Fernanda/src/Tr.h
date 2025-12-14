@@ -105,34 +105,38 @@ namespace Tr {
     TR_(nxSaveFailBoxMultiBodyFormat,
         tr("There was a problem saving these files: %0"));
 
+    // Menus:
+
+    TR_(fileMenu, tr("&File"));
+    TR_(editMenu, tr("&Edit"));
+    TR_(viewMenu, tr("&View"));
+    TR_(settingsMenu, tr("&Settings"));
+    TR_(helpMenu, tr("&Help"));
+
     /// Unverified:
+
+    // TODO: Mnemonics
 
     namespace Menus {
 
-        TR_(file, tr("File"));
-        TR_(edit, tr("Edit"));
-        TR_(view, tr("View"));
-        TR_(settings, tr("Settings"));
-        TR_(help, tr("Help"));
-
         // File
 
-        TR_(fileNewTab, tr("New tab"));
-        TR_(fileNewWindow, tr("New window"));
+        TR_(fileNewTab, tr("&New tab"));
+        TR_(fileNewWindow, tr("New &window"));
         TR_(fileNewNotebook, tr("New notebook"));
         TR_(fileOpenNotebook, tr("Open notebook"));
 
-        TR_(fileNotepadOpen, tr("Open..."));
-        TR_(fileNotepadSave, tr("Save"));
-        TR_(fileNotepadSaveAs, tr("Save as..."));
-        TR_(fileNotepadSaveAllInWindow, tr("Save all in window"));
-        TR_(fileNotepadSaveAll, tr("Save all"));
+        TR_(fileNotepadOpen, tr("&Open..."));
+        TR_(fileNotepadSave, tr("&Save"));
+        TR_(fileNotepadSaveAs, tr("S&ave as..."));
+        TR_(fileNotepadSaveAllInWindow, tr("Save all &in window"));
+        TR_(fileNotepadSaveAll, tr("Save a&ll"));
 
-        TR_(fileNotebookOpenNotepad, tr("Open notepad"));
-        TR_(fileNotebookImportFile, tr("Import..."));
-        TR_(fileNotebookSaveArchive, tr("Save"));
-        TR_(fileNotebookSaveArchiveAs, tr("Save as..."));
-        TR_(fileNotebookExportFile, tr("Export..."));
+        TR_(fileNotebookOpenNotepad, tr("&Open notepad"));
+        TR_(fileNotebookImportFile, tr("&Import..."));
+        TR_(fileNotebookSaveArchive, tr("&Save"));
+        TR_(fileNotebookSaveArchiveAs, tr("S&ave as..."));
+        TR_(fileNotebookExportFile, tr("&Export..."));
 
         TR_(fileCloseTab, tr("Close tab"));
         TR_(fileCloseTabEverywhere, tr("Close tab everywhere"));
@@ -141,17 +145,17 @@ namespace Tr {
         TR_(fileCloseWindow, tr("Close window"));
         TR_(fileCloseAllWindows, tr("Close all windows"));
 
-        TR_(fileQuit, tr("Quit"));
+        TR_(fileQuit, tr("&Quit"));
 
         // Edit
 
-        TR_(editUndo, tr("Undo"));
-        TR_(editRedo, tr("Redo"));
-        TR_(editCut, tr("Cut"));
-        TR_(editCopy, tr("Copy"));
-        TR_(editPaste, tr("Paste"));
-        TR_(editDelete, tr("Delete"));
-        TR_(editSelectAll, tr("Select all"));
+        TR_(editUndo, tr("&Undo"));
+        TR_(editRedo, tr("&Redo"));
+        TR_(editCut, tr("Cu&t"));
+        TR_(editCopy, tr("&Copy"));
+        TR_(editPaste, tr("&Paste"));
+        TR_(editDelete, tr("&Delete"));
+        TR_(editSelectAll, tr("&Select all"));
 
         // Help
 
