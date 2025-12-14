@@ -447,5 +447,14 @@
     <QtTranslation Include="translations\Translation_fr.ts">
       <Filter>Translations</Filter>
     </QtTranslation>
+    <QtTranslation Include="translations\Translation_ja.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
+    <QtTranslation Include="translations\Translation_zh.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
+    <QtTranslation Include="translations\Translation_it.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
   </ItemGroup>
 </Project>

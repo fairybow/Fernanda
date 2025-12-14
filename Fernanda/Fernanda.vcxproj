@@ -146,6 +146,9 @@
     <QtTranslation Include="translations\Translation_de.ts" />
     <QtTranslation Include="translations\Translation_es.ts" />
     <QtTranslation Include="translations\Translation_fr.ts" />
+    <QtTranslation Include="translations\Translation_it.ts" />
+    <QtTranslation Include="translations\Translation_ja.ts" />
+    <QtTranslation Include="translations\Translation_zh.ts" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E6E7DC76-11E7-4FB4-8C64-E88924DA156D}</ProjectGuid>

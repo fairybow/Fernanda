@@ -32,6 +32,7 @@
 - [ ] Styling/themes
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Multi-file save prompt file name clicks raising relevant window/file view
+- [ ] Checkable export and compile feature with Dom tree
 
 ### Docs
 
@@ -41,6 +42,7 @@
 - [ ] Saves of all types. Outline first everything that needs to be covered
 - [ ] How files get titles doc?
 - [ ] AbstractFileModel and View usage and purpose
+- [ ] Explain debug and macros
 
 ## Miscellaneous Todos
 
@@ -73,18 +75,25 @@
 
 New Notebook is probably next priority! That way, we're forced to isolate the Save As logic.
 
-- [ ] New Notebook: Naming dialog (no path chosen)
-- [ ] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
-- [ ] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
-- [ ] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later (only problem is which settings? We have notepad and individual Notebook INIs...do we want/need an application-wide settings? How should we display that in the settings dialog for each Workspace?)
-- [ ] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
-- [ ] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed
-- [ ] New Notebook: For closure/quit, archive will be created and saved. If successful, we close the Notebook as normal (I think??? Am I missing anything?)
-- [ ] New Notebook: For Save / Save As (the former will trigger the latter anyway), the new Notebook will be saved like in the existing Save As handler. However, we'd only need to change the working directory if the path stem changed? This is a good argument for either just using a UUID or random string as the name (or simply keeping whatever name the Notebook had when it was opened/created, even if it's inconsistent with current name)
+- [x] New Notebook: Naming dialog (no path chosen)
+- [x] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
+- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
+- [x] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later (only problem is which settings? We have notepad and individual Notebook INIs...do we want/need an application-wide settings? How should we display that in the settings dialog for each Workspace?)
+- [x] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
+- [x] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed
+- [x] New Notebook: For closure/quit, archive will be created and saved. If successful, we close the Notebook as normal (I think??? Am I missing anything?)
+- [x] New Notebook: For Save / Save As (the former will trigger the latter anyway), the new Notebook will be saved like in the existing Save As handler. However, we'd only need to change the working directory if the path stem changed? This is a good argument for either just using a UUID or random string as the name (or simply keeping whatever name the Notebook had when it was opened/created, even if it's inconsistent with current name)
 
 After New Notebook:
 
-- [ ] Need starting paths for Open Notebook, New Notebook (maybe). It's possible we may want Notepad to use an application wide base path (maybe set in Workspace and all Workspaces can access it) and settings can adjust it?
+- [x] Need starting paths for Open Notebook, New Notebook (maybe). It's possible we may want Notepad to use an application wide base path (maybe set in Workspace and all Workspaces can access it) and settings can adjust it?
+
+Next up:
+
+- [ ] Notebook export file
+- [ ] Save backups (with auto-cleaning) and backup folder
+- [ ] Fixing New Tab
+- [ ] Menu action toggling based on current view/model, window, workspace states
 
 ### Coco
 
@@ -103,6 +112,7 @@ After New Notebook:
 
 ### Logging & Debug
 
+- [ ] Output buffered log to file (when available) if message is fatal (perhaps for critical and warn) before crashing
 - [ ] Active window logging
 - [ ] Active file view/model logging
 - [ ] Debug/Utility function that shows a popup for messages (non-fatal)
@@ -114,8 +124,17 @@ After New Notebook:
 
 ### General
 
+- [ ] Installer
+- [ ] Add installer dir to gitattributes linguist exclusions
+- [ ] Mononoki & OpenDyslexic
+- [ ] WidgetUtil or similar - was thinking central place to set all painters
+- [ ] Settings dialog should have workspace name
+- [ ] Settings dialogs can have a section for App.ini (or similar), shared (like for startDir, when configurable)
+- [ ] Settings files: Settings.ini inside Notebooks. Notepad file name may need to be different, if we have an application settings
+- [ ] Menu: prev/next tab, window, and workspace
+- [ ] Checkable export and compile feature with Dom tree
 - [ ] Notebook LRU cache for models, if needed
-- [ ] Might be nice to have selection option for modified files in Notebook save, to exclude some changes from the archive save; would need to consult with FileService instead of ViewService and get all modified models (which, until/if LRU cache, remain open)
+- [x] Might be nice to have selection option for modified files in Notebook save, to exclude some changes from the archive save; would need to consult with FileService instead of ViewService and get all modified models (which, until/if LRU cache, remain open)
 - [ ] Trigger rename for new folders/files, but not import (maybe)?
 - [ ] TreeView (NB): Collapsed items should expand on hover while dragging
 - [ ] TreeView (NB): Items should expand when items are dragged into them

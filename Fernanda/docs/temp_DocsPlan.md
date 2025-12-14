@@ -20,6 +20,11 @@ Openings:
 - (Notebook) Import file
 - (Notebook) Export file
 
+Modifications:
+
+- (Notepad & Notebook) What happens when a file is modified (for Notepad get extremely specific (i.e., how the tab title is updated))
+- (Notebook) What happens when the DOM is modified
+
 Saves:
 
 - (Notepad & Notebook) Save
@@ -45,4 +50,4 @@ Potential topics:
 
 - Settings
 - Bus & Commander
-- AbstractFileModel & AbstractFileView
+- AbstractFileModel & AbstractFileView (purpose and future plans (i.e., PDF, Markdown, mind map, etc.))
