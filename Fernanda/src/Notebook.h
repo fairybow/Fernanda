@@ -214,6 +214,7 @@ protected:
     /// TODO SAVES (END)
 
 private:
+    // Intended path (may not exist yet)
     Coco::Path fnxPath_;
     TempDir workingDir_;
 

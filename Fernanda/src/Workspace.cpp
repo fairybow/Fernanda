@@ -44,7 +44,7 @@ void Workspace::registerBusCommands_()
             nullptr,
             Tr::nxOpenNotebookCaption(),
             startDir,
-            Tr::nxOpenNotebookCaption());
+            Tr::nxOpenNotebookFilter());
 
         if (path.isEmpty() || !Fnx::Io::isFnxFile(path)) return;
         emit openNotebookRequested(path);

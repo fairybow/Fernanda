@@ -566,11 +566,12 @@ private:
             case FileService::Success:
                 colorBars->green(cmd.context);
                 break;
-            case FileService::Failure:
+            case FileService::Failure: {
                 colorBars->red(cmd.context);
                 auto name = fileDisplayName_(model);
                 SaveFailMessageBox::exec(name, cmd.context);
                 break;
+            }
             }
         });
 
