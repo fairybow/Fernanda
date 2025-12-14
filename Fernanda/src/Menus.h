@@ -33,6 +33,9 @@ namespace Fernanda::Menus {
 
 namespace Shortcuts {
 
+    // TODO: Any remaining key sequences
+    // TODO: Use platform independent key sequences where applicable
+
     constexpr auto NEW_TAB = Qt::CTRL | Qt::Key_N;
     constexpr auto NEW_WINDOW = Qt::CTRL | Qt::SHIFT | Qt::Key_N;
     constexpr auto OPEN_FILE = Qt::CTRL | Qt::Key_O;
@@ -50,8 +53,6 @@ namespace Shortcuts {
     constexpr auto PASTE = Qt::CTRL | Qt::Key_V;
     constexpr auto DEL = Qt::Key_Delete;
     constexpr auto SELECT_ALL = Qt::CTRL | Qt::Key_A;
-
-    // TODO: Any remaining key sequences
 
 } // namespace Shortcuts
 
