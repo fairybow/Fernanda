@@ -120,11 +120,11 @@ protected:
 
     virtual bool canCloseWindow(Window* window) override
     {
-        //if (windows->count() > 1 || !isModified_()) return true;
+        // if (windows->count() > 1 || !isModified_()) return true;
         if (windows->count() > 1) return true;
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
-        /// Add Save As
+        /// Add Save As somewhere, somehow. Perhaps mirror Notepads::singleSave_
 
         // Is last window
         switch (SavePrompt::exec(fnxPath_.toQString(), window)) {
@@ -141,10 +141,10 @@ protected:
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
-        //if (!isModified_()) return true;
+        // if (!isModified_()) return true;
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
-        /// Add Save As
+        /// Add Save As somewhere, somehow. Perhaps mirror Notepads::singleSave_
 
         auto window = windows.last();
 
@@ -256,8 +256,11 @@ private:
             Commands::NOTEBOOK_SAVE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                //if (!isModified_()) return;
+                // if (!isModified_()) return;
                 if (fnxPath_.exists() && !fnxModel_->isModified()) return;
+
+                /// Add Save As somewhere, somehow. Perhaps mirror
+                /// Notepads::singleSave_
 
                 if (!saveArchive_(cmd.context)) return;
                 colorBars->green();
@@ -278,6 +281,7 @@ private:
 
                 /// TODO SAVES
 
+                // Hmm...
                 if (!saveArchive_(cmd.context, new_path)) return;
 
                 // TODO: Should the temp dir format and name be an FNX utility?
