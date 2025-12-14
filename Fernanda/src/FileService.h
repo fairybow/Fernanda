@@ -92,8 +92,6 @@ public:
             emit bus->fileModelReadied(window, model);
     }
 
-    /// TODO SAVES
-
     QSet<AbstractFileModel*> fileModels() const noexcept { return fileModels_; }
 
     [[nodiscard]] SaveResult save(AbstractFileModel* fileModel)
@@ -143,8 +141,6 @@ public:
         if (auto model = newDiskFileModel_(path, title))
             emit bus->fileModelReadied(window, model);
     }
-
-    /// TODO SAVES (END)
 
 protected:
     virtual void registerBusCommands() override

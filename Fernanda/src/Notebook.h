@@ -105,19 +105,6 @@ protected:
         files->openFilePathIn(window, working_dir / info.relPath, info.name);
     }
 
-    /// TODO SAVES
-
-    /// EXPORT can use title override + preferred extension!
-    /// Or probably better to use extension from DOM...
-    ///
-    /// Note in docs that Save As will not change working dir name
-    ///
-    /// NEXT UP: Unfactor save archive and then add the Save As-es to
-    /// closures/quit/save
-    ///
-    /// Can probably just use fnxPath as start path for save as always (it'll
-    /// either be real or the startDir / name.fnx
-
     virtual bool canCloseWindow(Window* window) override
     {
         // if (windows->count() > 1 || !isModified_()) return true;
@@ -211,11 +198,11 @@ protected:
         }
     }
 
-    /// TODO SAVES (END)
-
 private:
     // Intended path (may not exist yet)
     Coco::Path fnxPath_;
+    // Working directory name will remain unchanged for Notebook's lifetime even
+    // when changing Notebook name via Save As
     TempDir workingDir_;
 
     FnxModel* fnxModel_ = new FnxModel(this);
@@ -302,8 +289,6 @@ private:
                 }
             });
 
-        /// TODO SAVES
-
         bus->addCommandHandler(
             Commands::NOTEBOOK_SAVE,
             [&](const Command& cmd) {
@@ -382,8 +367,6 @@ private:
                 colorBars->green();
             });
 
-        /// TODO SAVES (END)
-
         bus->addCommandHandler(
             Commands::NOTEBOOK_EXPORT_FILE,
             [&](const Command& cmd) {
@@ -450,8 +433,6 @@ private:
         status_bar->addPermanentWidget(temp_label);
     }
 
-    /// TODO SAVES
-
     struct MultiSaveResult_
     {
         QList<AbstractFileModel*> failed{};
@@ -513,8 +494,6 @@ private:
             fnxPath_,
             Tr::nbSaveAsFilter());
     }
-
-    /// TODO SAVES (END)
 
 private slots:
     // TODO: Could remove working dir validity check; also writeModelFile could

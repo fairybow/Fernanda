@@ -81,14 +81,6 @@ protected:
         files->openOffDiskTxtIn(window);
     }
 
-    /// TODO SAVES: Once save operations are implemented, factor out common
-    /// patterns (in closures here and commands below):
-    /// - Modified model collection (single window vs all windows, with/without
-    /// multi-window filter)
-    /// - Display name extraction from FileMeta (also add FileMeta preferred
-    /// extension)
-    /// - SavePrompt switch handling
-
     virtual bool canCloseTab(Window* window, int index) override
     {
         auto view = views->fileViewAt(window, index);
@@ -376,8 +368,6 @@ private:
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
     NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
-    /// TODO SAVES
-
     struct MultiSaveResult_
     {
         int successCount = 0;
@@ -506,8 +496,6 @@ private:
             Tr::npSaveAsFilter());
     }
 
-    /// TODO SAVES (END)
-
     void setup_()
     {
         // Via Qt: Setting root path installs a filesystem watcher
@@ -545,8 +533,6 @@ private:
                         : files->openFilePathIn(cmd.context, path);
                 }
             });
-
-        /// TODO SAVES
 
         bus->addCommandHandler(Commands::NOTEPAD_SAVE, [&](const Command& cmd) {
             if (!cmd.context) return;
@@ -655,8 +641,6 @@ private:
                 // If any saves occurred, we indicate that
                 if (result.anySuccesses()) colorBars->green();
             });
-
-        /// TODO SAVES (END)
     }
 
     void connectBusEvents_()

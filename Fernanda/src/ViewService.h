@@ -109,8 +109,6 @@ public:
         tab_widget->setCurrentIndex(index);
     }
 
-    /// TODO SAVES
-
     void raise(Window* window, AbstractFileModel* model) const
     {
         if (!window || !model) return;
@@ -268,8 +266,6 @@ public:
 
         return result;
     }
-
-    /// TODO SAVES (END)
 
 protected:
     virtual void registerBusCommands() override
