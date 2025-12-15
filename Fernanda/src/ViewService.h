@@ -67,9 +67,6 @@ public:
 
     virtual ~ViewService() override { TRACER; }
 
-    // DECLARE_HOOK_ACCESSORS(NewTabHook, newTabHook, setNewTabHook,
-    // newTabHook_);
-
     DECLARE_HOOK_ACCESSORS(
         CanCloseTabHook,
         canCloseTabHook,
@@ -270,10 +267,29 @@ public:
 
 signals:
     void viewDestroyed(AbstractFileModel* fileModel);
+    void addTabRequested(Window* window);
 
 protected:
     virtual void registerBusCommands() override
     {
+        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
+            closeTab_(cmd.context, cmd.param<int>("index", -1));
+        });
+
+        bus->addCommandHandler(
+            Commands::CLOSE_TAB_EVERYWHERE,
+            [&](const Command& cmd) {
+                closeTabEverywhere_(cmd.context, cmd.param<int>("index", -1));
+            });
+
+        bus->addCommandHandler(
+            Commands::CLOSE_WINDOW_TABS,
+            [&](const Command& cmd) { closeWindowTabs_(cmd.context); });
+
+        bus->addCommandHandler(
+            Commands::CLOSE_ALL_TABS,
+            [&](const Command& cmd) { closeAllTabs_(); });
+
         bus->addCommandHandler(Commands::UNDO, [&](const Command& cmd) {
             undo_(cmd.context, cmd.param<int>("index", -1));
         });
@@ -301,28 +317,6 @@ protected:
         bus->addCommandHandler(Commands::SELECT_ALL, [&](const Command& cmd) {
             selectAll_(cmd.context, cmd.param<int>("index", -1));
         });
-
-        /*bus->addCommandHandler(Commands::NEW_TAB, [&](const Command& cmd) {
-            newTab_(cmd.context);
-        });*/
-
-        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            closeTab_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_TAB_EVERYWHERE,
-            [&](const Command& cmd) {
-                closeTabEverywhere_(cmd.context, cmd.param<int>("index", -1));
-            });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_WINDOW_TABS,
-            [&](const Command& cmd) { closeWindowTabs_(cmd.context); });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_TABS,
-            [&](const Command& cmd) { closeAllTabs_(); });
     }
 
     virtual void connectBusEvents() override
@@ -357,7 +351,6 @@ protected:
 private:
     QHash<Window*, AbstractFileView*> activeFileViews_{};
     QHash<AbstractFileModel*, int> fileViewsPerModel_{};
-    // NewTabHook newTabHook_ = nullptr;
     CanCloseTabHook canCloseTabHook_ = nullptr;
     CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
     CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
@@ -388,59 +381,6 @@ private:
         auto view = fileViewAt(window, index);
         return view ? view->model() : nullptr;
     }
-
-    void undo_(Window* window, int index = -1)
-    {
-        auto model = fileModelAt_(window, index);
-        if (model && model->hasUndo()) model->undo();
-    }
-
-    void redo_(Window* window, int index = -1)
-    {
-        auto model = fileModelAt_(window, index);
-        if (model && model->hasRedo()) model->redo();
-    }
-
-    void cut_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        if (view->hasSelection()) view->cut();
-    }
-
-    void copy_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        if (view->hasSelection()) view->copy();
-    }
-
-    void paste_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        if (view->hasPaste()) view->paste();
-    }
-
-    void delete_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        if (view->hasSelection()) view->deleteSelection();
-    }
-
-    void selectAll_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        view->selectAll();
-    }
-
-    /*void newTab_(Window* window)
-    {
-        if (!window || !newTabHook_) return;
-        newTabHook_(window);
-    }*/
 
     void closeTab_(Window* window, int index = -1)
     {
@@ -501,6 +441,53 @@ private:
         if (!canCloseAllTabsHook_ || canCloseAllTabsHook_(windows))
             for (auto& window : windows)
                 deleteAllFileViewsIn_(window);
+    }
+
+    void undo_(Window* window, int index = -1)
+    {
+        auto model = fileModelAt_(window, index);
+        if (model && model->hasUndo()) model->undo();
+    }
+
+    void redo_(Window* window, int index = -1)
+    {
+        auto model = fileModelAt_(window, index);
+        if (model && model->hasRedo()) model->redo();
+    }
+
+    void cut_(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        if (view->hasSelection()) view->cut();
+    }
+
+    void copy_(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        if (view->hasSelection()) view->copy();
+    }
+
+    void paste_(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        if (view->hasPaste()) view->paste();
+    }
+
+    void delete_(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        if (view->hasSelection()) view->deleteSelection();
+    }
+
+    void selectAll_(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        view->selectAll();
     }
 
     // Index -1 = current
@@ -574,7 +561,7 @@ private:
             [&, window](int index) { setActiveFileView_(window, index); });
 
         connect(tab_widget, &TabWidget::addTabRequested, this, [&, window] {
-            // newTab_(window);
+            emit addTabRequested(window);
         });
 
         connect(
@@ -583,10 +570,9 @@ private:
             this,
             [&, window](int index) { closeTab_(window, index); });
 
-        connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
-            // emit bus->windowTabCountChanged(window, tab_widget->count());
-        });
-
+        // connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
+        //     //...
+        // });
         // connect(tab_widget, &TabWidget::tabDragged, this, [] {
         //     //...
         // });

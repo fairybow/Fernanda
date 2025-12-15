@@ -91,11 +91,12 @@ After New Notebook:
 
 Next up:
 
+- [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
 - [ ] Save code refactors
-- [ ] Removing unified New Tab command
-- [ ] Replacing New Tab with New Tab in Notepad, New File and New Folder in Notebook
-- [ ] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
-- [ ] Menu changes to accomodate, which includes an extra inserter
+- [x] Removing unified New Tab command
+- [x] Replacing New Tab with New Tab in Notepad, New File and New Folder in Notebook
+- [x] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
+- [x] Menu changes to accomodate, which includes an extra inserter
 - [ ] Notebook independent methods for context menu actions (new file, new folder, export file, rename)
 - [ ] Ensuring all NB context menu items are added only when index is valid for them
 - [ ] NB commands for the new independent methods (new file, new folder, export file, rename)

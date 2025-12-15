@@ -75,12 +75,6 @@ protected:
         return fsModel_->index(startDir.toQString());
     }
 
-    /*virtual void newTab(Window* window) override
-    {
-        if (!window) return;
-        files->openOffDiskTxtIn(window);
-    }*/
-
     virtual bool canCloseTab(Window* window, int index) override
     {
         auto view = views->fileViewAt(window, index);
@@ -516,7 +510,11 @@ private:
             this,
             &Notepad::onViewDestroyed_);
 
-        //...
+        connect(
+            views,
+            &ViewService::addTabRequested,
+            this,
+            [&](Window* window) { newTab_(window); });
 
         registerBusCommands_();
         connectBusEvents_();
@@ -528,7 +526,7 @@ private:
             Commands::NOTEPAD_NEW_TAB,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                //...
+                newTab_(cmd.context);
             });
 
         bus->addCommandHandler(
@@ -665,6 +663,12 @@ private:
     void connectBusEvents_()
     {
         //...
+    }
+
+    void newTab_(Window* window)
+    {
+        if (!window) return;
+        files->openOffDiskTxtIn(window);
     }
 
 private slots:

@@ -166,9 +166,6 @@ namespace Tr {
 
         TR_(helpAbout, tr("About"));
 
-        TR_(notebookTreeViewContextNewFolder, tr("New folder"));
-        TR_(notebookTreeViewContextRename, tr("Rename"));
-
     } // namespace Menus
 
     namespace FontSelector {

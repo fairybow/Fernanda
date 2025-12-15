@@ -94,20 +94,8 @@ protected:
         return {};
     }
 
-    /*virtual void newTab(Window* window) override
-    {
-        if (!window) return;
-        if (!workingDir_.isValid()) return;
-
-        auto working_dir = workingDir_.path();
-        auto info = fnxModel_->addNewTextFile(working_dir);
-        if (!info.isValid()) return;
-        files->openFilePathIn(window, working_dir / info.relPath, info.name);
-    }*/
-
     virtual bool canCloseWindow(Window* window) override
     {
-        // if (windows->count() > 1 || !isModified_()) return true;
         if (windows->count() > 1) return true;
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
@@ -153,7 +141,6 @@ protected:
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
-        // if (!isModified_()) return true;
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
         auto window = windows.last();
@@ -230,6 +217,12 @@ private:
             this,
             &Notebook::onTreeViewContextMenuRequested_);
 
+        connect(
+            views,
+            &ViewService::addTabRequested,
+            this,
+            [&](Window* window) { newFile_(window); });
+
         windows->setSubtitle(fnxPath_.fileQString());
         showModified_();
 
@@ -261,8 +254,6 @@ private:
             this,
             &Notebook::onFnxModelFileRenamed_);
 
-        //...
-
         settings->setOverrideConfigPath(working_dir / "Settings.ini");
 
         registerBusCommands_();
@@ -275,22 +266,25 @@ private:
             Commands::NOTEBOOK_NEW_FILE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                // Old new tab behavior
+                newFile_(cmd.context);
             });
 
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_NEW_FOLDER,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // Adds folder to top level (like old new tab behavior but with
-                // vfolder
-            });
+        bus->addCommandHandler(Commands::NOTEBOOK_NEW_FOLDER, [&] {
+            // A window is needed for new file to open the file, but it isn't
+            // needed here
+            newVirtualFolder_();
+        });
 
         bus->addCommandHandler(
             Commands::NOTEBOOK_RENAME_ITEM,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                // Renames current item (based on current view in window)
+                // TODO: Renames current item (based on current view in window)
+                // TODO: Need a way to get QModelIndex of current view for the
+                // call to `treeViews->renameAt(window, index);`
+                // TODO: OR, should we just go by if anything is selected in
+                // TreeView, regardless of what the current view is? How would
+                // similar programs handle this?
             });
 
         bus->addCommandHandler(
@@ -298,32 +292,14 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
                 // Removes current item (based on current view in window)
+                // TODO: See above, for Rename (similar index issue)
             });
 
         bus->addCommandHandler(
             Commands::NOTEBOOK_IMPORT_FILE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                if (!workingDir_.isValid()) return;
-
-                auto fs_paths = Coco::PathUtil::Dialog::files(
-                    cmd.context,
-                    Tr::nbImportFileCaption(),
-                    startDir,
-                    Tr::nbImportFileFilter());
-
-                if (fs_paths.isEmpty()) return;
-
-                auto working_dir = workingDir_.path();
-                auto infos = fnxModel_->importTextFiles(working_dir, fs_paths);
-
-                for (auto& info : infos) {
-                    if (!info.isValid()) continue;
-                    files->openFilePathIn(
-                        cmd.context,
-                        working_dir / info.relPath,
-                        info.name);
-                }
+                importFiles_(cmd.context);
             });
 
         bus->addCommandHandler(Commands::NOTEBOOK_OPEN_NOTEPAD, [&] {
@@ -334,7 +310,6 @@ private:
             Commands::NOTEBOOK_SAVE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                // if (!isModified_()) return;
                 if (fnxPath_.exists() && !fnxModel_->isModified()) return;
 
                 Coco::Path path = fnxPath_;
@@ -432,16 +407,58 @@ private:
             &Notebook::onFileModelModificationChanged_);
     }
 
-    /// Maybe "unfactor" also - need to Save As if fnxPath_ doesn't exist,
-    /// always. Remove to clarify intent/approach
-    /*bool isModified_() const
+    // TODO: Trigger rename immediately (maybe)
+    void newFile_(Window* window, const QModelIndex& index = {})
     {
-        return !fnxPath_.exists() || fnxModel_->isModified();
-    }*/
+        if (!window) return;
+        if (!workingDir_.isValid()) return;
+
+        auto working_dir = workingDir_.path();
+        // If index is invalid, this function adds it to the DOM document
+        // element (top-level)
+        auto info = fnxModel_->addNewTextFile(working_dir, index);
+        if (!info.isValid()) return;
+        files->openFilePathIn(window, working_dir / info.relPath, info.name);
+    }
+
+    // TODO: Trigger rename immediately (maybe)
+    void newVirtualFolder_(const QModelIndex& index = {})
+    {
+        if (!workingDir_.isValid()) return;
+        // If index is invalid, this function adds it to the DOM document
+        // element (top-level)
+        fnxModel_->addNewVirtualFolder(index);
+    }
+
+    void importFiles_(Window* window, const QModelIndex& index = {})
+    {
+        if (!window) return;
+        if (!workingDir_.isValid()) return;
+
+        auto fs_paths = Coco::PathUtil::Dialog::files(
+            window,
+            Tr::nbImportFileCaption(),
+            startDir,
+            Tr::nbImportFileFilter());
+
+        if (fs_paths.isEmpty()) return;
+
+        auto working_dir = workingDir_.path();
+        // If index is invalid, this function adds it to the DOM document
+        // element (top-level)
+        auto infos = fnxModel_->importTextFiles(working_dir, fs_paths, index);
+
+        for (auto& info : infos) {
+            if (!info.isValid()) continue;
+            files->openFilePathIn(
+                window,
+                working_dir / info.relPath,
+                info.name);
+        }
+    }
 
     void showModified_()
     {
-        // windows->setFlagged(isModified_());
         windows->setFlagged(!fnxPath_.exists() || fnxModel_->isModified());
     }
 
@@ -575,40 +592,39 @@ private slots:
     {
         if (!window) return;
 
-        // TODO/REDO:
-        // - Add new file
-        // - Add new folder (use a method that command handler uses)
-        // - Add rename (valid model indexes only; use a method that command
-        // handler uses)
-        // - Add remove (valid model indexes only)
-        // - Add import
-        // - These actions, unlike the command handlers, will take the model
-        // index into account and, for example, add file or folder as child of
-        // model index, or import as child, etc
-
         auto menu = new QMenu(window);
         menu->setAttribute(Qt::WA_DeleteOnClose);
 
-        // TODO: Add new file
-        auto new_folder =
-            menu->addAction(Tr::Menus::notebookTreeViewContextNewFolder());
+        // Actions that don't need a valid model index
+        auto new_file = menu->addAction(Tr::nbNewFile());
+        auto new_folder = menu->addAction(Tr::nbNewFolder());
+        auto import_file = menu->addAction(Tr::nbImportFile());
 
-        // TODO: Trigger rename immediately (maybe)
-        connect(new_folder, &QAction::triggered, this, [&, index] {
-            fnxModel_->addNewVirtualFolder(index);
+        connect(new_file, &QAction::triggered, this, [&, window, index] {
+            newFile_(window, index);
         });
 
-        // Add rename action (only if clicking on an actual item)
+        connect(new_folder, &QAction::triggered, this, [&, index] {
+            newVirtualFolder_(index);
+        });
+
+        connect(import_file, &QAction::triggered, this, [&, window, index] {
+            importFiles_(window, index);
+        });
+
+        /// WIP:
+
+        // Actions that DO need a valid model index
         if (index.isValid()) {
             menu->addSeparator();
-            auto rename_action =
-                menu->addAction(Tr::Menus::notebookTreeViewContextRename());
 
-            connect(
-                rename_action,
-                &QAction::triggered,
-                this,
-                [&, index, window] { treeViews->renameAt(window, index); });
+            auto rename = menu->addAction(Tr::nbRename());
+            // TODO: Remove (handle all selected indexes, if possible)
+            // TODO: Export (handle all selected indexes, if possible)
+
+            connect(rename, &QAction::triggered, this, [&, index, window] {
+                treeViews->renameAt(window, index);
+            });
         }
 
         menu->popup(globalPos);

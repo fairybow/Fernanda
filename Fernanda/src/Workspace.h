@@ -112,10 +112,6 @@ protected:
 protected:
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
-    //virtual void
-    //newTab(Window* window) = 0; // TODO: Make a signal (Bus signal or
-                                // ViewService signal? Should it be connect here
-                                // to a still-pure-virtual method?)
 
     virtual bool canCloseTab(Window*, int index) { return true; }
     virtual bool canCloseTabEverywhere(Window*, int index) { return true; }
@@ -134,7 +130,6 @@ private:
         treeViews->initialize();
         colorBars->initialize();
 
-        //views->setNewTabHook(this, &Workspace::newTab);
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
             this,
@@ -151,8 +146,6 @@ private:
 
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
-
-        //...
 
         registerBusCommands_();
         connectBusEvents_();

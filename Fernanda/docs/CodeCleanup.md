@@ -4,7 +4,6 @@ TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 
 - [ ] Log before signals where appropriate
 - [ ] Ensure, too, that tense makes sense (thing happened vs requesting thing to happen, whichever makes the most sense)
-- [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
 - [ ] Probably remove those extra "return true"s at the end of the closure hook switch statements, since the switch should cover it
 - [ ] Find appropriate QStringLiteral places
 - [ ] Find appropriate places for Coco::Bool (like closure hook returns)

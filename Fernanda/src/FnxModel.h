@@ -146,8 +146,6 @@ public:
         insertElement_(element, parent);
     }
 
-    // TODO: parentIndex will be used for at least context menu click signal,
-    // which would have index
     FileInfo addNewTextFile(
         const Coco::Path& workingDir,
         const QModelIndex& parentIndex = {})
@@ -165,8 +163,6 @@ public:
         return { element };
     }
 
-    // TODO: parentIndex will be used later, maybe for context menu import
-    // option
     QList<FileInfo> importTextFiles(
         const Coco::Path& workingDir,
         const QList<Coco::Path>& fsPaths,
