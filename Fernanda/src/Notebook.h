@@ -220,7 +220,11 @@ private:
             views,
             &ViewService::addTabRequested,
             this,
-            [&](Window* window) { newFile_(window); });
+            [&](Window* window) {
+                // Whereas menu and context menu use currently selected TreeView
+                // model index, this does not
+                newFile_(window);
+            });
 
         windows->setSubtitle(fnxPath_.fileQString());
         showModified_();
@@ -265,23 +269,29 @@ private:
             Commands::NOTEBOOK_NEW_FILE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                // TODO: Should this take selected index into account, to?
-                newFile_(cmd.context);
+                // New file will be under selected TreeView model index (or
+                // document element if no current index)
+                newFile_(cmd.context, treeViews->currentIndex(cmd.context));
             });
 
-        bus->addCommandHandler(Commands::NOTEBOOK_NEW_FOLDER, [&] {
-            // A window is needed for new file to open the file, but it isn't
-            // needed here
-            // TODO: Should this take selected index into account, to?
-            newVirtualFolder_();
-        });
+        bus->addCommandHandler(
+            Commands::NOTEBOOK_NEW_FOLDER,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                // New folder will be under selected TreeView model index (or
+                // document element if no current index)
+                newVirtualFolder_(treeViews->currentIndex(cmd.context));
+            });
 
         bus->addCommandHandler(
             Commands::NOTEBOOK_RENAME_SELECTED,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                // Invalid index here (default arg) gets currently selected item
-                // in TreeView
+                // Invalid index here (default arg) gets currently selected
+                // model index in TreeView
+                // TODO: Re: Menus - move this to View? Also, should this be
+                // registered as a command in ViewService? If so, how would
+                // Notepad handle it?
                 treeViews->renameAt(cmd.context);
             });
 
@@ -296,8 +306,9 @@ private:
             Commands::NOTEBOOK_IMPORT_FILES,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                // TODO: Should this take selected index into account, to?
-                importFiles_(cmd.context);
+                // Imported files will be under selected TreeView model index
+                // (or document element if no current index)
+                importFiles_(cmd.context, treeViews->currentIndex(cmd.context));
             });
 
         bus->addCommandHandler(Commands::NOTEBOOK_OPEN_NOTEPAD, [&] {
@@ -543,10 +554,10 @@ private slots:
     // return bool?
     void onFnxModelDomChanged_()
     {
+        // Initial DOM load emission doesn't call this slot
         if (!workingDir_.isValid()) return;
 
         fnxModel_->write(workingDir_.path());
-        // Initial DOM load emission doesn't call this slot
         showModified_();
     }
 
@@ -568,6 +579,7 @@ private slots:
 
     // TODO: What if we want to handle virtual folders here, too? Could make
     // generic Info instead and give it an "isDir" member?
+    // ^ Me from the future: But why would we?
     void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
     {
         if (!window || !index.isValid()) return;

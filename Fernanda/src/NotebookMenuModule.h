@@ -81,7 +81,7 @@ private:
             Commands::NOTEBOOK_NEW_FILE,
             Tr::nbNewFile()); /// *
 
-        actions.file.newFolder = Menus::makeCmdlessBusAction(
+        actions.file.newFolder = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_NEW_FOLDER,

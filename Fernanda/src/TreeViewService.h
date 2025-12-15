@@ -63,6 +63,16 @@ public:
         setRootIndexHook,
         rootIndexHook_);
 
+    QModelIndex currentIndex(Window* window) const
+    {
+        if (!window) return {};
+
+        if (auto tree_view = treeViews_.value(window))
+            return tree_view->currentIndex();
+
+        return {};
+    }
+
     void renameAt(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;

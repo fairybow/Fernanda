@@ -91,6 +91,9 @@ After New Notebook:
 
 Next up:
 
+- [ ] Notebook Trash!
+- [ ] Also need to have trash appear at the bottom
+- [ ] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
 - [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
 - [ ] Save code refactors
 - [x] Removing unified New Tab command
@@ -105,7 +108,6 @@ Next up:
 - [ ] Notebook export file
 - [ ] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
-- [ ] Fixing New Tab
 - [ ] Menu action toggling based on current view/model, window, workspace states
 
 ### Coco
