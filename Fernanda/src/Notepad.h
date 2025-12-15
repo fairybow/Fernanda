@@ -123,6 +123,7 @@ protected:
         if (!model->isModified()) return true;
 
         // Called via menu (on current window + tab), so no need to raise
+
         auto name = fileDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
@@ -211,8 +212,10 @@ protected:
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-        // Make top window the dialog owner (top window is last)
-        auto prompt_result = SavePrompt::exec(display_names, windows.last());
+        auto prompt_result = SavePrompt::exec(
+            display_names,
+            windows.last()); // Make top window the dialog owner (top window is
+                             // last)
 
         switch (prompt_result.choice) {
 
@@ -313,8 +316,10 @@ protected:
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-        // Make top window the dialog owner (top window is last)
-        auto prompt_result = SavePrompt::exec(display_names, windows.last());
+        auto prompt_result = SavePrompt::exec(
+            display_names,
+            windows.last()); // Make top window the dialog owner (top window is
+                             // last)
 
         switch (prompt_result.choice) {
 
@@ -492,8 +497,9 @@ private:
 
     void setup_()
     {
-        // Via Qt: Setting root path installs a filesystem watcher
-        fsModel_->setRootPath(startDir.toQString());
+        fsModel_->setRootPath(
+            startDir.toQString()); // Via Qt: Setting root path installs a
+                                   // filesystem watcher
         fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
 
         menus_->initialize();

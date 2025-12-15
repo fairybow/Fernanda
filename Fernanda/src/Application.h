@@ -46,7 +46,8 @@ public:
     {
         if (initialized_) return;
 
-        Debug::initialize(Debug::Logging::Yes); // Add file later (in user data)
+        Debug::initialize(Debug::Logging::Yes); // TODO: log file + toggle based
+                                                // on settings or build
         if (!AppDirs::initialize()) FATAL("App directory creation failed!");
 
         // Eventually, get args + session info

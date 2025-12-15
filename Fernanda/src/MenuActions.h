@@ -74,14 +74,14 @@ struct NotebookMenuActions
     {
         QAction* newFile = nullptr;
         QAction* newFolder = nullptr;
-        QAction* renameItem = nullptr;
-        QAction* removeItem = nullptr;
-        QAction* importFile = nullptr;
+        QAction* renameSelected = nullptr;
+        QAction* removeSelected = nullptr;
+        QAction* importFiles = nullptr;
         QAction* openNotepad = nullptr;
 
         QAction* save = nullptr;
         QAction* saveAs = nullptr;
-        QAction* exportFile = nullptr;
+        QAction* exportFiles = nullptr;
     } file;
 };
 

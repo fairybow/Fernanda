@@ -326,7 +326,7 @@ namespace Internal {
         menuBar->addMenu(menu);
     }
 
-    // TODO: Implement
+    // TODO
     inline void addViewMenu_(QMenuBar* menuBar, CommonMenuActions& common)
     {
         //...

@@ -186,11 +186,10 @@ protected:
     }
 
 private:
-    // Intended path (may not exist yet)
-    Coco::Path fnxPath_;
-    // Working directory name will remain unchanged for Notebook's lifetime even
-    // when changing Notebook name via Save As
-    TempDir workingDir_;
+    Coco::Path fnxPath_; // Intended path (may not exist yet)
+    TempDir workingDir_; // Working directory name will remain unchanged for
+                         // Notebook's lifetime even when changing Notebook name
+                         // via Save As
 
     FnxModel* fnxModel_ = new FnxModel(this);
     NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
@@ -266,39 +265,38 @@ private:
             Commands::NOTEBOOK_NEW_FILE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
+                // TODO: Should this take selected index into account, to?
                 newFile_(cmd.context);
             });
 
         bus->addCommandHandler(Commands::NOTEBOOK_NEW_FOLDER, [&] {
             // A window is needed for new file to open the file, but it isn't
             // needed here
+            // TODO: Should this take selected index into account, to?
             newVirtualFolder_();
         });
 
         bus->addCommandHandler(
-            Commands::NOTEBOOK_RENAME_ITEM,
+            Commands::NOTEBOOK_RENAME_SELECTED,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                // TODO: Renames current item (based on current view in window)
-                // TODO: Need a way to get QModelIndex of current view for the
-                // call to `treeViews->renameAt(window, index);`
-                // TODO: OR, should we just go by if anything is selected in
-                // TreeView, regardless of what the current view is? How would
-                // similar programs handle this?
+                // Invalid index here (default arg) gets currently selected item
+                // in TreeView
+                treeViews->renameAt(cmd.context);
             });
 
         bus->addCommandHandler(
-            Commands::NOTEBOOK_REMOVE_ITEM,
+            Commands::NOTEBOOK_REMOVE_SELECTED,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-                // Removes current item (based on current view in window)
-                // TODO: See above, for Rename (similar index issue)
+                // TODO
             });
 
         bus->addCommandHandler(
-            Commands::NOTEBOOK_IMPORT_FILE,
+            Commands::NOTEBOOK_IMPORT_FILES,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
+                // TODO: Should this take selected index into account, to?
                 importFiles_(cmd.context);
             });
 
@@ -384,14 +382,12 @@ private:
             });
 
         bus->addCommandHandler(
-            Commands::NOTEBOOK_EXPORT_FILE,
+            Commands::NOTEBOOK_EXPORT_FILES,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
-
-                // Exports current item (based on current view in window)
-
-                // - Get file info by model index, maybe
-                // - Then just copy using startDir / FileInfo::name() +
+                // TODO
+                // Exports selected item
+                // - Copy using startDir / FileInfo::name() +
                 // FileInfo::relPath().ext() as start dir in prompt
             });
     }
@@ -598,7 +594,7 @@ private slots:
         // Actions that don't need a valid model index
         auto new_file = menu->addAction(Tr::nbNewFile());
         auto new_folder = menu->addAction(Tr::nbNewFolder());
-        auto import_file = menu->addAction(Tr::nbImportFile());
+        auto import_file = menu->addAction(Tr::nbImportFiles());
 
         connect(new_file, &QAction::triggered, this, [&, window, index] {
             newFile_(window, index);
@@ -612,18 +608,26 @@ private slots:
             importFiles_(window, index);
         });
 
-        /// WIP:
-
         // Actions that DO need a valid model index
         if (index.isValid()) {
             menu->addSeparator();
 
             auto rename = menu->addAction(Tr::nbRename());
-            // TODO: Remove (handle all selected indexes, if possible)
-            // TODO: Export (handle all selected indexes, if possible)
+            auto remove = menu->addAction(Tr::nbRemove());
+            auto export_file = menu->addAction(Tr::nbExportFiles());
+            // TODO: Remove - handle all selected indexes, if possible
+            // TODO: Export - handle all selected indexes, if possible
 
             connect(rename, &QAction::triggered, this, [&, index, window] {
                 treeViews->renameAt(window, index);
+            });
+
+            connect(remove, &QAction::triggered, this, [&] {
+                // TODO
+            });
+
+            connect(rename, &QAction::triggered, this, [&] {
+                // TODO
             });
         }
 

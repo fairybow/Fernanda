@@ -63,13 +63,13 @@ public:
         setRootIndexHook,
         rootIndexHook_);
 
-    // TODO: Use default arg for current index, if we wrap this in a command for
-    // menus
     void renameAt(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
+
         if (auto tree_view = treeViews_[window]) {
             auto i = index.isValid() ? index : tree_view->currentIndex();
+            if (!i.isValid()) return;
             tree_view->edit(i);
         }
     }

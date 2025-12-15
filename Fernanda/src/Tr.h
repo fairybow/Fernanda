@@ -125,13 +125,15 @@ namespace Tr {
 
     TR_(nbNewFile, tr("New file"));
     TR_(nbNewFolder, tr("New folder"));
+    TR_(nbRenameSelected, tr("Rename selected"));
     TR_(nbRename, tr("Rename"));
+    TR_(nbRemoveSelected, tr("Remove selected"));
     TR_(nbRemove, tr("Remove"));
-    TR_(nbImportFile, tr("Import file..."));
-    TR_(nbOpenNotepad, tr("Open Notepad"));
+    TR_(nbImportFiles, tr("Import files..."));
+    TR_(nbOpenNotepad, tr("Open notepad"));
     TR_(nbSave, tr("Save"));
     TR_(nbSaveAs, tr("Save as..."));
-    TR_(nbExportFile, tr("Export file..."));
+    TR_(nbExportFiles, tr("Export files..."));
 
     /// Not updated:
 

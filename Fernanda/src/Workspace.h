@@ -104,10 +104,11 @@ protected:
     TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
-    // Since this is currently hardcoded, it goes here to be shared between
-    // Workspace types. When it's made configurable, it will likely belong to
-    // App
-    Coco::Path startDir = AppDirs::defaultDocs();
+    Coco::Path startDir =
+        AppDirs::defaultDocs(); // Since this is currently hardcoded, it goes
+                                // here to be shared between Workspace types.
+                                // When it's made configurable, it will likely
+                                // belong to App
 
 protected:
     virtual QAbstractItemModel* treeViewModel() = 0;
@@ -139,9 +140,9 @@ private:
 
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
-        // Propagate this signal to App for each individual Workspace
         connect(windows, &WindowService::lastWindowClosed, this, [&] {
-            emit lastWindowClosed();
+            emit lastWindowClosed(); // Propagate this signal to App for each
+                                     // individual Workspace
         });
 
         treeViews->setModelHook(this, &Workspace::treeViewModel);
