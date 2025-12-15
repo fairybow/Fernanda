@@ -638,7 +638,7 @@ private slots:
                 // TODO
             });
 
-            connect(rename, &QAction::triggered, this, [&] {
+            connect(export_file, &QAction::triggered, this, [&] {
                 // TODO
             });
         }
