@@ -92,6 +92,7 @@ After New Notebook:
 Next up:
 
 - [ ] Notebook Trash!
+- [ ] Expand/collapse menu items
 - [ ] Also need to have trash appear at the bottom
 - [ ] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
 - [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
