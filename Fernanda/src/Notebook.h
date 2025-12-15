@@ -218,6 +218,18 @@ private:
 
         menus_->initialize();
 
+        connect(
+            treeViews,
+            &TreeViewService::treeViewDoubleClicked,
+            this,
+            &Notebook::onTreeViewDoubleClicked_);
+
+        connect(
+            treeViews,
+            &TreeViewService::treeViewContextMenuRequested,
+            this,
+            &Notebook::onTreeViewContextMenuRequested_);
+
         windows->setSubtitle(fnxPath_.fileQString());
         showModified_();
 
@@ -412,18 +424,6 @@ private:
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
-
-        connect(
-            bus,
-            &Bus::treeViewDoubleClicked,
-            this,
-            &Notebook::onTreeViewDoubleClicked_);
-
-        connect(
-            bus,
-            &Bus::treeViewContextMenuRequested,
-            this,
-            &Notebook::onTreeViewContextMenuRequested_);
 
         connect(
             bus,

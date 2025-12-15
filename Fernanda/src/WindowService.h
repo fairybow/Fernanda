@@ -130,6 +130,9 @@ public:
         setAllTitles_();
     }
 
+signals:
+    void lastWindowClosed();
+
 protected:
     virtual void registerBusCommands() override
     {
@@ -211,7 +214,9 @@ private:
             this,
             &WindowService::onWindowDestroyed_);
 
+        INFO("Window created [{}]", window);
         emit bus->windowCreated(window);
+
         return window;
     }
 
@@ -313,8 +318,13 @@ private slots:
             }
         }
 
+        INFO("Window destroyed [{}]", window);
         emit bus->windowDestroyed(window);
-        if (last_window_closed) emit bus->lastWindowClosed();
+
+        if (last_window_closed) {
+            INFO("Last window closed");
+            emit lastWindowClosed();
+        }
     }
 
     void onApplicationFocusChanged_(QWidget* old, QWidget* now)

@@ -67,7 +67,8 @@ public:
 
     virtual ~ViewService() override { TRACER; }
 
-    //DECLARE_HOOK_ACCESSORS(NewTabHook, newTabHook, setNewTabHook, newTabHook_);
+    // DECLARE_HOOK_ACCESSORS(NewTabHook, newTabHook, setNewTabHook,
+    // newTabHook_);
 
     DECLARE_HOOK_ACCESSORS(
         CanCloseTabHook,
@@ -267,6 +268,9 @@ public:
         return result;
     }
 
+signals:
+    void viewDestroyed(AbstractFileModel* fileModel);
+
 protected:
     virtual void registerBusCommands() override
     {
@@ -353,7 +357,7 @@ protected:
 private:
     QHash<Window*, AbstractFileView*> activeFileViews_{};
     QHash<AbstractFileModel*, int> fileViewsPerModel_{};
-    //NewTabHook newTabHook_ = nullptr;
+    // NewTabHook newTabHook_ = nullptr;
     CanCloseTabHook canCloseTabHook_ = nullptr;
     CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
     CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
@@ -539,7 +543,7 @@ private:
             if (auto view = fileViewAt(window, index)) active = view;
 
         activeFileViews_[window] = active;
-        emit bus->activeFileViewChanged(window, active);
+        INFO("Active file view changed in [{}] to [{}]", window, active);
     }
 
     template <
@@ -570,7 +574,7 @@ private:
             [&, window](int index) { setActiveFileView_(window, index); });
 
         connect(tab_widget, &TabWidget::addTabRequested, this, [&, window] {
-            //newTab_(window);
+            // newTab_(window);
         });
 
         connect(
@@ -645,7 +649,8 @@ private slots:
             if (--fileViewsPerModel_[fileModel] <= 0)
                 fileViewsPerModel_.remove(fileModel);
 
-            emit bus->viewDestroyed(fileModel);
+            INFO("File view destroyed for model [{}]", fileModel);
+            emit viewDestroyed(fileModel);
         });
 
         auto index = tab_widget->addTab(view, meta->title());

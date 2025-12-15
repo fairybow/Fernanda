@@ -9,23 +9,21 @@
 
 #pragma once
 
-#include <QModelIndex>
 #include <QObject>
-#include <QPoint>
 #include <QString>
 #include <QVariant>
-#include <QVariantMap>
 
+#include "AbstractFileModel.h"
 #include "Commander.h"
 #include "Debug.h"
 #include "Window.h"
 
 namespace Fernanda {
 
-// Just include?
-class AbstractFileModel;
-class AbstractFileView;
-
+// Bus addresses cross-Service concerns. Fundamentally for Service-to-Service,
+// lateral communication via commands and signals, but a Workspace could still
+// connect to a signal if needed to avoid duplicating Bus signals in a given
+// Service (e.g., In Service: `emit bus->thing(); emit thing();`).
 class Bus : public Commander
 {
     Q_OBJECT
@@ -34,42 +32,23 @@ public:
     explicit Bus(QObject* parent = nullptr)
         : Commander(parent)
     {
-        setup_();
     }
 
     virtual ~Bus() override { TRACER; }
 
 signals:
-    // TODO: These should be used mostly to communicate from service to service?
-    // I think if this is being used to talk from service to Workspace, then we
-    // can just use a direct signal...
-    // - Go through and check all (FInd All Ref) for this
-
-    /// Re-verified:
-    void lastWindowClosed();
     void windowCreated(Window* context);
     void windowDestroyed(Window* context);
-    // File view may be nullptr!
-    void activeFileViewChanged(Window* context, AbstractFileView* fileView);
-    void treeViewDoubleClicked(Window* context, const QModelIndex& index);
     void fileModelReadied(Window* context, AbstractFileModel* fileModel);
     void
     fileModelModificationChanged(AbstractFileModel* fileModel, bool modified);
     void fileModelMetaChanged(AbstractFileModel* fileModel);
-    void treeViewContextMenuRequested(
-        Window* context,
-        const QPoint& globalPos,
-        const QModelIndex& index);
-    void viewDestroyed(AbstractFileModel* fileModel);
 
     /// Old:
 
     // SettingsModule
 
     void settingChanged(const QString& key, const QVariant& value);
-
-private:
-    void setup_();
 };
 
 } // namespace Fernanda

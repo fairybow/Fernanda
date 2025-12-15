@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AboutDialog.cpp" />
-    <ClCompile Include="src\Bus.cpp" />
     <ClCompile Include="src\FnxModel.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Menus.cpp" />

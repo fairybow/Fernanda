@@ -144,6 +144,10 @@ private:
 
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
+        // Propagate this signal to App for each individual Workspace
+        connect(windows, &WindowService::lastWindowClosed, this, [&] {
+            emit lastWindowClosed();
+        });
 
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
@@ -158,10 +162,7 @@ private:
 
     void connectBusEvents_()
     {
-        // Propagate this Bus signal to App for each individual Workspace
-        connect(bus, &Bus::lastWindowClosed, this, [&] {
-            emit lastWindowClosed();
-        });
+        //...
     }
 };
 

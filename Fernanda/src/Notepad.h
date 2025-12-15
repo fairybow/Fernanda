@@ -504,6 +504,18 @@ private:
 
         menus_->initialize();
 
+        connect(
+            treeViews,
+            &TreeViewService::treeViewDoubleClicked,
+            this,
+            &Notepad::onTreeViewDoubleClicked_);
+
+        connect(
+            views,
+            &ViewService::viewDestroyed,
+            this,
+            &Notepad::onViewDestroyed_);
+
         //...
 
         registerBusCommands_();
@@ -652,13 +664,7 @@ private:
 
     void connectBusEvents_()
     {
-        connect(
-            bus,
-            &Bus::treeViewDoubleClicked,
-            this,
-            &Notepad::onTreeViewDoubleClicked_);
-
-        connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
+        //...
     }
 
 private slots:
