@@ -79,37 +79,14 @@ private:
             bus,
             window,
             Commands::NOTEBOOK_NEW_FILE,
-            Tr::nbNewFile()); /// *
+            Tr::nbNewFile(),
+            Menus::Shortcuts::NEW_TAB); /// *
 
         actions.file.newFolder = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_NEW_FOLDER,
             Tr::nbNewFolder()); /// *
-
-        actions.file.renameSelected = Menus::makeBusAction(
-            bus,
-            window,
-            Commands::NOTEBOOK_RENAME_SELECTED,
-            Tr::nbRenameSelected()); /// *
-
-        actions.file.removeSelected = Menus::makeBusAction(
-            bus,
-            window,
-            Commands::NOTEBOOK_REMOVE_SELECTED,
-            Tr::nbRemoveSelected());
-
-        actions.file.importFiles = Menus::makeBusAction(
-            bus,
-            window,
-            Commands::NOTEBOOK_IMPORT_FILES,
-            Tr::nbImportFiles()); /// *
-
-        actions.file.openNotepad = Menus::makeBusAction(
-            bus,
-            window,
-            Commands::NOTEBOOK_OPEN_NOTEPAD,
-            Tr::nbOpenNotepad()); /// *
 
         actions.file.save = Menus::makeBusAction(
             bus,
@@ -125,11 +102,23 @@ private:
             Tr::nbSaveAs(),
             Menus::Shortcuts::SAVE_AS); /// *
 
-        actions.file.exportFiles = Menus::makeBusAction(
+        actions.notebook.openNotepad = Menus::makeBusAction(
             bus,
             window,
-            Commands::NOTEBOOK_EXPORT_FILES,
-            Tr::nbExportFiles());
+            Commands::NOTEBOOK_OPEN_NOTEPAD,
+            Tr::nbOpenNotepad()); /// *
+
+        actions.notebook.importFiles = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_IMPORT_FILES,
+            Tr::nbImportFiles()); /// *
+
+        actions.notebook.exportSelectedFile = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEBOOK_EXPORT_SELECTED_FILE,
+            Tr::nbExportFile());
     }
 
 private slots:
@@ -146,15 +135,17 @@ private slots:
             [&](QMenu* menu) {
                 menu->addAction(actions.file.newFile);
                 menu->addAction(actions.file.newFolder);
-                menu->addAction(actions.file.renameSelected);
-                menu->addAction(actions.file.removeSelected);
-                menu->addAction(actions.file.importFiles);
-                menu->addAction(actions.file.openNotepad);
             },
             [&](QMenu* menu) {
                 menu->addAction(actions.file.save);
                 menu->addAction(actions.file.saveAs);
-                menu->addAction(actions.file.exportFiles);
+            },
+            [&](QMenuBar* menuBar) {
+                auto menu = new QMenu(Tr::nbMenu(), menuBar);
+                menu->addAction(actions.notebook.openNotepad);
+                menu->addAction(actions.notebook.importFiles);
+                menu->addAction(actions.notebook.exportSelectedFile);
+                menuBar->addMenu(menu);
             });
     }
 };

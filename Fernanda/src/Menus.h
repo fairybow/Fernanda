@@ -57,7 +57,8 @@ namespace Shortcuts {
 
 } // namespace Shortcuts
 
-using Inserter = std::function<void(QMenu*)>;
+using MenuBarInserter = std::function<void(QMenuBar*)>;
+using MenuInserter = std::function<void(QMenu*)>;
 COCO_BOOL(AutoRepeat);
 
 template <typename SlotT>
@@ -284,8 +285,8 @@ namespace Internal {
     inline void addFileMenu_(
         QMenuBar* menuBar,
         CommonMenuActions& common,
-        const Inserter& opensInserter,
-        const Inserter& savesInserter)
+        const MenuInserter& opensInserter,
+        const MenuInserter& savesInserter)
     {
         auto menu = new QMenu(Tr::nxFileMenu(), menuBar);
         opensInserter(menu);
@@ -348,9 +349,11 @@ namespace Internal {
     inline void addMenus_(
         QMenuBar* menuBar,
         CommonMenuActions& common,
-        const Inserter& fileMenuOpensInserter,
-        const Inserter& fileMenuSavesInserter)
+        const MenuInserter& fileMenuOpensInserter,
+        const MenuInserter& fileMenuSavesInserter,
+        const MenuBarInserter& menuBarInserter = nullptr)
     {
+        if (menuBarInserter) menuBarInserter(menuBar);
         addFileMenu_(
             menuBar,
             common,
@@ -368,8 +371,9 @@ inline void addNewMenuBar(
     Bus* bus,
     Window* window,
     CommonMenuActions& common,
-    const Inserter& fileMenuOpensInserter,
-    const Inserter& fileMenuSavesInserter)
+    const MenuInserter& fileMenuOpensInserter,
+    const MenuInserter& fileMenuSavesInserter,
+    const MenuBarInserter& menuBarInserter = nullptr)
 {
     if (!bus || !window) return;
     auto menu_bar = new QMenuBar(window);
@@ -379,7 +383,8 @@ inline void addNewMenuBar(
         menu_bar,
         common,
         fileMenuOpensInserter,
-        fileMenuSavesInserter);
+        fileMenuSavesInserter,
+        menuBarInserter);
     window->setMenuBar(menu_bar);
 }
 

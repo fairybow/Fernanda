@@ -94,7 +94,10 @@ After New Notebook:
 Next up:
 
 - [ ] Notebook Trash!
-- [ ] Expand/collapse menu items
+- [ ] Maybe stuff some of the closures in sub menus
+- [x] Remove unneeded menu items
+- [x] Add window or view menu (or special Notebook menu that has import/export/open notepad/and anything else unique to NB)
+- [x] Open notepad to window or view
 - [ ] Also need to have trash appear at the bottom
 - [ ] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
 - [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)

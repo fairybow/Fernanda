@@ -77,15 +77,17 @@ struct NotebookMenuActions
     {
         QAction* newFile = nullptr;
         QAction* newFolder = nullptr;
-        QAction* renameSelected = nullptr;
-        QAction* removeSelected = nullptr;
-        QAction* importFiles = nullptr;
-        QAction* openNotepad = nullptr;
 
         QAction* save = nullptr;
         QAction* saveAs = nullptr;
-        QAction* exportFiles = nullptr;
     } file;
+
+    struct Notebook
+    {
+        QAction* openNotepad = nullptr;
+        QAction* importFiles = nullptr;
+        QAction* exportSelectedFile = nullptr;
+    } notebook;
 };
 
 } // namespace Fernanda

@@ -284,25 +284,6 @@ private:
             });
 
         bus->addCommandHandler(
-            Commands::NOTEBOOK_RENAME_SELECTED,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // Invalid index here (default arg) gets currently selected
-                // model index in TreeView
-                // TODO: Re: Menus - move this to View? Also, should this be
-                // registered as a command in ViewService? If so, how would
-                // Notepad handle it?
-                treeViews->rename(cmd.context);
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_REMOVE_SELECTED,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // TODO
-            });
-
-        bus->addCommandHandler(
             Commands::NOTEBOOK_IMPORT_FILES,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
@@ -393,13 +374,18 @@ private:
             });
 
         bus->addCommandHandler(
-            Commands::NOTEBOOK_EXPORT_FILES,
+            Commands::NOTEBOOK_EXPORT_SELECTED_FILE,
             [&](const Command& cmd) {
                 if (!cmd.context) return;
                 // TODO
-                // Exports selected item
+                // Exports selected item (TreeView only allows one selected item
+                // at a time)
                 // - Copy using startDir / FileInfo::name() +
                 // FileInfo::relPath().ext() as start dir in prompt
+                // - When we've allowed clicking off an item to unselect in
+                // TreeView, then we can have different behavior, perhaps, for
+                // Export file? (This would overlap, though, with broader
+                // export/concat/compile thing)
             });
     }
 
@@ -610,7 +596,6 @@ private slots:
         // Actions that don't need a valid model index
         auto new_file = menu->addAction(Tr::nbNewFile());
         auto new_folder = menu->addAction(Tr::nbNewFolder());
-        auto import_file = menu->addAction(Tr::nbImportFiles());
 
         connect(new_file, &QAction::triggered, this, [&, window, index] {
             newFile_(window, index);
@@ -620,10 +605,6 @@ private slots:
             newVirtualFolder_(index);
         });
 
-        connect(import_file, &QAction::triggered, this, [&, window, index] {
-            importFiles_(window, index);
-        });
-
         // Actions that DO need a valid model index. Only one model index can be
         // selected at a time!
         if (index.isValid()) {
@@ -631,7 +612,6 @@ private slots:
 
             auto rename = menu->addAction(Tr::nbRename());
             auto remove = menu->addAction(Tr::nbRemove());
-            auto export_file = menu->addAction(Tr::nbExportFiles());
 
             connect(rename, &QAction::triggered, this, [&, index, window] {
                 treeViews->rename(window, index);
@@ -641,12 +621,9 @@ private slots:
                 // TODO
             });
 
-            connect(export_file, &QAction::triggered, this, [&] {
-                // TODO
-            });
-
             menu->addSeparator();
 
+            // TODO: Move up
             if (fnxModel_->hasChildren(index)) {
                 auto is_expanded = treeViews->isExpanded(window, index);
 

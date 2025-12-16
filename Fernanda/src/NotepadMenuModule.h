@@ -80,7 +80,7 @@ private:
             window,
             Commands::NOTEPAD_NEW_TAB,
             Tr::npNewTab(),
-            Menus::Shortcuts::NEW_TAB);
+            Menus::Shortcuts::NEW_TAB); /// *
 
         actions.file.openFile = Menus::makeBusAction(
             bus,

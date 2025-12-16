@@ -36,13 +36,11 @@ constexpr auto NOTEPAD_SAVE_ALL = "notepad:save_all"; /// *
 
 constexpr auto NOTEBOOK_NEW_FILE = "notebook:new_file"; /// *
 constexpr auto NOTEBOOK_NEW_FOLDER = "notebook:new_folder"; /// *
-constexpr auto NOTEBOOK_RENAME_SELECTED = "notebook:rename_selected"; /// *
-constexpr auto NOTEBOOK_REMOVE_SELECTED = "notebook:remove_selected";
-constexpr auto NOTEBOOK_IMPORT_FILES = "notebook:import_files"; /// *
-constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad"; /// *
 constexpr auto NOTEBOOK_SAVE = "notebook:save_archive"; /// *
 constexpr auto NOTEBOOK_SAVE_AS = "notebook:save_archive_as"; /// *
-constexpr auto NOTEBOOK_EXPORT_FILES = "notebook:export_files";
+constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad"; /// *
+constexpr auto NOTEBOOK_IMPORT_FILES = "notebook:import_files"; /// *
+constexpr auto NOTEBOOK_EXPORT_SELECTED_FILE = "notebook:export_selected_file";
 
 // ViewService scope
 
@@ -53,7 +51,6 @@ constexpr auto COPY = "views:copy"; /// *
 constexpr auto PASTE = "views:paste"; /// *
 constexpr auto DEL = "views:delete"; /// *
 constexpr auto SELECT_ALL = "views:select_all"; /// *
-// constexpr auto NEW_TAB = "views:new_tab"; /// *
 constexpr auto CLOSE_TAB = "views:close_tab"; /// *
 constexpr auto CLOSE_TAB_EVERYWHERE = "views:close_tab_everywhere"; /// *
 constexpr auto CLOSE_WINDOW_TABS = "views:close_window_tabs"; /// *
