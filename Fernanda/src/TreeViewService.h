@@ -73,7 +73,7 @@ public:
         return {};
     }
 
-    void renameAt(Window* window, const QModelIndex& index = {})
+    void rename(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
 
@@ -81,6 +81,35 @@ public:
             auto i = index.isValid() ? index : tree_view->currentIndex();
             if (!i.isValid()) return;
             tree_view->edit(i);
+        }
+    }
+
+    bool isExpanded(Window* window, const QModelIndex& index) const
+    {
+        if (!window || !index.isValid()) return false;
+        if (auto tree_view = treeViews_[window]) return tree_view->isExpanded(index);
+        return false;
+    }
+
+    void expand(Window* window, const QModelIndex& index = {})
+    {
+        if (!window) return;
+
+        if (auto tree_view = treeViews_[window]) {
+            auto i = index.isValid() ? index : tree_view->currentIndex();
+            if (!i.isValid()) return;
+            tree_view->expand(i);
+        }
+    }
+
+    void collapse(Window* window, const QModelIndex& index = {})
+    {
+        if (!window) return;
+
+        if (auto tree_view = treeViews_[window]) {
+            auto i = index.isValid() ? index : tree_view->currentIndex();
+            if (!i.isValid()) return;
+            tree_view->collapse(i);
         }
     }
 

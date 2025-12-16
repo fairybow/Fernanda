@@ -34,6 +34,8 @@
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Multi-file save prompt file name clicks raising relevant window/file view
 - [ ] Checkable export and compile feature with Dom tree
+- [ ] Notepad context menu
+- [ ] Notepad rename/remove/collapse/expand menu items (and anything else Notebook has that could be used in Notepad)
 
 ### Docs
 

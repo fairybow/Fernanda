@@ -134,6 +134,8 @@ namespace Tr {
     TR_(nbSave, tr("Save"));
     TR_(nbSaveAs, tr("Save as..."));
     TR_(nbExportFiles, tr("Export files..."));
+    TR_(nbExpand, tr("Expand"));
+    TR_(nbCollapse, tr("Collapse"));
 
     /// Not updated:
 

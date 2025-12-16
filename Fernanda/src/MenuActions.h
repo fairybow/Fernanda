@@ -11,6 +11,9 @@
 
 #include <QAction>
 
+// TODO: Expand/collapse joint items for both workspaces
+// TODO: Check which can go into View if any
+
 namespace Fernanda {
 
 struct CommonMenuActions

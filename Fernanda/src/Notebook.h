@@ -292,7 +292,7 @@ private:
                 // TODO: Re: Menus - move this to View? Also, should this be
                 // registered as a command in ViewService? If so, how would
                 // Notepad handle it?
-                treeViews->renameAt(cmd.context);
+                treeViews->rename(cmd.context);
             });
 
         bus->addCommandHandler(
@@ -593,6 +593,10 @@ private slots:
             info.name);
     }
 
+    // TODO: Notepad should have one, and a lot of the corresponding menu bar
+    // items could go to Notepad, too, like rename, remove, collapse, expand,
+    // etc. Basically all of them. Though the behaviors will have to be
+    // different, since we're dealing with changing actual paths, etc.
     void onTreeViewContextMenuRequested_(
         Window* window,
         const QPoint& globalPos,
@@ -620,18 +624,17 @@ private slots:
             importFiles_(window, index);
         });
 
-        // Actions that DO need a valid model index
+        // Actions that DO need a valid model index. Only one model index can be
+        // selected at a time!
         if (index.isValid()) {
             menu->addSeparator();
 
             auto rename = menu->addAction(Tr::nbRename());
             auto remove = menu->addAction(Tr::nbRemove());
             auto export_file = menu->addAction(Tr::nbExportFiles());
-            // TODO: Remove - handle all selected indexes, if possible
-            // TODO: Export - handle all selected indexes, if possible
 
             connect(rename, &QAction::triggered, this, [&, index, window] {
-                treeViews->renameAt(window, index);
+                treeViews->rename(window, index);
             });
 
             connect(remove, &QAction::triggered, this, [&] {
@@ -641,6 +644,23 @@ private slots:
             connect(export_file, &QAction::triggered, this, [&] {
                 // TODO
             });
+
+            menu->addSeparator();
+
+            if (fnxModel_->hasChildren(index)) {
+                auto is_expanded = treeViews->isExpanded(window, index);
+
+                auto collapse_or_expand = menu->addAction(
+                    is_expanded ? Tr::nbCollapse() : Tr::nbExpand());
+                connect(
+                    collapse_or_expand,
+                    &QAction::triggered,
+                    this,
+                    [&, is_expanded, index, window] {
+                        is_expanded ? treeViews->collapse(window, index)
+                                    : treeViews->expand(window, index);
+                    });
+            }
         }
 
         menu->popup(globalPos);
