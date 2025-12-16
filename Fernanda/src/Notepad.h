@@ -75,20 +75,6 @@ protected:
         return fsModel_->index(startDir.toQString());
     }
 
-    virtual void newTab(Window* window) override
-    {
-        if (!window) return;
-        files->openOffDiskTxtIn(window);
-    }
-
-    /// TODO SAVES: Once save operations are implemented, factor out common
-    /// patterns (in closures here and commands below):
-    /// - Modified model collection (single window vs all windows, with/without
-    /// multi-window filter)
-    /// - Display name extraction from FileMeta (also add FileMeta preferred
-    /// extension)
-    /// - SavePrompt switch handling
-
     virtual bool canCloseTab(Window* window, int index) override
     {
         auto view = views->fileViewAt(window, index);
@@ -137,6 +123,7 @@ protected:
         if (!model->isModified()) return true;
 
         // Called via menu (on current window + tab), so no need to raise
+
         auto name = fileDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
@@ -225,8 +212,10 @@ protected:
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-        // Make top window the dialog owner (top window is last)
-        auto prompt_result = SavePrompt::exec(display_names, windows.last());
+        auto prompt_result = SavePrompt::exec(
+            display_names,
+            windows.last()); // Make top window the dialog owner (top window is
+                             // last)
 
         switch (prompt_result.choice) {
 
@@ -327,8 +316,10 @@ protected:
         if (modified_models.isEmpty()) return true;
 
         auto display_names = fileDisplayNames_(modified_models);
-        // Make top window the dialog owner (top window is last)
-        auto prompt_result = SavePrompt::exec(display_names, windows.last());
+        auto prompt_result = SavePrompt::exec(
+            display_names,
+            windows.last()); // Make top window the dialog owner (top window is
+                             // last)
 
         switch (prompt_result.choice) {
 
@@ -375,8 +366,6 @@ protected:
 private:
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
     NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
-
-    /// TODO SAVES
 
     struct MultiSaveResult_
     {
@@ -506,17 +495,32 @@ private:
             Tr::npSaveAsFilter());
     }
 
-    /// TODO SAVES (END)
-
     void setup_()
     {
-        // Via Qt: Setting root path installs a filesystem watcher
-        fsModel_->setRootPath(startDir.toQString());
+        fsModel_->setRootPath(
+            startDir.toQString()); // Via Qt: Setting root path installs a
+                                   // filesystem watcher
         fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
 
         menus_->initialize();
 
-        //...
+        connect(
+            treeViews,
+            &TreeViewService::treeViewDoubleClicked,
+            this,
+            &Notepad::onTreeViewDoubleClicked_);
+
+        connect(
+            views,
+            &ViewService::viewDestroyed,
+            this,
+            &Notepad::onViewDestroyed_);
+
+        connect(
+            views,
+            &ViewService::addTabRequested,
+            this,
+            [&](Window* window) { newTab_(window); });
 
         registerBusCommands_();
         connectBusEvents_();
@@ -524,6 +528,13 @@ private:
 
     void registerBusCommands_()
     {
+        bus->addCommandHandler(
+            Commands::NOTEPAD_NEW_TAB,
+            [&](const Command& cmd) {
+                if (!cmd.context) return;
+                newTab_(cmd.context);
+            });
+
         bus->addCommandHandler(
             Commands::NOTEPAD_OPEN_FILE,
             [&](const Command& cmd) {
@@ -545,8 +556,6 @@ private:
                         : files->openFilePathIn(cmd.context, path);
                 }
             });
-
-        /// TODO SAVES
 
         bus->addCommandHandler(Commands::NOTEPAD_SAVE, [&](const Command& cmd) {
             if (!cmd.context) return;
@@ -655,19 +664,17 @@ private:
                 // If any saves occurred, we indicate that
                 if (result.anySuccesses()) colorBars->green();
             });
-
-        /// TODO SAVES (END)
     }
 
     void connectBusEvents_()
     {
-        connect(
-            bus,
-            &Bus::treeViewDoubleClicked,
-            this,
-            &Notepad::onTreeViewDoubleClicked_);
+        //...
+    }
 
-        connect(bus, &Bus::viewDestroyed, this, &Notepad::onViewDestroyed_);
+    void newTab_(Window* window)
+    {
+        if (!window) return;
+        files->openOffDiskTxtIn(window);
     }
 
 private slots:

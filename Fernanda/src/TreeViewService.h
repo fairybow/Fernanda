@@ -16,6 +16,7 @@
 #include <QHash>
 #include <QModelIndex>
 #include <QObject>
+#include <QPoint>
 #include <QStatusBar>
 #include <QToolButton>
 #include <QTreeView>
@@ -62,16 +63,62 @@ public:
         setRootIndexHook,
         rootIndexHook_);
 
-    // TODO: Use default arg for current index, if we wrap this in a command for
-    // menus
-    void renameAt(Window* window, const QModelIndex& index = {})
+    QModelIndex currentIndex(Window* window) const
+    {
+        if (!window) return {};
+
+        if (auto tree_view = treeViews_.value(window))
+            return tree_view->currentIndex();
+
+        return {};
+    }
+
+    void rename(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
+
         if (auto tree_view = treeViews_[window]) {
             auto i = index.isValid() ? index : tree_view->currentIndex();
+            if (!i.isValid()) return;
             tree_view->edit(i);
         }
     }
+
+    bool isExpanded(Window* window, const QModelIndex& index) const
+    {
+        if (!window || !index.isValid()) return false;
+        if (auto tree_view = treeViews_[window]) return tree_view->isExpanded(index);
+        return false;
+    }
+
+    void expand(Window* window, const QModelIndex& index = {})
+    {
+        if (!window) return;
+
+        if (auto tree_view = treeViews_[window]) {
+            auto i = index.isValid() ? index : tree_view->currentIndex();
+            if (!i.isValid()) return;
+            tree_view->expand(i);
+        }
+    }
+
+    void collapse(Window* window, const QModelIndex& index = {})
+    {
+        if (!window) return;
+
+        if (auto tree_view = treeViews_[window]) {
+            auto i = index.isValid() ? index : tree_view->currentIndex();
+            if (!i.isValid()) return;
+            tree_view->collapse(i);
+        }
+    }
+
+signals:
+    void treeViewDoubleClicked(Window* context, const QModelIndex& index);
+    void treeViewContextMenuRequested(
+        Window* context,
+        const QPoint& globalPos,
+        const QModelIndex& index);
 
 protected:
     virtual void registerBusCommands() override
@@ -148,7 +195,11 @@ private:
             this,
             [&, window](const QModelIndex& index) {
                 if (!window) return;
-                emit bus->treeViewDoubleClicked(window, index);
+                INFO(
+                    "Tree view double-clicked in [{}]: index [{}]",
+                    window,
+                    index);
+                emit treeViewDoubleClicked(window, index);
             });
 
         connect(
@@ -157,10 +208,15 @@ private:
             this,
             [&, window, tree_view](const QPoint& pos) {
                 if (!window || !tree_view) return;
-                emit bus->treeViewContextMenuRequested(
+
+                auto point = tree_view->mapToGlobal(pos);
+                auto model_index = tree_view->indexAt(pos);
+                INFO(
+                    "Requesting context menu in [{}] at {} for index [{}]",
                     window,
-                    tree_view->mapToGlobal(pos),
-                    tree_view->indexAt(pos));
+                    point,
+                    model_index);
+                emit treeViewContextMenuRequested(window, point, model_index);
             });
 
         // TODO: Needed? Check that it actually works, too, since it decays to

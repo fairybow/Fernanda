@@ -120,9 +120,6 @@
     <ClCompile Include="src\Menus.cpp">
       <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </ClCompile>
-    <ClCompile Include="src\Bus.cpp">
-      <Filter>Code\Core\Workspaces\Bus</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

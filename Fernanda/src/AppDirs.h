@@ -26,7 +26,7 @@ inline const Coco::Path& userData()
     return dir;
 }
 
-/// TODO SAVES: Backups folder
+// TODO: Backups folder
 
 inline const Coco::Path& temp()
 {

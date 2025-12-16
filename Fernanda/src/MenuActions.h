@@ -11,13 +11,15 @@
 
 #include <QAction>
 
+// TODO: Expand/collapse joint items for both workspaces
+// TODO: Check which can go into View if any
+
 namespace Fernanda {
 
 struct CommonMenuActions
 {
     struct File
     {
-        QAction* newTab = nullptr;
         QAction* newWindow = nullptr;
         QAction* newNotebook = nullptr;
         QAction* openNotebook = nullptr;
@@ -57,6 +59,7 @@ struct NotepadMenuActions
 
     struct File
     {
+        QAction* newTab = nullptr;
         QAction* openFile = nullptr;
 
         QAction* save = nullptr;
@@ -72,13 +75,19 @@ struct NotebookMenuActions
 
     struct File
     {
-        QAction* importFile = nullptr;
-        QAction* openNotepad = nullptr;
+        QAction* newFile = nullptr;
+        QAction* newFolder = nullptr;
 
         QAction* save = nullptr;
         QAction* saveAs = nullptr;
-        QAction* exportFile = nullptr;
     } file;
+
+    struct Notebook
+    {
+        QAction* openNotepad = nullptr;
+        QAction* importFiles = nullptr;
+        QAction* exportSelectedFile = nullptr;
+    } notebook;
 };
 
 } // namespace Fernanda

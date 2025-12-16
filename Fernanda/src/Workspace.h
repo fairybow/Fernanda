@@ -104,18 +104,15 @@ protected:
     TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
 
-    // Since this is currently hardcoded, it goes here to be shared between
-    // Workspace types. When it's made configurable, it will likely belong to
-    // App
-    Coco::Path startDir = AppDirs::defaultDocs();
+    Coco::Path startDir =
+        AppDirs::defaultDocs(); // Since this is currently hardcoded, it goes
+                                // here to be shared between Workspace types.
+                                // When it's made configurable, it will likely
+                                // belong to App
 
 protected:
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
-    virtual void
-    newTab(Window* window) = 0; // TODO: Make a signal (Bus signal or
-                                // ViewService signal? Should it be connect here
-                                // to a still-pure-virtual method?)
 
     virtual bool canCloseTab(Window*, int index) { return true; }
     virtual bool canCloseTabEverywhere(Window*, int index) { return true; }
@@ -134,7 +131,6 @@ private:
         treeViews->initialize();
         colorBars->initialize();
 
-        views->setNewTabHook(this, &Workspace::newTab);
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
             this,
@@ -144,11 +140,13 @@ private:
 
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
+        connect(windows, &WindowService::lastWindowClosed, this, [&] {
+            emit lastWindowClosed(); // Propagate this signal to App for each
+                                     // individual Workspace
+        });
 
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
-
-        //...
 
         registerBusCommands_();
         connectBusEvents_();
@@ -158,10 +156,7 @@ private:
 
     void connectBusEvents_()
     {
-        // Propagate this Bus signal to App for each individual Workspace
-        connect(bus, &Bus::lastWindowClosed, this, [&] {
-            emit lastWindowClosed();
-        });
+        //...
     }
 };
 

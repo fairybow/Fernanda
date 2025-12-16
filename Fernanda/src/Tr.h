@@ -15,7 +15,7 @@
 
 // TODO: Go through and Find All References and delete unused
 
-// Note: Qt Linguist requires the tr method to be in place
+// Qt Linguist requires the tr method to be in place
 #define TR_(Name, TrCall)                                                      \
     inline QString Name() { return TrCall; }
 
@@ -31,7 +31,7 @@ namespace Tr {
     // Buttons:
 
     TR_(ok, tr("OK"));
-    //TR_(licenses, tr("Licenses"));
+    // TR_(licenses, tr("Licenses"));
     TR_(aboutQt, tr("About Qt"));
     TR_(save, tr("Save"));
     TR_(dontSave, tr("Don't save"));
@@ -58,7 +58,8 @@ namespace Tr {
     TR_(nxAboutTitle, tr("About"));
     TR_(nxNewNotebookTitle, tr("New Notebook"));
     TR_(nxNewNotebookBody, tr("Name:"));
-    TR_(nxNewNotebookExistsErrBodyFormat, tr("A Notebook already exists at %0"));
+    TR_(nxNewNotebookExistsErrBodyFormat,
+        tr("A Notebook already exists at %0"));
     TR_(nxOpenNotebookCaption, tr("Open Notebook file"));
     TR_(nxOpenNotebookFilter, tr("Fernanda Notebook files (*.fnx)"));
 
@@ -105,34 +106,45 @@ namespace Tr {
     TR_(nxSaveFailBoxMultiBodyFormat,
         tr("There was a problem saving these files: %0"));
 
-    /// Unverified:
+    // Menus:
+
+    // TODO: Mnemonics
+
+    TR_(nxFileMenu, tr("&File"));
+    TR_(nxEditMenu, tr("&Edit"));
+    TR_(nxViewMenu, tr("&View"));
+    TR_(nxSettingsMenu, tr("&Settings"));
+    TR_(nxHelpMenu, tr("&Help"));
+
+    TR_(npNewTab, tr("New tab"));
+    TR_(npOpenFile, tr("Open..."));
+    TR_(npSave, tr("Save"));
+    TR_(npSaveAs, tr("Save as..."));
+    TR_(npSaveAllInWindow, tr("Save all in window"));
+    TR_(npSaveAll, tr("Save all"));
+
+    TR_(nbNewFile, tr("New file"));
+    TR_(nbNewFolder, tr("New folder"));
+    TR_(nbSave, tr("Save"));
+    TR_(nbSaveAs, tr("Save as..."));
+    TR_(nbMenu, tr("Notebook"));
+    TR_(nbOpenNotepad, tr("Open notepad"));
+    TR_(nbImportFiles, tr("Import files..."));
+    TR_(nbExportFile, tr("Export file..."));
+    TR_(nbRename, tr("Rename"));
+    TR_(nbRemove, tr("Remove"));
+    TR_(nbExpand, tr("Expand"));
+    TR_(nbCollapse, tr("Collapse"));
+
+    /// Not updated:
 
     namespace Menus {
 
-        TR_(file, tr("File"));
-        TR_(edit, tr("Edit"));
-        TR_(view, tr("View"));
-        TR_(settings, tr("Settings"));
-        TR_(help, tr("Help"));
-
         // File
 
-        TR_(fileNewTab, tr("New tab"));
-        TR_(fileNewWindow, tr("New window"));
+        TR_(fileNewWindow, tr("New &window"));
         TR_(fileNewNotebook, tr("New notebook"));
         TR_(fileOpenNotebook, tr("Open notebook"));
-
-        TR_(fileNotepadOpen, tr("Open..."));
-        TR_(fileNotepadSave, tr("Save"));
-        TR_(fileNotepadSaveAs, tr("Save as..."));
-        TR_(fileNotepadSaveAllInWindow, tr("Save all in window"));
-        TR_(fileNotepadSaveAll, tr("Save all"));
-
-        TR_(fileNotebookOpenNotepad, tr("Open notepad"));
-        TR_(fileNotebookImportFile, tr("Import..."));
-        TR_(fileNotebookSaveArchive, tr("Save"));
-        TR_(fileNotebookSaveArchiveAs, tr("Save as..."));
-        TR_(fileNotebookExportFile, tr("Export..."));
 
         TR_(fileCloseTab, tr("Close tab"));
         TR_(fileCloseTabEverywhere, tr("Close tab everywhere"));
@@ -141,24 +153,21 @@ namespace Tr {
         TR_(fileCloseWindow, tr("Close window"));
         TR_(fileCloseAllWindows, tr("Close all windows"));
 
-        TR_(fileQuit, tr("Quit"));
+        TR_(fileQuit, tr("&Quit"));
 
         // Edit
 
-        TR_(editUndo, tr("Undo"));
-        TR_(editRedo, tr("Redo"));
-        TR_(editCut, tr("Cut"));
-        TR_(editCopy, tr("Copy"));
-        TR_(editPaste, tr("Paste"));
-        TR_(editDelete, tr("Delete"));
-        TR_(editSelectAll, tr("Select all"));
+        TR_(editUndo, tr("&Undo"));
+        TR_(editRedo, tr("&Redo"));
+        TR_(editCut, tr("Cu&t"));
+        TR_(editCopy, tr("&Copy"));
+        TR_(editPaste, tr("&Paste"));
+        TR_(editDelete, tr("&Delete"));
+        TR_(editSelectAll, tr("&Select all"));
 
         // Help
 
         TR_(helpAbout, tr("About"));
-
-        TR_(notebookTreeViewContextNewFolder, tr("New folder"));
-        TR_(notebookTreeViewContextRename, tr("Rename"));
 
     } // namespace Menus
 

@@ -89,10 +89,8 @@ public:
         if (!window) return;
 
         if (auto model = newOffDiskTextFileModel_())
-            emit bus->fileModelReadied(window, model);
+            signalFileModelReadied_(window, model);
     }
-
-    /// TODO SAVES
 
     QSet<AbstractFileModel*> fileModels() const noexcept { return fileModels_; }
 
@@ -135,16 +133,14 @@ public:
 
         // Check if model already exists and re-ready
         if (auto existing_model = pathToFileModel_[path]) {
-            emit bus->fileModelReadied(window, existing_model);
+            signalFileModelReadied_(window, existing_model);
             return;
         }
 
         // Else, make a new one and ready it
         if (auto model = newDiskFileModel_(path, title))
-            emit bus->fileModelReadied(window, model);
+            signalFileModelReadied_(window, model);
     }
-
-    /// TODO SAVES (END)
 
 protected:
     virtual void registerBusCommands() override
@@ -246,18 +242,16 @@ private:
             &AbstractFileModel::modificationChanged,
             this,
             [&, fileModel](bool modified) {
-                emit bus->fileModelModificationChanged(fileModel, modified);
+                signalFileModelModificationChanged_(fileModel, modified);
             });
 
         connect(fileModel->meta(), &FileMeta::changed, this, [&, fileModel] {
-            emit bus->fileModelMetaChanged(fileModel);
+            signalFileModelMetaChanged_(fileModel);
         });
 
         // TODO: Emit initial states (needed?)
-        emit bus->fileModelModificationChanged(
-            fileModel,
-            fileModel->isModified());
-        emit bus->fileModelMetaChanged(fileModel);
+        signalFileModelModificationChanged_(fileModel, fileModel->isModified());
+        signalFileModelMetaChanged_(fileModel);
     }
 
     SaveResult
@@ -268,6 +262,26 @@ private:
         if (success) model->setModified(false);
 
         return success ? Success : Failure;
+    }
+
+    void signalFileModelReadied_(Window* window, AbstractFileModel* fileModel)
+    {
+        INFO("File model readied in [{}]: [{}]", window, fileModel);
+        emit bus->fileModelReadied(window, fileModel);
+    }
+
+    void signalFileModelModificationChanged_(
+        AbstractFileModel* fileModel,
+        bool modified)
+    {
+        INFO("File model [{}] modification changed to {}", fileModel, modified);
+        emit bus->fileModelModificationChanged(fileModel, modified);
+    }
+
+    void signalFileModelMetaChanged_(AbstractFileModel* fileModel)
+    {
+        INFO("File model [{}] metadata changed", fileModel);
+        emit bus->fileModelMetaChanged(fileModel);
     }
 };
 

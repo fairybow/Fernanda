@@ -73,39 +73,48 @@ private:
         if (!window) return;
         auto& actions = actions_[window];
 
+        /// * = implemented
+
+        actions.file.newTab = Menus::makeBusAction(
+            bus,
+            window,
+            Commands::NOTEPAD_NEW_TAB,
+            Tr::npNewTab(),
+            Menus::Shortcuts::NEW_TAB); /// *
+
         actions.file.openFile = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_OPEN_FILE,
-            Tr::Menus::fileNotepadOpen(),
-            Menus::Shortcuts::OPEN_FILE);
+            Tr::npOpenFile(),
+            Menus::Shortcuts::OPEN_FILE); /// *
 
         actions.file.save = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE,
-            Tr::Menus::fileNotepadSave(),
-            Menus::Shortcuts::SAVE);
+            Tr::npSave(),
+            Menus::Shortcuts::SAVE); /// *
 
         actions.file.saveAs = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE_AS,
-            Tr::Menus::fileNotepadSaveAs(),
-            Menus::Shortcuts::SAVE_AS);
+            Tr::npSaveAs(),
+            Menus::Shortcuts::SAVE_AS); /// *
 
         actions.file.saveAllInWindow = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE_ALL_IN_WINDOW,
-            Tr::Menus::fileNotepadSaveAllInWindow());
+            Tr::npSaveAllInWindow()); /// *
 
         actions.file.saveAll = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE_ALL,
-            Tr::Menus::fileNotepadSaveAll(),
-            Menus::Shortcuts::SAVE_ALL);
+            Tr::npSaveAll(),
+            Menus::Shortcuts::SAVE_ALL); /// *
     }
 
 private slots:
@@ -115,16 +124,20 @@ private slots:
 
         initializeActions_(window);
         auto& actions = actions_[window];
-        Menus::addNewMenuBar(bus, window, actions.common, [&](QMenu* menu) {
-            menu->addSeparator();
-            menu->addAction(actions.file.openFile);
-            menu->addSeparator();
-            menu->addAction(actions.file.save);
-            menu->addAction(actions.file.saveAs);
-            menu->addAction(actions.file.saveAllInWindow);
-            menu->addAction(actions.file.saveAll);
-            menu->addSeparator();
-        });
+        Menus::addNewMenuBar(
+            bus,
+            window,
+            actions.common,
+            [&](QMenu* menu) {
+                menu->addAction(actions.file.newTab);
+                menu->addAction(actions.file.openFile);
+            },
+            [&](QMenu* menu) {
+                menu->addAction(actions.file.save);
+                menu->addAction(actions.file.saveAs);
+                menu->addAction(actions.file.saveAllInWindow);
+                menu->addAction(actions.file.saveAll);
+            });
     }
 };
 

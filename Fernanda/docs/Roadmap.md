@@ -18,6 +18,7 @@
 - [ ] Menu item state toggling
 - [ ] Fully functioning Notepad (complete file/edit menus, open files, save them)
 - [ ] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
+- [ ] TreeView redocking/toggling
 - [ ] Tab dragging (tab to window, tab to new window)
 - [ ] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH)
@@ -33,6 +34,8 @@
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Multi-file save prompt file name clicks raising relevant window/file view
 - [ ] Checkable export and compile feature with Dom tree
+- [ ] Notepad context menu
+- [ ] Notepad rename/remove/collapse/expand menu items (and anything else Notebook has that could be used in Notepad)
 
 ### Docs
 
@@ -90,9 +93,27 @@ After New Notebook:
 
 Next up:
 
+- [ ] Notebook Trash!
+- [ ] Maybe stuff some of the closures in sub menus
+- [x] Remove unneeded menu items
+- [x] Add window or view menu (or special Notebook menu that has import/export/open notepad/and anything else unique to NB)
+- [x] Open notepad to window or view
+- [ ] Also need to have trash appear at the bottom
+- [ ] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
+- [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
+- [ ] Save code refactors
+- [x] Removing unified New Tab command
+- [x] Replacing New Tab with New Tab in Notepad, New File and New Folder in Notebook
+- [x] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
+- [x] Menu changes to accomodate, which includes an extra inserter
+- [ ] Notebook independent methods for context menu actions (new file, new folder, export file, rename)
+- [ ] Ensuring all NB context menu items are added only when index is valid for them
+- [ ] NB commands for the new independent methods (new file, new folder, export file, rename)
+- [ ] Adding all 4 to menu
+- [ ] Deciding where rename will go in menu (file? edit?)
 - [ ] Notebook export file
+- [ ] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
-- [ ] Fixing New Tab
 - [ ] Menu action toggling based on current view/model, window, workspace states
 
 ### Coco
