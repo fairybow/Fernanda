@@ -61,12 +61,19 @@ namespace Internal {
 
     constexpr auto XML_INDENT_ = 2;
     constexpr auto XML_ROOT_TAG_ = "notebook";
+    constexpr auto XML_TRASH_TAG_ = "trash";
     constexpr auto XML_VFOLDER_TAG_ = "vfolder";
     constexpr auto XML_FILE_TAG_ = "file";
     constexpr auto XML_NAME_ATTR_ = "name";
     constexpr auto XML_NAME_ATTR_FILE_DEF_ = "Untitled";
     constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
-    constexpr auto XML_FILE_UUID_ATTR_ = "uuid";
+    constexpr auto XML_UUID_ATTR_ = "uuid";
+    constexpr auto XML_ORIGINAL_PARENT_UUID_ATTR_ =
+        "original_parent_uuid"; // TODO: Make sure this is added when moving to
+                                // trash and also removed before restoring - may
+                                // do that here or FnxModel! Empty string or
+                                // invalid UUID means reparent on restore to
+                                // document element
     constexpr auto XML_FILE_EXT_ATTR_ = "extension";
     constexpr auto XML_FILE_EDITED_ATTR_ = "edited";
     constexpr auto XML_NULL_DOM_ = "DOM is null!";
@@ -211,7 +218,7 @@ namespace Xml {
 
     inline QString uuid(const QDomElement& element)
     {
-        return element.attribute(Internal::XML_FILE_UUID_ATTR_);
+        return element.attribute(Internal::XML_UUID_ATTR_);
     }
 
     inline QString ext(const QDomElement& element)
@@ -330,7 +337,7 @@ namespace Xml {
         element.setAttribute(
             Internal::XML_NAME_ATTR_,
             Internal::XML_NAME_ATTR_FILE_DEF_);
-        element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
+        element.setAttribute(Internal::XML_UUID_ATTR_, uuid);
         element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
 
         return element;
@@ -366,7 +373,7 @@ namespace Xml {
 
         auto element = dom.createElement(Internal::XML_FILE_TAG_);
         element.setAttribute(Internal::XML_NAME_ATTR_, fsPath.stemQString());
-        element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
+        element.setAttribute(Internal::XML_UUID_ATTR_, uuid);
         element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
 
         return element;
@@ -384,9 +391,7 @@ namespace Xml {
         element.setAttribute(
             Internal::XML_NAME_ATTR_,
             Internal::XML_NAME_ATTR_DIR_DEF_);
-        element.setAttribute(
-            Internal::XML_FILE_UUID_ATTR_,
-            Internal::makeUuid_());
+        element.setAttribute(Internal::XML_UUID_ATTR_, Internal::makeUuid_());
 
         return element;
     }

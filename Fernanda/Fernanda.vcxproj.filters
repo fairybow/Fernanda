@@ -307,6 +307,9 @@
     <QtMoc Include="src\AbstractService.h">
       <Filter>Code\Core\Services</Filter>
     </QtMoc>
+    <QtMoc Include="src\TreeView.h">
+      <Filter>Code\Core\UI</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">

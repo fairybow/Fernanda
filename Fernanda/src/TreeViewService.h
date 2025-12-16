@@ -19,24 +19,21 @@
 #include <QPoint>
 #include <QStatusBar>
 #include <QToolButton>
-#include <QTreeView>
 #include <QVariant>
 #include <QVariantMap>
 #include <Qt>
 
 #include "Coco/Path.h"
-#include "Coco/Utility.h"
 
 #include "AbstractService.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "TreeView.h"
 #include "Window.h"
 
 namespace Fernanda {
-
-COCO_TRIVIAL_QCLASS(TreeView, QTreeView);
 
 // Coordinator for Window TreeViews
 class TreeViewService : public AbstractService
@@ -87,7 +84,8 @@ public:
     bool isExpanded(Window* window, const QModelIndex& index) const
     {
         if (!window || !index.isValid()) return false;
-        if (auto tree_view = treeViews_[window]) return tree_view->isExpanded(index);
+        if (auto tree_view = treeViews_[window])
+            return tree_view->isExpanded(index);
         return false;
     }
 
@@ -212,7 +210,7 @@ private:
                 auto point = tree_view->mapToGlobal(pos);
                 auto model_index = tree_view->indexAt(pos);
                 INFO(
-                    "Requesting context menu in [{}] at {} for index [{}]",
+                    "Requesting context menu in [{}] at [{}] for index [{}]",
                     window,
                     point,
                     model_index);
