@@ -618,22 +618,19 @@ private slots:
             });
 
             connect(remove, &QAction::triggered, this, [&] {
-                // - Covers here, FnxModel, and Fnx (unsure which is which)
-                // - User clicks this action
-                // - No prompts, just move to trash (maybe close tabs)
-                // - (Allow trash element to be moved but not reparented (must
-                // be under document element) - we also want to disallow moving
-                // the trash between items in the main content, so we may have
-                // to introduce a content tag that all main content lives under,
-                // sibling to the new trash tag)
+                // - No idea how to handle Trash, other than the following:
+                // - No prompts, just move to trash (maybe close tabs, maybe
+                // leave them open and leave file models open)
                 // - We move the removed item and its whole tree to trash (we do
                 // not need a trashed attribute, an item is trashed if it has
-                // the trash tag as an ancestor
+                // the trash tag as an ancestor)
                 // - We store the original parent's UUID if applicable, so when
                 // the item is restored, it can be reparented appropriately if
                 // that parent is not removed later
-                // - Otherwise, restoring will restore the item and chilren to
+                // - Otherwise, restoring will restore the item and children to
                 // DOM document element
+                // - Trash element should not be able to be deleted or renamed
+                // - Trash element should not be able to be reparented in anyway
             });
 
             menu->addSeparator();

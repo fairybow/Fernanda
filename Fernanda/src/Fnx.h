@@ -60,11 +60,12 @@ namespace Internal {
     // Xml
 
     constexpr auto XML_INDENT_ = 2;
-    constexpr auto XML_ROOT_TAG_ = "notebook";
+    constexpr auto XML_DOCUMENT_ELEMENT_TAG_ = "notebook";
     constexpr auto XML_TRASH_TAG_ = "trash";
     constexpr auto XML_VFOLDER_TAG_ = "vfolder";
     constexpr auto XML_FILE_TAG_ = "file";
     constexpr auto XML_NAME_ATTR_ = "name";
+    constexpr auto XML_NAME_ATTR_TRASH_ = "Trash";
     constexpr auto XML_NAME_ATTR_FILE_DEF_ = "Untitled";
     constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
     constexpr auto XML_UUID_ATTR_ = "uuid";
@@ -107,7 +108,12 @@ namespace Io {
         xml.setAutoFormatting(true);
         xml.setAutoFormattingIndent(Internal::XML_INDENT_);
         xml.writeStartDocument();
-        xml.writeStartElement(Internal::XML_ROOT_TAG_);
+        xml.writeStartElement(Internal::XML_DOCUMENT_ELEMENT_TAG_);
+        xml.writeStartElement(Internal::XML_TRASH_TAG_);
+        xml.writeAttribute(
+            Internal::XML_NAME_ATTR_,
+            Internal::XML_NAME_ATTR_TRASH_);
+        xml.writeEndElement();
         xml.writeEndElement();
         xml.writeEndDocument();
 
@@ -193,6 +199,14 @@ namespace Io {
 
 // Used by FnxModel
 namespace Xml {
+
+    inline bool isTrash(const QDomElement& element)
+    {
+        if (element.isNull()) return false;
+        return element.tagName() == Internal::XML_TRASH_TAG_;
+    }
+
+    // inline bool isInTrash(const QDomElement& element), if needed
 
     inline bool isVirtualFolder(const QDomElement& element)
     {
