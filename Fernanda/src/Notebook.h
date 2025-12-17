@@ -10,6 +10,7 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 
 #include <QAbstractItemModel>
 #include <QAction>
@@ -101,10 +102,6 @@ protected:
         // than accidentally becoming siblings of <notebook> and <trash>.
         return fnxModel_->notebookIndex();
     }
-
-    /// BUG: Open new notebook, edit some new files, close their tabs, then
-    /// close the notebook and we lose the changes! We're only checking for
-    /// modified models with open tabs or something!
 
     virtual bool canCloseWindow(Window* window) override
     {
@@ -500,13 +497,12 @@ private:
 
     MultiSaveResult_ saveModifiedModels_() const
     {
-        auto modified_models = views->modifiedViewModels();
-        if (modified_models.isEmpty()) return {};
-
         // No save prompts for Notebook's always-on-disk files
         MultiSaveResult_ result{};
 
-        for (auto& model : modified_models) {
+        for (auto& model : files->fileModels()) {
+            if (!model || !model->isModified()) continue;
+
             switch (files->save(model)) {
             case FileService::Success:
                 break;
@@ -518,6 +514,14 @@ private:
                 break;
             }
         }
+
+        // Unlike in Notepad, we don't get a list of modified models from views
+        // in order 0 to n-index by window because models' lives aren't tied to
+        // their view in Notebook. We don't really have an inherent order (other
+        // than the DOM) so might as well leave unordered or sort alphabetically
+        // here
+        if (!result.failed.isEmpty())
+            std::sort(result.failed.begin(), result.failed.end());
 
         return result;
     }

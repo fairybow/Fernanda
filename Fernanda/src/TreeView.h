@@ -38,6 +38,9 @@ protected:
         // selected model index
         // TODO: Could shrink item widths to allow some space on the side to
         // unselect current
+        // TODO: Would like to NOT unselect after a drag though (and currently
+        // this handles both left and right clicks, so a drag can end in a right
+        // click on empty space...)
         if (!indexAt(event->pos()).isValid()) {
             clearSelection();
             setCurrentIndex({});
