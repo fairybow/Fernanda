@@ -25,8 +25,10 @@
 #include <QPoint>
 #include <QStatusBar>
 #include <QStringList>
+#include <QVBoxLayout>
 #include <QVariant>
 #include <QVariantMap>
+#include <QWidget>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -46,6 +48,8 @@
 #include "SavePrompt.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
+#include "TreeView.h"
+#include "TreeViewService.h"
 #include "Window.h"
 #include "Workspace.h"
 
@@ -212,6 +216,10 @@ private:
             FATAL("Notebook working directory creation failed!");
 
         menus_->initialize();
+
+        treeViews->setDockWidgetHook(
+            this,
+            &Notebook::treeViewDockContentsHook_);
 
         connect(
             treeViews,
@@ -560,6 +568,28 @@ private:
             Tr::nbSaveAsCaption(),
             fnxPath_,
             Tr::nbSaveAsFilter());
+    }
+
+    // TODO: Do we need the window ptr?
+    QWidget* treeViewDockContentsHook_(TreeView* mainTree, Window* window)
+    {
+        // TODO: Add trash view, combine with mainTree in a single widget and
+        // return
+
+        auto container = new QWidget(window);
+        auto layout = new QVBoxLayout(container);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+
+        layout->addWidget(mainTree, 1);
+
+        // Temp (We want a collapsible custom widget instead)
+        auto trash_view = new TreeView(window);
+        trash_view->setModel(fnxModel_);
+        trash_view->setRootIndex(fnxModel_->trashIndex());
+        layout->addWidget(trash_view, 0);
+
+        return container;
     }
 
 private slots:

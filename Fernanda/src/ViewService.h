@@ -51,11 +51,8 @@ class ViewService : public AbstractService
     Q_OBJECT
 
 public:
-    // TODO: This is probably more a signal, since no return value
-    using NewTabHook = std::function<void(Window*)>;
-
-    using CanCloseTabHook = std::function<bool(Window*, int)>;
-    using CanCloseTabEverywhereHook = std::function<bool(Window*, int)>;
+    using CanCloseTabHook = std::function<bool(Window*, int index)>;
+    using CanCloseTabEverywhereHook = std::function<bool(Window*, int index)>;
     using CanCloseWindowTabsHook = std::function<bool(Window*)>;
     using CanCloseAllTabsHook = std::function<bool(const QList<Window*>&)>;
 

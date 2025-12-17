@@ -43,6 +43,7 @@ class TreeViewService : public AbstractService
 public:
     using ModelHook = std::function<QAbstractItemModel*()>;
     using RootIndexHook = std::function<QModelIndex()>;
+    using DockWidgetHook = std::function<QWidget*(TreeView* mainTree, Window*)>;
 
     TreeViewService(Bus* bus, QObject* parent = nullptr)
         : AbstractService(bus, parent)
@@ -59,6 +60,12 @@ public:
         rootIndexHook,
         setRootIndexHook,
         rootIndexHook_);
+
+    DECLARE_HOOK_ACCESSORS(
+        DockWidgetHook,
+        dockWidgetHook,
+        setDockWidgetHook,
+        dockWidgetHook_);
 
     QModelIndex currentIndex(Window* window) const
     {
@@ -143,6 +150,7 @@ private:
     QHash<Window*, TreeView*> treeViews_{};
     ModelHook modelHook_ = nullptr;
     RootIndexHook rootIndexHook_ = nullptr;
+    DockWidgetHook dockWidgetHook_ = nullptr;
 
     void setup_()
     {
@@ -179,7 +187,11 @@ private:
             }
         }
 
-        dock_widget->setWidget(tree_view);
+        // Determine what goes in the dock
+        QWidget* dock_contents = tree_view;
+        if (dockWidgetHook_) dock_contents = dockWidgetHook_(tree_view, window);
+
+        dock_widget->setWidget(dock_contents);
         window->addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
 
         window->resizeDocks(

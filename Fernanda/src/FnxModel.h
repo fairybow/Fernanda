@@ -436,14 +436,22 @@ private:
         return element;
     }
 
+    // TODO: Fix
     QString elementKey_(const QDomElement& element) const
     {
         if (element.isNull()) return {};
 
         auto uuid = Fnx::Xml::uuid(element);
-        if (uuid.isEmpty()) return "root";
+        if (!uuid.isEmpty()) return uuid;
 
-        return uuid;
+        // Structural elements without UUIDs, use tag name as key
+        // TODO: Potentially just return tag name if UUID is empty?
+        auto tag = element.tagName();
+        if (tag == "fnx" || tag == "notebook" || tag == "trash") return tag;
+
+        // TODO: Fatal, maybe
+
+        return "root"; // Fallback (shouldn't happen)
     }
 
     quintptr idFromElement_(const QDomElement& element) const
