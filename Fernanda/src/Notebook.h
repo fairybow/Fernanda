@@ -620,21 +620,20 @@ private slots:
             connect(remove, &QAction::triggered, this, [&] {
                 // - Covers here, FnxModel, and Fnx (unsure which is which)
                 // - User clicks this action
-                // - If the item is a file and is edited or any children are
-                // files and are edited, we should prompt to save
-                // - Otherwise, no prompt for now
-                // - We need a private close these tabs everywhere function that
-                // will do this prompt saving and tab closing
-                // - We move that item and its whole tree to trash (we do not
-                // need a trashed attribute, an item is trashed if it has the
-                // trash tag as an ancestor
+                // - No prompts, just move to trash (maybe close tabs)
+                // - (Allow trash element to be moved but not reparented (must
+                // be under document element) - we also want to disallow moving
+                // the trash between items in the main content, so we may have
+                // to introduce a content tag that all main content lives under,
+                // sibling to the new trash tag)
+                // - We move the removed item and its whole tree to trash (we do
+                // not need a trashed attribute, an item is trashed if it has
+                // the trash tag as an ancestor
                 // - We store the original parent's UUID if applicable, so when
                 // the item is restored, it can be reparented appropriately if
                 // that parent is not removed later
                 // - Otherwise, restoring will restore the item and chilren to
                 // DOM document element
-                // - There will be a separate trash view widget below our tree
-                // view displaying current trashed items
             });
 
             menu->addSeparator();
