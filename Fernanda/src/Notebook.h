@@ -26,6 +26,7 @@
 #include <QStatusBar>
 #include <QStringList>
 #include <QVBoxLayout>
+#include <QSplitter> /// *
 #include <QVariant>
 #include <QVariantMap>
 #include <QWidget>
@@ -37,9 +38,11 @@
 #include "AbstractService.h"
 #include "AppDirs.h"
 #include "Bus.h"
+#include "CollapsibleWidget.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "EmptyTrashPrompt.h"
 #include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
@@ -576,6 +579,19 @@ private:
         // TODO: Add trash view, combine with mainTree in a single widget and
         // return
 
+        /*auto splitter = new QSplitter(Qt::Vertical, window);
+        splitter->addWidget(mainTree);
+
+        auto trash_view = new TreeView(window);
+        trash_view->setModel(fnxModel_);
+        trash_view->setRootIndex(fnxModel_->trashIndex());
+
+        auto collapsible_widget =
+            new CollapsibleWidget(Tr::nbTrash(), trash_view, window, 100);
+        splitter->addWidget(collapsible_widget);
+
+        return splitter;*/
+
         auto container = new QWidget(window);
         auto layout = new QVBoxLayout(container);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -587,7 +603,10 @@ private:
         auto trash_view = new TreeView(window);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
-        layout->addWidget(trash_view, 0);
+
+        auto collapsible_widget =
+            new CollapsibleWidget(Tr::nbTrash(), trash_view, window, 100);
+        layout->addWidget(collapsible_widget, 0);
 
         return container;
     }

@@ -78,6 +78,7 @@
     <QtMoc Include="src\TabWidgetTabBar.h" />
     <QtMoc Include="src\TabWidgetUnderlay.h" />
     <QtMoc Include="src\Commander.h" />
+    <QtMoc Include="src\CollapsibleWidget.h" />
     <ClInclude Include="src\Debug.h" />
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />
@@ -111,7 +112,7 @@
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewService.h" />
     <ClInclude Include="src\AppDirs.h" />
-    <ClInclude Include="src\old_TrashPrompt.h" />
+    <ClInclude Include="src\EmptyTrashPrompt.h" />
     <ClInclude Include="src\Version.h" />
     <QtMoc Include="src\Workspace.h" />
     <QtMoc Include="src\ViewService.h" />

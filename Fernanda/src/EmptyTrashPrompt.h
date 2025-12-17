@@ -18,12 +18,9 @@
 
 #include "Tr.h"
 
-// TODO: Unused right now. Could run this maybe only if any tabs are open
-// containing files that will be trashed? Otherwise just trash.
-namespace Fernanda::TrashPrompt {
+namespace Fernanda::EmptyTrashPrompt {
 
-// TODO: Filter platform-forbidden characters!
-/*inline bool exec(QWidget* parent = nullptr)
+inline bool exec(QWidget* parent = nullptr)
 {
     QDialog dialog(parent);
     dialog.setWindowModality(Qt::WindowModal);
@@ -32,13 +29,13 @@ namespace Fernanda::TrashPrompt {
     auto layout = new QVBoxLayout(&dialog);
 
     // Label
-    auto label = new QLabel(Tr::nbTrashPromptBody(), &dialog);
+    auto label = new QLabel(Tr::nbEmptyTrashPromptBody(), &dialog);
     label->setTextInteractionFlags(Qt::NoTextInteraction);
     layout->addWidget(label);
 
     // Buttons
     auto button_box = new QDialogButtonBox(&dialog);
-    auto ok = button_box->addButton(Tr::ok(), QDialogButtonBox::AcceptRole);
+    button_box->addButton(Tr::ok(), QDialogButtonBox::AcceptRole);
     auto cancel =
         button_box->addButton(Tr::cancel(), QDialogButtonBox::RejectRole);
     cancel->setDefault(true);
@@ -60,6 +57,6 @@ namespace Fernanda::TrashPrompt {
 
     // TODO: Move to open/show
     return (dialog.exec() == QDialog::Accepted);
-}*/
+}
 
-} // namespace Fernanda::TrashPrompt
+} // namespace Fernanda::EmptyTrashPrompt
