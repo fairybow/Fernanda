@@ -240,7 +240,8 @@ private:
         } else {
             Fnx::Io::extract(fnxPath_, working_dir);
             // TODO: Verification (comparing Model file elements to content dir
-            // files)
+            // files, i.e. making sure Trash exists, checking all file UUIDs
+            // have corresponding files, etc.)
         }
 
         fnxModel_->load(working_dir);
