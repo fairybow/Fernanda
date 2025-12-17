@@ -35,8 +35,6 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
             return Application::style()->standardIcon(QStyle::SP_DirIcon);
         } else if (Fnx::Xml::isFile(element)) {
             return Application::style()->standardIcon(QStyle::SP_FileIcon);
-        } else if (Fnx::Xml::isTrash(element)) {
-            return Application::style()->standardIcon(QStyle::SP_TrashIcon); // This icon sucks lol
         }
     }
 

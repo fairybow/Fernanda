@@ -69,6 +69,20 @@ public:
 
     virtual ~FnxModel() override { TRACER; }
 
+    // TODO: Is this the right approach?
+    QModelIndex notebookIndex() const
+    {
+        auto notebook = Fnx::Xml::notebookElement(dom_);
+        return indexFromElement_(notebook);
+    }
+
+    // TODO: Is this the right approach?
+    QModelIndex trashIndex() const
+    {
+        auto trash = Fnx::Xml::trashElement(dom_);
+        return indexFromElement_(trash);
+    }
+
     void load(const Coco::Path& workingDir)
     {
         beginResetModel();

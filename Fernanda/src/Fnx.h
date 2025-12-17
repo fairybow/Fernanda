@@ -60,21 +60,26 @@ namespace Internal {
     // Xml
 
     constexpr auto XML_INDENT_ = 2;
-    constexpr auto XML_DOCUMENT_ELEMENT_TAG_ = "notebook";
+
+    constexpr auto XML_DOCUMENT_ELEMENT_TAG_ = "fnx";
+    constexpr auto XML_FNX_VERSION_ATTR_ = "version";
+    constexpr auto XML_FNX_VERSION_ = "1.0";
+
+    constexpr auto XML_NOTEBOOK_TAG_ = "notebook";
     constexpr auto XML_TRASH_TAG_ = "trash";
+
     constexpr auto XML_VFOLDER_TAG_ = "vfolder";
     constexpr auto XML_FILE_TAG_ = "file";
     constexpr auto XML_NAME_ATTR_ = "name";
-    constexpr auto XML_NAME_ATTR_TRASH_ = "Trash";
     constexpr auto XML_NAME_ATTR_FILE_DEF_ = "Untitled";
     constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
     constexpr auto XML_UUID_ATTR_ = "uuid";
-    constexpr auto XML_ORIGINAL_PARENT_UUID_ATTR_ =
-        "original_parent_uuid"; // TODO: Make sure this is added when moving to
-                                // trash and also removed before restoring - may
-                                // do that here or FnxModel! Empty string or
-                                // invalid UUID means reparent on restore to
-                                // document element
+    constexpr auto XML_TRASH_PARENT_ON_RESTORE_UUID_ATTR_ =
+        "parent_on_restore_uuid"; // TODO: Make sure this is added when moving
+                                  // to trash and also removed before restoring
+                                  // - may do that here or FnxModel! Empty
+                                  // string or invalid UUID means reparent on
+                                  // restore to document element
     constexpr auto XML_FILE_EXT_ATTR_ = "extension";
     constexpr auto XML_FILE_EDITED_ATTR_ = "edited";
     constexpr auto XML_NULL_DOM_ = "DOM is null!";
@@ -107,13 +112,18 @@ namespace Io {
         QXmlStreamWriter xml(&xml_content);
         xml.setAutoFormatting(true);
         xml.setAutoFormattingIndent(Internal::XML_INDENT_);
+
         xml.writeStartDocument();
         xml.writeStartElement(Internal::XML_DOCUMENT_ELEMENT_TAG_);
-        xml.writeStartElement(Internal::XML_TRASH_TAG_);
         xml.writeAttribute(
-            Internal::XML_NAME_ATTR_,
-            Internal::XML_NAME_ATTR_TRASH_);
+            Internal::XML_FNX_VERSION_ATTR_,
+            Internal::XML_FNX_VERSION_);
+
+        xml.writeStartElement(Internal::XML_NOTEBOOK_TAG_);
         xml.writeEndElement();
+        xml.writeStartElement(Internal::XML_TRASH_TAG_);
+        xml.writeEndElement();
+
         xml.writeEndElement();
         xml.writeEndDocument();
 
@@ -199,12 +209,6 @@ namespace Io {
 
 // Used by FnxModel
 namespace Xml {
-
-    inline bool isTrash(const QDomElement& element)
-    {
-        if (element.isNull()) return false;
-        return element.tagName() == Internal::XML_TRASH_TAG_;
-    }
 
     // inline bool isInTrash(const QDomElement& element), if needed
 
@@ -301,6 +305,18 @@ namespace Xml {
         }
 
         return doc;
+    }
+
+    inline QDomElement notebookElement(const QDomDocument& dom)
+    {
+        return dom.documentElement().firstChildElement(
+            Internal::XML_NOTEBOOK_TAG_);
+    }
+
+    inline QDomElement trashElement(const QDomDocument& dom)
+    {
+        return dom.documentElement().firstChildElement(
+            Internal::XML_TRASH_TAG_);
     }
 
     // TODO: Return bool?

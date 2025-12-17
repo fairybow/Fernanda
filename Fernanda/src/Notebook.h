@@ -85,14 +85,26 @@ signals:
 protected:
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
 
-    // TODO: Get element by tag/qualified name? (For future, when we have Trash)
     virtual QModelIndex treeViewRootIndex() override
     {
-        // The invalid index represents the root document element (<notebook>).
-        // TreeView will display its children (the actual files and virtual
-        // folders/structure)
-        return {};
+        // TreeView displays children of this index, making <notebook> the
+        // user-visible root. When nothing is selected, TreeView::currentIndex()
+        // returns an invalid QModelIndex.
+        //
+        // However, FnxModel::elementAt_({}) maps invalid indices to
+        // dom_.documentElement(), which is <fnx> (the true DOM root containing
+        // both <notebook> and <trash>).
+        //
+        // This mismatch means Notebook item adding methods must explicitly pass
+        // notebookIndex() as a fallback when currentIndex() is invalid,
+        // ensuring new files and folders are parented under <notebook> rather
+        // than accidentally becoming siblings of <notebook> and <trash>.
+        return fnxModel_->notebookIndex();
     }
+
+    /// BUG: Open new notebook, edit some new files, close their tabs, then
+    /// close the notebook and we lose the changes! We're only checking for
+    /// modified models with open tabs or something!
 
     virtual bool canCloseWindow(Window* window) override
     {
@@ -410,7 +422,9 @@ private:
         auto working_dir = workingDir_.path();
         // If index is invalid, this function adds it to the DOM document
         // element (top-level)
-        auto info = fnxModel_->addNewTextFile(working_dir, index);
+        auto info = fnxModel_->addNewTextFile(
+            working_dir,
+            !index.isValid() ? fnxModel_->notebookIndex() : index);
         if (!info.isValid()) return;
         files->openFilePathIn(window, working_dir / info.relPath, info.name);
     }
@@ -421,7 +435,8 @@ private:
         if (!workingDir_.isValid()) return;
         // If index is invalid, this function adds it to the DOM document
         // element (top-level)
-        fnxModel_->addNewVirtualFolder(index);
+        fnxModel_->addNewVirtualFolder(
+            !index.isValid() ? fnxModel_->notebookIndex() : index);
     }
 
     void importFiles_(Window* window, const QModelIndex& index = {})
@@ -440,7 +455,10 @@ private:
         auto working_dir = workingDir_.path();
         // If index is invalid, this function adds it to the DOM document
         // element (top-level)
-        auto infos = fnxModel_->importTextFiles(working_dir, fs_paths, index);
+        auto infos = fnxModel_->importTextFiles(
+            working_dir,
+            fs_paths,
+            !index.isValid() ? fnxModel_->notebookIndex() : index);
 
         for (auto& info : infos) {
             if (!info.isValid()) continue;
