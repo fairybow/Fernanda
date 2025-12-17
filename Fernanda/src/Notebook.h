@@ -231,7 +231,8 @@ private:
             this,
             [&](Window* window) {
                 // Whereas menu and context menu use currently selected TreeView
-                // model index, this does not
+                // model index, this does not (and automatically goes to
+                // notebook element)
                 newFile_(window);
             });
 
@@ -280,7 +281,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
                 // New file will be under selected TreeView model index (or
-                // document element if no current index)
+                // notebook element if no current index)
                 newFile_(cmd.context, treeViews->currentIndex(cmd.context));
             });
 
@@ -289,7 +290,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
                 // New folder will be under selected TreeView model index (or
-                // document element if no current index)
+                // notebook element if no current index)
                 newVirtualFolder_(treeViews->currentIndex(cmd.context));
             });
 
@@ -298,7 +299,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
                 // Imported files will be under selected TreeView model index
-                // (or document element if no current index)
+                // (or notebook element if no current index)
                 importFiles_(cmd.context, treeViews->currentIndex(cmd.context));
             });
 
@@ -417,8 +418,9 @@ private:
         if (!workingDir_.isValid()) return;
 
         auto working_dir = workingDir_.path();
-        // If index is invalid, this function adds it to the DOM document
-        // element (top-level)
+        // If index is invalid, fnxModel_->addNewTextFile adds it to the DOM
+        // document element (top-level), so we make sure it goes to Notebook
+        // instead (our root for primary TreeView)
         auto info = fnxModel_->addNewTextFile(
             working_dir,
             !index.isValid() ? fnxModel_->notebookIndex() : index);
@@ -430,8 +432,9 @@ private:
     void newVirtualFolder_(const QModelIndex& index = {})
     {
         if (!workingDir_.isValid()) return;
-        // If index is invalid, this function adds it to the DOM document
-        // element (top-level)
+        // If index is invalid, fnxModel_->addNewVirtualFolder adds it to the
+        // DOM document element (top-level), so we make sure it goes to Notebook
+        // instead (our root for primary TreeView)
         fnxModel_->addNewVirtualFolder(
             !index.isValid() ? fnxModel_->notebookIndex() : index);
     }
@@ -450,8 +453,9 @@ private:
         if (fs_paths.isEmpty()) return;
 
         auto working_dir = workingDir_.path();
-        // If index is invalid, this function adds it to the DOM document
-        // element (top-level)
+        // If index is invalid, fnxModel_->importTextFiles adds it to the DOM
+        // document element (top-level), so we make sure it goes to Notebook
+        // instead (our root for primary TreeView)
         auto infos = fnxModel_->importTextFiles(
             working_dir,
             fs_paths,
