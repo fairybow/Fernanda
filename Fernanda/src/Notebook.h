@@ -23,10 +23,10 @@
 #include <QObject>
 #include <QPalette> // TODO: Temp
 #include <QPoint>
+#include <QSplitter> /// *
 #include <QStatusBar>
 #include <QStringList>
 #include <QVBoxLayout>
-#include <QSplitter> /// *
 #include <QVariant>
 #include <QVariantMap>
 #include <QWidget>
@@ -576,39 +576,44 @@ private:
     // TODO: Do we need the window ptr?
     QWidget* treeViewDockContentsHook_(TreeView* mainTree, Window* window)
     {
-        // TODO: Add trash view, combine with mainTree in a single widget and
-        // return
+        auto splitter = new QSplitter(Qt::Vertical, window);
 
-        /*auto splitter = new QSplitter(Qt::Vertical, window);
+        // Bottom container holds spacer + collapsibles
+        auto bottom = new QWidget(window);
+        auto bottom_layout = new QVBoxLayout(bottom);
+        bottom_layout->setContentsMargins(0, 0, 0, 0);
+        bottom_layout->setSpacing(0);
+
+        // Collapsibles at bottom
+        auto trash_view = new TreeView(window);
+        trash_view->setModel(fnxModel_);
+        trash_view->setRootIndex(fnxModel_->trashIndex());
+
+        auto trash_widget =
+            new CollapsibleWidget(Tr::nbTrash(), trash_view, window, 0);
+        //trash_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        bottom_layout->addWidget(trash_widget);
+
+        auto test_view = new TreeView(window);
+        test_view->setModel(fnxModel_);
+        test_view->setRootIndex(fnxModel_->trashIndex());
+
+        auto test_widget =
+            new CollapsibleWidget("Test", test_view, window, 0);
+        //test_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        bottom_layout->addWidget(test_widget);
+
+        bottom_layout->addStretch(1);
+
         splitter->addWidget(mainTree);
+        splitter->addWidget(bottom);
 
-        auto trash_view = new TreeView(window);
-        trash_view->setModel(fnxModel_);
-        trash_view->setRootIndex(fnxModel_->trashIndex());
+        splitter->setStretchFactor(0, 1);
+        splitter->setStretchFactor(1, 0);
+        splitter->setCollapsible(0, false);
+        splitter->setCollapsible(1, false);
 
-        auto collapsible_widget =
-            new CollapsibleWidget(Tr::nbTrash(), trash_view, window, 100);
-        splitter->addWidget(collapsible_widget);
-
-        return splitter;*/
-
-        auto container = new QWidget(window);
-        auto layout = new QVBoxLayout(container);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(0);
-
-        layout->addWidget(mainTree, 1);
-
-        // Temp (We want a collapsible custom widget instead)
-        auto trash_view = new TreeView(window);
-        trash_view->setModel(fnxModel_);
-        trash_view->setRootIndex(fnxModel_->trashIndex());
-
-        auto collapsible_widget =
-            new CollapsibleWidget(Tr::nbTrash(), trash_view, window, 100);
-        layout->addWidget(collapsible_widget, 0);
-
-        return container;
+        return splitter;
     }
 
 private slots:

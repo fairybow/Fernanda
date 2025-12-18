@@ -9,17 +9,19 @@
 
 #pragma once
 
-//#include <QFrame>
+// #include <QFrame>
 #include <QParallelAnimationGroup>
 #include <QPropertyAnimation>
-#include <QString>
 #include <QPushButton>
+#include <QString>
 #include <QVBoxLayout>
 #include <QWidget>
 
 #include "Debug.h"
 
 namespace Fernanda {
+
+// TODO: Possibly remove animations?
 
 // Collapsible container widget with animated expand/collapse.
 // Based on: https://github.com/MichaelVoelkel/qt-collapsible-section
@@ -72,7 +74,7 @@ private:
     bool expanded_ = false;
 
     QPushButton* header_ = nullptr;
-    //QFrame* separator_ = nullptr;
+    // QFrame* separator_ = nullptr;
     QParallelAnimationGroup* animation_ = nullptr;
     int collapsedHeight_ = 0;
 
@@ -94,16 +96,17 @@ private:
         updateHeaderText_();
 
         // Separator line
-        //separator_ = new QFrame(this);
-        //separator_->setFrameShape(QFrame::HLine);
-        //separator_->setFrameShadow(QFrame::Sunken);
+        // separator_ = new QFrame(this);
+        // separator_->setFrameShape(QFrame::HLine);
+        // separator_->setFrameShadow(QFrame::Sunken);
 
         // Content
         content_->setParent(this);
-        content_->setVisible(false);
+        //content_->setVisible(false);
+        content_->setMaximumHeight(0);
 
         layout->addWidget(header_);
-        //layout->addWidget(separator_);
+        // layout->addWidget(separator_);
         layout->addWidget(content_);
 
         // Animation setup
@@ -118,6 +121,8 @@ private:
 
     void setupAnimation_()
     {
+        collapsedHeight_ = header_->sizeHint().height();
+
         if (animationDuration_ <= 0) return;
 
         animation_ = new QParallelAnimationGroup(this);
@@ -130,9 +135,9 @@ private:
         animation_->addAnimation(content_anim);
 
         // Hide content after collapse animation finishes
-        connect(animation_, &QParallelAnimationGroup::finished, this, [this] {
-            if (!expanded_) content_->setVisible(false);
-        });
+        //connect(animation_, &QParallelAnimationGroup::finished, this, [this] {
+            //if (!expanded_) content_->setVisible(false);
+        //});
 
         // Start collapsed
         content_->setMaximumHeight(0);
@@ -147,19 +152,61 @@ private:
             header_->setText(title_);
     }
 
+    //void toggle_(bool expanded)
+    //{
+    //    expanded_ = expanded;
+    //    if (header_->isChecked() != expanded) header_->setChecked(expanded);
+
+    //    auto content_height = content_->sizeHint().height();
+
+    //    if (animation_) {
+    //        // Is this needed?:
+    //        //if (expanded) content_->setVisible(true);
+
+    //        auto content_height = content_->sizeHint().height();
+
+    //        for (int i = 0; i < animation_->animationCount(); ++i) {
+    //            auto anim = qobject_cast<QPropertyAnimation*>(
+    //                animation_->animationAt(i));
+    //            if (!anim) continue;
+
+    //            anim->setDuration(animationDuration_);
+
+    //            if (anim->targetObject() == this) {
+    //                anim->setStartValue(collapsedHeight_);
+    //                anim->setEndValue(collapsedHeight_ + content_height);
+    //            } else {
+    //                anim->setStartValue(0);
+    //                anim->setEndValue(content_height);
+    //            }
+    //        }
+
+    //        animation_->setDirection(
+    //            expanded ? QAbstractAnimation::Forward
+    //                     : QAbstractAnimation::Backward);
+    //        animation_->start();
+    //    } else {
+    //        // Instant toggle via height constraint
+    //        /*if (expanded) {
+    //            content_->setMaximumHeight(QWIDGETSIZE_MAX);
+    //            content_->setVisible(true);
+    //        } else {
+    //            content_->setMaximumHeight(0);
+    //            content_->setVisible(false);
+    //        }*/
+
+    //        //content_->setVisible(expanded);
+    //    }
+    //}
+
     void toggle_(bool expanded)
     {
         expanded_ = expanded;
-        //header_->setArrowType(expanded ? Qt::DownArrow : Qt::RightArrow);
-
         if (header_->isChecked() != expanded) header_->setChecked(expanded);
 
+        auto content_height = content_->sizeHint().height();
+
         if (animation_) {
-            if (expanded)
-                content_->setVisible(true); // Show before animating open
-
-            auto content_height = content_->sizeHint().height();
-
             for (int i = 0; i < animation_->animationCount(); ++i) {
                 auto anim = qobject_cast<QPropertyAnimation*>(
                     animation_->animationAt(i));
@@ -181,7 +228,7 @@ private:
                          : QAbstractAnimation::Backward);
             animation_->start();
         } else {
-            content_->setVisible(expanded);
+            content_->setMaximumHeight(expanded ? content_height : 0);
         }
     }
 };
