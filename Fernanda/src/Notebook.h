@@ -23,10 +23,9 @@
 #include <QObject>
 #include <QPalette> // TODO: Temp
 #include <QPoint>
-#include <QSplitter> /// *
+#include <QSplitter>
 #include <QStatusBar>
 #include <QStringList>
-#include <QVBoxLayout>
 #include <QVariant>
 #include <QVariantMap>
 #include <QWidget>
@@ -37,8 +36,8 @@
 #include "AbstractFileModel.h"
 #include "AbstractService.h"
 #include "AppDirs.h"
+#include "AccordionWidget.h"
 #include "Bus.h"
-#include "CollapsibleWidget.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
@@ -573,47 +572,30 @@ private:
             Tr::nbSaveAsFilter());
     }
 
-    // TODO: Do we need the window ptr?
     QWidget* treeViewDockContentsHook_(TreeView* mainTree, Window* window)
     {
-        // TODO: Would like to see the collapsible widgets take up as much room
-        // as available in the bottom part of the splitter without raising it
-        // up, unless that amount of space is not enough, then they should be
-        // able to raise it up a little.
+        // TODO: Collapse if dragging downward and the widget can't shrink any
+        // more?
 
         auto splitter = new QSplitter(Qt::Vertical, window);
+        splitter->addWidget(mainTree);
 
-        // Bottom container holds spacer + collapsibles
-        auto bottom = new QWidget(window);
-        auto bottom_layout = new QVBoxLayout(bottom);
-        bottom_layout->setContentsMargins(0, 0, 0, 0);
-        bottom_layout->setSpacing(0);
+        auto accordion = new AccordionWidget(window);
+        splitter->addWidget(accordion);
 
-        // Collapsibles at bottom
+        // Trash
         auto trash_view = new TreeView(window);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
+        accordion->addWidget(Tr::nbTrash(), trash_view);
 
-        auto trash_widget =
-            new CollapsibleWidget(Tr::nbTrash(), trash_view, window);
-        // trash_widget->setSizePolicy(QSizePolicy::Expanding,
-        // QSizePolicy::Fixed);
-        bottom_layout->addWidget(trash_widget);
-
+        // Test (seems like it works well!)
         auto test_view = new TreeView(window);
         test_view->setModel(fnxModel_);
         test_view->setRootIndex(fnxModel_->trashIndex());
+        accordion->addWidget("Test", test_view);
 
-        auto test_widget = new CollapsibleWidget("Test", test_view, window);
-        // test_widget->setSizePolicy(QSizePolicy::Expanding,
-        // QSizePolicy::Fixed);
-        bottom_layout->addWidget(test_widget);
-
-        bottom_layout->addStretch(1);
-
-        splitter->addWidget(mainTree);
-        splitter->addWidget(bottom);
-
+        // Splitter setup
         splitter->setStretchFactor(0, 1);
         splitter->setStretchFactor(1, 0);
         splitter->setCollapsible(0, false);

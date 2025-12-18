@@ -9,10 +9,10 @@
 
 #pragma once
 
-#include <QFrame>
-#include <QPushButton>
+#include <QObject>
+#include <QSizePolicy>
 #include <QString>
-#include <QToolButton> /// *
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -20,9 +20,13 @@
 
 namespace Fernanda {
 
-// TODO: Collapse if dragging downward and the widget can't shrink any more?
-
-// Collapsible container widget
+// Expandable/collapsible section with a toggle header and content area. When
+// collapsed, only the header is visible (content max height = 0). When
+// expanded, content can grow freely within available space. Optionally displays
+// an item count (not automatic) in the header: "Title (N)". Designed for use
+// within AccordionWidget, which manages space distribution across multiple
+// CollapsibleWidgets.
+//
 // Based on: https://github.com/MichaelVoelkel/qt-collapsible-section
 class CollapsibleWidget : public QWidget
 {
@@ -42,34 +46,25 @@ public:
 
     virtual ~CollapsibleWidget() override { TRACER; }
 
-    /*bool isExpanded() const { return expanded_; }
-
-    void setExpanded(bool expanded)
-    {
-        if (expanded_ == expanded) return;
-        toggle_(expanded);
-    }
-
-    void setTitle(const QString& title)
-    {
-        title_ = title;
-        updateHeaderText_();
-    }
+    bool isExpanded() const noexcept { return expanded_; }
+    int itemCount() const noexcept { return itemCount_; }
 
     void setItemCount(int count)
     {
         itemCount_ = count;
         updateHeaderText_();
-    }*/
+    }
+
+signals:
+    void expandedChanged(bool expanded);
 
 private:
     QWidget* content_;
     QString title_;
 
-    QToolButton* header_ = nullptr; /// *
-    // QPushButton* header_ = nullptr;
-    int collapsedHeight_ = 0;
+    QToolButton* header_ = nullptr;
     int itemCount_ = -1; // -1 means don't show count
+    bool expanded_ = false;
 
     void setup_()
     {
@@ -77,26 +72,23 @@ private:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
 
-        // header_ = new QPushButton(this);
-        header_ = new QToolButton(this); /// *
-        header_->setStyleSheet("QToolButton {border: none;}"); /// *
-        header_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); /// *
+        header_ = new QToolButton(this);
+        header_->setStyleSheet("QToolButton {border: none;}");
+        header_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
         header_->setCheckable(true);
         header_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        // header_->setStyleSheet(
-        //"QPushButton { text-align: left; border: none; }");
         updateHeaderText_();
 
         content_->setParent(this);
         setContentExpanded_(false);
 
-        layout->addWidget(header_);
-        layout->addWidget(content_);
+        layout->addWidget(header_, 0);
+        layout->addWidget(content_, 1);
 
         connect(
             header_,
-            &QPushButton::toggled,
+            &QToolButton::toggled,
             this,
             &CollapsibleWidget::setContentExpanded_);
     }
@@ -112,12 +104,14 @@ private:
 private slots:
     void setContentExpanded_(bool expanded)
     {
+        expanded_ = expanded;
         header_->setChecked(expanded);
         header_->setArrowType(
             expanded ? Qt::DownArrow
-                     : Qt::RightArrow); /// * (these are very ugly)
-        content_->setMaximumHeight(
-            expanded ? content_->sizeHint().height() : 0);
+                     : Qt::RightArrow); // TODO: these are very ugly
+
+        content_->setMaximumHeight(expanded ? QWIDGETSIZE_MAX : 0);
+        emit expandedChanged(expanded);
     }
 };
 

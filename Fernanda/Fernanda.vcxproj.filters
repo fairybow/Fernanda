@@ -313,6 +313,9 @@
     <QtMoc Include="src\CollapsibleWidget.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
+    <QtMoc Include="src\AccordionWidget.h">
+      <Filter>Code\Core\UI</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">

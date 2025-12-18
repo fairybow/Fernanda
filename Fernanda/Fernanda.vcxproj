@@ -60,6 +60,7 @@
     <QtMoc Include="src\Application.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="src\AccordionWidget.h" />
     <ClInclude Include="src\BuildMessages.h" />
     <QtMoc Include="src\FileService.h" />
     <QtMoc Include="src\SettingsModule.h" />
