@@ -595,7 +595,7 @@ private:
         trash_view->setRootIndex(fnxModel_->trashIndex());
 
         auto trash_widget =
-            new CollapsibleWidget(Tr::nbTrash(), trash_view, window, 0);
+            new CollapsibleWidget(Tr::nbTrash(), trash_view, window);
         // trash_widget->setSizePolicy(QSizePolicy::Expanding,
         // QSizePolicy::Fixed);
         bottom_layout->addWidget(trash_widget);
@@ -604,7 +604,7 @@ private:
         test_view->setModel(fnxModel_);
         test_view->setRootIndex(fnxModel_->trashIndex());
 
-        auto test_widget = new CollapsibleWidget("Test", test_view, window, 0);
+        auto test_widget = new CollapsibleWidget("Test", test_view, window);
         // test_widget->setSizePolicy(QSizePolicy::Expanding,
         // QSizePolicy::Fixed);
         bottom_layout->addWidget(test_widget);

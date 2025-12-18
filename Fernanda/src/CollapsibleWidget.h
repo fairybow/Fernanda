@@ -9,11 +9,10 @@
 
 #pragma once
 
-// #include <QFrame>
-#include <QParallelAnimationGroup>
-#include <QPropertyAnimation>
+#include <QFrame>
 #include <QPushButton>
 #include <QString>
+#include <QToolButton> /// *
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -21,9 +20,9 @@
 
 namespace Fernanda {
 
-// TODO: Possibly remove animations?
+// TODO: Collapse if dragging downward and the widget can't shrink any more?
 
-// Collapsible container widget with animated expand/collapse.
+// Collapsible container widget
 // Based on: https://github.com/MichaelVoelkel/qt-collapsible-section
 class CollapsibleWidget : public QWidget
 {
@@ -33,19 +32,17 @@ public:
     CollapsibleWidget(
         const QString& title,
         QWidget* content,
-        QWidget* parent = nullptr,
-        int animationDuration = 0)
+        QWidget* parent = nullptr)
         : QWidget(parent)
         , content_(content)
         , title_(title)
-        , animationDuration_(animationDuration)
     {
         setup_();
     }
 
     virtual ~CollapsibleWidget() override { TRACER; }
 
-    bool isExpanded() const { return expanded_; }
+    /*bool isExpanded() const { return expanded_; }
 
     void setExpanded(bool expanded)
     {
@@ -63,20 +60,16 @@ public:
     {
         itemCount_ = count;
         updateHeaderText_();
-    }
+    }*/
 
 private:
     QWidget* content_;
     QString title_;
-    int animationDuration_;
 
-    int itemCount_ = -1; // -1 means don't show count
-    bool expanded_ = false;
-
-    QPushButton* header_ = nullptr;
-    // QFrame* separator_ = nullptr;
-    QParallelAnimationGroup* animation_ = nullptr;
+    QToolButton* header_ = nullptr; /// *
+    // QPushButton* header_ = nullptr;
     int collapsedHeight_ = 0;
+    int itemCount_ = -1; // -1 means don't show count
 
     void setup_()
     {
@@ -84,64 +77,28 @@ private:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
 
-        // Header button
-        header_ = new QPushButton(this);
-        // header_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        // header_->setArrowType(Qt::RightArrow);
+        // header_ = new QPushButton(this);
+        header_ = new QToolButton(this); /// *
+        header_->setStyleSheet("QToolButton {border: none;}"); /// *
+        header_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); /// *
+
         header_->setCheckable(true);
-        header_->setChecked(false);
         header_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        header_->setStyleSheet(
-            "QPushButton { text-align: left; border: none; }");
+        // header_->setStyleSheet(
+        //"QPushButton { text-align: left; border: none; }");
         updateHeaderText_();
 
-        // Separator line
-        // separator_ = new QFrame(this);
-        // separator_->setFrameShape(QFrame::HLine);
-        // separator_->setFrameShadow(QFrame::Sunken);
-
-        // Content
         content_->setParent(this);
-        //content_->setVisible(false);
-        content_->setMaximumHeight(0);
+        setContentExpanded_(false);
 
         layout->addWidget(header_);
-        // layout->addWidget(separator_);
         layout->addWidget(content_);
-
-        // Animation setup
-        setupAnimation_();
 
         connect(
             header_,
             &QPushButton::toggled,
             this,
-            &CollapsibleWidget::toggle_);
-    }
-
-    void setupAnimation_()
-    {
-        collapsedHeight_ = header_->sizeHint().height();
-
-        if (animationDuration_ <= 0) return;
-
-        animation_ = new QParallelAnimationGroup(this);
-
-        auto widget_anim = new QPropertyAnimation(this, "maximumHeight", this);
-        auto content_anim =
-            new QPropertyAnimation(content_, "maximumHeight", this);
-
-        animation_->addAnimation(widget_anim);
-        animation_->addAnimation(content_anim);
-
-        // Hide content after collapse animation finishes
-        //connect(animation_, &QParallelAnimationGroup::finished, this, [this] {
-            //if (!expanded_) content_->setVisible(false);
-        //});
-
-        // Start collapsed
-        content_->setMaximumHeight(0);
-        collapsedHeight_ = sizeHint().height();
+            &CollapsibleWidget::setContentExpanded_);
     }
 
     void updateHeaderText_()
@@ -152,84 +109,15 @@ private:
             header_->setText(title_);
     }
 
-    //void toggle_(bool expanded)
-    //{
-    //    expanded_ = expanded;
-    //    if (header_->isChecked() != expanded) header_->setChecked(expanded);
-
-    //    auto content_height = content_->sizeHint().height();
-
-    //    if (animation_) {
-    //        // Is this needed?:
-    //        //if (expanded) content_->setVisible(true);
-
-    //        auto content_height = content_->sizeHint().height();
-
-    //        for (int i = 0; i < animation_->animationCount(); ++i) {
-    //            auto anim = qobject_cast<QPropertyAnimation*>(
-    //                animation_->animationAt(i));
-    //            if (!anim) continue;
-
-    //            anim->setDuration(animationDuration_);
-
-    //            if (anim->targetObject() == this) {
-    //                anim->setStartValue(collapsedHeight_);
-    //                anim->setEndValue(collapsedHeight_ + content_height);
-    //            } else {
-    //                anim->setStartValue(0);
-    //                anim->setEndValue(content_height);
-    //            }
-    //        }
-
-    //        animation_->setDirection(
-    //            expanded ? QAbstractAnimation::Forward
-    //                     : QAbstractAnimation::Backward);
-    //        animation_->start();
-    //    } else {
-    //        // Instant toggle via height constraint
-    //        /*if (expanded) {
-    //            content_->setMaximumHeight(QWIDGETSIZE_MAX);
-    //            content_->setVisible(true);
-    //        } else {
-    //            content_->setMaximumHeight(0);
-    //            content_->setVisible(false);
-    //        }*/
-
-    //        //content_->setVisible(expanded);
-    //    }
-    //}
-
-    void toggle_(bool expanded)
+private slots:
+    void setContentExpanded_(bool expanded)
     {
-        expanded_ = expanded;
-        if (header_->isChecked() != expanded) header_->setChecked(expanded);
-
-        auto content_height = content_->sizeHint().height();
-
-        if (animation_) {
-            for (int i = 0; i < animation_->animationCount(); ++i) {
-                auto anim = qobject_cast<QPropertyAnimation*>(
-                    animation_->animationAt(i));
-                if (!anim) continue;
-
-                anim->setDuration(animationDuration_);
-
-                if (anim->targetObject() == this) {
-                    anim->setStartValue(collapsedHeight_);
-                    anim->setEndValue(collapsedHeight_ + content_height);
-                } else {
-                    anim->setStartValue(0);
-                    anim->setEndValue(content_height);
-                }
-            }
-
-            animation_->setDirection(
-                expanded ? QAbstractAnimation::Forward
-                         : QAbstractAnimation::Backward);
-            animation_->start();
-        } else {
-            content_->setMaximumHeight(expanded ? content_height : 0);
-        }
+        header_->setChecked(expanded);
+        header_->setArrowType(
+            expanded ? Qt::DownArrow
+                     : Qt::RightArrow); /// * (these are very ugly)
+        content_->setMaximumHeight(
+            expanded ? content_->sizeHint().height() : 0);
     }
 };
 
