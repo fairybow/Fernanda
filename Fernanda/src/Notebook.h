@@ -23,9 +23,9 @@
 #include <QObject>
 #include <QPalette> // TODO: Temp
 #include <QPoint>
+#include <QSplitter>
 #include <QStatusBar>
 #include <QStringList>
-#include <QVBoxLayout>
 #include <QVariant>
 #include <QVariantMap>
 #include <QWidget>
@@ -35,11 +35,13 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractService.h"
+#include "AccordionWidget.h"
 #include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "EmptyTrashPrompt.h"
 #include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
@@ -570,26 +572,36 @@ private:
             Tr::nbSaveAsFilter());
     }
 
-    // TODO: Do we need the window ptr?
     QWidget* treeViewDockContentsHook_(TreeView* mainTree, Window* window)
     {
-        // TODO: Add trash view, combine with mainTree in a single widget and
-        // return
+        // TODO: Collapse if dragging downward and the widget can't shrink any
+        // more?
 
-        auto container = new QWidget(window);
-        auto layout = new QVBoxLayout(container);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(0);
+        auto splitter = new QSplitter(Qt::Vertical, window);
+        splitter->addWidget(mainTree);
 
-        layout->addWidget(mainTree, 1);
+        auto accordion = new AccordionWidget(window);
+        splitter->addWidget(accordion);
 
-        // Temp (We want a collapsible custom widget instead)
+        // Trash view
         auto trash_view = new TreeView(window);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
-        layout->addWidget(trash_view, 0);
+        accordion->addWidget(Tr::nbTrash(), trash_view);
 
-        return container;
+        // Test (seems like it works well!)
+        // auto test_view = new TreeView(window);
+        // test_view->setModel(fnxModel_);
+        // test_view->setRootIndex(fnxModel_->trashIndex());
+        // accordion->addWidget("Test", test_view);
+
+        // Splitter setup
+        splitter->setStretchFactor(0, 1);
+        splitter->setStretchFactor(1, 0);
+        splitter->setCollapsible(0, false);
+        splitter->setCollapsible(1, false);
+
+        return splitter;
     }
 
 private slots:

@@ -9,6 +9,7 @@ TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 - [ ] Find appropriate places for Coco::Bool (like closure hook returns)
 - [ ] Check consistency in dtor (virtual/override) and ctor (explicit or not)
 - [ ] Documentation gaps
+- [ ] Check member initializations that use `this` in favor of initialization to `nullptr` and then initialization in `setup` method (fine for Qt, when base QWidget/QObject ctors have already run) but may want to avoid anyway?
 - [ ] Ensure (as much as possible) separation of concerns / encapsulation
 - [ ] Tr clean-up (including remove some namespaces, since method names are very descriptive and long, or should be)
 - [ ] Coco::Path slash normalization
