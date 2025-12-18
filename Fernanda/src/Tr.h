@@ -56,7 +56,9 @@ namespace Tr {
     TR_(nbImportFileFilter, tr("Plain text files (*.txt)"));
     TR_(nbSaveAsCaption, tr("Save as"));
     TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
-    TR_(nbEmptyTrashPromptBody, tr("Are you sure you want to empty the trash? <b>This cannot be undone.</b>"));
+    TR_(nbEmptyTrashPromptBody,
+        tr("Are you sure you want to empty the trash? <b>This cannot be "
+           "undone.</b>"));
 
     // Joint-workspace dialogs:
 
