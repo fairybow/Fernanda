@@ -576,6 +576,11 @@ private:
     // TODO: Do we need the window ptr?
     QWidget* treeViewDockContentsHook_(TreeView* mainTree, Window* window)
     {
+        // TODO: Would like to see the collapsible widgets take up as much room
+        // as available in the bottom part of the splitter without raising it
+        // up, unless that amount of space is not enough, then they should be
+        // able to raise it up a little.
+
         auto splitter = new QSplitter(Qt::Vertical, window);
 
         // Bottom container holds spacer + collapsibles
@@ -591,16 +596,17 @@ private:
 
         auto trash_widget =
             new CollapsibleWidget(Tr::nbTrash(), trash_view, window, 0);
-        //trash_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        // trash_widget->setSizePolicy(QSizePolicy::Expanding,
+        // QSizePolicy::Fixed);
         bottom_layout->addWidget(trash_widget);
 
         auto test_view = new TreeView(window);
         test_view->setModel(fnxModel_);
         test_view->setRootIndex(fnxModel_->trashIndex());
 
-        auto test_widget =
-            new CollapsibleWidget("Test", test_view, window, 0);
-        //test_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        auto test_widget = new CollapsibleWidget("Test", test_view, window, 0);
+        // test_widget->setSizePolicy(QSizePolicy::Expanding,
+        // QSizePolicy::Fixed);
         bottom_layout->addWidget(test_widget);
 
         bottom_layout->addStretch(1);
