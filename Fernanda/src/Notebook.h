@@ -35,8 +35,8 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractService.h"
-#include "AppDirs.h"
 #include "AccordionWidget.h"
+#include "AppDirs.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
@@ -583,17 +583,17 @@ private:
         auto accordion = new AccordionWidget(window);
         splitter->addWidget(accordion);
 
-        // Trash
+        // Trash view
         auto trash_view = new TreeView(window);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
         accordion->addWidget(Tr::nbTrash(), trash_view);
 
         // Test (seems like it works well!)
-        auto test_view = new TreeView(window);
-        test_view->setModel(fnxModel_);
-        test_view->setRootIndex(fnxModel_->trashIndex());
-        accordion->addWidget("Test", test_view);
+        // auto test_view = new TreeView(window);
+        // test_view->setModel(fnxModel_);
+        // test_view->setRootIndex(fnxModel_->trashIndex());
+        // accordion->addWidget("Test", test_view);
 
         // Splitter setup
         splitter->setStretchFactor(0, 1);
