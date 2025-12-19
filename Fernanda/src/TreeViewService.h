@@ -176,7 +176,7 @@ private:
         tree_view->setDragEnabled(true);
         tree_view->setAcceptDrops(true);
         tree_view->setDropIndicatorShown(true);
-        tree_view->setDragDropMode(QAbstractItemView::InternalMove);
+        tree_view->setDragDropMode(QAbstractItemView::DragDrop);
         tree_view->setDefaultDropAction(Qt::MoveAction);
 
         if (modelHook_ && rootIndexHook_) {

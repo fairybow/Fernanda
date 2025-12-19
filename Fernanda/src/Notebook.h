@@ -583,8 +583,19 @@ private:
         auto accordion = new AccordionWidget(window);
         splitter->addWidget(accordion);
 
+        // TODO:
+        // - Drag and drop from main to trash and back
+        // - Remove action sending to trash
+        // - File opening and other main-like connections for trash view
+        // - Empty trash (prompt, then delete/close all models/views/files from working dir)
+
         // Trash view
         auto trash_view = new TreeView(window);
+        trash_view->setDragEnabled(true);
+        trash_view->setAcceptDrops(true);
+        trash_view->setDropIndicatorShown(true);
+        trash_view->setDragDropMode(QAbstractItemView::DragDrop);
+        trash_view->setDefaultDropAction(Qt::MoveAction);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
         accordion->addWidget(Tr::nbTrash(), trash_view);
