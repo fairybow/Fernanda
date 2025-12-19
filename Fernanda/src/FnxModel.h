@@ -69,20 +69,6 @@ public:
 
     virtual ~FnxModel() override { TRACER; }
 
-    // TODO: Is this the right approach?
-    QModelIndex notebookIndex() const
-    {
-        auto notebook = Fnx::Xml::notebookElement(dom_);
-        return indexFromElement_(notebook);
-    }
-
-    // TODO: Is this the right approach?
-    QModelIndex trashIndex() const
-    {
-        auto trash = Fnx::Xml::trashElement(dom_);
-        return indexFromElement_(trash);
-    }
-
     void load(const Coco::Path& workingDir)
     {
         beginResetModel();
@@ -373,6 +359,83 @@ public:
 
         return moveElement_(element, drop_parent, row);
     }
+
+    /// TODO TRASH
+
+    // bool reparent(
+    //     const QModelIndex& source,
+    //     const QModelIndex& destination,
+    //     int row = -1)
+    //{
+    //     if (!source.isValid()) return false;
+    //     auto element = elementAt_(source);
+    //     auto dest_parent = elementAt_(destination);
+    //     if (dest_parent.isNull()) dest_parent = dom_.documentElement();
+    //     return moveElement_(element, dest_parent, row);
+    // }
+
+    // TODO: Is this the right approach?
+    QModelIndex notebookIndex() const
+    {
+        auto notebook = Fnx::Xml::notebookElement(dom_);
+        return indexFromElement_(notebook);
+    }
+
+    // TODO: Is this the right approach?
+    QModelIndex trashIndex() const
+    {
+        auto trash = Fnx::Xml::trashElement(dom_);
+        return indexFromElement_(trash);
+    }
+
+    bool hasTrash() const
+    {
+        // return hasChildren(trashIndex());
+        return !Fnx::Xml::trashElement(dom_).firstChildElement().isNull();
+    }
+
+    bool moveToTrash(const QModelIndex& index)
+    {
+        if (!index.isValid()) return false;
+
+        auto element = elementAt_(index);
+        if (!isValid_(element)) return false;
+
+        // Store original parent's UUID before moving (if parent has one)
+        auto parent = element.parentNode().toElement();
+        auto parent_uuid = Fnx::Xml::uuid(parent);
+        if (!parent_uuid.isEmpty())
+            Fnx::Xml::setRestoreParentUuid(element, parent_uuid);
+
+        auto trash = Fnx::Xml::trashElement(dom_);
+        return moveElement_(element, trash, -1);
+    }
+
+    bool restoreFromTrash(const QModelIndex& index)
+    {
+        if (!index.isValid()) return false;
+
+        auto element = elementAt_(index);
+        if (!isValid_(element)) return false;
+
+        // Try to find original parent
+        auto original_uuid = Fnx::Xml::restoreParentUuid(element);
+        QDomElement destination = Fnx::Xml::notebookElement(dom_); // Default
+
+        if (!original_uuid.isEmpty()) {
+            auto original_parent = findElementByUuid_(original_uuid);
+            // Only restore to original if it exists and isn't in trash
+            if (!original_parent.isNull()
+                && !Fnx::Xml::isInTrash(dom_, original_parent)) {
+                destination = original_parent;
+            }
+        }
+
+        Fnx::Xml::clearRestoreParentUuid(element);
+        return moveElement_(element, destination, -1);
+    }
+
+    /// TODO TRASH (END)
 
 signals:
     void domChanged();

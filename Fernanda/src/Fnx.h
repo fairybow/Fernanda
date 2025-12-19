@@ -74,7 +74,7 @@ namespace Internal {
     constexpr auto XML_NAME_ATTR_FILE_DEF_ = "Untitled";
     constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
     constexpr auto XML_UUID_ATTR_ = "uuid";
-    constexpr auto XML_TRASH_PARENT_ON_RESTORE_UUID_ATTR_ =
+    constexpr auto XML_TRASH_RESTORE_PARENT_UUID_ATTR_ =
         "parent_on_restore_uuid"; // TODO: Make sure this is added when moving
                                   // to trash and also removed before restoring
                                   // - may do that here or FnxModel! Empty
@@ -210,8 +210,6 @@ namespace Io {
 // Used by FnxModel
 namespace Xml {
 
-    // inline bool isInTrash(const QDomElement& element), if needed
-
     inline bool isVirtualFolder(const QDomElement& element)
     {
         if (element.isNull()) return false;
@@ -282,6 +280,53 @@ namespace Xml {
         clearEditedRecursive(dom.documentElement());
     }*/
 
+    /// TODO TRASH
+
+    inline QString restoreParentUuid(const QDomElement& element)
+    {
+        return element.attribute(Internal::XML_TRASH_RESTORE_PARENT_UUID_ATTR_);
+    }
+
+    inline void setRestoreParentUuid(QDomElement& element, const QString& uuid)
+    {
+        uuid.isEmpty() ? element.removeAttribute(
+                             Internal::XML_TRASH_RESTORE_PARENT_UUID_ATTR_)
+                       : element.setAttribute(
+                             Internal::XML_TRASH_RESTORE_PARENT_UUID_ATTR_,
+                             uuid);
+    }
+
+    inline void clearRestoreParentUuid(QDomElement& element)
+    {
+        setRestoreParentUuid(element, {});
+    }
+
+    inline QDomElement notebookElement(const QDomDocument& dom)
+    {
+        return dom.documentElement().firstChildElement(
+            Internal::XML_NOTEBOOK_TAG_);
+    }
+
+    inline QDomElement trashElement(const QDomDocument& dom)
+    {
+        return dom.documentElement().firstChildElement(
+            Internal::XML_TRASH_TAG_);
+    }
+
+    inline bool isInTrash(const QDomDocument& dom, const QDomElement& element)
+    {
+        auto trash = trashElement(dom);
+        auto current = element.parentNode().toElement();
+        while (!current.isNull()) {
+            if (current == trash) return true;
+            current = current.parentNode().toElement();
+        }
+
+        return false;
+    }
+
+    /// TODO TRASH (END)
+
     inline QDomDocument makeDom(const Coco::Path& workingDir)
     {
         if (!workingDir.exists()) {
@@ -305,18 +350,6 @@ namespace Xml {
         }
 
         return doc;
-    }
-
-    inline QDomElement notebookElement(const QDomDocument& dom)
-    {
-        return dom.documentElement().firstChildElement(
-            Internal::XML_NOTEBOOK_TAG_);
-    }
-
-    inline QDomElement trashElement(const QDomDocument& dom)
-    {
-        return dom.documentElement().firstChildElement(
-            Internal::XML_TRASH_TAG_);
     }
 
     // TODO: Return bool?

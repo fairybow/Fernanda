@@ -583,12 +583,6 @@ private:
         auto accordion = new AccordionWidget(window);
         splitter->addWidget(accordion);
 
-        // TODO:
-        // - Drag and drop from main to trash and back
-        // - Remove action sending to trash
-        // - File opening and other main-like connections for trash view
-        // - Empty trash (prompt, then delete/close all models/views/files from working dir)
-
         // Trash view
         auto trash_view = new TreeView(window);
         trash_view->setDragEnabled(true);
@@ -599,6 +593,29 @@ private:
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
         accordion->addWidget(Tr::nbTrash(), trash_view);
+
+        connect(
+            trash_view,
+            &TreeView::doubleClicked,
+            this,
+            [this, window](const QModelIndex& index) {
+                onTreeViewDoubleClicked_(window, index);
+            });
+
+        trash_view->setContextMenuPolicy(Qt::CustomContextMenu);
+        trash_view->setEditTriggers(
+            QAbstractItemView::SelectedClicked
+            | QAbstractItemView::EditKeyPressed); // F2 (standard)
+
+        connect(
+            trash_view,
+            &TreeView::customContextMenuRequested,
+            this,
+            [this, window, trash_view](const QPoint& pos) {
+                auto point = trash_view->mapToGlobal(pos);
+                auto index = trash_view->indexAt(pos);
+                onTrashViewContextMenuRequested_(window, point, index);
+            });
 
         // Test (seems like it works well!)
         // auto test_view = new TreeView(window);
@@ -697,20 +714,79 @@ private slots:
                 treeViews->rename(window, index);
             });
 
-            connect(remove, &QAction::triggered, this, [&] {
-                // - No idea how to handle Trash, other than the following:
-                // - No prompts, just move to trash (maybe close tabs, maybe
-                // leave them open and leave file models open)
-                // - We move the removed item and its whole tree to trash (we do
-                // not need a trashed attribute, an item is trashed if it has
-                // the trash tag as an ancestor)
-                // - We store the original parent's UUID if applicable, so when
-                // the item is restored, it can be reparented appropriately if
-                // that parent is not removed later
-                // - Otherwise, restoring will restore the item and children to
-                // DOM document element
-                // - Trash element should not be able to be deleted or renamed
-                // - Trash element should not be able to be reparented in anyway
+            /// TODO TRASH
+
+            connect(remove, &QAction::triggered, this, [&, index] {
+                fnxModel_->moveToTrash(index);
+            });
+
+            /// TODO TRASH (END)
+
+            menu->addSeparator();
+
+            // TODO: Move up
+            if (fnxModel_->hasChildren(index)) {
+                auto is_expanded = treeViews->isExpanded(window, index);
+
+                auto collapse_or_expand = menu->addAction(
+                    is_expanded ? Tr::nbCollapse() : Tr::nbExpand());
+                connect(
+                    collapse_or_expand,
+                    &QAction::triggered,
+                    this,
+                    [&, is_expanded, index, window] {
+                        is_expanded ? treeViews->collapse(window, index)
+                                    : treeViews->expand(window, index);
+                    });
+            }
+        }
+
+        menu->popup(globalPos);
+    }
+
+    /// TODO TRASH
+
+    void onTrashViewContextMenuRequested_(
+        Window* window,
+        const QPoint& globalPos,
+        const QModelIndex& index)
+    {
+        if (!window) return;
+        if (!fnxModel_->hasTrash()) return;
+
+        auto menu = new QMenu(window);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+
+        /// TODO TRASH
+
+        auto empty = menu->addAction(Tr::nbEmptyTrash());
+        connect(empty, &QAction::triggered, this, [&] {
+            //...
+        });
+
+        /// TODO TRASH (END)
+
+        if (index.isValid()) {
+            menu->addSeparator();
+            auto restore = menu->addAction(Tr::nbRestore());
+            auto delete_permanently =
+                menu->addAction(Tr::nbDeletePermanently());
+            auto rename = menu->addAction(Tr::nbRename());
+
+            /// TODO TRASH
+
+            connect(restore, &QAction::triggered, this, [&, index] {
+                fnxModel_->restoreFromTrash(index);
+            });
+
+            connect(delete_permanently, &QAction::triggered, this, [&] {
+                //...
+            });
+
+            /// TODO TRASH (END)
+
+            connect(rename, &QAction::triggered, this, [&, index, window] {
+                treeViews->rename(window, index);
             });
 
             menu->addSeparator();
@@ -734,6 +810,8 @@ private slots:
 
         menu->popup(globalPos);
     }
+
+    /// TODO TRASH (END)
 
     void
     onFileModelModificationChanged_(AbstractFileModel* fileModel, bool modified)

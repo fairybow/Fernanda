@@ -92,8 +92,8 @@ Next up:
 - [x] Remove unneeded menu items
 - [x] Add window or view menu (or special Notebook menu that has import/export/open notepad/and anything else unique to NB)
 - [x] Open notepad to window or view
-- [ ] Also need to have trash appear at the bottom
-- [ ] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
+- [x] Also need to have trash appear at the bottom
+- [x] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
 - [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
 - [ ] Save code refactors
 - [x] Removing unified New Tab command
@@ -101,8 +101,6 @@ Next up:
 - [x] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
 - [x] Menu changes to accomodate, which includes an extra inserter
 - [x] Ensuring all NB context menu items are added only when index is valid for them
-- [ ] Adding all 4 to menu
-- [ ] Deciding where rename will go in menu (file? edit?)
 - [ ] Notebook export file
 - [ ] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
@@ -114,6 +112,14 @@ Next up:
 - [ ] Notebook export file
 - [ ] FnxModel + TreeView element removal
 - [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
+- [x] Trash view
+- [ ] Refactor common context menu stuff / TreeView hookup
+- [x] Drag and drop from main to trash and back
+- [x] Remove action sending to trash
+- [x] Restore from trash
+- [x] File opening and other main-like connections for trash view
+- [ ] Delete one item in trash (prompt, then delete/close model, file in working dir, and all views)
+- [ ] Empty trash (prompt, then delete/close all models/views/files from working dir)
 
 ### Coco
 

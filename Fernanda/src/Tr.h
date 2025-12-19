@@ -142,6 +142,9 @@ namespace Tr {
     TR_(nbRemove, tr("Remove"));
     TR_(nbExpand, tr("Expand"));
     TR_(nbCollapse, tr("Collapse"));
+    TR_(nbRestore, tr("Restore"));
+    TR_(nbDeletePermanently, tr("Delete permanently"));
+    TR_(nbEmptyTrash, tr("Empty trash"));
 
     /// Not updated:
 
