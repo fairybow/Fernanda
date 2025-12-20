@@ -262,6 +262,31 @@ public:
         return result;
     }
 
+    /// TODO TRASH
+
+    // No hook!
+    void closeViewsForModel(AbstractFileModel* fileModel)
+    {
+        if (!fileModel) return;
+
+        auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
+        if (windows.isEmpty()) return;
+
+        for (auto& window : windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget || tab_widget->isEmpty()) continue;
+
+            // Iterate backward to avoid index shifting issues
+            for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                if (view && view->model() == fileModel)
+                    deleteFileViewAt_(window, i);
+            }
+        }
+    }
+
+    /// TODO TRASH (END)
+
 signals:
     void viewDestroyed(AbstractFileModel* fileModel);
     void addTabRequested(Window* window);

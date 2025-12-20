@@ -113,7 +113,7 @@
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewService.h" />
     <ClInclude Include="src\AppDirs.h" />
-    <ClInclude Include="src\EmptyTrashPrompt.h" />
+    <ClInclude Include="src\TrashPrompt.h" />
     <ClInclude Include="src\Version.h" />
     <QtMoc Include="src\Workspace.h" />
     <QtMoc Include="src\ViewService.h" />

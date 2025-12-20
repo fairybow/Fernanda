@@ -114,12 +114,17 @@ Next up:
 - [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [x] Trash view
 - [ ] Refactor common context menu stuff / TreeView hookup
+- [ ] Trash count
+- [ ] Better arrow icon
+- [ ] Icon instead of trash text?
+- [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
 - [x] Drag and drop from main to trash and back
 - [x] Remove action sending to trash
 - [x] Restore from trash
 - [x] File opening and other main-like connections for trash view
 - [ ] Delete one item in trash (prompt, then delete/close model, file in working dir, and all views)
 - [ ] Empty trash (prompt, then delete/close all models/views/files from working dir)
+- [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
 
 ### Coco
 

@@ -56,9 +56,17 @@ namespace Tr {
     TR_(nbImportFileFilter, tr("Plain text files (*.txt)"));
     TR_(nbSaveAsCaption, tr("Save as"));
     TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
-    TR_(nbEmptyTrashPromptBody,
-        tr("Are you sure you want to empty the trash? <b>This cannot be "
-           "undone.</b>"));
+    // See: doc.qt.io/qt-6/i18n-source-translation.html#handle-plural-forms -
+    // but also, it's annoying - must use EN and strip plurals using lupdate
+    // -pluralonly - just do it later
+    inline QString nbTrashPromptBody(int count)
+    {
+        return tr(
+            "Are you sure you want to delete %n file(s)? <b>This cannot be "
+            "undone.</b>",
+            nullptr,
+            count);
+    };
 
     // Joint-workspace dialogs:
 

@@ -87,6 +87,8 @@ private:
         layout_->setStretch(spacer_index, any_expansions ? 0 : 1);
 
         // Set a fixed minimum for the accordion when anything is expanded
+        // TODO: Maybe gradually increase available min space depending on how
+        // many are expanded but only up to a threshold of like 400 or so
         setMinimumHeight(any_expansions ? 200 : 0);
     }
 };

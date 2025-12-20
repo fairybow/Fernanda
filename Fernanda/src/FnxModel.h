@@ -134,6 +134,46 @@ public:
         return { elementAt_(index) };
     }
 
+    /// TODO TRASH
+
+    QList<FileInfo> fileInfosAt(const QModelIndex& index) const
+    {
+        if (!index.isValid()) return {};
+
+        auto element = elementAt_(index);
+        if (!isValid_(element)) return {};
+
+        QList<FileInfo> infos{};
+        collectFileInfosRecursor_(element, infos);
+        return infos;
+    }
+
+    bool remove(const QModelIndex& index)
+    {
+        if (!index.isValid()) return false;
+
+        auto element = elementAt_(index);
+        if (!isValid_(element)) return false;
+
+        auto parent_element = element.parentNode().toElement();
+        if (parent_element.isNull()) return false;
+
+        auto parent_index = indexFromElement_(parent_element);
+        auto row = rowOfElement_(element);
+
+        // Clean up cache for this element and all descendants
+        clearCacheRecursor_(element);
+
+        beginRemoveRows(parent_index, row, row);
+        parent_element.removeChild(element);
+        endRemoveRows();
+
+        emit domChanged();
+        return true;
+    }
+
+    /// TODO TRASH (END)
+
     void addNewVirtualFolder(const QModelIndex& parentIndex = {})
     {
         auto element = Fnx::Xml::addVirtualFolder(dom_);
@@ -483,15 +523,25 @@ private:
         return element.ownerDocument() == dom_;
     }
 
+    /// TODO TRASH
+
+    // TODO: Verify
     QDomElement elementAt_(const QModelIndex& index) const
     {
         if (!index.isValid()) return dom_.documentElement();
 
         auto id = reinterpret_cast<quintptr>(index.internalPointer());
+
+        // ID not in cache - likely a stale index from a removed element
+        // This is expected after deletions, silent return
+        if (!idToElement_.contains(id)) return {};
+
         auto element = idToElement_.value(id);
 
         if (!isValid_(element)) {
-            WARN("Invalid element for ID: {}", id);
+            // Element is in cache but became invalid (orphaned, wrong document,
+            // etc.) This is unexpected - clear cache to recover
+            WARN("Cached element became invalid for ID: {}", id);
             clearCache_();
             return {};
         }
@@ -517,6 +567,45 @@ private:
         return "root"; // Fallback (shouldn't happen)
     }
 
+    void collectFileInfosRecursor_(
+        const QDomElement& element,
+        QList<FileInfo>& outInfos) const
+    {
+        if (element.isNull()) return;
+
+        // If this element is a file, add its info
+        if (Fnx::Xml::isFile(element)) outInfos << FileInfo{ element };
+
+        // Recurse into children
+        auto child = element.firstChildElement();
+        while (!child.isNull()) {
+            collectFileInfosRecursor_(child, outInfos);
+            child = child.nextSiblingElement();
+        }
+    }
+
+    void clearCacheRecursor_(const QDomElement& element) const
+    {
+        if (element.isNull()) return;
+
+        // Clear this element's cache entry
+        auto key = elementKey_(element);
+        if (elementToId_.contains(key)) {
+            auto id = elementToId_[key];
+            idToElement_.remove(id);
+            elementToId_.remove(key);
+        }
+
+        // Recurse into children
+        auto child = element.firstChildElement();
+        while (!child.isNull()) {
+            clearCacheRecursor_(child);
+            child = child.nextSiblingElement();
+        }
+    }
+
+    /// TODO TRASH (END)
+
     quintptr idFromElement_(const QDomElement& element) const
     {
         if (element.isNull()) return 0;
@@ -538,10 +627,10 @@ private:
     QDomElement findElementByUuid_(const QString& uuid) const
     {
         if (uuid.isEmpty()) return {};
-        return findElementByUuidRecursive_(dom_.documentElement(), uuid);
+        return findElementByUuidRecursor_(dom_.documentElement(), uuid);
     }
 
-    QDomElement findElementByUuidRecursive_(
+    QDomElement findElementByUuidRecursor_(
         const QDomElement& parent,
         const QString& uuid) const
     {
@@ -551,7 +640,7 @@ private:
             if (Fnx::Xml::uuid(child) == uuid) return child;
 
             // Search children
-            auto found = findElementByUuidRecursive_(child, uuid);
+            auto found = findElementByUuidRecursor_(child, uuid);
             if (!found.isNull()) return found;
 
             child = child.nextSiblingElement();

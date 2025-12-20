@@ -142,6 +142,15 @@ public:
             signalFileModelReadied_(window, model);
     }
 
+    /// TODO TRASH
+
+    AbstractFileModel* modelFor(const Coco::Path& path) const
+    {
+        return pathToFileModel_.value(path, nullptr);
+    }
+
+    /// TODO TRASH (END)
+
 protected:
     virtual void registerBusCommands() override
     {

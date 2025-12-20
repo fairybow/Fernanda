@@ -41,7 +41,6 @@
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
-#include "EmptyTrashPrompt.h"
 #include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
@@ -50,6 +49,7 @@
 #include "SavePrompt.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
+#include "TrashPrompt.h"
 #include "TreeView.h"
 #include "TreeViewService.h"
 #include "Window.h"
@@ -63,6 +63,10 @@ namespace Fernanda {
 // exclusively, never accesses DOM elements directly.
 //
 // There can be any number of Notebooks open during the application lifetime.
+//
+// TODO: Add to docs: trash behavior (still edtiable, tabs do not close when
+// moved to trash, still savable; however, emptying trash will close tabs and
+// lose unsaved changes)
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -584,6 +588,7 @@ private:
         splitter->addWidget(accordion);
 
         // Trash view
+        // TODO: Subclass?
         auto trash_view = new TreeView(window);
         trash_view->setDragEnabled(true);
         trash_view->setAcceptDrops(true);
@@ -612,9 +617,10 @@ private:
             &TreeView::customContextMenuRequested,
             this,
             [this, window, trash_view](const QPoint& pos) {
-                auto point = trash_view->mapToGlobal(pos);
-                auto index = trash_view->indexAt(pos);
-                onTrashViewContextMenuRequested_(window, point, index);
+                onTrashViewContextMenuRequested_(
+                    window,
+                    trash_view->mapToGlobal(pos),
+                    trash_view->indexAt(pos));
             });
 
         // Test (seems like it works well!)
@@ -779,9 +785,32 @@ private slots:
                 fnxModel_->restoreFromTrash(index);
             });
 
-            connect(delete_permanently, &QAction::triggered, this, [&] {
-                //...
-            });
+            connect(
+                delete_permanently,
+                &QAction::triggered,
+                this,
+                [&, index, window] {
+                    auto file_infos = fnxModel_->fileInfosAt(index);
+                    if (!TrashPrompt::exec(file_infos.count(), window)) return;
+
+                    // Close views, delete models, delete files on disk
+                    for (auto& info : file_infos) {
+                        auto path = workingDir_.path() / info.relPath;
+                        if (!path.exists())
+                            FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
+                        auto model = files->modelFor(path);
+                        if (!model) continue; // fatal?
+
+                        // TODO: Close all models' views at once?
+                        views->closeViewsForModel(model);
+                        files->deleteModel(model); // ^ Same
+
+                        if (!Coco::PathUtil::remove(path))
+                            CRITICAL("Failed to delete [{}] from disk!", path);
+                    }
+
+                    fnxModel_->remove(index);
+                });
 
             /// TODO TRASH (END)
 

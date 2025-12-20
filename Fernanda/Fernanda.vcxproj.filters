@@ -423,7 +423,7 @@
     <ClInclude Include="src\NewNotebookPrompt.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
-    <ClInclude Include="src\EmptyTrashPrompt.h">
+    <ClInclude Include="src\TrashPrompt.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
   </ItemGroup>

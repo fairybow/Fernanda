@@ -18,18 +18,18 @@
 
 #include "Tr.h"
 
-namespace Fernanda::EmptyTrashPrompt {
+namespace Fernanda::TrashPrompt {
 
-inline bool exec(QWidget* parent = nullptr)
+inline bool exec(int count, QWidget* parent = nullptr)
 {
     QDialog dialog(parent);
     dialog.setWindowModality(Qt::WindowModal);
-    dialog.setMinimumSize(240, 120);
+    dialog.setMinimumSize(240, 100);
 
     auto layout = new QVBoxLayout(&dialog);
 
     // Label
-    auto label = new QLabel(Tr::nbEmptyTrashPromptBody(), &dialog);
+    auto label = new QLabel(Tr::nbTrashPromptBody(count), &dialog);
     label->setTextInteractionFlags(Qt::NoTextInteraction);
     layout->addWidget(label);
 
@@ -59,4 +59,4 @@ inline bool exec(QWidget* parent = nullptr)
     return (dialog.exec() == QDialog::Accepted);
 }
 
-} // namespace Fernanda::EmptyTrashPrompt
+} // namespace Fernanda::TrashPrompt
