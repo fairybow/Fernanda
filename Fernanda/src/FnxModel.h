@@ -172,6 +172,32 @@ public:
         return true;
     }
 
+    bool clearTrash()
+    {
+        auto trash = Fnx::Xml::trashElement(dom_);
+        if (trash.isNull()) return false;
+
+        auto child_count = childElementCount_(trash);
+        if (child_count == 0) return true; // Nothing to clear
+
+        // Clear cache for all descendants
+        auto child = trash.firstChildElement();
+        while (!child.isNull()) {
+            clearCacheRecursor_(child);
+            child = child.nextSiblingElement();
+        }
+
+        // Remove all children in one batch
+        auto trash_index = trashIndex();
+        beginRemoveRows(trash_index, 0, child_count - 1);
+        while (!trash.firstChildElement().isNull())
+            trash.removeChild(trash.firstChildElement());
+        endRemoveRows();
+
+        emit domChanged();
+        return true;
+    }
+
     /// TODO TRASH (END)
 
     void addNewVirtualFolder(const QModelIndex& parentIndex = {})

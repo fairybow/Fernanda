@@ -766,8 +766,30 @@ private slots:
         /// TODO TRASH
 
         auto empty = menu->addAction(Tr::nbEmptyTrash());
-        connect(empty, &QAction::triggered, this, [&] {
-            //...
+        connect(empty, &QAction::triggered, this, [&, window] {
+            if (!workingDir_.isValid()) return;
+
+            // The trash element itself (tag "trash") isn't a file, so it's skipped
+            auto file_infos = fnxModel_->fileInfosAt(fnxModel_->trashIndex());
+            if (file_infos.isEmpty()) return;
+
+            if (!TrashPrompt::exec(file_infos.count(), window)) return;
+
+            auto working_dir = workingDir_.path();
+            QSet<Coco::Path> paths{};
+            for (auto& info : file_infos)
+                paths << working_dir / info.relPath;
+
+            auto models = files->modelsFor(paths);
+
+            views->closeViewsForModels(models);
+            files->deleteModels(models);
+
+            for (auto& path : paths)
+                if (!Coco::PathUtil::remove(path))
+                    CRITICAL("Failed to delete [{}] from disk!", path);
+
+            fnxModel_->clearTrash();
         });
 
         /// TODO TRASH (END)
@@ -790,24 +812,26 @@ private slots:
                 &QAction::triggered,
                 this,
                 [&, index, window] {
+                    if (!workingDir_.isValid()) return;
+
                     auto file_infos = fnxModel_->fileInfosAt(index);
+                    if (file_infos.isEmpty()) return;
+
                     if (!TrashPrompt::exec(file_infos.count(), window)) return;
 
-                    // Close views, delete models, delete files on disk
-                    for (auto& info : file_infos) {
-                        auto path = workingDir_.path() / info.relPath;
-                        if (!path.exists())
-                            FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
-                        auto model = files->modelFor(path);
-                        if (!model) continue; // fatal?
+                    auto working_dir = workingDir_.path();
+                    QSet<Coco::Path> paths{};
+                    for (auto& info : file_infos)
+                        paths << working_dir / info.relPath;
 
-                        // TODO: Close all models' views at once?
-                        views->closeViewsForModel(model);
-                        files->deleteModel(model); // ^ Same
+                    auto models = files->modelsFor(paths);
 
+                    views->closeViewsForModels(models);
+                    files->deleteModels(models);
+
+                    for (auto& path : paths)
                         if (!Coco::PathUtil::remove(path))
                             CRITICAL("Failed to delete [{}] from disk!", path);
-                    }
 
                     fnxModel_->remove(index);
                 });

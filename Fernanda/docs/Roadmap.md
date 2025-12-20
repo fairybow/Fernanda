@@ -87,7 +87,7 @@ After New Notebook:
 
 Next up:
 
-- [ ] Notebook Trash!
+- [x] Notebook Trash!
 - [ ] Maybe stuff some of the closures in sub menus
 - [x] Remove unneeded menu items
 - [x] Add window or view menu (or special Notebook menu that has import/export/open notepad/and anything else unique to NB)
@@ -110,7 +110,7 @@ Next up:
 - [x] Working dir renames
 - [x] New Notebook dialog
 - [ ] Notebook export file
-- [ ] FnxModel + TreeView element removal
+- [x] FnxModel + TreeView element removal
 - [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [x] Trash view
 - [ ] Refactor common context menu stuff / TreeView hookup
@@ -122,8 +122,8 @@ Next up:
 - [x] Remove action sending to trash
 - [x] Restore from trash
 - [x] File opening and other main-like connections for trash view
-- [ ] Delete one item in trash (prompt, then delete/close model, file in working dir, and all views)
-- [ ] Empty trash (prompt, then delete/close all models/views/files from working dir)
+- [x] Delete one item in trash (prompt, then delete/close model, file in working dir, and all views)
+- [x] Empty trash (prompt, then delete/close all models/views/files from working dir)
 - [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
 
 ### Coco
