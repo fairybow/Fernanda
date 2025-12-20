@@ -596,11 +596,6 @@ private:
         // Trash view
         // TODO: Subclass?
         auto trash_view = new TreeView(window);
-        trash_view->setDragEnabled(true);
-        trash_view->setAcceptDrops(true);
-        trash_view->setDropIndicatorShown(true);
-        trash_view->setDragDropMode(QAbstractItemView::DragDrop);
-        trash_view->setDefaultDropAction(Qt::MoveAction);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
         accordion->addWidget(Tr::nbTrash(), trash_view);
@@ -612,11 +607,6 @@ private:
             [this, window](const QModelIndex& index) {
                 onTreeViewDoubleClicked_(window, index);
             });
-
-        trash_view->setContextMenuPolicy(Qt::CustomContextMenu);
-        trash_view->setEditTriggers(
-            QAbstractItemView::SelectedClicked
-            | QAbstractItemView::EditKeyPressed); // F2 (standard)
 
         connect(
             trash_view,

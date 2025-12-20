@@ -334,6 +334,11 @@ protected:
             Commands::CLOSE_ALL_TABS,
             [&](const Command& cmd) { closeAllTabs_(); });
 
+        // All the methods used in these handlers aren't called anywhere else
+        // right now except in menus. As such, they don't really need the index
+        // parameter (as they only ever operate on the current view in a given
+        // window/cmd.context. However, leaving it as-is for now just in case.
+
         bus->addCommandHandler(Commands::UNDO, [&](const Command& cmd) {
             undo_(cmd.context, cmd.param<int>("index", -1));
         });

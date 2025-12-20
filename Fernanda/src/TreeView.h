@@ -52,7 +52,17 @@ protected:
 private:
     void setup_()
     {
-        //...
+        setContextMenuPolicy(Qt::CustomContextMenu);
+        setEditTriggers(
+            QAbstractItemView::SelectedClicked
+            | QAbstractItemView::EditKeyPressed); // F2 (standard)
+
+        // Drag and drop
+        setDragEnabled(true);
+        setAcceptDrops(true);
+        setDropIndicatorShown(true);
+        setDragDropMode(QAbstractItemView::DragDrop);
+        setDefaultDropAction(Qt::MoveAction);
     }
 };
 

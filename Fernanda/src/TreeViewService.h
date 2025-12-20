@@ -167,18 +167,6 @@ private:
         auto tree_view = new TreeView(dock_widget);
         treeViews_[window] = tree_view;
 
-        tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
-        tree_view->setEditTriggers(
-            QAbstractItemView::SelectedClicked
-            | QAbstractItemView::EditKeyPressed); // F2 (standard)
-
-        // Drag and drop
-        tree_view->setDragEnabled(true);
-        tree_view->setAcceptDrops(true);
-        tree_view->setDropIndicatorShown(true);
-        tree_view->setDragDropMode(QAbstractItemView::DragDrop);
-        tree_view->setDefaultDropAction(Qt::MoveAction);
-
         if (modelHook_ && rootIndexHook_) {
             if (auto model = modelHook_()) {
                 tree_view->setModel(model);
