@@ -538,8 +538,14 @@ private:
         // their view in Notebook. We don't really have an inherent order (other
         // than the DOM) so might as well leave unordered or sort alphabetically
         // here
-        if (!result.failed.isEmpty())
-            std::sort(result.failed.begin(), result.failed.end());
+        if (!result.failed.isEmpty()) {
+            std::sort(
+                result.failed.begin(),
+                result.failed.end(),
+                [](AbstractFileModel* a, AbstractFileModel* b) {
+                    return a->meta()->path() < b->meta()->path();
+                });
+        }
 
         return result;
     }
@@ -769,7 +775,8 @@ private slots:
         connect(empty, &QAction::triggered, this, [&, window] {
             if (!workingDir_.isValid()) return;
 
-            // The trash element itself (tag "trash") isn't a file, so it's skipped
+            // The trash element itself (tag "trash") isn't a file, so it's
+            // skipped
             auto file_infos = fnxModel_->fileInfosAt(fnxModel_->trashIndex());
             if (file_infos.isEmpty()) return;
 
