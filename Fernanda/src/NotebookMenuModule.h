@@ -92,14 +92,14 @@ private:
             bus,
             window,
             Commands::NOTEBOOK_SAVE,
-            Tr::nbSave(),
+            Tr::nxSave(),
             Menus::Shortcuts::SAVE); /// *
 
         actions.file.saveAs = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEBOOK_SAVE_AS,
-            Tr::nbSaveAs(),
+            Tr::nxSaveAs(),
             Menus::Shortcuts::SAVE_AS); /// *
 
         actions.notebook.openNotepad = Menus::makeBusAction(
@@ -113,12 +113,6 @@ private:
             window,
             Commands::NOTEBOOK_IMPORT_FILES,
             Tr::nbImportFiles()); /// *
-
-        actions.notebook.exportSelectedFile = Menus::makeBusAction(
-            bus,
-            window,
-            Commands::NOTEBOOK_EXPORT_SELECTED_FILE,
-            Tr::nbExportFile());
     }
 
 private slots:
@@ -144,7 +138,6 @@ private slots:
                 auto menu = new QMenu(Tr::nbMenu(), menuBar);
                 menu->addAction(actions.notebook.openNotepad);
                 menu->addAction(actions.notebook.importFiles);
-                menu->addAction(actions.notebook.exportSelectedFile);
                 menuBar->addMenu(menu);
             });
     }

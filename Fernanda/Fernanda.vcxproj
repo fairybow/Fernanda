@@ -50,9 +50,13 @@
     <None Include="docs\temp_DocsPlan.md" />
     <None Include="docs\old_UserData.md" />
     <None Include="docs\VSProjectSettings.md" />
-    <None Include="resources\ui\TabWidgetButtonAdd.svg" />
-    <None Include="resources\ui\TabWidgetButtonClose.svg" />
-    <None Include="resources\ui\TabWidgetButtonEditedDot.svg" />
+    <None Include="resources\ui\ChevronDown.svg" />
+    <None Include="resources\ui\ChevronLeft.svg" />
+    <None Include="resources\ui\ChevronRight.svg" />
+    <None Include="resources\ui\ChevronUp.svg" />
+    <None Include="resources\ui\Dot.svg" />
+    <None Include="resources\ui\Plus.svg" />
+    <None Include="resources\ui\X.svg" />
     <None Include="submodules\Coco\Coco\copy\Class.md" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md" />
   </ItemGroup>
@@ -80,6 +84,7 @@
     <QtMoc Include="src\TabWidgetUnderlay.h" />
     <QtMoc Include="src\Commander.h" />
     <QtMoc Include="src\CollapsibleWidget.h" />
+    <QtMoc Include="src\CollapsibleWidgetHeader.h" />
     <ClInclude Include="src\Debug.h" />
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />

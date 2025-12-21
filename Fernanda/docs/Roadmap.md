@@ -109,12 +109,12 @@ Next up:
 - [x] Saves
 - [x] Working dir renames
 - [x] New Notebook dialog
-- [ ] Notebook export file
+- [ ] Notebook export file (context menu)
 - [x] FnxModel + TreeView element removal
 - [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [x] Trash view
 - [ ] Refactor common context menu stuff / TreeView hookup
-- [ ] Trash count
+- [ ] Trash count (maybe, maybe not - if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
 - [ ] Better arrow icon
 - [ ] Icon instead of trash text?
 - [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
@@ -125,6 +125,8 @@ Next up:
 - [x] Delete one item in trash (prompt, then delete/close model, file in working dir, and all views)
 - [x] Empty trash (prompt, then delete/close all models/views/files from working dir)
 - [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
+- [ ] temp AppDir could be an App TempDir
+- [ ] Menu/MenuBarBuilder and ContextMenuBuilder?
 
 ### Coco
 

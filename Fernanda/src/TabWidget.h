@@ -138,7 +138,7 @@ private:
         tabBar_->setMaximumTabWidth(MAX_TAB_WIDTH_);
         addButton_->setFixedSize(ADD_BUTTON_SIZE_);
         addButton_->setSvgSize(BUTTON_SVG_SIZE_);
-        addButton_->setSvgPath(":/ui/TabWidgetButtonAdd.svg");
+        addButton_->setSvgPath(":/ui/Plus.svg");
 
         // Populate
         mainStack_->setCurrentIndex(0);
@@ -350,7 +350,7 @@ private:
     bool tabsClosable_ = true;
     QList<TabWidgetCloseButton*> closeButtons_{};
 
-    /// Needs review
+    // TODO: Review/also use App
     void updateMouseHoverAfterLayoutChange_()
     {
         // Get current global mouse position
@@ -396,8 +396,8 @@ private:
         auto close_button = new TabWidgetCloseButton(tabBar_);
         close_button->setFixedSize(CLOSE_BUTTON_SIZE_);
         close_button->setSvgSize(BUTTON_SVG_SIZE_);
-        close_button->setSvgPath(":/ui/TabWidgetButtonClose.svg");
-        close_button->setFlagSvgPath(":/ui/TabWidgetButtonEditedDot.svg");
+        close_button->setSvgPath(":/ui/X.svg");
+        close_button->setFlagSvgPath(":/ui/Dot.svg");
         closeButtons_ << close_button;
 
         tabBar_->setTabButton(index, QTabBar::RightSide, close_button);

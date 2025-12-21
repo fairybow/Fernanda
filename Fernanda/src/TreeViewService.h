@@ -118,6 +118,14 @@ public:
         }
     }
 
+    void setHeadersHidden(bool hidden)
+    {
+        headersHidden_ = hidden;
+
+        for (auto& tree_view : treeViews_)
+            tree_view->setHeaderHidden(hidden);
+    }
+
 signals:
     void treeViewDoubleClicked(Window* context, const QModelIndex& index);
     void treeViewContextMenuRequested(
@@ -152,6 +160,8 @@ private:
     RootIndexHook rootIndexHook_ = nullptr;
     DockWidgetHook dockWidgetHook_ = nullptr;
 
+    bool headersHidden_ = false;
+
     void setup_()
     {
         //...
@@ -166,6 +176,8 @@ private:
         auto dock_widget = new QDockWidget(window);
         auto tree_view = new TreeView(dock_widget);
         treeViews_[window] = tree_view;
+
+        tree_view->setHeaderHidden(headersHidden_);
 
         if (modelHook_ && rootIndexHook_) {
             if (auto model = modelHook_()) {

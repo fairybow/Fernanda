@@ -9,15 +9,17 @@
 
 #pragma once
 
+#include <QApplication>
 #include <QObject>
 #include <QSizePolicy>
 #include <QString>
-#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "CollapsibleWidgetHeader.h"
 #include "Debug.h"
 
+// TODO: Reverify this!
 namespace Fernanda {
 
 // Expandable/collapsible section with a toggle header and content area. When
@@ -62,7 +64,7 @@ private:
     QWidget* content_;
     QString title_;
 
-    QToolButton* header_ = nullptr;
+    CollapsibleWidgetHeader* header_ = new CollapsibleWidgetHeader(this);
     int itemCount_ = -1; // -1 means don't show count
     bool expanded_ = false;
 
@@ -72,23 +74,19 @@ private:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
 
-        header_ = new QToolButton(this);
-        header_->setStyleSheet("QToolButton {border: none;}");
-        header_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-
-        header_->setCheckable(true);
-        header_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         updateHeaderText_();
 
         content_->setParent(this);
         setContentExpanded_(false);
+
+        // TODO: Focus proxy?
 
         layout->addWidget(header_, 0);
         layout->addWidget(content_, 1);
 
         connect(
             header_,
-            &QToolButton::toggled,
+            &CollapsibleWidgetHeader::toggled,
             this,
             &CollapsibleWidget::setContentExpanded_);
     }
@@ -105,12 +103,20 @@ private slots:
     void setContentExpanded_(bool expanded)
     {
         expanded_ = expanded;
-        header_->setChecked(expanded);
-        header_->setArrowType(
-            expanded ? Qt::DownArrow
-                     : Qt::RightArrow); // TODO: these are very ugly
-
         content_->setMaximumHeight(expanded ? QWIDGETSIZE_MAX : 0);
+
+        // Clear stale hover state after layout change
+        // TODO: Review/also use App
+        if (header_->underMouse()) {
+            QEvent leave_event(QEvent::Leave);
+            QApplication::sendEvent(header_, &leave_event);
+        }
+
+        header_->setChecked(
+            expanded); // This isn't needed now (since a checkable button sets
+                       // itself checked when pressed), but would be needed if
+                       // we programmatically changed expanded state
+
         emit expandedChanged(expanded);
     }
 };

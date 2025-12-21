@@ -28,7 +28,11 @@ tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1);
 // TODO: Use a coherent naming scheme...
 namespace Tr {
 
-    // Buttons:
+    /// General
+
+    TR_(nbTrash, tr("Trash"));
+
+    /// Buttons
 
     TR_(ok, tr("OK"));
     // TR_(licenses, tr("Licenses"));
@@ -37,38 +41,9 @@ namespace Tr {
     TR_(dontSave, tr("Don't save"));
     TR_(cancel, tr("Cancel"));
 
-    // NP/NB/NX General:
+    /// Dialogs
 
-    TR_(nbTrash, tr("Trash"));
-
-    // Notepad dialogs:
-
-    TR_(npOpenFileCaption, tr("Open file"));
-    TR_(npOpenFileFilter,
-        tr("Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All "
-           "files (*)"));
-    TR_(npSaveAsCaption, tr("Save as"));
-    TR_(npSaveAsFilter, tr("Plain text files (*.txt);;All files (*)"));
-
-    // Notebook dialogs:
-
-    TR_(nbImportFileCaption, tr("Import file"));
-    TR_(nbImportFileFilter, tr("Plain text files (*.txt)"));
-    TR_(nbSaveAsCaption, tr("Save as"));
-    TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
-    // See: doc.qt.io/qt-6/i18n-source-translation.html#handle-plural-forms -
-    // but also, it's annoying - must use EN and strip plurals using lupdate
-    // -pluralonly - just do it later
-    inline QString nbTrashPromptBody(int count)
-    {
-        return tr(
-            "Are you sure you want to delete %n file(s)? <b>This cannot be "
-            "undone.</b>",
-            nullptr,
-            count);
-    };
-
-    // Joint-workspace dialogs:
+    // NX dialogs:
 
     TR_(nxAboutTitle, tr("About"));
     TR_(nxNewNotebookTitle, tr("New Notebook"));
@@ -121,9 +96,38 @@ namespace Tr {
     TR_(nxSaveFailBoxMultiBodyFormat,
         tr("There was a problem saving these files: %0"));
 
-    // Menus:
+    // NP dialogs:
+
+    TR_(npOpenFileCaption, tr("Open file"));
+    TR_(npOpenFileFilter,
+        tr("Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All "
+           "files (*)"));
+    TR_(npSaveAsCaption, tr("Save as"));
+    TR_(npSaveAsFilter, tr("Plain text files (*.txt);;All files (*)"));
+
+    // NB dialogs:
+
+    TR_(nbImportFileCaption, tr("Import file"));
+    TR_(nbImportFileFilter, tr("Plain text files (*.txt)"));
+    TR_(nbSaveAsCaption, tr("Save as"));
+    TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
+    // See: doc.qt.io/qt-6/i18n-source-translation.html#handle-plural-forms -
+    // but also, it's annoying - must use EN and strip plurals using lupdate
+    // -pluralonly - just do it later
+    inline QString nbTrashPromptBody(int count)
+    {
+        return tr(
+            "Are you sure you want to delete %n file(s)? <b>This cannot be "
+            "undone.</b>",
+            nullptr,
+            count);
+    };
+
+    /// Menus
 
     // TODO: Mnemonics
+
+    // NX menus:
 
     TR_(nxFileMenu, tr("&File"));
     TR_(nxEditMenu, tr("&Edit"));
@@ -131,25 +135,33 @@ namespace Tr {
     TR_(nxSettingsMenu, tr("&Settings"));
     TR_(nxHelpMenu, tr("&Help"));
 
+    TR_(nxSave, tr("Save"));
+    TR_(nxSaveAs, tr("Save as..."));
+
+    // NP menus:
+
     TR_(npNewTab, tr("New tab"));
     TR_(npOpenFile, tr("Open..."));
-    TR_(npSave, tr("Save"));
-    TR_(npSaveAs, tr("Save as..."));
     TR_(npSaveAllInWindow, tr("Save all in window"));
     TR_(npSaveAll, tr("Save all"));
 
+    // NB menus and context menu:
+
     TR_(nbNewFile, tr("New file"));
     TR_(nbNewFolder, tr("New folder"));
-    TR_(nbSave, tr("Save"));
-    TR_(nbSaveAs, tr("Save as..."));
+
+    // NB menu:
+
     TR_(nbMenu, tr("Notebook"));
     TR_(nbOpenNotepad, tr("Open notepad"));
     TR_(nbImportFiles, tr("Import files..."));
-    TR_(nbExportFile, tr("Export file..."));
+
+    // NB context menu:
+
+    TR_(nbCollapse, tr("Collapse"));
+    TR_(nbExpand, tr("Expand"));
     TR_(nbRename, tr("Rename"));
     TR_(nbRemove, tr("Remove"));
-    TR_(nbExpand, tr("Expand"));
-    TR_(nbCollapse, tr("Collapse"));
     TR_(nbRestore, tr("Restore"));
     TR_(nbDeletePermanently, tr("Delete permanently"));
     TR_(nbEmptyTrash, tr("Empty trash"));

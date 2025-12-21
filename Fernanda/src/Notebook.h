@@ -224,6 +224,8 @@ private:
 
         menus_->initialize();
 
+        treeViews->setHeadersHidden(true);
+
         treeViews->setDockWidgetHook(
             this,
             &Notebook::treeViewDockContentsHook_);
@@ -398,21 +400,6 @@ private:
                 showModified_();
                 colorBars->green();
             });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_EXPORT_SELECTED_FILE,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // TODO
-                // Exports selected item (TreeView only allows one selected item
-                // at a time)
-                // - Copy using startDir / FileInfo::name() +
-                // FileInfo::relPath().ext() as start dir in prompt
-                // - When we've allowed clicking off an item to unselect in
-                // TreeView, then we can have different behavior, perhaps, for
-                // Export file? (This would overlap, though, with broader
-                // export/concat/compile thing)
-            });
     }
 
     void connectBusEvents_()
@@ -424,6 +411,11 @@ private:
             &Bus::fileModelModificationChanged,
             this,
             &Notebook::onFileModelModificationChanged_);
+    }
+
+    QModelIndex resolveNotebookIndex_(const QModelIndex& index) const
+    {
+        return index.isValid() ? index : fnxModel_->notebookIndex();
     }
 
     // TODO: Trigger rename immediately (maybe)
@@ -438,7 +430,7 @@ private:
         // instead (our root for primary TreeView)
         auto info = fnxModel_->addNewTextFile(
             working_dir,
-            !index.isValid() ? fnxModel_->notebookIndex() : index);
+            resolveNotebookIndex_(index));
         if (!info.isValid()) return;
         files->openFilePathIn(window, working_dir / info.relPath, info.name);
     }
@@ -450,8 +442,7 @@ private:
         // If index is invalid, fnxModel_->addNewVirtualFolder adds it to the
         // DOM document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
-        fnxModel_->addNewVirtualFolder(
-            !index.isValid() ? fnxModel_->notebookIndex() : index);
+        fnxModel_->addNewVirtualFolder(resolveNotebookIndex_(index));
     }
 
     void importFiles_(Window* window, const QModelIndex& index = {})
@@ -474,7 +465,7 @@ private:
         auto infos = fnxModel_->importTextFiles(
             working_dir,
             fs_paths,
-            !index.isValid() ? fnxModel_->notebookIndex() : index);
+            resolveNotebookIndex_(index));
 
         for (auto& info : infos) {
             if (!info.isValid()) continue;
@@ -596,6 +587,7 @@ private:
 
         // Trash view
         auto trash_view = new TreeView(window);
+        trash_view->setHeaderHidden(true);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
         accordion->addWidget(Tr::nbTrash(), trash_view);
@@ -631,6 +623,7 @@ private:
         splitter->setStretchFactor(1, 0);
         splitter->setCollapsible(0, false);
         splitter->setCollapsible(1, false);
+        splitter->setHandleWidth(1);
 
         return splitter;
     }

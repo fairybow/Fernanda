@@ -93,14 +93,14 @@ private:
             bus,
             window,
             Commands::NOTEPAD_SAVE,
-            Tr::npSave(),
+            Tr::nxSave(),
             Menus::Shortcuts::SAVE); /// *
 
         actions.file.saveAs = Menus::makeBusAction(
             bus,
             window,
             Commands::NOTEPAD_SAVE_AS,
-            Tr::npSaveAs(),
+            Tr::nxSaveAs(),
             Menus::Shortcuts::SAVE_AS); /// *
 
         actions.file.saveAllInWindow = Menus::makeBusAction(

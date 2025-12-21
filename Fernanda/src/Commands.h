@@ -40,7 +40,6 @@ constexpr auto NOTEBOOK_SAVE = "notebook:save_archive"; /// *
 constexpr auto NOTEBOOK_SAVE_AS = "notebook:save_archive_as"; /// *
 constexpr auto NOTEBOOK_OPEN_NOTEPAD = "notebook:open_notepad"; /// *
 constexpr auto NOTEBOOK_IMPORT_FILES = "notebook:import_files"; /// *
-constexpr auto NOTEBOOK_EXPORT_SELECTED_FILE = "notebook:export_selected_file";
 
 // ViewService scope
 

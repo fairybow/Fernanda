@@ -76,6 +76,9 @@
     <Filter Include="Docs\Todos">
       <UniqueIdentifier>{1c3b61bf-1f84-4986-9a82-798d30675210}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\SVGs">
+      <UniqueIdentifier>{ae85a038-977a-48f7-8ae8-cf5aa02a48a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -133,15 +136,6 @@
     <None Include="submodules\Coco\Coco\copy\Class.md">
       <Filter>Submodules\Coco\Copy</Filter>
     </None>
-    <None Include="resources\ui\TabWidgetButtonEditedDot.svg">
-      <Filter>Resources</Filter>
-    </None>
-    <None Include="resources\ui\TabWidgetButtonAdd.svg">
-      <Filter>Resources</Filter>
-    </None>
-    <None Include="resources\ui\TabWidgetButtonClose.svg">
-      <Filter>Resources</Filter>
-    </None>
     <None Include="..\.gitattributes" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
@@ -193,6 +187,27 @@
     </None>
     <None Include="docs\old_UserData.md">
       <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="resources\ui\Dot.svg">
+      <Filter>Resources\SVGs</Filter>
+    </None>
+    <None Include="resources\ui\Plus.svg">
+      <Filter>Resources\SVGs</Filter>
+    </None>
+    <None Include="resources\ui\X.svg">
+      <Filter>Resources\SVGs</Filter>
+    </None>
+    <None Include="resources\ui\ChevronRight.svg">
+      <Filter>Resources\SVGs</Filter>
+    </None>
+    <None Include="resources\ui\ChevronDown.svg">
+      <Filter>Resources\SVGs</Filter>
+    </None>
+    <None Include="resources\ui\ChevronLeft.svg">
+      <Filter>Resources\SVGs</Filter>
+    </None>
+    <None Include="resources\ui\ChevronUp.svg">
+      <Filter>Resources\SVGs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -314,6 +329,9 @@
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
     <QtMoc Include="src\AccordionWidget.h">
+      <Filter>Code\Core\UI</Filter>
+    </QtMoc>
+    <QtMoc Include="src\CollapsibleWidgetHeader.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
   </ItemGroup>
