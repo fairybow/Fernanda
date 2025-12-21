@@ -265,23 +265,6 @@ namespace Xml {
                : element.removeAttribute(Internal::XML_FILE_EDITED_ATTR_);
     }
 
-    /*inline void clearEditedRecursive(QDomElement parent)
-    {
-        auto child = parent.firstChildElement();
-        while (!child.isNull()) {
-            if (isFile(child)) setEdited(child, false);
-            clearEditedRecursive(child);
-            child = child.nextSiblingElement();
-        }
-    }
-
-    inline void clearEditedRecursive(QDomDocument& dom)
-    {
-        clearEditedRecursive(dom.documentElement());
-    }*/
-
-    /// TODO TRASH
-
     inline QString restoreParentUuid(const QDomElement& element)
     {
         return element.attribute(Internal::XML_TRASH_RESTORE_PARENT_UUID_ATTR_);
@@ -324,8 +307,6 @@ namespace Xml {
 
         return false;
     }
-
-    /// TODO TRASH (END)
 
     inline QDomDocument makeDom(const Coco::Path& workingDir)
     {

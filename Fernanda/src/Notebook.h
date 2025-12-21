@@ -594,7 +594,6 @@ private:
         splitter->addWidget(accordion);
 
         // Trash view
-        // TODO: Subclass?
         auto trash_view = new TreeView(window);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
@@ -615,6 +614,7 @@ private:
             [this, window, trash_view](const QPoint& pos) {
                 onTrashViewContextMenuRequested_(
                     window,
+                    trash_view,
                     trash_view->mapToGlobal(pos),
                     trash_view->indexAt(pos));
             });
@@ -632,6 +632,44 @@ private:
         splitter->setCollapsible(1, false);
 
         return splitter;
+    }
+
+    void trashPromptAndDelete_(Window* window, const QModelIndex& index)
+    {
+        if (!window || !index.isValid()) return;
+        if (!workingDir_.isValid()) return;
+
+        auto file_infos = fnxModel_->fileInfosAt(index);
+        if (file_infos.isEmpty()) return;
+
+        if (!TrashPrompt::exec(file_infos.count(), window)) return;
+
+        auto working_dir = workingDir_.path();
+        QSet<Coco::Path> paths{};
+        for (auto& info : file_infos)
+            paths << working_dir / info.relPath;
+
+        auto models = files->modelsFor(paths);
+
+        views->closeViewsForModels(models);
+        files->deleteModels(models);
+
+        for (auto& path : paths)
+            if (!Coco::PathUtil::remove(path))
+                CRITICAL("Failed to delete [{}] from disk!", path);
+    }
+
+    void deleteTrashItem_(Window* window, const QModelIndex& index)
+    {
+        trashPromptAndDelete_(window, index);
+        fnxModel_->remove(index);
+    }
+
+    void emptyTrash_(Window* window)
+    {
+        // The trash element itself (tag "trash") isn't a file, so it's skipped
+        trashPromptAndDelete_(window, fnxModel_->trashIndex());
+        fnxModel_->clearTrash();
     }
 
 private slots:
@@ -692,41 +730,19 @@ private slots:
         auto menu = new QMenu(window);
         menu->setAttribute(Qt::WA_DeleteOnClose);
 
-        // Actions that don't need a valid model index
         auto new_file = menu->addAction(Tr::nbNewFile());
-        auto new_folder = menu->addAction(Tr::nbNewFolder());
-
         connect(new_file, &QAction::triggered, this, [&, window, index] {
             newFile_(window, index);
         });
 
+        auto new_folder = menu->addAction(Tr::nbNewFolder());
         connect(new_folder, &QAction::triggered, this, [&, index] {
             newVirtualFolder_(index);
         });
 
-        // Actions that DO need a valid model index. Only one model index can be
-        // selected at a time!
         if (index.isValid()) {
             menu->addSeparator();
 
-            auto rename = menu->addAction(Tr::nbRename());
-            auto remove = menu->addAction(Tr::nbRemove());
-
-            connect(rename, &QAction::triggered, this, [&, index, window] {
-                treeViews->rename(window, index);
-            });
-
-            /// TODO TRASH
-
-            connect(remove, &QAction::triggered, this, [&, index] {
-                fnxModel_->moveToTrash(index);
-            });
-
-            /// TODO TRASH (END)
-
-            menu->addSeparator();
-
-            // TODO: Move up
             if (fnxModel_->hasChildren(index)) {
                 auto is_expanded = treeViews->isExpanded(window, index);
 
@@ -736,20 +752,31 @@ private slots:
                     collapse_or_expand,
                     &QAction::triggered,
                     this,
-                    [&, is_expanded, index, window] {
+                    [&, is_expanded, window, index] {
                         is_expanded ? treeViews->collapse(window, index)
                                     : treeViews->expand(window, index);
                     });
             }
+
+            auto rename = menu->addAction(Tr::nbRename());
+            connect(rename, &QAction::triggered, this, [&, window, index] {
+                treeViews->edit(window, index);
+            });
+
+            menu->addSeparator();
+
+            auto remove = menu->addAction(Tr::nbRemove());
+            connect(remove, &QAction::triggered, this, [&, index] {
+                fnxModel_->moveToTrash(index);
+            });
         }
 
         menu->popup(globalPos);
     }
 
-    /// TODO TRASH
-
     void onTrashViewContextMenuRequested_(
         Window* window,
+        TreeView* trashView,
         const QPoint& globalPos,
         const QModelIndex& index)
     {
@@ -759,91 +786,9 @@ private slots:
         auto menu = new QMenu(window);
         menu->setAttribute(Qt::WA_DeleteOnClose);
 
-        /// TODO TRASH
-
-        auto empty = menu->addAction(Tr::nbEmptyTrash());
-        connect(empty, &QAction::triggered, this, [&, window] {
-            if (!workingDir_.isValid()) return;
-
-            // The trash element itself (tag "trash") isn't a file, so it's
-            // skipped
-            auto file_infos = fnxModel_->fileInfosAt(fnxModel_->trashIndex());
-            if (file_infos.isEmpty()) return;
-
-            if (!TrashPrompt::exec(file_infos.count(), window)) return;
-
-            auto working_dir = workingDir_.path();
-            QSet<Coco::Path> paths{};
-            for (auto& info : file_infos)
-                paths << working_dir / info.relPath;
-
-            auto models = files->modelsFor(paths);
-
-            views->closeViewsForModels(models);
-            files->deleteModels(models);
-
-            for (auto& path : paths)
-                if (!Coco::PathUtil::remove(path))
-                    CRITICAL("Failed to delete [{}] from disk!", path);
-
-            fnxModel_->clearTrash();
-        });
-
-        /// TODO TRASH (END)
-
         if (index.isValid()) {
-            menu->addSeparator();
-            auto restore = menu->addAction(Tr::nbRestore());
-            auto delete_permanently =
-                menu->addAction(Tr::nbDeletePermanently());
-            auto rename = menu->addAction(Tr::nbRename());
-
-            /// TODO TRASH
-
-            connect(restore, &QAction::triggered, this, [&, index] {
-                fnxModel_->restoreFromTrash(index);
-            });
-
-            connect(
-                delete_permanently,
-                &QAction::triggered,
-                this,
-                [&, index, window] {
-                    if (!workingDir_.isValid()) return;
-
-                    auto file_infos = fnxModel_->fileInfosAt(index);
-                    if (file_infos.isEmpty()) return;
-
-                    if (!TrashPrompt::exec(file_infos.count(), window)) return;
-
-                    auto working_dir = workingDir_.path();
-                    QSet<Coco::Path> paths{};
-                    for (auto& info : file_infos)
-                        paths << working_dir / info.relPath;
-
-                    auto models = files->modelsFor(paths);
-
-                    views->closeViewsForModels(models);
-                    files->deleteModels(models);
-
-                    for (auto& path : paths)
-                        if (!Coco::PathUtil::remove(path))
-                            CRITICAL("Failed to delete [{}] from disk!", path);
-
-                    fnxModel_->remove(index);
-                });
-
-            /// TODO TRASH (END)
-
-            connect(rename, &QAction::triggered, this, [&, index, window] {
-                treeViews->rename(window, index);
-            });
-
-            menu->addSeparator();
-
-            // TODO: Move up
             if (fnxModel_->hasChildren(index)) {
-                auto is_expanded = treeViews->isExpanded(window, index);
+                auto is_expanded = trashView->isExpanded(index);
 
                 auto collapse_or_expand = menu->addAction(
                     is_expanded ? Tr::nbCollapse() : Tr::nbExpand());
@@ -851,17 +796,42 @@ private slots:
                     collapse_or_expand,
                     &QAction::triggered,
                     this,
-                    [&, is_expanded, index, window] {
-                        is_expanded ? treeViews->collapse(window, index)
-                                    : treeViews->expand(window, index);
+                    [is_expanded, trashView, index] {
+                        is_expanded ? trashView->collapse(index)
+                                    : trashView->expand(index);
                     });
             }
+
+            auto rename = menu->addAction(Tr::nbRename());
+            connect(rename, &QAction::triggered, this, [&, trashView, index] {
+                trashView->edit(index);
+            });
+
+            menu->addSeparator();
+
+            auto restore = menu->addAction(Tr::nbRestore());
+            connect(restore, &QAction::triggered, this, [&, index] {
+                fnxModel_->moveToNotebook_(index);
+            });
+
+            auto delete_permanently =
+                menu->addAction(Tr::nbDeletePermanently());
+            connect(
+                delete_permanently,
+                &QAction::triggered,
+                this,
+                [&, window, index] { deleteTrashItem_(window, index); });
+
+            menu->addSeparator();
         }
+
+        auto empty = menu->addAction(Tr::nbEmptyTrash());
+        connect(empty, &QAction::triggered, this, [&, window] {
+            emptyTrash_(window);
+        });
 
         menu->popup(globalPos);
     }
-
-    /// TODO TRASH (END)
 
     void
     onFileModelModificationChanged_(AbstractFileModel* fileModel, bool modified)

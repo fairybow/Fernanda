@@ -77,7 +77,7 @@ public:
         return {};
     }
 
-    void rename(Window* window, const QModelIndex& index = {})
+    void edit(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
 

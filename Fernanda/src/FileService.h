@@ -142,14 +142,6 @@ public:
             signalFileModelReadied_(window, model);
     }
 
-    /// TODO TRASH
-
-    // TODO: Unused
-    AbstractFileModel* modelFor(const Coco::Path& path) const
-    {
-        return pathToFileModel_.value(path, nullptr);
-    }
-
     QSet<AbstractFileModel*> modelsFor(const QSet<Coco::Path>& paths) const
     {
         QSet<AbstractFileModel*> models{};
@@ -168,8 +160,6 @@ public:
         for (auto& model : fileModels)
             deleteModel(model);
     }
-
-    /// TODO TRASH (END)
 
 protected:
     virtual void registerBusCommands() override
