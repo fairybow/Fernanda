@@ -224,6 +224,8 @@ private:
 
         menus_->initialize();
 
+        treeViews->setHeadersHidden(true);
+
         treeViews->setDockWidgetHook(
             this,
             &Notebook::treeViewDockContentsHook_);
@@ -585,6 +587,7 @@ private:
 
         // Trash view
         auto trash_view = new TreeView(window);
+        trash_view->setHeaderHidden(true);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
         accordion->addWidget(Tr::nbTrash(), trash_view);
