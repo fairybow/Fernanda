@@ -60,6 +60,7 @@
     <QtMoc Include="src\Application.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="src\AccordionWidget.h" />
     <ClInclude Include="src\BuildMessages.h" />
     <QtMoc Include="src\FileService.h" />
     <QtMoc Include="src\SettingsModule.h" />
@@ -78,6 +79,7 @@
     <QtMoc Include="src\TabWidgetTabBar.h" />
     <QtMoc Include="src\TabWidgetUnderlay.h" />
     <QtMoc Include="src\Commander.h" />
+    <QtMoc Include="src\CollapsibleWidget.h" />
     <ClInclude Include="src\Debug.h" />
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />
@@ -98,6 +100,7 @@
     <ClInclude Include="src\Menus.h" />
     <QtMoc Include="src\NotebookMenuModule.h" />
     <ClInclude Include="src\NewNotebookPrompt.h" />
+    <QtMoc Include="src\TreeView.h" />
     <ClInclude Include="src\SaveFailMessageBox.h" />
     <ClInclude Include="src\SavePrompt.h" />
     <QtMoc Include="src\Settings.h" />
@@ -110,6 +113,7 @@
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewService.h" />
     <ClInclude Include="src\AppDirs.h" />
+    <ClInclude Include="src\TrashPrompt.h" />
     <ClInclude Include="src\Version.h" />
     <QtMoc Include="src\Workspace.h" />
     <QtMoc Include="src\ViewService.h" />

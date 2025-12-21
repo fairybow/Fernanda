@@ -19,24 +19,21 @@
 #include <QPoint>
 #include <QStatusBar>
 #include <QToolButton>
-#include <QTreeView>
 #include <QVariant>
 #include <QVariantMap>
 #include <Qt>
 
 #include "Coco/Path.h"
-#include "Coco/Utility.h"
 
 #include "AbstractService.h"
 #include "Bus.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "TreeView.h"
 #include "Window.h"
 
 namespace Fernanda {
-
-COCO_TRIVIAL_QCLASS(TreeView, QTreeView);
 
 // Coordinator for Window TreeViews
 class TreeViewService : public AbstractService
@@ -46,6 +43,7 @@ class TreeViewService : public AbstractService
 public:
     using ModelHook = std::function<QAbstractItemModel*()>;
     using RootIndexHook = std::function<QModelIndex()>;
+    using DockWidgetHook = std::function<QWidget*(TreeView* mainTree, Window*)>;
 
     TreeViewService(Bus* bus, QObject* parent = nullptr)
         : AbstractService(bus, parent)
@@ -63,6 +61,12 @@ public:
         setRootIndexHook,
         rootIndexHook_);
 
+    DECLARE_HOOK_ACCESSORS(
+        DockWidgetHook,
+        dockWidgetHook,
+        setDockWidgetHook,
+        dockWidgetHook_);
+
     QModelIndex currentIndex(Window* window) const
     {
         if (!window) return {};
@@ -73,7 +77,7 @@ public:
         return {};
     }
 
-    void rename(Window* window, const QModelIndex& index = {})
+    void edit(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
 
@@ -87,7 +91,8 @@ public:
     bool isExpanded(Window* window, const QModelIndex& index) const
     {
         if (!window || !index.isValid()) return false;
-        if (auto tree_view = treeViews_[window]) return tree_view->isExpanded(index);
+        if (auto tree_view = treeViews_[window])
+            return tree_view->isExpanded(index);
         return false;
     }
 
@@ -145,6 +150,7 @@ private:
     QHash<Window*, TreeView*> treeViews_{};
     ModelHook modelHook_ = nullptr;
     RootIndexHook rootIndexHook_ = nullptr;
+    DockWidgetHook dockWidgetHook_ = nullptr;
 
     void setup_()
     {
@@ -161,18 +167,6 @@ private:
         auto tree_view = new TreeView(dock_widget);
         treeViews_[window] = tree_view;
 
-        tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
-        tree_view->setEditTriggers(
-            QAbstractItemView::SelectedClicked
-            | QAbstractItemView::EditKeyPressed); // F2 (standard)
-
-        // Drag and drop
-        tree_view->setDragEnabled(true);
-        tree_view->setAcceptDrops(true);
-        tree_view->setDropIndicatorShown(true);
-        tree_view->setDragDropMode(QAbstractItemView::InternalMove);
-        tree_view->setDefaultDropAction(Qt::MoveAction);
-
         if (modelHook_ && rootIndexHook_) {
             if (auto model = modelHook_()) {
                 tree_view->setModel(model);
@@ -181,7 +175,11 @@ private:
             }
         }
 
-        dock_widget->setWidget(tree_view);
+        // Determine what goes in the dock
+        QWidget* dock_contents = tree_view;
+        if (dockWidgetHook_) dock_contents = dockWidgetHook_(tree_view, window);
+
+        dock_widget->setWidget(dock_contents);
         window->addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
 
         window->resizeDocks(
@@ -212,7 +210,7 @@ private:
                 auto point = tree_view->mapToGlobal(pos);
                 auto model_index = tree_view->indexAt(pos);
                 INFO(
-                    "Requesting context menu in [{}] at {} for index [{}]",
+                    "Requesting context menu in [{}] at [{}] for index [{}]",
                     window,
                     point,
                     model_index);

@@ -10,6 +10,7 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 
 #include <QAbstractItemModel>
 #include <QAction>
@@ -22,18 +23,22 @@
 #include <QObject>
 #include <QPalette> // TODO: Temp
 #include <QPoint>
+#include <QSplitter>
 #include <QStatusBar>
 #include <QStringList>
 #include <QVariant>
 #include <QVariantMap>
+#include <QWidget>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
 #include "AbstractFileModel.h"
 #include "AbstractService.h"
+#include "AccordionWidget.h"
 #include "AppDirs.h"
 #include "Bus.h"
+#include "CollapsibleWidget.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
@@ -45,6 +50,9 @@
 #include "SavePrompt.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
+#include "TrashPrompt.h"
+#include "TreeView.h"
+#include "TreeViewService.h"
 #include "Window.h"
 #include "Workspace.h"
 
@@ -56,6 +64,10 @@ namespace Fernanda {
 // exclusively, never accesses DOM elements directly.
 //
 // There can be any number of Notebooks open during the application lifetime.
+//
+// TODO: Add to docs: trash behavior (still edtiable, tabs do not close when
+// moved to trash, still savable; however, emptying trash will close tabs and
+// lose unsaved changes)
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -85,13 +97,21 @@ signals:
 protected:
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
 
-    // TODO: Get element by tag/qualified name? (For future, when we have Trash)
     virtual QModelIndex treeViewRootIndex() override
     {
-        // The invalid index represents the root document element (<notebook>).
-        // TreeView will display its children (the actual files and virtual
-        // folders/structure)
-        return {};
+        // TreeView displays children of this index, making <notebook> the
+        // user-visible root. When nothing is selected, TreeView::currentIndex()
+        // returns an invalid QModelIndex.
+        //
+        // However, FnxModel::elementAt_({}) maps invalid indices to
+        // dom_.documentElement(), which is <fnx> (the true DOM root containing
+        // both <notebook> and <trash>).
+        //
+        // This mismatch means Notebook item adding methods must explicitly pass
+        // notebookIndex() as a fallback when currentIndex() is invalid,
+        // ensuring new files and folders are parented under <notebook> rather
+        // than accidentally becoming siblings of <notebook> and <trash>.
+        return fnxModel_->notebookIndex();
     }
 
     virtual bool canCloseWindow(Window* window) override
@@ -204,6 +224,10 @@ private:
 
         menus_->initialize();
 
+        treeViews->setDockWidgetHook(
+            this,
+            &Notebook::treeViewDockContentsHook_);
+
         connect(
             treeViews,
             &TreeViewService::treeViewDoubleClicked,
@@ -222,7 +246,8 @@ private:
             this,
             [&](Window* window) {
                 // Whereas menu and context menu use currently selected TreeView
-                // model index, this does not
+                // model index, this does not (and automatically goes to
+                // notebook element)
                 newFile_(window);
             });
 
@@ -240,7 +265,8 @@ private:
         } else {
             Fnx::Io::extract(fnxPath_, working_dir);
             // TODO: Verification (comparing Model file elements to content dir
-            // files)
+            // files, i.e. making sure Trash exists, checking all file UUIDs
+            // have corresponding files, etc.)
         }
 
         fnxModel_->load(working_dir);
@@ -270,7 +296,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
                 // New file will be under selected TreeView model index (or
-                // document element if no current index)
+                // notebook element if no current index)
                 newFile_(cmd.context, treeViews->currentIndex(cmd.context));
             });
 
@@ -279,7 +305,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
                 // New folder will be under selected TreeView model index (or
-                // document element if no current index)
+                // notebook element if no current index)
                 newVirtualFolder_(treeViews->currentIndex(cmd.context));
             });
 
@@ -288,7 +314,7 @@ private:
             [&](const Command& cmd) {
                 if (!cmd.context) return;
                 // Imported files will be under selected TreeView model index
-                // (or document element if no current index)
+                // (or notebook element if no current index)
                 importFiles_(cmd.context, treeViews->currentIndex(cmd.context));
             });
 
@@ -407,9 +433,12 @@ private:
         if (!workingDir_.isValid()) return;
 
         auto working_dir = workingDir_.path();
-        // If index is invalid, this function adds it to the DOM document
-        // element (top-level)
-        auto info = fnxModel_->addNewTextFile(working_dir, index);
+        // If index is invalid, fnxModel_->addNewTextFile adds it to the DOM
+        // document element (top-level), so we make sure it goes to Notebook
+        // instead (our root for primary TreeView)
+        auto info = fnxModel_->addNewTextFile(
+            working_dir,
+            !index.isValid() ? fnxModel_->notebookIndex() : index);
         if (!info.isValid()) return;
         files->openFilePathIn(window, working_dir / info.relPath, info.name);
     }
@@ -418,9 +447,11 @@ private:
     void newVirtualFolder_(const QModelIndex& index = {})
     {
         if (!workingDir_.isValid()) return;
-        // If index is invalid, this function adds it to the DOM document
-        // element (top-level)
-        fnxModel_->addNewVirtualFolder(index);
+        // If index is invalid, fnxModel_->addNewVirtualFolder adds it to the
+        // DOM document element (top-level), so we make sure it goes to Notebook
+        // instead (our root for primary TreeView)
+        fnxModel_->addNewVirtualFolder(
+            !index.isValid() ? fnxModel_->notebookIndex() : index);
     }
 
     void importFiles_(Window* window, const QModelIndex& index = {})
@@ -437,9 +468,13 @@ private:
         if (fs_paths.isEmpty()) return;
 
         auto working_dir = workingDir_.path();
-        // If index is invalid, this function adds it to the DOM document
-        // element (top-level)
-        auto infos = fnxModel_->importTextFiles(working_dir, fs_paths, index);
+        // If index is invalid, fnxModel_->importTextFiles adds it to the DOM
+        // document element (top-level), so we make sure it goes to Notebook
+        // instead (our root for primary TreeView)
+        auto infos = fnxModel_->importTextFiles(
+            working_dir,
+            fs_paths,
+            !index.isValid() ? fnxModel_->notebookIndex() : index);
 
         for (auto& info : infos) {
             if (!info.isValid()) continue;
@@ -481,13 +516,12 @@ private:
 
     MultiSaveResult_ saveModifiedModels_() const
     {
-        auto modified_models = views->modifiedViewModels();
-        if (modified_models.isEmpty()) return {};
-
         // No save prompts for Notebook's always-on-disk files
         MultiSaveResult_ result{};
 
-        for (auto& model : modified_models) {
+        for (auto& model : files->fileModels()) {
+            if (!model || !model->isModified()) continue;
+
             switch (files->save(model)) {
             case FileService::Success:
                 break;
@@ -498,6 +532,20 @@ private:
                 result.failed << model;
                 break;
             }
+        }
+
+        // Unlike in Notepad, we don't get a list of modified models from views
+        // in order 0 to n-index by window because models' lives aren't tied to
+        // their view in Notebook. We don't really have an inherent order (other
+        // than the DOM) so might as well leave unordered or sort alphabetically
+        // here
+        if (!result.failed.isEmpty()) {
+            std::sort(
+                result.failed.begin(),
+                result.failed.end(),
+                [](AbstractFileModel* a, AbstractFileModel* b) {
+                    return a->meta()->path() < b->meta()->path();
+                });
         }
 
         return result;
@@ -533,6 +581,96 @@ private:
             Tr::nbSaveAsCaption(),
             fnxPath_,
             Tr::nbSaveAsFilter());
+    }
+
+    QWidget* treeViewDockContentsHook_(TreeView* mainTree, Window* window)
+    {
+        // TODO: Collapse if dragging downward and the widget can't shrink any
+        // more?
+
+        auto splitter = new QSplitter(Qt::Vertical, window);
+        splitter->addWidget(mainTree);
+
+        auto accordion = new AccordionWidget(window);
+        splitter->addWidget(accordion);
+
+        // Trash view
+        auto trash_view = new TreeView(window);
+        trash_view->setModel(fnxModel_);
+        trash_view->setRootIndex(fnxModel_->trashIndex());
+        accordion->addWidget(Tr::nbTrash(), trash_view);
+
+        connect(
+            trash_view,
+            &TreeView::doubleClicked,
+            this,
+            [this, window](const QModelIndex& index) {
+                onTreeViewDoubleClicked_(window, index);
+            });
+
+        connect(
+            trash_view,
+            &TreeView::customContextMenuRequested,
+            this,
+            [this, window, trash_view](const QPoint& pos) {
+                onTrashViewContextMenuRequested_(
+                    window,
+                    trash_view,
+                    trash_view->mapToGlobal(pos),
+                    trash_view->indexAt(pos));
+            });
+
+        // Test (seems like it works well!)
+        // auto test_view = new TreeView(window);
+        // test_view->setModel(fnxModel_);
+        // test_view->setRootIndex(fnxModel_->trashIndex());
+        // accordion->addWidget("Test", test_view);
+
+        // Splitter setup
+        splitter->setStretchFactor(0, 1);
+        splitter->setStretchFactor(1, 0);
+        splitter->setCollapsible(0, false);
+        splitter->setCollapsible(1, false);
+
+        return splitter;
+    }
+
+    void trashPromptAndDelete_(Window* window, const QModelIndex& index)
+    {
+        if (!window || !index.isValid()) return;
+        if (!workingDir_.isValid()) return;
+
+        auto file_infos = fnxModel_->fileInfosAt(index);
+        if (file_infos.isEmpty()) return;
+
+        if (!TrashPrompt::exec(file_infos.count(), window)) return;
+
+        auto working_dir = workingDir_.path();
+        QSet<Coco::Path> paths{};
+        for (auto& info : file_infos)
+            paths << working_dir / info.relPath;
+
+        auto models = files->modelsFor(paths);
+
+        views->closeViewsForModels(models);
+        files->deleteModels(models);
+
+        for (auto& path : paths)
+            if (!Coco::PathUtil::remove(path))
+                CRITICAL("Failed to delete [{}] from disk!", path);
+    }
+
+    void deleteTrashItem_(Window* window, const QModelIndex& index)
+    {
+        trashPromptAndDelete_(window, index);
+        fnxModel_->remove(index);
+    }
+
+    void emptyTrash_(Window* window)
+    {
+        // The trash element itself (tag "trash") isn't a file, so it's skipped
+        trashPromptAndDelete_(window, fnxModel_->trashIndex());
+        fnxModel_->clearTrash();
     }
 
 private slots:
@@ -593,37 +731,19 @@ private slots:
         auto menu = new QMenu(window);
         menu->setAttribute(Qt::WA_DeleteOnClose);
 
-        // Actions that don't need a valid model index
         auto new_file = menu->addAction(Tr::nbNewFile());
-        auto new_folder = menu->addAction(Tr::nbNewFolder());
-
         connect(new_file, &QAction::triggered, this, [&, window, index] {
             newFile_(window, index);
         });
 
+        auto new_folder = menu->addAction(Tr::nbNewFolder());
         connect(new_folder, &QAction::triggered, this, [&, index] {
             newVirtualFolder_(index);
         });
 
-        // Actions that DO need a valid model index. Only one model index can be
-        // selected at a time!
         if (index.isValid()) {
             menu->addSeparator();
 
-            auto rename = menu->addAction(Tr::nbRename());
-            auto remove = menu->addAction(Tr::nbRemove());
-
-            connect(rename, &QAction::triggered, this, [&, index, window] {
-                treeViews->rename(window, index);
-            });
-
-            connect(remove, &QAction::triggered, this, [&] {
-                // TODO
-            });
-
-            menu->addSeparator();
-
-            // TODO: Move up
             if (fnxModel_->hasChildren(index)) {
                 auto is_expanded = treeViews->isExpanded(window, index);
 
@@ -633,12 +753,83 @@ private slots:
                     collapse_or_expand,
                     &QAction::triggered,
                     this,
-                    [&, is_expanded, index, window] {
+                    [&, is_expanded, window, index] {
                         is_expanded ? treeViews->collapse(window, index)
                                     : treeViews->expand(window, index);
                     });
             }
+
+            auto rename = menu->addAction(Tr::nbRename());
+            connect(rename, &QAction::triggered, this, [&, window, index] {
+                treeViews->edit(window, index);
+            });
+
+            menu->addSeparator();
+
+            auto remove = menu->addAction(Tr::nbRemove());
+            connect(remove, &QAction::triggered, this, [&, index] {
+                fnxModel_->moveToTrash(index);
+            });
         }
+
+        menu->popup(globalPos);
+    }
+
+    void onTrashViewContextMenuRequested_(
+        Window* window,
+        TreeView* trashView,
+        const QPoint& globalPos,
+        const QModelIndex& index)
+    {
+        if (!window) return;
+        if (!fnxModel_->hasTrash()) return;
+
+        auto menu = new QMenu(window);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+
+        if (index.isValid()) {
+            if (fnxModel_->hasChildren(index)) {
+                auto is_expanded = trashView->isExpanded(index);
+
+                auto collapse_or_expand = menu->addAction(
+                    is_expanded ? Tr::nbCollapse() : Tr::nbExpand());
+                connect(
+                    collapse_or_expand,
+                    &QAction::triggered,
+                    this,
+                    [is_expanded, trashView, index] {
+                        is_expanded ? trashView->collapse(index)
+                                    : trashView->expand(index);
+                    });
+            }
+
+            auto rename = menu->addAction(Tr::nbRename());
+            connect(rename, &QAction::triggered, this, [&, trashView, index] {
+                trashView->edit(index);
+            });
+
+            menu->addSeparator();
+
+            auto restore = menu->addAction(Tr::nbRestore());
+            connect(restore, &QAction::triggered, this, [&, index] {
+                fnxModel_->moveToNotebook_(index);
+            });
+
+            auto delete_permanently =
+                menu->addAction(Tr::nbDeletePermanently());
+            connect(
+                delete_permanently,
+                &QAction::triggered,
+                this,
+                [&, window, index] { deleteTrashItem_(window, index); });
+
+            menu->addSeparator();
+        }
+
+        auto empty = menu->addAction(Tr::nbEmptyTrash());
+        connect(empty, &QAction::triggered, this, [&, window] {
+            emptyTrash_(window);
+        });
 
         menu->popup(globalPos);
     }

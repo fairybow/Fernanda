@@ -51,11 +51,8 @@ class ViewService : public AbstractService
     Q_OBJECT
 
 public:
-    // TODO: This is probably more a signal, since no return value
-    using NewTabHook = std::function<void(Window*)>;
-
-    using CanCloseTabHook = std::function<bool(Window*, int)>;
-    using CanCloseTabEverywhereHook = std::function<bool(Window*, int)>;
+    using CanCloseTabHook = std::function<bool(Window*, int index)>;
+    using CanCloseTabEverywhereHook = std::function<bool(Window*, int index)>;
     using CanCloseWindowTabsHook = std::function<bool(Window*)>;
     using CanCloseAllTabsHook = std::function<bool(const QList<Window*>&)>;
 
@@ -265,6 +262,27 @@ public:
         return result;
     }
 
+    // No hook!
+    void closeViewsForModels(const QSet<AbstractFileModel*>& fileModels)
+    {
+        if (fileModels.isEmpty()) return;
+
+        auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
+        if (windows.isEmpty()) return;
+
+        for (auto& window : windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget || tab_widget->isEmpty()) continue;
+
+            // Iterate backward to avoid index shifting issues
+            for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                if (view && fileModels.contains(view->model()))
+                    deleteFileViewAt_(window, i);
+            }
+        }
+    }
+
 signals:
     void viewDestroyed(AbstractFileModel* fileModel);
     void addTabRequested(Window* window);
@@ -289,6 +307,11 @@ protected:
         bus->addCommandHandler(
             Commands::CLOSE_ALL_TABS,
             [&](const Command& cmd) { closeAllTabs_(); });
+
+        // All the methods used in these handlers aren't called anywhere else
+        // right now except in menus. As such, they don't really need the index
+        // parameter (as they only ever operate on the current view in a given
+        // window/cmd.context. However, leaving it as-is for now just in case.
 
         bus->addCommandHandler(Commands::UNDO, [&](const Command& cmd) {
             undo_(cmd.context, cmd.param<int>("index", -1));

@@ -38,7 +38,6 @@ namespace Fernanda {
 // Owns the internal QDomDocument. Public methods return FileInfo structs, never
 // raw DOM elements. Uses Fnx::Xml helpers internally for DOM operations.
 //
-// TODO: Trash (should be immutable and separate from active)
 // TODO: Double clicking on files should maybe not expand (if they have
 // children), since they also open with double clicks?
 class FnxModel : public QAbstractItemModel
@@ -65,6 +64,7 @@ public:
     FnxModel(QObject* parent)
         : QAbstractItemModel(parent)
     {
+        setup_();
     }
 
     virtual ~FnxModel() override { TRACER; }
@@ -98,6 +98,26 @@ public:
         return domSnapshot_ != dom_.toString();
     }
 
+    // TODO: Is this the right approach?
+    QModelIndex notebookIndex() const
+    {
+        auto notebook = Fnx::Xml::notebookElement(dom_);
+        return indexFromElement_(notebook);
+    }
+
+    // TODO: Is this the right approach?
+    QModelIndex trashIndex() const
+    {
+        auto trash = Fnx::Xml::trashElement(dom_);
+        return indexFromElement_(trash);
+    }
+
+    bool hasTrash() const
+    {
+        // return hasChildren(trashIndex());
+        return !Fnx::Xml::trashElement(dom_).firstChildElement().isNull();
+    }
+
     void setFileEdited(const QString& uuid, bool edited)
     {
         QDomElement element{};
@@ -128,10 +148,37 @@ public:
         emit domChanged();
     }
 
+    // TODO: Unused
+    int descendantCount(const QModelIndex& index) const
+    {
+        auto element = elementAt_(index);
+        return descendantCountRecursor_(element);
+    }
+
+    // TODO: Unused
+    int trashCount() const
+    {
+        auto trash_index = indexFromElement_(Fnx::Xml::trashElement(dom_));
+        return descendantCount(trash_index);
+    }
+
     FileInfo fileInfoAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return {};
         return { elementAt_(index) };
+    }
+
+    // Parent/index is included
+    QList<FileInfo> fileInfosAt(const QModelIndex& index) const
+    {
+        if (!index.isValid()) return {};
+
+        auto element = elementAt_(index);
+        if (!isValid_(element)) return {};
+
+        QList<FileInfo> infos{};
+        collectFileInfosRecursor_(element, infos);
+        return infos;
     }
 
     void addNewVirtualFolder(const QModelIndex& parentIndex = {})
@@ -189,6 +236,97 @@ public:
             infos << FileInfo{ element };
 
         return infos;
+    }
+
+    bool moveToTrash(const QModelIndex& index)
+    {
+        if (!index.isValid()) return false;
+
+        auto element = elementAt_(index);
+        if (!isValid_(element)) return false;
+
+        // Store original parent's UUID before moving (if parent has one)
+        auto parent = element.parentNode().toElement();
+        auto parent_uuid = Fnx::Xml::uuid(parent);
+        if (!parent_uuid.isEmpty())
+            Fnx::Xml::setRestoreParentUuid(element, parent_uuid);
+
+        auto trash = Fnx::Xml::trashElement(dom_);
+        return moveElement_(element, trash, -1);
+    }
+
+    bool moveToNotebook_(const QModelIndex& index)
+    {
+        if (!index.isValid()) return false;
+
+        auto element = elementAt_(index);
+        if (!isValid_(element)) return false;
+
+        // Try to find original parent
+        auto original_uuid = Fnx::Xml::restoreParentUuid(element);
+        QDomElement destination = Fnx::Xml::notebookElement(dom_); // Default
+
+        if (!original_uuid.isEmpty()) {
+            auto original_parent = findElementByUuid_(original_uuid);
+            // Only restore to original if it exists and isn't in trash
+            if (!original_parent.isNull()
+                && !Fnx::Xml::isInTrash(dom_, original_parent)) {
+                destination = original_parent;
+            }
+        }
+
+        Fnx::Xml::clearRestoreParentUuid(element);
+        return moveElement_(element, destination, -1);
+    }
+
+    bool remove(const QModelIndex& index)
+    {
+        if (!index.isValid()) return false;
+
+        auto element = elementAt_(index);
+        if (!isValid_(element)) return false;
+
+        auto parent_element = element.parentNode().toElement();
+        if (parent_element.isNull()) return false;
+
+        auto parent_index = indexFromElement_(parent_element);
+        auto row = rowOfElement_(element);
+
+        // Clean up cache for this element and all descendants
+        clearCacheRecursor_(element);
+
+        beginRemoveRows(parent_index, row, row);
+        parent_element.removeChild(element);
+        endRemoveRows();
+
+        emit domChanged();
+        return true;
+    }
+
+    bool clearTrash()
+    {
+        auto trash = Fnx::Xml::trashElement(dom_);
+        if (trash.isNull()) return false;
+
+        auto child_count = childElementCount_(trash);
+        if (child_count == 0) return true; // Nothing to clear
+
+        // Clear cache for all descendants
+        auto child = trash.firstChildElement();
+        while (!child.isNull()) {
+            clearCacheRecursor_(child);
+            child = child.nextSiblingElement();
+        }
+
+        // Remove all children in one batch
+        auto trash_index = trashIndex();
+        beginRemoveRows(trash_index, 0, child_count - 1);
+        while (!trash.firstChildElement().isNull())
+            trash.removeChild(trash.firstChildElement());
+        endRemoveRows();
+
+        emit domChanged();
+        return true;
     }
 
     virtual Qt::ItemFlags flags(const QModelIndex& index) const override
@@ -363,6 +501,7 @@ public:
 signals:
     void domChanged();
     void fileRenamed(const FileInfo& info);
+    //void trashCountChanged();
 
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
@@ -375,6 +514,11 @@ private:
     mutable quintptr nextId_ = 1;
     mutable QHash<QString, quintptr> elementToId_{}; // Element's UUID -> ID
     mutable QHash<quintptr, QDomElement> idToElement_{}; // ID -> Element
+
+    void setup_()
+    {
+        //...
+    }
 
     void clearCache_() const
     {
@@ -406,15 +550,23 @@ private:
         return element.ownerDocument() == dom_;
     }
 
+    // TODO: Verify
     QDomElement elementAt_(const QModelIndex& index) const
     {
         if (!index.isValid()) return dom_.documentElement();
 
         auto id = reinterpret_cast<quintptr>(index.internalPointer());
+
+        // ID not in cache - likely a stale index from a removed element
+        // This is expected after deletions, silent return
+        if (!idToElement_.contains(id)) return {};
+
         auto element = idToElement_.value(id);
 
         if (!isValid_(element)) {
-            WARN("Invalid element for ID: {}", id);
+            // Element is in cache but became invalid (orphaned, wrong document,
+            // etc.) This is unexpected - clear cache to recover
+            WARN("Cached element became invalid for ID: {}", id);
             clearCache_();
             return {};
         }
@@ -422,14 +574,22 @@ private:
         return element;
     }
 
+    // TODO: Fix
     QString elementKey_(const QDomElement& element) const
     {
         if (element.isNull()) return {};
 
         auto uuid = Fnx::Xml::uuid(element);
-        if (uuid.isEmpty()) return "root";
+        if (!uuid.isEmpty()) return uuid;
 
-        return uuid;
+        // Structural elements without UUIDs, use tag name as key
+        // TODO: Potentially just return tag name if UUID is empty?
+        auto tag = element.tagName();
+        if (tag == "fnx" || tag == "notebook" || tag == "trash") return tag;
+
+        // TODO: Fatal, maybe
+
+        return "root"; // Fallback (shouldn't happen)
     }
 
     quintptr idFromElement_(const QDomElement& element) const
@@ -448,15 +608,65 @@ private:
         return elementToId_[key];
     }
 
+    void collectFileInfosRecursor_(
+        const QDomElement& element,
+        QList<FileInfo>& outInfos) const
+    {
+        if (element.isNull()) return;
+
+        // If this element is a file, add its info
+        if (Fnx::Xml::isFile(element)) outInfos << FileInfo{ element };
+
+        // Recurse into children
+        auto child = element.firstChildElement();
+        while (!child.isNull()) {
+            collectFileInfosRecursor_(child, outInfos);
+            child = child.nextSiblingElement();
+        }
+    }
+
+    void clearCacheRecursor_(const QDomElement& element) const
+    {
+        if (element.isNull()) return;
+
+        // Clear this element's cache entry
+        auto key = elementKey_(element);
+        if (elementToId_.contains(key)) {
+            auto id = elementToId_[key];
+            idToElement_.remove(id);
+            elementToId_.remove(key);
+        }
+
+        // Recurse into children
+        auto child = element.firstChildElement();
+        while (!child.isNull()) {
+            clearCacheRecursor_(child);
+            child = child.nextSiblingElement();
+        }
+    }
+
+    // TODO: Unused
+    int descendantCountRecursor_(const QDomElement& element) const
+    {
+        auto count = 0;
+        auto child = element.firstChildElement();
+        while (!child.isNull()) {
+            ++count;
+            count += descendantCountRecursor_(child);
+            child = child.nextSiblingElement();
+        }
+        return count;
+    }
+
     // Cache is lazily populated during tree traversal; unopened branches won't
     // be cached yet.
     QDomElement findElementByUuid_(const QString& uuid) const
     {
         if (uuid.isEmpty()) return {};
-        return findElementByUuidRecursive_(dom_.documentElement(), uuid);
+        return findElementByUuidRecursor_(dom_.documentElement(), uuid);
     }
 
-    QDomElement findElementByUuidRecursive_(
+    QDomElement findElementByUuidRecursor_(
         const QDomElement& parent,
         const QString& uuid) const
     {
@@ -466,7 +676,7 @@ private:
             if (Fnx::Xml::uuid(child) == uuid) return child;
 
             // Search children
-            auto found = findElementByUuidRecursive_(child, uuid);
+            auto found = findElementByUuidRecursor_(child, uuid);
             if (!found.isNull()) return found;
 
             child = child.nextSiblingElement();
@@ -616,8 +826,6 @@ private:
 
         return true;
     }
-
-    // TODO: moveElements_ (maybe)
 
     // The parent element parameters must be by-value because
     // `dom_.documentElement()` returns a temporary (rvalue). Non-const

@@ -2,16 +2,6 @@
 
 ## Features
 
-### Up Next (See Miscellaneous Todos)
-
-- [x] Save prompts
-- [x] Saves
-- [x] Working dir renames
-- [ ] New Notebook dialog
-- [ ] Notebook export file
-- [ ] FnxModel + TreeView element removal
-- [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
-
 ### MVP
 
 - [ ] FNX (extract, compress, model, model manipulation, saving)
@@ -21,8 +11,9 @@
 - [ ] TreeView redocking/toggling
 - [ ] Tab dragging (tab to window, tab to new window)
 - [ ] Basic key filters
-- [ ] Translations (FR, DE, ES, JA, ZH)
+- [ ] Translations (FR, DE, ES, JA, ZH, IT)
 - [ ] Basic editor settings
+- [ ] Installer
 
 ### Stretch
 
@@ -35,7 +26,10 @@
 - [ ] Multi-file save prompt file name clicks raising relevant window/file view
 - [ ] Checkable export and compile feature with Dom tree
 - [ ] Notepad context menu
-- [ ] Notepad rename/remove/collapse/expand menu items (and anything else Notebook has that could be used in Notepad)
+- [ ] Notepad rename/remove/collapse/expand context menu items (and anything else Notebook has that could be used in Notepad)
+- [ ] Pinned tabs (will utilize sessions)
+- [ ] Tab groups (will utilize sessions, and maybe a better tab bar)
+- [ ] Expanded/collapsed item restoration between sessions (will utilize sessions)
 
 ### Docs
 
@@ -93,28 +87,44 @@ After New Notebook:
 
 Next up:
 
-- [ ] Notebook Trash!
+- [x] Notebook Trash!
 - [ ] Maybe stuff some of the closures in sub menus
 - [x] Remove unneeded menu items
 - [x] Add window or view menu (or special Notebook menu that has import/export/open notepad/and anything else unique to NB)
 - [x] Open notepad to window or view
-- [ ] Also need to have trash appear at the bottom
-- [ ] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
+- [x] Also need to have trash appear at the bottom
+- [x] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
 - [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
 - [ ] Save code refactors
 - [x] Removing unified New Tab command
 - [x] Replacing New Tab with New Tab in Notepad, New File and New Folder in Notebook
 - [x] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
 - [x] Menu changes to accomodate, which includes an extra inserter
-- [ ] Notebook independent methods for context menu actions (new file, new folder, export file, rename)
-- [ ] Ensuring all NB context menu items are added only when index is valid for them
-- [ ] NB commands for the new independent methods (new file, new folder, export file, rename)
-- [ ] Adding all 4 to menu
-- [ ] Deciding where rename will go in menu (file? edit?)
+- [x] Ensuring all NB context menu items are added only when index is valid for them
 - [ ] Notebook export file
 - [ ] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
 - [ ] Menu action toggling based on current view/model, window, workspace states
+- [x] Save prompts
+- [x] Saves
+- [x] Working dir renames
+- [x] New Notebook dialog
+- [ ] Notebook export file
+- [x] FnxModel + TreeView element removal
+- [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
+- [x] Trash view
+- [ ] Refactor common context menu stuff / TreeView hookup
+- [ ] Trash count
+- [ ] Better arrow icon
+- [ ] Icon instead of trash text?
+- [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
+- [x] Drag and drop from main to trash and back
+- [x] Remove action sending to trash
+- [x] Restore from trash
+- [x] File opening and other main-like connections for trash view
+- [x] Delete one item in trash (prompt, then delete/close model, file in working dir, and all views)
+- [x] Empty trash (prompt, then delete/close all models/views/files from working dir)
+- [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
 
 ### Coco
 
@@ -145,7 +155,6 @@ Next up:
 
 ### General
 
-- [ ] Installer
 - [ ] Add installer dir to gitattributes linguist exclusions
 - [ ] Mononoki & OpenDyslexic
 - [ ] WidgetUtil or similar - was thinking central place to set all painters

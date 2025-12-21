@@ -110,7 +110,6 @@ protected:
                                 // When it's made configurable, it will likely
                                 // belong to App
 
-protected:
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
 

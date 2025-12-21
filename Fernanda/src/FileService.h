@@ -142,6 +142,25 @@ public:
             signalFileModelReadied_(window, model);
     }
 
+    QSet<AbstractFileModel*> modelsFor(const QSet<Coco::Path>& paths) const
+    {
+        QSet<AbstractFileModel*> models{};
+
+        for (auto& path : paths)
+            if (auto model = pathToFileModel_.value(path, nullptr))
+                models << model;
+
+        return models;
+    }
+
+    void deleteModels(const QSet<AbstractFileModel*>& fileModels)
+    {
+        if (fileModels.isEmpty()) return;
+
+        for (auto& model : fileModels)
+            deleteModel(model);
+    }
+
 protected:
     virtual void registerBusCommands() override
     {

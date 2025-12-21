@@ -60,13 +60,26 @@ namespace Internal {
     // Xml
 
     constexpr auto XML_INDENT_ = 2;
-    constexpr auto XML_ROOT_TAG_ = "notebook";
+
+    constexpr auto XML_DOCUMENT_ELEMENT_TAG_ = "fnx";
+    constexpr auto XML_FNX_VERSION_ATTR_ = "version";
+    constexpr auto XML_FNX_VERSION_ = "1.0";
+
+    constexpr auto XML_NOTEBOOK_TAG_ = "notebook";
+    constexpr auto XML_TRASH_TAG_ = "trash";
+
     constexpr auto XML_VFOLDER_TAG_ = "vfolder";
     constexpr auto XML_FILE_TAG_ = "file";
     constexpr auto XML_NAME_ATTR_ = "name";
     constexpr auto XML_NAME_ATTR_FILE_DEF_ = "Untitled";
     constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
-    constexpr auto XML_FILE_UUID_ATTR_ = "uuid";
+    constexpr auto XML_UUID_ATTR_ = "uuid";
+    constexpr auto XML_TRASH_RESTORE_PARENT_UUID_ATTR_ =
+        "parent_on_restore_uuid"; // TODO: Make sure this is added when moving
+                                  // to trash and also removed before restoring
+                                  // - may do that here or FnxModel! Empty
+                                  // string or invalid UUID means reparent on
+                                  // restore to document element
     constexpr auto XML_FILE_EXT_ATTR_ = "extension";
     constexpr auto XML_FILE_EDITED_ATTR_ = "edited";
     constexpr auto XML_NULL_DOM_ = "DOM is null!";
@@ -99,8 +112,18 @@ namespace Io {
         QXmlStreamWriter xml(&xml_content);
         xml.setAutoFormatting(true);
         xml.setAutoFormattingIndent(Internal::XML_INDENT_);
+
         xml.writeStartDocument();
-        xml.writeStartElement(Internal::XML_ROOT_TAG_);
+        xml.writeStartElement(Internal::XML_DOCUMENT_ELEMENT_TAG_);
+        xml.writeAttribute(
+            Internal::XML_FNX_VERSION_ATTR_,
+            Internal::XML_FNX_VERSION_);
+
+        xml.writeStartElement(Internal::XML_NOTEBOOK_TAG_);
+        xml.writeEndElement();
+        xml.writeStartElement(Internal::XML_TRASH_TAG_);
+        xml.writeEndElement();
+
         xml.writeEndElement();
         xml.writeEndDocument();
 
@@ -211,7 +234,7 @@ namespace Xml {
 
     inline QString uuid(const QDomElement& element)
     {
-        return element.attribute(Internal::XML_FILE_UUID_ATTR_);
+        return element.attribute(Internal::XML_UUID_ATTR_);
     }
 
     inline QString ext(const QDomElement& element)
@@ -242,20 +265,48 @@ namespace Xml {
                : element.removeAttribute(Internal::XML_FILE_EDITED_ATTR_);
     }
 
-    /*inline void clearEditedRecursive(QDomElement parent)
+    inline QString restoreParentUuid(const QDomElement& element)
     {
-        auto child = parent.firstChildElement();
-        while (!child.isNull()) {
-            if (isFile(child)) setEdited(child, false);
-            clearEditedRecursive(child);
-            child = child.nextSiblingElement();
-        }
+        return element.attribute(Internal::XML_TRASH_RESTORE_PARENT_UUID_ATTR_);
     }
 
-    inline void clearEditedRecursive(QDomDocument& dom)
+    inline void setRestoreParentUuid(QDomElement& element, const QString& uuid)
     {
-        clearEditedRecursive(dom.documentElement());
-    }*/
+        uuid.isEmpty() ? element.removeAttribute(
+                             Internal::XML_TRASH_RESTORE_PARENT_UUID_ATTR_)
+                       : element.setAttribute(
+                             Internal::XML_TRASH_RESTORE_PARENT_UUID_ATTR_,
+                             uuid);
+    }
+
+    inline void clearRestoreParentUuid(QDomElement& element)
+    {
+        setRestoreParentUuid(element, {});
+    }
+
+    inline QDomElement notebookElement(const QDomDocument& dom)
+    {
+        return dom.documentElement().firstChildElement(
+            Internal::XML_NOTEBOOK_TAG_);
+    }
+
+    inline QDomElement trashElement(const QDomDocument& dom)
+    {
+        return dom.documentElement().firstChildElement(
+            Internal::XML_TRASH_TAG_);
+    }
+
+    inline bool isInTrash(const QDomDocument& dom, const QDomElement& element)
+    {
+        auto trash = trashElement(dom);
+        auto current = element.parentNode().toElement();
+        while (!current.isNull()) {
+            if (current == trash) return true;
+            current = current.parentNode().toElement();
+        }
+
+        return false;
+    }
 
     inline QDomDocument makeDom(const Coco::Path& workingDir)
     {
@@ -330,7 +381,7 @@ namespace Xml {
         element.setAttribute(
             Internal::XML_NAME_ATTR_,
             Internal::XML_NAME_ATTR_FILE_DEF_);
-        element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
+        element.setAttribute(Internal::XML_UUID_ATTR_, uuid);
         element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
 
         return element;
@@ -366,7 +417,7 @@ namespace Xml {
 
         auto element = dom.createElement(Internal::XML_FILE_TAG_);
         element.setAttribute(Internal::XML_NAME_ATTR_, fsPath.stemQString());
-        element.setAttribute(Internal::XML_FILE_UUID_ATTR_, uuid);
+        element.setAttribute(Internal::XML_UUID_ATTR_, uuid);
         element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
 
         return element;
@@ -384,9 +435,7 @@ namespace Xml {
         element.setAttribute(
             Internal::XML_NAME_ATTR_,
             Internal::XML_NAME_ATTR_DIR_DEF_);
-        element.setAttribute(
-            Internal::XML_FILE_UUID_ATTR_,
-            Internal::makeUuid_());
+        element.setAttribute(Internal::XML_UUID_ATTR_, Internal::makeUuid_());
 
         return element;
     }

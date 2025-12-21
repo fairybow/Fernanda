@@ -18,7 +18,6 @@
 #endif
 
 #include <QList>
-#include <QPointer>
 
 #include "Window.h"
 
@@ -27,7 +26,7 @@ namespace Fernanda::XPlatform {
 
 // Lifts Windows to just below the top Window (like QWidget::stackUnder, which
 // only works with sibling widgets)
-inline void stackUnder(const QList<Window*>& windows, QPointer<Window> top)
+inline void stackUnder(const QList<Window*>& windows, Window* top)
 {
     if (!top || windows.isEmpty()) return;
 
