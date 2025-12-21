@@ -125,11 +125,11 @@ Next up:
 - [x] Empty trash (prompt, then delete/close all models/views/files from working dir)
 - [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
 - [ ] temp AppDir could be an App TempDir
-- [ ] Menu/MenuBarBuilder and ContextMenuBuilder?
 - [ ] MenuBar highlight on hover, modeled after TabWidgetButton highlight (radius, color, etc.)
 - [ ] No tree view for Notepad by default (but option to enable)?
 - [ ] No dock widget for Notebook tree view (temporary)?
 - [ ] Dock widget button/header styling
+- [ ] Potentially remove commands/signals from Workspaces to MenuModules and truly leave to cross-Service concerns. Then integrate menus into Notepad/Notebook directly but use a declarative MenuBuilder object to reduce clutter
 
 ### Coco
 
