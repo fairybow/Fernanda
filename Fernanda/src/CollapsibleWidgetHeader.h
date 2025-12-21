@@ -29,6 +29,7 @@
 #include "Debug.h"
 
 // TODO: Verify this
+// TODO: Combine any common SVG code from TabWidgetButton into namespace
 namespace Fernanda {
 
 // Header button for CollapsibleWidget with SVG icon support and text display.
