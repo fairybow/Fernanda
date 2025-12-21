@@ -202,7 +202,7 @@ private:
         QSvgRenderer renderer(svgPath);
 
         if (!renderer.isValid()) {
-            qWarning() << "Failed to load SVG:" << svgPath;
+            WARN("Failed to load SVG [{}]!", svgPath);
             return {};
         }
 

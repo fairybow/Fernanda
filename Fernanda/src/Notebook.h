@@ -620,6 +620,7 @@ private:
         splitter->setStretchFactor(1, 0);
         splitter->setCollapsible(0, false);
         splitter->setCollapsible(1, false);
+        splitter->setHandleWidth(1);
 
         return splitter;
     }
