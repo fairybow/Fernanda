@@ -109,7 +109,7 @@ Next up:
 - [x] Saves
 - [x] Working dir renames
 - [x] New Notebook dialog
-- [ ] Notebook export file
+- [ ] Notebook export file (context menu)
 - [x] FnxModel + TreeView element removal
 - [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [x] Trash view

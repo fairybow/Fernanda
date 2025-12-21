@@ -86,7 +86,6 @@ struct NotebookMenuActions
     {
         QAction* openNotepad = nullptr;
         QAction* importFiles = nullptr;
-        QAction* exportSelectedFile = nullptr;
     } notebook;
 };
 

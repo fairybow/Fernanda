@@ -398,21 +398,6 @@ private:
                 showModified_();
                 colorBars->green();
             });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_EXPORT_SELECTED_FILE,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // TODO
-                // Exports selected item (TreeView only allows one selected item
-                // at a time)
-                // - Copy using startDir / FileInfo::name() +
-                // FileInfo::relPath().ext() as start dir in prompt
-                // - When we've allowed clicking off an item to unselect in
-                // TreeView, then we can have different behavior, perhaps, for
-                // Export file? (This would overlap, though, with broader
-                // export/concat/compile thing)
-            });
     }
 
     void connectBusEvents_()
