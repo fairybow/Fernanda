@@ -38,6 +38,7 @@
 #include "AccordionWidget.h"
 #include "AppDirs.h"
 #include "Bus.h"
+#include "CollapsibleWidget.h"
 #include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"

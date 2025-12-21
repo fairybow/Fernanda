@@ -64,6 +64,7 @@ public:
     FnxModel(QObject* parent)
         : QAbstractItemModel(parent)
     {
+        setup_();
     }
 
     virtual ~FnxModel() override { TRACER; }
@@ -147,12 +148,27 @@ public:
         emit domChanged();
     }
 
+    // TODO: Unused
+    int descendantCount(const QModelIndex& index) const
+    {
+        auto element = elementAt_(index);
+        return descendantCountRecursor_(element);
+    }
+
+    // TODO: Unused
+    int trashCount() const
+    {
+        auto trash_index = indexFromElement_(Fnx::Xml::trashElement(dom_));
+        return descendantCount(trash_index);
+    }
+
     FileInfo fileInfoAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return {};
         return { elementAt_(index) };
     }
 
+    // Parent/index is included
     QList<FileInfo> fileInfosAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return {};
@@ -485,6 +501,7 @@ public:
 signals:
     void domChanged();
     void fileRenamed(const FileInfo& info);
+    //void trashCountChanged();
 
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
@@ -497,6 +514,11 @@ private:
     mutable quintptr nextId_ = 1;
     mutable QHash<QString, quintptr> elementToId_{}; // Element's UUID -> ID
     mutable QHash<quintptr, QDomElement> idToElement_{}; // ID -> Element
+
+    void setup_()
+    {
+        //...
+    }
 
     void clearCache_() const
     {
@@ -621,6 +643,19 @@ private:
             clearCacheRecursor_(child);
             child = child.nextSiblingElement();
         }
+    }
+
+    // TODO: Unused
+    int descendantCountRecursor_(const QDomElement& element) const
+    {
+        auto count = 0;
+        auto child = element.firstChildElement();
+        while (!child.isNull()) {
+            ++count;
+            count += descendantCountRecursor_(child);
+            child = child.nextSiblingElement();
+        }
+        return count;
     }
 
     // Cache is lazily populated during tree traversal; unopened branches won't

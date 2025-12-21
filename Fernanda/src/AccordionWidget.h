@@ -24,6 +24,10 @@ namespace Fernanda {
 // distribution. Collapsed sections anchor to the top; expanded sections share
 // available space equally. Requests a minimum height when any section is
 // expanded to ensure usable content area within splitter layouts.
+//
+// TODO: Could give it proper accordion behavior (only one item can be expanded
+// at a time), but then we'd maybe lose the ability to drag between the widgets
+// without expanding on hover
 class AccordionWidget : public QWidget
 {
     Q_OBJECT
@@ -37,9 +41,9 @@ public:
 
     virtual ~AccordionWidget() override { TRACER; }
 
-    void addWidget(const QString& title, QWidget* widget)
+    CollapsibleWidget* addWidget(const QString& title, QWidget* widget)
     {
-        if (!widget) return;
+        if (!widget) return nullptr;
 
         auto collapsible = new CollapsibleWidget(title, widget, this);
         collapsibles_ << collapsible;
@@ -55,6 +59,8 @@ public:
             &AccordionWidget::updateStretchFactors_);
 
         updateStretchFactors_();
+
+        return collapsible;
     }
 
 private:
