@@ -76,10 +76,13 @@ private:
         setMovable(true);
         setAutoHide(false);
         setTabsClosable(false); // Using custom buttons
+        // TODO: Move close buttons here?
 
         // Should have no effect regardless, given our size hints
         setExpanding(false);
         setDrawBase(false);
+
+        // TODO: Custom scrollers!
     }
 };
 
