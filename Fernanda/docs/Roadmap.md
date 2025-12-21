@@ -125,6 +125,8 @@ Next up:
 - [x] Delete one item in trash (prompt, then delete/close model, file in working dir, and all views)
 - [x] Empty trash (prompt, then delete/close all models/views/files from working dir)
 - [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
+- [ ] temp AppDir could be an App TempDir
+- [ ] Menu/MenuBarBuilder and ContextMenuBuilder?
 
 ### Coco
 
