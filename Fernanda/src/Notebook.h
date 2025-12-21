@@ -426,6 +426,11 @@ private:
             &Notebook::onFileModelModificationChanged_);
     }
 
+    QModelIndex resolveNotebookIndex_(const QModelIndex& index) const
+    {
+        return index.isValid() ? index : fnxModel_->notebookIndex();
+    }
+
     // TODO: Trigger rename immediately (maybe)
     void newFile_(Window* window, const QModelIndex& index = {})
     {
@@ -438,7 +443,7 @@ private:
         // instead (our root for primary TreeView)
         auto info = fnxModel_->addNewTextFile(
             working_dir,
-            !index.isValid() ? fnxModel_->notebookIndex() : index);
+            resolveNotebookIndex_(index));
         if (!info.isValid()) return;
         files->openFilePathIn(window, working_dir / info.relPath, info.name);
     }
@@ -450,8 +455,7 @@ private:
         // If index is invalid, fnxModel_->addNewVirtualFolder adds it to the
         // DOM document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
-        fnxModel_->addNewVirtualFolder(
-            !index.isValid() ? fnxModel_->notebookIndex() : index);
+        fnxModel_->addNewVirtualFolder(resolveNotebookIndex_(index));
     }
 
     void importFiles_(Window* window, const QModelIndex& index = {})
@@ -474,7 +478,7 @@ private:
         auto infos = fnxModel_->importTextFiles(
             working_dir,
             fs_paths,
-            !index.isValid() ? fnxModel_->notebookIndex() : index);
+            resolveNotebookIndex_(index));
 
         for (auto& info : infos) {
             if (!info.isValid()) continue;
