@@ -129,7 +129,7 @@ Next up:
 - [ ] No tree view for Notepad by default (but option to enable)?
 - [ ] No dock widget for Notebook tree view (temporary)?
 - [ ] Dock widget button/header styling
-- [ ] Potentially remove commands/signals from Workspaces to MenuModules and truly leave to cross-Service concerns. Then integrate menus into Notepad/Notebook directly but use a declarative MenuBuilder object to reduce clutter
+- [ ] Potentially remove commands/signals from Workspaces to MenuModules and truly leave to cross-Service concerns. Then integrate menus into Notepad/Notebook directly but use a declarative MenuBuilder object to reduce clutter (pass togglers as optional parameter for an action)
 
 ### Coco
 
