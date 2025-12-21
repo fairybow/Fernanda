@@ -101,7 +101,6 @@ Next up:
 - [x] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
 - [x] Menu changes to accomodate, which includes an extra inserter
 - [x] Ensuring all NB context menu items are added only when index is valid for them
-- [ ] Notebook export file
 - [ ] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
 - [ ] Menu action toggling based on current view/model, window, workspace states
@@ -115,7 +114,7 @@ Next up:
 - [x] Trash view
 - [ ] Refactor common context menu stuff / TreeView hookup
 - [ ] Trash count (maybe, maybe not - if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
-- [ ] Better arrow icon
+- [x] Better arrow icon
 - [ ] Icon instead of trash text?
 - [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
 - [x] Drag and drop from main to trash and back
@@ -127,6 +126,10 @@ Next up:
 - [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
 - [ ] temp AppDir could be an App TempDir
 - [ ] Menu/MenuBarBuilder and ContextMenuBuilder?
+- [ ] MenuBar highlight on hover, modeled after TabWidgetButton highlight (radius, color, etc.)
+- [ ] No tree view for Notepad by default (but option to enable)?
+- [ ] No dock widget for Notebook tree view (temporary)?
+- [ ] Dock widget button/header styling
 
 ### Coco
 
