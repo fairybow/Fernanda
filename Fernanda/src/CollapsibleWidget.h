@@ -79,6 +79,8 @@ private:
         content_->setParent(this);
         setContentExpanded_(false);
 
+        // TODO: Focus proxy?
+
         layout->addWidget(header_, 0);
         layout->addWidget(content_, 1);
 
