@@ -114,7 +114,7 @@ Next up:
 - [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [x] Trash view
 - [ ] Refactor common context menu stuff / TreeView hookup
-- [ ] Trash count
+- [ ] Trash count (maybe, maybe not - if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
 - [ ] Better arrow icon
 - [ ] Icon instead of trash text?
 - [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
