@@ -31,10 +31,22 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
         return Fnx::Xml::name(element);
 
     if (role == Qt::DecorationRole) {
+
         if (Fnx::Xml::isVirtualFolder(element)) {
-            return Application::style()->standardIcon(QStyle::SP_DirIcon);
+
+            if (cachedDirIcon_.isNull())
+                cachedDirIcon_ =
+                    Application::style()->standardIcon(QStyle::SP_DirIcon);
+
+            return cachedDirIcon_;
+
         } else if (Fnx::Xml::isFile(element)) {
-            return Application::style()->standardIcon(QStyle::SP_FileIcon);
+
+            if (cachedFileIcon_.isNull())
+                cachedFileIcon_ =
+                    Application::style()->standardIcon(QStyle::SP_FileIcon);
+
+            return cachedFileIcon_;
         }
     }
 

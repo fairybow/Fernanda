@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QAbstractItemModel>
+#include <QIcon>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QHash>
@@ -501,12 +502,14 @@ public:
 signals:
     void domChanged();
     void fileRenamed(const FileInfo& info);
-    //void trashCountChanged();
 
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
     QString domSnapshot_{};
+
+    mutable QIcon cachedDirIcon_{};
+    mutable QIcon cachedFileIcon_{};
 
     // ID allocation: 0 = invalid/root element
     // IDs start at 1 and increment monotonically
