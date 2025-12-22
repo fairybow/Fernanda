@@ -30,6 +30,7 @@
 #include "Coco/Path.h"
 
 /// *
+#include <QElapsedTimer>
 #include <atomic>
 
 // Temporary profiling counters (TODO: Save this! Could make it permanent and
@@ -45,11 +46,11 @@ inline std::atomic<int> isValidCalls{ 0 };
 inline void report()
 {
     DEBUG("=== FnxModel Call Counts ===");
-    DEBUG("index():", indexCalls.load());
-    DEBUG("parent():", parentCalls.load());
-    DEBUG("rowCount():", rowCountCalls.load());
-    DEBUG("data():", dataCalls.load());
-    DEBUG("isValid_():", isValidCalls.load());
+    DEBUG("index(): {}", indexCalls.load());
+    DEBUG("parent(): {}", parentCalls.load());
+    DEBUG("rowCount(): {}", rowCountCalls.load());
+    DEBUG("data(): {}", dataCalls.load());
+    DEBUG("isValid_(): {}", isValidCalls.load());
     indexCalls = parentCalls = rowCountCalls = dataCalls = isValidCalls = 0;
 }
 
@@ -869,16 +870,26 @@ private:
     // fixed
     void insertElement_(const QDomElement& element, QDomElement parentElement)
     {
+        QElapsedTimer timer;
+        timer.start();
+
         if (!isValidForInsertion_(element) || !isValid_(parentElement)) return;
 
         auto parent_index = indexFromElement_(parentElement);
+        DEBUG("indexFromElement_ took: {} ms", timer.elapsed());
+
         auto row = childElementCount_(parentElement);
+        DEBUG("childElementCount_ took: {} ms (cumulative)", timer.elapsed());
 
         beginInsertRows(parent_index, row, row);
+        DEBUG("beginInsertRows took: {} ms (cumulative)", timer.elapsed());
+
         parentElement.appendChild(element);
         endInsertRows();
+        DEBUG("endInsertRows took: {} ms (cumulative)", timer.elapsed());
 
         emit domChanged();
+        DEBUG("domChanged took: {} ms (cumulative)", timer.elapsed());
     }
 
     // TODO: Expand parent if applicable after appending (probably a view op)
