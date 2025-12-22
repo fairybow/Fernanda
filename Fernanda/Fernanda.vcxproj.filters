@@ -79,6 +79,9 @@
     <Filter Include="Resources\SVGs">
       <UniqueIdentifier>{ae85a038-977a-48f7-8ae8-cf5aa02a48a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Core\UI\AccordionWidget">
+      <UniqueIdentifier>{3e20ed0c-dc4b-49cf-a586-aaa75911331d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -325,14 +328,14 @@
     <QtMoc Include="src\TreeView.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
-    <QtMoc Include="src\CollapsibleWidget.h">
-      <Filter>Code\Core\UI</Filter>
-    </QtMoc>
     <QtMoc Include="src\AccordionWidget.h">
-      <Filter>Code\Core\UI</Filter>
+      <Filter>Code\Core\UI\AccordionWidget</Filter>
+    </QtMoc>
+    <QtMoc Include="src\CollapsibleWidget.h">
+      <Filter>Code\Core\UI\AccordionWidget</Filter>
     </QtMoc>
     <QtMoc Include="src\CollapsibleWidgetHeader.h">
-      <Filter>Code\Core\UI</Filter>
+      <Filter>Code\Core\UI\AccordionWidget</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -443,6 +446,9 @@
     </ClInclude>
     <ClInclude Include="src\TrashPrompt.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MenuBuilder.h">
+      <Filter>Code\Core\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

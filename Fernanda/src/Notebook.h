@@ -45,6 +45,7 @@
 #include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
+#include "MenuBuilder.h"
 #include "NotebookMenuModule.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
@@ -628,15 +629,15 @@ private:
         return splitter;
     }
 
-    void trashPromptAndDelete_(Window* window, const QModelIndex& index)
+    bool trashPromptAndDelete_(Window* window, const QModelIndex& index)
     {
-        if (!window || !index.isValid()) return;
-        if (!workingDir_.isValid()) return;
+        if (!window || !index.isValid()) return false;
+        if (!workingDir_.isValid()) return false;
 
         auto file_infos = fnxModel_->fileInfosAt(index);
-        if (file_infos.isEmpty()) return;
+        if (file_infos.isEmpty()) return false;
 
-        if (!TrashPrompt::exec(file_infos.count(), window)) return;
+        if (!TrashPrompt::exec(file_infos.count(), window)) return false;
 
         auto working_dir = workingDir_.path();
         QSet<Coco::Path> paths{};
@@ -651,19 +652,20 @@ private:
         for (auto& path : paths)
             if (!Coco::PathUtil::remove(path))
                 CRITICAL("Failed to delete [{}] from disk!", path);
+
+        return true;
     }
 
     void deleteTrashItem_(Window* window, const QModelIndex& index)
     {
-        trashPromptAndDelete_(window, index);
-        fnxModel_->remove(index);
+        if (trashPromptAndDelete_(window, index)) fnxModel_->remove(index);
     }
 
     void emptyTrash_(Window* window)
     {
         // The trash element itself (tag "trash") isn't a file, so it's skipped
-        trashPromptAndDelete_(window, fnxModel_->trashIndex());
-        fnxModel_->clearTrash();
+        if (trashPromptAndDelete_(window, fnxModel_->trashIndex()))
+            fnxModel_->clearTrash();
     }
 
 private slots:
@@ -721,51 +723,31 @@ private slots:
     {
         if (!window) return;
 
-        auto menu = new QMenu(window);
-        menu->setAttribute(Qt::WA_DeleteOnClose);
+        auto valid = index.isValid();
+        auto has_children = fnxModel_->hasChildren(index);
+        auto is_expanded = has_children && treeViews->isExpanded(window, index);
 
-        auto new_file = menu->addAction(Tr::nbNewFile());
-        connect(new_file, &QAction::triggered, this, [&, window, index] {
-            newFile_(window, index);
-        });
-
-        auto new_folder = menu->addAction(Tr::nbNewFolder());
-        connect(new_folder, &QAction::triggered, this, [&, index] {
-            newVirtualFolder_(index);
-        });
-
-        if (index.isValid()) {
-            menu->addSeparator();
-
-            if (fnxModel_->hasChildren(index)) {
-                auto is_expanded = treeViews->isExpanded(window, index);
-
-                auto collapse_or_expand = menu->addAction(
-                    is_expanded ? Tr::nbCollapse() : Tr::nbExpand());
-                connect(
-                    collapse_or_expand,
-                    &QAction::triggered,
-                    this,
-                    [&, is_expanded, window, index] {
-                        is_expanded ? treeViews->collapse(window, index)
-                                    : treeViews->expand(window, index);
-                    });
-            }
-
-            auto rename = menu->addAction(Tr::nbRename());
-            connect(rename, &QAction::triggered, this, [&, window, index] {
-                treeViews->edit(window, index);
-            });
-
-            menu->addSeparator();
-
-            auto remove = menu->addAction(Tr::nbRemove());
-            connect(remove, &QAction::triggered, this, [&, index] {
-                fnxModel_->moveToTrash(index);
-            });
-        }
-
-        menu->popup(globalPos);
+        MenuBuilder(MenuBuilder::ContextMenu, window)
+            .action(Tr::nbNewFile())
+            .slot(this, [&, window, index] { newFile_(window, index); })
+            .action(Tr::nbNewFolder())
+            .slot(this, [&, index] { newVirtualFolder_(index); })
+            .separatorIf(valid)
+            .actionIf(
+                valid && has_children,
+                is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
+            .slot(
+                this,
+                [&, is_expanded, window, index] {
+                    is_expanded ? treeViews->collapse(window, index)
+                                : treeViews->expand(window, index);
+                })
+            .actionIf(valid, Tr::nbRename())
+            .slot(this, [&, window, index] { treeViews->edit(window, index); })
+            .separatorIf(valid)
+            .actionIf(valid, Tr::nbRemove())
+            .slot(this, [&, index] { fnxModel_->moveToTrash(index); })
+            .popup(globalPos);
     }
 
     void onTrashViewContextMenuRequested_(
@@ -777,54 +759,31 @@ private slots:
         if (!window) return;
         if (!fnxModel_->hasTrash()) return;
 
-        auto menu = new QMenu(window);
-        menu->setAttribute(Qt::WA_DeleteOnClose);
+        auto valid = index.isValid();
+        auto has_children = fnxModel_->hasChildren(index);
+        auto is_expanded = has_children && trashView->isExpanded(index);
 
-        if (index.isValid()) {
-            if (fnxModel_->hasChildren(index)) {
-                auto is_expanded = trashView->isExpanded(index);
-
-                auto collapse_or_expand = menu->addAction(
-                    is_expanded ? Tr::nbCollapse() : Tr::nbExpand());
-                connect(
-                    collapse_or_expand,
-                    &QAction::triggered,
-                    this,
-                    [is_expanded, trashView, index] {
-                        is_expanded ? trashView->collapse(index)
-                                    : trashView->expand(index);
-                    });
-            }
-
-            auto rename = menu->addAction(Tr::nbRename());
-            connect(rename, &QAction::triggered, this, [&, trashView, index] {
-                trashView->edit(index);
-            });
-
-            menu->addSeparator();
-
-            auto restore = menu->addAction(Tr::nbRestore());
-            connect(restore, &QAction::triggered, this, [&, index] {
-                fnxModel_->moveToNotebook_(index);
-            });
-
-            auto delete_permanently =
-                menu->addAction(Tr::nbDeletePermanently());
-            connect(
-                delete_permanently,
-                &QAction::triggered,
+        MenuBuilder(MenuBuilder::ContextMenu, window)
+            .actionIf(
+                valid && has_children,
+                is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
+            .slot(
                 this,
-                [&, window, index] { deleteTrashItem_(window, index); });
-
-            menu->addSeparator();
-        }
-
-        auto empty = menu->addAction(Tr::nbEmptyTrash());
-        connect(empty, &QAction::triggered, this, [&, window] {
-            emptyTrash_(window);
-        });
-
-        menu->popup(globalPos);
+                [is_expanded, trashView, index] {
+                    is_expanded ? trashView->collapse(index)
+                                : trashView->expand(index);
+                })
+            .actionIf(valid, Tr::nbRename())
+            .slot(this, [&, trashView, index] { trashView->edit(index); })
+            .separatorIf(valid)
+            .actionIf(valid, Tr::nbRestore())
+            .slot(this, [&, index] { fnxModel_->moveToNotebook_(index); })
+            .actionIf(valid, Tr::nbDeletePermanently())
+            .slot(this, [&, window, index] { deleteTrashItem_(window, index); })
+            .separatorIf(valid)
+            .action(Tr::nbEmptyTrash())
+            .slot(this, [&, window] { emptyTrash_(window); })
+            .popup(globalPos);
     }
 
     void
