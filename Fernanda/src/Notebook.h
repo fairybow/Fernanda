@@ -13,12 +13,10 @@
 #include <utility>
 
 #include <QAbstractItemModel>
-#include <QAction>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QLabel>
 #include <QList>
-#include <QMenu>
 #include <QModelIndex>
 #include <QObject>
 #include <QPalette> // TODO: Temp

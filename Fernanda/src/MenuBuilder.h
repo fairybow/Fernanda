@@ -18,6 +18,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QObject>
+#include <QPoint>
 #include <QString>
 #include <QWidget>
 
