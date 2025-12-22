@@ -27,7 +27,6 @@
 
 #include "AbstractService.h"
 #include "Bus.h"
-#include "Commands.h"
 #include "Debug.h"
 #include "Version.h"
 #include "Window.h"
@@ -136,19 +135,11 @@ signals:
 protected:
     virtual void registerBusCommands() override
     {
-        bus->addCommandHandler(Commands::NEW_WINDOW, [&] {
-            return newWindow();
-        });
-
-        bus->addCommandHandler(Commands::WINDOWS_SET, [&] {
+        bus->addCommandHandler(Bus::WINDOWS_SET, [&] {
             return unorderedWindows_;
         });
 
-        bus->addCommandHandler(Commands::WINDOWS, [&] { return windows(); });
-
-        bus->addCommandHandler(Commands::CLOSE_ALL_WINDOWS, [&] {
-            return closeAll();
-        });
+        bus->addCommandHandler(Bus::WINDOWS, [&] { return windows(); });
     }
 
     virtual void connectBusEvents() override

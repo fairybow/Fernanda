@@ -36,6 +36,9 @@ public:
 
     virtual ~Bus() override { TRACER; }
 
+    constexpr static auto WINDOWS_SET = "windows:set";
+    constexpr static auto WINDOWS = "windows:list";
+
 signals:
     void windowCreated(Window* context);
     void windowDestroyed(Window* context);

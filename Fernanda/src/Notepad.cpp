@@ -1,0 +1,144 @@
+/*
+ * Fernanda  Copyright (C) 2025  fairybow
+ *
+ * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
+ * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
+ *
+ * Uses Qt 6 - <https://www.qt.io/>
+ */
+
+#include "Notepad.h"
+#include "AboutDialog.h"
+#include "Application.h"
+#include "MenuBuilder.h"
+#include "MenuShortcuts.h"
+#include "Tr.h"
+#include "TreeViewService.h"
+#include "ViewService.h"
+#include "Window.h"
+#include "WindowService.h"
+
+namespace Fernanda {
+
+void Notepad::createWindowMenuBar_(Window* window)
+{
+    if (!window) return;
+
+    // TODO: Figure out which were auto-repeat! (Undo, Redo, Paste, anything
+    // else?)
+    // TODO: Somehow section-off common code between Notepad and Notebook
+    MenuBuilder(MenuBuilder::MenuBar, window)
+        .menu(Tr::nxFileMenu())
+
+        .action(Tr::npNewTab())
+        .slot(this, [&, window] { newTab_(window); })
+        .shortcut(MenuShortcuts::NEW_TAB)
+
+        .action(Tr::npOpenFile())
+        .slot(this, [&, window] { openFile_(window); })
+        .shortcut(MenuShortcuts::OPEN_FILE)
+
+        .action(Tr::Menus::fileNewWindow())
+        .slot(this, [&] { windows->newWindow(); })
+        .shortcut(MenuShortcuts::NEW_WINDOW)
+
+        .separator()
+
+        .action(Tr::Menus::fileNewNotebook())
+        .slot(this, &Notepad::requestNewNotebook)
+
+        .action(Tr::Menus::fileOpenNotebook())
+        .slot(this, &Notepad::requestOpenNotebook)
+
+        .separator()
+
+        .action(Tr::nxSave())
+        .slot(this, [&, window] { save_(window); })
+        .shortcut(MenuShortcuts::SAVE)
+
+        .action(Tr::nxSaveAs())
+        .slot(this, [&, window] { saveAs_(window); })
+        .shortcut(MenuShortcuts::SAVE_AS)
+
+        .action(Tr::npSaveAllInWindow())
+        .slot(this, [&, window] { saveAllInWindow_(window); })
+
+        .action(Tr::npSaveAll())
+        .slot(this, [&, window] { saveAll_(window); })
+        .shortcut(MenuShortcuts::SAVE_ALL)
+
+        .separator()
+
+        .action(Tr::Menus::fileCloseTab())
+        .slot(this, [&, window] { views->closeTab(window, -1); })
+        .shortcut(MenuShortcuts::CLOSE_TAB)
+
+        .action(Tr::Menus::fileCloseTabEverywhere())
+        .slot(this, [&, window] { views->closeTabEverywhere(window, -1); })
+
+        .action(Tr::Menus::fileCloseWindowTabs())
+        .slot(this, [&, window] { views->closeWindowTabs(window); })
+
+        .action(Tr::Menus::fileCloseAllTabs())
+        .slot(this, [&] { views->closeAllTabs(); })
+
+        .separator()
+
+        .action(Tr::Menus::fileCloseWindow())
+        .slot(this, [&, window] { window->close(); })
+        .shortcut(MenuShortcuts::CLOSE_WINDOW)
+
+        .action(Tr::Menus::fileCloseAllWindows())
+        .slot(this, [&] { windows->closeAll(); })
+
+        .separator()
+
+        .action(Tr::Menus::fileQuit())
+        .slot(app(), &Application::tryQuit, Qt::QueuedConnection)
+        .shortcut(MenuShortcuts::QUIT)
+
+        .menu(Tr::nxEditMenu())
+
+        .action(Tr::Menus::editUndo())
+        .slot(this, [&, window] { views->undo(window, -1); })
+        .shortcut(MenuShortcuts::UNDO)
+
+        .action(Tr::Menus::editRedo())
+        .slot(this, [&, window] { views->redo(window, -1); })
+        .shortcut(MenuShortcuts::REDO)
+
+        .separator()
+
+        .action(Tr::Menus::editCut())
+        .slot(this, [&, window] { views->cut(window, -1); })
+        .shortcut(MenuShortcuts::CUT)
+
+        .action(Tr::Menus::editCopy())
+        .slot(this, [&, window] { views->copy(window, -1); })
+        .shortcut(MenuShortcuts::COPY)
+
+        .action(Tr::Menus::editPaste())
+        .slot(this, [&, window] { views->paste(window, -1); })
+        .shortcut(MenuShortcuts::PASTE)
+
+        .action(Tr::Menus::editDelete())
+        .slot(this, [&, window] { views->del(window, -1); })
+        .shortcut(MenuShortcuts::DEL)
+
+        .separator()
+
+        .action(Tr::Menus::editSelectAll())
+        .slot(this, [&, window] { views->selectAll(window, -1); })
+        .shortcut(MenuShortcuts::SELECT_ALL)
+
+        .barAction(Tr::nxSettingsMenu())
+        // TODO: Settings dialog slot
+
+        .menu(Tr::nxHelpMenu())
+        .action(Tr::Menus::helpAbout())
+        .slot(this, [] { AboutDialog::exec(); })
+
+        .set();
+}
+
+} // namespace Fernanda

@@ -13,12 +13,10 @@
 #include <utility>
 
 #include <QAbstractItemModel>
-#include <QAction>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QLabel>
 #include <QList>
-#include <QMenu>
 #include <QModelIndex>
 #include <QObject>
 #include <QPalette> // TODO: Temp
@@ -39,13 +37,12 @@
 #include "AppDirs.h"
 #include "Bus.h"
 #include "CollapsibleWidget.h"
-#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
-#include "NotebookMenuModule.h"
+#include "MenuBuilder.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "SettingsModule.h"
@@ -212,7 +209,6 @@ private:
                          // via Save As
 
     FnxModel* fnxModel_ = new FnxModel(this);
-    NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
         "Notebook file entries must have an extant path! [{}]";
@@ -221,8 +217,6 @@ private:
     {
         if (!workingDir_.isValid())
             FATAL("Notebook working directory creation failed!");
-
-        menus_->initialize();
 
         treeViews->setHeadersHidden(true);
 
@@ -254,7 +248,7 @@ private:
             });
 
         windows->setSubtitle(fnxPath_.fileQString());
-        showModified_();
+        updateWindowsFlags_();
 
         // Extraction or creation
         auto working_dir = workingDir_.path();
@@ -287,119 +281,7 @@ private:
 
         settings->setOverrideConfigPath(working_dir / "Settings.ini");
 
-        registerBusCommands_();
         connectBusEvents_();
-    }
-
-    void registerBusCommands_()
-    {
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_NEW_FILE,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // New file will be under selected TreeView model index (or
-                // notebook element if no current index)
-                newFile_(cmd.context, treeViews->currentIndex(cmd.context));
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_NEW_FOLDER,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // New folder will be under selected TreeView model index (or
-                // notebook element if no current index)
-                newVirtualFolder_(treeViews->currentIndex(cmd.context));
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_IMPORT_FILES,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // Imported files will be under selected TreeView model index
-                // (or notebook element if no current index)
-                importFiles_(cmd.context, treeViews->currentIndex(cmd.context));
-            });
-
-        bus->addCommandHandler(Commands::NOTEBOOK_OPEN_NOTEPAD, [&] {
-            emit openNotepadRequested();
-        });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_SAVE,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                if (fnxPath_.exists() && !fnxModel_->isModified()) return;
-
-                Coco::Path path = fnxPath_;
-                auto saved_as = false;
-
-                if (!fnxPath_.exists()) {
-                    path = promptSaveAs_(cmd.context);
-                    if (path.isEmpty()) return;
-                    saved_as = true;
-                }
-
-                auto save_result = saveModifiedModels_();
-                if (!save_result) {
-                    colorBars->red();
-                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
-                    SaveFailMessageBox::exec(fail_paths, cmd.context);
-
-                    return;
-                }
-
-                fnxModel_->write(workingDir_.path());
-
-                if (!Fnx::Io::compress(path, workingDir_.path())) {
-                    colorBars->red();
-                    SaveFailMessageBox::exec(path.toQString(), cmd.context);
-
-                    return;
-                }
-
-                if (saved_as) {
-                    fnxPath_ = path;
-                    windows->setSubtitle(fnxPath_.fileQString());
-                }
-
-                fnxModel_->resetSnapshot();
-                showModified_();
-                colorBars->green();
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_SAVE_AS,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-
-                auto new_path = promptSaveAs_(cmd.context);
-                if (new_path.isEmpty()) return;
-
-                auto save_result = saveModifiedModels_();
-                if (!save_result) {
-                    colorBars->red();
-                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
-                    SaveFailMessageBox::exec(fail_paths, cmd.context);
-
-                    return;
-                }
-
-                fnxModel_->write(workingDir_.path());
-
-                if (!Fnx::Io::compress(new_path, workingDir_.path())) {
-                    colorBars->red();
-                    SaveFailMessageBox::exec(new_path.toQString(), cmd.context);
-
-                    return;
-                }
-
-                fnxPath_ = new_path;
-                windows->setSubtitle(fnxPath_.fileQString());
-
-                fnxModel_->resetSnapshot();
-                showModified_();
-                colorBars->green();
-            });
     }
 
     void connectBusEvents_()
@@ -419,6 +301,8 @@ private:
     }
 
     // TODO: Trigger rename immediately (maybe)
+    // New file will be under selected TreeView model index (or notebook element
+    // if no current index)
     void newFile_(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
@@ -436,6 +320,8 @@ private:
     }
 
     // TODO: Trigger rename immediately (maybe)
+    // New folder will be under selected TreeView model index (or notebook
+    // element if no current index)
     void newVirtualFolder_(const QModelIndex& index = {})
     {
         if (!workingDir_.isValid()) return;
@@ -445,6 +331,8 @@ private:
         fnxModel_->addNewVirtualFolder(resolveNotebookIndex_(index));
     }
 
+    // Imported files will be under selected TreeView model index (or notebook
+    // element if no current index)
     void importFiles_(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
@@ -476,7 +364,7 @@ private:
         }
     }
 
-    void showModified_()
+    void updateWindowsFlags_()
     {
         windows->setFlagged(!fnxPath_.exists() || fnxModel_->isModified());
     }
@@ -628,15 +516,15 @@ private:
         return splitter;
     }
 
-    void trashPromptAndDelete_(Window* window, const QModelIndex& index)
+    bool trashPromptAndDelete_(Window* window, const QModelIndex& index)
     {
-        if (!window || !index.isValid()) return;
-        if (!workingDir_.isValid()) return;
+        if (!window || !index.isValid()) return false;
+        if (!workingDir_.isValid()) return false;
 
         auto file_infos = fnxModel_->fileInfosAt(index);
-        if (file_infos.isEmpty()) return;
+        if (file_infos.isEmpty()) return false;
 
-        if (!TrashPrompt::exec(file_infos.count(), window)) return;
+        if (!TrashPrompt::exec(file_infos.count(), window)) return false;
 
         auto working_dir = workingDir_.path();
         QSet<Coco::Path> paths{};
@@ -651,20 +539,98 @@ private:
         for (auto& path : paths)
             if (!Coco::PathUtil::remove(path))
                 CRITICAL("Failed to delete [{}] from disk!", path);
+
+        return true;
     }
 
     void deleteTrashItem_(Window* window, const QModelIndex& index)
     {
-        trashPromptAndDelete_(window, index);
-        fnxModel_->remove(index);
+        if (trashPromptAndDelete_(window, index)) fnxModel_->remove(index);
     }
 
     void emptyTrash_(Window* window)
     {
         // The trash element itself (tag "trash") isn't a file, so it's skipped
-        trashPromptAndDelete_(window, fnxModel_->trashIndex());
-        fnxModel_->clearTrash();
+        if (trashPromptAndDelete_(window, fnxModel_->trashIndex()))
+            fnxModel_->clearTrash();
     }
+
+    void save_(Window* window)
+    {
+        if (!window) return;
+        if (fnxPath_.exists() && !fnxModel_->isModified()) return;
+
+        Coco::Path path = fnxPath_;
+        auto saved_as = false;
+
+        if (!fnxPath_.exists()) {
+            path = promptSaveAs_(window);
+            if (path.isEmpty()) return;
+            saved_as = true;
+        }
+
+        auto save_result = saveModifiedModels_();
+        if (!save_result) {
+            colorBars->red();
+            auto fail_paths = saveFailDisplayNames_(save_result.failed);
+            SaveFailMessageBox::exec(fail_paths, window);
+
+            return;
+        }
+
+        fnxModel_->write(workingDir_.path());
+
+        if (!Fnx::Io::compress(path, workingDir_.path())) {
+            colorBars->red();
+            SaveFailMessageBox::exec(path.toQString(), window);
+
+            return;
+        }
+
+        if (saved_as) {
+            fnxPath_ = path;
+            windows->setSubtitle(fnxPath_.fileQString());
+        }
+
+        fnxModel_->resetSnapshot();
+        updateWindowsFlags_();
+        colorBars->green();
+    }
+
+    void saveAs_(Window* window)
+    {
+        if (!window) return;
+
+        auto new_path = promptSaveAs_(window);
+        if (new_path.isEmpty()) return;
+
+        auto save_result = saveModifiedModels_();
+        if (!save_result) {
+            colorBars->red();
+            auto fail_paths = saveFailDisplayNames_(save_result.failed);
+            SaveFailMessageBox::exec(fail_paths, window);
+
+            return;
+        }
+
+        fnxModel_->write(workingDir_.path());
+
+        if (!Fnx::Io::compress(new_path, workingDir_.path())) {
+            colorBars->red();
+            SaveFailMessageBox::exec(new_path.toQString(), window);
+
+            return;
+        }
+
+        fnxPath_ = new_path;
+        windows->setSubtitle(fnxPath_.fileQString());
+
+        fnxModel_->resetSnapshot();
+        updateWindowsFlags_();
+        colorBars->green();
+    }
+
+    void createWindowMenuBar_(Window* window);
 
 private slots:
     // TODO: Could remove working dir validity check; also writeModelFile could
@@ -675,7 +641,7 @@ private slots:
         if (!workingDir_.isValid()) return;
 
         fnxModel_->write(workingDir_.path());
-        showModified_();
+        updateWindowsFlags_();
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
@@ -692,6 +658,7 @@ private slots:
     {
         if (!window) return;
         addWorkspaceIndicator_(window);
+        createWindowMenuBar_(window);
     }
 
     // TODO: What if we want to handle virtual folders here, too? Could make
@@ -721,51 +688,31 @@ private slots:
     {
         if (!window) return;
 
-        auto menu = new QMenu(window);
-        menu->setAttribute(Qt::WA_DeleteOnClose);
+        auto valid = index.isValid();
+        auto has_children = fnxModel_->hasChildren(index);
+        auto is_expanded = has_children && treeViews->isExpanded(window, index);
 
-        auto new_file = menu->addAction(Tr::nbNewFile());
-        connect(new_file, &QAction::triggered, this, [&, window, index] {
-            newFile_(window, index);
-        });
-
-        auto new_folder = menu->addAction(Tr::nbNewFolder());
-        connect(new_folder, &QAction::triggered, this, [&, index] {
-            newVirtualFolder_(index);
-        });
-
-        if (index.isValid()) {
-            menu->addSeparator();
-
-            if (fnxModel_->hasChildren(index)) {
-                auto is_expanded = treeViews->isExpanded(window, index);
-
-                auto collapse_or_expand = menu->addAction(
-                    is_expanded ? Tr::nbCollapse() : Tr::nbExpand());
-                connect(
-                    collapse_or_expand,
-                    &QAction::triggered,
-                    this,
-                    [&, is_expanded, window, index] {
-                        is_expanded ? treeViews->collapse(window, index)
-                                    : treeViews->expand(window, index);
-                    });
-            }
-
-            auto rename = menu->addAction(Tr::nbRename());
-            connect(rename, &QAction::triggered, this, [&, window, index] {
-                treeViews->edit(window, index);
-            });
-
-            menu->addSeparator();
-
-            auto remove = menu->addAction(Tr::nbRemove());
-            connect(remove, &QAction::triggered, this, [&, index] {
-                fnxModel_->moveToTrash(index);
-            });
-        }
-
-        menu->popup(globalPos);
+        MenuBuilder(MenuBuilder::ContextMenu, window)
+            .action(Tr::nbNewFile())
+            .slot(this, [&, window, index] { newFile_(window, index); })
+            .action(Tr::nbNewFolder())
+            .slot(this, [&, index] { newVirtualFolder_(index); })
+            .separatorIf(valid)
+            .actionIf(
+                valid && has_children,
+                is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
+            .slot(
+                this,
+                [&, is_expanded, window, index] {
+                    is_expanded ? treeViews->collapse(window, index)
+                                : treeViews->expand(window, index);
+                })
+            .actionIf(valid, Tr::nbRename())
+            .slot(this, [&, window, index] { treeViews->edit(window, index); })
+            .separatorIf(valid)
+            .actionIf(valid, Tr::nbRemove())
+            .slot(this, [&, index] { fnxModel_->moveToTrash(index); })
+            .popup(globalPos);
     }
 
     void onTrashViewContextMenuRequested_(
@@ -777,54 +724,31 @@ private slots:
         if (!window) return;
         if (!fnxModel_->hasTrash()) return;
 
-        auto menu = new QMenu(window);
-        menu->setAttribute(Qt::WA_DeleteOnClose);
+        auto valid = index.isValid();
+        auto has_children = fnxModel_->hasChildren(index);
+        auto is_expanded = has_children && trashView->isExpanded(index);
 
-        if (index.isValid()) {
-            if (fnxModel_->hasChildren(index)) {
-                auto is_expanded = trashView->isExpanded(index);
-
-                auto collapse_or_expand = menu->addAction(
-                    is_expanded ? Tr::nbCollapse() : Tr::nbExpand());
-                connect(
-                    collapse_or_expand,
-                    &QAction::triggered,
-                    this,
-                    [is_expanded, trashView, index] {
-                        is_expanded ? trashView->collapse(index)
-                                    : trashView->expand(index);
-                    });
-            }
-
-            auto rename = menu->addAction(Tr::nbRename());
-            connect(rename, &QAction::triggered, this, [&, trashView, index] {
-                trashView->edit(index);
-            });
-
-            menu->addSeparator();
-
-            auto restore = menu->addAction(Tr::nbRestore());
-            connect(restore, &QAction::triggered, this, [&, index] {
-                fnxModel_->moveToNotebook_(index);
-            });
-
-            auto delete_permanently =
-                menu->addAction(Tr::nbDeletePermanently());
-            connect(
-                delete_permanently,
-                &QAction::triggered,
+        MenuBuilder(MenuBuilder::ContextMenu, window)
+            .actionIf(
+                valid && has_children,
+                is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
+            .slot(
                 this,
-                [&, window, index] { deleteTrashItem_(window, index); });
-
-            menu->addSeparator();
-        }
-
-        auto empty = menu->addAction(Tr::nbEmptyTrash());
-        connect(empty, &QAction::triggered, this, [&, window] {
-            emptyTrash_(window);
-        });
-
-        menu->popup(globalPos);
+                [is_expanded, trashView, index] {
+                    is_expanded ? trashView->collapse(index)
+                                : trashView->expand(index);
+                })
+            .actionIf(valid, Tr::nbRename())
+            .slot(this, [&, trashView, index] { trashView->edit(index); })
+            .separatorIf(valid)
+            .actionIf(valid, Tr::nbRestore())
+            .slot(this, [&, index] { fnxModel_->moveToNotebook_(index); })
+            .actionIf(valid, Tr::nbDeletePermanently())
+            .slot(this, [&, window, index] { deleteTrashItem_(window, index); })
+            .separatorIf(valid)
+            .action(Tr::nbEmptyTrash())
+            .slot(this, [&, window] { emptyTrash_(window); })
+            .popup(globalPos);
     }
 
     void

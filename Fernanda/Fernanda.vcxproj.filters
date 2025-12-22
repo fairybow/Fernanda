@@ -52,9 +52,6 @@
     <Filter Include="Code\Auxiliary\Modules">
       <UniqueIdentifier>{d156e859-f9aa-4d0f-af5c-f75aeff6edb0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Auxiliary\Modules\Menus">
-      <UniqueIdentifier>{c288fd8e-1a64-402c-8ff1-8132a5c162e6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Auxiliary\Modules\Settings">
       <UniqueIdentifier>{594b3725-78f6-41a0-844c-bcb5c0fc5aa5}</UniqueIdentifier>
     </Filter>
@@ -78,6 +75,12 @@
     </Filter>
     <Filter Include="Resources\SVGs">
       <UniqueIdentifier>{ae85a038-977a-48f7-8ae8-cf5aa02a48a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\UI\AccordionWidget">
+      <UniqueIdentifier>{3e20ed0c-dc4b-49cf-a586-aaa75911331d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\Workspaces\Notepad">
+      <UniqueIdentifier>{ee887ea1-4b9d-4803-b3e8-00c4da036ae6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -111,17 +114,17 @@
     <ClCompile Include="src\TextFileView.cpp">
       <Filter>Code\Core\Files\Views</Filter>
     </ClCompile>
-    <ClCompile Include="src\AboutDialog.cpp">
-      <Filter>Code\Auxiliary</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Workspace.cpp">
-      <Filter>Code\Core\Workspaces</Filter>
-    </ClCompile>
     <ClCompile Include="src\FnxModel.cpp">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClCompile>
-    <ClCompile Include="src\Menus.cpp">
-      <Filter>Code\Auxiliary\Modules\Menus</Filter>
+    <ClCompile Include="src\Notebook.cpp">
+      <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Notepad.cpp">
+      <Filter>Code\Core\Workspaces\Notepad</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AboutDialog.cpp">
+      <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -265,12 +268,6 @@
     <QtMoc Include="src\Timers.h">
       <Filter>Code\Core</Filter>
     </QtMoc>
-    <QtMoc Include="src\Notepad.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </QtMoc>
-    <QtMoc Include="src\NotepadMenuModule.h">
-      <Filter>Code\Auxiliary\Modules\Menus</Filter>
-    </QtMoc>
     <QtMoc Include="src\WordCounterModule.h">
       <Filter>Code\Auxiliary\Modules</Filter>
     </QtMoc>
@@ -285,9 +282,6 @@
     </QtMoc>
     <QtMoc Include="src\SettingsDialog.h">
       <Filter>Code\Auxiliary\Modules\Settings</Filter>
-    </QtMoc>
-    <QtMoc Include="src\NotebookMenuModule.h">
-      <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </QtMoc>
     <QtMoc Include="src\ColorBarModule.h">
       <Filter>Code\Auxiliary\Modules\ColorBar</Filter>
@@ -325,14 +319,17 @@
     <QtMoc Include="src\TreeView.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
-    <QtMoc Include="src\CollapsibleWidget.h">
-      <Filter>Code\Core\UI</Filter>
-    </QtMoc>
     <QtMoc Include="src\AccordionWidget.h">
-      <Filter>Code\Core\UI</Filter>
+      <Filter>Code\Core\UI\AccordionWidget</Filter>
+    </QtMoc>
+    <QtMoc Include="src\CollapsibleWidget.h">
+      <Filter>Code\Core\UI\AccordionWidget</Filter>
     </QtMoc>
     <QtMoc Include="src\CollapsibleWidgetHeader.h">
-      <Filter>Code\Core\UI</Filter>
+      <Filter>Code\Core\UI\AccordionWidget</Filter>
+    </QtMoc>
+    <QtMoc Include="src\Notepad.h">
+      <Filter>Code\Core\Workspaces\Notepad</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -384,14 +381,8 @@
     <ClInclude Include="src\Version.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\AboutDialog.h">
-      <Filter>Code\Auxiliary</Filter>
-    </ClInclude>
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Path.h">
       <Filter>Submodules\Coco</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Ini.h">
-      <Filter>Code\Auxiliary</Filter>
     </ClInclude>
     <ClInclude Include="src\Constants.h">
       <Filter>Code\Core</Filter>
@@ -404,12 +395,6 @@
     </ClInclude>
     <ClInclude Include="src\ToString.h">
       <Filter>Code\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MenuActions.h">
-      <Filter>Code\Auxiliary\Modules\Menus</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Menus.h">
-      <Filter>Code\Auxiliary\Modules\Menus</Filter>
     </ClInclude>
     <ClInclude Include="src\FileTypes.h">
       <Filter>Code\Core\Workspaces</Filter>
@@ -432,9 +417,6 @@
     <ClInclude Include="src\old_MenuModule.h">
       <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
-    <ClInclude Include="src\Commands.h">
-      <Filter>Code\Core\Workspaces\Bus</Filter>
-    </ClInclude>
     <ClInclude Include="src\SaveFailMessageBox.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
@@ -443,6 +425,18 @@
     </ClInclude>
     <ClInclude Include="src\TrashPrompt.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MenuBuilder.h">
+      <Filter>Code\Core\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MenuShortcuts.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AboutDialog.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ini.h">
+      <Filter>Code\Auxiliary\Modules\Settings</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

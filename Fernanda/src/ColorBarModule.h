@@ -15,7 +15,6 @@
 #include "AbstractService.h"
 #include "Bus.h"
 #include "ColorBar.h"
-#include "Commands.h"
 #include "Debug.h"
 #include "Window.h"
 

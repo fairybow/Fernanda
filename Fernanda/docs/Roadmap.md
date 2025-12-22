@@ -43,48 +43,6 @@
 
 ## Miscellaneous Todos
 
-- [x] SavePrompt: Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
-- [x] SavePrompt: Notepad save prompts
-- [x] SavePrompt: Notebook save prompts
-
-(Search TODO SAVES)
-- [x] Saves: FileService should be saving, not AbstractFileModel
-- [x] Saves: AbstractFileModel needs some sort of content function returning QByteArray
-- [x] Saves: TextIo can probably be more generalized and work on QByteArray
-- [x] Saves: Notepad and Notebook would register their respective "Save" command handlers, since their saves are different and not just FileService::save
-- [x] Saves: Notepad does just call FS::save
-- [x] Saves: Notepad success on multi-save should just run green color bar; failure, though, should show red color bar and a pop-up of which specific files failed to save
-- [x] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
-- [x] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
-- [x] Saves: (Notebook) Ensure DOM snapshot is replaced on save
-- [x] Saves: Remove red color bar on Save As dialog abort
-- [x] Saves: Decide how to handle red color bar on Notepad multiSave_
-- [x] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
-- [x] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
-- [x] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
-- [ ] Saves: Probably want a diagnostic/debug window that shows all files saved?
-- [x] Saves: Bug: (EASY - missing return statement for single-item delegation in SaveFailMessageBox::exec for string list) Unknown repro: had SaveFailMessageBox showing the successful files as a test, and when I added a new tab to a Notebook and then used Save As, I received two SaveFailMessageBox prompts for some reason? Should have only been one. I think they were for the same file, but not sure. Seems concerning!
-- [x] Saves: MultiSave struct: add success count and aborted bool, allowing us to show no color bar if only aborted, green color bar if no fails but any successes before aborted, and red if any fails before aborted
-- [x] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
-- [x] Saves: Change to normal order for file views collected
-- [x] Saves: Consolidate Notepad Save As dialog occurences into one function
-- [x] Saves: Preferred extension for off-disk files
-
-New Notebook is probably next priority! That way, we're forced to isolate the Save As logic.
-
-- [x] New Notebook: Naming dialog (no path chosen)
-- [x] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
-- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
-- [x] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later (only problem is which settings? We have notepad and individual Notebook INIs...do we want/need an application-wide settings? How should we display that in the settings dialog for each Workspace?)
-- [x] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
-- [x] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed
-- [x] New Notebook: For closure/quit, archive will be created and saved. If successful, we close the Notebook as normal (I think??? Am I missing anything?)
-- [x] New Notebook: For Save / Save As (the former will trigger the latter anyway), the new Notebook will be saved like in the existing Save As handler. However, we'd only need to change the working directory if the path stem changed? This is a good argument for either just using a UUID or random string as the name (or simply keeping whatever name the Notebook had when it was opened/created, even if it's inconsistent with current name)
-
-After New Notebook:
-
-- [x] Need starting paths for Open Notebook, New Notebook (maybe). It's possible we may want Notepad to use an application wide base path (maybe set in Workspace and all Workspaces can access it) and settings can adjust it?
-
 Next up:
 
 - [x] Notebook Trash!
@@ -101,7 +59,6 @@ Next up:
 - [x] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
 - [x] Menu changes to accomodate, which includes an extra inserter
 - [x] Ensuring all NB context menu items are added only when index is valid for them
-- [ ] Notebook export file
 - [ ] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
 - [ ] Menu action toggling based on current view/model, window, workspace states
@@ -115,7 +72,7 @@ Next up:
 - [x] Trash view
 - [ ] Refactor common context menu stuff / TreeView hookup
 - [ ] Trash count (maybe, maybe not - if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
-- [ ] Better arrow icon
+- [x] Better arrow icon
 - [ ] Icon instead of trash text?
 - [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
 - [x] Drag and drop from main to trash and back
@@ -126,7 +83,11 @@ Next up:
 - [x] Empty trash (prompt, then delete/close all models/views/files from working dir)
 - [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
 - [ ] temp AppDir could be an App TempDir
-- [ ] Menu/MenuBarBuilder and ContextMenuBuilder?
+- [ ] MenuBar highlight on hover, modeled after TabWidgetButton highlight (radius, color, etc.)
+- [ ] No tree view for Notepad by default (but option to enable)?
+- [ ] No dock widget for Notebook tree view (temporary)?
+- [ ] Dock widget button/header styling
+- [ ] Potentially remove commands/signals from Workspaces to MenuModules and truly leave to cross-Service concerns. Then integrate menus into Notepad/Notebook directly but use a declarative MenuBuilder object to reduce clutter (pass togglers as optional parameter for an action)
 
 ### Coco
 
@@ -242,3 +203,45 @@ Next up:
 - [x] Ensure system shutdown is handled with app's quit routine
 - [x] As part of Window/WindowService cleanup, ensure we still need custom Window::destroyed signal (`connect(view, &QObject::destroyed, this, [&, view] { /*clear view from a list*/ })` works fine)
 - [x] Decide if Acceptor can be generalized AFTER. Don't get clever early!
+
+- [x] SavePrompt: Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
+- [x] SavePrompt: Notepad save prompts
+- [x] SavePrompt: Notebook save prompts
+
+(Search TODO SAVES)
+- [x] Saves: FileService should be saving, not AbstractFileModel
+- [x] Saves: AbstractFileModel needs some sort of content function returning QByteArray
+- [x] Saves: TextIo can probably be more generalized and work on QByteArray
+- [x] Saves: Notepad and Notebook would register their respective "Save" command handlers, since their saves are different and not just FileService::save
+- [x] Saves: Notepad does just call FS::save
+- [x] Saves: Notepad success on multi-save should just run green color bar; failure, though, should show red color bar and a pop-up of which specific files failed to save
+- [x] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
+- [x] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
+- [x] Saves: (Notebook) Ensure DOM snapshot is replaced on save
+- [x] Saves: Remove red color bar on Save As dialog abort
+- [x] Saves: Decide how to handle red color bar on Notepad multiSave_
+- [x] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
+- [x] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
+- [x] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
+- [ ] Saves: Probably want a diagnostic/debug window that shows all files saved?
+- [x] Saves: Bug: (EASY - missing return statement for single-item delegation in SaveFailMessageBox::exec for string list) Unknown repro: had SaveFailMessageBox showing the successful files as a test, and when I added a new tab to a Notebook and then used Save As, I received two SaveFailMessageBox prompts for some reason? Should have only been one. I think they were for the same file, but not sure. Seems concerning!
+- [x] Saves: MultiSave struct: add success count and aborted bool, allowing us to show no color bar if only aborted, green color bar if no fails but any successes before aborted, and red if any fails before aborted
+- [x] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
+- [x] Saves: Change to normal order for file views collected
+- [x] Saves: Consolidate Notepad Save As dialog occurences into one function
+- [x] Saves: Preferred extension for off-disk files
+
+New Notebook is probably next priority! That way, we're forced to isolate the Save As logic.
+
+- [x] New Notebook: Naming dialog (no path chosen)
+- [x] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
+- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
+- [x] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later (only problem is which settings? We have notepad and individual Notebook INIs...do we want/need an application-wide settings? How should we display that in the settings dialog for each Workspace?)
+- [x] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
+- [x] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed
+- [x] New Notebook: For closure/quit, archive will be created and saved. If successful, we close the Notebook as normal (I think??? Am I missing anything?)
+- [x] New Notebook: For Save / Save As (the former will trigger the latter anyway), the new Notebook will be saved like in the existing Save As handler. However, we'd only need to change the working directory if the path stem changed? This is a good argument for either just using a UUID or random string as the name (or simply keeping whatever name the Notebook had when it was opened/created, even if it's inconsistent with current name)
+
+After New Notebook:
+
+- [x] Need starting paths for Open Notebook, New Notebook (maybe). It's possible we may want Notepad to use an application wide base path (maybe set in Workspace and all Workspaces can access it) and settings can adjust it?
