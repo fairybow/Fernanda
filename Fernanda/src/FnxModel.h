@@ -89,8 +89,6 @@ public:
 
     void resetSnapshot() { domSnapshot_ = dom_.toString(); }
 
-    // TODO: Problem with this method if we ever decide to store
-    // expanded/collapsed state in the DOM...
     bool isModified() const
     {
         // - QDomDocument::toString() is deterministic for the same structure
