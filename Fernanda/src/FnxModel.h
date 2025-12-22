@@ -10,10 +10,10 @@
 #pragma once
 
 #include <QAbstractItemModel>
-#include <QIcon>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QHash>
+#include <QIcon>
 #include <QMimeData>
 #include <QModelIndex>
 #include <QModelIndexList>
@@ -28,6 +28,32 @@
 #include "Fnx.h"
 
 #include "Coco/Path.h"
+
+/// *
+#include <atomic>
+
+// Temporary profiling counters (TODO: Save this! Could make it permanent and
+// toggleable, using macros)
+namespace FnxModelProfile {
+
+inline std::atomic<int> indexCalls{ 0 };
+inline std::atomic<int> parentCalls{ 0 };
+inline std::atomic<int> rowCountCalls{ 0 };
+inline std::atomic<int> dataCalls{ 0 };
+inline std::atomic<int> isValidCalls{ 0 };
+
+inline void report()
+{
+    DEBUG("=== FnxModel Call Counts ===");
+    DEBUG("index():", indexCalls.load());
+    DEBUG("parent():", parentCalls.load());
+    DEBUG("rowCount():", rowCountCalls.load());
+    DEBUG("data():", dataCalls.load());
+    DEBUG("isValid_():", isValidCalls.load());
+    indexCalls = parentCalls = rowCountCalls = dataCalls = isValidCalls = 0;
+}
+
+} // namespace FnxModelProfile
 
 namespace Fernanda {
 
@@ -391,6 +417,8 @@ public:
     virtual QModelIndex
     index(int row, int column, const QModelIndex& parent = {}) const override
     {
+        ++FnxModelProfile::indexCalls;
+
         if (!hasIndex(row, column, parent)) return {};
 
         auto parent_element = elementAt_(parent);
@@ -403,6 +431,8 @@ public:
 
     virtual QModelIndex parent(const QModelIndex& child) const override
     {
+        ++FnxModelProfile::parentCalls;
+
         if (!child.isValid()) return {};
 
         auto child_element = elementAt_(child);
@@ -419,6 +449,8 @@ public:
 
     virtual int rowCount(const QModelIndex& parent = {}) const override
     {
+        ++FnxModelProfile::rowCountCalls;
+
         if (parent.column() > 0) return 0;
         auto element = elementAt_(parent);
         if (element.isNull()) return 0;
@@ -531,6 +563,8 @@ private:
 
     bool isValid_(const QDomElement& element) const
     {
+        ++FnxModelProfile::isValidCalls;
+
         if (element.isNull()) return false;
 
         // Must belong to current document
