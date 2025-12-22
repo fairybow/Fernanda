@@ -37,14 +37,12 @@
 #include "AppDirs.h"
 #include "Bus.h"
 #include "CollapsibleWidget.h"
-#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileService.h"
 #include "Fnx.h"
 #include "FnxModel.h"
 #include "MenuBuilder.h"
-#include "NotebookMenuModule.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "SettingsModule.h"
@@ -211,7 +209,6 @@ private:
                          // via Save As
 
     FnxModel* fnxModel_ = new FnxModel(this);
-    NotebookMenuModule* menus_ = new NotebookMenuModule(bus, this);
 
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
         "Notebook file entries must have an extant path! [{}]";
@@ -220,8 +217,6 @@ private:
     {
         if (!workingDir_.isValid())
             FATAL("Notebook working directory creation failed!");
-
-        menus_->initialize();
 
         treeViews->setHeadersHidden(true);
 
@@ -253,7 +248,7 @@ private:
             });
 
         windows->setSubtitle(fnxPath_.fileQString());
-        showModified_();
+        updateWindowsFlags_();
 
         // Extraction or creation
         auto working_dir = workingDir_.path();
@@ -286,119 +281,7 @@ private:
 
         settings->setOverrideConfigPath(working_dir / "Settings.ini");
 
-        registerBusCommands_();
         connectBusEvents_();
-    }
-
-    void registerBusCommands_()
-    {
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_NEW_FILE,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // New file will be under selected TreeView model index (or
-                // notebook element if no current index)
-                newFile_(cmd.context, treeViews->currentIndex(cmd.context));
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_NEW_FOLDER,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // New folder will be under selected TreeView model index (or
-                // notebook element if no current index)
-                newVirtualFolder_(treeViews->currentIndex(cmd.context));
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_IMPORT_FILES,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                // Imported files will be under selected TreeView model index
-                // (or notebook element if no current index)
-                importFiles_(cmd.context, treeViews->currentIndex(cmd.context));
-            });
-
-        bus->addCommandHandler(Commands::NOTEBOOK_OPEN_NOTEPAD, [&] {
-            emit openNotepadRequested();
-        });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_SAVE,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                if (fnxPath_.exists() && !fnxModel_->isModified()) return;
-
-                Coco::Path path = fnxPath_;
-                auto saved_as = false;
-
-                if (!fnxPath_.exists()) {
-                    path = promptSaveAs_(cmd.context);
-                    if (path.isEmpty()) return;
-                    saved_as = true;
-                }
-
-                auto save_result = saveModifiedModels_();
-                if (!save_result) {
-                    colorBars->red();
-                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
-                    SaveFailMessageBox::exec(fail_paths, cmd.context);
-
-                    return;
-                }
-
-                fnxModel_->write(workingDir_.path());
-
-                if (!Fnx::Io::compress(path, workingDir_.path())) {
-                    colorBars->red();
-                    SaveFailMessageBox::exec(path.toQString(), cmd.context);
-
-                    return;
-                }
-
-                if (saved_as) {
-                    fnxPath_ = path;
-                    windows->setSubtitle(fnxPath_.fileQString());
-                }
-
-                fnxModel_->resetSnapshot();
-                showModified_();
-                colorBars->green();
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEBOOK_SAVE_AS,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-
-                auto new_path = promptSaveAs_(cmd.context);
-                if (new_path.isEmpty()) return;
-
-                auto save_result = saveModifiedModels_();
-                if (!save_result) {
-                    colorBars->red();
-                    auto fail_paths = saveFailDisplayNames_(save_result.failed);
-                    SaveFailMessageBox::exec(fail_paths, cmd.context);
-
-                    return;
-                }
-
-                fnxModel_->write(workingDir_.path());
-
-                if (!Fnx::Io::compress(new_path, workingDir_.path())) {
-                    colorBars->red();
-                    SaveFailMessageBox::exec(new_path.toQString(), cmd.context);
-
-                    return;
-                }
-
-                fnxPath_ = new_path;
-                windows->setSubtitle(fnxPath_.fileQString());
-
-                fnxModel_->resetSnapshot();
-                showModified_();
-                colorBars->green();
-            });
     }
 
     void connectBusEvents_()
@@ -418,6 +301,8 @@ private:
     }
 
     // TODO: Trigger rename immediately (maybe)
+    // New file will be under selected TreeView model index (or notebook element
+    // if no current index)
     void newFile_(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
@@ -435,6 +320,8 @@ private:
     }
 
     // TODO: Trigger rename immediately (maybe)
+    // New folder will be under selected TreeView model index (or notebook
+    // element if no current index)
     void newVirtualFolder_(const QModelIndex& index = {})
     {
         if (!workingDir_.isValid()) return;
@@ -444,6 +331,8 @@ private:
         fnxModel_->addNewVirtualFolder(resolveNotebookIndex_(index));
     }
 
+    // Imported files will be under selected TreeView model index (or notebook
+    // element if no current index)
     void importFiles_(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
@@ -475,7 +364,7 @@ private:
         }
     }
 
-    void showModified_()
+    void updateWindowsFlags_()
     {
         windows->setFlagged(!fnxPath_.exists() || fnxModel_->isModified());
     }
@@ -666,6 +555,83 @@ private:
             fnxModel_->clearTrash();
     }
 
+    void save_(Window* window)
+    {
+        if (!window) return;
+        if (fnxPath_.exists() && !fnxModel_->isModified()) return;
+
+        Coco::Path path = fnxPath_;
+        auto saved_as = false;
+
+        if (!fnxPath_.exists()) {
+            path = promptSaveAs_(window);
+            if (path.isEmpty()) return;
+            saved_as = true;
+        }
+
+        auto save_result = saveModifiedModels_();
+        if (!save_result) {
+            colorBars->red();
+            auto fail_paths = saveFailDisplayNames_(save_result.failed);
+            SaveFailMessageBox::exec(fail_paths, window);
+
+            return;
+        }
+
+        fnxModel_->write(workingDir_.path());
+
+        if (!Fnx::Io::compress(path, workingDir_.path())) {
+            colorBars->red();
+            SaveFailMessageBox::exec(path.toQString(), window);
+
+            return;
+        }
+
+        if (saved_as) {
+            fnxPath_ = path;
+            windows->setSubtitle(fnxPath_.fileQString());
+        }
+
+        fnxModel_->resetSnapshot();
+        updateWindowsFlags_();
+        colorBars->green();
+    }
+
+    void saveAs_(Window* window)
+    {
+        if (!window) return;
+
+        auto new_path = promptSaveAs_(window);
+        if (new_path.isEmpty()) return;
+
+        auto save_result = saveModifiedModels_();
+        if (!save_result) {
+            colorBars->red();
+            auto fail_paths = saveFailDisplayNames_(save_result.failed);
+            SaveFailMessageBox::exec(fail_paths, window);
+
+            return;
+        }
+
+        fnxModel_->write(workingDir_.path());
+
+        if (!Fnx::Io::compress(new_path, workingDir_.path())) {
+            colorBars->red();
+            SaveFailMessageBox::exec(new_path.toQString(), window);
+
+            return;
+        }
+
+        fnxPath_ = new_path;
+        windows->setSubtitle(fnxPath_.fileQString());
+
+        fnxModel_->resetSnapshot();
+        updateWindowsFlags_();
+        colorBars->green();
+    }
+
+    void createWindowMenuBar_(Window* window);
+
 private slots:
     // TODO: Could remove working dir validity check; also writeModelFile could
     // return bool?
@@ -675,7 +641,7 @@ private slots:
         if (!workingDir_.isValid()) return;
 
         fnxModel_->write(workingDir_.path());
-        showModified_();
+        updateWindowsFlags_();
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
@@ -692,6 +658,7 @@ private slots:
     {
         if (!window) return;
         addWorkspaceIndicator_(window);
+        createWindowMenuBar_(window);
     }
 
     // TODO: What if we want to handle virtual folders here, too? Could make

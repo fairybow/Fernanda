@@ -27,11 +27,9 @@
 #include "AbstractFileView.h"
 #include "AppDirs.h"
 #include "Bus.h"
-#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "Fnx.h"
-#include "NotepadMenuModule.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "TreeViewService.h"
@@ -365,17 +363,39 @@ protected:
 
 private:
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
-    NotepadMenuModule* menus_ = new NotepadMenuModule(bus, this);
 
-    struct MultiSaveResult_
+    void setup_()
     {
-        int successCount = 0;
-        bool aborted = false;
-        QList<AbstractFileModel*> failed{};
+        fsModel_->setRootPath(
+            startDir.toQString()); // Via Qt: Setting root path installs a
+                                   // filesystem watcher
+        fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
 
-        bool anySuccesses() const noexcept { return successCount > 0; }
-        bool anyFails() const noexcept { return !failed.isEmpty(); }
-    };
+        connect(
+            treeViews,
+            &TreeViewService::treeViewDoubleClicked,
+            this,
+            &Notepad::onTreeViewDoubleClicked_);
+
+        connect(
+            views,
+            &ViewService::viewDestroyed,
+            this,
+            &Notepad::onViewDestroyed_);
+
+        connect(
+            views,
+            &ViewService::addTabRequested,
+            this,
+            [&](Window* window) { newTab_(window); });
+
+        connectBusEvents_();
+    }
+
+    void connectBusEvents_()
+    {
+        connect(bus, &Bus::windowCreated, this, &Notepad::onWindowCreated_);
+    }
 
     QString fileDisplayName_(AbstractFileModel* fileModel) const
     {
@@ -415,6 +435,16 @@ private:
             return files->saveAs(fileModel, path);
         }
     }
+
+    struct MultiSaveResult_
+    {
+        int successCount = 0;
+        bool aborted = false;
+        QList<AbstractFileModel*> failed{};
+
+        bool anySuccesses() const noexcept { return successCount > 0; }
+        bool anyFails() const noexcept { return !failed.isEmpty(); }
+    };
 
     MultiSaveResult_ multiSave_(
         const QList<AbstractFileModel*>& fileModels,
@@ -495,189 +525,147 @@ private:
             Tr::npSaveAsFilter());
     }
 
-    void setup_()
-    {
-        fsModel_->setRootPath(
-            startDir.toQString()); // Via Qt: Setting root path installs a
-                                   // filesystem watcher
-        fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-        menus_->initialize();
-
-        connect(
-            treeViews,
-            &TreeViewService::treeViewDoubleClicked,
-            this,
-            &Notepad::onTreeViewDoubleClicked_);
-
-        connect(
-            views,
-            &ViewService::viewDestroyed,
-            this,
-            &Notepad::onViewDestroyed_);
-
-        connect(
-            views,
-            &ViewService::addTabRequested,
-            this,
-            [&](Window* window) { newTab_(window); });
-
-        registerBusCommands_();
-        connectBusEvents_();
-    }
-
-    void registerBusCommands_()
-    {
-        bus->addCommandHandler(
-            Commands::NOTEPAD_NEW_TAB,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                newTab_(cmd.context);
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEPAD_OPEN_FILE,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-
-                auto paths = Coco::PathUtil::Dialog::files(
-                    cmd.context,
-                    Tr::npOpenFileCaption(),
-                    startDir,
-                    Tr::npOpenFileFilter());
-
-                if (paths.isEmpty()) return;
-
-                for (auto& path : paths) {
-                    if (!path.exists()) continue;
-
-                    Fnx::Io::isFnxFile(path)
-                        ? emit openNotebookRequested(path)
-                        : files->openFilePathIn(cmd.context, path);
-                }
-            });
-
-        bus->addCommandHandler(Commands::NOTEPAD_SAVE, [&](const Command& cmd) {
-            if (!cmd.context) return;
-            auto current_view = views->fileViewAt(cmd.context, -1);
-            if (!current_view) return;
-            auto model = current_view->model();
-            if (!model) return;
-
-            if (!model->isModified()) return;
-
-            // Called via menu (on current window + tab), so no need to raise
-
-            switch (singleSave_(model, cmd.context)) {
-            default:
-            case FileService::NoOp:
-                break;
-            case FileService::Success:
-                colorBars->green(cmd.context);
-                break;
-            case FileService::Failure: {
-                colorBars->red(cmd.context);
-                auto name = fileDisplayName_(model);
-                SaveFailMessageBox::exec(name, cmd.context);
-                break;
-            }
-            }
-        });
-
-        bus->addCommandHandler(
-            Commands::NOTEPAD_SAVE_AS,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-                auto current_view = views->fileViewAt(cmd.context, -1);
-                if (!current_view) return;
-                auto model = current_view->model();
-                if (!model) return;
-
-                // Allow Save As on unmodified files!
-                if (!model->supportsModification()) return;
-                auto meta = model->meta();
-                if (!meta) return;
-
-                // Called via menu (on current window + tab), so no need to
-                // raise
-
-                auto path = promptSaveAs_(cmd.context, model);
-                if (path.isEmpty()) return;
-
-                switch (files->saveAs(model, path)) {
-                default:
-                case FileService::NoOp:
-                    break;
-                case FileService::Success:
-                    colorBars->green(cmd.context);
-                    break;
-                case FileService::Failure:
-                    colorBars->red(cmd.context);
-                    auto name = fileDisplayName_(model);
-                    SaveFailMessageBox::exec(name, cmd.context);
-                    break;
-                }
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEPAD_SAVE_ALL_IN_WINDOW,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-
-                auto modified_models = views->modifiedViewModelsIn(cmd.context);
-                if (modified_models.isEmpty()) return;
-
-                auto result = multiSave_(modified_models, cmd.context);
-
-                // Fails take priority
-                if (result.anyFails()) {
-                    colorBars->red(cmd.context);
-                    auto fail_display_names = fileDisplayNames_(result.failed);
-                    SaveFailMessageBox::exec(fail_display_names, cmd.context);
-
-                    return;
-                }
-
-                // If any saves occurred, we indicate that
-                if (result.anySuccesses()) colorBars->green(cmd.context);
-            });
-
-        bus->addCommandHandler(
-            Commands::NOTEPAD_SAVE_ALL,
-            [&](const Command& cmd) {
-                if (!cmd.context) return;
-
-                auto modified_models = views->modifiedViewModels();
-                if (modified_models.isEmpty()) return;
-
-                auto result = multiSave_(modified_models);
-
-                // Fails take priority
-                if (result.anyFails()) {
-                    colorBars->red();
-                    auto fail_display_names = fileDisplayNames_(result.failed);
-                    SaveFailMessageBox::exec(fail_display_names, cmd.context);
-
-                    return;
-                }
-
-                // If any saves occurred, we indicate that
-                if (result.anySuccesses()) colorBars->green();
-            });
-    }
-
-    void connectBusEvents_()
-    {
-        //...
-    }
-
     void newTab_(Window* window)
     {
         if (!window) return;
         files->openOffDiskTxtIn(window);
     }
 
+    void openFile_(Window* window)
+    {
+        if (!window) return;
+
+        auto paths = Coco::PathUtil::Dialog::files(
+            window,
+            Tr::npOpenFileCaption(),
+            startDir,
+            Tr::npOpenFileFilter());
+
+        if (paths.isEmpty()) return;
+
+        for (auto& path : paths) {
+            if (!path.exists()) continue;
+
+            Fnx::Io::isFnxFile(path) ? emit openNotebookRequested(path)
+                                     : files->openFilePathIn(window, path);
+        }
+    }
+
+    void save_(Window* window)
+    {
+        if (!window) return;
+        auto current_view = views->fileViewAt(window, -1);
+        if (!current_view) return;
+        auto model = current_view->model();
+        if (!model) return;
+
+        if (!model->isModified()) return;
+
+        // Called via menu (on current window + tab), so no need to raise
+
+        switch (singleSave_(model, window)) {
+        default:
+        case FileService::NoOp:
+            break;
+        case FileService::Success:
+            colorBars->green(window);
+            break;
+        case FileService::Failure: {
+            colorBars->red(window);
+            auto name = fileDisplayName_(model);
+            SaveFailMessageBox::exec(name, window);
+            break;
+        }
+        }
+    }
+
+    void saveAs_(Window* window)
+    {
+        if (!window) return;
+        auto current_view = views->fileViewAt(window, -1);
+        if (!current_view) return;
+        auto model = current_view->model();
+        if (!model) return;
+
+        // Allow Save As on unmodified files!
+        if (!model->supportsModification()) return;
+        auto meta = model->meta();
+        if (!meta) return;
+
+        // Called via menu (on current window + tab), so no need to
+        // raise
+
+        auto path = promptSaveAs_(window, model);
+        if (path.isEmpty()) return;
+
+        switch (files->saveAs(model, path)) {
+        default:
+        case FileService::NoOp:
+            break;
+        case FileService::Success:
+            colorBars->green(window);
+            break;
+        case FileService::Failure:
+            colorBars->red(window);
+            auto name = fileDisplayName_(model);
+            SaveFailMessageBox::exec(name, window);
+            break;
+        }
+    }
+
+    void saveAllInWindow_(Window* window)
+    {
+        if (!window) return;
+
+        auto modified_models = views->modifiedViewModelsIn(window);
+        if (modified_models.isEmpty()) return;
+
+        auto result = multiSave_(modified_models, window);
+
+        // Fails take priority
+        if (result.anyFails()) {
+            colorBars->red(window);
+            auto fail_display_names = fileDisplayNames_(result.failed);
+            SaveFailMessageBox::exec(fail_display_names, window);
+
+            return;
+        }
+
+        // If any saves occurred, we indicate that
+        if (result.anySuccesses()) colorBars->green(window);
+    }
+
+    void saveAll_(Window* window)
+    {
+        if (!window) return;
+
+        auto modified_models = views->modifiedViewModels();
+        if (modified_models.isEmpty()) return;
+
+        auto result = multiSave_(modified_models);
+
+        // Fails take priority
+        if (result.anyFails()) {
+            colorBars->red();
+            auto fail_display_names = fileDisplayNames_(result.failed);
+            SaveFailMessageBox::exec(fail_display_names, window);
+
+            return;
+        }
+
+        // If any saves occurred, we indicate that
+        if (result.anySuccesses()) colorBars->green();
+    }
+
+    void createWindowMenuBar_(Window* window);
+
 private slots:
+    void onWindowCreated_(Window* window)
+    {
+        if (!window) return;
+        createWindowMenuBar_(window);
+    }
+
     void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
     {
         if (!window || !index.isValid()) return;

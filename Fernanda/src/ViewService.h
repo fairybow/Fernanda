@@ -29,7 +29,6 @@
 #include "AbstractFileView.h"
 #include "AbstractService.h"
 #include "Bus.h"
-#include "Commands.h"
 #include "Constants.h"
 #include "Debug.h"
 #include "FileMeta.h"
@@ -126,7 +125,7 @@ public:
     Window* raise(AbstractFileModel* model) const
     {
         if (!model) return nullptr;
-        auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
+        auto windows = bus->call<QList<Window*>>(Bus::WINDOWS);
         if (windows.isEmpty()) return nullptr;
 
         for (auto& window : windows) {
@@ -152,7 +151,7 @@ public:
         if (!fileModel) return false;
 
         auto window_count = 0;
-        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
 
         for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);
@@ -204,7 +203,7 @@ public:
     // remove
     QList<AbstractFileView*> fileViews() const
     {
-        auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
+        auto windows = bus->call<QList<Window*>>(Bus::WINDOWS);
         if (windows.isEmpty()) return {};
 
         QList<AbstractFileView*> views{};
@@ -267,7 +266,7 @@ public:
     {
         if (fileModels.isEmpty()) return;
 
-        auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
+        auto windows = bus->call<QList<Window*>>(Bus::WINDOWS);
         if (windows.isEmpty()) return;
 
         for (auto& window : windows) {
@@ -283,6 +282,114 @@ public:
         }
     }
 
+    void closeTab(Window* window, int index = -1)
+    {
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
+        auto i = normalizeIndex_(tab_widget, index);
+        if (i < 0) return;
+        // Check for view here; if the hook approves but the view is somehow
+        // null, we silently return without emitting viewDestroyed
+        auto view = fileViewAt(window, i);
+        if (!view) return;
+
+        // Proceed if no hook is set, or if hook approves the close
+        if (!canCloseTabHook_ || canCloseTabHook_(window, i))
+            deleteFileViewAt_(window, i);
+    }
+
+    void closeTabEverywhere(Window* window, int index = -1)
+    {
+        auto target_model = fileModelAt_(window, index);
+        if (!target_model) return;
+
+        // Proceed if no hook is set, or if hook approves the close
+        if (!canCloseTabEverywhereHook_
+            || canCloseTabEverywhereHook_(window, index)) {
+            auto windows = bus->call<QList<Window*>>(Bus::WINDOWS);
+            if (windows.isEmpty()) return;
+
+            for (auto& window : windows) {
+                auto tab_widget = tabWidget_(window);
+                if (!tab_widget || tab_widget->isEmpty()) continue;
+
+                // Iterate backward to avoid index shifting issues
+                for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                    if (view && view->model() == target_model)
+                        deleteFileViewAt_(window, i);
+                }
+            }
+        }
+    }
+
+    void closeWindowTabs(Window* window)
+    {
+        if (!window) return;
+
+        // Proceed if no hook is set, or if hook approves the close
+        if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_(window))
+            deleteAllFileViewsIn_(window);
+    }
+
+    void closeAllTabs()
+    {
+        auto windows = bus->call<QList<Window*>>(Bus::WINDOWS);
+        if (windows.isEmpty()) return;
+
+        // Proceed if no hook is set, or if hook approves the close
+        if (!canCloseAllTabsHook_ || canCloseAllTabsHook_(windows))
+            for (auto& window : windows)
+                deleteAllFileViewsIn_(window);
+    }
+
+    void undo(Window* window, int index = -1)
+    {
+        auto model = fileModelAt_(window, index);
+        if (model && model->hasUndo()) model->undo();
+    }
+
+    void redo(Window* window, int index = -1)
+    {
+        auto model = fileModelAt_(window, index);
+        if (model && model->hasRedo()) model->redo();
+    }
+
+    void cut(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        if (view->hasSelection()) view->cut();
+    }
+
+    void copy(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        if (view->hasSelection()) view->copy();
+    }
+
+    void paste(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        if (view->hasPaste()) view->paste();
+    }
+
+    void del(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        if (view->hasSelection()) view->deleteSelection();
+    }
+
+    void selectAll(Window* window, int index = -1)
+    {
+        auto view = fileViewAt(window, index);
+        if (!view || !view->supportsEditing()) return;
+        view->selectAll();
+    }
+
 signals:
     void viewDestroyed(AbstractFileModel* fileModel);
     void addTabRequested(Window* window);
@@ -290,56 +397,7 @@ signals:
 protected:
     virtual void registerBusCommands() override
     {
-        bus->addCommandHandler(Commands::CLOSE_TAB, [&](const Command& cmd) {
-            closeTab_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_TAB_EVERYWHERE,
-            [&](const Command& cmd) {
-                closeTabEverywhere_(cmd.context, cmd.param<int>("index", -1));
-            });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_WINDOW_TABS,
-            [&](const Command& cmd) { closeWindowTabs_(cmd.context); });
-
-        bus->addCommandHandler(
-            Commands::CLOSE_ALL_TABS,
-            [&](const Command& cmd) { closeAllTabs_(); });
-
-        // All the methods used in these handlers aren't called anywhere else
-        // right now except in menus. As such, they don't really need the index
-        // parameter (as they only ever operate on the current view in a given
-        // window/cmd.context. However, leaving it as-is for now just in case.
-
-        bus->addCommandHandler(Commands::UNDO, [&](const Command& cmd) {
-            undo_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        bus->addCommandHandler(Commands::REDO, [&](const Command& cmd) {
-            redo_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        bus->addCommandHandler(Commands::CUT, [&](const Command& cmd) {
-            cut_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        bus->addCommandHandler(Commands::COPY, [&](const Command& cmd) {
-            copy_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        bus->addCommandHandler(Commands::PASTE, [&](const Command& cmd) {
-            paste_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        bus->addCommandHandler(Commands::DEL, [&](const Command& cmd) {
-            delete_(cmd.context, cmd.param<int>("index", -1));
-        });
-
-        bus->addCommandHandler(Commands::SELECT_ALL, [&](const Command& cmd) {
-            selectAll_(cmd.context, cmd.param<int>("index", -1));
-        });
+        //...
     }
 
     virtual void connectBusEvents() override
@@ -403,114 +461,6 @@ private:
     {
         auto view = fileViewAt(window, index);
         return view ? view->model() : nullptr;
-    }
-
-    void closeTab_(Window* window, int index = -1)
-    {
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget) return;
-        auto i = normalizeIndex_(tab_widget, index);
-        if (i < 0) return;
-        // Check for view here; if the hook approves but the view is somehow
-        // null, we silently return without emitting viewDestroyed
-        auto view = fileViewAt(window, i);
-        if (!view) return;
-
-        // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabHook_ || canCloseTabHook_(window, i))
-            deleteFileViewAt_(window, i);
-    }
-
-    void closeTabEverywhere_(Window* window, int index = -1)
-    {
-        auto target_model = fileModelAt_(window, index);
-        if (!target_model) return;
-
-        // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabEverywhereHook_
-            || canCloseTabEverywhereHook_(window, index)) {
-            auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
-            if (windows.isEmpty()) return;
-
-            for (auto& window : windows) {
-                auto tab_widget = tabWidget_(window);
-                if (!tab_widget || tab_widget->isEmpty()) continue;
-
-                // Iterate backward to avoid index shifting issues
-                for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                    if (view && view->model() == target_model)
-                        deleteFileViewAt_(window, i);
-                }
-            }
-        }
-    }
-
-    void closeWindowTabs_(Window* window)
-    {
-        if (!window) return;
-
-        // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseWindowTabsHook_ || canCloseWindowTabsHook_(window))
-            deleteAllFileViewsIn_(window);
-    }
-
-    void closeAllTabs_()
-    {
-        auto windows = bus->call<QList<Window*>>(Commands::WINDOWS);
-        if (windows.isEmpty()) return;
-
-        // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseAllTabsHook_ || canCloseAllTabsHook_(windows))
-            for (auto& window : windows)
-                deleteAllFileViewsIn_(window);
-    }
-
-    void undo_(Window* window, int index = -1)
-    {
-        auto model = fileModelAt_(window, index);
-        if (model && model->hasUndo()) model->undo();
-    }
-
-    void redo_(Window* window, int index = -1)
-    {
-        auto model = fileModelAt_(window, index);
-        if (model && model->hasRedo()) model->redo();
-    }
-
-    void cut_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        if (view->hasSelection()) view->cut();
-    }
-
-    void copy_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        if (view->hasSelection()) view->copy();
-    }
-
-    void paste_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        if (view->hasPaste()) view->paste();
-    }
-
-    void delete_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        if (view->hasSelection()) view->deleteSelection();
-    }
-
-    void selectAll_(Window* window, int index = -1)
-    {
-        auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
-        view->selectAll();
     }
 
     // Index -1 = current
@@ -591,7 +541,7 @@ private:
             tab_widget,
             &TabWidget::closeTabRequested,
             this,
-            [&, window](int index) { closeTab_(window, index); });
+            [&, window](int index) { closeTab(window, index); });
 
         // connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
         //     //...
@@ -677,7 +627,7 @@ private slots:
         if (!fileModel) return;
 
         // Find all tabs containing views on this model
-        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
         for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
@@ -701,7 +651,7 @@ private slots:
 
         // Find all tabs containing views of this model and update their
         // text/tooltip
-        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
         for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
@@ -725,7 +675,7 @@ private slots:
 
         auto font = to<QFont>(value);
 
-        auto windows = bus->call<QSet<Window*>>(Commands::WINDOWS_SET);
+        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
         for (auto& window : windows)
         { auto tab_widget = Util::tabWidget(window); if (!tab_widget)
         continue;

@@ -104,7 +104,10 @@ public:
 
     // TODO: Optional bool slot parameter, since we're ignoring
     // QAction::triggered checked parameter right now
-    MenuBuilder& slot(QObject* receiver, Slot slot)
+    MenuBuilder& slot(
+        QObject* receiver,
+        Slot slot,
+        Qt::ConnectionType type = Qt::AutoConnection)
     {
         if (!window_) return *this;
 
@@ -119,12 +122,18 @@ public:
         return *this;
     }
 
-    template <Coco::Concepts::QObjectPointer ClassT>
-    MenuBuilder& slot(ClassT* receiver, void (ClassT::*memberSlot)())
+    template <typename ReceiverT, typename MethodClassT>
+        requires Coco::Concepts::QObjectDerived<ReceiverT>
+                 && std::is_base_of_v<MethodClassT, ReceiverT>
+    MenuBuilder& slot(
+        ReceiverT* receiver,
+        void (MethodClassT::*memberSlot)(),
+        Qt::ConnectionType type = Qt::AutoConnection)
     {
-        return slot(receiver, [receiver, memberSlot] {
-            (receiver->*memberSlot)();
-        });
+        return slot(
+            static_cast<QObject*>(receiver),
+            [receiver, memberSlot] { (receiver->*memberSlot)(); },
+            type);
     }
 
     MenuBuilder& toggler(Toggler toggler)

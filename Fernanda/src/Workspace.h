@@ -28,8 +28,11 @@
 #include "ColorBarModule.h"
 #include "Constants.h"
 #include "FileService.h"
+#include "Fnx.h"
+#include "NewNotebookPrompt.h"
 #include "SettingsModule.h"
 #include "Timers.h"
+#include "Tr.h"
 #include "TreeViewService.h"
 #include "ViewService.h"
 #include "Window.h"
@@ -120,6 +123,29 @@ protected:
     virtual bool canCloseWindow(Window*) { return true; }
     virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
 
+    // Will allow creation of new Notebook with a prospective path that is the
+    // same as an existing Notebook's. When saved, the user will be warned
+    // before saving over the existing Notebook!
+    void requestNewNotebook()
+    {
+        auto name = NewNotebookPrompt::exec();
+        if (name.isEmpty()) return;
+        emit newNotebookRequested(startDir / (name + Fnx::Io::EXT));
+    }
+
+    void requestOpenNotebook()
+    {
+        // nullptr parent makes the dialog application modal
+        auto path = Coco::PathUtil::Dialog::file(
+            nullptr,
+            Tr::nxOpenNotebookCaption(),
+            startDir,
+            Tr::nxOpenNotebookFilter());
+
+        if (path.isEmpty() || !Fnx::Io::isFnxFile(path)) return;
+        emit openNotebookRequested(path);
+    }
+
 private:
     void setup_()
     {
@@ -146,16 +172,6 @@ private:
 
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
-
-        registerBusCommands_();
-        connectBusEvents_();
-    }
-
-    void registerBusCommands_();
-
-    void connectBusEvents_()
-    {
-        //...
     }
 };
 
