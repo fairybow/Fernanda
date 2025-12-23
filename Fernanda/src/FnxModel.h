@@ -13,6 +13,7 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QHash>
+#include <QIcon>
 #include <QMimeData>
 #include <QModelIndex>
 #include <QModelIndexList>
@@ -27,6 +28,33 @@
 #include "Fnx.h"
 
 #include "Coco/Path.h"
+
+/// *
+#include <QElapsedTimer>
+#include <atomic>
+
+// Temporary profiling counters (TODO: Save this! Could make it permanent and
+// toggleable, using macros)
+namespace FnxModelProfile {
+
+inline std::atomic<int> indexCalls{ 0 };
+inline std::atomic<int> parentCalls{ 0 };
+inline std::atomic<int> rowCountCalls{ 0 };
+inline std::atomic<int> dataCalls{ 0 };
+inline std::atomic<int> isValidCalls{ 0 };
+
+inline void report()
+{
+    DEBUG("=== FnxModel Call Counts ===");
+    DEBUG("index(): {}", indexCalls.load());
+    DEBUG("parent(): {}", parentCalls.load());
+    DEBUG("rowCount(): {}", rowCountCalls.load());
+    DEBUG("data(): {}", dataCalls.load());
+    DEBUG("isValid_(): {}", isValidCalls.load());
+    indexCalls = parentCalls = rowCountCalls = dataCalls = isValidCalls = 0;
+}
+
+} // namespace FnxModelProfile
 
 namespace Fernanda {
 
@@ -88,8 +116,6 @@ public:
 
     void resetSnapshot() { domSnapshot_ = dom_.toString(); }
 
-    // TODO: Problem with this method if we ever decide to store
-    // expanded/collapsed state in the DOM...
     bool isModified() const
     {
         // - QDomDocument::toString() is deterministic for the same structure
@@ -392,6 +418,8 @@ public:
     virtual QModelIndex
     index(int row, int column, const QModelIndex& parent = {}) const override
     {
+        ++FnxModelProfile::indexCalls;
+
         if (!hasIndex(row, column, parent)) return {};
 
         auto parent_element = elementAt_(parent);
@@ -404,6 +432,8 @@ public:
 
     virtual QModelIndex parent(const QModelIndex& child) const override
     {
+        ++FnxModelProfile::parentCalls;
+
         if (!child.isValid()) return {};
 
         auto child_element = elementAt_(child);
@@ -420,6 +450,8 @@ public:
 
     virtual int rowCount(const QModelIndex& parent = {}) const override
     {
+        ++FnxModelProfile::rowCountCalls;
+
         if (parent.column() > 0) return 0;
         auto element = elementAt_(parent);
         if (element.isNull()) return 0;
@@ -501,12 +533,14 @@ public:
 signals:
     void domChanged();
     void fileRenamed(const FileInfo& info);
-    //void trashCountChanged();
 
 private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
     QString domSnapshot_{};
+
+    mutable QIcon cachedDirIcon_{};
+    mutable QIcon cachedFileIcon_{};
 
     // ID allocation: 0 = invalid/root element
     // IDs start at 1 and increment monotonically
@@ -530,6 +564,8 @@ private:
 
     bool isValid_(const QDomElement& element) const
     {
+        ++FnxModelProfile::isValidCalls;
+
         if (element.isNull()) return false;
 
         // Must belong to current document
@@ -834,16 +870,26 @@ private:
     // fixed
     void insertElement_(const QDomElement& element, QDomElement parentElement)
     {
+        QElapsedTimer timer;
+        timer.start();
+
         if (!isValidForInsertion_(element) || !isValid_(parentElement)) return;
 
         auto parent_index = indexFromElement_(parentElement);
+        DEBUG("indexFromElement_ took: {} ms", timer.elapsed());
+
         auto row = childElementCount_(parentElement);
+        DEBUG("childElementCount_ took: {} ms (cumulative)", timer.elapsed());
 
         beginInsertRows(parent_index, row, row);
+        DEBUG("beginInsertRows took: {} ms (cumulative)", timer.elapsed());
+
         parentElement.appendChild(element);
         endInsertRows();
+        DEBUG("endInsertRows took: {} ms (cumulative)", timer.elapsed());
 
         emit domChanged();
+        DEBUG("domChanged took: {} ms (cumulative)", timer.elapsed());
     }
 
     // TODO: Expand parent if applicable after appending (probably a view op)

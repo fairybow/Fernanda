@@ -642,6 +642,9 @@ private slots:
 
         fnxModel_->write(workingDir_.path());
         updateWindowsFlags_();
+
+        /// *
+        FnxModelProfile::report();
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
