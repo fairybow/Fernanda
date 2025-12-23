@@ -2,6 +2,7 @@
 
 TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 
+- [ ] Go through and add brackets to single line IF statements (not including the IF itself)
 - [ ] Log before signals where appropriate
 - [ ] Ensure, too, that tense makes sense (thing happened vs requesting thing to happen, whichever makes the most sense)
 - [ ] Probably remove those extra "return true"s at the end of the closure hook switch statements, since the switch should cover it
