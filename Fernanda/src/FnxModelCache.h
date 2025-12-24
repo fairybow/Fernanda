@@ -14,6 +14,8 @@
 #include <QList>
 #include <QString>
 
+#include "Coco/Bool.h"
+
 #include "Debug.h"
 #include "Fnx.h"
 
@@ -22,15 +24,18 @@ namespace Fernanda {
 class FnxModelCache
 {
 public:
+    COCO_BOOL(OnError);
+
     FnxModelCache() = default;
     virtual ~FnxModelCache() { TRACER; }
 
-    void clear()
+    void clear(OnError onError = OnError::No)
     {
         nextId_ = 1;
         keyToId_.clear();
         idToElement_.clear();
         structure_.clear();
+        if (onError) CRITICAL("FnxModelCache cleared due to error!");
     }
 
     void cache(const QDomElement& element) { (void)idOf(element); }

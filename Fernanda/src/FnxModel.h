@@ -24,38 +24,12 @@
 #include <Qt>
 #include <QtTypes>
 
+#include "Coco/Bool.h"
+#include "Coco/Path.h"
+
 #include "Debug.h"
 #include "Fnx.h"
 #include "FnxModelCache.h"
-
-#include "Coco/Path.h"
-
-/// *
-#include <QElapsedTimer>
-#include <atomic>
-
-// Temporary profiling counters (TODO: Save this! Could make it permanent and
-// toggleable, using macros)
-namespace FnxModelProfile {
-
-inline std::atomic<int> indexCalls{ 0 };
-inline std::atomic<int> parentCalls{ 0 };
-inline std::atomic<int> rowCountCalls{ 0 };
-inline std::atomic<int> dataCalls{ 0 };
-inline std::atomic<int> isValidCalls{ 0 };
-
-inline void report()
-{
-    DEBUG("=== FnxModel Call Counts ===");
-    DEBUG("index(): {}", indexCalls.load());
-    DEBUG("parent(): {}", parentCalls.load());
-    DEBUG("rowCount(): {}", rowCountCalls.load());
-    DEBUG("data(): {}", dataCalls.load());
-    DEBUG("isValid_(): {}", isValidCalls.load());
-    indexCalls = parentCalls = rowCountCalls = dataCalls = isValidCalls = 0;
-}
-
-} // namespace FnxModelProfile
 
 namespace Fernanda {
 
@@ -272,7 +246,10 @@ public:
         if (!index.isValid()) return false;
 
         auto element = elementAt_(index);
-        if (element.isNull()) return false;
+        if (!isValid_(element)) {
+            WARN("Removal attempted on invalid element!");
+            return false;
+        }
 
         auto parent_element = element.parentNode().toElement();
         if (parent_element.isNull()) return false;
@@ -295,7 +272,9 @@ public:
     bool clearTrash()
     {
         auto trash = Fnx::Xml::trashElement(dom_);
-        if (trash.isNull()) return false;
+        if (!isValid_(trash)) {
+            FATAL("Trash element is invalid! Something is extra wrong!");
+        }
 
         auto child_count = cache_.childCount(trash);
         if (child_count <= 0) return true;
@@ -381,8 +360,6 @@ public:
     virtual QModelIndex
     index(int row, int column, const QModelIndex& parent = {}) const override
     {
-        ++FnxModelProfile::indexCalls;
-
         if (!hasIndex(row, column, parent)) return {};
 
         auto parent_element = elementAt_(parent);
@@ -396,8 +373,6 @@ public:
 
     virtual QModelIndex parent(const QModelIndex& child) const override
     {
-        ++FnxModelProfile::parentCalls;
-
         if (!child.isValid()) return {};
 
         auto child_element = elementAt_(child);
@@ -418,8 +393,6 @@ public:
 
     virtual int rowCount(const QModelIndex& parent = {}) const override
     {
-        ++FnxModelProfile::rowCountCalls;
-
         if (parent.column() > 0) return 0;
 
         auto element = elementAt_(parent);
@@ -504,8 +477,9 @@ public:
         }
 
         auto element = cache_.elementAt(element_id);
-        if (element.isNull()) {
-            WARN("Drop: element not in cache for ID: {}", element_id);
+        if (!isValid_(element)) {
+            WARN("Drop: invalid element for ID: {}", element_id);
+            cache_.clear(FnxModelCache::OnError::Yes);
             return false;
         }
 
@@ -520,6 +494,7 @@ signals:
     void fileRenamed(const FileInfo& info);
 
 private:
+    COCO_BOOL(AllowOrphaned_);
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
     QString domSnapshot_{};
@@ -531,6 +506,20 @@ private:
     void setup_()
     {
         //...
+    }
+
+    // All O(1) pointer operations. Should be cheap!
+    bool isValid_(
+        const QDomElement& element,
+        AllowOrphaned_ allowOrphaned = AllowOrphaned_::No) const
+    {
+        if (element.isNull()) return false;
+
+        if (allowOrphaned) return element.ownerDocument() == dom_;
+
+        if (element.ownerDocument() != dom_) return false;
+        if (element == dom_.documentElement()) return true;
+        return !element.parentNode().toElement().isNull();
     }
 
     // Returns element for index. Invalid index returns document root
@@ -648,6 +637,12 @@ private:
     bool
     moveElement_(const QDomElement& element, QDomElement newParent, int newRow)
     {
+        // Both must be attached to tree
+        if (!isValid_(element) || !isValid_(newParent)) {
+            WARN("Move attempted on invalid element(s)!");
+            return false;
+        }
+
         auto current_parent = element.parentNode().toElement();
         if (current_parent.isNull()) return false;
 
@@ -730,27 +725,22 @@ private:
     // references (`QDomElement&`) cannot bind to temporaries
     void insertElement_(const QDomElement& element, QDomElement parentElement)
     {
-        QElapsedTimer timer{};
-        timer.start();
-
-        if (element.isNull() || parentElement.isNull()) return;
+        if (!isValid_(element, AllowOrphaned_::Yes)
+            || !isValid_(parentElement)) {
+            WARN("Insertion attempted with invalid element(s)!");
+            return;
+        }
 
         auto parent_index = indexFromElement_(parentElement);
-        DEBUG("indexFromElement_ took: {} ms", timer.elapsed());
-
         auto row = cache_.childCount(parentElement);
-        DEBUG("childElementCount_ took: {} ms (cumulative)", timer.elapsed());
 
         beginInsertRows(parent_index, row, row);
-        DEBUG("beginInsertRows took: {} ms (cumulative)", timer.elapsed());
 
         parentElement.appendChild(element);
         cache_.recordInsertion(parentElement, element);
         endInsertRows();
-        DEBUG("endInsertRows took: {} ms (cumulative)", timer.elapsed());
 
         emit domChanged();
-        DEBUG("domChanged took: {} ms (cumulative)", timer.elapsed());
     }
 
     // The parent element parameters must be by-value because
@@ -761,13 +751,21 @@ private:
         const QList<QDomElement>& elements,
         QDomElement parentElement)
     {
-        if (elements.isEmpty() || parentElement.isNull()) return;
+        if (elements.isEmpty()) return;
+
+        if (!isValid_(parentElement)) {
+            WARN("Insertion attempted on invalid parent!");
+            return;
+        }
 
         auto parent_index = indexFromElement_(parentElement);
         auto row = cache_.childCount(parentElement);
 
         for (const auto& element : elements) {
-            if (element.isNull()) continue;
+            if (!isValid_(element, AllowOrphaned_::Yes)) {
+                WARN("Insertion attempted with invalid element!");
+                continue;
+            }
 
             beginInsertRows(parent_index, row, row);
             parentElement.appendChild(element);
@@ -781,3 +779,29 @@ private:
 };
 
 } // namespace Fernanda
+
+// Tests:
+
+/*#include <QElapsedTimer>
+#include <atomic>
+
+namespace FnxModelProfile {
+
+inline std::atomic<int> indexCalls{ 0 };
+inline std::atomic<int> parentCalls{ 0 };
+inline std::atomic<int> rowCountCalls{ 0 };
+inline std::atomic<int> dataCalls{ 0 };
+inline std::atomic<int> isValidCalls{ 0 };
+
+inline void report()
+{
+    DEBUG("=== FnxModel Call Counts ===");
+    DEBUG("index(): {}", indexCalls.load());
+    DEBUG("parent(): {}", parentCalls.load());
+    DEBUG("rowCount(): {}", rowCountCalls.load());
+    DEBUG("data(): {}", dataCalls.load());
+    DEBUG("isValid_(): {}", isValidCalls.load());
+    indexCalls = parentCalls = rowCountCalls = dataCalls = isValidCalls = 0;
+}
+
+} // namespace FnxModelProfile*/

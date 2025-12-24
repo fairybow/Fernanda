@@ -23,8 +23,6 @@ namespace Fernanda {
 
 QVariant FnxModel::data(const QModelIndex& index, int role) const
 {
-    ++FnxModelProfile::dataCalls;
-
     if (!index.isValid()) return {};
 
     auto element = elementAt_(index);
