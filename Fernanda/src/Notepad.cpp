@@ -58,7 +58,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::SAVE)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
+            &Notepad::activeTabMenuRefreshReq,
             [&, window] {
                 auto current = views->fileModelAt(window, -1);
                 return current ? current->isModified() : false;
@@ -69,7 +69,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::SAVE_AS)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
+            &Notepad::activeTabMenuRefreshReq,
             [&, window] {
                 auto current = views->fileModelAt(window, -1);
                 return current ? current->supportsModification() : false;
@@ -77,20 +77,21 @@ void Notepad::createWindowMenuBar_(Window* window)
 
         .action(Tr::npSaveAllInWindow())
         .slot(this, [&, window] { saveAllInWindow_(window); })
-        // TODO: May need a different trigger!
-        /*.toggler(
+        .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
-            [&, window] { return views->anyModifiedFileModelsIn(window); })*/
+            &Notepad::windowMenuRefreshReq,
+            [&, window] {
+                if (window->isClosing()) return false;
+                return views->anyModifiedFileModelsIn(window);
+            })
 
         .action(Tr::npSaveAll())
         .slot(this, [&, window] { saveAll_(window); })
         .shortcut(MenuShortcuts::SAVE_ALL)
-        // TODO: Needs a different trigger!
-        /*.toggler(
+        .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
-            [&] { return files->anyModified(); })*/
+            &Notepad::globalMenuRefreshReq,
+            [&] { return files->anyModified(); })
 
         .separator()
 
@@ -99,31 +100,36 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::CLOSE_TAB)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
-            [&, window] { return views->fileViewAt(window, -1); })
+            &Notepad::activeTabMenuRefreshReq,
+            [&, window] {
+                return static_cast<bool>(views->fileViewAt(window, -1));
+            })
 
         .action(Tr::Menus::fileCloseTabEverywhere())
         .slot(this, [&, window] { views->closeTabEverywhere(window, -1); })
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
-            [&, window] { return views->fileViewAt(window, -1); })
+            &Notepad::activeTabMenuRefreshReq,
+            [&, window] {
+                return static_cast<bool>(views->fileViewAt(window, -1));
+            })
 
         .action(Tr::Menus::fileCloseWindowTabs())
         .slot(this, [&, window] { views->closeWindowTabs(window); })
-        // TODO: May need a different trigger!
-        /*.toggler(
+        .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
-            [&, window] { return views->fileViewAt(window, -1); })*/
+            &Notepad::windowMenuRefreshReq,
+            [&, window] {
+                if (window->isClosing()) return false;
+                return static_cast<bool>(views->fileViewAt(window, -1));
+            })
 
         .action(Tr::Menus::fileCloseAllTabs())
         .slot(this, [&] { views->closeAllTabs(); })
-        // TODO: Needs a different trigger!
-        /*.toggler(
+        .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
-            [&] { return views->anyViews(); })*/
+            &Notepad::globalMenuRefreshReq,
+            [&] { return views->anyViews(); })
 
         .separator()
 
@@ -147,7 +153,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::UNDO)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
+            &Notepad::activeTabMenuRefreshReq,
             [&, window] {
                 auto current = views->fileModelAt(window, -1);
                 return current ? current->hasUndo() : false;
@@ -158,7 +164,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::REDO)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
+            &Notepad::activeTabMenuRefreshReq,
             [&, window] {
                 auto current = views->fileModelAt(window, -1);
                 return current ? current->hasRedo() : false;
@@ -171,7 +177,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::CUT)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
+            &Notepad::activeTabMenuRefreshReq,
             [&, window] {
                 auto current = views->fileViewAt(window, -1);
                 return current ? current->hasSelection() : false;
@@ -182,7 +188,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::COPY)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
+            &Notepad::activeTabMenuRefreshReq,
             [&, window] {
                 auto current = views->fileViewAt(window, -1);
                 return current ? current->hasSelection() : false;
@@ -193,7 +199,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::PASTE)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
+            &Notepad::activeTabMenuRefreshReq,
             [&, window] {
                 auto current = views->fileViewAt(window, -1);
                 return current ? current->hasPaste() : false;
@@ -204,7 +210,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::DEL)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
+            &Notepad::activeTabMenuRefreshReq,
             [&, window] {
                 auto current = views->fileViewAt(window, -1);
                 return current ? current->hasSelection() : false;
@@ -217,7 +223,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::SELECT_ALL)
         .toggler(
             this,
-            &Notepad::activeFileViewMenuRefreshReq,
+            &Notepad::activeTabMenuRefreshReq,
             [&, window] {
                 auto current = views->fileViewAt(window, -1);
                 return current ? current->supportsEditing() : false;

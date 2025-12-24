@@ -64,9 +64,9 @@ public:
 
 signals:
     /// TODO TOGGLES
-    void activeFileViewMenuRefreshReq();
-    void windowFileViewMenuRefreshReq(Window* window); // For per-window actions
-    void globalFileViewMenuRefreshReq(); // For cross-window actions
+    void activeTabMenuRefreshReq();
+    void windowMenuRefreshReq(); // For per-window actions
+    void globalMenuRefreshReq(); // For cross-window actions
 
 protected:
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
@@ -410,10 +410,54 @@ private:
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, &Notepad::onBusWindowCreated_);
+
+        /// TODO TOGGLES
+        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
+            disconnectOldActiveTabMenuCx_(window);
+            activeFileViewMenuCx_.remove(window);
+            emit windowMenuRefreshReq();
+            emit globalMenuRefreshReq();
+        });
+
+        /// TODO TOGGLES
+        connect(
+            bus,
+            &Bus::fileModelReadied,
+            this,
+            [&](Window* window, AbstractFileModel* fileModel) {
+                (void)window;
+                (void)fileModel;
+                emit windowMenuRefreshReq();
+                emit globalMenuRefreshReq();
+            });
+
+        /// TODO TOGGLES
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            [&](AbstractFileModel* fileModel, bool modified) {
+                (void)fileModel;
+                (void)modified;
+
+                emit globalMenuRefreshReq();
+                emit windowMenuRefreshReq();
+
+                // Instead of checking, we can just emit? The toggler checks any
+                // way. If we do the below, we're possibly checking twice?
+                /*for (auto& window : windows->windowsSet()) {
+                    for (auto view : views->fileViewsIn(window)) {
+                        if (view && view->model() == fileModel) {
+                            emit windowMenuRefreshReq();
+                            break;
+                        }
+                    }
+                }*/
+            });
     }
 
     /// TODO TOGGLES
-    void disconnectOldActiveTabMenuCx__(Window* window)
+    void disconnectOldActiveTabMenuCx_(Window* window)
     {
         if (!window) return;
 
@@ -710,13 +754,17 @@ private slots:
         if (views->countFor(fileModel) > 0) return;
 
         files->deleteModel(fileModel);
+
+        /// TODO TOGGLES
+        emit windowMenuRefreshReq();
+        emit globalMenuRefreshReq();
     }
 
     /// TODO TOGGLES
     void onViewsActiveChanged_(Window* window, AbstractFileView* activeFileView)
     {
         // Need to clear this every time, even when active view is nullptr!
-        disconnectOldActiveTabMenuCx__(window);
+        disconnectOldActiveTabMenuCx_(window);
 
         if (!window || !activeFileView) return;
         auto model = activeFileView->model();
@@ -728,33 +776,33 @@ private slots:
             model,
             &AbstractFileModel::modificationChanged,
             this,
-            &Notepad::activeFileViewMenuRefreshReq);
+            &Notepad::activeTabMenuRefreshReq);
 
         cx << connect(
             model,
             &AbstractFileModel::undoAvailable,
             this,
-            &Notepad::activeFileViewMenuRefreshReq);
+            &Notepad::activeTabMenuRefreshReq);
 
         cx << connect(
             model,
             &AbstractFileModel::redoAvailable,
             this,
-            &Notepad::activeFileViewMenuRefreshReq);
+            &Notepad::activeTabMenuRefreshReq);
 
         cx << connect(
             activeFileView,
             &AbstractFileView::selectionChanged,
             this,
-            &Notepad::activeFileViewMenuRefreshReq);
+            &Notepad::activeTabMenuRefreshReq);
 
         cx << connect(
             activeFileView,
             &AbstractFileView::clipboardDataChanged,
             this,
-            &Notepad::activeFileViewMenuRefreshReq);
+            &Notepad::activeTabMenuRefreshReq);
 
-        emit activeFileViewMenuRefreshReq();
+        emit activeTabMenuRefreshReq();
     }
 };
 

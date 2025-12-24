@@ -19,15 +19,20 @@ void Window::closeEvent(QCloseEvent* event)
 {
     // For batch close, WindowService uses its own hook
     if (!service_ || service_->isBatchClose_) {
+        isClosing_ = true; /// TODO TOGGLES
         QMainWindow::closeEvent(event);
         return;
     }
 
     // Single window close (allows us to close windows normally, via close
     // method or UI button, and still allow the Workspace to accept or reject)
-    auto accepted = true;
-    if (service_->canCloseHook_) accepted = service_->canCloseHook_(this);
-    accepted ? QMainWindow::closeEvent(event) : event->ignore();
+    if (service_->canCloseHook_ && !service_->canCloseHook_(this)) {
+        event->ignore();
+        return;
+    }
+
+    isClosing_ = true; /// TODO TOGGLES
+    QMainWindow::closeEvent(event);
 }
 
 } // namespace Fernanda
