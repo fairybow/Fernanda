@@ -28,9 +28,6 @@ void Notebook::createWindowMenuBar_(Window* window)
     // else?)
     // TODO: Somehow section-off common code between Notepad and Notebook
 
-    // TODO: For toggles, will need to store the builders for each window and
-    // call update when current view changes (or other relevant events)?
-
     MenuBuilder(MenuBuilder::MenuBar, window)
         .menu(Tr::nxFileMenu())
 
