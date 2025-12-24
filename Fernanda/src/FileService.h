@@ -93,6 +93,15 @@ public:
 
     QSet<AbstractFileModel*> fileModels() const noexcept { return fileModels_; }
 
+    bool anyModified() const
+    {
+        for (auto& model : fileModels_) {
+            if (model && model->isModified()) return true;
+        }
+
+        return false;
+    }
+
     [[nodiscard]] SaveResult save(AbstractFileModel* fileModel)
     {
         if (!fileModel || !fileModel->supportsModification()) return NoOp;

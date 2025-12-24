@@ -226,15 +226,15 @@ private:
 
         connect(
             treeViews,
-            &TreeViewService::treeViewDoubleClicked,
+            &TreeViewService::doubleClicked,
             this,
-            &Notebook::onTreeViewDoubleClicked_);
+            &Notebook::onTreeViewsDoubleClicked_);
 
         connect(
             treeViews,
-            &TreeViewService::treeViewContextMenuRequested,
+            &TreeViewService::contextMenuRequested,
             this,
-            &Notebook::onTreeViewContextMenuRequested_);
+            &Notebook::onTreeViewsContextMenuRequested_);
 
         connect(
             views,
@@ -286,13 +286,13 @@ private:
 
     void connectBusEvents_()
     {
-        connect(bus, &Bus::windowCreated, this, &Notebook::onWindowCreated_);
+        connect(bus, &Bus::windowCreated, this, &Notebook::onBusWindowCreated_);
 
         connect(
             bus,
             &Bus::fileModelModificationChanged,
             this,
-            &Notebook::onFileModelModificationChanged_);
+            &Notebook::onBusFileModelModificationChanged_);
     }
 
     QModelIndex resolveNotebookIndex_(const QModelIndex& index) const
@@ -485,7 +485,8 @@ private:
             &TreeView::doubleClicked,
             this,
             [this, window](const QModelIndex& index) {
-                onTreeViewDoubleClicked_(window, index);
+                // Reuse this
+                onTreeViewsDoubleClicked_(window, index);
             });
 
         connect(
@@ -493,7 +494,7 @@ private:
             &TreeView::customContextMenuRequested,
             this,
             [this, window, trash_view](const QPoint& pos) {
-                onTrashViewContextMenuRequested_(
+                showTrashViewContextMenu_(
                     window,
                     trash_view,
                     trash_view->mapToGlobal(pos),
@@ -632,90 +633,7 @@ private:
 
     void createWindowMenuBar_(Window* window);
 
-private slots:
-    // TODO: Could remove working dir validity check; also writeModelFile could
-    // return bool?
-    void onFnxModelDomChanged_()
-    {
-        // Initial DOM load emission doesn't call this slot
-        if (!workingDir_.isValid()) return;
-
-        fnxModel_->write(workingDir_.path());
-        updateWindowsFlags_();
-    }
-
-    void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
-    {
-        if (!info.isValid()) return;
-        if (!workingDir_.isValid()) return;
-
-        files->setPathTitleOverride(
-            workingDir_.path() / info.relPath,
-            info.name);
-    }
-
-    void onWindowCreated_(Window* window)
-    {
-        if (!window) return;
-        addWorkspaceIndicator_(window);
-        createWindowMenuBar_(window);
-    }
-
-    // TODO: What if we want to handle virtual folders here, too? Could make
-    // generic Info instead and give it an "isDir" member?
-    // ^ Me from the future: But why would we?
-    void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
-    {
-        if (!window || !index.isValid()) return;
-        if (!workingDir_.isValid()) return;
-        auto info = fnxModel_->fileInfoAt(index);
-        if (!info.isValid()) return;
-
-        files->openFilePathIn(
-            window,
-            workingDir_.path() / info.relPath,
-            info.name);
-    }
-
-    // TODO: Notepad should have one, and a lot of the corresponding menu bar
-    // items could go to Notepad, too, like rename, remove, collapse, expand,
-    // etc. Basically all of them. Though the behaviors will have to be
-    // different, since we're dealing with changing actual paths, etc.
-    void onTreeViewContextMenuRequested_(
-        Window* window,
-        const QPoint& globalPos,
-        const QModelIndex& index)
-    {
-        if (!window) return;
-
-        auto valid = index.isValid();
-        auto has_children = fnxModel_->hasChildren(index);
-        auto is_expanded = has_children && treeViews->isExpanded(window, index);
-
-        MenuBuilder(MenuBuilder::ContextMenu, window)
-            .action(Tr::nbNewFile())
-            .slot(this, [&, window, index] { newFile_(window, index); })
-            .action(Tr::nbNewFolder())
-            .slot(this, [&, index] { newVirtualFolder_(index); })
-            .separatorIf(valid)
-            .actionIf(
-                valid && has_children,
-                is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
-            .slot(
-                this,
-                [&, is_expanded, window, index] {
-                    is_expanded ? treeViews->collapse(window, index)
-                                : treeViews->expand(window, index);
-                })
-            .actionIf(valid, Tr::nbRename())
-            .slot(this, [&, window, index] { treeViews->edit(window, index); })
-            .separatorIf(valid)
-            .actionIf(valid, Tr::nbRemove())
-            .slot(this, [&, index] { fnxModel_->moveToTrash(index); })
-            .popup(globalPos);
-    }
-
-    void onTrashViewContextMenuRequested_(
+    void showTrashViewContextMenu_(
         Window* window,
         TreeView* trashView,
         const QPoint& globalPos,
@@ -751,8 +669,92 @@ private slots:
             .popup(globalPos);
     }
 
-    void
-    onFileModelModificationChanged_(AbstractFileModel* fileModel, bool modified)
+private slots:
+    // TODO: Could remove working dir validity check; also writeModelFile could
+    // return bool?
+    void onFnxModelDomChanged_()
+    {
+        // Initial DOM load emission doesn't call this slot
+        if (!workingDir_.isValid()) return;
+
+        fnxModel_->write(workingDir_.path());
+        updateWindowsFlags_();
+    }
+
+    void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
+    {
+        if (!info.isValid()) return;
+        if (!workingDir_.isValid()) return;
+
+        files->setPathTitleOverride(
+            workingDir_.path() / info.relPath,
+            info.name);
+    }
+
+    void onBusWindowCreated_(Window* window)
+    {
+        if (!window) return;
+        addWorkspaceIndicator_(window);
+        createWindowMenuBar_(window);
+    }
+
+    // TODO: What if we want to handle virtual folders here, too? Could make
+    // generic Info instead and give it an "isDir" member?
+    // ^ Me from the future: But why would we?
+    void onTreeViewsDoubleClicked_(Window* window, const QModelIndex& index)
+    {
+        if (!window || !index.isValid()) return;
+        if (!workingDir_.isValid()) return;
+        auto info = fnxModel_->fileInfoAt(index);
+        if (!info.isValid()) return;
+
+        files->openFilePathIn(
+            window,
+            workingDir_.path() / info.relPath,
+            info.name);
+    }
+
+    // TODO: Notepad should have one, and a lot of the corresponding menu bar
+    // items could go to Notepad, too, like rename, remove, collapse, expand,
+    // etc. Basically all of them. Though the behaviors will have to be
+    // different, since we're dealing with changing actual paths, etc.
+    void onTreeViewsContextMenuRequested_(
+        Window* window,
+        const QPoint& globalPos,
+        const QModelIndex& index)
+    {
+        if (!window) return;
+
+        auto valid = index.isValid();
+        auto has_children = fnxModel_->hasChildren(index);
+        auto is_expanded = has_children && treeViews->isExpanded(window, index);
+
+        MenuBuilder(MenuBuilder::ContextMenu, window)
+            .action(Tr::nbNewFile())
+            .slot(this, [&, window, index] { newFile_(window, index); })
+            .action(Tr::nbNewFolder())
+            .slot(this, [&, index] { newVirtualFolder_(index); })
+            .separatorIf(valid)
+            .actionIf(
+                valid && has_children,
+                is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
+            .slot(
+                this,
+                [&, is_expanded, window, index] {
+                    is_expanded ? treeViews->collapse(window, index)
+                                : treeViews->expand(window, index);
+                })
+            .actionIf(valid, Tr::nbRename())
+            .slot(this, [&, window, index] { treeViews->edit(window, index); })
+            .separatorIf(valid)
+            .actionIf(valid, Tr::nbRemove())
+            .slot(this, [&, index] { fnxModel_->moveToTrash(index); })
+            .popup(globalPos);
+    }
+
+    void onBusFileModelModificationChanged_(
+        AbstractFileModel* fileModel,
+        bool modified)
     {
         if (!fileModel) return;
         auto meta = fileModel->meta();

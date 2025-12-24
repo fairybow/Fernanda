@@ -379,15 +379,15 @@ private:
 
         connect(
             treeViews,
-            &TreeViewService::treeViewDoubleClicked,
+            &TreeViewService::doubleClicked,
             this,
-            &Notepad::onTreeViewDoubleClicked_);
+            &Notepad::onTreeViewsDoubleClicked_);
 
         connect(
             views,
             &ViewService::viewDestroyed,
             this,
-            &Notepad::onViewDestroyed_);
+            &Notepad::onViewsViewDestroyed_);
 
         connect(
             views,
@@ -395,61 +395,22 @@ private:
             this,
             [&](Window* window) { newTab_(window); });
 
+        /// TODO TOGGLES
+        connect(
+            views,
+            &ViewService::activeChanged,
+            this,
+            &Notepad::onViewsActiveChanged_);
+
         connectBusEvents_();
     }
 
     void connectBusEvents_()
     {
-        connect(bus, &Bus::windowCreated, this, &Notepad::onWindowCreated_);
-
-         /// TODO TOGGLES
-        connect(
-            bus,
-            &Bus::activeFileViewChanged,
-            this,
-            [&](Window* window, AbstractFileView* activeFileView) {
-                if (!window || !activeFileView) return;
-                auto model = activeFileView->model();
-                if (!model) return;
-
-                disconnectOldActiveTabMenuCx__(window);
-                auto& cx = activeFileViewMenuCx_[window];
-
-                cx << connect(
-                    model,
-                    &AbstractFileModel::modificationChanged,
-                    this,
-                    &Notepad::activeFileViewMenuRefreshReq);
-
-                cx << connect(
-                    model,
-                    &AbstractFileModel::undoAvailable,
-                    this,
-                    &Notepad::activeFileViewMenuRefreshReq);
-
-                cx << connect(
-                    model,
-                    &AbstractFileModel::redoAvailable,
-                    this,
-                    &Notepad::activeFileViewMenuRefreshReq);
-
-                cx << connect(
-                    activeFileView,
-                    &AbstractFileView::selectionChanged,
-                    this,
-                    &Notepad::activeFileViewMenuRefreshReq);
-
-                cx << connect(
-                    activeFileView,
-                    &AbstractFileView::clipboardDataChanged,
-                    this,
-                    &Notepad::activeFileViewMenuRefreshReq);
-
-                emit activeFileViewMenuRefreshReq();
-            });
+        connect(bus, &Bus::windowCreated, this, &Notepad::onBusWindowCreated_);
     }
 
-     /// TODO TOGGLES
+    /// TODO TOGGLES
     void disconnectOldActiveTabMenuCx__(Window* window)
     {
         if (!window) return;
@@ -724,13 +685,13 @@ private:
     void createWindowMenuBar_(Window* window);
 
 private slots:
-    void onWindowCreated_(Window* window)
+    void onBusWindowCreated_(Window* window)
     {
         if (!window) return;
         createWindowMenuBar_(window);
     }
 
-    void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
+    void onTreeViewsDoubleClicked_(Window* window, const QModelIndex& index)
     {
         if (!window || !index.isValid()) return;
 
@@ -741,12 +702,57 @@ private slots:
                                  : files->openFilePathIn(window, path);
     }
 
-    void onViewDestroyed_(AbstractFileModel* fileModel)
+    void onViewsViewDestroyed_(AbstractFileModel* fileModel)
     {
         if (!fileModel) return;
         if (views->countFor(fileModel) > 0) return;
 
         files->deleteModel(fileModel);
+    }
+
+    /// TODO TOGGLES
+    void onViewsActiveChanged_(Window* window, AbstractFileView* activeFileView)
+    {
+        // Need to clear this every time, even when active view is nullptr!
+        disconnectOldActiveTabMenuCx__(window);
+
+        if (!window || !activeFileView) return;
+        auto model = activeFileView->model();
+        if (!model) return;
+
+        auto& cx = activeFileViewMenuCx_[window];
+
+        cx << connect(
+            model,
+            &AbstractFileModel::modificationChanged,
+            this,
+            &Notepad::activeFileViewMenuRefreshReq);
+
+        cx << connect(
+            model,
+            &AbstractFileModel::undoAvailable,
+            this,
+            &Notepad::activeFileViewMenuRefreshReq);
+
+        cx << connect(
+            model,
+            &AbstractFileModel::redoAvailable,
+            this,
+            &Notepad::activeFileViewMenuRefreshReq);
+
+        cx << connect(
+            activeFileView,
+            &AbstractFileView::selectionChanged,
+            this,
+            &Notepad::activeFileViewMenuRefreshReq);
+
+        cx << connect(
+            activeFileView,
+            &AbstractFileView::clipboardDataChanged,
+            this,
+            &Notepad::activeFileViewMenuRefreshReq);
+
+        emit activeFileViewMenuRefreshReq();
     }
 };
 

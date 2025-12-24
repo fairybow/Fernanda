@@ -47,9 +47,6 @@ signals:
     void
     fileModelModificationChanged(AbstractFileModel* fileModel, bool modified);
     void fileModelMetaChanged(AbstractFileModel* fileModel);
-    // Active view can be nullptr!
-    void
-    activeFileViewChanged(Window* window, AbstractFileView* activeFileView);
 
     /// Old:
 

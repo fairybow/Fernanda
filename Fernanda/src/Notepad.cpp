@@ -67,28 +67,63 @@ void Notepad::createWindowMenuBar_(Window* window)
         .action(Tr::nxSaveAs())
         .slot(this, [&, window] { saveAs_(window); })
         .shortcut(MenuShortcuts::SAVE_AS)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] {
+                auto current = views->fileModelAt(window, -1);
+                return current ? current->supportsModification() : false;
+            })
 
         .action(Tr::npSaveAllInWindow())
         .slot(this, [&, window] { saveAllInWindow_(window); })
+        // TODO: May need a different trigger!
+        /*.toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] { return views->anyModifiedFileModelsIn(window); })*/
 
         .action(Tr::npSaveAll())
         .slot(this, [&, window] { saveAll_(window); })
         .shortcut(MenuShortcuts::SAVE_ALL)
+        // TODO: Needs a different trigger!
+        /*.toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&] { return files->anyModified(); })*/
 
         .separator()
 
         .action(Tr::Menus::fileCloseTab())
         .slot(this, [&, window] { views->closeTab(window, -1); })
         .shortcut(MenuShortcuts::CLOSE_TAB)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::Menus::fileCloseTabEverywhere())
         .slot(this, [&, window] { views->closeTabEverywhere(window, -1); })
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::Menus::fileCloseWindowTabs())
         .slot(this, [&, window] { views->closeWindowTabs(window); })
+        // TODO: May need a different trigger!
+        /*.toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] { return views->fileViewAt(window, -1); })*/
 
         .action(Tr::Menus::fileCloseAllTabs())
         .slot(this, [&] { views->closeAllTabs(); })
+        // TODO: Needs a different trigger!
+        /*.toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&] { return views->anyViews(); })*/
 
         .separator()
 
@@ -110,34 +145,83 @@ void Notepad::createWindowMenuBar_(Window* window)
         .action(Tr::Menus::editUndo())
         .slot(this, [&, window] { views->undo(window, -1); })
         .shortcut(MenuShortcuts::UNDO)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] {
+                auto current = views->fileModelAt(window, -1);
+                return current ? current->hasUndo() : false;
+            })
 
         .action(Tr::Menus::editRedo())
         .slot(this, [&, window] { views->redo(window, -1); })
         .shortcut(MenuShortcuts::REDO)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] {
+                auto current = views->fileModelAt(window, -1);
+                return current ? current->hasRedo() : false;
+            })
 
         .separator()
 
         .action(Tr::Menus::editCut())
         .slot(this, [&, window] { views->cut(window, -1); })
         .shortcut(MenuShortcuts::CUT)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] {
+                auto current = views->fileViewAt(window, -1);
+                return current ? current->hasSelection() : false;
+            })
 
         .action(Tr::Menus::editCopy())
         .slot(this, [&, window] { views->copy(window, -1); })
         .shortcut(MenuShortcuts::COPY)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] {
+                auto current = views->fileViewAt(window, -1);
+                return current ? current->hasSelection() : false;
+            })
 
         .action(Tr::Menus::editPaste())
         .slot(this, [&, window] { views->paste(window, -1); })
         .shortcut(MenuShortcuts::PASTE)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] {
+                auto current = views->fileViewAt(window, -1);
+                return current ? current->hasPaste() : false;
+            })
 
         .action(Tr::Menus::editDelete())
         .slot(this, [&, window] { views->del(window, -1); })
         .shortcut(MenuShortcuts::DEL)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] {
+                auto current = views->fileViewAt(window, -1);
+                return current ? current->hasSelection() : false;
+            })
 
         .separator()
 
         .action(Tr::Menus::editSelectAll())
         .slot(this, [&, window] { views->selectAll(window, -1); })
         .shortcut(MenuShortcuts::SELECT_ALL)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] {
+                auto current = views->fileViewAt(window, -1);
+                return current ? current->supportsEditing() : false;
+            })
 
         .barAction(Tr::nxSettingsMenu())
         // TODO: Settings dialog slot

@@ -126,8 +126,8 @@ public:
     }
 
 signals:
-    void treeViewDoubleClicked(Window* context, const QModelIndex& index);
-    void treeViewContextMenuRequested(
+    void doubleClicked(Window* context, const QModelIndex& index);
+    void contextMenuRequested(
         Window* context,
         const QPoint& globalPos,
         const QModelIndex& index);
@@ -144,13 +144,13 @@ protected:
             bus,
             &Bus::windowCreated,
             this,
-            &TreeViewService::onWindowCreated_);
+            &TreeViewService::onBusWindowCreated_);
 
         connect(
             bus,
             &Bus::windowDestroyed,
             this,
-            &TreeViewService::onWindowDestroyed_);
+            &TreeViewService::onBusWindowDestroyed_);
     }
 
 private:
@@ -208,7 +208,7 @@ private:
                     "Tree view double-clicked in [{}]: index [{}]",
                     window,
                     index);
-                emit treeViewDoubleClicked(window, index);
+                emit doubleClicked(window, index);
             });
 
         connect(
@@ -225,7 +225,7 @@ private:
                     window,
                     point,
                     model_index);
-                emit treeViewContextMenuRequested(window, point, model_index);
+                emit contextMenuRequested(window, point, model_index);
             });
 
         // TODO: Needed? Check that it actually works, too, since it decays to
@@ -237,7 +237,7 @@ private:
     }
 
 private slots:
-    void onWindowCreated_(Window* window)
+    void onBusWindowCreated_(Window* window)
     {
         if (!window) return;
 
@@ -261,7 +261,7 @@ private slots:
         // }
     }
 
-    void onWindowDestroyed_(Window* window)
+    void onBusWindowDestroyed_(Window* window)
     {
         if (!window) return;
         treeViews_.remove(window);
