@@ -158,7 +158,7 @@ public:
             if (!tab_widget) continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i) {
-                if (fileModelAt_(window, i) == fileModel) {
+                if (fileModelAt(window, i) == fileModel) {
                     ++window_count;
                     if (window_count >= 2) return true; // Early exit
                     break; // Move to next window
@@ -180,6 +180,13 @@ public:
         if (i < 0) return nullptr;
 
         return tab_widget->widgetAt<AbstractFileView*>(i);
+    }
+
+    // Index -1 = current
+    AbstractFileModel* fileModelAt(Window* window, int index) const
+    {
+        auto view = fileViewAt(window, index);
+        return view ? view->model() : nullptr;
     }
 
     // TODO: May use this for applying settings! If not, though, make private or
@@ -300,7 +307,7 @@ public:
 
     void closeTabEverywhere(Window* window, int index = -1)
     {
-        auto target_model = fileModelAt_(window, index);
+        auto target_model = fileModelAt(window, index);
         if (!target_model) return;
 
         // Proceed if no hook is set, or if hook approves the close
@@ -345,13 +352,13 @@ public:
 
     void undo(Window* window, int index = -1)
     {
-        auto model = fileModelAt_(window, index);
+        auto model = fileModelAt(window, index);
         if (model && model->hasUndo()) model->undo();
     }
 
     void redo(Window* window, int index = -1)
     {
-        auto model = fileModelAt_(window, index);
+        auto model = fileModelAt(window, index);
         if (model && model->hasRedo()) model->redo();
     }
 
@@ -457,13 +464,6 @@ private:
     }
 
     // Index -1 = current
-    AbstractFileModel* fileModelAt_(Window* window, int index) const
-    {
-        auto view = fileViewAt(window, index);
-        return view ? view->model() : nullptr;
-    }
-
-    // Index -1 = current
     void deleteFileViewAt_(Window* window, int index)
     {
         if (!window) return;
@@ -504,6 +504,7 @@ private:
 
         activeFileViews_[window] = active;
         INFO("Active file view changed in [{}] to [{}]", window, active);
+        emit bus->activeFileViewChanged(window, active);
     }
 
     template <

@@ -14,6 +14,7 @@
 #include <QVariant>
 
 #include "AbstractFileModel.h"
+#include "AbstractFileView.h"
 #include "Commander.h"
 #include "Debug.h"
 #include "Window.h"
@@ -46,6 +47,9 @@ signals:
     void
     fileModelModificationChanged(AbstractFileModel* fileModel, bool modified);
     void fileModelMetaChanged(AbstractFileModel* fileModel);
+    // Active view can be nullptr!
+    void
+    activeFileViewChanged(Window* window, AbstractFileView* activeFileView);
 
     /// Old:
 

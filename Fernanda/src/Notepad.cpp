@@ -56,6 +56,13 @@ void Notepad::createWindowMenuBar_(Window* window)
         .action(Tr::nxSave())
         .slot(this, [&, window] { save_(window); })
         .shortcut(MenuShortcuts::SAVE)
+        .toggler(
+            this,
+            &Notepad::activeFileViewMenuRefreshReq,
+            [&, window] {
+                auto current = views->fileModelAt(window, -1);
+                return current ? current->isModified() : false;
+            })
 
         .action(Tr::nxSaveAs())
         .slot(this, [&, window] { saveAs_(window); })

@@ -62,6 +62,10 @@ public:
         return windows->count() < 1 || windows->closeAll();
     }
 
+signals:
+    /// TODO TOGGLES
+    void activeFileViewMenuRefreshReq();
+
 protected:
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
 
@@ -363,6 +367,8 @@ protected:
 
 private:
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
+    /// TODO TOGGLES:
+    QHash<Window*, QList<QMetaObject::Connection>> activeFileViewMenuCx_{};
 
     void setup_()
     {
@@ -395,6 +401,64 @@ private:
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, &Notepad::onWindowCreated_);
+
+         /// TODO TOGGLES
+        connect(
+            bus,
+            &Bus::activeFileViewChanged,
+            this,
+            [&](Window* window, AbstractFileView* activeFileView) {
+                if (!window || !activeFileView) return;
+                auto model = activeFileView->model();
+                if (!model) return;
+
+                disconnectOldActiveTabMenuCx__(window);
+                auto& cx = activeFileViewMenuCx_[window];
+
+                cx << connect(
+                    model,
+                    &AbstractFileModel::modificationChanged,
+                    this,
+                    &Notepad::activeFileViewMenuRefreshReq);
+
+                cx << connect(
+                    model,
+                    &AbstractFileModel::undoAvailable,
+                    this,
+                    &Notepad::activeFileViewMenuRefreshReq);
+
+                cx << connect(
+                    model,
+                    &AbstractFileModel::redoAvailable,
+                    this,
+                    &Notepad::activeFileViewMenuRefreshReq);
+
+                cx << connect(
+                    activeFileView,
+                    &AbstractFileView::selectionChanged,
+                    this,
+                    &Notepad::activeFileViewMenuRefreshReq);
+
+                cx << connect(
+                    activeFileView,
+                    &AbstractFileView::clipboardDataChanged,
+                    this,
+                    &Notepad::activeFileViewMenuRefreshReq);
+
+                emit activeFileViewMenuRefreshReq();
+            });
+    }
+
+     /// TODO TOGGLES
+    void disconnectOldActiveTabMenuCx__(Window* window)
+    {
+        if (!window) return;
+
+        if (auto old_cx = activeFileViewMenuCx_.take(window);
+            !old_cx.isEmpty()) {
+            for (auto& connection : old_cx)
+                disconnect(connection);
+        }
     }
 
     QString fileDisplayName_(AbstractFileModel* fileModel) const

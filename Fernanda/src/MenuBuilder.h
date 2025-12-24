@@ -136,19 +136,28 @@ public:
             type);
     }
 
-    MenuBuilder& toggler(Toggler toggler)
+    /// TODO TOGGLES
+    /// - Implement in Notepad and Notebook separately
+    /// - Decide later what can move to base class or elsewhere, same with menus
+    /// in general
+
+    template <typename SenderT, typename MethodClassT>
+        requires Coco::Concepts::QObjectDerived<SenderT>
+                 && std::is_base_of_v<MethodClassT, SenderT>
+    MenuBuilder&
+    toggler(SenderT* sender, void (MethodClassT::*signal)(), Toggler toggler)
     {
         if (!window_) return *this;
+        if (!lastAction_) return *this;
 
-        if (lastAction_) {
-            lastAction_->setEnabled(toggler());
-            toggles_ << Toggle_{ lastAction_, std::move(toggler) };
-            // These toggles will be for active view, so we'll refresh them when
-            // the active view changes. May need a method to retrieve active
-            // view to use in the toggler itself? See old_MenuModule.h for how
-            // this was previously handle, which was bad but is perhaps helpful
-            // in some way
-        }
+        lastAction_->setEnabled(toggler());
+
+        lastAction_->connect(
+            sender,
+            signal,
+            lastAction_,
+            // Ensure we capture the CURRENT value of lastAction_
+            [toggler, action = lastAction_] { action->setEnabled(toggler()); });
 
         return *this;
     }
@@ -202,12 +211,6 @@ public:
         window_->setMenuBar(menuBar_);
     }
 
-    void toggle()
-    {
-        for (auto& [action, toggler] : toggles_)
-            if (action && toggler) { action->setEnabled(toggler()); }
-    }
-
 private:
     Mode mode_;
     Window* window_;
@@ -215,14 +218,6 @@ private:
     QMenuBar* menuBar_ = nullptr;
     QMenu* currentMenu_ = nullptr;
     QAction* lastAction_ = nullptr;
-
-    struct Toggle_
-    {
-        QAction* action = nullptr;
-        Toggler toggler = nullptr;
-    };
-
-    QList<Toggle_> toggles_{};
 
     void ensureMenuBar_()
     {
