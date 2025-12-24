@@ -27,6 +27,7 @@ void Notebook::createWindowMenuBar_(Window* window)
     // TODO: Figure out which were auto-repeat! (Undo, Redo, Paste, anything
     // else?)
     // TODO: Somehow section-off common code between Notepad and Notebook
+
     MenuBuilder(MenuBuilder::MenuBar, window)
         .menu(Tr::nxFileMenu())
 

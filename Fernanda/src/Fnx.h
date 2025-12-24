@@ -61,12 +61,8 @@ namespace Internal {
 
     constexpr auto XML_INDENT_ = 2;
 
-    constexpr auto XML_DOCUMENT_ELEMENT_TAG_ = "fnx";
     constexpr auto XML_FNX_VERSION_ATTR_ = "version";
     constexpr auto XML_FNX_VERSION_ = "1.0";
-
-    constexpr auto XML_NOTEBOOK_TAG_ = "notebook";
-    constexpr auto XML_TRASH_TAG_ = "trash";
 
     constexpr auto XML_VFOLDER_TAG_ = "vfolder";
     constexpr auto XML_FILE_TAG_ = "file";
@@ -91,124 +87,12 @@ namespace Internal {
 
 } // namespace Internal
 
-// Used by Notebook
-namespace Io {
-
-    constexpr auto EXT = ".fnx";
-
-    inline bool isFnxFile(const Coco::Path& path)
-    {
-        return path.ext() == EXT && FileTypes::is(FileTypes::SevenZip, path);
-    }
-
-    inline void makeNewWorkingDir(const Coco::Path& workingDir)
-    {
-        // Create content directory
-        if (!Coco::PathUtil::mkdir(workingDir / Internal::IO_CONTENT_DIR_NAME_))
-            return;
-
-        // Create base Model.xml
-        QByteArray xml_content{};
-        QXmlStreamWriter xml(&xml_content);
-        xml.setAutoFormatting(true);
-        xml.setAutoFormattingIndent(Internal::XML_INDENT_);
-
-        xml.writeStartDocument();
-        xml.writeStartElement(Internal::XML_DOCUMENT_ELEMENT_TAG_);
-        xml.writeAttribute(
-            Internal::XML_FNX_VERSION_ATTR_,
-            Internal::XML_FNX_VERSION_);
-
-        xml.writeStartElement(Internal::XML_NOTEBOOK_TAG_);
-        xml.writeEndElement();
-        xml.writeStartElement(Internal::XML_TRASH_TAG_);
-        xml.writeEndElement();
-
-        xml.writeEndElement();
-        xml.writeEndDocument();
-
-        // Model.xml represents a virtual structuring of the contents of the
-        // content folder
-        Fernanda::Io::write(
-            xml_content,
-            workingDir / Internal::IO_MODEL_FILE_NAME_);
-    }
-
-    inline void
-    extract(const Coco::Path& archivePath, const Coco::Path& workingDir)
-    {
-        using namespace bit7z;
-
-        INFO("Extracting archive at {} to {}", archivePath, workingDir);
-
-        if (!archivePath.exists()) {
-            CRITICAL("Archive file ({}) doesn't exist!", archivePath);
-            return;
-        }
-
-        if (!workingDir.exists()) {
-            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-            return;
-        }
-
-        try {
-            Bit7zLibrary lib{ Internal::dll_().toString() };
-            BitArchiveReader archive{ lib,
-                                      archivePath.toString(),
-                                      BitFormat::SevenZip };
-            archive.test();
-            archive.extractTo(workingDir.toString());
-
-        } catch (const BitException& ex) {
-            CRITICAL("FNX archive extraction failed! Error: {}", ex.what());
-        }
-    }
-
-    inline bool
-    compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
-    {
-        using namespace bit7z;
-
-        INFO("Compressing archive at {} to {}", archivePath, workingDir);
-
-        if (!workingDir.exists()) {
-            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-            return false;
-        }
-
-        try {
-            Bit7zLibrary lib{ Internal::dll_().toString() };
-            BitArchiveWriter archive{ lib, BitFormat::SevenZip };
-            archive.setOverwriteMode(OverwriteMode::Overwrite);
-
-            // TODO: Coco::Path version of this?
-            QDir dir(workingDir.toQString());
-            auto entries =
-                dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-            for (auto& entry : entries) {
-                auto entry_path = workingDir / entry;
-                entry_path.isFolder()
-                    ? archive.addDirectory(entry_path.toString())
-                    : archive.addFile(entry_path.toString());
-            }
-
-            // TODO: Move original to backup + clean backup if over n files
-            archive.compressTo(archivePath.toString());
-            return true;
-
-        } catch (const BitException& ex) {
-            CRITICAL("FNX archive compression failed! Error: {}", ex.what());
-            return false;
-        }
-    }
-
-    inline QString uuid(const Coco::Path& path) { return path.stemQString(); }
-
-} // namespace Io
-
 // Used by FnxModel
 namespace Xml {
+
+    constexpr auto DOCUMENT_ELEMENT_TAG = "fnx";
+    constexpr auto NOTEBOOK_TAG = "notebook";
+    constexpr auto TRASH_TAG = "trash";
 
     inline bool isVirtualFolder(const QDomElement& element)
     {
@@ -286,14 +170,12 @@ namespace Xml {
 
     inline QDomElement notebookElement(const QDomDocument& dom)
     {
-        return dom.documentElement().firstChildElement(
-            Internal::XML_NOTEBOOK_TAG_);
+        return dom.documentElement().firstChildElement(Xml::NOTEBOOK_TAG);
     }
 
     inline QDomElement trashElement(const QDomDocument& dom)
     {
-        return dom.documentElement().firstChildElement(
-            Internal::XML_TRASH_TAG_);
+        return dom.documentElement().firstChildElement(Xml::TRASH_TAG);
     }
 
     inline bool isInTrash(const QDomDocument& dom, const QDomElement& element)
@@ -441,5 +323,121 @@ namespace Xml {
     }
 
 } // namespace Xml
+
+// Used by Notebook
+namespace Io {
+
+    constexpr auto EXT = ".fnx";
+
+    inline bool isFnxFile(const Coco::Path& path)
+    {
+        return path.ext() == EXT && FileTypes::is(FileTypes::SevenZip, path);
+    }
+
+    inline void makeNewWorkingDir(const Coco::Path& workingDir)
+    {
+        // Create content directory
+        if (!Coco::PathUtil::mkdir(workingDir / Internal::IO_CONTENT_DIR_NAME_))
+            return;
+
+        // Create base Model.xml
+        QByteArray xml_content{};
+        QXmlStreamWriter xml(&xml_content);
+        xml.setAutoFormatting(true);
+        xml.setAutoFormattingIndent(Internal::XML_INDENT_);
+
+        xml.writeStartDocument();
+        xml.writeStartElement(Xml::DOCUMENT_ELEMENT_TAG);
+        xml.writeAttribute(
+            Internal::XML_FNX_VERSION_ATTR_,
+            Internal::XML_FNX_VERSION_);
+
+        xml.writeStartElement(Xml::NOTEBOOK_TAG);
+        xml.writeEndElement();
+        xml.writeStartElement(Xml::TRASH_TAG);
+        xml.writeEndElement();
+
+        xml.writeEndElement();
+        xml.writeEndDocument();
+
+        // Model.xml represents a virtual structuring of the contents of the
+        // content folder
+        Fernanda::Io::write(
+            xml_content,
+            workingDir / Internal::IO_MODEL_FILE_NAME_);
+    }
+
+    inline void
+    extract(const Coco::Path& archivePath, const Coco::Path& workingDir)
+    {
+        using namespace bit7z;
+
+        INFO("Extracting archive at {} to {}", archivePath, workingDir);
+
+        if (!archivePath.exists()) {
+            CRITICAL("Archive file ({}) doesn't exist!", archivePath);
+            return;
+        }
+
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return;
+        }
+
+        try {
+            Bit7zLibrary lib{ Internal::dll_().toString() };
+            BitArchiveReader archive{ lib,
+                                      archivePath.toString(),
+                                      BitFormat::SevenZip };
+            archive.test();
+            archive.extractTo(workingDir.toString());
+
+        } catch (const BitException& ex) {
+            CRITICAL("FNX archive extraction failed! Error: {}", ex.what());
+        }
+    }
+
+    inline bool
+    compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
+    {
+        using namespace bit7z;
+
+        INFO("Compressing archive at {} to {}", archivePath, workingDir);
+
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return false;
+        }
+
+        try {
+            Bit7zLibrary lib{ Internal::dll_().toString() };
+            BitArchiveWriter archive{ lib, BitFormat::SevenZip };
+            archive.setOverwriteMode(OverwriteMode::Overwrite);
+
+            // TODO: Coco::Path version of this?
+            QDir dir(workingDir.toQString());
+            auto entries =
+                dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+            for (auto& entry : entries) {
+                auto entry_path = workingDir / entry;
+                entry_path.isFolder()
+                    ? archive.addDirectory(entry_path.toString())
+                    : archive.addFile(entry_path.toString());
+            }
+
+            // TODO: Move original to backup + clean backup if over n files
+            archive.compressTo(archivePath.toString());
+            return true;
+
+        } catch (const BitException& ex) {
+            CRITICAL("FNX archive compression failed! Error: {}", ex.what());
+            return false;
+        }
+    }
+
+    inline QString uuid(const Coco::Path& path) { return path.stemQString(); }
+
+} // namespace Io
 
 } // namespace Fernanda::Fnx

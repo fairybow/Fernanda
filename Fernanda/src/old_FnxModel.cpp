@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include <QDomElement>
+/*#include <QDomElement>
 #include <QIcon>
 #include <QModelIndex>
 #include <QString>
@@ -23,17 +23,17 @@ namespace Fernanda {
 
 QVariant FnxModel::data(const QModelIndex& index, int role) const
 {
-    if (!index.isValid()) return {};
+    ++FnxModelProfile::dataCalls;
 
+    if (!index.isValid()) return {};
     auto element = elementAt_(index);
     if (element.isNull()) return {};
 
-    switch (role) {
-    case Qt::DisplayRole:
-    case Qt::EditRole:
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
         return Fnx::Xml::name(element);
 
-    case Qt::DecorationRole: {
+    if (role == Qt::DecorationRole) {
+
         if (Fnx::Xml::isVirtualFolder(element)) {
 
             if (cachedDirIcon_.isNull())
@@ -50,13 +50,12 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
 
             return cachedFileIcon_;
         }
-
-        return {}; // Unreachable
     }
 
-    default:
-        return {};
-    }
+    // TODO: Qt::ToolTipRole & others? (See setData)
+
+    return {};
 }
 
 } // namespace Fernanda
+*/
