@@ -65,6 +65,8 @@ public:
 signals:
     /// TODO TOGGLES
     void activeFileViewMenuRefreshReq();
+    void windowFileViewMenuRefreshReq(Window* window); // For per-window actions
+    void globalFileViewMenuRefreshReq(); // For cross-window actions
 
 protected:
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }

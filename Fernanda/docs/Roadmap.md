@@ -88,6 +88,7 @@ Next up:
 - [ ] No dock widget for Notebook tree view (temporary)?
 - [ ] Dock widget button/header styling
 - [ ] Potentially remove commands/signals from Workspaces to MenuModules and truly leave to cross-Service concerns. Then integrate menus into Notepad/Notebook directly but use a declarative MenuBuilder object to reduce clutter (pass togglers as optional parameter for an action)
+- [ ] Ensure menu toggles update appropriately when tab dragging is implemented!
 
 ### Coco
 
