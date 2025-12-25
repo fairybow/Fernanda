@@ -30,6 +30,7 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "Fnx.h"
+#include "MenuState.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "TreeViewService.h"
@@ -61,12 +62,6 @@ public:
     {
         return windows->count() < 1 || windows->closeAll();
     }
-
-signals:
-    /// TODO TOGGLES
-    void activeTabMenuRefreshReq();
-    void windowMenuRefreshReq(); // For per-window actions
-    void globalMenuRefreshReq(); // For cross-window actions
 
 protected:
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
@@ -369,8 +364,17 @@ protected:
 
 private:
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
+
     /// TODO TOGGLES:
-    QHash<Window*, QList<QMetaObject::Connection>> activeFileViewMenuCx_{};
+    QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
+    QHash<Window*, MenuState*> menuStates_{};
+
+    struct MenuStateKeys
+    {
+        constexpr static auto ACTIVE_TAB = "tab";
+        constexpr static auto WINDOW = "window";
+        constexpr static auto GLOBAL = "global";
+    } menuStateKeys_;
 
     void setup_()
     {
@@ -389,7 +393,21 @@ private:
             views,
             &ViewService::viewDestroyed,
             this,
-            &Notepad::onViewsViewDestroyed_);
+            [&](AbstractFileModel* fileModel) {
+                if (!fileModel || views->countFor(fileModel) > 0) return;
+                files->deleteModel(fileModel);
+            });
+
+        /// TODO TOGGLES
+        connect(
+            views,
+            &ViewService::viewDestroyed,
+            this,
+            [&](AbstractFileModel* fileModel) {
+                (void)fileModel;
+                refreshMenus_(menuStateKeys_.WINDOW);
+                refreshMenus_(menuStateKeys_.GLOBAL);
+            });
 
         connect(
             views,
@@ -413,10 +431,13 @@ private:
 
         /// TODO TOGGLES
         connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
-            disconnectOldActiveTabMenuCx_(window);
-            activeFileViewMenuCx_.remove(window);
-            emit windowMenuRefreshReq();
-            emit globalMenuRefreshReq();
+            destroyMenuState_(window);
+
+            disconnectOldActiveTab_(window);
+            activeTabConnections_.remove(window);
+
+            refreshMenus_(menuStateKeys_.WINDOW);
+            refreshMenus_(menuStateKeys_.GLOBAL);
         });
 
         /// TODO TOGGLES
@@ -427,8 +448,8 @@ private:
             [&](Window* window, AbstractFileModel* fileModel) {
                 (void)window;
                 (void)fileModel;
-                emit windowMenuRefreshReq();
-                emit globalMenuRefreshReq();
+                refreshMenus_(menuStateKeys_.WINDOW);
+                refreshMenus_(menuStateKeys_.GLOBAL);
             });
 
         /// TODO TOGGLES
@@ -439,29 +460,33 @@ private:
             [&](AbstractFileModel* fileModel, bool modified) {
                 (void)fileModel;
                 (void)modified;
-
-                emit globalMenuRefreshReq();
-                emit windowMenuRefreshReq();
-
-                // Instead of checking, we can just emit? The toggler checks any
-                // way. If we do the below, we're possibly checking twice?
-                /*for (auto& window : windows->windowsSet()) {
-                    for (auto view : views->fileViewsIn(window)) {
-                        if (view && view->model() == fileModel) {
-                            emit windowMenuRefreshReq();
-                            break;
-                        }
-                    }
-                }*/
+                refreshMenus_(menuStateKeys_.WINDOW);
+                refreshMenus_(menuStateKeys_.GLOBAL);
             });
     }
 
     /// TODO TOGGLES
-    void disconnectOldActiveTabMenuCx_(Window* window)
+    void destroyMenuState_(Window* window) { delete menuStates_.take(window); }
+
+    /// TODO TOGGLES
+    void refreshMenus_(const QString& key)
+    {
+        for (auto state : menuStates_)
+            state->refresh(key);
+    }
+
+    /// TODO TOGGLES
+    void refreshMenus_(Window* window, const QString& key)
+    {
+        if (auto state = menuStates_.value(window)) state->refresh(key);
+    }
+
+    /// TODO TOGGLES
+    void disconnectOldActiveTab_(Window* window)
     {
         if (!window) return;
 
-        if (auto old_cx = activeFileViewMenuCx_.take(window);
+        if (auto old_cx = activeTabConnections_.take(window);
             !old_cx.isEmpty()) {
             for (auto& connection : old_cx)
                 disconnect(connection);
@@ -748,61 +773,48 @@ private slots:
                                  : files->openFilePathIn(window, path);
     }
 
-    void onViewsViewDestroyed_(AbstractFileModel* fileModel)
-    {
-        if (!fileModel) return;
-        if (views->countFor(fileModel) > 0) return;
-
-        files->deleteModel(fileModel);
-
-        /// TODO TOGGLES
-        emit windowMenuRefreshReq();
-        emit globalMenuRefreshReq();
-    }
-
     /// TODO TOGGLES
     void onViewsActiveChanged_(Window* window, AbstractFileView* activeFileView)
     {
-        // Need to clear this every time, even when active view is nullptr!
-        disconnectOldActiveTabMenuCx_(window);
+        // Both of these even when active view is nullptr!
+        disconnectOldActiveTab_(window);
+        refreshMenus_(window, menuStateKeys_.ACTIVE_TAB);
 
         if (!window || !activeFileView) return;
         auto model = activeFileView->model();
         if (!model) return;
 
-        auto& cx = activeFileViewMenuCx_[window];
+        auto& connections = activeTabConnections_[window];
 
-        cx << connect(
+        connections << connect(
             model,
             &AbstractFileModel::modificationChanged,
             this,
-            &Notepad::activeTabMenuRefreshReq);
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
 
-        cx << connect(
+        connections << connect(
             model,
             &AbstractFileModel::undoAvailable,
             this,
-            &Notepad::activeTabMenuRefreshReq);
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
 
-        cx << connect(
+        connections << connect(
             model,
             &AbstractFileModel::redoAvailable,
             this,
-            &Notepad::activeTabMenuRefreshReq);
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
 
-        cx << connect(
+        connections << connect(
             activeFileView,
             &AbstractFileView::selectionChanged,
             this,
-            &Notepad::activeTabMenuRefreshReq);
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
 
-        cx << connect(
+        connections << connect(
             activeFileView,
             &AbstractFileView::clipboardDataChanged,
             this,
-            &Notepad::activeTabMenuRefreshReq);
-
-        emit activeTabMenuRefreshReq();
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
     }
 };
 

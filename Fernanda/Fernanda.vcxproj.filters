@@ -82,6 +82,9 @@
     <Filter Include="Code\Core\Workspaces\Notepad">
       <UniqueIdentifier>{ee887ea1-4b9d-4803-b3e8-00c4da036ae6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Core\UI\Menus">
+      <UniqueIdentifier>{2d379fce-5bd9-4a17-9bcf-fec233433849}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -125,6 +128,9 @@
     </ClCompile>
     <ClCompile Include="src\AboutDialog.cpp">
       <Filter>Code\Core\Workspaces</Filter>
+    </ClCompile>
+    <ClCompile Include="src\old_FnxModel.cpp">
+      <Filter>Old %28Remove Later%29</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -331,6 +337,9 @@
     <QtMoc Include="src\Notepad.h">
       <Filter>Code\Core\Workspaces\Notepad</Filter>
     </QtMoc>
+    <QtMoc Include="src\MenuState.h">
+      <Filter>Code\Core\UI\Menus</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
@@ -414,9 +423,6 @@
     <ClInclude Include="src\Fnx.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
-    <ClInclude Include="src\old_MenuModule.h">
-      <Filter>Old %28Remove Later%29</Filter>
-    </ClInclude>
     <ClInclude Include="src\SaveFailMessageBox.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
@@ -425,9 +431,6 @@
     </ClInclude>
     <ClInclude Include="src\TrashPrompt.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MenuBuilder.h">
-      <Filter>Code\Core\UI</Filter>
     </ClInclude>
     <ClInclude Include="src\MenuShortcuts.h">
       <Filter>Code\Core\Workspaces</Filter>
@@ -440,6 +443,12 @@
     </ClInclude>
     <ClInclude Include="src\FnxModelCache.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MenuBuilder.h">
+      <Filter>Code\Core\UI\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_FnxModel.h">
+      <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

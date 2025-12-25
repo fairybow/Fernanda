@@ -47,9 +47,6 @@ public:
         activateWindow();
     }
 
-    /// TODO TOGGLES
-    bool isClosing() const noexcept { return isClosing_; }
-
 signals:
     void destroyed(Window*);
 
@@ -59,7 +56,6 @@ protected:
 private:
     // Only assigned by WindowService
     WindowService* service_ = nullptr;
-    bool isClosing_ = false; /// TODO TOGGLES
 };
 
 } // namespace Fernanda

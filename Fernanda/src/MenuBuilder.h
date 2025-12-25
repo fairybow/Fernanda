@@ -25,6 +25,7 @@
 #include "Coco/Concepts.h"
 
 #include "Debug.h"
+#include "MenuState.h"
 #include "Window.h"
 
 namespace Fernanda {
@@ -43,7 +44,6 @@ public:
 
     // Triggered slot only right now
     using Slot = std::function<void()>;
-    using Toggler = std::function<bool()>;
 
     explicit MenuBuilder(Mode mode, Window* window)
         : mode_(mode)
@@ -141,23 +141,12 @@ public:
     /// - Decide later what can move to base class or elsewhere, same with menus
     /// in general
 
-    template <typename SenderT, typename MethodClassT>
-        requires Coco::Concepts::QObjectDerived<SenderT>
-                 && std::is_base_of_v<MethodClassT, SenderT>
     MenuBuilder&
-    toggler(SenderT* sender, void (MethodClassT::*signal)(), Toggler toggler)
+    toggle(MenuState* state, const QString& key, MenuState::Predicate predicate)
     {
-        if (!window_) return *this;
-        if (!lastAction_) return *this;
-
-        lastAction_->setEnabled(toggler());
-
-        lastAction_->connect(
-            sender,
-            signal,
-            lastAction_,
-            // Ensure we capture the CURRENT value of lastAction_
-            [toggler, action = lastAction_] { action->setEnabled(toggler()); });
+        if (state && lastAction_ && predicate) {
+            state->bind(lastAction_, key, std::move(predicate));
+        }
 
         return *this;
     }
