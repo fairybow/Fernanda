@@ -13,7 +13,9 @@
 
 #include <QAbstractItemModel>
 #include <QFileSystemModel>
+#include <QHash>
 #include <QList>
+#include <QMetaObject>
 #include <QModelIndex>
 #include <QObject>
 #include <QSet>
@@ -398,6 +400,12 @@ private:
                 files->deleteModel(fileModel);
             });
 
+        connect(
+            views,
+            &ViewService::addTabRequested,
+            this,
+            [&](Window* window) { newTab_(window); });
+
         /// TODO TOGGLES
         connect(
             views,
@@ -408,12 +416,6 @@ private:
                 refreshMenus_(menuStateKeys_.WINDOW);
                 refreshMenus_(menuStateKeys_.GLOBAL);
             });
-
-        connect(
-            views,
-            &ViewService::addTabRequested,
-            this,
-            [&](Window* window) { newTab_(window); });
 
         /// TODO TOGGLES
         connect(
