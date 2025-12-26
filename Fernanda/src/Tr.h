@@ -152,7 +152,7 @@ namespace Tr {
 
     // NB menu:
 
-    TR_(nbMenu, tr("Notebook"));
+    TR_(notebookMenu, tr("Notebook"));
     TR_(nbOpenNotepad, tr("Open notepad"));
     TR_(nbImportFiles, tr("Import files..."));
 

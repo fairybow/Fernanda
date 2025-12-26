@@ -151,7 +151,7 @@ public:
         requires std::invocable<CallableT, MenuBuilder&>
     MenuBuilder& apply(CallableT&& callable)
     {
-        std::forward<CallableT>(callable)(*this);
+        callable(*this);
         return *this;
     }
 

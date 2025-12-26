@@ -14,13 +14,12 @@
     <ClCompile Include="src\AboutDialog.cpp" />
     <ClCompile Include="src\FnxModel.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\Notebook.cpp" />
-    <ClCompile Include="src\Notepad.cpp" />
     <ClCompile Include="src\old_FnxModel.cpp" />
     <ClCompile Include="src\TextFileView.cpp" />
     <ClCompile Include="src\Tr.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\WindowService.cpp" />
+    <ClCompile Include="src\Workspace.cpp" />
     <ClCompile Include="submodules\Coco\Coco\src\Fx.cpp" />
     <ClCompile Include="submodules\Coco\Coco\src\Path.cpp" />
     <ClCompile Include="submodules\Coco\Coco\src\PathUtil.cpp" />
@@ -86,7 +85,6 @@
     <QtMoc Include="src\Commander.h" />
     <QtMoc Include="src\CollapsibleWidget.h" />
     <QtMoc Include="src\CollapsibleWidgetHeader.h" />
-    <ClInclude Include="src\WorkspaceMenu.h" />
     <ClInclude Include="src\Debug.h" />
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />

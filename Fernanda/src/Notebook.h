@@ -45,17 +45,20 @@
 #include "Fnx.h"
 #include "FnxModel.h"
 #include "MenuBuilder.h"
+#include "MenuShortcuts.h"
 #include "MenuState.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
+#include "Tr.h"
 #include "TrashPrompt.h"
 #include "TreeView.h"
 #include "TreeViewService.h"
+#include "ViewService.h"
 #include "Window.h"
+#include "WindowService.h"
 #include "Workspace.h"
-#include "WorkspaceMenu.h"
 
 namespace Fernanda {
 
@@ -221,17 +224,6 @@ private:
     QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
     QHash<Window*, MenuState*> menuStates_{};
 
-    struct MenuStateKeys
-    {
-        constexpr static auto ACTIVE_TAB = "tab";
-        constexpr static auto WINDOW = "window";
-        constexpr static auto GLOBAL = "global";
-    } menuStateKeys_;
-
-    /// TODO TOGGLES:
-    /// - Once implemented in cpp file, check that we used all the keys or not
-    /// - Also, find correct triggers
-
     void setup_()
     {
         if (!workingDir_.isValid())
@@ -335,6 +327,30 @@ private:
             refreshMenus_(MenuStateKeys::WINDOW);
             refreshMenus_(MenuStateKeys::GLOBAL);
         });
+
+        /// TODO TOGGLES
+        connect(
+            bus,
+            &Bus::fileModelReadied,
+            this,
+            [&](Window* window, AbstractFileModel* fileModel) {
+                (void)window;
+                (void)fileModel;
+                refreshMenus_(MenuStateKeys::WINDOW);
+                refreshMenus_(MenuStateKeys::GLOBAL);
+            });
+
+        /// TODO TOGGLES
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            [&](AbstractFileModel* fileModel, bool modified) {
+                (void)fileModel;
+                (void)modified;
+                refreshMenus_(MenuStateKeys::WINDOW);
+                refreshMenus_(MenuStateKeys::GLOBAL);
+            });
 
         connect(
             bus,
@@ -711,7 +727,88 @@ private:
         colorBars->green();
     }
 
-    void createWindowMenuBar_(Window* window);
+    void createWindowMenuBar_(Window* window)
+    {
+        if (!window) return;
+
+        // TODO: Figure out which were auto-repeat! (Undo, Redo, Paste, anything
+        // else?)
+
+        auto state = new MenuState(window, this);
+        menuStates_[window] = state;
+
+        MenuBuilder(MenuBuilder::MenuBar, window)
+            .menu(Tr::nxFileMenu())
+
+            .action(Tr::nbNewFile())
+            .slot(
+                this,
+                [&, window] {
+                    newFile_(window, treeViews->currentIndex(window));
+                })
+            .shortcut(MenuShortcuts::NEW_TAB)
+
+            .action(Tr::nbNewFolder())
+            .slot(
+                this,
+                [&, window] {
+                    newVirtualFolder_(treeViews->currentIndex(window));
+                })
+
+            .apply([&](MenuBuilder& builder) { addNewWindowAction(builder); })
+
+            .separator()
+
+            .apply(
+                [&](MenuBuilder& builder) { addOpenNotebookActions(builder); })
+
+            .separator()
+
+            .action(Tr::nxSave())
+            .slot(this, [&, window] { save_(window); })
+            .shortcut(MenuShortcuts::SAVE)
+            .toggle(state, MenuStateKeys::GLOBAL, [&] { return isModified_(); })
+
+            .action(Tr::nxSaveAs())
+            .slot(this, [&, window] { saveAs_(window); })
+            .shortcut(MenuShortcuts::SAVE_AS)
+
+            .separator()
+
+            .apply([&, state, window](MenuBuilder& builder) {
+                addCloseTabActions(builder, state, window);
+            })
+
+            .separator()
+
+            .apply([&, window](MenuBuilder& builder) {
+                addCloseWindowActions(builder, window);
+            })
+
+            .separator()
+
+            .apply([&](MenuBuilder& builder) { addQuitAction(builder); })
+
+            .menu(Tr::notebookMenu())
+
+            .action(Tr::nbOpenNotepad())
+            .slot(this, [&] { emit openNotepadRequested(); })
+
+            .action(Tr::nbImportFiles())
+            .slot(
+                this,
+                [&, window] {
+                    importFiles_(window, treeViews->currentIndex(window));
+                })
+
+            .apply([&, state, window](MenuBuilder& builder) {
+                addEditMenu(builder, state, window);
+            })
+            .apply([&](MenuBuilder& builder) { addSettingsMenu(builder); })
+            .apply([&](MenuBuilder& builder) { addHelpMenu(builder); })
+
+            .set();
+    }
 
     void showTrashViewContextMenu_(
         Window* window,

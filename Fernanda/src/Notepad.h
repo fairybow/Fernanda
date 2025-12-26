@@ -32,13 +32,18 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "Fnx.h"
+#include "MenuBuilder.h"
+#include "MenuShortcuts.h"
 #include "MenuState.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
+#include "Tr.h"
 #include "TreeViewService.h"
 #include "Version.h"
+#include "ViewService.h"
+#include "Window.h"
+#include "WindowService.h"
 #include "Workspace.h"
-#include "WorkspaceMenu.h"
 
 namespace Fernanda {
 
@@ -371,13 +376,6 @@ private:
     /// TODO TOGGLES:
     QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
     QHash<Window*, MenuState*> menuStates_{};
-
-    struct MenuStateKeys
-    {
-        constexpr static auto ACTIVE_TAB = "tab";
-        constexpr static auto WINDOW = "window";
-        constexpr static auto GLOBAL = "global";
-    } menuStateKeys_;
 
     void setup_()
     {
@@ -756,7 +754,97 @@ private:
         if (result.anySuccesses()) colorBars->green();
     }
 
-    void createWindowMenuBar_(Window* window);
+    void createWindowMenuBar_(Window* window)
+    {
+        if (!window) return;
+
+        // TODO: Figure out which were auto-repeat! (Undo, Redo, Paste, anything
+        // else?)
+
+        auto state = new MenuState(window, this);
+        menuStates_[window] = state;
+
+        MenuBuilder(MenuBuilder::MenuBar, window)
+            .menu(Tr::nxFileMenu())
+
+            .action(Tr::npNewTab())
+            .slot(this, [&, window] { newTab_(window); })
+            .shortcut(MenuShortcuts::NEW_TAB)
+
+            .action(Tr::npOpenFile())
+            .slot(this, [&, window] { openFile_(window); })
+            .shortcut(MenuShortcuts::OPEN_FILE)
+
+            .apply([&](MenuBuilder& builder) { addNewWindowAction(builder); })
+
+            .separator()
+
+            .apply(
+                [&](MenuBuilder& builder) { addOpenNotebookActions(builder); })
+
+            .separator()
+
+            .action(Tr::nxSave())
+            .slot(this, [&, window] { save_(window); })
+            .shortcut(MenuShortcuts::SAVE)
+            .toggle(
+                state,
+                MenuStateKeys::ACTIVE_TAB,
+                [&, window] {
+                    auto model = views->fileModelAt(window, -1);
+                    return model && model->isModified();
+                })
+
+            .action(Tr::nxSaveAs())
+            .slot(this, [&, window] { saveAs_(window); })
+            .shortcut(MenuShortcuts::SAVE_AS)
+            .toggle(
+                state,
+                MenuStateKeys::ACTIVE_TAB,
+                [&, window] {
+                    auto model = views->fileModelAt(window, -1);
+                    return model && model->supportsModification();
+                })
+
+            .action(Tr::npSaveAllInWindow())
+            .slot(this, [&, window] { saveAllInWindow_(window); })
+            .toggle(
+                state,
+                MenuStateKeys::WINDOW,
+                [&, window] { return views->anyModifiedFileModelsIn(window); })
+
+            .action(Tr::npSaveAll())
+            .slot(this, [&, window] { saveAll_(window); })
+            .shortcut(MenuShortcuts::SAVE_ALL)
+            .toggle(
+                state,
+                MenuStateKeys::GLOBAL,
+                [&] { return files->anyModified(); })
+
+            .separator()
+
+            .apply([&, state, window](MenuBuilder& builder) {
+                addCloseTabActions(builder, state, window);
+            })
+
+            .separator()
+
+            .apply([&, window](MenuBuilder& builder) {
+                addCloseWindowActions(builder, window);
+            })
+
+            .separator()
+
+            .apply([&](MenuBuilder& builder) { addQuitAction(builder); })
+
+            .apply([&, state, window](MenuBuilder& builder) {
+                addEditMenu(builder, state, window);
+            })
+            .apply([&](MenuBuilder& builder) { addSettingsMenu(builder); })
+            .apply([&](MenuBuilder& builder) { addHelpMenu(builder); })
+
+            .set();
+    }
 
 private slots:
     void onBusWindowCreated_(Window* window)
