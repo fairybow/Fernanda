@@ -62,14 +62,14 @@ public:
     }
 
 private:
-    struct Toggle
+    struct Toggle_
     {
         QAction* action;
         Predicate predicate;
     };
 
     Window* window_;
-    QHash<QString, QList<Toggle>> toggles_{};
+    QHash<QString, QList<Toggle_>> toggles_{};
 };
 
 } // namespace Fernanda
