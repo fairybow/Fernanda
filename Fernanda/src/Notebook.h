@@ -342,6 +342,11 @@ private:
             &Notebook::onBusFileModelModificationChanged_);
     }
 
+    bool isModified_() const
+    {
+        return !fnxPath_.exists() || fnxModel_->isModified();
+    }
+
     /// TODO TOGGLES
     void destroyMenuState_(Window* window) { delete menuStates_.take(window); }
 
@@ -439,10 +444,7 @@ private:
         }
     }
 
-    void updateWindowsFlags_()
-    {
-        windows->setFlagged(!fnxPath_.exists() || fnxModel_->isModified());
-    }
+    void updateWindowsFlags_() { windows->setFlagged(isModified_()); }
 
     void addWorkspaceIndicator_(Window* window)
     {

@@ -64,8 +64,7 @@ void Notebook::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::SAVE)
         .toggle(
             state,
-            menuStateKeys_.GLOBAL,
-            [&] { return !fnxPath_.exists() || fnxModel_->isModified(); })
+            menuStateKeys_.GLOBAL, [&] { return isModified_(); })
 
         .action(Tr::nxSaveAs())
         .slot(this, [&, window] { saveAs_(window); })
