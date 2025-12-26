@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <concepts>
 #include <functional>
 #include <utility>
 
@@ -116,7 +117,7 @@ public:
                 lastAction_,
                 &QAction::triggered,
                 receiver,
-                std::move(slot)); // Not std::forward?
+                std::move(slot));
         }
 
         return *this;
@@ -136,11 +137,6 @@ public:
             type);
     }
 
-    /// TODO TOGGLES
-    /// - Implement in Notepad and Notebook separately
-    /// - Decide later what can move to base class or elsewhere, same with menus
-    /// in general
-
     MenuBuilder&
     toggle(MenuState* state, const QString& key, MenuState::Predicate predicate)
     {
@@ -148,6 +144,14 @@ public:
             state->bind(lastAction_, key, std::move(predicate));
         }
 
+        return *this;
+    }
+
+    template <typename CallableT>
+        requires std::invocable<CallableT, MenuBuilder&>
+    MenuBuilder& apply(CallableT&& callable)
+    {
+        std::forward<CallableT>(callable)(*this);
         return *this;
     }
 

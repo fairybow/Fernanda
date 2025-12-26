@@ -55,6 +55,7 @@
 #include "TreeViewService.h"
 #include "Window.h"
 #include "Workspace.h"
+#include "WorkspaceMenu.h"
 
 namespace Fernanda {
 
@@ -272,8 +273,8 @@ private:
             this,
             [&](AbstractFileModel* fileModel) {
                 (void)fileModel;
-                refreshMenus_(menuStateKeys_.WINDOW);
-                refreshMenus_(menuStateKeys_.GLOBAL);
+                refreshMenus_(MenuStateKeys::WINDOW);
+                refreshMenus_(MenuStateKeys::GLOBAL);
             });
 
         /// TODO TOGGLES
@@ -331,8 +332,8 @@ private:
             disconnectOldActiveTab_(window);
             activeTabConnections_.remove(window);
 
-            refreshMenus_(menuStateKeys_.WINDOW);
-            refreshMenus_(menuStateKeys_.GLOBAL);
+            refreshMenus_(MenuStateKeys::WINDOW);
+            refreshMenus_(MenuStateKeys::GLOBAL);
         });
 
         connect(
@@ -672,7 +673,7 @@ private:
 
         fnxModel_->resetSnapshot();
         updateWindowsFlags_();
-        refreshMenus_(menuStateKeys_.GLOBAL);
+        refreshMenus_(MenuStateKeys::GLOBAL);
         colorBars->green();
     }
 
@@ -706,7 +707,7 @@ private:
 
         fnxModel_->resetSnapshot();
         updateWindowsFlags_();
-        refreshMenus_(menuStateKeys_.GLOBAL);
+        refreshMenus_(MenuStateKeys::GLOBAL);
         colorBars->green();
     }
 
@@ -758,7 +759,7 @@ private slots:
 
         fnxModel_->write(workingDir_.path());
         updateWindowsFlags_();
-        refreshMenus_(menuStateKeys_.GLOBAL);
+        refreshMenus_(MenuStateKeys::GLOBAL);
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
@@ -851,7 +852,7 @@ private slots:
     {
         // Both of these even when active view is nullptr!
         disconnectOldActiveTab_(window);
-        refreshMenus_(window, menuStateKeys_.ACTIVE_TAB);
+        refreshMenus_(window, MenuStateKeys::ACTIVE_TAB);
 
         if (!window || !activeFileView) return;
         auto model = activeFileView->model();
@@ -863,31 +864,31 @@ private slots:
             model,
             &AbstractFileModel::modificationChanged,
             this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
+            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
 
         connections << connect(
             model,
             &AbstractFileModel::undoAvailable,
             this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
+            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
 
         connections << connect(
             model,
             &AbstractFileModel::redoAvailable,
             this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
+            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
 
         connections << connect(
             activeFileView,
             &AbstractFileView::selectionChanged,
             this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
+            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
 
         connections << connect(
             activeFileView,
             &AbstractFileView::clipboardDataChanged,
             this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
+            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
     }
 };
 

@@ -86,6 +86,7 @@
     <QtMoc Include="src\Commander.h" />
     <QtMoc Include="src\CollapsibleWidget.h" />
     <QtMoc Include="src\CollapsibleWidgetHeader.h" />
+    <ClInclude Include="src\WorkspaceMenu.h" />
     <ClInclude Include="src\Debug.h" />
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />

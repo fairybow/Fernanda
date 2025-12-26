@@ -450,6 +450,9 @@
     <ClInclude Include="src\old_FnxModel.h">
       <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
+    <ClInclude Include="src\WorkspaceMenu.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">

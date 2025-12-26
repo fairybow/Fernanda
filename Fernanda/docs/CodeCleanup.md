@@ -4,6 +4,7 @@ TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 
 - [ ] Name slots appropriately (onObjectSignalled, e.g., onBusWindowDestroyed_, not onWindowDestroyed_) (generally, with some exceptions where it makes sense)
 - [ ] Go through and add brackets to single line IF statements (not including the IF itself)
+- [ ] Where to use forwarding references
 - [ ] Log before signals where appropriate
 - [ ] Ensure, too, that tense makes sense (thing happened vs requesting thing to happen, whichever makes the most sense)
 - [ ] Probably remove those extra "return true"s at the end of the closure hook switch statements, since the switch should cover it

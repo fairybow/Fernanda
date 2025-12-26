@@ -8,7 +8,6 @@
  */
 
 #include "Notepad.h"
-#include "AboutDialog.h"
 #include "Application.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
@@ -18,6 +17,7 @@
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
+#include "WorkspaceMenu.h"
 
 namespace Fernanda {
 
@@ -62,7 +62,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::SAVE)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuStateKeys::ACTIVE_TAB,
             [&, window] {
                 auto model = views->fileModelAt(window, -1);
                 return model && model->isModified();
@@ -73,7 +73,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::SAVE_AS)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuStateKeys::ACTIVE_TAB,
             [&, window] {
                 auto model = views->fileModelAt(window, -1);
                 return model && model->supportsModification();
@@ -83,7 +83,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .slot(this, [&, window] { saveAllInWindow_(window); })
         .toggle(
             state,
-            menuStateKeys_.WINDOW,
+            MenuStateKeys::WINDOW,
             [&, window] { return views->anyModifiedFileModelsIn(window); })
 
         .action(Tr::npSaveAll())
@@ -91,7 +91,7 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::SAVE_ALL)
         .toggle(
             state,
-            menuStateKeys_.GLOBAL,
+            MenuStateKeys::GLOBAL,
             [&] { return files->anyModified(); })
 
         .separator()
@@ -101,26 +101,26 @@ void Notepad::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::CLOSE_TAB)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuStateKeys::ACTIVE_TAB,
             [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::Menus::fileCloseTabEverywhere())
         .slot(this, [&, window] { views->closeTabEverywhere(window, -1); })
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuStateKeys::ACTIVE_TAB,
             [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::Menus::fileCloseWindowTabs())
         .slot(this, [&, window] { views->closeWindowTabs(window); })
         .toggle(
             state,
-            menuStateKeys_.WINDOW,
+            MenuStateKeys::WINDOW,
             [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::Menus::fileCloseAllTabs())
         .slot(this, [&] { views->closeAllTabs(); })
-        .toggle(state, menuStateKeys_.GLOBAL, [&] { return views->anyViews(); })
+        .toggle(state, MenuStateKeys::GLOBAL, [&] { return views->anyViews(); })
 
         .separator()
 
@@ -137,95 +137,16 @@ void Notepad::createWindowMenuBar_(Window* window)
         .slot(app(), &Application::tryQuit, Qt::QueuedConnection)
         .shortcut(MenuShortcuts::QUIT)
 
-        .menu(Tr::nxEditMenu())
+        .apply([&, state, window](MenuBuilder& builder) {
+            WorkspaceMenu::addEdit(builder, state, this, views, window);
+        })
 
-        .action(Tr::Menus::editUndo())
-        .slot(this, [&, window] { views->undo(window, -1); })
-        .shortcut(MenuShortcuts::UNDO)
-        .toggle(
-            state,
-            menuStateKeys_.ACTIVE_TAB,
-            [&, window] {
-                auto model = views->fileModelAt(window, -1);
-                return model && model->hasUndo();
-            })
+        .apply(
+            [](MenuBuilder& builder) { WorkspaceMenu::addSettings(builder); })
 
-        .action(Tr::Menus::editRedo())
-        .slot(this, [&, window] { views->redo(window, -1); })
-        .shortcut(MenuShortcuts::REDO)
-        .toggle(
-            state,
-            menuStateKeys_.ACTIVE_TAB,
-            [&, window] {
-                auto model = views->fileModelAt(window, -1);
-                return model && model->hasRedo();
-            })
-
-        .separator()
-
-        .action(Tr::Menus::editCut())
-        .slot(this, [&, window] { views->cut(window, -1); })
-        .shortcut(MenuShortcuts::CUT)
-        .toggle(
-            state,
-            menuStateKeys_.ACTIVE_TAB,
-            [&, window] {
-                auto view = views->fileViewAt(window, -1);
-                return view && view->hasSelection();
-            })
-
-        .action(Tr::Menus::editCopy())
-        .slot(this, [&, window] { views->copy(window, -1); })
-        .shortcut(MenuShortcuts::COPY)
-        .toggle(
-            state,
-            menuStateKeys_.ACTIVE_TAB,
-            [&, window] {
-                auto view = views->fileViewAt(window, -1);
-                return view && view->hasSelection();
-            })
-
-        .action(Tr::Menus::editPaste())
-        .slot(this, [&, window] { views->paste(window, -1); })
-        .shortcut(MenuShortcuts::PASTE)
-        .toggle(
-            state,
-            menuStateKeys_.ACTIVE_TAB,
-            [&, window] {
-                auto view = views->fileViewAt(window, -1);
-                return view && view->hasPaste();
-            })
-
-        .action(Tr::Menus::editDelete())
-        .slot(this, [&, window] { views->del(window, -1); })
-        .shortcut(MenuShortcuts::DEL)
-        .toggle(
-            state,
-            menuStateKeys_.ACTIVE_TAB,
-            [&, window] {
-                auto view = views->fileViewAt(window, -1);
-                return view && view->hasSelection();
-            })
-
-        .separator()
-
-        .action(Tr::Menus::editSelectAll())
-        .slot(this, [&, window] { views->selectAll(window, -1); })
-        .shortcut(MenuShortcuts::SELECT_ALL)
-        .toggle(
-            state,
-            menuStateKeys_.ACTIVE_TAB,
-            [&, window] {
-                auto view = views->fileViewAt(window, -1);
-                return view && view->supportsEditing();
-            })
-
-        .barAction(Tr::nxSettingsMenu())
-        // TODO: Settings dialog slot
-
-        .menu(Tr::nxHelpMenu())
-        .action(Tr::Menus::helpAbout())
-        .slot(this, [] { AboutDialog::exec(); })
+        .apply([&](MenuBuilder& builder) {
+            WorkspaceMenu::addHelp(builder, this);
+        })
 
         .set();
 }
