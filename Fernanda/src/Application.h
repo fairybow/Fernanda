@@ -74,7 +74,7 @@ public:
     }
 
 public slots:
-    void onRelaunchAttempted(const QStringList& args)
+    void onStartCopAppRelaunched(const QStringList& args)
     {
         //...
     }

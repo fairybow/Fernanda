@@ -13,7 +13,9 @@
 
 #include <QAbstractItemModel>
 #include <QFileSystemModel>
+#include <QHash>
 #include <QList>
+#include <QMetaObject>
 #include <QModelIndex>
 #include <QObject>
 #include <QSet>
@@ -30,6 +32,7 @@
 #include "Constants.h"
 #include "Debug.h"
 #include "Fnx.h"
+#include "MenuState.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "TreeViewService.h"
@@ -364,6 +367,17 @@ protected:
 private:
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
 
+    /// TODO TOGGLES:
+    QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
+    QHash<Window*, MenuState*> menuStates_{};
+
+    struct MenuStateKeys
+    {
+        constexpr static auto ACTIVE_TAB = "tab";
+        constexpr static auto WINDOW = "window";
+        constexpr static auto GLOBAL = "global";
+    } menuStateKeys_;
+
     void setup_()
     {
         fsModel_->setRootPath(
@@ -373,15 +387,18 @@ private:
 
         connect(
             treeViews,
-            &TreeViewService::treeViewDoubleClicked,
+            &TreeViewService::doubleClicked,
             this,
-            &Notepad::onTreeViewDoubleClicked_);
+            &Notepad::onTreeViewsDoubleClicked_);
 
         connect(
             views,
             &ViewService::viewDestroyed,
             this,
-            &Notepad::onViewDestroyed_);
+            [&](AbstractFileModel* fileModel) {
+                if (!fileModel || views->countFor(fileModel) > 0) return;
+                files->deleteModel(fileModel);
+            });
 
         connect(
             views,
@@ -389,12 +406,93 @@ private:
             this,
             [&](Window* window) { newTab_(window); });
 
+        /// TODO TOGGLES
+        connect(
+            views,
+            &ViewService::viewDestroyed,
+            this,
+            [&](AbstractFileModel* fileModel) {
+                (void)fileModel;
+                refreshMenus_(menuStateKeys_.WINDOW);
+                refreshMenus_(menuStateKeys_.GLOBAL);
+            });
+
+        /// TODO TOGGLES
+        connect(
+            views,
+            &ViewService::activeChanged,
+            this,
+            &Notepad::onViewsActiveChanged_);
+
         connectBusEvents_();
     }
 
     void connectBusEvents_()
     {
-        connect(bus, &Bus::windowCreated, this, &Notepad::onWindowCreated_);
+        connect(bus, &Bus::windowCreated, this, &Notepad::onBusWindowCreated_);
+
+        /// TODO TOGGLES
+        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
+            destroyMenuState_(window);
+
+            disconnectOldActiveTab_(window);
+            activeTabConnections_.remove(window);
+
+            refreshMenus_(menuStateKeys_.WINDOW);
+            refreshMenus_(menuStateKeys_.GLOBAL);
+        });
+
+        /// TODO TOGGLES
+        connect(
+            bus,
+            &Bus::fileModelReadied,
+            this,
+            [&](Window* window, AbstractFileModel* fileModel) {
+                (void)window;
+                (void)fileModel;
+                refreshMenus_(menuStateKeys_.WINDOW);
+                refreshMenus_(menuStateKeys_.GLOBAL);
+            });
+
+        /// TODO TOGGLES
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            [&](AbstractFileModel* fileModel, bool modified) {
+                (void)fileModel;
+                (void)modified;
+                refreshMenus_(menuStateKeys_.WINDOW);
+                refreshMenus_(menuStateKeys_.GLOBAL);
+            });
+    }
+
+    /// TODO TOGGLES
+    void destroyMenuState_(Window* window) { delete menuStates_.take(window); }
+
+    /// TODO TOGGLES
+    void refreshMenus_(const QString& key)
+    {
+        for (auto state : menuStates_)
+            state->refresh(key);
+    }
+
+    /// TODO TOGGLES
+    void refreshMenus_(Window* window, const QString& key)
+    {
+        if (auto state = menuStates_.value(window)) state->refresh(key);
+    }
+
+    /// TODO TOGGLES
+    void disconnectOldActiveTab_(Window* window)
+    {
+        if (!window) return;
+
+        if (auto old_cx = activeTabConnections_.take(window);
+            !old_cx.isEmpty()) {
+            for (auto& connection : old_cx)
+                disconnect(connection);
+        }
     }
 
     QString fileDisplayName_(AbstractFileModel* fileModel) const
@@ -660,13 +758,13 @@ private:
     void createWindowMenuBar_(Window* window);
 
 private slots:
-    void onWindowCreated_(Window* window)
+    void onBusWindowCreated_(Window* window)
     {
         if (!window) return;
         createWindowMenuBar_(window);
     }
 
-    void onTreeViewDoubleClicked_(Window* window, const QModelIndex& index)
+    void onTreeViewsDoubleClicked_(Window* window, const QModelIndex& index)
     {
         if (!window || !index.isValid()) return;
 
@@ -677,12 +775,48 @@ private slots:
                                  : files->openFilePathIn(window, path);
     }
 
-    void onViewDestroyed_(AbstractFileModel* fileModel)
+    /// TODO TOGGLES
+    void onViewsActiveChanged_(Window* window, AbstractFileView* activeFileView)
     {
-        if (!fileModel) return;
-        if (views->countFor(fileModel) > 0) return;
+        // Both of these even when active view is nullptr!
+        disconnectOldActiveTab_(window);
+        refreshMenus_(window, menuStateKeys_.ACTIVE_TAB);
 
-        files->deleteModel(fileModel);
+        if (!window || !activeFileView) return;
+        auto model = activeFileView->model();
+        if (!model) return;
+
+        auto& connections = activeTabConnections_[window];
+
+        connections << connect(
+            model,
+            &AbstractFileModel::modificationChanged,
+            this,
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
+
+        connections << connect(
+            model,
+            &AbstractFileModel::undoAvailable,
+            this,
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
+
+        connections << connect(
+            model,
+            &AbstractFileModel::redoAvailable,
+            this,
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
+
+        connections << connect(
+            activeFileView,
+            &AbstractFileView::selectionChanged,
+            this,
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
+
+        connections << connect(
+            activeFileView,
+            &AbstractFileView::clipboardDataChanged,
+            this,
+            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
     }
 };
 

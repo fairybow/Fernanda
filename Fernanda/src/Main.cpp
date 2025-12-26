@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
         &cop,
         &Coco::StartCop::appRelaunched,
         &app,
-        &Fernanda::Application::onRelaunchAttempted);
+        &Fernanda::Application::onStartCopAppRelaunched);
 
     app.initialize();
     return app.exec();

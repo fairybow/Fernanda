@@ -158,12 +158,26 @@ public:
             if (!tab_widget) continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i) {
-                if (fileModelAt_(window, i) == fileModel) {
+                if (fileModelAt(window, i) == fileModel) {
                     ++window_count;
                     if (window_count >= 2) return true; // Early exit
                     break; // Move to next window
                 }
             }
+        }
+
+        return false;
+    }
+
+    bool anyViews() const
+    {
+        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
+
+        for (auto& window : windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            if (!tab_widget->isEmpty()) return true;
         }
 
         return false;
@@ -182,6 +196,13 @@ public:
         return tab_widget->widgetAt<AbstractFileView*>(i);
     }
 
+    // Index -1 = current
+    AbstractFileModel* fileModelAt(Window* window, int index) const
+    {
+        auto view = fileViewAt(window, index);
+        return view ? view->model() : nullptr;
+    }
+
     // TODO: May use this for applying settings! If not, though, make private or
     // remove
     QList<AbstractFileView*> fileViewsIn(Window* window) const
@@ -197,6 +218,20 @@ public:
                 views << view;
 
         return views;
+    }
+
+    // TODO: Check re: SoC
+    // TODO: Also check, re: modifiedViewModelsIn...
+    bool anyModifiedFileModelsIn(Window* window) const
+    {
+        if (!window) return false;
+
+        for (auto& view : fileViewsIn(window)) {
+            auto model = view->model();
+            if (model && model->isModified()) return true;
+        }
+
+        return false;
     }
 
     // TODO: May use this for applying settings! If not, though, make private or
@@ -300,7 +335,7 @@ public:
 
     void closeTabEverywhere(Window* window, int index = -1)
     {
-        auto target_model = fileModelAt_(window, index);
+        auto target_model = fileModelAt(window, index);
         if (!target_model) return;
 
         // Proceed if no hook is set, or if hook approves the close
@@ -345,13 +380,13 @@ public:
 
     void undo(Window* window, int index = -1)
     {
-        auto model = fileModelAt_(window, index);
+        auto model = fileModelAt(window, index);
         if (model && model->hasUndo()) model->undo();
     }
 
     void redo(Window* window, int index = -1)
     {
-        auto model = fileModelAt_(window, index);
+        auto model = fileModelAt(window, index);
         if (model && model->hasRedo()) model->redo();
     }
 
@@ -391,6 +426,8 @@ public:
     }
 
 signals:
+    // Active view can be nullptr!
+    void activeChanged(Window* window, AbstractFileView* activeFileView);
     void viewDestroyed(AbstractFileModel* fileModel);
     void addTabRequested(Window* window);
 
@@ -402,31 +439,35 @@ protected:
 
     virtual void connectBusEvents() override
     {
-        connect(bus, &Bus::windowCreated, this, &ViewService::onWindowCreated_);
+        connect(
+            bus,
+            &Bus::windowCreated,
+            this,
+            &ViewService::onBusWindowCreated_);
 
         connect(
             bus,
             &Bus::windowDestroyed,
             this,
-            &ViewService::onWindowDestroyed_);
+            &ViewService::onBusWindowDestroyed_);
 
         connect(
             bus,
             &Bus::fileModelReadied,
             this,
-            &ViewService::onFileModelReadied_);
+            &ViewService::onBusFileModelReadied_);
 
         connect(
             bus,
             &Bus::fileModelModificationChanged,
             this,
-            &ViewService::onFileModelModificationChanged_);
+            &ViewService::onBusFileModelModificationChanged_);
 
         connect(
             bus,
             &Bus::fileModelMetaChanged,
             this,
-            &ViewService::onFileModelMetaChanged_);
+            &ViewService::onBusFileModelMetaChanged_);
     }
 
 private:
@@ -454,13 +495,6 @@ private:
         if (!tabWidget || tabWidget->isEmpty()) return -1;
         auto i = (index < 0) ? tabWidget->currentIndex() : index;
         return (i < 0 || i >= tabWidget->count()) ? -1 : i;
-    }
-
-    // Index -1 = current
-    AbstractFileModel* fileModelAt_(Window* window, int index) const
-    {
-        auto view = fileViewAt(window, index);
-        return view ? view->model() : nullptr;
     }
 
     // Index -1 = current
@@ -504,6 +538,7 @@ private:
 
         activeFileViews_[window] = active;
         INFO("Active file view changed in [{}] to [{}]", window, active);
+        emit activeChanged(window, active);
     }
 
     template <
@@ -555,20 +590,20 @@ private:
     }
 
 private slots:
-    void onWindowCreated_(Window* window)
+    void onBusWindowCreated_(Window* window)
     {
         if (!window) return;
         addTabWidget_(window);
     }
 
-    void onWindowDestroyed_(Window* window)
+    void onBusWindowDestroyed_(Window* window)
     {
         if (!window) return;
         activeFileViews_.remove(window);
     }
 
     // TODO: New view settings
-    void onFileModelReadied_(Window* window, AbstractFileModel* fileModel)
+    void onBusFileModelReadied_(Window* window, AbstractFileModel* fileModel)
     {
         if (!window || !fileModel) return;
         auto tab_widget = tabWidget_(window);
@@ -621,8 +656,9 @@ private slots:
 
     // TODO: Separate method with callback for iteration over all tabs-per-model
     // (use in below method, too)
-    void
-    onFileModelModificationChanged_(AbstractFileModel* fileModel, bool modified)
+    void onBusFileModelModificationChanged_(
+        AbstractFileModel* fileModel,
+        bool modified)
     {
         if (!fileModel) return;
 
@@ -643,7 +679,7 @@ private slots:
 
     // TODO: Separate method with callback for iteration over all tabs-per-model
     // (use in above method, too)
-    void onFileModelMetaChanged_(AbstractFileModel* fileModel)
+    void onBusFileModelMetaChanged_(AbstractFileModel* fileModel)
     {
         if (!fileModel) return;
         auto meta = fileModel->meta();

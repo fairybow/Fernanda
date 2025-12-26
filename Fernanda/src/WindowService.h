@@ -103,7 +103,8 @@ public:
         return list;
     }
 
-    // QList<Window*> rWindows() const { return zOrderedVolatileWindows_; }
+    // QSet<Window*> windowsSet() const noexcept { return unorderedWindows_; }
+    // QList<Window*> rWindows() const noexcept { return zOrderedVolatileWindows_; }
 
     Window* newWindow()
     {

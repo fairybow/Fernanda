@@ -103,6 +103,7 @@
     <QtMoc Include="src\Notepad.h" />
     <ClInclude Include="src\MenuBuilder.h" />
     <ClInclude Include="src\MenuShortcuts.h" />
+    <QtMoc Include="src\MenuState.h" />
     <ClInclude Include="src\NewNotebookPrompt.h" />
     <QtMoc Include="src\TreeView.h" />
     <ClInclude Include="src\old_FnxModel.h" />
@@ -110,7 +111,6 @@
     <ClInclude Include="src\SavePrompt.h" />
     <QtMoc Include="src\Settings.h" />
     <QtMoc Include="src\SettingsDialog.h" />
-    <ClInclude Include="src\old_MenuModule.h" />
     <ClInclude Include="src\Formatters.h" />
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\Io.h" />

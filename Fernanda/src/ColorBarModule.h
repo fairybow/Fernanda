@@ -89,13 +89,13 @@ protected:
             bus,
             &Bus::windowCreated,
             this,
-            &ColorBarModule::onWindowCreated_);
+            &ColorBarModule::onBusWindowCreated_);
 
         connect(
             bus,
             &Bus::windowDestroyed,
             this,
-            &ColorBarModule::onWindowDestroyed_);
+            &ColorBarModule::onBusWindowDestroyed_);
     }
 
 private:
@@ -107,14 +107,14 @@ private:
     }
 
 private slots:
-    void onWindowCreated_(Window* window)
+    void onBusWindowCreated_(Window* window)
     {
         if (!window) return;
         // ColorBar floats outside layouts
         colorBars_[window] = new ColorBar(window);
     }
 
-    void onWindowDestroyed_(Window* window)
+    void onBusWindowDestroyed_(Window* window)
     {
         if (!window) return;
         colorBars_.remove(window);
