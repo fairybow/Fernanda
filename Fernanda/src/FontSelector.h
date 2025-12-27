@@ -21,7 +21,7 @@
 
 #include "Debug.h"
 #include "DisplaySlider.h"
-#include "Ini.h"
+//#include "Ini.h"
 #include "Tr.h"
 
 namespace Fernanda {
@@ -62,9 +62,10 @@ private:
         fontsBox_->addItems(db.families());
         boldCheckBox_->setTristate(false);
         italicCheckBox_->setTristate(false);
-        sizeSlider_->setRange(
-            Ini::Editor::FONT_PT_SIZE_MIN,
-            Ini::Editor::FONT_PT_SIZE_MAX);
+        /// TODO SETTINGS: Set from outside! Keep this general.
+        //sizeSlider_->setRange(
+            //Ini::Editor::FONT_PT_SIZE_MIN,
+            //Ini::Editor::FONT_PT_SIZE_MAX);
 
         // Populate
         fontsBox_->setCurrentText(currentFont_.family());

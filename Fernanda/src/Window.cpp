@@ -7,10 +7,11 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
+#include "Window.h"
+
 #include <QCloseEvent>
 #include <QMainWindow>
 
-#include "Window.h"
 #include "WindowService.h"
 
 namespace Fernanda {

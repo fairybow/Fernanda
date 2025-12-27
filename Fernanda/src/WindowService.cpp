@@ -7,15 +7,10 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include <QEventLoop>
-#include <QTime>
-#include <QVariant>
-#include <QVariantMap>
+#include "WindowService.h"
 
 #include "Application.h"
 #include "Bus.h"
-#include "Constants.h"
-#include "WindowService.h"
 
 namespace Fernanda {
 

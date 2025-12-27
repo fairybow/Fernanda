@@ -102,7 +102,6 @@ private:
             setDisplayText_();
             emit valueChanged(value);
         });
-
         connect(slider_, &QSlider::rangeChanged, this, [&](int min, int max) {
             emit rangeChanged(min, max);
         });

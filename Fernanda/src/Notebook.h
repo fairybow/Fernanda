@@ -38,7 +38,6 @@
 #include "AppDirs.h"
 #include "Bus.h"
 #include "CollapsibleWidget.h"
-#include "Constants.h"
 #include "Debug.h"
 #include "FileService.h"
 #include "Fnx.h"
@@ -48,7 +47,6 @@
 #include "MenuState.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
-#include "SettingsModule.h"
 #include "TempDir.h"
 #include "Tr.h"
 #include "TrashPrompt.h"
@@ -275,6 +273,10 @@ private:
         if (!workingDir_.isValid())
             FATAL("Notebook working directory creation failed!");
 
+        auto working_dir = workingDir_.path();
+
+        // settings->setOverrideConfigPath(working_dir / "Settings.ini");
+
         treeViews->setHeadersHidden(true);
         treeViews->setDockWidgetFeatures(QDockWidget::NoDockWidgetFeatures);
 
@@ -309,8 +311,6 @@ private:
         updateWindowsFlags_();
 
         // Extraction or creation
-        auto working_dir = workingDir_.path();
-
         if (!fnxPath_.exists()) {
             Fnx::Io::makeNewWorkingDir(working_dir);
 
@@ -336,8 +336,6 @@ private:
             &FnxModel::fileRenamed,
             this,
             &Notebook::onFnxModelFileRenamed_);
-
-        settings->setOverrideConfigPath(working_dir / "Settings.ini");
 
         connectBusEvents_();
     }

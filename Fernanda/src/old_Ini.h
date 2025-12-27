@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QFont>
 #include <QString>
@@ -40,4 +40,4 @@ namespace Editor {
 
 } // namespace Editor
 
-} // namespace Fernanda::Ini
+} // namespace Fernanda::Ini*/

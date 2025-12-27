@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QFont>
 #include <QObject>
@@ -112,4 +112,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Fernanda*/

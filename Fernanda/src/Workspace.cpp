@@ -8,6 +8,9 @@
  */
 
 #include "Workspace.h"
+
+#include <QString>
+
 #include "AboutDialog.h"
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"

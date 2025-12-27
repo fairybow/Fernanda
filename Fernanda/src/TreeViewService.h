@@ -27,7 +27,6 @@
 
 #include "AbstractService.h"
 #include "Bus.h"
-#include "Constants.h"
 #include "Debug.h"
 #include "TreeView.h"
 #include "Window.h"

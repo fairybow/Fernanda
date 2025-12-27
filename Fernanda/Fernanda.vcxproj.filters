@@ -52,9 +52,6 @@
     <Filter Include="Code\Auxiliary\Modules">
       <UniqueIdentifier>{d156e859-f9aa-4d0f-af5c-f75aeff6edb0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Auxiliary\Modules\Settings">
-      <UniqueIdentifier>{594b3725-78f6-41a0-844c-bcb5c0fc5aa5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Auxiliary\Modules\ColorBar">
       <UniqueIdentifier>{67032abf-8d30-4177-aa58-306cbc9457ad}</UniqueIdentifier>
     </Filter>
@@ -274,26 +271,11 @@
     <QtMoc Include="src\WordCounterModule.h">
       <Filter>Code\Auxiliary\Modules</Filter>
     </QtMoc>
-    <QtMoc Include="src\SettingsModule.h">
-      <Filter>Code\Auxiliary\Modules\Settings</Filter>
-    </QtMoc>
-    <QtMoc Include="src\DisplaySlider.h">
-      <Filter>Code\Auxiliary\Modules\Settings</Filter>
-    </QtMoc>
-    <QtMoc Include="src\FontSelector.h">
-      <Filter>Code\Auxiliary\Modules\Settings</Filter>
-    </QtMoc>
-    <QtMoc Include="src\SettingsDialog.h">
-      <Filter>Code\Auxiliary\Modules\Settings</Filter>
-    </QtMoc>
     <QtMoc Include="src\ColorBarModule.h">
       <Filter>Code\Auxiliary\Modules\ColorBar</Filter>
     </QtMoc>
     <QtMoc Include="src\ColorBar.h">
       <Filter>Code\Auxiliary\Modules\ColorBar</Filter>
-    </QtMoc>
-    <QtMoc Include="src\Settings.h">
-      <Filter>Code\Auxiliary\Modules\Settings</Filter>
     </QtMoc>
     <QtMoc Include="src\Notebook.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
@@ -339,6 +321,12 @@
     </QtMoc>
     <QtMoc Include="src\KeyFilter.h">
       <Filter>Code\Auxiliary</Filter>
+    </QtMoc>
+    <QtMoc Include="src\DisplaySlider.h">
+      <Filter>Code\Core\UI</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FontSelector.h">
+      <Filter>Code\Core\UI</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -438,9 +426,6 @@
     <ClInclude Include="src\AboutDialog.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
-    <ClInclude Include="src\Ini.h">
-      <Filter>Code\Auxiliary\Modules\Settings</Filter>
-    </ClInclude>
     <ClInclude Include="src\FnxModelCache.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
@@ -448,6 +433,18 @@
       <Filter>Code\Core\UI\Menus</Filter>
     </ClInclude>
     <ClInclude Include="src\old_FnxModel.h">
+      <Filter>Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_SettingsModule.h">
+      <Filter>Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_Ini.h">
+      <Filter>Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_Settings.h">
+      <Filter>Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_SettingsDialog.h">
       <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
   </ItemGroup>

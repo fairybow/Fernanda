@@ -28,7 +28,6 @@
 #include "AbstractFileView.h"
 #include "AppDirs.h"
 #include "Bus.h"
-#include "Constants.h"
 #include "Debug.h"
 #include "Fnx.h"
 #include "MenuBuilder.h"

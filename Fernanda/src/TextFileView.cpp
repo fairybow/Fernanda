@@ -7,6 +7,8 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
+#include "TextFileView.h"
+
 #include <QClipboard>
 #include <QPlainTextEdit>
 #include <QTextDocument>
@@ -16,7 +18,6 @@
 #include "Application.h"
 #include "KeyFilter.h"
 #include "TextFileModel.h"
-#include "TextFileView.h"
 
 namespace Fernanda {
 
