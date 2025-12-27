@@ -24,6 +24,7 @@
 
 namespace Fernanda {
 
+// TODO: Wrapping selection in open/close punctuation
 class KeyFilter : public QObject
 {
     Q_OBJECT
@@ -46,8 +47,11 @@ public:
     bool isActive() const noexcept { return active_; }
     void setActive(bool active) { active_ = active; }
 
-    bool autoClose() const noexcept { return autoClose_; }
-    void setAutoClose(bool autoClose) { autoClose_ = autoClose; }
+    bool autoClosing() const noexcept { return autoClosing_; }
+    void setAutoClosing(bool autoClosing) { autoClosing_ = autoClosing; }
+
+    bool barging() const noexcept { return barging_; }
+    void setBarging(bool barging) { barging_ = barging; }
 
     virtual bool eventFilter(QObject* watched, QEvent* event) override
     {
@@ -63,7 +67,8 @@ private:
 
     // TODO: Settings!
     bool active_ = true;
-    bool autoClose_ = true;
+    bool autoClosing_ = true;
+    bool barging_ = true;
 
     bool handleKeyPress_(QKeyEvent* event)
     {
@@ -73,9 +78,17 @@ private:
         auto document = textEdit_->document();
         auto cursor = textEdit_->textCursor();
 
-        if (autoClose_ && event->key() == Qt::Key_Backspace) {
+        if (autoClosing_ && event->key() == Qt::Key_Backspace) {
             if (isBetweenPair_(document, cursor)) {
                 deletePair_(cursor);
+                textEdit_->setTextCursor(cursor);
+                return true;
+            }
+        }
+
+        if (barging_ && event->key() == Qt::Key_Space) {
+            if (canBarge_(document, cursor)) {
+                barge_(cursor);
                 textEdit_->setTextCursor(cursor);
                 return true;
             }
@@ -86,26 +99,74 @@ private:
 
         auto ch = text.at(0);
 
-        if (autoClose_ && isOpenPunct_(ch)) {
+        // Skip-closer: typing a closer when same char is ahead
+        if (autoClosing_ && canSkipCloser_(ch, document, cursor)) {
+            cursor.movePosition(QTextCursor::NextCharacter);
+            textEdit_->setTextCursor(cursor);
+            return true;
+        }
+
+        if (autoClosing_ && isOpenPunct_(ch)) {
             // Single quote needs context check for contractions
             if (ch == '\'' && isMidWord_(document, cursor)) return false;
-
-            cursor.beginEditBlock();
-            cursor.insertText(QString(ch) + ch.mirroredChar());
-            cursor.movePosition(QTextCursor::PreviousCharacter);
-            cursor.endEditBlock();
-
+            autoClose_(ch, cursor);
             textEdit_->setTextCursor(cursor);
+
             return true;
         }
 
         return false;
     }
 
+    void autoClose_(QChar ch, QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.insertText(QString(ch) + ch.mirroredChar());
+        cursor.movePosition(QTextCursor::PreviousCharacter);
+        cursor.endEditBlock();
+    }
+
+    void deletePair_(QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar();
+        cursor.deleteChar();
+        cursor.endEditBlock();
+    }
+
+    void barge_(QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar(); // remove the space
+        cursor.movePosition(QTextCursor::NextCharacter); // skip past closer
+        cursor.insertText(QStringLiteral(" ")); // add space after
+        cursor.endEditBlock();
+    }
+
     bool isOpenPunct_(QChar c) const noexcept
     {
         return c == '"' || c == '\'' || c.category() == QChar::Punctuation_Open
                || c.category() == QChar::Punctuation_InitialQuote;
+    }
+
+    bool isClosePunct_(QChar c) const noexcept
+    {
+        return c == '"' || c == '\'' || c.category() == QChar::Punctuation_Close
+               || c.category() == QChar::Punctuation_FinalQuote;
+    }
+
+    bool canSkipCloser_(
+        QChar ch,
+        QTextDocument* document,
+        const QTextCursor& cursor) const
+    {
+        if (!isClosePunct_(ch)) return false;
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos >= document->characterCount()) return false;
+
+        return document->characterAt(pos) == ch;
     }
 
     bool isMidWord_(QTextDocument* document, const QTextCursor& cursor) const
@@ -135,12 +196,25 @@ private:
                && char_after == char_before.mirroredChar();
     }
 
-    void deletePair_(QTextCursor& cursor)
+    bool canBarge_(QTextDocument* document, const QTextCursor& cursor) const
     {
-        cursor.beginEditBlock();
-        cursor.deletePreviousChar();
-        cursor.deleteChar();
-        cursor.endEditBlock();
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos < 1) return false;
+        if (pos >= document->characterCount()) return false;
+
+        auto char_before = document->characterAt(pos - 1);
+        auto char_after = document->characterAt(pos);
+
+        if (!(char_before == ' ' && isClosePunct_(char_after))) return false;
+
+        // Don't barge past single quote if it looks like a contraction
+        if (char_after == '\'' && pos >= 2
+            && document->characterAt(pos - 2).isLetterOrNumber())
+            return false;
+
+        return true;
     }
 };
 
