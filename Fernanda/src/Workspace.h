@@ -131,6 +131,11 @@ protected:
 
     /// TODO TOGGLES (Rest of protected section)
 
+    /// Current plan:
+    /// - Move as much as we can into Workspace (like common "active tab" code)
+    /// - What refresh triggers belong in Workspace? Do any belong exclusively
+    /// in Notepad or Notebook?
+
     struct MenuStateKeys
     {
         constexpr static auto ACTIVE_TAB = "tab";
