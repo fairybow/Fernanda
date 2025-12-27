@@ -42,7 +42,7 @@ class TreeViewService : public AbstractService
 public:
     using ModelHook = std::function<QAbstractItemModel*()>;
     using RootIndexHook = std::function<QModelIndex()>;
-    using DockWidgetHook = std::function<QWidget*(TreeView* mainTree, Window*)>;
+    using DockWidgetHook = std::function<QWidget*(TreeView*, Window*)>;
 
     TreeViewService(Bus* bus, QObject* parent = nullptr)
         : AbstractService(bus, parent)
@@ -65,6 +65,14 @@ public:
         dockWidgetHook,
         setDockWidgetHook,
         dockWidgetHook_);
+
+    void setDockWidgetFeatures(QDockWidget::DockWidgetFeatures features)
+    {
+        dockWidgetFeatures_ = features;
+
+        for (auto& dock_widget : dockWidgets_)
+            dock_widget->setFeatures(features);
+    }
 
     QModelIndex currentIndex(Window* window) const
     {
@@ -154,11 +162,16 @@ protected:
     }
 
 private:
+    QHash<Window*, QDockWidget*> dockWidgets_{};
     QHash<Window*, TreeView*> treeViews_{};
     ModelHook modelHook_ = nullptr;
     RootIndexHook rootIndexHook_ = nullptr;
     DockWidgetHook dockWidgetHook_ = nullptr;
 
+    QDockWidget::DockWidgetFeatures dockWidgetFeatures_{
+        QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable
+        | QDockWidget::DockWidgetFloatable
+    };
     bool headersHidden_ = false;
 
     void setup_()
@@ -173,6 +186,7 @@ private:
         if (!window) return;
 
         auto dock_widget = new QDockWidget(window);
+        dockWidgets_[window] = dock_widget;
         auto tree_view = new TreeView(dock_widget);
         treeViews_[window] = tree_view;
 
@@ -191,6 +205,7 @@ private:
         if (dockWidgetHook_) dock_contents = dockWidgetHook_(tree_view, window);
 
         dock_widget->setWidget(dock_contents);
+        dock_widget->setFeatures(dockWidgetFeatures_);
         window->addDockWidget(Qt::LeftDockWidgetArea, dock_widget);
 
         window->resizeDocks(
@@ -230,6 +245,10 @@ private:
 
         // TODO: Needed? Check that it actually works, too, since it decays to
         // QObject before emitting destroyed...
+        connect(dock_widget, &QDockWidget::destroyed, this, [&, window] {
+            if (!window) return;
+            dockWidgets_.remove(window);
+        });
         connect(tree_view, &TreeView::destroyed, this, [&, window] {
             if (!window) return;
             treeViews_.remove(window);
@@ -264,6 +283,8 @@ private slots:
     void onBusWindowDestroyed_(Window* window)
     {
         if (!window) return;
+
+        dockWidgets_.remove(window);
         treeViews_.remove(window);
     }
 };

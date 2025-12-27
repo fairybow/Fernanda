@@ -53,7 +53,7 @@ public:
     {
     }
 
-    virtual ~MenuBuilder() { TRACER; }
+    ~MenuBuilder() { TRACER; }
 
     MenuBuilder& menu(const QString& title)
     {
@@ -118,7 +118,8 @@ public:
                 lastAction_,
                 &QAction::triggered,
                 receiver,
-                std::move(slot));
+                std::move(slot),
+                type);
         }
 
         return *this;

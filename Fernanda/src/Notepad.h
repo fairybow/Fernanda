@@ -12,6 +12,7 @@
 #include <functional>
 
 #include <QAbstractItemModel>
+#include <QDockWidget>
 #include <QFileSystemModel>
 #include <QList>
 #include <QModelIndex>
@@ -433,6 +434,10 @@ private:
             startDir.toQString()); // Via Qt: Setting root path installs a
                                    // filesystem watcher
         fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+        treeViews->setHeadersHidden(false);
+        treeViews->setDockWidgetFeatures(
+            QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 
         connect(
             treeViews,

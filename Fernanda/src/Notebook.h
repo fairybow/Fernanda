@@ -15,6 +15,7 @@
 #include <QAbstractItemModel>
 #include <QDomDocument>
 #include <QDomElement>
+#include <QDockWidget>
 #include <QLabel>
 #include <QList>
 #include <QModelIndex>
@@ -275,6 +276,7 @@ private:
             FATAL("Notebook working directory creation failed!");
 
         treeViews->setHeadersHidden(true);
+        treeViews->setDockWidgetFeatures(QDockWidget::NoDockWidgetFeatures);
 
         treeViews->setDockWidgetHook(
             this,
