@@ -22,7 +22,6 @@
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
 
-#include "AboutDialog.h"
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
 #include "AppDirs.h"
@@ -129,204 +128,42 @@ protected:
     virtual bool canCloseWindow(Window*) { return true; }
     virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
 
-    /// TODO TOGGLES (Rest of protected section)
-
-    /// Current plan:
-    /// - Move as much as we can into Workspace (like common "active tab" code)
-    /// - What refresh triggers belong in Workspace? Do any belong exclusively
-    /// in Notepad or Notebook?
-    /// - Could start with a createMenu_ method then just call the apply
-    /// function (which would direct to Notepad or Notebook menu builder
-    /// function)?
-
-    struct MenuStateKeys
+    virtual void
+    workspaceMenuHook(MenuBuilder& builder, MenuState* state, Window* window)
     {
-        constexpr static auto ACTIVE_TAB = "tab";
-        constexpr static auto WINDOW = "window";
-        constexpr static auto GLOBAL = "global";
-    } menuStateKeys;
-
-    void addNewWindowAction(MenuBuilder& builder)
-    {
-        builder.action(Tr::Menus::fileNewWindow())
-            .slot(this, [&] { windows->newWindow(); })
-            .shortcut(MenuShortcuts::NEW_WINDOW);
+        (void)builder;
+        (void)state;
+        (void)window;
     }
 
-    void addOpenNotebookActions(MenuBuilder& builder)
+    virtual void fileMenuOpenActions(MenuBuilder& builder, Window* window) = 0;
+    virtual void fileMenuSaveActions(
+        MenuBuilder& builder,
+        MenuState* state,
+        Window* window) = 0;
+
+    enum class MenuScope
     {
-        builder.action(Tr::Menus::fileNewNotebook())
-            .slot(
-                this,
-                [&] {
-                    // Will allow creation of new Notebook with a prospective
-                    // path that is the
-                    // same as an existing Notebook's. When saved, the user will
-                    // be warned before saving over the existing Notebook!
-                    auto name = NewNotebookPrompt::exec();
-                    if (name.isEmpty()) return;
-                    emit newNotebookRequested(startDir / (name + Fnx::Io::EXT));
-                })
+        ActiveTab = 0,
+        Window,
+        Workspace
+    };
 
-            .action(Tr::Menus::fileOpenNotebook())
-            .slot(this, [&] {
-                // nullptr parent makes the dialog application modal
-                auto path = Coco::PathUtil::Dialog::file(
-                    nullptr,
-                    Tr::nxOpenNotebookCaption(),
-                    startDir,
-                    Tr::nxOpenNotebookFilter());
-
-                if (path.isEmpty() || !Fnx::Io::isFnxFile(path)) return;
-                emit openNotebookRequested(path);
-            });
+    void refreshMenus(MenuScope scope)
+    {
+        for (auto state : menuStates_)
+            state->refresh(scope);
     }
 
-    // TODO: Emit trigger/refresh call for things in workspace IN workspace!
-    // e.g., close tab triggers - can probably also split up the keys into more
-    // specific sections.
-    void
-    addCloseTabActions(MenuBuilder& builder, MenuState* state, Window* window)
+    void refreshMenus(Window* window, MenuScope scope)
     {
-        builder.action(Tr::Menus::fileCloseTab())
-            .slot(this, [&, window] { views->closeTab(window, -1); })
-            .shortcut(MenuShortcuts::CLOSE_TAB)
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] { return views->fileViewAt(window, -1); })
-
-            .action(Tr::Menus::fileCloseTabEverywhere())
-            .slot(this, [&, window] { views->closeTabEverywhere(window, -1); })
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] { return views->fileViewAt(window, -1); })
-
-            .action(Tr::Menus::fileCloseWindowTabs())
-            .slot(this, [&, window] { views->closeWindowTabs(window); })
-            .toggle(
-                state,
-                MenuStateKeys::WINDOW,
-                [&, window] { return views->fileViewAt(window, -1); })
-
-            .action(Tr::Menus::fileCloseAllTabs())
-            .slot(this, [&] { views->closeAllTabs(); })
-            .toggle(state, MenuStateKeys::GLOBAL, [&] {
-                return views->anyViews();
-            });
-    }
-
-    void addCloseWindowActions(MenuBuilder& builder, Window* window)
-    {
-        builder.action(Tr::Menus::fileCloseWindow())
-            .slot(this, [&, window] { window->close(); })
-            .shortcut(MenuShortcuts::CLOSE_WINDOW)
-
-            .action(Tr::Menus::fileCloseAllWindows())
-            .slot(this, [&] { windows->closeAll(); });
-    }
-
-    void addQuitAction(MenuBuilder& builder);
-
-    void addEditMenu(MenuBuilder& builder, MenuState* state, Window* window)
-    {
-        builder
-            .menu(Tr::nxEditMenu())
-
-            .action(Tr::Menus::editUndo())
-            .slot(this, [&, window] { views->undo(window, -1); })
-            .shortcut(MenuShortcuts::UNDO)
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] {
-                    auto model = views->fileModelAt(window, -1);
-                    return model && model->hasUndo();
-                })
-
-            .action(Tr::Menus::editRedo())
-            .slot(this, [&, window] { views->redo(window, -1); })
-            .shortcut(MenuShortcuts::REDO)
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] {
-                    auto model = views->fileModelAt(window, -1);
-                    return model && model->hasRedo();
-                })
-
-            .separator()
-
-            .action(Tr::Menus::editCut())
-            .slot(this, [&, window] { views->cut(window, -1); })
-            .shortcut(MenuShortcuts::CUT)
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] {
-                    auto view = views->fileViewAt(window, -1);
-                    return view && view->hasSelection();
-                })
-
-            .action(Tr::Menus::editCopy())
-            .slot(this, [&, window] { views->copy(window, -1); })
-            .shortcut(MenuShortcuts::COPY)
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] {
-                    auto view = views->fileViewAt(window, -1);
-                    return view && view->hasSelection();
-                })
-
-            .action(Tr::Menus::editPaste())
-            .slot(this, [&, window] { views->paste(window, -1); })
-            .shortcut(MenuShortcuts::PASTE)
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] {
-                    auto view = views->fileViewAt(window, -1);
-                    return view && view->hasPaste();
-                })
-
-            .action(Tr::Menus::editDelete())
-            .slot(this, [&, window] { views->del(window, -1); })
-            .shortcut(MenuShortcuts::DEL)
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] {
-                    auto view = views->fileViewAt(window, -1);
-                    return view && view->hasSelection();
-                })
-
-            .separator()
-
-            .action(Tr::Menus::editSelectAll())
-            .slot(this, [&, window] { views->selectAll(window, -1); })
-            .shortcut(MenuShortcuts::SELECT_ALL)
-            .toggle(state, MenuStateKeys::ACTIVE_TAB, [&, window] {
-                auto view = views->fileViewAt(window, -1);
-                return view && view->supportsEditing();
-            });
-    }
-
-    void addSettingsMenu(MenuBuilder& builder)
-    {
-        builder.barAction(Tr::nxSettingsMenu());
-        // TODO: Settings dialog slot
-    }
-
-    void addHelpMenu(MenuBuilder& builder)
-    {
-        builder.menu(Tr::nxHelpMenu())
-            .action(Tr::Menus::helpAbout())
-            .slot(this, [] { AboutDialog::exec(); });
+        if (auto state = menuStates_.value(window)) state->refresh(scope);
     }
 
 private:
+    QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
+    QHash<Window*, MenuState*> menuStates_{};
+
     void setup_()
     {
         settings->initialize();
@@ -343,6 +180,22 @@ private:
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
 
+        connect(
+            views,
+            &ViewService::activeChanged,
+            this,
+            &Workspace::onViewsActiveChanged_);
+
+        connect(
+            views,
+            &ViewService::viewDestroyed,
+            this,
+            [&](AbstractFileModel* fileModel) {
+                (void)fileModel;
+                refreshMenus(MenuScope::Window);
+                refreshMenus(MenuScope::Workspace);
+            });
+
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
         connect(windows, &WindowService::lastWindowClosed, this, [&] {
@@ -352,6 +205,102 @@ private:
 
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
+
+        connectBusEvents_();
+    }
+
+    void connectBusEvents_()
+    {
+        connect(bus, &Bus::windowCreated, this, [&](Window* window) {
+            createWindowMenuBar_(window);
+        });
+
+        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
+            delete menuStates_.take(window);
+
+            disconnectOldActiveTab_(window);
+            activeTabConnections_.remove(window);
+
+            refreshMenus(MenuScope::Window);
+            refreshMenus(MenuScope::Workspace);
+        });
+
+        connect(
+            bus,
+            &Bus::fileModelReadied,
+            this,
+            [&](Window* window, AbstractFileModel* fileModel) {
+                (void)window;
+                (void)fileModel;
+
+                refreshMenus(MenuScope::Window);
+                refreshMenus(MenuScope::Workspace);
+            });
+
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            [&](AbstractFileModel* fileModel, bool modified) {
+                (void)fileModel;
+                (void)modified;
+
+                refreshMenus(MenuScope::Window);
+                refreshMenus(MenuScope::Workspace);
+            });
+    }
+
+    void createWindowMenuBar_(Window* window);
+
+    void disconnectOldActiveTab_(Window* window)
+    {
+        if (!window) return;
+
+        if (auto old = activeTabConnections_.take(window); !old.isEmpty()) {
+            for (auto& connection : old)
+                disconnect(connection);
+        }
+    }
+
+private slots:
+    void onViewsActiveChanged_(Window* window, AbstractFileView* activeFileView)
+    {
+        // Both of these even when active view is nullptr!
+        disconnectOldActiveTab_(window);
+        refreshMenus(window, MenuScope::ActiveTab);
+
+        if (!window || !activeFileView) return;
+        auto model = activeFileView->model();
+        if (!model) return;
+
+        auto& connections = activeTabConnections_[window];
+        auto slot = [&, window] {
+            refreshMenus(window, MenuScope::ActiveTab);
+        };
+
+        connections << connect(
+            model,
+            &AbstractFileModel::modificationChanged,
+            this,
+            slot);
+
+        connections
+            << connect(model, &AbstractFileModel::undoAvailable, this, slot);
+
+        connections
+            << connect(model, &AbstractFileModel::redoAvailable, this, slot);
+
+        connections << connect(
+            activeFileView,
+            &AbstractFileView::selectionChanged,
+            this,
+            slot);
+
+        connections << connect(
+            activeFileView,
+            &AbstractFileView::clipboardDataChanged,
+            this,
+            slot);
     }
 };
 

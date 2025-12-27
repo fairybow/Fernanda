@@ -10,13 +10,13 @@
 #pragma once
 
 #include <functional>
+#include <type_traits>
 #include <utility>
 
 #include <QAction>
 #include <QHash>
-#include <QObject>
 #include <QList>
-#include <QString>
+#include <QObject>
 
 #include "Debug.h"
 #include "Window.h"
@@ -40,7 +40,7 @@ public:
 
     Window* window() const { return window_; }
 
-    void bind(QAction* action, const QString& key, Predicate predicate)
+    void bind(QAction* action, int key, Predicate predicate)
     {
         if (!action || !predicate) return;
 
@@ -48,10 +48,26 @@ public:
         action->setEnabled(toggles_[key].last().predicate());
     }
 
-    void refresh(const QString& key)
+    template <typename KeyT>
+        requires std::is_enum_v<KeyT>
+                 && std::is_same_v<std::underlying_type_t<KeyT>, int>
+    void bind(QAction* action, KeyT key, Predicate predicate)
+    {
+        bind(action, static_cast<int>(key), std::move(predicate));
+    }
+
+    void refresh(int key)
     {
         for (auto& toggle : toggles_.value(key))
             toggle.action->setEnabled(toggle.predicate());
+    }
+
+    template <typename KeyT>
+        requires std::is_enum_v<KeyT>
+                 && std::is_same_v<std::underlying_type_t<KeyT>, int>
+    void refresh(KeyT key)
+    {
+        refresh(static_cast<int>(key));
     }
 
     void refreshAll()
@@ -69,7 +85,7 @@ private:
     };
 
     Window* window_;
-    QHash<QString, QList<Toggle_>> toggles_{};
+    QHash<int, QList<Toggle_>> toggles_{};
 };
 
 } // namespace Fernanda

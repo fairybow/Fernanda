@@ -11,6 +11,7 @@
 
 #include <concepts>
 #include <functional>
+#include <type_traits>
 #include <utility>
 
 #include <QAction>
@@ -138,7 +139,7 @@ public:
     }
 
     MenuBuilder&
-    toggle(MenuState* state, const QString& key, MenuState::Predicate predicate)
+    toggle(MenuState* state, int key, MenuState::Predicate predicate)
     {
         if (state && lastAction_ && predicate) {
             state->bind(lastAction_, key, std::move(predicate));
@@ -147,11 +148,28 @@ public:
         return *this;
     }
 
+    template <typename KeyT>
+        requires std::is_enum_v<KeyT>
+                 && std::is_same_v<std::underlying_type_t<KeyT>, int>
+    MenuBuilder&
+    toggle(MenuState* state, KeyT key, MenuState::Predicate predicate)
+    {
+        return toggle(state, static_cast<int>(key), std::move(predicate));
+    }
+
     template <typename CallableT>
         requires std::invocable<CallableT, MenuBuilder&>
     MenuBuilder& apply(CallableT&& callable)
     {
         callable(*this);
+        return *this;
+    }
+
+    template <typename CallableT>
+        requires std::invocable<CallableT, MenuBuilder&>
+    MenuBuilder& applyIf(bool condition, CallableT&& callable)
+    {
+        if (condition) callable(*this);
         return *this;
     }
 

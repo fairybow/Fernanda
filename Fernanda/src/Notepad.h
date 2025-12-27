@@ -13,9 +13,7 @@
 
 #include <QAbstractItemModel>
 #include <QFileSystemModel>
-#include <QHash>
 #include <QList>
-#include <QMetaObject>
 #include <QModelIndex>
 #include <QObject>
 #include <QSet>
@@ -370,12 +368,64 @@ protected:
         }
     }
 
+    virtual void
+    fileMenuOpenActions(MenuBuilder& builder, Window* window) override
+    {
+        if (!window) return;
+
+        builder.action(Tr::npNewTab())
+            .slot(this, [&, window] { newTab_(window); })
+            .shortcut(MenuShortcuts::NEW_TAB)
+
+            .action(Tr::npOpenFile())
+            .slot(this, [&, window] { openFile_(window); })
+            .shortcut(MenuShortcuts::OPEN_FILE);
+    }
+
+    virtual void fileMenuSaveActions(
+        MenuBuilder& builder,
+        MenuState* state,
+        Window* window) override
+    {
+        builder.action(Tr::nxSave())
+            .slot(this, [&, window] { save_(window); })
+            .shortcut(MenuShortcuts::SAVE)
+            .toggle(
+                state,
+                MenuScope::ActiveTab,
+                [&, window] {
+                    auto model = views->fileModelAt(window, -1);
+                    return model && model->isModified();
+                })
+
+            .action(Tr::nxSaveAs())
+            .slot(this, [&, window] { saveAs_(window); })
+            .shortcut(MenuShortcuts::SAVE_AS)
+            .toggle(
+                state,
+                MenuScope::ActiveTab,
+                [&, window] {
+                    auto model = views->fileModelAt(window, -1);
+                    return model && model->supportsModification();
+                })
+
+            .action(Tr::npSaveAllInWindow())
+            .slot(this, [&, window] { saveAllInWindow_(window); })
+            .toggle(
+                state,
+                MenuScope::Window,
+                [&, window] { return views->anyModifiedFileModelsIn(window); })
+
+            .action(Tr::npSaveAll())
+            .slot(this, [&, window] { saveAll_(window); })
+            .shortcut(MenuShortcuts::SAVE_ALL)
+            .toggle(state, MenuScope::Workspace, [&] {
+                return files->anyModified();
+            });
+    }
+
 private:
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
-
-    /// TODO TOGGLES:
-    QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
-    QHash<Window*, MenuState*> menuStates_{};
 
     void setup_()
     {
@@ -405,93 +455,12 @@ private:
             this,
             [&](Window* window) { newTab_(window); });
 
-        /// TODO TOGGLES
-        connect(
-            views,
-            &ViewService::viewDestroyed,
-            this,
-            [&](AbstractFileModel* fileModel) {
-                (void)fileModel;
-                refreshMenus_(MenuStateKeys::WINDOW);
-                refreshMenus_(MenuStateKeys::GLOBAL);
-            });
-
-        /// TODO TOGGLES
-        connect(
-            views,
-            &ViewService::activeChanged,
-            this,
-            &Notepad::onViewsActiveChanged_);
-
         connectBusEvents_();
     }
 
     void connectBusEvents_()
     {
-        connect(bus, &Bus::windowCreated, this, &Notepad::onBusWindowCreated_);
-
-        /// TODO TOGGLES
-        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
-            destroyMenuState_(window);
-
-            disconnectOldActiveTab_(window);
-            activeTabConnections_.remove(window);
-
-            refreshMenus_(MenuStateKeys::WINDOW);
-            refreshMenus_(MenuStateKeys::GLOBAL);
-        });
-
-        /// TODO TOGGLES
-        connect(
-            bus,
-            &Bus::fileModelReadied,
-            this,
-            [&](Window* window, AbstractFileModel* fileModel) {
-                (void)window;
-                (void)fileModel;
-                refreshMenus_(MenuStateKeys::WINDOW);
-                refreshMenus_(MenuStateKeys::GLOBAL);
-            });
-
-        /// TODO TOGGLES
-        connect(
-            bus,
-            &Bus::fileModelModificationChanged,
-            this,
-            [&](AbstractFileModel* fileModel, bool modified) {
-                (void)fileModel;
-                (void)modified;
-                refreshMenus_(MenuStateKeys::WINDOW);
-                refreshMenus_(MenuStateKeys::GLOBAL);
-            });
-    }
-
-    /// TODO TOGGLES
-    void destroyMenuState_(Window* window) { delete menuStates_.take(window); }
-
-    /// TODO TOGGLES
-    void refreshMenus_(const QString& key)
-    {
-        for (auto state : menuStates_)
-            state->refresh(key);
-    }
-
-    /// TODO TOGGLES
-    void refreshMenus_(Window* window, const QString& key)
-    {
-        if (auto state = menuStates_.value(window)) state->refresh(key);
-    }
-
-    /// TODO TOGGLES
-    void disconnectOldActiveTab_(Window* window)
-    {
-        if (!window) return;
-
-        if (auto old_cx = activeTabConnections_.take(window);
-            !old_cx.isEmpty()) {
-            for (auto& connection : old_cx)
-                disconnect(connection);
-        }
+        //...
     }
 
     QString fileDisplayName_(AbstractFileModel* fileModel) const
@@ -754,105 +723,7 @@ private:
         if (result.anySuccesses()) colorBars->green();
     }
 
-    void createWindowMenuBar_(Window* window)
-    {
-        if (!window) return;
-
-        // TODO: Figure out which were auto-repeat! (Undo, Redo, Paste, anything
-        // else?)
-
-        auto state = new MenuState(window, this);
-        menuStates_[window] = state;
-
-        MenuBuilder(MenuBuilder::MenuBar, window)
-            .menu(Tr::nxFileMenu())
-
-            .action(Tr::npNewTab())
-            .slot(this, [&, window] { newTab_(window); })
-            .shortcut(MenuShortcuts::NEW_TAB)
-
-            .action(Tr::npOpenFile())
-            .slot(this, [&, window] { openFile_(window); })
-            .shortcut(MenuShortcuts::OPEN_FILE)
-
-            .apply([&](MenuBuilder& builder) { addNewWindowAction(builder); })
-
-            .separator()
-
-            .apply(
-                [&](MenuBuilder& builder) { addOpenNotebookActions(builder); })
-
-            .separator()
-
-            .action(Tr::nxSave())
-            .slot(this, [&, window] { save_(window); })
-            .shortcut(MenuShortcuts::SAVE)
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] {
-                    auto model = views->fileModelAt(window, -1);
-                    return model && model->isModified();
-                })
-
-            .action(Tr::nxSaveAs())
-            .slot(this, [&, window] { saveAs_(window); })
-            .shortcut(MenuShortcuts::SAVE_AS)
-            .toggle(
-                state,
-                MenuStateKeys::ACTIVE_TAB,
-                [&, window] {
-                    auto model = views->fileModelAt(window, -1);
-                    return model && model->supportsModification();
-                })
-
-            .action(Tr::npSaveAllInWindow())
-            .slot(this, [&, window] { saveAllInWindow_(window); })
-            .toggle(
-                state,
-                MenuStateKeys::WINDOW,
-                [&, window] { return views->anyModifiedFileModelsIn(window); })
-
-            .action(Tr::npSaveAll())
-            .slot(this, [&, window] { saveAll_(window); })
-            .shortcut(MenuShortcuts::SAVE_ALL)
-            .toggle(
-                state,
-                MenuStateKeys::GLOBAL,
-                [&] { return files->anyModified(); })
-
-            .separator()
-
-            .apply([&, state, window](MenuBuilder& builder) {
-                addCloseTabActions(builder, state, window);
-            })
-
-            .separator()
-
-            .apply([&, window](MenuBuilder& builder) {
-                addCloseWindowActions(builder, window);
-            })
-
-            .separator()
-
-            .apply([&](MenuBuilder& builder) { addQuitAction(builder); })
-
-            .apply([&, state, window](MenuBuilder& builder) {
-                addEditMenu(builder, state, window);
-            })
-            .apply([&](MenuBuilder& builder) { addSettingsMenu(builder); })
-            .apply([&](MenuBuilder& builder) { addHelpMenu(builder); })
-
-            .set();
-    }
-
 private slots:
-    void onBusWindowCreated_(Window* window)
-    {
-        if (!window) return;
-        createWindowMenuBar_(window);
-    }
-
     void onTreeViewsDoubleClicked_(Window* window, const QModelIndex& index)
     {
         if (!window || !index.isValid()) return;
@@ -862,50 +733,6 @@ private slots:
 
         Fnx::Io::isFnxFile(path) ? emit openNotebookRequested(path)
                                  : files->openFilePathIn(window, path);
-    }
-
-    /// TODO TOGGLES
-    void onViewsActiveChanged_(Window* window, AbstractFileView* activeFileView)
-    {
-        // Both of these even when active view is nullptr!
-        disconnectOldActiveTab_(window);
-        refreshMenus_(window, MenuStateKeys::ACTIVE_TAB);
-
-        if (!window || !activeFileView) return;
-        auto model = activeFileView->model();
-        if (!model) return;
-
-        auto& connections = activeTabConnections_[window];
-
-        connections << connect(
-            model,
-            &AbstractFileModel::modificationChanged,
-            this,
-            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
-
-        connections << connect(
-            model,
-            &AbstractFileModel::undoAvailable,
-            this,
-            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
-
-        connections << connect(
-            model,
-            &AbstractFileModel::redoAvailable,
-            this,
-            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
-
-        connections << connect(
-            activeFileView,
-            &AbstractFileView::selectionChanged,
-            this,
-            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
-
-        connections << connect(
-            activeFileView,
-            &AbstractFileView::clipboardDataChanged,
-            this,
-            [&, window] { refreshMenus_(window, MenuStateKeys::ACTIVE_TAB); });
     }
 };
 
