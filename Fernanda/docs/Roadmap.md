@@ -4,11 +4,10 @@
 
 ### MVP
 
-- [ ] FNX (extract, compress, model, model manipulation, saving)
-- [ ] Menu item state toggling
-- [ ] Fully functioning Notepad (complete file/edit menus, open files, save them)
-- [ ] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
-- [ ] TreeView redocking/toggling
+- [x] FNX (extract, compress, model, model manipulation, saving)
+- [x] Menu item state toggling
+- [x] Fully functioning Notepad (complete file/edit menus, open files, save them)
+- [x] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
 - [ ] Tab dragging (tab to window, tab to new window)
 - [ ] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH, IT)
@@ -17,7 +16,9 @@
 
 ### Stretch
 
-- [ ] Notebook Trash
+- [x] Notebook Trash
+- [ ] TreeView redocking/toggling
+- [ ] Refactor save code in Notepad and Notebook
 - [ ] Spellcheck
 - [ ] Find and replace
 - [ ] Status bar tools (AOT, Timer, Screen)
@@ -45,7 +46,6 @@
 
 Next up:
 
-- [x] Notebook Trash!
 - [ ] Maybe stuff some of the closures in sub menus
 - [x] Remove unneeded menu items
 - [x] Add window or view menu (or special Notebook menu that has import/export/open notepad/and anything else unique to NB)
@@ -53,7 +53,6 @@ Next up:
 - [x] Also need to have trash appear at the bottom
 - [x] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
 - [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
-- [ ] Save code refactors
 - [x] Removing unified New Tab command
 - [x] Replacing New Tab with New Tab in Notepad, New File and New Folder in Notebook
 - [x] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
@@ -61,7 +60,7 @@ Next up:
 - [x] Ensuring all NB context menu items are added only when index is valid for them
 - [ ] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
-- [ ] Menu action toggling based on current view/model, window, workspace states
+- [x] Menu action toggling based on current view/model, window, workspace states
 - [x] Save prompts
 - [x] Saves
 - [x] Working dir renames
@@ -89,7 +88,7 @@ Next up:
 - [ ] Dock widget button/header styling
 - [ ] Potentially remove commands/signals from Workspaces to MenuModules and truly leave to cross-Service concerns. Then integrate menus into Notepad/Notebook directly but use a declarative MenuBuilder object to reduce clutter (pass togglers as optional parameter for an action)
 - [ ] Ensure menu toggles update appropriately when tab dragging is implemented!
-- [ ] Custom context menu for AbstractFileView, implement for editors
+- [ ] Custom context menu for AbstractFileView, implement for editors (replacing Qt editor context menu)
 
 ### Coco
 

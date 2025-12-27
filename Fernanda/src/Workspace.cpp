@@ -44,13 +44,13 @@ void Workspace::createWindowMenuBar_(Window* window)
             fileMenuOpenActions(builder, window);
         })
 
-        .action(Tr::Menus::fileNewWindow())
+        .action(Tr::nxNewWindow())
         .slot(this, [&] { windows->newWindow(); })
         .shortcut(MenuShortcuts::NEW_WINDOW)
 
         .separator()
 
-        .action(Tr::Menus::fileNewNotebook())
+        .action(Tr::nxNewNotebook())
         .slot(
             this,
             [&] {
@@ -63,7 +63,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                 emit newNotebookRequested(startDir / (name + Fnx::Io::EXT));
             })
 
-        .action(Tr::Menus::fileOpenNotebook())
+        .action(Tr::nxOpenNotebook())
         .slot(
             this,
             [&] {
@@ -86,7 +86,7 @@ void Workspace::createWindowMenuBar_(Window* window)
 
         .separator()
 
-        .action(Tr::Menus::fileCloseTab())
+        .action(Tr::nxCloseTab())
         .slot(this, [&, window] { views->closeTab(window, -1); })
         .shortcut(MenuShortcuts::CLOSE_TAB)
         .toggle(
@@ -94,42 +94,42 @@ void Workspace::createWindowMenuBar_(Window* window)
             MenuScope::ActiveTab,
             [&, window] { return views->fileViewAt(window, -1); })
 
-        .action(Tr::Menus::fileCloseTabEverywhere())
+        .action(Tr::nxCloseTabEverywhere())
         .slot(this, [&, window] { views->closeTabEverywhere(window, -1); })
         .toggle(
             state,
             MenuScope::ActiveTab,
             [&, window] { return views->fileViewAt(window, -1); })
 
-        .action(Tr::Menus::fileCloseWindowTabs())
+        .action(Tr::nxCloseWindowTabs())
         .slot(this, [&, window] { views->closeWindowTabs(window); })
         .toggle(
             state,
             MenuScope::Window,
             [&, window] { return views->fileViewAt(window, -1); })
 
-        .action(Tr::Menus::fileCloseAllTabs())
+        .action(Tr::nxCloseAllTabs())
         .slot(this, [&] { views->closeAllTabs(); })
         .toggle(state, MenuScope::Workspace, [&] { return views->anyViews(); })
 
         .separator()
 
-        .action(Tr::Menus::fileCloseWindow())
+        .action(Tr::nxCloseWindow())
         .slot(this, [&, window] { window->close(); })
         .shortcut(MenuShortcuts::CLOSE_WINDOW)
 
-        .action(Tr::Menus::fileCloseAllWindows())
+        .action(Tr::nxCloseAllWindows())
         .slot(this, [&] { windows->closeAll(); })
 
         .separator()
 
-        .action(Tr::Menus::fileQuit())
+        .action(Tr::nxQuit())
         .slot(app(), &Application::tryQuit, Qt::QueuedConnection)
         .shortcut(MenuShortcuts::QUIT)
 
         .menu(Tr::nxEditMenu())
 
-        .action(Tr::Menus::editUndo())
+        .action(Tr::nxUndo())
         .slot(this, [&, window] { views->undo(window, -1); })
         .shortcut(MenuShortcuts::UNDO)
         .toggle(
@@ -140,7 +140,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                 return model && model->hasUndo();
             })
 
-        .action(Tr::Menus::editRedo())
+        .action(Tr::nxRedo())
         .slot(this, [&, window] { views->redo(window, -1); })
         .shortcut(MenuShortcuts::REDO)
         .toggle(
@@ -153,7 +153,7 @@ void Workspace::createWindowMenuBar_(Window* window)
 
         .separator()
 
-        .action(Tr::Menus::editCut())
+        .action(Tr::nxCut())
         .slot(this, [&, window] { views->cut(window, -1); })
         .shortcut(MenuShortcuts::CUT)
         .toggle(
@@ -164,7 +164,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                 return view && view->hasSelection();
             })
 
-        .action(Tr::Menus::editCopy())
+        .action(Tr::nxCopy())
         .slot(this, [&, window] { views->copy(window, -1); })
         .shortcut(MenuShortcuts::COPY)
         .toggle(
@@ -175,7 +175,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                 return view && view->hasSelection();
             })
 
-        .action(Tr::Menus::editPaste())
+        .action(Tr::nxPaste())
         .slot(this, [&, window] { views->paste(window, -1); })
         .shortcut(MenuShortcuts::PASTE)
         .toggle(
@@ -186,7 +186,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                 return view && view->hasPaste();
             })
 
-        .action(Tr::Menus::editDelete())
+        .action(Tr::nxDelete())
         .slot(this, [&, window] { views->del(window, -1); })
         .shortcut(MenuShortcuts::DEL)
         .toggle(
@@ -199,7 +199,7 @@ void Workspace::createWindowMenuBar_(Window* window)
 
         .separator()
 
-        .action(Tr::Menus::editSelectAll())
+        .action(Tr::nxSelectAll())
         .slot(this, [&, window] { views->selectAll(window, -1); })
         .shortcut(MenuShortcuts::SELECT_ALL)
         .toggle(
@@ -214,7 +214,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         // TODO: Settings dialog slot
 
         .menu(Tr::nxHelpMenu())
-        .action(Tr::Menus::helpAbout())
+        .action(Tr::nxAbout())
         .slot(this, [] { AboutDialog::exec(); })
 
         .set();

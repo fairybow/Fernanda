@@ -48,10 +48,10 @@ private:
 
     QComboBox* fontsBox_ = new QComboBox(this);
     QCheckBox* boldCheckBox_ = new QCheckBox(
-        Tr::FontSelector::bold(),
+        Tr::bold(),
         this); // Eventually, use custom toggle switch widget (maybe)
     QCheckBox* italicCheckBox_ =
-        new QCheckBox(Tr::FontSelector::italic(), this); // ^
+        new QCheckBox(Tr::italic(), this); // ^
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
 private:

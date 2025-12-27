@@ -135,8 +135,31 @@ namespace Tr {
     TR_(nxSettingsMenu, tr("&Settings"));
     TR_(nxHelpMenu, tr("&Help"));
 
+    TR_(nxNewWindow, tr("New window"));
+    TR_(nxNewNotebook, tr("New notebook"));
+    TR_(nxOpenNotebook, tr("Open notebook"));
+
     TR_(nxSave, tr("Save"));
     TR_(nxSaveAs, tr("Save as..."));
+
+    TR_(nxCloseTab, tr("Close tab"));
+    TR_(nxCloseTabEverywhere, tr("Close tab everywhere"));
+    TR_(nxCloseWindowTabs, tr("Close window tabs"));
+    TR_(nxCloseAllTabs, tr("Close all tabs"));
+    TR_(nxCloseWindow, tr("Close window"));
+    TR_(nxCloseAllWindows, tr("Close all windows"));
+
+    TR_(nxQuit, tr("&Quit"));
+
+    TR_(nxUndo, tr("&Undo"));
+    TR_(nxRedo, tr("&Redo"));
+    TR_(nxCut, tr("Cu&t"));
+    TR_(nxCopy, tr("&Copy"));
+    TR_(nxPaste, tr("&Paste"));
+    TR_(nxDelete, tr("&Delete"));
+    TR_(nxSelectAll, tr("&Select all"));
+
+    TR_(nxAbout, tr("About"));
 
     // NP menus:
 
@@ -166,47 +189,10 @@ namespace Tr {
     TR_(nbDeletePermanently, tr("Delete permanently"));
     TR_(nbEmptyTrash, tr("Empty trash"));
 
-    /// Not updated:
+    /// Font selector
 
-    namespace Menus {
-
-        // File
-
-        TR_(fileNewWindow, tr("New &window"));
-        TR_(fileNewNotebook, tr("New notebook"));
-        TR_(fileOpenNotebook, tr("Open notebook"));
-
-        TR_(fileCloseTab, tr("Close tab"));
-        TR_(fileCloseTabEverywhere, tr("Close tab everywhere"));
-        TR_(fileCloseWindowTabs, tr("Close window tabs"));
-        TR_(fileCloseAllTabs, tr("Close all tabs"));
-        TR_(fileCloseWindow, tr("Close window"));
-        TR_(fileCloseAllWindows, tr("Close all windows"));
-
-        TR_(fileQuit, tr("&Quit"));
-
-        // Edit
-
-        TR_(editUndo, tr("&Undo"));
-        TR_(editRedo, tr("&Redo"));
-        TR_(editCut, tr("Cu&t"));
-        TR_(editCopy, tr("&Copy"));
-        TR_(editPaste, tr("&Paste"));
-        TR_(editDelete, tr("&Delete"));
-        TR_(editSelectAll, tr("&Select all"));
-
-        // Help
-
-        TR_(helpAbout, tr("About"));
-
-    } // namespace Menus
-
-    namespace FontSelector {
-
-        TR_(bold, tr("Bold"));
-        TR_(italic, tr("Italic"));
-
-    } // namespace FontSelector
+    TR_(bold, tr("Bold"));
+    TR_(italic, tr("Italic"));
 
 } // namespace Tr
 
