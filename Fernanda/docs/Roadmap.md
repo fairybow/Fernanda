@@ -9,7 +9,7 @@
 - [x] Fully functioning Notepad (complete file/edit menus, open files, save them)
 - [x] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
 - [ ] Tab dragging (tab to window, tab to new window)
-- [ ] Basic key filters
+- [x] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH, IT)
 - [ ] Basic editor settings
 - [ ] Installer
