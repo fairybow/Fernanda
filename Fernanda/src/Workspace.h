@@ -135,6 +135,9 @@ protected:
     /// - Move as much as we can into Workspace (like common "active tab" code)
     /// - What refresh triggers belong in Workspace? Do any belong exclusively
     /// in Notepad or Notebook?
+    /// - Could start with a createMenu_ method then just call the apply
+    /// function (which would direct to Notepad or Notebook menu builder
+    /// function)?
 
     struct MenuStateKeys
     {
