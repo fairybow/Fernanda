@@ -100,7 +100,7 @@
     <ClInclude Include="src\Ini.h" />
     <QtMoc Include="src\Notebook.h" />
     <QtMoc Include="src\Notepad.h" />
-    <ClInclude Include="src\KeyFilters.h" />
+    <QtMoc Include="src\KeyFilter.h" />
     <ClInclude Include="src\MenuBuilder.h" />
     <ClInclude Include="src\MenuShortcuts.h" />
     <QtMoc Include="src\MenuState.h" />

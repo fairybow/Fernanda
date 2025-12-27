@@ -20,6 +20,7 @@
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
 #include "Debug.h"
+#include "KeyFilter.h"
 #include "TextFileModel.h"
 
 namespace Fernanda {
@@ -123,6 +124,7 @@ protected:
 
 private:
     QPlainTextEdit* editor_ = nullptr;
+    KeyFilter* keyFilter_ = new KeyFilter(this);
 };
 
 } // namespace Fernanda

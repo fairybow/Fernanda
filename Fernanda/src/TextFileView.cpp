@@ -14,6 +14,7 @@
 
 #include "AbstractFileModel.h"
 #include "Application.h"
+#include "KeyFilter.h"
 #include "TextFileModel.h"
 #include "TextFileView.h"
 
@@ -22,6 +23,7 @@ namespace Fernanda {
 QWidget* TextFileView::setupWidget()
 {
     editor_ = new QPlainTextEdit(this);
+    keyFilter_->setTextEdit(editor_);
 
     if (auto text_model = qobject_cast<TextFileModel*>(model()))
         editor_->setDocument(text_model->document());
