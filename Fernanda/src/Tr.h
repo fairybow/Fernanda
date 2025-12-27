@@ -218,7 +218,7 @@ namespace EditorsSb {
 
 namespace KeyFiltersSb {
 
-    TR_(active, tr("Active"));
+    TR_(active, tr("Active")); // using key filters at all
     TR_(autoClose, tr("Auto-close"));
     TR_(barging, tr("Barging"));
 
