@@ -7,6 +7,8 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
+#include "FnxModel.h"
+
 #include <QDomElement>
 #include <QIcon>
 #include <QModelIndex>
@@ -17,7 +19,6 @@
 
 #include "Application.h"
 #include "Fnx.h"
-#include "FnxModel.h"
 
 namespace Fernanda {
 

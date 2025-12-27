@@ -18,7 +18,6 @@
 #include "Coco/PathUtil.h"
 
 #include "AppDirs.h"
-#include "Constants.h"
 #include "Debug.h"
 #include "FileTypes.h"
 #include "Notebook.h"

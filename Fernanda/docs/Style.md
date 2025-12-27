@@ -11,6 +11,25 @@ QStringList list;   // No
 QStringList list{}; // Yes
 ```
 
+### Includes
+
+Separate sections with an empty line. Sections should follow this order, top-to-bottom: main header (if `.cpp` file), third-party (each separated by a blank line), project headers.
+
+```cpp
+// In Class.cpp
+#include "Class.h"
+
+#include <QClipboard>
+#include <QString>
+#include <QWidget>
+
+#include "Windows.h"
+
+#include "Application.h"
+#include "CustomWidget1.h"
+#include "CustomWidget2.h"
+```
+
 ### Guard Clauses
 
 Prefer organizing guard clauses / early returns. Put common items together, but don't group with unrelated checks. (This is subjective.)

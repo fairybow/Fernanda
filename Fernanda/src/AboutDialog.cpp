@@ -7,6 +7,8 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
+#include "AboutDialog.h"
+
 #include <QIcon>
 #include <QMessageBox>
 #include <QObject>
@@ -15,10 +17,8 @@
 #include <QString>
 #include <Qt>
 
-#include "Tr.h"
-
-#include "AboutDialog.h"
 #include "Application.h"
+#include "Tr.h"
 
 namespace Fernanda::AboutDialog {
 

@@ -28,14 +28,12 @@
 #include "Bus.h"
 #include "ColorBar.h"
 #include "ColorBarModule.h"
-#include "Constants.h"
 #include "FileService.h"
 #include "Fnx.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "MenuState.h"
 #include "NewNotebookPrompt.h"
-#include "SettingsModule.h"
 #include "Timers.h"
 #include "Tr.h"
 #include "TreeViewService.h"
@@ -104,8 +102,8 @@ protected:
     // in base class. And yet, if we want to use it as the base for each
     // individual Notebook's own settings, it isn't strictly Notepad.ini, then
     // is it?
-    SettingsModule* settings =
-        new SettingsModule(AppDirs::userData() / "Settings.ini", bus, this);
+    //SettingsModule* settings =
+        //new SettingsModule(AppDirs::userData() / "Settings.ini", bus, this);
     WindowService* windows = new WindowService(bus, this);
     ViewService* views = new ViewService(bus, this);
     FileService* files = new FileService(bus, this);
@@ -166,7 +164,7 @@ private:
 
     void setup_()
     {
-        settings->initialize();
+        //settings->initialize();
         windows->initialize();
         views->initialize();
         files->initialize();
