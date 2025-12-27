@@ -7,43 +7,42 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "Notebook.h"
+#include "Workspace.h"
 #include "AboutDialog.h"
+#include "AbstractFileModel.h"
+#include "AbstractFileView.h"
 #include "Application.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
+#include "MenuState.h"
 #include "Tr.h"
-#include "TreeViewService.h"
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
 
 namespace Fernanda {
 
-void Notebook::createWindowMenuBar_(Window* window)
+void Workspace::createWindowMenuBar_(Window* window)
 {
     if (!window) return;
 
     // TODO: Figure out which were auto-repeat! (Undo, Redo, Paste, anything
     // else?)
-    // TODO: Somehow section-off common code between Notepad and Notebook
 
     auto state = new MenuState(window, this);
     menuStates_[window] = state;
 
     MenuBuilder(MenuBuilder::MenuBar, window)
+
+        .apply([&, state, window](MenuBuilder& builder) {
+            workspaceMenuHook(builder, state, window);
+        })
+
         .menu(Tr::nxFileMenu())
 
-        .action(Tr::nbNewFile())
-        .slot(
-            this,
-            [&, window] { newFile_(window, treeViews->currentIndex(window)); })
-        .shortcut(MenuShortcuts::NEW_TAB)
-
-        .action(Tr::nbNewFolder())
-        .slot(
-            this,
-            [&, window] { newVirtualFolder_(treeViews->currentIndex(window)); })
+        .apply([&, window](MenuBuilder& builder) {
+            fileMenuOpenActions(builder, window);
+        })
 
         .action(Tr::Menus::fileNewWindow())
         .slot(this, [&] { windows->newWindow(); })
@@ -52,23 +51,38 @@ void Notebook::createWindowMenuBar_(Window* window)
         .separator()
 
         .action(Tr::Menus::fileNewNotebook())
-        .slot(this, &Notebook::requestNewNotebook)
+        .slot(
+            this,
+            [&] {
+                // Will allow creation of new Notebook with a prospective
+                // path that is the
+                // same as an existing Notebook's. When saved, the user will
+                // be warned before saving over the existing Notebook!
+                auto name = NewNotebookPrompt::exec();
+                if (name.isEmpty()) return;
+                emit newNotebookRequested(startDir / (name + Fnx::Io::EXT));
+            })
 
         .action(Tr::Menus::fileOpenNotebook())
-        .slot(this, &Notebook::requestOpenNotebook)
+        .slot(
+            this,
+            [&] {
+                // nullptr parent makes the dialog application modal
+                auto path = Coco::PathUtil::Dialog::file(
+                    nullptr,
+                    Tr::nxOpenNotebookCaption(),
+                    startDir,
+                    Tr::nxOpenNotebookFilter());
+
+                if (path.isEmpty() || !Fnx::Io::isFnxFile(path)) return;
+                emit openNotebookRequested(path);
+            })
 
         .separator()
 
-        .action(Tr::nxSave())
-        .slot(this, [&, window] { save_(window); })
-        .shortcut(MenuShortcuts::SAVE)
-        .toggle(
-            state,
-            menuStateKeys_.GLOBAL, [&] { return isModified_(); })
-
-        .action(Tr::nxSaveAs())
-        .slot(this, [&, window] { saveAs_(window); })
-        .shortcut(MenuShortcuts::SAVE_AS)
+        .apply([&, state, window](MenuBuilder& builder) {
+            fileMenuSaveActions(builder, state, window);
+        })
 
         .separator()
 
@@ -77,26 +91,26 @@ void Notebook::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::CLOSE_TAB)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuScope::ActiveTab,
             [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::Menus::fileCloseTabEverywhere())
         .slot(this, [&, window] { views->closeTabEverywhere(window, -1); })
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuScope::ActiveTab,
             [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::Menus::fileCloseWindowTabs())
         .slot(this, [&, window] { views->closeWindowTabs(window); })
         .toggle(
             state,
-            menuStateKeys_.WINDOW,
+            MenuScope::Window,
             [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::Menus::fileCloseAllTabs())
         .slot(this, [&] { views->closeAllTabs(); })
-        .toggle(state, menuStateKeys_.GLOBAL, [&] { return views->anyViews(); })
+        .toggle(state, MenuScope::Workspace, [&] { return views->anyViews(); })
 
         .separator()
 
@@ -113,18 +127,6 @@ void Notebook::createWindowMenuBar_(Window* window)
         .slot(app(), &Application::tryQuit, Qt::QueuedConnection)
         .shortcut(MenuShortcuts::QUIT)
 
-        .menu(Tr::nbMenu())
-
-        .action(Tr::nbOpenNotepad())
-        .slot(this, [&] { emit openNotepadRequested(); })
-
-        .action(Tr::nbImportFiles())
-        .slot(
-            this,
-            [&, window] {
-                importFiles_(window, treeViews->currentIndex(window));
-            })
-
         .menu(Tr::nxEditMenu())
 
         .action(Tr::Menus::editUndo())
@@ -132,7 +134,7 @@ void Notebook::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::UNDO)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuScope::ActiveTab,
             [&, window] {
                 auto model = views->fileModelAt(window, -1);
                 return model && model->hasUndo();
@@ -143,7 +145,7 @@ void Notebook::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::REDO)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuScope::ActiveTab,
             [&, window] {
                 auto model = views->fileModelAt(window, -1);
                 return model && model->hasRedo();
@@ -156,7 +158,7 @@ void Notebook::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::CUT)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuScope::ActiveTab,
             [&, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasSelection();
@@ -167,7 +169,7 @@ void Notebook::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::COPY)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuScope::ActiveTab,
             [&, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasSelection();
@@ -178,7 +180,7 @@ void Notebook::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::PASTE)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuScope::ActiveTab,
             [&, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasPaste();
@@ -189,7 +191,7 @@ void Notebook::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::DEL)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuScope::ActiveTab,
             [&, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasSelection();
@@ -202,7 +204,7 @@ void Notebook::createWindowMenuBar_(Window* window)
         .shortcut(MenuShortcuts::SELECT_ALL)
         .toggle(
             state,
-            menuStateKeys_.ACTIVE_TAB,
+            MenuScope::ActiveTab,
             [&, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->supportsEditing();

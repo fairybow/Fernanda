@@ -120,17 +120,14 @@
     <ClCompile Include="src\FnxModel.cpp">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClCompile>
-    <ClCompile Include="src\Notebook.cpp">
-      <Filter>Code\Core\Workspaces\Notebook</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Notepad.cpp">
-      <Filter>Code\Core\Workspaces\Notepad</Filter>
-    </ClCompile>
     <ClCompile Include="src\AboutDialog.cpp">
       <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
     <ClCompile Include="src\old_FnxModel.cpp">
       <Filter>Old %28Remove Later%29</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Workspace.cpp">
+      <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

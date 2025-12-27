@@ -9,7 +9,9 @@
 
 #pragma once
 
+#include <concepts>
 #include <functional>
+#include <type_traits>
 #include <utility>
 
 #include <QAction>
@@ -116,7 +118,7 @@ public:
                 lastAction_,
                 &QAction::triggered,
                 receiver,
-                std::move(slot)); // Not std::forward?
+                std::move(slot));
         }
 
         return *this;
@@ -136,18 +138,38 @@ public:
             type);
     }
 
-    /// TODO TOGGLES
-    /// - Implement in Notepad and Notebook separately
-    /// - Decide later what can move to base class or elsewhere, same with menus
-    /// in general
-
     MenuBuilder&
-    toggle(MenuState* state, const QString& key, MenuState::Predicate predicate)
+    toggle(MenuState* state, int key, MenuState::Predicate predicate)
     {
         if (state && lastAction_ && predicate) {
             state->bind(lastAction_, key, std::move(predicate));
         }
 
+        return *this;
+    }
+
+    template <typename KeyT>
+        requires std::is_enum_v<KeyT>
+                 && std::is_same_v<std::underlying_type_t<KeyT>, int>
+    MenuBuilder&
+    toggle(MenuState* state, KeyT key, MenuState::Predicate predicate)
+    {
+        return toggle(state, static_cast<int>(key), std::move(predicate));
+    }
+
+    template <typename CallableT>
+        requires std::invocable<CallableT, MenuBuilder&>
+    MenuBuilder& apply(CallableT&& callable)
+    {
+        callable(*this);
+        return *this;
+    }
+
+    template <typename CallableT>
+        requires std::invocable<CallableT, MenuBuilder&>
+    MenuBuilder& applyIf(bool condition, CallableT&& callable)
+    {
+        if (condition) callable(*this);
         return *this;
     }
 

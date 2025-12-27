@@ -15,10 +15,8 @@
 #include <QAbstractItemModel>
 #include <QDomDocument>
 #include <QDomElement>
-#include <QHash>
 #include <QLabel>
 #include <QList>
-#include <QMetaObject>
 #include <QModelIndex>
 #include <QObject>
 #include <QPalette> // TODO: Temp
@@ -45,15 +43,19 @@
 #include "Fnx.h"
 #include "FnxModel.h"
 #include "MenuBuilder.h"
+#include "MenuShortcuts.h"
 #include "MenuState.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "SettingsModule.h"
 #include "TempDir.h"
+#include "Tr.h"
 #include "TrashPrompt.h"
 #include "TreeView.h"
 #include "TreeViewService.h"
+#include "ViewService.h"
 #include "Window.h"
+#include "WindowService.h"
 #include "Workspace.h"
 
 namespace Fernanda {
@@ -205,6 +207,57 @@ protected:
         }
     }
 
+    virtual void workspaceMenuHook(
+        MenuBuilder& builder,
+        MenuState* state,
+        Window* window) override
+    {
+        (void)state;
+
+        builder
+            .menu(Tr::notebookMenu())
+
+            .action(Tr::nbOpenNotepad())
+            .slot(this, [&] { emit openNotepadRequested(); })
+
+            .action(Tr::nbImportFiles())
+            .slot(this, [&, window] {
+                importFiles_(window, treeViews->currentIndex(window));
+            });
+    }
+
+    virtual void
+    fileMenuOpenActions(MenuBuilder& builder, Window* window) override
+    {
+        builder.action(Tr::nbNewFile())
+            .slot(
+                this,
+                [&, window] {
+                    newFile_(window, treeViews->currentIndex(window));
+                })
+            .shortcut(MenuShortcuts::NEW_TAB)
+
+            .action(Tr::nbNewFolder())
+            .slot(this, [&, window] {
+                newVirtualFolder_(treeViews->currentIndex(window));
+            });
+    }
+
+    virtual void fileMenuSaveActions(
+        MenuBuilder& builder,
+        MenuState* state,
+        Window* window) override
+    {
+        builder.action(Tr::nxSave())
+            .slot(this, [&, window] { save_(window); })
+            .shortcut(MenuShortcuts::SAVE)
+            .toggle(state, MenuScope::Workspace, [&] { return isModified_(); })
+
+            .action(Tr::nxSaveAs())
+            .slot(this, [&, window] { saveAs_(window); })
+            .shortcut(MenuShortcuts::SAVE_AS);
+    }
+
 private:
     Coco::Path fnxPath_; // Intended path (may not exist yet)
     TempDir workingDir_; // Working directory name will remain unchanged for
@@ -215,21 +268,6 @@ private:
 
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
         "Notebook file entries must have an extant path! [{}]";
-
-    /// TODO TOGGLES:
-    QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
-    QHash<Window*, MenuState*> menuStates_{};
-
-    struct MenuStateKeys
-    {
-        constexpr static auto ACTIVE_TAB = "tab";
-        constexpr static auto WINDOW = "window";
-        constexpr static auto GLOBAL = "global";
-    } menuStateKeys_;
-
-    /// TODO TOGGLES:
-    /// - Once implemented in cpp file, check that we used all the keys or not
-    /// - Also, find correct triggers
 
     void setup_()
     {
@@ -264,24 +302,6 @@ private:
                 // notebook element)
                 newFile_(window);
             });
-
-        /// TODO TOGGLES
-        connect(
-            views,
-            &ViewService::viewDestroyed,
-            this,
-            [&](AbstractFileModel* fileModel) {
-                (void)fileModel;
-                refreshMenus_(menuStateKeys_.WINDOW);
-                refreshMenus_(menuStateKeys_.GLOBAL);
-            });
-
-        /// TODO TOGGLES
-        connect(
-            views,
-            &ViewService::activeChanged,
-            this,
-            &Notebook::onViewsActiveChanged_);
 
         windows->setSubtitle(fnxPath_.fileQString());
         updateWindowsFlags_();
@@ -322,17 +342,8 @@ private:
 
     void connectBusEvents_()
     {
-        connect(bus, &Bus::windowCreated, this, &Notebook::onBusWindowCreated_);
-
-        /// TODO TOGGLES
-        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
-            destroyMenuState_(window);
-
-            disconnectOldActiveTab_(window);
-            activeTabConnections_.remove(window);
-
-            refreshMenus_(menuStateKeys_.WINDOW);
-            refreshMenus_(menuStateKeys_.GLOBAL);
+        connect(bus, &Bus::windowCreated, this, [&](Window* window) {
+            addWorkspaceIndicator_(window);
         });
 
         connect(
@@ -345,34 +356,6 @@ private:
     bool isModified_() const
     {
         return !fnxPath_.exists() || fnxModel_->isModified();
-    }
-
-    /// TODO TOGGLES
-    void destroyMenuState_(Window* window) { delete menuStates_.take(window); }
-
-    /// TODO TOGGLES
-    void refreshMenus_(const QString& key)
-    {
-        for (auto state : menuStates_)
-            state->refresh(key);
-    }
-
-    /// TODO TOGGLES
-    void refreshMenus_(Window* window, const QString& key)
-    {
-        if (auto state = menuStates_.value(window)) state->refresh(key);
-    }
-
-    /// TODO TOGGLES
-    void disconnectOldActiveTab_(Window* window)
-    {
-        if (!window) return;
-
-        if (auto old_cx = activeTabConnections_.take(window);
-            !old_cx.isEmpty()) {
-            for (auto& connection : old_cx)
-                disconnect(connection);
-        }
     }
 
     QModelIndex resolveNotebookIndex_(const QModelIndex& index) const
@@ -672,7 +655,7 @@ private:
 
         fnxModel_->resetSnapshot();
         updateWindowsFlags_();
-        refreshMenus_(menuStateKeys_.GLOBAL);
+        refreshMenus(MenuScope::Workspace);
         colorBars->green();
     }
 
@@ -706,11 +689,9 @@ private:
 
         fnxModel_->resetSnapshot();
         updateWindowsFlags_();
-        refreshMenus_(menuStateKeys_.GLOBAL);
+        refreshMenus(MenuScope::Workspace);
         colorBars->green();
     }
-
-    void createWindowMenuBar_(Window* window);
 
     void showTrashViewContextMenu_(
         Window* window,
@@ -758,7 +739,7 @@ private slots:
 
         fnxModel_->write(workingDir_.path());
         updateWindowsFlags_();
-        refreshMenus_(menuStateKeys_.GLOBAL);
+        refreshMenus(MenuScope::Workspace);
     }
 
     void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
@@ -769,13 +750,6 @@ private slots:
         files->setPathTitleOverride(
             workingDir_.path() / info.relPath,
             info.name);
-    }
-
-    void onBusWindowCreated_(Window* window)
-    {
-        if (!window) return;
-        addWorkspaceIndicator_(window);
-        createWindowMenuBar_(window);
     }
 
     // TODO: What if we want to handle virtual folders here, too? Could make
@@ -844,50 +818,6 @@ private slots:
 
         // Notebook's individual archive files should always have a path.
         fnxModel_->setFileEdited(Fnx::Io::uuid(path), modified);
-    }
-
-    /// TODO TOGGLES
-    void onViewsActiveChanged_(Window* window, AbstractFileView* activeFileView)
-    {
-        // Both of these even when active view is nullptr!
-        disconnectOldActiveTab_(window);
-        refreshMenus_(window, menuStateKeys_.ACTIVE_TAB);
-
-        if (!window || !activeFileView) return;
-        auto model = activeFileView->model();
-        if (!model) return;
-
-        auto& connections = activeTabConnections_[window];
-
-        connections << connect(
-            model,
-            &AbstractFileModel::modificationChanged,
-            this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
-
-        connections << connect(
-            model,
-            &AbstractFileModel::undoAvailable,
-            this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
-
-        connections << connect(
-            model,
-            &AbstractFileModel::redoAvailable,
-            this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
-
-        connections << connect(
-            activeFileView,
-            &AbstractFileView::selectionChanged,
-            this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
-
-        connections << connect(
-            activeFileView,
-            &AbstractFileView::clipboardDataChanged,
-            this,
-            [&, window] { refreshMenus_(window, menuStateKeys_.ACTIVE_TAB); });
     }
 };
 

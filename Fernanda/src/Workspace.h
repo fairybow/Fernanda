@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QAbstractItemModel>
+#include <QKeySequence>
 #include <QList>
 #include <QModelIndex>
 #include <QObject>
@@ -22,6 +23,7 @@
 #include "Coco/PathUtil.h"
 
 #include "AbstractFileModel.h"
+#include "AbstractFileView.h"
 #include "AppDirs.h"
 #include "Bus.h"
 #include "ColorBar.h"
@@ -29,6 +31,9 @@
 #include "Constants.h"
 #include "FileService.h"
 #include "Fnx.h"
+#include "MenuBuilder.h"
+#include "MenuShortcuts.h"
+#include "MenuState.h"
 #include "NewNotebookPrompt.h"
 #include "SettingsModule.h"
 #include "Timers.h"
@@ -123,30 +128,42 @@ protected:
     virtual bool canCloseWindow(Window*) { return true; }
     virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
 
-    // Will allow creation of new Notebook with a prospective path that is the
-    // same as an existing Notebook's. When saved, the user will be warned
-    // before saving over the existing Notebook!
-    void requestNewNotebook()
+    virtual void
+    workspaceMenuHook(MenuBuilder& builder, MenuState* state, Window* window)
     {
-        auto name = NewNotebookPrompt::exec();
-        if (name.isEmpty()) return;
-        emit newNotebookRequested(startDir / (name + Fnx::Io::EXT));
+        (void)builder;
+        (void)state;
+        (void)window;
     }
 
-    void requestOpenNotebook()
-    {
-        // nullptr parent makes the dialog application modal
-        auto path = Coco::PathUtil::Dialog::file(
-            nullptr,
-            Tr::nxOpenNotebookCaption(),
-            startDir,
-            Tr::nxOpenNotebookFilter());
+    virtual void fileMenuOpenActions(MenuBuilder& builder, Window* window) = 0;
+    virtual void fileMenuSaveActions(
+        MenuBuilder& builder,
+        MenuState* state,
+        Window* window) = 0;
 
-        if (path.isEmpty() || !Fnx::Io::isFnxFile(path)) return;
-        emit openNotebookRequested(path);
+    enum class MenuScope
+    {
+        ActiveTab = 0,
+        Window,
+        Workspace
+    };
+
+    void refreshMenus(MenuScope scope)
+    {
+        for (auto state : menuStates_)
+            state->refresh(scope);
+    }
+
+    void refreshMenus(Window* window, MenuScope scope)
+    {
+        if (auto state = menuStates_.value(window)) state->refresh(scope);
     }
 
 private:
+    QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
+    QHash<Window*, MenuState*> menuStates_{};
+
     void setup_()
     {
         settings->initialize();
@@ -163,6 +180,22 @@ private:
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
 
+        connect(
+            views,
+            &ViewService::activeChanged,
+            this,
+            &Workspace::onViewsActiveChanged_);
+
+        connect(
+            views,
+            &ViewService::viewDestroyed,
+            this,
+            [&](AbstractFileModel* fileModel) {
+                (void)fileModel;
+                refreshMenus(MenuScope::Window);
+                refreshMenus(MenuScope::Workspace);
+            });
+
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
         connect(windows, &WindowService::lastWindowClosed, this, [&] {
@@ -172,6 +205,102 @@ private:
 
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
+
+        connectBusEvents_();
+    }
+
+    void connectBusEvents_()
+    {
+        connect(bus, &Bus::windowCreated, this, [&](Window* window) {
+            createWindowMenuBar_(window);
+        });
+
+        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
+            delete menuStates_.take(window);
+
+            disconnectOldActiveTab_(window);
+            activeTabConnections_.remove(window);
+
+            refreshMenus(MenuScope::Window);
+            refreshMenus(MenuScope::Workspace);
+        });
+
+        connect(
+            bus,
+            &Bus::fileModelReadied,
+            this,
+            [&](Window* window, AbstractFileModel* fileModel) {
+                (void)window;
+                (void)fileModel;
+
+                refreshMenus(MenuScope::Window);
+                refreshMenus(MenuScope::Workspace);
+            });
+
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            [&](AbstractFileModel* fileModel, bool modified) {
+                (void)fileModel;
+                (void)modified;
+
+                refreshMenus(MenuScope::Window);
+                refreshMenus(MenuScope::Workspace);
+            });
+    }
+
+    void createWindowMenuBar_(Window* window);
+
+    void disconnectOldActiveTab_(Window* window)
+    {
+        if (!window) return;
+
+        if (auto old = activeTabConnections_.take(window); !old.isEmpty()) {
+            for (auto& connection : old)
+                disconnect(connection);
+        }
+    }
+
+private slots:
+    void onViewsActiveChanged_(Window* window, AbstractFileView* activeFileView)
+    {
+        // Both of these even when active view is nullptr!
+        disconnectOldActiveTab_(window);
+        refreshMenus(window, MenuScope::ActiveTab);
+
+        if (!window || !activeFileView) return;
+        auto model = activeFileView->model();
+        if (!model) return;
+
+        auto& connections = activeTabConnections_[window];
+        auto slot = [&, window] {
+            refreshMenus(window, MenuScope::ActiveTab);
+        };
+
+        connections << connect(
+            model,
+            &AbstractFileModel::modificationChanged,
+            this,
+            slot);
+
+        connections
+            << connect(model, &AbstractFileModel::undoAvailable, this, slot);
+
+        connections
+            << connect(model, &AbstractFileModel::redoAvailable, this, slot);
+
+        connections << connect(
+            activeFileView,
+            &AbstractFileView::selectionChanged,
+            this,
+            slot);
+
+        connections << connect(
+            activeFileView,
+            &AbstractFileView::clipboardDataChanged,
+            this,
+            slot);
     }
 };
 
