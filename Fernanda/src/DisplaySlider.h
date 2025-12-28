@@ -22,6 +22,9 @@
 namespace Fernanda {
 
 // Wraps a QSlider with QLabel showing the current value
+//
+// TODO: Prevent display width change from moving the slider itself (probably
+// just predict size based on max amount set and add it in as buffer)
 class DisplaySlider : public QWidget
 {
     Q_OBJECT
@@ -102,15 +105,19 @@ private:
             setDisplayText_();
             emit valueChanged(value);
         });
+
         connect(slider_, &QSlider::rangeChanged, this, [&](int min, int max) {
             emit rangeChanged(min, max);
         });
+
         connect(slider_, &QSlider::sliderMoved, this, [&](int value) {
             emit sliderMoved(value);
         });
+
         connect(slider_, &QSlider::sliderPressed, this, [&] {
             emit sliderPressed();
         });
+
         connect(slider_, &QSlider::sliderReleased, this, [&] {
             emit sliderReleased();
         });

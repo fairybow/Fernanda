@@ -31,6 +31,7 @@
 #include "Bus.h"
 #include "Debug.h"
 #include "FileMeta.h"
+#include "Ini.h"
 #include "NoOpFileModel.h"
 #include "NoOpFileView.h"
 #include "TabWidget.h"
@@ -93,7 +94,6 @@ public:
 
     void raise(Window* window, int index) const
     {
-        if (!window) return;
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return;
 
@@ -184,7 +184,6 @@ public:
     // Index -1 = current
     AbstractFileView* fileViewAt(Window* window, int index) const
     {
-        if (!window) return nullptr;
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return nullptr;
 
@@ -205,7 +204,6 @@ public:
     // remove
     QList<AbstractFileView*> fileViewsIn(Window* window) const
     {
-        if (!window) return {};
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return {};
 
@@ -466,6 +464,12 @@ protected:
             &Bus::fileModelMetaChanged,
             this,
             &ViewService::onBusFileModelMetaChanged_);
+
+        connect(
+            bus,
+            &Bus::settingChanged,
+            this,
+            &ViewService::onBusSettingChanged_);
     }
 
 private:
@@ -513,7 +517,6 @@ private:
 
     void deleteAllFileViewsIn_(Window* window)
     {
-        if (!window) return;
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return;
 
@@ -612,19 +615,20 @@ private slots:
         if (auto text_model = qobject_cast<TextFileModel*>(fileModel)) {
 
             auto text_view = newFileView_<TextFileView*>(text_model, window);
-            /*auto font = bus->call<QFont>(
-                Commands::SETTINGS_GET,
-                { { "key", Ini::Editor::FONT_KEY },
-                  { "default", Ini::Editor::defaultFont() } });
-            text_view->setFont(font);*/
+            auto font = bus->call<QFont>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::FONT },
+                  { "defaultValue", Ini::Defaults::font() } });
+            text_view->setFont(font);
             view = text_view;
 
         } else if (auto no_op_model = qobject_cast<NoOpFileModel*>(fileModel)) {
+
             view = newFileView_<NoOpFileView*>(no_op_model, window);
+
         } else {
-            // TODO: UI feedback?
-            WARN("Could not narrow down view type for {}!", fileModel);
-            return;
+
+            FATAL("Type not deduced for model [{}]!", fileModel);
         }
 
         if (!view) return;
@@ -667,7 +671,6 @@ private slots:
             if (!tab_widget) continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i) {
-
                 auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                 if (view && view->model() == fileModel)
                     tab_widget->setTabFlagged(i, modified);
@@ -701,23 +704,22 @@ private slots:
         }
     }
 
-    // TODO: Implement
-    void onSettingChanged_(const QString& key, const QVariant& value)
+    void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
-        // Gotta handle multiple for editor stuff
-        /*if (key != Ini::Editor::FONT_KEY) return;
+        // TODO: Other editor settings
+        if (key != Ini::Keys::FONT) return;
 
-        auto font = to<QFont>(value);
-
+        auto font = value.value<QFont>();
         auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
-        for (auto& window : windows)
-        { auto tab_widget = Util::tabWidget(window); if (!tab_widget)
-        continue;
+
+        for (auto& window : windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i)
-                if (auto text_view =
-        tab_widget->widgetAt<TextFileView*>(i)) text_view->setFont(font);
-        }*/
+                if (auto text_view = tab_widget->widgetAt<TextFileView*>(i))
+                    text_view->setFont(font);
+        }
     }
 };
 

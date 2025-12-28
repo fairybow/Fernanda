@@ -23,6 +23,10 @@
 
 namespace Fernanda {
 
+// Manages dynamic menu action states for a window. Actions are bound to
+// predicate functions via MenuBuilder::toggle(), grouped by int keys. Calling
+// refresh() with a key re-evaluates all predicates in that group and updates
+// their associated actions' enabled state
 class MenuState : public QObject
 {
     Q_OBJECT

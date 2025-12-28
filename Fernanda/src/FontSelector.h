@@ -21,24 +21,34 @@
 
 #include "Debug.h"
 #include "DisplaySlider.h"
-//#include "Ini.h"
 #include "Tr.h"
 
 namespace Fernanda {
 
+// Font selection widget with family dropdown, bold/italic toggles, and size
+// slider. Emits currentChanged on every user interaction for live update (write
+// should be debounced, but that isn't FontSelector's concern)
+//
+// TODO: Use toggle switch widget (maybe)
 class FontSelector : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FontSelector(const QFont& initialFont, QWidget* parent = nullptr)
+    explicit FontSelector(
+        const QFont& initialFont,
+        int sizeMin,
+        int sizeMax,
+        QWidget* parent = nullptr)
         : QWidget(parent)
         , currentFont_(initialFont)
     {
-        setup_();
+        setup_(sizeMin, sizeMax);
     }
 
     virtual ~FontSelector() override { TRACER; }
+
+    QFont currentFont() const { return currentFont_; }
 
 signals:
     void currentChanged(const QFont& font);
@@ -47,25 +57,19 @@ private:
     QFont currentFont_;
 
     QComboBox* fontsBox_ = new QComboBox(this);
-    QCheckBox* boldCheckBox_ = new QCheckBox(
-        Tr::bold(),
-        this); // Eventually, use custom toggle switch widget (maybe)
-    QCheckBox* italicCheckBox_ =
-        new QCheckBox(Tr::italic(), this); // ^
+    QCheckBox* boldCheckBox_ = new QCheckBox(Tr::bold(), this);
+    QCheckBox* italicCheckBox_ = new QCheckBox(Tr::italic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
 private:
-    void setup_()
+    void setup_(int sizeMin, int sizeMax)
     {
         // Setup
         QFontDatabase db{};
         fontsBox_->addItems(db.families());
         boldCheckBox_->setTristate(false);
         italicCheckBox_->setTristate(false);
-        /// TODO SETTINGS: Set from outside! Keep this general.
-        //sizeSlider_->setRange(
-            //Ini::Editor::FONT_PT_SIZE_MIN,
-            //Ini::Editor::FONT_PT_SIZE_MAX);
+        sizeSlider_->setRange(sizeMin, sizeMax);
 
         // Populate
         fontsBox_->setCurrentText(currentFont_.family());
@@ -75,8 +79,8 @@ private:
 
         // Layout
         auto main_layout = new QVBoxLayout(this);
-        auto top_layout = new QHBoxLayout;
 
+        auto top_layout = new QHBoxLayout;
         top_layout->addWidget(fontsBox_, 1);
         top_layout->addWidget(boldCheckBox_, 0);
         top_layout->addWidget(italicCheckBox_, 0);

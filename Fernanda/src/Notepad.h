@@ -35,6 +35,7 @@
 #include "MenuState.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
+#include "SettingsService.h"
 #include "Tr.h"
 #include "TreeViewService.h"
 #include "Version.h"
@@ -433,6 +434,8 @@ private:
             startDir.toQString()); // Via Qt: Setting root path installs a
                                    // filesystem watcher
         fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+        settings->setName(Tr::notepad());
 
         treeViews->setHeadersHidden(false);
         treeViews->setDockWidgetFeatures(

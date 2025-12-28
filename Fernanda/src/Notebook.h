@@ -13,9 +13,9 @@
 #include <utility>
 
 #include <QAbstractItemModel>
+#include <QDockWidget>
 #include <QDomDocument>
 #include <QDomElement>
-#include <QDockWidget>
 #include <QLabel>
 #include <QList>
 #include <QModelIndex>
@@ -47,6 +47,7 @@
 #include "MenuState.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
+#include "SettingsService.h"
 #include "TempDir.h"
 #include "Tr.h"
 #include "TrashPrompt.h"
@@ -69,6 +70,8 @@ namespace Fernanda {
 // TODO: Add to docs: trash behavior (still edtiable, tabs do not close when
 // moved to trash, still savable; however, emptying trash will close tabs and
 // lose unsaved changes)
+// TODO: Settings change mark Notebook unsaved? How - watch the working dir for
+// changes?
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -275,8 +278,6 @@ private:
 
         auto working_dir = workingDir_.path();
 
-        // settings->setOverrideConfigPath(working_dir / "Settings.ini");
-
         treeViews->setHeadersHidden(true);
         treeViews->setDockWidgetFeatures(QDockWidget::NoDockWidgetFeatures);
 
@@ -322,6 +323,10 @@ private:
             // files, i.e. making sure Trash exists, checking all file UUIDs
             // have corresponding files, etc.)
         }
+
+        settings->setName(fnxPath_.fileQString());
+        settings->setOverrideConfigPath(
+            working_dir / "Settings.ini"); // This needs to be after extraction!
 
         fnxModel_->load(working_dir);
 
