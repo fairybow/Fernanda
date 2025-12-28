@@ -38,6 +38,8 @@ public:
 
     constexpr static auto WINDOWS_SET = "windows:set";
     constexpr static auto WINDOWS = "windows:list";
+    constexpr static auto GET_SETTING = "settings:get";
+    constexpr static auto SET_SETTING = "settings:set";
 
 signals:
     void windowCreated(Window* context);
@@ -46,12 +48,6 @@ signals:
     void
     fileModelModificationChanged(AbstractFileModel* fileModel, bool modified);
     void fileModelMetaChanged(AbstractFileModel* fileModel);
-
-    /// Old:
-
-    // SettingsModule
-
-    void settingChanged(const QString& key, const QVariant& value);
 };
 
 } // namespace Fernanda

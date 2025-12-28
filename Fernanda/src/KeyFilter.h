@@ -24,6 +24,11 @@
 
 namespace Fernanda {
 
+// Event filter providing typing enhancements for text editors: auto-close
+// (insert matching punctuation pairs), delete-pair (backspace removes both),
+// skip-closer (typing a closer skips over it), and barging (double-space jumps
+// past closing punctuation)
+//
 // TODO: Wrapping selection in open/close punctuation
 class KeyFilter : public QObject
 {

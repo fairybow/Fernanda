@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-/*#pragma once
+#pragma once
 
 #include <QAnyStringView>
 #include <QList>
@@ -44,6 +44,11 @@ public:
 
     void setOverride(const Coco::Path& configPath)
     {
+        if (configPath.isEmpty()) {
+            WARN("Override config path empty!");
+            return;
+        }
+
         overrideSettings_ = make_(configPath);
     }
 
@@ -81,12 +86,11 @@ public:
 
     QVariant value(QAnyStringView key) const
     {
-        QVariant result{};
-        if (!baseSettings_) return result;
+        if (!baseSettings_) return {};
 
         // Try override, if present. Else, return base value (may be invalid)
         if (overrideSettings_) {
-            result = overrideSettings_->value(key);
+            auto result = overrideSettings_->value(key);
             if (result.isValid()) return result;
         }
 
@@ -112,13 +116,14 @@ public:
 
 private:
     Coco::Path baseConfigPath_;
-    QSettings* baseSettings_;
+
+    QSettings* baseSettings_ = nullptr;
     QSettings* overrideSettings_ = nullptr;
 
     void setup_()
     {
         if (baseConfigPath_.isEmpty()) {
-            WARN("Base config path cannot be empty!");
+            WARN("Base config path empty!");
             return;
         }
 
@@ -132,4 +137,4 @@ private:
     }
 };
 
-} // namespace Fernanda*/
+} // namespace Fernanda

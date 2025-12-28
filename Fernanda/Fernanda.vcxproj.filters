@@ -82,6 +82,9 @@
     <Filter Include="Code\Core\UI\Menus">
       <UniqueIdentifier>{2d379fce-5bd9-4a17-9bcf-fec233433849}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Core\Services\Settings">
+      <UniqueIdentifier>{9d4181d7-dd93-4d05-80f2-8b26fa55987e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -328,6 +331,12 @@
     <QtMoc Include="src\FontSelector.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
+    <QtMoc Include="src\Settings.h">
+      <Filter>Code\Core\Services\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\SettingsService.h">
+      <Filter>Code\Core\Services\Settings</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
@@ -438,14 +447,11 @@
     <ClInclude Include="src\old_SettingsModule.h">
       <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
-    <ClInclude Include="src\old_Ini.h">
-      <Filter>Old %28Remove Later%29</Filter>
-    </ClInclude>
-    <ClInclude Include="src\old_Settings.h">
-      <Filter>Old %28Remove Later%29</Filter>
-    </ClInclude>
     <ClInclude Include="src\old_SettingsDialog.h">
       <Filter>Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SettingsDefaults.h">
+      <Filter>Code\Core\Services\Settings</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
