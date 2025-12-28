@@ -71,8 +71,9 @@ public:
             .fontSizeMax = Ini::Defaults::FONT_SIZE_MAX,
         };
 
-        dialog_ =
-            new SettingsDialog(Tr::settingsTitleFormat().arg(name_), initials);
+        auto title = name_.isEmpty() ? Tr::settingsTitle()
+                                     : Tr::settingsTitleFormat().arg(name_);
+        dialog_ = new SettingsDialog(title, initials);
 
         connect(
             dialog_,

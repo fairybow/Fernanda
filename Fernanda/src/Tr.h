@@ -196,6 +196,7 @@ namespace Tr {
     TR_(italic, tr("Italic"));
 
     /// Settings Dialog
+    TR_(settingsTitle, tr("Settings"));
     TR_(settingsTitleFormat, tr("%0 Settings"));
 
 } // namespace Tr
