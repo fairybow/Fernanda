@@ -30,6 +30,7 @@ namespace Tr {
 
     /// General
 
+    TR_(notepad, tr("Notepad"));
     TR_(nbTrash, tr("Trash"));
 
     /// Buttons
@@ -193,6 +194,9 @@ namespace Tr {
 
     TR_(bold, tr("Bold"));
     TR_(italic, tr("Italic"));
+
+    /// Settings Dialog
+    TR_(settingsTitleFormat, tr("%0 Settings"));
 
 } // namespace Tr
 

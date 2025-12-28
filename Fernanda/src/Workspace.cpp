@@ -214,7 +214,7 @@ void Workspace::createWindowMenuBar_(Window* window)
             })
 
         .barAction(Tr::nxSettingsMenu())
-        // TODO: Settings dialog slot
+        .slot(this, [&] { settings->openDialog(); })
 
         .menu(Tr::nxHelpMenu())
         .action(Tr::nxAbout())

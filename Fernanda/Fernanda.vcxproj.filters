@@ -85,6 +85,9 @@
     <Filter Include="Code\Core\Services\Settings">
       <UniqueIdentifier>{9d4181d7-dd93-4d05-80f2-8b26fa55987e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Core\UI\AboutDialog">
+      <UniqueIdentifier>{d25c814a-f54c-4b9f-aca9-93749dad1c04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -120,14 +123,14 @@
     <ClCompile Include="src\FnxModel.cpp">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClCompile>
-    <ClCompile Include="src\AboutDialog.cpp">
-      <Filter>Code\Core\Workspaces</Filter>
-    </ClCompile>
     <ClCompile Include="src\old_FnxModel.cpp">
       <Filter>Old %28Remove Later%29</Filter>
     </ClCompile>
     <ClCompile Include="src\Workspace.cpp">
       <Filter>Code\Core\Workspaces</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AboutDialog.cpp">
+      <Filter>Code\Core\UI\AboutDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -337,6 +340,9 @@
     <QtMoc Include="src\SettingsService.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
+    <QtMoc Include="src\SettingsDialog.h">
+      <Filter>Code\Core\Services\Settings</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
@@ -405,9 +411,6 @@
     <ClInclude Include="src\FileTypes.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
-    <ClInclude Include="src\SavePrompt.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </ClInclude>
     <ClInclude Include="src\Io.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
@@ -420,9 +423,6 @@
     <ClInclude Include="src\Fnx.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
-    <ClInclude Include="src\SaveFailMessageBox.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </ClInclude>
     <ClInclude Include="src\NewNotebookPrompt.h">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
@@ -430,9 +430,6 @@
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClInclude>
     <ClInclude Include="src\MenuShortcuts.h">
-      <Filter>Code\Core\Workspaces</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AboutDialog.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
     <ClInclude Include="src\FnxModelCache.h">
@@ -444,14 +441,17 @@
     <ClInclude Include="src\old_FnxModel.h">
       <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
-    <ClInclude Include="src\old_SettingsModule.h">
-      <Filter>Old %28Remove Later%29</Filter>
-    </ClInclude>
-    <ClInclude Include="src\old_SettingsDialog.h">
-      <Filter>Old %28Remove Later%29</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SettingsDefaults.h">
+    <ClInclude Include="src\Ini.h">
       <Filter>Code\Core\Services\Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SaveFailMessageBox.h">
+      <Filter>Code\Core\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SavePrompt.h">
+      <Filter>Code\Core\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AboutDialog.h">
+      <Filter>Code\Core\UI\AboutDialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

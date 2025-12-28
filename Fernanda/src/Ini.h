@@ -11,9 +11,16 @@
 
 #include <QFont>
 
-namespace Fernanda::SettingsDefaults {
+namespace Fernanda::Ini {
 
-    constexpr auto FONT_KEY = "Editor/Font";
+namespace Keys {
+
+    constexpr auto FONT = "Editor/Font";
+
+} // namespace Keys
+
+namespace Defaults {
+
     constexpr auto FONT_SIZE_MIN = 8;
     constexpr auto FONT_SIZE_MAX = 144;
 
@@ -25,6 +32,6 @@ namespace Fernanda::SettingsDefaults {
         return f;
     }
 
-} // namespace Editor
+} // namespace Defaults
 
-} // namespace Fernanda::SettingsDefaults
+} // namespace Fernanda::Ini

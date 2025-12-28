@@ -48,6 +48,7 @@ signals:
     void
     fileModelModificationChanged(AbstractFileModel* fileModel, bool modified);
     void fileModelMetaChanged(AbstractFileModel* fileModel);
+    void settingChanged(const QString& key, const QVariant& value);
 };
 
 } // namespace Fernanda

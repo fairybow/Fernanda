@@ -67,7 +67,6 @@
     <QtMoc Include="src\AccordionWidget.h" />
     <ClInclude Include="src\BuildMessages.h" />
     <QtMoc Include="src\FileService.h" />
-    <ClInclude Include="src\old_SettingsModule.h" />
     <QtMoc Include="src\AbstractFileModel.h" />
     <QtMoc Include="src\FileMeta.h" />
     <QtMoc Include="src\TextFileModel.h" />
@@ -108,11 +107,11 @@
     <ClInclude Include="src\old_FnxModel.h" />
     <ClInclude Include="src\SaveFailMessageBox.h" />
     <ClInclude Include="src\SavePrompt.h" />
-    <ClInclude Include="src\old_SettingsDialog.h" />
     <ClInclude Include="src\Formatters.h" />
     <QtMoc Include="src\Settings.h" />
-    <ClInclude Include="src\SettingsDefaults.h" />
+    <ClInclude Include="src\Ini.h" />
     <QtMoc Include="src\SettingsService.h" />
+    <QtMoc Include="src\SettingsDialog.h" />
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\Io.h" />
     <ClInclude Include="src\ToString.h" />
