@@ -42,6 +42,7 @@ public:
 
     virtual ~Settings() override { TRACER; }
 
+    // setOverride must not be called while groups are open!
     void setOverride(const Coco::Path& configPath)
     {
         if (configPath.isEmpty()) {
@@ -52,6 +53,7 @@ public:
         overrideSettings_ = make_(configPath);
     }
 
+    // setOverride must not be called while groups are open!
     void beginGroup(QAnyStringView prefix)
     {
         if (!baseSettings_) return;
