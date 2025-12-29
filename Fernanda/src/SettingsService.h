@@ -46,7 +46,15 @@ public:
         setup_();
     }
 
-    virtual ~SettingsService() override { TRACER; }
+    virtual ~SettingsService() override
+    {
+        TRACER;
+
+        if (dialog_) {
+            dialog_->close();
+            delete dialog_;
+        }
+    }
 
     void setOverrideConfigPath(const Coco::Path& configPath)
     {
