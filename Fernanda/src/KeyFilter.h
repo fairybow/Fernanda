@@ -30,6 +30,8 @@ namespace Fernanda {
 // past closing punctuation)
 //
 // TODO: Wrapping selection in open/close punctuation
+// TODO: Double quote etc when typed at the end of a word (don't auto-close)
+// TODO: Period/terminal/comma after barge, close the space!
 class KeyFilter : public QObject
 {
     Q_OBJECT
