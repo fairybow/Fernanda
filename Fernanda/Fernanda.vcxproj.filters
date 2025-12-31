@@ -88,6 +88,9 @@
     <Filter Include="Code\Core\UI\AboutDialog">
       <UniqueIdentifier>{d25c814a-f54c-4b9f-aca9-93749dad1c04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Installer">
+      <UniqueIdentifier>{f93aebe4-fc11-4c96-9f7d-b7d9bac68fdb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -217,6 +220,9 @@
     </None>
     <None Include="resources\ui\ChevronUp.svg">
       <Filter>Resources\SVGs</Filter>
+    </None>
+    <None Include="installer\packages\com.fairybow.fernanda\meta\installscript.qs">
+      <Filter>Installer</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -492,5 +498,13 @@
     <QtTranslation Include="translations\Translation_it.ts">
       <Filter>Translations</Filter>
     </QtTranslation>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="installer\config\config.xml">
+      <Filter>Installer</Filter>
+    </Xml>
+    <Xml Include="installer\packages\com.fairybow.fernanda\meta\package.xml">
+      <Filter>Installer</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

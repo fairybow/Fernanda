@@ -50,6 +50,7 @@
     <None Include="docs\temp_DocsPlan.md" />
     <None Include="docs\old_UserData.md" />
     <None Include="docs\VSProjectSettings.md" />
+    <None Include="installer\packages\com.fairybow.fernanda\meta\installscript.qs" />
     <None Include="resources\ui\ChevronDown.svg" />
     <None Include="resources\ui\ChevronLeft.svg" />
     <None Include="resources\ui\ChevronRight.svg" />
@@ -157,6 +158,10 @@
     <QtTranslation Include="translations\Translation_it.ts" />
     <QtTranslation Include="translations\Translation_ja.ts" />
     <QtTranslation Include="translations\Translation_zh.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="installer\config\config.xml" />
+    <Xml Include="installer\packages\com.fairybow.fernanda\meta\package.xml" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E6E7DC76-11E7-4FB4-8C64-E88924DA156D}</ProjectGuid>
