@@ -1,0 +1,11 @@
+```
+winget install ImageMagick.ImageMagick
+magick Fernanda.svg -density 600 -transparent white -background transparent -alpha on -channel RGBA -colorspace sRGB -filter Lanczos -depth 8 -define png:compression-level=0 -define png:compression-filter=0 -resize 2048x2048 -write ../Fernanda-2048.png -resize 1024x1024 -write ../Fernanda-1024.png -resize 512x512 -write ../Fernanda-512.png -resize 256x256 -write ../Fernanda-256.png -resize 128x128 -write ../Fernanda-128.png -resize 64x64 -write ../Fernanda-64.png -resize 48x48 -write ../Fernanda-48.png -resize 32x32 -write ../Fernanda-32.png -resize 24x24 -write ../Fernanda-24.png -resize 16x16 ../Fernanda-16.png
+magick ../Fernanda-16.png ../Fernanda-24.png ../Fernanda-32.png ../Fernanda-48.png ../Fernanda-64.png ../Fernanda-128.png ../Fernanda-256.png ../Fernanda.ico
+magick ../Fernanda-16.png ../Fernanda-32.png ../Fernanda-64.png ../Fernanda-128.png ../Fernanda-256.png ../Fernanda-512.png ../Fernanda-1024.png ../Fernanda.icns
+copy Fernanda.svg "../Fernanda - copy.svg"
+```
+
+Linus has no special icon format.
+
+For settting of icons, see: https://doc.qt.io/qt-6/appicon.html

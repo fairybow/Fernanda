@@ -9,7 +9,6 @@
 
 #include "AboutDialog.h"
 
-#include <QIcon>
 #include <QMessageBox>
 #include <QObject>
 #include <QPixmap>
@@ -27,7 +26,7 @@ void exec()
     QMessageBox box{};
 
     box.setWindowModality(Qt::ApplicationModal);
-    box.setIconPixmap(QIcon(":/icons/Fernanda.svg").pixmap(64, 64));
+    box.setIconPixmap(QPixmap(":/icons/Fernanda-64.png"));
     box.setWindowTitle(Tr::nxAboutTitle());
     box.setText(Tr::nxAboutBody());
     box.setTextInteractionFlags(Qt::LinksAccessibleByMouse);
