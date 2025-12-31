@@ -224,6 +224,9 @@
     <None Include="installer\packages\com.fairybow.fernanda\meta\installscript.qs">
       <Filter>Installer</Filter>
     </None>
+    <None Include="installer\WinBuild.bat">
+      <Filter>Installer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -506,5 +509,10 @@
     <Xml Include="installer\packages\com.fairybow.fernanda\meta\package.xml">
       <Filter>Installer</Filter>
     </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="installer\packages\com.fairybow.fernanda\meta\ShortcutOptions.ui">
+      <Filter>Installer</Filter>
+    </QtUic>
   </ItemGroup>
 </Project>

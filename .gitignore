@@ -403,6 +403,7 @@ FodyWeavers.xsd
 ## Custom
 
 Fernanda/installer/packages/com.fairybow.fernanda/data/
+Fernanda/installer/output
 
 ## Overrides
 

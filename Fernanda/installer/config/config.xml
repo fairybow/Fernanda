@@ -6,7 +6,7 @@
 	<Publisher>fairybow</Publisher>
 	<StartMenuDir>Fernanda</StartMenuDir>
 	<TargetDir>@ApplicationsDir@/Fernanda</TargetDir>
-	<InstallerWindowIcon>../resources/icons/Fernanda-64</InstallerWindowIcon>
-	<InstallerApplicationIcon>../resources/icons/Fernanda</InstallerApplicationIcon>
-	<WizardStyle>Modern</WizardStyle>
+	<InstallerWindowIcon>../../resources/icons/Fernanda-64</InstallerWindowIcon>
+	<InstallerApplicationIcon>../../resources/icons/Fernanda</InstallerApplicationIcon>
+	<WizardStyle>Aero</WizardStyle>
 </Installer>
