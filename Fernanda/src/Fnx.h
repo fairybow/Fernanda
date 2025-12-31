@@ -51,9 +51,16 @@ namespace Internal {
 
     inline const Coco::Path& dll_()
     {
-        // Could be temp file?
-        static auto file = AppDirs::userData() / "7z.dll";
-        if (!file.exists()) Coco::PathUtil::copy(":/7zip/7z.dll", file);
+        // 7za.dll is lighter than 7z.dll (a = "alone"); Unix uses full 7z.so
+#if defined(Q_OS_WIN)
+        auto file_name = "7za.dll";
+        auto qrc_path = ":/7zip/7za.dll";
+#else
+        auto file_name = "7z.so";
+        auto qrc_path = ":/7zip/7z.so";
+#endif
+        static auto file = AppDirs::userData() / file_name;
+        if (!file.exists()) Coco::PathUtil::copy(qrc_path, file);
         return file;
     }
 

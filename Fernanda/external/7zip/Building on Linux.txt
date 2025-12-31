@@ -1,0 +1,12 @@
+See: see https://github.com/rikyoz/bit7z/issues/191
+
+```
+sudo apt-get update
+sudo apt install build-essential
+wget https://www.7-zip.org/a/7z2501-src.tar.xz
+tar -xf 7z2501-src.tar.xz
+cd CPP/7zip/Bundles/Format7zF
+make -j -f ../../cmpl_gcc.mak
+cd b/g
+[7z.so here]
+```
