@@ -61,12 +61,12 @@ Name: "{autodesktop}\Fernanda"; Filename: "{app}\data\Fernanda.exe"; Tasks: desk
 Filename: "{app}\data\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "Installing Visual C++ Runtime..."; Flags: waituntilterminated skipifsilent
 
 [Registry]
-; Associate .fnx extension with ProgID
-Root: HKA; Subkey: "Software\Classes\.fnx"; ValueType: string; ValueData: "Fernanda.Notebook"; Flags: uninsdeletevalue
-Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook"; ValueType: string; ValueName: "FriendlyTypeName"; ValueData: "Fernanda Notebook"
-
 ; Define the ProgID
 Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook"; ValueType: string; ValueData: "Fernanda Notebook"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook"; ValueType: string; ValueName: "FriendlyTypeName"; ValueData: "Fernanda Notebook"
 Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook\DefaultIcon"; ValueType: string; ValueData: "{app}\data\Fernanda.exe,0"
 ; ^ TODO: Change this to Notebook icon once it exists
 Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook\shell\open\command"; ValueType: string; ValueData: """{app}\data\Fernanda.exe"" ""%1"""
+
+; Associate .fnx extension with ProgID
+Root: HKA; Subkey: "Software\Classes\.fnx"; ValueType: string; ValueData: "Fernanda.Notebook"; Flags: uninsdeletevalue

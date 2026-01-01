@@ -25,7 +25,6 @@ set ADDITIONAL_TERMS=..\..\ADDITIONAL_TERMS
 
 set TEMP_DIR=.\temp
 set APP_DATA_DIR=%TEMP_DIR%\data
-set APP_DOCS_DIR=%TEMP_DIR%\docs
 set OUTPUT_DIR=.\output\Windows x64
 
 set STEPS=5
@@ -78,7 +77,6 @@ if not exist "%ADDITIONAL_TERMS%" (
 echo [2/%STEPS%] Cleaning temp directory...
 if exist "%TEMP_DIR%" rmdir /s /q "%TEMP_DIR%"
 mkdir "%APP_DATA_DIR%"
-mkdir "%APP_DOCS_DIR%"
 
 echo [3/%STEPS%] Copying Fernanda.exe...
 copy "%RELEASE_EXE%" "%APP_DATA_DIR%\" > nul
