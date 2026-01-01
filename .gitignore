@@ -402,8 +402,8 @@ FodyWeavers.xsd
 
 ## Custom
 
-Fernanda/installer/packages/com.fairybow.fernanda/data/
-Fernanda/installer/output
+Fernanda/installer/data/
+Fernanda/installer/output/
 
 ## Overrides
 
@@ -411,4 +411,3 @@ Fernanda/installer/output
 !Fernanda/external/bit7z/lib/x64/Debug/
 !Fernanda/external/bit7z/lib/x64/Debug/bit7z.pdb
 !Fernanda/external/bit7z/lib/x64/Release/
-!Fernanda/installer/packages/com.fairybow.fernanda/

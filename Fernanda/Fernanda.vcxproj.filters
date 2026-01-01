@@ -221,10 +221,10 @@
     <None Include="resources\ui\ChevronUp.svg">
       <Filter>Resources\SVGs</Filter>
     </None>
-    <None Include="installer\packages\com.fairybow.fernanda\meta\installscript.qs">
+    <None Include="installer\WindowsBuild.bat">
       <Filter>Installer</Filter>
     </None>
-    <None Include="installer\WinBuild.bat">
+    <None Include="installer\WindowsInstaller.iss">
       <Filter>Installer</Filter>
     </None>
   </ItemGroup>
@@ -501,18 +501,5 @@
     <QtTranslation Include="translations\Translation_it.ts">
       <Filter>Translations</Filter>
     </QtTranslation>
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="installer\config\config.xml">
-      <Filter>Installer</Filter>
-    </Xml>
-    <Xml Include="installer\packages\com.fairybow.fernanda\meta\package.xml">
-      <Filter>Installer</Filter>
-    </Xml>
-  </ItemGroup>
-  <ItemGroup>
-    <QtUic Include="installer\packages\com.fairybow.fernanda\meta\ShortcutOptions.ui">
-      <Filter>Installer</Filter>
-    </QtUic>
   </ItemGroup>
 </Project>
