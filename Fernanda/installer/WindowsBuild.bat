@@ -5,6 +5,9 @@ REM ============================================================================
 REM Fernanda Installer Build Script (Windows)
 REM ============================================================================
 
+set APP_VERSION=0.99.0
+set INSTALLER_NAME=FernandaInstaller
+
 set QT_DIR=C:\Qt\6.10.1\msvc2022_64
 
 set QT_WINDEPLOY=%QT_DIR%\bin\windeployqt6.exe
@@ -22,7 +25,7 @@ set ADDITIONAL_TERMS=..\..\ADDITIONAL_TERMS
 
 set TEMP_DIR=.\temp
 set APP_DATA_DIR=%TEMP_DIR%\data
-set OUTPUT_DIR=.\output\Windows x64\
+set OUTPUT_DIR=.\output\Windows x64
 
 set STEPS=5
 
@@ -78,12 +81,15 @@ mkdir "%APP_DATA_DIR%"
 echo [3/%STEPS%] Copying Fernanda.exe...
 copy "%RELEASE_EXE%" "%APP_DATA_DIR%\" > nul
 
+REM TODO: If/when we add image viewing, revise this!
 echo [4/%STEPS%] Running windeployqt...
 "%QT_WINDEPLOY%" ^
     --release ^
     --no-translations ^
     --no-system-d3d-compiler ^
     --no-opengl-sw ^
+    --skip-plugin-types generic,networkinformation,tls ^
+    --exclude-plugins qgif,qjpeg ^
     "%APP_DATA_DIR%\Fernanda.exe"
 
 REM final contents of "temp" folder should look like this:
@@ -96,15 +102,24 @@ REM     +-- Fernanda.exe
 REM Inno will unpack to {app} (Program Files/Fernanda/), add additional files ({app}\README.md, etc.), and create a shortcut, {app}\Fernanda.lnk (points to {app}\data\Fernanda.exe)
 
 echo [5/%STEPS%] Building installer...
-if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
-"%ISS_COMPILER%" "%ISS%"
+if exist "%OUTPUT_DIR%" rmdir /s /q "%OUTPUT_DIR%"
+mkdir "%OUTPUT_DIR%"
+
+"%ISS_COMPILER%" ^
+    /DAppVersion=%APP_VERSION% ^
+    /DInstallerName=%INSTALLER_NAME% ^
+    /DReadmePath="%README%" ^
+    /DLicensePath="%LICENSE%" ^
+    /DAdditionalTermsPath="%ADDITIONAL_TERMS%" ^
+    /DOutputDir="%OUTPUT_DIR%" ^
+    "%ISS%"
 if errorlevel 1 goto :error
 
 echo.
 echo ========================================
 echo Build complete!
 echo ========================================
-echo Output: %OUTPUT_DIR%\FernandaInstaller.exe
+echo Output: %OUTPUT_DIR%\%INSTALLER_NAME%.exe
 echo.
 goto :end
 

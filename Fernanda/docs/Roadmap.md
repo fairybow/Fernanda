@@ -13,6 +13,7 @@
 - [ ] Translations (FR, DE, ES, JA, ZH, IT)
 - [x] Basic editor settings
 - [ ] Installer
+- [ ] Opening args
 
 ### Stretch
 
@@ -92,6 +93,7 @@ Next up:
 - [ ] Try Inno?
 - [ ] Installer translations? Is that common?
 - [ ] Ensure installer has: batchfile automated, optional shortcut, uses windeployqt6, also copies a shortcut to repo, copies inside a data folder with shortcut to exe inside at top level, and installer dir output is separated by platform somehow
+- [ ] Handle opening args!
 
 ### Coco
 

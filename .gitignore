@@ -402,10 +402,10 @@ FodyWeavers.xsd
 
 ## Custom
 
-Fernanda/installer/data/
+Fernanda/installer/temp/
 Fernanda/installer/output/
 
-## Overrides
+# Overrides
 
 !Fernanda/external/bit7z/lib/x64/
 !Fernanda/external/bit7z/lib/x64/Debug/
