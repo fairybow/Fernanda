@@ -43,38 +43,74 @@ public:
 
     void initialize()
     {
+        // TODO: Session handling
+
         if (initialized_) return;
 
         Debug::initialize(); // TODO: Log file path
         if (!AppDirs::initialize()) FATAL("App directory creation failed!");
 
-        // Eventually, get args + session info
-        // auto args = arguments();
-        // Make session objects
         initializeNotepad_();
-        // Any Notebooks needed via Session
+
+        auto parsed_args = parsedArgs_();
+
+        if (parsed_args.isEmpty()) {
+            // Open Notepad single empty window, show color bar pastel
+        } else if (parsed_args.hasOnlyFnx()) {
+            // Make a Notebook for each FNX file, open single window for each,
+            // show color bar pastel in each Notebook's window
+        } else if (parsed_args.hasOnlyRegular()) {
+            // Open Notepad single window with a tab for each file, show color
+            // bar pastel
+        } else {
+            // Has both:
+            // - Open Notepad single window with a tab for each file, show color
+            // bar pastel
+            // - Make a Notebook for each FNX file, open single window for each,
+            // show color bar pastel in each Notebook's window
+        }
 
         initialized_ = true;
-
-        /// Test:
-        // makeNotebook_(AppDirs::defaultDocs() / "Unsaved.fnx");
-        // makeNotebook_(AppDirs::defaultDocs() / "Saved.fnx");
-
-        /*auto test_1 = "X:/Test/Path.file"_ccpath;
-        auto test_2 = "Y:/Drive"_ccpath;
-        auto test_3 = "Part"_ccpath;
-
-        qDebug() << test_1;
-        qDebug() << test_2;
-        qDebug() << test_3;
-
-        qDebug() << test_2 / test_3;*/
     }
 
 public slots:
     void onStartCopAppRelaunched(const QStringList& args)
     {
-        //...
+        // - These args are received via trying to reopen Fernanda. Just
+        // clicking the EXE will send only the executable path (arg 0).
+        // - We'll receive new args by clicking associated files (usually just
+        // .fnx but could be anything if user sets it in their OS)
+        // - If we receive Notebook files, open the Notebooks for those
+        // - If we receive any regular files, open those in the top most Notepad
+        // window
+
+        auto parsed_args = parsedArgs_();
+
+        if (parsed_args.isEmpty()) {
+            // Activate Notepad (if open) and each Notebook, to raise them all
+        } else if (parsed_args.hasOnlyFnx()) {
+            // - Make a Notebook for each FNX file, open single window for each,
+            // show color bar pastel in each Notebook's window
+            // - If any of the Notebook files is already open, activate it
+            // instead
+        } else if (parsed_args.hasOnlyRegular()) {
+            // - If Notepad has no windows, open Notepad single window with a
+            // tab for each file (maybe do not show color bar pastel - would
+            // have to use an initialize function?)
+            // - If Notepad has windows, open a tab for each file in the
+            // top-most window
+        } else {
+            // Has both:
+            // - If Notepad has no windows, open Notepad single window with a
+            // tab for each file (maybe do not show color bar pastel - would
+            // have to use an initialize function?)
+            // - If Notepad has windows, open a tab for each file in the
+            // top-most window
+            // - Make a Notebook for each FNX file, open single window for each,
+            // show color bar pastel in each Notebook's window
+            // - If any of the Notebook files is already open, activate it
+            // instead
+        }
     }
 
     void tryQuit()
@@ -119,11 +155,6 @@ private:
         });
 
         connectWorkspace_(notepad_);
-
-        // Will only open new window if: 1) there is no Notebook from sessions;
-        // 2) there is no Notepad window from sessions
-        // TODO: Move this to initialize()?
-        notepad_->open(NewWindow::Yes);
     }
 
     void makeNotebook_(const Coco::Path& fnxPath)
@@ -144,10 +175,12 @@ private:
 
         connectWorkspace_(notebook);
 
+        // TODO: Rethink this. Probably call from outside and leave this
+        // function only for making the Notebook
         notebook->open(NewWindow::Yes);
     }
 
-    // For joint Workspace connections
+    // For common Workspace connections
     void connectWorkspace_(Workspace* workspace)
     {
         if (!workspace) return;
@@ -165,6 +198,8 @@ private:
             [&](const Coco::Path& fnxPath) {
                 // Shouldn't need to check Fnx::isFnxFile. The promise of this
                 // signal is "open Notebook" not "open maybe a Notebook"!
+                // TODO: Although, we may need to do some redesign if we want to
+                // prompt for files that are .fnx by extension only...
                 for (auto& notebook : notebooks_) {
                     if (notebook->fnxPath() == fnxPath) {
                         notebook->activate();
@@ -174,6 +209,44 @@ private:
 
                 makeNotebook_(fnxPath);
             });
+    }
+
+    struct ParsedArgs_
+    {
+        QList<Coco::Path> fnxFiles{};
+        QList<Coco::Path> regularFiles{};
+
+        bool isEmpty() const noexcept
+        {
+            return fnxFiles.isEmpty() && regularFiles.isEmpty();
+        }
+
+        bool hasOnlyFnx() const noexcept
+        {
+            return !fnxFiles.isEmpty() && regularFiles.isEmpty();
+        }
+
+        bool hasOnlyRegular() const noexcept
+        {
+            return fnxFiles.isEmpty() && !regularFiles.isEmpty();
+        }
+    };
+
+    ParsedArgs_ parsedArgs_() const
+    {
+        ParsedArgs_ result{};
+        auto args = arguments();
+
+        // Skip Fernanda.exe
+        for (auto i = 1; i < args.size(); ++i) {
+            Coco::Path path(args.at(i));
+            if (!path.exists() || path.isFolder()) continue;
+
+            Fnx::Io::isFnxFile(path) ? result.fnxFiles << path
+                                     : result.regularFiles << path;
+        }
+
+        return result;
     }
 
 private slots:

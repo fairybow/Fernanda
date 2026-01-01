@@ -64,16 +64,11 @@ public:
 
     virtual bool tryQuit() = 0;
 
-    // void open(const Session& session)
-    // {
-    //   // ...open Session...
-    //   // emit bus->workspaceOpened();
-    // }
-
     // TODO: Do we ever need to "open" without opening a window?
     void open(NewWindow withWindow = NewWindow::No)
     {
-        // ... Path args?
+        // ... Path args to open files for Notepad only
+        // could rename "show" and always open window?
 
         if (withWindow) windows->newWindow();
 
