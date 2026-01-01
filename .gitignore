@@ -400,7 +400,12 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-## Overrides
+## Custom
+
+Fernanda/installer/temp/
+Fernanda/installer/output/
+
+# Overrides
 
 !Fernanda/external/bit7z/lib/x64/
 !Fernanda/external/bit7z/lib/x64/Debug/

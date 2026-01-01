@@ -1,5 +1,5 @@
 /*
- * Fernanda  Copyright (C) 2025  fairybow
+ * Fernanda  Copyright (C) 2025-2026  fairybow
  *
  * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
  * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
@@ -19,6 +19,14 @@
 /// ======================================================================== ///
 /// *** VERSION INFO ***                                                     ///
 /// ======================================================================== ///
+
+// | Part       | When to increment                                            |
+// |------------|--------------------------------------------------------------|
+// | MAJOR      | Breaking changes / major release (1.0.0 = first stable)      |
+// | MINOR      | New features, backward compatible                            |
+// | PATCH      | Bug fixes only                                               |
+// | PRERELEASE | Optional label: alpha.1, beta.1, rc.1, etc.                  |
+// | BUILD      | Increments every build (metadata, doesn't affect precedence) |
 
 #define VERSION_MAJOR                           0
 #define VERSION_MINOR                           99
@@ -67,6 +75,6 @@
 #define VERSION_AUTHOR_STRING                   "fairybow"
 #define VERSION_APP_NAME_STRING                 "Fernanda"
 #define VERSION_RELEASE_NAME_STRING             "Atlas"
-#define VERSION_COPYRIGHT_STRING                "Copyright \xa9 2025 fairybow"
+#define VERSION_COPYRIGHT_STRING                "Copyright \xa9 2025-2026 fairybow"
 #define VERSION_DOMAIN                          "https://github.com/fairybow/Fernanda"
 #define VERSION_WINDOWS_FILE_STRING             VERSION_APP_NAME_STRING ".exe"

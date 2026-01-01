@@ -1,5 +1,5 @@
 /*
- * Fernanda  Copyright (C) 2025  fairybow
+ * Fernanda  Copyright (C) 2025-2026  fairybow
  *
  * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
  * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
@@ -9,7 +9,6 @@
 
 #include "AboutDialog.h"
 
-#include <QIcon>
 #include <QMessageBox>
 #include <QObject>
 #include <QPixmap>
@@ -27,7 +26,7 @@ void exec()
     QMessageBox box{};
 
     box.setWindowModality(Qt::ApplicationModal);
-    box.setIconPixmap(QIcon(":/icons/Fernanda.svg").pixmap(64, 64));
+    box.setIconPixmap(QPixmap(":/icons/Fernanda-64.png"));
     box.setWindowTitle(Tr::nxAboutTitle());
     box.setText(Tr::nxAboutBody());
     box.setTextInteractionFlags(Qt::LinksAccessibleByMouse);

@@ -1,5 +1,5 @@
 /*
- * Fernanda  Copyright (C) 2025  fairybow
+ * Fernanda  Copyright (C) 2025-2026  fairybow
  *
  * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
  * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
@@ -46,7 +46,15 @@ public:
         setup_();
     }
 
-    virtual ~SettingsService() override { TRACER; }
+    virtual ~SettingsService() override
+    {
+        TRACER;
+
+        if (dialog_) {
+            dialog_->close();
+            delete dialog_;
+        }
+    }
 
     void setOverrideConfigPath(const Coco::Path& configPath)
     {
@@ -71,8 +79,9 @@ public:
             .fontSizeMax = Ini::Defaults::FONT_SIZE_MAX,
         };
 
-        dialog_ =
-            new SettingsDialog(Tr::settingsTitleFormat().arg(name_), initials);
+        auto title = name_.isEmpty() ? Tr::settingsTitle()
+                                     : Tr::settingsTitleFormat().arg(name_);
+        dialog_ = new SettingsDialog(title, initials);
 
         connect(
             dialog_,

@@ -1,5 +1,5 @@
 /*
- * Fernanda  Copyright (C) 2025  fairybow
+ * Fernanda  Copyright (C) 2025-2026  fairybow
  *
  * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
  * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
@@ -42,6 +42,7 @@ public:
 
     virtual ~Settings() override { TRACER; }
 
+    // setOverride must not be called while groups are open!
     void setOverride(const Coco::Path& configPath)
     {
         if (configPath.isEmpty()) {
@@ -52,6 +53,7 @@ public:
         overrideSettings_ = make_(configPath);
     }
 
+    // setOverride must not be called while groups are open!
     void beginGroup(QAnyStringView prefix)
     {
         if (!baseSettings_) return;

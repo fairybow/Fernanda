@@ -13,6 +13,8 @@
 - [ ] Translations (FR, DE, ES, JA, ZH, IT)
 - [x] Basic editor settings
 - [ ] Installer
+- [ ] Opening args
+- [ ] Toggle logging based on VERSION_DEBUG in Version.h
 
 ### Stretch
 
@@ -89,6 +91,10 @@ Next up:
 - [ ] Potentially remove commands/signals from Workspaces to MenuModules and truly leave to cross-Service concerns. Then integrate menus into Notepad/Notebook directly but use a declarative MenuBuilder object to reduce clutter (pass togglers as optional parameter for an action)
 - [ ] Ensure menu toggles update appropriately when tab dragging is implemented!
 - [ ] Custom context menu for AbstractFileView, implement for editors (replacing Qt editor context menu)
+- [x] Try Inno? (Follow-up: it's good!)
+- [x] Installer translations? Is that common?
+- [x] Ensure installer has: batchfile automated, optional shortcut, uses windeployqt6, also copies a shortcut to repo, copies inside a data folder with shortcut to exe inside at top level, and installer dir output is separated by platform somehow
+- [ ] Handle opening args!
 
 ### Coco
 

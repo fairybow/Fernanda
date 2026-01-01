@@ -50,6 +50,8 @@
     <None Include="docs\temp_DocsPlan.md" />
     <None Include="docs\old_UserData.md" />
     <None Include="docs\VSProjectSettings.md" />
+    <None Include="installer\WindowsBuild.bat" />
+    <None Include="installer\WindowsInstaller.iss" />
     <None Include="resources\ui\ChevronDown.svg" />
     <None Include="resources\ui\ChevronLeft.svg" />
     <None Include="resources\ui\ChevronRight.svg" />

@@ -1,5 +1,5 @@
 /*
- * Fernanda  Copyright (C) 2025  fairybow
+ * Fernanda  Copyright (C) 2025-2026  fairybow
  *
  * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
  * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
@@ -30,6 +30,8 @@ namespace Fernanda {
 // past closing punctuation)
 //
 // TODO: Wrapping selection in open/close punctuation
+// TODO: Double quote etc when typed at the end of a word (don't auto-close)
+// TODO: Period/terminal/comma after barge, close the space!
 class KeyFilter : public QObject
 {
     Q_OBJECT

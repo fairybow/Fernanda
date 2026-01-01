@@ -1,13 +1,18 @@
 <RCC>
     <qresource prefix="/">
+        <file>icons/Fernanda - copy.svg</file>
+        <file>icons/Fernanda.icns</file>
         <file>icons/Fernanda.ico</file>
-        <file>icons/Fernanda.svg</file>
         <file>icons/Fernanda-16.png</file>
+        <file>icons/Fernanda-24.png</file>
         <file>icons/Fernanda-32.png</file>
         <file>icons/Fernanda-48.png</file>
         <file>icons/Fernanda-64.png</file>
         <file>icons/Fernanda-128.png</file>
         <file>icons/Fernanda-256.png</file>
+        <file>icons/Fernanda-512.png</file>
+        <file>icons/Fernanda-1024.png</file>
+        <file>icons/Fernanda-2048.png</file>
         <file>icons/Qt.ico</file>
     </qresource>
 </RCC>

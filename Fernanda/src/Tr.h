@@ -1,5 +1,5 @@
 /*
- * Fernanda  Copyright (C) 2025  fairybow
+ * Fernanda  Copyright (C) 2025-2026  fairybow
  *
  * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
  * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
@@ -196,6 +196,7 @@ namespace Tr {
     TR_(italic, tr("Italic"));
 
     /// Settings Dialog
+    TR_(settingsTitle, tr("Settings"));
     TR_(settingsTitleFormat, tr("%0 Settings"));
 
 } // namespace Tr
