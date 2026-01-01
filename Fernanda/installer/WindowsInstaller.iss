@@ -1,6 +1,9 @@
 ; Fernanda Inno Setup Script
 ; Required: Pass /DVariableName=x from command line
 
+; TODO: Shutdown (or advise) before updating
+; TODO: Clearing previous install before "updating" (replacing)?
+
 #ifndef AppVersion
   #error "AppVersion not defined. Pass /DAppVersion=x.x.x"
 #endif
