@@ -44,9 +44,9 @@ Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription
 
 [Files]
 Source: "temp\data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
-Source: "{#ReadmePath}"; DestDir: "{app}"
-Source: "{#LicensePath}"; DestDir: "{app}"
-Source: "{#AdditionalTermsPath}"; DestDir: "{app}"
+Source: "{#ReadmePath}"; DestDir: "{app}\docs"
+Source: "{#LicensePath}"; DestDir: "{app}\docs"
+Source: "{#AdditionalTermsPath}"; DestDir: "{app}\docs"
 
 [Icons]
 ; Always installed
@@ -63,6 +63,7 @@ Filename: "{app}\data\vc_redist.x64.exe"; Parameters: "/install /quiet /norestar
 [Registry]
 ; Associate .fnx extension with ProgID
 Root: HKA; Subkey: "Software\Classes\.fnx"; ValueType: string; ValueData: "Fernanda.Notebook"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook"; ValueType: string; ValueName: "FriendlyTypeName"; ValueData: "Fernanda Notebook"
 
 ; Define the ProgID
 Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook"; ValueType: string; ValueData: "Fernanda Notebook"; Flags: uninsdeletekey
