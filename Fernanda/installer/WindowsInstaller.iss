@@ -4,6 +4,9 @@
 #ifndef AppVersion
   #error "AppVersion not defined. Pass /DAppVersion=x.x.x"
 #endif
+#ifndef AppVersionNum
+  #error "AppVersionNum not defined. Pass /DAppVersionNum=x.x.x"
+#endif
 #ifndef InstallerName
   #error "InstallerName not defined. Pass /DInstallerName=name"
 #endif
@@ -24,6 +27,7 @@
 AppId={{D82F0C66-E341-4953-BD96-372C196A7E9B}
 AppName=Fernanda
 AppVersion={#AppVersion}
+VersionInfoVersion={#AppVersionNum}
 AppPublisher=fairybow
 DefaultDirName={autopf}\Fernanda
 DefaultGroupName=Fernanda

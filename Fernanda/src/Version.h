@@ -20,6 +20,14 @@
 /// *** VERSION INFO ***                                                     ///
 /// ======================================================================== ///
 
+// | Part       | When to increment                                            |
+// |------------|--------------------------------------------------------------|
+// | MAJOR      | Breaking changes / major release (1.0.0 = first stable)      |
+// | MINOR      | New features, backward compatible                            |
+// | PATCH      | Bug fixes only                                               |
+// | PRERELEASE | Optional label: alpha.1, beta.1, rc.1, etc.                  |
+// | BUILD      | Increments every build (metadata, doesn't affect precedence) |
+
 #define VERSION_MAJOR                           0
 #define VERSION_MINOR                           99
 #define VERSION_PATCH                           0

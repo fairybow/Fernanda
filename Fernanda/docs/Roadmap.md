@@ -14,6 +14,7 @@
 - [x] Basic editor settings
 - [ ] Installer
 - [ ] Opening args
+- [ ] Toggle logging based on VERSION_DEBUG in Version.h
 
 ### Stretch
 

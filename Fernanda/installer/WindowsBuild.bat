@@ -5,7 +5,9 @@ REM ============================================================================
 REM Fernanda Installer Build Script (Windows)
 REM ============================================================================
 
-set APP_VERSION=0.99.0
+REM TODO: Pull from Version.h if possible
+set APP_VERSION=0.99.0-beta.1+1
+set APP_VERSION_NUM=0.99.0.1
 set INSTALLER_NAME=FernandaInstaller
 
 set QT_DIR=C:\Qt\6.10.1\msvc2022_64
@@ -107,6 +109,7 @@ mkdir "%OUTPUT_DIR%"
 
 "%ISS_COMPILER%" ^
     /DAppVersion=%APP_VERSION% ^
+    /DAppVersionNum=%APP_VERSION_NUM% ^
     /DInstallerName=%INSTALLER_NAME% ^
     /DReadmePath="%README%" ^
     /DLicensePath="%LICENSE%" ^
