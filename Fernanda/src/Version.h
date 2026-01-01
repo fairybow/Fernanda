@@ -9,16 +9,29 @@
 
 #pragma once
 
-// Note: Visual Studio automatically defines _DEBUG in Debug builds
-#if defined(_DEBUG) || defined(DEBUG) || !defined(NDEBUG)
-#define VERSION_DEBUG
+// DO NOT COPY AND PASTE THIS ENTIRE FILE. CLANG WILL RUIN IT.
+
+namespace Version {
+
+// Visual Studio automatically defines _DEBUG in Debug builds
+#if defined(_DEBUG)
+
+inline constexpr bool isDebug = true;
+#    define VERSION_DEBUG
+
+#else
+
+inline constexpr bool isDebug = false;
+
 #endif
 
-#define VERSION_PRERELEASE // Toggle manually
+} // namespace Version
 
 /// ======================================================================== ///
 /// *** VERSION INFO ***                                                     ///
 /// ======================================================================== ///
+
+#define VERSION_PRERELEASE // Toggle manually
 
 // | Part       | When to increment                                            |
 // |------------|--------------------------------------------------------------|
@@ -39,6 +52,11 @@
         VERSION_MINOR,                          \
         VERSION_PATCH,                          \
         VERSION_BUILD
+
+#define VERSION_WITH_PATCH                      \
+        VERSION_MAJOR,                          \
+        VERSION_MINOR,                          \
+        VERSION_PATCH
 
 #define VERSION                                 \
         VERSION_MAJOR,                          \
@@ -63,6 +81,11 @@
         VERSION_STRINGIFY(VERSION_PATCH)    "+" \
         VERSION_STRINGIFY(VERSION_BUILD)
 #endif
+
+#define VERSION_WITH_PATCH_STRING               \
+        VERSION_STRINGIFY(VERSION_MAJOR)    "." \
+        VERSION_STRINGIFY(VERSION_MINOR)    "." \
+        VERSION_STRINGIFY(VERSION_PATCH)
 
 #define VERSION_STRING                          \
         VERSION_STRINGIFY(VERSION_MAJOR)    "." \

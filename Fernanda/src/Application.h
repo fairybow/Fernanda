@@ -45,8 +45,7 @@ public:
     {
         if (initialized_) return;
 
-        Debug::initialize(Debug::Logging::Yes); // TODO: log file + toggle based
-                                                // on settings or build
+        Debug::initialize(); // TODO: Log file path
         if (!AppDirs::initialize()) FATAL("App directory creation failed!");
 
         // Eventually, get args + session info
