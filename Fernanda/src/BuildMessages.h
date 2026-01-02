@@ -23,5 +23,5 @@
 #    pragma message("VERSION_PRERELEASE is not defined")
 #endif
 
-#pragma message("Version: " VERSION_STRING " (" VERSION_FULL_STRING ")")
+#pragma message("Version: " VERSION_FULL_STRING)
 #pragma message("Release Name: \"" VERSION_RELEASE_NAME_STRING "\"")

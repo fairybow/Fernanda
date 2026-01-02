@@ -10,8 +10,8 @@ IDI_ICON1           ICON "icons/Fernanda.ico"
 
 // Version info
 VS_VERSION_INFO     VERSIONINFO
-FILEVERSION         VERSION_FULL
-PRODUCTVERSION      VERSION
+FILEVERSION         VERSION_4
+PRODUCTVERSION      VERSION_2
 FILEFLAGSMASK       VS_FFI_FILEFLAGSMASK
 
 // Build/file info
@@ -43,7 +43,7 @@ BEGIN
 /*        */VALUE   "LegalCopyright",   VERSION_COPYRIGHT_STRING
 /*        */VALUE   "OriginalFilename", VERSION_WINDOWS_FILE_STRING
 /*        */VALUE   "ProductName",      VERSION_APP_NAME_STRING
-/*        */VALUE   "ProductVersion",   VERSION_STRING
+/*        */VALUE   "ProductVersion",   VERSION_2_STRING
 /*    */END
 /**/END
 /**/BLOCK           "VarFileInfo"

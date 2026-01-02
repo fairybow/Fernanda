@@ -63,7 +63,10 @@ public:
 
     virtual ~Notepad() override { TRACER; }
 
-    bool hasWindows() const { return windows->count() > 0; }
+    void openFiles(const QList<Coco::Path>& paths)
+    {
+        if (auto window = windows->active()) openFiles_(window, paths);
+    }
 
     virtual bool tryQuit() override
     {
@@ -379,7 +382,7 @@ protected:
             .shortcut(MenuShortcuts::NEW_TAB)
 
             .action(Tr::npOpenFile())
-            .slot(this, [&, window] { openFile_(window); })
+            .slot(this, [&, window] { promptOpenFiles_(window); })
             .shortcut(MenuShortcuts::OPEN_FILE);
     }
 
@@ -604,7 +607,7 @@ private:
         files->openOffDiskTxtIn(window);
     }
 
-    void openFile_(Window* window)
+    void promptOpenFiles_(Window* window)
     {
         if (!window) return;
 
@@ -614,6 +617,11 @@ private:
             startDir,
             Tr::npOpenFileFilter());
 
+        openFiles_(window, paths);
+    }
+
+    void openFiles_(Window* window, const QList<Coco::Path>& paths)
+    {
         if (paths.isEmpty()) return;
 
         for (auto& path : paths) {

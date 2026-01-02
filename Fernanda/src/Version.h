@@ -45,28 +45,38 @@ inline constexpr bool isDebug = false;
 #define VERSION_MINOR                           99
 #define VERSION_PATCH                           0
 #define VERSION_PRERELEASE_STRING               "beta.1"
-#define VERSION_BUILD                           1
+#define VERSION_BUILD                           0 // Probably not using
 
-#define VERSION_FULL                            \
+// Major.Minor.Patch.Build
+#define VERSION_4                               \
         VERSION_MAJOR,                          \
         VERSION_MINOR,                          \
         VERSION_PATCH,                          \
         VERSION_BUILD
 
-#define VERSION_WITH_PATCH                      \
+// Major.Minor.Patch
+#define VERSION_3                               \
         VERSION_MAJOR,                          \
         VERSION_MINOR,                          \
         VERSION_PATCH
 
-#define VERSION                                 \
+// Major.Minor
+#define VERSION_2                               \
         VERSION_MAJOR,                          \
         VERSION_MINOR
 
-// Utility
+// Strings
+
 #define VERSION_STRINGIFY_(x)                   #x
 #define VERSION_STRINGIFY(x)                    VERSION_STRINGIFY_(x)
 
-// Version string
+// Major.Minor.Patch.Build
+#define VERSION_4_STRING                        \
+        VERSION_STRINGIFY(VERSION_MAJOR)    "." \
+        VERSION_STRINGIFY(VERSION_MINOR)    "." \
+        VERSION_STRINGIFY(VERSION_PATCH)    "." \
+        VERSION_STRINGIFY(VERSION_BUILD)
+
 #ifdef  VERSION_PRERELEASE
 #define VERSION_FULL_STRING                     \
         VERSION_STRINGIFY(VERSION_MAJOR)    "." \
@@ -75,19 +85,17 @@ inline constexpr bool isDebug = false;
         VERSION_PRERELEASE_STRING           "+" \
         VERSION_STRINGIFY(VERSION_BUILD)
 #else
-#define VERSION_FULL_STRING                     \
-        VERSION_STRINGIFY(VERSION_MAJOR)    "." \
-        VERSION_STRINGIFY(VERSION_MINOR)    "." \
-        VERSION_STRINGIFY(VERSION_PATCH)    "+" \
-        VERSION_STRINGIFY(VERSION_BUILD)
+#    define VERSION_FULL_STRING VERSION_4_STRING
 #endif
 
-#define VERSION_WITH_PATCH_STRING               \
+// Major.Minor.Patch
+#define VERSION_3_STRING                        \
         VERSION_STRINGIFY(VERSION_MAJOR)    "." \
         VERSION_STRINGIFY(VERSION_MINOR)    "." \
         VERSION_STRINGIFY(VERSION_PATCH)
 
-#define VERSION_STRING                          \
+// Major.Minor
+#define VERSION_2_STRING                        \
         VERSION_STRINGIFY(VERSION_MAJOR)    "." \
         VERSION_STRINGIFY(VERSION_MINOR)
 
