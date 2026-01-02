@@ -6,6 +6,6 @@ magick ../Fernanda-16.png ../Fernanda-32.png ../Fernanda-64.png ../Fernanda-128.
 copy Fernanda.svg "../Fernanda - copy.svg"
 ```
 
-Linus has no special icon format.
+Linux has no special icon format.
 
 For settting of icons, see: https://doc.qt.io/qt-6/appicon.html
