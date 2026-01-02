@@ -52,22 +52,45 @@ public:
 
         initializeNotepad_();
 
-        auto parsed_args = parsedArgs_();
+        auto parsed_args = parseArgs_(arguments());
 
         if (parsed_args.isEmpty()) {
             // Open Notepad single empty window, show color bar pastel
+            notepad_->show();
+            notepad_->beCute();
+
         } else if (parsed_args.hasOnlyFnx()) {
             // Make a Notebook for each FNX file, open single window for each,
             // show color bar pastel in each Notebook's window
+            for (auto& path : parsed_args.fnxFiles) {
+                if (auto notebook = makeNotebook_(path)) {
+                    notebook->show();
+                    notebook->beCute();
+                }
+            }
         } else if (parsed_args.hasOnlyRegular()) {
             // Open Notepad single window with a tab for each file, show color
             // bar pastel
+            notepad_->show();
+            // Might not be working:
+            notepad_->openFiles(parsed_args.regularFiles);
+            notepad_->beCute();
         } else {
             // Has both:
             // - Open Notepad single window with a tab for each file, show color
             // bar pastel
             // - Make a Notebook for each FNX file, open single window for each,
             // show color bar pastel in each Notebook's window
+            notepad_->show();
+            notepad_->openFiles(parsed_args.regularFiles);
+            notepad_->beCute();
+
+            for (auto& path : parsed_args.fnxFiles) {
+                if (auto notebook = makeNotebook_(path)) {
+                    notebook->show();
+                    notebook->beCute();
+                }
+            }
         }
 
         initialized_ = true;
@@ -84,21 +107,48 @@ public slots:
         // - If we receive any regular files, open those in the top most Notepad
         // window
 
-        auto parsed_args = parsedArgs_();
+        auto parsed_args = parseArgs_(args);
 
         if (parsed_args.isEmpty()) {
             // Activate Notepad (if open) and each Notebook, to raise them all
+            notepad_->activate(); // No-op if no windows
+
+            for (auto& notebook : notebooks_)
+                notebook->activate();
+
         } else if (parsed_args.hasOnlyFnx()) {
             // - Make a Notebook for each FNX file, open single window for each,
             // show color bar pastel in each Notebook's window
             // - If any of the Notebook files is already open, activate it
             // instead
+            for (auto& path : parsed_args.fnxFiles) {
+                bool found = false;
+
+                for (auto& notebook : notebooks_) {
+                    if (notebook->fnxPath() == path) {
+                        notebook->activate();
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) continue;
+
+                if (auto notebook = makeNotebook_(path)) {
+                    notebook->show();
+                    notebook->beCute();
+                }
+            }
+
         } else if (parsed_args.hasOnlyRegular()) {
             // - If Notepad has no windows, open Notepad single window with a
             // tab for each file (maybe do not show color bar pastel - would
             // have to use an initialize function?)
             // - If Notepad has windows, open a tab for each file in the
             // top-most window
+            notepad_->show();
+            notepad_->openFiles(parsed_args.regularFiles);
+
         } else {
             // Has both:
             // - If Notepad has no windows, open Notepad single window with a
@@ -110,6 +160,27 @@ public slots:
             // show color bar pastel in each Notebook's window
             // - If any of the Notebook files is already open, activate it
             // instead
+            notepad_->show();
+            notepad_->openFiles(parsed_args.regularFiles);
+
+            for (auto& path : parsed_args.fnxFiles) {
+                bool found = false;
+
+                for (auto& notebook : notebooks_) {
+                    if (notebook->fnxPath() == path) {
+                        notebook->activate();
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) continue;
+
+                if (auto notebook = makeNotebook_(path)) {
+                    notebook->show();
+                    notebook->beCute();
+                }
+            }
         }
     }
 
@@ -147,20 +218,21 @@ private:
 
     void initializeNotepad_()
     {
-        // Temporary opening procedures:
         notepad_ = new Notepad(this);
+
+        connectWorkspace_(notepad_);
 
         connect(notepad_, &Notepad::lastWindowClosed, this, [&] {
             if (notebooks_.isEmpty()) quit();
         });
-
-        connectWorkspace_(notepad_);
     }
 
-    void makeNotebook_(const Coco::Path& fnxPath)
+    Notebook* makeNotebook_(const Coco::Path& fnxPath)
     {
         auto notebook = new Notebook(fnxPath, this);
         notebooks_ << notebook;
+
+        connectWorkspace_(notebook);
 
         connect(notebook, &Notebook::lastWindowClosed, this, [&, notebook] {
             notebooks_.removeAll(notebook);
@@ -169,15 +241,10 @@ private:
         });
 
         connect(notebook, &Notebook::openNotepadRequested, this, [&] {
-            notepad_->hasWindows() ? notepad_->activate()
-                                   : notepad_->newWindow();
+            notepad_->show();
         });
 
-        connectWorkspace_(notebook);
-
-        // TODO: Rethink this. Probably call from outside and leave this
-        // function only for making the Notebook
-        notebook->open(NewWindow::Yes);
+        return notebook;
     }
 
     // For common Workspace connections
@@ -189,7 +256,12 @@ private:
             workspace,
             &Workspace::newNotebookRequested,
             this,
-            [&](const Coco::Path& fnxPath) { makeNotebook_(fnxPath); });
+            [&](const Coco::Path& fnxPath) {
+                if (auto notebook = makeNotebook_(fnxPath)) {
+                    notebook->show();
+                    notebook->beCute();
+                }
+            });
 
         connect(
             workspace,
@@ -207,7 +279,10 @@ private:
                     }
                 }
 
-                makeNotebook_(fnxPath);
+                if (auto notebook = makeNotebook_(fnxPath)) {
+                    notebook->show();
+                    notebook->beCute();
+                }
             });
     }
 
@@ -232,10 +307,9 @@ private:
         }
     };
 
-    ParsedArgs_ parsedArgs_() const
+    ParsedArgs_ parseArgs_(const QStringList& args) const
     {
         ParsedArgs_ result{};
-        auto args = arguments();
 
         // Skip Fernanda.exe
         for (auto i = 1; i < args.size(); ++i) {

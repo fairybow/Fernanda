@@ -17,7 +17,7 @@
 namespace Fernanda {
 
 template <typename SlotT>
-inline void timer(int msecs, QObject* parent, SlotT slot)
+inline void timer(int msecs, const QObject* parent, SlotT slot)
 {
     QTimer::singleShot(msecs, parent, slot);
 }

@@ -7,9 +7,6 @@
 #ifndef AppVersion
   #error "AppVersion not defined. Pass /DAppVersion=x.x.x"
 #endif
-#ifndef AppVersionNum
-  #error "AppVersionNum not defined. Pass /DAppVersionNum=x.x.x"
-#endif
 #ifndef InstallerName
   #error "InstallerName not defined. Pass /DInstallerName=name"
 #endif
@@ -29,8 +26,9 @@
 [Setup]
 AppId={{D82F0C66-E341-4953-BD96-372C196A7E9B}
 AppName=Fernanda
+AppVerName=Fernanda
 AppVersion={#AppVersion}
-VersionInfoVersion={#AppVersionNum}
+VersionInfoProductVersion={#AppVersion}
 AppPublisher=fairybow
 DefaultDirName={autopf}\Fernanda
 DefaultGroupName=Fernanda
@@ -44,6 +42,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
 ChangesAssociations=yes
 UninstallDisplayIcon={app}\data\Fernanda.exe
+MinVersion=10
 
 [Tasks]
 Name: "startmenu"; Description: "Create a &Start Menu folder"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce

@@ -12,9 +12,8 @@
 - [x] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH, IT)
 - [x] Basic editor settings
-- [ ] Installer
-- [ ] Opening args
-- [ ] Toggle logging based on VERSION_DEBUG in Version.h
+- [x] Installer
+- [x] Opening args
 
 ### Stretch
 
@@ -94,7 +93,10 @@ Next up:
 - [x] Try Inno? (Follow-up: it's good!)
 - [x] Installer translations? Is that common?
 - [x] Ensure installer has: batchfile automated, optional shortcut, uses windeployqt6, also copies a shortcut to repo, copies inside a data folder with shortcut to exe inside at top level, and installer dir output is separated by platform somehow
-- [ ] Handle opening args!
+- [x] Handle opening args!
+- [x] Toggle logging based on VERSION_DEBUG in Version.h
+- [ ] Refactor common Notebook/Notepad opening code in Application
+- [ ] Align tab display text to not have leftmost text go past left side
 
 ### Coco
 

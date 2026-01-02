@@ -44,8 +44,6 @@
 
 namespace Fernanda {
 
-COCO_BOOL(NewWindow);
-
 // Base class for Notepad and Notebook workspaces (collection of windows, their
 // files, and the filesystems on which they operate). Owns and initializes
 // services and modules, and allows path filtering for the Application
@@ -62,21 +60,12 @@ public:
 
     virtual ~Workspace() override = default;
 
-    virtual bool tryQuit() = 0;
-
-    // TODO: Do we ever need to "open" without opening a window?
-    void open(NewWindow withWindow = NewWindow::No)
+    void beCute() const
     {
-        // ... Path args to open files for Notepad only
-        // could rename "show" and always open window?
-
-        if (withWindow) windows->newWindow();
-
-        // TODO: Don't run if no windows...
         timer(1200, this, [&] { colorBars->pastel(); });
     }
 
-    void newWindow() { windows->newWindow(); }
+    bool hasWindows() const { return windows->count() > 0; }
 
     void activate() const
     {
@@ -84,20 +73,30 @@ public:
             active_window->activate(); // Stack under will raise any others
     }
 
+    void show()
+    {
+        if (!hasWindows()) {
+            windows->newWindow();
+        } else {
+            activate();
+        }
+    }
+
+    virtual bool tryQuit() = 0;
+
 signals:
     void lastWindowClosed();
     void newNotebookRequested(const Coco::Path& fnxPath);
     void openNotebookRequested(const Coco::Path& fnxPath);
 
 protected:
-    // TODO: Getters instead?
-
     Bus* bus = new Bus(this);
 
     // TODO: If we want this to be explicitly "Notepad.ini" then it shouldn't be
     // in base class. And yet, if we want to use it as the base for each
     // individual Notebook's own settings, it isn't strictly Notepad.ini, then
     // is it?
+    // TODO: ^ I think keep but EXPLAIN in DOCS!
     SettingsService* settings =
         new SettingsService(AppDirs::userData() / "Settings.ini", bus, this);
     WindowService* windows = new WindowService(bus, this);

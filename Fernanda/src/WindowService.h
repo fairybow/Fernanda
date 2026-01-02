@@ -84,6 +84,7 @@ public:
     }
 
     int count() const { return static_cast<int>(unorderedWindows_.count()); }
+
     Window* active() const { return activeWindow_.get(); }
 
     // Highest window is first
@@ -104,7 +105,8 @@ public:
     }
 
     // QSet<Window*> windowsSet() const noexcept { return unorderedWindows_; }
-    // QList<Window*> rWindows() const noexcept { return zOrderedVolatileWindows_; }
+    // QList<Window*> rWindows() const noexcept { return
+    // zOrderedVolatileWindows_; }
 
     Window* newWindow()
     {
@@ -113,6 +115,12 @@ public:
             window->setWindowTitle(windowTitle_());
             window->setGeometry(nextWindowGeometry_());
             window->show();
+
+            // Set active window immediately instead of relying on the events to
+            // handle the timing gap between newWindow() creating/showing a
+            // window and Qt's WindowActivate event being processed through the
+            // event loop (which normally sets activeWindow_)
+            setActiveWindow_(window);
         }
 
         return window;
