@@ -158,15 +158,6 @@
     <None Include="docs\old_TempTodos.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
-    <None Include="docs\NotebookCreation.md">
-      <Filter>Docs\Charts</Filter>
-    </None>
-    <None Include="docs\ComponentArchitecture.md">
-      <Filter>Docs\Charts</Filter>
-    </None>
-    <None Include="docs\StartupFlowchart.md">
-      <Filter>Docs\Charts</Filter>
-    </None>
     <None Include="docs\temp_DocsPlan.md">
       <Filter>Docs</Filter>
     </None>
@@ -226,6 +217,15 @@
     </None>
     <None Include="installer\WindowsInstaller.iss">
       <Filter>Installer</Filter>
+    </None>
+    <None Include="docs\old_ComponentArchitecture.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_NotebookCreation.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_StartupFlowchart.md">
+      <Filter>Old %28Remove Later%29</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
