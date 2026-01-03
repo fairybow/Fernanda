@@ -25,7 +25,6 @@ set LICENSE=..\..\LICENSE
 set ADDITIONAL_TERMS=..\..\ADDITIONAL_TERMS
 
 set TEMP_DIR=.\temp
-set APP_DATA_DIR=%TEMP_DIR%\data
 set OUTPUT_DIR=.\output\Windows x64
 
 set STEPS=5
@@ -77,10 +76,10 @@ if not exist "%ADDITIONAL_TERMS%" (
 
 echo [2/%STEPS%] Cleaning temp directory...
 if exist "%TEMP_DIR%" rmdir /s /q "%TEMP_DIR%"
-mkdir "%APP_DATA_DIR%"
+mkdir "%TEMP_DIR%"
 
 echo [3/%STEPS%] Copying Fernanda.exe...
-copy "%RELEASE_EXE%" "%APP_DATA_DIR%\" > nul
+copy "%RELEASE_EXE%" "%TEMP_DIR%\" > nul
 
 REM TODO: If/when we add image viewing, revise this!
 echo [4/%STEPS%] Running windeployqt...
@@ -91,7 +90,7 @@ echo [4/%STEPS%] Running windeployqt...
     --no-opengl-sw ^
     --skip-plugin-types generic,networkinformation,tls ^
     --exclude-plugins qgif,qjpeg ^
-    "%APP_DATA_DIR%\Fernanda.exe"
+    "%TEMP_DIR%\Fernanda.exe"
 
 REM final contents of "temp" folder should look like this:
 REM temp/

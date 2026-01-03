@@ -49,7 +49,7 @@ Name: "startmenu"; Description: "Create a &Start Menu folder"; GroupDescription:
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
 
 [Files]
-Source: "temp\data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
+Source: "temp\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 Source: "{#ReadmePath}"; DestDir: "{app}\docs"
 Source: "{#LicensePath}"; DestDir: "{app}\docs"
 Source: "{#AdditionalTermsPath}"; DestDir: "{app}\docs"
