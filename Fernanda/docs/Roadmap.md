@@ -39,6 +39,8 @@
 - [ ] Notebook (and Notepad, kinda) TreeView items indent too far
 - [ ] Choose most appropriate columns for Notepad TreeView
 - [ ] Change Notepad TreeView column (for filename) default width (too short)
+- [ ] Tab bar tabs sshould not resize while user's mouse is over it (to enable rapid tab closing)
+- [ ] .fnx Notebook icon
 
 ### Docs
 
