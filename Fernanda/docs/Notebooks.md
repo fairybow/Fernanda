@@ -2,14 +2,14 @@
 
 Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard 7zip archive containing text files and an XML manifest describing the virtual directory structure.
 
-See: [`Notebook.h`](Fernanda/src/Notebook.h), [`Fnx.h`](Fernanda/src/Fnx.h), [`FnxModel.h`](Fernanda/src/FnxModel.h), [`FnxModelCache.h`](Fernanda/src/FnxModelCache.h), [`Workspace.h`](Fernanda/src/Workspace.h), and [`TempDir.h`](Fernanda/src/TempDir.h)
+See: [`Notebook.h`](../Fernanda/src/Notebook.h), [`Fnx.h`](../Fernanda/src/Fnx.h), [`FnxModel.h`](../Fernanda/src/FnxModel.h), [`FnxModelCache.h`](../Fernanda/src/FnxModelCache.h), [`Workspace.h`](../Fernanda/src/Workspace.h), and [`TempDir.h`](../Fernanda/src/TempDir.h)
 
 ## Overview
 
 A Notebook provides:
 - **Virtual organization**: Files and folders arranged independently of their physical storage
 - **Self-contained projects**: Everything lives in one portable `.fnx` file
-- **Recoverability**: Standard 7zip format means content remains accessible outside Fernanda
+- **Recoverability**: Standard 7zip format means content remains accessible outside ../Fernanda
 - **Multiple instances**: Unlike Notepad (singleton), any number of Notebooks can be open simultaneously
 
 ## Architecture
@@ -118,7 +118,7 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 
 ## Working Directory
 
-When a Notebook is opened or created, Fernanda extracts (or creates) a temporary working directory:
+When a Notebook is opened or created, ../Fernanda extracts (or creates) a temporary working directory:
 
 ```
 {temp}/MyNovel.fnx~XXXXXX/
@@ -279,7 +279,7 @@ New Notebooks (created via "New Notebook" rather than opening an existing `.fnx`
 ## Drag and Drop
 
 FnxModel supports internal drag-and-drop for reorganizing items:
-- Uses custom MIME type: `application/x-fernanda-fnx-element`
+- Uses custom MIME type: `application/x-../Fernanda-fnx-element`
 - Only `MoveAction` is supported
 - Items can be dragged between notebook and trash
 - Moving to own subtree is prevented
