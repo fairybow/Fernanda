@@ -2,7 +2,7 @@
 
 Fernanda separates file content management from its visual representation using paired abstract classes: `AbstractFileModel` (content and state) and `AbstractFileView` (display and interaction).
 
-See: [`AbstractFileModel.h`](Fernanda/src/AbstractFileModel.h), [`AbstractFileView.h`](Fernanda/src/AbstractFileView.h), [`FileMeta.h`](Fernanda/src/FileMeta.h), [`TextFileModel.h`](Fernanda/src/TextFileModel.h), [`TextFileView.h`](Fernanda/src/TextFileView.h), [`NoOpFileModel.h`](Fernanda/src/NoOpFileModel.h), and [`NoOpFileView.h`](Fernanda/src/NoOpFileView.h)
+See: [`AbstractFileModel.h`](../src/AbstractFileModel.h), [`AbstractFileView.h`](../src/AbstractFileView.h), [`FileMeta.h`](../src/FileMeta.h), [`TextFileModel.h`](../src/TextFileModel.h), [`TextFileView.h`](../src/TextFileView.h), [`NoOpFileModel.h`](../src/NoOpFileModel.h), and [`NoOpFileView.h`](../src/NoOpFileView.h)
 
 ## Overview
 

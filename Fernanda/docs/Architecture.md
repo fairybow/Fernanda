@@ -2,7 +2,7 @@
 
 Fernanda uses an event-driven architecture with clear separation between mechanics and policy. This document explains the structural patterns and their rationale.
 
-See: [`Application.h`](Fernanda/src/Application.h), [`Bus.h`](Fernanda/src/Bus.h), [`Commander.h`](Fernanda/src/Commander.h), [`AbstractService.h`](Fernanda/src/AbstractService.h), [`Workspace.h`](Fernanda/src/Workspace.h), [`WindowService.h`](Fernanda/src/WindowService.h), and [`ViewService.h`](Fernanda/src/ViewService.h)
+See: [`Application.h`](../src/Application.h), [`Bus.h`](../src/Bus.h), [`Commander.h`](../src/Commander.h), [`AbstractService.h`](../src/AbstractService.h), [`Workspace.h`](../src/Workspace.h), [`WindowService.h`](../src/WindowService.h), and [`ViewService.h`](../src/ViewService.h)
 
 ## Overview
 

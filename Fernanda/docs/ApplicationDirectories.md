@@ -2,7 +2,7 @@
 
 Fernanda uses a few standard locations for storing data.
 
-See: [`AppDirs.h`](Fernanda/src/AppDirs.h)
+See: [`AppDirs.h`](../src/AppDirs.h)
 
 ## Directory Structure
 
