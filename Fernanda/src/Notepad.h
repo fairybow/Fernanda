@@ -433,9 +433,8 @@ private:
 
     void setup_()
     {
-        fsModel_->setRootPath(
-            startDir.toQString()); // Via Qt: Setting root path installs a
-                                   // filesystem watcher
+        // Via Qt: Setting root path installs a filesystem watcher
+        fsModel_->setRootPath(startDir.toQString());
         fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
 
         settings->setName(Tr::notepad());
