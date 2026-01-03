@@ -119,7 +119,10 @@ public:
             // Set active window immediately instead of relying on the events to
             // handle the timing gap between newWindow() creating/showing a
             // window and Qt's WindowActivate event being processed through the
-            // event loop (which normally sets activeWindow_)
+            // event loop (which normally sets activeWindow_). This was added
+            // specifically to address a problem when calling Notepad::openFiles
+            // on application start (the first window had not been made active
+            // before the call happened, for some reason)
             setActiveWindow_(window);
         }
 
