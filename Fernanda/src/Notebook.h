@@ -323,8 +323,8 @@ private:
 
         } else {
             Fnx::Io::extract(fnxPath_, working_dir);
-            // TODO: Verification (comparing Model file elements to content dir
-            // files, i.e. making sure Trash exists, checking all file UUIDs
+            // TODO: Verification (comparing Manifest file elements to content
+            // dir files, i.e. making sure Trash exists, checking all file UUIDs
             // have corresponding files, etc.)
         }
 
@@ -739,7 +739,7 @@ private:
     }
 
 private slots:
-    // TODO: Could remove working dir validity check; also writeModelFile could
+    // TODO: Could remove working dir validity check; also writeManifest could
     // return bool?
     void onFnxModelDomChanged_()
     {

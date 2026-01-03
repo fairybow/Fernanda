@@ -110,7 +110,7 @@ public:
 
     void write(const Coco::Path& workingDir) const
     {
-        Fnx::Xml::writeModelFile(workingDir, dom_);
+        Fnx::Xml::writeManifest(workingDir, dom_);
         INFO("DOM written: {}", dom_.toString());
     }
 

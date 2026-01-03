@@ -148,7 +148,7 @@ Next up:
 - [ ] Trigger rename for new folders/files, but not import (maybe)?
 - [ ] TreeView (NB): Collapsed items should expand on hover while dragging
 - [ ] TreeView (NB): Items should expand when items are dragged into them
-- [ ] TreeView (NB): Persist expanded states for items in Model.xml, so program remembers
+- [ ] TreeView (NB): Persist expanded states for items in Manifest.xml, so program remembers
 
 ### Finished
 
