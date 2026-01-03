@@ -14,42 +14,54 @@
 
 #include "Debug.h"
 
-namespace Fernanda {
+namespace Fernanda::Timers {
 
 template <typename SlotT>
-inline void timer(int msecs, const QObject* parent, SlotT slot)
+inline void delay(int msecs, const QObject* parent, SlotT slot)
 {
     QTimer::singleShot(msecs, parent, slot);
 }
 
-namespace Timers {
+template <typename SlotT> inline void delay(int msecs, SlotT slot)
+{
+    QTimer::singleShot(msecs, slot);
+}
 
-    // Utility class for initializing a debouncing/delay timer and connecting it
-    // to a slot
-    class Delayer : public QObject
+template <typename SlotT>
+inline void onNextTick(const QObject* parent, SlotT slot)
+{
+    QTimer::singleShot(0, parent, slot);
+}
+
+template <typename SlotT> inline void onNextTick(SlotT slot)
+{
+    QTimer::singleShot(0, slot);
+}
+
+// Utility class for initializing a debouncing/delay timer and connecting it
+// to a slot
+class Delayer : public QObject
+{
+    Q_OBJECT
+
+public:
+    template <typename SlotT>
+    Delayer(int interval, QObject* parent, SlotT slot)
+        : QObject(parent)
     {
-        Q_OBJECT
+        timer_->setSingleShot(true);
+        timer_->setInterval(interval);
+        connect(timer_, &QTimer::timeout, parent, slot);
+    }
 
-    public:
-        template <typename SlotT>
-        Delayer(int interval, QObject* parent, SlotT slot)
-            : QObject(parent)
-        {
-            timer_->setSingleShot(true);
-            timer_->setInterval(interval);
-            connect(timer_, &QTimer::timeout, parent, slot);
-        }
+    virtual ~Delayer() override { TRACER; }
 
-        virtual ~Delayer() override { TRACER; }
+    void start() { timer_->start(); }
 
-        void start() { timer_->start(); }
+private:
+    QTimer* timer_ = new QTimer(this);
+};
 
-    private:
-        QTimer* timer_ = new QTimer(this);
-    };
+using Debouncer = Delayer;
 
-    using Debouncer = Delayer;
-
-} // namespace Timers
-
-} // namespace Fernanda
+} // namespace Fernanda::Timers

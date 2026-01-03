@@ -62,7 +62,7 @@ public:
 
     void beCute() const
     {
-        timer(1200, this, [&] { colorBars->pastel(); });
+        Timers::delay(1200, this, [&] { colorBars->pastel(); });
     }
 
     bool hasWindows() const { return windows->count() > 0; }

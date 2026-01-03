@@ -38,6 +38,7 @@
 #include "SettingsService.h"
 #include "Tr.h"
 #include "TreeViewService.h"
+#include "Timers.h"
 #include "Version.h"
 #include "ViewService.h"
 #include "Window.h"
@@ -433,9 +434,14 @@ private:
 
     void setup_()
     {
-        // Via Qt: Setting root path installs a filesystem watcher
-        fsModel_->setRootPath(startDir.toQString());
-        fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+        // Must defer to allow the first window(s) to paint correctly. Without
+        // this, QFSM's initialization blocks the event loop (or causes enough
+        // strain in any case) long enough to cause white/unpainted windows on
+        // startup
+        Timers::onNextTick([&] {
+            fsModel_->setRootPath(startDir.toQString());
+            fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+        });
 
         settings->setName(Tr::notepad());
 

@@ -186,7 +186,7 @@ private:
 
         // Execute animation with delay
         auto fill_time_line = fillTimeLine_();
-        timer(delay, this, [=] {
+        Timers::delay(delay, this, [=] {
             lingerTimer_->start();
             fill_time_line->start();
             update(); // Trigger initial repaint
