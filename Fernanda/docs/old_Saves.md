@@ -1,4 +1,4 @@
-﻿# Saves (Draft)
+# Saves (Draft)
 
 TODO: Find Coco::PathUtil dialogs and remove from places that shouldn't be using them. Should only be FileService, I think.
 
@@ -50,7 +50,7 @@ It knows nothing about saving, models, or services. It's just: "Here are some fi
 // 1. Collect modified models (Workspace knows policy)
 QList<AbstractFileModel*> modifiedModels = collectModifiedModelsUniqueToWindow(window);
 
-// 2. Build display data (Workspace bridges domain → UI)
+// 2. Build display data (Workspace bridges domain -> UI)
 QList<SavePrompt::FileInfo> displayList;
 for (auto* model : modifiedModels) {
     displayList.append({ model->meta()->title(), model->meta()->toolTip() });
@@ -85,26 +85,32 @@ return Accept::Yes;
 ## The Layering
 
 ```
-┌─────────────────────────────────────────────┐
-│  SavePrompt / FileDialogs                   │  ← Pure UI utilities
-│  (display info in, choices out)             │
-└─────────────────────────────────────────────┘
-                     ↕
-┌─────────────────────────────────────────────┐
-│  Workspace (Notepad/Notebook)               │  ← Policy layer
-│  (decides when to prompt, interprets        │
-│   choices, coordinates services)            │
-└─────────────────────────────────────────────┘
-                     ↕
-┌─────────────────────────────────────────────┐
-│  FileService                                │  ← Mechanics layer
-│  (actual I/O, model management)             │
-└─────────────────────────────────────────────┘
-                     ↕
-┌─────────────────────────────────────────────┐
-│  AbstractFileModel                                 │  ← Domain layer
-│  (content, state, provides data for I/O)    │
-└─────────────────────────────────────────────┘
++---------------------------------------------+
+|  SavePrompt / FileDialogs                   |  <- Pure UI utilities
+|  (display info in, choices out)             |
++---------------------------------------------+
+                     ^
+                     |
+                     v
++---------------------------------------------+
+|  Workspace (Notepad/Notebook)               |  <- Policy layer
+|  (decides when to prompt, interprets        |
+|   choices, coordinates services)            |
++---------------------------------------------+
+                     ^
+                     |
+                     v
++---------------------------------------------+
+|  FileService                                |  <- Mechanics layer
+|  (actual I/O, model management)             |
++---------------------------------------------+
+                     ^
+                     |
+                     v
++---------------------------------------------+
+|  AbstractFileModel                          |  <- Domain layer
+|  (content, state, provides data for I/O)    |
++---------------------------------------------+
 ```
 
 ## FileService API Sketch
@@ -127,9 +133,9 @@ TODO: Add this to new doc:
 | Scenario | Archive Exists | Modified | Action |
 |----------|---------------|----------|--------|
 | Closure | Yes | No | Close immediately |
-| Closure | Yes | Yes | Prompt → Save to existing path |
-| Closure | No | (always "modified") | Prompt → Save As dialog → Save |
+| Closure | Yes | Yes | Prompt -> Save to existing path |
+| Closure | No | (always "modified") | Prompt -> Save As dialog -> Save |
 | NOTEBOOK_SAVE | Yes | No | No-op |
 | NOTEBOOK_SAVE | Yes | Yes | Save to existing path |
-| NOTEBOOK_SAVE | No | (always "modified") | Save As dialog → Save → Update path/subtitle |
-| NOTEBOOK_SAVE_AS | Any | Any | Save As dialog → Save → Update path/subtitle |
+| NOTEBOOK_SAVE | No | (always "modified") | Save As dialog -> Save -> Update path/subtitle |
+| NOTEBOOK_SAVE_AS | Any | Any | Save As dialog -> Save -> Update path/subtitle |

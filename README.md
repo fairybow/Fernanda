@@ -25,10 +25,10 @@ Mac and Linux support is planned.
 
 ```
 Application
-└── Workspace(s)
-    ├── Bus (Commander + EventBus)
-    ├── Services (Windows, Files, Views...)
-    └── Modules (ColorBars, Menus, WordCounters...)
++-- Workspace(s)
+    |-- Bus (Commander + EventBus)
+    |-- Services (Windows, Files, Views...)
+    +-- Modules (ColorBars, Menus, WordCounters...)
 ```
 
 # Building

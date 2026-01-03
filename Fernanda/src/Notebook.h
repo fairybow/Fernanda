@@ -67,13 +67,6 @@ namespace Fernanda {
 //
 // There can be any number of Notebooks open during the application lifetime.
 //
-// TODO: Add to docs: trash behavior (still edtiable, tabs do not close when
-// moved to trash, still savable; however, emptying trash will close tabs and
-// lose unsaved changes)
-// TODO: Add the docs: Save As will not rename the working directory
-// TODO: Notebook doc should include a section for each major component of the
-// Notebook (so should other class docs), like Working Directory, FNX files,
-// etc.
 // TODO: Settings change mark Notebook unsaved? How - watch the working dir for
 // changes?
 class Notebook : public Workspace

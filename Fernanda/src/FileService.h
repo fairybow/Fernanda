@@ -325,21 +325,3 @@ inline QString toQString(FileService::SaveResult saveResult) noexcept
 }
 
 } // namespace Fernanda
-
-/*
-TODO SAVES
-
-void deleteModels(const QList<AbstractFileModel*>& fileModels)
-{
-    for (auto& model : fileModels)
-        deleteModel(model);
-}
-
-void deleteAll()
-{
-    for (auto& model : fileModels_)
-        delete model;
-    fileModels_.clear();
-    pathToFileModel_.clear();
-}
-*/

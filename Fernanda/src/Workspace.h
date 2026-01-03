@@ -92,11 +92,6 @@ signals:
 protected:
     Bus* bus = new Bus(this);
 
-    // TODO: If we want this to be explicitly "Notepad.ini" then it shouldn't be
-    // in base class. And yet, if we want to use it as the base for each
-    // individual Notebook's own settings, it isn't strictly Notepad.ini, then
-    // is it?
-    // TODO: ^ I think keep but EXPLAIN in DOCS!
     SettingsService* settings =
         new SettingsService(AppDirs::userData() / "Settings.ini", bus, this);
     WindowService* windows = new WindowService(bus, this);

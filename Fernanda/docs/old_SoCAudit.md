@@ -1,10 +1,10 @@
-﻿# Claude SoC Audit
+# Claude SoC Audit
 
 # Revised Audit
 
 You raise excellent points on both counts. Let me reconsider:
 
-## Point 2 — Window as Context is Fine
+## Point 2: Window as Context is Fine
 
 You're right. Looking at the Bus architecture more carefully:
 
@@ -12,18 +12,18 @@ You're right. Looking at the Bus architecture more carefully:
 void execute(const QString& id, const QVariantMap& params, Window* context)
 ```
 
-`Window* context` is an **opaque routing handle**, not a dependency. FileService doesn't reach into Window internals — it just says "I made this model, and it belongs to *this* context." ViewService then receives the event and knows where to put the view.
+`Window* context` is an **opaque routing handle**, not a dependency. FileService doesn't reach into Window internals, it just says "I made this model, and it belongs to *this* context." ViewService then receives the event and knows where to put the view.
 
 This is proper message passing. FileService treats Window as an opaque token, not as something it manipulates. The flow is:
 
 ```
-FileService: "Here's a model for context X" → Bus event
+FileService: "Here's a model for context X" -> Bus event
 ViewService: "I'll create a view and put it in context X's TabWidget"
 ```
 
 FileService doesn't know or care what a Window contains. It's just forwarding context. **Point 2 is moot.**
 
-## Point 8 — Window/WindowService Tight Coupling is Intentional
+## Point 8: Window/WindowService Tight Coupling is Intentional
 
 You're also right here. Window and WindowService form a deliberate **cohesive unit**:
 
@@ -31,7 +31,7 @@ You're also right here. Window and WindowService form a deliberate **cohesive un
 - Window is a managed container that defers policy to its service
 - The `friend` relationship and `service_` pointer make this explicit
 
-This is similar to how Qt's own classes work internally (e.g., `QWidgetPrivate`). The tight coupling is *by design* — they're meant to be developed and reasoned about together.
+This is similar to how Qt's own classes work internally (e.g., `QWidgetPrivate`). The tight coupling is *by design*; they're meant to be developed and reasoned about together.
 
 The alternative (pure signals) would add complexity without real benefit. As long as:
 - Only WindowService sets `service_`
@@ -47,13 +47,13 @@ The alternative (pure signals) would add complexity without real benefit. As lon
 | # | Location | Issue | Severity | Fix Approach |
 |---|----------|-------|----------|--------------|
 | 1 | TextFileModel::save() | Model does I/O | **High** | Move to FileService |
-| 2 | ~~FileService::openOffDiskTxtIn~~ | ~~Service takes Window~~ | — | *Moot: Window is opaque context* |
+| 2 | ~~FileService::openOffDiskTxtIn~~ | ~~Service takes Window~~ | - | *Moot: Window is opaque context* |
 | 3 | FileService::newDiskTextFileModel_ | Service sets doc content | Medium | Model loads own content |
 | 4 | ViewService::onFileModelReadied_ | Type-checks concrete models | Medium | Factory/registry pattern |
 | 5 | Notepad/Notebook canClose hooks | Iterates views to get models | Medium | Model-centric queries |
 | 6 | Notebook context menu | Workspace builds UI | Medium | Delegate to Module |
 | 7 | Notebook status indicator | Workspace modifies Window | Low | Service/Module handles |
-| 8 | ~~Window::service_~~ | ~~Bidirectional coupling~~ | — | *Intentional: cohesive unit* |
+| 8 | ~~Window::service_~~ | ~~Bidirectional coupling~~ | - | *Intentional: cohesive unit* |
 | 9 | SavePrompt | Takes domain types | Medium | Use DTOs |
 | 10 | FnxModel::FileInfo | Public ctor takes DOM | Low | Private ctor |
 | 11 | Menus quit action | Calls app() directly | Low | Use Bus command |
@@ -72,7 +72,7 @@ I'll systematically audit your codebase. Let me start reading through the key fi
 
 # Encapsulation & Separation of Concerns Audit
 
-## 1. **TextFileModel::save() / saveAs()** — Model Does I/O
+## 1. **TextFileModel::save() / saveAs()**: Model Does I/O
 
 **Location:** `TextFileModel.h:46-76`
 
@@ -101,7 +101,7 @@ SaveResult save(AbstractFileModel* model) {
 
 ---
 
-## 2. **FileService::openOffDiskTxtIn()** — Service Knows About Windows
+## 2. **FileService::openOffDiskTxtIn()**: Service Knows About Windows
 
 **Location:** `FileService.h:92-98`
 
@@ -114,7 +114,7 @@ SaveResult save(AbstractFileModel* model) {
 
 ---
 
-## 3. **FileService::newDiskTextFileModel_()** — FileService Sets Document Text
+## 3. **FileService::newDiskTextFileModel_()**: FileService Sets Document Text
 
 **Location:** `FileService.h:174-189`
 
@@ -123,11 +123,11 @@ SaveResult save(AbstractFileModel* model) {
 **Fix:**
 - Add `AbstractFileModel::loadFromPath(const Coco::Path&)` or `loadContent(const QString&)`
 - TextFileModel implements this to set its document text
-- FileService calls `model->loadContent(TextIo::read(path))` — model handles its own internal setup
+- FileService calls `model->loadContent(TextIo::read(path))`, model handles its own internal setup
 
 ---
 
-## 4. **ViewService::onFileModelReadied_()** — Service Type-Checks Concrete Models
+## 4. **ViewService::onFileModelReadied_()**: Service Type-Checks Concrete Models
 
 **Location:** `ViewService.h:572-596`
 
@@ -135,7 +135,7 @@ SaveResult save(AbstractFileModel* model) {
 
 **Fix:** Use a factory pattern or registry:
 - Option A: `AbstractFileModel` has virtual `createView()` method (model creates its own view)
-- Option B: Register model-type → view-type mappings in ViewService
+- Option B: Register model-type -> view-type mappings in ViewService
 - Option C: `AbstractFileModel::viewTypeHint()` returns an enum, ViewService switches on that
 
 ```cpp
@@ -153,7 +153,7 @@ case ViewType::NoOp: view = new NoOpFileView(...); break;
 
 ---
 
-## 5. **Notepad/Notebook — canClose* Hooks Access Views to Get Models**
+## 5. **Notepad/Notebook: canClose* Hooks Access Views to Get Models**
 
 **Location:** `Notepad.h:85-250`, `Notebook.h:110-145`
 
@@ -175,7 +175,7 @@ using CanCloseWindowTabsHook = std::function<bool(const QList<AbstractFileModel*
 
 ---
 
-## 6. **Notebook::onTreeViewContextMenuRequested_()** — Workspace Builds UI
+## 6. **Notebook::onTreeViewContextMenuRequested_()**: Workspace Builds UI
 
 **Location:** `Notebook.h:337-369`
 
@@ -188,7 +188,7 @@ using CanCloseWindowTabsHook = std::function<bool(const QList<AbstractFileModel*
 
 ---
 
-## 7. **Notebook::addWorkspaceIndicator_()** — Workspace Manipulates Window UI
+## 7. **Notebook::addWorkspaceIndicator_()**: Workspace Manipulates Window UI
 
 **Location:** `Notebook.h:272-288`
 
@@ -201,7 +201,7 @@ using CanCloseWindowTabsHook = std::function<bool(const QList<AbstractFileModel*
 
 ---
 
-## 8. **Window::service_** — Window Holds Back-Reference to Service
+## 8. **Window::service_**: Window Holds Back-Reference to Service
 
 **Location:** `Window.h:59-60`
 
@@ -214,7 +214,7 @@ using CanCloseWindowTabsHook = std::function<bool(const QList<AbstractFileModel*
 - WindowService installs an event filter (already does) to intercept close events
 - Or: Window's closeEvent emits `aboutToClose()` signal that WindowService connects to
 
-Actually, looking at `WindowService.cpp`, it already uses an event filter. The `service_` pointer may be legacy — verify if it's actually needed and remove if not.
+Actually, looking at `WindowService.cpp`, it already uses an event filter. The `service_` pointer may be legacy; verify if it's actually needed and remove if not.
 
 ---
 
@@ -260,7 +260,7 @@ public:
 
 ---
 
-## 11. **Menus::makeAppQuitAction_()** — External Function Knows About Application
+## 11. **Menus::makeAppQuitAction_()**: External Function Knows About Application
 
 **Location:** `Menus.cpp` (referenced in `Menus.h:102`)
 
