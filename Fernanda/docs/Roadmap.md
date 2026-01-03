@@ -33,6 +33,13 @@
 - [ ] Tab groups (will utilize sessions, and maybe a better tab bar)
 - [ ] Expanded/collapsed item restoration between sessions (will utilize sessions)
 
+### Polish
+
+- [ ] Align tab display text to not have leftmost text go past left side
+- [ ] Notebook (and Notepad, kinda) TreeView items indent too far
+- [ ] Choose most appropriate columns for Notepad TreeView
+- [ ] Change Notepad TreeView column (for filename) default width (too short)
+
 ### Docs
 
 - [ ] Number and order for core docs
@@ -96,7 +103,6 @@ Next up:
 - [x] Handle opening args!
 - [x] Toggle logging based on VERSION_DEBUG in Version.h
 - [ ] Refactor common Notebook/Notepad opening code in Application
-- [ ] Align tab display text to not have leftmost text go past left side
 
 ### Coco
 
