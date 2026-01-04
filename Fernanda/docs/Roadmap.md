@@ -39,6 +39,8 @@
 - [ ] Notebook (and Notepad, kinda) TreeView items indent too far
 - [ ] Choose most appropriate columns for Notepad TreeView
 - [ ] Change Notepad TreeView column (for filename) default width (too short)
+- [ ] Tab bar tabs sshould not resize while user's mouse is over it (to enable rapid tab closing)
+- [ ] .fnx Notebook icon
 
 ### Docs
 
@@ -146,7 +148,7 @@ Next up:
 - [ ] Trigger rename for new folders/files, but not import (maybe)?
 - [ ] TreeView (NB): Collapsed items should expand on hover while dragging
 - [ ] TreeView (NB): Items should expand when items are dragged into them
-- [ ] TreeView (NB): Persist expanded states for items in Model.xml, so program remembers
+- [ ] TreeView (NB): Persist expanded states for items in Manifest.xml, so program remembers
 
 ### Finished
 

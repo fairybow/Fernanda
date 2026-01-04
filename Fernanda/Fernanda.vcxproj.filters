@@ -61,9 +61,6 @@
     <Filter Include="Old %28Remove Later%29">
       <UniqueIdentifier>{6ff179fe-5e05-4c0f-a145-35d3cd86fbbb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Docs\Charts">
-      <UniqueIdentifier>{6168626a-ec23-4724-a575-f9e3e979d3d0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Code\Core\Workspaces\Bus">
       <UniqueIdentifier>{84840505-6dd6-477e-9f05-bce414d0344a}</UniqueIdentifier>
     </Filter>
@@ -158,46 +155,19 @@
     <None Include="docs\old_TempTodos.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
-    <None Include="docs\NotebookCreation.md">
-      <Filter>Docs\Charts</Filter>
-    </None>
-    <None Include="docs\ComponentArchitecture.md">
-      <Filter>Docs\Charts</Filter>
-    </None>
-    <None Include="docs\StartupFlowchart.md">
-      <Filter>Docs\Charts</Filter>
-    </None>
-    <None Include="docs\temp_DocsPlan.md">
-      <Filter>Docs</Filter>
-    </None>
     <None Include="docs\Roadmap.md">
       <Filter>Docs\Todos</Filter>
     </None>
     <None Include="docs\CodeCleanup.md">
       <Filter>Docs\Todos</Filter>
     </None>
-    <None Include="docs\SoCAudit.md">
-      <Filter>Docs\Todos</Filter>
-    </None>
-    <None Include="docs\old_Bus.md">
-      <Filter>Old %28Remove Later%29</Filter>
-    </None>
     <None Include="docs\old_Closures.md">
-      <Filter>Old %28Remove Later%29</Filter>
-    </None>
-    <None Include="docs\old_FNX.md">
-      <Filter>Old %28Remove Later%29</Filter>
-    </None>
-    <None Include="docs\old_Menus.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
     <None Include="docs\old_Openings.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
     <None Include="docs\old_Saves.md">
-      <Filter>Old %28Remove Later%29</Filter>
-    </None>
-    <None Include="docs\old_UserData.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
     <None Include="resources\ui\Dot.svg">
@@ -227,6 +197,27 @@
     <None Include="installer\WindowsInstaller.iss">
       <Filter>Installer</Filter>
     </None>
+    <None Include="docs\old_StartupFlowchart.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\Notebooks.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\Architecture.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\FileModelsAndViews.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\ApplicationDirectories.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\old_SoCAudit.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_temp_DocsPlan.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -243,9 +234,6 @@
     </QtMoc>
     <QtMoc Include="src\TextFileView.h">
       <Filter>Code\Core\Files\Views</Filter>
-    </QtMoc>
-    <QtMoc Include="src\FileMeta.h">
-      <Filter>Code\Core\Files\Models</Filter>
     </QtMoc>
     <QtMoc Include="src\Window.h">
       <Filter>Code\Core\UI</Filter>
@@ -351,6 +339,9 @@
     </QtMoc>
     <QtMoc Include="src\SettingsDialog.h">
       <Filter>Code\Core\Services\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FileMeta.h">
+      <Filter>Code\Core\Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

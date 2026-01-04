@@ -46,7 +46,7 @@ namespace Internal {
 
     // Io
 
-    constexpr auto IO_MODEL_FILE_NAME_ = "Model.xml";
+    constexpr auto IO_MANIFEST_FILE_NAME_ = "Manifest.xml";
     constexpr auto IO_CONTENT_DIR_NAME_ = "content";
 
     inline const Coco::Path& dll_()
@@ -59,6 +59,7 @@ namespace Internal {
         auto file_name = "7z.so";
         auto qrc_path = ":/7zip/7z.so";
 #endif
+
         static auto file = AppDirs::userData() / file_name;
         if (!file.exists()) Coco::PathUtil::copy(qrc_path, file);
         return file;
@@ -206,13 +207,13 @@ namespace Xml {
 
         QDomDocument doc{};
         auto content =
-            Fernanda::Io::read(workingDir / Internal::IO_MODEL_FILE_NAME_);
+            Fernanda::Io::read(workingDir / Internal::IO_MANIFEST_FILE_NAME_);
         auto result = doc.setContent(content);
 
         if (!result) {
             CRITICAL(
                 "Failed to parse {}! Error: {} at line {}, column {}.",
-                Internal::IO_MODEL_FILE_NAME_,
+                Internal::IO_MANIFEST_FILE_NAME_,
                 result.errorMessage,
                 result.errorLine,
                 result.errorColumn);
@@ -224,7 +225,7 @@ namespace Xml {
 
     // TODO: Return bool?
     inline void
-    writeModelFile(const Coco::Path& workingDir, const QDomDocument& dom)
+    writeManifest(const Coco::Path& workingDir, const QDomDocument& dom)
     {
         if (!workingDir.exists()) {
             CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
@@ -237,10 +238,10 @@ namespace Xml {
         }
 
         auto xml = dom.toByteArray(Internal::XML_INDENT_);
-        auto model_path = workingDir / Internal::IO_MODEL_FILE_NAME_;
+        auto path = workingDir / Internal::IO_MANIFEST_FILE_NAME_;
 
-        if (!Fernanda::Io::write(xml, model_path))
-            CRITICAL("Failed to write model to {}!", model_path);
+        if (!Fernanda::Io::write(xml, path))
+            CRITICAL("Failed to write manifest to {}!", path);
     }
 
     inline QDomElement
@@ -347,7 +348,7 @@ namespace Io {
         if (!Coco::PathUtil::mkdir(workingDir / Internal::IO_CONTENT_DIR_NAME_))
             return;
 
-        // Create base Model.xml
+        // Create base Manifest.xml
         QByteArray xml_content{};
         QXmlStreamWriter xml(&xml_content);
         xml.setAutoFormatting(true);
@@ -367,11 +368,9 @@ namespace Io {
         xml.writeEndElement();
         xml.writeEndDocument();
 
-        // Model.xml represents a virtual structuring of the contents of the
-        // content folder
         Fernanda::Io::write(
             xml_content,
-            workingDir / Internal::IO_MODEL_FILE_NAME_);
+            workingDir / Internal::IO_MANIFEST_FILE_NAME_);
     }
 
     inline void

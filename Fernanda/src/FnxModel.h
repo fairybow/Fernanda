@@ -86,8 +86,8 @@ public:
 
     void write(const Coco::Path& workingDir) const
     {
-        Fnx::Xml::writeModelFile(workingDir, dom_);
-        INFO("DOM written: {}", dom_.toString());
+        Fnx::Xml::writeManifest(workingDir, dom_);
+        INFO("DOM written to manifest: {}", dom_.toString());
     }
 
     void resetSnapshot() { domSnapshot_ = dom_.toString(); }

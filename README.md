@@ -1,51 +1,37 @@
-# ![Colorful conch shell icon](Fernanda/resources/icons/Fernanda-32.png) Fernanda
+<p align="center">
+    <a href="#"><img src="Fernanda/resources/banner/Readme Banner.png" alt="ASCII banner" width="640"></a>
+</p>
+<p align="center"><b>A plain text editor for drafting long-form fiction</b></p>
+<p align="center">
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%203-red.svg?style=for-the-badge" alt="License GPL 3"></a>
+    <img src="https://img.shields.io/badge/Platform-Windows-blue.svg?style=for-the-badge" alt="Platform Windows">
+</p>
+<p align="center">
+    <a href="https://github.com/fairybow/Fernanda/releases"><b><s>Releases</s></b></a> �
+    <a href="Fernanda/docs"><b>Documentation</b></a>
+</p>
 
-[![License GPL 3](https://img.shields.io/badge/License-GPL%203-red.svg)](LICENSE)
-![Platform Windows](https://img.shields.io/badge/Platform-Windows-blue.svg)
-[![Qt version 6.10](https://img.shields.io/badge/Qt-6.10-green.svg)](https://qt.io/)
-[![Bit7z version 4.0](https://img.shields.io/badge/Bit7z-4.0-orange.svg)](https://github.com/rikyoz/bit7z)
+Fernanda is my attempt at a distraction-free text editor for fiction writing. Work on single files or organize whole projects in Notebooks (`.fnx`).
 
-# Description
+**First release coming soon.**
 
-Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
+Mac and Linux support is planned!
 
-Fernanda aims to combine cozy, distraction-free plain text editing with powerful project organization for fiction writers. Work on standalone documents in Notepad mode, or organize entire manuscripts with research materials as a self-contained Notebook kept in project-specific files (`.fnx`). Notebooks are standard 7zip archives containing your writing and materials, so they remain accessible even outside Fernanda. Planned features include multimedia viewing for research materials (PDFs, images, etc.) directly within the writing environment.
+## Built with
 
-Built with Qt, Bit7z, Visual Studio, and C++.
+![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=C%2B%2B)
+[![Qt](https://img.shields.io/badge/Qt-6.10-brightgreen?style=for-the-badge&logo=qt)](https://qt.io/)
+[![Bit7z](https://img.shields.io/badge/Bit7z-4.0-orange.svg?style=for-the-badge)](https://github.com/rikyoz/bit7z)
 
-Mac and Linux support is planned.
-
-# Architecture
-
-- **Workspaces**: Collections of windows and files
-  - Notepad: Works with OS filesystem
-  - Notebook: Planned archive-based workspaces (like binder-style applications)
-- **Event-driven**: Commander/EventBus pattern for component communication
-- **Modular**: Services handle core logic, modules provide optional features
-
-```
-Application
-└── Workspace(s)
-    ├── Bus (Commander + EventBus)
-    ├── Services (Windows, Files, Views...)
-    └── Modules (ColorBars, Menus, WordCounters...)
-```
-
-# Building
+## Building
 
 Open [`Fernanda.sln`](Fernanda.sln) in Visual Studio and build.
 
-## Requirements
+### Requirements
 
 - Qt 6.10.0
-- Visual Studio 2026
 - C++ 20
-- Windows only
 
-# Status
+## License
 
-Work in progress (no releases available).
-
-# License
-
-Fernanda is free and open source software. Both the application and its source code are available under the GNU GPL 3 License with additional Section 7 terms invoked. See the [LICENSE](LICENSE) and [ADDITIONAL_TERMS](ADDITIONAL_TERMS) files for complete details.
+Fernanda is free and open source under the [GPL 3 License](LICENSE) with [additional terms](ADDITIONAL_TERMS).

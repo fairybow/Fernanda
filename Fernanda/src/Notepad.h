@@ -439,8 +439,8 @@ private:
         // strain in any case) long enough to cause white/unpainted windows on
         // startup
         Timers::onNextTick([&] {
-            fsModel_->setRootPath(startDir.toQString());
             fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+            fsModel_->setRootPath(startDir.toQString());
         });
 
         settings->setName(Tr::notepad());
