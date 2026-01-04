@@ -8,7 +8,7 @@
     <a href="https://github.com/rikyoz/bit7z"><img src="https://img.shields.io/badge/Bit7z-4.0-orange.svg" alt="Bit7z version 4.0"></a>
 </p>
 
-## ![Colorful conch shell icon](Fernanda/resources/icons/Fernanda-32.png) Description
+## Description
 
 Fernanda is a plain text editor for drafting long-form fiction. (At least, that's the plan.)
 
