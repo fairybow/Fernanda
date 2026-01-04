@@ -79,11 +79,7 @@ namespace Internal {
     constexpr auto XML_NAME_ATTR_DIR_DEF_ = "New folder";
     constexpr auto XML_UUID_ATTR_ = "uuid";
     constexpr auto XML_TRASH_RESTORE_PARENT_UUID_ATTR_ =
-        "parent_on_restore_uuid"; // TODO: Make sure this is added when moving
-                                  // to trash and also removed before restoring
-                                  // - may do that here or FnxModel! Empty
-                                  // string or invalid UUID means reparent on
-                                  // restore to document element
+        "parent_on_restore_uuid";
     constexpr auto XML_FILE_EXT_ATTR_ = "extension";
     constexpr auto XML_FILE_EDITED_ATTR_ = "edited";
     constexpr auto XML_NULL_DOM_ = "DOM is null!";
