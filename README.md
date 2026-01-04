@@ -11,11 +11,13 @@
     <a href="Fernanda/docs"><b>Documentation</b></a>
 </p>
 
-Fernanda is my attempt at a distraction-free text editor for fiction writing. Work on single files or organize whole projects in Notebooks (`.fnx`).
-
-**First release coming soon.**
+Fernanda is my attempt at a distraction-free text editor for fiction writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](Fernanda/docs/Notebooks.md).
 
 Mac and Linux support is planned!
+
+## Installation
+
+**First release coming soon.**
 
 ## Built with
 
@@ -25,13 +27,22 @@ Mac and Linux support is planned!
 
 ## Building
 
-Open [`Fernanda.sln`](Fernanda.sln) in Visual Studio and build.
+For now, open [`Fernanda.sln`](Fernanda.sln) in Visual Studio and build.
 
 ### Requirements
 
-- Qt 6.10.0
+- Qt 6.10.1
 - C++ 20
+- See [VSProjectSettings](Fernanda/docs/VSProjectSettings.md) for VS specifics (though the `.sln` should take care of this)
 
 ## License
 
 Fernanda is free and open source under the [GPL 3 License](LICENSE) with [additional terms](ADDITIONAL_TERMS).
+
+##
+
+I think, in part, I made this because I wanted to put off writing for as long as possible (as writers are wont to do). But I also wanted to make something all my own, something difficult yet rewarding that was way out of my realm of experience. It's taken forever, and it's still not done (it'll never be *done*-done), but it's well on its way now. Thanks for stopping by, and I hope we'll meet again.
+
+> You have to be all kinds of stupid to say "*I can do this.*"
+
+&ndash; Linus Torvalds
