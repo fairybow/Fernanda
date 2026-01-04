@@ -164,9 +164,6 @@
     <None Include="docs\old_Closures.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
-    <None Include="docs\old_Menus.md">
-      <Filter>Old %28Remove Later%29</Filter>
-    </None>
     <None Include="docs\old_Openings.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
