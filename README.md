@@ -7,7 +7,7 @@
     <img src="https://img.shields.io/badge/Platform-Windows-blue.svg?style=for-the-badge" alt="Platform Windows">
 </p>
 <p align="center">
-    <a href="https://github.com/fairybow/Fernanda/releases"><b><s>Releases</s></b></a> •
+    <a href="https://github.com/fairybow/Fernanda/releases"><b><s>Releases</s></b></a> â€¢
     <a href="Fernanda/docs"><b>Documentation</b></a>
 </p>
 
@@ -43,6 +43,6 @@ Fernanda is free and open source under the [GPL 3 License](LICENSE) with [additi
 
 I think, in part, I made this because I wanted to put off writing for as long as possible (as writers are wont to do). But I also wanted to make something all my own, something difficult yet rewarding that was way out of my realm of experience. It's taken forever, and it's still not done (it'll never be *done*-done), but it's well on its way now. Thanks for stopping by, and I hope we'll meet again.
 
-> You have to be all kinds of stupid to say "*I can do this.*"
+> You have to be all kinds of stupid to say *"I can do this."*
 
 &ndash; Linus Torvalds
