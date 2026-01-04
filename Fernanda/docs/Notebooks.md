@@ -20,12 +20,9 @@ Notebook Workspace
 |-- workingDir_     -> Temporary directory for extracted content
 |-- fnxModel_       -> Qt model adapter for DOM + TreeView
 +-- Services        -> (inherited from Workspace)
-    |-- WindowService
-    |-- ViewService
-    |-- FileService
-    |-- TreeViewService
-    +-- SettingsService
 ```
+
+(See: [Architecture](Architecture.md))
 
 ### Class Responsibilities
 
