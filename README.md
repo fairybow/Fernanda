@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="Fernanda/resources/banner/Readme Banner.png" alt="ASCII banner" width="640">
+</p>
+
 # ![Colorful conch shell icon](Fernanda/resources/icons/Fernanda-32.png) Fernanda
 
 [![License GPL 3](https://img.shields.io/badge/License-GPL%203-red.svg)](LICENSE)
@@ -15,22 +19,6 @@ Built with Qt, Bit7z, Visual Studio, and C++.
 
 Mac and Linux support is planned.
 
-# Architecture
-
-- **Workspaces**: Collections of windows and files
-  - Notepad: Works with OS filesystem
-  - Notebook: Planned archive-based workspaces (like binder-style applications)
-- **Event-driven**: Commander/EventBus pattern for component communication
-- **Modular**: Services handle core logic, modules provide optional features
-
-```
-Application
-+-- Workspace(s)
-    |-- Bus (Commander + EventBus)
-    |-- Services (Windows, Files, Views...)
-    +-- Modules (ColorBars, Menus, WordCounters...)
-```
-
 # Building
 
 Open [`Fernanda.sln`](Fernanda.sln) in Visual Studio and build.
@@ -40,11 +28,7 @@ Open [`Fernanda.sln`](Fernanda.sln) in Visual Studio and build.
 - Qt 6.10.0
 - Visual Studio 2026
 - C++ 20
-- Windows only
-
-# Status
-
-Work in progress (no releases available).
+- Windows only (for now)
 
 # License
 
