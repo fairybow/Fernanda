@@ -284,6 +284,8 @@ private slots:
             this,
             slot);
 
+        // TODO: Is it fine that basically all file views may emit this signal
+        // at once (since it's connected to App::clipboardDataChanged)
         connections << connect(
             activeFileView,
             &AbstractFileView::clipboardDataChanged,
