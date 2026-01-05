@@ -4,7 +4,7 @@
 <p align="center"><b>A plain text editor for drafting long-form fiction</b></p>
 <p align="center">
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%203-red.svg?style=for-the-badge" alt="License GPL 3"></a>
-    <img src="https://img.shields.io/badge/Platform-Windows-blue.svg?style=for-the-badge" alt="Platform Windows">
+    <img src="https://img.shields.io/badge/Platform-Windows%20(x64)-blue.svg?style=for-the-badge" alt="Platform Windows (x64)">
 </p>
 <p align="center">
     <a href="https://github.com/fairybow/Fernanda/releases"><b><s>Releases</s></b></a> •
