@@ -1,3 +1,7 @@
 [submodule "Fernanda/submodules/Coco"]
 	path = Fernanda/submodules/Coco
 	url = https://github.com/fairybow/Coco
+
+[submodule "Fernanda/submodules/bit7z"]
+	path = Fernanda/submodules/bit7z
+	url = https://github.com/rikyoz/bit7z

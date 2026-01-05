@@ -24,8 +24,8 @@
 #include <Qt>
 #include <QtTypes>
 
-#include "Coco/Bool.h"
-#include "Coco/Path.h"
+#include <Coco/Bool.h>
+#include <Coco/Path.h>
 
 #include "Debug.h"
 #include "Fnx.h"

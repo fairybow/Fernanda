@@ -14,8 +14,8 @@
 #include <QSessionManager>
 #include <QStringList>
 
-#include "Coco/Path.h"
-#include "Coco/PathUtil.h"
+#include <Coco/Path.h>
+#include <Coco/PathUtil.h>
 
 #include "AppDirs.h"
 #include "Debug.h"

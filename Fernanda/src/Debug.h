@@ -28,7 +28,7 @@
 #include <QTextStream>
 #include <QtLogging>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "Formatters.h"
 #include "Version.h"

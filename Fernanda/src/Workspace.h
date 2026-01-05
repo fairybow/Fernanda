@@ -17,10 +17,10 @@
 #include <QString>
 #include <QVariantMap>
 
-#include "Coco/Bool.h"
-#include "Coco/Log.h"
-#include "Coco/Path.h"
-#include "Coco/PathUtil.h"
+#include <Coco/Bool.h>
+#include <Coco/Log.h>
+#include <Coco/Path.h>
+#include <Coco/PathUtil.h>
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"

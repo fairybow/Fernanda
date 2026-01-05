@@ -9,7 +9,7 @@
 
 #include <QStringList>
 
-#include "Coco/StartCop.h"
+#include <Coco/StartCop.h>
 
 #include "Application.h"
 #include "BuildMessages.h"

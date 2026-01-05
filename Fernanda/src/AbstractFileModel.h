@@ -13,7 +13,7 @@
 #include <QObject>
 #include <QString>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "FileMeta.h"
 

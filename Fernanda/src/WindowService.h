@@ -22,8 +22,8 @@
 #include <QWidget>
 #include <QtTypes>
 
-#include "Coco/Bool.h"
-#include "Coco/Utility.h"
+#include <Coco/Bool.h>
+#include <Coco/Utility.h>
 
 #include "AbstractService.h"
 #include "Bus.h"
