@@ -23,8 +23,8 @@ Fernanda uses bit7z as a **static library**: the public headers (in [`external/`
 7zip itself requires a dynamic library (`.dll`/`.so`) at runtime. Fernanda embeds this in the executable via Qt Resource System (`.qrc`) and copies it to user data whenever it isn't found (see [Fnx.h](../src/Fnx.h)):
 
 - Windows: `7za.dll` (7zip "alone" variant, smaller)
-- Linux/Mac*: `7z.so`
+- Linux/Mac\*: `7z.so`
 
 This means no external DLL to ship and no requirement for users to have 7zip installed.
 
-* `7z.so` already included but implementation pending!
+\* `7z.so` already included but implementation pending!
