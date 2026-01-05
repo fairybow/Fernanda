@@ -35,6 +35,7 @@
     <None Include="cpp.hint" />
     <None Include="docs\ApplicationDirectories.md" />
     <None Include="docs\Architecture.md" />
+    <None Include="docs\Dependencies.md" />
     <None Include="docs\FileModelsAndViews.md" />
     <None Include="docs\Notebooks.md" />
     <None Include="docs\old_Closures.md" />

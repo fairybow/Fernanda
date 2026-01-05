@@ -25,6 +25,8 @@ Mac and Linux support is planned!
 [![Qt](https://img.shields.io/badge/Qt-6.10-brightgreen?style=for-the-badge&logo=qt)](https://qt.io/)
 [![Bit7z](https://img.shields.io/badge/Bit7z-4.0-orange.svg?style=for-the-badge)](https://github.com/rikyoz/bit7z)
 
+(See [Dependencies.md](Fernanda/docs/Dependencies.md))
+
 ## Building
 
 For now, open [`Fernanda.sln`](Fernanda.sln) in Visual Studio and build.

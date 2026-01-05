@@ -32,6 +32,7 @@
 - [ ] Pinned tabs (will utilize sessions)
 - [ ] Tab groups (will utilize sessions, and maybe a better tab bar)
 - [ ] Expanded/collapsed item restoration between sessions (will utilize sessions)
+- [ ] QML for tab bar (and possibly other components, for better/easier UI)?
 
 ### Polish
 

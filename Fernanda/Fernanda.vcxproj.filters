@@ -218,6 +218,9 @@
     <None Include="docs\old_temp_DocsPlan.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
+    <None Include="docs\Dependencies.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
