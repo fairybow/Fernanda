@@ -270,12 +270,12 @@ flowchart TD
 
     FileService --> AbstractFileModels[AbstractFileModel 0..N]
 
-    style App fill:#e1f5ff
-    style Workspace fill:#fff9e6,stroke-dasharray: 5 5
-    style Bus fill:#f3e5f5,stroke:#9c27b0,stroke-width:3px
-    style Services fill:#e3f2fd
-    style Notepad fill:#fff4e6
-    style Notebooks fill:#e8f5e9
+    AbstractFileViews -->|shows| AbstractFileModels
+
+    style Bus fill:#335c67
+    style Services fill:#335c67
+    style Notepad fill:#9e2a2b
+    style Notebooks fill:#1d3557
 ```
 
 ## Data Flow Examples
