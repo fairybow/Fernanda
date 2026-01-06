@@ -30,8 +30,10 @@ namespace Fernanda {
 // past closing punctuation)
 //
 // TODO: Wrapping selection in open/close punctuation
-// TODO: Double quote etc when typed at the end of a word (don't auto-close)
-// TODO: Period/terminal/comma after barge, close the space!
+// TODO: Auto-condense extra spaces (2 or more anywhere, save new lines, become
+// one after we press non-space key)
+// TODO: Trim spaces before and after paragraphs (not new lines/returns)
+// TODO: Document these with examples!
 class KeyFilter : public QObject
 {
     Q_OBJECT
@@ -76,6 +78,7 @@ private:
     bool active_ = true;
     bool autoClosing_ = true;
     bool barging_ = true;
+    bool closeBargeTrailingPunctGap_ = true;
 
     bool handleKeyPress_(QKeyEvent* event)
     {
@@ -106,7 +109,20 @@ private:
 
         auto ch = text.at(0);
 
-        // Skip-closer: typing a closer when same char is ahead
+        // Gap closing: trailing punctuation after barge removes the space (must
+        // run before skip closer, since they share the apostrophe and skipping
+        // closer just checks (in part) that we have a closing punctuation; this
+        // would be a problem if cursor is already up against a closing
+        // punctuation)
+        if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
+            && canCloseTrailingPunctGap_(document, cursor)) {
+            closeTrailingPunctGap_(ch, cursor);
+            textEdit_->setTextCursor(cursor);
+
+            return true;
+        }
+
+        // Skip closer: typing a closer when same char is ahead
         if (autoClosing_ && canSkipCloser_(ch, document, cursor)) {
             cursor.movePosition(QTextCursor::NextCharacter);
             textEdit_->setTextCursor(cursor);
@@ -114,8 +130,11 @@ private:
         }
 
         if (autoClosing_ && isOpenPunct_(ch)) {
-            // Single quote needs context check for contractions
-            if (ch == '\'' && isMidWord_(document, cursor)) return false;
+            // Non-mirrored quotes (", ', `) after word characters shouldn't
+            // auto-close; might be contraction or closing punctuation
+            if (isAmbiguousOpenOrClosePunct_(ch)
+                && isPreviousCharAlphanumeric_(document, cursor))
+                return false;
             autoClose_(ch, cursor);
             textEdit_->setTextCursor(cursor);
 
@@ -150,16 +169,38 @@ private:
         cursor.endEditBlock();
     }
 
+    void closeTrailingPunctGap_(QChar ch, QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar(); // remove the space
+        cursor.insertText(ch);
+        cursor.insertText(QStringLiteral(" ")); // add space after
+        cursor.endEditBlock();
+    }
+
+    bool isBargeTrailingPunct_(QChar c) const noexcept
+    {
+        return c == ',' || c == '.' || c == '?' || c == '!' || c == ';'
+               || c == ':' || c == '\'' || c == '*';
+    }
+
+    bool isAmbiguousOpenOrClosePunct_(QChar c) const noexcept
+    {
+        return c == '"' || c == '\'' || c == '`';
+    }
+
     bool isOpenPunct_(QChar c) const noexcept
     {
-        return c == '"' || c == '\'' || c.category() == QChar::Punctuation_Open
-               || c.category() == QChar::Punctuation_InitialQuote;
+        return c.category() == QChar::Punctuation_Open
+               || c.category() == QChar::Punctuation_InitialQuote
+               || isAmbiguousOpenOrClosePunct_(c);
     }
 
     bool isClosePunct_(QChar c) const noexcept
     {
-        return c == '"' || c == '\'' || c.category() == QChar::Punctuation_Close
-               || c.category() == QChar::Punctuation_FinalQuote;
+        return c.category() == QChar::Punctuation_Close
+               || c.category() == QChar::Punctuation_FinalQuote
+               || isAmbiguousOpenOrClosePunct_(c);
     }
 
     bool canSkipCloser_(
@@ -176,7 +217,9 @@ private:
         return document->characterAt(pos) == ch;
     }
 
-    bool isMidWord_(QTextDocument* document, const QTextCursor& cursor) const
+    bool isPreviousCharAlphanumeric_(
+        QTextDocument* document,
+        const QTextCursor& cursor) const
     {
         if (!document) return false;
 
@@ -222,6 +265,21 @@ private:
             return false;
 
         return true;
+    }
+
+    bool canCloseTrailingPunctGap_(
+        QTextDocument* document,
+        const QTextCursor& cursor) const
+    {
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos < 2) return false;
+
+        auto char_before = document->characterAt(pos - 1);
+        auto char_before_that = document->characterAt(pos - 2);
+
+        return char_before == ' ' && isClosePunct_(char_before_that);
     }
 };
 
