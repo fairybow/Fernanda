@@ -19,6 +19,9 @@ Mac and Linux support is planned!
 
 **First release coming soon.**
 
+> [!IMPORTANT]
+> You should not trust your writing with any version of this software less than 1.0.0 (not released yet)! Regardless, always make regular back-ups of your work.
+
 ## Built with
 
 ![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=C%2B%2B)
