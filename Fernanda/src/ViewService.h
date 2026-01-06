@@ -558,10 +558,12 @@ private:
         if (!window) return;
 
         auto tab_widget = new TabWidget(window);
-        window->setCentralWidget(tab_widget);
 
+        tab_widget->setElideMode(Qt::ElideRight);
         // tab_widget->setDragValidator(this,
         // &ViewService::tabWidgetDragValidator_);
+
+        window->setCentralWidget(tab_widget);
 
         connect(
             tab_widget,

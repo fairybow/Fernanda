@@ -278,9 +278,7 @@ private:
         treeViews->setHeadersHidden(true);
         treeViews->setDockWidgetFeatures(QDockWidget::NoDockWidgetFeatures);
 
-        treeViews->setDockWidgetHook(
-            this,
-            &Notebook::treeViewDockContentsHook_);
+        treeViews->setDockWidgetHook(this, &Notebook::treeViewDockWidgetHook_);
 
         connect(
             treeViews,
@@ -524,13 +522,13 @@ private:
             Tr::nbSaveAsFilter());
     }
 
-    QWidget* treeViewDockContentsHook_(TreeView* mainTree, Window* window)
+    QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
     {
         // TODO: Collapse if dragging downward and the widget can't shrink any
         // more?
 
         auto splitter = new QSplitter(Qt::Vertical, window);
-        splitter->addWidget(mainTree);
+        splitter->addWidget(treeView);
 
         auto accordion = new AccordionWidget(window);
         splitter->addWidget(accordion);

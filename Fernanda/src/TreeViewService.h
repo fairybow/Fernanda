@@ -190,6 +190,7 @@ private:
         treeViews_[window] = tree_view;
 
         tree_view->setHeaderHidden(headersHidden_);
+        tree_view->setIndentation(15);
 
         if (modelHook_ && rootIndexHook_) {
             if (auto model = modelHook_()) {

@@ -14,6 +14,7 @@
 #include <QAbstractItemModel>
 #include <QDockWidget>
 #include <QFileSystemModel>
+#include <QHeaderView>
 #include <QList>
 #include <QModelIndex>
 #include <QObject>
@@ -36,9 +37,9 @@
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "SettingsService.h"
+#include "Timers.h"
 #include "Tr.h"
 #include "TreeViewService.h"
-#include "Timers.h"
 #include "Version.h"
 #include "ViewService.h"
 #include "Window.h"
@@ -448,6 +449,7 @@ private:
         treeViews->setHeadersHidden(false);
         treeViews->setDockWidgetFeatures(
             QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+        treeViews->setDockWidgetHook(this, &Notepad::treeViewDockWidgetHook_);
 
         connect(
             treeViews,
@@ -604,6 +606,15 @@ private:
             Tr::npSaveAsCaption(),
             start_path,
             Tr::npSaveAsFilter());
+    }
+
+    QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
+    {
+        // TODO: Settings or something dynamic based on general dock size
+        // settings
+        treeView->setColumnWidth(0, 250);
+        treeView->header()->moveSection(2, 1);
+        return treeView;
     }
 
     void newTab_(Window* window)

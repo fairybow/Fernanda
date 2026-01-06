@@ -36,11 +36,12 @@
 
 ### Polish
 
-- [ ] Align tab display text to not have leftmost text go past left side
-- [ ] Notebook (and Notepad, kinda) TreeView items indent too far
-- [ ] Choose most appropriate columns for Notepad TreeView
-- [ ] Change Notepad TreeView column (for filename) default width (too short)
-- [ ] Tab bar tabs sshould not resize while user's mouse is over it (to enable rapid tab closing)
+- [x] Align tab display text to not have leftmost text go past left side
+- [x] Notebook (and Notepad, kinda) TreeView items indent too far
+- [x] Choose most appropriate columns for Notepad TreeView
+- [ ] Shorter size abbreviations in Notepad TreeViews
+- [x] Change Notepad TreeView column (for filename) default width (too short)
+- [ ] Tab bar tabs should not resize while user's mouse is over it (to enable rapid tab closing)
 - [ ] .fnx Notebook icon
 
 ### Docs
