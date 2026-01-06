@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(Fernanda VERSION 0.1 LANGUAGES CXX)
+project(Fernanda VERSION 0.99.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -9,10 +9,18 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network Xml Svg)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Xml Svg)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network Xml Svg LinguistTools)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Xml Svg LinguistTools)
 add_subdirectory(Fernanda/submodules/bit7z)
 
+set(TS_FILES 
+    Fernanda/translations/Translation_de.ts
+    Fernanda/translations/Translation_es.ts  
+    Fernanda/translations/Translation_fr.ts  
+    Fernanda/translations/Translation_it.ts  
+    Fernanda/translations/Translation_ja.ts  
+    Fernanda/translations/Translation_zh.ts
+)
 
 set(PROJECT_SOURCES
     Fernanda/src/AboutDialog.cpp
@@ -107,7 +115,10 @@ set(PROJECT_SOURCES
     Fernanda/submodules/Coco/Coco/include/Coco/TextIo.h
     Fernanda/submodules/Coco/Coco/include/Coco/Utility.h
     Fernanda/submodules/Coco/Coco/include/Coco/StartCop.h
+   
 )
+
+
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(fernanda
@@ -121,6 +132,36 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 #    set_property(TARGET fernanda2 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+    # qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+    # add_custom_target(translations ALL
+    #     DEPENDS ${QM_FILES}
+    # )
+
+    qt_add_lrelease(translations
+        TS_FILES ${TS_FILES}
+        QM_FILES_OUTPUT_VARIABLE QM_FILES
+    )
+
+    set(QRC_FILE "${CMAKE_BINARY_DIR}/translations.qrc")
+    
+    file(WRITE ${QRC_FILE}
+        "<RCC>
+        <qresource prefix=\"/i18n\">
+        ")
+    
+    foreach(qm ${QM_FILES})
+        file(APPEND ${QRC_FILE}
+            "    <file>${qm}</file>\n")
+    endforeach()
+    
+    file(APPEND ${QRC_FILE}
+        "  </qresource>
+        </RCC>
+        ")
+
+    qt_add_resources(PROJECT_SOURCES ${QRC_FILE})
+#    add_dependencies(fernanda translations)
+    
 else()
     if(ANDROID)
         add_library(fernanda SHARED
@@ -128,6 +169,7 @@ else()
         )
     # Define properties for Android with Qt 5 after find_package() calls as:
     #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 else()
     add_executable(fernanda
         ${PROJECT_SOURCES}
@@ -171,4 +213,82 @@ install(TARGETS fernanda
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(fernanda)
+endif()
+
+if(WIN32)
+
+    # ---- windeployqt ----
+    get_target_property(_qt_qmake Qt6::qmake IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qt_qmake}" DIRECTORY)
+
+    find_program(QT_DEPLOYQT_EXECUTABLE
+        NAMES windeployqt6 windeployqt
+        PATHS "${_qt_bin_dir}"
+    )
+
+    if(NOT QT_DEPLOYQT_EXECUTABLE)
+        message(FATAL_ERROR "windeployqt not found")
+    endif()
+
+    # ---- Inno Setup ----
+    find_program(INNO_SETUP_COMPILER
+        NAMES ISCC.exe
+        HINTS
+            "$ENV{ProgramFiles\(x86\)}/Inno Setup 6"
+            "$ENV{ProgramFiles}/Inno Setup 6"
+        DOC "Inno Setup Compiler"
+    )
+
+    if(NOT INNO_SETUP_COMPILER)
+        message(FATAL_ERROR "Inno Setup not found")
+    endif()
+
+    # ---- Paths ----
+    set(QT_DEPLOY_DIR "${CMAKE_SOURCE_DIR}/Fernanda/installer/temp")
+    set(ISS "${CMAKE_SOURCE_DIR}/Fernanda/installer/WindowsInstaller.iss")
+
+    set(README "${CMAKE_SOURCE_DIR}/README.md")
+    set(LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+    set(ADDITIONAL_TERMS "${CMAKE_SOURCE_DIR}/ADDITIONAL_TERMS")
+    set(INSTALLER_NAME "FernandaInstaller")
+
+    set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Fernanda/installer/output/Windows x64")
+
+    # ---- Deploy Qt after build ----
+    add_custom_command(TARGET fernanda POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${QT_DEPLOY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${QT_DEPLOY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${OUTPUT_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${OUTPUT_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:fernanda>" "${QT_DEPLOY_DIR}"
+
+        COMMAND "${QT_DEPLOYQT_EXECUTABLE}"
+                "$<TARGET_FILE:fernanda>"
+                --release
+                --no-translations
+                --skip-plugin-types generic,networkinformation,tls
+                --exclude-plugins qgif,qjpeg
+                --no-system-d3d-compiler
+                --no-opengl-sw
+                --dir "${QT_DEPLOY_DIR}"
+
+        COMMENT "Deploying Qt runtime"
+    )
+
+    # ---- Installer ----
+    add_custom_target(installer
+        COMMAND "${INNO_SETUP_COMPILER}"
+            /DAppVersion=${PROJECT_VERSION}
+            /DInstallerName=${INSTALLER_NAME}
+            /DReadmePath="${README}"
+            /DLicensePath="${LICENSE}"
+            /DAdditionalTermsPath="${ADDITIONAL_TERMS}"
+            /DOutputDir="${OUTPUT_DIR}"
+            "${ISS}"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+        COMMENT "Building Inno Setup installer"
+    )
+
+    add_dependencies(installer fernanda)
+
 endif()
