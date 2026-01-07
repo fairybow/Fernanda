@@ -88,7 +88,7 @@ echo [4/%STEPS%] Running windeployqt...
     --no-translations ^
     --no-system-d3d-compiler ^
     --no-opengl-sw ^
-    --skip-plugin-types generic,networkinformation,tls ^
+    --skip-plugin-types generic,networkinformation ^
     --exclude-plugins qgif,qjpeg ^
     "%TEMP_DIR%\Fernanda.exe"
 

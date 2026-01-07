@@ -18,7 +18,7 @@
 ### Stretch
 
 - [x] Notebook Trash
-- [ ] Update check
+- [x] Update check
 - [ ] TreeView redocking/toggling
 - [ ] Refactor save code in Notepad and Notebook
 - [ ] Spellcheck
