@@ -18,6 +18,7 @@
 ### Stretch
 
 - [x] Notebook Trash
+- [ ] Update check
 - [ ] TreeView redocking/toggling
 - [ ] Refactor save code in Notepad and Notebook
 - [ ] Spellcheck
@@ -33,6 +34,7 @@
 - [ ] Tab groups (will utilize sessions, and maybe a better tab bar)
 - [ ] Expanded/collapsed item restoration between sessions (will utilize sessions)
 - [ ] QML for tab bar (and possibly other components, for better/easier UI)?
+- [ ] For cross platform bit7z, look into vcpkg build, saving the .lib, .a, etc.
 
 ### Polish
 
