@@ -19,6 +19,7 @@
 #include "MenuShortcuts.h"
 #include "MenuState.h"
 #include "Tr.h"
+#include "UpdateDialog.h"
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
@@ -219,6 +220,8 @@ void Workspace::createWindowMenuBar_(Window* window)
         .menu(Tr::nxHelpMenu())
         .action(Tr::nxAbout())
         .slot(this, [] { AboutDialog::exec(); })
+        .action(Tr::nxCheckForUpdates())
+        .slot(this, [] { UpdateDialog::exec(); })
 
         .set();
 }

@@ -97,6 +97,15 @@ namespace Tr {
     TR_(nxSaveFailBoxMultiBodyFormat,
         tr("There was a problem saving these files: %0"));
 
+    TR_(nxUpdateTitle, tr("Check For Updates"));
+    TR_(nxUpdateBodyErrorFormat, tr("Update check failed: %0"));
+    TR_(nxUpdateBodyLatestFormat, tr("You have the latest version (%0)"));
+    TR_(nxUpdateBodyOodFormat, tr("Your version (%0) is not the latest (%1)."));
+    TR_(nxUpdateReleasesButton, tr("Visit releases page"));
+    TR_(nxUpdateNullJsonArg, tr("Empty JSON document"));
+    TR_(nxUpdateEmptyListArg, tr("Empty QVariantList"));
+    TR_(nxUpdateEmptyValueArg, tr("Empty release tag value"));
+
     // NP dialogs:
 
     TR_(npOpenFileCaption, tr("Open file"));
@@ -161,6 +170,7 @@ namespace Tr {
     TR_(nxSelectAll, tr("&Select all"));
 
     TR_(nxAbout, tr("About"));
+    TR_(nxCheckForUpdates, tr("Check for updates..."));
 
     // NP menus:
 
