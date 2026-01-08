@@ -104,7 +104,8 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 | `edited` | No | Presence indicates unsaved changes (runtime-only) |
 | `parent_on_restore_uuid` | No | Original parent UUID for trash restoration |
 
-> **Important**: The `edited` attribute is runtime-only and must be stripped before archive compression.
+> [!IMPORTANT]
+> The `edited` attribute is runtime-only and must be stripped before archive compression.
 
 #### Default Values
 
@@ -115,7 +116,7 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 
 ## Working Directory
 
-When a Notebook is opened or created, Fernanda extracts (or creates) a temporary working directory:
+When a Notebook is opened, Fernanda extracts the `.fnx` archive to a temporary working directory:
 
 ```
 {temp}/MyNovel.fnx~XXXXXX/
@@ -208,9 +209,8 @@ The Trash provides soft-delete functionality with restoration capability.
 | Delete permanently | Prompts, then removes from DOM, closes tabs, deletes file |
 | Empty trash | Prompts, then permanently deletes all trash contents |
 
-### Important Warnings
-
-> **Data loss risk**: Emptying trash will close tabs and lose any unsaved changes in trashed files. There is no additional prompt for unsaved changes in trashed items. The program will *say* you cannot recover this data. Technically, you can just close the Notebook without saving, and they will return (as they remain in the original archive until it is saved over).
+> [!IMPORTANT]
+> **Data loss risk**: Emptying trash will close tabs and lose any unsaved changes in trashed files. There is no additional prompt for unsaved changes in trashed items. When deleted entirely, unsaved changes to the documents *will* be lost. As for the original files (before edits), the program will *say* you cannot recover this data. Technically, you can just close the Notebook without saving, and they will return (as they remain in the original archive until it is saved over).
 
 ### Restoration Logic
 
@@ -229,7 +229,7 @@ All modified `AbstractFileModel`s are saved to the working directory via `FileSe
 
 ### Tier 2: Archive
 1. `FnxModel::write()` writes `Manifest.xml` to working directory
-2. `Fnx::Io::compress()` creates/updates the `.fnx` archive
+2. `Fnx::Io::compress()` creates or replaces the archive at the `.fnx` path
 3. On success: Reset DOM snapshot, clear window modification flags
 
 ### Save Scenarios
@@ -283,12 +283,13 @@ FnxModel supports internal drag-and-drop for reorganizing items:
 
 ## Settings
 
-Each Notebook has its own `Settings.ini` stored in the archive:
-- Inherits defaults from base Notepad settings
-- Overrides are Notebook-specific
-- Settings are extracted with the archive and saved back on compression
+Each Notebook can have its own `Settings.ini` stored in the archive. This file will not be present if the Notebook has never had its settings changed. Any unset settings will be inherited from the Notepad's `Settings.ini`. So:
 
-> **Note**: Currently, settings changes do not mark the Notebook as modified. This is a known limitation.
+- Settings here are Notebook-specific
+- They're extracted with the archive and saved back on compression
+
+> [!NOTE]
+> Currently, settings changes do not mark the Notebook as modified. This is a known limitation. A changed setting can be lost this way.
 
 ## Signals
 
