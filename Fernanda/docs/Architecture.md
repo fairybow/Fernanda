@@ -244,31 +244,31 @@ This separation means:
 ```mermaid
 flowchart TD
     App[Application]
-    App --> Notepad[Notepad<br/>Single Instance]
-    App --> Notebooks[Notebook<br/>0..N Instances]
+    App -->|owns| Notepad[Notepad<br/>Single Instance]
+    App -->|owns| Notebooks[Notebook<br/>0..N Instances]
 
-    Notepad -.-> Workspace[Workspace]
-    Notebooks -.-> Workspace
+    Notepad -.->|is| Workspace[Workspace]
+    Notebooks -.->|is| Workspace
 
-    Workspace --> Bus[Bus]
-    Workspace --> Services[Services/Modules]
+    Workspace -->|owns| Bus[Bus]
+    Workspace -->|owns| Services[Services/Modules]
 
-    Workspace <-.-> |Hooks| Services
-    Services <-.->|Commands +<br/>Events| Bus
+    Workspace <-.->|hooks| Services
+    Services <-.->|commands<br/>& events| Bus
 
     Services -.-> WindowService[WindowService]
     Services -.-> ViewService[ViewService]
     Services -.-> FileService[FileService]
     Services -.-> MiscServices[... Other Services/Modules]
 
-    WindowService --> Windows[Window 0..N]
+    WindowService -->|creates & tracks| Windows[Window 0..N]
     ViewService -.->|creates| TabWidget[TabWidget]
     Windows -->|takes| TabWidget
 
     ViewService -.->|creates| AbstractFileViews[AbstractFileView 0..N]
     TabWidget -->|takes| AbstractFileViews
 
-    FileService --> AbstractFileModels[AbstractFileModel 0..N]
+    FileService -->|creates & owns| AbstractFileModels[AbstractFileModel 0..N]
 
     AbstractFileViews -->|shows| AbstractFileModels
 
