@@ -19,6 +19,7 @@
 
 - [x] Notebook Trash
 - [x] Update check
+- [ ] Hide menu bar (key to toggle)
 - [ ] TreeView redocking/toggling
 - [ ] Refactor save code in Notepad and Notebook
 - [ ] Spellcheck
