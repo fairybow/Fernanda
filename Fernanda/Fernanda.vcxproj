@@ -113,8 +113,10 @@
     <ClInclude Include="src\Ini.h" />
     <QtMoc Include="src\SettingsService.h" />
     <QtMoc Include="src\SettingsDialog.h" />
+    <QtMoc Include="src\StyleModule.h" />
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\Io.h" />
+    <ClInclude Include="src\Themes.h" />
     <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewService.h" />

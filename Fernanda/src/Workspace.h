@@ -35,6 +35,7 @@
 #include "MenuState.h"
 #include "NewNotebookPrompt.h"
 #include "SettingsService.h"
+#include "StyleModule.h"
 #include "Timers.h"
 #include "Tr.h"
 #include "TreeViewService.h"
@@ -99,6 +100,7 @@ protected:
     FileService* files = new FileService(bus, this);
     TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
+    StyleModule* styling = new StyleModule(bus, this);
 
     Coco::Path startDir =
         AppDirs::defaultDocs(); // Since this is currently hardcoded, it goes
@@ -160,6 +162,7 @@ private:
         files->initialize();
         treeViews->initialize();
         colorBars->initialize();
+        styling->initialize();
 
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
@@ -173,16 +176,6 @@ private:
             &ViewService::activeChanged,
             this,
             &Workspace::onViewsActiveChanged_);
-
-        connect(
-            views,
-            &ViewService::viewDestroyed,
-            this,
-            [&](AbstractFileModel* fileModel) {
-                (void)fileModel;
-                refreshMenus(MenuScope::Window);
-                refreshMenus(MenuScope::Workspace);
-            });
 
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
@@ -212,6 +205,16 @@ private:
             refreshMenus(MenuScope::Window);
             refreshMenus(MenuScope::Workspace);
         });
+
+        connect(
+            bus,
+            &Bus::fileViewDestroyed,
+            this,
+            [&](AbstractFileView* fileView) {
+                (void)fileView;
+                refreshMenus(MenuScope::Window);
+                refreshMenus(MenuScope::Workspace);
+            });
 
         connect(
             bus,

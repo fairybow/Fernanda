@@ -459,15 +459,6 @@ private:
 
         connect(
             views,
-            &ViewService::viewDestroyed,
-            this,
-            [&](AbstractFileModel* fileModel) {
-                if (!fileModel || views->countFor(fileModel) > 0) return;
-                files->deleteModel(fileModel);
-            });
-
-        connect(
-            views,
             &ViewService::addTabRequested,
             this,
             [&](Window* window) { newTab_(window); });
@@ -477,7 +468,16 @@ private:
 
     void connectBusEvents_()
     {
-        //...
+        connect(
+            bus,
+            &Bus::fileViewDestroyed,
+            this,
+            [&](AbstractFileView* fileView) {
+                if (!fileView) return;
+                auto model = fileView->model();
+                if (!model || views->countFor(model) > 0) return;
+                files->deleteModel(model);
+            });
     }
 
     QString fileDisplayName_(AbstractFileModel* fileModel) const

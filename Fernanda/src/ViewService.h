@@ -424,7 +424,6 @@ public:
 signals:
     // Active view can be nullptr!
     void activeChanged(Window* window, AbstractFileView* activeFileView);
-    void viewDestroyed(AbstractFileModel* fileModel);
     void addTabRequested(Window* window);
 
 protected:
@@ -643,12 +642,15 @@ private slots:
 
         // Only adjust this once we're clear
         ++fileViewsPerModel_[fileModel];
+
+        /// TODO STYLE
+        emit bus->fileViewCreated(view);
+
         connect(view, &QObject::destroyed, this, [&, view, fileModel] {
             if (--fileViewsPerModel_[fileModel] <= 0)
                 fileViewsPerModel_.remove(fileModel);
-
-            INFO("File view destroyed for model [{}]", fileModel);
-            emit viewDestroyed(fileModel);
+            INFO("File view destroyed [{}] for model [{}]", view, fileModel);
+            emit bus->fileViewDestroyed(view); /// TODO STYLE
         });
 
         auto index = tab_widget->addTab(view, meta->title());

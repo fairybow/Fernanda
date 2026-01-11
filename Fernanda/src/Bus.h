@@ -14,6 +14,7 @@
 #include <QVariant>
 
 #include "AbstractFileModel.h"
+#include "AbstractFileView.h"
 #include "Commander.h"
 #include "Debug.h"
 #include "Window.h"
@@ -44,6 +45,8 @@ public:
 signals:
     void windowCreated(Window* context);
     void windowDestroyed(Window* context);
+    void fileViewCreated(AbstractFileView* fileView);
+    void fileViewDestroyed(AbstractFileView* fileView);
     void fileModelReadied(Window* context, AbstractFileModel* fileModel);
     void
     fileModelModificationChanged(AbstractFileModel* fileModel, bool modified);
