@@ -495,6 +495,9 @@
     <ClInclude Include="src\Themes.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
     </ClInclude>
+    <ClInclude Include="src\ThemeSelector.h">
+      <Filter>Code\Core\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">

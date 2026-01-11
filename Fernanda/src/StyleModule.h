@@ -29,11 +29,18 @@
 
 namespace Fernanda {
 
+// TODO: Install watcher on theme paths for hot reload
 class StyleModule : public AbstractService
 {
     Q_OBJECT
 
 public:
+    struct EditorThemeEntry
+    {
+        QString name{};
+        Coco::Path path{};
+    };
+
     StyleModule(Bus* bus, QObject* parent = nullptr)
         : AbstractService(bus, parent)
     {
@@ -42,8 +49,22 @@ public:
 
     virtual ~StyleModule() override { TRACER; }
 
-    // public theme setting method, maybe (will run through all editors in
-    // tracking QSet and set the theme
+    // No public setter for themes: SettingsDialog will emit
+    // editorThemeChanged(path) (or similar) SettingsService emits bus ->
+    // settingChanged(Ini::Keys::EDITOR_THEME, path) + debounces INI write
+    // StyleModule listens to Bus signal and applies (already implemented in
+    // onBusSettingChanged_)
+
+    QList<EditorThemeEntry> editorThemeEntries() const
+    {
+        QList<EditorThemeEntry> result{};
+        result.reserve(editorThemes_.size());
+
+        for (auto& theme : editorThemes_)
+            result << EditorThemeEntry{ theme.name(), theme.path() };
+
+        return result;
+    }
 
 protected:
     virtual void registerBusCommands() override
@@ -53,6 +74,12 @@ protected:
 
     virtual void connectBusEvents() override
     {
+        connect(
+            bus,
+            &Bus::settingChanged,
+            this,
+            &StyleModule::onBusSettingChanged_);
+
         connect(
             bus,
             &Bus::fileViewCreated,
@@ -80,12 +107,6 @@ protected:
             Coco::PathList{ ":/themes/" },
             EditorTheme::EXT);
 
-        // Add a "no theme" option (TODO: See how this renders in combo box or
-        // if it works without a name...)
-        // TODO: OR, we could have no entry for this and a way to clear via the
-        // public setter for theme (setEditorTheme({}) or whatever)
-        editorThemes_ << EditorTheme{};
-
         for (auto& path : paths)
             editorThemes_ << EditorTheme{ path };
 
@@ -95,12 +116,6 @@ protected:
             [](const EditorTheme& et1, const EditorTheme& et2) {
                 return et1.name().toLower() < et2.name().toLower();
             });
-
-        /// TEST
-        for (auto& ed : editorThemes_)
-            INFO(
-                "Theme added: {}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
-                ed.name());
 
         currentEditorThemePath_ = bus->call<Coco::Path>(
             Bus::GET_SETTING,
@@ -120,6 +135,8 @@ private:
 
     EditorTheme findEditorTheme_(const Coco::Path& path)
     {
+        if (path.isEmpty()) return {};
+
         for (auto& theme : editorThemes_)
             if (theme.path() == path) return theme;
 
@@ -132,6 +149,19 @@ private:
 
         auto palette = theme.isValid() ? theme.palette() : QPalette{};
         textFileView->editor()->setPalette(palette);
+    }
+
+private slots:
+    // Empty or non-existent path results in no theming
+    void onBusSettingChanged_(const QString& key, const QVariant& value)
+    {
+        if (key != Ini::Keys::EDITOR_THEME) return;
+
+        currentEditorThemePath_ = value.value<Coco::Path>();
+
+        auto theme = findEditorTheme_(currentEditorThemePath_);
+        for (auto& view : textFileViews_)
+            applyEditorTheme_(view, theme);
     }
 };
 

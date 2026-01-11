@@ -125,6 +125,7 @@
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\Io.h" />
     <ClInclude Include="src\Themes.h" />
+    <ClInclude Include="src\ThemeSelector.h" />
     <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewService.h" />
