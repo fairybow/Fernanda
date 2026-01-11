@@ -11,11 +11,14 @@
 
 #include <QFont>
 
+#include "Coco/Path.h"
+
 namespace Fernanda::Ini {
 
 namespace Keys {
 
     constexpr auto FONT = "Editor/Font";
+    constexpr auto EDITOR_THEME = "Editor/Theme";
 
 } // namespace Keys
 
@@ -30,6 +33,12 @@ namespace Defaults {
         f.setBold(false);
         f.setItalic(false);
         return f;
+    }
+
+    inline Coco::Path editorTheme()
+    {
+        // TODO: Go with generic "light" theme (or no theme (empty path)) later
+        return ":/themes/Pocket.fernanda_editor";
     }
 
 } // namespace Defaults

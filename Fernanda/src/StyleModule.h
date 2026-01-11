@@ -75,6 +75,8 @@ private:
 
     void setup_()
     {
+        // set default from settings
+
         // Add "no theme"
         // editorThemes_ << EditorTheme{};
         editorThemes_ << EditorTheme{

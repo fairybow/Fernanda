@@ -1,0 +1,9 @@
+{
+  "name": "Grey",
+  "values": {
+    "backgroundColor": "#080808",
+    "fontColor": "#cccccc",
+    "selectionBgColor": "#cccccc",
+    "selectionFontColor": "#080808"
+  }
+}

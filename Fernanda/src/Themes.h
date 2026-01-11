@@ -29,7 +29,12 @@ class EditorTheme
 {
 public:
     EditorTheme() = default;
-    EditorTheme(const Coco::Path& path) { parse_(path); }
+
+    EditorTheme(const Coco::Path& path)
+        : path_(path)
+    {
+        parse_(path);
+    }
 
     ~EditorTheme() { TRACER; }
 
@@ -52,6 +57,8 @@ public:
     }
 
 private:
+    Coco::Path path_{};
+
     static constexpr auto NAME_ = "name";
     QString name_{};
 
@@ -59,13 +66,10 @@ private:
 
     static constexpr auto VAR_BG_ = "backgroundColor";
     QColor background_{};
-
     static constexpr auto VAR_FONT_ = "fontColor";
     QColor font_{};
-
     static constexpr auto VAR_SELECTION_ = "selectionBgColor";
     QColor selection_{};
-
     static constexpr auto VAR_SELECTED_FONT_ = "selectionFontColor";
     QColor selectedFont_{};
 
