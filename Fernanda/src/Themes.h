@@ -15,6 +15,7 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QJsonValue>
+#include <QPalette>
 #include <QString>
 
 #include "Coco/Path.h"
@@ -32,10 +33,22 @@ public:
 
     ~EditorTheme() { TRACER; }
 
+    /// TODO STYLE: Check is valid before adding (except the first one, "no
+    /// theme"?)
     bool isValid() const noexcept
     {
         return background_.isValid() && font_.isValid() && selection_.isValid()
                && selectedFont_.isValid();
+    }
+
+    QPalette palette() const
+    {
+        QPalette palette{};
+        palette.setColor(QPalette::Base, background_);
+        palette.setColor(QPalette::Text, font_);
+        palette.setColor(QPalette::Highlight, selection_);
+        palette.setColor(QPalette::HighlightedText, selectedFont_);
+        return palette;
     }
 
 private:

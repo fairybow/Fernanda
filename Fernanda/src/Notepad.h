@@ -463,14 +463,9 @@ private:
             this,
             [&](Window* window) { newTab_(window); });
 
-        connectBusEvents_();
-    }
-
-    void connectBusEvents_()
-    {
         connect(
-            bus,
-            &Bus::fileViewDestroyed,
+            views,
+            &ViewService::fileViewDestroyed,
             this,
             [&](AbstractFileView* fileView) {
                 if (!fileView) return;
@@ -478,6 +473,13 @@ private:
                 if (!model || views->countFor(model) > 0) return;
                 files->deleteModel(model);
             });
+
+        connectBusEvents_();
+    }
+
+    void connectBusEvents_()
+    {
+        //...
     }
 
     QString fileDisplayName_(AbstractFileModel* fileModel) const

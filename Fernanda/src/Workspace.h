@@ -177,6 +177,16 @@ private:
             this,
             &Workspace::onViewsActiveChanged_);
 
+        connect(
+            views,
+            &ViewService::fileViewDestroyed,
+            this,
+            [&](AbstractFileView* fileView) {
+                (void)fileView;
+                refreshMenus(MenuScope::Window);
+                refreshMenus(MenuScope::Workspace);
+            });
+
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
         connect(windows, &WindowService::lastWindowClosed, this, [&] {
@@ -205,16 +215,6 @@ private:
             refreshMenus(MenuScope::Window);
             refreshMenus(MenuScope::Workspace);
         });
-
-        connect(
-            bus,
-            &Bus::fileViewDestroyed,
-            this,
-            [&](AbstractFileView* fileView) {
-                (void)fileView;
-                refreshMenus(MenuScope::Window);
-                refreshMenus(MenuScope::Workspace);
-            });
 
         connect(
             bus,

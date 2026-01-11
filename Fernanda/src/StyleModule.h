@@ -48,17 +48,16 @@ protected:
             &Bus::fileViewCreated,
             this,
             [&](AbstractFileView* fileView) {
-                // If view is TextFileView, add to tracking QSet
-                // If view is TextFileView, somehow apply current theme to the
-                // editor
-            });
+                auto text_view = qobject_cast<TextFileView*>(fileView);
+                if (!text_view) return;
 
-        connect(
-            bus,
-            &Bus::fileViewDestroyed,
-            this,
-            [&](AbstractFileView* fileView) {
-                // Remove from tracking QSet
+                textFileViews_ << text_view;
+
+                connect(text_view, &QObject::destroyed, this, [&, text_view] {
+                    textFileViews_.remove(text_view);
+                });
+
+                apply_(text_view);
             });
     }
 
@@ -66,12 +65,12 @@ protected:
     // tracking QSet and set the theme
 
 private:
-    // QSet<> editors_{};
+    QSet<TextFileView*> textFileViews_{};
 
     qsizetype currentEditorTheme_ =
-        0; /// TODO STYLE: retrieve from settings - may want to do it by name,
-           /// since number of themes can change - when name doesn't match
-           /// anything, use no theme
+        0; /// TODO STYLE: retrieve from settings - may want to do it by
+           /// name/string, since number of themes can change - when name
+           /// doesn't match anything, use no theme
     QList<EditorTheme> editorThemes_{};
 
     void setup_()
@@ -83,6 +82,14 @@ private:
         }; /// <-testing, Pocket as default
 
         // Later: Read QRC + user data for theme files and parse and store
+    }
+
+    void apply_(TextFileView* textFileView)
+    {
+        if (!textFileView) return;
+
+        textFileView->editor()->setPalette(
+            editorThemes_[currentEditorTheme_].palette());
     }
 };
 
