@@ -9,14 +9,21 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include <QList>
 #include <QObject>
 #include <QSet>
+#include <QString>
+
+#include "Coco/Path.h"
+#include "Coco/PathUtil.h"
 
 #include "AbstractFileView.h"
 #include "AbstractService.h"
 #include "Bus.h"
 #include "Debug.h"
+#include "Ini.h"
 #include "TextFileView.h"
 #include "Themes.h"
 
@@ -34,6 +41,9 @@ public:
     }
 
     virtual ~StyleModule() override { TRACER; }
+
+    // public theme setting method, maybe (will run through all editors in
+    // tracking QSet and set the theme
 
 protected:
     virtual void registerBusCommands() override
@@ -57,41 +67,71 @@ protected:
                     textFileViews_.remove(text_view);
                 });
 
-                apply_(text_view);
+                applyEditorTheme_(
+                    text_view,
+                    findEditorTheme_(currentEditorThemePath_));
             });
     }
 
-    // public theme setting method, maybe (will run through all editors in
-    // tracking QSet and set the theme
+    virtual void postInit() override
+    {
+        // TODO: Add user data paths to first arg
+        auto paths = Coco::PathUtil::fromDir(
+            Coco::PathList{ ":/themes/" },
+            EditorTheme::EXT);
+
+        // Add a "no theme" option (TODO: See how this renders in combo box or
+        // if it works without a name...)
+        // TODO: OR, we could have no entry for this and a way to clear via the
+        // public setter for theme (setEditorTheme({}) or whatever)
+        editorThemes_ << EditorTheme{};
+
+        for (auto& path : paths)
+            editorThemes_ << EditorTheme{ path };
+
+        std::sort(
+            editorThemes_.begin(),
+            editorThemes_.end(),
+            [](const EditorTheme& et1, const EditorTheme& et2) {
+                return et1.name().toLower() < et2.name().toLower();
+            });
+
+        /// TEST
+        for (auto& ed : editorThemes_)
+            INFO(
+                "Theme added: {}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+                ed.name());
+
+        currentEditorThemePath_ = bus->call<Coco::Path>(
+            Bus::GET_SETTING,
+            { { "key", Ini::Keys::EDITOR_THEME },
+              { "defaultValue", qVar(Ini::Defaults::editorTheme()) } });
+    }
 
 private:
     QSet<TextFileView*> textFileViews_{};
-
-    qsizetype currentEditorTheme_ =
-        0; /// TODO STYLE: retrieve from settings - may want to do it by
-           /// name/string, since number of themes can change - when name
-           /// doesn't match anything, use no theme
     QList<EditorTheme> editorThemes_{};
+    Coco::Path currentEditorThemePath_{};
 
     void setup_()
     {
-        // set default from settings
-
-        // Add "no theme"
-        // editorThemes_ << EditorTheme{};
-        editorThemes_ << EditorTheme{
-            ":/themes/Pocket.fernanda_editor"
-        }; /// <-testing, Pocket as default
-
-        // Later: Read QRC + user data for theme files and parse and store
+        //...
     }
 
-    void apply_(TextFileView* textFileView)
+    EditorTheme findEditorTheme_(const Coco::Path& path)
+    {
+        for (auto& theme : editorThemes_)
+            if (theme.path() == path) return theme;
+
+        return {};
+    }
+
+    void applyEditorTheme_(TextFileView* textFileView, const EditorTheme& theme)
     {
         if (!textFileView) return;
 
-        textFileView->editor()->setPalette(
-            editorThemes_[currentEditorTheme_].palette());
+        auto palette = theme.isValid() ? theme.palette() : QPalette{};
+        textFileView->editor()->setPalette(palette);
     }
 };
 

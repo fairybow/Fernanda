@@ -35,6 +35,7 @@ public:
         if (initialized_) return;
         registerBusCommands();
         connectBusEvents();
+        postInit();
         initialized_ = true;
     }
 
@@ -43,6 +44,10 @@ protected:
 
     virtual void registerBusCommands() = 0;
     virtual void connectBusEvents() = 0;
+
+    // For setup code that requires access to other services via Bus (and thus
+    // can't be done in the ctor), e.g., retrieving settings
+    virtual void postInit() {};
 
 private:
     bool initialized_ = false;

@@ -288,8 +288,8 @@ private:
 
     struct ParsedArgs_
     {
-        QList<Coco::Path> fnxFiles{};
-        QList<Coco::Path> regularFiles{};
+        Coco::PathList fnxFiles{};
+        Coco::PathList regularFiles{};
 
         bool isEmpty() const noexcept
         {

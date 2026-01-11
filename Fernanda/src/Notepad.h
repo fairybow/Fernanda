@@ -65,7 +65,7 @@ public:
 
     virtual ~Notepad() override { TRACER; }
 
-    void openFiles(const QList<Coco::Path>& paths)
+    void openFiles(const Coco::PathList& paths)
     {
         if (auto window = windows->active()) openFiles_(window, paths);
     }
@@ -638,7 +638,7 @@ private:
         openFiles_(window, paths);
     }
 
-    void openFiles_(Window* window, const QList<Coco::Path>& paths)
+    void openFiles_(Window* window, const Coco::PathList& paths)
     {
         if (paths.isEmpty()) return;
 

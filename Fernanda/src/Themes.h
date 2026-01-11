@@ -28,6 +28,8 @@ namespace Fernanda {
 class EditorTheme
 {
 public:
+    static constexpr auto EXT = ".fernanda_editor";
+
     EditorTheme() = default;
 
     EditorTheme(const Coco::Path& path)
@@ -36,7 +38,8 @@ public:
         parse_(path);
     }
 
-    ~EditorTheme() { TRACER; }
+    Coco::Path path() const noexcept { return path_; }
+    QString name() const noexcept { return name_; }
 
     /// TODO STYLE: Check is valid before adding (except the first one, "no
     /// theme"?)

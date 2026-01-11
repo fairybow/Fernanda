@@ -38,7 +38,8 @@ namespace Defaults {
     inline Coco::Path editorTheme()
     {
         // TODO: Go with generic "light" theme (or no theme (empty path)) later
-        return ":/themes/Pocket.fernanda_editor";
+        //return ":/themes/Snooze.fernanda_editor";
+        return {}; // testing
     }
 
 } // namespace Defaults
