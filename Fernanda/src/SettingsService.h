@@ -77,7 +77,9 @@ public:
         }
 
         QList<ThemeSelector::Entry> editor_theme_entries{};
-        editor_theme_entries << ThemeSelector::Entry{ "No theme", {} };
+
+        // Add themeless option using empty path
+        editor_theme_entries << ThemeSelector::Entry{ Tr::noTheme(), {} };
 
         // TODO: Don't use pair. Find a sensible location for using a struct
         // with explicit names! Could have all involved (this, SettingsDialog,
@@ -85,7 +87,8 @@ public:
         for (auto& theme : bus->call<QList<std::pair<QString, Coco::Path>>>(
                  Bus::EDITOR_THEMES)) {
             editor_theme_entries
-                << ThemeSelector::Entry{ theme.first, theme.second };
+                << ThemeSelector::Entry{ theme.first,
+                                         theme.second }; // name, path
         }
 
         SettingsDialog::InitialValues initials{

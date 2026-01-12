@@ -94,6 +94,16 @@ protected:
                     textFileViews_.remove(text_view);
                 });
 
+                // Lazy-load current theme path if not yet loaded
+                if (!initialEditorThemeLoaded_) {
+                    currentEditorThemePath_ = bus->call<QString>(
+                        Bus::GET_SETTING,
+                        { { "key", Ini::Keys::EDITOR_THEME },
+                          { "defaultValue", Ini::Defaults::editorTheme() } });
+
+                    initialEditorThemeLoaded_ = true;
+                }
+
                 applyEditorTheme_(
                     text_view,
                     findEditorTheme_(currentEditorThemePath_));
@@ -116,23 +126,12 @@ protected:
             [](const EditorTheme& et1, const EditorTheme& et2) {
                 return et1.name().toLower() < et2.name().toLower();
             });
-
-        /// TODO BUG: Notebooks haven't set their override paths when this is
-        /// called, so we don't get the right default (theme selector in dialog
-        /// calls this later so it will display the correct name from INI but
-        /// theme is wrong!)
-        // TODO: Any way to get path to work with QSettings?
-        currentEditorThemePath_ = bus->call<QString>(
-            Bus::GET_SETTING,
-            { { "key", Ini::Keys::EDITOR_THEME },
-              { "defaultValue", Ini::Defaults::editorTheme() } });
-
-        // Setup window themes
     }
 
 private:
     QSet<TextFileView*> textFileViews_{};
     QList<EditorTheme> editorThemes_{};
+    bool initialEditorThemeLoaded_ = false;
     Coco::Path currentEditorThemePath_{};
 
     void setup_()
