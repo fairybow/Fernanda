@@ -205,6 +205,11 @@ namespace Tr {
     TR_(bold, tr("Bold"));
     TR_(italic, tr("Italic"));
 
+    /// Theme selector
+
+    TR_(editorTheme, tr("Editor theme"));
+    TR_(windowTheme, tr("Window theme"));
+
     /// Settings Dialog
     TR_(settingsTitle, tr("Settings"));
     TR_(settingsTitleFormat, tr("%0 Settings"));

@@ -361,9 +361,6 @@
     <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
-    <QtMoc Include="src\FontSelector.h">
-      <Filter>Code\Core\UI</Filter>
-    </QtMoc>
     <QtMoc Include="src\Settings.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
@@ -378,6 +375,12 @@
     </QtMoc>
     <QtMoc Include="src\StyleModule.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FontSelector.h">
+      <Filter>Code\Core\Services\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ThemeSelector.h">
+      <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -494,9 +497,6 @@
     </ClInclude>
     <ClInclude Include="src\Themes.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ThemeSelector.h">
-      <Filter>Code\Core\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

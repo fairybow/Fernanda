@@ -10,6 +10,7 @@
 #pragma once
 
 #include <algorithm>
+#include <utility>
 
 #include <QList>
 #include <QObject>
@@ -35,12 +36,6 @@ class StyleModule : public AbstractService
     Q_OBJECT
 
 public:
-    struct EditorThemeEntry
-    {
-        QString name{};
-        Coco::Path path{};
-    };
-
     StyleModule(Bus* bus, QObject* parent = nullptr)
         : AbstractService(bus, parent)
     {
@@ -55,21 +50,26 @@ public:
     // StyleModule listens to Bus signal and applies (already implemented in
     // onBusSettingChanged_)
 
-    QList<EditorThemeEntry> editorThemeEntries() const
-    {
-        QList<EditorThemeEntry> result{};
-        result.reserve(editorThemes_.size());
-
-        for (auto& theme : editorThemes_)
-            result << EditorThemeEntry{ theme.name(), theme.path() };
-
-        return result;
-    }
-
 protected:
     virtual void registerBusCommands() override
     {
-        //
+        bus->addCommandHandler(Bus::EDITOR_THEMES, [&] {
+            QList<std::pair<QString, Coco::Path>> result{};
+            result.reserve(editorThemes_.size());
+
+            for (auto& theme : editorThemes_)
+                result << std::make_pair(theme.name(), theme.path());
+
+            return result;
+        });
+
+        bus->addCommandHandler(Bus::WINDOW_THEMES, [&] {
+            QList<std::pair<QString, Coco::Path>> result{};
+
+            //...
+
+            return result;
+        });
     }
 
     virtual void connectBusEvents() override
@@ -117,10 +117,13 @@ protected:
                 return et1.name().toLower() < et2.name().toLower();
             });
 
-        currentEditorThemePath_ = bus->call<Coco::Path>(
+        // TODO: Any way to get path to work with QSettings?
+        currentEditorThemePath_ = bus->call<QString>(
             Bus::GET_SETTING,
             { { "key", Ini::Keys::EDITOR_THEME },
-              { "defaultValue", qVar(Ini::Defaults::editorTheme()) } });
+              { "defaultValue", Ini::Defaults::editorTheme() } });
+
+        // Setup window themes
     }
 
 private:
@@ -151,10 +154,14 @@ private:
         textFileView->editor()->setPalette(palette);
     }
 
+    // Find & apply window theme
+
 private slots:
     // Empty or non-existent path results in no theming
     void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
+        // TODO: Handle window theme
+
         if (key != Ini::Keys::EDITOR_THEME) return;
 
         currentEditorThemePath_ = value.value<Coco::Path>();

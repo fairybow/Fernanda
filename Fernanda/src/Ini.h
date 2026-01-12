@@ -10,8 +10,10 @@
 #pragma once
 
 #include <QFont>
+#include <QString>
 
-#include "Coco/Path.h"
+// TODO: Any way to get path to work with QSettings?
+//#include "Coco/Path.h"
 
 namespace Fernanda::Ini {
 
@@ -35,7 +37,8 @@ namespace Defaults {
         return f;
     }
 
-    inline Coco::Path editorTheme()
+    // TODO: Any way to get path to work with QSettings?
+    inline QString editorTheme()
     {
         // TODO: Go with generic "light" theme (or no theme (empty path)) later
         //return ":/themes/Snooze.fernanda_editor";
