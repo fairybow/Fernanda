@@ -117,6 +117,10 @@ protected:
                 return et1.name().toLower() < et2.name().toLower();
             });
 
+        /// TODO BUG: Notebooks haven't set their override paths when this is
+        /// called, so we don't get the right default (theme selector in dialog
+        /// calls this later so it will display the correct name from INI but
+        /// theme is wrong!)
         // TODO: Any way to get path to work with QSettings?
         currentEditorThemePath_ = bus->call<QString>(
             Bus::GET_SETTING,
