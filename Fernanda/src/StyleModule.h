@@ -68,6 +68,10 @@ protected:
         connect(bus, &Bus::windowCreated, this, [&](Window* window) {
             if (!window) return;
 
+            // TODO: Probably set proxy style on a window here (the list is
+            // maybe just for palette swapping, like editor, but window themes
+            // may have both palette() and a way to set the proxy style)
+
             windows_ << window;
 
             // TODO: Search use of Window::destroyed and replace with this (also
