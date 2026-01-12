@@ -88,6 +88,18 @@
     <Filter Include="Installer">
       <UniqueIdentifier>{f93aebe4-fc11-4c96-9f7d-b7d9bac68fdb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\Themes">
+      <UniqueIdentifier>{813fd79e-b6d6-44e7-9831-bb99687ff25d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Auxiliary\Modules\Style">
+      <UniqueIdentifier>{7d682663-e7de-465b-946d-733c8f61519e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Themes\Editor">
+      <UniqueIdentifier>{fe4898c0-7b8c-40e6-94e0-01c64a5b2d0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Themes\Window">
+      <UniqueIdentifier>{3d929cc5-ae76-47a5-9d3f-f5dca3956971}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -221,6 +233,30 @@
     <None Include="docs\Dependencies.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="resources\themes\Amber.fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\themes\Blue.fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\themes\Green.fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\themes\Grey.fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\themes\Pocket (Alt).fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\themes\Pocket.fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\themes\Snooze (Alt).fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\themes\Snooze.fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -331,9 +367,6 @@
     <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
-    <QtMoc Include="src\FontSelector.h">
-      <Filter>Code\Core\UI</Filter>
-    </QtMoc>
     <QtMoc Include="src\Settings.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
@@ -345,6 +378,15 @@
     </QtMoc>
     <QtMoc Include="src\FileMeta.h">
       <Filter>Code\Core\Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\StyleModule.h">
+      <Filter>Code\Auxiliary\Modules\Style</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FontSelector.h">
+      <Filter>Code\Core\Services\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ThemeSelector.h">
+      <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -459,6 +501,9 @@
     <ClInclude Include="src\UpdateDialog.h">
       <Filter>Code\Core\UI</Filter>
     </ClInclude>
+    <ClInclude Include="src\Themes.h">
+      <Filter>Code\Auxiliary\Modules\Style</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">
@@ -476,6 +521,9 @@
       <Filter>Translations</Filter>
     </QtRcc>
     <QtRcc Include="external\External.qrc">
+      <Filter>Resources</Filter>
+    </QtRcc>
+    <QtRcc Include="resources\Themes.qrc">
       <Filter>Resources</Filter>
     </QtRcc>
   </ItemGroup>

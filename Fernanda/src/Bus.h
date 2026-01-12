@@ -14,6 +14,7 @@
 #include <QVariant>
 
 #include "AbstractFileModel.h"
+#include "AbstractFileView.h"
 #include "Commander.h"
 #include "Debug.h"
 #include "Window.h"
@@ -40,10 +41,13 @@ public:
     constexpr static auto WINDOWS = "windows:list";
     constexpr static auto GET_SETTING = "settings:get";
     constexpr static auto SET_SETTING = "settings:set";
+    constexpr static auto EDITOR_THEMES = "style:editor_themes";
+    constexpr static auto WINDOW_THEMES = "style:window_themes";
 
 signals:
     void windowCreated(Window* context);
     void windowDestroyed(Window* context);
+    void fileViewCreated(AbstractFileView* fileView);
     void fileModelReadied(Window* context, AbstractFileModel* fileModel);
     void
     fileModelModificationChanged(AbstractFileModel* fileModel, bool modified);

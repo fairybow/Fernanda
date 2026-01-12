@@ -64,16 +64,6 @@ public:
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
 
-    void deleteModel(AbstractFileModel* fileModel)
-    {
-        if (!fileModel) return;
-
-        auto path = fileModel->meta()->path();
-        fileModels_.remove(fileModel);
-        pathToFileModel_.remove(path);
-        delete fileModel;
-    }
-
     void setPathTitleOverride(const Coco::Path& path, const QString& title)
     {
         if (path.isEmpty() || title.isEmpty()) return;
@@ -158,6 +148,18 @@ public:
                 models << model;
 
         return models;
+    }
+
+    void deleteModel(AbstractFileModel* fileModel)
+    {
+        if (!fileModel) return;
+
+        auto path = fileModel->meta()->path();
+        fileModels_.remove(fileModel);
+        pathToFileModel_.remove(path);
+
+        INFO("File model destroyed [{}]", fileModel);
+        delete fileModel;
     }
 
     void deleteModels(const QSet<AbstractFileModel*>& fileModels)

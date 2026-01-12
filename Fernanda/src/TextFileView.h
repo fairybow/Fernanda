@@ -40,9 +40,13 @@ public:
 
     virtual ~TextFileView() override { TRACER; }
 
+    QPlainTextEdit* editor() const noexcept { return editor_; }
+
     // Propagation
 
-    const QFont& font() const { return editor_->font(); }
+    // TODO: Don't bother wrapping these. Just use the editor (^) my dude
+
+    /*const QFont& font() const { return editor_->font(); }
     void setFont(const QFont& font) { editor_->setFont(font); }
     bool hasCenterOnScroll() const { return editor_->centerOnScroll(); }
 
@@ -73,7 +77,7 @@ public:
     void setWordWrapMode(QTextOption::WrapMode wordWrapMode)
     {
         editor_->setWordWrapMode(wordWrapMode);
-    }
+    }*/
 
     // Base methods
 

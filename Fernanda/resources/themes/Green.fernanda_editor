@@ -1,0 +1,9 @@
+{
+  "name": "Green",
+  "values": {
+    "backgroundColor": "#001400",
+    "fontColor": "#00ff00",
+    "selectionBgColor": "#00ff00",
+    "selectionFontColor": "#001400"
+  }
+}

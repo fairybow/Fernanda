@@ -11,13 +11,17 @@
 
 #include <QDialog>
 #include <QFont>
+#include <QList>
 #include <QObject>
 #include <QString>
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "Coco/Path.h"
+
 #include "Debug.h"
 #include "FontSelector.h"
+#include "ThemeSelector.h"
 
 namespace Fernanda {
 
@@ -31,6 +35,10 @@ public:
         QFont font;
         int fontSizeMin;
         int fontSizeMax;
+
+        QList<ThemeSelector::Entry> editorThemes;
+        Coco::Path currentEditorTheme;
+        // TODO: Window themes
 
         //...
     };
@@ -48,9 +56,12 @@ public:
 
 signals:
     void fontChanged(const QFont& font);
+    void editorThemeChanged(const Coco::Path& path);
+    // TODO: Window theme
 
 private:
     FontSelector* fontSelector_ = nullptr;
+    ThemeSelector* themeSelector_ = nullptr;
 
     void setup_(const QString& title, const InitialValues& initialValues)
     {
@@ -63,16 +74,32 @@ private:
             initialValues.fontSizeMax,
             this);
 
+        themeSelector_ = new ThemeSelector(
+            ThemeSelector::InitialValues{
+                .editorThemes = initialValues.editorThemes,
+                .currentEditorTheme = initialValues.currentEditorTheme,
+                .windowThemes = {},
+                .currentWindowTheme = {},
+            },
+            this);
+
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
         layout->addWidget(fontSelector_);
+        layout->addWidget(themeSelector_);
 
         connect(
             fontSelector_,
             &FontSelector::currentChanged,
             this,
             [&](const QFont& font) { emit fontChanged(font); });
+
+        connect(
+            themeSelector_,
+            &ThemeSelector::editorThemeChanged,
+            this,
+            [&](const Coco::Path& path) { emit editorThemeChanged(path); });
     }
 };
 

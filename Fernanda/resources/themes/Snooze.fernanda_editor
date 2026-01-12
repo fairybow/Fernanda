@@ -1,0 +1,9 @@
+{
+  "name": "Snooze",
+  "values": {
+    "backgroundColor": "#1d0e03",
+    "fontColor": "#ff6e00",
+    "selectionBgColor": "#ff6e00",
+    "selectionFontColor": "#1d0e03"
+  }
+}

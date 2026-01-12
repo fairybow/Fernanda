@@ -54,6 +54,7 @@ public:
         }
     }
 
+    //QWidget* widget() const noexcept { return widget_; }
     AbstractFileModel* model() const noexcept { return fileModel_; }
 
     virtual bool supportsEditing() const = 0;

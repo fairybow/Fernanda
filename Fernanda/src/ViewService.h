@@ -424,8 +424,8 @@ public:
 signals:
     // Active view can be nullptr!
     void activeChanged(Window* window, AbstractFileView* activeFileView);
-    void viewDestroyed(AbstractFileModel* fileModel);
     void addTabRequested(Window* window);
+    void fileViewDestroyed(AbstractFileView* fileView);
 
 protected:
     virtual void registerBusCommands() override
@@ -621,7 +621,7 @@ private slots:
                 Bus::GET_SETTING,
                 { { "key", Ini::Keys::FONT },
                   { "defaultValue", Ini::Defaults::font() } });
-            text_view->setFont(font);
+            text_view->editor()->setFont(font);
             view = text_view;
 
         } else if (auto no_op_model = qobject_cast<NoOpFileModel*>(fileModel)) {
@@ -643,12 +643,14 @@ private slots:
 
         // Only adjust this once we're clear
         ++fileViewsPerModel_[fileModel];
+
+        emit bus->fileViewCreated(view);
+
         connect(view, &QObject::destroyed, this, [&, view, fileModel] {
             if (--fileViewsPerModel_[fileModel] <= 0)
                 fileViewsPerModel_.remove(fileModel);
-
-            INFO("File view destroyed for model [{}]", fileModel);
-            emit viewDestroyed(fileModel);
+            INFO("File view destroyed [{}] for model [{}]", view, fileModel);
+            emit fileViewDestroyed(view);
         });
 
         auto index = tab_widget->addTab(view, meta->title());
@@ -720,7 +722,7 @@ private slots:
 
             for (auto i = 0; i < tab_widget->count(); ++i)
                 if (auto text_view = tab_widget->widgetAt<TextFileView*>(i))
-                    text_view->setFont(font);
+                    text_view->editor()->setFont(font);
         }
     }
 };

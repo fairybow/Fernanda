@@ -176,7 +176,7 @@ public:
 
     QList<FileInfo> importTextFiles(
         const Coco::Path& workingDir,
-        const QList<Coco::Path>& fsPaths,
+        const Coco::PathList& fsPaths,
         const QModelIndex& parentIndex = {})
     {
         QList<QDomElement> elements{};

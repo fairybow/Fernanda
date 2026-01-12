@@ -186,8 +186,19 @@ private:
 
         auto dock_widget = new QDockWidget(window);
         dockWidgets_[window] = dock_widget;
+        // TODO: Needed? Check that it actually works, too, since it decays to
+        // QObject before emitting destroyed...
+        connect(dock_widget, &QObject::destroyed, this, [&, window] {
+            // if (!window) return;
+            dockWidgets_.remove(window);
+        });
+
         auto tree_view = new TreeView(dock_widget);
         treeViews_[window] = tree_view;
+        connect(tree_view, &QObject::destroyed, this, [&, window] {
+            // if (!window) return;
+            treeViews_.remove(window);
+        });
 
         tree_view->setHeaderHidden(headersHidden_);
         tree_view->setIndentation(15);
@@ -242,17 +253,6 @@ private:
                     model_index);
                 emit contextMenuRequested(window, point, model_index);
             });
-
-        // TODO: Needed? Check that it actually works, too, since it decays to
-        // QObject before emitting destroyed...
-        connect(dock_widget, &QDockWidget::destroyed, this, [&, window] {
-            if (!window) return;
-            dockWidgets_.remove(window);
-        });
-        connect(tree_view, &TreeView::destroyed, this, [&, window] {
-            if (!window) return;
-            treeViews_.remove(window);
-        });
     }
 
 private slots:

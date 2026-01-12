@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>themes/Amber.fernanda_editor</file>
+        <file>themes/Blue.fernanda_editor</file>
+        <file>themes/Green.fernanda_editor</file>
+        <file>themes/Grey.fernanda_editor</file>
+        <file>themes/Pocket (Alt).fernanda_editor</file>
+        <file>themes/Pocket.fernanda_editor</file>
+        <file>themes/Snooze (Alt).fernanda_editor</file>
+        <file>themes/Snooze.fernanda_editor</file>
+    </qresource>
+</RCC>

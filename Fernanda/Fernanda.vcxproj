@@ -51,6 +51,14 @@
     <None Include="docs\VSProjectSettings.md" />
     <None Include="installer\WindowsBuild.bat" />
     <None Include="installer\WindowsInstaller.iss" />
+    <None Include="resources\themes\Amber.fernanda_editor" />
+    <None Include="resources\themes\Blue.fernanda_editor" />
+    <None Include="resources\themes\Green.fernanda_editor" />
+    <None Include="resources\themes\Grey.fernanda_editor" />
+    <None Include="resources\themes\Pocket (Alt).fernanda_editor" />
+    <None Include="resources\themes\Pocket.fernanda_editor" />
+    <None Include="resources\themes\Snooze (Alt).fernanda_editor" />
+    <None Include="resources\themes\Snooze.fernanda_editor" />
     <None Include="resources\ui\ChevronDown.svg" />
     <None Include="resources\ui\ChevronLeft.svg" />
     <None Include="resources\ui\ChevronRight.svg" />
@@ -113,8 +121,11 @@
     <ClInclude Include="src\Ini.h" />
     <QtMoc Include="src\SettingsService.h" />
     <QtMoc Include="src\SettingsDialog.h" />
+    <QtMoc Include="src\StyleModule.h" />
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\Io.h" />
+    <ClInclude Include="src\Themes.h" />
+    <QtMoc Include="src\ThemeSelector.h" />
     <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewService.h" />
@@ -149,6 +160,7 @@
   <ItemGroup>
     <QtRcc Include="external\External.qrc" />
     <QtRcc Include="resources\Icons.qrc" />
+    <QtRcc Include="resources\Themes.qrc" />
     <QtRcc Include="resources\Ui.qrc" />
     <QtRcc Include="translations\TranslationQMFiles.qrc" />
   </ItemGroup>

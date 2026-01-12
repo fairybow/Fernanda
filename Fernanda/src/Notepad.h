@@ -65,7 +65,7 @@ public:
 
     virtual ~Notepad() override { TRACER; }
 
-    void openFiles(const QList<Coco::Path>& paths)
+    void openFiles(const Coco::PathList& paths)
     {
         if (auto window = windows->active()) openFiles_(window, paths);
     }
@@ -459,18 +459,20 @@ private:
 
         connect(
             views,
-            &ViewService::viewDestroyed,
-            this,
-            [&](AbstractFileModel* fileModel) {
-                if (!fileModel || views->countFor(fileModel) > 0) return;
-                files->deleteModel(fileModel);
-            });
-
-        connect(
-            views,
             &ViewService::addTabRequested,
             this,
             [&](Window* window) { newTab_(window); });
+
+        connect(
+            views,
+            &ViewService::fileViewDestroyed,
+            this,
+            [&](AbstractFileView* fileView) {
+                if (!fileView) return;
+                auto model = fileView->model();
+                if (!model || views->countFor(model) > 0) return;
+                files->deleteModel(model);
+            });
 
         connectBusEvents_();
     }
@@ -636,7 +638,7 @@ private:
         openFiles_(window, paths);
     }
 
-    void openFiles_(Window* window, const QList<Coco::Path>& paths)
+    void openFiles_(Window* window, const Coco::PathList& paths)
     {
         if (paths.isEmpty()) return;
 

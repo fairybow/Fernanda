@@ -300,11 +300,11 @@ private slots:
         } else {
 
             // Qt will return focus to the previously activated window. If that
-            // previously active window was in another WindowManager, then we
+            // previously active window was in another WindowService, then we
             // need to prevent that to prevent flickering. Plus, it makes sense
             // to simply activate the next highest window in the current
-            // WindowManager. However, if the previously active window was in
-            // the same WindowManager, then we should activate that one instead
+            // WindowService. However, if the previously active window was in
+            // the same WindowService, then we should activate that one instead
             if (lastFocusedAppWindow_
                 && zOrderedVolatileWindows_.contains(lastFocusedAppWindow_)) {
                 // I am not entirely sure my logic/reasoning for tracking an
@@ -314,7 +314,7 @@ private slots:
 
             } else {
 
-                // If this Manager is not empty, then it should resume focus. If
+                // If this manager is not empty, then it should resume focus. If
                 // it is, Qt should have taken care of refocusing
                 auto& next_window = zOrderedVolatileWindows_.last();
                 next_window->activate();

@@ -1,0 +1,9 @@
+{
+  "name": "Pocket",
+  "values": {
+    "backgroundColor": "#b6bc9f",
+    "fontColor": "#1b211b",
+    "selectionBgColor": "#1b211b",
+    "selectionFontColor": "#b6bc9f"
+  }
+}

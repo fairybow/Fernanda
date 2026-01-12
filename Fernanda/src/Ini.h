@@ -10,12 +10,17 @@
 #pragma once
 
 #include <QFont>
+#include <QString>
+
+// TODO: Any way to get path to work with QSettings?
+//#include "Coco/Path.h"
 
 namespace Fernanda::Ini {
 
 namespace Keys {
 
     constexpr auto FONT = "Editor/Font";
+    constexpr auto EDITOR_THEME = "Editor/Theme";
 
 } // namespace Keys
 
@@ -30,6 +35,14 @@ namespace Defaults {
         f.setBold(false);
         f.setItalic(false);
         return f;
+    }
+
+    // TODO: Any way to get path to work with QSettings?
+    inline QString editorTheme()
+    {
+        // TODO: Go with generic "light" theme (or no theme (empty path)) later
+        //return ":/themes/Snooze.fernanda_editor";
+        return {}; // testing
     }
 
 } // namespace Defaults
