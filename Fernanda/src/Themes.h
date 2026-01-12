@@ -25,11 +25,15 @@
 
 namespace Fernanda {
 
+// TODO: Base class (See: StyleModule::sortThemes_)? At the very least, silo off
+// common code!
+
 class EditorTheme
 {
 public:
     static constexpr auto EXT = ".fernanda_editor";
 
+    // Needed for invalid theme!
     EditorTheme() = default;
 
     EditorTheme(const Coco::Path& path)
@@ -58,7 +62,7 @@ public:
     }
 
 private:
-    Coco::Path path_{};
+    Coco::Path path_;
 
     static constexpr auto NAME_ = "name";
     QString name_{};
@@ -113,7 +117,60 @@ private:
 
 class WindowTheme
 {
-    //...
+public:
+    static constexpr auto EXT = ".fernanda_window";
+
+    // Needed for invalid theme!
+    WindowTheme() = default;
+
+    WindowTheme(const Coco::Path& path)
+        : path_(path)
+    {
+        parse_(path);
+    }
+
+    Coco::Path path() const noexcept { return path_; }
+    QString name() const noexcept { return name_; }
+
+    bool isValid() const noexcept
+    {
+        return true; /// TEMP
+
+        //...
+    }
+
+private:
+    Coco::Path path_;
+
+    static constexpr auto NAME_ = "name";
+    QString name_{};
+
+    static constexpr auto VALUES_ = "values";
+
+    // TODO: Variables
+
+    void parse_(const Coco::Path& path)
+    {
+        // TODO: Example theme
+
+        auto data = Io::read(path);
+
+        QJsonParseError parse_error{};
+        auto document = QJsonDocument::fromJson(data, &parse_error);
+
+        // TODO: debug WARNs!
+        if (parse_error.error != QJsonParseError::NoError) return;
+        if (!document.isObject()) return;
+
+        auto root = document.object();
+
+        name_ = root[NAME_].toString();
+
+        auto values = root[VALUES_].toObject();
+        if (values.isEmpty()) return;
+
+        //...now parse
+    }
 };
 
 } // namespace Fernanda

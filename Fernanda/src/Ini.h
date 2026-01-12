@@ -13,13 +13,14 @@
 #include <QString>
 
 // TODO: Any way to get path to work with QSettings?
-//#include "Coco/Path.h"
+// #include "Coco/Path.h"
 
 namespace Fernanda::Ini {
 
 namespace Keys {
 
     constexpr auto FONT = "Editor/Font";
+    constexpr auto WINDOW_THEME = "Window/Theme";
     constexpr auto EDITOR_THEME = "Editor/Theme";
 
 } // namespace Keys
@@ -37,11 +38,18 @@ namespace Defaults {
         return f;
     }
 
+    inline QString windowTheme()
+    {
+        // TODO: Go with generic "light" theme (or no theme (empty path)) later
+        // return ":/themes/Light.fernanda_window";
+        return {}; // testing
+    }
+
     // TODO: Any way to get path to work with QSettings?
     inline QString editorTheme()
     {
         // TODO: Go with generic "light" theme (or no theme (empty path)) later
-        //return ":/themes/Snooze.fernanda_editor";
+        // return ":/themes/Paper/Light/Pocket/IDK.fernanda_editor";
         return {}; // testing
     }
 

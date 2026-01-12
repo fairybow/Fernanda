@@ -43,54 +43,47 @@ public:
 
     struct InitialValues
     {
-        QList<Entry> editorThemes{};
-        Coco::Path currentEditorTheme{};
         QList<Entry> windowThemes{};
         Coco::Path currentWindowTheme{};
+        QList<Entry> editorThemes{};
+        Coco::Path currentEditorTheme{};
     };
 
     explicit ThemeSelector(
         const InitialValues& initialValues,
         QWidget* parent = nullptr)
         : QWidget(parent)
-        , currentEditorTheme_(initialValues.currentEditorTheme)
         , currentWindowTheme_(initialValues.currentWindowTheme)
+        , currentEditorTheme_(initialValues.currentEditorTheme)
     {
         setup_(initialValues);
     }
 
     virtual ~ThemeSelector() override { TRACER; }
 
-    Coco::Path currentEditorTheme() const noexcept
-    {
-        return currentEditorTheme_;
-    }
-
     Coco::Path currentWindowTheme() const noexcept
     {
         return currentWindowTheme_;
     }
 
+    Coco::Path currentEditorTheme() const noexcept
+    {
+        return currentEditorTheme_;
+    }
+
 signals:
-    void editorThemeChanged(const Coco::Path& path);
     void windowThemeChanged(const Coco::Path& path);
+    void editorThemeChanged(const Coco::Path& path);
 
 private:
-    Coco::Path currentEditorTheme_{};
     Coco::Path currentWindowTheme_{};
+    Coco::Path currentEditorTheme_{};
 
-    QComboBox* editorThemeBox_ = new QComboBox(this);
     QComboBox* windowThemeBox_ = new QComboBox(this);
+    QComboBox* editorThemeBox_ = new QComboBox(this);
 
     void setup_(const InitialValues& initialValues)
     {
-        // Populate editor themes
-        for (const auto& entry : initialValues.editorThemes) {
-            editorThemeBox_->addItem(
-                entry.name,
-                QVariant::fromValue(entry.path));
-        }
-
         // Populate window themes
         for (const auto& entry : initialValues.windowThemes) {
             windowThemeBox_->addItem(
@@ -98,35 +91,32 @@ private:
                 QVariant::fromValue(entry.path));
         }
 
+        // Populate editor themes
+        for (const auto& entry : initialValues.editorThemes) {
+            editorThemeBox_->addItem(
+                entry.name,
+                QVariant::fromValue(entry.path));
+        }
+
         // Set current selections
-        selectByPath_(editorThemeBox_, currentEditorTheme_);
         selectByPath_(windowThemeBox_, currentWindowTheme_);
+        selectByPath_(editorThemeBox_, currentEditorTheme_);
 
         // Layout
         auto main_layout = new QVBoxLayout(this);
-
-        auto editor_layout = new QHBoxLayout;
-        editor_layout->addWidget(new QLabel(Tr::editorTheme(), this));
-        editor_layout->addWidget(editorThemeBox_, 1);
 
         auto window_layout = new QHBoxLayout;
         window_layout->addWidget(new QLabel(Tr::windowTheme(), this));
         window_layout->addWidget(windowThemeBox_, 1);
 
-        main_layout->addLayout(editor_layout);
+        auto editor_layout = new QHBoxLayout;
+        editor_layout->addWidget(new QLabel(Tr::editorTheme(), this));
+        editor_layout->addWidget(editorThemeBox_, 1);
+
         main_layout->addLayout(window_layout);
+        main_layout->addLayout(editor_layout);
 
         // Connect
-        connect(
-            editorThemeBox_,
-            &QComboBox::currentIndexChanged,
-            this,
-            [&](int index) {
-                currentEditorTheme_ =
-                    editorThemeBox_->itemData(index).value<Coco::Path>();
-                emit editorThemeChanged(currentEditorTheme_);
-            });
-
         connect(
             windowThemeBox_,
             &QComboBox::currentIndexChanged,
@@ -135,6 +125,16 @@ private:
                 currentWindowTheme_ =
                     windowThemeBox_->itemData(index).value<Coco::Path>();
                 emit windowThemeChanged(currentWindowTheme_);
+            });
+
+        connect(
+            editorThemeBox_,
+            &QComboBox::currentIndexChanged,
+            this,
+            [&](int index) {
+                currentEditorTheme_ =
+                    editorThemeBox_->itemData(index).value<Coco::Path>();
+                emit editorThemeChanged(currentEditorTheme_);
             });
     }
 
@@ -146,7 +146,8 @@ private:
                 return;
             }
         }
-        // Path not found - leave at default (index 0) or could set to -1
+
+        // TODO: Path not found - leave at default (index 0) or could set to -1
     }
 };
 

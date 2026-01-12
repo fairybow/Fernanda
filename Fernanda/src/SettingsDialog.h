@@ -36,9 +36,11 @@ public:
         int fontSizeMin;
         int fontSizeMax;
 
+        QList<ThemeSelector::Entry> windowThemes;
+        Coco::Path currentWindowTheme;
+
         QList<ThemeSelector::Entry> editorThemes;
         Coco::Path currentEditorTheme;
-        // TODO: Window themes
 
         //...
     };
@@ -56,8 +58,8 @@ public:
 
 signals:
     void fontChanged(const QFont& font);
+    void windowThemeChanged(const Coco::Path& path);
     void editorThemeChanged(const Coco::Path& path);
-    // TODO: Window theme
 
 private:
     FontSelector* fontSelector_ = nullptr;
@@ -76,11 +78,10 @@ private:
 
         themeSelector_ = new ThemeSelector(
             ThemeSelector::InitialValues{
+                .windowThemes = initialValues.windowThemes,
+                .currentWindowTheme = initialValues.currentWindowTheme,
                 .editorThemes = initialValues.editorThemes,
-                .currentEditorTheme = initialValues.currentEditorTheme,
-                .windowThemes = {},
-                .currentWindowTheme = {},
-            },
+                .currentEditorTheme = initialValues.currentEditorTheme },
             this);
 
         auto layout = new QVBoxLayout(this);
@@ -94,6 +95,12 @@ private:
             &FontSelector::currentChanged,
             this,
             [&](const QFont& font) { emit fontChanged(font); });
+
+        connect(
+            themeSelector_,
+            &ThemeSelector::windowThemeChanged,
+            this,
+            [&](const Coco::Path& path) { emit windowThemeChanged(path); });
 
         connect(
             themeSelector_,

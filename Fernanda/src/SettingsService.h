@@ -76,14 +76,24 @@ public:
             return;
         }
 
-        QList<ThemeSelector::Entry> editor_theme_entries{};
+        QList<ThemeSelector::Entry> window_theme_entries{};
 
         // Add themeless option using empty path
-        editor_theme_entries << ThemeSelector::Entry{ Tr::noTheme(), {} };
+        window_theme_entries << ThemeSelector::Entry{ Tr::noTheme(), {} };
 
         // TODO: Don't use pair. Find a sensible location for using a struct
         // with explicit names! Could have all involved (this, SettingsDialog,
         // StyleModule) reuse ThemeSelector::Entry, maybe
+        for (auto& theme : bus->call<QList<std::pair<QString, Coco::Path>>>(
+                 Bus::WINDOW_THEMES)) {
+            window_theme_entries
+                << ThemeSelector::Entry{ theme.first,
+                                         theme.second }; // name, path
+        }
+
+        QList<ThemeSelector::Entry> editor_theme_entries{};
+        editor_theme_entries << ThemeSelector::Entry{ Tr::noTheme(), {} };
+
         for (auto& theme : bus->call<QList<std::pair<QString, Coco::Path>>>(
                  Bus::EDITOR_THEMES)) {
             editor_theme_entries
@@ -97,13 +107,19 @@ public:
             .fontSizeMin = Ini::Defaults::FONT_SIZE_MIN,
             .fontSizeMax = Ini::Defaults::FONT_SIZE_MAX,
 
+            .windowThemes = window_theme_entries,
+            .currentWindowTheme = settings_->value<QString>(
+                Ini::Keys::WINDOW_THEME,
+                Ini::Defaults::windowTheme()),
+
             .editorThemes = editor_theme_entries,
 
             // TODO: Any way to get path to work with QSettings?
             .currentEditorTheme = settings_->value<QString>(
                 Ini::Keys::EDITOR_THEME,
                 Ini::Defaults::editorTheme()),
-            // TODO: Window themes
+
+            //...
         };
 
         auto title = name_.isEmpty() ? Tr::settingsTitle()
@@ -118,6 +134,16 @@ public:
                 emit bus->settingChanged(Ini::Keys::FONT, font);
                 pendingFont_ = font;
                 fontDebouncer_->start();
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::windowThemeChanged,
+            this,
+            [&](const Coco::Path& path) {
+                emit bus->settingChanged(Ini::Keys::WINDOW_THEME, qVar(path));
+                pendingWindowTheme_ = path;
+                windowThemeDebouncer_->start();
             });
 
         connect(
@@ -169,14 +195,19 @@ private:
     Timers::Debouncer* fontDebouncer_ =
         nullptr; // TODO: Possible to have one debouncer for all settings?
     QFont pendingFont_{};
-    Timers::Debouncer* editorThemeDebouncer_ =
-        nullptr; // TODO: Possible to have one debouncer for all settings?
+    Timers::Debouncer* windowThemeDebouncer_ = nullptr;
+    Coco::Path pendingWindowTheme_{};
+    Timers::Debouncer* editorThemeDebouncer_ = nullptr;
     Coco::Path pendingEditorTheme_{};
 
     void setup_()
     {
         fontDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
             set_(Ini::Keys::FONT, pendingFont_);
+        });
+
+        windowThemeDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
+            set_(Ini::Keys::WINDOW_THEME, pendingWindowTheme_.toQString());
         });
 
         editorThemeDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
