@@ -93,8 +93,7 @@ private:
         QJsonParseError parse_error{};
         auto document = QJsonDocument::fromJson(data, &parse_error);
 
-        // TODO: debug WARN (maybe INFO, if "no theme" option relies on invalid
-        // theme
+        // TODO: debug WARNs!
         if (parse_error.error != QJsonParseError::NoError) return;
         if (!document.isObject()) return;
 
