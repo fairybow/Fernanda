@@ -644,7 +644,6 @@ private slots:
         // Only adjust this once we're clear
         ++fileViewsPerModel_[fileModel];
 
-        /// TODO STYLE
         emit bus->fileViewCreated(view);
 
         connect(view, &QObject::destroyed, this, [&, view, fileModel] {

@@ -41,8 +41,6 @@ public:
     Coco::Path path() const noexcept { return path_; }
     QString name() const noexcept { return name_; }
 
-    /// TODO STYLE: Check is valid before adding (except the first one, "no
-    /// theme"?)
     bool isValid() const noexcept
     {
         return background_.isValid() && font_.isValid() && selection_.isValid()
