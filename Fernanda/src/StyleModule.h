@@ -72,6 +72,8 @@ protected:
             // maybe just for palette swapping, like editor, but window themes
             // may have both palette() and a way to set the proxy style)
 
+            // TODO: May need a per-Workspace icon maker/tracker?
+
             windows_ << window;
 
             // TODO: Search use of Window::destroyed and replace with this (also
