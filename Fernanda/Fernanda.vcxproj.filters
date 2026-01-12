@@ -94,6 +94,12 @@
     <Filter Include="Code\Auxiliary\Modules\Style">
       <UniqueIdentifier>{7d682663-e7de-465b-946d-733c8f61519e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\Themes\Editor">
+      <UniqueIdentifier>{fe4898c0-7b8c-40e6-94e0-01c64a5b2d0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Themes\Window">
+      <UniqueIdentifier>{3d929cc5-ae76-47a5-9d3f-f5dca3956971}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -227,29 +233,29 @@
     <None Include="docs\Dependencies.md">
       <Filter>Docs</Filter>
     </None>
-    <None Include="resources\themes\Pocket.fernanda_editor">
-      <Filter>Resources\Themes</Filter>
-    </None>
     <None Include="resources\themes\Amber.fernanda_editor">
-      <Filter>Resources\Themes</Filter>
+      <Filter>Resources\Themes\Editor</Filter>
     </None>
     <None Include="resources\themes\Blue.fernanda_editor">
-      <Filter>Resources\Themes</Filter>
+      <Filter>Resources\Themes\Editor</Filter>
     </None>
     <None Include="resources\themes\Green.fernanda_editor">
-      <Filter>Resources\Themes</Filter>
+      <Filter>Resources\Themes\Editor</Filter>
     </None>
     <None Include="resources\themes\Grey.fernanda_editor">
-      <Filter>Resources\Themes</Filter>
+      <Filter>Resources\Themes\Editor</Filter>
     </None>
     <None Include="resources\themes\Pocket (Alt).fernanda_editor">
-      <Filter>Resources\Themes</Filter>
+      <Filter>Resources\Themes\Editor</Filter>
     </None>
-    <None Include="resources\themes\Snooze.fernanda_editor">
-      <Filter>Resources\Themes</Filter>
+    <None Include="resources\themes\Pocket.fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
     </None>
     <None Include="resources\themes\Snooze (Alt).fernanda_editor">
-      <Filter>Resources\Themes</Filter>
+      <Filter>Resources\Themes\Editor</Filter>
+    </None>
+    <None Include="resources\themes\Snooze.fernanda_editor">
+      <Filter>Resources\Themes\Editor</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

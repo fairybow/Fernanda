@@ -44,12 +44,6 @@ public:
 
     virtual ~StyleModule() override { TRACER; }
 
-    // No public setter for themes: SettingsDialog will emit
-    // editorThemeChanged(path) (or similar) SettingsService emits bus ->
-    // settingChanged(Ini::Keys::EDITOR_THEME, path) + debounces INI write
-    // StyleModule listens to Bus signal and applies (already implemented in
-    // onBusSettingChanged_)
-
 protected:
     virtual void registerBusCommands() override
     {
@@ -79,6 +73,8 @@ protected:
             &Bus::settingChanged,
             this,
             &StyleModule::onBusSettingChanged_);
+
+        // TODO: Connect new window / lazy load theme
 
         connect(
             bus,
@@ -126,6 +122,8 @@ protected:
             [](const EditorTheme& et1, const EditorTheme& et2) {
                 return et1.name().toLower() < et2.name().toLower();
             });
+
+        // TODO: Window themes
     }
 
 private:
@@ -158,6 +156,19 @@ private:
     }
 
     // Find & apply window theme
+
+    /*
+    // Example editor theme (base window theme off this):
+    {
+      "name": "Pocket",
+      "values": {
+        "backgroundColor": "#b6bc9f",
+        "fontColor": "#1b211b",
+        "selectionBgColor": "#1b211b",
+        "selectionFontColor": "#b6bc9f"
+       }
+    }
+    */
 
 private slots:
     // Empty or non-existent path results in no theming
