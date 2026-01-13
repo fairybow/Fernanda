@@ -59,7 +59,7 @@
     <None Include="resources\themes\Pocket.fernanda_editor" />
     <None Include="resources\themes\Snooze (Alt).fernanda_editor" />
     <None Include="resources\themes\Snooze.fernanda_editor" />
-    <None Include="resources\themes\Test - Dark Pine.fernanda_window" />
+    <None Include="resources\themes\Test %28REMOVE ME%29.fernanda_window" />
     <None Include="resources\ui\ChevronDown.svg" />
     <None Include="resources\ui\ChevronLeft.svg" />
     <None Include="resources\ui\ChevronRight.svg" />

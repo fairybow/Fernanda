@@ -257,7 +257,7 @@
     <None Include="resources\themes\Snooze.fernanda_editor">
       <Filter>Resources\Themes\Editor</Filter>
     </None>
-    <None Include="resources\themes\Test - Dark Pine.fernanda_window">
+    <None Include="resources\themes\Test %28REMOVE ME%29.fernanda_window">
       <Filter>Resources\Themes\Window</Filter>
     </None>
   </ItemGroup>
