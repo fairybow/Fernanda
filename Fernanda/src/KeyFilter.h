@@ -114,6 +114,7 @@ private:
         // closer just checks (in part) that we have a closing punctuation; this
         // would be a problem if cursor is already up against a closing
         // punctuation)
+        // TODO: Also trim for new line?
         if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
             && canCloseTrailingPunctGap_(document, cursor)) {
             closeTrailingPunctGap_(ch, cursor);

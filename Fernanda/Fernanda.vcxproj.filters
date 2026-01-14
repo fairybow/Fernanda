@@ -391,6 +391,9 @@
     <QtMoc Include="src\ThemeSelector.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
+    <QtMoc Include="src\ProxyStyle.h">
+      <Filter>Code\Auxiliary\Modules\Style</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
