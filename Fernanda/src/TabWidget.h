@@ -53,6 +53,7 @@
 #include "Coco/Utility.h"
 
 #include "Debug.h"
+#include "ProxyStyle.h"
 #include "TabWidgetButton.h"
 #include "TabWidgetCloseButton.h"
 #include "TabWidgetTabBar.h"
@@ -137,8 +138,8 @@ private:
         tabBar_->setMaximumTabWidth(MIN_TAB_WIDTH_);
         tabBar_->setMaximumTabWidth(MAX_TAB_WIDTH_);
         addButton_->setFixedSize(ADD_BUTTON_SIZE_);
-        addButton_->setSvgSize(BUTTON_SVG_SIZE_);
-        addButton_->setSvgPath(":/ui/Plus.svg");
+        addButton_->setIconSize(BUTTON_SVG_SIZE_);
+        addButton_->setIcon(UiIcon::Plus);
 
         // Populate
         mainStack_->setCurrentIndex(0);
@@ -162,7 +163,7 @@ private:
         main_layout->addWidget(mainStack_, 1);
 
         // Connect
-        connect(addButton_, &QToolButton::clicked, this, [&] {
+        connect(addButton_, &TabWidgetButton::clicked, this, [&] {
             emit addTabRequested();
         });
 
@@ -395,9 +396,9 @@ private:
     {
         auto close_button = new TabWidgetCloseButton(tabBar_);
         close_button->setFixedSize(CLOSE_BUTTON_SIZE_);
-        close_button->setSvgSize(BUTTON_SVG_SIZE_);
-        close_button->setSvgPath(":/ui/X.svg");
-        close_button->setFlagSvgPath(":/ui/Dot.svg");
+        close_button->setIconSize(BUTTON_SVG_SIZE_);
+        close_button->setIcon(UiIcon::X);
+        close_button->setFlagIcon(UiIcon::Dot);
         closeButtons_ << close_button;
 
         tabBar_->setTabButton(index, QTabBar::RightSide, close_button);

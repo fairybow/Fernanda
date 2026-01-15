@@ -132,12 +132,10 @@ public:
     Coco::Path path() const noexcept { return path_; }
     QString name() const noexcept { return name_; }
 
-    bool isValid() const noexcept
-    {
-        return true; /// TEMP
+    /// TODO: Keep up to date!
+    bool isValid() const noexcept { return iconColor_.isValid(); }
 
-        //...
-    }
+    QColor iconColor() const noexcept { return iconColor_; }
 
 private:
     Coco::Path path_;
@@ -147,7 +145,10 @@ private:
 
     static constexpr auto VALUES_ = "values";
 
-    // TODO: Variables
+    static constexpr auto VAR_ICON_COLOR_ = "iconColor";
+    QColor iconColor_{};
+
+    //...
 
     void parse_(const Coco::Path& path)
     {
@@ -169,7 +170,9 @@ private:
         auto values = root[VALUES_].toObject();
         if (values.isEmpty()) return;
 
-        //...now parse
+        iconColor_ = values[VAR_ICON_COLOR_].toString();
+
+        //...
     }
 };
 

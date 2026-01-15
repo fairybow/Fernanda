@@ -9,9 +9,11 @@
 
 #pragma once
 
+#include <optional>
+
+#include <QAbstractButton>
 #include <QEnterEvent>
 #include <QEvent>
-#include <QHash>
 #include <QObject>
 #include <QPaintEvent>
 #include <QPainter>
@@ -19,15 +21,11 @@
 #include <QPixmap>
 #include <QPointF>
 #include <QRect>
-#include <QRectF>
 #include <QSize>
 #include <QSizeF>
-#include <QString>
-#include <QSvgRenderer>
-#include <QToolButton>
-#include <QVariant>
 
 #include "Debug.h"
+#include "ProxyStyle.h"
 
 namespace Fernanda {
 
@@ -46,14 +44,7 @@ public:
 
     virtual ~TabWidgetButton() override { TRACER; }
 
-    // Idk about this
-    QString text() const {}
-    void setText(const QString& text) {}
-
     bool flagged() const noexcept { return flagged_; }
-    QString svgPath() const noexcept { return svgPath_; }
-    QString flagSvgPath() const noexcept { return flagSvgPath_; }
-    QSize svgSize() const noexcept { return svgSize_; }
 
     void setFlagged(bool flagged)
     {
@@ -62,31 +53,38 @@ public:
         update();
     }
 
-    void setSvgPath(const QString& svgPath)
+    std::optional<UiIcon> icon() const noexcept { return icon_; }
+
+    void setIcon(UiIcon icon)
     {
-        if (svgPath_ == svgPath) return;
-        svgPath_ = svgPath;
-        invalidateCache_();
+        icon_ = icon;
         update();
     }
 
-    void setFlagSvgPath(const QString& flagSvgPath)
+    std::optional<UiIcon> flagIcon() const noexcept { return flagIcon_; }
+
+    void setFlagIcon(UiIcon icon)
     {
-        if (flagSvgPath_ == flagSvgPath) return;
-        flagSvgPath_ = flagSvgPath;
-        invalidateCache_();
+        flagIcon_ = icon;
         update();
     }
 
-    void setSvgSize(const QSize& size)
+    QSize iconSize() const noexcept { return iconSize_; }
+
+    void setIconSize(const QSize& size)
     {
-        if (svgSize_ == size) return;
-        svgSize_ = size;
-        invalidateCache_();
+        if (iconSize_ == size) return;
+        iconSize_ = size;
         update();
     }
 
 protected:
+    virtual void changeEvent(QEvent* event) override
+    {
+        if (event->type() == QEvent::PaletteChange) update();
+        QAbstractButton::changeEvent(event);
+    }
+
     virtual void enterEvent(QEnterEvent* event) override
     {
         QAbstractButton::enterEvent(event);
@@ -102,19 +100,15 @@ protected:
     virtual void paintEvent(QPaintEvent* event) override
     {
         QPainter painter(this);
-        setPainterProperties_(painter);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
         auto widget_rect = rect();
 
         // Draw background based on button state
-        auto pressed = isDown();
-        auto under_mouse = underMouse();
-
-        // Transparent background for normal state
-        if (pressed || under_mouse) {
+        if (isDown() || underMouse()) {
             QPainterPath path{};
 
-            // Shrink and round out the highlight
             auto highlight_rect = widget_rect.adjusted(
                 HIGHLIGHT_INSET_,
                 HIGHLIGHT_INSET_,
@@ -125,39 +119,48 @@ protected:
                 HIGHLIGHT_CORNER_RADIUS_,
                 HIGHLIGHT_CORNER_RADIUS_);
 
-            // Fill
-            if (pressed)
-                painter.fillPath(path, QColor(0, 0, 0, 30));
-            else if (under_mouse)
-                painter.fillPath(path, QColor(0, 0, 0, 15));
+            painter.fillPath(path, QColor(0, 0, 0, isDown() ? 30 : 15));
         }
 
-        QString svg_path = shouldShowFlag_() ? flagSvgPath_ : svgPath_;
-        if (svg_path.isEmpty()) return;
+        // Get icon from ProxyStyle
+        auto icon = currentIcon_();
+        if (!icon) {
+            WARN("No icon set");
+            return;
+        }
 
-        auto pixmap = getCachedPixmap_(svg_path);
-        if (pixmap.isNull()) return;
+        /// TODO STYLE: This works but I don't like it!
+        auto* ps = window() ? qobject_cast<ProxyStyle*>(window()->style()) : nullptr;
+        if (!ps) {
+            WARN("No ProxyStyle on widget");
+            return;
+        }
+
+        auto effective_icon_size = effectiveIconSize_();
+
+        INFO(
+            "Requesting icon [{}] at size [{}x{}]",
+            static_cast<int>(*icon),
+            effective_icon_size.width(),
+            effective_icon_size.height());
+
+        auto pixmap = ps->icon(*icon, effective_icon_size, devicePixelRatio());
+        if (pixmap.isNull()) {
+            WARN("Pixmap is null");
+            return;
+        }
 
         drawCenteredPixmap_(painter, pixmap, widget_rect);
     }
 
-    virtual void resizeEvent(QResizeEvent* event) override
-    {
-        QAbstractButton::resizeEvent(event);
-        invalidateCache_();
-    }
-
 private:
-    static constexpr auto FLAG_PROPERTY_ = "flagged";
     static constexpr auto HIGHLIGHT_CORNER_RADIUS_ = 4;
     static constexpr auto HIGHLIGHT_INSET_ = 2;
-    static constexpr auto CACHE_FORMAT_ = "%1_%2x%3";
 
-    QString svgPath_{};
-    QString flagSvgPath_{};
-    QSize svgSize_{ 16, 16 };
+    std::optional<UiIcon> icon_{};
+    std::optional<UiIcon> flagIcon_{};
+    QSize iconSize_{ 16, 16 };
     bool flagged_ = false;
-    mutable QHash<QString, QPixmap> pixmapCache_{};
 
     void setup_()
     {
@@ -165,70 +168,17 @@ private:
         setAttribute(Qt::WA_Hover, true);
     }
 
-    bool shouldShowFlag_() const
+    std::optional<UiIcon> currentIcon_() const
     {
-        return flagged_ && !flagSvgPath_.isEmpty() && !underMouse();
+        if (flagged_ && flagIcon_ && !underMouse()) return flagIcon_;
+        return icon_;
     }
 
-    void setPainterProperties_(QPainter& painter) const
-    {
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-    }
-
-    void invalidateCache_() { pixmapCache_.clear(); }
-
-    QPixmap getCachedPixmap_(const QString& svgPath) const
-    {
-        if (svgPath.isEmpty()) return {};
-
-        // Key includes effective size
-        auto target_size = getEffectiveIconSize_();
-        auto cache_key = QString(CACHE_FORMAT_)
-                             .arg(svgPath)
-                             .arg(target_size.width())
-                             .arg(target_size.height());
-
-        if (pixmapCache_.contains(cache_key)) return pixmapCache_[cache_key];
-
-        auto pixmap = renderSvgToPixmap_(svgPath, target_size);
-        if (!pixmap.isNull()) pixmapCache_[cache_key] = pixmap;
-        return pixmap;
-    }
-
-    QPixmap
-    renderSvgToPixmap_(const QString& svgPath, const QSize& targetSize) const
-    {
-        QSvgRenderer renderer(svgPath);
-
-        if (!renderer.isValid()) {
-            WARN("Failed to load SVG [{}]!", svgPath);
-            return {};
-        }
-
-        auto device_pixel_ratio = devicePixelRatio();
-        auto pixmap_size = targetSize * device_pixel_ratio;
-
-        QPixmap pixmap(pixmap_size);
-        pixmap.setDevicePixelRatio(device_pixel_ratio);
-        pixmap.fill(Qt::transparent);
-
-        QPainter painter(&pixmap);
-        setPainterProperties_(painter);
-
-        // Render to the LOGICAL bounds (painter coordinates are logical when
-        // the pixmap has devicePixelRatio set)
-        renderer.render(&painter, QRectF({ 0, 0 }, { targetSize }));
-
-        return pixmap;
-    }
-
-    QSize getEffectiveIconSize_() const
+    QSize effectiveIconSize_() const
     {
         auto size = contentsRect().size();
-
-        return { qMin(svgSize_.width(), size.width()),
-                 qMin(svgSize_.height(), size.height()) };
+        return { qMin(iconSize_.width(), size.width()),
+                 qMin(iconSize_.height(), size.height()) };
     }
 
     void drawCenteredPixmap_(

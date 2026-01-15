@@ -12,10 +12,14 @@
 #include <QByteArray>
 #include <QColor>
 #include <QHash>
+#include <QObject>
 #include <QPainter>
 #include <QPixmap>
+#include <QPointF>
 #include <QProxyStyle>
+#include <QRectF>
 #include <QSize>
+#include <QSizeF>
 #include <QString>
 #include <QSvgRenderer>
 
@@ -24,6 +28,7 @@
 
 namespace Fernanda {
 
+// TODO: Add "none" value and remove std::optional in TabWidgetButton?
 enum class UiIcon
 {
     ChevronDown,
@@ -48,6 +53,8 @@ public:
 
     virtual ~ProxyStyle() override { TRACER; }
 
+    static QColor defaultIconColor() { return QColor(PLACEHOLDER_COLOR_); }
+
     QColor iconColor() const { return iconColor_; }
 
     void setIconColor(const QColor& color)
@@ -65,7 +72,8 @@ public:
         if (cache_.contains(key)) return cache_[key];
 
         auto path = registry_.value(icon);
-        if (path.isEmpty()) FATAL("Path not set for icon [{}]", icon);
+        if (path.isEmpty())
+            FATAL("Path not set for icon [{}]", static_cast<int>(icon));
 
         auto pixmap = renderSvg_(path, size, dpr);
         if (!pixmap.isNull()) cache_[key] = pixmap;
@@ -125,9 +133,11 @@ private:
         pixmap.fill(Qt::transparent);
 
         QPainter painter(&pixmap);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform);
-        renderer.render(&painter);
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+        // Render to logical bounds
+        renderer.render(&painter, QRectF(QPointF(0, 0), QSizeF(size)));
 
         return pixmap;
     }
