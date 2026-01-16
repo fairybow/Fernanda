@@ -25,8 +25,8 @@
 
 namespace Fernanda {
 
-// TODO: Base class (See: StyleModule::sortThemes_)? At the very least, silo off
-// common code!
+/// TODO STYLE: Base class (See: StyleModule::sortThemes_)? At the very least,
+/// silo off common code!
 
 class EditorTheme
 {

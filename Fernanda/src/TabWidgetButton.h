@@ -79,11 +79,12 @@ public:
     }
 
 protected:
-    virtual void changeEvent(QEvent* event) override
+    /// TODO STYLE
+    /*virtual void changeEvent(QEvent* event) override
     {
         if (event->type() == QEvent::PaletteChange) update();
         QAbstractButton::changeEvent(event);
-    }
+    }*/
 
     virtual void enterEvent(QEnterEvent* event) override
     {
@@ -124,31 +125,10 @@ protected:
 
         // Get icon from ProxyStyle
         auto icon = currentIcon_();
-        if (!icon) {
-            WARN("No icon set");
-            return;
-        }
+        if (!icon) return;
 
-        /// TODO STYLE: This works but I don't like it!
-        auto* ps = window() ? qobject_cast<ProxyStyle*>(window()->style()) : nullptr;
-        if (!ps) {
-            WARN("No ProxyStyle on widget");
-            return;
-        }
-
-        auto effective_icon_size = effectiveIconSize_();
-
-        INFO(
-            "Requesting icon [{}] at size [{}x{}]",
-            static_cast<int>(*icon),
-            effective_icon_size.width(),
-            effective_icon_size.height());
-
-        auto pixmap = ps->icon(*icon, effective_icon_size, devicePixelRatio());
-        if (pixmap.isNull()) {
-            WARN("Pixmap is null");
-            return;
-        }
+        auto pixmap = ProxyStyle::icon(this, *icon, effectiveIconSize_());
+        if (pixmap.isNull()) return;
 
         drawCenteredPixmap_(painter, pixmap, widget_rect);
     }

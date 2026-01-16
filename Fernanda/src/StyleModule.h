@@ -218,13 +218,6 @@ private:
         proxyStyle_->setIconColor(
             theme.isValid() ? theme.iconColor()
                             : ProxyStyle::defaultIconColor());
-
-        /// TODO STYLE: This works but I don't like it!
-        // Force repaint on all windows and their children
-        for (auto& w : windows_) {
-            for (auto* child : w->findChildren<QWidget*>())
-                child->update();
-        }
     }
 
     void applyEditorTheme_(TextFileView* textFileView, const EditorTheme& theme)

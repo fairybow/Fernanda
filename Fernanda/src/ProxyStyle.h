@@ -18,17 +18,19 @@
 #include <QPointF>
 #include <QProxyStyle>
 #include <QRectF>
+#include <QSet>
 #include <QSize>
 #include <QSizeF>
 #include <QString>
 #include <QSvgRenderer>
+#include <QWidget>
 
 #include "Debug.h"
 #include "Io.h"
 
 namespace Fernanda {
 
-// TODO: Add "none" value and remove std::optional in TabWidgetButton?
+/// TODO STYLE: Add "none" value and remove std::optional in TabWidgetButton?
 enum class UiIcon
 {
     ChevronDown,
@@ -53,7 +55,7 @@ public:
 
     virtual ~ProxyStyle() override { TRACER; }
 
-    static QColor defaultIconColor() { return QColor(PLACEHOLDER_COLOR_); }
+    static QColor defaultIconColor() { return PLACEHOLDER_COLOR_; }
 
     QColor iconColor() const { return iconColor_; }
 
@@ -62,22 +64,19 @@ public:
         if (iconColor_ == color) return;
         iconColor_ = color;
         clearCache_();
+
+        for (auto& requester : requesters_)
+            requester->update();
     }
 
-    QPixmap icon(UiIcon icon, const QSize& size, qreal dpr) const
+    static QPixmap icon(QWidget* widget, UiIcon type, const QSize& size)
     {
-        if (!size.isValid()) return {};
+        if (!widget || !widget->window()) return {};
 
-        auto key = cacheKey_(icon, size, dpr);
-        if (cache_.contains(key)) return cache_[key];
+        auto ps = qobject_cast<ProxyStyle*>(widget->window()->style());
+        if (!ps) return {};
 
-        auto path = registry_.value(icon);
-        if (path.isEmpty())
-            FATAL("Path not set for icon [{}]", static_cast<int>(icon));
-
-        auto pixmap = renderSvg_(path, size, dpr);
-        if (!pixmap.isNull()) cache_[key] = pixmap;
-        return pixmap;
+        return ps->icon_(widget, type, size, widget->devicePixelRatio());
     }
 
 private:
@@ -86,6 +85,7 @@ private:
     QColor iconColor_{ PLACEHOLDER_COLOR_ };
     QHash<UiIcon, QString> registry_{};
     mutable QHash<QString, QPixmap> cache_{};
+    mutable QSet<QWidget*> requesters_{};
 
     void setup_()
     {
@@ -100,10 +100,10 @@ private:
 
     void clearCache_() { cache_.clear(); }
 
-    QString cacheKey_(UiIcon icon, const QSize& size, qreal dpr) const
+    QString cacheKey_(UiIcon type, const QSize& size, qreal dpr) const
     {
         return QString("%1_%2x%3@%4_%5")
-            .arg(static_cast<int>(icon))
+            .arg(static_cast<int>(type))
             .arg(size.width())
             .arg(size.height())
             .arg(dpr)
@@ -139,6 +139,32 @@ private:
         // Render to logical bounds
         renderer.render(&painter, QRectF(QPointF(0, 0), QSizeF(size)));
 
+        return pixmap;
+    }
+
+    QPixmap
+    icon_(QWidget* requester, UiIcon type, const QSize& size, qreal dpr) const
+    {
+        if (!requester) return {};
+
+        if (!requesters_.contains(requester)) {
+            requesters_ << requester;
+            connect(requester, &QObject::destroyed, this, [&, requester] {
+                requesters_.remove(requester);
+            });
+        }
+
+        if (!size.isValid()) return {};
+
+        auto key = cacheKey_(type, size, dpr);
+        if (cache_.contains(key)) return cache_[key];
+
+        auto path = registry_.value(type);
+        if (path.isEmpty())
+            FATAL("Path not set for icon [{}]", static_cast<int>(type));
+
+        auto pixmap = renderSvg_(path, size, dpr);
+        if (!pixmap.isNull()) cache_[key] = pixmap;
         return pixmap;
     }
 };
