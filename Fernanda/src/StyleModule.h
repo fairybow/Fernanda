@@ -43,13 +43,13 @@ namespace Fernanda {
 // - Even explicitly calling menu->setStyle(proxyStyle) doesn't help
 //
 // ATTEMPTED SOLUTIONS (all failed):
-// 1. QPalette on menus directly — ignored by native rendering
-// 2. ProxyStyle::polish() to intercept menu creation — palette still ignored
-// 3. Tracking menus and updating palettes on theme change — same issue
-// 4. menu->setStyle(proxyStyle) explicitly — no effect
-// 5. QStyleSheet on Window — works for menus but breaks palette inheritance
+// 1. QPalette on menus directly, ignored by native rendering
+// 2. ProxyStyle::polish() to intercept menu creation, palette still ignored
+// 3. Tracking menus and updating palettes on theme change, same issue
+// 4. menu->setStyle(proxyStyle) explicitly, no effect
+// 5. QStyleSheet on Window, works for menus but breaks palette inheritance
 //    for other widgets (TreeView lost styling)
-// 6. QStyleSheet on QMenuBar only — works for menubar but context menus
+// 6. QStyleSheet on QMenuBar only, works for menubar but context menus
 //    created via MenuBuilder would need separate handling
 //
 // POTENTIAL SOLUTIONS:
