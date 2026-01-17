@@ -25,6 +25,7 @@
 #include "Bus.h"
 #include "Debug.h"
 #include "Ini.h"
+#include "ProxyStyle.h"
 #include "TextFileView.h"
 #include "Themes.h"
 #include "Window.h"
@@ -68,11 +69,7 @@ protected:
         connect(bus, &Bus::windowCreated, this, [&](Window* window) {
             if (!window) return;
 
-            // TODO: Probably set proxy style on a window here (the list is
-            // maybe just for palette swapping, like editor, but window themes
-            // may have both palette() and a way to set the proxy style)
-
-            // TODO: May need a per-Workspace icon maker/tracker?
+            window->setStyle(proxyStyle_);
 
             windows_ << window;
 
@@ -157,6 +154,8 @@ protected:
 private:
     static constexpr auto THEMES_QRC_ = ":/themes/";
 
+    /// TODO STYLE: Check if anything isn't needed
+    ProxyStyle* proxyStyle_ = new ProxyStyle;
     QSet<Window*> windows_{};
     QList<WindowTheme> windowThemes_{};
     bool initialWindowThemeLoaded_ = false;
@@ -167,10 +166,7 @@ private:
     bool initialEditorThemeLoaded_ = false;
     Coco::Path currentEditorThemePath_{};
 
-    void setup_()
-    {
-        //...
-    }
+    void setup_() { proxyStyle_->setParent(this); }
 
     template <typename ThemeT> void sortThemes_(QList<ThemeT>& themes) const
     {
@@ -219,7 +215,14 @@ private:
     {
         if (!window) return;
 
-        // TODO
+        auto theme_valid = theme.isValid();
+
+        auto icon_color =
+            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor();
+        proxyStyle_->setIconColor(icon_color);
+
+        auto palette = theme.palette();
+        window->setPalette(theme_valid ? palette : QPalette{});
     }
 
     void applyEditorTheme_(TextFileView* textFileView, const EditorTheme& theme)

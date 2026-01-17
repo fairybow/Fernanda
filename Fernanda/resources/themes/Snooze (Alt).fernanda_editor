@@ -1,9 +1,9 @@
 {
   "name": "Snooze (Alt)",
   "values": {
-    "backgroundColor": "#1d0202",
-    "fontColor": "#ff0000",
-    "selectionBgColor": "#ff0000",
-    "selectionFontColor": "#1d0202"
+    "base": "#1d0202",
+    "text": "#ff0000",
+    "highlight": "#ff0000",
+    "highlightedText": "#1d0202"
   }
 }

@@ -141,7 +141,6 @@ Next up:
 
 ### General
 
-- [ ] Add installer dir to gitattributes linguist exclusions
 - [ ] Mononoki & OpenDyslexic
 - [ ] WidgetUtil or similar - was thinking central place to set all painters
 - [ ] Settings dialog should have workspace name

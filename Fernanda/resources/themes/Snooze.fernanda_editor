@@ -1,9 +1,9 @@
 {
   "name": "Snooze",
   "values": {
-    "backgroundColor": "#1d0e03",
-    "fontColor": "#ff6e00",
-    "selectionBgColor": "#ff6e00",
-    "selectionFontColor": "#1d0e03"
+    "base": "#1d0e03",
+    "text": "#ff6e00",
+    "highlight": "#ff6e00",
+    "highlightedText": "#1d0e03"
   }
 }

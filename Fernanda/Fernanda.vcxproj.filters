@@ -257,7 +257,10 @@
     <None Include="resources\themes\Snooze.fernanda_editor">
       <Filter>Resources\Themes\Editor</Filter>
     </None>
-    <None Include="resources\themes\Test %28REMOVE ME%29.fernanda_window">
+    <None Include="resources\themes\Light.fernanda_window">
+      <Filter>Resources\Themes\Window</Filter>
+    </None>
+    <None Include="resources\themes\Dark.fernanda_window">
       <Filter>Resources\Themes\Window</Filter>
     </None>
   </ItemGroup>
@@ -390,6 +393,9 @@
     </QtMoc>
     <QtMoc Include="src\ThemeSelector.h">
       <Filter>Code\Core\Services\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ProxyStyle.h">
+      <Filter>Code\Auxiliary\Modules\Style</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

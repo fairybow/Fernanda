@@ -1,9 +1,9 @@
 {
   "name": "Blue",
   "values": {
-    "backgroundColor": "#0005a4",
-    "fontColor": "#cccccc",
-    "selectionBgColor": "#cccccc",
-    "selectionFontColor": "#0005a4"
+    "base": "#0005a4",
+    "text": "#cccccc",
+    "highlight": "#cccccc",
+    "highlightedText": "#0005a4"
   }
 }

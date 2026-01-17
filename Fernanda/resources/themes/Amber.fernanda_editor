@@ -1,9 +1,9 @@
 {
   "name": "Amber",
   "values": {
-    "backgroundColor": "#140f00",
-    "fontColor": "#ffbf00",
-    "selectionBgColor": "#ffbf00",
-    "selectionFontColor": "#140f00"
+    "base": "#140f00",
+    "text": "#ffbf00",
+    "highlight": "#ffbf00",
+    "highlightedText": "#140f00"
   }
 }
