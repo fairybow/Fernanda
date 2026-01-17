@@ -40,17 +40,13 @@ namespace Defaults {
 
     inline QString windowTheme()
     {
-        // TODO: Go with generic "light" theme (or no theme (empty path)) later
-        // return ":/themes/Light.fernanda_window";
-        return {}; // testing
+        return ":/themes/Light.fernanda_window";
     }
 
-    // TODO: Any way to get path to work with QSettings?
+    // TODO: Any way to get Coco::Path to work with QSettings?
     inline QString editorTheme()
     {
-        // TODO: Go with generic "light" theme (or no theme (empty path)) later
-        // return ":/themes/Paper/Light/Pocket/IDK.fernanda_editor";
-        return {}; // testing
+        return ":/themes/Pocket.fernanda_editor";
     }
 
 } // namespace Defaults

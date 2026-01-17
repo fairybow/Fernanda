@@ -79,13 +79,6 @@ public:
     }
 
 protected:
-    /// TODO STYLE
-    /*virtual void changeEvent(QEvent* event) override
-    {
-        if (event->type() == QEvent::PaletteChange) update();
-        QAbstractButton::changeEvent(event);
-    }*/
-
     virtual void enterEvent(QEnterEvent* event) override
     {
         QAbstractButton::enterEvent(event);
