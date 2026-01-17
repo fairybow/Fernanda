@@ -1,9 +1,9 @@
 {
   "name": "Grey",
   "values": {
-    "backgroundColor": "#080808",
-    "fontColor": "#cccccc",
-    "selectionBgColor": "#cccccc",
-    "selectionFontColor": "#080808"
+    "base": "#080808",
+    "text": "#cccccc",
+    "highlight": "#cccccc",
+    "highlightedText": "#080808"
   }
 }

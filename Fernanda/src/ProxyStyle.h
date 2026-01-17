@@ -56,7 +56,6 @@ public:
     virtual ~ProxyStyle() override { TRACER; }
 
     static QColor defaultIconColor() { return PLACEHOLDER_COLOR_; }
-
     QColor iconColor() const { return iconColor_; }
 
     void setIconColor(const QColor& color)
@@ -65,10 +64,11 @@ public:
         iconColor_ = color;
         clearCache_();
 
-        for (auto& requester : requesters_)
+        for (auto& requester : iconRequesters_)
             requester->update();
     }
 
+    // For style-aware, from-SVG icons
     static QPixmap icon(QWidget* widget, UiIcon type, const QSize& size)
     {
         if (!widget || !widget->window()) return {};
@@ -85,7 +85,7 @@ private:
     QColor iconColor_{ PLACEHOLDER_COLOR_ };
     QHash<UiIcon, QString> registry_{};
     mutable QHash<QString, QPixmap> cache_{};
-    mutable QSet<QWidget*> requesters_{};
+    mutable QSet<QWidget*> iconRequesters_{};
 
     void setup_()
     {
@@ -147,10 +147,10 @@ private:
     {
         if (!requester) return {};
 
-        if (!requesters_.contains(requester)) {
-            requesters_ << requester;
+        if (!iconRequesters_.contains(requester)) {
+            iconRequesters_ << requester;
             connect(requester, &QObject::destroyed, this, [&, requester] {
-                requesters_.remove(requester);
+                iconRequesters_.remove(requester);
             });
         }
 

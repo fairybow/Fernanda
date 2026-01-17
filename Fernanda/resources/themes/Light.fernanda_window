@@ -1,8 +1,27 @@
 {
   "name": "Light",
   "values": {
-    "backgroundColor": "#f0f0f0",
     "iconColor": "#505050",
-    "textColor": "#1a1a1a"
+    "window": "#f0f0f0",
+    "windowText": "#1a1a1a",
+    "base": "#ffffff",
+    "text": "#1a1a1a",
+    "button": "#e0e0e0",
+    "buttonText": "#1a1a1a",
+    "highlight": "#0078d4",
+    "highlightedText": "#ffffff",
+    "light": "#ffffff",
+    "midlight": "#e6e6e6",
+    "mid": "#b0b0b0",
+    "dark": "#808080",
+    "shadow": "#505050",
+    "brightText": "#ffffff",
+    "link": "#0066cc",
+    "linkVisited": "#800080",
+    "alternateBase": "#f5f5f5",
+    "tooltipBase": "#ffffdc",
+    "tooltipText": "#1a1a1a",
+    "placeholderText": "#808080",
+    "accent": "#0078d4"
   }
 }

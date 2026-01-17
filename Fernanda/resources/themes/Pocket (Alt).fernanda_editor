@@ -1,9 +1,9 @@
 {
   "name": "Pocket (Alt)",
   "values": {
-    "backgroundColor": "#9bbc0f",
-    "fontColor": "#0f380f",
-    "selectionBgColor": "#0f380f",
-    "selectionFontColor": "#9bbc0f"
+    "base": "#9bbc0f",
+    "text": "#0f380f",
+    "highlight": "#0f380f",
+    "highlightedText": "#9bbc0f"
   }
 }
