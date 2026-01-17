@@ -215,9 +215,14 @@ private:
     {
         if (!window) return;
 
-        proxyStyle_->setIconColor(
-            theme.isValid() ? theme.iconColor()
-                            : ProxyStyle::defaultIconColor());
+        auto theme_valid = theme.isValid();
+
+        auto icon_color =
+            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor();
+        proxyStyle_->setIconColor(icon_color);
+
+        auto palette = theme_valid ? theme.palette() : QPalette{};
+        window->setPalette(palette);
     }
 
     void applyEditorTheme_(TextFileView* textFileView, const EditorTheme& theme)

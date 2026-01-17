@@ -1,0 +1,8 @@
+{
+  "name": "Dark",
+  "values": {
+    "backgroundColor": "#2d2d2d",
+    "iconColor": "#b0b0b0",
+    "textColor": "#e0e0e0"
+  }
+}

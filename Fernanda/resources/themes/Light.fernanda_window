@@ -1,0 +1,8 @@
+{
+  "name": "Light",
+  "values": {
+    "backgroundColor": "#f0f0f0",
+    "iconColor": "#505050",
+    "textColor": "#1a1a1a"
+  }
+}

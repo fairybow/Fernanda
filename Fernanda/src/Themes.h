@@ -133,9 +133,20 @@ public:
     QString name() const noexcept { return name_; }
 
     /// TODO: Keep up to date!
-    bool isValid() const noexcept { return iconColor_.isValid(); }
+    bool isValid() const noexcept
+    {
+        return iconColor_.isValid() && background_.isValid() && text_.isValid();
+    }
 
     QColor iconColor() const noexcept { return iconColor_; }
+
+    QPalette palette() const
+    {
+        QPalette palette{};
+        palette.setColor(QPalette::Window, background_);
+        palette.setColor(QPalette::Text, text_);
+        return palette;
+    }
 
 private:
     Coco::Path path_;
@@ -145,10 +156,17 @@ private:
 
     static constexpr auto VALUES_ = "values";
 
+    // Non-palette
+
     static constexpr auto VAR_ICON_COLOR_ = "iconColor";
     QColor iconColor_{};
 
-    //...
+    // Palette
+
+    static constexpr auto VAR_BG_ = "backgroundColor";
+    QColor background_{};
+    static constexpr auto VAR_TEXT_ = "textColor";
+    QColor text_{};
 
     void parse_(const Coco::Path& path)
     {
@@ -172,7 +190,8 @@ private:
 
         iconColor_ = values[VAR_ICON_COLOR_].toString();
 
-        //...
+        background_ = values[VAR_BG_].toString();
+        text_ = values[VAR_TEXT_].toString();
     }
 };
 
