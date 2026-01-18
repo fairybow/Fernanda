@@ -171,7 +171,8 @@ public:
 
     QColor iconColor() const noexcept { return iconColor_; }
 
-    QString menuBarStyleSheet() const
+    // See notes at the top of StyleModule.h
+    /*QString menuBarStyleSheet() const
     {
         QPalette fallback{};
 
@@ -211,7 +212,7 @@ public:
                     : fallback.color(QPalette::HighlightedText).name(),
                 mid_.isValid() ? mid_.name()
                                : fallback.color(QPalette::Mid).name());
-    }
+    }*/
 
     QPalette palette() const
     {

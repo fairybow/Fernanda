@@ -28,7 +28,7 @@
 
 #include "Debug.h"
 #include "MenuState.h"
-#include "ProxyStyle.h"
+//#include "ProxyStyle.h"
 #include "Window.h"
 
 namespace Fernanda {
@@ -236,7 +236,7 @@ private:
     {
         if (!menuBar_) {
             menuBar_ = new QMenuBar(window_);
-            ProxyStyle::trackAndStyle(menuBar_);
+            //ProxyStyle::trackAndStyle(menuBar_);
         }
     }
 

@@ -82,12 +82,7 @@ public:
         return ps->icon_(widget, type, size, widget->devicePixelRatio());
     }
 
-    /// TODO STYLE: Better to use QSS on menus only or accept setting Fusion
-    /// style on the entire application (or wrap that with ProxyStyle)?
-
-    // Used by StyleModule
-    /// TODO STYLE: track and style context menus
-    void setMenuBarStyleSheet(const QString& styleSheet)
+    /*void setMenuBarStyleSheet(const QString& styleSheet)
     {
         if (menuBarStyleSheet_ == styleSheet) return;
         menuBarStyleSheet_ = styleSheet;
@@ -96,7 +91,6 @@ public:
             requester->setStyleSheet(menuBarStyleSheet_);
     }
 
-    /// TODO STYLE: track and style context menus
     static void trackAndStyle(QMenuBar* menuBar)
     {
         if (!menuBar) return;
@@ -107,7 +101,7 @@ public:
         if (!ps) return;
 
         ps->trackAndStyle_(menuBar);
-    }
+    }*/
 
 private:
     static constexpr auto PLACEHOLDER_COLOR_ = "#404040";
@@ -116,10 +110,8 @@ private:
     QHash<UiIcon, QString> registry_{};
     mutable QHash<QString, QPixmap> cache_{};
     mutable QSet<QWidget*> iconRequesters_{};
-
-    /// TODO STYLE
-    QString menuBarStyleSheet_{};
-    mutable QSet<QWidget*> menuBarStyleSheetRequesters_{};
+    //QString menuBarStyleSheet_{};
+    //mutable QSet<QWidget*> menuBarStyleSheetRequesters_{};
 
     void setup_()
     {
@@ -198,7 +190,7 @@ private:
         return pixmap;
     }
 
-    void trackAndStyle_(QMenuBar* menuBar) const
+    /*void trackAndStyle_(QMenuBar* menuBar) const
     {
         if (!menuBar) return;
 
@@ -210,7 +202,7 @@ private:
         }
 
         menuBar->setStyleSheet(menuBarStyleSheet_);
-    }
+    }*/
 };
 
 } // namespace Fernanda

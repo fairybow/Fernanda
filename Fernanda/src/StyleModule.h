@@ -218,8 +218,8 @@ private:
 
         proxyStyle_->setIconColor(
             theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor());
-        proxyStyle_->setMenuBarStyleSheet(
-            theme_valid ? theme.menuBarStyleSheet() : QString{});
+        //proxyStyle_->setMenuBarStyleSheet(
+            //theme_valid ? theme.menuBarStyleSheet() : QString{});
 
         window->setPalette(theme_valid ? theme.palette() : QPalette{});
     }
