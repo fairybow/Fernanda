@@ -216,12 +216,12 @@ private:
 
         auto theme_valid = theme.isValid();
 
-        auto icon_color =
-            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor();
-        proxyStyle_->setIconColor(icon_color);
+        proxyStyle_->setIconColor(
+            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor());
+        //proxyStyle_->setMenuBarStyleSheet(
+            //theme_valid ? theme.menuBarStyleSheet() : QString{});
 
-        auto palette = theme.palette();
-        window->setPalette(theme_valid ? palette : QPalette{});
+        window->setPalette(theme_valid ? theme.palette() : QPalette{});
     }
 
     void applyEditorTheme_(TextFileView* textFileView, const EditorTheme& theme)
