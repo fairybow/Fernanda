@@ -3,6 +3,7 @@
 TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 
 - [ ] Check that all Model.xml references -> Manifest.xml
+- [ ] Inline any unnecessary member static constexpr char arrays
 - [ ] Name slots appropriately (onObjectSignalled, e.g., onBusWindowDestroyed_, not onWindowDestroyed_) (generally, with some exceptions where it makes sense)
 - [ ] Go through and add brackets to single line IF statements (not including the IF itself)
 - [ ] Where to use forwarding references

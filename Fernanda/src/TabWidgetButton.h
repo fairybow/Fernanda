@@ -12,6 +12,7 @@
 #include <optional>
 
 #include <QAbstractButton>
+#include <QPalette>
 #include <QEnterEvent>
 #include <QEvent>
 #include <QObject>
@@ -113,7 +114,9 @@ protected:
                 HIGHLIGHT_CORNER_RADIUS_,
                 HIGHLIGHT_CORNER_RADIUS_);
 
-            painter.fillPath(path, QColor(0, 0, 0, isDown() ? 30 : 15));
+            auto highlight = palette().color(QPalette::Highlight);
+            highlight.setAlpha(isDown() ? 60 : 30);
+            painter.fillPath(path, highlight);
         }
 
         // Get icon from ProxyStyle
