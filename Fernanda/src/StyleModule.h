@@ -32,7 +32,53 @@
 
 namespace Fernanda {
 
-// TODO: Install watcher on theme paths for hot reload
+// TODO STYLE: Menu theming is currently unsupported due to Qt/Windows quirks.
+//
+// PROBLEM:
+// On Windows, QMenu and QMenuBar are drawn by the native OS style plugin
+// (qwindowsstyle.cpp), which bypasses Qt's palette system entirely. This
+// means:
+// - QPalette::setColor() has no effect on menus
+// - QProxyStyle::polish() is called but palette changes are ignored
+// - Even explicitly calling menu->setStyle(proxyStyle) doesn't help
+//
+// ATTEMPTED SOLUTIONS (all failed):
+// 1. QPalette on menus directly, ignored by native rendering
+// 2. ProxyStyle::polish() to intercept menu creation, palette still ignored
+// 3. Tracking menus and updating palettes on theme change, same issue
+// 4. menu->setStyle(proxyStyle) explicitly, no effect
+// 5. QStyleSheet on Window, works for menus but breaks palette inheritance
+//    for other widgets (TreeView lost styling)
+// 6. QStyleSheet on QMenuBar only, works for menubar but context menus
+//    created via MenuBuilder would need separate handling
+//
+// POTENTIAL SOLUTIONS:
+// 1. Use Fusion style as ProxyStyle base:
+// QProxyStyle(QStyleFactory::create("Fusion"))
+//    - Fusion respects Qt's palette/stylesheet system
+//    - Downside: menus look non-native (but consistently themeable)
+//    - Reference:
+//    https://www.riverbankcomputing.com/pipermail/pyqt/2025-June/046274.html
+//
+// 2. Full QSS for all themed widgets (not just menus)
+//    - Abandon QPalette, use stylesheets everywhere
+//    - Verbose but consistent
+//
+// 3. Override drawControl() in ProxyStyle for CE_MenuBarItem, CE_MenuItem,
+// etc.
+//    - Full control but must reimplement entire menu rendering
+//    - See:
+//    https://codebrowser.dev/qt6/qtbase/src/widgets/styles/qwindowsstyle.cpp.html#1012
+//
+// 4. Hybrid: Fusion for menus only, native for everything else
+//    - Set Fusion style on menus explicitly: menu->setStyle(fusionStyle)
+//    - May cause visual inconsistency
+//
+// CURRENT STATE:
+// - Window palette theming works (background, text, buttons, etc.)
+// - Icon theming works via ProxyStyle::icon()
+// - Menus remain unthemed (use system default)
+// TODO: Install watcher on theme paths for hot reload?
 class StyleModule : public AbstractService
 {
     Q_OBJECT

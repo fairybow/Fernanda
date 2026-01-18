@@ -17,6 +17,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPalette>
 #include <QPixmap>
 #include <QPointF>
 #include <QRect>
@@ -157,7 +158,9 @@ private:
             HIGHLIGHT_CORNER_RADIUS_,
             HIGHLIGHT_CORNER_RADIUS_);
 
-        painter.fillPath(path, QColor(0, 0, 0, pressed ? 30 : 15));
+        auto highlight = palette().color(QPalette::Highlight);
+        highlight.setAlpha(isDown() ? 60 : 30);
+        painter.fillPath(path, highlight);
     }
 };
 
