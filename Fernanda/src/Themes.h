@@ -171,6 +171,48 @@ public:
 
     QColor iconColor() const noexcept { return iconColor_; }
 
+    QString menuStyleSheet() const
+    {
+        QPalette fallback{};
+
+        return QString(
+                   "QMenuBar {"
+                   "    background-color: %1;"
+                   "    color: %2;"
+                   "}"
+                   "QMenuBar::item:selected {"
+                   "    background-color: %3;"
+                   "    color: %4;"
+                   "}"
+                   "QMenu {"
+                   "    background-color: %1;"
+                   "    color: %2;"
+                   "}"
+                   "QMenu::item:selected {"
+                   "    background-color: %3;"
+                   "    color: %4;"
+                   "}"
+                   "QMenu::separator {"
+                   "    background-color: %5;"
+                   "    height: 1px;"
+                   "    margin: 4px 8px;"
+                   "}")
+            .arg(
+                window_.isValid() ? window_.name()
+                                  : fallback.color(QPalette::Window).name(),
+                windowText_.isValid()
+                    ? windowText_.name()
+                    : fallback.color(QPalette::WindowText).name(),
+                highlight_.isValid()
+                    ? highlight_.name()
+                    : fallback.color(QPalette::Highlight).name(),
+                highlightedText_.isValid()
+                    ? highlightedText_.name()
+                    : fallback.color(QPalette::HighlightedText).name(),
+                mid_.isValid() ? mid_.name()
+                               : fallback.color(QPalette::Mid).name());
+    }
+
     QPalette palette() const
     {
         return Themes::buildPalette(

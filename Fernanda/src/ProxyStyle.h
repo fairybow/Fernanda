@@ -12,6 +12,7 @@
 #include <QByteArray>
 #include <QColor>
 #include <QHash>
+#include <QMenuBar>
 #include <QObject>
 #include <QPainter>
 #include <QPixmap>
@@ -57,6 +58,7 @@ public:
     static QColor defaultIconColor() { return PLACEHOLDER_COLOR_; }
     QColor iconColor() const { return iconColor_; }
 
+    // Used by StyleModule
     void setIconColor(const QColor& color)
     {
         if (iconColor_ == color) return;
@@ -70,12 +72,38 @@ public:
     // For style-aware, from-SVG icons
     static QPixmap icon(QWidget* widget, UiIcon type, const QSize& size)
     {
-        if (!widget || !widget->window()) return {};
+        if (!widget) return {};
+        auto window = widget->window();
+        if (!window) return {};
 
-        auto ps = qobject_cast<ProxyStyle*>(widget->window()->style());
+        auto ps = qobject_cast<ProxyStyle*>(window->style());
         if (!ps) return {};
 
         return ps->icon_(widget, type, size, widget->devicePixelRatio());
+    }
+
+    // Used by StyleModule
+    /// TODO STYLE: track and style context menus
+    void setMenuStyleSheet(const QString& styleSheet)
+    {
+        if (menuStyleSheet_ == styleSheet) return;
+        menuStyleSheet_ = styleSheet;
+
+        for (auto& requester : menuStyleSheetRequesters_)
+            requester->setStyleSheet(menuStyleSheet_);
+    }
+
+    /// TODO STYLE: track and style context menus
+    static void trackAndStyle(QMenuBar* menuBar)
+    {
+        if (!menuBar) return;
+        auto window = menuBar->window();
+        if (!window) return;
+
+        auto ps = qobject_cast<ProxyStyle*>(window->style());
+        if (!ps) return;
+
+        ps->trackAndStyle_(menuBar);
     }
 
 private:
@@ -85,6 +113,10 @@ private:
     QHash<UiIcon, QString> registry_{};
     mutable QHash<QString, QPixmap> cache_{};
     mutable QSet<QWidget*> iconRequesters_{};
+
+    /// TODO STYLE
+    QString menuStyleSheet_{};
+    mutable QSet<QWidget*> menuStyleSheetRequesters_{};
 
     void setup_()
     {
@@ -161,6 +193,20 @@ private:
         auto pixmap = renderSvg_(path, size, dpr);
         if (!pixmap.isNull()) cache_[key] = pixmap;
         return pixmap;
+    }
+
+    void trackAndStyle_(QMenuBar* menuBar) const
+    {
+        if (!menuBar) return;
+
+        if (!menuStyleSheetRequesters_.contains(menuBar)) {
+            menuStyleSheetRequesters_ << menuBar;
+            connect(menuBar, &QObject::destroyed, this, [&, menuBar] {
+                menuStyleSheetRequesters_.remove(menuBar);
+            });
+        }
+
+        menuBar->setStyleSheet(menuStyleSheet_);
     }
 };
 
