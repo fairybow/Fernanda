@@ -82,15 +82,18 @@ public:
         return ps->icon_(widget, type, size, widget->devicePixelRatio());
     }
 
+    /// TODO STYLE: Better to use QSS on menus only or accept setting Fusion
+    /// style on the entire application (or wrap that with ProxyStyle)?
+
     // Used by StyleModule
     /// TODO STYLE: track and style context menus
-    void setMenuStyleSheet(const QString& styleSheet)
+    void setMenuBarStyleSheet(const QString& styleSheet)
     {
-        if (menuStyleSheet_ == styleSheet) return;
-        menuStyleSheet_ = styleSheet;
+        if (menuBarStyleSheet_ == styleSheet) return;
+        menuBarStyleSheet_ = styleSheet;
 
-        for (auto& requester : menuStyleSheetRequesters_)
-            requester->setStyleSheet(menuStyleSheet_);
+        for (auto& requester : menuBarStyleSheetRequesters_)
+            requester->setStyleSheet(menuBarStyleSheet_);
     }
 
     /// TODO STYLE: track and style context menus
@@ -115,8 +118,8 @@ private:
     mutable QSet<QWidget*> iconRequesters_{};
 
     /// TODO STYLE
-    QString menuStyleSheet_{};
-    mutable QSet<QWidget*> menuStyleSheetRequesters_{};
+    QString menuBarStyleSheet_{};
+    mutable QSet<QWidget*> menuBarStyleSheetRequesters_{};
 
     void setup_()
     {
@@ -199,14 +202,14 @@ private:
     {
         if (!menuBar) return;
 
-        if (!menuStyleSheetRequesters_.contains(menuBar)) {
-            menuStyleSheetRequesters_ << menuBar;
+        if (!menuBarStyleSheetRequesters_.contains(menuBar)) {
+            menuBarStyleSheetRequesters_ << menuBar;
             connect(menuBar, &QObject::destroyed, this, [&, menuBar] {
-                menuStyleSheetRequesters_.remove(menuBar);
+                menuBarStyleSheetRequesters_.remove(menuBar);
             });
         }
 
-        menuBar->setStyleSheet(menuStyleSheet_);
+        menuBar->setStyleSheet(menuBarStyleSheet_);
     }
 };
 

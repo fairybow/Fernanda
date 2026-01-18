@@ -171,7 +171,7 @@ public:
 
     QColor iconColor() const noexcept { return iconColor_; }
 
-    QString menuStyleSheet() const
+    QString menuBarStyleSheet() const
     {
         QPalette fallback{};
 
