@@ -32,7 +32,7 @@
 
 namespace Fernanda {
 
-// TODO STYLE: Menu theming is currently unsupported due to Qt/Windows quirks.
+// TODO: Menu theming is currently unsupported due to Qt/Windows quirks.
 //
 // PROBLEM:
 // On Windows, QMenu and QMenuBar are drawn by the native OS style plugin
@@ -79,6 +79,10 @@ namespace Fernanda {
 // - Icon theming works via ProxyStyle::icon()
 // - Menus remain unthemed (use system default)
 // TODO: Install watcher on theme paths for hot reload?
+//
+// Themes are JSON files with special extensions. All theme variables (for
+// windows and editors) are optional. An invalid theme is a theme with no name
+// and an empty values array
 class StyleModule : public AbstractService
 {
     Q_OBJECT
@@ -112,72 +116,27 @@ protected:
             this,
             &StyleModule::onBusSettingChanged_);
 
-        connect(bus, &Bus::windowCreated, this, [&](Window* window) {
-            if (!window) return;
-
-            window->setStyle(proxyStyle_);
-
-            windows_ << window;
-
-            // TODO: Search use of Window::destroyed and replace with this (also
-            // remove the note where I said only use Window::destroyed lol)
-            connect(window, &QObject::destroyed, this, [&, window] {
-                windows_.remove(window);
-            });
-
-            // Lazy-load current theme path if not yet loaded
-            if (!initialWindowThemeLoaded_) {
-                currentWindowThemePath_ = bus->call<QString>(
-                    Bus::GET_SETTING,
-                    { { "key", Ini::Keys::WINDOW_THEME },
-                      { "defaultValue", Ini::Defaults::windowTheme() } });
-
-                initialWindowThemeLoaded_ = true;
-            }
-
-            applyWindowTheme_(
-                window,
-                findWindowTheme_(currentWindowThemePath_));
-        });
+        connect(
+            bus,
+            &Bus::windowCreated,
+            this,
+            &StyleModule::onBusWindowCreated_);
 
         connect(
             bus,
             &Bus::fileViewCreated,
             this,
-            [&](AbstractFileView* fileView) {
-                auto text_view = qobject_cast<TextFileView*>(fileView);
-                if (!text_view) return;
-
-                textFileViews_ << text_view;
-
-                connect(text_view, &QObject::destroyed, this, [&, text_view] {
-                    textFileViews_.remove(text_view);
-                });
-
-                // Lazy-load current theme path if not yet loaded
-                if (!initialEditorThemeLoaded_) {
-                    currentEditorThemePath_ = bus->call<QString>(
-                        Bus::GET_SETTING,
-                        { { "key", Ini::Keys::EDITOR_THEME },
-                          { "defaultValue", Ini::Defaults::editorTheme() } });
-
-                    initialEditorThemeLoaded_ = true;
-                }
-
-                applyEditorTheme_(
-                    text_view,
-                    findEditorTheme_(currentEditorThemePath_));
-            });
+            &StyleModule::onBusFileViewCreated_);
     }
 
     virtual void postInit() override
     {
-        // Window themes
-
         // TODO: Add user data paths to first arg
-        auto window_theme_paths = Coco::PathUtil::fromDir(
-            Coco::PathList{ THEMES_QRC_ },
-            WindowTheme::EXT);
+        Coco::PathList source_paths{ ":/themes/" };
+
+        // Window themes
+        auto window_theme_paths =
+            Coco::PathUtil::fromDir(source_paths, WindowTheme::EXT);
 
         for (auto& path : window_theme_paths)
             windowThemes_ << WindowTheme{ path };
@@ -185,11 +144,8 @@ protected:
         sortThemes_(windowThemes_);
 
         // Editor themes
-
-        // TODO: Add user data paths to first arg
-        auto editor_theme_paths = Coco::PathUtil::fromDir(
-            Coco::PathList{ THEMES_QRC_ },
-            EditorTheme::EXT);
+        auto editor_theme_paths =
+            Coco::PathUtil::fromDir(source_paths, EditorTheme::EXT);
 
         for (auto& path : editor_theme_paths)
             editorThemes_ << EditorTheme{ path };
@@ -198,9 +154,6 @@ protected:
     }
 
 private:
-    static constexpr auto THEMES_QRC_ = ":/themes/";
-
-    /// TODO STYLE: Check if anything isn't needed
     ProxyStyle* proxyStyle_ = new ProxyStyle;
     QSet<Window*> windows_{};
     QList<WindowTheme> windowThemes_{};
@@ -279,10 +232,7 @@ private:
         textFileView->editor()->setPalette(palette);
     }
 
-    // Find & apply window theme
-
 private slots:
-    // Empty or non-existent path results in no theming
     void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
         if (key == Ini::Keys::WINDOW_THEME) {
@@ -301,6 +251,56 @@ private slots:
             for (auto& view : textFileViews_)
                 applyEditorTheme_(view, theme);
         }
+    }
+
+    void onBusWindowCreated_(Window* window)
+    {
+        if (!window) return;
+
+        window->setStyle(proxyStyle_);
+        windows_ << window;
+
+        // TODO: Search use of Window::destroyed and replace with this (also
+        // remove the note where I said only use Window::destroyed lol)
+        connect(window, &QObject::destroyed, this, [&, window] {
+            windows_.remove(window);
+        });
+
+        // Lazy-load current theme path if not yet loaded
+        if (!initialWindowThemeLoaded_) {
+            currentWindowThemePath_ = bus->call<QString>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::WINDOW_THEME },
+                  { "defaultValue", Ini::Defaults::windowTheme() } });
+
+            initialWindowThemeLoaded_ = true;
+        }
+
+        applyWindowTheme_(window, findWindowTheme_(currentWindowThemePath_));
+    }
+
+    void onBusFileViewCreated_(AbstractFileView* fileView)
+    {
+        auto text_view = qobject_cast<TextFileView*>(fileView);
+        if (!text_view) return;
+
+        textFileViews_ << text_view;
+
+        connect(text_view, &QObject::destroyed, this, [&, text_view] {
+            textFileViews_.remove(text_view);
+        });
+
+        // Lazy-load current theme path if not yet loaded
+        if (!initialEditorThemeLoaded_) {
+            currentEditorThemePath_ = bus->call<QString>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::EDITOR_THEME },
+                  { "defaultValue", Ini::Defaults::editorTheme() } });
+
+            initialEditorThemeLoaded_ = true;
+        }
+
+        applyEditorTheme_(text_view, findEditorTheme_(currentEditorThemePath_));
     }
 };
 

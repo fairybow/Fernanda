@@ -14,6 +14,7 @@
 - [x] Basic editor settings
 - [x] Installer
 - [x] Opening args
+- [ ] Bug: ColorBar sticking around - need an automatic shut off if still visible
 
 ### Stretch
 

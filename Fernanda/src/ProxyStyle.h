@@ -30,7 +30,6 @@
 
 namespace Fernanda {
 
-/// TODO STYLE: Add "none" value and remove std::optional in TabWidgetButton?
 enum class UiIcon
 {
     ChevronDown,
@@ -62,7 +61,7 @@ public:
     {
         if (iconColor_ == color) return;
         iconColor_ = color;
-        clearCache_();
+        cache_.clear();
 
         for (auto& requester : iconRequesters_)
             requester->update();
@@ -97,8 +96,6 @@ private:
         registry_[UiIcon::Plus] = ":/ui/Plus.svg";
         registry_[UiIcon::X] = ":/ui/X.svg";
     }
-
-    void clearCache_() { cache_.clear(); }
 
     QString cacheKey_(UiIcon type, const QSize& size, qreal dpr) const
     {
@@ -137,7 +134,7 @@ private:
         painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
         // Render to logical bounds
-        renderer.render(&painter, QRectF(QPointF(0, 0), QSizeF(size)));
+        renderer.render(&painter, QRectF({ 0, 0 }, size));
 
         return pixmap;
     }
@@ -145,7 +142,7 @@ private:
     QPixmap
     icon_(QWidget* requester, UiIcon type, const QSize& size, qreal dpr) const
     {
-        if (!requester) return {};
+        if (!requester || !size.isValid()) return {};
 
         if (!iconRequesters_.contains(requester)) {
             iconRequesters_ << requester;
@@ -153,8 +150,6 @@ private:
                 iconRequesters_.remove(requester);
             });
         }
-
-        if (!size.isValid()) return {};
 
         auto key = cacheKey_(type, size, dpr);
         if (cache_.contains(key)) return cache_[key];

@@ -27,8 +27,8 @@
 
 namespace Fernanda {
 
-/// TODO STYLE: Base class (See: StyleModule::sortThemes_)? At the very least,
-/// silo off common code!
+// TODO: I do not like how separate yet not separate the theme classes are. Fix
+// it! Somehow! Base class (See: StyleModule::sortThemes_)?
 
 namespace Themes {
 
