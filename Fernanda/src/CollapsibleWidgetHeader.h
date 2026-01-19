@@ -26,7 +26,7 @@
 #include <QSvgRenderer>
 
 #include "Debug.h"
-#include "ProxyStyle.h"
+#include "StyleContext.h"
 
 // TODO: Verify this
 // TODO: Combine any common SVG code from TabWidgetButton into namespace
@@ -107,7 +107,7 @@ protected:
 
         // Get icon from ProxyStyle
         auto icon = isChecked() ? UiIcon::ChevronDown : UiIcon::ChevronRight;
-        auto pixmap = ProxyStyle::icon(this, icon, iconSize_);
+        auto pixmap = StyleContext::icon(this, icon, iconSize_);
         if (!pixmap.isNull()) {
             auto logical_size = pixmap.deviceIndependentSize();
             auto icon_y = center_y - logical_size.height() / 2;

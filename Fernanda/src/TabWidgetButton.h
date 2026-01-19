@@ -12,13 +12,13 @@
 #include <optional>
 
 #include <QAbstractButton>
-#include <QPalette>
 #include <QEnterEvent>
 #include <QEvent>
 #include <QObject>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPalette>
 #include <QPixmap>
 #include <QPointF>
 #include <QRect>
@@ -26,7 +26,7 @@
 #include <QSizeF>
 
 #include "Debug.h"
-#include "ProxyStyle.h"
+#include "StyleContext.h"
 
 namespace Fernanda {
 
@@ -123,7 +123,7 @@ protected:
         auto icon = currentIcon_();
         if (!icon) return;
 
-        auto pixmap = ProxyStyle::icon(this, *icon, effectiveIconSize_());
+        auto pixmap = StyleContext::icon(this, *icon, effectiveIconSize_());
         if (pixmap.isNull()) return;
 
         drawCenteredPixmap_(painter, pixmap, widget_rect);

@@ -22,67 +22,23 @@
 
 #include "AbstractFileView.h"
 #include "AbstractService.h"
+#include "AppDirs.h"
 #include "Bus.h"
 #include "Debug.h"
 #include "Ini.h"
-#include "ProxyStyle.h"
+#include "StyleContext.h"
 #include "TextFileView.h"
 #include "Themes.h"
 #include "Window.h"
 
 namespace Fernanda {
 
-// TODO: Menu theming is currently unsupported due to Qt/Windows quirks.
-//
-// PROBLEM:
-// On Windows, QMenu and QMenuBar are drawn by the native OS style plugin
-// (qwindowsstyle.cpp), which bypasses Qt's palette system entirely. This
-// means:
-// - QPalette::setColor() has no effect on menus
-// - QProxyStyle::polish() is called but palette changes are ignored
-// - Even explicitly calling menu->setStyle(proxyStyle) doesn't help
-//
-// ATTEMPTED SOLUTIONS (all failed):
-// 1. QPalette on menus directly, ignored by native rendering
-// 2. ProxyStyle::polish() to intercept menu creation, palette still ignored
-// 3. Tracking menus and updating palettes on theme change, same issue
-// 4. menu->setStyle(proxyStyle) explicitly, no effect
-// 5. QStyleSheet on Window, works for menus but breaks palette inheritance
-//    for other widgets (TreeView lost styling)
-// 6. QStyleSheet on QMenuBar only, works for menubar but context menus
-//    created via MenuBuilder would need separate handling
-//
-// POTENTIAL SOLUTIONS:
-// 1. Use Fusion style as ProxyStyle base:
-// QProxyStyle(QStyleFactory::create("Fusion"))
-//    - Fusion respects Qt's palette/stylesheet system
-//    - Downside: menus look non-native (but consistently themeable)
-//    - Reference:
-//    https://www.riverbankcomputing.com/pipermail/pyqt/2025-June/046274.html
-//
-// 2. Full QSS for all themed widgets (not just menus)
-//    - Abandon QPalette, use stylesheets everywhere
-//    - Verbose but consistent
-//
-// 3. Override drawControl() in ProxyStyle for CE_MenuBarItem, CE_MenuItem,
-// etc.
-//    - Full control but must reimplement entire menu rendering
-//    - See:
-//    https://codebrowser.dev/qt6/qtbase/src/widgets/styles/qwindowsstyle.cpp.html#1012
-//
-// 4. Hybrid: Fusion for menus only, native for everything else
-//    - Set Fusion style on menus explicitly: menu->setStyle(fusionStyle)
-//    - May cause visual inconsistency
-//
-// CURRENT STATE:
-// - Window palette theming works (background, text, buttons, etc.)
-// - Icon theming works via ProxyStyle::icon()
-// - Menus remain unthemed (use system default)
 // TODO: Install watcher on theme paths for hot reload?
+// TODO: Combine common code
 //
 // Themes are JSON files with special extensions. All theme variables (for
 // windows and editors) are optional. An invalid theme is a theme with no name
-// and an empty values array
+// and an empty values array (or default constructed)
 class StyleModule : public AbstractService
 {
     Q_OBJECT
@@ -132,7 +88,7 @@ protected:
     virtual void postInit() override
     {
         // TODO: Add user data paths to first arg
-        Coco::PathList source_paths{ ":/themes/" };
+        Coco::PathList source_paths{ ":/themes/", AppDirs::userData() };
 
         // Window themes
         auto window_theme_paths =
@@ -154,7 +110,8 @@ protected:
     }
 
 private:
-    ProxyStyle* proxyStyle_ = new ProxyStyle;
+    StyleContext* styleContext_ = new StyleContext(this);
+
     QSet<Window*> windows_{};
     QList<WindowTheme> windowThemes_{};
     bool initialWindowThemeLoaded_ = false;
@@ -165,7 +122,10 @@ private:
     bool initialEditorThemeLoaded_ = false;
     Coco::Path currentEditorThemePath_{};
 
-    void setup_() { proxyStyle_->setParent(this); }
+    void setup_()
+    {
+        //
+    }
 
     template <typename ThemeT> void sortThemes_(QList<ThemeT>& themes) const
     {
@@ -210,28 +170,6 @@ private:
         return {};
     }
 
-    void applyWindowTheme_(Window* window, const WindowTheme& theme)
-    {
-        if (!window) return;
-
-        auto theme_valid = theme.isValid();
-
-        proxyStyle_->setIconColor(
-            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor());
-        //proxyStyle_->setMenuBarStyleSheet(
-            //theme_valid ? theme.menuBarStyleSheet() : QString{});
-
-        window->setPalette(theme_valid ? theme.palette() : QPalette{});
-    }
-
-    void applyEditorTheme_(TextFileView* textFileView, const EditorTheme& theme)
-    {
-        if (!textFileView) return;
-
-        auto palette = theme.isValid() ? theme.palette() : QPalette{};
-        textFileView->editor()->setPalette(palette);
-    }
-
 private slots:
     void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
@@ -240,16 +178,37 @@ private slots:
             currentWindowThemePath_ = value.value<Coco::Path>();
 
             auto theme = findWindowTheme_(currentWindowThemePath_);
-            for (auto& window : windows_)
-                applyWindowTheme_(window, theme);
+            auto theme_valid = theme.isValid();
+
+            auto icon_color = theme_valid ? theme.iconColor()
+                                          : StyleContext::defaultIconColor();
+            styleContext_->setIconColor(icon_color);
+
+            // Don't really need to do this, since an invalid theme will return
+            // an empty QString anyway, but perhaps its sensible...
+            auto qss = theme_valid ? theme.qss() : QString{};
+            INFO("Setting window QSS: [{}]", qss);
+
+            for (auto& window : windows_) {
+                if (!window) continue;
+                window->setStyleSheet(qss);
+            }
 
         } else if (key == Ini::Keys::EDITOR_THEME) {
 
             currentEditorThemePath_ = value.value<Coco::Path>();
 
             auto theme = findEditorTheme_(currentEditorThemePath_);
-            for (auto& view : textFileViews_)
-                applyEditorTheme_(view, theme);
+            auto qss = theme.isValid() ? theme.qss() : QString{};
+            INFO("Setting editor QSS: [{}]", qss);
+
+            for (auto& view : textFileViews_) {
+                if (!view) continue;
+                auto editor = view->editor();
+                if (!editor) continue;
+
+                editor->setStyleSheet(qss);
+            }
         }
     }
 
@@ -257,7 +216,7 @@ private slots:
     {
         if (!window) return;
 
-        window->setStyle(proxyStyle_);
+        styleContext_->attach(window);
         windows_ << window;
 
         // TODO: Search use of Window::destroyed and replace with this (also
@@ -276,7 +235,17 @@ private slots:
             initialWindowThemeLoaded_ = true;
         }
 
-        applyWindowTheme_(window, findWindowTheme_(currentWindowThemePath_));
+        auto theme = findWindowTheme_(currentWindowThemePath_);
+        auto theme_valid = theme.isValid();
+
+        // Need to set this here in case a window is made before styleContext_
+        // has an icon color set (which happens at least on the first window)
+        auto icon_color =
+            theme_valid ? theme.iconColor() : StyleContext::defaultIconColor();
+        styleContext_->setIconColor(icon_color);
+
+        auto qss = theme_valid ? theme.qss() : QString{};
+        window->setStyleSheet(qss);
     }
 
     void onBusFileViewCreated_(AbstractFileView* fileView)
@@ -300,7 +269,11 @@ private slots:
             initialEditorThemeLoaded_ = true;
         }
 
-        applyEditorTheme_(text_view, findEditorTheme_(currentEditorThemePath_));
+        auto theme = findEditorTheme_(currentEditorThemePath_);
+        auto qss = theme.isValid() ? theme.qss() : QString{};
+        auto editor = text_view->editor();
+        if (!editor) return;
+        editor->setStyleSheet(qss);
     }
 };
 

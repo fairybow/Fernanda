@@ -54,6 +54,7 @@
     <None Include="resources\themes\Amber.fernanda_editor" />
     <None Include="resources\themes\Blue.fernanda_editor" />
     <None Include="resources\themes\Dark.fernanda_window" />
+    <None Include="resources\themes\Editor.qss.template" />
     <None Include="resources\themes\Green.fernanda_editor" />
     <None Include="resources\themes\Grey.fernanda_editor" />
     <None Include="resources\themes\Pocket (Alt).fernanda_editor" />
@@ -61,6 +62,7 @@
     <None Include="resources\themes\Snooze (Alt).fernanda_editor" />
     <None Include="resources\themes\Snooze.fernanda_editor" />
     <None Include="resources\themes\Light.fernanda_window" />
+    <None Include="resources\themes\Window.qss.template" />
     <None Include="resources\ui\ChevronDown.svg" />
     <None Include="resources\ui\ChevronLeft.svg" />
     <None Include="resources\ui\ChevronRight.svg" />
@@ -116,7 +118,7 @@
     <ClInclude Include="src\NewNotebookPrompt.h" />
     <QtMoc Include="src\TreeView.h" />
     <ClInclude Include="src\old_FnxModel.h" />
-    <QtMoc Include="src\ProxyStyle.h" />
+    <ClInclude Include="src\Qss.h" />
     <ClInclude Include="src\SaveFailMessageBox.h" />
     <ClInclude Include="src\SavePrompt.h" />
     <ClInclude Include="src\Formatters.h" />
@@ -125,6 +127,7 @@
     <QtMoc Include="src\SettingsService.h" />
     <QtMoc Include="src\SettingsDialog.h" />
     <QtMoc Include="src\StyleModule.h" />
+    <QtMoc Include="src\StyleContext.h" />
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\Io.h" />
     <ClInclude Include="src\Themes.h" />

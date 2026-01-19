@@ -1,27 +1,8 @@
 {
   "name": "Dark",
   "values": {
-    "iconColor": "#b0b0b0",
-    "window": "#2d2d2d",
-    "windowText": "#e0e0e0",
-    "base": "#1e1e1e",
-    "text": "#e0e0e0",
-    "button": "#3d3d3d",
-    "buttonText": "#e0e0e0",
-    "highlight": "#0078d4",
-    "highlightedText": "#ffffff",
-    "light": "#505050",
-    "midlight": "#404040",
-    "mid": "#353535",
-    "dark": "#2a2a2a",
-    "shadow": "#1a1a1a",
-    "brightText": "#ffffff",
-    "link": "#4da6ff",
-    "linkVisited": "#c080ff",
-    "alternateBase": "#262626",
-    "tooltipBase": "#3d3d3d",
-    "tooltipText": "#e0e0e0",
-    "placeholderText": "#707070",
-    "accent": "#0078d4"
+    "iconColor": "#00ff00",
+    "base": "#000",
+    "text": "#fff"
   }
 }

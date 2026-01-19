@@ -53,7 +53,7 @@
 #include "Coco/Utility.h"
 
 #include "Debug.h"
-#include "ProxyStyle.h"
+#include "StyleContext.h"
 #include "TabWidgetButton.h"
 #include "TabWidgetCloseButton.h"
 #include "TabWidgetTabBar.h"

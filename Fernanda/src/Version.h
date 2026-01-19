@@ -9,8 +9,6 @@
 
 #pragma once
 
-// DO NOT COPY AND PASTE THIS ENTIRE FILE. CLANG WILL RUIN IT.
-
 namespace Version {
 
 // Visual Studio automatically defines _DEBUG in Debug builds
@@ -26,6 +24,8 @@ inline constexpr bool isDebug = false;
 #endif
 
 } // namespace Version
+
+// clang-format off
 
 /// ======================================================================== ///
 /// *** VERSION INFO ***                                                     ///
@@ -109,3 +109,5 @@ inline constexpr bool isDebug = false;
 #define VERSION_COPYRIGHT_STRING                "Copyright \xa9 2025-2026 fairybow"
 #define VERSION_DOMAIN                          "https://github.com/fairybow/Fernanda"
 #define VERSION_WINDOWS_FILE_STRING             VERSION_APP_NAME_STRING ".exe"
+
+// clang-format on

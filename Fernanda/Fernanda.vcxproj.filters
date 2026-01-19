@@ -263,6 +263,12 @@
     <None Include="resources\themes\Dark.fernanda_window">
       <Filter>Resources\Themes\Window</Filter>
     </None>
+    <None Include="resources\themes\Editor.qss.template">
+      <Filter>Resources\Themes</Filter>
+    </None>
+    <None Include="resources\themes\Window.qss.template">
+      <Filter>Resources\Themes</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -394,7 +400,7 @@
     <QtMoc Include="src\ThemeSelector.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
-    <QtMoc Include="src\ProxyStyle.h">
+    <QtMoc Include="src\StyleContext.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
     </QtMoc>
   </ItemGroup>
@@ -511,6 +517,9 @@
       <Filter>Code\Core\UI</Filter>
     </ClInclude>
     <ClInclude Include="src\Themes.h">
+      <Filter>Code\Auxiliary\Modules\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Qss.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
     </ClInclude>
   </ItemGroup>
