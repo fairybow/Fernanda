@@ -69,7 +69,7 @@ public:
             requester->update();
     }
 
-    // For style-aware, from-SVG icons
+    // So widgets can paint style-aware, from-SVG icons
     static QPixmap icon(QWidget* widget, UiIcon type, const QSize& size)
     {
         if (!widget) return {};
@@ -82,27 +82,6 @@ public:
         return ps->icon_(widget, type, size, widget->devicePixelRatio());
     }
 
-    /*void setMenuBarStyleSheet(const QString& styleSheet)
-    {
-        if (menuBarStyleSheet_ == styleSheet) return;
-        menuBarStyleSheet_ = styleSheet;
-
-        for (auto& requester : menuBarStyleSheetRequesters_)
-            requester->setStyleSheet(menuBarStyleSheet_);
-    }
-
-    static void trackAndStyle(QMenuBar* menuBar)
-    {
-        if (!menuBar) return;
-        auto window = menuBar->window();
-        if (!window) return;
-
-        auto ps = qobject_cast<ProxyStyle*>(window->style());
-        if (!ps) return;
-
-        ps->trackAndStyle_(menuBar);
-    }*/
-
 private:
     static constexpr auto PLACEHOLDER_COLOR_ = "#404040";
 
@@ -110,8 +89,6 @@ private:
     QHash<UiIcon, QString> registry_{};
     mutable QHash<QString, QPixmap> cache_{};
     mutable QSet<QWidget*> iconRequesters_{};
-    //QString menuBarStyleSheet_{};
-    //mutable QSet<QWidget*> menuBarStyleSheetRequesters_{};
 
     void setup_()
     {
@@ -189,20 +166,6 @@ private:
         if (!pixmap.isNull()) cache_[key] = pixmap;
         return pixmap;
     }
-
-    /*void trackAndStyle_(QMenuBar* menuBar) const
-    {
-        if (!menuBar) return;
-
-        if (!menuBarStyleSheetRequesters_.contains(menuBar)) {
-            menuBarStyleSheetRequesters_ << menuBar;
-            connect(menuBar, &QObject::destroyed, this, [&, menuBar] {
-                menuBarStyleSheetRequesters_.remove(menuBar);
-            });
-        }
-
-        menuBar->setStyleSheet(menuBarStyleSheet_);
-    }*/
 };
 
 } // namespace Fernanda

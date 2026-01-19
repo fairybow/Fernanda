@@ -32,52 +32,6 @@
 
 namespace Fernanda {
 
-// TODO: Menu theming is currently unsupported due to Qt/Windows quirks.
-//
-// PROBLEM:
-// On Windows, QMenu and QMenuBar are drawn by the native OS style plugin
-// (qwindowsstyle.cpp), which bypasses Qt's palette system entirely. This
-// means:
-// - QPalette::setColor() has no effect on menus
-// - QProxyStyle::polish() is called but palette changes are ignored
-// - Even explicitly calling menu->setStyle(proxyStyle) doesn't help
-//
-// ATTEMPTED SOLUTIONS (all failed):
-// 1. QPalette on menus directly, ignored by native rendering
-// 2. ProxyStyle::polish() to intercept menu creation, palette still ignored
-// 3. Tracking menus and updating palettes on theme change, same issue
-// 4. menu->setStyle(proxyStyle) explicitly, no effect
-// 5. QStyleSheet on Window, works for menus but breaks palette inheritance
-//    for other widgets (TreeView lost styling)
-// 6. QStyleSheet on QMenuBar only, works for menubar but context menus
-//    created via MenuBuilder would need separate handling
-//
-// POTENTIAL SOLUTIONS:
-// 1. Use Fusion style as ProxyStyle base:
-// QProxyStyle(QStyleFactory::create("Fusion"))
-//    - Fusion respects Qt's palette/stylesheet system
-//    - Downside: menus look non-native (but consistently themeable)
-//    - Reference:
-//    https://www.riverbankcomputing.com/pipermail/pyqt/2025-June/046274.html
-//
-// 2. Full QSS for all themed widgets (not just menus)
-//    - Abandon QPalette, use stylesheets everywhere
-//    - Verbose but consistent
-//
-// 3. Override drawControl() in ProxyStyle for CE_MenuBarItem, CE_MenuItem,
-// etc.
-//    - Full control but must reimplement entire menu rendering
-//    - See:
-//    https://codebrowser.dev/qt6/qtbase/src/widgets/styles/qwindowsstyle.cpp.html#1012
-//
-// 4. Hybrid: Fusion for menus only, native for everything else
-//    - Set Fusion style on menus explicitly: menu->setStyle(fusionStyle)
-//    - May cause visual inconsistency
-//
-// CURRENT STATE:
-// - Window palette theming works (background, text, buttons, etc.)
-// - Icon theming works via ProxyStyle::icon()
-// - Menus remain unthemed (use system default)
 // TODO: Install watcher on theme paths for hot reload?
 //
 // Themes are JSON files with special extensions. All theme variables (for
@@ -216,20 +170,28 @@ private:
 
         auto theme_valid = theme.isValid();
 
-        proxyStyle_->setIconColor(
-            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor());
-        //proxyStyle_->setMenuBarStyleSheet(
-            //theme_valid ? theme.menuBarStyleSheet() : QString{});
+        auto icon_color =
+            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor();
+        proxyStyle_->setIconColor(icon_color);
 
-        window->setPalette(theme_valid ? theme.palette() : QPalette{});
+        /// TODO STYLE: See applyEditorTheme_ comments
+        auto qss = theme_valid ? theme.styleSheet() : QString{};
+        window->setStyleSheet(qss);
     }
 
     void applyEditorTheme_(TextFileView* textFileView, const EditorTheme& theme)
     {
         if (!textFileView) return;
+        auto editor = textFileView->editor();
+        if (!editor) return;
 
-        auto palette = theme.isValid() ? theme.palette() : QPalette{};
-        textFileView->editor()->setPalette(palette);
+        /// TODO STYLE: Ideal place/way to log QSS? (`INFO("Style sheet set for
+        /// all editors [{}]", qss)`)
+
+        /// TODO STYLE: We're calcuating QSS for each editor, I think? Don't
+        /// wanna do that unless needed for hot reload or something)
+        auto qss = theme.isValid() ? theme.styleSheet() : QString{};
+        editor->setStyleSheet(qss);
     }
 
 private slots:
@@ -257,6 +219,10 @@ private slots:
     {
         if (!window) return;
 
+        /// TODO STYLE: Now that we are only using ProxyStyle for icons and not
+        /// palette, is the current code path still fine (widget calls static
+        /// ProxyStyle function which casts widget's parents' window's style to
+        /// PS lol)
         window->setStyle(proxyStyle_);
         windows_ << window;
 
