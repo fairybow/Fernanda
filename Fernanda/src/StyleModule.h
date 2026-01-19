@@ -164,36 +164,6 @@ private:
         return {};
     }
 
-    void applyWindowTheme_(Window* window, const WindowTheme& theme)
-    {
-        if (!window) return;
-
-        auto theme_valid = theme.isValid();
-
-        auto icon_color =
-            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor();
-        proxyStyle_->setIconColor(icon_color);
-
-        /// TODO STYLE: See applyEditorTheme_ comments
-        auto qss = theme_valid ? theme.styleSheet() : QString{};
-        window->setStyleSheet(qss);
-    }
-
-    void applyEditorTheme_(TextFileView* textFileView, const EditorTheme& theme)
-    {
-        if (!textFileView) return;
-        auto editor = textFileView->editor();
-        if (!editor) return;
-
-        /// TODO STYLE: Ideal place/way to log QSS? (`INFO("Style sheet set for
-        /// all editors [{}]", qss)`)
-
-        /// TODO STYLE: We're calcuating QSS for each editor, I think? Don't
-        /// wanna do that unless needed for hot reload or something)
-        auto qss = theme.isValid() ? theme.styleSheet() : QString{};
-        editor->setStyleSheet(qss);
-    }
-
 private slots:
     void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
@@ -202,16 +172,37 @@ private slots:
             currentWindowThemePath_ = value.value<Coco::Path>();
 
             auto theme = findWindowTheme_(currentWindowThemePath_);
-            for (auto& window : windows_)
-                applyWindowTheme_(window, theme);
+            auto theme_valid = theme.isValid();
+
+            auto icon_color = theme_valid ? theme.iconColor()
+                                          : ProxyStyle::defaultIconColor();
+            proxyStyle_->setIconColor(icon_color);
+
+            // Don't really need to do this, since an invalid theme will return
+            // an empty QString anyway, but perhaps its sensible...
+            auto qss = theme_valid ? theme.qss() : QString{};
+            INFO("Setting window QSS: [{}]", qss);
+
+            for (auto& window : windows_) {
+                if (!window) continue;
+                window->setStyleSheet(qss);
+            }
 
         } else if (key == Ini::Keys::EDITOR_THEME) {
 
             currentEditorThemePath_ = value.value<Coco::Path>();
 
             auto theme = findEditorTheme_(currentEditorThemePath_);
-            for (auto& view : textFileViews_)
-                applyEditorTheme_(view, theme);
+            auto qss = theme.isValid() ? theme.qss() : QString{};
+            INFO("Setting editor QSS: [{}]", qss);
+
+            for (auto& view : textFileViews_) {
+                if (!view) continue;
+                auto editor = view->editor();
+                if (!editor) continue;
+
+                editor->setStyleSheet(qss);
+            }
         }
     }
 
@@ -222,7 +213,7 @@ private slots:
         /// TODO STYLE: Now that we are only using ProxyStyle for icons and not
         /// palette, is the current code path still fine (widget calls static
         /// ProxyStyle function which casts widget's parents' window's style to
-        /// PS lol)
+        /// PS lol)?
         window->setStyle(proxyStyle_);
         windows_ << window;
 
@@ -242,7 +233,17 @@ private slots:
             initialWindowThemeLoaded_ = true;
         }
 
-        applyWindowTheme_(window, findWindowTheme_(currentWindowThemePath_));
+        auto theme = findWindowTheme_(currentWindowThemePath_);
+        auto theme_valid = theme.isValid();
+
+        // Need to set this here in case a window is made before proxyStyle_ has
+        // an icon color set (which happens at least on the first window)
+        auto icon_color =
+            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor();
+        proxyStyle_->setIconColor(icon_color);
+
+        auto qss = theme_valid ? theme.qss() : QString{};
+        window->setStyleSheet(qss);
     }
 
     void onBusFileViewCreated_(AbstractFileView* fileView)
@@ -266,7 +267,11 @@ private slots:
             initialEditorThemeLoaded_ = true;
         }
 
-        applyEditorTheme_(text_view, findEditorTheme_(currentEditorThemePath_));
+        auto theme = findEditorTheme_(currentEditorThemePath_);
+        auto qss = theme.isValid() ? theme.qss() : QString{};
+        auto editor = text_view->editor();
+        if (!editor) return;
+        editor->setStyleSheet(qss);
     }
 };
 
