@@ -1,0 +1,4 @@
+* {
+    background-color: {{base|#0000ff}};
+    color: {{text}};
+}

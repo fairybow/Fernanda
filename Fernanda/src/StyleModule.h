@@ -25,7 +25,7 @@
 #include "Bus.h"
 #include "Debug.h"
 #include "Ini.h"
-#include "ProxyStyle.h"
+#include "StyleContext.h"
 #include "TextFileView.h"
 #include "Themes.h"
 #include "Window.h"
@@ -108,7 +108,8 @@ protected:
     }
 
 private:
-    ProxyStyle* proxyStyle_ = new ProxyStyle;
+    StyleContext* styleContext_ = new StyleContext(this);
+
     QSet<Window*> windows_{};
     QList<WindowTheme> windowThemes_{};
     bool initialWindowThemeLoaded_ = false;
@@ -119,7 +120,10 @@ private:
     bool initialEditorThemeLoaded_ = false;
     Coco::Path currentEditorThemePath_{};
 
-    void setup_() { proxyStyle_->setParent(this); }
+    void setup_()
+    {
+        //
+    }
 
     template <typename ThemeT> void sortThemes_(QList<ThemeT>& themes) const
     {
@@ -175,8 +179,8 @@ private slots:
             auto theme_valid = theme.isValid();
 
             auto icon_color = theme_valid ? theme.iconColor()
-                                          : ProxyStyle::defaultIconColor();
-            proxyStyle_->setIconColor(icon_color);
+                                          : StyleContext::defaultIconColor();
+            styleContext_->setIconColor(icon_color);
 
             // Don't really need to do this, since an invalid theme will return
             // an empty QString anyway, but perhaps its sensible...
@@ -210,11 +214,7 @@ private slots:
     {
         if (!window) return;
 
-        /// TODO STYLE: Now that we are only using ProxyStyle for icons and not
-        /// palette, is the current code path still fine (widget calls static
-        /// ProxyStyle function which casts widget's parents' window's style to
-        /// PS lol)?
-        window->setStyle(proxyStyle_);
+        styleContext_->attach(window);
         windows_ << window;
 
         // TODO: Search use of Window::destroyed and replace with this (also
@@ -236,11 +236,11 @@ private slots:
         auto theme = findWindowTheme_(currentWindowThemePath_);
         auto theme_valid = theme.isValid();
 
-        // Need to set this here in case a window is made before proxyStyle_ has
-        // an icon color set (which happens at least on the first window)
+        // Need to set this here in case a window is made before styleContext_
+        // has an icon color set (which happens at least on the first window)
         auto icon_color =
-            theme_valid ? theme.iconColor() : ProxyStyle::defaultIconColor();
-        proxyStyle_->setIconColor(icon_color);
+            theme_valid ? theme.iconColor() : StyleContext::defaultIconColor();
+        styleContext_->setIconColor(icon_color);
 
         auto qss = theme_valid ? theme.qss() : QString{};
         window->setStyleSheet(qss);

@@ -1,6 +1,7 @@
 {
   "name": "Light",
   "values": {
-    "iconColor": "#ff0000"
+    "iconColor": "#ff0000",
+    "text": "#fff"
   }
 }

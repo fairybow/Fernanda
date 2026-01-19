@@ -400,7 +400,7 @@
     <QtMoc Include="src\ThemeSelector.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
-    <QtMoc Include="src\ProxyStyle.h">
+    <QtMoc Include="src\StyleContext.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
     </QtMoc>
   </ItemGroup>

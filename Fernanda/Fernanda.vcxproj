@@ -118,7 +118,6 @@
     <ClInclude Include="src\NewNotebookPrompt.h" />
     <QtMoc Include="src\TreeView.h" />
     <ClInclude Include="src\old_FnxModel.h" />
-    <QtMoc Include="src\ProxyStyle.h" />
     <ClInclude Include="src\Qss.h" />
     <ClInclude Include="src\SaveFailMessageBox.h" />
     <ClInclude Include="src\SavePrompt.h" />
@@ -128,6 +127,7 @@
     <QtMoc Include="src\SettingsService.h" />
     <QtMoc Include="src\SettingsDialog.h" />
     <QtMoc Include="src\StyleModule.h" />
+    <QtMoc Include="src\StyleContext.h" />
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\Io.h" />
     <ClInclude Include="src\Themes.h" />
