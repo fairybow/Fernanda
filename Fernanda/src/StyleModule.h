@@ -33,10 +33,11 @@
 namespace Fernanda {
 
 // TODO: Install watcher on theme paths for hot reload?
+// TODO: Combine common code
 //
 // Themes are JSON files with special extensions. All theme variables (for
 // windows and editors) are optional. An invalid theme is a theme with no name
-// and an empty values array
+// and an empty values array (or default constructed)
 class StyleModule : public AbstractService
 {
     Q_OBJECT
