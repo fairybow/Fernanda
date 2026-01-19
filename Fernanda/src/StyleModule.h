@@ -22,6 +22,7 @@
 
 #include "AbstractFileView.h"
 #include "AbstractService.h"
+#include "AppDirs.h"
 #include "Bus.h"
 #include "Debug.h"
 #include "Ini.h"
@@ -87,7 +88,7 @@ protected:
     virtual void postInit() override
     {
         // TODO: Add user data paths to first arg
-        Coco::PathList source_paths{ ":/themes/" };
+        Coco::PathList source_paths{ ":/themes/", AppDirs::userData() };
 
         // Window themes
         auto window_theme_paths =
