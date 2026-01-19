@@ -87,7 +87,6 @@ protected:
 
     virtual void postInit() override
     {
-        // TODO: Add user data paths to first arg
         Coco::PathList source_paths{ ":/themes/", AppDirs::userData() };
 
         // Window themes
