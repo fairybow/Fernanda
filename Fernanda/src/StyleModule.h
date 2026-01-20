@@ -149,21 +149,12 @@ private:
         return result;
     }
 
-    WindowTheme findWindowTheme_(const Coco::Path& path) const
+    template <typename ThemeT>
+    ThemeT findTheme_(const QList<ThemeT>& themes, const Coco::Path& path) const
     {
         if (path.isEmpty()) return {};
 
-        for (auto& theme : windowThemes_)
-            if (theme.path() == path) return theme;
-
-        return {};
-    }
-
-    EditorTheme findEditorTheme_(const Coco::Path& path) const
-    {
-        if (path.isEmpty()) return {};
-
-        for (auto& theme : editorThemes_)
+        for (auto& theme : themes)
             if (theme.path() == path) return theme;
 
         return {};
@@ -176,7 +167,7 @@ private slots:
 
             currentWindowThemePath_ = value.value<Coco::Path>();
 
-            auto theme = findWindowTheme_(currentWindowThemePath_);
+            auto theme = findTheme_(windowThemes_, currentWindowThemePath_);
             auto theme_valid = theme.isValid();
 
             auto icon_color = theme_valid ? theme.iconColor()
@@ -197,7 +188,7 @@ private slots:
 
             currentEditorThemePath_ = value.value<Coco::Path>();
 
-            auto theme = findEditorTheme_(currentEditorThemePath_);
+            auto theme = findTheme_(editorThemes_, currentEditorThemePath_);
             auto qss = theme.isValid() ? theme.qss() : QString{};
             INFO("Setting editor QSS: [{}]", qss);
 
@@ -234,7 +225,7 @@ private slots:
             initialWindowThemeLoaded_ = true;
         }
 
-        auto theme = findWindowTheme_(currentWindowThemePath_);
+        auto theme = findTheme_(windowThemes_, currentWindowThemePath_);
         auto theme_valid = theme.isValid();
 
         // Need to set this here in case a window is made before styleContext_
@@ -268,7 +259,7 @@ private slots:
             initialEditorThemeLoaded_ = true;
         }
 
-        auto theme = findEditorTheme_(currentEditorThemePath_);
+        auto theme = findTheme_(editorThemes_, currentEditorThemePath_);
         auto qss = theme.isValid() ? theme.qss() : QString{};
         auto editor = text_view->editor();
         if (!editor) return;
