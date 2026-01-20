@@ -17,6 +17,7 @@
 #include <QObject>
 #include <QSet>
 #include <QString>
+#include <QStringList>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -34,8 +35,10 @@
 
 namespace Fernanda {
 
-// TODO: Install watcher on theme paths for hot reload?
+// TODO: Update SettingsDialog entries when a theme is added/removed or name
+// changes (maybe)
 // TODO: Combine common code
+// TODO: Any gaps or redundancies, especially with the to QFSW slots?
 //
 // Themes are JSON files with special extensions. All theme variables (for
 // windows and editors) are optional. An invalid theme is a theme with no name
@@ -90,6 +93,7 @@ protected:
     {
         setupThemes_(windowThemes_, userWindowThemePaths_, WindowTheme::EXT);
         setupThemes_(editorThemes_, userEditorThemePaths_, EditorTheme::EXT);
+        setupThemeWatches_();
     }
 
 private:
@@ -107,13 +111,23 @@ private:
     bool initialEditorThemeLoaded_ = false;
     Coco::Path currentEditorThemePath_{};
 
-    QFileSystemWatcher* userThemeWatcher_ = nullptr;
+    QFileSystemWatcher* userThemeWatcher_ = new QFileSystemWatcher(this);
     QSet<Coco::Path> userWindowThemePaths_{};
     QSet<Coco::Path> userEditorThemePaths_{};
 
     void setup_()
     {
-        //
+        connect(
+            userThemeWatcher_,
+            &QFileSystemWatcher::fileChanged,
+            this,
+            &StyleModule::onThemeFileChanged_);
+
+        connect(
+            userThemeWatcher_,
+            &QFileSystemWatcher::directoryChanged,
+            this,
+            &StyleModule::onThemeDirectoryChanged_);
     }
 
     template <typename ThemeT>
@@ -122,8 +136,14 @@ private:
         QSet<Coco::Path>& userThemePaths,
         const QString& ext)
     {
-        auto qrc_paths = Coco::PathUtil::fromDir(QRC_DIR_, ext);
-        auto user_paths = Coco::PathUtil::fromDir(AppDirs::userData(), ext);
+        auto qrc_paths =
+            Coco::PathUtil::fromDir(QRC_DIR_, ext, Coco::Recursive::No);
+
+        auto user_paths = Coco::PathUtil::fromDir(
+            AppDirs::userThemes(),
+            ext,
+            Coco::Recursive::No);
+
         userThemePaths = { user_paths.begin(), user_paths.end() };
 
         for (auto& path : qrc_paths + user_paths)
@@ -140,6 +160,33 @@ private:
             [](const ThemeT& t1, const ThemeT& t2) {
                 return t1.name().toLower() < t2.name().toLower();
             });
+    }
+
+    void setupThemeWatches_()
+    {
+        // Watch user data directory for new/removed theme files
+        auto qstr_user_dir = AppDirs::userThemes().toQString();
+        if (!qstr_user_dir.isEmpty()) userThemeWatcher_->addPath(qstr_user_dir);
+
+        // Watch individual theme files for content changes
+        updateWatchedFiles_();
+    }
+
+    void updateWatchedFiles_()
+    {
+        // Clear all and re-add
+
+        auto current_files = userThemeWatcher_->files();
+        if (!current_files.isEmpty())
+            userThemeWatcher_->removePaths(current_files);
+
+        QStringList qstr_paths{};
+        for (auto& path : userWindowThemePaths_)
+            qstr_paths << path.toQString();
+        for (auto& path : userEditorThemePaths_)
+            qstr_paths << path.toQString();
+
+        if (!qstr_paths.isEmpty()) userThemeWatcher_->addPaths(qstr_paths);
     }
 
     template <typename ThemeT>
@@ -166,7 +213,144 @@ private:
         return {};
     }
 
+    template <typename ThemeT>
+    void rebuildTheme_(QList<ThemeT>& themes, const Coco::Path& path)
+    {
+        themes.removeIf([&](const ThemeT& t) { return t.path() == path; });
+        themes << ThemeT{ path }; // (May be invalid now, which is fine)
+        sortThemes_<ThemeT>(themes);
+    }
+
+    void reapplyWindowThemeIfCurrent_(const Coco::Path& path)
+    {
+        if (path != currentWindowThemePath_) return;
+
+        auto theme = findTheme_(windowThemes_, path);
+        auto theme_valid = theme.isValid();
+
+        auto icon_color =
+            theme_valid ? theme.iconColor() : StyleContext::defaultIconColor();
+        styleContext_->setIconColor(icon_color);
+
+        auto qss = theme_valid ? theme.qss() : QString{};
+
+        for (auto& window : windows_) {
+            if (!window) continue;
+            window->setStyleSheet(qss);
+        }
+    }
+
+    void reapplyEditorThemeIfCurrent_(const Coco::Path& path)
+    {
+        if (path != currentEditorThemePath_) return;
+
+        auto theme = findTheme_(editorThemes_, path);
+        auto qss = theme.isValid() ? theme.qss() : QString{};
+
+        for (auto& view : textFileViews_) {
+            if (!view) continue;
+            auto editor = view->editor();
+            if (!editor) continue;
+            editor->setStyleSheet(qss);
+        }
+    }
+
 private slots:
+    void onThemeFileChanged_(const QString& path)
+    {
+        Coco::Path theme_path = path;
+
+        // If file no longer exists, let directoryChanged handle removal. If
+        // current theme was deleted, stale QSS remains applied.
+        if (!theme_path.exists()) return;
+
+        // Re-add! Via Qt: Note: As a safety measure, many applications save an
+        // open file by writing a new file and then deleting the old one. In
+        // your slot function, you can check watcher.files().contains(path). If
+        // it returns false, check whether the file still exists and then call
+        // addPath() to continue watching it.
+        userThemeWatcher_->addPath(path);
+
+        if (path.endsWith(WindowTheme::EXT)) {
+            // Only process if already tracking (new files handled by
+            // directoryChanged)
+            if (!userWindowThemePaths_.contains(theme_path)) return;
+            rebuildTheme_(windowThemes_, theme_path);
+            reapplyWindowThemeIfCurrent_(theme_path);
+
+        } else if (path.endsWith(EditorTheme::EXT)) {
+            if (!userEditorThemePaths_.contains(theme_path)) return;
+            rebuildTheme_(editorThemes_, theme_path);
+            reapplyEditorThemeIfCurrent_(theme_path);
+        }
+    }
+
+    void onThemeDirectoryChanged_(const QString& path)
+    {
+        (void)path;
+
+        // Re-scan for current files on disk
+        auto current_window_paths = Coco::PathUtil::fromDir(
+            AppDirs::userThemes(),
+            WindowTheme::EXT,
+            Coco::Recursive::No);
+
+        auto current_editor_paths = Coco::PathUtil::fromDir(
+            AppDirs::userThemes(),
+            EditorTheme::EXT,
+            Coco::Recursive::No);
+
+        QSet<Coco::Path> current_window_set{ current_window_paths.begin(),
+                                             current_window_paths.end() };
+        QSet<Coco::Path> current_editor_set{ current_editor_paths.begin(),
+                                             current_editor_paths.end() };
+
+        // Diff against tracked paths
+        auto added_window = current_window_set - userWindowThemePaths_;
+        auto removed_window = userWindowThemePaths_ - current_window_set;
+        auto added_editor = current_editor_set - userEditorThemePaths_;
+        auto removed_editor = userEditorThemePaths_ - current_editor_set;
+
+        // Apply removals
+        for (auto& path : removed_window) {
+            windowThemes_.removeIf(
+                [&](const WindowTheme& t) { return t.path() == path; });
+        }
+
+        for (auto& path : removed_editor) {
+            editorThemes_.removeIf(
+                [&](const EditorTheme& t) { return t.path() == path; });
+        }
+
+        // Apply additions
+        for (auto& path : added_window)
+            windowThemes_ << WindowTheme{ path };
+
+        for (auto& path : added_editor)
+            editorThemes_ << EditorTheme{ path };
+
+        // Update tracked paths
+        userWindowThemePaths_ = current_window_set;
+        userEditorThemePaths_ = current_editor_set;
+
+        // Sort if changed
+        if (!added_window.isEmpty() || !removed_window.isEmpty())
+            sortThemes_(windowThemes_);
+
+        if (!added_editor.isEmpty() || !removed_editor.isEmpty())
+            sortThemes_(editorThemes_);
+
+        // Sync file watches
+        updateWatchedFiles_();
+
+        // Reapply if current theme was just (re-)added
+        if (added_window.contains(currentWindowThemePath_))
+            reapplyWindowThemeIfCurrent_(currentWindowThemePath_);
+
+        if (added_editor.contains(currentEditorThemePath_))
+            reapplyEditorThemeIfCurrent_(currentEditorThemePath_);
+    }
+
     void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
         if (key == Ini::Keys::WINDOW_THEME) {
