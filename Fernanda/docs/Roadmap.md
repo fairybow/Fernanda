@@ -19,7 +19,6 @@
 ### Stretch
 
 - [x] Notebook Trash
-- [ ] QMenu theming (see StyleModule notes)
 - [ ] MAYBE: Ensure "modules" are reactionary (ColorBars should probably stay a module, but, right now, it is called directly by Workspace)?
 - [x] Update check
 - [ ] Hide menu bar (key to toggle)

@@ -34,6 +34,12 @@ inline const Coco::Path& temp()
     return dir;
 }
 
+inline const Coco::Path& userThemes()
+{
+    static auto dir = userData() / "themes";
+    return dir;
+}
+
 // TODO: Make configurable
 inline const Coco::Path& defaultDocs()
 {
@@ -46,15 +52,18 @@ inline const Coco::Path& defaultDocs()
 inline bool initialize()
 {
     auto& t = temp();
+    auto& th = userThemes();
     auto& d = defaultDocs();
 
     auto temp_ok = t.exists() || Coco::PathUtil::mkdir(t);
+    auto themes_ok = th.exists() || Coco::PathUtil::mkdir(th);
     auto docs_ok = d.exists() || Coco::PathUtil::mkdir(d);
 
     if (!temp_ok) CRITICAL("Temp directory non-existent!: {}", t);
+    if (!themes_ok) CRITICAL("USer themes directory non-existent!: {}", th);
     if (!docs_ok) CRITICAL("Docs directory non-existent!: {}", d);
 
-    return temp_ok && docs_ok;
+    return temp_ok && themes_ok && docs_ok;
 }
 
 } // namespace Fernanda::AppDirs
