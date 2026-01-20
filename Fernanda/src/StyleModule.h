@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <utility>
 
+#include <QFileSystemWatcher>
 #include <QList>
 #include <QObject>
 #include <QSet>
@@ -87,28 +88,13 @@ protected:
 
     virtual void postInit() override
     {
-        Coco::PathList source_paths{ ":/themes/", AppDirs::userData() };
-
-        // Window themes
-        auto window_theme_paths =
-            Coco::PathUtil::fromDir(source_paths, WindowTheme::EXT);
-
-        for (auto& path : window_theme_paths)
-            windowThemes_ << WindowTheme{ path };
-
-        sortThemes_(windowThemes_);
-
-        // Editor themes
-        auto editor_theme_paths =
-            Coco::PathUtil::fromDir(source_paths, EditorTheme::EXT);
-
-        for (auto& path : editor_theme_paths)
-            editorThemes_ << EditorTheme{ path };
-
-        sortThemes_(editorThemes_);
+        setupThemes_(windowThemes_, userWindowThemePaths_, WindowTheme::EXT);
+        setupThemes_(editorThemes_, userEditorThemePaths_, EditorTheme::EXT);
     }
 
 private:
+    static constexpr auto QRC_DIR_ = ":/themes/";
+
     StyleContext* styleContext_ = new StyleContext(this);
 
     QSet<Window*> windows_{};
@@ -121,9 +107,29 @@ private:
     bool initialEditorThemeLoaded_ = false;
     Coco::Path currentEditorThemePath_{};
 
+    QFileSystemWatcher* userThemeWatcher_ = nullptr;
+    QSet<Coco::Path> userWindowThemePaths_{};
+    QSet<Coco::Path> userEditorThemePaths_{};
+
     void setup_()
     {
         //
+    }
+
+    template <typename ThemeT>
+    void setupThemes_(
+        QList<ThemeT>& themes,
+        QSet<Coco::Path>& userThemePaths,
+        const QString& ext)
+    {
+        auto qrc_paths = Coco::PathUtil::fromDir(QRC_DIR_, ext);
+        auto user_paths = Coco::PathUtil::fromDir(AppDirs::userData(), ext);
+        userThemePaths = { user_paths.begin(), user_paths.end() };
+
+        for (auto& path : qrc_paths + user_paths)
+            themes << ThemeT{ path };
+
+        sortThemes_<ThemeT>(themes);
     }
 
     template <typename ThemeT> void sortThemes_(QList<ThemeT>& themes) const
