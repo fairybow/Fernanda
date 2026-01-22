@@ -3,7 +3,7 @@
         <file>themes/Amber.fernanda_editor</file>
         <file>themes/Blue.fernanda_editor</file>
         <file>themes/Dark.fernanda_window</file>
-        <file>themes/Editor.qss.template</file>
+        <file>themes/Editor.fernanda_qss_template</file>
         <file>themes/Green.fernanda_editor</file>
         <file>themes/Grey.fernanda_editor</file>
         <file>themes/Light.fernanda_window</file>
@@ -11,6 +11,6 @@
         <file>themes/Pocket.fernanda_editor</file>
         <file>themes/Snooze (Alt).fernanda_editor</file>
         <file>themes/Snooze.fernanda_editor</file>
-        <file>themes/Window.qss.template</file>
+        <file>themes/Window.fernanda_qss_template</file>
     </qresource>
 </RCC>
