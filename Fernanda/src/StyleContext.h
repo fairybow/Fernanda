@@ -61,7 +61,8 @@ public:
     {
         auto context = forWidget_(widget);
         if (!context) return {};
-        return context->icon_(widget, type, size, widget->devicePixelRatio());
+
+        return context->icon_(type, size, widget->devicePixelRatio());
     }
 
     // TODO: Any other colors for widgets/things we want to be style-aware that
@@ -73,6 +74,8 @@ public:
     void attach(QWidget* window)
     {
         if (!window) return;
+
+        trackRequester_(window);
         window->setProperty(PROPERTY_KEY, QVariant::fromValue(this));
     }
 
@@ -180,12 +183,9 @@ private:
         return pixmap;
     }
 
-    QPixmap
-    icon_(QWidget* requester, UiIcon type, const QSize& size, qreal dpr) const
+    QPixmap icon_(UiIcon type, const QSize& size, qreal dpr) const
     {
-        if (!requester || !size.isValid()) return {};
-
-        trackRequester_(requester);
+        if (!size.isValid()) return {};
 
         auto key = iconCacheKey_(type, size, dpr);
         if (iconCache_.contains(key)) return iconCache_[key];

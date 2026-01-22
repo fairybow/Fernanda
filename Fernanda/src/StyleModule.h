@@ -99,9 +99,8 @@ protected:
 private:
     static constexpr auto QRC_DIR_ = ":/themes/";
 
-    StyleContext* styleContext_ = new StyleContext(this);
-
     QSet<Window*> windows_{};
+    StyleContext* windowsStyleContext_ = new StyleContext(this);
     QList<WindowTheme> windowThemes_{};
     bool initialWindowThemeLoaded_ = false;
     Coco::Path currentWindowThemePath_{};
@@ -230,7 +229,7 @@ private:
 
         auto icon_color =
             theme_valid ? theme.iconColor() : StyleContext::defaultIconColor();
-        styleContext_->setIconColor(icon_color);
+        windowsStyleContext_->setIconColor(icon_color);
 
         auto qss = theme_valid ? theme.qss() : QString{};
 
@@ -362,7 +361,7 @@ private slots:
 
             auto icon_color = theme_valid ? theme.iconColor()
                                           : StyleContext::defaultIconColor();
-            styleContext_->setIconColor(icon_color);
+            windowsStyleContext_->setIconColor(icon_color);
 
             // Don't really need to do this, since an invalid theme will return
             // an empty QString anyway, but perhaps its sensible...
@@ -396,7 +395,7 @@ private slots:
     {
         if (!window) return;
 
-        styleContext_->attach(window);
+        windowsStyleContext_->attach(window);
         windows_ << window;
 
         // TODO: Search use of Window::destroyed and replace with this (also
@@ -418,11 +417,12 @@ private slots:
         auto theme = findTheme_(windowThemes_, currentWindowThemePath_);
         auto theme_valid = theme.isValid();
 
-        // Need to set this here in case a window is made before styleContext_
-        // has an icon color set (which happens at least on the first window)
+        // Need to set this here in case a window is made before
+        // windowsStyleContext_ has an icon color set (which happens at least on
+        // the first window)
         auto icon_color =
             theme_valid ? theme.iconColor() : StyleContext::defaultIconColor();
-        styleContext_->setIconColor(icon_color);
+        windowsStyleContext_->setIconColor(icon_color);
 
         auto qss = theme_valid ? theme.qss() : QString{};
         window->setStyleSheet(qss);

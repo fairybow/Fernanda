@@ -93,7 +93,7 @@ public:
             iconColor_ = QColor(parsed.assignments.take("iconColor"));
         }
 
-        static const auto templ = Io::read(":/themes/Window.qss.template");
+        static const auto templ = Io::read(":/themes/Window.fernanda_qss_template");
         qss_ = Qss::render(templ, parsed.assignments);
     }
 
@@ -131,7 +131,7 @@ public:
         // stand in for "is valid" generally
         name_ = parsed.name;
 
-        static const auto templ = Io::read(":/themes/Editor.qss.template");
+        static const auto templ = Io::read(":/themes/Editor.fernanda_qss_template");
         qss_ = Qss::render(templ, parsed.assignments);
     }
 
