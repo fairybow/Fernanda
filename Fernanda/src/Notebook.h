@@ -343,7 +343,7 @@ private:
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, [&](Window* window) {
-            addWorkspaceIndicator_(window);
+            //addWorkspaceIndicator_(window);
         });
 
         connect(

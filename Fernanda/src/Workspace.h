@@ -203,6 +203,7 @@ private:
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, [&](Window* window) {
+            (void)window->statusBar(); // Ensure status bar
             createWindowMenuBar_(window);
         });
 
