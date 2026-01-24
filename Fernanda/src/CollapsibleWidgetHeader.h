@@ -158,6 +158,8 @@ private:
             HIGHLIGHT_CORNER_RADIUS_,
             HIGHLIGHT_CORNER_RADIUS_);
 
+        /// TODO STYLE: Use qproperty, like TabWidgetButton, for styling
+        /// hover/pressed
         auto highlight = palette().color(QPalette::Highlight);
         highlight.setAlpha(isDown() ? 60 : 30);
         painter.fillPath(path, highlight);

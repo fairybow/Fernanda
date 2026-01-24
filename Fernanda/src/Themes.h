@@ -40,8 +40,6 @@ namespace Themes {
         bool valid = false;
     };
 
-    // A valid theme has a name and at least one assignment (`{ "name": "Name",
-    // "values": { "key": "value" } }`)
     inline ParseResult parse(const Coco::Path& path)
     {
         ParseResult result{};
@@ -74,8 +72,7 @@ class WindowTheme
 public:
     static constexpr auto EXT = ".fernanda_window";
 
-    // Needed for invalid theme!
-    WindowTheme() = default;
+    WindowTheme() { qss_ = Qss::render(templateQss_(), {}); }
 
     WindowTheme(const Coco::Path& path)
         : path_(path)
@@ -83,9 +80,6 @@ public:
         auto parsed = Themes::parse(path);
         if (!parsed.valid) return;
 
-        // Though a theme requires both a name and values array, since this
-        // (name_) doesn't get set if parsing is invalid, this is sufficient to
-        // stand in for "is valid" generally
         name_ = parsed.name;
 
         // Extract iconColor separately (used by ProxyStyle, not QSS)
@@ -93,16 +87,15 @@ public:
             iconColor_ = QColor(parsed.assignments.take("iconColor"));
         }
 
-        static const auto templ = Io::read(":/themes/Window.fernanda_qss_template");
-        qss_ = Qss::render(templ, parsed.assignments);
+        qss_ = Qss::render(templateQss_(), parsed.assignments);
     }
 
     Coco::Path path() const noexcept { return path_; }
     QString name() const noexcept { return name_; }
-    bool isValid() const noexcept { return !name_.isEmpty(); }
+    QString qss() const noexcept { return qss_; }
 
     QColor iconColor() const noexcept { return iconColor_; }
-    QString qss() const noexcept { return qss_; }
+    bool hasIconColor() const noexcept { return iconColor_.isValid(); }
 
 private:
     Coco::Path path_;
@@ -110,6 +103,13 @@ private:
     QString name_{};
     QColor iconColor_{};
     QString qss_{};
+
+    QByteArray templateQss_() const
+    {
+        static const auto data =
+            Io::read(":/themes/Window.fernanda_qss_template");
+        return data;
+    }
 };
 
 class EditorTheme
@@ -117,8 +117,7 @@ class EditorTheme
 public:
     static constexpr auto EXT = ".fernanda_editor";
 
-    // Needed for invalid theme!
-    EditorTheme() = default;
+    EditorTheme() { qss_ = Qss::render(templateQss_(), {}); }
 
     EditorTheme(const Coco::Path& path)
         : path_(path)
@@ -126,19 +125,12 @@ public:
         auto parsed = Themes::parse(path);
         if (!parsed.valid) return;
 
-        // Though a theme requires both a name and values array, since this
-        // (name_) doesn't get set if parsing is invalid, this is sufficient to
-        // stand in for "is valid" generally
         name_ = parsed.name;
-
-        static const auto templ = Io::read(":/themes/Editor.fernanda_qss_template");
-        qss_ = Qss::render(templ, parsed.assignments);
+        qss_ = Qss::render(templateQss_(), parsed.assignments);
     }
 
     Coco::Path path() const noexcept { return path_; }
     QString name() const noexcept { return name_; }
-    bool isValid() const noexcept { return !name_.isEmpty(); }
-
     QString qss() const noexcept { return qss_; }
 
 private:
@@ -146,6 +138,13 @@ private:
 
     QString name_{};
     QString qss_{};
+
+    QByteArray templateQss_() const
+    {
+        static const auto data =
+            Io::read(":/themes/Editor.fernanda_qss_template");
+        return data;
+    }
 };
 
 } // namespace Fernanda
