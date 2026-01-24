@@ -38,9 +38,9 @@ QTabBar::tab:hover:!selected {
 }
 
 Fernanda--TabWidgetButton {
-    qproperty-backgroundColor: transparent;
-    qproperty-hoverColor: {{accent}};
-    qproperty-pressedColor: {{border}};
+    qproperty-backgroundColor: rgba(0, 0, 0, 0);
+    qproperty-hoverColor: {{accent|rgba(0, 0, 0, 20)}};
+    qproperty-pressedColor: {{border|rgba(0, 0, 0, 30)}};
 }
 
 QMenuBar {

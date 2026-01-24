@@ -1,6 +1,6 @@
 QPlainTextEdit {
-    background-color: {{base|#f5f5f5}};
+    background-color: {{base|#fbfbfb}};
     color: {{text|#2d2d2d}};
     selection-background-color: {{highlight|#0096ff}};
-    selection-color: {{highlightedText|#f5f5f5}};
+    selection-color: {{highlightedText|#fbfbfb}};
 }
