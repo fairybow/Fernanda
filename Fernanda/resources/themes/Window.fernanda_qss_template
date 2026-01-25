@@ -1,28 +1,111 @@
-opacity_0 = rgba(0, 0, 0, 10)
-opacity_1 = rgba(0, 0, 0, 20)
-opacity_2 = rgba(0, 0, 0, 30)
-opacity_3 = rgba(0, 0, 0, 40)
-
-border|opacity_0
-
 /* TODO: Add extra template vars for disabled text, disabled bg, pressed bg, hovered bg maybe (instead of using border everywhere, even if they are assigned same value) */
 /* TODO: Go through and remove (replace with "xx") dubious variable usages (like bgAlt and border) and decide what to replace with */
-/* TODO: Split up by "completed"/"base" (maybe)/"in progress" */
 /* TODO: We want "base" QSS to be the pure units/measures and system colors with opacity for buttons/tabs/highlights */
+
+/* BASE */
+
+border_radius = 4px
+
+QDockWidget::title {
+    padding: 6px;
+}
+
+QMenu {
+    border-radius: 6px;
+    padding: 4px;
+}
+
+QMenu::item {
+    padding: 6px 24px 6px 12px;
+    border-radius: {{border_radius}};
+}
+
+QMenu::separator {
+    height: 1px;
+    margin: 4px 8px;
+}
+
+QMenuBar {
+    padding: 2px;
+}
+
+QMenuBar::item {
+    padding: 6px 16px;
+    border-radius: {{border_radius}};
+}
+
+QSizeGrip {
+    image: none;
+}
+
+QTabBar::tab {
+    border-radius: {{border_radius}};
+}
+
+/* TRANSPARENCIES IN BASE (TODO: Add/rethink theme vars) */
+
+black_10a = rgba(0, 0, 0, 10)
+black_20a = rgba(0, 0, 0, 20)
+
+border|black_10a
+
+Fernanda--TabWidgetButton,
+Fernanda--CollapsibleWidgetHeader {
+    qproperty-backgroundColor: transparent;
+    qproperty-hoverColor: {{accent|rgba(0, 0, 0, 30)}};
+    qproperty-pressedColor: {{border|rgba(0, 0, 0, 40)}};
+}
+
+QMenuBar::item {
+    background-color: transparent;
+}
+
+QMenu::item:selected,
+QMenuBar::item:selected {
+    background-color: {{black_10a}};
+}
+
+QMenu::item:pressed,
+QMenuBar::item:pressed {
+    background-color: {{black_20a}};
+}
+
+QTabBar::tab:selected {
+    background-color: {{backgroundAlt|black_10a}};
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: {{accent|black_20a}};
+}
+
+/* IN PROGRESS */
+
+QDockWidget::title {
+    background-color: {{backgroundAlt}};
+}
 
 QMainWindow {
     background-color: {{background}};
     color: {{text}};
 }
 
-QDockWidget::title {
-    background-color: {{backgroundAlt}};
-    padding: 6px;
+QMenu,
+QMenuBar {
+    background-color: {{background}};
+    color: {{text}};
+    border: 1px solid {{border}};
 }
 
-QTreeView {
-    background-color: {{backgroundAlt}};
-    color: {{text}};
+QMenu::item:disabled {
+    color: {{disabledText}};
+}
+
+QMenu::separator {
+    background-color: {{border}};
+}
+
+QStatusBar {
+    border-top: 1px solid {{border}};
 }
 
 QTabBar {
@@ -33,81 +116,9 @@ QTabBar::tab {
     background-color: {{background}};
     color: {{text}};
     border: 1px solid rgba(0, 0, 0, 5);
-    border-radius: 4px;
-    padding: 8px 16px;
 }
 
-QTabBar::tab:selected {
-    background-color: {{backgroundAlt|opacity_0}};
-}
-
-QTabBar::tab:hover:!selected {
-    background-color: {{accent|opacity_1}};
-}
-
-Fernanda--TabWidgetButton,
-Fernanda--CollapsibleWidgetHeader {
-    qproperty-backgroundColor: transparent;
-    qproperty-hoverColor: {{accent|opacity_2}};
-    qproperty-pressedColor: {{border|opacity_3}};
-}
-
-QMenuBar {
+QTreeView {
     background-color: {{backgroundAlt}};
     color: {{text}};
-    border-bottom: 1px solid {{border}};
-    padding: 6px;
-}
-
-QMenuBar::item {
-    background-color: transparent;
-    padding: 6px 12px;
-    border-radius: 4px;
-}
-
-QMenuBar::item:selected {
-    background-color: {{opacity_0}};
-}
-
-QMenuBar::item:pressed {
-    background-color: {{opacity_1}};
-}
-
-QMenu {
-    background-color: {{background}};
-    color: {{text}};
-    border: 1px solid {{border}};
-    border-radius: 6px;
-    padding: 4px;
-}
-
-QMenu::item {
-    padding: 6px 24px 6px 12px;
-    border-radius: 4px;
-}
-
-QMenu::item:selected {
-    background-color: {{opacity_0}};
-}
-
-QMenu::item:pressed {
-    background-color: {{opacity_1}};
-}
-
-QMenu::item:disabled {
-    color: {{disabledText}};
-}
-
-QMenu::separator {
-    height: 1px;
-    background-color: {{border}};
-    margin: 4px 8px;
-}
-
-QStatusBar {
-    border-top: 1px solid {{border}};
-}
-
-QSizeGrip {
-    image: none;
 }
