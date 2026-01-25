@@ -54,6 +54,7 @@ struct ButtonColors
     QColor pressed{ Qt::transparent };
 };
 
+// TODO: Pass button?
 [[nodiscard]] inline QColor
 resolveButtonColor(const ButtonColors& colors, bool pressed, bool hovered)
 {
@@ -61,5 +62,8 @@ resolveButtonColor(const ButtonColors& colors, bool pressed, bool hovered)
     if (hovered && colors.hover.isValid()) return colors.hover;
     return colors.background;
 }
+
+// TODO: Generate blends based on current background for highlighting buttons
+// and tabs (or other widgets) on hover/press/etc (will use Coco::Fx)
 
 } // namespace Fernanda::Ui

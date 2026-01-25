@@ -1,7 +1,16 @@
 /* TODO: Add extra template vars for disabled text, disabled bg, pressed bg, hovered bg maybe (instead of using border everywhere, even if they are assigned same value) */
 /* TODO: Go through and remove (replace with "xx") dubious variable usages (like bgAlt and border) and decide what to replace with */
 /* TODO: We want "base" QSS to be the pure units/measures and system colors with opacity for buttons/tabs/highlights */
-/* TODO: Transparent unselected tab would work but having only alpha for the selected tab won't. We can see the tab beneath it when moving! How do I get the system color? Seems impossible? I want to use variations of that instead? */
+/* TODO: Need system variables that can't be changed by users? Also, multiple fallbacks, e.g. tab background-color: {{backgroundAlt|background|systemWindow}} */
+
+/* TODO: Can have bg for tab/tab bar but leave theme var only (optional) so it'll fall back to whatever default is in paint event */
+
+/* IN-PROGRESS: Actually used theme variables (add here, remove all others once done)
+
+- background
+- backgroundAlt
+
+*/
 
 /* BASE */
 
@@ -43,11 +52,14 @@ QTabBar::tab {
     border-radius: {{borderRadius}};
 }
 
+/* ALL BELOW WIP ========================================================================== */
+
 /* TRANSPARENCIES IN BASE (TODO: Add/rethink theme vars) */
 
-black10a = rgba(0, 0, 0, 10)
+/*black10a = rgba(0, 0, 0, 10)
 black20a = rgba(0, 0, 0, 20)
 
+/* TODO: Make these optional, so qpalette code will override if not present (no defaults!). Same for tabs! */
 Fernanda--TabWidgetButton,
 Fernanda--CollapsibleWidgetHeader {
     qproperty-backgroundColor: transparent;
@@ -67,11 +79,11 @@ QMenuBar::item:selected {
 QMenu::item:pressed,
 QMenuBar::item:pressed {
     background-color: {{black20a}};
-}
+}*/
 
 /* TODO: Undecided on tab state transparencies */
 
-QTabBar::tab {
+/*QTabBar::tab {
     background-color: transparent;
 }
 
@@ -81,11 +93,11 @@ QTabBar::tab:selected {
 
 QTabBar::tab:hover:!selected {
     background-color: {{black20a}};
-}
+}*/
 
 /* PARTIALLY BASE */
 
-borderBaseProperties = 1px solid
+/*borderBaseProperties = 1px solid
 border|black10a
 
 QMenuBar {
@@ -98,7 +110,7 @@ QStatusBar {
 
 QTabBar::tab:selected {
     border: {{borderBaseProperties}} {{border}};
-}
+}*/
 
 /* IN PROGRESS */
 
