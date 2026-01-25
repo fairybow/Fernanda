@@ -9,14 +9,15 @@
 //
 // clang-format off
 // 
-// base|#f5f5f5                           /* Global default (consumed, not output) */
+// base|#f5f5f5                              /* Global default (consumed, not output) */
+// light_blue = #0096ff
 // 
 // Widget {
-//     background-color: {{base}};        /* Will default to global base (`#f5f5f5`) */
-//     selection-color: {{base|#0000ff}}; /* Will default to `#0000ff` */
-//     text-color: {{text}};              /* Required (line removed if missing) */
-//     border: 1px solid {{border|}};     /* Optional (falls back to `1px solid;`) */
-//     border-radius: {{radius|0}}px;     /* Optional (falls back to `0`) */
+//     background-color: {{base}};           /* Will default to global base (`#f5f5f5`) */
+//     selection-color: {{base|light_blue}}; /* Will default to `#0096ff` */
+//     text-color: {{text}};                 /* Required (line removed if missing) */
+//     border: 1px solid {{border|}};        /* Optional (falls back to `1px solid;`) */
+//     border-radius: {{radius|0}}px;        /* Optional (falls back to `0`) */
 // }
 //
 // clang-format on
@@ -31,9 +32,12 @@ inline QString render(
     const QString& templateStyleSheet,
     const QHash<QString, QString>& assignments)
 {
-    // First pass: extract global defaults
+    // First pass: extract global defaults and template variables
     QRegularExpression global_default_re(R"(^\s*(\w+)\|(.*)$)");
+    QRegularExpression template_var_re(R"(^\s*(\w+)\s*=\s*(.*)$)");
+
     QHash<QString, QString> global_defaults{};
+    QHash<QString, QString> template_vars{};
     QStringList content_lines{};
 
     for (auto& line : templateStyleSheet.split('\n')) {
@@ -41,11 +45,21 @@ inline QString render(
         // A global default declaration is a line with just `varName|value` (no
         // `{{`/`}}`)
         if (!line.contains("{{")) {
-            auto match = global_default_re.match(line);
+            auto global_default_match = global_default_re.match(line);
 
-            if (match.hasMatch()) {
-                global_defaults[match.captured(1)] =
-                    match.captured(2).trimmed();
+            if (global_default_match.hasMatch()) {
+                global_defaults[global_default_match.captured(1)] =
+                    global_default_match.captured(2).trimmed();
+
+                // Consume line
+                continue;
+            }
+
+            auto var_match = template_var_re.match(line);
+
+            if (var_match.hasMatch()) {
+                template_vars[var_match.captured(1)] =
+                    var_match.captured(2).trimmed();
 
                 // Consume line
                 continue;
@@ -72,19 +86,26 @@ inline QString render(
             auto has_inline_fallback = match.capturedLength(2) > 0
                                        || match.captured(0).contains("|}}");
 
+            QString value{};
+
             if (assignments.contains(name) && !assignments[name].isEmpty()) {
-                processed.replace(match.captured(0), assignments[name]);
+                value = assignments[name];
 
             } else if (has_inline_fallback) {
-                processed.replace(match.captured(0), inline_fallback);
+                value = inline_fallback;
 
             } else if (global_defaults.contains(name)) {
-                processed.replace(match.captured(0), global_defaults[name]);
+                value = global_defaults[name];
 
             } else {
                 keep_line = false;
                 break;
             }
+
+            // Expand template variable references
+            if (template_vars.contains(value)) value = template_vars[value];
+
+            processed.replace(match.captured(0), value);
         }
 
         if (keep_line) qss_lines << processed;

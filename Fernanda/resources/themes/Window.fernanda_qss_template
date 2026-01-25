@@ -1,3 +1,8 @@
+backgroundAlt|red
+transparent = rgba(0, 0, 0, 0)
+low_opacity = rgba(0, 0, 0, 20)
+opaque = rgba(0, 0, 0, 30)
+
 QMainWindow {
     background-color: {{background}};
     color: {{text}};
@@ -38,9 +43,9 @@ QTabBar::tab:hover:!selected {
 }
 
 Fernanda--TabWidgetButton {
-    qproperty-backgroundColor: rgba(0, 0, 0, 0);
-    qproperty-hoverColor: {{accent|rgba(0, 0, 0, 20)}};
-    qproperty-pressedColor: {{border|rgba(0, 0, 0, 30)}};
+    qproperty-backgroundColor: transparent;
+    qproperty-hoverColor: {{accent|low_opacity}};
+    qproperty-pressedColor: {{border|opaque}};
 }
 
 QMenuBar {
