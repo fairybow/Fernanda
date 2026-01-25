@@ -3,6 +3,8 @@ opacity_1 = rgba(0, 0, 0, 20)
 opacity_2 = rgba(0, 0, 0, 30)
 opacity_3 = rgba(0, 0, 0, 40)
 
+border|opacity_0
+
 /* TODO: Add extra template vars for disabled text, disabled bg, pressed bg, hovered bg maybe (instead of using border everywhere, even if they are assigned same value) */
 /* TODO: Go through and remove (replace with "xx") dubious variable usages (like bgAlt and border) and decide what to replace with */
 
@@ -21,10 +23,6 @@ QTreeView {
     color: {{text}};
 }
 
-QTreeView::item:hover {
-    background: {{accent}};
-}
-
 QTabBar {
     background-color: {{backgroundAlt}};
 }
@@ -32,7 +30,7 @@ QTabBar {
 QTabBar::tab {
     background-color: {{background}};
     color: {{text}};
-    border: none;
+    border: 1px solid rgba(0, 0, 0, 5);
     border-radius: 4px;
     padding: 8px 16px;
 }
@@ -55,7 +53,7 @@ Fernanda--CollapsibleWidgetHeader {
 QMenuBar {
     background-color: {{backgroundAlt}};
     color: {{text}};
-    border-bottom: 1px solid {{border|opacity_0}};
+    border-bottom: 1px solid {{border}};
     padding: 6px;
 }
 
@@ -66,11 +64,11 @@ QMenuBar::item {
 }
 
 QMenuBar::item:selected {
-    background-color: {{accent}};
+    background-color: {{opacity_0}};
 }
 
 QMenuBar::item:pressed {
-    background-color: {{border}};
+    background-color: {{opacity_1}};
 }
 
 QMenu {
@@ -87,11 +85,15 @@ QMenu::item {
 }
 
 QMenu::item:selected {
-    background-color: {{accent}};
+    background-color: {{opacity_0}};
+}
+
+QMenu::item:pressed {
+    background-color: {{opacity_1}};
 }
 
 QMenu::item:disabled {
-    color: {{border}};
+    color: {{disabledText}};
 }
 
 QMenu::separator {
@@ -101,7 +103,7 @@ QMenu::separator {
 }
 
 QStatusBar {
-    border-top: 1px solid {{border|opacity_0}};
+    border-top: 1px solid {{border}};
 }
 
 QSizeGrip {
