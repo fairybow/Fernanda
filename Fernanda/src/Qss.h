@@ -1,3 +1,12 @@
+/*
+ * Fernanda  Copyright (C) 2025-2026  fairybow
+ *
+ * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
+ * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
+ *
+ * Uses Qt 6 - <https://www.qt.io/>
+ */
+
 #pragma once
 
 #include <QHash>
@@ -96,6 +105,9 @@ inline QString render(
 
             } else if (global_defaults.contains(name)) {
                 value = global_defaults[name];
+
+            } else if (template_vars.contains(name)) {
+                value = template_vars[name];
 
             } else {
                 keep_line = false;

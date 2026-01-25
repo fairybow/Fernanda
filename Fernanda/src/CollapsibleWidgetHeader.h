@@ -10,9 +10,9 @@
 #pragma once
 
 #include <QAbstractButton>
+#include <QColor>
 #include <QEnterEvent>
 #include <QEvent>
-#include <QHash>
 #include <QObject>
 #include <QPaintEvent>
 #include <QPainter>
@@ -23,13 +23,12 @@
 #include <QRect>
 #include <QSize>
 #include <QString>
-#include <QSvgRenderer>
 
 #include "Debug.h"
 #include "StyleContext.h"
+#include "Ui.h"
 
 // TODO: Verify this
-// TODO: Combine any common SVG code from TabWidgetButton into namespace
 namespace Fernanda {
 
 // Header button for CollapsibleWidget with SVG icon support and text display.
@@ -37,8 +36,14 @@ namespace Fernanda {
 class CollapsibleWidgetHeader : public QAbstractButton
 {
     Q_OBJECT
+    Q_PROPERTY(
+        QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
+    Q_PROPERTY(QColor hoverColor READ hoverColor WRITE setHoverColor)
+    Q_PROPERTY(QColor pressedColor READ pressedColor WRITE setPressedColor)
 
 public:
+    DECLARE_UI_BUTTON_COLOR_ACCESSORS(buttonColors_)
+
     explicit CollapsibleWidgetHeader(QWidget* parent = nullptr)
         : QAbstractButton(parent)
     {
@@ -105,8 +110,9 @@ protected:
         // Draw hover/press background
         drawBackground_(painter, widget_rect);
 
-        // Get icon from ProxyStyle
-        auto icon = isChecked() ? UiIcon::ChevronDown : UiIcon::ChevronRight;
+        // Get icon from StyleContext
+        auto icon =
+            isChecked() ? Ui::Icon::ChevronDown : Ui::Icon::ChevronRight;
         auto pixmap = StyleContext::icon(this, icon, iconSize_);
         if (!pixmap.isNull()) {
             auto logical_size = pixmap.deviceIndependentSize();
@@ -132,6 +138,8 @@ private:
     QSize iconSize_{ 16, 16 };
     int spacing_ = 5;
 
+    Ui::ButtonColors buttonColors_{};
+
     void setup_()
     {
         setCheckable(true);
@@ -142,10 +150,8 @@ private:
 
     void drawBackground_(QPainter& painter, const QRect& rect) const
     {
-        auto pressed = isDown();
-        auto under_mouse = underMouse();
-
-        if (!pressed && !under_mouse) return;
+        auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
+        if (!bg.isValid() || bg.alpha() <= 0) return;
 
         QPainterPath path{};
         auto highlight_rect = rect.adjusted(
@@ -158,11 +164,7 @@ private:
             HIGHLIGHT_CORNER_RADIUS_,
             HIGHLIGHT_CORNER_RADIUS_);
 
-        /// TODO STYLE: Use qproperty, like TabWidgetButton, for styling
-        /// hover/pressed
-        auto highlight = palette().color(QPalette::Highlight);
-        highlight.setAlpha(isDown() ? 60 : 30);
-        painter.fillPath(path, highlight);
+        painter.fillPath(path, bg);
     }
 };
 

@@ -15,3 +15,4 @@
 #define DECLARE_HOOK_ACCESSORS(Type, GetterName, SetterName, MemberName) Type GetterName() const noexcept { return MemberName; } void SetterName(const Type& hook) { MemberName = hook; } template <typename ClassT, typename ReturnT, typename... Args> void SetterName(ClassT* object, ReturnT (ClassT::*hook)(Args...)) { MemberName = [object, hook](Args... args) -> ReturnT { return (object->*hook)(std::forward<Args>(args)...); }; }
 #define Q_PROPERTY(__VA_ARGS__) QT_ANNOTATE_CLASS(qt_property, __VA_ARGS__)
 #define Q_PROPERTY(text) Q_PROPERTY(text)
+#define TRACER INFO(__FUNCTION__)

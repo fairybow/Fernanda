@@ -19,7 +19,6 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
-#include <QPalette>
 #include <QPixmap>
 #include <QPointF>
 #include <QRect>
@@ -28,6 +27,7 @@
 
 #include "Debug.h"
 #include "StyleContext.h"
+#include "Ui.h"
 
 namespace Fernanda {
 
@@ -42,6 +42,8 @@ class TabWidgetButton : public QAbstractButton
     Q_PROPERTY(QColor pressedColor READ pressedColor WRITE setPressedColor)
 
 public:
+    DECLARE_UI_BUTTON_COLOR_ACCESSORS(buttonColors_)
+
     explicit TabWidgetButton(QWidget* parent = nullptr)
         : QAbstractButton(parent)
     {
@@ -59,17 +61,17 @@ public:
         update();
     }
 
-    std::optional<UiIcon> icon() const noexcept { return icon_; }
+    std::optional<Ui::Icon> icon() const noexcept { return icon_; }
 
-    void setIcon(UiIcon icon)
+    void setIcon(Ui::Icon icon)
     {
         icon_ = icon;
         update();
     }
 
-    std::optional<UiIcon> flagIcon() const noexcept { return flagIcon_; }
+    std::optional<Ui::Icon> flagIcon() const noexcept { return flagIcon_; }
 
-    void setFlagIcon(UiIcon icon)
+    void setFlagIcon(Ui::Icon icon)
     {
         flagIcon_ = icon;
         update();
@@ -81,30 +83,6 @@ public:
     {
         if (iconSize_ == size) return;
         iconSize_ = size;
-        update();
-    }
-
-    QColor backgroundColor() const { return backgroundColor_; }
-    void setBackgroundColor(const QColor& color)
-    {
-        if (backgroundColor_ == color) return;
-        backgroundColor_ = color;
-        update();
-    }
-
-    QColor hoverColor() const { return hoverColor_; }
-    void setHoverColor(const QColor& color)
-    {
-        if (hoverColor_ == color) return;
-        hoverColor_ = color;
-        update();
-    }
-
-    QColor pressedColor() const { return pressedColor_; }
-    void setPressedColor(const QColor& color)
-    {
-        if (pressedColor_ == color) return;
-        pressedColor_ = color;
         update();
     }
 
@@ -132,12 +110,7 @@ protected:
         auto widget_rect = rect();
 
         // Determine current background color
-        QColor bg = backgroundColor_;
-        if (isDown() && pressedColor_.isValid()) {
-            bg = pressedColor_;
-        } else if (underMouse() && hoverColor_.isValid()) {
-            bg = hoverColor_;
-        }
+        auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
 
         // Draw background
         if (bg.isValid() && bg.alpha() > 0) {
@@ -168,14 +141,12 @@ private:
     static constexpr auto HIGHLIGHT_CORNER_RADIUS_ = 4;
     static constexpr auto HIGHLIGHT_INSET_ = 2;
 
-    std::optional<UiIcon> icon_{};
-    std::optional<UiIcon> flagIcon_{};
+    std::optional<Ui::Icon> icon_{};
+    std::optional<Ui::Icon> flagIcon_{};
     QSize iconSize_{ 16, 16 };
     bool flagged_ = false;
 
-    QColor backgroundColor_{ Qt::transparent };
-    QColor hoverColor_{ Qt::transparent };
-    QColor pressedColor_{ Qt::transparent };
+    Ui::ButtonColors buttonColors_{};
 
     void setup_()
     {
@@ -184,7 +155,7 @@ private:
         setAttribute(Qt::WA_Hover, true);
     }
 
-    std::optional<UiIcon> currentIcon_() const
+    std::optional<Ui::Icon> currentIcon_() const
     {
         if (flagged_ && flagIcon_ && !underMouse()) return flagIcon_;
         return icon_;

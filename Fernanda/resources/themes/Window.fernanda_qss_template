@@ -1,5 +1,3 @@
-backgroundAlt|red
-transparent = rgba(0, 0, 0, 0)
 low_opacity = rgba(0, 0, 0, 20)
 opaque = rgba(0, 0, 0, 30)
 
@@ -42,7 +40,8 @@ QTabBar::tab:hover:!selected {
     background-color: {{accent}};
 }
 
-Fernanda--TabWidgetButton {
+Fernanda--TabWidgetButton,
+Fernanda--CollapsibleWidgetHeader {
     qproperty-backgroundColor: transparent;
     qproperty-hoverColor: {{accent|low_opacity}};
     qproperty-pressedColor: {{border|opaque}};
