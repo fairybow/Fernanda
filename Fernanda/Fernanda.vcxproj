@@ -12,10 +12,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AboutDialog.cpp" />
+    <ClCompile Include="src\CollapsibleWidget.cpp" />
     <ClCompile Include="src\FnxModel.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\old_FnxModel.cpp" />
+    <ClCompile Include="src\TabWidget.cpp" />
     <ClCompile Include="src\TextFileView.cpp" />
+    <ClCompile Include="src\Themes.cpp" />
     <ClCompile Include="src\Tr.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\WindowService.cpp" />

@@ -47,7 +47,7 @@ inline const Coco::Path& defaultDocs()
     return dir;
 }
 
-// Cannot be called before QApplication has finished construction, since it
+// Cannot be called before Application has finished construction, since it
 // relies on Path::SystemDir functions, which only work once Qt is ready
 inline bool initialize()
 {

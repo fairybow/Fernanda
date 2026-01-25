@@ -144,6 +144,15 @@
     <ClCompile Include="src\AboutDialog.cpp">
       <Filter>Code\Core\UI\AboutDialog</Filter>
     </ClCompile>
+    <ClCompile Include="src\Themes.cpp">
+      <Filter>Code\Auxiliary\Modules\Style</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CollapsibleWidget.cpp">
+      <Filter>Code\Core\UI\AccordionWidget</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TabWidget.cpp">
+      <Filter>Code\Core\UI\TabWidget</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
