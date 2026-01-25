@@ -82,7 +82,7 @@ public:
 
         name_ = parsed.name;
 
-        // Extract iconColor separately (used by ProxyStyle, not QSS)
+        // Extract iconColor separately (used by StyleContext, not QSS)
         if (parsed.assignments.contains("iconColor")) {
             iconColor_ = QColor(parsed.assignments.take("iconColor"));
         }
@@ -104,10 +104,10 @@ private:
     QColor iconColor_{};
     QString qss_{};
 
-    QByteArray templateQss_() const
+    QString templateQss_() const
     {
-        static const auto data =
-            Io::read(":/themes/Window.fernanda_qss_template");
+        static const auto data = QString::fromUtf8(
+            Io::read(":/themes/Window.fernanda_qss_template"));
         return data;
     }
 };
@@ -139,10 +139,10 @@ private:
     QString name_{};
     QString qss_{};
 
-    QByteArray templateQss_() const
+    QString templateQss_() const
     {
-        static const auto data =
-            Io::read(":/themes/Editor.fernanda_qss_template");
+        static const auto data = QString::fromUtf8(
+            Io::read(":/themes/Editor.fernanda_qss_template"));
         return data;
     }
 };
