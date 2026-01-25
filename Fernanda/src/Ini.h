@@ -38,10 +38,7 @@ namespace Defaults {
         return f;
     }
 
-    inline QString windowTheme()
-    {
-        return ":/themes/Light.fernanda_window";
-    }
+    inline QString windowTheme() { return {}; }
 
     // TODO: Any way to get Coco::Path to work with QSettings?
     inline QString editorTheme()
