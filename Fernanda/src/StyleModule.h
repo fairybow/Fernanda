@@ -99,9 +99,8 @@ protected:
 private:
     static constexpr auto QRC_DIR_ = ":/themes/";
 
-    StyleContext* styleContext_ = new StyleContext(this);
-
     QSet<Window*> windows_{};
+    StyleContext* windowsStyleContext_ = new StyleContext(this);
     QList<WindowTheme> windowThemes_{};
     bool initialWindowThemeLoaded_ = false;
     Coco::Path currentWindowThemePath_{};
@@ -226,17 +225,15 @@ private:
         if (path != currentWindowThemePath_) return;
 
         auto theme = findTheme_(windowThemes_, path);
-        auto theme_valid = theme.isValid();
 
-        auto icon_color =
-            theme_valid ? theme.iconColor() : StyleContext::defaultIconColor();
-        styleContext_->setIconColor(icon_color);
-
-        auto qss = theme_valid ? theme.qss() : QString{};
+        auto icon_color = theme.hasIconColor()
+                              ? theme.iconColor()
+                              : StyleContext::defaultIconColor();
+        windowsStyleContext_->setIconColor(icon_color);
 
         for (auto& window : windows_) {
             if (!window) continue;
-            window->setStyleSheet(qss);
+            window->setStyleSheet(theme.qss());
         }
     }
 
@@ -245,13 +242,12 @@ private:
         if (path != currentEditorThemePath_) return;
 
         auto theme = findTheme_(editorThemes_, path);
-        auto qss = theme.isValid() ? theme.qss() : QString{};
 
         for (auto& view : textFileViews_) {
             if (!view) continue;
             auto editor = view->editor();
             if (!editor) continue;
-            editor->setStyleSheet(qss);
+            editor->setStyleSheet(theme.qss());
         }
     }
 
@@ -358,15 +354,13 @@ private slots:
             currentWindowThemePath_ = value.value<Coco::Path>();
 
             auto theme = findTheme_(windowThemes_, currentWindowThemePath_);
-            auto theme_valid = theme.isValid();
 
-            auto icon_color = theme_valid ? theme.iconColor()
-                                          : StyleContext::defaultIconColor();
-            styleContext_->setIconColor(icon_color);
+            auto icon_color = theme.hasIconColor()
+                                  ? theme.iconColor()
+                                  : StyleContext::defaultIconColor();
+            windowsStyleContext_->setIconColor(icon_color);
 
-            // Don't really need to do this, since an invalid theme will return
-            // an empty QString anyway, but perhaps its sensible...
-            auto qss = theme_valid ? theme.qss() : QString{};
+            auto qss = theme.qss();
             INFO("Setting window QSS: [{}]", qss);
 
             for (auto& window : windows_) {
@@ -379,7 +373,7 @@ private slots:
             currentEditorThemePath_ = value.value<Coco::Path>();
 
             auto theme = findTheme_(editorThemes_, currentEditorThemePath_);
-            auto qss = theme.isValid() ? theme.qss() : QString{};
+            auto qss = theme.qss();
             INFO("Setting editor QSS: [{}]", qss);
 
             for (auto& view : textFileViews_) {
@@ -396,7 +390,7 @@ private slots:
     {
         if (!window) return;
 
-        styleContext_->attach(window);
+        windowsStyleContext_->attach(window);
         windows_ << window;
 
         // TODO: Search use of Window::destroyed and replace with this (also
@@ -416,16 +410,16 @@ private slots:
         }
 
         auto theme = findTheme_(windowThemes_, currentWindowThemePath_);
-        auto theme_valid = theme.isValid();
 
-        // Need to set this here in case a window is made before styleContext_
-        // has an icon color set (which happens at least on the first window)
-        auto icon_color =
-            theme_valid ? theme.iconColor() : StyleContext::defaultIconColor();
-        styleContext_->setIconColor(icon_color);
+        // Need to set this here in case a window is made before
+        // windowsStyleContext_ has an icon color set (which happens at least on
+        // the first window)
+        auto icon_color = theme.hasIconColor()
+                              ? theme.iconColor()
+                              : StyleContext::defaultIconColor();
+        windowsStyleContext_->setIconColor(icon_color);
 
-        auto qss = theme_valid ? theme.qss() : QString{};
-        window->setStyleSheet(qss);
+        window->setStyleSheet(theme.qss());
     }
 
     void onBusFileViewCreated_(AbstractFileView* fileView)
@@ -450,10 +444,9 @@ private slots:
         }
 
         auto theme = findTheme_(editorThemes_, currentEditorThemePath_);
-        auto qss = theme.isValid() ? theme.qss() : QString{};
         auto editor = text_view->editor();
         if (!editor) return;
-        editor->setStyleSheet(qss);
+        editor->setStyleSheet(theme.qss());
     }
 };
 

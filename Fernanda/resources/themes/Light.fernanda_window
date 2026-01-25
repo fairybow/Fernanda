@@ -1,7 +1,11 @@
 {
   "name": "Light",
   "values": {
-    "iconColor": "#ff0000",
-    "text": "#fff"
+    "iconColor": "#505050",
+    "background": "#ffffff",
+    "backgroundAlt": "#f5f5f5",
+    "text": "#1a1a1a",
+    "border": "#d0d0d0",
+    "accent": "#e8e8e8"
   }
 }

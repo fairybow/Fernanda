@@ -263,10 +263,10 @@
     <None Include="resources\themes\Dark.fernanda_window">
       <Filter>Resources\Themes\Window</Filter>
     </None>
-    <None Include="resources\themes\Editor.qss.template">
+    <None Include="resources\themes\Editor.fernanda_qss_template">
       <Filter>Resources\Themes</Filter>
     </None>
-    <None Include="resources\themes\Window.qss.template">
+    <None Include="resources\themes\Window.fernanda_qss_template">
       <Filter>Resources\Themes</Filter>
     </None>
   </ItemGroup>
@@ -521,6 +521,9 @@
     </ClInclude>
     <ClInclude Include="src\Qss.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ui.h">
+      <Filter>Code\Core\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,0 @@
-QPlainTextEdit {
-    background-color: {{base}};
-    color: {{text}};
-    selection-background-color: {{highlight}};
-    selection-color: {{highlightedText}};
-}

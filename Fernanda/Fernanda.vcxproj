@@ -54,7 +54,7 @@
     <None Include="resources\themes\Amber.fernanda_editor" />
     <None Include="resources\themes\Blue.fernanda_editor" />
     <None Include="resources\themes\Dark.fernanda_window" />
-    <None Include="resources\themes\Editor.qss.template" />
+    <None Include="resources\themes\Editor.fernanda_qss_template" />
     <None Include="resources\themes\Green.fernanda_editor" />
     <None Include="resources\themes\Grey.fernanda_editor" />
     <None Include="resources\themes\Pocket (Alt).fernanda_editor" />
@@ -62,7 +62,7 @@
     <None Include="resources\themes\Snooze (Alt).fernanda_editor" />
     <None Include="resources\themes\Snooze.fernanda_editor" />
     <None Include="resources\themes\Light.fernanda_window" />
-    <None Include="resources\themes\Window.qss.template" />
+    <None Include="resources\themes\Window.fernanda_qss_template" />
     <None Include="resources\ui\ChevronDown.svg" />
     <None Include="resources\ui\ChevronLeft.svg" />
     <None Include="resources\ui\ChevronRight.svg" />
@@ -137,6 +137,7 @@
     <QtMoc Include="src\TreeViewService.h" />
     <ClInclude Include="src\AppDirs.h" />
     <ClInclude Include="src\TrashPrompt.h" />
+    <ClInclude Include="src\Ui.h" />
     <ClInclude Include="src\UpdateDialog.h" />
     <ClInclude Include="src\Version.h" />
     <QtMoc Include="src\Workspace.h" />

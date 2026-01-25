@@ -58,6 +58,7 @@
 #include "TabWidgetCloseButton.h"
 #include "TabWidgetTabBar.h"
 #include "TabWidgetUnderlay.h"
+#include "Ui.h"
 
 namespace Fernanda {
 
@@ -139,7 +140,7 @@ private:
         tabBar_->setMaximumTabWidth(MAX_TAB_WIDTH_);
         addButton_->setFixedSize(ADD_BUTTON_SIZE_);
         addButton_->setIconSize(BUTTON_SVG_SIZE_);
-        addButton_->setIcon(UiIcon::Plus);
+        addButton_->setIcon(Ui::Icon::Plus);
 
         // Populate
         mainStack_->setCurrentIndex(0);
@@ -397,8 +398,8 @@ private:
         auto close_button = new TabWidgetCloseButton(tabBar_);
         close_button->setFixedSize(CLOSE_BUTTON_SIZE_);
         close_button->setIconSize(BUTTON_SVG_SIZE_);
-        close_button->setIcon(UiIcon::X);
-        close_button->setFlagIcon(UiIcon::Dot);
+        close_button->setIcon(Ui::Icon::X);
+        close_button->setFlagIcon(Ui::Icon::Dot);
         closeButtons_ << close_button;
 
         tabBar_->setTabButton(index, QTabBar::RightSide, close_button);

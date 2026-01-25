@@ -26,19 +26,9 @@
 
 #include "Debug.h"
 #include "Io.h"
+#include "Ui.h"
 
 namespace Fernanda {
-
-enum class UiIcon
-{
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    ChevronUp,
-    Dot,
-    Plus,
-    X
-};
 
 class StyleContext : public QObject
 {
@@ -57,11 +47,12 @@ public:
 
     // Static API for widgets
 
-    static QPixmap icon(QWidget* widget, UiIcon type, const QSize& size)
+    static QPixmap icon(QWidget* widget, Ui::Icon type, const QSize& size)
     {
         auto context = forWidget_(widget);
         if (!context) return {};
-        return context->icon_(widget, type, size, widget->devicePixelRatio());
+
+        return context->icon_(type, size, widget->devicePixelRatio());
     }
 
     // TODO: Any other colors for widgets/things we want to be style-aware that
@@ -73,6 +64,8 @@ public:
     void attach(QWidget* window)
     {
         if (!window) return;
+
+        trackRequester_(window);
         window->setProperty(PROPERTY_KEY, QVariant::fromValue(this));
     }
 
@@ -95,7 +88,7 @@ private:
     QColor iconColor_{ DEFAULT_ICON_COLOR_ };
     // Cursor color, etc.
 
-    QHash<UiIcon, QString> iconRegistry_{};
+    QHash<Ui::Icon, QString> iconRegistry_{};
     mutable QHash<QString, QPixmap> iconCache_{};
     //...
 
@@ -103,13 +96,13 @@ private:
 
     void setup_()
     {
-        iconRegistry_[UiIcon::ChevronDown] = ":/ui/ChevronDown.svg";
-        iconRegistry_[UiIcon::ChevronLeft] = ":/ui/ChevronLeft.svg";
-        iconRegistry_[UiIcon::ChevronRight] = ":/ui/ChevronRight.svg";
-        iconRegistry_[UiIcon::ChevronUp] = ":/ui/ChevronUp.svg";
-        iconRegistry_[UiIcon::Dot] = ":/ui/Dot.svg";
-        iconRegistry_[UiIcon::Plus] = ":/ui/Plus.svg";
-        iconRegistry_[UiIcon::X] = ":/ui/X.svg";
+        iconRegistry_[Ui::Icon::ChevronDown] = ":/ui/ChevronDown.svg";
+        iconRegistry_[Ui::Icon::ChevronLeft] = ":/ui/ChevronLeft.svg";
+        iconRegistry_[Ui::Icon::ChevronRight] = ":/ui/ChevronRight.svg";
+        iconRegistry_[Ui::Icon::ChevronUp] = ":/ui/ChevronUp.svg";
+        iconRegistry_[Ui::Icon::Dot] = ":/ui/Dot.svg";
+        iconRegistry_[Ui::Icon::Plus] = ":/ui/Plus.svg";
+        iconRegistry_[Ui::Icon::X] = ":/ui/X.svg";
     }
 
     // TODO: Better/clearer name?
@@ -138,7 +131,7 @@ private:
             if (requester) requester->update();
     }
 
-    QString iconCacheKey_(UiIcon type, const QSize& size, qreal dpr) const
+    QString iconCacheKey_(Ui::Icon type, const QSize& size, qreal dpr) const
     {
         return QString("%1_%2x%3@%4_%5")
             .arg(static_cast<int>(type))
@@ -180,12 +173,9 @@ private:
         return pixmap;
     }
 
-    QPixmap
-    icon_(QWidget* requester, UiIcon type, const QSize& size, qreal dpr) const
+    QPixmap icon_(Ui::Icon type, const QSize& size, qreal dpr) const
     {
-        if (!requester || !size.isValid()) return {};
-
-        trackRequester_(requester);
+        if (!size.isValid()) return {};
 
         auto key = iconCacheKey_(type, size, dpr);
         if (iconCache_.contains(key)) return iconCache_[key];

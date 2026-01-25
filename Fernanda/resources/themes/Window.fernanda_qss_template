@@ -1,0 +1,104 @@
+low_opacity = rgba(0, 0, 0, 20)
+opaque = rgba(0, 0, 0, 30)
+
+QMainWindow {
+    background-color: {{background}};
+    color: {{text}};
+}
+
+QDockWidget::title {
+    background-color: {{backgroundAlt}};
+    padding: 6px;
+}
+
+QTreeView {
+    background-color: {{backgroundAlt}};
+    color: {{text}};
+}
+
+QTreeView::item:hover {
+    background: {{accent}};
+}
+
+QTabBar {
+    background-color: {{backgroundAlt}};
+}
+
+QTabBar::tab {
+    background-color: {{background}};
+    color: {{text}};
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+}
+
+QTabBar::tab:selected {
+    background-color: {{backgroundAlt}};
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: {{accent}};
+}
+
+Fernanda--TabWidgetButton,
+Fernanda--CollapsibleWidgetHeader {
+    qproperty-backgroundColor: transparent;
+    qproperty-hoverColor: {{accent|low_opacity}};
+    qproperty-pressedColor: {{border|opaque}};
+}
+
+QMenuBar {
+    background-color: {{backgroundAlt}};
+    color: {{text}};
+    border-bottom: 1px solid {{border}};
+    padding: 2px;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+QMenuBar::item:selected {
+    background-color: {{accent}};
+}
+
+QMenuBar::item:pressed {
+    background-color: {{border}};
+}
+
+QMenu {
+    background-color: {{background}};
+    color: {{text}};
+    border: 1px solid {{border}};
+    border-radius: 6px;
+    padding: 4px;
+}
+
+QMenu::item {
+    padding: 6px 24px 6px 12px;
+    border-radius: 4px;
+}
+
+QMenu::item:selected {
+    background-color: {{accent}};
+}
+
+QMenu::item:disabled {
+    color: {{border}};
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: {{border}};
+    margin: 4px 8px;
+}
+
+QStatusBar {
+    border-top: 1px solid {{border}};
+}
+
+QSizeGrip {
+    image: none;
+}
