@@ -1,5 +1,10 @@
-low_opacity = rgba(0, 0, 0, 20)
-opaque = rgba(0, 0, 0, 30)
+opacity_0 = rgba(0, 0, 0, 10)
+opacity_1 = rgba(0, 0, 0, 20)
+opacity_2 = rgba(0, 0, 0, 30)
+opacity_3 = rgba(0, 0, 0, 40)
+
+/* TODO: Add extra template vars for disabled text, disabled bg, pressed bg, hovered bg maybe (instead of using border everywhere, even if they are assigned same value) */
+/* TODO: Go through and remove (replace with "xx") dubious variable usages (like bgAlt and border) and decide what to replace with */
 
 QMainWindow {
     background-color: {{background}};
@@ -33,30 +38,30 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background-color: {{backgroundAlt}};
+    background-color: {{backgroundAlt|opacity_0}};
 }
 
 QTabBar::tab:hover:!selected {
-    background-color: {{accent}};
+    background-color: {{accent|opacity_1}};
 }
 
 Fernanda--TabWidgetButton,
 Fernanda--CollapsibleWidgetHeader {
     qproperty-backgroundColor: transparent;
-    qproperty-hoverColor: {{accent|low_opacity}};
-    qproperty-pressedColor: {{border|opaque}};
+    qproperty-hoverColor: {{accent|opacity_2}};
+    qproperty-pressedColor: {{border|opacity_3}};
 }
 
 QMenuBar {
     background-color: {{backgroundAlt}};
     color: {{text}};
-    border-bottom: 1px solid {{border}};
-    padding: 2px;
+    border-bottom: 1px solid {{border|opacity_0}};
+    padding: 6px;
 }
 
 QMenuBar::item {
     background-color: transparent;
-    padding: 6px 10px;
+    padding: 6px 12px;
     border-radius: 4px;
 }
 
@@ -96,7 +101,7 @@ QMenu::separator {
 }
 
 QStatusBar {
-    border-top: 1px solid {{border}};
+    border-top: 1px solid {{border|opacity_0}};
 }
 
 QSizeGrip {
