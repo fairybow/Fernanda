@@ -7,6 +7,7 @@ border|opacity_0
 
 /* TODO: Add extra template vars for disabled text, disabled bg, pressed bg, hovered bg maybe (instead of using border everywhere, even if they are assigned same value) */
 /* TODO: Go through and remove (replace with "xx") dubious variable usages (like bgAlt and border) and decide what to replace with */
+/* TODO: Split up by "completed"/"base" (maybe)/"in progress" */
 
 QMainWindow {
     background-color: {{background}};
