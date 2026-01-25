@@ -1,23 +1,24 @@
 /* TODO: Add extra template vars for disabled text, disabled bg, pressed bg, hovered bg maybe (instead of using border everywhere, even if they are assigned same value) */
 /* TODO: Go through and remove (replace with "xx") dubious variable usages (like bgAlt and border) and decide what to replace with */
 /* TODO: We want "base" QSS to be the pure units/measures and system colors with opacity for buttons/tabs/highlights */
+/* TODO: Transparent unselected tab would work but having only alpha for the selected tab won't. We can see the tab beneath it when moving! How do I get the system color? Seems impossible? I want to use variations of that instead? */
 
 /* BASE */
 
-border_radius = 4px
+borderRadius = 4px
 
 QDockWidget::title {
     padding: 6px;
 }
 
 QMenu {
-    border-radius: {{border_radius}};
+    border-radius: {{borderRadius}};
     padding: 4px;
 }
 
 QMenu::item {
     padding: 6px 24px 6px 12px;
-    border-radius: {{border_radius}};
+    border-radius: {{borderRadius}};
 }
 
 QMenu::separator {
@@ -31,7 +32,7 @@ QMenuBar {
 
 QMenuBar::item {
     padding: 6px 16px;
-    border-radius: {{border_radius}};
+    border-radius: {{borderRadius}};
 }
 
 QSizeGrip {
@@ -39,15 +40,13 @@ QSizeGrip {
 }
 
 QTabBar::tab {
-    border-radius: {{border_radius}};
+    border-radius: {{borderRadius}};
 }
 
 /* TRANSPARENCIES IN BASE (TODO: Add/rethink theme vars) */
 
-black_10a = rgba(0, 0, 0, 10)
-black_20a = rgba(0, 0, 0, 20)
-
-border|black_10a
+black10a = rgba(0, 0, 0, 10)
+black20a = rgba(0, 0, 0, 20)
 
 Fernanda--TabWidgetButton,
 Fernanda--CollapsibleWidgetHeader {
@@ -62,12 +61,12 @@ QMenuBar::item {
 
 QMenu::item:selected,
 QMenuBar::item:selected {
-    background-color: {{black_10a}};
+    background-color: {{black10a}};
 }
 
 QMenu::item:pressed,
 QMenuBar::item:pressed {
-    background-color: {{black_20a}};
+    background-color: {{black20a}};
 }
 
 /* TODO: Undecided on tab state transparencies */
@@ -77,16 +76,33 @@ QTabBar::tab {
 }
 
 QTabBar::tab:selected {
-    background-color: {{black_10a}};
+    background-color: {{black10a}};
 }
 
 QTabBar::tab:hover:!selected {
-    background-color: {{black_20a}};
+    background-color: {{black20a}};
+}
+
+/* PARTIALLY BASE */
+
+borderBaseProperties = 1px solid
+border|black10a
+
+QMenuBar {
+    border-bottom: {{borderBaseProperties}} {{border}};
+}
+
+QStatusBar {
+    border-top: {{borderBaseProperties}} {{border}};
+}
+
+QTabBar::tab:selected {
+    border: {{borderBaseProperties}} {{border}};
 }
 
 /* IN PROGRESS */
 
-QDockWidget::title {
+/*QDockWidget::title {
     background-color: {{backgroundAlt}};
 }
 
@@ -99,7 +115,6 @@ QMenu,
 QMenuBar {
     background-color: {{background}};
     color: {{text}};
-    border-bottom: 1px solid {{border}};
 }
 
 QMenu::item:disabled {
@@ -110,10 +125,6 @@ QMenu::separator {
     background-color: {{border}};
 }
 
-QStatusBar {
-    border-top: 1px solid {{border}};
-}
-
 QTabBar {
     background-color: {{backgroundAlt}};
 }
@@ -122,11 +133,7 @@ QTabBar::tab {
     color: {{text}};
 }
 
-QTabBar::tab:selected {
-    border: 1px solid {{border}};
-}
-
 QTreeView {
     background-color: {{backgroundAlt}};
     color: {{text}};
-}
+}*/
