@@ -52,8 +52,8 @@ border|black_10a
 Fernanda--TabWidgetButton,
 Fernanda--CollapsibleWidgetHeader {
     qproperty-backgroundColor: transparent;
-    qproperty-hoverColor: {{accent|rgba(0, 0, 0, 30)}};
-    qproperty-pressedColor: {{border|rgba(0, 0, 0, 40)}};
+    qproperty-hoverColor: rgba(0, 0, 0, 30);
+    qproperty-pressedColor: rgba(0, 0, 0, 40);
 }
 
 QMenuBar::item {
@@ -70,12 +70,18 @@ QMenuBar::item:pressed {
     background-color: {{black_20a}};
 }
 
+/* TODO: Undecided on tab state transparencies */
+
+QTabBar::tab {
+    background-color: transparent;
+}
+
 QTabBar::tab:selected {
-    background-color: {{backgroundAlt|black_10a}};
+    background-color: {{black_10a}};
 }
 
 QTabBar::tab:hover:!selected {
-    background-color: {{accent|black_20a}};
+    background-color: {{black_20a}};
 }
 
 /* IN PROGRESS */
@@ -93,7 +99,7 @@ QMenu,
 QMenuBar {
     background-color: {{background}};
     color: {{text}};
-    border: 1px solid {{border}};
+    border-bottom: 1px solid {{border}};
 }
 
 QMenu::item:disabled {
@@ -113,9 +119,11 @@ QTabBar {
 }
 
 QTabBar::tab {
-    background-color: {{background}};
     color: {{text}};
-    border: 1px solid rgba(0, 0, 0, 5);
+}
+
+QTabBar::tab:selected {
+    border: 1px solid {{border}};
 }
 
 QTreeView {
