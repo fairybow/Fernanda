@@ -11,7 +11,7 @@ QDockWidget::title {
 }
 
 QMenu {
-    border-radius: 6px;
+    border-radius: {{border_radius}};
     padding: 4px;
 }
 
