@@ -2,4 +2,11 @@ QSizeGrip {
     image: none;
 }
 
-/* ISSUES: QTabBar loses system colors (will have transparent tabs) when border radius is applied. Additionally, text stops following the tab drag animation when style is applied. */
+/*
+
+ISSUES:
+- QTabBar loses system colors (will have transparent tabs) when border radius is applied (or any style except background)
+- Additionally, text stops following the tab drag animation when style is applied. It'll just jump back and forth instead of sliding.
+- We'll need a way to handle button hover/press highlights for the custom buttons (TabWidgetButton and CollapsibleWidgetHeader) (maybe use StyleContext)
+- We may want a way to indicate that some sections of the base QSS should only be added when a theme is in effect (not default constructed theme) (cleanest solution may be clang-like "off" and "on" comments)
+*/
