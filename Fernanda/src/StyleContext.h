@@ -92,13 +92,9 @@ public:
     // Other setters...
 
 private:
-    static constexpr auto SVG_PLACEHOLDER_COLOR_ = "#404040";
-
-    static constexpr auto DEFAULT_ICON_COLOR_ = SVG_PLACEHOLDER_COLOR_;
-
-
-    QColor iconColor_{}; // TODO: Compute instead of having valid contructed color?
-
+    static constexpr auto SVG_PLACEHOLDER_COLOR_ = "#00ff00";
+    static constexpr auto DEFAULT_ICON_COLOR_ = "#404040";
+    QColor iconColor_{};
     QHash<Icon, QString> iconRegistry_{};
     mutable QHash<QString, QPixmap> iconCache_{};
     //...
