@@ -7,8 +7,7 @@
 
 /* IN-PROGRESS: Actually used theme variables (add here, remove all others once done)
 
-- background
-- backgroundAlt
+
 
 */
 
@@ -54,18 +53,21 @@ QTabBar::tab {
 
 /* ALL BELOW WIP ========================================================================== */
 
+Fernanda--TabWidgetButton,
+Fernanda--CollapsibleWidgetHeader {
+    qproperty-backgroundColor: {{xxx1}};
+    qproperty-hoverColor: {{xxx2}};
+    qproperty-pressedColor: {{xxx3}};
+}
+
+/* OLD ==================================================================================== */
 /* TRANSPARENCIES IN BASE (TODO: Add/rethink theme vars) */
 
 /*black10a = rgba(0, 0, 0, 10)
-black20a = rgba(0, 0, 0, 20)
+black20a = rgba(0, 0, 0, 20)*/
 
 /* TODO: Make these optional, so qpalette code will override if not present (no defaults!). Same for tabs! */
-Fernanda--TabWidgetButton,
-Fernanda--CollapsibleWidgetHeader {
-    qproperty-backgroundColor: transparent;
-    qproperty-hoverColor: rgba(0, 0, 0, 30);
-    qproperty-pressedColor: rgba(0, 0, 0, 40);
-}
+/*
 
 QMenuBar::item {
     background-color: transparent;
@@ -110,11 +112,9 @@ QStatusBar {
 
 QTabBar::tab:selected {
     border: {{borderBaseProperties}} {{border}};
-}*/
+}
 
-/* IN PROGRESS */
-
-/*QDockWidget::title {
+QDockWidget::title {
     background-color: {{backgroundAlt}};
 }
 

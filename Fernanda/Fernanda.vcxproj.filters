@@ -144,9 +144,6 @@
     <ClCompile Include="src\AboutDialog.cpp">
       <Filter>Code\Core\UI\AboutDialog</Filter>
     </ClCompile>
-    <ClCompile Include="src\Themes.cpp">
-      <Filter>Code\Auxiliary\Modules\Style</Filter>
-    </ClCompile>
     <ClCompile Include="src\CollapsibleWidget.cpp">
       <Filter>Code\Core\UI\AccordionWidget</Filter>
     </ClCompile>

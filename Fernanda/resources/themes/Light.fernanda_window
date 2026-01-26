@@ -2,9 +2,13 @@
   "name": "Light",
   "values": {
     "iconColor": "#505050",
+
+    "xxx1": "red",
+    "xxx2": "green",
+    "xxx3": "blue",
+
     "background": "#ffffff",
     "backgroundAlt": "#f5f5f5",
-
     "text": "#1a1a1a",
     "disabledText": "#d0d0d0",
     "border": "#d0d0d0",
