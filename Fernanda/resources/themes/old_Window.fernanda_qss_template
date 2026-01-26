@@ -1,3 +1,8 @@
+
+New plan: potentially remove window themes entirely for now. Leave icon color code but note. Also need to note that we may want to use StyleContext for luminance-aware highlights?
+
+==============================================================================
+
 /* TODO: Add extra template vars for disabled text, disabled bg, pressed bg, hovered bg maybe (instead of using border everywhere, even if they are assigned same value) */
 /* TODO: Go through and remove (replace with "xx") dubious variable usages (like bgAlt and border) and decide what to replace with */
 /* TODO: We want "base" QSS to be the pure units/measures and system colors with opacity for buttons/tabs/highlights */
@@ -52,9 +57,7 @@ QMenuBar::item {
     border-radius: {{borderRadius}};
 }
 
-QSizeGrip {
-    image: none;
-}
+// size grip removed
 
 QTabBar::tab {
     border-radius: {{borderRadius}};
