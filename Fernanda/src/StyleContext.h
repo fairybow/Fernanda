@@ -26,7 +26,6 @@
 
 #include "Debug.h"
 #include "Io.h"
-#include "Ui.h"
 
 namespace Fernanda {
 
@@ -36,6 +35,17 @@ class StyleContext : public QObject
 
 public:
     static constexpr auto PROPERTY_KEY = "_styleContext";
+
+    enum class Icon
+    {
+        ChevronDown,
+        ChevronLeft,
+        ChevronRight,
+        ChevronUp,
+        Dot,
+        Plus,
+        X
+    };
 
     explicit StyleContext(QObject* parent = nullptr)
         : QObject(parent)
@@ -47,7 +57,7 @@ public:
 
     // Static API for widgets
 
-    static QPixmap icon(QWidget* widget, Ui::Icon type, const QSize& size)
+    static QPixmap icon(QWidget* widget, Icon type, const QSize& size)
     {
         auto context = forWidget_(widget);
         if (!context) return {};
@@ -83,12 +93,21 @@ public:
 
 private:
     static constexpr auto SVG_PLACEHOLDER_COLOR_ = "#404040";
+
     static constexpr auto DEFAULT_ICON_COLOR_ = SVG_PLACEHOLDER_COLOR_;
+    static constexpr qreal SUBTLE_HOVER_STRENGTH = 0.04; // 10 alpha
+    static constexpr qreal SUBTLE_PRESSED_STRENGTH = 0.08; // 20 alpha
+    static constexpr qreal STRONG_HOVER_STRENGTH = 0.12; // 30 alpha
+    static constexpr qreal STRONG_PRESSED_STRENGTH = 0.16; // 40 alpha
 
-    QColor iconColor_{ DEFAULT_ICON_COLOR_ };
-    // Cursor color, etc.
 
-    QHash<Ui::Icon, QString> iconRegistry_{};
+    QColor iconColor_{}; // TODO: Compute instead of having valid contructed color?
+    QColor subtleHover_{};
+    QColor subtlePressed_{};
+    QColor strongHover_{};
+    QColor strongPressed_{};
+
+    QHash<Icon, QString> iconRegistry_{};
     mutable QHash<QString, QPixmap> iconCache_{};
     //...
 
@@ -96,13 +115,13 @@ private:
 
     void setup_()
     {
-        iconRegistry_[Ui::Icon::ChevronDown] = ":/ui/ChevronDown.svg";
-        iconRegistry_[Ui::Icon::ChevronLeft] = ":/ui/ChevronLeft.svg";
-        iconRegistry_[Ui::Icon::ChevronRight] = ":/ui/ChevronRight.svg";
-        iconRegistry_[Ui::Icon::ChevronUp] = ":/ui/ChevronUp.svg";
-        iconRegistry_[Ui::Icon::Dot] = ":/ui/Dot.svg";
-        iconRegistry_[Ui::Icon::Plus] = ":/ui/Plus.svg";
-        iconRegistry_[Ui::Icon::X] = ":/ui/X.svg";
+        iconRegistry_[Icon::ChevronDown] = ":/ui/ChevronDown.svg";
+        iconRegistry_[Icon::ChevronLeft] = ":/ui/ChevronLeft.svg";
+        iconRegistry_[Icon::ChevronRight] = ":/ui/ChevronRight.svg";
+        iconRegistry_[Icon::ChevronUp] = ":/ui/ChevronUp.svg";
+        iconRegistry_[Icon::Dot] = ":/ui/Dot.svg";
+        iconRegistry_[Icon::Plus] = ":/ui/Plus.svg";
+        iconRegistry_[Icon::X] = ":/ui/X.svg";
     }
 
     // TODO: Better/clearer name?
@@ -131,7 +150,7 @@ private:
             if (requester) requester->update();
     }
 
-    QString iconCacheKey_(Ui::Icon type, const QSize& size, qreal dpr) const
+    QString iconCacheKey_(Icon type, const QSize& size, qreal dpr) const
     {
         return QString("%1_%2x%3@%4_%5")
             .arg(static_cast<int>(type))
@@ -173,7 +192,7 @@ private:
         return pixmap;
     }
 
-    QPixmap icon_(Ui::Icon type, const QSize& size, qreal dpr) const
+    QPixmap icon_(Icon type, const QSize& size, qreal dpr) const
     {
         if (!size.isValid()) return {};
 

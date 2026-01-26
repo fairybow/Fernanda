@@ -26,7 +26,6 @@
 
 #include "Debug.h"
 #include "StyleContext.h"
-#include "Ui.h"
 
 // TODO: Verify this
 namespace Fernanda {
@@ -36,14 +35,8 @@ namespace Fernanda {
 class CollapsibleWidgetHeader : public QAbstractButton
 {
     Q_OBJECT
-    Q_PROPERTY(
-        QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
-    Q_PROPERTY(QColor hoverColor READ hoverColor WRITE setHoverColor)
-    Q_PROPERTY(QColor pressedColor READ pressedColor WRITE setPressedColor)
 
 public:
-    DECLARE_UI_BUTTON_COLOR_ACCESSORS(buttonColors_)
-
     explicit CollapsibleWidgetHeader(QWidget* parent = nullptr)
         : QAbstractButton(parent)
     {
@@ -111,8 +104,8 @@ protected:
         drawBackground_(painter, widget_rect);
 
         // Get icon from StyleContext
-        auto icon =
-            isChecked() ? Ui::Icon::ChevronDown : Ui::Icon::ChevronRight;
+        auto icon = isChecked() ? StyleContext::Icon::ChevronDown
+                                : StyleContext::Icon::ChevronRight;
         auto pixmap = StyleContext::icon(this, icon, iconSize_);
         if (!pixmap.isNull()) {
             auto logical_size = pixmap.deviceIndependentSize();
@@ -138,8 +131,6 @@ private:
     QSize iconSize_{ 16, 16 };
     int spacing_ = 5;
 
-    Ui::ButtonColors buttonColors_{};
-
     void setup_()
     {
         setCheckable(true);
@@ -150,8 +141,8 @@ private:
 
     void drawBackground_(QPainter& painter, const QRect& rect) const
     {
-        auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
-        if (!bg.isValid() || bg.alpha() <= 0) return;
+        //auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
+        //if (!bg.isValid() || bg.alpha() <= 0) return;
 
         QPainterPath path{};
         auto highlight_rect = rect.adjusted(
@@ -164,7 +155,7 @@ private:
             HIGHLIGHT_CORNER_RADIUS_,
             HIGHLIGHT_CORNER_RADIUS_);
 
-        painter.fillPath(path, bg);
+        //painter.fillPath(path, bg);
     }
 };
 

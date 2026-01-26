@@ -3,7 +3,17 @@
 /* TODO: We want "base" QSS to be the pure units/measures and system colors with opacity for buttons/tabs/highlights */
 /* TODO: Need system variables that can't be changed by users? Also, multiple fallbacks, e.g. tab background-color: {{backgroundAlt|background|systemWindow}} */
 
-/* TODO: Can have bg for tab/tab bar but leave theme var only (optional) so it'll fall back to whatever default is in paint event */
+/* TODO: Add style context to tab painting for highlights or var colors!
+
+previously assigned bgs:
+button hover = rgba(0, 0, 0, 30)
+button pressed = rgba(0, 0, 0, 40)
+menu/menubar selected (hover) = rgba(0, 0, 0, 10)
+menu/menubar pressed = rgba(0, 0, 0, 20)
+tab selected = rgba(0, 0, 0, 10)
+tab hover (and not selected) = rgba(0, 0, 0, 20)
+
+*/
 
 /* IN-PROGRESS: Actually used theme variables (add here, remove all others once done)
 
@@ -53,12 +63,13 @@ QTabBar::tab {
 
 /* ALL BELOW WIP ========================================================================== */
 
-Fernanda--TabWidgetButton,
-Fernanda--CollapsibleWidgetHeader {
-    qproperty-backgroundColor: {{xxx1}};
-    qproperty-hoverColor: {{xxx2}};
-    qproperty-pressedColor: {{xxx3}};
+QTabBar::tab {
+    background-color: red;
 }
+
+
+
+
 
 /* OLD ==================================================================================== */
 /* TRANSPARENCIES IN BASE (TODO: Add/rethink theme vars) */
@@ -85,10 +96,7 @@ QMenuBar::item:pressed {
 
 /* TODO: Undecided on tab state transparencies */
 
-/*QTabBar::tab {
-    background-color: transparent;
-}
-
+/*
 QTabBar::tab:selected {
     background-color: {{black10a}};
 }

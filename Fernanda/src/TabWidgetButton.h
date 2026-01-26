@@ -27,7 +27,6 @@
 
 #include "Debug.h"
 #include "StyleContext.h"
-#include "Ui.h"
 
 namespace Fernanda {
 
@@ -36,14 +35,8 @@ namespace Fernanda {
 class TabWidgetButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_PROPERTY(
-        QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
-    Q_PROPERTY(QColor hoverColor READ hoverColor WRITE setHoverColor)
-    Q_PROPERTY(QColor pressedColor READ pressedColor WRITE setPressedColor)
 
 public:
-    DECLARE_UI_BUTTON_COLOR_ACCESSORS(buttonColors_)
-
     explicit TabWidgetButton(QWidget* parent = nullptr)
         : QAbstractButton(parent)
     {
@@ -61,17 +54,20 @@ public:
         update();
     }
 
-    std::optional<Ui::Icon> icon() const noexcept { return icon_; }
+    std::optional<StyleContext::Icon> icon() const noexcept { return icon_; }
 
-    void setIcon(Ui::Icon icon)
+    void setIcon(StyleContext::Icon icon)
     {
         icon_ = icon;
         update();
     }
 
-    std::optional<Ui::Icon> flagIcon() const noexcept { return flagIcon_; }
+    std::optional<StyleContext::Icon> flagIcon() const noexcept
+    {
+        return flagIcon_;
+    }
 
-    void setFlagIcon(Ui::Icon icon)
+    void setFlagIcon(StyleContext::Icon icon)
     {
         flagIcon_ = icon;
         update();
@@ -110,10 +106,10 @@ protected:
         auto widget_rect = rect();
 
         // Determine current background color
-        auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
+        //auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
 
         // Draw background
-        if (bg.isValid() && bg.alpha() > 0) {
+        /*if (bg.isValid() && bg.alpha() > 0) {
             QPainterPath path;
             auto bg_rect = widget_rect.adjusted(
                 HIGHLIGHT_INSET_,
@@ -125,7 +121,7 @@ protected:
                 HIGHLIGHT_CORNER_RADIUS_,
                 HIGHLIGHT_CORNER_RADIUS_);
             painter.fillPath(path, bg);
-        }
+        }*/
 
         // Get icon from ProxyStyle
         auto icon = currentIcon_();
@@ -141,12 +137,10 @@ private:
     static constexpr auto HIGHLIGHT_CORNER_RADIUS_ = 4;
     static constexpr auto HIGHLIGHT_INSET_ = 2;
 
-    std::optional<Ui::Icon> icon_{};
-    std::optional<Ui::Icon> flagIcon_{};
+    std::optional<StyleContext::Icon> icon_{};
+    std::optional<StyleContext::Icon> flagIcon_{};
     QSize iconSize_{ 16, 16 };
     bool flagged_ = false;
-
-    Ui::ButtonColors buttonColors_{};
 
     void setup_()
     {
@@ -155,7 +149,7 @@ private:
         setAttribute(Qt::WA_Hover, true);
     }
 
-    std::optional<Ui::Icon> currentIcon_() const
+    std::optional<StyleContext::Icon> currentIcon_() const
     {
         if (flagged_ && flagIcon_ && !underMouse()) return flagIcon_;
         return icon_;
