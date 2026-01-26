@@ -59,6 +59,7 @@
     <None Include="resources\themes\Editor.fernanda_qss_template" />
     <None Include="resources\themes\Green.fernanda_editor" />
     <None Include="resources\themes\Grey.fernanda_editor" />
+    <None Include="resources\themes\old_Window.fernanda_qss_template" />
     <None Include="resources\themes\Pocket (Alt).fernanda_editor" />
     <None Include="resources\themes\Pocket.fernanda_editor" />
     <None Include="resources\themes\Snooze (Alt).fernanda_editor" />

@@ -141,10 +141,12 @@ private:
 
     void drawBackground_(QPainter& painter, const QRect& rect) const
     {
+        /// TODO STYLE: Fix!
+
         //auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
         //if (!bg.isValid() || bg.alpha() <= 0) return;
 
-        QPainterPath path{};
+        /*QPainterPath path{};
         auto highlight_rect = rect.adjusted(
             HIGHLIGHT_INSET_,
             HIGHLIGHT_INSET_,
@@ -153,7 +155,7 @@ private:
         path.addRoundedRect(
             highlight_rect,
             HIGHLIGHT_CORNER_RADIUS_,
-            HIGHLIGHT_CORNER_RADIUS_);
+            HIGHLIGHT_CORNER_RADIUS_);*/
 
         //painter.fillPath(path, bg);
     }

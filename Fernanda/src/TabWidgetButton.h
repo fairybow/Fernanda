@@ -105,6 +105,8 @@ protected:
 
         auto widget_rect = rect();
 
+        /// TODO STYLE: Fix!
+
         // Determine current background color
         //auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
 

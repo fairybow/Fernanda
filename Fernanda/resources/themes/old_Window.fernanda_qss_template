@@ -1,0 +1,161 @@
+/* TODO: Add extra template vars for disabled text, disabled bg, pressed bg, hovered bg maybe (instead of using border everywhere, even if they are assigned same value) */
+/* TODO: Go through and remove (replace with "xx") dubious variable usages (like bgAlt and border) and decide what to replace with */
+/* TODO: We want "base" QSS to be the pure units/measures and system colors with opacity for buttons/tabs/highlights */
+
+/* TODO: Need system variables that can't be changed by users? Also, multiple fallbacks, e.g. tab background-color: {{backgroundAlt|background|systemWindow}} */
+
+/* TODO: Add style context to tab painting for highlights or var colors!
+
+Moving forward, probably use StyleContext for button hover/press with theme vars, like icon color. For tab bar and tabs, I have no idea. For menus, not sure. We'd presumably also want window-luminance-aware hover/pressed values, which means StyleContext?
+
+Perhaps buttons can use StyleContext and tabs/menus can use computed QSS based on system colors?
+
+previously assigned bgs:
+button hover = rgba(0, 0, 0, 30)
+button pressed = rgba(0, 0, 0, 40)
+menu/menubar selected (hover) = rgba(0, 0, 0, 10)
+menu/menubar pressed = rgba(0, 0, 0, 20)
+tab selected = rgba(0, 0, 0, 10) - NB: Selected tab can't be transparent, because we'll see the tabs beneath it when dragging
+tab hover (and not selected) = rgba(0, 0, 0, 20)
+
+*/
+
+/* BASE */
+
+/*borderRadius = 4px
+
+QDockWidget::title {
+    padding: 6px;
+}
+
+QMenu {
+    border-radius: {{borderRadius}};
+    padding: 4px;
+}
+
+QMenu::item {
+    padding: 6px 24px 6px 12px;
+    border-radius: {{borderRadius}};
+}
+
+QMenu::separator {
+    height: 1px;
+    margin: 4px 8px;
+}
+
+QMenuBar {
+    padding: 2px;
+}
+
+QMenuBar::item {
+    padding: 6px 16px;
+    border-radius: {{borderRadius}};
+}
+
+QSizeGrip {
+    image: none;
+}
+
+QTabBar::tab {
+    border-radius: {{borderRadius}};
+}*/
+
+/* ALL BELOW WIP ========================================================================== */
+
+/*QTabBar::tab {
+    border: 2px solid red; /*test*/
+    background-color: transparent;
+}
+
+QTabBar::tab:selected {
+    background-color: grey;
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: rgba(0, 0, 0, 20);
+}
+*/
+
+
+/* OLD ==================================================================================== */
+
+/*black10a = rgba(0, 0, 0, 10)
+black20a = rgba(0, 0, 0, 20)
+
+QMenuBar::item {
+    background-color: transparent;
+}
+
+QMenu::item:selected,
+QMenuBar::item:selected {
+    background-color: {{black10a}};
+}
+
+QMenu::item:pressed,
+QMenuBar::item:pressed {
+    background-color: {{black20a}};
+}*/
+
+/* TODO: Undecided on tab state transparencies */
+
+/*
+QTabBar::tab:selected {
+    background-color: {{black10a}};
+}
+
+QTabBar::tab:hover:!selected {
+    background-color: {{black20a}};
+}*/
+
+/* PARTIALLY BASE */
+
+/*borderBaseProperties = 1px solid
+border|black10a
+
+QMenuBar {
+    border-bottom: {{borderBaseProperties}} {{border}};
+}
+
+QStatusBar {
+    border-top: {{borderBaseProperties}} {{border}};
+}
+
+QTabBar::tab:selected {
+    border: {{borderBaseProperties}} {{border}};
+}
+
+QDockWidget::title {
+    background-color: {{backgroundAlt}};
+}
+
+QMainWindow {
+    background-color: {{background}};
+    color: {{text}};
+}
+
+QMenu,
+QMenuBar {
+    background-color: {{background}};
+    color: {{text}};
+}
+
+QMenu::item:disabled {
+    color: {{disabledText}};
+}
+
+QMenu::separator {
+    background-color: {{border}};
+}
+
+QTabBar {
+    background-color: {{backgroundAlt}};
+}
+
+QTabBar::tab {
+    color: {{text}};
+}
+
+QTreeView {
+    background-color: {{backgroundAlt}};
+    color: {{text}};
+}*/

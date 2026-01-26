@@ -95,17 +95,9 @@ private:
     static constexpr auto SVG_PLACEHOLDER_COLOR_ = "#404040";
 
     static constexpr auto DEFAULT_ICON_COLOR_ = SVG_PLACEHOLDER_COLOR_;
-    static constexpr qreal SUBTLE_HOVER_STRENGTH = 0.04; // 10 alpha
-    static constexpr qreal SUBTLE_PRESSED_STRENGTH = 0.08; // 20 alpha
-    static constexpr qreal STRONG_HOVER_STRENGTH = 0.12; // 30 alpha
-    static constexpr qreal STRONG_PRESSED_STRENGTH = 0.16; // 40 alpha
 
 
     QColor iconColor_{}; // TODO: Compute instead of having valid contructed color?
-    QColor subtleHover_{};
-    QColor subtlePressed_{};
-    QColor strongHover_{};
-    QColor strongPressed_{};
 
     QHash<Icon, QString> iconRegistry_{};
     mutable QHash<QString, QPixmap> iconCache_{};
