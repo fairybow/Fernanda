@@ -11,7 +11,6 @@
 
 #include <functional>
 
-#include <QApplication>
 #include <QByteArray>
 #include <QColor>
 #include <QCursor>
@@ -58,7 +57,6 @@
 #include "TabWidgetCloseButton.h"
 #include "TabWidgetTabBar.h"
 #include "TabWidgetUnderlay.h"
-#include "Ui.h"
 
 namespace Fernanda {
 
@@ -140,7 +138,7 @@ private:
         tabBar_->setMaximumTabWidth(MAX_TAB_WIDTH_);
         addButton_->setFixedSize(ADD_BUTTON_SIZE_);
         addButton_->setIconSize(BUTTON_SVG_SIZE_);
-        addButton_->setIcon(Ui::Icon::Plus);
+        addButton_->setIcon(StyleContext::Icon::Plus);
 
         // Populate
         mainStack_->setCurrentIndex(0);
@@ -352,40 +350,7 @@ private:
     bool tabsClosable_ = true;
     QList<TabWidgetCloseButton*> closeButtons_{};
 
-    // TODO: Review/also use App
-    void updateMouseHoverAfterLayoutChange_()
-    {
-        // Get current global mouse position
-        auto global_mouse_pos = QCursor::pos();
-
-        // Find which widget is actually under the mouse now
-        auto widget_under_mouse = QApplication::widgetAt(global_mouse_pos);
-        auto close_button_under_mouse =
-            qobject_cast<TabWidgetCloseButton*>(widget_under_mouse);
-
-        // Update all close buttons' hover states
-        for (auto& button : closeButtons_) {
-            if (!button) continue;
-
-            if (button == close_button_under_mouse) {
-                // This button should be in hover state but might not be
-                if (!button->underMouse()) {
-                    auto local_pos = button->mapFromGlobal(global_mouse_pos);
-                    QEnterEvent enter_event(
-                        local_pos,
-                        local_pos,
-                        global_mouse_pos);
-                    QApplication::sendEvent(button, &enter_event);
-                }
-            } else {
-                // This button should not be in hover state
-                if (button->underMouse()) {
-                    QEvent leave_event(QEvent::Leave);
-                    QApplication::sendEvent(button, &leave_event);
-                }
-            }
-        }
-    }
+    void updateMouseHoverAfterLayoutChange_();
 
     TabWidgetCloseButton* closeButtonAt_(int index) const
     {
@@ -398,8 +363,8 @@ private:
         auto close_button = new TabWidgetCloseButton(tabBar_);
         close_button->setFixedSize(CLOSE_BUTTON_SIZE_);
         close_button->setIconSize(BUTTON_SVG_SIZE_);
-        close_button->setIcon(Ui::Icon::X);
-        close_button->setFlagIcon(Ui::Icon::Dot);
+        close_button->setIcon(StyleContext::Icon::X);
+        close_button->setFlagIcon(StyleContext::Icon::Dot);
         closeButtons_ << close_button;
 
         tabBar_->setTabButton(index, QTabBar::RightSide, close_button);
@@ -635,41 +600,7 @@ public:
         setAcceptDrops(draggable);
     }
 
-    virtual bool eventFilter(QObject* watched, QEvent* event) override
-    {
-        // Handle mouse events on the tab bar for dragging
-        if (tabsDraggable_ && watched == tabBar_) {
-            if (event->type() == QEvent::MouseButtonPress) {
-                auto mouse_event = static_cast<QMouseEvent*>(event);
-
-                if (mouse_event->button() == Qt::LeftButton)
-                    dragStartPosition_ = mouse_event->pos();
-            } else if (event->type() == QEvent::MouseMove) {
-                auto mouse_event = static_cast<QMouseEvent*>(event);
-
-                if (mouse_event->buttons() & Qt::LeftButton) {
-                    auto delta = mouse_event->pos() - dragStartPosition_;
-
-                    // Only start drag if we've moved far enough VERTICALLY.
-                    // This allows horizontal movement to use the tab bar's
-                    // natural reordering
-
-                    // This works well, may want to increase required distance.
-                    if (qAbs(delta.y())
-                        >= QApplication::startDragDistance() * 1.5) {
-                        auto index = tabBar_->tabAt(dragStartPosition_);
-
-                        if (index > -1) {
-                            startDrag_(index);
-                            return true; // Prevent further processing.
-                        }
-                    }
-                }
-            }
-        }
-
-        return QWidget::eventFilter(watched, event);
-    }
+    virtual bool eventFilter(QObject* watched, QEvent* event) override;
 
 signals:
     void tabDragged(const Location& old, const Location& now);
@@ -869,19 +800,7 @@ private:
         return new_index;
     }
 
-    bool isDesktopDrop_() const
-    {
-        auto final_pos = QCursor::pos();
-
-        // Check if mouse is over any application window
-        for (auto& widget : QApplication::topLevelWidgets())
-            if (auto window = qobject_cast<QWidget*>(widget))
-                if (window->isVisible()
-                    && window->geometry().contains(final_pos))
-                    return false; // Mouse is over an application window
-
-        return true; // Mouse is outside all application windows
-    }
+    bool isDesktopDrop_() const;
 
     QPixmap dragPixmap_(const QString& tabText) const
     {

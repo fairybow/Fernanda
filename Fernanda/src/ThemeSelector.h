@@ -84,6 +84,9 @@ private:
 
     void setup_(const InitialValues& initialValues)
     {
+        /// TODO STYLE: Temporarily disable user window themes
+        windowThemeBox_->setEnabled(false);
+
         // Populate window themes
         for (const auto& entry : initialValues.windowThemes) {
             windowThemeBox_->addItem(

@@ -38,6 +38,8 @@
 - [ ] Expanded/collapsed item restoration between sessions (will utilize sessions)
 - [ ] QML for tab bar (and possibly other components, for better/easier UI)?
 - [ ] For cross platform bit7z, look into vcpkg build, saving the .lib, .a, etc.
+- [ ] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
+- [ ] Remove tab size constraints in favor of QSS?
 
 ### Polish
 

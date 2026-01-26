@@ -144,6 +144,12 @@
     <ClCompile Include="src\AboutDialog.cpp">
       <Filter>Code\Core\UI\AboutDialog</Filter>
     </ClCompile>
+    <ClCompile Include="src\CollapsibleWidget.cpp">
+      <Filter>Code\Core\UI\AccordionWidget</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TabWidget.cpp">
+      <Filter>Code\Core\UI\TabWidget</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
@@ -521,9 +527,6 @@
     </ClInclude>
     <ClInclude Include="src\Qss.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Ui.h">
-      <Filter>Code\Core\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

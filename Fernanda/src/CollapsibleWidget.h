@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <QApplication>
 #include <QObject>
 #include <QSizePolicy>
 #include <QString>
@@ -100,25 +99,7 @@ private:
     }
 
 private slots:
-    void setContentExpanded_(bool expanded)
-    {
-        expanded_ = expanded;
-        content_->setMaximumHeight(expanded ? QWIDGETSIZE_MAX : 0);
-
-        // Clear stale hover state after layout change
-        // TODO: Review/also use App
-        if (header_->underMouse()) {
-            QEvent leave_event(QEvent::Leave);
-            QApplication::sendEvent(header_, &leave_event);
-        }
-
-        header_->setChecked(
-            expanded); // This isn't needed now (since a checkable button sets
-                       // itself checked when pressed), but would be needed if
-                       // we programmatically changed expanded state
-
-        emit expandedChanged(expanded);
-    }
+    void setContentExpanded_(bool expanded);
 };
 
 } // namespace Fernanda
