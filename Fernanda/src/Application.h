@@ -13,6 +13,8 @@
 #include <QList>
 #include <QSessionManager>
 #include <QStringList>
+#include <QStyle>
+#include <QStyleFactory>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -208,6 +210,10 @@ private:
         setApplicationName(VERSION_APP_NAME_STRING);
         setApplicationVersion(VERSION_FULL_STRING);
         setQuitOnLastWindowClosed(false);
+
+        /// TODO STYLE:
+        // https://www.qt.io/blog/2012/10/30/cleaning-up-styles-in-qt5-and-adding-fusion
+        // setStyle(QStyleFactory::create("Fusion"));
 
         connect(
             this,

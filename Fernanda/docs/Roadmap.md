@@ -19,6 +19,7 @@
 ### Stretch
 
 - [x] Notebook Trash
+- [ ] Window Themes (theming infrastructure is in place, but window theming proving difficult (especially with tab bar, buttons, and collapsible widget header (see: window QSS template)))
 - [ ] MAYBE: Ensure "modules" are reactionary (ColorBars should probably stay a module, but, right now, it is called directly by Workspace)?
 - [x] Update check
 - [ ] Hide menu bar (key to toggle)
@@ -27,7 +28,6 @@
 - [ ] Spellcheck
 - [ ] Find and replace
 - [ ] Status bar tools (AOT, Timer, Screen)
-- [ ] Styling/themes
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Multi-file save prompt file name clicks raising relevant window/file view
 - [ ] Checkable export and compile feature with Dom tree
