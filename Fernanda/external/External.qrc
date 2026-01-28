@@ -2,5 +2,9 @@
     <qresource prefix="/">
         <file>7zip/7z.so</file>
         <file>7zip/7za.dll</file>
+        <file>mononoki/mononoki-Bold.otf</file>
+        <file>mononoki/mononoki-BoldItalic.otf</file>
+        <file>mononoki/mononoki-Italic.otf</file>
+        <file>mononoki/mononoki-Regular.otf</file>
     </qresource>
 </RCC>
