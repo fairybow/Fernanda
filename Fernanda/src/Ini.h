@@ -32,8 +32,8 @@ namespace Defaults {
 
     inline QFont font()
     {
-        QFont f("mononoki", 14);
-        f.setBold(false);
+        QFont f("mononoki", 18);
+        f.setBold(true);
         f.setItalic(false);
         return f;
     }

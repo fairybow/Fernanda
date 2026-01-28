@@ -16,6 +16,7 @@
 #include <QHBoxLayout>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -65,8 +66,20 @@ private:
     void setup_(int sizeMin, int sizeMax)
     {
         // Setup
-        QFontDatabase db{};
-        fontsBox_->addItems(db.families());
+        auto families = QFontDatabase::families();
+
+        // Filter out any family name metadata quirks
+        families.removeIf([](const QString& f) {
+            static const auto suffixes = { "Bold", "Italic", "Light",  "Medium",
+                                           "Thin", "Black",  "Regular" };
+            for (auto& suffix : suffixes)
+                if (f.endsWith(suffix, Qt::CaseInsensitive)) return true;
+
+            return false;
+        });
+
+        fontsBox_->addItems(families);
+
         boldCheckBox_->setTristate(false);
         italicCheckBox_->setTristate(false);
         sizeSlider_->setRange(sizeMin, sizeMax);

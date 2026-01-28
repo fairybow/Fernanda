@@ -10,9 +10,12 @@
 #pragma once
 
 #include <QApplication>
+#include <QFontDatabase>
 #include <QList>
 #include <QSessionManager>
 #include <QStringList>
+#include <QStyle>
+#include <QStyleFactory>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -49,6 +52,7 @@ public:
 
         Debug::initialize(); // TODO: Log file path
         if (!AppDirs::initialize()) FATAL("App directory creation failed!");
+        loadBundledFonts_();
 
         initializeNotepad_();
 
@@ -203,17 +207,35 @@ private:
 
     void setup_()
     {
+        // NB: Logging will not work in this function! (It's initialized in
+        // Application::initialize, called after construction)
+
         setOrganizationName(VERSION_AUTHOR_STRING);
         setOrganizationDomain(VERSION_DOMAIN);
         setApplicationName(VERSION_APP_NAME_STRING);
         setApplicationVersion(VERSION_FULL_STRING);
         setQuitOnLastWindowClosed(false);
 
+        /// TODO STYLE:
+        // https://www.qt.io/blog/2012/10/30/cleaning-up-styles-in-qt5-and-adding-fusion
+        // setStyle(QStyleFactory::create("Fusion"));
+
         connect(
             this,
             &Application::commitDataRequest,
             this,
             &Application::onCommitDataRequest_);
+    }
+
+    void loadBundledFonts_()
+    {
+        for (auto& path : { ":/mononoki/mononoki-Regular.otf",
+                            ":/mononoki/mononoki-Bold.otf",
+                            ":/mononoki/mononoki-Italic.otf",
+                            ":/mononoki/mononoki-BoldItalic.otf" }) {
+            if (QFontDatabase::addApplicationFont(path) < 0)
+                WARN("Failed to load font: {}", path);
+        }
     }
 
     void initializeNotepad_()
