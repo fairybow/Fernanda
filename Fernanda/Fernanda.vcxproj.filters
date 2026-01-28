@@ -263,17 +263,20 @@
     <None Include="resources\themes\Snooze.fernanda_editor">
       <Filter>Resources\Themes\Editor</Filter>
     </None>
-    <None Include="resources\themes\Light.fernanda_window">
-      <Filter>Resources\Themes\Window</Filter>
-    </None>
-    <None Include="resources\themes\Dark.fernanda_window">
-      <Filter>Resources\Themes\Window</Filter>
-    </None>
     <None Include="resources\themes\Editor.fernanda_qss_template">
       <Filter>Resources\Themes</Filter>
     </None>
     <None Include="resources\themes\Window.fernanda_qss_template">
       <Filter>Resources\Themes</Filter>
+    </None>
+    <None Include="resources\themes\old_Dark.fernanda_window">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="resources\themes\old_Light.fernanda_window">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="resources\themes\old_Window.fernanda_qss_template">
+      <Filter>Old %28Remove Later%29</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

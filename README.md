@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="#"><img src="Fernanda/resources/banner/Readme Banner.png" alt="ASCII banner" width="640"></a>
+    <img src="Fernanda/resources/banner/Readme Banner.png" alt="ASCII banner" width="640">
 </p>
 <p align="center"><b>A plain text editor for drafting long-form fiction</b></p>
 <p align="center">
