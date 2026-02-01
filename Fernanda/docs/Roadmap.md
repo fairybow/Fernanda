@@ -19,6 +19,7 @@
 ### Stretch
 
 - [x] Notebook Trash
+- [ ] Trim extra spaces after paragraphs on save (before saving)
 - [ ] Window Themes (theming infrastructure is in place, but window theming proving difficult (especially with tab bar, buttons, and collapsible widget header (see: window QSS template)))
 - [ ] MAYBE: Ensure "modules" are reactionary (ColorBars should probably stay a module, but, right now, it is called directly by Workspace)?
 - [x] Update check

@@ -34,6 +34,7 @@ namespace Fernanda {
 // one after we press non-space key)
 // TODO: Trim spaces before and after paragraphs (not new lines/returns)
 // TODO: Document these with examples!
+// TODO: Allow hitting enter when against closing punc to barge the closing punc?
 class KeyFilter : public QObject
 {
     Q_OBJECT
