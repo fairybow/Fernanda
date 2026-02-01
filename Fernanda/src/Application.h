@@ -216,10 +216,6 @@ private:
         setApplicationVersion(VERSION_FULL_STRING);
         setQuitOnLastWindowClosed(false);
 
-        /// TODO STYLE:
-        // https://www.qt.io/blog/2012/10/30/cleaning-up-styles-in-qt5-and-adding-fusion
-        // setStyle(QStyleFactory::create("Fusion"));
-
         connect(
             this,
             &Application::commitDataRequest,

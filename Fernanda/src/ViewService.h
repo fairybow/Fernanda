@@ -562,6 +562,7 @@ private:
         tab_widget->setElideMode(Qt::ElideRight);
         // tab_widget->setDragValidator(this,
         // &ViewService::tabWidgetDragValidator_);
+        tab_widget->setTabsDraggable(true);
 
         window->setCentralWidget(tab_widget);
 

@@ -3,7 +3,6 @@ QSizeGrip {
 }
 
 /*
-
 ISSUES:
 - QTabBar loses system colors (will have transparent tabs) when border radius is applied (or any style except background)
 - Additionally, text stops following the tab drag animation when style is applied. It'll just jump back and forth instead of sliding.
