@@ -132,6 +132,16 @@ protected:
         MenuState* state,
         Window* window) = 0;
 
+    /// TODO TVT:
+    /// - Remove old temp hook(s)
+    /// - Add toggle-making functionality and slot connection to MenuBuilder
+    /// - Make view menu and TV toggle option in base class
+    /// - Separate Ini defaults for NP v NB
+    /// - Tie menu item checked state to that window's TV visibility state
+    /// - The written INI value serves as state for next opening window
+    /// - Leave it at that (no INI write for activated window or smart detection
+    /// of desired TV toggle state for now)
+
     /// TODO: Remove this and do TreeView toggling for all Workspaces
     virtual void temp_notepadViewMenuHook(
         MenuBuilder& builder,
