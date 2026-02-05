@@ -10,20 +10,20 @@
 #include "TextFileView.h"
 
 #include <QClipboard>
-#include <QPlainTextEdit>
 #include <QTextDocument>
 #include <QWidget>
 
 #include "AbstractFileModel.h"
 #include "Application.h"
 #include "KeyFilter.h"
+#include "PlainTextEdit.h"
 #include "TextFileModel.h"
 
 namespace Fernanda {
 
 QWidget* TextFileView::setupWidget()
 {
-    editor_ = new QPlainTextEdit(this);
+    editor_ = new PlainTextEdit(this);
     keyFilter_->setTextEdit(editor_);
 
     if (auto text_model = qobject_cast<TextFileModel*>(model()))
@@ -31,7 +31,7 @@ QWidget* TextFileView::setupWidget()
     else
         FATAL("Could not set editor document!");
 
-    connect(editor_, &QPlainTextEdit::selectionChanged, this, [&] {
+    connect(editor_, &PlainTextEdit::selectionChanged, this, [&] {
         emit selectionChanged();
     });
 

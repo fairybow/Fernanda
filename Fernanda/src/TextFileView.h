@@ -11,7 +11,6 @@
 
 #include <QFont>
 #include <QObject>
-#include <QPlainTextEdit>
 #include <QTextCursor>
 #include <QTextOption>
 #include <QWidget>
@@ -21,11 +20,12 @@
 #include "AbstractFileView.h"
 #include "Debug.h"
 #include "KeyFilter.h"
+#include "PlainTextEdit.h"
 #include "TextFileModel.h"
 
 namespace Fernanda {
 
-// Text editing view using QPlainTextEdit for content display and editing
+// Text editing view using PlainTextEdit for content display and editing
 // operations (cut/copy/paste/select/undo/redo) with clipboard- and
 // selection-change notification
 class TextFileView : public AbstractFileView
@@ -40,7 +40,7 @@ public:
 
     virtual ~TextFileView() override { TRACER; }
 
-    QPlainTextEdit* editor() const noexcept { return editor_; }
+    PlainTextEdit* editor() const noexcept { return editor_; }
 
     // Propagation
 
@@ -127,7 +127,7 @@ protected:
     virtual QWidget* setupWidget() override;
 
 private:
-    QPlainTextEdit* editor_ = nullptr;
+    PlainTextEdit* editor_ = nullptr;
     KeyFilter* keyFilter_ = new KeyFilter(this);
 };
 

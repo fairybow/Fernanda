@@ -15,16 +15,20 @@
 - [x] Installer
 - [x] Opening args
 - [ ] Bug: ColorBar sticking around - need an automatic shut off if still visible
+- [ ] View menu > toggle tree view (both Workspaces) > INI default (notepad off / notebook on) > write settings value either for an individual window toggle, switching current window, or both
 
 ### Stretch
 
 - [x] Notebook Trash
+- [ ] Mulitple TabWidgets per window for side-by-side
+- [x] Make cursor restart blink when clicking? Right now it looks like a delay or something
+- [ ] Allow double clicking to highlight white space (2 or more)
 - [ ] Trim extra spaces after paragraphs on save (before saving)
 - [ ] Window Themes (theming infrastructure is in place, but window theming proving difficult (especially with tab bar, buttons, and collapsible widget header (see: window QSS template)))
 - [ ] MAYBE: Ensure "modules" are reactionary (ColorBars should probably stay a module, but, right now, it is called directly by Workspace)?
 - [x] Update check
 - [ ] Hide menu bar (key to toggle)
-- [ ] TreeView redocking/toggling
+- [ ] TreeView dock functionality refinement
 - [ ] Refactor save code in Notepad and Notebook
 - [ ] Spellcheck
 - [ ] Find and replace

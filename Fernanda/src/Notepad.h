@@ -430,6 +430,19 @@ protected:
             });
     }
 
+    /// TODO: Remove this and do TreeView toggling for all Workspaces
+    virtual void temp_notepadViewMenuHook(
+        MenuBuilder& builder,
+        MenuState* state,
+        Window* window) override
+    {
+        (void)state;
+        (void)window;
+
+        builder.menu(Tr::nxViewMenu()).action(Tr::npTreeView()).slot(this, [&] {
+        });
+    }
+
 private:
     QFileSystemModel* fsModel_ = new QFileSystemModel(this);
 

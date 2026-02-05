@@ -132,6 +132,17 @@ protected:
         MenuState* state,
         Window* window) = 0;
 
+    /// TODO: Remove this and do TreeView toggling for all Workspaces
+    virtual void temp_notepadViewMenuHook(
+        MenuBuilder& builder,
+        MenuState* state,
+        Window* window)
+    {
+        (void)builder;
+        (void)state;
+        (void)window;
+    }
+
     enum class MenuScope
     {
         ActiveTab = 0,

@@ -214,6 +214,11 @@ void Workspace::createWindowMenuBar_(Window* window)
                 return view && view->supportsEditing();
             })
 
+        // TODO: Temp! (Obviously)
+        .apply([&, state, window](MenuBuilder& builder) {
+            temp_notepadViewMenuHook(builder, state, window);
+        })
+
         .barAction(Tr::nxSettingsMenu())
         .slot(this, [&] { settings->openDialog(); })
 

@@ -19,9 +19,10 @@ namespace Fernanda::Ini {
 
 namespace Keys {
 
-    constexpr auto FONT = "Editor/Font";
+    constexpr auto EDITOR_FONT = "Editor/Font";
     constexpr auto WINDOW_THEME = "Window/Theme";
     constexpr auto EDITOR_THEME = "Editor/Theme";
+    constexpr auto NOTEPAD_TREE_VIEW = "Notepad/TreeView";
 
 } // namespace Keys
 
@@ -41,10 +42,9 @@ namespace Defaults {
     inline QString windowTheme() { return {}; }
 
     // TODO: Any way to get Coco::Path to work with QSettings?
-    inline QString editorTheme()
-    {
-        return ":/themes/Pocket.fernanda_editor";
-    }
+    inline QString editorTheme() { return ":/themes/Pocket.fernanda_editor"; }
+
+    inline bool notepadTreeView() { return false; }
 
 } // namespace Defaults
 

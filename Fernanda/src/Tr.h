@@ -178,6 +178,7 @@ namespace Tr {
     TR_(npOpenFile, tr("Open..."));
     TR_(npSaveAllInWindow, tr("Save all in window"));
     TR_(npSaveAll, tr("Save all"));
+    TR_(npTreeView, tr("Tree view"));
 
     // NB menus and context menu:
 

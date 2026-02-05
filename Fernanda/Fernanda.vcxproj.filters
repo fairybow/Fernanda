@@ -412,6 +412,9 @@
     <QtMoc Include="src\StyleContext.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
     </QtMoc>
+    <QtMoc Include="src\PlainTextEdit.h">
+      <Filter>Code\Core\UI</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
