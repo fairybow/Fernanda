@@ -150,6 +150,9 @@
     <ClCompile Include="src\TabWidget.cpp">
       <Filter>Code\Core\UI\TabWidget</Filter>
     </ClCompile>
+    <ClCompile Include="src\PlainTextEdit.cpp">
+      <Filter>Code\Core\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

@@ -35,11 +35,15 @@ private:
     {
         setViewportMargins(5, 0, 5, 0);
 
-        // Ensure cursor is always visible after movement
-        connect(this, &PlainTextEdit::cursorPositionChanged, this, [&] {
-            setTextCursor(textCursor());
-        });
+        connect(
+            this,
+            &PlainTextEdit::cursorPositionChanged,
+            this,
+            &PlainTextEdit::onCursorPositionChanged_);
     }
+
+private slots:
+    void onCursorPositionChanged_();
 };
 
 } // namespace Fernanda

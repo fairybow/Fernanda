@@ -44,8 +44,8 @@ public:
         ContextMenu
     };
 
-    // Triggered slot only right now
     using Slot = std::function<void()>;
+    using CheckedSlot = std::function<void(bool)>;
 
     explicit MenuBuilder(Mode mode, Window* window)
         : mode_(mode)
@@ -104,11 +104,42 @@ public:
         return *this;
     }
 
-    // TODO: Optional bool slot parameter, since we're ignoring
-    // QAction::triggered checked parameter right now
+    MenuBuilder& setCheckable(bool initial = false)
+    {
+        if (!window_) return *this;
+
+        if (lastAction_) {
+            lastAction_->setCheckable(true);
+            lastAction_->setChecked(initial);
+        }
+
+        return *this;
+    }
+
+    // TODO: Just use a single template for these with type traits check?
     MenuBuilder& slot(
         QObject* receiver,
         Slot slot,
+        Qt::ConnectionType type = Qt::AutoConnection)
+    {
+        if (!window_) return *this;
+
+        if (lastAction_) {
+            lastAction_->connect(
+                lastAction_,
+                &QAction::triggered,
+                receiver,
+                std::move(slot),
+                type);
+        }
+
+        return *this;
+    }
+
+    // TODO: Just use a single template for these with type traits check?
+    MenuBuilder& slot(
+        QObject* receiver,
+        CheckedSlot slot,
         Qt::ConnectionType type = Qt::AutoConnection)
     {
         if (!window_) return *this;

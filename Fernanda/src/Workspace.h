@@ -134,7 +134,7 @@ protected:
 
     /// TODO TVT:
     /// - Remove old temp hook(s)
-    /// - Add toggle-making functionality and slot connection to MenuBuilder
+    /// - Add checkable-making functionality and slot connection to MenuBuilder
     /// - Make view menu and TV toggle option in base class
     /// - Separate Ini defaults for NP v NB
     /// - Tie menu item checked state to that window's TV visibility state

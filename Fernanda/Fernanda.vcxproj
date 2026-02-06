@@ -16,6 +16,7 @@
     <ClCompile Include="src\FnxModel.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\old_FnxModel.cpp" />
+    <ClCompile Include="src\PlainTextEdit.cpp" />
     <ClCompile Include="src\TabWidget.cpp" />
     <ClCompile Include="src\TextFileView.cpp" />
     <ClCompile Include="src\Tr.cpp" />
