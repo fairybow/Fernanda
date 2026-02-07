@@ -234,7 +234,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                 return view && view->supportsEditing();
             })
 
-        /// TODO TVT: Add View menu with toggle TV action
+        /// TODO TVT
         .menu(Tr::nxViewMenu())
         .addAction(treeViews->dockToggleViewAction(window))
         .onToggle( // Using toggled signal here, since it isn't only fired on user interaction!
