@@ -23,7 +23,8 @@
 - [ ] Mulitple TabWidgets per window for side-by-side
 - [x] Make cursor restart blink when clicking? Right now it looks like a delay or something
 - [ ] Allow double clicking to highlight white space (2 or more)
-- [ ] Trim extra spaces after paragraphs on save (before saving)
+- [ ] Trim extra spaces after paragraphs on save (before saving) (editor or workspace feature, not key filter)
+- [ ] Trim extra space on newline/return? (editor feature, not key filter)
 - [ ] Window Themes (theming infrastructure is in place, but window theming proving difficult (especially with tab bar, buttons, and collapsible widget header (see: window QSS template)))
 - [ ] MAYBE: Ensure "modules" are reactionary (ColorBars should probably stay a module, but, right now, it is called directly by Workspace)?
 - [x] Update check
