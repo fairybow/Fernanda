@@ -385,11 +385,11 @@ protected:
         if (!window) return;
 
         builder.action(Tr::npNewTab())
-            .onTrigger(this, [&, window] { newTab_(window); })
+            .onUserTrigger(this, [&, window] { newTab_(window); })
             .shortcut(MenuShortcuts::NEW_TAB)
 
             .action(Tr::npOpenFile())
-            .onTrigger(this, [&, window] { promptOpenFiles_(window); })
+            .onUserTrigger(this, [&, window] { promptOpenFiles_(window); })
             .shortcut(MenuShortcuts::OPEN_FILE);
     }
 
@@ -399,9 +399,9 @@ protected:
         Window* window) override
     {
         builder.action(Tr::nxSave())
-            .onTrigger(this, [&, window] { save_(window); })
+            .onUserTrigger(this, [&, window] { save_(window); })
             .shortcut(MenuShortcuts::SAVE)
-            .toggle(
+            .enabledToggle(
                 state,
                 MenuScope::ActiveTab,
                 [&, window] {
@@ -410,9 +410,9 @@ protected:
                 })
 
             .action(Tr::nxSaveAs())
-            .onTrigger(this, [&, window] { saveAs_(window); })
+            .onUserTrigger(this, [&, window] { saveAs_(window); })
             .shortcut(MenuShortcuts::SAVE_AS)
-            .toggle(
+            .enabledToggle(
                 state,
                 MenuScope::ActiveTab,
                 [&, window] {
@@ -421,16 +421,16 @@ protected:
                 })
 
             .action(Tr::npSaveAllInWindow())
-            .onTrigger(this, [&, window] { saveAllInWindow_(window); })
-            .toggle(
+            .onUserTrigger(this, [&, window] { saveAllInWindow_(window); })
+            .enabledToggle(
                 state,
                 MenuScope::Window,
                 [&, window] { return views->anyModifiedFileModelsIn(window); })
 
             .action(Tr::npSaveAll())
-            .onTrigger(this, [&, window] { saveAll_(window); })
+            .onUserTrigger(this, [&, window] { saveAll_(window); })
             .shortcut(MenuShortcuts::SAVE_ALL)
-            .toggle(state, MenuScope::Workspace, [&] {
+            .enabledToggle(state, MenuScope::Workspace, [&] {
                 return files->anyModified();
             });
     }
