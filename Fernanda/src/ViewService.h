@@ -562,6 +562,7 @@ private:
         tab_widget->setElideMode(Qt::ElideRight);
         // tab_widget->setDragValidator(this,
         // &ViewService::tabWidgetDragValidator_);
+        tab_widget->setTabsDraggable(true);
 
         window->setCentralWidget(tab_widget);
 
@@ -619,7 +620,7 @@ private slots:
             auto text_view = newFileView_<TextFileView*>(text_model, window);
             auto font = bus->call<QFont>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::FONT },
+                { { "key", Ini::Keys::EDITOR_FONT },
                   { "defaultValue", Ini::Defaults::font() } });
             text_view->editor()->setFont(font);
             view = text_view;
@@ -711,7 +712,7 @@ private slots:
     void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
         // TODO: Other editor settings
-        if (key != Ini::Keys::FONT) return;
+        if (key != Ini::Keys::EDITOR_FONT) return;
 
         auto font = value.value<QFont>();
         auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);

@@ -110,6 +110,7 @@ protected:
 
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
+    virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
 
     virtual bool canCloseTab(Window*, int index) { return true; }
     virtual bool canCloseTabEverywhere(Window*, int index) { return true; }
@@ -194,6 +195,9 @@ private:
                                      // individual Workspace
         });
 
+        treeViews->setDockWidgetFeatures(
+            QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable
+            | QDockWidget::DockWidgetFloatable);
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
 

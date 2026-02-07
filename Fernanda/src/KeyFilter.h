@@ -104,6 +104,16 @@ private:
             }
         }
 
+        if (barging_
+            && (event->key() == Qt::Key_Return
+                || event->key() == Qt::Key_Enter)) {
+            if (canBargeReturn_(document, cursor)) {
+                bargeReturn_(cursor);
+                textEdit_->setTextCursor(cursor);
+                return true;
+            }
+        }
+
         auto text = event->text();
         if (text.isEmpty()) return false;
 
@@ -114,7 +124,8 @@ private:
         // closer just checks (in part) that we have a closing punctuation; this
         // would be a problem if cursor is already up against a closing
         // punctuation)
-        // TODO: Also trim for new line?
+        // TODO: Also trim for new line? (May not be a key filter, but an editor
+        // feature...)
         if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
             && canCloseTrailingPunctGap_(document, cursor)) {
             closeTrailingPunctGap_(ch, cursor);
@@ -167,6 +178,14 @@ private:
         cursor.deletePreviousChar(); // remove the space
         cursor.movePosition(QTextCursor::NextCharacter); // skip past closer
         cursor.insertText(QStringLiteral(" ")); // add space after
+        cursor.endEditBlock();
+    }
+
+    void bargeReturn_(QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.movePosition(QTextCursor::NextCharacter); // skip past closer
+        cursor.insertText(QStringLiteral("\n"));
         cursor.endEditBlock();
     }
 
@@ -263,6 +282,34 @@ private:
         // Don't barge past single quote if it looks like a contraction
         if (char_after == '\'' && pos >= 2
             && document->characterAt(pos - 2).isLetterOrNumber())
+            return false;
+
+        return true;
+    }
+
+    // TODO: Verify!
+    bool
+    canBargeReturn_(QTextDocument* document, const QTextCursor& cursor) const
+    {
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos >= document->characterCount()) return false;
+
+        auto char_after = document->characterAt(pos);
+        if (!isClosePunct_(char_after)) return false;
+
+        // Ambiguous quotes: only barge if it looks like a closer
+        if (isAmbiguousOpenOrClosePunct_(char_after)) {
+            if (pos < 1) return false;
+            auto char_before = document->characterAt(pos - 1);
+            if (!char_before.isLetterOrNumber() && !isClosePunct_(char_before))
+                return false;
+        }
+
+        // Contraction guard
+        if (char_after == '\'' && pos >= 1
+            && document->characterAt(pos - 1).isLetterOrNumber())
             return false;
 
         return true;

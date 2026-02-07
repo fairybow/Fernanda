@@ -12,12 +12,14 @@
 #include <functional>
 
 #include <QAbstractItemModel>
+#include <QAction>
 #include <QDockWidget>
 #include <QHash>
 #include <QModelIndex>
 #include <QObject>
 #include <QPoint>
 #include <QStatusBar>
+#include <QString>
 #include <QToolButton>
 #include <QVariant>
 #include <QVariantMap>
@@ -28,12 +30,18 @@
 #include "AbstractService.h"
 #include "Bus.h"
 #include "Debug.h"
+#include "Tr.h"
 #include "TreeView.h"
 #include "Window.h"
 
 namespace Fernanda {
 
 // Coordinator for Window TreeViews
+// TODO: Ensure we have appropriate names for members/functions! If it deals
+// with the dock, instead of the TreeView directly, ensure it says so on the
+// tin.
+// TODO: Potentially rename to TreeViewDock or make a composite widget here? We
+// need clarity around these two components.
 class TreeViewService : public AbstractService
 {
     Q_OBJECT
@@ -51,27 +59,24 @@ public:
 
     virtual ~TreeViewService() override { TRACER; }
 
+    // Set broadly in Workspace
     DECLARE_HOOK_ACCESSORS(ModelHook, modelHook, setModelHook, modelHook_);
 
+    // Set broadly in Workspace
     DECLARE_HOOK_ACCESSORS(
         RootIndexHook,
         rootIndexHook,
         setRootIndexHook,
         rootIndexHook_);
 
+    // Set per-Workspace
     DECLARE_HOOK_ACCESSORS(
         DockWidgetHook,
         dockWidgetHook,
         setDockWidgetHook,
         dockWidgetHook_);
 
-    void setDockWidgetFeatures(QDockWidget::DockWidgetFeatures features)
-    {
-        dockWidgetFeatures_ = features;
-
-        for (auto& dock_widget : dockWidgets_)
-            dock_widget->setFeatures(features);
-    }
+    // Per-window dock API
 
     QModelIndex currentIndex(Window* window) const
     {
@@ -124,12 +129,42 @@ public:
         }
     }
 
+    void setDockVisible(Window* window, bool visible)
+    {
+        if (auto dock_widget = dockWidgets_.value(window))
+            dock_widget->setVisible(visible);
+    }
+
+    QAction* dockToggleViewAction(Window* window) const
+    {
+        if (auto dock = dockWidgets_.value(window))
+            return dock->toggleViewAction();
+
+        return nullptr;
+    }
+
+    // All docks API
+
+    void setDockWidgetFeatures(QDockWidget::DockWidgetFeatures features)
+    {
+        dockWidgetFeatures_ = features;
+
+        for (auto& dock_widget : dockWidgets_)
+            dock_widget->setFeatures(features);
+    }
+
     void setHeadersHidden(bool hidden)
     {
         headersHidden_ = hidden;
 
         for (auto& tree_view : treeViews_)
             tree_view->setHeaderHidden(hidden);
+    }
+
+    void setVisibilityConfig(const QString& iniKey, bool defaultValue)
+    {
+        visibilityIniKey_ = iniKey;
+        defaultVisibility_ = defaultValue;
     }
 
 signals:
@@ -173,19 +208,32 @@ private:
     };
     bool headersHidden_ = false;
 
+    QString visibilityIniKey_{};
+    bool defaultVisibility_ = true;
+
     void setup_()
     {
         //...
     }
 
-    // TODO: Set initial visibility and size based on settings
-    // TODO: Section
+    // TODO: Set initial size based on settings
+    // TODO: Break into smaller functions
     void addTreeView_(Window* window)
     {
         if (!window) return;
 
         auto dock_widget = new QDockWidget(window);
         dockWidgets_[window] = dock_widget;
+
+        /// TODO TVT
+        dock_widget->toggleViewAction()->setText(Tr::nxTreeView());
+
+        /// TODO TVT
+        dock_widget->setVisible(bus->call<bool>(
+            Bus::GET_SETTING,
+            { { "key", visibilityIniKey_ },
+              { "defaultValue", defaultVisibility_ } }));
+
         // TODO: Needed? Check that it actually works, too, since it decays to
         // QObject before emitting destroyed...
         connect(dock_widget, &QObject::destroyed, this, [&, window] {
@@ -259,25 +307,7 @@ private slots:
     void onBusWindowCreated_(Window* window)
     {
         if (!window) return;
-
-        // Break into multiple methods
-
         addTreeView_(window);
-
-        ///// Button
-
-        //// Should always be created
-        // if (auto status_bar = window->statusBar()) {
-        //     auto toggler = new QToolButton;
-        //     status_bar->addPermanentWidget(toggler);
-        //     connect(toggler, &QToolButton::pressed, this, [=] {
-        //         if (dock_widget->isFloating()) {
-        //             dock_widget->setFloating(false);
-        //         } else {
-        //             dock_widget->setVisible(!dock_widget->isVisible());
-        //         }
-        //     });
-        // }
     }
 
     void onBusWindowDestroyed_(Window* window)

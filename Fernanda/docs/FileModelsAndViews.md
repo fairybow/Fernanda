@@ -109,7 +109,7 @@ This pattern ensures the view is fully constructed before its widget is created,
 
 ### Concrete Implementations
 
-**TextFileView**: Wraps `QPlainTextEdit` for text editing. Exposes editor settings (font, word wrap, tab stops) and implements all editing operations.
+**TextFileView**: Wraps `PlainTextEdit` for text editing. Exposes editor settings (font, word wrap, tab stops) and implements all editing operations.
 
 **NoOpFileView**: Placeholder view for non-editable models.
 

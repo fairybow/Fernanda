@@ -86,6 +86,11 @@ protected:
         return fsModel_->index(startDir.toQString());
     }
 
+    virtual QString treeViewDockIniKey() const override
+    {
+        return Ini::Keys::NOTEPAD_TREE_VIEW_DOCK;
+    }
+
     virtual bool canCloseTab(Window* window, int index) override
     {
         auto view = views->fileViewAt(window, index);
@@ -380,11 +385,11 @@ protected:
         if (!window) return;
 
         builder.action(Tr::npNewTab())
-            .slot(this, [&, window] { newTab_(window); })
+            .onTrigger(this, [&, window] { newTab_(window); })
             .shortcut(MenuShortcuts::NEW_TAB)
 
             .action(Tr::npOpenFile())
-            .slot(this, [&, window] { promptOpenFiles_(window); })
+            .onTrigger(this, [&, window] { promptOpenFiles_(window); })
             .shortcut(MenuShortcuts::OPEN_FILE);
     }
 
@@ -394,7 +399,7 @@ protected:
         Window* window) override
     {
         builder.action(Tr::nxSave())
-            .slot(this, [&, window] { save_(window); })
+            .onTrigger(this, [&, window] { save_(window); })
             .shortcut(MenuShortcuts::SAVE)
             .toggle(
                 state,
@@ -405,7 +410,7 @@ protected:
                 })
 
             .action(Tr::nxSaveAs())
-            .slot(this, [&, window] { saveAs_(window); })
+            .onTrigger(this, [&, window] { saveAs_(window); })
             .shortcut(MenuShortcuts::SAVE_AS)
             .toggle(
                 state,
@@ -416,14 +421,14 @@ protected:
                 })
 
             .action(Tr::npSaveAllInWindow())
-            .slot(this, [&, window] { saveAllInWindow_(window); })
+            .onTrigger(this, [&, window] { saveAllInWindow_(window); })
             .toggle(
                 state,
                 MenuScope::Window,
                 [&, window] { return views->anyModifiedFileModelsIn(window); })
 
             .action(Tr::npSaveAll())
-            .slot(this, [&, window] { saveAll_(window); })
+            .onTrigger(this, [&, window] { saveAll_(window); })
             .shortcut(MenuShortcuts::SAVE_ALL)
             .toggle(state, MenuScope::Workspace, [&] {
                 return files->anyModified();
@@ -447,9 +452,10 @@ private:
         settings->setName(Tr::notepad());
 
         treeViews->setHeadersHidden(false);
-        treeViews->setDockWidgetFeatures(
-            QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
         treeViews->setDockWidgetHook(this, &Notepad::treeViewDockWidgetHook_);
+        treeViews->setVisibilityConfig(
+            treeViewDockIniKey(),
+            Ini::Defaults::notepadTreeViewDock()); /// TODO TVT
 
         connect(
             treeViews,
