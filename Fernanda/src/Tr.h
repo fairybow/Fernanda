@@ -169,6 +169,8 @@ namespace Tr {
     TR_(nxDelete, tr("&Delete"));
     TR_(nxSelectAll, tr("&Select all"));
 
+    TR_(nxTreeView, tr("Tree view"));
+
     TR_(nxAbout, tr("About"));
     TR_(nxCheckForUpdates, tr("Check for updates..."));
 
@@ -178,7 +180,6 @@ namespace Tr {
     TR_(npOpenFile, tr("Open..."));
     TR_(npSaveAllInWindow, tr("Save all in window"));
     TR_(npSaveAll, tr("Save all"));
-    TR_(npTreeView, tr("Tree view"));
 
     // NB menus and context menu:
 

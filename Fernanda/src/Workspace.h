@@ -142,17 +142,6 @@ protected:
     /// - Leave it at that (no INI write for activated window or smart detection
     /// of desired TV toggle state for now)
 
-    /// TODO: Remove this and do TreeView toggling for all Workspaces
-    virtual void temp_notepadViewMenuHook(
-        MenuBuilder& builder,
-        MenuState* state,
-        Window* window)
-    {
-        (void)builder;
-        (void)state;
-        (void)window;
-    }
-
     enum class MenuScope
     {
         ActiveTab = 0,

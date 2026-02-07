@@ -214,10 +214,11 @@ void Workspace::createWindowMenuBar_(Window* window)
                 return view && view->supportsEditing();
             })
 
-        // TODO: Temp! (Obviously)
-        .apply([&, state, window](MenuBuilder& builder) {
-            temp_notepadViewMenuHook(builder, state, window);
-        })
+        /// TODO TVT: Add View menu with toggle TV action
+        .menu(Tr::nxViewMenu())
+        .action(Tr::nxTreeView())
+        .setCheckable() /// TODO TVT: Add initial val based on TV visibility (from INI?)
+        .slot(this, [&](bool checked) {}) /// TODO TVT: Set and write to INI?
 
         .barAction(Tr::nxSettingsMenu())
         .slot(this, [&] { settings->openDialog(); })

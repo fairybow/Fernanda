@@ -22,7 +22,7 @@ namespace Keys {
     constexpr auto EDITOR_FONT = "Editor/Font";
     constexpr auto WINDOW_THEME = "Window/Theme";
     constexpr auto EDITOR_THEME = "Editor/Theme";
-    constexpr auto NOTEPAD_TREE_VIEW = "Notepad/TreeView";
+    constexpr auto TREE_VIEW = "Window/TreeView";
 
 } // namespace Keys
 
@@ -44,7 +44,8 @@ namespace Defaults {
     // TODO: Any way to get Coco::Path to work with QSettings?
     inline QString editorTheme() { return ":/themes/Pocket.fernanda_editor"; }
 
-    inline bool notepadTreeView() { return false; }
+    /// TODO TVT: Notepad should default to false and Notebooks should default
+    /// to true. How to do this?
 
 } // namespace Defaults
 
