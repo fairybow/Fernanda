@@ -104,6 +104,21 @@ public:
         return *this;
     }
 
+    MenuBuilder& addAction(QAction* action)
+    {
+        if (!window_) return *this;
+        ensureCurrentMenu_();
+        currentMenu_->addAction(action);
+        lastAction_ = action;
+        return *this;
+    }
+
+    MenuBuilder& capture(QAction** actionOut)
+    {
+        if (actionOut) *actionOut = lastAction_;
+        return *this;
+    }
+
     MenuBuilder& setCheckable(bool initial = false)
     {
         if (!window_) return *this;
@@ -117,7 +132,7 @@ public:
     }
 
     // TODO: Just use a single template for these with type traits check?
-    MenuBuilder& slot(
+    MenuBuilder& onTrigger(
         QObject* receiver,
         Slot slot,
         Qt::ConnectionType type = Qt::AutoConnection)
@@ -137,7 +152,7 @@ public:
     }
 
     // TODO: Just use a single template for these with type traits check?
-    MenuBuilder& slot(
+    MenuBuilder& onTrigger(
         QObject* receiver,
         CheckedSlot slot,
         Qt::ConnectionType type = Qt::AutoConnection)
@@ -159,17 +174,51 @@ public:
     template <typename ReceiverT, typename MethodClassT>
         requires Coco::Concepts::QObjectDerived<ReceiverT>
                  && std::is_base_of_v<MethodClassT, ReceiverT>
-    MenuBuilder& slot(
+    MenuBuilder& onTrigger(
         ReceiverT* receiver,
         void (MethodClassT::*memberSlot)(),
         Qt::ConnectionType type = Qt::AutoConnection)
     {
-        return slot(
+        return onTrigger(
             static_cast<QObject*>(receiver),
             [receiver, memberSlot] { (receiver->*memberSlot)(); },
             type);
     }
 
+    MenuBuilder& onToggle(
+        QObject* receiver,
+        CheckedSlot slot,
+        Qt::ConnectionType type = Qt::AutoConnection)
+    {
+        if (!window_) return *this;
+
+        if (lastAction_) {
+            lastAction_->connect(
+                lastAction_,
+                &QAction::toggled,
+                receiver,
+                std::move(slot),
+                type);
+        }
+
+        return *this;
+    }
+
+    template <typename ReceiverT, typename MethodClassT>
+        requires Coco::Concepts::QObjectDerived<ReceiverT>
+                 && std::is_base_of_v<MethodClassT, ReceiverT>
+    MenuBuilder& onToggle(
+        ReceiverT* receiver,
+        void (MethodClassT::*memberSlot)(),
+        Qt::ConnectionType type = Qt::AutoConnection)
+    {
+        return onToggle(
+            static_cast<QObject*>(receiver),
+            [receiver, memberSlot] { (receiver->*memberSlot)(); },
+            type);
+    }
+
+    // TODO: Rename to enabledToggle?
     MenuBuilder&
     toggle(MenuState* state, int key, MenuState::Predicate predicate)
     {

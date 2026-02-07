@@ -169,6 +169,7 @@ namespace Tr {
     TR_(nxDelete, tr("&Delete"));
     TR_(nxSelectAll, tr("&Select all"));
 
+    // This action's title is set in TreeViewService
     TR_(nxTreeView, tr("Tree view"));
 
     TR_(nxAbout, tr("About"));

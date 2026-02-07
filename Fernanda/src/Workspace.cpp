@@ -9,12 +9,14 @@
 
 #include "Workspace.h"
 
+#include <QAction>
 #include <QString>
 
 #include "AboutDialog.h"
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
 #include "Application.h"
+#include "Ini.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "MenuState.h"
@@ -26,6 +28,24 @@
 
 namespace Fernanda {
 
+// TODO: Race condition risk in menu creation
+//
+// Menu building assumes all Services have already processed windowCreated
+// (e.g., TreeViewService must create the dock before we call
+// dockToggleViewAction()).
+//
+// This works because Workspace::connectBusEvents_() runs AFTER all Service
+// initialize() calls in setup_(). Qt delivers signals to slots in connection
+// order, so Services respond to windowCreated before Workspace does.
+//
+// If Service initialization is ever reordered to come after
+// connectBusEvents_(), menu creation will fail silently (null actions, missing
+// widgets, etc.).
+//
+// Potential fixes if this becomes a problem:
+// - Use Qt::QueuedConnection for Workspace's windowCreated handler
+// - Have Services emit "ready" signals after window setup completes
+// - Explicitly sequence menu creation after all Services via a dedicated signal
 void Workspace::createWindowMenuBar_(Window* window)
 {
     if (!window) return;
@@ -49,13 +69,13 @@ void Workspace::createWindowMenuBar_(Window* window)
         })
 
         .action(Tr::nxNewWindow())
-        .slot(this, [&] { windows->newWindow(); })
+        .onTrigger(this, [&] { windows->newWindow(); })
         .shortcut(MenuShortcuts::NEW_WINDOW)
 
         .separator()
 
         .action(Tr::nxNewNotebook())
-        .slot(
+        .onTrigger(
             this,
             [&] {
                 // Will allow creation of new Notebook with a prospective
@@ -68,7 +88,7 @@ void Workspace::createWindowMenuBar_(Window* window)
             })
 
         .action(Tr::nxOpenNotebook())
-        .slot(
+        .onTrigger(
             this,
             [&] {
                 // nullptr parent makes the dialog application modal
@@ -91,7 +111,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         .separator()
 
         .action(Tr::nxCloseTab())
-        .slot(this, [&, window] { views->closeTab(window, -1); })
+        .onTrigger(this, [&, window] { views->closeTab(window, -1); })
         .shortcut(MenuShortcuts::CLOSE_TAB)
         .toggle(
             state,
@@ -99,42 +119,42 @@ void Workspace::createWindowMenuBar_(Window* window)
             [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::nxCloseTabEverywhere())
-        .slot(this, [&, window] { views->closeTabEverywhere(window, -1); })
+        .onTrigger(this, [&, window] { views->closeTabEverywhere(window, -1); })
         .toggle(
             state,
             MenuScope::ActiveTab,
             [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::nxCloseWindowTabs())
-        .slot(this, [&, window] { views->closeWindowTabs(window); })
+        .onTrigger(this, [&, window] { views->closeWindowTabs(window); })
         .toggle(
             state,
             MenuScope::Window,
             [&, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::nxCloseAllTabs())
-        .slot(this, [&] { views->closeAllTabs(); })
+        .onTrigger(this, [&] { views->closeAllTabs(); })
         .toggle(state, MenuScope::Workspace, [&] { return views->anyViews(); })
 
         .separator()
 
         .action(Tr::nxCloseWindow())
-        .slot(this, [&, window] { window->close(); })
+        .onTrigger(this, [&, window] { window->close(); })
         .shortcut(MenuShortcuts::CLOSE_WINDOW)
 
         .action(Tr::nxCloseAllWindows())
-        .slot(this, [&] { windows->closeAll(); })
+        .onTrigger(this, [&] { windows->closeAll(); })
 
         .separator()
 
         .action(Tr::nxQuit())
-        .slot(app(), &Application::tryQuit, Qt::QueuedConnection)
+        .onTrigger(app(), &Application::tryQuit, Qt::QueuedConnection)
         .shortcut(MenuShortcuts::QUIT)
 
         .menu(Tr::nxEditMenu())
 
         .action(Tr::nxUndo())
-        .slot(this, [&, window] { views->undo(window, -1); })
+        .onTrigger(this, [&, window] { views->undo(window, -1); })
         .shortcut(MenuShortcuts::UNDO)
         .toggle(
             state,
@@ -145,7 +165,7 @@ void Workspace::createWindowMenuBar_(Window* window)
             })
 
         .action(Tr::nxRedo())
-        .slot(this, [&, window] { views->redo(window, -1); })
+        .onTrigger(this, [&, window] { views->redo(window, -1); })
         .shortcut(MenuShortcuts::REDO)
         .toggle(
             state,
@@ -158,7 +178,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         .separator()
 
         .action(Tr::nxCut())
-        .slot(this, [&, window] { views->cut(window, -1); })
+        .onTrigger(this, [&, window] { views->cut(window, -1); })
         .shortcut(MenuShortcuts::CUT)
         .toggle(
             state,
@@ -169,7 +189,7 @@ void Workspace::createWindowMenuBar_(Window* window)
             })
 
         .action(Tr::nxCopy())
-        .slot(this, [&, window] { views->copy(window, -1); })
+        .onTrigger(this, [&, window] { views->copy(window, -1); })
         .shortcut(MenuShortcuts::COPY)
         .toggle(
             state,
@@ -180,7 +200,7 @@ void Workspace::createWindowMenuBar_(Window* window)
             })
 
         .action(Tr::nxPaste())
-        .slot(this, [&, window] { views->paste(window, -1); })
+        .onTrigger(this, [&, window] { views->paste(window, -1); })
         .shortcut(MenuShortcuts::PASTE)
         .toggle(
             state,
@@ -191,7 +211,7 @@ void Workspace::createWindowMenuBar_(Window* window)
             })
 
         .action(Tr::nxDelete())
-        .slot(this, [&, window] { views->del(window, -1); })
+        .onTrigger(this, [&, window] { views->del(window, -1); })
         .shortcut(MenuShortcuts::DEL)
         .toggle(
             state,
@@ -204,7 +224,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         .separator()
 
         .action(Tr::nxSelectAll())
-        .slot(this, [&, window] { views->selectAll(window, -1); })
+        .onTrigger(this, [&, window] { views->selectAll(window, -1); })
         .shortcut(MenuShortcuts::SELECT_ALL)
         .toggle(
             state,
@@ -216,18 +236,22 @@ void Workspace::createWindowMenuBar_(Window* window)
 
         /// TODO TVT: Add View menu with toggle TV action
         .menu(Tr::nxViewMenu())
-        .action(Tr::nxTreeView())
-        .setCheckable() /// TODO TVT: Add initial val based on TV visibility (from INI?)
-        .slot(this, [&](bool checked) {}) /// TODO TVT: Set and write to INI?
+        .addAction(treeViews->dockToggleViewAction(window))
+        .onToggle(
+            this,
+            [&, window](bool checked) {
+                if (!window || !window->isVisible()) return;
+                settings->set(treeViewDockIniKey(), checked);
+            })
 
         .barAction(Tr::nxSettingsMenu())
-        .slot(this, [&] { settings->openDialog(); })
+        .onTrigger(this, [&] { settings->openDialog(); })
 
         .menu(Tr::nxHelpMenu())
         .action(Tr::nxAbout())
-        .slot(this, [] { AboutDialog::exec(); })
+        .onTrigger(this, [] { AboutDialog::exec(); })
         .action(Tr::nxCheckForUpdates())
-        .slot(this, [] { UpdateDialog::exec(); })
+        .onTrigger(this, [] { UpdateDialog::exec(); })
 
         .set();
 }

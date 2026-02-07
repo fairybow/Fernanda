@@ -16,6 +16,7 @@
 - [x] Opening args
 - [ ] Bug: ColorBar sticking around - need an automatic shut off if still visible
 - [ ] View menu > toggle tree view (both Workspaces) > INI default (notepad off / notebook on) > write settings value either for an individual window toggle, switching current window, or both
+- [ ] Ensure we are using terms around checkable items correctly in code! The term toggle is being used in a few different ways, I think. We should ensure checkable actions are called checkables or something. Also sort out the other uses of "toggle"
 
 ### Stretch
 
@@ -46,6 +47,7 @@
 - [ ] For cross platform bit7z, look into vcpkg build, saving the .lib, .a, etc.
 - [ ] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
 - [ ] Remove tab size constraints in favor of QSS?
+- [ ] Remembering dock position between sessions (using QMainWindow::saveState() / restoreState())
 
 ### Polish
 

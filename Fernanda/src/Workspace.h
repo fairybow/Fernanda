@@ -110,6 +110,7 @@ protected:
 
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
+    virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
 
     virtual bool canCloseTab(Window*, int index) { return true; }
     virtual bool canCloseTabEverywhere(Window*, int index) { return true; }
@@ -131,16 +132,6 @@ protected:
         MenuBuilder& builder,
         MenuState* state,
         Window* window) = 0;
-
-    /// TODO TVT:
-    /// - Remove old temp hook(s)
-    /// - Add checkable-making functionality and slot connection to MenuBuilder
-    /// - Make view menu and TV toggle option in base class
-    /// - Separate Ini defaults for NP v NB
-    /// - Tie menu item checked state to that window's TV visibility state
-    /// - The written INI value serves as state for next opening window
-    /// - Leave it at that (no INI write for activated window or smart detection
-    /// of desired TV toggle state for now)
 
     enum class MenuScope
     {
@@ -204,6 +195,9 @@ private:
                                      // individual Workspace
         });
 
+        treeViews->setDockWidgetFeatures(
+            QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable
+            | QDockWidget::DockWidgetFloatable);
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
 

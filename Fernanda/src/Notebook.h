@@ -115,6 +115,11 @@ protected:
         return fnxModel_->notebookIndex();
     }
 
+    virtual QString treeViewDockIniKey() const override
+    {
+        return Ini::Keys::NOTEBOOK_TREE_VIEW_DOCK;
+    }
+
     virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1) return true;
@@ -217,10 +222,10 @@ protected:
             .menu(Tr::notebookMenu())
 
             .action(Tr::nbOpenNotepad())
-            .slot(this, [&] { emit openNotepadRequested(); })
+            .onTrigger(this, [&] { emit openNotepadRequested(); })
 
             .action(Tr::nbImportFiles())
-            .slot(this, [&, window] {
+            .onTrigger(this, [&, window] {
                 importFiles_(window, treeViews->currentIndex(window));
             });
     }
@@ -229,7 +234,7 @@ protected:
     fileMenuOpenActions(MenuBuilder& builder, Window* window) override
     {
         builder.action(Tr::nbNewFile())
-            .slot(
+            .onTrigger(
                 this,
                 [&, window] {
                     newFile_(window, treeViews->currentIndex(window));
@@ -237,7 +242,7 @@ protected:
             .shortcut(MenuShortcuts::NEW_TAB)
 
             .action(Tr::nbNewFolder())
-            .slot(this, [&, window] {
+            .onTrigger(this, [&, window] {
                 newVirtualFolder_(treeViews->currentIndex(window));
             });
     }
@@ -248,12 +253,12 @@ protected:
         Window* window) override
     {
         builder.action(Tr::nxSave())
-            .slot(this, [&, window] { save_(window); })
+            .onTrigger(this, [&, window] { save_(window); })
             .shortcut(MenuShortcuts::SAVE)
             .toggle(state, MenuScope::Workspace, [&] { return isModified_(); })
 
             .action(Tr::nxSaveAs())
-            .slot(this, [&, window] { saveAs_(window); })
+            .onTrigger(this, [&, window] { saveAs_(window); })
             .shortcut(MenuShortcuts::SAVE_AS);
     }
 
@@ -276,9 +281,10 @@ private:
         auto working_dir = workingDir_.path();
 
         treeViews->setHeadersHidden(true);
-        treeViews->setDockWidgetFeatures(QDockWidget::NoDockWidgetFeatures);
-
         treeViews->setDockWidgetHook(this, &Notebook::treeViewDockWidgetHook_);
+        treeViews->setVisibilityConfig(
+            treeViewDockIniKey(),
+            Ini::Defaults::notebookTreeViewDock()); /// TODO TVT
 
         connect(
             treeViews,
@@ -343,7 +349,7 @@ private:
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, [&](Window* window) {
-            //addWorkspaceIndicator_(window);
+            // addWorkspaceIndicator_(window);
         });
 
         connect(
@@ -710,22 +716,24 @@ private:
             .actionIf(
                 valid && has_children,
                 is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
-            .slot(
+            .onTrigger(
                 this,
                 [is_expanded, trashView, index] {
                     is_expanded ? trashView->collapse(index)
                                 : trashView->expand(index);
                 })
             .actionIf(valid, Tr::nbRename())
-            .slot(this, [&, trashView, index] { trashView->edit(index); })
+            .onTrigger(this, [&, trashView, index] { trashView->edit(index); })
             .separatorIf(valid)
             .actionIf(valid, Tr::nbRestore())
-            .slot(this, [&, index] { fnxModel_->moveToNotebook_(index); })
+            .onTrigger(this, [&, index] { fnxModel_->moveToNotebook_(index); })
             .actionIf(valid, Tr::nbDeletePermanently())
-            .slot(this, [&, window, index] { deleteTrashItem_(window, index); })
+            .onTrigger(
+                this,
+                [&, window, index] { deleteTrashItem_(window, index); })
             .separatorIf(valid)
             .action(Tr::nbEmptyTrash())
-            .slot(this, [&, window] { emptyTrash_(window); })
+            .onTrigger(this, [&, window] { emptyTrash_(window); })
             .popup(globalPos);
     }
 
@@ -785,24 +793,26 @@ private slots:
 
         MenuBuilder(MenuBuilder::ContextMenu, window)
             .action(Tr::nbNewFile())
-            .slot(this, [&, window, index] { newFile_(window, index); })
+            .onTrigger(this, [&, window, index] { newFile_(window, index); })
             .action(Tr::nbNewFolder())
-            .slot(this, [&, index] { newVirtualFolder_(index); })
+            .onTrigger(this, [&, index] { newVirtualFolder_(index); })
             .separatorIf(valid)
             .actionIf(
                 valid && has_children,
                 is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
-            .slot(
+            .onTrigger(
                 this,
                 [&, is_expanded, window, index] {
                     is_expanded ? treeViews->collapse(window, index)
                                 : treeViews->expand(window, index);
                 })
             .actionIf(valid, Tr::nbRename())
-            .slot(this, [&, window, index] { treeViews->edit(window, index); })
+            .onTrigger(
+                this,
+                [&, window, index] { treeViews->edit(window, index); })
             .separatorIf(valid)
             .actionIf(valid, Tr::nbRemove())
-            .slot(this, [&, index] { fnxModel_->moveToTrash(index); })
+            .onTrigger(this, [&, index] { fnxModel_->moveToTrash(index); })
             .popup(globalPos);
     }
 

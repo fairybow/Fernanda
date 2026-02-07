@@ -11,6 +11,7 @@
 
 #include <utility>
 
+#include <QAnyStringView>
 #include <QList>
 #include <QObject>
 #include <QString>
@@ -168,6 +169,38 @@ public:
         dialog_->open();
     }
 
+    /// TODO TVT
+    QVariant get(QAnyStringView key) const { return settings_->value(key); }
+
+    /// TODO TVT
+    QVariant get(QAnyStringView key, const QVariant& defaultValue) const
+    {
+        return settings_->value(key, defaultValue);
+    }
+
+    /// TODO TVT
+    template <typename T> T get(QAnyStringView key) const
+    {
+        return settings_->value<T>(key);
+    }
+
+    /// TODO TVT
+    template <typename T>
+    T get(QAnyStringView key, const QVariant& defaultValue) const
+    {
+        return settings_->value<T>(key, defaultValue);
+    }
+
+    void set(const QString& key, const QVariant& value)
+    {
+        if (!settings_->isWritable()) {
+            WARN("Settings not writable; cannot set key: {}", key);
+            return;
+        }
+
+        settings_->setValue(key, value);
+    }
+
 protected:
     virtual void registerBusCommands() override
     {
@@ -178,7 +211,7 @@ protected:
         });
 
         /*bus->addCommandHandler(Bus::SET_SETTING, [&](const Command& cmd) {
-            set_(cmd.param<QString>("key"), cmd.param("value"));
+            set(cmd.param<QString>("key"), cmd.param("value"));
         });*/
     }
 
@@ -206,26 +239,16 @@ private:
     void setup_()
     {
         fontDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
-            set_(Ini::Keys::EDITOR_FONT, pendingFont_);
+            set(Ini::Keys::EDITOR_FONT, pendingFont_);
         });
 
         windowThemeDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
-            set_(Ini::Keys::WINDOW_THEME, pendingWindowTheme_.toQString());
+            set(Ini::Keys::WINDOW_THEME, pendingWindowTheme_.toQString());
         });
 
         editorThemeDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
-            set_(Ini::Keys::EDITOR_THEME, pendingEditorTheme_.toQString());
+            set(Ini::Keys::EDITOR_THEME, pendingEditorTheme_.toQString());
         });
-    }
-
-    void set_(const QString& key, const QVariant& value)
-    {
-        if (!settings_->isWritable()) {
-            WARN("Settings not writable; cannot set key: {}", key);
-            return;
-        }
-
-        settings_->setValue(key, value);
     }
 };
 
