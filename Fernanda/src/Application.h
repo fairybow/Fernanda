@@ -14,8 +14,6 @@
 #include <QList>
 #include <QSessionManager>
 #include <QStringList>
-#include <QStyle>
-#include <QStyleFactory>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
