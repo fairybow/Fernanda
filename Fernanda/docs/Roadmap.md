@@ -1,5 +1,7 @@
 # Roadmap
 
+Next: Clean up TODO TD and TODO TVT
+
 ## Features
 
 ### MVP
@@ -17,6 +19,7 @@
 - [x] (Hopefully fixed) Bug: ColorBar sticking around - need an automatic shut off if still visible
 - [ ] View menu > toggle tree view (both Workspaces) > INI default (notepad off / notebook on) > write settings value either for an individual window toggle, switching current window, or both
 - [ ] Ensure we are using terms around checkable items correctly in code! The term toggle is being used in a few different ways, I think. We should ensure checkable actions are called checkables or something. Also sort out the other uses of "toggle"
+- [ ] Need a "dirty" mark on Notebook files in TreeView
 
 ### Stretch
 
@@ -47,6 +50,7 @@
 - [ ] For cross platform bit7z, look into vcpkg build, saving the .lib, .a, etc.
 - [ ] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
 - [ ] Remove tab size constraints in favor of QSS?
+- [ ] For tab drags, tab bar doesn't extend past the add tab button, so dropping there opens in a new window. This may not be desireable, but also might be fine. Sit on it for a while.
 - [ ] Remembering dock position between sessions (using QMainWindow::saveState() / restoreState())
 
 ### Polish

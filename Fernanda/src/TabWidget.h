@@ -63,6 +63,13 @@ namespace Fernanda {
 // Tabbed interface for multiple file views within a Window, supporting tab
 // creation/closing, drag-and-drop between Windows, active tab management, and
 // visual state indicators (flagged tabs)
+// TODO:
+// - Visual feedback for the drag (a moving gap showing the drop area where
+//   the in-progress dragged tab will go, following the cursor over the tab
+//   bar)
+// - Place the tab at the index it was dragged to, not just at the end
+// - Pixmap is blurry. Maybe SVG somehow
+// - Cursor customization for drag-outside (currently shows "no" cursor)
 class TabWidget : public QWidget
 {
     Q_OBJECT
@@ -524,16 +531,6 @@ private:
 
     /// *** TAB DRAGGING *** ///
 
-    // Current issues:
-    // - Ideally, we want visual feedback for the drag (a moving gap showing the
-    //   drop area where the in-progress dragged tab will go, and the gap will
-    //   follow the drag as long as it is over top of the tab bar)
-    // - We also should place the tab at the index it was dragged to, not just
-    //   at the end of the target tab bar
-    // - Pixmap is blurry. Maybe SVG somehow
-    // - Icon for desktop drag should not be "no"
-    // - Icon for another Workspace should be "no" if possible...
-
 public:
     using DragValidator =
         std::function<bool(TabWidget* source, TabWidget* destination)>;
@@ -604,10 +601,10 @@ public:
 
 signals:
     void tabDragged(const Location& old, const Location& now);
-    void tabDraggedToDesktop(
+    void tabDraggedOutside(
         TabWidget* source,
         const QPoint& dropPos,
-        const TabSpec& tabSpec);
+        const TabSpec& tabSpec); /// TODO TD:
 
 protected:
     virtual void dragEnterEvent(QDragEnterEvent* event) override
@@ -616,9 +613,19 @@ protected:
                                                  : event->ignore();
     }
 
+    /// TODO TD:
     virtual void dragMoveEvent(QDragMoveEvent* event) override
     {
-        event->mimeData()->hasFormat(MIME_TYPE_) ? event->acceptProposedAction()
+        if (!event->mimeData()->hasFormat(MIME_TYPE_)) {
+            event->ignore();
+            return;
+        }
+
+        // Only accept drops directly on the tab bar
+        auto pos_in_tab_bar =
+            tabBar_->mapFrom(this, event->position().toPoint());
+
+        tabBar_->rect().contains(pos_in_tab_bar) ? event->acceptProposedAction()
                                                  : event->ignore();
     }
 
@@ -719,30 +726,15 @@ private:
         // drag->setDragCursor(transparent_pixmap, Qt::CopyAction);
         // drag->setDragCursor(transparent_pixmap, Qt::LinkAction);
 
+        /// TODO TD:
         // Execute
-        switch (drag->exec(Qt::MoveAction)) {
-        case Qt::DropAction::IgnoreAction:
-            if (isDesktopDrop_()) {
-                emit tabDraggedToDesktop(
-                    this,
-                    QCursor::pos(),
-                    drag_context.tabSpec);
-                break;
-            }
+        auto result = drag->exec(Qt::MoveAction);
+        auto target = qobject_cast<TabWidget*>(drag->target());
 
-            [[fallthrough]]; // Else, maybe fail
-
-            // Fail states
-        default:
-        case Qt::DropAction::CopyAction:
-        case Qt::DropAction::LinkAction:
-        case Qt::DropAction::TargetMoveAction:
-            addDroppedTab_(drag_context.tabSpec);
-            break;
-
-            // Success state (handled by target TabWidget)
-        case Qt::DropAction::MoveAction:
-            break;
+        if (result != Qt::DropAction::MoveAction || !target) {
+            // Drop was either rejected or accepted by something outside
+            // Fernanda (e.g., a browser). Open in a new window.
+            emit tabDraggedOutside(this, QCursor::pos(), drag_context.tabSpec);
         }
     }
 
@@ -799,8 +791,6 @@ private:
         setCurrentIndex(new_index);
         return new_index;
     }
-
-    bool isDesktopDrop_() const;
 
     QPixmap dragPixmap_(const QString& tabText) const
     {

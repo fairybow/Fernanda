@@ -86,6 +86,20 @@ public:
         setCanCloseAllTabsHook,
         canCloseAllTabsHook_);
 
+    /// TODO TD
+    // Insert a dragged tab into a window's TabWidget
+    void insertTabSpec(Window* window, const TabWidget::TabSpec& tabSpec)
+    {
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget || !tabSpec.isValid()) return;
+
+        auto index = tab_widget->addTab(tabSpec.widget, tabSpec.text);
+        tab_widget->setTabData(index, tabSpec.userData);
+        tab_widget->setTabToolTip(index, tabSpec.toolTip);
+        tab_widget->setTabFlagged(index, tabSpec.isFlagged);
+        tab_widget->setCurrentIndex(index);
+    }
+
     int countFor(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return 0;
@@ -427,6 +441,13 @@ signals:
     void addTabRequested(Window* window);
     void fileViewDestroyed(AbstractFileView* fileView);
 
+    /// TODO TD:
+    void tabDragCompleted(Window* fromWindow, Window* toWindow);
+    void tabDraggedToNewWindow(
+        Window* sourceWindow,
+        const QPoint& dropPos,
+        const TabWidget::TabSpec& tabSpec);
+
 protected:
     virtual void registerBusCommands() override
     {
@@ -552,7 +573,6 @@ private:
         return view;
     }
 
-    // TODO: Set drag validator
     void addTabWidget_(Window* window)
     {
         if (!window) return;
@@ -560,8 +580,9 @@ private:
         auto tab_widget = new TabWidget(window);
 
         tab_widget->setElideMode(Qt::ElideRight);
-        // tab_widget->setDragValidator(this,
-        // &ViewService::tabWidgetDragValidator_);
+        tab_widget->setDragValidator(
+            this,
+            &ViewService::tabWidgetDragValidator_);
         tab_widget->setTabsDraggable(true);
 
         window->setCentralWidget(tab_widget);
@@ -582,15 +603,40 @@ private:
             this,
             [&, window](int index) { closeTab(window, index); });
 
+        /// TODO TD
+        connect(
+            tab_widget,
+            &TabWidget::tabDragged,
+            this,
+            &ViewService::onTabDragged_);
+
+        /// TODO TD
+        connect(
+            tab_widget,
+            &TabWidget::tabDraggedOutside,
+            this,
+            &ViewService::onTabDraggedOutside_);
+
         // connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
         //     //...
         // });
-        // connect(tab_widget, &TabWidget::tabDragged, this, [] {
-        //     //...
-        // });
-        // connect(tab_widget, &TabWidget::tabDraggedToDesktop, this, [] {
-        //     //...
-        // });
+    }
+
+    /// TODO TD
+    bool tabWidgetDragValidator_(TabWidget* source, TabWidget* destination)
+    {
+        auto source_window = Coco::Utility::findParent<Window*>(source);
+        auto target_window = Coco::Utility::findParent<Window*>(destination);
+
+        auto our_windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
+
+        auto is_valid = source_window && target_window
+                        && our_windows.contains(source_window)
+                        && our_windows.contains(target_window);
+
+        if (!is_valid) INFO("Rejected tab drag between different Workspaces");
+
+        return is_valid;
     }
 
 private slots:
@@ -725,6 +771,40 @@ private slots:
                 if (auto text_view = tab_widget->widgetAt<TextFileView*>(i))
                     text_view->editor()->setFont(font);
         }
+    }
+
+    /// TODO TD
+    void onTabDragged_(
+        const TabWidget::Location& old,
+        const TabWidget::Location& now)
+    {
+        if (!old.isValid() || !now.isValid()) return;
+
+        auto old_window = Coco::Utility::findParent<Window*>(old.tabWidget);
+        auto new_window = Coco::Utility::findParent<Window*>(now.tabWidget);
+
+        if (!old_window || !new_window) return;
+
+        // Same-window reorder needs no further handling
+        if (old_window == new_window) return;
+
+        new_window->activate();
+
+        if (auto view = fileViewAt(new_window, now.index)) view->setFocus();
+
+        emit tabDragCompleted(old_window, new_window);
+    }
+
+    /// TODO TD
+    void onTabDraggedOutside_(
+        TabWidget* source,
+        const QPoint& dropPos,
+        const TabWidget::TabSpec& tabSpec)
+    {
+        if (!source || !tabSpec.isValid()) return;
+
+        auto source_window = Coco::Utility::findParent<Window*>(source);
+        emit tabDraggedToNewWindow(source_window, dropPos, tabSpec);
     }
 };
 

@@ -129,6 +129,24 @@ public:
         return window;
     }
 
+    /// TODO TD
+    Window* newWindow(const QPoint& topLeft)
+    {
+        auto window = make_();
+        if (window) {
+            window->setWindowTitle(windowTitle_());
+
+            auto geometry = nextWindowGeometry_();
+            geometry.moveTopLeft(topLeft);
+            window->setGeometry(geometry);
+
+            window->show();
+            setActiveWindow_(window);
+        }
+
+        return window;
+    }
+
     void setFlagged(bool flagged)
     {
         windowsFlagged_ = flagged;
