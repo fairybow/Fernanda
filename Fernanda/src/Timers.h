@@ -57,6 +57,7 @@ public:
     virtual ~Delayer() override { TRACER; }
 
     void start() { timer_->start(); }
+    void stop() { timer_->stop(); }
 
 private:
     QTimer* timer_ = new QTimer(this);

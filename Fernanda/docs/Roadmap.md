@@ -14,7 +14,7 @@
 - [x] Basic editor settings
 - [x] Installer
 - [x] Opening args
-- [ ] Bug: ColorBar sticking around - need an automatic shut off if still visible
+- [x] (Hopefully fixed) Bug: ColorBar sticking around - need an automatic shut off if still visible
 - [ ] View menu > toggle tree view (both Workspaces) > INI default (notepad off / notebook on) > write settings value either for an individual window toggle, switching current window, or both
 - [ ] Ensure we are using terms around checkable items correctly in code! The term toggle is being used in a few different ways, I think. We should ensure checkable actions are called checkables or something. Also sort out the other uses of "toggle"
 
