@@ -39,20 +39,11 @@ inline constexpr bool isDebug = false;
 // | MINOR      | New features, backward compatible                            |
 // | PATCH      | Bug fixes only                                               |
 // | PRERELEASE | Optional label: alpha.1, beta.1, rc.1, etc.                  |
-// | BUILD      | Increments every build (metadata, doesn't affect precedence) |
 
 #define VERSION_MAJOR                           0
 #define VERSION_MINOR                           99
 #define VERSION_PATCH                           0
 #define VERSION_PRERELEASE_STRING               "beta.1"
-#define VERSION_BUILD                           0 // Probably not using
-
-// Major.Minor.Patch.Build
-#define VERSION_4                               \
-        VERSION_MAJOR,                          \
-        VERSION_MINOR,                          \
-        VERSION_PATCH,                          \
-        VERSION_BUILD
 
 // Major.Minor.Patch
 #define VERSION_3                               \
@@ -70,24 +61,6 @@ inline constexpr bool isDebug = false;
 #define VERSION_STRINGIFY_(x)                   #x
 #define VERSION_STRINGIFY(x)                    VERSION_STRINGIFY_(x)
 
-// Major.Minor.Patch.Build
-#define VERSION_4_STRING                        \
-        VERSION_STRINGIFY(VERSION_MAJOR)    "." \
-        VERSION_STRINGIFY(VERSION_MINOR)    "." \
-        VERSION_STRINGIFY(VERSION_PATCH)    "." \
-        VERSION_STRINGIFY(VERSION_BUILD)
-
-#ifdef  VERSION_PRERELEASE
-#define VERSION_FULL_STRING                     \
-        VERSION_STRINGIFY(VERSION_MAJOR)    "." \
-        VERSION_STRINGIFY(VERSION_MINOR)    "." \
-        VERSION_STRINGIFY(VERSION_PATCH)    "-" \
-        VERSION_PRERELEASE_STRING           "+" \
-        VERSION_STRINGIFY(VERSION_BUILD)
-#else
-#    define VERSION_FULL_STRING VERSION_4_STRING
-#endif
-
 // Major.Minor.Patch
 #define VERSION_3_STRING                        \
         VERSION_STRINGIFY(VERSION_MAJOR)    "." \
@@ -98,6 +71,16 @@ inline constexpr bool isDebug = false;
 #define VERSION_2_STRING                        \
         VERSION_STRINGIFY(VERSION_MAJOR)    "." \
         VERSION_STRINGIFY(VERSION_MINOR)
+
+#ifdef  VERSION_PRERELEASE
+#define VERSION_FULL_STRING                     \
+        VERSION_STRINGIFY(VERSION_MAJOR)    "." \
+        VERSION_STRINGIFY(VERSION_MINOR)    "." \
+        VERSION_STRINGIFY(VERSION_PATCH)    "-" \
+        VERSION_PRERELEASE_STRING
+#else
+#    define VERSION_FULL_STRING VERSION_3_STRING
+#endif
 
 /// ======================================================================== ///
 /// *** PUBLISHING INFO ***                                                  ///

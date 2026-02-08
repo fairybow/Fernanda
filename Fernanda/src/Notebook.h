@@ -222,10 +222,10 @@ protected:
             .menu(Tr::notebookMenu())
 
             .action(Tr::nbOpenNotepad())
-            .onTrigger(this, [&] { emit openNotepadRequested(); })
+            .onUserTrigger(this, [&] { emit openNotepadRequested(); })
 
             .action(Tr::nbImportFiles())
-            .onTrigger(this, [&, window] {
+            .onUserTrigger(this, [&, window] {
                 importFiles_(window, treeViews->currentIndex(window));
             });
     }
@@ -234,7 +234,7 @@ protected:
     fileMenuOpenActions(MenuBuilder& builder, Window* window) override
     {
         builder.action(Tr::nbNewFile())
-            .onTrigger(
+            .onUserTrigger(
                 this,
                 [&, window] {
                     newFile_(window, treeViews->currentIndex(window));
@@ -242,7 +242,7 @@ protected:
             .shortcut(MenuShortcuts::NEW_TAB)
 
             .action(Tr::nbNewFolder())
-            .onTrigger(this, [&, window] {
+            .onUserTrigger(this, [&, window] {
                 newVirtualFolder_(treeViews->currentIndex(window));
             });
     }
@@ -253,12 +253,15 @@ protected:
         Window* window) override
     {
         builder.action(Tr::nxSave())
-            .onTrigger(this, [&, window] { save_(window); })
+            .onUserTrigger(this, [&, window] { save_(window); })
             .shortcut(MenuShortcuts::SAVE)
-            .toggle(state, MenuScope::Workspace, [&] { return isModified_(); })
+            .enabledToggle(
+                state,
+                MenuScope::Workspace,
+                [&] { return isModified_(); })
 
             .action(Tr::nxSaveAs())
-            .onTrigger(this, [&, window] { saveAs_(window); })
+            .onUserTrigger(this, [&, window] { saveAs_(window); })
             .shortcut(MenuShortcuts::SAVE_AS);
     }
 
@@ -716,24 +719,28 @@ private:
             .actionIf(
                 valid && has_children,
                 is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
-            .onTrigger(
+            .onUserTrigger(
                 this,
                 [is_expanded, trashView, index] {
                     is_expanded ? trashView->collapse(index)
                                 : trashView->expand(index);
                 })
             .actionIf(valid, Tr::nbRename())
-            .onTrigger(this, [&, trashView, index] { trashView->edit(index); })
+            .onUserTrigger(
+                this,
+                [&, trashView, index] { trashView->edit(index); })
             .separatorIf(valid)
             .actionIf(valid, Tr::nbRestore())
-            .onTrigger(this, [&, index] { fnxModel_->moveToNotebook_(index); })
+            .onUserTrigger(
+                this,
+                [&, index] { fnxModel_->moveToNotebook_(index); })
             .actionIf(valid, Tr::nbDeletePermanently())
-            .onTrigger(
+            .onUserTrigger(
                 this,
                 [&, window, index] { deleteTrashItem_(window, index); })
             .separatorIf(valid)
             .action(Tr::nbEmptyTrash())
-            .onTrigger(this, [&, window] { emptyTrash_(window); })
+            .onUserTrigger(this, [&, window] { emptyTrash_(window); })
             .popup(globalPos);
     }
 
@@ -793,26 +800,28 @@ private slots:
 
         MenuBuilder(MenuBuilder::ContextMenu, window)
             .action(Tr::nbNewFile())
-            .onTrigger(this, [&, window, index] { newFile_(window, index); })
+            .onUserTrigger(
+                this,
+                [&, window, index] { newFile_(window, index); })
             .action(Tr::nbNewFolder())
-            .onTrigger(this, [&, index] { newVirtualFolder_(index); })
+            .onUserTrigger(this, [&, index] { newVirtualFolder_(index); })
             .separatorIf(valid)
             .actionIf(
                 valid && has_children,
                 is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
-            .onTrigger(
+            .onUserTrigger(
                 this,
                 [&, is_expanded, window, index] {
                     is_expanded ? treeViews->collapse(window, index)
                                 : treeViews->expand(window, index);
                 })
             .actionIf(valid, Tr::nbRename())
-            .onTrigger(
+            .onUserTrigger(
                 this,
                 [&, window, index] { treeViews->edit(window, index); })
             .separatorIf(valid)
             .actionIf(valid, Tr::nbRemove())
-            .onTrigger(this, [&, index] { fnxModel_->moveToTrash(index); })
+            .onUserTrigger(this, [&, index] { fnxModel_->moveToTrash(index); })
             .popup(globalPos);
     }
 

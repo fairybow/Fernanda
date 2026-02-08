@@ -113,26 +113,26 @@ public:
         return *this;
     }
 
+    MenuBuilder& addBarAction(QAction* action)
+    {
+        if (!window_) return *this;
+        if (mode_ != MenuBar) return *this;
+
+        ensureMenuBar_();
+        menuBar_->addAction(action);
+        lastAction_ = action;
+
+        return *this;
+    }
+
     MenuBuilder& capture(QAction** actionOut)
     {
         if (actionOut) *actionOut = lastAction_;
         return *this;
     }
 
-    MenuBuilder& setCheckable(bool initial = false)
-    {
-        if (!window_) return *this;
-
-        if (lastAction_) {
-            lastAction_->setCheckable(true);
-            lastAction_->setChecked(initial);
-        }
-
-        return *this;
-    }
-
     // TODO: Just use a single template for these with type traits check?
-    MenuBuilder& onTrigger(
+    MenuBuilder& onUserTrigger(
         QObject* receiver,
         Slot slot,
         Qt::ConnectionType type = Qt::AutoConnection)
@@ -152,7 +152,7 @@ public:
     }
 
     // TODO: Just use a single template for these with type traits check?
-    MenuBuilder& onTrigger(
+    MenuBuilder& onUserTrigger(
         QObject* receiver,
         CheckedSlot slot,
         Qt::ConnectionType type = Qt::AutoConnection)
@@ -174,12 +174,12 @@ public:
     template <typename ReceiverT, typename MethodClassT>
         requires Coco::Concepts::QObjectDerived<ReceiverT>
                  && std::is_base_of_v<MethodClassT, ReceiverT>
-    MenuBuilder& onTrigger(
+    MenuBuilder& onUserTrigger(
         ReceiverT* receiver,
         void (MethodClassT::*memberSlot)(),
         Qt::ConnectionType type = Qt::AutoConnection)
     {
-        return onTrigger(
+        return onUserTrigger(
             static_cast<QObject*>(receiver),
             [receiver, memberSlot] { (receiver->*memberSlot)(); },
             type);
@@ -218,9 +218,8 @@ public:
             type);
     }
 
-    // TODO: Rename to enabledToggle?
     MenuBuilder&
-    toggle(MenuState* state, int key, MenuState::Predicate predicate)
+    enabledToggle(MenuState* state, int key, MenuState::Predicate predicate)
     {
         if (state && lastAction_ && predicate) {
             state->bind(lastAction_, key, std::move(predicate));
@@ -233,9 +232,12 @@ public:
         requires std::is_enum_v<KeyT>
                  && std::is_same_v<std::underlying_type_t<KeyT>, int>
     MenuBuilder&
-    toggle(MenuState* state, KeyT key, MenuState::Predicate predicate)
+    enabledToggle(MenuState* state, KeyT key, MenuState::Predicate predicate)
     {
-        return toggle(state, static_cast<int>(key), std::move(predicate));
+        return enabledToggle(
+            state,
+            static_cast<int>(key),
+            std::move(predicate));
     }
 
     template <typename CallableT>
@@ -267,6 +269,18 @@ public:
         if (!window_) return *this;
 
         if (lastAction_) lastAction_->setShortcut(keySequence);
+        return *this;
+    }
+
+    MenuBuilder& checkable(bool initial = false)
+    {
+        if (!window_) return *this;
+
+        if (lastAction_) {
+            lastAction_->setCheckable(true);
+            lastAction_->setChecked(initial);
+        }
+
         return *this;
     }
 

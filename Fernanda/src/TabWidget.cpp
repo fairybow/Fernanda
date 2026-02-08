@@ -60,19 +60,6 @@ bool TabWidget::eventFilter(QObject* watched, QEvent* event)
     return QWidget::eventFilter(watched, event);
 }
 
-bool TabWidget::isDesktopDrop_() const
-{
-    auto final_pos = QCursor::pos();
-
-    // Check if mouse is over any application window
-    for (auto& widget : Application::topLevelWidgets())
-        if (auto window = qobject_cast<QWidget*>(widget))
-            if (window->isVisible() && window->geometry().contains(final_pos))
-                return false; // Mouse is over an application window
-
-    return true; // Mouse is outside all application windows
-}
-
 // TODO: Review
 void TabWidget::updateMouseHoverAfterLayoutChange_()
 {

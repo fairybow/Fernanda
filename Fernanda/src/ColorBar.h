@@ -74,6 +74,8 @@ public:
 
     void run(Color color, int delay = 0)
     {
+        // This visibility check is for a hidden window (which will hide its
+        // children). ColorBar itself doesn't really need to be hidden
         if (!isVisible()) return;
         startAnimation_(color, qBound(0, delay, 3000));
     }
@@ -123,6 +125,7 @@ private:
     Position position_ = Top;
     Timers::Delayer* lingerTimer_ =
         new Timers::Delayer(1000, this, &ColorBar::reset_);
+    QTimeLine* activeTimeLine_ = nullptr;
 
     // Cache
     std::optional<QLinearGradient> greenGradient_{};
@@ -181,14 +184,19 @@ private:
 
     void startAnimation_(Color color, int delay)
     {
-        // Store the color for paintEvent to use
-        currentColor_ = color;
+        if (activeTimeLine_) {
+            activeTimeLine_->stop();
+            activeTimeLine_->deleteLater();
+            activeTimeLine_ = nullptr;
+        }
 
-        // Execute animation with delay
-        auto fill_time_line = fillTimeLine_();
+        lingerTimer_->stop();
+
+        currentColor_ = color;
+        activeTimeLine_ = fillTimeLine_();
+
         Timers::delay(delay, this, [=] {
-            lingerTimer_->start();
-            fill_time_line->start();
+            activeTimeLine_->start();
             update(); // Trigger initial repaint
         });
     }
@@ -254,11 +262,11 @@ private:
 
         connect(time_line, &QTimeLine::frameChanged, this, &ColorBar::tick_);
 
-        connect(
-            time_line,
-            &QTimeLine::finished,
-            time_line,
-            &QTimeLine::deleteLater);
+        connect(time_line, &QTimeLine::finished, this, [&, time_line] {
+            lingerTimer_->start(); // linger AFTER fill completes
+            activeTimeLine_ = nullptr;
+            time_line->deleteLater();
+        });
 
         return time_line;
     }
@@ -273,7 +281,7 @@ private slots:
     void reset_()
     {
         currentProgress_ = MIN_RANGE_;
-        update(); // Trigger repaint when resetting
+        update(); // Trigger repaint
     }
 };
 

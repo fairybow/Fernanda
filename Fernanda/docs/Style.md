@@ -16,16 +16,19 @@ QStringList list{}; // Yes
 Separate sections with an empty line. Sections should follow this order, top-to-bottom: main header (if `.cpp` file), third-party (each separated by a blank line), project headers.
 
 ```cpp
-// In Class.cpp
-#include "Class.h"
+#include "Class.h" // If Class.cpp (1st party, but should go at the top in source files)
 
-#include <QClipboard>
+#include <type_traits> // 3rd party std lib
+
+#include <QClipboard> // 3rd party Qt
 #include <QString>
 #include <QWidget>
 
-#include "Windows.h"
+#include "Windows.h" // 3rd party OS
 
-#include "Application.h"
+#include "Coco/Bool.h" // 3rd party, submodule
+
+#include "Application.h" // 1st party
 #include "CustomWidget1.h"
 #include "CustomWidget2.h"
 ```
@@ -219,6 +222,19 @@ void someFunction() {
 }
 ```
 
+## When in Doubt
+
+**Design from the outside in.** When stuck on how something should work internally, write example usage code first. The ideal API often reveals the right implementation.
+
+Examples:
+- Don't know how to structure a builder? Write the call chain you wish existed
+- Unclear about ownership? Draft the construction and cleanup you'd want
+- Unsure about state management? Write the usage that would feel obvious
+
+See [MenuBuilder.h](Fernanda/src/MenuBuilder.h) for a good example. Its interface drives the entire implementation.
+
+TODO: Add concrete before/after example showing this in practice
+
 ## User Interface
 
 ### Menus
@@ -236,3 +252,21 @@ Save all
 Open file...
 Save as...
 ```
+
+## Reference Implementations
+
+The following files demonstrate clean implementation of standards:
+
+### MenuBuilder.h
+
+[MenuBuilder.h](Fernanda/src/MenuBuilder.h)
+
+General-purpose menu builder with fluent interface.
+
+Good example of:
+- Consistent naming (camelCase members, PascalCase types, trailing underscores)
+- Fluent API with defensive null checks throughout
+- Qt ownership patterns (parent-child relationships, proper signal connections)
+- Modern C++ where appropriate (concepts, template constraints)
+
+Unlike most of Fernanda's objects and widgets (which are intentionally specialized), MenuBuilder is a good example of a general-purpose (but Qt-specific) utility class.

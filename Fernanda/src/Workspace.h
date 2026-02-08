@@ -14,6 +14,8 @@
 #include <QList>
 #include <QModelIndex>
 #include <QObject>
+#include <QPoint>
+#include <QSize>
 #include <QString>
 #include <QVariantMap>
 
@@ -188,6 +190,20 @@ private:
                 refreshMenus(MenuScope::Workspace);
             });
 
+        /// TODO TD
+        connect(
+            views,
+            &ViewService::tabDragCompleted,
+            this,
+            &Workspace::onTabDragCompleted_);
+
+        /// TODO TD
+        connect(
+            views,
+            &ViewService::tabDraggedToNewWindow,
+            this,
+            &Workspace::onTabDraggedToNewWindow_);
+
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
         connect(windows, &WindowService::lastWindowClosed, this, [&] {
@@ -299,6 +315,60 @@ private slots:
             &AbstractFileView::clipboardDataChanged,
             this,
             slot);
+    }
+
+    /// TODO TD
+    void onTabDragCompleted_(Window* fromWindow, Window* toWindow)
+    {
+        refreshMenus(MenuScope::Window);
+        refreshMenus(MenuScope::Workspace);
+
+        // Close the source window if it has no remaining tabs
+        auto source_tab_widget =
+            qobject_cast<TabWidget*>(fromWindow->centralWidget());
+
+        if (source_tab_widget && source_tab_widget->isEmpty())
+            fromWindow->close();
+    }
+
+    /// TODO TD
+    void onTabDraggedToNewWindow_(
+        Window* sourceWindow,
+        const QPoint& dropPos,
+        const TabWidget::TabSpec& tabSpec)
+    {
+        if (!tabSpec.isValid()) return;
+
+        // Approximate the tab's visual offset in the new window to position
+        // it so the tab appears roughly where the cursor was released
+        constexpr auto tab_top_left_approximate = QPoint(0, 38);
+
+        auto max_tab_size = QSize(225, 34); // Fallback
+        if (auto source_tabs =
+                qobject_cast<TabWidget*>(sourceWindow->centralWidget()))
+            max_tab_size = source_tabs->maximumTabSize();
+
+        auto new_window_top_left =
+            dropPos - tab_top_left_approximate
+            - tabSpec.relPos(max_tab_size.width(), max_tab_size.height());
+
+        auto new_window = windows->newWindow(new_window_top_left);
+        if (!new_window) return;
+
+        views->insertTabSpec(new_window, tabSpec);
+        tabSpec.widget->setFocus();
+
+        refreshMenus(MenuScope::Window);
+        refreshMenus(MenuScope::Workspace);
+
+        // Close the source window if it has no remaining tabs
+        if (sourceWindow) {
+            auto source_tab_widget =
+                qobject_cast<TabWidget*>(sourceWindow->centralWidget());
+
+            if (source_tab_widget && source_tab_widget->isEmpty())
+                sourceWindow->close();
+        }
     }
 };
 
