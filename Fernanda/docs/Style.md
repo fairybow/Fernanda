@@ -231,7 +231,7 @@ Examples:
 - Unclear about ownership? Draft the construction and cleanup you'd want
 - Unsure about state management? Write the usage that would feel obvious
 
-See [MenuBuilder.h](Fernanda/src/MenuBuilder.h) for a good example. Its interface drives the entire implementation.
+See [MenuBuilder.h](../src/MenuBuilder.h) for a good example. Its interface drives the entire implementation.
 
 TODO: Add concrete before/after example showing this in practice
 
@@ -257,9 +257,7 @@ Save as...
 
 The following files demonstrate clean implementation of standards:
 
-### MenuBuilder.h
-
-[MenuBuilder.h](Fernanda/src/MenuBuilder.h)
+### [MenuBuilder.h](../src/MenuBuilder.h)
 
 General-purpose menu builder with fluent interface.
 
