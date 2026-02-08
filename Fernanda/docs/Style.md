@@ -180,7 +180,7 @@ private slots:
 
 ### Comments and Documentation
 
-**Section headers**: Must have blank line before the following function to avoid showing in IntelliSense
+**Section headers**: Must have blank line before the following function to avoid showing in IntelliSense tooltip pop-up
 
 ```cpp
 // === File Operations ===
@@ -188,7 +188,7 @@ private slots:
 void openFile(const QString& path);
 ```
 
-**Function/variable documentation**: Place directly above to show in IntelliSense
+**Function/variable documentation**: Place directly above to show in IntelliSense pop-up
 
 ```cpp
 // Opens a file and returns whether successful
@@ -208,7 +208,7 @@ bool openFile(const QString& path);
 void processValidatedFile();
 ```
 
-**Permanent notes**: Place inside function body unless constant reminder needed on usage
+**Permanent notes**: Place inside function body unless constant reminder (IntelliSense pop-up) needed on usage
 
 ```cpp
 // Good - reminder needed every time function is called
