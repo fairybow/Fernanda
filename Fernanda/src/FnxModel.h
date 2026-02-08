@@ -130,6 +130,13 @@ public:
         if (Fnx::Xml::isEdited(element) == edited) return;
 
         Fnx::Xml::setEdited(element, edited);
+
+        auto index = indexFromElement_(element);
+
+        if (index.isValid()) {
+            emit dataChanged(index, index, { Qt::DisplayRole, Qt::FontRole });
+        }
+
         emit domChanged();
     }
 
