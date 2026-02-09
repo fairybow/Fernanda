@@ -1,6 +1,8 @@
 # Roadmap
 
-Next: Clean up TODO TD and TODO TVT
+Tags for working code that is a draft and needs more scrutiny/cleaning:
+- TODO TD (tab dragging)
+- TODO TVT (tree view toggle)
 
 ## Features
 
