@@ -62,6 +62,7 @@ protected:
                 cursor.setPosition(start);
                 cursor.setPosition(end, QTextCursor::KeepAnchor);
                 setTextCursor(cursor);
+
                 return;
             }
         }
