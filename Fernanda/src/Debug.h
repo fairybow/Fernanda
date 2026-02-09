@@ -31,7 +31,6 @@
 #include "Coco/Path.h"
 
 #include "Formatters.h"
-#include "Version.h"
 
 // TODO: Log to file. Commented-out method is too slow. Need to maybe keep file
 // open the entire time, hold static QFile
@@ -117,9 +116,9 @@ inline void setLogging(bool logging)
 }
 
 // To be safe, don't call this before Qt has finished app construction
-inline void initialize(const Coco::Path& logFilePath = {})
+inline void initialize(bool logging, const Coco::Path& logFilePath = {})
 {
-    setLogging(Version::isDebug);
+    setLogging(logging);
 
     std::lock_guard<std::mutex> lock(Internal::mutex_);
     // Internal::logFilePath_ = logFilePath;
