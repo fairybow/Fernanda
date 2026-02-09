@@ -180,7 +180,7 @@ private slots:
 
 ### Comments and Documentation
 
-**Section headers**: Must have blank line before the following function to avoid showing in IntelliSense
+**Section headers**: Must have blank line before the following function to avoid showing in IntelliSense tooltip pop-up
 
 ```cpp
 // === File Operations ===
@@ -188,7 +188,7 @@ private slots:
 void openFile(const QString& path);
 ```
 
-**Function/variable documentation**: Place directly above to show in IntelliSense
+**Function/variable documentation**: Place directly above to show in IntelliSense pop-up
 
 ```cpp
 // Opens a file and returns whether successful
@@ -208,7 +208,7 @@ bool openFile(const QString& path);
 void processValidatedFile();
 ```
 
-**Permanent notes**: Place inside function body unless constant reminder needed on usage
+**Permanent notes**: Place inside function body unless constant reminder (IntelliSense pop-up) needed on usage
 
 ```cpp
 // Good - reminder needed every time function is called
@@ -231,7 +231,7 @@ Examples:
 - Unclear about ownership? Draft the construction and cleanup you'd want
 - Unsure about state management? Write the usage that would feel obvious
 
-See [MenuBuilder.h](Fernanda/src/MenuBuilder.h) for a good example. Its interface drives the entire implementation.
+See [MenuBuilder.h](../src/MenuBuilder.h) for a good example. Its interface drives the entire implementation.
 
 TODO: Add concrete before/after example showing this in practice
 
@@ -257,9 +257,7 @@ Save as...
 
 The following files demonstrate clean implementation of standards:
 
-### MenuBuilder.h
-
-[MenuBuilder.h](Fernanda/src/MenuBuilder.h)
+### [MenuBuilder.h](../src/MenuBuilder.h)
 
 General-purpose menu builder with fluent interface.
 

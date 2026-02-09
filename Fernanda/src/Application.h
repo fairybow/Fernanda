@@ -14,8 +14,6 @@
 #include <QList>
 #include <QSessionManager>
 #include <QStringList>
-#include <QStyle>
-#include <QStyleFactory>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -50,7 +48,7 @@ public:
 
         if (initialized_) return;
 
-        Debug::initialize(); // TODO: Log file path
+        Debug::initialize(Version::isDebug); // TODO: Log file path
         if (!AppDirs::initialize()) FATAL("App directory creation failed!");
         loadBundledFonts_();
 

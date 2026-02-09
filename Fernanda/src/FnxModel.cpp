@@ -10,6 +10,7 @@
 #include "FnxModel.h"
 
 #include <QDomElement>
+#include <QFont>
 #include <QIcon>
 #include <QModelIndex>
 #include <QString>
@@ -31,8 +32,22 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
+        if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element))
+            return Fnx::Xml::name(element) + QStringLiteral(" *");
+        return Fnx::Xml::name(element);
+
     case Qt::EditRole:
         return Fnx::Xml::name(element);
+
+    case Qt::FontRole: {
+        if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element)) {
+            QFont font{};
+            font.setItalic(true);
+            return font;
+        }
+
+        return {};
+    }
 
     case Qt::DecorationRole: {
         if (Fnx::Xml::isVirtualFolder(element)) {
