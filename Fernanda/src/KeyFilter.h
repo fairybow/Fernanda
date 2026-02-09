@@ -92,6 +92,7 @@ private:
             if (isBetweenPair_(document, cursor)) {
                 deletePair_(cursor);
                 textEdit_->setTextCursor(cursor);
+
                 return true;
             }
         }
@@ -100,6 +101,7 @@ private:
             if (canBarge_(document, cursor)) {
                 barge_(cursor);
                 textEdit_->setTextCursor(cursor);
+
                 return true;
             }
         }
@@ -110,6 +112,7 @@ private:
             if (canBargeReturn_(document, cursor)) {
                 bargeReturn_(cursor);
                 textEdit_->setTextCursor(cursor);
+
                 return true;
             }
         }
@@ -138,6 +141,7 @@ private:
         if (autoClosing_ && canSkipCloser_(ch, document, cursor)) {
             cursor.movePosition(QTextCursor::NextCharacter);
             textEdit_->setTextCursor(cursor);
+
             return true;
         }
 

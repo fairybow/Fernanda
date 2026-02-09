@@ -20,13 +20,15 @@ Next: Clean up TODO TD and TODO TVT
 - [x] View menu > toggle tree view (both Workspaces) > INI default (notepad off / notebook on) > write settings value either for an individual window toggle, switching current window, or both
 - [ ] Ensure we are using terms around checkable items correctly in code! The term toggle is being used in a few different ways, I think. We should ensure checkable actions are called checkables or something. Also sort out the other uses of "toggle"
 - [x] Need a "dirty" mark on Notebook files in TreeView
+- [ ] Remove tab drop to new window positioning calculations and just start fresh!
+- [ ] Autosave
 
 ### Stretch
 
 - [x] Notebook Trash
 - [ ] Mulitple TabWidgets per window for side-by-side
 - [x] Make cursor restart blink when clicking? Right now it looks like a delay or something
-- [ ] Allow double clicking to highlight white space (2 or more)
+- [x] Allow double clicking to highlight white space (2 or more)
 - [ ] Trim extra spaces after paragraphs on save (before saving) (editor or workspace feature, not key filter)
 - [ ] Trim extra space on newline/return? (editor feature, not key filter)
 - [ ] Window Themes (theming infrastructure is in place, but window theming proving difficult (especially with tab bar, buttons, and collapsible widget header (see: window QSS template)))

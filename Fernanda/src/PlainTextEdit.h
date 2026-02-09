@@ -9,7 +9,11 @@
 
 #pragma once
 
+#include <QChar>
+#include <QMouseEvent>
 #include <QPlainTextEdit>
+#include <QPoint>
+#include <QString>
 #include <QTextCursor>
 #include <QWidget>
 
@@ -29,6 +33,41 @@ public:
     }
 
     virtual ~PlainTextEdit() override { TRACER; }
+
+protected:
+    virtual void mouseDoubleClickEvent(QMouseEvent* event) override
+    {
+        // Allow double-clicking white space runs (except single spaces and new
+        // lines)
+
+        auto cursor = cursorForPosition(event->pos());
+        auto position = static_cast<qsizetype>(cursor.position());
+        auto text = document()->toPlainText();
+
+        if (position < text.size() && text[position].isSpace()
+            && text[position] != '\n') {
+            // Expand left
+            auto start = position;
+            while (start > 0 && text[start - 1].isSpace()
+                   && text[start - 1] != '\n')
+                --start;
+
+            // Expand right
+            auto end = position;
+            while (end < text.size() && text[end].isSpace()
+                   && text[end] != '\n')
+                ++end;
+
+            if (!(end - start == 1 && text[start] == ' ')) {
+                cursor.setPosition(start);
+                cursor.setPosition(end, QTextCursor::KeepAnchor);
+                setTextCursor(cursor);
+                return;
+            }
+        }
+
+        QPlainTextEdit::mouseDoubleClickEvent(event);
+    }
 
 private:
     void setup_()
