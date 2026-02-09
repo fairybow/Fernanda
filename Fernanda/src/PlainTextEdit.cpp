@@ -19,7 +19,7 @@ void PlainTextEdit::onCursorPositionChanged_()
     // is not ideal, since though it does work, it doesn't change the
     // application's universal cursor blink timer, meaning the cursor is visible
     // for an inconsistent amount of time after each move. It looks and feels
-    // bad! This does not do that.
+    // bad! This does not do that:
 
     static auto original_flash_time = -1;
 
