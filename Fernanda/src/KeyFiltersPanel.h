@@ -19,6 +19,7 @@
 
 namespace Fernanda {
 
+/// TODO KFS
 class KeyFiltersPanel : public QWidget
 {
     Q_OBJECT
@@ -42,7 +43,9 @@ public:
     virtual ~KeyFiltersPanel() override { TRACER; }
 
 signals:
-    //
+    void activeChanged(bool active);
+    void autoCloseChanged(bool autoClose);
+    void bargingChanged(bool barging);
 
 private:
     QGroupBox* groupBox_ = new QGroupBox(this);
@@ -73,7 +76,17 @@ private:
         main_layout->addWidget(groupBox_);
 
         // Connect
-        //...
+        connect(groupBox_, &QGroupBox::toggled, this, [&](bool toggled) {
+            emit activeChanged(toggled);
+        });
+
+        connect(autoCloseCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
+            emit autoCloseChanged(toggled);
+        });
+
+        connect(bargingCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
+            emit bargingChanged(toggled);
+        });
     }
 };
 

@@ -41,10 +41,14 @@ public:
     virtual ~TextFileView() override { TRACER; }
 
     PlainTextEdit* editor() const noexcept { return editor_; }
+    KeyFilters* keyFilters() const noexcept { return keyFilters_; }
 
     // Propagation
 
     // TODO: Don't bother wrapping these. Just use the editor (^) my dude
+
+    // TODO: Delete once implemented as settings panel
+    // (TextFileViewAttributesPanel or something)
 
     /*const QFont& font() const { return editor_->font(); }
     void setFont(const QFont& font) { editor_->setFont(font); }

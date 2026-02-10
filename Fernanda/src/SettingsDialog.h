@@ -67,6 +67,11 @@ signals:
     void windowThemeChanged(const Coco::Path& path);
     void editorThemeChanged(const Coco::Path& path);
 
+    /// TODO KFS
+    void keyFiltersActiveChanged(bool active);
+    void keyFiltersAutoCloseChanged(bool autoClose);
+    void keyFiltersBargingChanged(bool barging);
+
 private:
     FontSelector* fontSelector_ = nullptr;
     ThemeSelector* themeSelector_ = nullptr;
@@ -123,6 +128,29 @@ private:
             &ThemeSelector::editorThemeChanged,
             this,
             [&](const Coco::Path& path) { emit editorThemeChanged(path); });
+
+        /// TODO KFS
+        connect(
+            keyFiltersPanel_,
+            &KeyFiltersPanel::activeChanged,
+            this,
+            [&](bool active) { emit keyFiltersActiveChanged(active); });
+
+        /// TODO KFS
+        connect(
+            keyFiltersPanel_,
+            &KeyFiltersPanel::autoCloseChanged,
+            this,
+            [&](bool autoClose) {
+                emit keyFiltersAutoCloseChanged(autoClose);
+            });
+
+        /// TODO KFS
+        connect(
+            keyFiltersPanel_,
+            &KeyFiltersPanel::bargingChanged,
+            this,
+            [&](bool barging) { emit keyFiltersBargingChanged(barging); });
     }
 };
 
