@@ -15,6 +15,7 @@
 #include <QList>
 #include <QObject>
 #include <QString>
+#include <QTextOption>
 #include <QVariant>
 
 #include "Coco/Path.h"
@@ -134,6 +135,20 @@ public:
                 Ini::Keys::KEY_FILTERS_BARGING,
                 Ini::Defaults::keyFiltersBarging()),
 
+            /// TODO ES
+            .editorCenterOnScroll = settings_->value<bool>(
+                Ini::Keys::EDITOR_CENTER_ON_SCROLL,
+                Ini::Defaults::editorCenterOnScroll()),
+            .editorOverwrite = settings_->value<bool>(
+                Ini::Keys::EDITOR_OVERWRITE,
+                Ini::Defaults::editorOverwrite()),
+            .editorTabStopDistance = settings_->value<int>(
+                Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
+                Ini::Defaults::editorTabStopDistance()),
+            .editorWordWrapMode = settings_->value<QTextOption::WrapMode>(
+                Ini::Keys::EDITOR_WORD_WRAP_MODE,
+                Ini::Defaults::editorWordWrapMode()),
+
             //...
         };
 
@@ -205,6 +220,55 @@ public:
                 set(Ini::Keys::KEY_FILTERS_BARGING, barging);
             });
 
+        /// TODO ES
+        connect(
+            dialog_,
+            &SettingsDialog::editorCenterOnScrollChanged,
+            this,
+            [&](bool centerOnScroll) {
+                emit bus->settingChanged(
+                    Ini::Keys::EDITOR_CENTER_ON_SCROLL,
+                    centerOnScroll);
+                set(Ini::Keys::EDITOR_CENTER_ON_SCROLL, centerOnScroll);
+            });
+
+        /// TODO ES
+        connect(
+            dialog_,
+            &SettingsDialog::editorOverwriteChanged,
+            this,
+            [&](bool overwrite) {
+                emit bus->settingChanged(
+                    Ini::Keys::EDITOR_OVERWRITE,
+                    overwrite);
+                set(Ini::Keys::EDITOR_OVERWRITE, overwrite);
+            });
+
+        /// TODO ES
+        connect(
+            dialog_,
+            &SettingsDialog::editorTabStopDistanceChanged,
+            this,
+            [&](int tabStopDistance) {
+                emit bus->settingChanged(
+                    Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
+                    tabStopDistance);
+                pendingEditorTabStopDistance_ = tabStopDistance;
+                editorTabStopDistanceDebouncer_->start();
+            });
+
+        /// TODO ES
+        connect(
+            dialog_,
+            &SettingsDialog::editorWordWrapModeChanged,
+            this,
+            [&](QTextOption::WrapMode wordWrapMode) {
+                emit bus->settingChanged(
+                    Ini::Keys::EDITOR_WORD_WRAP_MODE,
+                    wordWrapMode);
+                set(Ini::Keys::EDITOR_WORD_WRAP_MODE, wordWrapMode);
+            });
+
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {
             (void)result;
             delete dialog_;
@@ -273,13 +337,17 @@ private:
 
     static constexpr auto DEBOUNCE_MS_ = 500;
 
-    Timers::Debouncer* fontDebouncer_ =
-        nullptr; // TODO: Possible to have one debouncer for all settings?
+    // TODO: Possible to have one debouncer for all settings?
+    Timers::Debouncer* fontDebouncer_ = nullptr;
     QFont pendingFont_{};
+
     Timers::Debouncer* windowThemeDebouncer_ = nullptr;
     Coco::Path pendingWindowTheme_{};
     Timers::Debouncer* editorThemeDebouncer_ = nullptr;
     Coco::Path pendingEditorTheme_{};
+
+    Timers::Debouncer* editorTabStopDistanceDebouncer_ = nullptr;
+    int pendingEditorTabStopDistance_{};
 
     void setup_()
     {
@@ -294,6 +362,13 @@ private:
         editorThemeDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
             set(Ini::Keys::EDITOR_THEME, pendingEditorTheme_.toQString());
         });
+
+        /// TODO ES
+        editorTabStopDistanceDebouncer_ =
+            new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
+                set(Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
+                    pendingEditorTabStopDistance_);
+            });
     }
 };
 

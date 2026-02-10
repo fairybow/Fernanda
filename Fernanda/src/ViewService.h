@@ -17,6 +17,7 @@
 #include <QObject>
 #include <QSet>
 #include <QString>
+#include <QTextOption>
 #include <QVariant>
 #include <QVariantMap>
 #include <QWidget>
@@ -666,7 +667,33 @@ private:
                 Bus::GET_SETTING,
                 { { "key", Ini::Keys::EDITOR_FONT },
                   { "defaultValue", Ini::Defaults::font() } });
+
+            /// TODO ES
+            auto center_on_scroll = bus->call<bool>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::EDITOR_CENTER_ON_SCROLL },
+                  { "defaultValue", Ini::Defaults::editorCenterOnScroll() } });
+
+            auto overwrite = bus->call<bool>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::EDITOR_OVERWRITE },
+                  { "defaultValue", Ini::Defaults::editorOverwrite() } });
+
+            auto tab_stop_distance = bus->call<int>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::EDITOR_TAB_STOP_DISTANCE },
+                  { "defaultValue", Ini::Defaults::editorTabStopDistance() } });
+
+            auto word_wrap_mode = bus->call<QTextOption::WrapMode>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::EDITOR_WORD_WRAP_MODE },
+                  { "defaultValue", Ini::Defaults::editorWordWrapMode() } });
+
             editor->setFont(font);
+            editor->setCenterOnScroll(center_on_scroll);
+            editor->setOverwriteMode(overwrite);
+            editor->setTabStopDistance(tab_stop_distance);
+            editor->setWordWrapMode(word_wrap_mode);
         }
 
         /// TODO KFS
@@ -803,7 +830,6 @@ private slots:
 
     void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
-        // TODO: Other editor settings (tab indent, center on scroll, etc)
         if (key == Ini::Keys::EDITOR_FONT) {
             auto font = value.value<QFont>();
             forEachTextFileView_(
@@ -831,6 +857,38 @@ private slots:
             auto barging = value.value<bool>();
             forEachTextFileView_([&](TextFileView* view) {
                 view->keyFilters()->setBarging(barging);
+            });
+        }
+
+        /// TODO ES
+        if (key == Ini::Keys::EDITOR_CENTER_ON_SCROLL) {
+            auto center_on_scroll = value.value<bool>();
+            forEachTextFileView_([&](TextFileView* view) {
+                view->editor()->setCenterOnScroll(center_on_scroll);
+            });
+        }
+
+        /// TODO ES
+        if (key == Ini::Keys::EDITOR_OVERWRITE) {
+            auto overwrite = value.value<bool>();
+            forEachTextFileView_([&](TextFileView* view) {
+                view->editor()->setOverwriteMode(overwrite);
+            });
+        }
+
+        /// TODO ES
+        if (key == Ini::Keys::EDITOR_TAB_STOP_DISTANCE) {
+            auto tab_stop_distance = value.value<int>();
+            forEachTextFileView_([&](TextFileView* view) {
+                view->editor()->setTabStopDistance(tab_stop_distance);
+            });
+        }
+
+        /// TODO ES
+        if (key == Ini::Keys::EDITOR_WORD_WRAP_MODE) {
+            auto word_wrap_mode = value.value<QTextOption::WrapMode>();
+            forEachTextFileView_([&](TextFileView* view) {
+                view->editor()->setWordWrapMode(word_wrap_mode);
             });
         }
     }

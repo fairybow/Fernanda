@@ -43,46 +43,6 @@ public:
     PlainTextEdit* editor() const noexcept { return editor_; }
     KeyFilters* keyFilters() const noexcept { return keyFilters_; }
 
-    // Propagation
-
-    // TODO: Don't bother wrapping these. Just use the editor (^) my dude
-
-    // TODO: Delete once implemented as settings panel
-    // (TextFileViewAttributesPanel or something)
-
-    /*const QFont& font() const { return editor_->font(); }
-    void setFont(const QFont& font) { editor_->setFont(font); }
-    bool hasCenterOnScroll() const { return editor_->centerOnScroll(); }
-
-    void setHasCenterOnScroll(bool hasCenterOnScroll)
-    {
-        editor_->setCenterOnScroll(hasCenterOnScroll);
-    }
-
-    bool hasOverwrite() const { return editor_->overwriteMode(); }
-
-    void setHasOverwrite(bool hasOverwrite)
-    {
-        editor_->setOverwriteMode(hasOverwrite);
-    }
-
-    qreal tabStopDistance() const { return editor_->tabStopDistance(); }
-
-    void setTabStopDistance(qreal tabStopDistance)
-    {
-        editor_->setTabStopDistance(tabStopDistance);
-    }
-
-    QTextOption::WrapMode wordWrapMode() const
-    {
-        return editor_->wordWrapMode();
-    }
-
-    void setWordWrapMode(QTextOption::WrapMode wordWrapMode)
-    {
-        editor_->setWordWrapMode(wordWrapMode);
-    }*/
-
     // Base methods
 
     virtual bool supportsEditing() const override
