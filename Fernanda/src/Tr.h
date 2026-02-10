@@ -219,6 +219,18 @@ namespace Tr {
     TR_(keyFiltersPanelAutoClose, tr("Auto-close"));
     TR_(keyFiltersPanelBarging, tr("Barging"));
 
+    /// Editor panel
+
+    TR_(editorPanelTitle, tr("Editor"));
+    TR_(editorPanelCenterOnScroll, tr("Center on scroll"));
+    TR_(editorPanelOverwrite, tr("Overwrite"));
+    TR_(editorPanelTabStopDistance, tr("Tab stop distance: "));
+    TR_(editorPanelWordWrapMode, tr("Word wrap mode: "));
+    TR_(editorPanelNoWrap, tr("None"));
+    TR_(editorPanelWordWrap, tr("At word boundary"));
+    TR_(editorPanelWrapAnywhere, tr("Anywhere"));
+    TR_(editorPanelWrapAtWordBoundaryOrAnywhere, tr("Smart"));
+
     /// Settings
 
     TR_(noTheme, tr("No theme"));
@@ -233,20 +245,3 @@ namespace Tr {
 } // namespace Fernanda
 
 #undef TR_
-
-/// OLD (REMOVE AS IMPLEMENTED):
-
-/*
-namespace EditorsSb {
-
-    TR_(centerOnScroll, tr("Center on scroll"));
-    TR_(overwrite, tr("Overwrite"));
-    TR_(tabStopDistance, tr("Tab stop distance: "));
-    TR_(wordWrapMode, tr("Word wrap mode: "));
-    TR_(noWrap, tr("None"));
-    TR_(wordWrap, tr("At word boundary"));
-    TR_(wrapAnywhere, tr("Anywhere"));
-    TR_(wrapAtWordBoundaryOrAnywhere, tr("Smart"));
-
-} // namespace EditorsSb
-*/

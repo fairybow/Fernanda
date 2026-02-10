@@ -124,6 +124,7 @@
     <QtMoc Include="src\TreeView.h" />
     <ClInclude Include="src\old_FnxModel.h" />
     <QtMoc Include="src\PlainTextEdit.h" />
+    <QtMoc Include="src\EditorPanel.h" />
     <ClInclude Include="src\Qss.h" />
     <ClInclude Include="src\SaveFailMessageBox.h" />
     <ClInclude Include="src\SavePrompt.h" />

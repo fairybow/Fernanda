@@ -424,6 +424,9 @@
     <QtMoc Include="src\KeyFiltersPanel.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
+    <QtMoc Include="src\EditorPanel.h">
+      <Filter>Code\Core\Services\Settings</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">

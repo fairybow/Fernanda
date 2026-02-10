@@ -11,6 +11,7 @@
 
 #include <QFont>
 #include <QString>
+#include <QTextOption>
 
 // TODO: Any way to get path to work with QSettings?
 // #include "Coco/Path.h"
@@ -29,6 +30,10 @@ namespace Keys {
     constexpr auto KEY_FILTERS_ACTIVE = "KeyFilters/Active";
     constexpr auto KEY_FILTERS_AUTO_CLOSE = "KeyFilters/AutoClose";
     constexpr auto KEY_FILTERS_BARGING = "KeyFilters/Barging";
+    constexpr auto EDITOR_CENTER_ON_SCROLL = "Editor/CenterOnScroll";
+    constexpr auto EDITOR_OVERWRITE = "Editor/Overwrite";
+    constexpr auto EDITOR_TAB_STOP_DISTANCE = "Editor/TabStopDistance";
+    constexpr auto EDITOR_WORD_WRAP_MODE = "Editor/WordWrapMode";
 
 } // namespace Keys
 
@@ -36,6 +41,8 @@ namespace Defaults {
 
     constexpr auto FONT_SIZE_MIN = 8;
     constexpr auto FONT_SIZE_MAX = 144;
+    constexpr auto EDITOR_TAB_STOP_DISTANCE_MIN = 20;
+    constexpr auto EDITOR_TAB_STOP_DISTANCE_MAX = 140;
 
     inline QFont font()
     {
@@ -44,7 +51,6 @@ namespace Defaults {
         f.setItalic(false);
         return f;
     }
-
     inline QString windowTheme() { return {}; }
     // TODO: Any way to get Coco::Path to work with QSettings?
     inline QString editorTheme() { return ":/themes/Pocket.fernanda_editor"; }
@@ -53,6 +59,13 @@ namespace Defaults {
     inline bool keyFiltersActive() { return true; }
     inline bool keyFiltersAutoClose() { return true; }
     inline bool keyFiltersBarging() { return true; }
+    inline bool editorCenterOnScroll() { return false; }
+    inline bool editorOverwrite() { return false; }
+    inline int editorTabStopDistance() { return 40; }
+    inline QTextOption::WrapMode editorWordWrapMode()
+    {
+        return QTextOption::WordWrap;
+    }
 
 } // namespace Defaults
 

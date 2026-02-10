@@ -14,12 +14,14 @@
 #include <QList>
 #include <QObject>
 #include <QString>
+#include <QTextOption>
 #include <QVBoxLayout>
 #include <QWidget>
 
 #include "Coco/Path.h"
 
 #include "Debug.h"
+#include "EditorPanel.h"
 #include "FontSelector.h"
 #include "KeyFiltersPanel.h"
 #include "ThemeSelector.h"
@@ -39,7 +41,6 @@ public:
 
         QList<ThemeSelector::Entry> windowThemes;
         Coco::Path currentWindowTheme;
-
         QList<ThemeSelector::Entry> editorThemes;
         Coco::Path currentEditorTheme;
 
@@ -47,6 +48,12 @@ public:
         bool keyFiltersActive;
         bool keyFiltersAutoClose;
         bool keyFiltersBarging;
+
+        /// TODO ES
+        bool editorCenterOnScroll;
+        bool editorOverwrite;
+        int editorTabStopDistance;
+        QTextOption::WrapMode editorWordWrapMode;
 
         //...
     };
@@ -72,10 +79,17 @@ signals:
     void keyFiltersAutoCloseChanged(bool autoClose);
     void keyFiltersBargingChanged(bool barging);
 
+    /// TODO ES
+    void editorCenterOnScrollChanged(bool centerOnScroll);
+    void editorOverwriteChanged(bool overwrite);
+    void editorTabStopDistanceChanged(int tabStopDistance);
+    void editorWordWrapModeChanged(QTextOption::WrapMode wordWrapMode);
+
 private:
     FontSelector* fontSelector_ = nullptr;
     ThemeSelector* themeSelector_ = nullptr;
     KeyFiltersPanel* keyFiltersPanel_ = nullptr;
+    EditorPanel* editorPanel_ = nullptr;
 
     void setup_(const QString& title, const InitialValues& initialValues)
     {
@@ -104,12 +118,22 @@ private:
                 .barging = initialValues.keyFiltersBarging },
             this);
 
+        /// TODO ES
+        editorPanel_ = new EditorPanel(
+            EditorPanel::InitialValues{
+                .centerOnScroll = initialValues.editorCenterOnScroll,
+                .overwrite = initialValues.editorOverwrite,
+                .tabStopDistance = initialValues.editorTabStopDistance,
+                .wordWrapMode = initialValues.editorWordWrapMode },
+            this);
+
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
         layout->addWidget(fontSelector_);
         layout->addWidget(themeSelector_);
         layout->addWidget(keyFiltersPanel_);
+        layout->addWidget(editorPanel_);
 
         connect(
             fontSelector_,
@@ -151,6 +175,40 @@ private:
             &KeyFiltersPanel::bargingChanged,
             this,
             [&](bool barging) { emit keyFiltersBargingChanged(barging); });
+
+        /// TODO ES
+        connect(
+            editorPanel_,
+            &EditorPanel::centerOnScrollChanged,
+            this,
+            [&](bool centerOnScroll) {
+                emit editorCenterOnScrollChanged(centerOnScroll);
+            });
+
+        /// TODO ES
+        connect(
+            editorPanel_,
+            &EditorPanel::overwriteChanged,
+            this,
+            [&](bool overwrite) { emit editorOverwriteChanged(overwrite); });
+
+        /// TODO ES
+        connect(
+            editorPanel_,
+            &EditorPanel::tabStopDistanceChanged,
+            this,
+            [&](int tabStopDistance) {
+                emit editorTabStopDistanceChanged(tabStopDistance);
+            });
+
+        /// TODO ES
+        connect(
+            editorPanel_,
+            &EditorPanel::wordWrapModeChanged,
+            this,
+            [&](QTextOption::WrapMode wrapMode) {
+                emit editorWordWrapModeChanged(wrapMode);
+            });
     }
 };
 
