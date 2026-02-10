@@ -21,6 +21,7 @@
 
 #include "Debug.h"
 #include "FontSelector.h"
+#include "KeyFiltersPanel.h"
 #include "ThemeSelector.h"
 
 namespace Fernanda {
@@ -41,6 +42,11 @@ public:
 
         QList<ThemeSelector::Entry> editorThemes;
         Coco::Path currentEditorTheme;
+
+        /// TODO KFS
+        bool keyFiltersActive;
+        bool keyFiltersAutoClose;
+        bool keyFiltersBarging;
 
         //...
     };
@@ -64,6 +70,7 @@ signals:
 private:
     FontSelector* fontSelector_ = nullptr;
     ThemeSelector* themeSelector_ = nullptr;
+    KeyFiltersPanel* keyFiltersPanel_ = nullptr;
 
     void setup_(const QString& title, const InitialValues& initialValues)
     {
@@ -84,11 +91,20 @@ private:
                 .currentEditorTheme = initialValues.currentEditorTheme },
             this);
 
+        /// TODO KFS
+        keyFiltersPanel_ = new KeyFiltersPanel(
+            KeyFiltersPanel::InitialValues{
+                .active = initialValues.keyFiltersActive,
+                .autoClose = initialValues.keyFiltersAutoClose,
+                .barging = initialValues.keyFiltersBarging },
+            this);
+
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
         layout->addWidget(fontSelector_);
         layout->addWidget(themeSelector_);
+        layout->addWidget(keyFiltersPanel_);
 
         connect(
             fontSelector_,

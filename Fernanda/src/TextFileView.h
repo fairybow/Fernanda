@@ -19,7 +19,7 @@
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
 #include "Debug.h"
-#include "KeyFilter.h"
+#include "KeyFilters.h"
 #include "PlainTextEdit.h"
 #include "TextFileModel.h"
 
@@ -128,7 +128,7 @@ protected:
 
 private:
     PlainTextEdit* editor_ = nullptr;
-    KeyFilter* keyFilter_ = new KeyFilter(this);
+    KeyFilters* keyFilters_ = new KeyFilters(this);
 };
 
 } // namespace Fernanda

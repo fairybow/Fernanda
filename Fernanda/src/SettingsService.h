@@ -123,6 +123,17 @@ public:
                 Ini::Keys::EDITOR_THEME,
                 Ini::Defaults::editorTheme()),
 
+            /// TODO KFS
+            .keyFiltersActive = settings_->value<bool>(
+                Ini::Keys::KEY_FILTERS_ACTIVE,
+                Ini::Defaults::keyFiltersActive()),
+            .keyFiltersAutoClose = settings_->value<bool>(
+                Ini::Keys::KEY_FILTERS_AUTO_CLOSE,
+                Ini::Defaults::keyFiltersAutoClose()),
+            .keyFiltersBarging = settings_->value<bool>(
+                Ini::Keys::KEY_FILTERS_BARGING,
+                Ini::Defaults::keyFiltersBarging()),
+
             //...
         };
 

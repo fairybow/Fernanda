@@ -213,10 +213,18 @@ namespace Tr {
     TR_(editorTheme, tr("Editor theme"));
     TR_(windowTheme, tr("Window theme"));
 
+    /// Key filter panel
+
+    TR_(keyFiltersPanelTitle, tr("Key filters"));
+    TR_(keyFiltersPanelAutoClose, tr("Auto-close"));
+    TR_(keyFiltersPanelBarging, tr("Barging"));
+
     /// Settings
+
     TR_(noTheme, tr("No theme"));
 
     /// Settings Dialog
+
     TR_(settingsTitle, tr("Settings"));
     TR_(settingsTitleFormat, tr("%0 Settings"));
 
@@ -241,12 +249,4 @@ namespace EditorsSb {
     TR_(wrapAtWordBoundaryOrAnywhere, tr("Smart"));
 
 } // namespace EditorsSb
-
-namespace KeyFiltersSb {
-
-    TR_(active, tr("Active")); // using key filters at all
-    TR_(autoClose, tr("Auto-close"));
-    TR_(barging, tr("Barging"));
-
-} // namespace KeyFiltersSb
 */

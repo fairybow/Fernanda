@@ -34,17 +34,17 @@ namespace Fernanda {
 // one after we press non-space key)
 // TODO: Trim spaces before and after paragraphs (not new lines/returns)
 // TODO: Document these with examples!
-class KeyFilter : public QObject
+class KeyFilters : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit KeyFilter(QObject* parent = nullptr)
+    explicit KeyFilters(QObject* parent = nullptr)
         : QObject(parent)
     {
     }
 
-    virtual ~KeyFilter() override { TRACER; }
+    virtual ~KeyFilters() override { TRACER; }
 
     void setTextEdit(QPlainTextEdit* textEdit)
     {
@@ -74,10 +74,13 @@ public:
 private:
     QPointer<QPlainTextEdit> textEdit_ = nullptr;
 
-    // TODO: Settings!
+    /// TODO KFS
     bool active_ = true;
     bool autoClosing_ = true;
     bool barging_ = true;
+
+    /// TODO KFS: Decide if this should be an individual setting or just part of
+    /// barging
     bool closeBargeTrailingPunctGap_ = true;
 
     bool handleKeyPress_(QKeyEvent* event)
@@ -129,6 +132,7 @@ private:
         // punctuation)
         // TODO: Also trim for new line? (May not be a key filter, but an editor
         // feature...)
+        /// TODO KFS: Figure out what this does again lol
         if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
             && canCloseTrailingPunctGap_(document, cursor)) {
             closeTrailingPunctGap_(ch, cursor);

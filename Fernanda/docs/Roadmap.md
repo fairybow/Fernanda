@@ -3,6 +3,7 @@
 Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO TD (tab dragging)
 - TODO TVT (tree view toggle)
+- TODO KFS (key filters settings)
 
 ## Features
 
