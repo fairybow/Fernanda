@@ -20,6 +20,7 @@
 
 #include "Debug.h"
 #include "DisplaySlider.h"
+#include "Ini.h"
 #include "Tr.h"
 
 namespace Fernanda {
