@@ -25,7 +25,8 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - [x] Need a "dirty" mark on Notebook files in TreeView
 - [ ] Remove tab drop to new window positioning calculations and just start fresh!
 - [ ] Autosave
-- [ ] Key filter settings toggles
+- [x] Key filter settings toggles
+- [ ] Editor settings toggles
 
 ### Stretch
 
