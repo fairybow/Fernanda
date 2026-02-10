@@ -100,6 +100,9 @@
     <Filter Include="Resources\Themes\Window">
       <UniqueIdentifier>{3d929cc5-ae76-47a5-9d3f-f5dca3956971}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Core\Files\Views\TextFileView">
+      <UniqueIdentifier>{c7e5e7fd-c204-4d6a-9f2d-fa946b890f2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -129,9 +132,6 @@
     <ClCompile Include="src\Tr.cpp">
       <Filter>Code\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\TextFileView.cpp">
-      <Filter>Code\Core\Files\Views</Filter>
-    </ClCompile>
     <ClCompile Include="src\FnxModel.cpp">
       <Filter>Code\Core\Workspaces\Notebook</Filter>
     </ClCompile>
@@ -152,6 +152,9 @@
     </ClCompile>
     <ClCompile Include="src\PlainTextEdit.cpp">
       <Filter>Code\Core\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextFileView.cpp">
+      <Filter>Code\Core\Files\Views\TextFileView</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -295,9 +298,6 @@
     <QtMoc Include="src\NoOpFileView.h">
       <Filter>Code\Core\Files\Views</Filter>
     </QtMoc>
-    <QtMoc Include="src\TextFileView.h">
-      <Filter>Code\Core\Files\Views</Filter>
-    </QtMoc>
     <QtMoc Include="src\Window.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
@@ -385,9 +385,6 @@
     <QtMoc Include="src\MenuState.h">
       <Filter>Code\Core\UI\Menus</Filter>
     </QtMoc>
-    <QtMoc Include="src\KeyFilter.h">
-      <Filter>Code\Auxiliary</Filter>
-    </QtMoc>
     <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
@@ -417,6 +414,15 @@
     </QtMoc>
     <QtMoc Include="src\PlainTextEdit.h">
       <Filter>Code\Core\UI</Filter>
+    </QtMoc>
+    <QtMoc Include="src\TextFileView.h">
+      <Filter>Code\Core\Files\Views\TextFileView</Filter>
+    </QtMoc>
+    <QtMoc Include="src\KeyFilters.h">
+      <Filter>Code\Core\Files\Views\TextFileView</Filter>
+    </QtMoc>
+    <QtMoc Include="src\KeyFiltersPanel.h">
+      <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

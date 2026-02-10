@@ -123,6 +123,17 @@ public:
                 Ini::Keys::EDITOR_THEME,
                 Ini::Defaults::editorTheme()),
 
+            /// TODO KFS
+            .keyFiltersActive = settings_->value<bool>(
+                Ini::Keys::KEY_FILTERS_ACTIVE,
+                Ini::Defaults::keyFiltersActive()),
+            .keyFiltersAutoClose = settings_->value<bool>(
+                Ini::Keys::KEY_FILTERS_AUTO_CLOSE,
+                Ini::Defaults::keyFiltersAutoClose()),
+            .keyFiltersBarging = settings_->value<bool>(
+                Ini::Keys::KEY_FILTERS_BARGING,
+                Ini::Defaults::keyFiltersBarging()),
+
             //...
         };
 
@@ -158,6 +169,40 @@ public:
                 emit bus->settingChanged(Ini::Keys::EDITOR_THEME, qVar(path));
                 pendingEditorTheme_ = path;
                 editorThemeDebouncer_->start();
+            });
+
+        /// TODO KFS
+        connect(
+            dialog_,
+            &SettingsDialog::keyFiltersActiveChanged,
+            this,
+            [&](bool active) {
+                emit bus->settingChanged(Ini::Keys::KEY_FILTERS_ACTIVE, active);
+                set(Ini::Keys::KEY_FILTERS_ACTIVE, active);
+            });
+
+        /// TODO KFS
+        connect(
+            dialog_,
+            &SettingsDialog::keyFiltersAutoCloseChanged,
+            this,
+            [&](bool autoClose) {
+                emit bus->settingChanged(
+                    Ini::Keys::KEY_FILTERS_AUTO_CLOSE,
+                    autoClose);
+                set(Ini::Keys::KEY_FILTERS_AUTO_CLOSE, autoClose);
+            });
+
+        /// TODO KFS
+        connect(
+            dialog_,
+            &SettingsDialog::keyFiltersBargingChanged,
+            this,
+            [&](bool barging) {
+                emit bus->settingChanged(
+                    Ini::Keys::KEY_FILTERS_BARGING,
+                    barging);
+                set(Ini::Keys::KEY_FILTERS_BARGING, barging);
             });
 
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {

@@ -115,7 +115,8 @@
     <ClInclude Include="src\FnxModelCache.h" />
     <QtMoc Include="src\Notebook.h" />
     <QtMoc Include="src\Notepad.h" />
-    <QtMoc Include="src\KeyFilter.h" />
+    <QtMoc Include="src\KeyFilters.h" />
+    <QtMoc Include="src\KeyFiltersPanel.h" />
     <ClInclude Include="src\MenuBuilder.h" />
     <ClInclude Include="src\MenuShortcuts.h" />
     <QtMoc Include="src\MenuState.h" />

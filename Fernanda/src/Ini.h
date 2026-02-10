@@ -26,6 +26,9 @@ namespace Keys {
     constexpr auto NOTEPAD_TREE_VIEW_DOCK = "Notepad/TreeViewDock";
     // Non-cascading
     constexpr auto NOTEBOOK_TREE_VIEW_DOCK = "Notebook/TreeViewDock";
+    constexpr auto KEY_FILTERS_ACTIVE = "KeyFilters/Active";
+    constexpr auto KEY_FILTERS_AUTO_CLOSE = "KeyFilters/AutoClose";
+    constexpr auto KEY_FILTERS_BARGING = "KeyFilters/Barging";
 
 } // namespace Keys
 
@@ -47,6 +50,9 @@ namespace Defaults {
     inline QString editorTheme() { return ":/themes/Pocket.fernanda_editor"; }
     inline bool notepadTreeViewDock() { return false; }
     inline bool notebookTreeViewDock() { return true; }
+    inline bool keyFiltersActive() { return true; }
+    inline bool keyFiltersAutoClose() { return true; }
+    inline bool keyFiltersBarging() { return true; }
 
 } // namespace Defaults
 

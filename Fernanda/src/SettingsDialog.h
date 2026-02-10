@@ -21,6 +21,7 @@
 
 #include "Debug.h"
 #include "FontSelector.h"
+#include "KeyFiltersPanel.h"
 #include "ThemeSelector.h"
 
 namespace Fernanda {
@@ -42,6 +43,11 @@ public:
         QList<ThemeSelector::Entry> editorThemes;
         Coco::Path currentEditorTheme;
 
+        /// TODO KFS
+        bool keyFiltersActive;
+        bool keyFiltersAutoClose;
+        bool keyFiltersBarging;
+
         //...
     };
 
@@ -61,9 +67,15 @@ signals:
     void windowThemeChanged(const Coco::Path& path);
     void editorThemeChanged(const Coco::Path& path);
 
+    /// TODO KFS
+    void keyFiltersActiveChanged(bool active);
+    void keyFiltersAutoCloseChanged(bool autoClose);
+    void keyFiltersBargingChanged(bool barging);
+
 private:
     FontSelector* fontSelector_ = nullptr;
     ThemeSelector* themeSelector_ = nullptr;
+    KeyFiltersPanel* keyFiltersPanel_ = nullptr;
 
     void setup_(const QString& title, const InitialValues& initialValues)
     {
@@ -84,11 +96,20 @@ private:
                 .currentEditorTheme = initialValues.currentEditorTheme },
             this);
 
+        /// TODO KFS
+        keyFiltersPanel_ = new KeyFiltersPanel(
+            KeyFiltersPanel::InitialValues{
+                .active = initialValues.keyFiltersActive,
+                .autoClose = initialValues.keyFiltersAutoClose,
+                .barging = initialValues.keyFiltersBarging },
+            this);
+
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
         layout->addWidget(fontSelector_);
         layout->addWidget(themeSelector_);
+        layout->addWidget(keyFiltersPanel_);
 
         connect(
             fontSelector_,
@@ -107,6 +128,29 @@ private:
             &ThemeSelector::editorThemeChanged,
             this,
             [&](const Coco::Path& path) { emit editorThemeChanged(path); });
+
+        /// TODO KFS
+        connect(
+            keyFiltersPanel_,
+            &KeyFiltersPanel::activeChanged,
+            this,
+            [&](bool active) { emit keyFiltersActiveChanged(active); });
+
+        /// TODO KFS
+        connect(
+            keyFiltersPanel_,
+            &KeyFiltersPanel::autoCloseChanged,
+            this,
+            [&](bool autoClose) {
+                emit keyFiltersAutoCloseChanged(autoClose);
+            });
+
+        /// TODO KFS
+        connect(
+            keyFiltersPanel_,
+            &KeyFiltersPanel::bargingChanged,
+            this,
+            [&](bool barging) { emit keyFiltersBargingChanged(barging); });
     }
 };
 

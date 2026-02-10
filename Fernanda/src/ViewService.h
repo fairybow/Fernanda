@@ -32,6 +32,7 @@
 #include "Debug.h"
 #include "FileMeta.h"
 #include "Ini.h"
+#include "KeyFilters.h"
 #include "NoOpFileModel.h"
 #include "NoOpFileView.h"
 #include "TabWidget.h"
@@ -639,6 +640,58 @@ private:
         return is_valid;
     }
 
+    // TODO: forEach(Abstract)FileView?
+
+    /// TODO KFS
+    template <typename CallableT>
+    void forEachTextFileView_(CallableT&& callable)
+    {
+        for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            for (auto i = 0; i < tab_widget->count(); ++i)
+                if (auto text_view = tab_widget->widgetAt<TextFileView*>(i))
+                    callable(text_view);
+        }
+    }
+
+    /// TODO KFS
+    void applyInitialTextFileViewSettings_(TextFileView* textFileView)
+    {
+        if (!textFileView) return;
+
+        if (auto editor = textFileView->editor()) {
+            auto font = bus->call<QFont>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::EDITOR_FONT },
+                  { "defaultValue", Ini::Defaults::font() } });
+            editor->setFont(font);
+        }
+
+        /// TODO KFS
+        if (auto key_filters = textFileView->keyFilters()) {
+            auto active = bus->call<bool>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::KEY_FILTERS_ACTIVE },
+                  { "defaultValue", Ini::Defaults::keyFiltersActive() } });
+
+            auto auto_close = bus->call<bool>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::KEY_FILTERS_AUTO_CLOSE },
+                  { "defaultValue", Ini::Defaults::keyFiltersAutoClose() } });
+
+            auto barging = bus->call<bool>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::KEY_FILTERS_BARGING },
+                  { "defaultValue", Ini::Defaults::keyFiltersBarging() } });
+
+            key_filters->setActive(active);
+            key_filters->setAutoClosing(auto_close);
+            key_filters->setBarging(barging);
+        }
+    }
+
 private slots:
     void onBusWindowCreated_(Window* window)
     {
@@ -662,21 +715,14 @@ private slots:
         AbstractFileView* view = nullptr;
 
         if (auto text_model = qobject_cast<TextFileModel*>(fileModel)) {
-
             auto text_view = newFileView_<TextFileView*>(text_model, window);
-            auto font = bus->call<QFont>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_FONT },
-                  { "defaultValue", Ini::Defaults::font() } });
-            text_view->editor()->setFont(font);
+            applyInitialTextFileViewSettings_(text_view);
             view = text_view;
 
         } else if (auto no_op_model = qobject_cast<NoOpFileModel*>(fileModel)) {
-
             view = newFileView_<NoOpFileView*>(no_op_model, window);
 
         } else {
-
             FATAL("Type not deduced for model [{}]!", fileModel);
         }
 
@@ -757,19 +803,35 @@ private slots:
 
     void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
-        // TODO: Other editor settings
-        if (key != Ini::Keys::EDITOR_FONT) return;
+        // TODO: Other editor settings (tab indent, center on scroll, etc)
+        if (key == Ini::Keys::EDITOR_FONT) {
+            auto font = value.value<QFont>();
+            forEachTextFileView_(
+                [&](TextFileView* view) { view->editor()->setFont(font); });
+        }
 
-        auto font = value.value<QFont>();
-        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
+        /// TODO KFS
+        if (key == Ini::Keys::KEY_FILTERS_ACTIVE) {
+            auto active = value.value<bool>();
+            forEachTextFileView_([&](TextFileView* view) {
+                view->keyFilters()->setActive(active);
+            });
+        }
 
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
+        /// TODO KFS
+        if (key == Ini::Keys::KEY_FILTERS_AUTO_CLOSE) {
+            auto auto_close = value.value<bool>();
+            forEachTextFileView_([&](TextFileView* view) {
+                view->keyFilters()->setAutoClosing(auto_close);
+            });
+        }
 
-            for (auto i = 0; i < tab_widget->count(); ++i)
-                if (auto text_view = tab_widget->widgetAt<TextFileView*>(i))
-                    text_view->editor()->setFont(font);
+        /// TODO KFS
+        if (key == Ini::Keys::KEY_FILTERS_BARGING) {
+            auto barging = value.value<bool>();
+            forEachTextFileView_([&](TextFileView* view) {
+                view->keyFilters()->setBarging(barging);
+            });
         }
     }
 
