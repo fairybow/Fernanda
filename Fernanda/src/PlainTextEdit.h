@@ -45,6 +45,7 @@ class LineNumberArea; /// TODO LNA
 // black on light), it'll have to be handled with StyleContext maybe? However
 // it's handled, that would also be how we'd handle icon colors for future
 // window themes...
+// TODO: Adjustable line spacing
 class PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT

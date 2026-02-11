@@ -6,5 +6,9 @@
         <file>mononoki/mononoki-BoldItalic.otf</file>
         <file>mononoki/mononoki-Italic.otf</file>
         <file>mononoki/mononoki-Regular.otf</file>
+        <file>opendyslexic/OpenDyslexic-Bold.otf</file>
+        <file>opendyslexic/OpenDyslexic-BoldItalic.otf</file>
+        <file>opendyslexic/OpenDyslexic-Italic.otf</file>
+        <file>opendyslexic/OpenDyslexic-Regular.otf</file>
     </qresource>
 </RCC>
