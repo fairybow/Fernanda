@@ -10,6 +10,7 @@
 #include "PlainTextEdit.h"
 
 #include <QColor>
+#include <QFont>
 #include <QFontMetrics>
 #include <QPaintEvent>
 #include <QPainter>
@@ -44,6 +45,7 @@ void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
     QPainter painter(lineNumberArea_);
     /// TODO LNA: Style context color here
     painter.fillRect(event->rect(), Qt::lightGray);
+    painter.setFont(font());
 
     auto block = firstVisibleBlock();
     auto block_number = block.blockNumber();

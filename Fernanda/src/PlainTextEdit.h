@@ -38,6 +38,7 @@ class LineNumberArea; /// TODO LNA
 // TODO: Grabbable highlights (Check in old "hold" folder but revise)
 // TODO: StyleContext for LNA bg, LNA font color, line highlight color
 // TODO: Setting for changing which line numbers display (every 5, every 4, etc, maybe)
+// TODO: Setting for not showing line numbers on empty lines
 class PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
