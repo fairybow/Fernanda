@@ -34,6 +34,9 @@ namespace Keys {
     constexpr auto EDITOR_OVERWRITE = "Editor/Overwrite";
     constexpr auto EDITOR_TAB_STOP_DISTANCE = "Editor/TabStopDistance";
     constexpr auto EDITOR_WORD_WRAP_MODE = "Editor/WordWrapMode";
+    constexpr auto EDITOR_DBL_CLICK_WHITESPACE = "Editor/DoubleClickWhitespace";
+    constexpr auto EDITOR_LINE_NUMBERS = "Editor/LineNumbers";
+    constexpr auto EDITOR_LINE_HIGHLIGHT = "Editor/LineHighlight";
 
 } // namespace Keys
 
@@ -66,6 +69,9 @@ namespace Defaults {
     {
         return QTextOption::WordWrap;
     }
+    inline bool editorDoubleClickWhitespace() { return true; }
+    inline bool editorLineNumbers() { return true; }
+    inline bool editorLineHighlight() { return true; }
 
 } // namespace Defaults
 

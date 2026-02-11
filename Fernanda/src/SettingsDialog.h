@@ -54,6 +54,9 @@ public:
         bool editorOverwrite;
         int editorTabStopDistance;
         QTextOption::WrapMode editorWordWrapMode;
+        bool editorDblClickWhitespace;
+        bool editorLineNumbers;
+        bool editorLineHighlight;
 
         //...
     };
@@ -84,6 +87,9 @@ signals:
     void editorOverwriteChanged(bool overwrite);
     void editorTabStopDistanceChanged(int tabStopDistance);
     void editorWordWrapModeChanged(QTextOption::WrapMode wordWrapMode);
+    void editorDblClickWhitespaceChanged(bool dblClickWhitespace);
+    void editorLineNumbersChanged(bool lineNumbers);
+    void editorLineHighlightChanged(bool lineHighlight);
 
 private:
     FontSelector* fontSelector_ = nullptr;
@@ -124,7 +130,10 @@ private:
                 .centerOnScroll = initialValues.editorCenterOnScroll,
                 .overwrite = initialValues.editorOverwrite,
                 .tabStopDistance = initialValues.editorTabStopDistance,
-                .wordWrapMode = initialValues.editorWordWrapMode },
+                .wordWrapMode = initialValues.editorWordWrapMode,
+                .doubleClickWhitespace = initialValues.editorDblClickWhitespace,
+                .lineNumbers = initialValues.editorLineNumbers,
+                .lineHighlight = initialValues.editorLineHighlight },
             this);
 
         auto layout = new QVBoxLayout(this);
@@ -208,6 +217,30 @@ private:
             this,
             [&](QTextOption::WrapMode wrapMode) {
                 emit editorWordWrapModeChanged(wrapMode);
+            });
+
+        connect(
+            editorPanel_,
+            &EditorPanel::doubleClickWhitespaceChanged,
+            this,
+            [&](bool dblClickWhitespace) {
+                emit editorDblClickWhitespaceChanged(dblClickWhitespace);
+            });
+
+        connect(
+            editorPanel_,
+            &EditorPanel::lineNumbersChanged,
+            this,
+            [&](bool lineNumbers) {
+                emit editorLineNumbersChanged(lineNumbers);
+            });
+
+        connect(
+            editorPanel_,
+            &EditorPanel::lineHighlightChanged,
+            this,
+            [&](bool lineHighlight) {
+                emit editorLineHighlightChanged(lineHighlight);
             });
     }
 };

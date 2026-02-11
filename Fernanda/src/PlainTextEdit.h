@@ -35,10 +35,9 @@ namespace Fernanda {
 
 class LineNumberArea; /// TODO LNA
 
-// TODO: Check in old "hold" folder for LNA and grabbable highlights code
-// TODO: StyleContext for LNA bg and numbers
-// TODO: Settings INI keys, defaults, and wiring for LNA, line highlight, and
-// whitespace selection
+// TODO: Grabbable highlights (Check in old "hold" folder but revise)
+// TODO: StyleContext for LNA bg, LNA font color, line highlight color
+// TODO: Setting for changing which line numbers display (every 5, every 4, etc, maybe)
 class PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
@@ -47,6 +46,7 @@ public:
     explicit PlainTextEdit(QWidget* parent = nullptr);
     virtual ~PlainTextEdit() override { TRACER; }
 
+    // TODO: Rename this property? Not very clear
     bool doubleClickWhitespace() const { return doubleClickWhitespace_; }
 
     void setDoubleClickWhitespace(bool doubleClickWhitespace)
@@ -54,20 +54,14 @@ public:
         doubleClickWhitespace_ = doubleClickWhitespace;
     }
 
-    bool hasLineNumberArea() const { return hasLineNumberArea_; }
-
-    void setHasLineNumberArea(bool hasLineNumberArea)
-    {
-        hasLineNumberArea_ = hasLineNumberArea;
-        /// TODO LNA: Probably update somethin'
-    }
-
+    bool lineNumbers() const { return lineNumbers_; }
+    void setLineNumbers(bool lineNumbers);
     bool lineHighlight() const { return lineHighlight_; }
 
     void setLineHighlight(bool lineHighlight)
     {
         lineHighlight_ = lineHighlight;
-        /// TODO LNA: Probably update somethin'
+        highlightCurrentLine_();
     }
 
     /// TODO LNA
@@ -76,6 +70,8 @@ public:
     /// TODO LNA
     int lineNumberAreaWidth()
     {
+        if (!lineNumbers_) return 0;
+
         auto digits = 1;
         auto max = qMax(1, blockCount());
 
@@ -135,8 +131,8 @@ private:
     QWidget* lineNumberArea_ = nullptr;
 
     bool doubleClickWhitespace_ = true;
-    bool hasLineNumberArea_ = true; /// TODO LNA: impl
-    bool lineHighlight_ = true; /// TODO LNA: impl
+    bool lineNumbers_ = true;
+    bool lineHighlight_ = true;
 
     void setup_();
 
@@ -155,7 +151,7 @@ private slots:
     {
         QList<QTextEdit::ExtraSelection> extra_selections{};
 
-        if (!isReadOnly()) {
+        if (lineHighlight_  && !isReadOnly()) {
             QTextEdit::ExtraSelection selection{};
             /// TODO LNA: style context value
             auto line_color = QColor(Qt::yellow).lighter(160);

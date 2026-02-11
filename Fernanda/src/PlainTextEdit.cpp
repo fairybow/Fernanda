@@ -31,6 +31,14 @@ PlainTextEdit::PlainTextEdit(QWidget* parent)
 }
 
 /// TODO LNA
+void PlainTextEdit::setLineNumbers(bool lineNumbers)
+{
+    lineNumbers_ = lineNumbers;
+    lineNumberArea_->setVisible(lineNumbers);
+    updateLineNumberAreaWidth_(0);
+}
+
+/// TODO LNA
 void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
 {
     QPainter painter(lineNumberArea_);
@@ -89,6 +97,7 @@ void PlainTextEdit::setup_()
     /// TODO LNA:
 
     lineNumberArea_ = new LineNumberArea(this);
+    lineNumberArea_->setVisible(lineNumbers_);
 
     connect(
         this,

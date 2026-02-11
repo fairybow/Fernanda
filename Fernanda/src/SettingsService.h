@@ -148,6 +148,15 @@ public:
             .editorWordWrapMode = settings_->value<QTextOption::WrapMode>(
                 Ini::Keys::EDITOR_WORD_WRAP_MODE,
                 Ini::Defaults::editorWordWrapMode()),
+            .editorDblClickWhitespace = settings_->value<bool>(
+                Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
+                Ini::Defaults::editorDoubleClickWhitespace()),
+            .editorLineNumbers = settings_->value<bool>(
+                Ini::Keys::EDITOR_LINE_NUMBERS,
+                Ini::Defaults::editorLineNumbers()),
+            .editorLineHighlight = settings_->value<bool>(
+                Ini::Keys::EDITOR_LINE_HIGHLIGHT,
+                Ini::Defaults::editorLineHighlight()),
 
             //...
         };
@@ -267,6 +276,39 @@ public:
                     Ini::Keys::EDITOR_WORD_WRAP_MODE,
                     wordWrapMode);
                 set(Ini::Keys::EDITOR_WORD_WRAP_MODE, wordWrapMode);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::editorDblClickWhitespaceChanged,
+            this,
+            [&](bool dblClickWhitespace) {
+                emit bus->settingChanged(
+                    Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
+                    dblClickWhitespace);
+                set(Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE, dblClickWhitespace);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::editorLineNumbersChanged,
+            this,
+            [&](bool lineNumbers) {
+                emit bus->settingChanged(
+                    Ini::Keys::EDITOR_LINE_NUMBERS,
+                    lineNumbers);
+                set(Ini::Keys::EDITOR_LINE_NUMBERS, lineNumbers);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::editorLineHighlightChanged,
+            this,
+            [&](bool lineHighlight) {
+                emit bus->settingChanged(
+                    Ini::Keys::EDITOR_LINE_HIGHLIGHT,
+                    lineHighlight);
+                set(Ini::Keys::EDITOR_LINE_HIGHLIGHT, lineHighlight);
             });
 
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {

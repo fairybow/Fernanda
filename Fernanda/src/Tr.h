@@ -230,6 +230,9 @@ namespace Tr {
     TR_(editorPanelWordWrap, tr("At word boundary"));
     TR_(editorPanelWrapAnywhere, tr("Anywhere"));
     TR_(editorPanelWrapAtWordBoundaryOrAnywhere, tr("Smart"));
+    TR_(editorDoubleClickWhitespace, tr("Double-click whitespace selection"));
+    TR_(editorLineNumbers, tr("Line numbers"));
+    TR_(editorLineHighlight, tr("Highlight current line"));
 
     /// Settings
 
