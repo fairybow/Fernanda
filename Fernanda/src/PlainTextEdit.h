@@ -39,6 +39,7 @@ class LineNumberArea; /// TODO LNA
 // TODO: StyleContext for LNA bg, LNA font color, line highlight color
 // TODO: Setting for changing which line numbers display (every 5, every 4, etc, maybe)
 // TODO: Setting for not showing line numbers on empty lines
+// TODO: Different font size for LNA numbers? Or perhaps a separate setting
 class PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
