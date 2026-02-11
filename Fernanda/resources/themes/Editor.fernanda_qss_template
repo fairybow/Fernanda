@@ -1,6 +1,9 @@
-QPlainTextEdit {
+Fernanda--PlainTextEdit {
     background-color: {{base|#fbfbfb}};
     color: {{text|#2d2d2d}};
     selection-background-color: {{highlight|#0096ff}};
     selection-color: {{highlightedText|#fbfbfb}};
+    qproperty-lineNumbersBackgroundColor: {{lineNumbersBackgroundColor|#d0d0d0}};
+    qproperty-lineNumbersColor: {{lineNumbersColor|#808080}};
+    qproperty-lineHighlightColor: {{lineHighlightColor|rgba(251, 247, 25, 191)}};
 }

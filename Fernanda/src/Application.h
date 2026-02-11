@@ -223,11 +223,10 @@ private:
 
     void loadBundledFonts_()
     {
-        for (auto& path : { ":/mononoki/mononoki-Regular.otf",
-                            ":/mononoki/mononoki-Bold.otf",
-                            ":/mononoki/mononoki-Italic.otf",
-                            ":/mononoki/mononoki-BoldItalic.otf" }) {
-            if (QFontDatabase::addApplicationFont(path) < 0)
+        for (auto& path : Coco::PathUtil::fromDir(
+                 { ":/mononoki/", ":/opendyslexic/" },
+                 ".otf")) {
+            if (QFontDatabase::addApplicationFont(path.toQString()) < 0)
                 WARN("Failed to load font: {}", path);
         }
     }

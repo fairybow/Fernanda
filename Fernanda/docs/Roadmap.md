@@ -6,6 +6,10 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO KFS (key filters settings)
 - TODO ES (editor settings)
 
+Line number area
+Grabbable selections?
+(Settings for both)
+
 ## Features
 
 ### MVP

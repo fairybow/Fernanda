@@ -37,6 +37,9 @@ public:
         bool overwrite;
         int tabStopDistance;
         QTextOption::WrapMode wordWrapMode;
+        bool doubleClickWhitespace;
+        bool lineNumbers;
+        bool lineHighlight;
     };
 
     explicit EditorPanel(
@@ -54,6 +57,9 @@ signals:
     void overwriteChanged(bool overwrite);
     void tabStopDistanceChanged(int tabStopDistance);
     void wordWrapModeChanged(QTextOption::WrapMode wordWrapMode);
+    void doubleClickWhitespaceChanged(bool doubleClickWhitespace);
+    void lineNumbersChanged(bool lineNumbers);
+    void lineHighlightChanged(bool lineHighlight);
 
 private:
     QGroupBox* groupBox_ = new QGroupBox(this);
@@ -63,6 +69,9 @@ private:
     DisplaySlider* tabStopDistanceSlider_ = new DisplaySlider(this);
     QLabel* wordWrapModeComboBoxLabel_ = new QLabel(this);
     QComboBox* wordWrapModeComboBox_ = new QComboBox(this);
+    QCheckBox* doubleClickWhitespaceCheck_ = new QCheckBox(this);
+    QCheckBox* lineNumbersCheck_ = new QCheckBox(this);
+    QCheckBox* lineHighlightCheck_ = new QCheckBox(this);
 
     void setup_(const InitialValues& initialValues)
     {
@@ -98,6 +107,16 @@ private:
         wordWrapModeComboBox_->setCurrentIndex(
             wordWrapModeComboBox_->findData(initialValues.wordWrapMode));
 
+        doubleClickWhitespaceCheck_->setText(Tr::editorDoubleClickWhitespace());
+        doubleClickWhitespaceCheck_->setChecked(
+            initialValues.doubleClickWhitespace);
+
+        lineNumbersCheck_->setText(Tr::editorLineNumbers());
+        lineNumbersCheck_->setChecked(initialValues.lineNumbers);
+
+        lineHighlightCheck_->setText(Tr::editorLineHighlight());
+        lineHighlightCheck_->setChecked(initialValues.lineHighlight);
+
         // Layout
         auto main_layout = new QVBoxLayout(this);
 
@@ -114,6 +133,9 @@ private:
         group_box_layout->addWidget(overwriteCheck_);
         group_box_layout->addLayout(tab_stop_layout);
         group_box_layout->addLayout(word_wrap_layout);
+        group_box_layout->addWidget(doubleClickWhitespaceCheck_);
+        group_box_layout->addWidget(lineNumbersCheck_);
+        group_box_layout->addWidget(lineHighlightCheck_);
         groupBox_->setLayout(group_box_layout);
 
         main_layout->addWidget(groupBox_);
@@ -143,6 +165,24 @@ private:
                 emit wordWrapModeChanged(wordWrapModeComboBox_->itemData(index)
                                              .value<QTextOption::WrapMode>());
             });
+
+        connect(
+            doubleClickWhitespaceCheck_,
+            &QCheckBox::toggled,
+            this,
+            [&](bool toggled) { emit doubleClickWhitespaceChanged(toggled); });
+
+        connect(
+            lineNumbersCheck_,
+            &QCheckBox::toggled,
+            this,
+            [&](bool toggled) { emit lineNumbersChanged(toggled); });
+
+        connect(
+            lineHighlightCheck_,
+            &QCheckBox::toggled,
+            this,
+            [&](bool toggled) { emit lineHighlightChanged(toggled); });
     }
 };
 
