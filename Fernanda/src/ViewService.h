@@ -36,6 +36,7 @@
 #include "KeyFilters.h"
 #include "NoOpFileModel.h"
 #include "NoOpFileView.h"
+#include "PlainTextEdit.h"
 #include "TabWidget.h"
 #include "TextFileModel.h"
 #include "TextFileView.h"
