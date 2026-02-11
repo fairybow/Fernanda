@@ -21,6 +21,7 @@
 
 namespace Fernanda {
 
+// TODO: Check in old "hold" folder for LNA and grabbable highlights code
 class PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
@@ -39,6 +40,8 @@ protected:
     {
         // Allow double-clicking white space runs (except single spaces and new
         // lines)
+
+        /// TODO ES: Make this a toggleable setting
 
         auto cursor = cursorForPosition(event->pos());
         auto position = static_cast<qsizetype>(cursor.position());
