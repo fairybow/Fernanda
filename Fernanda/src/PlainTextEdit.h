@@ -36,17 +36,58 @@ namespace Fernanda {
 class LineNumberArea; /// TODO LNA
 
 // TODO: Grabbable highlights (Check in old "hold" folder but revise)
-// TODO: StyleContext for LNA bg, LNA font color, line highlight color
-// TODO: Setting for changing which line numbers display (every 5, every 4, etc, maybe)
+// TODO: Setting for changing which line numbers display (every 5, every 4, etc,
+// maybe)
 // TODO: Setting for not showing line numbers on empty lines
 // TODO: Different font size for LNA numbers? Or perhaps a separate setting
+// TODO: If we ever want LNA highlight (or other properties) to have defaults
+// that are context-specific (e.g., transparent white on dark and transparent
+// black on light), it'll have to be handled with StyleContext maybe? However
+// it's handled, that would also be how we'd handle icon colors for future
+// window themes...
 class PlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 
+    Q_PROPERTY(
+        QColor lineNumbersBackgroundColor READ lineNumbersBackgroundColor WRITE
+            setLineNumbersBackgroundColor)
+    Q_PROPERTY(
+        QColor lineNumbersColor READ lineNumbersColor WRITE setLineNumbersColor)
+    Q_PROPERTY(
+        QColor lineHighlightColor READ lineHighlightColor WRITE
+            setLineHighlightColor)
+
 public:
     explicit PlainTextEdit(QWidget* parent = nullptr);
     virtual ~PlainTextEdit() override { TRACER; }
+
+    QColor lineNumbersBackgroundColor() const
+    {
+        return lineNumbersBackgroundColor_;
+    }
+
+    void setLineNumbersBackgroundColor(const QColor& color)
+    {
+        lineNumbersBackgroundColor_ = color;
+        if (lineNumberArea_) lineNumberArea_->update();
+    }
+
+    QColor lineNumbersColor() const { return lineNumbersColor_; }
+
+    void setLineNumbersColor(const QColor& color)
+    {
+        lineNumbersColor_ = color;
+        if (lineNumberArea_) lineNumberArea_->update();
+    }
+
+    QColor lineHighlightColor() const { return lineHighlightColor_; }
+
+    void setLineHighlightColor(const QColor& color)
+    {
+        lineHighlightColor_ = color;
+        highlightCurrentLine_();
+    }
 
     // TODO: Rename this property? Not very clear
     bool doubleClickWhitespace() const { return doubleClickWhitespace_; }
@@ -136,6 +177,11 @@ private:
     bool lineNumbers_ = true;
     bool lineHighlight_ = true;
 
+    // TODO: Pull QSS template values from here if possible
+    QColor lineNumbersBackgroundColor_{ "#d0d0d0" };
+    QColor lineNumbersColor_{ "#808080" };
+    QColor lineHighlightColor_{ 251, 247, 25, 191 };
+
     void setup_();
 
 private slots:
@@ -153,12 +199,10 @@ private slots:
     {
         QList<QTextEdit::ExtraSelection> extra_selections{};
 
-        if (lineHighlight_  && !isReadOnly()) {
+        if (lineHighlight_ && !isReadOnly()) {
             QTextEdit::ExtraSelection selection{};
-            /// TODO LNA: style context value
-            auto line_color = QColor(Qt::yellow).lighter(160);
 
-            selection.format.setBackground(line_color);
+            selection.format.setBackground(lineHighlightColor_);
             selection.format.setProperty(QTextFormat::FullWidthSelection, true);
             selection.cursor = textCursor();
             selection.cursor.clearSelection();

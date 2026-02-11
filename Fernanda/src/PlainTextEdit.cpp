@@ -43,8 +43,7 @@ void PlainTextEdit::setLineNumbers(bool lineNumbers)
 void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
 {
     QPainter painter(lineNumberArea_);
-    /// TODO LNA: Style context color here
-    painter.fillRect(event->rect(), Qt::lightGray);
+    painter.fillRect(event->rect(), lineNumbersBackgroundColor_);
     painter.setFont(font());
 
     auto block = firstVisibleBlock();
@@ -56,9 +55,7 @@ void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
     while (block.isValid() && top <= event->rect().bottom()) {
         if (block.isVisible() && bottom >= event->rect().top()) {
             auto number = QString::number(block_number + 1);
-            /// TODO LNA: Style context color here
-            /// TODO LNA: Set font, too (same as editor)
-            painter.setPen(Qt::black);
+            painter.setPen(lineNumbersColor_);
             painter.drawText(
                 0,
                 top,

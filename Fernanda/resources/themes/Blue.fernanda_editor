@@ -4,6 +4,9 @@
     "base": "#0005a4",
     "text": "#cccccc",
     "highlight": "#cccccc",
-    "highlightedText": "#0005a4"
+    "highlightedText": "#0005a4",
+    "lineNumbersBackgroundColor": "#cccccc",
+    "lineNumbersColor": "#0005a4",
+    "lineHighlightColor": "rgba(255, 255, 255, 64)"
   }
 }
