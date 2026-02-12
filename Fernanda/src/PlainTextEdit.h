@@ -30,6 +30,7 @@
 #include <QWidget>
 
 #include "Debug.h"
+#include "SelectionHandleOverlay.h"
 
 namespace Fernanda {
 
