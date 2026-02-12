@@ -110,17 +110,17 @@ private:
         wordWrapModeComboBox_->setCurrentIndex(
             wordWrapModeComboBox_->findData(initialValues.wordWrapMode));
 
-        doubleClickWhitespaceCheck_->setText(Tr::editorDoubleClickWhitespace());
+        doubleClickWhitespaceCheck_->setText(Tr::editorPanelDblClickWhitespace());
         doubleClickWhitespaceCheck_->setChecked(
             initialValues.doubleClickWhitespace);
 
-        lineNumbersCheck_->setText(Tr::editorLineNumbers());
+        lineNumbersCheck_->setText(Tr::editorPanelLineNumbers());
         lineNumbersCheck_->setChecked(initialValues.lineNumbers);
 
-        lineHighlightCheck_->setText(Tr::editorLineHighlight());
+        lineHighlightCheck_->setText(Tr::editorPanelLineHighlight());
         lineHighlightCheck_->setChecked(initialValues.lineHighlight);
 
-        selectionHandlesCheck_->setText(Tr::editorSelectionHandles());
+        selectionHandlesCheck_->setText(Tr::editorPanelSelectionHandles());
         selectionHandlesCheck_->setChecked(initialValues.selectionHandles);
 
         // Layout
