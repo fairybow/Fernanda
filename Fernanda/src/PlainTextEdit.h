@@ -172,6 +172,9 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 
 private:
+    SelectionHandleOverlay* selectionHandles_ =
+        new SelectionHandleOverlay(this);
+
     /// TODO LNA
     QWidget* lineNumberArea_ = nullptr;
 
