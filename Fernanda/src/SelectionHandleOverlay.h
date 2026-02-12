@@ -39,7 +39,6 @@ namespace Fernanda {
 // TODO: Hide handles after a delay when the mouse leaves the selection area
 // (with a buffer zone to trigger reappearance)
 // TODO: Make handle color stylable via Q_PROPERTY/QSS
-// TODO: Settings toggle in editor panel!
 class SelectionHandleOverlay : public QWidget
 {
     Q_OBJECT
