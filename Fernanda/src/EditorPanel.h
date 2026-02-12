@@ -40,6 +40,7 @@ public:
         bool doubleClickWhitespace;
         bool lineNumbers;
         bool lineHighlight;
+        bool selectionHandles;
     };
 
     explicit EditorPanel(
@@ -60,6 +61,7 @@ signals:
     void doubleClickWhitespaceChanged(bool doubleClickWhitespace);
     void lineNumbersChanged(bool lineNumbers);
     void lineHighlightChanged(bool lineHighlight);
+    void selectionHandlesChanged(bool selectionHandles);
 
 private:
     QGroupBox* groupBox_ = new QGroupBox(this);
@@ -72,6 +74,7 @@ private:
     QCheckBox* doubleClickWhitespaceCheck_ = new QCheckBox(this);
     QCheckBox* lineNumbersCheck_ = new QCheckBox(this);
     QCheckBox* lineHighlightCheck_ = new QCheckBox(this);
+    QCheckBox* selectionHandlesCheck_ = new QCheckBox(this);
 
     void setup_(const InitialValues& initialValues)
     {
@@ -117,6 +120,9 @@ private:
         lineHighlightCheck_->setText(Tr::editorLineHighlight());
         lineHighlightCheck_->setChecked(initialValues.lineHighlight);
 
+        selectionHandlesCheck_->setText(Tr::editorSelectionHandles());
+        selectionHandlesCheck_->setChecked(initialValues.selectionHandles);
+
         // Layout
         auto main_layout = new QVBoxLayout(this);
 
@@ -136,6 +142,7 @@ private:
         group_box_layout->addWidget(doubleClickWhitespaceCheck_);
         group_box_layout->addWidget(lineNumbersCheck_);
         group_box_layout->addWidget(lineHighlightCheck_);
+        group_box_layout->addWidget(selectionHandlesCheck_);
         groupBox_->setLayout(group_box_layout);
 
         main_layout->addWidget(groupBox_);
@@ -183,6 +190,12 @@ private:
             &QCheckBox::toggled,
             this,
             [&](bool toggled) { emit lineHighlightChanged(toggled); });
+
+        connect(
+            selectionHandlesCheck_,
+            &QCheckBox::toggled,
+            this,
+            [&](bool toggled) { emit selectionHandlesChanged(toggled); });
     }
 };
 

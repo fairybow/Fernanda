@@ -233,6 +233,7 @@ namespace Tr {
     TR_(editorDoubleClickWhitespace, tr("Double-click whitespace selection"));
     TR_(editorLineNumbers, tr("Line numbers"));
     TR_(editorLineHighlight, tr("Highlight current line"));
+    TR_(editorSelectionHandles, tr("Selection handles"));
 
     /// Settings
 

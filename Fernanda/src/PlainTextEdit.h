@@ -30,6 +30,7 @@
 #include <QWidget>
 
 #include "Debug.h"
+#include "SelectionHandleOverlay.h"
 
 namespace Fernanda {
 
@@ -62,6 +63,17 @@ class PlainTextEdit : public QPlainTextEdit
 public:
     explicit PlainTextEdit(QWidget* parent = nullptr);
     virtual ~PlainTextEdit() override { TRACER; }
+
+    bool selectionHandles() const
+    {
+        return selectionHandles_->handlesEnabled();
+    }
+
+    void setSelectionHandles(bool enabled)
+    {
+        selectionHandles_->setHandlesEnabled(enabled);
+        selectionHandles_->update();
+    }
 
     QColor lineNumbersBackgroundColor() const
     {
@@ -171,6 +183,9 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
 
 private:
+    SelectionHandleOverlay* selectionHandles_ =
+        new SelectionHandleOverlay(this);
+
     /// TODO LNA
     QWidget* lineNumberArea_ = nullptr;
 

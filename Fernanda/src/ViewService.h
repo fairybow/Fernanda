@@ -706,6 +706,12 @@ private:
                 { { "key", Ini::Keys::EDITOR_LINE_HIGHLIGHT },
                   { "defaultValue", Ini::Defaults::editorLineHighlight() } });
 
+            auto selection_handles = bus->call<bool>(
+                Bus::GET_SETTING,
+                { { "key", Ini::Keys::EDITOR_SELECTION_HANDLES },
+                  { "defaultValue",
+                    Ini::Defaults::editorSelectionHandles() } });
+
             editor->setFont(font);
             editor->setCenterOnScroll(center_on_scroll);
             editor->setOverwriteMode(overwrite);
@@ -714,6 +720,7 @@ private:
             editor->setDoubleClickWhitespace(dbl_click_whitespace);
             editor->setLineNumbers(line_numbers);
             editor->setLineHighlight(line_highlight);
+            editor->setSelectionHandles(selection_handles);
         }
 
         /// TODO KFS
@@ -927,6 +934,13 @@ private slots:
             auto v = value.value<bool>();
             forEachTextFileView_([&](TextFileView* view) {
                 view->editor()->setLineHighlight(v);
+            });
+        }
+
+        if (key == Ini::Keys::EDITOR_SELECTION_HANDLES) {
+            auto v = value.value<bool>();
+            forEachTextFileView_([&](TextFileView* view) {
+                view->editor()->setSelectionHandles(v);
             });
         }
     }

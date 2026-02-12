@@ -37,6 +37,7 @@ namespace Keys {
     constexpr auto EDITOR_DBL_CLICK_WHITESPACE = "Editor/DoubleClickWhitespace";
     constexpr auto EDITOR_LINE_NUMBERS = "Editor/LineNumbers";
     constexpr auto EDITOR_LINE_HIGHLIGHT = "Editor/LineHighlight";
+    constexpr auto EDITOR_SELECTION_HANDLES = "Editor/SelectionHandles";
 
 } // namespace Keys
 
@@ -72,6 +73,7 @@ namespace Defaults {
     inline bool editorDoubleClickWhitespace() { return true; }
     inline bool editorLineNumbers() { return true; }
     inline bool editorLineHighlight() { return true; }
+    inline bool editorSelectionHandles() { return true; }
 
 } // namespace Defaults
 

@@ -135,6 +135,7 @@
     <QtMoc Include="src\SettingsDialog.h" />
     <QtMoc Include="src\StyleModule.h" />
     <QtMoc Include="src\StyleContext.h" />
+    <QtMoc Include="src\SelectionHandleOverlay.h" />
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\Io.h" />
     <ClInclude Include="src\Themes.h" />

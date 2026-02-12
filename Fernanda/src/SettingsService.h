@@ -157,6 +157,9 @@ public:
             .editorLineHighlight = settings_->value<bool>(
                 Ini::Keys::EDITOR_LINE_HIGHLIGHT,
                 Ini::Defaults::editorLineHighlight()),
+            .editorSelectionHandles = settings_->value<bool>(
+                Ini::Keys::EDITOR_SELECTION_HANDLES,
+                Ini::Defaults::editorSelectionHandles()),
 
             //...
         };
@@ -309,6 +312,17 @@ public:
                     Ini::Keys::EDITOR_LINE_HIGHLIGHT,
                     lineHighlight);
                 set(Ini::Keys::EDITOR_LINE_HIGHLIGHT, lineHighlight);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::editorSelectionHandlesChanged,
+            this,
+            [&](bool selectionHandles) {
+                emit bus->settingChanged(
+                    Ini::Keys::EDITOR_SELECTION_HANDLES,
+                    selectionHandles);
+                set(Ini::Keys::EDITOR_SELECTION_HANDLES, selectionHandles);
             });
 
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {
