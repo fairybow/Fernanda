@@ -64,6 +64,17 @@ public:
     explicit PlainTextEdit(QWidget* parent = nullptr);
     virtual ~PlainTextEdit() override { TRACER; }
 
+    bool selectionHandles() const
+    {
+        return selectionHandles_->handlesEnabled();
+    }
+
+    void setSelectionHandles(bool enabled)
+    {
+        selectionHandles_->setHandlesEnabled(enabled);
+        selectionHandles_->update();
+    }
+
     QColor lineNumbersBackgroundColor() const
     {
         return lineNumbersBackgroundColor_;

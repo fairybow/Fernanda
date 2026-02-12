@@ -57,6 +57,7 @@ public:
         bool editorDblClickWhitespace;
         bool editorLineNumbers;
         bool editorLineHighlight;
+        bool editorSelectionHandles;
 
         //...
     };
@@ -90,6 +91,7 @@ signals:
     void editorDblClickWhitespaceChanged(bool dblClickWhitespace);
     void editorLineNumbersChanged(bool lineNumbers);
     void editorLineHighlightChanged(bool lineHighlight);
+    void editorSelectionHandlesChanged(bool selectionHandles);
 
 private:
     FontSelector* fontSelector_ = nullptr;
@@ -133,7 +135,8 @@ private:
                 .wordWrapMode = initialValues.editorWordWrapMode,
                 .doubleClickWhitespace = initialValues.editorDblClickWhitespace,
                 .lineNumbers = initialValues.editorLineNumbers,
-                .lineHighlight = initialValues.editorLineHighlight },
+                .lineHighlight = initialValues.editorLineHighlight,
+                .selectionHandles = initialValues.editorSelectionHandles },
             this);
 
         auto layout = new QVBoxLayout(this);
@@ -241,6 +244,14 @@ private:
             this,
             [&](bool lineHighlight) {
                 emit editorLineHighlightChanged(lineHighlight);
+            });
+
+        connect(
+            editorPanel_,
+            &EditorPanel::selectionHandlesChanged,
+            this,
+            [&](bool selectionHandles) {
+                emit editorSelectionHandlesChanged(selectionHandles);
             });
     }
 };
