@@ -7,10 +7,8 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
-Line number area
-Grabbable selections?
-(Settings for both)
-Move preloaded fonts to top of selection box and add separator
+Add defaults button to settings (this should probably not write the defaults, since we'd want the cascading to work for Notebook inheriting Notepad values)
+Word wrap setting isn't working (probably casting/qvar) (though this seems to be intermittent, so not sure what's happening)
 Prevent clicking out of PTE context menu from affecting cursor on that first click?
 
 ## Features
@@ -24,6 +22,7 @@ Prevent clicking out of PTE context menu from affecting cursor on that first cli
 - [x] Tab dragging (tab to window, tab to new window)
 - [x] Basic key filters
 - [ ] Translations (FR, DE, ES, JA, ZH, IT)
+- [ ] Run-time translation switching mechanisms
 - [x] Basic editor settings
 - [x] Installer
 - [x] Opening args
@@ -34,11 +33,15 @@ Prevent clicking out of PTE context menu from affecting cursor on that first cli
 - [ ] Remove tab drop to new window positioning calculations and just start fresh!
 - [ ] Autosave
 - [x] Key filter settings toggles
-- [ ] Editor settings toggles
+- [x] Editor settings toggles
+- [x] Grabbable selection
+- [x] Moving preloaded fonts to top of selection box
 
 ### Stretch
 
 - [x] Notebook Trash
+- [ ] Install preloaded fonts to system in help menu
+- [ ] Open data folder options in menus?
 - [ ] Mulitple TabWidgets per window for side-by-side
 - [x] Make cursor restart blink when clicking? Right now it looks like a delay or something
 - [x] Allow double clicking to highlight white space (2 or more)

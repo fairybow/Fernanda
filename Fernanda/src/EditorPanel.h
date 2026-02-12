@@ -36,7 +36,7 @@ public:
         bool centerOnScroll;
         bool overwrite;
         int tabStopDistance;
-        QTextOption::WrapMode wordWrapMode;
+        QTextOption::WrapMode wrapMode;
         bool doubleClickWhitespace;
         bool lineNumbers;
         bool lineHighlight;
@@ -57,7 +57,7 @@ signals:
     void centerOnScrollChanged(bool centerOnScroll);
     void overwriteChanged(bool overwrite);
     void tabStopDistanceChanged(int tabStopDistance);
-    void wordWrapModeChanged(QTextOption::WrapMode wordWrapMode);
+    void wrapModeChanged(QTextOption::WrapMode wrapMode);
     void doubleClickWhitespaceChanged(bool doubleClickWhitespace);
     void lineNumbersChanged(bool lineNumbers);
     void lineHighlightChanged(bool lineHighlight);
@@ -69,8 +69,8 @@ private:
     QCheckBox* overwriteCheck_ = new QCheckBox(this);
     QLabel* tabStopDistanceSliderLabel_ = new QLabel(this);
     DisplaySlider* tabStopDistanceSlider_ = new DisplaySlider(this);
-    QLabel* wordWrapModeComboBoxLabel_ = new QLabel(this);
-    QComboBox* wordWrapModeComboBox_ = new QComboBox(this);
+    QLabel* wrapModeComboBoxLabel_ = new QLabel(this);
+    QComboBox* wrapModeComboBox_ = new QComboBox(this);
     QCheckBox* doubleClickWhitespaceCheck_ = new QCheckBox(this);
     QCheckBox* lineNumbersCheck_ = new QCheckBox(this);
     QCheckBox* lineHighlightCheck_ = new QCheckBox(this);
@@ -94,33 +94,34 @@ private:
             Ini::Defaults::EDITOR_TAB_STOP_DISTANCE_MAX);
         tabStopDistanceSlider_->setValue(initialValues.tabStopDistance);
 
-        wordWrapModeComboBoxLabel_->setText(Tr::editorPanelWordWrapMode());
-        wordWrapModeComboBox_->addItem(
+        wrapModeComboBoxLabel_->setText(Tr::editorPanelWrapMode());
+        wrapModeComboBox_->addItem(
             Tr::editorPanelNoWrap(),
             QTextOption::NoWrap);
-        wordWrapModeComboBox_->addItem(
+        wrapModeComboBox_->addItem(
             Tr::editorPanelWordWrap(),
             QTextOption::WordWrap);
-        wordWrapModeComboBox_->addItem(
+        wrapModeComboBox_->addItem(
             Tr::editorPanelWrapAnywhere(),
             QTextOption::WrapAnywhere);
-        wordWrapModeComboBox_->addItem(
+        wrapModeComboBox_->addItem(
             Tr::editorPanelWrapAtWordBoundaryOrAnywhere(),
             QTextOption::WrapAtWordBoundaryOrAnywhere);
-        wordWrapModeComboBox_->setCurrentIndex(
-            wordWrapModeComboBox_->findData(initialValues.wordWrapMode));
+        wrapModeComboBox_->setCurrentIndex(
+            wrapModeComboBox_->findData(initialValues.wrapMode));
 
-        doubleClickWhitespaceCheck_->setText(Tr::editorDoubleClickWhitespace());
+        doubleClickWhitespaceCheck_->setText(
+            Tr::editorPanelDblClickWhitespace());
         doubleClickWhitespaceCheck_->setChecked(
             initialValues.doubleClickWhitespace);
 
-        lineNumbersCheck_->setText(Tr::editorLineNumbers());
+        lineNumbersCheck_->setText(Tr::editorPanelLineNumbers());
         lineNumbersCheck_->setChecked(initialValues.lineNumbers);
 
-        lineHighlightCheck_->setText(Tr::editorLineHighlight());
+        lineHighlightCheck_->setText(Tr::editorPanelLineHighlight());
         lineHighlightCheck_->setChecked(initialValues.lineHighlight);
 
-        selectionHandlesCheck_->setText(Tr::editorSelectionHandles());
+        selectionHandlesCheck_->setText(Tr::editorPanelSelectionHandles());
         selectionHandlesCheck_->setChecked(initialValues.selectionHandles);
 
         // Layout
@@ -130,15 +131,15 @@ private:
         tab_stop_layout->addWidget(tabStopDistanceSliderLabel_);
         tab_stop_layout->addWidget(tabStopDistanceSlider_);
 
-        auto word_wrap_layout = new QHBoxLayout;
-        word_wrap_layout->addWidget(wordWrapModeComboBoxLabel_);
-        word_wrap_layout->addWidget(wordWrapModeComboBox_);
+        auto wrap_layout = new QHBoxLayout;
+        wrap_layout->addWidget(wrapModeComboBoxLabel_);
+        wrap_layout->addWidget(wrapModeComboBox_);
 
         auto group_box_layout = new QVBoxLayout;
         group_box_layout->addWidget(centerOnScrollCheck_);
         group_box_layout->addWidget(overwriteCheck_);
         group_box_layout->addLayout(tab_stop_layout);
-        group_box_layout->addLayout(word_wrap_layout);
+        group_box_layout->addLayout(wrap_layout);
         group_box_layout->addWidget(doubleClickWhitespaceCheck_);
         group_box_layout->addWidget(lineNumbersCheck_);
         group_box_layout->addWidget(lineHighlightCheck_);
@@ -165,12 +166,12 @@ private:
             [&](int value) { emit tabStopDistanceChanged(value); });
 
         connect(
-            wordWrapModeComboBox_,
+            wrapModeComboBox_,
             &QComboBox::currentIndexChanged,
             this,
             [&](int index) {
-                emit wordWrapModeChanged(wordWrapModeComboBox_->itemData(index)
-                                             .value<QTextOption::WrapMode>());
+                emit wrapModeChanged(wrapModeComboBox_->itemData(index)
+                                         .value<QTextOption::WrapMode>());
             });
 
         connect(

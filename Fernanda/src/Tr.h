@@ -225,15 +225,15 @@ namespace Tr {
     TR_(editorPanelCenterOnScroll, tr("Center on scroll"));
     TR_(editorPanelOverwrite, tr("Overwrite"));
     TR_(editorPanelTabStopDistance, tr("Tab stop distance: "));
-    TR_(editorPanelWordWrapMode, tr("Word wrap mode: "));
+    TR_(editorPanelWrapMode, tr("Word wrap mode: "));
     TR_(editorPanelNoWrap, tr("None"));
     TR_(editorPanelWordWrap, tr("At word boundary"));
     TR_(editorPanelWrapAnywhere, tr("Anywhere"));
     TR_(editorPanelWrapAtWordBoundaryOrAnywhere, tr("Smart"));
-    TR_(editorDoubleClickWhitespace, tr("Double-click whitespace selection"));
-    TR_(editorLineNumbers, tr("Line numbers"));
-    TR_(editorLineHighlight, tr("Highlight current line"));
-    TR_(editorSelectionHandles, tr("Selection handles"));
+    TR_(editorPanelDblClickWhitespace, tr("Double-click whitespace selection"));
+    TR_(editorPanelLineNumbers, tr("Line numbers"));
+    TR_(editorPanelLineHighlight, tr("Highlight current line"));
+    TR_(editorPanelSelectionHandles, tr("Selection handles"));
 
     /// Settings
 

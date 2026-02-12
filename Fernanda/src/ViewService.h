@@ -685,10 +685,10 @@ private:
                 { { "key", Ini::Keys::EDITOR_TAB_STOP_DISTANCE },
                   { "defaultValue", Ini::Defaults::editorTabStopDistance() } });
 
-            auto word_wrap_mode = bus->call<QTextOption::WrapMode>(
+            auto wrap_mode = bus->call<QTextOption::WrapMode>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_WORD_WRAP_MODE },
-                  { "defaultValue", Ini::Defaults::editorWordWrapMode() } });
+                { { "key", Ini::Keys::EDITOR_WRAP_MODE },
+                  { "defaultValue", Ini::Defaults::editorWrapMode() } });
 
             auto dbl_click_whitespace = bus->call<bool>(
                 Bus::GET_SETTING,
@@ -716,7 +716,7 @@ private:
             editor->setCenterOnScroll(center_on_scroll);
             editor->setOverwriteMode(overwrite);
             editor->setTabStopDistance(tab_stop_distance);
-            editor->setWordWrapMode(word_wrap_mode);
+            editor->setWordWrapMode(wrap_mode);
             editor->setDoubleClickWhitespace(dbl_click_whitespace);
             editor->setLineNumbers(line_numbers);
             editor->setLineHighlight(line_highlight);
@@ -910,7 +910,7 @@ private slots:
         }
 
         /// TODO ES
-        if (key == Ini::Keys::EDITOR_WORD_WRAP_MODE) {
+        if (key == Ini::Keys::EDITOR_WRAP_MODE) {
             auto v = value.value<QTextOption::WrapMode>();
             forEachTextFileView_([&](TextFileView* view) {
                 view->editor()->setWordWrapMode(v);

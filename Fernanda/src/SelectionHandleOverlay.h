@@ -154,9 +154,10 @@ private:
             this,
             [&](const QRect& rect, int deltaY) {
                 (void)rect;
+                (void)deltaY;
                 // QWidget::scroll() on the viewport shifts child widgets by the
                 // scroll delta. Reset our geometry so the overlay stays aligned
-                if (deltaY) setGeometry(editor_->viewport()->rect());
+                setGeometry(editor_->viewport()->rect());
                 update();
             });
     }
