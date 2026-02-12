@@ -7,9 +7,7 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
-Line number area
-Grabbable selections?
-(Settings for both)
+Word wrap setting isn't working (probably casting/qvar)
 Move preloaded fonts to top of selection box and add separator
 Prevent clicking out of PTE context menu from affecting cursor on that first click?
 
