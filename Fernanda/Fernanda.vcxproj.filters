@@ -106,6 +106,9 @@
     <Filter Include="Code\Core\UI\PlainTextEdit">
       <UniqueIdentifier>{4b9949e6-d4b3-4d6e-aceb-3f21f3892365}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Code\Core\UI\Settings">
+      <UniqueIdentifier>{3c4a69c6-8c19-4945-bb21-db9ae3e35a72}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -406,12 +409,6 @@
     <QtMoc Include="src\StyleModule.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
     </QtMoc>
-    <QtMoc Include="src\FontSelector.h">
-      <Filter>Code\Core\Services\Settings</Filter>
-    </QtMoc>
-    <QtMoc Include="src\ThemeSelector.h">
-      <Filter>Code\Core\Services\Settings</Filter>
-    </QtMoc>
     <QtMoc Include="src\StyleContext.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
     </QtMoc>
@@ -421,17 +418,23 @@
     <QtMoc Include="src\KeyFilters.h">
       <Filter>Code\Core\Files\Views\TextFileView</Filter>
     </QtMoc>
-    <QtMoc Include="src\KeyFiltersPanel.h">
-      <Filter>Code\Core\Services\Settings</Filter>
-    </QtMoc>
-    <QtMoc Include="src\EditorPanel.h">
-      <Filter>Code\Core\Services\Settings</Filter>
-    </QtMoc>
     <QtMoc Include="src\PlainTextEdit.h">
       <Filter>Code\Core\UI\PlainTextEdit</Filter>
     </QtMoc>
     <QtMoc Include="src\SelectionHandleOverlay.h">
       <Filter>Code\Core\UI\PlainTextEdit</Filter>
+    </QtMoc>
+    <QtMoc Include="src\EditorPanel.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\FontSelector.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\KeyFiltersPanel.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ThemeSelector.h">
+      <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

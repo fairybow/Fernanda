@@ -65,6 +65,10 @@ private:
 private:
     void setup_(int sizeMin, int sizeMax)
     {
+        // Bundled (TODO: Add to Constants.h along with QRC paths to be used by
+        // app)
+        static const QStringList bundled = { "mononoki", "OpenDyslexic" };
+
         // Setup
         auto families = QFontDatabase::families();
 
@@ -78,6 +82,12 @@ private:
             return false;
         });
 
+        // Remove bundled fonts from the system list to avoid duplicates
+        for (auto& name : bundled)
+            families.removeAll(name);
+
+        fontsBox_->addItems(bundled);
+        fontsBox_->insertSeparator(bundled.size());
         fontsBox_->addItems(families);
 
         boldCheckBox_->setTristate(false);
