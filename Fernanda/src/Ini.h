@@ -33,7 +33,7 @@ namespace Keys {
     constexpr auto EDITOR_CENTER_ON_SCROLL = "Editor/CenterOnScroll";
     constexpr auto EDITOR_OVERWRITE = "Editor/Overwrite";
     constexpr auto EDITOR_TAB_STOP_DISTANCE = "Editor/TabStopDistance";
-    constexpr auto EDITOR_WORD_WRAP_MODE = "Editor/WordWrapMode";
+    constexpr auto EDITOR_WRAP_MODE = "Editor/WrapMode";
     constexpr auto EDITOR_DBL_CLICK_WHITESPACE = "Editor/DoubleClickWhitespace";
     constexpr auto EDITOR_LINE_NUMBERS = "Editor/LineNumbers";
     constexpr auto EDITOR_LINE_HIGHLIGHT = "Editor/LineHighlight";
@@ -66,7 +66,7 @@ namespace Defaults {
     inline bool editorCenterOnScroll() { return false; }
     inline bool editorOverwrite() { return false; }
     inline int editorTabStopDistance() { return 40; }
-    inline QTextOption::WrapMode editorWordWrapMode()
+    inline QTextOption::WrapMode editorWrapMode()
     {
         return QTextOption::WordWrap;
     }

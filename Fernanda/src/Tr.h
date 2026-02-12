@@ -225,7 +225,7 @@ namespace Tr {
     TR_(editorPanelCenterOnScroll, tr("Center on scroll"));
     TR_(editorPanelOverwrite, tr("Overwrite"));
     TR_(editorPanelTabStopDistance, tr("Tab stop distance: "));
-    TR_(editorPanelWordWrapMode, tr("Word wrap mode: "));
+    TR_(editorPanelWrapMode, tr("Word wrap mode: "));
     TR_(editorPanelNoWrap, tr("None"));
     TR_(editorPanelWordWrap, tr("At word boundary"));
     TR_(editorPanelWrapAnywhere, tr("Anywhere"));

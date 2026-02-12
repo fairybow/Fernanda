@@ -145,9 +145,9 @@ public:
             .editorTabStopDistance = settings_->value<int>(
                 Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
                 Ini::Defaults::editorTabStopDistance()),
-            .editorWordWrapMode = settings_->value<QTextOption::WrapMode>(
-                Ini::Keys::EDITOR_WORD_WRAP_MODE,
-                Ini::Defaults::editorWordWrapMode()),
+            .editorWrapMode = settings_->value<QTextOption::WrapMode>(
+                Ini::Keys::EDITOR_WRAP_MODE,
+                Ini::Defaults::editorWrapMode()),
             .editorDblClickWhitespace = settings_->value<bool>(
                 Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
                 Ini::Defaults::editorDoubleClickWhitespace()),
@@ -272,13 +272,11 @@ public:
         /// TODO ES
         connect(
             dialog_,
-            &SettingsDialog::editorWordWrapModeChanged,
+            &SettingsDialog::editorWrapModeChanged,
             this,
-            [&](QTextOption::WrapMode wordWrapMode) {
-                emit bus->settingChanged(
-                    Ini::Keys::EDITOR_WORD_WRAP_MODE,
-                    wordWrapMode);
-                set(Ini::Keys::EDITOR_WORD_WRAP_MODE, wordWrapMode);
+            [&](QTextOption::WrapMode wrapMode) {
+                emit bus->settingChanged(Ini::Keys::EDITOR_WRAP_MODE, wrapMode);
+                set(Ini::Keys::EDITOR_WRAP_MODE, wrapMode);
             });
 
         connect(

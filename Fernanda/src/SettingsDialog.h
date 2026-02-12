@@ -53,7 +53,7 @@ public:
         bool editorCenterOnScroll;
         bool editorOverwrite;
         int editorTabStopDistance;
-        QTextOption::WrapMode editorWordWrapMode;
+        QTextOption::WrapMode editorWrapMode;
         bool editorDblClickWhitespace;
         bool editorLineNumbers;
         bool editorLineHighlight;
@@ -87,7 +87,7 @@ signals:
     void editorCenterOnScrollChanged(bool centerOnScroll);
     void editorOverwriteChanged(bool overwrite);
     void editorTabStopDistanceChanged(int tabStopDistance);
-    void editorWordWrapModeChanged(QTextOption::WrapMode wordWrapMode);
+    void editorWrapModeChanged(QTextOption::WrapMode wrapMode);
     void editorDblClickWhitespaceChanged(bool dblClickWhitespace);
     void editorLineNumbersChanged(bool lineNumbers);
     void editorLineHighlightChanged(bool lineHighlight);
@@ -132,7 +132,7 @@ private:
                 .centerOnScroll = initialValues.editorCenterOnScroll,
                 .overwrite = initialValues.editorOverwrite,
                 .tabStopDistance = initialValues.editorTabStopDistance,
-                .wordWrapMode = initialValues.editorWordWrapMode,
+                .wrapMode = initialValues.editorWrapMode,
                 .doubleClickWhitespace = initialValues.editorDblClickWhitespace,
                 .lineNumbers = initialValues.editorLineNumbers,
                 .lineHighlight = initialValues.editorLineHighlight,
@@ -216,10 +216,10 @@ private:
         /// TODO ES
         connect(
             editorPanel_,
-            &EditorPanel::wordWrapModeChanged,
+            &EditorPanel::wrapModeChanged,
             this,
             [&](QTextOption::WrapMode wrapMode) {
-                emit editorWordWrapModeChanged(wrapMode);
+                emit editorWrapModeChanged(wrapMode);
             });
 
         connect(
