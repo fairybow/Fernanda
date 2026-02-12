@@ -228,11 +228,12 @@ private:
         auto sin_a = std::sin(alpha);
         auto cos_a = std::cos(alpha);
 
+        // The arc will end at the symmetric tangent point on the right side:
+        // (center.x() + CIRCLE_RADIUS_ * sin_a, center.y() - CIRCLE_RADIUS_ *
+        // cos_a) closeSubpath() then draws the line from there back to the
+        // anchor
         QPointF tangent_left(
             center.x() - CIRCLE_RADIUS_ * sin_a,
-            center.y() - CIRCLE_RADIUS_ * cos_a);
-        QPointF tangent_right(
-            center.x() + CIRCLE_RADIUS_ * sin_a,
             center.y() - CIRCLE_RADIUS_ * cos_a);
 
         QPainterPath path{};
@@ -263,7 +264,6 @@ private:
     void drawHandle_(QPainter& painter, Handle_ handle)
     {
         auto anchor = anchorPoint_(handle);
-        // (Our rect is the viewport rect):
         if (!rect().contains(anchor.toPoint())) return;
 
         auto path = teardropPath_(anchor);
