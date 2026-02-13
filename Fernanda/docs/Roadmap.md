@@ -40,6 +40,7 @@ Prevent clicking out of PTE context menu from affecting cursor on that first cli
 ### Stretch
 
 - [x] Notebook Trash
+- [ ] Line spacing options, if possible
 - [ ] Install preloaded fonts to system in help menu
 - [ ] Open data folder options in menus?
 - [ ] Mulitple TabWidgets per window for side-by-side
