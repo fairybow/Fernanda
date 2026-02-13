@@ -14,6 +14,8 @@
 #include "Version.h"
 
 // TODO: Go through and Find All References and delete unused
+// TODO: Find and remove "vanished" type entries in TS XML (old or moved
+// translations)
 
 // Qt Linguist requires the tr method to be in place
 #define TR_(Name, TrCall)                                                      \
@@ -121,16 +123,22 @@ namespace Tr {
     TR_(nbImportFileFilter, tr("Plain text files (*.txt)"));
     TR_(nbSaveAsCaption, tr("Save as"));
     TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
+
+    // TODO:
     // See: doc.qt.io/qt-6/i18n-source-translation.html#handle-plural-forms -
     // but also, it's annoying - must use EN and strip plurals using lupdate
     // -pluralonly - just do it later
     inline QString nbTrashPromptBody(int count)
     {
-        return tr(
-            "Are you sure you want to delete %n file(s)? <b>This cannot be "
-            "undone.</b>",
-            nullptr,
-            count);
+        // return tr(
+        //     "Are you sure you want to delete %n file(s)? <b>This cannot be "
+        //     "undone.</b>",
+        //     nullptr,
+        //     count);
+
+        return tr("Are you sure you want to delete %0 file(s)? <b>This cannot "
+                  "be undone.</b>")
+            .arg(count);
     };
 
     /// Menus
