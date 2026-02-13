@@ -144,6 +144,7 @@
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewService.h" />
     <ClInclude Include="src\AppDirs.h" />
+    <QtMoc Include="src\TranslationSelector.h" />
     <ClInclude Include="src\TrashPrompt.h" />
     <ClInclude Include="src\UpdateDialog.h" />
     <ClInclude Include="src\Version.h" />

@@ -436,6 +436,9 @@
     <QtMoc Include="src\ThemeSelector.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
+    <QtMoc Include="src\TranslationSelector.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">

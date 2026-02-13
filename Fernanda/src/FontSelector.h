@@ -62,7 +62,6 @@ private:
     QCheckBox* italicCheckBox_ = new QCheckBox(Tr::italic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
-private:
     void setup_(int sizeMin, int sizeMax)
     {
         // Bundled (TODO: Add to Constants.h along with QRC paths to be used by
