@@ -23,10 +23,10 @@ namespace Keys {
     constexpr auto EDITOR_FONT = "Editor/Font";
     constexpr auto WINDOW_THEME = "Window/Theme";
     constexpr auto EDITOR_THEME = "Editor/Theme";
-    // Non-cascading
-    constexpr auto NOTEPAD_TREE_VIEW_DOCK = "Notepad/TreeViewDock";
-    // Non-cascading
-    constexpr auto NOTEBOOK_TREE_VIEW_DOCK = "Notebook/TreeViewDock";
+    constexpr auto NOTEPAD_TREE_VIEW_DOCK =
+        "Notepad/TreeViewDock"; // Non-cascading
+    constexpr auto NOTEBOOK_TREE_VIEW_DOCK =
+        "Notebook/TreeViewDock"; // Non-cascading
     constexpr auto KEY_FILTERS_ACTIVE = "KeyFilters/Active";
     constexpr auto KEY_FILTERS_AUTO_CLOSE = "KeyFilters/AutoClose";
     constexpr auto KEY_FILTERS_BARGING = "KeyFilters/Barging";
