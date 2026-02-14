@@ -8,11 +8,26 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO GH (grabbable highlight)
 
 Add defaults button to settings (this should probably not write the defaults, since we'd want the cascading to work for Notebook inheriting Notepad values)
-Word wrap setting isn't working (probably casting/qvar) (though this seems to be intermittent, so not sure what's happening)
+
 Prevent clicking out of PTE context menu from affecting cursor on that first click?
 
 Translations not worth it right now. Keep TR maybe. But remove all TR files but Spanish. Run time translation isn't going to happen without UI files. So, we need to require restart and change the TranslationDialog behavior, etc., or just leave it alone for now.
+
 Also, annoyed that for other QRC files we have a nice landing dir to place them in and entires naturally get their prefix dir (e.g. ui/) from their placement in subfolder - isn't structured like that for tr files
+
+Will need to adjust all custom widgets to filter for change event and re-run all their own Tr function calls, like this:
+
+```
+void changeEvent(QEvent* event) override
+{
+    if (event->type() == QEvent::LanguageChange) {
+        retranslateUi_(); // re-apply all Tr:: calls
+    }
+    QWidget::changeEvent(event);
+}
+```
+
+Might be simple actually, but tedious. We'll do it later.
 
 ## Features
 

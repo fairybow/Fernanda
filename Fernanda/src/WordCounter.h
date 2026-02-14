@@ -184,14 +184,28 @@ private:
     QToolButton* refresh_ = new QToolButton(this);
 
     COCO_BOOL(Force_);
+
+    // TODO: An "is active" mode (or guard for widget is hidden)?
+
     bool autoCount_ = true;
-    bool hasLineCount_ = true;
-    bool hasWordCount_ = true;
-    bool hasCharCount_ = true;
+
+    // TODO: How to handle selections when all these are turned off? When only
+    // some counts are off, it makes sense for selection to function (if true)
+    // and show only the counts user has turned on here. However, if all counts
+    // are turned off, should we also not show selection or force selection to
+    // show all (making counts only appear when there's a selection)?
+    // BUG: On startup with all these turned off, I'll see "null / null" for
+    // empty document. So, we should maybe only show "null" when any count or
+    // any pos is chosen (otherwise, if no count or no pos is chosen, then those
+    // respective sides shouldn't be rendered at all)
+    bool hasLineCount_ = false;
+    bool hasWordCount_ = false;
+    bool hasCharCount_ = false;
     bool hasSelectionCounts_ = true;
-    bool hasSelectionReplacement_ = false;
-    bool hasLinePos_ = true;
-    bool hasColPos_ = true;
+    bool hasSelectionReplacement_ = true;
+
+    bool hasLinePos_ = false;
+    bool hasColPos_ = false;
 
     // Cached base counts string, updated on text changes. Selection changes
     // read from this cache rather than recomputing the (potentially expensive)
