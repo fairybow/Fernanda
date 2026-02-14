@@ -18,6 +18,7 @@
 #include <QPointer>
 #include <QString>
 #include <QStringList>
+#include <QTextCursor>
 #include <QTextDocument>
 #include <QToolButton>
 #include <QWidget>
@@ -29,6 +30,11 @@
 
 namespace Fernanda {
 
+// TODO: Decide how to handle no document display (showing "null" is not ideal;
+// ideally, we'd just hide the widget, maybe, or show zeroes)
+// TODO: Replace "refresh" button with something more visually intuitive, like
+// greater opacity and allowing user to click on the counts to update them
+// TODO: Tr support
 class WordCounter : public QWidget
 {
     Q_OBJECT
@@ -62,9 +68,14 @@ public:
                 this,
                 [&] { updatePos_(); });
 
+            connect(textEdit_, &QPlainTextEdit::selectionChanged, this, [&] {
+                updateSelection_();
+            });
+
             connect(textEdit_, &QObject::destroyed, this, [&] {
                 textEdit_ = nullptr;
-                updateCounts_(Force_::Yes);
+                cachedBaseCounts_.clear();
+                updateCountsDisplay_();
                 updatePos_();
             });
         }
@@ -74,6 +85,7 @@ public:
     }
 
     bool hasLineCount() const noexcept { return hasLineCount_; }
+
     void setHasLineCount(bool has)
     {
         if (hasLineCount_ == has) return;
@@ -82,6 +94,7 @@ public:
     }
 
     bool hasWordCount() const noexcept { return hasWordCount_; }
+
     void setHasWordCount(bool has)
     {
         if (hasWordCount_ == has) return;
@@ -90,6 +103,7 @@ public:
     }
 
     bool hasCharCount() const noexcept { return hasCharCount_; }
+
     void setHasCharCount(bool has)
     {
         if (hasCharCount_ == has) return;
@@ -97,7 +111,29 @@ public:
         updateCounts_(Force_::Yes);
     }
 
+    bool hasSelectionCounts() const noexcept { return hasSelectionCounts_; }
+
+    void setHasSelectionCounts(bool has)
+    {
+        if (hasSelectionCounts_ == has) return;
+        hasSelectionCounts_ = has;
+        updateSelection_();
+    }
+
+    bool hasSelectionReplacement() const noexcept
+    {
+        return hasSelectionReplacement_;
+    }
+
+    void setHasSelectionReplacement(bool has)
+    {
+        if (hasSelectionReplacement_ == has) return;
+        hasSelectionReplacement_ = has;
+        updateSelection_();
+    }
+
     bool hasLinePosition() const noexcept { return hasLinePos_; }
+
     void setHasLinePosition(bool has)
     {
         if (hasLinePos_ == has) return;
@@ -106,6 +142,7 @@ public:
     }
 
     bool hasColumnPosition() const noexcept { return hasColPos_; }
+
     void setHasColumnPosition(bool has)
     {
         if (hasColPos_ == has) return;
@@ -129,7 +166,7 @@ private:
 
     // Threshold at which we switch from auto-count to manual refresh. With
     // in-place counting (no allocations), we can handle much larger documents
-    // in real time. ~500k chars is roughly a full novel.
+    // in real time. ~500k chars is roughly a full novel
     static constexpr qsizetype AUTO_COUNT_THRESHOLD_ = 500'000;
     static constexpr int DEBOUNCE_MS_ = 150;
 
@@ -146,8 +183,15 @@ private:
     bool hasLineCount_ = true;
     bool hasWordCount_ = true;
     bool hasCharCount_ = true;
+    bool hasSelectionCounts_ = true;
+    bool hasSelectionReplacement_ = false;
     bool hasLinePos_ = true;
     bool hasColPos_ = true;
+
+    // Cached base counts string, updated on text changes. Selection changes
+    // read from this cache rather than recomputing the (potentially expensive)
+    // full document counts
+    QString cachedBaseCounts_{};
 
     void setup_()
     {
@@ -172,14 +216,16 @@ private:
         });
     }
 
+    // --- Base count computation ---
+
     void updateCounts_(Force_ force = Force_::No)
     {
         auto any = hasAnyCount_();
 
         if (!textEdit_) {
-            countsDisplay_->setText(DISPLAY_NULL_LABEL_);
-            setDisplayVisible_(countsDisplay_, any);
+            cachedBaseCounts_.clear();
             adjustCountStyle_(0);
+            updateCountsDisplay_();
 
             return;
         }
@@ -188,43 +234,10 @@ private:
         auto char_count = document ? document->characterCount() : 0;
         adjustCountStyle_(char_count);
 
-        if ((autoCount_ || force) && any) countsDisplay_->setText(counts_());
+        if ((autoCount_ || force) && any)
+            cachedBaseCounts_ = buildCounts_(CountSource_::Document);
 
-        setDisplayVisible_(countsDisplay_, any);
-    }
-
-    QString counts_()
-    {
-        QStringList elements{};
-
-        if (hasLineCount_) {
-            auto document = textEdit_->document();
-            auto lines = document ? document->blockCount() : 0;
-            elements << QString::number(lines) + " "
-                            + ((lines != 1) ? LINES_LABEL_P_ : LINES_LABEL_);
-        }
-
-        // Only copy the full text if we actually need it for word or char
-        // counting. Line count above is free via blockCount().
-        if (hasWordCount_ || hasCharCount_) {
-            auto text = textEdit_->toPlainText();
-
-            if (hasWordCount_) {
-                auto words = wordCount_(text);
-                elements << QString::number(words) + " "
-                                + ((words != 1) ? WORDS_LABEL_P_
-                                                : WORDS_LABEL_);
-            }
-
-            if (hasCharCount_) {
-                auto chars = text.size();
-                elements << QString::number(chars) + " "
-                                + ((chars != 1) ? CHARS_LABEL_P_
-                                                : CHARS_LABEL_);
-            }
-        }
-
-        return elements.join(DELIMITER_);
+        updateCountsDisplay_();
     }
 
     void adjustCountStyle_(qsizetype charCount)
@@ -238,6 +251,109 @@ private:
             autoCount_ = false;
         }
     }
+
+    // --- Selection handling ---
+
+    void updateSelection_()
+    {
+        // Selection changes never recompute base counts; they just rebuild the
+        // display using the cache plus fresh (cheap) selection counts
+        updateCountsDisplay_();
+    }
+
+    bool hasActiveSelection_() const
+    {
+        if (!textEdit_) return false;
+        return textEdit_->textCursor().hasSelection();
+    }
+
+    // --- Shared count building ---
+
+    enum class CountSource_
+    {
+        Document,
+        Selection
+    };
+
+    // Builds a counts string from either the full document or the current
+    // selection. Both paths use the same in-place counter, just on different
+    // text. The Document path uses blockCount() for lines (free), while the
+    // Selection path counts paragraph separators in the selected text
+    QString buildCounts_(CountSource_ source)
+    {
+        QStringList elements{};
+        QString text{};
+        auto need_text = hasWordCount_ || hasCharCount_;
+
+        if (source == CountSource_::Document) {
+            if (hasLineCount_) {
+                auto document = textEdit_->document();
+                auto lines = document ? document->blockCount() : 0;
+                elements << countElement_(lines, LINES_LABEL_, LINES_LABEL_P_);
+            }
+
+            if (need_text) text = textEdit_->toPlainText();
+
+        } else {
+            auto selected = textEdit_->textCursor().selectedText();
+
+            if (hasLineCount_) {
+                auto lines = selectionLineCount_(selected);
+                elements << countElement_(lines, LINES_LABEL_, LINES_LABEL_P_);
+            }
+
+            if (need_text) text = selected;
+        }
+
+        if (hasWordCount_) {
+            auto words = wordCount_(text);
+            elements << countElement_(words, WORDS_LABEL_, WORDS_LABEL_P_);
+        }
+
+        if (hasCharCount_) {
+            auto chars = text.size();
+            elements << countElement_(chars, CHARS_LABEL_, CHARS_LABEL_P_);
+        }
+
+        return elements.join(DELIMITER_);
+    }
+
+    QString
+    countElement_(qsizetype count, const char* singular, const char* plural)
+    {
+        return QString::number(count) + " "
+               + ((count != 1) ? plural : singular);
+    }
+
+    // --- Display composition ---
+
+    void updateCountsDisplay_()
+    {
+        auto any = hasAnyCount_();
+
+        if (!textEdit_ || !any) {
+            countsDisplay_->setText(DISPLAY_NULL_LABEL_);
+            setDisplayVisible_(countsDisplay_, any);
+
+            return;
+        }
+
+        QString display = cachedBaseCounts_;
+
+        if (hasSelectionCounts_ && hasActiveSelection_()) {
+            auto selection_counts = buildCounts_(CountSource_::Selection);
+
+            if (hasSelectionReplacement_)
+                display = selection_counts;
+            else
+                display = cachedBaseCounts_ + " (" + selection_counts + ")";
+        }
+
+        countsDisplay_->setText(display);
+        setDisplayVisible_(countsDisplay_, any);
+    }
+
+    // --- Position ---
 
     void updatePos_()
     {
@@ -270,6 +386,8 @@ private:
         return elements.join(DELIMITER_);
     }
 
+    // --- Counting utilities ---
+
     bool hasAnyCount_() const noexcept
     {
         return hasLineCount_ || hasWordCount_ || hasCharCount_;
@@ -278,7 +396,7 @@ private:
     bool hasAnyPos_() const noexcept { return hasLinePos_ || hasColPos_; }
 
     // In-place word count: O(n) scan with zero allocations. Counts transitions
-    // from whitespace to non-whitespace.
+    // from whitespace to non-whitespace
     int wordCount_(const QString& text) const
     {
         auto count = 0;
@@ -295,6 +413,21 @@ private:
 
         return count;
     }
+
+    // QTextCursor::selectedText() uses U+2029 (ParagraphSeparator) instead of
+    // newlines. Each separator represents a block boundary, so line count is
+    // separators + 1
+    int selectionLineCount_(const QString& selectedText) const
+    {
+        auto separators = 0;
+
+        for (auto& ch : selectedText)
+            if (ch == QChar::ParagraphSeparator) ++separators;
+
+        return separators + 1;
+    }
+
+    // --- Display helpers ---
 
     void setDisplayVisible_(QLabel* display, bool show)
     {
