@@ -314,9 +314,37 @@ private:
 
 } // namespace Fernanda
 
-// Old file:
+// Old file and why it was bad (for posterity):
 
-/*#include <QGraphicsOpacityEffect>
+/*
+The problem was that split() did a tremendous amount of work we did't need. It
+walked the entire string, found every boundary, then allocated a new QString for
+every word between those boundaries, and put each one into a QStringList, so it
+was managing a dynamically-growing array of heap-allocated strings. For a
+50,000-word document, that's 50,000 individual QString objects being
+constructed, each involving a heap allocation for its character data, all being
+appended into a container that itself resizes multiple times as it grows. Then
+we called .count() to get a single integer, and the entire QStringList was
+immediately destroyed: 50,000 destructor calls, 50,000 heap frees.
+
+Additionally, QRegularExpression added overhead even when static. PCRE2 (Qt's
+regex backend) has to maintain match state, walk through the string with its
+pattern-matching engine, and handle backtracking logic, all for what is
+conceptually just "is this character whitespace?"
+
+The above alternative just walks the string character by character and notices
+when it transitions from whitespace to non-whitespace, which is a word boundary.
+It counts those transitions. The entire operation is a single pass over the
+string's existing memory with two local variables (an int and a bool). No
+allocations, no regex engine, no container resizing, no destructor calls. The
+CPU can prefetch the string data efficiently because the access pattern is
+perfectly sequential. The difference is most visible during real-time typing
+because the counting fires repeatedly. Each firing of the old version was
+creating and destroying tens of thousands of objects, competing with Qt's text
+layout engine for heap access. The new version is essentially invisible to the
+allocator, it just reads memory that's already there.
+
+#include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMargins>
