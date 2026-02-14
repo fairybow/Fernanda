@@ -30,6 +30,10 @@
 
 namespace Fernanda {
 
+// Status bar widget displaying document line, word, and char counts with cursor
+// position. Base counts are cached and updated on text changes (debounced, with
+// manual refresh fallback for large documents), while selection counts are
+// computed on demand from the cache without retriggering a full recount
 // TODO: Decide how to handle no document display (showing "null" is not ideal;
 // ideally, we'd just hide the widget, maybe, or show zeroes)
 // TODO: Replace "refresh" button with something more visually intuitive, like
