@@ -7,6 +7,8 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
+Right now, hook up settings to word counts and test that way first and see what issue are present (with and without active tab)
+
 Add defaults button to settings (this should probably not write the defaults, since we'd want the cascading to work for Notebook inheriting Notepad values)
 
 Prevent clicking out of PTE context menu from affecting cursor on that first click?
