@@ -29,6 +29,8 @@ namespace Fernanda {
 
 // Top-level application coordinator and entry point that creates and manages
 // Workspaces and handles application lifecycle
+// TODO: Centralize arg parsing (see handledArgs_ and StartCop slot)
+// TODO: Session handling
 class Application : public QApplication
 {
     Q_OBJECT
@@ -44,56 +46,14 @@ public:
 
     void initialize()
     {
-        // TODO: Session handling
-
         if (initialized_) return;
 
         Debug::initialize(Version::isDebug); // TODO: Log file path
         if (!AppDirs::initialize()) FATAL("App directory creation failed!");
+
         loadBundledFonts_();
-
         initializeNotepad_();
-
-        auto parsed_args = parseArgs_(arguments());
-
-        if (parsed_args.isEmpty()) {
-            // Open Notepad single empty window, show color bar pastel
-            notepad_->show();
-            notepad_->beCute();
-
-        } else if (parsed_args.hasOnlyFnx()) {
-            // Make a Notebook for each FNX file, open single window for each,
-            // show color bar pastel in each Notebook's window
-            for (auto& path : parsed_args.fnxFiles) {
-                if (auto notebook = makeNotebook_(path)) {
-                    notebook->show();
-                    notebook->beCute();
-                }
-            }
-        } else if (parsed_args.hasOnlyRegular()) {
-            // Open Notepad single window with a tab for each file, show color
-            // bar pastel
-            notepad_->show();
-            // Might not be working:
-            notepad_->openFiles(parsed_args.regularFiles);
-            notepad_->beCute();
-        } else {
-            // Has both:
-            // - Open Notepad single window with a tab for each file, show color
-            // bar pastel
-            // - Make a Notebook for each FNX file, open single window for each,
-            // show color bar pastel in each Notebook's window
-            notepad_->show();
-            notepad_->openFiles(parsed_args.regularFiles);
-            notepad_->beCute();
-
-            for (auto& path : parsed_args.fnxFiles) {
-                if (auto notebook = makeNotebook_(path)) {
-                    notebook->show();
-                    notebook->beCute();
-                }
-            }
-        }
+        handleArgs_();
 
         initialized_ = true;
     }
@@ -234,12 +194,55 @@ private:
     void initializeNotepad_()
     {
         notepad_ = new Notepad(this);
-
         connectWorkspace_(notepad_);
 
         connect(notepad_, &Notepad::lastWindowClosed, this, [&] {
             if (notebooks_.isEmpty()) quit();
         });
+    }
+
+    void handleArgs_()
+    {
+        auto parsed_args = parseArgs_(arguments());
+
+        if (parsed_args.isEmpty()) {
+            // Open Notepad single empty window, show color bar pastel
+            notepad_->show();
+            notepad_->beCute();
+
+        } else if (parsed_args.hasOnlyFnx()) {
+            // Make a Notebook for each FNX file, open single window for each,
+            // show color bar pastel in each Notebook's window
+            for (auto& path : parsed_args.fnxFiles) {
+                if (auto notebook = makeNotebook_(path)) {
+                    notebook->show();
+                    notebook->beCute();
+                }
+            }
+        } else if (parsed_args.hasOnlyRegular()) {
+            // Open Notepad single window with a tab for each file, show color
+            // bar pastel
+            notepad_->show();
+            // Might not be working:
+            notepad_->openFiles(parsed_args.regularFiles);
+            notepad_->beCute();
+        } else {
+            // Has both:
+            // - Open Notepad single window with a tab for each file, show color
+            // bar pastel
+            // - Make a Notebook for each FNX file, open single window for each,
+            // show color bar pastel in each Notebook's window
+            notepad_->show();
+            notepad_->openFiles(parsed_args.regularFiles);
+            notepad_->beCute();
+
+            for (auto& path : parsed_args.fnxFiles) {
+                if (auto notebook = makeNotebook_(path)) {
+                    notebook->show();
+                    notebook->beCute();
+                }
+            }
+        }
     }
 
     Notebook* makeNotebook_(const Coco::Path& fnxPath)

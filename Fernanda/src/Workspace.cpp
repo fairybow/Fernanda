@@ -255,6 +255,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         .menu(Tr::nxHelpMenu())
         .action(Tr::nxAbout())
         .onUserTrigger(this, [] { AboutDialog::exec(); })
+        .separator()
         .action(Tr::nxCheckForUpdates())
         .onUserTrigger(this, [] { UpdateDialog::exec(); })
 

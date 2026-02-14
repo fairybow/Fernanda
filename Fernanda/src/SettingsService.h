@@ -24,9 +24,9 @@
 #include "Bus.h"
 #include "Debug.h"
 #include "Ini.h"
-#include "Settings.h"
 #include "SettingsDialog.h"
 #include "ThemeSelector.h"
+#include "TieredSettings.h"
 #include "Timers.h"
 #include "Tr.h"
 
@@ -49,7 +49,7 @@ public:
         Bus* bus,
         QObject* parent = nullptr)
         : AbstractService(bus, parent)
-        , settings_(new Settings(configPath, this))
+        , settings_(new TieredSettings(configPath, this))
     {
         setup_();
     }
@@ -384,7 +384,7 @@ protected:
     }
 
 private:
-    Settings* settings_;
+    TieredSettings* settings_;
 
     QString name_{};
     SettingsDialog* dialog_ = nullptr;

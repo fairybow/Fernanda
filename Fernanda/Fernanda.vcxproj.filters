@@ -290,6 +290,9 @@
     <None Include="resources\themes\old_Window.fernanda_qss_template">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
+    <None Include="src\old_TranslationCode.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -394,7 +397,7 @@
     <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
-    <QtMoc Include="src\Settings.h">
+    <QtMoc Include="src\TieredSettings.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
     <QtMoc Include="src\SettingsService.h">
@@ -434,9 +437,6 @@
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
     <QtMoc Include="src\ThemeSelector.h">
-      <Filter>Code\Core\UI\Settings</Filter>
-    </QtMoc>
-    <QtMoc Include="src\TranslationSelector.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
   </ItemGroup>
@@ -582,22 +582,7 @@
     </QtRcc>
   </ItemGroup>
   <ItemGroup>
-    <QtTranslation Include="translations\Translation_de.ts">
-      <Filter>Translations</Filter>
-    </QtTranslation>
     <QtTranslation Include="translations\Translation_es.ts">
-      <Filter>Translations</Filter>
-    </QtTranslation>
-    <QtTranslation Include="translations\Translation_fr.ts">
-      <Filter>Translations</Filter>
-    </QtTranslation>
-    <QtTranslation Include="translations\Translation_ja.ts">
-      <Filter>Translations</Filter>
-    </QtTranslation>
-    <QtTranslation Include="translations\Translation_zh.ts">
-      <Filter>Translations</Filter>
-    </QtTranslation>
-    <QtTranslation Include="translations\Translation_it.ts">
       <Filter>Translations</Filter>
     </QtTranslation>
   </ItemGroup>

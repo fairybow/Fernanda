@@ -11,6 +11,8 @@ Add defaults button to settings (this should probably not write the defaults, si
 Word wrap setting isn't working (probably casting/qvar) (though this seems to be intermittent, so not sure what's happening)
 Prevent clicking out of PTE context menu from affecting cursor on that first click?
 
+Translations not worth it right now. Keep TR maybe. But remove all TR files but Spanish. Run time translation isn't going to happen without UI files. So, we need to require restart and change the TranslationDialog behavior, etc., or just leave it alone for now.
+
 ## Features
 
 ### MVP
@@ -21,8 +23,6 @@ Prevent clicking out of PTE context menu from affecting cursor on that first cli
 - [x] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
 - [x] Tab dragging (tab to window, tab to new window)
 - [x] Basic key filters
-- [ ] Translations (FR, DE, ES, JA, ZH, IT)
-- [ ] Run-time translation switching mechanisms
 - [x] Basic editor settings
 - [x] Installer
 - [x] Opening args
@@ -36,6 +36,7 @@ Prevent clicking out of PTE context menu from affecting cursor on that first cli
 - [x] Editor settings toggles
 - [x] Grabbable selection
 - [x] Moving preloaded fonts to top of selection box
+- [ ] Make sure the distinction/usage between prompt, dialog, and box is clear
 
 ### Stretch
 
@@ -140,7 +141,6 @@ Next up:
 - [ ] Ensure menu toggles update appropriately when tab dragging is implemented!
 - [ ] Custom context menu for AbstractFileView, implement for editors (replacing Qt editor context menu)
 - [x] Try Inno? (Follow-up: it's good!)
-- [x] Installer translations? Is that common?
 - [x] Ensure installer has: batchfile automated, optional shortcut, uses windeployqt6, also copies a shortcut to repo, copies inside a data folder with shortcut to exe inside at top level, and installer dir output is separated by platform somehow
 - [x] Handle opening args!
 - [x] Toggle logging based on VERSION_DEBUG in Version.h
