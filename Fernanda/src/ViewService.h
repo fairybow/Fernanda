@@ -439,8 +439,6 @@ public:
     }
 
 signals:
-    // Active view can be nullptr!
-    void activeChanged(Window* window, AbstractFileView* activeFileView);
     void addTabRequested(Window* window);
     void fileViewDestroyed(AbstractFileView* fileView);
 
@@ -563,7 +561,7 @@ private:
 
         activeFileViews_[window] = active;
         INFO("Active file view changed in [{}] to [{}]", window, active);
-        emit activeChanged(window, active);
+        emit bus->activeFileViewChanged(window, active);
     }
 
     template <

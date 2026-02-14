@@ -9,11 +9,17 @@
 
 #pragma once
 
+#include <QHash>
 #include <QObject>
+#include <QPlainTextEdit>
+#include <QStatusBar>
 
 #include "AbstractService.h"
 #include "Bus.h"
 #include "Debug.h"
+#include "TextFileView.h"
+#include "Window.h"
+#include "WordCounter.h"
 
 namespace Fernanda {
 
@@ -39,13 +45,65 @@ protected:
 
     virtual void connectBusEvents() override
     {
-        //...
+        connect(
+            bus,
+            &Bus::windowCreated,
+            this,
+            &WordCounterModule::onBusWindowCreated_);
+
+        connect(
+            bus,
+            &Bus::windowDestroyed,
+            this,
+            &WordCounterModule::onBusWindowDestroyed_);
+
+        connect(
+            bus,
+            &Bus::activeFileViewChanged,
+            this,
+            &WordCounterModule::onBusActiveFileViewChanged_);
     }
 
 private:
+    QHash<Window*, WordCounter*> wordCounters_{};
+
     void setup_()
     {
         //...
+    }
+
+private slots:
+    void onBusWindowCreated_(Window* window)
+    {
+        if (!window) return;
+
+        auto word_counter = new WordCounter(window);
+        wordCounters_[window] = word_counter;
+        window->statusBar()->addPermanentWidget(word_counter);
+    }
+
+    void onBusWindowDestroyed_(Window* window)
+    {
+        if (!window) return;
+        wordCounters_.remove(window);
+    }
+
+    // Active view can be nullptr!
+    // TODO: Use PlainTextEdit subclass or nah? Would move the WC widget to PTE
+    // filter, then
+    void onBusActiveFileViewChanged_(
+        Window* window,
+        AbstractFileView* activeFileView)
+    {
+        auto word_counter = wordCounters_.value(window);
+        if (!word_counter) return;
+
+        QPlainTextEdit* editor = nullptr;
+
+        if (auto text_view = qobject_cast<TextFileView*>(activeFileView))
+            editor = text_view->editor();
+
+        word_counter->setTextEdit(editor);
     }
 };
 

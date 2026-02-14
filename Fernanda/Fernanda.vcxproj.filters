@@ -82,9 +82,6 @@
     <Filter Include="Code\Core\Services\Settings">
       <UniqueIdentifier>{9d4181d7-dd93-4d05-80f2-8b26fa55987e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Code\Core\UI\AboutDialog">
-      <UniqueIdentifier>{d25c814a-f54c-4b9f-aca9-93749dad1c04}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Installer">
       <UniqueIdentifier>{f93aebe4-fc11-4c96-9f7d-b7d9bac68fdb}</UniqueIdentifier>
     </Filter>
@@ -108,6 +105,12 @@
     </Filter>
     <Filter Include="Code\Core\UI\Settings">
       <UniqueIdentifier>{3c4a69c6-8c19-4945-bb21-db9ae3e35a72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Core\UI\Saving">
+      <UniqueIdentifier>{3a6e19d6-a08d-42f3-8ca5-9205c56f7bda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code\Auxiliary\Modules\WordCounter">
+      <UniqueIdentifier>{fe0b1298-3c86-4900-868d-bdd8646e09ba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -147,9 +150,6 @@
     <ClCompile Include="src\Workspace.cpp">
       <Filter>Code\Core\Workspaces</Filter>
     </ClCompile>
-    <ClCompile Include="src\AboutDialog.cpp">
-      <Filter>Code\Core\UI\AboutDialog</Filter>
-    </ClCompile>
     <ClCompile Include="src\CollapsibleWidget.cpp">
       <Filter>Code\Core\UI\AccordionWidget</Filter>
     </ClCompile>
@@ -161,6 +161,9 @@
     </ClCompile>
     <ClCompile Include="src\PlainTextEdit.cpp">
       <Filter>Code\Core\UI\PlainTextEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AboutDialog.cpp">
+      <Filter>Code\Core\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -343,9 +346,6 @@
     <QtMoc Include="src\Timers.h">
       <Filter>Code\Core</Filter>
     </QtMoc>
-    <QtMoc Include="src\WordCounterModule.h">
-      <Filter>Code\Auxiliary\Modules</Filter>
-    </QtMoc>
     <QtMoc Include="src\ColorBarModule.h">
       <Filter>Code\Auxiliary\Modules\ColorBar</Filter>
     </QtMoc>
@@ -438,6 +438,12 @@
     </QtMoc>
     <QtMoc Include="src\ThemeSelector.h">
       <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\WordCounterModule.h">
+      <Filter>Code\Auxiliary\Modules\WordCounter</Filter>
+    </QtMoc>
+    <QtMoc Include="src\WordCounter.h">
+      <Filter>Code\Auxiliary\Modules\WordCounter</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -540,15 +546,6 @@
     <ClInclude Include="src\Ini.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </ClInclude>
-    <ClInclude Include="src\SaveFailMessageBox.h">
-      <Filter>Code\Core\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SavePrompt.h">
-      <Filter>Code\Core\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AboutDialog.h">
-      <Filter>Code\Core\UI\AboutDialog</Filter>
-    </ClInclude>
     <ClInclude Include="src\UpdateDialog.h">
       <Filter>Code\Core\UI</Filter>
     </ClInclude>
@@ -557,6 +554,15 @@
     </ClInclude>
     <ClInclude Include="src\Qss.h">
       <Filter>Code\Auxiliary\Modules\Style</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SavePrompt.h">
+      <Filter>Code\Core\UI\Saving</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SaveFailMessageBox.h">
+      <Filter>Code\Core\UI\Saving</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AboutDialog.h">
+      <Filter>Code\Core\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

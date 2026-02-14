@@ -44,6 +44,7 @@
 #include "ViewService.h"
 #include "Window.h"
 #include "WindowService.h"
+#include "WordCounterModule.h"
 
 namespace Fernanda {
 
@@ -103,6 +104,7 @@ protected:
     TreeViewService* treeViews = new TreeViewService(bus, this);
     ColorBarModule* colorBars = new ColorBarModule(bus, this);
     StyleModule* styling = new StyleModule(bus, this);
+    WordCounterModule* wordCounters = new WordCounterModule(bus, this);
 
     Coco::Path startDir =
         AppDirs::defaultDocs(); // Since this is currently hardcoded, it goes
@@ -166,6 +168,7 @@ private:
         treeViews->initialize();
         colorBars->initialize();
         styling->initialize();
+        wordCounters->initialize();
 
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
@@ -173,12 +176,6 @@ private:
             &Workspace::canCloseTabEverywhere);
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
-
-        connect(
-            views,
-            &ViewService::activeChanged,
-            this,
-            &Workspace::onViewsActiveChanged_);
 
         connect(
             views,
@@ -239,6 +236,12 @@ private:
 
         connect(
             bus,
+            &Bus::activeFileViewChanged,
+            this,
+            &Workspace::onBusActiveFileViewChanged_);
+
+        connect(
+            bus,
             &Bus::fileModelReadied,
             this,
             [&](Window* window, AbstractFileModel* fileModel) {
@@ -275,7 +278,10 @@ private:
     }
 
 private slots:
-    void onViewsActiveChanged_(Window* window, AbstractFileView* activeFileView)
+    // Active view can be nullptr!
+    void onBusActiveFileViewChanged_(
+        Window* window,
+        AbstractFileView* activeFileView)
     {
         // Both of these even when active view is nullptr!
         disconnectOldActiveTab_(window);

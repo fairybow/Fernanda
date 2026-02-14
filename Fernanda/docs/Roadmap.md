@@ -12,6 +12,7 @@ Word wrap setting isn't working (probably casting/qvar) (though this seems to be
 Prevent clicking out of PTE context menu from affecting cursor on that first click?
 
 Translations not worth it right now. Keep TR maybe. But remove all TR files but Spanish. Run time translation isn't going to happen without UI files. So, we need to require restart and change the TranslationDialog behavior, etc., or just leave it alone for now.
+Also, annoyed that for other QRC files we have a nice landing dir to place them in and entires naturally get their prefix dir (e.g. ui/) from their placement in subfolder - isn't structured like that for tr files
 
 ## Features
 
