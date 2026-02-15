@@ -9,6 +9,8 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 
 Utility function for making info/tooltip check box (like for barging), and use for Selection (to explain when all counts off...) and potentially other things in other panels
 
+Use dual column layouts for some of the settings panels (instead of just, like, 8 check boxes placed vertically...)
+
 Add defaults button to settings (this should probably not write the defaults, since we'd want the cascading to work for Notebook inheriting Notepad values)
 
 Prevent clicking out of PTE context menu from affecting cursor on that first click?
