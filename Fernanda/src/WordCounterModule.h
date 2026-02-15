@@ -91,6 +91,9 @@ private:
                 { { "key", key }, { "defaultValue", defaultVal } });
         };
 
+        wordCounter->setActive(
+            get(Ini::Keys::WORD_COUNTER_ACTIVE,
+                Ini::Defaults::wordCounterActive()));
         wordCounter->setHasLineCount(
             get(Ini::Keys::WORD_COUNTER_LINE_COUNT,
                 Ini::Defaults::wordCounterLineCount()));
@@ -158,6 +161,10 @@ private slots:
 
     void onBusSettingChanged_(const QString& key, const QVariant& value)
     {
+        if (key == Ini::Keys::WORD_COUNTER_ACTIVE)
+            forEachWordCounter_(
+                [&](WordCounter* wc) { wc->setActive(value.toBool()); });
+
         if (key == Ini::Keys::WORD_COUNTER_LINE_COUNT)
             forEachWordCounter_(
                 [&](WordCounter* wc) { wc->setHasLineCount(value.toBool()); });

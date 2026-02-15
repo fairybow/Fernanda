@@ -38,6 +38,7 @@ namespace Keys {
     constexpr auto EDITOR_LINE_NUMBERS = "Editor/LineNumbers";
     constexpr auto EDITOR_LINE_HIGHLIGHT = "Editor/LineHighlight";
     constexpr auto EDITOR_SELECTION_HANDLES = "Editor/SelectionHandles";
+    constexpr auto WORD_COUNTER_ACTIVE = "WordCounter/Active";
     constexpr auto WORD_COUNTER_LINE_COUNT = "WordCounter/LineCount";
     constexpr auto WORD_COUNTER_WORD_COUNT = "WordCounter/WordCount";
     constexpr auto WORD_COUNTER_CHAR_COUNT = "WordCounter/CharCount";
@@ -82,6 +83,7 @@ namespace Defaults {
     inline bool editorLineNumbers() { return true; }
     inline bool editorLineHighlight() { return true; }
     inline bool editorSelectionHandles() { return true; }
+    inline bool wordCounterActive() { return true; }
     inline bool wordCounterLineCount() { return true; }
     inline bool wordCounterWordCount() { return true; }
     inline bool wordCounterCharCount() { return false; }

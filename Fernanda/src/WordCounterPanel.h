@@ -27,6 +27,7 @@ class WordCounterPanel : public QWidget
 public:
     struct InitialValues
     {
+        bool active;
         bool lineCount;
         bool wordCount;
         bool charCount;
@@ -47,6 +48,7 @@ public:
     virtual ~WordCounterPanel() override { TRACER; }
 
 signals:
+    void activeChanged(bool active);
     void lineCountChanged(bool lineCount);
     void wordCountChanged(bool wordCount);
     void charCountChanged(bool charCount);
@@ -69,7 +71,8 @@ private:
     {
         // Populate
         groupBox_->setTitle(Tr::wordCounterTitle());
-        groupBox_->setCheckable(false); // TODO: Active check
+        groupBox_->setCheckable(true);
+        groupBox_->setChecked(initialValues.active);
 
         lineCountCheck_->setText(Tr::wordCounterLineCount());
         lineCountCheck_->setChecked(initialValues.lineCount);
@@ -108,6 +111,10 @@ private:
         main_layout->addWidget(groupBox_);
 
         // Connect
+        connect(groupBox_, &QGroupBox::toggled, this, [&](bool toggled) {
+            emit activeChanged(toggled);
+        });
+
         connect(lineCountCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
             emit lineCountChanged(toggled);
         });

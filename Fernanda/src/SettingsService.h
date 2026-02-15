@@ -160,6 +160,9 @@ public:
             .editorSelectionHandles = settings_->value<bool>(
                 Ini::Keys::EDITOR_SELECTION_HANDLES,
                 Ini::Defaults::editorSelectionHandles()),
+            .wordCounterActive = settings_->value<bool>(
+                Ini::Keys::WORD_COUNTER_ACTIVE,
+                Ini::Defaults::wordCounterActive()),
             .wordCounterLineCount = settings_->value<bool>(
                 Ini::Keys::WORD_COUNTER_LINE_COUNT,
                 Ini::Defaults::wordCounterLineCount()),
@@ -340,6 +343,17 @@ public:
                     Ini::Keys::EDITOR_SELECTION_HANDLES,
                     selectionHandles);
                 set(Ini::Keys::EDITOR_SELECTION_HANDLES, selectionHandles);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::wordCounterActiveChanged,
+            this,
+            [&](bool active) {
+                emit bus->settingChanged(
+                    Ini::Keys::WORD_COUNTER_ACTIVE,
+                    active);
+                set(Ini::Keys::WORD_COUNTER_ACTIVE, active);
             });
 
         connect(

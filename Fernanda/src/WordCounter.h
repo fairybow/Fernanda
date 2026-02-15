@@ -35,11 +35,12 @@ namespace Fernanda {
 // manual refresh fallback for large documents), while selection counts are
 // computed on demand from the cache without retriggering a full recount
 //
-// TODO: Decide how to handle no document display (showing "null" is not ideal;
-// ideally, we'd just hide the widget, maybe, or show zeroes)
 // TODO: Replace "refresh" button with something more visually intuitive, like
 // greater opacity and allowing user to click on the counts to update them
 // TODO: Tr support
+// TODO: Potentially let all counts = false and selection = true mean we show
+// only selection (with all 3 counts) and nothing otherwise (regardless of
+// selection replacement setting, in that case)
 class WordCounter : public QWidget
 {
     Q_OBJECT
@@ -87,6 +88,24 @@ public:
 
         updateCounts_(Force_::Yes);
         updatePos_();
+    }
+
+    bool active() const noexcept { return active_; }
+
+    void setActive(bool active)
+    {
+        if (active_ == active) return;
+        active_ = active;
+
+        if (active_) {
+            updateCounts_(Force_::Yes);
+            updatePos_();
+        } else {
+            countDebouncer_->stop();
+            cachedBaseCounts_.clear();
+            updateCountsDisplay_();
+            updatePos_();
+        }
     }
 
     bool hasLineCount() const noexcept { return hasLineCount_; }
@@ -167,7 +186,6 @@ private:
     static constexpr auto COL_POS_LABEL_ = "col";
     static constexpr auto DELIMITER_ = ", ";
     static constexpr auto SEPARATOR_ = " / ";
-    static constexpr auto DISPLAY_NULL_LABEL_ = "null";
 
     // Threshold at which we switch from auto-count to manual refresh. With
     // in-place counting (no allocations), we can handle much larger documents
@@ -178,26 +196,21 @@ private:
     QPointer<QPlainTextEdit> textEdit_{};
     Timers::Debouncer* countDebouncer_ =
         new Timers::Debouncer(DEBOUNCE_MS_, this, [&] { updateCounts_(); });
-    QLabel* countsDisplay_ = new QLabel(DISPLAY_NULL_LABEL_, this);
+    QLabel* countsDisplay_ = new QLabel(this);
     QLabel* separatorDisplay_ = new QLabel(SEPARATOR_, this);
-    QLabel* posDisplay_ = new QLabel(DISPLAY_NULL_LABEL_, this);
+    QLabel* posDisplay_ = new QLabel(this);
     QToolButton* refresh_ = new QToolButton(this);
 
     COCO_BOOL(Force_);
 
-    // TODO: An "is active" mode (or guard for widget is hidden)?
+    bool active_ = true;
 
     bool autoCount_ = true;
-
     // TODO: How to handle selections when all these are turned off? When only
     // some counts are off, it makes sense for selection to function (if true)
     // and show only the counts user has turned on here. However, if all counts
     // are turned off, should we also not show selection or force selection to
     // show all (making counts only appear when there's a selection)?
-    // BUG: On startup with all these turned off, I'll see "null / null" for
-    // empty document. So, we should maybe only show "null" when any count or
-    // any pos is chosen (otherwise, if no count or no pos is chosen, then those
-    // respective sides shouldn't be rendered at all)
     bool hasLineCount_ = true;
     bool hasWordCount_ = true;
     bool hasCharCount_ = false;
@@ -239,9 +252,7 @@ private:
 
     void updateCounts_(Force_ force = Force_::No)
     {
-        auto any = hasAnyCount_();
-
-        if (!textEdit_) {
+        if (!active_ || !textEdit_) {
             cachedBaseCounts_.clear();
             adjustCountStyle_(0);
             updateCountsDisplay_();
@@ -253,7 +264,7 @@ private:
         auto char_count = document ? document->characterCount() : 0;
         adjustCountStyle_(char_count);
 
-        if ((autoCount_ || force) && any)
+        if ((autoCount_ || force) && hasAnyCount_())
             cachedBaseCounts_ = buildCounts_(CountSource_::Document);
 
         updateCountsDisplay_();
@@ -300,6 +311,8 @@ private:
     // Selection path counts paragraph separators in the selected text
     QString buildCounts_(CountSource_ source)
     {
+        if (!textEdit_) return {};
+
         QStringList elements{};
         QString text{};
         auto need_text = hasWordCount_ || hasCharCount_;
@@ -350,10 +363,8 @@ private:
     {
         auto any = hasAnyCount_();
 
-        if (!textEdit_ || !any) {
-            countsDisplay_->setText(DISPLAY_NULL_LABEL_);
-            setDisplayVisible_(countsDisplay_, any);
-
+        if (!active_ || !textEdit_ || !any) {
+            setDisplayVisible_(countsDisplay_, false);
             return;
         }
 
@@ -376,15 +387,12 @@ private:
 
     void updatePos_()
     {
-        auto any = hasAnyPos_();
-
-        if (!textEdit_) {
-            posDisplay_->setText(DISPLAY_NULL_LABEL_);
-            setDisplayVisible_(posDisplay_, any);
-
+        if (!active_ || !textEdit_) {
+            setDisplayVisible_(posDisplay_, false);
             return;
         }
 
+        auto any = hasAnyPos_();
         if (any) posDisplay_->setText(pos_());
         setDisplayVisible_(posDisplay_, any);
     }
@@ -453,6 +461,8 @@ private:
         display->setVisible(show);
         separatorDisplay_->setVisible(
             countsDisplay_->isVisible() && posDisplay_->isVisible());
+
+        if (!show) display->clear();
     }
 
     // TODO: Move to Coco?

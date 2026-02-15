@@ -61,6 +61,7 @@ public:
         bool editorLineHighlight;
         bool editorSelectionHandles;
 
+        bool wordCounterActive;
         bool wordCounterLineCount;
         bool wordCounterWordCount;
         bool wordCounterCharCount;
@@ -101,6 +102,7 @@ signals:
     void editorLineHighlightChanged(bool lineHighlight);
     void editorSelectionHandlesChanged(bool selectionHandles);
 
+    void wordCounterActiveChanged(bool active);
     void wordCounterLineCountChanged(bool lineCount);
     void wordCounterWordCountChanged(bool wordCount);
     void wordCounterCharCountChanged(bool charCount);
@@ -158,6 +160,7 @@ private:
 
         wordCounterPanel_ = new WordCounterPanel(
             WordCounterPanel::InitialValues{
+                .active = initialValues.wordCounterActive,
                 .lineCount = initialValues.wordCounterLineCount,
                 .wordCount = initialValues.wordCounterWordCount,
                 .charCount = initialValues.wordCounterCharCount,
@@ -293,6 +296,12 @@ private:
             [&](bool selectionHandles) {
                 emit editorSelectionHandlesChanged(selectionHandles);
             });
+
+        connect(
+            wordCounterPanel_,
+            &WordCounterPanel::activeChanged,
+            this,
+            [&](bool active) { emit wordCounterActiveChanged(active); });
 
         connect(
             wordCounterPanel_,
