@@ -27,6 +27,7 @@
 
 #include "Debug.h"
 #include "Timers.h"
+#include "Tr.h"
 
 namespace Fernanda {
 
@@ -37,9 +38,6 @@ namespace Fernanda {
 //
 // TODO: Replace "refresh" button with something more visually intuitive, like
 // greater opacity and allowing user to click on the counts to update them
-// TODO: Tr support
-// TODO: Either permanently increase status bar height or make text smaller to
-// prevent the visible status bar shrink/growth when hiding/showing the widget
 // TODO: Padding of some kind to prevent bouncing around between labels /
 // separator / right edge of status bar (bouncing around inside labels
 // counts/pos is probably fine)
@@ -177,15 +175,7 @@ public:
     }
 
 private:
-    static constexpr auto MARGIN_ = 1;
-    static constexpr auto LINES_LABEL_ = "line";
-    static constexpr auto WORDS_LABEL_ = "word";
-    static constexpr auto CHARS_LABEL_ = "char";
-    static constexpr auto LINES_LABEL_P_ = "lines";
-    static constexpr auto WORDS_LABEL_P_ = "words";
-    static constexpr auto CHARS_LABEL_P_ = "chars";
-    static constexpr auto LINE_POS_LABEL_ = "ln";
-    static constexpr auto COL_POS_LABEL_ = "col";
+    static constexpr auto MARGIN_ = 0.5;
     static constexpr auto DELIMITER_ = ", ";
     static constexpr auto SEPARATOR_ = " / ";
 
@@ -322,7 +312,7 @@ private:
             if (line) {
                 auto document = textEdit_->document();
                 auto lines = document ? document->blockCount() : 0;
-                elements << countElement_(lines, LINES_LABEL_, LINES_LABEL_P_);
+                elements << Tr::wordCounterLines(lines);
             }
 
             if (need_text) text = textEdit_->toPlainText();
@@ -332,7 +322,7 @@ private:
 
             if (line) {
                 auto lines = selectionLineCount_(selected);
-                elements << countElement_(lines, LINES_LABEL_, LINES_LABEL_P_);
+                elements << Tr::wordCounterLines(lines);
             }
 
             if (need_text) text = selected;
@@ -340,22 +330,15 @@ private:
 
         if (word) {
             auto words = wordCount_(text);
-            elements << countElement_(words, WORDS_LABEL_, WORDS_LABEL_P_);
+            elements << Tr::wordCounterWords(words);
         }
 
         if (char_) {
             auto chars = text.size();
-            elements << countElement_(chars, CHARS_LABEL_, CHARS_LABEL_P_);
+            elements << Tr::wordCounterChars(chars);
         }
 
         return elements.join(DELIMITER_);
-    }
-
-    QString
-    countElement_(qsizetype count, const char* singular, const char* plural)
-    {
-        return QString::number(count) + " "
-               + ((count != 1) ? plural : singular);
     }
 
     // --- Display composition ---
@@ -418,11 +401,11 @@ private:
         auto cursor = textEdit_->textCursor();
 
         if (hasLinePos_)
-            elements << QString(LINE_POS_LABEL_) + " "
+            elements << Tr::wordCounterLinePos() + " "
                             + QString::number(cursor.blockNumber() + 1);
 
         if (hasColPos_)
-            elements << QString(COL_POS_LABEL_) + " "
+            elements << Tr::wordCounterColPos() + " "
                             + QString::number(cursor.positionInBlock() + 1);
 
         return elements.join(DELIMITER_);

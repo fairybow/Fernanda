@@ -15,11 +15,15 @@
 
 // TODO: Go through and Find All References and delete unused
 // TODO: Find and remove "vanished" type entries in TS XML (old or moved
-// translations)
+// translations) (make a bat file probably)
 
 // Qt Linguist requires the tr method to be in place
 #define TR_(Name, TrCall)                                                      \
     inline QString Name() { return TrCall; }
+
+// Numerus
+#define TRN_(Name, TrCall)                                                     \
+    inline QString Name(int n) { return TrCall; }
 
 namespace Fernanda {
 
@@ -124,22 +128,15 @@ namespace Tr {
     TR_(nbSaveAsCaption, tr("Save as"));
     TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
 
-    // TODO:
-    // See: doc.qt.io/qt-6/i18n-source-translation.html#handle-plural-forms -
-    // but also, it's annoying - must use EN and strip plurals using lupdate
-    // -pluralonly - just do it later
-    inline QString nbTrashPromptBody(int count)
-    {
-        // return tr(
-        //     "Are you sure you want to delete %n file(s)? <b>This cannot be "
-        //     "undone.</b>",
-        //     nullptr,
-        //     count);
-
-        return tr("Are you sure you want to delete %0 file(s)? <b>This cannot "
-                  "be undone.</b>")
-            .arg(count);
-    };
+    // TODO: I think a multi version might be better - then, in the singular, we
+    // can name the file (instead of weirdly saying "would you like to delete 1
+    // file?")
+    TRN_(
+        nbTrashPromptBody,
+        tr("Are you sure you want to delete %n file(s)? <b>This cannot be "
+           "undone.</b>",
+           nullptr,
+           n));
 
     /// Menus
 
@@ -211,6 +208,14 @@ namespace Tr {
     TR_(nbDeletePermanently, tr("Delete permanently"));
     TR_(nbEmptyTrash, tr("Empty trash"));
 
+    /// Word counter
+
+    TRN_(wordCounterLines, tr("%n line(s)", nullptr, n));
+    TRN_(wordCounterWords, tr("%n word(s)", nullptr, n));
+    TRN_(wordCounterChars, tr("%n char(s)", nullptr, n));
+    TR_(wordCounterLinePos, tr("ln"));
+    TR_(wordCounterColPos, tr("col"));
+
     /// Font selector
 
     TR_(bold, tr("Bold"));
@@ -248,18 +253,18 @@ namespace Tr {
 
     /// Word counter panel
 
-    TR_(wordCounterTitle, tr("Word counter"));
+    TR_(wordCounterPanelTitle, tr("Word counter"));
 
     // TODO: Make the group box selectable and add an is active bool or hidden
     // guard check
 
-    TR_(wordCounterLineCount, tr("Line count"));
-    TR_(wordCounterWordCount, tr("Word count"));
-    TR_(wordCounterCharCount, tr("Character count"));
-    TR_(wordCounterSelection, tr("Selection counts"));
-    TR_(wordCounterSelReplace, tr("Selection replacement"));
-    TR_(wordCounterLinePos, tr("Line position"));
-    TR_(wordCounterColPos, tr("Column position"));
+    TR_(wordCounterPanelLineCount, tr("Line count"));
+    TR_(wordCounterPanelWordCount, tr("Word count"));
+    TR_(wordCounterPanelCharCount, tr("Character count"));
+    TR_(wordCounterPanelSel, tr("Selection counts"));
+    TR_(wordCounterPanelSelReplace, tr("Selection replacement"));
+    TR_(wordCounterPanelLinePos, tr("Line position"));
+    TR_(wordCounterPanelColPos, tr("Column position"));
 
     /// Settings
 
@@ -275,3 +280,4 @@ namespace Tr {
 } // namespace Fernanda
 
 #undef TR_
+#undef TRN_

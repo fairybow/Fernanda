@@ -448,6 +448,9 @@
     <QtMoc Include="src\WordCounterPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
+    <QtMoc Include="src\InfoCheckBox.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
@@ -580,7 +583,7 @@
     <QtRcc Include="resources\Ui.qrc">
       <Filter>Resources</Filter>
     </QtRcc>
-    <QtRcc Include="translations\TranslationQMFiles.qrc">
+    <QtRcc Include="translations\QMFiles.qrc">
       <Filter>Translations</Filter>
     </QtRcc>
     <QtRcc Include="external\External.qrc">
@@ -592,6 +595,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtTranslation Include="translations\Translation_es.ts">
+      <Filter>Translations</Filter>
+    </QtTranslation>
+    <QtTranslation Include="translations\Translation_en.ts">
       <Filter>Translations</Filter>
     </QtTranslation>
   </ItemGroup>

@@ -70,29 +70,29 @@ private:
     void setup_(const InitialValues& initialValues)
     {
         // Populate
-        groupBox_->setTitle(Tr::wordCounterTitle());
+        groupBox_->setTitle(Tr::wordCounterPanelTitle());
         groupBox_->setCheckable(true);
         groupBox_->setChecked(initialValues.active);
 
-        lineCountCheck_->setText(Tr::wordCounterLineCount());
+        lineCountCheck_->setText(Tr::wordCounterPanelLineCount());
         lineCountCheck_->setChecked(initialValues.lineCount);
 
-        wordCountCheck_->setText(Tr::wordCounterWordCount());
+        wordCountCheck_->setText(Tr::wordCounterPanelWordCount());
         wordCountCheck_->setChecked(initialValues.wordCount);
 
-        charCountCheck_->setText(Tr::wordCounterCharCount());
+        charCountCheck_->setText(Tr::wordCounterPanelCharCount());
         charCountCheck_->setChecked(initialValues.charCount);
 
-        selectionCheck_->setText(Tr::wordCounterSelection());
+        selectionCheck_->setText(Tr::wordCounterPanelSel());
         selectionCheck_->setChecked(initialValues.selection);
 
-        selReplaceCheck_->setText(Tr::wordCounterSelReplace());
+        selReplaceCheck_->setText(Tr::wordCounterPanelSelReplace());
         selReplaceCheck_->setChecked(initialValues.selReplace);
 
-        linePosCheck_->setText(Tr::wordCounterLinePos());
+        linePosCheck_->setText(Tr::wordCounterPanelLinePos());
         linePosCheck_->setChecked(initialValues.linePos);
 
-        colPosCheck_->setText(Tr::wordCounterColPos());
+        colPosCheck_->setText(Tr::wordCounterPanelColPos());
         colPosCheck_->setChecked(initialValues.colPos);
 
         // Layout

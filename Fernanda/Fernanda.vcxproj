@@ -118,6 +118,7 @@
     <QtMoc Include="src\Notepad.h" />
     <QtMoc Include="src\KeyFilters.h" />
     <QtMoc Include="src\KeyFiltersPanel.h" />
+    <QtMoc Include="src\InfoCheckBox.h" />
     <ClInclude Include="src\MenuBuilder.h" />
     <ClInclude Include="src\MenuShortcuts.h" />
     <QtMoc Include="src\MenuState.h" />
@@ -179,9 +180,10 @@
     <QtRcc Include="resources\Icons.qrc" />
     <QtRcc Include="resources\Themes.qrc" />
     <QtRcc Include="resources\Ui.qrc" />
-    <QtRcc Include="translations\TranslationQMFiles.qrc" />
+    <QtRcc Include="translations\QMFiles.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <QtTranslation Include="translations\Translation_en.ts" />
     <QtTranslation Include="translations\Translation_es.ts" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
