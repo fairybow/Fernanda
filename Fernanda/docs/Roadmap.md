@@ -7,8 +7,6 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
-Utility function for making info/tooltip check box (like for barging), and use for Selection (to explain when all counts off...) and potentially other things in other panels
-
 Use dual column layouts for some of the settings panels (instead of just, like, 8 check boxes placed vertically...)
 
 Add defaults button to settings (this should probably not write the defaults, since we'd want the cascading to work for Notebook inheriting Notepad values)
@@ -16,8 +14,6 @@ Add defaults button to settings (this should probably not write the defaults, si
 Prevent clicking out of PTE context menu from affecting cursor on that first click?
 
 Translations not worth it right now. Keep TR maybe. But remove all TR files but Spanish. Run time translation isn't going to happen without UI files. So, we need to require restart and change the TranslationDialog behavior, etc., or just leave it alone for now.
-
-Also, annoyed that for other QRC files we have a nice landing dir to place them in and entires naturally get their prefix dir (e.g. ui/) from their placement in subfolder - isn't structured like that for tr files
 
 Will need to adjust all custom widgets to filter for change event and re-run all their own Tr function calls, like this:
 

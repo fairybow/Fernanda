@@ -14,6 +14,7 @@
 #include <QList>
 #include <QSessionManager>
 #include <QStringList>
+#include <QTranslator>
 
 #include "Coco/Path.h"
 #include "Coco/PathUtil.h"
@@ -51,6 +52,7 @@ public:
         Debug::initialize(Version::isDebug); // TODO: Log file path
         if (!AppDirs::initialize()) FATAL("App directory creation failed!");
 
+        initializeTranslator_();
         loadBundledFonts_();
         initializeNotepad_();
         handleArgs_();
@@ -160,6 +162,7 @@ public slots:
 
 private:
     bool initialized_ = false;
+    QTranslator* translator_ = nullptr;
     Notepad* notepad_ = nullptr;
     QList<Notebook*> notebooks_{};
 
@@ -179,6 +182,21 @@ private:
             &Application::commitDataRequest,
             this,
             &Application::onCommitDataRequest_);
+    }
+
+    void initializeTranslator_()
+    {
+        translator_ = new QTranslator(this);
+
+        if (translator_->load(":/qm/Translation_en.qm")) {
+            INFO("Translation loaded!");
+            if (installTranslator(translator_)) INFO("Translator installed!");
+        } else {
+            // TODO: Only handling EN for now
+            WARN("Failed to load translation: {}", "en");
+            delete translator_;
+            translator_ = nullptr;
+        }
     }
 
     void loadBundledFonts_()

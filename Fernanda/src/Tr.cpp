@@ -18,11 +18,8 @@ namespace Fernanda {
 
 QString tr(const char* sourceText, const char* disambiguation, int n)
 {
-    return Application::translate(
-        VERSION_APP_NAME_STRING,
-        sourceText,
-        disambiguation,
-        n);
+    constexpr auto context = "Fernanda::Tr";
+    return Application::translate(context, sourceText, disambiguation, n);
 }
 
 } // namespace Fernanda
