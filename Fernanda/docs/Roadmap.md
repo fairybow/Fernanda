@@ -11,7 +11,7 @@ New TR bat to update all (can isolate only EN and use pluralonly arg), replacing
 
 New additional TR bat to release all and move them to the qm folder
 
-Could write release tag to file name and compare against that (so, not release tag anymore...). Additionally, we'd only want to write to the repo itself and not when being actually used, so seems like a VS script job?
+A Version.txt file (containing only VERSION_FULL_STRING) as release asset that can be read by UpdateDialog for comparison instead of having to ensure release tag matches VERSION_FULL_STRING
 
 Use dual column layouts for some of the settings panels (instead of just, like, 8 check boxes placed vertically...)
 

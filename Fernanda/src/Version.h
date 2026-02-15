@@ -9,7 +9,7 @@
 
 #pragma once
 
-#define VERSION_PRERELEASE // Toggle manually
+#define VERSION_IS_PRERELEASE 1 // 1 = prerelease, 0 = stable
 
 namespace Fernanda::Version {
 
@@ -25,7 +25,7 @@ inline constexpr bool isDebug = false;
 
 #endif
 
-#if defined(VERSION_PRERELEASE)
+#if VERSION_IS_PRERELEASE
 
 inline constexpr bool isPrerelease = true;
 
@@ -82,7 +82,7 @@ inline constexpr bool isPrerelease = false;
         VERSION_STRINGIFY(VERSION_MAJOR)    "." \
         VERSION_STRINGIFY(VERSION_MINOR)
 
-#ifdef  VERSION_PRERELEASE
+#if     VERSION_IS_PRERELEASE
 #define VERSION_FULL_STRING                     \
         VERSION_STRINGIFY(VERSION_MAJOR)    "." \
         VERSION_STRINGIFY(VERSION_MINOR)    "." \

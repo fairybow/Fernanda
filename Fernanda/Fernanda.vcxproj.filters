@@ -112,6 +112,9 @@
     <Filter Include="Code\Auxiliary\Modules\WordCounter">
       <UniqueIdentifier>{fe0b1298-3c86-4900-868d-bdd8646e09ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripts">
+      <UniqueIdentifier>{b938b2ee-9860-4380-992c-c5046125c74a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -294,6 +297,12 @@
       <Filter>Old %28Remove Later%29</Filter>
     </None>
     <None Include="src\old_TranslationCode.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="scripts\Update EN pluralonly.bat">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="scripts\old_VSPreBuildGenVersionFile.ps1">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
   </ItemGroup>

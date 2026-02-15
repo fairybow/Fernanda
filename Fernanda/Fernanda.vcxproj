@@ -74,6 +74,8 @@
     <None Include="resources\ui\Dot.svg" />
     <None Include="resources\ui\Plus.svg" />
     <None Include="resources\ui\X.svg" />
+    <None Include="scripts\old_VSPreBuildGenVersionFile.ps1" />
+    <None Include="scripts\Update EN pluralonly.bat" />
     <None Include="src\old_TranslationCode.md" />
     <None Include="submodules\Coco\Coco\copy\Class.md" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md" />

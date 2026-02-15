@@ -17,10 +17,10 @@
 #    pragma message("VERSION_DEBUG is not defined")
 #endif
 
-#ifdef VERSION_PRERELEASE
-#    pragma message("VERSION_PRERELEASE is defined")
+#if VERSION_IS_PRERELEASE
+#    pragma message("VERSION_IS_PRERELEASE = 1")
 #else
-#    pragma message("VERSION_PRERELEASE is not defined")
+#    pragma message("VERSION_IS_PRERELEASE = 0")
 #endif
 
 #pragma message("Version: " VERSION_FULL_STRING)
