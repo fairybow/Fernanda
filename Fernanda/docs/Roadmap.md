@@ -7,7 +7,7 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
-Right now, hook up settings to word counts and test that way first and see what issue are present (with and without active tab)
+Utility function for making info/tooltip check box (like for barging), and use for Selection (to explain when all counts off...) and potentially other things in other panels
 
 Add defaults button to settings (this should probably not write the defaults, since we'd want the cascading to work for Notebook inheriting Notepad values)
 

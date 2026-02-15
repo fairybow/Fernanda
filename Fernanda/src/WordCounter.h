@@ -38,9 +38,11 @@ namespace Fernanda {
 // TODO: Replace "refresh" button with something more visually intuitive, like
 // greater opacity and allowing user to click on the counts to update them
 // TODO: Tr support
-// TODO: Potentially let all counts = false and selection = true mean we show
-// only selection (with all 3 counts) and nothing otherwise (regardless of
-// selection replacement setting, in that case)
+// TODO: Either permanently increase status bar height or make text smaller to
+// prevent the visible status bar shrink/growth when hiding/showing the widget
+// TODO: Padding of some kind to prevent bouncing around between labels /
+// separator / right edge of status bar (bouncing around inside labels
+// counts/pos is probably fine)
 class WordCounter : public QWidget
 {
     Q_OBJECT
@@ -206,15 +208,11 @@ private:
     bool active_ = true;
 
     bool autoCount_ = true;
-    // TODO: How to handle selections when all these are turned off? When only
-    // some counts are off, it makes sense for selection to function (if true)
-    // and show only the counts user has turned on here. However, if all counts
-    // are turned off, should we also not show selection or force selection to
-    // show all (making counts only appear when there's a selection)?
     bool hasLineCount_ = true;
     bool hasWordCount_ = true;
     bool hasCharCount_ = false;
-    bool hasSelectionCounts_ = true;
+    bool hasSelectionCounts_ =
+        true; // All counts show when this is on but all counts are off
     bool hasSelectionReplacement_ = true;
 
     bool hasLinePos_ = true;
@@ -309,16 +307,19 @@ private:
     // selection. Both paths use the same in-place counter, just on different
     // text. The Document path uses blockCount() for lines (free), while the
     // Selection path counts paragraph separators in the selected text
-    QString buildCounts_(CountSource_ source)
+    QString buildCounts_(CountSource_ source, Force_ force = Force_::No)
     {
         if (!textEdit_) return {};
 
         QStringList elements{};
         QString text{};
-        auto need_text = hasWordCount_ || hasCharCount_;
+        auto line = hasLineCount_ || force;
+        auto word = hasWordCount_ || force;
+        auto char_ = hasCharCount_ || force;
+        auto need_text = word || char_;
 
         if (source == CountSource_::Document) {
-            if (hasLineCount_) {
+            if (line) {
                 auto document = textEdit_->document();
                 auto lines = document ? document->blockCount() : 0;
                 elements << countElement_(lines, LINES_LABEL_, LINES_LABEL_P_);
@@ -329,7 +330,7 @@ private:
         } else {
             auto selected = textEdit_->textCursor().selectedText();
 
-            if (hasLineCount_) {
+            if (line) {
                 auto lines = selectionLineCount_(selected);
                 elements << countElement_(lines, LINES_LABEL_, LINES_LABEL_P_);
             }
@@ -337,12 +338,12 @@ private:
             if (need_text) text = selected;
         }
 
-        if (hasWordCount_) {
+        if (word) {
             auto words = wordCount_(text);
             elements << countElement_(words, WORDS_LABEL_, WORDS_LABEL_P_);
         }
 
-        if (hasCharCount_) {
+        if (char_) {
             auto chars = text.size();
             elements << countElement_(chars, CHARS_LABEL_, CHARS_LABEL_P_);
         }
@@ -361,26 +362,40 @@ private:
 
     void updateCountsDisplay_()
     {
-        auto any = hasAnyCount_();
-
-        if (!active_ || !textEdit_ || !any) {
+        if (!active_ || !textEdit_) {
             setDisplayVisible_(countsDisplay_, false);
             return;
         }
 
-        QString display = cachedBaseCounts_;
+        auto any = hasAnyCount_();
+        auto selection_active = hasSelectionCounts_ && hasActiveSelection_();
 
-        if (hasSelectionCounts_ && hasActiveSelection_()) {
-            auto selection_counts = buildCounts_(CountSource_::Selection);
+        if (!any && !selection_active) {
+            setDisplayVisible_(countsDisplay_, false);
+            return;
+        }
 
-            if (hasSelectionReplacement_)
-                display = selection_counts;
-            else
-                display = cachedBaseCounts_ + " (" + selection_counts + ")";
+        QString display{};
+
+        if (any) {
+            display = cachedBaseCounts_;
+
+            if (selection_active) {
+                auto sel = buildCounts_(CountSource_::Selection);
+
+                if (hasSelectionReplacement_)
+                    display = sel;
+                else
+                    display = cachedBaseCounts_ + " (" + sel + ")";
+            }
+        } else {
+            // All counts off (!any) but selection on (since we didn't hit (!any
+            // && !selection_active) above): show all three for selection
+            display = buildCounts_(CountSource_::Selection, Force_::Yes);
         }
 
         countsDisplay_->setText(display);
-        setDisplayVisible_(countsDisplay_, any);
+        setDisplayVisible_(countsDisplay_, true);
     }
 
     // --- Position ---
