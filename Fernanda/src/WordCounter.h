@@ -198,14 +198,14 @@ private:
     // empty document. So, we should maybe only show "null" when any count or
     // any pos is chosen (otherwise, if no count or no pos is chosen, then those
     // respective sides shouldn't be rendered at all)
-    bool hasLineCount_ = false;
-    bool hasWordCount_ = false;
+    bool hasLineCount_ = true;
+    bool hasWordCount_ = true;
     bool hasCharCount_ = false;
     bool hasSelectionCounts_ = true;
     bool hasSelectionReplacement_ = true;
 
-    bool hasLinePos_ = false;
-    bool hasColPos_ = false;
+    bool hasLinePos_ = true;
+    bool hasColPos_ = true;
 
     // Cached base counts string, updated on text changes. Selection changes
     // read from this cache rather than recomputing the (potentially expensive)

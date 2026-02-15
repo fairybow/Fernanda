@@ -11,6 +11,10 @@
 
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPixmap>
+#include <QStyle>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -65,12 +69,25 @@ private:
         bargingCheck_->setText(Tr::keyFiltersPanelBarging());
         bargingCheck_->setChecked(initialValues.barging);
 
+        auto barging_info = new QLabel(this);
+        // TODO: This pixmap sucks
+        barging_info->setPixmap(
+            style()
+                ->standardPixmap(QStyle::SP_MessageBoxInformation)
+                .scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        barging_info->setToolTip(Tr::keyFiltersPanelBargingTooltip());
+
         // Layout
         auto main_layout = new QVBoxLayout(this);
 
+        auto barging_layout = new QHBoxLayout;
+        barging_layout->addWidget(bargingCheck_);
+        barging_layout->addWidget(barging_info);
+        barging_layout->addStretch();
+
         auto group_box_layout = new QVBoxLayout;
         group_box_layout->addWidget(autoCloseCheck_);
-        group_box_layout->addWidget(bargingCheck_);
+        group_box_layout->addLayout(barging_layout);
         groupBox_->setLayout(group_box_layout);
 
         main_layout->addWidget(groupBox_);

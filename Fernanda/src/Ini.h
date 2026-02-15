@@ -38,6 +38,14 @@ namespace Keys {
     constexpr auto EDITOR_LINE_NUMBERS = "Editor/LineNumbers";
     constexpr auto EDITOR_LINE_HIGHLIGHT = "Editor/LineHighlight";
     constexpr auto EDITOR_SELECTION_HANDLES = "Editor/SelectionHandles";
+    constexpr auto WORD_COUNTER_LINE_COUNT = "WordCounter/LineCount";
+    constexpr auto WORD_COUNTER_WORD_COUNT = "WordCounter/WordCount";
+    constexpr auto WORD_COUNTER_CHAR_COUNT = "WordCounter/CharCount";
+    constexpr auto WORD_COUNTER_SELECTION = "WordCounter/Selection";
+    constexpr auto WORD_COUNTER_SEL_REPLACE =
+        "WordCounter/SelectionReplacement";
+    constexpr auto WORD_COUNTER_LINE_POS = "WordCounter/LinePos";
+    constexpr auto WORD_COUNTER_COL_POS = "WordCounter/ColPos";
 
 } // namespace Keys
 
@@ -74,6 +82,13 @@ namespace Defaults {
     inline bool editorLineNumbers() { return true; }
     inline bool editorLineHighlight() { return true; }
     inline bool editorSelectionHandles() { return true; }
+    inline bool wordCounterLineCount() { return true; }
+    inline bool wordCounterWordCount() { return true; }
+    inline bool wordCounterCharCount() { return false; }
+    inline bool wordCounterSelection() { return true; }
+    inline bool wordCounterSelReplace() { return true; }
+    inline bool wordCounterLinePos() { return true; }
+    inline bool wordCounterColPos() { return true; }
 
 } // namespace Defaults
 

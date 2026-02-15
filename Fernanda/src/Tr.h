@@ -226,6 +226,9 @@ namespace Tr {
     TR_(keyFiltersPanelTitle, tr("Key filters"));
     TR_(keyFiltersPanelAutoClose, tr("Auto-close"));
     TR_(keyFiltersPanelBarging, tr("Barging"));
+    TR_(keyFiltersPanelBargingTooltip,
+        tr("Double-spacing against closing punctuation barges the cursor past "
+           "it and closes the gap"));
 
     /// Editor panel
 
@@ -242,6 +245,21 @@ namespace Tr {
     TR_(editorPanelLineNumbers, tr("Line numbers"));
     TR_(editorPanelLineHighlight, tr("Highlight current line"));
     TR_(editorPanelSelectionHandles, tr("Selection handles"));
+
+    /// Word counter panel
+
+    TR_(wordCounterTitle, tr("Word counter"));
+
+    // TODO: Make the group box selectable and add an is active bool or hidden
+    // guard check
+
+    TR_(wordCounterLineCount, tr("Line count"));
+    TR_(wordCounterWordCount, tr("Word count"));
+    TR_(wordCounterCharCount, tr("Character count"));
+    TR_(wordCounterSelection, tr("Selection counts"));
+    TR_(wordCounterSelReplace, tr("Selection replacement"));
+    TR_(wordCounterLinePos, tr("Line position"));
+    TR_(wordCounterColPos, tr("Column position"));
 
     /// Settings
 

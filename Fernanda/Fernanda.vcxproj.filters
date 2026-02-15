@@ -445,6 +445,9 @@
     <QtMoc Include="src\WordCounter.h">
       <Filter>Code\Auxiliary\Modules\WordCounter</Filter>
     </QtMoc>
+    <QtMoc Include="src\WordCounterPanel.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BuildMessages.h">
