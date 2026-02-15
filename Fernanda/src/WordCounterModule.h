@@ -25,7 +25,6 @@
 namespace Fernanda {
 
 // Coordinator for Window WordCounters
-// TODO: Where to get word counter settings and also implement on startup
 class WordCounterModule : public AbstractService
 {
     Q_OBJECT
