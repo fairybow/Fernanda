@@ -62,14 +62,13 @@ private:
     QCheckBox* italicCheckBox_ = new QCheckBox(Tr::italic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
-private:
     void setup_(int sizeMin, int sizeMax)
     {
         // Bundled (TODO: Add to Constants.h along with QRC paths to be used by
         // app)
         static const QStringList bundled = { "mononoki", "OpenDyslexic" };
 
-        // Setup
+        // Populate
         auto families = QFontDatabase::families();
 
         // Filter out any family name metadata quirks
@@ -89,15 +88,15 @@ private:
         fontsBox_->addItems(bundled);
         fontsBox_->insertSeparator(bundled.size());
         fontsBox_->addItems(families);
+        fontsBox_->setCurrentText(currentFont_.family());
 
         boldCheckBox_->setTristate(false);
-        italicCheckBox_->setTristate(false);
-        sizeSlider_->setRange(sizeMin, sizeMax);
-
-        // Populate
-        fontsBox_->setCurrentText(currentFont_.family());
         boldCheckBox_->setChecked(currentFont_.bold());
+
+        italicCheckBox_->setTristate(false);
         italicCheckBox_->setChecked(currentFont_.italic());
+
+        sizeSlider_->setRange(sizeMin, sizeMax);
         sizeSlider_->setValue(currentFont_.pointSize());
 
         // Layout

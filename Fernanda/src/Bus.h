@@ -50,6 +50,9 @@ public:
 signals:
     void windowCreated(Window* context);
     void windowDestroyed(Window* context);
+    void activeFileViewChanged(
+        Window* context,
+        AbstractFileView* fileView); // Active view can be nullptr!
     void fileViewCreated(AbstractFileView* fileView);
     void fileModelReadied(Window* context, AbstractFileModel* fileModel);
     void

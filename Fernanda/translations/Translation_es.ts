@@ -1,494 +1,528 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="es">
+<TS version="2.1" language="es_ES">
 <context>
     <name>Fernanda::Tr</name>
     <message>
-        <location filename="../src/Tr.h" line="38"/>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/Tr.h" line="40"/>
-        <source>About Qt</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="41"/>
-        <location filename="../src/Tr.h" line="152"/>
-        <source>Save</source>
-        <translation type="unfinished"></translation>
+        <source>OK</source>
+        <translation>Aceptar</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="42"/>
-        <source>Don&apos;t save</source>
-        <translation type="unfinished"></translation>
+        <source>About Qt</source>
+        <translation>Acerca de Qt</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="43"/>
+        <location filename="../src/Tr.h" line="161"/>
+        <source>Save</source>
+        <translation>Guardar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="44"/>
+        <source>Don&apos;t save</source>
+        <translation>No guardar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="45"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="34"/>
+        <location filename="../src/Tr.h" line="36"/>
         <source>Trash</source>
-        <translation type="unfinished"></translation>
+        <translation>Papelera</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="111"/>
+        <location filename="../src/Tr.h" line="114"/>
         <source>Open file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="113"/>
-        <source>Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All files (*)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="115"/>
-        <location filename="../src/Tr.h" line="122"/>
-        <source>Save as</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir archivo</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="116"/>
+        <source>Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All files (*)</source>
+        <translation>Archivos de texto plano (*.txt);;Archivos de cuaderno Fernanda (*.fnx);;Todos los archivos (*)</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="118"/>
+        <location filename="../src/Tr.h" line="125"/>
+        <source>Save as</source>
+        <translation>Guardar como</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="119"/>
         <source>Plain text files (*.txt);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivos de texto plano (*.txt);;Todos los archivos (*)</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="120"/>
-        <source>Import file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="121"/>
-        <source>Plain text files (*.txt)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="55"/>
         <location filename="../src/Tr.h" line="123"/>
+        <source>Import file</source>
+        <translation>Importar archivo</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="124"/>
+        <source>Plain text files (*.txt)</source>
+        <translation>Archivos de texto plano (*.txt)</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="57"/>
+        <location filename="../src/Tr.h" line="126"/>
         <source>Fernanda Notebook files (*.fnx)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivos de cuaderno Fernanda (*.fnx)</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/Tr.h" line="129"/>
         <source>Are you sure you want to delete %n file(s)? &lt;b&gt;This cannot be undone.&lt;/b&gt;</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation type="vanished">
+            <numerusform>¿Estás seguro de que deseas eliminar %n archivo(s)? &lt;b&gt;Esta acción no se puede deshacer.&lt;/b&gt;</numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="49"/>
-        <location filename="../src/Tr.h" line="175"/>
-        <source>About</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="33"/>
-        <source>Notepad</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="50"/>
-        <source>New Notebook</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/Tr.h" line="51"/>
-        <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/Tr.h" line="184"/>
+        <source>About</source>
+        <translation>Acerca de</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="35"/>
+        <source>Notepad</source>
+        <translation>Bloc de notas</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="52"/>
+        <source>New Notebook</source>
+        <translation>Nuevo cuaderno</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="53"/>
+        <source>Name:</source>
+        <translation>Nombre:</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="55"/>
         <source>A Notebook already exists at %0</source>
-        <translation type="unfinished"></translation>
+        <translation>Ya existe un cuaderno en %0</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="54"/>
+        <location filename="../src/Tr.h" line="56"/>
         <source>Open Notebook file</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir archivo de cuaderno</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="61"/>
+        <location filename="../src/Tr.h" line="58"/>
+        <source>Language</source>
+        <translation>Idioma</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="64"/>
         <source>&lt;b&gt;Fernanda&lt;/b&gt; is a plain text editor for drafting long-form fiction. (At least, that&apos;s the plan.)</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Fernanda&lt;/b&gt; es un editor de texto plano para redactar ficción de formato largo. (Al menos, ese es el plan.)</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="67"/>
+        <location filename="../src/Tr.h" line="70"/>
         <source>It&apos;s a personal project and a work-in-progress.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es un proyecto personal y un trabajo en progreso.</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="71"/>
+        <location filename="../src/Tr.h" line="74"/>
         <source>See &lt;a href=&quot;%0&quot;&gt;%0&lt;/a&gt; for more information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visita &lt;a href=&quot;%0&quot;&gt;%0&lt;/a&gt; para más información.</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="75"/>
+        <location filename="../src/Tr.h" line="78"/>
         <source>&lt;b&gt;Version&lt;/b&gt; %0 (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Versión&lt;/b&gt; %0 (%1)</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="92"/>
+        <location filename="../src/Tr.h" line="95"/>
         <source>Do you want to save changes to %0?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Deseas guardar los cambios en %0?</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="94"/>
+        <location filename="../src/Tr.h" line="97"/>
         <source>You have unsaved changes in %0 files:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tienes cambios sin guardar en %0 archivos:</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="96"/>
+        <location filename="../src/Tr.h" line="99"/>
         <source>There was a problem saving %0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="98"/>
-        <source>There was a problem saving these files: %0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="100"/>
-        <source>Check For Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Hubo un problema al guardar %0</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="101"/>
-        <source>Update check failed: %0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="102"/>
-        <source>You have the latest version (%0)</source>
-        <translation type="unfinished"></translation>
+        <source>There was a problem saving these files: %0</source>
+        <translation>Hubo un problema al guardar estos archivos: %0</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="103"/>
-        <source>Your version (%0) is not the latest (%1).</source>
-        <translation type="unfinished"></translation>
+        <source>Check For Updates</source>
+        <translation>Buscar actualizaciones</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="104"/>
-        <source>Visit releases page</source>
-        <translation type="unfinished"></translation>
+        <source>Update check failed: %0</source>
+        <translation>Error al buscar actualizaciones: %0</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="105"/>
-        <source>Empty JSON document</source>
-        <translation type="unfinished"></translation>
+        <source>You have the latest version (%0)</source>
+        <translation>Tienes la última versión (%0)</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="106"/>
-        <source>Empty QVariantList</source>
-        <translation type="unfinished"></translation>
+        <source>Your version (%0) is not the latest (%1).</source>
+        <translation>Tu versión (%0) no es la más reciente (%1).</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="107"/>
+        <source>Visit releases page</source>
+        <translation>Visitar página de versiones</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="108"/>
+        <source>Empty JSON document</source>
+        <translation>Documento JSON vacío</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="109"/>
+        <source>Empty QVariantList</source>
+        <translation>QVariantList vacío</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="110"/>
         <source>Empty release tag value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor de etiqueta de versión vacío</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="142"/>
+        <location filename="../src/Tr.h" line="140"/>
+        <source>Are you sure you want to delete %0 file(s)? &lt;b&gt;This cannot be undone.&lt;/b&gt;</source>
+        <translation>¿Estás seguro de que deseas eliminar %0 archivo(s)? &lt;b&gt;Esta acción no se puede deshacer.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="151"/>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Archivo</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="143"/>
+        <location filename="../src/Tr.h" line="152"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="144"/>
-        <source>&amp;View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="145"/>
-        <source>&amp;Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="146"/>
-        <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="148"/>
-        <source>New window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="149"/>
-        <source>New notebook</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="150"/>
-        <source>Open notebook</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="155"/>
-        <source>Close tab</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="156"/>
-        <source>Close tab everywhere</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="157"/>
-        <source>Close window tabs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="158"/>
-        <source>Close all tabs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="159"/>
-        <source>Close window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="160"/>
-        <source>Close all windows</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="162"/>
-        <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="164"/>
-        <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="165"/>
-        <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="166"/>
-        <source>Cu&amp;t</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="167"/>
-        <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="168"/>
-        <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="169"/>
-        <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="170"/>
-        <source>&amp;Select all</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="173"/>
-        <source>Tree view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="176"/>
-        <source>Check for updates...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="180"/>
-        <source>New tab</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="181"/>
-        <source>Open...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="208"/>
-        <source>Bold</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="209"/>
-        <source>Italic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="213"/>
-        <source>Editor theme</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="214"/>
-        <source>Window theme</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="218"/>
-        <source>Key filters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="219"/>
-        <source>Auto-close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="220"/>
-        <source>Barging</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="224"/>
-        <source>Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="225"/>
-        <source>Center on scroll</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="226"/>
-        <source>Overwrite</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="227"/>
-        <source>Tab stop distance: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="228"/>
-        <source>Word wrap mode: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="229"/>
-        <source>None</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="230"/>
-        <source>At word boundary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="231"/>
-        <source>Anywhere</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="232"/>
-        <source>Smart</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="236"/>
-        <source>No theme</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="240"/>
-        <source>Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="241"/>
-        <source>%0 Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Editar</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="153"/>
-        <source>Save as...</source>
-        <translation type="unfinished"></translation>
+        <source>&amp;View</source>
+        <translation>&amp;Ver</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="154"/>
+        <source>&amp;Settings</source>
+        <translation>&amp;Configuración</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="155"/>
+        <source>&amp;Help</source>
+        <translation>A&amp;yuda</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="157"/>
+        <source>New window</source>
+        <translation>Nueva ventana</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="158"/>
+        <source>New notebook</source>
+        <translation>Nuevo cuaderno</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="159"/>
+        <source>Open notebook</source>
+        <translation>Abrir cuaderno</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="164"/>
+        <source>Close tab</source>
+        <translation>Cerrar pestaña</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="165"/>
+        <source>Close tab everywhere</source>
+        <translation>Cerrar pestaña en todas partes</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="166"/>
+        <source>Close window tabs</source>
+        <translation>Cerrar pestañas de la ventana</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="167"/>
+        <source>Close all tabs</source>
+        <translation>Cerrar todas las pestañas</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="168"/>
+        <source>Close window</source>
+        <translation>Cerrar ventana</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="169"/>
+        <source>Close all windows</source>
+        <translation>Cerrar todas las ventanas</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="171"/>
+        <source>&amp;Quit</source>
+        <translation>&amp;Salir</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="173"/>
+        <source>&amp;Undo</source>
+        <translation>&amp;Deshacer</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="174"/>
+        <source>&amp;Redo</source>
+        <translation>&amp;Rehacer</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="175"/>
+        <source>Cu&amp;t</source>
+        <translation>Cor&amp;tar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="176"/>
+        <source>&amp;Copy</source>
+        <translation>&amp;Copiar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="177"/>
+        <source>&amp;Paste</source>
+        <translation>&amp;Pegar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="178"/>
+        <source>&amp;Delete</source>
+        <translation>&amp;Eliminar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="179"/>
+        <source>&amp;Select all</source>
+        <translation>&amp;Seleccionar todo</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="182"/>
-        <source>Save all in window</source>
-        <translation type="unfinished"></translation>
+        <source>Tree view</source>
+        <translation>Vista de árbol</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="183"/>
-        <source>Save all</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/Tr.h" line="185"/>
+        <source>Choose language...</source>
+        <translation>Elija el idioma...</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="187"/>
-        <source>New file</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/Tr.h" line="186"/>
+        <source>Check for updates...</source>
+        <translation>Buscar actualizaciones...</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="188"/>
-        <source>New folder</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/Tr.h" line="190"/>
+        <source>New tab</source>
+        <translation>Nueva pestaña</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="191"/>
+        <source>Open...</source>
+        <translation>Abrir...</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="218"/>
+        <source>Bold</source>
+        <translation>Negrita</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="219"/>
+        <source>Italic</source>
+        <translation>Cursiva</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="223"/>
+        <source>Editor theme</source>
+        <translation>Tema del editor</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="224"/>
+        <source>Window theme</source>
+        <translation>Tema de la ventana</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="228"/>
+        <source>Key filters</source>
+        <translation>Filtros de teclas</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="229"/>
+        <source>Auto-close</source>
+        <translation>Cierre automático</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="230"/>
+        <source>Barging</source>
+        <translation>Salto de puntuación</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="234"/>
+        <source>Editor</source>
+        <translation>Editor</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="235"/>
+        <source>Center on scroll</source>
+        <translation>Centrar al desplazar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="236"/>
+        <source>Overwrite</source>
+        <translation>Sobrescribir</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="237"/>
+        <source>Tab stop distance: </source>
+        <translation>Distancia de tabulación: </translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="238"/>
+        <source>Word wrap mode: </source>
+        <translation>Modo de ajuste de línea: </translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="239"/>
+        <source>None</source>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="240"/>
+        <source>At word boundary</source>
+        <translation>En límite de palabra</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="241"/>
+        <source>Anywhere</source>
+        <translation>En cualquier lugar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="242"/>
+        <source>Smart</source>
+        <translation>Inteligente</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="243"/>
+        <source>Double-click whitespace selection</source>
+        <translation>Selección de espacios con doble clic</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="244"/>
+        <source>Line numbers</source>
+        <translation>Números de línea</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="245"/>
+        <source>Highlight current line</source>
+        <translation>Resaltar línea actual</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="246"/>
+        <source>Selection handles</source>
+        <translation>Controles de selección</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="250"/>
+        <source>No theme</source>
+        <translation>Sin tema</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="254"/>
+        <source>Settings</source>
+        <translation>Configuración</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="255"/>
+        <source>%0 Settings</source>
+        <translation>Configuración de %0</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="162"/>
+        <source>Save as...</source>
+        <translation>Guardar como...</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="192"/>
-        <source>Notebook</source>
-        <translation type="unfinished"></translation>
+        <source>Save all in window</source>
+        <translation>Guardar todo en la ventana</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="193"/>
-        <source>Open notepad</source>
-        <translation type="unfinished"></translation>
+        <source>Save all</source>
+        <translation>Guardar todo</translation>
     </message>
     <message>
-        <location filename="../src/Tr.h" line="194"/>
-        <source>Import files...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="200"/>
-        <source>Rename</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="201"/>
-        <source>Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/Tr.h" line="199"/>
-        <source>Expand</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/Tr.h" line="197"/>
+        <source>New file</source>
+        <translation>Nuevo archivo</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="198"/>
-        <source>Collapse</source>
-        <translation type="unfinished"></translation>
+        <source>New folder</source>
+        <translation>Nueva carpeta</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="202"/>
-        <source>Restore</source>
-        <translation type="unfinished"></translation>
+        <source>Notebook</source>
+        <translation>Cuaderno</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="203"/>
-        <source>Delete permanently</source>
-        <translation type="unfinished"></translation>
+        <source>Open notepad</source>
+        <translation>Abrir bloc de notas</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="204"/>
+        <source>Import files...</source>
+        <translation>Importar archivos...</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="210"/>
+        <source>Rename</source>
+        <translation>Renombrar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="211"/>
+        <source>Remove</source>
+        <translation>Quitar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="209"/>
+        <source>Expand</source>
+        <translation>Expandir</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="208"/>
+        <source>Collapse</source>
+        <translation>Contraer</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="212"/>
+        <source>Restore</source>
+        <translation>Restaurar</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="213"/>
+        <source>Delete permanently</source>
+        <translation>Eliminar permanentemente</translation>
+    </message>
+    <message>
+        <location filename="../src/Tr.h" line="214"/>
         <source>Empty trash</source>
-        <translation type="unfinished"></translation>
+        <translation>Vaciar papelera</translation>
     </message>
 </context>
 </TS>

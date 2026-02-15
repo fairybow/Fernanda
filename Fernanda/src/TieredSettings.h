@@ -26,12 +26,12 @@ namespace Fernanda {
 // fallback values before resorting to application default. For our purposes,
 // this will allow Notebooks to default to Notepad settings where applicable
 // before using application default
-class Settings : public QObject
+class TieredSettings : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Settings(
+    explicit TieredSettings(
         const Coco::Path& baseConfigPath,
         QObject* parent = nullptr)
         : QObject(parent)
@@ -40,7 +40,7 @@ public:
         setup_();
     }
 
-    virtual ~Settings() override { TRACER; }
+    virtual ~TieredSettings() override { TRACER; }
 
     // setOverride must not be called while groups are open!
     void setOverride(const Coco::Path& configPath)

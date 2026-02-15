@@ -24,9 +24,9 @@
 #include "Bus.h"
 #include "Debug.h"
 #include "Ini.h"
-#include "Settings.h"
 #include "SettingsDialog.h"
 #include "ThemeSelector.h"
+#include "TieredSettings.h"
 #include "Timers.h"
 #include "Tr.h"
 
@@ -49,7 +49,7 @@ public:
         Bus* bus,
         QObject* parent = nullptr)
         : AbstractService(bus, parent)
-        , settings_(new Settings(configPath, this))
+        , settings_(new TieredSettings(configPath, this))
     {
         setup_();
     }
@@ -160,8 +160,30 @@ public:
             .editorSelectionHandles = settings_->value<bool>(
                 Ini::Keys::EDITOR_SELECTION_HANDLES,
                 Ini::Defaults::editorSelectionHandles()),
-
-            //...
+            .wordCounterActive = settings_->value<bool>(
+                Ini::Keys::WORD_COUNTER_ACTIVE,
+                Ini::Defaults::wordCounterActive()),
+            .wordCounterLineCount = settings_->value<bool>(
+                Ini::Keys::WORD_COUNTER_LINE_COUNT,
+                Ini::Defaults::wordCounterLineCount()),
+            .wordCounterWordCount = settings_->value<bool>(
+                Ini::Keys::WORD_COUNTER_WORD_COUNT,
+                Ini::Defaults::wordCounterWordCount()),
+            .wordCounterCharCount = settings_->value<bool>(
+                Ini::Keys::WORD_COUNTER_CHAR_COUNT,
+                Ini::Defaults::wordCounterCharCount()),
+            .wordCounterSelection = settings_->value<bool>(
+                Ini::Keys::WORD_COUNTER_SELECTION,
+                Ini::Defaults::wordCounterSelection()),
+            .wordCounterSelReplace = settings_->value<bool>(
+                Ini::Keys::WORD_COUNTER_SEL_REPLACE,
+                Ini::Defaults::wordCounterSelReplace()),
+            .wordCounterLinePos = settings_->value<bool>(
+                Ini::Keys::WORD_COUNTER_LINE_POS,
+                Ini::Defaults::wordCounterLinePos()),
+            .wordCounterColPos = settings_->value<bool>(
+                Ini::Keys::WORD_COUNTER_COL_POS,
+                Ini::Defaults::wordCounterColPos()),
         };
 
         auto title = name_.isEmpty() ? Tr::settingsTitle()
@@ -323,6 +345,94 @@ public:
                 set(Ini::Keys::EDITOR_SELECTION_HANDLES, selectionHandles);
             });
 
+        connect(
+            dialog_,
+            &SettingsDialog::wordCounterActiveChanged,
+            this,
+            [&](bool active) {
+                emit bus->settingChanged(
+                    Ini::Keys::WORD_COUNTER_ACTIVE,
+                    active);
+                set(Ini::Keys::WORD_COUNTER_ACTIVE, active);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::wordCounterLineCountChanged,
+            this,
+            [&](bool lineCount) {
+                emit bus->settingChanged(
+                    Ini::Keys::WORD_COUNTER_LINE_COUNT,
+                    lineCount);
+                set(Ini::Keys::WORD_COUNTER_LINE_COUNT, lineCount);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::wordCounterWordCountChanged,
+            this,
+            [&](bool wordCount) {
+                emit bus->settingChanged(
+                    Ini::Keys::WORD_COUNTER_WORD_COUNT,
+                    wordCount);
+                set(Ini::Keys::WORD_COUNTER_WORD_COUNT, wordCount);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::wordCounterCharCountChanged,
+            this,
+            [&](bool charCount) {
+                emit bus->settingChanged(
+                    Ini::Keys::WORD_COUNTER_CHAR_COUNT,
+                    charCount);
+                set(Ini::Keys::WORD_COUNTER_CHAR_COUNT, charCount);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::wordCounterSelectionChanged,
+            this,
+            [&](bool selection) {
+                emit bus->settingChanged(
+                    Ini::Keys::WORD_COUNTER_SELECTION,
+                    selection);
+                set(Ini::Keys::WORD_COUNTER_SELECTION, selection);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::wordCounterSelReplaceChanged,
+            this,
+            [&](bool selReplace) {
+                emit bus->settingChanged(
+                    Ini::Keys::WORD_COUNTER_SEL_REPLACE,
+                    selReplace);
+                set(Ini::Keys::WORD_COUNTER_SEL_REPLACE, selReplace);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::wordCounterLinePosChanged,
+            this,
+            [&](bool linePos) {
+                emit bus->settingChanged(
+                    Ini::Keys::WORD_COUNTER_LINE_POS,
+                    linePos);
+                set(Ini::Keys::WORD_COUNTER_LINE_POS, linePos);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::wordCounterColPosChanged,
+            this,
+            [&](bool colPos) {
+                emit bus->settingChanged(
+                    Ini::Keys::WORD_COUNTER_COL_POS,
+                    colPos);
+                set(Ini::Keys::WORD_COUNTER_COL_POS, colPos);
+            });
+
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {
             (void)result;
             delete dialog_;
@@ -384,7 +494,7 @@ protected:
     }
 
 private:
-    Settings* settings_;
+    TieredSettings* settings_;
 
     QString name_{};
     SettingsDialog* dialog_ = nullptr;

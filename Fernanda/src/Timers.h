@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <chrono>
+
 #include <QObject>
 #include <QTimer>
 
@@ -58,6 +60,11 @@ public:
 
     void start() { timer_->start(); }
     void stop() { timer_->stop(); }
+    void setInterval(int msec) { timer_->setInterval(msec); }
+    void setInterval(std::chrono::milliseconds value)
+    {
+        timer_->setInterval(value);
+    }
 
 private:
     QTimer* timer_ = new QTimer(this);

@@ -14,6 +14,8 @@
 #include "Version.h"
 
 // TODO: Go through and Find All References and delete unused
+// TODO: Find and remove "vanished" type entries in TS XML (old or moved
+// translations)
 
 // Qt Linguist requires the tr method to be in place
 #define TR_(Name, TrCall)                                                      \
@@ -121,16 +123,22 @@ namespace Tr {
     TR_(nbImportFileFilter, tr("Plain text files (*.txt)"));
     TR_(nbSaveAsCaption, tr("Save as"));
     TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
+
+    // TODO:
     // See: doc.qt.io/qt-6/i18n-source-translation.html#handle-plural-forms -
     // but also, it's annoying - must use EN and strip plurals using lupdate
     // -pluralonly - just do it later
     inline QString nbTrashPromptBody(int count)
     {
-        return tr(
-            "Are you sure you want to delete %n file(s)? <b>This cannot be "
-            "undone.</b>",
-            nullptr,
-            count);
+        // return tr(
+        //     "Are you sure you want to delete %n file(s)? <b>This cannot be "
+        //     "undone.</b>",
+        //     nullptr,
+        //     count);
+
+        return tr("Are you sure you want to delete %0 file(s)? <b>This cannot "
+                  "be undone.</b>")
+            .arg(count);
     };
 
     /// Menus
@@ -218,6 +226,9 @@ namespace Tr {
     TR_(keyFiltersPanelTitle, tr("Key filters"));
     TR_(keyFiltersPanelAutoClose, tr("Auto-close"));
     TR_(keyFiltersPanelBarging, tr("Barging"));
+    TR_(keyFiltersPanelBargingTooltip,
+        tr("Double-spacing against closing punctuation barges the cursor past "
+           "it and closes the gap"));
 
     /// Editor panel
 
@@ -234,6 +245,21 @@ namespace Tr {
     TR_(editorPanelLineNumbers, tr("Line numbers"));
     TR_(editorPanelLineHighlight, tr("Highlight current line"));
     TR_(editorPanelSelectionHandles, tr("Selection handles"));
+
+    /// Word counter panel
+
+    TR_(wordCounterTitle, tr("Word counter"));
+
+    // TODO: Make the group box selectable and add an is active bool or hidden
+    // guard check
+
+    TR_(wordCounterLineCount, tr("Line count"));
+    TR_(wordCounterWordCount, tr("Word count"));
+    TR_(wordCounterCharCount, tr("Character count"));
+    TR_(wordCounterSelection, tr("Selection counts"));
+    TR_(wordCounterSelReplace, tr("Selection replacement"));
+    TR_(wordCounterLinePos, tr("Line position"));
+    TR_(wordCounterColPos, tr("Column position"));
 
     /// Settings
 

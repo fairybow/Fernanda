@@ -11,6 +11,7 @@
 
 #include <QDialog>
 #include <QFont>
+#include <QHBoxLayout>
 #include <QList>
 #include <QObject>
 #include <QString>
@@ -25,6 +26,7 @@
 #include "FontSelector.h"
 #include "KeyFiltersPanel.h"
 #include "ThemeSelector.h"
+#include "WordCounterPanel.h"
 
 namespace Fernanda {
 
@@ -59,7 +61,14 @@ public:
         bool editorLineHighlight;
         bool editorSelectionHandles;
 
-        //...
+        bool wordCounterActive;
+        bool wordCounterLineCount;
+        bool wordCounterWordCount;
+        bool wordCounterCharCount;
+        bool wordCounterSelection;
+        bool wordCounterSelReplace;
+        bool wordCounterLinePos;
+        bool wordCounterColPos;
     };
 
     explicit SettingsDialog(
@@ -93,11 +102,21 @@ signals:
     void editorLineHighlightChanged(bool lineHighlight);
     void editorSelectionHandlesChanged(bool selectionHandles);
 
+    void wordCounterActiveChanged(bool active);
+    void wordCounterLineCountChanged(bool lineCount);
+    void wordCounterWordCountChanged(bool wordCount);
+    void wordCounterCharCountChanged(bool charCount);
+    void wordCounterSelectionChanged(bool selection);
+    void wordCounterSelReplaceChanged(bool selReplace);
+    void wordCounterLinePosChanged(bool linePos);
+    void wordCounterColPosChanged(bool colPos);
+
 private:
     FontSelector* fontSelector_ = nullptr;
     ThemeSelector* themeSelector_ = nullptr;
     KeyFiltersPanel* keyFiltersPanel_ = nullptr;
     EditorPanel* editorPanel_ = nullptr;
+    WordCounterPanel* wordCounterPanel_ = nullptr;
 
     void setup_(const QString& title, const InitialValues& initialValues)
     {
@@ -139,13 +158,37 @@ private:
                 .selectionHandles = initialValues.editorSelectionHandles },
             this);
 
-        auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(0);
-        layout->addWidget(fontSelector_);
-        layout->addWidget(themeSelector_);
-        layout->addWidget(keyFiltersPanel_);
-        layout->addWidget(editorPanel_);
+        wordCounterPanel_ = new WordCounterPanel(
+            WordCounterPanel::InitialValues{
+                .active = initialValues.wordCounterActive,
+                .lineCount = initialValues.wordCounterLineCount,
+                .wordCount = initialValues.wordCounterWordCount,
+                .charCount = initialValues.wordCounterCharCount,
+                .selection = initialValues.wordCounterSelection,
+                .selReplace = initialValues.wordCounterSelReplace,
+                .linePos = initialValues.wordCounterLinePos,
+                .colPos = initialValues.wordCounterColPos },
+            this);
+
+        auto main_layout = new QHBoxLayout(this);
+        main_layout->setContentsMargins(0, 0, 0, 0);
+        main_layout->setSpacing(0);
+
+        auto col_0 = new QVBoxLayout;
+        col_0->setSpacing(0);
+        col_0->addWidget(fontSelector_);
+        col_0->addWidget(themeSelector_);
+        col_0->addWidget(wordCounterPanel_);
+        col_0->addStretch();
+
+        auto col_1 = new QVBoxLayout;
+        col_1->setSpacing(0);
+        col_1->addWidget(keyFiltersPanel_);
+        col_1->addWidget(editorPanel_);
+        col_1->addStretch();
+
+        main_layout->addLayout(col_0);
+        main_layout->addLayout(col_1);
 
         connect(
             fontSelector_,
@@ -253,6 +296,64 @@ private:
             [&](bool selectionHandles) {
                 emit editorSelectionHandlesChanged(selectionHandles);
             });
+
+        connect(
+            wordCounterPanel_,
+            &WordCounterPanel::activeChanged,
+            this,
+            [&](bool active) { emit wordCounterActiveChanged(active); });
+
+        connect(
+            wordCounterPanel_,
+            &WordCounterPanel::lineCountChanged,
+            this,
+            [&](bool lineCount) {
+                emit wordCounterLineCountChanged(lineCount);
+            });
+
+        connect(
+            wordCounterPanel_,
+            &WordCounterPanel::wordCountChanged,
+            this,
+            [&](bool wordCount) {
+                emit wordCounterWordCountChanged(wordCount);
+            });
+
+        connect(
+            wordCounterPanel_,
+            &WordCounterPanel::charCountChanged,
+            this,
+            [&](bool charCount) {
+                emit wordCounterCharCountChanged(charCount);
+            });
+
+        connect(
+            wordCounterPanel_,
+            &WordCounterPanel::selectionChanged,
+            this,
+            [&](bool selection) {
+                emit wordCounterSelectionChanged(selection);
+            });
+
+        connect(
+            wordCounterPanel_,
+            &WordCounterPanel::selReplaceChanged,
+            this,
+            [&](bool selReplace) {
+                emit wordCounterSelReplaceChanged(selReplace);
+            });
+
+        connect(
+            wordCounterPanel_,
+            &WordCounterPanel::linePosChanged,
+            this,
+            [&](bool linePos) { emit wordCounterLinePosChanged(linePos); });
+
+        connect(
+            wordCounterPanel_,
+            &WordCounterPanel::colPosChanged,
+            this,
+            [&](bool colPos) { emit wordCounterColPosChanged(colPos); });
     }
 };
 

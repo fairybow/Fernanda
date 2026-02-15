@@ -74,6 +74,7 @@
     <None Include="resources\ui\Dot.svg" />
     <None Include="resources\ui\Plus.svg" />
     <None Include="resources\ui\X.svg" />
+    <None Include="src\old_TranslationCode.md" />
     <None Include="submodules\Coco\Coco\copy\Class.md" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md" />
   </ItemGroup>
@@ -129,7 +130,7 @@
     <ClInclude Include="src\SaveFailMessageBox.h" />
     <ClInclude Include="src\SavePrompt.h" />
     <ClInclude Include="src\Formatters.h" />
-    <QtMoc Include="src\Settings.h" />
+    <QtMoc Include="src\TieredSettings.h" />
     <ClInclude Include="src\Ini.h" />
     <QtMoc Include="src\SettingsService.h" />
     <QtMoc Include="src\SettingsDialog.h" />
@@ -152,6 +153,8 @@
     <QtMoc Include="src\WindowService.h" />
     <QtMoc Include="src\Window.h" />
     <QtMoc Include="src\WordCounterModule.h" />
+    <QtMoc Include="src\WordCounter.h" />
+    <QtMoc Include="src\WordCounterPanel.h" />
     <ClInclude Include="src\XPlatform.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h" />
@@ -179,12 +182,7 @@
     <QtRcc Include="translations\TranslationQMFiles.qrc" />
   </ItemGroup>
   <ItemGroup>
-    <QtTranslation Include="translations\Translation_de.ts" />
     <QtTranslation Include="translations\Translation_es.ts" />
-    <QtTranslation Include="translations\Translation_fr.ts" />
-    <QtTranslation Include="translations\Translation_it.ts" />
-    <QtTranslation Include="translations\Translation_ja.ts" />
-    <QtTranslation Include="translations\Translation_zh.ts" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E6E7DC76-11E7-4FB4-8C64-E88924DA156D}</ProjectGuid>
