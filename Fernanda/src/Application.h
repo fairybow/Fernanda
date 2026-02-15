@@ -20,6 +20,7 @@
 #include "Coco/PathUtil.h"
 
 #include "AppDirs.h"
+#include "BetaAlert.h"
 #include "Debug.h"
 #include "FileTypes.h"
 #include "Notebook.h"
@@ -58,6 +59,7 @@ public:
         handleArgs_();
 
         initialized_ = true;
+        if (Version::isPrerelease) BetaAlert::exec();
     }
 
 public slots:

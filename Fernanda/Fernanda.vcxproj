@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\AccordionWidget.h" />
+    <ClInclude Include="src\BetaAlert.h" />
     <ClInclude Include="src\BuildMessages.h" />
     <QtMoc Include="src\FileService.h" />
     <QtMoc Include="src\AbstractFileModel.h" />

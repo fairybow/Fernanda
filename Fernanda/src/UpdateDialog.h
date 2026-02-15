@@ -78,9 +78,7 @@ namespace Internal {
                 Tr::nxUpdateEmptyValueArg());
         }
 
-        // TODO: Ensure we name the release appropriately! Or, if we use a
-        // different convention, ensure we adjust our VERION_FULL_STRING to
-        // align, so they match if same version!
+        // TODO: Ensure we name the release appropriately!
         if (tag_value == VERSION_FULL_STRING) {
             return Tr::nxUpdateBodyLatestFormat().arg(VERSION_FULL_STRING);
         } else {

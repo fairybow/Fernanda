@@ -570,6 +570,9 @@
     <ClInclude Include="src\AboutDialog.h">
       <Filter>Code\Core\UI</Filter>
     </ClInclude>
+    <ClInclude Include="src\BetaAlert.h">
+      <Filter>Code\Core\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">

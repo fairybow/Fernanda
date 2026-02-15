@@ -9,7 +9,9 @@
 
 #pragma once
 
-namespace Version {
+#define VERSION_PRERELEASE // Toggle manually
+
+namespace Fernanda::Version {
 
 // Visual Studio automatically defines _DEBUG in Debug builds
 #if defined(_DEBUG)
@@ -23,15 +25,23 @@ inline constexpr bool isDebug = false;
 
 #endif
 
-} // namespace Version
+#if defined(VERSION_PRERELEASE)
+
+inline constexpr bool isPrerelease = true;
+
+#else
+
+inline constexpr bool isPrerelease = false;
+
+#endif
+
+} // namespace Fernanda::Version
 
 // clang-format off
 
 /// ======================================================================== ///
 /// *** VERSION INFO ***                                                     ///
 /// ======================================================================== ///
-
-#define VERSION_PRERELEASE // Toggle manually
 
 // | Part       | When to increment                                            |
 // |------------|--------------------------------------------------------------|
@@ -92,5 +102,7 @@ inline constexpr bool isDebug = false;
 #define VERSION_COPYRIGHT_STRING                "Copyright \xa9 2025-2026 fairybow"
 #define VERSION_DOMAIN                          "https://github.com/fairybow/Fernanda"
 #define VERSION_WINDOWS_FILE_STRING             VERSION_APP_NAME_STRING ".exe"
+
+// Use VERSION_FULL_STRING for GitHub release tags!
 
 // clang-format on

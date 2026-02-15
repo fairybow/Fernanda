@@ -59,6 +59,10 @@ namespace Tr {
         tr("A Notebook already exists at %0"));
     TR_(nxOpenNotebookCaption, tr("Open Notebook file"));
     TR_(nxOpenNotebookFilter, tr("Fernanda Notebook files (*.fnx)"));
+    TR_(nxBetaAlert,
+        tr("<p><b>This is a prerelease!</b></p><p>You should not trust your "
+           "writing with prerelease versions of this software. Regardless, "
+           "always make regular back-ups of your work.</p>"));
 
     // TODO: std::format
     inline QString nxAboutBody()
