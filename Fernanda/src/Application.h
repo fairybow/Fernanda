@@ -25,6 +25,7 @@
 #include "FileTypes.h"
 #include "Notebook.h"
 #include "Notepad.h"
+#include "Timers.h"
 #include "Version.h"
 
 namespace Fernanda {
@@ -59,7 +60,10 @@ public:
         handleArgs_();
 
         initialized_ = true;
-        if (Version::isPrerelease) BetaAlert::exec();
+
+        if (Version::isPrerelease) {
+            Timers::delay(1000, this, [] { BetaAlert::exec(); });
+        }
     }
 
 public slots:
