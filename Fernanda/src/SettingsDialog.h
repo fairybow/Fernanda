@@ -21,6 +21,8 @@
 
 #include "Coco/Path.h"
 
+#include "ColorBar.h"
+#include "ColorBarPanel.h"
 #include "Debug.h"
 #include "EditorPanel.h"
 #include "FontSelector.h"
@@ -69,6 +71,9 @@ public:
         bool wordCounterSelReplace;
         bool wordCounterLinePos;
         bool wordCounterColPos;
+
+        bool colorBarActive;
+        ColorBar::Position colorBarPosition;
     };
 
     explicit SettingsDialog(
@@ -111,12 +116,16 @@ signals:
     void wordCounterLinePosChanged(bool linePos);
     void wordCounterColPosChanged(bool colPos);
 
+    void colorBarActiveChanged(bool active);
+    void colorBarPositionChanged(ColorBar::Position position);
+
 private:
     FontSelector* fontSelector_ = nullptr;
     ThemeSelector* themeSelector_ = nullptr;
     KeyFiltersPanel* keyFiltersPanel_ = nullptr;
     EditorPanel* editorPanel_ = nullptr;
     WordCounterPanel* wordCounterPanel_ = nullptr;
+    ColorBarPanel* colorBarPanel_ = nullptr;
 
     void setup_(const QString& title, const InitialValues& initialValues)
     {
@@ -170,6 +179,12 @@ private:
                 .colPos = initialValues.wordCounterColPos },
             this);
 
+        colorBarPanel_ = new ColorBarPanel(
+            ColorBarPanel::InitialValues{
+                .active = initialValues.colorBarActive,
+                .position = initialValues.colorBarPosition },
+            this);
+
         auto main_layout = new QHBoxLayout(this);
         main_layout->setContentsMargins(0, 0, 0, 0);
         main_layout->setSpacing(0);
@@ -185,6 +200,7 @@ private:
         col_1->setSpacing(0);
         col_1->addWidget(keyFiltersPanel_);
         col_1->addWidget(editorPanel_);
+        col_1->addWidget(colorBarPanel_);
         col_1->addStretch();
 
         main_layout->addLayout(col_0);
@@ -354,6 +370,20 @@ private:
             &WordCounterPanel::colPosChanged,
             this,
             [&](bool colPos) { emit wordCounterColPosChanged(colPos); });
+
+        connect(
+            colorBarPanel_,
+            &ColorBarPanel::activeChanged,
+            this,
+            [&](bool active) { emit colorBarActiveChanged(active); });
+
+        connect(
+            colorBarPanel_,
+            &ColorBarPanel::positionChanged,
+            this,
+            [&](ColorBar::Position position) {
+                emit colorBarPositionChanged(position);
+            });
     }
 };
 

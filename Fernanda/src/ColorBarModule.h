@@ -16,6 +16,7 @@
 #include "Bus.h"
 #include "ColorBar.h"
 #include "Debug.h"
+#include "Ini.h"
 #include "Window.h"
 
 namespace Fernanda {
@@ -96,6 +97,12 @@ protected:
             &Bus::windowDestroyed,
             this,
             &ColorBarModule::onBusWindowDestroyed_);
+
+        connect(
+            bus,
+            &Bus::settingChanged,
+            this,
+            &ColorBarModule::onBusSettingChanged_);
     }
 
 private:
@@ -106,18 +113,55 @@ private:
         //...
     }
 
+    void applyInitialSettings_(ColorBar* colorBar)
+    {
+        if (!colorBar) return;
+
+        colorBar->setActive(bus->call<bool>(
+            Bus::GET_SETTING,
+            { { "key", Ini::Keys::COLOR_BAR_ACTIVE },
+              { "defaultValue", Ini::Defaults::colorBarActive() } }));
+
+        colorBar->setPosition(bus->call<ColorBar::Position>(
+            Bus::GET_SETTING,
+            { { "key", Ini::Keys::COLOR_BAR_POSITION },
+              { "defaultValue", Ini::Defaults::colorBarPosition() } }));
+    }
+
+    template <typename CallableT> void forEachColorBar_(CallableT&& callable)
+    {
+        for (auto& cb : colorBars_)
+            if (cb) callable(cb);
+    }
+
 private slots:
     void onBusWindowCreated_(Window* window)
     {
         if (!window) return;
+
         // ColorBar floats outside layouts
-        colorBars_[window] = new ColorBar(window);
+        auto color_bar = new ColorBar(window);
+        colorBars_[window] = color_bar;
+
+        applyInitialSettings_(color_bar);
     }
 
     void onBusWindowDestroyed_(Window* window)
     {
         if (!window) return;
         colorBars_.remove(window);
+    }
+
+    void onBusSettingChanged_(const QString& key, const QVariant& value)
+    {
+        if (key == Ini::Keys::COLOR_BAR_ACTIVE)
+            forEachColorBar_(
+                [&](ColorBar* cb) { cb->setActive(value.toBool()); });
+
+        if (key == Ini::Keys::COLOR_BAR_POSITION)
+            forEachColorBar_([&](ColorBar* cb) {
+                cb->setPosition(value.value<ColorBar::Position>());
+            });
     }
 };
 

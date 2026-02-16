@@ -582,6 +582,12 @@
     <ClInclude Include="src\BetaAlert.h">
       <Filter>Code\Core\UI</Filter>
     </ClInclude>
+    <ClInclude Include="src\ControlField.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ColorBarPanel.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">

@@ -10,8 +10,6 @@
 #pragma once
 
 #include <QComboBox>
-#include <QHBoxLayout>
-#include <QLabel>
 #include <QList>
 #include <QObject>
 #include <QString>
@@ -20,6 +18,7 @@
 
 #include "Coco/Path.h"
 
+#include "ControlField.h"
 #include "Debug.h"
 #include "Tr.h"
 
@@ -79,64 +78,62 @@ private:
     Coco::Path currentWindowTheme_{};
     Coco::Path currentEditorTheme_{};
 
-    QComboBox* windowThemeBox_ = new QComboBox(this);
-    QComboBox* editorThemeBox_ = new QComboBox(this);
+    ControlField<QComboBox*>* windowTheme_ = new ControlField<QComboBox*>(this);
+    ControlField<QComboBox*>* editorTheme_ = new ControlField<QComboBox*>(this);
 
     void setup_(const InitialValues& initialValues)
     {
+        windowTheme_->setText(Tr::windowTheme());
+        editorTheme_->setText(Tr::editorTheme());
+        auto window_theme_box = windowTheme_->control();
+        auto editor_theme_box = editorTheme_->control();
+
         /// TODO STYLE: Temporarily disable user window themes
-        windowThemeBox_->setEnabled(false);
+        windowTheme_->setEnabled(false); /// SEE IF THIS WORKS
 
         // Populate window themes
         for (const auto& entry : initialValues.windowThemes) {
-            windowThemeBox_->addItem(
+            window_theme_box->addItem(
                 entry.name,
                 QVariant::fromValue(entry.path));
         }
 
         // Populate editor themes
         for (const auto& entry : initialValues.editorThemes) {
-            editorThemeBox_->addItem(
+            editor_theme_box->addItem(
                 entry.name,
                 QVariant::fromValue(entry.path));
         }
 
         // Set current selections
-        selectByPath_(windowThemeBox_, currentWindowTheme_);
-        selectByPath_(editorThemeBox_, currentEditorTheme_);
+        selectByPath_(window_theme_box, currentWindowTheme_);
+        selectByPath_(editor_theme_box, currentEditorTheme_);
 
         // Layout
         auto main_layout = new QVBoxLayout(this);
-
-        auto window_layout = new QHBoxLayout;
-        window_layout->addWidget(new QLabel(Tr::windowTheme(), this));
-        window_layout->addWidget(windowThemeBox_, 1);
-
-        auto editor_layout = new QHBoxLayout;
-        editor_layout->addWidget(new QLabel(Tr::editorTheme(), this));
-        editor_layout->addWidget(editorThemeBox_, 1);
-
-        main_layout->addLayout(window_layout);
-        main_layout->addLayout(editor_layout);
+        main_layout->addWidget(windowTheme_);
+        main_layout->addWidget(editorTheme_);
 
         // Connect
         connect(
-            windowThemeBox_,
+            window_theme_box,
             &QComboBox::currentIndexChanged,
             this,
             [&](int index) {
-                currentWindowTheme_ =
-                    windowThemeBox_->itemData(index).value<Coco::Path>();
+                currentWindowTheme_ = windowTheme_->control()
+                                          ->itemData(index)
+                                          .value<Coco::Path>();
                 emit windowThemeChanged(currentWindowTheme_);
             });
 
         connect(
-            editorThemeBox_,
+            editor_theme_box,
             &QComboBox::currentIndexChanged,
             this,
             [&](int index) {
-                currentEditorTheme_ =
-                    editorThemeBox_->itemData(index).value<Coco::Path>();
+                currentEditorTheme_ = editorTheme_->control()
+                                          ->itemData(index)
+                                          .value<Coco::Path>();
                 emit editorThemeChanged(currentEditorTheme_);
             });
     }

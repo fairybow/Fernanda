@@ -13,6 +13,8 @@
 #include <QString>
 #include <QTextOption>
 
+#include "ColorBar.h"
+
 // TODO: Any way to get path to work with QSettings?
 // #include "Coco/Path.h"
 
@@ -47,6 +49,8 @@ namespace Keys {
         "WordCounter/SelectionReplacement";
     constexpr auto WORD_COUNTER_LINE_POS = "WordCounter/LinePos";
     constexpr auto WORD_COUNTER_COL_POS = "WordCounter/ColPos";
+    constexpr auto COLOR_BAR_ACTIVE = "ColorBar/Active";
+    constexpr auto COLOR_BAR_POSITION = "ColorBar/Position";
 
 } // namespace Keys
 
@@ -91,6 +95,8 @@ namespace Defaults {
     inline bool wordCounterSelReplace() { return true; }
     inline bool wordCounterLinePos() { return true; }
     inline bool wordCounterColPos() { return true; }
+    inline bool colorBarActive() { return true; }
+    inline ColorBar::Position colorBarPosition() { return ColorBar::Top; }
 
 } // namespace Defaults
 

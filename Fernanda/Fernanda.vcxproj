@@ -105,6 +105,7 @@
     <QtMoc Include="src\Commander.h" />
     <QtMoc Include="src\CollapsibleWidget.h" />
     <QtMoc Include="src\CollapsibleWidgetHeader.h" />
+    <QtMoc Include="src\ColorBarPanel.h" />
     <ClInclude Include="src\Debug.h" />
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />
@@ -122,6 +123,7 @@
     <QtMoc Include="src\KeyFilters.h" />
     <QtMoc Include="src\KeyFiltersPanel.h" />
     <QtMoc Include="src\InfoCheckBox.h" />
+    <ClInclude Include="src\ControlField.h" />
     <ClInclude Include="src\MenuBuilder.h" />
     <ClInclude Include="src\MenuShortcuts.h" />
     <QtMoc Include="src\MenuState.h" />

@@ -69,11 +69,31 @@ public:
 
     virtual ~ColorBar() override { TRACER; }
 
+    bool active() const noexcept { return active_; }
+
+    void setActive(bool active)
+    {
+        if (active_ == active) return;
+        active_ = active;
+        active_ ? run(Pastel) : killAnimation_();
+    }
+
     Position position() const noexcept { return position_; }
-    void setPosition(Position position) { position_ = position; }
+
+    void setPosition(Position position)
+    {
+        if (position_ == position) return;
+
+        killAnimation_();
+        position_ = position;
+        updateGeometry_();
+        run(Pastel);
+    }
 
     void run(Color color, int delay = 0)
     {
+        if (!active_) return;
+
         // This visibility check is for a hidden window (which will hide its
         // children). ColorBar itself doesn't really need to be hidden
         if (!isVisible()) return;
@@ -118,11 +138,13 @@ protected:
 private:
     QMainWindow* window_;
 
+    bool active_ = true;
+    Position position_ = Top;
+
     static constexpr qreal MIN_RANGE_ = 0.0;
     static constexpr qreal MAX_RANGE_ = 100.00;
     qreal currentProgress_ = MIN_RANGE_;
     Color currentColor_ = Pastel;
-    Position position_ = Top;
     Timers::Delayer* lingerTimer_ =
         new Timers::Delayer(1000, this, &ColorBar::reset_);
     QTimeLine* activeTimeLine_ = nullptr;
@@ -182,7 +204,7 @@ private:
         raise();
     }
 
-    void startAnimation_(Color color, int delay)
+    void killAnimation_()
     {
         if (activeTimeLine_) {
             activeTimeLine_->stop();
@@ -191,6 +213,12 @@ private:
         }
 
         lingerTimer_->stop();
+        reset_();
+    }
+
+    void startAnimation_(Color color, int delay)
+    {
+        killAnimation_();
 
         currentColor_ = color;
         activeTimeLine_ = fillTimeLine_();
