@@ -82,9 +82,6 @@
     <Filter Include="Code\Core\Services\Settings">
       <UniqueIdentifier>{9d4181d7-dd93-4d05-80f2-8b26fa55987e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Installer">
-      <UniqueIdentifier>{f93aebe4-fc11-4c96-9f7d-b7d9bac68fdb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources\Themes">
       <UniqueIdentifier>{813fd79e-b6d6-44e7-9831-bb99687ff25d}</UniqueIdentifier>
     </Filter>
@@ -114,6 +111,9 @@
     </Filter>
     <Filter Include="Scripts">
       <UniqueIdentifier>{b938b2ee-9860-4380-992c-c5046125c74a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Packaging">
+      <UniqueIdentifier>{f93aebe4-fc11-4c96-9f7d-b7d9bac68fdb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -227,12 +227,6 @@
     <None Include="resources\ui\ChevronUp.svg">
       <Filter>Resources\SVGs</Filter>
     </None>
-    <None Include="installer\WindowsBuild.bat">
-      <Filter>Installer</Filter>
-    </None>
-    <None Include="installer\WindowsInstaller.iss">
-      <Filter>Installer</Filter>
-    </None>
     <None Include="docs\old_StartupFlowchart.md">
       <Filter>Old %28Remove Later%29</Filter>
     </None>
@@ -302,8 +296,14 @@
     <None Include="scripts\Update EN pluralonly.bat">
       <Filter>Scripts</Filter>
     </None>
-    <None Include="scripts\VSPreBuildGenVersionFullStringTxt.ps1">
-      <Filter>Scripts</Filter>
+    <None Include="packaging\WindowsPackageRelease.bat">
+      <Filter>Packaging</Filter>
+    </None>
+    <None Include="packaging\WindowsInstaller.iss">
+      <Filter>Packaging</Filter>
+    </None>
+    <None Include="packaging\VSPreBuildGenVersionFullStringTxt.ps1">
+      <Filter>Packaging</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

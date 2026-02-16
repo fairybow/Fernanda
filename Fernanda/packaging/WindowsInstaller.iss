@@ -1,4 +1,4 @@
-; Fernanda Inno Setup Script
+; Fernanda Inno Setup Script (https://jrsoftware.org/isdl.php#stable)
 ; Required: Pass /DVariableName=x from command line
 
 ; TODO: Shutdown (or advise) before updating
@@ -6,6 +6,9 @@
 
 #ifndef AppVersion
   #error "AppVersion not defined. Pass /DAppVersion=x.x.x"
+#endif
+#ifndef AppVersionNumeric
+  #error "AppVersionNumeric not defined. Pass /DAppVersionNumeric=x.x.x"
 #endif
 #ifndef InstallerName
   #error "InstallerName not defined. Pass /DInstallerName=name"
@@ -28,7 +31,7 @@ AppId={{D82F0C66-E341-4953-BD96-372C196A7E9B}
 AppName=Fernanda
 AppVerName=Fernanda
 AppVersion={#AppVersion}
-VersionInfoProductVersion={#AppVersion}
+VersionInfoProductVersion={#AppVersionNumeric}
 AppPublisher=fairybow
 DefaultDirName={autopf}\Fernanda
 DefaultGroupName=Fernanda

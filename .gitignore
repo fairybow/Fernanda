@@ -402,8 +402,8 @@ FodyWeavers.xsd
 
 ## Custom
 
-Fernanda/installer/temp/
-Fernanda/installer/output/
+Fernanda/packaging/temp/
+Fernanda/packaging/output/
 
 # Overrides
 

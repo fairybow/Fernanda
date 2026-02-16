@@ -2,24 +2,22 @@
 setlocal
 
 REM ============================================================================
-REM Fernanda Installer Build Script (Windows)
+REM Fernanda Release Packaging Script (Windows)
 REM ============================================================================
 
-REM TODO: Pull from Version.h if possible
-set APP_VERSION=0.99.0
 set INSTALLER_NAME=FernandaInstaller
 
 set QT_DIR=C:\Qt\6.10.1\msvc2022_64
-
 set QT_WINDEPLOY=%QT_DIR%\bin\windeployqt6.exe
 REM This is for windeployqt6 to bundle VC++ Redist itself:
 set VCINSTALLDIR=C:\Program Files\Microsoft Visual Studio\18\Community\VC\
-
 REM Must use 8.3 short path for Program Files (x86) because of parentheses
 set ISS_COMPILER=C:\PROGRA~2\Inno Setup 6\ISCC.exe
 set ISS=.\WindowsInstaller.iss
+set RELEASE_DIR=..\..\x64\Release
 
-set RELEASE_EXE=..\..\x64\Release\Fernanda.exe
+set RELEASE_EXE=%RELEASE_DIR%\Fernanda.exe
+set RELEASE_VERSION_TXT=%RELEASE_DIR%\Version.txt
 set README=..\..\README.md
 set LICENSE=..\..\LICENSE
 set ADDITIONAL_TERMS=..\..\ADDITIONAL_TERMS
@@ -27,7 +25,7 @@ set ADDITIONAL_TERMS=..\..\ADDITIONAL_TERMS
 set TEMP_DIR=.\temp
 set OUTPUT_DIR=.\output\Windows x64
 
-set STEPS=5
+set STEPS=6
 
 REM ============================================================================
 
@@ -74,6 +72,16 @@ if not exist "%ADDITIONAL_TERMS%" (
     goto :error
 )
 
+if not exist "%RELEASE_VERSION_TXT%" (
+    echo ERROR: Version.txt not found at %RELEASE_VERSION_TXT%
+    echo        Did the pre-build step run?
+    goto :error
+)
+
+set /p APP_VERSION=<"%RELEASE_VERSION_TXT%"
+for /f "tokens=1 delims=-" %%a in ("%APP_VERSION%") do set APP_VERSION_NUMERIC=%%a
+echo            Version: %APP_VERSION%
+
 echo [2/%STEPS%] Cleaning temp directory...
 if exist "%TEMP_DIR%" rmdir /s /q "%TEMP_DIR%"
 mkdir "%TEMP_DIR%"
@@ -107,6 +115,7 @@ mkdir "%OUTPUT_DIR%"
 
 "%ISS_COMPILER%" ^
     /DAppVersion=%APP_VERSION% ^
+    /DAppVersionNumeric=%APP_VERSION_NUMERIC% ^
     /DInstallerName=%INSTALLER_NAME% ^
     /DReadmePath="%README%" ^
     /DLicensePath="%LICENSE%" ^
@@ -115,11 +124,14 @@ mkdir "%OUTPUT_DIR%"
     "%ISS%"
 if errorlevel 1 goto :error
 
+copy "%RELEASE_VERSION_TXT%" "%OUTPUT_DIR%\" > nul
+
 echo.
 echo ========================================
 echo Build complete!
 echo ========================================
 echo Output: %OUTPUT_DIR%\%INSTALLER_NAME%.exe
+echo         %OUTPUT_DIR%\Version.txt
 echo.
 goto :end
 
