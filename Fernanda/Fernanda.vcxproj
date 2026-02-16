@@ -52,8 +52,9 @@
     <None Include="docs\Style.md" />
     <None Include="docs\old_temp_DocsPlan.md" />
     <None Include="docs\VSProjectSettings.md" />
-    <None Include="installer\WindowsBuild.bat" />
-    <None Include="installer\WindowsInstaller.iss" />
+    <None Include="packaging\VSPreBuildGenVersionFullStringTxt.ps1" />
+    <None Include="packaging\WindowsPackageRelease.bat" />
+    <None Include="packaging\WindowsInstaller.iss" />
     <None Include="resources\themes\Amber.fernanda_editor" />
     <None Include="resources\themes\Blue.fernanda_editor" />
     <None Include="resources\themes\old_Dark.fernanda_window" />
@@ -74,7 +75,6 @@
     <None Include="resources\ui\Dot.svg" />
     <None Include="resources\ui\Plus.svg" />
     <None Include="resources\ui\X.svg" />
-    <None Include="scripts\VSPreBuildGenVersionFullStringTxt.ps1" />
     <None Include="scripts\Update EN pluralonly.bat" />
     <None Include="src\old_TranslationCode.md" />
     <None Include="submodules\Coco\Coco\copy\Class.md" />
@@ -105,6 +105,7 @@
     <QtMoc Include="src\Commander.h" />
     <QtMoc Include="src\CollapsibleWidget.h" />
     <QtMoc Include="src\CollapsibleWidgetHeader.h" />
+    <QtMoc Include="src\ColorBarPanel.h" />
     <ClInclude Include="src\Debug.h" />
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />
@@ -122,6 +123,7 @@
     <QtMoc Include="src\KeyFilters.h" />
     <QtMoc Include="src\KeyFiltersPanel.h" />
     <QtMoc Include="src\InfoCheckBox.h" />
+    <ClInclude Include="src\ControlField.h" />
     <ClInclude Include="src\MenuBuilder.h" />
     <ClInclude Include="src\MenuShortcuts.h" />
     <QtMoc Include="src\MenuState.h" />
@@ -253,7 +255,8 @@
       <AdditionalDependencies>$(ProjectDir)external\bit7z\lib\x64\Debug\bit7z.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>powershell -ExecutionPolicy Bypass -File "$(ProjectDir)scripts\VSPreBuildGenVersionFullStringTxt.ps1" $(TargetDir)</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -267,8 +270,12 @@
       <AdditionalDependencies>$(ProjectDir)external\bit7z\lib\x64\Release\bit7z.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>powershell -ExecutionPolicy Bypass -File "$(ProjectDir)scripts\VSPreBuildGenVersionFullStringTxt.ps1" $(TargetDir)</Command>
+      <Command>powershell -ExecutionPolicy Bypass -File "$(ProjectDir)packaging\VSPreBuildGenVersionFullStringTxt.ps1"</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>

@@ -1,13 +1,16 @@
 # Reads ../src/Version.h, reconstructs VERSION_FULL_STRING, writes to ../VERSION
 
-param(
-    [Parameter(Mandatory)]
-    [string]$OutputDir
-)
+# param(
+#     [Parameter(Mandatory)]
+#     [string]$OutputDir
+# )
+
+# If we decide to use the param, can pass $(TargetDir) to pre-build command line
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $headerPath = Join-Path $scriptDir "..\src\Version.h"
-$outputPath = Join-Path $OutputDir "Version.txt"
+# $outputPath = Join-Path $OutputDir "Version.txt"
+$outputPath = Join-Path $scriptDir "..\..\x64\Release\Version.txt"
 
 $headerPath = [System.IO.Path]::GetFullPath($headerPath)
 $outputPath = [System.IO.Path]::GetFullPath($outputPath)
@@ -34,6 +37,7 @@ if ($hasPrerelease -and $pre) {
     $version += "-$pre"
 }
 
-Set-Content $outputPath $version -NoNewline -Encoding UTF8
+# Set-Content $outputPath $version -NoNewline -Encoding UTF8
+[System.IO.File]::WriteAllText($outputPath, $version)
 
 Write-Host "Wrote '$version' to: $outputPath"

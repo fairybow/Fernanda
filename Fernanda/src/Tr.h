@@ -117,7 +117,7 @@ namespace Tr {
     TR_(nxUpdateFailJsonParseFormat, tr("JSON parse failed: %0"));
     TR_(nxUpdateFailNoReleasesFound, tr("No releases found!"));
     TR_(nxUpdateFailMissingAsset,
-         tr("No Version.txt asset found in latest release!"));
+        tr("No Version.txt asset found in latest release!"));
 
     // NP dialogs:
 
@@ -272,6 +272,15 @@ namespace Tr {
     TR_(wordCounterPanelSelReplace, tr("Selection replacement"));
     TR_(wordCounterPanelLinePos, tr("Line position"));
     TR_(wordCounterPanelColPos, tr("Column position"));
+
+    /// Color bar panel
+
+    TR_(colorBarPanelTitle, tr("Color bar"));
+    TR_(colorBarPanelPosition, tr("Position: "));
+    TR_(colorBarPanelTop, tr("Top"));
+    TR_(colorBarPanelBelowMenuBar, tr("Below menu bar"));
+    TR_(colorBarPanelAboveStatusBar, tr("Above status bar"));
+    TR_(colorBarPanelBottom, tr("Bottom"));
 
     /// Settings
 

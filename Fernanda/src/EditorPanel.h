@@ -12,12 +12,11 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
-#include <QHBoxLayout>
-#include <QLabel>
 #include <QTextOption>
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "ControlField.h"
 #include "Debug.h"
 #include "DisplaySlider.h"
 #include "Ini.h"
@@ -67,10 +66,9 @@ private:
     QGroupBox* groupBox_ = new QGroupBox(this);
     QCheckBox* centerOnScrollCheck_ = new QCheckBox(this);
     QCheckBox* overwriteCheck_ = new QCheckBox(this);
-    QLabel* tabStopDistanceSliderLabel_ = new QLabel(this);
-    DisplaySlider* tabStopDistanceSlider_ = new DisplaySlider(this);
-    QLabel* wrapModeComboBoxLabel_ = new QLabel(this);
-    QComboBox* wrapModeComboBox_ = new QComboBox(this);
+    ControlField<DisplaySlider*>* tabStopDistance_ =
+        new ControlField<DisplaySlider*>(this);
+    ControlField<QComboBox*>* wrapMode_ = new ControlField<QComboBox*>(this);
     QCheckBox* doubleClickWhitespaceCheck_ = new QCheckBox(this);
     QCheckBox* lineNumbersCheck_ = new QCheckBox(this);
     QCheckBox* lineHighlightCheck_ = new QCheckBox(this);
@@ -88,27 +86,27 @@ private:
         overwriteCheck_->setText(Tr::editorPanelOverwrite());
         overwriteCheck_->setChecked(initialValues.overwrite);
 
-        tabStopDistanceSliderLabel_->setText(Tr::editorPanelTabStopDistance());
-        tabStopDistanceSlider_->setRange(
+        tabStopDistance_->setText(Tr::editorPanelTabStopDistance());
+        auto tab_stop_dist_slider = tabStopDistance_->control();
+        tab_stop_dist_slider->setRange(
             Ini::Defaults::EDITOR_TAB_STOP_DISTANCE_MIN,
             Ini::Defaults::EDITOR_TAB_STOP_DISTANCE_MAX);
-        tabStopDistanceSlider_->setValue(initialValues.tabStopDistance);
+        tab_stop_dist_slider->setValue(initialValues.tabStopDistance);
 
-        wrapModeComboBoxLabel_->setText(Tr::editorPanelWrapMode());
-        wrapModeComboBox_->addItem(
-            Tr::editorPanelNoWrap(),
-            QTextOption::NoWrap);
-        wrapModeComboBox_->addItem(
+        wrapMode_->setText(Tr::editorPanelWrapMode());
+        auto wrap_mode_box = wrapMode_->control();
+        wrap_mode_box->addItem(Tr::editorPanelNoWrap(), QTextOption::NoWrap);
+        wrap_mode_box->addItem(
             Tr::editorPanelWordWrap(),
             QTextOption::WordWrap);
-        wrapModeComboBox_->addItem(
+        wrap_mode_box->addItem(
             Tr::editorPanelWrapAnywhere(),
             QTextOption::WrapAnywhere);
-        wrapModeComboBox_->addItem(
+        wrap_mode_box->addItem(
             Tr::editorPanelWrapAtWordBoundaryOrAnywhere(),
             QTextOption::WrapAtWordBoundaryOrAnywhere);
-        wrapModeComboBox_->setCurrentIndex(
-            wrapModeComboBox_->findData(initialValues.wrapMode));
+        wrap_mode_box->setCurrentIndex(
+            wrap_mode_box->findData(initialValues.wrapMode));
 
         doubleClickWhitespaceCheck_->setText(
             Tr::editorPanelDblClickWhitespace());
@@ -126,20 +124,11 @@ private:
 
         // Layout
         auto main_layout = new QVBoxLayout(this);
-
-        auto tab_stop_layout = new QHBoxLayout;
-        tab_stop_layout->addWidget(tabStopDistanceSliderLabel_);
-        tab_stop_layout->addWidget(tabStopDistanceSlider_);
-
-        auto wrap_layout = new QHBoxLayout;
-        wrap_layout->addWidget(wrapModeComboBoxLabel_);
-        wrap_layout->addWidget(wrapModeComboBox_);
-
         auto group_box_layout = new QVBoxLayout;
         group_box_layout->addWidget(centerOnScrollCheck_);
         group_box_layout->addWidget(overwriteCheck_);
-        group_box_layout->addLayout(tab_stop_layout);
-        group_box_layout->addLayout(wrap_layout);
+        group_box_layout->addWidget(tabStopDistance_);
+        group_box_layout->addWidget(wrapMode_);
         group_box_layout->addWidget(doubleClickWhitespaceCheck_);
         group_box_layout->addWidget(lineNumbersCheck_);
         group_box_layout->addWidget(lineHighlightCheck_);
@@ -160,17 +149,18 @@ private:
         });
 
         connect(
-            tabStopDistanceSlider_,
+            tab_stop_dist_slider,
             &DisplaySlider::valueChanged,
             this,
             [&](int value) { emit tabStopDistanceChanged(value); });
 
         connect(
-            wrapModeComboBox_,
+            wrap_mode_box,
             &QComboBox::currentIndexChanged,
             this,
             [&](int index) {
-                emit wrapModeChanged(wrapModeComboBox_->itemData(index)
+                emit wrapModeChanged(wrapMode_->control()
+                                         ->itemData(index)
                                          .value<QTextOption::WrapMode>());
             });
 

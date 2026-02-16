@@ -22,6 +22,7 @@
 
 #include "AbstractService.h"
 #include "Bus.h"
+#include "ColorBar.h"
 #include "Debug.h"
 #include "Ini.h"
 #include "SettingsDialog.h"
@@ -184,6 +185,12 @@ public:
             .wordCounterColPos = settings_->value<bool>(
                 Ini::Keys::WORD_COUNTER_COL_POS,
                 Ini::Defaults::wordCounterColPos()),
+            .colorBarActive = settings_->value<bool>(
+                Ini::Keys::COLOR_BAR_ACTIVE,
+                Ini::Defaults::colorBarActive()),
+            .colorBarPosition = settings_->value<ColorBar::Position>(
+                Ini::Keys::COLOR_BAR_POSITION,
+                Ini::Defaults::colorBarPosition())
         };
 
         auto title = name_.isEmpty() ? Tr::settingsTitle()
@@ -431,6 +438,26 @@ public:
                     Ini::Keys::WORD_COUNTER_COL_POS,
                     colPos);
                 set(Ini::Keys::WORD_COUNTER_COL_POS, colPos);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::colorBarActiveChanged,
+            this,
+            [&](bool active) {
+                emit bus->settingChanged(Ini::Keys::COLOR_BAR_ACTIVE, active);
+                set(Ini::Keys::COLOR_BAR_ACTIVE, active);
+            });
+
+        connect(
+            dialog_,
+            &SettingsDialog::colorBarPositionChanged,
+            this,
+            [&](ColorBar::Position position) {
+                emit bus->settingChanged(
+                    Ini::Keys::COLOR_BAR_POSITION,
+                    position);
+                set(Ini::Keys::COLOR_BAR_POSITION, position);
             });
 
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {

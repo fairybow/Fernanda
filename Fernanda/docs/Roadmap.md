@@ -7,6 +7,10 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
+Make an official features list based on all completed TODOs here or in older notes or just via code assessment
+
+Make InfoCheckBox generic template like ControlField? (InfoControl?)
+
 New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
 
 New additional TR bat to release all and move them to the qm folder
