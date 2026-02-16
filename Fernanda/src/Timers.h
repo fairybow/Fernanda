@@ -19,9 +19,9 @@
 namespace Fernanda::Timers {
 
 template <typename SlotT>
-inline void delay(int msecs, const QObject* parent, SlotT slot)
+inline void delay(int msecs, const QObject* context, SlotT slot)
 {
-    QTimer::singleShot(msecs, parent, slot);
+    QTimer::singleShot(msecs, context, slot);
 }
 
 template <typename SlotT> inline void delay(int msecs, SlotT slot)
@@ -30,9 +30,9 @@ template <typename SlotT> inline void delay(int msecs, SlotT slot)
 }
 
 template <typename SlotT>
-inline void onNextTick(const QObject* parent, SlotT slot)
+inline void onNextTick(const QObject* context, SlotT slot)
 {
-    QTimer::singleShot(0, parent, slot);
+    QTimer::singleShot(0, context, slot);
 }
 
 template <typename SlotT> inline void onNextTick(SlotT slot)
