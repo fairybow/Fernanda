@@ -1,4 +1,4 @@
-# Reads ../src/Version.h, reconstructs VERSION_FULL_STRING, writes to ../VERSION
+# Reads ../src/Version.h, reconstructs VERSION_FULL_STRING, writes to Version.txt in release directory
 
 # param(
 #     [Parameter(Mandatory)]
