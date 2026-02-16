@@ -41,3 +41,9 @@ $(ProjectDir)external\bit7z\lib\x64\Debug\bit7z.lib;$(CoreLibraryDependencies);%
 ```
 $(ProjectDir)external\bit7z\lib\x64\Release\bit7z.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)
 ```
+
+Configuration Properties > Build Events > Pre-Build Event > Command Line
+
+```
+powershell -ExecutionPolicy Bypass -File "$(ProjectDir)scripts\VSPreBuildGenVersionFullStringTxt.ps1" $(TargetDir)
+```

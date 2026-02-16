@@ -34,6 +34,9 @@
 // independently. Also, might make since if we want to implement cancellation
 // and retry logic (really, anything beyond user clicking a Check... option and
 // waiting to display it)
+//
+// TODO: Instead of comparing release's tag name, compare contents of release
+// asset Version.txt against VERSION_FULL_STRING
 namespace Fernanda::UpdateDialog {
 
 namespace Internal {
