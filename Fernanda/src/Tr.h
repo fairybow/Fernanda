@@ -59,6 +59,10 @@ namespace Tr {
         tr("A Notebook already exists at %0"));
     TR_(nxOpenNotebookCaption, tr("Open Notebook file"));
     TR_(nxOpenNotebookFilter, tr("Fernanda Notebook files (*.fnx)"));
+    TR_(nxBetaAlert,
+        tr("<p><b>This is a prerelease!</b></p><p>You should not trust your "
+           "writing with prerelease versions of this software. Regardless, "
+           "always make regular back-ups of your work.</p>"));
 
     // TODO: std::format
     inline QString nxAboutBody()
@@ -104,13 +108,16 @@ namespace Tr {
         tr("There was a problem saving these files: %0"));
 
     TR_(nxUpdateTitle, tr("Check For Updates"));
-    TR_(nxUpdateBodyErrorFormat, tr("Update check failed: %0"));
-    TR_(nxUpdateBodyLatestFormat, tr("You have the latest version (%0)"));
-    TR_(nxUpdateBodyOodFormat, tr("Your version (%0) is not the latest (%1)."));
     TR_(nxUpdateReleasesButton, tr("Visit releases page"));
-    TR_(nxUpdateNullJsonArg, tr("Empty JSON document"));
-    TR_(nxUpdateEmptyListArg, tr("Empty QVariantList"));
-    TR_(nxUpdateEmptyValueArg, tr("Empty release tag value"));
+    TR_(nxUpdateLatestFormat, tr("You have the latest version (%0)"));
+    TR_(nxUpdateOutOfDateFormat,
+        tr("Your version (%0) is not the latest (%1)."));
+    TR_(nxUpdateFailAssetFetch, tr("Asset fetch failed: %0"));
+    TR_(nxUpdateFailReleaseFetchFormat, tr("Release fetch failed: %0"));
+    TR_(nxUpdateFailJsonParseFormat, tr("JSON parse failed: %0"));
+    TR_(nxUpdateFailNoReleasesFound, tr("No releases found!"));
+    TR_(nxUpdateFailMissingAsset,
+         tr("No Version.txt asset found in latest release!"));
 
     // NP dialogs:
 

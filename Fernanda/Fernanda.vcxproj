@@ -74,6 +74,8 @@
     <None Include="resources\ui\Dot.svg" />
     <None Include="resources\ui\Plus.svg" />
     <None Include="resources\ui\X.svg" />
+    <None Include="scripts\VSPreBuildGenVersionFullStringTxt.ps1" />
+    <None Include="scripts\Update EN pluralonly.bat" />
     <None Include="src\old_TranslationCode.md" />
     <None Include="submodules\Coco\Coco\copy\Class.md" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md" />
@@ -83,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="src\AccordionWidget.h" />
+    <ClInclude Include="src\BetaAlert.h" />
     <ClInclude Include="src\BuildMessages.h" />
     <QtMoc Include="src\FileService.h" />
     <QtMoc Include="src\AbstractFileModel.h" />
@@ -249,6 +252,9 @@
     <Link>
       <AdditionalDependencies>$(ProjectDir)external\bit7z\lib\x64\Debug\bit7z.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>powershell -ExecutionPolicy Bypass -File "$(ProjectDir)scripts\VSPreBuildGenVersionFullStringTxt.ps1" $(TargetDir)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -260,6 +266,9 @@
     <Link>
       <AdditionalDependencies>$(ProjectDir)external\bit7z\lib\x64\Release\bit7z.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>powershell -ExecutionPolicy Bypass -File "$(ProjectDir)scripts\VSPreBuildGenVersionFullStringTxt.ps1" $(TargetDir)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>

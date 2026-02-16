@@ -11,7 +11,9 @@
 
 #include <QByteArray>
 #include <QDesktopServices>
+#include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QJsonParseError>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
@@ -21,19 +23,23 @@
 #include <QPushButton>
 #include <QString>
 #include <QUrl>
-#include <QVariant>
-#include <QVariantList>
-#include <QVariantMap>
 
 #include "Tr.h"
 #include "Version.h"
 
-// An UpdateService might make sense later, if we want to check on startup, run
-// periodic background checks, and/or broadcast a Bus signal so multiple
-// elements (status bar badge, menu item indicator, etc.) can react
+// Gets and reads the content of the Version.txt asset (created in pre-build
+// with VSPreBuildGenVersionFullStringTxt.ps1) in the latest release. That file
+// contains that version's VERSION_FULL_STRING from Version.h, which we compare
+// against the one here.
+//
+// TODO: (maybe) An UpdateService might make sense later, if we want to check on
+// startup, run periodic background checks, and/or broadcast a Bus signal so
+// multiple elements (status bar badge, menu item indicator, etc.) can react
 // independently. Also, might make since if we want to implement cancellation
 // and retry logic (really, anything beyond user clicking a Check... option and
 // waiting to display it)
+// TODO: May later want to move to non-prerelease only or provide a check box to
+// include or not include them or similar
 namespace Fernanda::UpdateDialog {
 
 namespace Internal {
@@ -42,52 +48,70 @@ namespace Internal {
         "https://api.github.com/repos/fairybow/Fernanda/releases";
     constexpr auto GITHUB_RELEASE_URL_ =
         "https://github.com/fairybow/Fernanda/releases";
-    constexpr auto RELEASE_TAG_KEY_ = "tag_name";
+    constexpr auto VERSION_ASSET_NAME_ = "Version.txt";
 
-    inline QString message_(QNetworkReply* reply)
+    inline void showDialog_(const QString& message)
     {
-        // TODO: Handle any specific error cases in a switch?
-        if (reply->error() != QNetworkReply::NoError) {
-            return Tr::nxUpdateBodyErrorFormat().arg(reply->errorString());
+        QMessageBox box{};
+
+        box.setWindowModality(Qt::ApplicationModal);
+        box.setMinimumSize(400, 200);
+        box.setWindowTitle(Tr::nxUpdateTitle());
+        box.setText(message);
+        box.setTextInteractionFlags(Qt::NoTextInteraction);
+
+        auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
+        auto visit = box.addButton(
+            Tr::nxUpdateReleasesButton(),
+            QMessageBox::ActionRole);
+
+        QObject::connect(visit, &QPushButton::clicked, [] {
+            QDesktopServices::openUrl(QUrl(GITHUB_RELEASE_URL_));
+        });
+
+        box.setDefaultButton(ok);
+        box.setEscapeButton(ok);
+        box.exec();
+    }
+
+    inline QUrl versionTxtUrl_(const QJsonArray& assets)
+    {
+        for (auto& asset : assets) {
+            auto obj = asset.toObject();
+            if (obj.value("name").toString() == VERSION_ASSET_NAME_)
+                return obj.value("browser_download_url").toString();
         }
 
-        auto data = reply->readAll();
-        QJsonParseError parse_error{};
-        auto document = QJsonDocument::fromJson(data, &parse_error);
+        return {};
+    }
 
-        if (parse_error.error != QJsonParseError::NoError) {
-            return Tr::nxUpdateBodyErrorFormat().arg(parse_error.errorString());
-        }
+    inline void
+    fetchVersionFile_(QNetworkAccessManager* manager, const QUrl& location)
+    {
+        auto request = QNetworkRequest(location);
+        auto reply = manager->get(request);
 
-        if (document.isNull()) {
-            return Tr::nxUpdateBodyErrorFormat().arg(Tr::nxUpdateNullJsonArg());
-        }
+        QObject::connect(reply, &QNetworkReply::finished, [reply] {
+            reply->deleteLater();
 
-        auto list = document.toVariant().toList();
+            if (reply->error() != QNetworkReply::NoError) {
+                showDialog_(
+                    Tr::nxUpdateFailAssetFetch().arg(reply->errorString()));
+                return;
+            }
 
-        if (list.isEmpty()) {
-            return Tr::nxUpdateBodyErrorFormat().arg(
-                Tr::nxUpdateEmptyListArg());
-        }
+            auto latest = QString::fromUtf8(reply->readAll()).trimmed();
 
-        auto map = list[0].toMap();
-        auto tag_value = map.value(RELEASE_TAG_KEY_).toString();
-
-        if (tag_value.isEmpty()) {
-            return Tr::nxUpdateBodyErrorFormat().arg(
-                Tr::nxUpdateEmptyValueArg());
-        }
-
-        // TODO: Ensure we name the release appropriately! Or, if we use a
-        // different convention, ensure we adjust our VERION_FULL_STRING to
-        // align, so they match if same version!
-        if (tag_value == VERSION_FULL_STRING) {
-            return Tr::nxUpdateBodyLatestFormat().arg(VERSION_FULL_STRING);
-        } else {
-            return Tr::nxUpdateBodyOodFormat()
-                .arg(VERSION_FULL_STRING)
-                .arg(tag_value);
-        }
+            if (latest == VERSION_FULL_STRING) {
+                showDialog_(
+                    Tr::nxUpdateLatestFormat().arg(VERSION_FULL_STRING));
+            } else {
+                showDialog_(
+                    Tr::nxUpdateOutOfDateFormat()
+                        .arg(VERSION_FULL_STRING)
+                        .arg(latest));
+            }
+        });
     }
 
 } // namespace Internal
@@ -98,33 +122,42 @@ inline void exec()
     auto request = QNetworkRequest(QUrl(Internal::GITHUB_API_URL_));
     auto reply = manager.get(request);
 
-    reply->connect(reply, &QNetworkReply::finished, [reply] {
+    QObject::connect(reply, &QNetworkReply::finished, [reply] {
         reply->deleteLater();
 
-        QMessageBox box{};
+        if (reply->error() != QNetworkReply::NoError) {
+            Internal::showDialog_(
+                Tr::nxUpdateFailReleaseFetchFormat().arg(reply->errorString()));
+            return;
+        }
 
-        box.setWindowModality(Qt::ApplicationModal);
-        box.setMinimumSize(
-            400,
-            200); // TODO: Constants for a universal min h/w for all dialogs?
-        box.setWindowTitle(Tr::nxUpdateTitle());
-        box.setText(Internal::message_(reply));
-        box.setTextInteractionFlags(Qt::NoTextInteraction);
+        QJsonParseError parse_error{};
+        auto document = QJsonDocument::fromJson(reply->readAll(), &parse_error);
 
-        auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
-        auto visit = box.addButton(
-            Tr::nxUpdateReleasesButton(),
-            QMessageBox::ActionRole);
+        if (parse_error.error != QJsonParseError::NoError) {
+            Internal::showDialog_(
+                Tr::nxUpdateFailJsonParseFormat().arg(
+                    parse_error.errorString()));
+            return;
+        }
 
-        QObject::connect(visit, &QPushButton::clicked, [] {
-            QDesktopServices::openUrl(QUrl(Internal::GITHUB_RELEASE_URL_));
-        });
+        auto releases = document.array();
 
-        box.setDefaultButton(ok);
-        box.setEscapeButton(ok);
+        if (releases.isEmpty()) {
+            Internal::showDialog_(Tr::nxUpdateFailNoReleasesFound());
+            return;
+        }
 
-        // TODO: Move to open/show
-        box.exec();
+        auto latest_release = releases[0].toObject();
+        auto assets = latest_release.value("assets").toArray();
+        auto version_txt_url = Internal::versionTxtUrl_(assets);
+
+        if (version_txt_url.isEmpty()) {
+            Internal::showDialog_(Tr::nxUpdateFailMissingAsset());
+            return;
+        }
+
+        Internal::fetchVersionFile_(&manager, version_txt_url);
     });
 }
 

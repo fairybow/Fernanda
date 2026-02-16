@@ -2,7 +2,7 @@
 
 set LUPDATE=C:\Qt\6.10.1\msvc2022_64\bin\lupdate.exe
 set SOURCE=C:\Dev\Fernanda
-set TS_FILE=.\Translation_en.ts
+set TS_FILE=..\translations\Translation_en.ts
 
 "%LUPDATE%" "%SOURCE%" -ts "%TS_FILE%" -pluralonly
 

@@ -7,6 +7,10 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
+New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
+
+New additional TR bat to release all and move them to the qm folder
+
 Use dual column layouts for some of the settings panels (instead of just, like, 8 check boxes placed vertically...)
 
 Add defaults button to settings (this should probably not write the defaults, since we'd want the cascading to work for Notebook inheriting Notepad values)
