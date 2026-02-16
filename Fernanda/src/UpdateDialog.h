@@ -27,13 +27,17 @@
 #include "Tr.h"
 #include "Version.h"
 
-// An UpdateService might make sense later, if we want to check on startup, run
-// periodic background checks, and/or broadcast a Bus signal so multiple
-// elements (status bar badge, menu item indicator, etc.) can react
+// Gets and reads the content of the Version.txt asset (created in pre-build
+// with VSPreBuildGenVersionFullStringTxt.ps1) in the latest release. That file
+// contains that version's VERSION_FULL_STRING from Version.h, which we compare
+// against the one here.
+//
+// TODO: (maybe) An UpdateService might make sense later, if we want to check on
+// startup, run periodic background checks, and/or broadcast a Bus signal so
+// multiple elements (status bar badge, menu item indicator, etc.) can react
 // independently. Also, might make since if we want to implement cancellation
 // and retry logic (really, anything beyond user clicking a Check... option and
 // waiting to display it)
-//
 // TODO: May later want to move to non-prerelease only or provide a check box to
 // include or not include them or similar
 namespace Fernanda::UpdateDialog {
