@@ -403,9 +403,6 @@
     <QtMoc Include="src\MenuState.h">
       <Filter>Code\Core\UI\Menus</Filter>
     </QtMoc>
-    <QtMoc Include="src\DisplaySlider.h">
-      <Filter>Code\Core\UI</Filter>
-    </QtMoc>
     <QtMoc Include="src\TieredSettings.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
@@ -458,6 +455,10 @@
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
     <QtMoc Include="src\InfoCheckBox.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ColorBarPanel.h" />
+    <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
   </ItemGroup>
@@ -583,9 +584,6 @@
       <Filter>Code\Core\UI</Filter>
     </ClInclude>
     <ClInclude Include="src\ControlField.h">
-      <Filter>Code\Core\UI\Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ColorBarPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </ClInclude>
   </ItemGroup>
