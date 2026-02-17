@@ -14,8 +14,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "ControlInfo.h"
 #include "Debug.h"
-#include "InfoCheckBox.h"
 #include "Tr.h"
 
 namespace Fernanda {
@@ -51,7 +51,7 @@ signals:
 private:
     QGroupBox* groupBox_ = new QGroupBox(this);
     QCheckBox* autoCloseCheck_ = new QCheckBox(this);
-    InfoCheckBox* bargingCheck_ = new InfoCheckBox(this);
+    ControlInfo<QCheckBox*>* barging_ = new ControlInfo<QCheckBox*>(this);
 
     void setup_(const InitialValues& initialValues)
     {
@@ -63,16 +63,17 @@ private:
         autoCloseCheck_->setText(Tr::keyFiltersPanelAutoClose());
         autoCloseCheck_->setChecked(initialValues.autoClose);
 
-        bargingCheck_->setText(Tr::keyFiltersPanelBarging());
-        bargingCheck_->setChecked(initialValues.barging);
-        bargingCheck_->setInfoToolTip(Tr::keyFiltersPanelBargingTooltip());
+        auto barging_check = barging_->control();
+        barging_check->setText(Tr::keyFiltersPanelBarging());
+        barging_check->setChecked(initialValues.barging);
+        barging_->setInfo(Tr::keyFiltersPanelBargingTooltip());
 
         // Layout
         auto main_layout = new QVBoxLayout(this);
 
         auto group_box_layout = new QVBoxLayout;
         group_box_layout->addWidget(autoCloseCheck_);
-        group_box_layout->addWidget(bargingCheck_);
+        group_box_layout->addWidget(barging_);
         groupBox_->setLayout(group_box_layout);
 
         main_layout->addWidget(groupBox_);
@@ -86,7 +87,7 @@ private:
             emit autoCloseChanged(toggled);
         });
 
-        connect(bargingCheck_, &InfoCheckBox::toggled, this, [&](bool toggled) {
+        connect(barging_check, &QCheckBox::toggled, this, [&](bool toggled) {
             emit bargingChanged(toggled);
         });
     }

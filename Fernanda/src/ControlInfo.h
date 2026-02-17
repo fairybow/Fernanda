@@ -9,62 +9,53 @@
 
 #pragma once
 
-#include <QCheckBox>
+#include <type_traits>
+
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPixmap>
-#include <QString>
 #include <QStyle>
 #include <QWidget>
+
+#include "Coco/Concepts.h"
 
 #include "Debug.h"
 
 namespace Fernanda {
 
-class InfoCheckBox : public QWidget
+template <Coco::Concepts::QWidgetPointer QWidgetT>
+class ControlInfo : public QWidget
 {
-    Q_OBJECT
-
 public:
-    explicit InfoCheckBox(QWidget* parent = nullptr)
+    explicit ControlInfo(QWidget* parent = nullptr)
         : QWidget(parent)
     {
         setup_();
     }
 
-    virtual ~InfoCheckBox() override { TRACER; }
+    virtual ~ControlInfo() override { TRACER; }
 
-    void setChecked(bool checked) { checkBox_->setChecked(checked); }
-    void setText(const QString& text) { checkBox_->setText(text); }
-
-    void setInfoToolTip(const QString& infoToolTip)
-    {
-        infoLabel_->setToolTip(infoToolTip);
-    }
-
-signals:
-    void toggled(bool checked);
+    QWidgetT control() { return control_; }
+    void setInfo(const QString& info) { info_->setToolTip(info); }
 
 private:
-    QCheckBox* checkBox_ = new QCheckBox(this);
-    QLabel* infoLabel_ = new QLabel(this);
+    QWidgetT control_ = new std::remove_pointer_t<QWidgetT>(this);
+    QLabel* info_ = new QLabel(this);
 
     void setup_()
     {
-        infoLabel_->setPixmap(
+        setFocusProxy(control_);
+
+        info_->setPixmap(
             style()
                 ->standardPixmap(QStyle::SP_MessageBoxInformation)
                 .scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
         auto layout = new QHBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(checkBox_);
-        layout->addWidget(infoLabel_);
+        layout->addWidget(control_);
+        layout->addWidget(info_);
         layout->addStretch();
-
-        connect(checkBox_, &QCheckBox::toggled, this, [&](bool checked) {
-            emit toggled(checked);
-        });
     }
 };
 

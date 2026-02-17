@@ -454,9 +454,6 @@
     <QtMoc Include="src\WordCounterPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
-    <QtMoc Include="src\InfoCheckBox.h">
-      <Filter>Code\Core\UI\Settings</Filter>
-    </QtMoc>
     <QtMoc Include="src\ColorBarPanel.h" />
     <QtMoc Include="src\DisplaySlider.h">
       <Filter>Code\Core\UI\Settings</Filter>
@@ -584,6 +581,9 @@
       <Filter>Code\Core\UI</Filter>
     </ClInclude>
     <ClInclude Include="src\ControlField.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ControlInfo.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </ClInclude>
   </ItemGroup>
