@@ -40,8 +40,6 @@ public:
     struct InitialValues
     {
         QFont font;
-        int fontSizeMin;
-        int fontSizeMax;
 
         QList<ThemeSelector::Entry> windowThemes;
         Coco::Path currentWindowTheme;
@@ -132,11 +130,7 @@ private:
         setModal(false);
         setWindowTitle(title);
 
-        fontSelector_ = new FontSelector(
-            initialValues.font,
-            initialValues.fontSizeMin,
-            initialValues.fontSizeMax,
-            this);
+        fontSelector_ = new FontSelector(initialValues.font, this);
 
         themeSelector_ = new ThemeSelector(
             ThemeSelector::InitialValues{
