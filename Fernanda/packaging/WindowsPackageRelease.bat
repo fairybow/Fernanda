@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+REM TODO: Make sure it puts uninstall at top level (or make a shortcut to it at top level)!
+
 REM ============================================================================
 REM Fernanda Release Packaging Script (Windows)
 REM ============================================================================

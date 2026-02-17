@@ -239,8 +239,8 @@ namespace Tr {
     TR_(keyFiltersPanelAutoClose, tr("Auto-close"));
     TR_(keyFiltersPanelBarging, tr("Barging"));
     TR_(keyFiltersPanelBargingTooltip,
-        tr("Double-spacing against closing punctuation barges the cursor past "
-           "it and closes the gap"));
+        tr("Double-spacing (or pressing Enter) against closing punctuation "
+           "barges the cursor past it and closes the gap"));
 
     /// Editor panel
 
