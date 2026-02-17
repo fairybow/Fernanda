@@ -54,7 +54,7 @@ Might be simple actually, but tedious. We'll do it later.
 - [x] View menu > toggle tree view (both Workspaces) > INI default (notepad off / notebook on) > write settings value either for an individual window toggle, switching current window, or both
 - [ ] Ensure we are using terms around checkable items correctly in code! The term toggle is being used in a few different ways, I think. We should ensure checkable actions are called checkables or something. Also sort out the other uses of "toggle"
 - [x] Need a "dirty" mark on Notebook files in TreeView
-- [ ] Remove tab drop to new window positioning calculations and just start fresh!
+- [x] Remove tab drop to new window positioning calculations and just start fresh!
 - [ ] Autosave
 - [x] Key filter settings toggles
 - [x] Editor settings toggles
