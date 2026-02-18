@@ -1,10 +1,8 @@
 # v0.99.0-beta.1
 
-**A plain text editor for drafting long-form fiction.**
+**A plain text editor for drafting long-form fiction.** Work on single files like a notepad, or organize whole projects in Notebooks (`.fnx`).
 
-This is Fernanda's first public release! Work on single files like a notepad, or organize whole projects in portable Notebooks (`.fnx`).
-
-For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md).
+This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md).
 
 > [!WARNING]
 > You should not trust your writing with any version of this software less than 1.0.0! Regardless, always make regular back-ups of your work.
