@@ -222,6 +222,14 @@ private:
         opacifyWidget_(separatorDisplay_, 0.3);
         opacifyWidget_(posDisplay_, 0.8);
 
+        // Ensure correct initial visibility. If we don't do this, on startup,
+        // if the settings values match the defaults, then every setter call
+        // from the Module (responding to settings) will be guarded and return
+        // early (because each already matches the default), and so the
+        // separator/labels will never be told to hide!
+        setDisplayVisible_(countsDisplay_, false);
+        setDisplayVisible_(posDisplay_, false);
+
         auto layout = new QHBoxLayout(this);
         layout->setContentsMargins(MARGIN_, MARGIN_, MARGIN_, MARGIN_);
         layout->setSpacing(3);
