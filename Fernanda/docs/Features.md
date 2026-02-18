@@ -13,7 +13,7 @@ Current vesion: v0.99.0-beta.1 "Bashō"
 - Open the same file in multiple places (with persisting edits)
 - Opening arguments support (double-click/drag a file in your OS to open it in Fernanda)
 
-> [!NOTE]
+> [!IMPORTANT]
 > Known issue: Tree View root directory is locked in-place for now
 
 ### Notebook (0 or more instances)
@@ -120,7 +120,7 @@ Current vesion: v0.99.0-beta.1 "Bashō"
 - Icon color support in window themes
 - QSS template system with variable substitution
 
-> [!NOTE]
+> [!IMPORTANT]
 > Known issue: Window themes not yet implemented
 
 > [!TIP]
@@ -136,7 +136,7 @@ Current vesion: v0.99.0-beta.1 "Bashō"
 - INI-based persistence via QSettings
 - Settings organized into panels: Font, Themes, Key Filters, Editor, Word Counter, Color Bar
 
-> [!NOTE]
+> [!IMPORTANT]
 > Known issue: Notebook settings won't save unless the Notebook itself is saved
 
 ---
@@ -181,7 +181,7 @@ Current vesion: v0.99.0-beta.1 "Bashō"
 - Application quit routine: quit each Notebook, then Notepad, then application
 - Passive quit when no windows are open
 
-> [!IMPORTANT]
+> [!WARNING]
 > System shutdown handling is implemented but untested
 
 ---
