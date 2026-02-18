@@ -1,6 +1,6 @@
 # Features
 
-Current vesion: v0.99.0-beta.1 "Bashō"
+Current vesion: v0.99.0-beta.1
 
 ## Separate Workspaces
 

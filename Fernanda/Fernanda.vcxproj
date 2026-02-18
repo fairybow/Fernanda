@@ -45,6 +45,7 @@
     <None Include="docs\old_Closures.md" />
     <None Include="docs\CodeCleanup.md" />
     <None Include="docs\old_Openings.md" />
+    <None Include="docs\ReleaseNotes.md" />
     <None Include="docs\Roadmap.md" />
     <None Include="docs\old_Saves.md" />
     <None Include="docs\old_SoCAudit.md" />

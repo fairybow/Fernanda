@@ -62,7 +62,7 @@ public:
         initialized_ = true;
 
         if (Version::isPrerelease) {
-            Timers::delay(1000, this, [] { BetaAlert::exec(); });
+            Timers::delay(500, this, [] { BetaAlert::exec(); });
         }
     }
 

@@ -308,6 +308,9 @@
     <None Include="docs\Features.md">
       <Filter>Docs</Filter>
     </None>
+    <None Include="docs\ReleaseNotes.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
