@@ -7,6 +7,8 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
+Bug: WordCounter slash visible on start-up
+
 New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
 
 New additional TR bat to release all and move them to the qm folder
