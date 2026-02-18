@@ -79,7 +79,7 @@ Current vesion: v0.99.0-beta.1 "Bashō"
 ## Saving
 
 - **Notepad**: per-file saves to the OS filesystem, Save / Save As dialogs, preferred extension for untitled files
-- **Notebook**: two-tier save — individual file models saved to working directory, then archive compressed and written to `.fnx` path
+- **Notebook**: two-tier save (individual file models saved to working directory, then archive compressed and written to `.fnx` path)
 - Multi-file save prompts with checkable file list (select which files to save)
 - Save As with path and name selection
 - New Notebooks trigger Save As on first save
@@ -189,10 +189,6 @@ Current vesion: v0.99.0-beta.1 "Bashō"
 ## Menus
 
 - Menu state toggling based on current view, model, window, and workspace state
-- Workspace-specific menus (Notepad menus vs. Notebook menus)
-- Context menus for Notebook tree view items (main and trash)
-- Menu builder system for declarative menu construction
-- Notebook-specific items: Import, New File, New Folder, Open Notepad
 
 ---
 
@@ -203,49 +199,28 @@ Current vesion: v0.99.0-beta.1 "Bashō"
 
 ---
 
-## Installer (Windows)
-
-- Inno Setup-based Windows installer
-- Automated via batch file (`WindowsPackageRelease.bat`)
-- Optional desktop shortcut
-- Uses `windeployqt6` for Qt dependency bundling
-- Separated output by platform
-
----
-
 ## File Type Detection
 
 - Magic-byte-based file type detection (not extension-based)
 - Recognized signatures: PNG, 7zip, RTF, PDF, GIF, JPG, ZIP/DOCX
 - Unrecognized files default to plain text
-- Non-text recognized types open as no-op (preventing binary display)
+- Recognized but unopenable files (e.g., PNG) open as "no-op"
 
 ---
 
 ## Infrastructure & Architecture
 
-- Event-driven architecture with Bus system (commands + Qt signal events)
+- Event-driven architecture with Bus system (commands + Qt signals)
 - Service-based mechanics layer (WindowService, ViewService, FileService, TreeViewService, SettingsService)
 - Module system for optional features (ColorBarModule, WordCounterModule)
-- Hook-based policy injection — Services define decision points, Workspaces implement behavior
+- Hook-based policy injection (Services define decision points, Workspaces implement behavior)
 - Two-phase initialization for safe cross-service communication
 - Bus isolation per Workspace (no cross-contamination)
 - Commander pattern for generic command dispatch (reusable, separable from Fernanda)
 - Custom debug/logging system with `std::format` integration and custom Qt type formatters
-- Prerelease beta alert dialog
+- Prerelease dialog
 - About dialog
-- Translation infrastructure (TR system) prepared for future localization
-
----
-
-## Technical Details
-
-- C++ / Qt 6.9.2+ (Qt 6.10.1)
-- Windows x64 (primary target)
-- bit7z (rikyoz) for 7zip archive handling
-- Custom Coco utility library (paths, concepts, debug, utilities)
-- Mostly header-only development for now (for my own readability)
-- GPL 3 licensed with additional terms under Section 7
+- Translation infrastructure for future localization
 
 ---
 
@@ -253,3 +228,4 @@ Current vesion: v0.99.0-beta.1 "Bashō"
 
 - Auto-save
 - Automatic back-ups
+- PDF support
