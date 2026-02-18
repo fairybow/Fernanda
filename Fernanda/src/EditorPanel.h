@@ -67,8 +67,12 @@ private:
     QCheckBox* centerOnScrollCheck_ = new QCheckBox(this);
     QCheckBox* overwriteCheck_ = new QCheckBox(this);
     ControlField<DisplaySlider*>* tabStopDistance_ =
-        new ControlField<DisplaySlider*>(this);
-    ControlField<QComboBox*>* wrapMode_ = new ControlField<QComboBox*>(this);
+        new ControlField<DisplaySlider*>(
+            ControlField<DisplaySlider*>::Label,
+            this);
+    ControlField<QComboBox*>* wrapMode_ = new ControlField<QComboBox*>(
+        ControlField<QComboBox*>::LabelAndInfo,
+        this);
     QCheckBox* doubleClickWhitespaceCheck_ = new QCheckBox(this);
     QCheckBox* lineNumbersCheck_ = new QCheckBox(this);
     QCheckBox* lineHighlightCheck_ = new QCheckBox(this);
@@ -94,6 +98,7 @@ private:
         tab_stop_dist_slider->setValue(initialValues.tabStopDistance);
 
         wrapMode_->setText(Tr::editorPanelWrapMode());
+        wrapMode_->setInfo(Tr::editorPanelWrapModeTooltip());
         auto wrap_mode_box = wrapMode_->control();
         wrap_mode_box->addItem(Tr::editorPanelNoWrap(), QTextOption::NoWrap);
         wrap_mode_box->addItem(

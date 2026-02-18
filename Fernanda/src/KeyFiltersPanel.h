@@ -14,7 +14,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "ControlInfo.h"
+#include "ControlField.h"
 #include "Debug.h"
 #include "Tr.h"
 
@@ -51,7 +51,8 @@ signals:
 private:
     QGroupBox* groupBox_ = new QGroupBox(this);
     QCheckBox* autoCloseCheck_ = new QCheckBox(this);
-    ControlInfo<QCheckBox*>* barging_ = new ControlInfo<QCheckBox*>(this);
+    ControlField<QCheckBox*>* barging_ =
+        new ControlField<QCheckBox*>(ControlField<QCheckBox*>::Info, this);
 
     void setup_(const InitialValues& initialValues)
     {

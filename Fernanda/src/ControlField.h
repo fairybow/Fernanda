@@ -13,7 +13,9 @@
 
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QPixmap>
 #include <QString>
+#include <QStyle>
 #include <QWidget>
 
 #include "Coco/Concepts.h"
@@ -22,33 +24,97 @@
 
 namespace Fernanda {
 
-template <Coco::Concepts::QWidgetPointer QWidgetT>
+template <Coco::Concepts::QWidgetPointer QWidgetPtrT>
 class ControlField : public QWidget
 {
 public:
-    explicit ControlField(QWidget* parent = nullptr)
+    enum Option
+    {
+        Label,
+        Info,
+        LabelAndInfo
+    };
+
+    explicit ControlField(Option option, QWidget* parent = nullptr)
         : QWidget(parent)
     {
-        setup_();
+        setup_(option);
     }
 
     virtual ~ControlField() override { TRACER; }
 
-    QWidgetT control() { return control_; }
-    void setText(const QString& text) { label_->setText(text); }
+    QWidgetPtrT control() { return control_; }
+
+    void setText(const QString& text)
+    {
+        if (label_) label_->setText(text);
+    }
+
+    void setInfo(const QString& info)
+    {
+        if (info_) info_->setToolTip(info);
+    }
 
 private:
-    QWidgetT control_ = new std::remove_pointer_t<QWidgetT>(this);
-    QLabel* label_ = new QLabel(this);
+    QLabel* label_ = nullptr;
+    QLabel* info_ = nullptr;
+    QWidgetPtrT control_ = new std::remove_pointer_t<QWidgetPtrT>(this);
 
-    void setup_()
+    void setup_(Option option)
     {
         setFocusProxy(control_);
 
         auto layout = new QHBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(label_, 0);
-        layout->addWidget(control_, 1);
+
+        // TODO: Click the label here and in CFI to show tooltip also? Then
+        // don't auto show on hover if already clicked?
+
+        switch (option) {
+
+        default:
+        case Label: {
+            label_ = new QLabel(this);
+
+            layout->addWidget(label_, 0);
+            layout->addWidget(control_, 1);
+
+            break;
+        }
+
+        case Info: {
+            info_ = new QLabel(this);
+            setInfoIcon_();
+
+            layout->addWidget(control_);
+            layout->addWidget(info_);
+            layout->addStretch();
+
+            break;
+        }
+
+        case LabelAndInfo: {
+            label_ = new QLabel(this);
+            info_ = new QLabel(this);
+            setInfoIcon_();
+
+            layout->addWidget(label_, 0);
+            layout->addWidget(control_, 1);
+            layout->addWidget(info_, 0);
+
+            break;
+        }
+        }
+    }
+
+    void setInfoIcon_()
+    {
+        if (!info_) return;
+
+        info_->setPixmap(
+            style()
+                ->standardPixmap(QStyle::SP_MessageBoxInformation)
+                .scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation));
     }
 };
 

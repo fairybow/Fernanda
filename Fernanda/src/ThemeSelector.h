@@ -78,8 +78,10 @@ private:
     Coco::Path currentWindowTheme_{};
     Coco::Path currentEditorTheme_{};
 
-    ControlField<QComboBox*>* windowTheme_ = new ControlField<QComboBox*>(this);
-    ControlField<QComboBox*>* editorTheme_ = new ControlField<QComboBox*>(this);
+    ControlField<QComboBox*>* windowTheme_ =
+        new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
+    ControlField<QComboBox*>* editorTheme_ =
+        new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
 
     void setup_(const InitialValues& initialValues)
     {
