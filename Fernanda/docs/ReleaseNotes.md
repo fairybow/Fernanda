@@ -44,6 +44,8 @@ Word counter (line/word/character counts, selection-aware, cursor position), col
 
 ## Installation
 
+Download and run the installer below (on Windows x64 machines)!
+
 > [!NOTE]
 > This build is unsigned, so Windows Defender SmartScreen will likely show a warning before allowing the install. You can click **More info -> Run anyway** to proceed.
 
