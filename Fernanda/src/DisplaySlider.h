@@ -23,9 +23,6 @@
 namespace Fernanda {
 
 // Wraps a QSlider with QLabel showing the current value
-//
-// TODO: Prevent display width change from moving the slider itself (probably
-// just predict size based on max amount set and add it in as buffer)
 class DisplaySlider : public QWidget
 {
     Q_OBJECT
