@@ -7,7 +7,7 @@
     <img src="https://img.shields.io/badge/Platform-Windows%20(x64)-blue.svg?style=for-the-badge" alt="Platform Windows (x64)">
 </p>
 <p align="center">
-    <a href="https://github.com/fairybow/Fernanda/releases"><b><s>Releases</s></b></a> •
+    <a href="https://github.com/fairybow/Fernanda/releases"><b>Releases</b></a> •
     <a href="Fernanda/docs"><b>Documentation</b></a>
 </p>
 
