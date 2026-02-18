@@ -110,8 +110,6 @@ public:
             .font = settings_->value<QFont>(
                 Ini::Keys::EDITOR_FONT,
                 Ini::Defaults::font()),
-            .fontSizeMin = Ini::Defaults::FONT_SIZE_MIN,
-            .fontSizeMax = Ini::Defaults::FONT_SIZE_MAX,
 
             .windowThemes = window_theme_entries,
             .currentWindowTheme = settings_->value<QString>(

@@ -338,6 +338,10 @@ private slots:
     }
 
     /// TODO TD
+    // TODO: Currently, we have the new window's origin right at the drop point.
+    // Later, we may want to find a way to instead position the window such that
+    // the dropped tab is aligned with the tab's future position in the new
+    // window
     void onTabDraggedToNewWindow_(
         Window* sourceWindow,
         const QPoint& dropPos,
@@ -345,20 +349,7 @@ private slots:
     {
         if (!tabSpec.isValid()) return;
 
-        // Approximate the tab's visual offset in the new window to position
-        // it so the tab appears roughly where the cursor was released
-        constexpr auto tab_top_left_approximate = QPoint(0, 38);
-
-        auto max_tab_size = QSize(225, 34); // Fallback
-        if (auto source_tabs =
-                qobject_cast<TabWidget*>(sourceWindow->centralWidget()))
-            max_tab_size = source_tabs->maximumTabSize();
-
-        auto new_window_top_left =
-            dropPos - tab_top_left_approximate
-            - tabSpec.relPos(max_tab_size.width(), max_tab_size.height());
-
-        auto new_window = windows->newWindow(new_window_top_left);
+        auto new_window = windows->newWindow(dropPos);
         if (!new_window) return;
 
         views->insertTabSpec(new_window, tabSpec);

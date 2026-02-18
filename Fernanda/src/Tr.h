@@ -239,8 +239,8 @@ namespace Tr {
     TR_(keyFiltersPanelAutoClose, tr("Auto-close"));
     TR_(keyFiltersPanelBarging, tr("Barging"));
     TR_(keyFiltersPanelBargingTooltip,
-        tr("Double-spacing against closing punctuation barges the cursor past "
-           "it and closes the gap"));
+        tr("Double-spacing (or pressing Enter) against closing punctuation "
+           "barges the cursor past it and closes the gap"));
 
     /// Editor panel
 
@@ -249,6 +249,10 @@ namespace Tr {
     TR_(editorPanelOverwrite, tr("Overwrite"));
     TR_(editorPanelTabStopDistance, tr("Tab stop distance: "));
     TR_(editorPanelWrapMode, tr("Word wrap mode: "));
+    TR_(editorPanelWrapModeTooltip,
+        tr("Smart: If possible, wrapping occurs at a word boundary; otherwise "
+           "it will occur at the appropriate point on the line, even in the "
+           "middle of a word."));
     TR_(editorPanelNoWrap, tr("None"));
     TR_(editorPanelWordWrap, tr("At word boundary"));
     TR_(editorPanelWrapAnywhere, tr("Anywhere"));

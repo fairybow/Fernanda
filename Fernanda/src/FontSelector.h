@@ -22,6 +22,7 @@
 
 #include "Debug.h"
 #include "DisplaySlider.h"
+#include "Ini.h"
 #include "Tr.h"
 
 namespace Fernanda {
@@ -36,15 +37,11 @@ class FontSelector : public QWidget
     Q_OBJECT
 
 public:
-    explicit FontSelector(
-        const QFont& initialFont,
-        int sizeMin,
-        int sizeMax,
-        QWidget* parent = nullptr)
+    explicit FontSelector(const QFont& initialFont, QWidget* parent = nullptr)
         : QWidget(parent)
         , currentFont_(initialFont)
     {
-        setup_(sizeMin, sizeMax);
+        setup_();
     }
 
     virtual ~FontSelector() override { TRACER; }
@@ -62,7 +59,7 @@ private:
     QCheckBox* italicCheckBox_ = new QCheckBox(Tr::italic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
-    void setup_(int sizeMin, int sizeMax)
+    void setup_()
     {
         // Bundled (TODO: Add to Constants.h along with QRC paths to be used by
         // app)
@@ -95,8 +92,9 @@ private:
 
         italicCheckBox_->setTristate(false);
         italicCheckBox_->setChecked(currentFont_.italic());
-
-        sizeSlider_->setRange(sizeMin, sizeMax);
+        sizeSlider_->setRange(
+            Ini::Defaults::FONT_SIZE_MIN,
+            Ini::Defaults::FONT_SIZE_MAX);
         sizeSlider_->setValue(currentFont_.pointSize());
 
         // Layout

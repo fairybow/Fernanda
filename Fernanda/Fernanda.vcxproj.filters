@@ -305,6 +305,9 @@
     <None Include="packaging\VSPreBuildGenVersionFullStringTxt.ps1">
       <Filter>Packaging</Filter>
     </None>
+    <None Include="docs\Features.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -403,9 +406,6 @@
     <QtMoc Include="src\MenuState.h">
       <Filter>Code\Core\UI\Menus</Filter>
     </QtMoc>
-    <QtMoc Include="src\DisplaySlider.h">
-      <Filter>Code\Core\UI</Filter>
-    </QtMoc>
     <QtMoc Include="src\TieredSettings.h">
       <Filter>Code\Core\Services\Settings</Filter>
     </QtMoc>
@@ -457,7 +457,10 @@
     <QtMoc Include="src\WordCounterPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
-    <QtMoc Include="src\InfoCheckBox.h">
+    <QtMoc Include="src\DisplaySlider.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\ColorBarPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
   </ItemGroup>
@@ -583,9 +586,6 @@
       <Filter>Code\Core\UI</Filter>
     </ClInclude>
     <ClInclude Include="src\ControlField.h">
-      <Filter>Code\Core\UI\Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ColorBarPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </ClInclude>
   </ItemGroup>

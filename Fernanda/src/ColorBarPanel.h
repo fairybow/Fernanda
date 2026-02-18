@@ -48,7 +48,8 @@ signals:
 
 private:
     QGroupBox* groupBox_ = new QGroupBox(this);
-    ControlField<QComboBox*>* position_ = new ControlField<QComboBox*>(this);
+    ControlField<QComboBox*>* position_ =
+        new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
 
     void setup_(const InitialValues& initialValues)
     {

@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QFontMetrics>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QObject>
@@ -22,9 +23,6 @@
 namespace Fernanda {
 
 // Wraps a QSlider with QLabel showing the current value
-//
-// TODO: Prevent display width change from moving the slider itself (probably
-// just predict size based on max amount set and add it in as buffer)
 class DisplaySlider : public QWidget
 {
     Q_OBJECT
@@ -52,12 +50,14 @@ public:
     void setMaximum(int max)
     {
         slider_->setMaximum(max);
+        updateDisplayWidth_();
         setDisplayText_();
     }
 
     void setRange(int min, int max)
     {
         slider_->setRange(min, max);
+        updateDisplayWidth_();
         setDisplayText_();
     }
 
@@ -89,6 +89,7 @@ private:
         slider_->setTickPosition(QSlider::NoTicks);
         slider_->setTickInterval(1);
         slider_->setRange(0, 100);
+        updateDisplayWidth_();
 
         // Populate
         slider_->setValue(100);
@@ -121,6 +122,14 @@ private:
         connect(slider_, &QSlider::sliderReleased, this, [&] {
             emit sliderReleased();
         });
+    }
+
+    void updateDisplayWidth_()
+    {
+        auto max_text = QString::number(slider_->maximum());
+        auto width = display_->fontMetrics().horizontalAdvance(max_text);
+        display_->setFixedWidth(width);
+        display_->setAlignment(Qt::AlignRight);
     }
 
     void setDisplayText_()

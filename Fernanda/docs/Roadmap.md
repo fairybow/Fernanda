@@ -7,10 +7,6 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
-Make an official features list based on all completed TODOs here or in older notes or just via code assessment
-
-Make InfoCheckBox generic template like ControlField? (InfoControl?)
-
 New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
 
 New additional TR bat to release all and move them to the qm folder
@@ -54,7 +50,7 @@ Might be simple actually, but tedious. We'll do it later.
 - [x] View menu > toggle tree view (both Workspaces) > INI default (notepad off / notebook on) > write settings value either for an individual window toggle, switching current window, or both
 - [ ] Ensure we are using terms around checkable items correctly in code! The term toggle is being used in a few different ways, I think. We should ensure checkable actions are called checkables or something. Also sort out the other uses of "toggle"
 - [x] Need a "dirty" mark on Notebook files in TreeView
-- [ ] Remove tab drop to new window positioning calculations and just start fresh!
+- [x] Remove tab drop to new window positioning calculations and just start fresh!
 - [ ] Autosave
 - [x] Key filter settings toggles
 - [x] Editor settings toggles
@@ -66,7 +62,7 @@ Might be simple actually, but tedious. We'll do it later.
 
 - [x] Notebook Trash
 - [ ] Line spacing options, if possible
-- [ ] Install preloaded fonts to system in help menu
+- [ ] Install preloaded fonts to system in help menu?
 - [ ] Open data folder options in menus?
 - [ ] Mulitple TabWidgets per window for side-by-side
 - [x] Make cursor restart blink when clicking? Right now it looks like a delay or something
@@ -133,7 +129,7 @@ Next up:
 - [x] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
 - [x] Menu changes to accomodate, which includes an extra inserter
 - [x] Ensuring all NB context menu items are added only when index is valid for them
-- [ ] TreeView toggling/redocking
+- [x] TreeView toggling/redocking
 - [ ] Save backups (with auto-cleaning) and backup folder
 - [x] Menu action toggling based on current view/model, window, workspace states
 - [x] Save prompts
@@ -158,8 +154,7 @@ Next up:
 - [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
 - [ ] temp AppDir could be an App TempDir
 - [ ] MenuBar highlight on hover, modeled after TabWidgetButton highlight (radius, color, etc.)
-- [ ] No tree view for Notepad by default (but option to enable)?
-- [ ] No dock widget for Notebook tree view (temporary)?
+- [x] No tree view for Notepad by default (but option to enable)?
 - [ ] Dock widget button/header styling
 - [ ] Potentially remove commands/signals from Workspaces to MenuModules and truly leave to cross-Service concerns. Then integrate menus into Notepad/Notebook directly but use a declarative MenuBuilder object to reduce clutter (pass togglers as optional parameter for an action)
 - [ ] Ensure menu toggles update appropriately when tab dragging is implemented!
@@ -199,9 +194,9 @@ Next up:
 
 ### General
 
-- [ ] Mononoki & OpenDyslexic
+- [x] Mononoki & OpenDyslexic
 - [ ] WidgetUtil or similar - was thinking central place to set all painters
-- [ ] Settings dialog should have workspace name
+- [x] Settings dialog should have workspace name
 - [ ] Settings dialogs can have a section for App.ini (or similar), shared (like for startDir, when configurable)
 - [ ] Settings files: Settings.ini inside Notebooks. Notepad file name may need to be different, if we have an application settings
 - [ ] Menu: prev/next tab, window, and workspace
@@ -211,7 +206,7 @@ Next up:
 - [ ] Trigger rename for new folders/files, but not import (maybe)?
 - [ ] TreeView (NB): Collapsed items should expand on hover while dragging
 - [ ] TreeView (NB): Items should expand when items are dragged into them
-- [ ] TreeView (NB): Persist expanded states for items in Manifest.xml, so program remembers
+- [ ] TreeView (NB): Expanded/collapsed states is probably a session thing
 
 ### Finished
 
