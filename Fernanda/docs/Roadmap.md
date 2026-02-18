@@ -9,6 +9,8 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 
 Bug: WordCounter slash visible on start-up
 
+Bug: Open same file in two windows and close tree view in one window, and see both have their underlying layout changed (meaning the window that still has its tree view will need to have the document scrolled horizontally to see everything!)
+
 New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
 
 New additional TR bat to release all and move them to the qm folder
