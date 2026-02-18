@@ -30,7 +30,7 @@ Tabbed interface with drag-and-drop between windows (or drag a tab out to create
 
 ### Themes
 
-JSON-based editor themes with QSS template rendering. User themes supported (drop a `.fernanda_editor` file into `~/.fernanda/themes/` and it's available immediately with hot reload).
+JSON-based editor themes with QSS template rendering. User themes supported (drop a [`.fernanda_editor`](https://github.com/fairybow/Fernanda/blob/main/Fernanda/resources/themes/Pocket.fernanda_editor) file into `~/.fernanda/themes/` and it's available immediately with hot reload).
 
 ### Settings
 
@@ -77,3 +77,39 @@ Fernanda does not automatically delete its data folders on uninstall. After runn
 ## Platform
 
 Windows (x64) only for now. Mac and Linux support is planned.
+
+## This Version's Dumbest Code Award :trophy:
+
+When I first started working toward this project several years ago, I wrote code like this (this is real, I swear to God):
+
+```cpp
+if (checked)
+{
+    boolLineCount = true;
+}
+else
+{
+    boolLineCount = false;
+};
+```
+
+With a semi-colon for good measure. It's amazing.
+
+I've been at this for a while now, and though I think my code's improved a lot, I still find the occasional gems (sometimes something from last week). I wish I'd kept better track of older code from this last rewrite, as I'm sure it was full of questionable choices, but since I only thought about showcasing my worst code last minute, I had to settle for what was here now (or used to be).
+
+Normally, I might save this section for dumb-yet-harmless code that's still in-place. Unfortunately, though, this one *had* to be removed.
+
+So, without further ado, here's the erstwhile `wordCount_` from [`WordCounter`](https://github.com/fairybow/Fernanda/blob/main/Fernanda/src/WordCounter.h):
+
+```cpp
+int wordCount_(const QString& text) const
+{
+    static QRegularExpression regex(LEADING_WS_REGEX_);
+    auto words = text.split(regex, Qt::SkipEmptyParts);
+    return words.count();
+}
+```
+
+On a document the size of Moby Dick, the old word counter allocated and destroyed, *I think*, 215,831 individual heap objects on every keystroke to produce a single number. The new one uses an int and a bool.
+
+:heart:
