@@ -124,7 +124,7 @@ Current vesion: v0.99.0-beta.1 "Bashō"
 > Known issue: Window themes not yet implemented
 
 > [!TIP]
-> User themes supported, with hot reload. See an example theme [here](../resources/themes/Pocket.fernanda_editor)
+> User themes supported (place in `~/.fernanda/themes`), with hot reload. See an example theme [here](../resources/themes/Pocket.fernanda_editor)
 
 ---
 
