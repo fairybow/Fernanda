@@ -7,7 +7,7 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 
-Bug: Open same file in two windows and close tree view in one window, and see both have their underlying layout changed (meaning the window that still has its tree view will need to have the document scrolled horizontally to see everything!)
+"Bug": having text views onto the same text model means that the underlying layout will stretch to the size of the largest view. So, having file open in two windows side-by-side, removing the TreeView in one or making the windows different sizes (any way to make the views different widths) means that one view will then need to scroll.
 
 New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
 
