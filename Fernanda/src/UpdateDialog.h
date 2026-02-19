@@ -40,6 +40,7 @@
 // waiting to display it)
 // TODO: May later want to move to non-prerelease only or provide a check box to
 // include or not include them or similar
+// TODO: Explain update process in body (just install over the old version)
 namespace Fernanda::UpdateDialog {
 
 namespace Internal {
