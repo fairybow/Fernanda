@@ -167,8 +167,6 @@ public:
 
 private:
     /// TODO PD
-    QTextDocument* primeDocument_ = new QTextDocument(this);
-    QList<QTextDocument*> viewDocuments_{};
     // When View A types a character, the model receives the contentsChange and
     // calls applyDelta_ on the prime doc and View B's local doc. But applying a
     // delta to View B's doc causes View B's doc to also fire contentsChange.
@@ -176,6 +174,8 @@ private:
     // would try to apply the delta to the prime and View A again. The same
     // applies during undo/redo and setData
     bool syncing_ = false;
+    QTextDocument* primeDocument_ = new QTextDocument(this);
+    QList<QTextDocument*> viewDocuments_{};
     QTextCursor compoundCursor_{}; // Kept alive during compound edits
 
     void setup_()
