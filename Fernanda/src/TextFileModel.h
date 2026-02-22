@@ -47,14 +47,14 @@ public:
     /// TODO PD
     void registerViewDocument(QTextDocument* viewDoc)
     {
-        if (!viewDoc || viewDocuments_.contains(viewDoc)) return;
+        if (!viewDoc || localViewDocuments_.contains(viewDoc)) return;
 
-        viewDocuments_ << viewDoc;
+        localViewDocuments_ << viewDoc;
         viewDoc->setUndoRedoEnabled(false);
 
         // Initialize content from prime
         {
-            SyncScope_ scope(syncing_);
+            DeltaRoutingScope_ scope(routingDelta_);
             viewDoc->setPlainText(primeDocument_->toPlainText());
         }
 
@@ -63,17 +63,17 @@ public:
             &QTextDocument::contentsChange,
             this,
             [this, viewDoc](int pos, int removed, int added) {
-                onViewDocChanged_(viewDoc, pos, removed, added);
+                onLocalViewContentsChange_(viewDoc, pos, removed, added);
             });
 
         connect(viewDoc, &QObject::destroyed, this, [this, viewDoc] {
-            viewDocuments_.removeAll(viewDoc);
+            localViewDocuments_.removeAll(viewDoc);
         });
 
         INFO(
             "View document registered [{}], total views: {}",
             (void*)viewDoc,
-            viewDocuments_.size());
+            localViewDocuments_.size());
     }
 
     /// TODO PD
@@ -81,7 +81,7 @@ public:
     {
         if (!viewDoc) return;
         viewDoc->disconnect(this);
-        viewDocuments_.removeAll(viewDoc);
+        localViewDocuments_.removeAll(viewDoc);
     }
 
     /// TODO PD
@@ -91,16 +91,16 @@ public:
     void beginCompoundEdit()
     {
         if (!primeDocument_) return;
-        compoundCursor_ = QTextCursor(primeDocument_);
-        compoundCursor_.beginEditBlock();
+        primeDocumentEditBlockCursor_ = QTextCursor(primeDocument_);
+        primeDocumentEditBlockCursor_.beginEditBlock();
     }
 
     /// TODO PD
     void endCompoundEdit()
     {
-        if (compoundCursor_.isNull()) return;
-        compoundCursor_.endEditBlock();
-        compoundCursor_ = QTextCursor{}; // release
+        if (primeDocumentEditBlockCursor_.isNull()) return;
+        primeDocumentEditBlockCursor_.endEditBlock();
+        primeDocumentEditBlockCursor_ = QTextCursor{}; // release
     }
 
     virtual QString preferredExtension() const override
@@ -118,10 +118,10 @@ public:
     {
         if (!primeDocument_) return;
 
-        SyncScope_ scope(syncing_);
+        DeltaRoutingScope_ scope(routingDelta_);
         primeDocument_->setPlainText(QString::fromUtf8(data));
 
-        for (auto& view_doc : viewDocuments_)
+        for (auto& view_doc : localViewDocuments_)
             view_doc->setPlainText(primeDocument_->toPlainText());
     }
 
@@ -153,14 +153,14 @@ public:
     /// TODO PD
     virtual void undo() override
     {
-        if (!primeDocument_ || syncing_) return;
+        if (!primeDocument_ || routingDelta_) return;
         replayPrimeOp_([&] { primeDocument_->undo(); });
     }
 
     /// TODO PD
     virtual void redo() override
     {
-        if (!primeDocument_ || syncing_) return;
+        if (!primeDocument_ || routingDelta_) return;
         replayPrimeOp_([&] { primeDocument_->redo(); });
     }
 
@@ -169,28 +169,28 @@ private:
     // When View A types a character, the model receives the contentsChange and
     // calls applyDelta_ on the prime doc and View B's local doc. But applying a
     // delta to View B's doc causes View B's doc to also fire contentsChange.
-    // Without syncing_, that signal would re-enter onViewDocChanged_, which
-    // would try to apply the delta to the prime and View A again. The same
-    // applies during undo/redo and setData
-    bool syncing_ = false;
+    // Without routingDelta_, that signal would re-enter
+    // onLocalViewContentsChange_, which would try to apply the delta to the
+    // prime and View A again. The same applies during undo/redo and setData
+    bool routingDelta_ = false;
 
     /// TODO PD
-    struct SyncScope_
+    struct DeltaRoutingScope_
     {
-        bool& syncing;
+        bool& routing;
 
-        SyncScope_(bool& s)
-            : syncing(s)
+        DeltaRoutingScope_(bool& r)
+            : routing(r)
         {
-            syncing = true;
+            routing = true;
         }
 
-        ~SyncScope_() { syncing = false; }
+        ~DeltaRoutingScope_() { routing = false; }
     };
 
     QTextDocument* primeDocument_ = new QTextDocument(this);
-    QList<QTextDocument*> viewDocuments_{};
-    QTextCursor compoundCursor_{}; // Kept alive during compound edits
+    QList<QTextDocument*> localViewDocuments_{};
+    QTextCursor primeDocumentEditBlockCursor_{};
 
     void setup_()
     {
@@ -223,25 +223,27 @@ private:
     }
 
     /// TODO PD
-    // A view's local doc changed. Relay the delta to prime + other views
-    // TODO: Move to slots?
-    void
-    onViewDocChanged_(QTextDocument* source, int pos, int removed, int added)
+    // A view's local doc changed. Route the delta to prime and other views
+    void onLocalViewContentsChange_(
+        QTextDocument* source,
+        int pos,
+        int removed,
+        int added)
     {
-        if (syncing_) return;
+        if (routingDelta_) return;
 
-        SyncScope_ scope(syncing_);
+        DeltaRoutingScope_ scope(routingDelta_);
         auto added_text = extractText_(source, pos, added);
 
         applyDelta_(primeDocument_, pos, removed, added_text);
-        broadcastDelta_(source, pos, removed, added_text);
+        routeDelta_(source, pos, removed, added_text);
     }
 
     /// TODO PD
     // Replay a prime doc operation (undo/redo) to all view docs
     template <typename Op> void replayPrimeOp_(Op&& op)
     {
-        SyncScope_ scope(syncing_);
+        DeltaRoutingScope_ scope(routingDelta_);
 
         auto conn = connect(
             primeDocument_,
@@ -249,7 +251,7 @@ private:
             this,
             [this](int pos, int removed, int added) {
                 auto text = extractText_(primeDocument_, pos, added);
-                broadcastDelta_(nullptr, pos, removed, text);
+                routeDelta_(nullptr, pos, removed, text);
             });
 
         op();
@@ -301,13 +303,13 @@ private:
     }
 
     /// TODO PD
-    void broadcastDelta_(
+    void routeDelta_(
         QTextDocument* exclude,
         int pos,
         int removed,
         const QString& addedText)
     {
-        for (auto* view_doc : viewDocuments_) {
+        for (auto* view_doc : localViewDocuments_) {
             if (view_doc != exclude)
                 applyDelta_(view_doc, pos, removed, addedText);
         }
