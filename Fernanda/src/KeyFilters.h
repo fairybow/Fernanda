@@ -9,6 +9,9 @@
 
 #pragma once
 
+#include <functional>
+#include <utility>
+
 #include <QChar>
 #include <QEvent>
 #include <QKeyEvent>
@@ -53,6 +56,15 @@ public:
         if (textEdit) textEdit->installEventFilter(this);
     }
 
+    /// TODO PD
+    void setCompoundEditCallbacks(
+        std::function<void()> begin,
+        std::function<void()> end)
+    {
+        beginCompoundEdit_ = std::move(begin);
+        endCompoundEdit_ = std::move(end);
+    }
+
     bool isActive() const noexcept { return active_; }
     void setActive(bool active) { active_ = active; }
 
@@ -74,6 +86,30 @@ public:
 private:
     QPointer<QPlainTextEdit> textEdit_ = nullptr;
 
+    /// TODO PD
+    std::function<void()> beginCompoundEdit_{};
+    std::function<void()> endCompoundEdit_{};
+
+    /// TODO PD
+    // RAII helper to ensure end is called
+    struct CompoundEditScope_
+    {
+        std::function<void()>& end;
+
+        CompoundEditScope_(
+            std::function<void()>& begin,
+            std::function<void()>& end)
+            : end(end)
+        {
+            if (begin) begin();
+        }
+
+        ~CompoundEditScope_()
+        {
+            if (end) end();
+        }
+    };
+
     /// TODO KFS
     bool active_ = true;
     bool autoClosing_ = true;
@@ -93,6 +129,7 @@ private:
 
         if (autoClosing_ && event->key() == Qt::Key_Backspace) {
             if (isBetweenPair_(document, cursor)) {
+                CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
                 deletePair_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -102,6 +139,7 @@ private:
 
         if (barging_ && event->key() == Qt::Key_Space) {
             if (canBarge_(document, cursor)) {
+                CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
                 barge_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -113,6 +151,7 @@ private:
             && (event->key() == Qt::Key_Return
                 || event->key() == Qt::Key_Enter)) {
             if (canBargeReturn_(document, cursor)) {
+                CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
                 bargeReturn_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -135,6 +174,7 @@ private:
         /// TODO KFS: Figure out what this does again lol
         if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
             && canCloseTrailingPunctGap_(document, cursor)) {
+            CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
             closeTrailingPunctGap_(ch, cursor);
             textEdit_->setTextCursor(cursor);
 
@@ -143,6 +183,7 @@ private:
 
         // Skip closer: typing a closer when same char is ahead
         if (autoClosing_ && canSkipCloser_(ch, document, cursor)) {
+            // Not compound
             cursor.movePosition(QTextCursor::NextCharacter);
             textEdit_->setTextCursor(cursor);
 
@@ -155,6 +196,7 @@ private:
             if (isAmbiguousOpenOrClosePunct_(ch)
                 && isPreviousCharAlphanumeric_(document, cursor))
                 return false;
+            CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
             autoClose_(ch, cursor);
             textEdit_->setTextCursor(cursor);
 

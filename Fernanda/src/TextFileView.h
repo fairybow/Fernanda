@@ -43,6 +43,23 @@ public:
     PlainTextEdit* editor() const noexcept { return editor_; }
     KeyFilters* keyFilters() const noexcept { return keyFilters_; }
 
+    /// TODO PD
+    // Let our menu-defined shortcuts be the default by removing Qt's
+    virtual bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (watched == editor_ && event->type() == QEvent::ShortcutOverride) {
+            auto key_event = static_cast<QKeyEvent*>(event);
+
+            if (key_event->matches(QKeySequence::Undo)
+                || key_event->matches(QKeySequence::Redo)) {
+                event->ignore();
+                return true;
+            }
+        }
+
+        return AbstractFileView::eventFilter(watched, event);
+    }
+
     // Base methods
 
     virtual bool supportsEditing() const override

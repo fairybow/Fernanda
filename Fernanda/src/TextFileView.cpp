@@ -10,6 +10,7 @@
 #include "TextFileView.h"
 
 #include <QClipboard>
+#include <QPlainTextDocumentLayout>
 #include <QTextDocument>
 #include <QWidget>
 
@@ -21,15 +22,31 @@
 
 namespace Fernanda {
 
+/// TODO PD
 QWidget* TextFileView::setupWidget()
 {
     editor_ = new PlainTextEdit(this);
+    editor_->installEventFilter(this);
     keyFilters_->setTextEdit(editor_);
 
-    if (auto text_model = qobject_cast<TextFileModel*>(model()))
-        editor_->setDocument(text_model->document());
-    else
+    if (auto text_model = qobject_cast<TextFileModel*>(model())) {
+        // Each view gets its own QTextDocument for independent layout. The
+        // model coordinates content sync via delta relay
+        auto view_doc = new QTextDocument(this);
+        auto layout = new QPlainTextDocumentLayout(
+            view_doc); // TODO: Just use custom PlainTextDocument class with
+                       // layout already set?
+        view_doc->setDocumentLayout(layout);
+
+        text_model->registerViewDocument(view_doc);
+        editor_->setDocument(view_doc);
+
+        keyFilters_->setCompoundEditCallbacks(
+            [text_model] { text_model->beginCompoundEdit(); },
+            [text_model] { text_model->endCompoundEdit(); });
+    } else {
         FATAL("Could not set editor document!");
+    }
 
     connect(editor_, &PlainTextEdit::selectionChanged, this, [&] {
         emit selectionChanged();
