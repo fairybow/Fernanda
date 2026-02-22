@@ -33,9 +33,9 @@ QWidget* TextFileView::setupWidget()
         // Each view gets its own QTextDocument for independent layout. The
         // model coordinates content sync via delta relay
         auto view_doc = new QTextDocument(this);
-        auto layout = new QPlainTextDocumentLayout(
-            view_doc); // TODO: Just use custom PlainTextDocument class with
-                       // layout already set?
+        // TODO: Just use custom PlainTextDocument class with layout already
+        // set?
+        auto layout = new QPlainTextDocumentLayout(view_doc);
         view_doc->setDocumentLayout(layout);
 
         text_model->registerViewDocument(view_doc);

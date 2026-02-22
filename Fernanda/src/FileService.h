@@ -15,7 +15,7 @@
 #include <QObject>
 #include <QSet>
 #include <QString>
-#include <QTextDocument>
+//#include <QTextDocument> // using this here?
 #include <QVariant>
 #include <QVariantMap>
 
@@ -195,7 +195,9 @@ private:
     registerModel_(AbstractFileModel* fileModel, const Coco::Path& path = {})
     {
         if (!path.isEmpty()) pathToFileModel_[path] = fileModel;
+
         fileModels_ << fileModel;
+
         connect(
             fileModel->meta(),
             &FileMeta::pathChanged,
