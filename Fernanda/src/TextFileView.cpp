@@ -41,9 +41,18 @@ QWidget* TextFileView::setupWidget()
         text_model->registerViewDocument(view_doc);
         editor_->setDocument(view_doc);
 
-        keyFilters_->setCompoundEditCallbacks(
-            [text_model] { text_model->beginCompoundEdit(); },
-            [text_model] { text_model->endCompoundEdit(); });
+        connect(
+            keyFilters_,
+            &KeyFilters::multiStepEditBegan,
+            text_model,
+            &TextFileModel::beginCompoundEdit);
+
+        connect(
+            keyFilters_,
+            &KeyFilters::multiStepEditEnded,
+            text_model,
+            &TextFileModel::endCompoundEdit);
+
     } else {
         FATAL("Could not set editor document!");
     }

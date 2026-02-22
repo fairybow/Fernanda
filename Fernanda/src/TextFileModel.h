@@ -250,7 +250,21 @@ private:
     QString extractText_(QTextDocument* doc, int pos, int count)
     {
         if (count <= 0) return {};
-        return doc->toPlainText().mid(pos, count);
+
+        auto max_pos = doc->characterCount() - 1;
+        if (pos >= max_pos) return {};
+
+        QTextCursor cursor(doc);
+        cursor.setPosition(pos);
+        cursor.setPosition(qMin(pos + count, max_pos), QTextCursor::KeepAnchor);
+
+        auto text = cursor.selectedText();
+        text.replace(QChar::ParagraphSeparator, QChar('\n'));
+        return text;
+
+        // If the above doesn't work (but this is not ideal):
+        // if (count <= 0) return {};
+        // return doc->toPlainText().mid(pos, count);
     }
 
     /// TODO PD

@@ -9,9 +9,6 @@
 
 #pragma once
 
-#include <functional>
-#include <utility>
-
 #include <QChar>
 #include <QEvent>
 #include <QKeyEvent>
@@ -56,15 +53,6 @@ public:
         if (textEdit) textEdit->installEventFilter(this);
     }
 
-    /// TODO PD
-    void setCompoundEditCallbacks(
-        std::function<void()> begin,
-        std::function<void()> end)
-    {
-        beginCompoundEdit_ = std::move(begin);
-        endCompoundEdit_ = std::move(end);
-    }
-
     bool isActive() const noexcept { return active_; }
     void setActive(bool active) { active_ = active; }
 
@@ -83,31 +71,26 @@ public:
         return QObject::eventFilter(watched, event);
     }
 
+signals:
+    /// TODO PD
+    void multiStepEditBegan();
+    void multiStepEditEnded();
+
 private:
     QPointer<QPlainTextEdit> textEdit_ = nullptr;
 
     /// TODO PD
-    std::function<void()> beginCompoundEdit_{};
-    std::function<void()> endCompoundEdit_{};
-
-    /// TODO PD
-    // RAII helper to ensure end is called
-    struct CompoundEditScope_
+    struct MultiStepEditScope_
     {
-        std::function<void()>& end;
+        KeyFilters* keyFilters;
 
-        CompoundEditScope_(
-            std::function<void()>& begin,
-            std::function<void()>& end)
-            : end(end)
+        MultiStepEditScope_(KeyFilters* k)
+            : keyFilters(k)
         {
-            if (begin) begin();
+            emit k->multiStepEditBegan();
         }
 
-        ~CompoundEditScope_()
-        {
-            if (end) end();
-        }
+        ~MultiStepEditScope_() { emit keyFilters->multiStepEditEnded(); }
     };
 
     /// TODO KFS
@@ -129,7 +112,7 @@ private:
 
         if (autoClosing_ && event->key() == Qt::Key_Backspace) {
             if (isBetweenPair_(document, cursor)) {
-                CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
+                MultiStepEditScope_(this);
                 deletePair_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -139,7 +122,7 @@ private:
 
         if (barging_ && event->key() == Qt::Key_Space) {
             if (canBarge_(document, cursor)) {
-                CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
+                MultiStepEditScope_(this);
                 barge_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -151,7 +134,7 @@ private:
             && (event->key() == Qt::Key_Return
                 || event->key() == Qt::Key_Enter)) {
             if (canBargeReturn_(document, cursor)) {
-                CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
+                MultiStepEditScope_(this);
                 bargeReturn_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -174,7 +157,7 @@ private:
         /// TODO KFS: Figure out what this does again lol
         if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
             && canCloseTrailingPunctGap_(document, cursor)) {
-            CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
+            MultiStepEditScope_(this);
             closeTrailingPunctGap_(ch, cursor);
             textEdit_->setTextCursor(cursor);
 
@@ -196,7 +179,7 @@ private:
             if (isAmbiguousOpenOrClosePunct_(ch)
                 && isPreviousCharAlphanumeric_(document, cursor))
                 return false;
-            CompoundEditScope_ scope(beginCompoundEdit_, endCompoundEdit_);
+            MultiStepEditScope_(this);
             autoClose_(ch, cursor);
             textEdit_->setTextCursor(cursor);
 
