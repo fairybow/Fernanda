@@ -53,9 +53,10 @@ public:
         viewDoc->setUndoRedoEnabled(false);
 
         // Initialize content from prime
-        syncing_ = true;
-        viewDoc->setPlainText(primeDocument_->toPlainText());
-        syncing_ = false;
+        {
+            SyncScope_ scope(syncing_);
+            viewDoc->setPlainText(primeDocument_->toPlainText());
+        }
 
         connect(
             viewDoc,
@@ -117,13 +118,11 @@ public:
     {
         if (!primeDocument_) return;
 
-        syncing_ = true;
+        SyncScope_ scope(syncing_);
         primeDocument_->setPlainText(QString::fromUtf8(data));
 
         for (auto& view_doc : viewDocuments_)
             view_doc->setPlainText(primeDocument_->toPlainText());
-
-        syncing_ = false;
     }
 
     virtual bool supportsModification() const override
@@ -174,6 +173,21 @@ private:
     // would try to apply the delta to the prime and View A again. The same
     // applies during undo/redo and setData
     bool syncing_ = false;
+
+    /// TODO PD
+    struct SyncScope_
+    {
+        bool& syncing;
+
+        SyncScope_(bool& s)
+            : syncing(s)
+        {
+            syncing = true;
+        }
+
+        ~SyncScope_() { syncing = false; }
+    };
+
     QTextDocument* primeDocument_ = new QTextDocument(this);
     QList<QTextDocument*> viewDocuments_{};
     QTextCursor compoundCursor_{}; // Kept alive during compound edits
@@ -215,21 +229,19 @@ private:
     onViewDocChanged_(QTextDocument* source, int pos, int removed, int added)
     {
         if (syncing_) return;
-        syncing_ = true;
 
+        SyncScope_ scope(syncing_);
         auto added_text = extractText_(source, pos, added);
 
         applyDelta_(primeDocument_, pos, removed, added_text);
         broadcastDelta_(source, pos, removed, added_text);
-
-        syncing_ = false;
     }
 
     /// TODO PD
     // Replay a prime doc operation (undo/redo) to all view docs
     template <typename Op> void replayPrimeOp_(Op&& op)
     {
-        syncing_ = true;
+        SyncScope_ scope(syncing_);
 
         auto conn = connect(
             primeDocument_,
@@ -243,7 +255,6 @@ private:
         op();
 
         disconnect(conn);
-        syncing_ = false;
     }
 
     /// TODO PD

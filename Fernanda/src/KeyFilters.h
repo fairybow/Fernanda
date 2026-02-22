@@ -112,7 +112,7 @@ private:
 
         if (autoClosing_ && event->key() == Qt::Key_Backspace) {
             if (isBetweenPair_(document, cursor)) {
-                MultiStepEditScope_(this);
+                MultiStepEditScope_ scope(this);
                 deletePair_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -122,7 +122,7 @@ private:
 
         if (barging_ && event->key() == Qt::Key_Space) {
             if (canBarge_(document, cursor)) {
-                MultiStepEditScope_(this);
+                MultiStepEditScope_ scope(this);
                 barge_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -134,7 +134,7 @@ private:
             && (event->key() == Qt::Key_Return
                 || event->key() == Qt::Key_Enter)) {
             if (canBargeReturn_(document, cursor)) {
-                MultiStepEditScope_(this);
+                MultiStepEditScope_ scope(this);
                 bargeReturn_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -157,7 +157,7 @@ private:
         /// TODO KFS: Figure out what this does again lol
         if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
             && canCloseTrailingPunctGap_(document, cursor)) {
-            MultiStepEditScope_(this);
+            MultiStepEditScope_ scope(this);
             closeTrailingPunctGap_(ch, cursor);
             textEdit_->setTextCursor(cursor);
 
@@ -179,7 +179,7 @@ private:
             if (isAmbiguousOpenOrClosePunct_(ch)
                 && isPreviousCharAlphanumeric_(document, cursor))
                 return false;
-            MultiStepEditScope_(this);
+            MultiStepEditScope_ scope(this);
             autoClose_(ch, cursor);
             textEdit_->setTextCursor(cursor);
 
