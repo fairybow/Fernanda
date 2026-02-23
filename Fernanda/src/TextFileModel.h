@@ -124,11 +124,8 @@ public:
 
         auto prime_text = primeDocument_->toPlainText();
 
-        for (auto& view_doc : localViewDocuments_) {
-            view_doc->blockSignals(true); // TODO: Make sure this is fine!
+        for (auto& view_doc : localViewDocuments_)
             view_doc->setPlainText(prime_text);
-            view_doc->blockSignals(false);
-        }
 
         assertSync_(__FUNCTION__);
     }
@@ -179,7 +176,10 @@ signals:
     // editor's own document. Since views never see a native undo (just an
     // incoming text edit) the editor has no reason to move its cursor to the
     // change location. The focused view responds to this by repositioning its
-    // cursor where the undo/redo occurred
+    // cursor where the undo/redo occurred. Regarding only responding for
+    // currently focused editor, this should still work for menus, since when
+    // pressing an action, the menu closes and returns focus to the
+    // previously-focused widget before the action's triggered() signal fires
     void cursorPositionHint(int position);
 
 private:
@@ -268,6 +268,12 @@ private:
         DeltaRoutingScope_ scope(routingDelta_);
         auto hint_pos = -1;
 
+        // TODO: hint_pos reflects the LAST contentsChange during a compound
+        // undo/redo. For adjacent edits (auto-close, barge, delete-pair) it's
+        // fine. If a future compound edit spans distant positions, the cursor
+        // hint may land at the wrong site. A fix might be to track all delta
+        // positions and pick the most useful one (e.g., earliest)
+
         auto conn = connect(
             primeDocument_,
             &QTextDocument::contentsChange,
@@ -295,6 +301,12 @@ private:
         QTextCursor cursor(doc);
         cursor.setPosition(pos);
         cursor.setPosition(qMin(pos + count, max_pos), QTextCursor::KeepAnchor);
+
+        // QTextCursor::selectedText() returns paragraph breaks as
+        // QChar::ParagraphSeparator (U+2029). We convert to '\n' because
+        // QTextCursor::insertText() treats '\n' as a paragraph break. If Qt
+        // ever changed how insertText handles '\n' vs ParagraphSeparator, the
+        // fallback below (toPlainText().mid()) is immune at O(N) cost
 
         auto text = cursor.selectedText();
         text.replace(QChar::ParagraphSeparator, QChar('\n'));
