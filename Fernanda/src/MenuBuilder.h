@@ -289,6 +289,13 @@ public:
         return *this;
     }
 
+    MenuBuilder& enabled(bool e)
+    {
+        if (!parent_) return *this;
+        if (lastAction_) lastAction_->setEnabled(e);
+        return *this;
+    }
+
     MenuBuilder& separator()
     {
         if (!parent_) return *this;

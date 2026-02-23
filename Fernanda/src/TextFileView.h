@@ -115,38 +115,48 @@ private:
     KeyFilters* keyFilters_ = new KeyFilters(this);
 
 private slots:
-    // TODO: State toggling
     void onEditorCustomContextMenuRequested_(const QPoint& pos)
     {
         // The menu bar shortcuts will presumably override these, but we want
         // the shortcuts to display here anyway
 
+        auto model = this->model();
+        if (!model) return;
+
+        auto has_selection = hasSelection();
+
         MenuBuilder(MenuBuilder::ContextMenu, this)
             .action(Tr::nxUndo())
-            .onUserTrigger(this, [&] { model()->undo(); })
+            .onUserTrigger(this, [model] { model->undo(); })
             .shortcut(MenuShortcuts::UNDO)
+            .enabled(model->hasUndo())
 
             .action(Tr::nxRedo())
-            .onUserTrigger(this, [&] { model()->redo(); })
+            .onUserTrigger(this, [model] { model->redo(); })
             .shortcut(MenuShortcuts::REDO)
+            .enabled(model->hasRedo())
 
             .separator()
 
             .action(Tr::nxCut())
             .onUserTrigger(this, &TextFileView::cut)
             .shortcut(MenuShortcuts::CUT)
+            .enabled(has_selection)
 
             .action(Tr::nxCopy())
             .onUserTrigger(this, &TextFileView::copy)
             .shortcut(MenuShortcuts::COPY)
+            .enabled(has_selection)
 
             .action(Tr::nxPaste())
             .onUserTrigger(this, &TextFileView::paste)
             .shortcut(MenuShortcuts::PASTE)
+            .enabled(hasPaste())
 
             .action(Tr::nxDelete())
             .onUserTrigger(this, &TextFileView::deleteSelection)
             .shortcut(MenuShortcuts::DEL)
+            .enabled(has_selection)
 
             .separator()
 
