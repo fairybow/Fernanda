@@ -15,7 +15,7 @@
 #include <QObject>
 #include <QSet>
 #include <QString>
-//#include <QTextDocument> // using this here?
+// #include <QTextDocument> // using this here?
 #include <QVariant>
 #include <QVariantMap>
 
