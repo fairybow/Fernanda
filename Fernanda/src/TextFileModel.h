@@ -22,6 +22,7 @@
 #include "AbstractFileModel.h"
 #include "Debug.h"
 #include "FileMeta.h"
+#include "Version.h"
 
 namespace Fernanda {
 
@@ -71,8 +72,8 @@ public:
         });
 
         INFO(
-            "View document registered [{}], total views: {}",
-            (void*)viewDoc,
+            "Local view document registered [{}], total views: {}",
+            viewDoc,
             localViewDocuments_.size());
     }
 
@@ -121,8 +122,15 @@ public:
         DeltaRoutingScope_ scope(routingDelta_);
         primeDocument_->setPlainText(QString::fromUtf8(data));
 
-        for (auto& view_doc : localViewDocuments_)
-            view_doc->setPlainText(primeDocument_->toPlainText());
+        auto prime_text = primeDocument_->toPlainText();
+
+        for (auto& view_doc : localViewDocuments_) {
+            view_doc->blockSignals(true);
+            view_doc->setPlainText(prime_text);
+            view_doc->blockSignals(false);
+        }
+
+        assertSync_(__FUNCTION__);
     }
 
     virtual bool supportsModification() const override
@@ -154,15 +162,25 @@ public:
     virtual void undo() override
     {
         if (!primeDocument_ || routingDelta_) return;
-        replayPrimeOp_([&] { primeDocument_->undo(); });
+        replayPrimeOperation_([&] { primeDocument_->undo(); });
     }
 
     /// TODO PD
     virtual void redo() override
     {
         if (!primeDocument_ || routingDelta_) return;
-        replayPrimeOp_([&] { primeDocument_->redo(); });
+        replayPrimeOperation_([&] { primeDocument_->redo(); });
     }
+
+signals:
+    // Undo/redo on the prime document reaches view documents as manual
+    // applyDelta_ calls via throwaway cursors. The editor's visible cursor is a
+    // separate object that Qt only auto-positions during native undo on the
+    // editor's own document. Since views never see a native undo (just an
+    // incoming text edit) the editor has no reason to move its cursor to the
+    // change location. The focused view responds to this by repositioning its
+    // cursor where the undo/redo occurred
+    void cursorPositionHint(int position);
 
 private:
     /// TODO PD
@@ -186,6 +204,8 @@ private:
         }
 
         ~DeltaRoutingScope_() { routing = false; }
+        DeltaRoutingScope_(const DeltaRoutingScope_&) = delete;
+        DeltaRoutingScope_& operator=(const DeltaRoutingScope_&) = delete;
     };
 
     QTextDocument* primeDocument_ = new QTextDocument(this);
@@ -237,26 +257,31 @@ private:
 
         applyDelta_(primeDocument_, pos, removed, added_text);
         routeDelta_(source, pos, removed, added_text);
+        assertSync_(__FUNCTION__);
     }
 
     /// TODO PD
     // Replay a prime doc operation (undo/redo) to all view docs
-    template <typename Op> void replayPrimeOp_(Op&& op)
+    template <typename OperationT>
+    void replayPrimeOperation_(OperationT&& operation)
     {
         DeltaRoutingScope_ scope(routingDelta_);
+        auto hint_pos = -1;
 
         auto conn = connect(
             primeDocument_,
             &QTextDocument::contentsChange,
             this,
-            [this](int pos, int removed, int added) {
+            [this, &hint_pos](int pos, int removed, int added) {
                 auto text = extractText_(primeDocument_, pos, added);
                 routeDelta_(nullptr, pos, removed, text);
+                hint_pos = pos + text.length();
             });
 
-        op();
-
+        operation();
         disconnect(conn);
+        if (hint_pos >= 0) emit cursorPositionHint(hint_pos);
+        assertSync_(__FUNCTION__);
     }
 
     /// TODO PD
@@ -315,8 +340,27 @@ private:
         }
     }
 
+    /// TODO PD
+    void assertSync_(const char* context)
+    {
+#ifdef VERSION_DEBUG
+
+        auto prime_text = primeDocument_->toPlainText();
+        for (auto& view_doc : localViewDocuments_) {
+            if (view_doc->toPlainText() != prime_text) {
+                FATAL(
+                    "Document drift detected in {}! Local view document [{}] "
+                    "out of sync",
+                    context,
+                    view_doc);
+            }
+        }
+
+#endif
+    }
+
 private slots:
-    /// WIP: Clean this
+    // TODO: Clean this
     void onDocumentContentsChange_(int from, int charsRemoved, int charsAdded)
     {
         (void)from;
@@ -326,7 +370,7 @@ private slots:
         auto meta = this->meta();
         if (!meta || meta->isOnDisk()) return;
 
-        /// Could move the below (or portions) to Coco
+        // TODO: Could move the below (or portions) to Coco
 
         // Iterate through text blocks to find the first non-empty one
         for (auto block = primeDocument_->begin(); block.isValid();
@@ -338,8 +382,8 @@ private slots:
                 // characters
                 auto title = block_text.left(27);
 
-                /// TODO: I'd prefer just "rounding" to nearest word for the
-                /// save file name for unsaved file
+                // TODO: I'd prefer just "rounding" to nearest word for the save
+                // file name for unsaved file
                 if (block_text.length() > 27) title += "...";
 
                 meta->setTitleOverride(title);

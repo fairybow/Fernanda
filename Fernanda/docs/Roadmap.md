@@ -8,6 +8,8 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO GH (grabbable highlight)
 - TODO PD (prime doc)
 
+NEXT: do custom context menu on text edits
+
 "Bug": having text views onto the same text model means that the underlying layout will stretch to the size of the largest view. So, having file open in two windows side-by-side, removing the TreeView in one or making the windows different sizes (any way to make the views different widths) means that one view will then need to scroll.
 
 New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one

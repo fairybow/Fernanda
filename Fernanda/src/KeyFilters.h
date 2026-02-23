@@ -91,6 +91,8 @@ private:
         }
 
         ~MultiStepEditScope_() { emit keyFilters->multiStepEditEnded(); }
+        MultiStepEditScope_(const MultiStepEditScope_&) = delete;
+        MultiStepEditScope_& operator=(const MultiStepEditScope_&) = delete;
     };
 
     /// TODO KFS
@@ -188,6 +190,13 @@ private:
 
         return false;
     }
+
+    // Though this class is meant to be conceptually separate from
+    // TextFileModel, it's worth noting that edit blocks on view cursors
+    // coalesce contentsChange emissions, ensuring multi-step KeyFilter
+    // operations produce a single delta for routing; otherwise, we wouldn't
+    // currently need them (see TextFileModel delta routing / main document
+    // code)
 
     void autoClose_(QChar ch, QTextCursor& cursor)
     {

@@ -27,6 +27,8 @@ QWidget* TextFileView::setupWidget()
 {
     editor_ = new PlainTextEdit(this);
     editor_->installEventFilter(this);
+    editor_->setContextMenuPolicy(Qt::CustomContextMenu);
+
     keyFilters_->setTextEdit(editor_);
 
     if (auto text_model = qobject_cast<TextFileModel*>(model())) {
@@ -40,6 +42,18 @@ QWidget* TextFileView::setupWidget()
 
         text_model->registerViewDocument(view_doc);
         editor_->setDocument(view_doc);
+
+        connect(
+            text_model,
+            &TextFileModel::cursorPositionHint,
+            this,
+            [&](int position) {
+                if (!editor_ || !editor_->hasFocus()) return;
+                auto cursor = editor_->textCursor();
+                cursor.setPosition(position);
+                editor_->setTextCursor(cursor);
+                editor_->ensureCursorVisible();
+            });
 
         connect(
             keyFilters_,
