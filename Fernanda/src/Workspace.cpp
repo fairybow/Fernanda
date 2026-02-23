@@ -110,6 +110,15 @@ void Workspace::createWindowMenuBar_(Window* window)
 
         .separator()
 
+        .action(Tr::nxDuplicateTab())
+        .onUserTrigger(this, [&, window] { views->duplicateTab(window, -1); })
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [&, window] { return views->fileViewAt(window, -1); })
+
+        .separator()
+
         .action(Tr::nxCloseTab())
         .onUserTrigger(this, [&, window] { views->closeTab(window, -1); })
         .shortcut(MenuShortcuts::CLOSE_TAB)

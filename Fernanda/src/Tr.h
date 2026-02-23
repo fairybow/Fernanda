@@ -164,6 +164,8 @@ namespace Tr {
     TR_(nxSave, tr("Save"));
     TR_(nxSaveAs, tr("Save as..."));
 
+    TR_(nxDuplicateTab, tr("Duplicate tab"));
+
     TR_(nxCloseTab, tr("Close tab"));
     TR_(nxCloseTabEverywhere, tr("Close tab everywhere"));
     TR_(nxCloseWindowTabs, tr("Close window tabs"));
