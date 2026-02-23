@@ -63,11 +63,11 @@ public:
             viewDoc,
             &QTextDocument::contentsChange,
             this,
-            [this, viewDoc](int pos, int removed, int added) {
+            [&, viewDoc](int pos, int removed, int added) {
                 onLocalViewContentsChange_(viewDoc, pos, removed, added);
             });
 
-        connect(viewDoc, &QObject::destroyed, this, [this, viewDoc] {
+        connect(viewDoc, &QObject::destroyed, this, [&, viewDoc] {
             localViewDocuments_.removeAll(viewDoc);
         });
 
@@ -359,12 +359,27 @@ private:
 
         auto prime_text = primeDocument_->toPlainText();
         for (auto& view_doc : localViewDocuments_) {
-            if (view_doc->toPlainText() != prime_text) {
+            auto view_text = view_doc->toPlainText();
+            if (view_text != prime_text) {
+                auto min_len = qMin(prime_text.length(), view_text.length());
+                auto diverge = 0;
+                while (diverge < min_len
+                       && prime_text[diverge] == view_text[diverge])
+                    ++diverge;
+
+                // TODO: Organize this lol
                 FATAL(
                     "Document drift detected in {}! Local view document [{}] "
-                    "out of sync",
+                    "out of sync (prime len={}, view len={}, "
+                    "first divergence at pos={}, "
+                    "prime around=\"{}\", view around=\"{}\")",
                     context,
-                    view_doc);
+                    view_doc,
+                    prime_text.length(),
+                    view_text.length(),
+                    diverge,
+                    prime_text.mid(qMax(0, diverge - 20), 60),
+                    view_text.mid(qMax(0, diverge - 20), 60));
             }
         }
 
@@ -373,11 +388,14 @@ private:
 
 private slots:
     // TODO: Clean this
+    // TODO: Rename (titleChange_ or similar)?
     void onDocumentContentsChange_(int from, int charsRemoved, int charsAdded)
     {
         (void)from;
         (void)charsRemoved;
         (void)charsAdded;
+
+        if (routingDelta_) return;
 
         auto meta = this->meta();
         if (!meta || meta->isOnDisk()) return;
