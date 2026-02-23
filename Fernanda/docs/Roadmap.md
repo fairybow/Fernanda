@@ -8,8 +8,6 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO GH (grabbable highlight)
 - TODO PD (prime doc)
 
-NEXT: add a "duplicate tab" option to menu that will duplicate any tab (even unsaved)
-
 New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
 
 New additional TR bat to release all and move them to the qm folder

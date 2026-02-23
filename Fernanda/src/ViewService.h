@@ -309,6 +309,28 @@ public:
         return result;
     }
 
+    void duplicateTab(Window* window, int index = -1)
+    {
+        auto model = fileModelAt(window, index);
+        if (!model) return;
+        auto tab_widget = tabWidget_(window);
+        if (!tab_widget) return;
+
+        auto i = normalizeIndex_(tab_widget, index);
+        if (i < 0) return;
+
+        auto view = createFileView_(window, model);
+        if (!view) return;
+
+        auto meta = model->meta();
+        auto insert_at = i + 1;
+        auto new_index = tab_widget->insertTab(insert_at, view, meta->title());
+        tab_widget->setTabFlagged(new_index, model->isModified());
+        tab_widget->setTabToolTip(new_index, meta->toolTip());
+        tab_widget->setCurrentIndex(new_index);
+        view->setFocus();
+    }
+
     // No hook!
     void closeViewsForModels(const QSet<AbstractFileModel*>& fileModels)
     {
@@ -744,6 +766,48 @@ private:
         }
     }
 
+    AbstractFileView*
+    createFileView_(Window* window, AbstractFileModel* fileModel)
+    {
+        if (!window || !fileModel) return nullptr;
+
+        AbstractFileView* view = nullptr;
+
+        if (auto text_model = qobject_cast<TextFileModel*>(fileModel)) {
+            auto text_view = newFileView_<TextFileView*>(text_model, window);
+            applyInitialTextFileViewSettings_(text_view);
+            view = text_view;
+
+        } else if (auto no_op_model = qobject_cast<NoOpFileModel*>(fileModel)) {
+            view = newFileView_<NoOpFileView*>(no_op_model, window);
+
+        } else {
+            FATAL("Type not deduced for model [{}]!", fileModel);
+        }
+
+        if (!view) return nullptr;
+
+        auto meta = fileModel->meta();
+        if (!meta) {
+            delete view; // Anything else?
+            return nullptr;
+        }
+
+        // Only adjust this once we're clear
+        ++fileViewsPerModel_[fileModel];
+
+        emit bus->fileViewCreated(view);
+
+        connect(view, &QObject::destroyed, this, [&, view, fileModel] {
+            if (--fileViewsPerModel_[fileModel] <= 0)
+                fileViewsPerModel_.remove(fileModel);
+            INFO("File view destroyed [{}] for model [{}]", view, fileModel);
+            emit fileViewDestroyed(view);
+        });
+
+        return view;
+    }
+
 private slots:
     void onBusWindowCreated_(Window* window)
     {
@@ -764,40 +828,10 @@ private slots:
         auto tab_widget = tabWidget_(window);
         if (!tab_widget) return;
 
-        AbstractFileView* view = nullptr;
-
-        if (auto text_model = qobject_cast<TextFileModel*>(fileModel)) {
-            auto text_view = newFileView_<TextFileView*>(text_model, window);
-            applyInitialTextFileViewSettings_(text_view);
-            view = text_view;
-
-        } else if (auto no_op_model = qobject_cast<NoOpFileModel*>(fileModel)) {
-            view = newFileView_<NoOpFileView*>(no_op_model, window);
-
-        } else {
-            FATAL("Type not deduced for model [{}]!", fileModel);
-        }
-
+        auto view = createFileView_(window, fileModel);
         if (!view) return;
 
         auto meta = fileModel->meta();
-        if (!meta) {
-            delete view; // Anything else?
-            return;
-        }
-
-        // Only adjust this once we're clear
-        ++fileViewsPerModel_[fileModel];
-
-        emit bus->fileViewCreated(view);
-
-        connect(view, &QObject::destroyed, this, [&, view, fileModel] {
-            if (--fileViewsPerModel_[fileModel] <= 0)
-                fileViewsPerModel_.remove(fileModel);
-            INFO("File view destroyed [{}] for model [{}]", view, fileModel);
-            emit fileViewDestroyed(view);
-        });
-
         auto index = tab_widget->addTab(view, meta->title());
         tab_widget->setTabFlagged(index, fileModel->isModified());
         tab_widget->setTabToolTip(index, meta->toolTip());
