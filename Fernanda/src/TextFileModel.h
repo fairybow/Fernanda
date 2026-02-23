@@ -125,7 +125,7 @@ public:
         auto prime_text = primeDocument_->toPlainText();
 
         for (auto& view_doc : localViewDocuments_) {
-            view_doc->blockSignals(true);
+            view_doc->blockSignals(true); // TODO: Make sure this is fine!
             view_doc->setPlainText(prime_text);
             view_doc->blockSignals(false);
         }
