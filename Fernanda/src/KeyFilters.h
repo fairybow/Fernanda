@@ -142,6 +142,14 @@ private:
 
                 return true;
             }
+
+            if (closeBargeTrailingPunctGap_
+                && canCloseTrailingPunctGap_(document, cursor)) {
+                MultiStepEditScope_ scope(this);
+                closeTrailingPunctGapReturn_(cursor);
+                textEdit_->setTextCursor(cursor);
+                return true;
+            }
         }
 
         auto text = event->text();
@@ -237,6 +245,14 @@ private:
         cursor.deletePreviousChar(); // remove the space
         cursor.insertText(ch);
         cursor.insertText(QStringLiteral(" ")); // add space after
+        cursor.endEditBlock();
+    }
+
+    void closeTrailingPunctGapReturn_(QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar(); // remove the space
+        cursor.insertText(QStringLiteral("\n"));
         cursor.endEditBlock();
     }
 
