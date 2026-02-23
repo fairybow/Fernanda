@@ -395,8 +395,6 @@ private slots:
         (void)charsRemoved;
         (void)charsAdded;
 
-        if (routingDelta_) return;
-
         auto meta = this->meta();
         if (!meta || meta->isOnDisk()) return;
 
