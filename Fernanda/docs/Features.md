@@ -39,6 +39,7 @@ Current vesion: v0.99.0-beta.1
 - Configurable tab stop distance
 - Word wrap modes (wrap anywhere, word boundary, no wrap, or smart)
 - Undo/Redo
+- Different editors showing the same text file will use separate layouts (wrap points)
 
 ---
 
@@ -96,9 +97,9 @@ Current vesion: v0.99.0-beta.1
 - Tab drag-and-drop: drag tabs between windows or out to create new windows
 - Tab drag visual: pixmap preview during drag
 - Flagged tabs (visual indicator for modified files)
-- Tab text alignment (prevents leftmost text from clipping)
 - Multiple windows per workspace
 - Window title updates reflecting current file and modification state
+- Tab duplication (even for unsaved files)
 
 ---
 
