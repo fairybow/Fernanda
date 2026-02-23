@@ -75,6 +75,12 @@ QWidget* TextFileView::setupWidget()
         emit selectionChanged();
     });
 
+    connect(
+        editor_,
+        &PlainTextEdit::customContextMenuRequested,
+        this,
+        &TextFileView::onEditorCustomContextMenuRequested_);
+
     connect(Application::clipboard(), &QClipboard::dataChanged, this, [&] {
         emit clipboardDataChanged();
     });

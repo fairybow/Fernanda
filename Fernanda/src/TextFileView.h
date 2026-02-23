@@ -20,8 +20,11 @@
 #include "AbstractFileView.h"
 #include "Debug.h"
 #include "KeyFilters.h"
+#include "MenuBuilder.h"
+#include "MenuShortcuts.h"
 #include "PlainTextEdit.h"
 #include "TextFileModel.h"
+#include "Tr.h"
 
 namespace Fernanda {
 
@@ -110,6 +113,49 @@ protected:
 private:
     PlainTextEdit* editor_ = nullptr;
     KeyFilters* keyFilters_ = new KeyFilters(this);
+
+private slots:
+    // TODO: State toggling
+    void onEditorCustomContextMenuRequested_(const QPoint& pos)
+    {
+        // The menu bar shortcuts will presumably override these, but we want
+        // the shortcuts to display here anyway
+
+        MenuBuilder(MenuBuilder::ContextMenu, this)
+            .action(Tr::nxUndo())
+            .onUserTrigger(this, [&] { model()->undo(); })
+            .shortcut(MenuShortcuts::UNDO)
+
+            .action(Tr::nxRedo())
+            .onUserTrigger(this, [&] { model()->redo(); })
+            .shortcut(MenuShortcuts::REDO)
+
+            .separator()
+
+            .action(Tr::nxCut())
+            .onUserTrigger(this, &TextFileView::cut)
+            .shortcut(MenuShortcuts::CUT)
+
+            .action(Tr::nxCopy())
+            .onUserTrigger(this, &TextFileView::copy)
+            .shortcut(MenuShortcuts::COPY)
+
+            .action(Tr::nxPaste())
+            .onUserTrigger(this, &TextFileView::paste)
+            .shortcut(MenuShortcuts::PASTE)
+
+            .action(Tr::nxDelete())
+            .onUserTrigger(this, &TextFileView::deleteSelection)
+            .shortcut(MenuShortcuts::DEL)
+
+            .separator()
+
+            .action(Tr::nxSelectAll())
+            .onUserTrigger(this, &TextFileView::selectAll)
+            .shortcut(MenuShortcuts::SELECT_ALL)
+
+            .popup(editor_->mapToGlobal(pos));
+    }
 };
 
 } // namespace Fernanda
