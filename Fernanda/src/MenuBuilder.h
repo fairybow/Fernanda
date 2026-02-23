@@ -17,6 +17,7 @@
 #include <QAction>
 #include <QKeySequence>
 #include <QList>
+#include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
 #include <QObject>
@@ -28,7 +29,6 @@
 
 #include "Debug.h"
 #include "MenuState.h"
-#include "Window.h"
 
 namespace Fernanda {
 
@@ -47,17 +47,22 @@ public:
     using Slot = std::function<void()>;
     using CheckedSlot = std::function<void(bool)>;
 
-    explicit MenuBuilder(Mode mode, Window* window)
+    explicit MenuBuilder(Mode mode, QWidget* parent)
         : mode_(mode)
-        , window_(window)
+        , parent_(parent)
     {
+        if (mode == MenuBar && !qobject_cast<QMainWindow*>(parent)) {
+            WARN(
+                "MenuBar mode with non-QMainWindow parent; set() will be a "
+                "no-op");
+        }
     }
 
     ~MenuBuilder() { TRACER; }
 
     MenuBuilder& menu(const QString& title)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
         if (mode_ != MenuBar) return *this;
 
         ensureMenuBar_();
@@ -71,7 +76,7 @@ public:
 
     MenuBuilder& action(const QString& text)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
         if (mode_ == MenuBar) ensureMenuBar_();
 
         ensureCurrentMenu_();
@@ -94,7 +99,7 @@ public:
     // Add action directly to menu bar (e.g., standalone "Settings" item)
     MenuBuilder& barAction(const QString& text)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
         if (mode_ != MenuBar) return *this;
 
         ensureMenuBar_();
@@ -106,7 +111,7 @@ public:
 
     MenuBuilder& addAction(QAction* action)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
         ensureCurrentMenu_();
         currentMenu_->addAction(action);
         lastAction_ = action;
@@ -115,7 +120,7 @@ public:
 
     MenuBuilder& addBarAction(QAction* action)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
         if (mode_ != MenuBar) return *this;
 
         ensureMenuBar_();
@@ -137,7 +142,7 @@ public:
         Slot slot,
         Qt::ConnectionType type = Qt::AutoConnection)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
 
         if (lastAction_) {
             lastAction_->connect(
@@ -157,7 +162,7 @@ public:
         CheckedSlot slot,
         Qt::ConnectionType type = Qt::AutoConnection)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
 
         if (lastAction_) {
             lastAction_->connect(
@@ -190,7 +195,7 @@ public:
         CheckedSlot slot,
         Qt::ConnectionType type = Qt::AutoConnection)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
 
         if (lastAction_) {
             lastAction_->connect(
@@ -258,7 +263,7 @@ public:
 
     MenuBuilder& autoRepeat(bool enabled)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
 
         if (lastAction_) lastAction_->setAutoRepeat(enabled);
         return *this;
@@ -266,7 +271,7 @@ public:
 
     MenuBuilder& shortcut(const QKeySequence& keySequence)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
 
         if (lastAction_) lastAction_->setShortcut(keySequence);
         return *this;
@@ -274,7 +279,7 @@ public:
 
     MenuBuilder& checkable(bool initial = false)
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
 
         if (lastAction_) {
             lastAction_->setCheckable(true);
@@ -284,9 +289,16 @@ public:
         return *this;
     }
 
+    MenuBuilder& enabled(bool e)
+    {
+        if (!parent_) return *this;
+        if (lastAction_) lastAction_->setEnabled(e);
+        return *this;
+    }
+
     MenuBuilder& separator()
     {
-        if (!window_) return *this;
+        if (!parent_) return *this;
 
         if (currentMenu_) currentMenu_->addSeparator();
         lastAction_ = nullptr;
@@ -302,7 +314,7 @@ public:
 
     void popup(const QPoint& globalPos)
     {
-        if (!window_) return;
+        if (!parent_) return;
         if (!currentMenu_ || mode_ != ContextMenu) return;
 
         currentMenu_->setAttribute(Qt::WA_DeleteOnClose);
@@ -311,15 +323,16 @@ public:
 
     void set()
     {
-        if (!window_) return;
+        if (!parent_) return;
         if (!menuBar_ || mode_ != MenuBar) return;
 
-        window_->setMenuBar(menuBar_);
+        if (auto window = qobject_cast<QMainWindow*>(parent_))
+            window->setMenuBar(menuBar_);
     }
 
 private:
     Mode mode_;
-    Window* window_;
+    QWidget* parent_;
 
     QMenuBar* menuBar_ = nullptr;
     QMenu* currentMenu_ = nullptr;
@@ -327,12 +340,12 @@ private:
 
     void ensureMenuBar_()
     {
-        if (!menuBar_) menuBar_ = new QMenuBar(window_);
+        if (!menuBar_) menuBar_ = new QMenuBar(parent_);
     }
 
     void ensureCurrentMenu_()
     {
-        if (!currentMenu_) currentMenu_ = new QMenu(window_);
+        if (!currentMenu_) currentMenu_ = new QMenu(parent_);
     }
 
     QAction* action_(const QString& text, QWidget* parent)

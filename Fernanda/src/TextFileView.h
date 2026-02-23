@@ -20,8 +20,11 @@
 #include "AbstractFileView.h"
 #include "Debug.h"
 #include "KeyFilters.h"
+#include "MenuBuilder.h"
+#include "MenuShortcuts.h"
 #include "PlainTextEdit.h"
 #include "TextFileModel.h"
+#include "Tr.h"
 
 namespace Fernanda {
 
@@ -42,6 +45,23 @@ public:
 
     PlainTextEdit* editor() const noexcept { return editor_; }
     KeyFilters* keyFilters() const noexcept { return keyFilters_; }
+
+    /// TODO PD
+    // Let our menu-defined shortcuts be the default by removing Qt's
+    virtual bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (watched == editor_ && event->type() == QEvent::ShortcutOverride) {
+            auto key_event = static_cast<QKeyEvent*>(event);
+
+            if (key_event->matches(QKeySequence::Undo)
+                || key_event->matches(QKeySequence::Redo)) {
+                event->ignore();
+                return true;
+            }
+        }
+
+        return AbstractFileView::eventFilter(watched, event);
+    }
 
     // Base methods
 
@@ -93,6 +113,59 @@ protected:
 private:
     PlainTextEdit* editor_ = nullptr;
     KeyFilters* keyFilters_ = new KeyFilters(this);
+
+private slots:
+    void onEditorCustomContextMenuRequested_(const QPoint& pos)
+    {
+        // The menu bar shortcuts will presumably override these, but we want
+        // the shortcuts to display here anyway
+
+        auto model = this->model();
+        if (!model) return;
+
+        auto has_selection = hasSelection();
+
+        MenuBuilder(MenuBuilder::ContextMenu, this)
+            .action(Tr::nxUndo())
+            .onUserTrigger(this, [model] { model->undo(); })
+            .shortcut(MenuShortcuts::UNDO)
+            .enabled(model->hasUndo())
+
+            .action(Tr::nxRedo())
+            .onUserTrigger(this, [model] { model->redo(); })
+            .shortcut(MenuShortcuts::REDO)
+            .enabled(model->hasRedo())
+
+            .separator()
+
+            .action(Tr::nxCut())
+            .onUserTrigger(this, &TextFileView::cut)
+            .shortcut(MenuShortcuts::CUT)
+            .enabled(has_selection)
+
+            .action(Tr::nxCopy())
+            .onUserTrigger(this, &TextFileView::copy)
+            .shortcut(MenuShortcuts::COPY)
+            .enabled(has_selection)
+
+            .action(Tr::nxPaste())
+            .onUserTrigger(this, &TextFileView::paste)
+            .shortcut(MenuShortcuts::PASTE)
+            .enabled(hasPaste())
+
+            .action(Tr::nxDelete())
+            .onUserTrigger(this, &TextFileView::deleteSelection)
+            .shortcut(MenuShortcuts::DEL)
+            .enabled(has_selection)
+
+            .separator()
+
+            .action(Tr::nxSelectAll())
+            .onUserTrigger(this, &TextFileView::selectAll)
+            .shortcut(MenuShortcuts::SELECT_ALL)
+
+            .popup(editor_->mapToGlobal(pos));
+    }
 };
 
 } // namespace Fernanda

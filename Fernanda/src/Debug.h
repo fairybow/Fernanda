@@ -34,7 +34,8 @@
 
 // TODO: Log to file. Commented-out method is too slow. Need to maybe keep file
 // open the entire time, hold static QFile
-// TODO: Move Internal to .cpp
+// TODO: Move Internal to .cpp (note that print is a template and uses some of
+// these, though...) - just do one at a time, starting with the methods?
 namespace Fernanda::Debug {
 
 namespace Internal {
@@ -70,10 +71,16 @@ namespace Internal {
         const QMessageLogContext& context,
         const QString& msg)
     {
-        if (!logging_.load(std::memory_order::relaxed)) return;
+        if (type != QtFatalMsg && !logging_.load(std::memory_order::relaxed))
+            return;
 
         auto count = logCount_.fetch_add(1, std::memory_order::relaxed);
-        auto new_msg = std::format(MSG_FORMAT_, count, timestamp_(), msg);
+        auto msg_str = msg.toUtf8();
+        auto new_msg = std::format(
+            MSG_FORMAT_,
+            count,
+            timestamp_(),
+            std::string_view(msg_str.constData(), msg_str.size()));
 
         QtMessageHandler qt_handler = nullptr;
 
@@ -144,10 +151,11 @@ struct Log
     inline void
     print(const QObject* obj, std::string_view format, Args&&... args)
     {
-        if (!Internal::logging_.load(std::memory_order::relaxed)) return;
-        auto context = QMessageLogContext(file, line, function, nullptr);
+        if (type != QtFatalMsg
+            && !Internal::logging_.load(std::memory_order::relaxed))
+            return;
 
-        // NOTE: Formatters for Qt types defined in Formatters.h
+        // Formatters for Qt types defined in Formatters.h
         std::string msg{};
 
         if constexpr (sizeof...(args) > 0) {
@@ -158,7 +166,27 @@ struct Log
 
         if (obj) { msg = std::format(Internal::VOC_FORMAT_, obj, msg); }
 
-        Internal::handler_(type, context, QString::fromUtf8(msg));
+        auto logger = QMessageLogger(file, line, function);
+        constexpr auto fmt = "%s";
+
+        switch (type) {
+        case QtDebugMsg:
+            logger.debug(fmt, msg.c_str());
+            break;
+        case QtInfoMsg:
+            logger.info(fmt, msg.c_str());
+            break;
+        case QtWarningMsg:
+            logger.warning(fmt, msg.c_str());
+            break;
+        case QtCriticalMsg:
+            logger.critical(fmt, msg.c_str());
+            break;
+        default:
+        case QtFatalMsg:
+            logger.fatal(fmt, msg.c_str());
+            break;
+        }
     }
 
     template <typename... Args>

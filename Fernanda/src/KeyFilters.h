@@ -71,8 +71,29 @@ public:
         return QObject::eventFilter(watched, event);
     }
 
+signals:
+    /// TODO PD
+    void multiStepEditBegan();
+    void multiStepEditEnded();
+
 private:
     QPointer<QPlainTextEdit> textEdit_ = nullptr;
+
+    /// TODO PD
+    struct MultiStepEditScope_
+    {
+        KeyFilters* keyFilters;
+
+        MultiStepEditScope_(KeyFilters* k)
+            : keyFilters(k)
+        {
+            emit k->multiStepEditBegan();
+        }
+
+        ~MultiStepEditScope_() { emit keyFilters->multiStepEditEnded(); }
+        MultiStepEditScope_(const MultiStepEditScope_&) = delete;
+        MultiStepEditScope_& operator=(const MultiStepEditScope_&) = delete;
+    };
 
     /// TODO KFS
     bool active_ = true;
@@ -93,6 +114,7 @@ private:
 
         if (autoClosing_ && event->key() == Qt::Key_Backspace) {
             if (isBetweenPair_(document, cursor)) {
+                MultiStepEditScope_ scope(this);
                 deletePair_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -102,6 +124,7 @@ private:
 
         if (barging_ && event->key() == Qt::Key_Space) {
             if (canBarge_(document, cursor)) {
+                MultiStepEditScope_ scope(this);
                 barge_(cursor);
                 textEdit_->setTextCursor(cursor);
 
@@ -113,9 +136,18 @@ private:
             && (event->key() == Qt::Key_Return
                 || event->key() == Qt::Key_Enter)) {
             if (canBargeReturn_(document, cursor)) {
+                MultiStepEditScope_ scope(this);
                 bargeReturn_(cursor);
                 textEdit_->setTextCursor(cursor);
 
+                return true;
+            }
+
+            if (closeBargeTrailingPunctGap_
+                && canCloseTrailingPunctGap_(document, cursor)) {
+                MultiStepEditScope_ scope(this);
+                closeTrailingPunctGapReturn_(cursor);
+                textEdit_->setTextCursor(cursor);
                 return true;
             }
         }
@@ -135,6 +167,7 @@ private:
         /// TODO KFS: Figure out what this does again lol
         if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
             && canCloseTrailingPunctGap_(document, cursor)) {
+            MultiStepEditScope_ scope(this);
             closeTrailingPunctGap_(ch, cursor);
             textEdit_->setTextCursor(cursor);
 
@@ -143,6 +176,7 @@ private:
 
         // Skip closer: typing a closer when same char is ahead
         if (autoClosing_ && canSkipCloser_(ch, document, cursor)) {
+            // Not compound
             cursor.movePosition(QTextCursor::NextCharacter);
             textEdit_->setTextCursor(cursor);
 
@@ -155,6 +189,7 @@ private:
             if (isAmbiguousOpenOrClosePunct_(ch)
                 && isPreviousCharAlphanumeric_(document, cursor))
                 return false;
+            MultiStepEditScope_ scope(this);
             autoClose_(ch, cursor);
             textEdit_->setTextCursor(cursor);
 
@@ -163,6 +198,13 @@ private:
 
         return false;
     }
+
+    // Though this class is meant to be conceptually separate from
+    // TextFileModel, it's worth noting that edit blocks on view cursors
+    // coalesce contentsChange emissions, ensuring multi-step KeyFilter
+    // operations produce a single delta for routing; otherwise, we wouldn't
+    // currently need them (see TextFileModel delta routing / main document
+    // code)
 
     void autoClose_(QChar ch, QTextCursor& cursor)
     {
@@ -203,6 +245,14 @@ private:
         cursor.deletePreviousChar(); // remove the space
         cursor.insertText(ch);
         cursor.insertText(QStringLiteral(" ")); // add space after
+        cursor.endEditBlock();
+    }
+
+    void closeTrailingPunctGapReturn_(QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar(); // remove the space
+        cursor.insertText(QStringLiteral("\n"));
         cursor.endEditBlock();
     }
 
