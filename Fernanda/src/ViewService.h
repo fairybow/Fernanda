@@ -513,7 +513,9 @@ protected:
             bus,
             &Bus::settingChanged,
             this,
-            &ViewService::onBusSettingChanged_);
+            [&](const QString& key, const QVariant& value) {
+                if (auto applier = settingAppliers_.value(key)) applier(value);
+            });
     }
 
 private:
@@ -524,9 +526,91 @@ private:
     CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
     CanCloseAllTabsHook canCloseAllTabsHook_ = nullptr;
 
+    QHash<QString, std::function<void(const QVariant&)>> settingAppliers_{};
+
     void setup_()
     {
-        //...
+        settingAppliers_[Ini::Keys::EDITOR_FONT] = [&](const QVariant& v) {
+            forEachTextFileView_([&](TextFileView* view) {
+                view->editor()->setFont(v.value<QFont>());
+            });
+        };
+
+        settingAppliers_[Ini::Keys::KEY_FILTERS_ACTIVE] =
+            [&](const QVariant& v) {
+                forEachTextFileView_([&](TextFileView* view) {
+                    view->keyFilters()->setActive(v.value<bool>());
+                });
+            };
+
+        settingAppliers_[Ini::Keys::KEY_FILTERS_AUTO_CLOSE] =
+            [&](const QVariant& v) {
+                forEachTextFileView_([&](TextFileView* view) {
+                    view->keyFilters()->setAutoClosing(v.value<bool>());
+                });
+            };
+
+        settingAppliers_[Ini::Keys::KEY_FILTERS_BARGING] =
+            [&](const QVariant& v) {
+                forEachTextFileView_([&](TextFileView* view) {
+                    view->keyFilters()->setBarging(v.value<bool>());
+                });
+            };
+
+        settingAppliers_[Ini::Keys::EDITOR_CENTER_ON_SCROLL] =
+            [&](const QVariant& v) {
+                forEachTextFileView_([&](TextFileView* view) {
+                    view->editor()->setCenterOnScroll(v.value<bool>());
+                });
+            };
+
+        settingAppliers_[Ini::Keys::EDITOR_OVERWRITE] = [&](const QVariant& v) {
+            forEachTextFileView_([&](TextFileView* view) {
+                view->editor()->setOverwriteMode(v.value<bool>());
+            });
+        };
+
+        settingAppliers_[Ini::Keys::EDITOR_TAB_STOP_DISTANCE] =
+            [&](const QVariant& v) {
+                forEachTextFileView_([&](TextFileView* view) {
+                    view->editor()->setTabStopDistance(v.value<int>());
+                });
+            };
+
+        settingAppliers_[Ini::Keys::EDITOR_WRAP_MODE] = [&](const QVariant& v) {
+            forEachTextFileView_([&](TextFileView* view) {
+                view->editor()->setWordWrapMode(
+                    v.value<QTextOption::WrapMode>());
+            });
+        };
+
+        settingAppliers_[Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE] =
+            [&](const QVariant& v) {
+                forEachTextFileView_([&](TextFileView* view) {
+                    view->editor()->setDoubleClickWhitespace(v.value<bool>());
+                });
+            };
+
+        settingAppliers_[Ini::Keys::EDITOR_LINE_NUMBERS] =
+            [&](const QVariant& v) {
+                forEachTextFileView_([&](TextFileView* view) {
+                    view->editor()->setLineNumbers(v.value<bool>());
+                });
+            };
+
+        settingAppliers_[Ini::Keys::EDITOR_LINE_HIGHLIGHT] =
+            [&](const QVariant& v) {
+                forEachTextFileView_([&](TextFileView* view) {
+                    view->editor()->setLineHighlight(v.value<bool>());
+                });
+            };
+
+        settingAppliers_[Ini::Keys::EDITOR_SELECTION_HANDLES] =
+            [&](const QVariant& v) {
+                forEachTextFileView_([&](TextFileView* view) {
+                    view->editor()->setSelectionHandles(v.value<bool>());
+                });
+            };
     }
 
     TabWidget* tabWidget_(Window* window) const
@@ -884,96 +968,6 @@ private slots:
                     tab_widget->setTabToolTip(i, meta->toolTip());
                 }
             }
-        }
-    }
-
-    void onBusSettingChanged_(const QString& key, const QVariant& value)
-    {
-        if (key == Ini::Keys::EDITOR_FONT) {
-            auto v = value.value<QFont>();
-            forEachTextFileView_(
-                [&](TextFileView* view) { view->editor()->setFont(v); });
-        }
-
-        /// TODO KFS
-        if (key == Ini::Keys::KEY_FILTERS_ACTIVE) {
-            auto v = value.value<bool>();
-            forEachTextFileView_(
-                [&](TextFileView* view) { view->keyFilters()->setActive(v); });
-        }
-
-        /// TODO KFS
-        if (key == Ini::Keys::KEY_FILTERS_AUTO_CLOSE) {
-            auto v = value.value<bool>();
-            forEachTextFileView_([&](TextFileView* view) {
-                view->keyFilters()->setAutoClosing(v);
-            });
-        }
-
-        /// TODO KFS
-        if (key == Ini::Keys::KEY_FILTERS_BARGING) {
-            auto v = value.value<bool>();
-            forEachTextFileView_(
-                [&](TextFileView* view) { view->keyFilters()->setBarging(v); });
-        }
-
-        /// TODO ES
-        if (key == Ini::Keys::EDITOR_CENTER_ON_SCROLL) {
-            auto v = value.value<bool>();
-            forEachTextFileView_([&](TextFileView* view) {
-                view->editor()->setCenterOnScroll(v);
-            });
-        }
-
-        /// TODO ES
-        if (key == Ini::Keys::EDITOR_OVERWRITE) {
-            auto overwrite = value.value<bool>();
-            forEachTextFileView_([&](TextFileView* view) {
-                view->editor()->setOverwriteMode(overwrite);
-            });
-        }
-
-        /// TODO ES
-        if (key == Ini::Keys::EDITOR_TAB_STOP_DISTANCE) {
-            auto v = value.value<int>();
-            forEachTextFileView_([&](TextFileView* view) {
-                view->editor()->setTabStopDistance(v);
-            });
-        }
-
-        /// TODO ES
-        if (key == Ini::Keys::EDITOR_WRAP_MODE) {
-            auto v = value.value<QTextOption::WrapMode>();
-            forEachTextFileView_([&](TextFileView* view) {
-                view->editor()->setWordWrapMode(v);
-            });
-        }
-
-        if (key == Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE) {
-            auto v = value.value<bool>();
-            forEachTextFileView_([&](TextFileView* view) {
-                view->editor()->setDoubleClickWhitespace(v);
-            });
-        }
-
-        if (key == Ini::Keys::EDITOR_LINE_NUMBERS) {
-            auto v = value.value<bool>();
-            forEachTextFileView_(
-                [&](TextFileView* view) { view->editor()->setLineNumbers(v); });
-        }
-
-        if (key == Ini::Keys::EDITOR_LINE_HIGHLIGHT) {
-            auto v = value.value<bool>();
-            forEachTextFileView_([&](TextFileView* view) {
-                view->editor()->setLineHighlight(v);
-            });
-        }
-
-        if (key == Ini::Keys::EDITOR_SELECTION_HANDLES) {
-            auto v = value.value<bool>();
-            forEachTextFileView_([&](TextFileView* view) {
-                view->editor()->setSelectionHandles(v);
-            });
         }
     }
 
