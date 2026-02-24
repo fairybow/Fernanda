@@ -12,6 +12,7 @@
 #include <utility>
 
 #include <QAnyStringView>
+#include <QHash>
 #include <QList>
 #include <QString>
 #include <QTextOption>
@@ -179,7 +180,7 @@ public:
             [&](const QString& key, const QVariant& value) {
                 emit bus->settingChanged(key, value);
 
-                if (isDebouncedSetting_(key))
+                if (debouncers_.contains(key))
                     queueDebouncedSet_(key, value);
                 else
                     set(key, value);
@@ -251,64 +252,28 @@ private:
     QString name_{};
     SettingsDialog* dialog_ = nullptr;
 
-    static constexpr auto DEBOUNCE_MS_ = 500;
-
-    // TODO: Possible to have one debouncer for all settings?
-    Timers::Debouncer* fontDebouncer_ = nullptr;
-    QFont pendingFont_{};
-
-    Timers::Debouncer* windowThemeDebouncer_ = nullptr;
-    Coco::Path pendingWindowTheme_{};
-    Timers::Debouncer* editorThemeDebouncer_ = nullptr;
-    Coco::Path pendingEditorTheme_{};
-
-    Timers::Debouncer* editorTabStopDistanceDebouncer_ = nullptr;
-    int pendingEditorTabStopDistance_{};
+    QHash<QString, Timers::Debouncer*> debouncers_{};
+    QHash<QString, QVariant> pendingValues_{};
 
     void setup_()
     {
-        fontDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
-            set(Ini::Keys::EDITOR_FONT, pendingFont_);
-        });
-
-        windowThemeDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
-            set(Ini::Keys::WINDOW_THEME, pendingWindowTheme_.toQString());
-        });
-
-        editorThemeDebouncer_ = new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
-            set(Ini::Keys::EDITOR_THEME, pendingEditorTheme_.toQString());
-        });
-
-        /// TODO ES
-        editorTabStopDistanceDebouncer_ =
-            new Timers::Debouncer(DEBOUNCE_MS_, this, [&] {
-                set(Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
-                    pendingEditorTabStopDistance_);
-            });
+        setupDebouncer_(Ini::Keys::EDITOR_FONT);
+        setupDebouncer_(Ini::Keys::WINDOW_THEME);
+        setupDebouncer_(Ini::Keys::EDITOR_THEME);
+        setupDebouncer_(Ini::Keys::EDITOR_TAB_STOP_DISTANCE);
     }
 
-    static bool isDebouncedSetting_(const QString& key) noexcept
+    void setupDebouncer_(const QString& key)
     {
-        return key == Ini::Keys::EDITOR_FONT || key == Ini::Keys::WINDOW_THEME
-               || key == Ini::Keys::EDITOR_THEME
-               || key == Ini::Keys::EDITOR_TAB_STOP_DISTANCE;
+        debouncers_[key] = new Timers::Debouncer(500, this, [this, key] {
+            set(key, pendingValues_.take(key));
+        });
     }
 
     void queueDebouncedSet_(const QString& key, const QVariant& value)
     {
-        if (key == Ini::Keys::EDITOR_FONT) {
-            pendingFont_ = value.value<QFont>();
-            fontDebouncer_->start();
-        } else if (key == Ini::Keys::WINDOW_THEME) {
-            pendingWindowTheme_ = value.value<Coco::Path>();
-            windowThemeDebouncer_->start();
-        } else if (key == Ini::Keys::EDITOR_THEME) {
-            pendingEditorTheme_ = value.value<Coco::Path>();
-            editorThemeDebouncer_->start();
-        } else if (key == Ini::Keys::EDITOR_TAB_STOP_DISTANCE) {
-            pendingEditorTabStopDistance_ = value.value<int>();
-            editorTabStopDistanceDebouncer_->start();
-        }
+        pendingValues_[key] = value;
+        debouncers_[key]->start();
     }
 };
 

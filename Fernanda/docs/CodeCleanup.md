@@ -2,6 +2,7 @@
 
 TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 
+- [ ] `this` in lambda captures where appropriate (instead of `&`)
 - [ ] Check that all Model.xml references -> Manifest.xml
 - [ ] Private slots for all long-ass lambda connections
 - [ ] Inline any unnecessary member static constexpr char arrays
