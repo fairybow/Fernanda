@@ -93,41 +93,19 @@ private:
         main_layout->addLayout(col_0);
         main_layout->addLayout(col_1);
 
-        connect(
-            editorPanel_,
-            &EditorPanel::settingChanged,
-            this,
-            &SettingsDialog::settingChanged);
-
-        connect(
-            keyFiltersPanel_,
-            &KeyFiltersPanel::settingChanged,
-            this,
-            &SettingsDialog::settingChanged);
-
-        connect(
-            colorBarPanel_,
-            &ColorBarPanel::settingChanged,
-            this,
-            &SettingsDialog::settingChanged);
-
-        connect(
-            wordCounterPanel_,
-            &WordCounterPanel::settingChanged,
-            this,
-            &SettingsDialog::settingChanged);
-
-        connect(
-            fontPanel_,
-            &FontPanel::settingChanged,
-            this,
-            &SettingsDialog::settingChanged);
-
-        connect(
-            themesPanel_,
-            &ThemesPanel::settingChanged,
-            this,
-            &SettingsDialog::settingChanged);
+        for (auto& panel :
+             std::initializer_list<SettingsPanel*>{ fontPanel_,
+                                                    themesPanel_,
+                                                    keyFiltersPanel_,
+                                                    editorPanel_,
+                                                    wordCounterPanel_,
+                                                    colorBarPanel_ }) {
+            connect(
+                panel,
+                &SettingsPanel::settingChanged,
+                this,
+                &SettingsDialog::settingChanged);
+        }
     }
 };
 
