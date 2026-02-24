@@ -18,6 +18,7 @@
 #include <QWidget>
 
 #include "Debug.h"
+#include "DisplaySlider.h"
 #include "Ini.h"
 
 namespace Fernanda {
@@ -67,6 +68,15 @@ protected:
             [this, key, box](int index) {
                 emit settingChanged(key, box->itemData(index));
             });
+    }
+
+    void connectDisplaySlider(DisplaySlider* slider, const QString& key)
+    {
+        connect(
+            slider,
+            &DisplaySlider::valueChanged,
+            this,
+            [this, key](int value) { emit settingChanged(key, value); });
     }
 
 private:

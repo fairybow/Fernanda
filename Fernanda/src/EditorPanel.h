@@ -122,27 +122,16 @@ private:
         connectCheckBox(
             centerOnScrollCheck_,
             Ini::Keys::EDITOR_CENTER_ON_SCROLL);
-
         connectCheckBox(overwriteCheck_, Ini::Keys::EDITOR_OVERWRITE);
-
-        connect(
+        connectDisplaySlider(
             tab_stop_dist_slider,
-            &DisplaySlider::valueChanged,
-            this,
-            [&](int value) {
-                emit settingChanged(Ini::Keys::EDITOR_TAB_STOP_DISTANCE, value);
-            });
-
+            Ini::Keys::EDITOR_TAB_STOP_DISTANCE);
         connectComboBox(wrap_mode_box, Ini::Keys::EDITOR_WRAP_MODE);
-
         connectCheckBox(
             doubleClickWhitespaceCheck_,
             Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE);
-
         connectCheckBox(lineNumbersCheck_, Ini::Keys::EDITOR_LINE_NUMBERS);
-
         connectCheckBox(lineHighlightCheck_, Ini::Keys::EDITOR_LINE_HIGHLIGHT);
-
         connectCheckBox(
             selectionHandlesCheck_,
             Ini::Keys::EDITOR_SELECTION_HANDLES);
