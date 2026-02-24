@@ -24,9 +24,10 @@
 
 #include "Coco/Bool.h"
 #include "Coco/Concepts.h"
-#include "Coco/Path.h"
 
 #include "ToString.h"
+
+// TODO: Add std::formatter to Path
 
 #define STRING_FORMATTER_(T, Conversion)                                       \
     template <> struct std::formatter<T> : std::formatter<std::string>         \
@@ -38,7 +39,6 @@
     }
 
 STRING_FORMATTER_(QString, x.toStdString());
-STRING_FORMATTER_(Coco::Path, x.toString());
 STRING_FORMATTER_(QStringList, Fernanda::toString(x));
 STRING_FORMATTER_(QVariantMap, Fernanda::toString(x));
 STRING_FORMATTER_(QVariant, Fernanda::toString(x));
