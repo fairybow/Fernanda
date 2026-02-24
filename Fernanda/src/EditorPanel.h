@@ -133,17 +133,7 @@ private:
                 emit settingChanged(Ini::Keys::EDITOR_TAB_STOP_DISTANCE, value);
             });
 
-        connect(
-            wrap_mode_box,
-            &QComboBox::currentIndexChanged,
-            this,
-            [&](int index) {
-                emit settingChanged(
-                    Ini::Keys::EDITOR_WRAP_MODE,
-                    wrapMode_->control()
-                        ->itemData(index)
-                        .value<QTextOption::WrapMode>());
-            });
+        connectComboBox(wrap_mode_box, Ini::Keys::EDITOR_WRAP_MODE);
 
         connectCheckBox(
             doubleClickWhitespaceCheck_,

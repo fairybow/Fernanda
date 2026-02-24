@@ -66,18 +66,7 @@ private:
 
         // Connect
         connectGroupBox(Ini::Keys::COLOR_BAR_ACTIVE);
-
-        connect(
-            position_box,
-            &QComboBox::currentIndexChanged,
-            this,
-            [&](int index) {
-                emit settingChanged(
-                    Ini::Keys::COLOR_BAR_POSITION,
-                    position_->control()
-                        ->itemData(index)
-                        .value<ColorBar::Position>());
-            });
+        connectComboBox(position_box, Ini::Keys::COLOR_BAR_POSITION);
     }
 };
 

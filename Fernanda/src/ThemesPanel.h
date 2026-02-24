@@ -102,25 +102,8 @@ private:
         layout->addWidget(editorTheme_);
 
         // Connect
-        connect(
-            window_theme_box,
-            &QComboBox::currentIndexChanged,
-            this,
-            [&](int index) {
-                emit settingChanged(
-                    Ini::Keys::WINDOW_THEME,
-                    windowTheme_->control()->itemData(index));
-            });
-
-        connect(
-            editor_theme_box,
-            &QComboBox::currentIndexChanged,
-            this,
-            [&](int index) {
-                emit settingChanged(
-                    Ini::Keys::EDITOR_THEME,
-                    editorTheme_->control()->itemData(index));
-            });
+        connectComboBox(window_theme_box, Ini::Keys::WINDOW_THEME);
+        connectComboBox(editor_theme_box, Ini::Keys::EDITOR_THEME);
     }
 
     void selectByPath_(QComboBox* box, const Coco::Path& path)

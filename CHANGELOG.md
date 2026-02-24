@@ -104,6 +104,22 @@ if (key == Ini::Keys::EDITOR_LINE_NUMBERS) {
 
 In total, the settings pipeline spans roughly 300 lines of boilerplate across four files to do what a unified `settingChanged(key, value)` signal and a hash map could do in about 40.
 
+A solid runner-up is this (related) unnecessary cast out of `QVariant` (repeated at least one other time in another panel):
+
+```cpp
+connect(
+    wrap_mode_box,
+    &QComboBox::currentIndexChanged,
+    this,
+    [&](int index) {
+        emit settingChanged(
+            Ini::Keys::EDITOR_WRAP_MODE,
+            wrapMode_->control()
+                ->itemData(index)
+                .value<QTextOption::WrapMode>());
+    });
+```
+
 :heart:
 
 ---

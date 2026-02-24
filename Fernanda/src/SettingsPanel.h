@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QGroupBox>
 #include <QString>
 #include <QVBoxLayout>
@@ -55,6 +56,17 @@ protected:
         connect(box, &QCheckBox::toggled, this, [this, key](bool toggled) {
             emit settingChanged(key, toggled);
         });
+    }
+
+    void connectComboBox(QComboBox* box, const QString& key)
+    {
+        connect(
+            box,
+            &QComboBox::currentIndexChanged,
+            this,
+            [this, key, box](int index) {
+                emit settingChanged(key, box->itemData(index));
+            });
     }
 
 private:
