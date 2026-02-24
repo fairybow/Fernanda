@@ -8,6 +8,8 @@ Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO GH (grabbable highlight)
 - TODO PD (prime doc)
 
+New: Add note to AbstractFileView explaining why it needs two-step initialization! (Or, if it doesn't, remove it)
+
 New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
 
 New additional TR bat to release all and move them to the qm folder

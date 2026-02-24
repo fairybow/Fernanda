@@ -13,16 +13,18 @@
 #include <QComboBox>
 #include <QFont>
 #include <QFontDatabase>
+#include <QGroupBox>
 #include <QHBoxLayout>
-#include <QObject>
 #include <QString>
 #include <QStringList>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QTextOption>
+#include <QVariant>
+#include <QVariantMap>
 
 #include "Debug.h"
 #include "DisplaySlider.h"
 #include "Ini.h"
+#include "SettingsPanel.h"
 #include "Tr.h"
 
 namespace Fernanda {
@@ -32,37 +34,32 @@ namespace Fernanda {
 // should be debounced, but that isn't FontSelector's concern)
 //
 // TODO: Use toggle switch widget (maybe)
-class FontSelector : public QWidget
+class FontPanel : public SettingsPanel
 {
     Q_OBJECT
 
 public:
-    explicit FontSelector(const QFont& initialFont, QWidget* parent = nullptr)
-        : QWidget(parent)
-        , currentFont_(initialFont)
+    explicit FontPanel(const QVariantMap& values, QWidget* parent = nullptr)
+        : SettingsPanel(Tr::fontPanelTitle(), parent)
+        , currentFont_(values[Ini::Keys::EDITOR_FONT].value<QFont>())
     {
-        setup_();
+        setup_(values);
     }
 
-    virtual ~FontSelector() override { TRACER; }
-
-    QFont currentFont() const { return currentFont_; }
-
-signals:
-    void currentChanged(const QFont& font);
+    virtual ~FontPanel() override { TRACER; }
 
 private:
     QFont currentFont_;
 
     QComboBox* fontsBox_ = new QComboBox(this);
-    QCheckBox* boldCheckBox_ = new QCheckBox(Tr::bold(), this);
-    QCheckBox* italicCheckBox_ = new QCheckBox(Tr::italic(), this);
+    QCheckBox* boldCheckBox_ = new QCheckBox(Tr::fontPanelBold(), this);
+    QCheckBox* italicCheckBox_ = new QCheckBox(Tr::fontPanelItalic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
-    void setup_()
+    void setup_(const QVariantMap& values)
     {
         // Bundled (TODO: Add to Constants.h along with QRC paths to be used by
-        // app)
+        // app?)
         static const QStringList bundled = { "mononoki", "OpenDyslexic" };
 
         // Populate
@@ -87,26 +84,23 @@ private:
         fontsBox_->addItems(families);
         fontsBox_->setCurrentText(currentFont_.family());
 
-        boldCheckBox_->setTristate(false);
         boldCheckBox_->setChecked(currentFont_.bold());
-
-        italicCheckBox_->setTristate(false);
         italicCheckBox_->setChecked(currentFont_.italic());
+
         sizeSlider_->setRange(
             Ini::Defaults::FONT_SIZE_MIN,
             Ini::Defaults::FONT_SIZE_MAX);
         sizeSlider_->setValue(currentFont_.pointSize());
 
         // Layout
-        auto main_layout = new QVBoxLayout(this);
-
         auto top_layout = new QHBoxLayout;
         top_layout->addWidget(fontsBox_, 1);
         top_layout->addWidget(boldCheckBox_, 0);
         top_layout->addWidget(italicCheckBox_, 0);
 
-        main_layout->addLayout(top_layout);
-        main_layout->addWidget(sizeSlider_);
+        auto layout = groupBox()->layout();
+        layout->addItem(top_layout);
+        layout->addWidget(sizeSlider_);
 
         // Connect
         connect(
@@ -115,17 +109,17 @@ private:
             this,
             [&](const QString& text) {
                 currentFont_.setFamily(text);
-                emit currentChanged(currentFont_);
+                emitFont_();
             });
 
         connect(boldCheckBox_, &QCheckBox::toggled, this, [&](bool checked) {
             currentFont_.setBold(checked);
-            emit currentChanged(currentFont_);
+            emitFont_();
         });
 
         connect(italicCheckBox_, &QCheckBox::toggled, this, [&](bool checked) {
             currentFont_.setItalic(checked);
-            emit currentChanged(currentFont_);
+            emitFont_();
         });
 
         connect(
@@ -134,8 +128,15 @@ private:
             this,
             [&](int value) {
                 currentFont_.setPointSize(value);
-                emit currentChanged(currentFont_);
+                emitFont_();
             });
+    }
+
+    void emitFont_()
+    {
+        emit settingChanged(
+            Ini::Keys::EDITOR_FONT,
+            QVariant::fromValue(currentFont_));
     }
 };
 

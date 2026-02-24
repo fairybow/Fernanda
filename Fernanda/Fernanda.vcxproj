@@ -117,7 +117,7 @@
     <ClInclude Include="src\FileTypes.h" />
     <QtMoc Include="src\NoOpFileModel.h" />
     <ClInclude Include="src\AboutDialog.h" />
-    <QtMoc Include="src\FontSelector.h" />
+    <QtMoc Include="src\FontPanel.h" />
     <ClInclude Include="src\Fnx.h" />
     <QtMoc Include="src\FnxModel.h" />
     <ClInclude Include="src\FnxModelCache.h" />
@@ -145,10 +145,11 @@
     <QtMoc Include="src\StyleModule.h" />
     <QtMoc Include="src\StyleContext.h" />
     <QtMoc Include="src\SelectionHandleOverlay.h" />
+    <QtMoc Include="src\SettingsPanel.h" />
     <ClInclude Include="src\TempDir.h" />
     <ClInclude Include="src\Io.h" />
     <ClInclude Include="src\Themes.h" />
-    <QtMoc Include="src\ThemeSelector.h" />
+    <QtMoc Include="src\ThemesPanel.h" />
     <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Tr.h" />
     <QtMoc Include="src\TreeViewService.h" />

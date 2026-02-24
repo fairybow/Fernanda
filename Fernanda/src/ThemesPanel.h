@@ -10,16 +10,18 @@
 #pragma once
 
 #include <QComboBox>
+#include <QGroupBox>
 #include <QList>
-#include <QObject>
 #include <QString>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QVariant>
+#include <QVariantMap>
 
 #include "Coco/Path.h"
 
 #include "ControlField.h"
 #include "Debug.h"
+#include "Ini.h"
+#include "SettingsPanel.h"
 #include "Tr.h"
 
 namespace Fernanda {
@@ -29,7 +31,7 @@ namespace Fernanda {
 // debounced, but that isn't ThemeSelector's concern)
 //
 // TODO: Double-check this!
-class ThemeSelector : public QWidget
+class ThemesPanel : public SettingsPanel
 {
     Q_OBJECT
 
@@ -40,81 +42,64 @@ public:
         Coco::Path path{};
     };
 
-    struct InitialValues
-    {
-        QList<Entry> windowThemes{};
-        Coco::Path currentWindowTheme{};
-        QList<Entry> editorThemes{};
-        Coco::Path currentEditorTheme{};
-    };
-
-    explicit ThemeSelector(
-        const InitialValues& initialValues,
+    explicit ThemesPanel(
+        const QVariantMap& values,
+        const QList<Entry>& windowThemes,
+        const QList<Entry>& editorThemes,
         QWidget* parent = nullptr)
-        : QWidget(parent)
-        , currentWindowTheme_(initialValues.currentWindowTheme)
-        , currentEditorTheme_(initialValues.currentEditorTheme)
+        : SettingsPanel(Tr::themesPanelTitle(), parent)
     {
-        setup_(initialValues);
+        setup_(values, windowThemes, editorThemes);
     }
 
-    virtual ~ThemeSelector() override { TRACER; }
-
-    Coco::Path currentWindowTheme() const noexcept
-    {
-        return currentWindowTheme_;
-    }
-
-    Coco::Path currentEditorTheme() const noexcept
-    {
-        return currentEditorTheme_;
-    }
-
-signals:
-    void windowThemeChanged(const Coco::Path& path);
-    void editorThemeChanged(const Coco::Path& path);
+    virtual ~ThemesPanel() override { TRACER; }
 
 private:
-    Coco::Path currentWindowTheme_{};
-    Coco::Path currentEditorTheme_{};
-
     ControlField<QComboBox*>* windowTheme_ =
         new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
     ControlField<QComboBox*>* editorTheme_ =
         new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
 
-    void setup_(const InitialValues& initialValues)
+    void setup_(
+        const QVariantMap& values,
+        const QList<Entry>& windowThemes,
+        const QList<Entry>& editorThemes)
     {
-        windowTheme_->setText(Tr::windowTheme());
-        editorTheme_->setText(Tr::editorTheme());
+        windowTheme_->setText(Tr::themesPanelWindowTheme());
+        editorTheme_->setText(Tr::themesPanelEditorTheme());
+
         auto window_theme_box = windowTheme_->control();
         auto editor_theme_box = editorTheme_->control();
 
         /// TODO STYLE: Temporarily disable user window themes
-        windowTheme_->setEnabled(false); /// SEE IF THIS WORKS
+        windowTheme_->setEnabled(false);
 
         // Populate window themes
-        for (const auto& entry : initialValues.windowThemes) {
+        for (auto& entry : windowThemes) {
             window_theme_box->addItem(
                 entry.name,
                 QVariant::fromValue(entry.path));
         }
 
         // Populate editor themes
-        for (const auto& entry : initialValues.editorThemes) {
+        for (auto& entry : editorThemes) {
             editor_theme_box->addItem(
                 entry.name,
                 QVariant::fromValue(entry.path));
         }
 
         // Set current selections
-        selectByPath_(window_theme_box, currentWindowTheme_);
-        selectByPath_(editor_theme_box, currentEditorTheme_);
+        selectByPath_(
+            window_theme_box,
+            values[Ini::Keys::WINDOW_THEME].value<Coco::Path>());
+        selectByPath_(
+            editor_theme_box,
+            values[Ini::Keys::EDITOR_THEME].value<Coco::Path>());
 
         // Layout
-        auto main_layout = new QVBoxLayout(this);
-        main_layout->addWidget(windowTheme_);
-        main_layout->addWidget(editorTheme_);
+        auto layout = groupBox()->layout();
+        layout->addWidget(windowTheme_);
+        layout->addWidget(editorTheme_);
 
         // Connect
         connect(
@@ -122,10 +107,9 @@ private:
             &QComboBox::currentIndexChanged,
             this,
             [&](int index) {
-                currentWindowTheme_ = windowTheme_->control()
-                                          ->itemData(index)
-                                          .value<Coco::Path>();
-                emit windowThemeChanged(currentWindowTheme_);
+                emit settingChanged(
+                    Ini::Keys::WINDOW_THEME,
+                    windowTheme_->control()->itemData(index));
             });
 
         connect(
@@ -133,10 +117,9 @@ private:
             &QComboBox::currentIndexChanged,
             this,
             [&](int index) {
-                currentEditorTheme_ = editorTheme_->control()
-                                          ->itemData(index)
-                                          .value<Coco::Path>();
-                emit editorThemeChanged(currentEditorTheme_);
+                emit settingChanged(
+                    Ini::Keys::EDITOR_THEME,
+                    editorTheme_->control()->itemData(index));
             });
     }
 

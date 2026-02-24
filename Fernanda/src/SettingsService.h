@@ -13,10 +13,10 @@
 
 #include <QAnyStringView>
 #include <QList>
-#include <QObject>
 #include <QString>
 #include <QTextOption>
 #include <QVariant>
+#include <QVariantMap>
 
 #include "Coco/Path.h"
 
@@ -26,7 +26,7 @@
 #include "Debug.h"
 #include "Ini.h"
 #include "SettingsDialog.h"
-#include "ThemeSelector.h"
+#include "ThemesPanel.h"
 #include "TieredSettings.h"
 #include "Timers.h"
 #include "Tr.h"
@@ -81,10 +81,10 @@ public:
             return;
         }
 
-        QList<ThemeSelector::Entry> window_theme_entries{};
+        QList<ThemesPanel::Entry> window_theme_entries{};
 
         // Add themeless option using empty path
-        window_theme_entries << ThemeSelector::Entry{ Tr::noTheme(), {} };
+        window_theme_entries << ThemesPanel::Entry{ Tr::noTheme(), {} };
 
         // TODO: Don't use pair. Find a sensible location for using a struct
         // with explicit names! Could have all involved (this, SettingsDialog,
@@ -92,370 +92,97 @@ public:
         for (auto& theme : bus->call<QList<std::pair<QString, Coco::Path>>>(
                  Bus::WINDOW_THEMES)) {
             window_theme_entries
-                << ThemeSelector::Entry{ theme.first,
-                                         theme.second }; // name, path
+                << ThemesPanel::Entry{ theme.first,
+                                       theme.second }; // name, path
         }
 
-        QList<ThemeSelector::Entry> editor_theme_entries{};
-        editor_theme_entries << ThemeSelector::Entry{ Tr::noTheme(), {} };
+        QList<ThemesPanel::Entry> editor_theme_entries{};
+        editor_theme_entries << ThemesPanel::Entry{ Tr::noTheme(), {} };
 
         for (auto& theme : bus->call<QList<std::pair<QString, Coco::Path>>>(
                  Bus::EDITOR_THEMES)) {
             editor_theme_entries
-                << ThemeSelector::Entry{ theme.first,
-                                         theme.second }; // name, path
+                << ThemesPanel::Entry{ theme.first,
+                                       theme.second }; // name, path
         }
 
-        SettingsDialog::InitialValues initials{
-            .font = settings_->value<QFont>(
-                Ini::Keys::EDITOR_FONT,
-                Ini::Defaults::font()),
-
-            .windowThemes = window_theme_entries,
-            .currentWindowTheme = settings_->value<QString>(
-                Ini::Keys::WINDOW_THEME,
-                Ini::Defaults::windowTheme()),
-
-            .editorThemes = editor_theme_entries,
-
-            // TODO: Any way to get path to work with QSettings?
-            .currentEditorTheme = settings_->value<QString>(
-                Ini::Keys::EDITOR_THEME,
-                Ini::Defaults::editorTheme()),
-
-            /// TODO KFS
-            .keyFiltersActive = settings_->value<bool>(
-                Ini::Keys::KEY_FILTERS_ACTIVE,
-                Ini::Defaults::keyFiltersActive()),
-            .keyFiltersAutoClose = settings_->value<bool>(
-                Ini::Keys::KEY_FILTERS_AUTO_CLOSE,
-                Ini::Defaults::keyFiltersAutoClose()),
-            .keyFiltersBarging = settings_->value<bool>(
-                Ini::Keys::KEY_FILTERS_BARGING,
-                Ini::Defaults::keyFiltersBarging()),
-
-            /// TODO ES
-            .editorCenterOnScroll = settings_->value<bool>(
-                Ini::Keys::EDITOR_CENTER_ON_SCROLL,
-                Ini::Defaults::editorCenterOnScroll()),
-            .editorOverwrite = settings_->value<bool>(
-                Ini::Keys::EDITOR_OVERWRITE,
-                Ini::Defaults::editorOverwrite()),
-            .editorTabStopDistance = settings_->value<int>(
-                Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
-                Ini::Defaults::editorTabStopDistance()),
-            .editorWrapMode = settings_->value<QTextOption::WrapMode>(
-                Ini::Keys::EDITOR_WRAP_MODE,
-                Ini::Defaults::editorWrapMode()),
-            .editorDblClickWhitespace = settings_->value<bool>(
-                Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
-                Ini::Defaults::editorDoubleClickWhitespace()),
-            .editorLineNumbers = settings_->value<bool>(
-                Ini::Keys::EDITOR_LINE_NUMBERS,
-                Ini::Defaults::editorLineNumbers()),
-            .editorLineHighlight = settings_->value<bool>(
-                Ini::Keys::EDITOR_LINE_HIGHLIGHT,
-                Ini::Defaults::editorLineHighlight()),
-            .editorSelectionHandles = settings_->value<bool>(
-                Ini::Keys::EDITOR_SELECTION_HANDLES,
-                Ini::Defaults::editorSelectionHandles()),
-            .wordCounterActive = settings_->value<bool>(
-                Ini::Keys::WORD_COUNTER_ACTIVE,
-                Ini::Defaults::wordCounterActive()),
-            .wordCounterLineCount = settings_->value<bool>(
-                Ini::Keys::WORD_COUNTER_LINE_COUNT,
-                Ini::Defaults::wordCounterLineCount()),
-            .wordCounterWordCount = settings_->value<bool>(
-                Ini::Keys::WORD_COUNTER_WORD_COUNT,
-                Ini::Defaults::wordCounterWordCount()),
-            .wordCounterCharCount = settings_->value<bool>(
-                Ini::Keys::WORD_COUNTER_CHAR_COUNT,
-                Ini::Defaults::wordCounterCharCount()),
-            .wordCounterSelection = settings_->value<bool>(
-                Ini::Keys::WORD_COUNTER_SELECTION,
-                Ini::Defaults::wordCounterSelection()),
-            .wordCounterSelReplace = settings_->value<bool>(
-                Ini::Keys::WORD_COUNTER_SEL_REPLACE,
-                Ini::Defaults::wordCounterSelReplace()),
-            .wordCounterLinePos = settings_->value<bool>(
-                Ini::Keys::WORD_COUNTER_LINE_POS,
-                Ini::Defaults::wordCounterLinePos()),
-            .wordCounterColPos = settings_->value<bool>(
-                Ini::Keys::WORD_COUNTER_COL_POS,
-                Ini::Defaults::wordCounterColPos()),
-            .colorBarActive = settings_->value<bool>(
-                Ini::Keys::COLOR_BAR_ACTIVE,
-                Ini::Defaults::colorBarActive()),
-            .colorBarPosition = settings_->value<ColorBar::Position>(
-                Ini::Keys::COLOR_BAR_POSITION,
-                Ini::Defaults::colorBarPosition())
+        auto v = [&](const auto& key,
+                     const auto& default_) -> std::pair<QString, QVariant> {
+            return { key, settings_->value(key, qVar(default_)) };
         };
 
-        auto title = name_.isEmpty() ? Tr::settingsTitle()
-                                     : Tr::settingsTitleFormat().arg(name_);
-        dialog_ = new SettingsDialog(title, initials);
+        QVariantMap values{
+            // Font
+            v(Ini::Keys::EDITOR_FONT, Ini::Defaults::font()),
+
+            // Themes (current selection, not the list of available themes)
+            v(Ini::Keys::WINDOW_THEME, Ini::Defaults::windowTheme()),
+            v(Ini::Keys::EDITOR_THEME, Ini::Defaults::editorTheme()),
+
+            // Key filters
+            v(Ini::Keys::KEY_FILTERS_ACTIVE, Ini::Defaults::keyFiltersActive()),
+            v(Ini::Keys::KEY_FILTERS_AUTO_CLOSE,
+              Ini::Defaults::keyFiltersAutoClose()),
+            v(Ini::Keys::KEY_FILTERS_BARGING,
+              Ini::Defaults::keyFiltersBarging()),
+
+            // Editor
+            v(Ini::Keys::EDITOR_CENTER_ON_SCROLL,
+              Ini::Defaults::editorCenterOnScroll()),
+            v(Ini::Keys::EDITOR_OVERWRITE, Ini::Defaults::editorOverwrite()),
+            v(Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
+              Ini::Defaults::editorTabStopDistance()),
+            v(Ini::Keys::EDITOR_WRAP_MODE, Ini::Defaults::editorWrapMode()),
+            v(Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
+              Ini::Defaults::editorDoubleClickWhitespace()),
+            v(Ini::Keys::EDITOR_LINE_NUMBERS,
+              Ini::Defaults::editorLineNumbers()),
+            v(Ini::Keys::EDITOR_LINE_HIGHLIGHT,
+              Ini::Defaults::editorLineHighlight()),
+            v(Ini::Keys::EDITOR_SELECTION_HANDLES,
+              Ini::Defaults::editorSelectionHandles()),
+
+            // Word counter
+            v(Ini::Keys::WORD_COUNTER_ACTIVE,
+              Ini::Defaults::wordCounterActive()),
+            v(Ini::Keys::WORD_COUNTER_LINE_COUNT,
+              Ini::Defaults::wordCounterLineCount()),
+            v(Ini::Keys::WORD_COUNTER_WORD_COUNT,
+              Ini::Defaults::wordCounterWordCount()),
+            v(Ini::Keys::WORD_COUNTER_CHAR_COUNT,
+              Ini::Defaults::wordCounterCharCount()),
+            v(Ini::Keys::WORD_COUNTER_SELECTION,
+              Ini::Defaults::wordCounterSelection()),
+            v(Ini::Keys::WORD_COUNTER_SEL_REPLACE,
+              Ini::Defaults::wordCounterSelReplace()),
+            v(Ini::Keys::WORD_COUNTER_LINE_POS,
+              Ini::Defaults::wordCounterLinePos()),
+            v(Ini::Keys::WORD_COUNTER_COL_POS,
+              Ini::Defaults::wordCounterColPos()),
+
+            // Color bar
+            v(Ini::Keys::COLOR_BAR_ACTIVE, Ini::Defaults::colorBarActive()),
+            v(Ini::Keys::COLOR_BAR_POSITION, Ini::Defaults::colorBarPosition())
+        };
+
+        dialog_ = new SettingsDialog(
+            name_.isEmpty() ? Tr::settingsTitle()
+                            : Tr::settingsTitleFormat().arg(name_),
+            values,
+            window_theme_entries,
+            editor_theme_entries);
 
         connect(
             dialog_,
-            &SettingsDialog::fontChanged,
+            &SettingsDialog::settingChanged,
             this,
-            [&](const QFont& font) {
-                emit bus->settingChanged(Ini::Keys::EDITOR_FONT, font);
-                pendingFont_ = font;
-                fontDebouncer_->start();
-            });
+            [&](const QString& key, const QVariant& value) {
+                emit bus->settingChanged(key, value);
 
-        connect(
-            dialog_,
-            &SettingsDialog::windowThemeChanged,
-            this,
-            [&](const Coco::Path& path) {
-                emit bus->settingChanged(Ini::Keys::WINDOW_THEME, qVar(path));
-                pendingWindowTheme_ = path;
-                windowThemeDebouncer_->start();
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::editorThemeChanged,
-            this,
-            [&](const Coco::Path& path) {
-                emit bus->settingChanged(Ini::Keys::EDITOR_THEME, qVar(path));
-                pendingEditorTheme_ = path;
-                editorThemeDebouncer_->start();
-            });
-
-        /// TODO KFS
-        connect(
-            dialog_,
-            &SettingsDialog::keyFiltersActiveChanged,
-            this,
-            [&](bool active) {
-                emit bus->settingChanged(Ini::Keys::KEY_FILTERS_ACTIVE, active);
-                set(Ini::Keys::KEY_FILTERS_ACTIVE, active);
-            });
-
-        /// TODO KFS
-        connect(
-            dialog_,
-            &SettingsDialog::keyFiltersAutoCloseChanged,
-            this,
-            [&](bool autoClose) {
-                emit bus->settingChanged(
-                    Ini::Keys::KEY_FILTERS_AUTO_CLOSE,
-                    autoClose);
-                set(Ini::Keys::KEY_FILTERS_AUTO_CLOSE, autoClose);
-            });
-
-        /// TODO KFS
-        connect(
-            dialog_,
-            &SettingsDialog::keyFiltersBargingChanged,
-            this,
-            [&](bool barging) {
-                emit bus->settingChanged(
-                    Ini::Keys::KEY_FILTERS_BARGING,
-                    barging);
-                set(Ini::Keys::KEY_FILTERS_BARGING, barging);
-            });
-
-        /// TODO ES
-        connect(
-            dialog_,
-            &SettingsDialog::editorCenterOnScrollChanged,
-            this,
-            [&](bool centerOnScroll) {
-                emit bus->settingChanged(
-                    Ini::Keys::EDITOR_CENTER_ON_SCROLL,
-                    centerOnScroll);
-                set(Ini::Keys::EDITOR_CENTER_ON_SCROLL, centerOnScroll);
-            });
-
-        /// TODO ES
-        connect(
-            dialog_,
-            &SettingsDialog::editorOverwriteChanged,
-            this,
-            [&](bool overwrite) {
-                emit bus->settingChanged(
-                    Ini::Keys::EDITOR_OVERWRITE,
-                    overwrite);
-                set(Ini::Keys::EDITOR_OVERWRITE, overwrite);
-            });
-
-        /// TODO ES
-        connect(
-            dialog_,
-            &SettingsDialog::editorTabStopDistanceChanged,
-            this,
-            [&](int tabStopDistance) {
-                emit bus->settingChanged(
-                    Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
-                    tabStopDistance);
-                pendingEditorTabStopDistance_ = tabStopDistance;
-                editorTabStopDistanceDebouncer_->start();
-            });
-
-        /// TODO ES
-        connect(
-            dialog_,
-            &SettingsDialog::editorWrapModeChanged,
-            this,
-            [&](QTextOption::WrapMode wrapMode) {
-                emit bus->settingChanged(Ini::Keys::EDITOR_WRAP_MODE, wrapMode);
-                set(Ini::Keys::EDITOR_WRAP_MODE, wrapMode);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::editorDblClickWhitespaceChanged,
-            this,
-            [&](bool dblClickWhitespace) {
-                emit bus->settingChanged(
-                    Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
-                    dblClickWhitespace);
-                set(Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE, dblClickWhitespace);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::editorLineNumbersChanged,
-            this,
-            [&](bool lineNumbers) {
-                emit bus->settingChanged(
-                    Ini::Keys::EDITOR_LINE_NUMBERS,
-                    lineNumbers);
-                set(Ini::Keys::EDITOR_LINE_NUMBERS, lineNumbers);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::editorLineHighlightChanged,
-            this,
-            [&](bool lineHighlight) {
-                emit bus->settingChanged(
-                    Ini::Keys::EDITOR_LINE_HIGHLIGHT,
-                    lineHighlight);
-                set(Ini::Keys::EDITOR_LINE_HIGHLIGHT, lineHighlight);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::editorSelectionHandlesChanged,
-            this,
-            [&](bool selectionHandles) {
-                emit bus->settingChanged(
-                    Ini::Keys::EDITOR_SELECTION_HANDLES,
-                    selectionHandles);
-                set(Ini::Keys::EDITOR_SELECTION_HANDLES, selectionHandles);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::wordCounterActiveChanged,
-            this,
-            [&](bool active) {
-                emit bus->settingChanged(
-                    Ini::Keys::WORD_COUNTER_ACTIVE,
-                    active);
-                set(Ini::Keys::WORD_COUNTER_ACTIVE, active);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::wordCounterLineCountChanged,
-            this,
-            [&](bool lineCount) {
-                emit bus->settingChanged(
-                    Ini::Keys::WORD_COUNTER_LINE_COUNT,
-                    lineCount);
-                set(Ini::Keys::WORD_COUNTER_LINE_COUNT, lineCount);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::wordCounterWordCountChanged,
-            this,
-            [&](bool wordCount) {
-                emit bus->settingChanged(
-                    Ini::Keys::WORD_COUNTER_WORD_COUNT,
-                    wordCount);
-                set(Ini::Keys::WORD_COUNTER_WORD_COUNT, wordCount);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::wordCounterCharCountChanged,
-            this,
-            [&](bool charCount) {
-                emit bus->settingChanged(
-                    Ini::Keys::WORD_COUNTER_CHAR_COUNT,
-                    charCount);
-                set(Ini::Keys::WORD_COUNTER_CHAR_COUNT, charCount);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::wordCounterSelectionChanged,
-            this,
-            [&](bool selection) {
-                emit bus->settingChanged(
-                    Ini::Keys::WORD_COUNTER_SELECTION,
-                    selection);
-                set(Ini::Keys::WORD_COUNTER_SELECTION, selection);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::wordCounterSelReplaceChanged,
-            this,
-            [&](bool selReplace) {
-                emit bus->settingChanged(
-                    Ini::Keys::WORD_COUNTER_SEL_REPLACE,
-                    selReplace);
-                set(Ini::Keys::WORD_COUNTER_SEL_REPLACE, selReplace);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::wordCounterLinePosChanged,
-            this,
-            [&](bool linePos) {
-                emit bus->settingChanged(
-                    Ini::Keys::WORD_COUNTER_LINE_POS,
-                    linePos);
-                set(Ini::Keys::WORD_COUNTER_LINE_POS, linePos);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::wordCounterColPosChanged,
-            this,
-            [&](bool colPos) {
-                emit bus->settingChanged(
-                    Ini::Keys::WORD_COUNTER_COL_POS,
-                    colPos);
-                set(Ini::Keys::WORD_COUNTER_COL_POS, colPos);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::colorBarActiveChanged,
-            this,
-            [&](bool active) {
-                emit bus->settingChanged(Ini::Keys::COLOR_BAR_ACTIVE, active);
-                set(Ini::Keys::COLOR_BAR_ACTIVE, active);
-            });
-
-        connect(
-            dialog_,
-            &SettingsDialog::colorBarPositionChanged,
-            this,
-            [&](ColorBar::Position position) {
-                emit bus->settingChanged(
-                    Ini::Keys::COLOR_BAR_POSITION,
-                    position);
-                set(Ini::Keys::COLOR_BAR_POSITION, position);
+                if (isDebouncedSetting_(key))
+                    queueDebouncedSet_(key, value);
+                else
+                    set(key, value);
             });
 
         connect(dialog_, &SettingsDialog::finished, this, [&](int result) {
@@ -558,6 +285,30 @@ private:
                 set(Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
                     pendingEditorTabStopDistance_);
             });
+    }
+
+    static bool isDebouncedSetting_(const QString& key) noexcept
+    {
+        return key == Ini::Keys::EDITOR_FONT || key == Ini::Keys::WINDOW_THEME
+               || key == Ini::Keys::EDITOR_THEME
+               || key == Ini::Keys::EDITOR_TAB_STOP_DISTANCE;
+    }
+
+    void queueDebouncedSet_(const QString& key, const QVariant& value)
+    {
+        if (key == Ini::Keys::EDITOR_FONT) {
+            pendingFont_ = value.value<QFont>();
+            fontDebouncer_->start();
+        } else if (key == Ini::Keys::WINDOW_THEME) {
+            pendingWindowTheme_ = value.value<Coco::Path>();
+            windowThemeDebouncer_->start();
+        } else if (key == Ini::Keys::EDITOR_THEME) {
+            pendingEditorTheme_ = value.value<Coco::Path>();
+            editorThemeDebouncer_->start();
+        } else if (key == Ini::Keys::EDITOR_TAB_STOP_DISTANCE) {
+            pendingEditorTabStopDistance_ = value.value<int>();
+            editorTabStopDistanceDebouncer_->start();
+        }
     }
 };
 

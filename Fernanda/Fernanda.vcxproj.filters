@@ -443,13 +443,13 @@
     <QtMoc Include="src\EditorPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
-    <QtMoc Include="src\FontSelector.h">
+    <QtMoc Include="src\FontPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
     <QtMoc Include="src\KeyFiltersPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
-    <QtMoc Include="src\ThemeSelector.h">
+    <QtMoc Include="src\ThemesPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
     <QtMoc Include="src\WordCounterModule.h">
@@ -465,6 +465,9 @@
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
     <QtMoc Include="src\ColorBarPanel.h">
+      <Filter>Code\Core\UI\Settings</Filter>
+    </QtMoc>
+    <QtMoc Include="src\SettingsPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
   </ItemGroup>

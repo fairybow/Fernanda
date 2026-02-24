@@ -12,58 +12,35 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
+#include <QString>
 #include <QTextOption>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QVariant>
+#include <QVariantMap>
 
 #include "ControlField.h"
 #include "Debug.h"
 #include "DisplaySlider.h"
 #include "Ini.h"
+#include "SettingsPanel.h"
 #include "Tr.h"
 
 namespace Fernanda {
 
 /// TODO ES
-class EditorPanel : public QWidget
+class EditorPanel : public SettingsPanel
 {
     Q_OBJECT
 
 public:
-    struct InitialValues
+    explicit EditorPanel(const QVariantMap& values, QWidget* parent = nullptr)
+        : SettingsPanel(Tr::editorPanelTitle(), parent)
     {
-        bool centerOnScroll;
-        bool overwrite;
-        int tabStopDistance;
-        QTextOption::WrapMode wrapMode;
-        bool doubleClickWhitespace;
-        bool lineNumbers;
-        bool lineHighlight;
-        bool selectionHandles;
-    };
-
-    explicit EditorPanel(
-        const InitialValues& initialValues,
-        QWidget* parent = nullptr)
-        : QWidget(parent)
-    {
-        setup_(initialValues);
+        setup_(values);
     }
 
     virtual ~EditorPanel() override { TRACER; }
 
-signals:
-    void centerOnScrollChanged(bool centerOnScroll);
-    void overwriteChanged(bool overwrite);
-    void tabStopDistanceChanged(int tabStopDistance);
-    void wrapModeChanged(QTextOption::WrapMode wrapMode);
-    void doubleClickWhitespaceChanged(bool doubleClickWhitespace);
-    void lineNumbersChanged(bool lineNumbers);
-    void lineHighlightChanged(bool lineHighlight);
-    void selectionHandlesChanged(bool selectionHandles);
-
 private:
-    QGroupBox* groupBox_ = new QGroupBox(this);
     QCheckBox* centerOnScrollCheck_ = new QCheckBox(this);
     QCheckBox* overwriteCheck_ = new QCheckBox(this);
     ControlField<DisplaySlider*>* tabStopDistance_ =
@@ -78,24 +55,23 @@ private:
     QCheckBox* lineHighlightCheck_ = new QCheckBox(this);
     QCheckBox* selectionHandlesCheck_ = new QCheckBox(this);
 
-    void setup_(const InitialValues& initialValues)
+    void setup_(const QVariantMap& values)
     {
-        // Populate
-        groupBox_->setTitle(Tr::editorPanelTitle());
-        groupBox_->setCheckable(false);
-
         centerOnScrollCheck_->setText(Tr::editorPanelCenterOnScroll());
-        centerOnScrollCheck_->setChecked(initialValues.centerOnScroll);
+        centerOnScrollCheck_->setChecked(
+            values[Ini::Keys::EDITOR_CENTER_ON_SCROLL].toBool());
 
         overwriteCheck_->setText(Tr::editorPanelOverwrite());
-        overwriteCheck_->setChecked(initialValues.overwrite);
+        overwriteCheck_->setChecked(
+            values[Ini::Keys::EDITOR_OVERWRITE].toBool());
 
         tabStopDistance_->setText(Tr::editorPanelTabStopDistance());
         auto tab_stop_dist_slider = tabStopDistance_->control();
         tab_stop_dist_slider->setRange(
             Ini::Defaults::EDITOR_TAB_STOP_DISTANCE_MIN,
             Ini::Defaults::EDITOR_TAB_STOP_DISTANCE_MAX);
-        tab_stop_dist_slider->setValue(initialValues.tabStopDistance);
+        tab_stop_dist_slider->setValue(
+            values[Ini::Keys::EDITOR_TAB_STOP_DISTANCE].toInt());
 
         wrapMode_->setText(Tr::editorPanelWrapMode());
         wrapMode_->setInfo(Tr::editorPanelWrapModeTooltip());
@@ -110,88 +86,108 @@ private:
         wrap_mode_box->addItem(
             Tr::editorPanelWrapAtWordBoundaryOrAnywhere(),
             QTextOption::WrapAtWordBoundaryOrAnywhere);
-        wrap_mode_box->setCurrentIndex(
-            wrap_mode_box->findData(initialValues.wrapMode));
+        wrap_mode_box->setCurrentIndex(wrap_mode_box->findData(
+            values[Ini::Keys::EDITOR_WRAP_MODE]
+                .value<QTextOption::WrapMode>()));
 
         doubleClickWhitespaceCheck_->setText(
             Tr::editorPanelDblClickWhitespace());
         doubleClickWhitespaceCheck_->setChecked(
-            initialValues.doubleClickWhitespace);
+            values[Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE].toBool());
 
         lineNumbersCheck_->setText(Tr::editorPanelLineNumbers());
-        lineNumbersCheck_->setChecked(initialValues.lineNumbers);
+        lineNumbersCheck_->setChecked(
+            values[Ini::Keys::EDITOR_LINE_NUMBERS].toBool());
 
         lineHighlightCheck_->setText(Tr::editorPanelLineHighlight());
-        lineHighlightCheck_->setChecked(initialValues.lineHighlight);
+        lineHighlightCheck_->setChecked(
+            values[Ini::Keys::EDITOR_LINE_HIGHLIGHT].toBool());
 
         selectionHandlesCheck_->setText(Tr::editorPanelSelectionHandles());
-        selectionHandlesCheck_->setChecked(initialValues.selectionHandles);
+        selectionHandlesCheck_->setChecked(
+            values[Ini::Keys::EDITOR_SELECTION_HANDLES].toBool());
 
         // Layout
-        auto main_layout = new QVBoxLayout(this);
-        auto group_box_layout = new QVBoxLayout;
-        group_box_layout->addWidget(centerOnScrollCheck_);
-        group_box_layout->addWidget(overwriteCheck_);
-        group_box_layout->addWidget(tabStopDistance_);
-        group_box_layout->addWidget(wrapMode_);
-        group_box_layout->addWidget(doubleClickWhitespaceCheck_);
-        group_box_layout->addWidget(lineNumbersCheck_);
-        group_box_layout->addWidget(lineHighlightCheck_);
-        group_box_layout->addWidget(selectionHandlesCheck_);
-        groupBox_->setLayout(group_box_layout);
-
-        main_layout->addWidget(groupBox_);
+        auto layout = groupBox()->layout();
+        layout->addWidget(centerOnScrollCheck_);
+        layout->addWidget(overwriteCheck_);
+        layout->addWidget(tabStopDistance_);
+        layout->addWidget(wrapMode_);
+        layout->addWidget(doubleClickWhitespaceCheck_);
+        layout->addWidget(lineNumbersCheck_);
+        layout->addWidget(lineHighlightCheck_);
+        layout->addWidget(selectionHandlesCheck_);
 
         // Connect
         connect(
             centerOnScrollCheck_,
             &QCheckBox::toggled,
             this,
-            [&](bool toggled) { emit centerOnScrollChanged(toggled); });
+            [&](bool toggled) {
+                emit settingChanged(
+                    Ini::Keys::EDITOR_CENTER_ON_SCROLL,
+                    toggled);
+            });
 
         connect(overwriteCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit overwriteChanged(toggled);
+            emit settingChanged(Ini::Keys::EDITOR_OVERWRITE, toggled);
         });
 
         connect(
             tab_stop_dist_slider,
             &DisplaySlider::valueChanged,
             this,
-            [&](int value) { emit tabStopDistanceChanged(value); });
+            [&](int value) {
+                emit settingChanged(Ini::Keys::EDITOR_TAB_STOP_DISTANCE, value);
+            });
 
         connect(
             wrap_mode_box,
             &QComboBox::currentIndexChanged,
             this,
             [&](int index) {
-                emit wrapModeChanged(wrapMode_->control()
-                                         ->itemData(index)
-                                         .value<QTextOption::WrapMode>());
+                emit settingChanged(
+                    Ini::Keys::EDITOR_WRAP_MODE,
+                    wrapMode_->control()
+                        ->itemData(index)
+                        .value<QTextOption::WrapMode>());
             });
 
         connect(
             doubleClickWhitespaceCheck_,
             &QCheckBox::toggled,
             this,
-            [&](bool toggled) { emit doubleClickWhitespaceChanged(toggled); });
+            [&](bool toggled) {
+                emit settingChanged(
+                    Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
+                    toggled);
+            });
 
         connect(
             lineNumbersCheck_,
             &QCheckBox::toggled,
             this,
-            [&](bool toggled) { emit lineNumbersChanged(toggled); });
+            [&](bool toggled) {
+                emit settingChanged(Ini::Keys::EDITOR_LINE_NUMBERS, toggled);
+            });
 
         connect(
             lineHighlightCheck_,
             &QCheckBox::toggled,
             this,
-            [&](bool toggled) { emit lineHighlightChanged(toggled); });
+            [&](bool toggled) {
+                emit settingChanged(Ini::Keys::EDITOR_LINE_HIGHLIGHT, toggled);
+            });
 
         connect(
             selectionHandlesCheck_,
             &QCheckBox::toggled,
             this,
-            [&](bool toggled) { emit selectionHandlesChanged(toggled); });
+            [&](bool toggled) {
+                emit settingChanged(
+                    Ini::Keys::EDITOR_SELECTION_HANDLES,
+                    toggled);
+            });
     }
 };
 

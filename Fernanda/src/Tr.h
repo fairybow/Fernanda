@@ -225,15 +225,17 @@ namespace Tr {
     TR_(wordCounterLinePos, tr("ln"));
     TR_(wordCounterColPos, tr("col"));
 
-    /// Font selector
+    /// Font panel
 
-    TR_(bold, tr("Bold"));
-    TR_(italic, tr("Italic"));
+    TR_(fontPanelTitle, tr("Font"));
+    TR_(fontPanelBold, tr("Bold"));
+    TR_(fontPanelItalic, tr("Italic"));
 
-    /// Theme selector
+    /// Themes panel
 
-    TR_(editorTheme, tr("Editor theme"));
-    TR_(windowTheme, tr("Window theme"));
+    TR_(themesPanelTitle, tr("Themes"));
+    TR_(themesPanelEditorTheme, tr("Editor theme"));
+    TR_(themesPanelWindowTheme, tr("Window theme"));
 
     /// Key filter panel
 

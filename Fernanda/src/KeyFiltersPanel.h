@@ -11,85 +11,72 @@
 
 #include <QCheckBox>
 #include <QGroupBox>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QString>
+#include <QVariant>
+#include <QVariantMap>
 
 #include "ControlField.h"
 #include "Debug.h"
+#include "Ini.h"
+#include "SettingsPanel.h"
 #include "Tr.h"
 
 namespace Fernanda {
 
 /// TODO KFS
-class KeyFiltersPanel : public QWidget
+class KeyFiltersPanel : public SettingsPanel
 {
     Q_OBJECT
 
 public:
-    struct InitialValues
-    {
-        bool active;
-        bool autoClose;
-        bool barging;
-    };
-
     explicit KeyFiltersPanel(
-        const InitialValues& initialValues,
+        const QVariantMap& values,
         QWidget* parent = nullptr)
-        : QWidget(parent)
+        : SettingsPanel(Tr::keyFiltersPanelTitle(), parent)
     {
-        setup_(initialValues);
+        setup_(values);
     }
 
     virtual ~KeyFiltersPanel() override { TRACER; }
 
-signals:
-    void activeChanged(bool active);
-    void autoCloseChanged(bool autoClose);
-    void bargingChanged(bool barging);
-
 private:
-    QGroupBox* groupBox_ = new QGroupBox(this);
     QCheckBox* autoCloseCheck_ = new QCheckBox(this);
     ControlField<QCheckBox*>* barging_ =
         new ControlField<QCheckBox*>(ControlField<QCheckBox*>::Info, this);
 
-    void setup_(const InitialValues& initialValues)
+    void setup_(const QVariantMap& values)
     {
         // Populate
-        groupBox_->setTitle(Tr::keyFiltersPanelTitle());
-        groupBox_->setCheckable(true);
-        groupBox_->setChecked(initialValues.active);
+        auto group_box = groupBox();
+        group_box->setCheckable(true);
+        group_box->setChecked(values[Ini::Keys::KEY_FILTERS_ACTIVE].toBool());
 
         autoCloseCheck_->setText(Tr::keyFiltersPanelAutoClose());
-        autoCloseCheck_->setChecked(initialValues.autoClose);
+        autoCloseCheck_->setChecked(
+            values[Ini::Keys::KEY_FILTERS_AUTO_CLOSE].toBool());
 
         auto barging_check = barging_->control();
         barging_check->setText(Tr::keyFiltersPanelBarging());
-        barging_check->setChecked(initialValues.barging);
+        barging_check->setChecked(
+            values[Ini::Keys::KEY_FILTERS_BARGING].toBool());
         barging_->setInfo(Tr::keyFiltersPanelBargingTooltip());
 
         // Layout
-        auto main_layout = new QVBoxLayout(this);
-
-        auto group_box_layout = new QVBoxLayout;
-        group_box_layout->addWidget(autoCloseCheck_);
-        group_box_layout->addWidget(barging_);
-        groupBox_->setLayout(group_box_layout);
-
-        main_layout->addWidget(groupBox_);
+        auto layout = group_box->layout();
+        layout->addWidget(autoCloseCheck_);
+        layout->addWidget(barging_);
 
         // Connect
-        connect(groupBox_, &QGroupBox::toggled, this, [&](bool toggled) {
-            emit activeChanged(toggled);
+        connect(group_box, &QGroupBox::toggled, this, [&](bool toggled) {
+            emit settingChanged(Ini::Keys::KEY_FILTERS_ACTIVE, toggled);
         });
 
         connect(autoCloseCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit autoCloseChanged(toggled);
+            emit settingChanged(Ini::Keys::KEY_FILTERS_AUTO_CLOSE, toggled);
         });
 
         connect(barging_check, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit bargingChanged(toggled);
+            emit settingChanged(Ini::Keys::KEY_FILTERS_BARGING, toggled);
         });
     }
 };

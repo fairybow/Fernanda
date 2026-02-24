@@ -11,52 +11,42 @@
 
 #include <QComboBox>
 #include <QGroupBox>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QString>
+#include <QVariant>
+#include <QVariantMap>
 
 #include "ColorBar.h"
 #include "ControlField.h"
 #include "Debug.h"
+#include "Ini.h"
+#include "SettingsPanel.h"
 #include "Tr.h"
 
 namespace Fernanda {
 
-class ColorBarPanel : public QWidget
+class ColorBarPanel : public SettingsPanel
 {
     Q_OBJECT
 
 public:
-    struct InitialValues
+    explicit ColorBarPanel(const QVariantMap& values, QWidget* parent = nullptr)
+        : SettingsPanel(Tr::colorBarPanelTitle(), parent)
     {
-        bool active;
-        ColorBar::Position position;
-    };
-
-    explicit ColorBarPanel(
-        const InitialValues& initialValues,
-        QWidget* parent = nullptr)
-        : QWidget(parent)
-    {
-        setup_(initialValues);
+        setup_(values);
     }
 
     virtual ~ColorBarPanel() override { TRACER; }
 
-signals:
-    void activeChanged(bool active);
-    void positionChanged(ColorBar::Position position);
-
 private:
-    QGroupBox* groupBox_ = new QGroupBox(this);
     ControlField<QComboBox*>* position_ =
         new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
 
-    void setup_(const InitialValues& initialValues)
+    void setup_(const QVariantMap& values)
     {
         // Populate
-        groupBox_->setTitle(Tr::colorBarPanelTitle());
-        groupBox_->setCheckable(true);
-        groupBox_->setChecked(initialValues.active);
+        auto group_box = groupBox();
+        group_box->setCheckable(true);
+        group_box->setChecked(values[Ini::Keys::COLOR_BAR_ACTIVE].toBool());
 
         position_->setText(Tr::colorBarPanelPosition());
         auto position_box = position_->control();
@@ -68,21 +58,15 @@ private:
             Tr::colorBarPanelAboveStatusBar(),
             ColorBar::AboveStatusBar);
         position_box->addItem(Tr::colorBarPanelBottom(), ColorBar::Bottom);
-        position_box->setCurrentIndex(
-            position_box->findData(initialValues.position));
+        position_box->setCurrentIndex(position_box->findData(
+            values[Ini::Keys::COLOR_BAR_POSITION].value<ColorBar::Position>()));
 
         // Layout
-        auto main_layout = new QVBoxLayout(this);
-
-        auto group_box_layout = new QVBoxLayout;
-        group_box_layout->addWidget(position_);
-        groupBox_->setLayout(group_box_layout);
-
-        main_layout->addWidget(groupBox_);
+        group_box->layout()->addWidget(position_);
 
         // Connect
-        connect(groupBox_, &QGroupBox::toggled, this, [&](bool toggled) {
-            emit activeChanged(toggled);
+        connect(group_box, &QGroupBox::toggled, this, [&](bool toggled) {
+            emit settingChanged(Ini::Keys::COLOR_BAR_ACTIVE, toggled);
         });
 
         connect(
@@ -90,9 +74,11 @@ private:
             &QComboBox::currentIndexChanged,
             this,
             [&](int index) {
-                emit positionChanged(position_->control()
-                                         ->itemData(index)
-                                         .value<ColorBar::Position>());
+                emit settingChanged(
+                    Ini::Keys::COLOR_BAR_POSITION,
+                    position_->control()
+                        ->itemData(index)
+                        .value<ColorBar::Position>());
             });
     }
 };

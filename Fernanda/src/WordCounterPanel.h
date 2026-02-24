@@ -11,54 +11,33 @@
 
 #include <QCheckBox>
 #include <QGroupBox>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QString>
+#include <QVariant>
+#include <QVariantMap>
 
 #include "Debug.h"
 #include "Ini.h"
+#include "SettingsPanel.h"
 #include "Tr.h"
 
 namespace Fernanda {
 
-class WordCounterPanel : public QWidget
+class WordCounterPanel : public SettingsPanel
 {
     Q_OBJECT
 
 public:
-    struct InitialValues
-    {
-        bool active;
-        bool lineCount;
-        bool wordCount;
-        bool charCount;
-        bool selection;
-        bool selReplace;
-        bool linePos;
-        bool colPos;
-    };
-
     explicit WordCounterPanel(
-        const InitialValues& initialValues,
+        const QVariantMap& values,
         QWidget* parent = nullptr)
-        : QWidget(parent)
+        : SettingsPanel(Tr::wordCounterPanelTitle(), parent)
     {
-        setup_(initialValues);
+        setup_(values);
     }
 
     virtual ~WordCounterPanel() override { TRACER; }
 
-signals:
-    void activeChanged(bool active);
-    void lineCountChanged(bool lineCount);
-    void wordCountChanged(bool wordCount);
-    void charCountChanged(bool charCount);
-    void selectionChanged(bool selection);
-    void selReplaceChanged(bool selReplace);
-    void linePosChanged(bool linePos);
-    void colPosChanged(bool colPos);
-
 private:
-    QGroupBox* groupBox_ = new QGroupBox(this);
     QCheckBox* lineCountCheck_ = new QCheckBox(this);
     QCheckBox* wordCountCheck_ = new QCheckBox(this);
     QCheckBox* charCountCheck_ = new QCheckBox(this);
@@ -67,80 +46,82 @@ private:
     QCheckBox* linePosCheck_ = new QCheckBox(this);
     QCheckBox* colPosCheck_ = new QCheckBox(this);
 
-    void setup_(const InitialValues& initialValues)
+    void setup_(const QVariantMap& values)
     {
         // Populate
-        groupBox_->setTitle(Tr::wordCounterPanelTitle());
-        groupBox_->setCheckable(true);
-        groupBox_->setChecked(initialValues.active);
+        auto group_box = groupBox();
+        group_box->setCheckable(true);
+        group_box->setChecked(values[Ini::Keys::WORD_COUNTER_ACTIVE].toBool());
 
         lineCountCheck_->setText(Tr::wordCounterPanelLineCount());
-        lineCountCheck_->setChecked(initialValues.lineCount);
+        lineCountCheck_->setChecked(
+            values[Ini::Keys::WORD_COUNTER_LINE_COUNT].toBool());
 
         wordCountCheck_->setText(Tr::wordCounterPanelWordCount());
-        wordCountCheck_->setChecked(initialValues.wordCount);
+        wordCountCheck_->setChecked(
+            values[Ini::Keys::WORD_COUNTER_WORD_COUNT].toBool());
 
         charCountCheck_->setText(Tr::wordCounterPanelCharCount());
-        charCountCheck_->setChecked(initialValues.charCount);
+        charCountCheck_->setChecked(
+            values[Ini::Keys::WORD_COUNTER_CHAR_COUNT].toBool());
 
         selectionCheck_->setText(Tr::wordCounterPanelSel());
-        selectionCheck_->setChecked(initialValues.selection);
+        selectionCheck_->setChecked(
+            values[Ini::Keys::WORD_COUNTER_SELECTION].toBool());
 
         selReplaceCheck_->setText(Tr::wordCounterPanelSelReplace());
-        selReplaceCheck_->setChecked(initialValues.selReplace);
+        selReplaceCheck_->setChecked(
+            values[Ini::Keys::WORD_COUNTER_SEL_REPLACE].toBool());
 
         linePosCheck_->setText(Tr::wordCounterPanelLinePos());
-        linePosCheck_->setChecked(initialValues.linePos);
+        linePosCheck_->setChecked(
+            values[Ini::Keys::WORD_COUNTER_LINE_POS].toBool());
 
         colPosCheck_->setText(Tr::wordCounterPanelColPos());
-        colPosCheck_->setChecked(initialValues.colPos);
+        colPosCheck_->setChecked(
+            values[Ini::Keys::WORD_COUNTER_COL_POS].toBool());
 
         // Layout
-        auto main_layout = new QVBoxLayout(this);
-
-        auto group_box_layout = new QVBoxLayout;
-        group_box_layout->addWidget(lineCountCheck_);
-        group_box_layout->addWidget(wordCountCheck_);
-        group_box_layout->addWidget(charCountCheck_);
-        group_box_layout->addWidget(selectionCheck_);
-        group_box_layout->addWidget(selReplaceCheck_);
-        group_box_layout->addWidget(linePosCheck_);
-        group_box_layout->addWidget(colPosCheck_);
-        groupBox_->setLayout(group_box_layout);
-
-        main_layout->addWidget(groupBox_);
+        auto layout = group_box->layout();
+        layout->addWidget(lineCountCheck_);
+        layout->addWidget(wordCountCheck_);
+        layout->addWidget(charCountCheck_);
+        layout->addWidget(selectionCheck_);
+        layout->addWidget(selReplaceCheck_);
+        layout->addWidget(linePosCheck_);
+        layout->addWidget(colPosCheck_);
 
         // Connect
-        connect(groupBox_, &QGroupBox::toggled, this, [&](bool toggled) {
-            emit activeChanged(toggled);
+        connect(group_box, &QGroupBox::toggled, this, [&](bool toggled) {
+            emit settingChanged(Ini::Keys::WORD_COUNTER_ACTIVE, toggled);
         });
 
         connect(lineCountCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit lineCountChanged(toggled);
+            emit settingChanged(Ini::Keys::WORD_COUNTER_LINE_COUNT, toggled);
         });
 
         connect(wordCountCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit wordCountChanged(toggled);
+            emit settingChanged(Ini::Keys::WORD_COUNTER_WORD_COUNT, toggled);
         });
 
         connect(charCountCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit charCountChanged(toggled);
+            emit settingChanged(Ini::Keys::WORD_COUNTER_CHAR_COUNT, toggled);
         });
 
         connect(selectionCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit selectionChanged(toggled);
+            emit settingChanged(Ini::Keys::WORD_COUNTER_SELECTION, toggled);
         });
 
         connect(selReplaceCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit selReplaceChanged(toggled);
+            emit settingChanged(Ini::Keys::WORD_COUNTER_SEL_REPLACE, toggled);
         });
 
         connect(linePosCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit linePosChanged(toggled);
+            emit settingChanged(Ini::Keys::WORD_COUNTER_LINE_POS, toggled);
         });
 
         connect(colPosCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit colPosChanged(toggled);
+            emit settingChanged(Ini::Keys::WORD_COUNTER_COL_POS, toggled);
         });
     }
 };
