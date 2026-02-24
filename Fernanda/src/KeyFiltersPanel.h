@@ -67,17 +67,9 @@ private:
         layout->addWidget(barging_);
 
         // Connect
-        connect(group_box, &QGroupBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::KEY_FILTERS_ACTIVE, toggled);
-        });
-
-        connect(autoCloseCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::KEY_FILTERS_AUTO_CLOSE, toggled);
-        });
-
-        connect(barging_check, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::KEY_FILTERS_BARGING, toggled);
-        });
+        connectGroupBox(Ini::Keys::KEY_FILTERS_ACTIVE);
+        connectCheckBox(autoCloseCheck_, Ini::Keys::KEY_FILTERS_AUTO_CLOSE);
+        connectCheckBox(barging_check, Ini::Keys::KEY_FILTERS_BARGING);
     }
 };
 

@@ -92,37 +92,14 @@ private:
         layout->addWidget(colPosCheck_);
 
         // Connect
-        connect(group_box, &QGroupBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::WORD_COUNTER_ACTIVE, toggled);
-        });
-
-        connect(lineCountCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::WORD_COUNTER_LINE_COUNT, toggled);
-        });
-
-        connect(wordCountCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::WORD_COUNTER_WORD_COUNT, toggled);
-        });
-
-        connect(charCountCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::WORD_COUNTER_CHAR_COUNT, toggled);
-        });
-
-        connect(selectionCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::WORD_COUNTER_SELECTION, toggled);
-        });
-
-        connect(selReplaceCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::WORD_COUNTER_SEL_REPLACE, toggled);
-        });
-
-        connect(linePosCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::WORD_COUNTER_LINE_POS, toggled);
-        });
-
-        connect(colPosCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::WORD_COUNTER_COL_POS, toggled);
-        });
+        connectGroupBox(Ini::Keys::WORD_COUNTER_ACTIVE);
+        connectCheckBox(lineCountCheck_, Ini::Keys::WORD_COUNTER_LINE_COUNT);
+        connectCheckBox(wordCountCheck_, Ini::Keys::WORD_COUNTER_WORD_COUNT);
+        connectCheckBox(charCountCheck_, Ini::Keys::WORD_COUNTER_CHAR_COUNT);
+        connectCheckBox(selectionCheck_, Ini::Keys::WORD_COUNTER_SELECTION);
+        connectCheckBox(selReplaceCheck_, Ini::Keys::WORD_COUNTER_SEL_REPLACE);
+        connectCheckBox(linePosCheck_, Ini::Keys::WORD_COUNTER_LINE_POS);
+        connectCheckBox(colPosCheck_, Ini::Keys::WORD_COUNTER_COL_POS);
     }
 };
 

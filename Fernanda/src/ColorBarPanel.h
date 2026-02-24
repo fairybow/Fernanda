@@ -65,9 +65,7 @@ private:
         group_box->layout()->addWidget(position_);
 
         // Connect
-        connect(group_box, &QGroupBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::COLOR_BAR_ACTIVE, toggled);
-        });
+        connectGroupBox(Ini::Keys::COLOR_BAR_ACTIVE);
 
         connect(
             position_box,

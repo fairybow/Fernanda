@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QCheckBox>
 #include <QGroupBox>
 #include <QString>
 #include <QVBoxLayout>
@@ -39,6 +40,22 @@ signals:
 
 protected:
     QGroupBox* groupBox() const noexcept { return groupBox_; }
+
+    void connectGroupBox(const QString& key)
+    {
+        connect(
+            groupBox_,
+            &QGroupBox::toggled,
+            this,
+            [this, key](bool toggled) { emit settingChanged(key, toggled); });
+    }
+
+    void connectCheckBox(QCheckBox* box, const QString& key)
+    {
+        connect(box, &QCheckBox::toggled, this, [this, key](bool toggled) {
+            emit settingChanged(key, toggled);
+        });
+    }
 
 private:
     QGroupBox* groupBox_;

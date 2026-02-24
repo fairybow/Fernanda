@@ -119,19 +119,11 @@ private:
         layout->addWidget(selectionHandlesCheck_);
 
         // Connect
-        connect(
+        connectCheckBox(
             centerOnScrollCheck_,
-            &QCheckBox::toggled,
-            this,
-            [&](bool toggled) {
-                emit settingChanged(
-                    Ini::Keys::EDITOR_CENTER_ON_SCROLL,
-                    toggled);
-            });
+            Ini::Keys::EDITOR_CENTER_ON_SCROLL);
 
-        connect(overwriteCheck_, &QCheckBox::toggled, this, [&](bool toggled) {
-            emit settingChanged(Ini::Keys::EDITOR_OVERWRITE, toggled);
-        });
+        connectCheckBox(overwriteCheck_, Ini::Keys::EDITOR_OVERWRITE);
 
         connect(
             tab_stop_dist_slider,
@@ -153,41 +145,17 @@ private:
                         .value<QTextOption::WrapMode>());
             });
 
-        connect(
+        connectCheckBox(
             doubleClickWhitespaceCheck_,
-            &QCheckBox::toggled,
-            this,
-            [&](bool toggled) {
-                emit settingChanged(
-                    Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
-                    toggled);
-            });
+            Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE);
 
-        connect(
-            lineNumbersCheck_,
-            &QCheckBox::toggled,
-            this,
-            [&](bool toggled) {
-                emit settingChanged(Ini::Keys::EDITOR_LINE_NUMBERS, toggled);
-            });
+        connectCheckBox(lineNumbersCheck_, Ini::Keys::EDITOR_LINE_NUMBERS);
 
-        connect(
-            lineHighlightCheck_,
-            &QCheckBox::toggled,
-            this,
-            [&](bool toggled) {
-                emit settingChanged(Ini::Keys::EDITOR_LINE_HIGHLIGHT, toggled);
-            });
+        connectCheckBox(lineHighlightCheck_, Ini::Keys::EDITOR_LINE_HIGHLIGHT);
 
-        connect(
+        connectCheckBox(
             selectionHandlesCheck_,
-            &QCheckBox::toggled,
-            this,
-            [&](bool toggled) {
-                emit settingChanged(
-                    Ini::Keys::EDITOR_SELECTION_HANDLES,
-                    toggled);
-            });
+            Ini::Keys::EDITOR_SELECTION_HANDLES);
     }
 };
 
