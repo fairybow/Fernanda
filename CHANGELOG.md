@@ -1,8 +1,14 @@
 # Changelog
 
+[Skip to release content](#releases)
+
+---
+
+# Boilerplate
+
 **A plain text editor for drafting long-form fiction.** Work on single files like a notepad, or organize whole projects in Notebooks (`.fnx`).
 
-This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md).
+This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md). For past release details, see [CHANGELOG.md](https://github.com/fairybow/Fernanda/blob/main/CHANGELOG.md)
 
 > [!WARNING]
 > You should not trust your writing with any version of this software less than 1.0.0! Regardless, always make regular back-ups of your work.
@@ -13,6 +19,10 @@ Download and run the installer below (on Windows x64 machines)!
 
 > [!NOTE]
 > This build is unsigned, so Windows Defender SmartScreen will likely show a warning before allowing the install. You can click **More info -> Run anyway** to proceed.
+
+## Updating
+
+Download the newest installer (below). Ensure Fernanda is closed, then run the installer and install to the same directory (default `C:/Program Files`), overwriting.
 
 ## Uninstalling
 
@@ -32,9 +42,12 @@ Fernanda does not automatically delete its data folders on uninstall. After runn
 
 Windows (x64) only for now. Mac and Linux support is planned.
 
----
+## Release note template
 
+```markdown
 # v...
+
+<!-- Boilerplate here -->
 
 ## What's new?
 
@@ -49,15 +62,30 @@ Windows (x64) only for now. Mac and Linux support is planned.
 ...
 
 :heart:
+```
 
 ---
+
+# Notes
+
+- For release note links: use `blob/main` for evergreen links; use `blob/<tag>` for links to a specific release's snapshot!
+- For diffing against previous release: `https://github.com/fairybow/Fernanda/compare/<tag>...main.diff`
+
+---
+
+<a id="releases"></a>
 
 # v0.99.0-beta.2
 
 ## What's new?
 
-- Different editors showing the same text file will use separate layouts (wrap points)
-- Prime document hack to accomplish the above
+- Settings pipeline overhaul: new `SettingsPanel` base class replaces per-panel boilerplate; `SettingsDialog` emits a single `settingChanged(key, value)` signal instead of around 20 individual ones; panels take `QVariantMap` instead of custom `InitialValues` structs; debouncers unified into a `QHash`
+- "Prime Document" hack to allow multiple editors showing the same file to have separate layouts (which means, fundamentally, they need separate documents instead of sharing the same document)
+- New documentation: `PrimeDocument.md`
+- `MenuBuilder` decoupled from `Window` (takes `QWidget*` parent instead of `Window*`); gains `enabled()` builder method
+- Fatal messages now always print regardless of logging toggle; `Debug::print` uses `QMessageLogger` instead of calling handler directly
+- `KeyFilters` compound edit support via `MultiStepEditScope_` RAII guard and `multiStepEditBegan`/`multiStepEditEnded` signals (coordinates with prime document delta routing)
+- New key filter: trailing punctuation gap closure on Enter
 - Tab duplication (even for unsaved files)
 
 ## Known Issues
@@ -66,7 +94,7 @@ Windows (x64) only for now. Mac and Linux support is planned.
 - Window themes not yet implemented
 - Notebook settings won't persist unless the Notebook itself is saved
 - System shutdown handling is implemented but untested
-- May be delay now when copy/pasting Moby Dick lol (but this was not seen in release test; prime document stuff caused it to appear in debug, though - see note in TextFileModel.h to clarify this item)
+- Large-document bulk operations (e.g., select-all-replace on 1M+ chars) may produce visible delay due to prime document delta routing (but this was only seen in debug)
 
 ## This Version's Dumbest Code Award :trophy:
 

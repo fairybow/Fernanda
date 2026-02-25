@@ -1,4 +1,4 @@
-See: see https://github.com/rikyoz/bit7z/issues/191
+See: https://github.com/rikyoz/bit7z/issues/191
 
 ```
 sudo apt-get update
