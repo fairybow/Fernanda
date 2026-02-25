@@ -1,9 +1,6 @@
 ; Fernanda Inno Setup Script (https://jrsoftware.org/isdl.php#stable)
 ; Required: Pass /DVariableName=x from command line
 
-; TODO: Shutdown (or advise) before updating
-; TODO: Clearing previous install before "updating" (replacing)?
-
 #ifndef AppVersion
   #error "AppVersion not defined. Pass /DAppVersion=x.x.x"
 #endif
@@ -27,35 +24,40 @@
 #endif
 
 [Setup]
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 AppId={{D82F0C66-E341-4953-BD96-372C196A7E9B}
 AppName=Fernanda
+AppPublisher=fairybow
 AppVerName=Fernanda
 AppVersion={#AppVersion}
-VersionInfoProductVersion={#AppVersionNumeric}
-AppPublisher=fairybow
+ChangesAssociations=yes
+CloseApplications=yes
+CloseApplicationsFilter=Fernanda.exe
+Compression=lzma2
 DefaultDirName={autopf}\Fernanda
 DefaultGroupName=Fernanda
 LicenseFile={#LicensePath}
-OutputDir={#OutputDir}
-OutputBaseFilename={#InstallerName}
-Compression=lzma2
-SolidCompression=yes
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
-WizardStyle=modern
-ChangesAssociations=yes
-UninstallDisplayIcon={app}\data\Fernanda.exe
 MinVersion=10
+OutputBaseFilename={#InstallerName}
+OutputDir={#OutputDir}
+SolidCompression=yes
+UninstallDisplayIcon={app}\data\Fernanda.exe
+VersionInfoProductVersion={#AppVersionNumeric}
+WizardStyle=modern
+
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\data\*"
 
 [Tasks]
 Name: "startmenu"; Description: "Create a &Start Menu folder"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
 
 [Files]
-Source: "temp\*"; DestDir: "{app}\data"; Flags: recursesubdirs
-Source: "{#ReadmePath}"; DestDir: "{app}\docs"
-Source: "{#LicensePath}"; DestDir: "{app}\docs"
-Source: "{#AdditionalTermsPath}"; DestDir: "{app}\docs"
+Source: "temp\*"; DestDir: "{app}\data"; Flags: recursesubdirs ignoreversion
+Source: "{#ReadmePath}"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "{#LicensePath}"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "{#AdditionalTermsPath}"; DestDir: "{app}\docs"; Flags: ignoreversion
 
 [Icons]
 ; Always installed
