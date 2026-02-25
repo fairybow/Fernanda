@@ -59,6 +59,7 @@ Windows (x64) only for now. Mac and Linux support is planned.
 - Different editors showing the same text file will use separate layouts (wrap points)
 - Prime document hack to accomplish the above
 - Tab duplication (even for unsaved files)
+- See: https://github.com/fairybow/Fernanda/compare/v0.99.0-beta.1...main.diff
 
 ## Known Issues
 
