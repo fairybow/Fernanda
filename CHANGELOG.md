@@ -45,17 +45,17 @@ Windows (x64) only for now. Mac and Linux support is planned.
 ## Release note template
 
 ```markdown
-# v...
+<!-- Boilerplate (preamble) here -->
 
-<!-- Boilerplate here -->
-
-## What's new?
+## What's New?
 
 ...
 
 ## Known Issues
 
 ...
+
+<!-- Boilerplate (rest) here -->
 
 ## This Version's Dumbest Code Award :trophy:
 
@@ -75,9 +75,9 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
-# v0.99.0-beta.2
+# 0.99.0-beta.2 (Testing / Soft Release)
 
-## What's new?
+## What's New?
 
 - Settings pipeline overhaul: new `SettingsPanel` base class replaces per-panel boilerplate; `SettingsDialog` emits a single `settingChanged(key, value)` signal instead of around 20 individual ones; panels take `QVariantMap` instead of custom `InitialValues` structs; debouncers unified into a `QHash`
 - "Prime Document" hack to allow multiple editors showing the same file to have separate layouts (which means, fundamentally, they need separate documents instead of sharing the same document)
@@ -148,11 +148,9 @@ connect(
     });
 ```
 
-:heart:
-
 ---
 
-# v0.99.0-beta.1
+# 0.99.0-beta.1 (Testing / Soft Release)
 
 ## Highlights
 
@@ -225,5 +223,3 @@ int wordCount_(const QString& text) const
 ```
 
 On a document the size of Moby Dick, the old word counter allocated and destroyed, *I think*, 215,831 individual heap objects on every keystroke to produce a single number. The new one uses an int and a bool.
-
-:heart:
