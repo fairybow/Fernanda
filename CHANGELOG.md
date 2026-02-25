@@ -79,10 +79,14 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 ## What's new?
 
-- Different editors showing the same text file will use separate layouts (wrap points)
-- Prime document hack to accomplish the above
+- Settings pipeline overhaul: new `SettingsPanel` base class replaces per-panel boilerplate; `SettingsDialog` emits a single `settingChanged(key, value)` signal instead of around 20 individual ones; panels take `QVariantMap` instead of custom `InitialValues` structs; debouncers unified into a `QHash`
+- "Prime Document" hack to allow multiple editors showing the same file to have separate layouts (which means, fundamentally, they need separate documents instead of sharing the same document)
+- New documentation: `PrimeDocument.md`
+- `MenuBuilder` decoupled from `Window` (takes `QWidget*` parent instead of `Window*`); gains `enabled()` builder method
+- Fatal messages now always print regardless of logging toggle; `Debug::print` uses `QMessageLogger` instead of calling handler directly
+- `KeyFilters` compound edit support via `MultiStepEditScope_` RAII guard and `multiStepEditBegan`/`multiStepEditEnded` signals (coordinates with prime document delta routing)
+- New key filter: trailing punctuation gap closure on Enter
 - Tab duplication (even for unsaved files)
-- See: https://github.com/fairybow/Fernanda/compare/v0.99.0-beta.1...main.diff
 
 ## Known Issues
 
@@ -90,7 +94,7 @@ Windows (x64) only for now. Mac and Linux support is planned.
 - Window themes not yet implemented
 - Notebook settings won't persist unless the Notebook itself is saved
 - System shutdown handling is implemented but untested
-- May be delay now when copy/pasting Moby Dick lol (but this was not seen in release test; prime document stuff caused it to appear in debug, though - see note in TextFileModel.h to clarify this item)
+- Large-document bulk operations (e.g., select-all-replace on 1M+ chars) may produce visible delay due to prime document delta routing (but this was only seen in debug)
 
 ## This Version's Dumbest Code Award :trophy:
 
