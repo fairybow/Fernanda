@@ -18,7 +18,6 @@
 #include <QList>
 #include <QString>
 
-#include "Coco/Log.h"
 #include "Coco/Path.h"
 
 // Detects file types by analyzing file signatures (magic bytes) rather than

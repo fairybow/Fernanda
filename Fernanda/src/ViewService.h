@@ -732,8 +732,8 @@ private:
     /// TODO TD
     bool tabWidgetDragValidator_(TabWidget* source, TabWidget* destination)
     {
-        auto source_window = Coco::Utility::findParent<Window*>(source);
-        auto target_window = Coco::Utility::findParent<Window*>(destination);
+        auto source_window = Coco::findParent<Window*>(source);
+        auto target_window = Coco::findParent<Window*>(destination);
 
         auto our_windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
 
@@ -978,8 +978,8 @@ private slots:
     {
         if (!old.isValid() || !now.isValid()) return;
 
-        auto old_window = Coco::Utility::findParent<Window*>(old.tabWidget);
-        auto new_window = Coco::Utility::findParent<Window*>(now.tabWidget);
+        auto old_window = Coco::findParent<Window*>(old.tabWidget);
+        auto new_window = Coco::findParent<Window*>(now.tabWidget);
 
         if (!old_window || !new_window) return;
 
@@ -1001,7 +1001,7 @@ private slots:
     {
         if (!source || !tabSpec.isValid()) return;
 
-        auto source_window = Coco::Utility::findParent<Window*>(source);
+        auto source_window = Coco::findParent<Window*>(source);
         emit tabDraggedToNewWindow(source_window, dropPos, tabSpec);
     }
 };

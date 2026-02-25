@@ -17,7 +17,6 @@
 #include <QTranslator>
 
 #include "Coco/Path.h"
-#include "Coco/PathUtil.h"
 
 #include "AppDirs.h"
 #include "BetaAlert.h"
@@ -207,9 +206,8 @@ private:
 
     void loadBundledFonts_()
     {
-        for (auto& path : Coco::PathUtil::fromDir(
-                 { ":/mononoki/", ":/opendyslexic/" },
-                 ".otf")) {
+        for (auto& path :
+             Coco::dirPaths({ ":/mononoki/", ":/opendyslexic/" }, ".otf")) {
             if (QFontDatabase::addApplicationFont(path.toQString()) < 0)
                 WARN("Failed to load font: {}", path);
         }

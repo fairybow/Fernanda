@@ -92,7 +92,7 @@ void Workspace::createWindowMenuBar_(Window* window)
             this,
             [&] {
                 // nullptr parent makes the dialog application modal
-                auto path = Coco::PathUtil::Dialog::file(
+                auto path = Coco::getFile(
                     nullptr,
                     Tr::nxOpenNotebookCaption(),
                     startDir,

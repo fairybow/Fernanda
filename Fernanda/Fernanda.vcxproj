@@ -25,9 +25,7 @@
     <ClCompile Include="src\Workspace.cpp" />
     <ClCompile Include="submodules\Coco\Coco\src\Fx.cpp" />
     <ClCompile Include="submodules\Coco\Coco\src\Path.cpp" />
-    <ClCompile Include="submodules\Coco\Coco\src\PathUtil.cpp" />
     <ClCompile Include="submodules\Coco\Coco\src\StartCop.cpp" />
-    <ClCompile Include="submodules\Coco\Coco\src\TextIo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.clang-format" />
@@ -80,7 +78,6 @@
     <None Include="resources\ui\X.svg" />
     <None Include="scripts\Update EN pluralonly.bat" />
     <None Include="src\old_TranslationCode.md" />
-    <None Include="submodules\Coco\Coco\copy\Class.md" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md" />
   </ItemGroup>
   <ItemGroup>
@@ -167,16 +164,9 @@
     <ClInclude Include="src\XPlatform.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h" />
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Debug.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Fx.h" />
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Global.h" />
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Layout.h" />
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Log.h" />
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Macros.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Path.h" />
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\PathUtil.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Private.h" />
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\TextIo.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Utility.h" />
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h" />
   </ItemGroup>

@@ -20,7 +20,6 @@
 #include <QVariantMap>
 
 #include "Coco/Path.h"
-#include "Coco/PathUtil.h"
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"

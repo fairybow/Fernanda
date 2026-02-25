@@ -30,7 +30,6 @@
 #include <QWidget>
 
 #include "Coco/Path.h"
-#include "Coco/PathUtil.h"
 
 #include "AbstractFileModel.h"
 #include "AbstractService.h"
@@ -410,7 +409,7 @@ private:
         if (!window) return;
         if (!workingDir_.isValid()) return;
 
-        auto fs_paths = Coco::PathUtil::Dialog::files(
+        auto fs_paths = Coco::getFiles(
             window,
             Tr::nbImportFileCaption(),
             startDir,
@@ -524,7 +523,7 @@ private:
         if (!window) return {};
 
         // Save As start path will always be fnxPath_
-        return Coco::PathUtil::Dialog::save(
+        return Coco::getSaveFile(
             window,
             Tr::nbSaveAsCaption(),
             fnxPath_,
@@ -607,7 +606,7 @@ private:
         files->deleteModels(models);
 
         for (auto& path : paths)
-            if (!Coco::PathUtil::remove(path))
+            if (!Coco::remove(path))
                 CRITICAL("Failed to delete [{}] from disk!", path);
 
         return true;

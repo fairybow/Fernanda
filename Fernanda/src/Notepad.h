@@ -23,7 +23,6 @@
 #include <QStringList>
 
 #include "Coco/Path.h"
-#include "Coco/PathUtil.h"
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
@@ -609,7 +608,7 @@ private:
                 ? startDir / (meta->title() + fileModel->preferredExtension())
                 : path;
 
-        return Coco::PathUtil::Dialog::save(
+        return Coco::getSaveFile(
             window,
             Tr::npSaveAsCaption(),
             start_path,
@@ -635,7 +634,7 @@ private:
     {
         if (!window) return;
 
-        auto paths = Coco::PathUtil::Dialog::files(
+        auto paths = Coco::getFiles(
             window,
             Tr::npOpenFileCaption(),
             startDir,

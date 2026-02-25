@@ -177,8 +177,8 @@ Next up:
 - [ ] Figure out Path string caching
 - [ ] Ensure Path's shared data works
 - [ ] Path::isFolder to isDir
-- [ ] Path::copy (or Coco::copy)?
-- [ ] Move mkdir top level (Coco::mkdir) or Path?
+- [x] Path::copy (or Coco::copy)?
+- [x] Move mkdir top level (Coco::mkdir) or Path?
 - [ ] Move other non-Path stuff (search TODO)
 - [ ] Path separator normalization
 - [ ] Remove any macros that take slots/lambdas, since a comma in the capture breaks them!

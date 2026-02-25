@@ -21,7 +21,6 @@
 #include <QXmlStreamWriter>
 
 #include "Coco/Path.h"
-#include "Coco/PathUtil.h"
 #include "bit7z/bitarchivereader.hpp"
 #include "bit7z/bitarchivewriter.hpp"
 
@@ -61,7 +60,7 @@ namespace Internal {
 #endif
 
         static auto file = AppDirs::userData() / file_name;
-        if (!file.exists()) Coco::PathUtil::copy(qrc_path, file);
+        if (!file.exists()) Coco::copy(qrc_path, file);
         return file;
     }
 
@@ -296,7 +295,7 @@ namespace Xml {
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
-        if (!Coco::PathUtil::copy(fsPath, path)) {
+        if (!Coco::copy(fsPath, path)) {
             WARN("Failed to copy text file at {}", fsPath);
             return {};
         }
@@ -341,8 +340,7 @@ namespace Io {
     inline void makeNewWorkingDir(const Coco::Path& workingDir)
     {
         // Create content directory
-        if (!Coco::PathUtil::mkdir(workingDir / Internal::IO_CONTENT_DIR_NAME_))
-            return;
+        if (!Coco::mkdir(workingDir / Internal::IO_CONTENT_DIR_NAME_)) return;
 
         // Create base Manifest.xml
         QByteArray xml_content{};

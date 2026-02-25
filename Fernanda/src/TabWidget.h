@@ -48,7 +48,6 @@
 #include <QtTypes>
 
 #include "Coco/Concepts.h"
-#include "Coco/Debug.h" /// Move trivial class?
 #include "Coco/Utility.h"
 
 #include "Debug.h"

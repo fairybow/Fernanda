@@ -126,13 +126,7 @@
     <ClCompile Include="submodules\Coco\Coco\src\Path.cpp">
       <Filter>Submodules\Coco</Filter>
     </ClCompile>
-    <ClCompile Include="submodules\Coco\Coco\src\PathUtil.cpp">
-      <Filter>Submodules\Coco</Filter>
-    </ClCompile>
     <ClCompile Include="submodules\Coco\Coco\src\StartCop.cpp">
-      <Filter>Submodules\Coco</Filter>
-    </ClCompile>
-    <ClCompile Include="submodules\Coco\Coco\src\TextIo.cpp">
       <Filter>Submodules\Coco</Filter>
     </ClCompile>
     <ClCompile Include="src\Window.cpp">
@@ -178,9 +172,6 @@
     <None Include="cpp.hint" />
     <None Include="..\.clang-format-ignore" />
     <None Include="..\.clang-format" />
-    <None Include="submodules\Coco\Coco\copy\Class.md">
-      <Filter>Submodules\Coco\Copy</Filter>
-    </None>
     <None Include="..\.gitattributes" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md">
       <Filter>Submodules\Coco\Copy</Filter>
@@ -481,31 +472,10 @@
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h">
       <Filter>Submodules\Coco</Filter>
     </ClInclude>
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Debug.h">
-      <Filter>Submodules\Coco</Filter>
-    </ClInclude>
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Fx.h">
       <Filter>Submodules\Coco</Filter>
     </ClInclude>
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Global.h">
-      <Filter>Submodules\Coco</Filter>
-    </ClInclude>
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Layout.h">
-      <Filter>Submodules\Coco</Filter>
-    </ClInclude>
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Log.h">
-      <Filter>Submodules\Coco</Filter>
-    </ClInclude>
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\Macros.h">
-      <Filter>Submodules\Coco</Filter>
-    </ClInclude>
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\PathUtil.h">
-      <Filter>Submodules\Coco</Filter>
-    </ClInclude>
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Private.h">
-      <Filter>Submodules\Coco</Filter>
-    </ClInclude>
-    <ClInclude Include="submodules\Coco\Coco\include\Coco\TextIo.h">
       <Filter>Submodules\Coco</Filter>
     </ClInclude>
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Utility.h">

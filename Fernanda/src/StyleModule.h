@@ -20,7 +20,6 @@
 #include <QStringList>
 
 #include "Coco/Path.h"
-#include "Coco/PathUtil.h"
 
 #include "AbstractFileView.h"
 #include "AbstractService.h"
@@ -136,9 +135,10 @@ private:
         const QString& ext)
     {
         auto qrc_paths =
-            Coco::PathUtil::fromDir(QRC_DIR_, ext, Coco::Recursive::No);
+            Coco::dirPaths(QRC_DIR_, ext, Coco::Recursive::No);
 
-        auto user_paths = Coco::PathUtil::fromDir(
+        auto user_paths =
+            Coco::dirPaths(
             AppDirs::userThemes(),
             ext,
             Coco::Recursive::No);
@@ -286,12 +286,12 @@ private slots:
         (void)path;
 
         // Re-scan for current files on disk
-        auto current_window_paths = Coco::PathUtil::fromDir(
+        auto current_window_paths = Coco::dirPaths(
             AppDirs::userThemes(),
             WindowTheme::EXT,
             Coco::Recursive::No);
 
-        auto current_editor_paths = Coco::PathUtil::fromDir(
+        auto current_editor_paths = Coco::dirPaths(
             AppDirs::userThemes(),
             EditorTheme::EXT,
             Coco::Recursive::No);
