@@ -75,7 +75,7 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
-# 0.99.0-beta.2 (Testing / Soft Release)
+# 0.99.0-beta.2 (Testing / Soft Release) - tag v0.99.0-beta.2
 
 ## What's New?
 
@@ -150,7 +150,7 @@ connect(
 
 ---
 
-# 0.99.0-beta.1 (Testing / Soft Release)
+# 0.99.0-beta.1 (Testing / Soft Release) - tag v0.99.0-beta.1
 
 ## Highlights
 
