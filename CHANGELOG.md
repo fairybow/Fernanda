@@ -1,6 +1,10 @@
 # Changelog
 
-<!-- Boilerplate -->
+[Skip to release content](#releases)
+
+---
+
+# Boilerplate
 
 **A plain text editor for drafting long-form fiction.** Work on single files like a notepad, or organize whole projects in Notebooks (`.fnx`).
 
@@ -38,11 +42,12 @@ Fernanda does not automatically delete its data folders on uninstall. After runn
 
 Windows (x64) only for now. Mac and Linux support is planned.
 
----
+## Release note template
 
-<!-- Boilerplate -->
-
+```markdown
 # v...
+
+<!-- Boilerplate here -->
 
 ## What's new?
 
@@ -57,8 +62,18 @@ Windows (x64) only for now. Mac and Linux support is planned.
 ...
 
 :heart:
+```
 
 ---
+
+# Notes
+
+- For release note links: use blob/main for evergreen links; use blob/<tag> for links to a specific release's snapshot!
+- To get a diff since last release, use this format: `https://github.com/fairybow/Fernanda/compare/<tag>...main.diff`
+
+---
+
+<a id="releases"></a>
 
 # v0.99.0-beta.2
 
