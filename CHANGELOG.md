@@ -68,8 +68,8 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 # Notes
 
-- For release note links: use blob/main for evergreen links; use blob/<tag> for links to a specific release's snapshot!
-- To get a diff since last release, use this format: `https://github.com/fairybow/Fernanda/compare/<tag>...main.diff`
+- For release note links: use `blob/main` for evergreen links; use `blob/<tag>` for links to a specific release's snapshot!
+- For diffing against previous release: `https://github.com/fairybow/Fernanda/compare/<tag>...main.diff`
 
 ---
 
