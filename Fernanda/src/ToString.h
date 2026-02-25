@@ -99,10 +99,6 @@ inline QString toQString(const QVariant& variant)
     if (!variant.isValid()) return "QVariant(Invalid)";
     if (variant.isNull()) return "QVariant(Null)";
 
-    // Handle custom types before switch
-    if (variant.canConvert<Coco::Path>())
-        return variant.value<Coco::Path>().toQString();
-
     if (variant.canConvert<QDomElement>())
         return toQString(variant.value<QDomElement>());
 

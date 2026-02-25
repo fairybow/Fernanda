@@ -1,4 +1,4 @@
-# v0.99.0-beta.1
+# Changelog
 
 **A plain text editor for drafting long-form fiction.** Work on single files like a notepad, or organize whole projects in Notebooks (`.fnx`).
 
@@ -7,7 +7,124 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 > [!WARNING]
 > You should not trust your writing with any version of this software less than 1.0.0! Regardless, always make regular back-ups of your work.
 
+## Installation
+
+Download and run the installer below (on Windows x64 machines)!
+
+> [!NOTE]
+> This build is unsigned, so Windows Defender SmartScreen will likely show a warning before allowing the install. You can click **More info -> Run anyway** to proceed.
+
+## Uninstalling
+
+Run the uninstaller (`unins000.exe`) or remove via **Add or Remove Programs** as usual.
+
+Fernanda does not automatically delete its data folders on uninstall. After running the uninstaller, you may want to remove these manually:
+
+| Folder | Location | Contents |
+|--------|----------|----------|
+| User Data | `~/.fernanda/` | Settings, temp files, libraries |
+| Default Docs | `~/Documents/Fernanda/` | Default location for file dialogs |
+
+> [!TIP]
+> Fernanda won't delete the `~/Documents/Fernanda/` folder, since your writing may be stored there. If you're sure you don't need it, you can remove it yourself.
+
+## Platform
+
+Windows (x64) only for now. Mac and Linux support is planned.
+
 ---
+
+# v...
+
+## What's new?
+
+...
+
+## Known Issues
+
+...
+
+## This Version's Dumbest Code Award :trophy:
+
+...
+
+:heart:
+
+---
+
+# v0.99.0-beta.2
+
+## What's new?
+
+- Different editors showing the same text file will use separate layouts (wrap points)
+- Prime document hack to accomplish the above
+- Tab duplication (even for unsaved files)
+
+## Known Issues
+
+- Tree View root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- System shutdown handling is implemented but untested
+- May be delay now when copy/pasting Moby Dick lol (but this was not seen in release test; prime document stuff caused it to appear in debug, though - see note in TextFileModel.h to clarify this item)
+
+## This Version's Dumbest Code Award :trophy:
+
+A user toggles Line Numbers in the settings dialog. A `bool` needs to travel from a checkbox to the editor. So:
+
+**Step 1**: The checkbox emits `toggled`. The panel catches it and emits `lineNumbersChanged`.
+
+**Step 2**: The `SettingsDialog` catches `lineNumbersChanged` and emits `editorLineNumbersChanged`.
+
+**Step 3**: The `SettingsService` catches `editorLineNumbersChanged`, persists the value, and emits a Bus event with a string key.
+
+**Step 4**: The `ViewService` catches the Bus event and compares the key against 13 other keys, one `if` at a time (not `else if`, every branch, every time), until it finds the match and finally calls `setLineNumbers(true)`.
+
+Four signal emissions, four connections, and a string-keyed dispatch resolved by brute-force linear scan. And this entire journey is copy-pasted roughly 20 times, once per setting. The `SettingsDialog` alone declares ~20 signals whose sole purpose is to hear a panel signal and re-emit it verbatim.
+
+```cpp
+// SettingsDialog.h: one of about 20 identical relays
+connect(
+    editorPanel_,
+    &EditorPanel::lineNumbersChanged,
+    this,
+    [&](bool lineNumbers) {
+        emit editorLineNumbersChanged(lineNumbers);
+    });
+```
+
+```cpp
+// ViewService.h: one of 13 if blocks
+if (key == Ini::Keys::EDITOR_LINE_NUMBERS) {
+    auto v = value.value<bool>();
+    forEachTextFileView_(
+        [&](TextFileView* view) { view->editor()->setLineNumbers(v); });
+}
+```
+
+In total, the settings pipeline spans roughly 300 lines of boilerplate across four files to do what a unified `settingChanged(key, value)` signal and a hash map could do in about 40.
+
+A solid runner-up is this (related) unnecessary cast out of `QVariant` (repeated at least one other time in another panel):
+
+```cpp
+connect(
+    wrap_mode_box,
+    &QComboBox::currentIndexChanged,
+    this,
+    [&](int index) {
+        emit settingChanged(
+            Ini::Keys::EDITOR_WRAP_MODE,
+            wrapMode_->control()
+                ->itemData(index)
+                .value<QTextOption::WrapMode>());
+    });
+```
+
+:heart:
+
+---
+
+# v0.99.0-beta.1
 
 ## Highlights
 
@@ -40,45 +157,12 @@ Non-modal settings dialog with live preview. Tiered settings: Notebooks inherit 
 
 Word counter (line/word/character counts, selection-aware, cursor position), color bar (animated gradient feedback on save/startup), update checker via GitHub Releases, and magic-byte file type detection.
 
----
-
-## Installation
-
-Download and run the installer below (on Windows x64 machines)!
-
-> [!NOTE]
-> This build is unsigned, so Windows Defender SmartScreen will likely show a warning before allowing the install. You can click **More info -> Run anyway** to proceed.
-
----
-
-## Uninstalling
-
-Run the uninstaller (`unins000.exe`) or remove via **Add or Remove Programs** as usual.
-
-Fernanda does not automatically delete its data folders on uninstall. After running the uninstaller, you may want to remove these manually:
-
-| Folder | Location | Contents |
-|--------|----------|----------|
-| User Data | `~/.fernanda/` | Settings, temp files, libraries |
-| Default Docs | `~/Documents/Fernanda/` | Default location for file dialogs |
-
-> [!NOTE]
-> Fernanda won't delete the `~/Documents/Fernanda/` folder, since your writing may be stored there. If you're sure you don't need it, you can remove it yourself.
-
----
-
-## Known Issues
+### Known Issues
 
 - Tree View root directory is locked in-place for now (Notepad)
 - Window themes not yet implemented
 - Notebook settings won't persist unless the Notebook itself is saved
 - System shutdown handling is implemented but untested
-
----
-
-## Platform
-
-Windows (x64) only for now. Mac and Linux support is planned.
 
 ## This Version's Dumbest Code Award :trophy:
 

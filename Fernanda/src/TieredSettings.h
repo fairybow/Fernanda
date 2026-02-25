@@ -116,9 +116,6 @@ public:
         return value(key, defaultValue).value<T>();
     }
 
-    /// TODO: Could potentially do template spcialization to prevent
-    /// Coco::Path/QString inconsistency with settings
-
 private:
     Coco::Path baseConfigPath_;
 

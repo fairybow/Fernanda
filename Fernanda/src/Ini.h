@@ -10,13 +10,11 @@
 #pragma once
 
 #include <QFont>
-#include <QString>
 #include <QTextOption>
 
-#include "ColorBar.h"
+#include "Coco/Path.h"
 
-// TODO: Any way to get path to work with QSettings?
-// #include "Coco/Path.h"
+#include "ColorBar.h"
 
 namespace Fernanda::Ini {
 
@@ -68,9 +66,11 @@ namespace Defaults {
         f.setItalic(false);
         return f;
     }
-    inline QString windowTheme() { return {}; }
-    // TODO: Any way to get Coco::Path to work with QSettings?
-    inline QString editorTheme() { return ":/themes/Pocket.fernanda_editor"; }
+    inline Coco::Path windowTheme() { return {}; }
+    inline Coco::Path editorTheme()
+    {
+        return ":/themes/Pocket.fernanda_editor";
+    }
     inline bool notepadTreeViewDock() { return false; }
     inline bool notebookTreeViewDock() { return true; }
     inline bool keyFiltersActive() { return true; }

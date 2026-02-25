@@ -401,10 +401,10 @@ private slots:
 
         // Lazy-load current theme path if not yet loaded
         if (!initialWindowThemeLoaded_) {
-            currentWindowThemePath_ = bus->call<QString>(
+            currentWindowThemePath_ = bus->call<Coco::Path>(
                 Bus::GET_SETTING,
                 { { "key", Ini::Keys::WINDOW_THEME },
-                  { "defaultValue", Ini::Defaults::windowTheme() } });
+                  { "defaultValue", qVar(Ini::Defaults::windowTheme()) } });
 
             initialWindowThemeLoaded_ = true;
         }
@@ -435,10 +435,10 @@ private slots:
 
         // Lazy-load current theme path if not yet loaded
         if (!initialEditorThemeLoaded_) {
-            currentEditorThemePath_ = bus->call<QString>(
+            currentEditorThemePath_ = bus->call<Coco::Path>(
                 Bus::GET_SETTING,
                 { { "key", Ini::Keys::EDITOR_THEME },
-                  { "defaultValue", Ini::Defaults::editorTheme() } });
+                  { "defaultValue", qVar(Ini::Defaults::editorTheme()) } });
 
             initialEditorThemeLoaded_ = true;
         }
