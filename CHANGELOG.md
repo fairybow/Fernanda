@@ -1,8 +1,10 @@
 # Changelog
 
+<!-- Boilerplate -->
+
 **A plain text editor for drafting long-form fiction.** Work on single files like a notepad, or organize whole projects in Notebooks (`.fnx`).
 
-This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md).
+This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md). For past release details, see [CHANGELOG.md](https://github.com/fairybow/Fernanda/blob/main/CHANGELOG.md)
 
 > [!WARNING]
 > You should not trust your writing with any version of this software less than 1.0.0! Regardless, always make regular back-ups of your work.
@@ -13,6 +15,10 @@ Download and run the installer below (on Windows x64 machines)!
 
 > [!NOTE]
 > This build is unsigned, so Windows Defender SmartScreen will likely show a warning before allowing the install. You can click **More info -> Run anyway** to proceed.
+
+## Updating
+
+Download the newest installer (below). Ensure Fernanda is closed, then run the installer and install to the same directory (default `C:/Program Files`), overwriting.
 
 ## Uninstalling
 
@@ -33,6 +39,8 @@ Fernanda does not automatically delete its data folders on uninstall. After runn
 Windows (x64) only for now. Mac and Linux support is planned.
 
 ---
+
+<!-- Boilerplate -->
 
 # v...
 
