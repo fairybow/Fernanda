@@ -251,8 +251,8 @@ namespace Tr {
     TR_(editorPanelTitle, tr("Editor"));
     TR_(editorPanelCenterOnScroll, tr("Center on scroll"));
     TR_(editorPanelOverwrite, tr("Overwrite"));
-    TR_(editorPanelTabStopDistance, tr("Tab stop distance: "));
-    TR_(editorPanelWrapMode, tr("Word wrap mode: "));
+    TR_(editorPanelTabStopDistance, tr("Tab stop distance:"));
+    TR_(editorPanelWrapMode, tr("Word wrap mode:"));
     TR_(editorPanelWrapModeTooltip,
         tr("Smart: If possible, wrapping occurs at a word boundary; otherwise "
            "it will occur at the appropriate point on the line, even in the "
@@ -284,7 +284,7 @@ namespace Tr {
     /// Color bar panel
 
     TR_(colorBarPanelTitle, tr("Color bar"));
-    TR_(colorBarPanelPosition, tr("Position: "));
+    TR_(colorBarPanelPosition, tr("Position:"));
     TR_(colorBarPanelTop, tr("Top"));
     TR_(colorBarPanelBelowMenuBar, tr("Below menu bar"));
     TR_(colorBarPanelAboveStatusBar, tr("Above status bar"));

@@ -9,9 +9,13 @@
 
 #pragma once
 
+#include <QFont>
+#include <QFontMetricsF>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QPainter>
 #include <QPixmap>
+#include <QRectF>
 #include <QString>
 #include <QStyle>
 #include <QWidget>
@@ -86,7 +90,6 @@ private:
 
             layout->addWidget(control_);
             layout->addWidget(info_);
-            layout->addStretch();
 
             break;
         }
@@ -103,16 +106,49 @@ private:
             break;
         }
         }
+
+        // TODO: This seems to be fine but double-check!
+        layout->addStretch();
     }
 
+    // TODO: StyleContext support
     void setInfoIcon_()
     {
         if (!info_) return;
 
-        info_->setPixmap(
-            style()
-                ->standardPixmap(QStyle::SP_MessageBoxInformation)
-                .scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        auto size = 14;
+        auto padding = 2;
+        auto total = size + padding * 2;
+
+        QPixmap icon(total, total);
+        icon.fill(Qt::transparent);
+
+        QPainter painter(&icon);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor("#3B82F6"));
+        painter.drawEllipse(padding, padding, size, size);
+
+        QFont font = painter.font();
+        font.setPixelSize(11);
+        font.setBold(true);
+        font.setItalic(true);
+        font.setFamily("Times New Roman");
+        font.setStyleHint(QFont::Serif);
+        painter.setFont(font);
+        painter.setPen(Qt::white);
+
+        QFontMetricsF metrics(font);
+        auto glyph_rect = metrics.boundingRect("i");
+        auto offset = glyph_rect.left();
+
+        painter.drawText(
+            QRectF(padding + offset / 2.0, padding, size, size),
+            Qt::AlignCenter,
+            "i");
+        painter.end();
+
+        info_->setPixmap(icon);
     }
 };
 
