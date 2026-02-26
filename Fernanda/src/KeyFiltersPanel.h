@@ -41,8 +41,8 @@ public:
 
 private:
     QCheckBox* autoCloseCheck_ = new QCheckBox(this);
-    ControlField<QCheckBox*>* barging_ =
-        new ControlField<QCheckBox*>(ControlField<QCheckBox*>::Info, this);
+    ControlField<QCheckBox>* barging_ =
+        new ControlField<QCheckBox>(FieldKind::Info, this);
 
     void setup_(const QVariantMap& values)
     {

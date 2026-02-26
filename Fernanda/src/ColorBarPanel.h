@@ -38,8 +38,8 @@ public:
     virtual ~ColorBarPanel() override { TRACER; }
 
 private:
-    ControlField<QComboBox*>* position_ =
-        new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
+    ControlField<QComboBox>* position_ =
+        new ControlField<QComboBox>(FieldKind::Label, this);
 
     void setup_(const QVariantMap& values)
     {

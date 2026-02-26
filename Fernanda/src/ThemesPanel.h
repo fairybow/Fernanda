@@ -55,10 +55,10 @@ public:
     virtual ~ThemesPanel() override { TRACER; }
 
 private:
-    ControlField<QComboBox*>* windowTheme_ =
-        new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
-    ControlField<QComboBox*>* editorTheme_ =
-        new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
+    ControlField<QComboBox>* windowTheme_ =
+        new ControlField<QComboBox>(FieldKind::Label, this);
+    ControlField<QComboBox>* editorTheme_ =
+        new ControlField<QComboBox>(FieldKind::Label, this);
 
     void setup_(
         const QVariantMap& values,
