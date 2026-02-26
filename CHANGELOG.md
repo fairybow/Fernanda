@@ -59,7 +59,7 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 ## This Version's Dumbest Code Award :trophy:
 
-...
+See (Application.h (3f8bad1))[https://github.com/fairybow/Fernanda/blob/3f8bad164850dead66261a2f5c4acae1bd5fd1ab/Fernanda/src/Application.h]
 
 :heart:
 ```

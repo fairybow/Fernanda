@@ -75,6 +75,7 @@ public:
             active_window->activate(); // Stack under will raise any others
     }
 
+    // Activates if the Workspace already has windows
     void show()
     {
         if (!hasWindows()) {

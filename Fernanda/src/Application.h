@@ -31,7 +31,6 @@ namespace Fernanda {
 
 // Top-level application coordinator and entry point that creates and manages
 // Workspaces and handles application lifecycle
-// TODO: Centralize arg parsing (see handledArgs_ and StartCop slot)
 // TODO: Session handling
 class Application : public QApplication
 {
@@ -68,89 +67,25 @@ public:
 public slots:
     void onStartCopAppRelaunched(const QStringList& args)
     {
-        // - These args are received via trying to reopen Fernanda. Just
-        // clicking the EXE will send only the executable path (arg 0).
-        // - We'll receive new args by clicking associated files (usually just
-        // .fnx but could be anything if user sets it in their OS)
-        // - If we receive Notebook files, open the Notebooks for those
-        // - If we receive any regular files, open those in the top most Notepad
-        // window
+        // These args are received via trying to reopen Fernanda (via, while
+        // running, clicking the EXE, clicking associated file types, or
+        // dragging a file onto the EXE)
+        auto parsed = parseArgs_(args);
 
-        auto parsed_args = parseArgs_(args);
-
-        if (parsed_args.isEmpty()) {
-            // Activate Notepad (if open) and each Notebook, to raise them all
-            notepad_->activate(); // No-op if no windows
-
+        if (parsed.isEmpty()) {
+            notepad_->activate();
             for (auto& notebook : notebooks_)
                 notebook->activate();
-
-        } else if (parsed_args.hasOnlyFnx()) {
-            // - Make a Notebook for each FNX file, open single window for each,
-            // show color bar pastel in each Notebook's window
-            // - If any of the Notebook files is already open, activate it
-            // instead
-            for (auto& path : parsed_args.fnxFiles) {
-                bool found = false;
-
-                for (auto& notebook : notebooks_) {
-                    if (notebook->fnxPath() == path) {
-                        notebook->activate();
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found) continue;
-
-                if (auto notebook = makeNotebook_(path)) {
-                    notebook->show();
-                    notebook->beCute();
-                }
-            }
-
-        } else if (parsed_args.hasOnlyRegular()) {
-            // - If Notepad has no windows, open Notepad single window with a
-            // tab for each file (maybe do not show color bar pastel - would
-            // have to use an initialize function?)
-            // - If Notepad has windows, open a tab for each file in the
-            // top-most window
-            notepad_->show();
-            notepad_->openFiles(parsed_args.regularFiles);
-
-        } else {
-            // Has both:
-            // - If Notepad has no windows, open Notepad single window with a
-            // tab for each file (maybe do not show color bar pastel - would
-            // have to use an initialize function?)
-            // - If Notepad has windows, open a tab for each file in the
-            // top-most window
-            // - Make a Notebook for each FNX file, open single window for each,
-            // show color bar pastel in each Notebook's window
-            // - If any of the Notebook files is already open, activate it
-            // instead
-            notepad_->show();
-            notepad_->openFiles(parsed_args.regularFiles);
-
-            for (auto& path : parsed_args.fnxFiles) {
-                bool found = false;
-
-                for (auto& notebook : notebooks_) {
-                    if (notebook->fnxPath() == path) {
-                        notebook->activate();
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found) continue;
-
-                if (auto notebook = makeNotebook_(path)) {
-                    notebook->show();
-                    notebook->beCute();
-                }
-            }
+            return;
         }
+
+        if (!parsed.regularFiles.isEmpty()) {
+            notepad_->show();
+            notepad_->openFiles(parsed.regularFiles);
+        }
+
+        for (auto& path : parsed.fnxFiles)
+            openOrActivateNotebook_(path);
     }
 
     void tryQuit()
@@ -166,6 +101,17 @@ public slots:
     }
 
 private:
+    struct ParsedArgs_
+    {
+        Coco::PathList fnxFiles{};
+        Coco::PathList regularFiles{};
+
+        bool isEmpty() const noexcept
+        {
+            return fnxFiles.isEmpty() && regularFiles.isEmpty();
+        }
+    };
+
     bool initialized_ = false;
     QTranslator* translator_ = nullptr;
     Notepad* notepad_ = nullptr;
@@ -225,45 +171,18 @@ private:
 
     void handleArgs_()
     {
-        auto parsed_args = parseArgs_(arguments());
+        auto parsed = parseArgs_(arguments());
 
-        if (parsed_args.isEmpty()) {
-            // Open Notepad single empty window, show color bar pastel
+        // Show notepad if we have regular files or nothing at all
+        if (!parsed.regularFiles.isEmpty() || parsed.fnxFiles.isEmpty()) {
             notepad_->show();
+            notepad_->openFiles(parsed.regularFiles); // No-op if empty
             notepad_->beCute();
-
-        } else if (parsed_args.hasOnlyFnx()) {
-            // Make a Notebook for each FNX file, open single window for each,
-            // show color bar pastel in each Notebook's window
-            for (auto& path : parsed_args.fnxFiles) {
-                if (auto notebook = makeNotebook_(path)) {
-                    notebook->show();
-                    notebook->beCute();
-                }
-            }
-        } else if (parsed_args.hasOnlyRegular()) {
-            // Open Notepad single window with a tab for each file, show color
-            // bar pastel
-            notepad_->show();
-            notepad_->openFiles(parsed_args.regularFiles);
-            notepad_->beCute();
-        } else {
-            // Has both:
-            // - Open Notepad single window with a tab for each file, show color
-            // bar pastel
-            // - Make a Notebook for each FNX file, open single window for each,
-            // show color bar pastel in each Notebook's window
-            notepad_->show();
-            notepad_->openFiles(parsed_args.regularFiles);
-            notepad_->beCute();
-
-            for (auto& path : parsed_args.fnxFiles) {
-                if (auto notebook = makeNotebook_(path)) {
-                    notebook->show();
-                    notebook->beCute();
-                }
-            }
         }
+
+        // Make a Notebook for each FNX file (and open single window for each)
+        for (auto& path : parsed.fnxFiles)
+            openNotebook_(path);
     }
 
     Notebook* makeNotebook_(const Coco::Path& fnxPath)
@@ -295,12 +214,7 @@ private:
             workspace,
             &Workspace::newNotebookRequested,
             this,
-            [&](const Coco::Path& fnxPath) {
-                if (auto notebook = makeNotebook_(fnxPath)) {
-                    notebook->show();
-                    notebook->beCute();
-                }
-            });
+            [&](const Coco::Path& fnxPath) { openNotebook_(fnxPath); });
 
         connect(
             workspace,
@@ -311,40 +225,9 @@ private:
                 // signal is "open Notebook" not "open maybe a Notebook"!
                 // TODO: Although, we may need to do some redesign if we want to
                 // prompt for files that are .fnx by extension only...
-                for (auto& notebook : notebooks_) {
-                    if (notebook->fnxPath() == fnxPath) {
-                        notebook->activate();
-                        return;
-                    }
-                }
-
-                if (auto notebook = makeNotebook_(fnxPath)) {
-                    notebook->show();
-                    notebook->beCute();
-                }
+                openOrActivateNotebook_(fnxPath);
             });
     }
-
-    struct ParsedArgs_
-    {
-        Coco::PathList fnxFiles{};
-        Coco::PathList regularFiles{};
-
-        bool isEmpty() const noexcept
-        {
-            return fnxFiles.isEmpty() && regularFiles.isEmpty();
-        }
-
-        bool hasOnlyFnx() const noexcept
-        {
-            return !fnxFiles.isEmpty() && regularFiles.isEmpty();
-        }
-
-        bool hasOnlyRegular() const noexcept
-        {
-            return fnxFiles.isEmpty() && !regularFiles.isEmpty();
-        }
-    };
 
     ParsedArgs_ parseArgs_(const QStringList& args) const
     {
@@ -360,6 +243,26 @@ private:
         }
 
         return result;
+    }
+
+    void openNotebook_(const Coco::Path& fnxPath)
+    {
+        if (auto notebook = makeNotebook_(fnxPath)) {
+            notebook->show();
+            notebook->beCute();
+        }
+    }
+
+    void openOrActivateNotebook_(const Coco::Path& fnxPath)
+    {
+        for (auto& notebook : notebooks_) {
+            if (notebook->fnxPath() == fnxPath) {
+                notebook->activate();
+                return;
+            }
+        }
+
+        openNotebook_(fnxPath);
     }
 
 private slots:
