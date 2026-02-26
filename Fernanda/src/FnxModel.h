@@ -94,6 +94,11 @@ public:
 
     bool isModified() const
     {
+        // As dumb as it might look, this approach allows us to revert to an
+        // unmodified state when appropriate, given we don't (yet?) have
+        // Workspace-level commands (like Ctrl+Z outside an editor to undo a
+        // file rename). We may want to change this in future, but I believe the
+        // following is somewhat compelling:
         // - QDomDocument::toString() is deterministic for the same structure
         // - Element/attribute order is preserved
         // - Whitespace handling is consistent
