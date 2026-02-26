@@ -178,6 +178,30 @@ private slots:
     }
 ```
 
+#### Signal Passing
+
+For immediately readability, prefer this:
+
+```
+connect(
+    panel,
+    &SettingsPanel::settingChanged, // also QString, QVariant
+    this,
+    [&](const QString& key, const QVariant& value) {
+        emit settingChanged(key, value);
+    });
+```
+
+Over this:
+
+```
+connect(
+    panel,
+    &SettingsPanel::settingChanged,
+    this,
+    &SettingsDialog::settingChanged);
+```
+
 ### Comments and Documentation
 
 **Section headers**: Must have blank line before the following function to avoid showing in IntelliSense tooltip pop-up
