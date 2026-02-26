@@ -245,7 +245,6 @@ private:
             // Open Notepad single window with a tab for each file, show color
             // bar pastel
             notepad_->show();
-            // Might not be working:
             notepad_->openFiles(parsed_args.regularFiles);
             notepad_->beCute();
         } else {
