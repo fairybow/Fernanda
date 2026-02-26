@@ -33,7 +33,7 @@ class AccordionWidget : public QWidget
     Q_OBJECT
 
 public:
-    AccordionWidget(QWidget* parent = nullptr)
+    explicit AccordionWidget(QWidget* parent = nullptr)
         : QWidget(parent)
     {
         setup_();
