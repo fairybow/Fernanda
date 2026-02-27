@@ -52,7 +52,7 @@ namespace Internal {
     // inline  Coco::Path logFilePath_{};
     inline QtMessageHandler qtHandler_ = nullptr;
 
-    static std::string timestamp_()
+    inline std::string timestamp_()
     {
         auto now = std::chrono::system_clock::now();
         auto zone = std::chrono::current_zone();
@@ -66,7 +66,7 @@ namespace Internal {
                 .count());
     }
 
-    static void handler_(
+    inline void handler_(
         QtMsgType type,
         const QMessageLogContext& context,
         const QString& msg)
