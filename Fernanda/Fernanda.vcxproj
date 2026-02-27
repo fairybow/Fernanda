@@ -110,7 +110,6 @@
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />
     <QtMoc Include="src\Bus.h" />
-    <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\FileTypes.h" />
     <QtMoc Include="src\NoOpFileModel.h" />
     <ClInclude Include="src\AboutDialog.h" />

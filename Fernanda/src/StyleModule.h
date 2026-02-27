@@ -20,6 +20,7 @@
 #include <QStringList>
 
 #include "Coco/Path.h"
+#include "Coco/Utility.h"
 
 #include "AbstractFileView.h"
 #include "AbstractService.h"

@@ -21,18 +21,12 @@
 #include <QVariant>
 #include <QVariantMap>
 
+#include "Coco/Utility.h"
+
 #include "Debug.h"
 #include "Window.h"
 
 namespace Fernanda {
-
-// We don't ever need to use this manually in command handler returns. Commander
-// handles this itself. Outside usage is more for converting parameters when
-// executing commands
-template <typename T> inline [[nodiscard]] QVariant qVar(const T& value)
-{
-    return QVariant::fromValue<T>(value);
-}
 
 struct Command
 {
