@@ -43,13 +43,10 @@ public:
 private:
     QCheckBox* centerOnScrollCheck_ = new QCheckBox(this);
     QCheckBox* overwriteCheck_ = new QCheckBox(this);
-    ControlField<DisplaySlider*>* tabStopDistance_ =
-        new ControlField<DisplaySlider*>(
-            ControlField<DisplaySlider*>::Label,
-            this);
-    ControlField<QComboBox*>* wrapMode_ = new ControlField<QComboBox*>(
-        ControlField<QComboBox*>::LabelAndInfo,
-        this);
+    ControlField<DisplaySlider>* tabStopDistance_ =
+        new ControlField<DisplaySlider>(FieldKind::Label, this);
+    ControlField<QComboBox>* wrapMode_ =
+        new ControlField<QComboBox>(FieldKind::LabelAndInfo, this);
     QCheckBox* doubleClickWhitespaceCheck_ = new QCheckBox(this);
     QCheckBox* lineNumbersCheck_ = new QCheckBox(this);
     QCheckBox* lineHighlightCheck_ = new QCheckBox(this);

@@ -24,6 +24,8 @@
 #include <QSvgRenderer>
 #include <QWidget>
 
+#include "Coco/Utility.h"
+
 #include "Debug.h"
 #include "Io.h"
 
@@ -76,7 +78,7 @@ public:
         if (!window) return;
 
         trackRequester_(window);
-        window->setProperty(PROPERTY_KEY, QVariant::fromValue(this));
+        window->setProperty(PROPERTY_KEY, qVar(this));
     }
 
     static QColor defaultIconColor() { return DEFAULT_ICON_COLOR_; }

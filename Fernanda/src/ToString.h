@@ -25,6 +25,7 @@
 #include <QVariantMap>
 
 #include "Coco/Concepts.h"
+#include "Coco/Utility.h"
 
 #define TO_STD_(Type, ArgName)                                                 \
     inline std::string toString(const Type& ArgName)                           \
@@ -41,7 +42,8 @@ template <typename T> inline QString ptrAddress(const T* ptr)
 }
 
 // Ptr cannot be nullptr
-template <typename T> inline QString qObjectPtrAddress(const T* ptr)
+template <Coco::Concepts::QObjectDerived T>
+inline QString qObjectPtrAddress(const T* ptr)
 {
     return QString("%0(%1)")
         .arg(ptr->metaObject()->className())
@@ -222,21 +224,21 @@ int main(int argc, char* argv[])
     testVariantToString("Bool", QVariant(true));
     testVariantToString("Int", QVariant(55));
     testVariantToString("UInt", QVariant(55u));
-    testVariantToString("Long", QVariant::fromValue(55L));
-    testVariantToString("ULong", QVariant::fromValue(55UL));
+    testVariantToString("Long", qVar(55L));
+    testVariantToString("ULong", qVar(55UL));
     testVariantToString("LongLong", QVariant(55LL));
     testVariantToString("ULongLong", QVariant(55ULL));
-    testVariantToString("Short", QVariant::fromValue(static_cast<short>(55)));
+    testVariantToString("Short", qVar(static_cast<short>(55)));
     testVariantToString(
         "UShort",
-        QVariant::fromValue(static_cast<unsigned short>(55)));
-    testVariantToString("Char", QVariant::fromValue(static_cast<char>('X')));
+        qVar(static_cast<unsigned short>(55)));
+    testVariantToString("Char", qVar(static_cast<char>('X')));
     testVariantToString(
         "SChar",
-        QVariant::fromValue(static_cast<signed char>('Y')));
+        qVar(static_cast<signed char>('Y')));
     testVariantToString(
         "UChar",
-        QVariant::fromValue(static_cast<unsigned char>('Z')));
+        qVar(static_cast<unsigned char>('Z')));
     testVariantToString("Float", QVariant(3.14f));
     testVariantToString("Double", QVariant(3.14159));
 
@@ -277,47 +279,47 @@ int main(int argc, char* argv[])
         QVariant(QVariantHash{ { "key1", 1 }, { "key2", "value" } }));
 
     qDebug() << "\n=== Model Types ===";
-    testVariantToString("QModelIndex", QVariant::fromValue(QModelIndex()));
+    testVariantToString("QModelIndex", qVar(QModelIndex()));
 
     qDebug() << "\n=== JSON Types ===";
     testVariantToString(
         "QJsonValue",
-        QVariant::fromValue(QJsonValue("json string")));
+        qVar(QJsonValue("json string")));
     testVariantToString(
         "QJsonObject",
-        QVariant::fromValue(QJsonObject{ { "key", "value" } }));
+        qVar(QJsonObject{ { "key", "value" } }));
     testVariantToString(
         "QJsonArray",
-        QVariant::fromValue(QJsonArray{ "one", "two", "three" }));
+        qVar(QJsonArray{ "one", "two", "three" }));
 
     QJsonDocument jsonDoc(QJsonObject{ { "key", "value" } });
-    testVariantToString("QJsonDocument", QVariant::fromValue(jsonDoc));
+    testVariantToString("QJsonDocument", qVar(jsonDoc));
 
     qDebug() << "\n=== CBOR Types ===";
     testVariantToString(
         "QCborValue",
-        QVariant::fromValue(QCborValue("cbor string")));
+        qVar(QCborValue("cbor string")));
     testVariantToString(
         "QCborArray",
-        QVariant::fromValue(QCborArray{ "one", "two" }));
+        qVar(QCborArray{ "one", "two" }));
     testVariantToString(
         "QCborMap",
-        QVariant::fromValue(QCborMap{ { 1, "value" } }));
+        qVar(QCborMap{ { 1, "value" } }));
     testVariantToString(
         "QCborSimpleType",
-        QVariant::fromValue(QCborSimpleType::True));
+        qVar(QCborSimpleType::True));
 
     qDebug() << "\n=== XML Types ===";
     QDomDocument doc;
     QDomElement element = doc.createElement("test");
     element.setAttribute("attr", "value");
-    testVariantToString("QDomElement", QVariant::fromValue(element));
+    testVariantToString("QDomElement", qVar(element));
 
     qDebug() << "\n=== Special Types ===";
-    testVariantToString("Nullptr", QVariant::fromValue(nullptr));
+    testVariantToString("Nullptr", qVar(nullptr));
     testVariantToString("Invalid", QVariant());
     testVariantToString("Null QString", QVariant(QString()));
-    testVariantToString("QObjectStar", QVariant::fromValue(new QObject));
+    testVariantToString("QObjectStar", qVar(new QObject));
 
     return 0;
 }*/

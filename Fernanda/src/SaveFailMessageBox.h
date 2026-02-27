@@ -23,8 +23,6 @@ namespace Fernanda::SaveFailMessageBox {
 
 namespace Internal {
 
-    constexpr auto BULLET_ = "\n\u2022 ";
-
     inline void setCommonProperties_(QMessageBox& box)
     {
         box.setWindowModality(Qt::WindowModal);
@@ -61,8 +59,8 @@ inline void exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
 
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    auto list = QString::fromUtf8(Internal::BULLET_)
-                + fileDisplayNames.join(QString::fromUtf8(Internal::BULLET_));
+    auto bullet = QStringLiteral("\n\u2022 ");
+    auto list = bullet + fileDisplayNames.join(bullet);
     box.setText(Tr::nxSaveFailBoxMultiBodyFormat().arg(list));
 
     // TODO: Move to open/show

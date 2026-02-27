@@ -59,7 +59,7 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 ## This Version's Dumbest Code Award :trophy:
 
-...
+See (Application.h (3f8bad1))[https://github.com/fairybow/Fernanda/blob/3f8bad164850dead66261a2f5c4acae1bd5fd1ab/Fernanda/src/Application.h]
 
 :heart:
 ```
@@ -129,6 +129,8 @@ if (key == Ini::Keys::EDITOR_LINE_NUMBERS) {
         [&](TextFileView* view) { view->editor()->setLineNumbers(v); });
 }
 ```
+
+(See [SettingsDialog.h (a33c4be)](https://github.com/fairybow/Fernanda/blob/38cf4be87281fbc12950a3cba979f6555d67cbca/Fernanda/src/SettingsDialog.h) and [ViewService.h (a33c4be)](https://github.com/fairybow/Fernanda/blob/38cf4be87281fbc12950a3cba979f6555d67cbca/Fernanda/src/ViewService.h))
 
 In total, the settings pipeline spans roughly 300 lines of boilerplate across four files to do what a unified `settingChanged(key, value)` signal and a hash map could do in about 40.
 
@@ -211,7 +213,7 @@ I've been at this for a while now, and though I think my code's improved a lot, 
 
 Normally, I might save this section for dumb-yet-harmless code that's still in-place. Unfortunately, though, this one *had* to be removed.
 
-So, without further ado, here's the erstwhile `wordCount_` from [`WordCounter`](https://github.com/fairybow/Fernanda/blob/main/Fernanda/src/WordCounter.h):
+So, without further ado, here's the erstwhile `wordCount_` from `WordCounter`:
 
 ```cpp
 int wordCount_(const QString& text) const
@@ -221,5 +223,7 @@ int wordCount_(const QString& text) const
     return words.count();
 }
 ```
+
+(See commented-out code at the bottom of [WordCounter.h (ee9a5c0)](https://github.com/fairybow/Fernanda/blob/8d59f04dd1bd05cc81d5756e5e548725b9a71d0d/Fernanda/src/WordCounter.h))
 
 On a document the size of Moby Dick, the old word counter allocated and destroyed, *I think*, 215,831 individual heap objects on every keystroke to produce a single number. The new one uses an int and a bool.

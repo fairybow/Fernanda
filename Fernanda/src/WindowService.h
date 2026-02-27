@@ -244,8 +244,9 @@ private:
     QString windowTitle_() const
     {
         // * subtitle - title
-        QString title = windowsFlagged_ ? "* " : "";
-        if (!windowsSubtitle_.isEmpty()) title += windowsSubtitle_ + " - ";
+        QString title = windowsFlagged_ ? QStringLiteral("* ") : "";
+        if (!windowsSubtitle_.isEmpty())
+            title += windowsSubtitle_ + QStringLiteral(" - ");
         title += VERSION_APP_NAME_STRING;
         return title;
     }

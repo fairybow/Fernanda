@@ -59,7 +59,7 @@ inline bool initialize()
     auto docs_ok = d.exists() || Coco::mkdir(d);
 
     if (!temp_ok) CRITICAL("Temp directory non-existent!: {}", t);
-    if (!themes_ok) CRITICAL("USer themes directory non-existent!: {}", th);
+    if (!themes_ok) CRITICAL("User themes directory non-existent!: {}", th);
     if (!docs_ok) CRITICAL("Docs directory non-existent!: {}", d);
 
     return temp_ok && themes_ok && docs_ok;

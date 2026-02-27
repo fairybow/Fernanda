@@ -171,7 +171,7 @@ Next up:
 ### Coco
 
 - [ ] Basically redo the whole thing!
-- [ ] Remove always inline macro!
+- [x] Remove always inline macro!
 - [ ] Path dir iterator
 - [ ] Redo path, potentially reintegrate PathUtil with Path (or Io umbrella file)
 - [ ] Figure out Path string caching
@@ -180,7 +180,7 @@ Next up:
 - [x] Path::copy (or Coco::copy)?
 - [x] Move mkdir top level (Coco::mkdir) or Path?
 - [ ] Move other non-Path stuff (search TODO)
-- [ ] Path separator normalization
+- [ ] Path separator normalization: Since this could be something maybe not always wanted, it could be set by a static "global" setter (like Path::normalize(Posix) in main) and relevant Path ops check against a static bool in source (or atomic idk)
 - [ ] Remove any macros that take slots/lambdas, since a comma in the capture breaks them!
 
 ### Logging & Debug

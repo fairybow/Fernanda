@@ -56,8 +56,6 @@ private:
     bool initialized_ = false;
 };
 
-} // namespace Fernanda
-
 #define DECLARE_HOOK_ACCESSORS(Type, GetterName, SetterName, MemberName)       \
     Type GetterName() const noexcept { return MemberName; }                    \
     void SetterName(const Type& hook) { MemberName = hook; }                   \
@@ -68,3 +66,5 @@ private:
             return (object->*hook)(std::forward<Args>(args)...);               \
         };                                                                     \
     }
+
+} // namespace Fernanda

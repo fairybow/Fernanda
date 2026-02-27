@@ -21,18 +21,12 @@
 #include <QVariant>
 #include <QVariantMap>
 
+#include "Coco/Utility.h"
+
 #include "Debug.h"
 #include "Window.h"
 
 namespace Fernanda {
-
-// We don't ever need to use this manually in command handler returns. Commander
-// handles this itself. Outside usage is more for converting parameters when
-// executing commands
-template <typename T> inline [[nodiscard]] QVariant qVar(const T& value)
-{
-    return QVariant::fromValue<T>(value);
-}
 
 struct Command
 {
@@ -82,17 +76,6 @@ struct Command
     }
 };
 
-// Interceptors have been removed, because I think the need for one at all may
-// be a strong sign that a command is being registered in the wrong place!
-
-/*template <typename T>
-concept InterceptorWithCommand = std::is_invocable_r_v<bool, T, const Command&>;
-
-template <typename T>
-concept InterceptorWithoutCommand =
-    std::is_invocable_r_v<bool, T>
-    && !std::is_invocable_r_v<bool, T, const Command&>;*/
-
 template <typename T>
 concept HandlerWithCommandReturnsVoid =
     std::same_as<void, std::invoke_result_t<T, const Command&>>;
@@ -115,6 +98,9 @@ concept HandlerWithoutCommandReturnsValue =
 template <typename T, typename... Args>
 concept ReturnsQVariant = std::is_invocable_r_v<QVariant, T, Args...>;
 
+// Interceptors have been removed, because I think the need for one at all may
+// be a strong sign that a command is being registered in the wrong place! NO
+// queries. Calls can be used as queries. It isn't a big deal!
 class Commander : public QObject
 {
     Q_OBJECT
@@ -126,41 +112,6 @@ public:
     }
 
     virtual ~Commander() = default;
-
-    /*template <typename InterceptorT>
-    void addInterceptor(const QString& id, InterceptorT&& interceptor)
-    {
-        // Handles:
-        // (const Command&)->bool and
-        // ()->bool
-
-        INFO("Registering interceptor for: {}", id);
-
-        if constexpr (InterceptorWithCommand<InterceptorT>) {
-            INFO("-> InterceptorWithCommand branch");
-
-            // (const Command&)->bool
-            interceptors_[id] << interceptor;
-
-        } else if constexpr (InterceptorWithoutCommand<InterceptorT>) {
-            INFO("-> InterceptorWithoutCommand branch");
-
-            // ()->bool
-            interceptors_[id] << [interceptor = std::forward<InterceptorT>(
-                                      interceptor)](const Command& cmd) {
-                (void)cmd;
-                return interceptor();
-            };
-
-        } else {
-
-            static_assert(
-                InterceptorWithCommand<InterceptorT>
-                    || InterceptorWithoutCommand<InterceptorT>,
-                "Interceptor must be callable as (const Command&)->bool or "
-                "()->bool");
-        }
-    }*/
 
     template <typename HandlerT>
     void addCommandHandler(const QString& id, HandlerT&& handler)
@@ -290,22 +241,11 @@ public:
         return runCommand_(id, { {}, context }).value<T>();
     }
 
-    // NO queries. Calls can be used as queries. It isn't a big deal!
-
 private:
     QHash<QString, std::function<QVariant(const Command&)>> commandHandlers_{};
-    // QHash<QString, QList<std::function<bool(const Command&)>>>
-    // interceptors_{};
 
     [[nodiscard]] QVariant runCommand_(const QString& id, const Command& cmd)
     {
-        /*for (auto& interceptor : interceptors_[id]) {
-            if (interceptor(cmd)) {
-                logCmdIntercepted_(id, cmd);
-                return {};
-            }
-        }*/
-
         if (auto handler = commandHandlers_.value(id)) {
             auto result = handler(cmd);
             logCmdRan_(id, cmd, result);
@@ -315,13 +255,6 @@ private:
             return {};
         }
     }
-
-    /*void logCmdIntercepted_(const QString& id, const Command& cmd) const
-    {
-        constexpr auto log_format =
-            "Intercepted: {}\n\tParams: {}\n\tContext: {}";
-        INFO(log_format, id, cmd.params, cmd.context);
-    }*/
 
     void logCmdRan_(
         const QString& id,

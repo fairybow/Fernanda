@@ -35,15 +35,15 @@
 // - A line with `{{` in a comment would be processed
 // - Line-based only, can't span variables across multiple lines
 
-namespace Qss {
+namespace Fernanda::Qss {
 
 inline QString render(
     const QString& templateStyleSheet,
     const QHash<QString, QString>& assignments)
 {
     // First pass: extract global defaults and template variables
-    QRegularExpression global_default_re(R"(^\s*(\w+)\|(.*)$)");
-    QRegularExpression template_var_re(R"(^\s*(\w+)\s*=\s*(.*)$)");
+    static const QRegularExpression global_default_re(R"(^\s*(\w+)\|(.*)$)");
+    static const QRegularExpression template_var_re(R"(^\s*(\w+)\s*=\s*(.*)$)");
 
     QHash<QString, QString> global_defaults{};
     QHash<QString, QString> template_vars{};
@@ -53,7 +53,7 @@ inline QString render(
 
         // A global default declaration is a line with just `varName|value` (no
         // `{{`/`}}`)
-        if (!line.contains("{{")) {
+        if (!line.contains(QStringLiteral("{{"))) {
             auto global_default_match = global_default_re.match(line);
 
             if (global_default_match.hasMatch()) {
@@ -79,7 +79,7 @@ inline QString render(
     }
 
     // Second pass: substitute variables
-    QRegularExpression var_re(R"(\{\{(\w+)(?:\|([^}]*))?\}\})");
+    static const QRegularExpression var_re(R"(\{\{(\w+)(?:\|([^}]*))?\}\})");
     QStringList qss_lines{};
 
     for (auto& line : content_lines) {
@@ -92,8 +92,9 @@ inline QString render(
             auto inline_fallback = match.captured(2); // Empty if no `|`
 
             // Handle deliberately empty fallback (`{{var|}}`)
-            auto has_inline_fallback = match.capturedLength(2) > 0
-                                       || match.captured(0).contains("|}}");
+            auto has_inline_fallback =
+                match.capturedLength(2) > 0
+                || match.captured(0).contains(QStringLiteral("|}}"));
 
             QString value{};
 
@@ -126,4 +127,4 @@ inline QString render(
     return qss_lines.join('\n');
 }
 
-} // namespace Qss
+} // namespace Fernanda::Qss

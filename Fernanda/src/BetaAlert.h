@@ -20,14 +20,14 @@ namespace Fernanda::BetaAlert {
 // Application-modal
 inline void exec()
 {
-    QMessageBox box;
+    QMessageBox box{};
+
     box.setWindowModality(Qt::ApplicationModal);
     box.setMinimumSize(400, 200);
     box.setIcon(QMessageBox::Warning);
     box.setTextInteractionFlags(Qt::NoTextInteraction);
     box.setText(Tr::nxBetaAlert());
-
-    auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
+    box.addButton(Tr::ok(), QMessageBox::AcceptRole);
 
     // TODO: Move to open/show
     box.exec();

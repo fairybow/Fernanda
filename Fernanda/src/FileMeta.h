@@ -79,18 +79,22 @@ private:
         QString old_tooltip = toolTip_;
 
         // Update title: custom title > path stem > "Untitled"
-        if (!titleOverride_.isEmpty())
+        if (!titleOverride_.isEmpty()) {
             title_ = titleOverride_;
-        else if (isOnDisk())
+        } else if (isOnDisk()) {
             title_ = path_.stemQString();
-        else
-            title_ = "Untitled";
+        } else {
+            // TODO: Tr-aware in future?
+            title_ = QStringLiteral("Untitled");
+        }
 
         // Update tooltip: full path if available, otherwise title + status
-        if (isOnDisk())
+        if (isOnDisk()) {
             toolTip_ = path_.toQString();
-        else
-            toolTip_ = title_ + " [Not on disk]";
+        } else {
+            // TODO: Tr-aware in future?
+            toolTip_ = title_ + QStringLiteral(" [Not on disk]");
+        }
 
         // Emit single signal if anything changed
         if (title_ != old_title || toolTip_ != old_tooltip) emit changed();

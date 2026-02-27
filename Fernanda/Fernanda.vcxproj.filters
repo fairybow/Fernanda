@@ -493,9 +493,6 @@
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Path.h">
       <Filter>Submodules\Coco</Filter>
     </ClInclude>
-    <ClInclude Include="src\Constants.h">
-      <Filter>Code\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Formatters.h">
       <Filter>Code\Core</Filter>
     </ClInclude>

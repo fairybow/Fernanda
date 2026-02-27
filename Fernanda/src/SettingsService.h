@@ -20,6 +20,7 @@
 #include <QVariantMap>
 
 #include "Coco/Path.h"
+#include "Coco/Utility.h"
 
 #include "AbstractService.h"
 #include "Bus.h"

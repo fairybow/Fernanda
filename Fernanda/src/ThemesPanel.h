@@ -17,6 +17,7 @@
 #include <QVariantMap>
 
 #include "Coco/Path.h"
+#include "Coco/Utility.h"
 
 #include "ControlField.h"
 #include "Debug.h"
@@ -55,10 +56,10 @@ public:
     virtual ~ThemesPanel() override { TRACER; }
 
 private:
-    ControlField<QComboBox*>* windowTheme_ =
-        new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
-    ControlField<QComboBox*>* editorTheme_ =
-        new ControlField<QComboBox*>(ControlField<QComboBox*>::Label, this);
+    ControlField<QComboBox>* windowTheme_ =
+        new ControlField<QComboBox>(FieldKind::Label, this);
+    ControlField<QComboBox>* editorTheme_ =
+        new ControlField<QComboBox>(FieldKind::Label, this);
 
     void setup_(
         const QVariantMap& values,
@@ -76,16 +77,12 @@ private:
 
         // Populate window themes
         for (auto& entry : windowThemes) {
-            window_theme_box->addItem(
-                entry.name,
-                QVariant::fromValue(entry.path));
+            window_theme_box->addItem(entry.name, qVar(entry.path));
         }
 
         // Populate editor themes
         for (auto& entry : editorThemes) {
-            editor_theme_box->addItem(
-                entry.name,
-                QVariant::fromValue(entry.path));
+            editor_theme_box->addItem(entry.name, qVar(entry.path));
         }
 
         // Set current selections

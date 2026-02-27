@@ -22,12 +22,9 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Coco/Bool.h"
 #include "Coco/Concepts.h"
 
 #include "ToString.h"
-
-// TODO: Add std::formatter to Path
 
 #define STRING_FORMATTER_(T, Conversion)                                       \
     template <> struct std::formatter<T> : std::formatter<std::string>         \
@@ -54,17 +51,6 @@ struct std::formatter<T> : std::formatter<std::string>
         return std::formatter<std::string>::format(
             Fernanda::toString(object),
             ctx);
-    }
-};
-
-// TODO: Move to Coco and use cpp version check
-template <typename TagT>
-struct std::formatter<Coco::Bool<TagT>> : std::formatter<std::string>
-{
-    auto format(const Coco::Bool<TagT>& b, std::format_context& ctx) const
-    {
-        auto name = std::string(TagT::name()) + "::" + (b ? "Yes" : "No");
-        return std::formatter<std::string>::format(name, ctx);
     }
 };
 

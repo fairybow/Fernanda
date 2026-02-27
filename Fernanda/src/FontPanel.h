@@ -21,6 +21,8 @@
 #include <QVariant>
 #include <QVariantMap>
 
+#include "Coco/Utility.h"
+
 #include "Debug.h"
 #include "DisplaySlider.h"
 #include "Ini.h"
@@ -134,9 +136,7 @@ private:
 
     void emitFont_()
     {
-        emit settingChanged(
-            Ini::Keys::EDITOR_FONT,
-            QVariant::fromValue(currentFont_));
+        emit settingChanged(Ini::Keys::EDITOR_FONT, qVar(currentFont_));
     }
 };
 

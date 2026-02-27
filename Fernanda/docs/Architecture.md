@@ -33,7 +33,7 @@ The architecture draws inspiration from editors like VSCode and Sublime Text:
 ### Workspace
 
 A Workspace is a logical grouping of windows, their contents, and the filesystem they operate on. Each Workspace owns:
-- A `Bus` for internal communication
+- A `Bus` it owns and gives to each Service to allow lateral communication between them
 - A set of `Services` for core mechanics
 - Optional `Modules` for additional features
 
@@ -388,7 +388,7 @@ This ensures every Service exists before any registers commands or connects to e
 1. **Register commands** for operations other Services might need
 2. **Emit events** when state changes that others might care about
 3. **Define hooks** for decision points where policy matters
-4. **Never** hold direct references to other Services
+4. **Never** hold direct references to other Services (that's what Bus is for)
 5. **Never** make policy decisions (that's the Workspace's job)
 
 ### For Workspaces
