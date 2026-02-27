@@ -12,6 +12,7 @@
 #include <QColor>
 #include <QFont>
 #include <QFontMetrics>
+#include <QFrame>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPointF>
@@ -85,6 +86,11 @@ void PlainTextEdit::resizeEvent(QResizeEvent* event)
 
 void PlainTextEdit::setup_()
 {
+    lineNumberArea_ = new LineNumberArea(this);
+    lineNumberArea_->setVisible(lineNumbers_);
+
+    // TODO: Unsure on frame:
+    //setFrameShape(QFrame::NoFrame);
     setViewportMargins(0, 0, 0, 0);
 
     connect(
@@ -92,11 +98,6 @@ void PlainTextEdit::setup_()
         &PlainTextEdit::cursorPositionChanged,
         this,
         &PlainTextEdit::resetCursorBlink_);
-
-    /// TODO LNA:
-
-    lineNumberArea_ = new LineNumberArea(this);
-    lineNumberArea_->setVisible(lineNumbers_);
 
     connect(
         this,
