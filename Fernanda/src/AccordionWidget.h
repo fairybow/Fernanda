@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <ranges>
+
 #include <QObject>
 #include <QSet>
 #include <QString>
@@ -79,10 +81,9 @@ private:
 
     void updateStretchFactors_()
     {
-        auto any_expansions = false;
-
-        for (auto& collapsible : collapsibles_)
-            if (collapsible->isExpanded()) any_expansions = true;
+        auto any_expansions = std::ranges::any_of(collapsibles_, [](auto* c) {
+            return c->isExpanded();
+        });
 
         for (auto& collapsible : collapsibles_) {
             auto index = layout_->indexOf(collapsible);
