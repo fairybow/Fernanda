@@ -216,7 +216,9 @@ private:
     void setup_()
     {
         refresh_->setVisible(false);
-        refresh_->setText("Refresh");
+
+        // TODO: Temp (replace button or use icon)
+        refresh_->setText(QStringLiteral("Refresh"));
 
         opacifyWidget_(countsDisplay_, 0.8);
         opacifyWidget_(separatorDisplay_, 0.3);
@@ -377,7 +379,8 @@ private:
                 if (hasSelectionReplacement_)
                     display = sel;
                 else
-                    display = cachedBaseCounts_ + " (" + sel + ")";
+                    display = cachedBaseCounts_ + QStringLiteral(" (") + sel
+                              + QStringLiteral(")");
             }
         } else {
             // All counts off (!any) but selection on (since we didn't hit (!any
@@ -409,11 +412,11 @@ private:
         auto cursor = textEdit_->textCursor();
 
         if (hasLinePos_)
-            elements << Tr::wordCounterLinePos() + " "
+            elements << Tr::wordCounterLinePos() + QStringLiteral(" ")
                             + QString::number(cursor.blockNumber() + 1);
 
         if (hasColPos_)
-            elements << Tr::wordCounterColPos() + " "
+            elements << Tr::wordCounterColPos() + QStringLiteral(" ")
                             + QString::number(cursor.positionInBlock() + 1);
 
         return elements.join(DELIMITER_);

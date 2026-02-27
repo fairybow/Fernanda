@@ -16,7 +16,7 @@
 #include <QDockWidget>
 #include <QDomDocument>
 #include <QDomElement>
-#include <QLabel>
+#include <QLabel> // TODO: Temp
 #include <QList>
 #include <QModelIndex>
 #include <QObject>
@@ -437,20 +437,19 @@ private:
 
     void updateWindowsFlags_() { windows->setFlagged(isModified_()); }
 
+    // TODO: Some way to indicate an individual Workspace visually
     void addWorkspaceIndicator_(Window* window)
     {
         if (!window) return;
 
+        // TODO: Temp
         auto status_bar = window->statusBar();
         if (!status_bar) return; // Shouldn't happen
         auto temp_label = new QLabel;
-
-        // TODO: Temp
         temp_label->setAutoFillBackground(true);
         QPalette palette = temp_label->palette();
         palette.setColor(QPalette::Window, QColor(Qt::cyan));
         temp_label->setPalette(palette);
-
         temp_label->setText("Name on open: " + fnxPath_.fileQString());
         status_bar->addPermanentWidget(temp_label);
     }

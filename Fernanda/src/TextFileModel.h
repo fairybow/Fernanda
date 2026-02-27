@@ -412,7 +412,7 @@ private slots:
 
                 // TODO: I'd prefer just "rounding" to nearest word for the save
                 // file name for unsaved file
-                if (block_text.length() > 27) title += "...";
+                if (block_text.length() > 27) title += QStringLiteral("...");
 
                 meta->setTitleOverride(title);
                 return;

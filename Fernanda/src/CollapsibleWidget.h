@@ -93,7 +93,8 @@ private:
     void updateHeaderText_()
     {
         if (itemCount_ >= 0)
-            header_->setText(QString("%1 (%2)").arg(title_).arg(itemCount_));
+            header_->setText(
+                QStringLiteral("%1 (%2)").arg(title_).arg(itemCount_));
         else
             header_->setText(title_);
     }

@@ -47,7 +47,7 @@ protected:
         font.setPointSize(24);
         font.setBold(true);
         label->setFont(font);
-        label->setText(":')");
+        label->setText(QStringLiteral(":')"));
         return label;
     }
 };
