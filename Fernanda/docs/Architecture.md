@@ -33,7 +33,7 @@ The architecture draws inspiration from editors like VSCode and Sublime Text:
 ### Workspace
 
 A Workspace is a logical grouping of windows, their contents, and the filesystem they operate on. Each Workspace owns:
-- A `Bus` for internal communication
+- A `Bus` it owns and gives to each Service to allow lateral communication between them
 - A set of `Services` for core mechanics
 - Optional `Modules` for additional features
 
