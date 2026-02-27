@@ -9,13 +9,10 @@
 
 #pragma once
 
-#include <utility>
-
 #include <QByteArray>
 #include <QByteArrayView>
 #include <QFile>
 #include <QIODevice>
-#include <QList>
 #include <QString>
 
 #include "Coco/Path.h"
@@ -45,17 +42,23 @@ enum HandledType
 
 inline HandledType type(const Coco::Path& path)
 {
+    struct Signature
+    {
+        HandledType type;
+        const char* bytes;
+        qsizetype length;
+    };
+
     // https://en.wikipedia.org/wiki/List_of_file_signatures
-    static const QList<std::pair<HandledType, QByteArray>> data = {
-        // Check longer signatures first to avoid false positives. Note:
-        // .docx is a .zip file!
-        { Png, QByteArray::fromHex("89504E470D0A1A0A") }, // 8 bytes
-        { SevenZip, QByteArray::fromHex("377ABCAF271C") }, // 6
-        { Rtf, QByteArray::fromHex("7B5C72746631") }, // 6
-        { Pdf, QByteArray::fromHex("255044462D") }, // 5
-        { Gif, QByteArray::fromHex("47494638") }, // 4
-        { Jpg, QByteArray::fromHex("FFD8FF") }, // 3
-        { Zip, QByteArray::fromHex("504B") }, // 2
+    // Check longer signatures first to avoid false positives
+    static constexpr Signature signatures[] = {
+        { Png, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8 },
+        { SevenZip, "\x37\x7A\xBC\xAF\x27\x1C", 6 },
+        { Rtf, "\x7B\x5C\x72\x74\x66\x31", 6 },
+        { Pdf, "\x25\x50\x44\x46\x2D", 5 },
+        { Gif, "\x47\x49\x46\x38", 4 },
+        { Jpg, "\xFF\xD8\xFF", 3 },
+        { Zip, "\x50\x4B", 2 },
     };
 
     QFile file(path.toQString());
@@ -74,8 +77,9 @@ inline HandledType type(const Coco::Path& path)
     }
 
     // Check each signature
-    for (const auto& [type, signature] : data)
-        if (file_header.startsWith(signature)) return type;
+    for (const auto& [type, bytes, length] : signatures) {
+        if (file_header.startsWith(QByteArrayView(bytes, length))) return type;
+    }
 
     // No signature matched, assume plain text
     return PlainText;
