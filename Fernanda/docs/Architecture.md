@@ -388,7 +388,7 @@ This ensures every Service exists before any registers commands or connects to e
 1. **Register commands** for operations other Services might need
 2. **Emit events** when state changes that others might care about
 3. **Define hooks** for decision points where policy matters
-4. **Never** hold direct references to other Services
+4. **Never** hold direct references to other Services (that's what Bus is for)
 5. **Never** make policy decisions (that's the Workspace's job)
 
 ### For Workspaces
