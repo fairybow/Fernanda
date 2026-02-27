@@ -136,13 +136,10 @@ private:
         const QString& ext)
     {
         auto qrc_paths =
-            Coco::dirPaths(QRC_DIR_, ext, Coco::Recursive::No);
-
-        auto user_paths =
-            Coco::dirPaths(
+            Coco::filePaths(QRC_DIR_, { QStringLiteral("*%1").arg(ext) });
+        auto user_paths = Coco::filePaths(
             AppDirs::userThemes(),
-            ext,
-            Coco::Recursive::No);
+            { QStringLiteral("*%1").arg(ext) });
 
         userThemePaths = { user_paths.begin(), user_paths.end() };
 
@@ -287,15 +284,13 @@ private slots:
         (void)path;
 
         // Re-scan for current files on disk
-        auto current_window_paths = Coco::dirPaths(
+        auto current_window_paths = Coco::filePaths(
             AppDirs::userThemes(),
-            WindowTheme::EXT,
-            Coco::Recursive::No);
+            { QStringLiteral("*%1").arg(WindowTheme::EXT) });
 
-        auto current_editor_paths = Coco::dirPaths(
+        auto current_editor_paths = Coco::filePaths(
             AppDirs::userThemes(),
-            EditorTheme::EXT,
-            Coco::Recursive::No);
+            { QStringLiteral("*%1").arg(EditorTheme::EXT) });
 
         QSet<Coco::Path> current_window_set{ current_window_paths.begin(),
                                              current_window_paths.end() };

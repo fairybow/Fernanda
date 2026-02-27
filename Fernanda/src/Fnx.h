@@ -414,13 +414,7 @@ namespace Io {
             BitArchiveWriter archive{ lib, BitFormat::SevenZip };
             archive.setOverwriteMode(OverwriteMode::Overwrite);
 
-            // TODO: Coco::Path version of this?
-            QDir dir(workingDir.toQString());
-            auto entries =
-                dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-            for (auto& entry : entries) {
-                auto entry_path = workingDir / entry;
+            for (auto& entry_path : Coco::paths(workingDir)) {
                 entry_path.isFolder()
                     ? archive.addDirectory(entry_path.toString())
                     : archive.addFile(entry_path.toString());

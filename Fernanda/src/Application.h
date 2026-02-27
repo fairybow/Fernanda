@@ -152,8 +152,9 @@ private:
 
     void loadBundledFonts_()
     {
-        for (auto& path :
-             Coco::dirPaths({ ":/mononoki/", ":/opendyslexic/" }, ".otf")) {
+        for (auto& path : Coco::filePaths(
+                 { ":/mononoki/", ":/opendyslexic/" },
+                 { "*.otf" })) {
             if (QFontDatabase::addApplicationFont(path.toQString()) < 0)
                 WARN("Failed to load font: {}", path);
         }
