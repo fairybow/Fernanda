@@ -176,7 +176,7 @@ Next up:
 - [ ] Redo path, potentially reintegrate PathUtil with Path (or Io umbrella file)
 - [ ] Figure out Path string caching
 - [ ] Ensure Path's shared data works
-- [ ] Path::isFolder to isDir
+- [x] Path::isFolder to isDir
 - [x] Path::copy (or Coco::copy)?
 - [x] Move mkdir top level (Coco::mkdir) or Path?
 - [ ] Move other non-Path stuff (search TODO)

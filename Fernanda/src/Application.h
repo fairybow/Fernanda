@@ -237,7 +237,7 @@ private:
         // Skip Fernanda.exe
         for (auto i = 1; i < args.size(); ++i) {
             Coco::Path path(args.at(i));
-            if (!path.exists() || path.isFolder()) continue;
+            if (!path.exists() || path.isDir()) continue;
 
             Fnx::Io::isFnxFile(path) ? result.fnxFiles << path
                                      : result.regularFiles << path;
