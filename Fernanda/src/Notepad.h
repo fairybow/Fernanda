@@ -767,7 +767,7 @@ private slots:
         if (!window || !index.isValid()) return;
 
         auto path = Coco::Path(fsModel_->filePath(index));
-        if (path.isFolder()) return;
+        if (path.isDir()) return;
 
         Fnx::Io::isFnxFile(path) ? emit openNotebookRequested(path)
                                  : files->openFilePathIn(window, path);

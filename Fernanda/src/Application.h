@@ -152,8 +152,9 @@ private:
 
     void loadBundledFonts_()
     {
-        for (auto& path :
-             Coco::dirPaths({ ":/mononoki/", ":/opendyslexic/" }, ".otf")) {
+        for (auto& path : Coco::filePaths(
+                 { ":/mononoki/", ":/opendyslexic/" },
+                 { "*.otf" })) {
             if (QFontDatabase::addApplicationFont(path.toQString()) < 0)
                 WARN("Failed to load font: {}", path);
         }
@@ -236,7 +237,7 @@ private:
         // Skip Fernanda.exe
         for (auto i = 1; i < args.size(); ++i) {
             Coco::Path path(args.at(i));
-            if (!path.exists() || path.isFolder()) continue;
+            if (!path.exists() || path.isDir()) continue;
 
             Fnx::Io::isFnxFile(path) ? result.fnxFiles << path
                                      : result.regularFiles << path;

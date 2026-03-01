@@ -76,7 +76,7 @@ public:
     Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
         : Workspace(parent)
         , fnxPath_(fnxPath)
-        , workingDir_(AppDirs::temp() / (fnxPath_.fileQString() + "~XXXXXX"))
+        , workingDir_(AppDirs::temp() / (fnxPath_.nameQString() + "~XXXXXX"))
     {
         setup_();
     }
@@ -311,7 +311,7 @@ private:
                 newFile_(window);
             });
 
-        windows->setSubtitle(fnxPath_.fileQString());
+        windows->setSubtitle(fnxPath_.nameQString());
         updateWindowsFlags_();
 
         // Extraction or creation
@@ -327,7 +327,7 @@ private:
             // have corresponding files, etc.)
         }
 
-        settings->setName(fnxPath_.fileQString());
+        settings->setName(fnxPath_.nameQString());
         settings->setOverrideConfigPath(
             working_dir / "Settings.ini"); // This needs to be after extraction!
 
@@ -450,7 +450,7 @@ private:
         QPalette palette = temp_label->palette();
         palette.setColor(QPalette::Window, QColor(Qt::cyan));
         temp_label->setPalette(palette);
-        temp_label->setText("Name on open: " + fnxPath_.fileQString());
+        temp_label->setText("Name on open: " + fnxPath_.nameQString());
         status_bar->addPermanentWidget(temp_label);
     }
 
@@ -657,7 +657,7 @@ private:
 
         if (saved_as) {
             fnxPath_ = path;
-            windows->setSubtitle(fnxPath_.fileQString());
+            windows->setSubtitle(fnxPath_.nameQString());
         }
 
         fnxModel_->resetSnapshot();
@@ -692,7 +692,7 @@ private:
         }
 
         fnxPath_ = new_path;
-        windows->setSubtitle(fnxPath_.fileQString());
+        windows->setSubtitle(fnxPath_.nameQString());
 
         fnxModel_->resetSnapshot();
         updateWindowsFlags_();

@@ -278,7 +278,7 @@ namespace Xml {
         QDomDocument& dom,
         const Coco::Path& fsPath)
     {
-        if (!fsPath.exists() || fsPath.isFolder()) return {};
+        if (!fsPath.exists() || fsPath.isDir()) return {};
 
         if (!workingDir.exists()) {
             CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
@@ -414,16 +414,9 @@ namespace Io {
             BitArchiveWriter archive{ lib, BitFormat::SevenZip };
             archive.setOverwriteMode(OverwriteMode::Overwrite);
 
-            // TODO: Coco::Path version of this?
-            QDir dir(workingDir.toQString());
-            auto entries =
-                dir.entryList(QDir::AllEntries | QDir::NoDotAndDotDot);
-
-            for (auto& entry : entries) {
-                auto entry_path = workingDir / entry;
-                entry_path.isFolder()
-                    ? archive.addDirectory(entry_path.toString())
-                    : archive.addFile(entry_path.toString());
+            for (auto& entry_path : Coco::paths(workingDir)) {
+                entry_path.isDir() ? archive.addDirectory(entry_path.toString())
+                                   : archive.addFile(entry_path.toString());
             }
 
             // TODO: Move original to backup + clean backup if over n files
