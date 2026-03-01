@@ -21,7 +21,6 @@
 
 namespace Fernanda {
 
-// TODO: PDF Document
 class PdfFileModel : public AbstractFileModel
 {
     Q_OBJECT
@@ -30,13 +29,13 @@ public:
     explicit PdfFileModel(const Coco::Path& path, QObject* parent = nullptr)
         : AbstractFileModel(path, parent)
     {
+        setup_();
     }
 
     virtual ~PdfFileModel() override { TRACER; }
 
     QPdfDocument* document() const noexcept { return document_; }
 
-    // TODO: PDF Document
     virtual QByteArray data() const override { return rawData_; }
     virtual bool supportsModification() const override { return false; }
 
@@ -44,23 +43,29 @@ public:
     {
         rawData_ = data;
 
-        // QPdfDocument can load from a QIODevice, so wrap the bytes
         buffer_.close();
         buffer_.setData(rawData_);
         buffer_.open(QIODevice::ReadOnly);
+
         document_->load(&buffer_);
-
-        // TODO: The load overload for QIODevice doesn't return an error...
-        // auto error = document_->load(&buffer_);
-
-        // if (error != QPdfDocument::Error::None)
-        //     WARN("Failed to load PDF (error: {})", static_cast<int>(error));
     }
 
 private:
-    QPdfDocument* document_ = new QPdfDocument(this);
     QByteArray rawData_{};
     QBuffer buffer_{};
+    QPdfDocument* document_ = new QPdfDocument(this);
+
+    void setup_()
+    {
+        connect(
+            document_,
+            &QPdfDocument::statusChanged,
+            this,
+            [&](QPdfDocument::Status status) {
+                if (status == QPdfDocument::Status::Error)
+                    WARN("PDF load failed for [{}]", meta()->path());
+            });
+    }
 };
 
 } // namespace Fernanda

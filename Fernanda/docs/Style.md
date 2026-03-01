@@ -33,6 +33,8 @@ Separate sections with an empty line. Sections should follow this order, top-to-
 #include "CustomWidget2.h"
 ```
 
+Rather than worry about what's transitive or not, err on the side of including everything used by name in that particular file. Exceptions would be for things like `QtGlobal`, `QtTypes`, or `QObject` in a `QWidget` when only directly using the `Q_OBJECT` macro.
+
 ### Guard Clauses
 
 Prefer organizing guard clauses / early returns. Put common items together, but don't group with unrelated checks. (This is subjective.)

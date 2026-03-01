@@ -260,6 +260,8 @@ private:
 
         auto model = new PdfFileModel(path, this);
         model->setData(Io::read(path));
+        model->setModified(false); // Probably not needed (PDFs are uneditable
+                                   // for now and maybe forever in Fernanda)
 
         return model;
     }

@@ -19,6 +19,8 @@
 
 namespace Fernanda {
 
+// TODO: Show page number on scroll!
+// TODO: Need zoom controls!
 class PdfFileView : public AbstractFileView
 {
     Q_OBJECT
@@ -38,8 +40,6 @@ protected:
     {
         auto pdf_view = new QPdfView(this);
         pdf_view->setPageMode(QPdfView::PageMode::MultiPage);
-
-        // TODO: Need zoom controls!
         pdf_view->setZoomMode(QPdfView::ZoomMode::FitToWidth);
 
         if (auto pdf_model = qobject_cast<PdfFileModel*>(model())) {
@@ -50,9 +50,6 @@ protected:
 
         return pdf_view;
     }
-
-private:
-    //
 };
 
 } // namespace Fernanda
