@@ -15,6 +15,8 @@
 #include <QWidget>
 #include <Qt>
 
+#include "Coco/Fx.h"
+
 #include "AbstractFileView.h"
 #include "Debug.h"
 #include "NoOpFileModel.h"
@@ -42,6 +44,7 @@ protected:
     virtual QWidget* setupWidget() override
     {
         auto label = new QLabel(this);
+        Coco::Fx::opacify(label, 0.3);
         label->setAlignment(Qt::AlignCenter);
         QFont font = label->font();
         font.setPointSize(24);

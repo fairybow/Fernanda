@@ -36,6 +36,8 @@
 #include "KeyFilters.h"
 #include "NoOpFileModel.h"
 #include "NoOpFileView.h"
+#include "PdfFileModel.h"
+#include "PdfFileView.h"
 #include "PlainTextEdit.h"
 #include "TabWidget.h"
 #include "TextFileModel.h"
@@ -861,6 +863,9 @@ private:
             auto text_view = newFileView_<TextFileView*>(text_model, window);
             applyInitialTextFileViewSettings_(text_view);
             view = text_view;
+
+        } else if (auto pdf_model = qobject_cast<PdfFileModel*>(fileModel)) {
+            view = newFileView_<PdfFileView*>(pdf_model, window);
 
         } else if (auto no_op_model = qobject_cast<NoOpFileModel*>(fileModel)) {
             view = newFileView_<NoOpFileView*>(no_op_model, window);

@@ -120,9 +120,6 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="submodules\Coco\Coco\src\Fx.cpp">
-      <Filter>Submodules\Coco</Filter>
-    </ClCompile>
     <ClCompile Include="submodules\Coco\Coco\src\Path.cpp">
       <Filter>Submodules\Coco</Filter>
     </ClCompile>
@@ -461,11 +458,14 @@
     <QtMoc Include="src\SettingsPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
+    <QtMoc Include="src\PdfFileModel.h">
+      <Filter>Code\Core\Files\Models</Filter>
+    </QtMoc>
+    <QtMoc Include="src\PdfFileView.h">
+      <Filter>Code\Core\Files\Views</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\BuildMessages.h">
-      <Filter>Code</Filter>
-    </ClInclude>
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h">
       <Filter>Submodules\Coco</Filter>
     </ClInclude>
@@ -561,6 +561,9 @@
     </ClInclude>
     <ClInclude Include="src\ControlField.h">
       <Filter>Code\Core\UI\Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BuildMessages.h">
+      <Filter>Code\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

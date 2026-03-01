@@ -15,7 +15,6 @@
 #include <QObject>
 #include <QSet>
 #include <QString>
-// #include <QTextDocument> // using this here?
 #include <QVariant>
 #include <QVariantMap>
 
@@ -30,6 +29,7 @@
 #include "FileTypes.h"
 #include "Io.h"
 #include "NoOpFileModel.h"
+#include "PdfFileModel.h"
 #include "TextFileModel.h"
 #include "Tr.h"
 #include "Window.h"
@@ -218,6 +218,9 @@ private:
         case FileTypes::PlainText:
             model = newDiskTextFileModel_(path);
             break;
+        case FileTypes::Pdf:
+            model = newDiskPdfFileModel_(path);
+            break;
         default:
             model = new NoOpFileModel(path, this);
             break;
@@ -247,6 +250,18 @@ private:
         model->setModified(false); // Pretty important!
 
         // TODO: Handle document is nullptr?
+
+        return model;
+    }
+
+    AbstractFileModel* newDiskPdfFileModel_(const Coco::Path& path)
+    {
+        if (path.isEmpty() || !path.exists()) return nullptr;
+
+        auto model = new PdfFileModel(path, this);
+        model->setData(Io::read(path));
+        model->setModified(false); // Probably not needed (PDFs are uneditable
+                                   // for now and maybe forever in Fernanda)
 
         return model;
     }

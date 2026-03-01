@@ -25,6 +25,7 @@ namespace Fernanda {
 /// TODO PD
 QWidget* TextFileView::setupWidget()
 {
+    // TODO: Move these inside the model type deduction below?
     editor_ = new PlainTextEdit(this);
     editor_->installEventFilter(this);
     editor_->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -68,7 +69,7 @@ QWidget* TextFileView::setupWidget()
             &TextFileModel::endCompoundEdit);
 
     } else {
-        FATAL("Could not set editor document!");
+        FATAL("TextFileModel cast failed!");
     }
 
     connect(editor_, &PlainTextEdit::selectionChanged, this, [&] {

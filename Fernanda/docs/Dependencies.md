@@ -5,7 +5,7 @@ Fernanda relies on Qt 6 and two additional dependencies: Coco (utility library) 
 | Dependency | Type | Location | Purpose |
 |------------|------|----------|---------|
 | Qt 6 | External | System/vcpkg | GUI framework, XML, file I/O |
-| Coco | Submodule | `Coco/` | Path utilities, logging, helpers |
+| Coco | Submodule | `Coco/` | Path and other (often) Qt-related utilities |
 | bit7z | Library | `external/` | 7zip archive operations |
 
 ## Coco

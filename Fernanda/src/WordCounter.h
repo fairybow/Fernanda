@@ -9,11 +9,9 @@
 
 #pragma once
 
-#include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMargins>
-#include <QObject>
 #include <QPlainTextEdit>
 #include <QPointer>
 #include <QString>
@@ -24,6 +22,7 @@
 #include <QWidget>
 
 #include "Coco/Bool.h"
+#include "Coco/Fx.h"
 
 #include "Debug.h"
 #include "Timers.h"
@@ -202,7 +201,7 @@ private:
     bool hasWordCount_ = true;
     bool hasCharCount_ = false;
     bool hasSelectionCounts_ =
-        true; // All counts show when this is on but all counts are off
+        true; // All counts show when this is on even when all counts are false
     bool hasSelectionReplacement_ = true;
 
     bool hasLinePos_ = true;
@@ -220,9 +219,9 @@ private:
         // TODO: Temp (replace button or use icon)
         refresh_->setText(QStringLiteral("Refresh"));
 
-        opacifyWidget_(countsDisplay_, 0.8);
-        opacifyWidget_(separatorDisplay_, 0.3);
-        opacifyWidget_(posDisplay_, 0.8);
+        Coco::Fx::opacify(countsDisplay_, 0.8);
+        Coco::Fx::opacify(separatorDisplay_, 0.3);
+        Coco::Fx::opacify(posDisplay_, 0.8);
 
         // Ensure correct initial visibility. If we don't do this, on startup,
         // if the settings values match the defaults, then every setter call
@@ -472,14 +471,6 @@ private:
             countsDisplay_->isVisible() && posDisplay_->isVisible());
 
         if (!show) display->clear();
-    }
-
-    // TODO: Move to Coco?
-    void opacifyWidget_(QWidget* widget, double opacity = 0.5)
-    {
-        auto effect = new QGraphicsOpacityEffect(widget);
-        effect->setOpacity(opacity);
-        widget->setGraphicsEffect(effect);
     }
 };
 

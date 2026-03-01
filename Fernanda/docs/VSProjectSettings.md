@@ -15,7 +15,7 @@ ISO C17 (2018) Standard (/std:c17)
 Configuration Properties > Qt Project Settings > Qt Modules
 
 ```
-core;gui;network;widgets;svg;xml
+core;gui;network;widgets;svg;xml;pdfwidgets
 ```
 
 Configuration Properties > C/C++ > General > Additional Include Directories

@@ -60,6 +60,7 @@ Might be simple actually, but tedious. We'll do it later.
 - [x] Grabbable selection
 - [x] Moving preloaded fonts to top of selection box
 - [ ] Make sure the distinction/usage between prompt, dialog, and box is clear
+- [ ] Rename for Notepad TreeView
 
 ### Stretch
 
