@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QPdfPageNavigator>
 #include <QPdfView>
 #include <QWidget>
 
@@ -43,13 +44,31 @@ protected:
         pdf_view->setZoomMode(QPdfView::ZoomMode::FitToWidth);
 
         if (auto pdf_model = qobject_cast<PdfFileModel*>(model())) {
-            pdf_view->setDocument(pdf_model->document());
+            auto document = pdf_model->document();
+            pdf_view->setDocument(document);
+            // pageCount_->setPageCount(document->pageCount());
+
+            // connect(
+            //     pdf_view->pageNavigator(),
+            //     &QPdfPageNavigator::currentPageChanged,
+            //     pageCount_,
+            //     &PdfPageCountWidget::setCurrentPage);
+
+            // connect(
+            //     document,
+            //     &QPdfDocument::pageCountChanged,
+            //     pageCount_,
+            //     &PdfPageCountWidget::setPageCount);
+
         } else {
-            FATAL("Could not set PDF document!");
+            FATAL("PdfFileModel cast failed!");
         }
 
         return pdf_view;
     }
+
+private:
+    // PdfPageCountWidget* pageCount_ = new PdfPageCountWidget(this);
 };
 
 } // namespace Fernanda

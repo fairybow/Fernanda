@@ -69,7 +69,7 @@ QWidget* TextFileView::setupWidget()
             &TextFileModel::endCompoundEdit);
 
     } else {
-        FATAL("Could not set editor document!");
+        FATAL("TextFileModel cast failed!");
     }
 
     connect(editor_, &PlainTextEdit::selectionChanged, this, [&] {

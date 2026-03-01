@@ -458,11 +458,11 @@
     <QtMoc Include="src\SettingsPanel.h">
       <Filter>Code\Core\UI\Settings</Filter>
     </QtMoc>
-    <QtMoc Include="src\PdfFileView.h">
-      <Filter>Code\Core\Files\Views</Filter>
-    </QtMoc>
     <QtMoc Include="src\PdfFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
+    </QtMoc>
+    <QtMoc Include="src\PdfFileView.h">
+      <Filter>Code\Core\Files\Views</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
