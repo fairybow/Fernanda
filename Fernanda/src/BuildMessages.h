@@ -11,6 +11,9 @@
 
 #include "Version.h"
 
+#pragma message(                                                               \
+    "=========================== Build Messages ===========================")
+
 #ifdef VERSION_DEBUG
 #    pragma message("VERSION_DEBUG is defined")
 #else
@@ -25,3 +28,6 @@
 
 #pragma message("Version: " VERSION_FULL_STRING)
 #pragma message("Release Name: \"" VERSION_RELEASE_NAME_STRING "\"")
+
+#pragma message(                                                               \
+    "======================================================================")

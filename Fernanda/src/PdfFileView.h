@@ -9,34 +9,28 @@
 
 #pragma once
 
-#include <QFont>
-#include <QLabel>
-#include <QObject>
+#include <QLabel> /// Test
+#include <QPdfView>
 #include <QWidget>
-#include <Qt>
 
-#include "Coco/Fx.h"
-
+#include "AbstractFileModel.h"
 #include "AbstractFileView.h"
 #include "Debug.h"
-#include "NoOpFileModel.h"
+#include "PdfFileModel.h"
 
 namespace Fernanda {
 
-// Read-only placeholder view for unsupported file types, displaying simple
-// placeholder content potentially for binary files or other non-viewable
-// formats
-class NoOpFileView : public AbstractFileView
+class PdfFileView : public AbstractFileView
 {
     Q_OBJECT
 
 public:
-    explicit NoOpFileView(NoOpFileModel* fileModel, QWidget* parent = nullptr)
+    explicit PdfFileView(PdfFileModel* fileModel, QWidget* parent = nullptr)
         : AbstractFileView(fileModel, parent)
     {
     }
 
-    virtual ~NoOpFileView() override { TRACER; }
+    virtual ~PdfFileView() override { TRACER; }
 
     virtual bool supportsEditing() const override { return false; }
 
@@ -44,15 +38,17 @@ protected:
     virtual QWidget* setupWidget() override
     {
         auto label = new QLabel(this);
-        Coco::Fx::opacify(label, 0.3);
         label->setAlignment(Qt::AlignCenter);
         QFont font = label->font();
         font.setPointSize(24);
         font.setBold(true);
         label->setFont(font);
-        label->setText(QStringLiteral(":')"));
+        label->setText(QStringLiteral("PDF FILE VIEW TEST"));
         return label;
     }
+
+private:
+    //
 };
 
 } // namespace Fernanda

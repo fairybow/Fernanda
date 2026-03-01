@@ -23,7 +23,6 @@
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\WindowService.cpp" />
     <ClCompile Include="src\Workspace.cpp" />
-    <ClCompile Include="submodules\Coco\Coco\src\Fx.cpp" />
     <ClCompile Include="submodules\Coco\Coco\src\Path.cpp" />
     <ClCompile Include="submodules\Coco\Coco\src\StartCop.cpp" />
   </ItemGroup>
@@ -130,6 +129,8 @@
     <ClInclude Include="src\old_FnxModel.h" />
     <QtMoc Include="src\PlainTextEdit.h" />
     <QtMoc Include="src\EditorPanel.h" />
+    <QtMoc Include="src\PdfFileView.h" />
+    <QtMoc Include="src\PdfFileModel.h" />
     <ClInclude Include="src\Qss.h" />
     <ClInclude Include="src\SaveFailMessageBox.h" />
     <ClInclude Include="src\SavePrompt.h" />
@@ -209,13 +210,13 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>6.10.1_msvc2022_64</QtInstall>
-    <QtModules>core;gui;network;widgets;svg;xml</QtModules>
+    <QtInstall>6.10.2_msvc2022_64</QtInstall>
+    <QtModules>core;gui;network;widgets;svg;xml;pdfwidgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.10.1_msvc2022_64</QtInstall>
-    <QtModules>core;gui;network;widgets;svg;xml</QtModules>
+    <QtInstall>6.10.2_msvc2022_64</QtInstall>
+    <QtModules>core;gui;network;widgets;svg;xml;pdfwidgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">

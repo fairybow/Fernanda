@@ -10,11 +10,9 @@
 #pragma once
 
 #include <QFont>
-#include <QObject>
 #include <QTextCursor>
 #include <QTextOption>
 #include <QWidget>
-#include <QtTypes>
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
@@ -108,6 +106,7 @@ public:
     }
 
 protected:
+    // TODO: Why not inline? I forgot...
     virtual QWidget* setupWidget() override;
 
 private:
