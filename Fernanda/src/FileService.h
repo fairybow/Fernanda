@@ -259,7 +259,7 @@ private:
         if (path.isEmpty() || !path.exists()) return nullptr;
 
         auto model = new PdfFileModel(path, this);
-        // model->setData(Io::read(path));
+        model->setData(Io::read(path));
 
         return model;
     }

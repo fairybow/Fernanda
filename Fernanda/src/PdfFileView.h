@@ -9,7 +9,6 @@
 
 #pragma once
 
-#include <QLabel> /// Test
 #include <QPdfView>
 #include <QWidget>
 
@@ -37,14 +36,19 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
-        auto label = new QLabel(this);
-        label->setAlignment(Qt::AlignCenter);
-        QFont font = label->font();
-        font.setPointSize(24);
-        font.setBold(true);
-        label->setFont(font);
-        label->setText(QStringLiteral("PDF FILE VIEW TEST"));
-        return label;
+        auto pdf_view = new QPdfView(this);
+        pdf_view->setPageMode(QPdfView::PageMode::MultiPage);
+
+        // TODO: Need zoom controls!
+        pdf_view->setZoomMode(QPdfView::ZoomMode::FitToWidth);
+
+        if (auto pdf_model = qobject_cast<PdfFileModel*>(model())) {
+            pdf_view->setDocument(pdf_model->document());
+        } else {
+            FATAL("Could not set PDF document!");
+        }
+
+        return pdf_view;
     }
 
 private:

@@ -25,6 +25,7 @@ namespace Fernanda {
 /// TODO PD
 QWidget* TextFileView::setupWidget()
 {
+    // TODO: Move these inside the model type deduction below?
     editor_ = new PlainTextEdit(this);
     editor_->installEventFilter(this);
     editor_->setContextMenuPolicy(Qt::CustomContextMenu);

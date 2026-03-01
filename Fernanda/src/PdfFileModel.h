@@ -9,6 +9,9 @@
 
 #pragma once
 
+#include <QBuffer>
+#include <QByteArray>
+#include <QIODevice>
 #include <QPdfDocument>
 
 #include "Coco/Path.h"
@@ -31,9 +34,33 @@ public:
 
     virtual ~PdfFileModel() override { TRACER; }
 
+    QPdfDocument* document() const noexcept { return document_; }
+
     // TODO: PDF Document
-    virtual QByteArray data() const override { return {}; }
+    virtual QByteArray data() const override { return rawData_; }
     virtual bool supportsModification() const override { return false; }
+
+    virtual void setData(const QByteArray& data) override
+    {
+        rawData_ = data;
+
+        // QPdfDocument can load from a QIODevice, so wrap the bytes
+        buffer_.close();
+        buffer_.setData(rawData_);
+        buffer_.open(QIODevice::ReadOnly);
+        document_->load(&buffer_);
+
+        // TODO: The load overload for QIODevice doesn't return an error...
+        // auto error = document_->load(&buffer_);
+
+        // if (error != QPdfDocument::Error::None)
+        //     WARN("Failed to load PDF (error: {})", static_cast<int>(error));
+    }
+
+private:
+    QPdfDocument* document_ = new QPdfDocument(this);
+    QByteArray rawData_{};
+    QBuffer buffer_{};
 };
 
 } // namespace Fernanda

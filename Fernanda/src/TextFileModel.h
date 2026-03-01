@@ -43,7 +43,8 @@ public:
 
     // The prime document. Views should NOT call setDocument() with this; use
     // registerViewDocument() instead
-    QTextDocument* document() const noexcept { return primeDocument_; }
+    // TODO: Unused
+    // QTextDocument* document() const noexcept { return primeDocument_; }
 
     /// TODO PD
     void registerViewDocument(QTextDocument* viewDoc)
