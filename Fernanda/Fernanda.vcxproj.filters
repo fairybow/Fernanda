@@ -300,6 +300,9 @@
       <Filter>Docs</Filter>
     </None>
     <None Include="..\CHANGELOG.md" />
+    <None Include="docs\(Plan) FileTypeHandling.md">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -502,7 +505,7 @@
     <ClInclude Include="src\ToString.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileTypes.h">
+    <ClInclude Include="src\MagicBytes.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
     <ClInclude Include="src\Io.h">

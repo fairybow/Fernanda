@@ -20,13 +20,14 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "Coco/Path.h"
 #include "bit7z/bitarchivereader.hpp"
 #include "bit7z/bitarchivewriter.hpp"
 
+#include "Coco/Path.h"
+
 #include "AppDirs.h"
-#include "FileTypes.h"
 #include "Io.h"
+#include "MagicBytes.h"
 
 // .fnx file format specification and utilities.
 //
@@ -334,7 +335,7 @@ namespace Io {
 
     inline bool isFnxFile(const Coco::Path& path)
     {
-        return path.ext() == EXT && FileTypes::is(FileTypes::SevenZip, path);
+        return path.ext() == EXT && MagicBytes::is(MagicBytes::SevenZip, path);
     }
 
     inline void makeNewWorkingDir(const Coco::Path& workingDir)

@@ -26,8 +26,8 @@
 #include "Bus.h"
 #include "Debug.h"
 #include "FileMeta.h"
-#include "FileTypes.h"
 #include "Io.h"
+#include "MagicBytes.h"
 #include "NoOpFileModel.h"
 #include "PdfFileModel.h"
 #include "TextFileModel.h"
@@ -214,11 +214,13 @@ private:
 
         AbstractFileModel* model = nullptr;
 
-        switch (FileTypes::type(path)) {
-        case FileTypes::PlainText:
+        // TODO: Moving to extension then mb if available (if mb check fails,
+        // no-op view possible or fallthrough to plaintext)
+        switch (MagicBytes::type(path)) {
+        case MagicBytes::NoSignature:
             model = newDiskTextFileModel_(path);
             break;
-        case FileTypes::Pdf:
+        case MagicBytes::Pdf:
             model = newDiskPdfFileModel_(path);
             break;
         default:

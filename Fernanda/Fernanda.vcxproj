@@ -34,6 +34,7 @@
     <None Include="..\CHANGELOG.md" />
     <None Include="..\README.md" />
     <None Include="cpp.hint" />
+    <None Include="docs\(Plan) FileTypeHandling.md" />
     <None Include="docs\ApplicationDirectories.md" />
     <None Include="docs\Architecture.md" />
     <None Include="docs\Dependencies.md" />
@@ -109,7 +110,7 @@
     <QtMoc Include="src\Timers.h" />
     <QtMoc Include="src\DisplaySlider.h" />
     <QtMoc Include="src\Bus.h" />
-    <ClInclude Include="src\FileTypes.h" />
+    <ClInclude Include="src\MagicBytes.h" />
     <QtMoc Include="src\NoOpFileModel.h" />
     <ClInclude Include="src\AboutDialog.h" />
     <QtMoc Include="src\FontPanel.h" />

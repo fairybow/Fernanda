@@ -18,19 +18,12 @@
 #include "Coco/Path.h"
 
 // Detects file types by analyzing file signatures (magic bytes) rather than
-// extensions, for potential support of various formats including text, images,
-// archives, and documents across the Workspace. Currently, we use this to
-// explicitly detect 7zip archives and also as a kind of filter in FileService
-// (any type present in the enums here, like GIF or JPG, will not resolve to
-// PlainText and open as NoOp), though this will likely change, and it will only
-// be used to open special files/views (and not block anything else unless
-// needed)
-namespace Fernanda::FileTypes {
+// extensions
+namespace Fernanda::MagicBytes {
 
-// Unknown types treated as plain text
-enum HandledType
+enum Kind
 {
-    PlainText = 0,
+    NoSignature = 0,
     Png,
     SevenZip,
     Rtf,
@@ -40,11 +33,11 @@ enum HandledType
     Zip // covers .docx (Word)
 };
 
-inline HandledType type(const Coco::Path& path)
+inline Kind type(const Coco::Path& path)
 {
     struct Signature
     {
-        HandledType type;
+        Kind kind;
         const char* bytes;
         qsizetype length;
     };
@@ -65,7 +58,7 @@ inline HandledType type(const Coco::Path& path)
 
     if (!file.open(QIODevice::ReadOnly)) {
         INFO("Unable to open file: {}", path);
-        return PlainText; // Maybe replace with Error value
+        return NoSignature; // Maybe replace with Error value?
     }
 
     // Read enough bytes to cover the longest signature (8 bytes for PNG)
@@ -73,21 +66,17 @@ inline HandledType type(const Coco::Path& path)
 
     if (file_header.isEmpty()) {
         INFO("Empty file: {}", path);
-        return PlainText;
+        return NoSignature; // Maybe replace with Error value?
     }
 
-    // Check each signature
-    for (const auto& [type, bytes, length] : signatures) {
-        if (file_header.startsWith(QByteArrayView(bytes, length))) return type;
+    // Return kind if known
+    for (const auto& [kind, bytes, length] : signatures) {
+        if (file_header.startsWith(QByteArrayView(bytes, length))) return kind;
     }
 
-    // No signature matched, assume plain text
-    return PlainText;
+    return NoSignature;
 }
 
-inline bool is(HandledType fileType, const Coco::Path& path)
-{
-    return fileType == type(path);
-}
+inline bool is(Kind kind, const Coco::Path& path) { return kind == type(path); }
 
-} // namespace Fernanda::FileTypes
+} // namespace Fernanda::MagicBytes
