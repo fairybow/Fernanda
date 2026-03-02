@@ -1,5 +1,7 @@
 # File Type Handling (Tentative Plan)
 
+Tag: TODO FH
+
 How Fernanda resolves, models, views, and persists different file types across its Workspace system.
 
 See: [`MagicBytes.h`](../src/MagicBytes.h), [`FileService.h`](../src/FileService.h), [`AbstractFileModel.h`](../src/AbstractFileModel.h), [`AbstractFileView.h`](../src/AbstractFileView.h), [`Fnx.h`](../src/Fnx.h)

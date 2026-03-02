@@ -331,10 +331,10 @@ namespace Xml {
 // Used by Notebook
 namespace Io {
 
-    // TODO: May want to remove isFnxFile (dependency on MagicBytes) and allow
-    // Application to do this compound check. So, it would check Fnx::Io::EXT
-    // first and then check MB. If MB fails, it might open NoOp view tab instead
-    // of bad FNX file
+    /// TODO FH: May want to remove isFnxFile (dependency on MagicBytes) and
+    /// allow Application to do this compound check. So, it would check
+    /// Fnx::Io::EXT first and then check MB. If MB fails, it might open NoOp
+    /// view tab instead of bad FNX file
     constexpr auto EXT = ".fnx";
 
     inline bool isFnxFile(const Coco::Path& path)
