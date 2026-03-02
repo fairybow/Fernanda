@@ -1,6 +1,6 @@
 # File Type Handling (Tentative Plan)
 
-Tag: TODO FH
+Tag: TODO FT
 
 How Fernanda resolves, models, views, and persists different file types across its Workspace system.
 

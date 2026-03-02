@@ -214,7 +214,7 @@ private:
 
         AbstractFileModel* model = nullptr;
 
-        /// TODO FH: Moving to extension then mb if available (if mb check
+        /// TODO FT: Moving to extension then mb if available (if mb check
         /// fails, no-op view possible or fallthrough to plaintext)
         switch (MagicBytes::type(path)) {
         case MagicBytes::NoSignature:

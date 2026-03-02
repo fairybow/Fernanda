@@ -2,20 +2,20 @@
 
 Current task: file types (see plan doc)
 
-Follow-up with search for "TODO FH"
+Follow-up with search for "TODO FT"
 
 ---
 
 TODO: Redo/reorganize the below
 
-Tags for working code that is a draft and needs more scrutiny/cleaning:
+FOllow-up Tags for working code that is a draft and needs more scrutiny/cleaning:
 - TODO TD (tab dragging)
 - TODO TVT (tree view toggle)
 - TODO KFS (key filters settings)
 - TODO ES (editor settings)
 - TODO GH (grabbable highlight)
 - TODO PD (prime doc)
-- TODO FH (file handling)
+- TODO FT (file types)
 
 New: PDF Import/Extension handling: For PDFs, need to handle Fnx extension, FnxModel and Notebook import methods. Files imported can be of different types (PDF or TXT).
 
