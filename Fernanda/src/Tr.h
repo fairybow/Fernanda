@@ -131,7 +131,9 @@ namespace Tr {
     // NB dialogs:
 
     TR_(nbImportFileCaption, tr("Import file"));
-    TR_(nbImportFileFilter, tr("Plain text files (*.txt)"));
+    TR_(nbImportFileFilter,
+        tr("All supported files (*.txt *.pdf);;Plain text files (*.txt);;PDF "
+           "Document (*.pdf)"));
     TR_(nbSaveAsCaption, tr("Save as"));
     TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
 
