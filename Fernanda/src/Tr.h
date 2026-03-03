@@ -58,7 +58,10 @@ namespace Tr {
     TR_(nxNewNotebookExistsErrBodyFormat,
         tr("A Notebook already exists at %0"));
     TR_(nxOpenNotebookCaption, tr("Open Notebook file"));
+
+    /// TODO FT: Pull ext from FNX, maybe in special filters header
     TR_(nxOpenNotebookFilter, tr("Fernanda Notebook files (*.fnx)"));
+
     TR_(nxBetaAlert,
         tr("<p><b>This is a prerelease!</b></p><p>You should not trust your "
            "writing with prerelease versions of this software. Regardless, "
@@ -122,19 +125,21 @@ namespace Tr {
     // NP dialogs:
 
     TR_(npOpenFileCaption, tr("Open file"));
-    TR_(npOpenFileFilter,
-        tr("Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All "
-           "files (*)"));
+    // TR_(npOpenFileFilter,
+    // tr("Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All "
+    //"files (*)"));
     TR_(npSaveAsCaption, tr("Save as"));
-    TR_(npSaveAsFilter, tr("Plain text files (*.txt);;All files (*)"));
+    // TR_(npSaveAsFilter, tr("Plain text files (*.txt);;All files (*)"));
 
     // NB dialogs:
 
     TR_(nbImportFileCaption, tr("Import file"));
-    TR_(nbImportFileFilter,
-        tr("All supported files (*.txt *.pdf);;Plain text files (*.txt);;PDF "
-           "Document (*.pdf)"));
+    // TR_(nbImportFileFilter,
+    // tr("All supported files (*.txt *.pdf);;Plain text files (*.txt);;PDF "
+    //"Document (*.pdf)"));
     TR_(nbSaveAsCaption, tr("Save as"));
+
+    /// TODO FT: Pull ext from FNX, maybe in special filters header
     TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
 
     // TODO: I think a multi version might be better - then, in the singular, we
