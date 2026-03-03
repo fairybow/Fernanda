@@ -23,6 +23,8 @@
 
 namespace Fernanda {
 
+/// TODO FT: Can check meta file type for tree view icon somehow? Route through
+/// Fnx::Xml?
 QVariant FnxModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) return {};
