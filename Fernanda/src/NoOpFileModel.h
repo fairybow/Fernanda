@@ -16,6 +16,7 @@
 
 #include "AbstractFileModel.h"
 #include "Debug.h"
+#include "FileTypes.h"
 
 namespace Fernanda {
 
@@ -26,7 +27,7 @@ class NoOpFileModel : public AbstractFileModel
 
 public:
     explicit NoOpFileModel(const Coco::Path& path, QObject* parent = nullptr)
-        : AbstractFileModel(path, parent)
+        : AbstractFileModel(FileTypes::Plaintext, path, parent)
     {
     }
 

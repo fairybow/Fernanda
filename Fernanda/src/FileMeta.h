@@ -15,6 +15,7 @@
 #include "Coco/Path.h"
 
 #include "Debug.h"
+#include "FileTypes.h"
 
 namespace Fernanda {
 
@@ -25,8 +26,12 @@ class FileMeta : public QObject
     Q_OBJECT
 
 public:
-    explicit FileMeta(const Coco::Path& path = {}, QObject* parent = nullptr)
+    explicit FileMeta(
+        FileTypes::Kind fileType,
+        const Coco::Path& path = {},
+        QObject* parent = nullptr)
         : QObject(parent)
+        , fileType_(fileType)
         , path_(path)
     {
         updateDerivedProperties_();
@@ -35,6 +40,8 @@ public:
     virtual ~FileMeta() override { TRACER; }
 
     bool isOnDisk() const noexcept { return !path_.isEmpty(); }
+
+    FileTypes::Kind fileType() const noexcept { return fileType_; }
     Coco::Path path() const noexcept { return path_; }
     QString title() const noexcept { return title_; }
     QString toolTip() const noexcept { return toolTip_; }
@@ -62,11 +69,18 @@ public:
         updateDerivedProperties_();
     }
 
+    QString preferredExt() const
+    {
+        return !path_.isEmpty() ? path_.extQString()
+                                : FileTypes::canonicalExt(fileType_);
+    }
+
 signals:
     void changed();
     void pathChanged(const Coco::Path& old, const Coco::Path& now);
 
 private:
+    FileTypes::Kind fileType_;
     Coco::Path path_;
 
     QString title_{};

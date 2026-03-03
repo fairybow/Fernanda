@@ -25,10 +25,11 @@ class AbstractFileModel : public QObject
 
 public:
     explicit AbstractFileModel(
+        FileTypes::Kind fileType,
         const Coco::Path& path,
         QObject* parent = nullptr)
         : QObject(parent)
-        , meta_(new FileMeta(path, this))
+        , meta_(new FileMeta(fileType, path, this))
     {
     }
 
@@ -41,10 +42,6 @@ public:
     virtual QByteArray data() const = 0;
     virtual void setData(const QByteArray& data) = 0;
 
-    /// TODO FT: Could be a memvar we set from outside each new file?
-    /// TODO FT: Take from incoming ctor path arg? Or just use Meta's if it has
-    /// it? Or make it have it lol?
-    virtual QString preferredExtension() const { return {}; }
     virtual bool supportsModification() const { return false; }
     virtual bool isModified() const { return false; }
     virtual void setModified(bool modified) {}

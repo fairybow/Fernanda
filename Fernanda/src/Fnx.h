@@ -37,6 +37,8 @@
 // TODO: Are all these element.isNull checks necessary? Not sure...
 // TODO: For mutators, probably pass QDomElement by value (otherwise by const
 // ref). There are issues with passing QDomElement& for mutators
+/// TODO FT: .tar.gz or similar extensions with new handling (ensuring we can
+/// store any type of file - how to append uuid and retrieve)?
 namespace Fernanda::Fnx {
 
 namespace Internal {
