@@ -26,6 +26,7 @@
 #include "Bus.h"
 #include "Debug.h"
 #include "FileMeta.h"
+#include "FileTypes.h"
 #include "Io.h"
 #include "MagicBytes.h"
 #include "NoOpFileModel.h"
@@ -102,7 +103,7 @@ public:
     [[nodiscard]] SaveResult
     saveAs(AbstractFileModel* fileModel, const Coco::Path& newPath)
     {
-        if (!fileModel || !fileModel->supportsModification()) return NoOp;
+        if (!fileModel) return NoOp;
         if (newPath.isEmpty()) return NoOp;
 
         // Prevent overwriting a different model's file
@@ -207,6 +208,7 @@ private:
             });
     }
 
+    /// TODO FT
     AbstractFileModel*
     newDiskFileModel_(const Coco::Path& path, const QString& title = {})
     {
@@ -214,17 +216,19 @@ private:
 
         AbstractFileModel* model = nullptr;
 
-        /// TODO FT: Moving to extension then mb if available (if mb check
-        /// fails, no-op view possible or fallthrough to plaintext)
-        switch (MagicBytes::type(path)) {
-        case MagicBytes::NoSignature:
-            model = newDiskTextFileModel_(path);
-            break;
-        case MagicBytes::Pdf:
-            model = newDiskPdfFileModel_(path);
+        /// TODO FT: May want NoOp for the very large files that are also
+        /// unsupported? Like jpeg, etc.
+        /// OR just use it for stuff that will eventually be supported but
+        /// isn't? (This is a later-problem, not a right-now problem)
+
+        switch (FileTypes::fromPath(path)) {
+        case FileTypes::Pdf:
+            model = MagicBytes::is(MagicBytes::Pdf, path)
+                        ? newDiskPdfFileModel_(path)
+                        : newDiskTextFileModel_(path);
             break;
         default:
-            model = new NoOpFileModel(path, this);
+            model = newDiskTextFileModel_(path);
             break;
         }
 
@@ -336,11 +340,11 @@ inline QString toQString(FileService::SaveResult saveResult) noexcept
     switch (saveResult) {
     default:
     case FileService::NoOp:
-        return "FileService::NoOp";
+        return QStringLiteral("FileService::NoOp");
     case FileService::Success:
-        return "FileService::Success";
+        return QStringLiteral("FileService::Success");
     case FileService::Failure:
-        return "FileService::Failure";
+        return QStringLiteral("FileService::Failure");
     }
 }
 

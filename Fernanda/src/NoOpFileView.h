@@ -23,6 +23,7 @@
 
 namespace Fernanda {
 
+/// TODO FT: Deprecated (for now or forever)
 // Read-only placeholder view for unsupported file types, displaying simple
 // placeholder content potentially for binary files or other non-viewable
 // formats

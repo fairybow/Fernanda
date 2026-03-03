@@ -415,8 +415,11 @@ protected:
                 state,
                 MenuScope::ActiveTab,
                 [&, window] {
-                    auto model = views->fileModelAt(window, -1);
-                    return model && model->supportsModification();
+                    /// TODO FT: Had to change this after removing
+                    /// "supportsEditing" guard in FileService::saveAs. That
+                    /// probably means FileService should be the source for this
+                    /// query somehow...
+                    return views->fileModelAt(window, -1);
                 })
 
             .action(Tr::npSaveAllInWindow())
@@ -692,7 +695,8 @@ private:
         if (!model) return;
 
         // Allow Save As on unmodified files!
-        if (!model->supportsModification()) return;
+
+        /// TODO FT: Removed supportsModification check here
         auto meta = model->meta();
         if (!meta) return;
 

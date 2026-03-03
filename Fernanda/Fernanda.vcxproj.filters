@@ -568,6 +568,9 @@
     <ClInclude Include="src\BuildMessages.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\FileTypes.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\Fernanda.rc">

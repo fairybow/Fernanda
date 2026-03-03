@@ -19,6 +19,7 @@
 
 namespace Fernanda {
 
+/// TODO FT: Deprecated (for now or forever)
 class NoOpFileModel : public AbstractFileModel
 {
     Q_OBJECT
