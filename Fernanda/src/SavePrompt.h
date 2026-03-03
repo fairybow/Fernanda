@@ -42,11 +42,11 @@ inline QString toQString(Choice choice) noexcept
     switch (choice) {
     default:
     case Cancel:
-        return "SavePrompt::Cancel";
+        return QStringLiteral("SavePrompt::Cancel");
     case Save:
-        return "SavePrompt::Save";
+        return QStringLiteral("SavePrompt::Save");
     case Discard:
-        return "SavePrompt::Discard";
+        return QStringLiteral("SavePrompt::Discard");
     }
 }
 
@@ -140,7 +140,8 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     auto button_box = new QDialogButtonBox(&dialog);
     auto save = button_box->addButton(Tr::save(), QDialogButtonBox::AcceptRole);
     button_box->addButton(Tr::dontSave(), QDialogButtonBox::DestructiveRole);
-    auto cancel = button_box->addButton(Tr::cancel(), QDialogButtonBox::RejectRole);
+    auto cancel =
+        button_box->addButton(Tr::cancel(), QDialogButtonBox::RejectRole);
 
     save->setDefault(true);
     // Escape button behavior is automatic with RejectRole
