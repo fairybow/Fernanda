@@ -10,7 +10,8 @@ See: [`MagicBytes.h`](../src/MagicBytes.h) (formerly `FileTypes.h`), [`FileServi
 
 - [x] `AbstractFileModel` rework: `data()` and `setData()` become pure virtual, `supportsModification()` becomes regular virtual defaulting to `false`. Remove `saveAs()` guard in FileService (Save As always works: every model must provide `data()`)
 - [x] `FileTypes` header (central type registry, extensions, display names, dynamic filter builder). Existing `FileTypes` namespace renamed to `MagicBytes`
-- [ ] Extension-first resolution in `FileService::newDiskFileModel_`
+- [x] Extension-first resolution in `FileService::newDiskFileModel_`
+- [ ] Extension-first resolution in Application for FNX?
 - [ ] Generalize FNX import to accept any file type and preserve source extension
 - [ ] Explore whether FNX can avoid an `extension` attribute in Manifest.xml by querying the stored file directly (the file is already stored as `{uuid}.{ext}` in the archive)
 - [ ] Tree view icons by file type
