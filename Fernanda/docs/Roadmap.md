@@ -7,6 +7,8 @@ Follow-up with search for "TODO FT"
 Found issues:
 - (FIXED) Notepad Save As (when trying to add custom extension, it'll automatically add .txt to the save name)
 
+Update documentation! Maybe Notebooks.md as well.
+
 ---
 
 TODO: Redo/reorganize the below
