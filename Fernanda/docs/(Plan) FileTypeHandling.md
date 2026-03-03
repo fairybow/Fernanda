@@ -11,14 +11,22 @@ See: [`MagicBytes.h`](../src/MagicBytes.h) (formerly `FileTypes.h`), [`FileServi
 - [x] `AbstractFileModel` rework: `data()` and `setData()` become pure virtual, `supportsModification()` becomes regular virtual defaulting to `false`. Remove `saveAs()` guard in FileService (Save As always works: every model must provide `data()`)
 - [x] `FileTypes` header (central type registry, canonical extensions). Existing `FileTypes` namespace renamed to `MagicBytes`
 - [x] Two-tier resolution in `FileService::newDiskFileModel_`: magic bytes first for binary formats, then extension check for special plaintext types, fallthrough to plaintext for everything else
+- [x] Remove non-FNX file dialog filters (was causing Qt to auto-append `.txt` to Save As filenames). Save As uses no filter; user gets exactly what they type. Open dialogs can be revisited later.
+- [ ] Centralize how models get their extension (`preferredExtension` or similar). Currently each model hardcodes it; should draw from `FileTypes` or from the incoming path
+- [ ] Address remaining FNX-related filters (Open Notebook, Save As Notebook, Import). These still need the `.fnx` extension filter. Consider a small Filters header/namespace that pulls the translatable name from Tr and the extension from `Fnx::Io::EXT` (and eventually from `FileTypes` for import filters)
 - [ ] Generalize FNX import to accept any file type and preserve source extension
 - [ ] Explore whether FNX can avoid an `extension` attribute in Manifest.xml by querying the stored file directly (the file is already stored as `{uuid}.{ext}` in the archive)
 - [ ] Tree view icons by file type
 - [ ] Handle Notepad file renaming via TreeView
 - [ ] Rename-triggered view/model re-evaluation (extension change -> new view)
-- [ ] Replace hardcoded Tr filter strings with `FileTypes`-driven dynamic builder
 - [ ] Consider NoOp for large unsupported binary files (e.g., images) that would be wasteful to open as text
 - [ ] Update related docs (FileModelsAndViews, Notebooks, Architecture, Roadmap)
+
+### Note on file dialog filters
+
+All non-FNX file dialog filters have been removed. Save As dialogs offer no filter, so Qt does not auto-append any extension. The suggested filename (via `start_path`) already has the right extension from `preferredExtension()`, which nudges the user without forcing anything. If the user changes or removes the extension, that is their choice. Changing a file's extension changes how Fernanda handles it (e.g., renaming `.md` to `.txt` makes it plain text instead of Markdown). This is intentional and consistent with other editors.
+
+New files get their extension suggested through the pre-filled dialog name (e.g., `Untitled.txt`). If the user removes it, the file is saved with no extension and opens as plain text.
 
 ### Note on FNX extension attribute
 
@@ -224,9 +232,11 @@ Work should happen on a **`file-types`** branch.
 3. (DONE) **`AbstractFileModel` rework**: `data()` and `setData()` become pure virtual (each subclass owns its storage). `supportsModification()` becomes regular virtual defaulting to `false`. Remove `saveAs()` guard in FileService.
 4. (DONE) **`FileTypes` header**: Central registry with constexpr extension table, `canonicalExt(Kind)`, and `fromPath(path)`.
 5. (DONE) **Two-tier resolution in FileService**: Refactor `newDiskFileModel_` to check magic bytes first (Tier 1) for binary formats, then extension (Tier 2) for special text types, with universal fallthrough to PlainText.
-6. **FNX all-file-type support**: Generalize `importTextFile` -> `importFile` to preserve source extension. Update stored filenames to `{uuid}.{ext}`. Update manifest handling.
-7. **Tree view icons by type**: File-type-appropriate icons with a generic fallback for unrecognized types.
-8. **Update Tr**: Replace hardcoded filter strings with calls to the `FileTypes` filter builder.
+6. (DONE) **Remove non-FNX file dialog filters**: Eliminates Qt auto-appending extensions on Save As. User gets exactly what they type.
+7. **Centralize model extensions**: Address `preferredExtension` so models draw from `FileTypes` or from the incoming path rather than hardcoding.
+8. **FNX filter cleanup**: Remaining FNX-related filters (Open Notebook, Save As Notebook, Import) need the `.fnx` extension. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
+9. **FNX all-file-type support**: Generalize `importTextFile` -> `importFile` to preserve source extension. Update stored filenames to `{uuid}.{ext}`. Update manifest handling.
+10. **Tree view icons by type**: File-type-appropriate icons with a generic fallback for unrecognized types.
 
 ## Documents That Need Updating
 
