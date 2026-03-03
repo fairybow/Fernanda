@@ -21,23 +21,29 @@
 // extensions
 namespace Fernanda::MagicBytes {
 
-enum Kind
+enum Type
 {
-    NoSignature = 0,
+    NoKnownSignature = 0,
     Png,
     SevenZip,
     Rtf,
     Pdf,
+    Tiff,
     Gif,
-    Jpg,
-    Zip // covers .docx (Word)
+    Jpeg,
+    Bmp,
+    Zip, // covers .docx (Word)
+
+    // Compound:
+
+    WebP
 };
 
-inline Kind type(const Coco::Path& path)
+inline Type type(const Coco::Path& path)
 {
     struct Signature
     {
-        Kind kind;
+        Type type;
         const char* bytes;
         qsizetype length;
     };
@@ -49,8 +55,11 @@ inline Kind type(const Coco::Path& path)
         { SevenZip, "\x37\x7A\xBC\xAF\x27\x1C", 6 },
         { Rtf, "\x7B\x5C\x72\x74\x66\x31", 6 },
         { Pdf, "\x25\x50\x44\x46\x2D", 5 },
+        { Tiff, "\x49\x49\x2A\x00", 4 },
+        { Tiff, "\x4D\x4D\x00\x2A", 4 },
         { Gif, "\x47\x49\x46\x38", 4 },
-        { Jpg, "\xFF\xD8\xFF", 3 },
+        { Jpeg, "\xFF\xD8\xFF", 3 },
+        { Bmp, "\x42\x4D", 2 },
         { Zip, "\x50\x4B", 2 },
     };
 
@@ -58,25 +67,32 @@ inline Kind type(const Coco::Path& path)
 
     if (!file.open(QIODevice::ReadOnly)) {
         INFO("Unable to open file: {}", path);
-        return NoSignature; // Maybe replace with Error value?
+        return NoKnownSignature; // Maybe replace with Error value?
     }
 
-    // Read enough bytes to cover the longest signature (8 bytes for PNG)
-    auto file_header = file.read(8);
+    // Read enough bytes to cover the longest signature
+    auto file_header = file.read(12);
 
     if (file_header.isEmpty()) {
         INFO("Empty file: {}", path);
-        return NoSignature; // Maybe replace with Error value?
+        return NoKnownSignature; // Maybe replace with Error value?
     }
 
-    // Return kind if known
-    for (const auto& [kind, bytes, length] : signatures) {
-        if (file_header.startsWith(QByteArrayView(bytes, length))) return kind;
+    // WEBP: RIFF container with WEBP marker at offset 8
+    if (file_header.size() >= 12
+        && file_header.startsWith(QByteArrayView("\x52\x49\x46\x46", 4))
+        && QByteArrayView(file_header).sliced(8, 4)
+               == QByteArrayView("\x57\x45\x42\x50", 4))
+        return WebP;
+
+    // Return type if known
+    for (const auto& [type, bytes, length] : signatures) {
+        if (file_header.startsWith(QByteArrayView(bytes, length))) return type;
     }
 
-    return NoSignature;
+    return NoKnownSignature;
 }
 
-inline bool is(Kind kind, const Coco::Path& path) { return kind == type(path); }
+inline bool is(Type t, const Coco::Path& path) { return t == type(path); }
 
 } // namespace Fernanda::MagicBytes
