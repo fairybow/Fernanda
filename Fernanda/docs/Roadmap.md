@@ -5,7 +5,7 @@ Current task: file types (see plan doc)
 Follow-up with search for "TODO FT"
 
 Found issues:
-- Notepad Save As (when trying to add custom extension, it'll automatically add .txt to the save name)
+- (FIXED) Notepad Save As (when trying to add custom extension, it'll automatically add .txt to the save name)
 
 ---
 
