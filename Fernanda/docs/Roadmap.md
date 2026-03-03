@@ -9,6 +9,8 @@ Found issues:
 
 Update documentation! Maybe Notebooks.md as well.
 
+Translatable "All Files (*)" filter to use in place of default all files
+
 ---
 
 TODO: Redo/reorganize the below
