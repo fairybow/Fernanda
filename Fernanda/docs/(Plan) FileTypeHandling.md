@@ -4,18 +4,19 @@ Tag: TODO FT
 
 How Fernanda resolves, models, views, and persists different file types across its Workspace system.
 
-See: [`MagicBytes.h`](../src/MagicBytes.h), [`FileService.h`](../src/FileService.h), [`AbstractFileModel.h`](../src/AbstractFileModel.h), [`AbstractFileView.h`](../src/AbstractFileView.h), [`Fnx.h`](../src/Fnx.h)
+See: [`MagicBytes.h`](../src/MagicBytes.h) (formerly `FileTypes.h`), [`FileService.h`](../src/FileService.h), [`AbstractFileModel.h`](../src/AbstractFileModel.h), [`AbstractFileView.h`](../src/AbstractFileView.h), [`Fnx.h`](../src/Fnx.h)
 
 ## Next Steps
 
-- [ ] Add `supportsWrite()` virtual to `AbstractFileModel` and update `FileService::saveAs()` guard
-- [ ] Constants header (central type registry, extensions, display names, dynamic filter builder)
+- [x] `AbstractFileModel` rework: `data()` and `setData()` become pure virtual, `supportsModification()` becomes regular virtual defaulting to `false`. Remove `saveAs()` guard in FileService (Save As always works: every model must provide `data()`)
+- [x] `FileTypes` header (central type registry, extensions, display names, dynamic filter builder). Existing `FileTypes` namespace renamed to `MagicBytes`
 - [ ] Extension-first resolution in `FileService::newDiskFileModel_`
 - [ ] Generalize FNX import to accept any file type and preserve source extension
-- [ ] Handle Notepad file renaming via TreeView (currently only Notebook supports rename)
+- [ ] Explore whether FNX can avoid an `extension` attribute in Manifest.xml by querying the stored file directly (the file is already stored as `{uuid}.{ext}` in the archive)
 - [ ] Tree view icons by file type
-- [ ] Replace hardcoded Tr filter strings with dynamic builder from Constants
+- [ ] Handle Notepad file renaming via TreeView
 - [ ] Rename-triggered view/model re-evaluation (extension change -> new view)
+- [ ] Replace hardcoded Tr filter strings with `FileTypes`-driven dynamic builder
 - [ ] Decide NoOp fate (keep for validation failures, or fall through to PlainText?)
 - [ ] Update related docs (FileModelsAndViews, Notebooks, Architecture, Roadmap)
 
@@ -42,15 +43,19 @@ When a file is renamed and its extension changes, the system should re-evaluate 
 
 ## Model Capabilities
 
-`AbstractFileModel` exposes three capability levels:
+`AbstractFileModel` uses pure virtuals for the fundamental data contract and a regular virtual for the opt-in editing capability:
 
-| Virtual | Meaning | Used by |
-|---------|---------|---------|
-| `supportsModification()` | Content can be edited (undo/redo, dirty state) | `FileService::save()`, menu state |
-| `supportsWrite()` | Data can be written to disk (Save As) | `FileService::saveAs()` |
-| `data()` | Raw bytes for persistence | Both save paths |
+| Method | Kind | Default | Meaning |
+|--------|------|---------|---------|
+| `data()` | Pure virtual |: | Returns raw bytes for persistence. Every model must implement this. |
+| `setData()` | Pure virtual |: | Accepts raw bytes. Every model must implement this (each owns its storage strategy). |
+| `supportsModification()` | Virtual | `false` | Whether content can be edited (undo/redo, dirty state). Used by `FileService::save()` and menu state. |
 
-`supportsWrite()` defaults to `supportsModification()`, so only read-only-but-exportable types like PDF need to override it.
+`data()` and `setData()` are pure virtual because no reasonable default storage exists at the base level: TextFileModel stores content in a QTextDocument, PdfFileModel holds raw bytes alongside a QBuffer/QPdfDocument, and each subclass has a different relationship to its data. Forcing each subclass to own its storage explicitly avoids ambiguous base-call conventions.
+
+`supportsModification()` defaults to `false` because most types are read-only. Only TextFileModel (and future editable types like CorkboardFileModel) override to `true`.
+
+**Save As has no guard.** Every model implements `data()`, so every model can be exported. `FileService::saveAs()` simply writes whatever `data()` returns. If a NoOp model returns empty bytes, an empty file is written: the user asked to Save As, so the system does it.
 
 ## File Types
 
@@ -65,10 +70,9 @@ View-only document support. PDFs can be opened, viewed, and exported (Save As) b
 | | |
 |---|---|
 | **Extension** | `.pdf` |
-| **Model** | `PdfFileModel`: holds raw bytes, exposes `QPdfDocument` |
+| **Model** | `PdfFileModel`: holds raw bytes (own `QByteArray`), exposes `QPdfDocument` via `QBuffer` |
 | **View** | `PdfFileView`: wraps `QPdfView` (multi-page, fit-to-width) |
 | **Modification** | No |
-| **Write** | Yes (Save As exports the original bytes) |
 | **Notebook import** | Yes |
 | **New file creation** | No |
 | **Byte validation** | Yes (PDF magic bytes) |
@@ -83,7 +87,6 @@ A visual planning tool for organizing story elements. Corkboard files are JSON s
 | **Model** | `CorkboardFileModel`: JSON data |
 | **View** | `CorkboardFileView`: interactive board of movable index cards |
 | **Modification** | Yes |
-| **Write** | Yes |
 | **Notebook import** | Yes |
 | **New file creation** | Yes |
 
@@ -101,7 +104,6 @@ This is **way down the road**. The initial concept is not necessarily a fully cu
 | **Model** | Possibly `TextFileModel` or a thin subclass |
 | **View** | Augmented text view with color pickers / form fields |
 | **Modification** | Yes |
-| **Write** | Yes |
 
 #### Markdown (Future)
 
@@ -137,7 +139,6 @@ The default and primary file type. Everything that isn't a recognized special ty
 | **Model** | `TextFileModel`: wraps `QTextDocument` |
 | **View** | `TextFileView`: wraps `PlainTextEdit` |
 | **Modification** | Yes |
-| **Write** | Yes |
 | **Notebook import** | Yes |
 | **New file creation** | Yes (currently the only type that supports this) |
 
@@ -147,10 +148,9 @@ Currently serves as a catch-all for unrecognized file types. **This type will ev
 
 | | |
 |---|---|
-| **Model** | `NoOpFileModel`: returns empty data |
-| **View** | `NoOpFileView`: centered face glyph (`:'`) at 0.3 opacity) |
+| **Model** | `NoOpFileModel`: implements `data()`/`setData()` with own `QByteArray` storage. Returns whatever was loaded (may be empty). |
+| **View** | `NoOpFileView`: centered face glyph (`:')`) at 0.3 opacity) |
 | **Modification** | No |
-| **Write** | No |
 
 ## FNX Manifest and File Storage
 
@@ -172,18 +172,17 @@ FNX accepts import of **any file type**, mirroring Notepad's open-anything philo
 - **Type resolution on open**: When a Notebook element is opened, the extension from the manifest determines which model/view pair FileService creates. The manifest is authoritative within the archive.
 - **Tree view icons**: File type should determine the icon shown in the tree view, with a generic icon for unrecognized types.
 
-## Constants
+## FileTypes Registry
 
 Extensions and type metadata needed across the application (themes need theme extensions, Application needs `.fnx`, Workspaces need `.pdf`, Tr needs type names for filter strings, etc.) should draw on a central registry.
 
-This could be a `Constants` header providing:
+The existing `FileTypes` namespace has been renamed to `MagicBytes` (byte-level signature detection). The `FileTypes` name is now free for a new header providing:
 - A map of supported types to their metadata (display name, default extension, capabilities)
 - A function to dynamically build file dialog filter strings from the registry (rather than hardcoding them in Tr)
-- Shared presentation constants (e.g., opacity values like 0.3 for separators and NoOp face)
 
 The display name for each type needs to be translatable, so the filter builder would work with Tr rather than replacing it: Tr would delegate to the dynamic builder instead of owning hardcoded filter strings.
 
-The relationship between Constants and `MagicBytes::KnownType` (file signatures): they solve different problems. `KnownType` is detection ("what *is* this file?"), Constants is application policy ("what can Fernanda *do* with this file?"). They remain separate; FileService bridges them.
+The relationship between `FileTypes` (registry) and `MagicBytes` (detection): they solve different problems. `MagicBytes` answers "what *is* this file?" `FileTypes` answers "what can Fernanda *do* with this file?" They remain separate; FileService bridges them.
 
 ## FileService Resolution Flow
 
@@ -208,19 +207,19 @@ Fallback: TextFileModel + TextFileView
 
 - **Byte validation failure**: When a file has a special extension but fails byte validation (e.g., `fake.pdf` that isn't a real PDF), should it fall through to PlainText or show NoOp? PlainText is more useful (user can see the raw content), NoOp is more honest (the file isn't what it claims). This also affects whether NoOp survives at all.
 - **Rename view swap mechanics**: What's the right layer for detecting extension changes and triggering model/view reconstruction? Does the Workspace handle this, or FileService?
-- **Constants scope**: How much belongs in Constants vs. staying local? Opacity values are presentation; type metadata is structural. Maybe these are two different things that happen to share a header.
 
 ## Implementation Steps
 
 Work should happen on a **`file-types`** branch.
 
 1. **This document**: Establish the plan and reference for all file type work.
-2. **`supportsWrite()` on AbstractFileModel**: Add the virtual with default returning `supportsModification()`. Override in `PdfFileModel` to return `true`. Update `FileService::saveAs()` guard to use `supportsWrite()` instead of `supportsModification()`.
-3. **Constants header**: Central registry of supported types, extensions, display names, and capabilities. Dynamic filter string builder that Tr delegates to.
-4. **Extension-first resolution in FileService**: Refactor `newDiskFileModel_` to check extension before bytes. Byte check becomes optional validation, not the routing mechanism.
-5. **FNX all-file-type support**: Generalize `importTextFile` -> `importFile` to preserve source extension. Update stored filenames to `{uuid}.{ext}`. Update manifest handling.
-6. **Tree view icons by type**: File-type-appropriate icons with a generic fallback for unrecognized types.
-7. **Update Tr**: Replace hardcoded filter strings with calls to the Constants filter builder.
+2. (DONE) **`MagicBytes` rename**: Existing `FileTypes` namespace renamed to `MagicBytes`. Enum renamed from `HandledType` to `Kind`, default value from `PlainText` to `NoSignature`.
+3. **`AbstractFileModel` rework**: `data()` and `setData()` become pure virtual (each subclass owns its storage). `supportsModification()` becomes regular virtual defaulting to `false`. Remove `saveAs()` guard in FileService.
+4. **`FileTypes` header**: Central registry of supported types, extensions, display names, and capabilities. Dynamic filter string builder that Tr delegates to.
+5. **Extension-first resolution in FileService**: Refactor `newDiskFileModel_` to check extension before bytes. Byte check becomes optional validation, not the routing mechanism.
+6. **FNX all-file-type support**: Generalize `importTextFile` -> `importFile` to preserve source extension. Update stored filenames to `{uuid}.{ext}`. Update manifest handling.
+7. **Tree view icons by type**: File-type-appropriate icons with a generic fallback for unrecognized types.
+8. **Update Tr**: Replace hardcoded filter strings with calls to the `FileTypes` filter builder.
 
 ## Documents That Need Updating
 
@@ -228,7 +227,7 @@ Once this work lands, the following docs should be revised:
 
 | Document | Changes needed |
 |----------|----------------|
-| **FileModelsAndViews.md** | Add `supportsWrite()` to capability table and API listing. Add `PdfFileModel`/`PdfFileView` to concrete implementations. Update "Why Virtual Methods with Default No-Ops?" section. Note NoOp deprecation plan. |
+| **FileModelsAndViews.md** | Update `AbstractFileModel` API: `data()`/`setData()` now pure virtual, `supportsModification()` now regular virtual with `false` default. Add `PdfFileModel`/`PdfFileView` to concrete implementations. Update "Why Virtual Methods with Default No-Ops?" section. Note NoOp deprecation plan. |
 | **Notebooks.md** | Document that FNX supports all file types, not just text. Update any `.txt`-only import references. Document `{uuid}.{ext}` file naming in archives. |
-| **Architecture.md** | Mention Constants if it becomes a meaningful architectural element (central type registry). |
+| **Architecture.md** | Mention `FileTypes` registry if it becomes a meaningful architectural element. Note `MagicBytes` rename. |
 | **Roadmap.md** | Add `file-types` branch work items if not already tracked. |

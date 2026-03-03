@@ -35,23 +35,21 @@ public:
     virtual ~PdfFileModel() override { TRACER; }
 
     QPdfDocument* document() const noexcept { return document_; }
-
-    virtual QByteArray data() const override { return rawData_; }
-    virtual bool supportsModification() const override { return false; }
+    virtual QByteArray data() const override { return data_; }
 
     virtual void setData(const QByteArray& data) override
     {
-        rawData_ = data;
+        data_ = data;
 
         buffer_.close();
-        buffer_.setData(rawData_);
+        buffer_.setData(data_);
         buffer_.open(QIODevice::ReadOnly);
 
         document_->load(&buffer_);
     }
 
 private:
-    QByteArray rawData_{};
+    QByteArray data_{};
     QBuffer buffer_{};
     QPdfDocument* document_ = new QPdfDocument(this);
 

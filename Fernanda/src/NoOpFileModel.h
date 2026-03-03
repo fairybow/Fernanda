@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QObject>
 
 #include "Coco/Path.h"
@@ -30,8 +31,11 @@ public:
 
     virtual ~NoOpFileModel() override { TRACER; }
 
-    virtual QByteArray data() const override { return {}; }
-    virtual bool supportsModification() const override { return false; }
+    virtual QByteArray data() const override { return data_; }
+    virtual void setData(const QByteArray& data) override { data_ = data; }
+
+private:
+    QByteArray data_{};
 };
 
 } // namespace Fernanda

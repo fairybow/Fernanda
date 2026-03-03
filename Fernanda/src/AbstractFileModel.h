@@ -35,12 +35,15 @@ public:
     virtual ~AbstractFileModel() = default;
 
     FileMeta* meta() const noexcept { return meta_; }
-    virtual QString preferredExtension() const { return {}; }
+
+    // These two are the contract. The rest is optional:
 
     virtual QByteArray data() const = 0;
-    virtual bool supportsModification() const = 0;
+    virtual void setData(const QByteArray& data) = 0;
 
-    virtual void setData(const QByteArray& data) {}
+    /// TODO FT: Could be a memvar we set from outside each new file?
+    virtual QString preferredExtension() const { return {}; }
+    virtual bool supportsModification() const { return false; }
     virtual bool isModified() const { return false; }
     virtual void setModified(bool modified) {}
     virtual bool hasUndo() const { return false; }

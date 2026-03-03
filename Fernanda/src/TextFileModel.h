@@ -124,7 +124,6 @@ public:
         primeDocument_->setPlainText(QString::fromUtf8(data));
 
         auto prime_text = primeDocument_->toPlainText();
-
         for (auto& view_doc : localViewDocuments_)
             view_doc->setPlainText(prime_text);
 

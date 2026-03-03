@@ -54,9 +54,11 @@ public:
         }
     }
 
-    //QWidget* widget() const noexcept { return widget_; }
+    // QWidget* widget() const noexcept { return widget_; }
     AbstractFileModel* model() const noexcept { return fileModel_; }
 
+    /// TODO FT: Re-examine this as the contract for this abstract base. What
+    /// should be the contract?
     virtual bool supportsEditing() const = 0;
 
     virtual bool hasPaste() const { return false; }
