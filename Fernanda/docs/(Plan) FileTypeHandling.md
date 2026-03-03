@@ -9,16 +9,15 @@ See: [`MagicBytes.h`](../src/MagicBytes.h) (formerly `FileTypes.h`), [`FileServi
 ## Next Steps
 
 - [x] `AbstractFileModel` rework: `data()` and `setData()` become pure virtual, `supportsModification()` becomes regular virtual defaulting to `false`. Remove `saveAs()` guard in FileService (Save As always works: every model must provide `data()`)
-- [x] `FileTypes` header (central type registry, extensions, display names, dynamic filter builder). Existing `FileTypes` namespace renamed to `MagicBytes`
-- [x] Extension-first resolution in `FileService::newDiskFileModel_`
-- [ ] Extension-first resolution in Application for FNX?
+- [x] `FileTypes` header (central type registry, canonical extensions). Existing `FileTypes` namespace renamed to `MagicBytes`
+- [x] Two-tier resolution in `FileService::newDiskFileModel_`: magic bytes first for binary formats, then extension check for special plaintext types, fallthrough to plaintext for everything else
 - [ ] Generalize FNX import to accept any file type and preserve source extension
 - [ ] Explore whether FNX can avoid an `extension` attribute in Manifest.xml by querying the stored file directly (the file is already stored as `{uuid}.{ext}` in the archive)
 - [ ] Tree view icons by file type
 - [ ] Handle Notepad file renaming via TreeView
 - [ ] Rename-triggered view/model re-evaluation (extension change -> new view)
 - [ ] Replace hardcoded Tr filter strings with `FileTypes`-driven dynamic builder
-- [ ] Decide NoOp fate (keep for validation failures, or fall through to PlainText?)
+- [ ] Consider NoOp for large unsupported binary files (e.g., images) that would be wasteful to open as text
 - [ ] Update related docs (FileModelsAndViews, Notebooks, Architecture, Roadmap)
 
 ### Note on FNX extension attribute
@@ -27,20 +26,21 @@ The current plan stores extension in the XML manifest (`<file extension=".txt" /
 
 ## Resolution Strategy
 
-File type resolution follows an **extension-first, bytes-second** approach:
+File type resolution follows a **two-tier** approach: magic bytes first, then extension for special text types.
 
-1. **Extension check**: Known special extensions (`.pdf`, `.fcb`, `.md`, `.fountain`, theme extensions) are matched first and route to their dedicated model/view pairs.
-2. **Byte validation** (optional): For types where it matters (e.g., confirming a `.pdf` is actually a PDF via magic bytes), a secondary check can validate after extension matching.
-3. **Fallback to PlainText**: Anything that doesn't match a known special extension is treated as plain text.
-4. **Validation failure**: If a file matches a special extension but fails byte validation (e.g., a `.txt` file renamed to `.pdf`), it either falls through to PlainText or displays as NoOp. See [Open Questions](#open-questions).
+1. **Tier 1 - Magic bytes** (`MagicBytes::type()`): Binary formats (PDF, and eventually images, etc.) are detected by their file signatures regardless of extension. This means a PDF named `notes.xyz` still opens correctly as a PDF.
+2. **Tier 2 - Extension check** (`FileTypes::fromPath()`): If the file has no known signature (`NoKnownSignature`), special plaintext types are matched by extension (`.md`, `.fountain`, `.fcb`, theme files, etc.) and routed to their dedicated views.
+3. **Fallthrough to PlainText**: If neither tier matches (no signature, no special extension), the file opens as plain text. This is also the fallthrough for known signatures that don't have a handler yet (e.g., PNG, GIF before image viewing is implemented).
+
+This approach ensures that any file can use any extension and still be opened correctly. Binary formats are identified by their actual content, not their name. Special text formats (which have no distinguishing bytes) rely on extension as the only available signal.
 
 ### FNX Archives
 
-FNX files (`.fnx`) are a special case handled at the Application level, not by FileService's type resolution. Application detects FNX files and routes them to Notebook Workspaces. Within a Notebook, individual files are resolved by the extension stored in the XML manifest (and present in the stored filename itself).
+FNX files (`.fnx`) are a special case handled at the Application level, not by FileService's type resolution. Application detects FNX files and routes them to Notebook Workspaces. Within a Notebook, individual files go through the same two-tier resolution when opened.
 
 ### Rename-Triggered Resolution
 
-When a file is renamed and its extension changes, the system should re-evaluate which model/view pair is appropriate. For example, renaming `notes.txt` to `notes.md` should swap from a plain text view to a Markdown view. This implies FileService (or the Workspace layer) needs to detect extension changes on rename and potentially reconstruct the view, and possibly the model if the new type requires a different model class.
+When a file is renamed and its extension changes, the system should re-evaluate which model/view pair is appropriate. For example, renaming `notes.txt` to `notes.md` should swap from a plain text view to a Markdown view. This implies FileService (or the Workspace layer) needs to detect extension changes on rename and potentially reconstruct the view, and possibly the model if the new type requires a different model class. Note that Tier 1 types (binary formats) are unaffected by rename since their resolution is based on content, not extension.
 
 ## Model Capabilities
 
@@ -62,25 +62,25 @@ When a file is renamed and its extension changes, the system should re-evaluate 
 
 ### Special Types (Dedicated Handling)
 
-These types are recognized by extension and receive their own model/view pairs or specialized views.
+These types are recognized by their magic bytes (binary) or by extension (special text) and receive their own model/view pairs or specialized views.
 
 #### PDF
 
-View-only document support. PDFs can be opened, viewed, and exported (Save As) but not edited.
+View-only document support. PDFs can be opened, viewed, and exported (Save As) but not edited. Detected by magic bytes (Tier 1), so the file extension does not matter.
 
 | | |
 |---|---|
-| **Extension** | `.pdf` |
+| **Extension** | `.pdf` (canonical, but detection is by bytes) |
 | **Model** | `PdfFileModel`: holds raw bytes (own `QByteArray`), exposes `QPdfDocument` via `QBuffer` |
 | **View** | `PdfFileView`: wraps `QPdfView` (multi-page, fit-to-width) |
 | **Modification** | No |
 | **Notebook import** | Yes |
 | **New file creation** | No |
-| **Byte validation** | Yes (PDF magic bytes) |
+| **Detection** | Tier 1 (magic bytes) |
 
 #### Corkboard (Tentative)
 
-A visual planning tool for organizing story elements. Corkboard files are JSON stored with a special extension. Multiple corkboard files can exist per project, and they can be saved to disk via Notepad like any other file.
+A visual planning tool for organizing story elements. Corkboard files are JSON stored with a special extension. Multiple corkboard files can exist per project, and they can be saved to disk via Notepad like any other file. Detected by extension (Tier 2) since the underlying data is plaintext JSON.
 
 | | |
 |---|---|
@@ -90,12 +90,13 @@ A visual planning tool for organizing story elements. Corkboard files are JSON s
 | **Modification** | Yes |
 | **Notebook import** | Yes |
 | **New file creation** | Yes |
+| **Detection** | Tier 2 (extension) |
 
 Cards can be linked to existing text files (within the same Notebook or on disk). Linked file tracking needs to handle moves and deletions: likely storing the linked file's display name as a breadcrumb and showing a "missing" state if the target can't be resolved.
 
 #### Theme Editor (Long-Term)
 
-Custom views for Fernanda's own window and editor theme files. These are two distinct file types (Fernanda Window theme and Fernanda Editor theme) that share a similar editing approach. The underlying data is JSON.
+Custom views for Fernanda's own window and editor theme files. These are two distinct file types (Fernanda Window theme and Fernanda Editor theme) that share a similar editing approach. The underlying data is JSON. Detected by extension (Tier 2).
 
 This is **way down the road**. The initial concept is not necessarily a fully custom view: it may be a text view augmented with properties that show color pickers beside existing value fields, where the user can still type directly and pickers pop up contextually. The view would draw on a theme API exposed from `Themes.h`.
 
@@ -105,26 +106,29 @@ This is **way down the road**. The initial concept is not necessarily a fully cu
 | **Model** | Possibly `TextFileModel` or a thin subclass |
 | **View** | Augmented text view with color pickers / form fields |
 | **Modification** | Yes |
+| **Detection** | Tier 2 (extension) |
 
 #### Markdown (Future)
 
-Markdown files would receive a dedicated view (likely a rendered preview or a split edit/preview). The model may be `TextFileModel` or a subclass: the underlying data is still plain text; the distinction is in how it's displayed.
+Markdown files would receive a dedicated view (likely a rendered preview or a split edit/preview). The model may be `TextFileModel` or a subclass: the underlying data is still plain text; the distinction is in how it's displayed. Detected by extension (Tier 2).
 
 | | |
 |---|---|
 | **Extension** | `.md` |
 | **Model** | `TextFileModel` or subclass |
 | **View** | Markdown-aware view (rendered preview, split mode, etc.) |
+| **Detection** | Tier 2 (extension) |
 
 #### Fountain (Future)
 
-Fountain (screenwriting format) files would follow the same pattern as Markdown: plain text data with a specialized view for screenplay formatting.
+Fountain (screenwriting format) files would follow the same pattern as Markdown: plain text data with a specialized view for screenplay formatting. Detected by extension (Tier 2).
 
 | | |
 |---|---|
 | **Extension** | `.fountain` |
 | **Model** | `TextFileModel` or subclass |
 | **View** | Fountain-aware view (screenplay formatting) |
+| **Detection** | Tier 2 (extension) |
 
 #### Diff (Stretch)
 
@@ -132,7 +136,7 @@ A diff view for comparing file versions. Details TBD.
 
 ### Plain Text (Universal Fallback)
 
-The default and primary file type. Everything that isn't a recognized special type opens as plain text. This includes files with no extension, unknown extensions, or recognized extensions that fail byte validation (depending on the resolution chosen: see [Open Questions](#open-questions)).
+The default and primary file type. Everything that falls through both tiers opens as plain text. This includes: files with no extension, files with unrecognized extensions, files with known signatures but no handler yet (e.g., PNG, GIF), and files with no known signature and no special extension.
 
 | | |
 |---|---|
@@ -143,9 +147,9 @@ The default and primary file type. Everything that isn't a recognized special ty
 | **Notebook import** | Yes |
 | **New file creation** | Yes (currently the only type that supports this) |
 
-### NoOp (Transitional)
+### NoOp (Not Currently Used)
 
-Currently serves as a catch-all for unrecognized file types. **This type will eventually be removed** as the fallback-to-PlainText strategy takes over. It may survive in a reduced role as the view shown when byte validation fails for a special type (e.g., a file named `.pdf` that isn't actually a PDF), or those cases may simply fall through to PlainText. See [Open Questions](#open-questions).
+Previously served as a catch-all for unrecognized file types. Currently not used in the resolution flow since everything falls through to PlainText. Kept around for potential future use, e.g., for large unsupported binary files (images, etc.) where opening as text would be wasteful. May also be useful if we want a distinct "this file type will be supported eventually" placeholder.
 
 | | |
 |---|---|
@@ -170,7 +174,7 @@ FNX accepts import of **any file type**, mirroring Notepad's open-anything philo
 
 - **Import**: The extension is taken from the source file on disk (including files with no extension or custom extensions). A PDF retains `.pdf`; a file called `notes` with no extension retains no extension.
 - **New file creation**: The default extension comes from the file type's definition (currently only `.txt`).
-- **Type resolution on open**: When a Notebook element is opened, the extension from the manifest determines which model/view pair FileService creates. The manifest is authoritative within the archive.
+- **Type resolution on open**: When a Notebook element is opened, it goes through the same two-tier resolution as any other file (magic bytes first, then extension). The stored filename's extension is available but bytes take priority for binary formats.
 - **Tree view icons**: File type should determine the icon shown in the tree view, with a generic icon for unrecognized types.
 
 ## FileTypes Registry
@@ -178,46 +182,48 @@ FNX accepts import of **any file type**, mirroring Notepad's open-anything philo
 Extensions and type metadata needed across the application (themes need theme extensions, Application needs `.fnx`, Workspaces need `.pdf`, Tr needs type names for filter strings, etc.) should draw on a central registry.
 
 The existing `FileTypes` namespace has been renamed to `MagicBytes` (byte-level signature detection). The `FileTypes` name is now free for a new header providing:
-- A map of supported types to their metadata (display name, default extension, capabilities)
-- A function to dynamically build file dialog filter strings from the registry (rather than hardcoding them in Tr)
+- A constexpr table of supported types mapped to their canonical extensions (with aliases like `.jpg` for `.jpeg`)
+- `canonicalExt(Kind)`: returns the canonical extension for a type
+- `fromPath(const Coco::Path&)`: resolves a file's extension to a Kind (PlainText for anything unrecognized)
+- Eventually: a dynamic filter string builder (deferred due to Tr circular dependency concerns)
 
-The display name for each type needs to be translatable, so the filter builder would work with Tr rather than replacing it: Tr would delegate to the dynamic builder instead of owning hardcoded filter strings.
-
-The relationship between `FileTypes` (registry) and `MagicBytes` (detection): they solve different problems. `MagicBytes` answers "what *is* this file?" `FileTypes` answers "what can Fernanda *do* with this file?" They remain separate; FileService bridges them.
+The relationship between `FileTypes` (registry) and `MagicBytes` (detection): they solve different problems. `MagicBytes` answers "what *is* this file?" `FileTypes` answers "what can Fernanda *do* with this file?" They remain separate; FileService bridges them via the two-tier resolution.
 
 ## FileService Resolution Flow
 
 ```
-openFilePathIn(window, path)
+newDiskFileModel_(path)
     |
     v
-Extension matches known special type?
-    |-- .pdf ----> (byte check) ----> PdfFileModel + PdfFileView
-    |-- .fcb ----> CorkboardFileModel + CorkboardFileView
-    |-- .md  ----> TextFileModel + MarkdownView
-    |-- etc.
+Tier 1: MagicBytes::type(path)
+    |-- Pdf -------> PdfFileModel + PdfFileView
+    |-- (future: Png, Gif, etc. -> dedicated handlers)
     |
-    |   (byte check failed?)
-    |   |-- fall through to PlainText? or NoOp? (see Open Questions)
+    |-- default / NoKnownSignature:
+    |       |
+    |       v
+    |   Tier 2: FileTypes::fromPath(path)
+    |       |-- (future: Markdown, Fountain, Corkboard, themes -> dedicated views)
+    |       |-- default: TextFileModel + TextFileView
     |
     v
-Fallback: TextFileModel + TextFileView
+Fallthrough: TextFileModel + TextFileView
 ```
 
 ## Open Questions
 
-- **Byte validation failure**: When a file has a special extension but fails byte validation (e.g., `fake.pdf` that isn't a real PDF), should it fall through to PlainText or show NoOp? PlainText is more useful (user can see the raw content), NoOp is more honest (the file isn't what it claims). This also affects whether NoOp survives at all.
-- **Rename view swap mechanics**: What's the right layer for detecting extension changes and triggering model/view reconstruction? Does the Workspace handle this, or FileService?
+- **Rename view swap mechanics**: What's the right layer for detecting extension changes and triggering model/view reconstruction? Does the Workspace handle this, or FileService? Note this only affects Tier 2 types (special text), since Tier 1 types (binary) are detected by content regardless of name.
+- **NoOp revival**: Should NoOp be brought back for large binary files with known signatures but no handler (e.g., a 50MB PNG)? Opening as text is technically harmless but wasteful. This is a later-problem.
 
 ## Implementation Steps
 
 Work should happen on a **`file-types`** branch.
 
-1. **This document**: Establish the plan and reference for all file type work.
-2. (DONE) **`MagicBytes` rename**: Existing `FileTypes` namespace renamed to `MagicBytes`. Enum renamed from `HandledType` to `Kind`, default value from `PlainText` to `NoSignature`.
-3. **`AbstractFileModel` rework**: `data()` and `setData()` become pure virtual (each subclass owns its storage). `supportsModification()` becomes regular virtual defaulting to `false`. Remove `saveAs()` guard in FileService.
-4. **`FileTypes` header**: Central registry of supported types, extensions, display names, and capabilities. Dynamic filter string builder that Tr delegates to.
-5. **Extension-first resolution in FileService**: Refactor `newDiskFileModel_` to check extension before bytes. Byte check becomes optional validation, not the routing mechanism.
+1. (DONE) **This document**: Establish the plan and reference for all file type work.
+2. (DONE) **`MagicBytes` rename**: Existing `FileTypes` namespace renamed to `MagicBytes`. Enum renamed from `HandledType` to `Kind`, default value from `PlainText` to `NoKnownSignature`.
+3. (DONE) **`AbstractFileModel` rework**: `data()` and `setData()` become pure virtual (each subclass owns its storage). `supportsModification()` becomes regular virtual defaulting to `false`. Remove `saveAs()` guard in FileService.
+4. (DONE) **`FileTypes` header**: Central registry with constexpr extension table, `canonicalExt(Kind)`, and `fromPath(path)`.
+5. (DONE) **Two-tier resolution in FileService**: Refactor `newDiskFileModel_` to check magic bytes first (Tier 1) for binary formats, then extension (Tier 2) for special text types, with universal fallthrough to PlainText.
 6. **FNX all-file-type support**: Generalize `importTextFile` -> `importFile` to preserve source extension. Update stored filenames to `{uuid}.{ext}`. Update manifest handling.
 7. **Tree view icons by type**: File-type-appropriate icons with a generic fallback for unrecognized types.
 8. **Update Tr**: Replace hardcoded filter strings with calls to the `FileTypes` filter builder.
@@ -228,7 +234,7 @@ Once this work lands, the following docs should be revised:
 
 | Document | Changes needed |
 |----------|----------------|
-| **FileModelsAndViews.md** | Update `AbstractFileModel` API: `data()`/`setData()` now pure virtual, `supportsModification()` now regular virtual with `false` default. Add `PdfFileModel`/`PdfFileView` to concrete implementations. Update "Why Virtual Methods with Default No-Ops?" section. Note NoOp deprecation plan. |
+| **FileModelsAndViews.md** | Update `AbstractFileModel` API: `data()`/`setData()` now pure virtual, `supportsModification()` now regular virtual with `false` default. Add `PdfFileModel`/`PdfFileView` to concrete implementations. Update "Why Virtual Methods with Default No-Ops?" section. Note NoOp status. |
 | **Notebooks.md** | Document that FNX supports all file types, not just text. Update any `.txt`-only import references. Document `{uuid}.{ext}` file naming in archives. |
 | **Architecture.md** | Mention `FileTypes` registry if it becomes a meaningful architectural element. Note `MagicBytes` rename. |
 | **Roadmap.md** | Add `file-types` branch work items if not already tracked. |

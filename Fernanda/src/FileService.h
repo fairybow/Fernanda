@@ -221,14 +221,28 @@ private:
         /// OR just use it for stuff that will eventually be supported but
         /// isn't? (This is a later-problem, not a right-now problem)
 
-        switch (FileTypes::fromPath(path)) {
-        case FileTypes::Pdf:
-            model = MagicBytes::is(MagicBytes::Pdf, path)
-                        ? newDiskPdfFileModel_(path)
-                        : newDiskTextFileModel_(path);
+        // Tier 1: Magic bytes for binary formats
+        switch (MagicBytes::type(path)) {
+
+        case MagicBytes::Pdf:
+            model = newDiskPdfFileModel_(path);
             break;
+
         default:
+        case MagicBytes::NoKnownSignature:
+
+            // Tier 2: Extension for special plaintext types
+            // switch (FileTypes::fromPath(path)) {
+            // case FileTypes::Markdown:
+            // case FileTypes::Fountain:
+            // case FileTypes::FernandaCorkboard:
+            // case FileTypes::FernandaWindowTheme:
+            // case FileTypes::FernandaEditorTheme:
+            // default:
             model = newDiskTextFileModel_(path);
+            // break;
+            //}
+
             break;
         }
 

@@ -13,22 +13,34 @@
 
 // These are just constants relating the file types and extensions Fernanda
 // "knows" about. Special handling is determined by FileService
+// TODO: Most of this is planned / currently unsupported. This exists for the
+// future
 namespace Fernanda::FileTypes {
 
 enum Kind
 {
-    Plaintext, // fallback + .txt (we can maybe not even check for .txt? just
-               // hold it as a canonical for Save As if needed, except we might
-               // not do that here...
+    Plaintext = 0, // fallback + .txt (TODO: we can maybe not even check for
+                   // .txt? just hold it as a canonical for Save As if needed,
+                   // except we might not do that here...)
+
+    // Special plaintext:
+
     Markdown,
+    Fountain,
+    FernandaWindowTheme,
+    FernandaEditorTheme,
+    FernandaCorkboard, // (Will probably be plaintext, like JSON or XML)
+
+    // Magic bytes:
+
     Pdf,
     Png,
     Jpeg,
     Gif,
-    FernandaCorkboard,
-    FernandaWindowTheme,
-    FernandaEditorTheme
-    // FernandaNotebook handled by Fnx + Application
+
+    // Special case:
+
+    // FernandaNotebook (.fnx) handled by Fnx + Application
 };
 
 // First entry per Kind is the canonical extension
@@ -41,6 +53,7 @@ struct ExtensionEntry
 constexpr ExtensionEntry extensions[] = {
     { Plaintext, ".txt" },
     { Markdown, ".md" },
+    { Fountain, ".fountain" },
     { Pdf, ".pdf" },
     { Png, ".png" },
     { Jpeg, ".jpeg" },
