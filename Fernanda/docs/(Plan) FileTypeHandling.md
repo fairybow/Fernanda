@@ -12,10 +12,10 @@ See: [`MagicBytes.h`](../src/MagicBytes.h) (formerly `FileTypes.h`), [`FileServi
 - [x] `FileTypes` header (central type registry, canonical extensions). Existing `FileTypes` namespace renamed to `MagicBytes`
 - [x] Two-tier resolution in `FileService::newDiskFileModel_`: magic bytes first for binary formats, then extension check for special plaintext types, fallthrough to plaintext for everything else
 - [x] Remove non-FNX file dialog filters (was causing Qt to auto-append `.txt` to Save As filenames). Save As uses no filter; user gets exactly what they type. Open dialogs can be revisited later.
-- [ ] Centralize how models get their extension (`preferredExtension` or similar). Currently each model hardcodes it; should draw from `FileTypes` or from the incoming path
+- [x] Centralize how models get their extension (`preferredExtension` or similar). Currently each model hardcodes it; should draw from `FileTypes` or from the incoming path
 - [ ] Address remaining FNX-related filters (Open Notebook, Save As Notebook, Import). These still need the `.fnx` extension filter. Consider a small Filters header/namespace that pulls the translatable name from Tr and the extension from `Fnx::Io::EXT` (and eventually from `FileTypes` for import filters)
-- [ ] Generalize FNX import to accept any file type and preserve source extension
-- [ ] Explore whether FNX can avoid an `extension` attribute in Manifest.xml by querying the stored file directly (the file is already stored as `{uuid}.{ext}` in the archive)
+- [x] Generalize FNX import to accept any file type and preserve source extension
+- [x] Explore whether FNX can avoid an `extension` attribute in Manifest.xml by querying the stored file directly (the file is already stored as `{uuid}.{ext}` in the archive)
 - [ ] Tree view icons by file type
 - [ ] Handle Notepad file renaming via TreeView
 - [ ] Rename-triggered view/model re-evaluation (extension change -> new view)
