@@ -46,7 +46,7 @@ Known byte signature?
 
 ## Extensions and User Choice
 
-Fernanda does not force or auto-append file extensions. When saving, the suggested filename includes an appropriate extension, but if the user changes or removes it, that choice is honored.
+Fernanda does not force or auto-append file extensions. When saving, the suggested filename includes an appropriate extension (drawn from `FileMeta::preferredExt()`, which uses the file's existing path extension if on disk or `FileTypes::canonicalExt(kind)` if off-disk), but if the user changes or removes it, that choice is honored.
 
 This means a file's extension can affect how it is handled:
 
@@ -87,7 +87,20 @@ If an FNX file is renamed (e.g., `MyProject.fnx` to `MyProject.zip`), `isFnxFile
 
 ### FNX files inside FNX archives
 
-Individual files within an FNX archive go through the same two-tier identification as any other file when opened. It is possible (once import is generalized to accept any file type) for a user to import an FNX archive into another Notebook. If opened from within the Notebook, it will go through `FileService` with no `isFnxFile` intercept. MagicBytes will detect the 7zip signature, but since there is no dedicated handler for 7zip in `FileService`, it will fall through to plain text. The user will see binary content. This is expected and not a supported workflow.
+Individual files within an FNX archive go through the same two-tier identification as any other file when opened. A user can import an FNX archive into another Notebook (import accepts any file type). If opened from within the Notebook, it goes through `FileService` with no `isFnxFile` intercept. MagicBytes detects the 7zip signature, but since there is no dedicated handler for 7zip in `FileService`, it falls through to plain text. The user sees binary content. This is expected and not a supported workflow. Opening nested FNX files as functional Notebooks was considered and deliberately deferred (see the Plan document for rationale).
+
+### How files are stored in FNX archives
+
+Files inside a Notebook's 7zip archive live in a `content/` directory, named by UUID with their real extension (e.g., `content/{uuid}.txt`, `content/{uuid}.pdf`). The XML manifest tracks metadata for each file:
+
+```xml
+<file name="Chapter One" uuid="abc-123" extension=".txt" />
+<file name="Reference" uuid="def-456" extension=".pdf" />
+```
+
+The `extension` attribute is the index that `Fnx::Xml::relPath()` uses to reconstruct the content path (`uuid + ext`). It is populated from reality: `fsPath.extQString()` on import, `FileTypes::canonicalExt(kind)` for new files. The `name` attribute is the user-facing display name shown in the tree view.
+
+For files with compound extensions (e.g., `archive.tar.gz`), `std::filesystem::path::extension()` returns only the final extension (`.gz`), and the stem (`archive.tar`) becomes the display name. The full original filename can be reconstructed on export by joining `name + ext`.
 
 ## File Operations
 
@@ -116,7 +129,7 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 | **Open File** | File dialog for selecting files. Each file is checked with `isFnxFile`; passing files go to a Notebook, others open via `FileService` (two-tier). | All files |
 | **TreeView double-click** | Same `isFnxFile` routing as Open File. | None (filesystem) |
 | **Save** | Writes modified content to the file's existing path. Only operates on modifiable models with changes. | None |
-| **Save As** | File dialog for choosing a new path. Writes the model's data to that path. No extension is forced. | All files |
+| **Save As** | File dialog for choosing a new path. Writes the model's data to that path. No extension is forced. The suggested filename comes from `FileMeta`, which provides the appropriate extension. | All files |
 | **Save All in Window** | Saves all modified models in the current window. Prompts Save As for any that are not yet on disk. | Per-file as needed |
 | **Save All** | Saves all modified models across all Notepad windows. Prompts Save As for any that are not yet on disk. | Per-file as needed |
 
@@ -124,10 +137,10 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 
 | Operation | Description | Filter |
 |-----------|-------------|--------|
-| **New File** | Creates a new text file inside the archive (no dialog). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
+| **New File** | Creates a new file inside the archive via `Fnx::Xml::addNewFile(kind)` (no dialog). Currently only creates plain text (`FileTypes::Plaintext`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
 | **New Folder** | Creates a new virtual folder in the archive's XML manifest. No file is created. | None |
-| **Import Files** | File dialog for selecting files from disk. Selected files are copied into the archive and opened. Currently filtered; will be generalized to accept any file type. | All supported (will become all files) (NB: Imported files will have their filenames replaced with a UUID and the filename will become the metadata title) |
+| **Import Files** | File dialog for selecting files from disk. Accepts any file type (no filter). Selected files are copied into the archive's `content/` directory as `{uuid}.{ext}` (extension taken from source path via `fsPath.extQString()`). The source file's stem becomes the display name in the manifest. Imported files are opened after import. | All files |
 | **TreeView double-click** | Opens the selected file from the archive via `FileService` (two-tier). No `isFnxFile` check. | None |
 | **Save** | Saves the Notebook archive. Prompts Save As if the archive is not yet on disk. Also saves all modified file models within the archive. | None (or `*.fnx` if prompting) |
 | **Save As** | File dialog for saving the Notebook archive to a new `.fnx` path. | `*.fnx` |
-| **Export** (planned) | Save a file from within the archive to a location on disk. | TBD |
+| **Export** (planned) | Save a file from within the archive to a location on disk. Filename would be reconstructed from `name + ext`. | TBD |

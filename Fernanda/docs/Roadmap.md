@@ -13,6 +13,8 @@ Update documentation! Maybe Notebooks.md as well.
 
 If we want path to save/retrieve as string in INI, it'll have to be done with a wrapper function or explciit conversion at call site, so settings pipeline will have to be able to register converters for certain types!
 
+Remove Plan document references once its deleted (specifically one in FileHandling.md)
+
 ---
 
 TODO: Redo/reorganize the below
