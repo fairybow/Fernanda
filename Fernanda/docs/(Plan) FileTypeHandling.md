@@ -12,10 +12,10 @@ See: [`MagicBytes.h`](../src/MagicBytes.h) (formerly `FileTypes.h`), [`FileServi
 - [x] `FileTypes` header (central type registry, canonical extensions). Existing `FileTypes` namespace renamed to `MagicBytes`
 - [x] Two-tier resolution in `FileService::newDiskFileModel_`: magic bytes first for binary formats, then extension check for special plaintext types, fallthrough to plaintext for everything else
 - [x] Remove non-FNX file dialog filters (was causing Qt to auto-append `.txt` to Save As filenames). Save As uses no filter; user gets exactly what they type. Open dialogs can be revisited later.
-- [x] Centralize how models get their extension (`preferredExtension` or similar). Currently each model hardcodes it; should draw from `FileTypes` or from the incoming path
+- [x] Centralize how models get their extension: `FileMeta::preferredExt()` draws from path if on disk, `FileTypes::canonicalExt(kind)` if off-disk. Fnx uses the same sources (see Implementation Step 7).
 - [ ] Address remaining FNX-related filters (Open Notebook, Save As Notebook, Import). These still need the `.fnx` extension filter. Consider a small Filters header/namespace that pulls the translatable name from Tr and the extension from `Fnx::Io::EXT` (and eventually from `FileTypes` for import filters)
-- [x] Generalize FNX import to accept any file type and preserve source extension
-- [x] Explore whether FNX can avoid an `extension` attribute in Manifest.xml by querying the stored file directly (the file is already stored as `{uuid}.{ext}` in the archive)
+- [x] Generalize FNX import to accept any file type and preserve source extension. Also generalized new file creation to accept a `FileTypes::Kind`.
+- [x] (Decided: keep) FNX manifest `extension` attribute. See "FNX extension attribute" section below.
 - [ ] Tree view icons by file type
 - [ ] Handle Notepad file renaming via TreeView
 - [ ] Rename-triggered view/model re-evaluation (extension change -> new view)
@@ -30,7 +30,7 @@ New files get their extension suggested through the pre-filled dialog name (e.g.
 
 ### Note on FNX extension attribute
 
-The current plan stores extension in the XML manifest (`<file extension=".txt" />`). However, since archived files are stored as `{uuid}.{ext}`, we may be able to query the extension directly from the file in the `content/` directory rather than duplicating it in the manifest. Worth exploring: the attribute may be unnecessary if the file itself is the source of truth.
+The manifest stores each file's extension in an `extension` attribute (`<file extension=".txt" />`). This was considered for removal since the file is also stored as `{uuid}.{ext}` in the `content/` directory, which seems redundant. However, the attribute is kept because it serves as the index into the archive's content directory: `Fnx::Xml::relPath()` constructs the path from `uuid + ext` without scanning the filesystem. Removing it would require globbing for `{uuid}.*`, which is fragile and breaks for extensionless files (where the stored filename is just `{uuid}` with no extension to glob for). The attribute is populated from reality, never hardcoded: `fsPath.extQString()` on import, `FileTypes::canonicalExt(kind)` for new files.
 
 ## Resolution Strategy
 
@@ -180,10 +180,16 @@ FNX accepts import of **any file type**, mirroring Notepad's open-anything philo
 
 ### Extension handling
 
-- **Import**: The extension is taken from the source file on disk (including files with no extension or custom extensions). A PDF retains `.pdf`; a file called `notes` with no extension retains no extension.
-- **New file creation**: The default extension comes from the file type's definition (currently only `.txt`).
+- **Import**: The extension is taken from the source file on disk via `fsPath.extQString()` (including files with no extension or custom extensions). A PDF retains `.pdf`; a file called `notes` with no extension retains no extension. Note that `std::filesystem::path::extension()` returns only the final extension, so `archive.tar.gz` stores `.gz` as the extension and `archive.tar` as the display name. This is correct: `.gz` is the format, and the full original name can be reconstructed from `name + ext` on export.
+- **New file creation**: The extension comes from `FileTypes::canonicalExt(kind)` for the given file type (currently only `Plaintext`, which gives `.txt`).
 - **Type resolution on open**: When a Notebook element is opened, it goes through the same two-tier resolution as any other file (magic bytes first, then extension). The stored filename's extension is available but bytes take priority for binary formats.
 - **Tree view icons**: File type should determine the icon shown in the tree view, with a generic icon for unrecognized types.
+
+### FNX files within FNX archives
+
+It is possible to import an FNX archive into another Notebook. The file is stored like any other imported file. If opened from within the Notebook, it goes through FileService's two-tier resolution: MagicBytes detects the 7zip signature, but since there is no dedicated handler for 7zip in FileService, it falls through to plain text. The user sees binary content. This is expected.
+
+Opening an inner FNX as a functional Notebook was considered and deliberately deferred. The implementation would require nested archive lifecycle management (extraction, save propagation, closure coordination), which conflicts with the current architecture where Workspaces are independent peers. A simpler "open as independent Notebook" approach was also considered, but it creates a confusing UX: edits to the inner Notebook would not propagate back to the outer archive, contradicting user expectations. This may be revisited if a compelling use case emerges.
 
 ## FileTypes Registry
 
@@ -233,9 +239,9 @@ Work should happen on a **`file-types`** branch.
 4. (DONE) **`FileTypes` header**: Central registry with constexpr extension table, `canonicalExt(Kind)`, and `fromPath(path)`.
 5. (DONE) **Two-tier resolution in FileService**: Refactor `newDiskFileModel_` to check magic bytes first (Tier 1) for binary formats, then extension (Tier 2) for special text types, with universal fallthrough to PlainText.
 6. (DONE) **Remove non-FNX file dialog filters**: Eliminates Qt auto-appending extensions on Save As. User gets exactly what they type.
-7. **Centralize model extensions**: Address `preferredExtension` so models draw from `FileTypes` or from the incoming path rather than hardcoding.
+7. (DONE) **Centralize model extensions**: `FileMeta::preferredExt()` draws from the file's path if on disk, or from `FileTypes::canonicalExt(kind)` if off-disk. Fnx no longer hardcodes extensions: `addNewFile` takes a `FileTypes::Kind` and resolves via `canonicalExt`, `importFile` reads the source path's extension directly.
 8. **FNX filter cleanup**: Remaining FNX-related filters (Open Notebook, Save As Notebook, Import) need the `.fnx` extension. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
-9. **FNX all-file-type support**: Generalize `importTextFile` -> `importFile` to preserve source extension. Update stored filenames to `{uuid}.{ext}`. Update manifest handling.
+9. (DONE) **FNX all-file-type support**: `importTextFile` -> `importFile` (preserves source extension via `fsPath.extQString()`). `addNewTextFile` -> `addNewFile(FileTypes::Kind)` (resolves extension via `FileTypes::canonicalExt`). Renamed through `FnxModel` (`importFiles`, `addNewFile`) and `Notebook` call sites. No hardcoded extensions remain in Fnx. Import dialog has no filter (accepts all files).
 10. **Tree view icons by type**: File-type-appropriate icons with a generic fallback for unrecognized types.
 
 ## Documents That Need Updating
@@ -245,6 +251,7 @@ Once this work lands, the following docs should be revised:
 | Document | Changes needed |
 |----------|----------------|
 | **FileModelsAndViews.md** | Update `AbstractFileModel` API: `data()`/`setData()` now pure virtual, `supportsModification()` now regular virtual with `false` default. Add `PdfFileModel`/`PdfFileView` to concrete implementations. Update "Why Virtual Methods with Default No-Ops?" section. Note NoOp status. |
+| **FileHandling.md** | Update Notebook import section to reflect all-file-type support. Note extension handling for imports and new files. |
 | **Notebooks.md** | Document that FNX supports all file types, not just text. Update any `.txt`-only import references. Document `{uuid}.{ext}` file naming in archives. |
 | **Architecture.md** | Mention `FileTypes` registry if it becomes a meaningful architectural element. Note `MagicBytes` rename. |
 | **Roadmap.md** | Add `file-types` branch work items if not already tracked. |
