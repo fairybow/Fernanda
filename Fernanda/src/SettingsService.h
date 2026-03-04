@@ -42,6 +42,9 @@ namespace Fernanda {
 // `settings->value(key, default)`
 //
 // TODO: Make module? IDK
+/// TODO FT: If adding converter infrastructure, make sure all API call sites go
+/// through the getter/setter (commands, too) so retrieved value is what is
+/// expected (like QString for Coco::Path)
 class SettingsService : public AbstractService
 {
     Q_OBJECT

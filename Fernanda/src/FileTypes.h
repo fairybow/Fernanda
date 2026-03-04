@@ -17,6 +17,7 @@
 // future
 namespace Fernanda::FileTypes {
 
+/// TODO FT: Can move out into Fernanda and rename FileType?
 enum Kind
 {
     Plaintext = 0, // fallback + .txt (TODO: we can maybe not even check for

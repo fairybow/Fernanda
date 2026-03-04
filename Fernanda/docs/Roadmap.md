@@ -6,14 +6,19 @@ Follow-up with search for "TODO FT"
 
 Found issues:
 - (FIXED) Notepad Save As (when trying to add custom extension, it'll automatically add .txt to the save name)
-
-Update documentation! Maybe Notebooks.md as well.
-
-(DONE) Translatable "All Files (*)" filter to use in place of default all files
+- (DONE) Translatable "All Files (*)" filter to use in place of default all files
 
 If we want path to save/retrieve as string in INI, it'll have to be done with a wrapper function or explciit conversion at call site, so settings pipeline will have to be able to register converters for certain types!
 
+Notebook export
+
+Notepad rename
+
+Model/view reloading on rename? (This wouldn't affect types detected by magic bytes, just special text file handling, when implemented)
+
 Remove Plan document references once its deleted (specifically one in FileHandling.md)
+
+Update documentation! Maybe Notebooks.md as well.
 
 ---
 
