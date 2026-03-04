@@ -317,9 +317,6 @@
     <QtMoc Include="src\TextFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
     </QtMoc>
-    <QtMoc Include="src\NoOpFileView.h">
-      <Filter>Code\Core\Files\Views</Filter>
-    </QtMoc>
     <QtMoc Include="src\Window.h">
       <Filter>Code\Core\UI</Filter>
     </QtMoc>
@@ -349,9 +346,6 @@
     </QtMoc>
     <QtMoc Include="src\TabWidgetUnderlay.h">
       <Filter>Code\Core\UI\TabWidget</Filter>
-    </QtMoc>
-    <QtMoc Include="src\NoOpFileModel.h">
-      <Filter>Code\Core\Files\Models</Filter>
     </QtMoc>
     <QtMoc Include="src\Timers.h">
       <Filter>Code\Core</Filter>
@@ -573,6 +567,12 @@
     </ClInclude>
     <ClInclude Include="src\FileTypes.h">
       <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_NoOpFileView.h">
+      <Filter>Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_NoOpFileModel.h">
+      <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

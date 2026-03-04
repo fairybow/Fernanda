@@ -26,6 +26,7 @@
 #include "Coco/Path.h"
 
 #include "AppDirs.h"
+#include "FileTypes.h"
 #include "Io.h"
 #include "MagicBytes.h"
 
@@ -242,8 +243,10 @@ namespace Xml {
             CRITICAL("Failed to write manifest to {}!", path);
     }
 
-    inline QDomElement
-    addNewTextFile(const Coco::Path& workingDir, QDomDocument& dom)
+    inline QDomElement addNewFile(
+        FileTypes::Kind kind,
+        const Coco::Path& workingDir,
+        QDomDocument& dom)
     {
         if (!workingDir.exists()) {
             CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
@@ -256,7 +259,7 @@ namespace Xml {
         }
 
         auto uuid = Internal::makeUuid_();
-        auto ext = ".txt";
+        auto ext = FileTypes::canonicalExt(kind);
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
@@ -275,8 +278,8 @@ namespace Xml {
         return element;
     }
 
-    // TODO: Section off some code from this and addNewTextFile
-    inline QDomElement importTextFile(
+    // TODO: Section off some code from this and addNewFile
+    inline QDomElement importFile(
         const Coco::Path& workingDir,
         QDomDocument& dom,
         const Coco::Path& fsPath)
@@ -294,7 +297,7 @@ namespace Xml {
         }
 
         auto uuid = Internal::makeUuid_();
-        auto ext = ".txt";
+        auto ext = fsPath.extQString();
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 

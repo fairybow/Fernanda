@@ -612,7 +612,8 @@ private:
         return Coco::getSaveFile(
             window,
             Tr::npSaveAsCaption(),
-            start_path); /// TODO FT: filter?
+            start_path,
+            Tr::nxAllFilesFilter()); /// TODO FT
     }
 
     QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
@@ -637,7 +638,8 @@ private:
         auto paths = Coco::getFiles(
             window,
             Tr::npOpenFileCaption(),
-            startDir); /// TODO FT: filter?
+            startDir,
+            Tr::nxAllFilesFilter()); /// TODO FT
 
         openFiles_(window, paths);
     }

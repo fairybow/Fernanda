@@ -21,13 +21,12 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
-#include <Qt>
-#include <QtTypes>
 
 #include "Coco/Bool.h"
 #include "Coco/Path.h"
 
 #include "Debug.h"
+#include "FileTypes.h"
 #include "Fnx.h"
 #include "FnxModelCache.h"
 
@@ -173,11 +172,12 @@ public:
         insertElement_(element, parent);
     }
 
-    FileInfo addNewTextFile(
+    FileInfo addNewFile(
+        FileTypes::Kind kind,
         const Coco::Path& workingDir,
         const QModelIndex& parentIndex = {})
     {
-        auto element = Fnx::Xml::addNewTextFile(workingDir, dom_);
+        auto element = Fnx::Xml::addNewFile(kind, workingDir, dom_);
         if (element.isNull()) return {};
 
         auto parent = resolveParent_(parentIndex);
@@ -186,7 +186,7 @@ public:
         return { element };
     }
 
-    QList<FileInfo> importTextFiles(
+    QList<FileInfo> importFiles(
         const Coco::Path& workingDir,
         const Coco::PathList& fsPaths,
         const QModelIndex& parentIndex = {})
@@ -195,7 +195,7 @@ public:
 
         for (const auto& fs_path : fsPaths) {
             if (!fs_path.exists()) continue;
-            auto element = Fnx::Xml::importTextFile(workingDir, dom_, fs_path);
+            auto element = Fnx::Xml::importFile(workingDir, dom_, fs_path);
             if (!element.isNull()) elements << element;
         }
 

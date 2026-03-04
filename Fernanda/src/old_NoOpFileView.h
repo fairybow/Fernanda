@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QFont>
 #include <QLabel>
@@ -23,7 +23,8 @@
 
 namespace Fernanda {
 
-/// TODO FT: Deprecated (for now or forever)
+/// TODO FT: Could rescue for blocking large binariy display from falling
+/// through to plaintext
 // Read-only placeholder view for unsupported file types, displaying simple
 // placeholder content potentially for binary files or other non-viewable
 // formats
@@ -56,4 +57,4 @@ protected:
     }
 };
 
-} // namespace Fernanda
+} // namespace Fernanda*/

@@ -52,6 +52,7 @@ namespace Tr {
 
     // NX dialogs:
 
+    TR_(nxAllFilesFilter, tr("All files (*)"));
     TR_(nxAboutTitle, tr("About"));
     TR_(nxNewNotebookTitle, tr("New Notebook"));
     TR_(nxNewNotebookBody, tr("Name:"));
@@ -125,18 +126,11 @@ namespace Tr {
     // NP dialogs:
 
     TR_(npOpenFileCaption, tr("Open file"));
-    // TR_(npOpenFileFilter,
-    // tr("Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All "
-    //"files (*)"));
     TR_(npSaveAsCaption, tr("Save as"));
-    // TR_(npSaveAsFilter, tr("Plain text files (*.txt);;All files (*)"));
 
     // NB dialogs:
 
     TR_(nbImportFileCaption, tr("Import file"));
-    // TR_(nbImportFileFilter,
-    // tr("All supported files (*.txt *.pdf);;Plain text files (*.txt);;PDF "
-    //"Document (*.pdf)"));
     TR_(nbSaveAsCaption, tr("Save as"));
 
     /// TODO FT: Pull ext from FNX, maybe in special filters header

@@ -126,7 +126,7 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 |-----------|-------------|--------|
 | **New File** | Creates a new text file inside the archive (no dialog). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
 | **New Folder** | Creates a new virtual folder in the archive's XML manifest. No file is created. | None |
-| **Import Files** | File dialog for selecting files from disk. Selected files are copied into the archive and opened. Currently filtered; will be generalized to accept any file type. | All supported (will become all files) |
+| **Import Files** | File dialog for selecting files from disk. Selected files are copied into the archive and opened. Currently filtered; will be generalized to accept any file type. | All supported (will become all files) (NB: Imported files will have their filenames replaced with a UUID and the filename will become the metadata title) |
 | **TreeView double-click** | Opens the selected file from the archive via `FileService` (two-tier). No `isFnxFile` check. | None |
 | **Save** | Saves the Notebook archive. Prompts Save As if the archive is not yet on disk. Also saves all modified file models within the archive. | None (or `*.fnx` if prompting) |
 | **Save As** | File dialog for saving the Notebook archive to a new `.fnx` path. | `*.fnx` |

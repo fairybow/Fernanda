@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QByteArray>
 #include <QObject>
@@ -20,7 +20,8 @@
 
 namespace Fernanda {
 
-/// TODO FT: Deprecated (for now or forever)
+/// TODO FT: Could rescue for blocking large binariy display from falling
+/// through to plaintext
 class NoOpFileModel : public AbstractFileModel
 {
     Q_OBJECT
@@ -40,4 +41,4 @@ private:
     QByteArray data_{};
 };
 
-} // namespace Fernanda
+} // namespace Fernanda*/

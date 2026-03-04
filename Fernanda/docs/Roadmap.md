@@ -9,7 +9,7 @@ Found issues:
 
 Update documentation! Maybe Notebooks.md as well.
 
-Translatable "All Files (*)" filter to use in place of default all files
+(DONE) Translatable "All Files (*)" filter to use in place of default all files
 
 If we want path to save/retrieve as string in INI, it'll have to be done with a wrapper function or explciit conversion at call site, so settings pipeline will have to be able to register converters for certain types!
 

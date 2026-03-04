@@ -94,7 +94,7 @@
     <QtMoc Include="src\TextFileModel.h" />
     <QtMoc Include="src\AbstractFileView.h" />
     <QtMoc Include="src\TextFileView.h" />
-    <QtMoc Include="src\NoOpFileView.h" />
+    <ClInclude Include="src\old_NoOpFileView.h" />
     <QtMoc Include="src\TabWidget.h" />
     <QtMoc Include="src\ColorBarModule.h" />
     <QtMoc Include="src\ColorBar.h" />
@@ -113,7 +113,7 @@
     <QtMoc Include="src\Bus.h" />
     <ClInclude Include="src\FileTypes.h" />
     <ClInclude Include="src\MagicBytes.h" />
-    <QtMoc Include="src\NoOpFileModel.h" />
+    <ClInclude Include="src\old_NoOpFileModel.h" />
     <ClInclude Include="src\AboutDialog.h" />
     <QtMoc Include="src\FontPanel.h" />
     <ClInclude Include="src\Fnx.h" />

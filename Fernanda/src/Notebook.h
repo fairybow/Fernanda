@@ -39,6 +39,7 @@
 #include "CollapsibleWidget.h"
 #include "Debug.h"
 #include "FileService.h"
+#include "FileTypes.h"
 #include "Fnx.h"
 #include "FnxModel.h"
 #include "MenuBuilder.h"
@@ -374,6 +375,10 @@ private:
     // TODO: Trigger rename immediately (maybe)
     // New file will be under selected TreeView model index (or notebook element
     // if no current index)
+    // TODO: Later, we'll need to have options for other creatable file types
+    // (like markdown, fountain, etc). From a UI perspective, this could be done
+    // (in both workspaces) with an overflow menu for new tab, plus a context
+    // menu on the add tab button with options
     void newFile_(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
@@ -383,7 +388,8 @@ private:
         // If index is invalid, fnxModel_->addNewTextFile adds it to the DOM
         // document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
-        auto info = fnxModel_->addNewTextFile(
+        auto info = fnxModel_->addNewFile(
+            FileTypes::Plaintext,
             working_dir,
             resolveNotebookIndex_(index));
         if (!info.isValid()) return;
@@ -412,7 +418,8 @@ private:
         auto fs_paths = Coco::getFiles(
             window,
             Tr::nbImportFileCaption(),
-            startDir); /// TODO FT: filter?
+            startDir,
+            Tr::nxAllFilesFilter()); /// TODO FT
 
         if (fs_paths.isEmpty()) return;
 
@@ -420,7 +427,7 @@ private:
         // If index is invalid, fnxModel_->importTextFiles adds it to the DOM
         // document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
-        auto infos = fnxModel_->importTextFiles(
+        auto infos = fnxModel_->importFiles(
             working_dir,
             fs_paths,
             resolveNotebookIndex_(index));
