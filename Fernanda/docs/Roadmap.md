@@ -9,10 +9,11 @@ Found issues:
 - (DONE) Translatable "All Files (*)" filter to use in place of default all files
 - (DONE) If we want path to save/retrieve as string in INI, it'll have to be done with a wrapper function or explciit conversion at call site, so settings pipeline will have to be able to register converters for certain types!
 - (DONE) Notebook export
-
-Notepad rename
+- (DONE) Notepad rename
 
 Model/view reloading on rename? (This wouldn't affect types detected by magic bytes, just special text file handling, when implemented)
+
+Renaming an open Notebook file in Notepad's TreeView: The Notebook isn't broken immediately. It's working from its temp directory. The next save creates a file at the old path. No data loss, just a confusing orphaned file. Will fix later maybe.
 
 Remove Plan document references once its deleted (specifically one in FileHandling.md)
 

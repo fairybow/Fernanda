@@ -138,6 +138,11 @@ public:
             signalFileModelReadied_(window, model);
     }
 
+    AbstractFileModel* modelFor(const Coco::Path& path) const
+    {
+        return pathToFileModel_.value(path, nullptr);
+    }
+
     QSet<AbstractFileModel*> modelsFor(const QSet<Coco::Path>& paths) const
     {
         QSet<AbstractFileModel*> models{};

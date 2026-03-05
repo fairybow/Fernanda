@@ -13,7 +13,6 @@
 
 #include <QAbstractItemModel>
 #include <QDockWidget>
-#include <QFileSystemModel>
 #include <QHeaderView>
 #include <QList>
 #include <QModelIndex>
@@ -33,6 +32,7 @@
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "MenuState.h"
+#include "NotepadFileSystemModel.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "SettingsService.h"
@@ -438,7 +438,7 @@ protected:
     }
 
 private:
-    QFileSystemModel* fsModel_ = new QFileSystemModel(this);
+    NotepadFileSystemModel* fsModel_ = new NotepadFileSystemModel(this);
 
     void setup_()
     {
@@ -449,6 +449,20 @@ private:
         Timers::onNextTick([&] {
             fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
             fsModel_->setRootPath(startDir.toQString());
+            fsModel_->setReadOnly(false);
+
+            // Update open file model if it exists
+            connect(
+                fsModel_,
+                &QFileSystemModel::fileRenamed,
+                this,
+                [&](const QString& path,
+                    const QString& oldName,
+                    const QString& newName) {
+                    if (auto model =
+                            files->modelFor(Coco::Path(path) / oldName))
+                        model->meta()->setPath(Coco::Path(path) / newName);
+                });
         });
 
         settings->setName(Tr::notepad());

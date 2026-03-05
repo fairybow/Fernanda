@@ -464,6 +464,9 @@
     <QtMoc Include="src\PdfFileView.h">
       <Filter>Code\Core\Files\Views</Filter>
     </QtMoc>
+    <QtMoc Include="src\NotepadFileSystemModel.h">
+      <Filter>Code\Core\Workspaces\Notepad</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h">
