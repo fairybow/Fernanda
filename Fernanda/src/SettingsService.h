@@ -9,12 +9,15 @@
 
 #pragma once
 
+#include <functional>
 #include <utility>
 
 #include <QAnyStringView>
+#include <QFont>
 #include <QHash>
 #include <QList>
 #include <QString>
+#include <QStringList>
 #include <QTextOption>
 #include <QVariant>
 #include <QVariantMap>
@@ -45,9 +48,6 @@ namespace Fernanda {
 // doesn't have a specialized QVariant constructor (QFont, Coco::Path, etc)
 //
 // TODO: Make module? IDK
-/// TODO FT: If adding converter infrastructure, make sure all API call sites go
-/// through the getter/setter (commands, too) so retrieved value is what is
-/// expected (like QString for Coco::Path)
 class SettingsService : public AbstractService
 {
     Q_OBJECT
@@ -270,6 +270,21 @@ private:
         setupDebouncer_(Ini::Keys::WINDOW_THEME);
         setupDebouncer_(Ini::Keys::EDITOR_THEME);
         setupDebouncer_(Ini::Keys::EDITOR_TAB_STOP_DISTANCE);
+
+        /// TODO FT: Right place to register these?
+        settings_->setKeyConverters(
+            { Ini::Keys::WINDOW_THEME, Ini::Keys::EDITOR_THEME },
+            [](const QVariant& v) { return v.value<Coco::Path>().toQString(); },
+            [](const QVariant& v) { return qVar(Coco::Path(v.toString())); });
+
+        settings_->setKeyConverters(
+            Ini::Keys::EDITOR_FONT,
+            [](const QVariant& v) { return v.value<QFont>().toString(); },
+            [](const QVariant& v) {
+                QFont font{};
+                font.fromString(v.toString());
+                return qVar(font);
+            });
     }
 
     void setupDebouncer_(const QString& key)
