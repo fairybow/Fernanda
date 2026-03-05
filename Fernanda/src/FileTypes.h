@@ -20,7 +20,7 @@ namespace Fernanda::FileTypes {
 /// TODO FT: Can move out into Fernanda and rename FileType?
 enum Kind
 {
-    Plaintext = 0, // fallback + .txt (TODO: we can maybe not even check for
+    PlainText = 0, // fallback + .txt (TODO: we can maybe not even check for
                    // .txt? just hold it as a canonical for Save As if needed,
                    // except we might not do that here...)
 
@@ -52,7 +52,7 @@ struct ExtensionEntry
 };
 
 constexpr ExtensionEntry extensions[] = {
-    { Plaintext, ".txt" },
+    { PlainText, ".txt" },
     { Markdown, ".md" },
     { Fountain, ".fountain" },
     { Pdf, ".pdf" },
@@ -77,7 +77,7 @@ inline Kind fromPath(const Coco::Path& path)
     for (const auto& [kind, knownExt] : extensions)
         if (ext == knownExt) return kind;
 
-    return Plaintext;
+    return PlainText;
 }
 
 constexpr const char* canonicalExt(Kind kind)

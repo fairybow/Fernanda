@@ -144,6 +144,18 @@ public:
         emit domChanged();
     }
 
+    bool isFile(const QModelIndex& index) const
+    {
+        if (!index.isValid()) return false;
+        return Fnx::Xml::isFile(elementAt_(index));
+    }
+
+    bool isVirtualFolder(const QModelIndex& index) const
+    {
+        if (!index.isValid()) return false;
+        return Fnx::Xml::isVirtualFolder(elementAt_(index));
+    }
+
     FileInfo fileInfoAt(const QModelIndex& index) const
     {
         if (!index.isValid()) return {};
@@ -230,7 +242,7 @@ public:
         return moveElement_(element, trash, -1);
     }
 
-    bool moveToNotebook_(const QModelIndex& index)
+    bool moveToNotebook(const QModelIndex& index)
     {
         if (!index.isValid()) return false;
 

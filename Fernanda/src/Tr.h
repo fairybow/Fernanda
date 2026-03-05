@@ -131,6 +131,7 @@ namespace Tr {
     // NB dialogs:
 
     TR_(nbImportFileCaption, tr("Import file"));
+    TR_(nbExportFileCaption, tr("Export file"));
     TR_(nbSaveAsCaption, tr("Save as"));
 
     /// TODO FT: Pull ext from FNX, maybe in special filters header
@@ -216,6 +217,7 @@ namespace Tr {
     TR_(nbRemove, tr("Remove"));
     TR_(nbRestore, tr("Restore"));
     TR_(nbDeletePermanently, tr("Delete permanently"));
+    TR_(nbExport, tr("Export..."));
     TR_(nbEmptyTrash, tr("Empty trash"));
 
     /// Word counter

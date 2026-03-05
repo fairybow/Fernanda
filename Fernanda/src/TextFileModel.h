@@ -35,7 +35,7 @@ class TextFileModel : public AbstractFileModel
 
 public:
     explicit TextFileModel(const Coco::Path& path, QObject* parent = nullptr)
-        : AbstractFileModel(FileTypes::Plaintext, path, parent)
+        : AbstractFileModel(FileTypes::PlainText, path, parent)
     {
         setup_();
     }
