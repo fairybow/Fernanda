@@ -41,6 +41,9 @@ namespace Fernanda {
 // access: `bus->call(GET, {{"key", k}, {"default", d}})` is equivalent to
 // `settings->value(key, default)`
 //
+// Remember, explicit conversion to QVariant is required for anything that
+// doesn't have a specialized QVariant constructor (QFont, Coco::Path, etc)
+//
 // TODO: Make module? IDK
 /// TODO FT: If adding converter infrastructure, make sure all API call sites go
 /// through the getter/setter (commands, too) so retrieved value is what is
@@ -111,6 +114,8 @@ public:
                                        theme.second }; // name, path
         }
 
+        /// TODO FT: Ini should probably provide a map of values to defaults or
+        /// something
         auto v = [&](const auto& key,
                      const auto& default_) -> std::pair<QString, QVariant> {
             return { key, settings_->value(key, qVar(default_)) };

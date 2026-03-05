@@ -29,7 +29,6 @@
 #include "FileTypes.h"
 #include "Io.h"
 #include "MagicBytes.h"
-#include "NoOpFileModel.h"
 #include "PdfFileModel.h"
 #include "TextFileModel.h"
 #include "Tr.h"
