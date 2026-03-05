@@ -18,6 +18,8 @@ Remove Plan document references once its deleted (specifically one in FileHandli
 
 Update documentation! Maybe Notebooks.md as well.
 
+After rename, clean this file and then merge in any unfinished work from Plan doc
+
 ---
 
 TODO: Redo/reorganize the below
