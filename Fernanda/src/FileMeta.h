@@ -104,7 +104,7 @@ private:
 
         // Update tooltip: full path if available, otherwise title + status
         if (isOnDisk()) {
-            toolTip_ = path_.toQString();
+            toolTip_ = path_.prettyQString();
         } else {
             // TODO: Tr-aware in future?
             toolTip_ = title_ + QStringLiteral(" [Not on disk]");
