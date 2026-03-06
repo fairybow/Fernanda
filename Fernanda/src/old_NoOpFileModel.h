@@ -7,31 +7,38 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
+#include <QByteArray>
 #include <QObject>
 
 #include "Coco/Path.h"
 
 #include "AbstractFileModel.h"
 #include "Debug.h"
+#include "FileTypes.h"
 
 namespace Fernanda {
 
+/// TODO FT: Could rescue for blocking large binariy display from falling
+/// through to plaintext
 class NoOpFileModel : public AbstractFileModel
 {
     Q_OBJECT
 
 public:
     explicit NoOpFileModel(const Coco::Path& path, QObject* parent = nullptr)
-        : AbstractFileModel(path, parent)
+        : AbstractFileModel(FileTypes::PlainText, path, parent)
     {
     }
 
     virtual ~NoOpFileModel() override { TRACER; }
 
-    virtual QByteArray data() const override { return {}; }
-    virtual bool supportsModification() const override { return false; }
+    virtual QByteArray data() const override { return data_; }
+    virtual void setData(const QByteArray& data) override { data_ = data; }
+
+private:
+    QByteArray data_{};
 };
 
-} // namespace Fernanda
+} // namespace Fernanda*/

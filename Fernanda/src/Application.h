@@ -21,7 +21,6 @@
 #include "AppDirs.h"
 #include "BetaAlert.h"
 #include "Debug.h"
-#include "FileTypes.h"
 #include "Notebook.h"
 #include "Notepad.h"
 #include "Timers.h"
@@ -222,6 +221,7 @@ private:
             &Workspace::openNotebookRequested,
             this,
             [&](const Coco::Path& fnxPath) {
+                /// TODO FT: This note is now maybe inconsistent with design!
                 // Shouldn't need to check Fnx::isFnxFile. The promise of this
                 // signal is "open Notebook" not "open maybe a Notebook"!
                 // TODO: Although, we may need to do some redesign if we want to

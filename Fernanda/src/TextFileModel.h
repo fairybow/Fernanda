@@ -22,6 +22,7 @@
 #include "AbstractFileModel.h"
 #include "Debug.h"
 #include "FileMeta.h"
+#include "FileTypes.h"
 #include "Version.h"
 
 namespace Fernanda {
@@ -34,7 +35,7 @@ class TextFileModel : public AbstractFileModel
 
 public:
     explicit TextFileModel(const Coco::Path& path, QObject* parent = nullptr)
-        : AbstractFileModel(path, parent)
+        : AbstractFileModel(FileTypes::PlainText, path, parent)
     {
         setup_();
     }
@@ -105,11 +106,6 @@ public:
         primeDocumentEditBlockCursor_ = QTextCursor{}; // release
     }
 
-    virtual QString preferredExtension() const override
-    {
-        return QStringLiteral(".txt");
-    }
-
     virtual QByteArray data() const override
     {
         return primeDocument_->toPlainText().toUtf8();
@@ -124,7 +120,6 @@ public:
         primeDocument_->setPlainText(QString::fromUtf8(data));
 
         auto prime_text = primeDocument_->toPlainText();
-
         for (auto& view_doc : localViewDocuments_)
             view_doc->setPlainText(prime_text);
 

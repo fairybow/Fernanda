@@ -28,7 +28,7 @@
 #include "FileMeta.h"
 #include "FileTypes.h"
 #include "Io.h"
-#include "NoOpFileModel.h"
+#include "MagicBytes.h"
 #include "PdfFileModel.h"
 #include "TextFileModel.h"
 #include "Tr.h"
@@ -102,7 +102,7 @@ public:
     [[nodiscard]] SaveResult
     saveAs(AbstractFileModel* fileModel, const Coco::Path& newPath)
     {
-        if (!fileModel || !fileModel->supportsModification()) return NoOp;
+        if (!fileModel) return NoOp;
         if (newPath.isEmpty()) return NoOp;
 
         // Prevent overwriting a different model's file
@@ -136,6 +136,11 @@ public:
         // Else, make a new one and ready it
         if (auto model = newDiskFileModel_(path, title))
             signalFileModelReadied_(window, model);
+    }
+
+    AbstractFileModel* modelFor(const Coco::Path& path) const
+    {
+        return pathToFileModel_.value(path, nullptr);
     }
 
     QSet<AbstractFileModel*> modelsFor(const QSet<Coco::Path>& paths) const
@@ -207,6 +212,7 @@ private:
             });
     }
 
+    /// TODO FT
     AbstractFileModel*
     newDiskFileModel_(const Coco::Path& path, const QString& title = {})
     {
@@ -214,15 +220,33 @@ private:
 
         AbstractFileModel* model = nullptr;
 
-        switch (FileTypes::type(path)) {
-        case FileTypes::PlainText:
-            model = newDiskTextFileModel_(path);
-            break;
-        case FileTypes::Pdf:
+        /// TODO FT: May want NoOp for the very large files that are also
+        /// unsupported? Like jpeg, etc.
+        /// OR just use it for stuff that will eventually be supported but
+        /// isn't? (This is a later-problem, not a right-now problem)
+
+        // Tier 1: Magic bytes for binary formats
+        switch (MagicBytes::type(path)) {
+
+        case MagicBytes::Pdf:
             model = newDiskPdfFileModel_(path);
             break;
+
         default:
-            model = new NoOpFileModel(path, this);
+        case MagicBytes::NoKnownSignature:
+
+            // Tier 2: Extension for special plaintext types
+            // switch (FileTypes::fromPath(path)) {
+            // case FileTypes::Markdown:
+            // case FileTypes::Fountain:
+            // case FileTypes::FernandaCorkboard:
+            // case FileTypes::FernandaWindowTheme:
+            // case FileTypes::FernandaEditorTheme:
+            // default:
+            model = newDiskTextFileModel_(path);
+            // break;
+            //}
+
             break;
         }
 
@@ -334,11 +358,11 @@ inline QString toQString(FileService::SaveResult saveResult) noexcept
     switch (saveResult) {
     default:
     case FileService::NoOp:
-        return "FileService::NoOp";
+        return QStringLiteral("FileService::NoOp");
     case FileService::Success:
-        return "FileService::Success";
+        return QStringLiteral("FileService::Success");
     case FileService::Failure:
-        return "FileService::Failure";
+        return QStringLiteral("FileService::Failure");
     }
 }
 

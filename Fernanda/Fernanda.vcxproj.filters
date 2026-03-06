@@ -300,6 +300,15 @@
       <Filter>Docs</Filter>
     </None>
     <None Include="..\CHANGELOG.md" />
+    <None Include="docs\FileHandling.md">
+      <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\old_Roadmap.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_%28Plan%29 FileTypeHandling.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="submodules\Coco\Coco\include\Coco\StartCop.h">
@@ -310,9 +319,6 @@
     </QtMoc>
     <QtMoc Include="src\TextFileModel.h">
       <Filter>Code\Core\Files\Models</Filter>
-    </QtMoc>
-    <QtMoc Include="src\NoOpFileView.h">
-      <Filter>Code\Core\Files\Views</Filter>
     </QtMoc>
     <QtMoc Include="src\Window.h">
       <Filter>Code\Core\UI</Filter>
@@ -343,9 +349,6 @@
     </QtMoc>
     <QtMoc Include="src\TabWidgetUnderlay.h">
       <Filter>Code\Core\UI\TabWidget</Filter>
-    </QtMoc>
-    <QtMoc Include="src\NoOpFileModel.h">
-      <Filter>Code\Core\Files\Models</Filter>
     </QtMoc>
     <QtMoc Include="src\Timers.h">
       <Filter>Code\Core</Filter>
@@ -464,6 +467,9 @@
     <QtMoc Include="src\PdfFileView.h">
       <Filter>Code\Core\Files\Views</Filter>
     </QtMoc>
+    <QtMoc Include="src\NotepadFileSystemModel.h">
+      <Filter>Code\Core\Workspaces\Notepad</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h">
@@ -502,7 +508,7 @@
     <ClInclude Include="src\ToString.h">
       <Filter>Code\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileTypes.h">
+    <ClInclude Include="src\MagicBytes.h">
       <Filter>Code\Core\Workspaces</Filter>
     </ClInclude>
     <ClInclude Include="src\Io.h">
@@ -564,6 +570,15 @@
     </ClInclude>
     <ClInclude Include="src\BuildMessages.h">
       <Filter>Code\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileTypes.h">
+      <Filter>Code\Core\Workspaces</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_NoOpFileView.h">
+      <Filter>Old %28Remove Later%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\old_NoOpFileModel.h">
+      <Filter>Old %28Remove Later%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

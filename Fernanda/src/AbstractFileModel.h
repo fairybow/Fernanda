@@ -25,22 +25,24 @@ class AbstractFileModel : public QObject
 
 public:
     explicit AbstractFileModel(
+        FileTypes::Kind fileType,
         const Coco::Path& path,
         QObject* parent = nullptr)
         : QObject(parent)
-        , meta_(new FileMeta(path, this))
+        , meta_(new FileMeta(fileType, path, this))
     {
     }
 
     virtual ~AbstractFileModel() = default;
 
     FileMeta* meta() const noexcept { return meta_; }
-    virtual QString preferredExtension() const { return {}; }
+
+    // These two are the contract. The rest is optional:
 
     virtual QByteArray data() const = 0;
-    virtual bool supportsModification() const = 0;
+    virtual void setData(const QByteArray& data) = 0;
 
-    virtual void setData(const QByteArray& data) {}
+    virtual bool supportsModification() const { return false; }
     virtual bool isModified() const { return false; }
     virtual void setModified(bool modified) {}
     virtual bool hasUndo() const { return false; }

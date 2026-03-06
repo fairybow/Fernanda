@@ -9,85 +9,88 @@
 
 #pragma once
 
-#include <QByteArray>
-#include <QByteArrayView>
-#include <QFile>
-#include <QIODevice>
-#include <QString>
-
 #include "Coco/Path.h"
 
-// Detects file types by analyzing file signatures (magic bytes) rather than
-// extensions, for potential support of various formats including text, images,
-// archives, and documents across the Workspace. Currently, we use this to
-// explicitly detect 7zip archives and also as a kind of filter in FileService
-// (any type present in the enums here, like GIF or JPG, will not resolve to
-// PlainText and open as NoOp), though this will likely change, and it will only
-// be used to open special files/views (and not block anything else unless
-// needed)
+// These are just constants relating the file types and extensions Fernanda
+// "knows" about. Special handling is determined by FileService
+// TODO: Most of this is planned / currently unsupported. This exists for the
+// future
 namespace Fernanda::FileTypes {
 
-// Unknown types treated as plain text
-enum HandledType
+/// TODO FT: Can move out into Fernanda and rename FileType?
+enum Kind
 {
-    PlainText = 0,
-    Png,
-    SevenZip,
-    Rtf,
+    PlainText = 0, // fallback + .txt (TODO: we can maybe not even check for
+                   // .txt? just hold it as a canonical for Save As if needed,
+                   // except we might not do that here...)
+
+    // Special plaintext:
+
+    Markdown,
+    Fountain,
+    FernandaWindowTheme,
+    FernandaEditorTheme,
+    FernandaCorkboard, // (Will probably be plaintext, like JSON or XML)
+
+    // Magic bytes:
+
     Pdf,
+    Png,
+    Jpeg,
     Gif,
-    Jpg,
-    Zip // covers .docx (Word)
+
+    // Special case:
+
+    // FernandaNotebook (.fnx) handled by Fnx + Application
 };
 
-inline HandledType type(const Coco::Path& path)
+// First entry per Kind is the canonical extension
+struct ExtensionEntry
 {
-    struct Signature
-    {
-        HandledType type;
-        const char* bytes;
-        qsizetype length;
-    };
+    Kind kind;
+    const char* ext;
+};
 
-    // https://en.wikipedia.org/wiki/List_of_file_signatures
-    // Check longer signatures first to avoid false positives
-    static constexpr Signature signatures[] = {
-        { Png, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8 },
-        { SevenZip, "\x37\x7A\xBC\xAF\x27\x1C", 6 },
-        { Rtf, "\x7B\x5C\x72\x74\x66\x31", 6 },
-        { Pdf, "\x25\x50\x44\x46\x2D", 5 },
-        { Gif, "\x47\x49\x46\x38", 4 },
-        { Jpg, "\xFF\xD8\xFF", 3 },
-        { Zip, "\x50\x4B", 2 },
-    };
+constexpr ExtensionEntry extensions[] = {
+    { PlainText, ".txt" },
+    { Markdown, ".md" },
+    { Fountain, ".fountain" },
+    { Pdf, ".pdf" },
+    { Png, ".png" },
+    { Jpeg, ".jpeg" },
+    { Jpeg, ".jpg" },
+    { Gif, ".gif" },
+    { FernandaCorkboard, ".fcb" },
+    { FernandaWindowTheme, ".fernanda_window" },
+    { FernandaEditorTheme,
+      ".fernanda_editor" }, /// TODO FT: For the themes, we'll want to pull this
+                            /// extension from here (instead of hardcoding in
+                            /// Themes.h), but they AREN'T special handling
+                            /// right now - just text file (json)
+};
 
-    QFile file(path.toQString());
+// Resolve file type from path. Unrecognized extensions fall through to
+// PlainText
+inline Kind fromPath(const Coco::Path& path)
+{
+    auto ext = path.extQString().toLower();
+    for (const auto& [kind, knownExt] : extensions)
+        if (ext == knownExt) return kind;
 
-    if (!file.open(QIODevice::ReadOnly)) {
-        INFO("Unable to open file: {}", path);
-        return PlainText; // Maybe replace with Error value
-    }
-
-    // Read enough bytes to cover the longest signature (8 bytes for PNG)
-    auto file_header = file.read(8);
-
-    if (file_header.isEmpty()) {
-        INFO("Empty file: {}", path);
-        return PlainText;
-    }
-
-    // Check each signature
-    for (const auto& [type, bytes, length] : signatures) {
-        if (file_header.startsWith(QByteArrayView(bytes, length))) return type;
-    }
-
-    // No signature matched, assume plain text
     return PlainText;
 }
 
-inline bool is(HandledType fileType, const Coco::Path& path)
+constexpr const char* canonicalExt(Kind kind)
 {
-    return fileType == type(path);
+    for (const auto& [k, ext] : extensions)
+        if (k == kind) return ext;
+
+    return ".txt";
+}
+
+inline const char* canonicalExt(const Coco::Path& path)
+{
+    return canonicalExt(fromPath(path));
 }
 
 } // namespace Fernanda::FileTypes

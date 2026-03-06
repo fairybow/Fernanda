@@ -20,13 +20,15 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "Coco/Path.h"
 #include "bit7z/bitarchivereader.hpp"
 #include "bit7z/bitarchivewriter.hpp"
+
+#include "Coco/Path.h"
 
 #include "AppDirs.h"
 #include "FileTypes.h"
 #include "Io.h"
+#include "MagicBytes.h"
 
 // .fnx file format specification and utilities.
 //
@@ -36,6 +38,8 @@
 // TODO: Are all these element.isNull checks necessary? Not sure...
 // TODO: For mutators, probably pass QDomElement by value (otherwise by const
 // ref). There are issues with passing QDomElement& for mutators
+/// TODO FT: .tar.gz or similar extensions with new handling (ensuring we can
+/// store any type of file - how to append uuid and retrieve)?
 namespace Fernanda::Fnx {
 
 namespace Internal {
@@ -69,7 +73,7 @@ namespace Internal {
     constexpr auto XML_INDENT_ = 2;
 
     constexpr auto XML_FNX_VERSION_ATTR_ = "version";
-    constexpr auto XML_FNX_VERSION_ = "1.0";
+    constexpr auto XML_FNX_VERSION_ = "1.1";
 
     constexpr auto XML_VFOLDER_TAG_ = "vfolder";
     constexpr auto XML_FILE_TAG_ = "file";
@@ -239,8 +243,10 @@ namespace Xml {
             CRITICAL("Failed to write manifest to {}!", path);
     }
 
-    inline QDomElement
-    addNewTextFile(const Coco::Path& workingDir, QDomDocument& dom)
+    inline QDomElement addNewFile(
+        FileTypes::Kind kind,
+        const Coco::Path& workingDir,
+        QDomDocument& dom)
     {
         if (!workingDir.exists()) {
             CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
@@ -253,7 +259,7 @@ namespace Xml {
         }
 
         auto uuid = Internal::makeUuid_();
-        auto ext = ".txt";
+        auto ext = FileTypes::canonicalExt(kind);
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
@@ -272,8 +278,8 @@ namespace Xml {
         return element;
     }
 
-    // TODO: Section off some code from this and addNewTextFile
-    inline QDomElement importTextFile(
+    // TODO: Section off some code from this and addNewFile
+    inline QDomElement importFile(
         const Coco::Path& workingDir,
         QDomDocument& dom,
         const Coco::Path& fsPath)
@@ -291,7 +297,7 @@ namespace Xml {
         }
 
         auto uuid = Internal::makeUuid_();
-        auto ext = ".txt";
+        auto ext = fsPath.extQString();
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
@@ -330,11 +336,15 @@ namespace Xml {
 // Used by Notebook
 namespace Io {
 
+    /// TODO FT: May want to remove isFnxFile (dependency on MagicBytes) and
+    /// allow Application to do this compound check. So, it would check
+    /// Fnx::Io::EXT first and then check MB. If MB fails, it might open NoOp
+    /// view tab instead of bad FNX file
     constexpr auto EXT = ".fnx";
 
     inline bool isFnxFile(const Coco::Path& path)
     {
-        return path.ext() == EXT && FileTypes::is(FileTypes::SevenZip, path);
+        return path.ext() == EXT && MagicBytes::is(MagicBytes::SevenZip, path);
     }
 
     inline void makeNewWorkingDir(const Coco::Path& workingDir)

@@ -13,7 +13,6 @@
 
 #include <QAbstractItemModel>
 #include <QDockWidget>
-#include <QFileSystemModel>
 #include <QHeaderView>
 #include <QList>
 #include <QModelIndex>
@@ -33,6 +32,7 @@
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "MenuState.h"
+#include "NotepadFileSystemModel.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
 #include "SettingsService.h"
@@ -102,7 +102,7 @@ protected:
         if (!model->isModified() || views->countFor(model) > 1) return true;
 
         views->raise(window, index);
-        auto name = fileDisplayName_(model);
+        auto name = fileSaveDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
         default:
@@ -139,7 +139,7 @@ protected:
 
         // Called via menu (on current window + tab), so no need to raise
 
-        auto name = fileDisplayName_(model);
+        auto name = fileSaveDisplayName_(model);
 
         switch (SavePrompt::exec(name, window)) {
         default:
@@ -176,7 +176,7 @@ protected:
             ViewService::ExcludeMultiWindow::Yes);
         if (modified_models.isEmpty()) return true;
 
-        auto display_names = fileDisplayNames_(modified_models);
+        auto display_names = fileSaveDisplayNames_(modified_models);
         auto prompt_result = SavePrompt::exec(display_names, window);
 
         switch (prompt_result.choice) {
@@ -198,7 +198,7 @@ protected:
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red(window);
-                auto fail_display_names = fileDisplayNames_(result.failed);
+                auto fail_display_names = fileSaveDisplayNames_(result.failed);
                 SaveFailMessageBox::exec(fail_display_names, window);
 
                 return false;
@@ -226,7 +226,7 @@ protected:
         auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return true;
 
-        auto display_names = fileDisplayNames_(modified_models);
+        auto display_names = fileSaveDisplayNames_(modified_models);
         auto prompt_result = SavePrompt::exec(
             display_names,
             windows.last()); // Make top window the dialog owner (top window is
@@ -251,7 +251,7 @@ protected:
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red();
-                auto fail_display_names = fileDisplayNames_(result.failed);
+                auto fail_display_names = fileSaveDisplayNames_(result.failed);
                 SaveFailMessageBox::exec(fail_display_names, windows.last());
 
                 return false;
@@ -281,7 +281,7 @@ protected:
             ViewService::ExcludeMultiWindow::Yes);
         if (modified_models.isEmpty()) return true;
 
-        auto display_names = fileDisplayNames_(modified_models);
+        auto display_names = fileSaveDisplayNames_(modified_models);
         auto prompt_result = SavePrompt::exec(display_names, window);
 
         switch (prompt_result.choice) {
@@ -303,7 +303,7 @@ protected:
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red(window);
-                auto fail_display_names = fileDisplayNames_(result.failed);
+                auto fail_display_names = fileSaveDisplayNames_(result.failed);
                 SaveFailMessageBox::exec(fail_display_names, window);
 
                 return false;
@@ -330,7 +330,7 @@ protected:
         auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return true;
 
-        auto display_names = fileDisplayNames_(modified_models);
+        auto display_names = fileSaveDisplayNames_(modified_models);
         auto prompt_result = SavePrompt::exec(
             display_names,
             windows.last()); // Make top window the dialog owner (top window is
@@ -355,7 +355,7 @@ protected:
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red();
-                auto fail_display_names = fileDisplayNames_(result.failed);
+                auto fail_display_names = fileSaveDisplayNames_(result.failed);
                 // Use active window, since we may have switched which window is
                 // on top?:
                 SaveFailMessageBox::exec(fail_display_names, windows.last());
@@ -415,8 +415,11 @@ protected:
                 state,
                 MenuScope::ActiveTab,
                 [&, window] {
-                    auto model = views->fileModelAt(window, -1);
-                    return model && model->supportsModification();
+                    /// TODO FT: Had to change this after removing
+                    /// "supportsEditing" guard in FileService::saveAs. That
+                    /// probably means FileService should be the source for this
+                    /// query somehow...
+                    return views->fileModelAt(window, -1);
                 })
 
             .action(Tr::npSaveAllInWindow())
@@ -435,7 +438,7 @@ protected:
     }
 
 private:
-    QFileSystemModel* fsModel_ = new QFileSystemModel(this);
+    NotepadFileSystemModel* fsModel_ = new NotepadFileSystemModel(this);
 
     void setup_()
     {
@@ -446,6 +449,20 @@ private:
         Timers::onNextTick([&] {
             fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
             fsModel_->setRootPath(startDir.toQString());
+            fsModel_->setReadOnly(false);
+
+            // Update open file model if it exists
+            connect(
+                fsModel_,
+                &QFileSystemModel::fileRenamed,
+                this,
+                [&](const QString& path,
+                    const QString& oldName,
+                    const QString& newName) {
+                    if (auto model =
+                            files->modelFor(Coco::Path(path) / oldName))
+                        model->meta()->setPath(Coco::Path(path) / newName);
+                });
         });
 
         settings->setName(Tr::notepad());
@@ -487,25 +504,24 @@ private:
         //...
     }
 
-    QString fileDisplayName_(AbstractFileModel* fileModel) const
+    QString fileSaveDisplayName_(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return {};
         auto meta = fileModel->meta();
         if (!meta) return {};
 
-        auto path = meta->path();
-        return path.isEmpty() ? meta->title() + fileModel->preferredExtension()
-                              : path.toQString();
+        return meta->isOnDisk() ? meta->path().toQString()
+                                : meta->title() + meta->preferredExt();
     }
 
     QStringList
-    fileDisplayNames_(const QList<AbstractFileModel*>& fileModels) const
+    fileSaveDisplayNames_(const QList<AbstractFileModel*>& fileModels) const
     {
         if (fileModels.isEmpty()) return {};
         QStringList names{};
 
         for (auto& model : fileModels)
-            if (model) names << fileDisplayName_(model);
+            if (model) names << fileSaveDisplayName_(model);
 
         return names;
     }
@@ -602,17 +618,16 @@ private:
         auto meta = fileModel->meta();
         if (!meta) return {};
 
-        auto path = meta->path();
         Coco::Path start_path =
-            path.isEmpty()
-                ? startDir / (meta->title() + fileModel->preferredExtension())
-                : path;
+            meta->isOnDisk()
+                ? meta->path()
+                : startDir / (meta->title() + meta->preferredExt());
 
         return Coco::getSaveFile(
             window,
             Tr::npSaveAsCaption(),
             start_path,
-            Tr::npSaveAsFilter());
+            Tr::nxAllFilesFilter()); /// TODO FT
     }
 
     QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
@@ -638,7 +653,7 @@ private:
             window,
             Tr::npOpenFileCaption(),
             startDir,
-            Tr::npOpenFileFilter());
+            Tr::nxAllFilesFilter()); /// TODO FT
 
         openFiles_(window, paths);
     }
@@ -676,7 +691,7 @@ private:
             break;
         case FileService::Failure: {
             colorBars->red(window);
-            auto name = fileDisplayName_(model);
+            auto name = fileSaveDisplayName_(model);
             SaveFailMessageBox::exec(name, window);
             break;
         }
@@ -692,7 +707,8 @@ private:
         if (!model) return;
 
         // Allow Save As on unmodified files!
-        if (!model->supportsModification()) return;
+
+        /// TODO FT: Removed supportsModification check here
         auto meta = model->meta();
         if (!meta) return;
 
@@ -711,7 +727,7 @@ private:
             break;
         case FileService::Failure:
             colorBars->red(window);
-            auto name = fileDisplayName_(model);
+            auto name = fileSaveDisplayName_(model);
             SaveFailMessageBox::exec(name, window);
             break;
         }
@@ -729,7 +745,7 @@ private:
         // Fails take priority
         if (result.anyFails()) {
             colorBars->red(window);
-            auto fail_display_names = fileDisplayNames_(result.failed);
+            auto fail_display_names = fileSaveDisplayNames_(result.failed);
             SaveFailMessageBox::exec(fail_display_names, window);
 
             return;
@@ -751,7 +767,7 @@ private:
         // Fails take priority
         if (result.anyFails()) {
             colorBars->red();
-            auto fail_display_names = fileDisplayNames_(result.failed);
+            auto fail_display_names = fileSaveDisplayNames_(result.failed);
             SaveFailMessageBox::exec(fail_display_names, window);
 
             return;

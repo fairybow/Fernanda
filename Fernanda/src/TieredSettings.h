@@ -9,10 +9,13 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QAnyStringView>
-#include <QList>
 #include <QObject>
 #include <QSettings>
+#include <QString>
+#include <QStringList>
 #include <QVariant>
 
 #include "Coco/Path.h"
@@ -31,6 +34,8 @@ class TieredSettings : public QObject
     Q_OBJECT
 
 public:
+    using KeyConverter = std::function<QVariant(const QVariant&)>;
+
     explicit TieredSettings(
         const Coco::Path& baseConfigPath,
         QObject* parent = nullptr)
@@ -82,8 +87,10 @@ public:
     {
         if (!baseSettings_) return;
 
-        overrideSettings_ ? overrideSettings_->setValue(key, value)
-                          : baseSettings_->setValue(key, value);
+        auto stored = maybeConvert_(key, value, &KeyConverters_::toStorage);
+
+        overrideSettings_ ? overrideSettings_->setValue(key, stored)
+                          : baseSettings_->setValue(key, stored);
     }
 
     QVariant value(QAnyStringView key) const
@@ -93,10 +100,15 @@ public:
         // Try override, if present. Else, return base value (may be invalid)
         if (overrideSettings_) {
             auto result = overrideSettings_->value(key);
-            if (result.isValid()) return result;
+            if (result.isValid())
+                return maybeConvert_(key, result, &KeyConverters_::fromStorage);
         }
 
-        return baseSettings_->value(key);
+        auto result = baseSettings_->value(key);
+        if (result.isValid())
+            return maybeConvert_(key, result, &KeyConverters_::fromStorage);
+
+        return {};
     }
 
     QVariant value(QAnyStringView key, const QVariant& defaultValue) const
@@ -116,11 +128,36 @@ public:
         return value(key, defaultValue).value<T>();
     }
 
+    void setKeyConverters(
+        const QString& key,
+        const KeyConverter& toStorage,
+        const KeyConverter& fromStorage)
+    {
+        keyConverters_[key] = { toStorage, fromStorage };
+    }
+
+    void setKeyConverters(
+        const QStringList& keys,
+        const KeyConverter& toStorage,
+        const KeyConverter& fromStorage)
+    {
+        for (auto& key : keys)
+            keyConverters_[key] = { toStorage, fromStorage };
+    }
+
 private:
     Coco::Path baseConfigPath_;
 
     QSettings* baseSettings_ = nullptr;
     QSettings* overrideSettings_ = nullptr;
+
+    struct KeyConverters_
+    {
+        KeyConverter toStorage;
+        KeyConverter fromStorage;
+    };
+
+    QHash<QString, KeyConverters_> keyConverters_{};
 
     void setup_()
     {
@@ -136,6 +173,23 @@ private:
     {
         if (path.isEmpty()) return nullptr;
         return new QSettings(path.toQString(), QSettings::IniFormat, this);
+    }
+
+    // `direction` is a pointer-to-member selecting which converter to use
+    // (toStorage or fromStorage) from the KeyConverters_ struct. `(*it)`
+    // dereferences the hash iterator to get the KeyConverters_ value, then
+    // `.*direction` accesses the selected member function
+    QVariant maybeConvert_(
+        QAnyStringView key,
+        const QVariant& value,
+        KeyConverter KeyConverters_::* direction) const
+    {
+        auto it = keyConverters_.find(key.toString());
+
+        if (it != keyConverters_.end() && (*it).*direction)
+            return ((*it).*direction)(value);
+
+        return value;
     }
 };
 

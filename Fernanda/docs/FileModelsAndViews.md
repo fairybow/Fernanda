@@ -2,7 +2,7 @@
 
 Fernanda separates file content management from its visual representation using paired abstract classes: `AbstractFileModel` (content and state) and `AbstractFileView` (display and interaction).
 
-See: [`AbstractFileModel.h`](../src/AbstractFileModel.h), [`AbstractFileView.h`](../src/AbstractFileView.h), [`FileMeta.h`](../src/FileMeta.h), [`TextFileModel.h`](../src/TextFileModel.h), [`TextFileView.h`](../src/TextFileView.h), [`NoOpFileModel.h`](../src/NoOpFileModel.h), and [`NoOpFileView.h`](../src/NoOpFileView.h)
+See: [`AbstractFileModel.h`](../src/AbstractFileModel.h), [`AbstractFileView.h`](../src/AbstractFileView.h), [`FileMeta.h`](../src/FileMeta.h), [`TextFileModel.h`](../src/TextFileModel.h), [`TextFileView.h`](../src/TextFileView.h), [`PdfFileModel.h`](../src/PdfFileModel.h), and [`PdfFileView.h`](../src/PdfFileView.h)
 
 ## Overview
 
@@ -27,13 +27,13 @@ The model holds file content and tracks its state. It does *not* perform I/O, th
 ```cpp
 class AbstractFileModel : public QObject {
 public:
-    FileMeta* meta() const;              // Path, title, tooltip
-    virtual QString preferredExtension() const;
-    
-    virtual QByteArray data() const = 0; // Content for saving
-    virtual bool supportsModification() const = 0;
-    
-    virtual void setData(const QByteArray& data);
+    FileMeta* meta() const noexcept;     // Path, title, tooltip
+
+    // These two are the contract. The rest is optional:
+    virtual QByteArray data() const = 0;
+    virtual void setData(const QByteArray& data) = 0;
+
+    virtual bool supportsModification() const;
     virtual bool isModified() const;
     virtual void setModified(bool modified);
     virtual bool hasUndo() const;
@@ -60,12 +60,6 @@ Each model owns a `FileMeta` that manages path and display information:
 | `toolTip()` | Full path or status hint |
 
 Title priority: custom override -> path stem -> "Untitled"
-
-### Concrete Implementations
-
-**TextFileModel**: Wraps `QTextDocument` for plain text editing with full undo/redo support. Automatically generates titles from content for unsaved files.
-
-**NoOpFileModel**: Minimal implementation for non-editable content. Returns empty data and doesn't support modification.
 
 ## AbstractFileView
 
@@ -105,13 +99,7 @@ auto view = new TextFileView(model, parent);
 view->initialize();  // Calls setupWidget(), sets up layout
 ```
 
-This pattern ensures the view is fully constructed before its widget is created, avoiding issues with virtual method calls during construction.
-
-### Concrete Implementations
-
-**TextFileView**: Wraps `PlainTextEdit` for text editing. Exposes editor settings (font, word wrap, tab stops) and implements all editing operations.
-
-**NoOpFileView**: Placeholder view for non-editable models.
+Calling a pure virtual (`setupWidget()`) from a base class constructor would dispatch to the base, not the derived class, since the derived class is not yet constructed. Two-phase initialization avoids this: the object is fully constructed first, then `initialize()` is called from outside, at which point the virtual call resolves correctly.
 
 ## Relationship Diagram
 
@@ -170,4 +158,4 @@ Content is returned as raw bytes for FileService to write. This keeps encoding d
 
 ### Why Virtual Methods with Default No-Ops?
 
-Not all models support modification (e.g., read-only files, binary previews). Default implementations return safe values (`false`, empty), letting subclasses opt into capabilities rather than requiring stubs.
+Not all models support modification (e.g., read-only files, binary previews) but can be Saved As or copied. `data()`/`setData()` are pure virtual (every model must implement and own its storage), while the remaining properties (`supportsModification`, `isModified`, `hasUndo`, etc.) are opt-in with safe defaults.

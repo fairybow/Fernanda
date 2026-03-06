@@ -39,6 +39,7 @@
 #include "CollapsibleWidget.h"
 #include "Debug.h"
 #include "FileService.h"
+#include "FileTypes.h"
 #include "Fnx.h"
 #include "FnxModel.h"
 #include "MenuBuilder.h"
@@ -374,6 +375,10 @@ private:
     // TODO: Trigger rename immediately (maybe)
     // New file will be under selected TreeView model index (or notebook element
     // if no current index)
+    // TODO: Later, we'll need to have options for other creatable file types
+    // (like markdown, fountain, etc). From a UI perspective, this could be done
+    // (in both workspaces) with an overflow menu for new tab, plus a context
+    // menu on the add tab button with options
     void newFile_(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;
@@ -383,7 +388,8 @@ private:
         // If index is invalid, fnxModel_->addNewTextFile adds it to the DOM
         // document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
-        auto info = fnxModel_->addNewTextFile(
+        auto info = fnxModel_->addNewFile(
+            FileTypes::PlainText,
             working_dir,
             resolveNotebookIndex_(index));
         if (!info.isValid()) return;
@@ -413,7 +419,7 @@ private:
             window,
             Tr::nbImportFileCaption(),
             startDir,
-            Tr::nbImportFileFilter());
+            Tr::nxAllFilesFilter()); /// TODO FT
 
         if (fs_paths.isEmpty()) return;
 
@@ -421,7 +427,7 @@ private:
         // If index is invalid, fnxModel_->importTextFiles adds it to the DOM
         // document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
-        auto infos = fnxModel_->importTextFiles(
+        auto infos = fnxModel_->importFiles(
             working_dir,
             fs_paths,
             resolveNotebookIndex_(index));
@@ -433,6 +439,36 @@ private:
                 working_dir / info.relPath,
                 info.name);
         }
+    }
+
+    /// TODO FT: Export folder
+    void exportFile_(Window* window, const QModelIndex& index)
+    {
+        if (!window || !index.isValid()) return;
+        if (!workingDir_.isValid()) return;
+
+        auto info = fnxModel_->fileInfoAt(index);
+        if (!info.isValid()) return;
+
+        auto source = workingDir_.path() / info.relPath;
+        if (!source.exists()) return;
+
+        // Reconstruct original-style filename, e.g. "Chapter One.txt"
+        auto suggested_name = info.name + source.extQString();
+        auto start_path = startDir / suggested_name;
+
+        auto dest =
+            Coco::getSaveFile(window, Tr::nbExportFileCaption(), start_path);
+
+        if (dest.isEmpty()) return;
+
+        if (!Coco::copy(source, dest)) {
+            // TODO: error feedback?
+            WARN("Failed to export file to {}", dest);
+            return;
+        }
+
+        colorBars->green(window);
     }
 
     void updateWindowsFlags_() { windows->setFlagged(isModified_()); }
@@ -731,7 +767,13 @@ private:
             .actionIf(valid, Tr::nbRestore())
             .onUserTrigger(
                 this,
-                [&, index] { fnxModel_->moveToNotebook_(index); })
+                [&, index] { fnxModel_->moveToNotebook(index); })
+            .actionIf(
+                valid && fnxModel_->isFile(index),
+                Tr::nbExport()) /// TODO FT: Folder export
+            .onUserTrigger(
+                this,
+                [&, window, index] { exportFile_(window, index); })
             .actionIf(valid, Tr::nbDeletePermanently())
             .onUserTrigger(
                 this,
@@ -820,6 +862,12 @@ private slots:
             .separatorIf(valid)
             .actionIf(valid, Tr::nbRemove())
             .onUserTrigger(this, [&, index] { fnxModel_->moveToTrash(index); })
+            .actionIf(
+                valid && fnxModel_->isFile(index),
+                Tr::nbExport()) /// TODO FT: Folder export
+            .onUserTrigger(
+                this,
+                [&, window, index] { exportFile_(window, index); })
             .popup(globalPos);
     }
 

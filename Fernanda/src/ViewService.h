@@ -34,8 +34,6 @@
 #include "FileMeta.h"
 #include "Ini.h"
 #include "KeyFilters.h"
-#include "NoOpFileModel.h"
-#include "NoOpFileView.h"
 #include "PdfFileModel.h"
 #include "PdfFileView.h"
 #include "PlainTextEdit.h"
@@ -866,9 +864,6 @@ private:
 
         } else if (auto pdf_model = qobject_cast<PdfFileModel*>(fileModel)) {
             view = newFileView_<PdfFileView*>(pdf_model, window);
-
-        } else if (auto no_op_model = qobject_cast<NoOpFileModel*>(fileModel)) {
-            view = newFileView_<NoOpFileView*>(no_op_model, window);
 
         } else {
             FATAL("Type not deduced for model [{}]!", fileModel);

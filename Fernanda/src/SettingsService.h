@@ -12,9 +12,11 @@
 #include <utility>
 
 #include <QAnyStringView>
+#include <QFont>
 #include <QHash>
 #include <QList>
 #include <QString>
+#include <QStringList>
 #include <QTextOption>
 #include <QVariant>
 #include <QVariantMap>
@@ -40,6 +42,9 @@ namespace Fernanda {
 // without owning a Settings instance directly. Usage mirrors direct Settings
 // access: `bus->call(GET, {{"key", k}, {"default", d}})` is equivalent to
 // `settings->value(key, default)`
+//
+// Remember, explicit conversion to QVariant is required for anything that
+// doesn't have a specialized QVariant constructor (QFont, Coco::Path, etc)
 //
 // TODO: Make module? IDK
 class SettingsService : public AbstractService
@@ -108,6 +113,8 @@ public:
                                        theme.second }; // name, path
         }
 
+        /// TODO FT: Ini should probably provide a map of values to defaults or
+        /// something
         auto v = [&](const auto& key,
                      const auto& default_) -> std::pair<QString, QVariant> {
             return { key, settings_->value(key, qVar(default_)) };
@@ -262,6 +269,21 @@ private:
         setupDebouncer_(Ini::Keys::WINDOW_THEME);
         setupDebouncer_(Ini::Keys::EDITOR_THEME);
         setupDebouncer_(Ini::Keys::EDITOR_TAB_STOP_DISTANCE);
+
+        /// TODO FT: Right place to register these?
+        settings_->setKeyConverters(
+            { Ini::Keys::WINDOW_THEME, Ini::Keys::EDITOR_THEME },
+            [](const QVariant& v) { return v.value<Coco::Path>().toQString(); },
+            [](const QVariant& v) { return qVar(Coco::Path(v.toString())); });
+
+        settings_->setKeyConverters(
+            Ini::Keys::EDITOR_FONT,
+            [](const QVariant& v) { return v.value<QFont>().toString(); },
+            [](const QVariant& v) {
+                QFont font{};
+                font.fromString(v.toString());
+                return qVar(font);
+            });
     }
 
     void setupDebouncer_(const QString& key)
