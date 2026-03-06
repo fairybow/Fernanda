@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QAnyStringView>
 #include <QObject>
 #include <QSettings>
