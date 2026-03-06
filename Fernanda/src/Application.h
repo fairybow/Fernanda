@@ -21,7 +21,6 @@
 #include "AppDirs.h"
 #include "BetaAlert.h"
 #include "Debug.h"
-#include "MagicBytes.h"
 #include "Notebook.h"
 #include "Notepad.h"
 #include "Timers.h"
