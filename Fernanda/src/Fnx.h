@@ -30,16 +30,13 @@
 #include "Io.h"
 #include "MagicBytes.h"
 
-// .fnx file format specification and utilities.
-//
-// Fnx::Io: Archive and working directory operations
-// Fnx::Xml: DOM element factories and queries (stateless helpers)
+// .fnx file format specification and utilities
+// - Fnx::Io: Archive and working directory operations
+// - Fnx::Xml: DOM element factories and queries (stateless helpers)
 //
 // TODO: Are all these element.isNull checks necessary? Not sure...
 // TODO: For mutators, probably pass QDomElement by value (otherwise by const
 // ref). There are issues with passing QDomElement& for mutators
-/// TODO FT: .tar.gz or similar extensions with new handling (ensuring we can
-/// store any type of file - how to append uuid and retrieve)?
 namespace Fernanda::Fnx {
 
 namespace Internal {
