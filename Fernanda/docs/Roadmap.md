@@ -5,6 +5,9 @@
 - [ ] Clean up after file-types branch work (remove Plan document, update references)
 - [ ] Update documentation: FileModelsAndViews, FileHandling, Notebooks, Architecture
 - [ ] Merge file-types branch
+- [ ] Have two "supported files" filters in addition to the "all files" (one for Notebook and one for Notepad which will also contain .fnx)
+- [ ] These filters should be dynamically created in a Namespace that pulls from Tr for type names
+- [ ] These filters should be set to list multiple extensions where applicable (meaning FileTypes needs an "all extensions" function to return canonical + aliases (JPG is the only one right now, when that's supported)
 
 ## File Types (Remaining)
 
