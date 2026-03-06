@@ -20,7 +20,13 @@ namespace Fernanda {
 
 // Abstract UI interface for file content display and editing, providing common
 // view operations (cut/copy/paste/select) and view state management without
-// business logic
+// business logic.
+//
+// Calling a pure virtual (`setupWidget()`) from a base class constructor would
+// dispatch to the base, not the derived class, since the derived class is not
+// yet constructed. Two-phase initialization avoids this: the object is fully
+// constructed first, then `initialize()` is called from outside, at which point
+// the virtual call resolves correctly
 class AbstractFileView : public QWidget
 {
     Q_OBJECT

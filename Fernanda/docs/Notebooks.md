@@ -1,6 +1,6 @@
 # Notebooks
 
-Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard 7zip archive containing text files and an XML manifest describing the virtual directory structure.
+Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard 7zip archive containing files and an XML manifest describing the virtual directory structure.
 
 See: [`Notebook.h`](../src/Notebook.h), [`Fnx.h`](../src/Fnx.h), [`FnxModel.h`](../src/FnxModel.h), [`FnxModelCache.h`](../src/FnxModelCache.h), [`Workspace.h`](../src/Workspace.h), and [`TempDir.h`](../src/TempDir.h)
 
@@ -51,7 +51,7 @@ MyNovel.fnx (7zip archive)
 ### Content Directory
 
 Files in `content/` are named by UUID with normalized extensions:
-- File names: `{uuid}.txt`
+- File names: `{uuid}.{ext}` (extension comes from the source file on import or `FileTypes::canonicalExt(kind)` for new files)
 - The UUID ensures uniqueness and enables stable references
 - Display names are stored in `Manifest.xml`, not the filesystem
 
@@ -59,14 +59,14 @@ Files in `content/` are named by UUID with normalized extensions:
 
 ```xml
 <?xml version="1.0"?>
-<fnx version="1.0">
+<fnx version="1.1">
   <notebook>
     <vfolder name="Chapter 1" uuid="xxx1">
       <file name="Scene 1" uuid="xxx2" extension=".txt"/>
       <file name="Scene 2" uuid="xxx3" extension=".txt"/>
     </vfolder>
     <file name="Notes" uuid="xxx4" extension=".txt">
-      <file name="Research" uuid="xxx5" extension=".txt"/>
+      <file name="Notes Research" uuid="xxx5" extension=".pdf"/>
     </file>
   </notebook>
   <trash>
@@ -354,5 +354,4 @@ flowchart TD
 - **LRU cache**: For large Notebooks, models might need to be unloaded when not in use
 - **Expanded states**: Persist expanded/collapsed states using sessions (likely not via `Manifest.xml` attributes, since this modifies the DOM and would mark a Notebook as modified, requiring save prompt on close just for expanding/collapsing items)
 - **Settings modification tracking**: Watch working directory for changes
-- **Export**: Export individual files back to filesystem
 - **Compile/Export**: Combine selected items into a single document

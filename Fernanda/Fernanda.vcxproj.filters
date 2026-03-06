@@ -300,11 +300,14 @@
       <Filter>Docs</Filter>
     </None>
     <None Include="..\CHANGELOG.md" />
-    <None Include="docs\(Plan) FileTypeHandling.md">
-      <Filter>Docs</Filter>
-    </None>
     <None Include="docs\FileHandling.md">
       <Filter>Docs</Filter>
+    </None>
+    <None Include="docs\old_Roadmap.md">
+      <Filter>Old %28Remove Later%29</Filter>
+    </None>
+    <None Include="docs\old_%28Plan%29 FileTypeHandling.md">
+      <Filter>Old %28Remove Later%29</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

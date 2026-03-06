@@ -44,6 +44,107 @@ Known byte signature?
   |             |-- No  -> open as plain text
 ```
 
+## FileTypes Registry
+
+Extensions and type metadata needed across the application are centralized in the `FileTypes` namespace. It provides a constexpr table of supported types mapped to their canonical extensions (with aliases like `.jpg` for `.jpeg`), `canonicalExt(Kind)` to retrieve the canonical extension for a type, and `fromPath(path)` to resolve a file's extension to a Kind (Plain text for anything unrecognized).
+
+`FileTypes` and `MagicBytes` solve different problems and remain separate. `MagicBytes` answers "what is this file?" by inspecting bytes. `FileTypes` answers "what can Fernanda do with this file?" by mapping extensions to known types. `FileService` bridges them via the two-tier resolution.
+
+## File Types
+
+### PDF
+
+View-only document support. PDFs can be opened, viewed, and exported (Save As) but not edited. Detected by magic bytes (Tier 1), so the file extension does not matter.
+
+| | |
+|---|---|
+| **Extension** | `.pdf` (canonical, but detection is by bytes) |
+| **Model** | `PdfFileModel`: holds raw bytes (own `QByteArray`), exposes `QPdfDocument` via `QBuffer` |
+| **View** | `PdfFileView`: wraps `QPdfView` (multi-page, fit-to-width) |
+| **Modification** | No |
+| **Notebook import** | Yes |
+| **New file creation** | No |
+| **Detection** | Tier 1 (magic bytes) |
+
+### Corkboard (Tentative)
+
+A visual planning tool for organizing story elements. Corkboard files are JSON stored with a special extension. Multiple corkboard files can exist per project, and they can be saved to disk via Notepad like any other file. Detected by extension (Tier 2) since the underlying data is plain text JSON.
+
+| | |
+|---|---|
+| **Extension** | `.fcb` (Fernanda Corkboard) |
+| **Model** | `CorkboardFileModel`: JSON data |
+| **View** | `CorkboardFileView`: interactive board of movable index cards |
+| **Modification** | Yes |
+| **Notebook import** | Yes |
+| **New file creation** | Yes |
+| **Detection** | Tier 2 (extension) |
+
+Cards can be linked to existing text files (within the same Notebook or on disk). Linked file tracking needs to handle moves and deletions: likely storing the linked file's display name as a breadcrumb and showing a "missing" state if the target can't be resolved.
+
+### Theme Editor (Long-Term)
+
+Custom views for Fernanda's own window and editor theme files. These are two distinct file types (Fernanda Window theme and Fernanda Editor theme) that share a similar editing approach. The underlying data is JSON. Detected by extension (Tier 2).
+
+This is way down the road. The initial concept is not necessarily a fully custom view: it may be a text view augmented with properties that show color pickers beside existing value fields, where the user can still type directly and pickers pop up contextually. The view would draw on a theme API exposed from `Themes.h`.
+
+| | |
+|---|---|
+| **Extensions** | Fernanda window theme ext, Fernanda editor theme ext (TBD) |
+| **Model** | Possibly `TextFileModel` or a thin subclass |
+| **View** | Augmented text view with color pickers / form fields |
+| **Modification** | Yes |
+| **Detection** | Tier 2 (extension) |
+
+### Markdown (Future)
+
+Markdown files would receive a dedicated view (likely a rendered preview or a split edit/preview). The model may be `TextFileModel` or a subclass: the underlying data is still plain text; the distinction is in how it is displayed. Detected by extension (Tier 2).
+
+| | |
+|---|---|
+| **Extension** | `.md` |
+| **Model** | `TextFileModel` or subclass |
+| **View** | Markdown-aware view (rendered preview, split mode, etc.) |
+| **Detection** | Tier 2 (extension) |
+
+### Fountain (Future)
+
+Fountain (screenwriting format) files would follow the same pattern as Markdown: plain text data with a specialized view for screenplay formatting. Detected by extension (Tier 2).
+
+| | |
+|---|---|
+| **Extension** | `.fountain` |
+| **Model** | `TextFileModel` or subclass |
+| **View** | Fountain-aware view (screenplay formatting) |
+| **Detection** | Tier 2 (extension) |
+
+### Diff (Stretch)
+
+A diff view for comparing file versions. Details TBD.
+
+### Plain Text (Universal Fallback)
+
+The default and primary file type. Everything that falls through both tiers opens as plain text. This includes: files with no extension, files with unrecognized extensions, files with known signatures but no handler yet (e.g., PNG, GIF), and files with no known signature and no special extension.
+
+| | |
+|---|---|
+| **Extensions** | `.txt` (default for new files), any unrecognized extension |
+| **Model** | `TextFileModel`: wraps `QTextDocument` |
+| **View** | `TextFileView`: wraps `PlainTextEdit` |
+| **Modification** | Yes |
+| **Notebook import** | Yes |
+| **New file creation** | Yes (currently the only type that supports this) |
+
+### NoOp (Not Currently Used)
+
+Previously served as a catch-all for unrecognized file types. Currently not used in the resolution flow since everything falls through to PlainText. Kept around for potential future use, e.g., for large unsupported binary files (images, etc.) where opening as text would be wasteful. May also be useful as a distinct "this file type will be supported eventually" placeholder.
+
+| | |
+|---|---|
+| **Model** | `NoOpFileModel`: implements `data()`/`setData()` with own `QByteArray` storage. Returns whatever was loaded (may be empty). |
+| **View** | `NoOpFileView`: centered face glyph (`:')`) at 0.3 opacity) |
+| **Modification** | No |
+
 ## Extensions and User Choice
 
 Fernanda does not force or auto-append file extensions. When saving, the suggested filename includes an appropriate extension (drawn from `FileMeta::preferredExt()`, which uses the file's existing path extension if on disk or `FileTypes::canonicalExt(kind)` if off-disk), but if the user changes or removes it, that choice is honored.
@@ -87,7 +188,9 @@ If an FNX file is renamed (e.g., `MyProject.fnx` to `MyProject.zip`), `isFnxFile
 
 ### FNX files inside FNX archives
 
-Individual files within an FNX archive go through the same two-tier identification as any other file when opened. A user can import an FNX archive into another Notebook (import accepts any file type). If opened from within the Notebook, it goes through `FileService` with no `isFnxFile` intercept. MagicBytes detects the 7zip signature, but since there is no dedicated handler for 7zip in `FileService`, it falls through to plain text. The user sees binary content. This is expected and not a supported workflow. Opening nested FNX files as functional Notebooks was considered and deliberately deferred (see the Plan document for rationale).
+Individual files within an FNX archive go through the same two-tier identification as any other file when opened. A user can import an FNX archive into another Notebook (import accepts any file type). If opened from within the Notebook, it goes through `FileService` with no `isFnxFile` intercept. MagicBytes detects the 7zip signature, but since there is no dedicated handler for 7zip in `FileService`, it falls through to plain text. The user sees binary content. This is expected and not a supported workflow.
+
+Opening an inner FNX as a functional Notebook was considered and deliberately deferred. The implementation would require nested archive lifecycle management (extraction, save propagation, closure coordination), which conflicts with the current architecture where Workspaces are independent peers. A simpler "open as independent Notebook" approach was also considered, but it creates a confusing UX: edits to the inner Notebook would not propagate back to the outer archive, contradicting user expectations.
 
 ### How files are stored in FNX archives
 
@@ -128,6 +231,7 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 | **New Tab** | Creates an off-disk text file (no dialog). Will eventually expand to offer other creatable types (Markdown, Corkboard, etc.) via an overflow menu or right-click on the new tab button. | None |
 | **Open File** | File dialog for selecting files. Each file is checked with `isFnxFile`; passing files go to a Notebook, others open via `FileService` (two-tier). | All files |
 | **TreeView double-click** | Same `isFnxFile` routing as Open File. | None (filesystem) |
+| **TreeView rename** | Inline rename via selected-click or F2. Renames the file on disk via `QFileSystemModel`. If the file has an open model, its path is updated via `FileMeta::setPath`, which cascades through FileService's path hash and updates tab titles. Directory rename is disabled (stripped from `flags()` via `NotepadFileSystemModel_`). Renaming an open Notebook's `.fnx` file is not currently prevented and can cause the Notebook's save target to become stale. | None (filesystem) |
 | **Save** | Writes modified content to the file's existing path. Only operates on modifiable models with changes. | None |
 | **Save As** | File dialog for choosing a new path. Writes the model's data to that path. No extension is forced. The suggested filename comes from `FileMeta`, which provides the appropriate extension. | All files |
 | **Save All in Window** | Saves all modified models in the current window. Prompts Save As for any that are not yet on disk. | Per-file as needed |
@@ -137,10 +241,10 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 
 | Operation | Description | Filter |
 |-----------|-------------|--------|
-| **New File** | Creates a new file inside the archive via `Fnx::Xml::addNewFile(kind)` (no dialog). Currently only creates plain text (`FileTypes::Plaintext`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
+| **New File** | Creates a new file inside the archive via `Fnx::Xml::addNewFile(kind)` (no dialog). Currently only creates plain text (`FileTypes::PlainText`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
 | **New Folder** | Creates a new virtual folder in the archive's XML manifest. No file is created. | None |
 | **Import Files** | File dialog for selecting files from disk. Accepts any file type (no filter). Selected files are copied into the archive's `content/` directory as `{uuid}.{ext}` (extension taken from source path via `fsPath.extQString()`). The source file's stem becomes the display name in the manifest. Imported files are opened after import. | All files |
+| **Export File** | Save As dialog for exporting a single file from the archive to disk. Available from the tree view context menu for file elements only (`FnxModel::isFile`). The suggested filename is reconstructed from `name + ext`. Copies the file from the working directory to the chosen destination. | All files |
 | **TreeView double-click** | Opens the selected file from the archive via `FileService` (two-tier). No `isFnxFile` check. | None |
 | **Save** | Saves the Notebook archive. Prompts Save As if the archive is not yet on disk. Also saves all modified file models within the archive. | None (or `*.fnx` if prompting) |
 | **Save As** | File dialog for saving the Notebook archive to a new `.fnx` path. | `*.fnx` |
-| **Export** (planned) | Save a file from within the archive to a location on disk. Filename would be reconstructed from `name + ext`. | TBD |
