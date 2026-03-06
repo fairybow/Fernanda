@@ -1,48 +1,97 @@
 # Roadmap
 
-Current task: file types (see plan doc)
+## Current
 
-Follow-up with search for "TODO FT"
+- [ ] Clean up after file-types branch work (remove Plan document, update references)
+- [ ] Update documentation: FileModelsAndViews, FileHandling, Notebooks, Architecture
+- [ ] Merge file-types branch
 
-Found issues:
-- (DONE) Notepad Save As (when trying to add custom extension, it'll automatically add .txt to the save name)
-- (DONE) Translatable "All Files (*)" filter to use in place of default all files
-- (DONE) If we want path to save/retrieve as string in INI, it'll have to be done with a wrapper function or explciit conversion at call site, so settings pipeline will have to be able to register converters for certain types!
-- (DONE) Notebook export
-- (DONE) Notepad rename
-- (DONE) Pretty string for tab tooltip path!
+## File Types (Remaining)
 
-Model/view reloading on rename? (This wouldn't affect types detected by magic bytes, just special text file handling, when implemented)
+From the file-types branch. See FileHandling.md for design details.
 
-Renaming an open Notebook file in Notepad's TreeView: The Notebook isn't broken immediately. It's working from its temp directory. The next save creates a file at the old path. No data loss, just a confusing orphaned file. Will fix later maybe.
+- [ ] FNX filter cleanup: Open Notebook, Save As Notebook, and Import dialogs still need `.fnx` filters. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
+- [ ] Tree view icons by file type: file-type-appropriate icons with a generic fallback for unrecognized types. `FnxModel::data()` can read `Fnx::Xml::ext(element)` and map through `FileTypes::fromPath()` for the `Qt::DecorationRole` case.
+- [ ] Model/view re-evaluation on rename: when a file's extension changes, the system should swap to the appropriate model/view pair. Only affects Tier 2 types (special text), since Tier 1 (magic bytes) types are identified by content. Applies to both Notepad (filesystem rename) and Notebook (tree view rename).
+- [ ] Consider NoOp for large unsupported binary files (e.g., images) where opening as text would be wasteful. Later-problem.
+- [ ] FNX files within FNX archives: deliberately deferred. Nested archive lifecycle management conflicts with current architecture. See FileHandling.md for rationale.
 
-Remove Plan document references once its deleted (specifically one in FileHandling.md)
+## Follow-up Tags
 
-Update documentation! Maybe Notebooks.md as well.
+Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
-After rename, clean this file and then merge in any unfinished work from Plan doc
+- TODO TD (tab dragging)
+- TODO TVT (tree view toggle)
+- TODO KFS (key filters settings)
+- TODO ES (editor settings)
+- TODO GH (grabbable highlight)
+- TODO PD (prime doc)
+- TODO FT (file types)
 
----
+## Features
 
-TODO: Redo/reorganize the below
+- [ ] Autosave
+- [ ] Spellcheck
+- [ ] Find and replace
+- [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
+- [ ] Pinned tabs (will utilize sessions)
+- [ ] Tab groups (will utilize sessions, and maybe a better tab bar)
+- [ ] Expanded/collapsed item restoration between sessions (will utilize sessions)
+- [ ] Remembering dock position between sessions (using `QMainWindow::saveState()` / `restoreState()`)
+- [ ] Status bar tools (AOT, Timer, Screen)
+- [ ] Multiple TabWidgets per window for side-by-side
+- [ ] Checkable export and compile feature with Dom tree
+- [ ] Line spacing options, if possible
+- [ ] Hide menu bar (key to toggle)
+- [ ] Notebook LRU cache for models, if needed
 
-New: PDF Import/Extension handling: For PDFs, need to handle Fnx extension, FnxModel and Notebook import methods. Files imported can be of different types (PDF or TXT).
+## Refinement
 
-New: Add note to AbstractFileView explaining why it needs two-step initialization! (Or, if it doesn't, remove it)
+- [ ] Window Themes (theming infrastructure is in place, but window theming proving difficult (especially with tab bar, buttons, and collapsible widget header (see: window QSS template)))
+- [ ] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
+- [ ] Save backups (with auto-cleaning) and backup folder
+- [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
+- [ ] Ensure we are using terms around checkable items correctly in code (the term "toggle" is being used in a few different ways; checkable actions should be called checkables or similar)
+- [ ] Make sure the distinction/usage between prompt, dialog, and box is clear
+- [ ] Refactor save code in Notepad and Notebook
+- [ ] Refactor common context menu items / TreeView hookup between Notepad and Notebook
+- [ ] Notepad context menu (with rename, remove, collapse, expand, and anything else Notebook has that could apply)
+- [ ] Renaming an open Notebook file in Notepad's TreeView: the Notebook works from its temp directory, so it is not broken immediately. The next save creates a file at the old path. No data loss, just a confusing orphaned file. Fix later.
+- [ ] Add note to AbstractFileView explaining why it needs two-step initialization (or remove it if unnecessary)
+- [ ] Prevent clicking out of PTE context menu from affecting cursor on that first click
+- [ ] Custom context menu for AbstractFileView, implement for editors (replacing Qt editor context menu)
+- [ ] Dual column layouts for some settings panels (instead of vertical stacks of checkboxes)
+- [ ] Add defaults button to settings (should probably not write the defaults, since cascading should work for Notebook inheriting Notepad values)
+- [ ] Multi-file save prompt file name clicks raising relevant window/file view
+- [ ] Trim extra spaces after paragraphs on save (editor or workspace feature, not key filter)
+- [ ] Trim extra space on newline/return (editor feature, not key filter)
+- [ ] TreeView dock functionality refinement
+- [ ] TreeView (NB): collapsed items should expand on hover while dragging
+- [ ] TreeView (NB): items should expand when items are dragged into them
+- [ ] TreeView (NB): expanded/collapsed states (probably a session thing)
+- [ ] Trigger rename for new folders/files, but not import (maybe)
+- [ ] Trash count (maybe, maybe not; if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
+- [ ] MAYBE: Ensure "modules" are reactionary (ColorBars should probably stay a module, but right now it is called directly by Workspace)
+- [ ] Remove tab size constraints in favor of QSS
+- [ ] For tab drags, tab bar doesn't extend past the add tab button, so dropping there opens in a new window. May or may not be desirable.
+- [ ] Potentially remove commands/signals from Workspaces to MenuModules and leave to cross-Service concerns. Integrate menus into Notepad/Notebook directly using declarative MenuBuilder (pass togglers as optional parameter for an action).
+- [ ] Ensure menu toggles update appropriately when tab dragging is implemented
+- [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc).
+- [ ] Refactor common Notebook/Notepad opening code in Application
+- [ ] Settings dialogs can have a section for App.ini (or similar), shared (like for startDir, when configurable)
+- [ ] Settings files: Settings.ini inside Notebooks. Notepad file name may need to be different if we have application settings.
+- [ ] Menu: prev/next tab, window, and workspace
+- [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
+- [ ] WidgetUtil or similar (central place to set all painters)
+- [ ] Install preloaded fonts to system in help menu?
+- [ ] Open data folder options in menus?
+- [ ] temp AppDir could be an App TempDir
 
-New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
+## Translations
 
-New additional TR bat to release all and move them to the qm folder
+Translations not worth it right now. Keep TR maybe. But remove all TR files but Spanish. Runtime translation is not going to happen without UI files. Would need to require restart and change TranslationDialog behavior, or just leave it alone for now.
 
-Use dual column layouts for some of the settings panels (instead of just, like, 8 check boxes placed vertically...)
-
-Add defaults button to settings (this should probably not write the defaults, since we'd want the cascading to work for Notebook inheriting Notepad values)
-
-Prevent clicking out of PTE context menu from affecting cursor on that first click?
-
-Translations not worth it right now. Keep TR maybe. But remove all TR files but Spanish. Run time translation isn't going to happen without UI files. So, we need to require restart and change the TranslationDialog behavior, etc., or just leave it alone for now.
-
-Will need to adjust all custom widgets to filter for change event and re-run all their own Tr function calls, like this:
+All custom widgets would need to filter for change event and re-run Tr function calls:
 
 ```
 void changeEvent(QEvent* event) override
@@ -54,65 +103,24 @@ void changeEvent(QEvent* event) override
 }
 ```
 
-Might be simple actually, but tedious. We'll do it later.
+Might be simple but tedious. Later.
 
-## Clean-up/Refinement Tags
-
-Follow-up Tags for working code that is a draft and needs more scrutiny/cleaning:
-
-- TODO TD (tab dragging)
-- TODO TVT (tree view toggle)
-- TODO KFS (key filters settings)
-- TODO ES (editor settings)
-- TODO GH (grabbable highlight)
-- TODO PD (prime doc)
-- TODO FT (file types)
-
-## MVP
-
-- [ ] Ensure we are using terms around checkable items correctly in code! The term toggle is being used in a few different ways, I think. We should ensure checkable actions are called checkables or something. Also sort out the other uses of "toggle"
-- [ ] Autosave
-- [ ] Make sure the distinction/usage between prompt, dialog, and box is clear
-- [ ] Rename for Notepad TreeView
-
-## Stretch
-
-- [ ] Line spacing options, if possible
-- [ ] Install preloaded fonts to system in help menu?
-- [ ] Open data folder options in menus?
-- [ ] Mulitple TabWidgets per window for side-by-side
-- [ ] Trim extra spaces after paragraphs on save (before saving) (editor or workspace feature, not key filter)
-- [ ] Trim extra space on newline/return? (editor feature, not key filter)
-- [ ] Window Themes (theming infrastructure is in place, but window theming proving difficult (especially with tab bar, buttons, and collapsible widget header (see: window QSS template)))
-- [ ] MAYBE: Ensure "modules" are reactionary (ColorBars should probably stay a module, but, right now, it is called directly by Workspace)?
-- [ ] Hide menu bar (key to toggle)
-- [ ] TreeView dock functionality refinement
-- [ ] Refactor save code in Notepad and Notebook
-- [ ] Spellcheck
-- [ ] Find and replace
-- [ ] Status bar tools (AOT, Timer, Screen)
-- [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
-- [ ] Multi-file save prompt file name clicks raising relevant window/file view
-- [ ] Checkable export and compile feature with Dom tree
-- [ ] Notepad context menu
-- [ ] Notepad rename/remove/collapse/expand context menu items (and anything else Notebook has that could be used in Notepad)
-- [ ] Pinned tabs (will utilize sessions)
-- [ ] Tab groups (will utilize sessions, and maybe a better tab bar)
-- [ ] Expanded/collapsed item restoration between sessions (will utilize sessions)
-- [ ] QML for tab bar (and possibly other components, for better/easier UI)?
-- [ ] For cross platform bit7z, look into vcpkg build, saving the .lib, .a, etc.
-- [ ] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
-- [ ] Remove tab size constraints in favor of QSS?
-- [ ] For tab drags, tab bar doesn't extend past the add tab button, so dropping there opens in a new window. This may not be desireable, but also might be fine. Sit on it for a while.
-- [ ] Remembering dock position between sessions (using QMainWindow::saveState() / restoreState())
+- [ ] New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
+- [ ] New additional TR bat to release all and move them to the qm folder
 
 ## Polish
 
 - [ ] Shorter size abbreviations in Notepad TreeViews
 - [ ] Tab bar tabs should not resize while user's mouse is over it (to enable rapid tab closing)
 - [ ] .fnx Notebook icon
+- [ ] Icon instead of trash text?
+- [ ] Maybe stuff some of the closures in sub menus
+- [ ] MenuBar highlight on hover, modeled after TabWidgetButton highlight (radius, color, etc.)
+- [ ] Dock widget button/header styling
+- [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
+- [ ] QML for tab bar (and possibly other components, for better/easier UI)?
 
-## Docs
+## Documentation
 
 - [ ] Number and order for core docs
 - [ ] Core docs should explain the program from start to finish (i.e., Openings.md, Modifications.md, Saves.md, Closures.md, etc.)
@@ -122,51 +130,23 @@ Follow-up Tags for working code that is a draft and needs more scrutiny/cleaning
 - [ ] AbstractFileModel and View usage and purpose
 - [ ] Explain debug and macros
 
-## Miscellaneous Todos
-
-- [ ] Maybe stuff some of the closures in sub menus
-- [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
-- [ ] Save backups (with auto-cleaning) and backup folder
-- [ ] Notebook export file (context menu)
-- [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
-- [ ] Refactor common context menu stuff / TreeView hookup
-- [ ] Trash count (maybe, maybe not - if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
-- [ ] Icon instead of trash text?
-- [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
-- [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
-- [ ] temp AppDir could be an App TempDir
-- [ ] MenuBar highlight on hover, modeled after TabWidgetButton highlight (radius, color, etc.)
-- [ ] Dock widget button/header styling
-- [ ] Potentially remove commands/signals from Workspaces to MenuModules and truly leave to cross-Service concerns. Then integrate menus into Notepad/Notebook directly but use a declarative MenuBuilder object to reduce clutter (pass togglers as optional parameter for an action)
-- [ ] Ensure menu toggles update appropriately when tab dragging is implemented!
-- [ ] Custom context menu for AbstractFileView, implement for editors (replacing Qt editor context menu)
-- [ ] Refactor common Notebook/Notepad opening code in Application
-- [ ] WidgetUtil or similar - was thinking central place to set all painters
-- [ ] Settings dialogs can have a section for App.ini (or similar), shared (like for startDir, when configurable)
-- [ ] Settings files: Settings.ini inside Notebooks. Notepad file name may need to be different, if we have an application settings
-- [ ] Menu: prev/next tab, window, and workspace
-- [ ] Checkable export and compile feature with Dom tree
-- [ ] Notebook LRU cache for models, if needed
-- [ ] Trigger rename for new folders/files, but not import (maybe)?
-- [ ] TreeView (NB): Collapsed items should expand on hover while dragging
-- [ ] TreeView (NB): Items should expand when items are dragged into them
-- [ ] TreeView (NB): Expanded/collapsed states is probably a session thing
-
 ## Coco
 
 - [ ] Path dir iterator
-- [ ] Path separator normalization: Since this could be something maybe not always wanted, it could be set by a static "global" setter (like Path::normalize(Posix) in main) and relevant Path ops check against a static bool in source (or atomic idk)
+- [ ] Path separator normalization: since this could be something maybe not always wanted, it could be set by a static "global" setter (like `Path::normalize(Posix)` in main) and relevant Path ops check against a static bool in source (or atomic)
+- [ ] For cross platform bit7z, look into vcpkg build, saving the .lib, .a, etc.
 
-## Logging & Debug
+## Logging and Debug
 
 - [ ] Output buffered log to file (when available) if message is fatal (perhaps for critical and warn) before crashing
 - [ ] Active window logging
 - [ ] Active file view/model logging
 - [ ] Debug/Utility function that shows a popup for messages (non-fatal)
 - [ ] Red color bar for window on errors
-- [ ] QSet<T> printing (for WINDOWS_SET command result) - needs type info storage or debug printer callback
+- [ ] QSet printing (for WINDOWS_SET command result): needs type info storage or debug printer callback
 - [ ] Log to file (commented-out method is too slow)
 - [ ] Callback for debug printer that can be added while registering handler?
+- [ ] Probably want a diagnostic/debug window that shows all files saved?
 
 ---
 
@@ -241,6 +221,22 @@ Follow-up Tags for working code that is a draft and needs more scrutiny/cleaning
 - [x] Ensure installer has: batchfile automated, optional shortcut, uses windeployqt6, also copies a shortcut to repo, copies inside a data folder with shortcut to exe inside at top level, and installer dir output is separated by platform somehow
 - [x] Handle opening args!
 - [x] Toggle logging based on VERSION_DEBUG in Version.h
+
+## File Types
+
+- [x] AbstractFileModel rework (pure virtual data/setData, virtual supportsModification)
+- [x] FileTypes header (central type registry, canonical extensions)
+- [x] Two-tier resolution in FileService (magic bytes first, extension second, plaintext fallthrough)
+- [x] Remove non-FNX file dialog filters
+- [x] Centralize model extensions (FileMeta::preferredExt)
+- [x] Generalize FNX import (any file type, preserve source extension)
+- [x] Generalize FNX new file creation (addNewFile takes FileTypes::Kind)
+- [x] Extension attribute decision (kept in manifest, populated from reality)
+- [x] Notepad rename from TreeView
+- [x] Notebook export file
+- [x] Settings converter pipeline (TieredSettings key-based converters for INI readability)
+- [x] Notepad Save As custom extension fix
+- [x] Pretty string for tab tooltip path
 
 ## Modifications
 
@@ -321,7 +317,6 @@ Follow-up Tags for working code that is a draft and needs more scrutiny/cleaning
 - [x] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
 - [x] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
 - [x] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
-- [ ] Saves: Probably want a diagnostic/debug window that shows all files saved?
 - [x] Saves: Bug: (EASY - missing return statement for single-item delegation in SaveFailMessageBox::exec for string list) Unknown repro: had SaveFailMessageBox showing the successful files as a test, and when I added a new tab to a Notebook and then used Save As, I received two SaveFailMessageBox prompts for some reason? Should have only been one. I think they were for the same file, but not sure. Seems concerning!
 - [x] Saves: MultiSave struct: add success count and aborted bool, allowing us to show no color bar if only aborted, green color bar if no fails but any successes before aborted, and red if any fails before aborted
 - [x] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
