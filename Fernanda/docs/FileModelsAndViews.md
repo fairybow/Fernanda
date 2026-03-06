@@ -158,4 +158,4 @@ Content is returned as raw bytes for FileService to write. This keeps encoding d
 
 ### Why Virtual Methods with Default No-Ops?
 
-Not all models support modification (e.g., read-only files, binary previews) but can be Saved As or copied. `data()`/`setData()` are pure virtual (every model must own its storage), while the rest (`supportsModification`, `isModified`, `hasUndo`, etc.) are opt-in with safe defaults.
+Not all models support modification (e.g., read-only files, binary previews) but can be Saved As or copied. `data()`/`setData()` are pure virtual (every model must implement and own its storage), while the remaining properties (`supportsModification`, `isModified`, `hasUndo`, etc.) are opt-in with safe defaults.
