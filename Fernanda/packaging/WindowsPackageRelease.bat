@@ -7,7 +7,7 @@ REM ============================================================================
 
 set INSTALLER_NAME=FernandaInstaller
 
-set QT_DIR=C:\Qt\6.10.1\msvc2022_64
+set QT_DIR=C:\Qt\6.10.2\msvc2022_64
 set QT_WINDEPLOY=%QT_DIR%\bin\windeployqt6.exe
 REM This is for windeployqt6 to bundle VC++ Redist itself:
 set VCINSTALLDIR=C:\Program Files\Microsoft Visual Studio\18\Community\VC\
