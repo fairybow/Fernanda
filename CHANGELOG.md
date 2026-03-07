@@ -122,7 +122,7 @@ tl;dr: there was a fairly substantial overhaul of how Fernanda identifies and ro
 
 ## This Version's Dumbest Code Award :trophy:
 
-Application's Byzantine arg parsing.
+Application's byzantine arg parsing.
 
 We receive args in `Application` at two points: on start-up and when a relaunch is attempted (see [`Coco::StartCop`](https://github.com/fairybow/Coco/blob/main/Coco/include/Coco/StartCop.h)). Previously, it went a little something like this:
 
