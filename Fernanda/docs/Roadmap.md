@@ -2,12 +2,14 @@
 
 ## Current
 
-- [ ] Clean up after file-types branch work (remove Plan document, update references)
-- [ ] Update documentation: FileModelsAndViews, FileHandling, Notebooks, Architecture
-- [ ] Merge file-types branch
+- [x] Clean up after file-types branch work (remove Plan document, update references)
+- [x] Update documentation: FileModelsAndViews, FileHandling, Notebooks, Architecture
+- [x] Merge file-types branch
 - [ ] Have two "supported files" filters in addition to the "all files" (one for Notebook and one for Notepad which will also contain .fnx)
 - [ ] These filters should be dynamically created in a Namespace that pulls from Tr for type names
 - [ ] These filters should be set to list multiple extensions where applicable (meaning FileTypes needs an "all extensions" function to return canonical + aliases (JPG is the only one right now, when that's supported)
+- [ ] Pull theme extensions from FileTypes
+- [ ] Will have to figure out how to reconcile the types ctor arg for models/metas with image types, as we'll only have one (ideally) ImageFileModel/View but several supported types for them
 
 ## File Types (Remaining)
 
