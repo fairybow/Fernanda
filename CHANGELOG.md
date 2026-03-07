@@ -59,7 +59,7 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 ## This Version's Dumbest Code Award :trophy:
 
-See (Application.h (3f8bad1))[https://github.com/fairybow/Fernanda/blob/3f8bad164850dead66261a2f5c4acae1bd5fd1ab/Fernanda/src/Application.h]
+...
 
 :heart:
 ```
@@ -81,7 +81,36 @@ See (Application.h (3f8bad1))[https://github.com/fairybow/Fernanda/blob/3f8bad16
 
 ## What's New?
 
-...
+**PDF viewing.** `PdfFileModel` and `PdfFileView` added using Qt's `QPdfView` (multi-page, fit-to-width). PDFs are detected by magic bytes (Tier 1; see below for explanation), so the file extension doesn't matter. View-only for now, but Save As works (exports the raw bytes). PDFs can be imported into Notebooks.
+
+**`Notebook` file export.** Files can now be exported from both the main tree view and trash context menus. The suggested filename on export is reconstructed from the display name plus the stored extension (e.g., Chapter One.txt).
+
+**`Notepad` file renaming via `TreeView`.** The tree view now allows renaming files inline (selected-click or F2). Directory renaming is blocked for now (as this is more complicated, re: informing all potentially open children of their changed path). If the renamed file is currently open, its path is updated.
+
+### File type handling architecture
+
+A fairly substantial internal overhaul:
+
+- The old FileTypes.h (magic bytes detection) has been split: magic byte logic moved to a new MagicBytes.h; FileTypes.h is now a central registry mapping enum values to canonical extensions
+- `FileService` now uses two-tier resolution, with magic bytes first (binary formats like PDF), then extension matching (for future special text types like Markdown, Fountain), with universal plain text fallthrough (anything that isn't anything else is plain text to Fernanda)
+- `AbstractFileModel`'s contract has been reworked. `data()` and `setData()` are now the only pure virtuals (each subclass owns its storage); `supportsModification()` is a regular virtual defaulting to false
+- `FileMeta` now stores `FileTypes::Kind` (bad name) and provides `preferredExt()` (on-disk extension if the file exists; canonical extension otherwise). `preferredExtension()` removed from model subclasses
+- `FileService::saveAs` no longer guards on `supportsModification()`: every model has `data()`, so every model can be exported
+- FNX import generalized from text-only to any file type. `importTextFile` -> `importFile` (extension taken from source path); `addNewTextFile` -> `addNewFile(FileTypes::Kind)`
+- FNX manifest version bumped from 1.0 to 1.1
+- `NoOpFileModel`/`NoOpFileView` retired. Everything now falls through to plain text (No-op model/views may potentially return for blocking wasteful binary display cases (e.g., opening a large, unsupported image format)
+- `TieredSettings` key converters added for making certain INI values human-readable instead of `QVariant` byte arrays. `setKeyConverters()` on `TieredSettings` lets us register per-key serialize/deserialize functions
+- File tab tooltips now use `path_.prettyQString()` instead of the raw path string (meaning they won't contain mismatched slashes and will be uniform)
+
+### Other
+
+- Installer: Added `[InstallDelete]` section that clears the previous install's data directory before copying new files, and added `CloseApplications`/`CloseApplicationsFilter` to prompt closing Fernanda before installing. Adds ignoreversion flags to file entries
+- Qt updated to 6.10.2 (from 6.10.1); pdfwidgets module added to project
+- Coco submodule updated: `PathUtil` namespace merged into `Coco` namespace throughout (`Coco::PathUtil::mkdir` -> `Coco::mkdir`, `Coco::PathUtil::copy` -> `Coco::copy`, dialog helpers, filePaths, paths, findParent, etc.); additionally, `Path`'s string caching fully reworked
+-`ControlField`'s initializations are now less crazy
+- `ControlField` info option now draws a custom icon instead of `QStyle::SP_MessageBoxInformation`
+- Debug.h: static functions changed to inline
+- `Application`'s arg parsing drastically simplified
 
 ## Known Issues
 
@@ -97,7 +126,94 @@ See (Application.h (3f8bad1))[https://github.com/fairybow/Fernanda/blob/3f8bad16
 
 ## This Version's Dumbest Code Award :trophy:
 
+Application's Byzantine arg parsing.
+
+We receive args in `Application` at two points: on start-up and when a relaunch is attempted (see [`Coco::StartCop`](https://github.com/fairybow/Coco/blob/main/Coco/include/Coco/StartCop.h)). Previously, it went a little something like this:
+
+```cpp
+void handleArgs_()
+{
+    auto parsed_args = parseArgs_(arguments());
+
+    if (parsed_args.isEmpty()) {
+        // Open Notepad single empty window, show color bar pastel
+        notepad_->show();
+        notepad_->beCute();
+
+    } else if (parsed_args.hasOnlyFnx()) {
+        // Make a Notebook for each FNX file, open single window for each,
+        // show color bar pastel in each Notebook's window
+        for (auto& path : parsed_args.fnxFiles) {
+            if (auto notebook = makeNotebook_(path)) {
+                notebook->show();
+                notebook->beCute();
+            }
+        }
+    } else if (parsed_args.hasOnlyRegular()) {
+        // Open Notepad single window with a tab for each file, show color
+        // bar pastel
+        notepad_->show();
+        notepad_->openFiles(parsed_args.regularFiles);
+        notepad_->beCute();
+    } else {
+        // Has both:
+        // - Open Notepad single window with a tab for each file, show color
+        // bar pastel
+        // - Make a Notebook for each FNX file, open single window for each,
+        // show color bar pastel in each Notebook's window
+        notepad_->show();
+        notepad_->openFiles(parsed_args.regularFiles);
+        notepad_->beCute();
+
+        for (auto& path : parsed_args.fnxFiles) {
+            if (auto notebook = makeNotebook_(path)) {
+                notebook->show();
+                notebook->beCute();
+            }
+        }
+    }
+}
+```
+
+When all we really need to do is:
+
+```cpp
+void handleArgs_()
+{
+    auto parsed = parseArgs_(arguments());
+
+    // Show notepad if we have regular files or nothing at all
+    if (!parsed.regularFiles.isEmpty() || parsed.fnxFiles.isEmpty()) {
+        notepad_->show();
+        notepad_->openFiles(parsed.regularFiles); // No-op if empty
+        notepad_->beCute();
+    }
+
+    // Make a Notebook for each FNX file (and open single window for each)
+    for (auto& path : parsed.fnxFiles)
+        openNotebook_(path);
+}
+```
+
 See (Application.h (3f8bad1))[https://github.com/fairybow/Fernanda/blob/3f8bad164850dead66261a2f5c4acae1bd5fd1ab/Fernanda/src/Application.h]
+
+Runner-up:
+
+ControlField's ridiculous initializations:
+
+```cpp
+ControlField<DisplaySlider*>* tabStopDistance_ =
+        new ControlField<DisplaySlider*>(
+            ControlField<DisplaySlider*>::Label,
+            this);
+ControlField<QComboBox*>* wrapMode_ = new ControlField<QComboBox*>(
+    ControlField<QComboBox*>::LabelAndInfo,
+    this);
+```
+
+^ lol
+
+See (EditorPanel.h (a4d94df/v0.99.0-beta.2))[https://github.com/fairybow/Fernanda/blob/a4d94dfd7a71fa2a39ad22d28fa0fef3ca7e534f/Fernanda/src/EditorPanel.h]
 
 ---
 
