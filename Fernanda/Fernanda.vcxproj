@@ -96,6 +96,8 @@
     <QtMoc Include="src\AbstractFileView.h" />
     <QtMoc Include="src\TextFileView.h" />
     <QtMoc Include="src\NotepadFileSystemModel.h" />
+    <QtMoc Include="src\ImageFileModel.h" />
+    <QtMoc Include="src\ImageFileView.h" />
     <ClInclude Include="src\old_NoOpFileView.h" />
     <QtMoc Include="src\TabWidget.h" />
     <QtMoc Include="src\ColorBarModule.h" />

@@ -10,7 +10,6 @@
 #pragma once
 
 #include <QKeyCombination>
-#include <Qt>
 
 namespace Fernanda::MenuShortcuts {
 

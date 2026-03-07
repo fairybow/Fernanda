@@ -43,9 +43,6 @@
 #include <QVariant>
 #include <QWidget>
 #include <QWidgetList>
-#include <Qt>
-#include <QtGlobal>
-#include <QtTypes>
 
 #include "Coco/Concepts.h"
 #include "Coco/Utility.h"

@@ -14,7 +14,6 @@
 #include <QPixmap>
 #include <QPushButton>
 #include <QString>
-#include <Qt>
 
 #include "Application.h"
 #include "Tr.h"

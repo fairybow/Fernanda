@@ -16,7 +16,6 @@
 #include <QString>
 #include <QStyle>
 #include <QVariant>
-#include <Qt>
 
 #include "Application.h"
 #include "Fnx.h"

@@ -23,7 +23,6 @@
 #include <QToolButton>
 #include <QVariant>
 #include <QVariantMap>
-#include <Qt>
 
 #include "Coco/Path.h"
 

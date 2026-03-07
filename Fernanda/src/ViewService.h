@@ -32,6 +32,8 @@
 #include "Bus.h"
 #include "Debug.h"
 #include "FileMeta.h"
+#include "ImageFileModel.h"
+#include "ImageFileView.h"
 #include "Ini.h"
 #include "KeyFilters.h"
 #include "PdfFileModel.h"
@@ -864,6 +866,10 @@ private:
 
         } else if (auto pdf_model = qobject_cast<PdfFileModel*>(fileModel)) {
             view = newFileView_<PdfFileView*>(pdf_model, window);
+
+        } else if (
+            auto image_model = qobject_cast<ImageFileModel*>(fileModel)) {
+            view = newFileView_<ImageFileView*>(image_model, window);
 
         } else {
             FATAL("Type not deduced for model [{}]!", fileModel);
