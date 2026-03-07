@@ -4,6 +4,8 @@ Current vesion: v0.99.0-beta.1
 
 ## Separate Workspaces
 
+TODO: Section for all shared Workspace funtionality (e.g., PDF support)
+
 ### Notepad (single instance)
 
 - Operates directly on the OS filesystem
@@ -12,6 +14,8 @@ Current vesion: v0.99.0-beta.1
 - Open multiple files across multiple windows
 - Open the same file in multiple places (with persisting edits)
 - Opening arguments support (double-click/drag a file in your OS to open it in Fernanda)
+- TreeView file renaming
+- PDF support
 
 > [!IMPORTANT]
 > Known issue: Tree View root directory is locked in-place for now
@@ -24,6 +28,8 @@ Current vesion: v0.99.0-beta.1
 - Open existing `.fnx` archives (extraction, validation, working directory setup)
 - Multiple Notebooks can be open simultaneously
 - Recoverable (standard 7zip format means content remains accessible outside Fernanda)
+- Single file export (planned: multiple files, directories, as well as, eventually, full archive export/compilation)
+- PDF support
 
 ---
 
@@ -229,4 +235,7 @@ Current vesion: v0.99.0-beta.1
 
 - Auto-save
 - Automatic back-ups
-- PDF support
+- Small utilities (like a pomodoro timer)
+- FNX compilation/export
+- Markdown/Fountain views
+- Corkboard files (a slightly different approach to corkboards - standalone files that, when opened in Fernanda, display a corckboard and index cards that can be linked to existing files - would work in Notepad or Notebook)

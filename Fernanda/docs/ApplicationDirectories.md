@@ -39,7 +39,7 @@ Base settings (~/.fernanda/Settings.ini)
 This means:
 - Notepad uses the base settings directly
 - Notebooks inherit base settings but can customize per-project
-- A Notebook without custom settings behaves (settings-wise) identically to Notepad
+- A Notebook without custom settings behaves (settings-wise) identically to Notepad, apart from a few Workspace-specific settings (like TreeView visibility)
 
 The base file isn't "Notepad.ini" because it's not Notepad-specific, it's the foundation that all Workspaces build upon.
 

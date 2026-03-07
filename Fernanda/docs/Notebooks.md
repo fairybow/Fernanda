@@ -101,7 +101,7 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 | Attribute | Required | Description |
 |-----------|----------|-------------|
 | `extension` | Yes | File extension (e.g., `.txt`) |
-| `edited` | No | Presence indicates unsaved changes (runtime-only) |
+| `edited` | No | Presence indicates unsaved changes (runtime-only; the attribute IS the boolean and holds no value) |
 | `parent_on_restore_uuid` | No | Original parent UUID for trash restoration |
 
 > [!IMPORTANT]
