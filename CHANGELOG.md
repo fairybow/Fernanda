@@ -175,7 +175,7 @@ void handleArgs_()
 }
 ```
 
-When all we really need to do is:
+Here's the revision:
 
 ```cpp
 void handleArgs_()
