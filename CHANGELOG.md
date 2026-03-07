@@ -107,7 +107,7 @@ A fairly substantial internal overhaul:
 - Installer: Added `[InstallDelete]` section that clears the previous install's data directory before copying new files, and added `CloseApplications`/`CloseApplicationsFilter` to prompt closing Fernanda before installing. Adds ignoreversion flags to file entries
 - Qt updated to 6.10.2 (from 6.10.1); pdfwidgets module added to project
 - Coco submodule updated: `PathUtil` namespace merged into `Coco` namespace throughout (`Coco::PathUtil::mkdir` -> `Coco::mkdir`, `Coco::PathUtil::copy` -> `Coco::copy`, dialog helpers, filePaths, paths, findParent, etc.); additionally, `Path`'s string caching fully reworked
--`ControlField`'s initializations are now less crazy
+- `ControlField`'s initializations are now less crazy
 - `ControlField` info option now draws a custom icon instead of `QStyle::SP_MessageBoxInformation`
 - Debug.h: static functions changed to inline
 - `Application`'s arg parsing drastically simplified
@@ -195,7 +195,7 @@ void handleArgs_()
 }
 ```
 
-See (Application.h (3f8bad1))[https://github.com/fairybow/Fernanda/blob/3f8bad164850dead66261a2f5c4acae1bd5fd1ab/Fernanda/src/Application.h]
+See ([Application.h (3f8bad1)](https://github.com/fairybow/Fernanda/blob/3f8bad164850dead66261a2f5c4acae1bd5fd1ab/Fernanda/src/Application.h))
 
 Runner-up:
 
@@ -213,7 +213,7 @@ ControlField<QComboBox*>* wrapMode_ = new ControlField<QComboBox*>(
 
 ^ lol
 
-See (EditorPanel.h (a4d94df/v0.99.0-beta.2))[https://github.com/fairybow/Fernanda/blob/a4d94dfd7a71fa2a39ad22d28fa0fef3ca7e534f/Fernanda/src/EditorPanel.h]
+See ([EditorPanel.h (a4d94df/v0.99.0-beta.2)](https://github.com/fairybow/Fernanda/blob/a4d94dfd7a71fa2a39ad22d28fa0fef3ca7e534f/Fernanda/src/EditorPanel.h))
 
 ---
 
