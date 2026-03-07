@@ -77,28 +77,26 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 # 0.99.0-beta.3 (Testing / Soft Release) - tag v0.99.0-beta.3
 
-<!-- Boilerplate (preamble) here -->
-
 ## What's New?
 
-**PDF viewing.** `PdfFileModel` and `PdfFileView` added using Qt's `QPdfView` (multi-page, fit-to-width). PDFs are detected by magic bytes (Tier 1; see below for explanation), so the file extension doesn't matter. View-only for now, but Save As works (exports the raw bytes). PDFs can be imported into Notebooks.
+**PDF viewing.** `PdfFileModel` and `PdfFileView` added using Qt's `QPdfView` (multi-page, fit-to-width). PDFs are detected by magic bytes, so the file extension doesn't matter. View-only for now, but Save As works (exports the raw bytes). PDFs can be imported into Notebooks.
 
-**`Notebook` file export.** Files can now be exported from both the main tree view and trash context menus. The suggested filename on export is reconstructed from the display name plus the stored extension (e.g., Chapter One.txt).
+**`Notebook` file export.** Files can now be exported from both the main tree view and trash context menus. The suggested filename on export is reconstructed from the display name plus the stored extension (e.g., `Chapter One.txt`).
 
 **`Notepad` file renaming via `TreeView`.** The tree view now allows renaming files inline (selected-click or F2). Directory renaming is blocked for now (as this is more complicated, re: informing all potentially open children of their changed path). If the renamed file is currently open, its path is updated.
 
 ### File type handling architecture
 
-A fairly substantial internal overhaul:
+tl;dr: there was a fairly substantial overhaul of how Fernanda identifies and routes file types.
 
 - The old FileTypes.h (magic bytes detection) has been split: magic byte logic moved to a new MagicBytes.h; FileTypes.h is now a central registry mapping enum values to canonical extensions
 - `FileService` now uses two-tier resolution, with magic bytes first (binary formats like PDF), then extension matching (for future special text types like Markdown, Fountain), with universal plain text fallthrough (anything that isn't anything else is plain text to Fernanda)
 - `AbstractFileModel`'s contract has been reworked. `data()` and `setData()` are now the only pure virtuals (each subclass owns its storage); `supportsModification()` is a regular virtual defaulting to false
-- `FileMeta` now stores `FileTypes::Kind` (bad name) and provides `preferredExt()` (on-disk extension if the file exists; canonical extension otherwise). `preferredExtension()` removed from model subclasses
+- `FileMeta` now stores `FileTypes::Kind` and provides `preferredExt()` (on-disk extension if the file exists; canonical extension otherwise). `preferredExtension()` removed from model subclasses
 - `FileService::saveAs` no longer guards on `supportsModification()`: every model has `data()`, so every model can be exported
 - FNX import generalized from text-only to any file type. `importTextFile` -> `importFile` (extension taken from source path); `addNewTextFile` -> `addNewFile(FileTypes::Kind)`
 - FNX manifest version bumped from 1.0 to 1.1
-- `NoOpFileModel`/`NoOpFileView` retired. Everything now falls through to plain text (No-op model/views may potentially return for blocking wasteful binary display cases (e.g., opening a large, unsupported image format)
+- `NoOpFileModel`/`NoOpFileView` retired. Everything now falls through to plain text (no-op model/views may potentially return for blocking wasteful binary display cases (e.g., opening a large, unsupported image format))
 - `TieredSettings` key converters added for making certain INI values human-readable instead of `QVariant` byte arrays. `setKeyConverters()` on `TieredSettings` lets us register per-key serialize/deserialize functions
 - File tab tooltips now use `path_.prettyQString()` instead of the raw path string (meaning they won't contain mismatched slashes and will be uniform)
 
@@ -121,8 +119,6 @@ A fairly substantial internal overhaul:
 - Large-document bulk operations (e.g., select-all-replace on 1M+ chars) may produce visible delay due to prime document delta routing (but this was only seen in debug)
 - Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
 - Trash splitter handle behavior: clicking the handle alone can size the closed state up; trash view can't be shrunk below its minimum
-
-<!-- Boilerplate (rest) here -->
 
 ## This Version's Dumbest Code Award :trophy:
 
