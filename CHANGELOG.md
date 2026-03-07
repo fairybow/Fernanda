@@ -195,7 +195,7 @@ void handleArgs_()
 }
 ```
 
-See ([Application.h (3f8bad1)](https://github.com/fairybow/Fernanda/blob/3f8bad164850dead66261a2f5c4acae1bd5fd1ab/Fernanda/src/Application.h))
+(See [Application.h (3f8bad1)](https://github.com/fairybow/Fernanda/blob/3f8bad164850dead66261a2f5c4acae1bd5fd1ab/Fernanda/src/Application.h))
 
 Runner-up:
 
@@ -213,7 +213,7 @@ ControlField<QComboBox*>* wrapMode_ = new ControlField<QComboBox*>(
 
 ^ lol
 
-See ([EditorPanel.h (a4d94df/v0.99.0-beta.2)](https://github.com/fairybow/Fernanda/blob/a4d94dfd7a71fa2a39ad22d28fa0fef3ca7e534f/Fernanda/src/EditorPanel.h))
+(See [EditorPanel.h (a4d94df/v0.99.0-beta.2)](https://github.com/fairybow/Fernanda/blob/a4d94dfd7a71fa2a39ad22d28fa0fef3ca7e534f/Fernanda/src/EditorPanel.h))
 
 ---
 
