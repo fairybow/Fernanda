@@ -8,8 +8,10 @@
 - [ ] Have two "supported files" filters in addition to the "all files" (one for Notebook and one for Notepad which will also contain .fnx)
 - [ ] These filters should be dynamically created in a Namespace that pulls from Tr for type names
 - [ ] These filters should be set to list multiple extensions where applicable (meaning FileTypes needs an "all extensions" function to return canonical + aliases (JPG is the only one right now, when that's supported)
+- [ ] Save As options could show a second (or third) filter (in addition to all files and/or all supported files) for the canonical type
+- [ ] Need a function to return all extensions from the map (canonical + aliases)
 - [ ] Pull theme extensions from FileTypes
-- [ ] Will have to figure out how to reconcile the types ctor arg for models/metas with image types, as we'll only have one (ideally) ImageFileModel/View but several supported types for them
+- [x] Will have to figure out how to reconcile the types ctor arg for models/metas with image types, as we'll only have one (ideally) ImageFileModel/View but several supported types for them
 - [ ] Maybe clean-up MagicBytes + FileTypes enums, make sure they're consistent (or, better yet, maybe they share an enum from a new header that holds an enum val for every type Fernanda recognizes for any reason)
 
 ## File Types (Remaining)

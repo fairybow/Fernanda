@@ -36,7 +36,7 @@ For now, open [`Fernanda.sln`](Fernanda.sln) in Visual Studio and build.
 
 ### Requirements
 
-- Qt 6.10.1
+- Qt 6.10.2
 - C++ 20
 - See [VSProjectSettings](Fernanda/docs/VSProjectSettings.md) for VS specifics (though the `.sln` should take care of this)
 
