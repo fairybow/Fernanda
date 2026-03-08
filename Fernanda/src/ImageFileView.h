@@ -43,6 +43,9 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
+        // TODO: How to start with image fit to view size? (Will be able to
+        // zoomed later when we make the controls)
+
         scrollArea_->setWidgetResizable(true);
         scrollArea_->setAlignment(Qt::AlignCenter);
 
