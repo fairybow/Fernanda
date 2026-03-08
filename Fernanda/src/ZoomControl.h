@@ -84,8 +84,8 @@ protected:
     }
 
 private:
-    static constexpr auto MARGIN_ = 12;
-    static constexpr auto HEIGHT_ = 28;
+    static constexpr auto PADDING_ = 12;
+    static constexpr auto CONTENT_HEIGHT_ = 28;
     static constexpr auto DISPLAY_WIDTH_ = 46;
 
     QPushButton* minusButton_ = new QPushButton("-", this);
@@ -99,7 +99,7 @@ private:
         setupButtons_();
 
         auto layout = new QHBoxLayout(this);
-        layout->setContentsMargins(4, 2, 4, 2);
+        layout->setContentsMargins(2, 2, 2, 2);
         layout->setSpacing(0);
         layout->addWidget(minusButton_);
         layout->addWidget(display_);
@@ -134,7 +134,7 @@ private:
         zoom_font.setPixelSize(16);
 
         for (auto button : { minusButton_, plusButton_ }) {
-            button->setFixedSize(HEIGHT_, HEIGHT_);
+            button->setFixedSize(CONTENT_HEIGHT_, CONTENT_HEIGHT_);
             button->setFocusPolicy(Qt::NoFocus);
             button->setFlat(true);
             button->setPalette(button_palette);
@@ -144,7 +144,7 @@ private:
         auto display_font = QFont{};
         display_font.setPixelSize(12);
 
-        display_->setFixedSize(DISPLAY_WIDTH_, HEIGHT_);
+        display_->setFixedSize(DISPLAY_WIDTH_, CONTENT_HEIGHT_);
         display_->setFlat(true);
         display_->setPalette(button_palette);
         display_->setFont(display_font);
@@ -157,8 +157,8 @@ private:
 
         adjustSize();
 
-        auto x = parent_widget->width() - width() - MARGIN_;
-        auto y = parent_widget->height() - height() - MARGIN_;
+        auto x = parent_widget->width() - width() - PADDING_;
+        auto y = parent_widget->height() - height() - PADDING_;
         move(x, y);
     }
 };
