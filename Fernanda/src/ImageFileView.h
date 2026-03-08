@@ -64,7 +64,6 @@ protected:
         label_->setAlignment(Qt::AlignCenter);
 
         if (auto image_model = qobject_cast<ImageFileModel*>(model())) {
-
             QPixmap pixmap{};
 
             if (pixmap.loadFromData(image_model->data()))
