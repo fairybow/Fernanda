@@ -13,7 +13,7 @@
 - [ ] Pull theme extensions from FileTypes
 - [x] Will have to figure out how to reconcile the types ctor arg for models/metas with image types, as we'll only have one (ideally) ImageFileModel/View but several supported types for them
 - [ ] Maybe clean-up MagicBytes + FileTypes enums, make sure they're consistent (or, better yet, maybe they share an enum from a new header that holds an enum val for every type Fernanda recognizes for any reason)
-- [ ] Add a rolling last used dir variable to Workspace (alongside startDir) that subclasses can use for their open/import dialogs
+- [x] Add a rolling last used dir variable to Workspace (alongside startDir) that subclasses can use for their open/import dialogs
 - [ ] Add a button to the open/import dialogs to navigate back to home (startDir)
 
 ## File Types (Remaining)
