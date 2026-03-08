@@ -76,6 +76,7 @@ constexpr ExtensionEntry extensions[] = {
     { Jpeg, ".jpg" },
     { Gif, ".gif" },
     { Tiff, ".tiff" },
+    { Tiff, ".tif" },
     { Bmp, ".bmp" },
     { WebP, ".webp" }
 };
