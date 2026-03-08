@@ -27,6 +27,7 @@
 #include "Debug.h"
 #include "FileMeta.h"
 #include "FileTypes.h"
+#include "ImageFileModel.h"
 #include "Io.h"
 #include "MagicBytes.h"
 #include "PdfFileModel.h"
@@ -226,10 +227,20 @@ private:
         /// isn't? (This is a later-problem, not a right-now problem)
 
         // Tier 1: Magic bytes for binary formats
-        switch (MagicBytes::type(path)) {
+        auto type = MagicBytes::type(path);
+        switch (type) {
 
         case MagicBytes::Pdf:
             model = newDiskPdfFileModel_(path);
+            break;
+
+        case MagicBytes::Png:
+        case MagicBytes::Tiff:
+        case MagicBytes::Gif:
+        case MagicBytes::Jpeg:
+        case MagicBytes::Bmp:
+        case MagicBytes::WebP:
+            model = newDiskImageFileModel_(type, path);
             break;
 
         default:
@@ -284,8 +295,22 @@ private:
 
         auto model = new PdfFileModel(path, this);
         model->setData(Io::read(path));
-        model->setModified(false); // Probably not needed (PDFs are uneditable
-                                   // for now and maybe forever in Fernanda)
+        model->setModified(false); // Probably not needed yet (PDFs may be
+                                   // editable later, though)
+
+        return model;
+    }
+
+    AbstractFileModel*
+    newDiskImageFileModel_(MagicBytes::Type fileType, const Coco::Path& path)
+    {
+        if (path.isEmpty() || !path.exists()) return nullptr;
+
+        auto type = FileTypes::fromMagicBytes(fileType);
+        auto model = new ImageFileModel(type, path, this);
+        model->setData(Io::read(path));
+        model->setModified(false); // Probably not needed yet (images may be
+                                   // editable later, though)
 
         return model;
     }

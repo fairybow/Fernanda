@@ -11,6 +11,8 @@
 
 #include "Coco/Path.h"
 
+#include "MagicBytes.h"
+
 // These are just constants relating the file types and extensions Fernanda
 // "knows" about. Special handling is determined by FileService
 // TODO: Most of this is planned / currently unsupported. This exists for the
@@ -38,6 +40,9 @@ enum Kind
     Png,
     Jpeg,
     Gif,
+    Tiff,
+    Bmp,
+    WebP,
 
     // Special case:
 
@@ -52,21 +57,28 @@ struct ExtensionEntry
 };
 
 constexpr ExtensionEntry extensions[] = {
+    // Plain text:
     { PlainText, ".txt" },
     { Markdown, ".md" },
     { Fountain, ".fountain" },
+    { FernandaCorkboard, ".fcb" },
+    { FernandaWindowTheme, ".fernanda_window" },
+    { FernandaEditorTheme,
+      ".fernanda_editor" }, /// TODO FT: For the themes, we'll want to pull this
+    /// extension from here (instead of hardcoding in
+    /// Themes.h), but they AREN'T special handling
+    /// right now - just text file (json)
+
+    // Magic bytes:
     { Pdf, ".pdf" },
     { Png, ".png" },
     { Jpeg, ".jpeg" },
     { Jpeg, ".jpg" },
     { Gif, ".gif" },
-    { FernandaCorkboard, ".fcb" },
-    { FernandaWindowTheme, ".fernanda_window" },
-    { FernandaEditorTheme,
-      ".fernanda_editor" }, /// TODO FT: For the themes, we'll want to pull this
-                            /// extension from here (instead of hardcoding in
-                            /// Themes.h), but they AREN'T special handling
-                            /// right now - just text file (json)
+    { Tiff, ".tiff" },
+    { Tiff, ".tif" },
+    { Bmp, ".bmp" },
+    { WebP, ".webp" }
 };
 
 // Resolve file type from path. Unrecognized extensions fall through to
@@ -91,6 +103,28 @@ constexpr const char* canonicalExt(Kind kind)
 inline const char* canonicalExt(const Coco::Path& path)
 {
     return canonicalExt(fromPath(path));
+}
+
+constexpr Kind fromMagicBytes(MagicBytes::Type type)
+{
+    switch (type) {
+    case MagicBytes::Pdf:
+        return Pdf;
+    case MagicBytes::Png:
+        return Png;
+    case MagicBytes::Jpeg:
+        return Jpeg;
+    case MagicBytes::Gif:
+        return Gif;
+    case MagicBytes::Tiff:
+        return Tiff;
+    case MagicBytes::Bmp:
+        return Bmp;
+    case MagicBytes::WebP:
+        return WebP;
+    default:
+        return PlainText;
+    }
 }
 
 } // namespace Fernanda::FileTypes

@@ -22,7 +22,6 @@
 #include <QStringList>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <Qt>
 
 #include "Tr.h"
 

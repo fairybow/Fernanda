@@ -14,7 +14,6 @@
 #include <QString>
 #include <QStringList>
 #include <QWidget>
-#include <Qt>
 
 #include "Tr.h"
 

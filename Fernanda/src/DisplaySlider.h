@@ -16,7 +16,6 @@
 #include <QSlider>
 #include <QString>
 #include <QWidget>
-#include <Qt>
 
 #include "Debug.h"
 
