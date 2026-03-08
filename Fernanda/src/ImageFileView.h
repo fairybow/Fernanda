@@ -26,8 +26,12 @@
 
 namespace Fernanda {
 
+// TODO: Support SVG (unsure how to detect atm; may need SVG widgets component,
+// in which case can probably drop plain svg component and it'll be brought in
+// anyway)
 // TODO: Need zoom controls!
 // TODO: For this overlay widget, look to SelectionHandleOverlay.h as an example
+// Requires Qt Image Formats
 class ImageFileView : public AbstractFileView
 {
     Q_OBJECT
