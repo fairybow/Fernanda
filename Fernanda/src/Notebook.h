@@ -418,10 +418,11 @@ private:
         auto fs_paths = Coco::getFiles(
             window,
             Tr::nbImportFileCaption(),
-            startDir,
+            rollingOpenStartDir,
             Tr::nxAllFilesFilter()); /// TODO FT
-
         if (fs_paths.isEmpty()) return;
+
+        rollingOpenStartDir = fs_paths.at(0).parent();
 
         auto working_dir = workingDir_.path();
         // If index is invalid, fnxModel_->importTextFiles adds it to the DOM
@@ -455,7 +456,7 @@ private:
 
         // Reconstruct original-style filename, e.g. "Chapter One.txt"
         auto suggested_name = info.name + source.extQString();
-        auto start_path = startDir / suggested_name;
+        auto start_path = currentRootDir / suggested_name;
 
         auto dest =
             Coco::getSaveFile(window, Tr::nbExportFileCaption(), start_path);

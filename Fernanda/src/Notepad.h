@@ -82,7 +82,7 @@ protected:
         // Generate the index on-demand from the stored path (don't hold it
         // separately or retrieve via Model::setRootPath)
         if (!fsModel_) return {};
-        return fsModel_->index(startDir.toQString());
+        return fsModel_->index(currentRootDir.toQString());
     }
 
     virtual QString treeViewDockIniKey() const override
@@ -448,7 +448,7 @@ private:
         // startup
         Timers::onNextTick([&] {
             fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
-            fsModel_->setRootPath(startDir.toQString());
+            fsModel_->setRootPath(currentRootDir.toQString());
             fsModel_->setReadOnly(false);
 
             // Update open file model if it exists
@@ -621,7 +621,7 @@ private:
         Coco::Path start_path =
             meta->isOnDisk()
                 ? meta->path()
-                : startDir / (meta->title() + meta->preferredExt());
+                : currentRootDir / (meta->title() + meta->preferredExt());
 
         return Coco::getSaveFile(
             window,
@@ -652,9 +652,11 @@ private:
         auto paths = Coco::getFiles(
             window,
             Tr::npOpenFileCaption(),
-            startDir,
+            rollingOpenStartDir,
             Tr::nxAllFilesFilter()); /// TODO FT
+        if (paths.isEmpty()) return;
 
+        rollingOpenStartDir = paths.at(0).parent();
         openFiles_(window, paths);
     }
 

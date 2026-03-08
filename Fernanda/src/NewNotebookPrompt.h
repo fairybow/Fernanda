@@ -89,28 +89,4 @@ inline QString exec()
     return {};
 }
 
-// For now, let's allow this. The Notebook will be unsaved and the user will be
-// warned against saving over an extant Notebook at startDir / name.fnx when
-// Save As-ing
-
-// inline void showExistsError(const Coco::Path& extantFnxPath)
-//{
-//     QMessageBox box{};
-//     Internal::setCommonProperties_(box);
-//     box.setTextInteractionFlags(Qt::TextSelectableByMouse);
-//     box.setIcon(QMessageBox::Warning);
-//
-//     box.setText(
-//         Tr::nxNewNotebookExistsErrBodyFormat().arg(extantFnxPath.toQString()));
-//
-//     // QMessageBox should handle platform-specific button position (left or
-//     // right, for example) automatically
-//     auto ok = box.addButton(Tr::ok(), QMessageBox::AcceptRole);
-//     box.setDefaultButton(ok);
-//     box.setEscapeButton(ok);
-//
-//     // TODO: Move to open/show
-//     box.exec();
-// }
-
 } // namespace Fernanda::NewNotebookPrompt
