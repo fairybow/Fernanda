@@ -10,10 +10,12 @@
 #pragma once
 
 #include <QLabel>
+#include <QPalette>
 #include <QPixmap>
 #include <QResizeEvent>
 #include <QScrollArea>
 #include <QShowEvent>
+#include <QSize>
 #include <QWidget>
 
 #include "Coco/Path.h"
@@ -29,7 +31,7 @@ namespace Fernanda {
 // TODO: Support SVG (unsure how to detect atm; may need SVG widgets component,
 // in which case can probably drop plain svg component and it'll be brought in
 // anyway)
-// TODO: Need zoom controls!
+// TODO: Need zoom controls! (Shows percent, ofc)
 // TODO: For this overlay widget, look to SelectionHandleOverlay.h as an example
 // Requires Qt Image Formats
 class ImageFileView : public AbstractFileView
@@ -51,6 +53,12 @@ protected:
     {
         scrollArea_->setWidgetResizable(false);
         scrollArea_->setAlignment(Qt::AlignCenter);
+        scrollArea_->setAutoFillBackground(true);
+        scrollArea_->setBackgroundRole(
+            QPalette::Base); // Not technically necessary
+        QPalette palette = scrollArea_->palette();
+        palette.setColor(QPalette::Base, Qt::black);
+        scrollArea_->setPalette(palette);
 
         label_->setScaledContents(false);
         label_->setAlignment(Qt::AlignCenter);
@@ -93,8 +101,9 @@ private:
     {
         if (originalPixmap_.isNull()) return;
 
+        // Don't exceed resolution
         auto scaled = originalPixmap_.scaled(
-            scrollArea_->viewport()->size(),
+            originalPixmap_.size().boundedTo(scrollArea_->viewport()->size()),
             Qt::KeepAspectRatio,
             Qt::SmoothTransformation);
 
