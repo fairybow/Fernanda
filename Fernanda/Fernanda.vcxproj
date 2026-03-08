@@ -169,6 +169,7 @@
     <QtMoc Include="src\WordCounter.h" />
     <QtMoc Include="src\WordCounterPanel.h" />
     <ClInclude Include="src\XPlatform.h" />
+    <QtMoc Include="src\ZoomControl.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Bool.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Concepts.h" />
     <ClInclude Include="submodules\Coco\Coco\include\Coco\Fx.h" />
