@@ -21,7 +21,9 @@
 namespace Fernanda {
 
 // TODO: Show page number on scroll!
-// TODO: Need zoom controls!
+// TODO: Need zoom controls! (w/ percent obvs)
+// TODO: Ensure when we have zoom out that the background / non-PDF area is
+// black
 // TODO: For these overlay widgets, look to SelectionHandleOverlay.h as an
 // example
 class PdfFileView : public AbstractFileView

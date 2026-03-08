@@ -105,11 +105,12 @@ protected:
     StyleModule* styling = new StyleModule(bus, this);
     WordCounterModule* wordCounters = new WordCounterModule(bus, this);
 
-    Coco::Path startDir =
+    Coco::Path currentRootDir =
         AppDirs::defaultDocs(); // Since this is currently hardcoded, it goes
                                 // here to be shared between Workspace types.
                                 // When it's made configurable, it will likely
                                 // belong to App
+    Coco::Path rollingOpenStartDir = currentRootDir;
 
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
@@ -155,6 +156,8 @@ protected:
     }
 
 private:
+    Coco::Path rollingOpenFnxStartDir_ = currentRootDir;
+
     QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
     QHash<Window*, MenuState*> menuStates_{};
 

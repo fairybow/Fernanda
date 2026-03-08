@@ -84,7 +84,8 @@ void Workspace::createWindowMenuBar_(Window* window)
                 // be warned before saving over the existing Notebook!
                 auto name = NewNotebookPrompt::exec();
                 if (name.isEmpty()) return;
-                emit newNotebookRequested(startDir / (name + Fnx::Io::EXT));
+                emit newNotebookRequested(
+                    currentRootDir / (name + Fnx::Io::EXT));
             })
 
         .action(Tr::nxOpenNotebook())
@@ -95,10 +96,11 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto path = Coco::getFile(
                     nullptr,
                     Tr::nxOpenNotebookCaption(),
-                    startDir,
+                    rollingOpenFnxStartDir_,
                     Tr::nxOpenNotebookFilter());
-
                 if (path.isEmpty() || !Fnx::Io::isFnxFile(path)) return;
+
+                rollingOpenFnxStartDir_ = path.parent();
                 emit openNotebookRequested(path);
             })
 
