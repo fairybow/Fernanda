@@ -38,6 +38,7 @@ namespace Tr {
 
     TR_(notepad, tr("Notepad"));
     TR_(nbTrash, tr("Trash"));
+    TR_(fileMetaNotOnDisk, tr("[Not on disk]"));
 
     /// Buttons
 
@@ -52,7 +53,9 @@ namespace Tr {
 
     // NX dialogs:
 
-    TR_(nxAllFilesFilter, tr("All files (*)"));
+    TR_(nxAllFilesFilter,
+        tr("All files (*)")); /// TODO FT: Move to a filters namespace but pull
+                              /// the "all files" part from Tr
     TR_(nxAboutTitle, tr("About"));
     TR_(nxNewNotebookTitle, tr("New Notebook"));
     TR_(nxNewNotebookBody, tr("Name:"));
