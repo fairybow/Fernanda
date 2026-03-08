@@ -11,7 +11,9 @@
 
 #include <QLabel>
 #include <QPixmap>
+#include <QResizeEvent>
 #include <QScrollArea>
+#include <QShowEvent>
 #include <QWidget>
 
 #include "Coco/Path.h"
@@ -43,20 +45,18 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
-        // TODO: How to start with image fit to view size? (Will be able to
-        // zoomed later when we make the controls)
-
-        scrollArea_->setWidgetResizable(true);
+        scrollArea_->setWidgetResizable(false);
         scrollArea_->setAlignment(Qt::AlignCenter);
 
-        label_->setScaledContents(true);
+        label_->setScaledContents(false);
         label_->setAlignment(Qt::AlignCenter);
 
         if (auto image_model = qobject_cast<ImageFileModel*>(model())) {
+
             QPixmap pixmap{};
 
             if (pixmap.loadFromData(image_model->data()))
-                label_->setPixmap(pixmap);
+                originalPixmap_ = pixmap; // Show event resizes for us
             else
                 WARN("Image load failed for [{}]", image_model->meta()->path());
 
@@ -68,9 +68,35 @@ protected:
         return scrollArea_;
     }
 
+    virtual void showEvent(QShowEvent* event) override
+    {
+        AbstractFileView::showEvent(event);
+        fitToView_();
+    }
+
+    virtual void resizeEvent(QResizeEvent* event) override
+    {
+        AbstractFileView::resizeEvent(event);
+        fitToView_();
+    }
+
 private:
     QScrollArea* scrollArea_ = new QScrollArea(this);
     QLabel* label_ = new QLabel(this);
+    QPixmap originalPixmap_{};
+
+    void fitToView_()
+    {
+        if (originalPixmap_.isNull()) return;
+
+        auto scaled = originalPixmap_.scaled(
+            scrollArea_->viewport()->size(),
+            Qt::KeepAspectRatio,
+            Qt::SmoothTransformation);
+
+        label_->setPixmap(scaled);
+        label_->resize(scaled.size());
+    }
 };
 
 } // namespace Fernanda
