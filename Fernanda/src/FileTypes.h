@@ -127,4 +127,34 @@ constexpr Kind fromMagicBytes(MagicBytes::Type type)
     }
 }
 
+// TODO: Unsure if I want full names (e.g. "Portable Document Format (PDF)").
+// This is used in FileMeta only right now but may later be used for extension
+// filters in dialogs
+constexpr ExtensionEntry names[] = {
+    // Plain text:
+    { PlainText, "Plain Text" },
+    { Markdown, "Markdown" },
+    { Fountain, "Fountain" },
+    { FernandaCorkboard, "Fernanda Corkboard" },
+    { FernandaWindowTheme, "Fernanda Window Theme" },
+    { FernandaEditorTheme, "Fernanda Editor Theme" },
+
+    // Magic bytes:
+    { Pdf, "PDF" },
+    { Png, "Image (PNG)" },
+    { Jpeg, "Image (JPEG)" },
+    { Gif, "Image (GIF)" },
+    { Tiff, "Image (TIFF)" },
+    { Bmp, "Image (Bitmap)" },
+    { WebP, "Image (WebP)" }
+};
+
+inline QString name(Kind kind)
+{
+    for (const auto& [k, name] : names)
+        if (k == kind) return name;
+
+    return "Plain Text";
+}
+
 } // namespace Fernanda::FileTypes

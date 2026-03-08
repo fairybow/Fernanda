@@ -16,6 +16,7 @@
 
 #include "Debug.h"
 #include "FileTypes.h"
+#include "Tr.h"
 
 namespace Fernanda {
 
@@ -102,13 +103,14 @@ private:
             title_ = QStringLiteral("Untitled");
         }
 
-        // Update tooltip: full path if available, otherwise title + status
-        if (isOnDisk()) {
-            toolTip_ = path_.prettyQString();
-        } else {
-            // TODO: Tr-aware in future?
-            toolTip_ = title_ + QStringLiteral(" [Not on disk]");
-        }
+        auto tool_tip_fmt = QStringLiteral("Title: %0\nPath: %1\nType: %2");
+        auto type_name = FileTypes::name(fileType_);
+
+        toolTip_ = tool_tip_fmt.arg(title_)
+                       .arg(
+                           isOnDisk() ? path_.prettyQString()
+                                      : Tr::fileMetaNotOnDisk())
+                       .arg(type_name);
 
         // Emit single signal if anything changed
         if (title_ != old_title || toolTip_ != old_tooltip) emit changed();
