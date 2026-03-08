@@ -45,7 +45,7 @@ class ZoomControl : public QWidget
     Q_OBJECT
 
 public:
-    explicit ZoomControl(QWidget* parent)
+    explicit ZoomControl(QWidget* parent = nullptr)
         : QWidget(parent)
     {
         setup_();
