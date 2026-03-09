@@ -23,6 +23,8 @@
 
 namespace Fernanda {
 
+// FYI - does not work right now!
+
 // Floating zoom control overlay. Anchors itself to the bottom-right
 // corner of its parent, repositioning on resize via event filter. The overlay
 // owns no zoom state, but rather emits requests and displays whatever
