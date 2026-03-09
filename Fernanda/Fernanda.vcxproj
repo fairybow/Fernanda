@@ -279,7 +279,7 @@
       <AdditionalDependencies>$(ProjectDir)external\bit7z\lib\x64\Release\bit7z.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
-      <Command>powershell -ExecutionPolicy Bypass -File "$(ProjectDir)packaging\VSPreBuildGenVersionFullStringTxt.ps1"</Command>
+      <Command>powershell -ExecutionPolicy Bypass -File "$(ProjectDir)packaging\VSPreBuildGenVersionFullStringTxt.ps1" -OutputDir "$(TargetDir)"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>
