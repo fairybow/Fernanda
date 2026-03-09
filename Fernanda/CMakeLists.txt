@@ -217,7 +217,7 @@ target_compile_definitions(Fernanda PRIVATE
 )
 
 # --- bit7z (pre-built static library) ---
-# bit7z has no CMakeLists.txt in the project. Pre-built .lib files are stored
+# bit7z is linked as a pre-built library. Pre-built .lib files are stored
 # under external/bit7z/lib/x64/{Config}/. An IMPORTED target with per-config
 # paths replaces the .vcxproj <AdditionalDependencies> entries.
 
