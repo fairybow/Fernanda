@@ -78,6 +78,7 @@
     <None Include="resources\ui\Dot.svg" />
     <None Include="resources\ui\Plus.svg" />
     <None Include="resources\ui\X.svg" />
+    <None Include="scripts\BuildCMakeLists.bat" />
     <None Include="scripts\BuildCMakeLists.ps1" />
     <None Include="src\old_TranslationCode.md" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md" />
@@ -193,9 +194,6 @@
       <PluralOnly Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</PluralOnly>
     </QtTranslation>
     <QtTranslation Include="translations\Translation_es.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E6E7DC76-11E7-4FB4-8C64-E88924DA156D}</ProjectGuid>

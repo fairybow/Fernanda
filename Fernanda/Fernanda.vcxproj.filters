@@ -115,9 +115,6 @@
     <Filter Include="Packaging">
       <UniqueIdentifier>{f93aebe4-fc11-4c96-9f7d-b7d9bac68fdb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TEMP">
-      <UniqueIdentifier>{45f7fc33-329b-413c-9590-37b293a91211}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -310,6 +307,9 @@
       <Filter>Old %28Remove Later%29</Filter>
     </None>
     <None Include="scripts\BuildCMakeLists.ps1">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="scripts\BuildCMakeLists.bat">
       <Filter>Scripts</Filter>
     </None>
   </ItemGroup>
@@ -619,10 +619,5 @@
     <QtTranslation Include="translations\Translation_en.ts">
       <Filter>Translations</Filter>
     </QtTranslation>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="CMakeLists.txt">
-      <Filter>TEMP</Filter>
-    </Text>
   </ItemGroup>
 </Project>
