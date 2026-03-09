@@ -263,13 +263,13 @@ set(FERNANDA_TS_FILES
     translations/Translation_es.ts
 )
 
-# EN: lupdate with -pluralonly
+# Pluralonly: one call per file (will likely only ever be EN)
 qt_add_lupdate(Fernanda
     TS_FILES translations/Translation_en.ts
     OPTIONS -pluralonly
 )
 
-# ES: lupdate (full)
+# All other translations (single call)
 qt_add_lupdate(Fernanda
     TS_FILES translations/Translation_es.ts
 )
