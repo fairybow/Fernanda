@@ -590,7 +590,7 @@ foreach ($libName in $importedLibs.Keys) {
     $lib = $importedLibs[$libName]
 
     W "# --- $libName (pre-built static library) ---"
-    W "# $libName has no CMakeLists.txt in the project. Pre-built .lib files are stored"
+    W "# $libName is linked as a pre-built library. Pre-built .lib files are stored"
     W "# under external/$libName/lib/x64/{Config}/. An IMPORTED target with per-config"
     W "# paths replaces the .vcxproj <AdditionalDependencies> entries."
     W ""
