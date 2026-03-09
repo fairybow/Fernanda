@@ -256,14 +256,14 @@ target_link_libraries(Fernanda PRIVATE
 #
 # Separate lupdate calls are needed because Translation_en.ts requires the
 # -pluralonly flag (from per-file <PluralOnly>true</PluralOnly> in the
-# .vcxproj), while Translation_es.ts does not.
+# .vcxproj), while other translation files do not.
 
 set(FERNANDA_TS_FILES
     translations/Translation_en.ts
     translations/Translation_es.ts
 )
 
-# Pluralonly: one call per file (will likely only ever be EN)
+# EN: lupdate with -pluralonly
 qt_add_lupdate(Fernanda
     TS_FILES translations/Translation_en.ts
     OPTIONS -pluralonly
