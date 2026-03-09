@@ -791,10 +791,6 @@ if ($hasTranslations) {
 if ($preBuildScript) {
     W "#   <output_dir>/bin/Version.txt"
 }
-W "#"
-W "# Note: Qt runtime libraries (DLLs/shared objects) are NOT included here."
-W "# On Linux, Qt is typically available as a system library. On Windows, use"
-W "# windeployqt as a separate packaging step (see packaging/WindowsPackageRelease.bat)."
 W ""
 W "install(TARGETS $projectName RUNTIME DESTINATION bin)"
 if ($hasTranslations) {
