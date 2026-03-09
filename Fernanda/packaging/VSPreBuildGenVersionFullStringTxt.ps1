@@ -8,7 +8,6 @@ param(
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $headerPath = Join-Path $scriptDir "..\src\Version.h"
 $outputPath = Join-Path $OutputDir "Version.txt"
-$outputPath = Join-Path $scriptDir "..\..\x64\Release\Version.txt"
 
 $headerPath = [System.IO.Path]::GetFullPath($headerPath)
 $outputPath = [System.IO.Path]::GetFullPath($outputPath)
