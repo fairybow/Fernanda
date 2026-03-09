@@ -78,6 +78,7 @@
     <None Include="resources\ui\Dot.svg" />
     <None Include="resources\ui\Plus.svg" />
     <None Include="resources\ui\X.svg" />
+    <None Include="scripts\BuildCMakeLists.ps1" />
     <None Include="src\old_TranslationCode.md" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md" />
   </ItemGroup>
