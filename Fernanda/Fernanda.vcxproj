@@ -78,7 +78,6 @@
     <None Include="resources\ui\Dot.svg" />
     <None Include="resources\ui\Plus.svg" />
     <None Include="resources\ui\X.svg" />
-    <None Include="scripts\Update EN pluralonly.bat" />
     <None Include="src\old_TranslationCode.md" />
     <None Include="submodules\Coco\Coco\copy\License Statement.md" />
   </ItemGroup>
@@ -186,10 +185,12 @@
     <QtRcc Include="resources\Icons.qrc" />
     <QtRcc Include="resources\Themes.qrc" />
     <QtRcc Include="resources\Ui.qrc" />
-    <QtRcc Include="translations\QMFiles.qrc" />
   </ItemGroup>
   <ItemGroup>
-    <QtTranslation Include="translations\Translation_en.ts" />
+    <QtTranslation Include="translations\Translation_en.ts">
+      <PluralOnly Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</PluralOnly>
+      <PluralOnly Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</PluralOnly>
+    </QtTranslation>
     <QtTranslation Include="translations\Translation_es.ts" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -259,6 +260,10 @@
       <Command>
       </Command>
     </PreBuildEvent>
+    <QtTranslation>
+      <BuildAction>lupdate_lrelease</BuildAction>
+      <IncludePath>$(ProjectDir)translations</IncludePath>
+    </QtTranslation>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -277,6 +282,10 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <QtTranslation>
+      <BuildAction>lupdate_lrelease</BuildAction>
+      <IncludePath>$(ProjectDir)translations</IncludePath>
+    </QtTranslation>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>

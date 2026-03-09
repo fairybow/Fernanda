@@ -89,8 +89,11 @@ mkdir "%TEMP_DIR%"
 echo [3/%STEPS%] Copying Fernanda.exe...
 copy "%RELEASE_EXE%" "%TEMP_DIR%\" > nul
 
+echo [4/%STEPS%] Copying translation files...
+copy "%RELEASE_DIR%\*.qm" "%TEMP_DIR%\" > nul
+
 REM TODO: If/when we add image viewing, revise this!
-echo [4/%STEPS%] Running windeployqt...
+echo [5/%STEPS%] Running windeployqt...
 "%QT_WINDEPLOY%" ^
     --release ^
     --no-translations ^
@@ -105,11 +108,11 @@ REM temp/
 REM |-- README.md/LICENSE/ADDITIONAL_TERMS
 REM |-- Fernanda.lnk (shortcut to exe)
 REM +-- data/
-REM     |-- [Qt DLLs, etc.]
+REM     |-- [Qt DLLs, QM files, etc.]
 REM     +-- Fernanda.exe
 REM Inno will unpack to {app} (Program Files/Fernanda/), add additional files ({app}\README.md, etc.), and create a shortcut, {app}\Fernanda.lnk (points to {app}\data\Fernanda.exe)
 
-echo [5/%STEPS%] Building installer...
+echo [6/%STEPS%] Building installer...
 if exist "%OUTPUT_DIR%" rmdir /s /q "%OUTPUT_DIR%"
 mkdir "%OUTPUT_DIR%"
 
