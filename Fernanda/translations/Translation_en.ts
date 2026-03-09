@@ -4,7 +4,7 @@
 <context>
     <name>Fernanda::Tr</name>
     <message numerus="yes">
-        <location filename="../src/Tr.h" line="143"/>
+        <location filename="../src/Tr.h" line="148"/>
         <source>Are you sure you want to delete %n file(s)? &lt;b&gt;This cannot be undone.&lt;/b&gt;</source>
         <translation>
             <numerusform>Are you sure you want to delete %n file? &lt;b&gt;This cannot be undone.&lt;/b&gt;</numerusform>
@@ -12,7 +12,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/Tr.h" line="220"/>
+        <location filename="../src/Tr.h" line="228"/>
         <source>%n line(s)</source>
         <translation>
             <numerusform>%n line</numerusform>
@@ -20,7 +20,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/Tr.h" line="221"/>
+        <location filename="../src/Tr.h" line="229"/>
         <source>%n word(s)</source>
         <translation>
             <numerusform>%n word</numerusform>
@@ -28,7 +28,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/Tr.h" line="222"/>
+        <location filename="../src/Tr.h" line="230"/>
         <source>%n char(s)</source>
         <translation>
             <numerusform>%n char</numerusform>

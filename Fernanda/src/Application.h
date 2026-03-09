@@ -138,11 +138,11 @@ private:
     {
         translator_ = new QTranslator(this);
 
-        if (translator_->load(":/qm/Translation_en.qm")) {
+        // TODO: Temp! Only handling EN for now
+        if (translator_->load("Translation_en.qm", applicationDirPath())) {
             INFO("Translation loaded!");
             if (installTranslator(translator_)) INFO("Translator installed!");
         } else {
-            // TODO: Only handling EN for now
             WARN("Failed to load translation: {}", "en");
             delete translator_;
             translator_ = nullptr;

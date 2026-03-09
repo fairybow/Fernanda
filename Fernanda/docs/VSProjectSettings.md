@@ -45,5 +45,5 @@ $(ProjectDir)external\bit7z\lib\x64\Release\bit7z.lib;$(CoreLibraryDependencies)
 (Release) Configuration Properties > Build Events > Pre-Build Event > Command Line
 
 ```
-powershell -ExecutionPolicy Bypass -File "$(ProjectDir)packaging\VSPreBuildGenVersionFullStringTxt.ps1"
+powershell -ExecutionPolicy Bypass -File "$(ProjectDir)packaging\VSPreBuildGenVersionFullStringTxt.ps1" -OutputDir "$(TargetDir)"
 ```

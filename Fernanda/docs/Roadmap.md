@@ -15,6 +15,9 @@
 - [ ] Maybe clean-up MagicBytes + FileTypes enums, make sure they're consistent (or, better yet, maybe they share an enum from a new header that holds an enum val for every type Fernanda recognizes for any reason)
 - [x] Add a rolling last used dir variable to Workspace (alongside startDir) that subclasses can use for their open/import dialogs
 - [ ] Add a button to the open/import dialogs to navigate back to home (startDir)
+- [x] CMake generator script
+- [x] Script should include a note that it is generated and shouldn't be edited by hand (direct to the script location)
+- [x] Generated CMake should list what is included (Qt core install and Qt Image Formats as the only additional Qt installed library)
 
 ## File Types (Remaining)
 

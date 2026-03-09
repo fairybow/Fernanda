@@ -25,6 +25,7 @@
 #include "Debug.h"
 #include "FileMeta.h"
 #include "ImageFileModel.h"
+#include "ZoomControl.h"
 
 namespace Fernanda {
 
@@ -95,6 +96,7 @@ private:
     QScrollArea* scrollArea_ = new QScrollArea(this);
     QLabel* label_ = new QLabel(this);
     QPixmap originalPixmap_{};
+    ZoomControl* zoomControl_ = new ZoomControl(scrollArea_);
 
     void fitToView_()
     {

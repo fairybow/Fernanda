@@ -17,6 +17,7 @@
 #include "AbstractFileView.h"
 #include "Debug.h"
 #include "PdfFileModel.h"
+#include "ZoomControl.h"
 
 namespace Fernanda {
 
@@ -43,17 +44,16 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
-        auto pdf_view = new QPdfView(this);
-        pdf_view->setPageMode(QPdfView::PageMode::MultiPage);
-        pdf_view->setZoomMode(QPdfView::ZoomMode::FitToWidth);
+        pdfView_->setPageMode(QPdfView::PageMode::MultiPage);
+        pdfView_->setZoomMode(QPdfView::ZoomMode::FitToWidth);
 
         if (auto pdf_model = qobject_cast<PdfFileModel*>(model())) {
             auto document = pdf_model->document();
-            pdf_view->setDocument(document);
+            pdfView_->setDocument(document);
             // pageCount_->setPageCount(document->pageCount());
 
             // connect(
-            //     pdf_view->pageNavigator(),
+            //     pdfView_->pageNavigator(),
             //     &QPdfPageNavigator::currentPageChanged,
             //     pageCount_,
             //     &PdfPageCountWidget::setCurrentPage);
@@ -68,11 +68,12 @@ protected:
             FATAL("PdfFileModel cast failed!");
         }
 
-        return pdf_view;
+        return pdfView_;
     }
 
 private:
-    // PdfPageCountWidget* pageCount_ = new PdfPageCountWidget(this);
+    QPdfView* pdfView_ = new QPdfView(this);
+    ZoomControl* zoomControl_ = new ZoomControl(pdfView_);
 };
 
 } // namespace Fernanda
