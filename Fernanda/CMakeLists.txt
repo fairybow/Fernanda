@@ -326,7 +326,7 @@ add_custom_command(TARGET Fernanda PRE_BUILD
 # Linux packagers use to build .deb/.rpm/AppImage packages.
 #
 # Usage:
-#   cmake --install build --config Release --prefix <output_dir>
+#   cmake --install . --config Release --prefix <output_dir>
 #
 # Produces:
 #   <output_dir>/bin/Fernanda(.exe)
