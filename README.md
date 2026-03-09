@@ -32,7 +32,7 @@ Mac and Linux support is planned!
 
 ## Building
 
-Open [`Fernanda.sln`](Fernanda.sln) in Visual Studio and build or use [`CMakeLists.txt`](Fernanda/CMakeLists.txt).
+Use [`Fernanda.sln`](Fernanda.sln) or [`CMakeLists.txt`](Fernanda/CMakeLists.txt).
 
 ### Requirements
 
