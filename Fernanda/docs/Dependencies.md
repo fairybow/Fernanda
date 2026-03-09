@@ -9,7 +9,7 @@ Fernanda relies on Qt 6 and two additional dependencies: Coco (utility library) 
 | bit7z | Library | `external/` | 7zip archive operations |
 
 > [!IMPORTANT]
-> *The following Qt extensions / additional libraries are required to build Fernanda:*
+> **The following Qt extensions / additional libraries are required to build Fernanda:**
 > - Qt Image Formats
 > - Qt PDF
 
