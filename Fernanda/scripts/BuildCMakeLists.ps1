@@ -41,6 +41,7 @@ if (-not (Test-Path $VcxprojPath)) {
 
 $projectDir = Split-Path -Parent (Resolve-Path $VcxprojPath)
 $projectName = [System.IO.Path]::GetFileNameWithoutExtension($VcxprojPath)
+$projectNameUpper = $projectName.ToUpper()
 
 Write-Host "Parsing: $VcxprojPath"
 Write-Host "Project: $projectName"
@@ -311,7 +312,8 @@ $commonCompileFlags = @()
 $releaseCompileFlags = @()
 $releaseLinkerFlags = @()
 
-foreach ($idg in $itemDefGroups) {
+$allIdgs = $xml.SelectNodes("//ms:ItemDefinitionGroup", $ns)
+foreach ($idg in $allIdgs) {
     $condition = $idg.GetAttribute("Condition")
     $isRelease = $condition -match "Release"
 
@@ -488,7 +490,7 @@ W "# --- Sources ---"
 W "# From <ClCompile> items in the .vcxproj (excluding Coco sources, listed"
 W "# separately below). Backslashes converted to forward slashes."
 W ""
-W "set(${projectName}_SOURCES"
+W "set(${projectNameUpper}_SOURCES"
 W (FormatList $ferSources)
 W ")"
 W ""
@@ -501,7 +503,7 @@ W "# headers, listed separately below). CMake's AUTOMOC makes the QtMoc vs"
 W "# ClInclude distinction irrelevant; all headers are treated uniformly and"
 W "# moc is run on whichever ones contain Q_OBJECT/Q_GADGET."
 W ""
-W "set(${projectName}_HEADERS"
+W "set(${projectNameUpper}_HEADERS"
 W (FormatList $ferHeaders)
 W ")"
 W ""
@@ -536,18 +538,18 @@ W "# .qrc files are handled by AUTORCC. The .rc file (Windows resource script"
 W "# for app icon, version info, etc.) is passed to the resource compiler"
 W "# automatically by CMake on Windows."
 W ""
-W "set(${projectName}_RESOURCES"
+W "set(${projectNameUpper}_RESOURCES"
 W (FormatList $resources)
 W ")"
 W ""
 
 # --- Target ---
 
-$targetSources = "`${${projectName}_SOURCES}"
-$targetSources += "`n    `${${projectName}_HEADERS}"
+$targetSources = "`${${projectNameUpper}_SOURCES}"
+$targetSources += "`n    `${${projectNameUpper}_HEADERS}"
 if ($cocoSources.Count -gt 0) { $targetSources += "`n    `${COCO_SOURCES}" }
 if ($cocoHeaders.Count -gt 0) { $targetSources += "`n    `${COCO_HEADERS}" }
-$targetSources += "`n    `${${projectName}_RESOURCES}"
+$targetSources += "`n    `${${projectNameUpper}_RESOURCES}"
 
 W "# --- Target ---"
 W "# WIN32 sets the Windows subsystem (no console window), matching the"
@@ -635,7 +637,6 @@ if ($hasTranslations) {
     if ($pluralOnlyFiles.Count -gt 0) {
         $pluralNames = ($pluralOnlyFiles | ForEach-Object { [System.IO.Path]::GetFileName($_) }) -join ', '
         $pluralNote = @"
-
 #
 # Separate lupdate calls are needed because $pluralNames requires the
 # -pluralonly flag (from per-file <PluralOnly>true</PluralOnly> in the
@@ -654,7 +655,7 @@ if ($hasTranslations) {
     if ($pluralNote) { W $pluralNote }
     W ""
 
-    W "set(${projectName}_TS_FILES"
+    W "set(${projectNameUpper}_TS_FILES"
     W (FormatList $allTsSorted)
     W ")"
     W ""
@@ -672,7 +673,7 @@ if ($hasTranslations) {
 
     # Non-pluralonly files: single lupdate call
     if ($regularTsFiles.Count -gt 0) {
-        $regularSorted = $regularTsFiles | Sort-Object
+        $regularSorted = @($regularTsFiles | Sort-Object)
         W "# All other translations (single call)"
         W "qt_add_lupdate($projectName"
         if ($regularSorted.Count -eq 1) {
@@ -688,7 +689,7 @@ if ($hasTranslations) {
     # lrelease
     W "# lrelease: compile all .ts to .qm, output next to the executable"
     W "qt_add_lrelease($projectName"
-    W "    TS_FILES `${${projectName}_TS_FILES}"
+    W "    TS_FILES `${${projectNameUpper}_TS_FILES}"
     W "    QM_FILES_OUTPUT_VARIABLE QM_FILES"
     W ")"
     W ""
@@ -718,8 +719,8 @@ $allFlags = $commonCompileFlags + $releaseCompileFlags + $releaseLinkerFlags
 $maxFlagLen = ($allFlags | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum
 foreach ($flag in $allFlags) {
     if ($flagComments.ContainsKey($flag)) {
-        $padded = $flag.PadRight($maxFlagLen)
-        W "#   ${padded}  $($flagComments[$flag])"
+        $padded = ($flag + ':').PadRight($maxFlagLen + 1)
+        W "#   $padded $($flagComments[$flag])"
     }
 }
 W ""
