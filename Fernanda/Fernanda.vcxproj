@@ -193,6 +193,9 @@
     </QtTranslation>
     <QtTranslation Include="translations\Translation_es.ts" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E6E7DC76-11E7-4FB4-8C64-E88924DA156D}</ProjectGuid>
     <Keyword>QtVS_v304</Keyword>
