@@ -1,6 +1,7 @@
 <#
 .SYNOPSIS
     Generates a CMakeLists.txt from a Visual Studio .vcxproj file (Qt project).
+    This will for sure break easily if we add any other submodules or libraries.
 
 .DESCRIPTION
     Parses a .vcxproj file created by Qt VS Tools and generates an equivalent
