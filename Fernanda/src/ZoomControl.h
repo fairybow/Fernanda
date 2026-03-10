@@ -65,6 +65,9 @@ public:
 
     virtual ~ZoomControl() override { TRACER; }
 
+    Mode mode() const noexcept { return mode_; }
+    qreal factor() const noexcept { return factor_; }
+
 signals:
     void zoomChanged(Mode mode, qreal factor);
 
