@@ -26,8 +26,6 @@ namespace Fernanda {
 // black
 // TODO: For these overlay widgets, look to SelectionHandleOverlay.h as an
 // example
-// TODO: Need to realign PDF on zoom. We want the relative same area to be at
-// the same spot on the screen so as not to disorient
 class PdfFileView : public AbstractFileView
 {
     Q_OBJECT
