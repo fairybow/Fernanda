@@ -129,7 +129,7 @@ private:
         if (!widget || requesters_.contains(widget)) return;
 
         requesters_ << widget;
-        connect(widget, &QObject::destroyed, this, [&, widget] {
+        connect(widget, &QObject::destroyed, this, [this, widget] {
             requesters_.remove(widget);
         });
     }

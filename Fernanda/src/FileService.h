@@ -207,7 +207,7 @@ private:
             fileModel->meta(),
             &FileMeta::pathChanged,
             this,
-            [&, fileModel](const Coco::Path& old, const Coco::Path& now) {
+            [this, fileModel](const Coco::Path& old, const Coco::Path& now) {
                 if (!old.isEmpty()) pathToFileModel_.remove(old);
                 if (!now.isEmpty()) pathToFileModel_[now] = fileModel;
             });
@@ -334,11 +334,11 @@ private:
             fileModel,
             &AbstractFileModel::modificationChanged,
             this,
-            [&, fileModel](bool modified) {
+            [this, fileModel](bool modified) {
                 signalFileModelModificationChanged_(fileModel, modified);
             });
 
-        connect(fileModel->meta(), &FileMeta::changed, this, [&, fileModel] {
+        connect(fileModel->meta(), &FileMeta::changed, this, [this, fileModel] {
             signalFileModelMetaChanged_(fileModel);
         });
 

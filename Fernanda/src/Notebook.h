@@ -222,10 +222,10 @@ protected:
             .menu(Tr::notebookMenu())
 
             .action(Tr::nbOpenNotepad())
-            .onUserTrigger(this, [&] { emit openNotepadRequested(); })
+            .onUserTrigger(this, [this] { emit openNotepadRequested(); })
 
             .action(Tr::nbImportFiles())
-            .onUserTrigger(this, [&, window] {
+            .onUserTrigger(this, [this, window] {
                 importFiles_(window, treeViews->currentIndex(window));
             });
     }
@@ -236,13 +236,13 @@ protected:
         builder.action(Tr::nbNewFile())
             .onUserTrigger(
                 this,
-                [&, window] {
+                [this, window] {
                     newFile_(window, treeViews->currentIndex(window));
                 })
             .shortcut(MenuShortcuts::NEW_TAB)
 
             .action(Tr::nbNewFolder())
-            .onUserTrigger(this, [&, window] {
+            .onUserTrigger(this, [this, window] {
                 newVirtualFolder_(treeViews->currentIndex(window));
             });
     }
@@ -253,15 +253,15 @@ protected:
         Window* window) override
     {
         builder.action(Tr::nxSave())
-            .onUserTrigger(this, [&, window] { save_(window); })
+            .onUserTrigger(this, [this, window] { save_(window); })
             .shortcut(MenuShortcuts::SAVE)
             .enabledToggle(
                 state,
                 MenuScope::Workspace,
-                [&] { return isModified_(); })
+                [this] { return isModified_(); })
 
             .action(Tr::nxSaveAs())
-            .onUserTrigger(this, [&, window] { saveAs_(window); })
+            .onUserTrigger(this, [this, window] { saveAs_(window); })
             .shortcut(MenuShortcuts::SAVE_AS);
     }
 
@@ -305,7 +305,7 @@ private:
             views,
             &ViewService::addTabRequested,
             this,
-            [&](Window* window) {
+            [this](Window* window) {
                 // Whereas menu and context menu use currently selected TreeView
                 // model index, this does not (and automatically goes to
                 // notebook element)
@@ -351,7 +351,7 @@ private:
 
     void connectBusEvents_()
     {
-        connect(bus, &Bus::windowCreated, this, [&](Window* window) {
+        connect(bus, &Bus::windowCreated, this, [this](Window* window) {
             // addWorkspaceIndicator_(window);
         });
 
@@ -763,25 +763,25 @@ private:
             .actionIf(valid, Tr::nbRename())
             .onUserTrigger(
                 this,
-                [&, trashView, index] { trashView->edit(index); })
+                [this, trashView, index] { trashView->edit(index); })
             .separatorIf(valid)
             .actionIf(valid, Tr::nbRestore())
             .onUserTrigger(
                 this,
-                [&, index] { fnxModel_->moveToNotebook(index); })
+                [this, index] { fnxModel_->moveToNotebook(index); })
             .actionIf(
                 valid && fnxModel_->isFile(index),
                 Tr::nbExport()) /// TODO FT: Folder export
             .onUserTrigger(
                 this,
-                [&, window, index] { exportFile_(window, index); })
+                [this, window, index] { exportFile_(window, index); })
             .actionIf(valid, Tr::nbDeletePermanently())
             .onUserTrigger(
                 this,
-                [&, window, index] { deleteTrashItem_(window, index); })
+                [this, window, index] { deleteTrashItem_(window, index); })
             .separatorIf(valid)
             .action(Tr::nbEmptyTrash())
-            .onUserTrigger(this, [&, window] { emptyTrash_(window); })
+            .onUserTrigger(this, [this, window] { emptyTrash_(window); })
             .popup(globalPos);
     }
 
@@ -843,32 +843,34 @@ private slots:
             .action(Tr::nbNewFile())
             .onUserTrigger(
                 this,
-                [&, window, index] { newFile_(window, index); })
+                [this, window, index] { newFile_(window, index); })
             .action(Tr::nbNewFolder())
-            .onUserTrigger(this, [&, index] { newVirtualFolder_(index); })
+            .onUserTrigger(this, [this, index] { newVirtualFolder_(index); })
             .separatorIf(valid)
             .actionIf(
                 valid && has_children,
                 is_expanded ? Tr::nbCollapse() : Tr::nbExpand())
             .onUserTrigger(
                 this,
-                [&, is_expanded, window, index] {
+                [this, is_expanded, window, index] {
                     is_expanded ? treeViews->collapse(window, index)
                                 : treeViews->expand(window, index);
                 })
             .actionIf(valid, Tr::nbRename())
             .onUserTrigger(
                 this,
-                [&, window, index] { treeViews->edit(window, index); })
+                [this, window, index] { treeViews->edit(window, index); })
             .separatorIf(valid)
             .actionIf(valid, Tr::nbRemove())
-            .onUserTrigger(this, [&, index] { fnxModel_->moveToTrash(index); })
+            .onUserTrigger(
+                this,
+                [this, index] { fnxModel_->moveToTrash(index); })
             .actionIf(
                 valid && fnxModel_->isFile(index),
                 Tr::nbExport()) /// TODO FT: Folder export
             .onUserTrigger(
                 this,
-                [&, window, index] { exportFile_(window, index); })
+                [this, window, index] { exportFile_(window, index); })
             .popup(globalPos);
     }
 

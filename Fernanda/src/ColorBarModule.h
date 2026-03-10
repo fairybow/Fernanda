@@ -70,7 +70,7 @@ protected:
         // TODO: Could make Colors enum private and use string args?
         /*bus->addCommandHandler(
             Commands::RUN_COLOR_BAR,
-            [&](const Command& cmd) {
+            [this](const Command& cmd) {
                 if (!cmd.context) return;
                 auto color = cmd.param<ColorBar::Color>("color");
                 run(cmd.context, color);
@@ -78,7 +78,7 @@ protected:
 
         bus->addCommandHandler(
             Commands::RUN_ALL_COLOR_BARS,
-            [&](const Command& cmd) {
+            [this](const Command& cmd) {
                 auto color = cmd.param<ColorBar::Color>("color");
                 runAll(color);
             });*/
@@ -156,10 +156,10 @@ private slots:
     {
         if (key == Ini::Keys::COLOR_BAR_ACTIVE)
             forEachColorBar_(
-                [&](ColorBar* cb) { cb->setActive(value.toBool()); });
+                [value](ColorBar* cb) { cb->setActive(value.toBool()); });
 
         if (key == Ini::Keys::COLOR_BAR_POSITION)
-            forEachColorBar_([&](ColorBar* cb) {
+            forEachColorBar_([value](ColorBar* cb) {
                 cb->setPosition(value.value<ColorBar::Position>());
             });
     }

@@ -104,7 +104,7 @@ private:
                 panel,
                 &SettingsPanel::settingChanged,
                 this,
-                [&](const QString& key, const QVariant& value) {
+                [this](const QString& key, const QVariant& value) {
                     emit settingChanged(key, value);
                 });
         }

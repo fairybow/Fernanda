@@ -144,7 +144,7 @@ private:
 
         setGeometry(viewport->rect());
 
-        connect(editor_, &QPlainTextEdit::cursorPositionChanged, this, [&] {
+        connect(editor_, &QPlainTextEdit::cursorPositionChanged, this, [this] {
             update();
         });
 
@@ -152,7 +152,7 @@ private:
             editor_,
             &QPlainTextEdit::updateRequest,
             this,
-            [&](const QRect& rect, int deltaY) {
+            [this](const QRect& rect, int deltaY) {
                 (void)rect;
                 (void)deltaY;
                 // QWidget::scroll() on the viewport shifts child widgets by the

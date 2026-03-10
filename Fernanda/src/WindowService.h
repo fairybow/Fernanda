@@ -165,11 +165,11 @@ signals:
 protected:
     virtual void registerBusCommands() override
     {
-        bus->addCommandHandler(Bus::WINDOWS_SET, [&] {
+        bus->addCommandHandler(Bus::WINDOWS_SET, [this] {
             return unorderedWindows_;
         });
 
-        bus->addCommandHandler(Bus::WINDOWS, [&] { return windows(); });
+        bus->addCommandHandler(Bus::WINDOWS, [this] { return windows(); });
     }
 
     virtual void connectBusEvents() override
@@ -414,7 +414,7 @@ QSet<Window*> windowsUnordered_() const noexcept
     // Window cycling
     QList<Window*> cyclingOrder_{};
     qsizetype currentCyclingIndex_ = -1;
-    Debouncer* cycleDebouncer_ = new Debouncer(2000, this, [&] {
+    Debouncer* cycleDebouncer_ = new Debouncer(2000, this, [this] {
         currentCyclingIndex_ = -1;
         cyclingOrder_.clear();
     });

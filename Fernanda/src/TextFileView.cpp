@@ -48,7 +48,7 @@ QWidget* TextFileView::setupWidget()
             text_model,
             &TextFileModel::cursorPositionHint,
             this,
-            [&](int position) {
+            [this](int position) {
                 if (!editor_ || !editor_->hasFocus()) return;
                 auto cursor = editor_->textCursor();
                 cursor.setPosition(position);
@@ -72,7 +72,7 @@ QWidget* TextFileView::setupWidget()
         FATAL("TextFileModel cast failed!");
     }
 
-    connect(editor_, &PlainTextEdit::selectionChanged, this, [&] {
+    connect(editor_, &PlainTextEdit::selectionChanged, this, [this] {
         emit selectionChanged();
     });
 
@@ -82,7 +82,7 @@ QWidget* TextFileView::setupWidget()
         this,
         &TextFileView::onEditorCustomContextMenuRequested_);
 
-    connect(Application::clipboard(), &QClipboard::dataChanged, this, [&] {
+    connect(Application::clipboard(), &QClipboard::dataChanged, this, [this] {
         emit clipboardDataChanged();
     });
 

@@ -107,15 +107,15 @@ private:
         layout->addWidget(display_);
         layout->addWidget(plusButton_);
 
-        connect(minusButton_, &QPushButton::clicked, this, [&] {
+        connect(minusButton_, &QPushButton::clicked, this, [this] {
             emit zoomOutRequested();
         });
 
-        connect(display_, &QPushButton::clicked, this, [&] {
+        connect(display_, &QPushButton::clicked, this, [this] {
             emit zoomResetRequested();
         });
 
-        connect(plusButton_, &QPushButton::clicked, this, [&] {
+        connect(plusButton_, &QPushButton::clicked, this, [this] {
             emit zoomInRequested();
         });
 
