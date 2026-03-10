@@ -16,9 +16,9 @@
 
 #include "Debug.h"
 
-class WindowService;
-
 namespace Fernanda {
+
+class WindowService;
 
 // Application window designed to function as a sibling to other Windows via
 // their close relationships with WindowService

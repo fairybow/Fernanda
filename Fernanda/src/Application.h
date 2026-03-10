@@ -164,7 +164,7 @@ private:
         notepad_ = new Notepad(this);
         connectWorkspace_(notepad_);
 
-        connect(notepad_, &Notepad::lastWindowClosed, this, [&] {
+        connect(notepad_, &Notepad::lastWindowClosed, this, [this] {
             if (notebooks_.isEmpty()) quit();
         });
     }
@@ -192,13 +192,13 @@ private:
 
         connectWorkspace_(notebook);
 
-        connect(notebook, &Notebook::lastWindowClosed, this, [&, notebook] {
+        connect(notebook, &Notebook::lastWindowClosed, this, [this, notebook] {
             notebooks_.removeAll(notebook);
             delete notebook;
             if (notebooks_.isEmpty() && !notepad_->hasWindows()) quit();
         });
 
-        connect(notebook, &Notebook::openNotepadRequested, this, [&] {
+        connect(notebook, &Notebook::openNotepadRequested, this, [this] {
             notepad_->show();
         });
 
@@ -214,13 +214,13 @@ private:
             workspace,
             &Workspace::newNotebookRequested,
             this,
-            [&](const Coco::Path& fnxPath) { openNotebook_(fnxPath); });
+            [this](const Coco::Path& fnxPath) { openNotebook_(fnxPath); });
 
         connect(
             workspace,
             &Workspace::openNotebookRequested,
             this,
-            [&](const Coco::Path& fnxPath) {
+            [this](const Coco::Path& fnxPath) {
                 /// TODO FT: This note is now maybe inconsistent with design!
                 // Shouldn't need to check Fnx::isFnxFile. The promise of this
                 // signal is "open Notebook" not "open maybe a Notebook"!
