@@ -13,6 +13,7 @@
 #include <QEvent>
 #include <QFont>
 #include <QHBoxLayout>
+#include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPalette>
@@ -23,12 +24,13 @@
 
 namespace Fernanda {
 
-// FYI - does not work right now!
-
-// Floating zoom control overlay. Anchors itself to the bottom-right
-// corner of its parent, repositioning on resize via event filter. The overlay
-// owns no zoom state, but rather emits requests and displays whatever
-// percentage the parent view provides via setZoomPercent().
+// Floating zoom control overlay. Anchors itself to the bottom-right corner of
+// its parent, repositioning on resize via event filter. Owns zoom state (mode
+// and factor) and emits a single zoomChanged() signal for relevant views to
+// obey.
+//
+// Left-click display to toggle between Fit and last used fixed zoom;
+// right-click display to set to 100% (also resets last used zoom factor)
 //
 // TODO: Hide/fade out after a set linger time. Reappear on hover in its general
 // area (bottom-right). Begin visible, though, so it's obvious the widget is
@@ -37,39 +39,51 @@ namespace Fernanda {
 // TODO: Widget itself is too far right (overlaps with scroll bar slightly and
 // also over edge of fitted PDFs
 // TODO: Button text (and perhaps % label) are slightly lower than centered
-// TODO: Display button too wide
-// TODO: Should pressing display reset to 100% or fit to view? Maybe cycle the
-// two? On fit to view, we'd probably just want to hide the percent and replace
-// with something else that indicates we're in fit mode. Additionally, when
-// pressing zoom in or out in fit mode, how should the views handle this?
 class ZoomControl : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit ZoomControl(QWidget* parent = nullptr)
+    enum Mode
+    {
+        Fit,
+        Fixed
+    };
+
+    ZoomControl(Mode mode, qreal factor, QWidget* parent = nullptr)
         : QWidget(parent)
+        , mode_(mode)
+        , factor_(factor)
     {
         setup_();
     }
 
-    virtual ~ZoomControl() override { TRACER; }
-
-    void setZoomPercent(int percent)
+    explicit ZoomControl(QWidget* parent = nullptr)
+        : ZoomControl(Fit, 1.0, parent)
     {
-        display_->setText(QString("%1%").arg(percent));
     }
 
+    virtual ~ZoomControl() override { TRACER; }
+
 signals:
-    void zoomOutRequested();
-    void zoomResetRequested();
-    void zoomInRequested();
+    void zoomChanged(Mode mode, qreal factor);
 
 protected:
     virtual bool eventFilter(QObject* watched, QEvent* event) override
     {
+        // Resize with parent
         if (watched == parent() && event->type() == QEvent::Resize)
             reposition_();
+
+        // Reset on right-click
+        if (watched == display_ && event->type() == QEvent::MouseButtonPress) {
+            auto mouse_event = static_cast<QMouseEvent*>(event);
+
+            if (mouse_event->button() == Qt::RightButton) {
+                goTo100_();
+                return true;
+            }
+        }
 
         return false;
     }
@@ -86,13 +100,20 @@ protected:
     }
 
 private:
-    static constexpr auto PADDING_ = 12;
-    static constexpr auto CONTENT_HEIGHT_ = 28;
-    static constexpr auto DISPLAY_WIDTH_ = 46;
+    Mode mode_;
+    qreal factor_;
+
+    static constexpr auto STEP_ = 0.1;
+    static constexpr auto MIN_FACTOR_ = 0.1;
+    static constexpr auto MAX_FACTOR_ = 3.0;
 
     QPushButton* minusButton_ = new QPushButton("-", this);
     QPushButton* display_ = new QPushButton("100%", this);
     QPushButton* plusButton_ = new QPushButton("+", this);
+
+    static constexpr auto PADDING_ = 12;
+    static constexpr auto CONTENT_HEIGHT_ = 28;
+    static constexpr auto DISPLAY_WIDTH_ = 46;
 
     void setup_()
     {
@@ -108,24 +129,25 @@ private:
         layout->addWidget(plusButton_);
 
         connect(minusButton_, &QPushButton::clicked, this, [this] {
-            emit zoomOutRequested();
+            step_(-1);
         });
 
         connect(display_, &QPushButton::clicked, this, [this] {
-            emit zoomResetRequested();
+            toggleMode_();
         });
 
-        connect(plusButton_, &QPushButton::clicked, this, [this] {
-            emit zoomInRequested();
-        });
+        connect(plusButton_, &QPushButton::clicked, this, [this] { step_(1); });
 
+        display_->installEventFilter(this);
         if (auto p = parent()) p->installEventFilter(this);
+
         reposition_();
+        updateDisplay_();
     }
 
     void setupButtons_()
     {
-        // TODO: Refine button hover/idle contrast
+        // TODO: Refine button hover/idle contrast maybe
 
         auto text_color = QColor(255, 255, 255, 210);
         auto button_palette = QPalette{};
@@ -162,6 +184,40 @@ private:
         auto x = parent_widget->width() - width() - PADDING_;
         auto y = parent_widget->height() - height() - PADDING_;
         move(x, y);
+    }
+
+    void updateDisplay_()
+    {
+        (mode_ == Fit) ? display_->setText(QStringLiteral("Fit"))
+                       : display_->setText(QStringLiteral("%1%").arg(
+                             qRound(factor_ * 100.0)));
+    }
+
+    void toggleMode_()
+    {
+        mode_ = (mode_ == Fit) ? Fixed : Fit;
+        updateDisplay_();
+
+        emit zoomChanged(mode_, factor_);
+    }
+
+    void step_(int direction)
+    {
+        mode_ = Fixed;
+        auto new_factor = factor_ + (STEP_ * direction);
+        factor_ = qBound(MIN_FACTOR_, new_factor, MAX_FACTOR_);
+        updateDisplay_();
+
+        emit zoomChanged(mode_, factor_);
+    }
+
+    void goTo100_()
+    {
+        mode_ = Fixed;
+        factor_ = 1.0;
+        updateDisplay_();
+
+        emit zoomChanged(mode_, factor_);
     }
 };
 
