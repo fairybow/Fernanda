@@ -16,6 +16,8 @@
 
 #include "Debug.h"
 
+class WindowService;
+
 namespace Fernanda {
 
 // Application window designed to function as a sibling to other Windows via
@@ -25,7 +27,7 @@ class Window : public QMainWindow
     Q_OBJECT
 
 public:
-    friend class WindowService;
+    friend WindowService;
 
     explicit Window(QWidget* parent = nullptr)
         : QMainWindow(parent)
