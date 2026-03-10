@@ -22,7 +22,6 @@
 namespace Fernanda {
 
 // TODO: Show page number on scroll!
-// TODO: Need zoom controls! (w/ percent obvs)
 // TODO: Ensure when we have zoom out that the background / non-PDF area is
 // black
 // TODO: For these overlay widgets, look to SelectionHandleOverlay.h as an
@@ -67,6 +66,19 @@ protected:
         } else {
             FATAL("PdfFileModel cast failed!");
         }
+
+        connect(
+            zoomControl_,
+            &ZoomControl::zoomChanged,
+            this,
+            [this](ZoomControl::Mode mode, qreal factor) {
+                if (mode == ZoomControl::Fit) {
+                    pdfView_->setZoomMode(QPdfView::ZoomMode::FitToWidth);
+                } else {
+                    pdfView_->setZoomMode(QPdfView::ZoomMode::Custom);
+                    pdfView_->setZoomFactor(factor);
+                }
+            });
 
         return pdfView_;
     }

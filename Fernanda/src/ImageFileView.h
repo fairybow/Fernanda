@@ -77,19 +77,31 @@ protected:
         }
 
         scrollArea_->setWidget(label_);
+
+        connect(
+            zoomControl_,
+            &ZoomControl::zoomChanged,
+            this,
+            [this](ZoomControl::Mode mode, qreal factor) {
+                if (mode == ZoomControl::Fit)
+                    fitToView_();
+                else
+                    zoomToFactor_(factor);
+            });
+
         return scrollArea_;
     }
 
     virtual void showEvent(QShowEvent* event) override
     {
         AbstractFileView::showEvent(event);
-        fitToView_();
+        if (zoomControl_->mode() == ZoomControl::Fit) fitToView_();
     }
 
     virtual void resizeEvent(QResizeEvent* event) override
     {
         AbstractFileView::resizeEvent(event);
-        fitToView_();
+        if (zoomControl_->mode() == ZoomControl::Fit) fitToView_();
     }
 
 private:
@@ -97,6 +109,19 @@ private:
     QLabel* label_ = new QLabel(this);
     QPixmap originalPixmap_{};
     ZoomControl* zoomControl_ = new ZoomControl(scrollArea_);
+
+    void zoomToFactor_(qreal factor)
+    {
+        if (originalPixmap_.isNull()) return;
+
+        auto scaled = originalPixmap_.scaled(
+            originalPixmap_.size() * factor,
+            Qt::KeepAspectRatio,
+            Qt::SmoothTransformation);
+
+        label_->setPixmap(scaled);
+        label_->resize(scaled.size());
+    }
 
     void fitToView_()
     {
