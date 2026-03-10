@@ -109,26 +109,30 @@ private:
             fontsBox_,
             &QComboBox::currentTextChanged,
             this,
-            [&](const QString& text) {
+            [this](const QString& text) {
                 currentFont_.setFamily(text);
                 emitFont_();
             });
 
-        connect(boldCheckBox_, &QCheckBox::toggled, this, [&](bool checked) {
+        connect(boldCheckBox_, &QCheckBox::toggled, this, [this](bool checked) {
             currentFont_.setBold(checked);
             emitFont_();
         });
 
-        connect(italicCheckBox_, &QCheckBox::toggled, this, [&](bool checked) {
-            currentFont_.setItalic(checked);
-            emitFont_();
-        });
+        connect(
+            italicCheckBox_,
+            &QCheckBox::toggled,
+            this,
+            [this](bool checked) {
+                currentFont_.setItalic(checked);
+                emitFont_();
+            });
 
         connect(
             sizeSlider_,
             &DisplaySlider::valueChanged,
             this,
-            [&](int value) {
+            [this](int value) {
                 currentFont_.setPointSize(value);
                 emitFont_();
             });

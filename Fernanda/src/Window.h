@@ -18,6 +18,8 @@
 
 namespace Fernanda {
 
+class WindowService;
+
 // Application window designed to function as a sibling to other Windows via
 // their close relationships with WindowService
 class Window : public QMainWindow
@@ -25,7 +27,7 @@ class Window : public QMainWindow
     Q_OBJECT
 
 public:
-    friend class WindowService;
+    friend WindowService;
 
     explicit Window(QWidget* parent = nullptr)
         : QMainWindow(parent)

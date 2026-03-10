@@ -115,7 +115,8 @@ public:
 
         /// TODO FT: Ini should probably provide a map of values to defaults or
         /// something
-        auto v = [&](const auto& key,
+        auto v = [this](
+                     const auto& key,
                      const auto& default_) -> std::pair<QString, QVariant> {
             return { key, settings_->value(key, qVar(default_)) };
         };
@@ -185,7 +186,7 @@ public:
             dialog_,
             &SettingsDialog::settingChanged,
             this,
-            [&](const QString& key, const QVariant& value) {
+            [this](const QString& key, const QVariant& value) {
                 emit bus->settingChanged(key, value);
 
                 if (debouncers_.contains(key))
@@ -194,7 +195,7 @@ public:
                     set(key, value);
             });
 
-        connect(dialog_, &SettingsDialog::finished, this, [&](int result) {
+        connect(dialog_, &SettingsDialog::finished, this, [this](int result) {
             (void)result;
             delete dialog_;
             dialog_ = nullptr;
@@ -238,13 +239,13 @@ public:
 protected:
     virtual void registerBusCommands() override
     {
-        bus->addCommandHandler(Bus::GET_SETTING, [&](const Command& cmd) {
+        bus->addCommandHandler(Bus::GET_SETTING, [this](const Command& cmd) {
             return settings_->value(
                 cmd.param<QString>("key"),
                 cmd.param("defaultValue"));
         });
 
-        /*bus->addCommandHandler(Bus::SET_SETTING, [&](const Command& cmd) {
+        /*bus->addCommandHandler(Bus::SET_SETTING, [this](const Command& cmd) {
             set(cmd.param<QString>("key"), cmd.param("value"));
         });*/
     }

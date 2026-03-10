@@ -101,24 +101,26 @@ private:
         layout->addWidget(display_);
 
         // Connect
-        connect(slider_, &QSlider::valueChanged, this, [&](int value) {
+        connect(slider_, &QSlider::valueChanged, this, [this](int value) {
             setDisplayText_();
             emit valueChanged(value);
         });
 
-        connect(slider_, &QSlider::rangeChanged, this, [&](int min, int max) {
-            emit rangeChanged(min, max);
-        });
+        connect(
+            slider_,
+            &QSlider::rangeChanged,
+            this,
+            [this](int min, int max) { emit rangeChanged(min, max); });
 
-        connect(slider_, &QSlider::sliderMoved, this, [&](int value) {
+        connect(slider_, &QSlider::sliderMoved, this, [this](int value) {
             emit sliderMoved(value);
         });
 
-        connect(slider_, &QSlider::sliderPressed, this, [&] {
+        connect(slider_, &QSlider::sliderPressed, this, [this] {
             emit sliderPressed();
         });
 
-        connect(slider_, &QSlider::sliderReleased, this, [&] {
+        connect(slider_, &QSlider::sliderReleased, this, [this] {
             emit sliderReleased();
         });
     }

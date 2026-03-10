@@ -59,11 +59,11 @@ public:
 protected:
     virtual void registerBusCommands() override
     {
-        bus->addCommandHandler(Bus::WINDOW_THEMES, [&] {
+        bus->addCommandHandler(Bus::WINDOW_THEMES, [this] {
             return themeData_(windowThemes_);
         });
 
-        bus->addCommandHandler(Bus::EDITOR_THEMES, [&] {
+        bus->addCommandHandler(Bus::EDITOR_THEMES, [this] {
             return themeData_(editorThemes_);
         });
     }
@@ -213,7 +213,7 @@ private:
     template <typename ThemeT>
     void rebuildTheme_(QList<ThemeT>& themes, const Coco::Path& path)
     {
-        themes.removeIf([&](const ThemeT& t) { return t.path() == path; });
+        themes.removeIf([path](const ThemeT& t) { return t.path() == path; });
         themes << ThemeT{ path }; // (May be invalid now, which is fine)
         sortThemes_<ThemeT>(themes);
     }
@@ -306,12 +306,12 @@ private slots:
         // Apply removals
         for (auto& path : removed_window) {
             windowThemes_.removeIf(
-                [&](const WindowTheme& t) { return t.path() == path; });
+                [path](const WindowTheme& t) { return t.path() == path; });
         }
 
         for (auto& path : removed_editor) {
             editorThemes_.removeIf(
-                [&](const EditorTheme& t) { return t.path() == path; });
+                [path](const EditorTheme& t) { return t.path() == path; });
         }
 
         // Apply additions
@@ -391,7 +391,7 @@ private slots:
 
         // TODO: Search use of Window::destroyed and replace with this (also
         // remove the note where I said only use Window::destroyed lol)
-        connect(window, &QObject::destroyed, this, [&, window] {
+        connect(window, &QObject::destroyed, this, [this, window] {
             windows_.remove(window);
         });
 
@@ -425,7 +425,7 @@ private slots:
 
         textFileViews_ << text_view;
 
-        connect(text_view, &QObject::destroyed, this, [&, text_view] {
+        connect(text_view, &QObject::destroyed, this, [this, text_view] {
             textFileViews_.remove(text_view);
         });
 

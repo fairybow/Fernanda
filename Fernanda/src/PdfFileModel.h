@@ -60,7 +60,7 @@ private:
             document_,
             &QPdfDocument::statusChanged,
             this,
-            [&](QPdfDocument::Status status) {
+            [this](QPdfDocument::Status status) {
                 if (status == QPdfDocument::Status::Error)
                     WARN("PDF load failed for [{}]", meta()->path());
             });

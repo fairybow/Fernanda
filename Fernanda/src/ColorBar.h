@@ -290,7 +290,7 @@ private:
 
         connect(time_line, &QTimeLine::frameChanged, this, &ColorBar::tick_);
 
-        connect(time_line, &QTimeLine::finished, this, [&, time_line] {
+        connect(time_line, &QTimeLine::finished, this, [this, time_line] {
             lingerTimer_->start(); // linger AFTER fill completes
             activeTimeLine_ = nullptr;
             time_line->deleteLater();

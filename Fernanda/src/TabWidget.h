@@ -165,7 +165,7 @@ private:
         main_layout->addWidget(mainStack_, 1);
 
         // Connect
-        connect(addButton_, &TabWidgetButton::clicked, this, [&] {
+        connect(addButton_, &TabWidgetButton::clicked, this, [this] {
             emit addTabRequested();
         });
 
@@ -376,7 +376,7 @@ private:
             close_button,
             &TabWidgetCloseButton::clickedAt,
             this,
-            [&](int i) { emit closeTabRequested(i); });
+            [this](int i) { emit closeTabRequested(i); });
     }
 
     /// *** STACK MANAGEMENT *** ///
@@ -512,15 +512,17 @@ signals:
 private:
     void initializeTabBarPropagatedSignals_()
     {
-        connect(tabBar_, &QTabBar::tabBarClicked, this, [&](int index) {
+        connect(tabBar_, &QTabBar::tabBarClicked, this, [this](int index) {
             emit tabBarClicked(index);
         });
 
-        connect(tabBar_, &QTabBar::tabBarDoubleClicked, this, [&](int index) {
-            emit tabBarDoubleClicked(index);
-        });
+        connect(
+            tabBar_,
+            &QTabBar::tabBarDoubleClicked,
+            this,
+            [this](int index) { emit tabBarDoubleClicked(index); });
 
-        connect(tabBar_, &QTabBar::tabMoved, this, [&](int from, int to) {
+        connect(tabBar_, &QTabBar::tabMoved, this, [this](int from, int to) {
             emit tabMoved(from, to);
         });
     }

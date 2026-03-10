@@ -58,18 +58,18 @@ void Workspace::createWindowMenuBar_(Window* window)
 
     MenuBuilder(MenuBuilder::MenuBar, window)
 
-        .apply([&, state, window](MenuBuilder& builder) {
+        .apply([this, state, window](MenuBuilder& builder) {
             workspaceMenuHook(builder, state, window);
         })
 
         .menu(Tr::nxFileMenu())
 
-        .apply([&, window](MenuBuilder& builder) {
+        .apply([this, window](MenuBuilder& builder) {
             fileMenuOpenActions(builder, window);
         })
 
         .action(Tr::nxNewWindow())
-        .onUserTrigger(this, [&] { windows->newWindow(); })
+        .onUserTrigger(this, [this] { windows->newWindow(); })
         .shortcut(MenuShortcuts::NEW_WINDOW)
 
         .separator()
@@ -77,7 +77,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         .action(Tr::nxNewNotebook())
         .onUserTrigger(
             this,
-            [&] {
+            [this] {
                 // Will allow creation of new Notebook with a prospective
                 // path that is the
                 // same as an existing Notebook's. When saved, the user will
@@ -91,7 +91,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         .action(Tr::nxOpenNotebook())
         .onUserTrigger(
             this,
-            [&] {
+            [this] {
                 // nullptr parent makes the dialog application modal
                 auto path = Coco::getFile(
                     nullptr,
@@ -106,60 +106,62 @@ void Workspace::createWindowMenuBar_(Window* window)
 
         .separator()
 
-        .apply([&, state, window](MenuBuilder& builder) {
+        .apply([this, state, window](MenuBuilder& builder) {
             fileMenuSaveActions(builder, state, window);
         })
 
         .separator()
 
         .action(Tr::nxDuplicateTab())
-        .onUserTrigger(this, [&, window] { views->duplicateTab(window, -1); })
+        .onUserTrigger(
+            this,
+            [this, window] { views->duplicateTab(window, -1); })
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] { return views->fileViewAt(window, -1); })
+            [this, window] { return views->fileViewAt(window, -1); })
 
         .separator()
 
         .action(Tr::nxCloseTab())
-        .onUserTrigger(this, [&, window] { views->closeTab(window, -1); })
+        .onUserTrigger(this, [this, window] { views->closeTab(window, -1); })
         .shortcut(MenuShortcuts::CLOSE_TAB)
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] { return views->fileViewAt(window, -1); })
+            [this, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::nxCloseTabEverywhere())
         .onUserTrigger(
             this,
-            [&, window] { views->closeTabEverywhere(window, -1); })
+            [this, window] { views->closeTabEverywhere(window, -1); })
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] { return views->fileViewAt(window, -1); })
+            [this, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::nxCloseWindowTabs())
-        .onUserTrigger(this, [&, window] { views->closeWindowTabs(window); })
+        .onUserTrigger(this, [this, window] { views->closeWindowTabs(window); })
         .enabledToggle(
             state,
             MenuScope::Window,
-            [&, window] { return views->fileViewAt(window, -1); })
+            [this, window] { return views->fileViewAt(window, -1); })
 
         .action(Tr::nxCloseAllTabs())
-        .onUserTrigger(this, [&] { views->closeAllTabs(); })
+        .onUserTrigger(this, [this] { views->closeAllTabs(); })
         .enabledToggle(
             state,
             MenuScope::Workspace,
-            [&] { return views->anyViews(); })
+            [this] { return views->anyViews(); })
 
         .separator()
 
         .action(Tr::nxCloseWindow())
-        .onUserTrigger(this, [&, window] { window->close(); })
+        .onUserTrigger(this, [this, window] { window->close(); })
         .shortcut(MenuShortcuts::CLOSE_WINDOW)
 
         .action(Tr::nxCloseAllWindows())
-        .onUserTrigger(this, [&] { windows->closeAll(); })
+        .onUserTrigger(this, [this] { windows->closeAll(); })
 
         .separator()
 
@@ -170,23 +172,23 @@ void Workspace::createWindowMenuBar_(Window* window)
         .menu(Tr::nxEditMenu())
 
         .action(Tr::nxUndo())
-        .onUserTrigger(this, [&, window] { views->undo(window, -1); })
+        .onUserTrigger(this, [this, window] { views->undo(window, -1); })
         .shortcut(MenuShortcuts::UNDO)
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] {
+            [this, window] {
                 auto model = views->fileModelAt(window, -1);
                 return model && model->hasUndo();
             })
 
         .action(Tr::nxRedo())
-        .onUserTrigger(this, [&, window] { views->redo(window, -1); })
+        .onUserTrigger(this, [this, window] { views->redo(window, -1); })
         .shortcut(MenuShortcuts::REDO)
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] {
+            [this, window] {
                 auto model = views->fileModelAt(window, -1);
                 return model && model->hasRedo();
             })
@@ -194,45 +196,45 @@ void Workspace::createWindowMenuBar_(Window* window)
         .separator()
 
         .action(Tr::nxCut())
-        .onUserTrigger(this, [&, window] { views->cut(window, -1); })
+        .onUserTrigger(this, [this, window] { views->cut(window, -1); })
         .shortcut(MenuShortcuts::CUT)
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] {
+            [this, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasSelection();
             })
 
         .action(Tr::nxCopy())
-        .onUserTrigger(this, [&, window] { views->copy(window, -1); })
+        .onUserTrigger(this, [this, window] { views->copy(window, -1); })
         .shortcut(MenuShortcuts::COPY)
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] {
+            [this, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasSelection();
             })
 
         .action(Tr::nxPaste())
-        .onUserTrigger(this, [&, window] { views->paste(window, -1); })
+        .onUserTrigger(this, [this, window] { views->paste(window, -1); })
         .shortcut(MenuShortcuts::PASTE)
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] {
+            [this, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasPaste();
             })
 
         .action(Tr::nxDelete())
-        .onUserTrigger(this, [&, window] { views->del(window, -1); })
+        .onUserTrigger(this, [this, window] { views->del(window, -1); })
         .shortcut(MenuShortcuts::DEL)
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] {
+            [this, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasSelection();
             })
@@ -240,12 +242,12 @@ void Workspace::createWindowMenuBar_(Window* window)
         .separator()
 
         .action(Tr::nxSelectAll())
-        .onUserTrigger(this, [&, window] { views->selectAll(window, -1); })
+        .onUserTrigger(this, [this, window] { views->selectAll(window, -1); })
         .shortcut(MenuShortcuts::SELECT_ALL)
         .enabledToggle(
             state,
             MenuScope::ActiveTab,
-            [&, window] {
+            [this, window] {
                 auto view = views->fileViewAt(window, -1);
                 return view && view->supportsEditing();
             })
@@ -255,13 +257,13 @@ void Workspace::createWindowMenuBar_(Window* window)
         .addAction(treeViews->dockToggleViewAction(window))
         .onToggle(
             this,
-            [&, window](bool checked) {
+            [this, window](bool checked) {
                 if (!window || !window->isVisible()) return;
                 settings->set(treeViewDockIniKey(), checked);
             })
 
         .barAction(Tr::nxSettingsMenu())
-        .onUserTrigger(this, [&] { settings->openDialog(); })
+        .onUserTrigger(this, [this] { settings->openDialog(); })
 
         .menu(Tr::nxHelpMenu())
         .action(Tr::nxAbout())
