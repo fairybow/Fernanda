@@ -515,7 +515,7 @@ protected:
             bus,
             &Bus::settingChanged,
             this,
-            [&](const QString& key, const QVariant& value) {
+            [this](const QString& key, const QVariant& value) {
                 if (auto applier = settingAppliers_.value(key)) applier(value);
             });
     }
@@ -532,84 +532,86 @@ private:
 
     void setup_()
     {
-        settingAppliers_[Ini::Keys::EDITOR_FONT] = [&](const QVariant& v) {
-            forEachTextFileView_([&](TextFileView* view) {
+        settingAppliers_[Ini::Keys::EDITOR_FONT] = [this](const QVariant& v) {
+            forEachTextFileView_([v](TextFileView* view) {
                 view->editor()->setFont(v.value<QFont>());
             });
         };
 
         settingAppliers_[Ini::Keys::KEY_FILTERS_ACTIVE] =
-            [&](const QVariant& v) {
-                forEachTextFileView_([&](TextFileView* view) {
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
                     view->keyFilters()->setActive(v.value<bool>());
                 });
             };
 
         settingAppliers_[Ini::Keys::KEY_FILTERS_AUTO_CLOSE] =
-            [&](const QVariant& v) {
-                forEachTextFileView_([&](TextFileView* view) {
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
                     view->keyFilters()->setAutoClosing(v.value<bool>());
                 });
             };
 
         settingAppliers_[Ini::Keys::KEY_FILTERS_BARGING] =
-            [&](const QVariant& v) {
-                forEachTextFileView_([&](TextFileView* view) {
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
                     view->keyFilters()->setBarging(v.value<bool>());
                 });
             };
 
         settingAppliers_[Ini::Keys::EDITOR_CENTER_ON_SCROLL] =
-            [&](const QVariant& v) {
-                forEachTextFileView_([&](TextFileView* view) {
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
                     view->editor()->setCenterOnScroll(v.value<bool>());
                 });
             };
 
-        settingAppliers_[Ini::Keys::EDITOR_OVERWRITE] = [&](const QVariant& v) {
-            forEachTextFileView_([&](TextFileView* view) {
-                view->editor()->setOverwriteMode(v.value<bool>());
-            });
-        };
+        settingAppliers_[Ini::Keys::EDITOR_OVERWRITE] =
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
+                    view->editor()->setOverwriteMode(v.value<bool>());
+                });
+            };
 
         settingAppliers_[Ini::Keys::EDITOR_TAB_STOP_DISTANCE] =
-            [&](const QVariant& v) {
-                forEachTextFileView_([&](TextFileView* view) {
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
                     view->editor()->setTabStopDistance(v.value<int>());
                 });
             };
 
-        settingAppliers_[Ini::Keys::EDITOR_WRAP_MODE] = [&](const QVariant& v) {
-            forEachTextFileView_([&](TextFileView* view) {
-                view->editor()->setWordWrapMode(
-                    v.value<QTextOption::WrapMode>());
-            });
-        };
+        settingAppliers_[Ini::Keys::EDITOR_WRAP_MODE] =
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
+                    view->editor()->setWordWrapMode(
+                        v.value<QTextOption::WrapMode>());
+                });
+            };
 
         settingAppliers_[Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE] =
-            [&](const QVariant& v) {
-                forEachTextFileView_([&](TextFileView* view) {
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
                     view->editor()->setDoubleClickWhitespace(v.value<bool>());
                 });
             };
 
         settingAppliers_[Ini::Keys::EDITOR_LINE_NUMBERS] =
-            [&](const QVariant& v) {
-                forEachTextFileView_([&](TextFileView* view) {
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
                     view->editor()->setLineNumbers(v.value<bool>());
                 });
             };
 
         settingAppliers_[Ini::Keys::EDITOR_LINE_HIGHLIGHT] =
-            [&](const QVariant& v) {
-                forEachTextFileView_([&](TextFileView* view) {
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
                     view->editor()->setLineHighlight(v.value<bool>());
                 });
             };
 
         settingAppliers_[Ini::Keys::EDITOR_SELECTION_HANDLES] =
-            [&](const QVariant& v) {
-                forEachTextFileView_([&](TextFileView* view) {
+            [this](const QVariant& v) {
+                forEachTextFileView_([v](TextFileView* view) {
                     view->editor()->setSelectionHandles(v.value<bool>());
                 });
             };
@@ -700,9 +702,9 @@ private:
             tab_widget,
             &TabWidget::currentChanged,
             this,
-            [&, window](int index) { setActiveFileView_(window, index); });
+            [this, window](int index) { setActiveFileView_(window, index); });
 
-        connect(tab_widget, &TabWidget::addTabRequested, this, [&, window] {
+        connect(tab_widget, &TabWidget::addTabRequested, this, [this, window] {
             emit addTabRequested(window);
         });
 
@@ -710,7 +712,7 @@ private:
             tab_widget,
             &TabWidget::closeTabRequested,
             this,
-            [&, window](int index) { closeTab(window, index); });
+            [this, window](int index) { closeTab(window, index); });
 
         /// TODO TD
         connect(
@@ -888,7 +890,7 @@ private:
 
         emit bus->fileViewCreated(view);
 
-        connect(view, &QObject::destroyed, this, [&, view, fileModel] {
+        connect(view, &QObject::destroyed, this, [this, view, fileModel] {
             if (--fileViewsPerModel_[fileModel] <= 0)
                 fileViewsPerModel_.remove(fileModel);
             INFO("File view destroyed [{}] for model [{}]", view, fileModel);

@@ -84,7 +84,7 @@ private:
         if (!wordCounter) return;
 
         // TODO: Use this or comparable refactor in other places
-        auto get = [&](const char* key, auto defaultVal) {
+        auto get = [this](const char* key, auto defaultVal) {
             return bus->call<bool>(
                 Bus::GET_SETTING,
                 { { "key", key }, { "defaultValue", defaultVal } });
@@ -162,37 +162,40 @@ private slots:
     {
         if (key == Ini::Keys::WORD_COUNTER_ACTIVE)
             forEachWordCounter_(
-                [&](WordCounter* wc) { wc->setActive(value.toBool()); });
+                [value](WordCounter* wc) { wc->setActive(value.toBool()); });
 
         if (key == Ini::Keys::WORD_COUNTER_LINE_COUNT)
-            forEachWordCounter_(
-                [&](WordCounter* wc) { wc->setHasLineCount(value.toBool()); });
+            forEachWordCounter_([value](WordCounter* wc) {
+                wc->setHasLineCount(value.toBool());
+            });
 
         if (key == Ini::Keys::WORD_COUNTER_WORD_COUNT)
-            forEachWordCounter_(
-                [&](WordCounter* wc) { wc->setHasWordCount(value.toBool()); });
+            forEachWordCounter_([value](WordCounter* wc) {
+                wc->setHasWordCount(value.toBool());
+            });
 
         if (key == Ini::Keys::WORD_COUNTER_CHAR_COUNT)
-            forEachWordCounter_(
-                [&](WordCounter* wc) { wc->setHasCharCount(value.toBool()); });
+            forEachWordCounter_([value](WordCounter* wc) {
+                wc->setHasCharCount(value.toBool());
+            });
 
         if (key == Ini::Keys::WORD_COUNTER_SELECTION)
-            forEachWordCounter_([&](WordCounter* wc) {
+            forEachWordCounter_([value](WordCounter* wc) {
                 wc->setHasSelectionCounts(value.toBool());
             });
 
         if (key == Ini::Keys::WORD_COUNTER_SEL_REPLACE)
-            forEachWordCounter_([&](WordCounter* wc) {
+            forEachWordCounter_([value](WordCounter* wc) {
                 wc->setHasSelectionReplacement(value.toBool());
             });
 
         if (key == Ini::Keys::WORD_COUNTER_LINE_POS)
-            forEachWordCounter_([&](WordCounter* wc) {
+            forEachWordCounter_([value](WordCounter* wc) {
                 wc->setHasLinePosition(value.toBool());
             });
 
         if (key == Ini::Keys::WORD_COUNTER_COL_POS)
-            forEachWordCounter_([&](WordCounter* wc) {
+            forEachWordCounter_([value](WordCounter* wc) {
                 wc->setHasColumnPosition(value.toBool());
             });
     }

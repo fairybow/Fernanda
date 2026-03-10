@@ -65,11 +65,11 @@ public:
             viewDoc,
             &QTextDocument::contentsChange,
             this,
-            [&, viewDoc](int pos, int removed, int added) {
+            [this, viewDoc](int pos, int removed, int added) {
                 onLocalViewContentsChange_(viewDoc, pos, removed, added);
             });
 
-        connect(viewDoc, &QObject::destroyed, this, [&, viewDoc] {
+        connect(viewDoc, &QObject::destroyed, this, [this, viewDoc] {
             localViewDocuments_.removeAll(viewDoc);
         });
 
@@ -155,14 +155,14 @@ public:
     virtual void undo() override
     {
         if (!primeDocument_ || routingDelta_) return;
-        replayPrimeOperation_([&] { primeDocument_->undo(); });
+        replayPrimeOperation_([this] { primeDocument_->undo(); });
     }
 
     /// TODO PD
     virtual void redo() override
     {
         if (!primeDocument_ || routingDelta_) return;
-        replayPrimeOperation_([&] { primeDocument_->redo(); });
+        replayPrimeOperation_([this] { primeDocument_->redo(); });
     }
 
 signals:
@@ -217,19 +217,19 @@ private:
             primeDocument_,
             &QTextDocument::modificationChanged,
             this,
-            [&](bool changed) { emit modificationChanged(changed); });
+            [this](bool changed) { emit modificationChanged(changed); });
 
         connect(
             primeDocument_,
             &QTextDocument::undoAvailable,
             this,
-            [&](bool available) { emit undoAvailable(available); });
+            [this](bool available) { emit undoAvailable(available); });
 
         connect(
             primeDocument_,
             &QTextDocument::redoAvailable,
             this,
-            [&](bool available) { emit redoAvailable(available); });
+            [this](bool available) { emit redoAvailable(available); });
 
         connect(
             primeDocument_,

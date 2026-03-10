@@ -235,14 +235,14 @@ private:
 
         // TODO: Needed? Check that it actually works, too, since it decays to
         // QObject before emitting destroyed...
-        connect(dock_widget, &QObject::destroyed, this, [&, window] {
+        connect(dock_widget, &QObject::destroyed, this, [this, window] {
             // if (!window) return;
             dockWidgets_.remove(window);
         });
 
         auto tree_view = new TreeView(dock_widget);
         treeViews_[window] = tree_view;
-        connect(tree_view, &QObject::destroyed, this, [&, window] {
+        connect(tree_view, &QObject::destroyed, this, [this, window] {
             // if (!window) return;
             treeViews_.remove(window);
         });
@@ -275,7 +275,7 @@ private:
             tree_view,
             &TreeView::doubleClicked,
             this,
-            [&, window](const QModelIndex& index) {
+            [this, window](const QModelIndex& index) {
                 if (!window) return;
                 INFO(
                     "Tree view double-clicked in [{}]: index [{}]",
@@ -288,7 +288,7 @@ private:
             tree_view,
             &TreeView::customContextMenuRequested,
             this,
-            [&, window, tree_view](const QPoint& pos) {
+            [this, window, tree_view](const QPoint& pos) {
                 if (!window || !tree_view) return;
 
                 auto point = tree_view->mapToGlobal(pos);

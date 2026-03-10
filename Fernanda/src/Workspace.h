@@ -64,7 +64,7 @@ public:
 
     void beCute() const
     {
-        Timers::delay(1200, this, [&] { colorBars->pastel(); });
+        Timers::delay(1200, this, [this] { colorBars->pastel(); });
     }
 
     bool hasWindows() const { return windows->count() > 0; }
@@ -183,7 +183,7 @@ private:
             views,
             &ViewService::fileViewDestroyed,
             this,
-            [&](AbstractFileView* fileView) {
+            [this](AbstractFileView* fileView) {
                 (void)fileView;
                 refreshMenus(MenuScope::Window);
                 refreshMenus(MenuScope::Workspace);
@@ -205,7 +205,7 @@ private:
 
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
-        connect(windows, &WindowService::lastWindowClosed, this, [&] {
+        connect(windows, &WindowService::lastWindowClosed, this, [this] {
             emit lastWindowClosed(); // Propagate this signal to App for each
                                      // individual Workspace
         });
@@ -221,12 +221,12 @@ private:
 
     void connectBusEvents_()
     {
-        connect(bus, &Bus::windowCreated, this, [&](Window* window) {
+        connect(bus, &Bus::windowCreated, this, [this](Window* window) {
             (void)window->statusBar(); // Ensure status bar
             createWindowMenuBar_(window);
         });
 
-        connect(bus, &Bus::windowDestroyed, this, [&](Window* window) {
+        connect(bus, &Bus::windowDestroyed, this, [this](Window* window) {
             delete menuStates_.take(window);
 
             disconnectOldActiveTab_(window);
@@ -246,7 +246,7 @@ private:
             bus,
             &Bus::fileModelReadied,
             this,
-            [&](Window* window, AbstractFileModel* fileModel) {
+            [this](Window* window, AbstractFileModel* fileModel) {
                 (void)window;
                 (void)fileModel;
 
@@ -258,7 +258,7 @@ private:
             bus,
             &Bus::fileModelModificationChanged,
             this,
-            [&](AbstractFileModel* fileModel, bool modified) {
+            [this](AbstractFileModel* fileModel, bool modified) {
                 (void)fileModel;
                 (void)modified;
 
@@ -294,7 +294,7 @@ private slots:
         if (!model) return;
 
         auto& connections = activeTabConnections_[window];
-        auto slot = [&, window] {
+        auto slot = [this, window] {
             refreshMenus(window, MenuScope::ActiveTab);
         };
 

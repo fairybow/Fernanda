@@ -384,11 +384,11 @@ protected:
         if (!window) return;
 
         builder.action(Tr::npNewTab())
-            .onUserTrigger(this, [&, window] { newTab_(window); })
+            .onUserTrigger(this, [this, window] { newTab_(window); })
             .shortcut(MenuShortcuts::NEW_TAB)
 
             .action(Tr::npOpenFile())
-            .onUserTrigger(this, [&, window] { promptOpenFiles_(window); })
+            .onUserTrigger(this, [this, window] { promptOpenFiles_(window); })
             .shortcut(MenuShortcuts::OPEN_FILE);
     }
 
@@ -398,23 +398,23 @@ protected:
         Window* window) override
     {
         builder.action(Tr::nxSave())
-            .onUserTrigger(this, [&, window] { save_(window); })
+            .onUserTrigger(this, [this, window] { save_(window); })
             .shortcut(MenuShortcuts::SAVE)
             .enabledToggle(
                 state,
                 MenuScope::ActiveTab,
-                [&, window] {
+                [this, window] {
                     auto model = views->fileModelAt(window, -1);
                     return model && model->isModified();
                 })
 
             .action(Tr::nxSaveAs())
-            .onUserTrigger(this, [&, window] { saveAs_(window); })
+            .onUserTrigger(this, [this, window] { saveAs_(window); })
             .shortcut(MenuShortcuts::SAVE_AS)
             .enabledToggle(
                 state,
                 MenuScope::ActiveTab,
-                [&, window] {
+                [this, window] {
                     /// TODO FT: Had to change this after removing
                     /// "supportsEditing" guard in FileService::saveAs. That
                     /// probably means FileService should be the source for this
@@ -423,16 +423,18 @@ protected:
                 })
 
             .action(Tr::npSaveAllInWindow())
-            .onUserTrigger(this, [&, window] { saveAllInWindow_(window); })
+            .onUserTrigger(this, [this, window] { saveAllInWindow_(window); })
             .enabledToggle(
                 state,
                 MenuScope::Window,
-                [&, window] { return views->anyModifiedFileModelsIn(window); })
+                [this, window] {
+                    return views->anyModifiedFileModelsIn(window);
+                })
 
             .action(Tr::npSaveAll())
-            .onUserTrigger(this, [&, window] { saveAll_(window); })
+            .onUserTrigger(this, [this, window] { saveAll_(window); })
             .shortcut(MenuShortcuts::SAVE_ALL)
-            .enabledToggle(state, MenuScope::Workspace, [&] {
+            .enabledToggle(state, MenuScope::Workspace, [this] {
                 return files->anyModified();
             });
     }
@@ -446,7 +448,7 @@ private:
         // this, QFSM's initialization blocks the event loop (or causes enough
         // strain in any case) long enough to cause white/unpainted windows on
         // startup
-        Timers::onNextTick([&] {
+        Timers::onNextTick([this] {
             fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
             fsModel_->setRootPath(currentRootDir.toQString());
             fsModel_->setReadOnly(false);
@@ -456,7 +458,8 @@ private:
                 fsModel_,
                 &QFileSystemModel::fileRenamed,
                 this,
-                [&](const QString& path,
+                [this](
+                    const QString& path,
                     const QString& oldName,
                     const QString& newName) {
                     if (auto model =
@@ -483,13 +486,13 @@ private:
             views,
             &ViewService::addTabRequested,
             this,
-            [&](Window* window) { newTab_(window); });
+            [this](Window* window) { newTab_(window); });
 
         connect(
             views,
             &ViewService::fileViewDestroyed,
             this,
-            [&](AbstractFileView* fileView) {
+            [this](AbstractFileView* fileView) {
                 if (!fileView) return;
                 auto model = fileView->model();
                 if (!model || views->countFor(model) > 0) return;
