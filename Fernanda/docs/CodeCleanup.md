@@ -2,7 +2,7 @@
 
 TODO: Add (if not present) checks for noexcept, override, virtual, const, etc.
 
-- [ ] `this` in lambda captures where appropriate (instead of `&`)
+- [x] `this` in lambda captures where appropriate (instead of `&`)
 - [ ] Check that all Model.xml references -> Manifest.xml
 - [ ] Private slots for all long-ass lambda connections
 - [ ] Inline any unnecessary member static constexpr char arrays
@@ -57,7 +57,7 @@ Find what needs automatic clean-up from member lists/hashes/sets and ensure we d
 
 ```
 modelViews_[model] << view;
-connect(view, &QObject::destroyed, this, [&, view, model] {
+connect(view, &QObject::destroyed, this, [this, view, model] {
     modelViews_[model].remove(view);
 });
 ```

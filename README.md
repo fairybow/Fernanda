@@ -38,7 +38,6 @@ Use [`Fernanda.sln`](Fernanda.sln) or [`CMakeLists.txt`](Fernanda/CMakeLists.txt
 
 - Qt 6.10.2
 - C++ 20
-- See [VSProjectSettings](Fernanda/docs/VSProjectSettings.md) for VS specifics (though the `.sln` should take care of this)
 
 ## License
 

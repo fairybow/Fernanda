@@ -147,7 +147,7 @@ Commands use a `scope:action` naming convention:
 
 ```cpp
 // Registration (in Service::registerBusCommands)
-bus->addCommandHandler("windows:list", [&] { 
+bus->addCommandHandler("windows:list", [this] { 
     return windows(); 
 });
 
@@ -158,7 +158,7 @@ auto windowList = bus->call<QList<Window*>>("windows:list");
 Command handlers can accept a `Command` struct containing parameters and a window context:
 
 ```cpp
-bus->addCommandHandler("settings:get", [&](const Command& cmd) {
+bus->addCommandHandler("settings:get", [this](const Command& cmd) {
     auto key = cmd.param<QString>("key");
     auto defaultValue = cmd.param("defaultValue");
     return settings_.value(key, defaultValue);
@@ -180,7 +180,7 @@ Events are standard Qt signals. Services emit them; anyone can connect:
 emit bus->windowCreated(window);
 
 // In Workspace setup:
-connect(bus, &Bus::windowCreated, this, [&](Window* window) {
+connect(bus, &Bus::windowCreated, this, [this](Window* window) {
     // React to new window
 });
 ```
