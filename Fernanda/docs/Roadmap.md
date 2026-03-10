@@ -2,6 +2,7 @@
 
 ## Current
 
+- [ ] Update Readme build section
 - [x] Clean up after file-types branch work (remove Plan document, update references)
 - [x] Update documentation: FileModelsAndViews, FileHandling, Notebooks, Architecture
 - [x] Merge file-types branch
