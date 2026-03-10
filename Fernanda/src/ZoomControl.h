@@ -44,6 +44,7 @@ namespace Fernanda {
 // disorient. We may also want to return to this position or another position
 // when user toggles between factor and fit, which may mean changing ZoomControl
 // a little
+// TODO: Views also need to implement ability to pan
 class ZoomControl : public QWidget
 {
     Q_OBJECT
