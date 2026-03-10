@@ -80,7 +80,7 @@ enum class FileState;
 
 ```cpp
 auto line_count = 0;
-auto get_line_count = [&] { return x; };
+auto get_line_count = [] { return x; };
 ```
 
 **Parameter Names**
@@ -189,7 +189,7 @@ connect(
     panel,
     &SettingsPanel::settingChanged, // also QString, QVariant
     this,
-    [&](const QString& key, const QVariant& value) {
+    [this](const QString& key, const QVariant& value) {
         emit settingChanged(key, value);
     });
 ```

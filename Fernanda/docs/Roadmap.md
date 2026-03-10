@@ -307,7 +307,7 @@ Might be simple but tedious. Later.
 - [x] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
 - [x] App's passive quit (when no windows are open)
 - [x] Ensure system shutdown is handled with app's quit routine
-- [x] As part of Window/WindowService cleanup, ensure we still need custom Window::destroyed signal (`connect(view, &QObject::destroyed, this, [&, view] { /*clear view from a list*/ })` works fine)
+- [x] As part of Window/WindowService cleanup, ensure we still need custom Window::destroyed signal (`connect(view, &QObject::destroyed, this, [this, view] { /*clear view from a list*/ })` works fine)
 - [x] Decide if Acceptor can be generalized AFTER. Don't get clever early!
 
 - [x] SavePrompt: Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
