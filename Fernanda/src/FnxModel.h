@@ -25,7 +25,7 @@
 #include <Coco/Bool.h>
 #include <Coco/Path.h>
 
-#include "Debug.h"
+#include "core/Debug.h"
 #include "FileTypes.h"
 #include "Fnx.h"
 #include "FnxModelCache.h"

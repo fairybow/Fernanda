@@ -17,7 +17,7 @@
 #include <QVariant>
 #include <QWidget>
 
-#include "Debug.h"
+#include "core/Debug.h"
 #include "DisplaySlider.h"
 #include "Ini.h"
 

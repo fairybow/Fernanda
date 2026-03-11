@@ -30,7 +30,7 @@
 #include "AbstractFileView.h"
 #include "AbstractService.h"
 #include "Bus.h"
-#include "Debug.h"
+#include "core/Debug.h"
 #include "FileMeta.h"
 #include "ImageFileModel.h"
 #include "ImageFileView.h"

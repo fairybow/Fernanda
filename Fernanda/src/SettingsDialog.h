@@ -21,7 +21,7 @@
 #include <Coco/Path.h>
 
 #include "ColorBarPanel.h"
-#include "Debug.h"
+#include "core/Debug.h"
 #include "EditorPanel.h"
 #include "FontPanel.h"
 #include "KeyFiltersPanel.h"

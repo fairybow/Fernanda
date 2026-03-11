@@ -16,7 +16,7 @@
 #include <QWidget>
 
 #include "CollapsibleWidgetHeader.h"
-#include "Debug.h"
+#include "core/Debug.h"
 
 // TODO: Reverify this!
 namespace Fernanda {

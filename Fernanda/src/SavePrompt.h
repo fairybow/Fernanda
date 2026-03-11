@@ -23,7 +23,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Tr.h"
+#include "core/Tr.h"
 
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
 // unsaved changes, supporting both single and multiple file (with selection)

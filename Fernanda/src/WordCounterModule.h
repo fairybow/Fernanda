@@ -16,7 +16,7 @@
 
 #include "AbstractService.h"
 #include "Bus.h"
-#include "Debug.h"
+#include "core/Debug.h"
 #include "Ini.h"
 #include "TextFileView.h"
 #include "Window.h"

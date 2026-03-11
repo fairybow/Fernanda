@@ -24,7 +24,7 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "AppDirs.h"
+#include "core/AppDirs.h"
 #include "Bus.h"
 #include "ColorBar.h"
 #include "ColorBarModule.h"
@@ -37,7 +37,7 @@
 #include "SettingsService.h"
 #include "StyleModule.h"
 #include "Timers.h"
-#include "Tr.h"
+#include "core/Tr.h"
 #include "TreeViewService.h"
 #include "ViewService.h"
 #include "Window.h"

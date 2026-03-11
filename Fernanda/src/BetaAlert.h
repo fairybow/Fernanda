@@ -13,7 +13,7 @@
 #include <QPushButton>
 #include <QString>
 
-#include "Tr.h"
+#include "core/Tr.h"
 
 namespace Fernanda::BetaAlert {
 

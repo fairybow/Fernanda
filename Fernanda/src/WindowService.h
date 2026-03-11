@@ -27,10 +27,10 @@
 
 #include "AbstractService.h"
 #include "Bus.h"
-#include "Debug.h"
-#include "Version.h"
+#include "core/Debug.h"
+#include "core/Version.h"
 #include "Window.h"
-#include "XPlatform.h"
+#include "core/XPlatform.h"
 
 namespace Fernanda {
 

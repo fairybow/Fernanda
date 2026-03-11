@@ -15,7 +15,7 @@
 #include <QStringList>
 #include <QWidget>
 
-#include "Tr.h"
+#include "core/Tr.h"
 
 // TODO: Display error(s) from FileService/Io
 namespace Fernanda::SaveFailMessageBox {

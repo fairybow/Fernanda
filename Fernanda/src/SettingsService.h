@@ -27,13 +27,13 @@
 #include "AbstractService.h"
 #include "Bus.h"
 #include "ColorBar.h"
-#include "Debug.h"
+#include "core/Debug.h"
 #include "Ini.h"
 #include "SettingsDialog.h"
 #include "ThemesPanel.h"
 #include "TieredSettings.h"
 #include "Timers.h"
-#include "Tr.h"
+#include "core/Tr.h"
 
 namespace Fernanda {
 

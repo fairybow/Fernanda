@@ -17,6 +17,8 @@
 
 #include <Coco/Path.h>
 
+#include "core/Debug.h"
+
 // Detects file types by analyzing file signatures (magic bytes) rather than
 // extensions
 namespace Fernanda::MagicBytes {

@@ -28,8 +28,8 @@
 
 #include "AbstractService.h"
 #include "Bus.h"
-#include "Debug.h"
-#include "Tr.h"
+#include "core/Debug.h"
+#include "core/Tr.h"
 #include "TreeView.h"
 #include "Window.h"
 

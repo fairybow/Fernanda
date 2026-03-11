@@ -15,7 +15,7 @@
 #include <QWidget>
 
 #include "AbstractFileModel.h"
-#include "Application.h"
+#include "core/Application.h"
 #include "KeyFilters.h"
 #include "PlainTextEdit.h"
 #include "TextFileModel.h"

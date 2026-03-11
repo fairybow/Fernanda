@@ -22,7 +22,7 @@
 
 #include <Coco/Path.h>
 
-#include "Debug.h"
+#include "core/Debug.h"
 #include "Io.h"
 #include "Qss.h"
 

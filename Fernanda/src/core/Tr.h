@@ -11,7 +11,7 @@
 
 #include <QString>
 
-#include "Version.h"
+#include "core/Version.h"
 
 // TODO: Go through and Find All References and delete unused
 // TODO: Find and remove "vanished" type entries in TS XML (old or moved

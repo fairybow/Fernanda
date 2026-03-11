@@ -15,7 +15,7 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "Debug.h"
+#include "core/Debug.h"
 #include "PdfFileModel.h"
 #include "ZoomControl.h"
 

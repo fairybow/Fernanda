@@ -20,7 +20,7 @@
 
 #include <Coco/Path.h>
 
-#include "Debug.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

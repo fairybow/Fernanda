@@ -11,8 +11,8 @@
 
 #include <Coco/Path.h>
 
-#include "Debug.h"
-#include "Version.h"
+#include "core/Debug.h"
+#include "core/Version.h"
 
 // For creating and retrieving non-configurable application paths
 // (Coco::Path::SystemDir won't work as a static member variable, since it'll be

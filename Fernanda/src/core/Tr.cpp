@@ -7,12 +7,12 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "Tr.h"
+#include "core/Tr.h"
 
 #include <QString>
 
-#include "Application.h"
-#include "Version.h"
+#include "core/Application.h"
+#include "core/Version.h"
 
 namespace Fernanda {
 

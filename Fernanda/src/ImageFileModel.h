@@ -14,7 +14,7 @@
 #include <Coco/Path.h>
 
 #include "AbstractFileModel.h"
-#include "Debug.h"
+#include "core/Debug.h"
 #include "FileTypes.h"
 
 namespace Fernanda {

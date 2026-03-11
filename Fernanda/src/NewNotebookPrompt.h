@@ -21,7 +21,7 @@
 #include <Coco/Path.h>
 
 #include "Fnx.h"
-#include "Tr.h"
+#include "core/Tr.h"
 
 // Application modal
 namespace Fernanda::NewNotebookPrompt {

@@ -24,8 +24,8 @@
 #include <QString>
 #include <QUrl>
 
-#include "Tr.h"
-#include "Version.h"
+#include "core/Tr.h"
+#include "core/Version.h"
 
 // Gets and reads the content of the Version.txt asset (created in pre-build
 // with VSPreBuildGenVersionFullStringTxt.ps1) in the latest release. That file

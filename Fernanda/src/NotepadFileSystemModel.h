@@ -12,7 +12,7 @@
 #include <QFileSystemModel>
 #include <QModelIndex>
 
-#include "Debug.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

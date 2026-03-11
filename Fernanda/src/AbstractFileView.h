@@ -14,7 +14,7 @@
 #include <QWidget>
 
 #include "AbstractFileModel.h"
-#include "Debug.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

@@ -18,7 +18,7 @@
 #include <Coco/Fx.h>
 
 #include "AbstractFileView.h"
-#include "Debug.h"
+#include "core/Debug.h"
 #include "NoOpFileModel.h"
 
 namespace Fernanda {

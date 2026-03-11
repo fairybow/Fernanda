@@ -28,7 +28,7 @@ Separate sections with an empty line. Sections should follow this order, top-to-
 
 #include <Coco/Bool.h> // 3rd party, submodule
 
-#include "Application.h" // 1st party
+#include "core/Application.h" // 1st party
 #include "CustomWidget1.h"
 #include "CustomWidget2.h"
 ```

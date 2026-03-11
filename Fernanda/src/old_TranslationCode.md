@@ -99,8 +99,8 @@ void exec();
 #include <QString>
 #include <QVBoxLayout>
 
-#include "Application.h"
-#include "Tr.h"
+#include "core/Application.h"
+#include "core/Tr.h"
 
 // TODO: Decide on button box. This is a live settings changer, like
 // SettingsDialog which doesn't have a button. Should this match?

@@ -14,7 +14,7 @@
 #include <QObject>
 #include <QWidget>
 
-#include "Debug.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

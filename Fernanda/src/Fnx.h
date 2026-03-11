@@ -25,7 +25,7 @@
 
 #include <Coco/Path.h>
 
-#include "AppDirs.h"
+#include "core/AppDirs.h"
 #include "FileTypes.h"
 #include "Io.h"
 #include "MagicBytes.h"

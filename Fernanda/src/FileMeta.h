@@ -14,9 +14,9 @@
 
 #include <Coco/Path.h>
 
-#include "Debug.h"
 #include "FileTypes.h"
-#include "Tr.h"
+#include "core/Debug.h"
+#include "core/Tr.h"
 
 namespace Fernanda {
 

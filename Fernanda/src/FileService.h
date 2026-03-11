@@ -24,7 +24,7 @@
 #include "AbstractFileView.h"
 #include "AbstractService.h"
 #include "Bus.h"
-#include "Debug.h"
+#include "core/Debug.h"
 #include "FileMeta.h"
 #include "FileTypes.h"
 #include "ImageFileModel.h"
@@ -32,7 +32,7 @@
 #include "MagicBytes.h"
 #include "PdfFileModel.h"
 #include "TextFileModel.h"
-#include "Tr.h"
+#include "core/Tr.h"
 #include "Window.h"
 
 namespace Fernanda {

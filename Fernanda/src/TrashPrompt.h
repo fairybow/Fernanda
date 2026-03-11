@@ -16,7 +16,7 @@
 #include <QString>
 #include <QVBoxLayout>
 
-#include "Tr.h"
+#include "core/Tr.h"
 
 namespace Fernanda::TrashPrompt {
 

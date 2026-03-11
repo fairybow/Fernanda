@@ -15,8 +15,8 @@
 #include <QPushButton>
 #include <QString>
 
-#include "Application.h"
-#include "Tr.h"
+#include "core/Application.h"
+#include "core/Tr.h"
 
 namespace Fernanda::AboutDialog {
 

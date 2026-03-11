@@ -22,7 +22,7 @@
 #include <QTextBlock>
 #include <QWidget>
 
-#include "Application.h"
+#include "core/Application.h"
 
 namespace Fernanda {
 

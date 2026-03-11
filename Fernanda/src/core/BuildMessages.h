@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Version.h"
+#include "core/Version.h"
 
 #pragma message(                                                               \
     "=========================== Build Messages ===========================")

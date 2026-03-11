@@ -15,7 +15,7 @@
 #include <QVariant>
 #include <Qt>
 
-#include "Application.h"
+#include "core/Application.h"
 #include "Fnx.h"
 #include "FnxModel.h"
 

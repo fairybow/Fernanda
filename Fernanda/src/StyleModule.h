@@ -24,9 +24,9 @@
 
 #include "AbstractFileView.h"
 #include "AbstractService.h"
-#include "AppDirs.h"
+#include "core/AppDirs.h"
 #include "Bus.h"
-#include "Debug.h"
+#include "core/Debug.h"
 #include "Ini.h"
 #include "StyleContext.h"
 #include "TextFileView.h"

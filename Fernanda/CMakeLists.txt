@@ -27,14 +27,16 @@ qt_standard_project_setup()
 # --- Fernanda sources ---
 
 set(FERNANDA_SOURCES
+    src/Main.cpp
+
+    src/core/Tr.cpp
+
     src/AboutDialog.cpp
     src/CollapsibleWidget.cpp
     src/FnxModel.cpp
-    src/Main.cpp
     src/PlainTextEdit.cpp
     src/TabWidget.cpp
     src/TextFileView.cpp
-    src/Tr.cpp
     src/Window.cpp
     src/WindowService.cpp
     src/Workspace.cpp
@@ -43,15 +45,28 @@ set(FERNANDA_SOURCES
 # --- Fernanda headers ---
 
 set(FERNANDA_HEADERS
+    src/core/AppDirs.h
+    src/core/Application.h
+    src/core/BuildMessages.h
+    src/core/Debug.h
+    src/core/Formatters.h
+    src/core/TempDir.h
+    src/core/ToString.h
+    src/core/Tr.h
+    src/core/Version.h
+    src/core/XPlatform.h
+
+
+
+
     src/AboutDialog.h
     src/AbstractFileModel.h
     src/AbstractFileView.h
     src/AbstractService.h
     src/AccordionWidget.h
-    src/AppDirs.h
-    src/Application.h
+
     src/BetaAlert.h
-    src/BuildMessages.h
+
     src/Bus.h
     src/CollapsibleWidget.h
     src/CollapsibleWidgetHeader.h
@@ -60,7 +75,6 @@ set(FERNANDA_HEADERS
     src/ColorBarPanel.h
     src/Commander.h
     src/ControlField.h
-    src/Debug.h
     src/DisplaySlider.h
     src/EditorPanel.h
     src/FileMeta.h
@@ -70,7 +84,6 @@ set(FERNANDA_HEADERS
     src/FnxModel.h
     src/FnxModelCache.h
     src/FontPanel.h
-    src/Formatters.h
     src/ImageFileModel.h
     src/ImageFileView.h
     src/Ini.h
@@ -102,20 +115,16 @@ set(FERNANDA_HEADERS
     src/TabWidgetCloseButton.h
     src/TabWidgetTabBar.h
     src/TabWidgetUnderlay.h
-    src/TempDir.h
     src/TextFileModel.h
     src/TextFileView.h
     src/Themes.h
     src/ThemesPanel.h
     src/TieredSettings.h
     src/Timers.h
-    src/ToString.h
-    src/Tr.h
     src/TrashPrompt.h
     src/TreeView.h
     src/TreeViewService.h
     src/UpdateDialog.h
-    src/Version.h
     src/ViewService.h
     src/Window.h
     src/WindowService.h
@@ -123,7 +132,7 @@ set(FERNANDA_HEADERS
     src/WordCounterModule.h
     src/WordCounterPanel.h
     src/Workspace.h
-    src/XPlatform.h
+
     src/ZoomControl.h
 )
 

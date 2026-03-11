@@ -19,7 +19,7 @@
 #include <QRect>
 #include <QWidget>
 
-#include "Application.h"
+#include "core/Application.h"
 #include "TabWidgetCloseButton.h"
 #include "TabWidgetTabBar.h"
 

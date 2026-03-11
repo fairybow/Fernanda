@@ -24,9 +24,9 @@
 #include <Coco/Bool.h>
 #include <Coco/Fx.h>
 
-#include "Debug.h"
+#include "core/Debug.h"
 #include "Timers.h"
-#include "Tr.h"
+#include "core/Tr.h"
 
 namespace Fernanda {
 

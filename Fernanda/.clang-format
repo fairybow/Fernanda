@@ -19,11 +19,13 @@ ColumnLimit: 80
 CompactNamespaces: true
 ExperimentalAutoDetectBinPacking: true
 FixNamespaceComments: true
+IncludeBlocks: Preserve
 IndentPPDirectives: AfterHash
 InsertNewlineAtEOF: true
 ShortNamespaceLines: 0
 LineEnding: CRLF
 PointerAlignment: Left
+SortIncludes: CaseSensitive
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeCaseColon: false
 SpaceBeforeCpp11BracedList: false
