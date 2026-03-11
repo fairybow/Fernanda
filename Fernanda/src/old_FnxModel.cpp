@@ -16,8 +16,8 @@
 #include <Qt>
 
 #include "core/Application.h"
-#include "Fnx.h"
-#include "FnxModel.h"
+#include "fnx/Fnx.h"
+#include "fnx/FnxModel.h"
 
 namespace Fernanda {
 

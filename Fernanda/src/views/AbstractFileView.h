@@ -13,7 +13,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "AbstractFileModel.h"
+#include "models/AbstractFileModel.h"
 #include "core/Debug.h"
 
 namespace Fernanda {

@@ -12,7 +12,7 @@
 #include <QHash>
 #include <QObject>
 
-#include "Bus.h"
+#include "workspaces/Bus.h"
 #include "Ini.h"
 #include "Window.h"
 #include "core/Debug.h"

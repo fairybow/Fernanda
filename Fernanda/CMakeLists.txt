@@ -29,16 +29,16 @@ qt_standard_project_setup()
 set(FERNANDA_SOURCES
     src/Main.cpp
     src/core/Tr.cpp
+    src/dialogs/AboutDialog.cpp
+    src/fnx/FnxModel.cpp
     src/services/WindowService.cpp
+    src/views/TextFileView.cpp
+    src/workspaces/Workspace.cpp
 
-    src/AboutDialog.cpp
     src/CollapsibleWidget.cpp
-    src/FnxModel.cpp
     src/PlainTextEdit.cpp
     src/TabWidget.cpp
-    src/TextFileView.cpp
     src/Window.cpp
-    src/Workspace.cpp
 )
 
 # --- Fernanda headers ---
@@ -50,10 +50,19 @@ set(FERNANDA_HEADERS
     src/core/Debug.h
     src/core/Formatters.h
     src/core/TempDir.h
+    src/core/Timers.h
     src/core/ToString.h
     src/core/Tr.h
     src/core/Version.h
     src/core/XPlatform.h
+
+    src/dialogs/AboutDialog.h
+    src/dialogs/BetaAlert.h
+    src/dialogs/UpdateDialog.h
+
+    src/fnx/Fnx.h
+    src/fnx/FnxModel.h
+    src/fnx/FnxModelCache.h
 
     src/services/AbstractService.h
     src/services/FileService.h
@@ -62,6 +71,12 @@ set(FERNANDA_HEADERS
     src/services/TreeViewService.h
     src/services/ViewService.h
     src/services/WindowService.h
+
+    src/models/AbstractFileModel.h
+    src/models/FileMeta.h
+    src/models/ImageFileModel.h
+    src/models/PdfFileModel.h
+    src/models/TextFileModel.h
 
     src/modules/ColorBar.h
     src/modules/ColorBarModule.h
@@ -72,27 +87,31 @@ set(FERNANDA_HEADERS
     src/modules/WordCounter.h
     src/modules/WordCounterModule.h
 
-    src/AboutDialog.h
-    src/AbstractFileModel.h
-    src/AbstractFileView.h
+    src/views/AbstractFileView.h
+    src/views/ImageFileView.h
+    src/views/PdfFileView.h
+    src/views/TextFileView.h
+
+    src/workspaces/Bus.h
+    src/workspaces/Commander.h
+    src/workspaces/NewNotebookPrompt.h
+    src/workspaces/Notebook.h
+    src/workspaces/Notepad.h
+    src/workspaces/NotepadFileSystemModel.h
+    src/workspaces/SaveFailMessageBox.h
+    src/workspaces/SavePrompt.h
+    src/workspaces/TrashPrompt.h
+    src/workspaces/Workspace.h
+
     src/AccordionWidget.h
-    src/BetaAlert.h
-    src/Bus.h
     src/CollapsibleWidget.h
     src/CollapsibleWidgetHeader.h
     src/ColorBarPanel.h
-    src/Commander.h
     src/ControlField.h
     src/DisplaySlider.h
     src/EditorPanel.h
-    src/FileMeta.h
     src/FileTypes.h
-    src/Fnx.h
-    src/FnxModel.h
-    src/FnxModelCache.h
     src/FontPanel.h
-    src/ImageFileModel.h
-    src/ImageFileView.h
     src/Ini.h
     src/Io.h
     src/KeyFilters.h
@@ -101,15 +120,7 @@ set(FERNANDA_HEADERS
     src/MenuBuilder.h
     src/MenuShortcuts.h
     src/MenuState.h
-    src/NewNotebookPrompt.h
-    src/Notebook.h
-    src/Notepad.h
-    src/NotepadFileSystemModel.h
-    src/PdfFileModel.h
-    src/PdfFileView.h
     src/PlainTextEdit.h
-    src/SaveFailMessageBox.h
-    src/SavePrompt.h
     src/SelectionHandleOverlay.h
     src/SettingsDialog.h
     src/SettingsPanel.h
@@ -118,16 +129,10 @@ set(FERNANDA_HEADERS
     src/TabWidgetCloseButton.h
     src/TabWidgetTabBar.h
     src/TabWidgetUnderlay.h
-    src/TextFileModel.h
-    src/TextFileView.h
     src/ThemesPanel.h
-    src/Timers.h
-    src/TrashPrompt.h
     src/TreeView.h
-    src/UpdateDialog.h
     src/Window.h
     src/WordCounterPanel.h
-    src/Workspace.h
     src/ZoomControl.h
 )
 

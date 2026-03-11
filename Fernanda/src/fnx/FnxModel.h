@@ -26,8 +26,8 @@
 #include <Coco/Path.h>
 
 #include "FileTypes.h"
-#include "Fnx.h"
-#include "FnxModelCache.h"
+#include "fnx/Fnx.h"
+#include "fnx/FnxModelCache.h"
 #include "core/Debug.h"
 
 namespace Fernanda {

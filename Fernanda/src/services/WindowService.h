@@ -25,7 +25,7 @@
 #include <Coco/Bool.h>
 #include <Coco/Utility.h>
 
-#include "Bus.h"
+#include "workspaces/Bus.h"
 #include "Window.h"
 #include "core/Debug.h"
 #include "core/Version.h"

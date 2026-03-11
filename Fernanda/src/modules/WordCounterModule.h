@@ -14,9 +14,9 @@
 #include <QPlainTextEdit>
 #include <QStatusBar>
 
-#include "Bus.h"
+#include "workspaces/Bus.h"
 #include "Ini.h"
-#include "TextFileView.h"
+#include "views/TextFileView.h"
 #include "Window.h"
 #include "core/Debug.h"
 #include "modules/WordCounter.h"

@@ -26,7 +26,7 @@
 
 #include <Coco/Path.h>
 
-#include "Bus.h"
+#include "workspaces/Bus.h"
 #include "TreeView.h"
 #include "Window.h"
 #include "core/Debug.h"

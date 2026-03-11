@@ -24,7 +24,7 @@
 #include <Coco/Bool.h>
 #include <Coco/Fx.h>
 
-#include "Timers.h"
+#include "core/Timers.h"
 #include "core/Debug.h"
 #include "core/Tr.h"
 

@@ -13,9 +13,9 @@
 #include <QPdfView>
 #include <QWidget>
 
-#include "AbstractFileModel.h"
-#include "AbstractFileView.h"
-#include "PdfFileModel.h"
+#include "models/AbstractFileModel.h"
+#include "views/AbstractFileView.h"
+#include "models/PdfFileModel.h"
 #include "ZoomControl.h"
 #include "core/Debug.h"
 

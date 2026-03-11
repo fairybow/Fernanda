@@ -7,17 +7,17 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "TextFileView.h"
+#include "views/TextFileView.h"
 
 #include <QClipboard>
 #include <QPlainTextDocumentLayout>
 #include <QTextDocument>
 #include <QWidget>
 
-#include "AbstractFileModel.h"
+#include "models/AbstractFileModel.h"
 #include "KeyFilters.h"
 #include "PlainTextEdit.h"
-#include "TextFileModel.h"
+#include "models/TextFileModel.h"
 #include "core/Application.h"
 
 namespace Fernanda {

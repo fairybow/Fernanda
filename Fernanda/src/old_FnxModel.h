@@ -25,7 +25,7 @@
 #include <QtTypes>
 
 #include "core/Debug.h"
-#include "Fnx.h"
+#include "fnx/Fnx.h"
 
 #include <Coco/Path.h>
 

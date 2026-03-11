@@ -14,13 +14,13 @@
 #include <QTextOption>
 #include <QWidget>
 
-#include "AbstractFileModel.h"
-#include "AbstractFileView.h"
+#include "models/AbstractFileModel.h"
+#include "views/AbstractFileView.h"
 #include "KeyFilters.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "PlainTextEdit.h"
-#include "TextFileModel.h"
+#include "models/TextFileModel.h"
 #include "core/Debug.h"
 #include "core/Tr.h"
 

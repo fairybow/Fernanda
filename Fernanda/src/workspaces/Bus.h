@@ -13,9 +13,9 @@
 #include <QString>
 #include <QVariant>
 
-#include "AbstractFileModel.h"
-#include "AbstractFileView.h"
-#include "Commander.h"
+#include "models/AbstractFileModel.h"
+#include "views/AbstractFileView.h"
+#include "workspaces/Commander.h"
 #include "Window.h"
 #include "core/Debug.h"
 

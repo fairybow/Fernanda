@@ -20,10 +20,10 @@
 
 #include <Coco/Path.h>
 
-#include "AbstractFileModel.h"
-#include "AbstractFileView.h"
-#include "FileMeta.h"
-#include "ImageFileModel.h"
+#include "models/AbstractFileModel.h"
+#include "views/AbstractFileView.h"
+#include "models/FileMeta.h"
+#include "models/ImageFileModel.h"
 #include "ZoomControl.h"
 #include "core/Debug.h"
 

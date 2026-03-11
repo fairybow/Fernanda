@@ -22,15 +22,15 @@
 #include <Coco/Bool.h>
 #include <Coco/Path.h>
 
-#include "AbstractFileModel.h"
-#include "AbstractFileView.h"
-#include "Bus.h"
-#include "Fnx.h"
+#include "models/AbstractFileModel.h"
+#include "views/AbstractFileView.h"
+#include "workspaces/Bus.h"
+#include "fnx/Fnx.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "MenuState.h"
-#include "NewNotebookPrompt.h"
-#include "Timers.h"
+#include "workspaces/NewNotebookPrompt.h"
+#include "core/Timers.h"
 #include "Window.h"
 #include "core/AppDirs.h"
 #include "core/Tr.h"

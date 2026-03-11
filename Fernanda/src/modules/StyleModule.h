@@ -22,10 +22,10 @@
 #include <Coco/Path.h>
 #include <Coco/Utility.h>
 
-#include "AbstractFileView.h"
-#include "Bus.h"
+#include "views/AbstractFileView.h"
+#include "workspaces/Bus.h"
 #include "Ini.h"
-#include "TextFileView.h"
+#include "views/TextFileView.h"
 #include "Window.h"
 #include "core/AppDirs.h"
 #include "core/Debug.h"

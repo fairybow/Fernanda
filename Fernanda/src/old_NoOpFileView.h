@@ -17,7 +17,7 @@
 
 #include <Coco/Fx.h>
 
-#include "AbstractFileView.h"
+#include "views/AbstractFileView.h"
 #include "core/Debug.h"
 #include "NoOpFileModel.h"
 

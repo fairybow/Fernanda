@@ -16,7 +16,7 @@
 
 #include <Coco/Bool.h>
 
-#include "Fnx.h"
+#include "fnx/Fnx.h"
 #include "core/Debug.h"
 
 namespace Fernanda {

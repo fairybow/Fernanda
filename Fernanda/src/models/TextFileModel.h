@@ -19,8 +19,8 @@
 
 #include <Coco/Path.h>
 
-#include "AbstractFileModel.h"
-#include "FileMeta.h"
+#include "models/AbstractFileModel.h"
+#include "models/FileMeta.h"
 #include "FileTypes.h"
 #include "core/Debug.h"
 #include "core/Version.h"

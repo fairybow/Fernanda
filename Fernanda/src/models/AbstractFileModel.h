@@ -15,7 +15,7 @@
 
 #include <Coco/Path.h>
 
-#include "FileMeta.h"
+#include "models/FileMeta.h"
 
 namespace Fernanda {
 

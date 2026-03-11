@@ -20,7 +20,7 @@
 
 #include <Coco/Path.h>
 
-#include "Fnx.h"
+#include "fnx/Fnx.h"
 #include "core/Tr.h"
 
 // Application modal

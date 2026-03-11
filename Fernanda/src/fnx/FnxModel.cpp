@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "FnxModel.h"
+#include "fnx/FnxModel.h"
 
 #include <QDomElement>
 #include <QFont>
@@ -17,7 +17,7 @@
 #include <QStyle>
 #include <QVariant>
 
-#include "Fnx.h"
+#include "fnx/Fnx.h"
 #include "core/Application.h"
 
 namespace Fernanda {

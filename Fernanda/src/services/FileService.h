@@ -20,16 +20,16 @@
 
 #include <Coco/Path.h>
 
-#include "AbstractFileModel.h"
-#include "AbstractFileView.h"
-#include "Bus.h"
-#include "FileMeta.h"
+#include "models/AbstractFileModel.h"
+#include "views/AbstractFileView.h"
+#include "workspaces/Bus.h"
+#include "models/FileMeta.h"
 #include "FileTypes.h"
-#include "ImageFileModel.h"
+#include "models/ImageFileModel.h"
 #include "Io.h"
 #include "MagicBytes.h"
-#include "PdfFileModel.h"
-#include "TextFileModel.h"
+#include "models/PdfFileModel.h"
+#include "models/TextFileModel.h"
 #include "Window.h"
 #include "core/Debug.h"
 #include "core/Tr.h"

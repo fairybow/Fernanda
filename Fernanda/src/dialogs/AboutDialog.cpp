@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "AboutDialog.h"
+#include "dialogs/AboutDialog.h"
 
 #include <QMessageBox>
 #include <QObject>

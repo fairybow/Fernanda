@@ -7,19 +7,19 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "Workspace.h"
+#include "workspaces/Workspace.h"
 
 #include <QAction>
 #include <QString>
 
-#include "AboutDialog.h"
-#include "AbstractFileModel.h"
-#include "AbstractFileView.h"
+#include "dialogs/AboutDialog.h"
+#include "models/AbstractFileModel.h"
+#include "views/AbstractFileView.h"
 #include "Ini.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "MenuState.h"
-#include "UpdateDialog.h"
+#include "dialogs/UpdateDialog.h"
 #include "Window.h"
 #include "core/Application.h"
 #include "core/Tr.h"

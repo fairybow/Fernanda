@@ -24,11 +24,11 @@
 #include <Coco/Path.h>
 #include <Coco/Utility.h>
 
-#include "Bus.h"
+#include "workspaces/Bus.h"
 #include "Ini.h"
 #include "SettingsDialog.h"
 #include "ThemesPanel.h"
-#include "Timers.h"
+#include "core/Timers.h"
 #include "core/Debug.h"
 #include "core/Tr.h"
 #include "modules/ColorBar.h"
