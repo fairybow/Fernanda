@@ -14,7 +14,7 @@
 #include <QList>
 #include <QString>
 
-#include "Coco/Bool.h"
+#include <Coco/Bool.h>
 
 #include "Debug.h"
 #include "Fnx.h"

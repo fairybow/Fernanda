@@ -44,8 +44,8 @@
 #include <QWidget>
 #include <QWidgetList>
 
-#include "Coco/Concepts.h"
-#include "Coco/Utility.h"
+#include <Coco/Concepts.h>
+#include <Coco/Utility.h>
 
 #include "Debug.h"
 #include "StyleContext.h"

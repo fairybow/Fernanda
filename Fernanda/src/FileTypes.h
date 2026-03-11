@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "MagicBytes.h"
 

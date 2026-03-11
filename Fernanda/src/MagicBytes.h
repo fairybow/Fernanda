@@ -15,7 +15,7 @@
 #include <QIODevice>
 #include <QString>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 // Detects file types by analyzing file signatures (magic bytes) rather than
 // extensions

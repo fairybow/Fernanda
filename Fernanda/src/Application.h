@@ -16,7 +16,7 @@
 #include <QStringList>
 #include <QTranslator>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "AppDirs.h"
 #include "BetaAlert.h"

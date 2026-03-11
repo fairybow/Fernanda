@@ -20,7 +20,7 @@
 #include <QJsonValue>
 #include <QString>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "Debug.h"
 #include "Io.h"

@@ -12,7 +12,7 @@
 #include <QFont>
 #include <QTextOption>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "ColorBar.h"
 

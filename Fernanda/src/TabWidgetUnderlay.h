@@ -20,7 +20,7 @@
 #include <QWidget>
 #include <QtGlobal>
 
-#include "Coco/Fx.h"
+#include <Coco/Fx.h>
 
 #include "Debug.h"
 

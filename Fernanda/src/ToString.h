@@ -24,8 +24,8 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Coco/Concepts.h"
-#include "Coco/Utility.h"
+#include <Coco/Concepts.h>
+#include <Coco/Utility.h>
 
 #define TO_STD_(Type, ArgName)                                                 \
     inline std::string toString(const Type& ArgName)                           \

@@ -25,7 +25,7 @@
 #include <QString>
 #include <QWidget>
 
-#include "Coco/Concepts.h"
+#include <Coco/Concepts.h>
 
 #include "Debug.h"
 #include "MenuState.h"

@@ -27,7 +27,7 @@
 #include "Debug.h"
 #include "Fnx.h"
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 /// *
 #include <QElapsedTimer>

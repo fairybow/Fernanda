@@ -15,7 +15,7 @@
 #include <QWidget>
 #include <Qt>
 
-#include "Coco/Fx.h"
+#include <Coco/Fx.h>
 
 #include "AbstractFileView.h"
 #include "Debug.h"

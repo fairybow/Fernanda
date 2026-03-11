@@ -21,7 +21,7 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Coco/Utility.h"
+#include <Coco/Utility.h>
 
 #include "Debug.h"
 #include "DisplaySlider.h"

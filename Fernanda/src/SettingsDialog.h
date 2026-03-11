@@ -18,7 +18,7 @@
 #include <QVariantMap>
 #include <QWidget>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "ColorBarPanel.h"
 #include "Debug.h"

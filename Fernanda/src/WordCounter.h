@@ -21,8 +21,8 @@
 #include <QToolButton>
 #include <QWidget>
 
-#include "Coco/Bool.h"
-#include "Coco/Fx.h"
+#include <Coco/Bool.h>
+#include <Coco/Fx.h>
 
 #include "Debug.h"
 #include "Timers.h"

@@ -12,7 +12,7 @@
 #include <QString>
 #include <QTemporaryDir>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 namespace Fernanda {
 

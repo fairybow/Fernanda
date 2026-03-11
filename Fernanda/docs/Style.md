@@ -24,9 +24,9 @@ Separate sections with an empty line. Sections should follow this order, top-to-
 #include <QString>
 #include <QWidget>
 
-#include "Windows.h" // 3rd party OS
+#include <Windows.h> // 3rd party OS
 
-#include "Coco/Bool.h" // 3rd party, submodule
+#include <Coco/Bool.h> // 3rd party, submodule
 
 #include "Application.h" // 1st party
 #include "CustomWidget1.h"

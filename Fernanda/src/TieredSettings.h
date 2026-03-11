@@ -18,7 +18,7 @@
 #include <QStringList>
 #include <QVariant>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "Debug.h"
 

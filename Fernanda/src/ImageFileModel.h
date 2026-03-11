@@ -11,7 +11,7 @@
 
 #include <QByteArray>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "AbstractFileModel.h"
 #include "Debug.h"

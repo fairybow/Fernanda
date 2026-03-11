@@ -15,8 +15,8 @@
 #include <QSaveFile>
 #include <QString>
 
-#include "Coco/Bool.h"
-#include "Coco/Path.h"
+#include <Coco/Bool.h>
+#include <Coco/Path.h>
 
 #include "Debug.h"
 

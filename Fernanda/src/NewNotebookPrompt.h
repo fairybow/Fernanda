@@ -18,7 +18,7 @@
 #include <QString>
 #include <QVBoxLayout>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "Fnx.h"
 #include "Tr.h"

@@ -18,7 +18,7 @@
 #include <QSize>
 #include <QWidget>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"

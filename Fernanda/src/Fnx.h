@@ -20,10 +20,10 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "bit7z/bitarchivereader.hpp"
-#include "bit7z/bitarchivewriter.hpp"
+#include <bit7z/bitarchivereader.hpp>
+#include <bit7z/bitarchivewriter.hpp>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 #include "AppDirs.h"
 #include "FileTypes.h"

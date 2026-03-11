@@ -20,7 +20,7 @@
 #include <QStyle>
 #include <QWidget>
 
-#include "Coco/Concepts.h"
+#include <Coco/Concepts.h>
 
 #include "Debug.h"
 

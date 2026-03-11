@@ -22,9 +22,9 @@
 #include <QVariantMap>
 #include <QWidget>
 
-#include "Coco/Bool.h"
-#include "Coco/Concepts.h"
-#include "Coco/Utility.h"
+#include <Coco/Bool.h>
+#include <Coco/Concepts.h>
+#include <Coco/Utility.h>
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"

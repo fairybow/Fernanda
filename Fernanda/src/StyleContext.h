@@ -24,7 +24,7 @@
 #include <QSvgRenderer>
 #include <QWidget>
 
-#include "Coco/Utility.h"
+#include <Coco/Utility.h>
 
 #include "Debug.h"
 #include "Io.h"

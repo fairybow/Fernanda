@@ -22,7 +22,7 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Coco/Concepts.h"
+#include <Coco/Concepts.h>
 
 #include "ToString.h"
 

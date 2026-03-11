@@ -26,8 +26,8 @@
 #include <QWidget>
 #include <QtTypes>
 
-#include "Coco/Concepts.h"
-#include "Coco/Fx.h"
+#include <Coco/Concepts.h>
+#include <Coco/Fx.h>
 
 #include "Debug.h"
 #include "Timers.h"
