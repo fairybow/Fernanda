@@ -167,7 +167,7 @@ Previously served as a catch-all for unrecognized file types. Currently not used
 
 ## FNX Manifest and File Storage
 
-Within a Notebook's 7zip archive, every file is stored in the `content/` directory named by UUID **with its real extension** (e.g., `content/{uuid}.txt`, `content/{uuid}.pdf`). Files are not stored as bare UUIDs.
+Within a Notebook's 7-Zip archive, every file is stored in the `content/` directory named by UUID **with its real extension** (e.g., `content/{uuid}.txt`, `content/{uuid}.pdf`). Files are not stored as bare UUIDs.
 
 The XML manifest tracks each file's metadata:
 
@@ -187,7 +187,7 @@ FNX accepts import of **any file type**, mirroring Notepad's open-anything philo
 
 ### FNX files within FNX archives
 
-It is possible to import an FNX archive into another Notebook. The file is stored like any other imported file. If opened from within the Notebook, it goes through FileService's two-tier resolution: MagicBytes detects the 7zip signature, but since there is no dedicated handler for 7zip in FileService, it falls through to plain text. The user sees binary content. This is expected.
+It is possible to import an FNX archive into another Notebook. The file is stored like any other imported file. If opened from within the Notebook, it goes through FileService's two-tier resolution: MagicBytes detects the 7-Zip signature, but since there is no dedicated handler for 7-Zip in FileService, it falls through to plain text. The user sees binary content. This is expected.
 
 Opening an inner FNX as a functional Notebook was considered and deliberately deferred. The implementation would require nested archive lifecycle management (extraction, save propagation, closure coordination), which conflicts with the current architecture where Workspaces are independent peers. A simpler "open as independent Notebook" approach was also considered, but it creates a confusing UX: edits to the inner Notebook would not propagate back to the outer archive, contradicting user expectations. This may be revisited if a compelling use case emerges.
 

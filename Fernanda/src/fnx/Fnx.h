@@ -54,10 +54,10 @@ namespace Internal {
         // 7za.dll is lighter than 7z.dll (a = "alone"); Unix uses full 7z.so
 #if defined(Q_OS_WIN)
         auto file_name = "7za.dll";
-        auto qrc_path = ":/7zip/7za.dll";
+        auto qrc_path = ":/7-zip/7za.dll";
 #else
         auto file_name = "7z.so";
-        auto qrc_path = ":/7zip/7z.so";
+        auto qrc_path = ":/7-zip/7z.so";
 #endif
 
         static auto file = AppDirs::userData() / file_name;
