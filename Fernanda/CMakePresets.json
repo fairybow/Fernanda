@@ -2,53 +2,21 @@
   "version": 6,
   "configurePresets": [
     {
-      "name": "windows-base",
       "hidden": true,
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "installDir": "${sourceDir}/out/install/${presetName}",
+      "name": "Qt",
       "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "C:/Qt/6.10.2/msvc2022_64"
+        "CMAKE_PREFIX_PATH": "$env{QTDIR}"
       },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
-    },
-    {
-      "name": "x64-debug",
-      "displayName": "x64 Debug",
-      "inherits": "windows-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "x64-release",
-      "displayName": "x64 Release",
-      "inherits": "windows-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+      "vendor": {
+        "qt-project.org/Qt": {
+          "checksum": "wVa86FgEkvdCTVp1/nxvrkaemJc="
+        }
       }
     }
   ],
-  "buildPresets": [
-    {
-      "name": "x64-debug",
-      "configurePreset": "x64-debug"
-    },
-    {
-      "name": "x64-release",
-      "configurePreset": "x64-release"
+  "vendor": {
+    "qt-project.org/Presets": {
+      "checksum": "xzcDcCrXBbMve4QxM0BqF12hwPg="
     }
-  ]
+  }
 }
