@@ -1,4 +1,4 @@
-# Reads ../src/Version.h, reconstructs VERSION_FULL_STRING, writes to Version.txt in $OutputDir
+# Reads ../src/core/Version.h, reconstructs VERSION_FULL_STRING, writes to Version.txt in $OutputDir
 
 param(
     [Parameter(Mandatory)]
@@ -6,7 +6,7 @@ param(
 )
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$headerPath = Join-Path $scriptDir "..\src\Version.h"
+$headerPath = Join-Path $scriptDir "..\src\core\Version.h"
 $outputPath = Join-Path $OutputDir "Version.txt"
 
 $headerPath = [System.IO.Path]::GetFullPath($headerPath)

@@ -7,14 +7,15 @@ REM ============================================================================
 
 set INSTALLER_NAME=FernandaInstaller
 
-set QT_DIR=C:\Qt\6.10.2\msvc2022_64
+for /f "delims=" %%q in ('powershell -NoProfile -Command "(Get-Content '..\CMakeUserPresets.json' | ConvertFrom-Json).configurePresets | Where-Object { $_.environment.QTDIR } | Select-Object -First 1 -ExpandProperty environment | Select-Object -ExpandProperty QTDIR"') do set QT_DIR=%%q
+
 set QT_WINDEPLOY=%QT_DIR%\bin\windeployqt6.exe
 REM This is for windeployqt6 to bundle VC++ Redist itself:
 set VCINSTALLDIR=C:\Program Files\Microsoft Visual Studio\18\Community\VC\
-REM Must use 8.3 short path for Program Files (x86) because of parentheses
+REM Must use 8.3 short path for Program Files (x86) because of parentheses:
 set ISS_COMPILER=C:\PROGRA~2\Inno Setup 6\ISCC.exe
 set ISS=.\WindowsInstaller.iss
-set RELEASE_DIR=..\..\x64\Release
+set RELEASE_DIR=..\out\build\release
 
 set RELEASE_EXE=%RELEASE_DIR%\Fernanda.exe
 set RELEASE_VERSION_TXT=%RELEASE_DIR%\Version.txt
@@ -92,7 +93,6 @@ copy "%RELEASE_EXE%" "%TEMP_DIR%\" > nul
 echo [4/%STEPS%] Copying translation files...
 copy "%RELEASE_DIR%\*.qm" "%TEMP_DIR%\" > nul
 
-REM TODO: If/when we add image viewing, revise this!
 echo [5/%STEPS%] Running windeployqt...
 "%QT_WINDEPLOY%" ^
     --release ^
@@ -100,7 +100,6 @@ echo [5/%STEPS%] Running windeployqt...
     --no-system-d3d-compiler ^
     --no-opengl-sw ^
     --skip-plugin-types generic,networkinformation ^
-    --exclude-plugins qgif,qjpeg ^
     "%TEMP_DIR%\Fernanda.exe"
 
 REM final contents of "temp" folder should look like this:
