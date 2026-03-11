@@ -255,21 +255,41 @@ qt_add_lrelease(Fernanda
 )
 
 # =============================================================================
-# Pre-build and install
+# Version.txt (Release builds only)
 # =============================================================================
 
-# FIX: Calling ps1 on Linux lol. Make Version.txt on release builds for Linux another way!
+file(STRINGS src/core/Version.h _ver_lines)
 
-add_custom_command(TARGET Fernanda PRE_BUILD
-    COMMAND $<$<CONFIG:Release>:powershell>
-            $<$<CONFIG:Release>:-ExecutionPolicy>
-            $<$<CONFIG:Release>:Bypass>
-            $<$<CONFIG:Release>:-File>
-            $<$<CONFIG:Release>:"${CMAKE_CURRENT_SOURCE_DIR}/packaging/VSPreBuildGenVersionFullStringTxt.ps1">
-            $<$<CONFIG:Release>:-OutputDir>
-            $<$<CONFIG:Release>:"$<TARGET_FILE_DIR:Fernanda>">
-    COMMENT "Generating version string (Release only)"
+foreach(_line ${_ver_lines})
+    if(_line MATCHES "^#define VERSION_MAJOR +([0-9]+)")
+        set(_ver_major ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_MINOR +([0-9]+)")
+        set(_ver_minor ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_PATCH +([0-9]+)")
+        set(_ver_patch ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_IS_PRERELEASE +([01])")
+        set(_ver_is_pre ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_PRERELEASE_STRING +\"([^\"]+)\"")
+        set(_ver_pre ${CMAKE_MATCH_1})
+    endif()
+endforeach()
+
+set(FERNANDA_VERSION "${_ver_major}.${_ver_minor}.${_ver_patch}")
+if(_ver_is_pre STREQUAL "1" AND _ver_pre)
+    string(APPEND FERNANDA_VERSION "-${_ver_pre}")
+endif()
+
+message(STATUS "Fernanda version: ${FERNANDA_VERSION}")
+
+file(GENERATE
+    OUTPUT "$<TARGET_FILE_DIR:Fernanda>/Version.txt"
+    CONTENT "${FERNANDA_VERSION}"
+    CONDITION $<CONFIG:Release>
 )
+
+# =============================================================================
+# Install
+# =============================================================================
 
 install(TARGETS Fernanda RUNTIME DESTINATION bin)
 install(FILES ${QM_FILES} DESTINATION bin)
