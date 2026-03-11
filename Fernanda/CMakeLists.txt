@@ -183,7 +183,6 @@ qt_add_executable(Fernanda WIN32
 target_include_directories(Fernanda PRIVATE
     src
     submodules/Coco/Coco/include
-    external/bit7z/include
 )
 
 target_compile_definitions(Fernanda PRIVATE
@@ -191,23 +190,18 @@ target_compile_definitions(Fernanda PRIVATE
     WIN32_LEAN_AND_MEAN
 )
 
-# --- bit7z (pre-built static library, Windows only) ---
-# TODO: Replace with add_subdirectory() for cross-platform builds
+# --- bit7z (built from source via submodule) ---
 
-add_library(bit7z STATIC IMPORTED)
-set_target_properties(bit7z PROPERTIES
-    IMPORTED_LOCATION_DEBUG
-        "${CMAKE_CURRENT_SOURCE_DIR}/external/bit7z/lib/x64/Debug/bit7z.lib"
-    IMPORTED_LOCATION_RELEASE
-        "${CMAKE_CURRENT_SOURCE_DIR}/external/bit7z/lib/x64/Release/bit7z.lib"
-    MAP_IMPORTED_CONFIG_MINSIZEREL Release
-    MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
-)
-target_link_libraries(Fernanda PRIVATE bit7z)
+set(BIT7Z_AUTO_FORMAT ON CACHE BOOL "Enable auto format detection")
+# Add any other bit7z options you need here, e.g.:
+# set(BIT7Z_USE_NATIVE_STRING ON CACHE BOOL "")
 
-# --- Qt linking ---
+add_subdirectory(submodules/bit7z)
+
+# --- Linking ---
 
 target_link_libraries(Fernanda PRIVATE
+    bit7z64
     Qt6::Core
     Qt6::Gui
     Qt6::Network
@@ -257,6 +251,8 @@ qt_add_lrelease(Fernanda
 # =============================================================================
 # Pre-build and install
 # =============================================================================
+
+# FIX: Calling ps1 on Linux lol. Make Version.txt on release builds for Linux another way!
 
 add_custom_command(TARGET Fernanda PRE_BUILD
     COMMAND $<$<CONFIG:Release>:powershell>
