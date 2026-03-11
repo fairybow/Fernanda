@@ -20,20 +20,20 @@
 
 #include <Coco/Path.h>
 
-#include "models/AbstractFileModel.h"
-#include "views/AbstractFileView.h"
-#include "workspaces/Bus.h"
-#include "models/FileMeta.h"
 #include "FileTypes.h"
-#include "models/ImageFileModel.h"
 #include "Io.h"
 #include "MagicBytes.h"
-#include "models/PdfFileModel.h"
-#include "models/TextFileModel.h"
 #include "Window.h"
 #include "core/Debug.h"
 #include "core/Tr.h"
+#include "models/AbstractFileModel.h"
+#include "models/FileMeta.h"
+#include "models/ImageFileModel.h"
+#include "models/PdfFileModel.h"
+#include "models/TextFileModel.h"
 #include "services/AbstractService.h"
+#include "views/AbstractFileView.h"
+#include "workspaces/Bus.h"
 
 namespace Fernanda {
 

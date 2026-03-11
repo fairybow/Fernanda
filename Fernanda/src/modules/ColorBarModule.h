@@ -12,12 +12,12 @@
 #include <QHash>
 #include <QObject>
 
-#include "workspaces/Bus.h"
 #include "Ini.h"
 #include "Window.h"
 #include "core/Debug.h"
 #include "modules/ColorBar.h"
 #include "services/AbstractService.h"
+#include "workspaces/Bus.h"
 
 namespace Fernanda {
 

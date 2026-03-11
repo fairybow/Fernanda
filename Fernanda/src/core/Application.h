@@ -18,13 +18,13 @@
 
 #include <Coco/Path.h>
 
+#include "core/AppDirs.h"
+#include "core/Debug.h"
+#include "core/Timers.h"
+#include "core/Version.h"
 #include "dialogs/BetaAlert.h"
 #include "workspaces/Notebook.h"
 #include "workspaces/Notepad.h"
-#include "core/Timers.h"
-#include "core/AppDirs.h"
-#include "core/Debug.h"
-#include "core/Version.h"
 
 namespace Fernanda {
 

@@ -12,19 +12,19 @@
 #include <QAction>
 #include <QString>
 
-#include "dialogs/AboutDialog.h"
-#include "models/AbstractFileModel.h"
-#include "views/AbstractFileView.h"
 #include "Ini.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "MenuState.h"
-#include "dialogs/UpdateDialog.h"
 #include "Window.h"
 #include "core/Application.h"
 #include "core/Tr.h"
+#include "dialogs/AboutDialog.h"
+#include "dialogs/UpdateDialog.h"
+#include "models/AbstractFileModel.h"
 #include "services/ViewService.h"
 #include "services/WindowService.h"
+#include "views/AbstractFileView.h"
 
 namespace Fernanda {
 

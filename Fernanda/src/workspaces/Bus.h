@@ -13,11 +13,11 @@
 #include <QString>
 #include <QVariant>
 
+#include "Window.h"
+#include "core/Debug.h"
 #include "models/AbstractFileModel.h"
 #include "views/AbstractFileView.h"
 #include "workspaces/Commander.h"
-#include "Window.h"
-#include "core/Debug.h"
 
 namespace Fernanda {
 

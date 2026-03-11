@@ -26,23 +26,23 @@
 #include <Coco/Concepts.h>
 #include <Coco/Utility.h>
 
-#include "models/AbstractFileModel.h"
-#include "views/AbstractFileView.h"
-#include "workspaces/Bus.h"
-#include "models/FileMeta.h"
-#include "models/ImageFileModel.h"
-#include "views/ImageFileView.h"
 #include "Ini.h"
 #include "KeyFilters.h"
-#include "models/PdfFileModel.h"
-#include "views/PdfFileView.h"
 #include "PlainTextEdit.h"
 #include "TabWidget.h"
-#include "models/TextFileModel.h"
-#include "views/TextFileView.h"
 #include "Window.h"
 #include "core/Debug.h"
+#include "models/AbstractFileModel.h"
+#include "models/FileMeta.h"
+#include "models/ImageFileModel.h"
+#include "models/PdfFileModel.h"
+#include "models/TextFileModel.h"
 #include "services/AbstractService.h"
+#include "views/AbstractFileView.h"
+#include "views/ImageFileView.h"
+#include "views/PdfFileView.h"
+#include "views/TextFileView.h"
+#include "workspaces/Bus.h"
 
 namespace Fernanda {
 

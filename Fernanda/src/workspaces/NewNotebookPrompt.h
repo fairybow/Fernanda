@@ -20,8 +20,8 @@
 
 #include <Coco/Path.h>
 
-#include "fnx/Fnx.h"
 #include "core/Tr.h"
+#include "fnx/Fnx.h"
 
 // Application modal
 namespace Fernanda::NewNotebookPrompt {

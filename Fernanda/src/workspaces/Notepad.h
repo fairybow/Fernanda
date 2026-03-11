@@ -23,27 +23,27 @@
 
 #include <Coco/Path.h>
 
-#include "models/AbstractFileModel.h"
-#include "views/AbstractFileView.h"
-#include "workspaces/Bus.h"
-#include "fnx/Fnx.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "MenuState.h"
-#include "workspaces/NotepadFileSystemModel.h"
-#include "workspaces/SaveFailMessageBox.h"
-#include "workspaces/SavePrompt.h"
-#include "core/Timers.h"
 #include "Window.h"
-#include "workspaces/Workspace.h"
 #include "core/AppDirs.h"
 #include "core/Debug.h"
+#include "core/Timers.h"
 #include "core/Tr.h"
 #include "core/Version.h"
+#include "fnx/Fnx.h"
+#include "models/AbstractFileModel.h"
 #include "services/SettingsService.h"
 #include "services/TreeViewService.h"
 #include "services/ViewService.h"
 #include "services/WindowService.h"
+#include "views/AbstractFileView.h"
+#include "workspaces/Bus.h"
+#include "workspaces/NotepadFileSystemModel.h"
+#include "workspaces/SaveFailMessageBox.h"
+#include "workspaces/SavePrompt.h"
+#include "workspaces/Workspace.h"
 
 namespace Fernanda {
 

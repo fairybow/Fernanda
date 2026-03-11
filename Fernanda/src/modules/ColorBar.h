@@ -29,8 +29,8 @@
 #include <Coco/Concepts.h>
 #include <Coco/Fx.h>
 
-#include "core/Timers.h"
 #include "core/Debug.h"
+#include "core/Timers.h"
 
 namespace Fernanda {
 
