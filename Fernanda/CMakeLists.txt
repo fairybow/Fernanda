@@ -32,13 +32,12 @@ set(FERNANDA_SOURCES
     src/dialogs/AboutDialog.cpp
     src/fnx/FnxModel.cpp
     src/services/WindowService.cpp
+    src/ui/CollapsibleWidget.cpp
+    src/ui/PlainTextEdit.cpp
+    src/ui/TabWidget.cpp
+    src/ui/Window.cpp
     src/views/TextFileView.cpp
     src/workspaces/Workspace.cpp
-
-    src/CollapsibleWidget.cpp
-    src/PlainTextEdit.cpp
-    src/TabWidget.cpp
-    src/Window.cpp
 )
 
 # --- Fernanda headers ---
@@ -48,7 +47,10 @@ set(FERNANDA_HEADERS
     src/core/Application.h
     src/core/BuildMessages.h
     src/core/Debug.h
+    src/core/FileTypes.h
     src/core/Formatters.h
+    src/core/Io.h
+    src/core/MagicBytes.h
     src/core/TempDir.h
     src/core/Timers.h
     src/core/ToString.h
@@ -64,13 +66,9 @@ set(FERNANDA_HEADERS
     src/fnx/FnxModel.h
     src/fnx/FnxModelCache.h
 
-    src/services/AbstractService.h
-    src/services/FileService.h
-    src/services/SettingsService.h
-    src/services/TieredSettings.h
-    src/services/TreeViewService.h
-    src/services/ViewService.h
-    src/services/WindowService.h
+    src/menus/MenuBuilder.h
+    src/menus/MenuShortcuts.h
+    src/menus/MenuState.h
 
     src/models/AbstractFileModel.h
     src/models/FileMeta.h
@@ -87,8 +85,43 @@ set(FERNANDA_HEADERS
     src/modules/WordCounter.h
     src/modules/WordCounterModule.h
 
+    src/services/AbstractService.h
+    src/services/FileService.h
+    src/services/SettingsService.h
+    src/services/TieredSettings.h
+    src/services/TreeViewService.h
+    src/services/ViewService.h
+    src/services/WindowService.h
+
+    src/settings/ColorBarPanel.h
+    src/settings/EditorPanel.h
+    src/settings/FontPanel.h
+    src/settings/Ini.h
+    src/settings/KeyFiltersPanel.h
+    src/settings/SettingsDialog.h
+    src/settings/SettingsPanel.h
+    src/settings/ThemesPanel.h
+    src/settings/WordCounterPanel.h
+
+    src/ui/AccordionWidget.h
+    src/ui/CollapsibleWidget.h
+    src/ui/CollapsibleWidgetHeader.h
+    src/ui/ControlField.h
+    src/ui/DisplaySlider.h
+    src/ui/PlainTextEdit.h
+    src/ui/SelectionHandleOverlay.h
+    src/ui/TabWidget.h
+    src/ui/TabWidgetButton.h
+    src/ui/TabWidgetCloseButton.h
+    src/ui/TabWidgetTabBar.h
+    src/ui/TabWidgetUnderlay.h
+    src/ui/TreeView.h
+    src/ui/Window.h
+    src/ui/ZoomControl.h
+
     src/views/AbstractFileView.h
     src/views/ImageFileView.h
+    src/views/KeyFilters.h
     src/views/PdfFileView.h
     src/views/TextFileView.h
 
@@ -102,38 +135,6 @@ set(FERNANDA_HEADERS
     src/workspaces/SavePrompt.h
     src/workspaces/TrashPrompt.h
     src/workspaces/Workspace.h
-
-    src/AccordionWidget.h
-    src/CollapsibleWidget.h
-    src/CollapsibleWidgetHeader.h
-    src/ColorBarPanel.h
-    src/ControlField.h
-    src/DisplaySlider.h
-    src/EditorPanel.h
-    src/FileTypes.h
-    src/FontPanel.h
-    src/Ini.h
-    src/Io.h
-    src/KeyFilters.h
-    src/KeyFiltersPanel.h
-    src/MagicBytes.h
-    src/MenuBuilder.h
-    src/MenuShortcuts.h
-    src/MenuState.h
-    src/PlainTextEdit.h
-    src/SelectionHandleOverlay.h
-    src/SettingsDialog.h
-    src/SettingsPanel.h
-    src/TabWidget.h
-    src/TabWidgetButton.h
-    src/TabWidgetCloseButton.h
-    src/TabWidgetTabBar.h
-    src/TabWidgetUnderlay.h
-    src/ThemesPanel.h
-    src/TreeView.h
-    src/Window.h
-    src/WordCounterPanel.h
-    src/ZoomControl.h
 )
 
 # --- Coco (compiled as part of Fernanda) ---

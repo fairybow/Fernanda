@@ -47,12 +47,12 @@
 #include <Coco/Concepts.h>
 #include <Coco/Utility.h>
 
-#include "TabWidgetButton.h"
-#include "TabWidgetCloseButton.h"
-#include "TabWidgetTabBar.h"
-#include "TabWidgetUnderlay.h"
 #include "core/Debug.h"
 #include "modules/StyleContext.h"
+#include "ui/TabWidgetButton.h"
+#include "ui/TabWidgetCloseButton.h"
+#include "ui/TabWidgetTabBar.h"
+#include "ui/TabWidgetUnderlay.h"
 
 namespace Fernanda {
 

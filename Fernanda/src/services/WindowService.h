@@ -25,11 +25,11 @@
 #include <Coco/Bool.h>
 #include <Coco/Utility.h>
 
-#include "Window.h"
 #include "core/Debug.h"
 #include "core/Version.h"
 #include "core/XPlatform.h"
 #include "services/AbstractService.h"
+#include "ui/Window.h"
 #include "workspaces/Bus.h"
 
 namespace Fernanda {

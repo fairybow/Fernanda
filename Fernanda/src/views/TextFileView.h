@@ -14,15 +14,15 @@
 #include <QTextOption>
 #include <QWidget>
 
-#include "KeyFilters.h"
-#include "MenuBuilder.h"
-#include "MenuShortcuts.h"
-#include "PlainTextEdit.h"
 #include "core/Debug.h"
 #include "core/Tr.h"
+#include "menus/MenuBuilder.h"
+#include "menus/MenuShortcuts.h"
 #include "models/AbstractFileModel.h"
 #include "models/TextFileModel.h"
+#include "ui/PlainTextEdit.h"
 #include "views/AbstractFileView.h"
+#include "views/KeyFilters.h"
 
 namespace Fernanda {
 

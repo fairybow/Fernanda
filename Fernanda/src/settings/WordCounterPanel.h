@@ -15,10 +15,10 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "Ini.h"
-#include "SettingsPanel.h"
 #include "core/Debug.h"
 #include "core/Tr.h"
+#include "settings/Ini.h"
+#include "settings/SettingsPanel.h"
 
 namespace Fernanda {
 

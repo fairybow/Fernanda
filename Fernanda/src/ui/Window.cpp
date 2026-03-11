@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "Window.h"
+#include "ui/Window.h"
 
 #include <QCloseEvent>
 #include <QMainWindow>

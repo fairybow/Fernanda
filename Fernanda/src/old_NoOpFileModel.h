@@ -16,7 +16,7 @@
 
 #include "models/AbstractFileModel.h"
 #include "core/Debug.h"
-#include "FileTypes.h"
+#include "core/FileTypes.h"
 
 namespace Fernanda {
 

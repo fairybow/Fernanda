@@ -19,7 +19,7 @@
 
 #include <QList>
 
-#include "Window.h"
+#include "ui/Window.h"
 
 // Cross-platform functions
 namespace Fernanda::XPlatform {

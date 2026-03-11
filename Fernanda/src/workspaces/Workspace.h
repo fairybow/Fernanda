@@ -22,14 +22,13 @@
 #include <Coco/Bool.h>
 #include <Coco/Path.h>
 
-#include "MenuBuilder.h"
-#include "MenuShortcuts.h"
-#include "MenuState.h"
-#include "Window.h"
 #include "core/AppDirs.h"
 #include "core/Timers.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
+#include "menus/MenuBuilder.h"
+#include "menus/MenuShortcuts.h"
+#include "menus/MenuState.h"
 #include "models/AbstractFileModel.h"
 #include "modules/ColorBar.h"
 #include "modules/ColorBarModule.h"
@@ -40,6 +39,7 @@
 #include "services/TreeViewService.h"
 #include "services/ViewService.h"
 #include "services/WindowService.h"
+#include "ui/Window.h"
 #include "views/AbstractFileView.h"
 #include "workspaces/Bus.h"
 #include "workspaces/NewNotebookPrompt.h"

@@ -14,11 +14,11 @@
 #include <QTextDocument>
 #include <QWidget>
 
-#include "KeyFilters.h"
-#include "PlainTextEdit.h"
 #include "core/Application.h"
 #include "models/AbstractFileModel.h"
 #include "models/TextFileModel.h"
+#include "ui/PlainTextEdit.h"
+#include "views/KeyFilters.h"
 
 namespace Fernanda {
 

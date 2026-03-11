@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "PlainTextEdit.h"
+#include "ui/PlainTextEdit.h"
 
 #include <QColor>
 #include <QFont>

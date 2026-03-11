@@ -14,7 +14,7 @@
 #include <QRect>
 #include <QTabBar>
 
-#include "TabWidgetButton.h"
+#include "ui/TabWidgetButton.h"
 
 namespace Fernanda {
 

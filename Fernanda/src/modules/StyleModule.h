@@ -22,13 +22,13 @@
 #include <Coco/Path.h>
 #include <Coco/Utility.h>
 
-#include "Ini.h"
-#include "Window.h"
 #include "core/AppDirs.h"
 #include "core/Debug.h"
 #include "modules/StyleContext.h"
 #include "modules/Themes.h"
 #include "services/AbstractService.h"
+#include "settings/Ini.h"
+#include "ui/Window.h"
 #include "views/AbstractFileView.h"
 #include "views/TextFileView.h"
 #include "workspaces/Bus.h"

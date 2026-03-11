@@ -25,10 +25,10 @@
 
 #include <Coco/Path.h>
 
-#include "FileTypes.h"
-#include "Io.h"
-#include "MagicBytes.h"
 #include "core/AppDirs.h"
+#include "core/FileTypes.h"
+#include "core/Io.h"
+#include "core/MagicBytes.h"
 
 // .fnx file format specification and utilities
 // - Fnx::Io: Archive and working directory operations

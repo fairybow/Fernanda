@@ -29,8 +29,8 @@
 #include <QVariant>
 #include <QWidget>
 
-#include "SelectionHandleOverlay.h"
 #include "core/Debug.h"
+#include "ui/SelectionHandleOverlay.h"
 
 namespace Fernanda {
 

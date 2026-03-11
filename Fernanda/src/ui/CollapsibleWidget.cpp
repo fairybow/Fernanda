@@ -7,13 +7,13 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "CollapsibleWidget.h"
+#include "ui/CollapsibleWidget.h"
 
 #include <QEvent>
 #include <QWidget>
 
-#include "CollapsibleWidgetHeader.h"
 #include "core/Application.h"
+#include "ui/CollapsibleWidgetHeader.h"
 
 namespace Fernanda {
 

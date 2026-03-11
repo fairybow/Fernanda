@@ -27,8 +27,8 @@
 
 #include <Coco/Concepts.h>
 
-#include "MenuState.h"
 #include "core/Debug.h"
+#include "menus/MenuState.h"
 
 namespace Fernanda {
 

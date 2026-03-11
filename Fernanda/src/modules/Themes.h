@@ -22,8 +22,8 @@
 
 #include <Coco/Path.h>
 
-#include "Io.h"
 #include "core/Debug.h"
+#include "core/Io.h"
 #include "modules/Qss.h"
 
 namespace Fernanda {

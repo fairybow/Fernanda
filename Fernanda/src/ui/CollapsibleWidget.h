@@ -15,8 +15,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "CollapsibleWidgetHeader.h"
 #include "core/Debug.h"
+#include "ui/CollapsibleWidgetHeader.h"
 
 // TODO: Reverify this!
 namespace Fernanda {

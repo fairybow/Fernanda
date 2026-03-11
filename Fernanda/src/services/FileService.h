@@ -20,11 +20,10 @@
 
 #include <Coco/Path.h>
 
-#include "FileTypes.h"
-#include "Io.h"
-#include "MagicBytes.h"
-#include "Window.h"
 #include "core/Debug.h"
+#include "core/FileTypes.h"
+#include "core/Io.h"
+#include "core/MagicBytes.h"
 #include "core/Tr.h"
 #include "models/AbstractFileModel.h"
 #include "models/FileMeta.h"
@@ -32,6 +31,7 @@
 #include "models/PdfFileModel.h"
 #include "models/TextFileModel.h"
 #include "services/AbstractService.h"
+#include "ui/Window.h"
 #include "views/AbstractFileView.h"
 #include "workspaces/Bus.h"
 

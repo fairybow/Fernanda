@@ -13,10 +13,10 @@
 #include <QPdfView>
 #include <QWidget>
 
-#include "ZoomControl.h"
 #include "core/Debug.h"
 #include "models/AbstractFileModel.h"
 #include "models/PdfFileModel.h"
+#include "ui/ZoomControl.h"
 #include "views/AbstractFileView.h"
 
 namespace Fernanda {

@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "TabWidget.h"
+#include "ui/TabWidget.h"
 
 #include <QCursor>
 #include <QEnterEvent>
@@ -19,9 +19,9 @@
 #include <QRect>
 #include <QWidget>
 
-#include "TabWidgetCloseButton.h"
-#include "TabWidgetTabBar.h"
 #include "core/Application.h"
+#include "ui/TabWidgetCloseButton.h"
+#include "ui/TabWidgetTabBar.h"
 
 namespace Fernanda {
 

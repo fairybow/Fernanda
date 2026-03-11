@@ -11,7 +11,7 @@
 
 #include <Coco/Path.h>
 
-#include "MagicBytes.h"
+#include "core/MagicBytes.h"
 
 // These are just constants relating the file types and extensions Fernanda
 // "knows" about. Special handling is determined by FileService
