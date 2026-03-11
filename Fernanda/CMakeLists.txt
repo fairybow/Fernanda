@@ -196,6 +196,11 @@ set(BIT7Z_AUTO_FORMAT ON CACHE BOOL "Enable auto format detection")
 # Add any other bit7z options you need here, e.g.:
 # set(BIT7Z_USE_NATIVE_STRING ON CACHE BOOL "")
 
+# --- bit7z (built from source via submodule) ---
+# bit7z compiles 7-Zip source into its static library at build time. This should
+# match the version of the runtime DLL/SO files bundled in Fernanda's resources.
+
+set(BIT7Z_7ZIP_VERSION "25.01" CACHE STRING "7-Zip version to build against")
 add_subdirectory(submodules/bit7z)
 
 # --- Linking ---
@@ -215,7 +220,7 @@ target_link_libraries(Fernanda PRIVATE
 
 if(MSVC)
     target_compile_options(Fernanda PRIVATE
-        /W3 /MP /sdl /permissive- /bigobj
+        /W3 /MP /sdl /permissive- /bigobj /EHsc
     )
     target_compile_options(Fernanda PRIVATE
         $<$<CONFIG:Release>:/GL /Gy /Oi>
