@@ -1,11 +1,4 @@
-# Run:
-#   mkdir build
-#   cd build
-#   cmake .. -DCMAKE_PREFIX_PATH=<Qt path, e.g., C:\Qt\6.10.2\msvc2022_64>
-#   cmake --build . --config Release
-#   cmake --install . --config Release --prefix <output_dir>
-
-# Fernanda - A distraction-free plain text editor for long-form fiction
+# Fernanda - A plain text editor for drafting long-form fiction. (At least, that's the plan.)
 # https://github.com/fairybow/Fernanda
 
 cmake_minimum_required(VERSION 3.21)
