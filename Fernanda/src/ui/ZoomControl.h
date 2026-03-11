@@ -32,9 +32,10 @@ namespace Fernanda {
 // Left-click display to toggle between Fit and last used fixed zoom;
 // right-click display to set to 100% (also resets last used zoom factor)
 //
-// TODO: Hide/fade out after a set linger time. Reappear on hover in its general
-// area (bottom-right). Begin visible, though, so it's obvious the widget is
-// there to users
+// TODO: (Maybe) hide/fade out after a set linger time. Reappear on hover in its
+// general area (bottom-right). Begin visible, though, so it's obvious the
+// widget is there to users
+// TODO: Allow typing percentage into display
 // TODO: Buttons are a little too far from left and right edges respectively
 // TODO: Widget itself is too far right (overlaps with scroll bar slightly and
 // also over edge of fitted PDFs

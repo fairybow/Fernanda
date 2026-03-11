@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QColor>
 #include <QLabel>
 #include <QPalette>
 #include <QPixmap>
@@ -32,9 +33,6 @@ namespace Fernanda {
 // TODO: Support SVG (unsure how to detect atm; may need SVG widgets component,
 // in which case can probably drop plain svg component and it'll be brought in
 // anyway)
-// TODO: Need zoom controls! (Shows percent, ofc)
-// TODO: For this overlay widget, look to SelectionHandleOverlay.h as an example
-// Requires Qt Image Formats
 class ImageFileView : public AbstractFileView
 {
     Q_OBJECT
@@ -54,15 +52,11 @@ protected:
     {
         scrollArea_->setWidgetResizable(false);
         scrollArea_->setAlignment(Qt::AlignCenter);
-        scrollArea_->setAutoFillBackground(true);
-        scrollArea_->setBackgroundRole(
-            QPalette::Base); // Not technically necessary
-        QPalette palette = scrollArea_->palette();
-        palette.setColor(QPalette::Base, Qt::black);
-        scrollArea_->setPalette(palette);
+        setPalette_(scrollArea_, Qt::black);
 
         label_->setScaledContents(false);
         label_->setAlignment(Qt::AlignCenter);
+        setPalette_(label_, Qt::transparent);
 
         if (auto image_model = qobject_cast<ImageFileModel*>(model())) {
             QPixmap pixmap{};
@@ -107,8 +101,17 @@ protected:
 private:
     QScrollArea* scrollArea_ = new QScrollArea(this);
     QLabel* label_ = new QLabel(this);
-    QPixmap originalPixmap_{};
     ZoomControl* zoomControl_ = new ZoomControl(scrollArea_);
+    QPixmap originalPixmap_{};
+
+    void setPalette_(QWidget* widget, const QColor& color)
+    {
+        widget->setAutoFillBackground(true);
+        widget->setBackgroundRole(QPalette::Base); // Not technically necessary
+        QPalette palette = widget->palette();
+        palette.setColor(QPalette::Base, color);
+        widget->setPalette(palette);
+    }
 
     void zoomToFactor_(qreal factor)
     {
@@ -129,7 +132,8 @@ private:
 
         // Don't exceed resolution
         auto scaled = originalPixmap_.scaled(
-            originalPixmap_.size().boundedTo(scrollArea_->viewport()->size()),
+            originalPixmap_.size().boundedTo(
+                scrollArea_->maximumViewportSize()),
             Qt::KeepAspectRatio,
             Qt::SmoothTransformation);
 
