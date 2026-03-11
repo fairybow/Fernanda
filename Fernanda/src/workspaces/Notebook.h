@@ -60,7 +60,7 @@
 
 namespace Fernanda {
 
-// A binder-style Workspace operating on 7zip archive-based filesystems.
+// A binder-style Workspace operating on 7-Zip archive-based filesystems.
 //
 // Owns the archive path and working directory. Uses FnxModel's public API
 // exclusively, never accesses DOM elements directly.

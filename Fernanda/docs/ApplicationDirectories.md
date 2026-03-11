@@ -22,7 +22,7 @@ These paths are managed by `AppDirs` and created at startup if they don't exist.
 |-- temp/           # Notebook working directories
 |   |-- MyNovel.fnx~abc123/
 |   +-- ShortStory.fnx~def456/
-+-- 7za.dll         # Extracted 7zip library (Windows)
++-- 7za.dll         # Extracted 7-Zip library (Windows)
 ```
 
 ## Settings Inheritance
