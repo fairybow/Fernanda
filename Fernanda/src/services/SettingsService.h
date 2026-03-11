@@ -26,7 +26,7 @@
 
 #include "services/AbstractService.h"
 #include "Bus.h"
-#include "ColorBar.h"
+#include "modules/ColorBar.h"
 #include "core/Debug.h"
 #include "Ini.h"
 #include "SettingsDialog.h"

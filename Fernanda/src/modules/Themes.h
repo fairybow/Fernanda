@@ -24,7 +24,7 @@
 
 #include "core/Debug.h"
 #include "Io.h"
-#include "Qss.h"
+#include "modules/Qss.h"
 
 namespace Fernanda {
 

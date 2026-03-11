@@ -25,7 +25,7 @@
 #include <QString>
 
 #include "core/Debug.h"
-#include "StyleContext.h"
+#include "modules/StyleContext.h"
 
 // TODO: Verify this
 namespace Fernanda {

@@ -26,8 +26,8 @@
 #include "AbstractFileView.h"
 #include "core/AppDirs.h"
 #include "Bus.h"
-#include "ColorBar.h"
-#include "ColorBarModule.h"
+#include "modules/ColorBar.h"
+#include "modules/ColorBarModule.h"
 #include "services/FileService.h"
 #include "Fnx.h"
 #include "MenuBuilder.h"
@@ -35,14 +35,14 @@
 #include "MenuState.h"
 #include "NewNotebookPrompt.h"
 #include "services/SettingsService.h"
-#include "StyleModule.h"
+#include "modules/StyleModule.h"
 #include "Timers.h"
 #include "core/Tr.h"
 #include "services/TreeViewService.h"
 #include "services/ViewService.h"
 #include "Window.h"
 #include "services/WindowService.h"
-#include "WordCounterModule.h"
+#include "modules/WordCounterModule.h"
 
 namespace Fernanda {
 

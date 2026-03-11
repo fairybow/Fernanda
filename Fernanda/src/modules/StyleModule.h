@@ -28,9 +28,9 @@
 #include "Bus.h"
 #include "core/Debug.h"
 #include "Ini.h"
-#include "StyleContext.h"
+#include "modules/StyleContext.h"
 #include "TextFileView.h"
-#include "Themes.h"
+#include "modules/Themes.h"
 #include "Window.h"
 
 namespace Fernanda {

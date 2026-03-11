@@ -48,7 +48,7 @@
 #include <Coco/Utility.h>
 
 #include "core/Debug.h"
-#include "StyleContext.h"
+#include "modules/StyleContext.h"
 #include "TabWidgetButton.h"
 #include "TabWidgetCloseButton.h"
 #include "TabWidgetTabBar.h"

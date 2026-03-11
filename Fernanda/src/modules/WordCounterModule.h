@@ -20,7 +20,7 @@
 #include "Ini.h"
 #include "TextFileView.h"
 #include "Window.h"
-#include "WordCounter.h"
+#include "modules/WordCounter.h"
 
 namespace Fernanda {
 

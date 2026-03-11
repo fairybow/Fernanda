@@ -63,6 +63,15 @@ set(FERNANDA_HEADERS
     src/services/ViewService.h
     src/services/WindowService.h
 
+    src/modules/ColorBar.h
+    src/modules/ColorBarModule.h
+    src/modules/Qss.h
+    src/modules/StyleContext.h
+    src/modules/StyleModule.h
+    src/modules/Themes.h
+    src/modules/WordCounter.h
+    src/modules/WordCounterModule.h
+
     src/AboutDialog.h
     src/AbstractFileModel.h
     src/AbstractFileView.h
@@ -71,8 +80,6 @@ set(FERNANDA_HEADERS
     src/Bus.h
     src/CollapsibleWidget.h
     src/CollapsibleWidgetHeader.h
-    src/ColorBar.h
-    src/ColorBarModule.h
     src/ColorBarPanel.h
     src/Commander.h
     src/ControlField.h
@@ -101,14 +108,11 @@ set(FERNANDA_HEADERS
     src/PdfFileModel.h
     src/PdfFileView.h
     src/PlainTextEdit.h
-    src/Qss.h
     src/SaveFailMessageBox.h
     src/SavePrompt.h
     src/SelectionHandleOverlay.h
     src/SettingsDialog.h
     src/SettingsPanel.h
-    src/StyleContext.h
-    src/StyleModule.h
     src/TabWidget.h
     src/TabWidgetButton.h
     src/TabWidgetCloseButton.h
@@ -116,15 +120,12 @@ set(FERNANDA_HEADERS
     src/TabWidgetUnderlay.h
     src/TextFileModel.h
     src/TextFileView.h
-    src/Themes.h
     src/ThemesPanel.h
     src/Timers.h
     src/TrashPrompt.h
     src/TreeView.h
     src/UpdateDialog.h
     src/Window.h
-    src/WordCounter.h
-    src/WordCounterModule.h
     src/WordCounterPanel.h
     src/Workspace.h
     src/ZoomControl.h

@@ -26,7 +26,7 @@
 #include <QSizeF>
 
 #include "core/Debug.h"
-#include "StyleContext.h"
+#include "modules/StyleContext.h"
 
 namespace Fernanda {
 

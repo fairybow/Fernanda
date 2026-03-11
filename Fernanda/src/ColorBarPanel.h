@@ -15,7 +15,7 @@
 #include <QVariant>
 #include <QVariantMap>
 
-#include "ColorBar.h"
+#include "modules/ColorBar.h"
 #include "ControlField.h"
 #include "core/Debug.h"
 #include "Ini.h"
