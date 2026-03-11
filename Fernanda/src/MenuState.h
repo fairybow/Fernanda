@@ -18,8 +18,8 @@
 #include <QList>
 #include <QObject>
 
-#include "core/Debug.h"
 #include "Window.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

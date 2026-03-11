@@ -25,10 +25,10 @@
 #include <Coco/Bool.h>
 #include <Coco/Path.h>
 
-#include "core/Debug.h"
 #include "FileTypes.h"
 #include "Fnx.h"
 #include "FnxModelCache.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

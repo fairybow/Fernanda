@@ -21,12 +21,12 @@
 #include <Coco/Path.h>
 
 #include "ColorBarPanel.h"
-#include "core/Debug.h"
 #include "EditorPanel.h"
 #include "FontPanel.h"
 #include "KeyFiltersPanel.h"
 #include "ThemesPanel.h"
 #include "WordCounterPanel.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

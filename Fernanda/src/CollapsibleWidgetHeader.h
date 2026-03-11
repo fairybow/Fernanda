@@ -143,8 +143,8 @@ private:
     {
         /// TODO STYLE: Fix!
 
-        //auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
-        //if (!bg.isValid() || bg.alpha() <= 0) return;
+        // auto bg = Ui::resolveButtonColor(buttonColors_, isDown(),
+        // underMouse()); if (!bg.isValid() || bg.alpha() <= 0) return;
 
         /*QPainterPath path{};
         auto highlight_rect = rect.adjusted(
@@ -157,7 +157,7 @@ private:
             HIGHLIGHT_CORNER_RADIUS_,
             HIGHLIGHT_CORNER_RADIUS_);*/
 
-        //painter.fillPath(path, bg);
+        // painter.fillPath(path, bg);
     }
 };
 

@@ -15,10 +15,10 @@
 #include <QWidget>
 
 #include "AbstractFileModel.h"
-#include "core/Application.h"
 #include "KeyFilters.h"
 #include "PlainTextEdit.h"
 #include "TextFileModel.h"
+#include "core/Application.h"
 
 namespace Fernanda {
 

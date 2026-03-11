@@ -59,7 +59,8 @@ inline void report()
 namespace Fernanda {
 
 // See:
-// https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
+//
+https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
 //
 // Qt Model/View adapter for .fnx virtual directory structure.
 //

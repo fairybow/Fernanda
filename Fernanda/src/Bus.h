@@ -16,8 +16,8 @@
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
 #include "Commander.h"
-#include "core/Debug.h"
 #include "Window.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

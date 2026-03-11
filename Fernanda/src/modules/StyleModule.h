@@ -23,15 +23,15 @@
 #include <Coco/Utility.h>
 
 #include "AbstractFileView.h"
-#include "services/AbstractService.h"
-#include "core/AppDirs.h"
 #include "Bus.h"
-#include "core/Debug.h"
 #include "Ini.h"
-#include "modules/StyleContext.h"
 #include "TextFileView.h"
-#include "modules/Themes.h"
 #include "Window.h"
+#include "core/AppDirs.h"
+#include "core/Debug.h"
+#include "modules/StyleContext.h"
+#include "modules/Themes.h"
+#include "services/AbstractService.h"
 
 namespace Fernanda {
 

@@ -108,7 +108,8 @@ protected:
         /// TODO STYLE: Fix!
 
         // Determine current background color
-        //auto bg = Ui::resolveButtonColor(buttonColors_, isDown(), underMouse());
+        // auto bg = Ui::resolveButtonColor(buttonColors_, isDown(),
+        // underMouse());
 
         // Draw background
         /*if (bg.isValid() && bg.alpha() > 0) {

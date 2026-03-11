@@ -17,8 +17,8 @@
 #include <QStyle>
 #include <QVariant>
 
-#include "core/Application.h"
 #include "Fnx.h"
+#include "core/Application.h"
 
 namespace Fernanda {
 

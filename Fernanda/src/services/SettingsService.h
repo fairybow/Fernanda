@@ -24,16 +24,16 @@
 #include <Coco/Path.h>
 #include <Coco/Utility.h>
 
-#include "services/AbstractService.h"
 #include "Bus.h"
-#include "modules/ColorBar.h"
-#include "core/Debug.h"
 #include "Ini.h"
 #include "SettingsDialog.h"
 #include "ThemesPanel.h"
-#include "services/TieredSettings.h"
 #include "Timers.h"
+#include "core/Debug.h"
 #include "core/Tr.h"
+#include "modules/ColorBar.h"
+#include "services/AbstractService.h"
+#include "services/TieredSettings.h"
 
 namespace Fernanda {
 

@@ -90,7 +90,7 @@ void PlainTextEdit::setup_()
     lineNumberArea_->setVisible(lineNumbers_);
 
     // TODO: Unsure on frame:
-    //setFrameShape(QFrame::NoFrame);
+    // setFrameShape(QFrame::NoFrame);
     setViewportMargins(0, 0, 0, 0);
 
     connect(

@@ -20,9 +20,9 @@
 #include <Coco/Path.h>
 
 #include "AbstractFileModel.h"
-#include "core/Debug.h"
 #include "FileMeta.h"
 #include "FileTypes.h"
+#include "core/Debug.h"
 #include "core/Version.h"
 
 namespace Fernanda {

@@ -26,12 +26,12 @@
 
 #include <Coco/Path.h>
 
-#include "services/AbstractService.h"
 #include "Bus.h"
-#include "core/Debug.h"
-#include "core/Tr.h"
 #include "TreeView.h"
 #include "Window.h"
+#include "core/Debug.h"
+#include "core/Tr.h"
+#include "services/AbstractService.h"
 
 namespace Fernanda {
 

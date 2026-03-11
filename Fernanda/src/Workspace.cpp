@@ -15,15 +15,15 @@
 #include "AboutDialog.h"
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "core/Application.h"
 #include "Ini.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "MenuState.h"
-#include "core/Tr.h"
 #include "UpdateDialog.h"
-#include "services/ViewService.h"
 #include "Window.h"
+#include "core/Application.h"
+#include "core/Tr.h"
+#include "services/ViewService.h"
 #include "services/WindowService.h"
 
 namespace Fernanda {

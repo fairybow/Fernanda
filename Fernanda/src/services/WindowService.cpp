@@ -9,8 +9,8 @@
 
 #include "services/WindowService.h"
 
-#include "core/Application.h"
 #include "Bus.h"
+#include "core/Application.h"
 
 namespace Fernanda {
 

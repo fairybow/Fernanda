@@ -17,9 +17,9 @@
 #include <QVariant>
 #include <QWidget>
 
-#include "core/Debug.h"
 #include "DisplaySlider.h"
 #include "Ini.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

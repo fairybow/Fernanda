@@ -15,9 +15,9 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "core/Debug.h"
 #include "PdfFileModel.h"
 #include "ZoomControl.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

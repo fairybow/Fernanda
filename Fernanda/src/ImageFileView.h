@@ -22,10 +22,10 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "core/Debug.h"
 #include "FileMeta.h"
 #include "ImageFileModel.h"
 #include "ZoomControl.h"
+#include "core/Debug.h"
 
 namespace Fernanda {
 

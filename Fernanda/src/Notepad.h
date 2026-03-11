@@ -25,9 +25,7 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "core/AppDirs.h"
 #include "Bus.h"
-#include "core/Debug.h"
 #include "Fnx.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
@@ -35,15 +33,17 @@
 #include "NotepadFileSystemModel.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
-#include "services/SettingsService.h"
 #include "Timers.h"
-#include "core/Tr.h"
-#include "services/TreeViewService.h"
-#include "core/Version.h"
-#include "services/ViewService.h"
 #include "Window.h"
-#include "services/WindowService.h"
 #include "Workspace.h"
+#include "core/AppDirs.h"
+#include "core/Debug.h"
+#include "core/Tr.h"
+#include "core/Version.h"
+#include "services/SettingsService.h"
+#include "services/TreeViewService.h"
+#include "services/ViewService.h"
+#include "services/WindowService.h"
 
 namespace Fernanda {
 

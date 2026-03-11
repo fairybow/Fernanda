@@ -19,9 +19,9 @@
 #include <QRect>
 #include <QWidget>
 
-#include "core/Application.h"
 #include "TabWidgetCloseButton.h"
 #include "TabWidgetTabBar.h"
+#include "core/Application.h"
 
 namespace Fernanda {
 

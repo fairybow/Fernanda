@@ -16,12 +16,12 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "core/Debug.h"
 #include "KeyFilters.h"
 #include "MenuBuilder.h"
 #include "MenuShortcuts.h"
 #include "PlainTextEdit.h"
 #include "TextFileModel.h"
+#include "core/Debug.h"
 #include "core/Tr.h"
 
 namespace Fernanda {

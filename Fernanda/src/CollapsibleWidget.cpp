@@ -12,8 +12,8 @@
 #include <QEvent>
 #include <QWidget>
 
-#include "core/Application.h"
 #include "CollapsibleWidgetHeader.h"
+#include "core/Application.h"
 
 namespace Fernanda {
 

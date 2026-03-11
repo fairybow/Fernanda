@@ -14,13 +14,13 @@
 #include <QPlainTextEdit>
 #include <QStatusBar>
 
-#include "services/AbstractService.h"
 #include "Bus.h"
-#include "core/Debug.h"
 #include "Ini.h"
 #include "TextFileView.h"
 #include "Window.h"
+#include "core/Debug.h"
 #include "modules/WordCounter.h"
+#include "services/AbstractService.h"
 
 namespace Fernanda {
 

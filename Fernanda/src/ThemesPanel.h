@@ -20,9 +20,9 @@
 #include <Coco/Utility.h>
 
 #include "ControlField.h"
-#include "core/Debug.h"
 #include "Ini.h"
 #include "SettingsPanel.h"
+#include "core/Debug.h"
 #include "core/Tr.h"
 
 namespace Fernanda {
