@@ -183,7 +183,6 @@ qt_add_executable(Fernanda WIN32
 target_include_directories(Fernanda PRIVATE
     src
     submodules/Coco/Coco/include
-    external/bit7z/include
 )
 
 target_compile_definitions(Fernanda PRIVATE
@@ -191,23 +190,24 @@ target_compile_definitions(Fernanda PRIVATE
     WIN32_LEAN_AND_MEAN
 )
 
-# --- bit7z (pre-built static library, Windows only) ---
-# TODO: Replace with add_subdirectory() for cross-platform builds
+# --- bit7z (built from source via submodule) ---
 
-add_library(bit7z STATIC IMPORTED)
-set_target_properties(bit7z PROPERTIES
-    IMPORTED_LOCATION_DEBUG
-        "${CMAKE_CURRENT_SOURCE_DIR}/external/bit7z/lib/x64/Debug/bit7z.lib"
-    IMPORTED_LOCATION_RELEASE
-        "${CMAKE_CURRENT_SOURCE_DIR}/external/bit7z/lib/x64/Release/bit7z.lib"
-    MAP_IMPORTED_CONFIG_MINSIZEREL Release
-    MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
-)
-target_link_libraries(Fernanda PRIVATE bit7z)
+set(BIT7Z_AUTO_FORMAT ON CACHE BOOL "Enable auto format detection")
+# Add any other bit7z options you need here, e.g.:
+# set(BIT7Z_USE_NATIVE_STRING ON CACHE BOOL "")
 
-# --- Qt linking ---
+# --- bit7z (built from source via submodule) ---
+# bit7z compiles 7-Zip source into its static library at build time. This should
+# match the version of the runtime DLL/SO files bundled in Fernanda's resources.
+# Our fork (Fernanda-bit7z) is pointed to 82f3593 (v4.0.11 release commit).
+
+set(BIT7Z_7ZIP_VERSION "25.01" CACHE STRING "7-Zip version to build against")
+add_subdirectory(submodules/bit7z)
+
+# --- Linking ---
 
 target_link_libraries(Fernanda PRIVATE
+    bit7z64
     Qt6::Core
     Qt6::Gui
     Qt6::Network
@@ -221,7 +221,7 @@ target_link_libraries(Fernanda PRIVATE
 
 if(MSVC)
     target_compile_options(Fernanda PRIVATE
-        /W3 /MP /sdl /permissive- /bigobj
+        /W3 /MP /sdl /permissive- /bigobj /EHsc
     )
     target_compile_options(Fernanda PRIVATE
         $<$<CONFIG:Release>:/GL /Gy /Oi>
@@ -255,19 +255,41 @@ qt_add_lrelease(Fernanda
 )
 
 # =============================================================================
-# Pre-build and install
+# Version.txt (Release builds only)
 # =============================================================================
 
-add_custom_command(TARGET Fernanda PRE_BUILD
-    COMMAND $<$<CONFIG:Release>:powershell>
-            $<$<CONFIG:Release>:-ExecutionPolicy>
-            $<$<CONFIG:Release>:Bypass>
-            $<$<CONFIG:Release>:-File>
-            $<$<CONFIG:Release>:"${CMAKE_CURRENT_SOURCE_DIR}/packaging/VSPreBuildGenVersionFullStringTxt.ps1">
-            $<$<CONFIG:Release>:-OutputDir>
-            $<$<CONFIG:Release>:"$<TARGET_FILE_DIR:Fernanda>">
-    COMMENT "Generating version string (Release only)"
+file(STRINGS src/core/Version.h _ver_lines)
+
+foreach(_line ${_ver_lines})
+    if(_line MATCHES "^#define VERSION_MAJOR +([0-9]+)")
+        set(_ver_major ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_MINOR +([0-9]+)")
+        set(_ver_minor ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_PATCH +([0-9]+)")
+        set(_ver_patch ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_IS_PRERELEASE +([01])")
+        set(_ver_is_pre ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_PRERELEASE_STRING +\"([^\"]+)\"")
+        set(_ver_pre ${CMAKE_MATCH_1})
+    endif()
+endforeach()
+
+set(FERNANDA_VERSION "${_ver_major}.${_ver_minor}.${_ver_patch}")
+if(_ver_is_pre STREQUAL "1" AND _ver_pre)
+    string(APPEND FERNANDA_VERSION "-${_ver_pre}")
+endif()
+
+message(STATUS "Fernanda version: ${FERNANDA_VERSION}")
+
+file(GENERATE
+    OUTPUT "$<TARGET_FILE_DIR:Fernanda>/Version.txt"
+    CONTENT "${FERNANDA_VERSION}"
+    CONDITION $<CONFIG:Release>
 )
+
+# =============================================================================
+# Install
+# =============================================================================
 
 install(TARGETS Fernanda RUNTIME DESTINATION bin)
 install(FILES ${QM_FILES} DESTINATION bin)
