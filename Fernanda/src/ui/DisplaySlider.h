@@ -1,0 +1,142 @@
+/*
+ * Fernanda  Copyright (C) 2025-2026  fairybow
+ *
+ * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
+ * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
+ *
+ * Uses Qt 6 - <https://www.qt.io/>
+ */
+
+#pragma once
+
+#include <QFontMetrics>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QObject>
+#include <QSlider>
+#include <QString>
+#include <QWidget>
+
+#include "core/Debug.h"
+
+namespace Fernanda {
+
+// Wraps a QSlider with QLabel showing the current value
+class DisplaySlider : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit DisplaySlider(QWidget* parent = nullptr)
+        : QWidget(parent)
+    {
+        setup_();
+    }
+
+    virtual ~DisplaySlider() override { TRACER; }
+
+    int minimum() const { return slider_->minimum(); }
+    int maximum() const { return slider_->maximum(); }
+    int value() const { return slider_->value(); }
+    int tickInterval() const { return slider_->tickInterval(); }
+
+    void setMinimum(int min)
+    {
+        slider_->setMinimum(min);
+        setDisplayText_();
+    }
+
+    void setMaximum(int max)
+    {
+        slider_->setMaximum(max);
+        updateDisplayWidth_();
+        setDisplayText_();
+    }
+
+    void setRange(int min, int max)
+    {
+        slider_->setRange(min, max);
+        updateDisplayWidth_();
+        setDisplayText_();
+    }
+
+    void setValue(int value)
+    {
+        slider_->setValue(value);
+        setDisplayText_();
+    }
+
+    void setTickInterval(int tickInterval)
+    {
+        slider_->setTickInterval(tickInterval);
+    }
+
+signals:
+    void valueChanged(int value);
+    void rangeChanged(int min, int max);
+    void sliderMoved(int value);
+    void sliderPressed();
+    void sliderReleased();
+
+private:
+    QSlider* slider_ = new QSlider(Qt::Horizontal, this);
+    QLabel* display_ = new QLabel(this);
+
+    void setup_()
+    {
+        // Setup
+        slider_->setTickPosition(QSlider::NoTicks);
+        slider_->setTickInterval(1);
+        slider_->setRange(0, 100);
+        updateDisplayWidth_();
+
+        // Populate
+        slider_->setValue(100);
+        setDisplayText_();
+
+        // Layout
+        auto layout = new QHBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0); // Keep spacing but no margin
+        layout->addWidget(slider_);
+        layout->addWidget(display_);
+
+        // Connect
+        connect(slider_, &QSlider::valueChanged, this, [this](int value) {
+            setDisplayText_();
+            emit valueChanged(value);
+        });
+
+        connect(
+            slider_,
+            &QSlider::rangeChanged,
+            this,
+            [this](int min, int max) { emit rangeChanged(min, max); });
+
+        connect(slider_, &QSlider::sliderMoved, this, [this](int value) {
+            emit sliderMoved(value);
+        });
+
+        connect(slider_, &QSlider::sliderPressed, this, [this] {
+            emit sliderPressed();
+        });
+
+        connect(slider_, &QSlider::sliderReleased, this, [this] {
+            emit sliderReleased();
+        });
+    }
+
+    void updateDisplayWidth_()
+    {
+        auto max_text = QString::number(slider_->maximum());
+        auto width = display_->fontMetrics().horizontalAdvance(max_text);
+        display_->setFixedWidth(width);
+        display_->setAlignment(Qt::AlignRight);
+    }
+
+    void setDisplayText_()
+    {
+        display_->setText(QString::number(slider_->value()));
+    }
+};
+
+} // namespace Fernanda

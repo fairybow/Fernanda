@@ -12,11 +12,11 @@
 #include <QByteArray>
 #include <QObject>
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
-#include "AbstractFileModel.h"
-#include "Debug.h"
-#include "FileTypes.h"
+#include "models/AbstractFileModel.h"
+#include "core/Debug.h"
+#include "core/FileTypes.h"
 
 namespace Fernanda {
 

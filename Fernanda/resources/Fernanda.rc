@@ -1,6 +1,6 @@
 #include <Windows.h>
 
-#include "../src/Version.h"
+#include "core/Version.h"
 
 // TODO: - Language(s) in string description, instead of just English
 //       - Why isn't "beta.1" showing up for the "FileVersion"?

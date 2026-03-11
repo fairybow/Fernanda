@@ -19,13 +19,15 @@ Fernanda relies on Qt 6 and two additional dependencies: Coco (utility library) 
 
 ## bit7z
 
+TODO: Update!
+
 [bit7z](https://github.com/rikyoz/bit7z) provides a C++ interface to 7zip's compression/decompression capabilities.
 
 Fernanda uses bit7z as a **static library**: the public headers (in [`external/`](../external)) are compiled with Fernanda and link against a pre-built `.lib` file.
 
 ### 7zip Runtime Library
 
-7zip itself requires a dynamic library (`.dll`/`.so`) at runtime. Fernanda embeds this in the executable via Qt Resource System (`.qrc`) and copies it to user data whenever it isn't found (see [Fnx.h](../src/Fnx.h)):
+7zip itself requires a dynamic library (`.dll`/`.so`) at runtime. Fernanda embeds this in the executable via Qt Resource System (`.qrc`) and copies it to user data whenever it isn't found (see [Fnx.h](../src/fnx/Fnx.h)):
 
 - Windows: `7za.dll` (7zip "alone" variant, smaller)
 - Linux/Mac\*: `7z.so`

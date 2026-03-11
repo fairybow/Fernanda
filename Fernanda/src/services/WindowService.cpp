@@ -1,0 +1,26 @@
+/*
+ * Fernanda  Copyright (C) 2025-2026  fairybow
+ *
+ * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
+ * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
+ *
+ * Uses Qt 6 - <https://www.qt.io/>
+ */
+
+#include "services/WindowService.h"
+
+#include "core/Application.h"
+#include "workspaces/Bus.h"
+
+namespace Fernanda {
+
+void WindowService::setup_()
+{
+    connect(
+        app(),
+        &Application::focusChanged,
+        this,
+        &WindowService::onApplicationFocusChanged_);
+}
+
+} // namespace Fernanda

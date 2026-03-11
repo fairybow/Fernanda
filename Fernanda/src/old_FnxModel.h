@@ -24,10 +24,10 @@
 #include <Qt>
 #include <QtTypes>
 
-#include "Debug.h"
-#include "Fnx.h"
+#include "core/Debug.h"
+#include "fnx/Fnx.h"
 
-#include "Coco/Path.h"
+#include <Coco/Path.h>
 
 /// *
 #include <QElapsedTimer>
@@ -59,7 +59,8 @@ inline void report()
 namespace Fernanda {
 
 // See:
-// https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
+//
+https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
 //
 // Qt Model/View adapter for .fnx virtual directory structure.
 //

@@ -15,10 +15,10 @@
 #include <QWidget>
 #include <Qt>
 
-#include "Coco/Fx.h"
+#include <Coco/Fx.h>
 
-#include "AbstractFileView.h"
-#include "Debug.h"
+#include "views/AbstractFileView.h"
+#include "core/Debug.h"
 #include "NoOpFileModel.h"
 
 namespace Fernanda {

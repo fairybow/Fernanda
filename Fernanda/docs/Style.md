@@ -24,11 +24,11 @@ Separate sections with an empty line. Sections should follow this order, top-to-
 #include <QString>
 #include <QWidget>
 
-#include "Windows.h" // 3rd party OS
+#include <Windows.h> // 3rd party OS
 
-#include "Coco/Bool.h" // 3rd party, submodule
+#include <Coco/Bool.h> // 3rd party, submodule
 
-#include "Application.h" // 1st party
+#include "core/Application.h" // 1st party
 #include "CustomWidget1.h"
 #include "CustomWidget2.h"
 ```
@@ -257,7 +257,7 @@ Examples:
 - Unclear about ownership? Draft the construction and cleanup you'd want
 - Unsure about state management? Write the usage that would feel obvious
 
-See [MenuBuilder.h](../src/MenuBuilder.h) for a good example. Its interface drives the entire implementation.
+See [MenuBuilder.h](../src/menus/MenuBuilder.h) for a good example. Its interface drives the entire implementation.
 
 TODO: Add concrete before/after example showing this in practice
 
@@ -283,7 +283,7 @@ Save as...
 
 The following files demonstrate clean implementation of standards:
 
-### [MenuBuilder.h](../src/MenuBuilder.h)
+### [MenuBuilder.h](../src/menus/MenuBuilder.h)
 
 General-purpose menu builder with fluent interface.
 

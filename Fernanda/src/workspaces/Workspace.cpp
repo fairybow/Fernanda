@@ -1,0 +1,278 @@
+/*
+ * Fernanda  Copyright (C) 2025-2026  fairybow
+ *
+ * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
+ * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
+ *
+ * Uses Qt 6 - <https://www.qt.io/>
+ */
+
+#include "workspaces/Workspace.h"
+
+#include <QAction>
+#include <QString>
+
+#include "core/Application.h"
+#include "core/Tr.h"
+#include "dialogs/AboutDialog.h"
+#include "dialogs/UpdateDialog.h"
+#include "menus/MenuBuilder.h"
+#include "menus/MenuShortcuts.h"
+#include "menus/MenuState.h"
+#include "models/AbstractFileModel.h"
+#include "services/ViewService.h"
+#include "services/WindowService.h"
+#include "settings/Ini.h"
+#include "ui/Window.h"
+#include "views/AbstractFileView.h"
+
+namespace Fernanda {
+
+// TODO: Race condition risk in menu creation
+//
+// Menu building assumes all Services have already processed windowCreated
+// (e.g., TreeViewService must create the dock before we call
+// dockToggleViewAction()).
+//
+// This works because Workspace::connectBusEvents_() runs AFTER all Service
+// initialize() calls in setup_(). Qt delivers signals to slots in connection
+// order, so Services respond to windowCreated before Workspace does.
+//
+// If Service initialization is ever reordered to come after
+// connectBusEvents_(), menu creation will fail silently (null actions, missing
+// widgets, etc.).
+//
+// Potential fixes if this becomes a problem:
+// - Use Qt::QueuedConnection for Workspace's windowCreated handler
+// - Have Services emit "ready" signals after window setup completes
+// - Explicitly sequence menu creation after all Services via a dedicated signal
+void Workspace::createWindowMenuBar_(Window* window)
+{
+    if (!window) return;
+
+    // TODO: Figure out which were auto-repeat! (Undo, Redo, Paste, anything
+    // else?)
+
+    auto state = new MenuState(window, this);
+    menuStates_[window] = state;
+
+    MenuBuilder(MenuBuilder::MenuBar, window)
+
+        .apply([this, state, window](MenuBuilder& builder) {
+            workspaceMenuHook(builder, state, window);
+        })
+
+        .menu(Tr::nxFileMenu())
+
+        .apply([this, window](MenuBuilder& builder) {
+            fileMenuOpenActions(builder, window);
+        })
+
+        .action(Tr::nxNewWindow())
+        .onUserTrigger(this, [this] { windows->newWindow(); })
+        .shortcut(MenuShortcuts::NEW_WINDOW)
+
+        .separator()
+
+        .action(Tr::nxNewNotebook())
+        .onUserTrigger(
+            this,
+            [this] {
+                // Will allow creation of new Notebook with a prospective
+                // path that is the
+                // same as an existing Notebook's. When saved, the user will
+                // be warned before saving over the existing Notebook!
+                auto name = NewNotebookPrompt::exec();
+                if (name.isEmpty()) return;
+                emit newNotebookRequested(
+                    currentRootDir / (name + Fnx::Io::EXT));
+            })
+
+        .action(Tr::nxOpenNotebook())
+        .onUserTrigger(
+            this,
+            [this] {
+                // nullptr parent makes the dialog application modal
+                auto path = Coco::getFile(
+                    nullptr,
+                    Tr::nxOpenNotebookCaption(),
+                    rollingOpenFnxStartDir_,
+                    Tr::nxOpenNotebookFilter());
+                if (path.isEmpty() || !Fnx::Io::isFnxFile(path)) return;
+
+                rollingOpenFnxStartDir_ = path.parent();
+                emit openNotebookRequested(path);
+            })
+
+        .separator()
+
+        .apply([this, state, window](MenuBuilder& builder) {
+            fileMenuSaveActions(builder, state, window);
+        })
+
+        .separator()
+
+        .action(Tr::nxDuplicateTab())
+        .onUserTrigger(
+            this,
+            [this, window] { views->duplicateTab(window, -1); })
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] { return views->fileViewAt(window, -1); })
+
+        .separator()
+
+        .action(Tr::nxCloseTab())
+        .onUserTrigger(this, [this, window] { views->closeTab(window, -1); })
+        .shortcut(MenuShortcuts::CLOSE_TAB)
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] { return views->fileViewAt(window, -1); })
+
+        .action(Tr::nxCloseTabEverywhere())
+        .onUserTrigger(
+            this,
+            [this, window] { views->closeTabEverywhere(window, -1); })
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] { return views->fileViewAt(window, -1); })
+
+        .action(Tr::nxCloseWindowTabs())
+        .onUserTrigger(this, [this, window] { views->closeWindowTabs(window); })
+        .enabledToggle(
+            state,
+            MenuScope::Window,
+            [this, window] { return views->fileViewAt(window, -1); })
+
+        .action(Tr::nxCloseAllTabs())
+        .onUserTrigger(this, [this] { views->closeAllTabs(); })
+        .enabledToggle(
+            state,
+            MenuScope::Workspace,
+            [this] { return views->anyViews(); })
+
+        .separator()
+
+        .action(Tr::nxCloseWindow())
+        .onUserTrigger(this, [this, window] { window->close(); })
+        .shortcut(MenuShortcuts::CLOSE_WINDOW)
+
+        .action(Tr::nxCloseAllWindows())
+        .onUserTrigger(this, [this] { windows->closeAll(); })
+
+        .separator()
+
+        .action(Tr::nxQuit())
+        .onUserTrigger(app(), &Application::tryQuit, Qt::QueuedConnection)
+        .shortcut(MenuShortcuts::QUIT)
+
+        .menu(Tr::nxEditMenu())
+
+        .action(Tr::nxUndo())
+        .onUserTrigger(this, [this, window] { views->undo(window, -1); })
+        .shortcut(MenuShortcuts::UNDO)
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] {
+                auto model = views->fileModelAt(window, -1);
+                return model && model->hasUndo();
+            })
+
+        .action(Tr::nxRedo())
+        .onUserTrigger(this, [this, window] { views->redo(window, -1); })
+        .shortcut(MenuShortcuts::REDO)
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] {
+                auto model = views->fileModelAt(window, -1);
+                return model && model->hasRedo();
+            })
+
+        .separator()
+
+        .action(Tr::nxCut())
+        .onUserTrigger(this, [this, window] { views->cut(window, -1); })
+        .shortcut(MenuShortcuts::CUT)
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] {
+                auto view = views->fileViewAt(window, -1);
+                return view && view->hasSelection();
+            })
+
+        .action(Tr::nxCopy())
+        .onUserTrigger(this, [this, window] { views->copy(window, -1); })
+        .shortcut(MenuShortcuts::COPY)
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] {
+                auto view = views->fileViewAt(window, -1);
+                return view && view->hasSelection();
+            })
+
+        .action(Tr::nxPaste())
+        .onUserTrigger(this, [this, window] { views->paste(window, -1); })
+        .shortcut(MenuShortcuts::PASTE)
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] {
+                auto view = views->fileViewAt(window, -1);
+                return view && view->hasPaste();
+            })
+
+        .action(Tr::nxDelete())
+        .onUserTrigger(this, [this, window] { views->del(window, -1); })
+        .shortcut(MenuShortcuts::DEL)
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] {
+                auto view = views->fileViewAt(window, -1);
+                return view && view->hasSelection();
+            })
+
+        .separator()
+
+        .action(Tr::nxSelectAll())
+        .onUserTrigger(this, [this, window] { views->selectAll(window, -1); })
+        .shortcut(MenuShortcuts::SELECT_ALL)
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] {
+                auto view = views->fileViewAt(window, -1);
+                return view && view->supportsEditing();
+            })
+
+        /// TODO TVT
+        .menu(Tr::nxViewMenu())
+        .addAction(treeViews->dockToggleViewAction(window))
+        .onToggle(
+            this,
+            [this, window](bool checked) {
+                if (!window || !window->isVisible()) return;
+                settings->set(treeViewDockIniKey(), checked);
+            })
+
+        .barAction(Tr::nxSettingsMenu())
+        .onUserTrigger(this, [this] { settings->openDialog(); })
+
+        .menu(Tr::nxHelpMenu())
+        .action(Tr::nxAbout())
+        .onUserTrigger(this, [] { AboutDialog::exec(); })
+        .separator()
+        .action(Tr::nxCheckForUpdates())
+        .onUserTrigger(this, [] { UpdateDialog::exec(); })
+
+        .set();
+}
+
+} // namespace Fernanda

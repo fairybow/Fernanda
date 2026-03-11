@@ -1,0 +1,392 @@
+/*
+ * Fernanda  Copyright (C) 2025-2026  fairybow
+ *
+ * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
+ * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
+ *
+ * Uses Qt 6 - <https://www.qt.io/>
+ */
+
+#pragma once
+
+#include <QChar>
+#include <QEvent>
+#include <QKeyEvent>
+#include <QObject>
+#include <QPlainTextEdit>
+#include <QPointer>
+#include <QSet>
+#include <QString>
+#include <QTextCursor>
+#include <QTextDocument>
+
+#include "core/Debug.h"
+
+namespace Fernanda {
+
+// Event filter providing typing enhancements for text editors: auto-close
+// (insert matching punctuation pairs), delete-pair (backspace removes both),
+// skip-closer (typing a closer skips over it), and barging (double-space jumps
+// past closing punctuation)
+//
+// TODO: Wrapping selection in open/close punctuation
+// TODO: Auto-condense extra spaces (2 or more anywhere, save new lines, become
+// one after we press non-space key)
+// TODO: Trim spaces before and after paragraphs (not new lines/returns)
+// TODO: Document these with examples!
+class KeyFilters : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit KeyFilters(QObject* parent = nullptr)
+        : QObject(parent)
+    {
+    }
+
+    virtual ~KeyFilters() override { TRACER; }
+
+    void setTextEdit(QPlainTextEdit* textEdit)
+    {
+        if (textEdit_) textEdit_->removeEventFilter(this);
+        textEdit_ = textEdit;
+        if (textEdit) textEdit->installEventFilter(this);
+    }
+
+    bool isActive() const noexcept { return active_; }
+    void setActive(bool active) { active_ = active; }
+
+    bool autoClosing() const noexcept { return autoClosing_; }
+    void setAutoClosing(bool autoClosing) { autoClosing_ = autoClosing; }
+
+    bool barging() const noexcept { return barging_; }
+    void setBarging(bool barging) { barging_ = barging; }
+
+    virtual bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (active_ && watched == textEdit_ && event->type() == QEvent::KeyPress
+            && handleKeyPress_(static_cast<QKeyEvent*>(event)))
+            return true;
+
+        return QObject::eventFilter(watched, event);
+    }
+
+signals:
+    /// TODO PD
+    void multiStepEditBegan();
+    void multiStepEditEnded();
+
+private:
+    QPointer<QPlainTextEdit> textEdit_ = nullptr;
+
+    /// TODO PD
+    struct MultiStepEditScope_
+    {
+        KeyFilters* keyFilters;
+
+        MultiStepEditScope_(KeyFilters* k)
+            : keyFilters(k)
+        {
+            emit k->multiStepEditBegan();
+        }
+
+        ~MultiStepEditScope_() { emit keyFilters->multiStepEditEnded(); }
+        MultiStepEditScope_(const MultiStepEditScope_&) = delete;
+        MultiStepEditScope_& operator=(const MultiStepEditScope_&) = delete;
+    };
+
+    /// TODO KFS
+    bool active_ = true;
+    bool autoClosing_ = true;
+    bool barging_ = true;
+
+    /// TODO KFS: Decide if this should be an individual setting or just part of
+    /// barging
+    bool closeBargeTrailingPunctGap_ = true;
+
+    bool handleKeyPress_(QKeyEvent* event)
+    {
+        if (!textEdit_) return false;
+        if (!event) return false;
+
+        auto document = textEdit_->document();
+        auto cursor = textEdit_->textCursor();
+
+        if (autoClosing_ && event->key() == Qt::Key_Backspace) {
+            if (isBetweenPair_(document, cursor)) {
+                MultiStepEditScope_ scope(this);
+                deletePair_(cursor);
+                textEdit_->setTextCursor(cursor);
+
+                return true;
+            }
+        }
+
+        if (barging_ && event->key() == Qt::Key_Space) {
+            if (canBarge_(document, cursor)) {
+                MultiStepEditScope_ scope(this);
+                barge_(cursor);
+                textEdit_->setTextCursor(cursor);
+
+                return true;
+            }
+        }
+
+        if (barging_
+            && (event->key() == Qt::Key_Return
+                || event->key() == Qt::Key_Enter)) {
+            if (canBargeReturn_(document, cursor)) {
+                MultiStepEditScope_ scope(this);
+                bargeReturn_(cursor);
+                textEdit_->setTextCursor(cursor);
+
+                return true;
+            }
+
+            if (closeBargeTrailingPunctGap_
+                && canCloseTrailingPunctGap_(document, cursor)) {
+                MultiStepEditScope_ scope(this);
+                closeTrailingPunctGapReturn_(cursor);
+                textEdit_->setTextCursor(cursor);
+                return true;
+            }
+        }
+
+        auto text = event->text();
+        if (text.isEmpty()) return false;
+
+        auto ch = text.at(0);
+
+        // Gap closing: trailing punctuation after barge removes the space (must
+        // run before skip closer, since they share the apostrophe and skipping
+        // closer just checks (in part) that we have a closing punctuation; this
+        // would be a problem if cursor is already up against a closing
+        // punctuation)
+        // TODO: Also trim for new line? (May not be a key filter, but an editor
+        // feature...)
+        /// TODO KFS: Figure out what this does again lol
+        if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
+            && canCloseTrailingPunctGap_(document, cursor)) {
+            MultiStepEditScope_ scope(this);
+            closeTrailingPunctGap_(ch, cursor);
+            textEdit_->setTextCursor(cursor);
+
+            return true;
+        }
+
+        // Skip closer: typing a closer when same char is ahead
+        if (autoClosing_ && canSkipCloser_(ch, document, cursor)) {
+            // Not compound
+            cursor.movePosition(QTextCursor::NextCharacter);
+            textEdit_->setTextCursor(cursor);
+
+            return true;
+        }
+
+        if (autoClosing_ && isOpenPunct_(ch)) {
+            // Non-mirrored quotes (", ', `) after word characters shouldn't
+            // auto-close; might be contraction or closing punctuation
+            if (isAmbiguousOpenOrClosePunct_(ch)
+                && isPreviousCharAlphanumeric_(document, cursor))
+                return false;
+            MultiStepEditScope_ scope(this);
+            autoClose_(ch, cursor);
+            textEdit_->setTextCursor(cursor);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // Though this class is meant to be conceptually separate from
+    // TextFileModel, it's worth noting that edit blocks on view cursors
+    // coalesce contentsChange emissions, ensuring multi-step KeyFilter
+    // operations produce a single delta for routing; otherwise, we wouldn't
+    // currently need them (see TextFileModel delta routing / main document
+    // code)
+
+    void autoClose_(QChar ch, QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.insertText(QString(ch) + ch.mirroredChar());
+        cursor.movePosition(QTextCursor::PreviousCharacter);
+        cursor.endEditBlock();
+    }
+
+    void deletePair_(QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar();
+        cursor.deleteChar();
+        cursor.endEditBlock();
+    }
+
+    void barge_(QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar(); // remove the space
+        cursor.movePosition(QTextCursor::NextCharacter); // skip past closer
+        cursor.insertText(QStringLiteral(" ")); // add space after
+        cursor.endEditBlock();
+    }
+
+    void bargeReturn_(QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.movePosition(QTextCursor::NextCharacter); // skip past closer
+        cursor.insertText(QStringLiteral("\n"));
+        cursor.endEditBlock();
+    }
+
+    void closeTrailingPunctGap_(QChar ch, QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar(); // remove the space
+        cursor.insertText(ch);
+        cursor.insertText(QStringLiteral(" ")); // add space after
+        cursor.endEditBlock();
+    }
+
+    void closeTrailingPunctGapReturn_(QTextCursor& cursor)
+    {
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar(); // remove the space
+        cursor.insertText(QStringLiteral("\n"));
+        cursor.endEditBlock();
+    }
+
+    bool isBargeTrailingPunct_(QChar c) const noexcept
+    {
+        return c == ',' || c == '.' || c == '?' || c == '!' || c == ';'
+               || c == ':' || c == '\'' || c == '*';
+    }
+
+    bool isAmbiguousOpenOrClosePunct_(QChar c) const noexcept
+    {
+        return c == '"' || c == '\'' || c == '`';
+    }
+
+    bool isOpenPunct_(QChar c) const noexcept
+    {
+        return c.category() == QChar::Punctuation_Open
+               || c.category() == QChar::Punctuation_InitialQuote
+               || isAmbiguousOpenOrClosePunct_(c);
+    }
+
+    bool isClosePunct_(QChar c) const noexcept
+    {
+        return c.category() == QChar::Punctuation_Close
+               || c.category() == QChar::Punctuation_FinalQuote
+               || isAmbiguousOpenOrClosePunct_(c);
+    }
+
+    bool canSkipCloser_(
+        QChar ch,
+        QTextDocument* document,
+        const QTextCursor& cursor) const
+    {
+        if (!isClosePunct_(ch)) return false;
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos >= document->characterCount()) return false;
+
+        return document->characterAt(pos) == ch;
+    }
+
+    bool isPreviousCharAlphanumeric_(
+        QTextDocument* document,
+        const QTextCursor& cursor) const
+    {
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos == 0) return false;
+
+        return document->characterAt(pos - 1).isLetterOrNumber();
+    }
+
+    bool
+    isBetweenPair_(QTextDocument* document, const QTextCursor& cursor) const
+    {
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos == 0) return false;
+
+        if (pos >= document->characterCount()) return false;
+
+        auto char_before = document->characterAt(pos - 1);
+        auto char_after = document->characterAt(pos);
+
+        return isOpenPunct_(char_before)
+               && char_after == char_before.mirroredChar();
+    }
+
+    bool canBarge_(QTextDocument* document, const QTextCursor& cursor) const
+    {
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos < 1) return false;
+        if (pos >= document->characterCount()) return false;
+
+        auto char_before = document->characterAt(pos - 1);
+        auto char_after = document->characterAt(pos);
+
+        if (!(char_before == ' ' && isClosePunct_(char_after))) return false;
+
+        // Don't barge past single quote if it looks like a contraction
+        if (char_after == '\'' && pos >= 2
+            && document->characterAt(pos - 2).isLetterOrNumber())
+            return false;
+
+        return true;
+    }
+
+    // TODO: Verify!
+    bool
+    canBargeReturn_(QTextDocument* document, const QTextCursor& cursor) const
+    {
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos >= document->characterCount()) return false;
+
+        auto char_after = document->characterAt(pos);
+        if (!isClosePunct_(char_after)) return false;
+
+        // Ambiguous quotes: only barge if it looks like a closer
+        if (isAmbiguousOpenOrClosePunct_(char_after)) {
+            if (pos < 1) return false;
+            auto char_before = document->characterAt(pos - 1);
+            if (!char_before.isLetterOrNumber() && !isClosePunct_(char_before))
+                return false;
+        }
+
+        // Contraction guard
+        if (char_after == '\'' && pos >= 1
+            && document->characterAt(pos - 1).isLetterOrNumber())
+            return false;
+
+        return true;
+    }
+
+    bool canCloseTrailingPunctGap_(
+        QTextDocument* document,
+        const QTextCursor& cursor) const
+    {
+        if (!document) return false;
+
+        auto pos = cursor.position();
+        if (pos < 2) return false;
+
+        auto char_before = document->characterAt(pos - 1);
+        auto char_before_that = document->characterAt(pos - 2);
+
+        return char_before == ' ' && isClosePunct_(char_before_that);
+    }
+};
+
+} // namespace Fernanda

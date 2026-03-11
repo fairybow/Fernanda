@@ -9,11 +9,11 @@
 
 #include <QStringList>
 
-#include "Coco/StartCop.h"
+#include <Coco/StartCop.h>
 
-#include "Application.h"
-#include "BuildMessages.h"
-#include "Version.h"
+#include "core/Application.h"
+#include "core/BuildMessages.h"
+#include "core/Version.h"
 
 int main(int argc, char* argv[])
 {
