@@ -35,14 +35,14 @@
 #include "NotepadFileSystemModel.h"
 #include "SaveFailMessageBox.h"
 #include "SavePrompt.h"
-#include "SettingsService.h"
+#include "services/SettingsService.h"
 #include "Timers.h"
 #include "core/Tr.h"
-#include "TreeViewService.h"
+#include "services/TreeViewService.h"
 #include "core/Version.h"
-#include "ViewService.h"
+#include "services/ViewService.h"
 #include "Window.h"
-#include "WindowService.h"
+#include "services/WindowService.h"
 #include "Workspace.h"
 
 namespace Fernanda {

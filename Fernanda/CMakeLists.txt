@@ -28,8 +28,8 @@ qt_standard_project_setup()
 
 set(FERNANDA_SOURCES
     src/Main.cpp
-
     src/core/Tr.cpp
+    src/services/WindowService.cpp
 
     src/AboutDialog.cpp
     src/CollapsibleWidget.cpp
@@ -38,7 +38,6 @@ set(FERNANDA_SOURCES
     src/TabWidget.cpp
     src/TextFileView.cpp
     src/Window.cpp
-    src/WindowService.cpp
     src/Workspace.cpp
 )
 
@@ -56,17 +55,19 @@ set(FERNANDA_HEADERS
     src/core/Version.h
     src/core/XPlatform.h
 
-
-
+    src/services/AbstractService.h
+    src/services/FileService.h
+    src/services/SettingsService.h
+    src/services/TieredSettings.h
+    src/services/TreeViewService.h
+    src/services/ViewService.h
+    src/services/WindowService.h
 
     src/AboutDialog.h
     src/AbstractFileModel.h
     src/AbstractFileView.h
-    src/AbstractService.h
     src/AccordionWidget.h
-
     src/BetaAlert.h
-
     src/Bus.h
     src/CollapsibleWidget.h
     src/CollapsibleWidgetHeader.h
@@ -78,7 +79,6 @@ set(FERNANDA_HEADERS
     src/DisplaySlider.h
     src/EditorPanel.h
     src/FileMeta.h
-    src/FileService.h
     src/FileTypes.h
     src/Fnx.h
     src/FnxModel.h
@@ -107,7 +107,6 @@ set(FERNANDA_HEADERS
     src/SelectionHandleOverlay.h
     src/SettingsDialog.h
     src/SettingsPanel.h
-    src/SettingsService.h
     src/StyleContext.h
     src/StyleModule.h
     src/TabWidget.h
@@ -119,20 +118,15 @@ set(FERNANDA_HEADERS
     src/TextFileView.h
     src/Themes.h
     src/ThemesPanel.h
-    src/TieredSettings.h
     src/Timers.h
     src/TrashPrompt.h
     src/TreeView.h
-    src/TreeViewService.h
     src/UpdateDialog.h
-    src/ViewService.h
     src/Window.h
-    src/WindowService.h
     src/WordCounter.h
     src/WordCounterModule.h
     src/WordCounterPanel.h
     src/Workspace.h
-
     src/ZoomControl.h
 )
 

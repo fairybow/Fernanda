@@ -12,7 +12,7 @@
 #include <QHash>
 #include <QObject>
 
-#include "AbstractService.h"
+#include "services/AbstractService.h"
 #include "Bus.h"
 #include "ColorBar.h"
 #include "core/Debug.h"

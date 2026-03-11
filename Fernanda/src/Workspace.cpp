@@ -22,9 +22,9 @@
 #include "MenuState.h"
 #include "core/Tr.h"
 #include "UpdateDialog.h"
-#include "ViewService.h"
+#include "services/ViewService.h"
 #include "Window.h"
-#include "WindowService.h"
+#include "services/WindowService.h"
 
 namespace Fernanda {
 

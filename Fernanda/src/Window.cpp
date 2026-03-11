@@ -12,7 +12,7 @@
 #include <QCloseEvent>
 #include <QMainWindow>
 
-#include "WindowService.h"
+#include "services/WindowService.h"
 
 namespace Fernanda {
 

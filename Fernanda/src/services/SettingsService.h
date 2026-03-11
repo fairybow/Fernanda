@@ -24,14 +24,14 @@
 #include <Coco/Path.h>
 #include <Coco/Utility.h>
 
-#include "AbstractService.h"
+#include "services/AbstractService.h"
 #include "Bus.h"
 #include "ColorBar.h"
 #include "core/Debug.h"
 #include "Ini.h"
 #include "SettingsDialog.h"
 #include "ThemesPanel.h"
-#include "TieredSettings.h"
+#include "services/TieredSettings.h"
 #include "Timers.h"
 #include "core/Tr.h"
 

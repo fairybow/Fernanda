@@ -23,7 +23,7 @@
 #include <Coco/Utility.h>
 
 #include "AbstractFileView.h"
-#include "AbstractService.h"
+#include "services/AbstractService.h"
 #include "core/AppDirs.h"
 #include "Bus.h"
 #include "core/Debug.h"

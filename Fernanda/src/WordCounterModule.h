@@ -14,7 +14,7 @@
 #include <QPlainTextEdit>
 #include <QStatusBar>
 
-#include "AbstractService.h"
+#include "services/AbstractService.h"
 #include "Bus.h"
 #include "core/Debug.h"
 #include "Ini.h"

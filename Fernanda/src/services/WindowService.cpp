@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "WindowService.h"
+#include "services/WindowService.h"
 
 #include "core/Application.h"
 #include "Bus.h"

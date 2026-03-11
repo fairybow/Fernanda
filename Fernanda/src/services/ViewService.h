@@ -28,7 +28,7 @@
 
 #include "AbstractFileModel.h"
 #include "AbstractFileView.h"
-#include "AbstractService.h"
+#include "services/AbstractService.h"
 #include "Bus.h"
 #include "core/Debug.h"
 #include "FileMeta.h"

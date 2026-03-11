@@ -25,7 +25,7 @@
 #include <Coco/Bool.h>
 #include <Coco/Utility.h>
 
-#include "AbstractService.h"
+#include "services/AbstractService.h"
 #include "Bus.h"
 #include "core/Debug.h"
 #include "core/Version.h"
