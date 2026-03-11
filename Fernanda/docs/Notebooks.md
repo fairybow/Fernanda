@@ -2,7 +2,7 @@
 
 Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard 7zip archive containing files and an XML manifest describing the virtual directory structure.
 
-See: [`Notebook.h`](../src/Notebook.h), [`Fnx.h`](../src/Fnx.h), [`FnxModel.h`](../src/FnxModel.h), [`FnxModelCache.h`](../src/FnxModelCache.h), [`Workspace.h`](../src/Workspace.h), and [`TempDir.h`](../src/TempDir.h)
+See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), [`FnxModel.h`](../src/fnx/FnxModel.h), [`FnxModelCache.h`](../src/fnx/FnxModelCache.h), [`Workspace.h`](../src/workspaces/Workspace.h), and [`TempDir.h`](../src/core/TempDir.h)
 
 ## Overview
 

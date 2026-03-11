@@ -2,7 +2,7 @@
 
 How Fernanda identifies, opens, and saves files.
 
-See: [`FileService.h`](../src/FileService.h), [`FileTypes.h`](../src/FileTypes.h), [`MagicBytes.h`](../src/MagicBytes.h), [`AbstractFileModel.h`](../src/AbstractFileModel.h), [`Fnx.h`](../src/Fnx.h)
+See: [`FileService.h`](../src/services/FileService.h), [`FileTypes.h`](../src/core/FileTypes.h), [`MagicBytes.h`](../src/core/MagicBytes.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), [`Fnx.h`](../src/fnx/Fnx.h)
 
 ## Overview
 

@@ -4,7 +4,7 @@ Tag: TODO FT
 
 How Fernanda resolves, models, views, and persists different file types across its Workspace system.
 
-See: [`MagicBytes.h`](../src/MagicBytes.h) (formerly `FileTypes.h`), [`FileService.h`](../src/FileService.h), [`AbstractFileModel.h`](../src/AbstractFileModel.h), [`AbstractFileView.h`](../src/AbstractFileView.h), [`Fnx.h`](../src/Fnx.h)
+See: [`MagicBytes.h`](../src/core/MagicBytes.h) (formerly `FileTypes.h`), [`FileService.h`](../src/services/FileService.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), [`AbstractFileView.h`](../src/views/AbstractFileView.h), [`Fnx.h`](../src/fnx/Fnx.h)
 
 ## Next Steps
 

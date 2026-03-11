@@ -32,12 +32,24 @@ Mac and Linux support is planned!
 
 ## Building
 
-Use [`Fernanda.sln`](Fernanda.sln) or [`CMakeLists.txt`](Fernanda/CMakeLists.txt).
-
 ### Requirements
 
+- C++20
 - Qt 6.10.2
-- C++ 20
+- CMake 3.21+
+
+> [!IMPORTANT]
+> **The following Qt extensions / additional libraries are required to build Fernanda:**
+> - Qt Image Formats
+> - Qt PDF
+
+### Windows (Visual Studio)
+
+1. Install the [Qt Visual Studio Tools](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools2022) extension
+2. Clone
+3. Open the `Fernanda/` directory in Visual Studio
+4. The Qt VS Tools extension will generate a `CMakeUserPresets.json` with your Qt path
+5. Build and run
 
 ## License
 
