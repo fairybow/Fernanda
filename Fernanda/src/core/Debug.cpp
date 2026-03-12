@@ -7,6 +7,8 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
+#include "core/Debug.h"
+
 #include <atomic>
 #include <chrono>
 #include <format>
@@ -22,8 +24,6 @@
 #include <QtLogging>
 
 #include <Coco/Path.h>
-
-#include "core/Debug.h"
 
 namespace Fernanda::Debug {
 
@@ -101,45 +101,6 @@ namespace {
 
 } // namespace
 
-namespace Internal {
-
-    void dispatch_(
-        QtMsgType type,
-        const char* file,
-        int line,
-        const char* function,
-        const QObject* obj,
-        std::string msg)
-    {
-        // Right now, VOC_FORMAT_ is the only reason this needs to be in the
-        // source file, which is fine, but worth pointing out
-        if (obj) { msg = std::format(VOC_FORMAT_, obj, msg); }
-
-        auto logger = QMessageLogger(file, line, function);
-        constexpr auto fmt = "%s";
-
-        switch (type) {
-        case QtDebugMsg:
-            logger.debug(fmt, msg.c_str());
-            break;
-        case QtInfoMsg:
-            logger.info(fmt, msg.c_str());
-            break;
-        case QtWarningMsg:
-            logger.warning(fmt, msg.c_str());
-            break;
-        case QtCriticalMsg:
-            logger.critical(fmt, msg.c_str());
-            break;
-        default:
-        case QtFatalMsg:
-            logger.fatal(fmt, msg.c_str());
-            break;
-        }
-    }
-
-} // namespace Internal
-
 void initialize(bool logging, const Coco::Path& logFilePath)
 {
     setLogging(logging);
@@ -154,6 +115,41 @@ bool logging() noexcept { return logging_.load(std::memory_order::relaxed); }
 void setLogging(bool logging)
 {
     logging_.store(logging, std::memory_order::relaxed);
+}
+
+void Log::dispatch_(
+    QtMsgType type,
+    const char* file,
+    int line,
+    const char* function,
+    const QObject* obj,
+    std::string msg) const
+{
+    // Right now, VOC_FORMAT_ is the only reason this needs to be in the
+    // source file, which is fine, but worth pointing out
+    if (obj) { msg = std::format(VOC_FORMAT_, obj, msg); }
+
+    auto logger = QMessageLogger(file, line, function);
+    constexpr auto fmt = "%s";
+
+    switch (type) {
+    case QtDebugMsg:
+        logger.debug(fmt, msg.c_str());
+        break;
+    case QtInfoMsg:
+        logger.info(fmt, msg.c_str());
+        break;
+    case QtWarningMsg:
+        logger.warning(fmt, msg.c_str());
+        break;
+    case QtCriticalMsg:
+        logger.critical(fmt, msg.c_str());
+        break;
+    default:
+    case QtFatalMsg:
+        logger.fatal(fmt, msg.c_str());
+        break;
+    }
 }
 
 } // namespace Fernanda::Debug

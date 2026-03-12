@@ -15,7 +15,6 @@
 #include <utility>
 
 #include <QObject>
-#include <QString>
 #include <QtLogging>
 
 #include <Coco/Path.h>
@@ -25,18 +24,6 @@
 // TODO: Log to file. Commented-out method is too slow. Need to maybe keep file
 // open the entire time, hold static QFile
 namespace Fernanda::Debug {
-
-namespace Internal {
-
-    void dispatch_(
-        QtMsgType type,
-        const char* file,
-        int line,
-        const char* function,
-        const QObject* obj,
-        std::string msg);
-
-} // namespace Internal
 
 // To be safe, don't call this before Qt has finished app construction
 void initialize(bool logging, const Coco::Path& logFilePath = {});
@@ -60,7 +47,7 @@ struct Log
 
     template <typename... Args>
     inline void
-    print(const QObject* obj, std::string_view format, Args&&... args)
+    print(const QObject* obj, std::string_view format, Args&&... args) const
     {
         if (type != QtFatalMsg && !logging()) return;
 
@@ -72,14 +59,23 @@ struct Log
             msg = format;
         }
 
-        Internal::dispatch_(type, file, line, function, obj, std::move(msg));
+        dispatch_(type, file, line, function, obj, std::move(msg));
     }
 
     template <typename... Args>
-    inline void print(std::string_view format, Args&&... args)
+    inline void print(std::string_view format, Args&&... args) const
     {
         return print(nullptr, format, std::forward<Args>(args)...);
     }
+
+private:
+    void dispatch_(
+        QtMsgType type,
+        const char* file,
+        int line,
+        const char* function,
+        const QObject* obj,
+        std::string msg) const;
 };
 
 } // namespace Fernanda::Debug
