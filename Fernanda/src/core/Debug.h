@@ -205,6 +205,4 @@ struct Log
 #define WARN LOG(QtWarningMsg)
 #define CRITICAL LOG(QtCriticalMsg)
 #define FATAL LOG(QtFatalMsg)
-
-// Temp implementation?
 #define TRACER INFO(__FUNCTION__)
