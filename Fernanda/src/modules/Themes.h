@@ -70,8 +70,6 @@ namespace Themes {
 class WindowTheme
 {
 public:
-    static constexpr auto EXT = ".fernanda_window";
-
     WindowTheme() { qss_ = Qss::render(templateQss_(), {}); }
 
     WindowTheme(const Coco::Path& path)
@@ -115,8 +113,6 @@ private:
 class EditorTheme
 {
 public:
-    static constexpr auto EXT = ".fernanda_editor";
-
     EditorTheme() { qss_ = Qss::render(templateQss_(), {}); }
 
     EditorTheme(const Coco::Path& path)

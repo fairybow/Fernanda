@@ -28,6 +28,7 @@ qt_standard_project_setup()
 
 set(FERNANDA_SOURCES
     src/Main.cpp
+    src/core/Debug.cpp
     src/core/Tr.cpp
     src/dialogs/AboutDialog.cpp
     src/fnx/FnxModel.cpp

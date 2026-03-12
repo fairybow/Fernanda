@@ -24,6 +24,7 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
+#include "core/FileTypes.h"
 #include "modules/StyleContext.h"
 #include "modules/Themes.h"
 #include "services/AbstractService.h"
@@ -91,8 +92,14 @@ protected:
 
     virtual void postInit() override
     {
-        setupThemes_(windowThemes_, userWindowThemePaths_, WindowTheme::EXT);
-        setupThemes_(editorThemes_, userEditorThemePaths_, EditorTheme::EXT);
+        setupThemes_(
+            windowThemes_,
+            userWindowThemePaths_,
+            FileTypes::canonicalExt(FileTypes::FernandaWindowTheme));
+        setupThemes_(
+            editorThemes_,
+            userEditorThemePaths_,
+            FileTypes::canonicalExt(FileTypes::FernandaEditorTheme));
         setupThemeWatches_();
     }
 
@@ -265,14 +272,17 @@ private slots:
         // addPath() to continue watching it.
         userThemeWatcher_->addPath(path);
 
-        if (path.endsWith(WindowTheme::EXT)) {
+        if (path.endsWith(
+                FileTypes::canonicalExt(FileTypes::FernandaWindowTheme))) {
             // Only process if already tracking (new files handled by
             // directoryChanged)
             if (!userWindowThemePaths_.contains(theme_path)) return;
             rebuildTheme_(windowThemes_, theme_path);
             reapplyWindowThemeIfCurrent_(theme_path);
 
-        } else if (path.endsWith(EditorTheme::EXT)) {
+        } else if (path.endsWith(
+                       FileTypes::canonicalExt(
+                           FileTypes::FernandaEditorTheme))) {
             if (!userEditorThemePaths_.contains(theme_path)) return;
             rebuildTheme_(editorThemes_, theme_path);
             reapplyEditorThemeIfCurrent_(theme_path);
@@ -286,11 +296,13 @@ private slots:
         // Re-scan for current files on disk
         auto current_window_paths = Coco::filePaths(
             AppDirs::userThemes(),
-            { QStringLiteral("*%1").arg(WindowTheme::EXT) });
+            { QStringLiteral("*%1").arg(
+                FileTypes::canonicalExt(FileTypes::FernandaWindowTheme)) });
 
         auto current_editor_paths = Coco::filePaths(
             AppDirs::userThemes(),
-            { QStringLiteral("*%1").arg(EditorTheme::EXT) });
+            { QStringLiteral("*%1").arg(
+                FileTypes::canonicalExt(FileTypes::FernandaEditorTheme)) });
 
         QSet<Coco::Path> current_window_set{ current_window_paths.begin(),
                                              current_window_paths.end() };

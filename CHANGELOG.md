@@ -96,7 +96,8 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 ## Known Issues
 
-- Tree View root directory is locked in-place for now (Notepad)
+- Notepad TreeView allows moving files, which means FileMeta paths can become stale
+- TreeView root directory is locked in-place for now (Notepad)
 - Window themes not yet implemented
 - Notebook settings won't persist unless the Notebook itself is saved
 - System shutdown handling is implemented but untested
