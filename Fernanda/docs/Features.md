@@ -15,7 +15,7 @@ TODO: Section for all shared Workspace funtionality (e.g., PDF support)
 - Open the same file in multiple places (with persisting edits)
 - Opening arguments support (double-click/drag a file in your OS to open it in Fernanda)
 - TreeView file renaming
-- PDF support
+- PDF and image support
 
 > [!IMPORTANT]
 > Known issue: Tree View root directory is locked in-place for now
@@ -29,7 +29,7 @@ TODO: Section for all shared Workspace funtionality (e.g., PDF support)
 - Multiple Notebooks can be open simultaneously
 - Recoverable (standard 7-Zip format means content remains accessible outside Fernanda)
 - Single file export (planned: multiple files, directories, as well as, eventually, full archive export/compilation)
-- PDF support
+- PDF and image support
 
 ---
 
