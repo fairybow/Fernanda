@@ -2,6 +2,7 @@
 
 ## Current
 
+- [ ] BUG: Notepad TreeView allows moving files, which means FileMeta paths can become stale
 - [x] Update Readme build section
 - [x] Clean up after file-types branch work (remove Plan document, update references)
 - [x] Update documentation: FileModelsAndViews, FileHandling, Notebooks, Architecture
