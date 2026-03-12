@@ -35,13 +35,8 @@ Mac and Linux support is planned!
 ### Requirements
 
 - C++20
-- Qt 6.10.2
+- Qt 6.10.2 (with Qt Image Formats and Qt PDF)
 - CMake 3.21+
-
-> [!IMPORTANT]
-> **The following Qt extensions / additional libraries are required to build Fernanda:**
-> - Qt Image Formats
-> - Qt PDF
 
 ### Windows (Visual Studio)
 
