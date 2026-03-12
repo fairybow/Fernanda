@@ -75,6 +75,48 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.4 (Testing / Soft Release) - tag v0.99.0-beta.4
+
+## What's New?
+
+**Image viewing.** `ImageFileModel` and `ImageFileView` added for PNG, JPEG, GIF, TIFF, BMP, and WebP. Like PDFs, images are detected by magic bytes. View-only, with fit-to-view default. Save As exports the raw bytes. (Images, like any other file, can be imported into Notebooks.)
+
+**Zoom controls.** `ZoomControl` is a floating overlay widget anchored to the bottom-right of its parent, shared by both `PdfFileView` and `ImageFileView`. Left-click the display to toggle between Fit and the last used fixed zoom; right-click to reset to 100%. Plus/minus buttons step in 10% increments.
+
+**CMake migration.** The build system has been switched from `.vcxproj` / `.sln` to CMake. `Version.txt` is now generated at configure time instead of by PowerShell pre-build script. bit7z is now a Git submodule ([fork](https://github.com/fairybow/Fernanda-bit7z) pinned to v4.0.11) built from source via `add_subdirectory()`, replacing the pre-built `.lib` files.
+
+### Other
+
+- Workspaces now track a rolling last-used directory for open/import dialogs
+- `FileMeta` tooltips now show title, path (or "[Not on disk]"), and file type name instead of just the raw path
+- `FileTypes` expanded with TIFF, BMP, and WebP; added `fromMagicBytes()` converter and `name()` for human-readable type names
+- Source directory restructured from flat `src/` into subdirectories (`core/`, `dialogs/`, `fnx/`, `menus/`, `models/`, `modules/`, `services/`, `settings/`, `ui/`, `views/`, `workspaces/`); all include paths updated; third-party includes now use angle brackets
+- Lambda captures changed from `[&]` to explicit `[this]` (or `[this, ...]`) throughout the codebase
+- Translation QM files now loaded from the application directory at runtime instead of embedded via QRC
+
+## Known Issues
+
+- Tree View root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- System shutdown handling is implemented but untested
+- Large-document bulk operations (e.g., select-all-replace on 1M+ chars) may produce visible delay due to prime document delta routing (but this was only seen in debug)
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Trash splitter handle behavior: clicking the handle alone can size the closed state up; trash view can't be shrunk below its minimum
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+
+## This Version's Dumbest Code Award :trophy:
+
+This shorthand in [Coco](https://github.com/fairybow/Coco/blob/main/Coco/include/Coco/Utility.h):
+
+```
+#define qVar(T) QVariant::fromValue(T)
+```
+
+(But I'm keeping it, and there's nothing anyone can do about it!)
+
+---
+
 # 0.99.0-beta.3 (Testing / Soft Release) - tag v0.99.0-beta.3
 
 ## What's New?
