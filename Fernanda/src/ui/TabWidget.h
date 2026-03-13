@@ -49,6 +49,7 @@
 
 #include "core/Debug.h"
 #include "modules/StyleContext.h"
+#include "ui/TabWidgetAlertWidget.h"
 #include "ui/TabWidgetButton.h"
 #include "ui/TabWidgetCloseButton.h"
 #include "ui/TabWidgetTabBar.h"
@@ -56,6 +57,8 @@
 
 namespace Fernanda {
 
+// TODO: Good lord--clean this file up!
+//
 // Tabbed interface for multiple file views within a Window, supporting tab
 // creation/closing, drag-and-drop between Windows, active tab management, and
 // visual state indicators (flagged tabs)
@@ -184,6 +187,44 @@ private:
         initializeTabBarPropagatedSignals_();
     }
 
+    /// *** TAB ALERTS *** ///
+
+public:
+    bool tabAlert(int index) const
+    {
+        if (auto alert = alertWidgetAt_(index)) return alert->active();
+        return false;
+    }
+
+    void setTabAlert(int index, const QString& message)
+    {
+        if (auto alert = alertWidgetAt_(index)) alert->setAlert(message);
+    }
+
+    void clearTabAlert(int index)
+    {
+        if (auto alert = alertWidgetAt_(index)) alert->clearAlert();
+    }
+
+private:
+    QList<TabWidgetAlertWidget*> alertWidgets_{};
+
+    TabWidgetAlertWidget* alertWidgetAt_(int index) const
+    {
+        auto widget = tabBar_->tabButton(index, QTabBar::LeftSide);
+        return qobject_cast<TabWidgetAlertWidget*>(widget);
+    }
+
+    void addAlertWidgetAt_(int index)
+    {
+        auto alert = new TabWidgetAlertWidget(tabBar_);
+        alertWidgets_ << alert;
+        tabBar_->setTabButton(index, QTabBar::LeftSide, alert);
+
+        /// TODO TEMP:
+        alert->setAlert("asssss!");
+    }
+
     /// *** TAB MANAGEMENT *** ///
 
 public:
@@ -201,12 +242,18 @@ public:
     {
         auto widget = widgetAt(index);
         auto button = closeButtonAt_(index);
+        auto alert = alertWidgetAt_(index);
 
         tabBar_->removeTab(index);
 
         if (button) {
             closeButtons_.removeAll(button);
             delete button;
+        }
+
+        if (alert) {
+            alertWidgets_.removeAll(alert);
+            delete alert;
         }
 
         if (widget) // Should happen
@@ -283,6 +330,7 @@ private:
         tabBar_->setTabData(new_index, QVariant::fromValue(widget));
 
         if (tabsClosable_) addCloseButtonAt_(new_index);
+        addAlertWidgetAt_(new_index); // Always present, starts hidden
 
         tabBar_->blockSignals(was_blocked);
 

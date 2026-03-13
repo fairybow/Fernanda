@@ -127,8 +127,8 @@ private:
 
     void setup_()
     {
+        // setAttribute(Qt::WA_StyledBackground, true); // TODO: For QSS
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        setAttribute(Qt::WA_StyledBackground, true);
         setupButtons_();
 
         auto layout = new QHBoxLayout(this);

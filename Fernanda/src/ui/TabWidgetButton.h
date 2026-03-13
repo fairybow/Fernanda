@@ -147,7 +147,7 @@ private:
 
     void setup_()
     {
-        setAttribute(Qt::WA_StyledBackground, true);
+        setAttribute(Qt::WA_StyledBackground, true); // For QSS
         setFocusPolicy(Qt::NoFocus);
         setAttribute(Qt::WA_Hover, true);
     }

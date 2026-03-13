@@ -109,9 +109,11 @@ set(FERNANDA_HEADERS
     src/ui/CollapsibleWidgetHeader.h
     src/ui/ControlField.h
     src/ui/DisplaySlider.h
+    src/ui/Painting.h
     src/ui/PlainTextEdit.h
     src/ui/SelectionHandleOverlay.h
     src/ui/TabWidget.h
+    src/ui/TabWidgetAlertWidget.h
     src/ui/TabWidgetButton.h
     src/ui/TabWidgetCloseButton.h
     src/ui/TabWidgetTabBar.h

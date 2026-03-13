@@ -3,6 +3,7 @@
 ## Current
 
 - [ ] BUG: Notepad TreeView allows moving files, which means FileMeta paths can become stale
+- [ ] BUG: Pulling tab off the tab bar after dragging it to a new position causes the dragged tab to be the other tab that was originally in that position!
 - [x] Update Readme build section
 - [x] Clean up after file-types branch work (remove Plan document, update references)
 - [x] Update documentation: FileModelsAndViews, FileHandling, Notebooks, Architecture
