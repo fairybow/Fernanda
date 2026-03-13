@@ -94,6 +94,8 @@ void TabWidget::activateNext()
 
 bool TabWidget::eventFilter(QObject* watched, QEvent* event)
 {
+    // TODO: Notate this better!
+
     // Handle mouse events on the tab bar for dragging
     if (tabsDraggable_ && watched == tabBar_) {
         if (event->type() == QEvent::MouseButtonPress) {
