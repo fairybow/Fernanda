@@ -220,9 +220,6 @@ private:
         auto alert = new TabWidgetAlertWidget(tabBar_);
         alertWidgets_ << alert;
         tabBar_->setTabButton(index, QTabBar::LeftSide, alert);
-
-        /// TODO TEMP:
-        alert->setAlert("asssss!");
     }
 
     /// *** TAB MANAGEMENT *** ///
