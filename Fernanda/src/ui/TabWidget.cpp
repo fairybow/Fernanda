@@ -99,8 +99,10 @@ bool TabWidget::eventFilter(QObject* watched, QEvent* event)
         if (event->type() == QEvent::MouseButtonPress) {
             auto mouse_event = static_cast<QMouseEvent*>(event);
 
-            if (mouse_event->button() == Qt::LeftButton)
+            if (mouse_event->button() == Qt::LeftButton) {
                 dragStartPosition_ = mouse_event->pos();
+                dragPressIndex_ = tabBar_->tabAt(dragStartPosition_);
+            }
         } else if (event->type() == QEvent::MouseMove) {
             auto mouse_event = static_cast<QMouseEvent*>(event);
 
@@ -115,9 +117,10 @@ bool TabWidget::eventFilter(QObject* watched, QEvent* event)
                 if (qAbs(delta.y()) >= Application::startDragDistance() * 1.5) {
                     auto index = tabBar_->tabAt(dragStartPosition_);
 
-                    if (index > -1) {
-                        startDrag_(index);
-                        return true; // Prevent further processing.
+                    if (dragPressIndex_ > -1) {
+                        startDrag_(dragPressIndex_);
+                        dragPressIndex_ = -1;
+                        return true;
                     }
                 }
             }
@@ -510,6 +513,13 @@ void TabWidget::initializeTabBarPropagatedSignals_()
     });
 
     connect(tabBar_, &QTabBar::tabMoved, this, [this](int from, int to) {
+        if (dragPressIndex_ == from)
+            dragPressIndex_ = to;
+        else if (from < dragPressIndex_ && to >= dragPressIndex_)
+            --dragPressIndex_;
+        else if (from > dragPressIndex_ && to <= dragPressIndex_)
+            ++dragPressIndex_;
+
         emit tabMoved(from, to);
     });
 }
@@ -634,7 +644,8 @@ void TabWidget::startDrag_(int index)
     auto mime_data = new QMimeData;
 
     auto tab_rect = tabBar_->tabRect(index);
-    auto offset_within_tab = dragStartPosition_ - tab_rect.topLeft();
+    auto offset_within_tab =
+        QPoint(tab_rect.width() / 2, tab_rect.height() / 2);
 
     // Store tab data BEFORE removing
     TabDragContext_ drag_context{

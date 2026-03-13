@@ -274,6 +274,7 @@ private:
     DragValidator dragValidator_ = nullptr;
     bool tabsDraggable_ = false;
     QPoint dragStartPosition_{};
+    int dragPressIndex_ = -1;
 
     void setup_();
     void initializeTabBarPropagatedSignals_();
