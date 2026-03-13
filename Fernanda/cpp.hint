@@ -11,3 +11,4 @@
 #define WARN LOG(QtWarningMsg)
 #define CRITICAL LOG(QtCriticalMsg)
 #define FATAL LOG(QtFatalMsg)
+#define slots
