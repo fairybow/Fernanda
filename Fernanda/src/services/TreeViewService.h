@@ -248,7 +248,7 @@ private:
         });
 
         tree_view->setHeaderHidden(headersHidden_);
-        tree_view->setIndentation(15);
+        tree_view->setIndentation(20);
 
         if (modelHook_ && rootIndexHook_) {
             if (auto model = modelHook_()) {
