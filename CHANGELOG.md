@@ -75,6 +75,28 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.5 (Testing / Soft Release) - tag v0.99.0-beta.5
+
+## What's New?
+
+**Deferred close coalescing.** `Window::closeEvent` now always defers to `WindowService::deferClose_()` instead of calling `canCloseHook_` immediately. A zero-delay timer coalesces all close events from the same tick: one pending window takes the normal single-window path, multiple pending windows route through `closeAll()`. This fixes the nested event loop / "Don't Save does nothing" bug when the OS closes all windows at once.
+
+**Tab drag fix.** `dragPressIndex_` is now recorded on mouse press rather than recalculated on mouse move. This prevents the wrong tab from being dragged when the user has reordered tabs before initiating a drag. The index is also tracked through tabMoved events to stay accurate if Qt reorders tabs during the move.
+
+## Known Issues
+
+- Notepad TreeView allows moving files, which means FileMeta paths can become stale
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- System shutdown handling is implemented but untested
+- Large-document bulk operations (e.g., select-all-replace on 1M+ chars) may produce visible delay due to prime document delta routing (but this was only seen in debug)
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Trash splitter handle behavior: clicking the handle alone can size the closed state up; trash view can't be shrunk below its minimum
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+
+---
+
 # 0.99.0-beta.4 (Testing / Soft Release) - tag v0.99.0-beta.4
 
 ## What's New?
