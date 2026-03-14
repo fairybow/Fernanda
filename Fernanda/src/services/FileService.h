@@ -200,6 +200,19 @@ private:
 
     void setup_()
     {
+        // Re: Notepad TreeView rename/move vs watcher: When a file is renamed
+        // or moved via TreeView, both a model signal (fileRenamed / fileMoved)
+        // and a QFileSystemWatcher::fileChanged signal will fire for the old
+        // path. The model signal is handled synchronously on the main thread
+        // (Notepad calls meta->setPath(), which triggers pathChanged, which
+        // swaps the watched path here in registerModel_'s lambda). The
+        // watcher's fileChanged crosses a thread boundary and is delivered via
+        // queued connection, so it cannot arrive until the synchronous chain
+        // completes and we return to the event loop. By that point, the old
+        // path is no longer in pathToFileModel_ and the signal is harmlessly
+        // ignored. This doesn't apply to Notebook (whose file moves are XML
+        // only)
+
         connect(
             watcher_,
             &QFileSystemWatcher::fileChanged,

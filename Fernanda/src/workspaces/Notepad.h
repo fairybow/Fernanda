@@ -466,6 +466,15 @@ private:
                             files->modelFor(Coco::Path(path) / oldName))
                         model->meta()->setPath(Coco::Path(path) / newName);
                 });
+
+            connect(
+                fsModel_,
+                &NotepadFileSystemModel::fileMoved,
+                this,
+                [this](const Coco::Path& old, const Coco::Path& now) {
+                    if (auto model = files->modelFor(old))
+                        model->meta()->setPath(now);
+                });
         });
 
         settings->setName(Tr::notepad());

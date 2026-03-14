@@ -30,9 +30,9 @@
 
 **Notepad**
 
-- [ ] Connect to `NotepadFileSystemModel::fileMoved` and call `meta->setPath(newPath)` (same pattern as existing `fileRenamed` handler)
-- [ ] Connect to `bus->fileModelExternallyModified`: set tab alert ("modified externally")
-- [ ] Connect to `bus->fileModelPathInvalidated`: set tab alert ("file missing"), staleness is set by FileService before the signal
+- [x] Connect to `NotepadFileSystemModel::fileMoved` and call `meta->setPath(newPath)` (same pattern as existing `fileRenamed` handler)
+- [x] MOVED TO VIEW SERVICE: Connect to `bus->fileModelExternallyModified`: set tab alert ("modified externally")
+- [x] MOVED TO VIEW SERVICE:Connect to `bus->fileModelPathInvalidated`: set tab alert ("file missing"), staleness is set by FileService before the signal
 - [ ] (Future: content refresh/reload popup for `fileModelExternallyModified`)
 
 **Race condition guard**
