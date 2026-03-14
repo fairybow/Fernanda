@@ -2,7 +2,7 @@
 
 When multiple windows display the same file, each view needs its own `QTextDocument` for independent word wrap and layout. The prime document pattern/hack coordinates content between these independent documents, keeping a single authoritative copy that owns the undo/redo history while routing edits between views.
 
-See: [`TextFileModel.h`](../src/models/TextFileModel.h), [`TextFileView.h`](../src/views/TextFileView.h), [`TextFileView.cpp`](../src/views/TextFileView.cpp), and [`KeyFilters.h`](../src/views/KeyFilters.h)
+See: [`TextFileModel.h`](../src/models/TextFileModel.h), [`TextFileView.h`](../src/views/TextFileView.h), and [`KeyFilters.h`](../src/views/KeyFilters.h)
 
 ## Problem
 
