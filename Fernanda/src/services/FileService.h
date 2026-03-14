@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QByteArray>
+#include <QFileSystemWatcher>
 #include <QHash>
 #include <QList>
 #include <QObject>
@@ -38,9 +39,9 @@
 namespace Fernanda {
 
 // Creates and manages file models
-// TODO: Rename?
 // TODO: When saving files, we should move originals to a back-up location
 // (Notebook's archive save will do the same)
+// TODO: Rename FileModelService? (and ViewService -> FileViewService?)
 class FileService : public AbstractService
 {
     Q_OBJECT
@@ -94,7 +95,9 @@ public:
     [[nodiscard]] SaveResult save(AbstractFileModel* fileModel)
     {
         if (!fileModel || !fileModel->supportsModification()) return NoOp;
-        auto path = fileModel->meta()->path();
+        auto meta = fileModel->meta();
+        if (!meta || meta->isStale()) return NoOp;
+        auto path = meta->path();
         if (path.isEmpty()) return NoOp;
 
         return writeModelToDisk_(fileModel, path);
@@ -159,9 +162,13 @@ public:
     {
         if (!fileModel) return;
 
-        auto path = fileModel->meta()->path();
         fileModels_.remove(fileModel);
-        pathToFileModel_.remove(path);
+
+        auto path = fileModel->meta()->path();
+        if (!path.isEmpty()) {
+            pathToFileModel_.remove(path);
+            watcher_->removePath(path.toQString());
+        }
 
         INFO("File model destroyed [{}]", fileModel);
         delete fileModel;
@@ -189,17 +196,44 @@ protected:
 private:
     QSet<AbstractFileModel*> fileModels_{};
     QHash<Coco::Path, AbstractFileModel*> pathToFileModel_{};
+    QFileSystemWatcher* watcher_ = new QFileSystemWatcher(this);
 
     void setup_()
     {
-        //...
+        connect(
+            watcher_,
+            &QFileSystemWatcher::fileChanged,
+            this,
+            [this](const QString& path) {
+                auto coco_path = Coco::Path(path);
+                auto model = pathToFileModel_.value(coco_path);
+
+                // Already swapped away (For Notepad: TreeView rename/move
+                // (Doesn't apply to Notebook))
+                if (!model) return;
+
+                if (coco_path.exists()) {
+                    // Content changed externally (or atomic write replacement).
+                    // Some platforms/operations drop the watch after
+                    // modification, so we'll re-add in case:
+                    watcher_->addPath(path);
+                    emit bus->fileModelExternallyModified(model);
+                } else {
+                    // File gone (deleted, moved externally, unmounted)
+                    model->meta()->markStale();
+                    emit bus->fileModelPathInvalidated(model);
+                }
+            });
     }
 
     // TODO: Do this for similar setups in other Services
     void
     registerModel_(AbstractFileModel* fileModel, const Coco::Path& path = {})
     {
-        if (!path.isEmpty()) pathToFileModel_[path] = fileModel;
+        if (!path.isEmpty()) {
+            pathToFileModel_[path] = fileModel;
+            watcher_->addPath(path.toQString());
+        }
 
         fileModels_ << fileModel;
 
@@ -208,8 +242,14 @@ private:
             &FileMeta::pathChanged,
             this,
             [this, fileModel](const Coco::Path& old, const Coco::Path& now) {
-                if (!old.isEmpty()) pathToFileModel_.remove(old);
-                if (!now.isEmpty()) pathToFileModel_[now] = fileModel;
+                if (!old.isEmpty()) {
+                    pathToFileModel_.remove(old);
+                    watcher_->removePath(old.toQString());
+                }
+                if (!now.isEmpty()) {
+                    pathToFileModel_[now] = fileModel;
+                    watcher_->addPath(now.toQString());
+                }
             });
     }
 
