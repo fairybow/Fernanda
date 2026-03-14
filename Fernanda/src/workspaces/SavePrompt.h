@@ -119,6 +119,7 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     auto scroll_area = new QScrollArea(&dialog);
     auto scroll_widget = new QWidget;
     auto scroll_layout = new QVBoxLayout(scroll_widget);
+    scroll_layout->setSpacing(0);
 
     QList<QCheckBox*> checkboxes{};
     for (const auto& file_name : fileDisplayNames) {

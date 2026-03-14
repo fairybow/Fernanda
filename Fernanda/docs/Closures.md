@@ -2,7 +2,7 @@
 
 How windows and tabs are closed in Fernanda, including the deferred close coalescing system that unifies OS-level and menu-level "close all" behavior.
 
-See: [`WindowService.h`], [`Window.h`], [`Window.cpp`], [`ViewService.h`], [`Workspace.h`], [`Notepad.h`], [`Notebook.h`], [`SavePrompt.h`]
+See: [`WindowService.h`](../src/services/WindowService.h), [`Window.h`](../src/ui/Window.h), [`ViewService.h`](../src/services/ViewService.h), [`Workspace.h`](../src/workspaces/Workspace.h), [`Notepad.h`](../src/workspaces/Notepad.h), [`Notebook.h`](../src/workspaces/Notebook.h), and [`SavePrompt.h`](../src/workspaces/SavePrompt.h)
 
 ## Closure Paths
 

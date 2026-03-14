@@ -32,6 +32,7 @@ tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1);
 
 // NP = Notepad; NB = Notebook; NX = Either
 // TODO: Use a coherent naming scheme...
+// TODO: Need manual wrap for some of these
 namespace Tr {
 
     /// General
@@ -39,6 +40,11 @@ namespace Tr {
     TR_(notepad, tr("Notepad"));
     TR_(nbTrash, tr("Trash"));
     TR_(fileMetaNotOnDisk, tr("[Not on disk]"));
+    TR_(fileMetaStale, tr("[Stale]"));
+    TR_(fileModifiedExternally,
+        tr("This file has been modified outside Fernanda"));
+    TR_(filePathInvalidated,
+        tr("This file has been renamed, moved, or deleted outside Fernanda"));
 
     /// Buttons
 
@@ -249,7 +255,7 @@ namespace Tr {
     TR_(keyFiltersPanelAutoClose, tr("Auto-close"));
     TR_(keyFiltersPanelBarging, tr("Barging"));
     TR_(keyFiltersPanelBargingTooltip,
-        tr("Double-spacing (or pressing Enter) against closing punctuation "
+        tr("Double-spacing (or pressing Enter) against closing punctuation\n"
            "barges the cursor past it and closes the gap"));
 
     /// Editor panel
@@ -260,9 +266,9 @@ namespace Tr {
     TR_(editorPanelTabStopDistance, tr("Tab stop distance:"));
     TR_(editorPanelWrapMode, tr("Word wrap mode:"));
     TR_(editorPanelWrapModeTooltip,
-        tr("Smart: If possible, wrapping occurs at a word boundary; otherwise "
+        tr("Smart: If possible, wrapping occurs at a word boundary; otherwise\n"
            "it will occur at the appropriate point on the line, even in the "
-           "middle of a word."));
+           "middle\nof a word."));
     TR_(editorPanelNoWrap, tr("None"));
     TR_(editorPanelWordWrap, tr("At word boundary"));
     TR_(editorPanelWrapAnywhere, tr("Anywhere"));

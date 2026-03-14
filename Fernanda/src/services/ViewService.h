@@ -49,6 +49,8 @@ namespace Fernanda {
 // Creates and manages program views (TabWidgets and FileViews) within
 // Windows, routes editing commands, handles view lifecycles, propagates
 // TabWidget signals, and tracks the number of views per model
+//
+// TODO: Find repeated view/model iteration and make helper(s)
 class ViewService : public AbstractService
 {
     Q_OBJECT
@@ -510,6 +512,18 @@ protected:
             &Bus::fileModelMetaChanged,
             this,
             &ViewService::onBusFileModelMetaChanged_);
+
+        connect(
+            bus,
+            &Bus::fileModelExternallyModified,
+            this,
+            &ViewService::onBusFileModelExternallyModified_);
+
+        connect(
+            bus,
+            &Bus::fileModelPathInvalidated,
+            this,
+            &ViewService::onBusFileModelPathInvalidated_);
 
         connect(
             bus,
@@ -979,6 +993,41 @@ private slots:
         }
     }
 
+    void onBusFileModelExternallyModified_(AbstractFileModel* fileModel)
+    {
+        if (!fileModel) return;
+
+        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
+        for (auto& window : windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            // TODO: Iteration helper
+            for (auto i = 0; i < tab_widget->count(); ++i) {
+                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                if (view && view->model() == fileModel)
+                    tab_widget->setTabAlert(Tr::fileModifiedExternally(), i);
+            }
+        }
+    }
+
+    void onBusFileModelPathInvalidated_(AbstractFileModel* fileModel)
+    {
+        if (!fileModel) return;
+
+        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
+        for (auto& window : windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            for (auto i = 0; i < tab_widget->count(); ++i) {
+                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                if (view && view->model() == fileModel)
+                    tab_widget->setTabAlert(Tr::filePathInvalidated(), i);
+            }
+        }
+    }
+
     /// TODO TD
     void onTabDragged_(
         const TabWidget::Location& old,
@@ -995,7 +1044,6 @@ private slots:
         if (old_window == new_window) return;
 
         new_window->activate();
-
         if (auto view = fileViewAt(new_window, now.index)) view->setFocus();
 
         emit tabDragCompleted(old_window, new_window);

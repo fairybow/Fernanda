@@ -147,7 +147,7 @@ public:
     void setTabFlagged(int index, bool flagged);
 
     bool tabAlert(int index) const;
-    void setTabAlert(int index, const QString& message);
+    void setTabAlert(const QString& message, int index);
     void clearTabAlert(int index);
 
     QIcon tabIcon(int index) const;
@@ -269,7 +269,6 @@ private:
     bool tabsClosable_ = true;
     QList<TabWidgetCloseButton*> closeButtons_{};
     QHash<QWidget*, QVariant> tabUserData_{};
-    QList<TabWidgetAlertWidget*> alertWidgets_{};
 
     DragValidator dragValidator_ = nullptr;
     bool tabsDraggable_ = false;
@@ -285,7 +284,6 @@ private:
     TabWidgetCloseButton* closeButtonAt_(int index) const;
     void updateMouseHoverAfterLayoutChange_(); // TODO: Review
 
-    void addAlertWidgetAt_(int index);
     TabWidgetAlertWidget* alertWidgetAt_(int index) const;
 
     void startDrag_(int index);
