@@ -46,6 +46,7 @@ namespace Fernanda {
 // when user toggles between factor and fit, which may mean changing ZoomControl
 // a little
 // TODO: Views also need to implement ability to pan
+// TODO: Corners look too sharp
 class ZoomControl : public QWidget
 {
     Q_OBJECT
@@ -121,7 +122,8 @@ private:
     QPushButton* display_ = new QPushButton("100%", this);
     QPushButton* plusButton_ = new QPushButton("+", this);
 
-    static constexpr auto PADDING_ = 12;
+    static constexpr auto RIGHT_PADDING_ = 22;
+    static constexpr auto BOTTOM_PADDING_ = 22;
     static constexpr auto CONTENT_HEIGHT_ = 28;
     static constexpr auto DISPLAY_WIDTH_ = 46;
 
@@ -166,6 +168,7 @@ private:
 
         auto zoom_font = QFont{};
         zoom_font.setPixelSize(16);
+        zoom_font.setBold(true);
 
         for (auto button : { minusButton_, plusButton_ }) {
             button->setFixedSize(CONTENT_HEIGHT_, CONTENT_HEIGHT_);
@@ -177,6 +180,7 @@ private:
 
         auto display_font = QFont{};
         display_font.setPixelSize(12);
+        display_font.setBold(true);
 
         display_->setFixedSize(DISPLAY_WIDTH_, CONTENT_HEIGHT_);
         display_->setFlat(true);
@@ -191,8 +195,8 @@ private:
 
         adjustSize();
 
-        auto x = parent_widget->width() - width() - PADDING_;
-        auto y = parent_widget->height() - height() - PADDING_;
+        auto x = parent_widget->width() - width() - RIGHT_PADDING_;
+        auto y = parent_widget->height() - height() - BOTTOM_PADDING_;
         move(x, y);
     }
 
