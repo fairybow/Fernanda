@@ -40,7 +40,8 @@ namespace Fernanda {
 // with the dock, instead of the TreeView directly, ensure it says so on the
 // tin.
 // TODO: Potentially rename to TreeViewDock or make a composite widget here? We
-// need clarity around these two components.
+// need clarity around these two components
+// TODO: Second-level indent is way too deep
 class TreeViewService : public AbstractService
 {
     Q_OBJECT

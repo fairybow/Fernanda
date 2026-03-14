@@ -131,6 +131,11 @@ namespace Tr {
     TR_(nxUpdateFailNoReleasesFound, tr("No releases found!"));
     TR_(nxUpdateFailMissingAsset,
         tr("No Version.txt asset found in latest release!"));
+    TR_(nxReloadPromptBodyFormat,
+        tr("This file's content has been changed outside Fernanda. Do you want "
+           "to reload %0?"));
+    TR_(reload, tr("Reload"));
+    TR_(keepMine, tr("Keep mine"));
 
     // NP dialogs:
 

@@ -134,6 +134,7 @@ set(FERNANDA_HEADERS
     src/workspaces/Notebook.h
     src/workspaces/Notepad.h
     src/workspaces/NotepadFileSystemModel.h
+    src/workspaces/ReloadPrompt.h
     src/workspaces/SaveFailMessageBox.h
     src/workspaces/SavePrompt.h
     src/workspaces/TrashPrompt.h
