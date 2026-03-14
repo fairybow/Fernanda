@@ -40,6 +40,10 @@ namespace Tr {
     TR_(nbTrash, tr("Trash"));
     TR_(fileMetaNotOnDisk, tr("[Not on disk]"));
     TR_(fileMetaStale, tr("[Stale]"));
+    TR_(fileModifiedExternally,
+        tr("This file has been modified outside Fernanda!"));
+    TR_(filePathInvalidated,
+        tr("This file has been renamed, moved, or deleted outside Fernanda!"));
 
     /// Buttons
 
