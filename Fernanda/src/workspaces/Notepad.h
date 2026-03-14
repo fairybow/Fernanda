@@ -456,7 +456,7 @@ private:
             // Update open file model if it exists
             connect(
                 fsModel_,
-                &QFileSystemModel::fileRenamed,
+                &NotepadFileSystemModel::fileRenamed,
                 this,
                 [this](
                     const QString& path,
