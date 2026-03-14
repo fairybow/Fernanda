@@ -39,6 +39,7 @@ namespace Tr {
     TR_(notepad, tr("Notepad"));
     TR_(nbTrash, tr("Trash"));
     TR_(fileMetaNotOnDisk, tr("[Not on disk]"));
+    TR_(fileMetaStale, tr("[Stale]"));
 
     /// Buttons
 

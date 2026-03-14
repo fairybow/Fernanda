@@ -16,14 +16,17 @@
 
 namespace Fernanda {
 
-/// TODO FT: Possbly temporary: exists solely to prevent renaming of directories
-/// while still allowing file renames
 class NotepadFileSystemModel : public QFileSystemModel
 {
     Q_OBJECT
 
 public:
-    using QFileSystemModel::QFileSystemModel;
+    explicit NotepadFileSystemModel(QObject* parent = nullptr)
+        : QFileSystemModel(parent)
+    {
+        setup_();
+    }
+
     virtual ~NotepadFileSystemModel() override { TRACER; }
 
     virtual Qt::ItemFlags flags(const QModelIndex& index) const override
@@ -31,6 +34,12 @@ public:
         auto f = QFileSystemModel::flags(index);
         if (isDir(index)) f &= ~Qt::ItemIsEditable;
         return f;
+    }
+
+private:
+    void setup_()
+    {
+        //
     }
 };
 

@@ -52,6 +52,7 @@ public:
         if (path_ == path) return;
         Coco::Path old = path_;
         path_ = path;
+        isStale_ = false;
         emit pathChanged(old, path_);
         updateDerivedProperties_();
     }
@@ -70,6 +71,22 @@ public:
         updateDerivedProperties_();
     }
 
+    bool isStale() const noexcept { return isStale_; }
+
+    void markStale()
+    {
+        if (isStale_) return;
+        isStale_ = true;
+        updateDerivedProperties_();
+    }
+
+    void clearStale()
+    {
+        if (!isStale_) return;
+        isStale_ = false;
+        updateDerivedProperties_();
+    }
+
     QString preferredExt() const
     {
         return !path_.isEmpty() ? path_.extQString()
@@ -83,6 +100,10 @@ signals:
 private:
     FileTypes::Kind fileType_;
     Coco::Path path_;
+
+    // File was on-disk (path_ not empty) but was moved, deleted, or renamed
+    // externally
+    bool isStale_ = false;
 
     QString title_{};
     QString titleOverride_{};
@@ -106,11 +127,16 @@ private:
         auto tool_tip_fmt = QStringLiteral("Title: %0\nPath: %1\nType: %2");
         auto type_name = FileTypes::name(fileType_);
 
-        toolTip_ = tool_tip_fmt.arg(title_)
-                       .arg(
-                           isOnDisk() ? path_.prettyQString()
-                                      : Tr::fileMetaNotOnDisk())
-                       .arg(type_name);
+        QString path_str{};
+
+        if (isOnDisk()) {
+            path_str = path_.prettyQString();
+            if (isStale_) path_str += " " + Tr::fileMetaStale();
+        } else {
+            path_str = Tr::fileMetaNotOnDisk();
+        }
+
+        toolTip_ = tool_tip_fmt.arg(title_).arg(path_str).arg(type_name);
 
         // Emit single signal if anything changed
         if (title_ != old_title || toolTip_ != old_tooltip) emit changed();

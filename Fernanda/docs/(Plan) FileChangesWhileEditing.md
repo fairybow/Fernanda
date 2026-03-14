@@ -2,10 +2,10 @@
 
 **FileMeta**
 
-- [ ] Add `isStale` / `markStale()` / `clearStale()`
-- [ ] Stale state reflected in tooltip
-- [ ] Emit `changed()` when staleness toggles
-- [ ] `clearStale()` available for when a stale path reappears (or future reload)
+- [x] Add `isStale` / `markStale()` / `clearStale()`
+- [x] Stale state reflected in tooltip
+- [x] Emit `changed()` when staleness toggles
+- [x] `clearStale()` available for when a stale path reappears (or future reload)
 
 **FileService (QFileSystemWatcher)**
 
