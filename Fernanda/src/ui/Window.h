@@ -53,6 +53,7 @@ signals:
     void destroyed(Window*);
 
 protected:
+    // See: docs/Closures.md
     virtual void closeEvent(QCloseEvent* event) override;
 
 private:

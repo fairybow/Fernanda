@@ -245,6 +245,7 @@ private:
         return window;
     }
 
+    // See: docs/Closures.md
     void deferClose_(Window* window)
     {
         if (!pendingCloseWindows_.contains(window)) {
