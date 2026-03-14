@@ -282,8 +282,6 @@ flowchart TD
 
 ### Creating a Window
 
-// TODO: Check that this format is ideal? Little confusing but factually correct.
-
 ```mermaid
 sequenceDiagram
     participant W as Workspace
@@ -302,28 +300,44 @@ sequenceDiagram
 
 ### Closing a Window
 
-// TODO: Check that this format is ideal? Little confusing but factually correct.
+Window and tab closure involves hooks, deferred close coalescing, and batch
+flags. See [`Closures.md`](Closures.md) for the full breakdown.
+
+### Opening a File
+
+This example shows the Workspace acting as coordinator between Services. It
+demonstrates events, the Bus, and the Workspace-as-policy-layer pattern.
 
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant Win as Window
-    participant WS as WindowService
+    participant TVS as TreeViewService
     participant W as Workspace
+    participant FS as FileService
+    participant B as Bus
+    participant VS as ViewService
 
-    U->>Win: Click close button
-    Win->>WS: Close event filtered
-    WS->>W: canCloseHook_(window)
-    W->>W: Check unsaved changes
-    W->>U: Show save prompt (if needed)
-    U->>W: User choice
-    W-->>WS: return true/false
-    alt Allowed
-        WS->>Win: Accept close
-    else Rejected
-        WS->>Win: Ignore close
+    U->>TVS: Double-click file in TreeView
+    TVS->>W: emit doubleClicked(window, index)
+    W->>W: Resolve path from index
+    W->>FS: openFilePathIn(window, path)
+    alt Model already exists for path
+        FS->>B: emit fileModelReadied(window, existingModel)
+    else New file
+        FS->>FS: Create model, read data from disk
+        FS->>B: emit fileModelReadied(window, newModel)
     end
+    B->>VS: fileModelReadied signal
+    VS->>VS: createFileView_(window, model)
+    VS->>VS: Add tab to TabWidget
 ```
+
+The Workspace never touches the model or view directly. It translates the
+TreeView index into a path (policy: Notepad uses QFileSystemModel paths, Notebook
+uses FnxModel paths resolved against a working directory) and delegates to
+FileService. FileService handles deduplication (reusing an existing model if the
+file is already open) and creation. ViewService reacts to the Bus event
+independently.
 
 ### Cross-Service Query
 

@@ -10,6 +10,7 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 
 #include <QEvent>
 #include <QList>
@@ -26,6 +27,7 @@
 #include <Coco/Utility.h>
 
 #include "core/Debug.h"
+#include "core/Timers.h"
 #include "core/Version.h"
 #include "core/XPlatform.h"
 #include "services/AbstractService.h"
@@ -209,6 +211,8 @@ private:
     QPointer<Window> activeWindow_ = nullptr;
     QPointer<Window> lastFocusedAppWindow_ = nullptr;
 
+    QSet<Window*> pendingCloseWindows_{};
+    bool isDeferredClose_ = false;
     bool isBatchClose_ = false;
     CanCloseHook canCloseHook_ = nullptr;
     CanCloseAllHook canCloseAllHook_ = nullptr;
@@ -239,6 +243,40 @@ private:
         emit bus->windowCreated(window);
 
         return window;
+    }
+
+    // See: docs/Closures.md
+    void deferClose_(Window* window)
+    {
+        if (!pendingCloseWindows_.contains(window)) {
+            pendingCloseWindows_ << window;
+
+            // Only start timer on the first deferral in this tick
+            if (pendingCloseWindows_.count() == 1) {
+                Timers::onNextTick(
+                    this,
+                    &WindowService::processDeferredCloses_);
+            }
+        }
+    }
+
+    void processDeferredCloses_()
+    {
+        auto pending = std::exchange(pendingCloseWindows_, {});
+        if (pending.isEmpty()) return;
+
+        if (pending.count() == 1) {
+            // Single X click: run normal per-window close path
+            auto window = *pending.begin();
+            isDeferredClose_ = true;
+
+            if (!canCloseHook_ || canCloseHook_(window)) window->close();
+
+            isDeferredClose_ = false;
+        } else {
+            // Multiple close events in one tick: OS-level close-all
+            closeAll();
+        }
     }
 
     QString windowTitle_() const

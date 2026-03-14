@@ -10,7 +10,6 @@
 #pragma once
 
 #include <QFont>
-#include <QFontMetricsF>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
@@ -23,6 +22,7 @@
 #include <Coco/Concepts.h>
 
 #include "core/Debug.h"
+#include "ui/Painting.h"
 
 namespace Fernanda {
 
@@ -138,14 +138,12 @@ private:
         painter.setFont(font);
         painter.setPen(Qt::white);
 
-        QFontMetricsF metrics(font);
-        auto glyph_rect = metrics.boundingRect("i");
-        auto offset = glyph_rect.left();
+        auto draw_rect = Painting::centeredGlyphRect(
+            font,
+            "i",
+            QRectF(padding, padding, size, size));
+        painter.drawText(draw_rect, Qt::AlignCenter, "i");
 
-        painter.drawText(
-            QRectF(padding + offset / 2.0, padding, size, size),
-            Qt::AlignCenter,
-            "i");
         painter.end();
 
         info_->setPixmap(icon);

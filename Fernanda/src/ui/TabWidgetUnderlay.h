@@ -89,7 +89,7 @@ private:
 
     void setup_()
     {
-        setAttribute(Qt::WA_StyledBackground);
+        setAttribute(Qt::WA_StyledBackground); // For QSS
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     }
 };

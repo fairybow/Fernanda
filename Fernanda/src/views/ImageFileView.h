@@ -104,6 +104,8 @@ private:
     ZoomControl* zoomControl_ = new ZoomControl(scrollArea_);
     QPixmap originalPixmap_{};
 
+    // TODO: Perhaps temp, perhaps not. May never want to honor QSS here (keep
+    // black)
     void setPalette_(QWidget* widget, const QColor& color)
     {
         widget->setAutoFillBackground(true);
