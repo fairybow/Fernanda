@@ -106,7 +106,7 @@ public:
     }
 
 protected:
-    // TODO: Why not inline? I forgot...
+    // (Calls Application)
     virtual QWidget* setupWidget() override;
 
 private:
