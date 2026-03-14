@@ -1006,7 +1006,7 @@ private slots:
             for (auto i = 0; i < tab_widget->count(); ++i) {
                 auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                 if (view && view->model() == fileModel)
-                    tab_widget->setTabAlert(i, Tr::fileModifiedExternally());
+                    tab_widget->setTabAlert(Tr::fileModifiedExternally(), i);
             }
         }
     }
@@ -1023,7 +1023,7 @@ private slots:
             for (auto i = 0; i < tab_widget->count(); ++i) {
                 auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                 if (view && view->model() == fileModel)
-                    tab_widget->setTabAlert(i, Tr::filePathInvalidated());
+                    tab_widget->setTabAlert(Tr::filePathInvalidated(), i);
             }
         }
     }

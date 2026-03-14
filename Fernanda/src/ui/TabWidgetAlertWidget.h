@@ -11,6 +11,7 @@
 
 #include <QColor>
 #include <QFont>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
 #include <QPixmap>
@@ -29,42 +30,29 @@ class TabWidgetAlertWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit TabWidgetAlertWidget(QWidget* parent = nullptr)
+    explicit TabWidgetAlertWidget(
+        const QString& message,
+        QWidget* parent = nullptr)
         : QWidget(parent)
     {
-        setup_();
+        setup_(message);
     }
 
     virtual ~TabWidgetAlertWidget() override { TRACER; }
 
-    bool active() const noexcept { return active_; }
-
-    void setAlert(const QString& message)
-    {
-        active_ = true;
-        setFixedSize(ICON_SIZE_);
-        setToolTip(message);
-        setVisible(true);
-    }
-
-    void clearAlert()
-    {
-        active_ = false;
-        setToolTip({});
-        setVisible(false);
-        setFixedSize(0, 0);
-    }
-
 private:
     static constexpr auto ICON_SIZE_ = QSize(16, 16);
     QLabel* label_ = new QLabel(this);
-    bool active_ = false;
 
-    void setup_()
+    void setup_(const QString& message)
     {
-        setVisible(false);
-        setFixedSize(0, 0);
+        auto layout = new QHBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+        layout->addWidget(label_);
+
         buildIcon_();
+        setToolTip(message);
     }
 
     // TODO: StyleContext support

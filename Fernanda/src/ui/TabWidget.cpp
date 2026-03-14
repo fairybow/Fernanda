@@ -48,8 +48,8 @@ TabWidget::TabSpec::getOffsetRatios(const QRect& rect, const QPoint& pos)
     auto w = rect.width();
     auto h = rect.height();
 
-    return { w > 0 ? (qreal)pos.x() / w : 0.0,
-             h > 0 ? (qreal)pos.y() / h : 0.0 };
+    return { w > 0 ? static_cast<qreal>(pos.x()) / w : 0.0,
+             h > 0 ? static_cast<qreal>(pos.y()) / h : 0.0 };
 }
 
 QPoint TabWidget::TabSpec::relPos(int width, int height) const noexcept
@@ -189,10 +189,7 @@ QWidget* TabWidget::removeTab(int index)
         delete button;
     }
 
-    if (alert) {
-        alertWidgets_.removeAll(alert);
-        delete alert;
-    }
+    if (alert) delete alert;
 
     if (widget) // Should happen
     {
@@ -232,7 +229,6 @@ void TabWidget::setTabData(int index, const QVariant& data)
 bool TabWidget::tabFlagged(int index) const
 {
     if (auto button = closeButtonAt_(index)) return button->flagged();
-
     return false;
 }
 
@@ -241,20 +237,23 @@ void TabWidget::setTabFlagged(int index, bool flagged)
     if (auto button = closeButtonAt_(index)) button->setFlagged(flagged);
 }
 
-bool TabWidget::tabAlert(int index) const
-{
-    if (auto alert = alertWidgetAt_(index)) return alert->active();
-    return false;
-}
+bool TabWidget::tabAlert(int index) const { return alertWidgetAt_(index); }
 
-void TabWidget::setTabAlert(int index, const QString& message)
+void TabWidget::setTabAlert(const QString& message, int index)
 {
-    if (auto alert = alertWidgetAt_(index)) alert->setAlert(message);
+    if (index < 0 || index >= tabBar_->count()) return;
+
+    clearTabAlert(index);
+    auto alert = new TabWidgetAlertWidget(message, tabBar_);
+    tabBar_->setTabButton(index, QTabBar::LeftSide, alert);
 }
 
 void TabWidget::clearTabAlert(int index)
 {
-    if (auto alert = alertWidgetAt_(index)) alert->clearAlert();
+    if (auto alert = alertWidgetAt_(index)) {
+        tabBar_->setTabButton(index, QTabBar::LeftSide, nullptr);
+        delete alert;
+    }
 }
 
 QIcon TabWidget::tabIcon(int index) const { return tabBar_->tabIcon(index); }
@@ -551,7 +550,6 @@ TabWidget::addOrInsertTab_(int index, QWidget* widget, const QString& tabText)
     tabBar_->setTabData(new_index, QVariant::fromValue(widget));
 
     if (tabsClosable_) addCloseButtonAt_(new_index);
-    addAlertWidgetAt_(new_index); // Always present, starts hidden
 
     tabBar_->blockSignals(was_blocked);
 
@@ -571,6 +569,8 @@ TabWidget::addOrInsertTab_(int index, QWidget* widget, const QString& tabText)
 
 void TabWidget::addCloseButtonAt_(int index)
 {
+    if (index < 0 || index >= tabBar_->count()) return;
+
     auto close_button = new TabWidgetCloseButton(tabBar_);
     close_button->setFixedSize(CLOSE_BUTTON_SIZE_);
     close_button->setIconSize(BUTTON_SVG_SIZE_);
@@ -622,13 +622,6 @@ void TabWidget::updateMouseHoverAfterLayoutChange_()
             }
         }
     }
-}
-
-void TabWidget::addAlertWidgetAt_(int index)
-{
-    auto alert = new TabWidgetAlertWidget(tabBar_);
-    alertWidgets_ << alert;
-    tabBar_->setTabButton(index, QTabBar::LeftSide, alert);
 }
 
 TabWidgetAlertWidget* TabWidget::alertWidgetAt_(int index) const

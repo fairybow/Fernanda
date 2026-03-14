@@ -32,6 +32,7 @@ tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1);
 
 // NP = Notepad; NB = Notebook; NX = Either
 // TODO: Use a coherent naming scheme...
+// TODO: Need manual wrap for some of these
 namespace Tr {
 
     /// General
@@ -41,9 +42,9 @@ namespace Tr {
     TR_(fileMetaNotOnDisk, tr("[Not on disk]"));
     TR_(fileMetaStale, tr("[Stale]"));
     TR_(fileModifiedExternally,
-        tr("This file has been modified outside Fernanda!"));
+        tr("This file has been modified outside Fernanda"));
     TR_(filePathInvalidated,
-        tr("This file has been renamed, moved, or deleted outside Fernanda!"));
+        tr("This file has been renamed, moved, or deleted outside Fernanda"));
 
     /// Buttons
 
