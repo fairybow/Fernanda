@@ -49,13 +49,15 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 ## What's New?
 
+**xxx.** xxx
+
+**xxx.** xxx
+
 ...
 
 ## Known Issues
 
-**xxx.** xxx
-
-**xxx.** xxx
+...
 
 <!-- Boilerplate (rest) here -->
 
