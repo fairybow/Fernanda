@@ -53,7 +53,9 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 ## Known Issues
 
-...
+**xxx.** xxx
+
+**xxx.** xxx
 
 <!-- Boilerplate (rest) here -->
 
@@ -74,6 +76,30 @@ Windows (x64) only for now. Mac and Linux support is planned.
 ---
 
 <a id="releases"></a>
+
+# 0.99.0-beta.6 (Testing / Soft Release) - tag v0.99.0-beta.6
+
+## What's New?
+
+**Open file change detection.** `FileService` now owns a `QFileSystemWatcher` monitoring all on-disk file model paths. When a file is modified externally, `Bus::fileModelExternallyModified` fires and `ViewService` shows a `ReloadPrompt`: the user can reload from disk or keep their in-memory version. When a file disappears (deleted, moved, or volume unmounted), `Bus::fileModelPathInvalidated` fires and the tab gets a persistent alert. Regular saves via `Io::write` are suppressed with a `recentlyWritten_` set so Fernanda's own saves don't trigger the prompt.
+
+**FileMeta staleness.** `FileMeta` now tracks an `isStale_` flag (set when the on-disk path vanishes, cleared on `setPath()`). Stale files show "[Stale]" appended to their path in the tooltip, and `FileService::save()` refuses to write them.
+
+**Notepad drag-and-drop path tracking.** `NotepadFileSystemModel` now overrides `dropMimeData` to snapshot source paths before delegating to the base class, then emits `fileMoved` for each successfully moved file. Notepad connects to this (alongside the existing fileRenamed connection) to keep FileMeta paths current, and the `QFileSystemWatcher` path swap follows automatically.
+
+**Tab alert widget redesign.** `TabWidgetAlertWidget` is now created on demand (instead of always-present-but-hidden) and deleted on `clearTabAlert`. The icon changed from a dark red circle to a yellow warning triangle (better visibility/accessibility).
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Large-document bulk operations (e.g., select-all-replace on 1M+ chars) may produce visible delay due to prime document delta routing (but this was only seen in debug)
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Trash splitter handle behavior: clicking the handle alone can size the closed state up; trash view can't be shrunk below its minimum
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+
+---
 
 # 0.99.0-beta.5 (Testing / Soft Release) - tag v0.99.0-beta.5
 
