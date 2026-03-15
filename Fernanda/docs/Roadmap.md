@@ -22,6 +22,7 @@
 - [ ] Add a button to the open/import dialogs to navigate back to home (startDir)
 - [x] Transition to CMake
 - [ ] Ini key to defaults map
+- [ ] Tab context menu (would have duplicate, save, save as, etc)
 
 ## File Types (Remaining)
 
