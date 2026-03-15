@@ -239,11 +239,19 @@ void TabWidget::setTabFlagged(int index, bool flagged)
 
 bool TabWidget::tabAlert(int index) const { return alertWidgetAt_(index); }
 
-void TabWidget::setTabAlert(const QString& message, int index)
+QString TabWidget::tabAlertMessage(int index) const
+{
+    if (auto alert = alertWidgetAt_(index)) return alert->message();
+    return {};
+}
+
+void TabWidget::setTabAlert(int index, const QString& message)
 {
     if (index < 0 || index >= tabBar_->count()) return;
 
     clearTabAlert(index);
+    if (message.isEmpty()) return;
+
     auto alert = new TabWidgetAlertWidget(message, tabBar_);
     tabBar_->setTabButton(index, QTabBar::LeftSide, alert);
 }
@@ -651,6 +659,7 @@ void TabWidget::startDrag_(int index)
                  tabData(index),
                  tabText(index),
                  tabToolTip(index),
+                 tabAlertMessage(index),
                  tabFlagged(index),
                  TabSpec::getOffsetRatios(tab_rect, offset_within_tab) }
     };
@@ -699,7 +708,9 @@ QByteArray TabWidget::serialize_(const TabDragContext_& dragContext)
     data_stream << quintptr(dragContext.origin) << dragContext.originIndex
                 << quintptr(dragContext.tabSpec.widget)
                 << dragContext.tabSpec.userData << dragContext.tabSpec.text
-                << dragContext.tabSpec.toolTip << dragContext.tabSpec.isFlagged
+                << dragContext.tabSpec.toolTip
+                << dragContext.tabSpec.alertMessage
+                << dragContext.tabSpec.isFlagged
                 << dragContext.tabSpec.offsetRatios;
 
     return data;
@@ -715,11 +726,12 @@ TabWidget::TabDragContext_ TabWidget::deserialize_(QByteArray& data)
     QVariant user_data{};
     QString text{};
     QString tool_tip{};
+    QString alert_message{};
     bool is_flagged = false;
     QPointF offset_ratio{};
 
     data_stream >> origin >> origin_index >> widget >> user_data >> text
-        >> tool_tip >> is_flagged >> offset_ratio;
+        >> tool_tip >> alert_message >> is_flagged >> offset_ratio;
 
     return { reinterpret_cast<TabWidget*>(origin),
              origin_index,
@@ -728,6 +740,7 @@ TabWidget::TabDragContext_ TabWidget::deserialize_(QByteArray& data)
                       user_data,
                       text,
                       tool_tip,
+                      alert_message,
                       is_flagged,
                       offset_ratio } };
 }
@@ -737,6 +750,7 @@ int TabWidget::addDroppedTab_(const TabSpec& tabSpec)
     auto new_index = addTab(tabSpec.widget, tabSpec.text);
     setTabData(new_index, tabSpec.userData);
     setTabToolTip(new_index, tabSpec.toolTip);
+    setTabAlert(new_index, tabSpec.alertMessage);
     setTabFlagged(new_index, tabSpec.isFlagged);
     setCurrentIndex(new_index);
     return new_index;

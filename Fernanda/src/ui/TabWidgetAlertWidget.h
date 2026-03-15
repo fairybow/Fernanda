@@ -42,6 +42,8 @@ public:
 
     virtual ~TabWidgetAlertWidget() override { TRACER; }
 
+    QString message() const { return toolTip(); }
+
 private:
     static constexpr auto ICON_SIZE_ = QSize(16, 16);
     QLabel* label_ = new QLabel(this);

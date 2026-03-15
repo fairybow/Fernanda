@@ -69,6 +69,7 @@ public:
         QVariant userData{};
         QString text{};
         QString toolTip{};
+        QString alertMessage{};
         bool isFlagged = false;
         QPointF offsetRatios{};
 
@@ -147,7 +148,8 @@ public:
     void setTabFlagged(int index, bool flagged);
 
     bool tabAlert(int index) const;
-    void setTabAlert(const QString& message, int index);
+    QString tabAlertMessage(int index) const;
+    void setTabAlert(int index, const QString& message);
     void clearTabAlert(int index);
 
     QIcon tabIcon(int index) const;

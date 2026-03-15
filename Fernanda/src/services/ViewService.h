@@ -104,6 +104,7 @@ public:
         auto index = tab_widget->addTab(tabSpec.widget, tabSpec.text);
         tab_widget->setTabData(index, tabSpec.userData);
         tab_widget->setTabToolTip(index, tabSpec.toolTip);
+        tab_widget->setTabAlert(index, tabSpec.alertMessage);
         tab_widget->setTabFlagged(index, tabSpec.isFlagged);
         tab_widget->setCurrentIndex(index);
     }
@@ -1013,7 +1014,7 @@ private slots:
             for (auto i = 0; i < tab_widget->count(); ++i) {
                 auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                 if (view && view->model() == fileModel) {
-                    tab_widget->setTabAlert(Tr::fileModifiedExternally(), i);
+                    tab_widget->setTabAlert(i, Tr::fileModifiedExternally());
                     if (!prompt_parent) prompt_parent = window;
                 }
             }
@@ -1055,7 +1056,7 @@ private slots:
             for (auto i = 0; i < tab_widget->count(); ++i) {
                 auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                 if (view && view->model() == fileModel)
-                    tab_widget->setTabAlert(Tr::filePathInvalidated(), i);
+                    tab_widget->setTabAlert(i, Tr::filePathInvalidated());
             }
         }
     }
