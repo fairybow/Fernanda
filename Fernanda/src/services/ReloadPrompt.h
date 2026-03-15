@@ -14,15 +14,18 @@
 #include <QString>
 #include <QWidget>
 
+#include <Coco/Bool.h>
+
 #include "core/Tr.h"
 
 // Window-modal dialog for prompting the user when a file has been modified
 // externally. Returns true if the user wants to reload from disk, false if they
-// want to keep their in-memory version.
+// want to keep their in-memory version
 namespace Fernanda::ReloadPrompt {
 
-// TODO: Use named bool?
-inline bool exec(const QString& fileDisplayName, QWidget* parent = nullptr)
+COCO_BOOL(Reload);
+
+inline Reload exec(const QString& fileDisplayName, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     box.setWindowModality(Qt::WindowModal);
@@ -32,8 +35,9 @@ inline bool exec(const QString& fileDisplayName, QWidget* parent = nullptr)
     box.setText(Tr::nxReloadPromptBodyFormat().arg(fileDisplayName));
 
     // QMessageBox should handle platform-specific button ordering automatically
-    auto reload = box.addButton(Tr::reload(), QMessageBox::AcceptRole);
-    box.addButton(Tr::keepMine(), QMessageBox::RejectRole);
+    auto reload =
+        box.addButton(Tr::nxReloadPromptReload(), QMessageBox::AcceptRole);
+    box.addButton(Tr::nxReloadPromptKeep(), QMessageBox::RejectRole);
 
     box.setDefaultButton(reload);
     // Escape button behavior is automatic with RejectRole
@@ -41,7 +45,7 @@ inline bool exec(const QString& fileDisplayName, QWidget* parent = nullptr)
     // TODO: Move to open/show
     box.exec();
 
-    return (box.clickedButton() == reload);
+    return (box.clickedButton() == reload) ? Reload::Yes : Reload::No;
 }
 
 } // namespace Fernanda::ReloadPrompt

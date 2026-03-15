@@ -132,10 +132,9 @@ namespace Tr {
     TR_(nxUpdateFailMissingAsset,
         tr("No Version.txt asset found in latest release!"));
     TR_(nxReloadPromptBodyFormat,
-        tr("This file's content has been changed outside Fernanda. Do you want "
-           "to reload %0?"));
-    TR_(reload, tr("Reload"));
-    TR_(keepMine, tr("Keep mine"));
+        tr("This content of %0 has changed outside Fernanda. Reload?"));
+    TR_(nxReloadPromptReload, tr("Reload"));
+    TR_(nxReloadPromptKeep, tr("Keep mine"));
 
     // NP dialogs:
 

@@ -190,13 +190,29 @@ protected:
 
     virtual void connectBusEvents() override
     {
-        //...
+        connect(
+            bus,
+            &Bus::fileModelReloadRequested,
+            this,
+            [this](AbstractFileModel* fileModel) {
+                if (!fileModel) return;
+                auto meta = fileModel->meta();
+                if (!meta) return;
+
+                auto path = meta->path();
+                if (path.isEmpty() || !path.exists()) return;
+
+                fileModel->setData(Io::read(path));
+                fileModel->setModified(false);
+                INFO("File model [{}] reloaded from disk", fileModel);
+            });
     }
 
 private:
     QSet<AbstractFileModel*> fileModels_{};
     QHash<Coco::Path, AbstractFileModel*> pathToFileModel_{};
     QFileSystemWatcher* watcher_ = new QFileSystemWatcher(this);
+    QSet<QString> recentlyWritten_{};
 
     void setup_()
     {
@@ -217,26 +233,7 @@ private:
             watcher_,
             &QFileSystemWatcher::fileChanged,
             this,
-            [this](const QString& path) {
-                auto coco_path = Coco::Path(path);
-                auto model = pathToFileModel_.value(coco_path);
-
-                // Already swapped away (For Notepad: TreeView rename/move
-                // (Doesn't apply to Notebook))
-                if (!model) return;
-
-                if (coco_path.exists()) {
-                    // Content changed externally (or atomic write replacement).
-                    // Some platforms/operations drop the watch after
-                    // modification, so we'll re-add in case:
-                    watcher_->addPath(path);
-                    emit bus->fileModelExternallyModified(model);
-                } else {
-                    // File gone (deleted, moved externally, unmounted)
-                    model->meta()->markStale();
-                    emit bus->fileModelPathInvalidated(model);
-                }
-            });
+            &FileService::onWatcherFileChanged_);
     }
 
     // TODO: Do this for similar setups in other Services
@@ -403,6 +400,8 @@ private:
     SaveResult
     writeModelToDisk_(AbstractFileModel* model, const Coco::Path& path)
     {
+        recentlyWritten_ << path.toQString();
+
         auto data = model->data();
         auto success = Io::write(data, path);
         if (success) model->setModified(false);
@@ -428,6 +427,35 @@ private:
     {
         INFO("File model [{}] metadata changed", fileModel);
         emit bus->fileModelMetaChanged(fileModel);
+    }
+
+private slots:
+    void onWatcherFileChanged_(const QString& path)
+    {
+        // Ignore watcher signals caused by our own writes
+        if (recentlyWritten_.remove(path)) {
+            // Some platforms/operations drop the watch after modification, so
+            // we'll re-add in case:
+            watcher_->addPath(path);
+            return;
+        }
+
+        auto coco_path = Coco::Path(path);
+        auto model = pathToFileModel_.value(coco_path);
+
+        // Already swapped away (For Notepad: TreeView rename/move
+        // (Doesn't apply to Notebook))
+        if (!model) return;
+
+        if (coco_path.exists()) {
+            // Content changed externally (or atomic write replacement)
+            watcher_->addPath(path);
+            emit bus->fileModelExternallyModified(model);
+        } else {
+            // File gone (deleted, moved externally, unmounted)
+            model->meta()->markStale();
+            emit bus->fileModelPathInvalidated(model);
+        }
     }
 };
 

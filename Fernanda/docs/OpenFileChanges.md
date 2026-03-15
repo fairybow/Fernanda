@@ -18,7 +18,7 @@ The detection layer lives in `FileService`, which owns a `QFileSystemWatcher` mo
 | Moved (`TreeView` drag-and-drop) | Yes | No (UUIDs) | Yes (fileMoved) | Path updated |
 | Deleted externally | Yes | Unlikely | No | Stale + alert |
 | Moved externally | Yes | Unlikely | No | Stale + alert |
-| Content changed externally | Yes | Unlikely | No | Alert (future: reload prompt) |
+| Content changed externally | Yes | Unlikely | No | Alert + reload prompt |
 | Volume unmounted | Yes | Unlikely | No | Stale + alert (same as deleted) |
 | File replaced (atomic write) | Yes | Unlikely | No | Alert (future: reload prompt) |
 | Permissions changed | Yes | Unlikely | No | Deferred |
@@ -75,8 +75,20 @@ When a `TreeView` rename or move occurs, the entire chain is synchronous on the 
 
 If this assumption ever breaks (for example, if signal delivery semantics change), a brief "ignore set" of recently-swapped paths in `FileService` would serve as a safety net.
 
+## Reload Prompt
+
+When `fileModelExternallyModified` fires, `ViewService` sets tab alerts and then shows a `ReloadPrompt` (window-modal `QMessageBox`) parented to the first window found with a view of the affected model. The user has two options:
+
+- **Reload**: `ViewService` emits `bus->fileModelReloadRequested(model)`. `FileService` handles this by re-reading the file from disk via `Io::read`, calling `setData()` on the model, and clearing the modified flag.
+- **Keep mine**: the model is marked as modified (even if it wasn't previously), so the user knows a future save will overwrite the external changes.
+
+In both cases, the tab alerts are cleared after the prompt is dismissed.
+
+### Self-write suppression
+
+`Io::write` uses `QSaveFile` (atomic write: write to temp, rename over original), which causes the watcher to fire `fileChanged` for Fernanda's own saves. `FileService` suppresses this with a `recentlyWritten_` set: paths are added before writing and checked (and removed) at the top of the watcher handler. Because the write completes synchronously and the watcher signal arrives via queued connection, the path is always in the set by the time the signal is processed.
+
 ## Not Yet Implemented
 
-- **Content refresh/reload prompt**: when `fileModelExternallyModified` fires, the user should be offered the option to reload the file from disk. The bus signal is already in place as the hook for this.
 - **Atomic write detection**: some programs save by deleting the file and creating a new one. The watcher may fire a "deleted" signal when the intent is "modified." A small delay (re-check after roughly 100ms) before declaring stale would handle this.
 - **Permissions changes**: not currently detected. Could be a periodic check or caught at save time.

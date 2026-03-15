@@ -88,6 +88,7 @@ set(FERNANDA_HEADERS
 
     src/services/AbstractService.h
     src/services/FileService.h
+    src/services/ReloadPrompt.h
     src/services/SettingsService.h
     src/services/TieredSettings.h
     src/services/TreeViewService.h
@@ -134,7 +135,6 @@ set(FERNANDA_HEADERS
     src/workspaces/Notebook.h
     src/workspaces/Notepad.h
     src/workspaces/NotepadFileSystemModel.h
-    src/workspaces/ReloadPrompt.h
     src/workspaces/SaveFailMessageBox.h
     src/workspaces/SavePrompt.h
     src/workspaces/TrashPrompt.h

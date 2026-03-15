@@ -33,6 +33,7 @@
 #include "models/PdfFileModel.h"
 #include "models/TextFileModel.h"
 #include "services/AbstractService.h"
+#include "services/ReloadPrompt.h"
 #include "settings/Ini.h"
 #include "ui/PlainTextEdit.h"
 #include "ui/TabWidget.h"
@@ -997,16 +998,47 @@ private slots:
     {
         if (!fileModel) return;
 
+        auto meta = fileModel->meta();
+        if (!meta) return;
+
+        // Set alerts on all tabs for this model, and find a window to parent
+        // the prompt
+        Window* prompt_parent = nullptr;
         auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
+
         for (auto& window : windows) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
 
-            // TODO: Iteration helper
+            for (auto i = 0; i < tab_widget->count(); ++i) {
+                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                if (view && view->model() == fileModel) {
+                    tab_widget->setTabAlert(Tr::fileModifiedExternally(), i);
+                    if (!prompt_parent) prompt_parent = window;
+                }
+            }
+        }
+
+        if (!prompt_parent) return;
+
+        auto display_name =
+            meta->isOnDisk() ? meta->path().toQString() : meta->title();
+
+        if (ReloadPrompt::exec(display_name, prompt_parent)) {
+            emit bus->fileModelReloadRequested(fileModel);
+        } else {
+            fileModel->setModified(true);
+        }
+
+        // Clear alerts regardless of choice (user has acknowledged)
+        for (auto& window : windows) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
             for (auto i = 0; i < tab_widget->count(); ++i) {
                 auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                 if (view && view->model() == fileModel)
-                    tab_widget->setTabAlert(Tr::fileModifiedExternally(), i);
+                    tab_widget->clearTabAlert(i);
             }
         }
     }
