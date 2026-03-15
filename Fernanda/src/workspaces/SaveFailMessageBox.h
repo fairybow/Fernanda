@@ -15,6 +15,8 @@
 #include <QStringList>
 #include <QWidget>
 
+#include <Coco/Path.h>
+
 #include "core/Tr.h"
 
 // TODO: Display error(s) from FileService/Io
@@ -35,17 +37,17 @@ namespace Internal {
 
 } // namespace Internal
 
-inline void exec(const QString& displayPath, QWidget* parent = nullptr)
+inline void exec(const Coco::Path& displayPath, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(displayPath));
+    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(displayPath.prettyQString()));
 
     // TODO: Move to open/show
     box.exec();
 }
 
-inline void exec(const QStringList& displayPaths, QWidget* parent = nullptr)
+inline void exec(const Coco::PathList& displayPaths, QWidget* parent = nullptr)
 {
     if (displayPaths.isEmpty()) return;
 
@@ -59,7 +61,7 @@ inline void exec(const QStringList& displayPaths, QWidget* parent = nullptr)
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
     auto bullet = QStringLiteral("\n\u2022 ");
-    auto list = bullet + displayPaths.join(bullet);
+    auto list = bullet + Coco::toPrettyQStringList(displayPaths).join(bullet);
     box.setText(Tr::nxSaveFailBoxMultiBodyFormat().arg(list));
 
     // TODO: Move to open/show

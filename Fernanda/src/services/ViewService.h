@@ -1022,10 +1022,11 @@ private slots:
 
         if (!prompt_parent) return;
 
-        auto display_name =
-            meta->isOnDisk() ? meta->path().toQString() : meta->title();
+        auto display_path = meta->isOnDisk()
+                                ? meta->path()
+                                : meta->title() + meta->preferredExt();
 
-        if (ReloadPrompt::exec(display_name, prompt_parent)) {
+        if (ReloadPrompt::exec(display_path, prompt_parent)) {
             emit bus->fileModelReloadRequested(fileModel);
         } else {
             fileModel->setModified(true);

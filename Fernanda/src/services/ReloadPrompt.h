@@ -15,6 +15,7 @@
 #include <QWidget>
 
 #include <Coco/Bool.h>
+#include <Coco/Path.h>
 
 #include "core/Tr.h"
 
@@ -25,19 +26,15 @@ namespace Fernanda::ReloadPrompt {
 
 COCO_BOOL(Reload);
 
-/// 1. the 3 prompts take paths/path lists
-/// 2. the call sites reworked - just give paths or composite, prospective paths if off disk
-/// 3. call sites in Notepad, ViewService, and Notebook (just the FNX there)
-/// 4. format for display in the prompts/dialogs
-
-inline Reload exec(const QString& displayPath, QWidget* parent = nullptr)
+inline Reload exec(const Coco::Path& displayPath, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     box.setWindowModality(Qt::WindowModal);
     box.setMinimumSize(400, 200);
     box.setTextInteractionFlags(Qt::NoTextInteraction);
 
-    box.setText(Tr::nxReloadPromptBodyFormat().arg(displayPath));
+    box.setText(
+        Tr::nxReloadPromptBodyFormat().arg(displayPath.prettyQString()));
 
     // QMessageBox should handle platform-specific button ordering automatically
     auto reload =

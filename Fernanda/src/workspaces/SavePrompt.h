@@ -23,6 +23,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <Coco/Path.h>
+
 #include "core/Tr.h"
 
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
@@ -66,13 +68,13 @@ namespace Internal {
 
 } // namespace Internal
 
-inline Choice exec(const QString& displayPath, QWidget* parent = nullptr)
+inline Choice exec(const Coco::Path& displayPath, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
     box.setTextInteractionFlags(Qt::NoTextInteraction);
 
-    box.setText(Tr::nxSavePromptBodyFormat().arg(displayPath));
+    box.setText(Tr::nxSavePromptBodyFormat().arg(displayPath.prettyQString()));
 
     // QMessageBox should handle platform-specific button ordering automatically
     auto save = box.addButton(Tr::save(), QMessageBox::AcceptRole);
@@ -92,7 +94,7 @@ inline Choice exec(const QString& displayPath, QWidget* parent = nullptr)
 }
 
 inline MultiSaveResult
-exec(const QStringList& displayPaths, QWidget* parent = nullptr)
+exec(const Coco::PathList& displayPaths, QWidget* parent = nullptr)
 {
     if (displayPaths.isEmpty()) return { Cancel, {} };
 
@@ -122,8 +124,8 @@ exec(const QStringList& displayPaths, QWidget* parent = nullptr)
     scroll_layout->setSpacing(0);
 
     QList<QCheckBox*> checkboxes{};
-    for (const auto& file_name : displayPaths) {
-        auto checkbox = new QCheckBox(file_name, scroll_widget);
+    for (const auto& display_path : Coco::toPrettyQStringList(displayPaths)) {
+        auto checkbox = new QCheckBox(display_path, scroll_widget);
         checkbox->setChecked(true);
         scroll_layout->addWidget(checkbox);
         checkboxes << checkbox;
