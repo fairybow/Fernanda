@@ -35,31 +35,31 @@ namespace Internal {
 
 } // namespace Internal
 
-inline void exec(const QString& fileDisplayName, QWidget* parent = nullptr)
+inline void exec(const QString& displayPath, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(fileDisplayName));
+    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(displayPath));
 
     // TODO: Move to open/show
     box.exec();
 }
 
-inline void exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
+inline void exec(const QStringList& displayPaths, QWidget* parent = nullptr)
 {
-    if (fileDisplayNames.isEmpty()) return;
+    if (displayPaths.isEmpty()) return;
 
     // Delegate to single-file prompt
-    if (fileDisplayNames.size() == 1) {
+    if (displayPaths.size() == 1) {
         // TODO: Move to open/show
-        exec(fileDisplayNames.first(), parent);
+        exec(displayPaths.first(), parent);
         return;
     }
 
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
     auto bullet = QStringLiteral("\n\u2022 ");
-    auto list = bullet + fileDisplayNames.join(bullet);
+    auto list = bullet + displayPaths.join(bullet);
     box.setText(Tr::nxSaveFailBoxMultiBodyFormat().arg(list));
 
     // TODO: Move to open/show

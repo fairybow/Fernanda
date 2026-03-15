@@ -66,13 +66,13 @@ namespace Internal {
 
 } // namespace Internal
 
-inline Choice exec(const QString& fileDisplayName, QWidget* parent = nullptr)
+inline Choice exec(const QString& displayPath, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
     box.setTextInteractionFlags(Qt::NoTextInteraction);
 
-    box.setText(Tr::nxSavePromptBodyFormat().arg(fileDisplayName));
+    box.setText(Tr::nxSavePromptBodyFormat().arg(displayPath));
 
     // QMessageBox should handle platform-specific button ordering automatically
     auto save = box.addButton(Tr::save(), QMessageBox::AcceptRole);
@@ -92,13 +92,13 @@ inline Choice exec(const QString& fileDisplayName, QWidget* parent = nullptr)
 }
 
 inline MultiSaveResult
-exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
+exec(const QStringList& displayPaths, QWidget* parent = nullptr)
 {
-    if (fileDisplayNames.isEmpty()) return { Cancel, {} };
+    if (displayPaths.isEmpty()) return { Cancel, {} };
 
     // Delegate to single-file prompt
-    if (fileDisplayNames.size() == 1) {
-        auto choice = exec(fileDisplayNames.first(), parent);
+    if (displayPaths.size() == 1) {
+        auto choice = exec(displayPaths.first(), parent);
         return { choice, (choice == Save) ? QList<int>{ 0 } : QList<int>{} };
     }
 
@@ -111,7 +111,7 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     auto message_label = new QLabel(&dialog);
     message_label->setTextInteractionFlags(Qt::NoTextInteraction);
     message_label->setText(
-        Tr::nxSavePromptMultiBodyFormat().arg(fileDisplayNames.size()));
+        Tr::nxSavePromptMultiBodyFormat().arg(displayPaths.size()));
     message_label->setWordWrap(true);
     main_layout->addWidget(message_label);
 
@@ -122,7 +122,7 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     scroll_layout->setSpacing(0);
 
     QList<QCheckBox*> checkboxes{};
-    for (const auto& file_name : fileDisplayNames) {
+    for (const auto& file_name : displayPaths) {
         auto checkbox = new QCheckBox(file_name, scroll_widget);
         checkbox->setChecked(true);
         scroll_layout->addWidget(checkbox);
