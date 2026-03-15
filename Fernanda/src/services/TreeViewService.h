@@ -40,7 +40,8 @@ namespace Fernanda {
 // with the dock, instead of the TreeView directly, ensure it says so on the
 // tin.
 // TODO: Potentially rename to TreeViewDock or make a composite widget here? We
-// need clarity around these two components.
+// need clarity around these two components
+// TODO: Second-level indent is way too deep
 class TreeViewService : public AbstractService
 {
     Q_OBJECT
@@ -248,7 +249,7 @@ private:
         });
 
         tree_view->setHeaderHidden(headersHidden_);
-        tree_view->setIndentation(15);
+        tree_view->setIndentation(20);
 
         if (modelHook_ && rootIndexHook_) {
             if (auto model = modelHook_()) {

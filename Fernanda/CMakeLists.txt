@@ -88,6 +88,7 @@ set(FERNANDA_HEADERS
 
     src/services/AbstractService.h
     src/services/FileService.h
+    src/services/ReloadPrompt.h
     src/services/SettingsService.h
     src/services/TieredSettings.h
     src/services/TreeViewService.h
