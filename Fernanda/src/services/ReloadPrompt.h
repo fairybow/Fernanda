@@ -25,6 +25,11 @@ namespace Fernanda::ReloadPrompt {
 
 COCO_BOOL(Reload);
 
+/// 1. the 3 prompts take paths/path lists
+/// 2. the call sites reworked - just give paths or composite, prospective paths if off disk
+/// 3. call sites in Notepad, ViewService, and Notebook (just the FNX there)
+/// 4. format for display in the prompts/dialogs
+
 inline Reload exec(const QString& displayPath, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
