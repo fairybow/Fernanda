@@ -129,6 +129,8 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
         checkboxes << checkbox;
     }
 
+    scroll_layout->addStretch();
+
     scroll_area->setWidget(scroll_widget);
     scroll_area->setWidgetResizable(true);
     scroll_area->setMaximumHeight(300);
