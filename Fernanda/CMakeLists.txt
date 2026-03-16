@@ -163,18 +163,27 @@ set(COCO_HEADERS
 # --- Resources ---
 
 set(FERNANDA_RESOURCES
-    resources/Fernanda.rc
     external/External.qrc
     resources/Icons.qrc
     resources/Themes.qrc
     resources/Ui.qrc
 )
 
+if(WIN32)
+    list(APPEND FERNANDA_RESOURCES resources/Fernanda.rc)
+endif()
+
 # =============================================================================
 # Target
 # =============================================================================
 
-qt_add_executable(Fernanda WIN32
+if(WIN32)
+    set(PLATFORM_EXE_FLAGS WIN32)
+elseif(APPLE)
+    set(PLATFORM_EXE_FLAGS MACOSX_BUNDLE)
+endif()
+
+qt_add_executable(Fernanda ${PLATFORM_EXE_FLAGS}
     ${FERNANDA_SOURCES}
     ${FERNANDA_HEADERS}
     ${COCO_SOURCES}
@@ -204,11 +213,9 @@ set(BIT7Z_AUTO_FORMAT ON CACHE BOOL "Enable auto format detection")
 # Add any other bit7z options you need here, e.g.:
 # set(BIT7Z_USE_NATIVE_STRING ON CACHE BOOL "")
 
-# --- bit7z (built from source via submodule) ---
 # bit7z compiles 7-Zip source into its static library at build time. This should
 # match the version of the runtime DLL/SO files bundled in Fernanda's resources.
 # Our fork (Fernanda-bit7z) is pointed to 82f3593 (v4.0.11 release commit).
-
 set(BIT7Z_7ZIP_VERSION "25.01" CACHE STRING "7-Zip version to build against")
 add_subdirectory(submodules/bit7z)
 
@@ -237,9 +244,7 @@ elseif(APPLE)
     )
 endif()
 
-# --- Compiler options (MSVC) ---
-
-# TODO: Other compilers!
+# --- Compiler options ---
 
 if(MSVC)
     target_compile_options(Fernanda PRIVATE
@@ -250,6 +255,16 @@ if(MSVC)
     )
     target_link_options(Fernanda PRIVATE
         $<$<CONFIG:Release>:/OPT:REF /OPT:ICF /LTCG>
+    )
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(Fernanda PRIVATE
+        -Wall -Wextra -Wpedantic -fexceptions
+    )
+    target_compile_options(Fernanda PRIVATE
+        $<$<CONFIG:Release>:-O2>
+    )
+    target_compile_options(Fernanda PRIVATE
+        $<$<CONFIG:Debug>:-g>
     )
 endif()
 
