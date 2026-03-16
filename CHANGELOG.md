@@ -83,7 +83,7 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 ## What's New?
 
-**Notebook trash widget fix.** New `DrawerWidget` for a simpler, splitter-aware collapsible panel.
+**Notebook trash widget fix.** New `DrawerWidget` for a simple, splitter-aware collapsible panel.
 
 **Cross-platform groundwork.** Added cross-platform `Workspace` window-raising code (`XPlatform::stackUnder`), plus other cross-platform code changes.
 
