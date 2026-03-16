@@ -23,9 +23,13 @@
 // Cross-platform functions
 namespace Fernanda::XPlatform {
 
+namespace Internal {
+
 #if defined(Q_OS_MACOS)
-void stackUnder_macOS(const QList<Window*>& windows, Window* top);
+    void stackUnder_macOS_(const QList<Window*>& windows, Window* top);
 #endif
+
+} // namespace Internal
 
 // Lifts Windows to just below the top Window (like QWidget::stackUnder, which
 // only works with sibling widgets)
@@ -96,7 +100,7 @@ inline void stackUnder(const QList<Window*>& windows, Window* top)
 #elif defined(Q_OS_MACOS)
 
     /// TODO XP: Untested!
-    stackUnder_macOS(windows, top);
+    Internal::stackUnder_macOS_(windows, top);
 
 #endif
 }

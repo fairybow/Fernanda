@@ -11,10 +11,10 @@
 
 #import <AppKit/AppKit.h>
 
-namespace Fernanda::XPlatform {
+namespace Fernanda::XPlatform::Internal {
 
 /// TODO XP: Untested!
-void stackUnder_macOS(const QList<Window*>& windows, Window* top)
+void stackUnder_macOS_(const QList<Window*>& windows, Window* top)
 {
     auto get_ns_window = [](const Window* window) -> NSWindow* {
         auto ns_view = reinterpret_cast<NSView*>(window->winId());
@@ -32,4 +32,4 @@ void stackUnder_macOS(const QList<Window*>& windows, Window* top)
     }
 }
 
-} // namespace Fernanda::XPlatform
+} // namespace Fernanda::XPlatform::Internal
