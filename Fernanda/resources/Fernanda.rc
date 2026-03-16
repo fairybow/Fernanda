@@ -41,7 +41,7 @@ BEGIN
 /*        */VALUE   "FileVersion",      VERSION_FULL_STRING
 /*        */VALUE   "InternalName",     VERSION_RELEASE_NAME_STRING
 /*        */VALUE   "LegalCopyright",   VERSION_COPYRIGHT_STRING
-/*        */VALUE   "OriginalFilename", VERSION_WINDOWS_FILE_STRING
+/*        */VALUE   "OriginalFilename", VERSION_FILE_STRING
 /*        */VALUE   "ProductName",      VERSION_APP_NAME_STRING
 /*        */VALUE   "ProductVersion",   VERSION_2_STRING
 /*    */END
