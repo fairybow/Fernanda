@@ -23,7 +23,7 @@
 - [x] Transition to CMake
 - [ ] Ini key to defaults map
 - [ ] Tab context menu (would have duplicate, save, save as, etc)
-- [ ] Uniform path display in save and reload prompts
+- [x] Uniform path display in save and reload prompts
 
 ## File Types (Remaining)
 
