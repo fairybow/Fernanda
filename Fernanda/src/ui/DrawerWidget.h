@@ -20,6 +20,7 @@
 
 namespace Fernanda {
 
+// TODO: Right-click to reset size
 class DrawerWidget : public QWidget
 {
     Q_OBJECT

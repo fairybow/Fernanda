@@ -47,6 +47,7 @@ namespace Fernanda {
 // a little
 // TODO: Views also need to implement ability to pan
 // TODO: Corners look too sharp
+// TODO: Double click to change mode
 class ZoomControl : public QWidget
 {
     Q_OBJECT
