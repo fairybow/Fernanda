@@ -68,8 +68,9 @@ public:
         auto width = iconSize_.width() + spacing_ + text_width;
         auto height = qMax(iconSize_.height(), text_height);
 
-        // Add some padding
-        return QSize(width + 8, height + 8);
+        return QSize(
+            width + WIDTH_PADDING_,
+            height + HEIGHT_PADDING_ + EXTRA_BOTTOM_PADDING_);
     }
 
     virtual QSize minimumSizeHint() const override { return sizeHint(); }
@@ -93,7 +94,8 @@ protected:
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
-        auto widget_rect = contentsRect();
+        auto widget_rect =
+            contentsRect().adjusted(0, 0, 0, -EXTRA_BOTTOM_PADDING_);
         auto x = widget_rect.x();
         auto center_y = widget_rect.center().y();
 
@@ -124,6 +126,9 @@ protected:
 private:
     static constexpr auto HIGHLIGHT_CORNER_RADIUS_ = 4;
     static constexpr auto HIGHLIGHT_INSET_ = 2;
+    static constexpr auto WIDTH_PADDING_ = 8;
+    static constexpr auto HEIGHT_PADDING_ = 6;
+    static constexpr auto EXTRA_BOTTOM_PADDING_ = 4;
 
     QSize iconSize_{ 16, 16 };
     int spacing_ = 5;
