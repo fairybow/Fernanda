@@ -14,7 +14,7 @@
 namespace Fernanda::XPlatform {
 
 /// TODO XP: Untested!
-void stackUnder_MacOS(const QList<Window*>& windows, Window* top)
+void stackUnder_macOS(const QList<Window*>& windows, Window* top)
 {
     auto get_ns_window = [](const Window* window) -> NSWindow* {
         auto ns_view = reinterpret_cast<NSView*>(window->winId());

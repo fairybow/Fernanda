@@ -49,18 +49,29 @@ namespace Internal {
     constexpr auto IO_MANIFEST_FILE_NAME_ = "Manifest.xml";
     constexpr auto IO_CONTENT_DIR_NAME_ = "content";
 
-    inline const Coco::Path& dll_()
+    inline const Coco::Path& lib7z_()
     {
-        // 7za.dll is lighter than 7z.dll (a = "alone"); Unix uses full 7z.so
+        // 7za.dll is lighter than 7z.dll (a = "alone"); Unix uses full 7z.so.
+        //
+        // TODO: Verify this:
+        // macOS note: 7-Zip's Unix makefiles produce a .so file on macOS (not
+        // .dylib), but it is a Mach-O shared library internally. bit7z loads it
+        // the same way. The Linux and macOS .so files are different binaries
+        // (ELF vs Mach-O) despite sharing the same extension, so they need to
+        // be built and bundled separately per platform
+
+        Coco::Path qrc_path{};
+
 #if defined(Q_OS_WIN)
-        auto file_name = "7za.dll";
-        auto qrc_path = ":/7-zip/7za.dll";
+        qrc_path = ":/7-zip/7za.dll";
+#elif defined(Q_OS_MACOS)
+        /// TODO XP: Build 7z.so (as 7z_macOS.so) on macOS
+        qrc_path = ":/7-zip/7z_macOS.so";
 #else
-        auto file_name = "7z.so";
-        auto qrc_path = ":/7-zip/7z.so";
+        qrc_path = ":/7-zip/7z.so";
 #endif
 
-        static auto file = AppDirs::userData() / file_name;
+        static auto file = AppDirs::userData() / qrc_path.name();
         if (!file.exists()) Coco::copy(qrc_path, file);
         return file;
     }
@@ -392,7 +403,7 @@ namespace Io {
         }
 
         try {
-            Bit7zLibrary lib{ Internal::dll_().toString() };
+            Bit7zLibrary lib{ Internal::lib7z_().toString() };
             BitArchiveReader archive{ lib,
                                       archivePath.toString(),
                                       BitFormat::SevenZip };
@@ -417,7 +428,7 @@ namespace Io {
         }
 
         try {
-            Bit7zLibrary lib{ Internal::dll_().toString() };
+            Bit7zLibrary lib{ Internal::lib7z_().toString() };
             BitArchiveWriter archive{ lib, BitFormat::SevenZip };
             archive.setOverwriteMode(OverwriteMode::Overwrite);
 

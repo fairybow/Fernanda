@@ -76,7 +76,7 @@ set(FERNANDA_SOURCES
 )
 
 if(APPLE)
-    list(APPEND FERNANDA_SOURCES src/core/XPlatform_MacOS.mm)
+    list(APPEND FERNANDA_SOURCES src/core/XPlatform_macOS1.mm)
 endif()
 
 # --- Fernanda headers ---

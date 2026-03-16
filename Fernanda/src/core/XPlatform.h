@@ -24,7 +24,7 @@
 namespace Fernanda::XPlatform {
 
 #if defined(Q_OS_MACOS)
-void stackUnder_MacOS(const QList<Window*>& windows, Window* top);
+void stackUnder_macOS(const QList<Window*>& windows, Window* top);
 #endif
 
 // Lifts Windows to just below the top Window (like QWidget::stackUnder, which
@@ -96,7 +96,7 @@ inline void stackUnder(const QList<Window*>& windows, Window* top)
 #elif defined(Q_OS_MACOS)
 
     /// TODO XP: Untested!
-    stackUnder_MacOS(windows, top);
+    stackUnder_macOS(windows, top);
 
 #endif
 }
