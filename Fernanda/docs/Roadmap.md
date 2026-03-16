@@ -52,6 +52,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] Autosave
 - [ ] Spellcheck
 - [ ] Find and replace
+- [ ] Save backups
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Pinned tabs (will utilize sessions)
 - [ ] Tab groups (will utilize sessions, and maybe a better tab bar)
@@ -78,7 +79,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] Renaming an open Notebook file in Notepad's TreeView: the Notebook works from its temp directory, so it is not broken immediately. The next save creates a file at the old path. No data loss, just a confusing orphaned file. Fix later.
 - [x] Add note to AbstractFileView explaining why it needs two-step initialization (or remove it if unnecessary)
 - [ ] Prevent clicking out of PTE context menu from affecting cursor on that first click
-- [ ] Custom context menu for AbstractFileView, implement for editors (replacing Qt editor context menu)
+- [x] Custom context menu for AbstractFileView, implement for editors (replacing Qt editor context menu)
 - [ ] Dual column layouts for some settings panels (instead of vertical stacks of checkboxes)
 - [ ] Add defaults button to settings (should probably not write the defaults, since cascading should work for Notebook inheriting Notepad values)
 - [ ] Multi-file save prompt file name clicks raising relevant window/file view
@@ -89,11 +90,10 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] TreeView (NB): items should expand when items are dragged into them
 - [ ] TreeView (NB): expanded/collapsed states (probably a session thing)
 - [ ] Trigger rename for new folders/files, but not import (maybe)
-- [ ] Trash count (maybe, maybe not; if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
+- [ ] Trash count
 - [ ] MAYBE: Ensure "modules" are reactionary (ColorBars should probably stay a module, but right now it is called directly by Workspace)
 - [ ] Remove tab size constraints in favor of QSS
 - [ ] For tab drags, tab bar doesn't extend past the add tab button, so dropping there opens in a new window. May or may not be desirable.
-- [ ] Potentially remove commands/signals from Workspaces to MenuModules and leave to cross-Service concerns. Integrate menus into Notepad/Notebook directly using declarative MenuBuilder (pass togglers as optional parameter for an action).
 - [ ] Ensure menu toggles update appropriately when tab dragging is implemented
 - [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc).
 - [ ] Refactor common Notebook/Notepad opening code in Application
@@ -124,9 +124,6 @@ void changeEvent(QEvent* event) override
 
 Might be simple but tedious. Later.
 
-- [ ] New TR bat to update all (can isolate only EN and use pluralonly arg), replacing current one
-- [ ] New additional TR bat to release all and move them to the qm folder
-
 ## Polish
 
 - [ ] Shorter size abbreviations in Notepad TreeViews
@@ -136,8 +133,6 @@ Might be simple but tedious. Later.
 - [ ] Maybe stuff some of the closures in sub menus
 - [ ] MenuBar highlight on hover, modeled after TabWidgetButton highlight (radius, color, etc.)
 - [ ] Dock widget button/header styling
-- [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
-- [ ] QML for tab bar (and possibly other components, for better/easier UI)?
 
 ## Documentation
 
@@ -145,7 +140,7 @@ Might be simple but tedious. Later.
 - [ ] Core docs should explain the program from start to finish (i.e., Openings.md, Modifications.md, Saves.md, Closures.md, etc.)
 - [ ] Save prompts doc (preferred extension, how start paths are chosen/created)
 - [ ] Saves of all types. Outline first everything that needs to be covered
-- [ ] How files get titles doc?
+- [x] How files get titles doc?
 - [x] AbstractFileModel and View usage and purpose
 - [ ] Explain debug and macros
 
@@ -153,7 +148,6 @@ Might be simple but tedious. Later.
 
 - [ ] Path dir iterator
 - [ ] Path separator normalization: since this could be something maybe not always wanted, it could be set by a static "global" setter (like `Path::normalize(Posix)` in main) and relevant Path ops check against a static bool in source (or atomic)
-- [ ] For cross platform bit7z, look into vcpkg build, saving the .lib, .a, etc.
 
 ## Logging and Debug
 
