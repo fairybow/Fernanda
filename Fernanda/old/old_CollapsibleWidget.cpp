@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#include "ui/CollapsibleWidget.h"
+/*#include "ui/CollapsibleWidget.h"
 
 #include <QEvent>
 #include <QWidget>
@@ -38,3 +38,4 @@ void CollapsibleWidget::setContentExpanded_(bool expanded)
 }
 
 } // namespace Fernanda
+*/

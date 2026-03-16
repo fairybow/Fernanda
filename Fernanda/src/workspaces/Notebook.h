@@ -48,8 +48,7 @@
 #include "services/TreeViewService.h"
 #include "services/ViewService.h"
 #include "services/WindowService.h"
-#include "ui/AccordionWidget.h"
-#include "ui/CollapsibleWidget.h"
+#include "ui/DrawerWidget.h"
 #include "ui/TreeView.h"
 #include "ui/Window.h"
 #include "workspaces/Bus.h"
@@ -568,21 +567,17 @@ private:
 
     QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
     {
-        // TODO: Collapse if dragging downward and the widget can't shrink any
-        // more?
-
         auto splitter = new QSplitter(Qt::Vertical, window);
         splitter->addWidget(treeView);
-
-        auto accordion = new AccordionWidget(window);
-        splitter->addWidget(accordion);
 
         // Trash view
         auto trash_view = new TreeView(window);
         trash_view->setHeaderHidden(true);
         trash_view->setModel(fnxModel_);
         trash_view->setRootIndex(fnxModel_->trashIndex());
-        accordion->addWidget(Tr::nbTrash(), trash_view);
+
+        auto drawer = new DrawerWidget(Tr::nbTrash(), trash_view, splitter);
+        splitter->addWidget(drawer);
 
         connect(
             trash_view,
@@ -604,12 +599,6 @@ private:
                     trash_view->mapToGlobal(pos),
                     trash_view->indexAt(pos));
             });
-
-        // Test (seems like it works well!)
-        // auto test_view = new TreeView(window);
-        // test_view->setModel(fnxModel_);
-        // test_view->setRootIndex(fnxModel_->trashIndex());
-        // accordion->addWidget("Test", test_view);
 
         // Splitter setup
         splitter->setStretchFactor(0, 1);

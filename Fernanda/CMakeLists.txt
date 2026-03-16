@@ -33,7 +33,6 @@ set(FERNANDA_SOURCES
     src/dialogs/AboutDialog.cpp
     src/fnx/FnxModel.cpp
     src/services/WindowService.cpp
-    src/ui/CollapsibleWidget.cpp
     src/ui/PlainTextEdit.cpp
     src/ui/TabWidget.cpp
     src/ui/Window.cpp
@@ -105,11 +104,10 @@ set(FERNANDA_HEADERS
     src/settings/ThemesPanel.h
     src/settings/WordCounterPanel.h
 
-    src/ui/AccordionWidget.h
-    src/ui/CollapsibleWidget.h
-    src/ui/CollapsibleWidgetHeader.h
     src/ui/ControlField.h
     src/ui/DisplaySlider.h
+    src/ui/DrawerWidget.h
+    src/ui/DrawerWidgetHeader.h
     src/ui/Painting.h
     src/ui/PlainTextEdit.h
     src/ui/SelectionHandleOverlay.h
