@@ -27,23 +27,20 @@
 #include "core/Debug.h"
 #include "modules/StyleContext.h"
 
-// TODO: Verify this
 namespace Fernanda {
 
-// Header button for CollapsibleWidget with SVG icon support and text display.
-// Shows different icons for expanded/collapsed states.
-class CollapsibleWidgetHeader : public QAbstractButton
+class DrawerWidgetHeader : public QAbstractButton
 {
     Q_OBJECT
 
 public:
-    explicit CollapsibleWidgetHeader(QWidget* parent = nullptr)
+    explicit DrawerWidgetHeader(QWidget* parent = nullptr)
         : QAbstractButton(parent)
     {
         setup_();
     }
 
-    virtual ~CollapsibleWidgetHeader() override { TRACER; }
+    virtual ~DrawerWidgetHeader() override { TRACER; }
 
     QSize iconSize() const noexcept { return iconSize_; }
     int spacing() const noexcept { return spacing_; }
@@ -146,16 +143,16 @@ private:
         // auto bg = Ui::resolveButtonColor(buttonColors_, isDown(),
         // underMouse()); if (!bg.isValid() || bg.alpha() <= 0) return;
 
-        /*QPainterPath path{};
-        auto highlight_rect = rect.adjusted(
-            HIGHLIGHT_INSET_,
-            HIGHLIGHT_INSET_,
-            -HIGHLIGHT_INSET_,
-            -HIGHLIGHT_INSET_);
-        path.addRoundedRect(
-            highlight_rect,
-            HIGHLIGHT_CORNER_RADIUS_,
-            HIGHLIGHT_CORNER_RADIUS_);*/
+        // QPainterPath path{};
+        // auto highlight_rect = rect.adjusted(
+        // HIGHLIGHT_INSET_,
+        // HIGHLIGHT_INSET_,
+        // -HIGHLIGHT_INSET_,
+        // -HIGHLIGHT_INSET_);
+        // path.addRoundedRect(
+        // highlight_rect,
+        // HIGHLIGHT_CORNER_RADIUS_,
+        // HIGHLIGHT_CORNER_RADIUS_);
 
         // painter.fillPath(path, bg);
     }

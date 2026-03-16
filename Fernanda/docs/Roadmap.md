@@ -67,7 +67,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 ## Refinement
 
 - [ ] Window Themes (theming infrastructure is in place, but window theming proving difficult (especially with tab bar, buttons, and collapsible widget header (see: window QSS template)))
-- [ ] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
+- [x] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
 - [ ] Save backups (with auto-cleaning) and backup folder
 - [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [ ] Ensure we are using terms around checkable items correctly in code (the term "toggle" is being used in a few different ways; checkable actions should be called checkables or similar)

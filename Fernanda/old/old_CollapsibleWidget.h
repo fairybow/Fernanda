@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QObject>
 #include <QSizePolicy>
@@ -104,3 +104,4 @@ private slots:
 };
 
 } // namespace Fernanda
+*/

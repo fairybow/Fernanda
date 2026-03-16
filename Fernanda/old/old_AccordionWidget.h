@@ -7,7 +7,7 @@
  * Uses Qt 6 - <https://www.qt.io/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <ranges>
 
@@ -101,3 +101,4 @@ private:
 };
 
 } // namespace Fernanda
+*/
