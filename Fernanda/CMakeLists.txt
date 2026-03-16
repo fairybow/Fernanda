@@ -40,6 +40,10 @@ set(FERNANDA_SOURCES
     src/workspaces/Workspace.cpp
 )
 
+if(APPLE)
+    list(APPEND FERNANDA_SOURCES src/core/XPlatform_MacOS.mm)
+endif()
+
 # --- Fernanda headers ---
 
 set(FERNANDA_HEADERS
@@ -187,10 +191,12 @@ target_include_directories(Fernanda PRIVATE
     submodules/Coco/Coco/include
 )
 
-target_compile_definitions(Fernanda PRIVATE
-    NOMINMAX
-    WIN32_LEAN_AND_MEAN
-)
+if(WIN32)
+    target_compile_definitions(Fernanda PRIVATE
+        NOMINMAX
+        WIN32_LEAN_AND_MEAN
+    )
+endif()
 
 # --- bit7z (built from source via submodule) ---
 
@@ -219,7 +225,21 @@ target_link_libraries(Fernanda PRIVATE
     Qt6::PdfWidgets
 )
 
+if(UNIX AND NOT APPLE)
+    find_package(X11 COMPONENTS xcb)
+    if(X11_xcb_FOUND)
+        target_link_libraries(Fernanda PRIVATE X11::xcb)
+    endif()
+elseif(APPLE)
+    target_link_libraries(Fernanda PRIVATE
+        "-framework AppKit"
+        objc
+    )
+endif()
+
 # --- Compiler options (MSVC) ---
+
+# TODO: Other compilers!
 
 if(MSVC)
     target_compile_options(Fernanda PRIVATE
