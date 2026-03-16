@@ -102,9 +102,9 @@ protected:
         if (!model->isModified() || views->countFor(model) > 1) return true;
 
         views->raise(window, index);
-        auto name = fileSaveDisplayName_(model);
+        auto display_path = fileSaveDisplayPath_(model);
 
-        switch (SavePrompt::exec(name, window)) {
+        switch (SavePrompt::exec(display_path, window)) {
         default:
         case SavePrompt::Cancel:
             return false;
@@ -119,7 +119,7 @@ protected:
                 return true;
             case FileService::Failure:
                 colorBars->red(window);
-                SaveFailMessageBox::exec(name, window);
+                SaveFailMessageBox::exec(display_path, window);
                 return false;
             }
 
@@ -139,9 +139,9 @@ protected:
 
         // Called via menu (on current window + tab), so no need to raise
 
-        auto name = fileSaveDisplayName_(model);
+        auto display_path = fileSaveDisplayPath_(model);
 
-        switch (SavePrompt::exec(name, window)) {
+        switch (SavePrompt::exec(display_path, window)) {
         default:
         case SavePrompt::Cancel:
             return false;
@@ -158,7 +158,7 @@ protected:
             case FileService::Failure:
                 colorBars->red(window); // TODO: Could do all windows (close
                                         // everywhere, after all)?
-                SaveFailMessageBox::exec(name, window);
+                SaveFailMessageBox::exec(display_path, window);
                 return false;
             }
         }
@@ -176,8 +176,8 @@ protected:
             ViewService::ExcludeMultiWindow::Yes);
         if (modified_models.isEmpty()) return true;
 
-        auto display_names = fileSaveDisplayNames_(modified_models);
-        auto prompt_result = SavePrompt::exec(display_names, window);
+        auto display_paths = fileSaveDisplayPaths_(modified_models);
+        auto prompt_result = SavePrompt::exec(display_paths, window);
 
         switch (prompt_result.choice) {
 
@@ -198,8 +198,8 @@ protected:
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red(window);
-                auto fail_display_names = fileSaveDisplayNames_(result.failed);
-                SaveFailMessageBox::exec(fail_display_names, window);
+                auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
+                SaveFailMessageBox::exec(fail_display_paths, window);
 
                 return false;
             }
@@ -226,9 +226,9 @@ protected:
         auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return true;
 
-        auto display_names = fileSaveDisplayNames_(modified_models);
+        auto display_paths = fileSaveDisplayPaths_(modified_models);
         auto prompt_result = SavePrompt::exec(
-            display_names,
+            display_paths,
             windows.last()); // Make top window the dialog owner (top window is
                              // last)
 
@@ -251,8 +251,8 @@ protected:
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red();
-                auto fail_display_names = fileSaveDisplayNames_(result.failed);
-                SaveFailMessageBox::exec(fail_display_names, windows.last());
+                auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
+                SaveFailMessageBox::exec(fail_display_paths, windows.last());
 
                 return false;
             }
@@ -281,8 +281,8 @@ protected:
             ViewService::ExcludeMultiWindow::Yes);
         if (modified_models.isEmpty()) return true;
 
-        auto display_names = fileSaveDisplayNames_(modified_models);
-        auto prompt_result = SavePrompt::exec(display_names, window);
+        auto display_paths = fileSaveDisplayPaths_(modified_models);
+        auto prompt_result = SavePrompt::exec(display_paths, window);
 
         switch (prompt_result.choice) {
 
@@ -303,8 +303,8 @@ protected:
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red(window);
-                auto fail_display_names = fileSaveDisplayNames_(result.failed);
-                SaveFailMessageBox::exec(fail_display_names, window);
+                auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
+                SaveFailMessageBox::exec(fail_display_paths, window);
 
                 return false;
             }
@@ -330,9 +330,9 @@ protected:
         auto modified_models = views->modifiedViewModels();
         if (modified_models.isEmpty()) return true;
 
-        auto display_names = fileSaveDisplayNames_(modified_models);
+        auto display_paths = fileSaveDisplayPaths_(modified_models);
         auto prompt_result = SavePrompt::exec(
-            display_names,
+            display_paths,
             windows.last()); // Make top window the dialog owner (top window is
                              // last)
 
@@ -355,10 +355,10 @@ protected:
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red();
-                auto fail_display_names = fileSaveDisplayNames_(result.failed);
+                auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
                 // Use active window, since we may have switched which window is
                 // on top?:
-                SaveFailMessageBox::exec(fail_display_names, windows.last());
+                SaveFailMessageBox::exec(fail_display_paths, windows.last());
 
                 return false;
             }
@@ -516,26 +516,26 @@ private:
         //...
     }
 
-    QString fileSaveDisplayName_(AbstractFileModel* fileModel) const
+    Coco::Path fileSaveDisplayPath_(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return {};
         auto meta = fileModel->meta();
         if (!meta) return {};
 
-        return meta->isOnDisk() ? meta->path().toQString()
+        return meta->isOnDisk() ? meta->path()
                                 : meta->title() + meta->preferredExt();
     }
 
-    QStringList
-    fileSaveDisplayNames_(const QList<AbstractFileModel*>& fileModels) const
+    Coco::PathList
+    fileSaveDisplayPaths_(const QList<AbstractFileModel*>& fileModels) const
     {
         if (fileModels.isEmpty()) return {};
-        QStringList names{};
+        Coco::PathList paths{};
 
         for (auto& model : fileModels)
-            if (model) names << fileSaveDisplayName_(model);
+            if (model) paths << fileSaveDisplayPath_(model);
 
-        return names;
+        return paths;
     }
 
     FileService::SaveResult
@@ -545,7 +545,7 @@ private:
         auto meta = fileModel->meta();
         if (!meta) return FileService::NoOp;
 
-        if (meta->isOnDisk())
+        if (meta->isOnDisk() && !meta->isStale())
             return files->save(fileModel);
         else {
             auto path = promptSaveAs_(window, fileModel);
@@ -705,8 +705,8 @@ private:
             break;
         case FileService::Failure: {
             colorBars->red(window);
-            auto name = fileSaveDisplayName_(model);
-            SaveFailMessageBox::exec(name, window);
+            auto display_path = fileSaveDisplayPath_(model);
+            SaveFailMessageBox::exec(display_path, window);
             break;
         }
         }
@@ -741,8 +741,8 @@ private:
             break;
         case FileService::Failure:
             colorBars->red(window);
-            auto name = fileSaveDisplayName_(model);
-            SaveFailMessageBox::exec(name, window);
+            auto display_path = fileSaveDisplayPath_(model);
+            SaveFailMessageBox::exec(display_path, window);
             break;
         }
     }
@@ -759,8 +759,8 @@ private:
         // Fails take priority
         if (result.anyFails()) {
             colorBars->red(window);
-            auto fail_display_names = fileSaveDisplayNames_(result.failed);
-            SaveFailMessageBox::exec(fail_display_names, window);
+            auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
+            SaveFailMessageBox::exec(fail_display_paths, window);
 
             return;
         }
@@ -781,8 +781,8 @@ private:
         // Fails take priority
         if (result.anyFails()) {
             colorBars->red();
-            auto fail_display_names = fileSaveDisplayNames_(result.failed);
-            SaveFailMessageBox::exec(fail_display_names, window);
+            auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
+            SaveFailMessageBox::exec(fail_display_paths, window);
 
             return;
         }

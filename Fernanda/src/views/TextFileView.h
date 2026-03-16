@@ -63,7 +63,7 @@ public:
 
     // Base methods
 
-    virtual bool supportsEditing() const override
+    virtual bool isUserEditable() const override
     {
         return editor_ && qobject_cast<TextFileModel*>(model());
     }

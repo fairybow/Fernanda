@@ -434,35 +434,35 @@ public:
     void cut(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         if (view->hasSelection()) view->cut();
     }
 
     void copy(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         if (view->hasSelection()) view->copy();
     }
 
     void paste(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         if (view->hasPaste()) view->paste();
     }
 
     void del(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         if (view->hasSelection()) view->deleteSelection();
     }
 
     void selectAll(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         view->selectAll();
     }
 
@@ -1022,10 +1022,11 @@ private slots:
 
         if (!prompt_parent) return;
 
-        auto display_name =
-            meta->isOnDisk() ? meta->path().toQString() : meta->title();
+        auto display_path = meta->isOnDisk()
+                                ? meta->path()
+                                : meta->title() + meta->preferredExt();
 
-        if (ReloadPrompt::exec(display_name, prompt_parent)) {
+        if (ReloadPrompt::exec(display_path, prompt_parent)) {
             emit bus->fileModelReloadRequested(fileModel);
         } else {
             fileModel->setModified(true);

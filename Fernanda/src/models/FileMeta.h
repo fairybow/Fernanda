@@ -89,8 +89,8 @@ public:
 
     QString preferredExt() const
     {
-        return !path_.isEmpty() ? path_.extQString()
-                                : FileTypes::canonicalExt(fileType_);
+        return isOnDisk() ? path_.extQString()
+                          : FileTypes::canonicalExt(fileType_);
     }
 
 signals:

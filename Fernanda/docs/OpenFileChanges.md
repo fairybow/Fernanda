@@ -36,7 +36,7 @@ The detection layer lives in `FileService`, which owns a `QFileSystemWatcher` mo
 When `QFileSystemWatcher::fileChanged` fires for a path, `FileService` checks whether the file still exists:
 
 - **File exists**: content was modified externally (or replaced via atomic write). The path is re-added to the watcher (some platforms drop the watch after a modification event). `FileService` emits `bus->fileModelExternallyModified(model)`.
-- **File gone**: the file was deleted, moved externally, or the volume was unmounted. `FileService` marks the `FileMeta` as stale and emits `bus->fileModelPathInvalidated(model)`.
+- **File gone**: the file was deleted, moved externally, or the volume was unmounted. `FileService` marks the `FileMeta` as stale and modified and emits `bus->fileModelPathInvalidated(model)`.
 
 ### NotepadFileSystemModel
 
@@ -52,7 +52,7 @@ Both signals are connected in `Notepad::setup_()` and call `meta->setPath(newPat
 When a file disappears from disk (detected by the watcher), `FileService` marks its `FileMeta` as stale via `markStale()`. Staleness means:
 
 - The path stored in `FileMeta` no longer points to an existing file
-- `FileService::save()` refuses to write (returns `NoOp`)
+- `FileService::save()` refuses to write (returns `NoOp`) (`Notepad` routes stale file Save to Save As)
 - `FileService::saveAs()` still works (the user picks a new path)
 - The tooltip reflects the stale state
 
@@ -63,7 +63,7 @@ Staleness is cleared automatically by `setPath()` (if a new valid path is assign
 `ViewService` connects to both bus signals and iterates all windows and tabs to find views backed by the affected model:
 
 - `fileModelExternallyModified`: calls `setTabAlert` with a "modified externally" message
-- `fileModelPathInvalidated`: calls `setTabAlert` with a "file no longer exists" message
+- `fileModelPathInvalidated`: calls `setTabAlert` with a "file no longer exists" message and flags the file as modified
 
 This mirrors how `ViewService` already handles `fileModelModificationChanged` (for the tab flag) and `fileModelMetaChanged` (for tab text and tooltip). The pattern is: `FileService` detects, `Bus` carries, `ViewService` displays.
 

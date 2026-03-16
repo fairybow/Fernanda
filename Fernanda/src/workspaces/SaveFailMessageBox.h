@@ -15,6 +15,8 @@
 #include <QStringList>
 #include <QWidget>
 
+#include <Coco/Path.h>
+
 #include "core/Tr.h"
 
 // TODO: Display error(s) from FileService/Io
@@ -35,31 +37,31 @@ namespace Internal {
 
 } // namespace Internal
 
-inline void exec(const QString& fileDisplayName, QWidget* parent = nullptr)
+inline void exec(const Coco::Path& path, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(fileDisplayName));
+    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(path.prettyQString()));
 
     // TODO: Move to open/show
     box.exec();
 }
 
-inline void exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
+inline void exec(const Coco::PathList& paths, QWidget* parent = nullptr)
 {
-    if (fileDisplayNames.isEmpty()) return;
+    if (paths.isEmpty()) return;
 
     // Delegate to single-file prompt
-    if (fileDisplayNames.size() == 1) {
+    if (paths.size() == 1) {
         // TODO: Move to open/show
-        exec(fileDisplayNames.first(), parent);
+        exec(paths.first(), parent);
         return;
     }
 
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
     auto bullet = QStringLiteral("\n\u2022 ");
-    auto list = bullet + fileDisplayNames.join(bullet);
+    auto list = bullet + Coco::toPrettyQStringList(paths).join(bullet);
     box.setText(Tr::nxSaveFailBoxMultiBodyFormat().arg(list));
 
     // TODO: Move to open/show

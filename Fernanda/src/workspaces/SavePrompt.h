@@ -23,6 +23,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <Coco/Path.h>
+
 #include "core/Tr.h"
 
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
@@ -66,13 +68,13 @@ namespace Internal {
 
 } // namespace Internal
 
-inline Choice exec(const QString& fileDisplayName, QWidget* parent = nullptr)
+inline Choice exec(const Coco::Path& path, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
     box.setTextInteractionFlags(Qt::NoTextInteraction);
 
-    box.setText(Tr::nxSavePromptBodyFormat().arg(fileDisplayName));
+    box.setText(Tr::nxSavePromptBodyFormat().arg(path.prettyQString()));
 
     // QMessageBox should handle platform-specific button ordering automatically
     auto save = box.addButton(Tr::save(), QMessageBox::AcceptRole);
@@ -92,13 +94,13 @@ inline Choice exec(const QString& fileDisplayName, QWidget* parent = nullptr)
 }
 
 inline MultiSaveResult
-exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
+exec(const Coco::PathList& paths, QWidget* parent = nullptr)
 {
-    if (fileDisplayNames.isEmpty()) return { Cancel, {} };
+    if (paths.isEmpty()) return { Cancel, {} };
 
     // Delegate to single-file prompt
-    if (fileDisplayNames.size() == 1) {
-        auto choice = exec(fileDisplayNames.first(), parent);
+    if (paths.size() == 1) {
+        auto choice = exec(paths.first(), parent);
         return { choice, (choice == Save) ? QList<int>{ 0 } : QList<int>{} };
     }
 
@@ -110,8 +112,7 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     // Message label
     auto message_label = new QLabel(&dialog);
     message_label->setTextInteractionFlags(Qt::NoTextInteraction);
-    message_label->setText(
-        Tr::nxSavePromptMultiBodyFormat().arg(fileDisplayNames.size()));
+    message_label->setText(Tr::nxSavePromptMultiBodyFormat().arg(paths.size()));
     message_label->setWordWrap(true);
     main_layout->addWidget(message_label);
 
@@ -122,8 +123,8 @@ exec(const QStringList& fileDisplayNames, QWidget* parent = nullptr)
     scroll_layout->setSpacing(0);
 
     QList<QCheckBox*> checkboxes{};
-    for (const auto& file_name : fileDisplayNames) {
-        auto checkbox = new QCheckBox(file_name, scroll_widget);
+    for (const auto& display_path : Coco::toPrettyQStringList(paths)) {
+        auto checkbox = new QCheckBox(display_path, scroll_widget);
         checkbox->setChecked(true);
         scroll_layout->addWidget(checkbox);
         checkboxes << checkbox;

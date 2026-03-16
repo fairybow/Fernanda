@@ -65,7 +65,7 @@ public:
 
     /// TODO FT: Re-examine this as the contract for this abstract base. What
     /// should be the contract?
-    virtual bool supportsEditing() const = 0;
+    virtual bool isUserEditable() const = 0;
 
     virtual bool hasPaste() const { return false; }
     virtual bool hasSelection() const { return false; }

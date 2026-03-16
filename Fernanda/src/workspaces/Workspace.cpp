@@ -249,7 +249,7 @@ void Workspace::createWindowMenuBar_(Window* window)
             MenuScope::ActiveTab,
             [this, window] {
                 auto view = views->fileViewAt(window, -1);
-                return view && view->supportsEditing();
+                return view && view->isUserEditable();
             })
 
         /// TODO TVT

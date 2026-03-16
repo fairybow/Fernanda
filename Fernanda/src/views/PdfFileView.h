@@ -36,7 +36,7 @@ public:
 
     virtual ~PdfFileView() override { TRACER; }
 
-    virtual bool supportsEditing() const override { return false; }
+    virtual bool isUserEditable() const override { return false; }
 
 protected:
     virtual QWidget* setupWidget() override

@@ -126,7 +126,7 @@ protected:
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
         // Last window and needs saving
-        switch (SavePrompt::exec(fnxPath_.toQString(), window)) {
+        switch (SavePrompt::exec(fnxPath_, window)) {
         default:
         case SavePrompt::Cancel:
             return false;
@@ -141,7 +141,7 @@ protected:
             auto save_result = saveModifiedModels_();
             if (!save_result) {
                 colorBars->red();
-                auto fail_paths = saveFailDisplayNames_(save_result.failed);
+                auto fail_paths = saveFailDisplayPaths_(save_result.failed);
                 SaveFailMessageBox::exec(fail_paths, window);
 
                 return false;
@@ -151,7 +151,7 @@ protected:
 
             if (!Fnx::Io::compress(path, workingDir_.path())) {
                 colorBars->red();
-                SaveFailMessageBox::exec(path.toQString(), window);
+                SaveFailMessageBox::exec(path, window);
 
                 return false;
             }
@@ -172,7 +172,7 @@ protected:
         auto window = windows.last();
 
         // Needs saving
-        switch (SavePrompt::exec(fnxPath_.toQString(), window)) {
+        switch (SavePrompt::exec(fnxPath_, window)) {
         default:
         case SavePrompt::Cancel:
             return false;
@@ -187,7 +187,7 @@ protected:
             auto save_result = saveModifiedModels_();
             if (!save_result) {
                 colorBars->red();
-                auto fail_paths = saveFailDisplayNames_(save_result.failed);
+                auto fail_paths = saveFailDisplayPaths_(save_result.failed);
                 SaveFailMessageBox::exec(fail_paths, window);
 
                 return false;
@@ -197,7 +197,7 @@ protected:
 
             if (!Fnx::Io::compress(path, workingDir_.path())) {
                 colorBars->red();
-                SaveFailMessageBox::exec(path.toQString(), window);
+                SaveFailMessageBox::exec(path, window);
 
                 return false;
             }
@@ -534,12 +534,12 @@ private:
         return result;
     }
 
-    QStringList
-    saveFailDisplayNames_(const QList<AbstractFileModel*>& failed) const
+    Coco::PathList
+    saveFailDisplayPaths_(const QList<AbstractFileModel*>& failed) const
     {
         if (failed.isEmpty()) return {};
 
-        QStringList fail_paths{};
+        Coco::PathList fail_paths{};
 
         for (auto& model : failed) {
             if (!model) continue;
@@ -548,7 +548,7 @@ private:
             auto path = meta->path();
             if (!path.exists()) FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
 
-            fail_paths << path.toQString();
+            fail_paths << path;
         }
 
         return fail_paths;
@@ -677,7 +677,7 @@ private:
         auto save_result = saveModifiedModels_();
         if (!save_result) {
             colorBars->red();
-            auto fail_paths = saveFailDisplayNames_(save_result.failed);
+            auto fail_paths = saveFailDisplayPaths_(save_result.failed);
             SaveFailMessageBox::exec(fail_paths, window);
 
             return;
@@ -687,7 +687,7 @@ private:
 
         if (!Fnx::Io::compress(path, workingDir_.path())) {
             colorBars->red();
-            SaveFailMessageBox::exec(path.toQString(), window);
+            SaveFailMessageBox::exec(path, window);
 
             return;
         }
@@ -713,7 +713,7 @@ private:
         auto save_result = saveModifiedModels_();
         if (!save_result) {
             colorBars->red();
-            auto fail_paths = saveFailDisplayNames_(save_result.failed);
+            auto fail_paths = saveFailDisplayPaths_(save_result.failed);
             SaveFailMessageBox::exec(fail_paths, window);
 
             return;
@@ -723,7 +723,7 @@ private:
 
         if (!Fnx::Io::compress(new_path, workingDir_.path())) {
             colorBars->red();
-            SaveFailMessageBox::exec(new_path.toQString(), window);
+            SaveFailMessageBox::exec(new_path, window);
 
             return;
         }
