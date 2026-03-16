@@ -67,8 +67,8 @@ public slots:
     void onStartCopAppRelaunched(const QStringList& args)
     {
         // These args are received via trying to reopen Fernanda (via, while
-        // running, clicking the EXE, clicking associated file types, or
-        // dragging a file onto the EXE)
+        // running, clicking the application, clicking associated file types, or
+        // dragging a file onto the application icon)
         auto parsed = parseArgs_(args);
 
         if (parsed.isEmpty()) {
@@ -234,7 +234,7 @@ private:
     {
         ParsedArgs_ result{};
 
-        // Skip Fernanda.exe
+        // Skip application binary
         for (auto i = 1; i < args.size(); ++i) {
             Coco::Path path(args.at(i));
             if (!path.exists() || path.isDir()) continue;

@@ -99,9 +99,16 @@ inline constexpr bool isPrerelease = false;
 #define VERSION_AUTHOR_STRING                   "fairybow"
 #define VERSION_APP_NAME_STRING                 "Fernanda"
 #define VERSION_RELEASE_NAME_STRING             "Bashō"
-#define VERSION_COPYRIGHT_STRING                "Copyright \xa9 2025-2026 fairybow"
+#define VERSION_COPYRIGHT_STRING                "Copyright (C) 2025-2026 fairybow"
 #define VERSION_DOMAIN                          "https://github.com/fairybow/Fernanda"
-#define VERSION_WINDOWS_FILE_STRING             VERSION_APP_NAME_STRING ".exe"
+
+#if defined(Q_OS_WIN)
+#    define VERSION_FILE_STRING                 VERSION_APP_NAME_STRING ".exe"
+#elif defined(Q_OS_MACOS)
+#    define VERSION_FILE_STRING                 VERSION_APP_NAME_STRING ".app"
+#else
+#    define VERSION_FILE_STRING                 VERSION_APP_NAME_STRING
+#endif
 
 // Use VERSION_FULL_STRING for GitHub release tags!
 

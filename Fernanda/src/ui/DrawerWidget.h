@@ -10,6 +10,9 @@
 #pragma once
 
 #include <QList>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QPalette>
 #include <QSplitter>
 #include <QString>
 #include <QVBoxLayout>
@@ -40,6 +43,22 @@ public:
     virtual ~DrawerWidget() override { TRACER; }
 
     bool isExpanded() const noexcept { return expanded_; }
+
+protected:
+    /// TODO STYLE
+    virtual void paintEvent(QPaintEvent* event) override
+    {
+        QWidget::paintEvent(event);
+
+        if (expanded_) return;
+
+        QPainter painter(this);
+        painter.setPen(palette().color(QPalette::AlternateBase));
+
+        auto y = height() - 1;
+        constexpr auto margin = 8;
+        painter.drawLine(margin, y, width() - margin, y);
+    }
 
 private:
     QWidget* content_;
