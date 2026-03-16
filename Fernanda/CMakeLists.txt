@@ -1,6 +1,8 @@
 # Fernanda - A plain text editor for drafting long-form fiction. (At least, that's the plan.)
 # https://github.com/fairybow/Fernanda
 
+# TODO: Non-Windows builds not yet tested
+
 cmake_minimum_required(VERSION 3.21)
 project(Fernanda LANGUAGES CXX)
 
@@ -19,6 +21,39 @@ find_package(Qt6 REQUIRED COMPONENTS
     Core Gui Network Widgets Svg Xml PdfWidgets LinguistTools
 )
 qt_standard_project_setup()
+
+# =============================================================================
+# Version.h parsing
+# =============================================================================
+
+file(STRINGS src/core/Version.h _ver_lines)
+
+foreach(_line ${_ver_lines})
+    if(_line MATCHES "^#define VERSION_MAJOR +([0-9]+)")
+        set(_ver_major ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_MINOR +([0-9]+)")
+        set(_ver_minor ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_PATCH +([0-9]+)")
+        set(_ver_patch ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_IS_PRERELEASE +([01])")
+        set(_ver_is_pre ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_PRERELEASE_STRING +\"([^\"]+)\"")
+        set(_ver_pre ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_AUTHOR_STRING +\"([^\"]+)\"")
+        set(_ver_author ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_APP_NAME_STRING +\"([^\"]+)\"")
+        set(_ver_app_name ${CMAKE_MATCH_1})
+    elseif(_line MATCHES "^#define VERSION_COPYRIGHT_STRING +\"([^\"]+)\"")
+        set(_ver_copyright ${CMAKE_MATCH_1})
+    endif()
+endforeach()
+
+set(FERNANDA_VERSION "${_ver_major}.${_ver_minor}.${_ver_patch}")
+if(_ver_is_pre STREQUAL "1" AND _ver_pre)
+    string(APPEND FERNANDA_VERSION "-${_ver_pre}")
+endif()
+
+message(STATUS "Fernanda version: ${FERNANDA_VERSION}")
 
 # =============================================================================
 # File lists
@@ -191,6 +226,25 @@ qt_add_executable(Fernanda ${PLATFORM_EXE_FLAGS}
     ${FERNANDA_RESOURCES}
 )
 
+# --- macOS bundle ---
+
+if(APPLE)
+    set(MACOS_ICON ${CMAKE_CURRENT_SOURCE_DIR}/icons/Fernanda.icns)
+    set_source_files_properties(${MACOS_ICON} PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources"
+    )
+    target_sources(Fernanda PRIVATE ${MACOS_ICON})
+
+set_target_properties(Fernanda PROPERTIES
+        MACOSX_BUNDLE_BUNDLE_NAME "${_ver_app_name}"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.${_ver_author}.${_ver_app_name}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${FERNANDA_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${_ver_major}.${_ver_minor}.${_ver_patch}"
+        MACOSX_BUNDLE_COPYRIGHT "${_ver_copyright}"
+        MACOSX_BUNDLE_ICON_FILE "${_ver_app_name}.icns"
+    )
+endif()
+
 # =============================================================================
 # Build configuration
 # =============================================================================
@@ -295,29 +349,6 @@ qt_add_lrelease(Fernanda
 # Version.txt (Release builds only)
 # =============================================================================
 
-file(STRINGS src/core/Version.h _ver_lines)
-
-foreach(_line ${_ver_lines})
-    if(_line MATCHES "^#define VERSION_MAJOR +([0-9]+)")
-        set(_ver_major ${CMAKE_MATCH_1})
-    elseif(_line MATCHES "^#define VERSION_MINOR +([0-9]+)")
-        set(_ver_minor ${CMAKE_MATCH_1})
-    elseif(_line MATCHES "^#define VERSION_PATCH +([0-9]+)")
-        set(_ver_patch ${CMAKE_MATCH_1})
-    elseif(_line MATCHES "^#define VERSION_IS_PRERELEASE +([01])")
-        set(_ver_is_pre ${CMAKE_MATCH_1})
-    elseif(_line MATCHES "^#define VERSION_PRERELEASE_STRING +\"([^\"]+)\"")
-        set(_ver_pre ${CMAKE_MATCH_1})
-    endif()
-endforeach()
-
-set(FERNANDA_VERSION "${_ver_major}.${_ver_minor}.${_ver_patch}")
-if(_ver_is_pre STREQUAL "1" AND _ver_pre)
-    string(APPEND FERNANDA_VERSION "-${_ver_pre}")
-endif()
-
-message(STATUS "Fernanda version: ${FERNANDA_VERSION}")
-
 file(GENERATE
     OUTPUT "$<TARGET_FILE_DIR:Fernanda>/Version.txt"
     CONTENT "${FERNANDA_VERSION}"
@@ -328,6 +359,10 @@ file(GENERATE
 # Install
 # =============================================================================
 
-install(TARGETS Fernanda RUNTIME DESTINATION bin)
+install(TARGETS Fernanda
+    RUNTIME DESTINATION bin
+    BUNDLE DESTINATION .
+)
+
 install(FILES ${QM_FILES} DESTINATION bin)
 install(FILES $<TARGET_FILE_DIR:Fernanda>/Version.txt DESTINATION bin OPTIONAL)

@@ -99,7 +99,7 @@ inline constexpr bool isPrerelease = false;
 #define VERSION_AUTHOR_STRING                   "fairybow"
 #define VERSION_APP_NAME_STRING                 "Fernanda"
 #define VERSION_RELEASE_NAME_STRING             "Bashō"
-#define VERSION_COPYRIGHT_STRING                "Copyright \xa9 2025-2026 fairybow"
+#define VERSION_COPYRIGHT_STRING                "Copyright (C) 2025-2026 fairybow"
 #define VERSION_DOMAIN                          "https://github.com/fairybow/Fernanda"
 
 #if defined(Q_OS_WIN)

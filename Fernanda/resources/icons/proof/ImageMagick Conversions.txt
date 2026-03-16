@@ -8,4 +8,4 @@ copy Fernanda.svg "../Fernanda - copy.svg"
 
 Linux has no special icon format.
 
-For settting of icons, see: https://doc.qt.io/qt-6/appicon.html
+For setting of icons, see: https://doc.qt.io/qt-6/appicon.html
