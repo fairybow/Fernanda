@@ -79,6 +79,31 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.7 (Testing / Soft Release) - tag v0.99.0-beta.7
+
+## What's New?
+
+**Stale files are now treated as modified.** When a file disappears from disk (deleted, moved, or unmounted), Fernanda marks it modified so the user gets a save prompt before closing. In Notepad, saving a stale file routes to Save As instead of silently failing.
+
+**Renamed `supportsModification`/`supportsEditing` to `isUserEditable`.** This clarifies the difference between "the user can edit this" and "this file has changed." A PDF whose backing file is deleted is modified (needs saving) but not editable (can't type into it). Modification tracking moved to the AbstractFileModel base class so any model type can participate.
+
+**Consistent path display in save/reload prompts.** All prompts now use `Coco::Path::prettyQString()` so paths look the same everywhere.
+
+**Tab alerts survive drag-and-drop.** Alert state (like "file modified externally") is now preserved when dragging tabs between windows.
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Large-document bulk operations (e.g., select-all-replace on 1M+ chars) may produce visible delay due to prime document delta routing (but this was only seen in debug)
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Trash splitter handle behavior: clicking the handle alone can size the closed state up; trash view can't be shrunk below its minimum
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+- No auto-save, no save back-ups!
+
+---
+
 # 0.99.0-beta.6 (Testing / Soft Release) - tag v0.99.0-beta.6
 
 ## What's New?
