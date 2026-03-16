@@ -94,7 +94,7 @@ public:
 
     [[nodiscard]] SaveResult save(AbstractFileModel* fileModel)
     {
-        if (!fileModel || !fileModel->supportsModification()) return NoOp;
+        if (!fileModel || !fileModel->isUserEditable()) return NoOp;
         auto meta = fileModel->meta();
         if (!meta || meta->isStale()) return NoOp;
         auto path = meta->path();
@@ -454,6 +454,7 @@ private slots:
         } else {
             // File gone (deleted, moved externally, unmounted)
             model->meta()->markStale();
+            model->setModified(true);
             emit bus->fileModelPathInvalidated(model);
         }
     }

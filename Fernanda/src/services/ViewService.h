@@ -434,35 +434,35 @@ public:
     void cut(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         if (view->hasSelection()) view->cut();
     }
 
     void copy(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         if (view->hasSelection()) view->copy();
     }
 
     void paste(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         if (view->hasPaste()) view->paste();
     }
 
     void del(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         if (view->hasSelection()) view->deleteSelection();
     }
 
     void selectAll(Window* window, int index = -1)
     {
         auto view = fileViewAt(window, index);
-        if (!view || !view->supportsEditing()) return;
+        if (!view || !view->isUserEditable()) return;
         view->selectAll();
     }
 

@@ -33,13 +33,14 @@ public:
     virtual QByteArray data() const = 0;
     virtual void setData(const QByteArray& data) = 0;
 
-    virtual bool supportsModification() const;
-    virtual bool isModified() const;
-    virtual void setModified(bool modified);
+    virtual bool isUserEditable() const;
     virtual bool hasUndo() const;
     virtual bool hasRedo() const;
     virtual void undo();
     virtual void redo();
+
+    virtual bool isModified() const;
+    virtual void setModified(bool modified);
 
 signals:
     void modificationChanged(bool modified);
@@ -56,6 +57,7 @@ Each model owns a `FileMeta` that manages path and display information:
 |----------|-------------|
 | `path()` | File path (empty if not on disk) |
 | `isOnDisk()` | Whether the file has been saved |
+| `isStale()` | Whether the file has been moved, modified, or deleted from disk |
 | `title()` | Display name for tabs |
 | `toolTip()` | Full path or status hint |
 
@@ -71,7 +73,7 @@ public:
     void initialize();  // Must be called after construction
     AbstractFileModel* model() const;
     
-    virtual bool supportsEditing() const = 0;
+    virtual bool isUserEditable() const = 0;
     
     virtual bool hasPaste() const;
     virtual bool hasSelection() const;
@@ -156,6 +158,8 @@ This different policy is handled at the Workspace level, not baked into the clas
 
 Content is returned as raw bytes for FileService to write. This keeps encoding decisions in one place and supports future binary file types.
 
-### Why Virtual Methods with Default No-Ops?
+### Why This Virtual Structure?
 
-Not all models support modification (e.g., read-only files, binary previews) but can be Saved As or copied. `data()`/`setData()` are pure virtual (every model must implement and own its storage), while the remaining properties (`supportsModification`, `isModified`, `hasUndo`, etc.) are opt-in with safe defaults.
+`data()`/`setData()` are pure virtual: every model must implement content storage. Modification state (`isModified`/`setModified`) has a real base implementation because any model can find itself out of sync with disk, whether through user edits or external changes (a backing file being deleted, for example). Models that bring their own tracking (like `TextFileModel` delegating to `QTextDocument`) override these.
+
+Editing capability is separate. `isUserEditable()`, `hasUndo()`, `hasRedo()`, `undo()`, and `redo()` default to false/no-op because not all models support user-initiated content changes. A PDF can be modified (its backing file disappears) without being editable (the user cannot type into it).

@@ -545,7 +545,7 @@ private:
         auto meta = fileModel->meta();
         if (!meta) return FileService::NoOp;
 
-        if (meta->isOnDisk())
+        if (meta->isOnDisk() && !meta->isStale())
             return files->save(fileModel);
         else {
             auto path = promptSaveAs_(window, fileModel);

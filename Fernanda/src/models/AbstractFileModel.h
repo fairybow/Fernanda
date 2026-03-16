@@ -42,13 +42,20 @@ public:
     virtual QByteArray data() const = 0;
     virtual void setData(const QByteArray& data) = 0;
 
-    virtual bool supportsModification() const { return false; }
-    virtual bool isModified() const { return false; }
-    virtual void setModified(bool modified) {}
+    virtual bool isUserEditable() const { return false; }
     virtual bool hasUndo() const { return false; }
     virtual bool hasRedo() const { return false; }
     virtual void undo() {}
     virtual void redo() {}
+
+    virtual bool isModified() const { return isModified_; }
+
+    virtual void setModified(bool modified)
+    {
+        if (isModified_ == modified) return;
+        isModified_ = modified;
+        emit modificationChanged(modified);
+    }
 
 signals:
     void modificationChanged(bool modified);
@@ -57,6 +64,7 @@ signals:
 
 private:
     FileMeta* meta_;
+    bool isModified_ = false;
 };
 
 } // namespace Fernanda

@@ -126,20 +126,7 @@ public:
         assertSync_(__FUNCTION__);
     }
 
-    virtual bool supportsModification() const override
-    {
-        return primeDocument_;
-    }
-
-    virtual bool isModified() const override
-    {
-        return primeDocument_ && primeDocument_->isModified();
-    }
-
-    virtual void setModified(bool modified) override
-    {
-        if (primeDocument_) primeDocument_->setModified(modified);
-    }
+    virtual bool isUserEditable() const override { return primeDocument_; }
 
     virtual bool hasUndo() const override
     {
@@ -163,6 +150,16 @@ public:
     {
         if (!primeDocument_ || routingDelta_) return;
         replayPrimeOperation_([this] { primeDocument_->redo(); });
+    }
+
+    virtual bool isModified() const override
+    {
+        return primeDocument_ && primeDocument_->isModified();
+    }
+
+    virtual void setModified(bool modified) override
+    {
+        if (primeDocument_) primeDocument_->setModified(modified);
     }
 
 signals:
