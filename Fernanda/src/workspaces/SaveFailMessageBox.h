@@ -37,31 +37,31 @@ namespace Internal {
 
 } // namespace Internal
 
-inline void exec(const Coco::Path& displayPath, QWidget* parent = nullptr)
+inline void exec(const Coco::Path& path, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(displayPath.prettyQString()));
+    box.setText(Tr::nxSaveFailBoxBodyFormat().arg(path.prettyQString()));
 
     // TODO: Move to open/show
     box.exec();
 }
 
-inline void exec(const Coco::PathList& displayPaths, QWidget* parent = nullptr)
+inline void exec(const Coco::PathList& paths, QWidget* parent = nullptr)
 {
-    if (displayPaths.isEmpty()) return;
+    if (paths.isEmpty()) return;
 
     // Delegate to single-file prompt
-    if (displayPaths.size() == 1) {
+    if (paths.size() == 1) {
         // TODO: Move to open/show
-        exec(displayPaths.first(), parent);
+        exec(paths.first(), parent);
         return;
     }
 
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
     auto bullet = QStringLiteral("\n\u2022 ");
-    auto list = bullet + Coco::toPrettyQStringList(displayPaths).join(bullet);
+    auto list = bullet + Coco::toPrettyQStringList(paths).join(bullet);
     box.setText(Tr::nxSaveFailBoxMultiBodyFormat().arg(list));
 
     // TODO: Move to open/show

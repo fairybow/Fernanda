@@ -26,15 +26,14 @@ namespace Fernanda::ReloadPrompt {
 
 COCO_BOOL(Reload);
 
-inline Reload exec(const Coco::Path& displayPath, QWidget* parent = nullptr)
+inline Reload exec(const Coco::Path& path, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     box.setWindowModality(Qt::WindowModal);
     box.setMinimumSize(400, 200);
     box.setTextInteractionFlags(Qt::NoTextInteraction);
 
-    box.setText(
-        Tr::nxReloadPromptBodyFormat().arg(displayPath.prettyQString()));
+    box.setText(Tr::nxReloadPromptBodyFormat().arg(path.prettyQString()));
 
     // QMessageBox should handle platform-specific button ordering automatically
     auto reload =

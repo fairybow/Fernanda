@@ -68,13 +68,13 @@ namespace Internal {
 
 } // namespace Internal
 
-inline Choice exec(const Coco::Path& displayPath, QWidget* parent = nullptr)
+inline Choice exec(const Coco::Path& path, QWidget* parent = nullptr)
 {
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
     box.setTextInteractionFlags(Qt::NoTextInteraction);
 
-    box.setText(Tr::nxSavePromptBodyFormat().arg(displayPath.prettyQString()));
+    box.setText(Tr::nxSavePromptBodyFormat().arg(path.prettyQString()));
 
     // QMessageBox should handle platform-specific button ordering automatically
     auto save = box.addButton(Tr::save(), QMessageBox::AcceptRole);
@@ -94,13 +94,13 @@ inline Choice exec(const Coco::Path& displayPath, QWidget* parent = nullptr)
 }
 
 inline MultiSaveResult
-exec(const Coco::PathList& displayPaths, QWidget* parent = nullptr)
+exec(const Coco::PathList& paths, QWidget* parent = nullptr)
 {
-    if (displayPaths.isEmpty()) return { Cancel, {} };
+    if (paths.isEmpty()) return { Cancel, {} };
 
     // Delegate to single-file prompt
-    if (displayPaths.size() == 1) {
-        auto choice = exec(displayPaths.first(), parent);
+    if (paths.size() == 1) {
+        auto choice = exec(paths.first(), parent);
         return { choice, (choice == Save) ? QList<int>{ 0 } : QList<int>{} };
     }
 
@@ -112,8 +112,7 @@ exec(const Coco::PathList& displayPaths, QWidget* parent = nullptr)
     // Message label
     auto message_label = new QLabel(&dialog);
     message_label->setTextInteractionFlags(Qt::NoTextInteraction);
-    message_label->setText(
-        Tr::nxSavePromptMultiBodyFormat().arg(displayPaths.size()));
+    message_label->setText(Tr::nxSavePromptMultiBodyFormat().arg(paths.size()));
     message_label->setWordWrap(true);
     main_layout->addWidget(message_label);
 
@@ -124,7 +123,7 @@ exec(const Coco::PathList& displayPaths, QWidget* parent = nullptr)
     scroll_layout->setSpacing(0);
 
     QList<QCheckBox*> checkboxes{};
-    for (const auto& display_path : Coco::toPrettyQStringList(displayPaths)) {
+    for (const auto& display_path : Coco::toPrettyQStringList(paths)) {
         auto checkbox = new QCheckBox(display_path, scroll_widget);
         checkbox->setChecked(true);
         scroll_layout->addWidget(checkbox);
