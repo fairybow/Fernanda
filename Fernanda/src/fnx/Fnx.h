@@ -428,9 +428,49 @@ namespace Io {
     inline bool
     compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
     {
-        // ...
+        INFO("Compressing archive at {} to {}", archivePath, workingDir);
 
-        return false;
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return false;
+        }
+
+        // --- Create temp ---
+
+        auto temp_path = archivePath.toString() + ".tmp";
+        mz_zip_archive zip{};
+
+        if (!mz_zip_writer_init_file(&zip, temp_path.c_str(), 0)) {
+            CRITICAL(
+                "FNX temp archive creation failed! Error: {}",
+                mz_zip_get_error_string(mz_zip_get_last_error(&zip)));
+            return false;
+        }
+
+        auto ok = true;
+        auto entries = Coco::allFilePaths(workingDir);
+
+        for (const auto& entry_path : entries) {
+            auto rel = entry_path.toStd()
+                           .lexically_relative(workingDir.toStd())
+                           .generic_string();
+
+            if (!mz_zip_writer_add_file(
+                    &zip,
+                    rel.c_str(),
+                    entry_path.toString().c_str(),
+                    nullptr,
+                    0,
+                    MZ_DEFAULT_COMPRESSION)) {
+                WARN(
+                    "Failed to add {}: {}",
+                    rel,
+                    mz_zip_get_error_string(mz_zip_get_last_error(&zip)));
+                ok = false;
+            }
+        }
+
+        //...
     }
 
     inline QString uuid(const Coco::Path& path) { return path.stemQString(); }
