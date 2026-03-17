@@ -81,10 +81,10 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 # 0.99.0-beta.9 (Testing / Soft Release) - tag v0.99.0-beta.9
 
+## What's New?
+
 > [!WARNING]
 > Breaking changes
-
-## What's New?
 
 **Replaced bit7z (7-Zip) with miniz (ZIP).** FNX files are now standard ZIP archives (just like DOCX, EPUB, and others), not 7-Zip. This eliminates runtime FNX read/write dependencies, reduces the application's footprint, and quickens build times. Old FNX files will not open correctly but are still recoverable with [7-Zip](https://www.7-zip.org/).
 
