@@ -1,6 +1,6 @@
 /*
  * Fernanda is a plain text editor for fiction writing
- * Copyright (C) 2025-2026, fairybow
+ * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
  * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
