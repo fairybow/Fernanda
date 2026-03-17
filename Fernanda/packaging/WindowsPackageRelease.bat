@@ -96,14 +96,19 @@ echo [5/%STEPS%] Running windeployqt...
     --skip-plugin-types generic,networkinformation ^
     "%TEMP_DIR%\Fernanda.exe"
 
-REM final contents of "temp" folder should look like this:
+REM Final contents of "temp" folder:
 REM temp/
-REM |-- README.md/LICENSE
-REM |-- Fernanda.lnk (shortcut to exe)
+REM |-- Fernanda.exe
+REM |-- *.qm (translation files)
+REM +-- [Qt DLLs, plugins, etc. from windeployqt]
+REM
+REM Inno installs to {app} (Program Files/Fernanda/):
+REM {app}/
+REM |-- Fernanda.lnk (shortcut to data/Fernanda.exe)
+REM |-- README.md
+REM |-- LICENSE
 REM +-- data/
-REM     |-- [Qt DLLs, QM files, etc.]
-REM     +-- Fernanda.exe
-REM Inno will unpack to {app} (Program Files/Fernanda/), add additional files ({app}\README.md, etc.), and create a shortcut, {app}\Fernanda.lnk (points to {app}\data\Fernanda.exe)
+REM     +-- [everything from temp/]
 
 echo [6/%STEPS%] Building installer...
 if exist "%OUTPUT_DIR%" rmdir /s /q "%OUTPUT_DIR%"
