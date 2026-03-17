@@ -79,6 +79,30 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.9 (Testing / Soft Release) - tag v0.99.0-beta.9
+
+> [!WARNING]
+> Breaking changes
+
+## What's New?
+
+**Replaced bit7z (7-Zip) with miniz (ZIP).** FNX files are now standard ZIP archives (just like DOCX, EPUB, and others), not 7-Zip. This eliminates runtime FNX read/write dependencies, reduces the application's footprint, and quickens build times. Old FNX files will not open correctly but are still recoverable with [7-Zip](https://www.7-zip.org/).
+
+*This should be the last breaking change related to FNX files.*
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Large-document bulk operations (e.g., select-all-replace on 1M+ chars) may produce visible delay due to prime document delta routing (but this was only seen in debug)
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Trash splitter handle behavior: clicking the handle alone can size the closed state up; trash view can't be shrunk below its minimum
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+- No auto-save, no save back-ups!
+
+---
+
 # 0.99.0-beta.8 (Testing / Soft Release) - tag v0.99.0-beta.8
 
 ## What's New?
