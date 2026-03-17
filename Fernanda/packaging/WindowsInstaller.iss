@@ -44,7 +44,7 @@ VersionInfoProductVersion={#AppVersionNumeric}
 WizardStyle=modern
 
 [InstallDelete]
-Type: filesandordirs; Name: "{app}\data\*"
+Type: filesandordirs; Name: "{app}\*"
 
 [Tasks]
 Name: "startmenu"; Description: "Create a &Start Menu folder"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
