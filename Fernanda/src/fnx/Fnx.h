@@ -358,6 +358,7 @@ namespace Io {
             workingDir / Internal::IO_MANIFEST_FILE_NAME_);
     }
 
+    // TODO: Return bool? Fully fail if any file fails?
     inline void
     extract(const Coco::Path& archivePath, const Coco::Path& workingDir)
     {
