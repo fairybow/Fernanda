@@ -52,7 +52,7 @@ namespace Internal {
     constexpr auto XML_INDENT_ = 2;
 
     constexpr auto XML_FNX_VERSION_ATTR_ = "version";
-    constexpr auto XML_FNX_VERSION_ = "1.1";
+    constexpr auto XML_FNX_VERSION_ = "1.0";
 
     constexpr auto XML_VFOLDER_TAG_ = "vfolder";
     constexpr auto XML_FILE_TAG_ = "file";
