@@ -17,8 +17,7 @@
 #include "core/Version.h"
 
 // TODO: Go through and Find All References and delete unused
-// TODO: Find and remove "vanished" type entries in TS XML (old or moved
-// translations) (make a bat file probably)
+// TODO: Set auto lupdate in CMake to remove unused translations
 
 // Qt Linguist requires the tr method to be in place
 #define TR_(Name, TrCall)                                                      \
