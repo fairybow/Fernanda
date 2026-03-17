@@ -48,7 +48,7 @@ Type: filesandordirs; Name: "{app}\data\*"
 
 [Tasks]
 Name: "startmenu"; Description: "Create a &Start Menu folder"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
-Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
+Name: "desktopicon"; Description: "Create a &Desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
 
 [Files]
 Source: "temp\*"; DestDir: "{app}\data"; Flags: recursesubdirs ignoreversion
