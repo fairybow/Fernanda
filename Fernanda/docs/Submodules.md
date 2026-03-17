@@ -1,12 +1,34 @@
 # Adding a Submodule at a Specific Commit (Example)
 
+## 1. Reset the fork to the latest release commit
+
+Clone somewhere temporary, reset, and force push. Force push may trigger a browser login prompt.
+
 ```bash
-git submodule add https://github.com/fairybow/Fernanda-miniz.git submodules/miniz
-cd submodules/miniz
-git checkout d10b03c
+cd C:\Dev
+git clone https://github.com/fairybow/Fernanda-miniz.git temp-miniz
+cd temp-miniz
 git reset --hard d10b03c
 git push --force
-cd ../..
-git add submodules/miniz
-git commit -m "Add miniz submodule at v3.1.0 (d10b03c)"
 ```
+
+(Verify on GitHub that the fork shows the correct hash and delete temp.)
+
+## 2. Add the submodule
+
+From the project directory (e.g., `Fernanda/`):
+
+```bash
+git submodule add https://github.com/fairybow/Fernanda-miniz.git submodules/miniz
+git add submodules/miniz
+git commit -m "Add miniz submodule at v3.1.1 (d10b03c)"
+```
+
+## 3. Removing a submodule (if we need to start over)
+
+```bash
+git submodule deinit -f submodules/
+git rm -f submodules/
+```
+
+(May need to manually delete submodule folder in `.git/modules`.)
