@@ -21,7 +21,6 @@ set RELEASE_EXE=%RELEASE_DIR%\Fernanda.exe
 set RELEASE_VERSION_TXT=%RELEASE_DIR%\Version.txt
 set README=..\..\README.md
 set LICENSE=..\..\LICENSE
-set ADDITIONAL_TERMS=..\..\ADDITIONAL_TERMS
 
 set TEMP_DIR=.\temp
 set OUTPUT_DIR=.\output\Windows x64
@@ -68,11 +67,6 @@ if not exist "%LICENSE%" (
     goto :error
 )
 
-if not exist "%ADDITIONAL_TERMS%" (
-    echo ERROR: ADDITIONAL_TERMS terms not found at %ADDITIONAL_TERMS%
-    goto :error
-)
-
 if not exist "%RELEASE_VERSION_TXT%" (
     echo ERROR: Version.txt not found at %RELEASE_VERSION_TXT%
     echo        Did the pre-build step run?
@@ -104,7 +98,7 @@ echo [5/%STEPS%] Running windeployqt...
 
 REM final contents of "temp" folder should look like this:
 REM temp/
-REM |-- README.md/LICENSE/ADDITIONAL_TERMS
+REM |-- README.md/LICENSE
 REM |-- Fernanda.lnk (shortcut to exe)
 REM +-- data/
 REM     |-- [Qt DLLs, QM files, etc.]
@@ -121,7 +115,6 @@ mkdir "%OUTPUT_DIR%"
     /DInstallerName=%INSTALLER_NAME% ^
     /DReadmePath="%README%" ^
     /DLicensePath="%LICENSE%" ^
-    /DAdditionalTermsPath="%ADDITIONAL_TERMS%" ^
     /DOutputDir="%OUTPUT_DIR%" ^
     "%ISS%"
 if errorlevel 1 goto :error

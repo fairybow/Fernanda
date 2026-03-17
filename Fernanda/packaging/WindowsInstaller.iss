@@ -16,9 +16,6 @@
 #ifndef LicensePath
   #error "LicensePath not defined. Pass /DLicensePath=path"
 #endif
-#ifndef AdditionalTermsPath
-  #error "AdditionalTermsPath not defined. Pass /DAdditionalTermsPath=path"
-#endif
 #ifndef OutputDir
   #error "OutputDir not defined. Pass /DOutputDir=path"
 #endif
@@ -55,9 +52,8 @@ Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription
 
 [Files]
 Source: "temp\*"; DestDir: "{app}\data"; Flags: recursesubdirs ignoreversion
-Source: "{#ReadmePath}"; DestDir: "{app}\docs"; Flags: ignoreversion
-Source: "{#LicensePath}"; DestDir: "{app}\docs"; Flags: ignoreversion
-Source: "{#AdditionalTermsPath}"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "{#ReadmePath}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#LicensePath}"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 ; Always installed
