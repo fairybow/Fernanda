@@ -373,10 +373,9 @@ namespace Io {
             return;
         }
 
-        // --- Read ---
-
         mz_zip_archive zip{};
 
+        // Read it
         if (!mz_zip_reader_init_file(&zip, archivePath.toString().c_str(), 0)) {
             CRITICAL(
                 "FNX archive read failed! Error: {}",
@@ -384,14 +383,11 @@ namespace Io {
             return;
         }
 
-        // --- Extraction ---
-
         auto file_count = mz_zip_reader_get_num_files(&zip);
 
         for (mz_uint i = 0; i < file_count; ++i) {
 
-            // --- Get metadata ---
-
+            // Get metadata
             mz_zip_archive_file_stat stat{};
 
             if (!mz_zip_reader_file_stat(&zip, i, &stat)) {
@@ -399,8 +395,7 @@ namespace Io {
                 continue;
             }
 
-            // --- Write ---
-
+            // Write
             auto out_path = workingDir / stat.m_filename;
 
             if (mz_zip_reader_is_file_a_directory(&zip, i)) {
@@ -435,8 +430,7 @@ namespace Io {
             return false;
         }
 
-        // --- Create temp ---
-
+        // Create temp archive beside original
         auto temp_path = archivePath.toString() + ".tmp";
         mz_zip_archive zip{};
 
@@ -447,13 +441,12 @@ namespace Io {
             return false;
         }
 
-        auto ok = true;
+        auto ok = true; // Get warnings for all fails
         auto entries = Coco::allFilePaths(workingDir);
 
         for (const auto& entry_path : entries) {
-            auto rel = entry_path.toStd()
-                           .lexically_relative(workingDir.toStd())
-                           .generic_string();
+            // Make relative path (zip expects generic path)
+            auto rel = entry_path.lexicallyRelative(workingDir).genericString();
 
             if (!mz_zip_writer_add_file(
                     &zip,
@@ -470,7 +463,19 @@ namespace Io {
             }
         }
 
-        //...
+        if (ok) ok = mz_zip_writer_finalize_archive(&zip);
+        mz_zip_writer_end(&zip);
+
+        if (!ok) {
+            CRITICAL("FNX archive compression failed!");
+            Coco::remove(temp_path);
+            return false;
+        }
+
+        // TODO: Move original to backup + clean backup if over n files
+        Coco::remove(archivePath);
+
+        return Coco::rename(temp_path, archivePath);
     }
 
     inline QString uuid(const Coco::Path& path) { return path.stemQString(); }
