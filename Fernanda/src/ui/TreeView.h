@@ -52,6 +52,7 @@ protected:
 private:
     void setup_()
     {
+        setIndentation(20);
         setContextMenuPolicy(Qt::CustomContextMenu);
         setEditTriggers(
             QAbstractItemView::SelectedClicked
