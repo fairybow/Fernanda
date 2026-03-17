@@ -21,12 +21,9 @@
 #include <QXmlStreamWriter>
 
 #include <miniz.h>
-//#include <bit7z/bitarchivereader.hpp>
-//#include <bit7z/bitarchivewriter.hpp>
 
 #include <Coco/Path.h>
 
-#include "core/AppDirs.h"
 #include "core/FileTypes.h"
 #include "core/Io.h"
 #include "core/MagicBytes.h"
@@ -49,33 +46,6 @@ namespace Internal {
 
     constexpr auto IO_MANIFEST_FILE_NAME_ = "Manifest.xml";
     constexpr auto IO_CONTENT_DIR_NAME_ = "content";
-
-//    inline const Coco::Path& lib7z_()
-//    {
-//        // 7za.dll is lighter than 7z.dll (a = "alone"); Unix uses full 7z.so.
-//        //
-//        // TODO: Verify this:
-//        // macOS note: 7-Zip's Unix makefiles produce a .so file on macOS (not
-//        // .dylib), but it is a Mach-O shared library internally. bit7z loads it
-//        // the same way. The Linux and macOS .so files are different binaries
-//        // (ELF vs Mach-O) despite sharing the same extension, so they need to
-//        // be built and bundled separately per platform
-//
-//        Coco::Path qrc_path{};
-//
-//#if defined(Q_OS_WIN)
-//        qrc_path = ":/7-zip/7za.dll";
-//#elif defined(Q_OS_MACOS)
-//        /// TODO XP: Build 7z.so (as 7z_macOS.so) on macOS
-//        qrc_path = ":/7-zip/7z_macOS.so";
-//#else
-//        qrc_path = ":/7-zip/7z.so";
-//#endif
-//
-//        static auto file = AppDirs::userData() / qrc_path.name();
-//        if (!file.exists()) Coco::copy(qrc_path, file);
-//        return file;
-//    }
 
     // Xml
 
@@ -349,11 +319,13 @@ namespace Io {
     /// allow Application to do this compound check. So, it would check
     /// Fnx::Io::EXT first and then check MB. If MB fails, it might open NoOp
     /// view tab instead of bad FNX file
+    ///
+    /// From future me: Probably don't do this ^
     constexpr auto EXT = ".fnx";
 
     inline bool isFnxFile(const Coco::Path& path)
     {
-        return path.ext() == EXT && MagicBytes::is(MagicBytes::SevenZip, path);
+        return path.ext() == EXT && MagicBytes::is(MagicBytes::Zip, path);
     }
 
     inline void makeNewWorkingDir(const Coco::Path& workingDir)
@@ -389,63 +361,74 @@ namespace Io {
     inline void
     extract(const Coco::Path& archivePath, const Coco::Path& workingDir)
     {
-        //using namespace bit7z;
+        INFO("Extracting archive at {} to {}", archivePath, workingDir);
 
-        //INFO("Extracting archive at {} to {}", archivePath, workingDir);
+        if (!archivePath.exists()) {
+            CRITICAL("Archive file ({}) doesn't exist!", archivePath);
+            return;
+        }
 
-        //if (!archivePath.exists()) {
-        //    CRITICAL("Archive file ({}) doesn't exist!", archivePath);
-        //    return;
-        //}
+        if (!workingDir.exists()) {
+            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+            return;
+        }
 
-        //if (!workingDir.exists()) {
-        //    CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-        //    return;
-        //}
+        // --- Read ---
 
-        //try {
-        //    Bit7zLibrary lib{ Internal::lib7z_().toString() };
-        //    BitArchiveReader archive{ lib,
-        //                              archivePath.toString(),
-        //                              BitFormat::SevenZip };
-        //    archive.test();
-        //    archive.extractTo(workingDir.toString());
+        mz_zip_archive zip{};
 
-        //} catch (const BitException& ex) {
-        //    CRITICAL("FNX archive extraction failed! Error: {}", ex.what());
-        //}
+        if (!mz_zip_reader_init_file(&zip, archivePath.toString().c_str(), 0)) {
+            CRITICAL(
+                "FNX archive read failed! Error: {}",
+                mz_zip_get_error_string(mz_zip_get_last_error(&zip)));
+            return;
+        }
+
+        // --- Extraction ---
+
+        auto file_count = mz_zip_reader_get_num_files(&zip);
+
+        for (mz_uint i = 0; i < file_count; ++i) {
+
+            // --- Get metadata ---
+
+            mz_zip_archive_file_stat stat{};
+
+            if (!mz_zip_reader_file_stat(&zip, i, &stat)) {
+                WARN("Failed to stat archive entry {}", i);
+                continue;
+            }
+
+            // --- Write ---
+
+            auto out_path = workingDir / stat.m_filename;
+
+            if (mz_zip_reader_is_file_a_directory(&zip, i)) {
+                Coco::mkdir(out_path);
+                continue;
+            }
+
+            Coco::mkdir(out_path.parent());
+
+            if (!mz_zip_reader_extract_to_file(
+                    &zip,
+                    i,
+                    out_path.toString().c_str(),
+                    0)) {
+                WARN(
+                    "Failed to extract {}: {}",
+                    stat.m_filename,
+                    mz_zip_get_error_string(mz_zip_get_last_error(&zip)));
+            }
+        }
+
+        mz_zip_reader_end(&zip);
     }
 
     inline bool
     compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
     {
-        //using namespace bit7z;
-
-        //INFO("Compressing archive at {} to {}", archivePath, workingDir);
-
-        //if (!workingDir.exists()) {
-        //    CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-        //    return false;
-        //}
-
-        //try {
-        //    Bit7zLibrary lib{ Internal::lib7z_().toString() };
-        //    BitArchiveWriter archive{ lib, BitFormat::SevenZip };
-        //    archive.setOverwriteMode(OverwriteMode::Overwrite);
-
-        //    for (auto& entry_path : Coco::paths(workingDir)) {
-        //        entry_path.isDir() ? archive.addDirectory(entry_path.toString())
-        //                           : archive.addFile(entry_path.toString());
-        //    }
-
-        //    // TODO: Move original to backup + clean backup if over n files
-        //    archive.compressTo(archivePath.toString());
-        //    return true;
-
-        //} catch (const BitException& ex) {
-        //    CRITICAL("FNX archive compression failed! Error: {}", ex.what());
-        //    return false;
-        //}
+        // ...
 
         return false;
     }
