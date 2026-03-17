@@ -2,6 +2,14 @@
 
 ## Current
 
+- [ ] Backup folders in AppDirs
+- [ ] Prevent uninstaller from removing .fernanda, since we'll hold backups there
+- [ ] ^ Update docs (changelog, I think) re uninstalling
+- [ ] Backup manager class
+- [ ] Hook spot in Fnx::compress
+- [ ] Notebook implementation
+- [ ] Notepad implementation
+
 - [ ] Coco CMake?
 - [x] Replace bit7z with miniz
 - [x] Remove 7-Zip type from MagicBytes
