@@ -26,7 +26,7 @@ Mac and Linux support is planned!
 
 ![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=C%2B%2B)
 [![Qt](https://img.shields.io/badge/Qt-6.10-brightgreen?style=for-the-badge&logo=qt)](https://qt.io/)
-[![Bit7z](https://img.shields.io/badge/Bit7z-4.0-orange.svg?style=for-the-badge)](https://github.com/rikyoz/bit7z)
+[![miniz](https://img.shields.io/badge/miniz-3.1-yellow.svg?style=for-the-badge)](https://github.com/richgel999/miniz)
 
 (See [Dependencies.md](Fernanda/docs/Dependencies.md))
 

@@ -8,7 +8,5 @@
         <file>opendyslexic/OpenDyslexic-BoldItalic.otf</file>
         <file>opendyslexic/OpenDyslexic-Italic.otf</file>
         <file>opendyslexic/OpenDyslexic-Regular.otf</file>
-        <file>7-zip/7z.so</file>
-        <file>7-zip/7za.dll</file>
     </qresource>
 </RCC>

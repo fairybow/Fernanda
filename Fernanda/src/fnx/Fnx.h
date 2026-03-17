@@ -20,8 +20,9 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include <bit7z/bitarchivereader.hpp>
-#include <bit7z/bitarchivewriter.hpp>
+#include <miniz.h>
+//#include <bit7z/bitarchivereader.hpp>
+//#include <bit7z/bitarchivewriter.hpp>
 
 #include <Coco/Path.h>
 
@@ -388,63 +389,65 @@ namespace Io {
     inline void
     extract(const Coco::Path& archivePath, const Coco::Path& workingDir)
     {
-        using namespace bit7z;
+        //using namespace bit7z;
 
-        INFO("Extracting archive at {} to {}", archivePath, workingDir);
+        //INFO("Extracting archive at {} to {}", archivePath, workingDir);
 
-        if (!archivePath.exists()) {
-            CRITICAL("Archive file ({}) doesn't exist!", archivePath);
-            return;
-        }
+        //if (!archivePath.exists()) {
+        //    CRITICAL("Archive file ({}) doesn't exist!", archivePath);
+        //    return;
+        //}
 
-        if (!workingDir.exists()) {
-            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-            return;
-        }
+        //if (!workingDir.exists()) {
+        //    CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+        //    return;
+        //}
 
-        try {
-            Bit7zLibrary lib{ Internal::lib7z_().toString() };
-            BitArchiveReader archive{ lib,
-                                      archivePath.toString(),
-                                      BitFormat::SevenZip };
-            archive.test();
-            archive.extractTo(workingDir.toString());
+        //try {
+        //    Bit7zLibrary lib{ Internal::lib7z_().toString() };
+        //    BitArchiveReader archive{ lib,
+        //                              archivePath.toString(),
+        //                              BitFormat::SevenZip };
+        //    archive.test();
+        //    archive.extractTo(workingDir.toString());
 
-        } catch (const BitException& ex) {
-            CRITICAL("FNX archive extraction failed! Error: {}", ex.what());
-        }
+        //} catch (const BitException& ex) {
+        //    CRITICAL("FNX archive extraction failed! Error: {}", ex.what());
+        //}
     }
 
     inline bool
     compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
     {
-        using namespace bit7z;
+        //using namespace bit7z;
 
-        INFO("Compressing archive at {} to {}", archivePath, workingDir);
+        //INFO("Compressing archive at {} to {}", archivePath, workingDir);
 
-        if (!workingDir.exists()) {
-            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-            return false;
-        }
+        //if (!workingDir.exists()) {
+        //    CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
+        //    return false;
+        //}
 
-        try {
-            Bit7zLibrary lib{ Internal::lib7z_().toString() };
-            BitArchiveWriter archive{ lib, BitFormat::SevenZip };
-            archive.setOverwriteMode(OverwriteMode::Overwrite);
+        //try {
+        //    Bit7zLibrary lib{ Internal::lib7z_().toString() };
+        //    BitArchiveWriter archive{ lib, BitFormat::SevenZip };
+        //    archive.setOverwriteMode(OverwriteMode::Overwrite);
 
-            for (auto& entry_path : Coco::paths(workingDir)) {
-                entry_path.isDir() ? archive.addDirectory(entry_path.toString())
-                                   : archive.addFile(entry_path.toString());
-            }
+        //    for (auto& entry_path : Coco::paths(workingDir)) {
+        //        entry_path.isDir() ? archive.addDirectory(entry_path.toString())
+        //                           : archive.addFile(entry_path.toString());
+        //    }
 
-            // TODO: Move original to backup + clean backup if over n files
-            archive.compressTo(archivePath.toString());
-            return true;
+        //    // TODO: Move original to backup + clean backup if over n files
+        //    archive.compressTo(archivePath.toString());
+        //    return true;
 
-        } catch (const BitException& ex) {
-            CRITICAL("FNX archive compression failed! Error: {}", ex.what());
-            return false;
-        }
+        //} catch (const BitException& ex) {
+        //    CRITICAL("FNX archive compression failed! Error: {}", ex.what());
+        //    return false;
+        //}
+
+        return false;
     }
 
     inline QString uuid(const Coco::Path& path) { return path.stemQString(); }
