@@ -2,6 +2,10 @@
 
 ## Current
 
+- [ ] Coco CMake?
+- [x] Replace bit7z with miniz
+- [x] Remove 7-Zip type from MagicBytes
+- [x] Check for other bit7z/7-Zip references ("7-Zip" to ZIP or `.zip`)
 - [x] BUG: Notepad TreeView allows moving files, which means FileMeta paths can become stale
 - [x] BUG: Pulling tab off the tab bar after dragging it to a new position causes the dragged tab to be the other tab that was originally in that position!
 - [x] BUG: Open several tabs and edit them. Then drag them all to new windows. Now, right click taskbar icon and close all windows. We'll see several pop-ups, one in each window with something unsaved. Hit "don't save" and the window should close with the tab. However, the window doesn't close (nor does the file). Then you can then close the window (with unsaved tab) and no pop-up shows to save, the window just closes (so either the file was closed without closing the tab the first time, or we aren't closing the file the second time maybe)?

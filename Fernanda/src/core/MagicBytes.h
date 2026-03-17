@@ -27,7 +27,7 @@ enum Type
 {
     NoKnownSignature = 0,
     Png,
-    SevenZip,
+    // SevenZip,
     Rtf,
     Pdf,
     Tiff,
@@ -54,7 +54,7 @@ inline Type type(const Coco::Path& path)
     // Check longer signatures first to avoid false positives
     static constexpr Signature signatures[] = {
         { Png, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8 },
-        { SevenZip, "\x37\x7A\xBC\xAF\x27\x1C", 6 },
+        // { SevenZip, "\x37\x7A\xBC\xAF\x27\x1C", 6 },
         { Rtf, "\x7B\x5C\x72\x74\x66\x31", 6 },
         { Pdf, "\x25\x50\x44\x46\x2D", 5 },
         { Tiff, "\x49\x49\x2A\x00", 4 },

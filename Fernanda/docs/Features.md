@@ -22,12 +22,12 @@ TODO: Section for all shared Workspace funtionality (e.g., PDF support)
 
 ### Notebook (0 or more instances)
 
-- Archive-based workspace: all project content lives inside a single portable `.fnx` file (standard 7-Zip)
+- Archive-based workspace: all project content lives inside a single portable `.fnx` file (standard ZIP)
 - Virtual directory structure via XML manifest (organize files and folders independently of physical storage)
 - Create new Notebooks from scratch (name prompt, deferred first save)
 - Open existing `.fnx` archives (extraction, validation, working directory setup)
 - Multiple Notebooks can be open simultaneously
-- Recoverable (standard 7-Zip format means content remains accessible outside Fernanda)
+- Recoverable (standard ZIP format means content remains accessible outside Fernanda)
 - Single file export (planned: multiple files, directories, as well as, eventually, full archive export/compilation)
 - PDF and image support
 
@@ -209,7 +209,7 @@ TODO: Section for all shared Workspace funtionality (e.g., PDF support)
 ## File Type Detection
 
 - Magic-byte-based file type detection (not extension-based)
-- Recognized signatures: PNG, 7-Zip, RTF, PDF, GIF, JPG, ZIP/DOCX
+- Recognized signatures: PNG, RTF, PDF, GIF, JPG, ZIP/DOCX
 - Unrecognized files default to plain text
 - Recognized but unopenable files (e.g., PNG) open as "no-op"
 

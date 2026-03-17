@@ -165,7 +165,7 @@ FNX files (`.fnx`) are Fernanda Notebook archives. They are the only file type h
 
 ### How FNX files are detected
 
-`Fnx::Io::isFnxFile` checks two things: the file must have the `.fnx` extension *and* must be a valid 7-Zip archive (verified by magic bytes). Both checks must pass.
+`Fnx::Io::isFnxFile` checks two things: the file must have the `.fnx` extension *and* must be a valid ZIP archive (verified by magic bytes). Both checks must pass.
 
 ### How FNX files enter the system
 
@@ -178,23 +178,23 @@ Several paths through the application encounter files that might be FNX archives
 
 ### What happens when FNX detection fails
 
-In most paths, a file that looks like it might be an FNX archive but fails `isFnxFile` is simply opened as a regular file. This means the user may see binary content (the raw 7-Zip data rendered as text). This is consistent with the general principle that Fernanda opens anything: the file is not an FNX archive as far as the system is concerned, so it is treated like any other file.
+In most code paths, a file that looks like it might be an FNX archive but fails `isFnxFile` is simply opened as a regular file. This means the user may see binary content (the raw ZIP data rendered as text). This is consistent with the general principle that Fernanda opens anything: the file is not an FNX archive as far as the system is concerned, so it is treated like any other file.
 
 The one exception is the "Open Notebook" menu dialog, which is specifically for opening Notebooks and silently refuses invalid files.
 
 ### What happens when an FNX extension is changed
 
-If an FNX file is renamed (e.g., `MyProject.fnx` to `MyProject.zip`), `isFnxFile` will fail because the extension check fails. The file will not be recognized as a Notebook from any path. It will be opened as a regular file by Notepad, showing binary content.
+If an FNX file is renamed (e.g., `MyProject.fnx` to `MyProject.zip`, even though it IS a ZIP), `isFnxFile` will fail because the extension check fails. The file will not be recognized as a Notebook from any path. It will be opened as a regular file by Notepad, showing binary content.
 
 ### FNX files inside FNX archives
 
-Individual files within an FNX archive go through the same two-tier identification as any other file when opened. A user can import an FNX archive into another Notebook (import accepts any file type). If opened from within the Notebook, it goes through `FileService` with no `isFnxFile` intercept. MagicBytes detects the 7-Zip signature, but since there is no dedicated handler for 7-Zip in `FileService`, it falls through to plain text. The user sees binary content. This is expected and not a supported workflow.
+Individual files within an FNX archive go through the same two-tier identification as any other file when opened. A user can import an FNX archive into another Notebook (import accepts any file type). If opened from within the Notebook, it goes through `FileService` with no `isFnxFile` intercept. MagicBytes detects the ZIP signature, but since there is no dedicated handler for ZIP archives in `FileService`, it falls through to plain text. The user sees binary content. This is expected and not a supported workflow.
 
 Opening an inner FNX as a functional Notebook was considered and deliberately deferred. The implementation would require nested archive lifecycle management (extraction, save propagation, closure coordination), which conflicts with the current architecture where Workspaces are independent peers. A simpler "open as independent Notebook" approach was also considered, but it creates a confusing UX: edits to the inner Notebook would not propagate back to the outer archive, contradicting user expectations.
 
 ### How files are stored in FNX archives
 
-Files inside a Notebook's 7-Zip archive live in a `content/` directory, named by UUID with their real extension (e.g., `content/{uuid}.txt`, `content/{uuid}.pdf`). The XML manifest tracks metadata for each file:
+Files inside a Notebook ZIP archive live in a `content/` directory, named by UUID with their real extension (e.g., `content/{uuid}.txt`, `content/{uuid}.pdf`). The XML manifest tracks metadata for each file:
 
 ```xml
 <file name="Chapter One" uuid="abc-123" extension=".txt" />

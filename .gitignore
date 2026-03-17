@@ -455,12 +455,3 @@ CMakeUserPresets.json
 
 Fernanda/packaging/temp/
 Fernanda/packaging/output/
-
-# Overrides
-
-# TODO: Remove later
-
-!Fernanda/external/bit7z/lib/x64/
-!Fernanda/external/bit7z/lib/x64/Debug/
-!Fernanda/external/bit7z/lib/x64/Debug/bit7z.pdb
-!Fernanda/external/bit7z/lib/x64/Release/

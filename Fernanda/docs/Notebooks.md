@@ -1,6 +1,6 @@
 # Notebooks
 
-Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard 7-Zip archive containing files and an XML manifest describing the virtual directory structure.
+Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard ZIP archive containing files and an XML manifest describing the virtual directory structure.
 
 See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), [`FnxModel.h`](../src/fnx/FnxModel.h), [`FnxModelCache.h`](../src/fnx/FnxModelCache.h), [`Workspace.h`](../src/workspaces/Workspace.h), and [`TempDir.h`](../src/core/TempDir.h)
 
@@ -9,7 +9,7 @@ See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), 
 A Notebook provides:
 - **Virtual organization**: Files and folders arranged independently of their physical storage
 - **Self-contained projects**: Everything lives in one portable `.fnx` file
-- **Recoverability**: Standard 7-Zip format means content remains accessible outside Fernanda
+- **Recoverability**: Standard ZIP format means content remains accessible outside Fernanda
 - **Multiple instances**: Unlike Notepad (singleton), any number of Notebooks can be open simultaneously
 
 ## Architecture
@@ -36,10 +36,10 @@ Notebook Workspace
 
 ## The FNX File Format
 
-An `.fnx` file is a 7-Zip archive with a rigid internal structure:
+An `.fnx` file is a ZIP archive with a rigid internal structure:
 
 ```
-MyNovel.fnx (7-Zip archive)
+MyNovel.fnx (ZIP archive)
 |-- Manifest.xml        # Virtual directory structure
 |-- Settings.ini        # Notebook-specific settings (optional)
 +-- content/            # Physical file storage
@@ -327,7 +327,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Start([User: Open .fnx]) --> Validate[Validate 7-Zip format]
+    Start([User: Open .fnx]) --> Validate[Validate ZIP format]
     Validate --> CreateTemp[Create temp working directory]
     CreateTemp --> Extract[Extract archive]
     Extract --> LoadModel[FnxModel loads Manifest.xml]
