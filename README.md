@@ -48,7 +48,7 @@ Mac and Linux support is planned!
 
 ## License
 
-Fernanda is free and open source under the [GPL 3 License](LICENSE) with [additional terms](ADDITIONAL_TERMS).
+Fernanda is free software, redistributable and/or modifiable under the terms of the [GPL 3 License](LICENSE). It's distributed in the hope that it will be useful but without any warranty (even the implied warranty of merchantability or fitness for a particular purpose).
 
 ##
 
