@@ -423,7 +423,7 @@ namespace Io {
     inline bool
     compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
     {
-        INFO("Compressing archive at {} to {}", archivePath, workingDir);
+        INFO("Compressing archive at {} to {}", workingDir, archivePath);
 
         if (!workingDir.exists()) {
             CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
