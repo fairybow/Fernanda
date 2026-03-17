@@ -28,7 +28,7 @@
 #include <Coco/Fx.h>
 
 #include "core/Debug.h"
-#include "core/Timers.h"
+#include "core/Time.h"
 #include "core/Tr.h"
 
 namespace Fernanda {
@@ -188,8 +188,8 @@ private:
     static constexpr int DEBOUNCE_MS_ = 150;
 
     QPointer<QPlainTextEdit> textEdit_{};
-    Timers::Debouncer* countDebouncer_ =
-        new Timers::Debouncer(DEBOUNCE_MS_, this, [this] { updateCounts_(); });
+    Time::Debouncer* countDebouncer_ =
+        new Time::Debouncer(DEBOUNCE_MS_, this, [this] { updateCounts_(); });
     QLabel* countsDisplay_ = new QLabel(this);
     QLabel* separatorDisplay_ = new QLabel(SEPARATOR_, this);
     QLabel* posDisplay_ = new QLabel(this);

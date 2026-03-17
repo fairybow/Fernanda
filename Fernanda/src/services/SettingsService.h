@@ -28,7 +28,7 @@
 #include <Coco/Utility.h>
 
 #include "core/Debug.h"
-#include "core/Timers.h"
+#include "core/Time.h"
 #include "core/Tr.h"
 #include "modules/ColorBar.h"
 #include "services/AbstractService.h"
@@ -264,7 +264,7 @@ private:
     QString name_{};
     SettingsDialog* dialog_ = nullptr;
 
-    QHash<QString, Timers::Debouncer*> debouncers_{};
+    QHash<QString, Time::Debouncer*> debouncers_{};
     QHash<QString, QVariant> pendingValues_{};
 
     void setup_()
@@ -292,7 +292,7 @@ private:
 
     void setupDebouncer_(const QString& key)
     {
-        debouncers_[key] = new Timers::Debouncer(500, this, [this, key] {
+        debouncers_[key] = new Time::Debouncer(500, this, [this, key] {
             set(key, pendingValues_.take(key));
         });
     }

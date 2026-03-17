@@ -23,7 +23,7 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
-#include "core/Timers.h"
+#include "core/Time.h"
 #include "core/Version.h"
 #include "dialogs/BetaAlert.h"
 #include "workspaces/Notebook.h"
@@ -62,7 +62,7 @@ public:
         initialized_ = true;
 
         if (Version::isPrerelease) {
-            Timers::delay(500, this, [] { BetaAlert::exec(); });
+            Time::delay(500, this, [] { BetaAlert::exec(); });
         }
     }
 

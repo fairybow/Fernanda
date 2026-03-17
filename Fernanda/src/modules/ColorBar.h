@@ -33,7 +33,7 @@
 #include <Coco/Fx.h>
 
 #include "core/Debug.h"
-#include "core/Timers.h"
+#include "core/Time.h"
 
 namespace Fernanda {
 
@@ -148,8 +148,8 @@ private:
     static constexpr qreal MAX_RANGE_ = 100.00;
     qreal currentProgress_ = MIN_RANGE_;
     Color currentColor_ = Pastel;
-    Timers::Delayer* lingerTimer_ =
-        new Timers::Delayer(1000, this, &ColorBar::reset_);
+    Time::Delayer* lingerTimer_ =
+        new Time::Delayer(1000, this, &ColorBar::reset_);
     QTimeLine* activeTimeLine_ = nullptr;
 
     // Cache
@@ -226,7 +226,7 @@ private:
         currentColor_ = color;
         activeTimeLine_ = fillTimeLine_();
 
-        Timers::delay(delay, this, [=] {
+        Time::delay(delay, this, [=] {
             activeTimeLine_->start();
             update(); // Trigger initial repaint
         });

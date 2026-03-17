@@ -13,7 +13,6 @@
 #include "core/Debug.h"
 
 #include <atomic>
-#include <chrono>
 #include <format>
 #include <mutex>
 #include <string>
@@ -28,11 +27,12 @@
 
 #include <Coco/Path.h>
 
+#include "Time.h"
+
 namespace Fernanda::Debug {
 
 namespace {
 
-    constexpr auto TIMESTAMP_FORMAT_ = "{:%Y-%m-%d | %H:%M:%S}.{:03d}";
     constexpr auto VOC_FORMAT_ = "In {}: {}";
     constexpr auto MSG_FORMAT_ = "{} | {} | {}";
 
@@ -46,16 +46,9 @@ namespace {
 
     std::string timestamp_()
     {
-        auto now = std::chrono::system_clock::now();
-        auto zone = std::chrono::current_zone();
-        auto local_time = zone->to_local(now);
-
-        return std::format(
-            TIMESTAMP_FORMAT_,
-            std::chrono::floor<std::chrono::seconds>(local_time),
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                local_time.time_since_epoch() % std::chrono::seconds{ 1 })
-                .count());
+        constexpr auto format = "{:%Y-%m-%d | %H:%M:%S}.{:03d}";
+        auto now = Time::now();
+        return std::format(format, now.seconds, now.milliseconds);
     }
 
     void handler_(
