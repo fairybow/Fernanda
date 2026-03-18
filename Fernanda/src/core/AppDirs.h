@@ -42,6 +42,18 @@ inline const Coco::Path& userThemes()
     return dir;
 }
 
+inline const Coco::Path& notepadBackups()
+{
+    static auto dir = userData() / "backups" / "notepad";
+    return dir;
+}
+
+inline const Coco::Path& notebookBackups()
+{
+    static auto dir = userData() / "backups" / "notebooks";
+    return dir;
+}
+
 // TODO: Make configurable
 inline const Coco::Path& defaultDocs()
 {
