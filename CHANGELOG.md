@@ -11,7 +11,6 @@
 This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md). For past release details, see [CHANGELOG.md](https://github.com/fairybow/Fernanda/blob/main/CHANGELOG.md)
 
 > [!WARNING]
-> You should not trust your writing with any version of this software less than 1.0.0! Regardless, always make regular back-ups of your work.
 > You should not trust your writing with any version of this software less than 1.0.0! Regardless, always make regular backups of your work.
 
 ## Installation
