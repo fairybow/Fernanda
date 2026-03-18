@@ -42,15 +42,9 @@ inline const Coco::Path& userThemes()
     return dir;
 }
 
-inline const Coco::Path& notepadBackups()
+inline const Coco::Path& backups()
 {
-    static auto dir = userData() / "backups" / "notepad";
-    return dir;
-}
-
-inline const Coco::Path& notebookBackups()
-{
-    static auto dir = userData() / "backups" / "notebooks";
+    static auto dir = userData() / "backups";
     return dir;
 }
 

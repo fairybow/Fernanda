@@ -77,7 +77,7 @@ namespace Tr {
     TR_(nxBetaAlert,
         tr("<p><b>This is a prerelease!</b></p><p>You should not trust your "
            "writing with prerelease versions of this software. Regardless, "
-           "always make regular back-ups of your work.</p>"));
+           "always make regular backups of your work.</p>"));
 
     // TODO: std::format
     inline QString nxAboutBody()
