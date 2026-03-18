@@ -2,12 +2,12 @@
 
 ## Current
 
-- [x] Backup folders in AppDirs
-- [ ] Prevent uninstaller from removing .fernanda, since we'll hold backups there
-- [ ] ^ Update docs (changelog, I think) re uninstalling
+- [x] Backup folder in AppDirs
+- [ ] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
 - [ ] Backup manager class
 - [ ] ^ Ability to clean up oldest backup past set limit
-- [ ] Hook spot in Fnx::compress
+- [x] Hook spot in Fnx::compress
+- [ ] Hook spot in FilService (for Notepad to use)?
 - [ ] Notebook implementation
 - [ ] Notepad implementation
 
