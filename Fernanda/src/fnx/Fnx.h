@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <functional>
 #include <string>
 
 #include <QByteArray>
@@ -326,6 +327,9 @@ namespace Io {
     /// From future me: Probably don't do this ^
     constexpr auto EXT = ".fnx";
 
+    using BeforeOverwriteHook =
+        std::function<void(const Coco::Path& originalFnx)>;
+
     inline bool isFnxFile(const Coco::Path& path)
     {
         return path.ext() == EXT && MagicBytes::is(MagicBytes::Zip, path);
@@ -424,8 +428,10 @@ namespace Io {
         mz_zip_reader_end(&zip);
     }
 
-    inline bool
-    compress(const Coco::Path& archivePath, const Coco::Path& workingDir)
+    inline bool compress(
+        const Coco::Path& archivePath,
+        const Coco::Path& workingDir,
+        BeforeOverwriteHook beforeOverwriteHook = {})
     {
         INFO("Compressing archive at {} to {}", workingDir, archivePath);
 
@@ -476,7 +482,7 @@ namespace Io {
             return false;
         }
 
-        // TODO: Move original to backup + clean backup if over n files
+        if (beforeOverwriteHook) beforeOverwriteHook(archivePath);
         Coco::remove(archivePath);
 
         return Coco::rename(temp_path, archivePath);

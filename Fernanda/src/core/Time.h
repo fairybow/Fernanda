@@ -13,13 +13,35 @@
 #pragma once
 
 #include <chrono>
+#include <string>
 
 #include <QObject>
 #include <QTimer>
 
 #include "core/Debug.h"
 
-namespace Fernanda::Timers {
+namespace Fernanda::Time {
+
+struct LocalTime
+{
+    std::chrono::local_seconds seconds;
+    int milliseconds;
+};
+
+inline LocalTime now()
+{
+    auto now = std::chrono::system_clock::now();
+    auto zone = std::chrono::current_zone();
+    auto local_time = zone->to_local(now);
+    auto since_epoch = local_time.time_since_epoch();
+
+    auto secs = std::chrono::floor<std::chrono::seconds>(local_time);
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  since_epoch % std::chrono::seconds{ 1 })
+                  .count();
+
+    return { secs, static_cast<int>(ms) };
+}
 
 template <typename SlotT>
 inline void delay(int msecs, const QObject* context, SlotT slot)
@@ -43,8 +65,8 @@ template <typename SlotT> inline void onNextTick(SlotT slot)
     QTimer::singleShot(0, slot);
 }
 
-// Utility class for initializing a debouncing/delay timer and connecting it
-// to a slot
+// Utility class for initializing a debouncing/delay timer and connecting it to
+// a slot
 class Delayer : public QObject
 {
     Q_OBJECT
@@ -75,4 +97,4 @@ private:
 
 using Debouncer = Delayer;
 
-} // namespace Fernanda::Timers
+} // namespace Fernanda::Time

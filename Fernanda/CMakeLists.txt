@@ -91,7 +91,7 @@ set(FERNANDA_HEADERS
     src/core/Io.h
     src/core/MagicBytes.h
     src/core/TempDir.h
-    src/core/Timers.h
+    src/core/Time.h
     src/core/ToString.h
     src/core/Tr.h
     src/core/Version.h

@@ -42,6 +42,12 @@ inline const Coco::Path& userThemes()
     return dir;
 }
 
+inline const Coco::Path& backups()
+{
+    static auto dir = userData() / "backups";
+    return dir;
+}
+
 // TODO: Make configurable
 inline const Coco::Path& defaultDocs()
 {

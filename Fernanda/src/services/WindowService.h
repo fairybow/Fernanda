@@ -30,7 +30,7 @@
 #include <Coco/Utility.h>
 
 #include "core/Debug.h"
-#include "core/Timers.h"
+#include "core/Time.h"
 #include "core/Version.h"
 #include "core/XPlatform.h"
 #include "services/AbstractService.h"
@@ -256,9 +256,7 @@ private:
 
             // Only start timer on the first deferral in this tick
             if (pendingCloseWindows_.count() == 1) {
-                Timers::onNextTick(
-                    this,
-                    &WindowService::processDeferredCloses_);
+                Time::onNextTick(this, &WindowService::processDeferredCloses_);
             }
         }
     }

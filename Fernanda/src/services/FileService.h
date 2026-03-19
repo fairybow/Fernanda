@@ -42,7 +42,7 @@
 namespace Fernanda {
 
 // Creates and manages file models
-// TODO: When saving files, we should move originals to a back-up location
+// TODO: When saving files, we should move originals to a backup location
 // (Notebook's archive save will do the same)
 // TODO: Rename FileModelService? (and ViewService -> FileViewService?)
 class FileService : public AbstractService

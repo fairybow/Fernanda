@@ -28,7 +28,7 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
-#include "core/Timers.h"
+#include "core/Time.h"
 #include "core/Tr.h"
 #include "core/Version.h"
 #include "fnx/Fnx.h"
@@ -451,7 +451,7 @@ private:
         // this, QFSM's initialization blocks the event loop (or causes enough
         // strain in any case) long enough to cause white/unpainted windows on
         // startup
-        Timers::onNextTick([this] {
+        Time::onNextTick([this] {
             fsModel_->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
             fsModel_->setRootPath(currentRootDir.toQString());
             fsModel_->setReadOnly(false);

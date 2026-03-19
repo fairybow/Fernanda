@@ -26,7 +26,7 @@
 #include <Coco/Path.h>
 
 #include "core/AppDirs.h"
-#include "core/Timers.h"
+#include "core/Time.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
 #include "menus/MenuBuilder.h"
@@ -67,7 +67,7 @@ public:
 
     void beCute() const
     {
-        Timers::delay(1200, this, [this] { colorBars->pastel(); });
+        Time::delay(1200, this, [this] { colorBars->pastel(); });
     }
 
     bool hasWindows() const { return windows->count() > 0; }

@@ -27,6 +27,8 @@
 namespace Fernanda {
 
 // TODO: Right-click to reset size
+// TODO: Rename SplitterDrawer (or, if probably never needed elsewhere, can
+// rename NotebookTrashDrawer or similar and move to workspaces)
 class DrawerWidget : public QWidget
 {
     Q_OBJECT

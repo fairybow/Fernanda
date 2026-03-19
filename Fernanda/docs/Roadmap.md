@@ -2,6 +2,16 @@
 
 ## Current
 
+- [ ] Comprehensive plan doc
+- [x] Backup folder in AppDirs
+- [ ] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
+- [ ] Backup manager class
+- [ ] ^ Ability to clean up oldest backup past set limit
+- [x] Hook spot in Fnx::compress
+- [ ] Hook spot in FilService (for Notepad to use)?
+- [ ] Notebook implementation
+- [ ] Notepad implementation
+
 - [ ] Coco CMake?
 - [x] Replace bit7z with miniz
 - [x] Remove 7-Zip type from MagicBytes
