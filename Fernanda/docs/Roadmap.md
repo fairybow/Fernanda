@@ -2,6 +2,7 @@
 
 ## Current
 
+- [ ] Comprehensive plan doc
 - [x] Backup folder in AppDirs
 - [ ] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
 - [ ] Backup manager class
