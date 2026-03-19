@@ -118,6 +118,7 @@ public:
         return fileViewsPerModel_.value(fileModel, 0);
     }
 
+    // Raises Window and tab at index
     void raise(Window* window, int index) const
     {
         auto tab_widget = tabWidget_(window);
@@ -127,6 +128,7 @@ public:
         tab_widget->setCurrentIndex(index);
     }
 
+    // Raises Window and model, if found
     void raise(Window* window, AbstractFileModel* model) const
     {
         if (!window || !model) return;
@@ -144,8 +146,9 @@ public:
         }
     }
 
-    // Returns the first window found (from top to bottom) with this model (if
-    // any)
+    // Raises first Window found (from top to bottom) containing model (and
+    // raises model), if any, and returns the window
+    // TODO: Should this return nullptr if the model isn't found?
     Window* raise(AbstractFileModel* model) const
     {
         if (!model) return nullptr;
