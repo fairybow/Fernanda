@@ -2,7 +2,8 @@
 
 ## Current
 
-- [ ] Comprehensive plan doc
+- [ ] Possible to make Workspace-modal dialogs (for something like close all windows or tabs)?
+- [ ] Comprehensive plan doc for backups/autosave
 - [x] Backup folder in AppDirs
 - [ ] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
 - [ ] Backup manager class
