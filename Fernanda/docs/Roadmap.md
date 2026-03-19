@@ -3,6 +3,7 @@
 ## Current
 
 - [ ] Possible to make Workspace-modal dialogs (for something like close all windows or tabs)?
+- [ ] ^ If so, do a modality overhaul, checking dialogs and call sites for what window or workspace to pass (or set app modal, like for quit)
 - [ ] Comprehensive plan doc for backups/autosave
 - [x] Backup folder in AppDirs
 - [ ] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
