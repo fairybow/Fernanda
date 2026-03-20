@@ -48,6 +48,8 @@ Flushing buffers to the Notebook working directory is safe because the `.fnx` ar
 
 ## Storage Layout
 
+TODO: Update this (out of date with AppDirs)
+
 ```
 ~/.fernanda/
     backups/
@@ -83,41 +85,19 @@ AppDirs::recovery()  ->  ~/.fernanda/recovery/     (new; possibly a TempDir for
                                                      graceful exit)
 ```
 
+### Key design decisions
+
+**Flat Notepad backup directory**: Notepad backups live in a single flat directory (`backups/notepad/`) rather than nested subdirectories. Each backup filename encodes the source identity and the timestamp: `{short-hash}_{original-filename}.{timestamp}`. The short hash is a truncated hash of the absolute source path (e.g., first 8-12 hex characters of a SHA-256), which groups backups by source file without requiring subdirectories. The original filename is preserved for human readability. Pruning scans the flat directory, groups files by their `{short-hash}_{original-filename}` prefix (everything before the final `.{timestamp}`), and prunes each group to the max count independently.
+
+The exact naming scheme needs careful thought. Some considerations: very long filenames could be an issue on some filesystems (255 character limit); the original filename may contain characters that are problematic in backup filenames; and the separator between components must be unambiguous (the timestamp format must not conflict with characters that appear in filenames). These details should be resolved during Phase 1 implementation.
+
+**Notebook backups are archive-level only**: the `.fnx` archive is the atomic unit of Notebook data. Backing up individual working directory files would be redundant since the archive already contains the last-saved version of every file.
+
+**Notebook recovery via working directory**: because flushing dirty buffers to the working directory is semantically safe (it does not alter the user's `.fnx` source of truth), Notebook crash recovery reuses the existing working directory rather than maintaining a separate shadow location. A lockfile marks unclean shutdown and contains the `.fnx` path to resolve ambiguity when multiple Notebooks share a name.
+
 ---
 
 UNREVIEWED:
-
-### Key design decisions
-
-**Flat Notepad backup directory**: Notepad backups live in a single flat
-directory (`backups/notepad/`) rather than nested subdirectories. Each backup
-filename encodes the source identity and the timestamp:
-`{short-hash}_{original-filename}.{timestamp}`. The short hash is a truncated
-hash of the absolute source path (e.g., first 8-12 hex characters of a
-SHA-256), which groups backups by source file without requiring subdirectories.
-The original filename is preserved for human readability. Pruning scans the flat
-directory, groups files by their `{short-hash}_{original-filename}` prefix
-(everything before the final `.{timestamp}`), and prunes each group to the max
-count independently.
-
-The exact naming scheme needs careful thought. Some considerations: very long
-filenames could be an issue on some filesystems (255 character limit); the
-original filename may contain characters that are problematic in backup
-filenames; and the separator between components must be unambiguous (the
-timestamp format must not conflict with characters that appear in filenames).
-These details should be resolved during Phase 1 implementation.
-
-**Notebook backups are archive-level only**: the `.fnx` archive is the atomic
-unit of Notebook data. Backing up individual working directory files would be
-redundant since the archive already contains the last-saved version of every
-file.
-
-**Notebook recovery via working directory**: because flushing dirty buffers to
-the working directory is semantically safe (it does not alter the user's `.fnx`
-source of truth), Notebook crash recovery reuses the existing working directory
-rather than maintaining a separate shadow location. A lockfile marks unclean
-shutdown and contains the `.fnx` path to resolve ambiguity when multiple
-Notebooks share a name.
 
 **Notepad recovery needs a shadow location**: unlike Notebook, writing a Notepad
 buffer to its original file path is a destructive save. Recovery data must go to
