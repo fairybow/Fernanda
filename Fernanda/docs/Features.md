@@ -233,7 +233,7 @@ TODO: Section for all shared Workspace funtionality (e.g., PDF support)
 
 ## Planned
 
-- Auto-save
+- Autosave
 - Automatic backups
 - Small utilities (like a pomodoro timer)
 - FNX compilation/export

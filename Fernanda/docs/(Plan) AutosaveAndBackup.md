@@ -1,6 +1,6 @@
 # Autosave and Backup
 
-Master plan for protecting user data against bad saves and crashes. Covers pre-save backups and auto-save crash recovery. Hot exit (restored from prior session) is mentioned but not planned (users should purposefully save their work and it's Fernanda's responsibility to remind them before exiting).
+Master plan for protecting user data against bad saves and crashes. Covers pre-save backups and autosave crash recovery. Hot exit (restored from prior session) is mentioned but not planned (users should purposefully save their work and it's Fernanda's responsibility to remind them before exiting).
 
 See: [`Workspace.h`](../src/workspaces/Workspace.h), [`Notepad.h`](../src/workspaces/Notepad.h), [`Notebook.h`](../src/workspaces/Notebook.h), [`FileService.h`](../src/services/FileService.h), [`Fnx.h`](../src/fnx/Fnx.h), [`AppDirs.h`](../src/core/AppDirs.h), [`Time.h`](../src/core/Time.h)
 
@@ -9,79 +9,48 @@ Notes:
 - Autosave only needs timer, most likely
 - Future goal: when autosaves are detected on startup, can prompt with a diff view of autosaved version vs what is on disk if found (if current version not found, we can show a warning in that diff panel)
 
-UNREVIEWED:
-
----
-
 ## Overview
 
-There are three distinct concerns. They share some infrastructure but differ in
-trigger, storage, lifetime, and intent.
+There are three distinct concerns. They share some infrastructure but differ in trigger, storage, lifetime, and intent.
 
 | Concern | Trigger | What is stored | Lifetime | Scope | Priority |
 |---|---|---|---|---|---|
 | Pre-save backup | Each explicit save | Copy of file/archive before overwrite | Permanent (pruned to N) | Per-file (Notepad), per-archive (Notebook) | High |
-| Auto-save (crash recovery) | Periodic timer | Dirty in-memory buffer content | Impermanent (deleted on clean exit) | Per-model | High |
+| Autosave (crash recovery) | Periodic timer | Dirty in-memory buffer content | Impermanent (deleted on clean exit) | Per-model | High |
 | Hot exit / session restore | Clean shutdown / launch | Unsaved buffer state + UI layout | Persistent across sessions | Per-Workspace | Not Planned |
 
-Pre-save backups and auto-save are the two most important missing pieces.
-Together they cover: "I saved something I didn't mean to" (backups) and "the app
-died before I could save" (auto-save). They are independent of each other and
-can be implemented in either order.
+Pre-save backups and autosave are the two most important missing pieces. Together they cover: "I saved something I didn't mean to" (backups) and "the app died before I could save" (autosave). They are independent of each other and can be implemented in either order.
 
-Hot exit (closing without save prompts, restoring dirty state on relaunch) and
-session restore (remembering open tabs and window layout) are lower priority.
-Fernanda's design philosophy favors deliberate saves: users should save before
-closing, and close prompts are important. Hot exit may be offered as a toggleable
-option later. Session restore is orthogonal and deferred partly because it is a
-larger concern in its own right: session data could encompass anything from
-pinned tabs and open windows to dock positions and expanded tree items, with hot
-exit content being just one possible component. The non-hot-exit parts of session
-restore (remembering layout, pinned tabs, which Notebooks were open) are higher
-priority than hot exit itself and do not depend on the backup/recovery
-infrastructure described here.
+Hot exit (closing without save prompts, restoring dirty state on relaunch) and session restore (remembering open tabs and window layout) are lower priority.
+Fernanda's design philosophy favors deliberate saves: users should save before closing, and close prompts are important. Hot exit may be offered as a toggleable option later. Session restore is orthogonal and deferred partly because it is a larger concern in its own right: session data could encompass anything from pinned tabs and open windows to dock positions and expanded tree items, with hot exit content being just one possible component. The non-hot-exit parts of session restore (remembering layout, pinned tabs, which Notebooks were open) are higher priority than hot exit itself and do not depend on the backup/recovery infrastructure described here.
 
 ## Definitions
 
-- **Committed content**: data that has been explicitly saved by the user (the
-  file on disk, or the compressed `.fnx` archive).
-- **Uncommitted content**: edits that exist only in `TextFileModel`'s
-  `QTextDocument` buffer and have not been written anywhere.
+- **Committed content**: data that has been explicitly saved by the user (the file on disk, or the compressed `.fnx` archive).
+- **Uncommitted content**: edits that exist only in `TextFileModel`'s `QTextDocument` buffer and have not been written anywhere.
 - **Working directory**: Notebook's extracted temp directory
-  (`AppDirs::temp() / name~XXXXXX`). Files here reflect the last flush or
-  extraction, not necessarily the current buffer state.
-- **Recovery data**: serialized buffer content written to a dedicated location
-  for the purpose of surviving a crash. Impermanent by design.
-- **Backup**: a copy of committed content made before it is overwritten.
-  Permanent until pruned by count limit.
+  (`AppDirs::temp() / name~XXXXXX`). Currently, files here reflect the last extraction and new files empty files added. Eventually, we will autosave to the working dir, writing the buffer to the original files but not marking the model clean.
+- **Recovery data**: serialized buffer content written to a dedicated location for the purpose of surviving a crash. Impermanent by design.
+- **Autosave**: the saving of recovery data
+- **Backup**: a copy of committed content made before it is overwritten. Permanent until pruned by count limit.
 
-## Current Vulnerability
+## Current Problem
 
-Both Workspace types share the same gap: between user edits and explicit save,
-the only copy of changes is in memory.
+For Notepad, a crash loses all uncommitted edits to every open file. There is nowhere to flush buffers without overwriting the user's committed files.
 
-For Notepad, a crash loses all uncommitted edits to every open file. There is
-nowhere to flush buffers without overwriting the user's committed files.
+For Notebook, a crash also loses all uncommitted edits. The working directory holds the content as of the last explicit Notebook save (or extraction), not the current buffer state. However, the working directory also contains empty files for newly created content (created by `Fnx::Xml::addNewFile()`), whose actual content only exists in memory.
 
-For Notebook, a crash also loses all uncommitted edits. The working directory
-holds the content as of the last explicit Notebook save (or extraction), not the
-current buffer state. However, the working directory also contains empty files
-for newly created content (created by `Fnx::Xml::addNewFile()`), whose actual
-content only exists in memory.
+Flushing buffers to the Notebook working directory is safe because the `.fnx` archive (not the working directory) is the user's source of truth. The working directory is a transient workspace.
 
-Flushing buffers to the Notebook working directory is safe because the `.fnx`
-archive (not the working directory) is the user's source of truth. The working
-directory is a transient workspace.
+Notepad will use an autosave directory (possibly `~/.fernanda/notepad/autosave`).
 
 ### File creation responsibilities
 
-`Fnx::Xml::addNewFile()` creates the physical file in the working directory
-because that is an FNX format concern: establishing the UUID-named file that
-corresponds to the new XML element. `FileService::save()` writes buffer content
-to that file later because FileService owns the models and their data. These are
-different operations at different times for different reasons. The buffer flush
-in auto-save closes the gap naturally: after a flush, the working directory
-truly reflects the current in-memory state for all files (new and existing).
+`Fnx::Xml::addNewFile()` creates the physical file in the working directory because that is an FNX format concern: establishing the UUID-named file that corresponds to the new XML element. `FileService::save()` writes buffer content to that file later because FileService owns the models and their data. These are different operations at different times for different reasons. The buffer flush in autosave closes the gap naturally: after a flush, the working directory truly reflects the current in-memory state for all files (new and existing).
+
+---
+
+UNREVIEWED:
 
 ## Storage Layout
 
@@ -249,8 +218,8 @@ namespace Fernanda::Backup {
 ## Phase 2: Pre-Save Backups
 
 Before overwriting committed content, copy the original to the backup location.
-Backups fire only on explicit save. Auto-save does not trigger backups (Notebook
-auto-flush writes to the working directory, not the archive; Notepad auto-save
+Backups fire only on explicit save. Autosave does not trigger backups (Notebook
+auto-flush writes to the working directory, not the archive; Notepad autosave
 writes to a shadow location, not the original file).
 
 ### Notepad
@@ -343,11 +312,11 @@ Periodically flush dirty in-memory buffers to a recovery location. On clean
 exit, delete the recovery data. On crash, detect orphaned recovery data at
 next launch and offer to restore.
 
-Auto-save is always on. It does not change save prompts or close behavior. It
+Autosave is always on. It does not change save prompts or close behavior. It
 is invisible to the user unless a crash occurs. The save prompt flow on
 close/quit remains exactly as it is: prompt, save/discard/cancel.
 
-The only interaction between auto-save and the close flow is cleanup: when the
+The only interaction between autosave and the close flow is cleanup: when the
 user explicitly discards changes or successfully saves, any recovery data for
 that file/Workspace should be removed.
 
@@ -361,7 +330,7 @@ dirty buffers (check before writing to avoid unnecessary I/O).
 model is saved (committed), when the user discards changes (close tab/window
 with "Discard"), or on clean application exit.
 
-Auto-save does not fire on tab close, window close, or focus loss. These are
+Autosave does not fire on tab close, window close, or focus loss. These are
 normal user actions handled by save prompts. If the user discards changes at a
 prompt, the recovery data is cleaned up. If the user saves at a prompt, the
 committed save removes the need for recovery data.
@@ -369,7 +338,7 @@ committed save removes the need for recovery data.
 ### Write path divergence
 
 The two Workspace types need fundamentally different write destinations for
-auto-save, which affects how `flushRecoveryData()` interacts with FileService.
+autosave, which affects how `flushRecoveryData()` interacts with FileService.
 
 **Notebook** flushes to the model's existing path (the working directory file).
 This is the same path that `FileService::save()` writes to, so Notebook's flush
@@ -623,12 +592,12 @@ unsaved buffer state is deliberately preserved and restored on next launch.
 When disabled (the default and Fernanda's preferred mode), normal save prompts
 apply.
 
-This is architecturally similar to auto-save crash recovery but with different
-intent: auto-save protects against unexpected exits, hot exit handles expected
+This is architecturally similar to autosave crash recovery but with different
+intent: autosave protects against unexpected exits, hot exit handles expected
 exits by design. The storage infrastructure would be largely the same (same
 write locations, same data format), but the lifecycle differs:
 
-- Auto-save data is orphaned (app crashed) and consumed once on recovery.
+- Autosave data is orphaned (app crashed) and consumed once on recovery.
 - Hot exit data is deliberately written on clean shutdown and expected on next
   launch.
 

@@ -224,7 +224,7 @@ bool openFile(const QString& path);
 **TODOs**: Always prefix with `TODO:`
 
 ```cpp
-// TODO: Implement auto-save functionality
+// TODO: Implement autosave functionality
 ```
 
 **General notes**: Do NOT prefix with `NOTE:`
