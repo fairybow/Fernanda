@@ -95,34 +95,17 @@ The exact naming scheme needs careful thought. Some considerations: very long fi
 
 **Notebook recovery via working directory**: because flushing dirty buffers to the working directory is semantically safe (it does not alter the user's `.fnx` source of truth), Notebook crash recovery reuses the existing working directory rather than maintaining a separate shadow location. A lockfile marks unclean shutdown and contains the `.fnx` path to resolve ambiguity when multiple Notebooks share a name.
 
+**Notepad recovery needs a shadow location**: unlike Notebook, writing a Notepad buffer to its original file path is a destructive save. Recovery data must go to a separate directory, keyed by a hash of the original path (matching the backup key). Off-disk files (new, unsaved tabs) use a generated ID since they have no path to hash.
+
+**Backups are permanent, recovery data is not**: backups persist until pruned by count limit. They are the user's safety net for "I saved something I didn't mean to." Recovery data is deleted on every clean exit. It only exists to survive crashes.
+
 ---
 
 UNREVIEWED:
 
-**Notepad recovery needs a shadow location**: unlike Notebook, writing a Notepad
-buffer to its original file path is a destructive save. Recovery data must go to
-a separate directory, keyed by a hash of the original path (matching the backup
-key). Off-disk files (new, unsaved tabs) use a generated ID since they have no
-path to hash.
-
-**Recovery directory as TempDir**: the `recovery/` directory (or at least
-`recovery/notepad/`) could be a `TempDir` object rather than a plain path.
-`TempDir` wraps `QTemporaryDir`, which auto-removes on destruction, giving us
-automatic cleanup on graceful exit for free. On crash, the destructor does not
-run and the directory persists, which is exactly the desired behavior. On next
-launch, Application (most likely) would check for an existing recovery directory
-before creating a new one. Whether `AppDirs` returns just the path or the
-`TempDir` object itself is an open question to resolve during implementation.
-
-**Backups are permanent, recovery data is not**: backups persist until pruned by
-count limit. They are the user's safety net for "I saved something I didn't mean
-to." Recovery data is deleted on every clean exit. It only exists to survive
-crashes.
-
 ## Phase 1: Shared Foundation
 
-A `Backup` namespace in `core/` providing the primitives that later phases
-consume.
+A `Backup` namespace in `core/` providing the primitives that later phases consume.
 
 ### API sketch
 
