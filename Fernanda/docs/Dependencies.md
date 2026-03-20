@@ -3,7 +3,7 @@
 Fernanda relies on Qt 6 and two additional dependencies: Coco (utility library) and miniz (ZIP file read/write).
 
 | Dependency | Type | Location | Purpose |
-|------------|------|----------|---------|
+|---|---|---|---|
 | Qt 6 | External | System/vcpkg | GUI framework, XML, file I/O |
 | Coco | Submodule | `submodules/Coco/` | Path and other (often) Qt-related utilities |
 | miniz | Library | `submodules/miniz` | ZIP archive operations |

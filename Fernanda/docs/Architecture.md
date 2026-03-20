@@ -135,7 +135,7 @@ Services are initialized explicitly after construction. This two-phase initializ
 Modules are optional Services, they follow the same pattern but provide features that could be disabled or swapped. The distinction is conceptual rather than technical.
 
 | Type | Purpose | Examples |
-|------|---------|----------|
+|---|---|---|
 | Service | Core mechanics, always needed | WindowService, ViewService, FileService |
 | Module | Optional features | ColorBarModule, WordCounterModule |
 
@@ -188,7 +188,7 @@ connect(bus, &Bus::windowCreated, this, [this](Window* window) {
 ### When to Use Which
 
 | Use Commands When... | Use Events When... |
-|----------------------|---------------------|
+|---|---|
 | You need a return value | Broadcasting state changes |
 | Requesting an action | Notifying about something that happened |
 | One handler should respond | Multiple listeners may care |

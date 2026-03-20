@@ -54,7 +54,7 @@ signals:
 Each model owns a `FileMeta` that manages path and display information:
 
 | Property | Description |
-|----------|-------------|
+|---|---|
 | `path()` | File path (empty if not on disk) |
 | `isOnDisk()` | Whether the file has been saved |
 | `isStale()` | Whether the file has been moved, modified, or deleted from disk |

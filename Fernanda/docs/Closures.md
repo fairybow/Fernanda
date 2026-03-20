@@ -9,7 +9,7 @@ See: [`WindowService.h`](../src/services/WindowService.h), [`Window.h`](../src/u
 There are three ways windows can be asked to close. All three ultimately converge on the same two outcomes (single-window prompt or combined prompt, if needed):
 
 | Trigger | Entry point | Prompt style |
-|---------|-------------|--------------|
+|---|---|---|
 | Menu "Close Window", X button, or single `window->close()` | `Window::closeEvent` -> deferred -> single-window handler -> `canCloseHook_` | Per-window |
 | Menu "Close All Windows" or "Quit" | `WindowService::closeAll()` -> `canCloseAllHook_` (one combined prompt) -> `isBatchClose_` flag -> `window->close()` on each | Combined |
 | OS taskbar "Close all windows" | Multiple `Window::closeEvent`s -> all deferred -> timer coalesces -> `WindowService::closeAll()` | Combined (identical to menu) |
@@ -90,14 +90,14 @@ The pending set holds raw pointers. Since windows have `WA_DeleteOnClose`, a win
 ### WindowService hooks
 
 | Hook | Signature | Called by | Purpose |
-|------|-----------|-----------|---------|
+|---|---|---|---|
 | `canCloseHook_` | `bool(Window*)` | Deferred single-window close | Ask Workspace if one window may close |
 | `canCloseAllHook_` | `bool(const QList<Window*>&)` | `closeAll()` | Ask Workspace if all windows may close |
 
 ### ViewService hooks
 
 | Hook | Signature | Called by | Purpose |
-|------|-----------|-----------|---------|
+|---|---|---|---|
 | `canCloseTabHook_` | `bool(Window*, int)` | `closeTab()` | Ask Workspace if one tab may close |
 | `canCloseTabEverywhereHook_` | `bool(Window*, int)` | `closeTabEverywhere()` | Ask Workspace if a model's tabs across all windows may close |
 | `canCloseWindowTabsHook_` | `bool(Window*)` | `closeWindowTabs()` | Ask Workspace if all tabs in one window may close |
@@ -114,7 +114,7 @@ Key detail: `canCloseWindow` uses `ExcludeMultiWindow::Yes` when collecting modi
 ## Flags Reference
 
 | Flag | Set by | Checked by | Purpose |
-|------|--------|------------|---------|
+|---|---|---|---|
 | `isBatchClose_` | `closeAll()` | `Window::closeEvent` | Skip per-window hook during batch close |
 | `isDeferredClose_` | `processDeferredCloses_` (single-window branch) | `Window::closeEvent` | Skip re-deferral when executing a deferred close |
 

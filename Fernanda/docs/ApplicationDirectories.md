@@ -7,7 +7,7 @@ See: [`AppDirs.h`](../src/core/AppDirs.h)
 ## Directory Structure
 
 | Directory | Location | Purpose |
-|-----------|----------|---------|
+|---|---|---|
 | User Data | `~/.fernanda/` | Application data (settings, temp files, libraries) |
 | Temp | `~/.fernanda/temp/` | Working directories for open Notebooks |
 | Default Docs | `~/Documents/Fernanda/` | Default location for file dialogs |

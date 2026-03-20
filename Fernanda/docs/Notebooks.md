@@ -27,7 +27,7 @@ Notebook Workspace
 ### Class Responsibilities
 
 | Class/Namespace | Responsibility |
-|-----------------|----------------|
+|---|---|
 | `Notebook` | Policy, working directory lifecycle, wires components together |
 | `FnxModel` | Qt model/view adapter, DOM ownership, tree operations |
 | `FnxModelCache` | Stable ID tracking for DOM elements (prevents QPersistentModelIndex crashes) |
@@ -78,7 +78,7 @@ Files in `content/` are named by UUID with normalized extensions:
 #### Element Tags
 
 | Tag | Description |
-|-----|-------------|
+|---|---|
 | `fnx` | Document root (contains `notebook` and `trash`) |
 | `notebook` | User-visible root for active content |
 | `trash` | Container for soft-deleted items |
@@ -92,14 +92,14 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 **Common (both `vfolder` and `file`):**
 
 | Attribute | Required | Description |
-|-----------|----------|-------------|
+|---|---|
 | `name` | Yes | Display name shown in TreeView |
 | `uuid` | Yes | Unique identifier (also the filename in `content/`) |
 
 **File-specific:**
 
 | Attribute | Required | Description |
-|-----------|----------|-------------|
+|---|---|---|
 | `extension` | Yes | File extension (e.g., `.txt`) |
 | `edited` | No | Presence indicates unsaved changes (runtime-only; the attribute IS the boolean and holds no value) |
 | `parent_on_restore_uuid` | No | Original parent UUID for trash restoration |
@@ -110,7 +110,7 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 #### Default Values
 
 | Context | Attribute | Default |
-|---------|-----------|---------|
+|---|---|---|
 | New file | `name` | `Untitled` |
 | New virtual folder | `name` | `New folder` |
 
@@ -202,7 +202,7 @@ The Trash provides soft-delete functionality with restoration capability.
 ### Behavior
 
 | Action | Effect |
-|--------|--------|
+|---|---|
 | Remove item | Moves to `<trash>`, stores original parent UUID |
 | Item in trash | Still editable, tabs remain open, still savable |
 | Restore item | Returns to original parent (or `<notebook>` if parent gone) |
@@ -235,7 +235,7 @@ All modified `AbstractFileModel`s are saved to the working directory via `FileSe
 ### Save Scenarios
 
 | Scenario | Archive Exists | Modified | Action |
-|----------|---------------|----------|--------|
+|---|---|---|---|
 | Closure | Yes | No | Close immediately |
 | Closure | Yes | Yes | Prompt -> Save to existing path |
 | Closure | No | (always modified) | Prompt -> Save As dialog |
@@ -256,7 +256,7 @@ New Notebooks (created via "New Notebook" rather than opening an existing `.fnx`
 ### Main TreeView (Notebook items)
 
 | Item | Condition | Action |
-|------|-----------|--------|
+|---|---|---|
 | New File | Always | Creates file under selection (or root) |
 | New Folder | Always | Creates virtual folder under selection (or root) |
 | Expand/Collapse | Has children | Toggle expansion |
@@ -266,7 +266,7 @@ New Notebooks (created via "New Notebook" rather than opening an existing `.fnx`
 ### Trash TreeView
 
 | Item | Condition | Action |
-|------|-----------|--------|
+|---|---|---|
 | Expand/Collapse | Has children | Toggle expansion |
 | Rename | Valid selection | Inline edit |
 | Restore | Valid selection | Move back to notebook |
@@ -296,14 +296,14 @@ Each Notebook can have its own `Settings.ini` stored in the archive. This file w
 ### FnxModel Signals
 
 | Signal | Emitted When |
-|--------|--------------|
+|---|---|
 | `domChanged()` | DOM structure modified (add, remove, move, rename) |
 | `fileRenamed(FileInfo)` | File element's name attribute changed |
 
 ### Notebook Signals
 
 | Signal | Emitted When |
-|--------|--------------|
+|---|---|
 | `openNotepadRequested()` | User requests opening Notepad workspace |
 
 ## Workflow Examples
