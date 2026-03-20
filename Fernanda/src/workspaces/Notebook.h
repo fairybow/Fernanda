@@ -79,7 +79,8 @@ public:
     Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
         : Workspace(parent)
         , fnxPath_(fnxPath)
-        , workingDir_(AppDirs::temp() / (fnxPath_.nameQString() + "~XXXXXX"))
+        , workingDir_(
+              AppDirs::tempNotebooks() / (fnxPath_.nameQString() + "~XXXXXX"))
     {
         setup_();
     }

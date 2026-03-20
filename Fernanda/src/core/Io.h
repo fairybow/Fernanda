@@ -63,7 +63,7 @@ inline bool write(
     if (createDirs) {
         auto parent_path = path.parent();
         if (!parent_path.exists()) {
-            if (!Coco::mkdir(parent_path)) {
+            if (!Coco::mkpath(parent_path)) {
                 WARN("Failed to create directory at {}!", parent_path);
                 return false;
             }

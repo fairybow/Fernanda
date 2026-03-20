@@ -42,15 +42,9 @@ For Notebook, a crash also loses all uncommitted edits. The working directory ho
 
 Flushing buffers to the Notebook working directory is safe because the `.fnx` archive (not the working directory) is the user's source of truth. The working directory is a transient workspace.
 
-Notepad will use an autosave directory (possibly `~/.fernanda/notepad/autosave`).
-
 ### File creation responsibilities
 
 `Fnx::Xml::addNewFile()` creates the physical file in the working directory because that is an FNX format concern: establishing the UUID-named file that corresponds to the new XML element. `FileService::save()` writes buffer content to that file later because FileService owns the models and their data. These are different operations at different times for different reasons. The buffer flush in autosave closes the gap naturally: after a flush, the working directory truly reflects the current in-memory state for all files (new and existing).
-
----
-
-UNREVIEWED:
 
 ## Storage Layout
 
@@ -81,12 +75,17 @@ UNREVIEWED:
             {notebook-working-dir-name}/
                 dirty.lock          (unclean shutdown marker; contains .fnx path)
 ```
+
 ```
 AppDirs::backups()   ->  ~/.fernanda/backups/      (exists)
 AppDirs::recovery()  ->  ~/.fernanda/recovery/     (new; possibly a TempDir for
                                                      automatic cleanup on
                                                      graceful exit)
 ```
+
+---
+
+UNREVIEWED:
 
 ### Key design decisions
 

@@ -45,7 +45,11 @@ public:
         setup_();
     }
 
-    virtual ~Application() override { TRACER; }
+    virtual ~Application() override
+    {
+        AppDirs::cleanup();
+        TRACER;
+    }
 
     void initialize()
     {

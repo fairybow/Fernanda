@@ -28,14 +28,6 @@ inline const Coco::Path& userData()
     return dir;
 }
 
-// TODO: Backups folder
-
-inline const Coco::Path& temp()
-{
-    static auto dir = userData() / "temp";
-    return dir;
-}
-
 inline const Coco::Path& userThemes()
 {
     static auto dir = userData() / "themes";
@@ -48,6 +40,36 @@ inline const Coco::Path& backups()
     return dir;
 }
 
+inline const Coco::Path& temp()
+{
+    static auto dir = userData() / "temp";
+    return dir;
+}
+
+inline const Coco::Path& tempNotebooks()
+{
+    static auto dir = temp() / "notebooks";
+    return dir;
+}
+
+inline const Coco::Path& recovery()
+{
+    static auto dir = userData() / "recovery";
+    return dir;
+}
+
+inline const Coco::Path& recoveryNotepad()
+{
+    static auto dir = recovery() / "notepad";
+    return dir;
+}
+
+inline const Coco::Path& recoveryNotebooks()
+{
+    static auto dir = recovery() / "notebooks";
+    return dir;
+}
+
 // TODO: Make configurable
 inline const Coco::Path& defaultDocs()
 {
@@ -56,22 +78,40 @@ inline const Coco::Path& defaultDocs()
 }
 
 // Cannot be called before Application has finished construction, since it
-// relies on Path::SystemDir functions, which only work once Qt is ready
+// relies on Path's system directory functions which only work once Qt is ready
 inline bool initialize()
 {
-    auto& t = temp();
-    auto& th = userThemes();
-    auto& d = defaultDocs();
+    auto all_ok = true;
 
-    auto temp_ok = t.exists() || Coco::mkdir(t);
-    auto themes_ok = th.exists() || Coco::mkdir(th);
-    auto docs_ok = d.exists() || Coco::mkdir(d);
+    for (auto& dir : {
+             // Use leaf directories
+             userThemes(),
+             backups(),
+             tempNotebooks(),
+             recoveryNotepad(),
+             recoveryNotebooks(),
+             defaultDocs(),
+         }) {
+        if (!dir.exists() && !Coco::mkpath(dir)) {
+            CRITICAL("AppDirs directory non-existent!: {}", dir);
+            all_ok = false;
+        }
+    }
 
-    if (!temp_ok) CRITICAL("Temp directory non-existent!: {}", t);
-    if (!themes_ok) CRITICAL("User themes directory non-existent!: {}", th);
-    if (!docs_ok) CRITICAL("Docs directory non-existent!: {}", d);
+    return all_ok;
+}
 
-    return temp_ok && themes_ok && docs_ok;
+// Deletes the temp and recovery directories only!
+// TODO: Log failure before quit?
+inline void cleanup()
+{
+    for (auto& dir : { tempNotebooks(),
+                       temp(),
+                       recoveryNotepad(),
+                       recoveryNotebooks(),
+                       recovery() }) {
+        Coco::rmdir(dir); // Fails if the dir isn't empty
+    }
 }
 
 } // namespace Fernanda::AppDirs

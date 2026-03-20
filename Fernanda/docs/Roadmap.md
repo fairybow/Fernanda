@@ -41,6 +41,8 @@
 - [ ] Tab context menu (would have duplicate, save, save as, etc)
 - [x] Uniform path display in save and reload prompts
 
+- [ ] For Multi-file save prompt, can organize by directory, so we aren't repeating path for every file (just show parent as collapsible list and each individual name with check box (could also allow the list to be checked))
+
 ## File Types (Remaining)
 
 From the file-types branch. See FileHandling.md for design details.
@@ -64,6 +66,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - TODO FT (file types)
 - TODO XP (cross platform)
 - TODO STYLE
+- TODO BA (backup/autosave)
 
 ## Features
 
