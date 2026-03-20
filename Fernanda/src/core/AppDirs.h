@@ -22,27 +22,32 @@
 // initialized before Qt has been initialized)
 namespace Fernanda::AppDirs {
 
+// clang-format off
+//
+// Structure:
+//
+// ~/.fernanda/
+// |-- ~temp/
+// |   |-- notebooks/
+// |   +-- recovery/
+// |       |-- notebooks/
+// |       +-- notepad/
+// |-- backups/
+// +-- themes/
+// 
+// ~/Documents/Fernanda
+//
+// clang-format on
+
 inline const Coco::Path& userData()
 {
     static auto dir = Coco::Path::Home(".fernanda");
     return dir;
 }
 
-inline const Coco::Path& userThemes()
-{
-    static auto dir = userData() / "themes";
-    return dir;
-}
-
-inline const Coco::Path& backups()
-{
-    static auto dir = userData() / "backups";
-    return dir;
-}
-
 inline const Coco::Path& temp()
 {
-    static auto dir = userData() / "temp";
+    static auto dir = userData() / "~temp";
     return dir;
 }
 
@@ -52,21 +57,33 @@ inline const Coco::Path& tempNotebooks()
     return dir;
 }
 
-inline const Coco::Path& recovery()
+inline const Coco::Path& tempRecovery()
 {
-    static auto dir = userData() / "recovery";
+    static auto dir = temp() / "recovery";
     return dir;
 }
 
-inline const Coco::Path& recoveryNotepad()
+inline const Coco::Path& tempNotebookRecovery()
 {
-    static auto dir = recovery() / "notepad";
+    static auto dir = tempRecovery() / "notebooks";
     return dir;
 }
 
-inline const Coco::Path& recoveryNotebooks()
+inline const Coco::Path& tempNotepadRecovery()
 {
-    static auto dir = recovery() / "notebooks";
+    static auto dir = tempRecovery() / "notepad";
+    return dir;
+}
+
+inline const Coco::Path& backups()
+{
+    static auto dir = userData() / "backups";
+    return dir;
+}
+
+inline const Coco::Path& themes()
+{
+    static auto dir = userData() / "themes";
     return dir;
 }
 
@@ -85,11 +102,11 @@ inline bool initialize()
 
     for (auto& dir : {
              // Use leaf directories
-             userThemes(),
-             backups(),
              tempNotebooks(),
-             recoveryNotepad(),
-             recoveryNotebooks(),
+             tempNotebookRecovery(),
+             tempNotepadRecovery(),
+             backups(),
+             themes(),
              defaultDocs(),
          }) {
         if (!dir.exists() && !Coco::mkpath(dir)) {
@@ -105,11 +122,11 @@ inline bool initialize()
 // TODO: Log failure before quit?
 inline void cleanup()
 {
-    for (auto& dir : { tempNotebooks(),
-                       temp(),
-                       recoveryNotepad(),
-                       recoveryNotebooks(),
-                       recovery() }) {
+    for (auto& dir : { tempNotepadRecovery(),
+                       tempNotebookRecovery(),
+                       tempRecovery(),
+                       tempNotebooks(),
+                       temp() }) {
         Coco::rmdir(dir); // Fails if the dir isn't empty
     }
 }

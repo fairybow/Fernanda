@@ -1,5 +1,7 @@
 # Application Directories
 
+TODO: Out of date with AppDirs
+
 Fernanda uses a few standard locations for storing data.
 
 See: [`AppDirs.h`](../src/core/AppDirs.h)
