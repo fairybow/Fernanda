@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QByteArray>
 #include <QFileSystemWatcher>
 #include <QHash>
@@ -64,6 +66,11 @@ public:
     }
 
     virtual ~FileService() override { TRACER; }
+
+    DECLARE_HOOK(
+        std::function<void(const Coco::Path&)>,
+        beforeWriteHook,
+        setBeforeWriteHook)
 
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
@@ -215,6 +222,8 @@ private:
     QSet<AbstractFileModel*> fileModels_{};
     QHash<Coco::Path, AbstractFileModel*> pathToFileModel_{};
     QFileSystemWatcher* watcher_ = new QFileSystemWatcher(this);
+
+    // For ignoring our own watcher signals
     QSet<QString> recentlyWritten_{};
 
     void setup_()
@@ -403,10 +412,24 @@ private:
     SaveResult
     writeModelToDisk_(AbstractFileModel* model, const Coco::Path& path)
     {
-        recentlyWritten_ << path.toQString();
+        if (beforeWriteHook_) beforeWriteHook_(path);
+
+        auto q_path = path.toQString();
+
+        // Temporarily remove from watcher. On Windows, QSaveFile::commit()
+        // atomically replaces via MoveFileEx, which can fail with "Access is
+        // denied" if the watcher engine holds a transient handle on the file
+        // during a stat check
+        watcher_->removePath(q_path);
 
         auto data = model->data();
         auto success = Io::write(data, path);
+
+        // Re-add to watcher. recentlyWritten_ guards against a spurious
+        // fileChanged signal that some platforms emit on re-add
+        recentlyWritten_ << q_path;
+        watcher_->addPath(q_path);
+
         if (success) model->setModified(false);
 
         return success ? Success : Failure;

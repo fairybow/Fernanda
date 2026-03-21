@@ -42,6 +42,7 @@
 #include "services/WindowService.h"
 #include "ui/Window.h"
 #include "views/AbstractFileView.h"
+#include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
 #include "workspaces/NotepadFileSystemModel.h"
 #include "workspaces/SaveFailMessageBox.h"
@@ -487,6 +488,15 @@ private:
         treeViews->setVisibilityConfig(
             treeViewDockIniKey(),
             Ini::Defaults::notepadTreeViewDock()); /// TODO TVT
+
+        files->setBeforeWriteHook([](const Coco::Path& path) {
+            if (!path.exists())
+                return; // Backups don't apply to off-disk files (unlike
+                        // recovery/autosave)
+
+            /// TODO BA: Read pruning cap from settings?
+            Backup::createAndPrune(path, AppDirs::notepadBackups(), 5);
+        });
 
         connect(
             treeViews,

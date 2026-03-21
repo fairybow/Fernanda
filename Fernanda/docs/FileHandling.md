@@ -212,7 +212,7 @@ All file operations that involve user interaction (dialogs, prompts) are listed 
 ### Application
 
 | Operation | Description | Filter |
-|-----------|-------------|--------|
+|---|---|---|
 | **Args / drag-to-open / relaunch** | Files passed via command line or drag-onto-exe. `isFnxFile` partitions into Notebook files and regular files. Regular files go to Notepad. | None (filesystem) |
 
 ### All Workspaces
@@ -220,14 +220,14 @@ All file operations that involve user interaction (dialogs, prompts) are listed 
 These operations appear in the menu bar of every Workspace (Notepad and all Notebooks).
 
 | Operation | Description | Filter |
-|-----------|-------------|--------|
+|---|---|---|
 | **New Notebook** | Prompts for a name, creates a new `.fnx` path, and emits `newNotebookRequested`. No file dialog. | None (name prompt only) |
 | **Open Notebook** | File dialog for selecting a `.fnx` file. Validates with `isFnxFile` after selection. Silently refuses if invalid. | `*.fnx` |
 
 ### Notepad
 
 | Operation | Description | Filter |
-|-----------|-------------|--------|
+|---|---|---|
 | **New Tab** | Creates an off-disk text file (no dialog). Will eventually expand to offer other creatable types (Markdown, Corkboard, etc.) via an overflow menu or right-click on the new tab button. | None |
 | **Open File** | File dialog for selecting files. Each file is checked with `isFnxFile`; passing files go to a Notebook, others open via `FileService` (two-tier). | All files |
 | **TreeView double-click** | Same `isFnxFile` routing as Open File. | None (filesystem) |
@@ -240,7 +240,7 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 ### Notebook
 
 | Operation | Description | Filter |
-|-----------|-------------|--------|
+|---|---|---|
 | **New File** | Creates a new file inside the archive via `Fnx::Xml::addNewFile(kind)` (no dialog). Currently only creates plain text (`FileTypes::PlainText`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
 | **New Folder** | Creates a new virtual folder in the archive's XML manifest. No file is created. | None |
 | **Import Files** | File dialog for selecting files from disk. Accepts any file type (no filter). Selected files are copied into the archive's `content/` directory as `{uuid}.{ext}` (extension taken from source path via `fsPath.extQString()`). The source file's stem becomes the display name in the manifest. Imported files are opened after import. | All files |

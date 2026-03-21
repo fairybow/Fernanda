@@ -338,7 +338,7 @@ namespace Io {
     inline void makeNewWorkingDir(const Coco::Path& workingDir)
     {
         // Create content directory
-        if (!Coco::mkdir(workingDir / Internal::IO_CONTENT_DIR_NAME_)) return;
+        if (!Coco::mkpath(workingDir / Internal::IO_CONTENT_DIR_NAME_)) return;
 
         // Create base Manifest.xml
         QByteArray xml_content{};
@@ -407,11 +407,11 @@ namespace Io {
             auto out_path = workingDir / stat.m_filename;
 
             if (mz_zip_reader_is_file_a_directory(&zip, i)) {
-                Coco::mkdir(out_path);
+                Coco::mkpath(out_path);
                 continue;
             }
 
-            Coco::mkdir(out_path.parent());
+            Coco::mkpath(out_path.parent());
 
             if (!mz_zip_reader_extract_to_file(
                     &zip,

@@ -13,7 +13,7 @@ The detection layer lives in `FileService`, which owns a `QFileSystemWatcher` mo
 ## Change Scenarios
 
 | Scenario | Notepad | Notebook | Internally intercepted | Result |
-|----------|---------|----------|------------------------|--------|
+|---|---|---|---|---|
 | Renamed (`TreeView`) | Yes | No (UUIDs) | Yes (fileRenamed) | Path updated |
 | Moved (`TreeView` drag-and-drop) | Yes | No (UUIDs) | Yes (fileMoved) | Path updated |
 | Deleted externally | Yes | Unlikely | No | Stale + alert |

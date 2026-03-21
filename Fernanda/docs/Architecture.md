@@ -135,7 +135,7 @@ Services are initialized explicitly after construction. This two-phase initializ
 Modules are optional Services, they follow the same pattern but provide features that could be disabled or swapped. The distinction is conceptual rather than technical.
 
 | Type | Purpose | Examples |
-|------|---------|----------|
+|---|---|---|
 | Service | Core mechanics, always needed | WindowService, ViewService, FileService |
 | Module | Optional features | ColorBarModule, WordCounterModule |
 
@@ -188,7 +188,7 @@ connect(bus, &Bus::windowCreated, this, [this](Window* window) {
 ### When to Use Which
 
 | Use Commands When... | Use Events When... |
-|----------------------|---------------------|
+|---|---|
 | You need a return value | Broadcasting state changes |
 | Requesting an action | Notifying about something that happened |
 | One handler should respond | Multiple listeners may care |
@@ -202,19 +202,15 @@ Hooks let Workspaces inject policy into Service operations. A Service defines th
 
 ```cpp
 // In WindowService:
-using CanCloseHook = std::function<bool(Window*)>;
-
-DECLARE_HOOK_ACCESSORS(
-    CanCloseHook,
+DECLARE_HOOK(
+    std::function<bool(Window*)>,
     canCloseHook,
-    setCanCloseHook,
-    canCloseHook_);
+    setCanCloseHook)
 
 // Usage in WindowService:
-if (canCloseHook_ && !canCloseHook_(window)) 
+if (canCloseHook_ && !canCloseHook_(window))
     return;  // Workspace rejected the close
 ```
-
 ```cpp
 // In Workspace subclass:
 windows->setCanCloseHook(this, &MyWorkspace::canCloseWindow);
@@ -225,14 +221,11 @@ bool MyWorkspace::canCloseWindow(Window* window) {
 }
 ```
 
-The `DECLARE_HOOK_ACCESSORS` macro generates:
-- A getter returning the current hook
-- A setter accepting a `std::function`
-- A setter accepting a member function pointer (for cleaner syntax)
+The `DECLARE_HOOK` macro generates a private member (`canCloseHook_`), a getter, a setter accepting a `std::function`, and a setter accepting a member function pointer (for cleaner syntax when the hook is a member function). The macro contains access specifiers, so code following it will be public.
 
 ### Hook Design Philosophy
 
-Services define *what* can be hooked (close operations, model creation, etc.). Workspaces define *how* to handle those situations.
+Services define *what* can be hooked (close operations, file writes, etc.). Workspaces define *how* to handle those situations.
 
 This separation means:
 - Services remain reusable across Workspace types

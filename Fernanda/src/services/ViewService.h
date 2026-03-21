@@ -60,11 +60,6 @@ class ViewService : public AbstractService
     Q_OBJECT
 
 public:
-    using CanCloseTabHook = std::function<bool(Window*, int index)>;
-    using CanCloseTabEverywhereHook = std::function<bool(Window*, int index)>;
-    using CanCloseWindowTabsHook = std::function<bool(Window*)>;
-    using CanCloseAllTabsHook = std::function<bool(const QList<Window*>&)>;
-
     ViewService(Bus* bus, QObject* parent = nullptr)
         : AbstractService(bus, parent)
     {
@@ -73,29 +68,25 @@ public:
 
     virtual ~ViewService() override { TRACER; }
 
-    DECLARE_HOOK_ACCESSORS(
-        CanCloseTabHook,
+    DECLARE_HOOK(
+        std::function<bool(Window*, int index)>,
         canCloseTabHook,
-        setCanCloseTabHook,
-        canCloseTabHook_);
+        setCanCloseTabHook)
 
-    DECLARE_HOOK_ACCESSORS(
-        CanCloseTabEverywhereHook,
+    DECLARE_HOOK(
+        std::function<bool(Window*, int index)>,
         canCloseTabEverywhereHook,
-        setCanCloseTabEverywhereHook,
-        canCloseTabEverywhereHook_);
+        setCanCloseTabEverywhereHook)
 
-    DECLARE_HOOK_ACCESSORS(
-        CanCloseWindowTabsHook,
+    DECLARE_HOOK(
+        std::function<bool(Window*)>,
         canCloseWindowTabsHook,
-        setCanCloseWindowTabsHook,
-        canCloseWindowTabsHook_);
+        setCanCloseWindowTabsHook)
 
-    DECLARE_HOOK_ACCESSORS(
-        CanCloseAllTabsHook,
+    DECLARE_HOOK(
+        std::function<bool(const QList<Window*>&)>,
         canCloseAllTabsHook,
-        setCanCloseAllTabsHook,
-        canCloseAllTabsHook_);
+        setCanCloseAllTabsHook)
 
     /// TODO TD
     // Insert a dragged tab into a window's TabWidget
@@ -545,11 +536,6 @@ protected:
 private:
     QHash<Window*, AbstractFileView*> activeFileViews_{};
     QHash<AbstractFileModel*, int> fileViewsPerModel_{};
-    CanCloseTabHook canCloseTabHook_ = nullptr;
-    CanCloseTabEverywhereHook canCloseTabEverywhereHook_ = nullptr;
-    CanCloseWindowTabsHook canCloseWindowTabsHook_ = nullptr;
-    CanCloseAllTabsHook canCloseAllTabsHook_ = nullptr;
-
     QHash<QString, std::function<void(const QVariant&)>> settingAppliers_{};
 
     void setup_()

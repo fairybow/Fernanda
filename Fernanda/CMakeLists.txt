@@ -166,6 +166,7 @@ set(FERNANDA_HEADERS
     src/views/PdfFileView.h
     src/views/TextFileView.h
 
+    src/workspaces/Backup.h
     src/workspaces/Bus.h
     src/workspaces/Commander.h
     src/workspaces/NewNotebookPrompt.h

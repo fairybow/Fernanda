@@ -2,17 +2,23 @@
 
 ## Current
 
+- [x] CRITICAL BUG: Occasionally, saving Paradise Lost, I'll see a save fail prompt. It happens without the beforeWriteHook_ but not often. The hook doesn't seem to affect the frequency. Problem might be in Io::write and with QSaveFile? Here's the debug output that shows up related to this: `239 | 2026-03-20 | 22:11:19.360 | Failed to commit file at C:/.../Documents/Fernanda/Paradise Lost.txt (Error: Access is denied.)!` (see FileService writeModelToDisk_ for the fix)
+
 - [ ] Possible to make Workspace-modal dialogs (for something like close all windows or tabs)?
 - [ ] ^ If so, do a modality overhaul, checking dialogs and call sites for what window or workspace to pass (or set app modal, like for quit)
-- [ ] Comprehensive plan doc for backups/autosave
+- [x] Comprehensive plan doc for backups/autosave
 - [x] Backup folder in AppDirs
-- [ ] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
-- [ ] Backup manager class
-- [ ] ^ Ability to clean up oldest backup past set limit
+- [x] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
+
+- [x] Backup namespace
+- [x] ^ Ability to clean up oldest backup past set limit
 - [x] Hook spot in Fnx::compress
-- [ ] Hook spot in FilService (for Notepad to use)?
-- [ ] Notebook implementation
-- [ ] Notepad implementation
+- [x] Hook spot in FilService (for Notepad to use)?
+- [x] Notebook implementation
+- [x] Notepad implementation
+- [ ] Backups prune cap setting
+
+- [ ] Chip/label on window to show it's in debug mode?
 
 - [ ] Coco CMake?
 - [x] Replace bit7z with miniz
@@ -41,6 +47,8 @@
 - [ ] Tab context menu (would have duplicate, save, save as, etc)
 - [x] Uniform path display in save and reload prompts
 
+- [ ] For Multi-file save prompt, can organize by directory, so we aren't repeating path for every file (just show parent as collapsible list and each individual name with check box (could also allow the list to be checked))
+
 ## File Types (Remaining)
 
 From the file-types branch. See FileHandling.md for design details.
@@ -64,6 +72,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - TODO FT (file types)
 - TODO XP (cross platform)
 - TODO STYLE
+- TODO BA (backup/autosave)
 
 ## Features
 

@@ -1,6 +1,8 @@
 # Features
 
-Current vesion: v0.99.0-beta.1
+TODO: Add backups and autosave
+
+Current vesion: v0.99.0-beta.10
 
 ## Separate Workspaces
 
@@ -233,7 +235,7 @@ TODO: Section for all shared Workspace funtionality (e.g., PDF support)
 
 ## Planned
 
-- Auto-save
+- Autosave
 - Automatic backups
 - Small utilities (like a pomodoro timer)
 - FNX compilation/export

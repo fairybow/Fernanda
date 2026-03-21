@@ -148,7 +148,7 @@ private:
         auto qrc_paths =
             Coco::filePaths(QRC_DIR_, { QStringLiteral("*%1").arg(ext) });
         auto user_paths = Coco::filePaths(
-            AppDirs::userThemes(),
+            AppDirs::themes(),
             { QStringLiteral("*%1").arg(ext) });
 
         userThemePaths = { user_paths.begin(), user_paths.end() };
@@ -172,7 +172,7 @@ private:
     void setupThemeWatches_()
     {
         // Watch user data directory for new/removed theme files
-        auto qstr_user_dir = AppDirs::userThemes().toQString();
+        auto qstr_user_dir = AppDirs::themes().toQString();
         if (!qstr_user_dir.isEmpty()) userThemeWatcher_->addPath(qstr_user_dir);
 
         // Watch individual theme files for content changes
@@ -298,12 +298,12 @@ private slots:
 
         // Re-scan for current files on disk
         auto current_window_paths = Coco::filePaths(
-            AppDirs::userThemes(),
+            AppDirs::themes(),
             { QStringLiteral("*%1").arg(
                 FileTypes::canonicalExt(FileTypes::FernandaWindowTheme)) });
 
         auto current_editor_paths = Coco::filePaths(
-            AppDirs::userThemes(),
+            AppDirs::themes(),
             { QStringLiteral("*%1").arg(
                 FileTypes::canonicalExt(FileTypes::FernandaEditorTheme)) });
 

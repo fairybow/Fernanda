@@ -20,7 +20,28 @@
 // For creating and retrieving non-configurable application paths
 // (Coco::Path::SystemDir won't work as a static member variable, since it'll be
 // initialized before Qt has been initialized)
+//
+// TODO: Create these on demand?
 namespace Fernanda::AppDirs {
+
+// clang-format off
+//
+// Structure:
+//
+// ~/.fernanda/
+// |-- ~temp/
+// |   |-- notebooks/
+// |   +-- recovery/
+// |       |-- notebooks/
+// |       +-- notepad/
+// |-- backups/
+// |   |-- notebooks/
+// |   +-- notepad/
+// +-- themes/
+// 
+// ~/Documents/Fernanda
+//
+// clang-format on
 
 inline const Coco::Path& userData()
 {
@@ -28,23 +49,57 @@ inline const Coco::Path& userData()
     return dir;
 }
 
-// TODO: Backups folder
-
 inline const Coco::Path& temp()
 {
-    static auto dir = userData() / "temp";
+    static auto dir = userData() / "~temp";
     return dir;
 }
 
-inline const Coco::Path& userThemes()
+inline const Coco::Path& tempNotebooks()
 {
-    static auto dir = userData() / "themes";
+    static auto dir = temp() / "notebooks";
+    return dir;
+}
+
+inline const Coco::Path& tempRecovery()
+{
+    static auto dir = temp() / "recovery";
+    return dir;
+}
+
+inline const Coco::Path& tempNotebookRecovery()
+{
+    static auto dir = tempRecovery() / "notebooks";
+    return dir;
+}
+
+inline const Coco::Path& tempNotepadRecovery()
+{
+    static auto dir = tempRecovery() / "notepad";
     return dir;
 }
 
 inline const Coco::Path& backups()
 {
     static auto dir = userData() / "backups";
+    return dir;
+}
+
+inline const Coco::Path& notebookBackups()
+{
+    static auto dir = backups() / "notebooks";
+    return dir;
+}
+
+inline const Coco::Path& notepadBackups()
+{
+    static auto dir = backups() / "notepad";
+    return dir;
+}
+
+inline const Coco::Path& themes()
+{
+    static auto dir = userData() / "themes";
     return dir;
 }
 
@@ -56,22 +111,41 @@ inline const Coco::Path& defaultDocs()
 }
 
 // Cannot be called before Application has finished construction, since it
-// relies on Path::SystemDir functions, which only work once Qt is ready
+// relies on Path's system directory functions which only work once Qt is ready
 inline bool initialize()
 {
-    auto& t = temp();
-    auto& th = userThemes();
-    auto& d = defaultDocs();
+    auto all_ok = true;
 
-    auto temp_ok = t.exists() || Coco::mkdir(t);
-    auto themes_ok = th.exists() || Coco::mkdir(th);
-    auto docs_ok = d.exists() || Coco::mkdir(d);
+    for (auto& dir : {
+             // Use leaf directories
+             tempNotebooks(),
+             tempNotebookRecovery(),
+             tempNotepadRecovery(),
+             notebookBackups(),
+             notepadBackups(),
+             themes(),
+             defaultDocs(),
+         }) {
+        if (!dir.exists() && !Coco::mkpath(dir)) {
+            CRITICAL("AppDirs directory non-existent!: {}", dir);
+            all_ok = false;
+        }
+    }
 
-    if (!temp_ok) CRITICAL("Temp directory non-existent!: {}", t);
-    if (!themes_ok) CRITICAL("User themes directory non-existent!: {}", th);
-    if (!docs_ok) CRITICAL("Docs directory non-existent!: {}", d);
+    return all_ok;
+}
 
-    return temp_ok && themes_ok && docs_ok;
+// Deletes the temp and recovery directories only!
+// TODO: Log failure before quit?
+inline void cleanup()
+{
+    for (auto& dir : { tempNotepadRecovery(),
+                       tempNotebookRecovery(),
+                       tempRecovery(),
+                       tempNotebooks(),
+                       temp() }) {
+        Coco::rmdir(dir); // Fails if the dir isn't empty
+    }
 }
 
 } // namespace Fernanda::AppDirs
