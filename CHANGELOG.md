@@ -28,17 +28,12 @@ Download the newest installer (below). Ensure Fernanda is closed, then run the i
 
 Run the uninstaller (`unins000.exe`) or remove via **Add or Remove Programs** as usual.
 
-Fernanda does not automatically delete its data folders on uninstall. After running the uninstaller, you may want to remove these manually:
+Fernanda doesn't delete its data folders on uninstall since they may contain writing. After running the uninstaller, you may want to remove them manually:
 
 | Folder | Location | Contents |
 |---|---|---|
 | User Data | `~/.fernanda/` | Settings, backups, temp files, themes |
 | Default Docs | `~/Documents/Fernanda/` | Default location for file dialogs |
-
-> [!CAUTION]
-> The `~/.fernanda/backups/` folder contains pre-save backups of your files and archives. You may want to check it before deleting user data.
->
-> Fernanda also won't delete `~/Documents/Fernanda/`, since your writing may be stored there. If you're sure you don't need either folder, you can remove them yourself.
 
 ## Platform
 
