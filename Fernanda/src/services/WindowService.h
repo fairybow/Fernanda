@@ -51,9 +51,6 @@ class WindowService : public AbstractService
 public:
     friend class Window;
 
-    using CanCloseHook = std::function<bool(Window*)>;
-    using CanCloseAllHook = std::function<bool(const QList<Window*>&)>;
-
     WindowService(Bus* bus, QObject* parent = nullptr)
         : AbstractService(bus, parent)
     {
@@ -62,17 +59,12 @@ public:
 
     virtual ~WindowService() override { TRACER; }
 
-    DECLARE_HOOK_ACCESSORS(
-        CanCloseHook,
-        canCloseHook,
-        setCanCloseHook,
-        canCloseHook_);
+    DECLARE_HOOK(std::function<bool(Window*)>, canCloseHook, setCanCloseHook)
 
-    DECLARE_HOOK_ACCESSORS(
-        CanCloseAllHook,
+    DECLARE_HOOK(
+        std::function<bool(const QList<Window*>&)>,
         canCloseAllHook,
-        setCanCloseAllHook,
-        canCloseAllHook_);
+        setCanCloseAllHook)
 
     bool closeAll()
     {
@@ -217,8 +209,6 @@ private:
     QSet<Window*> pendingCloseWindows_{};
     bool isDeferredClose_ = false;
     bool isBatchClose_ = false;
-    CanCloseHook canCloseHook_ = nullptr;
-    CanCloseAllHook canCloseAllHook_ = nullptr;
 
     bool windowsFlagged_ = false;
     QString windowsSubtitle_{};

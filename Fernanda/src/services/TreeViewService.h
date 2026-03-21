@@ -50,10 +50,6 @@ class TreeViewService : public AbstractService
     Q_OBJECT
 
 public:
-    using ModelHook = std::function<QAbstractItemModel*()>;
-    using RootIndexHook = std::function<QModelIndex()>;
-    using DockWidgetHook = std::function<QWidget*(TreeView*, Window*)>;
-
     TreeViewService(Bus* bus, QObject* parent = nullptr)
         : AbstractService(bus, parent)
     {
@@ -63,21 +59,16 @@ public:
     virtual ~TreeViewService() override { TRACER; }
 
     // Set broadly in Workspace
-    DECLARE_HOOK_ACCESSORS(ModelHook, modelHook, setModelHook, modelHook_);
+    DECLARE_HOOK(std::function<QAbstractItemModel*()>, modelHook, setModelHook)
 
     // Set broadly in Workspace
-    DECLARE_HOOK_ACCESSORS(
-        RootIndexHook,
-        rootIndexHook,
-        setRootIndexHook,
-        rootIndexHook_);
+    DECLARE_HOOK(std::function<QModelIndex()>, rootIndexHook, setRootIndexHook)
 
     // Set per-Workspace
-    DECLARE_HOOK_ACCESSORS(
-        DockWidgetHook,
+    DECLARE_HOOK(
+        std::function<QWidget*(TreeView*, Window*)>,
         dockWidgetHook,
-        setDockWidgetHook,
-        dockWidgetHook_);
+        setDockWidgetHook)
 
     // Per-window dock API
 
@@ -201,14 +192,11 @@ protected:
 private:
     QHash<Window*, QDockWidget*> dockWidgets_{};
     QHash<Window*, TreeView*> treeViews_{};
-    ModelHook modelHook_ = nullptr;
-    RootIndexHook rootIndexHook_ = nullptr;
-    DockWidgetHook dockWidgetHook_ = nullptr;
-
     QDockWidget::DockWidgetFeatures dockWidgetFeatures_{
         QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable
         | QDockWidget::DockWidgetFloatable
     };
+
     bool headersHidden_ = false;
 
     QString visibilityIniKey_{};

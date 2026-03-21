@@ -1,5 +1,7 @@
 # Architecture
 
+TODO: Update Service hook macro info
+
 Fernanda uses an event-driven architecture with clear separation between mechanics and policy. This document explains the structural patterns and their rationale.
 
 See: [`Application.h`](../src/core/Application.h), [`Bus.h`](../src/workspaces/Bus.h), [`Commander.h`](../src/workspaces/Commander.h), [`AbstractService.h`](../src/services/AbstractService.h), [`Workspace.h`](../src/workspaces/Workspace.h), [`WindowService.h`](../src/services/WindowService.h), and [`ViewService.h`](../src/services/ViewService.h)

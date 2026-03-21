@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <QByteArray>
 #include <QFileSystemWatcher>
 #include <QHash>
@@ -64,6 +66,11 @@ public:
     }
 
     virtual ~FileService() override { TRACER; }
+
+    //DECLARE_HOOK(
+    //    std::function<void(const Coco::Path&)>,
+    //    beforeWriteHook,
+    //    setBeforeWriteHook)
 
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
