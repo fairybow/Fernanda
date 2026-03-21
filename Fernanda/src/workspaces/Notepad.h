@@ -494,7 +494,7 @@ private:
                 return; // Backups don't apply to off-disk files (unlike
                         // recovery/autosave)
 
-            // TODO: Read pruning cap from settings?
+            /// TODO BA: Read pruning cap from settings?
             Backup::createAndPrune(path, AppDirs::notepadBackups(), 5);
         });
 

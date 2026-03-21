@@ -67,7 +67,7 @@ namespace Internal {
         return prefix + timestamp_() + filePath.extQString();
     }
 
-    // Rename?
+    /// TODO BA: Rename?
     struct Data_
     {
         QString prefix{};

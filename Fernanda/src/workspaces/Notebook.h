@@ -54,6 +54,7 @@
 #include "ui/DrawerWidget.h"
 #include "ui/TreeView.h"
 #include "ui/Window.h"
+#include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
@@ -152,7 +153,10 @@ protected:
 
             fnxModel_->write(workingDir_.path());
 
-            if (!Fnx::Io::compress(path, workingDir_.path())) {
+            if (!Fnx::Io::compress(
+                    path,
+                    workingDir_.path(),
+                    makeBackupHook_())) {
                 colorBars->red();
                 SaveFailMessageBox::exec(path, window);
 
@@ -198,7 +202,10 @@ protected:
 
             fnxModel_->write(workingDir_.path());
 
-            if (!Fnx::Io::compress(path, workingDir_.path())) {
+            if (!Fnx::Io::compress(
+                    path,
+                    workingDir_.path(),
+                    makeBackupHook_())) {
                 colorBars->red();
                 SaveFailMessageBox::exec(path, window);
 
@@ -678,7 +685,7 @@ private:
 
         fnxModel_->write(workingDir_.path());
 
-        if (!Fnx::Io::compress(path, workingDir_.path())) {
+        if (!Fnx::Io::compress(path, workingDir_.path(), makeBackupHook_())) {
             colorBars->red();
             SaveFailMessageBox::exec(path, window);
 
@@ -714,7 +721,10 @@ private:
 
         fnxModel_->write(workingDir_.path());
 
-        if (!Fnx::Io::compress(new_path, workingDir_.path())) {
+        if (!Fnx::Io::compress(
+                new_path,
+                workingDir_.path(),
+                makeBackupHook_())) {
             colorBars->red();
             SaveFailMessageBox::exec(new_path, window);
 
@@ -776,6 +786,15 @@ private:
             .action(Tr::nbEmptyTrash())
             .onUserTrigger(this, [this, window] { emptyTrash_(window); })
             .popup(globalPos);
+    }
+
+    Fnx::Io::BeforeOverwriteHook makeBackupHook_() const
+    {
+        return [](const Coco::Path& original) {
+            if (!original.exists()) return;
+            /// TODO BA: Read from pruning cap from settings?
+            Backup::createAndPrune(original, AppDirs::notebookBackups(), 5);
+        };
     }
 
 private slots:
