@@ -16,6 +16,7 @@
 - [x] Hook spot in FilService (for Notepad to use)?
 - [x] Notebook implementation
 - [x] Notepad implementation
+- [ ] Backups prune cap setting
 
 - [ ] Chip/label on window to show it's in debug mode?
 
