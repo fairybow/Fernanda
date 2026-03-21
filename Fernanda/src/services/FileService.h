@@ -413,10 +413,23 @@ private:
     writeModelToDisk_(AbstractFileModel* model, const Coco::Path& path)
     {
         if (beforeWriteHook_) beforeWriteHook_(path);
-        recentlyWritten_ << path.toQString();
+
+        auto q_path = path.toQString();
+
+        // Temporarily remove from watcher. On Windows, QSaveFile::commit()
+        // atomically replaces via MoveFileEx, which can fail with "Access is
+        // denied" if the watcher engine holds a transient handle on the file
+        // during a stat check
+        watcher_->removePath(q_path);
 
         auto data = model->data();
         auto success = Io::write(data, path);
+
+        // Re-add to watcher. recentlyWritten_ guards against a spurious
+        // fileChanged signal that some platforms emit on re-add
+        recentlyWritten_ << q_path;
+        watcher_->addPath(q_path);
+
         if (success) model->setModified(false);
 
         return success ? Success : Failure;
