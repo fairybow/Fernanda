@@ -8,7 +8,7 @@
 - [ ] ^ If so, do a modality overhaul, checking dialogs and call sites for what window or workspace to pass (or set app modal, like for quit)
 - [x] Comprehensive plan doc for backups/autosave
 - [x] Backup folder in AppDirs
-- [ ] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
+- [x] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
 
 - [x] Backup namespace
 - [x] ^ Ability to clean up oldest backup past set limit
