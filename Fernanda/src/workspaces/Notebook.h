@@ -16,6 +16,7 @@
 #include <utility>
 
 #include <QAbstractItemModel>
+#include <QByteArray>
 #include <QDockWidget>
 #include <QDomDocument>
 #include <QDomElement>
@@ -27,6 +28,7 @@
 #include <QPoint>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QString>
 #include <QStringList>
 #include <QVariant>
 #include <QVariantMap>
@@ -37,6 +39,7 @@
 #include "core/AppDirs.h"
 #include "core/Debug.h"
 #include "core/FileTypes.h"
+#include "core/Io.h"
 #include "core/TempDir.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
@@ -72,6 +75,7 @@ namespace Fernanda {
 //
 // TODO: Settings change mark Notebook unsaved? How - watch the working dir for
 // changes?
+// TODO: Check for missing !workingDir_.isValid checks
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -105,15 +109,40 @@ signals:
     void openNotepadRequested();
 
 protected:
+    /// TODO BA:
     virtual void flushRecoveryData() override
     {
+        if (!workingDir_.isValid()) return;
+        if (!isModified_()) return;
+
+        QStringList dirty_uuids{};
+
         for (auto model : files->fileModels()) {
             if (!model || !model->isModified()) continue;
+            auto meta = model->meta();
+            if (!meta) continue;
+
+            // TODO: FileService::save is nodiscard. Should it not be?
             files->save(model, ClearModified::No);
+            dirty_uuids << Fnx::Io::uuid(meta->path());
         }
 
-        // - collect uuids of dirty models
-        // - write lock file
+        Io::write(
+            lockfileData_(dirty_uuids),
+            AppDirs::tempNotebookRecovery()
+                / (workingDir_.path().nameQString() + ".lock"));
+
+        // - PROBLEM: re: whether we delete the lockfile when notebook is no
+        // longer modified - maybe? depends on if we delete notepad recovery
+        // files when that particular file is saved. if so, same for notebook
+        // - SOLUTION ^: yes, delete when not modified (do the same for
+        // Notepad's files)
+        // - PROBLEM: something to consider: do we want a recovered notebook's
+        // working dir name to match the lockfile's name (which is taken from
+        // the crashed notebook's working dir name)
+        // - SOLUTION ^: Make working dir not a TempDir and control here.
+        // Implement own random chars method and then allow creation of Notebook
+        // from a path to extant working dir for recovery
     }
 
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
@@ -819,6 +848,17 @@ private:
             /// TODO BA: Read from pruning cap from settings?
             Backup::createAndPrune(original, AppDirs::notebookBackups(), 5);
         };
+    }
+
+    /// TODO BA
+    QByteArray lockfileData_(const QStringList& dirtyUuids) const
+    {
+        QString content{};
+        auto nl = QStringLiteral("\n");
+        content += QStringLiteral("fnx=") + fnxPath_.toQString() + nl;
+        content += QStringLiteral("dir=") + workingDir_.path().toQString() + nl;
+        content += QStringLiteral("dirty=") + dirtyUuids.join(",") + nl;
+        return content.toUtf8();
     }
 
 private slots:
