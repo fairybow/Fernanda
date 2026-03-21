@@ -27,7 +27,7 @@ namespace Fernanda {
 class FnxModelCache
 {
 public:
-    COCO_BOOL(OnError);
+    COCO_BOOL(OnError)
 
     FnxModelCache() = default;
     virtual ~FnxModelCache() { TRACER; }

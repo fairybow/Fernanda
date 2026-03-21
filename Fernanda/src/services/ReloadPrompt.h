@@ -27,7 +27,7 @@
 // want to keep their in-memory version
 namespace Fernanda::ReloadPrompt {
 
-COCO_BOOL(Reload);
+COCO_BOOL(Reload)
 
 inline Reload exec(const Coco::Path& path, QWidget* parent = nullptr)
 {

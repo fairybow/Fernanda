@@ -195,7 +195,7 @@ private:
     QLabel* posDisplay_ = new QLabel(this);
     QToolButton* refresh_ = new QToolButton(this);
 
-    COCO_BOOL(Force_);
+    COCO_BOOL(Force_)
 
     bool active_ = true;
 

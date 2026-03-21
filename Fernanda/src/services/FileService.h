@@ -102,7 +102,11 @@ public:
         return false;
     }
 
-    [[nodiscard]] SaveResult save(AbstractFileModel* fileModel)
+    COCO_BOOL(ClearModified)
+
+    [[nodiscard]] SaveResult save(
+        AbstractFileModel* fileModel,
+        ClearModified clearModified = ClearModified::Yes)
     {
         if (!fileModel || !fileModel->isUserEditable()) return NoOp;
         auto meta = fileModel->meta();
@@ -110,7 +114,7 @@ public:
         auto path = meta->path();
         if (path.isEmpty()) return NoOp;
 
-        return writeModelToDisk_(fileModel, path);
+        return writeModelToDisk_(fileModel, path, clearModified);
     }
 
     [[nodiscard]] SaveResult
@@ -409,8 +413,10 @@ private:
         signalFileModelMetaChanged_(fileModel);
     }
 
-    SaveResult
-    writeModelToDisk_(AbstractFileModel* model, const Coco::Path& path)
+    SaveResult writeModelToDisk_(
+        AbstractFileModel* model,
+        const Coco::Path& path,
+        ClearModified clearModified = ClearModified::Yes)
     {
         if (beforeWriteHook_) beforeWriteHook_(path);
 
@@ -430,7 +436,7 @@ private:
         recentlyWritten_ << q_path;
         watcher_->addPath(q_path);
 
-        if (success) model->setModified(false);
+        if (success && clearModified) model->setModified(false);
 
         return success ? Success : Failure;
     }

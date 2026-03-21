@@ -271,7 +271,7 @@ public:
         return views;
     }
 
-    COCO_BOOL(ExcludeMultiWindow);
+    COCO_BOOL(ExcludeMultiWindow)
 
     QList<AbstractFileModel*> modifiedViewModelsIn(
         Window* window,
