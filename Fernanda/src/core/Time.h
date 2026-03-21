@@ -65,69 +65,42 @@ template <typename SlotT> inline void onNextTick(SlotT slot)
     QTimer::singleShot(0, slot);
 }
 
-// TODO: Combine these later however appropriate. Perhaps just factories (named
-// delayer, debouncer, etc) that return QTimer? Although, seeing the type in the
-// IDE with the appropriate name is helpful to me...
-
-// Utility class for initializing a timer and connecting it to a slot
-class Timer : public QObject
+template <typename SlotT>
+inline QTimer* newQTimer(QObject* parent, SlotT slot, int msec = -1)
 {
-    Q_OBJECT
+    auto timer = new QTimer(parent);
+    if (msec >= 0) timer->setInterval(msec);
+    QObject::connect(timer, &QTimer::timeout, parent, slot);
+    return timer;
+}
 
-public:
-    template <typename SlotT>
-    Timer(int msec, QObject* parent, SlotT slot)
-        : QObject(parent)
-    {
-        timer_->setSingleShot(false);
-        timer_->setInterval(msec);
-        connect(timer_, &QTimer::timeout, parent, slot);
-    }
+using Ticker = QTimer;
+using Delayer = QTimer;
+using Debouncer = QTimer;
 
-    virtual ~Timer() override { TRACER; }
-
-    void start() { timer_->start(); }
-    void stop() { timer_->stop(); }
-    void setInterval(int msec) { timer_->setInterval(msec); }
-    void setInterval(std::chrono::milliseconds value)
-    {
-        timer_->setInterval(value);
-    }
-
-private:
-    QTimer* timer_ = new QTimer(this);
-};
-
-// Utility class for initializing a debouncing/delay timer and connecting it to
-// a slot
-class Delayer : public QObject
+// Non-single-shot (polling) member
+template <typename SlotT>
+inline Ticker* newTicker(QObject* parent, SlotT slot, int msec = -1)
 {
-    Q_OBJECT
+    auto timer = newQTimer<SlotT>(parent, slot, msec);
+    timer->setSingleShot(false);
+    return timer;
+}
 
-public:
-    template <typename SlotT>
-    Delayer(int msec, QObject* parent, SlotT slot)
-        : QObject(parent)
-    {
-        timer_->setSingleShot(true);
-        timer_->setInterval(msec);
-        connect(timer_, &QTimer::timeout, parent, slot);
-    }
+// Single-shot delay member
+template <typename SlotT>
+inline Delayer* newDelayer(QObject* parent, SlotT slot, int msec = -1)
+{
+    auto timer = newQTimer<SlotT>(parent, slot, msec);
+    timer->setSingleShot(true);
+    return timer;
+}
 
-    virtual ~Delayer() override { TRACER; }
-
-    void start() { timer_->start(); }
-    void stop() { timer_->stop(); }
-    void setInterval(int msec) { timer_->setInterval(msec); }
-    void setInterval(std::chrono::milliseconds value)
-    {
-        timer_->setInterval(value);
-    }
-
-private:
-    QTimer* timer_ = new QTimer(this);
-};
-
-using Debouncer = Delayer;
+// Single-shot delay member
+template <typename SlotT>
+inline Debouncer* newDebouncer(QObject* parent, SlotT slot, int msec = -1)
+{
+    return newDelayer<SlotT>(parent, slot, msec);
+}
 
 } // namespace Fernanda::Time

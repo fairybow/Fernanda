@@ -115,7 +115,12 @@ protected:
                                 // belong to App
     Coco::Path rollingOpenStartDir = currentRootDir;
 
-    virtual void flushRecoveryData() {}; /// TODO BA
+    /// TODO BA: May need to be protected in order set auto-save interval via
+    /// settings? (Would, in that case, also not need to have the interval set
+    /// here.)
+    Time::Ticker* recoverDataFlushCue =
+        Time::newTicker(this, &Workspace::flushRecoveryData, 30000);
+    virtual void flushRecoveryData() {};
 
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
@@ -165,9 +170,6 @@ private:
 
     QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
     QHash<Window*, MenuState*> menuStates_{};
-
-    Time::Timer* recoverDataFlushCue_ =
-        new Time::Timer(30000, this, &Workspace::flushRecoveryData);
 
     void setup_()
     {
@@ -226,7 +228,7 @@ private:
 
         connectBusEvents_();
 
-        recoverDataFlushCue_->start();
+        recoverDataFlushCue->start();
     }
 
     void connectBusEvents_()

@@ -5,8 +5,9 @@
 - [x] Guaranteed working dir persistence on crash
 - [x] ClearModified option in FileService
 - [x] Workspace autosave timer
-- [ ] Hook up Notebook
-- [ ] For recovery, we need to know how to remark files dirty within the Notepad (dirty.lock)
+- [x] Hook up Notebook (scan models and save dirty ones, without changing modification)
+- [ ] Collect UUIDs in flush function
+- [ ] Write lockfile in flush function
 - [ ] Hook up Notepad
 - [ ] For Notepad, if the exist at all, a recovered file means dirty
 - [ ] AutosaveRecovery.md

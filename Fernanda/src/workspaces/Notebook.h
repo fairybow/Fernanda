@@ -111,6 +111,9 @@ protected:
             if (!model || !model->isModified()) continue;
             files->save(model, ClearModified::No);
         }
+
+        // - collect uuids of dirty models
+        // - write lock file
     }
 
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }

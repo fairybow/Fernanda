@@ -292,9 +292,10 @@ private:
 
     void setupDebouncer_(const QString& key)
     {
-        debouncers_[key] = new Time::Debouncer(500, this, [this, key] {
-            set(key, pendingValues_.take(key));
-        });
+        debouncers_[key] = Time::newDebouncer(
+            this,
+            [this, key] { set(key, pendingValues_.take(key)); },
+            500);
     }
 
     void queueDebouncedSet_(const QString& key, const QVariant& value)
