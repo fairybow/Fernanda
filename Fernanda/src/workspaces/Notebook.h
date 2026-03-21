@@ -122,15 +122,13 @@ protected:
             auto meta = model->meta();
             if (!meta) continue;
 
-            // TODO: FileService::save is nodiscard. Should it not be?
-            files->save(model, ClearModified::No);
+            if (!files->save(model, ClearModified::No))
+                CRITICAL("Notebook autosave failed for {}!", model);
+
             dirty_uuids << Fnx::Io::uuid(meta->path());
         }
 
-        Io::write(
-            lockfileData_(dirty_uuids),
-            AppDirs::tempNotebookRecovery()
-                / (workingDir_.path().nameQString() + ".lock"));
+        Io::write(lockfileData_(dirty_uuids), lockfilePath_());
 
         // - PROBLEM: re: whether we delete the lockfile when notebook is no
         // longer modified - maybe? depends on if we delete notepad recovery
@@ -848,6 +846,13 @@ private:
             /// TODO BA: Read from pruning cap from settings?
             Backup::createAndPrune(original, AppDirs::notebookBackups(), 5);
         };
+    }
+
+    /// TODO BA
+    Coco::Path lockfilePath_() const
+    {
+        return AppDirs::tempNotebookRecovery()
+               / (workingDir_.path().nameQString() + ".lock");
     }
 
     /// TODO BA
