@@ -20,6 +20,8 @@
 // For creating and retrieving non-configurable application paths
 // (Coco::Path::SystemDir won't work as a static member variable, since it'll be
 // initialized before Qt has been initialized)
+//
+// TODO: Create these on demand?
 namespace Fernanda::AppDirs {
 
 // clang-format off
@@ -33,6 +35,8 @@ namespace Fernanda::AppDirs {
 // |       |-- notebooks/
 // |       +-- notepad/
 // |-- backups/
+// |   |-- notebooks/
+// |   +-- notepad/
 // +-- themes/
 // 
 // ~/Documents/Fernanda
@@ -81,6 +85,18 @@ inline const Coco::Path& backups()
     return dir;
 }
 
+inline const Coco::Path& notebookBackups()
+{
+    static auto dir = backups() / "notebooks";
+    return dir;
+}
+
+inline const Coco::Path& notepadBackups()
+{
+    static auto dir = backups() / "notepad";
+    return dir;
+}
+
 inline const Coco::Path& themes()
 {
     static auto dir = userData() / "themes";
@@ -105,7 +121,8 @@ inline bool initialize()
              tempNotebooks(),
              tempNotebookRecovery(),
              tempNotepadRecovery(),
-             backups(),
+             notebookBackups(),
+             notepadBackups(),
              themes(),
              defaultDocs(),
          }) {

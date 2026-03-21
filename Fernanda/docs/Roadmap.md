@@ -2,6 +2,8 @@
 
 ## Current
 
+- [ ] CRITICAL BUG: Occasionally, saving Paradise Lost, I'll see a save fail prompt. It happens without the beforeWriteHook_ but not often. The hook doesn't seem to affect the frequency. PRoblem might be in Io::write and with QSaveFile?
+
 - [ ] Possible to make Workspace-modal dialogs (for something like close all windows or tabs)?
 - [ ] ^ If so, do a modality overhaul, checking dialogs and call sites for what window or workspace to pass (or set app modal, like for quit)
 - [x] Comprehensive plan doc for backups/autosave
