@@ -11,7 +11,7 @@
 - [ ] Backup namespace
 - [ ] ^ Ability to clean up oldest backup past set limit
 - [x] Hook spot in Fnx::compress
-- [ ] Hook spot in FilService (for Notepad to use)?
+- [x] Hook spot in FilService (for Notepad to use)?
 - [ ] Notebook implementation
 - [ ] Notepad implementation
 

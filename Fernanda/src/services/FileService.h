@@ -67,10 +67,10 @@ public:
 
     virtual ~FileService() override { TRACER; }
 
-    // DECLARE_HOOK(
-    //     std::function<void(const Coco::Path&)>,
-    //     beforeWriteHook,
-    //     setBeforeWriteHook)
+    DECLARE_HOOK(
+        std::function<void(const Coco::Path&)>,
+        beforeWriteHook,
+        setBeforeWriteHook)
 
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
@@ -222,6 +222,8 @@ private:
     QSet<AbstractFileModel*> fileModels_{};
     QHash<Coco::Path, AbstractFileModel*> pathToFileModel_{};
     QFileSystemWatcher* watcher_ = new QFileSystemWatcher(this);
+
+    // For ignoring our own watcher signals
     QSet<QString> recentlyWritten_{};
 
     void setup_()
@@ -410,6 +412,7 @@ private:
     SaveResult
     writeModelToDisk_(AbstractFileModel* model, const Coco::Path& path)
     {
+        if (beforeWriteHook_) beforeWriteHook_(path);
         recentlyWritten_ << path.toQString();
 
         auto data = model->data();
