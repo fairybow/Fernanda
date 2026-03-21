@@ -1,6 +1,8 @@
 # Features
 
-Current vesion: v0.99.0-beta.1
+TODO: Add backups and autosave
+
+Current vesion: v0.99.0-beta.10
 
 ## Separate Workspaces
 

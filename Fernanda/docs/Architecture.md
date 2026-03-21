@@ -1,7 +1,5 @@
 # Architecture
 
-TODO: Update Service hook macro info
-
 Fernanda uses an event-driven architecture with clear separation between mechanics and policy. This document explains the structural patterns and their rationale.
 
 See: [`Application.h`](../src/core/Application.h), [`Bus.h`](../src/workspaces/Bus.h), [`Commander.h`](../src/workspaces/Commander.h), [`AbstractService.h`](../src/services/AbstractService.h), [`Workspace.h`](../src/workspaces/Workspace.h), [`WindowService.h`](../src/services/WindowService.h), and [`ViewService.h`](../src/services/ViewService.h)
@@ -204,19 +202,15 @@ Hooks let Workspaces inject policy into Service operations. A Service defines th
 
 ```cpp
 // In WindowService:
-using CanCloseHook = std::function<bool(Window*)>;
-
-DECLARE_HOOK_ACCESSORS(
-    CanCloseHook,
+DECLARE_HOOK(
+    std::function<bool(Window*)>,
     canCloseHook,
-    setCanCloseHook,
-    canCloseHook_);
+    setCanCloseHook)
 
 // Usage in WindowService:
-if (canCloseHook_ && !canCloseHook_(window)) 
+if (canCloseHook_ && !canCloseHook_(window))
     return;  // Workspace rejected the close
 ```
-
 ```cpp
 // In Workspace subclass:
 windows->setCanCloseHook(this, &MyWorkspace::canCloseWindow);
@@ -227,14 +221,11 @@ bool MyWorkspace::canCloseWindow(Window* window) {
 }
 ```
 
-The `DECLARE_HOOK_ACCESSORS` macro generates:
-- A getter returning the current hook
-- A setter accepting a `std::function`
-- A setter accepting a member function pointer (for cleaner syntax)
+The `DECLARE_HOOK` macro generates a private member (`canCloseHook_`), a getter, a setter accepting a `std::function`, and a setter accepting a member function pointer (for cleaner syntax when the hook is a member function). The macro contains access specifiers, so code following it will be public.
 
 ### Hook Design Philosophy
 
-Services define *what* can be hooked (close operations, model creation, etc.). Workspaces define *how* to handle those situations.
+Services define *what* can be hooked (close operations, file writes, etc.). Workspaces define *how* to handle those situations.
 
 This separation means:
 - Services remain reusable across Workspace types
