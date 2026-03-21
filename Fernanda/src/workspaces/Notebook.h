@@ -93,6 +93,8 @@ public:
     virtual ~Notebook() override
     {
         TRACER;
+
+        deleteLockfile_();
         workingDir_.remove(); // The working directory needs to survive if the
                               // destructor never runs
     }
@@ -112,6 +114,8 @@ protected:
     /// TODO BA:
     virtual void flushRecoveryData() override
     {
+        // TODO: For organization, this could all be in a writeLockfile_ method
+        // wrapped by this virtual?
         if (!workingDir_.isValid()) return;
         if (!isModified_()) return;
 
@@ -206,6 +210,8 @@ protected:
                 return false;
             }
 
+            deleteLockfile_();
+
             // No resetSnapshot, showModified, or green color bar (last
             // window closing)
             return true;
@@ -254,6 +260,8 @@ protected:
 
                 return false;
             }
+
+            deleteLockfile_();
 
             // No resetSnapshot, showModified, or green color bar (all windows
             // closing)
@@ -743,6 +751,8 @@ private:
             return;
         }
 
+        deleteLockfile_();
+
         if (saved_as) {
             fnxPath_ = path;
             windows->setSubtitle(fnxPath_.nameQString());
@@ -781,6 +791,8 @@ private:
 
             return;
         }
+
+        deleteLockfile_();
 
         fnxPath_ = new_path;
         windows->setSubtitle(fnxPath_.nameQString());
@@ -865,6 +877,11 @@ private:
         content += QStringLiteral("dirty=") + dirtyUuids.join(",") + nl;
         return content.toUtf8();
     }
+
+    /// TODO BA
+    // TODO: Could return bool and log. Would want to distinguish between
+    // lockfile not found or deletion failed, though?
+    void deleteLockfile_() { Coco::remove(lockfilePath_()); }
 
 private slots:
     // TODO: Could remove working dir validity check; also writeManifest could
