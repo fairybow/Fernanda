@@ -105,6 +105,14 @@ signals:
     void openNotepadRequested();
 
 protected:
+    virtual void flushRecoveryData() override
+    {
+        for (auto model : files->fileModels()) {
+            if (!model || !model->isModified()) continue;
+            files->save(model, ClearModified::No);
+        }
+    }
+
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
 
     virtual QModelIndex treeViewRootIndex() override

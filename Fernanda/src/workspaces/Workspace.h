@@ -115,7 +115,7 @@ protected:
                                 // belong to App
     Coco::Path rollingOpenStartDir = currentRootDir;
 
-    virtual void flushRecoveryData() { TRACER; }; /// TODO BA
+    virtual void flushRecoveryData() {}; /// TODO BA
 
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;

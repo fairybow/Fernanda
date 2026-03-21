@@ -43,6 +43,8 @@
 
 namespace Fernanda {
 
+COCO_BOOL(ClearModified)
+
 // Creates and manages file models
 // TODO: When saving files, we should move originals to a backup location
 // (Notebook's archive save will do the same)
@@ -101,8 +103,6 @@ public:
 
         return false;
     }
-
-    COCO_BOOL(ClearModified)
 
     [[nodiscard]] SaveResult save(
         AbstractFileModel* fileModel,
