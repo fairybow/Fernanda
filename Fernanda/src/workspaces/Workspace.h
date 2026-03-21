@@ -115,6 +115,8 @@ protected:
                                 // belong to App
     Coco::Path rollingOpenStartDir = currentRootDir;
 
+    virtual void flushRecoveryData() { TRACER; }; /// TODO BA
+
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
     virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
@@ -163,6 +165,9 @@ private:
 
     QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
     QHash<Window*, MenuState*> menuStates_{};
+
+    Time::Timer* recoverDataFlushCue_ =
+        new Time::Timer(30000, this, &Workspace::flushRecoveryData);
 
     void setup_()
     {
@@ -220,6 +225,8 @@ private:
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
 
         connectBusEvents_();
+
+        recoverDataFlushCue_->start();
     }
 
     void connectBusEvents_()

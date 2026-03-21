@@ -4,8 +4,9 @@
 
 - [x] Guaranteed working dir persistence on crash
 - [x] ClearModified option in FileService
-- [ ] Workspace autosave timer
-- [ ] ...
+- [x] Workspace autosave timer
+- [ ] Hook up Notebook
+- [ ] Hook up Notepad
 - [ ] AutosaveRecovery.md
 - [ ] Also, a Settings.md
 - [ ] Remove settings INI info from Architecture.md?

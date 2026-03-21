@@ -65,6 +65,39 @@ template <typename SlotT> inline void onNextTick(SlotT slot)
     QTimer::singleShot(0, slot);
 }
 
+// TODO: Combine these later however appropriate. Perhaps just factories (named
+// delayer, debouncer, etc) that return QTimer? Although, seeing the type in the
+// IDE with the appropriate name is helpful to me...
+
+// Utility class for initializing a timer and connecting it to a slot
+class Timer : public QObject
+{
+    Q_OBJECT
+
+public:
+    template <typename SlotT>
+    Timer(int msec, QObject* parent, SlotT slot)
+        : QObject(parent)
+    {
+        timer_->setSingleShot(false);
+        timer_->setInterval(msec);
+        connect(timer_, &QTimer::timeout, parent, slot);
+    }
+
+    virtual ~Timer() override { TRACER; }
+
+    void start() { timer_->start(); }
+    void stop() { timer_->stop(); }
+    void setInterval(int msec) { timer_->setInterval(msec); }
+    void setInterval(std::chrono::milliseconds value)
+    {
+        timer_->setInterval(value);
+    }
+
+private:
+    QTimer* timer_ = new QTimer(this);
+};
+
 // Utility class for initializing a debouncing/delay timer and connecting it to
 // a slot
 class Delayer : public QObject
@@ -73,11 +106,11 @@ class Delayer : public QObject
 
 public:
     template <typename SlotT>
-    Delayer(int interval, QObject* parent, SlotT slot)
+    Delayer(int msec, QObject* parent, SlotT slot)
         : QObject(parent)
     {
         timer_->setSingleShot(true);
-        timer_->setInterval(interval);
+        timer_->setInterval(msec);
         connect(timer_, &QTimer::timeout, parent, slot);
     }
 
