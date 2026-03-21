@@ -76,6 +76,30 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.10 (Testing / Soft Release) - tag v0.99.0-beta.10
+
+## What's New?
+
+**Pre-save backups.** Before saving, Fernanda now copies the original to `~/.fernanda/backups/`. Backups are pruned to a cap (currently hardcoded at 5). New `Backup.h` namespace handles creation, naming (`{hash}_{stem}.{timestamp}{ext}`), and pruning. Notepad hooks via `FileService::beforeWriteHook` and Notebook hooks via `Fnx::Io::BeforeOverwriteHook` passed to `Fnx::Io::compress()`.
+
+**Fix: Intermittent save failure.** `QFileSystemWatcher` could hold a transient handle during `QSaveFile::commit()`, causing "Access is denied." `writeModelToDisk_` now removes the path from the watcher before writing and re-adds it after.
+
+**Expanded `AppDirs`.** New subdirectories for backups, notebook temps, and future recovery paths. Added `cleanup()` called from `~Application()` to remove empty temp/recovery dirs on exit.
+
+**Removed ADDITIONAL_TERMS.**
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Trash splitter handle behavior: clicking the handle alone can size the closed state up; trash view can't be shrunk below its minimum
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+- No auto-save/recovery!
+
+---
+
 # 0.99.0-beta.9 (Testing / Soft Release) - tag v0.99.0-beta.9
 
 ## What's New?
