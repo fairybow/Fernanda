@@ -47,8 +47,8 @@ public:
 
     virtual ~Application() override
     {
-        AppDirs::cleanup();
         TRACER;
+        AppDirs::cleanup();
     }
 
     void initialize()

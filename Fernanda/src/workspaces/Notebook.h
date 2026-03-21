@@ -86,7 +86,12 @@ public:
         setup_();
     }
 
-    virtual ~Notebook() override { TRACER; }
+    virtual ~Notebook() override
+    {
+        TRACER;
+        workingDir_.remove(); // The working directory needs to survive if the
+                              // destructor never runs
+    }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
 
@@ -291,7 +296,8 @@ private:
         if (!workingDir_.isValid())
             FATAL("Notebook working directory creation failed!");
 
-        auto working_dir = workingDir_.path();
+        workingDir_.setAutoRemove(false);
+        auto working_dir_path = workingDir_.path();
 
         treeViews->setHeadersHidden(true);
         treeViews->setDockWidgetHook(this, &Notebook::treeViewDockWidgetHook_);
@@ -327,12 +333,12 @@ private:
 
         // Extraction or creation
         if (!fnxPath_.exists()) {
-            Fnx::Io::makeNewWorkingDir(working_dir);
+            Fnx::Io::makeNewWorkingDir(working_dir_path);
 
             //...
 
         } else {
-            Fnx::Io::extract(fnxPath_, working_dir);
+            Fnx::Io::extract(fnxPath_, working_dir_path);
             // TODO: Verification (comparing Manifest file elements to content
             // dir files, i.e. making sure Trash exists, checking all file UUIDs
             // have corresponding files, etc.)
@@ -340,9 +346,10 @@ private:
 
         settings->setName(fnxPath_.nameQString());
         settings->setOverrideConfigPath(
-            working_dir / "Settings.ini"); // This needs to be after extraction!
+            working_dir_path
+            / "Settings.ini"); // This needs to be after extraction!
 
-        fnxModel_->load(working_dir);
+        fnxModel_->load(working_dir_path);
 
         connect(
             fnxModel_,
@@ -394,16 +401,20 @@ private:
         if (!window) return;
         if (!workingDir_.isValid()) return;
 
-        auto working_dir = workingDir_.path();
+        auto working_dir_path = workingDir_.path();
         // If index is invalid, fnxModel_->addNewTextFile adds it to the DOM
         // document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
         auto info = fnxModel_->addNewFile(
             FileTypes::PlainText,
-            working_dir,
+            working_dir_path,
             resolveNotebookIndex_(index));
         if (!info.isValid()) return;
-        files->openFilePathIn(window, working_dir / info.relPath, info.name);
+
+        files->openFilePathIn(
+            window,
+            working_dir_path / info.relPath,
+            info.name);
     }
 
     // TODO: Trigger rename immediately (maybe)
@@ -434,20 +445,21 @@ private:
 
         rollingOpenStartDir = fs_paths.at(0).parent();
 
-        auto working_dir = workingDir_.path();
+        auto working_dir_path = workingDir_.path();
         // If index is invalid, fnxModel_->importTextFiles adds it to the DOM
         // document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
         auto infos = fnxModel_->importFiles(
-            working_dir,
+            working_dir_path,
             fs_paths,
             resolveNotebookIndex_(index));
 
         for (auto& info : infos) {
             if (!info.isValid()) continue;
+
             files->openFilePathIn(
                 window,
-                working_dir / info.relPath,
+                working_dir_path / info.relPath,
                 info.name);
         }
     }
@@ -631,10 +643,11 @@ private:
 
         if (!TrashPrompt::exec(file_infos.count(), window)) return false;
 
-        auto working_dir = workingDir_.path();
+        auto working_dir_path = workingDir_.path();
         QSet<Coco::Path> paths{};
+
         for (auto& info : file_infos)
-            paths << working_dir / info.relPath;
+            paths << working_dir_path / info.relPath;
 
         auto models = files->modelsFor(paths);
 
