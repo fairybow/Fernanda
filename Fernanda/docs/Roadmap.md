@@ -17,6 +17,8 @@
 - [x] Notebook implementation
 - [x] Notepad implementation
 
+- [ ] Chip/label on window to show it's in debug mode?
+
 - [ ] Coco CMake?
 - [x] Replace bit7z with miniz
 - [x] Remove 7-Zip type from MagicBytes
