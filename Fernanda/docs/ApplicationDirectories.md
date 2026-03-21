@@ -18,7 +18,7 @@ See: [`AppDirs.h`](../src/core/AppDirs.h)
 |   +-- notebooks/              Per-archive backups before overwrite
 +-- themes/
 
-~/Documents/Fernanda/           Default location for user documents
+~/Documents/Fernanda/           Default location for file dialogs
 ```
 
 These paths are managed by `AppDirs` and created at startup via `AppDirs::initialize()`. Temp and recovery directories are cleaned up on exit via `AppDirs::cleanup()`.
