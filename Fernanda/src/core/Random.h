@@ -1,0 +1,35 @@
+/*
+ * Fernanda is a plain text editor for fiction writing
+ * Copyright (C) 2025-2026 fairybow
+ *
+ * This program is free software, redistributable and/or modifiable under the
+ * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
+ * but without any warranty (even the implied warranty of merchantability or
+ * fitness for a particular purpose)
+ *
+ * See the LICENSE file or visit <https://www.gnu.org/licenses/>
+ */
+
+#pragma once
+
+#include <QRandomGenerator>
+#include <QString>
+
+namespace Fernanda::Random {
+
+inline QString token(int length)
+{
+    constexpr auto chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    constexpr auto count = 62;
+
+    QString result{};
+    result.reserve(length);
+
+    for (auto i = 0; i < length; ++i)
+        result += chars[QRandomGenerator::global()->bounded(count)];
+
+    return result;
+}
+
+} // namespace Fernanda::Random

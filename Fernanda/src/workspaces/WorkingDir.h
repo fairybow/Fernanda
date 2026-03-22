@@ -12,14 +12,10 @@
 
 #pragma once
 
-#include <QRandomGenerator>
-#include <QString>
-
 #include <Coco/Path.h>
 
 namespace Fernanda {
 
-/// TODO BA
 class WorkingDir
 {
 public:
@@ -40,25 +36,7 @@ public:
         return Coco::purge(dir_);
     }
 
-    /// TODO BA: Could move into Notebook?
-    static QString randomSuffix()
-    {
-        static constexpr auto chars =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        static constexpr auto count = 62;
-        constexpr auto length = 8;
-
-        QString result = "~";
-        result.reserve(length);
-
-        for (auto i = 0; i < length; ++i)
-            result += chars[QRandomGenerator::global()->bounded(count)];
-
-        return result;
-    }
-
 private:
-    // file watcher? prevent deletion?
     Coco::Path dir_;
     bool wasAdopted_;
 };

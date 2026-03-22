@@ -18,8 +18,6 @@
 #include <QObject>
 #include <QTimer>
 
-#include "core/Debug.h"
-
 namespace Fernanda::Time {
 
 struct LocalTime

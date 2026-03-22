@@ -90,6 +90,7 @@ set(FERNANDA_HEADERS
     src/core/Formatters.h
     src/core/Io.h
     src/core/MagicBytes.h
+    src/core/Random.h
     src/core/Time.h
     src/core/ToString.h
     src/core/Tr.h

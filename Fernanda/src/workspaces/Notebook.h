@@ -16,7 +16,6 @@
 #include <utility>
 
 #include <QAbstractItemModel>
-#include <QByteArray>
 #include <QDockWidget>
 #include <QDomDocument>
 #include <QDomElement>
@@ -40,6 +39,7 @@
 #include "core/Debug.h"
 #include "core/FileTypes.h"
 #include "core/Io.h"
+#include "core/Random.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
 #include "fnx/FnxModel.h"
@@ -86,7 +86,7 @@ public:
         , fnxPath_(fnxPath)
         , workingDir_(
               AppDirs::tempNotebooks()
-              / (fnxPath_.nameQString() + WorkingDir::randomSuffix()))
+              / (fnxPath.nameQString() + "~" + Random::token(8)))
     {
         setup_();
     }
