@@ -56,7 +56,7 @@ inline constexpr bool isPrerelease = false;
 #define VERSION_MAJOR                           0
 #define VERSION_MINOR                           99
 #define VERSION_PATCH                           0
-#define VERSION_PRERELEASE_STRING               "beta.10"
+#define VERSION_PRERELEASE_STRING               "beta.11"
 
 // Major.Minor.Patch
 #define VERSION_3                               \
