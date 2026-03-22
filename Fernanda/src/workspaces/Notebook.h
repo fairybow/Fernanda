@@ -93,7 +93,7 @@ public:
     {
         TRACER;
 
-        deleteLockfile_();
+        deleteLockfile_(); /// TODO BA
         workingDir_.remove();
     }
 
@@ -180,7 +180,7 @@ protected:
                 return false;
             }
 
-            deleteLockfile_();
+            deleteLockfile_(); /// TODO BA
 
             // No resetSnapshot, showModified, or green color bar (last
             // window closing)
@@ -232,7 +232,7 @@ protected:
                 return false;
             }
 
-            deleteLockfile_();
+            deleteLockfile_(); /// TODO BA
 
             // No resetSnapshot, showModified, or green color bar (all windows
             // closing)
@@ -774,7 +774,7 @@ private:
             return;
         }
 
-        deleteLockfile_();
+        deleteLockfile_(); /// TODO BA
 
         if (saved_as) {
             fnxPath_ = path;
@@ -816,7 +816,7 @@ private:
             return;
         }
 
-        deleteLockfile_();
+        deleteLockfile_(); /// TODO BA
 
         fnxPath_ = new_path;
         windows->setSubtitle(fnxPath_.nameQString());
