@@ -147,7 +147,6 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] WidgetUtil or similar (central place to set all painters)
 - [ ] Install preloaded fonts to system in help menu?
 - [ ] Open data folder options in menus?
-- [ ] temp AppDir could be an App TempDir
 
 ## Translations
 

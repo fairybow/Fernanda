@@ -295,6 +295,8 @@ void flushRecoveryData() override
 }
 ```
 
+NOTE: Out-of-date: TempDir is no longer used.
+
 **Dirty lockfile**: created in `setup_()`, contains `.fnx` path. Deleted on
 clean shutdown (destructor or after successful compress). On crash, `TempDir`'s
 destructor doesn't run, so the working directory persists with the lockfile.
