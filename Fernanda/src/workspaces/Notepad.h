@@ -79,6 +79,9 @@ public:
     }
 
 protected:
+    /// TODO BA
+    virtual void autosave() override { TRACER; }
+
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
 
     virtual QModelIndex treeViewRootIndex() override

@@ -115,6 +115,13 @@ protected:
                                 // belong to App
     Coco::Path rollingOpenStartDir = currentRootDir;
 
+    /// TODO BA: May need to be protected in order set auto-save interval via
+    /// settings? (Would, in that case, also not need to have the interval set
+    /// here.)
+    Time::Ticker* autosaveCue =
+        Time::newTicker(this, &Workspace::autosave, 30000);
+    virtual void autosave() {};
+
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
     virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
@@ -220,6 +227,9 @@ private:
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
 
         connectBusEvents_();
+
+        /// TODO BA
+        autosaveCue->start();
     }
 
     void connectBusEvents_()

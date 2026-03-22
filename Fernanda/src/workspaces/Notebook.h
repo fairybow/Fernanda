@@ -107,6 +107,9 @@ signals:
     void openNotepadRequested();
 
 protected:
+    /// TODO BA
+    virtual void autosave() override { TRACER; }
+
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
 
     virtual QModelIndex treeViewRootIndex() override
