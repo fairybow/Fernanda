@@ -84,7 +84,7 @@ public:
     explicit Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
         : Workspace(parent)
         , fnxPath_(fnxPath)
-        , workingDir_(newWorkingDirName_(fnxPath))
+        , workingDir_(newWorkingDirPath_(fnxPath))
     {
         setup_();
     }
@@ -295,7 +295,7 @@ private:
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
         "Notebook file entries must have an extant path! [{}]";
 
-    static Coco::Path newWorkingDirName_(const Coco::Path& fnxPath)
+    static Coco::Path newWorkingDirPath_(const Coco::Path& fnxPath)
     {
         return AppDirs::tempNotebooks()
                / (fnxPath.nameQString() + "~" + Random::token(8));
