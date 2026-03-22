@@ -97,6 +97,14 @@ public:
         workingDir_.remove();
     }
 
+    static Notebook* recover(const Coco::Path& lockfile)
+    {
+        // - get needed info from lockfile
+        // - pass it to private ctor
+        // - return ptr
+        return nullptr;
+    }
+
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
 
     virtual bool tryQuit() override
@@ -307,6 +315,18 @@ private:
 
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
         "Notebook file entries must have an extant path! [{}]";
+
+    // Private recovery constructor
+    explicit Notebook(
+        const Coco::Path& fnxPath,
+        WorkingDir&& orphan,
+        QObject* parent = nullptr)
+        : Workspace(parent)
+        , fnxPath_(fnxPath)
+        , workingDir_(std::move(orphan))
+    {
+        setup_();
+    }
 
     static Coco::Path newWorkingDirPath_(const Coco::Path& fnxPath)
     {
