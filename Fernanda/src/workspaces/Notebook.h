@@ -92,6 +92,8 @@ public:
     virtual ~Notebook() override
     {
         TRACER;
+
+        deleteLockfile_();
         workingDir_.remove();
     }
 
@@ -108,7 +110,11 @@ signals:
 
 protected:
     /// TODO BA
-    virtual void autosave() override { TRACER; }
+    virtual void autosave() override
+    {
+        TRACER;
+        writeLockfile_();
+    }
 
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
 
@@ -174,6 +180,8 @@ protected:
                 return false;
             }
 
+            deleteLockfile_();
+
             // No resetSnapshot, showModified, or green color bar (last
             // window closing)
             return true;
@@ -223,6 +231,8 @@ protected:
 
                 return false;
             }
+
+            deleteLockfile_();
 
             // No resetSnapshot, showModified, or green color bar (all windows
             // closing)
@@ -389,6 +399,52 @@ private:
             &Bus::fileModelModificationChanged,
             this,
             &Notebook::onBusFileModelModificationChanged_);
+    }
+
+    /// TODO BA
+    Coco::Path lockfilePath_() const
+    {
+        constexpr auto ext = ".lock";
+        return AppDirs::tempNotebookRecovery()
+               / (workingDir_.path().nameQString() + ext);
+    }
+
+    /// TODO BA
+    QByteArray lockfileData_(const QStringList& dirtyUuids) const
+    {
+        QString content{};
+        auto nl = QStringLiteral("\n");
+        content += QStringLiteral("fnx=") + fnxPath_.toQString() + nl;
+        content += QStringLiteral("dir=") + workingDir_.path().toQString() + nl;
+        content += QStringLiteral("dirty=") + dirtyUuids.join(",") + nl;
+        return content.toUtf8();
+    }
+
+    /// TODO BA
+    // TODO: Could return bool and log. Would want to distinguish between
+    // lockfile not found or deletion failed, though?
+    void deleteLockfile_() { Coco::remove(lockfilePath_()); }
+
+    /// TODO BA
+    void writeLockfile_()
+    {
+        if (!workingDir_.isValid()) return;
+        if (!isModified_()) return;
+
+        QStringList dirty_uuids{};
+
+        for (auto model : files->fileModels()) {
+            if (!model || !model->isModified()) continue;
+            auto meta = model->meta();
+            if (!meta) continue;
+
+            if (!files->save(model, ClearModified::No))
+                CRITICAL("Notebook autosave failed for {}!", model);
+
+            dirty_uuids << Fnx::Io::uuid(meta->path());
+        }
+
+        Io::write(lockfileData_(dirty_uuids), lockfilePath_());
     }
 
     bool isModified_() const
@@ -718,6 +774,8 @@ private:
             return;
         }
 
+        deleteLockfile_();
+
         if (saved_as) {
             fnxPath_ = path;
             windows->setSubtitle(fnxPath_.nameQString());
@@ -757,6 +815,8 @@ private:
 
             return;
         }
+
+        deleteLockfile_();
 
         fnxPath_ = new_path;
         windows->setSubtitle(fnxPath_.nameQString());
