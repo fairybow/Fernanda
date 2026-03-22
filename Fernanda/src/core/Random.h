@@ -23,10 +23,11 @@ inline QString token(int length)
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     constexpr auto count = 62;
 
+    auto len = qMax(1, length);
     QString result{};
-    result.reserve(length);
+    result.reserve(len);
 
-    for (auto i = 0; i < length; ++i)
+    for (auto i = 0; i < len; ++i)
         result += chars[QRandomGenerator::global()->bounded(count)];
 
     return result;
