@@ -10,7 +10,7 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QString>
 #include <QTemporaryDir>
@@ -20,18 +20,25 @@
 namespace Fernanda {
 
 // Utility class for using QTemporaryDir with Coco::Path
-// TODO: Move to Coco
-class TempDir : public QTemporaryDir
+// TODO: Move to Coco?
+class TempDir
 {
 public:
-    using QTemporaryDir::QTemporaryDir;
-
     TempDir(const Coco::Path& templatePath)
-        : QTemporaryDir(templatePath.toQString())
+        : inner_(templatePath.toQString())
     {
     }
 
-    const Coco::Path path() const { return QTemporaryDir::path(); }
+    bool isValid() const { return inner_.isValid(); }
+    Coco::Path path() const { return inner_.path(); }
+
+    bool autoRemove() const { return inner_.autoRemove(); }
+    void setAutoRemove(bool autoRemove) { inner_.setAutoRemove(autoRemove); }
+    bool remove() { return inner_.remove(); }
+
+private:
+    QTemporaryDir inner_;
 };
 
 } // namespace Fernanda
+*/

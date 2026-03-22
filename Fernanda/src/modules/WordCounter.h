@@ -189,13 +189,13 @@ private:
 
     QPointer<QPlainTextEdit> textEdit_{};
     Time::Debouncer* countDebouncer_ =
-        new Time::Debouncer(DEBOUNCE_MS_, this, [this] { updateCounts_(); });
+        Time::newDebouncer(this, [this] { updateCounts_(); }, DEBOUNCE_MS_);
     QLabel* countsDisplay_ = new QLabel(this);
     QLabel* separatorDisplay_ = new QLabel(SEPARATOR_, this);
     QLabel* posDisplay_ = new QLabel(this);
     QToolButton* refresh_ = new QToolButton(this);
 
-    COCO_BOOL(Force_);
+    COCO_BOOL(Force_)
 
     bool active_ = true;
 

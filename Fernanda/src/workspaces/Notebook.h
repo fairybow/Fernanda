@@ -27,6 +27,7 @@
 #include <QPoint>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QString>
 #include <QStringList>
 #include <QVariant>
 #include <QVariantMap>
@@ -37,7 +38,8 @@
 #include "core/AppDirs.h"
 #include "core/Debug.h"
 #include "core/FileTypes.h"
-#include "core/TempDir.h"
+#include "core/Io.h"
+#include "core/Random.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
 #include "fnx/FnxModel.h"
@@ -59,6 +61,7 @@
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
 #include "workspaces/TrashPrompt.h"
+#include "workspaces/WorkingDir.h"
 #include "workspaces/Workspace.h"
 
 namespace Fernanda {
@@ -72,21 +75,25 @@ namespace Fernanda {
 //
 // TODO: Settings change mark Notebook unsaved? How - watch the working dir for
 // changes?
+// TODO: Check for missing !workingDir_.isValid checks
 class Notebook : public Workspace
 {
     Q_OBJECT
 
 public:
-    Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
+    explicit Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
         : Workspace(parent)
         , fnxPath_(fnxPath)
-        , workingDir_(
-              AppDirs::tempNotebooks() / (fnxPath_.nameQString() + "~XXXXXX"))
+        , workingDir_(newWorkingDirName_(fnxPath))
     {
         setup_();
     }
 
-    virtual ~Notebook() override { TRACER; }
+    virtual ~Notebook() override
+    {
+        TRACER;
+        workingDir_.remove();
+    }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
 
@@ -153,6 +160,7 @@ protected:
 
             fnxModel_->write(workingDir_.path());
 
+            /// TODO BA
             if (!Fnx::Io::compress(
                     path,
                     workingDir_.path(),
@@ -202,6 +210,7 @@ protected:
 
             fnxModel_->write(workingDir_.path());
 
+            /// TODO BA
             if (!Fnx::Io::compress(
                     path,
                     workingDir_.path(),
@@ -277,21 +286,27 @@ protected:
 
 private:
     Coco::Path fnxPath_; // Intended path (may not exist yet)
-    TempDir workingDir_; // Working directory name will remain unchanged for
-                         // Notebook's lifetime even when changing Notebook name
-                         // via Save As
+    WorkingDir workingDir_; // Working directory path/name will remain unchanged
+                            // for Notebook's lifetime even when changing
+                            // Notebook name via Save As
 
     FnxModel* fnxModel_ = new FnxModel(this);
 
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
         "Notebook file entries must have an extant path! [{}]";
 
+    static Coco::Path newWorkingDirName_(const Coco::Path& fnxPath)
+    {
+        return AppDirs::tempNotebooks()
+               / (fnxPath.nameQString() + "~" + Random::token(8));
+    }
+
     void setup_()
     {
         if (!workingDir_.isValid())
             FATAL("Notebook working directory creation failed!");
 
-        auto working_dir = workingDir_.path();
+        auto working_dir_path = workingDir_.path();
 
         treeViews->setHeadersHidden(true);
         treeViews->setDockWidgetHook(this, &Notebook::treeViewDockWidgetHook_);
@@ -327,22 +342,23 @@ private:
 
         // Extraction or creation
         if (!fnxPath_.exists()) {
-            Fnx::Io::makeNewWorkingDir(working_dir);
+            Fnx::Io::makeNewWorkingDir(working_dir_path);
 
             //...
 
         } else {
-            Fnx::Io::extract(fnxPath_, working_dir);
-            // TODO: Verification (comparing Manifest file elements to content
-            // dir files, i.e. making sure Trash exists, checking all file UUIDs
-            // have corresponding files, etc.)
+            Fnx::Io::extract(fnxPath_, working_dir_path);
+            // TODO: Verification (comparing Manifest file elements to
+            // content dir files, i.e. making sure Trash exists, checking
+            // all file UUIDs have corresponding files, etc.)
         }
 
         settings->setName(fnxPath_.nameQString());
         settings->setOverrideConfigPath(
-            working_dir / "Settings.ini"); // This needs to be after extraction!
+            working_dir_path
+            / "Settings.ini"); // This needs to be after extraction!
 
-        fnxModel_->load(working_dir);
+        fnxModel_->load(working_dir_path);
 
         connect(
             fnxModel_,
@@ -394,16 +410,20 @@ private:
         if (!window) return;
         if (!workingDir_.isValid()) return;
 
-        auto working_dir = workingDir_.path();
+        auto working_dir_path = workingDir_.path();
         // If index is invalid, fnxModel_->addNewTextFile adds it to the DOM
         // document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
         auto info = fnxModel_->addNewFile(
             FileTypes::PlainText,
-            working_dir,
+            working_dir_path,
             resolveNotebookIndex_(index));
         if (!info.isValid()) return;
-        files->openFilePathIn(window, working_dir / info.relPath, info.name);
+
+        files->openFilePathIn(
+            window,
+            working_dir_path / info.relPath,
+            info.name);
     }
 
     // TODO: Trigger rename immediately (maybe)
@@ -434,20 +454,21 @@ private:
 
         rollingOpenStartDir = fs_paths.at(0).parent();
 
-        auto working_dir = workingDir_.path();
+        auto working_dir_path = workingDir_.path();
         // If index is invalid, fnxModel_->importTextFiles adds it to the DOM
         // document element (top-level), so we make sure it goes to Notebook
         // instead (our root for primary TreeView)
         auto infos = fnxModel_->importFiles(
-            working_dir,
+            working_dir_path,
             fs_paths,
             resolveNotebookIndex_(index));
 
         for (auto& info : infos) {
             if (!info.isValid()) continue;
+
             files->openFilePathIn(
                 window,
-                working_dir / info.relPath,
+                working_dir_path / info.relPath,
                 info.name);
         }
     }
@@ -631,10 +652,11 @@ private:
 
         if (!TrashPrompt::exec(file_infos.count(), window)) return false;
 
-        auto working_dir = workingDir_.path();
+        auto working_dir_path = workingDir_.path();
         QSet<Coco::Path> paths{};
+
         for (auto& info : file_infos)
-            paths << working_dir / info.relPath;
+            paths << working_dir_path / info.relPath;
 
         auto models = files->modelsFor(paths);
 
@@ -685,6 +707,7 @@ private:
 
         fnxModel_->write(workingDir_.path());
 
+        /// TODO BA
         if (!Fnx::Io::compress(path, workingDir_.path(), makeBackupHook_())) {
             colorBars->red();
             SaveFailMessageBox::exec(path, window);
@@ -721,6 +744,7 @@ private:
 
         fnxModel_->write(workingDir_.path());
 
+        /// TODO BA
         if (!Fnx::Io::compress(
                 new_path,
                 workingDir_.path(),
@@ -788,6 +812,7 @@ private:
             .popup(globalPos);
     }
 
+    /// TODO BA
     Fnx::Io::BeforeOverwriteHook makeBackupHook_() const
     {
         return [](const Coco::Path& original) {

@@ -148,8 +148,7 @@ private:
     static constexpr qreal MAX_RANGE_ = 100.00;
     qreal currentProgress_ = MIN_RANGE_;
     Color currentColor_ = Pastel;
-    Time::Delayer* lingerTimer_ =
-        new Time::Delayer(1000, this, &ColorBar::reset_);
+    Time::Delayer* linger_ = Time::newDelayer(this, &ColorBar::reset_, 1000);
     QTimeLine* activeTimeLine_ = nullptr;
 
     // Cache
@@ -215,7 +214,7 @@ private:
             activeTimeLine_ = nullptr;
         }
 
-        lingerTimer_->stop();
+        linger_->stop();
         reset_();
     }
 
@@ -294,7 +293,7 @@ private:
         connect(time_line, &QTimeLine::frameChanged, this, &ColorBar::tick_);
 
         connect(time_line, &QTimeLine::finished, this, [this, time_line] {
-            lingerTimer_->start(); // linger AFTER fill completes
+            linger_->start(); // linger AFTER fill completes
             activeTimeLine_ = nullptr;
             time_line->deleteLater();
         });

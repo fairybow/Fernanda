@@ -2,6 +2,22 @@
 
 ## Current
 
+- [x] Guaranteed working dir persistence on crash
+- [ ] ClearModified option in FileService
+- [ ] Workspace autosave timer
+- [ ] Hook up Notebook (scan models and save dirty ones, without changing modification)
+- [ ] Collect UUIDs in flush function
+- [ ] Write lockfile in flush function
+- [ ] Delete lockfile on save (compress) and dtor
+- [ ] Unique name generation function
+- [ ] Make working dir non-QTemporaryDir, so we can re-use on recovery
+- [ ] Hook up Notepad
+- [ ] For Notepad, if the exist at all, a recovered file means dirty
+- [ ] AutosaveRecovery.md
+- [ ] Also, a Settings.md
+- [ ] Remove settings INI info from Architecture.md?
+
+
 - [x] CRITICAL BUG: Occasionally, saving Paradise Lost, I'll see a save fail prompt. It happens without the beforeWriteHook_ but not often. The hook doesn't seem to affect the frequency. Problem might be in Io::write and with QSaveFile? Here's the debug output that shows up related to this: `239 | 2026-03-20 | 22:11:19.360 | Failed to commit file at C:/.../Documents/Fernanda/Paradise Lost.txt (Error: Access is denied.)!` (see FileService writeModelToDisk_ for the fix)
 
 - [ ] Possible to make Workspace-modal dialogs (for something like close all windows or tabs)?

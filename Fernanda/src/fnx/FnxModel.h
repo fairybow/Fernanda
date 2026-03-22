@@ -521,7 +521,7 @@ signals:
     void fileRenamed(const FileInfo& info);
 
 private:
-    COCO_BOOL(AllowOrphaned_);
+    COCO_BOOL(AllowOrphaned_)
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
     QString domSnapshot_{};

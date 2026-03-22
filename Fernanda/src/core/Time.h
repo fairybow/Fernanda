@@ -18,8 +18,6 @@
 #include <QObject>
 #include <QTimer>
 
-#include "core/Debug.h"
-
 namespace Fernanda::Time {
 
 struct LocalTime
@@ -65,36 +63,42 @@ template <typename SlotT> inline void onNextTick(SlotT slot)
     QTimer::singleShot(0, slot);
 }
 
-// Utility class for initializing a debouncing/delay timer and connecting it to
-// a slot
-class Delayer : public QObject
+template <typename SlotT>
+inline QTimer* newQTimer(QObject* parent, SlotT slot, int msec = -1)
 {
-    Q_OBJECT
+    auto timer = new QTimer(parent);
+    if (msec >= 0) timer->setInterval(msec);
+    QObject::connect(timer, &QTimer::timeout, parent, slot);
+    return timer;
+}
 
-public:
-    template <typename SlotT>
-    Delayer(int interval, QObject* parent, SlotT slot)
-        : QObject(parent)
-    {
-        timer_->setSingleShot(true);
-        timer_->setInterval(interval);
-        connect(timer_, &QTimer::timeout, parent, slot);
-    }
+using Ticker = QTimer;
+using Delayer = QTimer;
+using Debouncer = QTimer;
 
-    virtual ~Delayer() override { TRACER; }
+// Non-single-shot (polling) member
+template <typename SlotT>
+inline Ticker* newTicker(QObject* parent, SlotT slot, int msec = -1)
+{
+    auto timer = newQTimer<SlotT>(parent, slot, msec);
+    timer->setSingleShot(false);
+    return timer;
+}
 
-    void start() { timer_->start(); }
-    void stop() { timer_->stop(); }
-    void setInterval(int msec) { timer_->setInterval(msec); }
-    void setInterval(std::chrono::milliseconds value)
-    {
-        timer_->setInterval(value);
-    }
+// Single-shot delay member
+template <typename SlotT>
+inline Delayer* newDelayer(QObject* parent, SlotT slot, int msec = -1)
+{
+    auto timer = newQTimer<SlotT>(parent, slot, msec);
+    timer->setSingleShot(true);
+    return timer;
+}
 
-private:
-    QTimer* timer_ = new QTimer(this);
-};
-
-using Debouncer = Delayer;
+// Single-shot delay member
+template <typename SlotT>
+inline Debouncer* newDebouncer(QObject* parent, SlotT slot, int msec = -1)
+{
+    return newDelayer<SlotT>(parent, slot, msec);
+}
 
 } // namespace Fernanda::Time

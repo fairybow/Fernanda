@@ -489,6 +489,7 @@ private:
             treeViewDockIniKey(),
             Ini::Defaults::notepadTreeViewDock()); /// TODO TVT
 
+        /// TODO BA
         files->setBeforeWriteHook([](const Coco::Path& path) {
             if (!path.exists())
                 return; // Backups don't apply to off-disk files (unlike

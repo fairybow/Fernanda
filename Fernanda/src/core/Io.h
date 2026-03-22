@@ -25,7 +25,7 @@
 
 namespace Fernanda::Io {
 
-COCO_BOOL(CreateDirs);
+COCO_BOOL(CreateDirs)
 
 inline QByteArray read(const Coco::Path& path)
 {
