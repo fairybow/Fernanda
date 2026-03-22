@@ -10,7 +10,7 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
-#pragma once
+/*#pragma once
 
 #include <QString>
 #include <QTemporaryDir>
@@ -41,3 +41,4 @@ private:
 };
 
 } // namespace Fernanda
+*/

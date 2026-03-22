@@ -40,7 +40,6 @@
 #include "core/Debug.h"
 #include "core/FileTypes.h"
 #include "core/Io.h"
-#include "core/TempDir.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
 #include "fnx/FnxModel.h"
@@ -62,6 +61,7 @@
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
 #include "workspaces/TrashPrompt.h"
+#include "workspaces/WorkingDir.h"
 #include "workspaces/Workspace.h"
 
 namespace Fernanda {
@@ -81,11 +81,12 @@ class Notebook : public Workspace
     Q_OBJECT
 
 public:
-    Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
+    explicit Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
         : Workspace(parent)
         , fnxPath_(fnxPath)
         , workingDir_(
-              AppDirs::tempNotebooks() / (fnxPath_.nameQString() + "~XXXXXX"))
+              AppDirs::tempNotebooks()
+              / (fnxPath_.nameQString() + WorkingDir::randomSuffix()))
     {
         setup_();
     }
@@ -95,8 +96,7 @@ public:
         TRACER;
 
         deleteLockfile_();
-        workingDir_.remove(); // The working directory needs to survive if the
-                              // destructor never runs
+        workingDir_.remove();
     }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
@@ -328,9 +328,9 @@ protected:
 
 private:
     Coco::Path fnxPath_; // Intended path (may not exist yet)
-    TempDir workingDir_; // Working directory name will remain unchanged for
-                         // Notebook's lifetime even when changing Notebook name
-                         // via Save As
+    WorkingDir workingDir_; // Working directory path/name will remain unchanged
+                            // for Notebook's lifetime even when changing
+                            // Notebook name via Save As
 
     FnxModel* fnxModel_ = new FnxModel(this);
 
@@ -342,7 +342,6 @@ private:
         if (!workingDir_.isValid())
             FATAL("Notebook working directory creation failed!");
 
-        workingDir_.setAutoRemove(false);
         auto working_dir_path = workingDir_.path();
 
         treeViews->setHeadersHidden(true);
@@ -385,9 +384,9 @@ private:
 
         } else {
             Fnx::Io::extract(fnxPath_, working_dir_path);
-            // TODO: Verification (comparing Manifest file elements to content
-            // dir files, i.e. making sure Trash exists, checking all file UUIDs
-            // have corresponding files, etc.)
+            // TODO: Verification (comparing Manifest file elements to
+            // content dir files, i.e. making sure Trash exists, checking
+            // all file UUIDs have corresponding files, etc.)
         }
 
         settings->setName(fnxPath_.nameQString());

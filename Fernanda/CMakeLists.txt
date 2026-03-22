@@ -90,7 +90,6 @@ set(FERNANDA_HEADERS
     src/core/Formatters.h
     src/core/Io.h
     src/core/MagicBytes.h
-    src/core/TempDir.h
     src/core/Time.h
     src/core/ToString.h
     src/core/Tr.h
@@ -176,6 +175,7 @@ set(FERNANDA_HEADERS
     src/workspaces/SaveFailMessageBox.h
     src/workspaces/SavePrompt.h
     src/workspaces/TrashPrompt.h
+    src/workspaces/WorkingDir.h
     src/workspaces/Workspace.h
 )
 
