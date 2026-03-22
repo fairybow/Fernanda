@@ -231,7 +231,7 @@ bool openFile(const QString& path);
 // TODO: Implement autosave functionality
 ```
 
-**General notes**: Do NOT prefix with `NOTE:`. If it's particularly important, you can use `NB:` (for nota bene).
+**General notes**: Do NOT prefix with `NOTE:`. If it's particularly important, you can use `NB:` (for nota bene). Adding `NOTE:` would be redundant. Its existence alone is what identifies it as a note.
 
 ```cpp
 // This assumes the file is already validated
