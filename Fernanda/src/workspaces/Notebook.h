@@ -162,6 +162,7 @@ protected:
 
             fnxModel_->write(workingDir_.path());
 
+            /// TODO BA
             if (!Fnx::Io::compress(
                     path,
                     workingDir_.path(),
@@ -211,6 +212,7 @@ protected:
 
             fnxModel_->write(workingDir_.path());
 
+            /// TODO BA
             if (!Fnx::Io::compress(
                     path,
                     workingDir_.path(),
@@ -701,6 +703,7 @@ private:
 
         fnxModel_->write(workingDir_.path());
 
+        /// TODO BA
         if (!Fnx::Io::compress(path, workingDir_.path(), makeBackupHook_())) {
             colorBars->red();
             SaveFailMessageBox::exec(path, window);
@@ -737,6 +740,7 @@ private:
 
         fnxModel_->write(workingDir_.path());
 
+        /// TODO BA
         if (!Fnx::Io::compress(
                 new_path,
                 workingDir_.path(),
@@ -804,6 +808,7 @@ private:
             .popup(globalPos);
     }
 
+    /// TODO BA
     Fnx::Io::BeforeOverwriteHook makeBackupHook_() const
     {
         return [](const Coco::Path& original) {

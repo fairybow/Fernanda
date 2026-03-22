@@ -327,6 +327,7 @@ namespace Io {
     /// From future me: Probably don't do this ^
     constexpr auto EXT = ".fnx";
 
+    /// TODO BA
     using BeforeOverwriteHook =
         std::function<void(const Coco::Path& originalFnx)>;
 
@@ -482,6 +483,7 @@ namespace Io {
             return false;
         }
 
+        /// TODO BA
         if (beforeOverwriteHook) beforeOverwriteHook(archivePath);
         Coco::remove(archivePath);
 

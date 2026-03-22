@@ -67,6 +67,7 @@ public:
 
     virtual ~FileService() override { TRACER; }
 
+    /// TODO BA
     DECLARE_HOOK(
         std::function<void(const Coco::Path&)>,
         beforeWriteHook,
@@ -412,6 +413,7 @@ private:
     SaveResult
     writeModelToDisk_(AbstractFileModel* model, const Coco::Path& path)
     {
+        /// TODO BA
         if (beforeWriteHook_) beforeWriteHook_(path);
 
         auto q_path = path.toQString();
