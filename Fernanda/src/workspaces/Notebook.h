@@ -94,8 +94,6 @@ public:
     virtual ~Notebook() override
     {
         TRACER;
-
-        deleteLockfile_();
         workingDir_.remove();
     }
 
@@ -111,42 +109,6 @@ signals:
     void openNotepadRequested();
 
 protected:
-    /// TODO BA:
-    virtual void flushRecoveryData() override
-    {
-        // TODO: For organization, this could all be in a writeLockfile_ method
-        // wrapped by this virtual?
-        if (!workingDir_.isValid()) return;
-        if (!isModified_()) return;
-
-        QStringList dirty_uuids{};
-
-        for (auto model : files->fileModels()) {
-            if (!model || !model->isModified()) continue;
-            auto meta = model->meta();
-            if (!meta) continue;
-
-            if (!files->save(model, ClearModified::No))
-                CRITICAL("Notebook autosave failed for {}!", model);
-
-            dirty_uuids << Fnx::Io::uuid(meta->path());
-        }
-
-        Io::write(lockfileData_(dirty_uuids), lockfilePath_());
-
-        // - PROBLEM: re: whether we delete the lockfile when notebook is no
-        // longer modified - maybe? depends on if we delete notepad recovery
-        // files when that particular file is saved. if so, same for notebook
-        // - SOLUTION ^: yes, delete when not modified (do the same for
-        // Notepad's files)
-        // - PROBLEM: something to consider: do we want a recovered notebook's
-        // working dir name to match the lockfile's name (which is taken from
-        // the crashed notebook's working dir name)
-        // - SOLUTION ^: Make working dir not a TempDir and control here.
-        // Implement own random chars method and then allow creation of Notebook
-        // from a path to extant working dir for recovery
-    }
-
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
 
     virtual QModelIndex treeViewRootIndex() override
@@ -210,8 +172,6 @@ protected:
                 return false;
             }
 
-            deleteLockfile_();
-
             // No resetSnapshot, showModified, or green color bar (last
             // window closing)
             return true;
@@ -260,8 +220,6 @@ protected:
 
                 return false;
             }
-
-            deleteLockfile_();
 
             // No resetSnapshot, showModified, or green color bar (all windows
             // closing)
@@ -750,8 +708,6 @@ private:
             return;
         }
 
-        deleteLockfile_();
-
         if (saved_as) {
             fnxPath_ = path;
             windows->setSubtitle(fnxPath_.nameQString());
@@ -790,8 +746,6 @@ private:
 
             return;
         }
-
-        deleteLockfile_();
 
         fnxPath_ = new_path;
         windows->setSubtitle(fnxPath_.nameQString());
@@ -858,29 +812,6 @@ private:
             Backup::createAndPrune(original, AppDirs::notebookBackups(), 5);
         };
     }
-
-    /// TODO BA
-    Coco::Path lockfilePath_() const
-    {
-        return AppDirs::tempNotebookRecovery()
-               / (workingDir_.path().nameQString() + ".lock");
-    }
-
-    /// TODO BA
-    QByteArray lockfileData_(const QStringList& dirtyUuids) const
-    {
-        QString content{};
-        auto nl = QStringLiteral("\n");
-        content += QStringLiteral("fnx=") + fnxPath_.toQString() + nl;
-        content += QStringLiteral("dir=") + workingDir_.path().toQString() + nl;
-        content += QStringLiteral("dirty=") + dirtyUuids.join(",") + nl;
-        return content.toUtf8();
-    }
-
-    /// TODO BA
-    // TODO: Could return bool and log. Would want to distinguish between
-    // lockfile not found or deletion failed, though?
-    void deleteLockfile_() { Coco::remove(lockfilePath_()); }
 
 private slots:
     // TODO: Could remove working dir validity check; also writeManifest could
