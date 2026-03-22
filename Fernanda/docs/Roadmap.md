@@ -3,14 +3,14 @@
 ## Current
 
 - [x] Guaranteed working dir persistence on crash
-- [ ] ClearModified option in FileService
-- [ ] Workspace autosave timer
+- [x] ClearModified option in FileService
+- [x] Workspace autosave timer
 - [ ] Hook up Notebook (scan models and save dirty ones, without changing modification)
-- [ ] Collect UUIDs in flush function
-- [ ] Write lockfile in flush function
-- [ ] Delete lockfile on save (compress) and dtor
-- [ ] Unique name generation function
-- [ ] Make working dir non-QTemporaryDir, so we can re-use on recovery
+- [x] Collect UUIDs in flush function
+- [x] Write lockfile in flush function
+- [x] Delete lockfile on save (compress) and dtor
+- [x] Unique name generation function
+- [x] Make working dir non-QTemporaryDir, so we can re-use on recovery
 - [ ] Hook up Notepad
 - [ ] For Notepad, if the exist at all, a recovered file means dirty
 - [ ] AutosaveRecovery.md

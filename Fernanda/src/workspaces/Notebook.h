@@ -373,17 +373,19 @@ private:
         windows->setSubtitle(fnxPath_.nameQString());
         updateWindowsFlags_();
 
-        // Extraction or creation
-        if (!fnxPath_.exists()) {
-            Fnx::Io::makeNewWorkingDir(working_dir_path);
+        if (!workingDir_.wasAdopted()) {
+            // Extraction or creation
+            if (!fnxPath_.exists()) {
+                Fnx::Io::makeNewWorkingDir(working_dir_path);
 
-            //...
+                //...
 
-        } else {
-            Fnx::Io::extract(fnxPath_, working_dir_path);
-            // TODO: Verification (comparing Manifest file elements to
-            // content dir files, i.e. making sure Trash exists, checking
-            // all file UUIDs have corresponding files, etc.)
+            } else {
+                Fnx::Io::extract(fnxPath_, working_dir_path);
+                // TODO: Verification (comparing Manifest file elements to
+                // content dir files, i.e. making sure Trash exists, checking
+                // all file UUIDs have corresponding files, etc.)
+            }
         }
 
         settings->setName(fnxPath_.nameQString());

@@ -119,7 +119,7 @@ protected:
     /// settings? (Would, in that case, also not need to have the interval set
     /// here.)
     Time::Ticker* autosaveCue =
-        Time::newTicker(this, &Workspace::autosave, 30000);
+        Time::newTicker(this, &Workspace::autosave, 15000);
     virtual void autosave() {};
 
     virtual QAbstractItemModel* treeViewModel() = 0;
