@@ -76,6 +76,12 @@ public:
         beforeWriteHook,
         setBeforeWriteHook)
 
+    /// TODO BA
+    DECLARE_HOOK(
+        std::function<void(AbstractFileModel*)>,
+        afterModelCreatedHook,
+        setAfterModelCreatedHook)
+
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
 
@@ -91,8 +97,11 @@ public:
     {
         if (!window) return;
 
-        if (auto model = newOffDiskTextFileModel_())
+        if (auto model = newOffDiskTextFileModel_()) {
+            /// TODO BA
+            if (afterModelCreatedHook_) afterModelCreatedHook_(model);
             signalFileModelReadied_(window, model);
+        }
     }
 
     QSet<AbstractFileModel*> fileModels() const noexcept { return fileModels_; }
@@ -154,8 +163,11 @@ public:
         }
 
         // Else, make a new one and ready it
-        if (auto model = newDiskFileModel_(path, title))
+        if (auto model = newDiskFileModel_(path, title)) {
+            /// TODO BA
+            if (afterModelCreatedHook_) afterModelCreatedHook_(model);
             signalFileModelReadied_(window, model);
+        }
     }
 
     AbstractFileModel* modelFor(const Coco::Path& path) const
