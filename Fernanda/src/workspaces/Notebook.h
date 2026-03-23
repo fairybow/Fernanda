@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QPalette> // TODO: Temp
 #include <QPoint>
+#include <QSet>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QString>
@@ -58,6 +59,7 @@
 #include "ui/Window.h"
 #include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
+#include "workspaces/NotebookLockfile.h"
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
 #include "workspaces/TrashPrompt.h"
@@ -76,6 +78,10 @@ namespace Fernanda {
 // TODO: Settings change mark Notebook unsaved? How - watch the working dir for
 // changes?
 // TODO: Check for missing !workingDir_.isValid checks
+/// TODO BA: Read/write recovery lockfile could be accessory namespace
+/// (NotebookLockfile)
+/// TODO BA: WorkingDir - should it be named NotebookWorkingDir
+/// TODO BA: Should WorkingDir store Dirty UUIDs?
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -97,12 +103,19 @@ public:
         workingDir_.remove();
     }
 
-    static Notebook* recover(const Coco::Path& lockfile)
+    /// TODO BA
+    static Notebook*
+    recover(const Coco::Path& lockfile, QObject* parent = nullptr)
     {
-        // - get needed info from lockfile
-        // - pass it to private ctor
-        // - return ptr
-        return nullptr;
+        auto parsed = NotebookLockfile::fromData(Io::read(lockfile));
+        if (parsed.workingDirPath.isEmpty() || !parsed.workingDirPath.exists())
+            return nullptr;
+
+        return new Notebook(
+            parsed.fnxPath,
+            WorkingDir(parsed.workingDirPath),
+            std::move(parsed.dirtyUuids),
+            parent);
     }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
@@ -189,12 +202,15 @@ protected:
             }
 
             deleteLockfile_(); /// TODO BA
+            // Clearing recoveryDirtyUuids_ is pointless as we're headed to
+            // destruction
 
             // No resetSnapshot, showModified, or green color bar (last
             // window closing)
             return true;
         }
         case SavePrompt::Discard:
+            deleteLockfile_(); /// TODO BA
             return true;
         }
     }
@@ -240,13 +256,20 @@ protected:
                 return false;
             }
 
+            // TODO: Combine with code used in canCloseWindow
+            // TODO: Use fallthrough at the end of Save here to delete lockfile
+            // and return true
+
             deleteLockfile_(); /// TODO BA
+            // Clearing recoveryDirtyUuids_ is pointless as we're headed to
+            // destruction
 
             // No resetSnapshot, showModified, or green color bar (all windows
             // closing)
             return true;
         }
         case SavePrompt::Discard:
+            deleteLockfile_(); /// TODO BA
             return true;
         }
     }
@@ -313,17 +336,22 @@ private:
 
     FnxModel* fnxModel_ = new FnxModel(this);
 
+    QSet<QString> recoveryDirtyUuids_{}; /// TODO BA
+
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
         "Notebook file entries must have an extant path! [{}]";
 
     // Private recovery constructor
+    /// TODO BA
     explicit Notebook(
         const Coco::Path& fnxPath,
         WorkingDir&& orphan,
+        QSet<QString>&& dirtyUuids,
         QObject* parent = nullptr)
         : Workspace(parent)
         , fnxPath_(fnxPath)
         , workingDir_(std::move(orphan))
+        , recoveryDirtyUuids_(std::move(dirtyUuids))
     {
         setup_();
     }
@@ -373,19 +401,21 @@ private:
         windows->setSubtitle(fnxPath_.nameQString());
         updateWindowsFlags_();
 
-        if (!workingDir_.wasAdopted()) {
-            // Extraction or creation
-            if (!fnxPath_.exists()) {
-                Fnx::Io::makeNewWorkingDir(working_dir_path);
+        // Recovery, extraction, or creation
+        /// TODO BA
+        if (workingDir_.wasAdopted()) {
+            // Recovery: working dir already contains autosaved content
 
-                //...
+        } else if (!fnxPath_.exists()) {
+            Fnx::Io::makeNewWorkingDir(working_dir_path);
 
-            } else {
-                Fnx::Io::extract(fnxPath_, working_dir_path);
-                // TODO: Verification (comparing Manifest file elements to
-                // content dir files, i.e. making sure Trash exists, checking
-                // all file UUIDs have corresponding files, etc.)
-            }
+            //...
+
+        } else {
+            Fnx::Io::extract(fnxPath_, working_dir_path);
+            // TODO: Verification (comparing Manifest file elements to
+            // content dir files, i.e. making sure Trash exists, checking
+            // all file UUIDs have corresponding files, etc.)
         }
 
         settings->setName(fnxPath_.nameQString());
@@ -408,6 +438,9 @@ private:
             &Notebook::onFnxModelFileRenamed_);
 
         connectBusEvents_();
+
+        /// TODO BA
+        if (!recoveryDirtyUuids_.isEmpty()) applyRecoveryState_();
     }
 
     void connectBusEvents_()
@@ -432,17 +465,6 @@ private:
     }
 
     /// TODO BA
-    QByteArray lockfileData_(const QStringList& dirtyUuids) const
-    {
-        QString content{};
-        auto nl = QStringLiteral("\n");
-        content += QStringLiteral("fnx=") + fnxPath_.toQString() + nl;
-        content += QStringLiteral("dir=") + workingDir_.path().toQString() + nl;
-        content += QStringLiteral("dirty=") + dirtyUuids.join(",") + nl;
-        return content.toUtf8();
-    }
-
-    /// TODO BA
     // TODO: Could return bool and log. Would want to distinguish between
     // lockfile not found or deletion failed, though?
     void deleteLockfile_() { Coco::remove(lockfilePath_()); }
@@ -453,7 +475,7 @@ private:
         if (!workingDir_.isValid()) return;
         if (!isModified_()) return;
 
-        QStringList dirty_uuids{};
+        QSet<QString> dirty_uuids(recoveryDirtyUuids_);
 
         for (auto model : files->fileModels()) {
             if (!model || !model->isModified()) continue;
@@ -466,7 +488,29 @@ private:
             dirty_uuids << Fnx::Io::uuid(meta->path());
         }
 
-        Io::write(lockfileData_(dirty_uuids), lockfilePath_());
+        Io::write(
+            NotebookLockfile::toData(
+                fnxPath_,
+                workingDir_,
+                QStringList(
+                    dirty_uuids.begin(),
+                    dirty_uuids.end())), /// TODO BA: Take set directly here in
+                                         /// lockfile ns
+            lockfilePath_());
+    }
+
+    /// TODO BA
+    void applyRecoveryState_()
+    {
+        for (auto& uuid : recoveryDirtyUuids_)
+            fnxModel_->setFileEdited(uuid, true);
+
+        files->setAfterModelCreatedHook([this](AbstractFileModel* model) {
+            auto meta = model->meta();
+            if (!meta) return;
+            auto uuid = Fnx::Io::uuid(meta->path());
+            if (recoveryDirtyUuids_.contains(uuid)) model->setModified(true);
+        });
     }
 
     bool isModified_() const
@@ -797,6 +841,7 @@ private:
         }
 
         deleteLockfile_(); /// TODO BA
+        recoveryDirtyUuids_.clear(); /// TODO BA
 
         if (saved_as) {
             fnxPath_ = path;
@@ -839,6 +884,7 @@ private:
         }
 
         deleteLockfile_(); /// TODO BA
+        recoveryDirtyUuids_.clear(); /// TODO BA
 
         fnxPath_ = new_path;
         windows->setSubtitle(fnxPath_.nameQString());
