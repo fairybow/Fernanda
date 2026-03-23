@@ -11,8 +11,13 @@
 - [x] Delete lockfile on save (compress) and dtor
 - [x] Unique name generation function
 - [x] Make working dir non-QTemporaryDir, so we can re-use on recovery
-- [ ] Hook up Notepad
-- [ ] For Notepad, if the exist at all, a recovered file means dirty
+- [x] Hook up Notepad
+- [x] For Notepad, if the exist at all, a recovered file means dirty
+- [ ] Make buffer .txt
+- [ ] Check that window is right arg for Notepad restore
+- [ ] Refactor notebook can close hooks since much the same
+- [ ] Refactor notepad save code after tentatively finalizing restore code
+- [ ] Find/bring symmetry to the autosave recovery code even though they're fairly different. There are still places where there will be symmetry (making sure autosave data is deleted on save or discard, for example, in both paths - or a function that wraps the lockfile deletion plus UUID list clearing, if appropriate)
 - [ ] AutosaveRecovery.md
 - [ ] Also, a Settings.md
 - [ ] Remove settings INI info from Architecture.md?
