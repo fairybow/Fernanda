@@ -2,7 +2,7 @@
 
 Periodic flush of dirty buffers for crash recovery.
 
-See: [`Workspace.h`](../src/workspaces/Workspace.h), [`Notebook.h`](../src/workspaces/Notebook.h), [`NotebookLockfile.h`](../src/workspaces/NotebookLockfile.h), [`FileService.h`](../src/services/FileService.h), [`WorkingDir.h`](../src/workspaces/WorkingDir.h), and [`AppDirs.h`](../src/core/AppDirs.h).
+See: [`Workspace.h`](../src/workspaces/Workspace.h), [`Notebook.h`](../src/workspaces/Notebook.h), [`NotebookLockfile.h`](../src/workspaces/NotebookLockfile.h), [`Notepad.h`](../src/workspaces/Notepad.h), [`NotepadRecoveryEntry.h`](../src/workspaces/NotepadRecoveryEntry.h), [`FileService.h`](../src/services/FileService.h), [`WorkingDir.h`](../src/workspaces/WorkingDir.h), and [`AppDirs.h`](../src/core/AppDirs.h).
 
 ## Overview
 

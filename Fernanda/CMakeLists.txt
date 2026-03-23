@@ -174,6 +174,7 @@ set(FERNANDA_HEADERS
     src/workspaces/NotebookLockfile.h
     src/workspaces/Notepad.h
     src/workspaces/NotepadFileSystemModel.h
+    src/workspaces/NotepadRecoveryEntry.h
     src/workspaces/SaveFailMessageBox.h
     src/workspaces/SavePrompt.h
     src/workspaces/TrashPrompt.h

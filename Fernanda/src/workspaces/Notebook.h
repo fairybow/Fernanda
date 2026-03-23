@@ -80,7 +80,6 @@ namespace Fernanda {
 // TODO: Check for missing !workingDir_.isValid checks
 /// TODO BA: Read/write recovery lockfile could be accessory namespace
 /// (NotebookLockfile)
-/// TODO BA: WorkingDir - should it be named NotebookWorkingDir
 /// TODO BA: Should WorkingDir store Dirty UUIDs?
 class Notebook : public Workspace
 {

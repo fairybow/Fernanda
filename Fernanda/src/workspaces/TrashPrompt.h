@@ -21,6 +21,7 @@
 
 #include "core/Tr.h"
 
+// TODO: Rename NotebookTrashPrompt
 namespace Fernanda::TrashPrompt {
 
 inline bool exec(int count, QWidget* parent = nullptr)

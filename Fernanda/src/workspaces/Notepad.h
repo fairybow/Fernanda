@@ -45,6 +45,7 @@
 #include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
 #include "workspaces/NotepadFileSystemModel.h"
+#include "workspaces/NotepadRecoveryEntry.h"
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
 #include "workspaces/Workspace.h"

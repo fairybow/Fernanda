@@ -16,6 +16,7 @@
 
 namespace Fernanda {
 
+// TODO: Rename NotebookWorkingDir
 class WorkingDir
 {
 public:
