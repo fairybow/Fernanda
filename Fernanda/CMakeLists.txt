@@ -88,6 +88,7 @@ set(FERNANDA_HEADERS
     src/core/Debug.h
     src/core/FileTypes.h
     src/core/Formatters.h
+    src/core/Hash.h
     src/core/Io.h
     src/core/MagicBytes.h
     src/core/Random.h
@@ -174,7 +175,7 @@ set(FERNANDA_HEADERS
     src/workspaces/NotebookLockfile.h
     src/workspaces/Notepad.h
     src/workspaces/NotepadFileSystemModel.h
-    src/workspaces/NotepadRecoveryEntry.h
+    src/workspaces/NotepadRecovery.h
     src/workspaces/SaveFailMessageBox.h
     src/workspaces/SavePrompt.h
     src/workspaces/TrashPrompt.h

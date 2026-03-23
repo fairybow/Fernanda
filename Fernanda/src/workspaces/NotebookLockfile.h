@@ -21,7 +21,7 @@
 
 #include "workspaces/WorkingDir.h"
 
-/// TODO BA
+/// TODO BA: Should this write (like NotepadRecovery)?
 namespace Fernanda::NotebookLockfile {
 
 namespace Internal {
@@ -34,8 +34,8 @@ namespace Internal {
 
 struct Parsed
 {
-    Coco::Path fnxPath;
-    Coco::Path workingDirPath;
+    Coco::Path fnxPath{};
+    Coco::Path workingDirPath{};
     QSet<QString> dirtyUuids{};
 };
 
