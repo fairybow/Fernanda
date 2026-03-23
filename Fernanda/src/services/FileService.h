@@ -98,8 +98,6 @@ public:
         if (!window) return;
 
         if (auto model = newOffDiskTextFileModel_()) {
-            /// TODO BA
-            if (afterModelCreatedHook_) afterModelCreatedHook_(model);
             signalFileModelReadied_(window, model);
         }
     }
@@ -164,8 +162,6 @@ public:
 
         // Else, make a new one and ready it
         if (auto model = newDiskFileModel_(path, title)) {
-            /// TODO BA
-            if (afterModelCreatedHook_) afterModelCreatedHook_(model);
             signalFileModelReadied_(window, model);
         }
     }
@@ -352,7 +348,10 @@ private:
             if (auto meta = model->meta()) meta->setTitleOverride(title);
 
         registerModel_(model, path);
+        /// TODO BA
+        if (afterModelCreatedHook_) afterModelCreatedHook_(model);
         connectNewModel_(model);
+
         return model;
     }
 
@@ -403,6 +402,8 @@ private:
     {
         auto model = new TextFileModel({}, this);
         registerModel_(model);
+        /// TODO BA
+        if (afterModelCreatedHook_) afterModelCreatedHook_(model);
         connectNewModel_(model);
 
         return model;
