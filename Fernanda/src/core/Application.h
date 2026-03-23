@@ -29,6 +29,19 @@
 #include "workspaces/Notebook.h"
 #include "workspaces/Notepad.h"
 
+/// TODO BA: Notebook recovery detection
+///
+/// Before handleArgs_(), scan AppDirs::tempNotebookRecovery() for .lock files.
+/// For each lockfile found:
+/// 1. Call Notebook::recover(lockfile, this)
+/// 2. If it returns non-null, open it the same way openNotebook_() works
+/// (connectWorkspace_, show, beCute)
+/// 3. If it returns null (working dir missing), delete the stale lockfile
+///
+/// This should happen after initializeNotepad_() but before handleArgs_() so
+/// that recovered Notebooks are visible before any new ones open from command
+/// line args.
+
 namespace Fernanda {
 
 // Top-level application coordinator and entry point that creates and manages
