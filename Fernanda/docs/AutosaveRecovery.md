@@ -13,7 +13,7 @@ Autosave never triggers backups. Autosave does not change save prompts, close be
 | Workspace | Flush target | Recovery breadcrumb | Breadcrumb location |
 |---|---|---|---|
 | Notebook | Working directory (existing file paths) | `.lock` file (fnx path, working dir path, dirty UUIDs) | `~/.fernanda/~temp/recovery/notebooks/` |
-| Notepad | Shadow recovery directory (not yet implemented) | Per-file recovery entries (not yet implemented) | `~/.fernanda/~temp/recovery/notepad/` |
+| Notepad | Shadow recovery directory (`AppDirs::tempNotepadRecovery()`) | Per-file recovery entries (subdirectories with buffer + meta) | `~/.fernanda/~temp/recovery/notepad/` |
 
 ## Timer
 
@@ -84,6 +84,34 @@ On recovery, dirty UUIDs from the lockfile are stashed in `recoveryDirtyUuids_`.
 This means recovered files are born dirty: the model's modified state is set before signals are connected, so the first and only `modificationChanged` emission reports the correct state. No bounce, no redundant DOM writes.
 
 `recoveryDirtyUuids_` is cleared alongside `deleteLockfile_()` in `save_()` and `saveAs_()`. The set seeds `writeLockfile_()` so that dirty files not yet opened by the user are preserved across subsequent autosave ticks.
+
+## Notepad
+
+### Autosave Flush
+
+`Notepad::autosave()` iterates all file models from `FileService`, skipping unmodified ones. For each dirty model, it writes the buffer and metadata to a subdirectory of `AppDirs::tempNotepadRecovery()` via `NotepadRecovery::write()`. This bypasses `FileService` entirely (no watcher suppression, no signals, no backup triggers, no modification state changes).
+
+On-disk files use `NotepadRecovery::entryDir()` (path hash). Off-disk files need a stable directory name across autosave ticks so repeated flushes overwrite the same entry. `Notepad` maintains a `QHash<AbstractFileModel*, Coco::Path>` (`recoveryDirs_`) that maps each model to its recovery directory. For off-disk models, `offDiskRecoveryDir_()` checks this map first and only generates a new `offDiskEntryDir()` on the first encounter. The map is also populated for on-disk models on each write.
+
+### Recovery Entry Cleanup
+
+`deleteRecoveryEntry_(model)` removes a single model's recovery subdirectory (via `Coco::purge`) and erases it from `recoveryDirs_`. `deleteAllRecoveryEntries_()` iterates the children of `tempNotepadRecovery()` and purges each one, then clears the map. The recovery root directory itself is never removed.
+
+Cleanup call sites:
+
+- After `singleSave_` succeeds: `save_()`, `canCloseTab()`, `canCloseTabEverywhere()`
+- After `multiSave_` succeeds: iterate `result.succeeded` in `saveAllInWindow_()`, `saveAll_()`, `canCloseWindowTabs()`, `canCloseAllTabs()`, `canCloseWindow()`, `canCloseAllWindows()`
+- Discard branches: single model in `canCloseTab()` / `canCloseTabEverywhere()`, `modified_models` list in the four multi-model `canClose*` methods
+- `saveAs_()`
+- `~Notepad()` (bulk, safety net)
+
+### Recovery Read
+
+`Notepad::recover(Window*)` is called by Application after creating the first window. It reads all entries via `NotepadRecovery::readAll()`, separates them into on-disk (original file still exists) and off-disk (original missing or entry was off-disk), then opens each file via `FileService::openFilePathIn()` or `openOffDiskTxtIn()`.
+
+A temporary `afterModelCreatedHook` restores recovery state as each model is created: `setData()` with the recovery buffer, `setModified(true)`, and `setTitleOverride()` for off-disk entries. Since the hook fires before `connectNewModel_()`, recovered models are born dirty with no signal bounce. On-disk files whose originals were deleted are treated as off-disk.
+
+The hook is nulled and recovery subdirectories are purged after all entries are processed.
 
 ## FileService: afterModelCreatedHook
 
