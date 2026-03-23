@@ -107,6 +107,59 @@ public:
         if (auto window = windows->active()) openFiles_(window, paths);
     }
 
+    /// TODO BA
+    void recover(Window* window)
+    {
+        auto& root = AppDirs::tempNotepadRecovery();
+        auto entries = NotepadRecovery::readAll(root);
+        if (entries.isEmpty()) return;
+
+        // Separate on-disk (original still exists) from off-disk/orphaned
+        QHash<QString, QByteArray> on_disk_buffers{};
+        QList<NotepadRecovery::Entry> off_disk_entries{};
+
+        for (auto& entry : entries) {
+            if (!entry.isOffDisk() && entry.originalPath.exists())
+                on_disk_buffers[entry.originalPath.toQString()] = entry.buffer;
+            else
+                off_disk_entries << entry;
+        }
+
+        // Hook fires synchronously in open calls, before signals connect
+        files->setAfterModelCreatedHook(
+            [&on_disk_buffers, &off_disk_entries](AbstractFileModel* model) {
+                auto meta = model->meta();
+                if (!meta) return;
+
+                if (meta->isOnDisk()) {
+                    auto it = on_disk_buffers.find(meta->path().toQString());
+                    if (it == on_disk_buffers.end()) return;
+                    model->setData(it.value());
+                    model->setModified(true);
+                    on_disk_buffers.erase(it);
+                } else if (!off_disk_entries.isEmpty()) {
+                    auto entry = off_disk_entries.takeFirst();
+                    model->setData(entry.buffer);
+                    model->setModified(true);
+                    meta->setTitleOverride(entry.title);
+                }
+            });
+
+        // Open files (each triggers hook synchronously)
+        for (auto& entry : entries) {
+            if (!entry.isOffDisk() && entry.originalPath.exists())
+                files->openFilePathIn(window, entry.originalPath);
+            else
+                files->openOffDiskTxtIn(window);
+        }
+
+        files->setAfterModelCreatedHook(nullptr);
+
+        // Clean up recovery data on disk
+        for (auto& dir : Coco::paths(root))
+            Coco::purge(dir);
+    }
+
     virtual bool tryQuit() override
     {
         return windows->count() < 1 || windows->closeAll();
@@ -118,7 +171,7 @@ protected:
     {
         TRACER;
 
-        auto root = AppDirs::tempNotepadRecovery();
+        auto& root = AppDirs::tempNotepadRecovery();
 
         for (auto model : files->fileModels()) {
             if (!model || !model->isModified()) continue;
