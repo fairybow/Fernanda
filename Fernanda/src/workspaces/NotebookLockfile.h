@@ -22,6 +22,9 @@
 #include "workspaces/WorkingDir.h"
 
 /// TODO BA: Should this write (like NotepadRecovery)?
+/// TODO BA: A readAll function to collect all present lockfiles, which
+/// Application can use? If Application also uses NotepadRecovery to scan and
+/// open files in a Notepad window
 namespace Fernanda::NotebookLockfile {
 
 namespace Internal {
