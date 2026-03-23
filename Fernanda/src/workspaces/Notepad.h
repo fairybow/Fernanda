@@ -16,6 +16,7 @@
 
 #include <QAbstractItemModel>
 #include <QDockWidget>
+#include <QHash>
 #include <QHeaderView>
 #include <QList>
 #include <QModelIndex>
@@ -95,7 +96,11 @@ public:
         setup_();
     }
 
-    virtual ~Notepad() override { TRACER; }
+    virtual ~Notepad() override
+    {
+        TRACER;
+        deleteAllRecoveryEntries_(); /// TODO BA
+    }
 
     void openFiles(const Coco::PathList& paths)
     {
@@ -109,7 +114,29 @@ public:
 
 protected:
     /// TODO BA
-    virtual void autosave() override { TRACER; }
+    virtual void autosave() override
+    {
+        TRACER;
+
+        auto root = AppDirs::tempNotepadRecovery();
+
+        for (auto model : files->fileModels()) {
+            if (!model || !model->isModified()) continue;
+            auto meta = model->meta();
+            if (!meta) continue;
+
+            auto dir = meta->isOnDisk()
+                           ? NotepadRecovery::entryDir(root, meta->path())
+                           : offDiskRecoveryDir_(root, model);
+
+            NotepadRecovery::write(
+                dir,
+                meta->path(),
+                meta->title(),
+                model->data());
+            recoveryDirs_[model] = dir;
+        }
+    }
 
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
 
@@ -152,6 +179,7 @@ protected:
                 return false;
             case FileService::Success:
                 colorBars->green(window);
+                deleteRecoveryEntry_(model); /// TODO BA
                 return true;
             case FileService::Failure:
                 colorBars->red(window);
@@ -160,6 +188,7 @@ protected:
             }
 
         case SavePrompt::Discard:
+            deleteRecoveryEntry_(model); /// TODO BA
             return true;
         }
     }
@@ -190,6 +219,7 @@ protected:
             case FileService::Success:
                 colorBars->green(window); // TODO: Could do all windows (close
                                           // everywhere, after all)?
+                deleteRecoveryEntry_(model); /// TODO BA
                 return true;
             case FileService::Failure:
                 colorBars->red(window); // TODO: Could do all windows (close
@@ -200,6 +230,7 @@ protected:
         }
 
         case SavePrompt::Discard:
+            deleteRecoveryEntry_(model); /// TODO BA
             return true;
         }
     }
@@ -231,6 +262,10 @@ protected:
 
             auto result = multiSave_(to_save, window);
 
+            /// TODO BA
+            for (auto model : result.succeeded)
+                deleteRecoveryEntry_(model);
+
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red(window);
@@ -252,6 +287,9 @@ protected:
         }
 
         case SavePrompt::Discard:
+            /// TODO BA
+            for (auto model : modified_models)
+                deleteRecoveryEntry_(model);
             return true;
         }
     }
@@ -284,6 +322,10 @@ protected:
 
             auto result = multiSave_(to_save);
 
+            /// TODO BA
+            for (auto model : result.succeeded)
+                deleteRecoveryEntry_(model);
+
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red();
@@ -305,6 +347,9 @@ protected:
         }
 
         case SavePrompt::Discard:
+            /// TODO BA
+            for (auto model : modified_models)
+                deleteRecoveryEntry_(model);
             return true;
         }
     }
@@ -336,6 +381,10 @@ protected:
 
             auto result = multiSave_(to_save, window);
 
+            /// TODO BA
+            for (auto model : result.succeeded)
+                deleteRecoveryEntry_(model);
+
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red(window);
@@ -356,6 +405,9 @@ protected:
         }
 
         case SavePrompt::Discard:
+            /// TODO BA
+            for (auto model : modified_models)
+                deleteRecoveryEntry_(model);
             return true;
         }
     }
@@ -388,6 +440,10 @@ protected:
 
             auto result = multiSave_(to_save);
 
+            /// TODO BA
+            for (auto model : result.succeeded)
+                deleteRecoveryEntry_(model);
+
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red();
@@ -410,6 +466,9 @@ protected:
         }
 
         case SavePrompt::Discard:
+            /// TODO BA
+            for (auto model : modified_models)
+                deleteRecoveryEntry_(model);
             return true;
         }
     }
@@ -477,6 +536,7 @@ protected:
 
 private:
     NotepadFileSystemModel* fsModel_ = new NotepadFileSystemModel(this);
+    QHash<AbstractFileModel*, Coco::Path> recoveryDirs_{}; /// TODO BA
 
     void setup_()
     {
@@ -562,6 +622,35 @@ private:
         //...
     }
 
+    /// TODO BA: Should this move to NotepadRecovery?
+    Coco::Path
+    offDiskRecoveryDir_(const Coco::Path& root, AbstractFileModel* model)
+    {
+        auto it = recoveryDirs_.find(model);
+        if (it != recoveryDirs_.end()) return it.value();
+
+        return NotepadRecovery::offDiskEntryDir(root);
+    }
+
+    /// TODO BA
+    void deleteRecoveryEntry_(AbstractFileModel* model)
+    {
+        auto it = recoveryDirs_.find(model);
+        if (it == recoveryDirs_.end()) return;
+
+        Coco::purge(it.value());
+        recoveryDirs_.erase(it);
+    }
+
+    /// TODO BA
+    void deleteAllRecoveryEntries_()
+    {
+        for (auto& dir : Coco::paths(AppDirs::tempNotepadRecovery()))
+            Coco::purge(dir);
+
+        recoveryDirs_.clear();
+    }
+
     Coco::Path fileSaveDisplayPath_(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return {};
@@ -602,11 +691,11 @@ private:
 
     struct MultiSaveResult_
     {
-        int successCount = 0;
         bool aborted = false;
+        QList<AbstractFileModel*> succeeded{}; /// TODO BA
         QList<AbstractFileModel*> failed{};
 
-        bool anySuccesses() const noexcept { return successCount > 0; }
+        bool anySuccesses() const noexcept { return !succeeded.isEmpty(); }
         bool anyFails() const noexcept { return !failed.isEmpty(); }
     };
 
@@ -656,7 +745,7 @@ private:
             switch (save_result) {
 
             case FileService::Success:
-                ++result.successCount;
+                result.succeeded << model;
                 break;
 
             case FileService::NoOp:
@@ -748,6 +837,7 @@ private:
             break;
         case FileService::Success:
             colorBars->green(window);
+            deleteRecoveryEntry_(model); /// TODO BA
             break;
         case FileService::Failure: {
             colorBars->red(window);
@@ -784,6 +874,7 @@ private:
             break;
         case FileService::Success:
             colorBars->green(window);
+            deleteRecoveryEntry_(model); /// TODO BA
             break;
         case FileService::Failure:
             colorBars->red(window);
@@ -801,6 +892,10 @@ private:
         if (modified_models.isEmpty()) return;
 
         auto result = multiSave_(modified_models, window);
+
+        /// TODO BA
+        for (auto model : result.succeeded)
+            deleteRecoveryEntry_(model);
 
         // Fails take priority
         if (result.anyFails()) {
@@ -823,6 +918,10 @@ private:
         if (modified_models.isEmpty()) return;
 
         auto result = multiSave_(modified_models);
+
+        /// TODO BA
+        for (auto model : result.succeeded)
+            deleteRecoveryEntry_(model);
 
         // Fails take priority
         if (result.anyFails()) {
