@@ -336,6 +336,7 @@ private:
 
     FnxModel* fnxModel_ = new FnxModel(this);
 
+    // This should be cleared after the first save or discard
     QSet<QString> recoveryDirtyUuids_{}; /// TODO BA
 
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
