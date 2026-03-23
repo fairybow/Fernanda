@@ -5,7 +5,7 @@
 - [x] Guaranteed working dir persistence on crash
 - [x] ClearModified option in FileService
 - [x] Workspace autosave timer
-- [ ] Hook up Notebook (scan models and save dirty ones, without changing modification)
+- [x] Hook up Notebook (scan models and save dirty ones, without changing modification)
 - [x] Collect UUIDs in flush function
 - [x] Write lockfile in flush function
 - [x] Delete lockfile on save (compress) and dtor

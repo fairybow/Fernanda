@@ -49,6 +49,34 @@
 #include "workspaces/SavePrompt.h"
 #include "workspaces/Workspace.h"
 
+/// TODO BA: Notepad autosave and recovery
+///
+/// Autosave (write):
+/// - autosave() override iterates dirty models from files->fileModels()
+/// - On-disk files: Io::write(model->data(), recoveryPath) where
+///   recoveryPath is AppDirs::tempNotepadRecovery() / {pathHash} / buffer, plus
+///   a metadata file (original path, file type, timestamp)
+/// - Off-disk files: same pattern under a separate subdirectory with a
+/// generated ID instead of pathHash
+/// - Bypasses FileService entirely (no watcher suppression, no signals, no
+/// modification state changes)
+/// - Clean exit deletes the entire tempNotepadRecovery() tree
+///
+/// Recovery (read):
+/// - Detection: check if tempNotepadRecovery() is non-empty in setup_()
+/// - On-disk files (original exists): open via files->openFilePathIn(),
+/// afterModelCreatedHook sets data from recovery buffer and marks dirty
+/// - On-disk files (original missing): treat as off-disk, let user Save As
+/// - Off-disk files: open via files->openOffDiskTxtIn(), same hook pattern (set
+/// data, mark dirty)
+/// - Recovery data deleted after processing
+/// - Right now, attempt to restore all. Later, use recovery prompt UI (restore
+/// all, selected, or discard?)
+///
+/// Open questions:
+/// - Metadata format (JSON, INI, or simple key=value like NotebookLockfile?)
+/// - Off-disk file ID scheme (UUID, counter, hash of content?)
+
 namespace Fernanda {
 
 // A Workspace that operates on the OS filesystem. There is only 1 Notepad
