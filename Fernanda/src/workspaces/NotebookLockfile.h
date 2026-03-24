@@ -60,11 +60,11 @@ namespace Internal {
         Entry entry{};
 
         for (auto& line : content.split('\n', Qt::SkipEmptyParts)) {
-            if (line.startsWith(FNX_KEY_))
+            if (line.startsWith(FNX_KEY_)) {
                 entry.fnxPath = line.mid(FNX_KEY_.size());
-            else if (line.startsWith(DIR_KEY_))
+            } else if (line.startsWith(DIR_KEY_)) {
                 entry.workingDirPath = line.mid(DIR_KEY_.size());
-            else if (line.startsWith(DIRTY_KEY_)) {
+            } else if (line.startsWith(DIRTY_KEY_)) {
                 for (auto& uuid :
                      line.mid(DIRTY_KEY_.size()).split(',', Qt::SkipEmptyParts))
                     entry.dirtyUuids << uuid;
@@ -113,8 +113,9 @@ inline QList<Entry> readAll(const Coco::Path& recoveryDir)
     if (!recoveryDir.exists()) return entries;
 
     for (auto& path :
-         Coco::filePaths({ recoveryDir }, { "*" + Internal::EXT_ }))
+         Coco::filePaths({ recoveryDir }, { "*" + Internal::EXT_ })) {
         entries << Internal::read_(path);
+    }
 
     return entries;
 }
