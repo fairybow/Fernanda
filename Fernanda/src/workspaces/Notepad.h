@@ -110,6 +110,9 @@ public:
     /// TODO BA
     void recover()
     {
+        // NB: If a file is renamed between ticks, the old path-hash entry
+        // becomes orphaned until clean exit or recovery
+
         auto& root = AppDirs::tempNotepadRecovery();
         auto entries = NotepadRecovery::readAll(root);
         if (entries.isEmpty()) return;
@@ -125,7 +128,10 @@ public:
                 off_disk_entries << entry;
         }
 
-        // Hook fires synchronously in open calls, before signals connect
+        // Captures by reference (relies on open calls being synchronous).
+        // On-disk entries match by path key. Off-disk entries have no key, so
+        // they match by position: takeFirst() pairs them with
+        // openOffDiskTxtIn() calls in iteration order
         files->setAfterModelCreatedHook(
             [&on_disk_buffers, &off_disk_entries](AbstractFileModel* model) {
                 auto meta = model->meta();
