@@ -429,9 +429,9 @@ public:
     }
 
     // TODO (maybe)
-    virtual int columnCount(const QModelIndex& parent = {}) const override
+    virtual int
+    columnCount([[maybe_unused]] const QModelIndex& parent = {}) const override
     {
-        (void)parent;
         return 1;
     }
 
@@ -471,14 +471,10 @@ public:
     virtual bool canDropMimeData(
         const QMimeData* data,
         Qt::DropAction action,
-        int row,
-        int column,
-        const QModelIndex& parent) const override
+        [[maybe_unused]] int row,
+        [[maybe_unused]] int column,
+        [[maybe_unused]] const QModelIndex& parent) const override
     {
-        (void)row;
-        (void)column;
-        (void)parent;
-
         if (!data || action != Qt::MoveAction) return false;
         return data->hasFormat(MIME_TYPE_);
     }
@@ -487,11 +483,9 @@ public:
         const QMimeData* data,
         Qt::DropAction action,
         int row,
-        int column,
+        [[maybe_unused]] int column,
         const QModelIndex& parent) override
     {
-        (void)column;
-
         if (!data || action != Qt::MoveAction) return false;
         if (!data->hasFormat(MIME_TYPE_)) return false;
 

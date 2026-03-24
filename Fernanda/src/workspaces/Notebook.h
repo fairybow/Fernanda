@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QPalette> // TODO: Temp
 #include <QPoint>
+#include <QSet>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QString>
@@ -38,7 +39,6 @@
 #include "core/AppDirs.h"
 #include "core/Debug.h"
 #include "core/FileTypes.h"
-#include "core/Io.h"
 #include "core/Random.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
@@ -58,6 +58,7 @@
 #include "ui/Window.h"
 #include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
+#include "workspaces/NotebookLockfile.h"
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
 #include "workspaces/TrashPrompt.h"
@@ -76,6 +77,7 @@ namespace Fernanda {
 // TODO: Settings change mark Notebook unsaved? How - watch the working dir for
 // changes?
 // TODO: Check for missing !workingDir_.isValid checks
+/// TODO BA: Should WorkingDir store Dirty UUIDs?
 class Notebook : public Workspace
 {
     Q_OBJECT
@@ -92,7 +94,26 @@ public:
     virtual ~Notebook() override
     {
         TRACER;
+
+        clearRecoveryState_(); /// TODO BA
         workingDir_.remove();
+    }
+
+    /// TODO BA
+    static Notebook*
+    recover(const Coco::Path& lockfile, QObject* parent = nullptr)
+    {
+        auto entry = NotebookLockfile::read(lockfile);
+        if (entry.workingDirPath.isEmpty() || !entry.workingDirPath.exists())
+            return nullptr;
+
+        if (entry.fnxPath.isEmpty()) return nullptr; // Corrupted lockfile
+
+        return new Notebook(
+            entry.fnxPath,
+            WorkingDir(entry.workingDirPath),
+            std::move(entry.dirtyUuids),
+            parent);
     }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
@@ -107,6 +128,13 @@ signals:
     void openNotepadRequested();
 
 protected:
+    /// TODO BA
+    virtual void autosave() override
+    {
+        TRACER;
+        writeLockfile_();
+    }
+
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
 
     virtual QModelIndex treeViewRootIndex() override
@@ -171,11 +199,14 @@ protected:
                 return false;
             }
 
+            clearRecoveryState_(); /// TODO BA
+
             // No resetSnapshot, showModified, or green color bar (last
             // window closing)
             return true;
         }
         case SavePrompt::Discard:
+            clearRecoveryState_(); /// TODO BA
             return true;
         }
     }
@@ -221,22 +252,27 @@ protected:
                 return false;
             }
 
+            // TODO: Combine with code used in canCloseWindow
+            // TODO: Use fallthrough at the end of Save here to delete lockfile
+            // and return true
+
+            clearRecoveryState_(); /// TODO BA
+
             // No resetSnapshot, showModified, or green color bar (all windows
             // closing)
             return true;
         }
         case SavePrompt::Discard:
+            clearRecoveryState_(); /// TODO BA
             return true;
         }
     }
 
     virtual void workspaceMenuHook(
         MenuBuilder& builder,
-        MenuState* state,
+        [[maybe_unused]] MenuState* state,
         Window* window) override
     {
-        (void)state;
-
         builder
             .menu(Tr::notebookMenu())
 
@@ -292,8 +328,26 @@ private:
 
     FnxModel* fnxModel_ = new FnxModel(this);
 
+    // This should be cleared after the first save or discard
+    QSet<QString> recoveryDirtyUuids_{}; /// TODO BA
+
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
         "Notebook file entries must have an extant path! [{}]";
+
+    // Private recovery constructor
+    /// TODO BA
+    explicit Notebook(
+        const Coco::Path& fnxPath,
+        WorkingDir&& orphan,
+        QSet<QString>&& dirtyUuids,
+        QObject* parent = nullptr)
+        : Workspace(parent)
+        , fnxPath_(fnxPath)
+        , workingDir_(std::move(orphan))
+        , recoveryDirtyUuids_(std::move(dirtyUuids))
+    {
+        setup_();
+    }
 
     static Coco::Path newWorkingDirPath_(const Coco::Path& fnxPath)
     {
@@ -340,8 +394,12 @@ private:
         windows->setSubtitle(fnxPath_.nameQString());
         updateWindowsFlags_();
 
-        // Extraction or creation
-        if (!fnxPath_.exists()) {
+        // Recovery, extraction, or creation
+        /// TODO BA
+        if (workingDir_.wasAdopted()) {
+            // Recovery: working dir already contains autosaved content
+
+        } else if (!fnxPath_.exists()) {
             Fnx::Io::makeNewWorkingDir(working_dir_path);
 
             //...
@@ -373,6 +431,9 @@ private:
             &Notebook::onFnxModelFileRenamed_);
 
         connectBusEvents_();
+
+        /// TODO BA
+        if (!recoveryDirtyUuids_.isEmpty()) applyRecoveryState_();
     }
 
     void connectBusEvents_()
@@ -386,6 +447,82 @@ private:
             &Bus::fileModelModificationChanged,
             this,
             &Notebook::onBusFileModelModificationChanged_);
+    }
+
+    /// TODO BA
+    Coco::Path lockfilePath_() const
+    {
+        return NotebookLockfile::path(
+            AppDirs::tempNotebookRecovery(),
+            workingDir_.path());
+    }
+
+    /// TODO BA
+    void clearRecoveryState_()
+    {
+        NotebookLockfile::remove(lockfilePath_());
+        recoveryDirtyUuids_.clear();
+        files->setAfterModelCreatedHook(nullptr);
+    }
+
+    /// TODO BA
+    // TODO: If always flushing all dirty models ever becomes a noticable issue,
+    // then we may track a "last flushed generation" per model (e.g., comparing
+    // QTextDocument::revision() or a hash of model->data() against the last
+    // flushed value)
+    void writeLockfile_()
+    {
+        if (!workingDir_.isValid()) return;
+
+        if (!isModified_()) {
+            NotebookLockfile::remove(lockfilePath_());
+            recoveryDirtyUuids_.clear();
+            return;
+        }
+
+        QSet<QString> dirty_uuids(recoveryDirtyUuids_);
+
+        for (auto model : files->fileModels()) {
+            if (!model || !model->isModified()) continue;
+            auto meta = model->meta();
+            if (!meta) continue;
+
+            // NB: Uses FileService (not direct Io::write) for watcher
+            // suppression. Notebook does not set a beforeWriteHook_, so the
+            // backup hook in writeModelToDisk_ is not triggered. If we ever
+            // need to use the beforeWriteHook_ in Notebook, then the solution
+            // is to have a separate backupHook_ (or similarly named) that
+            // Notebook will never need to use, since it does backups via Fnx
+            auto result = files->save(model, ClearModified::No);
+            if (result != FileService::Success) {
+                CRITICAL(
+                    "Notebook autosave failed for {} (result: {})!",
+                    model,
+                    toString(result));
+            }
+
+            dirty_uuids << Fnx::Io::uuid(meta->path());
+        }
+
+        NotebookLockfile::write(
+            lockfilePath_(),
+            fnxPath_,
+            workingDir_.path(),
+            dirty_uuids);
+    }
+
+    /// TODO BA
+    void applyRecoveryState_()
+    {
+        for (auto& uuid : recoveryDirtyUuids_)
+            fnxModel_->setFileEdited(uuid, true);
+
+        files->setAfterModelCreatedHook([this](AbstractFileModel* model) {
+            auto meta = model->meta();
+            if (!meta) return;
+            auto uuid = Fnx::Io::uuid(meta->path());
+            if (recoveryDirtyUuids_.contains(uuid)) model->setModified(true);
+        });
     }
 
     bool isModified_() const
@@ -715,6 +852,8 @@ private:
             return;
         }
 
+        clearRecoveryState_(); /// TODO BA
+
         if (saved_as) {
             fnxPath_ = path;
             windows->setSubtitle(fnxPath_.nameQString());
@@ -754,6 +893,8 @@ private:
 
             return;
         }
+
+        clearRecoveryState_(); /// TODO BA
 
         fnxPath_ = new_path;
         windows->setSubtitle(fnxPath_.nameQString());
@@ -923,6 +1064,21 @@ private slots:
 
         // Notebook's individual archive files should always have a path.
         fnxModel_->setFileEdited(Fnx::Io::uuid(path), modified);
+
+        /// TODO BA
+        if (!modified) {
+            auto result = files->save(fileModel, ClearModified::No);
+            if (result == FileService::Success) {
+                auto uuid = Fnx::Io::uuid(path);
+                recoveryDirtyUuids_.remove(uuid);
+            } else {
+                CRITICAL(
+                    "Notebook undo-to-clean write-back failed for {} (result: "
+                    "{})!",
+                    fileModel,
+                    toString(result));
+            }
+        }
     }
 };
 

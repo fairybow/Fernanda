@@ -43,6 +43,9 @@
 
 namespace Fernanda {
 
+/// TODO BA
+COCO_BOOL(ClearModified)
+
 // Creates and manages file models
 // TODO: When saving files, we should move originals to a backup location
 // (Notebook's archive save will do the same)
@@ -73,6 +76,12 @@ public:
         beforeWriteHook,
         setBeforeWriteHook)
 
+    /// TODO BA
+    DECLARE_HOOK(
+        std::function<void(AbstractFileModel*)>,
+        afterModelCreatedHook,
+        setAfterModelCreatedHook)
+
     // TODO: Could use a handle (would that be too overly complex) instead of
     // passing models around?
 
@@ -88,8 +97,9 @@ public:
     {
         if (!window) return;
 
-        if (auto model = newOffDiskTextFileModel_())
+        if (auto model = newOffDiskTextFileModel_()) {
             signalFileModelReadied_(window, model);
+        }
     }
 
     QSet<AbstractFileModel*> fileModels() const noexcept { return fileModels_; }
@@ -103,7 +113,9 @@ public:
         return false;
     }
 
-    [[nodiscard]] SaveResult save(AbstractFileModel* fileModel)
+    [[nodiscard]] SaveResult save(
+        AbstractFileModel* fileModel,
+        ClearModified clearModified = ClearModified::Yes)
     {
         if (!fileModel || !fileModel->isUserEditable()) return NoOp;
         auto meta = fileModel->meta();
@@ -111,7 +123,7 @@ public:
         auto path = meta->path();
         if (path.isEmpty()) return NoOp;
 
-        return writeModelToDisk_(fileModel, path);
+        return writeModelToDisk_(fileModel, path, clearModified);
     }
 
     [[nodiscard]] SaveResult
@@ -149,8 +161,9 @@ public:
         }
 
         // Else, make a new one and ready it
-        if (auto model = newDiskFileModel_(path, title))
+        if (auto model = newDiskFileModel_(path, title)) {
             signalFileModelReadied_(window, model);
+        }
     }
 
     AbstractFileModel* modelFor(const Coco::Path& path) const
@@ -335,7 +348,10 @@ private:
             if (auto meta = model->meta()) meta->setTitleOverride(title);
 
         registerModel_(model, path);
+        /// TODO BA
+        if (afterModelCreatedHook_) afterModelCreatedHook_(model);
         connectNewModel_(model);
+
         return model;
     }
 
@@ -386,6 +402,8 @@ private:
     {
         auto model = new TextFileModel({}, this);
         registerModel_(model);
+        /// TODO BA
+        if (afterModelCreatedHook_) afterModelCreatedHook_(model);
         connectNewModel_(model);
 
         return model;
@@ -410,8 +428,10 @@ private:
         signalFileModelMetaChanged_(fileModel);
     }
 
-    SaveResult
-    writeModelToDisk_(AbstractFileModel* model, const Coco::Path& path)
+    SaveResult writeModelToDisk_(
+        AbstractFileModel* model,
+        const Coco::Path& path,
+        ClearModified clearModified = ClearModified::Yes)
     {
         /// TODO BA
         if (beforeWriteHook_) beforeWriteHook_(path);
@@ -432,7 +452,7 @@ private:
         recentlyWritten_ << q_path;
         watcher_->addPath(q_path);
 
-        if (success) model->setModified(false);
+        if (success && clearModified) model->setModified(false);
 
         return success ? Success : Failure;
     }

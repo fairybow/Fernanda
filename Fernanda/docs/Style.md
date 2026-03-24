@@ -1,5 +1,7 @@
 # Style Guide
 
+TODO: Split code style and doc style
+
 ## Code
 
 ### Initializations
@@ -206,10 +208,12 @@ connect(
 
 ### Comments and Documentation
 
+Comments should be as concise as possible but readable. If the final (or only) sentence's final punctuation would be a period, omit it.
+
 **Section headers**: Must have blank line before the following function to avoid showing in IntelliSense tooltip pop-up
 
 ```cpp
-// === File Operations ===
+// --- File Operations ---
 
 void openFile(const QString& path);
 ```
@@ -221,13 +225,13 @@ void openFile(const QString& path);
 bool openFile(const QString& path);
 ```
 
-**TODOs**: Always prefix with `TODO:`
+**TODOs**: Always prefix with `TODO:`. It's important these (and other things, like the below) are uniform, so they're easily searchable.
 
 ```cpp
 // TODO: Implement autosave functionality
 ```
 
-**General notes**: Do NOT prefix with `NOTE:`
+**General notes**: Do NOT prefix with `NOTE:`. If it's particularly important, you can use `NB:` (for nota bene). Adding `NOTE:` would be redundant. Its existence alone is what identifies it as a note.
 
 ```cpp
 // This assumes the file is already validated

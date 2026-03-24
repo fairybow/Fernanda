@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <tuple>
+
 #include <QAbstractItemModel>
 #include <QKeySequence>
 #include <QList>
@@ -115,6 +117,13 @@ protected:
                                 // belong to App
     Coco::Path rollingOpenStartDir = currentRootDir;
 
+    /// TODO BA: May need to be protected in order set auto-save interval via
+    /// settings? (Would, in that case, also not need to have the interval set
+    /// here.)
+    Time::Ticker* autosaveCue =
+        Time::newTicker(this, &Workspace::autosave, 15000);
+    virtual void autosave() {};
+
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
     virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
@@ -126,12 +135,11 @@ protected:
     virtual bool canCloseWindow(Window*) { return true; }
     virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
 
-    virtual void
-    workspaceMenuHook(MenuBuilder& builder, MenuState* state, Window* window)
+    virtual void workspaceMenuHook(
+        [[maybe_unused]] MenuBuilder& builder,
+        [[maybe_unused]] MenuState* state,
+        [[maybe_unused]] Window* window)
     {
-        (void)builder;
-        (void)state;
-        (void)window;
     }
 
     virtual void fileMenuOpenActions(MenuBuilder& builder, Window* window) = 0;
@@ -186,8 +194,7 @@ private:
             views,
             &ViewService::fileViewDestroyed,
             this,
-            [this](AbstractFileView* fileView) {
-                (void)fileView;
+            [this]([[maybe_unused]] AbstractFileView* fileView) {
                 refreshMenus(MenuScope::Window);
                 refreshMenus(MenuScope::Workspace);
             });
@@ -220,12 +227,15 @@ private:
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
 
         connectBusEvents_();
+
+        /// TODO BA
+        autosaveCue->start();
     }
 
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, [this](Window* window) {
-            (void)window->statusBar(); // Ensure status bar
+            std::ignore = window->statusBar(); // Ensure status bar
             createWindowMenuBar_(window);
         });
 
@@ -249,10 +259,9 @@ private:
             bus,
             &Bus::fileModelReadied,
             this,
-            [this](Window* window, AbstractFileModel* fileModel) {
-                (void)window;
-                (void)fileModel;
-
+            [this](
+                [[maybe_unused]] Window* window,
+                [[maybe_unused]] AbstractFileModel* fileModel) {
                 refreshMenus(MenuScope::Window);
                 refreshMenus(MenuScope::Workspace);
             });
@@ -261,10 +270,9 @@ private:
             bus,
             &Bus::fileModelModificationChanged,
             this,
-            [this](AbstractFileModel* fileModel, bool modified) {
-                (void)fileModel;
-                (void)modified;
-
+            [this](
+                [[maybe_unused]] AbstractFileModel* fileModel,
+                [[maybe_unused]] bool modified) {
                 refreshMenus(MenuScope::Window);
                 refreshMenus(MenuScope::Workspace);
             });

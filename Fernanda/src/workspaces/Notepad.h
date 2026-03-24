@@ -16,6 +16,7 @@
 
 #include <QAbstractItemModel>
 #include <QDockWidget>
+#include <QHash>
 #include <QHeaderView>
 #include <QList>
 #include <QModelIndex>
@@ -45,6 +46,7 @@
 #include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
 #include "workspaces/NotepadFileSystemModel.h"
+#include "workspaces/NotepadRecovery.h"
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
 #include "workspaces/Workspace.h"
@@ -66,11 +68,87 @@ public:
         setup_();
     }
 
-    virtual ~Notepad() override { TRACER; }
+    virtual ~Notepad() override
+    {
+        TRACER;
+        deleteAllRecoveryEntries_(); /// TODO BA
+    }
 
     void openFiles(const Coco::PathList& paths)
     {
         if (auto window = windows->active()) openFiles_(window, paths);
+    }
+
+    /// TODO BA
+    void recover()
+    {
+        // NB: If a file is renamed between ticks, the old path-hash entry
+        // becomes orphaned until clean exit or recovery
+
+        auto& root = AppDirs::tempNotepadRecovery();
+        auto entries = NotepadRecovery::readAll(root);
+        if (entries.isEmpty()) return;
+
+        // Separate on-disk (original still exists) from off-disk/orphaned
+        QHash<QString, QByteArray> on_disk_buffers{};
+        QList<NotepadRecovery::Entry> off_disk_entries{};
+
+        for (auto& entry : entries) {
+            if (!entry.isOffDisk() && entry.originalPath.exists())
+                on_disk_buffers[entry.originalPath.toQString()] = entry.buffer;
+            else
+                off_disk_entries << entry;
+        }
+
+        // Captures by reference (relies on open calls being synchronous).
+        // On-disk entries match by path key. Off-disk entries have no key, so
+        // they match by position: takeFirst() pairs them with
+        // openOffDiskTxtIn() calls in iteration order
+        files->setAfterModelCreatedHook(
+            [this, &root, &on_disk_buffers, &off_disk_entries](
+                AbstractFileModel* model) {
+                auto meta = model->meta();
+                if (!meta) return;
+
+                if (meta->isOnDisk()) {
+                    auto it = on_disk_buffers.find(meta->path().toQString());
+                    if (it == on_disk_buffers.end()) return;
+                    model->setData(it.value());
+                    model->setModified(true);
+                    on_disk_buffers.erase(it);
+                    recoveryDirs_[model] =
+                        NotepadRecovery::entryDir(root, meta->path());
+                } else if (!off_disk_entries.isEmpty()) {
+                    auto entry = off_disk_entries.takeFirst();
+                    model->setData(entry.buffer);
+                    model->setModified(true);
+                    meta->setTitleOverride(entry.title);
+                    recoveryDirs_[model] = entry.entryDir;
+                }
+            });
+
+        auto window = windows->active();
+        if (!window) return;
+
+        // Open files (each triggers hook synchronously)
+        for (auto& entry : entries) {
+            if (!entry.isOffDisk() && entry.originalPath.exists())
+                files->openFilePathIn(window, entry.originalPath);
+            else
+                files->openOffDiskTxtIn(window);
+        }
+
+        files->setAfterModelCreatedHook(nullptr);
+
+        // Recovery entries stay on disk rather than being purged, so a crash
+        // before the next autosave tick doesn't lose dirty data. The
+        // recoveryDirs_ map connects each model to its entry, so save, discard,
+        // and undo-to-clean remove them normally
+
+        // Sanity: hook should have consumed everything it was given
+        ASSERT(on_disk_buffers.isEmpty());
+        // off_disk_entries may not be empty if some openOffDiskTxtIn calls
+        // failed to create models, but that would indicate a deeper problem
     }
 
     virtual bool tryQuit() override
@@ -79,6 +157,29 @@ public:
     }
 
 protected:
+    /// TODO BA
+    virtual void autosave() override
+    {
+        TRACER;
+
+        auto& root = AppDirs::tempNotepadRecovery();
+
+        for (auto model : files->fileModels()) {
+            if (!model || !model->isModified()) continue;
+            auto meta = model->meta();
+            if (!meta) continue;
+
+            auto dir = ensureRecoveryDir_(root, model);
+            if (dir.isEmpty()) continue;
+
+            NotepadRecovery::write(
+                dir,
+                meta->path(),
+                meta->title(),
+                model->data());
+        }
+    }
+
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
 
     virtual QModelIndex treeViewRootIndex() override
@@ -120,6 +221,7 @@ protected:
                 return false;
             case FileService::Success:
                 colorBars->green(window);
+                deleteRecoveryEntry_(model); /// TODO BA
                 return true;
             case FileService::Failure:
                 colorBars->red(window);
@@ -128,6 +230,7 @@ protected:
             }
 
         case SavePrompt::Discard:
+            deleteRecoveryEntry_(model); /// TODO BA
             return true;
         }
     }
@@ -158,6 +261,7 @@ protected:
             case FileService::Success:
                 colorBars->green(window); // TODO: Could do all windows (close
                                           // everywhere, after all)?
+                deleteRecoveryEntry_(model); /// TODO BA
                 return true;
             case FileService::Failure:
                 colorBars->red(window); // TODO: Could do all windows (close
@@ -168,6 +272,7 @@ protected:
         }
 
         case SavePrompt::Discard:
+            deleteRecoveryEntry_(model); /// TODO BA
             return true;
         }
     }
@@ -199,6 +304,10 @@ protected:
 
             auto result = multiSave_(to_save, window);
 
+            /// TODO BA
+            for (auto model : result.succeeded)
+                deleteRecoveryEntry_(model);
+
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red(window);
@@ -220,6 +329,9 @@ protected:
         }
 
         case SavePrompt::Discard:
+            /// TODO BA
+            for (auto model : modified_models)
+                deleteRecoveryEntry_(model);
             return true;
         }
     }
@@ -252,6 +364,10 @@ protected:
 
             auto result = multiSave_(to_save);
 
+            /// TODO BA
+            for (auto model : result.succeeded)
+                deleteRecoveryEntry_(model);
+
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red();
@@ -273,6 +389,9 @@ protected:
         }
 
         case SavePrompt::Discard:
+            /// TODO BA
+            for (auto model : modified_models)
+                deleteRecoveryEntry_(model);
             return true;
         }
     }
@@ -304,6 +423,10 @@ protected:
 
             auto result = multiSave_(to_save, window);
 
+            /// TODO BA
+            for (auto model : result.succeeded)
+                deleteRecoveryEntry_(model);
+
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red(window);
@@ -324,6 +447,9 @@ protected:
         }
 
         case SavePrompt::Discard:
+            /// TODO BA
+            for (auto model : modified_models)
+                deleteRecoveryEntry_(model);
             return true;
         }
     }
@@ -356,6 +482,10 @@ protected:
 
             auto result = multiSave_(to_save);
 
+            /// TODO BA
+            for (auto model : result.succeeded)
+                deleteRecoveryEntry_(model);
+
             // Fails take priority
             if (result.anyFails()) {
                 colorBars->red();
@@ -378,6 +508,9 @@ protected:
         }
 
         case SavePrompt::Discard:
+            /// TODO BA
+            for (auto model : modified_models)
+                deleteRecoveryEntry_(model);
             return true;
         }
     }
@@ -445,6 +578,7 @@ protected:
 
 private:
     NotepadFileSystemModel* fsModel_ = new NotepadFileSystemModel(this);
+    QHash<AbstractFileModel*, Coco::Path> recoveryDirs_{}; /// TODO BA
 
     void setup_()
     {
@@ -527,7 +661,51 @@ private:
 
     void connectBusEvents_()
     {
-        //...
+        /// TODO BA
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            [this](AbstractFileModel* fileModel, bool modified) {
+                if (!modified) deleteRecoveryEntry_(fileModel);
+            });
+    }
+
+    /// TODO BA
+    Coco::Path
+    ensureRecoveryDir_(const Coco::Path& root, AbstractFileModel* model)
+    {
+        auto it = recoveryDirs_.find(model);
+        if (it != recoveryDirs_.end()) return it.value();
+
+        auto meta = model->meta();
+        if (!meta) return {};
+
+        auto dir = meta->isOnDisk()
+                       ? NotepadRecovery::entryDir(root, meta->path())
+                       : NotepadRecovery::offDiskEntryDir(root);
+
+        recoveryDirs_[model] = dir;
+        return dir;
+    }
+
+    /// TODO BA
+    void deleteRecoveryEntry_(AbstractFileModel* model)
+    {
+        auto it = recoveryDirs_.find(model);
+        if (it == recoveryDirs_.end()) return;
+
+        Coco::purge(it.value());
+        recoveryDirs_.erase(it);
+    }
+
+    /// TODO BA
+    void deleteAllRecoveryEntries_()
+    {
+        for (auto& dir : Coco::paths(AppDirs::tempNotepadRecovery()))
+            Coco::purge(dir);
+
+        recoveryDirs_.clear();
     }
 
     Coco::Path fileSaveDisplayPath_(AbstractFileModel* fileModel) const
@@ -570,11 +748,11 @@ private:
 
     struct MultiSaveResult_
     {
-        int successCount = 0;
         bool aborted = false;
+        QList<AbstractFileModel*> succeeded{}; /// TODO BA
         QList<AbstractFileModel*> failed{};
 
-        bool anySuccesses() const noexcept { return successCount > 0; }
+        bool anySuccesses() const noexcept { return !succeeded.isEmpty(); }
         bool anyFails() const noexcept { return !failed.isEmpty(); }
     };
 
@@ -624,7 +802,7 @@ private:
             switch (save_result) {
 
             case FileService::Success:
-                ++result.successCount;
+                result.succeeded << model;
                 break;
 
             case FileService::NoOp:
@@ -716,6 +894,7 @@ private:
             break;
         case FileService::Success:
             colorBars->green(window);
+            deleteRecoveryEntry_(model); /// TODO BA
             break;
         case FileService::Failure: {
             colorBars->red(window);
@@ -752,6 +931,7 @@ private:
             break;
         case FileService::Success:
             colorBars->green(window);
+            deleteRecoveryEntry_(model); /// TODO BA
             break;
         case FileService::Failure:
             colorBars->red(window);
@@ -769,6 +949,10 @@ private:
         if (modified_models.isEmpty()) return;
 
         auto result = multiSave_(modified_models, window);
+
+        /// TODO BA
+        for (auto model : result.succeeded)
+            deleteRecoveryEntry_(model);
 
         // Fails take priority
         if (result.anyFails()) {
@@ -791,6 +975,10 @@ private:
         if (modified_models.isEmpty()) return;
 
         auto result = multiSave_(modified_models);
+
+        /// TODO BA
+        for (auto model : result.succeeded)
+            deleteRecoveryEntry_(model);
 
         // Fails take priority
         if (result.anyFails()) {

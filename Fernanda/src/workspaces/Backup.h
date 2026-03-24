@@ -12,29 +12,18 @@
 
 #pragma once
 
-#include <QCryptographicHash>
 #include <QString>
 #include <QStringList>
 
 #include <Coco/Path.h>
 
 #include "core/Debug.h"
+#include "core/Hash.h"
 #include "core/Time.h"
 
 namespace Fernanda::Backup {
 
 namespace Internal {
-
-    // Truncated SHA-256 hex of the full path. Groups backups by source in a
-    // flat directory
-    inline QString hash_(const Coco::Path& path)
-    {
-        return QCryptographicHash::hash(
-                   path.toQString().toUtf8(),
-                   QCryptographicHash::Sha256)
-            .toHex()
-            .left(8);
-    }
 
     // YYYYMMDD-HHmmss-mmm (local time)
     inline QString timestamp_()
@@ -58,7 +47,7 @@ namespace Internal {
     // ("{hash}_{stem}.")
     inline QString prefix_(const Coco::Path& filePath)
     {
-        return hash_(filePath) + "_" + filePath.stemQString() + ".";
+        return Hash::fromPath(filePath) + "_" + filePath.stemQString() + ".";
     }
 
     // ("{hash}_{stem}.{timestamp}{.ext}")

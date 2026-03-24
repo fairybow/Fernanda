@@ -23,7 +23,6 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
-#include "core/Time.h"
 #include "core/Version.h"
 #include "dialogs/BetaAlert.h"
 #include "workspaces/Notebook.h"
@@ -61,13 +60,15 @@ public:
         initializeTranslator_();
         loadBundledFonts_();
         initializeNotepad_();
+
+        // Let this block, so we don't interfere with any recovery prompt
+        if (Version::isPrerelease) BetaAlert::exec();
+
+        // Handle before args, in case an arg needs recovered instead
+        recover_(); /// TODO BA
         handleArgs_();
 
         initialized_ = true;
-
-        if (Version::isPrerelease) {
-            Time::delay(500, this, [] { BetaAlert::exec(); });
-        }
     }
 
 public slots:
@@ -182,21 +183,52 @@ private:
 
         // Show notepad if we have regular files or nothing at all
         if (!parsed.regularFiles.isEmpty() || parsed.fnxFiles.isEmpty()) {
+            auto was_open = notepad_->hasWindows();
             notepad_->show();
             notepad_->openFiles(parsed.regularFiles); // No-op if empty
-            notepad_->beCute();
+            if (!was_open) notepad_->beCute();
         }
 
-        // Make a Notebook for each FNX file (and open single window for each)
         for (auto& path : parsed.fnxFiles)
-            openNotebook_(path);
+            openOrActivateNotebook_(path);
+    }
+
+    /// TODO BA
+    void recover_()
+    {
+        // Notebooks: scan for orphaned lockfiles
+        for (auto& lockfile : Coco::filePaths(
+                 { AppDirs::tempNotebookRecovery() },
+                 { "*.lock" })) {
+            if (auto notebook = Notebook::recover(lockfile, this)) {
+                registerNotebook_(notebook);
+                notebook->show();
+                notebook->beCute();
+            } else {
+                // Stale lockfile (working dir missing)
+                Coco::remove(lockfile);
+            }
+        }
+
+        // Notepad: check for recovery entries
+        if (!Coco::paths(AppDirs::tempNotepadRecovery()).isEmpty()) {
+            bool was_open = notepad_->hasWindows();
+            notepad_->show();
+            notepad_->recover();
+            if (!was_open) notepad_->beCute();
+        }
     }
 
     Notebook* makeNotebook_(const Coco::Path& fnxPath)
     {
-        auto notebook = new Notebook(fnxPath, this);
-        notebooks_ << notebook;
+        return registerNotebook_(new Notebook(fnxPath, this));
+    }
 
+    Notebook* registerNotebook_(Notebook* notebook)
+    {
+        if (!notebook) return nullptr;
+
+        notebooks_ << notebook;
         connectWorkspace_(notebook);
 
         connect(notebook, &Notebook::lastWindowClosed, this, [this, notebook] {

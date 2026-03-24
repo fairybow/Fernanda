@@ -198,11 +198,14 @@ public:
                     set(key, value);
             });
 
-        connect(dialog_, &SettingsDialog::finished, this, [this](int result) {
-            (void)result;
-            delete dialog_;
-            dialog_ = nullptr;
-        });
+        connect(
+            dialog_,
+            &SettingsDialog::finished,
+            this,
+            [this]([[maybe_unused]] int result) {
+                delete dialog_;
+                dialog_ = nullptr;
+            });
 
         dialog_->open();
     }

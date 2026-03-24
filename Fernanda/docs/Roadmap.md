@@ -3,19 +3,38 @@
 ## Current
 
 - [x] Guaranteed working dir persistence on crash
-- [ ] ClearModified option in FileService
-- [ ] Workspace autosave timer
-- [ ] Hook up Notebook (scan models and save dirty ones, without changing modification)
-- [ ] Collect UUIDs in flush function
-- [ ] Write lockfile in flush function
-- [ ] Delete lockfile on save (compress) and dtor
-- [ ] Unique name generation function
-- [ ] Make working dir non-QTemporaryDir, so we can re-use on recovery
-- [ ] Hook up Notepad
-- [ ] For Notepad, if the exist at all, a recovered file means dirty
-- [ ] AutosaveRecovery.md
+- [x] ClearModified option in FileService
+- [x] Workspace autosave timer
+- [x] Hook up Notebook (scan models and save dirty ones, without changing modification)
+- [x] Collect UUIDs in flush function
+- [x] Write lockfile in flush function
+- [x] Delete lockfile on save (compress) and dtor
+- [x] Unique name generation function
+- [x] Make working dir non-QTemporaryDir, so we can re-use on recovery
+- [x] Hook up Notepad
+- [x] For Notepad, if the exist at all, a recovered file means dirty
+- [x] Make buffer .txt (NO - don't do this - it won't always be text)
+- [x] Check that window is right arg for Notepad restore (REMOVED)
+- [x] BUG: Stale recovery data on undo-to-clean (both workspaces)
+- [x] BUG: Notepad recovery purges data before fresh autosave can run
+- [x] BUG: Notebook lockfile not deleted when all files become clean
+- [ ] Recovery prompts! We want just one big prompt with checkboxes for each recovered file (including Notebooks in with other file types (can have a visual cue to make them stand out))
+- [ ] Refactor notebook can close hooks since much the same
+- [ ] Refactor notepad save code after tentatively finalizing restore code
+- [x] Find/bring symmetry to the autosave recovery code even though they're fairly different. There are still places where there will be symmetry (making sure autosave data is deleted on save or discard, for example, in both paths - or a function that wraps the lockfile deletion plus UUID list clearing, if appropriate)
+- [x] Do we nullptr the file service hook in Notebook?
+- [ ] on-demand AppDirs (create on any call if needed, no initialize - but keep cleanup)
+- [x] AutosaveRecovery.md
+- [ ] BUG: On Notepad recovery, there's a delay between displaying the first recovered tab and any subsequent recovered tabs (recovery prompt may or may not help)
 - [ ] Also, a Settings.md
 - [ ] Remove settings INI info from Architecture.md?
+- [ ] May want the temp AppDir to go away and have `~recovery` and `~notebooks`
+- [ ] Organize code style
+- [ ] Add doc style
+- [ ] Contributions file?
+- [ ] Find places to use Debug ASSERT
+- [x] [[maybe_unused]] instead of C-style void cast or Q_UNUSED
+- [x] ^ also check `(void)idOf(element);` and similar (FnxModelCache)
 
 
 - [x] CRITICAL BUG: Occasionally, saving Paradise Lost, I'll see a save fail prompt. It happens without the beforeWriteHook_ but not often. The hook doesn't seem to affect the frequency. Problem might be in Io::write and with QSaveFile? Here's the debug output that shows up related to this: `239 | 2026-03-20 | 22:11:19.360 | Failed to commit file at C:/.../Documents/Fernanda/Paradise Lost.txt (Error: Access is denied.)!` (see FileService writeModelToDisk_ for the fix)
@@ -147,7 +166,6 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] WidgetUtil or similar (central place to set all painters)
 - [ ] Install preloaded fonts to system in help menu?
 - [ ] Open data folder options in menus?
-- [ ] temp AppDir could be an App TempDir
 
 ## Translations
 

@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <tuple>
+
 #include <QDomElement>
 #include <QHash>
 #include <QList>
@@ -41,7 +43,7 @@ public:
         if (onError) CRITICAL("FnxModelCache cleared due to error!");
     }
 
-    void cache(const QDomElement& element) { (void)idOf(element); }
+    void cache(const QDomElement& element) { std::ignore = idOf(element); }
 
     // Returns element for ID, or null element if not found. Does NOT validate
     // element is still in DOM!

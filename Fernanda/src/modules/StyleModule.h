@@ -292,10 +292,8 @@ private slots:
         }
     }
 
-    void onThemeDirectoryChanged_(const QString& path)
+    void onThemeDirectoryChanged_([[maybe_unused]] const QString& path)
     {
-        (void)path;
-
         // Re-scan for current files on disk
         auto current_window_paths = Coco::filePaths(
             AppDirs::themes(),

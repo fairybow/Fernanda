@@ -378,9 +378,8 @@ private slots:
         }
     }
 
-    void onApplicationFocusChanged_(QWidget* old, QWidget* now)
+    void onApplicationFocusChanged_(QWidget* old, [[maybe_unused]] QWidget* now)
     {
-        (void)now;
         if (!old) return;
         if (auto window = qobject_cast<Window*>(old))
             lastFocusedAppWindow_ = window;
