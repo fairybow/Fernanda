@@ -15,10 +15,13 @@
 - [x] For Notepad, if the exist at all, a recovered file means dirty
 - [x] Make buffer .txt (NO - don't do this - it won't always be text)
 - [x] Check that window is right arg for Notepad restore (REMOVED)
+- [ ] BUG: Stale recovery data on undo-to-clean (both workspaces)
+- [ ] BUG: Notepad recovery purges data before fresh autosave can run
+- [ ] BUG: Notebook lockfile not deleted when all files become clean
 - [ ] Recovery prompts! We want just one big prompt with checkboxes for each recovered file (including Notebooks in with other file types (can have a visual cue to make them stand out))
 - [ ] Refactor notebook can close hooks since much the same
 - [ ] Refactor notepad save code after tentatively finalizing restore code
-- [ ] Find/bring symmetry to the autosave recovery code even though they're fairly different. There are still places where there will be symmetry (making sure autosave data is deleted on save or discard, for example, in both paths - or a function that wraps the lockfile deletion plus UUID list clearing, if appropriate)
+- [x] Find/bring symmetry to the autosave recovery code even though they're fairly different. There are still places where there will be symmetry (making sure autosave data is deleted on save or discard, for example, in both paths - or a function that wraps the lockfile deletion plus UUID list clearing, if appropriate)
 - [x] Do we nullptr the file service hook in Notebook?
 - [ ] on-demand AppDirs (create on any call if needed, no initialize - but keep cleanup)
 - [x] AutosaveRecovery.md
