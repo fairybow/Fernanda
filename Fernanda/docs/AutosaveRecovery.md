@@ -23,6 +23,10 @@ Autosave never triggers backups, save prompts, tab indicators, or modification s
 
 `FileService::save()` and `writeModelToDisk_()` accept a `ClearModified` parameter (default `Yes`). Passing `ClearModified::No` writes the buffer to disk without calling `model->setModified(false)`, preventing autosave from triggering `modificationChanged` signals.
 
+Notebook autosave uses `files->save(model, ClearModified::No)` rather than direct `Io::write()` because Notebook files are registered with `QFileSystemWatcher`. Direct writes would bypass the `recentlyWritten_` suppression in `writeModelToDisk_()`, causing spurious `fileModelExternallyModified` signals (and reload prompts) on every autosave tick. Notepad autosave bypasses `FileService` entirely because its recovery writes go to a separate shadow directory, not to the watched file paths.
+
+Notebook does not set a `beforeWriteHook_`, so the backup hook in `writeModelToDisk_()` is not triggered during autosave. Notebook's backups go through `Fnx::Io::compress()` instead. If Notebook ever needs to use `beforeWriteHook_`, the solution is a separate dedicated backup hook.
+
 ## Application Startup
 
 `Application::recover_()` runs after `initializeNotepad_()` but before `handleArgs_()`. This ensures recovered Workspaces are visible before command-line args are processed, and that `handleArgs_()` can deduplicate against already-recovered Notebooks via `openOrActivateNotebook_()`.
@@ -41,7 +45,7 @@ Checks `AppDirs::tempNotepadRecovery()` for recovery entries. If any exist, show
 
 `WorkingDir` does not auto-remove on destruction. Cleanup requires an explicit `remove()` call, ensuring the working directory survives a crash. It tracks whether it created the directory or adopted an existing one (`wasAdopted()`). Directory names use `{fnxName}~{randomSuffix}`.
 
-`Notebook::~Notebook()` explicitly deletes the lockfile and removes the working directory. On crash, neither runs, and both persist.
+`Notebook::~Notebook()` calls `clearRecoveryState_()` and removes the working directory. On crash, neither runs, and both persist.
 
 ### Autosave Flush
 
@@ -50,9 +54,9 @@ Checks `AppDirs::tempNotepadRecovery()` for recovery entries. If any exist, show
 1. Skips if the working directory is invalid or the Notebook is not modified (`isModified_()` covers both file-level edits and DOM-level changes)
 2. Iterates all file models, saves dirty ones via `files->save(model, ClearModified::No)`
 3. Unions flushed UUIDs with `recoveryDirtyUuids_` (preserving dirty state for files not yet opened by the user)
-4. Writes the lockfile to `AppDirs::tempNotebookRecovery()`
+4. Writes the lockfile via `NotebookLockfile::write()`
 
-The lockfile name is derived from the working directory name (`{workingDirName}.lock`), giving a 1:1 mapping between lockfiles and working directories.
+The lockfile path is computed by `NotebookLockfile::path()` from the recovery directory and working directory name, giving a 1:1 mapping between lockfiles and working directories.
 
 ### Lockfile Format
 
@@ -64,11 +68,17 @@ working_dir=/home/user/.fernanda/~temp/notebooks/MyNovel.fnx~a1b2c3d4
 dirty_uuids=3f2a1b4c-...,8e7d6c5b-...
 ```
 
-Serialization is handled by the `NotebookLockfile` namespace (`toData()` / `fromData()`).
+Serialization and I/O are handled by the `NotebookLockfile` namespace. `Internal::toData_()` and `Internal::read_()` handle format conversion. The public API (`write()`, `read()`, `remove()`, `path()`, `readAll()`) owns all disk I/O, mirroring the structure of `NotepadRecovery`.
 
-### Lockfile Deletion
+### Recovery State Cleanup
 
-The lockfile is deleted:
+`clearRecoveryState_()` is the single cleanup point for all recovery artifacts:
+
+1. Deletes the lockfile via `NotebookLockfile::remove()`
+2. Clears `recoveryDirtyUuids_`
+3. Nulls the `afterModelCreatedHook` (set during `applyRecoveryState_()`)
+
+Call sites:
 
 - After a successful `Fnx::Io::compress()` in `save_()`, `saveAs_()`, `canCloseWindow()`, and `canCloseAllWindows()`
 - In the Discard branch of `canCloseWindow()` and `canCloseAllWindows()`
@@ -76,7 +86,7 @@ The lockfile is deleted:
 
 ### Recovery Construction
 
-`Notebook::recover(lockfilePath)` is a static factory that parses the lockfile, constructs a `WorkingDir` from the orphaned directory path (which `WorkingDir` adopts rather than creating), and calls a private constructor. `Notebook::setup_()` checks `workingDir_.wasAdopted()` to skip the normal extraction/creation step.
+`Notebook::recover(lockfilePath)` is a static factory that reads the lockfile via `NotebookLockfile::read()`, constructs a `WorkingDir` from the orphaned directory path (which `WorkingDir` adopts rather than creating), and calls a private constructor. `Notebook::setup_()` checks `workingDir_.wasAdopted()` to skip the normal extraction/creation step.
 
 ### Recovery Dirty State
 
@@ -87,15 +97,17 @@ On recovery, dirty UUIDs from the lockfile are stashed in `recoveryDirtyUuids_`.
 
 Recovered files are born dirty: the hook fires before `connectNewModel_()`, so the first `modificationChanged` emission reports the correct state.
 
-`recoveryDirtyUuids_` is cleared alongside `deleteLockfile_()` in `save_()` and `saveAs_()`.
+The hook is cleared by `clearRecoveryState_()` on first save, discard, or destruction.
 
 ## Notepad
 
 ### Autosave Flush
 
-`Notepad::autosave()` iterates all file models, skipping unmodified ones. For each dirty model, it writes the buffer and metadata to a subdirectory of `AppDirs::tempNotepadRecovery()` via `NotepadRecovery::write()`. This bypasses `FileService` entirely (no watcher suppression, no signals, no backup triggers, no modification state changes).
+`Notepad::autosave()` iterates all file models, skipping unmodified ones. For each dirty model, it writes the buffer and metadata to a subdirectory of `AppDirs::tempNotepadRecovery()` via `NotepadRecovery::write()`. This bypasses `FileService` entirely (no watcher suppression needed, no signals, no backup triggers, no modification state changes).
 
 On-disk files use a path hash as the directory name. Off-disk files need a stable directory name across autosave ticks so repeated flushes overwrite the same entry. `Notepad` maintains a `QHash<AbstractFileModel*, Coco::Path>` (`recoveryDirs_`) that maps each model to its recovery directory, generating a new name only on first encounter.
+
+If a file is renamed between ticks (via the filesystem), the old path-hash entry becomes orphaned until clean exit or recovery.
 
 ### Recovery Entry Cleanup
 
@@ -115,8 +127,21 @@ Cleanup call sites:
 
 A temporary `afterModelCreatedHook` restores recovery state as each model is created: `setData()` with the recovery buffer, `setModified(true)`, and `setTitleOverride()` for off-disk entries. The hook fires before `connectNewModel_()`, so recovered models are born dirty with no signal bounce. On-disk files whose originals were deleted are treated as off-disk.
 
+The hook captures local containers by reference, which relies on the open calls being synchronous. On-disk entries match by path key. Off-disk entries have no key, so they match by position: `takeFirst()` pairs them with `openOffDiskTxtIn()` calls in iteration order.
+
 The hook is nulled and recovery subdirectories are purged after all entries are processed.
 
 ## FileService: afterModelCreatedHook
 
 `FileService` exposes an `afterModelCreatedHook` that fires in model creation methods after `registerModel_()` but before `connectNewModel_()`. Both Notebook and Notepad use this to establish initial model state (marking recovered files dirty) before any signals are connected.
+
+## Namespace Symmetry
+
+`NotebookLockfile` and `NotepadRecovery` follow the same structural pattern:
+
+- `Entry` struct at top (public data type)
+- `Internal` namespace (format keys, serialization, `read_()`)
+- Public API owns all I/O (`write()`, `read()`, `remove()` / `readAll()`)
+- Workspaces call the namespace for all disk operations, never using `Io` directly for recovery data
+
+Cleanup patterns differ by necessity: Notebook uses a single `clearRecoveryState_()` helper (lockfile is one file), while Notepad uses per-model `deleteRecoveryEntry_()` and bulk `deleteAllRecoveryEntries_()` (recovery data is per-file).
