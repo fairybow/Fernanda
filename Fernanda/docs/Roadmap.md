@@ -19,6 +19,7 @@
 - [ ] Refactor notebook can close hooks since much the same
 - [ ] Refactor notepad save code after tentatively finalizing restore code
 - [ ] Find/bring symmetry to the autosave recovery code even though they're fairly different. There are still places where there will be symmetry (making sure autosave data is deleted on save or discard, for example, in both paths - or a function that wraps the lockfile deletion plus UUID list clearing, if appropriate)
+- [x] Do we nullptr the file service hook in Notebook?
 - [ ] on-demand AppDirs (create on any call if needed, no initialize - but keep cleanup)
 - [x] AutosaveRecovery.md
 - [ ] BUG: On Notepad recovery, there's a delay between displaying the first recovered tab and any subsequent recovered tabs (recovery prompt may or may not help)

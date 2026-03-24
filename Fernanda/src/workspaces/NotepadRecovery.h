@@ -21,6 +21,7 @@
 #include "core/Hash.h"
 #include "core/Io.h"
 
+/// TODO BA
 namespace Fernanda::NotepadRecovery {
 
 struct Entry

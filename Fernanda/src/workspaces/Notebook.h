@@ -39,7 +39,6 @@
 #include "core/AppDirs.h"
 #include "core/Debug.h"
 #include "core/FileTypes.h"
-#include "core/Io.h"
 #include "core/Random.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
@@ -78,8 +77,6 @@ namespace Fernanda {
 // TODO: Settings change mark Notebook unsaved? How - watch the working dir for
 // changes?
 // TODO: Check for missing !workingDir_.isValid checks
-/// TODO BA: Read/write recovery lockfile could be accessory namespace
-/// (NotebookLockfile)
 /// TODO BA: Should WorkingDir store Dirty UUIDs?
 class Notebook : public Workspace
 {
@@ -98,7 +95,7 @@ public:
     {
         TRACER;
 
-        deleteLockfile_(); /// TODO BA
+        clearRecoveryState_(); /// TODO BA
         workingDir_.remove();
     }
 
@@ -106,14 +103,14 @@ public:
     static Notebook*
     recover(const Coco::Path& lockfile, QObject* parent = nullptr)
     {
-        auto parsed = NotebookLockfile::fromData(Io::read(lockfile));
-        if (parsed.workingDirPath.isEmpty() || !parsed.workingDirPath.exists())
+        auto entry = NotebookLockfile::read(lockfile);
+        if (entry.workingDirPath.isEmpty() || !entry.workingDirPath.exists())
             return nullptr;
 
         return new Notebook(
-            parsed.fnxPath,
-            WorkingDir(parsed.workingDirPath),
-            std::move(parsed.dirtyUuids),
+            entry.fnxPath,
+            WorkingDir(entry.workingDirPath),
+            std::move(entry.dirtyUuids),
             parent);
     }
 
@@ -200,16 +197,14 @@ protected:
                 return false;
             }
 
-            deleteLockfile_(); /// TODO BA
-            // Clearing recoveryDirtyUuids_ is pointless as we're headed to
-            // destruction
+            clearRecoveryState_(); /// TODO BA
 
             // No resetSnapshot, showModified, or green color bar (last
             // window closing)
             return true;
         }
         case SavePrompt::Discard:
-            deleteLockfile_(); /// TODO BA
+            clearRecoveryState_(); /// TODO BA
             return true;
         }
     }
@@ -259,16 +254,14 @@ protected:
             // TODO: Use fallthrough at the end of Save here to delete lockfile
             // and return true
 
-            deleteLockfile_(); /// TODO BA
-            // Clearing recoveryDirtyUuids_ is pointless as we're headed to
-            // destruction
+            clearRecoveryState_(); /// TODO BA
 
             // No resetSnapshot, showModified, or green color bar (all windows
             // closing)
             return true;
         }
         case SavePrompt::Discard:
-            deleteLockfile_(); /// TODO BA
+            clearRecoveryState_(); /// TODO BA
             return true;
         }
     }
@@ -459,15 +452,18 @@ private:
     /// TODO BA
     Coco::Path lockfilePath_() const
     {
-        constexpr auto ext = ".lock";
-        return AppDirs::tempNotebookRecovery()
-               / (workingDir_.path().nameQString() + ext);
+        return NotebookLockfile::path(
+            AppDirs::tempNotebookRecovery(),
+            workingDir_.path());
     }
 
     /// TODO BA
-    // TODO: Could return bool and log. Would want to distinguish between
-    // lockfile not found or deletion failed, though?
-    void deleteLockfile_() { Coco::remove(lockfilePath_()); }
+    void clearRecoveryState_()
+    {
+        NotebookLockfile::remove(lockfilePath_());
+        recoveryDirtyUuids_.clear();
+        files->setAfterModelCreatedHook(nullptr);
+    }
 
     /// TODO BA
     void writeLockfile_()
@@ -488,15 +484,11 @@ private:
             dirty_uuids << Fnx::Io::uuid(meta->path());
         }
 
-        Io::write(
-            NotebookLockfile::toData(
-                fnxPath_,
-                workingDir_,
-                QStringList(
-                    dirty_uuids.begin(),
-                    dirty_uuids.end())), /// TODO BA: Take set directly here in
-                                         /// lockfile ns
-            lockfilePath_());
+        NotebookLockfile::write(
+            lockfilePath_(),
+            fnxPath_,
+            workingDir_.path(),
+            dirty_uuids);
     }
 
     /// TODO BA
@@ -840,8 +832,7 @@ private:
             return;
         }
 
-        deleteLockfile_(); /// TODO BA
-        recoveryDirtyUuids_.clear(); /// TODO BA
+        clearRecoveryState_(); /// TODO BA
 
         if (saved_as) {
             fnxPath_ = path;
@@ -883,8 +874,7 @@ private:
             return;
         }
 
-        deleteLockfile_(); /// TODO BA
-        recoveryDirtyUuids_.clear(); /// TODO BA
+        clearRecoveryState_(); /// TODO BA
 
         fnxPath_ = new_path;
         windows->setSubtitle(fnxPath_.nameQString());

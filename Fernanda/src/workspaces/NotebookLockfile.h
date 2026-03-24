@@ -13,72 +13,110 @@
 #pragma once
 
 #include <QByteArray>
+#include <QList>
 #include <QSet>
 #include <QString>
 #include <QStringList>
 
 #include <Coco/Path.h>
 
-#include "workspaces/WorkingDir.h"
+#include "core/Io.h"
 
-/// TODO BA: Should this write (like NotepadRecovery)?
-/// TODO BA: A readAll function to collect all present lockfiles, which
-/// Application can use? If Application also uses NotepadRecovery to scan and
-/// open files in a Notepad window
+/// TODO BA
 namespace Fernanda::NotebookLockfile {
 
-namespace Internal {
-
-    inline const auto FNX_KEY_ = QStringLiteral("fnx=");
-    inline const auto DIR_KEY_ = QStringLiteral("working_dir=");
-    inline const auto DIRTY_KEY_ = QStringLiteral("dirty_uuids=");
-
-} // namespace Internal
-
-struct Parsed
+struct Entry
 {
     Coco::Path fnxPath{};
     Coco::Path workingDirPath{};
     QSet<QString> dirtyUuids{};
 };
 
-inline Parsed fromData(const QByteArray& data)
-{
-    auto content = QString(data);
-    Parsed parsed{};
+namespace Internal {
 
-    for (auto& line : content.split('\n', Qt::SkipEmptyParts)) {
-        if (line.startsWith(Internal::FNX_KEY_))
-            parsed.fnxPath = line.mid(Internal::FNX_KEY_.size());
+    inline const auto FNX_KEY_ = QStringLiteral("fnx=");
+    inline const auto DIR_KEY_ = QStringLiteral("working_dir=");
+    inline const auto DIRTY_KEY_ = QStringLiteral("dirty_uuids=");
+    inline const auto EXT_ = QStringLiteral(".lock");
 
-        else if (line.startsWith(Internal::DIR_KEY_))
-            parsed.workingDirPath = line.mid(Internal::DIR_KEY_.size());
-
-        else if (line.startsWith(Internal::DIRTY_KEY_)) {
-            for (auto& uuid : line.mid(Internal::DIRTY_KEY_.size())
-                                  .split(',', Qt::SkipEmptyParts)) {
-                parsed.dirtyUuids << uuid;
-            }
-        }
+    inline QByteArray toData_(
+        const Coco::Path& fnxPath,
+        const Coco::Path& workingDirPath,
+        const QSet<QString>& dirtyUuids)
+    {
+        QString content{};
+        content += FNX_KEY_ + fnxPath.toQString() + "\n";
+        content += DIR_KEY_ + workingDirPath.toQString() + "\n";
+        content += DIRTY_KEY_
+                   + QStringList(dirtyUuids.begin(), dirtyUuids.end()).join(',')
+                   + "\n";
+        return content.toUtf8();
     }
 
-    return parsed;
+    inline Entry read_(const Coco::Path& lockfilePath)
+    {
+        auto data = Io::read(lockfilePath);
+        auto content = QString::fromUtf8(data);
+        Entry entry{};
+
+        for (auto& line : content.split('\n', Qt::SkipEmptyParts)) {
+            if (line.startsWith(FNX_KEY_))
+                entry.fnxPath = line.mid(FNX_KEY_.size());
+            else if (line.startsWith(DIR_KEY_))
+                entry.workingDirPath = line.mid(DIR_KEY_.size());
+            else if (line.startsWith(DIRTY_KEY_)) {
+                for (auto& uuid :
+                     line.mid(DIRTY_KEY_.size()).split(',', Qt::SkipEmptyParts))
+                    entry.dirtyUuids << uuid;
+            }
+        }
+
+        return entry;
+    }
+
+} // namespace Internal
+
+inline Coco::Path
+path(const Coco::Path& recoveryDir, const Coco::Path& workingDirPath)
+{
+    return recoveryDir / (workingDirPath.nameQString() + Internal::EXT_);
 }
 
 /// TODO BA: Should WorkingDir store UUIDs if adopted? Should it also store
 /// original FNX path?
-inline QByteArray toData(
+inline void write(
+    const Coco::Path& lockfilePath,
     const Coco::Path& fnxPath,
-    const WorkingDir& workingDir,
-    const QStringList& dirtyUuids)
+    const Coco::Path& workingDirPath,
+    const QSet<QString>& dirtyUuids)
 {
-    QString content{};
+    Io::write(
+        Internal::toData_(fnxPath, workingDirPath, dirtyUuids),
+        lockfilePath);
+}
 
-    content += Internal::FNX_KEY_ + fnxPath.toQString() + "\n";
-    content += Internal::DIR_KEY_ + workingDir.path().toQString() + "\n";
-    content += Internal::DIRTY_KEY_ + dirtyUuids.join(',') + "\n";
+inline Entry read(const Coco::Path& lockfilePath)
+{
+    return Internal::read_(lockfilePath);
+}
 
-    return content.toUtf8();
+// TODO: Could return bool and log. Would want to distinguish between lockfile
+// not found or deletion failed, though?
+inline void remove(const Coco::Path& lockfilePath)
+{
+    Coco::remove(lockfilePath);
+}
+
+inline QList<Entry> readAll(const Coco::Path& recoveryDir)
+{
+    QList<Entry> entries{};
+    if (!recoveryDir.exists()) return entries;
+
+    for (auto& path :
+         Coco::filePaths({ recoveryDir }, { "*" + Internal::EXT_ }))
+        entries << Internal::read_(path);
+
+    return entries;
 }
 
 } // namespace Fernanda::NotebookLockfile
