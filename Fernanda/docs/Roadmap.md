@@ -14,7 +14,8 @@
 - [x] Hook up Notepad
 - [x] For Notepad, if the exist at all, a recovered file means dirty
 - [ ] Make buffer .txt
-- [ ] Check that window is right arg for Notepad restore
+- [x] Check that window is right arg for Notepad restore (REMOVED)
+- [ ] Recovery prompts! We want just one big prompt with checkboxes for each recovered file (including Notebooks in with other file types (can have a visual cue to make them stand out))
 - [ ] Refactor notebook can close hooks since much the same
 - [ ] Refactor notepad save code after tentatively finalizing restore code
 - [ ] Find/bring symmetry to the autosave recovery code even though they're fairly different. There are still places where there will be symmetry (making sure autosave data is deleted on save or discard, for example, in both paths - or a function that wraps the lockfile deletion plus UUID list clearing, if appropriate)
@@ -23,6 +24,9 @@
 - [ ] Also, a Settings.md
 - [ ] Remove settings INI info from Architecture.md?
 - [ ] May want the temp AppDir to go away and have `~recovery` and `~notebooks`
+- [ ] Organize code style
+- [ ] Add doc style
+- [ ] Contributions file?
 
 
 - [x] CRITICAL BUG: Occasionally, saving Paradise Lost, I'll see a save fail prompt. It happens without the beforeWriteHook_ but not often. The hook doesn't seem to affect the frequency. Problem might be in Io::write and with QSaveFile? Here's the debug output that shows up related to this: `239 | 2026-03-20 | 22:11:19.360 | Failed to commit file at C:/.../Documents/Fernanda/Paradise Lost.txt (Error: Access is denied.)!` (see FileService writeModelToDisk_ for the fix)

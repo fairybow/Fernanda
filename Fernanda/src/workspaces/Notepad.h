@@ -108,7 +108,7 @@ public:
     }
 
     /// TODO BA
-    void recover(Window* window)
+    void recover()
     {
         auto& root = AppDirs::tempNotepadRecovery();
         auto entries = NotepadRecovery::readAll(root);
@@ -148,9 +148,9 @@ public:
         // Open files (each triggers hook synchronously)
         for (auto& entry : entries) {
             if (!entry.isOffDisk() && entry.originalPath.exists())
-                files->openFilePathIn(window, entry.originalPath);
+                files->openFilePathIn(windows->active(), entry.originalPath);
             else
-                files->openOffDiskTxtIn(window);
+                files->openOffDiskTxtIn(windows->active());
         }
 
         files->setAfterModelCreatedHook(nullptr);
