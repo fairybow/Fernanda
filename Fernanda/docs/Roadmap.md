@@ -13,7 +13,7 @@
 - [x] Make working dir non-QTemporaryDir, so we can re-use on recovery
 - [x] Hook up Notepad
 - [x] For Notepad, if the exist at all, a recovered file means dirty
-- [ ] Make buffer .txt
+- [x] Make buffer .txt (NO - don't do this - it won't always be text)
 - [x] Check that window is right arg for Notepad restore (REMOVED)
 - [ ] Recovery prompts! We want just one big prompt with checkboxes for each recovered file (including Notebooks in with other file types (can have a visual cue to make them stand out))
 - [ ] Refactor notebook can close hooks since much the same
@@ -21,6 +21,7 @@
 - [ ] Find/bring symmetry to the autosave recovery code even though they're fairly different. There are still places where there will be symmetry (making sure autosave data is deleted on save or discard, for example, in both paths - or a function that wraps the lockfile deletion plus UUID list clearing, if appropriate)
 - [ ] on-demand AppDirs (create on any call if needed, no initialize - but keep cleanup)
 - [x] AutosaveRecovery.md
+- [ ] BUG: On Notepad recovery, there's a delay between displaying the first recovered tab and any subsequent recovered tabs (recovery prompt may or may not help)
 - [ ] Also, a Settings.md
 - [ ] Remove settings INI info from Architecture.md?
 - [ ] May want the temp AppDir to go away and have `~recovery` and `~notebooks`

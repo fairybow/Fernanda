@@ -22,6 +22,15 @@
 
 namespace Fernanda::NotepadRecovery {
 
+struct Entry
+{
+    Coco::Path originalPath{};
+    QString title{};
+    QByteArray buffer{};
+
+    bool isOffDisk() const noexcept { return originalPath.isEmpty(); }
+};
+
 namespace Internal {
 
     inline const auto PATH_KEY_ = QStringLiteral("path=");
@@ -31,16 +40,27 @@ namespace Internal {
     inline const auto META_NAME_ = QStringLiteral("meta");
     inline const auto OFF_DISK_PREFIX_ = QStringLiteral("off-disk~");
 
+    inline Entry read_(const Coco::Path& entryDir)
+    {
+        Entry entry{};
+        entry.buffer = Io::read(entryDir / BUFFER_NAME_);
+
+        auto meta =
+            QString::fromUtf8(Io::read(entryDir / META_NAME_));
+
+        for (auto& line : meta.split('\n', Qt::SkipEmptyParts)) {
+            if (line.startsWith(PATH_KEY_)) {
+                entry.originalPath = line.mid(PATH_KEY_.size());
+
+            } else if (line.startsWith(TITLE_KEY_)) {
+                entry.title = line.mid(TITLE_KEY_.size());
+            }
+        }
+
+        return entry;
+    }
+
 } // namespace Internal
-
-struct Entry
-{
-    Coco::Path originalPath{};
-    QString title{};
-    QByteArray buffer{};
-
-    bool isOffDisk() const noexcept { return originalPath.isEmpty(); }
-};
 
 inline Coco::Path
 entryDir(const Coco::Path& recoveryRoot, const Coco::Path& originalPath)
@@ -72,25 +92,6 @@ inline void write(
     Io::write(meta.toUtf8(), entryDir / Internal::META_NAME_);
 }
 
-inline Entry read(const Coco::Path& entryDir)
-{
-    Entry entry{};
-    entry.buffer = Io::read(entryDir / Internal::BUFFER_NAME_);
-
-    auto meta = QString::fromUtf8(Io::read(entryDir / Internal::META_NAME_));
-
-    for (auto& line : meta.split('\n', Qt::SkipEmptyParts)) {
-        if (line.startsWith(Internal::PATH_KEY_)) {
-            entry.originalPath = line.mid(Internal::PATH_KEY_.size());
-
-        } else if (line.startsWith(Internal::TITLE_KEY_)) {
-            entry.title = line.mid(Internal::TITLE_KEY_.size());
-        }
-    }
-
-    return entry;
-}
-
 inline QList<Entry> readAll(const Coco::Path& recoveryRoot)
 {
     QList<Entry> entries{};
@@ -98,7 +99,7 @@ inline QList<Entry> readAll(const Coco::Path& recoveryRoot)
     if (!recoveryRoot.exists()) return entries;
 
     for (auto& dir : Coco::paths(recoveryRoot))
-        entries << read(dir);
+        entries << Internal::read_(dir);
 
     return entries;
 }
