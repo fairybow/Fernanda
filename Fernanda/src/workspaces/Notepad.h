@@ -678,7 +678,14 @@ private:
 
     void connectBusEvents_()
     {
-        //...
+        /// TODO BA
+        connect(
+            bus,
+            &Bus::fileModelModificationChanged,
+            this,
+            [this](AbstractFileModel* fileModel, bool modified) {
+                if (!modified) deleteRecoveryEntry_(fileModel);
+            });
     }
 
     /// TODO BA: Should this move to NotepadRecovery?

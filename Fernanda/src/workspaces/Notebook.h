@@ -1050,6 +1050,15 @@ private slots:
 
         // Notebook's individual archive files should always have a path.
         fnxModel_->setFileEdited(Fnx::Io::uuid(path), modified);
+
+        /// TODO BA
+        if (!modified) {
+            // Write clean content back to working dir (overwrites stale
+            // autosave) and forget the UUID
+            files->save(fileModel, ClearModified::No);
+            auto uuid = Fnx::Io::uuid(path);
+            recoveryDirtyUuids_.remove(uuid);
+        }
     }
 };
 
