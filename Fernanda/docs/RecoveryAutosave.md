@@ -1,4 +1,4 @@
-# Autosave and Recovery
+# Recovery Autosave
 
 Periodic flush of dirty buffers for crash recovery.
 
