@@ -23,7 +23,6 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
-#include "core/Time.h"
 #include "core/Version.h"
 #include "dialogs/BetaAlert.h"
 #include "workspaces/Notebook.h"
@@ -74,13 +73,15 @@ public:
         initializeTranslator_();
         loadBundledFonts_();
         initializeNotepad_();
+
+        // Let this block, so we don't interfere with any recovery prompt
+        if (Version::isPrerelease) BetaAlert::exec();
+
+        // Handle before args, in case an arg needs recovered instead
+        recover_();
         handleArgs_();
 
         initialized_ = true;
-
-        if (Version::isPrerelease) {
-            Time::delay(500, this, [] { BetaAlert::exec(); });
-        }
     }
 
 public slots:
@@ -203,6 +204,11 @@ private:
         // Make a Notebook for each FNX file (and open single window for each)
         for (auto& path : parsed.fnxFiles)
             openNotebook_(path);
+    }
+
+    void recover_()
+    {
+        //
     }
 
     Notebook* makeNotebook_(const Coco::Path& fnxPath)
