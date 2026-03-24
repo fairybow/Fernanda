@@ -29,6 +29,7 @@ struct Entry
     QByteArray buffer{};
     Coco::Path originalPath{};
     QString title{};
+    Coco::Path entryDir{};
 
     bool isOffDisk() const noexcept { return originalPath.isEmpty(); }
 };
@@ -101,8 +102,11 @@ inline QList<Entry> readAll(const Coco::Path& recoveryDir)
 
     if (!recoveryDir.exists()) return entries;
 
-    for (auto& dir : Coco::paths(recoveryDir))
-        entries << Internal::read_(dir);
+    for (auto& dir : Coco::paths(recoveryDir)) {
+        auto entry = Internal::read_(dir);
+        entry.entryDir = dir;
+        entries << entry;
+    }
 
     return entries;
 }

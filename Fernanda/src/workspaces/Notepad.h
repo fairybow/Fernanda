@@ -133,7 +133,8 @@ public:
         // they match by position: takeFirst() pairs them with
         // openOffDiskTxtIn() calls in iteration order
         files->setAfterModelCreatedHook(
-            [&on_disk_buffers, &off_disk_entries](AbstractFileModel* model) {
+            [this, &root, &on_disk_buffers, &off_disk_entries](
+                AbstractFileModel* model) {
                 auto meta = model->meta();
                 if (!meta) return;
 
@@ -143,11 +144,14 @@ public:
                     model->setData(it.value());
                     model->setModified(true);
                     on_disk_buffers.erase(it);
+                    recoveryDirs_[model] =
+                        NotepadRecovery::entryDir(root, meta->path());
                 } else if (!off_disk_entries.isEmpty()) {
                     auto entry = off_disk_entries.takeFirst();
                     model->setData(entry.buffer);
                     model->setModified(true);
                     meta->setTitleOverride(entry.title);
+                    recoveryDirs_[model] = entry.entryDir;
                 }
             });
 
@@ -161,9 +165,10 @@ public:
 
         files->setAfterModelCreatedHook(nullptr);
 
-        // Clean up recovery data on disk
-        for (auto& dir : Coco::paths(root))
-            Coco::purge(dir);
+        // Recovery entries stay on disk rather than being purged, so a crash
+        // before the next autosave tick doesn't lose dirty data. The
+        // recoveryDirs_ map connects each model to its entry, so save, discard,
+        // and undo-to-clean remove them normally
     }
 
     virtual bool tryQuit() override
