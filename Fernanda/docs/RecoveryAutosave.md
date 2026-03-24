@@ -31,7 +31,7 @@ Notebook does not set a `beforeWriteHook_`, so the backup hook in `writeModelToD
 
 Both workspaces respond to `Bus::fileModelModificationChanged` when `modified` is `false`. This prevents stale recovery data from persisting after the user undoes all changes.
 
-Notebook: `onBusFileModelModificationChanged_()` re-saves the now-clean content to the working directory via `files->save(model, ClearModified::No)` (overwriting the stale autosaved content) and removes the UUID from `recoveryDirtyUuids_`. The next `writeLockfile_()` tick updates or removes the lockfile accordingly.
+Notebook: `onBusFileModelModificationChanged_()` re-saves the now-clean content to the working directory via `files->save(model, ClearModified::No)` (overwriting the stale autosaved content). On success, the UUID is removed from `recoveryDirtyUuids_`. On failure, the UUID is retained so the next lockfile tick still lists it as dirty, and a CRITICAL is logged. The next `writeLockfile_()` tick updates or removes the lockfile accordingly.
 
 Notepad: `connectBusEvents_()` calls `deleteRecoveryEntry_(model)`, removing the recovery subdirectory and its map entry.
 
@@ -61,7 +61,7 @@ Checks `AppDirs::tempNotepadRecovery()` for recovery entries. If any exist, show
 
 1. If the working directory is invalid, returns
 2. If the Notebook is not modified (`isModified_()` covers both file-level edits and DOM-level changes), deletes the lockfile (if present), clears `recoveryDirtyUuids_`, and returns. This makes the function self-correcting: if all files have become clean since the last tick, stale lockfiles are removed rather than silently left on disk
-3. Iterates all file models, saves dirty ones via `files->save(model, ClearModified::No)`
+3. Iterates all file models, saves dirty ones via `files->save(model, ClearModified::No)`, logging failures as CRITICAL
 4. Unions flushed UUIDs with `recoveryDirtyUuids_` (preserving dirty state for files not yet opened by the user)
 5. Writes the lockfile via `NotebookLockfile::write()`
 
@@ -93,11 +93,11 @@ Call sites:
 - In the Discard branch of `canCloseWindow()` and `canCloseAllWindows()`
 - In `~Notebook()` (safety net)
 
-Additionally, `writeLockfile_()` performs partial cleanup (lockfile deletion, UUID clearing) when `isModified_()` is false, and `onBusFileModelModificationChanged_()` removes individual UUIDs when files become unmodified.
+Additionally, `writeLockfile_()` performs partial cleanup (lockfile deletion, UUID clearing) when `isModified_()` is false, and `onBusFileModelModificationChanged_()` removes individual UUIDs when files become unmodified (conditional on write-back success).
 
 ### Recovery Construction
 
-`Notebook::recover(lockfilePath)` is a static factory that reads the lockfile via `NotebookLockfile::read()`, constructs a `WorkingDir` from the orphaned directory path (which `WorkingDir` adopts rather than creating), and calls a private constructor. `Notebook::setup_()` checks `workingDir_.wasAdopted()` to skip the normal extraction/creation step.
+`Notebook::recover(lockfilePath)` is a static factory that reads the lockfile via `NotebookLockfile::read()`. It returns `nullptr` if the working directory is missing or the fnx path is empty (corrupted lockfile). Otherwise, it constructs a `WorkingDir` from the orphaned directory path (which `WorkingDir` adopts rather than creating) and calls a private constructor. `Notebook::setup_()` checks `workingDir_.wasAdopted()` to skip the normal extraction/creation step.
 
 ### Recovery Dirty State
 
@@ -135,11 +135,11 @@ Cleanup call sites:
 
 ### Recovery Read
 
-`Notepad::recover()` reads all entries via `NotepadRecovery::readAll()`, separates them into on-disk (original file still exists) and off-disk (original missing or entry was off-disk), then opens each file via `FileService::openFilePathIn()` or `openOffDiskTxtIn()` using the active window.
+`Notepad::recover()` reads all entries via `NotepadRecovery::readAll()` (which filters to directories only, ignoring stray files), separates them into on-disk (original file still exists) and off-disk (original missing or entry was off-disk), then caches and validates the active window before opening each file via `FileService::openFilePathIn()` or `openOffDiskTxtIn()`.
 
 A temporary `afterModelCreatedHook` restores recovery state as each model is created: `setData()` with the recovery buffer, `setModified(true)`, and `setTitleOverride()` for off-disk entries. The hook fires before `connectNewModel_()`, so recovered models are born dirty with no signal bounce. On-disk files whose originals were deleted are treated as off-disk.
 
-The hook captures local containers by reference, which relies on the open calls being synchronous. On-disk entries match by path key. Off-disk entries have no key, so they match by position: `takeFirst()` pairs them with `openOffDiskTxtIn()` calls in iteration order.
+The hook captures local containers by reference, which relies on the open calls being synchronous. On-disk entries match by path key. Off-disk entries have no key, so they match by position: `takeFirst()` pairs them with `openOffDiskTxtIn()` calls in iteration order. A debug assertion after the loop verifies that all on-disk buffers were consumed by the hook.
 
 The hook also populates `recoveryDirs_` for each recovered model (using the entry's stored `entryDir`), connecting each model to its recovery directory on disk. Recovery entries are not purged after processing: a crash before the next autosave tick would otherwise lose dirty data. The normal cleanup paths (save, discard, undo-to-clean, clean exit) handle removal.
 
