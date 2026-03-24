@@ -189,16 +189,14 @@ protected:
             auto meta = model->meta();
             if (!meta) continue;
 
-            auto dir = meta->isOnDisk()
-                           ? NotepadRecovery::entryDir(root, meta->path())
-                           : offDiskRecoveryDir_(root, model);
+            auto dir = ensureRecoveryDir_(root, model);
+            if (dir.isEmpty()) continue;
 
             NotepadRecovery::write(
                 dir,
                 meta->path(),
                 meta->title(),
                 model->data());
-            recoveryDirs_[model] = dir;
         }
     }
 
@@ -693,14 +691,22 @@ private:
             });
     }
 
-    /// TODO BA: Should this move to NotepadRecovery?
+    /// TODO BA
     Coco::Path
-    offDiskRecoveryDir_(const Coco::Path& root, AbstractFileModel* model)
+    ensureRecoveryDir_(const Coco::Path& root, AbstractFileModel* model)
     {
         auto it = recoveryDirs_.find(model);
         if (it != recoveryDirs_.end()) return it.value();
 
-        return NotepadRecovery::offDiskEntryDir(root);
+        auto meta = model->meta();
+        if (!meta) return {};
+
+        auto dir = meta->isOnDisk()
+                       ? NotepadRecovery::entryDir(root, meta->path())
+                       : NotepadRecovery::offDiskEntryDir(root);
+
+        recoveryDirs_[model] = dir;
+        return dir;
     }
 
     /// TODO BA
