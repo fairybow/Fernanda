@@ -478,6 +478,12 @@ private:
             auto meta = model->meta();
             if (!meta) continue;
 
+            // NB: Uses FileService (not direct Io::write) for watcher
+            // suppression. Notebook does not set a beforeWriteHook_, so the
+            // backup hook in writeModelToDisk_ is not triggered. If we ever
+            // need to use the beforeWriteHook_ in Notebook, then the solution
+            // is to have a separate backupHook_ (or similarly named) that
+            // Notebook will never need to use, since it does backups via Fnx
             if (!files->save(model, ClearModified::No))
                 CRITICAL("Notebook autosave failed for {}!", model);
 
