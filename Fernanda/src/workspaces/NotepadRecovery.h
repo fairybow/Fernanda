@@ -13,6 +13,7 @@
 #pragma once
 
 #include <QByteArray>
+#include <QList>
 #include <QString>
 
 #include <Coco/Path.h>
@@ -24,9 +25,9 @@ namespace Fernanda::NotepadRecovery {
 
 struct Entry
 {
+    QByteArray buffer{};
     Coco::Path originalPath{};
     QString title{};
-    QByteArray buffer{};
 
     bool isOffDisk() const noexcept { return originalPath.isEmpty(); }
 };
@@ -43,10 +44,11 @@ namespace Internal {
     inline Entry read_(const Coco::Path& entryDir)
     {
         Entry entry{};
+
         entry.buffer = Io::read(entryDir / BUFFER_NAME_);
 
-        auto meta =
-            QString::fromUtf8(Io::read(entryDir / META_NAME_));
+        auto data = Io::read(entryDir / META_NAME_);
+        auto meta = QString::fromUtf8(data);
 
         for (auto& line : meta.split('\n', Qt::SkipEmptyParts)) {
             if (line.startsWith(PATH_KEY_)) {
@@ -63,15 +65,15 @@ namespace Internal {
 } // namespace Internal
 
 inline Coco::Path
-entryDir(const Coco::Path& recoveryRoot, const Coco::Path& originalPath)
+entryDir(const Coco::Path& recoveryDir, const Coco::Path& originalPath)
 {
     // On-disk: hash of original path
-    return recoveryRoot / Hash::fromPath(originalPath);
+    return recoveryDir / Hash::fromPath(originalPath);
 }
 
-inline Coco::Path offDiskEntryDir(const Coco::Path& recoveryRoot)
+inline Coco::Path offDiskEntryDir(const Coco::Path& recoveryDir)
 {
-    return recoveryRoot / (Internal::OFF_DISK_PREFIX_ + Random::token(8));
+    return recoveryDir / (Internal::OFF_DISK_PREFIX_ + Random::token(8));
 }
 
 inline void write(
@@ -92,13 +94,13 @@ inline void write(
     Io::write(meta.toUtf8(), entryDir / Internal::META_NAME_);
 }
 
-inline QList<Entry> readAll(const Coco::Path& recoveryRoot)
+inline QList<Entry> readAll(const Coco::Path& recoveryDir)
 {
     QList<Entry> entries{};
 
-    if (!recoveryRoot.exists()) return entries;
+    if (!recoveryDir.exists()) return entries;
 
-    for (auto& dir : Coco::paths(recoveryRoot))
+    for (auto& dir : Coco::paths(recoveryDir))
         entries << Internal::read_(dir);
 
     return entries;
