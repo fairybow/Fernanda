@@ -13,6 +13,7 @@
 #pragma once
 
 #include <QByteArray>
+#include <QDir>
 #include <QList>
 #include <QString>
 
@@ -20,6 +21,7 @@
 
 #include "core/Hash.h"
 #include "core/Io.h"
+#include "core/Random.h"
 
 /// TODO BA
 namespace Fernanda::NotepadRecovery {
@@ -102,7 +104,8 @@ inline QList<Entry> readAll(const Coco::Path& recoveryDir)
 
     if (!recoveryDir.exists()) return entries;
 
-    for (auto& dir : Coco::paths(recoveryDir)) {
+    for (auto& dir :
+         Coco::paths(recoveryDir, QDir::Dirs | QDir::NoDotAndDotDot)) {
         auto entry = Internal::read_(dir);
         entry.entryDir = dir;
         entries << entry;

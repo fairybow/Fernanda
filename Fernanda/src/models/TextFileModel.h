@@ -385,12 +385,11 @@ private:
 private slots:
     // TODO: Clean this
     // TODO: Rename (titleChange_ or similar)?
-    void onDocumentContentsChange_(int from, int charsRemoved, int charsAdded)
+    void onDocumentContentsChange_(
+        [[maybe_unused]] int from,
+        [[maybe_unused]] int charsRemoved,
+        [[maybe_unused]] int charsAdded)
     {
-        (void)from;
-        (void)charsRemoved;
-        (void)charsAdded;
-
         auto meta = this->meta();
         if (!meta || meta->isOnDisk()) return;
 

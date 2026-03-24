@@ -103,10 +103,8 @@ protected:
         return false;
     }
 
-    virtual void paintEvent(QPaintEvent* event) override
+    virtual void paintEvent([[maybe_unused]] QPaintEvent* event) override
     {
-        (void)event;
-
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setPen(Qt::NoPen);

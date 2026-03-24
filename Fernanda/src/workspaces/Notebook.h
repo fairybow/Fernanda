@@ -107,6 +107,8 @@ public:
         if (entry.workingDirPath.isEmpty() || !entry.workingDirPath.exists())
             return nullptr;
 
+        if (entry.fnxPath.isEmpty()) return nullptr; // Corrupted lockfile
+
         return new Notebook(
             entry.fnxPath,
             WorkingDir(entry.workingDirPath),
@@ -268,11 +270,9 @@ protected:
 
     virtual void workspaceMenuHook(
         MenuBuilder& builder,
-        MenuState* state,
+        [[maybe_unused]] MenuState* state,
         Window* window) override
     {
-        (void)state;
-
         builder
             .menu(Tr::notebookMenu())
 
@@ -466,6 +466,10 @@ private:
     }
 
     /// TODO BA
+    // TODO: If always flushing all dirty models ever becomes a noticable issue,
+    // then we may track a "last flushed generation" per model (e.g., comparing
+    // QTextDocument::revision() or a hash of model->data() against the last
+    // flushed value)
     void writeLockfile_()
     {
         if (!workingDir_.isValid()) return;
@@ -489,8 +493,13 @@ private:
             // need to use the beforeWriteHook_ in Notebook, then the solution
             // is to have a separate backupHook_ (or similarly named) that
             // Notebook will never need to use, since it does backups via Fnx
-            if (!files->save(model, ClearModified::No))
-                CRITICAL("Notebook autosave failed for {}!", model);
+            auto result = files->save(model, ClearModified::No);
+            if (result != FileService::Success) {
+                CRITICAL(
+                    "Notebook autosave failed for {} (result: {})!",
+                    model,
+                    toString(result));
+            }
 
             dirty_uuids << Fnx::Io::uuid(meta->path());
         }
@@ -1058,11 +1067,17 @@ private slots:
 
         /// TODO BA
         if (!modified) {
-            // Write clean content back to working dir (overwrites stale
-            // autosave) and forget the UUID
-            files->save(fileModel, ClearModified::No);
-            auto uuid = Fnx::Io::uuid(path);
-            recoveryDirtyUuids_.remove(uuid);
+            auto result = files->save(fileModel, ClearModified::No);
+            if (result == FileService::Success) {
+                auto uuid = Fnx::Io::uuid(path);
+                recoveryDirtyUuids_.remove(uuid);
+            } else {
+                CRITICAL(
+                    "Notebook undo-to-clean write-back failed for {} (result: "
+                    "{})!",
+                    fileModel,
+                    toString(result));
+            }
         }
     }
 };

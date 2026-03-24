@@ -395,9 +395,9 @@ void TabWidget::setCurrentWidget(QWidget* widget)
 
 // --- Protected ---
 
-void TabWidget::tabInserted(int index) { (void)index; }
+void TabWidget::tabInserted([[maybe_unused]] int index) {}
 
-void TabWidget::tabRemoved(int index) { (void)index; }
+void TabWidget::tabRemoved([[maybe_unused]] int index) {}
 
 void TabWidget::dragEnterEvent(QDragEnterEvent* event)
 {
@@ -862,11 +862,11 @@ void TabWidget::onTabBarCurrentChanged_(int index)
     emit currentChanged(index);
 }
 
-void TabWidget::onWidgetStackCurrentChanged_(int index)
+void TabWidget::onWidgetStackCurrentChanged_(
+    [[maybe_unused]] int index // We do NOT use widget stack index for anything!
+)
 {
     // We do NOT use widget stack index for anything!
-    (void)index;
-
     widgetStack_->count() ? mainStack_->setCurrentWidget(widgetStack_)
                           : mainStack_->setCurrentWidget(underlay_);
 }

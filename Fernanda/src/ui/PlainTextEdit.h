@@ -207,9 +207,8 @@ private slots:
     void resetCursorBlink_();
 
     /// TODO LNA
-    void updateLineNumberAreaWidth_(int newBlockCount)
+    void updateLineNumberAreaWidth_([[maybe_unused]] int newBlockCount)
     {
-        (void)newBlockCount;
         setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
     }
 

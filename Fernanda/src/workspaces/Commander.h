@@ -14,6 +14,7 @@
 
 #include <concepts>
 #include <functional>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -155,8 +156,7 @@ public:
 
             // ()->void
             commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
-                                       const Command& cmd) {
-                (void)cmd;
+                                       [[maybe_unused]] const Command& cmd) {
                 handler();
                 return QVariant{};
             };
@@ -166,8 +166,7 @@ public:
 
             // ()->T
             commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
-                                       const Command& cmd) {
-                (void)cmd;
+                                       [[maybe_unused]] const Command& cmd) {
                 if constexpr (ReturnsQVariant<HandlerT>) {
                     return handler();
                 } else {
@@ -189,7 +188,7 @@ public:
 
     void execute(const QString& id, const Command& cmd)
     {
-        (void)runCommand_(id, cmd);
+        std::ignore = runCommand_(id, cmd);
     }
 
     void execute(
@@ -197,12 +196,12 @@ public:
         const QVariantMap& params = {},
         Window* context = nullptr)
     {
-        (void)runCommand_(id, { params, context });
+        std::ignore = runCommand_(id, { params, context });
     }
 
     void execute(const QString& id, Window* context)
     {
-        (void)runCommand_(id, { {}, context });
+        std::ignore = runCommand_(id, { {}, context });
     }
 
     [[nodiscard]] QVariant call(const QString& id, const Command& cmd)

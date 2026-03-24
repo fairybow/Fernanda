@@ -52,10 +52,8 @@ private:
     }
 
 private slots:
-    void onClicked_(bool checked)
+    void onClicked_([[maybe_unused]] bool checked)
     {
-        (void)checked;
-
         auto global_center_position = mapToGlobal(rect().center());
         auto tab_bar_position = tabBar_->mapFromGlobal(global_center_position);
         auto tab_index = tabBar_->tabAt(tab_bar_position);

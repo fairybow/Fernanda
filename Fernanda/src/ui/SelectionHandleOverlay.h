@@ -65,10 +65,8 @@ public:
     void setHandlesEnabled(bool enabled) { handlesEnabled_ = enabled; }
 
 protected:
-    virtual void paintEvent(QPaintEvent* event) override
+    virtual void paintEvent([[maybe_unused]] QPaintEvent* event) override
     {
-        (void)event;
-
         if (!handlesEnabled_) return;
         if (!editor_->textCursor().hasSelection()) return;
 
@@ -155,9 +153,9 @@ private:
             editor_,
             &QPlainTextEdit::updateRequest,
             this,
-            [this](const QRect& rect, int deltaY) {
-                (void)rect;
-                (void)deltaY;
+            [this](
+                [[maybe_unused]] const QRect& rect,
+                [[maybe_unused]] int deltaY) {
                 // QWidget::scroll() on the viewport shifts child widgets by the
                 // scroll delta. Reset our geometry so the overlay stays aligned
                 setGeometry(editor_->viewport()->rect());
@@ -315,9 +313,8 @@ private:
         return false; // Let the viewport handle it normally
     }
 
-    bool handleMouseRelease_(QMouseEvent* event)
+    bool handleMouseRelease_([[maybe_unused]] QMouseEvent* event)
     {
-        (void)event;
         if (!isDragging_) return false;
 
         isDragging_ = false;

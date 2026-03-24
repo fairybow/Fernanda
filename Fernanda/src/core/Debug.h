@@ -23,6 +23,7 @@
 #include <Coco/Path.h>
 
 #include "core/Formatters.h"
+#include "core/Version.h"
 
 // TODO: Log to file. Commented-out method is too slow. Need to maybe keep file
 // open the entire time, hold static QFile
@@ -92,3 +93,13 @@ private:
 #define FATAL LOG(QtFatalMsg)
 
 #define TRACER INFO(__FUNCTION__)
+
+// TODO: Add secondary message parameter? (Here or separate macro)
+#ifdef VERSION_DEBUG
+#    define ASSERT(cond)                                                       \
+        do {                                                                   \
+            if (!(cond)) FATAL("Assertion failed: {}", #cond);                 \
+        } while (0)
+#else
+#    define ASSERT(cond) (static_cast<void>(0))
+#endif
