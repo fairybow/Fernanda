@@ -17,7 +17,7 @@
 - [x] Check that window is right arg for Notepad restore (REMOVED)
 - [x] BUG: Stale recovery data on undo-to-clean (both workspaces)
 - [ ] BUG: Notepad recovery purges data before fresh autosave can run
-- [ ] BUG: Notebook lockfile not deleted when all files become clean
+- [x] BUG: Notebook lockfile not deleted when all files become clean
 - [ ] Recovery prompts! We want just one big prompt with checkboxes for each recovered file (including Notebooks in with other file types (can have a visual cue to make them stand out))
 - [ ] Refactor notebook can close hooks since much the same
 - [ ] Refactor notepad save code after tentatively finalizing restore code

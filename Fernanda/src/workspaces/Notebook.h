@@ -469,7 +469,12 @@ private:
     void writeLockfile_()
     {
         if (!workingDir_.isValid()) return;
-        if (!isModified_()) return;
+
+        if (!isModified_()) {
+            NotebookLockfile::remove(lockfilePath_());
+            recoveryDirtyUuids_.clear();
+            return;
+        }
 
         QSet<QString> dirty_uuids(recoveryDirtyUuids_);
 
