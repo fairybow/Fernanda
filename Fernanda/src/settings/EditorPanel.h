@@ -29,7 +29,6 @@
 
 namespace Fernanda {
 
-/// TODO ES
 class EditorPanel : public SettingsPanel
 {
     Q_OBJECT

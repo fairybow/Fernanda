@@ -103,9 +103,6 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 - TODO TD (tab dragging)
 - TODO TVT (tree view toggle)
-- TODO KFS (key filters settings)
-- TODO ES (editor settings)
-- TODO GH (grabbable highlight)
 - TODO PD (prime doc)
 - TODO FT (file types)
 - TODO XP (cross platform)

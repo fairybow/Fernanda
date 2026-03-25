@@ -98,15 +98,15 @@ private:
         MultiStepEditScope_& operator=(const MultiStepEditScope_&) = delete;
     };
 
-    /// TODO KFS
     bool active_ = true;
     bool autoClosing_ = true;
     bool barging_ = true;
 
-    /// TODO KFS: Decide if this should be an individual setting or just part of
-    /// barging
+    // TODO: Decide if this should be an individual setting or just part of
+    // barging
     bool closeBargeTrailingPunctGap_ = true;
 
+    // TODO: Better notes for all the calls in here for each filter type
     bool handleKeyPress_(QKeyEvent* event)
     {
         if (!textEdit_) return false;
@@ -167,7 +167,6 @@ private:
         // punctuation)
         // TODO: Also trim for new line? (May not be a key filter, but an editor
         // feature...)
-        /// TODO KFS: Figure out what this does again lol
         if (closeBargeTrailingPunctGap_ && isBargeTrailingPunct_(ch)
             && canCloseTrailingPunctGap_(document, cursor)) {
             MultiStepEditScope_ scope(this);

@@ -26,7 +26,6 @@
 
 namespace Fernanda {
 
-/// TODO KFS
 class KeyFiltersPanel : public SettingsPanel
 {
     Q_OBJECT

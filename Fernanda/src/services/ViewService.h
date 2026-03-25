@@ -760,7 +760,6 @@ private:
 
     // TODO: forEach(Abstract)FileView?
 
-    /// TODO KFS
     template <typename CallableT>
     void forEachTextFileView_(CallableT&& callable)
     {
@@ -774,7 +773,6 @@ private:
         }
     }
 
-    /// TODO KFS
     void applyInitialTextFileViewSettings_(TextFileView* textFileView)
     {
         if (!textFileView) return;
@@ -785,7 +783,6 @@ private:
                 { { "key", Ini::Keys::EDITOR_FONT },
                   { "defaultValue", Ini::Defaults::font() } });
 
-            /// TODO ES
             auto center_on_scroll = bus->call<bool>(
                 Bus::GET_SETTING,
                 { { "key", Ini::Keys::EDITOR_CENTER_ON_SCROLL },
@@ -839,7 +836,6 @@ private:
             editor->setSelectionHandles(selection_handles);
         }
 
-        /// TODO KFS
         if (auto key_filters = textFileView->keyFilters()) {
             auto active = bus->call<bool>(
                 Bus::GET_SETTING,
