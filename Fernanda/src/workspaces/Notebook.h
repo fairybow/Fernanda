@@ -431,7 +431,7 @@ private:
         });
     }
 
-    // Saving for Workspace closes
+    // Save prompting for Workspace closes
     bool promptClosingSave_(Window* window)
     {
         if (!window) return false;
