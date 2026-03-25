@@ -19,7 +19,7 @@
 - [x] BUG: Notepad recovery purges data before fresh autosave can run
 - [x] BUG: Notebook lockfile not deleted when all files become clean
 - [ ] Recovery prompts! We want just one big prompt with checkboxes for each recovered file (including Notebooks in with other file types (can have a visual cue to make them stand out))
-- [ ] Refactor notebook can close hooks since much the same
+- [x] Refactor notebook can close hooks since much the same
 - [ ] Refactor notepad save code after tentatively finalizing restore code
 - [x] Find/bring symmetry to the autosave recovery code even though they're fairly different. There are still places where there will be symmetry (making sure autosave data is deleted on save or discard, for example, in both paths - or a function that wraps the lockfile deletion plus UUID list clearing, if appropriate)
 - [x] Do we nullptr the file service hook in Notebook?
@@ -111,10 +111,10 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 ## Features
 
-- [ ] Autosave
+- [x] Autosave
 - [ ] Spellcheck
 - [ ] Find and replace
-- [ ] Save backups
+- [x] Save backups
 - [ ] Sessions for Notepad and Notebooks (Notepad sessions saved in User Data, Notebook in Archive Root)
 - [ ] Pinned tabs (will utilize sessions)
 - [ ] Tab groups (will utilize sessions, and maybe a better tab bar)
@@ -129,10 +129,9 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 ## Refinement
 
+- [ ] Numbering for duplicate tabs (like Untitled:1 and Untitled:2, etc)
 - [ ] Window Themes (theming infrastructure is in place, but window theming proving difficult (especially with tab bar, buttons, and collapsible widget header (see: window QSS template)))
 - [x] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
-- [ ] Save backups (with auto-cleaning) and backup folder
-- [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [ ] Ensure we are using terms around checkable items correctly in code (the term "toggle" is being used in a few different ways; checkable actions should be called checkables or similar)
 - [ ] Make sure the distinction/usage between prompt, dialog, and box is clear
 - [ ] Refactor save code in Notepad and Notebook

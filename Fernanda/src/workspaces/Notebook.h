@@ -165,107 +165,13 @@ protected:
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
         // Last window and needs saving
-        switch (SavePrompt::exec(fnxPath_, window)) {
-        default:
-        case SavePrompt::Cancel:
-            return false;
-        case SavePrompt::Save: {
-            Coco::Path path = fnxPath_;
-
-            if (!fnxPath_.exists()) {
-                path = promptSaveAs_(window);
-                if (path.isEmpty()) return false;
-            }
-
-            auto save_result = saveModifiedModels_();
-            if (!save_result) {
-                colorBars->red();
-                auto fail_paths = saveFailDisplayPaths_(save_result.failed);
-                SaveFailMessageBox::exec(fail_paths, window);
-
-                return false;
-            }
-
-            fnxModel_->write(workingDir_.path());
-
-            /// TODO BA
-            if (!Fnx::Io::compress(
-                    path,
-                    workingDir_.path(),
-                    makeBackupHook_())) {
-                colorBars->red();
-                SaveFailMessageBox::exec(path, window);
-
-                return false;
-            }
-
-            clearRecoveryState_(); /// TODO BA
-
-            // No resetSnapshot, showModified, or green color bar (last
-            // window closing)
-            return true;
-        }
-        case SavePrompt::Discard:
-            clearRecoveryState_(); /// TODO BA
-            return true;
-        }
+        promptClosingSave_(window);
     }
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
-
-        auto window = windows.last();
-
-        // Needs saving
-        switch (SavePrompt::exec(fnxPath_, window)) {
-        default:
-        case SavePrompt::Cancel:
-            return false;
-        case SavePrompt::Save: {
-            Coco::Path path = fnxPath_;
-
-            if (!fnxPath_.exists()) {
-                path = promptSaveAs_(window);
-                if (path.isEmpty()) return false;
-            }
-
-            auto save_result = saveModifiedModels_();
-            if (!save_result) {
-                colorBars->red();
-                auto fail_paths = saveFailDisplayPaths_(save_result.failed);
-                SaveFailMessageBox::exec(fail_paths, window);
-
-                return false;
-            }
-
-            fnxModel_->write(workingDir_.path());
-
-            /// TODO BA
-            if (!Fnx::Io::compress(
-                    path,
-                    workingDir_.path(),
-                    makeBackupHook_())) {
-                colorBars->red();
-                SaveFailMessageBox::exec(path, window);
-
-                return false;
-            }
-
-            // TODO: Combine with code used in canCloseWindow
-            // TODO: Use fallthrough at the end of Save here to delete lockfile
-            // and return true
-
-            clearRecoveryState_(); /// TODO BA
-
-            // No resetSnapshot, showModified, or green color bar (all windows
-            // closing)
-            return true;
-        }
-        case SavePrompt::Discard:
-            clearRecoveryState_(); /// TODO BA
-            return true;
-        }
+        promptClosingSave_(windows.last());
     }
 
     virtual void workspaceMenuHook(
@@ -523,6 +429,58 @@ private:
             auto uuid = Fnx::Io::uuid(meta->path());
             if (recoveryDirtyUuids_.contains(uuid)) model->setModified(true);
         });
+    }
+
+    // Saving for Workspace closes
+    bool promptClosingSave_(Window* window)
+    {
+        if (!window) return false;
+
+        switch (SavePrompt::exec(fnxPath_, window)) {
+        default:
+        case SavePrompt::Cancel:
+            return false;
+
+        case SavePrompt::Save: {
+            Coco::Path path = fnxPath_;
+
+            if (!fnxPath_.exists()) {
+                path = promptSaveAs_(window);
+                if (path.isEmpty()) return false;
+            }
+
+            auto save_result = saveModifiedModels_();
+            if (!save_result) {
+                colorBars->red();
+                auto fail_paths = saveFailDisplayPaths_(save_result.failed);
+                SaveFailMessageBox::exec(fail_paths, window);
+
+                return false;
+            }
+
+            fnxModel_->write(workingDir_.path());
+
+            /// TODO BA
+            if (!Fnx::Io::compress(
+                    path,
+                    workingDir_.path(),
+                    makeBackupHook_())) {
+                colorBars->red();
+                SaveFailMessageBox::exec(path, window);
+
+                return false;
+            }
+
+            // Success, now:
+            [[fallthrough]];
+        }
+
+        case SavePrompt::Discard:
+            // No resetSnapshot, showModified, or green color bar (all windows
+            // closing)
+            clearRecoveryState_(); /// TODO BA
+            return true;
+        }
     }
 
     bool isModified_() const
