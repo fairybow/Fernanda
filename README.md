@@ -15,6 +15,20 @@ Fernanda is my attempt at a distraction-free text editor for fiction writing. Wo
 
 Mac and Linux support is planned!
 
+## Features
+
+Fernanda offers two workspace types: **Notepad** for working directly on the OS filesystem, and **Notebook** for organizing whole projects inside a single portable `.fnx` archive. Both support multiple windows, tabbed editing, and drag-and-drop.
+
+- Distraction-free editor with line numbers, current line highlight, and selection handles
+- Key filters for auto-close, smart quotes, and other typing enhancements
+- Notebook file management with virtual folders, drag-and-drop tree, import, and a soft-delete trash system
+- Editor themes (with user theme support via `~/.fernanda/themes`)
+- Cascading settings: per-Notebook settings inherit from Notepad defaults
+- Word counter with selection-aware counting and adaptive performance
+- PDF and image viewing
+
+See [Features.md](Fernanda/docs/Features.md) for the full list.
+
 ## Installation
 
 **First release coming soon.** (Test releases available!)

@@ -55,8 +55,6 @@ public:
         if (initialized_) return;
 
         Debug::initialize(Version::isDebug); // TODO: Log file path
-        if (!AppDirs::initialize()) FATAL("App directory creation failed!");
-
         initializeTranslator_();
         loadBundledFonts_();
         initializeNotepad_();

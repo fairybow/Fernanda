@@ -82,23 +82,26 @@ private:
         std::string msg) const;
 };
 
-inline void Assert( // `assert` macroed by Windows assert.h
-    bool condition,
-    const char* conditionStr,
-    const char* file,
-    int line,
-    const char* function,
-    std::string_view message = {})
-{
-    if (condition) return;
+namespace Internal {
 
-    auto msg =
-        message.empty()
-            ? std::format("Assertion failed:\n{}", conditionStr)
-            : std::format("Assertion failed:\n{}\n\n{}", conditionStr, message);
+    inline void assertionFailed_(
+        const char* condition,
+        const char* file,
+        int line,
+        const char* function,
+        std::string_view message = {})
+    {
+        auto msg = message.empty()
+                       ? std::format("Assertion failed:\n{}", condition)
+                       : std::format(
+                             "Assertion failed:\n{}\n\n{}",
+                             condition,
+                             message);
 
-    Log(QtFatalMsg, file, line, function).print(msg);
-}
+        Log(QtFatalMsg, file, line, function).print(msg);
+    }
+
+} // namespace Internal
 
 } // namespace Fernanda::Debug
 
@@ -114,15 +117,15 @@ inline void Assert( // `assert` macroed by Windows assert.h
 
 #ifdef VERSION_DEBUG
 #    define ASSERT(condition, ...)                                             \
-        Fernanda::Debug::Assert(                                               \
-            (condition),                                                       \
-            #condition,                                                        \
-            __FILE__,                                                          \
-            __LINE__,                                                          \
-            __FUNCTION__,                                                      \
-            ##__VA_ARGS__)
+        ((condition) ? static_cast<void>(0)                                    \
+                     : Fernanda::Debug::Internal::assertionFailed_(            \
+                           #condition,                                         \
+                           __FILE__,                                           \
+                           __LINE__,                                           \
+                           __FUNCTION__,                                       \
+                           ##__VA_ARGS__))
 #else
-#    define ASSERT(condition, ...) (static_cast<void>(0))
+#    define ASSERT(condition, ...) static_cast<void>(false && (condition))
 #endif
 
 // TODO: Add secondary message parameter? (Here or separate macro)

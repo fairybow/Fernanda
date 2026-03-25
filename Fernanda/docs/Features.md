@@ -1,23 +1,28 @@
 # Features
 
-TODO: Add backups and autosave
-
-Current vesion: v0.99.0-beta.10
+Current vesion: v0.99.0-beta.11
 
 ## Separate Workspaces
 
-TODO: Section for all shared Workspace funtionality (e.g., PDF support)
+Fernanda has two workspace types that share a common architecture (services, bus, hooks) but differ in how they manage files.
+
+Shared capabilities:
+
+- Multiple windows per workspace
+- Open the same file in multiple tabs and windows (edits persist across all views)
+- PDF and image viewing
+- Dockable Tree View
+- Tiered settings (Notebook settings inherit from Notepad when unset, falling back to application defaults)
+- Recovery autosave and automatic backups
+- Hook-based closure system with save prompts at every level
 
 ### Notepad (single instance)
 
 - Operates directly on the OS filesystem
 - Tree View showing real directory structure
 - Open, edit, and save any plain text file on disk
-- Open multiple files across multiple windows
-- Open the same file in multiple places (with persisting edits)
 - Opening arguments support (double-click/drag a file in your OS to open it in Fernanda)
 - TreeView file renaming
-- PDF and image support
 
 > [!IMPORTANT]
 > Known issue: Tree View root directory is locked in-place for now
@@ -31,7 +36,6 @@ TODO: Section for all shared Workspace funtionality (e.g., PDF support)
 - Multiple Notebooks can be open simultaneously
 - Recoverable (standard ZIP format means content remains accessible outside Fernanda)
 - Single file export (planned: multiple files, directories, as well as, eventually, full archive export/compilation)
-- PDF and image support
 
 ---
 
@@ -96,6 +100,29 @@ TODO: Section for all shared Workspace funtionality (e.g., PDF support)
 - Modification tracking: DOM snapshot comparison for Notebooks, per-model tracking for Notepad
 - Edited attribute management in Manifest.xml (set on edit, cleared before archive compression)
 - Working directory rename handling on Save As
+
+---
+
+## Backups
+
+- Automatic pre-overwrite backups for both Notepad and Notebook saves
+- Notepad: backup created before each file write via `beforeWriteHook_`
+- Notebook: backup created before archive compression via `BeforeOverwriteHook`
+- Backups stored in `~/.fernanda/backups/notepad/` and `~/.fernanda/backups/notebooks/`
+- Automatic pruning (oldest backups removed when cap is exceeded)
+
+---
+
+## Recovery Autosave
+
+- Periodic flush of dirty buffers for crash recovery (15 second interval)
+- Autosave never triggers backups, save prompts, tab indicators, or modification state changes
+- Notebook: dirty files written to working directory, lockfile tracks FNX path, working directory, and dirty UUIDs
+- Notepad: dirty files written to shadow recovery directory with buffer and metadata per file
+- Recovery data cleaned up on successful save, discard, undo-to-clean, and clean exit
+- On crash, orphaned recovery data persists and is detected on next launch
+- Notebook recovery: lockfile scanning, working directory adoption, dirty state restoration
+- Notepad recovery: on-disk files reopened with recovered buffers, off-disk files restored as untitled
 
 ---
 
@@ -235,8 +262,6 @@ TODO: Section for all shared Workspace funtionality (e.g., PDF support)
 
 ## Planned
 
-- Autosave
-- Automatic backups
 - Small utilities (like a pomodoro timer)
 - FNX compilation/export
 - Markdown/Fountain views
