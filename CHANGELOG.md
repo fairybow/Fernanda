@@ -6,7 +6,7 @@
 
 # Boilerplate
 
-**A plain text editor for drafting long-form fiction.** Work on single files like a notepad, or organize whole projects in Notebooks (`.fnx`).
+**Fernanda is a plain-text-first workbench for creative writing.** Work on single files like a notepad or organize whole projects in Notebooks (`.fnx`).
 
 This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md). For past release details, see [CHANGELOG.md](https://github.com/fairybow/Fernanda/blob/main/CHANGELOG.md)
 
