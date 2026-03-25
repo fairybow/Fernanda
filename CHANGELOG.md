@@ -76,6 +76,27 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.11 (Testing / Soft Release) - tag v0.99.0-beta.11
+
+## What's New?
+
+**Recovery autosave.** Both workspaces now periodically flush dirty buffers to crash recovery locations. Notebook writes to its working directory and maintains a lockfile tracking the FNX path and dirty UUIDs. Notepad writes per-file buffers and metadata to a shadow recovery directory. Orphaned recovery data is detected on next launch and can be restored. Recovery data is cleaned up on save, discard, undo-to-clean, and clean exit. (See [RecoveryAutosave.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/RecoveryAutosave.md).)
+
+**`TempDir` replaced by `WorkingDir`.** Notebook's working directory is no longer a `QTemporaryDir` wrapper. It persists through crashes by design. `WorkingDir` tracks whether it was freshly created or adopted from an orphaned path, which drives the recovery path in `setup_()`.
+
+**`AppDirs` on-demand creation.** Directories are now created on first access rather than requiring an upfront `initialize()` call.
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Trash splitter handle behavior: clicking the handle alone can size the closed state up; trash view can't be shrunk below its minimum
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+
+---
+
 # 0.99.0-beta.10 (Testing / Soft Release) - tag v0.99.0-beta.10
 
 ## What's New?
