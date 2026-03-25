@@ -81,6 +81,7 @@ public slots:
             notepad_->activate();
             for (auto& notebook : notebooks_)
                 notebook->activate();
+
             return;
         }
 
