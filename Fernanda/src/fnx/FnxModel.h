@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -299,9 +299,10 @@ public:
     bool clearTrash()
     {
         auto trash = Fnx::Xml::trashElement(dom_);
-        if (!isValid_(trash)) {
-            FATAL("Trash element is invalid! Something is extra wrong!");
-        }
+
+        ASSERT(
+            isValid_(trash),
+            "Trash element is invalid! Something is hella wrong!");
 
         auto child_count = cache_.childCount(trash);
         if (child_count <= 0) return true;

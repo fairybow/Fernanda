@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -47,26 +47,24 @@ protected:
         pdfView_->setPageMode(QPdfView::PageMode::MultiPage);
         pdfView_->setZoomMode(QPdfView::ZoomMode::FitToWidth);
 
-        if (auto pdf_model = qobject_cast<PdfFileModel*>(model())) {
-            auto document = pdf_model->document();
-            pdfView_->setDocument(document);
-            // pageCount_->setPageCount(document->pageCount());
+        auto pdf_model = qobject_cast<PdfFileModel*>(model());
+        ASSERT(pdf_model, "PdfFileModel cast failed!");
 
-            // connect(
-            //     pdfView_->pageNavigator(),
-            //     &QPdfPageNavigator::currentPageChanged,
-            //     pageCount_,
-            //     &PdfPageCountWidget::setCurrentPage);
+        auto document = pdf_model->document();
+        pdfView_->setDocument(document);
+        // pageCount_->setPageCount(document->pageCount());
 
-            // connect(
-            //     document,
-            //     &QPdfDocument::pageCountChanged,
-            //     pageCount_,
-            //     &PdfPageCountWidget::setPageCount);
+        // connect(
+        //     pdfView_->pageNavigator(),
+        //     &QPdfPageNavigator::currentPageChanged,
+        //     pageCount_,
+        //     &PdfPageCountWidget::setCurrentPage);
 
-        } else {
-            FATAL("PdfFileModel cast failed!");
-        }
+        // connect(
+        //     document,
+        //     &QPdfDocument::pageCountChanged,
+        //     pageCount_,
+        //     &PdfPageCountWidget::setPageCount);
 
         connect(
             zoomControl_,

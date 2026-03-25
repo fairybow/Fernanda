@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -70,6 +70,7 @@ public:
 
         if (success) {
             auto dest_dir = Coco::Path(filePath(parent));
+
             if (!dest_dir.isDir()) {
                 FATAL(
                     "Drop target [{}] is not a directory after successful base "

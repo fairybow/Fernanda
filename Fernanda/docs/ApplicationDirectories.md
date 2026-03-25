@@ -8,20 +8,19 @@ See: [`AppDirs.h`](../src/core/AppDirs.h)
 
 ```
 ~/.fernanda/
-|-- ~temp/
-|   |-- notebooks/              Notebook working directories
-|   +-- recovery/
-|       |-- notebooks/          Notebook crash recovery
-|       +-- notepad/            Notepad crash recovery
+|-- ~notebooks/                 Notebook working directories
+|-- ~recovery/
+|   |-- notebooks/              Notebook crash recovery
+|   +-- notepad/                Notepad crash recovery
 |-- backups/
-|   |-- notepad/                Per-file backups before overwrite
-|   +-- notebooks/              Per-archive backups before overwrite
+|   |-- notebooks/              Per-archive backups before overwrite
+|   +-- notepad/                Per-file backups before overwrite
 +-- themes/
 
 ~/Documents/Fernanda/           Default location for file dialogs
 ```
 
-These paths are managed by `AppDirs` and created at startup via `AppDirs::initialize()`. Temp and recovery directories are cleaned up on exit via `AppDirs::cleanup()`.
+These paths are managed by `AppDirs` and created on demand. Recovery and working directories are cleaned up on exit via `AppDirs::cleanup()`.
 
 ## Settings Inheritance
 
@@ -47,5 +46,4 @@ The `backups/` subdirectories store pre-save copies of committed content. (See [
 
 ## Future Considerations
 
-- **Crash recovery**: timer-based flush of dirty buffers to the recovery directories (planned)
 - **Configurable docs path**: let users choose default save location

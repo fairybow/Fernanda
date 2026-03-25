@@ -11,7 +11,7 @@
     <a href="Fernanda/docs"><b>Documentation</b></a>
 </p>
 
-Fernanda is my attempt at a distraction-free text editor for fiction writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](Fernanda/docs/Notebooks.md).
+Fernanda is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](Fernanda/docs/Notebooks.md).
 
 Mac and Linux support is planned!
 

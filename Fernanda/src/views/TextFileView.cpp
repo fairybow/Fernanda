@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -18,6 +18,7 @@
 #include <QWidget>
 
 #include "core/Application.h"
+#include "core/Debug.h"
 #include "models/AbstractFileModel.h"
 #include "models/TextFileModel.h"
 #include "ui/PlainTextEdit.h"
@@ -35,45 +36,42 @@ QWidget* TextFileView::setupWidget()
 
     keyFilters_->setTextEdit(editor_);
 
-    if (auto text_model = qobject_cast<TextFileModel*>(model())) {
-        // Each view gets its own QTextDocument for independent layout. The
-        // model coordinates content sync via delta relay
-        auto view_doc = new QTextDocument(this);
-        // TODO: Just use custom PlainTextDocument class with layout already
-        // set?
-        auto layout = new QPlainTextDocumentLayout(view_doc);
-        view_doc->setDocumentLayout(layout);
+    auto text_model = qobject_cast<TextFileModel*>(model());
+    ASSERT(text_model, "TextFileModel cast failed!");
 
-        text_model->registerViewDocument(view_doc);
-        editor_->setDocument(view_doc);
+    // Each view gets its own QTextDocument for independent layout. The model
+    // coordinates content sync via delta relay
+    auto view_doc = new QTextDocument(this);
+    // TODO: Just use custom PlainTextDocument class with layout already set?
+    auto layout = new QPlainTextDocumentLayout(view_doc);
+    view_doc->setDocumentLayout(layout);
 
-        connect(
-            text_model,
-            &TextFileModel::cursorPositionHint,
-            this,
-            [this](int position) {
-                if (!editor_ || !editor_->hasFocus()) return;
-                auto cursor = editor_->textCursor();
-                cursor.setPosition(position);
-                editor_->setTextCursor(cursor);
-                editor_->ensureCursorVisible();
-            });
+    text_model->registerViewDocument(view_doc);
+    editor_->setDocument(view_doc);
 
-        connect(
-            keyFilters_,
-            &KeyFilters::multiStepEditBegan,
-            text_model,
-            &TextFileModel::beginCompoundEdit);
+    connect(
+        text_model,
+        &TextFileModel::cursorPositionHint,
+        this,
+        [this](int position) {
+            if (!editor_ || !editor_->hasFocus()) return;
+            auto cursor = editor_->textCursor();
+            cursor.setPosition(position);
+            editor_->setTextCursor(cursor);
+            editor_->ensureCursorVisible();
+        });
 
-        connect(
-            keyFilters_,
-            &KeyFilters::multiStepEditEnded,
-            text_model,
-            &TextFileModel::endCompoundEdit);
+    connect(
+        keyFilters_,
+        &KeyFilters::multiStepEditBegan,
+        text_model,
+        &TextFileModel::beginCompoundEdit);
 
-    } else {
-        FATAL("TextFileModel cast failed!");
-    }
+    connect(
+        keyFilters_,
+        &KeyFilters::multiStepEditEnded,
+        text_model,
+        &TextFileModel::endCompoundEdit);
 
     connect(editor_, &PlainTextEdit::selectionChanged, this, [this] {
         emit selectionChanged();

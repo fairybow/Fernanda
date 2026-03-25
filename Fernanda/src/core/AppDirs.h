@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -29,17 +29,16 @@ namespace Fernanda::AppDirs {
 // Structure:
 //
 // ~/.fernanda/
-// |-- ~temp/
+// |-- ~notebooks/
+// |-- ~recovery/
 // |   |-- notebooks/
-// |   +-- recovery/
-// |       |-- notebooks/
-// |       +-- notepad/
+// |   +-- notepad/
 // |-- backups/
 // |   |-- notebooks/
 // |   +-- notepad/
 // +-- themes/
 // 
-// ~/Documents/Fernanda
+// ~/Documents/Fernanda/
 //
 // clang-format on
 
@@ -62,21 +61,15 @@ inline const Coco::Path& userData()
     return dir;
 }
 
-inline const Coco::Path& temp()
-{
-    static Coco::Path dir = Internal::ensured(userData() / "~temp");
-    return dir;
-}
-
 inline const Coco::Path& tempNotebooks()
 {
-    static Coco::Path dir = Internal::ensured(temp() / "notebooks");
+    static Coco::Path dir = Internal::ensured(userData() / "~notebooks");
     return dir;
 }
 
 inline const Coco::Path& tempRecovery()
 {
-    static Coco::Path dir = Internal::ensured(temp() / "recovery");
+    static Coco::Path dir = Internal::ensured(userData() / "~recovery");
     return dir;
 }
 
@@ -131,8 +124,7 @@ inline void cleanup()
     for (auto& dir : { tempNotepadRecovery(),
                        tempNotebookRecovery(),
                        tempRecovery(),
-                       tempNotebooks(),
-                       temp() }) {
+                       tempNotebooks() }) {
         Coco::rmdir(dir); // Fails if the dir isn't empty
     }
 }

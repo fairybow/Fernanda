@@ -1,4 +1,4 @@
-# Fernanda - A plain text editor for drafting long-form fiction. (At least, that's the plan.)
+# Fernanda — a plain-text-first workbench for creative writing
 # https://github.com/fairybow/Fernanda
 
 # TODO: Non-Windows builds not yet tested

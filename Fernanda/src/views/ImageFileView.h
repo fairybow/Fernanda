@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -61,16 +61,15 @@ protected:
         label_->setAlignment(Qt::AlignCenter);
         setPalette_(label_, Qt::transparent);
 
-        if (auto image_model = qobject_cast<ImageFileModel*>(model())) {
-            QPixmap pixmap{};
+        auto image_model = qobject_cast<ImageFileModel*>(model());
+        ASSERT(image_model, "ImageFileModel cast failed!");
 
-            if (pixmap.loadFromData(image_model->data()))
-                originalPixmap_ = pixmap; // Show event resizes for us
-            else
-                WARN("Image load failed for [{}]", image_model->meta()->path());
+        QPixmap pixmap{};
 
+        if (pixmap.loadFromData(image_model->data())) {
+            originalPixmap_ = pixmap; // Show event resizes for us
         } else {
-            FATAL("ImageFileModel cast failed!");
+            WARN("Image load failed for [{}]", image_model->meta()->path());
         }
 
         scrollArea_->setWidget(label_);

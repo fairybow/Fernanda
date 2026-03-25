@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -17,6 +17,7 @@
 namespace Fernanda::Version {
 
 // Visual Studio automatically defines _DEBUG in Debug builds
+/// TODO XP!
 #if defined(_DEBUG)
 
 inline constexpr bool isDebug = true;

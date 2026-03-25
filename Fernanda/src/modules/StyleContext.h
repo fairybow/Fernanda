@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -193,9 +193,13 @@ private:
         if (iconCache_.contains(key)) return iconCache_[key];
 
         auto path = iconRegistry_.value(type);
-        if (path.isEmpty()) {
-            FATAL("Path not set for icon [{}]", static_cast<int>(type));
-        }
+
+        ASSERT(
+            !path.isEmpty(),
+            "Path not set for icon [{}]",
+            static_cast<int>(type));
+
+        if (path.isEmpty()) return {};
 
         auto pixmap = renderSvg_(path, size, dpr);
         if (!pixmap.isNull()) iconCache_[key] = pixmap;

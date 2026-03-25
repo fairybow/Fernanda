@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -354,8 +354,10 @@ private:
 #ifdef VERSION_DEBUG
 
         auto prime_text = primeDocument_->toPlainText();
+
         for (auto& view_doc : localViewDocuments_) {
             auto view_text = view_doc->toPlainText();
+
             if (view_text != prime_text) {
                 auto min_len = qMin(prime_text.length(), view_text.length());
                 auto diverge = 0;

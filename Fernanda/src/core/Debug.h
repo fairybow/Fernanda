@@ -1,5 +1,5 @@
 /*
- * Fernanda is a plain text editor for fiction writing
+ * Fernanda — a plain-text-first workbench for creative writing
  * Copyright (C) 2025-2026 fairybow
  *
  * This program is free software, redistributable and/or modifiable under the
@@ -101,6 +101,19 @@ namespace Internal {
         Log(QtFatalMsg, file, line, function).print(msg);
     }
 
+    template <typename... Args>
+    inline void assertionFailed_(
+        const char* condition,
+        const char* file,
+        int line,
+        const char* function,
+        std::string_view format,
+        Args&&... args)
+    {
+        auto message = std::vformat(format, std::make_format_args(args...));
+        assertionFailed_(condition, file, line, function, message);
+    }
+
 } // namespace Internal
 
 } // namespace Fernanda::Debug
@@ -128,12 +141,10 @@ namespace Internal {
 #    define ASSERT(condition, ...) static_cast<void>(false && (condition))
 #endif
 
-// TODO: Add secondary message parameter? (Here or separate macro)
-// #ifdef VERSION_DEBUG
-// #    define ASSERT(cond, ...) \
-//        do { \
-//            if (!(cond)) FATAL("Assertion failed: {}", #cond); \
-//        } while (0)
-// #else
-// #    define ASSERT(cond, ...) (static_cast<void>(0))
-// #endif
+#define UNREACHABLE(...)                                                       \
+    Fernanda::Debug::Internal::assertionFailed_(                               \
+        "UNREACHABLE",                                                         \
+        __FILE__,                                                              \
+        __LINE__,                                                              \
+        __FUNCTION__,                                                          \
+        ##__VA_ARGS__)
