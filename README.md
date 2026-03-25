@@ -17,7 +17,7 @@ Mac and Linux support is planned!
 
 ## Features
 
-Fernanda offers two workspace types: **Notepad** for working directly on the OS filesystem, and **Notebook** for organizing whole projects inside a single portable `.fnx` archive. Both support multiple windows, tabbed editing, and drag-and-drop.
+Fernanda offers two workspace types: a **Notepad** for working directly on the OS filesystem and **Notebooks** for organizing whole projects inside a single, portable `.fnx` archive. Both support multiple windows, tabbed editing, and drag-and-drop.
 
 - Distraction-free editor with line numbers, current line highlight, and selection handles
 - Key filters for auto-close, smart quotes, and other typing enhancements
