@@ -2,6 +2,7 @@
 
 ## Current
 
+- [ ] BUG: Unsure how it occurred, but opened Candide.fnx and moved several files to trash (all but chapter 1) and then deleted them all. Then when I imported a PNG, it opened in a tab but did not appear in the TreeView...
 - [x] Guaranteed working dir persistence on crash
 - [x] ClearModified option in FileService
 - [x] Workspace autosave timer
