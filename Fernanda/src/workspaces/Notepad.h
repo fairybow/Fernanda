@@ -205,32 +205,7 @@ protected:
         if (!model->isModified() || views->countFor(model) > 1) return true;
 
         views->raise(window, index);
-        auto display_path = fileSaveDisplayPath_(model);
-
-        switch (SavePrompt::exec(display_path, window)) {
-        default:
-        case SavePrompt::Cancel:
-            return false;
-
-        case SavePrompt::Save:
-            switch (singleSave_(model, window)) {
-            default:
-            case FileService::NoOp:
-                return false;
-            case FileService::Success:
-                colorBars->green(window);
-                deleteRecoveryEntry_(model); /// TODO BA
-                return true;
-            case FileService::Failure:
-                colorBars->red(window);
-                SaveFailMessageBox::exec(display_path, window);
-                return false;
-            }
-
-        case SavePrompt::Discard:
-            deleteRecoveryEntry_(model); /// TODO BA
-            return true;
-        }
+        return promptSingleModelClosingSave_(model, window);
     }
 
     virtual bool canCloseTabEverywhere(Window* window, int index) override
@@ -241,274 +216,55 @@ protected:
         if (!model->isModified()) return true;
 
         // Called via menu (on current window + tab), so no need to raise
-
-        auto display_path = fileSaveDisplayPath_(model);
-
-        switch (SavePrompt::exec(display_path, window)) {
-        default:
-        case SavePrompt::Cancel:
-            return false;
-
-        case SavePrompt::Save: {
-            switch (singleSave_(model, window)) {
-            default:
-            case FileService::NoOp:
-                return false;
-            case FileService::Success:
-                colorBars->green(window); // TODO: Could do all windows (close
-                                          // everywhere, after all)?
-                deleteRecoveryEntry_(model); /// TODO BA
-                return true;
-            case FileService::Failure:
-                colorBars->red(window); // TODO: Could do all windows (close
-                                        // everywhere, after all)?
-                SaveFailMessageBox::exec(display_path, window);
-                return false;
-            }
-        }
-
-        case SavePrompt::Discard:
-            deleteRecoveryEntry_(model); /// TODO BA
-            return true;
-        }
+        return promptSingleModelClosingSave_(model, window);
     }
 
     virtual bool canCloseWindowTabs(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        auto modified_models = views->modifiedViewModelsIn(
+        auto modified = views->modifiedViewModelsIn(
             window,
             ViewService::ExcludeMultiWindow::Yes);
-        if (modified_models.isEmpty()) return true;
+        if (modified.isEmpty()) return true;
 
-        auto display_paths = fileSaveDisplayPaths_(modified_models);
-        auto prompt_result = SavePrompt::exec(display_paths, window);
-
-        switch (prompt_result.choice) {
-
-        default:
-        case SavePrompt::Cancel:
-            return false;
-
-        case SavePrompt::Save: {
-            // Build list of models to save from selected indices
-            QList<AbstractFileModel*> to_save{};
-            for (auto& i : prompt_result.selectedIndices)
-                to_save << modified_models[i];
-
-            if (to_save.isEmpty()) return true; // Shouldn't happen
-
-            auto result = multiSave_(to_save, window);
-
-            /// TODO BA
-            for (auto model : result.succeeded)
-                deleteRecoveryEntry_(model);
-
-            // Fails take priority
-            if (result.anyFails()) {
-                colorBars->red(window);
-                auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
-                SaveFailMessageBox::exec(fail_display_paths, window);
-
-                return false;
-            }
-
-            // If any saves occurred, we indicate that (but still block)
-            if (result.aborted) {
-                if (result.anySuccesses()) colorBars->green(window);
-                return false;
-            }
-
-            // All saves succeeded
-            colorBars->green(window);
-            return true;
-        }
-
-        case SavePrompt::Discard:
-            /// TODO BA
-            for (auto model : modified_models)
-                deleteRecoveryEntry_(model);
-            return true;
-        }
+        return promptMultiModelClosingSave_(modified, window, window, true);
     }
 
     virtual bool canCloseAllTabs(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        auto modified_models = views->modifiedViewModels();
-        if (modified_models.isEmpty()) return true;
+        auto modified = views->modifiedViewModels();
+        if (modified.isEmpty()) return true;
 
-        auto display_paths = fileSaveDisplayPaths_(modified_models);
-        auto prompt_result = SavePrompt::exec(
-            display_paths,
-            windows.last()); // Make top window the dialog owner (top window is
-                             // last)
-
-        switch (prompt_result.choice) {
-
-        default:
-        case SavePrompt::Cancel:
-            return false;
-
-        case SavePrompt::Save: {
-            // Build list of models to save from selected indices
-            QList<AbstractFileModel*> to_save{};
-            for (auto& i : prompt_result.selectedIndices)
-                to_save << modified_models[i];
-
-            if (to_save.isEmpty()) return true; // Shouldn't happen
-
-            auto result = multiSave_(to_save);
-
-            /// TODO BA
-            for (auto model : result.succeeded)
-                deleteRecoveryEntry_(model);
-
-            // Fails take priority
-            if (result.anyFails()) {
-                colorBars->red();
-                auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
-                SaveFailMessageBox::exec(fail_display_paths, windows.last());
-
-                return false;
-            }
-
-            // If any saves occurred, we indicate that (but still block)
-            if (result.aborted) {
-                if (result.anySuccesses()) colorBars->green();
-                return false;
-            }
-
-            // All saves succeeded
-            colorBars->green();
-            return true;
-        }
-
-        case SavePrompt::Discard:
-            /// TODO BA
-            for (auto model : modified_models)
-                deleteRecoveryEntry_(model);
-            return true;
-        }
+        return promptMultiModelClosingSave_(
+            modified,
+            windows.last(),
+            nullptr,
+            true);
     }
 
     virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window
-        auto modified_models = views->modifiedViewModelsIn(
+        auto modified = views->modifiedViewModelsIn(
             window,
             ViewService::ExcludeMultiWindow::Yes);
-        if (modified_models.isEmpty()) return true;
+        if (modified.isEmpty()) return true;
 
-        auto display_paths = fileSaveDisplayPaths_(modified_models);
-        auto prompt_result = SavePrompt::exec(display_paths, window);
-
-        switch (prompt_result.choice) {
-
-        default:
-        case SavePrompt::Cancel:
-            return false;
-
-        case SavePrompt::Save: {
-            // Build list of models to save from selected indices
-            QList<AbstractFileModel*> to_save{};
-            for (auto& i : prompt_result.selectedIndices)
-                to_save << modified_models[i];
-
-            if (to_save.isEmpty()) return true; // Shouldn't happen
-
-            auto result = multiSave_(to_save, window);
-
-            /// TODO BA
-            for (auto model : result.succeeded)
-                deleteRecoveryEntry_(model);
-
-            // Fails take priority
-            if (result.anyFails()) {
-                colorBars->red(window);
-                auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
-                SaveFailMessageBox::exec(fail_display_paths, window);
-
-                return false;
-            }
-
-            // If any saves occurred, we indicate that (but still block)
-            if (result.aborted) {
-                if (result.anySuccesses()) colorBars->green(window);
-                return false;
-            }
-
-            // All saves succeeded (no green color bar (window closing))
-            return true;
-        }
-
-        case SavePrompt::Discard:
-            /// TODO BA
-            for (auto model : modified_models)
-                deleteRecoveryEntry_(model);
-            return true;
-        }
+        return promptMultiModelClosingSave_(modified, window, window, false);
     }
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         // Collect all unique modified models across all windows
-        auto modified_models = views->modifiedViewModels();
-        if (modified_models.isEmpty()) return true;
+        auto modified = views->modifiedViewModels();
+        if (modified.isEmpty()) return true;
 
-        auto display_paths = fileSaveDisplayPaths_(modified_models);
-        auto prompt_result = SavePrompt::exec(
-            display_paths,
-            windows.last()); // Make top window the dialog owner (top window is
-                             // last)
-
-        switch (prompt_result.choice) {
-
-        default:
-        case SavePrompt::Cancel:
-            return false;
-
-        case SavePrompt::Save: {
-            // Build list of models to save from selected indices
-            QList<AbstractFileModel*> to_save{};
-            for (auto& i : prompt_result.selectedIndices)
-                to_save << modified_models[i];
-
-            if (to_save.isEmpty()) return true; // Shouldn't happen
-
-            auto result = multiSave_(to_save);
-
-            /// TODO BA
-            for (auto model : result.succeeded)
-                deleteRecoveryEntry_(model);
-
-            // Fails take priority
-            if (result.anyFails()) {
-                colorBars->red();
-                auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
-                // Use active window, since we may have switched which window is
-                // on top?:
-                SaveFailMessageBox::exec(fail_display_paths, windows.last());
-
-                return false;
-            }
-
-            // If any saves occurred, we indicate that (but still block)
-            if (result.aborted) {
-                if (result.anySuccesses()) colorBars->green();
-                return false;
-            }
-
-            // All saves succeeded (no green color bar (window closing))
-            return true;
-        }
-
-        case SavePrompt::Discard:
-            /// TODO BA
-            for (auto model : modified_models)
-                deleteRecoveryEntry_(model);
-            return true;
-        }
+        return promptMultiModelClosingSave_(
+            modified,
+            windows.last(),
+            nullptr,
+            false);
     }
 
     virtual void
@@ -702,6 +458,121 @@ private:
             Coco::purge(dir);
 
         recoveryDirs_.clear();
+    }
+
+    bool promptSingleModelClosingSave_(AbstractFileModel* model, Window* window)
+    {
+        if (!model || !window) return false;
+
+        auto display_path = fileSaveDisplayPath_(model);
+
+        switch (SavePrompt::exec(display_path, window)) {
+
+        default:
+        case SavePrompt::Cancel:
+            return false;
+
+        case SavePrompt::Save: {
+            switch (singleSave_(model, window)) {
+
+            default:
+            case FileService::NoOp:
+                return false;
+
+            case FileService::Failure:
+                colorBars->red(
+                    window); // TODO: See note on colorBars->green above
+                SaveFailMessageBox::exec(display_path, window);
+                return false;
+
+            case FileService::Success:
+                colorBars->green(
+                    window); // TODO: Could do all windows somehow, when the
+                             // saved file is in multiple windows (one in each
+                             // window containing the file (would need to track
+                             // that or gather it before calling this and always
+                             // pass a list
+            }
+
+            [[fallthrough]]; // Only Success reaches here (inner switch's other
+                             // branches return)
+        }
+
+        case SavePrompt::Discard:
+            deleteRecoveryEntry_(model); /// TODO BA
+            return true;
+        }
+    }
+
+    bool promptMultiModelClosingSave_(
+        const QList<AbstractFileModel*>& modifiedModels,
+        Window* dialogOwner,
+        Window* saveTargetWindow,
+        bool showGreenOnSuccess)
+    {
+        auto display_paths = fileSaveDisplayPaths_(modifiedModels);
+        auto prompt_result = SavePrompt::exec(display_paths, dialogOwner);
+
+        switch (prompt_result.choice) {
+
+        default:
+        case SavePrompt::Cancel:
+            return false;
+
+        case SavePrompt::Save: {
+            // Build list of models to save from selected indices
+            QList<AbstractFileModel*> to_save{};
+            for (auto& i : prompt_result.selectedIndices)
+                to_save << modifiedModels[i];
+
+            if (to_save.isEmpty()) return true; // Shouldn't happen
+
+            auto result = multiSave_(to_save, saveTargetWindow);
+
+            /// TODO BA
+            // (See end of this case)
+            for (auto model : result.succeeded)
+                deleteRecoveryEntry_(model);
+
+            // Fails take priority
+            if (result.anyFails()) {
+                saveTargetWindow ? colorBars->red(saveTargetWindow)
+                                 : colorBars->red();
+                auto fail_display_paths = fileSaveDisplayPaths_(result.failed);
+                SaveFailMessageBox::exec(fail_display_paths, dialogOwner);
+
+                return false;
+            }
+
+            // If any saves occurred, we indicate that (but still block)
+            if (result.aborted) {
+                if (result.anySuccesses()) {
+                    saveTargetWindow ? colorBars->green(saveTargetWindow)
+                                     : colorBars->green();
+                }
+
+                return false;
+            }
+
+            // All saves succeeded
+            if (showGreenOnSuccess) {
+                saveTargetWindow ? colorBars->green(saveTargetWindow)
+                                 : colorBars->green();
+            }
+
+            // NB: No fallthrough, since we have to handle recovery autosave
+            // cleanup differently. Save deletes recovery entries only for
+            // succeeded models (and must do so before a possible fail/abort
+            // return), while Discard deletes them for all modifiedModels
+            return true;
+        }
+
+        case SavePrompt::Discard:
+            /// TODO BA
+            for (auto model : modifiedModels)
+                deleteRecoveryEntry_(model);
+            return true;
+        }
     }
 
     Coco::Path fileSaveDisplayPath_(AbstractFileModel* fileModel) const

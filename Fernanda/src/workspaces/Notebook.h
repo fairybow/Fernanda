@@ -165,13 +165,13 @@ protected:
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
 
         // Last window and needs saving
-        promptClosingSave_(window);
+        return promptWorkspaceClosingSave_(window);
     }
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
-        promptClosingSave_(windows.last());
+        return promptWorkspaceClosingSave_(windows.last());
     }
 
     virtual void workspaceMenuHook(
@@ -431,12 +431,12 @@ private:
         });
     }
 
-    // Save prompting for Workspace closes
-    bool promptClosingSave_(Window* window)
+    bool promptWorkspaceClosingSave_(Window* window)
     {
         if (!window) return false;
 
         switch (SavePrompt::exec(fnxPath_, window)) {
+
         default:
         case SavePrompt::Cancel:
             return false;
@@ -471,8 +471,7 @@ private:
                 return false;
             }
 
-            // Success, now:
-            [[fallthrough]];
+            [[fallthrough]]; // Clean-up after success
         }
 
         case SavePrompt::Discard:
