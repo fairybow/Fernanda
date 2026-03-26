@@ -197,9 +197,7 @@ protected:
 
     virtual bool canCloseTab(Window* window, int index) override
     {
-        auto view = views->fileViewAt(window, index);
-        if (!view) return false;
-        auto model = view->model();
+        auto model = views->fileModelAt(window, index);
         if (!model) return false;
 
         // If this model has other views (and so won't be closed with the view),
@@ -237,9 +235,7 @@ protected:
 
     virtual bool canCloseTabEverywhere(Window* window, int index) override
     {
-        auto view = views->fileViewAt(window, index);
-        if (!view) return false;
-        auto model = view->model();
+        auto model = views->fileModelAt(window, index);
         if (!model) return false;
 
         if (!model->isModified()) return true;
@@ -879,9 +875,8 @@ private:
     void save_(Window* window)
     {
         if (!window) return;
-        auto current_view = views->fileViewAt(window, -1);
-        if (!current_view) return;
-        auto model = current_view->model();
+
+        auto model = views->fileModelAt(window, -1);
         if (!model) return;
 
         if (!model->isModified()) return;
@@ -908,9 +903,8 @@ private:
     void saveAs_(Window* window)
     {
         if (!window) return;
-        auto current_view = views->fileViewAt(window, -1);
-        if (!current_view) return;
-        auto model = current_view->model();
+
+        auto model = views->fileModelAt(window, -1);
         if (!model) return;
 
         // Allow Save As on unmodified files!
