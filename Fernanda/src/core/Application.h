@@ -62,7 +62,10 @@ public:
             AppDirs::logs(),
             VERSION_APP_NAME_STRING);
 
-        if (args.contains("--log-viewer")) new LogViewer;
+        if (args.contains("--log-viewer")) {
+            // Deleted on close
+            new LogViewer;
+        }
 
         initializeTranslator_();
         loadBundledFonts_();
