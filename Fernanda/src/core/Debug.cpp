@@ -14,9 +14,11 @@
 
 #include <atomic>
 #include <format>
+#include <functional>
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include <QByteArray>
 #include <QIODevice>
@@ -40,13 +42,14 @@ namespace {
     constexpr auto MSG_FORMAT_ = "{} | {} | {}";
     auto LOG_EXT_ = QStringLiteral(".log");
 
-    std::atomic<bool> logging_{ false };
+    std::atomic<QtMsgType> minimumLevel_{ QtFatalMsg };
     std::atomic<uint64_t> logEntryCount_{ 0 };
     Coco::Path logDir_{};
     QString logPrefix_{};
     std::mutex mutex_{};
     QFile logFile_{};
     QTextStream logStream_{};
+    LogSink logSink_{};
     QtMessageHandler qtHandler_ = nullptr;
 
     std::string timestamp_()
@@ -83,7 +86,8 @@ namespace {
         const QMessageLogContext& context,
         const QString& msg)
     {
-        if (type != QtFatalMsg && !logging_.load(std::memory_order::relaxed))
+        if (type != QtFatalMsg
+            && type < minimumLevel_.load(std::memory_order::relaxed))
             return;
 
         auto count = logEntryCount_.fetch_add(1, std::memory_order::relaxed);
@@ -95,28 +99,33 @@ namespace {
             std::string_view(msg_str.constData(), msg_str.size()));
 
         QtMessageHandler qt_handler = nullptr;
+        LogSink log_sink{};
+
+        auto q_msg = QString::fromUtf8(new_msg);
 
         {
             std::lock_guard<std::mutex> lock(mutex_);
             qt_handler = qtHandler_;
+            log_sink = logSink_;
 
-            if (logStream_.device()) {
-                logStream_ << QString::fromUtf8(new_msg) << Qt::endl;
-            }
+            if (logStream_.device()) logStream_ << q_msg << Qt::endl;
         }
 
-        if (qt_handler) qt_handler(type, context, QString::fromUtf8(new_msg));
+        if (log_sink) log_sink(q_msg);
+        if (qt_handler) qt_handler(type, context, q_msg);
     }
 
 } // namespace
 
 void initialize(
-    bool logging,
+    bool verbose,
     const Coco::Path& logDir,
     const QString& logPrefix,
     int logCap)
 {
-    setLogging(logging);
+    minimumLevel_.store(
+        verbose ? QtDebugMsg : QtInfoMsg,
+        std::memory_order::relaxed);
 
     std::lock_guard<std::mutex> lock(mutex_);
 
@@ -130,17 +139,23 @@ void initialize(
         if (logFile_.open(QIODevice::WriteOnly | QIODevice::Text)) {
             logStream_.setDevice(&logFile_);
             Disk::prune(logDir, logPrefix, LOG_EXT_, logCap);
+            logStream_ << "VERBOSITY: " << (verbose ? "true" : "false")
+                       << Qt::endl;
         }
     }
 
     qtHandler_ = qInstallMessageHandler(handler_);
 }
 
-bool logging() noexcept { return logging_.load(std::memory_order::relaxed); }
-
-void setLogging(bool logging)
+void setLogSink(LogSink sink)
 {
-    logging_.store(logging, std::memory_order::relaxed);
+    std::lock_guard<std::mutex> lock(mutex_);
+    logSink_ = std::move(sink);
+}
+
+QtMsgType minimumLevel() noexcept
+{
+    return minimumLevel_.load(std::memory_order::relaxed);
 }
 
 void Log::dispatch_(

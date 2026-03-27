@@ -54,8 +54,10 @@ public:
     {
         if (initialized_) return;
 
+        auto args = arguments();
+
         Debug::initialize(
-            Version::isDebug,
+            Version::isDebug || args.contains("--verbose"),
             AppDirs::logs(),
             VERSION_APP_NAME_STRING);
 
@@ -68,7 +70,7 @@ public:
 
         // Handle before args, in case an arg needs recovered instead
         maybeRecover_(); /// TODO BA
-        handleArgs_();
+        handleFileArgs_(args);
 
         initialized_ = true;
     }
@@ -180,9 +182,9 @@ private:
         });
     }
 
-    void handleArgs_()
+    void handleFileArgs_(const QStringList& args)
     {
-        auto parsed = parseArgs_(arguments());
+        auto parsed = parseArgs_(args);
 
         // Show notepad if we have regular files or nothing at all
         if (!parsed.regularFiles.isEmpty() || parsed.fnxFiles.isEmpty()) {
