@@ -23,6 +23,7 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
+#include "core/LogViewer.h"
 #include "core/Version.h"
 #include "dialogs/BetaAlert.h"
 #include "workspaces/Notebook.h"
@@ -60,6 +61,8 @@ public:
             Version::isDebug || args.contains("--verbose"),
             AppDirs::logs(),
             VERSION_APP_NAME_STRING);
+
+        if (args.contains("--log-viewer")) new LogViewer;
 
         initializeTranslator_();
         loadBundledFonts_();

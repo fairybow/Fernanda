@@ -91,6 +91,7 @@ set(FERNANDA_HEADERS
     src/core/Formatters.h
     src/core/Hash.h
     src/core/Io.h
+    src/core/LogViewer.h
     src/core/MagicBytes.h
     src/core/Random.h
     src/core/Time.h
