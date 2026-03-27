@@ -43,7 +43,7 @@ Fernanda accepts file paths as arguments. Valid `.fnx` files open in their own N
 Optional flags:
 
 - `--verbose`: enables debug-level logging to file (default is info-level and above)
-- `--log-viewer`: opens a one-time in-app log viewer window for the session
+- `--log-viewer`: opens an in-app log viewer window for the session
 
 Log files are stored in `~/.fernanda/logs/` and pruned automatically.
 

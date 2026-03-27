@@ -76,6 +76,24 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.12 (Testing / Soft Release) - tag v0.99.0-beta.12
+
+## What's New?
+
+**Log files and log viewer.** Debug now writes to `~/.fernanda/logs/` (info level by default; debug level with `--verbose`). Logs are pruned automatically. A `--log-viewer` flag opens an in-app log viewer window for the session.
+
+**Notebook TreeView improvements.** After adding a new file, folder, or importing files (or restoring from trash), the parent is now expanded and the new item is selected automatically.
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+
+---
+
 # 0.99.0-beta.11 (Testing / Soft Release) - tag v0.99.0-beta.11
 
 ## What's New?
