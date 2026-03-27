@@ -22,7 +22,7 @@ Fernanda offers two workspace types: a **Notepad** for working directly on the O
 - Distraction-free editor with line numbers, current line highlight, and selection handles
 - Key filters for auto-close, smart quotes, and other typing enhancements
 - Notebook file management with virtual folders, drag-and-drop tree, import, and a soft-delete trash system
-- Editor themes (with user theme support and hot reload via `~/.fernanda/themes`)
+- Editor themes (with user theme support via `~/.fernanda/themes` with hot reload)
 - Cascading settings: per-Notebook settings inherit from Notepad defaults
 - Word counter with selection-aware counting and adaptive performance
 - PDF and image viewing
