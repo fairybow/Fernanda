@@ -157,7 +157,7 @@ namespace Tr {
     // file?")
     TRN_(
         nbTrashPromptBody,
-        tr("Are you sure you want to delete %n file(s)? <b>This cannot be "
+        tr("Are you sure you want to delete %n item(s)? <b>This cannot be "
            "undone.</b>",
            nullptr,
            n));

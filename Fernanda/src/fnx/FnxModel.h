@@ -334,7 +334,6 @@ public:
         return true;
     }
 
-    // TODO: Unused
     int descendantCount(const QModelIndex& index) const
     {
         auto element = elementAt_(index);
@@ -628,7 +627,6 @@ private:
         }
     }
 
-    // TODO: Unused
     int descendantCountRecursive_(const QDomElement& element) const
     {
         auto count = 0;
