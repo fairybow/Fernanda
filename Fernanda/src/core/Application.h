@@ -23,6 +23,7 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
+#include "core/LogViewer.h"
 #include "core/Version.h"
 #include "dialogs/BetaAlert.h"
 #include "workspaces/Notebook.h"
@@ -54,7 +55,18 @@ public:
     {
         if (initialized_) return;
 
-        Debug::initialize(Version::isDebug); // TODO: Log file path
+        auto args = arguments();
+
+        Debug::initialize(
+            Version::isDebug || args.contains("--verbose"),
+            AppDirs::logs(),
+            VERSION_APP_NAME_STRING);
+
+        if (args.contains("--log-viewer")) {
+            // Deleted on close
+            new LogViewer;
+        }
+
         initializeTranslator_();
         loadBundledFonts_();
         initializeNotepad_();
@@ -63,8 +75,8 @@ public:
         if (Version::isPrerelease) BetaAlert::exec();
 
         // Handle before args, in case an arg needs recovered instead
-        recover_(); /// TODO BA
-        handleArgs_();
+        maybeRecover_(); /// TODO BA
+        handleFileArgs_(args);
 
         initialized_ = true;
     }
@@ -176,9 +188,9 @@ private:
         });
     }
 
-    void handleArgs_()
+    void handleFileArgs_(const QStringList& args)
     {
-        auto parsed = parseArgs_(arguments());
+        auto parsed = parseArgs_(args);
 
         // Show notepad if we have regular files or nothing at all
         if (!parsed.regularFiles.isEmpty() || parsed.fnxFiles.isEmpty()) {
@@ -193,12 +205,12 @@ private:
     }
 
     /// TODO BA
-    void recover_()
+    void maybeRecover_()
     {
         // Notebooks: scan for orphaned lockfiles
         for (auto& lockfile : Coco::filePaths(
                  { AppDirs::tempNotebookRecovery() },
-                 { "*.lock" })) {
+                 { "*" + NotebookLockfile::EXT })) {
             if (auto notebook = Notebook::recover(lockfile, this)) {
                 registerNotebook_(notebook);
                 notebook->show();

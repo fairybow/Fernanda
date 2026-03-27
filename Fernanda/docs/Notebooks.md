@@ -1,5 +1,7 @@
 # Notebooks
 
+TODO: May be slightly out-of-date (re: FileInfo return changes for new files)
+
 Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard ZIP archive containing files and an XML manifest describing the virtual directory structure.
 
 See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), [`FnxModel.h`](../src/fnx/FnxModel.h), [`FnxModelCache.h`](../src/fnx/FnxModelCache.h), [`Workspace.h`](../src/workspaces/Workspace.h), and [`WorkingDir.h`](../src/workspaces/WorkingDir.h)
@@ -130,7 +132,7 @@ When a Notebook is opened, Fernanda extracts the `.fnx` archive to a temporary w
 
 - **Naming**: Working directory name is based on the original `.fnx` filename with a random suffix
 - **Persistence**: The working directory name remains unchanged for the Notebook's lifetime, even after "Save As" to a different filename
-- **Cleanup**: Working directory is automatically deleted when the Notebook closes (via `QTemporaryDir`)
+- **Cleanup**: Working directory is automatically deleted when the Notebook is safely closed
 
 ### Why Working Directories Don't Rename
 

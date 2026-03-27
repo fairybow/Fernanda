@@ -82,6 +82,14 @@ public:
         return {};
     }
 
+    void setCurrentIndex(Window* window, const QModelIndex& index)
+    {
+        if (!window) return;
+
+        if (auto tree_view = treeViews_.value(window))
+            tree_view->setCurrentIndex(index);
+    }
+
     void edit(Window* window, const QModelIndex& index = {})
     {
         if (!window) return;

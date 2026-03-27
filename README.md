@@ -22,7 +22,7 @@ Fernanda offers two workspace types: a **Notepad** for working directly on the O
 - Distraction-free editor with line numbers, current line highlight, and selection handles
 - Key filters for auto-close, smart quotes, and other typing enhancements
 - Notebook file management with virtual folders, drag-and-drop tree, import, and a soft-delete trash system
-- Editor themes (with user theme support via `~/.fernanda/themes`)
+- Editor themes (with user theme support and hot reload via `~/.fernanda/themes`)
 - Cascading settings: per-Notebook settings inherit from Notepad defaults
 - Word counter with selection-aware counting and adaptive performance
 - PDF and image viewing
@@ -35,6 +35,17 @@ See [Features.md](Fernanda/docs/Features.md) for the full list.
 
 > [!IMPORTANT]
 > You should not trust your writing with any version of this software less than 1.0.0 (not released yet)! Regardless, always make regular backups of your work.
+
+## Usage
+
+Fernanda accepts file paths as arguments. Valid `.fnx` files open in their own Notebook, and everything else opens in Notepad.
+
+Optional flags:
+
+- `--verbose`: enables debug-level logging to file (default is info-level and above)
+- `--log-viewer`: opens a one-time in-app log viewer window for the session
+
+Log files are stored in `~/.fernanda/logs/` and pruned automatically.
 
 ## Built with
 

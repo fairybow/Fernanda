@@ -32,12 +32,13 @@ struct Entry
     QSet<QString> dirtyUuids{};
 };
 
+inline const auto EXT = QStringLiteral(".lock");
+
 namespace Internal {
 
     inline const auto FNX_KEY_ = QStringLiteral("fnx=");
     inline const auto DIR_KEY_ = QStringLiteral("working_dir=");
     inline const auto DIRTY_KEY_ = QStringLiteral("dirty_uuids=");
-    inline const auto EXT_ = QStringLiteral(".lock");
 
     inline QByteArray toData_(
         const Coco::Path& fnxPath,
@@ -79,7 +80,7 @@ namespace Internal {
 inline Coco::Path
 path(const Coco::Path& recoveryDir, const Coco::Path& workingDirPath)
 {
-    return recoveryDir / (workingDirPath.nameQString() + Internal::EXT_);
+    return recoveryDir / (workingDirPath.nameQString() + EXT);
 }
 
 /// TODO BA: Should WorkingDir store UUIDs if adopted? Should it also store
@@ -112,8 +113,7 @@ inline QList<Entry> readAll(const Coco::Path& recoveryDir)
     QList<Entry> entries{};
     if (!recoveryDir.exists()) return entries;
 
-    for (auto& path :
-         Coco::filePaths({ recoveryDir }, { "*" + Internal::EXT_ })) {
+    for (auto& path : Coco::filePaths({ recoveryDir }, { "*" + EXT })) {
         entries << Internal::read_(path);
     }
 

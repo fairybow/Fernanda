@@ -36,6 +36,7 @@ namespace Fernanda::AppDirs {
 // |-- backups/
 // |   |-- notebooks/
 // |   +-- notepad/
+// |-- logs/
 // +-- themes/
 // 
 // ~/Documents/Fernanda/
@@ -55,67 +56,28 @@ namespace Internal {
 
 } // namespace Internal
 
-inline const Coco::Path& userData()
-{
-    static Coco::Path dir = Internal::ensured(Coco::Path::Home(".fernanda"));
-    return dir;
-}
+#define GEN_DIR_METHOD_(Name, Path_)                                           \
+    inline const Coco::Path& Name()                                            \
+    {                                                                          \
+        static Coco::Path dir = Internal::ensured(Path_);                      \
+        return dir;                                                            \
+    }
 
-inline const Coco::Path& tempNotebooks()
-{
-    static Coco::Path dir = Internal::ensured(userData() / "~notebooks");
-    return dir;
-}
-
-inline const Coco::Path& tempRecovery()
-{
-    static Coco::Path dir = Internal::ensured(userData() / "~recovery");
-    return dir;
-}
-
-inline const Coco::Path& tempNotebookRecovery()
-{
-    static Coco::Path dir = Internal::ensured(tempRecovery() / "notebooks");
-    return dir;
-}
-
-inline const Coco::Path& tempNotepadRecovery()
-{
-    static Coco::Path dir = Internal::ensured(tempRecovery() / "notepad");
-    return dir;
-}
-
-inline const Coco::Path& backups()
-{
-    static Coco::Path dir = Internal::ensured(userData() / "backups");
-    return dir;
-}
-
-inline const Coco::Path& notebookBackups()
-{
-    static Coco::Path dir = Internal::ensured(backups() / "notebooks");
-    return dir;
-}
-
-inline const Coco::Path& notepadBackups()
-{
-    static Coco::Path dir = Internal::ensured(backups() / "notepad");
-    return dir;
-}
-
-inline const Coco::Path& themes()
-{
-    static Coco::Path dir = Internal::ensured(userData() / "themes");
-    return dir;
-}
+GEN_DIR_METHOD_(userData, Coco::Path::Home(".fernanda"))
+GEN_DIR_METHOD_(tempNotebooks, userData() / "~notebooks")
+GEN_DIR_METHOD_(tempRecovery, userData() / "~recovery")
+GEN_DIR_METHOD_(tempNotebookRecovery, tempRecovery() / "notebooks")
+GEN_DIR_METHOD_(tempNotepadRecovery, tempRecovery() / "notepad")
+GEN_DIR_METHOD_(backups, userData() / "backups")
+GEN_DIR_METHOD_(notebookBackups, backups() / "notebooks")
+GEN_DIR_METHOD_(notepadBackups, backups() / "notepad")
+GEN_DIR_METHOD_(logs, userData() / "logs")
+GEN_DIR_METHOD_(themes, userData() / "themes")
 
 // TODO: Make configurable? Keep always?
-inline const Coco::Path& defaultDocs()
-{
-    static Coco::Path dir =
-        Internal::ensured(Coco::Path::Documents(VERSION_APP_NAME_STRING));
-    return dir;
-}
+GEN_DIR_METHOD_(defaultDocs, Coco::Path::Documents(VERSION_APP_NAME_STRING))
+
+#undef GEN_DIR_METHOD_
 
 // Deletes the temp and recovery directories only!
 // TODO: Log failure before quit?

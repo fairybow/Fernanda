@@ -13,6 +13,7 @@
 #pragma once
 
 #include <format>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -25,14 +26,19 @@
 #include "core/Formatters.h"
 #include "core/Version.h"
 
-// TODO: Log to file. Commented-out method is too slow. Need to maybe keep file
-// open the entire time, hold static QFile
 namespace Fernanda::Debug {
 
+using LogSink = std::function<void(const QString&)>;
+
 // To be safe, don't call this before Qt has finished app construction
-void initialize(bool logging, const Coco::Path& logFilePath = {});
-bool logging() noexcept;
-void setLogging(bool logging);
+void initialize(
+    bool verbose,
+    const Coco::Path& logDir,
+    const QString& logPrefix = {},
+    int logCap = 15);
+
+void setLogSink(LogSink sink);
+QtMsgType minimumLevel() noexcept;
 
 struct Log
 {
@@ -53,7 +59,7 @@ struct Log
     inline void
     print(const QObject* obj, std::string_view format, Args&&... args) const
     {
-        if (type != QtFatalMsg && !logging()) return;
+        if (type != QtFatalMsg && type < minimumLevel()) return;
 
         std::string msg{};
 
@@ -120,15 +126,15 @@ namespace Internal {
 
 #define LOG(Level)                                                             \
     Fernanda::Debug::Log(Level, __FILE__, __LINE__, __FUNCTION__).print
-#define INFO LOG(QtInfoMsg)
 #define DEBUG LOG(QtDebugMsg)
+#define INFO LOG(QtInfoMsg)
 #define WARN LOG(QtWarningMsg)
 #define CRITICAL LOG(QtCriticalMsg)
 #define FATAL LOG(QtFatalMsg)
 
-#define TRACER INFO(__FUNCTION__)
+#define TRACER DEBUG(__FUNCTION__)
 
-#ifdef VERSION_DEBUG
+#ifdef VERSION_DEBUG // TODO: Generalize / accept an arg?
 #    define ASSERT(condition, ...)                                             \
         ((condition) ? static_cast<void>(0)                                    \
                      : Fernanda::Debug::Internal::assertionFailed_(            \

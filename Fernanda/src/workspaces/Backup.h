@@ -13,11 +13,11 @@
 #pragma once
 
 #include <QString>
-#include <QStringList>
 
 #include <Coco/Path.h>
 
 #include "core/Debug.h"
+#include "core/Disk.h"
 #include "core/Hash.h"
 #include "core/Time.h"
 
@@ -96,30 +96,7 @@ inline void createAndPrune(
 
     INFO("Backup created: {}", backup_path);
 
-    // Prune
-    if (pruneCap < 1) return;
-
-    auto all_files = Coco::filePaths(backupDir);
-    QStringList matches{};
-
-    for (auto& path : all_files) {
-        auto file_name = path.nameQString();
-        if (file_name.startsWith(data.prefix)) matches << file_name;
-    }
-
-    if (matches.size() <= pruneCap) return;
-
-    matches.sort(); // By timestamp
-
-    auto to_remove = matches.size() - pruneCap;
-
-    for (qsizetype i = 0; i < to_remove; ++i) {
-        auto old_path = backupDir / matches[i];
-        if (!Coco::remove(old_path))
-            WARN("Failed to prune backup: {}", old_path);
-        else
-            INFO("Pruned backup: {}", old_path);
-    }
+    Disk::prune(backupDir, data.prefix, filePath.extQString(), pruneCap);
 }
 
 } // namespace Fernanda::Backup
