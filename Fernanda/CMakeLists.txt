@@ -86,6 +86,7 @@ set(FERNANDA_HEADERS
     src/core/Application.h
     src/core/BuildMessages.h
     src/core/Debug.h
+    src/core/Disk.h
     src/core/FileTypes.h
     src/core/Formatters.h
     src/core/Hash.h

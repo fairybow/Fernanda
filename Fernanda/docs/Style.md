@@ -15,6 +15,8 @@ QStringList list{}; // Yes
 
 ### Includes
 
+ALWAYS use the full relative path from src for first-party includes (even when the files are in the same folder). So, Debug.cpp should include "core/Debug.h" NOT "Debug.h"!
+
 Separate sections with an empty line. Sections should follow this order, top-to-bottom: main header (if `.cpp` file), third-party (each separated by a blank line), project headers.
 
 ```cpp
