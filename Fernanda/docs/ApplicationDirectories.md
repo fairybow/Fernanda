@@ -15,6 +15,7 @@ See: [`AppDirs.h`](../src/core/AppDirs.h)
 |-- backups/
 |   |-- notebooks/              Per-archive backups before overwrite
 |   +-- notepad/                Per-file backups before overwrite
+|-- logs/
 +-- themes/
 
 ~/Documents/Fernanda/           Default location for file dialogs

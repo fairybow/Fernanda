@@ -25,8 +25,6 @@
 #include "core/Formatters.h"
 #include "core/Version.h"
 
-// TODO: Log to file. Commented-out method is too slow. Need to maybe keep file
-// open the entire time, hold static QFile
 namespace Fernanda::Debug {
 
 // To be safe, don't call this before Qt has finished app construction
