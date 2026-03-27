@@ -22,6 +22,7 @@
 #include <QLabel> // TODO: Temp
 #include <QList>
 #include <QModelIndex>
+#include <QModelIndexList>
 #include <QObject>
 #include <QPalette> // TODO: Temp
 #include <QPoint>
@@ -204,7 +205,7 @@ protected:
 
             .action(Tr::nbNewFolder())
             .onUserTrigger(this, [this, window] {
-                newVirtualFolder_(treeViews->currentIndex(window));
+                newVirtualFolder_(window, treeViews->currentIndex(window));
             });
     }
 
@@ -505,14 +506,19 @@ private:
         if (!workingDir_.isValid()) return;
 
         auto working_dir_path = workingDir_.path();
-        // If index is invalid, fnxModel_->addNewTextFile adds it to the DOM
-        // document element (top-level), so we make sure it goes to Notebook
-        // instead (our root for primary TreeView)
-        auto info = fnxModel_->addNewFile(
+        auto parent_index = resolveNotebookIndex_(index);
+
+        auto new_index = fnxModel_->addNewFile(
             FileTypes::PlainText,
             working_dir_path,
-            resolveNotebookIndex_(index));
+            parent_index);
+        if (!new_index.isValid()) return;
+
+        auto info = fnxModel_->fileInfoAt(new_index);
         if (!info.isValid()) return;
+
+        treeViews->expand(window, parent_index);
+        treeViews->setCurrentIndex(window, new_index);
 
         files->openFilePathIn(
             window,
@@ -523,13 +529,17 @@ private:
     // TODO: Trigger rename immediately (maybe)
     // New folder will be under selected TreeView model index (or notebook
     // element if no current index)
-    void newVirtualFolder_(const QModelIndex& index = {})
+    void newVirtualFolder_(Window* window, const QModelIndex& index = {})
     {
         if (!workingDir_.isValid()) return;
-        // If index is invalid, fnxModel_->addNewVirtualFolder adds it to the
-        // DOM document element (top-level), so we make sure it goes to Notebook
-        // instead (our root for primary TreeView)
-        fnxModel_->addNewVirtualFolder(resolveNotebookIndex_(index));
+
+        auto parent_index = resolveNotebookIndex_(index);
+
+        auto new_index = fnxModel_->addNewVirtualFolder(parent_index);
+        if (!new_index.isValid()) return;
+
+        treeViews->expand(window, parent_index);
+        treeViews->setCurrentIndex(window, new_index);
     }
 
     // Imported files will be under selected TreeView model index (or notebook
@@ -549,15 +559,16 @@ private:
         rollingOpenStartDir = fs_paths.at(0).parent();
 
         auto working_dir_path = workingDir_.path();
-        // If index is invalid, fnxModel_->importTextFiles adds it to the DOM
-        // document element (top-level), so we make sure it goes to Notebook
-        // instead (our root for primary TreeView)
-        auto infos = fnxModel_->importFiles(
-            working_dir_path,
-            fs_paths,
-            resolveNotebookIndex_(index));
+        auto parent_index = resolveNotebookIndex_(index);
 
-        for (auto& info : infos) {
+        auto indexes =
+            fnxModel_->importFiles(working_dir_path, fs_paths, parent_index);
+        if (indexes.isEmpty()) return;
+
+        treeViews->expand(window, parent_index);
+
+        for (auto& new_index : indexes) {
+            auto info = fnxModel_->fileInfoAt(new_index);
             if (!info.isValid()) continue;
 
             files->openFilePathIn(
@@ -565,6 +576,8 @@ private:
                 working_dir_path / info.relPath,
                 info.name);
         }
+
+        treeViews->setCurrentIndex(window, indexes.last());
     }
 
     /// TODO FT: Export folder
@@ -769,6 +782,13 @@ private:
         if (trashPromptAndDelete_(window, index)) fnxModel_->remove(index);
     }
 
+    void restoreTrashItem_(Window* window, const QModelIndex& index)
+    {
+        auto new_index = fnxModel_->moveToNotebook(index);
+        if (!new_index.isValid()) return;
+        treeViews->expand(window, new_index.parent());
+    }
+
     void emptyTrash_(Window* window)
     {
         // The trash element itself (tag "trash") isn't a file, so it's skipped
@@ -893,7 +913,7 @@ private:
             .actionIf(valid, Tr::nbRestore())
             .onUserTrigger(
                 this,
-                [this, index] { fnxModel_->moveToNotebook(index); })
+                [this, window, index] { restoreTrashItem_(window, index); })
             .actionIf(
                 valid && fnxModel_->isFile(index),
                 Tr::nbExport()) /// TODO FT: Folder export
@@ -980,7 +1000,9 @@ private slots:
                 this,
                 [this, window, index] { newFile_(window, index); })
             .action(Tr::nbNewFolder())
-            .onUserTrigger(this, [this, index] { newVirtualFolder_(index); })
+            .onUserTrigger(
+                this,
+                [this, window, index] { newVirtualFolder_(window, index); })
             .separatorIf(valid)
             .actionIf(
                 valid && has_children,

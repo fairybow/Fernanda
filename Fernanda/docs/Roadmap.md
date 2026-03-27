@@ -4,6 +4,7 @@
 
 - [ ] BUG: Unsure how it occurred, but opened Candide.fnx and moved several files to trash (all but chapter 1) and then deleted them all. Then when I imported a PNG, it opened in a tab but did not appear in the TreeView...
 - [ ] One thing I think I would like to fix in the future is keeping file nesting but having operations like import or new file or whatever else resolve to the parent directory instead of the file, if the currently selected item is a file. This wound not apply to right click context menu actions
+- [ ] Notebook TreeView multiple item selection, drag, delete, restore, etc
 - [x] Guaranteed working dir persistence on crash
 - [x] ClearModified option in FileService
 - [x] Workspace autosave timer

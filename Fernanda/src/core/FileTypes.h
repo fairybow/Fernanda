@@ -33,8 +33,12 @@ enum Kind
 
     Markdown,
     Fountain,
+
+    // These theme extensions are here because they may be editable in special
+    // views later
     FernandaWindowTheme,
     FernandaEditorTheme,
+
     FernandaCorkboard, // (Will probably be plaintext, like JSON or XML)
 
     // Magic bytes:

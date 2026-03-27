@@ -198,7 +198,7 @@ private:
         // Notebooks: scan for orphaned lockfiles
         for (auto& lockfile : Coco::filePaths(
                  { AppDirs::tempNotebookRecovery() },
-                 { "*.lock" })) {
+                 { "*" + NotebookLockfile::EXT })) {
             if (auto notebook = Notebook::recover(lockfile, this)) {
                 registerNotebook_(notebook);
                 notebook->show();

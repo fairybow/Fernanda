@@ -178,16 +178,7 @@ public:
         return infos;
     }
 
-    void addNewVirtualFolder(const QModelIndex& parentIndex = {})
-    {
-        auto element = Fnx::Xml::addVirtualFolder(dom_);
-        if (element.isNull()) return;
-
-        auto parent = resolveParent_(parentIndex);
-        insertElement_(element, parent);
-    }
-
-    FileInfo addNewFile(
+    QModelIndex addNewFile(
         FileTypes::Kind kind,
         const Coco::Path& workingDir,
         const QModelIndex& parentIndex = {})
@@ -198,10 +189,10 @@ public:
         auto parent = resolveParent_(parentIndex);
         insertElement_(element, parent);
 
-        return { element };
+        return indexFromElement_(element);
     }
 
-    QList<FileInfo> importFiles(
+    QList<QModelIndex> importFiles(
         const Coco::Path& workingDir,
         const Coco::PathList& fsPaths,
         const QModelIndex& parentIndex = {})
@@ -219,20 +210,31 @@ public:
         auto parent = resolveParent_(parentIndex);
         insertElements_(elements, parent);
 
-        QList<FileInfo> infos{};
+        QModelIndexList indexes{};
 
         for (const auto& element : elements)
-            infos << element;
+            indexes << indexFromElement_(element);
 
-        return infos;
+        return indexes;
     }
 
-    bool moveToTrash(const QModelIndex& index)
+    QModelIndex addNewVirtualFolder(const QModelIndex& parentIndex = {})
     {
-        if (!index.isValid()) return false;
+        auto element = Fnx::Xml::addVirtualFolder(dom_);
+        if (element.isNull()) return {};
+
+        auto parent = resolveParent_(parentIndex);
+        insertElement_(element, parent);
+
+        return indexFromElement_(element);
+    }
+
+    void moveToTrash(const QModelIndex& index)
+    {
+        if (!index.isValid()) return;
 
         auto element = elementAt_(index);
-        if (element.isNull()) return false;
+        if (element.isNull()) return;
 
         // Store original parent's UUID for potential restore
         auto parent = element.parentNode().toElement();
@@ -242,15 +244,15 @@ public:
         }
 
         auto trash = Fnx::Xml::trashElement(dom_);
-        return moveElement_(element, trash, -1);
+        moveElement_(element, trash, -1);
     }
 
-    bool moveToNotebook(const QModelIndex& index)
+    QModelIndex moveToNotebook(const QModelIndex& index)
     {
-        if (!index.isValid()) return false;
+        if (!index.isValid()) return {};
 
         auto element = elementAt_(index);
-        if (element.isNull()) return false;
+        if (element.isNull()) return {};
 
         // Try to find original parent
         auto old_parent_uuid = Fnx::Xml::restoreParentUuid(element);
@@ -265,7 +267,10 @@ public:
         }
 
         Fnx::Xml::clearRestoreParentUuid(element);
-        return moveElement_(element, destination, -1);
+
+        if (!moveElement_(element, destination, -1)) return {};
+
+        return indexFromElement_(element);
     }
 
     bool remove(const QModelIndex& index)
