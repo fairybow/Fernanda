@@ -54,7 +54,11 @@ public:
     {
         if (initialized_) return;
 
-        Debug::initialize(Version::isDebug, AppDirs::logs() / "fernanda.log");
+        Debug::initialize(
+            Version::isDebug,
+            AppDirs::logs(),
+            VERSION_APP_NAME_STRING);
+
         initializeTranslator_();
         loadBundledFonts_();
         initializeNotepad_();

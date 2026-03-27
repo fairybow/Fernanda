@@ -28,7 +28,12 @@
 namespace Fernanda::Debug {
 
 // To be safe, don't call this before Qt has finished app construction
-void initialize(bool logging, const Coco::Path& logFilePath = {});
+void initialize(
+    bool logging,
+    const Coco::Path& logDir,
+    const QString& logPrefix = {},
+    int logCap = 15);
+
 bool logging() noexcept;
 void setLogging(bool logging);
 
