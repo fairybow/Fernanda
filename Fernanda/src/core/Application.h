@@ -63,8 +63,7 @@ public:
             VERSION_APP_NAME_STRING);
 
         if (args.contains("--log-viewer")) {
-            // Deleted on close
-            new LogViewer;
+            new LogViewer; // Has delete on close attribute
         }
 
         initializeTranslator_();

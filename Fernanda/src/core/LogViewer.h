@@ -40,7 +40,7 @@ public:
                     selection-background-color: #444;
                 }
         )");
-        setLineWrapMode(QPlainTextEdit::NoWrap);
+        setLineWrapMode(QPlainTextEdit::WidgetWidth);
         resize(800, 500);
 
         setAttribute(Qt::WA_DeleteOnClose);
