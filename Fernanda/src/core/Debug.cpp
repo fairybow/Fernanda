@@ -23,6 +23,7 @@
 #include <QMessageLogger>
 #include <QObject>
 #include <QString>
+#include <QTextStream>
 #include <QtLogging>
 
 #include <Coco/Path.h>
@@ -37,11 +38,10 @@ namespace {
     constexpr auto MSG_FORMAT_ = "{} | {} | {}";
 
     std::atomic<bool> logging_{ false };
-    // std::atomic<bool> firstWrite{ true };
     std::atomic<uint64_t> logCount_{ 0 };
-
     std::mutex mutex_{};
-    // Coco::Path logFilePath_{};
+    QFile logFile_{};
+    QTextStream logStream_{};
     QtMessageHandler qtHandler_ = nullptr;
 
     std::string timestamp_()
@@ -73,23 +73,9 @@ namespace {
             std::lock_guard<std::mutex> lock(mutex_);
             qt_handler = qtHandler_;
 
-            /*if (!logFilePath_.isEmpty()) {
-                auto expected = true;
-                auto truncate = firstWrite.compare_exchange_strong(
-                    expected,
-                    false,
-                    std::memory_order::relaxed);
-
-                auto mode = QIODevice::WriteOnly | QIODevice::Text;
-                mode |= truncate ? QIODevice::Truncate : QIODevice::Append;
-                QFile file(logFilePath_.toQString());
-
-                if (file.open(mode)) {
-                    QTextStream stream(&file);
-                    stream << QString::fromUtf8(new_msg) << Qt::endl;
-                    file.close();
-                }
-            }*/
+            if (logStream_.device()) {
+                logStream_ << QString::fromUtf8(new_msg) << Qt::endl;
+            }
         }
 
         if (qt_handler) qt_handler(type, context, QString::fromUtf8(new_msg));
@@ -102,7 +88,14 @@ void initialize(bool logging, const Coco::Path& logFilePath)
     setLogging(logging);
 
     std::lock_guard<std::mutex> lock(mutex_);
-    // logFilePath_ = logFilePath;
+
+    if (!logFilePath.isEmpty()) {
+        logFile_.setFileName(logFilePath.toQString());
+
+        if (logFile_.open(QIODevice::WriteOnly | QIODevice::Text))
+            logStream_.setDevice(&logFile_);
+    }
+
     qtHandler_ = qInstallMessageHandler(handler_);
 }
 

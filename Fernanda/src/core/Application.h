@@ -54,7 +54,7 @@ public:
     {
         if (initialized_) return;
 
-        Debug::initialize(Version::isDebug); // TODO: Log file path
+        Debug::initialize(Version::isDebug, AppDirs::logs() / "fernanda.log");
         initializeTranslator_();
         loadBundledFonts_();
         initializeNotepad_();
@@ -63,7 +63,7 @@ public:
         if (Version::isPrerelease) BetaAlert::exec();
 
         // Handle before args, in case an arg needs recovered instead
-        recover_(); /// TODO BA
+        maybeRecover_(); /// TODO BA
         handleArgs_();
 
         initialized_ = true;
@@ -193,7 +193,7 @@ private:
     }
 
     /// TODO BA
-    void recover_()
+    void maybeRecover_()
     {
         // Notebooks: scan for orphaned lockfiles
         for (auto& lockfile : Coco::filePaths(
