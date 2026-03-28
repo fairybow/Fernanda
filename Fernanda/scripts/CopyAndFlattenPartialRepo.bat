@@ -30,6 +30,7 @@ for /r "%DOCS_DIR%" %%f in (*) do (
 
 copy "%PROJ_DIR%\CMakeLists.txt" "%OUT_DIR%\" > nul
 copy "%ROOT_DIR%\CHANGELOG.md" "%OUT_DIR%\" > nul
+copy "%ROOT_DIR%\CONTRIBUTING.md" "%OUT_DIR%\" > nul
 copy "%ROOT_DIR%\README.md" "%OUT_DIR%\" > nul
 
 echo Copied to: %OUT_DIR%

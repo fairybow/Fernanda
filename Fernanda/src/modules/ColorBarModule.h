@@ -16,9 +16,9 @@
 #include <QObject>
 
 #include "core/Debug.h"
-#include "modules/ColorBar.h"
 #include "services/AbstractService.h"
 #include "settings/Ini.h"
+#include "ui/ColorBar.h"
 #include "ui/Window.h"
 #include "workspaces/Bus.h"
 

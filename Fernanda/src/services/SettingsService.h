@@ -30,12 +30,12 @@
 #include "core/Debug.h"
 #include "core/Time.h"
 #include "core/Tr.h"
-#include "modules/ColorBar.h"
 #include "services/AbstractService.h"
 #include "services/TieredSettings.h"
 #include "settings/Ini.h"
 #include "settings/SettingsDialog.h"
 #include "settings/ThemesPanel.h"
+#include "ui/ColorBar.h"
 #include "workspaces/Bus.h"
 
 namespace Fernanda {

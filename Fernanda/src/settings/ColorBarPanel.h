@@ -20,9 +20,9 @@
 
 #include "core/Debug.h"
 #include "core/Tr.h"
-#include "modules/ColorBar.h"
 #include "settings/Ini.h"
 #include "settings/SettingsPanel.h"
+#include "ui/ColorBar.h"
 #include "ui/ControlField.h"
 
 namespace Fernanda {

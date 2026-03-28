@@ -13,7 +13,7 @@
 
 Fernanda is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](Fernanda/docs/Notebooks.md).
 
-Mac and Linux support is planned!
+(Mac and Linux support is planned!)
 
 ## Features
 
@@ -71,6 +71,16 @@ Log files are stored in `~/.fernanda/logs/` and pruned automatically.
 4. The Qt VS Tools extension will generate a `CMakeUserPresets.json` with your Qt path
 5. Build and run
 
+## Contributing
+
+Hey! Read Fernanda's Code! (I'm proud of it.)
+
+Fernanda prioritizes readable, maintainable code and follows conventional best practices pragmatically (not dogmatically). Throughout, simple solutions are preferred over premature abstractions. Objects and namespaces stay focused, and most files are just a few hundred lines, with about two barely exceeding 1,000. You will not find a 10,000 line `MainWindow` or anything like it.
+
+Fernanda's [architecture](Fernanda/docs/Architecture.md) was carefully considered. I've landed on what I think is a simple but highly flexible interworking of common architectural patterns designed to keep service objects in their lanes while allowing lateral communication across a given Workspace.
+
+But, that all said, there are always things to improve, I'm always learning, and I'll always need some help. Take a look around the repository and get to know the code. If something seems off to you or you have something new in mind, take a look at [CONTRIBUTING.md](CONTRIBUTING.md), open an issue, and we'll discuss a PR.
+
 ## License
 
 Fernanda is free software, redistributable and/or modifiable under the terms of the [GPL 3 License](LICENSE). It's distributed in the hope that it will be useful but without any warranty (even the implied warranty of merchantability or fitness for a particular purpose).
@@ -81,4 +91,4 @@ I think, in part, I made this because I wanted to put off writing for as long as
 
 > You have to be all kinds of stupid to say *"I can do this."*
 
-&ndash; Linus Torvalds
+— Linus Torvalds

@@ -754,11 +754,13 @@ private:
         if (!window || !index.isValid()) return false;
         if (!workingDir_.isValid()) return false;
 
+        auto count = fnxModel_->descendantCount(index);
+        if (index != fnxModel_->trashIndex()) ++count;
+        if (count == 0) return false;
+
+        if (!TrashPrompt::exec(count, window)) return false;
+
         auto file_infos = fnxModel_->fileInfosAt(index);
-        if (file_infos.isEmpty()) return false;
-
-        if (!TrashPrompt::exec(file_infos.count(), window)) return false;
-
         auto working_dir_path = workingDir_.path();
         QSet<Coco::Path> paths{};
 

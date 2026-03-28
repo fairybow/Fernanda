@@ -32,12 +32,13 @@
 - [x] on-demand AppDirs (create on any call if needed, no initialize - but keep cleanup)
 - [x] AutosaveRecovery.md
 - [ ] BUG: On Notepad recovery, there's a delay between displaying the first recovered tab and any subsequent recovered tabs (recovery prompt may or may not help)
+- [ ] BUG: First time expanding a folder in Notepad TreeView takes a really long time
 - [ ] Also, a Settings.md
 - [ ] Remove settings INI info from Architecture.md?
 - [x] May want the temp AppDir to go away and have `~recovery` and `~notebooks`
-- [ ] Organize code style
-- [ ] Add doc style
-- [ ] Contributions file?
+- [x] Organize code style
+- [ ] Add doc style doc
+- [x] Contributions file?
 - [x] Find places to use Debug ASSERT
 - [x] [[maybe_unused]] instead of C-style void cast or Q_UNUSED
 - [x] ^ also check `(void)idOf(element);` and similar (FnxModelCache)

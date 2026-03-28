@@ -81,7 +81,7 @@ inline void createAndPrune(
 {
     if (!filePath.exists()) return;
     if (!backupDir.exists()) {
-        WARN("Backup directory [{}] doesn't exist!", filePath, backupDir);
+        WARN("Backup directory [{}] doesn't exist!", backupDir);
         return;
     }
 

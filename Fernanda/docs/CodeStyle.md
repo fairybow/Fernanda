@@ -1,12 +1,13 @@
-# Style Guide
-
-TODO: Split code style and doc style
+# Code Style Guide
 
 ## Code
 
+> [!IMPORTANT]
+> If the file is over 1,000 lines, there is likely a major problem.
+
 ### Initializations
 
-Always initialize local variables, including containers
+Always initialize local variables, including containers.
 
 ```cpp
 QStringList list;   // No
@@ -15,12 +16,12 @@ QStringList list{}; // Yes
 
 ### Includes
 
-ALWAYS use the full relative path from src for first-party includes (even when the files are in the same folder). So, Debug.cpp should include "core/Debug.h" NOT "Debug.h"!
+Always use the full relative path from `src/` for first-party includes, even when the files are in the same folder. For example, `Debug.cpp` should include `"core/Debug.h"`, not `"Debug.h"`.
 
 Separate sections with an empty line. Sections should follow this order, top-to-bottom: main header (if `.cpp` file), third-party (each separated by a blank line), project headers.
 
 ```cpp
-#include "Class.h" // If Class.cpp (1st party, but should go at the top in source files)
+#include "path/to/Class.h" // If Class.cpp (1st party, but goes at the top in source files)
 
 #include <type_traits> // 3rd party std lib
 
@@ -33,15 +34,15 @@ Separate sections with an empty line. Sections should follow this order, top-to-
 #include <Coco/Bool.h> // 3rd party, submodule
 
 #include "core/Application.h" // 1st party
-#include "CustomWidget1.h"
-#include "CustomWidget2.h"
+#include "ui/CustomWidget1.h"
+#include "ui/CustomWidget2.h"
 ```
 
-Rather than worry about what's transitive or not, err on the side of including everything used by name in that particular file. Exceptions would be for things like `QtGlobal`, `QtTypes`, or `QObject` in a `QWidget` when only directly using the `Q_OBJECT` macro.
+Err on the side of including everything used by name in a given file, rather than relying on transitive includes. Exceptions: headers like `QtGlobal`, `QtTypes`, or `QObject` in a `QWidget` subclass when only using the `Q_OBJECT` macro.
 
 ### Guard Clauses
 
-Prefer organizing guard clauses / early returns. Put common items together, but don't group with unrelated checks. (This is subjective.)
+Prefer guard clauses and early returns. Group related checks together, but keep unrelated checks separate. Use judgment for grouping.
 
 ```cpp
 // Good:
@@ -98,7 +99,7 @@ When listing parameters of type `AbstractFileModel` or `AbstractFileView` use pa
 This applies to:
 - Private class members (variables and methods)
 - Non-member functions and variables with internal linkage (e.g., `static` in source files, anonymous namespaces)
-- Conceptually private members and non-members, e.g. "internal" `detail` namespaces
+- Conceptually private members and non-members, e.g. "internal" `detail` namespaces (prefer the name `Internal` over `detail`)
 
 ```cpp
 class MyClass {
@@ -118,7 +119,7 @@ private:
     };
 };
 
-namespace detail {
+namespace Internal {
     // Internal implementation function
     void internalHelper_();
 }
@@ -184,23 +185,35 @@ private slots:
     }
 ```
 
-#### Signal Passing
+### Signals
 
-For immediately readability, prefer this:
+#### The `emit` Macro
 
+Always use the `emit` macro when emitting a signal, and always place it before the object:
+
+```cpp
+emit settingChanged(key, value);    // Good (own signal)
+emit bus->fileModelReadied(model);  // Good (signal on another object)
+
+bus->emit fileModelReadied(model);  // Bad (emit must come first)
+settingChanged(key, value);         // Bad (missing emit)
 ```
+
+#### Signal Forwarding
+
+When forwarding one signal to another, prefer an explicit lambda with `emit` over a direct signal-to-signal connect. This makes the emission visible at the call site:
+
+```cpp
+// Good: the emit is visible
 connect(
     panel,
-    &SettingsPanel::settingChanged, // also QString, QVariant
+    &SettingsPanel::settingChanged,
     this,
     [this](const QString& key, const QVariant& value) {
         emit settingChanged(key, value);
     });
-```
 
-Over this:
-
-```
+// Avoid: hides the fact that a signal is being emitted
 connect(
     panel,
     &SettingsPanel::settingChanged,
@@ -210,9 +223,9 @@ connect(
 
 ### Comments and Documentation
 
-Comments should be as concise as possible but readable. If the final (or only) sentence's final punctuation would be a period, omit it.
+Comments should be concise but readable. If the final (or only) sentence's final punctuation would be a period, omit it.
 
-**Section headers**: Must have blank line before the following function to avoid showing in IntelliSense tooltip pop-up
+**Section headers**: Must have a blank line before the following function to avoid showing in IntelliSense tooltip pop-ups.
 
 ```cpp
 // --- File Operations ---
@@ -220,14 +233,14 @@ Comments should be as concise as possible but readable. If the final (or only) s
 void openFile(const QString& path);
 ```
 
-**Function/variable documentation**: Place directly above to show in IntelliSense pop-up
+**Function/variable documentation**: Place directly above to show in IntelliSense pop-ups (no blank line between).
 
 ```cpp
 // Opens a file and returns whether successful
 bool openFile(const QString& path);
 ```
 
-**TODOs**: Always prefix with `TODO:`. It's important these (and other things, like the below) are uniform, so they're easily searchable.
+**TODOs**: Always prefix with `TODO:`. Uniform prefixes keep these easily searchable.
 
 ```cpp
 // TODO: Implement autosave functionality
@@ -240,15 +253,15 @@ bool openFile(const QString& path);
 void processValidatedFile();
 ```
 
-**Permanent notes**: Place inside function body unless constant reminder (IntelliSense pop-up) needed on usage
+**Permanent notes**: Place inside function body unless a constant reminder (IntelliSense pop-up) is needed on usage.
 
 ```cpp
-// Good - reminder needed every time function is called
+// Good: reminder needed every time function is called
 // WARNING: This function is not thread-safe
 void updateGlobalState();
 
 void someFunction() {
-    // Good - implementation detail that doesn't need to show in IntelliSense
+    // Good: implementation detail that doesn't need to show in IntelliSense
     // We need to flush here because Qt buffers by default
     stream.flush();
 }
@@ -264,8 +277,6 @@ Examples:
 - Unsure about state management? Write the usage that would feel obvious
 
 See [MenuBuilder.h](../src/menus/MenuBuilder.h) for a good example. Its interface drives the entire implementation.
-
-TODO: Add concrete before/after example showing this in practice
 
 ## User Interface
 
