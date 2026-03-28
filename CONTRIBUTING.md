@@ -29,7 +29,7 @@ A few things that may surprise you:
 - **No UI or project files**: Fernanda's widgets are, for better and worse, created in code, and it's built with CMake. Qt Creator is an excellent, sane choice for Qt development, but I have chosen not to use it for this project
 - **Header-only by convention.** Nearly all implementation lives in headers. Source files (`.cpp`) exist only where necessary (circular dependencies, large translation units, or Qt MOC requirements). Don't move implementations to source files without discussion
 - **Services own mechanics, Workspaces own policy.** If you're adding behavior, think about where the decision belongs. Services should stay somewhat generic; workspace-specific logic belongs in the Workspace subclass (this is why you'll see the word `hook` pop-up quite a lot)
-- **Bus for lateral communication, direct calls for explicit dependencies.** Workspaces can call on their Services directly, but their sister Services don't communicate with each other directly. Cross-service (lateral) coordination goes through the Bus (signals and commands)
+- **Bus for lateral communication, direct calls for explicit dependencies.** Workspaces can call on their Services directly, but sister Services don't communicate with each other directly. Cross-service (lateral) coordination goes through the Bus (signals and commands)
 
 ## Submitting a Pull Request
 
