@@ -17,7 +17,7 @@
 
 #include <Coco/Path.h>
 
-#include "modules/ColorBar.h"
+#include "ui/ColorBar.h"
 
 namespace Fernanda::Ini {
 

@@ -13,7 +13,6 @@
 #pragma once
 
 #include <concepts>
-#include <optional>
 
 #include <QEvent>
 #include <QLinearGradient>
@@ -151,11 +150,6 @@ private:
     Time::Delayer* linger_ = Time::newDelayer(this, &ColorBar::reset_, 1000);
     QTimeLine* activeTimeLine_ = nullptr;
 
-    // Cache
-    std::optional<QLinearGradient> greenGradient_{};
-    std::optional<QLinearGradient> redGradient_{};
-    std::optional<QLinearGradient> pastelGradient_{};
-
     void setup_()
     {
         setFixedHeight(3);
@@ -234,51 +228,40 @@ private:
     QLinearGradient gradientFor_(Color color)
     {
         switch (color) {
-        case Green:
-            if (!greenGradient_) {
-                greenGradient_ = Coco::Fx::bandedGradient(
-                    0,
-                    0,
-                    width(),
-                    0,
-                    "#00e878",
-                    "#92ff00",
-                    "#61e1bf",
-                    "#00d4ff");
-            }
-
-            return *greenGradient_;
-
-        case Red:
-            if (!redGradient_) {
-                redGradient_ = Coco::Fx::bandedGradient(
-                    0,
-                    0,
-                    width(),
-                    0,
-                    "#b43a3a",
-                    "#fd1d1d",
-                    "#fd6430",
-                    "#fcb045");
-            }
-
-            return *redGradient_;
 
         default:
         case Pastel:
-            if (!pastelGradient_) {
-                pastelGradient_ = Coco::Fx::bandedGradient(
-                    0,
-                    0,
-                    width(),
-                    0,
-                    "#7ce1f9",
-                    "#3bb0f3",
-                    "#9194f2",
-                    "#f9b3f9");
-            }
+            return Coco::Fx::bandedGradient(
+                0,
+                0,
+                width(),
+                0,
+                "#7ce1f9",
+                "#3bb0f3",
+                "#9194f2",
+                "#f9b3f9");
 
-            return *pastelGradient_;
+        case Green:
+            return Coco::Fx::bandedGradient(
+                0,
+                0,
+                width(),
+                0,
+                "#00e878",
+                "#92ff00",
+                "#61e1bf",
+                "#00d4ff");
+
+        case Red:
+            return Coco::Fx::bandedGradient(
+                0,
+                0,
+                width(),
+                0,
+                "#b43a3a",
+                "#fd1d1d",
+                "#fd6430",
+                "#fcb045");
         }
     }
 

@@ -118,7 +118,6 @@ set(FERNANDA_HEADERS
     src/models/PdfFileModel.h
     src/models/TextFileModel.h
 
-    src/modules/ColorBar.h
     src/modules/ColorBarModule.h
     src/modules/Qss.h
     src/modules/StyleContext.h
@@ -146,6 +145,7 @@ set(FERNANDA_HEADERS
     src/settings/ThemesPanel.h
     src/settings/WordCounterPanel.h
 
+    src/ui/ColorBar.h
     src/ui/ControlField.h
     src/ui/DisplaySlider.h
     src/ui/DrawerWidget.h
