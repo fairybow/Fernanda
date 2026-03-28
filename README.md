@@ -11,6 +11,8 @@
     <a href="Fernanda/docs"><b>Documentation</b></a>
 </p>
 
+![screenshot](Fernanda/resources/screenshots/1.png)
+
 Fernanda is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](Fernanda/docs/Notebooks.md).
 
 (Mac and Linux support is planned!)
