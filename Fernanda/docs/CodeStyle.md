@@ -139,7 +139,8 @@ public:
     
     // Setter parameter uses same name as member (without underscore)
     void setButtonText(const QString& buttonText) { buttonText_ = buttonText; }
-    
+    // (Using `text` as the parameter name instead of `buttonText` would be fine. Use what's direct and clear.)
+
 private:
     QString buttonText_;
 };
