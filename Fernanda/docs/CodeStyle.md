@@ -3,7 +3,7 @@
 ## Code
 
 > [!IMPORTANT]
-> If the file is over 1,000 lines, there is likely a major problem.
+> If a file is over 1,000 lines, there is likely a major problem.
 
 ### Initializations
 
