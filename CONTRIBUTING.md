@@ -37,7 +37,7 @@ A few things that may surprise you:
 - Keep changes focused. One PR per concern
 - Follow the code style in [CodeStyle.md](Fernanda/docs/CodeStyle.md)
 - Test on your platform. Fernanda targets Windows, macOS, and Linux, but testing on your own OS is the minimum expectation
-- Keep commit messages clear and concise (definitely a case of "do as I say, not as I do ;)")
+- Keep commit messages clear and concise (definitely a case of "do as I say, not as I do" ;) )
 
 ## Scope
 
