@@ -91,4 +91,4 @@ I think, in part, I made this because I wanted to put off writing for as long as
 
 > You have to be all kinds of stupid to say *"I can do this."*
 
-— Linus Torvalds
+– Linus Torvalds
