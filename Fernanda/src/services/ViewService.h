@@ -53,8 +53,6 @@ namespace Fernanda {
 // Creates and manages program views (TabWidgets and FileViews) within
 // Windows, routes editing commands, handles view lifecycles, propagates
 // TabWidget signals, and tracks the number of views per model
-//
-// TODO: Find repeated view/model iteration and make helper(s)
 class ViewService : public AbstractService
 {
     Q_OBJECT
@@ -123,18 +121,8 @@ public:
     void raise(Window* window, AbstractFileModel* model) const
     {
         if (!window || !model) return;
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget) return;
-
-        // Find first tab from the left with this model
-        for (auto i = 0; i < tab_widget->count(); ++i) {
-            auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-            if (!view) continue;
-            if (view->model() != model) continue;
-
-            raise(window, i);
-            return;
-        }
+        auto i = indexOfModel_(tabWidget_(window), model);
+        if (i >= 0) raise(window, i);
     }
 
     // Raises first Window found (from top to bottom) containing model (and
@@ -143,19 +131,11 @@ public:
     Window* raise(AbstractFileModel* model) const
     {
         if (!model) return nullptr;
-        auto windows = bus->call<QList<Window*>>(Bus::WINDOWS);
-        if (windows.isEmpty()) return nullptr;
 
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
+        for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
+            auto i = indexOfModel_(tabWidget_(window), model);
 
-            // Find first tab from the left with this model
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (!view) continue;
-                if (view->model() != model) continue;
-
+            if (i >= 0) {
                 raise(window, i);
                 return window;
             }
@@ -169,18 +149,9 @@ public:
         if (!fileModel) return false;
 
         auto window_count = 0;
-        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
-
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
-
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                if (fileModelAt(window, i) == fileModel) {
-                    ++window_count;
-                    if (window_count >= 2) return true; // Early exit
-                    break; // Move to next window
-                }
+        for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
+            if (indexOfModel_(tabWidget_(window), fileModel) >= 0) {
+                if (++window_count >= 2) return true;
             }
         }
 
@@ -466,13 +437,11 @@ public:
 signals:
     void addTabRequested(Window* window);
     void fileViewDestroyed(AbstractFileView* fileView);
-
-    /// TODO TD:
-    void tabDragCompleted(Window* fromWindow, Window* toWindow);
+    void tabDragCompleted(Window* fromWindow, Window* toWindow); /// TODO TD
     void tabDraggedToNewWindow(
         Window* sourceWindow,
         const QPoint& dropPos,
-        const TabWidget::TabSpec& tabSpec);
+        const TabWidget::TabSpec& tabSpec); /// TODO TD
 
 protected:
     virtual void registerBusCommands() override
@@ -776,6 +745,33 @@ private:
         forEachFileView_<TextFileView*>(std::forward<CallableT>(callable));
     }
 
+    template <typename CallableT>
+    void forEachTabOfModel_(AbstractFileModel* model, CallableT&& callable)
+    {
+        for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
+            auto tab_widget = tabWidget_(window);
+            if (!tab_widget) continue;
+
+            for (auto i = 0; i < tab_widget->count(); ++i) {
+                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                if (view && view->model() == model) callable(tab_widget, i);
+            }
+        }
+    }
+
+    // Returns index of first tab with this model in the given TabWidget, or -1
+    int indexOfModel_(TabWidget* tabWidget, AbstractFileModel* model) const
+    {
+        if (!tabWidget || !model) return -1;
+
+        for (auto i = 0; i < tabWidget->count(); ++i) {
+            auto view = tabWidget->widgetAt<AbstractFileView*>(i);
+            if (view && view->model() == model) return i;
+        }
+
+        return -1;
+    }
+
     void applyInitialTextFileViewSettings_(TextFileView* textFileView)
     {
         if (!textFileView) return;
@@ -924,52 +920,30 @@ private slots:
         view->setFocus();
     }
 
-    // TODO: Separate method with callback for iteration over all tabs-per-model
-    // (use in below method, too)
     void onBusFileModelModificationChanged_(
         AbstractFileModel* fileModel,
         bool modified)
     {
         if (!fileModel) return;
 
-        // Find all tabs containing views on this model
-        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
-
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (view && view->model() == fileModel)
-                    tab_widget->setTabFlagged(i, modified);
-            }
-        }
+        forEachTabOfModel_(fileModel, [modified](TabWidget* tw, int i) {
+            tw->setTabFlagged(i, modified);
+        });
     }
 
-    // TODO: Separate method with callback for iteration over all tabs-per-model
-    // (use in above method, too)
     void onBusFileModelMetaChanged_(AbstractFileModel* fileModel)
     {
         if (!fileModel) return;
         auto meta = fileModel->meta();
         if (!meta) return;
 
-        // Find all tabs containing views of this model and update their
-        // text/tooltip
-        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
+        auto title = meta->title();
+        auto tool_tip = meta->toolTip();
 
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (view && view->model() == fileModel) {
-                    tab_widget->setTabText(i, meta->title());
-                    tab_widget->setTabToolTip(i, meta->toolTip());
-                }
-            }
-        }
+        forEachTabOfModel_(fileModel, [title, tool_tip](TabWidget* tw, int i) {
+            tw->setTabText(i, title);
+            tw->setTabToolTip(i, tool_tip);
+        });
     }
 
     void onBusFileModelExternallyModified_(AbstractFileModel* fileModel)
@@ -982,20 +956,11 @@ private slots:
         // Set alerts on all tabs for this model, and find a window to parent
         // the prompt
         Window* prompt_parent = nullptr;
-        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
 
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
-
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (view && view->model() == fileModel) {
-                    tab_widget->setTabAlert(i, Tr::fileModifiedExternally());
-                    if (!prompt_parent) prompt_parent = window;
-                }
-            }
-        }
+        forEachTabOfModel_(fileModel, [&prompt_parent](TabWidget* tw, int i) {
+            tw->setTabAlert(i, Tr::fileModifiedExternally());
+            if (!prompt_parent) prompt_parent = Coco::findParent<Window*>(tw);
+        });
 
         if (!prompt_parent) return;
 
@@ -1010,33 +975,18 @@ private slots:
         }
 
         // Clear alerts regardless of choice (user has acknowledged)
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
-
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (view && view->model() == fileModel)
-                    tab_widget->clearTabAlert(i);
-            }
-        }
+        forEachTabOfModel_(fileModel, [](TabWidget* tw, int i) {
+            tw->clearTabAlert(i);
+        });
     }
 
     void onBusFileModelPathInvalidated_(AbstractFileModel* fileModel)
     {
         if (!fileModel) return;
 
-        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
-
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (view && view->model() == fileModel)
-                    tab_widget->setTabAlert(i, Tr::filePathInvalidated());
-            }
-        }
+        forEachTabOfModel_(fileModel, [](TabWidget* tw, int i) {
+            tw->setTabAlert(i, Tr::filePathInvalidated());
+        });
     }
 
     /// TODO TD
