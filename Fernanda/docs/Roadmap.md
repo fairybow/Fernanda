@@ -6,7 +6,7 @@
 - [ ] ^ Added release logging, log viewer, and automatic Notebook TreeView expansion to help find this. It easily could have been an overlooked add-as-child, which didn't expand before
 - [ ] One thing I think I would like to fix in the future is keeping file nesting but having operations like import or new file or whatever else resolve to the parent directory instead of the file, if the currently selected item is a file. This wound not apply to right click context menu actions
 - [ ] Notebook TreeView multiple item selection, drag, delete, restore, etc
-- [ ] Notebook folder should show dirty status if any of its child files (if applicable) are dirty and the folder is collapsed (should display normally when expanded)
+- [x] Notebook folder should show dirty status if any of its child files (if applicable) are dirty and the folder is collapsed (should display normally when expanded)
 - [ ] Replace QStringLiteral with u*_s?
 - [ ] ToString's kind of a hot mess
 - [ ] Re: `treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT` in Notepad and Notebook (is a singular menu item in Workspace appropriate if it means we have to have such a silly virtual for each Workspace to override? At least, it seems silly to me right now)

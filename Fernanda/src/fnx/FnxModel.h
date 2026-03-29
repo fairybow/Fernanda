@@ -144,6 +144,21 @@ public:
             emit dataChanged(index, index, { Qt::DisplayRole, Qt::FontRole });
         }
 
+        // Notify ancestors so (*) indicators update
+        auto ancestor = element.parentNode().toElement();
+
+        while (!ancestor.isNull() && ancestor != dom_.documentElement()) {
+            auto ancestor_index = indexFromElement_(ancestor);
+
+            if (ancestor_index.isValid())
+                emit dataChanged(
+                    ancestor_index,
+                    ancestor_index,
+                    { Qt::DisplayRole });
+
+            ancestor = ancestor.parentNode().toElement();
+        }
+
         emit domChanged();
     }
 

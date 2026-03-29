@@ -101,6 +101,19 @@ namespace Xml {
         return element.hasAttribute(Internal::XML_FILE_EDITED_ATTR_);
     }
 
+    inline bool hasEditedDescendant(const QDomElement& element)
+    {
+        auto child = element.firstChildElement();
+
+        while (!child.isNull()) {
+            if (isFile(child) && isEdited(child)) return true;
+            if (hasEditedDescendant(child)) return true;
+            child = child.nextSiblingElement();
+        }
+
+        return false;
+    }
+
     inline QString name(const QDomElement& element)
     {
         return element.attribute(Internal::XML_NAME_ATTR_);

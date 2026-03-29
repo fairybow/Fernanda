@@ -1,7 +1,5 @@
 # Notebooks
 
-TODO: May be slightly out-of-date (re: FileInfo return changes for new files)
-
 Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard ZIP archive containing files and an XML manifest describing the virtual directory structure.
 
 See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), [`FnxModel.h`](../src/fnx/FnxModel.h), [`FnxModelCache.h`](../src/fnx/FnxModelCache.h), [`Workspace.h`](../src/workspaces/Workspace.h), and [`WorkingDir.h`](../src/workspaces/WorkingDir.h)
@@ -61,7 +59,7 @@ Files in `content/` are named by UUID with normalized extensions:
 
 ```xml
 <?xml version="1.0"?>
-<fnx version="1.1">
+<fnx version="1.0">
   <notebook>
     <vfolder name="Chapter 1" uuid="xxx1">
       <file name="Scene 1" uuid="xxx2" extension=".txt"/>
@@ -94,7 +92,7 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 **Common (both `vfolder` and `file`):**
 
 | Attribute | Required | Description |
-|---|---|
+|---|---|---|
 | `name` | Yes | Display name shown in TreeView |
 | `uuid` | Yes | Unique identifier (also the filename in `content/`) |
 
@@ -121,7 +119,7 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 When a Notebook is opened, Fernanda extracts the `.fnx` archive to a temporary working directory:
 
 ```
-{temp}/MyNovel.fnx~XXXXXX/
+{temp}/MyNovel.fnx~XXXXXXXX/
 |-- Manifest.xml
 |-- Settings.ini
 +-- content/
@@ -130,7 +128,7 @@ When a Notebook is opened, Fernanda extracts the `.fnx` archive to a temporary w
 
 ### Key Behaviors
 
-- **Naming**: Working directory name is based on the original `.fnx` filename with a random suffix
+- **Naming**: Working directory name is the `.fnx` filename plus a random 8-character suffix
 - **Persistence**: The working directory name remains unchanged for the Notebook's lifetime, even after "Save As" to a different filename
 - **Cleanup**: Working directory is automatically deleted when the Notebook is safely closed
 
@@ -148,7 +146,7 @@ When using "Save As" to save a Notebook under a new name, the working directory 
 ### Design Principles
 
 1. **DOM ownership**: FnxModel owns the `QDomDocument`
-2. **Encapsulation**: Public methods return `FileInfo` structs, never raw DOM elements
+2. **Encapsulation**: Public methods return `QModelIndex` for operations (add, import, move); `FileInfo` is available on request via `fileInfoAt()` (metadata provided by `Fnx`)
 3. **Stable references**: Uses `FnxModelCache` for UUID-based element tracking
 
 ### FileInfo Struct
@@ -168,6 +166,21 @@ FnxModel tracks modifications via DOM snapshot comparison:
 - `isModified()`: Compares current DOM against snapshot
 - DOM string comparison is deterministic for identical structures
 
+### Edit State Display
+
+FnxModel shows two levels of edit state in the TreeView:
+
+| Indicator | Meaning | Appearance |
+|---|---|---|
+| `* FileName` (italic) | This file has unsaved changes | Prepended asterisk, italic font |
+| `FileName (*)` | A descendant has unsaved changes | Appended `(*)`, inherited font |
+
+Both indicators can appear simultaneously on a file that is itself edited and also has edited descendants: `* FileName (*)`
+
+When `setFileEdited()` is called, `dataChanged` is emitted for the file itself and for all its ancestors up to the document root, so that `(*)` indicators update throughout the tree.
+
+The edited-descendant check (`Fnx::Xml::hasEditedDescendant()`) performs a recursive DOM subtree walk. This is consistent with other recursive traversals already in FnxModel (descendant counting, file info collection, UUID search).
+
 ### Cache System (FnxModelCache)
 
 The cache solves a critical problem: `QModelIndex::internalPointer()` becomes invalid when DOM elements move or are deleted. The cache provides:
@@ -185,7 +198,7 @@ Cache keys:
 Notebook displays two TreeViews sharing the same `FnxModel`:
 
 1. **Main TreeView**: Rooted at `<notebook>` element
-2. **Trash TreeView**: Rooted at `<trash>` element (shown in accordion)
+2. **Trash TreeView**: Rooted at `<trash>` element (shown TreeView drawer)
 
 ### Root Index Behavior
 
@@ -212,7 +225,7 @@ The Trash provides soft-delete functionality with restoration capability.
 | Empty trash | Prompts, then permanently deletes all trash contents |
 
 > [!IMPORTANT]
-> **Data loss risk**: Emptying trash will close tabs and lose any unsaved changes in trashed files. There is no additional prompt for unsaved changes in trashed items. When deleted entirely, unsaved changes to the documents *will* be lost. As for the original files (before edits), the program will *say* you cannot recover this data. Technically, you can just close the Notebook without saving, and they will return (as they remain in the original archive until it is saved over).
+> **Data loss risk**: Emptying trash will close tabs and lose any unsaved changes in trashed files. There is no additional prompt for unsaved changes in trashed items. When deleted entirely, unsaved changes to the documents **will** be lost. As for the original files (before edits), the program will say you cannot recover this data. Technically, you can just close the Notebook without saving, and they will return (as they remain in the original archive until it is saved over).
 
 ### Restoration Logic
 
@@ -264,6 +277,7 @@ New Notebooks (created via "New Notebook" rather than opening an existing `.fnx`
 | Expand/Collapse | Has children | Toggle expansion |
 | Rename | Valid selection | Inline edit |
 | Remove | Valid selection | Move to trash |
+| Export | Valid file selection | Save copy to OS filesystem |
 
 ### Trash TreeView
 
@@ -272,6 +286,7 @@ New Notebooks (created via "New Notebook" rather than opening an existing `.fnx`
 | Expand/Collapse | Has children | Toggle expansion |
 | Rename | Valid selection | Inline edit |
 | Restore | Valid selection | Move back to notebook |
+| Export | Valid file selection | Save copy to OS filesystem |
 | Delete Permanently | Valid selection | Prompt + permanent delete |
 | Empty Trash | Trash has items | Prompt + clear all |
 
@@ -299,7 +314,7 @@ Each Notebook can have its own `Settings.ini` stored in the archive. This file w
 
 | Signal | Emitted When |
 |---|---|
-| `domChanged()` | DOM structure modified (add, remove, move, rename) |
+| `domChanged()` | DOM structure modified (add, remove, move, rename, edit state change) |
 | `fileRenamed(FileInfo)` | File element's name attribute changed |
 
 ### Notebook Signals

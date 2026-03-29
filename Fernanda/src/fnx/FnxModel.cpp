@@ -35,10 +35,16 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
     if (element.isNull()) return {};
 
     switch (role) {
-    case Qt::DisplayRole:
+    case Qt::DisplayRole: {
+        auto display_name = Fnx::Xml::name(element);
+
         if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element))
-            return Fnx::Xml::name(element) + QStringLiteral(" *");
-        return Fnx::Xml::name(element);
+            display_name.prepend(QStringLiteral("* "));
+        if (Fnx::Xml::hasEditedDescendant(element))
+            display_name += QStringLiteral(" (*)");
+
+        return display_name;
+    }
 
     case Qt::EditRole:
         return Fnx::Xml::name(element);
