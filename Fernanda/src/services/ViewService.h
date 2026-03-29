@@ -505,93 +505,93 @@ protected:
 private:
     QHash<Window*, AbstractFileView*> activeFileViews_{};
     QHash<AbstractFileModel*, int> fileViewsPerModel_{};
+
+    // Dispatches live setting changes to all open TextFileViews. Populated from
+    // textViewSettings_() in setup_(), keyed by Ini setting key. When
+    // Bus::settingChanged fires, connectBusEvents() looks up the key here and
+    // calls the matching applier (if any)
     QHash<QString, std::function<void(const QVariant&)>> settingAppliers_{};
+
+    struct TextViewSetting_
+    {
+        QString key{};
+        std::function<void(TextFileView*, const QVariant&)> apply = nullptr;
+    };
+
+    // Maps each Ini key to a function that applies the value to a view. Used in
+    // setup_() (registers each entry as a live-change applier (via
+    // settingAppliers_)) and applyInitialTextFileViewSettings_() (reads current
+    // values and applies them to a newly created view)
+    static const QList<TextViewSetting_>& textViewSettings_()
+    {
+        static const QList<TextViewSetting_> list{
+            // Editor
+            { Ini::Keys::EDITOR_FONT,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setFont(val.value<QFont>());
+              } },
+            { Ini::Keys::EDITOR_CENTER_ON_SCROLL,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setCenterOnScroll(val.value<bool>());
+              } },
+            { Ini::Keys::EDITOR_OVERWRITE,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setOverwriteMode(val.value<bool>());
+              } },
+            { Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setTabStopDistance(val.value<int>());
+              } },
+            { Ini::Keys::EDITOR_WRAP_MODE,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setWordWrapMode(
+                      val.value<QTextOption::WrapMode>());
+              } },
+            { Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setDoubleClickWhitespace(val.value<bool>());
+              } },
+            { Ini::Keys::EDITOR_LINE_NUMBERS,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setLineNumbers(val.value<bool>());
+              } },
+            { Ini::Keys::EDITOR_LINE_HIGHLIGHT,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setLineHighlight(val.value<bool>());
+              } },
+            { Ini::Keys::EDITOR_SELECTION_HANDLES,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setSelectionHandles(val.value<bool>());
+              } },
+
+            // Key filters
+            { Ini::Keys::KEY_FILTERS_ACTIVE,
+              [](TextFileView* v, const QVariant& val) {
+                  v->keyFilters()->setActive(val.value<bool>());
+              } },
+            { Ini::Keys::KEY_FILTERS_AUTO_CLOSE,
+              [](TextFileView* v, const QVariant& val) {
+                  v->keyFilters()->setAutoClosing(val.value<bool>());
+              } },
+            { Ini::Keys::KEY_FILTERS_BARGING,
+              [](TextFileView* v, const QVariant& val) {
+                  v->keyFilters()->setBarging(val.value<bool>());
+              } },
+        };
+
+        return list;
+    }
 
     void setup_()
     {
-        settingAppliers_[Ini::Keys::EDITOR_FONT] = [this](const QVariant& v) {
-            forEachTextFileView_([v](TextFileView* view) {
-                view->editor()->setFont(v.value<QFont>());
-            });
-        };
-
-        settingAppliers_[Ini::Keys::KEY_FILTERS_ACTIVE] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->keyFilters()->setActive(v.value<bool>());
+        for (const auto& setting : textViewSettings_()) {
+            settingAppliers_[setting.key] = [this,
+                                             &setting](const QVariant& v) {
+                forEachTextFileView_([&setting, v](TextFileView* view) {
+                    setting.apply(view, v);
                 });
             };
-
-        settingAppliers_[Ini::Keys::KEY_FILTERS_AUTO_CLOSE] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->keyFilters()->setAutoClosing(v.value<bool>());
-                });
-            };
-
-        settingAppliers_[Ini::Keys::KEY_FILTERS_BARGING] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->keyFilters()->setBarging(v.value<bool>());
-                });
-            };
-
-        settingAppliers_[Ini::Keys::EDITOR_CENTER_ON_SCROLL] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->editor()->setCenterOnScroll(v.value<bool>());
-                });
-            };
-
-        settingAppliers_[Ini::Keys::EDITOR_OVERWRITE] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->editor()->setOverwriteMode(v.value<bool>());
-                });
-            };
-
-        settingAppliers_[Ini::Keys::EDITOR_TAB_STOP_DISTANCE] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->editor()->setTabStopDistance(v.value<int>());
-                });
-            };
-
-        settingAppliers_[Ini::Keys::EDITOR_WRAP_MODE] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->editor()->setWordWrapMode(
-                        v.value<QTextOption::WrapMode>());
-                });
-            };
-
-        settingAppliers_[Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->editor()->setDoubleClickWhitespace(v.value<bool>());
-                });
-            };
-
-        settingAppliers_[Ini::Keys::EDITOR_LINE_NUMBERS] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->editor()->setLineNumbers(v.value<bool>());
-                });
-            };
-
-        settingAppliers_[Ini::Keys::EDITOR_LINE_HIGHLIGHT] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->editor()->setLineHighlight(v.value<bool>());
-                });
-            };
-
-        settingAppliers_[Ini::Keys::EDITOR_SELECTION_HANDLES] =
-            [this](const QVariant& v) {
-                forEachTextFileView_([v](TextFileView* view) {
-                    view->editor()->setSelectionHandles(v.value<bool>());
-                });
-            };
+        }
     }
 
     TabWidget* tabWidget_(Window* window) const
@@ -776,70 +776,11 @@ private:
     {
         if (!textFileView) return;
 
-        if (auto editor = textFileView->editor()) {
-            auto font = bus->call<QFont>(
+        for (const auto& setting : textViewSettings_()) {
+            auto value = bus->call<QVariant>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_FONT } });
-
-            auto center_on_scroll = bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_CENTER_ON_SCROLL } });
-
-            auto overwrite = bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_OVERWRITE } });
-
-            auto tab_stop_distance = bus->call<int>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_TAB_STOP_DISTANCE } });
-
-            auto wrap_mode = bus->call<QTextOption::WrapMode>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_WRAP_MODE } });
-
-            auto dbl_click_whitespace = bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE } });
-
-            auto line_numbers = bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_LINE_NUMBERS } });
-
-            auto line_highlight = bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_LINE_HIGHLIGHT } });
-
-            auto selection_handles = bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_SELECTION_HANDLES } });
-
-            editor->setFont(font);
-            editor->setCenterOnScroll(center_on_scroll);
-            editor->setOverwriteMode(overwrite);
-            editor->setTabStopDistance(tab_stop_distance);
-            editor->setWordWrapMode(wrap_mode);
-            editor->setDoubleClickWhitespace(dbl_click_whitespace);
-            editor->setLineNumbers(line_numbers);
-            editor->setLineHighlight(line_highlight);
-            editor->setSelectionHandles(selection_handles);
-        }
-
-        if (auto key_filters = textFileView->keyFilters()) {
-            auto active = bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::KEY_FILTERS_ACTIVE } });
-
-            auto auto_close = bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::KEY_FILTERS_AUTO_CLOSE } });
-
-            auto barging = bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", Ini::Keys::KEY_FILTERS_BARGING } });
-
-            key_filters->setActive(active);
-            key_filters->setAutoClosing(auto_close);
-            key_filters->setBarging(barging);
+                { { "key", setting.key } });
+            setting.apply(textFileView, value);
         }
     }
 
