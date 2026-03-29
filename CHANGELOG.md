@@ -76,6 +76,28 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.13 (Testing / Soft Release) - tag v0.99.0-beta.13
+
+## What's New?
+
+**Notebook UI.** Parent items (folders or files) now display "(*)" when any descendant file is modified.
+
+**Settings improved.** `GET_SETTING` Bus command resolves defaults automatically (no passing `defaultValue` at every call site anymore)
+
+**Code cleanup.** General reduction in repeated ViewService code (`forEachTabOfModel_`, `forEachFileView_<ViewT>`, `indexOfModel_`, and `TextViewSetting_` replace large blocks of duplicated iteration and applier registration). Additionally, instead of `QVariantMap`, `Ini` uses `Ini::Map` and Bus commands use `Command::Params` for readability and to avoid confusion (both are aliases for `QHash<QString, QVariant>`, a.k.a. `QVariantHash`)
+
+**Added CONTRIBUTING.md and corresponding README.md section.**
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+
+---
+
 # 0.99.0-beta.12 (Testing / Soft Release) - tag v0.99.0-beta.12
 
 ## What's New?

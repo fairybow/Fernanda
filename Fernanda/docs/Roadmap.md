@@ -11,6 +11,7 @@
 - [ ] ToString's kind of a hot mess
 - [ ] Re: `treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT` in Notepad and Notebook (is a singular menu item in Workspace appropriate if it means we have to have such a silly virtual for each Workspace to override? At least, it seems silly to me right now)
 - [ ] ^ Related: Right now, no way past having Ini::LocalKeys defaults in regular defaults function (because settings get command gets the default for all Ini keys internally - TreeViewService would need to be able to choose to use a localDefaults map or SettingsService could have a second command getter for Workspace-local settings...)
+- [ ] BUG: Notebook TreeView needs icons for text files, PDFs, images, etc
 - [x] Bus's parameters QVariantMap to Bus::ParamMap? For readability and could swap to QHash
 - [x] Log files
 - [x] Release logging at certain level
