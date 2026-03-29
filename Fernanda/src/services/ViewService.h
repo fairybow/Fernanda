@@ -14,6 +14,7 @@
 
 #include <functional>
 #include <type_traits>
+#include <utility>
 
 #include <QFont>
 #include <QHash>
@@ -757,19 +758,22 @@ private:
         return is_valid;
     }
 
-    // TODO: forEach(Abstract)FileView?
-
-    template <typename CallableT>
-    void forEachTextFileView_(CallableT&& callable)
+    template <typename ViewT, typename CallableT>
+    void forEachFileView_(CallableT&& callable)
     {
         for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
             auto tab_widget = tabWidget_(window);
             if (!tab_widget) continue;
 
             for (auto i = 0; i < tab_widget->count(); ++i)
-                if (auto text_view = tab_widget->widgetAt<TextFileView*>(i))
-                    callable(text_view);
+                if (auto view = tab_widget->widgetAt<ViewT>(i)) callable(view);
         }
+    }
+
+    template <typename CallableT>
+    void forEachTextFileView_(CallableT&& callable)
+    {
+        forEachFileView_<TextFileView*>(std::forward<CallableT>(callable));
     }
 
     void applyInitialTextFileViewSettings_(TextFileView* textFileView)
