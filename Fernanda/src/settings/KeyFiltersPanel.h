@@ -16,7 +16,6 @@
 #include <QGroupBox>
 #include <QString>
 #include <QVariant>
-#include <QVariantMap>
 
 #include "core/Debug.h"
 #include "core/Tr.h"
@@ -31,9 +30,7 @@ class KeyFiltersPanel : public SettingsPanel
     Q_OBJECT
 
 public:
-    explicit KeyFiltersPanel(
-        const QVariantMap& values,
-        QWidget* parent = nullptr)
+    explicit KeyFiltersPanel(const Ini::Map& values, QWidget* parent = nullptr)
         : SettingsPanel(Tr::keyFiltersPanelTitle(), parent)
     {
         setup_(values);
@@ -46,7 +43,7 @@ private:
     ControlField<QCheckBox>* barging_ =
         new ControlField<QCheckBox>(FieldKind::Info, this);
 
-    void setup_(const QVariantMap& values)
+    void setup_(const Ini::Map& values)
     {
         // Populate
         auto group_box = groupBox();

@@ -122,13 +122,11 @@ private:
 
         colorBar->setActive(bus->call<bool>(
             Bus::GET_SETTING,
-            { { "key", Ini::Keys::COLOR_BAR_ACTIVE },
-              { "defaultValue", Ini::Defaults::colorBarActive() } }));
+            { { "key", Ini::Keys::COLOR_BAR_ACTIVE } }));
 
         colorBar->setPosition(bus->call<ColorBar::Position>(
             Bus::GET_SETTING,
-            { { "key", Ini::Keys::COLOR_BAR_POSITION },
-              { "defaultValue", Ini::Defaults::colorBarPosition() } }));
+            { { "key", Ini::Keys::COLOR_BAR_POSITION } }));
     }
 
     template <typename CallableT> void forEachColorBar_(CallableT&& callable)

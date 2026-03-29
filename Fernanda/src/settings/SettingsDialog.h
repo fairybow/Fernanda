@@ -18,7 +18,6 @@
 #include <QList>
 #include <QString>
 #include <QVBoxLayout>
-#include <QVariantMap>
 #include <QWidget>
 
 #include <Coco/Path.h>
@@ -27,6 +26,7 @@
 #include "settings/ColorBarPanel.h"
 #include "settings/EditorPanel.h"
 #include "settings/FontPanel.h"
+#include "settings/Ini.h"
 #include "settings/KeyFiltersPanel.h"
 #include "settings/ThemesPanel.h"
 #include "settings/WordCounterPanel.h"
@@ -40,7 +40,7 @@ class SettingsDialog : public QDialog
 public:
     explicit SettingsDialog(
         const QString& title,
-        const QVariantMap& values,
+        const Ini::Map& values,
         const QList<ThemesPanel::Entry>& windowThemes,
         const QList<ThemesPanel::Entry>& editorThemes,
         QWidget* parent = nullptr)
@@ -64,7 +64,7 @@ private:
 
     void setup_(
         const QString& title,
-        const QVariantMap& values,
+        const Ini::Map& values,
         const QList<ThemesPanel::Entry>& windowThemes,
         const QList<ThemesPanel::Entry>& editorThemes)
     {

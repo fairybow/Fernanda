@@ -22,7 +22,6 @@
 #include <QStringList>
 #include <QTextOption>
 #include <QVariant>
-#include <QVariantMap>
 
 #include <Coco/Utility.h>
 
@@ -44,7 +43,7 @@ class FontPanel : public SettingsPanel
     Q_OBJECT
 
 public:
-    explicit FontPanel(const QVariantMap& values, QWidget* parent = nullptr)
+    explicit FontPanel(const Ini::Map& values, QWidget* parent = nullptr)
         : SettingsPanel(Tr::fontPanelTitle(), parent)
         , currentFont_(values[Ini::Keys::EDITOR_FONT].value<QFont>())
     {
@@ -61,7 +60,7 @@ private:
     QCheckBox* italicCheckBox_ = new QCheckBox(Tr::fontPanelItalic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
-    void setup_(const QVariantMap& values)
+    void setup_(const Ini::Map& values)
     {
         // Bundled (TODO: Add to Constants.h along with QRC paths to be used by
         // app?)
@@ -93,8 +92,8 @@ private:
         italicCheckBox_->setChecked(currentFont_.italic());
 
         sizeSlider_->setRange(
-            Ini::Defaults::FONT_SIZE_MIN,
-            Ini::Defaults::FONT_SIZE_MAX);
+            Ini::Limits::FONT_SIZE_MIN,
+            Ini::Limits::FONT_SIZE_MAX);
         sizeSlider_->setValue(currentFont_.pointSize());
 
         // Layout

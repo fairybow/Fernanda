@@ -18,7 +18,6 @@
 #include <QString>
 #include <QTextOption>
 #include <QVariant>
-#include <QVariantMap>
 
 #include "core/Debug.h"
 #include "core/Tr.h"
@@ -34,7 +33,7 @@ class EditorPanel : public SettingsPanel
     Q_OBJECT
 
 public:
-    explicit EditorPanel(const QVariantMap& values, QWidget* parent = nullptr)
+    explicit EditorPanel(const Ini::Map& values, QWidget* parent = nullptr)
         : SettingsPanel(Tr::editorPanelTitle(), parent)
     {
         setup_(values);
@@ -54,7 +53,7 @@ private:
     QCheckBox* lineHighlightCheck_ = new QCheckBox(this);
     QCheckBox* selectionHandlesCheck_ = new QCheckBox(this);
 
-    void setup_(const QVariantMap& values)
+    void setup_(const Ini::Map& values)
     {
         centerOnScrollCheck_->setText(Tr::editorPanelCenterOnScroll());
         centerOnScrollCheck_->setChecked(
@@ -67,8 +66,8 @@ private:
         tabStopDistance_->setText(Tr::editorPanelTabStopDistance());
         auto tab_stop_dist_slider = tabStopDistance_->control();
         tab_stop_dist_slider->setRange(
-            Ini::Defaults::EDITOR_TAB_STOP_DISTANCE_MIN,
-            Ini::Defaults::EDITOR_TAB_STOP_DISTANCE_MAX);
+            Ini::Limits::EDITOR_TAB_STOP_DISTANCE_MIN,
+            Ini::Limits::EDITOR_TAB_STOP_DISTANCE_MAX);
         tab_stop_dist_slider->setValue(
             values[Ini::Keys::EDITOR_TAB_STOP_DISTANCE].toInt());
 

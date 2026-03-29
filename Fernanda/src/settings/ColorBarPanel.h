@@ -16,7 +16,6 @@
 #include <QGroupBox>
 #include <QString>
 #include <QVariant>
-#include <QVariantMap>
 
 #include "core/Debug.h"
 #include "core/Tr.h"
@@ -32,7 +31,7 @@ class ColorBarPanel : public SettingsPanel
     Q_OBJECT
 
 public:
-    explicit ColorBarPanel(const QVariantMap& values, QWidget* parent = nullptr)
+    explicit ColorBarPanel(const Ini::Map& values, QWidget* parent = nullptr)
         : SettingsPanel(Tr::colorBarPanelTitle(), parent)
     {
         setup_(values);
@@ -44,7 +43,7 @@ private:
     ControlField<QComboBox>* position_ =
         new ControlField<QComboBox>(FieldKind::Label, this);
 
-    void setup_(const QVariantMap& values)
+    void setup_(const Ini::Map& values)
     {
         // Populate
         auto group_box = groupBox();

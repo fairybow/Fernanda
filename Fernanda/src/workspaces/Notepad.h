@@ -41,6 +41,7 @@
 #include "services/TreeViewService.h"
 #include "services/ViewService.h"
 #include "services/WindowService.h"
+#include "settings/Ini.h"
 #include "ui/Window.h"
 #include "views/AbstractFileView.h"
 #include "workspaces/Backup.h"
@@ -192,7 +193,7 @@ protected:
 
     virtual QString treeViewDockIniKey() const override
     {
-        return Ini::Keys::NOTEPAD_TREE_VIEW_DOCK;
+        return Ini::LocalKeys::NOTEPAD_TREE_VIEW_DOCK;
     }
 
     virtual bool canCloseTab(Window* window, int index) override
@@ -371,9 +372,7 @@ private:
 
         treeViews->setHeadersHidden(false);
         treeViews->setDockWidgetHook(this, &Notepad::treeViewDockWidgetHook_);
-        treeViews->setVisibilityConfig(
-            treeViewDockIniKey(),
-            Ini::Defaults::notepadTreeViewDock()); /// TODO TVT
+        treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT
 
         /// TODO BA
         files->setBeforeWriteHook([](const Coco::Path& path) {

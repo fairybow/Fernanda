@@ -17,7 +17,6 @@
 #include <QList>
 #include <QString>
 #include <QVariant>
-#include <QVariantMap>
 
 #include <Coco/Path.h>
 #include <Coco/Utility.h>
@@ -47,7 +46,7 @@ public:
     };
 
     explicit ThemesPanel(
-        const QVariantMap& values,
+        const Ini::Map& values,
         const QList<Entry>& windowThemes,
         const QList<Entry>& editorThemes,
         QWidget* parent = nullptr)
@@ -65,7 +64,7 @@ private:
         new ControlField<QComboBox>(FieldKind::Label, this);
 
     void setup_(
-        const QVariantMap& values,
+        const Ini::Map& values,
         const QList<Entry>& windowThemes,
         const QList<Entry>& editorThemes)
     {

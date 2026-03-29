@@ -23,7 +23,6 @@
 #include <QObject>
 #include <QString>
 #include <QVariant>
-#include <QVariantMap>
 
 #include <Coco/Utility.h>
 
@@ -40,10 +39,12 @@ struct Command
     // registering commands but handlers, obviously (plus, how would "has no
     // command" make any sense even if we were)?
 
-    QVariantMap params{};
+    using Params = QHash<QString, QVariant>;
+
+    Params params{};
     Window* context = nullptr;
 
-    Command(const QVariantMap& params = {}, Window* context = nullptr)
+    Command(const Params& params = {}, Window* context = nullptr)
         : params(params)
         , context(context)
     {
@@ -193,7 +194,7 @@ public:
 
     void execute(
         const QString& id,
-        const QVariantMap& params = {},
+        const Command::Params& params = {},
         Window* context = nullptr)
     {
         std::ignore = runCommand_(id, { params, context });
@@ -211,7 +212,7 @@ public:
 
     [[nodiscard]] QVariant call(
         const QString& id,
-        const QVariantMap& params = {},
+        const Command::Params& params = {},
         Window* context = nullptr)
     {
         return runCommand_(id, { params, context });
@@ -231,7 +232,7 @@ public:
     template <typename T>
     [[nodiscard]] T call(
         const QString& id,
-        const QVariantMap& params = {},
+        const Command::Params& params = {},
         Window* context = nullptr)
     {
         return runCommand_(id, { params, context }).value<T>();

@@ -17,6 +17,7 @@
 #include <QDomAttr>
 #include <QDomElement>
 #include <QDomNamedNodeMap>
+#include <QHashIterator>
 #include <QMapIterator>
 #include <QMetaObject>
 #include <QModelIndex>
@@ -25,16 +26,11 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
+#include <QVariantHash>
 #include <QVariantMap>
 
 #include <Coco/Concepts.h>
 #include <Coco/Utility.h>
-
-#define TO_STD_(Type, ArgName)                                                 \
-    inline std::string toString(const Type& ArgName)                           \
-    {                                                                          \
-        return toQString(ArgName).toStdString();                               \
-    }
 
 namespace Fernanda {
 
@@ -134,6 +130,22 @@ inline QString toQString(const QVariant& variant)
     }
 }
 
+inline QString toQString(const QVariantHash& variantHash)
+{
+    if (variantHash.isEmpty()) return "QVariantHash()";
+    constexpr auto inner_format = "{ \"%0\", %1 }";
+    constexpr auto outer_format = "QVariantHash(%0)";
+    QStringList list{};
+    QHashIterator<QString, QVariant> it(variantHash);
+
+    while (it.hasNext()) {
+        it.next();
+        list << QString(inner_format).arg(it.key()).arg(toQString(it.value()));
+    }
+
+    return QString(outer_format).arg(list.join(", "));
+}
+
 inline QString toQString(const QVariantMap& variantMap)
 {
     if (variantMap.isEmpty()) return "QVariantMap()";
@@ -159,12 +171,19 @@ inline std::string toString(const T* ptr)
     return toQString<T>(ptr).toStdString();
 }
 
-TO_STD_(QModelIndex, index);
-TO_STD_(QPoint, point);
-TO_STD_(QStringList, stringList);
-TO_STD_(QDomElement, element);
-TO_STD_(QVariant, variant);
-TO_STD_(QVariantMap, variantMap);
+#define TO_STD_(Type, ArgName)                                                 \
+    inline std::string toString(const Type& ArgName)                           \
+    {                                                                          \
+        return toQString(ArgName).toStdString();                               \
+    }
+
+TO_STD_(QModelIndex, index)
+TO_STD_(QPoint, point)
+TO_STD_(QStringList, stringList)
+TO_STD_(QDomElement, element)
+TO_STD_(QVariant, variant)
+TO_STD_(QVariantHash, variantHash)
+TO_STD_(QVariantMap, variantMap)
 
 } // namespace Fernanda
 

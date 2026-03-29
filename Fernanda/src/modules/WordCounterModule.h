@@ -87,36 +87,20 @@ private:
         if (!wordCounter) return;
 
         // TODO: Use this or comparable refactor in other places
-        auto get = [this](const char* key, auto defaultVal) {
-            return bus->call<bool>(
-                Bus::GET_SETTING,
-                { { "key", key }, { "defaultValue", defaultVal } });
+        auto get = [this](const QString& key) {
+            return bus->call<bool>(Bus::GET_SETTING, { { "key", key } });
         };
 
-        wordCounter->setActive(
-            get(Ini::Keys::WORD_COUNTER_ACTIVE,
-                Ini::Defaults::wordCounterActive()));
-        wordCounter->setHasLineCount(
-            get(Ini::Keys::WORD_COUNTER_LINE_COUNT,
-                Ini::Defaults::wordCounterLineCount()));
-        wordCounter->setHasWordCount(
-            get(Ini::Keys::WORD_COUNTER_WORD_COUNT,
-                Ini::Defaults::wordCounterWordCount()));
-        wordCounter->setHasCharCount(
-            get(Ini::Keys::WORD_COUNTER_CHAR_COUNT,
-                Ini::Defaults::wordCounterCharCount()));
+        wordCounter->setActive(get(Ini::Keys::WORD_COUNTER_ACTIVE));
+        wordCounter->setHasLineCount(get(Ini::Keys::WORD_COUNTER_LINE_COUNT));
+        wordCounter->setHasWordCount(get(Ini::Keys::WORD_COUNTER_WORD_COUNT));
+        wordCounter->setHasCharCount(get(Ini::Keys::WORD_COUNTER_CHAR_COUNT));
         wordCounter->setHasSelectionCounts(
-            get(Ini::Keys::WORD_COUNTER_SELECTION,
-                Ini::Defaults::wordCounterSelection()));
+            get(Ini::Keys::WORD_COUNTER_SELECTION));
         wordCounter->setHasSelectionReplacement(
-            get(Ini::Keys::WORD_COUNTER_SEL_REPLACE,
-                Ini::Defaults::wordCounterSelReplace()));
-        wordCounter->setHasLinePosition(
-            get(Ini::Keys::WORD_COUNTER_LINE_POS,
-                Ini::Defaults::wordCounterLinePos()));
-        wordCounter->setHasColumnPosition(
-            get(Ini::Keys::WORD_COUNTER_COL_POS,
-                Ini::Defaults::wordCounterColPos()));
+            get(Ini::Keys::WORD_COUNTER_SEL_REPLACE));
+        wordCounter->setHasLinePosition(get(Ini::Keys::WORD_COUNTER_LINE_POS));
+        wordCounter->setHasColumnPosition(get(Ini::Keys::WORD_COUNTER_COL_POS));
     }
 
     template <typename CallableT> void forEachWordCounter_(CallableT&& callable)

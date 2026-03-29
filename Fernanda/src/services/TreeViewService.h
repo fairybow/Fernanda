@@ -25,7 +25,6 @@
 #include <QString>
 #include <QToolButton>
 #include <QVariant>
-#include <QVariantMap>
 
 #include <Coco/Path.h>
 
@@ -163,11 +162,7 @@ public:
             tree_view->setHeaderHidden(hidden);
     }
 
-    void setVisibilityConfig(const QString& iniKey, bool defaultValue)
-    {
-        visibilityIniKey_ = iniKey;
-        defaultVisibility_ = defaultValue;
-    }
+    void setVisibilityKey(const QString& iniKey) { visibilityIniKey_ = iniKey; }
 
 signals:
     void doubleClicked(Window* context, const QModelIndex& index);
@@ -208,7 +203,6 @@ private:
     bool headersHidden_ = false;
 
     QString visibilityIniKey_{};
-    bool defaultVisibility_ = true;
 
     void setup_()
     {
@@ -230,8 +224,7 @@ private:
         /// TODO TVT
         dock_widget->setVisible(bus->call<bool>(
             Bus::GET_SETTING,
-            { { "key", visibilityIniKey_ },
-              { "defaultValue", defaultVisibility_ } }));
+            { { "key", visibilityIniKey_ } }));
 
         // TODO: Needed? Check that it actually works, too, since it decays to
         // QObject before emitting destroyed...

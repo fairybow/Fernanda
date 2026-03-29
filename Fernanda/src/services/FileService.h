@@ -22,7 +22,6 @@
 #include <QSet>
 #include <QString>
 #include <QVariant>
-#include <QVariantMap>
 
 #include <Coco/Path.h>
 

@@ -22,7 +22,6 @@
 #include <QPoint>
 #include <QSize>
 #include <QString>
-#include <QVariantMap>
 
 #include <Coco/Bool.h>
 #include <Coco/Path.h>
@@ -126,6 +125,9 @@ protected:
 
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
+
+    // This hook looks ridiculous but right now is how the common TreeView
+    // toggle menu item saves the setting per-Workspace subclass
     virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
 
     virtual bool canCloseTab(Window*, int index) { return true; }

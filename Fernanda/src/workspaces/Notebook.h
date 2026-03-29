@@ -32,7 +32,6 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
-#include <QVariantMap>
 #include <QWidget>
 
 #include <Coco/Path.h>
@@ -54,6 +53,7 @@
 #include "services/TreeViewService.h"
 #include "services/ViewService.h"
 #include "services/WindowService.h"
+#include "settings/Ini.h"
 #include "ui/DrawerWidget.h"
 #include "ui/TreeView.h"
 #include "ui/Window.h"
@@ -157,7 +157,7 @@ protected:
 
     virtual QString treeViewDockIniKey() const override
     {
-        return Ini::Keys::NOTEBOOK_TREE_VIEW_DOCK;
+        return Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK;
     }
 
     virtual bool canCloseWindow(Window* window) override
@@ -271,9 +271,7 @@ private:
 
         treeViews->setHeadersHidden(true);
         treeViews->setDockWidgetHook(this, &Notebook::treeViewDockWidgetHook_);
-        treeViews->setVisibilityConfig(
-            treeViewDockIniKey(),
-            Ini::Defaults::notebookTreeViewDock()); /// TODO TVT
+        treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT
 
         connect(
             treeViews,

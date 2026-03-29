@@ -22,7 +22,6 @@
 #include <QString>
 #include <QTextOption>
 #include <QVariant>
-#include <QVariantMap>
 #include <QWidget>
 
 #include <Coco/Bool.h>
@@ -780,50 +779,39 @@ private:
         if (auto editor = textFileView->editor()) {
             auto font = bus->call<QFont>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_FONT },
-                  { "defaultValue", Ini::Defaults::font() } });
+                { { "key", Ini::Keys::EDITOR_FONT } });
 
             auto center_on_scroll = bus->call<bool>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_CENTER_ON_SCROLL },
-                  { "defaultValue", Ini::Defaults::editorCenterOnScroll() } });
+                { { "key", Ini::Keys::EDITOR_CENTER_ON_SCROLL } });
 
             auto overwrite = bus->call<bool>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_OVERWRITE },
-                  { "defaultValue", Ini::Defaults::editorOverwrite() } });
+                { { "key", Ini::Keys::EDITOR_OVERWRITE } });
 
             auto tab_stop_distance = bus->call<int>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_TAB_STOP_DISTANCE },
-                  { "defaultValue", Ini::Defaults::editorTabStopDistance() } });
+                { { "key", Ini::Keys::EDITOR_TAB_STOP_DISTANCE } });
 
             auto wrap_mode = bus->call<QTextOption::WrapMode>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_WRAP_MODE },
-                  { "defaultValue", Ini::Defaults::editorWrapMode() } });
+                { { "key", Ini::Keys::EDITOR_WRAP_MODE } });
 
             auto dbl_click_whitespace = bus->call<bool>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE },
-                  { "defaultValue",
-                    Ini::Defaults::editorDoubleClickWhitespace() } });
+                { { "key", Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE } });
 
             auto line_numbers = bus->call<bool>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_LINE_NUMBERS },
-                  { "defaultValue", Ini::Defaults::editorLineNumbers() } });
+                { { "key", Ini::Keys::EDITOR_LINE_NUMBERS } });
 
             auto line_highlight = bus->call<bool>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_LINE_HIGHLIGHT },
-                  { "defaultValue", Ini::Defaults::editorLineHighlight() } });
+                { { "key", Ini::Keys::EDITOR_LINE_HIGHLIGHT } });
 
             auto selection_handles = bus->call<bool>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_SELECTION_HANDLES },
-                  { "defaultValue",
-                    Ini::Defaults::editorSelectionHandles() } });
+                { { "key", Ini::Keys::EDITOR_SELECTION_HANDLES } });
 
             editor->setFont(font);
             editor->setCenterOnScroll(center_on_scroll);
@@ -839,18 +827,15 @@ private:
         if (auto key_filters = textFileView->keyFilters()) {
             auto active = bus->call<bool>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::KEY_FILTERS_ACTIVE },
-                  { "defaultValue", Ini::Defaults::keyFiltersActive() } });
+                { { "key", Ini::Keys::KEY_FILTERS_ACTIVE } });
 
             auto auto_close = bus->call<bool>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::KEY_FILTERS_AUTO_CLOSE },
-                  { "defaultValue", Ini::Defaults::keyFiltersAutoClose() } });
+                { { "key", Ini::Keys::KEY_FILTERS_AUTO_CLOSE } });
 
             auto barging = bus->call<bool>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::KEY_FILTERS_BARGING },
-                  { "defaultValue", Ini::Defaults::keyFiltersBarging() } });
+                { { "key", Ini::Keys::KEY_FILTERS_BARGING } });
 
             key_filters->setActive(active);
             key_filters->setAutoClosing(auto_close);

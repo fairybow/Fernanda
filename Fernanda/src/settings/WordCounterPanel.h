@@ -16,7 +16,6 @@
 #include <QGroupBox>
 #include <QString>
 #include <QVariant>
-#include <QVariantMap>
 
 #include "core/Debug.h"
 #include "core/Tr.h"
@@ -30,9 +29,7 @@ class WordCounterPanel : public SettingsPanel
     Q_OBJECT
 
 public:
-    explicit WordCounterPanel(
-        const QVariantMap& values,
-        QWidget* parent = nullptr)
+    explicit WordCounterPanel(const Ini::Map& values, QWidget* parent = nullptr)
         : SettingsPanel(Tr::wordCounterPanelTitle(), parent)
     {
         setup_(values);
@@ -49,7 +46,7 @@ private:
     QCheckBox* linePosCheck_ = new QCheckBox(this);
     QCheckBox* colPosCheck_ = new QCheckBox(this);
 
-    void setup_(const QVariantMap& values)
+    void setup_(const Ini::Map& values)
     {
         // Populate
         auto group_box = groupBox();

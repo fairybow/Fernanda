@@ -22,7 +22,6 @@
 #include <QStringList>
 #include <QTextOption>
 #include <QVariant>
-#include <QVariantMap>
 
 #include <Coco/Path.h>
 #include <Coco/Utility.h>
@@ -116,72 +115,17 @@ public:
                                        theme.second }; // name, path
         }
 
-        /// TODO FT: Ini should probably provide a map of values to defaults or
-        /// something
-        auto v = [this](
-                     const auto& key,
-                     const auto& default_) -> std::pair<QString, QVariant> {
-            return { key, settings_->value(key, qVar(default_)) };
-        };
+        auto& defaults = Ini::defaults();
+        Ini::Map current_values{};
 
-        QVariantMap values{
-            // Font
-            v(Ini::Keys::EDITOR_FONT, Ini::Defaults::font()),
-
-            // Themes (current selection, not the list of available themes)
-            v(Ini::Keys::WINDOW_THEME, Ini::Defaults::windowTheme()),
-            v(Ini::Keys::EDITOR_THEME, Ini::Defaults::editorTheme()),
-
-            // Key filters
-            v(Ini::Keys::KEY_FILTERS_ACTIVE, Ini::Defaults::keyFiltersActive()),
-            v(Ini::Keys::KEY_FILTERS_AUTO_CLOSE,
-              Ini::Defaults::keyFiltersAutoClose()),
-            v(Ini::Keys::KEY_FILTERS_BARGING,
-              Ini::Defaults::keyFiltersBarging()),
-
-            // Editor
-            v(Ini::Keys::EDITOR_CENTER_ON_SCROLL,
-              Ini::Defaults::editorCenterOnScroll()),
-            v(Ini::Keys::EDITOR_OVERWRITE, Ini::Defaults::editorOverwrite()),
-            v(Ini::Keys::EDITOR_TAB_STOP_DISTANCE,
-              Ini::Defaults::editorTabStopDistance()),
-            v(Ini::Keys::EDITOR_WRAP_MODE, Ini::Defaults::editorWrapMode()),
-            v(Ini::Keys::EDITOR_DBL_CLICK_WHITESPACE,
-              Ini::Defaults::editorDoubleClickWhitespace()),
-            v(Ini::Keys::EDITOR_LINE_NUMBERS,
-              Ini::Defaults::editorLineNumbers()),
-            v(Ini::Keys::EDITOR_LINE_HIGHLIGHT,
-              Ini::Defaults::editorLineHighlight()),
-            v(Ini::Keys::EDITOR_SELECTION_HANDLES,
-              Ini::Defaults::editorSelectionHandles()),
-
-            // Word counter
-            v(Ini::Keys::WORD_COUNTER_ACTIVE,
-              Ini::Defaults::wordCounterActive()),
-            v(Ini::Keys::WORD_COUNTER_LINE_COUNT,
-              Ini::Defaults::wordCounterLineCount()),
-            v(Ini::Keys::WORD_COUNTER_WORD_COUNT,
-              Ini::Defaults::wordCounterWordCount()),
-            v(Ini::Keys::WORD_COUNTER_CHAR_COUNT,
-              Ini::Defaults::wordCounterCharCount()),
-            v(Ini::Keys::WORD_COUNTER_SELECTION,
-              Ini::Defaults::wordCounterSelection()),
-            v(Ini::Keys::WORD_COUNTER_SEL_REPLACE,
-              Ini::Defaults::wordCounterSelReplace()),
-            v(Ini::Keys::WORD_COUNTER_LINE_POS,
-              Ini::Defaults::wordCounterLinePos()),
-            v(Ini::Keys::WORD_COUNTER_COL_POS,
-              Ini::Defaults::wordCounterColPos()),
-
-            // Color bar
-            v(Ini::Keys::COLOR_BAR_ACTIVE, Ini::Defaults::colorBarActive()),
-            v(Ini::Keys::COLOR_BAR_POSITION, Ini::Defaults::colorBarPosition())
-        };
+        for (auto it = defaults.cbegin(); it != defaults.cend(); ++it) {
+            current_values[it.key()] = get(it.key());
+        }
 
         dialog_ = new SettingsDialog(
             name_.isEmpty() ? Tr::settingsTitle()
                             : Tr::settingsTitleFormat().arg(name_),
-            values,
+            current_values,
             window_theme_entries,
             editor_theme_entries);
 
@@ -210,26 +154,14 @@ public:
         dialog_->open();
     }
 
-    /// TODO TVT
-    QVariant get(QAnyStringView key) const { return settings_->value(key); }
-
-    /// TODO TVT
-    QVariant get(QAnyStringView key, const QVariant& defaultValue) const
+    QVariant get(QAnyStringView key) const
     {
-        return settings_->value(key, defaultValue);
+        return settings_->value(key, Ini::defaults()[key.toString()]);
     }
 
-    /// TODO TVT
     template <typename T> T get(QAnyStringView key) const
     {
-        return settings_->value<T>(key);
-    }
-
-    /// TODO TVT
-    template <typename T>
-    T get(QAnyStringView key, const QVariant& defaultValue) const
-    {
-        return settings_->value<T>(key, defaultValue);
+        return settings_->value<T>(key, Ini::defaults()[key.toString()]);
     }
 
     void set(const QString& key, const QVariant& value)
@@ -246,14 +178,19 @@ protected:
     virtual void registerBusCommands() override
     {
         bus->addCommandHandler(Bus::GET_SETTING, [this](const Command& cmd) {
-            return settings_->value(
-                cmd.param<QString>("key"),
-                cmd.param("defaultValue"));
+            auto key = cmd.param<QString>("key");
+            return settings_->value(key, Ini::defaults()[key]);
         });
 
-        /*bus->addCommandHandler(Bus::SET_SETTING, [this](const Command& cmd) {
-            set(cmd.param<QString>("key"), cmd.param("value"));
-        });*/
+        // bus->addCommandHandler(Bus::SET_SETTING, [this](const Command& cmd) {
+        //     auto key = cmd.param<QString>("key");
+        //     if (!settings_->isWritable()) {
+        //         WARN("Settings not writable; cannot set key: {}", key);
+        //         return;
+        //     }
+        //
+        //    settings_->setValue(key, cmd.param<QVariant>("value"));
+        // });
     }
 
     virtual void connectBusEvents() override

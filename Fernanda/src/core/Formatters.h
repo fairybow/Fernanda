@@ -23,28 +23,32 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
+#include <QVariantHash>
 #include <QVariantMap>
 
 #include <Coco/Concepts.h>
 
 #include "core/ToString.h"
 
-#define STRING_FORMATTER_(T, Conversion)                                       \
+#define GEN_STRING_FORMATTER_(T, Conversion)                                   \
     template <> struct std::formatter<T> : std::formatter<std::string>         \
     {                                                                          \
         auto format(const T& x, format_context& ctx) const                     \
         {                                                                      \
             return std::formatter<std::string>::format(Conversion, ctx);       \
         }                                                                      \
-    }
+    };
 
-STRING_FORMATTER_(QString, x.toStdString());
-STRING_FORMATTER_(QStringList, Fernanda::toString(x));
-STRING_FORMATTER_(QVariantMap, Fernanda::toString(x));
-STRING_FORMATTER_(QVariant, Fernanda::toString(x));
-STRING_FORMATTER_(QModelIndex, Fernanda::toString(x));
-STRING_FORMATTER_(QPoint, Fernanda::toString(x));
-STRING_FORMATTER_(QDomElement, Fernanda::toString(x));
+GEN_STRING_FORMATTER_(QString, x.toStdString())
+GEN_STRING_FORMATTER_(QStringList, Fernanda::toString(x))
+GEN_STRING_FORMATTER_(QVariantHash, Fernanda::toString(x))
+GEN_STRING_FORMATTER_(QVariantMap, Fernanda::toString(x))
+GEN_STRING_FORMATTER_(QVariant, Fernanda::toString(x))
+GEN_STRING_FORMATTER_(QModelIndex, Fernanda::toString(x))
+GEN_STRING_FORMATTER_(QPoint, Fernanda::toString(x))
+GEN_STRING_FORMATTER_(QDomElement, Fernanda::toString(x))
+
+#undef GEN_STRING_FORMATTER_
 
 template <Coco::Concepts::QObjectPointer T>
 struct std::formatter<T> : std::formatter<std::string>
@@ -56,5 +60,3 @@ struct std::formatter<T> : std::formatter<std::string>
             ctx);
     }
 };
-
-#undef STRING_FORMATTER_

@@ -23,7 +23,6 @@
 #include <QStringList>
 
 #include <Coco/Path.h>
-#include <Coco/Utility.h>
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
@@ -412,8 +411,7 @@ private slots:
         if (!initialWindowThemeLoaded_) {
             currentWindowThemePath_ = bus->call<Coco::Path>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::WINDOW_THEME },
-                  { "defaultValue", qVar(Ini::Defaults::windowTheme()) } });
+                { { "key", Ini::Keys::WINDOW_THEME } });
 
             initialWindowThemeLoaded_ = true;
         }
@@ -446,8 +444,7 @@ private slots:
         if (!initialEditorThemeLoaded_) {
             currentEditorThemePath_ = bus->call<Coco::Path>(
                 Bus::GET_SETTING,
-                { { "key", Ini::Keys::EDITOR_THEME },
-                  { "defaultValue", qVar(Ini::Defaults::editorTheme()) } });
+                { { "key", Ini::Keys::EDITOR_THEME } });
 
             initialEditorThemeLoaded_ = true;
         }
