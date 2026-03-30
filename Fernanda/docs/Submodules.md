@@ -27,8 +27,8 @@ git commit -m "Add miniz submodule at v3.1.1 (d10b03c)"
 ## 3. Removing a submodule (if we need to start over)
 
 ```bash
-git submodule deinit -f submodules/
-git rm -f submodules/
+git submodule deinit -f submodules/{ submodule }
+git rm -f submodules/{ submodule }
 ```
 
 (May need to manually delete submodule folder in `.git/modules`.)
