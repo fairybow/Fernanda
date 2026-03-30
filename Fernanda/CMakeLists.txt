@@ -274,7 +274,6 @@ endif()
 # --- miniz (built from source via submodule) ---
 
 add_subdirectory(submodules/miniz)
-add_subdirectory(submodules/screenplay-tools/cpp)
 
 # --- Linking ---
 
@@ -287,7 +286,6 @@ target_link_libraries(Fernanda PRIVATE
     Qt6::Svg
     Qt6::Xml
     Qt6::PdfWidgets
-    ScreenplayTools
 )
 
 if(UNIX AND NOT APPLE)
