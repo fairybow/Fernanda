@@ -52,7 +52,7 @@ Log files are stored in `~/.fernanda/logs/` and pruned automatically.
 ## Built with
 
 ![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=C%2B%2B)
-[![Qt](https://img.shields.io/badge/Qt-6.10-brightgreen?style=for-the-badge&logo=qt)](https://qt.io/)
+[![Qt](https://img.shields.io/badge/Qt-6.11-brightgreen?style=for-the-badge&logo=qt)](https://qt.io/)
 [![miniz](https://img.shields.io/badge/miniz-3.1-yellow.svg?style=for-the-badge)](https://github.com/richgel999/miniz)
 
 (See [Dependencies.md](Fernanda/docs/Dependencies.md))
@@ -62,7 +62,7 @@ Log files are stored in `~/.fernanda/logs/` and pruned automatically.
 ### Requirements
 
 - C++20
-- Qt 6.10.2 (with Qt Image Formats and Qt PDF)
+- Qt 6.11 (with Qt Image Formats and Qt PDF)
 - CMake 3.21+
 
 ### Windows (Visual Studio)
