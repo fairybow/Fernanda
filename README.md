@@ -1,7 +1,7 @@
 <p align="center">
     <img src="Fernanda/resources/banner/Readme Banner.png" alt="ASCII banner" width="640">
 </p>
-<p align="center"><b>A plain text editor for drafting long-form fiction</b></p>
+<p align="center"><b>A plain-text-first workbench for creative writing</b></p>
 <p align="center">
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%203-red.svg?style=for-the-badge" alt="License GPL 3"></a>
     <img src="https://img.shields.io/badge/Platform-Windows%20(x64)-blue.svg?style=for-the-badge" alt="Platform Windows (x64)">
@@ -77,7 +77,7 @@ Log files are stored in `~/.fernanda/logs/` and pruned automatically.
 
 Hey! Read Fernanda's Code! (I'm proud of it.)
 
-Fernanda prioritizes readable, maintainable code and follows conventional best practices pragmatically (not dogmatically). Throughout, simple solutions are preferred over premature abstractions. Objects and namespaces stay focused, and most files are just a few hundred lines, with about two barely exceeding 1,000. You will not find a 10,000 line `MainWindow` or anything like it.
+Fernanda prioritizes readable, maintainable code and follows conventional best practices pragmatically (not dogmatically). Objects and namespaces stay focused, and most files are just a few hundred lines, with one barely exceeding 1,000. You will not find a 10,000 line `MainWindow` or anything like it.
 
 Fernanda's [architecture](Fernanda/docs/Architecture.md) was carefully considered. I've landed on what I think is a simple but highly flexible interworking of common architectural patterns designed to keep service objects in their lanes while allowing lateral communication across a given Workspace.
 

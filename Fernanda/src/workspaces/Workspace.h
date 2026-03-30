@@ -176,14 +176,16 @@ private:
 
     void setup_()
     {
-        settings->initialize();
-        windows->initialize();
-        views->initialize();
-        files->initialize();
-        treeViews->initialize();
-        colorBars->initialize();
-        styling->initialize();
-        wordCounters->initialize();
+        for (auto& service :
+             std::initializer_list<AbstractService*>{ settings,
+                                                      windows,
+                                                      views,
+                                                      files,
+                                                      treeViews,
+                                                      colorBars,
+                                                      styling,
+                                                      wordCounters })
+            service->initialize();
 
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
