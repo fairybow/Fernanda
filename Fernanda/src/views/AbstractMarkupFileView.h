@@ -25,6 +25,9 @@
 
 namespace Fernanda {
 
+// TODO: Start edit only and load preview in the background? It's only slow in
+// debug, though
+// TODO: Toggle/cycle button
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
@@ -132,7 +135,7 @@ protected:
 
 private:
     QSplitter* splitter_ = nullptr;
-    QTextBrowser* preview_ = nullptr;
+    QTextBrowser* preview_ = nullptr; // TODO: Replace?
     Mode mode_ = Split;
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);

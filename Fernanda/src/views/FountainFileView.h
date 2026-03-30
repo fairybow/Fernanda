@@ -15,7 +15,8 @@
 #include <QString>
 #include <QWidget>
 
-//#include <screenplay-tools/>
+#include <screenplay_tools/fountain/format_helper.h>
+#include <screenplay_tools/fountain/parser.h>
 
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
@@ -37,6 +38,7 @@ public:
     virtual ~FountainFileView() override {}
 
 protected:
+    // TODO: QTextBrowser probably not great for this
     virtual QString renderToHtml(const QString& plainText) const override
     {
         // 1. Convert plainText to std::string

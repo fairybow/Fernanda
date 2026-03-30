@@ -287,6 +287,7 @@ target_link_libraries(Fernanda PRIVATE
     Qt6::Svg
     Qt6::Xml
     Qt6::PdfWidgets
+    ScreenplayTools
 )
 
 if(UNIX AND NOT APPLE)
