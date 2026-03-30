@@ -15,6 +15,8 @@
 #include <QString>
 #include <QWidget>
 
+//#include <screenplay-tools/>
+
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
 
@@ -35,8 +37,15 @@ public:
     virtual ~FountainFileView() override {}
 
 protected:
-    virtual QWidget* setupWidget() override {}
-    virtual QString renderToHtml(const QString& plainText) const override {}
+    virtual QString renderToHtml(const QString& plainText) const override
+    {
+        // 1. Convert plainText to std::string
+        // 2. Parse with ScreenplayTools::Fountain::Parser
+        // 3. Walk getScript()->getElements()
+        // 4. Emit HTML divs with class names per element type
+        // 5. Wrap in <style> block with screenplay CSS
+        // 6. Return as QString
+    }
 
 private:
     //

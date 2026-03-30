@@ -274,6 +274,7 @@ endif()
 # --- miniz (built from source via submodule) ---
 
 add_subdirectory(submodules/miniz)
+add_subdirectory(submodules/screenplay-tools/cpp)
 
 # --- Linking ---
 
