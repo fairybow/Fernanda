@@ -164,8 +164,11 @@ set(FERNANDA_HEADERS
     src/ui/ZoomControl.h
 
     src/views/AbstractFileView.h
+    src/views/AbstractMarkupFileView.h
+    src/views/FountainFileView.h
     src/views/ImageFileView.h
     src/views/KeyFilters.h
+    src/views/MarkdownFileView.h
     src/views/PdfFileView.h
     src/views/TextFileView.h
 
