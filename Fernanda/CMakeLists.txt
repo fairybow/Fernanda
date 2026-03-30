@@ -166,6 +166,7 @@ set(FERNANDA_HEADERS
     src/views/AbstractFileView.h
     src/views/AbstractMarkupFileView.h
     src/views/FountainFileView.h
+    src/views/FountainParser.h
     src/views/ImageFileView.h
     src/views/KeyFilters.h
     src/views/MarkdownFileView.h
