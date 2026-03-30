@@ -52,6 +52,7 @@
 - [ ] Add special plain text formats to tags as implements (e.g., Markdown, Fountain, ...)
 - [ ] Dialog overhaul - need a base for some of these (like a ScrollableDialog or Dialog with a central widget setter) and normalization between them
 - [ ] Both the recovery dialogs and existing multi save prompt should use a path display dialog that displays parent directories as a collapsible header with checkbox beside it and each of its children (the files within)
+- [ ] Eventually, implement own Fountain parser
 
 
 - [x] CRITICAL BUG: Occasionally, saving Paradise Lost, I'll see a save fail prompt. It happens without the beforeWriteHook_ but not often. The hook doesn't seem to affect the frequency. Problem might be in Io::write and with QSaveFile? Here's the debug output that shows up related to this: `239 | 2026-03-20 | 22:11:19.360 | Failed to commit file at C:/.../Documents/Fernanda/Paradise Lost.txt (Error: Access is denied.)!` (see FileService writeModelToDisk_ for the fix)
