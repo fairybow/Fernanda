@@ -54,7 +54,7 @@ struct Element
 class Parser
 {
 public:
-    explicit Parser(const std::string& source) {}
+    explicit Parser(const std::string& source) { parse_(source); }
 
     const std::vector<TitleEntry>& titlePage() const { return titlePage_; }
     const std::vector<Element>& elements() const { return elements_; }
