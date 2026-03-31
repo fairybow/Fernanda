@@ -74,10 +74,14 @@ struct Element
 
         if (element.textCentered) out << "; centered";
         if (element.isDualDialogCharacter) out << "; dual";
-        if (!element.sceneNumber.empty())
+
+        if (!element.sceneNumber.empty()) {
             out << "; scene#: " << element.sceneNumber;
-        if (element.sectionDepth >= 0)
+        }
+
+        if (element.sectionDepth >= 0) {
             out << "; depth: " << element.sectionDepth;
+        }
 
         return out << " ]";
     }
