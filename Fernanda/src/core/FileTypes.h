@@ -20,6 +20,7 @@
 // "knows" about. Special handling is determined by FileService
 // TODO: Most of this is planned / currently unsupported. This exists for the
 // future
+// TODO: This file nasty
 namespace Fernanda::FileTypes {
 
 /// TODO FT: Can move out into Fernanda and rename FileType?
@@ -33,6 +34,7 @@ enum Kind
 
     Markdown,
     Fountain,
+    Html,
 
     // These theme extensions are here because they may be editable in special
     // views later
@@ -69,6 +71,8 @@ constexpr ExtensionEntry extensions[] = {
     { Markdown, ".md" },
     { Markdown, ".markdown" },
     { Fountain, ".fountain" },
+    { Html, ".html" },
+    { Html, ".htm" },
     { FernandaCorkboard, ".fcb" },
     { FernandaWindowTheme, ".fernanda_window" },
     { FernandaEditorTheme,
@@ -143,6 +147,7 @@ constexpr ExtensionEntry names[] = {
     { PlainText, "Plain Text" },
     { Markdown, "Markdown" },
     { Fountain, "Fountain" },
+    { Html, "Hypertext Markup Language (HTML)" },
     { FernandaCorkboard, "Fernanda Corkboard" },
     { FernandaWindowTheme, "Fernanda Window Theme" },
     { FernandaEditorTheme, "Fernanda Editor Theme" },
