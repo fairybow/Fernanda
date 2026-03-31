@@ -5,6 +5,7 @@
 
 cmake_minimum_required(VERSION 3.21)
 project(Fernanda LANGUAGES CXX)
+set_property(GLOBAL PROPERTY VS_STARTUP_PROJECT Fernanda)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -263,6 +264,9 @@ endif()
 target_include_directories(Fernanda PRIVATE
     src
     submodules/Coco/Coco/include
+    submodules/md4c/src
+    submodules/md4c/md2html
+    submodules/miniz
 )
 
 if(WIN32)
@@ -274,11 +278,14 @@ endif()
 
 # --- miniz (built from source via submodule) ---
 
-add_subdirectory(submodules/miniz)
+add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
+add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
 
 # --- Linking ---
 
 target_link_libraries(Fernanda PRIVATE
+    md4c
+    md4c-html
     miniz
     Qt6::Core
     Qt6::Gui

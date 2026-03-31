@@ -67,6 +67,7 @@ constexpr ExtensionEntry extensions[] = {
     // Plain text:
     { PlainText, ".txt" },
     { Markdown, ".md" },
+    { Markdown, ".markdown" },
     { Fountain, ".fountain" },
     { FernandaCorkboard, ".fcb" },
     { FernandaWindowTheme, ".fernanda_window" },

@@ -325,11 +325,11 @@ private:
 
             // Tier 2: Extension for special plaintext types
             // switch (FileTypes::fromPath(path)) {
-            // case FileTypes::Markdown:
             // case FileTypes::FernandaCorkboard:
             // case FileTypes::FernandaWindowTheme:
             // case FileTypes::FernandaEditorTheme:
 
+            // case FileTypes::Markdown:
             // case FileTypes::Fountain:
             // default:
             model = newDiskTextFileModel_(path);

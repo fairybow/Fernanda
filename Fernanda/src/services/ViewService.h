@@ -801,7 +801,10 @@ private:
                 view = newFileView_<FountainFileView*>(text_model, window);
                 break;
             }
-            case FileTypes::Markdown: /// TODO MU
+            case FileTypes::Markdown: {
+                view = newFileView_<MarkdownFileView*>(text_model, window);
+                break;
+            }
             default: {
                 view = newFileView_<TextFileView*>(text_model, window);
                 break;

@@ -12,8 +12,12 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QString>
 #include <QWidget>
+
+#include <md4c-html.h>
+#include <md4c.h>
 
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
@@ -35,11 +39,23 @@ public:
     virtual ~MarkdownFileView() override {}
 
 protected:
-    virtual QWidget* setupWidget() override {}
-    virtual QString renderToHtml(const QString& plainText) const override {}
+    virtual QString renderToHtml(const QString& plainText) const override
+    {
+        auto input = plainText.toUtf8();
+        QByteArray output{};
 
-private:
-    //
+        md_html(
+            input.constData(),
+            MD_SIZE(input.size()),
+            [](const MD_CHAR* chunk, MD_SIZE size, void* userdata) {
+                static_cast<QByteArray*>(userdata)->append(chunk, size);
+            },
+            &output,
+            MD_FLAG_TABLES | MD_FLAG_STRIKETHROUGH | MD_FLAG_TASKLISTS,
+            0);
+
+        return QString::fromUtf8(output);
+    }
 };
 
 } // namespace Fernanda

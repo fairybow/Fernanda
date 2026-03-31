@@ -36,16 +36,12 @@ public:
     virtual ~FountainFileView() override {}
 
 protected:
-    // TODO: QTextBrowser probably not great for this
     virtual QString renderToHtml(const QString& plainText) const override
     {
         auto parser = Fountain::Parser(plainText.toStdString());
         auto renderer = Fountain::Renderer(parser);
         return QString::fromStdString(renderer.html());
     }
-
-private:
-    //
 };
 
 } // namespace Fernanda
