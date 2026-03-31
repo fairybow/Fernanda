@@ -4,3 +4,6 @@
 [submodule "Fernanda/submodules/miniz"]
 	path = Fernanda/submodules/miniz
 	url = https://github.com/fairybow/Fernanda-miniz.git
+[submodule "Fernanda/submodules/md4c"]
+	path = Fernanda/submodules/md4c
+	url = https://github.com/fairybow/Fernanda-md4c.git
