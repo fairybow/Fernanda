@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-/// TODO MU: Draft
+/// TODO MU: Draft (right now, keep one file)
 
 // TODO: Move to own repo?
 namespace Fountain {
@@ -16,9 +16,8 @@ namespace Fountain {
 // Translated from:
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FNElement.h
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FastFountainParser.h
-
-// TODO: Fountain::Renderer (to HTML; see
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FNHTMLScript.h)
+
 // TODO: Fountain::Paginator (we will need a printing layout; see
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FNPaginator.h)
 
@@ -801,5 +800,31 @@ private:
 //     oss << e;
 //     qDebug().noquote() << QString::fromStdString(oss.str());
 // }
+
+class Renderer
+{
+public:
+    explicit Renderer(const Parser& parser)
+        : parser_(parser)
+    {
+    }
+
+    std::string html() const {}
+
+private:
+    const Parser& parser_;
+
+    std::string renderTitlePage_() const {}
+
+    std::string renderBody_() const {}
+
+    std::string renderElement_(const Element& element) const {}
+
+    std::string applyInlineFormatting_(const std::string& text) const {}
+
+    std::string cssClass_(Element::Type type) const {}
+
+    static std::string escapeHtml_(const std::string& text) {}
+};
 
 } // namespace Fountain
