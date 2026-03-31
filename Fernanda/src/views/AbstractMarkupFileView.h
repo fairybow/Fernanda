@@ -28,6 +28,10 @@ namespace Fernanda {
 // TODO: Start edit only and load preview in the background? It's only slow in
 // debug, though
 // TODO: Toggle/cycle button
+// TODO: ^ Would prefer more distinctive toggle modes (not moving a splitter);
+// possible a stacked widget that displays the right modes between edit, split,
+// and preview. Though, this would mean moving the two widgets into a splitter
+// for split or having duplicates?
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
@@ -139,10 +143,10 @@ private:
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
 
-    //void reparse_()
+    // void reparse_()
     //{
-    //    auto editor = this->editor();
-    //    if (!preview_ || !editor) return;
+    //     auto editor = this->editor();
+    //     if (!preview_ || !editor) return;
 
     //    auto scroll = preview_->verticalScrollBar()->value();
     //    auto html = renderToHtml(editor->document()->toPlainText());
@@ -159,12 +163,12 @@ private:
         auto html = renderToHtml(editor->document()->toPlainText());
 
         if (preview_->url().isEmpty()) {
-            // First load — no scroll to preserve
+            // First load (no scroll to preserve)
             preview_->setHtml(html);
             return;
         }
 
-        // Subsequent loads — preserve scroll
+        // Subsequent loads (preserve scroll)
         preview_->page()->runJavaScript(
             "window.scrollY",
             [this, html](const QVariant& scrollPos) {

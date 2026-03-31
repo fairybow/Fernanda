@@ -1050,6 +1050,9 @@ private:
 
     std::string renderBody_() const
     {
+        // Boneyard, Comment, Synopsis, and SectionHeading are not rendered in
+        // screenplay output per the Fountain spec. SectionHeading depth is
+        // organizational metadata for outline/navigator features
         constexpr auto is_ignored = [](Element::Type t) {
             return t == Element::Boneyard || t == Element::Comment
                    || t == Element::Synopsis || t == Element::SectionHeading;
@@ -1127,8 +1130,6 @@ private:
 
         return html;
     }
-
-    // --- CSS ---
 
     static constexpr const char* css_ = R"CSS(
 * {
