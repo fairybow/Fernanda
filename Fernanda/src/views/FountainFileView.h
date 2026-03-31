@@ -17,6 +17,7 @@
 
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
+#include "views/Fountain.h"
 
 namespace Fernanda {
 
@@ -38,14 +39,9 @@ protected:
     // TODO: QTextBrowser probably not great for this
     virtual QString renderToHtml(const QString& plainText) const override
     {
-        // 1. Convert plainText to std::string
-        // 2. Parse with ScreenplayTools::Fountain::Parser
-        // 3. Walk getScript()->getElements()
-        // 4. Emit HTML divs with class names per element type
-        // 5. Wrap in <style> block with screenplay CSS
-        // 6. Return as QString
-
-        return {};
+        auto parser = Fountain::Parser(plainText.toStdString());
+        auto renderer = Fountain::Renderer(parser);
+        return QString::fromStdString(renderer.html());
     }
 
 private:

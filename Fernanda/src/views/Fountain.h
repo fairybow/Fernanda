@@ -1,9 +1,22 @@
+/*
+ * Fernanda — a plain-text-first workbench for creative writing
+ * Copyright (C) 2025-2026 fairybow
+ *
+ * This program is free software, redistributable and/or modifiable under the
+ * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
+ * but without any warranty (even the implied warranty of merchantability or
+ * fitness for a particular purpose)
+ *
+ * See the LICENSE file or visit <https://www.gnu.org/licenses/>
+ */
+
 #pragma once
 
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <iostream>
+#include <map>
 #include <regex>
 #include <string>
 #include <vector>
@@ -29,8 +42,11 @@ struct TitleEntry
     friend std::ostream& operator<<(std::ostream& out, const TitleEntry& entry)
     {
         out << "[ title key: " << entry.key << "; values:";
-        for (const auto& v : entry.values)
+
+        for (const auto& v : entry.values) {
             out << " " << v;
+        }
+
         return out << " ]";
     }
 };
@@ -809,22 +825,433 @@ public:
     {
     }
 
-    std::string html() const {}
+    std::string html() const
+    {
+        std::string result{};
+
+        result += "<!DOCTYPE html>\n";
+        result += "<html>\n";
+        result += "<head>\n";
+        result += "<style type='text/css'>\n";
+        result += css_;
+        result += "</style>\n";
+        result += "</head>\n";
+        result += "<body>\n<article>\n<section>\n";
+        result += renderTitlePage_();
+        result += renderBody_();
+        result += "</section>\n</article>\n</body>\n";
+        result += "</html>";
+
+        return result;
+    }
 
 private:
     const Parser& parser_;
 
-    std::string renderTitlePage_() const {}
+    // --- HTML ---
 
-    std::string renderBody_() const {}
+    static std::string escapeHtml_(const std::string& text)
+    {
+        std::string result{};
+        result.reserve(text.size());
 
-    std::string renderElement_(const Element& element) const {}
+        for (auto& c : text) {
+            switch (c) {
+            case '&':
+                result += "&amp;";
+                break;
+            case '<':
+                result += "&lt;";
+                break;
+            case '>':
+                result += "&gt;";
+                break;
+            case '"':
+                result += "&quot;";
+                break;
+            default:
+                result += c;
+                break;
+            }
+        }
 
-    std::string applyInlineFormatting_(const std::string& text) const {}
+        return result;
+    }
 
-    std::string cssClass_(Element::Type type) const {}
+    static std::string cssClass_(Element::Type type)
+    {
+        switch (type) {
+        case Element::SceneHeading:
+            return "scene-heading";
+        case Element::Action:
+            return "action";
+        case Element::Character:
+            return "character";
+        case Element::Dialog:
+            return "dialogue";
+        case Element::Parenthetical:
+            return "parenthetical";
+        case Element::Transition:
+            return "transition";
+        case Element::Lyrics:
+            return "lyrics";
+        case Element::LyricsSpacer:
+            return "lyrics";
+        case Element::PageBreak:
+            return "page-break";
+        case Element::Boneyard:
+            return "boneyard";
+        case Element::Comment:
+            return "comment";
+        case Element::SectionHeading:
+            return "section-heading";
+        case Element::Synopsis:
+            return "synopsis";
 
-    static std::string escapeHtml_(const std::string& text) {}
+        default:
+        case Element::Null: // Shouldn't happen
+            return "NULL";
+        }
+    }
+
+    // --- Inline formatting ---
+
+    static std::string applyInlineFormatting_(const std::string& raw)
+    {
+        auto text = escapeHtml_(raw);
+
+        // Replace newlines with <br>
+        std::string result{};
+        result.reserve(text.size());
+
+        for (auto& c : text) {
+            (c == '\n') ? result += "<br>" : result += c;
+        }
+
+        text = std::move(result);
+
+        // --- Inline styles (order matters; most specific first) ---
+
+        // Bold + Italic + Underline ("_***text***_" or "***_text_***")
+        static const std::regex biu(
+            R"((_\*{3}|\*{3}_)([^<>]+?)(_\*{3}|\*{3}_))");
+        text = std::regex_replace(
+            text,
+            biu,
+            "<strong><em><u>$2</u></em></strong>");
+
+        // Bold + Italic ("***text***")
+        static const std::regex bi(R"((\*{3})([^<>]+?)(\*{3}))");
+        text = std::regex_replace(text, bi, "<strong><em>$2</em></strong>");
+
+        // Bold + Underline ("_**text**_" or "**_text_**")
+        static const std::regex bu(
+            R"((_\*{2}|\*{2}_)([^<>]+?)(_\*{2}|\*{2}_))");
+        text = std::regex_replace(text, bu, "<strong><u>$2</u></strong>");
+
+        // Italic + Underline ("_*text*_" or "*_text_*")
+        static const std::regex iu(
+            R"((_\*{1}|\*{1}_)([^<>]+?)(_\*{1}|\*{1}_))");
+        text = std::regex_replace(text, iu, "<em><u>$2</u></em>");
+
+        // Bold ("**text**")
+        static const std::regex b(R"((\*{2})([^<>]+?)(\*{2}))");
+        text = std::regex_replace(text, b, "<strong>$2</strong>");
+
+        // Italic ("*text*")
+        static const std::regex i(R"((\*{1})([^<>]+?)(\*{1}))");
+        text = std::regex_replace(text, i, "<em>$2</em>");
+
+        // Underline ("_text_")
+        static const std::regex u(R"((_)([^<>_]+?)(_))");
+        text = std::regex_replace(text, u, "<u>$2</u>");
+
+        // Strip [[notes]]
+        static const std::regex notes(R"(\[\[.*?\]\])");
+        text = std::regex_replace(text, notes, "");
+
+        return text;
+    }
+
+    // --- Rendering ---
+
+    std::string renderTitlePage_() const
+    {
+        const auto& entries = parser_.titlePage();
+        if (entries.empty()) return {};
+
+        // Build a lookup (key -> joined values with <br>)
+        std::map<std::string, std::string> fields{};
+
+        for (const auto& entry : entries) {
+            std::string joined{};
+
+            for (size_t i = 0; i < entry.values.size(); ++i) {
+                if (i > 0) joined += "<br>";
+                joined += escapeHtml_(entry.values[i]);
+            }
+
+            fields[entry.key] = joined;
+        }
+
+        std::string html{};
+        html += "<div id='script-title'>\n";
+
+        // Title
+        if (fields.count("title")) {
+            html += "<p class='title'>" + fields["title"] + "</p>\n";
+        } else {
+            html += "<p class='title'>Untitled</p>\n";
+        }
+
+        // Credit & authors
+        if (fields.count("credit") || fields.count("authors")) {
+            if (fields.count("credit")) {
+                html += "<p class='credit'>" + fields["credit"] + "</p>\n";
+            } else {
+                html += "<p class='credit'>written by</p>\n";
+            }
+
+            if (fields.count("authors")) {
+                html += "<p class='authors'>" + fields["authors"] + "</p>\n";
+            } else {
+                html += "<p class='authors'>Anonymous</p>\n";
+            }
+        }
+
+        // Source
+        if (fields.count("source")) {
+            html += "<p class='source'>" + fields["source"] + "</p>\n";
+        }
+
+        // Date
+        if (fields.count("draft date")) {
+            html += "<p class='draft-date'>" + fields["draft date"] + "</p>\n";
+        }
+
+        // Contact
+        if (fields.count("contact")) {
+            html += "<p class='contact'>" + fields["contact"] + "</p>\n";
+        }
+
+        // Notes
+        if (fields.count("notes")) {
+            html += "<p class='notes'>" + fields["notes"] + "</p>\n";
+        }
+
+        // Copyright
+        if (fields.count("copyright")) {
+            html += "<p class='copyright'>" + fields["copyright"] + "</p>\n";
+        }
+
+        html += "</div>\n";
+        return html;
+    }
+
+    std::string renderBody_() const
+    {
+        constexpr auto is_ignored = [](Element::Type t) {
+            return t == Element::Boneyard || t == Element::Comment
+                   || t == Element::Synopsis || t == Element::SectionHeading;
+        };
+
+        const auto& elements = parser_.elements();
+        std::string html{};
+        auto dual_count = 0;
+
+        for (size_t i = 0; i < elements.size(); ++i) {
+            const auto& element = elements[i];
+
+            if (is_ignored(element.type)) continue;
+
+            // Page break
+            if (element.type == Element::PageBreak) {
+                html += "</section>\n<section>\n";
+                continue;
+            }
+
+            // Lyric spacer (just a blank paragraph)
+            if (element.type == Element::LyricsSpacer) {
+                html += "<p class='lyrics'>&nbsp;</p>\n";
+                continue;
+            }
+
+            // Dual dialogue handling
+            if (element.type == Element::Character
+                && element.isDualDialogCharacter) {
+                ++dual_count;
+
+                if (dual_count == 1) {
+                    html += "<div class='dual-dialogue'>\n";
+                    html += "<div class='dual-dialogue-left'>\n";
+                } else if (dual_count == 2) {
+                    html += "</div>\n<div class='dual-dialogue-right'>\n";
+                }
+            }
+
+            // Close dual dialogue when we leave the dialogue block
+            constexpr auto is_dialogue_type = [](Element::Type t) {
+                return t == Element::Character || t == Element::Dialog
+                       || t == Element::Parenthetical;
+            };
+
+            if (dual_count >= 2 && !is_dialogue_type(element.type)) {
+                dual_count = 0;
+                html += "</div>\n</div>\n";
+            }
+
+            // Build the element text
+            std::string text{};
+
+            if (element.type == Element::SceneHeading
+                && !element.sceneNumber.empty()) {
+                text += "<span class='scene-number-left'>"
+                        + escapeHtml_(element.sceneNumber) + "</span>";
+                text += applyInlineFormatting_(element.text);
+                text += "<span class='scene-number-right'>"
+                        + escapeHtml_(element.sceneNumber) + "</span>";
+            } else {
+                text = applyInlineFormatting_(element.text);
+            }
+
+            if (text.empty()) continue;
+
+            // CSS class + optional center
+            auto css_class = cssClass_(element.type);
+            if (element.textCentered) css_class += " center";
+            html += "<p class='" + css_class + "'>" + text + "</p>\n";
+        }
+
+        // Close any dangling dual dialogue
+        if (dual_count >= 2) html += "</div>\n</div>\n";
+
+        return html;
+    }
+
+    // --- CSS ---
+
+    static constexpr const char* css_ = R"CSS(
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+html {
+    margin: 0;
+    padding: 0;
+}
+body {
+    background-color: #fff;
+    color: #3e3e3e;
+    font: 14px/1.3em 'Courier Prime', 'Courier', monospace;
+    padding: 0;
+    margin: 0;
+}
+article {
+    padding: 40px 0;
+    margin: 0;
+}
+section {
+    padding: 0 0 0 40px;
+    width: 465px;
+    margin-right: auto;
+    margin-left: auto;
+}
+p {
+    margin: 1.3em auto;
+    word-wrap: break-word;
+    padding: 0 10px;
+}
+body > p:first-child {
+    margin-top: 0;
+}
+.scene-heading, .transition, .character {
+    text-transform: uppercase;
+}
+.transition {
+    text-align: right;
+}
+.character {
+    margin: 1.3em auto 0;
+    width: 180px;
+}
+.dialogue {
+    margin: 0 auto;
+    width: 310px;
+}
+.parenthetical {
+    margin: 0 auto;
+    width: 250px;
+}
+.scene-heading {
+    margin-top: 2.6em;
+    font-weight: bold;
+    position: relative;
+    padding-right: 40px;
+}
+.scene-number-left {
+    float: left;
+    margin-left: -50px;
+}
+.scene-number-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+#script-title {
+    overflow: hidden;
+    display: block;
+    padding-bottom: 2.6em;
+    margin-bottom: 2.6em;
+}
+#script-title .title {
+    text-align: center;
+    margin: 1.3em 0;
+    text-decoration: underline;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+#script-title .credit {
+    text-align: center;
+}
+#script-title .authors {
+    text-align: center;
+}
+#script-title .source {
+    text-align: center;
+    padding-top: 1.3em;
+}
+#script-title .notes {
+    padding-top: 2.6em;
+    white-space: pre-line;
+}
+.center {
+    text-align: center !important;
+}
+hr {
+    height: 0px;
+    border: none;
+    border-bottom: 1px solid #ccc;
+}
+.dual-dialogue {
+    overflow: hidden;
+}
+.dual-dialogue .dual-dialogue-left,
+.dual-dialogue .dual-dialogue-right {
+    width: 228px;
+    float: left;
+}
+.dual-dialogue p {
+    width: auto;
+}
+.dual-dialogue .character {
+    padding-left: 40px;
+}
+.dual-dialogue .parenthetical {
+    padding-left: 40px;
+}
+.lyrics {
+    font-style: italic;
+})CSS";
 };
 
 } // namespace Fountain
