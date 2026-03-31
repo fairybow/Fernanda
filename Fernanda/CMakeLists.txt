@@ -18,7 +18,7 @@ set(CMAKE_AUTOUIC ON)
 # --- Qt modules ---
 
 find_package(Qt6 REQUIRED COMPONENTS
-    Core Gui Network Widgets Svg Xml PdfWidgets LinguistTools
+    Core Gui Network Widgets Svg Xml PdfWidgets WebEngineWidgets LinguistTools
 )
 qt_standard_project_setup()
 
@@ -287,6 +287,7 @@ target_link_libraries(Fernanda PRIVATE
     Qt6::Svg
     Qt6::Xml
     Qt6::PdfWidgets
+    Qt6::WebEngineWidgets
 )
 
 if(UNIX AND NOT APPLE)

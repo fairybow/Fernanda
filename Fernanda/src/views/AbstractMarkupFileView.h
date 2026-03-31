@@ -15,8 +15,8 @@
 #include <QScrollBar>
 #include <QSplitter>
 #include <QString>
-#include <QTextBrowser>
 #include <QTextDocument>
+#include <QWebEngineView>
 #include <QWidget>
 
 #include "core/Time.h"
@@ -107,8 +107,7 @@ protected:
     {
         auto editor_widget = TextFileView::setupWidget();
 
-        preview_ = new QTextBrowser(this);
-        preview_->setOpenExternalLinks(true);
+        preview_ = new QWebEngineView(this);
 
         splitter_ = new QSplitter(Qt::Horizontal, this);
         splitter_->addWidget(editor_widget);
@@ -131,24 +130,56 @@ protected:
     // Subclasses implement this to convert plain text to HTML for the preview
     virtual QString renderToHtml(const QString& plainText) const = 0;
 
-    QTextBrowser* preview() const noexcept { return preview_; }
+    QWebEngineView* preview() const noexcept { return preview_; }
 
 private:
     QSplitter* splitter_ = nullptr;
-    QTextBrowser* preview_ = nullptr; // TODO: Replace?
+    QWebEngineView* preview_ = nullptr;
     Mode mode_ = Split;
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
 
+    //void reparse_()
+    //{
+    //    auto editor = this->editor();
+    //    if (!preview_ || !editor) return;
+
+    //    auto scroll = preview_->verticalScrollBar()->value();
+    //    auto html = renderToHtml(editor->document()->toPlainText());
+    //    preview_->setHtml(html);
+    //    preview_->verticalScrollBar()->setValue(scroll);
+    //}
+
+    // TODO: This is buggy and jumpy af
     void reparse_()
     {
         auto editor = this->editor();
         if (!preview_ || !editor) return;
 
-        auto scroll = preview_->verticalScrollBar()->value();
         auto html = renderToHtml(editor->document()->toPlainText());
-        preview_->setHtml(html);
-        preview_->verticalScrollBar()->setValue(scroll);
+
+        if (preview_->url().isEmpty()) {
+            // First load — no scroll to preserve
+            preview_->setHtml(html);
+            return;
+        }
+
+        // Subsequent loads — preserve scroll
+        preview_->page()->runJavaScript(
+            "window.scrollY",
+            [this, html](const QVariant& scrollPos) {
+                auto y = scrollPos.toInt();
+                preview_->setHtml(html);
+                connect(
+                    preview_,
+                    &QWebEngineView::loadFinished,
+                    this,
+                    [this, y](bool) {
+                        preview_->page()->runJavaScript(
+                            QString("window.scrollTo(0, %1)").arg(y));
+                    },
+                    Qt::SingleShotConnection);
+            });
     }
 };
 
