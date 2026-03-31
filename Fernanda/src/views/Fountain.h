@@ -122,6 +122,11 @@ struct Element
     }
 };
 
+// TODO: The multi-line boneyard still stores comment_text untrimmed (leading
+// \n); the boneyard close check fires outside boneyard context (inherited ObjC
+// bug); the boneyard close silently drops non-whitespace content on the */ line
+// (inherited; by design?); multi-line [[notes]] aren't handled (also inherited,
+// only single-line notes work; by design?)
 class Parser
 {
 public:
