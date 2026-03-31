@@ -15,9 +15,6 @@
 #include <QString>
 #include <QWidget>
 
-#include <screenplay_tools/fountain/format_helper.h>
-#include <screenplay_tools/fountain/parser.h>
-
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
 
@@ -47,6 +44,8 @@ protected:
         // 4. Emit HTML divs with class names per element type
         // 5. Wrap in <style> block with screenplay CSS
         // 6. Return as QString
+
+        return {};
     }
 
 private:
