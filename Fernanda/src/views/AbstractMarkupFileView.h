@@ -29,7 +29,7 @@ namespace Fernanda {
 // debug, though
 // TODO: Toggle/cycle button
 // TODO: ^ Would prefer more distinctive toggle modes (not moving a splitter);
-// possible a stacked widget that displays the right modes between edit, split,
+// possibly a stacked widget that displays the right modes between edit, split,
 // and preview. Though, this would mean moving the two widgets into a splitter
 // for split or having duplicates?
 class AbstractMarkupFileView : public TextFileView
