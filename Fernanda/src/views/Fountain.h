@@ -31,8 +31,31 @@ namespace Fountain {
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FastFountainParser.h
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FNHTMLScript.h)
 
-// TODO: Fountain::Paginator (we will need a printing layout; see
+// TODO: Fountain::Paginator (see
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FNPaginator.h)
+//
+// Distributes parsed elements across fixed-height pages for print layout,
+// enforcing screenplay page-break conventions (no orphaned scene headings,
+// dialogue splitting with (MORE)/(CONT'D), etc.)
+//
+// Pipeline should be Parser -> Paginator -> Renderer. Currently the Renderer
+// skips pagination and iterates elements directly (continuous scroll). Adding
+// the Paginator would change Renderer::renderBody_ to iterate pages instead
+//
+// The Paginator would be intentionally platform-agnostic (and would not work
+// without platform-specific input). It would own all screenplay layout logic
+// (element widths, spacing, break rules) but require an external callback for
+// text height measurement:
+//
+// using MeasureTextFn = std::function<int(const std::string& text, int
+// maxWidth, int lineHeight)>;
+//
+// The caller provides this from their UI framework (e.g., QFontMetrics in Qt,
+// NSLayoutManager on Apple, or naive char-counting for monospaced fonts). The
+// Paginator should not work without this input
+//
+// Output would be std::vector<std::vector<Element>> (pages of elements), where
+// synthetic elements ((MORE), (CONT'D), forced breaks) may be injected
 
 struct TitleEntry
 {
