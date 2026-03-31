@@ -58,11 +58,11 @@ protected:
 
         return QStringLiteral(
                    "<html><head><style>%1</style></head><body>%2</body></html>")
-            .arg(css_, body);
+            .arg(CSS_, body);
     }
 
 private:
-    static constexpr const char* css_ = R"CSS(
+    static constexpr const char* CSS_ = R"CSS(
 * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;

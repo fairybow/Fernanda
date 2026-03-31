@@ -69,9 +69,11 @@ set(FERNANDA_SOURCES
     src/dialogs/AboutDialog.cpp
     src/fnx/FnxModel.cpp
     src/services/WindowService.cpp
+    src/settings/FontPanel.cpp
     src/ui/PlainTextEdit.cpp
     src/ui/TabWidget.cpp
     src/ui/Window.cpp
+    src/views/AbstractMarkupFileView.cpp
     src/views/TextFileView.cpp
     src/workspaces/Workspace.cpp
 )
@@ -171,6 +173,7 @@ set(FERNANDA_HEADERS
     src/views/ImageFileView.h
     src/views/KeyFilters.h
     src/views/MarkdownFileView.h
+    src/views/MarkupPreviewPage.h
     src/views/PdfFileView.h
     src/views/TextFileView.h
 

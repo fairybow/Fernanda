@@ -21,6 +21,7 @@
 
 #include "core/Time.h"
 #include "models/TextFileModel.h"
+#include "views/MarkupPreviewPage.h"
 #include "views/TextFileView.h"
 
 namespace Fernanda {
@@ -112,6 +113,7 @@ protected:
         auto editor_widget = TextFileView::setupWidget();
 
         preview_ = new QWebEngineView(this);
+        preview_->setPage(new MarkupPreviewPage(preview_));
 
         splitter_ = new QSplitter(Qt::Horizontal, this);
         splitter_->addWidget(editor_widget);
@@ -143,6 +145,8 @@ private:
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
 
+    static QString appFontFaceKit_();
+
     // void reparse_()
     //{
     //     auto editor = this->editor();
@@ -162,9 +166,16 @@ private:
 
         auto html = renderToHtml(editor->document()->toPlainText());
 
+        // Inject bundled font-face rules for the web engine
+        html.replace(
+            QStringLiteral("</head>"),
+            QStringLiteral("<style>%1</style></head>").arg(appFontFaceKit_()));
+
         if (preview_->url().isEmpty()) {
             // First load (no scroll to preserve)
-            preview_->setHtml(html);
+            preview_->setHtml(
+                html,
+                QUrl("qrc:/")); /// TODO MU: I am vaguely concerned about this
             return;
         }
 
@@ -173,7 +184,7 @@ private:
             "window.scrollY",
             [this, html](const QVariant& scrollPos) {
                 auto y = scrollPos.toInt();
-                preview_->setHtml(html);
+                preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: See above
                 connect(
                     preview_,
                     &QWebEngineView::loadFinished,

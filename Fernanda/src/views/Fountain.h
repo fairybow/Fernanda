@@ -24,7 +24,7 @@
 /// TODO MU: Draft (right now, keep one file)
 
 // TODO: Move to own repo?
-namespace Fountain {
+namespace Fernanda::Fountain {
 
 // Translated from:
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FNElement.h
@@ -856,7 +856,7 @@ public:
         result += "<html>\n";
         result += "<head>\n";
         result += "<style type='text/css'>\n";
-        result += css_;
+        result += CSS_;
         result += "</style>\n";
         result += "</head>\n";
         result += "<body>\n<article>\n<section>\n";
@@ -1154,7 +1154,7 @@ private:
         return html;
     }
 
-    static constexpr const char* css_ = R"CSS(
+    static constexpr const char* CSS_ = R"CSS(
 * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -1278,4 +1278,4 @@ hr {
 })CSS";
 };
 
-} // namespace Fountain
+} // namespace Fernanda::Fountain
