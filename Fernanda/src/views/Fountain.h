@@ -683,7 +683,8 @@ private:
             }
 
             // Transition (all-caps ending in "TO:")
-            if (hasNoLowercase_(line) && line.ends_with("TO:")) {
+            if (newlines_before > 0 && hasNoLowercase_(line)
+                && line.ends_with("TO:")) {
                 newlines_before = 0;
                 elements_.push_back({ Element::Transition, line });
 
@@ -694,7 +695,7 @@ private:
             {
                 auto trimmed_leading = trimLeading_(line);
 
-                if (trimmed_leading == "FADE OUT."
+                if (newlines_before > 0 && trimmed_leading == "FADE OUT."
                     || trimmed_leading == "CUT TO BLACK."
                     || trimmed_leading == "FADE TO BLACK.") {
                     newlines_before = 0;
