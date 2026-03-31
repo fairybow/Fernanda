@@ -41,6 +41,18 @@ protected:
         auto parser = Fountain::Parser(plainText.toStdString());
         auto renderer = Fountain::Renderer(parser);
         return QString::fromStdString(renderer.html());
+
+        /*auto font = QFont("Courier", 12);
+        auto metrics = QFontMetrics(font);
+
+        auto measureFn = [metrics](const std::string& text, int maxWidth, int
+        lineHeight) -> int { auto qtext = QString::fromStdString(text); auto rect =
+        metrics.boundingRect( QRect(0, 0, maxWidth, INT_MAX), Qt::TextWordWrap, qtext);
+            int numLines = (rect.height() + lineHeight - 1) / lineHeight;
+            return numLines * lineHeight;
+        };
+
+        auto renderer = Fountain::Renderer(parser, measureFn);*/
     }
 };
 

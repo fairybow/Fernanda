@@ -15,10 +15,12 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <regex>
 #include <string>
+#include <utility>
 #include <vector>
 
 /// TODO MU: Draft (right now, keep one file)
@@ -841,11 +843,114 @@ private:
 //     qDebug().noquote() << QString::fromStdString(oss.str());
 // }
 
+class Paginator
+{
+public:
+    // (text, maxWidthPx, lineHeightPx) -> heightPx
+    using MeasureTextFn = std::function<
+        int(const std::string& text, int maxWidth, int lineHeight)>;
+
+    explicit Paginator(
+        const std::vector<Element>& elements,
+        MeasureTextFn measureText,
+        int pageWidthPx = 612,
+        int pageHeightPx = 792)
+        : elements_(elements)
+        , measureText_(std::move(measureText))
+        , pageWidth_(pageWidthPx)
+        , pageHeight_(pageHeightPx)
+    {
+        paginate_();
+    }
+
+    size_t numberOfPages() const { return pages_.size(); }
+
+    const std::vector<Element>& pageAt(size_t index) const
+    {
+        static const std::vector<Element> empty{};
+        return (index < pages_.size()) ? pages_[index] : empty;
+    }
+
+    const std::vector<std::vector<Element>>& pages() const { return pages_; }
+
+private:
+    const std::vector<Element>& elements_;
+    MeasureTextFn measureText_;
+    int pageWidth_;
+    int pageHeight_;
+    std::vector<std::vector<Element>> pages_{};
+
+    // --- Element metrics (screenplay formatting constants) ---
+
+    // Vertical space before element (in multiples of line height)
+    static int spaceBefore_(Element::Type type) {}
+
+    // Column width for element type (in pixels)
+    static int widthFor_(Element::Type type) {}
+
+    // Text height via the caller-provided callback
+    int measureHeight_(
+        const std::string& text,
+        Element::Type type,
+        int lineHeight) const
+    {
+    }
+
+    // --- Pagination ---
+
+    void paginate_() {}
+
+    // Flush tmpElements into currentPage
+    static void flushTmp_(
+        std::vector<Element>& currentPage,
+        std::vector<Element>& tmpElements)
+    {
+    }
+
+    // Handle scene heading: keep with following element
+    void handleSceneHeading_(
+        size_t i,
+        int& blockHeight,
+        int currentY,
+        int maxPageHeight,
+        int lineHeight,
+        std::vector<Element>& tmpElements)
+    {
+    }
+
+    // Handle character cue: accumulate entire dialogue block
+    void handleDialogueBlock_(
+        size_t& i,
+        int& blockHeight,
+        int lineHeight,
+        int& previousDualHeight,
+        std::vector<Element>& tmpElements)
+    {
+    }
+
+    // Split a dialogue block across pages when it overflows
+    void splitDialogueBlock_(
+        int maxPageHeight,
+        int currentY,
+        int lineHeight,
+        std::vector<Element>& currentPage,
+        std::vector<Element>& tmpElements,
+        int& blockHeight)
+    {
+    }
+
+    // Split dialogue text at sentence boundaries
+    static std::vector<std::string> splitSentences_(const std::string& text) {}
+};
+
 class Renderer
 {
 public:
-    explicit Renderer(const Parser& parser)
+    explicit Renderer(
+        const Parser& parser,
+        Paginator::MeasureTextFn measureText = nullptr)
         : parser_(parser)
+        , measureText_(std::move(measureText))
     {
     }
 
@@ -871,6 +976,7 @@ public:
 
 private:
     const Parser& parser_;
+    Paginator::MeasureTextFn measureText_;
 
     // --- HTML ---
 
