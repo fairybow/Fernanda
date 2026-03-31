@@ -2,15 +2,15 @@
 
 ```
 Extensions
-+-- Qt PDF
-|   +-- { version }
+|-- Qt PDF
+|   +-- [ version ]
 |       +-- MSVC 2022 x64
 +-- Qt WebEngine
-    +-- { version }
+    +-- [ version ]
         +-- MSVC 2022 x64
 
 Qt
-|-- { version }
+|-- [ version ]
 |   |-- MSVC 2022 64-bit
 |   +-- Additional Libraries
 |       |-- Qt Image Formats
