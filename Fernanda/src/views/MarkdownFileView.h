@@ -54,8 +54,103 @@ protected:
             MD_FLAG_TABLES | MD_FLAG_STRIKETHROUGH | MD_FLAG_TASKLISTS,
             0);
 
-        return QString::fromUtf8(output);
+        auto body = QString::fromUtf8(output);
+
+        return QStringLiteral(
+                   "<html><head><style>%1</style></head><body>%2</body></html>")
+            .arg(css_, body);
     }
+
+private:
+    static constexpr const char* css_ = R"CSS(
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+html {
+    margin: 0;
+    padding: 0;
+}
+body {
+    background-color: #fff;
+    color: #3e3e3e;
+    font: 16px/1.6em 'Segoe UI', 'Noto Sans', sans-serif;
+    padding: 40px;
+    margin: 0 auto;
+    max-width: 680px;
+}
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.4em;
+    margin-bottom: 0.6em;
+    line-height: 1.25;
+    color: #1a1a1a;
+}
+h1 { font-size: 1.6em; }
+h2 { font-size: 1.35em; }
+h3 { font-size: 1.15em; }
+p {
+    margin: 0 0 1em;
+    word-wrap: break-word;
+}
+blockquote {
+    margin: 1em 0;
+    padding: 0 1em;
+    border-left: 3px solid #ccc;
+    color: #666;
+}
+code {
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.9em;
+    background: #f4f4f4;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+pre {
+    background: #f4f4f4;
+    padding: 12px 16px;
+    border-radius: 4px;
+    overflow-x: auto;
+    line-height: 1.4;
+}
+pre code {
+    background: none;
+    padding: 0;
+}
+hr {
+    border: none;
+    border-bottom: 1px solid #ddd;
+    margin: 2em 0;
+}
+table {
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    text-align: left;
+}
+th {
+    background: #f4f4f4;
+}
+ul, ol {
+    padding-left: 2em;
+    margin: 0 0 1em;
+}
+li {
+    margin-bottom: 0.3em;
+}
+img {
+    max-width: 100%;
+}
+a {
+    color: #4271ae;
+    text-decoration: none;
+}
+input[type="checkbox"] {
+    margin-right: 0.4em;
+}
+)CSS";
 };
 
 } // namespace Fernanda

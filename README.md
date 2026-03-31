@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="Fernanda/resources/banner/Readme Banner.png" alt="ASCII banner" width="640">
+    <img src="https://github.com/fairybow/Fernanda/blob/main/Fernanda/resources/banner/Readme Banner.png" alt="ASCII banner" width="640">
 </p>
 <p align="center"><b>A plain-text-first workbench for creative writing</b></p>
 <p align="center">
@@ -8,12 +8,12 @@
 </p>
 <p align="center">
     <a href="https://github.com/fairybow/Fernanda/releases"><b>Releases</b></a> •
-    <a href="Fernanda/docs"><b>Documentation</b></a>
+    <a href="https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs"><b>Documentation</b></a>
 </p>
 
-![screenshot](Fernanda/resources/screenshots/1.apng)
+![screenshot](https://github.com/fairybow/Fernanda/blob/main/Fernanda/resources/screenshots/1.apng)
 
-Fernanda is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](Fernanda/docs/Notebooks.md).
+Fernanda is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Notebooks.md).
 
 (Mac and Linux support is planned!)
 
@@ -29,7 +29,7 @@ Fernanda offers two workspace types: a **Notepad** for working directly on the O
 - Word counter with selection-aware counting and adaptive performance
 - PDF and image viewing
 
-See [Features.md](Fernanda/docs/Features.md) for the full list.
+See [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md) for the full list.
 
 ## Installation
 
@@ -55,7 +55,7 @@ Log files are stored in `~/.fernanda/logs/` and pruned automatically.
 [![Qt](https://img.shields.io/badge/Qt-6.11-brightgreen?style=for-the-badge&logo=qt)](https://qt.io/)
 [![miniz](https://img.shields.io/badge/miniz-3.1-yellow.svg?style=for-the-badge)](https://github.com/richgel999/miniz)
 
-(See [Dependencies.md](Fernanda/docs/Dependencies.md))
+(See [Dependencies.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Dependencies.md))
 
 ## Building
 
@@ -79,13 +79,13 @@ Hey! Read Fernanda's Code! (I'm proud of it.)
 
 Fernanda prioritizes readable, maintainable code and follows conventional best practices pragmatically (not dogmatically). Objects and namespaces stay focused, and most files are just a few hundred lines, with one barely exceeding 1,000. You will not find a 10,000 line `MainWindow` or anything like it.
 
-Fernanda's [architecture](Fernanda/docs/Architecture.md) was carefully considered. I've landed on what I think is a simple but highly flexible interworking of common architectural patterns designed to keep service objects in their lanes while allowing lateral communication across a given Workspace.
+Fernanda's [architecture](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Architecture.md) was carefully considered. I've landed on what I think is a simple but highly flexible interworking of common architectural patterns designed to keep service objects in their lanes while allowing lateral communication across a given Workspace.
 
-But, that all said, there are always things to improve, I'm always learning, and I'll always need some help. Take a look around the repository and get to know the code. If something seems off to you or you have something new in mind, take a look at [CONTRIBUTING.md](CONTRIBUTING.md), open an issue, and we'll discuss a PR.
+But, that all said, there are always things to improve, I'm always learning, and I'll always need some help. Take a look around the repository and get to know the code. If something seems off to you or you have something new in mind, take a look at [CONTRIBUTING.md](https://github.com/fairybow/Fernanda/blob/main/CONTRIBUTING.md), open an issue, and we'll discuss a PR.
 
 ## License
 
-Fernanda is free software, redistributable and/or modifiable under the terms of the [GPL 3 License](LICENSE). It's distributed in the hope that it will be useful but without any warranty (even the implied warranty of merchantability or fitness for a particular purpose).
+Fernanda is free software, redistributable and/or modifiable under the terms of the [GPL 3 License](https://github.com/fairybow/Fernanda/blob/main/LICENSE). It's distributed in the hope that it will be useful but without any warranty (even the implied warranty of merchantability or fitness for a particular purpose).
 
 ##
 
