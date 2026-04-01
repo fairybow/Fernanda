@@ -15,15 +15,18 @@
 #include <string>
 
 #include <QFont>
+#include <QString>
 #include <QTextLayout>
 #include <QTextLine>
-#include <QString>
 #include <QWidget>
 
 #include "core/Debug.h"
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
 #include "views/Fountain.h"
+
+/// TODO MU: Potentially find a js Fountain parser/render - something well
+/// tested and liked and used that
 
 namespace Fernanda {
 
@@ -68,10 +71,10 @@ protected:
             layout.endLayout();
 
             ///
-            //if (text.size() < 30) {
-            //    qDebug() << "measure:" << QString::fromStdString(text)
-            //             << "width:" << maxWidth << "lines:" << line_count;
-            //}
+            // if (text.size() < 30) {
+            //     qDebug() << "measure:" << QString::fromStdString(text)
+            //              << "width:" << maxWidth << "lines:" << line_count;
+            // }
             ///
 
             return line_count * lineHeight;
