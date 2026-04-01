@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <cstddef>
 #include <functional>
 #include <iostream>
@@ -31,33 +32,8 @@ namespace Fernanda::Fountain {
 // Translated from:
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FNElement.h
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FastFountainParser.h
-// https://github.com/nyousefi/Fountain/blob/master/Fountain/FNHTMLScript.h)
-
-// TODO: Fountain::Paginator (see
-// https://github.com/nyousefi/Fountain/blob/master/Fountain/FNPaginator.h)
-//
-// Distributes parsed elements across fixed-height pages for print layout,
-// enforcing screenplay page-break conventions (no orphaned scene headings,
-// dialogue splitting with (MORE)/(CONT'D), etc.)
-//
-// Pipeline should be Parser -> Paginator -> Renderer. Currently the Renderer
-// skips pagination and iterates elements directly (continuous scroll). Adding
-// the Paginator would change Renderer::renderBody_ to iterate pages instead
-//
-// The Paginator would be intentionally platform-agnostic (and would not work
-// without platform-specific input). It would own all screenplay layout logic
-// (element widths, spacing, break rules) but require an external callback for
-// text height measurement:
-//
-// using MeasureTextFn = std::function<int(const std::string& text, int
-// maxWidth, int lineHeight)>;
-//
-// The caller provides this from their UI framework (e.g., QFontMetrics in Qt,
-// NSLayoutManager on Apple, or naive char-counting for monospaced fonts). The
-// Paginator should not work without this input
-//
-// Output would be std::vector<std::vector<Element>> (pages of elements), where
-// synthetic elements ((MORE), (CONT'D), forced breaks) may be injected
+// https://github.com/nyousefi/Fountain/blob/master/Fountain/FNHTMLScript.h
+// https://github.com/nyousefi/Fountain/blob/master/Fountain/FNPaginator.h
 
 struct TitleEntry
 {
@@ -87,7 +63,7 @@ struct Element
         SceneHeading,
         Action,
         Character,
-        Dialog,
+        Dialogue,
         Parenthetical,
         Transition,
         Lyrics,
@@ -105,7 +81,7 @@ struct Element
 
     // Type specific:
     std::string sceneNumber{}; // e.g. "1A"
-    bool isDualDialogCharacter = false;
+    bool isDualDialogueCharacter = false;
     int sectionDepth = -1; // 1-6
 
     friend std::ostream& operator<<(std::ostream& out, const Element& element)
@@ -113,7 +89,7 @@ struct Element
         out << "[ type: " << element.typeString() << "; text: " << element.text;
 
         if (element.textCentered) out << "; centered";
-        if (element.isDualDialogCharacter) out << "; dual";
+        if (element.isDualDialogueCharacter) out << "; dual";
 
         if (!element.sceneNumber.empty()) {
             out << "; scene#: " << element.sceneNumber;
@@ -138,8 +114,8 @@ struct Element
             return "Action";
         case Element::Character:
             return "Character";
-        case Element::Dialog:
-            return "Dialog";
+        case Element::Dialogue:
+            return "Dialogue";
         case Element::Parenthetical:
             return "Parenthetical";
         case Element::Transition:
@@ -487,10 +463,10 @@ private:
                 newlines_before = 0;
 
                 if (!elements_.empty()
-                    && elements_.back().type == Element::Dialog) {
+                    && elements_.back().type == Element::Dialogue) {
                     elements_.back().text += "\n" + line;
                 } else {
-                    elements_.push_back({ Element::Dialog, line });
+                    elements_.push_back({ Element::Dialogue, line });
                 }
 
                 continue;
@@ -742,7 +718,7 @@ private:
 
                     // Dual dialogue (trailing '^')
                     if (trim_(line).ends_with("^")) {
-                        element.isDualDialogCharacter = true;
+                        element.isDualDialogueCharacter = true;
 
                         // Strip trailing \s*\^\s*
                         std::string text = line;
@@ -769,7 +745,7 @@ private:
                              it != elements_.rend();
                              ++it) {
                             if (it->type == Element::Character) {
-                                it->isDualDialogCharacter = true;
+                                it->isDualDialogueCharacter = true;
                                 break;
                             }
                         }
@@ -793,10 +769,10 @@ private:
                 } else {
                     // Merge consecutive dialogue lines into one element
                     if (!elements_.empty()
-                        && elements_.back().type == Element::Dialog) {
+                        && elements_.back().type == Element::Dialogue) {
                         elements_.back().text += "\n" + line;
                     } else {
-                        elements_.push_back({ Element::Dialog, line });
+                        elements_.push_back({ Element::Dialogue, line });
                     }
                 }
 
@@ -843,6 +819,18 @@ private:
 //     qDebug().noquote() << QString::fromStdString(oss.str());
 // }
 
+// Distributes parsed elements across fixed-height pages for print layout,
+// enforcing screenplay page-break conventions (no orphaned scene headings,
+// dialogue splitting with (MORE)/(CONT'D), dual dialogue height balancing)
+//
+// Page dimensions default to US Letter (612x792) in PostScript points at 72
+// points/inch. This is an abstract coordinate system for layout math, not
+// screen pixels. High-DPI scaling is a display-layer concern
+//
+// Platform-agnostic: all screenplay layout logic is internal, but text height
+// measurement is delegated to a caller-provided callback (MeasureTextFn) since
+// font metrics require a platform text engine  (e.g., QFontMetrics in Qt,
+// NSLayoutManager on Apple)
 class Paginator
 {
 public:
@@ -852,18 +840,18 @@ public:
 
     explicit Paginator(
         const std::vector<Element>& elements,
-        MeasureTextFn measureText,
+        MeasureTextFn measureTextFn,
         int pageWidthPx = 612,
         int pageHeightPx = 792)
         : elements_(elements)
-        , measureText_(std::move(measureText))
+        , measureTextFn_(std::move(measureTextFn))
         , pageWidth_(pageWidthPx)
         , pageHeight_(pageHeightPx)
     {
         paginate_();
     }
 
-    size_t numberOfPages() const { return pages_.size(); }
+    size_t numberOfPages() const noexcept { return pages_.size(); }
 
     const std::vector<Element>& pageAt(size_t index) const
     {
@@ -875,18 +863,46 @@ public:
 
 private:
     const std::vector<Element>& elements_;
-    MeasureTextFn measureText_;
+    MeasureTextFn measureTextFn_;
     int pageWidth_;
     int pageHeight_;
+
     std::vector<std::vector<Element>> pages_{};
 
     // --- Element metrics (screenplay formatting constants) ---
 
     // Vertical space before element (in multiples of line height)
-    static int spaceBefore_(Element::Type type) {}
+    static int spaceBefore_(Element::Type type)
+    {
+        switch (type) {
+        case Element::SceneHeading:
+            return 2;
+        case Element::Action:
+        case Element::Character:
+        case Element::Transition:
+            return 1;
+        default:
+            return 0;
+        }
+    }
 
     // Column width for element type (in pixels)
-    static int widthFor_(Element::Type type) {}
+    static int widthFor_(Element::Type type)
+    {
+        switch (type) {
+        case Element::Action:
+        case Element::SceneHeading:
+        case Element::Transition:
+            return 430;
+        case Element::Character:
+        case Element::Dialogue:
+            return 250;
+        case Element::Parenthetical:
+            return 212;
+        default:
+            return 430;
+        }
+    }
 
     // Text height via the caller-provided callback
     int measureHeight_(
@@ -894,53 +910,410 @@ private:
         Element::Type type,
         int lineHeight) const
     {
+        return measureTextFn_(text, widthFor_(type), lineHeight);
+    }
+
+    // --- Helpers ---
+
+    static void flushTempElements_(
+        std::vector<Element>& currentPage,
+        std::vector<Element>& tempElements)
+    {
+        for (auto& element : tempElements) {
+            currentPage.push_back(std::move(element));
+        }
+
+        tempElements.clear();
+    }
+
+    static Element makeElement_(Element::Type type, const std::string& text)
+    {
+        Element element{};
+        element.type = type;
+        element.text = text;
+
+        return element;
+    }
+
+    // Split dialogue text at sentence boundaries (.?! followed by whitespace)
+    static std::vector<std::string> splitSentences_(const std::string& text)
+    {
+        static const std::regex pattern(R"(.+?[\.?\!]+\s*)");
+        std::vector<std::string> sentences{};
+
+        for (auto it = std::sregex_iterator(text.begin(), text.end(), pattern);
+             it != std::sregex_iterator();
+             ++it) {
+            sentences.push_back(it->str());
+        }
+
+        // If regex didn't capture everything (e.g., text without sentence
+        // endings), push the whole text as a single "sentence"
+        if (sentences.empty()) sentences.push_back(text);
+
+        return sentences;
     }
 
     // --- Pagination ---
 
-    void paginate_() {}
-
-    // Flush tmpElements into currentPage
-    static void flushTmp_(
-        std::vector<Element>& currentPage,
-        std::vector<Element>& tmpElements)
+    void paginate_()
     {
+        constexpr auto one_inch_px = 72;
+        auto max_page_height =
+            pageHeight_ - static_cast<int>(std::round(one_inch_px * 2.01));
+        auto line_height = 12; // Courier 12pt
+        auto block_height = 0;
+        auto current_y = 0;
+        auto previous_dual_height = -1;
+        std::vector<Element> current_page{};
+        std::vector<Element> temp_elements{};
+
+        for (size_t i = 0; i < elements_.size(); ++i) {
+            const auto& element = elements_[i];
+
+            // --- Page break (flush and start new page) ---
+            if (element.type == Element::PageBreak) {
+                flushTempElements_(current_page, temp_elements);
+                current_page.push_back(element);
+                pages_.push_back(std::move(current_page));
+                current_page.clear();
+                current_y = 0;
+
+                continue;
+            }
+
+            // --- Measure this element ---
+            auto space = spaceBefore_(element.type) * line_height;
+            auto height =
+                measureHeight_(element.text, element.type, line_height);
+
+            if (height <= 0) continue;
+
+            block_height += height;
+
+            // Only add space before if not at the top of the page
+            if (!current_page.empty()) block_height += space;
+
+            // --- Scene heading (keep with following element) ---
+            if (element.type == Element::SceneHeading
+                && i + 1 < elements_.size()) {
+                const auto& next = elements_[i + 1];
+                auto next_height =
+                    measureHeight_(next.text, next.type, line_height);
+
+                // If heading + next element won't fit, force a break before
+                if ((block_height + current_y + next_height >= max_page_height)
+                    && (next_height >= line_height)) {
+                    temp_elements.push_back(
+                        makeElement_(Element::PageBreak, ""));
+                }
+
+                temp_elements.push_back(element);
+                continue;
+            }
+
+            // --- Character cue (accumulate entire dialogue block) ---
+            if (element.type == Element::Character
+                && i + 1 < elements_.size()) {
+
+                size_t j = i + 1;
+                temp_elements.push_back(element);
+                auto is_end = false;
+
+                while (!is_end) {
+                    if (j < elements_.size()) {
+                        const auto& next = elements_[j];
+
+                        if (next.type == Element::Dialogue
+                            || next.type == Element::Parenthetical) {
+                            block_height += measureHeight_(
+                                next.text,
+                                next.type,
+                                line_height);
+                            temp_elements.push_back(next);
+
+                            ++j;
+
+                        } else {
+                            break;
+                        }
+                    } else {
+                        is_end = true;
+                    }
+                }
+
+                // Advance i past the elements we consumed. j points to the
+                // first unconsumed element (or past end). The loop will ++i, so
+                // set to j - 1
+                i = is_end ? j - 1 : j - 1;
+
+                // Dual dialogue height adjustment
+                if (element.isDualDialogueCharacter
+                    && previous_dual_height < 0) {
+                    previous_dual_height = block_height;
+                } else if (element.isDualDialogueCharacter) {
+                    block_height =
+                        std::abs(previous_dual_height - block_height);
+                    previous_dual_height = -1;
+                }
+
+            } else {
+                temp_elements.push_back(element);
+            }
+
+            // --- Check if we've overflowed the page ---
+            auto total_height = block_height + current_y;
+
+            if (total_height > max_page_height) {
+                // Attempt to split a dialogue block across pages
+                if (!temp_elements.empty()
+                    && temp_elements[0].type == Element::Character
+                    && (total_height - max_page_height) >= line_height * 4) {
+                    splitDialogueBlock_(
+                        max_page_height,
+                        current_y,
+                        line_height,
+                        current_page,
+                        temp_elements,
+                        block_height);
+
+                    current_y = block_height;
+
+                } else {
+                    // Simple overflow (push current page and start fresh)
+                    pages_.push_back(std::move(current_page));
+                    current_page.clear();
+                    current_y = block_height - space;
+                    block_height = 0;
+                }
+            } else {
+                current_y = total_height;
+            }
+
+            block_height = 0;
+
+            // Flush temp to current page
+            flushTempElements_(current_page, temp_elements);
+        }
+
+        // Flush any remaining elements
+        flushTempElements_(current_page, temp_elements);
+        if (!current_page.empty()) pages_.push_back(std::move(current_page));
     }
 
-    // Handle scene heading: keep with following element
-    void handleSceneHeading_(
-        size_t i,
-        int& blockHeight,
-        int currentY,
-        int maxPageHeight,
-        int lineHeight,
-        std::vector<Element>& tmpElements)
-    {
-    }
+    // --- Dialogue block splitting ---
 
-    // Handle character cue: accumulate entire dialogue block
-    void handleDialogueBlock_(
-        size_t& i,
-        int& blockHeight,
-        int lineHeight,
-        int& previousDualHeight,
-        std::vector<Element>& tmpElements)
-    {
-    }
-
-    // Split a dialogue block across pages when it overflows
     void splitDialogueBlock_(
         int maxPageHeight,
         int currentY,
         int lineHeight,
         std::vector<Element>& currentPage,
-        std::vector<Element>& tmpElements,
+        std::vector<Element>& tempElements,
         int& blockHeight)
     {
+        auto max_temp = static_cast<int>(tempElements.size());
+
+        // Find which element in the block spills over the page
+        auto block_index = -1;
+        auto partial_height = 0;
+        auto page_overflow = (blockHeight + currentY) - maxPageHeight;
+
+        while (partial_height < page_overflow && block_index < max_temp - 1) {
+            ++block_index;
+
+            auto& e = tempElements[block_index];
+            auto h = measureHeight_(e.text, e.type, lineHeight);
+            auto s = spaceBefore_(e.type) * lineHeight;
+
+            partial_height += h + s;
+        }
+
+        if (block_index <= 0) {
+            // Can't split meaningfully, just push to next page
+            pages_.push_back(std::move(currentPage));
+            currentPage.clear();
+            blockHeight = 0;
+
+            return;
+        }
+
+        auto& spiller = tempElements[block_index];
+
+        if (spiller.type == Element::Parenthetical) {
+            // Break before the parenthetical (only if not index 1)
+            if (block_index > 1) {
+                splitAtParenthetical_(
+                    block_index,
+                    max_temp,
+                    lineHeight,
+                    currentPage,
+                    tempElements,
+                    blockHeight);
+            }
+        } else {
+            // Dialogue spills (try splitting at sentence boundaries)
+            splitAtDialogue_(
+                block_index,
+                max_temp,
+                maxPageHeight,
+                currentY,
+                lineHeight,
+                currentPage,
+                tempElements,
+                blockHeight);
+        }
     }
 
-    // Split dialogue text at sentence boundaries
-    static std::vector<std::string> splitSentences_(const std::string& text) {}
+    void splitAtParenthetical_(
+        int blockIndex,
+        int maxTemp,
+        int lineHeight,
+        std::vector<Element>& currentPage,
+        std::vector<Element>& tempElements,
+        int& blockHeight)
+    {
+        // Add elements before the parenthetical to current page
+        for (auto z = 0; z < blockIndex; ++z) {
+            currentPage.push_back(tempElements[z]);
+        }
+
+        // (MORE) at bottom of page
+        currentPage.push_back(makeElement_(Element::Character, "(MORE)"));
+
+        // Close the page
+        pages_.push_back(std::move(currentPage));
+        currentPage.clear();
+
+        // CHARACTER (CONT'D) at top of next page
+        auto& contd = tempElements[0];
+        contd.text += " (CONT'D)";
+        blockHeight = measureHeight_(contd.text, contd.type, lineHeight);
+        currentPage.push_back(contd);
+
+        // Add remaining elements (parenthetical onward)
+        for (auto z = blockIndex; z < maxTemp; ++z) {
+            currentPage.push_back(tempElements[z]);
+            blockHeight += measureHeight_(
+                tempElements[z].text,
+                tempElements[z].type,
+                lineHeight);
+        }
+
+        tempElements.clear();
+    }
+
+    void splitAtDialogue_(
+        int blockIndex,
+        int maxTemp,
+        int maxPageHeight,
+        int currentY,
+        int lineHeight,
+        std::vector<Element>& currentPage,
+        std::vector<Element>& tempElements,
+        int& blockHeight)
+    {
+        auto distance_to_bottom = maxPageHeight - currentY - (lineHeight * 2);
+
+        // Not enough room for a meaningful split (push whole block to next
+        // page)
+        if (distance_to_bottom < lineHeight * 5) {
+            pages_.push_back(std::move(currentPage));
+            currentPage.clear();
+            blockHeight = 0;
+
+            return;
+        }
+
+        // Measure height of everything before the spilling dialogue
+        auto height_before_dialogue = 0;
+        for (int z = 0; z < blockIndex; ++z) {
+            height_before_dialogue += spaceBefore_(tempElements[z].type);
+            height_before_dialogue += measureHeight_(
+                tempElements[z].text,
+                tempElements[z].type,
+                lineHeight);
+        }
+
+        // Split the spilling dialogue at sentence boundaries
+        auto& spiller = tempElements[blockIndex];
+        auto sentences = splitSentences_(spiller.text);
+        auto max_sentences = static_cast<int>(sentences.size());
+
+        auto dialogue_height = height_before_dialogue;
+        auto sentence_index = -1;
+        std::string dialogue_before_break{};
+
+        while (dialogue_height < distance_to_bottom
+               && sentence_index < max_sentences - 1) {
+            ++sentence_index;
+
+            auto candidate = dialogue_before_break + sentences[sentence_index];
+            auto h = measureHeight_(candidate, Element::Dialogue, lineHeight);
+
+            dialogue_height = h;
+
+            if (dialogue_height < distance_to_bottom)
+                dialogue_before_break = candidate;
+        }
+
+        // Build the pre-break dialogue element
+        auto pre_break = makeElement_(Element::Dialogue, dialogue_before_break);
+
+        if (!pre_break.text.empty()) {
+            // Add elements up to the spilling one + partial dialogue
+            for (auto z = 0; z < blockIndex; ++z) {
+                currentPage.push_back(tempElements[z]);
+            }
+
+            currentPage.push_back(pre_break);
+            currentPage.push_back(makeElement_(Element::Character, "(MORE)"));
+
+            pages_.push_back(std::move(currentPage));
+            currentPage.clear();
+
+        } else {
+            // Nothing fit before the break, so push page as-is
+            pages_.push_back(std::move(currentPage));
+            currentPage.clear();
+
+            // Carry over elements between character cue and spiller
+            for (auto z = 1; z < blockIndex; ++z) {
+                currentPage.push_back(tempElements[z]);
+            }
+        }
+
+        // --- Next page ---
+        blockHeight = 0;
+
+        // CHARACTER (CONT'D)
+        auto contd = makeElement_(Element::Character, tempElements[0].text);
+        blockHeight += measureHeight_(contd.text, contd.type, lineHeight);
+        currentPage.push_back(contd);
+
+        // Post-break dialogue (remaining sentences)
+        if (sentence_index < 0) sentence_index = 0;
+
+        std::string dialogue_after_break{};
+        for (auto z = sentence_index; z < max_sentences; ++z) {
+            dialogue_after_break += sentences[z];
+        }
+
+        auto post_break = makeElement_(Element::Dialogue, dialogue_after_break);
+        blockHeight +=
+            measureHeight_(post_break.text, post_break.type, lineHeight);
+        currentPage.push_back(post_break);
+
+        // Add remaining elements after the spiller
+        for (auto z = blockIndex + 1; z < maxTemp; ++z) {
+            currentPage.push_back(tempElements[z]);
+            blockHeight += measureHeight_(
+                tempElements[z].text,
+                tempElements[z].type,
+                lineHeight);
+        }
+
+        tempElements.clear();
+    }
 };
 
 class Renderer
@@ -948,9 +1321,9 @@ class Renderer
 public:
     explicit Renderer(
         const Parser& parser,
-        Paginator::MeasureTextFn measureText = nullptr)
+        Paginator::MeasureTextFn measureTextFn = nullptr)
         : parser_(parser)
-        , measureText_(std::move(measureText))
+        , measureTextFn_(std::move(measureTextFn))
     {
     }
 
@@ -976,7 +1349,7 @@ public:
 
 private:
     const Parser& parser_;
-    Paginator::MeasureTextFn measureText_;
+    Paginator::MeasureTextFn measureTextFn_;
 
     // --- HTML ---
 
@@ -1017,7 +1390,7 @@ private:
             return "action";
         case Element::Character:
             return "character";
-        case Element::Dialog:
+        case Element::Dialogue:
             return "dialogue";
         case Element::Parenthetical:
             return "parenthetical";
@@ -1178,7 +1551,8 @@ private:
         return html;
     }
 
-    std::string renderBody_() const
+    // Returns HTML for a single element, updating dual dialogue state
+    std::string renderElement_(const Element& element, int& dualCount) const
     {
         // Boneyard, Comment, Synopsis, and SectionHeading are not rendered in
         // screenplay output per the Fountain spec. SectionHeading depth is
@@ -1188,71 +1562,89 @@ private:
                    || t == Element::Synopsis || t == Element::SectionHeading;
         };
 
-        const auto& elements = parser_.elements();
+        if (is_ignored(element.type)) return {};
+
+        std::string html{};
+
+        if (element.type == Element::PageBreak) {
+            html += "</section>\n<section>\n";
+            return html;
+        }
+
+        // Just a blank paragraph
+        if (element.type == Element::LyricsSpacer) {
+            html += "<p class='lyrics'>&nbsp;</p>\n";
+            return html;
+        }
+
+        // Dual dialogue handling
+        if (element.type == Element::Character
+            && element.isDualDialogueCharacter) {
+            ++dualCount;
+
+            if (dualCount == 1) {
+                html += "<div class='dual-dialogue'>\n";
+                html += "<div class='dual-dialogue-left'>\n";
+            } else if (dualCount == 2) {
+                html += "</div>\n<div class='dual-dialogue-right'>\n";
+            }
+        }
+
+        // Close dual dialogue when we leave the dialogue block
+        constexpr auto is_dialogue_type = [](Element::Type t) {
+            return t == Element::Character || t == Element::Dialogue
+                   || t == Element::Parenthetical;
+        };
+
+        if (dualCount >= 2 && !is_dialogue_type(element.type)) {
+            dualCount = 0;
+            html += "</div>\n</div>\n";
+        }
+
+        std::string text{};
+
+        if (element.type == Element::SceneHeading
+            && !element.sceneNumber.empty()) {
+            text += "<span class='scene-number-left'>"
+                    + escapeHtml_(element.sceneNumber) + "</span>";
+            text += applyInlineFormatting_(element.text);
+            text += "<span class='scene-number-right'>"
+                    + escapeHtml_(element.sceneNumber) + "</span>";
+        } else {
+            text = applyInlineFormatting_(element.text);
+        }
+
+        if (text.empty()) return html;
+
+        // CSS class + optional center
+        auto css_class = cssClass_(element.type);
+        if (element.textCentered) css_class += " center";
+        html += "<p class='" + css_class + "'>" + text + "</p>\n";
+
+        return html;
+    }
+
+    std::string renderBody_() const
+    {
         std::string html{};
         auto dual_count = 0;
 
-        for (size_t i = 0; i < elements.size(); ++i) {
-            const auto& element = elements[i];
+        if (measureTextFn_) {
+            Paginator paginator(parser_.elements(), measureTextFn_);
 
-            if (is_ignored(element.type)) continue;
+            for (size_t p = 0; p < paginator.numberOfPages(); ++p) {
+                html += "<p class='page-break'>" + std::to_string(p + 1)
+                        + ".</p>\n";
 
-            // Page break
-            if (element.type == Element::PageBreak) {
-                html += "</section>\n<section>\n";
-                continue;
-            }
-
-            // Lyric spacer (just a blank paragraph)
-            if (element.type == Element::LyricsSpacer) {
-                html += "<p class='lyrics'>&nbsp;</p>\n";
-                continue;
-            }
-
-            // Dual dialogue handling
-            if (element.type == Element::Character
-                && element.isDualDialogCharacter) {
-                ++dual_count;
-
-                if (dual_count == 1) {
-                    html += "<div class='dual-dialogue'>\n";
-                    html += "<div class='dual-dialogue-left'>\n";
-                } else if (dual_count == 2) {
-                    html += "</div>\n<div class='dual-dialogue-right'>\n";
+                for (const auto& element : paginator.pageAt(p)) {
+                    html += renderElement_(element, dual_count);
                 }
             }
 
-            // Close dual dialogue when we leave the dialogue block
-            constexpr auto is_dialogue_type = [](Element::Type t) {
-                return t == Element::Character || t == Element::Dialog
-                       || t == Element::Parenthetical;
-            };
-
-            if (dual_count >= 2 && !is_dialogue_type(element.type)) {
-                dual_count = 0;
-                html += "</div>\n</div>\n";
+        } else {
+            for (const auto& element : parser_.elements()) {
+                html += renderElement_(element, dual_count);
             }
-
-            // Build the element text
-            std::string text{};
-
-            if (element.type == Element::SceneHeading
-                && !element.sceneNumber.empty()) {
-                text += "<span class='scene-number-left'>"
-                        + escapeHtml_(element.sceneNumber) + "</span>";
-                text += applyInlineFormatting_(element.text);
-                text += "<span class='scene-number-right'>"
-                        + escapeHtml_(element.sceneNumber) + "</span>";
-            } else {
-                text = applyInlineFormatting_(element.text);
-            }
-
-            if (text.empty()) continue;
-
-            // CSS class + optional center
-            auto css_class = cssClass_(element.type);
-            if (element.textCentered) css_class += " center";
-            html += "<p class='" + css_class + "'>" + text + "</p>\n";
         }
 
         // Close any dangling dual dialogue
