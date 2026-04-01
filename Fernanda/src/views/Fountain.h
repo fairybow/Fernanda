@@ -24,10 +24,21 @@
 #include <utility>
 #include <vector>
 
+/// TEMP (search this tag)
+#include <QDebug>
+
 /// TODO MU: Draft (right now, keep one file)
 
 // TODO: Move to own repo?
 namespace Fernanda::Fountain {
+
+// Known: page count may differ ~5-10% from other implementations due to
+// platform font metric differences. The ObjC original was calibrated for
+// Courier 12pt on macOS via NSLayoutManager. Fine-tuning would require
+// adjusting margin constants or element widths per-font
+
+// TODO: Do we need to make sure we don't append "CONT'D" when already exists on
+// the end of character name?
 
 // Translated from:
 // https://github.com/nyousefi/Fountain/blob/master/Fountain/FNElement.h
@@ -960,7 +971,7 @@ private:
     {
         constexpr auto one_inch_px = 72;
         auto max_page_height =
-            pageHeight_ - static_cast<int>(std::round(one_inch_px * 2.01));
+            pageHeight_ - static_cast<int>(std::round(one_inch_px * 2.0));
         auto line_height = 12; // Courier 12pt
         auto block_height = 0;
         auto current_y = 0;
@@ -979,6 +990,8 @@ private:
                 current_page.clear();
                 current_y = 0;
 
+                /// TEMP
+                qDebug() << "PAGE" << pages_.size() << "- explicit break";
                 continue;
             }
 
@@ -1083,6 +1096,14 @@ private:
                     // Simple overflow (push current page and start fresh)
                     pages_.push_back(std::move(current_page));
                     current_page.clear();
+
+                    /// TEMP
+                    qDebug() << "PAGE" << pages_.size()
+                             << "- overflow, totalH:" << total_height
+                             << "maxH:" << max_page_height
+                             << "blockH:" << block_height
+                             << "currentY:" << current_y;
+
                     current_y = block_height - space;
                     block_height = 0;
                 }
@@ -1133,6 +1154,9 @@ private:
             pages_.push_back(std::move(currentPage));
             currentPage.clear();
             blockHeight = 0;
+            /// TEMP
+            qDebug() << "PAGE" << pages_.size()
+                     << "- dialogue split (can't split)";
 
             return;
         }
@@ -1183,6 +1207,9 @@ private:
         // Close the page
         pages_.push_back(std::move(currentPage));
         currentPage.clear();
+        /// TEMP
+        qDebug() << "PAGE" << pages_.size()
+                 << "- dialogue split (parenthetical)";
 
         // CHARACTER (CONT'D) at top of next page
         auto& contd = tempElements[0];
@@ -1220,6 +1247,8 @@ private:
             pages_.push_back(std::move(currentPage));
             currentPage.clear();
             blockHeight = 0;
+            /// TEMP
+            qDebug() << "PAGE" << pages_.size() << "- dialogue split (no room)";
 
             return;
         }
@@ -1270,11 +1299,17 @@ private:
 
             pages_.push_back(std::move(currentPage));
             currentPage.clear();
+            /// TEMP
+            qDebug() << "PAGE" << pages_.size()
+                     << "- dialogue split (sentence break)";
 
         } else {
             // Nothing fit before the break, so push page as-is
             pages_.push_back(std::move(currentPage));
             currentPage.clear();
+            /// TEMP
+            qDebug() << "PAGE" << pages_.size()
+                     << "- dialogue split (nothing fit)";
 
             // Carry over elements between character cue and spiller
             for (auto z = 1; z < blockIndex; ++z) {
@@ -1286,7 +1321,9 @@ private:
         blockHeight = 0;
 
         // CHARACTER (CONT'D)
-        auto contd = makeElement_(Element::Character, tempElements[0].text);
+        auto contd = makeElement_(
+            Element::Character,
+            tempElements[0].text + " (CONT'D)");
         blockHeight += measureHeight_(contd.text, contd.type, lineHeight);
         currentPage.push_back(contd);
 
@@ -1684,6 +1721,12 @@ p {
     word-wrap: break-word;
     padding: 0 10px;
 }
+p.page-break {
+    text-align: right;
+    border-top: 1px solid #ccc;
+    padding-top: 20px;
+    margin-top: 20px;
+}
 body > p:first-child {
     margin-top: 0;
 }
@@ -1774,7 +1817,8 @@ hr {
 }
 .lyrics {
     font-style: italic;
-})CSS";
+}
+)CSS";
 };
 
 } // namespace Fernanda::Fountain

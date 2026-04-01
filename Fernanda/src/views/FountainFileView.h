@@ -12,9 +12,15 @@
 
 #pragma once
 
+#include <string>
+
+#include <QFont>
+#include <QTextLayout>
+#include <QTextLine>
 #include <QString>
 #include <QWidget>
 
+#include "core/Debug.h"
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
 #include "views/Fountain.h"
@@ -39,20 +45,40 @@ protected:
     virtual QString renderToHtml(const QString& plainText) const override
     {
         auto parser = Fountain::Parser(plainText.toStdString());
-        auto renderer = Fountain::Renderer(parser);
-        return QString::fromStdString(renderer.html());
+        auto font = QFont("Courier Prime");
+        font.setPixelSize(12);
 
-        /*auto font = QFont("Courier", 12);
-        auto metrics = QFontMetrics(font);
+        auto measure_fn = [font](
+                              const std::string& text,
+                              int maxWidth,
+                              int lineHeight) -> int {
+            QTextLayout layout(QString::fromStdString(text), font);
+            layout.beginLayout();
 
-        auto measureFn = [metrics](const std::string& text, int maxWidth, int
-        lineHeight) -> int { auto qtext = QString::fromStdString(text); auto rect =
-        metrics.boundingRect( QRect(0, 0, maxWidth, INT_MAX), Qt::TextWordWrap, qtext);
-            int numLines = (rect.height() + lineHeight - 1) / lineHeight;
-            return numLines * lineHeight;
+            auto line_count = 0;
+
+            while (true) {
+                auto line = layout.createLine();
+                if (!line.isValid()) break;
+
+                line.setLineWidth(maxWidth);
+                ++line_count;
+            }
+
+            layout.endLayout();
+
+            ///
+            //if (text.size() < 30) {
+            //    qDebug() << "measure:" << QString::fromStdString(text)
+            //             << "width:" << maxWidth << "lines:" << line_count;
+            //}
+            ///
+
+            return line_count * lineHeight;
         };
 
-        auto renderer = Fountain::Renderer(parser, measureFn);*/
+        auto renderer = Fountain::Renderer(parser, measure_fn);
+        return QString::fromStdString(renderer.html());
     }
 };
 
