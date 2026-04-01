@@ -23,10 +23,16 @@
 #include "core/Debug.h"
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
-#include "views/Fountain.h"
+
+/// TODO MU: Rendering might be different for Markdown vs Fountain, although
+/// maybe not enough to warrant removing the abstract base. I think both could
+/// benefit from an edit/split/preview toggle (not with splitter like here, only
+/// splitter in split mode). Highland doesn't have split, but BetterFountain
+/// does, I think? We need to handle title page issues ourselves (display
+/// concern, not parser/renderer/paginator problem)
 
 /// TODO MU: Potentially find a js Fountain parser/render - something well
-/// tested and liked and used that
+/// tested and liked and used that?
 
 namespace Fernanda {
 
@@ -47,41 +53,35 @@ public:
 protected:
     virtual QString renderToHtml(const QString& plainText) const override
     {
-        auto parser = Fountain::Parser(plainText.toStdString());
-        auto font = QFont("Courier Prime");
-        font.setPixelSize(12);
+        return {};
 
-        auto measure_fn = [font](
-                              const std::string& text,
-                              int maxWidth,
-                              int lineHeight) -> int {
-            QTextLayout layout(QString::fromStdString(text), font);
-            layout.beginLayout();
+        // auto parser = Fountain::Parser(plainText.toStdString());
+        // auto font = QFont("Courier Prime");
+        // font.setPixelSize(12);
 
-            auto line_count = 0;
+        // auto measure_fn = [font](
+        //                       const std::string& text,
+        //                       int maxWidth,
+        //                       int lineHeight) -> int {
+        //     QTextLayout layout(QString::fromStdString(text), font);
+        //     layout.beginLayout();
 
-            while (true) {
-                auto line = layout.createLine();
-                if (!line.isValid()) break;
+        //    auto line_count = 0;
 
-                line.setLineWidth(maxWidth);
-                ++line_count;
-            }
+        //    while (true) {
+        //        auto line = layout.createLine();
+        //        if (!line.isValid()) break;
 
-            layout.endLayout();
+        //        line.setLineWidth(maxWidth);
+        //        ++line_count;
+        //    }
 
-            ///
-            // if (text.size() < 30) {
-            //     qDebug() << "measure:" << QString::fromStdString(text)
-            //              << "width:" << maxWidth << "lines:" << line_count;
-            // }
-            ///
+        //    layout.endLayout();
+        //    return line_count * lineHeight;
+        //};
 
-            return line_count * lineHeight;
-        };
-
-        auto renderer = Fountain::Renderer(parser, measure_fn);
-        return QString::fromStdString(renderer.html());
+        // auto renderer = Fountain::Renderer(parser, measure_fn);
+        // return QString::fromStdString(renderer.html());
     }
 };
 

@@ -168,7 +168,6 @@ set(FERNANDA_HEADERS
 
     src/views/AbstractFileView.h
     src/views/AbstractMarkupFileView.h
-    src/views/Fountain.h
     src/views/FountainFileView.h
     src/views/ImageFileView.h
     src/views/KeyFilters.h
