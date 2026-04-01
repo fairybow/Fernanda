@@ -34,6 +34,9 @@
 /// TODO MU: Potentially find a js Fountain parser/render - something well
 /// tested and liked and used that?
 
+/// TODO MU: Could leave preview in this semi-flow paginated state and only do
+/// page stuff when drawing to PDF directly for print/export
+
 namespace Fernanda {
 
 class FountainFileView : public AbstractMarkupFileView
