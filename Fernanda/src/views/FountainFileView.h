@@ -39,6 +39,10 @@
 /// TODO MU: Could leave preview in this semi-flow paginated state and only do
 /// page stuff when drawing to PDF directly for print/export
 
+/// TODO MU: Extra title page space on the semi-flow is Fountain.h CSS. We could
+/// remove CSS from the Renderer entirely and leave that to the caller - kind of
+/// makes sense
+
 namespace Fernanda {
 
 class FountainFileView : public AbstractMarkupFileView
