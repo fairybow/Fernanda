@@ -31,6 +31,7 @@ protected:
         NavigationType type,
         [[maybe_unused]] bool isMainFrame) override
     {
+        // Let's not open links in the preview page...
         if (type == NavigationTypeLinkClicked) {
             QDesktopServices::openUrl(url);
             return false;
