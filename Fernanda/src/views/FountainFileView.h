@@ -41,7 +41,10 @@
 
 /// TODO MU: Extra title page space on the semi-flow is Fountain.h CSS. We could
 /// remove CSS from the Renderer entirely and leave that to the caller - kind of
-/// makes sense
+/// makes sense? Or, split rendering and html creation and allow a caller to
+/// only use HTML if they want. Could also provide two sets of CSS in Renderer -
+/// optional stuff (like padding on the title page) vs very important stuff
+/// (dialog padding)
 
 namespace Fernanda {
 
