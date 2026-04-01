@@ -112,7 +112,7 @@ inline const Map& defaults()
         { Keys::EDITOR_SELECTION_HANDLES, true },
 
         // Word counter
-        { Keys::WORD_COUNTER_ACTIVE, true },
+        { Keys::WORD_COUNTER_ACTIVE, false },
         { Keys::WORD_COUNTER_LINE_COUNT, true },
         { Keys::WORD_COUNTER_WORD_COUNT, true },
         { Keys::WORD_COUNTER_CHAR_COUNT, false },
