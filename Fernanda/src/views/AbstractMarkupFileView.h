@@ -65,21 +65,26 @@ public:
 
         default:
         case Split:
+            // TODO: Better way to manage button icon/text state based on the
+            // cycle?
+            modeToggle_->setText("Preview"); /// TODO MU: Temp
             editor->show();
             preview_->show();
-            splitter_->setFocusProxy(editor);
-            break;
-
-        case Edit:
-            editor->show();
-            preview_->hide();
             splitter_->setFocusProxy(editor);
             break;
 
         case Preview:
+            modeToggle_->setText("Edit"); /// TODO MU: Temp
             editor->hide();
             preview_->show();
             splitter_->setFocusProxy(preview_);
+            break;
+
+        case Edit:
+            modeToggle_->setText("Split"); /// TODO MU: Temp
+            editor->show();
+            preview_->hide();
+            splitter_->setFocusProxy(editor);
             break;
         }
 
@@ -95,12 +100,12 @@ public:
             setMode(Preview);
             break;
 
-        case Edit:
-            setMode(Split);
-            break;
-
         case Preview:
             setMode(Edit);
+            break;
+
+        case Edit:
+            setMode(Split);
             break;
         }
     }
