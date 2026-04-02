@@ -15,6 +15,7 @@
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QObject>
+#include <QShowEvent>
 #include <QSplitter>
 #include <QString>
 #include <QTextDocument>
@@ -31,6 +32,8 @@
 
 namespace Fernanda {
 
+/// TODO MU: I'd maybe like a 3-way toggle switch instead of cycling labels and
+/// functionality
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
@@ -192,7 +195,11 @@ protected:
             &QTextDocument::contentsChanged,
             this,
             [this] {
-                if (preview_ && preview_->isVisible()) reparseTimer_->start();
+                // In the contentsChanged connection:
+                if (preview_ && preview_->isVisible())
+                    reparseTimer_->start();
+                else
+                    previewStale_ = true;
             });
 
         connect(modeToggle_, &QToolButton::clicked, this, [this] {
@@ -211,6 +218,15 @@ protected:
     // Subclasses implement this to convert plain text to HTML for the preview
     virtual QString renderToHtml(const QString& plainText) const = 0;
 
+    virtual void showEvent(QShowEvent* event)
+    {
+        TextFileView::showEvent(event);
+        if (previewStale_ && preview_->isVisible()) {
+            previewStale_ = false;
+            reparse_();
+        }
+    }
+
     QWebEngineView* preview() const noexcept { return preview_; }
 
 private:
@@ -223,6 +239,9 @@ private:
     QWebEngineView* preview_ = new QWebEngineView(this);
     QWidget* previewResizeMask_ = new QWidget(preview_);
 
+    /// TODO MU: Fountain parser needs to be faster or we make this a ctor arg
+    /// for subclasses (or both). Could try switching to C and avoiding regex
+    /// altogether (md4c does 50 ms debounce well - Fountain.h does not!)
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
     Time::Debouncer* resizeHideTimer_ =
@@ -230,6 +249,7 @@ private:
 
     constexpr static int MIN_WIDGET_SIZE_ = 50;
     bool firstParse_ = true;
+    bool previewStale_ = false;
 
     static QString appFontFaceKit_();
 
@@ -240,12 +260,13 @@ private:
 
         auto html = renderToHtml(editor->document()->toPlainText());
 
-        html.replace(
-            QStringLiteral("</head>"),
-            QStringLiteral("<style>%1</style></head>").arg(appFontFaceKit_()));
-
         if (firstParse_) {
             firstParse_ = false;
+
+            html.replace(
+                QStringLiteral("</head>"),
+                QStringLiteral("<style>%1</style></head>")
+                    .arg(appFontFaceKit_()));
             preview_->setHtml(
                 html,
                 QUrl("qrc:/")); /// TODO MU: I am vaguely concerned about this
