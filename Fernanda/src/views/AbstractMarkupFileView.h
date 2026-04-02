@@ -29,9 +29,6 @@
 
 namespace Fernanda {
 
-// TODO: Test and see if we need a loading mask over preview or entire container
-// (probably the latter); if we do, can connect to web view's load start and end
-// signals to swap in a stacked widget
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
@@ -59,11 +56,12 @@ public:
     {
         if (!splitter_ || !preview_) return;
 
-        /// - Set snapshot overlay
-        /// - Possible gate with initialization (don't snapshot on first call to
-        /// this - might capture something weird, like widgets moving around -
-        /// won't want to do that especially if we linger with timer before
-        /// removing overlay)
+        // During the transition, QWebEngineView will look really jank. This is
+        // unavoidable. What we can do, though, is hide the transition using a
+        // screenshot of the widgets' prior states while they transition to the
+        // next. NB: We want to avoid calling setMode in setupWidget, otherwise,
+        // we'll get a broken screengrab visible on first display
+        snapshotOverlay_->captureAndShow(container_);
 
         mode_ = mode;
         auto editor = this->editor();
@@ -97,7 +95,9 @@ public:
 
         if (mode != Edit) reparse_();
 
-        /// - Remove overlay
+        // We need a value that is short enough to not be ridiculous but long
+        // enough to cover us in case the web document is large...
+        Time::delay(250, this, [this] { snapshotOverlay_->hideOverlay(); });
     }
 
     void cycleMode()
@@ -123,7 +123,9 @@ protected:
     virtual QWidget* setupWidget() override
     {
         modeBar_->setFixedHeight(24);
-        modeToggle_->setText("Mode"); /// TODO MU: Temp
+        // Since we start in split (handle this better/dynamically without
+        // calling setMode, eventually):
+        modeToggle_->setText("Preview"); /// TODO MU: Temp
         modeToggle_->setFixedHeight(20);
 
         auto editor_widget = TextFileView::setupWidget();
@@ -174,23 +176,9 @@ protected:
             cycleMode();
         });
 
-        // connect(preview_, &QWebEngineView::loadStarted, this, [this] {
-        //...
-        //});
-
-        // connect(preview_, &QWebEngineView::loadFinished, this, [this](bool) {
-        //...
-        //}
-
-        setMode(Split);
-
-        /// Need an overlay, not a stacked widget! Take a snapshot and overlay
-        /// it. Use wed engine snapshot method.
-        ///
-        /// Try grab() for whole container. It may not capture the web engine,
-        /// though. Can have a utility that does both and composites? Then we
-        /// overlay that during transitions (grab, overlay, reveal after widgets
-        /// are set)
+        // Can't call setMode to start (see setMode note)
+        splitter_->setFocusProxy(editor_widget);
+        reparse_();
 
         return container_;
     }

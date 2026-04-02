@@ -24,8 +24,6 @@
 
 #include "core/Debug.h"
 
-/// TODO MU: Untested!
-
 namespace Fernanda {
 
 // Captures a pixmap snapshot of a target widget and displays it as a floating
@@ -68,6 +66,8 @@ public:
         target->installEventFilter(this);
 
         syncGeometry_();
+        geometryDirty_ = false;
+
         show();
         raise();
     }
@@ -82,6 +82,7 @@ public:
         }
 
         pixmap_ = {};
+        geometryDirty_ = false;
     }
 
 protected:
@@ -90,8 +91,17 @@ protected:
         if (pixmap_.isNull()) return;
 
         QPainter painter(this);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform);
-        painter.drawPixmap(rect(), pixmap_);
+
+        // Widget resizing/moving is unlikely but not impossible. We'll prefer
+        // fidelity (no pixmap transform - screengrab is almost visually
+        // indistinguishable from the real widgets), but if the geometry is
+        // dirty, then we'll prioritize functionality (covering the seams)
+        if (geometryDirty_) {
+            painter.setRenderHint(QPainter::SmoothPixmapTransform);
+            painter.drawPixmap(rect(), pixmap_);
+        } else {
+            painter.drawPixmap(0, 0, pixmap_);
+        }
     }
 
     virtual bool eventFilter(QObject* watched, QEvent* event) override
@@ -101,6 +111,7 @@ protected:
         switch (event->type()) {
         case QEvent::Resize:
         case QEvent::Move:
+            geometryDirty_ = true;
             syncGeometry_();
             break;
 
@@ -112,8 +123,9 @@ protected:
     }
 
 private:
-    QWidget* targetWidget_ = nullptr;
+    bool geometryDirty_ = false;
     QPixmap pixmap_{};
+    QWidget* targetWidget_ = nullptr;
 
     void setup_()
     {
