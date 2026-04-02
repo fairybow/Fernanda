@@ -30,7 +30,9 @@
 
 namespace Fernanda {
 
-// TODO: How in the name of God do you get QSplitter to begin halfway?
+// TODO: Test and see if we need a loading mask over preview or entire container
+// (probably the latter); if we do, can connect to web view's load start and end
+// signals to swap in a stacked widget
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
