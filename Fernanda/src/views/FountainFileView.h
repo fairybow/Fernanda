@@ -26,16 +26,6 @@
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
 
-/// TODO MU: Rendering might be different for Markdown vs Fountain, although
-/// maybe not enough to warrant removing the abstract base. I think both could
-/// benefit from an edit/split/preview toggle (not with splitter like here, only
-/// splitter in split mode). Highland doesn't have split, but BetterFountain
-/// does, I think? We need to handle title page issues ourselves (display
-/// concern, not parser/renderer/paginator problem)
-
-/// TODO MU: Potentially find a js Fountain parser/render - something well
-/// tested and liked and used that?
-
 /// TODO MU: Could leave preview in this semi-flow paginated state and only do
 /// page stuff when drawing to PDF directly for print/export
 
