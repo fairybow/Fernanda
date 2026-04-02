@@ -100,7 +100,7 @@ public:
 
         // We need a value that is short enough to not be ridiculous but long
         // enough to cover us in case the web document is large...
-        // NB: This trick doesn't really work in debug (only release), because
+        // NB: This doesn't really work in debug (only release), because
         // QWebEngineView takes too long to load
         Time::delay(250, this, [this] { snapshotOverlay_->hideOverlay(); });
     }
