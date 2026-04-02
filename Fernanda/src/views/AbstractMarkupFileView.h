@@ -30,13 +30,7 @@
 
 namespace Fernanda {
 
-// TODO: Start edit only and load preview in the background? It's only slow in
-// debug, though
-// TODO: Toggle/cycle button
-// TODO: ^ Would prefer more distinctive toggle modes (not moving a splitter);
-// possibly a stacked widget that displays the right modes between edit, split,
-// and preview. Though, this would mean moving the two widgets into a splitter
-// for split or having duplicates?
+// TODO: How in the name of God do you get QSplitter to begin halfway?
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
@@ -114,19 +108,24 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
-        auto editor_widget = TextFileView::setupWidget();
-
         modeBar_->setFixedHeight(24);
         modeToggle_->setText("Mode"); /// TODO MU: Temp
         modeToggle_->setFixedHeight(20);
 
+        auto editor_widget = TextFileView::setupWidget();
+        editor_widget->setMinimumWidth(MIN_WIDGET_SIZE_);
+
         preview_->setPage(new MarkupPreviewPage(preview_));
+        preview_->setMinimumWidth(MIN_WIDGET_SIZE_);
 
         splitter_->addWidget(editor_widget);
         splitter_->addWidget(preview_);
-        splitter_->setChildrenCollapsible(false);
+
+        // (Making both these 1 or not settings them doesn't fix the problem
+        // where it's impossible to start with the splitter exactly halfway...)
         splitter_->setStretchFactor(0, 0);
-        splitter_->setStretchFactor(1, 1);
+        splitter_->setStretchFactor(1, 1); // Let resizing favor preview
+        splitter_->setChildrenCollapsible(false);
         splitter_->setFocusProxy(editor_widget);
 
         // Layout
@@ -175,6 +174,7 @@ private:
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
 
+    constexpr static auto MIN_WIDGET_SIZE_ = 50;
     bool webViewFirstLoad_ = true;
 
     static QString appFontFaceKit_();
@@ -233,6 +233,7 @@ private:
             preview_->setHtml(
                 html,
                 QUrl("qrc:/")); /// TODO MU: I am vaguely concerned about this
+
             return;
         }
 
@@ -260,227 +261,5 @@ private:
         preview_->page()->runJavaScript(js);
     }
 };
-
-/// add button back
-/// move button to the left side
-/// fix reparse_
-
-/*class AbstractMarkupFileView : public TextFileView
-{
-    Q_OBJECT
-
-public:
-    enum Mode
-    {
-        Edit = 0,
-        Split,
-        Preview
-    };
-
-    explicit AbstractMarkupFileView(
-        TextFileModel* fileModel,
-        QWidget* parent = nullptr)
-        : TextFileView(fileModel, parent)
-    {
-    }
-
-    virtual ~AbstractMarkupFileView() override {}
-
-    Mode mode() const noexcept { return mode_; }
-
-    void setMode(Mode mode)
-    {
-        if (!stack_ || !preview_) return;
-
-        mode_ = mode;
-        auto editor = this->editor();
-
-        switch (mode) {
-
-        case Edit: {
-            editPage_->layout()->addWidget(editor);
-            stack_->setCurrentWidget(editPage_);
-            stack_->setFocusProxy(editor);
-
-            break;
-        }
-
-        case Split: {
-            splitter_->addWidget(editor);
-            splitter_->addWidget(preview_);
-            stack_->setCurrentWidget(splitPage_);
-            stack_->setFocusProxy(editor);
-
-            break;
-        }
-
-        case Preview: {
-            previewPage_->layout()->addWidget(preview_);
-            stack_->setCurrentWidget(previewPage_);
-            stack_->setFocusProxy(preview_);
-
-            break;
-        }
-        }
-
-        if (mode != Edit) reparse_();
-    }
-
-    void cycleMode()
-    {
-        switch (mode_) {
-
-        default:
-        case Split:
-            setMode(Preview);
-            break;
-
-        case Edit:
-            setMode(Split);
-            break;
-
-        case Preview:
-            setMode(Edit);
-            break;
-        }
-    }
-
-protected:
-    virtual QWidget* setupWidget() override
-    {
-        modeBar_->setFixedHeight(24);
-
-        /// TODO MU: Reactive icon or switch
-        toggleButton_->setText("Toggle Mode");
-        toggleButton_->setFixedHeight(20);
-
-        // --- Edit page ---
-        auto editor_widget = TextFileView::setupWidget();
-        auto edit_layout = new QVBoxLayout(editPage_);
-        edit_layout->setContentsMargins(0, 0, 0, 0);
-        edit_layout->setSpacing(0);
-        edit_layout->addWidget(editor_widget);
-
-        // --- Split page ---
-        auto split_layout = new QVBoxLayout(splitPage_);
-        split_layout->setContentsMargins(0, 0, 0, 0);
-        split_layout->setSpacing(0);
-        splitter_->setChildrenCollapsible(false);
-        split_layout->addWidget(splitter_);
-
-        // --- Preview page ---
-        auto preview_layout = new QVBoxLayout(previewPage_);
-        preview_layout->setContentsMargins(0, 0, 0, 0);
-        preview_layout->setSpacing(0);
-        preview_->setPage(new MarkupPreviewPage(preview_));
-
-        // --- Stack ---
-        stack_->addWidget(editPage_); // 0
-        stack_->addWidget(splitPage_); // 1
-        stack_->addWidget(previewPage_); // 2
-
-        // --- Container ---
-        auto container_layout = new QVBoxLayout(container_);
-        container_layout->setContentsMargins(0, 0, 0, 0);
-        container_layout->setSpacing(0);
-
-        auto mode_bar_layout = new QHBoxLayout(modeBar_);
-        mode_bar_layout->setContentsMargins(0, 2, 2, 2);
-        mode_bar_layout->setSpacing(0);
-        mode_bar_layout->addStretch();
-        mode_bar_layout->addWidget(toggleButton_, 0);
-
-        container_layout->addWidget(modeBar_, 0);
-        container_layout->addWidget(stack_, 1);
-
-        connect(
-            editor()->document(),
-            &QTextDocument::contentsChanged,
-            this,
-            [this] {
-                if (mode_ != Edit) reparseTimer_->start();
-            });
-
-        connect(toggleButton_, &QToolButton::clicked, this, [this] {
-            cycleMode();
-        });
-
-        setMode(Edit);
-
-        return container_;
-    }
-
-    // Subclasses implement this to convert plain text to HTML for the preview
-    virtual QString renderToHtml(const QString& plainText) const = 0;
-
-    QWebEngineView* preview() const noexcept { return preview_; }
-
-private:
-    Mode mode_ = Edit;
-    QWidget* container_ = new QWidget(this);
-    QWidget* modeBar_ = new QWidget(this);
-    QToolButton* toggleButton_ = new QToolButton(this);
-
-    QStackedWidget* stack_ = new QStackedWidget(this);
-    QWidget* editPage_ = new QWidget(this);
-    QWidget* splitPage_ = new QWidget(this);
-    QWidget* previewPage_ = new QWidget(this);
-
-    QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
-    // QStackedWidget* previewStack_ = new QStackedWidget(this);
-    // QWidget* previewLoadingMask_ =
-    // new QWidget(this); /// Make white and maybe add spinner
-    QWebEngineView* preview_ = new QWebEngineView(this);
-
-    Time::Debouncer* reparseTimer_ =
-        Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
-
-    // constexpr static auto MIN_WIDGET_WIDTH_ = 50;
-    // bool needsInitialSplit_ = true;
-    bool initialLoadDone_ = false;
-
-    static QString appFontFaceKit_();
-
-    void reparse_()
-    {
-        auto editor = this->editor();
-        if (!preview_ || !editor) return;
-
-        auto html = renderToHtml(editor->document()->toPlainText());
-
-        html.replace(
-            QStringLiteral("</head>"),
-            QStringLiteral("<style>%1</style></head>").arg(appFontFaceKit_()));
-
-        if (!initialLoadDone_) {
-            initialLoadDone_ = true;
-            preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: I am vaguely
-concerned about this return;
-        }
-
-        // Extract just the body content and swap it via DOM manipulation
-        auto body_start = html.indexOf(QStringLiteral("<body>"));
-        auto body_end = html.indexOf(QStringLiteral("</body>"));
-
-        if (body_start < 0 || body_end < 0) {
-            preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: See above
-            return;
-        }
-
-        auto body_content = html.mid(body_start + 6, body_end - body_start - 6);
-
-        // Escape for JS string
-        body_content.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
-        body_content.replace(QStringLiteral("`"), QStringLiteral("\\`"));
-
-        auto js = QStringLiteral(
-                      "var scrollY = window.scrollY;"
-                      "document.body.innerHTML = `%1`;"
-                      "window.scrollTo(0, scrollY);")
-                      .arg(body_content);
-
-        preview_->page()->runJavaScript(js);
-    }
-};*/
 
 } // namespace Fernanda
