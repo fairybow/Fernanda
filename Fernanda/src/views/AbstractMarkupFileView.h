@@ -203,6 +203,10 @@ private:
     }
 };
 
+/// add button back
+/// move button to the left side
+/// fix reparse_
+
 /*class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
