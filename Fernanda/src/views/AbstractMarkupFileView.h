@@ -172,6 +172,11 @@ protected:
 
         /// Need an overlay, not a stacked widget! Take a snapshot and overlay
         /// it. Use wed engine snapshot method.
+        ///
+        /// Try grab() for whole container. It may not capture the web engine,
+        /// though. Can have a utility that does both and composites? Then we
+        /// overlay that during transitions (grab, overlay, reveal after widgets
+        /// are set)
 
         return container_;
     }
