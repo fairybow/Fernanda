@@ -12,7 +12,9 @@
 
 #pragma once
 
+#include <QEvent>
 #include <QHBoxLayout>
+#include <QObject>
 #include <QSplitter>
 #include <QString>
 #include <QTextDocument>
@@ -124,10 +126,30 @@ public:
         }
     }
 
+    /// TODO MU: May be temporary - works but doesn't look the best; may want
+    /// full skeleton UI for resizes specifically (snapshot works well for mode
+    /// transition, though); OR perhaps capture the preview's inner scroll area,
+    /// if possible (would stretch only content and not the scroll bars - still,
+    /// there's weird artifacting on the window chrome itself when resizing
+    /// using this, even in release build...)
+    virtual bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (watched == preview_ && event->type() == QEvent::Resize) {
+            if (snapshotOverlay_->isAvailable()) {
+                snapshotOverlay_->captureAndShow(preview_);
+            }
+
+            resizeHideTimer_->start();
+        }
+
+        return TextFileView::eventFilter(watched, event);
+    }
+
 protected:
     virtual QWidget* setupWidget() override
     {
         modeBar_->setFixedHeight(24);
+
         // Since we start in split (handle this better/dynamically without
         // calling setMode, eventually):
         modeToggle_->setText("Preview"); /// TODO MU: Temp
@@ -185,6 +207,8 @@ protected:
         splitter_->setFocusProxy(editor_widget);
         reparse_();
 
+        preview_->installEventFilter(this);
+
         return container_;
     }
 
@@ -204,6 +228,10 @@ private:
 
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
+    Time::Debouncer* resizeHideTimer_ = Time::newDebouncer(
+        this,
+        [this] { snapshotOverlay_->hideOverlay(); },
+        250);
 
     constexpr static int MIN_WIDGET_SIZE_ = 50;
     bool firstParse_ = true;

@@ -48,6 +48,10 @@ public:
     {
         if (!target) return;
 
+        // Only half of the "is available" property. The rest is taken care of
+        // by isVisible
+        capturing_ = true;
+
         auto dpr = target->devicePixelRatioF();
         auto size = target->size() * dpr;
 
@@ -70,6 +74,8 @@ public:
 
         show();
         raise();
+
+        capturing_ = false;
     }
 
     void hideOverlay()
@@ -85,6 +91,10 @@ public:
         geometryDirty_ = false;
     }
 
+    // If used for resizing widgets, may need to avoid reentrancy using this
+    // check
+    bool isAvailable() const { return !isVisible() && !capturing_; }
+
 protected:
     virtual void paintEvent([[maybe_unused]] QPaintEvent* event) override
     {
@@ -92,8 +102,7 @@ protected:
 
         QPainter painter(this);
 
-        // Widget resizing/moving is unlikely but not impossible. We'll prefer
-        // fidelity (no pixmap transform - screengrab is almost visually
+        // Prefer fidelity (no pixmap transform - screengrab is almost visually
         // indistinguishable from the real widgets), but if the geometry is
         // dirty, then we'll prioritize functionality (covering the seams)
         if (geometryDirty_) {
@@ -123,6 +132,7 @@ protected:
     }
 
 private:
+    bool capturing_ = false;
     bool geometryDirty_ = false;
     QPixmap pixmap_{};
     QWidget* targetWidget_ = nullptr;
