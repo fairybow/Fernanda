@@ -121,10 +121,17 @@ protected:
         splitter_->addWidget(editor_widget);
         splitter_->addWidget(preview_);
 
-        // (Making both these 1 or not settings them doesn't fix the problem
-        // where it's impossible to start with the splitter exactly halfway...)
         splitter_->setStretchFactor(0, 0);
         splitter_->setStretchFactor(1, 1); // Let resizing favor preview
+
+        // This is the only way to ensure the splitter starts with the handle
+        // halfway (only tested when starting in Split mode - might not work if
+        // starting in Edit)
+        Time::onNextTick(this, [this] {
+            auto w = splitter_->width() / 2;
+            splitter_->setSizes({ w, w });
+        });
+
         splitter_->setChildrenCollapsible(false);
         splitter_->setFocusProxy(editor_widget);
 
@@ -174,7 +181,7 @@ private:
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
 
-    constexpr static auto MIN_WIDGET_SIZE_ = 50;
+    constexpr static int MIN_WIDGET_SIZE_ = 50;
     bool webViewFirstLoad_ = true;
 
     static QString appFontFaceKit_();
@@ -214,13 +221,11 @@ private:
         body_content.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
         body_content.replace(QStringLiteral("`"), QStringLiteral("\\`"));
 
-        auto js = QStringLiteral(
-                      "var scrollY = window.scrollY;"
-                      "document.body.innerHTML = `%1`;"
-                      "window.scrollTo(0, scrollY);")
-                      .arg(body_content);
-
-        preview_->page()->runJavaScript(js);
+        preview_->page()->runJavaScript(
+            QStringLiteral(
+                "var scrollY = window.scrollY; document.body.innerHTML = `%1`; "
+                "window.scrollTo(0, scrollY);")
+                .arg(body_content));
     }
 };
 
