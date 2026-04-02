@@ -44,7 +44,7 @@ public:
         setup_();
     }
 
-    ~WidgetSnapshotOverlay() override { TRACER; }
+    virtual ~WidgetSnapshotOverlay() override { TRACER; }
 
     void captureAndShow(QWidget* target)
     {
