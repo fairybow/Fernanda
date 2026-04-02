@@ -5,6 +5,7 @@
 
 cmake_minimum_required(VERSION 3.21)
 project(Fernanda LANGUAGES CXX)
+set_property(GLOBAL PROPERTY VS_STARTUP_PROJECT Fernanda)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,7 +19,7 @@ set(CMAKE_AUTOUIC ON)
 # --- Qt modules ---
 
 find_package(Qt6 REQUIRED COMPONENTS
-    Core Gui Network Widgets Svg Xml PdfWidgets LinguistTools
+    Core Gui Network Widgets Svg Xml PdfWidgets WebEngineWidgets LinguistTools
 )
 qt_standard_project_setup()
 
@@ -68,9 +69,11 @@ set(FERNANDA_SOURCES
     src/dialogs/AboutDialog.cpp
     src/fnx/FnxModel.cpp
     src/services/WindowService.cpp
+    src/settings/FontPanel.cpp
     src/ui/PlainTextEdit.cpp
     src/ui/TabWidget.cpp
     src/ui/Window.cpp
+    src/views/AbstractMarkupFileView.cpp
     src/views/TextFileView.cpp
     src/workspaces/Workspace.cpp
 )
@@ -160,12 +163,17 @@ set(FERNANDA_HEADERS
     src/ui/TabWidgetTabBar.h
     src/ui/TabWidgetUnderlay.h
     src/ui/TreeView.h
+    src/ui/WidgetSnapshotOverlay.h
     src/ui/Window.h
     src/ui/ZoomControl.h
 
     src/views/AbstractFileView.h
+    src/views/AbstractMarkupFileView.h
+    src/views/FountainFileView.h
     src/views/ImageFileView.h
     src/views/KeyFilters.h
+    src/views/MarkdownFileView.h
+    src/views/MarkupPreviewPage.h
     src/views/PdfFileView.h
     src/views/TextFileView.h
 
@@ -202,6 +210,12 @@ set(COCO_HEADERS
     submodules/Coco/Coco/include/Coco/Utility.h
 )
 
+# --- Fountain.h (compiled as part of Fernanda) ---
+
+set(FOUNTAIN_H_HEADER
+    submodules/Fountain.h/include/Fountain.h
+)
+
 # --- Resources ---
 
 set(FERNANDA_RESOURCES
@@ -230,6 +244,7 @@ qt_add_executable(Fernanda ${PLATFORM_EXE_FLAGS}
     ${FERNANDA_HEADERS}
     ${COCO_SOURCES}
     ${COCO_HEADERS}
+    ${FOUNTAIN_H_HEADER}
     ${FERNANDA_RESOURCES}
 )
 
@@ -259,6 +274,10 @@ endif()
 target_include_directories(Fernanda PRIVATE
     src
     submodules/Coco/Coco/include
+    submodules/Fountain.h/include
+    submodules/md4c/src
+    submodules/md4c/md2html
+    submodules/miniz
 )
 
 if(WIN32)
@@ -270,11 +289,14 @@ endif()
 
 # --- miniz (built from source via submodule) ---
 
-add_subdirectory(submodules/miniz)
+add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
+add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
 
 # --- Linking ---
 
 target_link_libraries(Fernanda PRIVATE
+    md4c
+    md4c-html
     miniz
     Qt6::Core
     Qt6::Gui
@@ -283,6 +305,7 @@ target_link_libraries(Fernanda PRIVATE
     Qt6::Svg
     Qt6::Xml
     Qt6::PdfWidgets
+    Qt6::WebEngineWidgets
 )
 
 if(UNIX AND NOT APPLE)

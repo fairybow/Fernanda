@@ -42,8 +42,10 @@
 #include "ui/TabWidget.h"
 #include "ui/Window.h"
 #include "views/AbstractFileView.h"
+#include "views/FountainFileView.h"
 #include "views/ImageFileView.h"
 #include "views/KeyFilters.h"
+#include "views/MarkdownFileView.h"
 #include "views/PdfFileView.h"
 #include "views/TextFileView.h"
 #include "workspaces/Bus.h"
@@ -792,9 +794,25 @@ private:
         AbstractFileView* view = nullptr;
 
         if (auto text_model = qobject_cast<TextFileModel*>(fileModel)) {
-            auto text_view = newFileView_<TextFileView*>(text_model, window);
-            applyInitialTextFileViewSettings_(text_view);
-            view = text_view;
+
+            // TextFileView and subclasses only
+            switch (text_model->meta()->fileType()) {
+            case FileTypes::Fountain: {
+                view = newFileView_<FountainFileView*>(text_model, window);
+                break;
+            }
+            case FileTypes::Markdown: {
+                view = newFileView_<MarkdownFileView*>(text_model, window);
+                break;
+            }
+            default: {
+                view = newFileView_<TextFileView*>(text_model, window);
+                break;
+            }
+            }
+
+            applyInitialTextFileViewSettings_(
+                qobject_cast<TextFileView*>(view));
 
         } else if (auto pdf_model = qobject_cast<PdfFileModel*>(fileModel)) {
             view = newFileView_<PdfFileView*>(pdf_model, window);

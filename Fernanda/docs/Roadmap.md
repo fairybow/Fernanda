@@ -2,6 +2,10 @@
 
 ## Current
 
+- [ ] AbsMarkupFileView mode bar needs visual distinction on bottom and maybe top, like a thin line
+- [ ] ^ mode toggle needs icons
+- [ ] We also need to use the snapshot overlay when dragging window maybe (QWebEngineView lags when resizing window)
+
 - [ ] BUG: Unsure how it occurred, but opened Candide.fnx and moved several files to trash (all but chapter 1) and then deleted them all. Then when I imported a PNG, it opened in a tab but did not appear in the TreeView...
 - [ ] ^ Added release logging, log viewer, and automatic Notebook TreeView expansion to help find this. It easily could have been an overlooked add-as-child, which didn't expand before
 - [ ] One thing I think I would like to fix in the future is keeping file nesting but having operations like import or new file or whatever else resolve to the parent directory instead of the file, if the currently selected item is a file. This wound not apply to right click context menu actions
@@ -49,9 +53,13 @@
 - [x] Find places to use Debug ASSERT
 - [x] [[maybe_unused]] instead of C-style void cast or Q_UNUSED
 - [x] ^ also check `(void)idOf(element);` and similar (FnxModelCache)
-- [ ] Add special plain text formats to tags as implements (e.g., Markdown, Fountain, ...)
+- [x] Add special plain text formats to tags as implemented (e.g., Markdown, Fountain, ...)
 - [ ] Dialog overhaul - need a base for some of these (like a ScrollableDialog or Dialog with a central widget setter) and normalization between them
 - [ ] Both the recovery dialogs and existing multi save prompt should use a path display dialog that displays parent directories as a collapsible header with checkbox beside it and each of its children (the files within)
+- [x] Eventually, implement own Fountain parser
+- [ ] HTML special plain-text type
+- [ ] Styling for the focused indicator strip on bottom of plain text edit
+- [ ] Also ^, there's a faint border area around QPlainTextEdit - currently, it is styled same as text edit background but might be nice to leave it "widget colored"
 
 
 - [x] CRITICAL BUG: Occasionally, saving Paradise Lost, I'll see a save fail prompt. It happens without the beforeWriteHook_ but not often. The hook doesn't seem to affect the frequency. Problem might be in Io::write and with QSaveFile? Here's the debug output that shows up related to this: `239 | 2026-03-20 | 22:11:19.360 | Failed to commit file at C:/.../Documents/Fernanda/Paradise Lost.txt (Error: Access is denied.)!` (see FileService writeModelToDisk_ for the fix)
@@ -95,7 +103,7 @@
 - [x] Add a rolling last used dir variable to Workspace (alongside startDir) that subclasses can use for their open/import dialogs
 - [ ] Add a button to the open/import dialogs to navigate back to home (startDir)
 - [x] Transition to CMake
-- [ ] Ini key to defaults map
+- [x] Ini key to defaults map
 - [ ] Tab context menu (would have duplicate, save, save as, etc)
 - [x] Uniform path display in save and reload prompts
 
@@ -122,6 +130,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - TODO XP (cross platform)
 - TODO STYLE
 - TODO BA (backup/autosave)
+- TODO MU (markups)
 
 ## Features
 

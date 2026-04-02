@@ -60,12 +60,10 @@ private:
     QCheckBox* italicCheckBox_ = new QCheckBox(Tr::fontPanelItalic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
+    static QStringList appBundled_();
+
     void setup_(const Ini::Map& values)
     {
-        // Bundled (TODO: Add to Constants.h along with QRC paths to be used by
-        // app?)
-        static const QStringList bundled = { "mononoki", "OpenDyslexic" };
-
         // Populate
         auto families = QFontDatabase::families();
 
@@ -80,6 +78,8 @@ private:
         });
 
         // Remove bundled fonts from the system list to avoid duplicates
+        auto bundled = appBundled_();
+
         for (auto& name : bundled)
             families.removeAll(name);
 

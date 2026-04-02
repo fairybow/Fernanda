@@ -8,5 +8,9 @@
         <file>opendyslexic/OpenDyslexic-BoldItalic.otf</file>
         <file>opendyslexic/OpenDyslexic-Italic.otf</file>
         <file>opendyslexic/OpenDyslexic-Regular.otf</file>
+        <file>courierprime/Courier Prime Bold Italic.ttf</file>
+        <file>courierprime/Courier Prime Bold.ttf</file>
+        <file>courierprime/Courier Prime Italic.ttf</file>
+        <file>courierprime/Courier Prime.ttf</file>
     </qresource>
 </RCC>

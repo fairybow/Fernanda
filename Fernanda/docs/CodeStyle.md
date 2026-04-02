@@ -92,6 +92,10 @@ auto get_line_count = [] { return x; };
 
 When listing parameters of type `AbstractFileModel` or `AbstractFileView` use parameter names of `fileModel` and `fileView` (not `model` and `view`, since there are multiple types of models and views in the program). It's okay, however, to use the shorter names as local variable names if the context is clear.
 
+#### File names
+
+Don't name a file or namespace "Util" or "Utilities." Give every file/namespace a unique name that reflects its purpose.
+
 ### Trailing Underscore Convention
 
 **Private/internal members and non-members**: Add trailing underscore `_`
@@ -224,12 +228,14 @@ connect(
 
 ### Comments and Documentation
 
+Reserve multi-line comments (`/* ... */`) for the license statement and commenting-out entire files only.
+
 Comments should be concise but readable. If the final (or only) sentence's final punctuation would be a period, omit it.
 
-**Section headers**: Must have a blank line before the following function to avoid showing in IntelliSense tooltip pop-ups.
+**Section headers**: Must have a blank line before the following function to avoid showing in IntelliSense tooltip pop-ups. Only use this format: `// --- Section ---`.
 
 ```cpp
-// --- File Operations ---
+// --- File operations ---
 
 void openFile(const QString& path);
 ```

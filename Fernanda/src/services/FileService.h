@@ -45,10 +45,9 @@ namespace Fernanda {
 /// TODO BA
 COCO_BOOL(ClearModified)
 
-// Creates and manages file models
-// TODO: When saving files, we should move originals to a backup location
-// (Notebook's archive save will do the same)
-// TODO: Rename FileModelService? (and ViewService -> FileViewService?)
+// Creates and manages file models. Note, this is not named ModelService (or
+// FileModelService). It would be a nice symmetry with ViewService, but this
+// class does more than just model work right now (like writing to disk)
 class FileService : public AbstractService
 {
     Q_OBJECT
@@ -321,17 +320,21 @@ private:
         default:
         case MagicBytes::NoKnownSignature:
 
+            /// TODO MU: Probably the case that we'll be using TextFileModel for
+            /// all these and this inner switch is not needed
+
             // Tier 2: Extension for special plaintext types
             // switch (FileTypes::fromPath(path)) {
-            // case FileTypes::Markdown:
-            // case FileTypes::Fountain:
             // case FileTypes::FernandaCorkboard:
             // case FileTypes::FernandaWindowTheme:
             // case FileTypes::FernandaEditorTheme:
+
+            // case FileTypes::Markdown:
+            // case FileTypes::Fountain:
             // default:
             model = newDiskTextFileModel_(path);
             // break;
-            //}
+            // }
 
             break;
         }
