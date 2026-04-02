@@ -126,19 +126,13 @@ public:
         }
     }
 
-    /// TODO MU: May be temporary - works but doesn't look the best; may want
-    /// full skeleton UI for resizes specifically (snapshot works well for mode
-    /// transition, though); OR perhaps capture the preview's inner scroll area,
-    /// if possible (would stretch only content and not the scroll bars - still,
-    /// there's weird artifacting on the window chrome itself when resizing
-    /// using this, even in release build...)
     virtual bool eventFilter(QObject* watched, QEvent* event) override
     {
         if (watched == preview_ && event->type() == QEvent::Resize) {
-            if (snapshotOverlay_->isAvailable()) {
-                snapshotOverlay_->captureAndShow(preview_);
-            }
-
+            // Hide preview resize visual stutter and debounce
+            previewResizeMask_->setFixedSize(preview_->size());
+            previewResizeMask_->raise();
+            previewResizeMask_->show();
             resizeHideTimer_->start();
         }
 
@@ -160,6 +154,8 @@ protected:
 
         preview_->setPage(new MarkupPreviewPage(preview_));
         preview_->setMinimumWidth(MIN_WIDGET_SIZE_);
+        previewResizeMask_->setAutoFillBackground(true);
+        previewResizeMask_->hide();
 
         splitter_->addWidget(editor_widget);
         splitter_->addWidget(preview_);
@@ -225,13 +221,12 @@ private:
     QToolButton* modeToggle_ = new QToolButton(this);
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
     QWebEngineView* preview_ = new QWebEngineView(this);
+    QWidget* previewResizeMask_ = new QWidget(preview_);
 
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
-    Time::Debouncer* resizeHideTimer_ = Time::newDebouncer(
-        this,
-        [this] { snapshotOverlay_->hideOverlay(); },
-        250);
+    Time::Debouncer* resizeHideTimer_ =
+        Time::newDebouncer(this, [this] { previewResizeMask_->hide(); }, 250);
 
     constexpr static int MIN_WIDGET_SIZE_ = 50;
     bool firstParse_ = true;
