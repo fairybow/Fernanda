@@ -179,44 +179,6 @@ private:
 
     static QString appFontFaceKit_();
 
-    // void reparse_()
-    //{
-    //     auto editor = this->editor();
-    //     if (!preview_ || !editor) return;
-
-    //    auto html = renderToHtml(editor->document()->toPlainText());
-
-    //    // Inject bundled font-face rules for the web engine
-    //    html.replace(
-    //        QStringLiteral("</head>"),
-    //        QStringLiteral("<style>%1</style></head>").arg(appFontFaceKit_()));
-
-    //    if (preview_->url().isEmpty()) {
-    //        // First load (no scroll to preserve)
-    //        preview_->setHtml(
-    //            html,
-    //            QUrl("qrc:/")); /// TODO MU: I am vaguely concerned about this
-    //        return;
-    //    }
-
-    //    // Subsequent loads (preserve scroll)
-    //    preview_->page()->runJavaScript(
-    //        "window.scrollY",
-    //        [this, html](const QVariant& scrollPos) {
-    //            auto y = scrollPos.toInt();
-    //            preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: See above
-    //            connect(
-    //                preview_,
-    //                &QWebEngineView::loadFinished,
-    //                this,
-    //                [this, y](bool) {
-    //                    preview_->page()->runJavaScript(
-    //                        QString("window.scrollTo(0, %1)").arg(y));
-    //                },
-    //                Qt::SingleShotConnection);
-    //        });
-    //}
-
     void reparse_()
     {
         auto editor = this->editor();
