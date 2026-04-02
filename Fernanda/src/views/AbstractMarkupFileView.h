@@ -13,9 +13,7 @@
 #pragma once
 
 #include <QHBoxLayout>
-#include <QScrollBar>
 #include <QSplitter>
-#include <QStackedWidget> ///
 #include <QString>
 #include <QTextDocument>
 #include <QToolButton>
@@ -162,7 +160,18 @@ protected:
             cycleMode();
         });
 
-        reparse_();
+        // connect(preview_, &QWebEngineView::loadStarted, this, [this] {
+        //...
+        //});
+
+        // connect(preview_, &QWebEngineView::loadFinished, this, [this](bool) {
+        //...
+        //}
+
+        setMode(Split);
+
+        /// Need an overlay, not a stacked widget! Take a snapshot and overlay
+        /// it. Use wed engine snapshot method.
 
         return container_;
     }
@@ -184,7 +193,7 @@ private:
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
 
     constexpr static int MIN_WIDGET_SIZE_ = 50;
-    bool webViewFirstLoad_ = true;
+    bool firstParse_ = true;
 
     static QString appFontFaceKit_();
 
@@ -199,8 +208,8 @@ private:
             QStringLiteral("</head>"),
             QStringLiteral("<style>%1</style></head>").arg(appFontFaceKit_()));
 
-        if (webViewFirstLoad_) {
-            webViewFirstLoad_ = false;
+        if (firstParse_) {
+            firstParse_ = false;
             preview_->setHtml(
                 html,
                 QUrl("qrc:/")); /// TODO MU: I am vaguely concerned about this
@@ -208,7 +217,8 @@ private:
             return;
         }
 
-        // Extract just the body content and swap it via DOM manipulation
+        // Extract just the body content and swap it via DOM manipulation to
+        // avoid flickering
         auto body_start = html.indexOf(QStringLiteral("<body>"));
         auto body_end = html.indexOf(QStringLiteral("</body>"));
 
