@@ -125,6 +125,8 @@ protected:
         splitter_->addWidget(editor_widget);
         splitter_->addWidget(preview_);
         splitter_->setChildrenCollapsible(false);
+        splitter_->setStretchFactor(0, 0);
+        splitter_->setStretchFactor(1, 1);
         splitter_->setFocusProxy(editor_widget);
 
         // Layout
