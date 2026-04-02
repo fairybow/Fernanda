@@ -23,6 +23,7 @@
 
 #include "core/Time.h"
 #include "models/TextFileModel.h"
+#include "ui/WidgetSnapshotOverlay.h"
 #include "views/MarkupPreviewPage.h"
 #include "views/TextFileView.h"
 
@@ -58,6 +59,12 @@ public:
     {
         if (!splitter_ || !preview_) return;
 
+        /// - Set snapshot overlay
+        /// - Possible gate with initialization (don't snapshot on first call to
+        /// this - might capture something weird, like widgets moving around -
+        /// won't want to do that especially if we linger with timer before
+        /// removing overlay)
+
         mode_ = mode;
         auto editor = this->editor();
 
@@ -89,6 +96,8 @@ public:
         }
 
         if (mode != Edit) reparse_();
+
+        /// - Remove overlay
     }
 
     void cycleMode()
@@ -194,6 +203,7 @@ protected:
 private:
     Mode mode_ = Split;
     QWidget* container_ = new QWidget(this);
+    WidgetSnapshotOverlay* snapshotOverlay_ = new WidgetSnapshotOverlay(this);
     QWidget* modeBar_ = new QWidget(this);
     QToolButton* modeToggle_ = new QToolButton(this);
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);

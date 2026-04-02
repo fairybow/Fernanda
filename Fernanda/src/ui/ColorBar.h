@@ -26,7 +26,6 @@
 #include <QTimeLine>
 #include <QTimer>
 #include <QWidget>
-#include <QtTypes>
 
 #include <Coco/Concepts.h>
 #include <Coco/Fx.h>

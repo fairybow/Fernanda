@@ -163,6 +163,7 @@ set(FERNANDA_HEADERS
     src/ui/TabWidgetTabBar.h
     src/ui/TabWidgetUnderlay.h
     src/ui/TreeView.h
+    src/ui/WidgetSnapshotOverlay.h
     src/ui/Window.h
     src/ui/ZoomControl.h
 
