@@ -128,10 +128,10 @@ protected:
 
         // This is the only way to ensure the splitter starts with the handle
         // halfway (only tested when starting in Split mode - might not work if
-        // starting in Edit)
+        // starting in Edit) (Show event might also work, if ever needed)
         Time::onNextTick(this, [this] {
-            auto w = splitter_->width() / 2;
-            splitter_->setSizes({ w, w });
+            auto w = splitter_->width();
+            splitter_->setSizes({ w / 2, w - w / 2 });
         });
 
         splitter_->setChildrenCollapsible(false);
