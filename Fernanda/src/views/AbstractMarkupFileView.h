@@ -44,7 +44,7 @@ class AbstractMarkupFileView : public TextFileView
 public:
     enum Mode
     {
-        Split,
+        Split = 0,
         Edit,
         Preview
     };
@@ -116,14 +116,29 @@ protected:
     {
         auto editor_widget = TextFileView::setupWidget();
 
-        preview_ = new QWebEngineView(this);
+        modeBar_->setFixedHeight(24);
+        modeToggle_->setText("Mode"); /// TODO MU: Temp
+        modeToggle_->setFixedHeight(20);
+
         preview_->setPage(new MarkupPreviewPage(preview_));
 
-        splitter_ = new QSplitter(Qt::Horizontal, this);
         splitter_->addWidget(editor_widget);
         splitter_->addWidget(preview_);
         splitter_->setChildrenCollapsible(false);
         splitter_->setFocusProxy(editor_widget);
+
+        // Layout
+        auto mode_bar_layout = new QHBoxLayout(modeBar_);
+        mode_bar_layout->setContentsMargins(2, 2, 2, 2);
+        mode_bar_layout->setSpacing(0);
+        mode_bar_layout->addWidget(modeToggle_, 0);
+        mode_bar_layout->addStretch();
+
+        auto container_layout = new QVBoxLayout(container_);
+        container_layout->setContentsMargins(0, 0, 0, 0);
+        container_layout->setSpacing(0);
+        container_layout->addWidget(modeBar_, 0);
+        container_layout->addWidget(splitter_, 1);
 
         connect(
             editor()->document(),
@@ -133,9 +148,13 @@ protected:
                 if (preview_ && preview_->isVisible()) reparseTimer_->start();
             });
 
+        connect(modeToggle_, &QToolButton::clicked, this, [this] {
+            cycleMode();
+        });
+
         reparse_();
 
-        return splitter_;
+        return container_;
     }
 
     // Subclasses implement this to convert plain text to HTML for the preview
@@ -144,11 +163,17 @@ protected:
     QWebEngineView* preview() const noexcept { return preview_; }
 
 private:
-    QSplitter* splitter_ = nullptr;
-    QWebEngineView* preview_ = nullptr;
     Mode mode_ = Split;
+    QWidget* container_ = new QWidget(this);
+    QWidget* modeBar_ = new QWidget(this);
+    QToolButton* modeToggle_ = new QToolButton(this);
+    QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
+    QWebEngineView* preview_ = new QWebEngineView(this);
+
     Time::Debouncer* reparseTimer_ =
         Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
+
+    bool webViewFirstLoad_ = true;
 
     static QString appFontFaceKit_();
 
@@ -157,13 +182,39 @@ private:
     //     auto editor = this->editor();
     //     if (!preview_ || !editor) return;
 
-    //    auto scroll = preview_->verticalScrollBar()->value();
     //    auto html = renderToHtml(editor->document()->toPlainText());
-    //    preview_->setHtml(html);
-    //    preview_->verticalScrollBar()->setValue(scroll);
+
+    //    // Inject bundled font-face rules for the web engine
+    //    html.replace(
+    //        QStringLiteral("</head>"),
+    //        QStringLiteral("<style>%1</style></head>").arg(appFontFaceKit_()));
+
+    //    if (preview_->url().isEmpty()) {
+    //        // First load (no scroll to preserve)
+    //        preview_->setHtml(
+    //            html,
+    //            QUrl("qrc:/")); /// TODO MU: I am vaguely concerned about this
+    //        return;
+    //    }
+
+    //    // Subsequent loads (preserve scroll)
+    //    preview_->page()->runJavaScript(
+    //        "window.scrollY",
+    //        [this, html](const QVariant& scrollPos) {
+    //            auto y = scrollPos.toInt();
+    //            preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: See above
+    //            connect(
+    //                preview_,
+    //                &QWebEngineView::loadFinished,
+    //                this,
+    //                [this, y](bool) {
+    //                    preview_->page()->runJavaScript(
+    //                        QString("window.scrollTo(0, %1)").arg(y));
+    //                },
+    //                Qt::SingleShotConnection);
+    //        });
     //}
 
-    // TODO: This is buggy and jumpy af
     void reparse_()
     {
         auto editor = this->editor();
@@ -171,35 +222,40 @@ private:
 
         auto html = renderToHtml(editor->document()->toPlainText());
 
-        // Inject bundled font-face rules for the web engine
         html.replace(
             QStringLiteral("</head>"),
             QStringLiteral("<style>%1</style></head>").arg(appFontFaceKit_()));
 
-        if (preview_->url().isEmpty()) {
-            // First load (no scroll to preserve)
+        if (webViewFirstLoad_) {
+            webViewFirstLoad_ = false;
             preview_->setHtml(
                 html,
                 QUrl("qrc:/")); /// TODO MU: I am vaguely concerned about this
             return;
         }
 
-        // Subsequent loads (preserve scroll)
-        preview_->page()->runJavaScript(
-            "window.scrollY",
-            [this, html](const QVariant& scrollPos) {
-                auto y = scrollPos.toInt();
-                preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: See above
-                connect(
-                    preview_,
-                    &QWebEngineView::loadFinished,
-                    this,
-                    [this, y](bool) {
-                        preview_->page()->runJavaScript(
-                            QString("window.scrollTo(0, %1)").arg(y));
-                    },
-                    Qt::SingleShotConnection);
-            });
+        // Extract just the body content and swap it via DOM manipulation
+        auto body_start = html.indexOf(QStringLiteral("<body>"));
+        auto body_end = html.indexOf(QStringLiteral("</body>"));
+
+        if (body_start < 0 || body_end < 0) {
+            preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: See above
+            return;
+        }
+
+        auto body_content = html.mid(body_start + 6, body_end - body_start - 6);
+
+        // Escape for JS string
+        body_content.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
+        body_content.replace(QStringLiteral("`"), QStringLiteral("\\`"));
+
+        auto js = QStringLiteral(
+                      "var scrollY = window.scrollY;"
+                      "document.body.innerHTML = `%1`;"
+                      "window.scrollTo(0, scrollY);")
+                      .arg(body_content);
+
+        preview_->page()->runJavaScript(js);
     }
 };
 
@@ -396,8 +452,8 @@ private:
 
         if (!initialLoadDone_) {
             initialLoadDone_ = true;
-            preview_->setHtml(html, QUrl("qrc:/"));
-            return;
+            preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: I am vaguely
+concerned about this return;
         }
 
         // Extract just the body content and swap it via DOM manipulation
@@ -405,7 +461,7 @@ private:
         auto body_end = html.indexOf(QStringLiteral("</body>"));
 
         if (body_start < 0 || body_end < 0) {
-            preview_->setHtml(html, QUrl("qrc:/"));
+            preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: See above
             return;
         }
 
