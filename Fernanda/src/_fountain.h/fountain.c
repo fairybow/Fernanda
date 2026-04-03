@@ -245,54 +245,73 @@ static void fn_trim_(const FN_CHAR* s, FN_OFFSET* beg, FN_OFFSET* end)
  * append \n\n. Build line table. Returns 0 or -1. */
 static int fn_init_input_(FN_CTX* ctx, const FN_CHAR* input, FN_SIZE input_size)
 {
-    /* Worst case: input_size + 3 (leading \n + trailing \n\n + NUL).
-     * We prepend \n so the first body line sees "preceded by blank". */
+    /* Worst case: input_size + 3 (leading \n + trailing \n\n + NUL). */
     FN_SIZE alloc_size = input_size + 4;
     ctx->text = (FN_CHAR*)malloc(alloc_size);
-    if (!ctx->text)
+    if (!ctx->text) return -1;
+
+    /* Pre-size line table (~40 chars/line average for screenplays). */
+    unsigned est_lines = (input_size / 40) + 16;
+    if (fn_grow_(
+            (void**)&ctx->lines,
+            &ctx->alloc_lines,
+            est_lines,
+            sizeof(FN_LINE))
+        != 0)
         return -1;
 
-    /* Normalize line endings into ctx->text. */
+    /* Skip leading whitespace in input. */
+    FN_SIZE r = 0;
+    while (r < input_size && fn_isspace_((UCHAR)input[r]))
+        r++;
+
+    /* Normalize line endings and build line table in a single pass. */
     FN_SIZE w = 0;
-    for (FN_SIZE r = 0; r < input_size; r++) {
-        if (input[r] == '\r') {
+    FN_OFFSET line_beg = 0;
+
+#define RECORD_LINE_()                                                         \
+    do {                                                                       \
+        if (fn_grow_(                                                          \
+                (void**)&ctx->lines,                                           \
+                &ctx->alloc_lines,                                             \
+                ctx->n_lines + 1,                                              \
+                sizeof(FN_LINE))                                               \
+            != 0)                                                              \
+            return -1;                                                         \
+        ctx->lines[ctx->n_lines].beg = line_beg;                               \
+        ctx->lines[ctx->n_lines].end = w;                                      \
+        ctx->n_lines++;                                                        \
+    } while (0)
+
+    for (; r < input_size; r++) {
+        if (input[r] == '\r' || input[r] == '\n') {
+            if (input[r] == '\r' && r + 1 < input_size && input[r + 1] == '\n')
+                r++; /* consume \r\n as single newline */
+
+            RECORD_LINE_();
             ctx->text[w++] = '\n';
-            if (r + 1 < input_size && input[r + 1] == '\n')
-                r++;    /* consume \r\n */
+            line_beg = w;
         } else {
             ctx->text[w++] = input[r];
         }
     }
 
-    /* Trim leading whitespace. */
-    FN_OFFSET start = 0;
-    while (start < w && fn_isspace_((UCHAR)ctx->text[start]))
-        start++;
-
-    if (start > 0) {
-        memmove(ctx->text, ctx->text + start, w - start);
-        w -= start;
-    }
-
     /* Append \n\n to ensure final line terminates cleanly. */
+    RECORD_LINE_();
     ctx->text[w++] = '\n';
+    line_beg = w;
+
+    RECORD_LINE_();
     ctx->text[w++] = '\n';
+    line_beg = w;
+
+    /* Trailing line after final \n (matches original behavior). */
+    RECORD_LINE_();
+
+#undef RECORD_LINE_
+
     ctx->text[w] = '\0';
     ctx->size = w;
-
-    /* Build line table. */
-    FN_OFFSET line_beg = 0;
-    for (FN_OFFSET i = 0; i <= ctx->size; i++) {
-        if (i == ctx->size || ctx->text[i] == '\n') {
-            if (fn_grow_((void**)&ctx->lines, &ctx->alloc_lines,
-                         ctx->n_lines + 1, sizeof(FN_LINE)) != 0)
-                return -1;
-            ctx->lines[ctx->n_lines].beg = line_beg;
-            ctx->lines[ctx->n_lines].end = i;
-            ctx->n_lines++;
-            line_beg = i + 1;
-        }
-    }
 
     return 0;
 }
