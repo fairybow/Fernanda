@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <QStringView>
 #include <QByteArray>
 #include <QString>
 #include <QWidget>
@@ -39,32 +40,9 @@ public:
     virtual ~MarkdownFileView() override {}
 
 protected:
-    virtual QString renderToHtml(const QString& plainText) const override
+    virtual QStringView css() const override
     {
-        auto input = plainText.toUtf8();
-        QByteArray output{};
-
-        md_html(
-            input.constData(),
-            MD_SIZE(input.size()),
-            [](const MD_CHAR* chunk, MD_SIZE size, void* userdata) {
-                static_cast<QByteArray*>(userdata)->append(chunk, size);
-            },
-            &output,
-            MD_FLAG_TABLES | MD_FLAG_STRIKETHROUGH | MD_FLAG_TASKLISTS,
-            0);
-
-        auto body = QString::fromUtf8(output);
-
-        /// TODO MU: ^ Print this to see if it returns inside body tags or without
-
-        return QStringLiteral(
-                   "<html><head><style>%1</style></head><body>%2</body></html>")
-            .arg(CSS_, body);
-    }
-
-private:
-    static constexpr const char* CSS_ = R"CSS(
+        static const auto s = QStringLiteral(R"CSS(
 * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -152,7 +130,29 @@ a {
 input[type="checkbox"] {
     margin-right: 0.4em;
 }
-)CSS";
+)CSS");
+
+        return s;
+    }
+
+    virtual QString htmlBody(const QString& plainText) const override
+    {
+        auto input = plainText.toUtf8();
+        QByteArray output{};
+        output.reserve(input.size() * 2);
+
+        md_html(
+            input.constData(),
+            MD_SIZE(input.size()),
+            [](const MD_CHAR* chunk, MD_SIZE size, void* userdata) {
+                static_cast<QByteArray*>(userdata)->append(chunk, size);
+            },
+            &output,
+            MD_FLAG_TABLES | MD_FLAG_STRIKETHROUGH | MD_FLAG_TASKLISTS,
+            0);
+
+        return QString::fromUtf8(output);
+    }
 };
 
 } // namespace Fernanda

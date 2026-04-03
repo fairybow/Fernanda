@@ -1,18 +1,34 @@
 /*
- * Fernanda — a plain-text-first workbench for creative writing
- * Copyright (C) 2025-2026 fairybow
+ * fountain-html.h -- Fountain to HTML renderer
  *
- * This program is free software, redistributable and/or modifiable under the
- * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
- * but without any warranty (even the implied warranty of merchantability or
- * fitness for a particular purpose)
+ * Companion to fountain.h. Renders a Fountain document as flow HTML (no
+ * pagination). Only body-level content is generated; the caller provides
+ * HTML header/footer and CSS.
  *
- * See the LICENSE file or visit <https://www.gnu.org/licenses/>
+ * Modeled after md4c-html by Martin Mitas (https://github.com/mity/md4c).
+ *
+ * MIT License
+ *
+ * Copyright (c) 2026 fairybow
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
-
-/// Replace ^
-
-// clang-format off
 
 #ifndef FOUNTAIN_HTML_H
 #define FOUNTAIN_HTML_H
@@ -55,10 +71,14 @@ int fn_html(const FN_CHAR* input, FN_SIZE input_size,
             void* userdata, unsigned parser_flags, unsigned renderer_flags);
 
 
+/* Returns a pointer to a static null-terminated string containing the
+ * default CSS for styling fn_html() output. The caller can embed this
+ * in a <style> tag or use their own stylesheet. */
+const char* fn_html_css(void);
+
+
 #ifdef __cplusplus
     }  /* extern "C" { */
 #endif
 
 #endif  /* FOUNTAIN_HTML_H */
-
-// clang-format off

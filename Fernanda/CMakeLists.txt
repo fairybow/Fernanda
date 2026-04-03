@@ -3,12 +3,17 @@
 
 # TODO: Non-Windows builds not yet tested
 
+### TEMP (search this tag - pull out fountain.h stuff later)
+
 cmake_minimum_required(VERSION 3.21)
-project(Fernanda LANGUAGES CXX)
+project(Fernanda LANGUAGES CXX C)
+
 set_property(GLOBAL PROPERTY VS_STARTUP_PROJECT Fernanda)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # --- Qt auto-processing ---
 
@@ -76,6 +81,10 @@ set(FERNANDA_SOURCES
     src/views/AbstractMarkupFileView.cpp
     src/views/TextFileView.cpp
     src/workspaces/Workspace.cpp
+
+    ### TEMP
+    src/_fountain.h/fountain.c
+    src/_fountain.h/fountain-html.c
 )
 
 if(APPLE)

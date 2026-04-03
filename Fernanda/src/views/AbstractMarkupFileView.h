@@ -14,6 +14,7 @@
 
 #include <QEvent>
 #include <QHBoxLayout>
+#include <QStringView>
 #include <QObject>
 #include <QShowEvent>
 #include <QSplitter>
@@ -240,8 +241,10 @@ protected:
         return container_;
     }
 
-    // Subclasses implement this to convert plain text to HTML for the preview
-    virtual QString renderToHtml(const QString& plainText) const = 0;
+    // Subclasses implement these to convert plain text to HTML for the preview:
+
+    virtual QStringView css() const = 0;
+    virtual QString htmlBody(const QString& plainText) const = 0;
 
     virtual void showEvent(QShowEvent* event)
     {
@@ -275,46 +278,30 @@ private:
 
     static QString appFontFaceKit_();
 
-    /// TODO MU: BUG: Fountain seems to not return to correct scroll position.
-    /// Seems like sometimes it works, sometimes it doesn't, which just means
-    /// it's some random action causing it that I haven't identified yet. May or
-    /// may not also be the case for Markdown (don't see why it wouldn't be) but
-    /// haven't tested it as much
+    /// TODO MU: Print total output for this to check md/fn
     void reparse_()
     {
         auto editor = this->editor();
         if (!preview_ || !editor) return;
 
-        auto html = renderToHtml(editor->document()->toPlainText());
+        auto body = htmlBody(editor->document()->toPlainText());
 
         if (firstParse_) {
             firstParse_ = false;
+            auto html = QStringLiteral(
+                            "<html><head><style>%1%2</style></head><body>%3</"
+                            "body></html>")
+                            .arg(appFontFaceKit_(), css(), body);
 
-            html.replace(
-                QStringLiteral("</head>"),
-                QStringLiteral("<style>%1</style></head>")
-                    .arg(appFontFaceKit_()));
-            /// TODO MU: I am vaguely concerned about this
+            /// TODO MU: I am vaguely concerned about the baseUrl
             preview_->setHtml(html, QUrl("qrc:/"));
 
             return;
         }
 
-        // Extract just the body content and swap it via DOM manipulation to
-        // avoid flickering
-        auto body_start = html.indexOf(QStringLiteral("<body>"));
-        auto body_end = html.indexOf(QStringLiteral("</body>"));
-
-        if (body_start < 0 || body_end < 0) {
-            preview_->setHtml(html, QUrl("qrc:/")); /// TODO MU: See above
-            return;
-        }
-
-        auto body_content = html.mid(body_start + 6, body_end - body_start - 6);
-
         // Escape for JS string
-        body_content.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
-        body_content.replace(QStringLiteral("`"), QStringLiteral("\\`"));
+        body.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
+        body.replace(QStringLiteral("`"), QStringLiteral("\\`"));
 
         // See:
         // https://stackoverflow.com/questions/44145740/how-does-double-requestanimationframe-work
@@ -328,7 +315,7 @@ requestAnimationFrame(function() {
     });
 });
 )")
-                                            .arg(body_content));
+                                            .arg(body));
     }
 };
 

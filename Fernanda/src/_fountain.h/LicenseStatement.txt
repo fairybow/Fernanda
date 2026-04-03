@@ -1,7 +1,7 @@
 /*
  * fountain.h — C Fountain screenplay parser (https://fountain.io)
  *
- * Modeled after md4c by Martin Mitas (https://github.com/mity/md4c). Translated
+ * Modeled after md4c by Martin Mitáš (https://github.com/mity/md4c). Translated
  * from the original Objective-C implementation by Nima Yousefi and John August
  * (https://github.com/nyousefi/Fountain)
  *

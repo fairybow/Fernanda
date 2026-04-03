@@ -1,18 +1,33 @@
 /*
- * Fernanda — a plain-text-first workbench for creative writing
- * Copyright (C) 2025-2026 fairybow
+ * fountain.h -- C Fountain screenplay parser
+ * https://fountain.io
  *
- * This program is free software, redistributable and/or modifiable under the
- * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
- * but without any warranty (even the implied warranty of merchantability or
- * fitness for a particular purpose)
+ * Modeled after md4c by Martin Mitas (https://github.com/mity/md4c).
+ * Translated from the original Objective-C implementation by Nima Yousefi
+ * and John August (https://github.com/nyousefi/Fountain).
  *
- * See the LICENSE file or visit <https://www.gnu.org/licenses/>
+ * MIT License
+ *
+ * Copyright (c) 2026 fairybow
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
-
-/// Replace ^
-
-// clang-format off
 
 #ifndef FOUNTAIN_H
 #define FOUNTAIN_H
@@ -118,17 +133,18 @@ typedef enum FN_BLOCKTYPE {
 /* Block detail structures */
 
 typedef struct FN_BLOCK_TITLE_ENTRY_DETAIL {
-    /* Key portion of the title entry (e.g., "Title", "Author").
-     * Offsets point into the original source text. The key is lowercased
-     * by the parser; "Author" is normalized to "authors". */
-    FN_OFFSET key_offset;
+    /* Key portion of the title entry (e.g., "title", "authors").
+     * Lowercased by the parser; "author" is normalized to "authors".
+     * Pointer is valid for the duration of the callback. */
+    const FN_CHAR* key;
     FN_SIZE key_size;
 } FN_BLOCK_TITLE_ENTRY_DETAIL;
 
 typedef struct FN_BLOCK_SCENE_HEADING_DETAIL {
     /* Scene number extracted from trailing #number# syntax.
-     * Both fields are zero when no scene number is present. */
-    FN_OFFSET scene_number_offset;
+     * NULL when no scene number is present.
+     * Pointer is valid for the duration of the callback. */
+    const FN_CHAR* scene_number;
     FN_SIZE scene_number_size;
 } FN_BLOCK_SCENE_HEADING_DETAIL;
 
@@ -276,5 +292,3 @@ int fn_parse(const FN_CHAR* text, FN_SIZE size, const FN_PARSER* parser,
 #endif
 
 #endif  /* FOUNTAIN_H */
-
-// clang-format on
