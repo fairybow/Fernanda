@@ -26,18 +26,9 @@
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
 
-/// TODO MU: Could leave preview in this semi-flow paginated state and only do
-/// page stuff when drawing to PDF directly for print/export
-
-/// TODO MU: Extra title page space on the semi-flow is Fountain.h CSS. We could
-/// remove CSS from the Renderer entirely and leave that to the caller - kind of
-/// makes sense? Or, split rendering and html creation and allow a caller to
-/// only use HTML if they want. Could also provide two sets of CSS in Renderer -
-/// optional stuff (like padding on the title page) vs very important stuff
-/// (dialog padding)
-
 namespace Fernanda {
 
+/// TODO MU: Printing layout
 class FountainFileView : public AbstractMarkupFileView
 {
     Q_OBJECT
@@ -46,6 +37,8 @@ public:
     explicit FountainFileView(
         TextFileModel* fileModel,
         QWidget* parent = nullptr)
+        /// TODO MU: Even with 50, fast typing kinda chokes. If we improve
+        /// Fountain.h speed further, may be able to do 0 here, too
         : AbstractMarkupFileView(fileModel, 50, parent)
     {
     }
