@@ -34,7 +34,6 @@ namespace Fernanda {
 
 /// TODO MU: I'd maybe like a 3-way toggle switch instead of cycling labels and
 /// functionality
-/// TODO MU: Still a little flicker on first show for preview
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
@@ -150,9 +149,6 @@ public:
     }
 
 protected:
-    /// TODO MU: Use resize mask code above (separate into own method) to hide
-    /// during startup. Should be fine now that it's just an overlay. However,
-    /// the same time we use for resizing might not be right for this...
     virtual QWidget* setupWidget() override
     {
         modeBar_->setFixedHeight(24);
