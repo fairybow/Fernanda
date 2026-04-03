@@ -228,7 +228,12 @@ protected:
             preview_->page(),
             &QWebEnginePage::loadFinished,
             this,
-            [this] { previewMask_->hide(); },
+            [this] {
+                Time::delay(3000, this, [this] {
+                    TRACER;
+                    previewMask_->hide();
+                });
+            },
             Qt::SingleShotConnection);
 
         preview_->installEventFilter(this);
@@ -290,9 +295,8 @@ private:
                 QStringLiteral("</head>"),
                 QStringLiteral("<style>%1</style></head>")
                     .arg(appFontFaceKit_()));
-            preview_->setHtml(
-                html,
-                QUrl("qrc:/")); /// TODO MU: I am vaguely concerned about this
+            /// TODO MU: I am vaguely concerned about this
+            preview_->setHtml(html, QUrl("qrc:/"));
 
             return;
         }
@@ -313,11 +317,13 @@ private:
         body_content.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
         body_content.replace(QStringLiteral("`"), QStringLiteral("\\`"));
 
-        preview_->page()->runJavaScript(
-            QStringLiteral(
-                "var scrollY = window.scrollY; document.body.innerHTML = `%1`; "
-                "window.scrollTo(0, scrollY);")
-                .arg(body_content));
+        preview_->page()->runJavaScript(QStringLiteral(
+                                            R"(
+var lastScrollY = window.scrollY;
+document.body.innerHTML = `%1`;
+window.scrollTo(0, lastScrollY);
+)")
+                                            .arg(body_content));
     }
 };
 
