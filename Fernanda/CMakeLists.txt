@@ -292,7 +292,7 @@ add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
 # --- Linking ---
 
 target_link_libraries(Fernanda PRIVATE
-    fountain.h
+    fountain_h
     md4c
     md4c-html
     miniz
