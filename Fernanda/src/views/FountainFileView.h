@@ -42,7 +42,7 @@ public:
         /// be about as fast as it could get - even md4c chokes (or Fernanda
         /// does) on very large documents. Our Fountain parser chokes a little
         /// more, but it also creates way more DOM nodes
-        : AbstractMarkupFileView(fileModel, 25, parent)
+        : AbstractMarkupFileView(fileModel, 0, parent)
     {
     }
 
@@ -182,6 +182,11 @@ hr {
 .lyrics {
     font-style: italic;
 }
+.action, .character, .dialogue, .parenthetical,
+.transition, .lyrics, .scene-heading,
+.dual-dialogue, #script-title {
+    contain: layout style;
+}
 )CSS");
 
         return s;
@@ -200,7 +205,7 @@ hr {
                 static_cast<QByteArray*>(userdata)->append(chunk, size);
             },
             &output,
-            0, /// TODO MU: flags?
+            0,
             0);
 
         return QString::fromUtf8(output);

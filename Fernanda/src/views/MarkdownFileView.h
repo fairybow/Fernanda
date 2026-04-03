@@ -32,7 +32,6 @@ public:
     explicit MarkdownFileView(
         TextFileModel* fileModel,
         QWidget* parent = nullptr)
-        // md4c doesn't need debouce
         : AbstractMarkupFileView(fileModel, 0, parent)
     {
     }
@@ -129,6 +128,10 @@ a {
 }
 input[type="checkbox"] {
     margin-right: 0.4em;
+}
+p, h1, h2, h3, h4, h5, h6,
+blockquote, pre, table, ul, ol, hr {
+    contain: layout style;
 }
 )CSS");
 
