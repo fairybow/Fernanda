@@ -20,7 +20,7 @@
 #include <QTextLine>
 #include <QWidget>
 
-#include <Fountain.h>
+#include <_fountain.h/fountain-html.h> /// TEMP
 
 #include "core/Debug.h"
 #include "models/TextFileModel.h"
@@ -48,33 +48,35 @@ public:
 protected:
     virtual QString renderToHtml(const QString& plainText) const override
     {
-        auto parser = Fountain::Parser(plainText.toStdString());
-        auto font = QFont("Courier Prime");
-        font.setPixelSize(12);
+        return {}; /// TEMP
 
-        auto measure_fn = [font](
-                              const std::string& text,
-                              int maxWidth,
-                              int lineHeight) -> int {
-            QTextLayout layout(QString::fromStdString(text), font);
-            layout.beginLayout();
+        //auto parser = Fountain::Parser(plainText.toStdString());
+        //auto font = QFont("Courier Prime");
+        //font.setPixelSize(12);
 
-            auto line_count = 0;
+        //auto measure_fn = [font](
+        //                      const std::string& text,
+        //                      int maxWidth,
+        //                      int lineHeight) -> int {
+        //    QTextLayout layout(QString::fromStdString(text), font);
+        //    layout.beginLayout();
 
-            while (true) {
-                auto line = layout.createLine();
-                if (!line.isValid()) break;
+        //    auto line_count = 0;
 
-                line.setLineWidth(maxWidth);
-                ++line_count;
-            }
+        //    while (true) {
+        //        auto line = layout.createLine();
+        //        if (!line.isValid()) break;
 
-            layout.endLayout();
-            return line_count * lineHeight;
-        };
+        //        line.setLineWidth(maxWidth);
+        //        ++line_count;
+        //    }
 
-        auto renderer = Fountain::Renderer(parser, measure_fn);
-        return QString::fromStdString(renderer.html());
+        //    layout.endLayout();
+        //    return line_count * lineHeight;
+        //};
+
+        //auto renderer = Fountain::Renderer(parser, measure_fn);
+        //return QString::fromStdString(renderer.html());
     }
 };
 

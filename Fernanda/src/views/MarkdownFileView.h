@@ -17,7 +17,6 @@
 #include <QWidget>
 
 #include <md4c-html.h>
-#include <md4c.h>
 
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
@@ -56,6 +55,8 @@ protected:
             0);
 
         auto body = QString::fromUtf8(output);
+
+        /// TODO MU: ^ Print this to see if it returns inside body tags or without
 
         return QStringLiteral(
                    "<html><head><style>%1</style></head><body>%2</body></html>")

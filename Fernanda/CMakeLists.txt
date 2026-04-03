@@ -191,6 +191,10 @@ set(FERNANDA_HEADERS
     src/workspaces/TrashPrompt.h
     src/workspaces/WorkingDir.h
     src/workspaces/Workspace.h
+
+    ### TEMP
+    src/_fountain.h/fountain.h
+    src/_fountain.h/fountain-html.h
 )
 
 # --- Coco (compiled as part of Fernanda) ---
@@ -208,12 +212,6 @@ set(COCO_HEADERS
     submodules/Coco/Coco/include/Coco/Private.h
     submodules/Coco/Coco/include/Coco/StartCop.h
     submodules/Coco/Coco/include/Coco/Utility.h
-)
-
-# --- Fountain.h (compiled as part of Fernanda) ---
-
-set(FOUNTAIN_H_HEADER
-    submodules/Fountain.h/include/Fountain.h
 )
 
 # --- Resources ---
@@ -244,7 +242,6 @@ qt_add_executable(Fernanda ${PLATFORM_EXE_FLAGS}
     ${FERNANDA_HEADERS}
     ${COCO_SOURCES}
     ${COCO_HEADERS}
-    ${FOUNTAIN_H_HEADER}
     ${FERNANDA_RESOURCES}
 )
 
@@ -274,7 +271,6 @@ endif()
 target_include_directories(Fernanda PRIVATE
     src
     submodules/Coco/Coco/include
-    submodules/Fountain.h/include
     submodules/md4c/src
     submodules/md4c/md2html
     submodules/miniz
