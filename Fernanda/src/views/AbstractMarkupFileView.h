@@ -140,16 +140,19 @@ public:
     {
         if (watched == preview_ && event->type() == QEvent::Resize) {
             // Hide preview resize visual stutter and debounce
-            previewResizeMask_->setFixedSize(preview_->size());
-            previewResizeMask_->raise();
-            previewResizeMask_->show();
-            resizeHideTimer_->start();
+            previewMask_->setFixedSize(preview_->size());
+            previewMask_->raise();
+            previewMask_->show();
+            previewMaskTimer_->start();
         }
 
         return TextFileView::eventFilter(watched, event);
     }
 
 protected:
+    /// TODO MU: Use resize mask code above (separate into own method) to hide
+    /// during startup. Should be fine now that it's just an overlay. However,
+    /// the same time we use for resizing might not be right for this...
     virtual QWidget* setupWidget() override
     {
         modeBar_->setFixedHeight(24);
@@ -164,8 +167,8 @@ protected:
 
         preview_->setPage(new MarkupPreviewPage(preview_));
         preview_->setMinimumWidth(MIN_WIDGET_SIZE_);
-        previewResizeMask_->setAutoFillBackground(true);
-        previewResizeMask_->hide();
+        previewMask_->setAutoFillBackground(true);
+        previewMask_->hide();
 
         splitter_->addWidget(editor_widget);
         splitter_->addWidget(preview_);
@@ -250,9 +253,9 @@ private:
     QToolButton* modeToggle_ = new QToolButton(this);
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
     QWebEngineView* preview_ = new QWebEngineView(this);
-    QWidget* previewResizeMask_ = new QWidget(preview_);
-    Time::Debouncer* resizeHideTimer_ =
-        Time::newDebouncer(this, [this] { previewResizeMask_->hide(); }, 250);
+    QWidget* previewMask_ = new QWidget(preview_);
+    Time::Debouncer* previewMaskTimer_ =
+        Time::newDebouncer(this, [this] { previewMask_->hide(); }, 250);
 
     static QString appFontFaceKit_();
 
