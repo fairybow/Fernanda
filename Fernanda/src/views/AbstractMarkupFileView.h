@@ -220,6 +220,20 @@ protected:
         splitter_->setFocusProxy(editor_widget);
         reparse_();
 
+        // Mask the preview until QWebEngineView finishes its first load
+        // TODO: Watch/adjust this if we ever allow starting in a mode other
+        // than Split
+        previewMask_->setFixedSize(preview_->size());
+        previewMask_->raise();
+        previewMask_->show();
+
+        connect(
+            preview_->page(),
+            &QWebEnginePage::loadFinished,
+            this,
+            [this] { previewMask_->hide(); },
+            Qt::SingleShotConnection);
+
         preview_->installEventFilter(this);
 
         return container_;
