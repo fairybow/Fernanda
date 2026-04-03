@@ -220,6 +220,10 @@ protected:
         // Mask the preview until QWebEngineView finishes its first load
         // TODO: Watch/adjust this if we ever allow starting in a mode other
         // than Split
+        /// TODO MU: BUG: Very first load of this view type still has jitter
+        /// (subsequent new tabs of this view type are fine and seem to be
+        /// covered by the mask appropriately - but that first app-wide load of
+        /// QWebEngineView must be raising the preview early)
         previewMask_->setFixedSize(preview_->size());
         previewMask_->raise();
         previewMask_->show();
