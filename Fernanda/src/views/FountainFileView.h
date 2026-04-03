@@ -38,7 +38,10 @@ public:
     explicit FountainFileView(
         TextFileModel* fileModel,
         QWidget* parent = nullptr)
-        /// TODO MU: dynamic debounce for larger files?
+        /// TODO MU: dynamic debounce for larger files? Our Fountain parser may
+        /// be about as fast as it could get - even md4c chokes (or Fernanda
+        /// does) on very large documents. Our Fountain parser chokes a little
+        /// more, but it also creates way more DOM nodes
         : AbstractMarkupFileView(fileModel, 25, parent)
     {
     }
