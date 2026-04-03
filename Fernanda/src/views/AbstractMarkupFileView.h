@@ -229,10 +229,7 @@ protected:
             &QWebEnginePage::loadFinished,
             this,
             [this] {
-                Time::delay(3000, this, [this] {
-                    TRACER;
-                    previewMask_->hide();
-                });
+                Time::delay(3000, this, [this] { previewMask_->hide(); });
             },
             Qt::SingleShotConnection);
 
@@ -317,11 +314,17 @@ private:
         body_content.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
         body_content.replace(QStringLiteral("`"), QStringLiteral("\\`"));
 
+        // See:
+        // https://stackoverflow.com/questions/44145740/how-does-double-requestanimationframe-work
         preview_->page()->runJavaScript(QStringLiteral(
                                             R"(
 var lastScrollY = window.scrollY;
 document.body.innerHTML = `%1`;
-window.scrollTo(0, lastScrollY);
+requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+        window.scrollTo(0, lastScrollY);
+    });
+});
 )")
                                             .arg(body_content));
     }
