@@ -77,10 +77,12 @@ static void out(FN_HTML_CTX* ctx, const char* s, FN_SIZE len)
     }
 }
 
-static void out_s(FN_HTML_CTX* ctx, const char* s)
-{
-    out(ctx, s, (FN_SIZE)strlen(s));
-}
+#define OUT_LIT(ctx, lit) out((ctx), (lit), sizeof(lit) - 1)
+
+//static void out_s(FN_HTML_CTX* ctx, const char* s)
+//{
+//    out(ctx, s, (FN_SIZE)strlen(s));
+//}
 
 static void out_escaped(FN_HTML_CTX* ctx, const FN_CHAR* s, FN_SIZE len)
 {
@@ -122,7 +124,7 @@ static void out_title_css_class(FN_HTML_CTX* ctx,
 {
     /* "draft date" -> "draft-date" */
     if (key_size == 10 && memcmp(key, "draft date", 10) == 0) {
-        out_s(ctx, "draft-date");
+        OUT_LIT(ctx, "draft-date");
         return;
     }
 
@@ -150,7 +152,7 @@ static int html_enter_block(FN_BLOCKTYPE type, void* detail, void* ud)
             ctx->skip = 1;
             break;
         }
-        out_s(ctx, "<div id='script-title'>\n");
+        OUT_LIT(ctx, "<div id='script-title'>\n");
         break;
 
     case FN_BLOCK_TITLE_ENTRY:
@@ -159,9 +161,9 @@ static int html_enter_block(FN_BLOCKTYPE type, void* detail, void* ud)
         ctx->title_key = d->key;
         ctx->title_key_size = d->key_size;
 
-        out_s(ctx, "<p class='");
+        OUT_LIT(ctx, "<p class='");
         out_title_css_class(ctx, d->key, d->key_size);
-        out_s(ctx, "'>");
+        OUT_LIT(ctx, "'>");
         break;
     }
 
@@ -172,12 +174,12 @@ static int html_enter_block(FN_BLOCKTYPE type, void* detail, void* ud)
         ctx->scene_number = d->scene_number;
         ctx->scene_number_size = d->scene_number_size;
 
-        out_s(ctx, "<p class='scene-heading'>");
+        OUT_LIT(ctx, "<p class='scene-heading'>");
 
         if (d->scene_number) {
-            out_s(ctx, "<span class='scene-number-left'>");
+            OUT_LIT(ctx, "<span class='scene-number-left'>");
             out_escaped(ctx, d->scene_number, d->scene_number_size);
-            out_s(ctx, "</span>");
+            OUT_LIT(ctx, "</span>");
         }
         break;
     }
@@ -186,9 +188,9 @@ static int html_enter_block(FN_BLOCKTYPE type, void* detail, void* ud)
     {
         FN_BLOCK_ACTION_DETAIL* d = (FN_BLOCK_ACTION_DETAIL*)detail;
         if (d && d->is_centered)
-            out_s(ctx, "<p class='action center'>");
+            OUT_LIT(ctx, "<p class='action center'>");
         else
-            out_s(ctx, "<p class='action'>");
+            OUT_LIT(ctx, "<p class='action'>");
         break;
     }
 
@@ -200,40 +202,40 @@ static int html_enter_block(FN_BLOCKTYPE type, void* detail, void* ud)
         if (d && d->is_dual_dialogue) {
             ctx->dual_char_count++;
             if (ctx->dual_char_count == 2)
-                out_s(ctx, "</div>\n<div class='dual-dialogue-right'>\n");
+                OUT_LIT(ctx, "</div>\n<div class='dual-dialogue-right'>\n");
         }
-        out_s(ctx, "<p class='character'>");
+        OUT_LIT(ctx, "<p class='character'>");
         break;
     }
 
     case FN_BLOCK_DIALOGUE:
-        out_s(ctx, "<p class='dialogue'>");
+        OUT_LIT(ctx, "<p class='dialogue'>");
         break;
 
     case FN_BLOCK_PARENTHETICAL:
-        out_s(ctx, "<p class='parenthetical'>");
+        OUT_LIT(ctx, "<p class='parenthetical'>");
         break;
 
     case FN_BLOCK_TRANSITION:
-        out_s(ctx, "<p class='transition'>");
+        OUT_LIT(ctx, "<p class='transition'>");
         break;
 
     case FN_BLOCK_LYRICS:
-        out_s(ctx, "<p class='lyrics'>");
+        OUT_LIT(ctx, "<p class='lyrics'>");
         break;
 
     case FN_BLOCK_LYRICS_SPACER:
-        out_s(ctx, "<p class='lyrics'>&nbsp;</p>\n");
+        OUT_LIT(ctx, "<p class='lyrics'>&nbsp;</p>\n");
         break;
 
     case FN_BLOCK_PAGE_BREAK:
-        out_s(ctx, "</section>\n<section>\n");
+        OUT_LIT(ctx, "</section>\n<section>\n");
         break;
 
     case FN_BLOCK_DUAL_DIALOGUE:
         ctx->dual_char_count = 0;
-        out_s(ctx, "<div class='dual-dialogue'>\n");
-        out_s(ctx, "<div class='dual-dialogue-left'>\n");
+        OUT_LIT(ctx, "<div class='dual-dialogue'>\n");
+        OUT_LIT(ctx, "<div class='dual-dialogue-left'>\n");
         break;
 
     /* Metadata blocks: skip in HTML output (they aren't part of the
@@ -263,22 +265,22 @@ static int html_leave_block(FN_BLOCKTYPE type, void* detail, void* ud)
     case FN_BLOCK_TITLE_PAGE:
         ctx->skip = 0;
         if (!(ctx->renderer_flags & FN_HTML_FLAG_SKIP_TITLE))
-            out_s(ctx, "</div>\n");
+            OUT_LIT(ctx, "</div>\n");
         break;
 
     case FN_BLOCK_TITLE_ENTRY:
-        out_s(ctx, "</p>\n");
+        OUT_LIT(ctx, "</p>\n");
         break;
 
     case FN_BLOCK_SCENE_HEADING:
         if (ctx->scene_number) {
-            out_s(ctx, "<span class='scene-number-right'>");
+            OUT_LIT(ctx, "<span class='scene-number-right'>");
             out_escaped(ctx, ctx->scene_number, ctx->scene_number_size);
-            out_s(ctx, "</span>");
+            OUT_LIT(ctx, "</span>");
         }
         ctx->scene_number = NULL;
         ctx->scene_number_size = 0;
-        out_s(ctx, "</p>\n");
+        OUT_LIT(ctx, "</p>\n");
         break;
 
     case FN_BLOCK_ACTION:
@@ -287,7 +289,7 @@ static int html_leave_block(FN_BLOCKTYPE type, void* detail, void* ud)
     case FN_BLOCK_PARENTHETICAL:
     case FN_BLOCK_TRANSITION:
     case FN_BLOCK_LYRICS:
-        out_s(ctx, "</p>\n");
+        OUT_LIT(ctx, "</p>\n");
         break;
 
     case FN_BLOCK_LYRICS_SPACER:
@@ -296,7 +298,7 @@ static int html_leave_block(FN_BLOCKTYPE type, void* detail, void* ud)
         break;
 
     case FN_BLOCK_DUAL_DIALOGUE:
-        out_s(ctx, "</div>\n</div>\n");
+        OUT_LIT(ctx, "</div>\n</div>\n");
         ctx->dual_char_count = 0;
         break;
 
@@ -316,9 +318,15 @@ static int html_enter_span(FN_SPANTYPE type, void* ud)
     FN_HTML_CTX* ctx = (FN_HTML_CTX*)ud;
 
     switch (type) {
-    case FN_SPAN_EMPHASIS:  out_s(ctx, "<em>");     break;
-    case FN_SPAN_STRONG:    out_s(ctx, "<strong>"); break;
-    case FN_SPAN_UNDERLINE: out_s(ctx, "<u>");      break;
+    case FN_SPAN_EMPHASIS:
+        OUT_LIT(ctx, "<em>");
+        break;
+    case FN_SPAN_STRONG:
+        OUT_LIT(ctx, "<strong>");
+        break;
+    case FN_SPAN_UNDERLINE:
+        OUT_LIT(ctx, "<u>");
+        break;
     case FN_SPAN_NOTE:      /* Notes are stripped in HTML output. */
                             ctx->skip = 1;          break;
     }
@@ -331,9 +339,15 @@ static int html_leave_span(FN_SPANTYPE type, void* ud)
     FN_HTML_CTX* ctx = (FN_HTML_CTX*)ud;
 
     switch (type) {
-    case FN_SPAN_EMPHASIS:  out_s(ctx, "</em>");     break;
-    case FN_SPAN_STRONG:    out_s(ctx, "</strong>"); break;
-    case FN_SPAN_UNDERLINE: out_s(ctx, "</u>");      break;
+    case FN_SPAN_EMPHASIS:
+        OUT_LIT(ctx, "</em>");
+        break;
+    case FN_SPAN_STRONG:
+        OUT_LIT(ctx, "</strong>");
+        break;
+    case FN_SPAN_UNDERLINE:
+        OUT_LIT(ctx, "</u>");
+        break;
     case FN_SPAN_NOTE:      ctx->skip = 0;           break;
     }
 
@@ -350,7 +364,7 @@ static int html_text(FN_TEXTTYPE type, const FN_CHAR* text, FN_SIZE size,
         out_escaped(ctx, text, size);
         break;
     case FN_TEXT_SOFTBREAK:
-        out_s(ctx, "<br>");
+        OUT_LIT(ctx, "<br>");
         break;
     }
 

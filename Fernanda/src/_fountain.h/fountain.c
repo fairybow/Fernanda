@@ -11,6 +11,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+TODO:
+- need default css fn at end?
+- clean/organize
+- clang format
+*/
+
 
 /* ==============================
  * Internal types and constants
@@ -51,30 +58,54 @@ typedef struct FN_MARK {
 #define SPAN_BIT(s)  (1u << (s))
 
 /* Inline marker definition (processed longest-first) */
-typedef struct FN_MARKER_DEF {
+typedef struct FN_MARKER_DEF
+{
     const char* pat1;
-    const char* pat2;       /* alternate form, or NULL */
+    const char* pat2; /* alternate form, or NULL */
     unsigned len1;
     unsigned len2;
     unsigned span_bits;
-    int reject_underscore;  /* content must not contain '_' */
+    int reject_underscore; /* content must not contain '_' */
+    unsigned required_chars; /* bitmask: which chars must be present */
 } FN_MARKER_DEF;
 
+#define CHAR_STAR 1u
+#define CHAR_UNDER 2u
+#define CHAR_BRACK 4u
+
 static const FN_MARKER_DEF MARKER_DEFS[] = {
-    { "_***", "***_", 4, 4,
-      SPAN_BIT(FN_SPAN_STRONG) | SPAN_BIT(FN_SPAN_EMPHASIS) | SPAN_BIT(FN_SPAN_UNDERLINE), 0 },
-    { "***",  NULL,   3, 0,
-      SPAN_BIT(FN_SPAN_STRONG) | SPAN_BIT(FN_SPAN_EMPHASIS), 0 },
-    { "_**",  "**_",  3, 3,
-      SPAN_BIT(FN_SPAN_STRONG) | SPAN_BIT(FN_SPAN_UNDERLINE), 0 },
-    { "_*",   "*_",   2, 2,
-      SPAN_BIT(FN_SPAN_EMPHASIS) | SPAN_BIT(FN_SPAN_UNDERLINE), 0 },
-    { "**",   NULL,   2, 0,
-      SPAN_BIT(FN_SPAN_STRONG), 0 },
-    { "*",    NULL,   1, 0,
-      SPAN_BIT(FN_SPAN_EMPHASIS), 0 },
-    { "_",    NULL,   1, 0,
-      SPAN_BIT(FN_SPAN_UNDERLINE), 1 },
+    { "_***",
+      "***_",
+      4,
+      4,
+      SPAN_BIT(FN_SPAN_STRONG) | SPAN_BIT(FN_SPAN_EMPHASIS)
+          | SPAN_BIT(FN_SPAN_UNDERLINE),
+      0,
+      CHAR_STAR | CHAR_UNDER },
+    { "***",
+      NULL,
+      3,
+      0,
+      SPAN_BIT(FN_SPAN_STRONG) | SPAN_BIT(FN_SPAN_EMPHASIS),
+      0,
+      CHAR_STAR },
+    { "_**",
+      "**_",
+      3,
+      3,
+      SPAN_BIT(FN_SPAN_STRONG) | SPAN_BIT(FN_SPAN_UNDERLINE),
+      0,
+      CHAR_STAR | CHAR_UNDER },
+    { "_*",
+      "*_",
+      2,
+      2,
+      SPAN_BIT(FN_SPAN_EMPHASIS) | SPAN_BIT(FN_SPAN_UNDERLINE),
+      0,
+      CHAR_STAR | CHAR_UNDER },
+    { "**", NULL, 2, 0, SPAN_BIT(FN_SPAN_STRONG), 0, CHAR_STAR },
+    { "*", NULL, 1, 0, SPAN_BIT(FN_SPAN_EMPHASIS), 0, CHAR_STAR },
+    { "_", NULL, 1, 0, SPAN_BIT(FN_SPAN_UNDERLINE), 1, CHAR_UNDER },
 };
 
 #define N_MARKER_DEFS  (sizeof(MARKER_DEFS) / sizeof(MARKER_DEFS[0]))
@@ -555,11 +586,18 @@ static int fn_valid_content_(const FN_CHAR* s, unsigned char* consumed,
 }
 
 /* Scan for one marker type across a single line. */
-static int fn_scan_marker_(FN_CTX* ctx, const FN_CHAR* s, FN_SIZE size,
-                           unsigned char* consumed, const FN_MARKER_DEF* md)
+static int fn_scan_marker_(
+    FN_CTX* ctx,
+    const FN_CHAR* s,
+    FN_SIZE size,
+    unsigned char* consumed,
+    const FN_MARKER_DEF* md)
 {
-    for (FN_OFFSET i = 0; i < size; ) {
-        if (consumed[i]) { i++; continue; }
+    for (FN_OFFSET i = 0; i < size;) {
+        if (consumed[i]) {
+            i++;
+            continue;
+        }
 
         /* Try to match opener (pattern1 or pattern2). */
         unsigned opener_len = 0;
@@ -568,15 +606,33 @@ static int fn_scan_marker_(FN_CTX* ctx, const FN_CHAR* s, FN_SIZE size,
         else if (md->pat2 && fn_match_(s, size, i, md->pat2, md->len2))
             opener_len = md->len2;
 
-        if (opener_len == 0) { i++; continue; }
+        if (opener_len == 0) {
+            i++;
+            continue;
+        }
 
-        /* Scan for matching closer. */
+        /* Scan for matching closer, tracking content validity
+         * incrementally to avoid re-scanning the region. */
         FN_OFFSET content_beg = i + opener_len;
         int found = 0;
+        int has_content = 0;
+        int invalid = 0;
 
         for (FN_OFFSET j = content_beg; j < size; j++) {
-            if (consumed[j])
-                continue;
+            if (consumed[j]) continue;
+
+            char c = s[j];
+
+            /* Check validity before testing for closer, so that a
+             * closer immediately after invalid content is rejected. */
+            if (c == '<' || c == '>') {
+                invalid = 1;
+                break;
+            }
+            if (md->reject_underscore && c == '_') {
+                invalid = 1;
+                break;
+            }
 
             unsigned closer_len = 0;
             if (fn_match_(s, size, j, md->pat1, md->len1))
@@ -584,9 +640,7 @@ static int fn_scan_marker_(FN_CTX* ctx, const FN_CHAR* s, FN_SIZE size,
             else if (md->pat2 && fn_match_(s, size, j, md->pat2, md->len2))
                 closer_len = md->len2;
 
-            if (closer_len > 0
-                && fn_valid_content_(s, consumed, content_beg, j,
-                                     md->reject_underscore)) {
+            if (closer_len > 0 && has_content) {
                 /* Mark opener and closer chars as consumed. */
                 for (unsigned k = 0; k < opener_len; k++)
                     consumed[i + k] = 1;
@@ -602,10 +656,11 @@ static int fn_scan_marker_(FN_CTX* ctx, const FN_CHAR* s, FN_SIZE size,
                 found = 1;
                 break;
             }
+
+            has_content = 1;
         }
 
-        if (!found)
-            i += opener_len;
+        if (!found) i += opener_len;
     }
 
     return 0;
@@ -656,64 +711,93 @@ static int fn_emit_spans_(FN_CTX* ctx, const FN_MARK* mark)
     return 0;
 }
 
+static unsigned fn_char_presence_(const FN_CHAR* s, FN_SIZE size)
+{
+    unsigned bits = 0;
+    for (FN_SIZE i = 0; i < size; i++) {
+        if (s[i] == '*') bits |= 1;
+        if (s[i] == '_') bits |= 2;
+        if (s[i] == '[') bits |= 4;
+    }
+    return bits;
+}
+
 /* Process inline formatting for one line of text and emit callbacks.
  * The text is s[beg..end). */
-static int fn_process_inline_line_(FN_CTX* ctx, const FN_CHAR* s,
-                                   FN_OFFSET beg, FN_OFFSET end)
+static int fn_process_inline_line_(
+    FN_CTX* ctx,
+    const FN_CHAR* s,
+    FN_OFFSET beg,
+    FN_OFFSET end)
 {
     FN_SIZE len = end - beg;
-    if (len == 0)
-        return 0;
+    if (len == 0) return 0;
 
     const FN_CHAR* line = s + beg;
 
     /* Ensure scratch arrays are large enough. */
-    if (fn_inline_ensure_(ctx, len) != 0)
-        return -1;
+    if (fn_inline_ensure_(ctx, len) != 0) return -1;
 
     memset(ctx->consumed, 0, len);
     ctx->n_marks = 0;
 
-    /* Pass 1: notes (before other markers). */
-    CHECK(fn_scan_notes_(ctx, line, len, ctx->consumed));
+    /* Single pre-scan: which marker characters are present? */
+    unsigned present = 0;
+    for (FN_SIZE i = 0; i < len; i++) {
+        if (line[i] == '*')
+            present |= CHAR_STAR;
+        else if (line[i] == '_')
+            present |= CHAR_UNDER;
+        else if (line[i] == '[')
+            present |= CHAR_BRACK;
+    }
 
-    /* Pass 2-8: inline markers, longest first. */
-    for (unsigned m = 0; m < N_MARKER_DEFS; m++)
-        CHECK(fn_scan_marker_(ctx, line, len, ctx->consumed, &MARKER_DEFS[m]));
+    /* Pass 1: notes (before other markers). */
+    if (present & CHAR_BRACK)
+        CHECK(fn_scan_notes_(ctx, line, len, ctx->consumed));
+
+    /* Pass 2+: inline markers, longest first. Skip defs whose
+     * required characters aren't present in this line. */
+    for (unsigned m = 0; m < N_MARKER_DEFS; m++) {
+        if ((MARKER_DEFS[m].required_chars & present)
+            == MARKER_DEFS[m].required_chars)
+            CHECK(fn_scan_marker_(
+                ctx,
+                line,
+                len,
+                ctx->consumed,
+                &MARKER_DEFS[m]));
+    }
 
     /* Sort marks by position. */
     if (ctx->n_marks > 1)
         qsort(ctx->marks, ctx->n_marks, sizeof(FN_MARK), fn_mark_cmp_);
 
-    /* Emit text and span callbacks. Walk through the line emitting
-     * unconsumed text segments and span events at mark positions. */
+    /* Emit text and span callbacks. */
     FN_OFFSET pos = 0;
     unsigned mi = 0;
 
     while (pos < len) {
-        /* Check if there's a mark at or before the current position. */
         if (mi < ctx->n_marks && ctx->marks[mi].pos <= pos) {
             FN_MARK* mk = &ctx->marks[mi];
-            /* Emit any unconsumed text before this mark. */
-            /* (Already handled below; the mark's consumed chars are skipped.) */
             CHECK(fn_emit_spans_(ctx, mk));
-            /* Skip past the marker characters. */
             pos = mk->pos + mk->len;
             mi++;
             continue;
         }
 
-        /* Find the next run of unconsumed text. */
         FN_OFFSET run_beg = pos;
-        FN_OFFSET next_mark_pos = (mi < ctx->n_marks)
-            ? ctx->marks[mi].pos : len;
+        FN_OFFSET next_mark_pos =
+            (mi < ctx->n_marks) ? ctx->marks[mi].pos : len;
 
         while (pos < next_mark_pos) {
             if (ctx->consumed[pos]) {
-                /* Emit text up to here, then skip consumed chars. */
                 if (pos > run_beg)
-                    CHECK(fn_text_(ctx, FN_TEXT_NORMAL, line + run_beg,
-                                   pos - run_beg));
+                    CHECK(fn_text_(
+                        ctx,
+                        FN_TEXT_NORMAL,
+                        line + run_beg,
+                        pos - run_beg));
                 while (pos < next_mark_pos && ctx->consumed[pos])
                     pos++;
                 run_beg = pos;
@@ -723,8 +807,7 @@ static int fn_process_inline_line_(FN_CTX* ctx, const FN_CHAR* s,
         }
 
         if (pos > run_beg)
-            CHECK(fn_text_(ctx, FN_TEXT_NORMAL, line + run_beg,
-                           pos - run_beg));
+            CHECK(fn_text_(ctx, FN_TEXT_NORMAL, line + run_beg, pos - run_beg));
     }
 
     return 0;
