@@ -38,8 +38,8 @@ public:
     explicit FountainFileView(
         TextFileModel* fileModel,
         QWidget* parent = nullptr)
-        // We fast now too :)
-        : AbstractMarkupFileView(fileModel, 0, parent)
+        /// TODO MU: dynamic debounce for larger files?
+        : AbstractMarkupFileView(fileModel, 25, parent)
     {
     }
 
