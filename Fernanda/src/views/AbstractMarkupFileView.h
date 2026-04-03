@@ -34,6 +34,7 @@ namespace Fernanda {
 
 /// TODO MU: I'd maybe like a 3-way toggle switch instead of cycling labels and
 /// functionality
+/// TODO MU: Scroll lock
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
@@ -241,6 +242,7 @@ protected:
     virtual void showEvent(QShowEvent* event)
     {
         TextFileView::showEvent(event);
+
         if (previewStale_ && preview_->isVisible()) {
             previewStale_ = false;
             reparse_();
