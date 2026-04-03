@@ -12,9 +12,9 @@
 
 #pragma once
 
-#include <QStringView>
 #include <QByteArray>
 #include <QString>
+#include <QStringView>
 #include <QWidget>
 
 #include <md4c-html.h>

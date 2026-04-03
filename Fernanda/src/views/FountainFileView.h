@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include <QStringView>
 #include <QFont>
 #include <QString>
+#include <QStringView>
 #include <QTextLayout>
 #include <QTextLine>
 #include <QWidget>

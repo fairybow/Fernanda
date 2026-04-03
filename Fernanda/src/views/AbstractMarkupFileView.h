@@ -14,11 +14,11 @@
 
 #include <QEvent>
 #include <QHBoxLayout>
-#include <QStringView>
 #include <QObject>
 #include <QShowEvent>
 #include <QSplitter>
 #include <QString>
+#include <QStringView>
 #include <QTextDocument>
 #include <QToolButton>
 #include <QVBoxLayout>
