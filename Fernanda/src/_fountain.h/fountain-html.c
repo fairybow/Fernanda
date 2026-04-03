@@ -14,10 +14,16 @@
  * Internal types
  * ============================== */
 
+#define FN_HTML_BUFFER_SIZE 8192
+
 typedef struct FN_HTML_CTX {
     void (*process_output)(const FN_CHAR*, FN_SIZE, void*);
     void* userdata;
     unsigned renderer_flags;
+
+    /* Output buffer */
+    FN_CHAR buffer[FN_HTML_BUFFER_SIZE];
+    FN_SIZE buf_used;
 
     /* Dual dialogue state */
     int dual_char_count;    /* Characters seen inside current DUAL_DIALOGUE */
@@ -40,11 +46,35 @@ typedef struct FN_HTML_CTX {
  * Output helpers
  * ============================== */
 
+static void fn_html_flush_(FN_HTML_CTX* ctx)
+{
+    if (ctx->buf_used > 0) {
+        ctx->process_output(ctx->buffer, ctx->buf_used, ctx->userdata);
+        ctx->buf_used = 0;
+    }
+}
+
 static void out(FN_HTML_CTX* ctx, const char* s, FN_SIZE len)
 {
-    if (ctx->skip)
+    if (ctx->skip) return;
+
+    /* If it fits in the buffer, just copy. */
+    if (ctx->buf_used + len <= FN_HTML_BUFFER_SIZE) {
+        memcpy(ctx->buffer + ctx->buf_used, s, len);
+        ctx->buf_used += len;
         return;
-    ctx->process_output(s, len, ctx->userdata);
+    }
+
+    /* Flush current buffer, then handle the new data. */
+    fn_html_flush_(ctx);
+
+    if (len >= FN_HTML_BUFFER_SIZE) {
+        /* Larger than the buffer: pass through directly. */
+        ctx->process_output(s, len, ctx->userdata);
+    } else {
+        memcpy(ctx->buffer, s, len);
+        ctx->buf_used = len;
+    }
 }
 
 static void out_s(FN_HTML_CTX* ctx, const char* s)
@@ -372,6 +402,8 @@ int fn_html(const FN_CHAR* input, FN_SIZE input_size,
         process_output("<article>\n<section>\n", 20, userdata);
 
     int ret = fn_parse(input, input_size, &parser, &ctx, pf);
+
+    fn_html_flush_(&ctx);
 
     if (!(renderer_flags & FN_HTML_FLAG_SKIP_BODY))
         process_output("</section>\n</article>\n", 22, userdata);
