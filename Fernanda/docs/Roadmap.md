@@ -4,7 +4,8 @@
 
 - [ ] AbsMarkupFileView mode bar needs visual distinction on bottom and maybe top, like a thin line
 - [ ] ^ mode toggle needs icons
-- [ ] We also need to use the snapshot overlay when dragging window maybe (QWebEngineView lags when resizing window)
+- [x] We also need to use the snapshot overlay when dragging window maybe (QWebEngineView lags when resizing window)
+- [ ] Fountain.h to C? Need more speed!
 
 - [ ] BUG: Unsure how it occurred, but opened Candide.fnx and moved several files to trash (all but chapter 1) and then deleted them all. Then when I imported a PNG, it opened in a tab but did not appear in the TreeView...
 - [ ] ^ Added release logging, log viewer, and automatic Notebook TreeView expansion to help find this. It easily could have been an overlooked add-as-child, which didn't expand before

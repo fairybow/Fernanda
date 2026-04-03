@@ -12,7 +12,10 @@
 
 #pragma once
 
+#include <QEvent>
 #include <QHBoxLayout>
+#include <QObject>
+#include <QShowEvent>
 #include <QSplitter>
 #include <QString>
 #include <QTextDocument>
@@ -29,6 +32,9 @@
 
 namespace Fernanda {
 
+/// TODO MU: I'd maybe like a 3-way toggle switch instead of cycling labels and
+/// functionality
+/// TODO MU: Scroll lock
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
@@ -43,8 +49,14 @@ public:
 
     explicit AbstractMarkupFileView(
         TextFileModel* fileModel,
+        int reparseDebounce,
         QWidget* parent = nullptr)
         : TextFileView(fileModel, parent)
+        , reparseTimer_(
+              Time::newDebouncer(
+                  this,
+                  &AbstractMarkupFileView::reparse_,
+                  reparseDebounce))
     {
     }
 
@@ -124,10 +136,24 @@ public:
         }
     }
 
+    virtual bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (watched == preview_ && event->type() == QEvent::Resize) {
+            // Hide preview resize visual stutter and debounce
+            previewMask_->setFixedSize(preview_->size());
+            previewMask_->raise();
+            previewMask_->show();
+            previewMaskTimer_->start();
+        }
+
+        return TextFileView::eventFilter(watched, event);
+    }
+
 protected:
     virtual QWidget* setupWidget() override
     {
         modeBar_->setFixedHeight(24);
+
         // Since we start in split (handle this better/dynamically without
         // calling setMode, eventually):
         modeToggle_->setText("Preview"); /// TODO MU: Temp
@@ -138,6 +164,8 @@ protected:
 
         preview_->setPage(new MarkupPreviewPage(preview_));
         preview_->setMinimumWidth(MIN_WIDGET_SIZE_);
+        previewMask_->setAutoFillBackground(true);
+        previewMask_->hide();
 
         splitter_->addWidget(editor_widget);
         splitter_->addWidget(preview_);
@@ -174,7 +202,11 @@ protected:
             &QTextDocument::contentsChanged,
             this,
             [this] {
-                if (preview_ && preview_->isVisible()) reparseTimer_->start();
+                // In the contentsChanged connection:
+                if (preview_ && preview_->isVisible())
+                    reparseTimer_->start();
+                else
+                    previewStale_ = true;
             });
 
         connect(modeToggle_, &QToolButton::clicked, this, [this] {
@@ -185,15 +217,51 @@ protected:
         splitter_->setFocusProxy(editor_widget);
         reparse_();
 
+        // Mask the preview until QWebEngineView finishes its first load
+        // TODO: Watch/adjust this if we ever allow starting in a mode other
+        // than Split
+        /// TODO MU: BUG: Very first load of this view type still has jitter
+        /// (subsequent new tabs of this view type are fine and seem to be
+        /// covered by the mask appropriately - but that first app-wide load of
+        /// QWebEngineView must be raising the preview early)
+        previewMask_->setFixedSize(preview_->size());
+        previewMask_->raise();
+        previewMask_->show();
+
+        connect(
+            preview_->page(),
+            &QWebEnginePage::loadFinished,
+            this,
+            [this] { previewMask_->hide(); },
+            Qt::SingleShotConnection);
+
+        preview_->installEventFilter(this);
+
         return container_;
     }
 
     // Subclasses implement this to convert plain text to HTML for the preview
     virtual QString renderToHtml(const QString& plainText) const = 0;
 
+    virtual void showEvent(QShowEvent* event)
+    {
+        TextFileView::showEvent(event);
+
+        if (previewStale_ && preview_->isVisible()) {
+            previewStale_ = false;
+            reparse_();
+        }
+    }
+
     QWebEngineView* preview() const noexcept { return preview_; }
 
 private:
+    Time::Debouncer* reparseTimer_;
+
+    constexpr static int MIN_WIDGET_SIZE_ = 50;
+    bool firstParse_ = true;
+    bool previewStale_ = false;
+
     Mode mode_ = Split;
     QWidget* container_ = new QWidget(this);
     WidgetSnapshotOverlay* snapshotOverlay_ = new WidgetSnapshotOverlay(this);
@@ -201,15 +269,17 @@ private:
     QToolButton* modeToggle_ = new QToolButton(this);
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
     QWebEngineView* preview_ = new QWebEngineView(this);
-
-    Time::Debouncer* reparseTimer_ =
-        Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
-
-    constexpr static int MIN_WIDGET_SIZE_ = 50;
-    bool firstParse_ = true;
+    QWidget* previewMask_ = new QWidget(preview_);
+    Time::Debouncer* previewMaskTimer_ =
+        Time::newDebouncer(this, [this] { previewMask_->hide(); }, 250);
 
     static QString appFontFaceKit_();
 
+    /// TODO MU: BUG: Fountain seems to not return to correct scroll position.
+    /// Seems like sometimes it works, sometimes it doesn't, which just means
+    /// it's some random action causing it that I haven't identified yet. May or
+    /// may not also be the case for Markdown (don't see why it wouldn't be) but
+    /// haven't tested it as much
     void reparse_()
     {
         auto editor = this->editor();
@@ -217,15 +287,15 @@ private:
 
         auto html = renderToHtml(editor->document()->toPlainText());
 
-        html.replace(
-            QStringLiteral("</head>"),
-            QStringLiteral("<style>%1</style></head>").arg(appFontFaceKit_()));
-
         if (firstParse_) {
             firstParse_ = false;
-            preview_->setHtml(
-                html,
-                QUrl("qrc:/")); /// TODO MU: I am vaguely concerned about this
+
+            html.replace(
+                QStringLiteral("</head>"),
+                QStringLiteral("<style>%1</style></head>")
+                    .arg(appFontFaceKit_()));
+            /// TODO MU: I am vaguely concerned about this
+            preview_->setHtml(html, QUrl("qrc:/"));
 
             return;
         }
@@ -246,11 +316,19 @@ private:
         body_content.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
         body_content.replace(QStringLiteral("`"), QStringLiteral("\\`"));
 
-        preview_->page()->runJavaScript(
-            QStringLiteral(
-                "var scrollY = window.scrollY; document.body.innerHTML = `%1`; "
-                "window.scrollTo(0, scrollY);")
-                .arg(body_content));
+        // See:
+        // https://stackoverflow.com/questions/44145740/how-does-double-requestanimationframe-work
+        preview_->page()->runJavaScript(QStringLiteral(
+                                            R"(
+var lastScrollY = window.scrollY;
+document.body.innerHTML = `%1`;
+requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+        window.scrollTo(0, lastScrollY);
+    });
+});
+)")
+                                            .arg(body_content));
     }
 };
 

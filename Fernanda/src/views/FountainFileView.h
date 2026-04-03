@@ -26,28 +26,9 @@
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
 
-/// TODO MU: Rendering might be different for Markdown vs Fountain, although
-/// maybe not enough to warrant removing the abstract base. I think both could
-/// benefit from an edit/split/preview toggle (not with splitter like here, only
-/// splitter in split mode). Highland doesn't have split, but BetterFountain
-/// does, I think? We need to handle title page issues ourselves (display
-/// concern, not parser/renderer/paginator problem)
-
-/// TODO MU: Potentially find a js Fountain parser/render - something well
-/// tested and liked and used that?
-
-/// TODO MU: Could leave preview in this semi-flow paginated state and only do
-/// page stuff when drawing to PDF directly for print/export
-
-/// TODO MU: Extra title page space on the semi-flow is Fountain.h CSS. We could
-/// remove CSS from the Renderer entirely and leave that to the caller - kind of
-/// makes sense? Or, split rendering and html creation and allow a caller to
-/// only use HTML if they want. Could also provide two sets of CSS in Renderer -
-/// optional stuff (like padding on the title page) vs very important stuff
-/// (dialog padding)
-
 namespace Fernanda {
 
+/// TODO MU: Printing layout
 class FountainFileView : public AbstractMarkupFileView
 {
     Q_OBJECT
@@ -56,7 +37,9 @@ public:
     explicit FountainFileView(
         TextFileModel* fileModel,
         QWidget* parent = nullptr)
-        : AbstractMarkupFileView(fileModel, parent)
+        /// TODO MU: Even with 50, fast typing kinda chokes. If we improve
+        /// Fountain.h speed further, may be able to do 0 here, too
+        : AbstractMarkupFileView(fileModel, 50, parent)
     {
     }
 

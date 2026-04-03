@@ -32,7 +32,8 @@ public:
     explicit MarkdownFileView(
         TextFileModel* fileModel,
         QWidget* parent = nullptr)
-        : AbstractMarkupFileView(fileModel, parent)
+        // md4c doesn't need debouce
+        : AbstractMarkupFileView(fileModel, 0, parent)
     {
     }
 
