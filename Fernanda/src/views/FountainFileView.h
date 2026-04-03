@@ -21,7 +21,7 @@
 #include <QTextLine>
 #include <QWidget>
 
-#include <_fountain.h/fountain-html.h> /// TEMP
+#include <fountain-html.h>
 
 #include "core/Debug.h"
 #include "models/TextFileModel.h"

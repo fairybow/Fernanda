@@ -3,8 +3,6 @@
 
 # TODO: Non-Windows builds not yet tested
 
-### TEMP (search this tag - pull out fountain.h stuff later)
-
 cmake_minimum_required(VERSION 3.21)
 project(Fernanda LANGUAGES CXX C)
 
@@ -81,10 +79,6 @@ set(FERNANDA_SOURCES
     src/views/AbstractMarkupFileView.cpp
     src/views/TextFileView.cpp
     src/workspaces/Workspace.cpp
-
-    ### TEMP
-    src/_fountain.h/fountain.c
-    src/_fountain.h/fountain-html.c
 )
 
 if(APPLE)
@@ -200,10 +194,6 @@ set(FERNANDA_HEADERS
     src/workspaces/TrashPrompt.h
     src/workspaces/WorkingDir.h
     src/workspaces/Workspace.h
-
-    ### TEMP
-    src/_fountain.h/fountain.h
-    src/_fountain.h/fountain-html.h
 )
 
 # --- Coco (compiled as part of Fernanda) ---
@@ -280,6 +270,7 @@ endif()
 target_include_directories(Fernanda PRIVATE
     src
     submodules/Coco/Coco/include
+    submodules/fountain.h/fountain.h/include
     submodules/md4c/src
     submodules/md4c/md2html
     submodules/miniz
@@ -294,12 +285,14 @@ endif()
 
 # --- miniz (built from source via submodule) ---
 
+add_subdirectory(submodules/fountain.h/fountain.h EXCLUDE_FROM_ALL)
 add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
 add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
 
 # --- Linking ---
 
 target_link_libraries(Fernanda PRIVATE
+    fountain.h
     md4c
     md4c-html
     miniz
