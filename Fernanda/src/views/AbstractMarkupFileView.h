@@ -228,9 +228,7 @@ protected:
             preview_->page(),
             &QWebEnginePage::loadFinished,
             this,
-            [this] {
-                Time::delay(3000, this, [this] { previewMask_->hide(); });
-            },
+            [this] { previewMask_->hide(); },
             Qt::SingleShotConnection);
 
         preview_->installEventFilter(this);
