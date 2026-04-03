@@ -7,6 +7,3 @@
 [submodule "Fernanda/submodules/md4c"]
 	path = Fernanda/submodules/md4c
 	url = https://github.com/fairybow/Fernanda-md4c.git
-[submodule "Fernanda/submodules/Fountain.h"]
-	path = Fernanda/submodules/Fountain.h
-	url = https://github.com/fairybow/Fountain.h.git
