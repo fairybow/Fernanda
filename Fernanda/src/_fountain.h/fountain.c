@@ -711,10 +711,38 @@ static int fn_process_inline_line_(FN_CTX* ctx, const FN_CHAR* s,
     return 0;
 }
 
+/* True if the range contains any inline marker characters. */
+static int fn_has_inline_markers_(const FN_CHAR* s, FN_OFFSET beg, FN_OFFSET end)
+{
+    for (FN_OFFSET i = beg; i < end; i++) {
+        if (s[i] == '*' || s[i] == '_' || s[i] == '[') return 1;
+    }
+    return 0;
+}
+
 /* Process inline formatting for a (possibly multi-line) block of text.
  * Newlines within the text are emitted as FN_TEXT_SOFTBREAK. */
 static int fn_process_inline_(FN_CTX* ctx, FN_OFFSET beg, FN_OFFSET end)
 {
+    if (!fn_has_inline_markers_(ctx->text, beg, end)) {
+        /* Fast path: no markers, emit lines with softbreaks. */
+        FN_OFFSET line_beg = beg;
+        for (FN_OFFSET i = beg; i <= end; i++) {
+            if (i == end || ctx->text[i] == '\n') {
+                if (line_beg < i)
+                    CHECK(fn_text_(
+                        ctx,
+                        FN_TEXT_NORMAL,
+                        ctx->text + line_beg,
+                        i - line_beg));
+                if (i < end) CHECK(fn_text_(ctx, FN_TEXT_SOFTBREAK, NULL, 0));
+                line_beg = i + 1;
+            }
+        }
+        return 0;
+    }
+
+    /* Slow path */
     FN_OFFSET line_beg = beg;
 
     for (FN_OFFSET i = beg; i <= end; i++) {
