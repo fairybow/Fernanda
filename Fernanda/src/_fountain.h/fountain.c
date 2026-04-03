@@ -1179,6 +1179,11 @@ static int fn_parse_body_(FN_CTX* ctx, unsigned start_line)
         FN_OFFSET lend = ctx->lines[i].end;
         FN_SIZE llen = lend - lbeg;
 
+        int no_lower = -1;
+#define NO_LOWER_()                                                            \
+    (no_lower >= 0 ? no_lower                                                  \
+                   : (no_lower = fn_has_no_lowercase_(ctx->text, lbeg, lend)))
+
         /* ----- Lyrics ----- */
         if (llen > 0 && ctx->text[lbeg] == '~') {
             CHECK(fn_flush_all_dialogue_(ctx));
@@ -1491,12 +1496,9 @@ static int fn_parse_body_(FN_CTX* ctx, unsigned start_line)
         }
 
         /* ----- Transition (all-caps ending in "TO:") ----- */
-        if (newlines_before > 0
-            && fn_has_no_lowercase_(ctx->text, lbeg, lend)
-            && llen >= 3
-            && ctx->text[lend - 1] == ':'
-            && ctx->text[lend - 2] == 'O'
-            && ctx->text[lend - 3] == 'T') {
+        if (newlines_before > 0 && llen >= 3 && ctx->text[lend - 1] == ':'
+            && ctx->text[lend - 2] == 'O' && ctx->text[lend - 3] == 'T'
+            && NO_LOWER_()) {
             CHECK(fn_flush_all_dialogue_(ctx));
             CHECK(fn_emit_block_(ctx, FN_BLOCK_TRANSITION, NULL, lbeg, lend));
             ctx->last_block = FN_BLOCK_TRANSITION;
@@ -1558,7 +1560,7 @@ static int fn_parse_body_(FN_CTX* ctx, unsigned start_line)
         }
 
         /* ----- Character cue ----- */
-        if (newlines_before > 0
+        if (newlines_before > 0 && NO_LOWER_()
             && fn_matches_character_cue_(ctx->text, lbeg, lend)) {
             /* Only a character if next line is non-empty. */
             if (i + 1 < ctx->n_lines
@@ -1662,6 +1664,8 @@ static int fn_parse_body_(FN_CTX* ctx, unsigned start_line)
             newlines_before = 0;
             ctx->in_dialogue = 0;
         }
+
+        #undef NO_LOWER_
     }
 
     /* Flush any remaining dialogue state. */
