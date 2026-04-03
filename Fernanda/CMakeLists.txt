@@ -4,11 +4,14 @@
 # TODO: Non-Windows builds not yet tested
 
 cmake_minimum_required(VERSION 3.21)
-project(Fernanda LANGUAGES CXX)
+project(Fernanda LANGUAGES CXX C)
+
 set_property(GLOBAL PROPERTY VS_STARTUP_PROJECT Fernanda)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # --- Qt auto-processing ---
 
@@ -210,12 +213,6 @@ set(COCO_HEADERS
     submodules/Coco/Coco/include/Coco/Utility.h
 )
 
-# --- Fountain.h (compiled as part of Fernanda) ---
-
-set(FOUNTAIN_H_HEADER
-    submodules/Fountain.h/include/Fountain.h
-)
-
 # --- Resources ---
 
 set(FERNANDA_RESOURCES
@@ -244,7 +241,6 @@ qt_add_executable(Fernanda ${PLATFORM_EXE_FLAGS}
     ${FERNANDA_HEADERS}
     ${COCO_SOURCES}
     ${COCO_HEADERS}
-    ${FOUNTAIN_H_HEADER}
     ${FERNANDA_RESOURCES}
 )
 
@@ -274,7 +270,7 @@ endif()
 target_include_directories(Fernanda PRIVATE
     src
     submodules/Coco/Coco/include
-    submodules/Fountain.h/include
+    submodules/fountain.h/fountain.h/include
     submodules/md4c/src
     submodules/md4c/md2html
     submodules/miniz
@@ -289,12 +285,14 @@ endif()
 
 # --- miniz (built from source via submodule) ---
 
+add_subdirectory(submodules/fountain.h/fountain.h EXCLUDE_FROM_ALL)
 add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
 add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
 
 # --- Linking ---
 
 target_link_libraries(Fernanda PRIVATE
+    fountain_h
     md4c
     md4c-html
     miniz
