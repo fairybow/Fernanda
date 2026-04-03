@@ -168,7 +168,8 @@ typedef struct FN_BLOCK_SECTION_HEADING_DETAIL {
 typedef enum FN_SPANTYPE {
     FN_SPAN_EMPHASIS,       /* *italic* */
     FN_SPAN_STRONG,         /* **bold** */
-    FN_SPAN_UNDERLINE       /* _underline_ */
+    FN_SPAN_UNDERLINE,      /* _underline_ */
+    FN_SPAN_NOTE            /* [[note]] -- only emitted when FN_FLAG_NOTES is set */
 } FN_SPANTYPE;
 
 
@@ -179,18 +180,15 @@ typedef enum FN_SPANTYPE {
 typedef enum FN_TEXTTYPE {
     /* Normal text content. Fountain control characters have been stripped;
      * the text is otherwise unmodified (no HTML escaping, no case changes).
-     * Inline [[notes]] are silently removed unless FN_FLAG_NOTES is set. */
+     * Inline [[notes]] are silently removed unless FN_FLAG_NOTES is set,
+     * in which case note content is delivered as FN_TEXT_NORMAL between
+     * enter_span(FN_SPAN_NOTE) and leave_span(FN_SPAN_NOTE). */
     FN_TEXT_NORMAL = 0,
 
     /* A line break within a block (e.g., multi-line dialogue or action).
      * The consumer may render this as <br>, a literal newline, or ignore it
      * depending on the output format. No text content accompanies this. */
-    FN_TEXT_SOFTBREAK,
-
-    /* Text content inside an inline [[note]]. Only emitted when
-     * FN_FLAG_NOTES is set. Delivered between enter_span(FN_SPAN_NOTE) and
-     * leave_span(FN_SPAN_NOTE). */
-    FN_TEXT_NOTE
+    FN_TEXT_SOFTBREAK
 } FN_TEXTTYPE;
 
 
