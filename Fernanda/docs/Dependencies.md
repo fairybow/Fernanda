@@ -36,4 +36,4 @@ Fernanda uses a [fork](https://github.com/fairybow/Fernanda-md4c) as a Git submo
 
 ## Fountain.h
 
-[Fountain.h](https://github.com/fairybow/Fountain.h) is a C++ Fountain parsing/rendering "library" made for Fernanda and spun-off for general use.
+[Fountain.h](https://github.com/fairybow/Fountain.h) is a C++ Fountain parsing/rendering library made for Fernanda and spun-off for general use.

@@ -49,8 +49,14 @@ public:
 
     explicit AbstractMarkupFileView(
         TextFileModel* fileModel,
+        int reparseDebounce,
         QWidget* parent = nullptr)
         : TextFileView(fileModel, parent)
+        , reparseTimer_(
+              Time::newDebouncer(
+                  this,
+                  &AbstractMarkupFileView::reparse_,
+                  reparseDebounce))
     {
     }
 
@@ -231,6 +237,12 @@ protected:
     QWebEngineView* preview() const noexcept { return preview_; }
 
 private:
+    Time::Debouncer* reparseTimer_;
+
+    constexpr static int MIN_WIDGET_SIZE_ = 50;
+    bool firstParse_ = true;
+    bool previewStale_ = false;
+
     Mode mode_ = Split;
     QWidget* container_ = new QWidget(this);
     WidgetSnapshotOverlay* snapshotOverlay_ = new WidgetSnapshotOverlay(this);
@@ -239,21 +251,16 @@ private:
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
     QWebEngineView* preview_ = new QWebEngineView(this);
     QWidget* previewResizeMask_ = new QWidget(preview_);
-
-    /// TODO MU: Fountain parser needs to be faster or we make this a ctor arg
-    /// for subclasses (or both). Could try switching to C and avoiding regex
-    /// altogether (md4c does 50 ms debounce well - Fountain.h does not!)
-    Time::Debouncer* reparseTimer_ =
-        Time::newDebouncer(this, &AbstractMarkupFileView::reparse_, 250);
     Time::Debouncer* resizeHideTimer_ =
         Time::newDebouncer(this, [this] { previewResizeMask_->hide(); }, 250);
 
-    constexpr static int MIN_WIDGET_SIZE_ = 50;
-    bool firstParse_ = true;
-    bool previewStale_ = false;
-
     static QString appFontFaceKit_();
 
+    /// TODO MU: BUG: Fountain seems to not return to correct scroll position.
+    /// Seems like sometimes it works, sometimes it doesn't, which just means
+    /// it's some random action causing it that I haven't identified yet. May or
+    /// may not also be the case for Markdown (don't see why it wouldn't be) but
+    /// haven't tested it as much
     void reparse_()
     {
         auto editor = this->editor();

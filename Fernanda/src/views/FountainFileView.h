@@ -46,7 +46,7 @@ public:
     explicit FountainFileView(
         TextFileModel* fileModel,
         QWidget* parent = nullptr)
-        : AbstractMarkupFileView(fileModel, parent)
+        : AbstractMarkupFileView(fileModel, 50, parent)
     {
     }
 
