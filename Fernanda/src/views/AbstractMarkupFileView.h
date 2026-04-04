@@ -253,6 +253,10 @@ protected:
 
     virtual QStringView css() const = 0;
     virtual QStringList htmlBlocks(const QString& plainText) const = 0;
+
+    /// TODO MU: Consider restructuring Fountain CSS and removing. These are
+    /// kind of just suppoting a holdover (article/section tags) from original's
+    /// CSS
     virtual QString bodyPrefix() const { return {}; }
     virtual QString bodySuffix() const { return {}; }
 
