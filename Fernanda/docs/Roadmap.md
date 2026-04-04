@@ -2,6 +2,8 @@
 
 ## Current
 
+- [ ] Clang rule to always use brackets on if/while statements, even single line, UNLESS that single line would not wrap (e.g. this is fine: `if (0) ++i;`)
+- [ ] setCursor(Qt::PointingHandCursor) for other buttons
 - [ ] Highlight/Q_PROPERTY for all buttons (before tackling window style/themes)
 - [ ] Better refresh button for word counter
 - [ ] Better mode switch for markup file view
