@@ -89,6 +89,8 @@ public:
         handleFileArgs_(args);
 
         initialized_ = true;
+        INFO(this, "Initialized");
+        INFO("Version: {}", applicationVersion());
     }
 
 public slots:
