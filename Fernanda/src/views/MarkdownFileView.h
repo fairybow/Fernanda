@@ -155,7 +155,95 @@ blockquote, pre, table, ul, ol, hr {
             MD_FLAG_TABLES | MD_FLAG_STRIKETHROUGH | MD_FLAG_TASKLISTS,
             0);
 
-        return { QString::fromUtf8(output) };
+        return splitMdHtml_(QString::fromUtf8(output));
+    }
+
+private:
+    /// TODO MU: Clean-up/review
+    static QStringList splitMdHtml_(const QString& html)
+    {
+        struct Block
+        {
+            int start; // index of '<' that opens this block
+            int injectAt; // index right after tag name
+            int end; // past-the-end index of this block
+        };
+
+        QVector<Block> found;
+        const int len = html.size();
+        int depth = 0;
+        int i = 0;
+
+        while (i < len) {
+            if (html[i] != QLatin1Char('<')) {
+                i++;
+                continue;
+            }
+
+            bool closing = (i + 1 < len && html[i + 1] == QLatin1Char('/'));
+            int nameStart = closing ? i + 2 : i + 1;
+            int nameEnd = nameStart;
+
+            while (nameEnd < len) {
+                QChar c = html[nameEnd];
+                if (c == QLatin1Char(' ') || c == QLatin1Char('>')
+                    || c == QLatin1Char('/') || c == QLatin1Char('\n'))
+                    break;
+                nameEnd++;
+            }
+
+            int gt = nameEnd;
+            while (gt < len && html[gt] != QLatin1Char('>'))
+                gt++;
+            if (gt >= len) break;
+
+            auto name = QStringView(html).mid(nameStart, nameEnd - nameStart);
+
+            bool isVoid = name.compare(u"hr", Qt::CaseInsensitive) == 0
+                          || name.compare(u"br", Qt::CaseInsensitive) == 0
+                          || name.compare(u"img", Qt::CaseInsensitive) == 0
+                          || name.compare(u"input", Qt::CaseInsensitive) == 0;
+
+            if (closing) {
+                i = gt + 1;
+                depth--;
+                if (depth == 0 && !found.isEmpty()) {
+                    int end = i;
+                    while (end < len && html[end] == QLatin1Char('\n'))
+                        end++;
+                    found.last().end = end;
+                }
+            } else if (isVoid) {
+                if (depth == 0) {
+                    int end = gt + 1;
+                    while (end < len && html[end] == QLatin1Char('\n'))
+                        end++;
+                    found.append({ i, nameEnd, end });
+                }
+                i = gt + 1;
+            } else {
+                if (depth == 0) found.append({ i, nameEnd, -1 });
+                depth++;
+                i = gt + 1;
+            }
+        }
+
+        QStringList blocks;
+        blocks.reserve(found.size());
+        int idx = 0;
+
+        for (const auto& b : found) {
+            if (b.end < 0) continue;
+
+            QString block;
+            block.reserve(b.end - b.start + 20);
+            block.append(QStringView(html).mid(b.start, b.injectAt - b.start));
+            block.append(QStringLiteral(" data-idx='%1'").arg(idx++));
+            block.append(QStringView(html).mid(b.injectAt, b.end - b.injectAt));
+            blocks.append(std::move(block));
+        }
+
+        return blocks;
     }
 };
 
