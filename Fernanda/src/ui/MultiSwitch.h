@@ -149,8 +149,6 @@ private:
     {
         index_ = startingIndex;
 
-        // setFocusPolicy(Qt::NoFocus); // Can set this to avoid button-like
-        // bounce
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         setCursor(Qt::PointingHandCursor);
 

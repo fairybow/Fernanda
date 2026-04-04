@@ -317,6 +317,12 @@ namespace Tr {
     TR_(settingsTitle, tr("Settings"));
     TR_(settingsTitleFormat, tr("%0 Settings"));
 
+    /// Markup Preview Switch
+
+    TR_(previewEdit, tr("Edit"));
+    TR_(previewSplit, tr("Split"));
+    TR_(previewPreview, tr("Preview"));
+
 } // namespace Tr
 
 } // namespace Fernanda

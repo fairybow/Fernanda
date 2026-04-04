@@ -29,6 +29,7 @@
 #include <QWidget>
 
 #include "core/Time.h"
+#include "core/Tr.h"
 #include "models/TextFileModel.h"
 #include "ui/MultiSwitch.h"
 #include "ui/WidgetSnapshotOverlay.h"
@@ -122,7 +123,7 @@ protected:
 
         // Layout
         auto mode_bar_layout = new QHBoxLayout(modeBar_);
-        mode_bar_layout->setContentsMargins(4, 4, 4, 4);
+        mode_bar_layout->setContentsMargins(5, 5, 5, 5);
         mode_bar_layout->setSpacing(0);
         mode_bar_layout->addStretch();
         mode_bar_layout->addWidget(modeSwitch_, 0);
@@ -250,12 +251,10 @@ private:
     QWidget* container_ = new QWidget(this);
     WidgetSnapshotOverlay* snapshotOverlay_ = new WidgetSnapshotOverlay(this);
     QWidget* modeBar_ = new QWidget(this);
-    MultiSwitch* modeSwitch_ = new MultiSwitch(
-        { QStringLiteral("Edit"),
-          QStringLiteral("Split"),
-          QStringLiteral("Preview") },
+    MultiSwitch* modeSwitch_ = new MultiSwitch( /// TODO MU: Icons?
+        { Tr::previewEdit(), Tr::previewSplit(), Tr::previewPreview() },
         1,
-        this); /// TODO MU: Icons or Tr strings
+        this);
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
     QWebEngineView* preview_ = new QWebEngineView(this);
     QWidget* previewMask_ = new QWidget(preview_);
