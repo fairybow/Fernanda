@@ -76,6 +76,29 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.14 (Testing / Soft Release) - tag v0.99.0-beta.14
+
+## What's New?
+
+**Markup preview.** Markdown and [Fountain](https://fountain.io) (screenplay) files now open in a split editor with a live-rendered preview panel. A mode toggle cycles between Split, Edit, and Preview. The preview uses incremental DOM patching: on each reparse, only changed blocks are updated via JavaScript `outerHTML` assignment, with a full `innerHTML` fallback when block count changes. Rendering is powered by `QWebEngineView` (Chromium) for full CSS support. `QWebEngineView`'s unavoidable visual stutter in transitional states and during resizing is mostly masked via utility overlay widgets (with the exception of an initial flicker on its very first use)
+
+**New dependencies.** [md4c](https://github.com/mity/md4c) (v0.5.2, C Markdown parser) and [fountain.h](https://github.com/fairybow/fountain.h) (C Fountain parser/renderer). Qt WebEngine is now required (along with Qt Position and Qt WebChannel). CMake project language list expanded to include C (C99)
+
+**Courier Prime bundled.** The Courier Prime font family ships with Fernanda (available in the font picker and used as the display font for Fountain preview)
+
+**File type detection at model creation.** `TextFileModel` now resolves its `FileTypes::Kind` from the file path at construction (via `FileTypes::fromPath`) instead of always defaulting to `PlainText`. Added `.markdown` (alongside existing `.md`), `.html`, and `.htm` extensions to `FileTypes`
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Zoom controls: no scroll/content position realignment on zoom change yet; no panning support yet
+- Markup file previews flicker on very first load
+
+---
+
 # 0.99.0-beta.13 (Testing / Soft Release) - tag v0.99.0-beta.13
 
 ## What's New?

@@ -21,13 +21,14 @@ Fernanda is a plain-text-first workbench for creative writing. Work on single fi
 
 Fernanda offers two workspace types: a **Notepad** for working directly on the OS filesystem and **Notebooks** for organizing whole projects inside a single, portable `.fnx` archive. Both support multiple windows, tabbed editing, and drag-and-drop.
 
-- Distraction-free editor with line numbers, current line highlight, and selection handles
+- Distraction-free editor with line numbers, current line highlight, and selection handles (all togglable)
 - Key filters for auto-close, smart quotes, and other typing enhancements
 - Notebook file management with virtual folders, drag-and-drop tree, import, and a soft-delete trash system
 - Editor themes (and user theme support via `~/.fernanda/themes` with hot reload)
 - Cascading settings: per-Notebook settings inherit from Notepad defaults
-- Word counter with selection-aware counting and adaptive performance
+- Word counter with selection-aware counting and adaptive performance (togglable)
 - PDF and image viewing
+- Markdown and [Fountain](https://fountain.io) editing/viewing
 
 See [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md) for the full list.
 

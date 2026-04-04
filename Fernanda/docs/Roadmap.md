@@ -2,6 +2,10 @@
 
 ## Current
 
+- [ ] Better refresh button for word counter
+- [ ] Better mode switch for markup file view
+- [ ] "New file" overflow with Markdown and Fountain options
+- [ ] Add Tab context menu with the overflow options ^
 - [ ] drop `auto` ???
 - [ ] AbsMarkupFileView mode bar needs visual distinction on bottom and maybe top, like a thin line
 - [ ] ^ mode toggle needs icons

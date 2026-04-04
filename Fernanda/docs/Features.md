@@ -11,6 +11,7 @@ Shared capabilities:
 - Multiple windows per workspace
 - Open the same file in multiple tabs and windows (edits persist across all views)
 - PDF and image viewing
+- Markdown and [Fountain](https://fountain.io) editing/viewing
 - Dockable Tree View
 - Tiered settings (Notebook settings inherit from Notepad when unset, falling back to application defaults)
 - Recovery autosave and automatic backups
