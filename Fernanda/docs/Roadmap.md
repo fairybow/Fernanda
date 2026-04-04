@@ -166,7 +166,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [x] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
 - [ ] Ensure we are using terms around checkable items correctly in code (the term "toggle" is being used in a few different ways; checkable actions should be called checkables or similar)
 - [ ] Make sure the distinction/usage between prompt, dialog, and box is clear
-- [ ] Refactor save code in Notepad and Notebook
+- [x] Refactor save code in Notepad and Notebook
 - [ ] Refactor common context menu items / TreeView hookup between Notepad and Notebook
 - [ ] Notepad context menu (with rename, remove, collapse, expand, and anything else Notebook has that could apply)
 - [ ] Renaming an open Notebook file in Notepad's TreeView: the Notebook works from its temp directory, so it is not broken immediately. The next save creates a file at the old path. No data loss, just a confusing orphaned file. Fix later.

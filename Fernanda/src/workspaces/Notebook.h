@@ -19,12 +19,10 @@
 #include <QDockWidget>
 #include <QDomDocument>
 #include <QDomElement>
-#include <QLabel> // TODO: Temp
 #include <QList>
 #include <QModelIndex>
 #include <QModelIndexList>
 #include <QObject>
-#include <QPalette> // TODO: Temp
 #include <QPoint>
 #include <QSet>
 #include <QSplitter>
@@ -59,6 +57,7 @@
 #include "ui/Window.h"
 #include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
+#include "workspaces/NotebookColorChip.h"
 #include "workspaces/NotebookLockfile.h"
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
@@ -118,6 +117,7 @@ public:
     }
 
     Coco::Path fnxPath() const noexcept { return fnxPath_; }
+    QString name() const { return fnxPath_.nameQString(); }
 
     virtual bool tryQuit() override
     {
@@ -296,7 +296,7 @@ private:
                 newFile_(window);
             });
 
-        windows->setSubtitle(fnxPath_.nameQString());
+        windows->setSubtitle(name());
         updateWindowsFlags_();
 
         // Recovery, extraction, or creation
@@ -316,7 +316,7 @@ private:
             // all file UUIDs have corresponding files, etc.)
         }
 
-        settings->setName(fnxPath_.nameQString());
+        settings->setName(name());
         settings->setOverrideConfigPath(
             working_dir_path
             / "Settings.ini"); // This needs to be after extraction!
@@ -344,7 +344,9 @@ private:
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, [this](Window* window) {
-            // addWorkspaceIndicator_(window);
+            if (!window) return;
+            window->statusBar()->addPermanentWidget(
+                new NotebookColorChip(name()));
         });
 
         connect(
@@ -610,23 +612,6 @@ private:
 
     void updateWindowsFlags_() { windows->setFlagged(isModified_()); }
 
-    // TODO: Some way to indicate an individual Workspace visually
-    void addWorkspaceIndicator_(Window* window)
-    {
-        if (!window) return;
-
-        // TODO: Temp
-        auto status_bar = window->statusBar();
-        if (!status_bar) return; // Shouldn't happen
-        auto temp_label = new QLabel;
-        temp_label->setAutoFillBackground(true);
-        QPalette palette = temp_label->palette();
-        palette.setColor(QPalette::Window, QColor(Qt::cyan));
-        temp_label->setPalette(palette);
-        temp_label->setText("Name on open: " + fnxPath_.nameQString());
-        status_bar->addPermanentWidget(temp_label);
-    }
-
     struct MultiSaveResult_
     {
         QList<AbstractFileModel*> failed{};
@@ -833,7 +818,7 @@ private:
 
         if (saved_as) {
             fnxPath_ = path;
-            windows->setSubtitle(fnxPath_.nameQString());
+            windows->setSubtitle(name());
         }
 
         fnxModel_->resetSnapshot();
@@ -874,7 +859,7 @@ private:
         clearRecoveryState_(); /// TODO BA
 
         fnxPath_ = new_path;
-        windows->setSubtitle(fnxPath_.nameQString());
+        windows->setSubtitle(name());
 
         fnxModel_->resetSnapshot();
         updateWindowsFlags_();
