@@ -14,6 +14,10 @@ QStringList list;   // No
 QStringList list{}; // Yes
 ```
 
+#### Constructors
+
+Pretty much always put ctor setup logic in a separate, private method called `setup_`.
+
 ### Includes
 
 Always use the full relative path from `src/` for first-party includes, even when the files are in the same folder. For example, `Debug.cpp` should include `"core/Debug.h"`, not `"Debug.h"`.

@@ -34,6 +34,8 @@
 // unsaved changes, supporting both single and multiple file (with selection)
 namespace Fernanda::SavePrompt {
 
+using namespace Qt::StringLiterals;
+
 enum Choice
 {
     Cancel,
@@ -46,11 +48,11 @@ inline QString toQString(Choice choice) noexcept
     switch (choice) {
     default:
     case Cancel:
-        return QStringLiteral("SavePrompt::Cancel");
+        return u"SavePrompt::Cancel"_s;
     case Save:
-        return QStringLiteral("SavePrompt::Save");
+        return u"SavePrompt::Save"_s;
     case Discard:
-        return QStringLiteral("SavePrompt::Discard");
+        return u"SavePrompt::Discard"_s;
     }
 }
 

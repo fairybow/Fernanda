@@ -40,6 +40,8 @@
 
 namespace Fernanda::Qss {
 
+using namespace Qt::StringLiterals;
+
 inline QString render(
     const QString& templateStyleSheet,
     const QHash<QString, QString>& assignments)
@@ -56,7 +58,7 @@ inline QString render(
 
         // A global default declaration is a line with just `varName|value` (no
         // `{{`/`}}`)
-        if (!line.contains(QStringLiteral("{{"))) {
+        if (!line.contains(u"{{"_s)) {
             auto global_default_match = global_default_re.match(line);
 
             if (global_default_match.hasMatch()) {
@@ -95,9 +97,8 @@ inline QString render(
             auto inline_fallback = match.captured(2); // Empty if no `|`
 
             // Handle deliberately empty fallback (`{{var|}}`)
-            auto has_inline_fallback =
-                match.capturedLength(2) > 0
-                || match.captured(0).contains(QStringLiteral("|}}"));
+            auto has_inline_fallback = match.capturedLength(2) > 0
+                                       || match.captured(0).contains(u"|}}"_s);
 
             QString value{};
 

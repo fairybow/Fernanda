@@ -26,6 +26,8 @@
 /// TODO BA
 namespace Fernanda::NotepadRecovery {
 
+using namespace Qt::StringLiterals;
+
 struct Entry
 {
     QByteArray buffer{};
@@ -38,12 +40,12 @@ struct Entry
 
 namespace Internal {
 
-    inline const auto PATH_KEY_ = QStringLiteral("path=");
-    inline const auto TITLE_KEY_ = QStringLiteral("title=");
+    inline const auto PATH_KEY_ = u"path="_s;
+    inline const auto TITLE_KEY_ = u"title="_s;
 
-    inline const auto BUFFER_NAME_ = QStringLiteral("buffer");
-    inline const auto META_NAME_ = QStringLiteral("meta");
-    inline const auto OFF_DISK_PREFIX_ = QStringLiteral("off-disk~");
+    inline const auto BUFFER_NAME_ = u"buffer"_s;
+    inline const auto META_NAME_ = u"meta"_s;
+    inline const auto OFF_DISK_PREFIX_ = u"off-disk~"_s;
 
     inline Entry read_(const Coco::Path& entryDir)
     {
@@ -93,8 +95,8 @@ inline void write(
 
     // Metadata
     QString meta{};
-    meta += Internal::PATH_KEY_ + originalPath.toQString() + "\n";
-    meta += Internal::TITLE_KEY_ + title + "\n";
+    meta += Internal::PATH_KEY_ + originalPath.toQString() + u"\n"_s;
+    meta += Internal::TITLE_KEY_ + title + u"\n"_s;
     Io::write(meta.toUtf8(), entryDir / Internal::META_NAME_);
 }
 

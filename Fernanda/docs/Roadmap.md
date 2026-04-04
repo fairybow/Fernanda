@@ -2,6 +2,7 @@
 
 ## Current
 
+- [ ] Highlight/Q_PROPERTY for all buttons (before tackling window style/themes)
 - [ ] Better refresh button for word counter
 - [ ] Better mode switch for markup file view
 - [ ] "New file" overflow with Markdown and Fountain options
