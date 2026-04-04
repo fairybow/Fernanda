@@ -24,13 +24,14 @@
 #include <QStringList>
 #include <QStringView>
 #include <QTextDocument>
-#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWebEngineView>
 #include <QWidget>
 
 #include "core/Time.h"
+#include "core/Tr.h"
 #include "models/TextFileModel.h"
+#include "ui/MultiSwitch.h"
 #include "ui/WidgetSnapshotOverlay.h"
 #include "views/MarkupPreviewPage.h"
 #include "views/MarkupWebcode.h"
@@ -38,8 +39,6 @@
 
 namespace Fernanda {
 
-/// TODO MU: I'd maybe like a 3-way toggle switch instead of cycling labels and
-/// functionality
 /// TODO MU: Scroll lock
 /// TODO MU: Preview auto-scroll for new content added (like a soft scroll lock
 /// while typing at the end of the page)
@@ -50,8 +49,8 @@ class AbstractMarkupFileView : public TextFileView
 public:
     enum Mode
     {
-        Split = 0,
-        Edit,
+        Edit = 0,
+        Split,
         Preview
     };
 
@@ -77,74 +76,8 @@ public:
 
     void setMode(Mode mode)
     {
-        if (!splitter_ || !preview_) return;
-
-        // During the transition, QWebEngineView will look really jank. This is
-        // unavoidable. What we can do, though, is hide the transition using a
-        // screenshot of the widgets' prior states while they transition to the
-        // next. NB: We want to avoid calling setMode in setupWidget, otherwise,
-        // we'll get a broken screengrab visible on first display
-        snapshotOverlay_->captureAndShow(container_);
-
-        mode_ = mode;
-        auto editor = this->editor();
-
-        switch (mode) {
-
-            // Until we have icons, use space padding to keep button roughly the
-            // same size
-
-        default:
-        case Split:
-            // TODO: Better way to manage button icon/text state based on the
-            // cycle?
-            modeToggle_->setText("Preview"); /// TODO MU: Temp
-            editor->show();
-            preview_->show();
-            splitter_->setFocusProxy(editor);
-            break;
-
-        case Preview:
-            modeToggle_->setText("Edit   "); /// TODO MU: Temp
-            editor->hide();
-            preview_->show();
-            splitter_->setFocusProxy(preview_);
-            break;
-
-        case Edit:
-            modeToggle_->setText("Split  "); /// TODO MU: Temp
-            editor->show();
-            preview_->hide();
-            splitter_->setFocusProxy(editor);
-            break;
-        }
-
-        if (mode != Edit) reparse_();
-
-        // We need a value that is short enough to not be ridiculous but long
-        // enough to cover us in case the web document is large...
-        // NB: This doesn't really work in debug (only release), because
-        // QWebEngineView takes too long to load
-        Time::delay(250, this, [this] { snapshotOverlay_->hideOverlay(); });
-    }
-
-    void cycleMode()
-    {
-        switch (mode_) {
-
-        default:
-        case Split:
-            setMode(Preview);
-            break;
-
-        case Preview:
-            setMode(Edit);
-            break;
-
-        case Edit:
-            setMode(Split);
-            break;
-        }
+        modeSwitch_->setIndex(static_cast<int>(mode));
+        applyMode_(mode);
     }
 
     virtual bool eventFilter(QObject* watched, QEvent* event) override
@@ -163,13 +96,6 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
-        modeBar_->setFixedHeight(28);
-
-        // Since we start in split (handle this better/dynamically without
-        // calling setMode, eventually):
-        modeToggle_->setText("Preview"); /// TODO MU: Temp
-        modeToggle_->setFixedHeight(22);
-
         auto editor_widget = TextFileView::setupWidget();
         editor_widget->setMinimumWidth(MIN_WIDGET_SIZE_);
 
@@ -197,9 +123,10 @@ protected:
 
         // Layout
         auto mode_bar_layout = new QHBoxLayout(modeBar_);
-        mode_bar_layout->setContentsMargins(2, 2, 2, 2);
+        mode_bar_layout->setContentsMargins(5, 5, 5, 5);
         mode_bar_layout->setSpacing(0);
-        mode_bar_layout->addWidget(modeToggle_, 0);
+        mode_bar_layout->addStretch();
+        mode_bar_layout->addWidget(modeSwitch_, 0);
         mode_bar_layout->addStretch();
 
         auto container_layout = new QVBoxLayout(container_);
@@ -220,9 +147,11 @@ protected:
                     previewStale_ = true;
             });
 
-        connect(modeToggle_, &QToolButton::clicked, this, [this] {
-            cycleMode();
-        });
+        connect(
+            modeSwitch_,
+            &MultiSwitch::indexChanged,
+            this,
+            [this](int index) { applyMode_(static_cast<Mode>(index)); });
 
         // Can't call setMode to start (see setMode note)
         splitter_->setFocusProxy(editor_widget);
@@ -310,8 +239,6 @@ protected:
         if (warmupMask_) warmupMask_->setFixedSize(size());
     }
 
-    // QWebEngineView* preview() const noexcept { return preview_; }
-
 private:
     Time::Debouncer* reparseTimer_;
 
@@ -324,7 +251,10 @@ private:
     QWidget* container_ = new QWidget(this);
     WidgetSnapshotOverlay* snapshotOverlay_ = new WidgetSnapshotOverlay(this);
     QWidget* modeBar_ = new QWidget(this);
-    QToolButton* modeToggle_ = new QToolButton(this);
+    MultiSwitch* modeSwitch_ = new MultiSwitch( /// TODO MU: Icons?
+        { Tr::previewEdit(), Tr::previewSplit(), Tr::previewPreview() },
+        1,
+        this);
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
     QWebEngineView* preview_ = new QWebEngineView(this);
     QWidget* previewMask_ = new QWidget(preview_);
@@ -335,6 +265,51 @@ private:
     QWidget* warmupMask_ = nullptr;
 
     static QString appFontFaceKit_();
+
+    void applyMode_(Mode mode)
+    {
+        if (mode == mode_) return;
+
+        // During the transition, QWebEngineView will look really jank. This is
+        // unavoidable. What we can do, though, is hide the transition using a
+        // screenshot of the widgets' prior states while they transition to the
+        // next. NB: We want to avoid calling setMode in setupWidget, otherwise,
+        // we'll get a broken screengrab visible on first display
+        snapshotOverlay_->captureAndShow(container_);
+
+        mode_ = mode;
+        auto editor = this->editor();
+
+        switch (mode) {
+
+        default:
+        case Split:
+            editor->show();
+            preview_->show();
+            splitter_->setFocusProxy(editor);
+            break;
+
+        case Preview:
+            editor->hide();
+            preview_->show();
+            splitter_->setFocusProxy(preview_);
+            break;
+
+        case Edit:
+            editor->show();
+            preview_->hide();
+            splitter_->setFocusProxy(editor);
+            break;
+        }
+
+        if (mode != Edit) reparse_();
+
+        // We need a value that is short enough to not be ridiculous but long
+        // enough to cover us in case the web document is large...
+        // NB: This doesn't really work in debug (only release), because
+        // QWebEngineView takes too long to load
+        Time::delay(250, this, [this] { snapshotOverlay_->hideOverlay(); });
+    }
 
     // Incremental DOM patching
     //

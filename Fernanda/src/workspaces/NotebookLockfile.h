@@ -25,6 +25,8 @@
 /// TODO BA
 namespace Fernanda::NotebookLockfile {
 
+using namespace Qt::StringLiterals;
+
 struct Entry
 {
     Coco::Path fnxPath{};
@@ -32,13 +34,13 @@ struct Entry
     QSet<QString> dirtyUuids{};
 };
 
-inline const auto EXT = QStringLiteral(".lock");
+inline const auto EXT = u".lock"_s;
 
 namespace Internal {
 
-    inline const auto FNX_KEY_ = QStringLiteral("fnx=");
-    inline const auto DIR_KEY_ = QStringLiteral("working_dir=");
-    inline const auto DIRTY_KEY_ = QStringLiteral("dirty_uuids=");
+    inline const auto FNX_KEY_ = u"fnx="_s;
+    inline const auto DIR_KEY_ = u"working_dir="_s;
+    inline const auto DIRTY_KEY_ = u"dirty_uuids="_s;
 
     inline QByteArray toData_(
         const Coco::Path& fnxPath,
@@ -46,11 +48,11 @@ namespace Internal {
         const QSet<QString>& dirtyUuids)
     {
         QString content{};
-        content += FNX_KEY_ + fnxPath.toQString() + "\n";
-        content += DIR_KEY_ + workingDirPath.toQString() + "\n";
+        content += FNX_KEY_ + fnxPath.toQString() + u"\n"_s;
+        content += DIR_KEY_ + workingDirPath.toQString() + u"\n"_s;
         content += DIRTY_KEY_
                    + QStringList(dirtyUuids.begin(), dirtyUuids.end()).join(',')
-                   + "\n";
+                   + u"\n"_s;
         return content.toUtf8();
     }
 
@@ -113,7 +115,7 @@ inline QList<Entry> readAll(const Coco::Path& recoveryDir)
     QList<Entry> entries{};
     if (!recoveryDir.exists()) return entries;
 
-    for (auto& path : Coco::filePaths({ recoveryDir }, { "*" + EXT })) {
+    for (auto& path : Coco::filePaths({ recoveryDir }, { u"*"_s + EXT })) {
         entries << Internal::read_(path);
     }
 

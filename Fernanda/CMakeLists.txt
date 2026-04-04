@@ -129,7 +129,6 @@ set(FERNANDA_HEADERS
     src/modules/StyleContext.h
     src/modules/StyleModule.h
     src/modules/Themes.h
-    src/modules/WordCounter.h
     src/modules/WordCounterModule.h
 
     src/services/AbstractService.h
@@ -156,6 +155,7 @@ set(FERNANDA_HEADERS
     src/ui/DisplaySlider.h
     src/ui/DrawerWidget.h
     src/ui/DrawerWidgetHeader.h
+    src/ui/MultiSwitch.h
     src/ui/Painting.h
     src/ui/PlainTextEdit.h
     src/ui/SelectionHandleOverlay.h
@@ -168,6 +168,7 @@ set(FERNANDA_HEADERS
     src/ui/TreeView.h
     src/ui/WidgetSnapshotOverlay.h
     src/ui/Window.h
+    src/ui/WordCounter.h
     src/ui/ZoomControl.h
 
     src/views/AbstractFileView.h

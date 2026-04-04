@@ -18,10 +18,10 @@
 #include <QStatusBar>
 
 #include "core/Debug.h"
-#include "modules/WordCounter.h"
 #include "services/AbstractService.h"
 #include "settings/Ini.h"
 #include "ui/Window.h"
+#include "ui/WordCounter.h"
 #include "views/TextFileView.h"
 #include "workspaces/Bus.h"
 

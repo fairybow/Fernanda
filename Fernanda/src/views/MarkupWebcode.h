@@ -17,30 +17,40 @@
 
 namespace Fernanda::MarkupWebcode {
 
+using namespace Qt::StringLiterals;
+
 inline QString
 htmlDoc(const QString& fontFaceKit, QStringView css, const QString& body)
 {
-    static const auto s = QStringLiteral(
-        "<html><head><style>%1%2</style></head>"
-        "<body>%3</body></html>");
+    static const auto s = uR"(
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>%1%2</style>
+    </head>
+    <body>
+        %3
+    </body>
+</html>
+)"_s;
 
     return s.arg(fontFaceKit, css, body);
 }
 
 inline QString jsOuterHtml(int index, const QString& escaped)
 {
-    static const auto s = QStringLiteral(
-        "document.querySelector(\"[data-idx='%1']\")."
-        "outerHTML = `%2`;\n");
+    static const auto s = uR"JS(
+document.querySelector("[data-idx='%1']").outerHTML = `%2`;
+)JS"_s;
 
     return s.arg(index).arg(escaped);
 }
 
 inline QString jsPatchHtmlBody(const QString& statements)
 {
-    // See:
-    // https://stackoverflow.com/questions/44145740/how-does-double-requestanimationframe-work
-    static const auto s = QStringLiteral(R"(
+    // Double RAF (See:
+    // https://stackoverflow.com/questions/44145740/how-does-double-requestanimationframe-work)
+    static const auto s = uR"JS(
 var lastScrollY = window.scrollY;
 %1
 requestAnimationFrame(function() {
@@ -48,14 +58,14 @@ requestAnimationFrame(function() {
         window.scrollTo(0, lastScrollY);
     });
 });
-)");
+)JS"_s;
 
     return s.arg(statements);
 }
 
 inline QString jsReplaceHtmlBody(const QString& body)
 {
-    static const auto s = QStringLiteral(R"(
+    static const auto s = uR"JS(
 var lastScrollY = window.scrollY;
 document.body.innerHTML = `%1`;
 requestAnimationFrame(function() {
@@ -63,7 +73,7 @@ requestAnimationFrame(function() {
         window.scrollTo(0, lastScrollY);
     });
 });
-)");
+)JS"_s;
 
     return s.arg(body);
 }

@@ -15,13 +15,13 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMargins>
+#include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPointer>
 #include <QString>
 #include <QStringList>
 #include <QTextCursor>
 #include <QTextDocument>
-#include <QToolButton>
 #include <QWidget>
 
 #include <Coco/Bool.h>
@@ -38,8 +38,6 @@ namespace Fernanda {
 // manual refresh fallback for large documents), while selection counts are
 // computed on demand from the cache without retriggering a full recount
 //
-// TODO: Replace "refresh" button with something more visually intuitive, like
-// greater opacity and allowing user to click on the counts to update them
 // TODO: Padding of some kind to prevent bouncing around between labels /
 // separator / right edge of status bar (bouncing around inside labels
 // counts/pos is probably fine)
@@ -176,6 +174,21 @@ public:
         updatePos_();
     }
 
+protected:
+    virtual void mousePressEvent(QMouseEvent* event) override
+    {
+        // Maybe: && event->button() == Qt::LeftButton
+        if (!autoCount_) {
+            updateCounts_(Force_::Yes);
+            dimCountsDisplay_(false);
+            staleDimTimer_->start(); // Delay re-dimming
+
+            return;
+        }
+
+        QWidget::mousePressEvent(event);
+    }
+
 private:
     static constexpr auto MARGIN_ = 0.5;
     static constexpr auto DELIMITER_ = ", ";
@@ -186,6 +199,9 @@ private:
     // in real time. ~500k chars is roughly a full novel
     static constexpr qsizetype AUTO_COUNT_THRESHOLD_ = 500'000;
     static constexpr int DEBOUNCE_MS_ = 150;
+    static constexpr int STALE_DIM_MS_ = 2000;
+    static constexpr double FRESH_OPACITY_ = 0.8;
+    static constexpr double STALE_OPACITY_ = 0.35;
 
     QPointer<QPlainTextEdit> textEdit_{};
     Time::Debouncer* countDebouncer_ =
@@ -193,7 +209,10 @@ private:
     QLabel* countsDisplay_ = new QLabel(this);
     QLabel* separatorDisplay_ = new QLabel(SEPARATOR_, this);
     QLabel* posDisplay_ = new QLabel(this);
-    QToolButton* refresh_ = new QToolButton(this);
+    Time::Delayer* staleDimTimer_ = Time::newDelayer(
+        this,
+        [this] { dimCountsDisplay_(true); },
+        STALE_DIM_MS_);
 
     COCO_BOOL(Force_)
 
@@ -203,12 +222,12 @@ private:
     bool hasLineCount_ = true;
     bool hasWordCount_ = true;
     bool hasCharCount_ = false;
-    bool hasSelectionCounts_ =
-        true; // All counts show when this is on even when all counts are false
-    bool hasSelectionReplacement_ = true;
-
     bool hasLinePos_ = true;
     bool hasColPos_ = true;
+
+    // All counts show when this is on even when all counts are false
+    bool hasSelectionCounts_ = true;
+    bool hasSelectionReplacement_ = true;
 
     // Cached base counts string, updated on text changes. Selection changes
     // read from this cache rather than recomputing the (potentially expensive)
@@ -217,11 +236,6 @@ private:
 
     void setup_()
     {
-        refresh_->setVisible(false);
-
-        // TODO: Temp (replace button or use icon)
-        refresh_->setText(QStringLiteral("Refresh"));
-
         Coco::Fx::opacify(countsDisplay_, 0.8);
         Coco::Fx::opacify(separatorDisplay_, 0.3);
         Coco::Fx::opacify(posDisplay_, 0.8);
@@ -241,11 +255,6 @@ private:
         layout->addWidget(countsDisplay_);
         layout->addWidget(separatorDisplay_);
         layout->addWidget(posDisplay_);
-        layout->addWidget(refresh_);
-
-        connect(refresh_, &QToolButton::clicked, this, [this] {
-            updateCounts_(Force_::Yes);
-        });
     }
 
     // --- Base count computation ---
@@ -273,12 +282,14 @@ private:
     void adjustCountStyle_(qsizetype charCount)
     {
         if (charCount < AUTO_COUNT_THRESHOLD_) {
-            refresh_->setVisible(false);
+            staleDimTimer_->stop();
+            dimCountsDisplay_(false);
+            setCursor(Qt::ArrowCursor);
             autoCount_ = true;
-        } else {
-            refresh_->setFixedHeight(height() - (MARGIN_ * 2));
-            refresh_->setVisible(true);
+        } else if (autoCount_) {
+            setCursor(Qt::PointingHandCursor);
             autoCount_ = false;
+            dimCountsDisplay_(true); // Dim immediately
         }
     }
 
@@ -289,6 +300,15 @@ private:
         // Selection changes never recompute base counts; they just rebuild the
         // display using the cache plus fresh (cheap) selection counts
         updateCountsDisplay_();
+
+        if (!autoCount_) {
+            if (hasSelectionCounts_ && hasActiveSelection_()) {
+                staleDimTimer_->stop();
+                dimCountsDisplay_(false);
+            } else {
+                dimCountsDisplay_(true);
+            }
+        }
     }
 
     bool hasActiveSelection_() const
@@ -474,6 +494,14 @@ private:
             countsDisplay_->isVisible() && posDisplay_->isVisible());
 
         if (!show) display->clear();
+    }
+
+    void dimCountsDisplay_(bool dim)
+    {
+        auto opacity = dim ? STALE_OPACITY_ : FRESH_OPACITY_;
+        Coco::Fx::opacify(countsDisplay_, opacity);
+        Coco::Fx::opacify(separatorDisplay_, dim ? STALE_OPACITY_ : 0.3);
+        Coco::Fx::opacify(posDisplay_, opacity);
     }
 };
 
