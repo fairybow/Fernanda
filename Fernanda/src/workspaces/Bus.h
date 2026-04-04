@@ -40,14 +40,12 @@ public:
 
     virtual ~Bus() override { TRACER; }
 
-    // TODO: QStringLiteral for these?:
-
-    constexpr static auto WINDOWS_SET = "windows:set";
-    constexpr static auto WINDOWS = "windows:list";
-    constexpr static auto GET_SETTING = "settings:get";
-    constexpr static auto SET_SETTING = "settings:set";
-    constexpr static auto EDITOR_THEMES = "style:editor_themes";
-    constexpr static auto WINDOW_THEMES = "style:window_themes";
+    inline static auto WINDOWS_SET = QStringLiteral("windows:set");
+    inline static auto WINDOWS = QStringLiteral("windows:list");
+    inline static auto GET_SETTING = QStringLiteral("settings:get");
+    inline static auto SET_SETTING = QStringLiteral("settings:set");
+    inline static auto EDITOR_THEMES = QStringLiteral("style:editor_themes");
+    inline static auto WINDOW_THEMES = QStringLiteral("style:window_themes");
 
     // TODO: Define struct here, ThemeData?
 
