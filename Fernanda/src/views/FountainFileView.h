@@ -14,6 +14,7 @@
 
 #include <string>
 
+#include <QChar>
 #include <QFont>
 #include <QString>
 #include <QStringList>
