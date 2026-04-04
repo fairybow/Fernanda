@@ -76,6 +76,26 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.15 (Testing / Soft Release) - tag v0.99.0-beta.15
+
+## What's New?
+
+**Markup preview mode switch.** The cycling button is now a segmented `MultiSwitch` widget (Edit / Split / Preview) with an animated sliding highlight pill.
+
+**Markup preview polish.** The first-ever `QWebEngineView` load flicker (noted in beta.14) *should* now be masked by a new, dedicated warm-up overlay
+
+**Word counter click-to-refresh.** The "Refresh" button for large documents is gone. Instead, when auto-count is disabled (500k+ chars), the counts display dims to indicate staleness, and clicking anywhere on the word counter triggers a manual recount. Selection counts remain bright while a selection is active. `WordCounter` moved from `modules/` to `ui/`
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Image/PDF zoom: no scroll/content position realignment on zoom change yet; no panning support yet
+
+---
+
 # 0.99.0-beta.14 (Testing / Soft Release) - tag v0.99.0-beta.14
 
 ## What's New?
