@@ -8,6 +8,7 @@ Fernanda relies on Qt 6 and two additional dependencies: Coco (utility library) 
 | Coco | Submodule | `submodules/Coco/` | Path and other (often) Qt-related utilities |
 | miniz | Library | `submodules/miniz` | ZIP archive operations |
 | md4c | Library | `submodules/md4c` | Markdown parsing/rendering |
+| fountain.h | Library | `submodules/fountain.h` | Fountain parsing/rendering |
 
 > [!IMPORTANT]
 > **The following Qt extensions / additional libraries are required to build Fernanda:**
@@ -32,3 +33,7 @@ Fernanda uses a [fork](https://github.com/fairybow/Fernanda-miniz) as a Git subm
 [md4c](https://github.com/mity/md4c) is a C Markdown parser (which Qt itself also uses in places).
 
 Fernanda uses a [fork](https://github.com/fairybow/Fernanda-md4c) as a Git submodule, pinned to the v0.5.2 release.
+
+## fountain.h
+
+[fountain.h](https://github.com/fairybow/fountain.h) is a C [Fountain](https://fountain.io) parser made for Fernanda, modeled after md4c.
