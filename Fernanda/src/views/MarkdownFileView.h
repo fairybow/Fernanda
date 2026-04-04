@@ -13,6 +13,8 @@
 #pragma once
 
 #include <QByteArray>
+#include <QChar>
+#include <QList>
 #include <QString>
 #include <QStringList>
 #include <QStringView>
@@ -33,7 +35,7 @@ public:
     explicit MarkdownFileView(
         TextFileModel* fileModel,
         QWidget* parent = nullptr)
-        : AbstractMarkupFileView(fileModel, 0, parent)
+        : AbstractMarkupFileView(fileModel, parent)
     {
     }
 
@@ -159,20 +161,19 @@ blockquote, pre, table, ul, ol, hr {
     }
 
 private:
-    /// TODO MU: Clean-up/review
     static QStringList splitMdHtml_(const QString& html)
     {
         struct Block
         {
-            int start; // index of '<' that opens this block
-            int injectAt; // index right after tag name
-            int end; // past-the-end index of this block
+            qsizetype start; // index of '<' that opens this block
+            qsizetype injectAt; // index right after tag name
+            qsizetype end; // past-the-end index of this block
         };
 
-        QVector<Block> found;
-        const int len = html.size();
-        int depth = 0;
-        int i = 0;
+        QList<Block> found_blocks{};
+        const qsizetype len = html.size();
+        auto depth = 0;
+        qsizetype i = 0;
 
         while (i < len) {
             if (html[i] != QLatin1Char('<')) {
@@ -180,70 +181,94 @@ private:
                 continue;
             }
 
-            bool closing = (i + 1 < len && html[i + 1] == QLatin1Char('/'));
-            int nameStart = closing ? i + 2 : i + 1;
-            int nameEnd = nameStart;
+            auto closing = (i + 1 < len && html[i + 1] == QLatin1Char('/'));
+            auto name_start = closing ? i + 2 : i + 1;
+            auto name_end = name_start;
 
-            while (nameEnd < len) {
-                QChar c = html[nameEnd];
+            while (name_end < len) {
+                auto c = html[name_end];
                 if (c == QLatin1Char(' ') || c == QLatin1Char('>')
                     || c == QLatin1Char('/') || c == QLatin1Char('\n'))
                     break;
-                nameEnd++;
+
+                name_end++;
             }
 
-            int gt = nameEnd;
-            while (gt < len && html[gt] != QLatin1Char('>'))
-                gt++;
-            if (gt >= len) break;
+            auto tag_end = name_end;
 
-            auto name = QStringView(html).mid(nameStart, nameEnd - nameStart);
+            while (tag_end < len && html[tag_end] != QLatin1Char('>')) {
+                tag_end++;
+            }
 
-            bool isVoid = name.compare(u"hr", Qt::CaseInsensitive) == 0
-                          || name.compare(u"br", Qt::CaseInsensitive) == 0
-                          || name.compare(u"img", Qt::CaseInsensitive) == 0
-                          || name.compare(u"input", Qt::CaseInsensitive) == 0;
+            if (tag_end >= len) break;
+
+            auto name =
+                QStringView(html).mid(name_start, name_end - name_start);
+
+            auto is_void = name.compare(u"hr", Qt::CaseInsensitive) == 0
+                           || name.compare(u"br", Qt::CaseInsensitive) == 0
+                           || name.compare(u"img", Qt::CaseInsensitive) == 0
+                           || name.compare(u"input", Qt::CaseInsensitive) == 0;
 
             if (closing) {
-                i = gt + 1;
+                i = tag_end + 1;
                 depth--;
-                if (depth == 0 && !found.isEmpty()) {
-                    int end = i;
-                    while (end < len && html[end] == QLatin1Char('\n'))
+
+                if (depth == 0 && !found_blocks.isEmpty()) {
+                    auto end = i;
+
+                    while (end < len && html[end] == QLatin1Char('\n')) {
                         end++;
-                    found.last().end = end;
+                    }
+
+                    found_blocks.last().end = end;
                 }
-            } else if (isVoid) {
+
+            } else if (is_void) {
                 if (depth == 0) {
-                    int end = gt + 1;
-                    while (end < len && html[end] == QLatin1Char('\n'))
+                    auto end = tag_end + 1;
+
+                    while (end < len && html[end] == QLatin1Char('\n')) {
                         end++;
-                    found.append({ i, nameEnd, end });
+                    }
+
+                    found_blocks.append({ i, name_end, end });
                 }
-                i = gt + 1;
+
+                i = tag_end + 1;
+
             } else {
-                if (depth == 0) found.append({ i, nameEnd, -1 });
+                if (depth == 0) found_blocks.append({ i, name_end, -1 });
                 depth++;
-                i = gt + 1;
+                i = tag_end + 1;
             }
         }
 
-        QStringList blocks;
-        blocks.reserve(found.size());
-        int idx = 0;
+        QStringList edited_blocks{};
+        edited_blocks.reserve(found_blocks.size());
+        auto index = 0;
 
-        for (const auto& b : found) {
-            if (b.end < 0) continue;
+        for (const auto& found_block : found_blocks) {
+            if (found_block.end < 0) continue;
 
-            QString block;
-            block.reserve(b.end - b.start + 20);
-            block.append(QStringView(html).mid(b.start, b.injectAt - b.start));
-            block.append(QStringLiteral(" data-idx='%1'").arg(idx++));
-            block.append(QStringView(html).mid(b.injectAt, b.end - b.injectAt));
-            blocks.append(std::move(block));
+            QString block{};
+
+            block.reserve(found_block.end - found_block.start + 20);
+
+            block.append(QStringView(html).mid(
+                found_block.start,
+                found_block.injectAt - found_block.start));
+
+            block.append(QStringLiteral(" data-idx='%1'").arg(index++));
+
+            block.append(QStringView(html).mid(
+                found_block.injectAt,
+                found_block.end - found_block.injectAt));
+
+            edited_blocks.append(std::move(block));
         }
 
-        return blocks;
+        return edited_blocks;
     }
 };
 

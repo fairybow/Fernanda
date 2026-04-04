@@ -53,8 +53,11 @@ public:
 
     explicit AbstractMarkupFileView(
         TextFileModel* fileModel,
-        int reparseDebounce,
-        QWidget* parent = nullptr)
+        QWidget* parent = nullptr,
+        int reparseDebounce =
+            5) // TODO: Maybe remove as ctor arg. Both parsers can handle 0 but
+               // keeping both at 5 ms saves calls and normalizes the feel of
+               // typing in each view type
         : TextFileView(fileModel, parent)
         , reparseTimer_(
               Time::newDebouncer(
@@ -261,7 +264,7 @@ protected:
         }
     }
 
-    QWebEngineView* preview() const noexcept { return preview_; }
+    // QWebEngineView* preview() const noexcept { return preview_; }
 
 private:
     Time::Debouncer* reparseTimer_;
