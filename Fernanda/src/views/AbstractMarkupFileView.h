@@ -12,12 +12,15 @@
 
 #pragma once
 
+#include <utility>
+
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QObject>
 #include <QShowEvent>
 #include <QSplitter>
 #include <QString>
+#include <QStringList>
 #include <QStringView>
 #include <QTextDocument>
 #include <QToolButton>
@@ -244,7 +247,9 @@ protected:
     // Subclasses implement these to convert plain text to HTML for the preview:
 
     virtual QStringView css() const = 0;
-    virtual QString htmlBody(const QString& plainText) const = 0;
+    virtual QStringList htmlBlocks(const QString& plainText) const = 0;
+    virtual QString bodyPrefix() const { return {}; }
+    virtual QString bodySuffix() const { return {}; }
 
     virtual void showEvent(QShowEvent* event)
     {
@@ -264,6 +269,7 @@ private:
     constexpr static int MIN_WIDGET_SIZE_ = 50;
     bool firstParse_ = true;
     bool previewStale_ = false;
+    QStringList cachedBlocks_{};
 
     Mode mode_ = Split;
     QWidget* container_ = new QWidget(this);
@@ -284,29 +290,68 @@ private:
         auto editor = this->editor();
         if (!preview_ || !editor) return;
 
-        auto body = htmlBody(editor->document()->toPlainText());
+        auto blocks = htmlBlocks(editor->document()->toPlainText());
 
         if (firstParse_) {
             firstParse_ = false;
+
+            auto body = bodyPrefix() + blocks.join(QString{}) + bodySuffix();
             auto html = QStringLiteral(
-                            "<html><head><style>%1%2</style></head><body>%3</"
-                            "body></html>")
+                            "<html><head><style>%1%2</style></head>"
+                            "<body>%3</body></html>")
                             .arg(appFontFaceKit_(), css(), body);
 
             /// TODO MU: I am vaguely concerned about the baseUrl
             preview_->setHtml(html, QUrl("qrc:/"));
-
+            cachedBlocks_ = std::move(blocks);
             return;
         }
 
-        // Escape for JS string
+        // Try incremental patch when block count is unchanged
+        if (blocks.size() == cachedBlocks_.size()) {
+            QString js;
+
+            for (int i = 0; i < blocks.size(); ++i) {
+                if (blocks[i] == cachedBlocks_[i]) continue;
+
+                auto escaped = blocks[i];
+                escaped.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
+                escaped.replace(QStringLiteral("`"), QStringLiteral("\\`"));
+
+                js += QStringLiteral(
+                          "document.querySelector(\"[data-idx='%1']\")."
+                          "outerHTML = `%2`;\n")
+                          .arg(i)
+                          .arg(escaped);
+            }
+
+            if (!js.isEmpty()) {
+
+                // See:
+                // https://stackoverflow.com/questions/44145740/how-does-double-requestanimationframe-work
+                static auto js_patch = QStringLiteral(R"(
+var lastScrollY = window.scrollY;
+%1
+requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+        window.scrollTo(0, lastScrollY);
+    });
+});
+)");
+
+                preview_->page()->runJavaScript(js_patch.arg(js));
+            }
+
+            cachedBlocks_ = std::move(blocks);
+            return;
+        }
+
+        // Fallback: full replacement (block count changed)
+        auto body = bodyPrefix() + blocks.join(QString()) + bodySuffix();
         body.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
         body.replace(QStringLiteral("`"), QStringLiteral("\\`"));
 
-        // See:
-        // https://stackoverflow.com/questions/44145740/how-does-double-requestanimationframe-work
-        preview_->page()->runJavaScript(QStringLiteral(
-                                            R"(
+        static auto js_replace = QStringLiteral(R"(
 var lastScrollY = window.scrollY;
 document.body.innerHTML = `%1`;
 requestAnimationFrame(function() {
@@ -314,8 +359,11 @@ requestAnimationFrame(function() {
         window.scrollTo(0, lastScrollY);
     });
 });
-)")
-                                            .arg(body));
+)");
+
+        preview_->page()->runJavaScript(js_replace.arg(body));
+
+        cachedBlocks_ = std::move(blocks);
     }
 };
 

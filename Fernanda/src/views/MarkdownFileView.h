@@ -14,6 +14,7 @@
 
 #include <QByteArray>
 #include <QString>
+#include <QStringList>
 #include <QStringView>
 #include <QWidget>
 
@@ -138,7 +139,7 @@ blockquote, pre, table, ul, ol, hr {
         return s;
     }
 
-    virtual QString htmlBody(const QString& plainText) const override
+    virtual QStringList htmlBlocks(const QString& plainText) const override
     {
         auto input = plainText.toUtf8();
         QByteArray output{};
@@ -154,7 +155,7 @@ blockquote, pre, table, ul, ol, hr {
             MD_FLAG_TABLES | MD_FLAG_STRIKETHROUGH | MD_FLAG_TASKLISTS,
             0);
 
-        return QString::fromUtf8(output);
+        return { QString::fromUtf8(output) };
     }
 };
 

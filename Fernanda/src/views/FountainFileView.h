@@ -16,6 +16,7 @@
 
 #include <QFont>
 #include <QString>
+#include <QStringList>
 #include <QStringView>
 #include <QTextLayout>
 #include <QTextLine>
@@ -30,6 +31,9 @@
 namespace Fernanda {
 
 /// TODO MU: Printing layout
+/// TODO MU: Can use special style to space out the title page to approximate
+/// print layout and leave the rest in flow HTML
+/// TODO MU: ^ when we have paginator, we can revisit it all
 class FountainFileView : public AbstractMarkupFileView
 {
     Q_OBJECT
@@ -81,12 +85,6 @@ p {
     margin: 1.3em auto;
     word-wrap: break-word;
     padding: 0 10px;
-}
-p.page-break {
-    text-align: right;
-    border-top: 1px solid #ccc;
-    padding-top: 20px;
-    margin-top: 20px;
 }
 body > p:first-child {
     margin-top: 0;
@@ -192,7 +190,7 @@ hr {
         return s;
     }
 
-    virtual QString htmlBody(const QString& plainText) const override
+    virtual QStringList htmlBlocks(const QString& plainText) const override
     {
         auto input = plainText.toUtf8();
         QByteArray output{};
@@ -206,9 +204,20 @@ hr {
             },
             &output,
             0,
-            0);
+            FN_HTML_FLAG_BLOCK_INDEX);
 
-        return QString::fromUtf8(output);
+        auto str = QString::fromUtf8(output);
+        return str.split(QChar('\x01'));
+    }
+
+    virtual QString bodyPrefix() const override
+    {
+        return QStringLiteral("<article>\n<section>\n");
+    }
+
+    virtual QString bodySuffix() const override
+    {
+        return QStringLiteral("</section>\n</article>\n");
     }
 };
 
