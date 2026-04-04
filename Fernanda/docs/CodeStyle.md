@@ -154,7 +154,11 @@ private:
 };
 ```
 
-### Functions for Clarity
+### Functions
+
+Even though it's unnecessary in many (most) cases, prefer to keep the `virtual` keyword on overridden virtuals.
+
+#### Functions for Clarity
 
 This:
 
