@@ -177,6 +177,7 @@ set(FERNANDA_HEADERS
     src/views/KeyFilters.h
     src/views/MarkdownFileView.h
     src/views/MarkupPreviewPage.h
+    src/views/MarkupWebcode.h
     src/views/PdfFileView.h
     src/views/TextFileView.h
 

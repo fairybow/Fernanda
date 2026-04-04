@@ -13,7 +13,10 @@
 #pragma once
 
 #include <QByteArray>
+#include <QChar>
+#include <QList>
 #include <QString>
+#include <QStringList>
 #include <QStringView>
 #include <QWidget>
 
@@ -32,7 +35,7 @@ public:
     explicit MarkdownFileView(
         TextFileModel* fileModel,
         QWidget* parent = nullptr)
-        : AbstractMarkupFileView(fileModel, 0, parent)
+        : AbstractMarkupFileView(fileModel, parent)
     {
     }
 
@@ -138,7 +141,7 @@ blockquote, pre, table, ul, ol, hr {
         return s;
     }
 
-    virtual QString htmlBody(const QString& plainText) const override
+    virtual QStringList htmlBlocks(const QString& plainText) const override
     {
         auto input = plainText.toUtf8();
         QByteArray output{};
@@ -154,7 +157,118 @@ blockquote, pre, table, ul, ol, hr {
             MD_FLAG_TABLES | MD_FLAG_STRIKETHROUGH | MD_FLAG_TASKLISTS,
             0);
 
-        return QString::fromUtf8(output);
+        return splitMdHtml_(QString::fromUtf8(output));
+    }
+
+private:
+    static QStringList splitMdHtml_(const QString& html)
+    {
+        struct Block
+        {
+            qsizetype start; // index of '<' that opens this block
+            qsizetype injectAt; // index right after tag name
+            qsizetype end; // past-the-end index of this block
+        };
+
+        QList<Block> found_blocks{};
+        const qsizetype len = html.size();
+        auto depth = 0;
+        qsizetype i = 0;
+
+        while (i < len) {
+            if (html[i] != QLatin1Char('<')) {
+                i++;
+                continue;
+            }
+
+            auto closing = (i + 1 < len && html[i + 1] == QLatin1Char('/'));
+            auto name_start = closing ? i + 2 : i + 1;
+            auto name_end = name_start;
+
+            while (name_end < len) {
+                auto c = html[name_end];
+                if (c == QLatin1Char(' ') || c == QLatin1Char('>')
+                    || c == QLatin1Char('/') || c == QLatin1Char('\n'))
+                    break;
+
+                name_end++;
+            }
+
+            auto tag_end = name_end;
+
+            while (tag_end < len && html[tag_end] != QLatin1Char('>')) {
+                tag_end++;
+            }
+
+            if (tag_end >= len) break;
+
+            auto name =
+                QStringView(html).mid(name_start, name_end - name_start);
+
+            auto is_void = name.compare(u"hr", Qt::CaseInsensitive) == 0
+                           || name.compare(u"br", Qt::CaseInsensitive) == 0
+                           || name.compare(u"img", Qt::CaseInsensitive) == 0
+                           || name.compare(u"input", Qt::CaseInsensitive) == 0;
+
+            if (closing) {
+                i = tag_end + 1;
+                depth--;
+
+                if (depth == 0 && !found_blocks.isEmpty()) {
+                    auto end = i;
+
+                    while (end < len && html[end] == QLatin1Char('\n')) {
+                        end++;
+                    }
+
+                    found_blocks.last().end = end;
+                }
+
+            } else if (is_void) {
+                if (depth == 0) {
+                    auto end = tag_end + 1;
+
+                    while (end < len && html[end] == QLatin1Char('\n')) {
+                        end++;
+                    }
+
+                    found_blocks.append({ i, name_end, end });
+                }
+
+                i = tag_end + 1;
+
+            } else {
+                if (depth == 0) found_blocks.append({ i, name_end, -1 });
+                depth++;
+                i = tag_end + 1;
+            }
+        }
+
+        QStringList edited_blocks{};
+        edited_blocks.reserve(found_blocks.size());
+        auto index = 0;
+
+        for (const auto& found_block : found_blocks) {
+            if (found_block.end < 0) continue;
+
+            QString block{};
+
+            block.reserve(found_block.end - found_block.start + 20);
+
+            block.append(QStringView(html).mid(
+                found_block.start,
+                found_block.injectAt - found_block.start));
+
+            block.append(QStringLiteral(" data-idx='%1'").arg(index++));
+
+            block.append(QStringView(html).mid(
+                found_block.injectAt,
+                found_block.end - found_block.injectAt));
+
+            edited_blocks.append(std::move(block));
+        }
+
+        return edited_blocks;
     }
 };
 

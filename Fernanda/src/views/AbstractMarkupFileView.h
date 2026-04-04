@@ -12,12 +12,15 @@
 
 #pragma once
 
+#include <utility>
+
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QObject>
 #include <QShowEvent>
 #include <QSplitter>
 #include <QString>
+#include <QStringList>
 #include <QStringView>
 #include <QTextDocument>
 #include <QToolButton>
@@ -29,6 +32,7 @@
 #include "models/TextFileModel.h"
 #include "ui/WidgetSnapshotOverlay.h"
 #include "views/MarkupPreviewPage.h"
+#include "views/MarkupWebcode.h"
 #include "views/TextFileView.h"
 
 namespace Fernanda {
@@ -50,8 +54,11 @@ public:
 
     explicit AbstractMarkupFileView(
         TextFileModel* fileModel,
-        int reparseDebounce,
-        QWidget* parent = nullptr)
+        QWidget* parent = nullptr,
+        int reparseDebounce =
+            5) // TODO: Maybe remove as ctor arg. Both parsers can handle 0 but
+               // keeping both at 5 ms saves calls and normalizes the feel of
+               // typing in each view type
         : TextFileView(fileModel, parent)
         , reparseTimer_(
               Time::newDebouncer(
@@ -241,10 +248,17 @@ protected:
         return container_;
     }
 
-    // Subclasses implement these to convert plain text to HTML for the preview:
+    // Subclasses implement these to convert plain text to HTML for the preview
+    // (see `reparse_` note):
 
     virtual QStringView css() const = 0;
-    virtual QString htmlBody(const QString& plainText) const = 0;
+    virtual QStringList htmlBlocks(const QString& plainText) const = 0;
+
+    /// TODO MU: Consider restructuring Fountain CSS and removing. These are
+    /// kind of just suppoting a holdover (article/section tags) from original's
+    /// CSS
+    virtual QString bodyPrefix() const { return {}; }
+    virtual QString bodySuffix() const { return {}; }
 
     virtual void showEvent(QShowEvent* event)
     {
@@ -256,7 +270,7 @@ protected:
         }
     }
 
-    QWebEngineView* preview() const noexcept { return preview_; }
+    // QWebEngineView* preview() const noexcept { return preview_; }
 
 private:
     Time::Debouncer* reparseTimer_;
@@ -264,6 +278,7 @@ private:
     constexpr static int MIN_WIDGET_SIZE_ = 50;
     bool firstParse_ = true;
     bool previewStale_ = false;
+    QStringList cachedBlocks_{};
 
     Mode mode_ = Split;
     QWidget* container_ = new QWidget(this);
@@ -278,44 +293,69 @@ private:
 
     static QString appFontFaceKit_();
 
+    // Incremental DOM patching
+    //
+    // Subclasses return a QStringList from htmlBlocks() where each entry is one
+    // top-level HTML element with a data-idx='N' attribute (N matching its list
+    // index). On subsequent reparses, we diff the new list against the cached
+    // one and patch only changed blocks via JS outerHTML assignment. When the
+    // block count changes (insertions/deletions), we fall back to full
+    // innerHTML replacement
+    //
+    // Subclasses that wrap their output in container elements (article,
+    // section, etc.) should return those via bodyPrefix()/bodySuffix() rather
+    // than including them in the block list, since they are not indexed and are
+    // only used for first parse and full replacement
     /// TODO MU: Print total output for this to check md/fn
     void reparse_()
     {
         auto editor = this->editor();
         if (!preview_ || !editor) return;
 
-        auto body = htmlBody(editor->document()->toPlainText());
+        auto blocks = htmlBlocks(editor->document()->toPlainText());
 
         if (firstParse_) {
             firstParse_ = false;
-            auto html = QStringLiteral(
-                            "<html><head><style>%1%2</style></head><body>%3</"
-                            "body></html>")
-                            .arg(appFontFaceKit_(), css(), body);
+
+            auto body = bodyPrefix() + blocks.join(QString{}) + bodySuffix();
+            auto html = MarkupWebcode::htmlDoc(appFontFaceKit_(), css(), body);
 
             /// TODO MU: I am vaguely concerned about the baseUrl
             preview_->setHtml(html, QUrl("qrc:/"));
-
+            cachedBlocks_ = std::move(blocks);
             return;
         }
 
-        // Escape for JS string
+        // Try incremental patch when block count is unchanged
+        if (blocks.size() == cachedBlocks_.size()) {
+            QString js_patch{};
+
+            for (auto i = 0; i < blocks.size(); ++i) {
+                if (blocks[i] == cachedBlocks_[i]) continue;
+
+                QString escaped = blocks[i];
+                escaped.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
+                escaped.replace(QStringLiteral("`"), QStringLiteral("\\`"));
+
+                js_patch += MarkupWebcode::jsOuterHtml(i, escaped);
+            }
+
+            if (!js_patch.isEmpty()) {
+                preview_->page()->runJavaScript(
+                    MarkupWebcode::jsPatchHtmlBody(js_patch));
+            }
+
+            cachedBlocks_ = std::move(blocks);
+            return;
+        }
+
+        // Full fallback replacement (block count changed)
+        auto body = bodyPrefix() + blocks.join(QString()) + bodySuffix();
         body.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
         body.replace(QStringLiteral("`"), QStringLiteral("\\`"));
 
-        // See:
-        // https://stackoverflow.com/questions/44145740/how-does-double-requestanimationframe-work
-        preview_->page()->runJavaScript(QStringLiteral(
-                                            R"(
-var lastScrollY = window.scrollY;
-document.body.innerHTML = `%1`;
-requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-        window.scrollTo(0, lastScrollY);
-    });
-});
-)")
-                                            .arg(body));
+        preview_->page()->runJavaScript(MarkupWebcode::jsReplaceHtmlBody(body));
+        cachedBlocks_ = std::move(blocks);
     }
 };
 
