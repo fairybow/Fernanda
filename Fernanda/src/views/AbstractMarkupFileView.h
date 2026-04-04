@@ -160,12 +160,12 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
-        modeBar_->setFixedHeight(24);
+        modeBar_->setFixedHeight(28);
 
         // Since we start in split (handle this better/dynamically without
         // calling setMode, eventually):
         modeToggle_->setText("Preview"); /// TODO MU: Temp
-        modeToggle_->setFixedHeight(20);
+        modeToggle_->setFixedHeight(22);
 
         auto editor_widget = TextFileView::setupWidget();
         editor_widget->setMinimumWidth(MIN_WIDGET_SIZE_);
@@ -289,7 +289,7 @@ private:
     QWebEngineView* preview_ = new QWebEngineView(this);
     QWidget* previewMask_ = new QWidget(preview_);
     Time::Debouncer* previewMaskTimer_ =
-        Time::newDebouncer(this, [this] { previewMask_->hide(); }, 250);
+        Time::newDebouncer(this, [this] { previewMask_->hide(); }, 300);
 
     static QString appFontFaceKit_();
 
