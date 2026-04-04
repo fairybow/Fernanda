@@ -32,6 +32,7 @@
 #include "models/TextFileModel.h"
 #include "ui/WidgetSnapshotOverlay.h"
 #include "views/MarkupPreviewPage.h"
+#include "views/MarkupWebcode.h"
 #include "views/TextFileView.h"
 
 namespace Fernanda {
@@ -247,7 +248,8 @@ protected:
         return container_;
     }
 
-    // Subclasses implement these to convert plain text to HTML for the preview:
+    // Subclasses implement these to convert plain text to HTML for the preview
+    // (see `reparse_` note):
 
     virtual QStringView css() const = 0;
     virtual QStringList htmlBlocks(const QString& plainText) const = 0;
@@ -287,6 +289,19 @@ private:
 
     static QString appFontFaceKit_();
 
+    // Incremental DOM patching
+    //
+    // Subclasses return a QStringList from htmlBlocks() where each entry is one
+    // top-level HTML element with a data-idx='N' attribute (N matching its list
+    // index). On subsequent reparses, we diff the new list against the cached
+    // one and patch only changed blocks via JS outerHTML assignment. When the
+    // block count changes (insertions/deletions), we fall back to full
+    // innerHTML replacement
+    //
+    // Subclasses that wrap their output in container elements (article,
+    // section, etc.) should return those via bodyPrefix()/bodySuffix() rather
+    // than including them in the block list, since they are not indexed and are
+    // only used for first parse and full replacement
     /// TODO MU: Print total output for this to check md/fn
     void reparse_()
     {
@@ -299,10 +314,7 @@ private:
             firstParse_ = false;
 
             auto body = bodyPrefix() + blocks.join(QString{}) + bodySuffix();
-            auto html = QStringLiteral(
-                            "<html><head><style>%1%2</style></head>"
-                            "<body>%3</body></html>")
-                            .arg(appFontFaceKit_(), css(), body);
+            auto html = MarkupWebcode::htmlDoc(appFontFaceKit_(), css(), body);
 
             /// TODO MU: I am vaguely concerned about the baseUrl
             preview_->setHtml(html, QUrl("qrc:/"));
@@ -312,60 +324,33 @@ private:
 
         // Try incremental patch when block count is unchanged
         if (blocks.size() == cachedBlocks_.size()) {
-            QString js;
+            QString js_patch{};
 
-            for (int i = 0; i < blocks.size(); ++i) {
+            for (auto i = 0; i < blocks.size(); ++i) {
                 if (blocks[i] == cachedBlocks_[i]) continue;
 
-                auto escaped = blocks[i];
+                QString escaped = blocks[i];
                 escaped.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
                 escaped.replace(QStringLiteral("`"), QStringLiteral("\\`"));
 
-                js += QStringLiteral(
-                          "document.querySelector(\"[data-idx='%1']\")."
-                          "outerHTML = `%2`;\n")
-                          .arg(i)
-                          .arg(escaped);
+                js_patch += MarkupWebcode::jsOuterHtml(i, escaped);
             }
 
-            if (!js.isEmpty()) {
-
-                // See:
-                // https://stackoverflow.com/questions/44145740/how-does-double-requestanimationframe-work
-                static auto js_patch = QStringLiteral(R"(
-var lastScrollY = window.scrollY;
-%1
-requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-        window.scrollTo(0, lastScrollY);
-    });
-});
-)");
-
-                preview_->page()->runJavaScript(js_patch.arg(js));
+            if (!js_patch.isEmpty()) {
+                preview_->page()->runJavaScript(
+                    MarkupWebcode::jsPatchHtmlBody(js_patch));
             }
 
             cachedBlocks_ = std::move(blocks);
             return;
         }
 
-        // Fallback: full replacement (block count changed)
+        // Full fallback replacement (block count changed)
         auto body = bodyPrefix() + blocks.join(QString()) + bodySuffix();
         body.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
         body.replace(QStringLiteral("`"), QStringLiteral("\\`"));
 
-        static auto js_replace = QStringLiteral(R"(
-var lastScrollY = window.scrollY;
-document.body.innerHTML = `%1`;
-requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-        window.scrollTo(0, lastScrollY);
-    });
-});
-)");
-
-        preview_->page()->runJavaScript(js_replace.arg(body));
-
+        preview_->page()->runJavaScript(MarkupWebcode::jsReplaceHtmlBody(body));
         cachedBlocks_ = std::move(blocks);
     }
 };
