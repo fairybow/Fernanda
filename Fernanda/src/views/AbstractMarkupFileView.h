@@ -255,7 +255,7 @@ private:
           QStringLiteral("Split"),
           QStringLiteral("Preview") },
         1,
-        this);
+        this); /// TODO MU: Icons or Tr strings
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
     QWebEngineView* preview_ = new QWebEngineView(this);
     QWidget* previewMask_ = new QWidget(preview_);
