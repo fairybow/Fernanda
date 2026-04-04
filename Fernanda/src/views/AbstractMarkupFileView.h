@@ -17,6 +17,7 @@
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QObject>
+#include <QResizeEvent>
 #include <QShowEvent>
 #include <QSplitter>
 #include <QString>
@@ -40,6 +41,8 @@ namespace Fernanda {
 /// TODO MU: I'd maybe like a 3-way toggle switch instead of cycling labels and
 /// functionality
 /// TODO MU: Scroll lock
+/// TODO MU: Preview auto-scroll for new content added (like a soft scroll lock
+/// while typing at the end of the page)
 class AbstractMarkupFileView : public TextFileView
 {
     Q_OBJECT
@@ -225,13 +228,42 @@ protected:
         splitter_->setFocusProxy(editor_widget);
         reparse_();
 
+        // QWebEngineView's first ever load will wreak visual havoc. We can't
+        // use previewMask_, as it's parented to the web engine view itself (and
+        // the warm-up process causes the web engine view to raise itself in a
+        // way we can't fight). Parenting previewMask_ to the splitter causes it
+        // to be *added* to the splitter (no good); parenting it to `this`
+        // causes it to raise above the snapshot overlay on mode change (no
+        // good); and there's no point in trying container_ or
+        // reworking/replanning what already works (parenting it to preview_ and
+        // letting it do *that* job of covering preview_ on resize and initial
+        // (regular) load. So, we'll make a separate mask for this specific
+        // problem
+        if (firstEverLoad_) {
+            warmupMask_ = new QWidget(this);
+            warmupMask_->setAutoFillBackground(true);
+            warmupMask_->raise();
+            warmupMask_->show();
+
+            connect(
+                preview_->page(),
+                &QWebEnginePage::loadFinished,
+                this,
+                [this] {
+                    Time::delay(250, this, [this] {
+                        if (!warmupMask_) return;
+                        warmupMask_->hide();
+                        warmupMask_->deleteLater();
+                        warmupMask_ = nullptr;
+                        firstEverLoad_ = false;
+                    });
+                },
+                Qt::SingleShotConnection);
+        }
+
         // Mask the preview until QWebEngineView finishes its first load
         // TODO: Watch/adjust this if we ever allow starting in a mode other
         // than Split
-        /// TODO MU: BUG: Very first load of this view type still has jitter
-        /// (subsequent new tabs of this view type are fine and seem to be
-        /// covered by the mask appropriately - but that first app-wide load of
-        /// QWebEngineView must be raising the preview early)
         previewMask_->setFixedSize(preview_->size());
         previewMask_->raise();
         previewMask_->show();
@@ -240,7 +272,9 @@ protected:
             preview_->page(),
             &QWebEnginePage::loadFinished,
             this,
-            [this] { previewMask_->hide(); },
+            [this] {
+                Time::onNextTick(this, [this] { previewMask_->hide(); });
+            },
             Qt::SingleShotConnection);
 
         preview_->installEventFilter(this);
@@ -270,6 +304,12 @@ protected:
         }
     }
 
+    virtual void resizeEvent(QResizeEvent* event) override
+    {
+        TextFileView::resizeEvent(event);
+        if (warmupMask_) warmupMask_->setFixedSize(size());
+    }
+
     // QWebEngineView* preview() const noexcept { return preview_; }
 
 private:
@@ -290,6 +330,9 @@ private:
     QWidget* previewMask_ = new QWidget(preview_);
     Time::Debouncer* previewMaskTimer_ =
         Time::newDebouncer(this, [this] { previewMask_->hide(); }, 300);
+
+    inline static bool firstEverLoad_ = true;
+    QWidget* warmupMask_ = nullptr;
 
     static QString appFontFaceKit_();
 
