@@ -42,7 +42,8 @@ namespace Fernanda {
 // TODO: Buttons are a little too far from left and right edges respectively
 // TODO: Widget itself is too far right (overlaps with scroll bar slightly and
 // also over edge of fitted PDFs
-// TODO: Button text (and perhaps % label) are slightly lower than centered
+// TODO: Button text (and perhaps % label) are slightly lower than centered (use
+// icons - glyph centering is not right for this)
 // TODO: Need to realign views' scrolls / content position on zoom. We want the
 // relatively same area to be at the same spot on the screen so as not to
 // disorient. We may also want to return to this position or another position

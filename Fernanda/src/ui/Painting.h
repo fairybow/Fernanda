@@ -19,6 +19,7 @@
 
 namespace Fernanda::Painting {
 
+// Centers horizontally only
 inline QRectF
 centeredGlyphRect(const QFont& font, const QString& glyph, const QRectF& bounds)
 {
