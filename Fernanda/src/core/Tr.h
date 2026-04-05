@@ -323,6 +323,11 @@ namespace Tr {
     TR_(previewSplit, tr("Split"));
     TR_(previewPreview, tr("Preview"));
 
+    /// Notebook color chip
+
+    TR_(chipColor, tr("Chip color..."));
+    TR_(chipTextColor, tr("Text color..."));
+
 } // namespace Tr
 
 } // namespace Fernanda

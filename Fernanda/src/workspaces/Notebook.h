@@ -345,8 +345,7 @@ private:
     {
         connect(bus, &Bus::windowCreated, this, [this](Window* window) {
             if (!window) return;
-            window->statusBar()->addPermanentWidget(
-                new NotebookColorChip(name()));
+            addColorChip_(window);
         });
 
         connect(
@@ -354,6 +353,32 @@ private:
             &Bus::fileModelModificationChanged,
             this,
             &Notebook::onBusFileModelModificationChanged_);
+    }
+
+    void addColorChip_(Window* window)
+    {
+        if (!window) return;
+
+        auto chip = new NotebookColorChip(name());
+
+        auto chip_color =
+            settings->get<QString>(Ini::LocalKeys::NOTEBOOK_CHIP_COLOR);
+        auto text_color =
+            settings->get<QString>(Ini::LocalKeys::NOTEBOOK_CHIP_TEXT_COLOR);
+
+        if (!chip_color.isEmpty()) chip->setChipColor(chip_color);
+        if (!text_color.isEmpty()) chip->setTextColor(text_color);
+
+        connect(chip, &NotebookColorChip::colorChanged, this, [this, chip] {
+            settings->set(
+                Ini::LocalKeys::NOTEBOOK_CHIP_COLOR,
+                chip->chipColor().name());
+            settings->set(
+                Ini::LocalKeys::NOTEBOOK_CHIP_TEXT_COLOR,
+                chip->textColor().name());
+        });
+
+        window->statusBar()->addPermanentWidget(chip);
     }
 
     /// TODO BA

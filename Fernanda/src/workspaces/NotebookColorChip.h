@@ -13,6 +13,8 @@
 #pragma once
 
 #include <QColor>
+#include <QColorDialog>
+#include <QContextMenuEvent>
 #include <QFont>
 #include <QFontMetrics>
 #include <QPaintEvent>
@@ -24,6 +26,8 @@
 #include <QWidget>
 
 #include "core/Debug.h"
+#include "core/Tr.h"
+#include "menus/MenuBuilder.h"
 
 namespace Fernanda {
 
@@ -35,12 +39,39 @@ public:
     NotebookColorChip(const QString& name, QWidget* parent = nullptr)
         : QWidget(parent)
         , name_(name)
-        , color_(colorFromName_(name))
+        , generatedColor_(colorFromName_(name))
     {
         setup_();
     }
 
     virtual ~NotebookColorChip() override { TRACER; }
+
+    QColor chipColor() const noexcept
+    {
+        return chipColorOverride_.isValid() ? chipColorOverride_
+                                            : generatedColor_;
+    }
+
+    void setChipColor(const QColor& color)
+    {
+        chipColorOverride_ = color;
+        update();
+    }
+
+    QColor textColor() const noexcept
+    {
+        return textColorOverride_.isValid() ? textColorOverride_
+                                            : generatedColor_.lighter(180);
+    }
+
+    void setTextColor(const QColor& color)
+    {
+        textColorOverride_ = color;
+        update();
+    }
+
+signals:
+    void colorChanged();
 
 protected:
     virtual void paintEvent([[maybe_unused]] QPaintEvent* event) override
@@ -54,16 +85,35 @@ protected:
         // Pill background
         QPainterPath path{};
         path.addRoundedRect(QRectF(chip_rect), radius, radius);
-        painter.fillPath(path, color_);
+        painter.fillPath(path, chipColor());
 
         // Text
-        painter.setPen(textColor_());
+        QFont font = painter.font();
+        font.setWeight(QFont::DemiBold);
+        painter.setFont(font);
+        painter.setPen(textColor());
         painter.drawText(chip_rect, Qt::AlignCenter, name_);
+    }
+
+    virtual void contextMenuEvent(QContextMenuEvent* event) override
+    {
+        MenuBuilder(MenuBuilder::ContextMenu, this)
+            .action(Tr::chipColor())
+            .onUserTrigger(
+                this,
+                [this] { pickColor_(chipColor(), chipColorOverride_); })
+            .action(Tr::chipTextColor())
+            .onUserTrigger(
+                this,
+                [this] { pickColor_(textColor(), textColorOverride_); })
+            .popup(event->globalPos());
     }
 
 private:
     QString name_{};
-    QColor color_{};
+    QColor generatedColor_{};
+    QColor chipColorOverride_{};
+    QColor textColorOverride_{};
 
     inline static constexpr auto PADDING_H = 12;
     inline static constexpr auto PADDING_V = 2;
@@ -86,8 +136,6 @@ private:
         return QColor::fromHsv(hue, sat, val);
     }
 
-    QColor textColor_() const { return color_.lighter(180); }
-
     void setup_()
     {
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -99,6 +147,34 @@ private:
         setFixedSize(
             text_width + (PADDING_H * 2),
             text_height + (PADDING_V * 2));
+    }
+
+    void pickColor_(const QColor& current, QColor& target)
+    {
+        auto previous = target;
+        auto dialog = new QColorDialog(current, this);
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+
+        connect(
+            dialog,
+            &QColorDialog::currentColorChanged,
+            this,
+            [&](const QColor& color) {
+                target = color;
+                update();
+            });
+
+        connect(dialog, &QDialog::finished, this, [&, previous](int result) {
+            if (result == QDialog::Accepted) {
+                emit colorChanged();
+            } else {
+                target = previous;
+            }
+
+            update();
+        });
+
+        dialog->open();
     }
 };
 

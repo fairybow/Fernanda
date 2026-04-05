@@ -25,9 +25,9 @@
 
 namespace Fernanda::Ini {
 
-namespace Keys {
+using namespace Qt::StringLiterals;
 
-    using namespace Qt::StringLiterals;
+namespace Keys {
 
     inline const auto EDITOR_FONT = u"Editor/Font"_s;
     inline const auto WINDOW_THEME = u"Window/Theme"_s;
@@ -61,10 +61,10 @@ namespace Keys {
 // Per-workspace-type keys that don't cascade through TieredSettings
 namespace LocalKeys {
 
-    using namespace Qt::StringLiterals;
-
     inline const auto NOTEPAD_TREE_VIEW_DOCK = u"Notepad/TreeViewDock"_s;
     inline const auto NOTEBOOK_TREE_VIEW_DOCK = u"Notebook/TreeViewDock"_s;
+    inline const auto NOTEBOOK_CHIP_COLOR = u"Notebook/ChipColor"_s;
+    inline const auto NOTEBOOK_CHIP_TEXT_COLOR = u"Notebook/ChipTextColor"_s;
 
 } // namespace LocalKeys
 
@@ -128,6 +128,8 @@ inline const Map& defaults()
         // Local (per-Workspace)
         { LocalKeys::NOTEPAD_TREE_VIEW_DOCK, false },
         { LocalKeys::NOTEBOOK_TREE_VIEW_DOCK, true },
+        { LocalKeys::NOTEBOOK_CHIP_COLOR, u""_s },
+        { LocalKeys::NOTEBOOK_CHIP_TEXT_COLOR, u""_s },
     };
 
     return map;
