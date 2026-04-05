@@ -25,8 +25,8 @@ namespace Fernanda::BundledFonts {
 
 using namespace Qt::StringLiterals;
 
-constexpr auto EDITOR_MIN = 8;
-constexpr auto EDITOR_MAX = 144;
+constexpr auto EDITOR_SIZE_MIN = 8;
+constexpr auto EDITOR_SIZE_MAX = 144;
 
 inline Coco::PathList qrcPaths()
 {

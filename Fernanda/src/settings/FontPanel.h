@@ -96,8 +96,8 @@ private:
         italicCheckBox_->setChecked(currentFont_.italic());
 
         sizeSlider_->setRange(
-            BundledFonts::EDITOR_MIN,
-            BundledFonts::EDITOR_MAX);
+            BundledFonts::EDITOR_SIZE_MIN,
+            BundledFonts::EDITOR_SIZE_MAX);
         sizeSlider_->setValue(currentFont_.pointSize());
 
         // Layout
