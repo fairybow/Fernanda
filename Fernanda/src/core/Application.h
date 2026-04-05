@@ -173,8 +173,9 @@ private:
     void loadBundledFonts_()
     {
         for (auto& path : BundledFonts::qrcPaths()) {
-            if (QFontDatabase::addApplicationFont(path.toQString()) < 0)
+            if (QFontDatabase::addApplicationFont(path.toQString()) < 0) {
                 WARN("Failed to load font: {}", path);
+            }
         }
     }
 

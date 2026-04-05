@@ -47,7 +47,9 @@ public:
     inline static auto EDITOR_THEMES = QStringLiteral("style:editor_themes");
     inline static auto WINDOW_THEMES = QStringLiteral("style:window_themes");
 
-    // TODO: Define struct here, ThemeData?
+    /// TODO STYLE: Define struct here, ThemeData? (Centralized place - keep Bus
+    /// from including a style module file, style module can pass themes to
+    /// whatever and we know they'll be able to read it)
 
 signals:
     void windowCreated(Window* context);
