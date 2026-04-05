@@ -155,7 +155,7 @@ bus->addCommandHandler("windows:list", [this] {
 auto windowList = bus->call<QList<Window*>>("windows:list");
 ```
 
-Command handlers can accept a `Command` struct containing parameters and a window context:
+Command handlers can accept a `Command` struct containing parameters:
 
 ```cpp
 bus->addCommandHandler("settings:get", [this](const Command& cmd) {

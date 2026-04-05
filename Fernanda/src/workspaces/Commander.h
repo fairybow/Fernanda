@@ -27,7 +27,6 @@
 #include <Coco/Utility.h>
 
 #include "core/Debug.h"
-#include "ui/Window.h"
 
 namespace Fernanda {
 
@@ -42,11 +41,9 @@ struct Command
     using Params = QHash<QString, QVariant>;
 
     Params params{};
-    Window* context = nullptr;
 
-    Command(const Params& params = {}, Window* context = nullptr)
+    Command(const Params& params = {})
         : params(params)
-        , context(context)
     {
     }
 
@@ -177,7 +174,7 @@ public:
 
         } else {
 
-            static_assert(
+            ASSERT(
                 HandlerWithCommandReturnsVoid<HandlerT>
                     || HandlerWithCommandReturnsValue<HandlerT>
                     || HandlerWithoutCommandReturnsVoid<HandlerT>
@@ -187,61 +184,37 @@ public:
         }
     }
 
-    void execute(const QString& id, const Command& cmd)
+    void execute(const QString& id, const Command& cmd = {})
     {
         std::ignore = runCommand_(id, cmd);
     }
 
-    void execute(
-        const QString& id,
-        const Command::Params& params = {},
-        Window* context = nullptr)
+    void execute(const QString& id, const Command::Params& params)
     {
-        std::ignore = runCommand_(id, { params, context });
+        std::ignore = runCommand_(id, { params });
     }
 
-    void execute(const QString& id, Window* context)
-    {
-        std::ignore = runCommand_(id, { {}, context });
-    }
-
-    [[nodiscard]] QVariant call(const QString& id, const Command& cmd)
+    [[nodiscard]] QVariant call(const QString& id, const Command& cmd = {})
     {
         return runCommand_(id, cmd);
     }
 
-    [[nodiscard]] QVariant call(
-        const QString& id,
-        const Command::Params& params = {},
-        Window* context = nullptr)
+    [[nodiscard]] QVariant
+    call(const QString& id, const Command::Params& params)
     {
-        return runCommand_(id, { params, context });
-    }
-
-    [[nodiscard]] QVariant call(const QString& id, Window* context)
-    {
-        return runCommand_(id, { {}, context });
+        return runCommand_(id, { params });
     }
 
     template <typename T>
-    [[nodiscard]] T call(const QString& id, const Command& cmd)
+    [[nodiscard]] T call(const QString& id, const Command& cmd = {})
     {
         return runCommand_(id, cmd).value<T>();
     }
 
     template <typename T>
-    [[nodiscard]] T call(
-        const QString& id,
-        const Command::Params& params = {},
-        Window* context = nullptr)
+    [[nodiscard]] T call(const QString& id, const Command::Params& params)
     {
-        return runCommand_(id, { params, context }).value<T>();
-    }
-
-    template <typename T>
-    [[nodiscard]] T call(const QString& id, Window* context)
-    {
-        return runCommand_(id, { {}, context }).value<T>();
+        return runCommand_(id, { params }).value<T>();
     }
 
 private:
@@ -251,29 +224,27 @@ private:
     {
         if (auto handler = commandHandlers_.value(id)) {
             auto result = handler(cmd);
-            logCmdRan_(id, cmd, result);
+            logCommandRan_(id, cmd, result);
             return result;
         } else {
-            logCmdNoHandler_(id, cmd);
+            logCommandNoHandler_(id, cmd);
             return {};
         }
     }
 
-    void logCmdRan_(
+    void logCommandRan_(
         const QString& id,
         const Command& cmd,
         const QVariant& result) const
     {
-        constexpr auto log_format =
-            "Executed: {}\n\tParams: {}\n\tContext: {}\n\tResult: {}";
-        INFO(log_format, id, cmd.params, cmd.context, result);
+        constexpr auto log_format = "Executed: {}\n\tParams: {}\n\tResult: {}";
+        INFO(log_format, id, cmd.params, result);
     }
 
-    void logCmdNoHandler_(const QString& id, const Command& cmd) const
+    void logCommandNoHandler_(const QString& id, const Command& cmd) const
     {
-        constexpr auto log_format =
-            "No handler found!: {}\n\tParams: {}\n\tContext: {}";
-        INFO(log_format, id, cmd.params, cmd.context);
+        constexpr auto log_format = "No handler found!: {}\n\tParams: {}";
+        INFO(log_format, id, cmd.params);
     }
 };
 

@@ -3,7 +3,7 @@
 ## Current
 
 - [ ] Add installer options to open .txt, .fountain, .md
-- [ ] We don't currently use Window context in commands. Could remove - plus reconsider if it's a Commander/Bud or a Query-er/Bus
+- [x] We don't currently use Window context in commands. Could remove - plus reconsider if it's a Commander/Bud or a Query-er/Bus
 - [ ] Clean up Bus slots (onAction_ convention shouldn't mask what's happening in the function - we should use that when we have multiple other methods to call; e.g. xModified calls onXModified_ which then itself calls setXRelatedThing1_, setOtherThing_, etc...)
 - [ ] Clang rule to always use brackets on if/while statements, even single line, UNLESS that single line would not wrap (e.g. this is fine: `if (0) ++i;`)
 - [ ] setCursor(Qt::PointingHandCursor) for other buttons
