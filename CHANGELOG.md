@@ -76,6 +76,22 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.16 (Testing / Soft Release) - tag v0.99.0-beta.16
+
+## What's New?
+
+**Notebook color chips.** Each Notebook window now displays a colorful "chip" in the status bar with its name for easier window domain recognition. The initial color is deterministically generated from the name but it can be customized via a right-click context menu. Custom colors persist in the Notebook's local settings
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Image/PDF zoom: no scroll/content position realignment on zoom change yet; no panning support yet
+
+---
+
 # 0.99.0-beta.15 (Testing / Soft Release) - tag v0.99.0-beta.15
 
 ## What's New?
