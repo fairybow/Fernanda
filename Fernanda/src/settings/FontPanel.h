@@ -26,6 +26,7 @@
 #include <Coco/Utility.h>
 
 #include "core/Debug.h"
+#include "core/Fonts.h"
 #include "core/Tr.h"
 #include "settings/Ini.h"
 #include "settings/SettingsPanel.h"
@@ -60,8 +61,6 @@ private:
     QCheckBox* italicCheckBox_ = new QCheckBox(Tr::fontPanelItalic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
-    static QStringList appBundled_();
-
     void setup_(const Ini::Map& values)
     {
         // Populate
@@ -78,7 +77,7 @@ private:
         });
 
         // Remove bundled fonts from the system list to avoid duplicates
-        auto bundled = appBundled_();
+        auto bundled = Fonts::families();
 
         for (auto& name : bundled)
             families.removeAll(name);
