@@ -22,6 +22,7 @@
 #include <Coco/Path.h>
 
 #include "core/AppDirs.h"
+#include "core/BundledFonts.h"
 #include "core/Debug.h"
 #include "core/LogViewer.h"
 #include "core/Version.h"
@@ -50,17 +51,6 @@ public:
         TRACER;
         AppDirs::cleanup();
     }
-
-    static QStringList fontFamilies()
-    {
-        // TODO: Do this programmatically in loadBundledFonts_ somehow
-        static const QStringList bundled = { "Courier Prime",
-                                             "mononoki",
-                                             "OpenDyslexic" };
-        return bundled;
-    }
-
-    static QString fontFaceKit() { return FONT_FACE_KIT_; }
 
     void initialize()
     {
@@ -131,22 +121,6 @@ public slots:
     }
 
 private:
-    // TODO: Do this programmatically in loadBundledFonts_ somehow
-    static constexpr auto FONT_FACE_KIT_ = R"CSS(
-@font-face { font-family: "Courier Prime"; font-weight: normal; font-style: normal; src: url(qrc:/courierprime/Courier Prime.ttf) format("truetype"); }
-@font-face { font-family: "Courier Prime"; font-weight: bold; font-style: normal; src: url(qrc:/courierprime/Courier Prime Bold.ttf) format("truetype"); }
-@font-face { font-family: "Courier Prime"; font-weight: normal; font-style: italic; src: url(qrc:/courierprime/Courier Prime Italic.ttf) format("truetype"); }
-@font-face { font-family: "Courier Prime"; font-weight: bold; font-style: italic; src: url(qrc:/courierprime/Courier Prime Bold Italic.ttf) format("truetype"); }
-@font-face { font-family: "mononoki"; font-weight: normal; font-style: normal; src: url(qrc:/mononoki/mononoki-Regular.otf) format("opentype"); }
-@font-face { font-family: "mononoki"; font-weight: bold; font-style: normal; src: url(qrc:/mononoki/mononoki-Bold.otf) format("opentype"); }
-@font-face { font-family: "mononoki"; font-weight: normal; font-style: italic; src: url(qrc:/mononoki/mononoki-Italic.otf) format("opentype"); }
-@font-face { font-family: "mononoki"; font-weight: bold; font-style: italic; src: url(qrc:/mononoki/mononoki-BoldItalic.otf) format("opentype"); }
-@font-face { font-family: "OpenDyslexic"; font-weight: normal; font-style: normal; src: url(qrc:/opendyslexic/OpenDyslexic-Regular.otf) format("opentype"); }
-@font-face { font-family: "OpenDyslexic"; font-weight: bold; font-style: normal; src: url(qrc:/opendyslexic/OpenDyslexic-Bold.otf) format("opentype"); }
-@font-face { font-family: "OpenDyslexic"; font-weight: normal; font-style: italic; src: url(qrc:/opendyslexic/OpenDyslexic-Italic.otf) format("opentype"); }
-@font-face { font-family: "OpenDyslexic"; font-weight: bold; font-style: italic; src: url(qrc:/opendyslexic/OpenDyslexic-BoldItalic.otf) format("opentype"); }
-)CSS";
-
     struct ParsedArgs_
     {
         Coco::PathList fnxFiles{};
@@ -198,9 +172,7 @@ private:
 
     void loadBundledFonts_()
     {
-        for (auto& path : Coco::filePaths(
-                 { ":/courierprime/", ":/mononoki/", ":/opendyslexic/" },
-                 { "*.otf", "*.ttf" })) {
+        for (auto& path : BundledFonts::qrcPaths()) {
             if (QFontDatabase::addApplicationFont(path.toQString()) < 0)
                 WARN("Failed to load font: {}", path);
         }

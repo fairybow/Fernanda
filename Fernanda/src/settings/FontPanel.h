@@ -25,6 +25,7 @@
 
 #include <Coco/Utility.h>
 
+#include "core/BundledFonts.h"
 #include "core/Debug.h"
 #include "core/Tr.h"
 #include "settings/Ini.h"
@@ -60,8 +61,6 @@ private:
     QCheckBox* italicCheckBox_ = new QCheckBox(Tr::fontPanelItalic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
-    static QStringList appBundled_();
-
     void setup_(const Ini::Map& values)
     {
         // Populate
@@ -77,23 +76,28 @@ private:
             return false;
         });
 
-        // Remove bundled fonts from the system list to avoid duplicates
-        auto bundled = appBundled_();
+        auto& main = BundledFonts::editorDefaultFamily();
+        QStringList bundled = BundledFonts::families();
+        bundled.removeAll(main);
 
-        for (auto& name : bundled)
+        // Remove bundled fonts from system list to avoid duplicates
+        for (const auto& name : BundledFonts::families())
             families.removeAll(name);
 
+        // Default -> separator -> other bundled fonts -> separator -> system
+        fontsBox_->addItem(main);
+        fontsBox_->insertSeparator(fontsBox_->count());
         fontsBox_->addItems(bundled);
-        fontsBox_->insertSeparator(bundled.size());
+        fontsBox_->insertSeparator(fontsBox_->count());
         fontsBox_->addItems(families);
-        fontsBox_->setCurrentText(currentFont_.family());
 
+        fontsBox_->setCurrentText(currentFont_.family());
         boldCheckBox_->setChecked(currentFont_.bold());
         italicCheckBox_->setChecked(currentFont_.italic());
 
         sizeSlider_->setRange(
-            Ini::Limits::FONT_SIZE_MIN,
-            Ini::Limits::FONT_SIZE_MAX);
+            BundledFonts::EDITOR_SIZE_MIN,
+            BundledFonts::EDITOR_SIZE_MAX);
         sizeSlider_->setValue(currentFont_.pointSize());
 
         // Layout

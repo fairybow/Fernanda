@@ -28,6 +28,7 @@
 #include <QWebEngineView>
 #include <QWidget>
 
+#include "core/BundledFonts.h"
 #include "core/Time.h"
 #include "core/Tr.h"
 #include "models/TextFileModel.h"
@@ -264,8 +265,6 @@ private:
     inline static bool firstEverLoad_ = true;
     QWidget* warmupMask_ = nullptr;
 
-    static QString appFontFaceKit_();
-
     void applyMode_(Mode mode)
     {
         if (mode == mode_) return;
@@ -336,7 +335,8 @@ private:
             firstParse_ = false;
 
             auto body = bodyPrefix() + blocks.join(QString{}) + bodySuffix();
-            auto html = MarkupWebcode::htmlDoc(appFontFaceKit_(), css(), body);
+            auto html =
+                MarkupWebcode::htmlDoc(BundledFonts::cssAtRules(), css(), body);
 
             /// TODO MU: I am vaguely concerned about the baseUrl
             preview_->setHtml(html, QUrl("qrc:/"));

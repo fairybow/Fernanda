@@ -21,6 +21,7 @@
 #include <Coco/Path.h>
 #include <Coco/Utility.h>
 
+#include "core/BundledFonts.h"
 #include "ui/ColorBar.h"
 
 namespace Fernanda::Ini {
@@ -70,8 +71,6 @@ namespace LocalKeys {
 
 namespace Limits {
 
-    constexpr auto FONT_SIZE_MIN = 8;
-    constexpr auto FONT_SIZE_MAX = 144;
     constexpr auto EDITOR_TAB_STOP_DISTANCE_MIN = 20;
     constexpr auto EDITOR_TAB_STOP_DISTANCE_MAX = 140;
 
@@ -81,15 +80,9 @@ using Map = QHash<QString, QVariant>;
 
 inline const Map& defaults()
 {
-    static const auto font = [] {
-        QFont f("mononoki", 18);
-        f.setBold(true);
-        return f;
-    }();
-
     static const Map map{
         // Font
-        { Keys::EDITOR_FONT, qVar(font) },
+        { Keys::EDITOR_FONT, qVar(BundledFonts::editorDefault()) },
 
         // Themes
         { Keys::WINDOW_THEME, qVar(Coco::Path{}) },
