@@ -13,7 +13,6 @@
 - [ ] Add Tab context menu with the overflow options ^
 - [ ] drop `auto` ???
 - [ ] AbsMarkupFileView mode bar needs visual distinction on bottom and maybe top, like a thin line
-- [ ] ^ mode toggle needs icons
 - [x] We also need to use the snapshot overlay when dragging window maybe (QWebEngineView lags when resizing window)
 - [x] Fountain.h to C? Need more speed!
 
@@ -157,6 +156,8 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] Status bar tools (AOT, Timer, Screen)
 - [ ] Multiple TabWidgets per window for side-by-side
 - [ ] Checkable export and compile feature with Dom tree
+- [ ] Notebook TreeView multiple selections
+- [ ] Notebook multiple selection export
 - [ ] Line spacing options, if possible
 - [ ] Hide menu bar (key to toggle)
 - [ ] Notebook LRU cache for models, if needed
