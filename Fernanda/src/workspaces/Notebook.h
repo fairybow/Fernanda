@@ -518,7 +518,6 @@ private:
         return index.isValid() ? index : fnxModel_->notebookIndex();
     }
 
-    // TODO: Trigger rename immediately (maybe)
     // New file will be under selected TreeView model index (or notebook element
     // if no current index)
     // TODO: Later, we'll need to have options for other creatable file types
@@ -549,9 +548,10 @@ private:
             window,
             working_dir_path / info.relPath,
             info.name);
+
+        treeViews->edit(window, new_index);
     }
 
-    // TODO: Trigger rename immediately (maybe)
     // New folder will be under selected TreeView model index (or notebook
     // element if no current index)
     void newVirtualFolder_(Window* window, const QModelIndex& index = {})
@@ -565,6 +565,7 @@ private:
 
         treeViews->expand(window, parent_index);
         treeViews->setCurrentIndex(window, new_index);
+        treeViews->edit(window, new_index);
     }
 
     // Imported files will be under selected TreeView model index (or notebook

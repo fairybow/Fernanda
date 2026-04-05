@@ -82,6 +82,8 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 **Notebook color chips.** Each Notebook window now displays a colorful "chip" in the status bar with its name for easier window domain recognition. The initial color is deterministically generated from the name but it can be customized via a right-click context menu. Custom colors persist in the Notebook's local settings
 
+**Notebook file/folder rename on add.** Newly added Notebook files and folders will automatically open their line edits for renaming
+
 ## Known Issues
 
 - TreeView root directory is locked in-place for now (Notepad)
