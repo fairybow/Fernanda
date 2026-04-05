@@ -22,6 +22,7 @@
 #include <Coco/Path.h>
 
 #include "core/AppDirs.h"
+#include "core/BundledFonts.h"
 #include "core/Debug.h"
 #include "core/LogViewer.h"
 #include "core/Version.h"
@@ -171,9 +172,7 @@ private:
 
     void loadBundledFonts_()
     {
-        for (auto& path : Coco::filePaths(
-                 { ":/courierprime/", ":/mononoki/", ":/opendyslexic/" },
-                 { "*.otf", "*.ttf" })) {
+        for (auto& path : BundledFonts::qrcPaths()) {
             if (QFontDatabase::addApplicationFont(path.toQString()) < 0)
                 WARN("Failed to load font: {}", path);
         }

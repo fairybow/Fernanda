@@ -28,7 +28,7 @@
 #include <QWebEngineView>
 #include <QWidget>
 
-#include "core/Fonts.h"
+#include "core/BundledFonts.h"
 #include "core/Time.h"
 #include "core/Tr.h"
 #include "models/TextFileModel.h"
@@ -336,7 +336,7 @@ private:
 
             auto body = bodyPrefix() + blocks.join(QString{}) + bodySuffix();
             auto html =
-                MarkupWebcode::htmlDoc(Fonts::cssAtRules(), css(), body);
+                MarkupWebcode::htmlDoc(BundledFonts::cssAtRules(), css(), body);
 
             /// TODO MU: I am vaguely concerned about the baseUrl
             preview_->setHtml(html, QUrl("qrc:/"));

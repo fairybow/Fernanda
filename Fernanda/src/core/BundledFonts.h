@@ -1,15 +1,53 @@
+/*
+ * Fernanda — a plain-text-first workbench for creative writing
+ * Copyright (C) 2025-2026 fairybow
+ *
+ * This program is free software, redistributable and/or modifiable under the
+ * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
+ * but without any warranty (even the implied warranty of merchantability or
+ * fitness for a particular purpose)
+ *
+ * See the LICENSE file or visit <https://www.gnu.org/licenses/>
+ */
+
 #pragma once
 
+#include <QFont>
 #include <QString>
 #include <QStringList>
 
-// Keep in sync with External.qrc fonts
+#include <Coco/Path.h>
 
-namespace Fernanda::Fonts {
+// NB: Keep in sync with External.qrc fonts! Doing all this programmatically on
+// import would be maybe more trouble than it's worth
+
+namespace Fernanda::BundledFonts {
 
 using namespace Qt::StringLiterals;
 
-inline QStringList families()
+constexpr auto EDITOR_MIN = 8;
+constexpr auto EDITOR_MAX = 144;
+
+inline Coco::PathList qrcPaths()
+{
+    return Coco::filePaths(
+        { ":/courierprime/", ":/mononoki/", ":/opendyslexic/" },
+        { "*.otf", "*.ttf" });
+}
+
+inline const QString& editorDefaultFamily()
+{
+    static const auto s = u"mononoki"_s;
+    return s;
+}
+
+inline const QFont& editorDefault()
+{
+    static const QFont f(editorDefaultFamily(), 16, QFont::Bold, false);
+    return f;
+}
+
+inline const QStringList& families()
 {
     static const QStringList bundled = { "Courier Prime",
                                          "mononoki",
@@ -17,7 +55,7 @@ inline QStringList families()
     return bundled;
 }
 
-static QString cssAtRules()
+inline const QString& cssAtRules()
 {
     static const auto s = uR"CSS(
 @font-face {
@@ -97,4 +135,4 @@ static QString cssAtRules()
     return s;
 }
 
-} // namespace Fernanda::Fonts
+} // namespace Fernanda::BundledFonts

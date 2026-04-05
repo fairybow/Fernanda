@@ -89,10 +89,10 @@ set(FERNANDA_HEADERS
     src/core/AppDirs.h
     src/core/Application.h
     src/core/BuildMessages.h
+    src/core/BundledFonts.h
     src/core/Debug.h
     src/core/Disk.h
     src/core/FileTypes.h
-    src/core/Fonts.h
     src/core/Formatters.h
     src/core/Hash.h
     src/core/Io.h
