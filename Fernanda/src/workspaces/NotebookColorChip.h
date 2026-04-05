@@ -70,7 +70,9 @@ private:
 
     static QColor colorFromName_(const QString& name)
     {
-        auto hash = qHash(name);
+        static constexpr auto salt = 90u;
+
+        auto hash = qHash(name) ^ salt;
 
         // Mix bits for better distribution (xorshift-style)
         hash ^= (hash << 13);
