@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <QChar>
 #include <QByteArray>
 #include <QObject>
 #include <QPlainTextDocumentLayout>
@@ -415,6 +416,23 @@ private slots:
             // Get trimmed text from the block
             if (auto block_text = block.text().trimmed();
                 !block_text.isEmpty()) {
+
+                // Prevent titles with markup for markups
+                if (meta->fileType() == FileTypes::Markdown
+                    && block_text.startsWith('#')) {
+                    auto space_idx = block_text.indexOf(QChar(' '));
+                    if (space_idx == -1) continue;
+                    block_text = block_text.mid(space_idx + 1).trimmed();
+                    if (block_text.isEmpty()) continue;
+                } else if (
+                    meta->fileType() == FileTypes::Fountain
+                    && block_text.startsWith(
+                        QStringLiteral("Title:"),
+                        Qt::CaseInsensitive)) {
+                    block_text = block_text.mid(6).trimmed();
+                    if (block_text.isEmpty()) continue;
+                }
+
                 // Limit title to first 27 (30 total if using ellipses)
                 // characters
                 auto title = block_text.left(27);
