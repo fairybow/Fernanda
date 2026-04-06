@@ -12,8 +12,8 @@
 
 #pragma once
 
-#include <QChar>
 #include <QByteArray>
+#include <QChar>
 #include <QObject>
 #include <QPlainTextDocumentLayout>
 #include <QString>
