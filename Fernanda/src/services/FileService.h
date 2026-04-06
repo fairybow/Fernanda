@@ -91,10 +91,9 @@ public:
             if (auto meta = model->meta()) meta->setTitleOverride(title);
     }
 
-    /// TODO NF: Rename?
-    void openOffDiskTxtIn(
+    void openOffDiskPlainTextFileIn(
         Window* window,
-        FileTypes::Kind kind = FileTypes::PlainText)
+        FileTypes::Kind kind)
     {
         if (!window) return;
 
@@ -399,12 +398,10 @@ private:
         return model;
     }
 
-    /// TODO NF: Default arg or always pass (think other creatables later - corkboard, etc)
-    /// TODO NF: Rename?
     AbstractFileModel*
-    newOffDiskTextFileModel_(FileTypes::Kind kind = FileTypes::PlainText)
+    newOffDiskTextFileModel_(FileTypes::Kind kind)
     {
-        auto model = new TextFileModel(kind, {}, this);
+        auto model = new TextFileModel(kind, this);
         registerModel_(model);
         /// TODO BA
         if (afterModelCreatedHook_) afterModelCreatedHook_(model);
