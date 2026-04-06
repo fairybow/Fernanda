@@ -91,9 +91,7 @@ public:
             if (auto meta = model->meta()) meta->setTitleOverride(title);
     }
 
-    void openOffDiskPlainTextFileIn(
-        Window* window,
-        FileTypes::Kind kind)
+    void openOffDiskPlainTextFileIn(Window* window, FileTypes::Kind kind)
     {
         if (!window) return;
 
@@ -398,8 +396,7 @@ private:
         return model;
     }
 
-    AbstractFileModel*
-    newOffDiskTextFileModel_(FileTypes::Kind kind)
+    AbstractFileModel* newOffDiskTextFileModel_(FileTypes::Kind kind)
     {
         auto model = new TextFileModel(kind, this);
         registerModel_(model);

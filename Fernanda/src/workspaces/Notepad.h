@@ -136,10 +136,7 @@ public:
             if (!entry.isOffDisk() && entry.originalPath.exists()) {
                 files->openFilePathIn(window, entry.originalPath);
             } else {
-                /// TODO NF: Recovery entries don't store Kind for off-disk
-                /// files. Until that's added, recovered off-disk files reopen
-                /// as PlainText
-                files->openOffDiskPlainTextFileIn(window, FileTypes::PlainText);
+                files->openOffDiskPlainTextFileIn(window, entry.kind);
             }
         }
 
@@ -182,6 +179,7 @@ protected:
                 dir,
                 meta->path(),
                 meta->title(),
+                meta->fileType(),
                 model->data());
         }
     }
