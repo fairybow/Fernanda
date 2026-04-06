@@ -510,10 +510,10 @@ private:
 
                 return false;
             }
+
+            [[fallthrough]]; // Clean-up after success
         }
 
-            // Clean-up after success
-            [[fallthrough]];
         case SavePrompt::Discard:
             // No resetSnapshot, showModified, or green color bar (all windows
             // closing)
