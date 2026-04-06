@@ -27,6 +27,7 @@ class AbstractFileModel : public QObject
     Q_OBJECT
 
 public:
+    /// TODO NF: See note over TextFileModel ctor
     explicit AbstractFileModel(
         FileTypes::Kind fileType,
         const Coco::Path& path,

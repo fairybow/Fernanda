@@ -203,6 +203,20 @@ protected:
                 })
             .shortcut(MenuShortcuts::NEW_TAB)
 
+            .submenu(Tr::nbNew())
+            .apply([this, window](MenuBuilder& b) {
+                for (auto kind : FileTypes::creatable()) {
+                    b.action(FileTypes::name(kind))
+                        .onUserTrigger(this, [this, window, kind] {
+                            newFile_(
+                                window,
+                                treeViews->currentIndex(window),
+                                kind);
+                        });
+                }
+            })
+            .endSubmenu()
+
             .action(Tr::nbNewFolder())
             .onUserTrigger(this, [this, window] {
                 newVirtualFolder_(window, treeViews->currentIndex(window));
@@ -496,10 +510,10 @@ private:
 
                 return false;
             }
-
-            [[fallthrough]]; // Clean-up after success
         }
 
+            // Clean-up after success
+            [[fallthrough]];
         case SavePrompt::Discard:
             // No resetSnapshot, showModified, or green color bar (all windows
             // closing)
@@ -520,11 +534,11 @@ private:
 
     // New file will be under selected TreeView model index (or notebook element
     // if no current index)
-    // TODO: Later, we'll need to have options for other creatable file types
-    // (like markdown, fountain, etc). From a UI perspective, this could be done
-    // (in both workspaces) with an overflow menu for new tab, plus a context
-    // menu on the add tab button with options
-    void newFile_(Window* window, const QModelIndex& index = {})
+    /// TODO NF: Make kind required param?
+    void newFile_(
+        Window* window,
+        const QModelIndex& index = {},
+        FileTypes::Kind kind = FileTypes::PlainText)
     {
         if (!window) return;
         if (!workingDir_.isValid()) return;
@@ -532,10 +546,8 @@ private:
         auto working_dir_path = workingDir_.path();
         auto parent_index = resolveNotebookIndex_(index);
 
-        auto new_index = fnxModel_->addNewFile(
-            FileTypes::PlainText,
-            working_dir_path,
-            parent_index);
+        auto new_index =
+            fnxModel_->addNewFile(kind, working_dir_path, parent_index);
         if (!new_index.isValid()) return;
 
         auto info = fnxModel_->fileInfoAt(new_index);

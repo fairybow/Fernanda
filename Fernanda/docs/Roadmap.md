@@ -142,6 +142,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - TODO STYLE
 - TODO BA (backup/autosave)
 - TODO MU (markups)
+- TODO NF (new file options (e.g., new Markdown)
 
 ## Features
 

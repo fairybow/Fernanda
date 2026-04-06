@@ -37,8 +37,21 @@ class TextFileModel : public AbstractFileModel
     Q_OBJECT
 
 public:
+    /// TODO NF: Follow this chain of ctors. It seems to me that if we have a
+    /// path, we may or may not need the Kind and if we have the Kind we
+    /// probably don't have a path - need to dig through this and see if it
+    /// makes sense
     explicit TextFileModel(const Coco::Path& path, QObject* parent = nullptr)
         : AbstractFileModel(FileTypes::fromPath(path), path, parent)
+    {
+        setup_();
+    }
+
+    explicit TextFileModel(
+        FileTypes::Kind kind,
+        const Coco::Path& path,
+        QObject* parent = nullptr)
+        : AbstractFileModel(kind, path, parent)
     {
         setup_();
     }

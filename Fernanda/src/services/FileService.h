@@ -91,11 +91,14 @@ public:
             if (auto meta = model->meta()) meta->setTitleOverride(title);
     }
 
-    void openOffDiskTxtIn(Window* window)
+    /// TODO NF: Rename?
+    void openOffDiskTxtIn(
+        Window* window,
+        FileTypes::Kind kind = FileTypes::PlainText)
     {
         if (!window) return;
 
-        if (auto model = newOffDiskTextFileModel_()) {
+        if (auto model = newOffDiskTextFileModel_(kind)) {
             signalFileModelReadied_(window, model);
         }
     }
@@ -396,13 +399,12 @@ private:
         return model;
     }
 
-    // TODO: Will need a newOffDiskFileModel_ function if we ever want new,
-    // blank files that aren't plaintext (think via context menu click on add
-    // tab button). Will be a template function and we can just pass the right
-    // type, since setup will probably be the same for all.
-    AbstractFileModel* newOffDiskTextFileModel_()
+    /// TODO NF: Default arg or always pass (think other creatables later - corkboard, etc)
+    /// TODO NF: Rename?
+    AbstractFileModel*
+    newOffDiskTextFileModel_(FileTypes::Kind kind = FileTypes::PlainText)
     {
-        auto model = new TextFileModel({}, this);
+        auto model = new TextFileModel(kind, {}, this);
         registerModel_(model);
         /// TODO BA
         if (afterModelCreatedHook_) afterModelCreatedHook_(model);

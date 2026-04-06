@@ -277,6 +277,17 @@ protected:
             .onUserTrigger(this, [this, window] { newTab_(window); })
             .shortcut(MenuShortcuts::NEW_TAB)
 
+            .submenu(Tr::npNew())
+            .apply([this, window](MenuBuilder& b) {
+                for (auto kind : FileTypes::creatable()) {
+                    b.action(FileTypes::name(kind))
+                        .onUserTrigger(this, [this, window, kind] {
+                            newTab_(window, kind);
+                        });
+                }
+            })
+            .endSubmenu()
+
             .action(Tr::npOpenFile())
             .onUserTrigger(this, [this, window] { promptOpenFiles_(window); })
             .shortcut(MenuShortcuts::OPEN_FILE);
@@ -709,10 +720,11 @@ private:
         return treeView;
     }
 
-    void newTab_(Window* window)
+    /// TODO NF: Make kind required param?
+    void newTab_(Window* window, FileTypes::Kind kind = FileTypes::PlainText)
     {
         if (!window) return;
-        files->openOffDiskTxtIn(window);
+        files->openOffDiskTxtIn(window, kind);
     }
 
     void promptOpenFiles_(Window* window)
