@@ -27,7 +27,10 @@ class AbstractFileModel : public QObject
     Q_OBJECT
 
 public:
-    /// TODO NF: See note over TextFileModel ctor
+    // Kind drives view selection and fallback extension; path drives display
+    // title and on-disk status. Subclasses (PdfFileModel, ImageFileModel)
+    // resolve Kind differently (hardcoded, magic bytes), but both parameters
+    // are always meaningful at the base level
     explicit AbstractFileModel(
         FileTypes::Kind fileType,
         const Coco::Path& path,
