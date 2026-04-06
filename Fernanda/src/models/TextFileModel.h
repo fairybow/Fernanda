@@ -37,8 +37,22 @@ class TextFileModel : public AbstractFileModel
     Q_OBJECT
 
 public:
+    // AbstractFileModel takes both a Kind and a path. Kind drives view
+    // selection and fallback extension; path drives display title and on-disk
+    // status. Siblings (PdfFileModel, ImageFileModel) resolve Kind differently
+    // (hardcoded, magic bytes), but both parameters are always meaningful at
+    // the base level
+
+    // On-disk: Kind derived from path extension
     explicit TextFileModel(const Coco::Path& path, QObject* parent = nullptr)
         : AbstractFileModel(FileTypes::fromPath(path), path, parent)
+    {
+        setup_();
+    }
+
+    // Off-disk (new, unsaved): Kind explicit, no path
+    explicit TextFileModel(FileTypes::Kind kind, QObject* parent = nullptr)
+        : AbstractFileModel(kind, {}, parent)
     {
         setup_();
     }
@@ -47,8 +61,6 @@ public:
 
     // The prime document. Views should NOT call setDocument() with this; use
     // registerViewDocument() instead
-    // TODO: Unused
-    // QTextDocument* document() const noexcept { return primeDocument_; }
 
     /// TODO PD
     void registerViewDocument(QTextDocument* viewDoc)

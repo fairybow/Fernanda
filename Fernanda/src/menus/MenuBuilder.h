@@ -77,6 +77,31 @@ public:
         return *this;
     }
 
+    MenuBuilder& submenu(const QString& title)
+    {
+        if (!parent_) return *this;
+
+        ensureCurrentMenu_();
+        menuStack_.push_back(currentMenu_);
+
+        auto sub = new QMenu(title, currentMenu_);
+        currentMenu_->addMenu(sub);
+        currentMenu_ = sub;
+        lastAction_ = nullptr;
+
+        return *this;
+    }
+
+    MenuBuilder& endSubmenu()
+    {
+        if (!parent_) return *this;
+
+        if (!menuStack_.isEmpty()) currentMenu_ = menuStack_.takeLast();
+        lastAction_ = nullptr;
+
+        return *this;
+    }
+
     MenuBuilder& action(const QString& text)
     {
         if (!parent_) return *this;
@@ -339,6 +364,7 @@ private:
 
     QMenuBar* menuBar_ = nullptr;
     QMenu* currentMenu_ = nullptr;
+    QList<QMenu*> menuStack_{};
     QAction* lastAction_ = nullptr;
 
     void ensureMenuBar_()

@@ -2,6 +2,8 @@
 
 ## Current
 
+- [ ] Settle on FileType "kind" terminology (see Kind use vs meta->fileType())
+- [x] Add file type "kind" to recovery keys for Notepad (otherwise we lose kind on recovery) (need to fix the else branch with the note in Notepad::recover)
 - [ ] Add installer options to open .txt, .fountain, .md
 - [x] We don't currently use Window context in commands. Could remove - plus reconsider if it's a Commander/Bud or a Query-er/Bus
 - [ ] Clean up Bus slots (onAction_ convention shouldn't mask what's happening in the function - we should use that when we have multiple other methods to call; e.g. xModified calls onXModified_ which then itself calls setXRelatedThing1_, setOtherThing_, etc...)
@@ -142,6 +144,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - TODO STYLE
 - TODO BA (backup/autosave)
 - TODO MU (markups)
+- TODO NF (new file options (e.g., new Markdown)
 
 ## Features
 

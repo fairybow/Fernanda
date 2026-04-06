@@ -104,7 +104,7 @@ public:
         // Captures by reference (relies on open calls being synchronous).
         // On-disk entries match by path key. Off-disk entries have no key, so
         // they match by position: takeFirst() pairs them with
-        // openOffDiskTxtIn() calls in iteration order
+        // openOffDiskPlainTextFileIn() calls in iteration order
         files->setAfterModelCreatedHook(
             [this, &root, &on_disk_buffers, &off_disk_entries](
                 AbstractFileModel* model) {
@@ -133,10 +133,11 @@ public:
 
         // Open files (each triggers hook synchronously)
         for (auto& entry : entries) {
-            if (!entry.isOffDisk() && entry.originalPath.exists())
+            if (!entry.isOffDisk() && entry.originalPath.exists()) {
                 files->openFilePathIn(window, entry.originalPath);
-            else
-                files->openOffDiskTxtIn(window);
+            } else {
+                files->openOffDiskPlainTextFileIn(window, entry.kind);
+            }
         }
 
         files->setAfterModelCreatedHook(nullptr);
@@ -148,8 +149,9 @@ public:
 
         // Sanity: hook should have consumed everything it was given
         ASSERT(on_disk_buffers.isEmpty());
-        // off_disk_entries may not be empty if some openOffDiskTxtIn calls
-        // failed to create models, but that would indicate a deeper problem
+        // off_disk_entries may not be empty if some openOffDiskPlainTextFileIn
+        // calls failed to create models, but that would indicate a deeper
+        // problem
     }
 
     virtual bool tryQuit() override
@@ -177,6 +179,7 @@ protected:
                 dir,
                 meta->path(),
                 meta->title(),
+                meta->fileType(),
                 model->data());
         }
     }
@@ -276,6 +279,17 @@ protected:
         builder.action(Tr::npNewTab())
             .onUserTrigger(this, [this, window] { newTab_(window); })
             .shortcut(MenuShortcuts::NEW_TAB)
+
+            .submenu(Tr::npNew())
+            .apply([this, window](MenuBuilder& b) {
+                for (auto kind : FileTypes::creatable()) {
+                    b.action(FileTypes::name(kind))
+                        .onUserTrigger(this, [this, window, kind] {
+                            newTab_(window, kind);
+                        });
+                }
+            })
+            .endSubmenu()
 
             .action(Tr::npOpenFile())
             .onUserTrigger(this, [this, window] { promptOpenFiles_(window); })
@@ -709,10 +723,11 @@ private:
         return treeView;
     }
 
-    void newTab_(Window* window)
+    /// TODO NF: Make kind required param?
+    void newTab_(Window* window, FileTypes::Kind kind = FileTypes::PlainText)
     {
         if (!window) return;
-        files->openOffDiskTxtIn(window);
+        files->openOffDiskPlainTextFileIn(window, kind);
     }
 
     void promptOpenFiles_(Window* window)

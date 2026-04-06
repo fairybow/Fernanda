@@ -12,6 +12,9 @@
 
 #pragma once
 
+#include <QList>
+#include <QString>
+
 #include <Coco/Path.h>
 
 #include "core/MagicBytes.h"
@@ -57,6 +60,8 @@ enum Kind
 
     // FernandaNotebook (.fnx) handled by Fnx + Application
 };
+
+inline QList<Kind> creatable() { return { PlainText, Markdown, Fountain }; }
 
 // First entry per Kind is the canonical extension
 struct ExtensionEntry
