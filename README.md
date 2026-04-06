@@ -28,7 +28,7 @@ Fernanda offers two workspace types: a **Notepad** for working directly on the O
 - Cascading settings: per-Notebook settings inherit from Notepad defaults
 - Word counter with selection-aware counting and adaptive performance (togglable)
 - PDF and image viewing
-- Markdown and [Fountain](https://fountain.io) editing/viewing
+- [Markdown](https://markdownguide.org/) and [Fountain](https://fountain.io) editing/viewing
 
 See [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md) for the full list.
 

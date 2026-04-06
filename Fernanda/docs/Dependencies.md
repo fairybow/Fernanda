@@ -30,7 +30,7 @@ Fernanda uses a [fork](https://github.com/fairybow/Fernanda-miniz) as a Git subm
 
 ## md4c
 
-[md4c](https://github.com/mity/md4c) is a C Markdown parser (which Qt itself also uses in places).
+[md4c](https://github.com/mity/md4c) is a C [Markdown](https://markdownguide.org/) parser.
 
 Fernanda uses a [fork](https://github.com/fairybow/Fernanda-md4c) as a Git submodule, pinned to the v0.5.2 release.
 
