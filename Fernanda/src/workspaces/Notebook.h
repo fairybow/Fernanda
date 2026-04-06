@@ -19,6 +19,7 @@
 #include <QDockWidget>
 #include <QDomDocument>
 #include <QDomElement>
+#include <QHash>
 #include <QList>
 #include <QModelIndex>
 #include <QModelIndexList>
@@ -255,6 +256,8 @@ private:
     static constexpr auto PATHLESS_FILE_ENTRY_FMT_ =
         "Notebook file entries must have an extant path! [{}]";
 
+    QHash<Window*, NotebookColorChip*> colorChips_{};
+
     // Private recovery constructor
     /// TODO BA
     explicit Notebook(
@@ -373,7 +376,12 @@ private:
     {
         if (!window) return;
 
-        auto chip = new NotebookColorChip(name());
+        auto chip = new NotebookColorChip(fnxPath_);
+        colorChips_[window] = chip;
+
+        connect(window, &Window::destroyed, this, [this, window] {
+            colorChips_.remove(window);
+        });
 
         auto chip_color =
             settings->get<QString>(Ini::LocalKeys::NOTEBOOK_CHIP_COLOR);
@@ -898,6 +906,9 @@ private:
 
         fnxPath_ = new_path;
         windows->setSubtitle(name());
+        for (auto& chip : colorChips_) {
+            chip->setFnx(fnxPath_);
+        }
 
         fnxModel_->resetSnapshot();
         updateWindowsFlags_();

@@ -2,6 +2,7 @@
 
 ## Current
 
+- [ ] Audit containers used to track objects (like hash maps of Window* to Object* (word counter, color chip, etc). Make sure they all clean up in a uniform way (and then perhaps extract that clean-up logic to namespace)
 - [ ] Settle on FileType "kind" terminology (see Kind use vs meta->fileType())
 - [x] Add file type "kind" to recovery keys for Notepad (otherwise we lose kind on recovery) (need to fix the else branch with the note in Notepad::recover)
 - [ ] Add installer options to open .txt, .fountain, .md

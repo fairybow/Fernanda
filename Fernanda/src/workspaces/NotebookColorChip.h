@@ -25,6 +25,8 @@
 #include <QString>
 #include <QWidget>
 
+#include <Coco/Path.h>
+
 #include "core/Debug.h"
 #include "core/Tr.h"
 #include "menus/MenuBuilder.h"
@@ -36,15 +38,23 @@ class NotebookColorChip : public QWidget
     Q_OBJECT
 
 public:
-    NotebookColorChip(const QString& name, QWidget* parent = nullptr)
+    NotebookColorChip(const Coco::Path& fnx, QWidget* parent = nullptr)
         : QWidget(parent)
-        , name_(name)
-        , generatedColor_(colorFromName_(name))
+        , fnx_(fnx)
     {
         setup_();
     }
 
     virtual ~NotebookColorChip() override { TRACER; }
+
+    Coco::Path fnx() const noexcept { return fnx_; }
+
+    void setFnx(const Coco::Path& fnx)
+    {
+        if (fnx_ == fnx) return;
+        fnx_ = fnx;
+        updateDerivedProperties_();
+    }
 
     QColor chipColor() const noexcept
     {
@@ -101,15 +111,17 @@ protected:
             .action(Tr::chipColor())
             .onUserTrigger(
                 this,
-                [this] { pickColor_(chipColor(), chipColorOverride_); })
+                [this] { pickColor_(chipColor(), &chipColorOverride_); })
             .action(Tr::chipTextColor())
             .onUserTrigger(
                 this,
-                [this] { pickColor_(textColor(), textColorOverride_); })
+                [this] { pickColor_(textColor(), &textColorOverride_); })
             .popup(event->globalPos());
     }
 
 private:
+    Coco::Path fnx_;
+
     QString name_{};
     QColor generatedColor_{};
     QColor chipColorOverride_{};
@@ -139,6 +151,20 @@ private:
     void setup_()
     {
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        updateDerivedProperties_();
+    }
+
+    void updateDerivedProperties_()
+    {
+        setToolTip(fnx_.prettyQString());
+
+        // TODO: Common method w/ TextFileModel::onDocContentsChanged
+        auto fnx_name = fnx_.nameQString();
+        auto new_name = fnx_name.left(27);
+        if (fnx_name.length() > 27) new_name += QStringLiteral("...");
+        name_ = new_name;
+
+        generatedColor_ = colorFromName_(name_);
 
         QFontMetrics metrics(font());
         auto text_width = metrics.horizontalAdvance(name_);
@@ -147,11 +173,13 @@ private:
         setFixedSize(
             text_width + (PADDING_H * 2),
             text_height + (PADDING_V * 2));
+
+        update();
     }
 
-    void pickColor_(const QColor& current, QColor& target)
+    void pickColor_(const QColor& current, QColor* targetMember)
     {
-        auto previous = target;
+        auto previous = *targetMember;
         auto dialog = new QColorDialog(current, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -159,20 +187,24 @@ private:
             dialog,
             &QColorDialog::currentColorChanged,
             this,
-            [&](const QColor& color) {
-                target = color;
+            [this, targetMember](const QColor& color) {
+                *targetMember = color;
                 update();
             });
 
-        connect(dialog, &QDialog::finished, this, [&, previous](int result) {
-            if (result == QDialog::Accepted) {
-                emit colorChanged();
-            } else {
-                target = previous;
-            }
+        connect(
+            dialog,
+            &QDialog::finished,
+            this,
+            [this, targetMember, previous](int result) {
+                if (result == QDialog::Accepted) {
+                    emit colorChanged();
+                } else {
+                    *targetMember = previous;
+                }
 
-            update();
-        });
+                update();
+            });
 
         dialog->open();
     }
