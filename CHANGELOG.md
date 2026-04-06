@@ -76,6 +76,32 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 <a id="releases"></a>
 
+# 0.99.0-beta.17 (Testing / Soft Release) - tag v0.99.0-beta.17
+
+## What's New?
+
+**New file type options.** Both Notepad and Notebook now have a "New" submenu (under the existing "New tab" / "New file" actions) with options for Plain Text, Markdown, and Fountain
+
+**Recovery preserves file type.** Notepad's recovery entries now store and restore file kind, so recovering an unsaved Markdown or Fountain file reopens it in the correct mode instead of defaulting to plain text
+
+**Tab title strips markup syntax.** Tab titles derived from file content now strip leading Markdown heading markers (`#`) and Fountain `Title:` prefixes, showing just the title text
+
+**Bundled font data centralized.** Font family names, CSS `@font-face` rules, and editor size limits are now all in `BundledFonts.h`. `FontPanel` now shows the default font family (mononoki) at the top of the picker, separated from other bundled and system fonts
+
+**`Command` unused `Window` context removed.** `Command` no longer carries a `Window*` context field
+
+**`MenuBuilder` submenu support.** `MenuBuilder` gains `submenu()` and `endSubmenu()` for nested menus
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Image/PDF zoom: no scroll/content position realignment on zoom change yet; no panning support yet
+
+---
+
 # 0.99.0-beta.16 (Testing / Soft Release) - tag v0.99.0-beta.16
 
 ## What's New?
