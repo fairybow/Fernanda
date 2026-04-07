@@ -145,7 +145,6 @@ namespace Tr {
 
     // NB dialogs:
 
-    TR_(nbImportFileCaption, tr("Import file"));
     TR_(nbExportFileCaption, tr("Export file"));
     TR_(nbSaveAsCaption, tr("Save as"));
 
@@ -235,6 +234,7 @@ namespace Tr {
     TR_(notebookMenu, tr("Notebook"));
     TR_(nbOpenNotepad, tr("Open notepad"));
     TR_(nbImportFiles, tr("Import files..."));
+    TR_(nbImportFilesCaption, tr("Import files"));
 
     // NB context menu:
 
@@ -295,6 +295,7 @@ namespace Tr {
     TR_(editorPanelLineNumbers, tr("Line numbers"));
     TR_(editorPanelLineHighlight, tr("Highlight current line"));
     TR_(editorPanelSelectionHandles, tr("Selection handles"));
+    TR_(editorPanelLeftRightMargin, tr("Left/Right margin:"));
 
     /// Word counter panel
 

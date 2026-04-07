@@ -77,6 +77,15 @@ public:
         selectionHandles_->update();
     }
 
+    int leftRightMargin() const noexcept { return leftRightMargin_; }
+
+    void setLeftRightMargin(int leftRightMargin)
+    {
+        if (leftRightMargin_ == leftRightMargin) return;
+        leftRightMargin_ = leftRightMargin;
+        updateViewportMargins_();
+    }
+
     QColor lineNumbersBackgroundColor() const
     {
         return lineNumbersBackgroundColor_;
@@ -182,7 +191,7 @@ protected:
     }
 
     /// TODO LNA
-    void resizeEvent(QResizeEvent* event) override;
+    virtual void resizeEvent(QResizeEvent* event) override;
 
 private:
     SelectionHandleOverlay* selectionHandles_ =
@@ -194,6 +203,7 @@ private:
     bool doubleClickWhitespace_ = true;
     bool lineNumbers_ = true;
     bool lineHighlight_ = true;
+    int leftRightMargin_ = 0;
 
     // TODO: Pull QSS template values from here if possible
     QColor lineNumbersBackgroundColor_{ "#d0d0d0" };
@@ -202,14 +212,24 @@ private:
 
     void setup_();
 
+    void updateViewportMargins_()
+    {
+        constexpr auto floor = 400;
+        constexpr auto ceiling = 800;
+
+        auto margin = leftRightMargin_;
+
+        if (auto width = this->width(); width < ceiling) {
+            auto ratio = (width - floor) / qreal(ceiling - floor);
+            auto scale = qBound(0.0, ratio, 1.0);
+            margin = qRound(leftRightMargin_ * scale);
+        }
+
+        setViewportMargins(lineNumberAreaWidth() + margin, 0, margin, 0);
+    }
+
 private slots:
     void resetCursorBlink_();
-
-    /// TODO LNA
-    void updateLineNumberAreaWidth_([[maybe_unused]] int newBlockCount)
-    {
-        setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
-    }
 
     /// TODO LNA
     void highlightCurrentLine_()

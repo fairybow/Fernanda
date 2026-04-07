@@ -568,6 +568,10 @@ private:
               [](TextFileView* v, const QVariant& val) {
                   v->editor()->setSelectionHandles(val.value<bool>());
               } },
+            { Ini::Keys::EDITOR_LR_MARGIN,
+              [](TextFileView* v, const QVariant& val) {
+                  v->editor()->setLeftRightMargin(val.value<int>());
+              } },
 
             // Key filters
             { Ini::Keys::KEY_FILTERS_ACTIVE,

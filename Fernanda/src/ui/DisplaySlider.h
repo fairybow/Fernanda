@@ -42,6 +42,7 @@ public:
     int maximum() const { return slider_->maximum(); }
     int value() const { return slider_->value(); }
     int tickInterval() const { return slider_->tickInterval(); }
+    QString unitText() const { return unit_->text(); }
 
     void setMinimum(int min)
     {
@@ -74,6 +75,12 @@ public:
         slider_->setTickInterval(tickInterval);
     }
 
+    void setUnitText(const QString& unitText)
+    {
+        unit_->setText(unitText);
+        unit_->setVisible(!unitText.isEmpty());
+    }
+
 signals:
     void valueChanged(int value);
     void rangeChanged(int min, int max);
@@ -84,10 +91,12 @@ signals:
 private:
     QSlider* slider_ = new QSlider(Qt::Horizontal, this);
     QLabel* display_ = new QLabel(this);
+    QLabel* unit_ = new QLabel(this);
 
     void setup_()
     {
         // Setup
+        unit_->setVisible(false);
         slider_->setTickPosition(QSlider::NoTicks);
         slider_->setTickInterval(1);
         slider_->setRange(0, 100);
@@ -98,10 +107,18 @@ private:
         setDisplayText_();
 
         // Layout
-        auto layout = new QHBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0); // Keep spacing but no margin
-        layout->addWidget(slider_);
-        layout->addWidget(display_);
+        auto main_layout = new QHBoxLayout(this);
+        main_layout->setContentsMargins(0, 0, 0, 0);
+        // Keep normal spacing
+
+        auto value_layout = new QHBoxLayout;
+        value_layout->setContentsMargins(0, 0, 0, 0);
+        value_layout->setSpacing(1);
+        value_layout->addWidget(display_);
+        value_layout->addWidget(unit_);
+
+        main_layout->addWidget(slider_);
+        main_layout->addLayout(value_layout);
 
         // Connect
         connect(slider_, &QSlider::valueChanged, this, [this](int value) {
