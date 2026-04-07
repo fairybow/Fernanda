@@ -295,6 +295,7 @@ namespace Tr {
     TR_(editorPanelLineNumbers, tr("Line numbers"));
     TR_(editorPanelLineHighlight, tr("Highlight current line"));
     TR_(editorPanelSelectionHandles, tr("Selection handles"));
+    TR_(editorPanelLeftRightMargin, tr("Left/Right margin:"));
 
     /// Word counter panel
 

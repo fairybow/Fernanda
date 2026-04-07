@@ -77,6 +77,15 @@ public:
         selectionHandles_->update();
     }
 
+    int leftRightMargin() const noexcept { return leftRightMargin_; }
+
+    void setLeftRightMargin(int leftRightMargin)
+    {
+        if (leftRightMargin_ == leftRightMargin) return;
+        leftRightMargin_ = leftRightMargin;
+        updateViewportMargins_(0);
+    }
+
     QColor lineNumbersBackgroundColor() const
     {
         return lineNumbersBackgroundColor_;
@@ -194,6 +203,7 @@ private:
     bool doubleClickWhitespace_ = true;
     bool lineNumbers_ = true;
     bool lineHighlight_ = true;
+    int leftRightMargin_ = 0;
 
     // TODO: Pull QSS template values from here if possible
     QColor lineNumbersBackgroundColor_{ "#d0d0d0" };
@@ -206,9 +216,13 @@ private slots:
     void resetCursorBlink_();
 
     /// TODO LNA
-    void updateLineNumberAreaWidth_([[maybe_unused]] int newBlockCount)
+    void updateViewportMargins_([[maybe_unused]] int newBlockCount)
     {
-        setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+        setViewportMargins(
+            lineNumberAreaWidth() + leftRightMargin_,
+            0,
+            leftRightMargin_,
+            0);
     }
 
     /// TODO LNA

@@ -52,6 +52,8 @@ private:
     QCheckBox* lineNumbersCheck_ = new QCheckBox(this);
     QCheckBox* lineHighlightCheck_ = new QCheckBox(this);
     QCheckBox* selectionHandlesCheck_ = new QCheckBox(this);
+    ControlField<DisplaySlider>* leftRightMargin_ =
+        new ControlField<DisplaySlider>(FieldKind::Label, this);
 
     void setup_(const Ini::Map& values)
     {
@@ -105,6 +107,13 @@ private:
         selectionHandlesCheck_->setChecked(
             values[Ini::Keys::EDITOR_SELECTION_HANDLES].toBool());
 
+        leftRightMargin_->setText(Tr::editorPanelTabStopDistance());
+        auto lr_margin_slider = leftRightMargin_->control();
+        lr_margin_slider->setRange(
+            Ini::Limits::EDITOR_LR_MARGIN_MIN,
+            Ini::Limits::EDITOR_LR_MARGIN_MAX);
+        lr_margin_slider->setValue(values[Ini::Keys::EDITOR_LR_MARGIN].toInt());
+
         // Layout
         auto layout = groupBox()->layout();
         layout->addWidget(centerOnScrollCheck_);
@@ -115,6 +124,7 @@ private:
         layout->addWidget(lineNumbersCheck_);
         layout->addWidget(lineHighlightCheck_);
         layout->addWidget(selectionHandlesCheck_);
+        layout->addWidget(leftRightMargin_);
 
         // Connect
         connectCheckBox(
@@ -133,6 +143,7 @@ private:
         connectCheckBox(
             selectionHandlesCheck_,
             Ini::Keys::EDITOR_SELECTION_HANDLES);
+        connectDisplaySlider(lr_margin_slider, Ini::Keys::EDITOR_LR_MARGIN);
     }
 };
 

@@ -40,7 +40,7 @@ void PlainTextEdit::setLineNumbers(bool lineNumbers)
 {
     lineNumbers_ = lineNumbers;
     lineNumberArea_->setVisible(lineNumbers);
-    updateLineNumberAreaWidth_(0);
+    updateViewportMargins_(0);
 }
 
 /// TODO LNA
@@ -106,7 +106,7 @@ void PlainTextEdit::setup_()
         this,
         &PlainTextEdit::blockCountChanged,
         this,
-        &PlainTextEdit::updateLineNumberAreaWidth_);
+        &PlainTextEdit::updateViewportMargins_);
 
     connect(
         this,
@@ -120,7 +120,7 @@ void PlainTextEdit::setup_()
         this,
         &PlainTextEdit::highlightCurrentLine_);
 
-    updateLineNumberAreaWidth_(0);
+    updateViewportMargins_(0);
     highlightCurrentLine_();
 }
 
@@ -145,13 +145,14 @@ void PlainTextEdit::resetCursorBlink_()
 /// TODO LNA
 void PlainTextEdit::updateLineNumberArea_(const QRect& rect, int deltaY)
 {
-    if (deltaY)
+    if (deltaY) {
         lineNumberArea_->scroll(0, deltaY);
-    else
+    } else {
         lineNumberArea_
             ->update(0, rect.y(), lineNumberArea_->width(), rect.height());
+    }
 
-    if (rect.contains(viewport()->rect())) updateLineNumberAreaWidth_(0);
+    if (rect.contains(viewport()->rect())) updateViewportMargins_(0);
 }
 
 } // namespace Fernanda

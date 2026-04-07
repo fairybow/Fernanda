@@ -45,6 +45,7 @@ namespace Keys {
     inline const auto EDITOR_LINE_NUMBERS = u"Editor/LineNumbers"_s;
     inline const auto EDITOR_LINE_HIGHLIGHT = u"Editor/LineHighlight"_s;
     inline const auto EDITOR_SELECTION_HANDLES = u"Editor/SelectionHandles"_s;
+    inline const auto EDITOR_LR_MARGIN = u"Editor/LeftRightMargin"_s;
     inline const auto WORD_COUNTER_ACTIVE = u"WordCounter/Active"_s;
     inline const auto WORD_COUNTER_LINE_COUNT = u"WordCounter/LineCount"_s;
     inline const auto WORD_COUNTER_WORD_COUNT = u"WordCounter/WordCount"_s;
@@ -73,6 +74,8 @@ namespace Limits {
 
     constexpr auto EDITOR_TAB_STOP_DISTANCE_MIN = 20;
     constexpr auto EDITOR_TAB_STOP_DISTANCE_MAX = 140;
+    constexpr auto EDITOR_LR_MARGIN_MIN = 0;
+    constexpr auto EDITOR_LR_MARGIN_MAX = 200;
 
 } // namespace Limits
 
@@ -103,6 +106,7 @@ inline const Map& defaults()
         { Keys::EDITOR_LINE_NUMBERS, true },
         { Keys::EDITOR_LINE_HIGHLIGHT, true },
         { Keys::EDITOR_SELECTION_HANDLES, true },
+        { Keys::EDITOR_LR_MARGIN, 0 },
 
         // Word counter
         { Keys::WORD_COUNTER_ACTIVE, false },
