@@ -234,6 +234,8 @@ private:
         });
 
         auto tree_view = new TreeView(dock_widget);
+
+        // TODO: Tracking/clean-up helper
         treeViews_[window] = tree_view;
         connect(tree_view, &QObject::destroyed, this, [this, window] {
             // if (!window) return;

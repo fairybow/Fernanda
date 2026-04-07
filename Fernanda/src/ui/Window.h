@@ -40,9 +40,8 @@ public:
     virtual ~Window() override
     {
         TRACER;
-
-        // So we can emit via Bus::windowDestroyed without decay
-        emit destroyed(this);
+        emit newlyDestroyed(this);
+        // ^ So we can emit via Bus::windowDestroyed without decay
     }
 
     void activate()
@@ -53,7 +52,8 @@ public:
     }
 
 signals:
-    void destroyed(Window*);
+    // Don't want to shadow QObject::destroyed
+    void newlyDestroyed(Window*);
 
 protected:
     // See: docs/Closures.md

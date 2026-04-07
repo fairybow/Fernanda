@@ -13,6 +13,7 @@
 #include "ui/TabWidget.h"
 
 #include <QColor>
+#include <QContextMenuEvent>
 #include <QCursor>
 #include <QDataStream>
 #include <QDrag>
@@ -130,6 +131,17 @@ bool TabWidget::eventFilter(QObject* watched, QEvent* event)
                 }
             }
         }
+    }
+
+    if (watched == tabBar_ && event->type() == QEvent::ContextMenu) {
+        auto context_event = static_cast<QContextMenuEvent*>(event);
+        auto index = tabBar_->tabAt(context_event->pos());
+
+        if (index >= 0) {
+            emit tabContextMenuRequested(index, context_event->globalPos());
+        }
+
+        return true;
     }
 
     return QWidget::eventFilter(watched, event);

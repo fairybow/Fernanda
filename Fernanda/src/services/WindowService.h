@@ -228,9 +228,9 @@ private:
 
         connect(
             window,
-            &Window::destroyed,
+            &Window::newlyDestroyed,
             this,
-            &WindowService::onWindowDestroyed_);
+            &WindowService::onWindowNewlyDestroyed_);
 
         INFO("Window created [{}]", window);
         emit bus->windowCreated(window);
@@ -329,7 +329,7 @@ private:
     }
 
 private slots:
-    void onWindowDestroyed_(Window* window)
+    void onWindowNewlyDestroyed_(Window* window)
     {
         if (!window) return;
 

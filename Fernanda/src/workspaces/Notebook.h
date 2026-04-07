@@ -376,10 +376,10 @@ private:
     {
         if (!window) return;
 
+        // TODO: Tracking/clean-up helper
         auto chip = new NotebookColorChip(fnxPath_);
         colorChips_[window] = chip;
-
-        connect(window, &Window::destroyed, this, [this, window] {
+        connect(chip, &QObject::destroyed, this, [this, window] {
             colorChips_.remove(window);
         });
 

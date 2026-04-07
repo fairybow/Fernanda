@@ -444,6 +444,8 @@ signals:
         Window* sourceWindow,
         const QPoint& dropPos,
         const TabWidget::TabSpec& tabSpec); /// TODO TD
+    void
+    tabContextMenuRequested(Window* window, int index, const QPoint& globalPos);
 
 protected:
     virtual void registerBusCommands() override
@@ -710,6 +712,14 @@ private:
         // connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
         //     //...
         // });
+
+        connect(
+            tab_widget,
+            &TabWidget::tabContextMenuRequested,
+            this,
+            [this, window](int index, const QPoint& globalPos) {
+                emit tabContextMenuRequested(window, index, globalPos);
+            });
     }
 
     /// TODO TD

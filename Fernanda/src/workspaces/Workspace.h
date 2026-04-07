@@ -217,6 +217,12 @@ private:
             this,
             &Workspace::onTabDraggedToNewWindow_);
 
+        connect(
+            views,
+            &ViewService::tabContextMenuRequested,
+            this,
+            &Workspace::onTabContextMenuRequested_);
+
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
         connect(windows, &WindowService::lastWindowClosed, this, [this] {
@@ -383,6 +389,32 @@ private slots:
             if (source_tab_widget && source_tab_widget->isEmpty())
                 sourceWindow->close();
         }
+    }
+
+    void onTabContextMenuRequested_(
+        Window* window,
+        int index,
+        const QPoint& globalPos)
+    {
+        if (!window || globalPos.isNull()) return;
+
+        MenuBuilder(MenuBuilder::ContextMenu, window)
+            .action(Tr::nxDuplicateTab())
+            .onUserTrigger(
+                this,
+                [this, window, index] { views->duplicateTab(window, index); })
+            .separator()
+            .action(Tr::nxCloseTab())
+            .onUserTrigger(
+                this,
+                [this, window, index] { views->closeTab(window, index); })
+            .action(Tr::nxCloseTabEverywhere())
+            .onUserTrigger(
+                this,
+                [this, window, index] {
+                    views->closeTabEverywhere(window, index);
+                })
+            .popup(globalPos);
     }
 };
 

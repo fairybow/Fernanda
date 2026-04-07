@@ -224,6 +224,7 @@ signals:
         TabWidget* source,
         const QPoint& dropPos,
         const TabSpec& tabSpec); /// TODO TD
+    void tabContextMenuRequested(int index, const QPoint& globalPos);
 
 public slots:
     void setCurrentIndex(int index);
