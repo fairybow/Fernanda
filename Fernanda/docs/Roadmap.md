@@ -2,6 +2,11 @@
 
 ## Current
 
+- [ ] New import submenu in File for both Workspaces
+- [ ] Rename Notebook's "Import files" (misleading)
+- [ ] Add Word (.docx) option to submenu (only one for now)
+- [ ] Docx namespace with toPlainText function
+
 - [ ] See Notebook::fileMenuOpenActions note (but I'm wary of giving Notepad folder-creation)
 - [x] Model File Menu New submenu after Close (move Add Tab (with shortcut) to the submenu (and add "Plain Text" in parentheses). Get only special plain text types from FileTypes and add those programmatically
 - [x] "New file" overflow with Markdown and Fountain options
