@@ -40,7 +40,7 @@ void PlainTextEdit::setLineNumbers(bool lineNumbers)
 {
     lineNumbers_ = lineNumbers;
     lineNumberArea_->setVisible(lineNumbers);
-    updateViewportMargins_(0);
+    updateViewportMargins_();
 }
 
 /// TODO LNA
@@ -80,6 +80,7 @@ void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
 /// TODO LNA
 void PlainTextEdit::resizeEvent(QResizeEvent* event)
 {
+    updateViewportMargins_();
     QPlainTextEdit::resizeEvent(event);
 
     auto cr = contentsRect();
@@ -102,11 +103,9 @@ void PlainTextEdit::setup_()
         this,
         &PlainTextEdit::resetCursorBlink_);
 
-    connect(
-        this,
-        &PlainTextEdit::blockCountChanged,
-        this,
-        &PlainTextEdit::updateViewportMargins_);
+    connect(this, &PlainTextEdit::blockCountChanged, this, [this] {
+        updateViewportMargins_();
+    });
 
     connect(
         this,
@@ -120,7 +119,7 @@ void PlainTextEdit::setup_()
         this,
         &PlainTextEdit::highlightCurrentLine_);
 
-    updateViewportMargins_(0);
+    updateViewportMargins_();
     highlightCurrentLine_();
 }
 
@@ -152,7 +151,7 @@ void PlainTextEdit::updateLineNumberArea_(const QRect& rect, int deltaY)
             ->update(0, rect.y(), lineNumberArea_->width(), rect.height());
     }
 
-    if (rect.contains(viewport()->rect())) updateViewportMargins_(0);
+    if (rect.contains(viewport()->rect())) updateViewportMargins_();
 }
 
 } // namespace Fernanda

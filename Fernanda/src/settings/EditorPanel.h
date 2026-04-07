@@ -107,7 +107,7 @@ private:
         selectionHandlesCheck_->setChecked(
             values[Ini::Keys::EDITOR_SELECTION_HANDLES].toBool());
 
-        leftRightMargin_->setText(Tr::editorPanelTabStopDistance());
+        leftRightMargin_->setText(Tr::editorPanelLeftRightMargin());
         auto lr_margin_slider = leftRightMargin_->control();
         lr_margin_slider->setRange(
             Ini::Limits::EDITOR_LR_MARGIN_MIN,

@@ -83,7 +83,7 @@ public:
     {
         if (leftRightMargin_ == leftRightMargin) return;
         leftRightMargin_ = leftRightMargin;
-        updateViewportMargins_(0);
+        updateViewportMargins_();
     }
 
     QColor lineNumbersBackgroundColor() const
@@ -191,7 +191,7 @@ protected:
     }
 
     /// TODO LNA
-    void resizeEvent(QResizeEvent* event) override;
+    virtual void resizeEvent(QResizeEvent* event) override;
 
 private:
     SelectionHandleOverlay* selectionHandles_ =
@@ -212,18 +212,24 @@ private:
 
     void setup_();
 
+    void updateViewportMargins_()
+    {
+        constexpr auto floor = 400;
+        constexpr auto ceiling = 800;
+
+        auto margin = leftRightMargin_;
+
+        if (auto width = this->width(); width < ceiling) {
+            auto ratio = (width - floor) / qreal(ceiling - floor);
+            auto scale = qBound(0.0, ratio, 1.0);
+            margin = qRound(leftRightMargin_ * scale);
+        }
+
+        setViewportMargins(lineNumberAreaWidth() + margin, 0, margin, 0);
+    }
+
 private slots:
     void resetCursorBlink_();
-
-    /// TODO LNA
-    void updateViewportMargins_([[maybe_unused]] int newBlockCount)
-    {
-        setViewportMargins(
-            lineNumberAreaWidth() + leftRightMargin_,
-            0,
-            leftRightMargin_,
-            0);
-    }
 
     /// TODO LNA
     void highlightCurrentLine_()

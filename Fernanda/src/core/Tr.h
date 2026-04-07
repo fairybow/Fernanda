@@ -145,7 +145,6 @@ namespace Tr {
 
     // NB dialogs:
 
-    TR_(nbImportFileCaption, tr("Import file"));
     TR_(nbExportFileCaption, tr("Export file"));
     TR_(nbSaveAsCaption, tr("Save as"));
 
@@ -235,6 +234,7 @@ namespace Tr {
     TR_(notebookMenu, tr("Notebook"));
     TR_(nbOpenNotepad, tr("Open notepad"));
     TR_(nbImportFiles, tr("Import files..."));
+    TR_(nbImportFilesCaption, tr("Import files"));
 
     // NB context menu:
 

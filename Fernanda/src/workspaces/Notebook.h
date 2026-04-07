@@ -617,7 +617,7 @@ private:
 
         auto fs_paths = Coco::getFiles(
             window,
-            Tr::nbImportFileCaption(),
+            Tr::nbImportFilesCaption(),
             rollingOpenStartDir,
             Tr::nxAllFilesFilter()); /// TODO FT
         if (fs_paths.isEmpty()) return;
