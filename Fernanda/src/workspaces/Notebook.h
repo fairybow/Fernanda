@@ -204,6 +204,7 @@ protected:
         /// TODO NF: Move this into the New submenu (and maybe give Notepad new
         /// folder capabilities, meaning only Notepad would override this (for
         /// Open Files... dialog)
+        /// TODO NF: ^ However, I'm wary of giving Notepad folder-creation
         builder.action(Tr::nbNewFolder()).onUserTrigger(this, [this, window] {
             newVirtualFolder_(window, treeViews->currentIndex(window));
         });
