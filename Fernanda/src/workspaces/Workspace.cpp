@@ -28,6 +28,7 @@
 #include "settings/Ini.h"
 #include "ui/Window.h"
 #include "views/AbstractFileView.h"
+#include "workspaces/Docx.h"
 
 namespace Fernanda {
 
@@ -87,6 +88,26 @@ void Workspace::createWindowMenuBar_(Window* window)
         .apply([this, window](MenuBuilder& builder) {
             fileMenuOpenActions(builder, window);
         })
+        .submenu(Tr::nxImport())
+        .action(Tr::nxImportDocx())
+        .onUserTrigger(
+            this,
+            [this, window] {
+                auto path = Coco::getFile(
+                    window,
+                    Tr::nxImportDocxCaption(),
+                    rollingOpenStartDir,
+                    Tr::nxImportDocxFilter());
+                if (path.isEmpty() || !Docx::isDocxFile(path)) return;
+
+                // Don't update rolling directory for imports
+
+                onDocxImported(
+                    window,
+                    Docx::toPlainText(path),
+                    path.stemQString());
+            })
+        .endSubmenu()
         .separator()
         .action(Tr::nxNewWindow())
         .onUserTrigger(this, [this] { windows->newWindow(); })

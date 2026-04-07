@@ -122,6 +122,13 @@ public:
         primeDocumentEditBlockCursor_ = QTextCursor{}; // release
     }
 
+    void insertContent(const QString& text)
+    {
+        if (!primeDocument_ || text.isEmpty()) return;
+        QTextCursor cursor(primeDocument_);
+        cursor.insertText(text);
+    }
+
     virtual QByteArray data() const override
     {
         return primeDocument_->toPlainText().toUtf8();

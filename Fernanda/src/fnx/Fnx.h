@@ -405,6 +405,8 @@ namespace Io {
             return;
         }
 
+        auto cleanup = qScopeGuard([&] { mz_zip_reader_end(&zip); });
+
         auto file_count = mz_zip_reader_get_num_files(&zip);
 
         for (mz_uint i = 0; i < file_count; ++i) {
@@ -438,8 +440,6 @@ namespace Io {
                     mz_zip_get_error_string(mz_zip_get_last_error(&zip)));
             }
         }
-
-        mz_zip_reader_end(&zip);
     }
 
     inline bool compress(
@@ -465,6 +465,8 @@ namespace Io {
             return false;
         }
 
+        auto cleanup = qScopeGuard([&] { mz_zip_writer_end(&zip); });
+
         auto ok = true; // Get warnings for all fails
         auto entries = Coco::allFilePaths(workingDir);
 
@@ -488,7 +490,6 @@ namespace Io {
         }
 
         if (ok) ok = mz_zip_writer_finalize_archive(&zip);
-        mz_zip_writer_end(&zip);
 
         if (!ok) {
             CRITICAL("FNX archive compression failed!");

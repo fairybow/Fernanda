@@ -184,6 +184,7 @@ set(FERNANDA_HEADERS
     src/workspaces/Backup.h
     src/workspaces/Bus.h
     src/workspaces/Commander.h
+    src/workspaces/Docx.h
     src/workspaces/NewNotebookPrompt.h
     src/workspaces/Notebook.h
     src/workspaces/NotebookColorChip.h

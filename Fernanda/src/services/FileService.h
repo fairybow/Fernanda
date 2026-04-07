@@ -91,11 +91,25 @@ public:
             if (auto meta = model->meta()) meta->setTitleOverride(title);
     }
 
-    void openOffDiskPlainTextFileIn(Window* window, FileTypes::Kind kind)
+    void openOffDiskPlainTextFileIn(
+        Window* window,
+        FileTypes::Kind kind,
+        const QString& initialTitle = {},
+        const QString& initialContent = {})
     {
         if (!window) return;
 
         if (auto model = newOffDiskTextFileModel_(kind)) {
+            if (!initialContent.isEmpty()) {
+                if (auto text_model = qobject_cast<TextFileModel*>(model)) {
+                    text_model->insertContent(initialContent);
+                }
+            }
+
+            if (!initialTitle.isEmpty()) {
+                model->meta()->setTitleOverride(initialTitle);
+            }
+
             signalFileModelReadied_(window, model);
         }
     }

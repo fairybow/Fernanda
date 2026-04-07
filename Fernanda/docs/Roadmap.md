@@ -2,12 +2,23 @@
 
 ## Current
 
+- [ ] SoC Audit!
+- [ ] Audit FileService's file opening functions (newOnDisk vs newOffDisk; only plain text types are creatable; is naming appropriate for each?; does each methods usage in Notepad vs Notebook make sense?; are the methods themselves handling their responsibilities correctly?; does everything in each method belong specifically in that method?; etc)
+
+- [x] New import submenu in File for both Workspaces
+- [ ] Rename Notebook's "Import files" (misleading)
+- [x] Add Word (.docx) option to submenu (only one for now)
+- [x] Docx namespace with toPlainText function
+
 - [ ] See Notebook::fileMenuOpenActions note (but I'm wary of giving Notepad folder-creation)
 - [x] Model File Menu New submenu after Close (move Add Tab (with shortcut) to the submenu (and add "Plain Text" in parentheses). Get only special plain text types from FileTypes and add those programmatically
 - [x] "New file" overflow with Markdown and Fountain options
 - [x] Add Tab context menu with the overflow options ^
 - [ ] Tab context menu: add close to right, left and all other
 - [x] Tab context menu (would have duplicate, save, save as, etc)
+
+- [ ] The u prefix makes a char16_t literal (UTF-16). Qt's QString and QStringView are UTF-16 internally, so comparisons like reader.name() == u"p" avoid any implicit conversion - check for other similar occurrences and fix!
+
 - [ ] Audit containers used to track objects (like hash maps of Window* to Object* (word counter, color chip, etc). Make sure they all clean up in a uniform way (and then perhaps extract that clean-up logic to namespace) (search // TODO: Tracking/clean-up helper) (add an `if (hash.removed) log("msg");` pattern; use: obj, QObject::destroyed, context, lambda w/ removal)
 - [ ] Settle on FileType "kind" terminology (see Kind use vs meta->fileType())
 - [x] Add file type "kind" to recovery keys for Notepad (otherwise we lose kind on recovery) (need to fix the else branch with the note in Notepad::recover)
