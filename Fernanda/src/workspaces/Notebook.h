@@ -142,6 +142,40 @@ protected:
         newFile_(window, treeViews->currentIndex(window), kind);
     }
 
+    virtual void onDocxImported(
+        Window* window,
+        const QString& plainText,
+        const QString& suggestedName) override
+    {
+        if (!window) return;
+        if (!workingDir_.isValid()) return;
+
+        auto working_dir_path = workingDir_.path();
+        auto parent_index =
+            resolveNotebookIndex_(treeViews->currentIndex(window));
+
+        auto new_index = fnxModel_->addNewFile(
+            FileTypes::PlainText,
+            working_dir_path,
+            parent_index);
+        if (!new_index.isValid()) return;
+
+        auto info = fnxModel_->fileInfoAt(new_index);
+        if (!info.isValid()) return;
+
+        // Write imported content to the new file on disk
+        auto file_path = working_dir_path / info.relPath;
+        Io::write(plainText.toUtf8(), file_path);
+
+        // Set display name from the DOCX stem
+        fnxModel_->setData(new_index, suggestedName, Qt::EditRole);
+
+        treeViews->expand(window, parent_index);
+        treeViews->setCurrentIndex(window, new_index);
+
+        files->openFilePathIn(window, file_path, suggestedName);
+    }
+
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
 
     virtual QModelIndex treeViewRootIndex() override

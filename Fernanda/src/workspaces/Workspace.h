@@ -127,6 +127,13 @@ protected:
     // TODO: Rename?
     virtual void newFile(Window* window, FileTypes::Kind kind) = 0;
 
+    /// TODO NF: When we have other importable types, we can generalize and pass
+    /// FileTypes::Kind perhaps
+    virtual void onDocxImported(
+        Window* window,
+        const QString& plainText,
+        const QString& suggestedName) = 0;
+
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
 

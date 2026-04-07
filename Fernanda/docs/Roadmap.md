@@ -2,10 +2,13 @@
 
 ## Current
 
-- [ ] New import submenu in File for both Workspaces
+- [ ] SoC Audit!
+- [ ] Audit FileService's file opening functions (newOnDisk vs newOffDisk; only plain text types are creatable; is naming appropriate for each?; does each methods usage in Notepad vs Notebook make sense?; are the methods themselves handling their responsibilities correctly?; does everything in each method belong specifically in that method?; etc)
+
+- [x] New import submenu in File for both Workspaces
 - [ ] Rename Notebook's "Import files" (misleading)
-- [ ] Add Word (.docx) option to submenu (only one for now)
-- [ ] Docx namespace with toPlainText function
+- [x] Add Word (.docx) option to submenu (only one for now)
+- [x] Docx namespace with toPlainText function
 
 - [ ] See Notebook::fileMenuOpenActions note (but I'm wary of giving Notepad folder-creation)
 - [x] Model File Menu New submenu after Close (move Add Tab (with shortcut) to the submenu (and add "Plain Text" in parentheses). Get only special plain text types from FileTypes and add those programmatically

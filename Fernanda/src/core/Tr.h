@@ -182,6 +182,13 @@ namespace Tr {
     TR_(nxNewNotebook, tr("New notebook"));
     TR_(nxOpenNotebook, tr("Open notebook"));
 
+    TR_(nxImport, tr("Import"));
+    TR_(nxImportDocx, tr("Microsoft Word document"));
+    TR_(nxImportDocxCaption, tr("Import Microsoft Word document"));
+    /// TODO FT: Pull ext from FileTypes (or Docx.h), maybe in special filters
+    /// header
+    TR_(nxImportDocxFilter, tr("Microsoft Word document (*.docx)"));
+
     TR_(nxSave, tr("Save"));
     TR_(nxSaveAs, tr("Save as..."));
 

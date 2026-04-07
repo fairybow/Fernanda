@@ -189,6 +189,18 @@ protected:
         newTab_(window, kind);
     }
 
+    virtual void onDocxImported(
+        Window* window,
+        const QString& plainText,
+        const QString& suggestedName) override
+    {
+        files->openOffDiskPlainTextFileIn(
+            window,
+            FileTypes::PlainText,
+            suggestedName,
+            plainText);
+    }
+
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
 
     virtual QModelIndex treeViewRootIndex() override
