@@ -13,6 +13,7 @@
 - [ ] Decide how to handle Notebook's import (in Notebook menu)
 - [ ] ^ Probably want to have it apply our import process for supported types to those supported types (like DOCX) instead of just copying them in - after all, it does already do processing (rename the underlying file, etc)
 - [ ] ^ May want to then also add the action into Notebook's Import (File) menu. Import for Notepad means just processing and opening as unsaved, but import for Notebook means something a little different (copying the file into the working dir and processing it and opening it, too); it feels weird to have this live in the same setting a little, but it ALREADY handles DOCX differently and other same-named operations are different between the two Workspace types (Save, for example)
+- [ ] Consequentially, may want to remove the Workspace menu entirely and add Open Notepad to Notebook's File menu
 
 - [ ] See Notebook::fileMenuOpenActions note (but I'm wary of giving Notepad folder-creation)
 - [x] Model File Menu New submenu after Close (move Add Tab (with shortcut) to the submenu (and add "Plain Text" in parentheses). Get only special plain text types from FileTypes and add those programmatically
