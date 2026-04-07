@@ -201,18 +201,12 @@ protected:
     virtual void
     fileMenuOpenActions(MenuBuilder& builder, Window* window) override
     {
-        builder.action(Tr::nbNewFile())
-            .onUserTrigger(
-                this,
-                [this, window] {
-                    newFile_(window, treeViews->currentIndex(window));
-                })
-            .shortcut(MenuShortcuts::NEW_TAB)
-
-            .action(Tr::nbNewFolder())
-            .onUserTrigger(this, [this, window] {
-                newVirtualFolder_(window, treeViews->currentIndex(window));
-            });
+        /// TODO NF: Move this into the New submenu (and maybe give Notepad new
+        /// folder capabilities, meaning only Notepad would override this (for
+        /// Open Files... dialog)
+        builder.action(Tr::nbNewFolder()).onUserTrigger(this, [this, window] {
+            newVirtualFolder_(window, treeViews->currentIndex(window));
+        });
     }
 
     virtual void fileMenuSaveActions(

@@ -176,6 +176,8 @@ namespace Tr {
 
     TR_(nxNew, tr("New"));
 
+    TR_(nxNewTab, tr("New tab (Plain Text)"));
+
     TR_(nxNewWindow, tr("New window"));
     TR_(nxNewNotebook, tr("New notebook"));
     TR_(nxOpenNotebook, tr("Open notebook"));
@@ -184,6 +186,8 @@ namespace Tr {
     TR_(nxSaveAs, tr("Save as..."));
 
     TR_(nxDuplicateTab, tr("Duplicate tab"));
+
+    TR_(nxClose, tr("Close"));
 
     TR_(nxCloseTab, tr("Close tab"));
     TR_(nxCloseTabEverywhere, tr("Close tab everywhere"));
@@ -210,14 +214,13 @@ namespace Tr {
 
     // NP menus:
 
-    TR_(npNewTab, tr("New tab"));
     TR_(npOpenFile, tr("Open..."));
     TR_(npSaveAllInWindow, tr("Save all in window"));
     TR_(npSaveAll, tr("Save all"));
 
     // NB menus and context menu:
 
-    TR_(nbNewFile, tr("New file"));
+    TR_(nbNewFile, tr("New file (Plain Text)"));
     TR_(nbNewFolder, tr("New folder"));
 
     // NB menu:

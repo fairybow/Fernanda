@@ -148,6 +148,9 @@ protected:
     {
     }
 
+    /// TODO NF: Consider only having the New submenu (with Notepad having all
+    /// "kinds" and Notebook having same + new folder; although, Notepad could
+    /// be allowed to make folders, it would just have to handle it differently)
     virtual void fileMenuOpenActions(MenuBuilder& builder, Window* window) = 0;
     virtual void fileMenuSaveActions(
         MenuBuilder& builder,

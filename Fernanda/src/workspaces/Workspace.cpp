@@ -66,16 +66,17 @@ void Workspace::createWindowMenuBar_(Window* window)
         })
 
         .menu(Tr::nxFileMenu())
-
-        .apply([this, window](MenuBuilder& builder) {
-            fileMenuOpenActions(builder, window);
-        })
-
-        .separator()
-
         .submenu(Tr::nxNew())
+        .action(Tr::nxNewTab())
+        .onUserTrigger(
+            this,
+            [this, window] { newFile(window, FileTypes::PlainText); })
+        .shortcut(MenuShortcuts::NEW_TAB)
+        .separator()
         .apply([this, window](MenuBuilder& builder) {
             for (auto kind : FileTypes::creatable()) {
+                if (kind == FileTypes::PlainText) continue;
+
                 builder.action(FileTypes::name(kind))
                     .onUserTrigger(this, [this, window, kind] {
                         newFile(window, kind);
@@ -83,15 +84,14 @@ void Workspace::createWindowMenuBar_(Window* window)
             }
         })
         .endSubmenu()
-
+        .apply([this, window](MenuBuilder& builder) {
+            fileMenuOpenActions(builder, window);
+        })
         .separator()
-
         .action(Tr::nxNewWindow())
         .onUserTrigger(this, [this] { windows->newWindow(); })
         .shortcut(MenuShortcuts::NEW_WINDOW)
-
         .separator()
-
         .action(Tr::nxNewNotebook())
         .onUserTrigger(
             this,
@@ -105,7 +105,6 @@ void Workspace::createWindowMenuBar_(Window* window)
                 emit newNotebookRequested(
                     currentRootDir / (name + Fnx::Io::EXT));
             })
-
         .action(Tr::nxOpenNotebook())
         .onUserTrigger(
             this,
@@ -121,15 +120,11 @@ void Workspace::createWindowMenuBar_(Window* window)
                 rollingOpenFnxStartDir_ = path.parent();
                 emit openNotebookRequested(path);
             })
-
         .separator()
-
         .apply([this, state, window](MenuBuilder& builder) {
             fileMenuSaveActions(builder, state, window);
         })
-
         .separator()
-
         .action(Tr::nxDuplicateTab())
         .onUserTrigger(
             this,
@@ -138,9 +133,8 @@ void Workspace::createWindowMenuBar_(Window* window)
             state,
             MenuScope::ActiveTab,
             [this, window] { return views->fileViewAt(window, -1); })
-
         .separator()
-
+        .submenu(Tr::nxClose())
         .action(Tr::nxCloseTab())
         .onUserTrigger(this, [this, window] { views->closeTab(window, -1); })
         .shortcut(MenuShortcuts::CLOSE_TAB)
@@ -148,7 +142,6 @@ void Workspace::createWindowMenuBar_(Window* window)
             state,
             MenuScope::ActiveTab,
             [this, window] { return views->fileViewAt(window, -1); })
-
         .action(Tr::nxCloseTabEverywhere())
         .onUserTrigger(
             this,
@@ -157,38 +150,31 @@ void Workspace::createWindowMenuBar_(Window* window)
             state,
             MenuScope::ActiveTab,
             [this, window] { return views->fileViewAt(window, -1); })
-
         .action(Tr::nxCloseWindowTabs())
         .onUserTrigger(this, [this, window] { views->closeWindowTabs(window); })
         .enabledToggle(
             state,
             MenuScope::Window,
             [this, window] { return views->fileViewAt(window, -1); })
-
         .action(Tr::nxCloseAllTabs())
         .onUserTrigger(this, [this] { views->closeAllTabs(); })
         .enabledToggle(
             state,
             MenuScope::Workspace,
             [this] { return views->anyViews(); })
-
+        .endSubmenu()
         .separator()
-
         .action(Tr::nxCloseWindow())
         .onUserTrigger(this, [this, window] { window->close(); })
         .shortcut(MenuShortcuts::CLOSE_WINDOW)
-
         .action(Tr::nxCloseAllWindows())
         .onUserTrigger(this, [this] { windows->closeAll(); })
-
         .separator()
-
         .action(Tr::nxQuit())
         .onUserTrigger(app(), &Application::tryQuit, Qt::QueuedConnection)
         .shortcut(MenuShortcuts::QUIT)
 
         .menu(Tr::nxEditMenu())
-
         .action(Tr::nxUndo())
         .onUserTrigger(this, [this, window] { views->undo(window, -1); })
         .shortcut(MenuShortcuts::UNDO)
@@ -199,7 +185,6 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto model = views->fileModelAt(window, -1);
                 return model && model->hasUndo();
             })
-
         .action(Tr::nxRedo())
         .onUserTrigger(this, [this, window] { views->redo(window, -1); })
         .shortcut(MenuShortcuts::REDO)
@@ -210,9 +195,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto model = views->fileModelAt(window, -1);
                 return model && model->hasRedo();
             })
-
         .separator()
-
         .action(Tr::nxCut())
         .onUserTrigger(this, [this, window] { views->cut(window, -1); })
         .shortcut(MenuShortcuts::CUT)
@@ -223,7 +206,6 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasSelection();
             })
-
         .action(Tr::nxCopy())
         .onUserTrigger(this, [this, window] { views->copy(window, -1); })
         .shortcut(MenuShortcuts::COPY)
@@ -234,7 +216,6 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasSelection();
             })
-
         .action(Tr::nxPaste())
         .onUserTrigger(this, [this, window] { views->paste(window, -1); })
         .shortcut(MenuShortcuts::PASTE)
@@ -245,7 +226,6 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasPaste();
             })
-
         .action(Tr::nxDelete())
         .onUserTrigger(this, [this, window] { views->del(window, -1); })
         .shortcut(MenuShortcuts::DEL)
@@ -256,9 +236,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto view = views->fileViewAt(window, -1);
                 return view && view->hasSelection();
             })
-
         .separator()
-
         .action(Tr::nxSelectAll())
         .onUserTrigger(this, [this, window] { views->selectAll(window, -1); })
         .shortcut(MenuShortcuts::SELECT_ALL)

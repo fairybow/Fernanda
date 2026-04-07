@@ -281,11 +281,7 @@ protected:
     {
         if (!window) return;
 
-        builder.action(Tr::npNewTab())
-            .onUserTrigger(this, [this, window] { newTab_(window); })
-            .shortcut(MenuShortcuts::NEW_TAB)
-
-            .action(Tr::npOpenFile())
+        builder.action(Tr::npOpenFile())
             .onUserTrigger(this, [this, window] { promptOpenFiles_(window); })
             .shortcut(MenuShortcuts::OPEN_FILE);
     }
