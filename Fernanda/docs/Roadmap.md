@@ -5,6 +5,8 @@
 - [ ] SoC Audit!
 - [ ] Audit FileService's file opening functions (newOnDisk vs newOffDisk; only plain text types are creatable; is naming appropriate for each?; does each methods usage in Notepad vs Notebook make sense?; are the methods themselves handling their responsibilities correctly?; does everything in each method belong specifically in that method?; etc)
 
+- [ ] Gutter size + setting on text edits
+
 - [x] New import submenu in File for both Workspaces
 - [ ] Rename Notebook's "Import files" (misleading)
 - [x] Add Word (.docx) option to submenu (only one for now)
