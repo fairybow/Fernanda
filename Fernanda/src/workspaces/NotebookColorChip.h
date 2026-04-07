@@ -179,7 +179,7 @@ private:
 
     void pickColor_(const QColor& current, QColor* targetMember)
     {
-        auto previous = *targetMember;
+        QColor previous = *targetMember;
         auto dialog = new QColorDialog(current, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose);
 
