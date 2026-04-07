@@ -71,6 +71,21 @@ void Workspace::createWindowMenuBar_(Window* window)
             fileMenuOpenActions(builder, window);
         })
 
+        .separator()
+
+        .submenu(Tr::nxNew())
+        .apply([this, window](MenuBuilder& builder) {
+            for (auto kind : FileTypes::creatable()) {
+                builder.action(FileTypes::name(kind))
+                    .onUserTrigger(this, [this, window, kind] {
+                        newFile(window, kind);
+                    });
+            }
+        })
+        .endSubmenu()
+
+        .separator()
+
         .action(Tr::nxNewWindow())
         .onUserTrigger(this, [this] { windows->newWindow(); })
         .shortcut(MenuShortcuts::NEW_WINDOW)

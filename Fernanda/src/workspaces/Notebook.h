@@ -137,6 +137,11 @@ protected:
         writeLockfile_();
     }
 
+    virtual void newFile(Window* window, FileTypes::Kind kind) override
+    {
+        newFile_(window, treeViews->currentIndex(window), kind);
+    }
+
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
 
     virtual QModelIndex treeViewRootIndex() override
@@ -203,20 +208,6 @@ protected:
                     newFile_(window, treeViews->currentIndex(window));
                 })
             .shortcut(MenuShortcuts::NEW_TAB)
-
-            .submenu(Tr::nbNew())
-            .apply([this, window](MenuBuilder& b) {
-                for (auto kind : FileTypes::creatable()) {
-                    b.action(FileTypes::name(kind))
-                        .onUserTrigger(this, [this, window, kind] {
-                            newFile_(
-                                window,
-                                treeViews->currentIndex(window),
-                                kind);
-                        });
-                }
-            })
-            .endSubmenu()
 
             .action(Tr::nbNewFolder())
             .onUserTrigger(this, [this, window] {

@@ -27,6 +27,7 @@
 #include <Coco/Path.h>
 
 #include "core/AppDirs.h"
+#include "core/FileTypes.h"
 #include "core/Time.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
@@ -123,6 +124,9 @@ protected:
         Time::newTicker(this, &Workspace::autosave, 15000);
     virtual void autosave() {};
 
+    // TODO: Rename?
+    virtual void newFile(Window* window, FileTypes::Kind kind) = 0;
+
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
 
@@ -149,6 +153,13 @@ protected:
         MenuBuilder& builder,
         MenuState* state,
         Window* window) = 0;
+
+    virtual void tabContextMenuSaveActions(
+        [[maybe_unused]] MenuBuilder& builder,
+        [[maybe_unused]] Window* window,
+        [[maybe_unused]] int index)
+    {
+    }
 
     enum class MenuScope
     {
@@ -222,6 +233,12 @@ private:
             &ViewService::tabContextMenuRequested,
             this,
             &Workspace::onTabContextMenuRequested_);
+
+        connect(
+            views,
+            &ViewService::addButtonContextMenuRequested,
+            this,
+            &Workspace::onAddButtonContextMenuRequested_);
 
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
@@ -404,6 +421,9 @@ private slots:
                 this,
                 [this, window, index] { views->duplicateTab(window, index); })
             .separator()
+            .apply([this, window, index](MenuBuilder& b) {
+                tabContextMenuSaveActions(b, window, index);
+            })
             .action(Tr::nxCloseTab())
             .onUserTrigger(
                 this,
@@ -414,6 +434,23 @@ private slots:
                 [this, window, index] {
                     views->closeTabEverywhere(window, index);
                 })
+            .popup(globalPos);
+    }
+
+    void
+    onAddButtonContextMenuRequested_(Window* window, const QPoint& globalPos)
+    {
+        if (!window || globalPos.isNull()) return;
+
+        MenuBuilder(MenuBuilder::ContextMenu, window)
+            .apply([this, window](MenuBuilder& builder) {
+                for (auto kind : FileTypes::creatable()) {
+                    builder.action(FileTypes::name(kind))
+                        .onUserTrigger(this, [this, window, kind] {
+                            newFile(window, kind);
+                        });
+                }
+            })
             .popup(globalPos);
     }
 };

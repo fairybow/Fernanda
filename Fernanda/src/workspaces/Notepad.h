@@ -184,6 +184,11 @@ protected:
         }
     }
 
+    virtual void newFile(Window* window, FileTypes::Kind kind) override
+    {
+        newTab_(window, kind);
+    }
+
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
 
     virtual QModelIndex treeViewRootIndex() override
@@ -280,17 +285,6 @@ protected:
             .onUserTrigger(this, [this, window] { newTab_(window); })
             .shortcut(MenuShortcuts::NEW_TAB)
 
-            .submenu(Tr::npNew())
-            .apply([this, window](MenuBuilder& b) {
-                for (auto kind : FileTypes::creatable()) {
-                    b.action(FileTypes::name(kind))
-                        .onUserTrigger(this, [this, window, kind] {
-                            newTab_(window, kind);
-                        });
-                }
-            })
-            .endSubmenu()
-
             .action(Tr::npOpenFile())
             .onUserTrigger(this, [this, window] { promptOpenFiles_(window); })
             .shortcut(MenuShortcuts::OPEN_FILE);
@@ -302,7 +296,7 @@ protected:
         Window* window) override
     {
         builder.action(Tr::nxSave())
-            .onUserTrigger(this, [this, window] { save_(window); })
+            .onUserTrigger(this, [this, window] { save_(window, -1); })
             .shortcut(MenuShortcuts::SAVE)
             .enabledToggle(
                 state,
@@ -313,7 +307,7 @@ protected:
                 })
 
             .action(Tr::nxSaveAs())
-            .onUserTrigger(this, [this, window] { saveAs_(window); })
+            .onUserTrigger(this, [this, window] { saveAs_(window, -1); })
             .shortcut(MenuShortcuts::SAVE_AS)
             .enabledToggle(
                 state,
@@ -340,6 +334,26 @@ protected:
             .shortcut(MenuShortcuts::SAVE_ALL)
             .enabledToggle(state, MenuScope::Workspace, [this] {
                 return files->anyModified();
+            });
+    }
+
+    virtual void tabContextMenuSaveActions(
+        MenuBuilder& builder,
+        Window* window,
+        int index) override
+    {
+        if (!window) return;
+        auto model = views->fileModelAt(window, index);
+        if (!model) return;
+
+        builder.actionIf(model->isModified(), Tr::nxSave())
+            .onUserTrigger(
+                this,
+                [this, window, index] { save_(window, index); })
+
+            .action(Tr::nxSaveAs())
+            .onUserTrigger(this, [this, window, index] {
+                saveAs_(window, index);
             });
     }
 
@@ -757,11 +771,11 @@ private:
         }
     }
 
-    void save_(Window* window)
+    void save_(Window* window, int index)
     {
         if (!window) return;
 
-        auto model = views->fileModelAt(window, -1);
+        auto model = views->fileModelAt(window, index);
         if (!model) return;
 
         if (!model->isModified()) return;
@@ -785,11 +799,11 @@ private:
         }
     }
 
-    void saveAs_(Window* window)
+    void saveAs_(Window* window, int index)
     {
         if (!window) return;
 
-        auto model = views->fileModelAt(window, -1);
+        auto model = views->fileModelAt(window, index);
         if (!model) return;
 
         // Allow Save As on unmodified files!

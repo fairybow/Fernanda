@@ -31,6 +31,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPoint>
 #include <QVBoxLayout>
 
 #include "core/Application.h"
@@ -141,6 +142,12 @@ bool TabWidget::eventFilter(QObject* watched, QEvent* event)
             emit tabContextMenuRequested(index, context_event->globalPos());
         }
 
+        return true;
+    }
+
+    if (watched == addButton_ && event->type() == QEvent::ContextMenu) {
+        auto context_event = static_cast<QContextMenuEvent*>(event);
+        emit addButtonContextMenuRequested(context_event->globalPos());
         return true;
     }
 
@@ -477,10 +484,13 @@ void TabWidget::setup_()
 
     mainStack_->addWidget(underlay_);
     mainStack_->addWidget(widgetStack_);
+
     tabBar_->installEventFilter(this);
     tabBar_->setFixedHeight(TAB_BAR_HEIGHT_);
     tabBar_->setMaximumTabWidth(MIN_TAB_WIDTH_);
     tabBar_->setMaximumTabWidth(MAX_TAB_WIDTH_);
+
+    addButton_->installEventFilter(this);
     addButton_->setFixedSize(ADD_BUTTON_SIZE_);
     addButton_->setIconSize(BUTTON_SVG_SIZE_);
     addButton_->setIcon(StyleContext::Icon::Plus);

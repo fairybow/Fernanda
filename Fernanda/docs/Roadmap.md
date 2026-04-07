@@ -2,7 +2,10 @@
 
 ## Current
 
+- [x] "New file" overflow with Markdown and Fountain options
+- [x] Add Tab context menu with the overflow options ^
 - [ ] Tab context menu: add close to right, left and all other
+- [x] Tab context menu (would have duplicate, save, save as, etc)
 - [ ] Audit containers used to track objects (like hash maps of Window* to Object* (word counter, color chip, etc). Make sure they all clean up in a uniform way (and then perhaps extract that clean-up logic to namespace) (search // TODO: Tracking/clean-up helper) (add an `if (hash.removed) log("msg");` pattern; use: obj, QObject::destroyed, context, lambda w/ removal)
 - [ ] Settle on FileType "kind" terminology (see Kind use vs meta->fileType())
 - [x] Add file type "kind" to recovery keys for Notepad (otherwise we lose kind on recovery) (need to fix the else branch with the note in Notepad::recover)
@@ -14,8 +17,6 @@
 - [ ] Highlight/Q_PROPERTY for all buttons (before tackling window style/themes)
 - [x] Better refresh button for word counter
 - [x] Better mode switch for markup file view
-- [x] "New file" overflow with Markdown and Fountain options
-- [ ] Add Tab context menu with the overflow options ^
 - [ ] drop `auto` ???
 - [ ] AbsMarkupFileView mode bar needs visual distinction on bottom and maybe top, like a thin line
 - [x] We also need to use the snapshot overlay when dragging window maybe (QWebEngineView lags when resizing window)
@@ -117,7 +118,6 @@
 - [ ] Add a button to the open/import dialogs to navigate back to home (startDir)
 - [x] Transition to CMake
 - [x] Ini key to defaults map
-- [ ] Tab context menu (would have duplicate, save, save as, etc)
 - [x] Uniform path display in save and reload prompts
 
 - [ ] For Multi-file save prompt, can organize by directory, so we aren't repeating path for every file (just show parent as collapsible list and each individual name with check box (could also allow the list to be checked))

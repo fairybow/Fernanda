@@ -446,6 +446,7 @@ signals:
         const TabWidget::TabSpec& tabSpec); /// TODO TD
     void
     tabContextMenuRequested(Window* window, int index, const QPoint& globalPos);
+    void addButtonContextMenuRequested(Window* window, const QPoint& globalPos);
 
 protected:
     virtual void registerBusCommands() override
@@ -719,6 +720,14 @@ private:
             this,
             [this, window](int index, const QPoint& globalPos) {
                 emit tabContextMenuRequested(window, index, globalPos);
+            });
+
+        connect(
+            tab_widget,
+            &TabWidget::addButtonContextMenuRequested,
+            this,
+            [this, window](const QPoint& globalPos) {
+                emit addButtonContextMenuRequested(window, globalPos);
             });
     }
 
