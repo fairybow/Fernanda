@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QString>
 #include <QXmlStreamReader>
 
@@ -23,16 +24,56 @@
 
 namespace Fernanda::Docx {
 
-using namespace Qt::StringLiterals;
-
 inline bool isDocxFile(const Coco::Path& path)
 {
-    return path.ext() == u".docx"_s && MagicBytes::is(MagicBytes::Zip, path);
+    constexpr auto ext = ".docx";
+    return path.ext() == ext && MagicBytes::is(MagicBytes::Zip, path);
 }
 
 inline QString toPlainText(const Coco::Path& path)
 {
-    //...
+    mz_zip_archive zip{};
+    if (!mz_zip_reader_init_file(&zip, path.toString().c_str(), 0)) {
+        return {};
+    }
+
+    auto cleanup = qScopeGuard([&] { mz_zip_reader_end(&zip); });
+
+    constexpr auto entry = "word/document.xml";
+    size_t size = 0;
+    auto data = mz_zip_reader_extract_file_to_heap(&zip, entry, &size, 0);
+    if (!data) return {};
+
+    QByteArray xml(
+        static_cast<const char*>(data),
+        static_cast<qsizetype>(size));
+    mz_free(data);
+
+    QString result{};
+    QXmlStreamReader reader(xml);
+    auto in_paragraph = false;
+
+    while (!reader.atEnd()) {
+        reader.readNext();
+
+        if (reader.isStartElement()) {
+            if (reader.name() == u"p") in_paragraph = true;
+
+        } else if (reader.isEndElement()) {
+            if (reader.name() == u"p") {
+                if (in_paragraph) {
+                    result += u'\n';
+                    in_paragraph = false;
+                }
+            }
+
+        } else if (reader.isCharacters() && in_paragraph) {
+            result += reader.text();
+        }
+    }
+
+    if (result.endsWith(u'\n')) result.chop(1);
+    return result;
 }
 
 } // namespace Fernanda::Docx

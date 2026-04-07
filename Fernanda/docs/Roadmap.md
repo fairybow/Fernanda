@@ -14,6 +14,8 @@
 - [ ] Tab context menu: add close to right, left and all other
 - [x] Tab context menu (would have duplicate, save, save as, etc)
 
+- [ ] The u prefix makes a char16_t literal (UTF-16). Qt's QString and QStringView are UTF-16 internally, so comparisons like reader.name() == u"p" avoid any implicit conversion - check for other similar occurrences and fix!
+
 - [ ] Audit containers used to track objects (like hash maps of Window* to Object* (word counter, color chip, etc). Make sure they all clean up in a uniform way (and then perhaps extract that clean-up logic to namespace) (search // TODO: Tracking/clean-up helper) (add an `if (hash.removed) log("msg");` pattern; use: obj, QObject::destroyed, context, lambda w/ removal)
 - [ ] Settle on FileType "kind" terminology (see Kind use vs meta->fileType())
 - [x] Add file type "kind" to recovery keys for Notepad (otherwise we lose kind on recovery) (need to fix the else branch with the note in Notepad::recover)
