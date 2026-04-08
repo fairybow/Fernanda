@@ -37,7 +37,7 @@ tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1);
 // TODO: Need manual wrap for some of these
 namespace Tr {
 
-    // Files (Files.h)
+    // --- Files.h ---
     // TODO: Separate filter names?
     // NB: Most of these won't need to be translated, unless they contain
     // "document", "file", etc - but if one lives here, they all should
@@ -61,17 +61,11 @@ namespace Tr {
 
     TR_(filesFilterAll, tr("All files"));
 
-    // TODO: Old filter functions:
-    TR_(nxAllFilesFilter,
-        tr("All files (*)")); /// TODO FT: Move to a filters namespace but pull
-                              /// the "all files" part from Tr
-    /// TODO FT: Pull ext from FNX, maybe in special filters header
-    TR_(nxOpenNotebookFilter, tr("Fernanda Notebook files (*.fnx)"));
-    /// TODO FT: Pull ext from FNX, maybe in special filters header
-    TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
-    /// TODO FT: Pull ext from FileTypes (or Docx.h), maybe in special filters
-    /// header
-    TR_(nxImportDocxFilter, tr("Microsoft Word document (*.docx)"));
+    // --- Workspace.h ---
+
+    TR_(workspaceImport, tr("Import..."));
+    TR_(workspaceImportCaption, tr("Import files"));
+    TR_(workspaceOpenNotepad, tr("Open notepad"));
 
     /// === ORGANIZE THE BELOW ===
 
@@ -210,10 +204,6 @@ namespace Tr {
     TR_(nxNewNotebook, tr("New notebook"));
     TR_(nxOpenNotebook, tr("Open notebook"));
 
-    TR_(nxImport, tr("Import"));
-    TR_(nxImportDocx, tr("Microsoft Word document"));
-    TR_(nxImportDocxCaption, tr("Import Microsoft Word document"));
-
     TR_(nxSave, tr("Save"));
     TR_(nxSaveAs, tr("Save as..."));
 
@@ -254,13 +244,6 @@ namespace Tr {
 
     TR_(nbNewFile, tr("New file (Plain Text)"));
     TR_(nbNewFolder, tr("New folder"));
-
-    // NB menu:
-
-    TR_(notebookMenu, tr("Notebook"));
-    TR_(nbOpenNotepad, tr("Open notepad"));
-    TR_(nbImportFiles, tr("Import files..."));
-    TR_(nbImportFilesCaption, tr("Import files"));
 
     // NB context menu:
 

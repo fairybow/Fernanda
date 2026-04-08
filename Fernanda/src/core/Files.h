@@ -12,6 +12,10 @@
 
 #pragma once
 
+#include <concepts>
+#include <type_traits>
+#include <utility>
+
 #include <QList>
 #include <QString>
 #include <QStringList>
@@ -64,7 +68,8 @@ inline QList<Type> workspaceCreatableTypes()
     return { PlainText, Markdown, Fountain };
 }
 
-inline QList<Type> importableTypes() { return { MicrosoftWord, RichText }; }
+/// TODO NF: Rename convertsToPlainTextOnImport? Or similar?
+inline QList<Type> conversionImports() { return { MicrosoftWord, RichText }; }
 
 namespace Internal {
 
@@ -149,6 +154,22 @@ inline const char* canonicalExt(const Coco::Path& path)
     return canonicalExt(fromPath(path));
 }
 
+inline QStringList canonicalExts(Type type)
+{
+    QStringList result{};
+
+    for (const auto& [t, ext] : Internal::EXTENSIONS_) {
+        if (t == type) result << ext;
+    }
+
+    return result;
+}
+
+inline QStringList canonicalExts(const Coco::Path& path)
+{
+    return canonicalExts(fromPath(path));
+}
+
 inline QString name(Type type)
 {
     switch (type) {
@@ -188,25 +209,54 @@ inline QString name(Type type)
     }
 }
 
+/// TODO NF: For these filter functions, take a look at Coco::Fx (small,
+/// buildable components and lambda returners) (do this later)
+
+// Single filter for "All Files (*)"
 inline QString filter() { return Tr::filesFilterAll() + u" (*)"_s; }
 
-inline QString filter(Type type)
+// Single filter for "Text (*.*, *.*, ...)"
+inline QString filter(const QString& text, const QList<Type>& types)
 {
-    return name(type) + u" (*"_s + canonicalExt(type) + u")"_s;
-}
+    auto main_format = u"%1 (%2)"_s;
 
-// Compound filter from a list, e.g., "Microsoft Word (Office Open XML) document
-// (*.docx);;Rich Text (*.rtf)"
-/// TODO NF: Add multiple extensions where relevant
-inline QString filter(const QList<Type>& types)
-{
-    QStringList parts{};
+    QStringList globs{};
 
-    for (auto t : types) {
-        parts << filter(t);
+    for (auto& type : types) {
+        for (auto& ext : canonicalExts(type)) {
+            globs << (u"*"_s + ext);
+        }
     }
 
-    return parts.join(u";;"_s);
+    return main_format.arg(text, globs.join(u' '));
+}
+
+// Single filter for "TypeName (*.TypeExt, ...)"
+inline QString filter(Type type)
+{
+    auto main_format = u"%1 (%2)"_s;
+
+    QStringList globs{};
+
+    for (auto& ext : canonicalExts(type)) {
+        globs << (u"*"_s + ext);
+    }
+
+    return main_format.arg(name(type), globs.join(u' '));
+}
+
+template <typename... Args>
+    requires(std::same_as<std::decay_t<Args>, QString> && ...)
+inline QString filters(Args&&... args)
+{
+    QStringList result{ std::forward<Args>(args)... };
+    return result.join(u";;"_s);
+}
+
+/// TODO NF: TR
+inline QString conversionImportsFilter()
+{
+    return filter("Supported files", conversionImports());
 }
 
 /// TODO NF: Generalize, if possible:

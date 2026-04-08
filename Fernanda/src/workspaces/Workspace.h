@@ -94,6 +94,7 @@ public:
 
 signals:
     void lastWindowClosed();
+    void openNotepadRequested();
     void newNotebookRequested(const Coco::Path& fnxPath);
     void openNotebookRequested(const Coco::Path& fnxPath);
 
@@ -127,12 +128,10 @@ protected:
     // TODO: Rename?
     virtual void newFile(Window* window, Files::Type fileType) = 0;
 
-    /// TODO NF: When we have other importable types, we can generalize and pass
-    /// FileTypes::Kind perhaps
-    virtual void onDocxImported(
-        Window* window,
-        const QString& convertedDocxPlainText,
-        const QString& suggestedName) = 0;
+    /// TODO NF
+    virtual void importFiles(Window* window, const Coco::PathList& paths) = 0;
+    /// TODO NF
+    virtual QString importFilter() const = 0;
 
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
@@ -147,13 +146,6 @@ protected:
     virtual bool canCloseAllTabs(const QList<Window*>&) { return true; }
     virtual bool canCloseWindow(Window*) { return true; }
     virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
-
-    virtual void workspaceMenuHook(
-        [[maybe_unused]] MenuBuilder& builder,
-        [[maybe_unused]] MenuState* state,
-        [[maybe_unused]] Window* window)
-    {
-    }
 
     /// TODO NF: Consider only having the New submenu (with Notepad having all
     /// "kinds" and Notebook having same + new folder; although, Notepad could

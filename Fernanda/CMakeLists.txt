@@ -188,10 +188,13 @@ set(FERNANDA_HEADERS
     src/workspaces/NewNotebookPrompt.h
     src/workspaces/Notebook.h
     src/workspaces/NotebookColorChip.h
+    src/workspaces/NotebookImport.h
     src/workspaces/NotebookLockfile.h
     src/workspaces/Notepad.h
     src/workspaces/NotepadFileSystemModel.h
+    src/workspaces/NotepadImport.h
     src/workspaces/NotepadRecovery.h
+    src/workspaces/Rtf.h
     src/workspaces/SaveFailMessageBox.h
     src/workspaces/SavePrompt.h
     src/workspaces/TrashPrompt.h

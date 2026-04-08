@@ -48,6 +48,7 @@
 #include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
 #include "workspaces/NotepadFileSystemModel.h"
+#include "workspaces/NotepadImport.h"
 #include "workspaces/NotepadRecovery.h"
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
@@ -185,21 +186,31 @@ protected:
         }
     }
 
+    /// TODO NF
     virtual void newFile(Window* window, Files::Type fileType) override
     {
         newTab_(window, fileType);
     }
 
-    virtual void onDocxImported(
-        Window* window,
-        const QString& convertedDocxPlainText,
-        const QString& suggestedName) override
+    /// TODO NF
+    virtual void
+    importFiles(Window* window, const Coco::PathList& paths) override
     {
-        files->openOffDiskPlainTextFileIn(
-            window,
-            Files::PlainText,
-            suggestedName,
-            convertedDocxPlainText);
+        auto results = NotepadImport::process(paths);
+
+        for (const auto& result : results) {
+            files->openOffDiskPlainTextFileIn(
+                window,
+                result.type,
+                result.suggestedName,
+                result.text);
+        }
+    }
+
+    /// TODO NF
+    virtual QString importFilter() const override
+    {
+        return Files::conversionImportsFilter();
     }
 
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
@@ -734,7 +745,7 @@ private:
             window,
             Tr::npSaveAsCaption(),
             start_path,
-            Tr::nxAllFilesFilter()); /// TODO FT
+            Files::filter()); /// TODO NF
     }
 
     QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
@@ -762,7 +773,7 @@ private:
             window,
             Tr::npOpenFileCaption(),
             rollingOpenStartDir,
-            Tr::nxAllFilesFilter()); /// TODO FT
+            Files::filter()); /// TODO NF
         if (paths.isEmpty()) return;
 
         rollingOpenStartDir = paths.at(0).parent();

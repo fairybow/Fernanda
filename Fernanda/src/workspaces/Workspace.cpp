@@ -16,6 +16,7 @@
 #include <QString>
 
 #include "core/Application.h"
+#include "core/Files.h"
 #include "core/Tr.h"
 #include "dialogs/AboutDialog.h"
 #include "dialogs/UpdateDialog.h"
@@ -28,9 +29,10 @@
 #include "settings/Ini.h"
 #include "ui/Window.h"
 #include "views/AbstractFileView.h"
-#include "workspaces/Docx.h"
 
 namespace Fernanda {
+
+class Notepad;
 
 // TODO: Race condition risk in menu creation
 //
@@ -62,10 +64,6 @@ void Workspace::createWindowMenuBar_(Window* window)
 
     MenuBuilder(MenuBuilder::MenuBar, window)
 
-        .apply([this, state, window](MenuBuilder& builder) {
-            workspaceMenuHook(builder, state, window);
-        })
-
         .menu(Tr::nxFileMenu())
         .submenu(Tr::nxNew())
         .action(Tr::nxNewTab())
@@ -88,31 +86,27 @@ void Workspace::createWindowMenuBar_(Window* window)
         .apply([this, window](MenuBuilder& builder) {
             fileMenuOpenActions(builder, window);
         })
-        .submenu(Tr::nxImport())
-        .action(Tr::nxImportDocx())
+        .action(Tr::workspaceImport())
         .onUserTrigger(
             this,
             [this, window] {
-                auto path = Coco::getFile(
+                auto paths = Coco::getFiles(
                     window,
-                    Tr::nxImportDocxCaption(),
+                    Tr::workspaceImportCaption(),
                     rollingOpenStartDir,
-                    Tr::nxImportDocxFilter());
-                if (path.isEmpty() || !Files::isDocxFile(path)) return;
+                    importFilter());
+                if (paths.isEmpty()) return;
 
                 // Don't update rolling directory for imports
-
-                onDocxImported(
-                    window,
-                    Docx::toPlainText(path),
-                    path.stemQString());
+                importFiles(window, paths);
             })
-        .endSubmenu()
         .separator()
         .action(Tr::nxNewWindow())
         .onUserTrigger(this, [this] { windows->newWindow(); })
         .shortcut(MenuShortcuts::NEW_WINDOW)
         .separator()
+        .actionIf(!qobject_cast<Notepad*>(this), Tr::workspaceOpenNotepad())
+        .onUserTrigger(this, [this] { emit openNotepadRequested(); })
         .action(Tr::nxNewNotebook())
         .onUserTrigger(
             this,
@@ -136,7 +130,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                     nullptr,
                     Tr::nxOpenNotebookCaption(),
                     rollingOpenFnxStartDir_,
-                    Tr::nxOpenNotebookFilter());
+                    Files::filter(Files::Notebook));
                 if (path.isEmpty() || !Files::isFnxFile(path)) return;
 
                 rollingOpenFnxStartDir_ = path.parent();
