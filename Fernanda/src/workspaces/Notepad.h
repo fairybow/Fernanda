@@ -29,6 +29,7 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
+#include "core/Files.h"
 #include "core/Time.h"
 #include "core/Tr.h"
 #include "core/Version.h"
@@ -47,6 +48,7 @@
 #include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
 #include "workspaces/NotepadFileSystemModel.h"
+#include "workspaces/NotepadImport.h"
 #include "workspaces/NotepadRecovery.h"
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
@@ -136,7 +138,7 @@ public:
             if (!entry.isOffDisk() && entry.originalPath.exists()) {
                 files->openFilePathIn(window, entry.originalPath);
             } else {
-                files->openOffDiskPlainTextFileIn(window, entry.kind);
+                files->openOffDiskPlainTextFileIn(window, entry.fileType);
             }
         }
 
@@ -184,21 +186,31 @@ protected:
         }
     }
 
-    virtual void newFile(Window* window, FileTypes::Kind kind) override
+    /// TODO NF
+    virtual void newFile(Window* window, Files::Type fileType) override
     {
-        newTab_(window, kind);
+        newTab_(window, fileType);
     }
 
-    virtual void onDocxImported(
-        Window* window,
-        const QString& plainText,
-        const QString& suggestedName) override
+    /// TODO NF
+    virtual void
+    importFiles(Window* window, const Coco::PathList& paths) override
     {
-        files->openOffDiskPlainTextFileIn(
-            window,
-            FileTypes::PlainText,
-            suggestedName,
-            plainText);
+        auto results = NotepadImport::process(paths);
+
+        for (const auto& result : results) {
+            files->openOffDiskPlainTextFileIn(
+                window,
+                result.type,
+                result.suggestedName,
+                result.text);
+        }
+    }
+
+    /// TODO NF
+    virtual QString importFilter() const override
+    {
+        return Files::conversionImportsFilter();
     }
 
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
@@ -733,7 +745,7 @@ private:
             window,
             Tr::npSaveAsCaption(),
             start_path,
-            Tr::nxAllFilesFilter()); /// TODO FT
+            Files::filter()); /// TODO NF
     }
 
     QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
@@ -746,10 +758,11 @@ private:
     }
 
     /// TODO NF: Make kind required param?
-    void newTab_(Window* window, FileTypes::Kind kind = FileTypes::PlainText)
+    void
+    newTab_(Window* window, Files::Type plainTextFileType = Files::PlainText)
     {
         if (!window) return;
-        files->openOffDiskPlainTextFileIn(window, kind);
+        files->openOffDiskPlainTextFileIn(window, plainTextFileType);
     }
 
     void promptOpenFiles_(Window* window)
@@ -760,7 +773,7 @@ private:
             window,
             Tr::npOpenFileCaption(),
             rollingOpenStartDir,
-            Tr::nxAllFilesFilter()); /// TODO FT
+            Files::filter()); /// TODO NF
         if (paths.isEmpty()) return;
 
         rollingOpenStartDir = paths.at(0).parent();
@@ -774,8 +787,8 @@ private:
         for (auto& path : paths) {
             if (!path.exists()) continue;
 
-            Fnx::Io::isFnxFile(path) ? emit openNotebookRequested(path)
-                                     : files->openFilePathIn(window, path);
+            Files::isFnxFile(path) ? emit openNotebookRequested(path)
+                                   : files->openFilePathIn(window, path);
         }
     }
 
@@ -902,8 +915,8 @@ private slots:
         auto path = Coco::Path(fsModel_->filePath(index));
         if (path.isDir()) return;
 
-        Fnx::Io::isFnxFile(path) ? emit openNotebookRequested(path)
-                                 : files->openFilePathIn(window, path);
+        Files::isFnxFile(path) ? emit openNotebookRequested(path)
+                               : files->openFilePathIn(window, path);
     }
 };
 

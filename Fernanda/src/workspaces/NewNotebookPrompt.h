@@ -47,7 +47,8 @@ inline QString exec()
     // Input row ([QLineEdit][.fnx])
     auto input_layout = new QHBoxLayout;
     auto line_edit = new QLineEdit(&dialog);
-    auto suffix_label = new QLabel(Fnx::Io::EXT, &dialog);
+    auto suffix_label =
+        new QLabel(Files::canonicalExt(Files::Notebook), &dialog);
     suffix_label->setEnabled(false);
     input_layout->addWidget(line_edit, 1);
     input_layout->addWidget(suffix_label);

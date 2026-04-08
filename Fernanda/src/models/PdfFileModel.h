@@ -20,7 +20,7 @@
 #include <Coco/Path.h>
 
 #include "core/Debug.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "models/AbstractFileModel.h"
 
 namespace Fernanda {
@@ -31,7 +31,7 @@ class PdfFileModel : public AbstractFileModel
 
 public:
     explicit PdfFileModel(const Coco::Path& path, QObject* parent = nullptr)
-        : AbstractFileModel(FileTypes::Pdf, path, parent)
+        : AbstractFileModel(Files::Pdf, path, parent)
     {
         setup_();
     }

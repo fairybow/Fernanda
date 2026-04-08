@@ -92,7 +92,7 @@ set(FERNANDA_HEADERS
     src/core/BundledFonts.h
     src/core/Debug.h
     src/core/Disk.h
-    src/core/FileTypes.h
+    src/core/Files.h
     src/core/Formatters.h
     src/core/Hash.h
     src/core/Io.h
@@ -188,10 +188,13 @@ set(FERNANDA_HEADERS
     src/workspaces/NewNotebookPrompt.h
     src/workspaces/Notebook.h
     src/workspaces/NotebookColorChip.h
+    src/workspaces/NotebookImport.h
     src/workspaces/NotebookLockfile.h
     src/workspaces/Notepad.h
     src/workspaces/NotepadFileSystemModel.h
+    src/workspaces/NotepadImport.h
     src/workspaces/NotepadRecovery.h
+    src/workspaces/Rtf.h
     src/workspaces/SaveFailMessageBox.h
     src/workspaces/SavePrompt.h
     src/workspaces/TrashPrompt.h

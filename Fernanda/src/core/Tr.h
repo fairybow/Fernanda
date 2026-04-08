@@ -37,6 +37,38 @@ tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1);
 // TODO: Need manual wrap for some of these
 namespace Tr {
 
+    // --- Files.h ---
+    // TODO: Separate filter names?
+    // NB: Most of these won't need to be translated, unless they contain
+    // "document", "file", etc - but if one lives here, they all should
+
+    TR_(filesPlainText, tr("Plain text"));
+    TR_(filesNotebook, tr("Fernanda Notebook"));
+    TR_(filesMarkdown, tr("Markdown source"));
+    TR_(filesFountain, tr("Fountain screenplay"));
+    TR_(filesHtml, tr("Hypertext Markup Language (HTML)"));
+    TR_(filesPdf, tr("Portable Document Format (PDF)"));
+    TR_(filesPng, tr("Portable Network Graphics (PNG)"));
+    TR_(filesJpeg, tr("Joint Photographic Experts Group (JPEG)"));
+    TR_(filesGif, tr("Graphics Interchange Format (GIF)"));
+    TR_(filesTiff, tr("Tagged Image File Format (TIFF)"));
+    TR_(filesBmp, tr("Bitmap (BMP)"));
+    TR_(filesWebP, tr("WebP"));
+    TR_(filesMsWord, tr("Microsoft Word (Office Open XML) document"));
+    TR_(filesRichText, tr("Rich Text Format (RTF)"));
+    TR_(filesWindowTheme, tr("Fernanda Window Theme"));
+    TR_(filesEditorTheme, tr("Fernanda Editor Theme"));
+
+    TR_(filesFilterAll, tr("All files"));
+
+    // --- Workspace.h ---
+
+    TR_(workspaceImport, tr("Import..."));
+    TR_(workspaceImportCaption, tr("Import files"));
+    TR_(workspaceOpenNotepad, tr("Open notepad"));
+
+    /// === ORGANIZE THE BELOW ===
+
     /// General
 
     TR_(notepad, tr("Notepad"));
@@ -61,18 +93,12 @@ namespace Tr {
 
     // NX dialogs:
 
-    TR_(nxAllFilesFilter,
-        tr("All files (*)")); /// TODO FT: Move to a filters namespace but pull
-                              /// the "all files" part from Tr
     TR_(nxAboutTitle, tr("About"));
     TR_(nxNewNotebookTitle, tr("New Notebook"));
     TR_(nxNewNotebookBody, tr("Name:"));
     TR_(nxNewNotebookExistsErrBodyFormat,
         tr("A Notebook already exists at %0"));
     TR_(nxOpenNotebookCaption, tr("Open Notebook file"));
-
-    /// TODO FT: Pull ext from FNX, maybe in special filters header
-    TR_(nxOpenNotebookFilter, tr("Fernanda Notebook files (*.fnx)"));
 
     TR_(nxBetaAlert,
         tr("<p><b>This is a prerelease!</b></p><p>You should not trust your "
@@ -148,9 +174,6 @@ namespace Tr {
     TR_(nbExportFileCaption, tr("Export file"));
     TR_(nbSaveAsCaption, tr("Save as"));
 
-    /// TODO FT: Pull ext from FNX, maybe in special filters header
-    TR_(nbSaveAsFilter, tr("Fernanda Notebook files (*.fnx)"));
-
     // TODO: I think a multi version might be better - then, in the singular, we
     // can name the file (instead of weirdly saying "would you like to delete 1
     // file?")
@@ -180,13 +203,6 @@ namespace Tr {
     TR_(nxNewWindow, tr("New window"));
     TR_(nxNewNotebook, tr("New notebook"));
     TR_(nxOpenNotebook, tr("Open notebook"));
-
-    TR_(nxImport, tr("Import"));
-    TR_(nxImportDocx, tr("Microsoft Word document"));
-    TR_(nxImportDocxCaption, tr("Import Microsoft Word document"));
-    /// TODO FT: Pull ext from FileTypes (or Docx.h), maybe in special filters
-    /// header
-    TR_(nxImportDocxFilter, tr("Microsoft Word document (*.docx)"));
 
     TR_(nxSave, tr("Save"));
     TR_(nxSaveAs, tr("Save as..."));
@@ -228,13 +244,6 @@ namespace Tr {
 
     TR_(nbNewFile, tr("New file (Plain Text)"));
     TR_(nbNewFolder, tr("New folder"));
-
-    // NB menu:
-
-    TR_(notebookMenu, tr("Notebook"));
-    TR_(nbOpenNotepad, tr("Open notepad"));
-    TR_(nbImportFiles, tr("Import files..."));
-    TR_(nbImportFilesCaption, tr("Import files"));
 
     // NB context menu:
 

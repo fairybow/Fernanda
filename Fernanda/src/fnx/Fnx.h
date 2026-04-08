@@ -28,9 +28,8 @@
 
 #include <Coco/Path.h>
 
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "core/Io.h"
-#include "core/MagicBytes.h"
 
 // .fnx file format specification and utilities
 // - Fnx::Io: Archive and working directory operations
@@ -240,7 +239,8 @@ namespace Xml {
     }
 
     inline QDomElement addNewFile(
-        FileTypes::Kind kind,
+        Files::Type fileType,
+        const QString& extension,
         const Coco::Path& workingDir,
         QDomDocument& dom)
     {
@@ -255,7 +255,8 @@ namespace Xml {
         }
 
         auto uuid = Internal::makeUuid_();
-        auto ext = FileTypes::canonicalExt(kind);
+        auto ext =
+            extension.isEmpty() ? Files::canonicalExt(fileType) : extension;
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
@@ -274,40 +275,12 @@ namespace Xml {
         return element;
     }
 
-    // TODO: Section off some code from this and addNewFile
-    inline QDomElement importFile(
+    inline QDomElement addNewFile(
+        Files::Type fileType,
         const Coco::Path& workingDir,
-        QDomDocument& dom,
-        const Coco::Path& fsPath)
+        QDomDocument& dom)
     {
-        if (!fsPath.exists() || fsPath.isDir()) return {};
-
-        if (!workingDir.exists()) {
-            CRITICAL(Internal::WORKING_DIR_MISSING_FMT_, workingDir);
-            return {};
-        }
-
-        if (dom.isNull()) {
-            CRITICAL(Internal::XML_NULL_DOM_);
-            return {};
-        }
-
-        auto uuid = Internal::makeUuid_();
-        auto ext = fsPath.extQString();
-        auto file_name = uuid + ext;
-        auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
-
-        if (!Coco::copy(fsPath, path)) {
-            WARN("Failed to copy text file at {}", fsPath);
-            return {};
-        }
-
-        auto element = dom.createElement(Internal::XML_FILE_TAG_);
-        element.setAttribute(Internal::XML_NAME_ATTR_, fsPath.stemQString());
-        element.setAttribute(Internal::XML_UUID_ATTR_, uuid);
-        element.setAttribute(Internal::XML_FILE_EXT_ATTR_, ext);
-
-        return element;
+        return addNewFile(fileType, {}, workingDir, dom);
     }
 
     inline QDomElement addVirtualFolder(QDomDocument& dom)
@@ -332,22 +305,9 @@ namespace Xml {
 // Used by Notebook
 namespace Io {
 
-    /// TODO FT: May want to remove isFnxFile (dependency on MagicBytes) and
-    /// allow Application to do this compound check. So, it would check
-    /// Fnx::Io::EXT first and then check MB. If MB fails, it might open NoOp
-    /// view tab instead of bad FNX file
-    ///
-    /// From future me: Probably don't do this ^
-    constexpr auto EXT = ".fnx";
-
     /// TODO BA
     using BeforeOverwriteHook =
         std::function<void(const Coco::Path& originalFnx)>;
-
-    inline bool isFnxFile(const Coco::Path& path)
-    {
-        return path.ext() == EXT && MagicBytes::is(MagicBytes::Zip, path);
-    }
 
     inline void makeNewWorkingDir(const Coco::Path& workingDir)
     {
@@ -496,6 +456,10 @@ namespace Io {
             Coco::remove(temp_path);
             return false;
         }
+
+        // Close the writer before file operations
+        cleanup.dismiss();
+        mz_zip_writer_end(&zip);
 
         /// TODO BA
         if (beforeOverwriteHook) beforeOverwriteHook(archivePath);

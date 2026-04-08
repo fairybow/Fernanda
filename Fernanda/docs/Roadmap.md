@@ -2,17 +2,22 @@
 
 ## Current
 
+- [ ] Super need to rework Files filter functions for better API
 - [ ] SoC Audit!
 - [ ] Audit FileService's file opening functions (newOnDisk vs newOffDisk; only plain text types are creatable; is naming appropriate for each?; does each methods usage in Notepad vs Notebook make sense?; are the methods themselves handling their responsibilities correctly?; does everything in each method belong specifically in that method?; etc)
 
 - [x] Gutter size + setting on text edits
 
+- [ ] Search "type" and find ambiguous parameter names
+- [ ] Also search "kind"
+
 - [x] New import submenu in File for both Workspaces
 - [x] Add Word (.docx) option to submenu (only one for now)
 - [x] Docx namespace with toPlainText function
-- [ ] Decide how to handle Notebook's import (in Notebook menu)
-- [ ] ^ Probably want to have it apply our import process for supported types to those supported types (like DOCX) instead of just copying them in - after all, it does already do processing (rename the underlying file, etc)
-- [ ] ^ May want to then also add the action into Notebook's Import (File) menu. Import for Notepad means just processing and opening as unsaved, but import for Notebook means something a little different (copying the file into the working dir and processing it and opening it, too); it feels weird to have this live in the same setting a little, but it ALREADY handles DOCX differently and other same-named operations are different between the two Workspace types (Save, for example)
+- [x] Decide how to handle Notebook's import (in Notebook menu)
+- [x] ^ Probably want to have it apply our import process for supported types to those supported types (like DOCX) instead of just copying them in - after all, it does already do processing (rename the underlying file, etc)
+- [x] ^ May want to then also add the action into Notebook's Import (File) menu. Import for Notepad means just processing and opening as unsaved, but import for Notebook means something a little different (copying the file into the working dir and processing it and opening it, too); it feels weird to have this live in the same setting a little, but it ALREADY handles DOCX differently and other same-named operations are different between the two Workspace types (Save, for example)
+- [x] Consequentially, may want to remove the Workspace menu entirely and add Open Notepad to Notebook's File menu
 
 - [ ] See Notebook::fileMenuOpenActions note (but I'm wary of giving Notepad folder-creation)
 - [x] Model File Menu New submenu after Close (move Add Tab (with shortcut) to the submenu (and add "Plain Text" in parentheses). Get only special plain text types from FileTypes and add those programmatically
@@ -24,7 +29,7 @@
 - [ ] The u prefix makes a char16_t literal (UTF-16). Qt's QString and QStringView are UTF-16 internally, so comparisons like reader.name() == u"p" avoid any implicit conversion - check for other similar occurrences and fix!
 
 - [ ] Audit containers used to track objects (like hash maps of Window* to Object* (word counter, color chip, etc). Make sure they all clean up in a uniform way (and then perhaps extract that clean-up logic to namespace) (search // TODO: Tracking/clean-up helper) (add an `if (hash.removed) log("msg");` pattern; use: obj, QObject::destroyed, context, lambda w/ removal)
-- [ ] Settle on FileType "kind" terminology (see Kind use vs meta->fileType())
+- [x] Settle on FileType "kind" terminology (see Kind use vs meta->fileType())
 - [x] Add file type "kind" to recovery keys for Notepad (otherwise we lose kind on recovery) (need to fix the else branch with the note in Notepad::recover)
 - [ ] Add installer options to open .txt, .fountain, .md
 - [x] We don't currently use Window context in commands. Could remove - plus reconsider if it's a Commander/Bud or a Query-er/Bus

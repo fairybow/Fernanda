@@ -18,7 +18,7 @@
 #include <Coco/Path.h>
 
 #include "core/Debug.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "core/Tr.h"
 
 namespace Fernanda {
@@ -31,7 +31,7 @@ class FileMeta : public QObject
 
 public:
     explicit FileMeta(
-        FileTypes::Kind fileType,
+        Files::Type fileType,
         const Coco::Path& path = {},
         QObject* parent = nullptr)
         : QObject(parent)
@@ -45,7 +45,7 @@ public:
 
     bool isOnDisk() const noexcept { return !path_.isEmpty(); }
 
-    FileTypes::Kind fileType() const noexcept { return fileType_; }
+    Files::Type fileType() const noexcept { return fileType_; }
     Coco::Path path() const noexcept { return path_; }
     QString title() const noexcept { return title_; }
     QString toolTip() const noexcept { return toolTip_; }
@@ -92,8 +92,7 @@ public:
 
     QString preferredExt() const
     {
-        return isOnDisk() ? path_.extQString()
-                          : FileTypes::canonicalExt(fileType_);
+        return isOnDisk() ? path_.extQString() : Files::canonicalExt(fileType_);
     }
 
 signals:
@@ -101,7 +100,7 @@ signals:
     void pathChanged(const Coco::Path& old, const Coco::Path& now);
 
 private:
-    FileTypes::Kind fileType_;
+    Files::Type fileType_;
     Coco::Path path_;
 
     // File was on-disk (path_ not empty) but was moved, deleted, or renamed
@@ -128,7 +127,7 @@ private:
         }
 
         auto tool_tip_fmt = QStringLiteral("Title: %0\nPath: %1\nType: %2");
-        auto type_name = FileTypes::name(fileType_);
+        auto type_name = Files::name(fileType_);
 
         QString path_str{};
 

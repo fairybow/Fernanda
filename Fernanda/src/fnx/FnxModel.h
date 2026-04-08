@@ -29,7 +29,7 @@
 #include <Coco/Path.h>
 
 #include "core/Debug.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "fnx/Fnx.h"
 #include "fnx/FnxModelCache.h"
 
@@ -194,11 +194,13 @@ public:
     }
 
     QModelIndex addNewFile(
-        FileTypes::Kind kind,
+        Files::Type fileType,
+        const QString& extension,
         const Coco::Path& workingDir,
         const QModelIndex& parentIndex = {})
     {
-        auto element = Fnx::Xml::addNewFile(kind, workingDir, dom_);
+        auto element =
+            Fnx::Xml::addNewFile(fileType, extension, workingDir, dom_);
         if (element.isNull()) return {};
 
         auto parent = resolveParent_(parentIndex);
@@ -207,30 +209,12 @@ public:
         return indexFromElement_(element);
     }
 
-    QList<QModelIndex> importFiles(
+    QModelIndex addNewFile(
+        Files::Type fileType,
         const Coco::Path& workingDir,
-        const Coco::PathList& fsPaths,
         const QModelIndex& parentIndex = {})
     {
-        QList<QDomElement> elements{};
-
-        for (const auto& fs_path : fsPaths) {
-            if (!fs_path.exists()) continue;
-            auto element = Fnx::Xml::importFile(workingDir, dom_, fs_path);
-            if (!element.isNull()) elements << element;
-        }
-
-        if (elements.isEmpty()) return {};
-
-        auto parent = resolveParent_(parentIndex);
-        insertElements_(elements, parent);
-
-        QModelIndexList indexes{};
-
-        for (const auto& element : elements)
-            indexes << indexFromElement_(element);
-
-        return indexes;
+        return addNewFile(fileType, {}, workingDir, parentIndex);
     }
 
     QModelIndex addNewVirtualFolder(const QModelIndex& parentIndex = {})

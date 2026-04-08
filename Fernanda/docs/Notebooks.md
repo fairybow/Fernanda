@@ -51,7 +51,7 @@ MyNovel.fnx (ZIP archive)
 ### Content Directory
 
 Files in `content/` are named by UUID with normalized extensions:
-- File names: `{uuid}.{ext}` (extension comes from the source file on import or `FileTypes::canonicalExt(kind)` for new files)
+- File names: `{uuid}.{ext}` (extension comes from the source file on import or `Files::canonicalExt(type)` for new files)
 - The UUID ensures uniqueness and enables stable references
 - Display names are stored in `Manifest.xml`, not the filesystem
 

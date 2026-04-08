@@ -37,7 +37,7 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "core/Random.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
@@ -59,6 +59,7 @@
 #include "workspaces/Backup.h"
 #include "workspaces/Bus.h"
 #include "workspaces/NotebookColorChip.h"
+#include "workspaces/NotebookImport.h"
 #include "workspaces/NotebookLockfile.h"
 #include "workspaces/SaveFailMessageBox.h"
 #include "workspaces/SavePrompt.h"
@@ -126,9 +127,6 @@ public:
         return windows->closeAll();
     }
 
-signals:
-    void openNotepadRequested();
-
 protected:
     /// TODO BA
     virtual void autosave() override
@@ -137,43 +135,60 @@ protected:
         writeLockfile_();
     }
 
-    virtual void newFile(Window* window, FileTypes::Kind kind) override
+    /// TODO NF
+    virtual void newFile(Window* window, Files::Type plainTextFileType) override
     {
-        newFile_(window, treeViews->currentIndex(window), kind);
+        newFile_(window, treeViews->currentIndex(window), plainTextFileType);
     }
 
-    virtual void onDocxImported(
-        Window* window,
-        const QString& plainText,
-        const QString& suggestedName) override
+    /// TODO NF
+    virtual void
+    importFiles(Window* window, const QList<Coco::Path>& paths) override
     {
         if (!window) return;
         if (!workingDir_.isValid()) return;
+
+        auto results = NotebookImport::process(paths);
+        if (results.isEmpty()) return;
 
         auto working_dir_path = workingDir_.path();
         auto parent_index =
             resolveNotebookIndex_(treeViews->currentIndex(window));
 
-        auto new_index = fnxModel_->addNewFile(
-            FileTypes::PlainText,
-            working_dir_path,
-            parent_index);
-        if (!new_index.isValid()) return;
+        QModelIndex last_index{};
 
-        auto info = fnxModel_->fileInfoAt(new_index);
-        if (!info.isValid()) return;
+        for (const auto& result : results) {
+            auto new_index = fnxModel_->addNewFile(
+                result.type,
+                result.ext,
+                working_dir_path,
+                parent_index);
+            if (!new_index.isValid()) continue;
 
-        // Write imported content to the new file on disk
-        auto file_path = working_dir_path / info.relPath;
-        Io::write(plainText.toUtf8(), file_path);
+            auto info = fnxModel_->fileInfoAt(new_index);
+            if (!info.isValid()) continue;
 
-        // Set display name from the DOCX stem
-        fnxModel_->setData(new_index, suggestedName, Qt::EditRole);
+            auto file_path = working_dir_path / info.relPath;
+            Io::write(result.content, file_path);
 
-        treeViews->expand(window, parent_index);
-        treeViews->setCurrentIndex(window, new_index);
+            fnxModel_->setData(new_index, result.suggestedName, Qt::EditRole);
+            files->openFilePathIn(window, file_path, result.suggestedName);
+            last_index = new_index;
+        }
 
-        files->openFilePathIn(window, file_path, suggestedName);
+        if (last_index.isValid()) {
+            treeViews->expand(window, parent_index);
+            treeViews->setCurrentIndex(window, last_index);
+        }
+    }
+
+    /// TODO NF
+    virtual QString importFilter() const override
+    {
+        /// TODO NF: This sucks
+        return Files::filters(
+            Files::filter(),
+            Files::conversionImportsFilter());
     }
 
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
@@ -213,23 +228,6 @@ protected:
     {
         if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
         return promptWorkspaceClosingSave_(windows.last());
-    }
-
-    virtual void workspaceMenuHook(
-        MenuBuilder& builder,
-        [[maybe_unused]] MenuState* state,
-        Window* window) override
-    {
-        builder
-            .menu(Tr::notebookMenu())
-
-            .action(Tr::nbOpenNotepad())
-            .onUserTrigger(this, [this] { emit openNotepadRequested(); })
-
-            .action(Tr::nbImportFiles())
-            .onUserTrigger(this, [this, window] {
-                importFiles_(window, treeViews->currentIndex(window));
-            });
     }
 
     virtual void
@@ -566,7 +564,9 @@ private:
     void newFile_(
         Window* window,
         const QModelIndex& index = {},
-        FileTypes::Kind kind = FileTypes::PlainText)
+        // TODO: Change to plainTextFileType? Verify that that's all we pass
+        // through here?
+        Files::Type fileType = Files::PlainText)
     {
         if (!window) return;
         if (!workingDir_.isValid()) return;
@@ -575,7 +575,7 @@ private:
         auto parent_index = resolveNotebookIndex_(index);
 
         auto new_index =
-            fnxModel_->addNewFile(kind, working_dir_path, parent_index);
+            fnxModel_->addNewFile(fileType, working_dir_path, parent_index);
         if (!new_index.isValid()) return;
 
         auto info = fnxModel_->fileInfoAt(new_index);
@@ -606,44 +606,6 @@ private:
         treeViews->expand(window, parent_index);
         treeViews->setCurrentIndex(window, new_index);
         treeViews->edit(window, new_index);
-    }
-
-    // Imported files will be under selected TreeView model index (or notebook
-    // element if no current index)
-    void importFiles_(Window* window, const QModelIndex& index = {})
-    {
-        if (!window) return;
-        if (!workingDir_.isValid()) return;
-
-        auto fs_paths = Coco::getFiles(
-            window,
-            Tr::nbImportFilesCaption(),
-            rollingOpenStartDir,
-            Tr::nxAllFilesFilter()); /// TODO FT
-        if (fs_paths.isEmpty()) return;
-
-        rollingOpenStartDir = fs_paths.at(0).parent();
-
-        auto working_dir_path = workingDir_.path();
-        auto parent_index = resolveNotebookIndex_(index);
-
-        auto indexes =
-            fnxModel_->importFiles(working_dir_path, fs_paths, parent_index);
-        if (indexes.isEmpty()) return;
-
-        treeViews->expand(window, parent_index);
-
-        for (auto& new_index : indexes) {
-            auto info = fnxModel_->fileInfoAt(new_index);
-            if (!info.isValid()) continue;
-
-            files->openFilePathIn(
-                window,
-                working_dir_path / info.relPath,
-                info.name);
-        }
-
-        treeViews->setCurrentIndex(window, indexes.last());
     }
 
     /// TODO FT: Export folder
@@ -750,7 +712,7 @@ private:
             window,
             Tr::nbSaveAsCaption(),
             fnxPath_,
-            Tr::nbSaveAsFilter());
+            Files::filter(Files::Notebook));
     }
 
     QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
@@ -1104,7 +1066,7 @@ private slots:
             if (result == FileService::Success) {
                 auto uuid = Fnx::Io::uuid(path);
                 recoveryDirtyUuids_.remove(uuid);
-            } else {
+            } else if (result == FileService::Failure) {
                 CRITICAL(
                     "Notebook undo-to-clean write-back failed for {} (result: "
                     "{})!",

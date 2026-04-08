@@ -19,7 +19,7 @@
 
 #include <Coco/Path.h>
 
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "core/Hash.h"
 #include "core/Io.h"
 #include "core/Random.h"
@@ -34,7 +34,7 @@ struct Entry
     QByteArray buffer{};
     Coco::Path originalPath{};
     QString title{};
-    FileTypes::Kind kind = FileTypes::PlainText;
+    Files::Type fileType = Files::PlainText;
     Coco::Path entryDir{};
 
     bool isOffDisk() const noexcept { return originalPath.isEmpty(); }
@@ -44,7 +44,7 @@ namespace Internal {
 
     inline const auto PATH_KEY_ = u"path="_s;
     inline const auto TITLE_KEY_ = u"title="_s;
-    inline const auto KIND_KEY_ = u"kind="_s;
+    inline const auto FILE_TYPE_KEY_ = u"file-type="_s;
 
     inline const auto BUFFER_NAME_ = u"buffer"_s;
     inline const auto META_NAME_ = u"meta"_s;
@@ -65,9 +65,9 @@ namespace Internal {
 
             } else if (line.startsWith(TITLE_KEY_)) {
                 entry.title = line.mid(TITLE_KEY_.size());
-            } else if (line.startsWith(KIND_KEY_)) {
-                entry.kind = static_cast<FileTypes::Kind>(
-                    line.mid(KIND_KEY_.size()).toInt());
+            } else if (line.startsWith(FILE_TYPE_KEY_)) {
+                entry.fileType = static_cast<Files::Type>(
+                    line.mid(FILE_TYPE_KEY_.size()).toInt());
             }
         }
 
@@ -92,7 +92,7 @@ inline void write(
     const Coco::Path& entryDir,
     const Coco::Path& originalPath,
     const QString& title,
-    FileTypes::Kind kind,
+    Files::Type fileType,
     const QByteArray& buffer)
 {
     Coco::mkpath(entryDir);
@@ -104,8 +104,8 @@ inline void write(
     QString meta{};
     meta += Internal::PATH_KEY_ + originalPath.toQString() + u"\n"_s;
     meta += Internal::TITLE_KEY_ + title + u"\n"_s;
-    meta +=
-        Internal::KIND_KEY_ + QString::number(static_cast<int>(kind)) + u"\n"_s;
+    meta += Internal::FILE_TYPE_KEY_
+            + QString::number(static_cast<int>(fileType)) + u"\n"_s;
 
     Io::write(meta.toUtf8(), entryDir / Internal::META_NAME_);
 }

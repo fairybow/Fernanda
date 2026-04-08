@@ -30,6 +30,7 @@
 #include <Coco/Utility.h>
 
 #include "core/Debug.h"
+#include "core/Files.h"
 #include "models/AbstractFileModel.h"
 #include "models/FileMeta.h"
 #include "models/ImageFileModel.h"
@@ -820,11 +821,11 @@ private:
 
             // TextFileView and subclasses only
             switch (text_model->meta()->fileType()) {
-            case FileTypes::Fountain: {
+            case Files::Fountain: {
                 view = newFileView_<FountainFileView*>(text_model, window);
                 break;
             }
-            case FileTypes::Markdown: {
+            case Files::Markdown: {
                 view = newFileView_<MarkdownFileView*>(text_model, window);
                 break;
             }

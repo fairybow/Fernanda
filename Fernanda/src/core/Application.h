@@ -24,6 +24,7 @@
 #include "core/AppDirs.h"
 #include "core/BundledFonts.h"
 #include "core/Debug.h"
+#include "core/Files.h"
 #include "core/LogViewer.h"
 #include "core/Version.h"
 #include "dialogs/BetaAlert.h"
@@ -290,8 +291,8 @@ private:
             Coco::Path path(args.at(i));
             if (!path.exists() || path.isDir()) continue;
 
-            Fnx::Io::isFnxFile(path) ? result.fnxFiles << path
-                                     : result.regularFiles << path;
+            Files::isFnxFile(path) ? result.fnxFiles << path
+                                   : result.regularFiles << path;
         }
 
         return result;

@@ -24,7 +24,7 @@
 #include <Coco/Path.h>
 
 #include "core/Debug.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "core/Version.h"
 #include "models/AbstractFileModel.h"
 #include "models/FileMeta.h"
@@ -38,22 +38,22 @@ class TextFileModel : public AbstractFileModel
     Q_OBJECT
 
 public:
-    // AbstractFileModel takes both a Kind and a path. Kind drives view
+    // AbstractFileModel takes both a Files::Type and a path. Type drives view
     // selection and fallback extension; path drives display title and on-disk
-    // status. Siblings (PdfFileModel, ImageFileModel) resolve Kind differently
+    // status. Siblings (PdfFileModel, ImageFileModel) resolve Type differently
     // (hardcoded, magic bytes), but both parameters are always meaningful at
     // the base level
 
-    // On-disk: Kind derived from path extension
+    // On-disk: File type derived from path extension
     explicit TextFileModel(const Coco::Path& path, QObject* parent = nullptr)
-        : AbstractFileModel(FileTypes::fromPath(path), path, parent)
+        : AbstractFileModel(Files::fromPath(path), path, parent)
     {
         setup_();
     }
 
-    // Off-disk (new, unsaved): Kind explicit, no path
-    explicit TextFileModel(FileTypes::Kind kind, QObject* parent = nullptr)
-        : AbstractFileModel(kind, {}, parent)
+    // Off-disk (new, unsaved): File type explicit, no path
+    explicit TextFileModel(Files::Type fileType, QObject* parent = nullptr)
+        : AbstractFileModel(fileType, {}, parent)
     {
         setup_();
     }
@@ -425,14 +425,14 @@ private slots:
                 !block_text.isEmpty()) {
 
                 // Prevent titles with markup for markups
-                if (meta->fileType() == FileTypes::Markdown
+                if (meta->fileType() == Files::Markdown
                     && block_text.startsWith('#')) {
                     auto space_idx = block_text.indexOf(QChar(' '));
                     if (space_idx == -1) continue;
                     block_text = block_text.mid(space_idx + 1).trimmed();
                     if (block_text.isEmpty()) continue;
                 } else if (
-                    meta->fileType() == FileTypes::Fountain
+                    meta->fileType() == Files::Fountain
                     && block_text.startsWith(
                         QStringLiteral("Title:"),
                         Qt::CaseInsensitive)) {
