@@ -18,6 +18,7 @@
 
 #include "core/Files.h"
 #include "workspaces/Docx.h"
+#include "workspaces/Rtf.h"
 
 namespace Fernanda::NotepadImport {
 
@@ -30,15 +31,20 @@ struct Result
     bool isValid() const { return !text.isEmpty(); }
 };
 
+/// TODO NF: Should we worry about repeated checks with MagicBytes reads?
+/// TODO NF: Combine base conversion imports logic for this and NotebookImport
+/// to use
 inline Result process(const Coco::Path& path)
 {
     auto name = path.stemQString();
 
     if (Files::isDocxFile(path)) {
         return { Docx::toPlainText(path), Files::PlainText, name };
+    } else if (Files::isRtfFile(path)) {
+        return { Rtf::toPlainText(path), Files::PlainText, name };
     }
 
-    // Future: RTF, etc.
+    // Future conversion imports...
 
     return {};
 }

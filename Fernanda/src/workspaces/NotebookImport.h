@@ -22,6 +22,7 @@
 #include "core/Io.h"
 #include "core/MagicBytes.h"
 #include "workspaces/Docx.h"
+#include "workspaces/Rtf.h"
 
 namespace Fernanda::NotebookImport {
 
@@ -33,6 +34,7 @@ struct Result
     QString ext{};
 };
 
+/// TODO NF: Should we worry about repeated checks with MagicBytes reads?
 inline Result process(const Coco::Path& path)
 {
     auto name = path.stemQString();
@@ -43,9 +45,14 @@ inline Result process(const Coco::Path& path)
                  Files::PlainText,
                  name,
                  Files::canonicalExt(Files::PlainText) };
+    } else if (Files::isRtfFile(path)) {
+        return { Rtf::toPlainText(path).toUtf8(),
+                 Files::PlainText,
+                 name,
+                 Files::canonicalExt(Files::PlainText) };
     }
 
-    // Future: RTF, etc.
+    // Future conversion imports...
 
     // Passthrough: keep original extension, two-tier identification
     auto ext = path.extQString();
