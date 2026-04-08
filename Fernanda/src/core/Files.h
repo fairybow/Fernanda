@@ -56,7 +56,7 @@ enum Type
 
     // Importable
     MicrosoftWord,
-    RichText, // (not yet implemented)
+    RichText,
 
     // No special handling (yet or ever)
     WindowTheme,
