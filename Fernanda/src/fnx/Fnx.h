@@ -28,9 +28,8 @@
 
 #include <Coco/Path.h>
 
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "core/Io.h"
-#include "core/MagicBytes.h"
 
 // .fnx file format specification and utilities
 // - Fnx::Io: Archive and working directory operations
@@ -240,7 +239,7 @@ namespace Xml {
     }
 
     inline QDomElement addNewFile(
-        FileTypes::Kind kind,
+        Files::Type fileType,
         const Coco::Path& workingDir,
         QDomDocument& dom)
     {
@@ -255,7 +254,7 @@ namespace Xml {
         }
 
         auto uuid = Internal::makeUuid_();
-        auto ext = FileTypes::canonicalExt(kind);
+        auto ext = Files::canonicalExt(fileType);
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
@@ -332,22 +331,9 @@ namespace Xml {
 // Used by Notebook
 namespace Io {
 
-    /// TODO FT: May want to remove isFnxFile (dependency on MagicBytes) and
-    /// allow Application to do this compound check. So, it would check
-    /// Fnx::Io::EXT first and then check MB. If MB fails, it might open NoOp
-    /// view tab instead of bad FNX file
-    ///
-    /// From future me: Probably don't do this ^
-    constexpr auto EXT = ".fnx";
-
     /// TODO BA
     using BeforeOverwriteHook =
         std::function<void(const Coco::Path& originalFnx)>;
-
-    inline bool isFnxFile(const Coco::Path& path)
-    {
-        return path.ext() == EXT && MagicBytes::is(MagicBytes::Zip, path);
-    }
 
     inline void makeNewWorkingDir(const Coco::Path& workingDir)
     {

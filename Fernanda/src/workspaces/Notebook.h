@@ -37,7 +37,7 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "core/Random.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
@@ -137,14 +137,14 @@ protected:
         writeLockfile_();
     }
 
-    virtual void newFile(Window* window, FileTypes::Kind kind) override
+    virtual void newFile(Window* window, Files::Type plainTextFileType) override
     {
-        newFile_(window, treeViews->currentIndex(window), kind);
+        newFile_(window, treeViews->currentIndex(window), plainTextFileType);
     }
 
     virtual void onDocxImported(
         Window* window,
-        const QString& plainText,
+        const QString& convertedDocxPlainText,
         const QString& suggestedName) override
     {
         if (!window) return;
@@ -155,7 +155,7 @@ protected:
             resolveNotebookIndex_(treeViews->currentIndex(window));
 
         auto new_index = fnxModel_->addNewFile(
-            FileTypes::PlainText,
+            Files::PlainText,
             working_dir_path,
             parent_index);
         if (!new_index.isValid()) return;
@@ -165,7 +165,7 @@ protected:
 
         // Write imported content to the new file on disk
         auto file_path = working_dir_path / info.relPath;
-        Io::write(plainText.toUtf8(), file_path);
+        Io::write(convertedDocxPlainText.toUtf8(), file_path);
 
         // Set display name from the DOCX stem
         fnxModel_->setData(new_index, suggestedName, Qt::EditRole);
@@ -566,7 +566,9 @@ private:
     void newFile_(
         Window* window,
         const QModelIndex& index = {},
-        FileTypes::Kind kind = FileTypes::PlainText)
+        // TODO: Change to plainTextFileType? Verify that that's all we pass
+        // through here?
+        Files::Type fileType = Files::PlainText)
     {
         if (!window) return;
         if (!workingDir_.isValid()) return;
@@ -575,7 +577,7 @@ private:
         auto parent_index = resolveNotebookIndex_(index);
 
         auto new_index =
-            fnxModel_->addNewFile(kind, working_dir_path, parent_index);
+            fnxModel_->addNewFile(fileType, working_dir_path, parent_index);
         if (!new_index.isValid()) return;
 
         auto info = fnxModel_->fileInfoAt(new_index);

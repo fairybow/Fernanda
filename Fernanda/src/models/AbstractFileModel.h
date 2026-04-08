@@ -32,7 +32,7 @@ public:
     // resolve Kind differently (hardcoded, magic bytes), but both parameters
     // are always meaningful at the base level
     explicit AbstractFileModel(
-        FileTypes::Kind fileType,
+        Files::Type fileType,
         const Coco::Path& path,
         QObject* parent = nullptr)
         : QObject(parent)

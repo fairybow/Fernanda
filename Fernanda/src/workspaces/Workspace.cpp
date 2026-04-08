@@ -71,16 +71,16 @@ void Workspace::createWindowMenuBar_(Window* window)
         .action(Tr::nxNewTab())
         .onUserTrigger(
             this,
-            [this, window] { newFile(window, FileTypes::PlainText); })
+            [this, window] { newFile(window, Files::PlainText); })
         .shortcut(MenuShortcuts::NEW_TAB)
         .separator()
         .apply([this, window](MenuBuilder& builder) {
-            for (auto kind : FileTypes::creatable()) {
-                if (kind == FileTypes::PlainText) continue;
+            for (auto type : Files::workspaceCreatableTypes()) {
+                if (type == Files::PlainText) continue;
 
-                builder.action(FileTypes::name(kind))
-                    .onUserTrigger(this, [this, window, kind] {
-                        newFile(window, kind);
+                builder.action(Files::name(type))
+                    .onUserTrigger(this, [this, window, type] {
+                        newFile(window, type);
                     });
             }
         })
@@ -98,7 +98,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                     Tr::nxImportDocxCaption(),
                     rollingOpenStartDir,
                     Tr::nxImportDocxFilter());
-                if (path.isEmpty() || !Docx::isDocxFile(path)) return;
+                if (path.isEmpty() || !Files::isDocxFile(path)) return;
 
                 // Don't update rolling directory for imports
 
@@ -124,7 +124,8 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto name = NewNotebookPrompt::exec();
                 if (name.isEmpty()) return;
                 emit newNotebookRequested(
-                    currentRootDir / (name + Fnx::Io::EXT));
+                    currentRootDir
+                    / (name + Files::canonicalExt(Files::Notebook)));
             })
         .action(Tr::nxOpenNotebook())
         .onUserTrigger(
@@ -136,7 +137,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                     Tr::nxOpenNotebookCaption(),
                     rollingOpenFnxStartDir_,
                     Tr::nxOpenNotebookFilter());
-                if (path.isEmpty() || !Fnx::Io::isFnxFile(path)) return;
+                if (path.isEmpty() || !Files::isFnxFile(path)) return;
 
                 rollingOpenFnxStartDir_ = path.parent();
                 emit openNotebookRequested(path);

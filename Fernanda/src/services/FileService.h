@@ -26,7 +26,7 @@
 #include <Coco/Path.h>
 
 #include "core/Debug.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "core/Io.h"
 #include "core/MagicBytes.h"
 #include "core/Tr.h"
@@ -93,13 +93,13 @@ public:
 
     void openOffDiskPlainTextFileIn(
         Window* window,
-        FileTypes::Kind kind,
+        Files::Type plainTextFileType,
         const QString& initialTitle = {},
         const QString& initialContent = {})
     {
         if (!window) return;
 
-        if (auto model = newOffDiskTextFileModel_(kind)) {
+        if (auto model = newOffDiskTextFileModel_(plainTextFileType)) {
             if (!initialContent.isEmpty()) {
                 if (auto text_model = qobject_cast<TextFileModel*>(model)) {
                     text_model->insertContent(initialContent);
@@ -338,13 +338,13 @@ private:
             /// all these and this inner switch is not needed
 
             // Tier 2: Extension for special plaintext types
-            // switch (FileTypes::fromPath(path)) {
-            // case FileTypes::FernandaCorkboard:
-            // case FileTypes::FernandaWindowTheme:
-            // case FileTypes::FernandaEditorTheme:
+            // switch (Files::fromPath(path)) {
+            // case Files::Corkboard:
+            // case Files::WindowTheme:
+            // case Files::EditorTheme:
 
-            // case FileTypes::Markdown:
-            // case FileTypes::Fountain:
+            // case Files::Markdown:
+            // case Files::Fountain:
             // default:
             model = newDiskTextFileModel_(path);
             // break;
@@ -396,12 +396,13 @@ private:
         return model;
     }
 
+    // TODO: Pass Files::Type instead and do MagicBytes stuff inside method?
     AbstractFileModel*
     newDiskImageFileModel_(MagicBytes::Type fileType, const Coco::Path& path)
     {
         if (path.isEmpty() || !path.exists()) return nullptr;
 
-        auto type = FileTypes::fromMagicBytes(fileType);
+        auto type = Files::fromMagicBytes(fileType);
         auto model = new ImageFileModel(type, path, this);
         model->setData(Io::read(path));
         model->setModified(false); // Probably not needed yet (images may be
@@ -410,9 +411,9 @@ private:
         return model;
     }
 
-    AbstractFileModel* newOffDiskTextFileModel_(FileTypes::Kind kind)
+    AbstractFileModel* newOffDiskTextFileModel_(Files::Type plainTextFileType)
     {
-        auto model = new TextFileModel(kind, this);
+        auto model = new TextFileModel(plainTextFileType, this);
         registerModel_(model);
         /// TODO BA
         if (afterModelCreatedHook_) afterModelCreatedHook_(model);

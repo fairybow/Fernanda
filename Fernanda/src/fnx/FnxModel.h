@@ -29,7 +29,7 @@
 #include <Coco/Path.h>
 
 #include "core/Debug.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "fnx/Fnx.h"
 #include "fnx/FnxModelCache.h"
 
@@ -194,11 +194,11 @@ public:
     }
 
     QModelIndex addNewFile(
-        FileTypes::Kind kind,
+        Files::Type fileType,
         const Coco::Path& workingDir,
         const QModelIndex& parentIndex = {})
     {
-        auto element = Fnx::Xml::addNewFile(kind, workingDir, dom_);
+        auto element = Fnx::Xml::addNewFile(fileType, workingDir, dom_);
         if (element.isNull()) return {};
 
         auto parent = resolveParent_(parentIndex);

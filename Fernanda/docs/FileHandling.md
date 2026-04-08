@@ -1,8 +1,10 @@
 # File Handling
 
+TODO: Update to remove old FileTypes::Kind references (replace with Files::Type, etc)
+
 How Fernanda identifies, opens, and saves files.
 
-See: [`FileService.h`](../src/services/FileService.h), [`FileTypes.h`](../src/core/FileTypes.h), [`MagicBytes.h`](../src/core/MagicBytes.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), and [`Fnx.h`](../src/fnx/Fnx.h)
+See: [`FileService.h`](../src/services/FileService.h), [`Files.h`](../src/core/Files.h), [`MagicBytes.h`](../src/core/MagicBytes.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), and [`Fnx.h`](../src/fnx/Fnx.h)
 
 ## Overview
 
@@ -13,7 +15,7 @@ File handling has two distinct concerns:
 - **Identification**: Determining what kind of file something is
 - **Policy**: Deciding what to do with it (which model/view to use, whether to allow editing, etc.)
 
-`MagicBytes` handles identification. `FileTypes` and `FileService` handle policy.
+`MagicBytes` handles identification. `Files` and `FileService` handle policy.
 
 ## How Files Are Identified
 

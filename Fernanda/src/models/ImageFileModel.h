@@ -17,7 +17,7 @@
 #include <Coco/Path.h>
 
 #include "core/Debug.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "models/AbstractFileModel.h"
 
 namespace Fernanda {
@@ -28,7 +28,7 @@ class ImageFileModel : public AbstractFileModel
 
 public:
     explicit ImageFileModel(
-        FileTypes::Kind fileType,
+        Files::Type fileType,
         const Coco::Path& path,
         QObject* parent = nullptr)
         : AbstractFileModel(fileType, path, parent)

@@ -92,7 +92,7 @@ set(FERNANDA_HEADERS
     src/core/BundledFonts.h
     src/core/Debug.h
     src/core/Disk.h
-    src/core/FileTypes.h
+    src/core/Files.h
     src/core/Formatters.h
     src/core/Hash.h
     src/core/Io.h

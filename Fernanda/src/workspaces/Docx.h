@@ -20,15 +20,7 @@
 
 #include <Coco/Path.h>
 
-#include "core/MagicBytes.h"
-
 namespace Fernanda::Docx {
-
-inline bool isDocxFile(const Coco::Path& path)
-{
-    constexpr auto ext = ".docx";
-    return path.ext() == ext && MagicBytes::is(MagicBytes::Zip, path);
-}
 
 inline QString toPlainText(const Coco::Path& path)
 {

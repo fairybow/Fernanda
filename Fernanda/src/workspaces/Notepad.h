@@ -29,6 +29,7 @@
 
 #include "core/AppDirs.h"
 #include "core/Debug.h"
+#include "core/Files.h"
 #include "core/Time.h"
 #include "core/Tr.h"
 #include "core/Version.h"
@@ -136,7 +137,7 @@ public:
             if (!entry.isOffDisk() && entry.originalPath.exists()) {
                 files->openFilePathIn(window, entry.originalPath);
             } else {
-                files->openOffDiskPlainTextFileIn(window, entry.kind);
+                files->openOffDiskPlainTextFileIn(window, entry.fileType);
             }
         }
 
@@ -184,21 +185,21 @@ protected:
         }
     }
 
-    virtual void newFile(Window* window, FileTypes::Kind kind) override
+    virtual void newFile(Window* window, Files::Type fileType) override
     {
-        newTab_(window, kind);
+        newTab_(window, fileType);
     }
 
     virtual void onDocxImported(
         Window* window,
-        const QString& plainText,
+        const QString& convertedDocxPlainText,
         const QString& suggestedName) override
     {
         files->openOffDiskPlainTextFileIn(
             window,
-            FileTypes::PlainText,
+            Files::PlainText,
             suggestedName,
-            plainText);
+            convertedDocxPlainText);
     }
 
     virtual QAbstractItemModel* treeViewModel() override { return fsModel_; }
@@ -746,10 +747,11 @@ private:
     }
 
     /// TODO NF: Make kind required param?
-    void newTab_(Window* window, FileTypes::Kind kind = FileTypes::PlainText)
+    void
+    newTab_(Window* window, Files::Type plainTextFileType = Files::PlainText)
     {
         if (!window) return;
-        files->openOffDiskPlainTextFileIn(window, kind);
+        files->openOffDiskPlainTextFileIn(window, plainTextFileType);
     }
 
     void promptOpenFiles_(Window* window)
@@ -774,8 +776,8 @@ private:
         for (auto& path : paths) {
             if (!path.exists()) continue;
 
-            Fnx::Io::isFnxFile(path) ? emit openNotebookRequested(path)
-                                     : files->openFilePathIn(window, path);
+            Files::isFnxFile(path) ? emit openNotebookRequested(path)
+                                   : files->openFilePathIn(window, path);
         }
     }
 
@@ -902,8 +904,8 @@ private slots:
         auto path = Coco::Path(fsModel_->filePath(index));
         if (path.isDir()) return;
 
-        Fnx::Io::isFnxFile(path) ? emit openNotebookRequested(path)
-                                 : files->openFilePathIn(window, path);
+        Files::isFnxFile(path) ? emit openNotebookRequested(path)
+                               : files->openFilePathIn(window, path);
     }
 };
 

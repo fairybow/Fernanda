@@ -27,7 +27,7 @@
 #include <Coco/Path.h>
 
 #include "core/AppDirs.h"
-#include "core/FileTypes.h"
+#include "core/Files.h"
 #include "core/Time.h"
 #include "core/Tr.h"
 #include "fnx/Fnx.h"
@@ -125,13 +125,13 @@ protected:
     virtual void autosave() {};
 
     // TODO: Rename?
-    virtual void newFile(Window* window, FileTypes::Kind kind) = 0;
+    virtual void newFile(Window* window, Files::Type fileType) = 0;
 
     /// TODO NF: When we have other importable types, we can generalize and pass
     /// FileTypes::Kind perhaps
     virtual void onDocxImported(
         Window* window,
-        const QString& plainText,
+        const QString& convertedDocxPlainText,
         const QString& suggestedName) = 0;
 
     virtual QAbstractItemModel* treeViewModel() = 0;
@@ -454,10 +454,10 @@ private slots:
 
         MenuBuilder(MenuBuilder::ContextMenu, window)
             .apply([this, window](MenuBuilder& builder) {
-                for (auto kind : FileTypes::creatable()) {
-                    builder.action(FileTypes::name(kind))
-                        .onUserTrigger(this, [this, window, kind] {
-                            newFile(window, kind);
+                for (auto type : Files::workspaceCreatableTypes()) {
+                    builder.action(Files::name(type))
+                        .onUserTrigger(this, [this, window, type] {
+                            newFile(window, type);
                         });
                 }
             })

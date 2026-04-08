@@ -7,6 +7,9 @@
 
 - [x] Gutter size + setting on text edits
 
+- [ ] Search "type" and find ambiguous parameter names
+- [ ] Also search "kind"
+
 - [x] New import submenu in File for both Workspaces
 - [x] Add Word (.docx) option to submenu (only one for now)
 - [x] Docx namespace with toPlainText function
