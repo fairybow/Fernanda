@@ -169,10 +169,11 @@ private:
 
 #ifdef Q_OS_LINUX
 
-        if (!loaded)
+        if (!loaded) {
             loaded = translator_->load(
                 "Translation_en.qm",
                 applicationDirPath() + u"/../share/Fernanda/translations");
+        }
 
 #endif
 
