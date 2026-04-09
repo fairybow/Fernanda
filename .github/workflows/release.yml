@@ -81,7 +81,7 @@ jobs:
 
   linux:
     needs: parse-version
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       APP: ${{ needs.parse-version.outputs.app_name }}
       VER: ${{ needs.parse-version.outputs.version_full }}

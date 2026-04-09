@@ -251,7 +251,7 @@ qt_add_executable(Fernanda ${PLATFORM_EXE_FLAGS}
 # --- macOS bundle ---
 
 if(APPLE)
-    set(MACOS_ICON ${CMAKE_CURRENT_SOURCE_DIR}/icons/Fernanda.icns)
+    set(MACOS_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/Fernanda.icns)
     set_source_files_properties(${MACOS_ICON} PROPERTIES
         MACOSX_PACKAGE_LOCATION "Resources"
     )
