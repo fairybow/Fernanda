@@ -80,7 +80,21 @@ Windows (x64) only for now. Mac and Linux support is planned.
 
 ## What's New?
 
-...
+Here's a draft for the beta.18 "What's New?" section:
+
+**File imports.** Both workspaces now share an "Import..." action in the File menu. Notepad imports convert supported formats (DOCX, RTF) to plain text and open them in new tabs. Notebook imports do the same for convertible formats and pass through everything else into the archive
+
+**Tab context menu.** Right-clicking a tab now shows Duplicate, Save, Save As, Close, and Close Everywhere. Right-clicking the "+" button shows the creatable file types (Plain Text, Markdown, Fountain)
+
+**Editor left/right margin setting.** A new slider in Editor settings adds symmetric horizontal margins to the text viewport. The margin scales down when the editor is narrow (below 800px)
+
+**Menu reorganization.** The Notebook-specific "Notebook" menu is gone. "Open notepad" moved into the shared File menu (hidden when already in Notepad). File creation, import, and notebook operations now live in a unified File menu structure across both workspace types. Close actions grouped into a "Close" submenu
+
+**Notebook color chip improvements.** Chips now update live on Save As
+
+**`FileTypes` renamed to `Files`.** `FileTypes.h` is now `Files.h`; `Kind` is now `Type`. The namespace also absorbs FNX-file and DOCX-file compound identification checks (extension + magic bytes), dialog filter generation (`Files::filters()`), and translatable type names (via `Tr.h`). `Fnx::Io::isFnxFile` and `Fnx::Io::EXT` removed in favor of `Files::isFnxFile` and `Files::canonicalExt(Files::Notebook)`
+
+**FNX archive safety.** `Fnx::Io::decompress` and `compress` now use `qScopeGuard` for miniz cleanup, preventing leaks on early return. The compress path explicitly closes the writer before file operations
 
 ## Known Issues
 
