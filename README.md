@@ -3,8 +3,8 @@
 </p>
 <p align="center"><b>A plain-text-first workbench for creative writing</b></p>
 <p align="center">
-    <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%203-9194f2.svg?style=flat-square" alt="License GPL 3"></a>
-    <img src="https://img.shields.io/badge/Platform-Windows%20|%20macOS%20|%20Linux-3bb0f3.svg?style=flat-square" alt="Platforms: Windows, macOS, Linux">
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%203-3bb0f3.svg?style=flat-square" alt="License GPL 3"></a>
+    <img src="https://img.shields.io/badge/Platforms-Windows%20|%20macOS%20|%20Linux-9194f2.svg?style=flat-square" alt="Platforms: Windows, macOS, Linux">
 </p>
 <p align="center">
     <a href="https://github.com/fairybow/Fernanda/releases"><b>Releases</b></a> •
