@@ -508,6 +508,9 @@ public:
             return false;
         }
 
+        // Qt resolves drops on empty TreeView area to the root index
+        // (notebookElement), so this fallback shouldn't be reachable in
+        // practice
         auto drop_parent = elementAt_(parent);
         if (drop_parent.isNull()) drop_parent = dom_.documentElement();
 
