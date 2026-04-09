@@ -315,6 +315,7 @@ endif()
 add_subdirectory(submodules/fountain.h/fountain.h EXCLUDE_FROM_ALL)
 
 if(NOT FERNANDA_USE_SYSTEM_LIBS)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
     add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
 endif()
