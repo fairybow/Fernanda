@@ -60,6 +60,7 @@ namespace Tr {
     TR_(filesEditorTheme, tr("Fernanda Editor Theme"));
 
     TR_(filesFilterAll, tr("All files"));
+    TR_(filesFilterImportAsPlainText, tr("Import as plain text"));
 
     // --- Workspace.h ---
 

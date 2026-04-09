@@ -4,7 +4,7 @@ TODO: Clean
 
 ## Current
 
-- [ ] Super need to rework Files filter functions for better API
+- [x] Super need to rework Files filter functions for better API
 - [ ] SoC Audit!
 - [ ] Audit FileService's file opening functions (newOnDisk vs newOffDisk; only plain text types are creatable; is naming appropriate for each?; does each methods usage in Notepad vs Notebook make sense?; are the methods themselves handling their responsibilities correctly?; does everything in each method belong specifically in that method?; etc)
 

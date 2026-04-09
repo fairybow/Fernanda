@@ -212,54 +212,59 @@ inline QString name(Type type)
     }
 }
 
-/// TODO NF: For these filter functions, take a look at Coco::Fx (small,
-/// buildable components and lambda returners) (do this later)
-
-// Single filter for "All Files (*)"
-inline QString filter() { return Tr::filesFilterAll() + u" (*)"_s; }
-
-// Single filter for "Text (*.*, *.*, ...)"
-inline QString filter(const QString& text, const QList<Type>& types)
+inline constexpr struct All_
 {
-    auto main_format = u"%1 (%2)"_s;
+} All;
 
-    QStringList globs{};
+struct MultiFilter
+{
+    QString label;
+    QList<Type> types;
+};
 
-    for (auto& type : types) {
-        for (auto& ext : canonicalExts(type)) {
-            globs << (u"*"_s + ext);
+template <typename... Args> inline QString filters(Args&&... args)
+{
+    QStringList result{};
+
+    auto append = [&](auto&& arg) {
+        using T = std::decay_t<decltype(arg)>;
+
+        if constexpr (std::same_as<T, All_>) {
+            result << (Tr::filesFilterAll() + u" (*)"_s);
+
+        } else if constexpr (std::same_as<T, QString>) {
+            result << arg;
+
+        } else if constexpr (std::same_as<T, Type>) {
+            QStringList globs{};
+
+            for (auto& ext : canonicalExts(arg)) {
+                globs << (u"*"_s + ext);
+            }
+
+            result << u"%1 (%2)"_s.arg(name(arg), globs.join(u' '));
+
+        } else if constexpr (std::same_as<T, MultiFilter>) {
+            QStringList globs{};
+
+            for (auto& type : arg.types) {
+                for (auto& ext : canonicalExts(type)) {
+                    globs << (u"*"_s + ext);
+                }
+            }
+
+            result << u"%1 (%2)"_s.arg(arg.label, globs.join(u' '));
         }
-    }
+    };
 
-    return main_format.arg(text, globs.join(u' '));
-}
-
-// Single filter for "TypeName (*.TypeExt, ...)"
-inline QString filter(Type type)
-{
-    auto main_format = u"%1 (%2)"_s;
-
-    QStringList globs{};
-
-    for (auto& ext : canonicalExts(type)) {
-        globs << (u"*"_s + ext);
-    }
-
-    return main_format.arg(name(type), globs.join(u' '));
-}
-
-template <typename... Args>
-    requires(std::same_as<std::decay_t<Args>, QString> && ...)
-inline QString filters(Args&&... args)
-{
-    QStringList result{ std::forward<Args>(args)... };
+    (append(std::forward<Args>(args)), ...);
     return result.join(u";;"_s);
 }
 
-/// TODO NF: TR
 inline QString conversionImportsFilter()
 {
-    return filter("Supported files", conversionImports());
+    return filters(
+        MultiFilter{ Tr::filesFilterImportAsPlainText(), conversionImports() });
 }
 
 /// TODO NF: Generalize, if possible:

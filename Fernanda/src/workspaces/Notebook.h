@@ -185,10 +185,7 @@ protected:
     /// TODO NF
     virtual QString importFilter() const override
     {
-        /// TODO NF: This sucks
-        return Files::filters(
-            Files::filter(),
-            Files::conversionImportsFilter());
+        return Files::filters(Files::All, Files::conversionImportsFilter());
     }
 
     virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
@@ -712,7 +709,7 @@ private:
             window,
             Tr::nbSaveAsCaption(),
             fnxPath_,
-            Files::filter(Files::Notebook));
+            Files::filters(Files::Notebook));
     }
 
     QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)

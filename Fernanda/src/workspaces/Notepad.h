@@ -745,7 +745,7 @@ private:
             window,
             Tr::npSaveAsCaption(),
             start_path,
-            Files::filter()); /// TODO NF
+            Files::filters(Files::All)); /// TODO NF
     }
 
     QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
@@ -773,7 +773,7 @@ private:
             window,
             Tr::npOpenFileCaption(),
             rollingOpenStartDir,
-            Files::filter()); /// TODO NF
+            Files::filters(Files::All)); /// TODO NF
         if (paths.isEmpty()) return;
 
         rollingOpenStartDir = paths.at(0).parent();
