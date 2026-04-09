@@ -1,8 +1,6 @@
 # Features
 
-TODO: Update
-
-Current vesion: v0.99.0-beta.11
+Current version: v0.99.0-beta.18
 
 ## Separate Workspaces
 
@@ -13,7 +11,8 @@ Shared capabilities:
 - Multiple windows per workspace
 - Open the same file in multiple tabs and windows (edits persist across all views)
 - PDF and image viewing
-- Markdown and [Fountain](https://fountain.io) editing/viewing
+- [Markdown](https://markdownguide.org/) and [Fountain](https://fountain.io) editing/viewing (live-rendered split preview)
+- File imports (DOCX and RTF converted to plain text)
 - Dockable Tree View
 - Tiered settings (Notebook settings inherit from Notepad when unset, falling back to application defaults)
 - Recovery autosave and automatic backups
@@ -26,6 +25,7 @@ Shared capabilities:
 - Open, edit, and save any plain text file on disk
 - Opening arguments support (double-click/drag a file in your OS to open it in Fernanda)
 - TreeView file renaming
+- File imports: DOCX and RTF converted to plain text and opened as unsaved tabs
 
 > [!IMPORTANT]
 > Known issue: Tree View root directory is locked in-place for now
@@ -38,6 +38,7 @@ Shared capabilities:
 - Open existing `.fnx` archives (extraction, validation, working directory setup)
 - Multiple Notebooks can be open simultaneously
 - Recoverable (standard ZIP format means content remains accessible outside Fernanda)
+- File imports: any file can be imported into a Notebook (DOCX and RTF are converted to plain text; all other files are passed through with their original type preserved)
 - Single file export (planned: multiple files, directories, as well as, eventually, full archive export/compilation)
 
 ---
@@ -52,6 +53,7 @@ Shared capabilities:
 - Center-on-scroll option
 - Overwrite mode toggle
 - Configurable tab stop distance
+- Configurable left/right margin (scales down with narrowing window widths)
 - Word wrap modes (wrap anywhere, word boundary, no wrap, or smart)
 - Undo/Redo
 - Different editors showing the same text file will use separate layouts (wrap points)
@@ -79,7 +81,7 @@ Shared capabilities:
 - Move-to-subtree prevention
 - Context menus for file tree items (New File, New Folder, Expand/Collapse, Rename, Remove)
 - Dirty indicator on modified Notebook files in the tree view
-- Import files into Notebooks
+- Import files into Notebooks (any type; convertible formats like DOCX and RTF become plain text)
 
 ### Trash System
 
@@ -135,6 +137,8 @@ Shared capabilities:
 - Tab drag-and-drop: drag tabs between windows or out to create new windows
 - Tab drag visual: pixmap preview during drag
 - Flagged tabs (visual indicator for modified files)
+- Tab context menu: Duplicate, Save, Save As, Close, Close Everywhere
+- Add-button context menu: file type selection (Plain Text, Markdown, Fountain)
 - Multiple windows per workspace
 - Window title updates reflecting current file and modification state
 - Tab duplication (even for unsaved files)
@@ -196,7 +200,7 @@ Shared capabilities:
 - Selection-aware counting (shows selection counts alongside document counts)
 - Selection replacement mode (replaces document counts with selection counts)
 - Cursor position display: line number and column position
-- Adaptive performance: instant updates for short documents, debounced updates for medium documents, manual refresh button for very large documents (~500k+ characters)
+- Adaptive performance: instant updates for short documents, debounced updates for medium documents, click-to-refresh for very large documents (~500k+ characters)
 - All display elements individually toggleable in settings
 
 ---
@@ -227,6 +231,10 @@ Shared capabilities:
 
 ## Menus
 
+- "New" submenu with file type options (Plain Text, Markdown, Fountain)
+- Import action (workspace-specific filters and behavior)
+- Close submenu (Close Tab, Close Tab Everywhere, Close Window Tabs, Close All Tabs)
+- Notebook and Notepad operations (New/Open Notebook, Open Notepad) accessible from every workspace
 - Menu state toggling based on current view, model, window, and workspace state
 
 ---
@@ -240,10 +248,11 @@ Shared capabilities:
 
 ## File Type Detection
 
-- Magic-byte-based file type detection (not extension-based)
-- Recognized signatures: PNG, RTF, PDF, GIF, JPG, ZIP/DOCX
+- Two-tier identification: magic bytes first (for binary formats), then extension matching (for text-based formats)
+- Recognized binary signatures: PDF, PNG, JPEG, GIF, TIFF, BMP, WebP, ZIP (used for DOCX and FNX identification)
+- Recognized text extensions: `.txt`, `.md`, `.markdown`, `.fountain`, `.html`, `.htm`, `.rtf`, and others
 - Unrecognized files default to plain text
-- Recognized but unopenable files (e.g., PNG) open as "no-op"
+- File type registry (`Files.h`) centralizes extensions, type metadata, translatable names, dialog filter generation, and compound identification checks
 
 ---
 
@@ -267,5 +276,4 @@ Shared capabilities:
 
 - Small utilities (like a pomodoro timer)
 - FNX compilation/export
-- Markdown/Fountain views
-- Corkboard files (a slightly different approach to corkboards - standalone files that, when opened in Fernanda, display a corckboard and index cards that can be linked to existing files - would work in Notepad or Notebook)
+- Corkboard files (a slightly different approach to corkboards: standalone files that, when opened in Fernanda, display a corkboard and index cards that can be linked to existing files; would work in Notepad or Notebook)
