@@ -92,6 +92,8 @@ Here's a draft for the beta.18 "What's New?" section:
 
 **Notebook color chip improvements.** Chips now update live on Save As
 
+**Linux packaging support.** Added `FERNANDA_USE_SYSTEM_LIBS` CMake flag for Linux packagers to build against system-installed md4c and miniz instead of bundled submodules. Icons, translations, and a `.desktop` file now install to standard FHS paths on Linux. Translation load path in `Application.h` falls back to the FHS location on Linux. Version.txt dropped from install (build artifact only). (Closes #131)
+
 **`FileTypes` renamed to `Files`.** `FileTypes.h` is now `Files.h`; `Kind` is now `Type`. The namespace also absorbs FNX-file and DOCX-file compound identification checks (extension + magic bytes), dialog filter generation (`Files::filters()`), and translatable type names (via `Tr.h`). `Fnx::Io::isFnxFile` and `Fnx::Io::EXT` removed in favor of `Files::isFnxFile` and `Files::canonicalExt(Files::Notebook)`
 
 **FNX archive safety.** `Fnx::Io::decompress` and `compress` now use `qScopeGuard` for miniz cleanup, preventing leaks on early return. The compress path explicitly closes the writer before file operations
