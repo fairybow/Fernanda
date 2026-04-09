@@ -745,7 +745,7 @@ private:
             window,
             Tr::npSaveAsCaption(),
             start_path,
-            Files::filter()); /// TODO NF
+            Files::filters(Files::All)); /// TODO NF
     }
 
     QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
@@ -757,7 +757,7 @@ private:
         return treeView;
     }
 
-    /// TODO NF: Make kind required param?
+    /// TODO NF: Make plainTextFileType required param?
     void
     newTab_(Window* window, Files::Type plainTextFileType = Files::PlainText)
     {
@@ -773,7 +773,7 @@ private:
             window,
             Tr::npOpenFileCaption(),
             rollingOpenStartDir,
-            Files::filter()); /// TODO NF
+            Files::filters(Files::All)); /// TODO NF
         if (paths.isEmpty()) return;
 
         rollingOpenStartDir = paths.at(0).parent();

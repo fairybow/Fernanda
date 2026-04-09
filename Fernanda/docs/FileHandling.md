@@ -1,6 +1,6 @@
 # File Handling
 
-TODO: Update to remove old FileTypes::Kind references (replace with Files::Type, etc)
+TODO: Make sure this is consistent with code (and reduce direct code references)
 
 How Fernanda identifies, opens, and saves files.
 
@@ -12,7 +12,7 @@ Fernanda aims to open any file correctly regardless of its name. A PDF with the 
 
 File handling has two distinct concerns:
 
-- **Identification**: Determining what kind of file something is
+- **Identification**: Determining what type of file something is
 - **Policy**: Deciding what to do with it (which model/view to use, whether to allow editing, etc.)
 
 `MagicBytes` handles identification. `Files` and `FileService` handle policy.
@@ -46,9 +46,9 @@ Known byte signature?
   |             |-- No  -> open as plain text
 ```
 
-## FileTypes Registry
+## Files Registry
 
-Extensions and type metadata needed across the application are centralized in the `FileTypes` namespace. It provides a constexpr table of supported types mapped to their canonical extensions (with aliases like `.jpg` for `.jpeg`), `canonicalExt(Kind)` to retrieve the canonical extension for a type, and `fromPath(path)` to resolve a file's extension to a Kind (Plain text for anything unrecognized).
+Extensions and type metadata needed across the application are centralized in the `Files` namespace. It provides a constexpr table of supported types mapped to their canonical extensions (with aliases like `.jpg` for `.jpeg`), `canonicalExt(Type)` to retrieve the canonical extension for a type, and `fromPath(path)` to resolve a file's extension to a Type (Plain text for anything unrecognized).
 
 `FileTypes` and `MagicBytes` solve different problems and remain separate. `MagicBytes` answers "what is this file?" by inspecting bytes. `FileTypes` answers "what can Fernanda do with this file?" by mapping extensions to known types. `FileService` bridges them via the two-tier resolution.
 
@@ -149,7 +149,7 @@ Previously served as a catch-all for unrecognized file types. Currently not used
 
 ## Extensions and User Choice
 
-Fernanda does not force or auto-append file extensions. When saving, the suggested filename includes an appropriate extension (drawn from `FileMeta::preferredExt()`, which uses the file's existing path extension if on disk or `FileTypes::canonicalExt(kind)` if off-disk), but if the user changes or removes it, that choice is honored.
+Fernanda does not force or auto-append file extensions. When saving, the suggested filename includes an appropriate extension (drawn from `FileMeta::preferredExt()`, which uses the file's existing path extension if on disk or `Files::canonicalExt(type)` if off-disk), but if the user changes or removes it, that choice is honored.
 
 This means a file's extension can affect how it is handled:
 
@@ -203,7 +203,7 @@ Files inside a Notebook ZIP archive live in a `content/` directory, named by UUI
 <file name="Reference" uuid="def-456" extension=".pdf" />
 ```
 
-The `extension` attribute is the index that `Fnx::Xml::relPath()` uses to reconstruct the content path (`uuid + ext`). It is populated from reality: `fsPath.extQString()` on import, `FileTypes::canonicalExt(kind)` for new files. The `name` attribute is the user-facing display name shown in the tree view.
+The `extension` attribute is the index that `Fnx::Xml::relPath()` uses to reconstruct the content path (`uuid + ext`). It is populated from reality: `fsPath.extQString()` on import, `FileTypes::canonicalExt(type)` for new files. The `name` attribute is the user-facing display name shown in the tree view.
 
 For files with compound extensions (e.g., `archive.tar.gz`), `std::filesystem::path::extension()` returns only the final extension (`.gz`), and the stem (`archive.tar`) becomes the display name. The full original filename can be reconstructed on export by joining `name + ext`.
 
@@ -243,7 +243,7 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 
 | Operation | Description | Filter |
 |---|---|---|
-| **New File** | Creates a new file inside the archive via `Fnx::Xml::addNewFile(kind)` (no dialog). Currently only creates plain text (`FileTypes::PlainText`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
+| **New File** | Creates a new file inside the archive via `Fnx::Xml::addNewFile(type)` (no dialog). Currently only creates plain text (`FileTypes::PlainText`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
 | **New Folder** | Creates a new virtual folder in the archive's XML manifest. No file is created. | None |
 | **Import Files** | File dialog for selecting files from disk. Accepts any file type (no filter). Selected files are copied into the archive's `content/` directory as `{uuid}.{ext}` (extension taken from source path via `fsPath.extQString()`). The source file's stem becomes the display name in the manifest. Imported files are opened after import. | All files |
 | **Export File** | Save As dialog for exporting a single file from the archive to disk. Available from the tree view context menu for file elements only (`FnxModel::isFile`). The suggested filename is reconstructed from `name + ext`. Copies the file from the working directory to the chosen destination. | All files |
