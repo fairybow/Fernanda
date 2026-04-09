@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/Fernanda - copy.svg</file>
         <file>icons/Fernanda.icns</file>
         <file>icons/Fernanda.ico</file>
         <file>icons/Fernanda-16.png</file>

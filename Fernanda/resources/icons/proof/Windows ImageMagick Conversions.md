@@ -6,8 +6,6 @@ magick Fernanda.svg -density 600 -transparent white -background transparent -alp
 magick ../Fernanda-16.png ../Fernanda-24.png ../Fernanda-32.png ../Fernanda-48.png ../Fernanda-64.png ../Fernanda-128.png ../Fernanda-256.png ../Fernanda.ico
 
 magick ../Fernanda-16.png ../Fernanda-32.png ../Fernanda-64.png ../Fernanda-128.png ../Fernanda-256.png ../Fernanda-512.png ../Fernanda-1024.png ../Fernanda.icns
-
-copy Fernanda.svg "../Fernanda - copy.svg"
 ```
 
 Linux has no special icon format.

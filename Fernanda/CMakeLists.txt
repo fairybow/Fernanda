@@ -416,6 +416,10 @@ install(TARGETS Fernanda
 )
 
 if(UNIX AND NOT APPLE)
+    install(FILES resources/Fernanda.desktop
+        DESTINATION share/applications
+    )
+
     foreach(SIZE 16 22 24 32 48 64 128 256 512)
         set(_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/Fernanda-${SIZE}.png")
         if(EXISTS "${_icon}")
