@@ -94,7 +94,7 @@ Windows (x64), macOS (ARM), and Linux (x86_64). macOS and Linux builds are avail
 
 ## What's New?
 
-Here's a draft for the beta.18 "What's New?" section:
+**macOS and Linux builds.** Now shipping macOS (ARM) and Linux (x86_64) installers alongside the Windows build. (These are the first cross-platform releases and have not been extensively tested)
 
 **File imports.** Both workspaces now share an "Import..." action in the File menu. Notepad imports convert supported formats (DOCX, RTF) to plain text and open them in new tabs. Notebook imports do the same for convertible formats and pass through everything else into the archive
 
@@ -105,6 +105,8 @@ Here's a draft for the beta.18 "What's New?" section:
 **Menu reorganization.** The Notebook-specific "Notebook" menu is gone. "Open notepad" moved into the shared File menu (hidden when already in Notepad). File creation, import, and notebook operations now live in a unified File menu structure across both workspace types. Close actions grouped into a "Close" submenu
 
 **Notebook color chip improvements.** Chips now update live on Save As
+
+**CI release workflow.** Releases are now built and packaged automatically via GitHub Actions
 
 **Linux packaging support.** Added `FERNANDA_USE_SYSTEM_LIBS` CMake flag for Linux packagers to build against system-installed md4c and miniz instead of bundled submodules. Icons, translations, and a `.desktop` file now install to standard FHS paths on Linux. Translation load path in `Application.h` falls back to the FHS location on Linux. Version.txt dropped from install (build artifact only). (Closes #131)
 
