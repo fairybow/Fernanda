@@ -273,13 +273,36 @@ endif()
 # Build configuration
 # =============================================================================
 
+# NB: Even though some modules pull in others, I'd prefer to be explicit and
+# always include what's used
+
+# Pass cmake -DFERNANDA_USE_SYSTEM_LIBS=ON -B build
+option(FERNANDA_USE_SYSTEM_LIBS "Use system-installed md4c and miniz" OFF)
+
+if(FERNANDA_USE_SYSTEM_LIBS)
+    # Fernanda's bundled submodules pin md4c 0.5.2 and miniz 3.1.1. md4c's
+    # CMake doesn't populate its version in the exported config, so
+    # find_package can't verify it. Version omitted here as a workaround.
+    # 0.5.2 is the expected version
+    find_package(md4c REQUIRED)
+    find_package(miniz 3.1.1 REQUIRED)
+    set(MD4C_TARGETS md4c::md4c md4c::md4c-html)
+    set(MINIZ_TARGETS miniz::miniz)
+else()
+    set(MD4C_TARGETS md4c md4c-html)
+    set(MINIZ_TARGETS miniz)
+endif()
+
+# CMake requires absolute paths for include directories when they come from
+# generator expressions. The non-conditional paths get resolved automatically,
+# but genexpr contents don't get that treatment
 target_include_directories(Fernanda PRIVATE
     src
     submodules/Coco/Coco/include
     submodules/fountain.h/fountain.h/include
-    submodules/md4c/src
-    submodules/md4c/md2html
-    submodules/miniz
+    $<$<NOT:$<BOOL:${FERNANDA_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/md4c/src>
+    $<$<NOT:$<BOOL:${FERNANDA_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/md4c/md2html>
+    $<$<NOT:$<BOOL:${FERNANDA_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/miniz>
 )
 
 if(WIN32)
@@ -292,16 +315,18 @@ endif()
 # --- miniz (built from source via submodule) ---
 
 add_subdirectory(submodules/fountain.h/fountain.h EXCLUDE_FROM_ALL)
-add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
-add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
+
+if(NOT FERNANDA_USE_SYSTEM_LIBS)
+    add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
+    add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
+endif()
 
 # --- Linking ---
 
 target_link_libraries(Fernanda PRIVATE
     fountain_h
-    md4c
-    md4c-html
-    miniz
+    ${MD4C_TARGETS}
+    ${MINIZ_TARGETS}
     Qt6::Core
     Qt6::Gui
     Qt6::Network
@@ -390,5 +415,28 @@ install(TARGETS Fernanda
     BUNDLE DESTINATION .
 )
 
-install(FILES ${QM_FILES} DESTINATION bin)
-install(FILES $<TARGET_FILE_DIR:Fernanda>/Version.txt DESTINATION bin OPTIONAL)
+if(UNIX AND NOT APPLE)
+    install(FILES resources/Fernanda.desktop
+        DESTINATION share/applications
+    )
+
+    foreach(SIZE 16 22 24 32 48 64 128 256 512)
+        set(_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/Fernanda-${SIZE}.png")
+        if(EXISTS "${_icon}")
+            install(FILES ${_icon}
+                DESTINATION share/icons/hicolor/${SIZE}x${SIZE}/apps
+                RENAME Fernanda.png
+            )
+        endif()
+    endforeach()
+
+    install(FILES resources/icons/proof/Fernanda.svg
+        DESTINATION share/icons/hicolor/scalable/apps
+    )
+
+    install(FILES ${QM_FILES}
+        DESTINATION share/Fernanda/translations
+    )
+else()
+    install(FILES ${QM_FILES} DESTINATION bin)
+endif()

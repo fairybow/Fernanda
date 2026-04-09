@@ -156,12 +156,28 @@ private:
             &Application::onCommitDataRequest_);
     }
 
+    // TODO: Temp! Only handling EN for now
     void initializeTranslator_()
     {
         translator_ = new QTranslator(this);
 
-        // TODO: Temp! Only handling EN for now
-        if (translator_->load("Translation_en.qm", applicationDirPath())) {
+        // Try beside the binary first (for Windows and macOS, plus Linux dev
+        // build), then fallback to the FHS path on Linux only
+
+        auto loaded =
+            translator_->load("Translation_en.qm", applicationDirPath());
+
+#ifdef Q_OS_LINUX
+
+        if (!loaded) {
+            loaded = translator_->load(
+                "Translation_en.qm",
+                applicationDirPath() + u"/../share/Fernanda/translations");
+        }
+
+#endif
+
+        if (loaded) {
             INFO("Translation loaded!");
             if (installTranslator(translator_)) INFO("Translator installed!");
         } else {
