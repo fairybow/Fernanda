@@ -216,14 +216,14 @@ jobs:
         run: cmake --build build --parallel
 
       # ---------------------------------------------------------------
-      # Stage into Fernanda/packaging/temp/ (ISS resolves paths
-      # relative to its own directory, so temp/ must be a sibling)
+      # Stage into .github/temp/ (ISS resolves paths relative to its
+      # own directory, so temp/ must be a sibling)
       # ---------------------------------------------------------------
 
       - name: Stage deployment
         shell: pwsh
         run: |
-          $temp = "Fernanda/packaging/temp"
+          $temp = ".github/temp"
           New-Item -ItemType Directory -Force -Path $temp
 
           # Exe
@@ -247,7 +247,7 @@ jobs:
         run: |
           Invoke-WebRequest `
             -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" `
-            -OutFile "Fernanda/packaging/temp/vc_redist.x64.exe"
+            -OutFile ".github/temp/vc_redist.x64.exe"
 
       - name: Install Inno Setup
         shell: pwsh
@@ -258,16 +258,14 @@ jobs:
         run: |
           $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 
-          # ReadmePath, LicensePath, OutputDir are relative to ISS location
-          # (Fernanda/packaging/), so ../../ reaches repo root
           & $iscc `
             /DAppVersion="${{ env.VER }}" `
             /DAppVersionNumeric="${{ env.VER_NUMERIC }}" `
             /DInstallerName="${{ env.APP }}Installer" `
-            /DReadmePath="..\..\README.md" `
-            /DLicensePath="..\..\LICENSE" `
-            /DOutputDir="..\..\output" `
-            "Fernanda/packaging/WindowsInstaller.iss"
+            /DReadmePath="..\README.md" `
+            /DLicensePath="..\LICENSE" `
+            /DOutputDir="..\output" `
+            ".github/WindowsInstaller.iss"
 
       - name: Rename installer
         shell: pwsh
