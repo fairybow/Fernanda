@@ -12,7 +12,7 @@
 #   release        -> Attaches all artifacts to the GitHub Release
 #
 # Path assumptions (from repo root):
-#   (.github/workflows/release.yml (this))
+#   (.github/workflows/release.yml)
 #   .github/WindowsInstaller.iss
 #   Fernanda/src/core/Version.h
 #   README.md
