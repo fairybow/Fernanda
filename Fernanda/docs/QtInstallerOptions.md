@@ -4,14 +4,14 @@
 Extensions
 |-- Qt PDF
 |   +-- [ version ]
-|       +-- MSVC 2022 x64
+|       +-- [ compiler ]
 +-- Qt WebEngine
     +-- [ version ]
-        +-- MSVC 2022 x64
+        +-- [ compiler ]
 
 Qt
 |-- [ version ]
-|   |-- MSVC 2022 64-bit
+|   |-- [ compiler ]
 |   +-- Additional Libraries
 |       |-- Qt Image Formats
 |       |-- Qt Position (required by Qt WebEngine)

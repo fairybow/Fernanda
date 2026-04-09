@@ -273,13 +273,32 @@ endif()
 # Build configuration
 # =============================================================================
 
+# NB: Even though some modules pull in others, I'd prefer to be explicit and
+# always include what's used
+
+# Pass cmake -DFERNANDA_USE_SYSTEM_LIBS=ON -B build
+option(FERNANDA_USE_SYSTEM_LIBS "Use system-installed md4c and miniz" OFF)
+
+if(FERNANDA_USE_SYSTEM_LIBS)
+    find_package(md4c 0.5.2 REQUIRED)
+    find_package(miniz 3.1.1 REQUIRED)
+    set(MD4C_TARGETS md4c::md4c md4c::md4c-html)
+    set(MINIZ_TARGETS miniz::miniz)
+else()
+    set(MD4C_TARGETS md4c md4c-html)
+    set(MINIZ_TARGETS miniz)
+endif()
+
+# CMake requires absolute paths for include directories when they come from
+# generator expressions. The non-conditional paths get resolved automatically,
+# but genexpr contents don't get that treatment
 target_include_directories(Fernanda PRIVATE
     src
     submodules/Coco/Coco/include
     submodules/fountain.h/fountain.h/include
-    submodules/md4c/src
-    submodules/md4c/md2html
-    submodules/miniz
+    $<$<NOT:$<BOOL:${FERNANDA_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/md4c/src>
+    $<$<NOT:$<BOOL:${FERNANDA_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/md4c/md2html>
+    $<$<NOT:$<BOOL:${FERNANDA_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/miniz>
 )
 
 if(WIN32)
@@ -292,16 +311,18 @@ endif()
 # --- miniz (built from source via submodule) ---
 
 add_subdirectory(submodules/fountain.h/fountain.h EXCLUDE_FROM_ALL)
-add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
-add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
+
+if(NOT FERNANDA_USE_SYSTEM_LIBS)
+    add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
+    add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
+endif()
 
 # --- Linking ---
 
 target_link_libraries(Fernanda PRIVATE
     fountain_h
-    md4c
-    md4c-html
-    miniz
+    ${MD4C_TARGETS}
+    ${MINIZ_TARGETS}
     Qt6::Core
     Qt6::Gui
     Qt6::Network
