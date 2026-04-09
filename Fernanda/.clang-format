@@ -22,9 +22,9 @@ FixNamespaceComments: true
 IncludeBlocks: Preserve
 IndentPPDirectives: AfterHash
 InsertNewlineAtEOF: true
-ShortNamespaceLines: 0
 LineEnding: CRLF
 PointerAlignment: Left
+ShortNamespaceLines: 0
 SortIncludes: CaseSensitive
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeCaseColon: false

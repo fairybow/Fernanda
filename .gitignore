@@ -455,5 +455,6 @@ CMakeUserPresets.json
 
 *.diff
 *.patch
+tree.txt
 Fernanda/packaging/temp/
 Fernanda/packaging/output/
