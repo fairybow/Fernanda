@@ -281,9 +281,9 @@ option(FERNANDA_USE_SYSTEM_LIBS "Use system-installed md4c and miniz" OFF)
 
 if(FERNANDA_USE_SYSTEM_LIBS)
     # Fernanda's bundled submodules pin md4c 0.5.2 and miniz 3.1.1. md4c's
-    # CMake doesn't populate its version in the exported config, so find_package
-    # can't verify it. Version omitted here as a workaround. 0.5.2 is the
-    # expected version
+    # CMake doesn't populate its version in the exported config, so
+    # find_package can't verify it. Version omitted here as a workaround.
+    # 0.5.2 is the expected version
     find_package(md4c REQUIRED)
     find_package(miniz 3.1.1 REQUIRED)
     set(MD4C_TARGETS md4c::md4c md4c::md4c-html)
