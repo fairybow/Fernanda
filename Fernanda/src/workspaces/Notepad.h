@@ -757,7 +757,7 @@ private:
         return treeView;
     }
 
-    /// TODO NF: Make kind required param?
+    /// TODO NF: Make plainTextFileType required param?
     void
     newTab_(Window* window, Files::Type plainTextFileType = Files::PlainText)
     {

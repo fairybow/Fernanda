@@ -1,5 +1,7 @@
 # Roadmap
 
+TODO: Clean
+
 ## Current
 
 - [ ] Super need to rework Files filter functions for better API
@@ -8,8 +10,8 @@
 
 - [x] Gutter size + setting on text edits
 
-- [ ] Search "type" and find ambiguous parameter names
-- [ ] Also search "kind"
+- [x] Search "type" and find ambiguous parameter names
+- [x] Also search "kind"
 
 - [x] New import submenu in File for both Workspaces
 - [x] Add Word (.docx) option to submenu (only one for now)
@@ -129,7 +131,7 @@
 - [x] Update documentation: FileModelsAndViews, FileHandling, Notebooks, Architecture
 - [x] Merge file-types branch
 - [ ] Have two "supported files" filters in addition to the "all files" (one for Notebook and one for Notepad which will also contain .fnx)
-- [ ] These filters should be dynamically created in a Namespace that pulls from Tr for type names
+- [x] These filters should be dynamically created in a Namespace that pulls from Tr for type names
 - [ ] These filters should be set to list multiple extensions where applicable (meaning FileTypes needs an "all extensions" function to return canonical + aliases (JPG is the only one right now, when that's supported)
 - [ ] Save As options could show a second (or third) filter (in addition to all files and/or all supported files) for the canonical type
 - [ ] Need a function to return all extensions from the map (canonical + aliases)

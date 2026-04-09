@@ -27,10 +27,10 @@ class AbstractFileModel : public QObject
     Q_OBJECT
 
 public:
-    // Kind drives view selection and fallback extension; path drives display
-    // title and on-disk status. Subclasses (PdfFileModel, ImageFileModel)
-    // resolve Kind differently (hardcoded, magic bytes), but both parameters
-    // are always meaningful at the base level
+    // Files::Type drives view selection and fallback extension; path drives
+    // display title and on-disk status. Subclasses (PdfFileModel,
+    // ImageFileModel) resolve Type differently (hardcoded, magic bytes), but
+    // both parameters are always meaningful at the base level
     explicit AbstractFileModel(
         Files::Type fileType,
         const Coco::Path& path,

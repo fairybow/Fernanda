@@ -560,7 +560,7 @@ private:
 
     // New file will be under selected TreeView model index (or notebook element
     // if no current index)
-    /// TODO NF: Make kind required param?
+    /// TODO NF: Make fileType required param?
     void newFile_(
         Window* window,
         const QModelIndex& index = {},
