@@ -18,6 +18,7 @@
 
 // TODO: Go through and Find All References and delete unused
 // TODO: Set auto lupdate in CMake to remove unused translations
+/// TODO NF: Reorganize (see below)
 
 // Qt Linguist requires the tr method to be in place
 #define TR_(Name, TrCall)                                                      \
