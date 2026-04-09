@@ -1,0 +1,306 @@
+# =============================================================================
+# Fernanda: Build and Release
+# =============================================================================
+#
+# Triggered by pushing a tag matching "v*" (e.g., v0.99.0-beta.18).
+#
+# Jobs:
+#   parse-version  -> Extracts app name, version strings from Version.h
+#   linux          -> AppImage (x86_64)
+#   macos          -> .dmg (ARM / Apple Silicon)
+#   windows        -> Inno Setup installer (.exe)
+#   release        -> Attaches all artifacts to the GitHub Release
+#
+# Path assumptions (from repo root):
+#   (.github/workflows/release.yml (this))
+#   .github/WindowsInstaller.iss
+#   Fernanda/src/core/Version.h
+#   README.md
+#   LICENSE
+
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  QT_VERSION: '6.11.0'
+  BUILD_TYPE: Release
+
+jobs:
+
+  # ===========================================================================
+  # Parse Version.h
+  # ===========================================================================
+  #
+  # Single source of truth for app name and version strings. All downstream
+  # jobs reference these outputs instead of hardcoding values
+
+  parse-version:
+    runs-on: ubuntu-latest
+    outputs:
+      app_name:        ${{ steps.v.outputs.app_name }}
+      app_name_lower:  ${{ steps.v.outputs.app_name_lower }}
+      version_full:    ${{ steps.v.outputs.version_full }}
+      version_numeric: ${{ steps.v.outputs.version_numeric }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from Version.h
+        id: v
+        run: |
+          FILE=Fernanda/src/core/Version.h
+
+          major=$(grep -oP '#define VERSION_MAJOR\s+\K[0-9]+' "$FILE")
+          minor=$(grep -oP '#define VERSION_MINOR\s+\K[0-9]+' "$FILE")
+          patch=$(grep -oP '#define VERSION_PATCH\s+\K[0-9]+' "$FILE")
+          is_pre=$(grep -oP '#define VERSION_IS_PRERELEASE\s+\K[01]' "$FILE")
+          pre=$(grep -oP '#define VERSION_PRERELEASE_STRING\s+"\K[^"]+' "$FILE")
+          app=$(grep -oP '#define VERSION_APP_NAME_STRING\s+"\K[^"]+' "$FILE")
+          app_lower=$(grep -oP '#define VERSION_APP_NAME_STRING_L\s+"\K[^"]+' "$FILE")
+
+          numeric="${major}.${minor}.${patch}"
+          if [ "$is_pre" = "1" ]; then
+            full="${numeric}-${pre}"
+          else
+            full="${numeric}"
+          fi
+
+          echo "app_name=${app}"               >> "$GITHUB_OUTPUT"
+          echo "app_name_lower=${app_lower}"    >> "$GITHUB_OUTPUT"
+          echo "version_full=${full}"           >> "$GITHUB_OUTPUT"
+          echo "version_numeric=${numeric}"     >> "$GITHUB_OUTPUT"
+
+          echo "Parsed: ${app} ${full} (numeric: ${numeric})"
+
+  # ===========================================================================
+  # Linux AppImage
+  # ===========================================================================
+
+  linux:
+    needs: parse-version
+    runs-on: ubuntu-22.04
+    env:
+      APP: ${{ needs.parse-version.outputs.app_name }}
+      VER: ${{ needs.parse-version.outputs.version_full }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          modules: qtwebengine qtpdf qtpositioning qtwebchannel qtimageformats
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxcb1-dev libx11-xcb-dev libxkbcommon-dev \
+            libgl1-mesa-dev libfuse2
+
+      - name: Configure
+        run: |
+          cmake -B build -S Fernanda \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_INSTALL_PREFIX=/usr
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Install to AppDir
+        run: DESTDIR=${{ github.workspace }}/AppDir cmake --install build
+
+      - name: Download linuxdeploy
+        run: |
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy-*.AppImage
+
+      - name: Build AppImage
+        env:
+          EXTRA_QT_PLUGINS: iconengines;imageformats;platforms
+        run: |
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --plugin qt \
+            --output appimage
+          mv ${{ env.APP }}-*.AppImage \
+             ${{ env.APP }}-${{ env.VER }}-linux-x86_64.AppImage
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: ${{ env.APP }}-*.AppImage
+
+  # ===========================================================================
+  # macOS .dmg (ARM / Apple Silicon)
+  # ===========================================================================
+
+  macos:
+    needs: parse-version
+    runs-on: macos-14
+    env:
+      APP: ${{ needs.parse-version.outputs.app_name }}
+      VER: ${{ needs.parse-version.outputs.version_full }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          modules: qtwebengine qtpdf qtpositioning qtwebchannel qtimageformats
+
+      - name: Configure
+        run: |
+          cmake -B build -S Fernanda \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Deploy
+        run: |
+          cd build
+          macdeployqt ${{ env.APP }}.app -dmg
+          mv ${{ env.APP }}.dmg \
+             ../${{ env.APP }}-${{ env.VER }}-macos-arm64.dmg
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: ${{ env.APP }}-*.dmg
+
+  # ===========================================================================
+  # Windows Installer (Inno Setup)
+  # ===========================================================================
+
+  windows:
+    needs: parse-version
+    runs-on: windows-latest
+    env:
+      APP: ${{ needs.parse-version.outputs.app_name }}
+      VER: ${{ needs.parse-version.outputs.version_full }}
+      VER_NUMERIC: ${{ needs.parse-version.outputs.version_numeric }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          modules: qtwebengine qtpdf qtpositioning qtwebchannel qtimageformats
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        run: |
+          cmake -B build -S Fernanda -G Ninja `
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
+            -DCMAKE_C_COMPILER=cl `
+            -DCMAKE_CXX_COMPILER=cl
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      # ---------------------------------------------------------------
+      # Stage into Fernanda/packaging/temp/ (ISS resolves paths
+      # relative to its own directory, so temp/ must be a sibling)
+      # ---------------------------------------------------------------
+
+      - name: Stage deployment
+        shell: pwsh
+        run: |
+          $temp = "Fernanda/packaging/temp"
+          New-Item -ItemType Directory -Force -Path $temp
+
+          # Exe
+          Copy-Item "build/${{ env.APP }}.exe" $temp/
+
+          # Translation files
+          $qm = Get-ChildItem "build/*.qm" -ErrorAction SilentlyContinue
+          if ($qm) { Copy-Item $qm $temp/ }
+
+          # windeployqt
+          & windeployqt6 `
+            --release `
+            --no-translations `
+            --no-system-d3d-compiler `
+            --no-opengl-sw `
+            --skip-plugin-types generic,networkinformation `
+            "$temp/${{ env.APP }}.exe"
+
+      - name: Download VC++ Redistributable
+        shell: pwsh
+        run: |
+          Invoke-WebRequest `
+            -Uri "https://aka.ms/vs/17/release/vc_redist.x64.exe" `
+            -OutFile "Fernanda/packaging/temp/vc_redist.x64.exe"
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y --no-progress
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+
+          # ReadmePath, LicensePath, OutputDir are relative to ISS location
+          # (Fernanda/packaging/), so ../../ reaches repo root
+          & $iscc `
+            /DAppVersion="${{ env.VER }}" `
+            /DAppVersionNumeric="${{ env.VER_NUMERIC }}" `
+            /DInstallerName="${{ env.APP }}Installer" `
+            /DReadmePath="..\..\README.md" `
+            /DLicensePath="..\..\LICENSE" `
+            /DOutputDir="..\..\output" `
+            "Fernanda/packaging/WindowsInstaller.iss"
+
+      - name: Rename installer
+        shell: pwsh
+        run: |
+          Rename-Item "output/${{ env.APP }}Installer.exe" `
+            "${{ env.APP }}-${{ env.VER }}-windows-x64-setup.exe"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: output/${{ env.APP }}-*.exe
+
+  # ===========================================================================
+  # Attach to GitHub Release
+  # ===========================================================================
+
+  release:
+    needs: [parse-version, linux, macos, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      APP: ${{ needs.parse-version.outputs.app_name }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ env.APP }}-*.AppImage
+            ${{ env.APP }}-*.dmg
+            ${{ env.APP }}-*.exe
