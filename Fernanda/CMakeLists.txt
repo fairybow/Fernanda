@@ -1,8 +1,6 @@
 # Fernanda — a plain-text-first workbench for creative writing
 # https://github.com/fairybow/Fernanda
 
-# TODO: Non-Windows builds not yet tested
-
 cmake_minimum_required(VERSION 3.21)
 project(Fernanda LANGUAGES CXX C)
 

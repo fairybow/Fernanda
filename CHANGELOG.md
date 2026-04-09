@@ -15,29 +15,43 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 
 ## Installation
 
-Download and run the installer below (on Windows x64 machines)!
+**Windows:** Download and run the installer below.
+
+**macOS:** Download the `.dmg`, open it, and drag Fernanda to Applications.
+
+**Linux:** Download the `.AppImage`, make it executable (`chmod +x`), and run.
 
 > [!NOTE]
-> This build is unsigned, so Windows Defender SmartScreen will likely show a warning before allowing the install. You can click **More info -> Run anyway** to proceed.
+> **Windows:** This build is unsigned, so Windows Defender SmartScreen will likely show a warning. Click **More info -> Run anyway** to proceed.
+>
+> **macOS:** This build is unsigned. You may need to right-click and select **Open** the first time, or allow it in **System Settings -> Privacy & Security**.
 
 ## Updating
 
-Download the newest installer (below). Ensure Fernanda is closed, then run the installer and install to the same directory (default `C:/Program Files`), overwriting.
+**Windows:** Download the newest installer, ensure Fernanda is closed, then run the installer and install to the same directory (default `C:/Program Files`), overwriting.
+
+**macOS:** Replace the app in Applications with the new version from the `.dmg`.
+
+**Linux:** Replace the old `.AppImage` with the new one.
 
 ## Uninstalling
 
-Run the uninstaller (`unins000.exe`) or remove via **Add or Remove Programs** as usual.
+**Windows:** Run the uninstaller (`unins000.exe`) or remove via **Add or Remove Programs** as usual.
 
-Fernanda doesn't delete its data folders on uninstall since they may contain writing. After running the uninstaller, you may want to remove them manually:
+**macOS:** Drag Fernanda from Applications to the Trash.
+
+**Linux:** Delete the `.AppImage`.
+
+Fernanda doesn't delete its data folders on uninstall since they may contain writing. You may want to remove them manually:
 
 | Folder | Location | Contents |
 |---|---|---|
 | User Data | `~/.fernanda/` | Settings, backups, temp files, themes |
 | Default Docs | `~/Documents/Fernanda/` | Default location for file dialogs |
 
-## Platform
+## Platforms
 
-Windows (x64) only for now. Mac and Linux support is planned.
+Windows (x64), macOS (ARM), and Linux (x86_64). macOS and Linux builds are available but not well-tested. Bug reports are welcome!
 
 ## Release note template
 

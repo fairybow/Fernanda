@@ -3,8 +3,8 @@
 </p>
 <p align="center"><b>A plain-text-first workbench for creative writing</b></p>
 <p align="center">
-    <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%203-red.svg?style=for-the-badge" alt="License GPL 3"></a>
-    <img src="https://img.shields.io/badge/Platform-Windows%20(x64)-blue.svg?style=for-the-badge" alt="Platform Windows (x64)">
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%203-9194f2.svg?style=flat-square" alt="License GPL 3"></a>
+    <img src="https://img.shields.io/badge/Platform-Windows%20|%20macOS%20|%20Linux-3bb0f3.svg?style=flat-square" alt="Platforms: Windows, macOS, Linux">
 </p>
 <p align="center">
     <a href="https://github.com/fairybow/Fernanda/releases"><b>Releases</b></a> •
@@ -15,7 +15,7 @@
 
 Fernanda is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Notebooks.md).
 
-(Mac and Linux support is planned!)
+macOS and Linux builds are available but not well-tested. Bug reports are welcome!
 
 ## Features
 
