@@ -275,12 +275,14 @@ inline bool isFnxFile(const Coco::Path& path)
            && MagicBytes::is(MagicBytes::Zip, path);
 }
 
+// TODO: Unused
 inline bool isDocxFile(const Coco::Path& path)
 {
     return path.ext() == canonicalExt(MicrosoftWord)
            && MagicBytes::is(MagicBytes::Zip, path);
 }
 
+// TODO: Unused
 inline bool isRtfFile(const Coco::Path& path)
 {
     return MagicBytes::is(MagicBytes::Rtf, path);

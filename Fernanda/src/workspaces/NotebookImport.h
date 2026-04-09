@@ -34,18 +34,22 @@ struct Result
     QString ext{};
 };
 
-/// TODO NF: Should we worry about repeated checks with MagicBytes reads?
+/// TODO NF: I don't like that each case in the if-else-if is almost the same.
+/// Currently, we only import 2 file types with conversion, both to plain text,
+/// and that may or may not be the only kind of conversion we ever do. Unsure...
 inline Result process(const Coco::Path& path)
 {
     auto name = path.stemQString();
+    auto magic = MagicBytes::type(path);
 
     // Convertible types (extension + magic bytes)
-    if (Files::isDocxFile(path)) {
+    if (magic == MagicBytes::Zip
+        && path.ext() == Files::canonicalExt(Files::MicrosoftWord)) {
         return { Docx::toPlainText(path).toUtf8(),
                  Files::PlainText,
                  name,
                  Files::canonicalExt(Files::PlainText) };
-    } else if (Files::isRtfFile(path)) {
+    } else if (magic == MagicBytes::Rtf) {
         return { Rtf::toPlainText(path).toUtf8(),
                  Files::PlainText,
                  name,
@@ -57,9 +61,8 @@ inline Result process(const Coco::Path& path)
     // Passthrough: keep original extension, two-tier identification
     auto ext = path.extQString();
 
-    auto mb = MagicBytes::type(path);
-    if (mb != MagicBytes::NoKnownSignature) {
-        return { Io::read(path), Files::fromMagicBytes(mb), name, ext };
+    if (magic != MagicBytes::NoKnownSignature) {
+        return { Io::read(path), Files::fromMagicBytes(magic), name, ext };
     }
 
     return { Io::read(path), Files::fromPath(path), name, ext };

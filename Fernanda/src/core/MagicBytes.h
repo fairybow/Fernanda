@@ -44,7 +44,7 @@ enum Type
     WebP
 };
 
-inline Type type(const Coco::Path& path)
+inline Type type(const Coco::Path& path, const QList<Type>& filter = {})
 {
     struct Signature
     {
@@ -68,11 +68,15 @@ inline Type type(const Coco::Path& path)
         { Zip, "\x50\x4B", 2 },
     };
 
+    auto accepted = [&](Type t) {
+        return filter.isEmpty() || filter.contains(t);
+    };
+
     QFile file(path.toQString());
 
     if (!file.open(QIODevice::ReadOnly)) {
         INFO("Unable to open file: {}", path);
-        return NoKnownSignature; // Maybe replace with Error value?
+        return NoKnownSignature;
     }
 
     // Read enough bytes to cover the longest signature
@@ -80,19 +84,22 @@ inline Type type(const Coco::Path& path)
 
     if (file_header.isEmpty()) {
         INFO("Empty file: {}", path);
-        return NoKnownSignature; // Maybe replace with Error value?
+        return NoKnownSignature;
     }
 
     // WEBP: RIFF container with WEBP marker at offset 8
     if (file_header.size() >= 12
         && file_header.startsWith(QByteArrayView("\x52\x49\x46\x46", 4))
         && QByteArrayView(file_header).sliced(8, 4)
-               == QByteArrayView("\x57\x45\x42\x50", 4))
-        return WebP;
+               == QByteArrayView("\x57\x45\x42\x50", 4)) {
+        return accepted(WebP) ? WebP : NoKnownSignature;
+    }
 
     // Return type if known
     for (const auto& [type, bytes, length] : signatures) {
-        if (file_header.startsWith(QByteArrayView(bytes, length))) return type;
+        if (file_header.startsWith(QByteArrayView(bytes, length))) {
+            return accepted(type) ? type : NoKnownSignature;
+        }
     }
 
     return NoKnownSignature;

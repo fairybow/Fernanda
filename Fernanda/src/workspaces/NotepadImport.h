@@ -17,6 +17,7 @@
 #include <Coco/Path.h>
 
 #include "core/Files.h"
+#include "core/MagicBytes.h"
 #include "workspaces/Docx.h"
 #include "workspaces/Rtf.h"
 
@@ -31,16 +32,18 @@ struct Result
     bool isValid() const { return !text.isEmpty(); }
 };
 
-/// TODO NF: Should we worry about repeated checks with MagicBytes reads?
 /// TODO NF: Combine base conversion imports logic for this and NotebookImport
 /// to use
 inline Result process(const Coco::Path& path)
 {
     auto name = path.stemQString();
+    auto magic = MagicBytes::type(path, { MagicBytes::Zip, MagicBytes::Rtf });
 
-    if (Files::isDocxFile(path)) {
+    if (magic == MagicBytes::Zip
+        && path.ext() == Files::canonicalExt(Files::MicrosoftWord)) {
         return { Docx::toPlainText(path), Files::PlainText, name };
-    } else if (Files::isRtfFile(path)) {
+
+    } else if (magic == MagicBytes::Rtf) {
         return { Rtf::toPlainText(path), Files::PlainText, name };
     }
 
