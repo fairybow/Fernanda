@@ -390,5 +390,24 @@ install(TARGETS Fernanda
     BUNDLE DESTINATION .
 )
 
-install(FILES ${QM_FILES} DESTINATION bin)
-install(FILES $<TARGET_FILE_DIR:Fernanda>/Version.txt DESTINATION bin OPTIONAL)
+if(UNIX AND NOT APPLE)
+    foreach(SIZE 16 22 24 32 48 64 128 256 512)
+        set(_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/Fernanda-${SIZE}.png")
+        if(EXISTS "${_icon}")
+            install(FILES ${_icon}
+                DESTINATION share/icons/hicolor/${SIZE}x${SIZE}/apps
+                RENAME Fernanda.png
+            )
+        endif()
+    endforeach()
+
+    install(FILES resources/icons/proof/Fernanda.svg
+        DESTINATION share/icons/hicolor/scalable/apps
+    )
+
+    install(FILES ${QM_FILES}
+        DESTINATION share/Fernanda/translations
+    )
+else()
+    install(FILES ${QM_FILES} DESTINATION bin)
+endif()
