@@ -231,9 +231,18 @@ jobs:
             --email "${{ secrets.QT_EMAIL }}" `
             --pw "${{ secrets.QT_PW }}" `
             --outputdir D:\a\Fernanda\Qt `
-            --override `
-            extensions.qtpdf.${tag}.win64_msvc2022_64 `
+            desktop win64_msvc2022_64 ${{ env.QT_VERSION }} `
+            -m extensions.qtpdf.${tag}.win64_msvc2022_64 `
             extensions.qtwebengine.${tag}.win64_msvc2022_64
+
+      - name: Debug - check extension install location
+        shell: pwsh
+        run: |
+          Write-Host "=== Qt install dir ==="
+          Get-ChildItem -Path "D:\a\Fernanda\Qt" -Recurse -Filter "*PdfWidgets*" -ErrorAction SilentlyContinue
+          Write-Host "=== Also check default aqt output ==="
+          Get-ChildItem -Path "C:\Qt" -Recurse -Filter "*PdfWidgets*" -ErrorAction SilentlyContinue
+          Get-ChildItem -Path "${{ runner.temp }}" -Recurse -Filter "*PdfWidgets*" -ErrorAction SilentlyContinue
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
