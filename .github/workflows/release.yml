@@ -239,12 +239,6 @@ jobs:
             "extensions.qtwebengine.${tag}.win64_msvc2022_64" `
             -Wait -NoNewWindow
 
-      - name: Debug - check for PdfWidgets
-        shell: pwsh
-        run: |
-          Get-ChildItem "D:\a\Fernanda\Qt\6.11.0\msvc2022_64\lib\cmake" -Directory | Select-String -Pattern "Pdf" -SimpleMatch
-          dir "D:\a\Fernanda\Qt\6.11.0\msvc2022_64\lib\cmake\Qt6Pdf*" -ErrorAction SilentlyContinue
-
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
@@ -276,13 +270,12 @@ jobs:
           $qm = Get-ChildItem "build/*.qm" -ErrorAction SilentlyContinue
           if ($qm) { Copy-Item $qm $temp/ }
 
-          # windeployqt
+          # windeployqt (strip unneeded plugins)
           & windeployqt6 `
             --release `
             --no-translations `
             --no-system-d3d-compiler `
             --no-opengl-sw `
-            # Strip unneeded plugins:
             --skip-plugin-types generic,networkinformation,position `
             "$temp/${{ env.APP }}.exe"
 
