@@ -216,7 +216,7 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           arch: win64_msvc2022_64
-          modules: qtimageformats qtpdf qtpositioning qtwebchannel qtwebengine
+          modules: qtimageformats qtpositioning qtwebchannel extensions.qtpdf extensions.qtwebengine
           # See: https://github.com/miurahr/aqtinstall/issues/1007
           use-official: true
           email: ${{ secrets.QT_EMAIL }}
