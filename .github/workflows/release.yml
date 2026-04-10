@@ -227,18 +227,20 @@ jobs:
         shell: pwsh
         run: |
           $tag = "${{ env.QT_VERSION }}".Replace('.', '')
-          $installer = "C:\Users\runneradmin\AppData\Roaming\aqt\tmp\qt-online-installer-windows-x64-online.exe"
-          & $installer `
-            --accept-licenses `
-            --accept-obligations `
-            --confirm-command `
-            --email "${{ secrets.QT_EMAIL }}" `
-            --pw "${{ secrets.QT_PW }}" `
-            --root "D:\a\Fernanda\Qt" `
-            --auto-answer telemetry-question=No `
-            install `
-            extensions.qtpdf.${tag}.win64_msvc2022_64 `
-            extensions.qtwebengine.${tag}.win64_msvc2022_64
+          $installer = "${{ runner.temp }}\qt-installer.exe"
+          Invoke-WebRequest -Uri "https://download.qt.io/official_releases/online_installers/qt-unified-windows-x64-online.exe" -OutFile $installer
+          Start-Process -FilePath $installer -ArgumentList `
+            "--accept-licenses", `
+            "--accept-obligations", `
+            "--confirm-command", `
+            "--email", "${{ secrets.QT_EMAIL }}", `
+            "--pw", "${{ secrets.QT_PW }}", `
+            "--root", "D:\a\Fernanda\Qt", `
+            "--auto-answer", "telemetry-question=No", `
+            "install", `
+            "extensions.qtpdf.${tag}.win64_msvc2022_64", `
+            "extensions.qtwebengine.${tag}.win64_msvc2022_64" `
+            -Wait -NoNewWindow
 
       - name: Debug - check for PdfWidgets
         shell: pwsh
