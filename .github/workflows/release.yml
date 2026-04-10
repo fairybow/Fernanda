@@ -242,6 +242,8 @@ jobs:
           python -m aqt install-qt-official `
             --email "${{ secrets.QT_EMAIL }}" `
             --pw "${{ secrets.QT_PW }}" `
+            --outputdir D:\a\Fernanda\Qt `
+            --override `
             extensions.qtpdf.${tag}.win64_msvc2022_64 `
             extensions.qtwebengine.${tag}.win64_msvc2022_64
 
