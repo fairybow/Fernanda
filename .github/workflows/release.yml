@@ -140,7 +140,7 @@ jobs:
             --plugin qt \
             --output appimage
           mv ${{ env.APP }}-*.AppImage \
-             ${{ env.APP }}-${{ env.VER }}-Linux-x86_64.AppImage
+             ${{ env.APP }}-${{ env.VER }}_Linux-x86_64.AppImage
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
@@ -187,7 +187,7 @@ jobs:
           rm -rf "${{ env.APP }}.app/Contents/PlugIns/networkinformation"
           rm -rf "${{ env.APP }}.app/Contents/PlugIns/position"
           hdiutil create -volname "${{ env.APP }}" -srcfolder "${{ env.APP }}.app" \
-            -ov -format UDZO "../${{ env.APP }}-${{ env.VER }}-macos-arm64.dmg"
+            -ov -format UDZO "../${{ env.APP }}-${{ env.VER }}_macOS-ARM64.dmg"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
@@ -308,7 +308,7 @@ jobs:
         shell: pwsh
         run: |
           Rename-Item "output/${{ env.APP }}Installer.exe" `
-            "${{ env.APP }}-${{ env.VER }}-Windows-x64-setup.exe"
+            "${{ env.APP }}-${{ env.VER }}_Windows-x64-Installer.exe"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
