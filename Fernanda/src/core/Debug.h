@@ -66,13 +66,13 @@ struct Log
 
         if constexpr (sizeof...(args) > 0) {
 
-            // (See sanitize_macOS_ below)
 #ifndef Q_OS_MACOS
             msg = std::vformat(format, std::make_format_args(args...));
 #else
             msg = std::vformat(
                 format,
-                std::make_format_args(Internal::sanitize_macOS_(args)...));
+                std::make_format_args(
+                    Internal::convertIfQObjectPtr_macOS_(args)...));
 #endif
 
         } else {
@@ -100,6 +100,21 @@ private:
 
 namespace Internal {
 
+    // libc++ fails to match concept-constrained partial specializations of
+    // std::formatter during its internal formattability check. So, on macOS,
+    // QObject pointer args are pre-converted instead
+#ifdef Q_OS_MACOS
+
+    template <typename T> decltype(auto) convertIfQObjectPtr_macOS_(T&& arg)
+    {
+        if constexpr (Coco::Concepts::QObjectPointer<std::remove_cvref_t<T>>)
+            return Fernanda::toString(arg);
+        else
+            return std::forward<T>(arg);
+    }
+
+#endif
+
     inline void assertionFailed_(
         const char* condition,
         const char* file,
@@ -126,24 +141,18 @@ namespace Internal {
         std::string_view format,
         Args&&... args)
     {
+
+#ifndef Q_OS_MACOS
         auto message = std::vformat(format, std::make_format_args(args...));
+#else
+        auto message = std::vformat(
+            format,
+            std::make_format_args(
+                Internal::convertIfQObjectPtr_macOS_(args)...));
+#endif
+
         assertionFailed_(condition, file, line, function, message);
     }
-
-    // libc++ fails to match concept-constrained partial specializations of
-    // std::formatter during its internal formattability check. So, on macOS,
-    // QObject pointer args are pre-converted instead
-#ifdef Q_OS_MACOS
-
-    template <typename T> decltype(auto) sanitize_macOS_(T&& arg)
-    {
-        if constexpr (Coco::Concepts::QObjectPointer<std::remove_cvref_t<T>>)
-            return Fernanda::toString(arg);
-        else
-            return std::forward<T>(arg);
-    }
-
-#endif
 
 } // namespace Internal
 
