@@ -26,7 +26,7 @@ on:
       - 'v*'
 
 env:
-  QT_VERSION: '6.10.3'
+  QT_VERSION: '6.11.0'
   BUILD_TYPE: Release
 
 jobs:
@@ -46,7 +46,7 @@ jobs:
       version_full:    ${{ steps.v.outputs.version_full }}
       version_numeric: ${{ steps.v.outputs.version_numeric }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Extract version from Version.h
         id: v
@@ -68,7 +68,7 @@ jobs:
             full="${numeric}"
           fi
 
-          echo "app_name=${app}"               >> "$GITHUB_OUTPUT"
+          echo "app_name=${app}"                >> "$GITHUB_OUTPUT"
           echo "app_name_lower=${app_lower}"    >> "$GITHUB_OUTPUT"
           echo "version_full=${full}"           >> "$GITHUB_OUTPUT"
           echo "version_numeric=${numeric}"     >> "$GITHUB_OUTPUT"
@@ -86,7 +86,7 @@ jobs:
       APP: ${{ needs.parse-version.outputs.app_name }}
       VER: ${{ needs.parse-version.outputs.version_full }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -94,7 +94,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
-          modules: qtwebengine qtpdf qtpositioning qtwebchannel qtimageformats
+          modules: qtimageformats qtpdf qtpositioning qtwebchannel qtwebengine
 
       - name: Install system dependencies
         run: |
@@ -130,6 +130,7 @@ jobs:
           EXTRA_QT_PLUGINS: iconengines;imageformats;platforms
         run: |
           QT_PLUGIN_DIR="${IQTA_TOOLS:+$QT_ROOT_DIR/plugins}"
+          # Strip unneeded plugins:
           rm -rf "$QT_ROOT_DIR/plugins/networkinformation"
           rm -rf "$QT_ROOT_DIR/plugins/generic"
           rm -rf "$QT_ROOT_DIR/plugins/position"
@@ -138,10 +139,10 @@ jobs:
             --plugin qt \
             --output appimage
           mv ${{ env.APP }}-*.AppImage \
-             ${{ env.APP }}-${{ env.VER }}-linux-x86_64.AppImage
+             ${{ env.APP }}-${{ env.VER }}-Linux-x86_64.AppImage
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: linux-appimage
           path: ${{ env.APP }}-*.AppImage
@@ -157,7 +158,7 @@ jobs:
       APP: ${{ needs.parse-version.outputs.app_name }}
       VER: ${{ needs.parse-version.outputs.version_full }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -165,7 +166,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
-          modules: qtwebengine qtpdf qtpositioning qtwebchannel qtimageformats
+          modules: qtimageformats qtpdf qtpositioning qtwebchannel qtwebengine
 
       - name: Configure
         run: |
@@ -178,12 +179,16 @@ jobs:
       - name: Deploy
         run: |
           cd build
-          macdeployqt ${{ env.APP }}.app -dmg
-          mv ${{ env.APP }}.dmg \
-             ../${{ env.APP }}-${{ env.VER }}-macos-arm64.dmg
+          macdeployqt ${{ env.APP }}.app
+          # Strip unneeded plugins:
+          rm -rf "${{ env.APP }}.app/Contents/PlugIns/generic"
+          rm -rf "${{ env.APP }}.app/Contents/PlugIns/networkinformation"
+          rm -rf "${{ env.APP }}.app/Contents/PlugIns/position"
+          hdiutil create -volname "${{ env.APP }}" -srcfolder "${{ env.APP }}.app" \
+            -ov -format UDZO "../${{ env.APP }}-${{ env.VER }}-macos-arm64.dmg"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: macos-dmg
           path: ${{ env.APP }}-*.dmg
@@ -200,7 +205,7 @@ jobs:
       VER: ${{ needs.parse-version.outputs.version_full }}
       VER_NUMERIC: ${{ needs.parse-version.outputs.version_numeric }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -208,7 +213,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
-          modules: qtwebengine qtpdf qtpositioning qtwebchannel qtimageformats
+          modules: qtimageformats qtpdf qtpositioning qtwebchannel qtwebengine
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -247,6 +252,7 @@ jobs:
             --no-translations `
             --no-system-d3d-compiler `
             --no-opengl-sw `
+            # Strip unneeded plugins:
             --skip-plugin-types generic,networkinformation,position `
             "$temp/${{ env.APP }}.exe"
 
@@ -279,10 +285,10 @@ jobs:
         shell: pwsh
         run: |
           Rename-Item "output/${{ env.APP }}Installer.exe" `
-            "${{ env.APP }}-${{ env.VER }}-windows-x64-setup.exe"
+            "${{ env.APP }}-${{ env.VER }}-Windows-x64-setup.exe"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: windows-installer
           path: output/${{ env.APP }}-*.exe
@@ -299,9 +305,12 @@ jobs:
     env:
       APP: ${{ needs.parse-version.outputs.app_name }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           merge-multiple: true
+
+      - name: Create Version.txt
+        run: echo "${{ needs.parse-version.outputs.version_full }}" > Version.txt
 
       - name: Upload to release
         uses: softprops/action-gh-release@v2
@@ -310,3 +319,4 @@ jobs:
             ${{ env.APP }}-*.AppImage
             ${{ env.APP }}-*.dmg
             ${{ env.APP }}-*.exe
+            Version.txt
