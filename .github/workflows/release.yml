@@ -211,23 +211,17 @@ jobs:
         with:
           submodules: recursive
 
-      - name: List available Qt modules (debug)
-        run: |
-          pip install aqtinstall==3.3.*
-          python -m aqt list-qt-official --email ${{ secrets.QT_EMAIL }} --pw ${{ secrets.QT_PW }} pdf 6.11 win
-          python -m aqt list-qt-official --email ${{ secrets.QT_EMAIL }} --pw ${{ secrets.QT_PW }} webengine 6.11 win
-          python -m aqt list-qt-official --email ${{ secrets.QT_EMAIL }} --pw ${{ secrets.QT_PW }} 6.11.0 msvc2022
-
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
           arch: win64_msvc2022_64
-          modules: qtimageformats qtpositioning qtwebchannel extensions.qtpdf extensions.qtwebengine
+          modules: qtimageformats qtpositioning qtwebchannel
           # See: https://github.com/miurahr/aqtinstall/issues/1007
           use-official: true
           email: ${{ secrets.QT_EMAIL }}
           pw: ${{ secrets.QT_PW }}
+          extra: extensions.qtpdf extensions.qtwebengine
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
