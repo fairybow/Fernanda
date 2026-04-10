@@ -224,7 +224,7 @@ protected:
     virtual QString bodyPrefix() const { return {}; }
     virtual QString bodySuffix() const { return {}; }
 
-    virtual void showEvent(QShowEvent* event)
+    virtual void showEvent(QShowEvent* event) override
     {
         TextFileView::showEvent(event);
 

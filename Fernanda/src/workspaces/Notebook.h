@@ -919,9 +919,7 @@ private:
                                 : trashView->expand(index);
                 })
             .actionIf(valid, Tr::nbRename())
-            .onUserTrigger(
-                this,
-                [this, trashView, index] { trashView->edit(index); })
+            .onUserTrigger(this, [trashView, index] { trashView->edit(index); })
             .separatorIf(valid)
             .actionIf(valid, Tr::nbRestore())
             .onUserTrigger(

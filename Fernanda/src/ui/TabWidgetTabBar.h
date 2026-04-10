@@ -60,12 +60,12 @@ public:
     }
 
 protected:
-    virtual QSize minimumTabSizeHint(int index) const override
+    virtual QSize minimumTabSizeHint([[maybe_unused]] int index) const override
     {
         return { minimumTabWidth_, height() };
     }
 
-    virtual QSize tabSizeHint(int index) const override
+    virtual QSize tabSizeHint([[maybe_unused]] int index) const override
     {
         return { maximumTabWidth_, height() };
     }

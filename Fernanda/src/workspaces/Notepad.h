@@ -748,7 +748,9 @@ private:
             Files::filters(Files::All)); /// TODO NF
     }
 
-    QWidget* treeViewDockWidgetHook_(TreeView* treeView, Window* window)
+    // TODO: Remove window parameter?
+    QWidget*
+    treeViewDockWidgetHook_(TreeView* treeView, [[maybe_unused]] Window* window)
     {
         // TODO: Settings or something dynamic based on general dock size
         // settings

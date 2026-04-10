@@ -118,7 +118,7 @@ public:
     }
 
 protected:
-    virtual void paintEvent(QPaintEvent* event) override
+    virtual void paintEvent([[maybe_unused]] QPaintEvent* event) override
     {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);

@@ -230,7 +230,7 @@ protected:
             bus,
             &Bus::fileModelReloadRequested,
             this,
-            [this](AbstractFileModel* fileModel) {
+            [](AbstractFileModel* fileModel) {
                 if (!fileModel) return;
                 auto meta = fileModel->meta();
                 if (!meta) return;

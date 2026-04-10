@@ -91,7 +91,7 @@ protected:
         update();
     }
 
-    virtual void paintEvent(QPaintEvent* event) override
+    virtual void paintEvent([[maybe_unused]] QPaintEvent* event) override
     {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing, true);
@@ -103,7 +103,7 @@ protected:
         auto center_y = widget_rect.center().y();
 
         // Draw hover/press background
-        drawBackground_(painter, widget_rect);
+        // drawBackground_(painter, widget_rect);
 
         // Get icon from StyleContext
         auto icon = isChecked() ? StyleContext::Icon::ChevronDown
@@ -144,26 +144,26 @@ private:
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     }
 
-    void drawBackground_(QPainter& painter, const QRect& rect) const
-    {
-        /// TODO STYLE: Fix!
+    // void drawBackground_(QPainter& painter, const QRect& rect) const
+    // {
+    /// TODO STYLE: Fix!
 
-        // auto bg = Ui::resolveButtonColor(buttonColors_, isDown(),
-        // underMouse()); if (!bg.isValid() || bg.alpha() <= 0) return;
+    // auto bg = Ui::resolveButtonColor(buttonColors_, isDown(),
+    // underMouse()); if (!bg.isValid() || bg.alpha() <= 0) return;
 
-        // QPainterPath path{};
-        // auto highlight_rect = rect.adjusted(
-        // HIGHLIGHT_INSET_,
-        // HIGHLIGHT_INSET_,
-        // -HIGHLIGHT_INSET_,
-        // -HIGHLIGHT_INSET_);
-        // path.addRoundedRect(
-        // highlight_rect,
-        // HIGHLIGHT_CORNER_RADIUS_,
-        // HIGHLIGHT_CORNER_RADIUS_);
+    // QPainterPath path{};
+    // auto highlight_rect = rect.adjusted(
+    // HIGHLIGHT_INSET_,
+    // HIGHLIGHT_INSET_,
+    // -HIGHLIGHT_INSET_,
+    // -HIGHLIGHT_INSET_);
+    // path.addRoundedRect(
+    // highlight_rect,
+    // HIGHLIGHT_CORNER_RADIUS_,
+    // HIGHLIGHT_CORNER_RADIUS_);
 
-        // painter.fillPath(path, bg);
-    }
+    // painter.fillPath(path, bg);
+    // }
 };
 
 } // namespace Fernanda

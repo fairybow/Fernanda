@@ -369,7 +369,7 @@ private:
     }
 
     /// TODO PD
-    void assertSync_(const char* context)
+    void assertSync_([[maybe_unused]] const char* context)
     {
 #ifdef VERSION_DEBUG
 

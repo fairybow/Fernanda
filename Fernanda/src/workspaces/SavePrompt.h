@@ -148,8 +148,7 @@ exec(const Coco::PathList& paths, QWidget* parent = nullptr)
     auto button_box = new QDialogButtonBox(&dialog);
     auto save = button_box->addButton(Tr::save(), QDialogButtonBox::AcceptRole);
     button_box->addButton(Tr::dontSave(), QDialogButtonBox::DestructiveRole);
-    auto cancel =
-        button_box->addButton(Tr::cancel(), QDialogButtonBox::RejectRole);
+    button_box->addButton(Tr::cancel(), QDialogButtonBox::RejectRole);
 
     save->setDefault(true);
     // Escape button behavior is automatic with RejectRole

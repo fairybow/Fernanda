@@ -140,8 +140,16 @@ protected:
     // toggle menu item saves the setting per-Workspace subclass
     virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
 
-    virtual bool canCloseTab(Window*, int index) { return true; }
-    virtual bool canCloseTabEverywhere(Window*, int index) { return true; }
+    virtual bool canCloseTab(Window*, [[maybe_unused]] int index)
+    {
+        return true;
+    }
+
+    virtual bool canCloseTabEverywhere(Window*, [[maybe_unused]] int index)
+    {
+        return true;
+    }
+
     virtual bool canCloseWindowTabs(Window*) { return true; }
     virtual bool canCloseAllTabs(const QList<Window*>&) { return true; }
     virtual bool canCloseWindow(Window*) { return true; }
@@ -365,8 +373,9 @@ private slots:
             slot);
     }
 
-    /// TODO TD
-    void onTabDragCompleted_(Window* fromWindow, Window* toWindow)
+    /// TODO TD: Remove toWindow?
+    void
+    onTabDragCompleted_(Window* fromWindow, [[maybe_unused]] Window* toWindow)
     {
         refreshMenus(MenuScope::Window);
         refreshMenus(MenuScope::Workspace);

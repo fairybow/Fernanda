@@ -33,6 +33,7 @@
 
 #include "core/Disk.h"
 #include "core/Time.h"
+#include "core/ToString.h"
 
 namespace Fernanda::Debug {
 

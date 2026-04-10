@@ -48,7 +48,7 @@ public:
         : SettingsPanel(Tr::fontPanelTitle(), parent)
         , currentFont_(values[Ini::Keys::EDITOR_FONT].value<QFont>())
     {
-        setup_(values);
+        setup_();
     }
 
     virtual ~FontPanel() override { TRACER; }
@@ -61,7 +61,7 @@ private:
     QCheckBox* italicCheckBox_ = new QCheckBox(Tr::fontPanelItalic(), this);
     DisplaySlider* sizeSlider_ = new DisplaySlider(this);
 
-    void setup_(const Ini::Map& values)
+    void setup_()
     {
         // Populate
         auto families = QFontDatabase::families();
