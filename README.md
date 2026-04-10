@@ -64,7 +64,7 @@ Log files are stored in `~/.fernanda/logs/` and pruned automatically.
 ### Requirements
 
 - C++20
-- Qt 6.10 (with [extensions](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/QtInstallerOptions.md))
+- Qt 6.11 (with [extensions](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/QtInstallerOptions.md))
 - CMake 3.21+
 
 ### Windows (Visual Studio)
