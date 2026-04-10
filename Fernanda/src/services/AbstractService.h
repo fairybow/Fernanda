@@ -60,17 +60,6 @@ private:
     bool initialized_ = false;
 };
 
-//#define DECLARE_HOOK_ACCESSORS(Type, GetterName, SetterName, MemberName)       \
-//    Type GetterName() const noexcept { return MemberName; }                    \
-//    void SetterName(const Type& hook) { MemberName = hook; }                   \
-//    template <typename ClassT, typename ReturnT, typename... Args>             \
-//    void SetterName(ClassT* object, ReturnT (ClassT::*hook)(Args...))          \
-//    {                                                                          \
-//        MemberName = [object, hook](Args... args) -> ReturnT {                 \
-//            return (object->*hook)(std::forward<Args>(args)...);               \
-//        };                                                                     \
-//    }
-
 // Declares a hook member (private) and its getter and setters (public). The
 // macro contains access specifiers, so code following it will be public!
 #define DECLARE_HOOK(Type, GetterName, SetterName)                             \

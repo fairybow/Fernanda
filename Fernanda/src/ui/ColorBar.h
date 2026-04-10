@@ -218,7 +218,7 @@ private:
         currentColor_ = color;
         activeTimeLine_ = fillTimeLine_();
 
-        Time::delay(delay, this, [=] {
+        Time::delay(delay, this, [this] {
             activeTimeLine_->start();
             update(); // Trigger initial repaint
         });

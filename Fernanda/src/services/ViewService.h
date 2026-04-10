@@ -715,7 +715,7 @@ private:
             this,
             &ViewService::onTabDraggedOutside_);
 
-        // connect(tab_widget, &TabWidget::tabCountChanged, this, [=] {
+        // connect(tab_widget, &TabWidget::tabCountChanged, this, [this] {
         //     //...
         // });
 

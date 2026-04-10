@@ -37,7 +37,7 @@ namespace Fernanda {
 // Ptr cannot be nullptr
 template <typename T> inline QString ptrAddress(const T* ptr)
 {
-    return QString::asprintf("%p", ptr);
+    return QString::asprintf("%p", static_cast<const void*>(ptr));
 }
 
 // Ptr cannot be nullptr
