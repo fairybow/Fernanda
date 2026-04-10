@@ -24,6 +24,7 @@
 #include <Coco/Path.h>
 
 #include "core/Formatters.h"
+#include "core/ToString.h"
 #include "core/Version.h"
 
 namespace Fernanda::Debug {
@@ -64,7 +65,16 @@ struct Log
         std::string msg{};
 
         if constexpr (sizeof...(args) > 0) {
+
+            // (See sanitize_macOS_ below)
+#ifndef Q_OS_MACOS
             msg = std::vformat(format, std::make_format_args(args...));
+#else
+            msg = std::vformat(
+                format,
+                std::make_format_args(Internal::sanitize_macOS_(args)...));
+#endif
+
         } else {
             msg = format;
         }
@@ -119,6 +129,21 @@ namespace Internal {
         auto message = std::vformat(format, std::make_format_args(args...));
         assertionFailed_(condition, file, line, function, message);
     }
+
+    // libc++ fails to match concept-constrained partial specializations of
+    // std::formatter during its internal formattability check. So, on macOS,
+    // QObject pointer args are pre-converted instead
+#ifdef Q_OS_MACOS
+
+    template <typename T> decltype(auto) sanitize_macOS_(T&& arg)
+    {
+        if constexpr (Coco::Concepts::QObjectPointer<std::remove_cvref_t<T>>)
+            return Fernanda::toString(arg);
+        else
+            return std::forward<T>(arg);
+    }
+
+#endif
 
 } // namespace Internal
 

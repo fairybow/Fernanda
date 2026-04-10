@@ -50,6 +50,9 @@ GEN_STRING_FORMATTER_(QDomElement, Fernanda::toString(x))
 
 #undef GEN_STRING_FORMATTER_
 
+// re: libc++ std::formatter issues (see core/Debug.h)
+#ifndef Q_OS_MACOS
+
 template <Coco::Concepts::QObjectPointer T>
 struct std::formatter<T> : std::formatter<std::string>
 {
@@ -60,3 +63,5 @@ struct std::formatter<T> : std::formatter<std::string>
             ctx);
     }
 };
+
+#endif
