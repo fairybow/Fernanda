@@ -214,7 +214,9 @@ jobs:
       - name: List available Qt modules (debug)
         run: |
           pip install aqtinstall==3.3.*
-          python -m aqt list-qt-official --help
+          python -m aqt list-qt-official --email ${{ secrets.QT_EMAIL }} --pw ${{ secrets.QT_PW }} pdf 6.11 win
+          python -m aqt list-qt-official --email ${{ secrets.QT_EMAIL }} --pw ${{ secrets.QT_PW }} webengine 6.11 win
+          python -m aqt list-qt-official --email ${{ secrets.QT_EMAIL }} --pw ${{ secrets.QT_PW }} 6.11.0 msvc2022
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
