@@ -41,6 +41,25 @@ void initialize(
 void setLogSink(LogSink sink);
 QtMsgType minimumLevel() noexcept;
 
+namespace Internal {
+
+#ifdef Q_OS_MACOS
+
+    // libc++ fails to match concept-constrained partial specializations of
+    // std::formatter during its internal formattability check. So, on macOS,
+    // QObject pointer args are pre-converted instead
+    template <typename T> decltype(auto) convertIfQObjectPtr_macOS_(T&& arg)
+    {
+        if constexpr (Coco::Concepts::QObjectPointer<std::remove_cvref_t<T>>)
+            return Fernanda::toString(arg);
+        else
+            return std::forward<T>(arg);
+    }
+
+#endif
+
+} // namespace Internal
+
 struct Log
 {
     Log(QtMsgType type, const char* file, int line, const char* function)
@@ -100,21 +119,6 @@ private:
 
 namespace Internal {
 
-    // libc++ fails to match concept-constrained partial specializations of
-    // std::formatter during its internal formattability check. So, on macOS,
-    // QObject pointer args are pre-converted instead
-#ifdef Q_OS_MACOS
-
-    template <typename T> decltype(auto) convertIfQObjectPtr_macOS_(T&& arg)
-    {
-        if constexpr (Coco::Concepts::QObjectPointer<std::remove_cvref_t<T>>)
-            return Fernanda::toString(arg);
-        else
-            return std::forward<T>(arg);
-    }
-
-#endif
-
     inline void assertionFailed_(
         const char* condition,
         const char* file,
@@ -147,8 +151,7 @@ namespace Internal {
 #else
         auto message = std::vformat(
             format,
-            std::make_format_args(
-                Internal::convertIfQObjectPtr_macOS_(args)...));
+            std::make_format_args(convertIfQObjectPtr_macOS_(args)...));
 #endif
 
         assertionFailed_(condition, file, line, function, message);

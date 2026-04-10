@@ -168,7 +168,11 @@ void Log::dispatch_(
 {
     // Right now, VOC_FORMAT_ is the only reason this needs to be in the
     // source file, which is fine, but worth pointing out
+#ifndef Q_OS_MACOS
     if (obj) { msg = std::format(VOC_FORMAT_, obj, msg); }
+#else
+    if (obj) { msg = std::format(VOC_FORMAT_, Fernanda::toString(obj), msg); }
+#endif
 
     auto logger = QMessageLogger(file, line, function);
     constexpr auto fmt = "%s";

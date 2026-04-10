@@ -15,6 +15,7 @@
 #include <chrono>
 #include <string>
 
+#include <QDateTime>
 #include <QObject>
 #include <QTimer>
 
@@ -28,17 +29,12 @@ struct LocalTime
 
 inline LocalTime now()
 {
-    auto now = std::chrono::system_clock::now();
-    auto zone = std::chrono::current_zone();
-    auto local_time = zone->to_local(now);
-    auto since_epoch = local_time.time_since_epoch();
+    auto dt = QDateTime::currentDateTime();
+    auto epoch = dt.toSecsSinceEpoch();
+    auto ms = dt.time().msec();
 
-    auto secs = std::chrono::floor<std::chrono::seconds>(local_time);
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                  since_epoch % std::chrono::seconds{ 1 })
-                  .count();
-
-    return { secs, static_cast<int>(ms) };
+    auto secs = std::chrono::local_seconds{ std::chrono::seconds{ epoch } };
+    return { secs, ms };
 }
 
 template <typename SlotT>
