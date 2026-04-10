@@ -221,18 +221,6 @@ jobs:
           use-official: true
           email: ${{ secrets.QT_EMAIL }}
           pw: ${{ secrets.QT_PW }}
-          extra: extensions.qtpdf extensions.qtwebengine
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ env.QT_VERSION }}
-          arch: win64_msvc2022_64
-          modules: qtimageformats qtpositioning qtwebchannel
-          # See: https://github.com/miurahr/aqtinstall/issues/1007
-          use-official: true
-          email: ${{ secrets.QT_EMAIL }}
-          pw: ${{ secrets.QT_PW }}
 
       # See: https://github.com/miurahr/aqtinstall/issues/1007
       - name: Install Qt extensions (PDF, WebEngine)
