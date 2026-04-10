@@ -226,13 +226,18 @@ jobs:
       - name: Install Qt extensions (PDF, WebEngine)
         shell: pwsh
         run: |
-          Write-Host "=== Searching for Qt installer ==="
-          Get-ChildItem -Path "C:\Users\runneradmin\AppData\Roaming\aqt" -Recurse -ErrorAction SilentlyContinue
-          Get-ChildItem -Path "D:\a\Fernanda\Qt" -Filter "*.exe" -ErrorAction SilentlyContinue
-          Get-ChildItem -Path "${{ runner.temp }}" -Filter "*qt*installer*" -ErrorAction SilentlyContinue
-          Get-ChildItem -Path "${{ runner.temp }}" -Filter "*MaintenanceTool*" -ErrorAction SilentlyContinue
-          Get-ChildItem -Path "D:\a\Fernanda\Qt\MaintenanceTool*" -ErrorAction SilentlyContinue
-          Get-ChildItem -Path "D:\a\Fernanda\Qt\Tools" -ErrorAction SilentlyContinue
+          $tag = "${{ env.QT_VERSION }}".Replace('.', '')
+          Start-Process -FilePath "D:\a\Fernanda\Qt\MaintenanceTool.exe" -ArgumentList `
+            "--accept-licenses", `
+            "--accept-obligations", `
+            "--confirm-command", `
+            "--email", "${{ secrets.QT_EMAIL }}", `
+            "--pw", "${{ secrets.QT_PW }}", `
+            "--auto-answer", "telemetry-question=No", `
+            "install", `
+            "extensions.qtpdf.${tag}.win64_msvc2022_64", `
+            "extensions.qtwebengine.${tag}.win64_msvc2022_64" `
+            -Wait -NoNewWindow
 
       - name: Debug - check for PdfWidgets
         shell: pwsh
