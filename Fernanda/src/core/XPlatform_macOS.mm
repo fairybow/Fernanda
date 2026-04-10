@@ -12,7 +12,10 @@
 
 #include "core/XPlatform.h"
 
-#import <AppKit/AppKit.h>
+#pragma push_macro("DEBUG")
+#undef DEBUG
+#include <AppKit/AppKit.h>
+#pragma pop_macro("DEBUG")
 
 namespace Fernanda::XPlatform::Internal {
 
