@@ -212,9 +212,9 @@ jobs:
           submodules: recursive
 
       - name: List available Qt modules (debug)
-  run: |
-    pip install aqtinstall==3.3.*
-    python -m aqt list-qt-official --help
+        run: |
+          pip install aqtinstall==3.3.*
+          python -m aqt list-qt-official --help
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
