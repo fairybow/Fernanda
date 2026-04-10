@@ -227,9 +227,13 @@ jobs:
         shell: pwsh
         run: |
           $tag = "${{ env.QT_VERSION }}".Replace('.', '')
-          $installer = "${{ runner.temp }}\qt-installer.exe"
-          Invoke-WebRequest -Uri "https://download.qt.io/official_releases/online_installers/qt-unified-windows-x64-online.exe" -OutFile $installer
-          Start-Process -FilePath $installer -ArgumentList `
+          $installer = Get-ChildItem -Path "C:\Users\runneradmin\AppData\Roaming\aqt\tmp" -Filter "*.exe" | Select-Object -First 1
+          if (-not $installer) {
+            Write-Error "Qt installer not found in aqt temp dir"
+            exit 1
+          }
+          Write-Host "Using installer: $($installer.FullName)"
+          Start-Process -FilePath $installer.FullName -ArgumentList `
             "--accept-licenses", `
             "--accept-obligations", `
             "--confirm-command", `
