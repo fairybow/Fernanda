@@ -129,6 +129,9 @@ jobs:
         env:
           EXTRA_QT_PLUGINS: iconengines;imageformats;platforms
         run: |
+          rm -rf "$Qt6_DIR/plugins/networkinformation"
+          rm -rf "$Qt6_DIR/plugins/generic"
+          rm -rf "$Qt6_DIR/plugins/position"
           ./linuxdeploy-x86_64.AppImage \
             --appdir AppDir \
             --plugin qt \
@@ -243,7 +246,7 @@ jobs:
             --no-translations `
             --no-system-d3d-compiler `
             --no-opengl-sw `
-            --skip-plugin-types generic,networkinformation `
+            --skip-plugin-types generic,networkinformation,position `
             "$temp/${{ env.APP }}.exe"
 
       - name: Download VC++ Redistributable
