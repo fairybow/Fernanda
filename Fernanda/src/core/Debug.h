@@ -45,13 +45,19 @@ namespace Internal {
 
 #ifdef Q_OS_MACOS
 
-    // libc++ fails to match concept-constrained partial specializations of
-    // std::formatter during its internal formattability check. So, on macOS,
-    // QObject pointer args are pre-converted instead
-    template <typename T> decltype(auto) sanitizeFormatArg_macOS_(T&& arg)
+    // libc++ fails to match certain std::formatter specializations during its
+    // internal formattability check. On macOS, affected args are pre-converted
+    // to std::string instead
+    template <typename T> decltype(auto) sanitizeArg_macOS_(T&& arg)
     {
         if constexpr (requires { Fernanda::toString(arg); }) {
             return Fernanda::toString(arg);
+        } else if constexpr (requires {
+                                 {
+                                     arg.toString()
+                                 } -> std::convertible_to<std::string>;
+                             }) {
+            return arg.toString();
         } else if constexpr (std::is_same_v<std::remove_cvref_t<T>, QString>) {
             return arg.toStdString();
         } else {
@@ -93,8 +99,7 @@ struct Log
 #else
             msg = std::vformat(
                 format,
-                std::make_format_args(
-                    Internal::sanitizeFormatArg_macOS_(args)...));
+                std::make_format_args(Internal::sanitizeArg_macOS_(args)...));
 #endif
 
         } else {
@@ -154,7 +159,7 @@ namespace Internal {
 #else
         auto message = std::vformat(
             format,
-            std::make_format_args(sanitizeFormatArg_macOS_(args)...));
+            std::make_format_args(sanitizeArg_macOS_(args)...));
 #endif
 
         assertionFailed_(condition, file, line, function, message);

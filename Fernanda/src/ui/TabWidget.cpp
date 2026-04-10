@@ -122,7 +122,7 @@ bool TabWidget::eventFilter(QObject* watched, QEvent* event)
 
                 // This works well, may want to increase required distance.
                 if (qAbs(delta.y()) >= Application::startDragDistance() * 1.5) {
-                    auto index = tabBar_->tabAt(dragStartPosition_);
+                    tabBar_->tabAt(dragStartPosition_);
 
                     if (dragPressIndex_ > -1) {
                         startDrag_(dragPressIndex_);
