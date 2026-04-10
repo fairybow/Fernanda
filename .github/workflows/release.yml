@@ -94,6 +94,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
+          arch: linux_gcc_64
           modules: qtimageformats qtpdf qtpositioning qtwebchannel qtwebengine
 
       - name: Install system dependencies
@@ -166,6 +167,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
+          arch: clang_64
           modules: qtimageformats qtpdf qtpositioning qtwebchannel qtwebengine
 
       - name: Configure
@@ -213,7 +215,12 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
+          arch: win64_msvc2022_64
           modules: qtimageformats qtpdf qtpositioning qtwebchannel qtwebengine
+          # See: https://github.com/miurahr/aqtinstall/issues/1007
+          use-official: true
+          email: ${{ secrets.QT_EMAIL }}
+          pw: ${{ secrets.QT_PW }}
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
