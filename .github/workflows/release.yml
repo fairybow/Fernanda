@@ -226,25 +226,13 @@ jobs:
       - name: Install Qt extensions (PDF, WebEngine)
         shell: pwsh
         run: |
-          $tag = "${{ env.QT_VERSION }}".Replace('.', '')
-          $installer = Get-ChildItem -Path "C:\Users\runneradmin\AppData\Roaming\aqt\tmp" -Filter "*.exe" | Select-Object -First 1
-          if (-not $installer) {
-            Write-Error "Qt installer not found in aqt temp dir"
-            exit 1
-          }
-          Write-Host "Using installer: $($installer.FullName)"
-          Start-Process -FilePath $installer.FullName -ArgumentList `
-            "--accept-licenses", `
-            "--accept-obligations", `
-            "--confirm-command", `
-            "--email", "${{ secrets.QT_EMAIL }}", `
-            "--pw", "${{ secrets.QT_PW }}", `
-            "--root", "D:\a\Fernanda\Qt", `
-            "--auto-answer", "telemetry-question=No", `
-            "install", `
-            "extensions.qtpdf.${tag}.win64_msvc2022_64", `
-            "extensions.qtwebengine.${tag}.win64_msvc2022_64" `
-            -Wait -NoNewWindow
+          Write-Host "=== Searching for Qt installer ==="
+          Get-ChildItem -Path "C:\Users\runneradmin\AppData\Roaming\aqt" -Recurse -ErrorAction SilentlyContinue
+          Get-ChildItem -Path "D:\a\Fernanda\Qt" -Filter "*.exe" -ErrorAction SilentlyContinue
+          Get-ChildItem -Path "${{ runner.temp }}" -Filter "*qt*installer*" -ErrorAction SilentlyContinue
+          Get-ChildItem -Path "${{ runner.temp }}" -Filter "*MaintenanceTool*" -ErrorAction SilentlyContinue
+          Get-ChildItem -Path "D:\a\Fernanda\Qt\MaintenanceTool*" -ErrorAction SilentlyContinue
+          Get-ChildItem -Path "D:\a\Fernanda\Qt\Tools" -ErrorAction SilentlyContinue
 
       - name: Debug - check for PdfWidgets
         shell: pwsh
