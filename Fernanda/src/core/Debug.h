@@ -50,12 +50,13 @@ namespace Internal {
     // QObject pointer args are pre-converted instead
     template <typename T> decltype(auto) sanitizeFormatArg_macOS_(T&& arg)
     {
-        if constexpr (requires { Fernanda::toString(arg); })
+        if constexpr (requires { Fernanda::toString(arg); }) {
             return Fernanda::toString(arg);
-        else if constexpr (std::is_same_v<std::remove_cvref_t<T>, QString>)
+        } else if constexpr (std::is_same_v<std::remove_cvref_t<T>, QString>) {
             return arg.toStdString();
-        else
+        } else {
             return std::forward<T>(arg);
+        }
     }
 
 #endif
