@@ -15,7 +15,8 @@
 
 Fernanda is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Notebooks.md).
 
-macOS and Linux builds are available but not well-tested. Bug reports are welcome!
+> [!NOTE]
+> macOS and Linux builds are available but not well-tested. Bug reports are welcome!
 
 ## Features
 

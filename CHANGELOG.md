@@ -51,7 +51,10 @@ Fernanda doesn't delete its data folders on uninstall since they may contain wri
 
 ## Platforms
 
-Windows (x64), macOS (ARM), and Linux (x86_64). macOS and Linux builds are available but not well-tested. Bug reports are welcome!
+Windows (x64), macOS (ARM), and Linux (x86_64).
+
+> [!NOTE]
+> macOS and Linux builds are available but not well-tested. Bug reports are welcome!
 
 ## Release note template
 
