@@ -129,9 +129,10 @@ jobs:
         env:
           EXTRA_QT_PLUGINS: iconengines;imageformats;platforms
         run: |
-          rm -rf "$Qt6_DIR/plugins/networkinformation"
-          rm -rf "$Qt6_DIR/plugins/generic"
-          rm -rf "$Qt6_DIR/plugins/position"
+          QT_PLUGIN_DIR="${IQTA_TOOLS:+$QT_ROOT_DIR/plugins}"
+          rm -rf "$QT_ROOT_DIR/plugins/networkinformation"
+          rm -rf "$QT_ROOT_DIR/plugins/generic"
+          rm -rf "$QT_ROOT_DIR/plugins/position"
           ./linuxdeploy-x86_64.AppImage \
             --appdir AppDir \
             --plugin qt \
