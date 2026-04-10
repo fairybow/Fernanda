@@ -230,10 +230,18 @@ jobs:
           python -m aqt install-qt-official `
             --email "${{ secrets.QT_EMAIL }}" `
             --pw "${{ secrets.QT_PW }}" `
-            --outputdir D:\a\Fernanda\Qt `
-            desktop win64_msvc2022_64 ${{ env.QT_VERSION }} `
-            -m extensions.qtpdf.${tag}.win64_msvc2022_64 `
+            --override `
+            --root D:\a\Fernanda\Qt `
+            --auto-answer OverwriteTargetDirectory=Yes,telemetry-question=No `
+            install `
+            extensions.qtpdf.${tag}.win64_msvc2022_64 `
             extensions.qtwebengine.${tag}.win64_msvc2022_64
+
+      - name: Debug - check for PdfWidgets
+        shell: pwsh
+        run: |
+          Get-ChildItem "D:\a\Fernanda\Qt\6.11.0\msvc2022_64\lib\cmake" -Directory | Select-String -Pattern "Pdf" -SimpleMatch
+          dir "D:\a\Fernanda\Qt\6.11.0\msvc2022_64\lib\cmake\Qt6Pdf*" -ErrorAction SilentlyContinue
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
