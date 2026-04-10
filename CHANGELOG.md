@@ -107,6 +107,10 @@ Windows (x64), macOS (ARM), and Linux (x86_64).
 - Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
 - Image/PDF zoom: no scroll/content position realignment on zoom change yet; no panning support yet
 
+## This Version's Dumbest Code Award :trophy:
+
+For once, it won't be me. This one goes to libc++ (see [Debug.h](https://github.com/fairybow/Fernanda/blob/c4b1643350d87f423f4e85552b58d2b212ffff95/Fernanda/src/core/Debug.h)).
+
 ---
 
 # 0.99.0-beta.18 (Testing / Soft Release) - tag v0.99.0-beta.18
