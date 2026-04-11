@@ -405,7 +405,7 @@ namespace Io {
     inline bool compress(
         const Coco::Path& archivePath,
         const Coco::Path& workingDir,
-        BeforeOverwriteHook beforeOverwriteHook = {})
+        const BeforeOverwriteHook& beforeOverwriteHook = {})
     {
         INFO("Compressing archive at {} to {}", workingDir, archivePath);
 

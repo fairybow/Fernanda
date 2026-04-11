@@ -4,6 +4,7 @@ TODO: Clean
 
 ## Current
 
+- [ ] MAYBE use clang InsertBraces = true plus remove virtual on overrides
 - [x] Get Qt 6.11 on CI release?
 - [x] Super need to rework Files filter functions for better API
 - [ ] SoC Audit!

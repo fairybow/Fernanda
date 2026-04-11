@@ -48,7 +48,7 @@ class AbstractMarkupFileView : public TextFileView
     Q_OBJECT
 
 public:
-    enum Mode
+    enum Mode : uint8_t
     {
         Edit = 0,
         Split,
