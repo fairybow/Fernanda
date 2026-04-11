@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <QContextMEnuEvent>
+#include <QContextMenuEvent>
 #include <QWebEngineView>
 #include <QWidget>
 
