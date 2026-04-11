@@ -10,6 +10,3 @@
 [submodule "Fernanda/submodules/fountain.h"]
 	path = Fernanda/submodules/fountain.h
 	url = https://github.com/fairybow/fountain.h.git
-[submodule "Fernanda/submodules/fmt"]
-	path = Fernanda/submodules/fmt
-	url = https://github.com/fairybow/Fernanda-fmt.git
