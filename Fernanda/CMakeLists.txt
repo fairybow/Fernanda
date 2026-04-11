@@ -177,10 +177,11 @@ set(FERNANDA_HEADERS
     src/views/ImageFileView.h
     src/views/KeyFilters.h
     src/views/MarkdownFileView.h
-    src/views/MarkupPreviewPage.h
     src/views/MarkupWebcode.h
     src/views/PdfFileView.h
     src/views/TextFileView.h
+    src/views/WebEnginePage.h
+    src/views/WebEngineView.h
 
     src/workspaces/Backup.h
     src/workspaces/Bus.h
