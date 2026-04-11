@@ -32,9 +32,8 @@
 #include "core/Tr.h"
 #include "models/AbstractFileModel.h"
 #include "models/FileMeta.h"
-#include "models/HtmlFileModel.h"
-#include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
+#include "models/RawFileModel.h"
 #include "models/TextFileModel.h"
 #include "services/AbstractService.h"
 #include "ui/Window.h"
@@ -328,7 +327,7 @@ private:
         case MagicBytes::Jpeg:
         case MagicBytes::Bmp:
         case MagicBytes::WebP:
-            model = newDiskImageFileModel_(type, path);
+            model = newDiskRawFileModel_(Files::fromMagicBytes(type), path);
             break;
 
         default:
@@ -336,7 +335,7 @@ private:
             switch (Files::fromPath(path)) {
 
             case Files::Html:
-                model = newDiskHtmlFileModel_(path);
+                model = newDiskRawFileModel_(Files::Html, path);
                 break;
 
             default:
@@ -390,17 +389,6 @@ private:
         return model;
     }
 
-    AbstractFileModel* newDiskHtmlFileModel_(const Coco::Path& path)
-    {
-        if (path.isEmpty() || !path.exists()) return nullptr;
-
-        auto model = new HtmlFileModel(path, this);
-        model->setData(Io::read(path));
-        model->setModified(false); // Probably not needed yet (PDFs may be
-                                   // editable later, though)
-        return model;
-    }
-
     AbstractFileModel* newDiskPdfFileModel_(const Coco::Path& path)
     {
         if (path.isEmpty() || !path.exists()) return nullptr;
@@ -412,17 +400,14 @@ private:
         return model;
     }
 
-    // TODO: Pass Files::Type instead and do MagicBytes stuff inside method?
     AbstractFileModel*
-    newDiskImageFileModel_(MagicBytes::Type fileType, const Coco::Path& path)
+    newDiskRawFileModel_(Files::Type fileType, const Coco::Path& path)
     {
         if (path.isEmpty() || !path.exists()) return nullptr;
 
-        auto type = Files::fromMagicBytes(fileType);
-        auto model = new ImageFileModel(type, path, this);
+        auto model = new RawFileModel(fileType, path, this);
         model->setData(Io::read(path));
-        model->setModified(false); // Probably not needed yet (images may be
-                                   // editable later, though)
+        model->setModified(false); // TODO: Probably not needed? Investigate
         return model;
     }
 

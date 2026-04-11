@@ -16,7 +16,7 @@
 
 #include "core/Debug.h"
 #include "models/AbstractFileModel.h"
-#include "models/HtmlFileModel.h"
+#include "models/RawFileModel.h"
 #include "views/AbstractFileView.h"
 #include "views/WebEnginePage.h"
 #include "views/WebEngineView.h"
@@ -28,7 +28,7 @@ class HtmlFileView : public AbstractFileView
     Q_OBJECT
 
 public:
-    explicit HtmlFileView(HtmlFileModel* fileModel, QWidget* parent = nullptr)
+    explicit HtmlFileView(RawFileModel* fileModel, QWidget* parent = nullptr)
         : AbstractFileView(fileModel, parent)
     {
     }
@@ -40,11 +40,11 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
-        auto html_model = qobject_cast<HtmlFileModel*>(model());
-        ASSERT(html_model, "HtmlFileModel cast failed!");
+        auto raw_model = qobject_cast<RawFileModel*>(model());
+        ASSERT(raw_model, "HtmlFileModel cast failed!");
 
         webView_->setPage(new WebEnginePage(webView_));
-        webView_->setHtml(QString::fromUtf8(html_model->data()));
+        webView_->setHtml(QString::fromUtf8(raw_model->data()));
 
         return webView_;
     }

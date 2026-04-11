@@ -118,9 +118,8 @@ set(FERNANDA_HEADERS
 
     src/models/AbstractFileModel.h
     src/models/FileMeta.h
-    src/models/HtmlFileModel.h
-    src/models/ImageFileModel.h
     src/models/PdfFileModel.h
+    src/models/RawFileModel.h
     src/models/TextFileModel.h
 
     src/modules/ColorBarModule.h
