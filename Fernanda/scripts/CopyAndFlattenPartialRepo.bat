@@ -38,8 +38,6 @@ for /r "%DOCS_DIR%" %%f in (*) do (
     copy "%%f" "%OUT_DIR%\" > nul
 )
 
-copy "%ROOT_DIR%\.clang-tidy" "%OUT_DIR%\" > nul
-copy "%ROOT_DIR%\.github\workflows\ci.yml" "%OUT_DIR%\" > nul
 copy "%ROOT_DIR%\.github\workflows\release.yml" "%OUT_DIR%\" > nul
 copy "%ROOT_DIR%\CHANGELOG.md" "%OUT_DIR%\" > nul
 copy "%ROOT_DIR%\CONTRIBUTING.md" "%OUT_DIR%\" > nul
