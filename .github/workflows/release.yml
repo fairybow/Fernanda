@@ -139,7 +139,7 @@ jobs:
             --appdir AppDir \
             --plugin qt \
             --output appimage
-          mv ${{ env.APP }}_*.AppImage \
+          mv ${{ env.APP }}-*.AppImage \
              ${{ env.APP }}_${{ env.VER }}_Linux-x86_64.AppImage
 
       - name: Upload artifact
