@@ -8,11 +8,12 @@ Also, go through all docs and make sure they're up to date and follow doc style
 
 - [ ] Use QIconEngine for StyleContext icons?
 
-- [ ] HtmlFileView
+- [ ] HtmlFileView (This will not be editable, like other markups - this is for research, essentially, saved pages)
 - [ ] Animated Gifs
 - [x] Icons for FnxModel
 - [ ] FnxModel::data file/folder metadata tooltip
 - [ ] ControlField tooltip quicker popup time? Possible?
+- [ ] ^ OR, allow click to show tooltip, too (or both)
 
 - [ ] MAYBE use clang InsertBraces = true plus remove virtual on overrides
 - [x] Get Qt 6.11 on CI release?
