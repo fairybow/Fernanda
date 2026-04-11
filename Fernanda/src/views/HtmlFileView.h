@@ -12,12 +12,14 @@
 
 #pragma once
 
+#include <QWebEngineView>
 #include <QWidget>
 
 #include "core/Debug.h"
 #include "models/AbstractFileModel.h"
 #include "models/HtmlFileModel.h"
 #include "views/AbstractFileView.h"
+#include "views/MarkupPreviewPage.h"
 
 namespace Fernanda {
 
@@ -38,13 +40,17 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
-        //
+        auto html_model = qobject_cast<HtmlFileModel*>(model());
+        ASSERT(html_model, "HtmlFileModel cast failed!");
 
-        return nullptr;
+        webView_->setPage(new MarkupPreviewPage(webView_));
+        webView_->setHtml(QString::fromUtf8(html_model->data()));
+
+        return webView_;
     }
 
 private:
-    //
+    QWebEngineView* webView_ = new QWebEngineView(this);
 };
 
 } // namespace Fernanda

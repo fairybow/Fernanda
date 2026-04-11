@@ -44,6 +44,7 @@
 #include "ui/Window.h"
 #include "views/AbstractFileView.h"
 #include "views/FountainFileView.h"
+#include "views/HtmlFileView.h"
 #include "views/ImageFileView.h"
 #include "views/KeyFilters.h"
 #include "views/MarkdownFileView.h"
@@ -844,6 +845,9 @@ private:
         } else if (
             auto image_model = qobject_cast<ImageFileModel*>(fileModel)) {
             view = newFileView_<ImageFileView*>(image_model, window);
+
+        } else if (auto html_model = qobject_cast<HtmlFileModel*>(fileModel)) {
+            view = newFileView_<HtmlFileView*>(html_model, window);
 
         } else {
             UNREACHABLE("Type not deduced for model [{}]!", fileModel);

@@ -16,3 +16,5 @@
 #define DECLARE_HOOK(Type, GetterName, SetterName) private: Type GetterName##_{}; public: Type GetterName() const noexcept { return GetterName##_; } void SetterName(const Type& hook) { GetterName##_ = hook; } template <typename ClassT, typename ReturnT, typename... Args> void SetterName(ClassT* object, ReturnT (ClassT::*hook)(Args...)) { GetterName##_ = [object, hook](Args... args) -> ReturnT { return (object->*hook)(std::forward<Args>(args)...); }; }
 #define COCO_BOOL(Name) struct Name##Tag { static constexpr const char* name() { return #Name; } }; using Name = Coco::Bool<Name##Tag>;
 #define TR_(Name, TrCall) inline QString Name() { return TrCall; }
+#define ASSERT(condition, __VA_ARGS__) ((condition) ? static_cast<void>(0) : Fernanda::Debug::Internal::assertionFailed_( #condition, __FILE__, __LINE__, __FUNCTION__ __VA_OPT__(, ) __VA_ARGS__))
+#define ASSERT(condition, __VA_ARGS__) static_cast<void>(false && (condition))

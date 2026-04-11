@@ -32,6 +32,7 @@
 #include "core/Tr.h"
 #include "models/AbstractFileModel.h"
 #include "models/FileMeta.h"
+#include "models/HtmlFileModel.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
 #include "models/TextFileModel.h"
@@ -310,9 +311,8 @@ private:
         AbstractFileModel* model = nullptr;
 
         /// TODO FT: May want NoOp for the very large files that are also
-        /// unsupported? Like jpeg, etc.
-        /// OR just use it for stuff that will eventually be supported but
-        /// isn't? (This is a later-problem, not a right-now problem)
+        /// unsupported? Like mp3, etc. Just detect size and go, Oops IDK about
+        /// that one...
 
         // Tier 1: Magic bytes for binary formats
         auto type = MagicBytes::type(path);
@@ -332,26 +332,20 @@ private:
             break;
 
         default:
-        case MagicBytes::NoKnownSignature:
+        case MagicBytes::NoKnownSignature: {
+            switch (Files::fromPath(path)) {
 
-            /// TODO MU: Probably the case that we'll be using TextFileModel for
-            /// all these and this inner switch is not needed
-            /// ^ Psych - HtmlFileModel (shouldn't use fundamentally editable TFM)
+            case Files::Html:
+                model = newDiskHtmlFileModel_(path);
+                break;
 
-            // Tier 2: Extension for special plaintext types
-            // switch (Files::fromPath(path)) {
-            // case Files::Corkboard:
-            // case Files::WindowTheme:
-            // case Files::EditorTheme:
-
-            // case Files::Markdown:
-            // case Files::Fountain:
-            // default:
-            model = newDiskTextFileModel_(path);
-            // break;
-            // }
+            default:
+                model = newDiskTextFileModel_(path);
+                break;
+            }
 
             break;
+        }
         }
 
         if (!model) {
@@ -385,6 +379,28 @@ private:
         return model;
     }
 
+    AbstractFileModel* newOffDiskTextFileModel_(Files::Type plainTextFileType)
+    {
+        auto model = new TextFileModel(plainTextFileType, this);
+        registerModel_(model);
+        /// TODO BA
+        if (afterModelCreatedHook_) afterModelCreatedHook_(model);
+        connectNewModel_(model);
+
+        return model;
+    }
+
+    AbstractFileModel* newDiskHtmlFileModel_(const Coco::Path& path)
+    {
+        if (path.isEmpty() || !path.exists()) return nullptr;
+
+        auto model = new HtmlFileModel(path, this);
+        model->setData(Io::read(path));
+        model->setModified(false); // Probably not needed yet (PDFs may be
+                                   // editable later, though)
+        return model;
+    }
+
     AbstractFileModel* newDiskPdfFileModel_(const Coco::Path& path)
     {
         if (path.isEmpty() || !path.exists()) return nullptr;
@@ -393,7 +409,6 @@ private:
         model->setData(Io::read(path));
         model->setModified(false); // Probably not needed yet (PDFs may be
                                    // editable later, though)
-
         return model;
     }
 
@@ -408,18 +423,6 @@ private:
         model->setData(Io::read(path));
         model->setModified(false); // Probably not needed yet (images may be
                                    // editable later, though)
-
-        return model;
-    }
-
-    AbstractFileModel* newOffDiskTextFileModel_(Files::Type plainTextFileType)
-    {
-        auto model = new TextFileModel(plainTextFileType, this);
-        registerModel_(model);
-        /// TODO BA
-        if (afterModelCreatedHook_) afterModelCreatedHook_(model);
-        connectNewModel_(model);
-
         return model;
     }
 
