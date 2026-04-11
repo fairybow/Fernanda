@@ -352,7 +352,7 @@ endif()
 
 if(MSVC)
     target_compile_options(Fernanda PRIVATE
-        /W3 /MP /sdl /permissive- /bigobj /EHsc
+        /W3 /MP /sdl /permissive- /bigobj /EHsc /Zc:preprocessor
     )
     target_compile_options(Fernanda PRIVATE
         $<$<CONFIG:Release>:/GL /Gy /Oi>

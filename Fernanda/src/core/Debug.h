@@ -186,8 +186,7 @@ namespace Internal {
                            #condition,                                         \
                            __FILE__,                                           \
                            __LINE__,                                           \
-                           __FUNCTION__,                                       \
-                           ##__VA_ARGS__))
+                           __FUNCTION__ __VA_OPT__(, ) __VA_ARGS__))
 #else
 #    define ASSERT(condition, ...) static_cast<void>(false && (condition))
 #endif
@@ -197,5 +196,4 @@ namespace Internal {
         "UNREACHABLE",                                                         \
         __FILE__,                                                              \
         __LINE__,                                                              \
-        __FUNCTION__,                                                          \
-        ##__VA_ARGS__)
+        __FUNCTION__ __VA_OPT__(, ) __VA_ARGS__)
