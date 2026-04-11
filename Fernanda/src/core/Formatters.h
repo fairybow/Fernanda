@@ -33,7 +33,7 @@
 #define GEN_STRING_FORMATTER_(T, Conversion)                                   \
     template <> struct std::formatter<T> : std::formatter<std::string>         \
     {                                                                          \
-        auto format(const T& x, format_context& ctx) const                     \
+        auto format(const T& x, std::format_context& ctx) const                \
         {                                                                      \
             return std::formatter<std::string>::format(Conversion, ctx);       \
         }                                                                      \
