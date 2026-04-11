@@ -9,11 +9,15 @@ Also, go through all docs and make sure they're up to date and follow doc style
 - [ ] Use QIconEngine for StyleContext icons?
 
 - [ ] HtmlFileView (This will not be editable, like other markups - this is for research, essentially, saved pages)
+- [ ] Combine ImageFileModel and HtmlFileModel into Blob/Raw/GenericFileModel (no functionality, just byte bag)
+- [ ] Figure out how to open correctly in FileService
 - [ ] Animated Gifs
 - [x] Icons for FnxModel
 - [ ] FnxModel::data file/folder metadata tooltip
 - [ ] ControlField tooltip quicker popup time? Possible?
 - [ ] ^ OR, allow click to show tooltip, too (or both)
+
+- [ ] fmt lib for Debug instead of std::format? (Might play nicer with libc++)
 
 - [ ] MAYBE use clang InsertBraces = true plus remove virtual on overrides
 - [x] Get Qt 6.11 on CI release?

@@ -336,6 +336,7 @@ private:
 
             /// TODO MU: Probably the case that we'll be using TextFileModel for
             /// all these and this inner switch is not needed
+            /// ^ Psych - HtmlFileModel (shouldn't use fundamentally editable TFM)
 
             // Tier 2: Extension for special plaintext types
             // switch (Files::fromPath(path)) {

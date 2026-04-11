@@ -118,6 +118,7 @@ set(FERNANDA_HEADERS
 
     src/models/AbstractFileModel.h
     src/models/FileMeta.h
+    src/models/HtmlFileModel.h
     src/models/ImageFileModel.h
     src/models/PdfFileModel.h
     src/models/TextFileModel.h
@@ -172,6 +173,7 @@ set(FERNANDA_HEADERS
     src/views/AbstractFileView.h
     src/views/AbstractMarkupFileView.h
     src/views/FountainFileView.h
+    src/views/HtmlFileView.h
     src/views/ImageFileView.h
     src/views/KeyFilters.h
     src/views/MarkdownFileView.h
