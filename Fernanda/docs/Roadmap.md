@@ -13,6 +13,7 @@ Also, go through all docs and make sure they're up to date and follow doc style
 - [x] Figure out how to open correctly in FileService
 - [x] Rename MarkupPreviewPage since it is used by HtmlView (not a preview)
 - [x] Subclass web engine view and remove the context menu for now (has options we probably won't want used, e.g. view source)
+- [ ] HtmlFileView web engine view needs the same masking the markup views have for resize / init (probably add the the webengineview subclass?)
 - [ ] Animated Gifs
 - [x] Icons for FnxModel
 - [ ] FnxModel::data file/folder metadata tooltip
