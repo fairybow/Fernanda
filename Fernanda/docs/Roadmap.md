@@ -19,6 +19,8 @@ Also, go through all docs and make sure they're up to date and follow doc style
 
 - [ ] fmt lib for Debug instead of std::format? (Might play nicer with libc++)
 
+- [ ] typedef int Index? Will I be laughed at?
+
 - [ ] MAYBE use clang InsertBraces = true plus remove virtual on overrides
 - [x] Get Qt 6.11 on CI release?
 - [x] Super need to rework Files filter functions for better API
