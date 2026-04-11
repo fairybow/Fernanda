@@ -31,7 +31,7 @@ constexpr auto EDITOR_SIZE_MAX = 144;
 inline Coco::PathList qrcPaths()
 {
     return Coco::filePaths(
-        { ":/courierprime/", ":/mononoki/", ":/opendyslexic/" },
+        { ":/courier-prime/", ":/mononoki/", ":/opendyslexic/" },
         { "*.otf", "*.ttf" });
 }
 
@@ -62,25 +62,25 @@ inline const QString& cssAtRules()
     font-family: "Courier Prime";
     font-weight: normal;
     font-style: normal;
-    src: url(qrc:/courierprime/Courier Prime.ttf) format("truetype");
+    src: url(qrc:/courier-prime/Courier Prime.ttf) format("truetype");
 }
 @font-face {
     font-family: "Courier Prime";
     font-weight: bold;
     font-style: normal;
-    src: url(qrc:/courierprime/Courier Prime Bold.ttf) format("truetype");
+    src: url(qrc:/courier-prime/Courier Prime Bold.ttf) format("truetype");
 }
 @font-face {
     font-family: "Courier Prime";
     font-weight: normal;
     font-style: italic;
-    src: url(qrc:/courierprime/Courier Prime Italic.ttf) format("truetype");
+    src: url(qrc:/courier-prime/Courier Prime Italic.ttf) format("truetype");
 }
 @font-face {
     font-family: "Courier Prime";
     font-weight: bold;
     font-style: italic;
-    src: url(qrc:/courierprime/Courier Prime Bold Italic.ttf) format("truetype");
+    src: url(qrc:/courier-prime/Courier Prime Bold Italic.ttf) format("truetype");
 }
 @font-face {
     font-family: "mononoki";

@@ -1,5 +1,20 @@
 <RCC>
     <qresource prefix="/">
+        <file>breeze-icons/icons/mimetypes/32/application-pdf.svg</file>
+        <file>breeze-icons/icons/mimetypes/32/image-bmp.svg</file>
+        <file>breeze-icons/icons/mimetypes/32/image-gif.svg</file>
+        <file>breeze-icons/icons/mimetypes/32/image-jpeg.svg</file>
+        <file>breeze-icons/icons/mimetypes/32/image-png.svg</file>
+        <file>breeze-icons/icons/mimetypes/32/image-tiff.svg</file>
+        <file>breeze-icons/icons/mimetypes/32/image-x-generic.svg</file>
+        <file>breeze-icons/icons/mimetypes/32/text-html.svg</file>
+        <file>breeze-icons/icons/mimetypes/32/text-x-generic.svg</file>
+        <file>breeze-icons/icons/mimetypes/32/text-x-markdown.svg</file>
+        <file>breeze-icons/icons/places/32/folder.svg</file>
+        <file>courier-prime/Courier Prime Bold Italic.ttf</file>
+        <file>courier-prime/Courier Prime Bold.ttf</file>
+        <file>courier-prime/Courier Prime Italic.ttf</file>
+        <file>courier-prime/Courier Prime.ttf</file>
         <file>mononoki/mononoki-Bold.otf</file>
         <file>mononoki/mononoki-BoldItalic.otf</file>
         <file>mononoki/mononoki-Italic.otf</file>
@@ -8,9 +23,5 @@
         <file>opendyslexic/OpenDyslexic-BoldItalic.otf</file>
         <file>opendyslexic/OpenDyslexic-Italic.otf</file>
         <file>opendyslexic/OpenDyslexic-Regular.otf</file>
-        <file>courierprime/Courier Prime Bold Italic.ttf</file>
-        <file>courierprime/Courier Prime Bold.ttf</file>
-        <file>courierprime/Courier Prime Italic.ttf</file>
-        <file>courierprime/Courier Prime.ttf</file>
     </qresource>
 </RCC>

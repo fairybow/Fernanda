@@ -526,10 +526,7 @@ private:
     static constexpr auto MIME_TYPE_ = "application/x-fernanda-fnx-element";
     QDomDocument dom_{};
     QString domSnapshot_{};
-
     mutable FnxModelCache cache_{};
-    mutable QIcon cachedDirIcon_{};
-    mutable QIcon cachedFileIcon_{};
 
     void setup_()
     {

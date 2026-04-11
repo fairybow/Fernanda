@@ -6,7 +6,7 @@
 //       - Why isn't "beta.1" showing up for the "FileVersion"?
 
 // Icon
-IDI_ICON1           ICON "icons/Fernanda.ico"
+IDI_ICON1           ICON "app-icons/Fernanda.ico"
 
 // Version info
 VS_VERSION_INFO     VERSIONINFO

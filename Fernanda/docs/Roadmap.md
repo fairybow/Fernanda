@@ -2,9 +2,17 @@
 
 TODO: Clean
 
+Also, go through all docs and make sure they're up to date and follow doc style
+
 ## Current
 
 - [ ] Use QIconEngine for StyleContext icons?
+
+- [ ] HtmlFileView
+- [ ] Animated Gifs
+- [x] Icons for FnxModel
+- [ ] FnxModel::data file/folder metadata tooltip
+- [ ] ControlField tooltip quicker popup time? Possible?
 
 - [ ] MAYBE use clang InsertBraces = true plus remove virtual on overrides
 - [x] Get Qt 6.11 on CI release?
@@ -59,7 +67,6 @@ TODO: Clean
 - [ ] ToString's kind of a hot mess
 - [ ] Re: `treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT` in Notepad and Notebook (is a singular menu item in Workspace appropriate if it means we have to have such a silly virtual for each Workspace to override? At least, it seems silly to me right now)
 - [ ] ^ Related: Right now, no way past having Ini::LocalKeys defaults in regular defaults function (because settings get command gets the default for all Ini keys internally - TreeViewService would need to be able to choose to use a localDefaults map or SettingsService could have a second command getter for Workspace-local settings...)
-- [ ] BUG: Notebook TreeView needs icons for text files, PDFs, images, etc
 - [x] Bus's parameters QVariantMap to Bus::ParamMap? For readability and could swap to QHash
 - [x] Log files
 - [x] Release logging at certain level
@@ -155,7 +162,7 @@ TODO: Clean
 From the file-types branch. See FileHandling.md for design details.
 
 - [ ] FNX filter cleanup: Open Notebook, Save As Notebook, and Import dialogs still need `.fnx` filters. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
-- [ ] Tree view icons by file type: file-type-appropriate icons with a generic fallback for unrecognized types. `FnxModel::data()` can read `Fnx::Xml::ext(element)` and map through `FileTypes::fromPath()` for the `Qt::DecorationRole` case.
+- [x] Tree view icons by file type: file-type-appropriate icons with a generic fallback for unrecognized types. `FnxModel::data()` can read `Fnx::Xml::ext(element)` and map through `FileTypes::fromPath()` for the `Qt::DecorationRole` case.
 - [ ] Model/view re-evaluation on rename: when a file's extension changes, the system should swap to the appropriate model/view pair. Only affects Tier 2 types (special text), since Tier 1 (magic bytes) types are identified by content. Applies to both Notepad (filesystem rename) and Notebook (tree view rename).
 - [ ] Consider NoOp for large unsupported binary files (e.g., images) where opening as text would be wasteful. Later-problem.
 - [ ] FNX files within FNX archives: deliberately deferred. Nested archive lifecycle management conflicts with current architecture. See FileHandling.md for rationale.

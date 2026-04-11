@@ -75,8 +75,8 @@ protected:
             image_size,
             image_size);
 
-        auto pixmap =
-            QPixmap(":/icons/Fernanda-128.png"); // This looks fine honestly
+        // This looks fine honestly:
+        auto pixmap = QPixmap(":/app-icons/Fernanda-128.png");
         pixmap = Coco::Fx::toGreyscale(pixmap);
 
         // Draw with opacity to let background show through

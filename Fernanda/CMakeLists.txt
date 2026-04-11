@@ -110,6 +110,7 @@ set(FERNANDA_HEADERS
     src/fnx/Fnx.h
     src/fnx/FnxModel.h
     src/fnx/FnxModelCache.h
+    src/fnx/FnxModelIcons.h
 
     src/menus/MenuBuilder.h
     src/menus/MenuShortcuts.h
@@ -221,7 +222,7 @@ set(COCO_HEADERS
 
 set(FERNANDA_RESOURCES
     external/External.qrc
-    resources/Icons.qrc
+    resources/AppIcons.qrc
     resources/Themes.qrc
     resources/Ui.qrc
 )
@@ -251,7 +252,7 @@ qt_add_executable(Fernanda ${PLATFORM_EXE_FLAGS}
 # --- macOS bundle ---
 
 if(APPLE)
-    set(MACOS_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/Fernanda.icns)
+    set(MACOS_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icons/Fernanda.icns)
     set_source_files_properties(${MACOS_ICON} PROPERTIES
         MACOSX_PACKAGE_LOCATION "Resources"
     )
@@ -410,7 +411,7 @@ if(UNIX AND NOT APPLE)
     )
 
     foreach(SIZE 16 22 24 32 48 64 128 256 512)
-        set(_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/Fernanda-${SIZE}.png")
+        set(_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icons/Fernanda-${SIZE}.png")
         if(EXISTS "${_icon}")
             install(FILES ${_icon}
                 DESTINATION share/icons/hicolor/${SIZE}x${SIZE}/apps
@@ -419,7 +420,7 @@ if(UNIX AND NOT APPLE)
         endif()
     endforeach()
 
-    install(FILES resources/icons/proof/Fernanda.svg
+    install(FILES resources/app-icons/proof/Fernanda.svg
         DESTINATION share/icons/hicolor/scalable/apps
     )
 

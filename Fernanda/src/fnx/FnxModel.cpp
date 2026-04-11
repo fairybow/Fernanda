@@ -21,12 +21,13 @@
 #include <QVariant>
 
 #include "core/Application.h"
+#include "core/Debug.h"
 #include "fnx/Fnx.h"
+#include "fnx/FnxModelIcons.h"
 
 namespace Fernanda {
 
-/// TODO FT: Can check meta file type for tree view icon somehow? Route through
-/// Fnx::Xml?
+// TODO: Tooltip with metadata on file/folder
 QVariant FnxModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) return {};
@@ -38,10 +39,12 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
     case Qt::DisplayRole: {
         auto display_name = Fnx::Xml::name(element);
 
-        if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element))
+        if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element)) {
             display_name.prepend(QStringLiteral("* "));
-        if (Fnx::Xml::hasEditedDescendant(element))
+        }
+        if (Fnx::Xml::hasEditedDescendant(element)) {
             display_name += QStringLiteral(" (*)");
+        }
 
         return display_name;
     }
@@ -59,25 +62,21 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
         return {};
     }
 
+        // Icon is based on extension, not the "true" file type. If someone
+        // imports a text file with a .pdf extension, it will show the PDF icon
+        // here. When opened, Fernanda handles it correctly: it would fail a
+        // magic byte check and fall through to plain text
     case Qt::DecorationRole: {
         if (Fnx::Xml::isVirtualFolder(element)) {
-
-            if (cachedDirIcon_.isNull())
-                cachedDirIcon_ =
-                    Application::style()->standardIcon(QStyle::SP_DirIcon);
-
-            return cachedDirIcon_;
+            return FnxModelIcons::folder();
 
         } else if (Fnx::Xml::isFile(element)) {
-
-            if (cachedFileIcon_.isNull())
-                cachedFileIcon_ =
-                    Application::style()->standardIcon(QStyle::SP_FileIcon);
-
-            return cachedFileIcon_;
+            auto type = Files::fromPath(Fnx::Xml::relPath(element));
+            return FnxModelIcons::icon(type);
         }
 
-        return {}; // Unreachable
+        UNREACHABLE("FnxModel::data Qt::DecorationRole case");
+        return {};
     }
 
     default:

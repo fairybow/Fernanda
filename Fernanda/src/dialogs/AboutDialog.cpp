@@ -28,7 +28,7 @@ void exec()
     QMessageBox box{};
 
     box.setWindowModality(Qt::ApplicationModal);
-    box.setIconPixmap(QPixmap(":/icons/Fernanda-64.png"));
+    box.setIconPixmap(QPixmap(":/app-icons/Fernanda-64.png"));
     box.setWindowTitle(Tr::nxAboutTitle());
     box.setText(Tr::nxAboutBody());
     box.setTextInteractionFlags(Qt::LinksAccessibleByMouse);
