@@ -19,6 +19,8 @@ Also, go through all docs and make sure they're up to date and follow doc style
 - [ ] ControlField tooltip quicker popup time? Possible?
 - [ ] ^ OR, allow click to show tooltip, too (or both)
 
+- [ ] Notebook "save webpage" with URL entry (a la other binder-style writing apps)
+
 - [ ] fmt lib for Debug instead of std::format? (Might play nicer with libc++)
 
 - [ ] typedef int Index? Will I be laughed at?
