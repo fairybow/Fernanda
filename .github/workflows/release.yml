@@ -139,14 +139,14 @@ jobs:
             --appdir AppDir \
             --plugin qt \
             --output appimage
-          mv ${{ env.APP }}-*.AppImage \
+          mv ${{ env.APP }}_*.AppImage \
              ${{ env.APP }}_${{ env.VER }}_Linux-x86_64.AppImage
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: linux-appimage
-          path: ${{ env.APP }}-*.AppImage
+          path: ${{ env.APP }}_*.AppImage
 
   # ===========================================================================
   # macOS .dmg (ARM / Apple Silicon)
@@ -193,7 +193,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: macos-dmg
-          path: ${{ env.APP }}-*.dmg
+          path: ${{ env.APP }}_*.dmg
 
   # ===========================================================================
   # Windows Installer (Inno Setup)
@@ -314,7 +314,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: windows-installer
-          path: output/${{ env.APP }}-*.exe
+          path: output/${{ env.APP }}_*.exe
 
   # ===========================================================================
   # Attach to GitHub Release
@@ -339,7 +339,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ${{ env.APP }}-*.AppImage
-            ${{ env.APP }}-*.dmg
-            ${{ env.APP }}-*.exe
+            ${{ env.APP }}_*.AppImage
+            ${{ env.APP }}_*.dmg
+            ${{ env.APP }}_*.exe
             Version.txt
