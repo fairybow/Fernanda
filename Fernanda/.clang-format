@@ -35,4 +35,3 @@ SpaceBeforeRangeBasedForLoopColon: true
 SpaceInEmptyBlock: false
 Standard: c++20
 TabWidth: 4
-UseCRLF: true
