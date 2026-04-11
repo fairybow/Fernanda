@@ -1,0 +1,23 @@
+# Checks: >
+#   -*,
+#   bugprone-*,
+#   cppcoreguidelines-avoid-goto,
+#   cppcoreguidelines-slicing,
+#   misc-redundant-expression,
+#   misc-unused-using-decls,
+#   # modernize-use-override,
+#   modernize-use-nullptr,
+#   modernize-use-emplace,
+#   modernize-redundant-void-arg,
+#   performance-*,
+#   # readability-braces-around-statements,
+#   # readability-inconsistent-declaration-parameter-name,
+#   readability-redundant-casting,
+#   readability-redundant-smartptr-get,
+#   -bugprone-easily-swappable-parameters,
+#   -bugprone-narrowing-conversions,
+#   -performance-avoid-endl
+#
+# HeaderFilterRegex: 'src/.*\.h$'
+#
+# WarningsAsErrors: ''

@@ -1,0 +1,79 @@
+; Fernanda Inno Setup Script (https://jrsoftware.org/isdl.php#stable)
+; Required: Pass /DVariableName=x from command line
+
+#ifndef AppVersion
+  #error "AppVersion not defined. Pass /DAppVersion=x.x.x"
+#endif
+#ifndef AppVersionNumeric
+  #error "AppVersionNumeric not defined. Pass /DAppVersionNumeric=x.x.x"
+#endif
+#ifndef InstallerName
+  #error "InstallerName not defined. Pass /DInstallerName=name"
+#endif
+#ifndef ReadmePath
+  #error "ReadmePath not defined. Pass /DReadmePath=path"
+#endif
+#ifndef LicensePath
+  #error "LicensePath not defined. Pass /DLicensePath=path"
+#endif
+#ifndef OutputDir
+  #error "OutputDir not defined. Pass /DOutputDir=path"
+#endif
+
+[Setup]
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
+AppId={{D82F0C66-E341-4953-BD96-372C196A7E9B}
+AppName=Fernanda
+AppPublisher=fairybow
+AppVerName=Fernanda
+AppVersion={#AppVersion}
+ChangesAssociations=yes
+CloseApplications=yes
+CloseApplicationsFilter=Fernanda.exe
+Compression=lzma2
+DefaultDirName={autopf}\Fernanda
+DefaultGroupName=Fernanda
+LicenseFile={#LicensePath}
+MinVersion=10
+OutputBaseFilename={#InstallerName}
+OutputDir={#OutputDir}
+SolidCompression=yes
+UninstallDisplayIcon={app}\data\Fernanda.exe
+VersionInfoProductVersion={#AppVersionNumeric}
+WizardStyle=modern
+
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\*"
+
+[Tasks]
+Name: "startmenu"; Description: "Create a &Start Menu folder"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
+Name: "desktopicon"; Description: "Create a &Desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
+
+[Files]
+Source: "temp\*"; DestDir: "{app}\data"; Flags: recursesubdirs ignoreversion
+Source: "{#ReadmePath}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#LicensePath}"; DestDir: "{app}"; Flags: ignoreversion
+
+[Icons]
+; Always installed
+Name: "{app}\Fernanda"; Filename: "{app}\data\Fernanda.exe"
+
+; Optional
+Name: "{group}\Fernanda"; Filename: "{app}\data\Fernanda.exe"; Tasks: startmenu
+Name: "{group}\Uninstall Fernanda"; Filename: "{uninstallexe}"; Tasks: startmenu
+Name: "{autodesktop}\Fernanda"; Filename: "{app}\data\Fernanda.exe"; Tasks: desktopicon
+
+[Run]
+Filename: "{app}\data\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "Installing Visual C++ Runtime..."; Flags: waituntilterminated skipifsilent
+
+[Registry]
+; Define the ProgID
+Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook"; ValueType: string; ValueData: "Fernanda Notebook"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook"; ValueType: string; ValueName: "FriendlyTypeName"; ValueData: "Fernanda Notebook"
+Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook\DefaultIcon"; ValueType: string; ValueData: "{app}\data\Fernanda.exe,0"
+; ^ TODO: Change this to Notebook icon once it exists
+Root: HKA; Subkey: "Software\Classes\Fernanda.Notebook\shell\open\command"; ValueType: string; ValueData: """{app}\data\Fernanda.exe"" ""%1"""
+
+; Associate .fnx extension with ProgID
+Root: HKA; Subkey: "Software\Classes\.fnx"; ValueType: string; ValueData: "Fernanda.Notebook"; Flags: uninsdeletevalue
