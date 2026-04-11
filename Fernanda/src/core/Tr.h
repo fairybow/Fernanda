@@ -108,6 +108,7 @@ namespace Tr {
            "always make regular backups of your work.</p>"));
 
     // TODO: std::format
+    // ^ From future me: why?
     inline QString nxAboutBody()
     {
         auto arg_0 = [] {
