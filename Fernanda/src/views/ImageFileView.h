@@ -27,7 +27,7 @@
 #include "core/Debug.h"
 #include "models/AbstractFileModel.h"
 #include "models/FileMeta.h"
-#include "models/ImageFileModel.h"
+#include "models/RawFileModel.h"
 #include "ui/ZoomControl.h"
 #include "views/AbstractFileView.h"
 
@@ -41,7 +41,7 @@ class ImageFileView : public AbstractFileView
     Q_OBJECT
 
 public:
-    explicit ImageFileView(ImageFileModel* fileModel, QWidget* parent = nullptr)
+    explicit ImageFileView(RawFileModel* fileModel, QWidget* parent = nullptr)
         : AbstractFileView(fileModel, parent)
     {
     }
@@ -61,15 +61,15 @@ protected:
         label_->setAlignment(Qt::AlignCenter);
         setPalette_(label_, Qt::transparent);
 
-        auto image_model = qobject_cast<ImageFileModel*>(model());
-        ASSERT(image_model, "ImageFileModel cast failed!");
+        auto raw_model = qobject_cast<RawFileModel*>(model());
+        ASSERT(raw_model, "ImageFileModel cast failed!");
 
         QPixmap pixmap{};
 
-        if (pixmap.loadFromData(image_model->data())) {
+        if (pixmap.loadFromData(raw_model->data())) {
             originalPixmap_ = pixmap; // Show event resizes for us
         } else {
-            WARN("Image load failed for [{}]", image_model->meta()->path());
+            WARN("Image load failed for [{}]", raw_model->meta()->path());
         }
 
         scrollArea_->setWidget(label_);

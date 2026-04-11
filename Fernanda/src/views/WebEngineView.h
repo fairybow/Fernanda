@@ -12,32 +12,31 @@
 
 #pragma once
 
-#include <QDesktopServices>
-#include <QUrl>
-#include <QWebEnginePage>
+#include <QContextMEnuEvent>
+#include <QWebEngineView>
+#include <QWidget>
+
+#include "core/Debug.h"
 
 namespace Fernanda {
 
-class MarkupPreviewPage : public QWebEnginePage
+class WebEngineView : public QWebEngineView
 {
     Q_OBJECT
 
 public:
-    using QWebEnginePage::QWebEnginePage;
+    explicit WebEngineView(QWidget* parent = nullptr)
+        : QWebEngineView(parent)
+    {
+    }
+
+    virtual ~WebEngineView() override { TRACER; }
 
 protected:
-    bool acceptNavigationRequest(
-        const QUrl& url,
-        NavigationType type,
-        [[maybe_unused]] bool isMainFrame) override
+    // Disable context menu
+    virtual void contextMenuEvent(QContextMenuEvent* event) override
     {
-        // Let's not open links in the preview page...
-        if (type == NavigationTypeLinkClicked) {
-            QDesktopServices::openUrl(url);
-            return false;
-        }
-
-        return true;
+        event->accept();
     }
 };
 

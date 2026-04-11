@@ -33,8 +33,8 @@
 #include "core/Files.h"
 #include "models/AbstractFileModel.h"
 #include "models/FileMeta.h"
-#include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
+#include "models/RawFileModel.h"
 #include "models/TextFileModel.h"
 #include "services/AbstractService.h"
 #include "services/ReloadPrompt.h"
@@ -44,6 +44,7 @@
 #include "ui/Window.h"
 #include "views/AbstractFileView.h"
 #include "views/FountainFileView.h"
+#include "views/HtmlFileView.h"
 #include "views/ImageFileView.h"
 #include "views/KeyFilters.h"
 #include "views/MarkdownFileView.h"
@@ -818,7 +819,6 @@ private:
         AbstractFileView* view = nullptr;
 
         if (auto text_model = qobject_cast<TextFileModel*>(fileModel)) {
-
             // TextFileView and subclasses only
             switch (text_model->meta()->fileType()) {
             case Files::Fountain: {
@@ -841,9 +841,24 @@ private:
         } else if (auto pdf_model = qobject_cast<PdfFileModel*>(fileModel)) {
             view = newFileView_<PdfFileView*>(pdf_model, window);
 
-        } else if (
-            auto image_model = qobject_cast<ImageFileModel*>(fileModel)) {
-            view = newFileView_<ImageFileView*>(image_model, window);
+        } else if (auto raw_model = qobject_cast<RawFileModel*>(fileModel)) {
+            switch (raw_model->meta()->fileType()) {
+            case Files::Html: {
+                view = newFileView_<HtmlFileView*>(raw_model, window);
+                break;
+            }
+
+            // case Files::Png:
+            // case Files::Tiff:
+            // case Files::Gif:
+            // case Files::Jpeg:
+            // case Files::Bmp:
+            // case Files::WebP:
+            default: {
+                view = newFileView_<ImageFileView*>(raw_model, window);
+                break;
+            }
+            }
 
         } else {
             UNREACHABLE("Type not deduced for model [{}]!", fileModel);

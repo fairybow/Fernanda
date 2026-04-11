@@ -25,7 +25,6 @@
 #include <QStringView>
 #include <QTextDocument>
 #include <QVBoxLayout>
-#include <QWebEngineView>
 #include <QWidget>
 
 #include "core/BundledFonts.h"
@@ -34,9 +33,10 @@
 #include "models/TextFileModel.h"
 #include "ui/MultiSwitch.h"
 #include "ui/WidgetSnapshotOverlay.h"
-#include "views/MarkupPreviewPage.h"
 #include "views/MarkupWebcode.h"
 #include "views/TextFileView.h"
+#include "views/WebEnginePage.h"
+#include "views/WebEngineView.h"
 
 namespace Fernanda {
 
@@ -100,7 +100,7 @@ protected:
         auto editor_widget = TextFileView::setupWidget();
         editor_widget->setMinimumWidth(MIN_WIDGET_SIZE_);
 
-        preview_->setPage(new MarkupPreviewPage(preview_));
+        preview_->setPage(new WebEnginePage(preview_));
         preview_->setMinimumWidth(MIN_WIDGET_SIZE_);
         previewMask_->setAutoFillBackground(true);
         previewMask_->hide();
@@ -257,7 +257,7 @@ private:
         1,
         this);
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
-    QWebEngineView* preview_ = new QWebEngineView(this);
+    WebEngineView* preview_ = new WebEngineView(this);
     QWidget* previewMask_ = new QWidget(preview_);
     Time::Debouncer* previewMaskTimer_ =
         Time::newDebouncer(this, [this] { previewMask_->hide(); }, 300);

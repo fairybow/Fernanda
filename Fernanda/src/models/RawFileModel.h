@@ -22,32 +22,26 @@
 
 namespace Fernanda {
 
-class ImageFileModel : public AbstractFileModel
+class RawFileModel : public AbstractFileModel
 {
     Q_OBJECT
 
 public:
-    explicit ImageFileModel(
+    explicit RawFileModel(
         Files::Type fileType,
         const Coco::Path& path,
         QObject* parent = nullptr)
         : AbstractFileModel(fileType, path, parent)
     {
-        setup_();
     }
 
-    virtual ~ImageFileModel() override { TRACER; }
+    virtual ~RawFileModel() override { TRACER; }
 
     virtual QByteArray data() const override { return data_; }
     virtual void setData(const QByteArray& data) override { data_ = data; }
 
 private:
     QByteArray data_{};
-
-    void setup_()
-    {
-        //
-    }
 };
 
 } // namespace Fernanda
