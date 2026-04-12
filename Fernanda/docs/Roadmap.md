@@ -13,8 +13,8 @@ Also, go through all docs and make sure they're up to date and follow doc style
 - [ ] HtmlFileView web engine view needs the same masking the markup views have for resize / init (probably add the the webengineview subclass?)
 - [ ] Animated Gifs
 - [ ] FnxModel::data file/folder metadata tooltip
-- [ ] ControlField tooltip quicker popup time? Possible?
-- [ ] ^ OR, allow click to show tooltip, too (or both)
+- [x] ControlField tooltip quicker popup time? Possible?
+- [x] ^ OR, allow click to show tooltip, too (or both)
 - [ ] DisplaySlider click to edit and set value (clamp)
 - [ ] Also debounce slider settings emissions to reduce the log output
 - [ ] Notebook "save webpage" with URL entry (a la other binder-style writing apps)

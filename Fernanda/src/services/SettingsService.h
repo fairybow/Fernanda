@@ -172,6 +172,7 @@ public:
         }
 
         settings_->setValue(key, value);
+        INFO("Setting changed: {} = {}", key, value);
     }
 
 protected:
@@ -213,6 +214,9 @@ private:
         setupDebouncer_(Ini::Keys::WINDOW_THEME);
         setupDebouncer_(Ini::Keys::EDITOR_THEME);
         setupDebouncer_(Ini::Keys::EDITOR_TAB_STOP_DISTANCE);
+        setupDebouncer_(Ini::Keys::EDITOR_WRAP_MODE);
+        setupDebouncer_(Ini::Keys::EDITOR_LR_MARGIN);
+        setupDebouncer_(Ini::Keys::COLOR_BAR_POSITION);
 
         /// TODO FT: Right place to register these?
         settings_->setKeyConverters(
