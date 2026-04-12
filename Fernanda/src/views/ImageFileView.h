@@ -41,7 +41,9 @@ namespace Fernanda {
 // anyway)
 // TODO: Scroll bars are all black. Impossible to set them back to original
 // color. Setting black palette on scrollArea_->viewport() instead of
-// scrollArea_ does nothing (white background)
+// scrollArea_ does nothing (white background). The commented-out solution works
+// to make them white, but making the track transparent over the image itself
+// seems impossible
 class ImageFileView : public AbstractFileView
 {
     Q_OBJECT
@@ -62,6 +64,18 @@ protected:
         scrollArea_->setWidgetResizable(false);
         scrollArea_->setAlignment(Qt::AlignCenter);
         setPalette_(scrollArea_, Qt::black);
+
+        // Comment out `scrollArea_->setWidget(label_);` below, along with this:
+        // auto* container = new QWidget;
+        // setPalette_(container, Qt::black);
+
+        // auto* layout = new QVBoxLayout(container);
+        // layout->setContentsMargins(0, 0, 0, 0);
+        // layout->setAlignment(Qt::AlignCenter);
+        // layout->addWidget(label_);
+
+        // scrollArea_->setWidgetResizable(true);
+        // scrollArea_->setWidget(container);
 
         label_->setScaledContents(false);
         label_->setAlignment(Qt::AlignCenter);
