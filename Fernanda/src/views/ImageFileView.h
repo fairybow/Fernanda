@@ -44,6 +44,8 @@ namespace Fernanda {
 // scrollArea_ does nothing (white background). The commented-out solution works
 // to make them white, but making the track transparent over the image itself
 // seems impossible
+// TODO: GIFs kind of "bounce" when opening (probably starting at original size
+// and then sizing to fit; just looks like a bounce with a bigger GIF)
 class ImageFileView : public AbstractFileView
 {
     Q_OBJECT
