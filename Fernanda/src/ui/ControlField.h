@@ -217,7 +217,6 @@ private:
     void hideInfoPopup_()
     {
         hoverDelay_->stop();
-        infoPopup_->hide();
         delete infoPopup_;
         infoPopup_ = nullptr;
         clickLocked_ = false;
