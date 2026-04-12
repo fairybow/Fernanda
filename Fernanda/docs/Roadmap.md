@@ -18,6 +18,8 @@ Also, go through all docs and make sure they're up to date and follow doc style
 - [ ] DisplaySlider click to edit and set value (clamp)
 - [ ] Notebook "save webpage" with URL entry (a la other binder-style writing apps)
 - [ ] *maybe* Remove Formatters and std::format. We only ever use {} args, no special specifiers. We could make ToString very robust and just do our own string replacements
+- [ ] ^ Add regular ptr to ToString; add toQString wrappers for QString::number, etc, to reduce constexpr chain in Debug
+- [ ] ^ Also maybe move the format code to a "Format" header
 - [ ] typedef int Index? Will I be laughed at?
 - [ ] MAYBE use clang InsertBraces = true plus remove virtual on overrides
 - [ ] SoC Audit!

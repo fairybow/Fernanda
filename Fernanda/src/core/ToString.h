@@ -82,10 +82,10 @@ inline QString toQString(const QDomElement& element)
 
     auto tag = element.tagName();
     auto attrs = element.attributes();
-
-    if (attrs.isEmpty()) { return QString("QDomElement(\"<%1>\")").arg(tag); }
+    if (attrs.isEmpty()) return QString("QDomElement(\"<%1>\")").arg(tag);
 
     QStringList attr_list{};
+
     for (auto i = 0; i < attrs.count(); ++i) {
         auto attr = attrs.item(i).toAttr();
         attr_list << QString("%1='%2'").arg(attr.name()).arg(attr.value());
