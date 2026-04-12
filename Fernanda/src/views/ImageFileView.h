@@ -12,12 +12,15 @@
 
 #pragma once
 
+#include <QBuffer>
 #include <QColor>
 #include <QLabel>
+#include <QMovie>
 #include <QPalette>
 #include <QPixmap>
 #include <QResizeEvent>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QShowEvent>
 #include <QSize>
 #include <QWidget>
@@ -36,6 +39,9 @@ namespace Fernanda {
 // TODO: Support SVG (unsure how to detect atm; may need SVG widgets component,
 // in which case can probably drop plain svg component and it'll be brought in
 // anyway)
+// TODO: Scroll bars are all black. Impossible to set them back to original
+// color. Setting black palette on scrollArea_->viewport() instead of
+// scrollArea_ does nothing (white background)
 class ImageFileView : public AbstractFileView
 {
     Q_OBJECT
@@ -62,14 +68,30 @@ protected:
         setPalette_(label_, Qt::transparent);
 
         auto raw_model = qobject_cast<RawFileModel*>(model());
-        ASSERT(raw_model, "ImageFileModel cast failed!");
+        ASSERT(raw_model, "RawFileModel cast failed!");
 
-        QPixmap pixmap{};
+        auto meta = raw_model->meta();
 
-        if (pixmap.loadFromData(raw_model->data())) {
-            originalPixmap_ = pixmap; // Show event resizes for us
+        if (meta->fileType() == Files::Gif) {
+            movieBuffer_ = new QBuffer(this);
+            movieBuffer_->setData(raw_model->data());
+            movieBuffer_->open(QIODevice::ReadOnly);
+
+            movie_ = new QMovie(movieBuffer_, QByteArray(), this);
+            label_->setMovie(movie_);
+            movie_->start();
+            originalMovieSize_ = movie_->currentImage().size();
+
+            // WARN for failure here, too? (See below)
+
         } else {
-            WARN("Image load failed for [{}]", raw_model->meta()->path());
+            QPixmap pixmap{};
+
+            if (pixmap.loadFromData(raw_model->data())) {
+                originalPixmap_ = pixmap; // Show event resizes for us
+            } else {
+                WARN("Image load failed for [{}]", meta->path());
+            }
         }
 
         scrollArea_->setWidget(label_);
@@ -106,6 +128,11 @@ private:
     ZoomControl* zoomControl_ = new ZoomControl(scrollArea_);
     QPixmap originalPixmap_{};
 
+    // Gif:
+    QBuffer* movieBuffer_ = nullptr;
+    QMovie* movie_ = nullptr;
+    QSize originalMovieSize_{};
+
     // TODO: Perhaps temp, perhaps not. May never want to honor QSS here (keep
     // black)
     void setPalette_(QWidget* widget, const QColor& color)
@@ -119,6 +146,15 @@ private:
 
     void zoomToFactor_(qreal factor)
     {
+        // Gif:
+        if (movie_) {
+            auto scaled = originalMovieSize_ * factor;
+            movie_->setScaledSize(scaled);
+            label_->resize(scaled);
+            return;
+        }
+
+        // Everything else:
         if (originalPixmap_.isNull()) return;
 
         auto scaled = originalPixmap_.scaled(
@@ -132,6 +168,18 @@ private:
 
     void fitToView_()
     {
+        // Gif:
+        if (movie_) {
+            auto scaled = originalMovieSize_.scaled(
+                originalMovieSize_.boundedTo(
+                    scrollArea_->maximumViewportSize()),
+                Qt::KeepAspectRatio);
+            movie_->setScaledSize(scaled);
+            label_->resize(scaled);
+            return;
+        }
+
+        // Everything else:
         if (originalPixmap_.isNull()) return;
 
         // Don't exceed resolution

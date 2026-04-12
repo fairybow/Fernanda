@@ -41,7 +41,7 @@ protected:
     virtual QWidget* setupWidget() override
     {
         auto raw_model = qobject_cast<RawFileModel*>(model());
-        ASSERT(raw_model, "HtmlFileModel cast failed!");
+        ASSERT(raw_model, "RawFileModel cast failed!");
 
         webView_->setPage(new WebEnginePage(webView_));
         webView_->setHtml(QString::fromUtf8(raw_model->data()));

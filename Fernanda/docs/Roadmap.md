@@ -4,19 +4,20 @@ Also, go through all docs and make sure they're up to date and follow doc style
 
 ## Current
 
+- [ ] Sample stuff (a folder in Docs/Fernanda with samples of each type - can be recreated from the Help menu)
 - [ ] Use QIconEngine for StyleContext icons?
 - [x] HtmlFileView (This will not be editable, like other markups - this is for research, essentially, saved pages)
 - [x] Combine ImageFileModel and HtmlFileModel into Blob/Raw/GenericFileModel (no functionality, just byte bag)
 - [x] Figure out how to open correctly in FileService
 - [x] Rename MarkupPreviewPage since it is used by HtmlView (not a preview)
 - [x] Subclass web engine view and remove the context menu for now (has options we probably won't want used, e.g. view source)
-- [ ] HtmlFileView web engine view needs the same masking the markup views have for resize / init (probably add the the webengineview subclass?)
-- [ ] Animated Gifs
+- [x] HtmlFileView web engine view needs the same masking the markup views have for resize / init (probably add the the webengineview subclass?)
+- [x] Animated Gifs
 - [ ] FnxModel::data file/folder metadata tooltip
 - [x] ControlField tooltip quicker popup time? Possible?
 - [x] ^ OR, allow click to show tooltip, too (or both)
 - [ ] DisplaySlider click to edit and set value (clamp)
-- [ ] Also debounce slider settings emissions to reduce the log output
+- [x] Also debounce slider settings emissions to reduce the log output (actually won't reduce it, since we still call commands on every slide to propagate the visual changes)
 - [ ] Notebook "save webpage" with URL entry (a la other binder-style writing apps)
 - [ ] *maybe* Remove Formatters and std::format. We only ever use {} args, no special specifiers. We could make ToString very robust and just do our own string replacements
 - [ ] ^ Add regular ptr to ToString; add toQString wrappers for QString::number, etc, to reduce constexpr chain in Debug
