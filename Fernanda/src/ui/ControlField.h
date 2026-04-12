@@ -17,14 +17,17 @@
 #include <QLabel>
 #include <QPainter>
 #include <QPixmap>
+#include <QPoint>
 #include <QRectF>
 #include <QString>
 #include <QStyle>
+#include <QToolTip>
 #include <QWidget>
 
 #include <Coco/Concepts.h>
 
 #include "core/Debug.h"
+#include "core/Time.h"
 #include "ui/Painting.h"
 
 namespace Fernanda {
@@ -46,7 +49,11 @@ public:
         setup_(kind);
     }
 
-    virtual ~ControlField() override { TRACER; }
+    virtual ~ControlField() override
+    {
+        TRACER;
+        if (infoPopup_) delete infoPopup_;
+    }
 
     QWidgetT* control() { return control_; }
 
@@ -55,14 +62,45 @@ public:
         if (label_) label_->setText(text);
     }
 
-    void setInfo(const QString& info)
+    void setInfo(const QString& info) { infoText_ = info; }
+
+    virtual bool eventFilter(QObject* watched, QEvent* event) override
     {
-        if (info_) info_->setToolTip(info);
+        if (info_ && watched == info_) {
+            switch (event->type()) {
+
+            case QEvent::Enter:
+                if (!clickLocked_) hoverDelay_->start();
+                return false;
+
+            case QEvent::Leave:
+                if (!clickLocked_) hideInfoPopup_();
+                return false;
+
+            case QEvent::MouseButtonPress:
+                hoverDelay_->stop();
+                clickLocked_ = true;
+                showInfoPopup_();
+                Time::delay(3000, this, [this] { hideInfoPopup_(); });
+                return true;
+
+            default:
+                break;
+            }
+        }
+
+        return QWidget::eventFilter(watched, event);
     }
 
 private:
     QLabel* label_ = nullptr;
+
     QLabel* info_ = nullptr;
+    QLabel* infoPopup_ = nullptr;
+    Time::Delayer* hoverDelay_ = nullptr;
+    QString infoText_{};
+    bool clickLocked_ = false;
+
     QWidgetT* control_ = new QWidgetT(this);
 
     void setup_(FieldKind kind)
@@ -71,9 +109,6 @@ private:
 
         auto layout = new QHBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-
-        // TODO: Click the label here and in CFI to show tooltip also? Then
-        // don't auto show on hover if already clicked?
 
         switch (kind) {
 
@@ -89,7 +124,8 @@ private:
 
         case FieldKind::Info: {
             info_ = new QLabel(this);
-            setInfoIcon_();
+            setupInfoPopup_();
+            setupInfoIcon_();
 
             layout->addWidget(control_);
             layout->addWidget(info_);
@@ -100,7 +136,8 @@ private:
         case FieldKind::LabelAndInfo: {
             label_ = new QLabel(this);
             info_ = new QLabel(this);
-            setInfoIcon_();
+            setupInfoPopup_();
+            setupInfoIcon_();
 
             layout->addWidget(label_, 0);
             layout->addWidget(control_, 1);
@@ -114,8 +151,15 @@ private:
         layout->addStretch();
     }
 
+    void setupInfoPopup_()
+    {
+        if (!info_) return;
+        hoverDelay_ = Time::newDelayer(this, [this] { showInfoPopup_(); }, 400);
+        info_->installEventFilter(this);
+    }
+
     // TODO: StyleContext support
-    void setInfoIcon_()
+    void setupInfoIcon_()
     {
         if (!info_) return;
 
@@ -150,6 +194,33 @@ private:
         painter.end();
 
         info_->setPixmap(icon);
+    }
+
+    void showInfoPopup_()
+    {
+        if (!info_ || infoText_.isEmpty()) return;
+
+        if (!infoPopup_) {
+            infoPopup_ = new QLabel;
+            infoPopup_->setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
+            infoPopup_->setPalette(QToolTip::palette());
+            infoPopup_->setFont(QToolTip::font());
+            infoPopup_->setMargin(4);
+        }
+
+        infoPopup_->setText(infoText_);
+        infoPopup_->adjustSize();
+        infoPopup_->move(info_->mapToGlobal(QPoint{ 0, info_->height() + 2 }));
+        infoPopup_->show();
+    }
+
+    void hideInfoPopup_()
+    {
+        hoverDelay_->stop();
+        infoPopup_->hide();
+        delete infoPopup_;
+        infoPopup_ = nullptr;
+        clickLocked_ = false;
     }
 };
 
