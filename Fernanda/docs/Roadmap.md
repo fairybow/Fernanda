@@ -16,6 +16,7 @@ Also, go through all docs and make sure they're up to date and follow doc style
 - [ ] ControlField tooltip quicker popup time? Possible?
 - [ ] ^ OR, allow click to show tooltip, too (or both)
 - [ ] DisplaySlider click to edit and set value (clamp)
+- [ ] Also debounce slider settings emissions to reduce the log output
 - [ ] Notebook "save webpage" with URL entry (a la other binder-style writing apps)
 - [ ] *maybe* Remove Formatters and std::format. We only ever use {} args, no special specifiers. We could make ToString very robust and just do our own string replacements
 - [ ] ^ Add regular ptr to ToString; add toQString wrappers for QString::number, etc, to reduce constexpr chain in Debug
