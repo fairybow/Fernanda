@@ -13,10 +13,13 @@
 #pragma once
 
 #include <QContextMenuEvent>
+#include <QResizeEvent>
+#include <QSize>
 #include <QWebEngineView>
 #include <QWidget>
 
 #include "core/Debug.h"
+#include "core/Time.h"
 
 namespace Fernanda {
 
@@ -28,15 +31,53 @@ public:
     explicit WebEngineView(QWidget* parent = nullptr)
         : QWebEngineView(parent)
     {
+        setup_();
     }
 
     virtual ~WebEngineView() override { TRACER; }
 
 protected:
-    // Disable context menu
+    // TODO: Disabled context menu for now, may want a custom one later
     virtual void contextMenuEvent(QContextMenuEvent* event) override
     {
         event->accept();
+    }
+
+    virtual void resizeEvent(QResizeEvent* event) override
+    {
+        // Hide preview resize visual stutter and debounce
+        showMask_();
+        resizeDebouncer_->start();
+
+        QWidget::resizeEvent(event);
+    }
+
+private:
+    QWidget* mask_ = new QWidget(this);
+    Time::Debouncer* resizeDebouncer_ =
+        Time::newDebouncer(this, [this] { mask_->hide(); }, 300);
+
+    void setup_()
+    {
+        mask_->setAutoFillBackground(true);
+        mask_->hide();
+
+        showMask_();
+
+        connect(this, &WebEngineView::loadStarted, this, [this] {
+            showMask_();
+        });
+
+        connect(this, &WebEngineView::loadFinished, this, [this] {
+            Time::onNextTick(this, [this] { mask_->hide(); });
+        });
+    }
+
+    void showMask_()
+    {
+        mask_->setFixedSize(size());
+        mask_->raise();
+        mask_->show();
     }
 };
 

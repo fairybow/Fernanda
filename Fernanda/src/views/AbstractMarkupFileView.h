@@ -14,9 +14,7 @@
 
 #include <utility>
 
-#include <QEvent>
 #include <QHBoxLayout>
-#include <QObject>
 #include <QResizeEvent>
 #include <QShowEvent>
 #include <QSplitter>
@@ -81,19 +79,6 @@ public:
         applyMode_(mode);
     }
 
-    virtual bool eventFilter(QObject* watched, QEvent* event) override
-    {
-        if (watched == preview_ && event->type() == QEvent::Resize) {
-            // Hide preview resize visual stutter and debounce
-            previewMask_->setFixedSize(preview_->size());
-            previewMask_->raise();
-            previewMask_->show();
-            previewMaskTimer_->start();
-        }
-
-        return TextFileView::eventFilter(watched, event);
-    }
-
 protected:
     virtual QWidget* setupWidget() override
     {
@@ -102,8 +87,6 @@ protected:
 
         preview_->setPage(new WebEnginePage(preview_));
         preview_->setMinimumWidth(MIN_WIDGET_SIZE_);
-        previewMask_->setAutoFillBackground(true);
-        previewMask_->hide();
 
         splitter_->addWidget(editor_widget);
         splitter_->addWidget(preview_);
@@ -191,24 +174,6 @@ protected:
                 Qt::SingleShotConnection);
         }
 
-        // Mask the preview until QWebEngineView finishes its first load
-        // TODO: Watch/adjust this if we ever allow starting in a mode other
-        // than Split
-        previewMask_->setFixedSize(preview_->size());
-        previewMask_->raise();
-        previewMask_->show();
-
-        connect(
-            preview_->page(),
-            &QWebEnginePage::loadFinished,
-            this,
-            [this] {
-                Time::onNextTick(this, [this] { previewMask_->hide(); });
-            },
-            Qt::SingleShotConnection);
-
-        preview_->installEventFilter(this);
-
         return container_;
     }
 
@@ -258,9 +223,6 @@ private:
         this);
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
     WebEngineView* preview_ = new WebEngineView(this);
-    QWidget* previewMask_ = new QWidget(preview_);
-    Time::Debouncer* previewMaskTimer_ =
-        Time::newDebouncer(this, [this] { previewMask_->hide(); }, 300);
 
     inline static bool firstEverLoad_ = true;
     QWidget* warmupMask_ = nullptr;
