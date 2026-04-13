@@ -97,7 +97,9 @@ Windows (x64), macOS (ARM), and Linux (x86_64).
 
 ## What's New?
 
-...
+**WebEngineView resize masking.** The stutter-hiding overlay that previously lived in AbstractMarkupFileView (and only covered markup previews) moved into WebEngineView itself. This means HtmlFileView now also masks visual stutter on resize and initial load
+
+**Improved info tooltips.** Settings field info icons now use a custom popup with a shorter hover delay (400ms) instead of the native QToolTip, and clicking the icon locks the popup visible for 3 seconds, so they're easier to read/activate
 
 ## Known Issues
 
