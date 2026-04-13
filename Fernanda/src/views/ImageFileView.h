@@ -33,19 +33,14 @@
 #include "models/RawFileModel.h"
 #include "ui/ZoomControl.h"
 #include "views/AbstractFileView.h"
+#include "views/ImageGraphicsView.h"
 
 namespace Fernanda {
 
-// TODO: Support SVG (unsure how to detect atm; may need SVG widgets component,
-// in which case can probably drop plain svg component and it'll be brought in
-// anyway)
-// TODO: Scroll bars are all black. Impossible to set them back to original
-// color. Setting black palette on scrollArea_->viewport() instead of
-// scrollArea_ does nothing (white background). The commented-out solution works
-// to make them white, but making the track transparent over the image itself
-// seems impossible
-// TODO: GIFs kind of "bounce" when opening (probably starting at original size
-// and then sizing to fit; just looks like a bounce with a bigger GIF)
+// TODO: Support SVG
+/// TODO IV: Move common zoom-related code from ImageGraphicsView,
+/// ImageFileView, and PdfFileView (including Mode_ enum and things that operate
+/// with it, probably)
 class ImageFileView : public AbstractFileView
 {
     Q_OBJECT
@@ -63,26 +58,6 @@ public:
 protected:
     virtual QWidget* setupWidget() override
     {
-        scrollArea_->setWidgetResizable(false);
-        scrollArea_->setAlignment(Qt::AlignCenter);
-        setPalette_(scrollArea_, Qt::black);
-
-        // Comment out `scrollArea_->setWidget(label_);` below, along with this:
-        // auto* container = new QWidget;
-        // setPalette_(container, Qt::black);
-
-        // auto* layout = new QVBoxLayout(container);
-        // layout->setContentsMargins(0, 0, 0, 0);
-        // layout->setAlignment(Qt::AlignCenter);
-        // layout->addWidget(label_);
-
-        // scrollArea_->setWidgetResizable(true);
-        // scrollArea_->setWidget(container);
-
-        label_->setScaledContents(false);
-        label_->setAlignment(Qt::AlignCenter);
-        setPalette_(label_, Qt::transparent);
-
         auto raw_model = qobject_cast<RawFileModel*>(model());
         ASSERT(raw_model, "RawFileModel cast failed!");
 
@@ -94,119 +69,105 @@ protected:
             movieBuffer_->open(QIODevice::ReadOnly);
 
             movie_ = new QMovie(movieBuffer_, QByteArray(), this);
-            label_->setMovie(movie_);
             movie_->start();
-            originalMovieSize_ = movie_->currentImage().size();
 
-            // WARN for failure here, too? (See below)
+            connect(movie_, &QMovie::frameChanged, this, [this] {
+                graphicsView_->setPixmap(
+                    QPixmap::fromImage(movie_->currentImage()));
+            });
 
         } else {
             QPixmap pixmap{};
 
             if (pixmap.loadFromData(raw_model->data())) {
-                originalPixmap_ = pixmap; // Show event resizes for us
+                graphicsView_->setPixmap(pixmap);
             } else {
                 WARN("Image load failed for [{}]", meta->path());
             }
         }
 
-        scrollArea_->setWidget(label_);
-
         connect(
             zoomControl_,
-            &ZoomControl::zoomChanged,
+            &ZoomControl::stepRequested,
             this,
-            [this](ZoomControl::Mode mode, qreal factor) {
-                if (mode == ZoomControl::Fit)
-                    fitToView_();
-                else
-                    zoomToFactor_(factor);
+            [this](int direction) {
+                mode_ = Fixed;
+                factor_ = qBound(
+                    MIN_FACTOR_,
+                    factor_ + (STEP_ * direction),
+                    MAX_FACTOR_);
+                applyZoom_();
             });
 
-        return scrollArea_;
+        connect(zoomControl_, &ZoomControl::toggleModeRequested, this, [this] {
+            mode_ = (mode_ == Fit) ? Fixed : Fit;
+            applyZoom_();
+        });
+
+        connect(zoomControl_, &ZoomControl::resetRequested, this, [this] {
+            mode_ = Fixed;
+            factor_ = 1.0;
+            applyZoom_();
+        });
+
+        connect(
+            graphicsView_,
+            &ImageGraphicsView::wheelZoomRequested,
+            this,
+            [this](int steps) {
+                mode_ = Fixed;
+                factor_ =
+                    qBound(MIN_FACTOR_, factor_ + (STEP_ * steps), MAX_FACTOR_);
+                applyZoom_();
+            });
+
+        applyZoom_();
+
+        return graphicsView_;
     }
 
     virtual void showEvent(QShowEvent* event) override
     {
         AbstractFileView::showEvent(event);
-        if (zoomControl_->mode() == ZoomControl::Fit) fitToView_();
+        if (mode_ == Fit) applyZoom_();
     }
 
     virtual void resizeEvent(QResizeEvent* event) override
     {
         AbstractFileView::resizeEvent(event);
-        if (zoomControl_->mode() == ZoomControl::Fit) fitToView_();
+        if (mode_ == Fit) applyZoom_();
     }
 
 private:
-    QScrollArea* scrollArea_ = new QScrollArea(this);
-    QLabel* label_ = new QLabel(this);
-    ZoomControl* zoomControl_ = new ZoomControl(scrollArea_);
-    QPixmap originalPixmap_{};
+    enum Mode_
+    {
+        Fit,
+        Fixed
+    };
 
-    // Gif:
+    ImageGraphicsView* graphicsView_ = new ImageGraphicsView(this);
+    ZoomControl* zoomControl_ = new ZoomControl(graphicsView_);
+
+    Mode_ mode_ = Fit;
+    qreal factor_ = 1.0;
+
+    static constexpr auto STEP_ = 0.1;
+    static constexpr auto MIN_FACTOR_ = 0.1;
+    static constexpr auto MAX_FACTOR_ = 3.0;
+
     QBuffer* movieBuffer_ = nullptr;
     QMovie* movie_ = nullptr;
-    QSize originalMovieSize_{};
 
-    // TODO: Perhaps temp, perhaps not. May never want to honor QSS here (keep
-    // black)
-    void setPalette_(QWidget* widget, const QColor& color)
+    void applyZoom_()
     {
-        widget->setAutoFillBackground(true);
-        widget->setBackgroundRole(QPalette::Base); // Not technically necessary
-        QPalette palette = widget->palette();
-        palette.setColor(QPalette::Base, color);
-        widget->setPalette(palette);
-    }
-
-    void zoomToFactor_(qreal factor)
-    {
-        // Gif:
-        if (movie_) {
-            auto scaled = originalMovieSize_ * factor;
-            movie_->setScaledSize(scaled);
-            label_->resize(scaled);
-            return;
+        if (mode_ == Fit) {
+            graphicsView_->fitToView();
+            zoomControl_->setDisplayText(QStringLiteral("Fit"));
+        } else {
+            graphicsView_->zoomToFactor(factor_);
+            zoomControl_->setDisplayText(
+                QStringLiteral("%1%").arg(qRound(factor_ * 100.0)));
         }
-
-        // Everything else:
-        if (originalPixmap_.isNull()) return;
-
-        auto scaled = originalPixmap_.scaled(
-            originalPixmap_.size() * factor,
-            Qt::KeepAspectRatio,
-            Qt::SmoothTransformation);
-
-        label_->setPixmap(scaled);
-        label_->resize(scaled.size());
-    }
-
-    void fitToView_()
-    {
-        // Gif:
-        if (movie_) {
-            auto scaled = originalMovieSize_.scaled(
-                originalMovieSize_.boundedTo(
-                    scrollArea_->maximumViewportSize()),
-                Qt::KeepAspectRatio);
-            movie_->setScaledSize(scaled);
-            label_->resize(scaled);
-            return;
-        }
-
-        // Everything else:
-        if (originalPixmap_.isNull()) return;
-
-        // Don't exceed resolution
-        auto scaled = originalPixmap_.scaled(
-            originalPixmap_.size().boundedTo(
-                scrollArea_->maximumViewportSize()),
-            Qt::KeepAspectRatio,
-            Qt::SmoothTransformation);
-
-        label_->setPixmap(scaled);
-        label_->resize(scaled.size());
     }
 };
 

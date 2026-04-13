@@ -27,14 +27,6 @@
 
 namespace Fernanda {
 
-// Floating zoom control overlay. Anchors itself to the bottom-right corner of
-// its parent, repositioning on resize via event filter. Owns zoom state (mode
-// and factor) and emits a single zoomChanged() signal for relevant views to
-// obey.
-//
-// Left-click display to toggle between Fit and last used fixed zoom;
-// right-click display to set to 100% (also resets last used zoom factor)
-//
 // TODO: (Maybe) hide/fade out after a set linger time. Reappear on hover in its
 // general area (bottom-right). Begin visible, though, so it's obvious the
 // widget is there to users
@@ -44,12 +36,6 @@ namespace Fernanda {
 // also over edge of fitted PDFs
 // TODO: Button text (and perhaps % label) are slightly lower than centered (use
 // icons - glyph centering is not right for this)
-// TODO: Need to realign views' scrolls / content position on zoom. We want the
-// relatively same area to be at the same spot on the screen so as not to
-// disorient. We may also want to return to this position or another position
-// when user toggles between factor and fit, which may mean changing ZoomControl
-// a little
-// TODO: Views also need to implement ability to pan
 // TODO: Corners look too sharp
 // TODO: Double click to change mode
 class ZoomControl : public QWidget
@@ -57,46 +43,36 @@ class ZoomControl : public QWidget
     Q_OBJECT
 
 public:
-    enum Mode
-    {
-        Fit,
-        Fixed
-    };
-
-    ZoomControl(Mode mode, qreal factor, QWidget* parent = nullptr)
+    ZoomControl(QWidget* parent = nullptr)
         : QWidget(parent)
-        , mode_(mode)
-        , factor_(factor)
     {
         setup_();
     }
 
-    explicit ZoomControl(QWidget* parent = nullptr)
-        : ZoomControl(Fit, 1.0, parent)
-    {
-    }
-
     virtual ~ZoomControl() override { TRACER; }
 
-    Mode mode() const noexcept { return mode_; }
-    qreal factor() const noexcept { return factor_; }
+// Called by the owning view after any zoom state change
+    void setDisplayText(const QString& text) { display_->setText(text); }
 
 signals:
-    void zoomChanged(Mode mode, qreal factor);
+    void stepRequested(int direction); // -1 or +1, TODO: Enum, Step::In, ::Out
+    void toggleModeRequested(); // left-click display
+    void resetRequested(); // right-click display
 
 protected:
     virtual bool eventFilter(QObject* watched, QEvent* event) override
     {
         // Resize with parent
-        if (watched == parent() && event->type() == QEvent::Resize)
+        if (watched == parent() && event->type() == QEvent::Resize) {
             reposition_();
+        }
 
         // Reset on right-click
         if (watched == display_ && event->type() == QEvent::MouseButtonPress) {
             auto mouse_event = static_cast<QMouseEvent*>(event);
 
-            if (mouse_event->button() == Qt::RightButton) {
-                goTo100_();
+            if (mouse_event && mouse_event->button() == Qt::RightButton) {
+                emit resetRequested();
                 return true;
             }
         }
@@ -114,13 +90,6 @@ protected:
     }
 
 private:
-    Mode mode_;
-    qreal factor_;
-
-    static constexpr auto STEP_ = 0.1;
-    static constexpr auto MIN_FACTOR_ = 0.1;
-    static constexpr auto MAX_FACTOR_ = 3.0;
-
     QPushButton* minusButton_ = new QPushButton("-", this);
     QPushButton* display_ = new QPushButton("100%", this);
     QPushButton* plusButton_ = new QPushButton("+", this);
@@ -144,20 +113,21 @@ private:
         layout->addWidget(plusButton_);
 
         connect(minusButton_, &QPushButton::clicked, this, [this] {
-            step_(-1);
+            emit stepRequested(-1);
         });
 
         connect(display_, &QPushButton::clicked, this, [this] {
-            toggleMode_();
+            emit toggleModeRequested();
         });
 
-        connect(plusButton_, &QPushButton::clicked, this, [this] { step_(1); });
+        connect(plusButton_, &QPushButton::clicked, this, [this] {
+            emit stepRequested(1);
+        });
 
         display_->installEventFilter(this);
         if (auto p = parent()) p->installEventFilter(this);
 
         reposition_();
-        updateDisplay_();
     }
 
     void setupButtons_()
@@ -201,40 +171,6 @@ private:
         auto x = parent_widget->width() - width() - RIGHT_PADDING_;
         auto y = parent_widget->height() - height() - BOTTOM_PADDING_;
         move(x, y);
-    }
-
-    void updateDisplay_()
-    {
-        (mode_ == Fit) ? display_->setText(QStringLiteral("Fit"))
-                       : display_->setText(QStringLiteral("%1%").arg(
-                             qRound(factor_ * 100.0)));
-    }
-
-    void toggleMode_()
-    {
-        mode_ = (mode_ == Fit) ? Fixed : Fit;
-        updateDisplay_();
-
-        emit zoomChanged(mode_, factor_);
-    }
-
-    void step_(int direction)
-    {
-        mode_ = Fixed;
-        auto new_factor = factor_ + (STEP_ * direction);
-        factor_ = qBound(MIN_FACTOR_, new_factor, MAX_FACTOR_);
-        updateDisplay_();
-
-        emit zoomChanged(mode_, factor_);
-    }
-
-    void goTo100_()
-    {
-        mode_ = Fixed;
-        factor_ = 1.0;
-        updateDisplay_();
-
-        emit zoomChanged(mode_, factor_);
     }
 };
 

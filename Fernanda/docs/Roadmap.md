@@ -2,7 +2,32 @@
 
 Also, go through all docs and make sure they're up to date and follow doc style
 
+## Follow-up Tags
+
+Tags for working code that is a draft and/or needs more scrutiny/cleaning:
+
+- TODO TD (tab dragging)
+- TODO TVT (tree view toggle)
+- TODO PD (prime doc)
+- TODO FT (file types)
+- TODO XP (cross platform)
+- TODO STYLE
+- TODO BA (backup/autosave)
+- TODO MU (markups)
+- TODO NF (new file options (e.g., new Markdown)
+- TODO IV (image views)
+
+---
+
 ## Current
+
+- [ ] Clean ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView headers
+- [ ] Isolate ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView repetitive code
+- [ ] ZoomState extraction (see above)
+- [ ] GIFs may need loading mask
+- [ ] If so, extract common loading mask code (including maybe warmup mask) somehow (in WebEngineView and AbstractMarkupFileView)
+- [ ] ZoomControl-owned (not StyleContext) plus/minus SVGs
+- [ ] Maybe separate UI folder, then, and make StyleContextIcons or something
 
 - [ ] Sample stuff (a folder in Docs/Fernanda with samples of each type - can be recreated from the Help menu)
 - [ ] Use QIconEngine for StyleContext icons?
@@ -77,20 +102,6 @@ From the file-types branch. See FileHandling.md for design details.
 - [ ] Model/view re-evaluation on rename: when a file's extension changes, the system should swap to the appropriate model/view pair. Only affects Tier 2 types (special text), since Tier 1 (magic bytes) types are identified by content. Applies to both Notepad (filesystem rename) and Notebook (tree view rename).
 - [ ] Consider NoOp for large unsupported binary files (e.g., images) where opening as text would be wasteful. Later-problem.
 - [ ] FNX files within FNX archives: deliberately deferred. Nested archive lifecycle management conflicts with current architecture. See FileHandling.md for rationale.
-
-## Follow-up Tags
-
-Tags for working code that is a draft and/or needs more scrutiny/cleaning:
-
-- TODO TD (tab dragging)
-- TODO TVT (tree view toggle)
-- TODO PD (prime doc)
-- TODO FT (file types)
-- TODO XP (cross platform)
-- TODO STYLE
-- TODO BA (backup/autosave)
-- TODO MU (markups)
-- TODO NF (new file options (e.g., new Markdown)
 
 ## Features
 
