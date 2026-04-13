@@ -27,6 +27,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 // Event filter providing typing enhancements for text editors: auto-close
 // (insert matching punctuation pairs), delete-pair (backspace removes both),
 // skip-closer (typing a closer skips over it), and barging (double-space jumps
@@ -229,7 +231,7 @@ private:
         cursor.beginEditBlock();
         cursor.deletePreviousChar(); // remove the space
         cursor.movePosition(QTextCursor::NextCharacter); // skip past closer
-        cursor.insertText(QStringLiteral(" ")); // add space after
+        cursor.insertText(u" "_s); // add space after
         cursor.endEditBlock();
     }
 
@@ -237,7 +239,7 @@ private:
     {
         cursor.beginEditBlock();
         cursor.movePosition(QTextCursor::NextCharacter); // skip past closer
-        cursor.insertText(QStringLiteral("\n"));
+        cursor.insertText(u"\n"_s);
         cursor.endEditBlock();
     }
 
@@ -246,7 +248,7 @@ private:
         cursor.beginEditBlock();
         cursor.deletePreviousChar(); // remove the space
         cursor.insertText(ch);
-        cursor.insertText(QStringLiteral(" ")); // add space after
+        cursor.insertText(u" "_s); // add space after
         cursor.endEditBlock();
     }
 
@@ -254,7 +256,7 @@ private:
     {
         cursor.beginEditBlock();
         cursor.deletePreviousChar(); // remove the space
-        cursor.insertText(QStringLiteral("\n"));
+        cursor.insertText(u"\n"_s);
         cursor.endEditBlock();
     }
 

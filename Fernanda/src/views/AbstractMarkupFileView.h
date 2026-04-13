@@ -314,8 +314,8 @@ private:
                 if (blocks[i] == cachedBlocks_[i]) continue;
 
                 QString escaped = blocks[i];
-                escaped.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
-                escaped.replace(QStringLiteral("`"), QStringLiteral("\\`"));
+                escaped.replace(u"\\"_s, u"\\\\"_s);
+                escaped.replace(u"`"_s, u"\\`"_s);
 
                 js_patch += MarkupWebcode::jsOuterHtml(i, escaped);
             }
@@ -331,8 +331,8 @@ private:
 
         // Full fallback replacement (block count changed)
         auto body = bodyPrefix() + blocks.join(QString()) + bodySuffix();
-        body.replace(QStringLiteral("\\"), QStringLiteral("\\\\"));
-        body.replace(QStringLiteral("`"), QStringLiteral("\\`"));
+        body.replace(u"\\"_s, u"\\\\"_s);
+        body.replace(u"`"_s, u"\\`"_s);
 
         preview_->page()->runJavaScript(MarkupWebcode::jsReplaceHtmlBody(body));
         cachedBlocks_ = std::move(blocks);

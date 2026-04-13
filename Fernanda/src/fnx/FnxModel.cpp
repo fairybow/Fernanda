@@ -27,6 +27,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 // TODO: Tooltip with metadata on file/folder
 QVariant FnxModel::data(const QModelIndex& index, int role) const
 {
@@ -40,10 +42,10 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
         auto display_name = Fnx::Xml::name(element);
 
         if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element)) {
-            display_name.prepend(QStringLiteral("* "));
+            display_name.prepend(u"* "_s);
         }
         if (Fnx::Xml::hasEditedDescendant(element)) {
-            display_name += QStringLiteral(" (*)");
+            display_name += u" (*)"_s;
         }
 
         return display_name;

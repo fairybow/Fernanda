@@ -70,7 +70,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] ^ Added release logging, log viewer, and automatic Notebook TreeView expansion to help find this. It easily could have been an overlooked add-as-child, which didn't expand before
 - [ ] One thing I think I would like to fix in the future is keeping file nesting but having operations like import or new file or whatever else resolve to the parent directory instead of the file, if the currently selected item is a file. This wound not apply to right click context menu actions
 - [ ] Notebook TreeView multiple item selection, drag, delete, restore, etc
-- [ ] Replace QStringLiteral with u*_s?
+- [x] Replace QStringLiteral with u*_s?
 - [ ] ToString's kind of a hot mess
 - [ ] Re: `treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT` in Notepad and Notebook (is a singular menu item in Workspace appropriate if it means we have to have such a silly virtual for each Workspace to override? At least, it seems silly to me right now)
 - [ ] ^ Related: Right now, no way past having Ini::LocalKeys defaults in regular defaults function (because settings get command gets the default for all Ini keys internally - TreeViewService would need to be able to choose to use a localDefaults map or SettingsService could have a second command getter for Workspace-local settings...)

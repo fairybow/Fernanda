@@ -25,6 +25,8 @@
 // TODO: Display error(s) from FileService/Io
 namespace Fernanda::SaveFailMessageBox {
 
+using namespace Qt::StringLiterals;
+
 namespace Internal {
 
     inline void setCommonProperties_(QMessageBox& box)
@@ -63,7 +65,7 @@ inline void exec(const Coco::PathList& paths, QWidget* parent = nullptr)
 
     QMessageBox box(parent);
     Internal::setCommonProperties_(box);
-    auto bullet = QStringLiteral("\n\u2022 ");
+    auto bullet = u"\n\u2022 "_s;
     auto list = bullet + Coco::toPrettyQStringList(paths).join(bullet);
     box.setText(Tr::nxSaveFailBoxMultiBodyFormat().arg(list));
 

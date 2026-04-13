@@ -1,8 +1,22 @@
+/*
+ * Fernanda — a plain-text-first workbench for creative writing
+ * Copyright (C) 2025-2026 fairybow
+ *
+ * This program is free software, redistributable and/or modifiable under the
+ * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
+ * but without any warranty (even the implied warranty of merchantability or
+ * fitness for a particular purpose)
+ *
+ * See the LICENSE file or visit <https://www.gnu.org/licenses/>
+ */
+
 #pragma once
 
 #include <QString>
 
 namespace Fernanda {
+
+using namespace Qt::StringLiterals;
 
 // Shared zoom state for views with ZoomControl overlays. Owns mode, factor,
 // and step/clamp logic. Views mutate this, then apply the result to their
@@ -42,8 +56,8 @@ public:
 
     QString displayText() const
     {
-        if (mode_ == Fit) return QStringLiteral("Fit");
-        return QStringLiteral("%1%").arg(qRound(factor_ * 100.0));
+        if (mode_ == Fit) return u"Fit"_s;
+        return u"%1%"_s.arg(qRound(factor_ * 100.0));
     }
 
 private:

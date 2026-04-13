@@ -38,6 +38,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 // TODO: Update SettingsDialog entries when a theme is added/removed or name
 // changes (maybe)
 // TODO: Combine common code
@@ -144,11 +146,9 @@ private:
         QSet<Coco::Path>& userThemePaths,
         const QString& ext)
     {
-        auto qrc_paths =
-            Coco::filePaths(QRC_DIR_, { QStringLiteral("*%1").arg(ext) });
-        auto user_paths = Coco::filePaths(
-            AppDirs::themes(),
-            { QStringLiteral("*%1").arg(ext) });
+        auto qrc_paths = Coco::filePaths(QRC_DIR_, { u"*%1"_s.arg(ext) });
+        auto user_paths =
+            Coco::filePaths(AppDirs::themes(), { u"*%1"_s.arg(ext) });
 
         userThemePaths = { user_paths.begin(), user_paths.end() };
 
@@ -293,13 +293,11 @@ private slots:
         // Re-scan for current files on disk
         auto current_window_paths = Coco::filePaths(
             AppDirs::themes(),
-            { QStringLiteral("*%1").arg(
-                Files::canonicalExt(Files::WindowTheme)) });
+            { u"*%1"_s.arg(Files::canonicalExt(Files::WindowTheme)) });
 
         auto current_editor_paths = Coco::filePaths(
             AppDirs::themes(),
-            { QStringLiteral("*%1").arg(
-                Files::canonicalExt(Files::EditorTheme)) });
+            { u"*%1"_s.arg(Files::canonicalExt(Files::EditorTheme)) });
 
         QSet<Coco::Path> current_window_set{ current_window_paths.begin(),
                                              current_window_paths.end() };

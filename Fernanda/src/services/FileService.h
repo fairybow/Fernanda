@@ -510,16 +510,18 @@ private slots:
     }
 };
 
+using namespace Qt::StringLiterals;
+
 inline QString toQString(FileService::SaveResult saveResult) noexcept
 {
     switch (saveResult) {
     default:
     case FileService::NoOp:
-        return QStringLiteral("FileService::NoOp");
+        return u"FileService::NoOp"_s;
     case FileService::Success:
-        return QStringLiteral("FileService::Success");
+        return u"FileService::Success"_s;
     case FileService::Failure:
-        return QStringLiteral("FileService::Failure");
+        return u"FileService::Failure"_s;
     }
 }
 

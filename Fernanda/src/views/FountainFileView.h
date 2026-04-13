@@ -31,6 +31,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 /// TODO MU: Printing layout
 /// TODO MU: Can use special style to space out the title page to approximate
 /// print layout and leave the rest in flow HTML
@@ -52,7 +54,7 @@ public:
 protected:
     virtual QStringView css() const override
     {
-        static const auto s = QStringLiteral(R"CSS(
+        static const auto s = uR"CSS(
 * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -182,7 +184,7 @@ hr {
 .dual-dialogue, #script-title {
     contain: layout style;
 }
-)CSS");
+)CSS"_s;
 
         return s;
     }
@@ -209,12 +211,12 @@ hr {
 
     virtual QString bodyPrefix() const override
     {
-        return QStringLiteral("<article>\n<section>\n");
+        return u"<article>\n<section>\n"_s;
     }
 
     virtual QString bodySuffix() const override
     {
-        return QStringLiteral("</section>\n</article>\n");
+        return u"</section>\n</article>\n"_s;
     }
 };
 

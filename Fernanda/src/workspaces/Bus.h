@@ -24,6 +24,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 // Bus addresses cross-Service concerns. Fundamentally for Service-to-Service,
 // lateral communication via commands and signals, but a Workspace could still
 // connect to a signal if needed to avoid duplicating Bus signals in a given
@@ -40,12 +42,12 @@ public:
 
     virtual ~Bus() override { TRACER; }
 
-    inline static auto WINDOWS_SET = QStringLiteral("windows:set");
-    inline static auto WINDOWS = QStringLiteral("windows:list");
-    inline static auto GET_SETTING = QStringLiteral("settings:get");
-    inline static auto SET_SETTING = QStringLiteral("settings:set");
-    inline static auto EDITOR_THEMES = QStringLiteral("style:editor_themes");
-    inline static auto WINDOW_THEMES = QStringLiteral("style:window_themes");
+    inline static auto WINDOWS_SET = u"windows:set"_s;
+    inline static auto WINDOWS = u"windows:list"_s;
+    inline static auto GET_SETTING = u"settings:get"_s;
+    inline static auto SET_SETTING = u"settings:set"_s;
+    inline static auto EDITOR_THEMES = u"style:editor_themes"_s;
+    inline static auto WINDOW_THEMES = u"style:window_themes"_s;
 
     /// TODO STYLE: Define struct here, ThemeData? (Centralized place - keep Bus
     /// from including a style module file, style module can pass themes to
