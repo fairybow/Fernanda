@@ -26,6 +26,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [x] ZoomState extraction (see above)
 - [ ] GIFs may need loading mask
 - [ ] If so, extract common loading mask code (including maybe warmup mask) somehow (in WebEngineView and AbstractMarkupFileView)
+- [ ] ^ WebEngineView itself can have a first load / warm up static bool which consumers can check against to apply a warm-up mask to their entire widget (AMUFV and HTML view)
 - [ ] ZoomControl-owned (not StyleContext) plus/minus SVGs
 - [ ] Maybe separate UI folder, then, and make StyleContextIcons or something
 - [ ] Check all enums and don't first one = 0 if it isn't treated as a sentinel anywhere
