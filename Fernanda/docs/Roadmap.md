@@ -51,7 +51,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] *maybe* Remove Formatters and std::format. We only ever use {} args, no special specifiers. We could make ToString very robust and just do our own string replacements
 - [ ] ^ Add regular ptr to ToString; add toQString wrappers for QString::number, etc, to reduce constexpr chain in Debug
 - [ ] ^ Also maybe move the format code to a "Format" header
-- [ ] typedef int Index? Will I be laughed at?
+- [x] (Nah) typedef int Index? Will I be laughed at?
 - [ ] MAYBE use clang InsertBraces = true plus remove virtual on overrides
 - [ ] SoC Audit!
 - [ ] Audit FileService's file opening functions (newOnDisk vs newOffDisk; only plain text types are creatable; is naming appropriate for each?; does each methods usage in Notepad vs Notebook make sense?; are the methods themselves handling their responsibilities correctly?; does everything in each method belong specifically in that method?; etc)
