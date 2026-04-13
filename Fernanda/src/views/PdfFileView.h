@@ -12,14 +12,13 @@
 
 #pragma once
 
-#include <QPdfPageNavigator>
 #include <QPdfView>
 #include <QWidget>
 
 #include "core/Debug.h"
-#include "models/AbstractFileModel.h"
 #include "models/PdfFileModel.h"
 #include "ui/ZoomControl.h"
+#include "ui/ZoomState.h"
 #include "views/AbstractFileView.h"
 
 namespace Fernanda {
@@ -58,23 +57,18 @@ protected:
             zoomControl_,
             &ZoomControl::stepRequested,
             this,
-            [this](int direction) {
-                mode_ = Fixed;
-                factor_ = qBound(
-                    MIN_FACTOR_,
-                    factor_ + (STEP_ * direction),
-                    MAX_FACTOR_);
+            [this](ZoomState::Step s) {
+                zoom_.step(s);
                 applyZoom_();
             });
 
         connect(zoomControl_, &ZoomControl::toggleModeRequested, this, [this] {
-            mode_ = (mode_ == Fit) ? Fixed : Fit;
+            zoom_.toggleMode();
             applyZoom_();
         });
 
         connect(zoomControl_, &ZoomControl::resetRequested, this, [this] {
-            mode_ = Fixed;
-            factor_ = 1.0;
+            zoom_.reset();
             applyZoom_();
         });
 
@@ -84,33 +78,20 @@ protected:
     }
 
 private:
-    enum Mode_
-    {
-        Fit,
-        Fixed
-    };
-
     QPdfView* pdfView_ = new QPdfView(this);
     ZoomControl* zoomControl_ = new ZoomControl(pdfView_);
-
-    Mode_ mode_ = Fit;
-    qreal factor_ = 1.0;
-
-    static constexpr auto STEP_ = 0.1;
-    static constexpr auto MIN_FACTOR_ = 0.1;
-    static constexpr auto MAX_FACTOR_ = 3.0;
+    ZoomState zoom_{};
 
     void applyZoom_()
     {
-        if (mode_ == Fit) {
+        if (zoom_.mode() == ZoomState::Fit) {
             pdfView_->setZoomMode(QPdfView::ZoomMode::FitToWidth);
-            zoomControl_->setDisplayText(QStringLiteral("Fit"));
         } else {
             pdfView_->setZoomMode(QPdfView::ZoomMode::Custom);
-            pdfView_->setZoomFactor(factor_);
-            zoomControl_->setDisplayText(
-                QStringLiteral("%1%").arg(qRound(factor_ * 100.0)));
+            pdfView_->setZoomFactor(zoom_.factor());
         }
+
+        zoomControl_->setDisplayText(zoom_.displayText());
     }
 };
 

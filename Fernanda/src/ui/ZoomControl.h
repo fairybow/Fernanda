@@ -17,13 +17,17 @@
 #include <QFont>
 #include <QHBoxLayout>
 #include <QMouseEvent>
+#include <QObject>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPalette>
 #include <QPushButton>
+#include <QSizePolicy>
+#include <QString>
 #include <QWidget>
 
 #include "core/Debug.h"
+#include "ui/ZoomState.h"
 
 namespace Fernanda {
 
@@ -51,11 +55,11 @@ public:
 
     virtual ~ZoomControl() override { TRACER; }
 
-// Called by the owning view after any zoom state change
+    // Called by the owning view after any zoom state change
     void setDisplayText(const QString& text) { display_->setText(text); }
 
 signals:
-    void stepRequested(int direction); // -1 or +1, TODO: Enum, Step::In, ::Out
+    void stepRequested(ZoomState::Step direction);
     void toggleModeRequested(); // left-click display
     void resetRequested(); // right-click display
 
@@ -113,7 +117,7 @@ private:
         layout->addWidget(plusButton_);
 
         connect(minusButton_, &QPushButton::clicked, this, [this] {
-            emit stepRequested(-1);
+            emit stepRequested(ZoomState::Out);
         });
 
         connect(display_, &QPushButton::clicked, this, [this] {
@@ -121,7 +125,7 @@ private:
         });
 
         connect(plusButton_, &QPushButton::clicked, this, [this] {
-            emit stepRequested(1);
+            emit stepRequested(ZoomState::In);
         });
 
         display_->installEventFilter(this);

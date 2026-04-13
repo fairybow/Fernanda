@@ -21,13 +21,16 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 ## Current
 
-- [ ] Clean ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView headers
-- [ ] Isolate ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView repetitive code
-- [ ] ZoomState extraction (see above)
+- [x] Clean ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView headers
+- [x] Isolate ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView repetitive code
+- [x] ZoomState extraction (see above)
 - [ ] GIFs may need loading mask
 - [ ] If so, extract common loading mask code (including maybe warmup mask) somehow (in WebEngineView and AbstractMarkupFileView)
 - [ ] ZoomControl-owned (not StyleContext) plus/minus SVGs
 - [ ] Maybe separate UI folder, then, and make StyleContextIcons or something
+- [ ] Check all enums and don't first one = 0 if it isn't treated as a sentinel anywhere
+- [ ] Use using namespace Qt::StringLiterals throughout (not just where it can't leak)?
+- [ ] Remove unnecessary includes for AbstractFileModel or AbstractFileView (kind of a bridge too far in terms of being explicit about types included)
 
 - [ ] Sample stuff (a folder in Docs/Fernanda with samples of each type - can be recreated from the Help menu)
 - [ ] Use QIconEngine for StyleContext icons?

@@ -1,24 +1,18 @@
 #pragma once
 
-#include <QBuffer>
+#include <QFrame>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QMovie>
+#include <QPainter>
 #include <QPixmap>
-#include <QResizeEvent>
-#include <QShowEvent>
+#include <QRectF>
+#include <QSize>
 #include <QWheelEvent>
 #include <QWidget>
 
-#include <Coco/Path.h>
-
 #include "core/Debug.h"
-#include "models/AbstractFileModel.h"
-#include "models/FileMeta.h"
-#include "models/RawFileModel.h"
-#include "ui/ZoomControl.h"
-#include "views/AbstractFileView.h"
+#include "ui/ZoomState.h"
 
 namespace Fernanda {
 
@@ -35,15 +29,7 @@ public:
     explicit ImageGraphicsView(QWidget* parent = nullptr)
         : QGraphicsView(parent)
     {
-        setScene(scene_);
-        scene_->addItem(pixmapItem_);
-
-        setBackgroundBrush(Qt::black);
-        setRenderHint(QPainter::SmoothPixmapTransform);
-        setDragMode(QGraphicsView::ScrollHandDrag);
-        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-        setFrameShape(QFrame::NoFrame);
-        setAlignment(Qt::AlignCenter);
+        setup_();
     }
 
     virtual ~ImageGraphicsView() override { TRACER; }
@@ -77,19 +63,34 @@ public:
     }
 
 signals:
-    void wheelZoomRequested(int steps);
+    void wheelZoomRequested(ZoomState::Step step);
 
 protected:
     void wheelEvent(QWheelEvent* event) override
     {
-        auto steps = (event->angleDelta().y() > 0) ? 1 : -1;
-        emit wheelZoomRequested(steps);
+        auto step =
+            (event->angleDelta().y() > 0) ? ZoomState::In : ZoomState::Out;
+        emit wheelZoomRequested(step);
         event->accept();
     }
 
 private:
     QGraphicsScene* scene_ = new QGraphicsScene(this);
-    QGraphicsPixmapItem* pixmapItem_ = new QGraphicsPixmapItem;
+    QGraphicsPixmapItem* pixmapItem_ =
+        new QGraphicsPixmapItem; // Parented by scene_ in setup_()
+
+    void setup_()
+    {
+        setScene(scene_);
+        scene_->addItem(pixmapItem_);
+
+        setBackgroundBrush(Qt::black);
+        setRenderHint(QPainter::SmoothPixmapTransform);
+        setDragMode(QGraphicsView::ScrollHandDrag);
+        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        setFrameShape(QFrame::NoFrame);
+        setAlignment(Qt::AlignCenter);
+    }
 };
 
 } // namespace Fernanda

@@ -168,6 +168,7 @@ set(FERNANDA_HEADERS
     src/ui/Window.h
     src/ui/WordCounter.h
     src/ui/ZoomControl.h
+    src/ui/ZoomState.h
 
     src/views/AbstractFileView.h
     src/views/AbstractMarkupFileView.h
