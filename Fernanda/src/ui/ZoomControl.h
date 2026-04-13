@@ -22,14 +22,18 @@
 #include <QPainter>
 #include <QPalette>
 #include <QPushButton>
+#include <QSize>
 #include <QSizePolicy>
 #include <QString>
 #include <QWidget>
 
 #include "core/Debug.h"
+#include "ui/Icons.h"
 #include "ui/ZoomState.h"
 
 namespace Fernanda {
+
+using namespace Qt::StringLiterals;
 
 // TODO: (Maybe) hide/fade out after a set linger time. Reappear on hover in its
 // general area (bottom-right). Begin visible, though, so it's obvious the
@@ -38,8 +42,6 @@ namespace Fernanda {
 // TODO: Buttons are a little too far from left and right edges respectively
 // TODO: Widget itself is too far right (overlaps with scroll bar slightly and
 // also over edge of fitted PDFs
-// TODO: Button text (and perhaps % label) are slightly lower than centered (use
-// icons - glyph centering is not right for this)
 // TODO: Corners look too sharp
 // TODO: Double click to change mode
 class ZoomControl : public QWidget
@@ -94,9 +96,9 @@ protected:
     }
 
 private:
-    QPushButton* minusButton_ = new QPushButton("-", this);
-    QPushButton* display_ = new QPushButton("100%", this);
-    QPushButton* plusButton_ = new QPushButton("+", this);
+    QPushButton* minusButton_ = new QPushButton(this);
+    QPushButton* display_ = new QPushButton(u"Fit"_s, this);
+    QPushButton* plusButton_ = new QPushButton(this);
 
     static constexpr auto RIGHT_PADDING_ = 22;
     static constexpr auto BOTTOM_PADDING_ = 22;
@@ -163,6 +165,12 @@ private:
         display_->setFlat(true);
         display_->setPalette(button_palette);
         display_->setFont(display_font);
+
+        auto icon_size = QSize(14, 14);
+        minusButton_->setIcon(Icons::get(UiIcon::Minus, icon_size));
+        minusButton_->setIconSize(icon_size);
+        plusButton_->setIcon(Icons::get(UiIcon::Plus, icon_size));
+        plusButton_->setIconSize(icon_size);
     }
 
     void reposition_()

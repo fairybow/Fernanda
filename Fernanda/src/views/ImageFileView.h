@@ -33,9 +33,6 @@
 namespace Fernanda {
 
 // TODO: Support SVG
-/// TODO IV: Move common zoom-related code from ImageGraphicsView,
-/// ImageFileView, and PdfFileView (including Mode_ enum and things that operate
-/// with it, probably)
 class ImageFileView : public AbstractFileView
 {
     Q_OBJECT

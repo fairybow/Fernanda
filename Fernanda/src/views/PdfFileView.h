@@ -26,9 +26,6 @@ namespace Fernanda {
 // TODO: Show page number on scroll!
 // TODO: Ensure when we have zoom out that the background / non-PDF area is
 // black
-/// TODO IV: Move common zoom-related code from ImageGraphicsView,
-/// ImageFileView, and PdfFileView (including Mode_ enum and things that operate
-/// with it, probably)
 class PdfFileView : public AbstractFileView
 {
     Q_OBJECT

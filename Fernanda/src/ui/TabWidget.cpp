@@ -37,6 +37,7 @@
 #include "core/Application.h"
 #include "core/Debug.h"
 #include "modules/StyleContext.h"
+#include "ui/Icons.h"
 #include "ui/TabWidgetAlertWidget.h"
 #include "ui/TabWidgetCloseButton.h"
 
@@ -493,7 +494,7 @@ void TabWidget::setup_()
     addButton_->installEventFilter(this);
     addButton_->setFixedSize(ADD_BUTTON_SIZE_);
     addButton_->setIconSize(BUTTON_SVG_SIZE_);
-    addButton_->setIcon(StyleContext::Icon::Plus);
+    addButton_->setIcon(UiIcon::Plus);
 
     // Populate
     mainStack_->setCurrentIndex(0);
@@ -607,8 +608,8 @@ void TabWidget::addCloseButtonAt_(int index)
     auto close_button = new TabWidgetCloseButton(tabBar_);
     close_button->setFixedSize(CLOSE_BUTTON_SIZE_);
     close_button->setIconSize(BUTTON_SVG_SIZE_);
-    close_button->setIcon(StyleContext::Icon::X);
-    close_button->setFlagIcon(StyleContext::Icon::Dot);
+    close_button->setIcon(UiIcon::X);
+    close_button->setFlagIcon(UiIcon::Dot);
     closeButtons_ << close_button;
 
     tabBar_->setTabButton(index, QTabBar::RightSide, close_button);

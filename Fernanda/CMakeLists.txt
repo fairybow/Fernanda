@@ -153,6 +153,7 @@ set(FERNANDA_HEADERS
     src/ui/DisplaySlider.h
     src/ui/DrawerWidget.h
     src/ui/DrawerWidgetHeader.h
+    src/ui/Icons.h
     src/ui/MultiSwitch.h
     src/ui/Painting.h
     src/ui/PlainTextEdit.h

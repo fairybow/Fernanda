@@ -29,6 +29,7 @@
 
 #include "core/Debug.h"
 #include "modules/StyleContext.h"
+#include "ui/Icons.h"
 
 namespace Fernanda {
 
@@ -106,8 +107,7 @@ protected:
         // drawBackground_(painter, widget_rect);
 
         // Get icon from StyleContext
-        auto icon = isChecked() ? StyleContext::Icon::ChevronDown
-                                : StyleContext::Icon::ChevronRight;
+        auto icon = isChecked() ? UiIcon::ChevronDown : UiIcon::ChevronRight;
         auto pixmap = StyleContext::icon(this, icon, iconSize_);
         if (!pixmap.isNull()) {
             auto logical_size = pixmap.deviceIndependentSize();

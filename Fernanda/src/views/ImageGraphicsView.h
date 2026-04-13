@@ -30,9 +30,6 @@ namespace Fernanda {
 
 // Pannable, zoomable QGraphicsView for image display. Forwards wheel zoom
 // requests to its owner rather than handling zoom state itself
-/// TODO IV: Move common zoom-related code from ImageGraphicsView,
-/// ImageFileView, and PdfFileView (including Mode_ enum and things that operate
-/// with it, probably)
 class ImageGraphicsView : public QGraphicsView
 {
     Q_OBJECT

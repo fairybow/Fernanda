@@ -74,7 +74,7 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
 
         } else if (Fnx::Xml::isFile(element)) {
             auto type = Files::fromPath(Fnx::Xml::relPath(element));
-            return FnxModelIcons::icon(type);
+            return FnxModelIcons::file(type);
         }
 
         UNREACHABLE("FnxModel::data Qt::DecorationRole case");
