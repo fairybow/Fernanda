@@ -6,6 +6,7 @@ Also, go through all docs and make sure they're up to date and follow doc style
 
 - [ ] Sample stuff (a folder in Docs/Fernanda with samples of each type - can be recreated from the Help menu)
 - [ ] Use QIconEngine for StyleContext icons?
+- [ ] Probably add a warm-up mask to the web engine view itself, too (in addition to the AMUFV as a whole?)
 - [x] HtmlFileView (This will not be editable, like other markups - this is for research, essentially, saved pages)
 - [x] Combine ImageFileModel and HtmlFileModel into Blob/Raw/GenericFileModel (no functionality, just byte bag)
 - [x] Figure out how to open correctly in FileService
