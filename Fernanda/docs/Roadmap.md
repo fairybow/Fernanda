@@ -29,7 +29,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] ZoomControl-owned (not StyleContext) plus/minus SVGs
 - [ ] Maybe separate UI folder, then, and make StyleContextIcons or something
 - [ ] Check all enums and don't first one = 0 if it isn't treated as a sentinel anywhere
-- [ ] Use using namespace Qt::StringLiterals throughout (not just where it can't leak)?
+- [x] Use using namespace Qt::StringLiterals throughout (not just where it can't leak)?
 - [ ] Remove unnecessary includes for AbstractFileModel or AbstractFileView (kind of a bridge too far in terms of being explicit about types included)
 
 - [ ] Sample stuff (a folder in Docs/Fernanda with samples of each type - can be recreated from the Help menu)
