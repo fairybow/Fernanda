@@ -46,9 +46,9 @@ class AbstractMarkupFileView : public TextFileView
     Q_OBJECT
 
 public:
-    enum Mode : uint8_t
+    enum Mode
     {
-        Edit = 0,
+        Edit,
         Split,
         Preview
     };
@@ -125,10 +125,12 @@ protected:
             this,
             [this] {
                 // In the contentsChanged connection:
-                if (preview_ && preview_->isVisible())
+                if (preview_ && preview_->isVisible()) {
                     reparseTimer_->start();
-                else
+                }
+                else {
                     previewStale_ = true;
+                }
             });
 
         connect(
