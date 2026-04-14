@@ -26,7 +26,7 @@ Pain points while using:
 - [ ] Option to disallow multiple tabs onto same model
 - [ ] Option to turn tabs off for Notebook!
 - [ ] Title bar to show what's open what tabs are off
-- [ ] Close all tabs option in tab context menu
+- [x] Close all tabs option in tab context menu
 
 ---
 
