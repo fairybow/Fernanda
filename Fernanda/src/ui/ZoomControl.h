@@ -145,16 +145,11 @@ private:
         button_palette.setColor(QPalette::Button, QColor(255, 255, 255, 30));
         button_palette.setColor(QPalette::ButtonText, text_color);
 
-        auto zoom_font = QFont{};
-        zoom_font.setPixelSize(16);
-        zoom_font.setBold(true);
-
         for (auto button : { minusButton_, plusButton_ }) {
             button->setFixedSize(CONTENT_HEIGHT_, CONTENT_HEIGHT_);
             button->setFocusPolicy(Qt::NoFocus);
             button->setFlat(true);
             button->setPalette(button_palette);
-            button->setFont(zoom_font);
         }
 
         auto display_font = QFont{};
@@ -167,9 +162,12 @@ private:
         display_->setFont(display_font);
 
         auto icon_size = QSize(14, 14);
-        minusButton_->setIcon(Icons::get(UiIcon::Minus, icon_size));
+        auto dpr = devicePixelRatioF();
+        minusButton_->setIcon(
+            Icons::get(UiIcon::Minus, icon_size, Qt::white, dpr));
         minusButton_->setIconSize(icon_size);
-        plusButton_->setIcon(Icons::get(UiIcon::Plus, icon_size));
+        plusButton_->setIcon(
+            Icons::get(UiIcon::Plus, icon_size, Qt::white, dpr));
         plusButton_->setIconSize(icon_size);
     }
 

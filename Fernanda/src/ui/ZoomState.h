@@ -42,8 +42,10 @@ public:
     void step(Step direction)
     {
         mode_ = Fixed;
-        factor_ =
-            qBound(MIN_FACTOR_, factor_ + (STEP_ * direction), MAX_FACTOR_);
+        factor_ = qBound(
+            MIN_FACTOR_,
+            factor_ + (STEP_ * static_cast<int>(direction)),
+            MAX_FACTOR_);
     }
 
     void toggleMode() { mode_ = (mode_ == Fit) ? Fixed : Fit; }
