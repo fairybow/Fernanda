@@ -445,6 +445,13 @@ private slots:
                 [this, window, index] {
                     views->closeTabEverywhere(window, index);
                 })
+            .separator()
+            .action(Tr::nxCloseWindowTabs())
+            .onUserTrigger(
+                this,
+                [this, window] { views->closeWindowTabs(window); })
+            .action(Tr::nxCloseAllTabs())
+            .onUserTrigger(this, [this] { views->closeAllTabs(); })
             .popup(globalPos);
     }
 
