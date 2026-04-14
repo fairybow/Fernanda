@@ -29,6 +29,7 @@ Pain points while using:
 - [ ] Option to turn tabs off for Notebook!
 - [ ] Title bar to show what's open what tabs are off
 - [x] Close all tabs option in tab context menu
+- [ ] (Update all documentation)
 
 ---
 
