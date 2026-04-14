@@ -24,6 +24,10 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 Pain points while using:
 
 - [ ] Side-by-side tabs
+- [ ] New tab area container widget
+- [ ] ViewService refactor for multiple TabWidgets
+- [ ] Tab dragging
+- [ ] Menu commands (split right/left; should move the active tab in active TabWidget to left or right, into existing TabWidget if present or creating a new one)
 - [ ] Sessions (tab splits, open tabs, pinned tabs (future), window positions, TreeView sizes)
 - [ ] Option to disallow multiple tabs onto same model
 - [ ] Option to turn tabs off for Notebook!
