@@ -29,15 +29,14 @@ public:
     explicit WidgetMask(QWidget* parent, int resizeDebounceMs = 300)
         : QWidget(parent)
         , resizeDebouncer_(
-              Time::newDebouncer(
-                  this,
-                  &WidgetMask::onResizeSettled_,
-                  resizeDebounceMs))
+              resizeDebounceMs > 0 ? Time::newDebouncer(
+                                         this,
+                                         &WidgetMask::onResizeSettled_,
+                                         resizeDebounceMs)
+                                   : nullptr)
     {
         ASSERT(parent);
-        setAutoFillBackground(true);
-        hide();
-        parent->installEventFilter(this);
+        setup_(parent);
     }
 
     virtual ~WidgetMask() override { TRACER; }
@@ -63,7 +62,7 @@ protected:
     {
         if (watched == parent() && event->type() == QEvent::Resize) {
             activate();
-            resizeDebouncer_->start();
+            if (resizeDebouncer_) resizeDebouncer_->start();
         }
 
         return false;
@@ -72,6 +71,13 @@ protected:
 private:
     bool held_ = false;
     Time::Debouncer* resizeDebouncer_;
+
+    void setup_(QWidget* parent)
+    {
+        setAutoFillBackground(true);
+        hide();
+        parent->installEventFilter(this);
+    }
 
     void syncToParent_() { setFixedSize(parentWidget()->size()); }
 

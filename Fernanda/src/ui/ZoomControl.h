@@ -154,7 +154,7 @@ private:
 
         auto display_font = QFont{};
         display_font.setPixelSize(12);
-        display_font.setBold(true);
+        display_font.setWeight(QFont::DemiBold);
 
         display_->setFixedSize(DISPLAY_WIDTH_, CONTENT_HEIGHT_);
         display_->setFlat(true);

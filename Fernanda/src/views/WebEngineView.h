@@ -13,7 +13,6 @@
 #pragma once
 
 #include <QContextMenuEvent>
-#include <QResizeEvent>
 #include <QWebEngineView>
 #include <QWidget>
 
@@ -36,6 +35,8 @@ public:
 
     virtual ~WebEngineView() override { TRACER; }
 
+    static bool firstEverLoad() { return firstEverLoad_; }
+
 protected:
     // TODO: Disabled context menu for now, may want a custom one later
     virtual void contextMenuEvent(QContextMenuEvent* event) override
@@ -44,6 +45,7 @@ protected:
     }
 
 private:
+    inline static bool firstEverLoad_ = true;
     WidgetMask* mask_ = new WidgetMask(this);
 
     void setup_()
@@ -57,6 +59,15 @@ private:
         connect(this, &WebEngineView::loadFinished, this, [this] {
             Time::onNextTick(this, [this] { mask_->deactivate(); });
         });
+
+        connect(
+            this,
+            &WebEngineView::loadFinished,
+            this,
+            [this] {
+                if (firstEverLoad_) firstEverLoad_ = false;
+            },
+            Qt::SingleShotConnection);
     }
 };
 
