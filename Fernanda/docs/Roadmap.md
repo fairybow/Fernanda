@@ -30,6 +30,7 @@ Pain points while using:
 - [ ] Title bar to show what's open what tabs are off
 - [x] Close all tabs option in tab context menu
 - [ ] (Update all documentation)
+- [ ] Investigate large (new file count) Notebook saves (maybe choked a little when saving Save the Cat! template)
 
 ---
 
