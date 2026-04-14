@@ -29,11 +29,10 @@ public:
     explicit WidgetMask(QWidget* parent, int resizeDebounceMs = 300)
         : QWidget(parent)
         , resizeDebouncer_(
-              resizeDebounceMs > 0 ? Time::newDebouncer(
-                                         this,
-                                         &WidgetMask::onResizeSettled_,
-                                         resizeDebounceMs)
-                                   : nullptr)
+              Time::newDebouncer(
+                  this,
+                  &WidgetMask::onResizeSettled_,
+                  resizeDebounceMs))
     {
         ASSERT(parent);
         setup_(parent);
@@ -62,7 +61,7 @@ protected:
     {
         if (watched == parent() && event->type() == QEvent::Resize) {
             activate();
-            if (resizeDebouncer_) resizeDebouncer_->start();
+            resizeDebouncer_->start();
         }
 
         return false;
