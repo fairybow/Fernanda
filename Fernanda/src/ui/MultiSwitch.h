@@ -36,6 +36,7 @@ namespace Fernanda {
 // indexChanged(int) when the active segment changes (by click or setIndex)
 /// TODO MU: Holding click (which switches cursor back to arrow) on the button
 /// causes pointing hand cursor to not reappear on hover again - feels weird
+/// TODO MU: Icons? (Probably not)
 class MultiSwitch : public QWidget
 {
     Q_OBJECT
@@ -109,6 +110,12 @@ protected:
         painter.drawRoundedRect(pill, PILL_RADIUS_, PILL_RADIUS_);
 
         // Labels
+
+        // (Maybe)
+        // QFont label_font = painter.font();
+        // label_font.setWeight(QFont::DemiBold);
+        // painter.setFont(label_font);
+
         for (auto i = 0; i < labels_.size(); ++i) {
             auto label_rect = segmentRect_(i, segment_width);
 

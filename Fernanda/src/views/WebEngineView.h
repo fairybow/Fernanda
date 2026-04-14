@@ -13,13 +13,12 @@
 #pragma once
 
 #include <QContextMenuEvent>
-#include <QResizeEvent>
-#include <QSize>
 #include <QWebEngineView>
 #include <QWidget>
 
 #include "core/Debug.h"
 #include "core/Time.h"
+#include "ui/WidgetMask.h"
 
 namespace Fernanda {
 
@@ -36,6 +35,8 @@ public:
 
     virtual ~WebEngineView() override { TRACER; }
 
+    static bool firstEverLoad() { return firstEverLoad_; }
+
 protected:
     // TODO: Disabled context menu for now, may want a custom one later
     virtual void contextMenuEvent(QContextMenuEvent* event) override
@@ -43,41 +44,30 @@ protected:
         event->accept();
     }
 
-    virtual void resizeEvent(QResizeEvent* event) override
-    {
-        // Hide preview resize visual stutter and debounce
-        showMask_();
-        resizeDebouncer_->start();
-
-        QWidget::resizeEvent(event);
-    }
-
 private:
-    QWidget* mask_ = new QWidget(this);
-    Time::Debouncer* resizeDebouncer_ =
-        Time::newDebouncer(this, [this] { mask_->hide(); }, 300);
+    inline static bool firstEverLoad_ = true;
+    WidgetMask* mask_ = new WidgetMask(this);
 
     void setup_()
     {
-        mask_->setAutoFillBackground(true);
-        mask_->hide();
-
-        showMask_();
+        mask_->activate(true);
 
         connect(this, &WebEngineView::loadStarted, this, [this] {
-            showMask_();
+            mask_->activate(true);
         });
 
         connect(this, &WebEngineView::loadFinished, this, [this] {
-            Time::onNextTick(this, [this] { mask_->hide(); });
+            Time::onNextTick(this, [this] { mask_->deactivate(); });
         });
-    }
 
-    void showMask_()
-    {
-        mask_->setFixedSize(size());
-        mask_->raise();
-        mask_->show();
+        connect(
+            this,
+            &WebEngineView::loadFinished,
+            this,
+            [this] {
+                if (firstEverLoad_) firstEverLoad_ = false;
+            },
+            Qt::SingleShotConnection);
     }
 };
 

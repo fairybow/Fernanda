@@ -15,7 +15,6 @@
 #include <utility>
 
 #include <QHBoxLayout>
-#include <QResizeEvent>
 #include <QShowEvent>
 #include <QSplitter>
 #include <QString>
@@ -30,6 +29,7 @@
 #include "core/Tr.h"
 #include "models/TextFileModel.h"
 #include "ui/MultiSwitch.h"
+#include "ui/WidgetMask.h"
 #include "ui/WidgetSnapshotOverlay.h"
 #include "views/MarkupWebcode.h"
 #include "views/TextFileView.h"
@@ -46,9 +46,9 @@ class AbstractMarkupFileView : public TextFileView
     Q_OBJECT
 
 public:
-    enum Mode : uint8_t
+    enum Mode
     {
-        Edit = 0,
+        Edit,
         Split,
         Preview
     };
@@ -125,10 +125,11 @@ protected:
             this,
             [this] {
                 // In the contentsChanged connection:
-                if (preview_ && preview_->isVisible())
+                if (preview_ && preview_->isVisible()) {
                     reparseTimer_->start();
-                else
+                } else {
                     previewStale_ = true;
+                }
             });
 
         connect(
@@ -141,34 +142,21 @@ protected:
         splitter_->setFocusProxy(editor_widget);
         reparse_();
 
-        // QWebEngineView's first ever load will wreak visual havoc. We can't
-        // use previewMask_, as it's parented to the web engine view itself (and
-        // the warm-up process causes the web engine view to raise itself in a
-        // way we can't fight). Parenting previewMask_ to the splitter causes it
-        // to be *added* to the splitter (no good); parenting it to `this`
-        // causes it to raise above the snapshot overlay on mode change (no
-        // good); and there's no point in trying container_ or
-        // reworking/replanning what already works (parenting it to preview_ and
-        // letting it do *that* job of covering preview_ on resize and initial
-        // (regular) load. So, we'll make a separate mask for this specific
-        // problem
-        if (firstEverLoad_) {
-            warmupMask_ = new QWidget(this);
-            warmupMask_->setAutoFillBackground(true);
-            warmupMask_->raise();
-            warmupMask_->show();
+        // QWebEngineView's first-ever load causes visual havoc. The preview's
+        // own mask can't help here (the web engine raises itself during
+        // warm-up). A separate mask parented to `this` covers the whole view
+        // until the first load completes
+        if (WebEngineView::firstEverLoad()) {
+            auto warmup_mask = new WidgetMask(this, 0);
+            warmup_mask->activate(true);
 
             connect(
                 preview_->page(),
                 &QWebEnginePage::loadFinished,
                 this,
-                [this] {
-                    Time::delay(250, this, [this] {
-                        if (!warmupMask_) return;
-                        warmupMask_->hide();
-                        warmupMask_->deleteLater();
-                        warmupMask_ = nullptr;
-                        firstEverLoad_ = false;
+                [this, warmup_mask] {
+                    Time::delay(250, this, [this, warmup_mask] {
+                        warmup_mask->deactivate(true);
                     });
                 },
                 Qt::SingleShotConnection);
@@ -199,12 +187,6 @@ protected:
         }
     }
 
-    virtual void resizeEvent(QResizeEvent* event) override
-    {
-        TextFileView::resizeEvent(event);
-        if (warmupMask_) warmupMask_->setFixedSize(size());
-    }
-
 private:
     Time::Debouncer* reparseTimer_;
 
@@ -217,15 +199,12 @@ private:
     QWidget* container_ = new QWidget(this);
     WidgetSnapshotOverlay* snapshotOverlay_ = new WidgetSnapshotOverlay(this);
     QWidget* modeBar_ = new QWidget(this);
-    MultiSwitch* modeSwitch_ = new MultiSwitch( /// TODO MU: Icons?
+    MultiSwitch* modeSwitch_ = new MultiSwitch(
         { Tr::previewEdit(), Tr::previewSplit(), Tr::previewPreview() },
         1,
         this);
     QSplitter* splitter_ = new QSplitter(Qt::Horizontal, this);
     WebEngineView* preview_ = new WebEngineView(this);
-
-    inline static bool firstEverLoad_ = true;
-    QWidget* warmupMask_ = nullptr;
 
     void applyMode_(Mode mode)
     {
