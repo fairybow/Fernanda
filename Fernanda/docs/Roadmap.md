@@ -21,6 +21,15 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 ## Current
 
+Pain points while using:
+
+- [ ] Option to disallow multiple tabs onto same model
+- [ ] Option to turn tabs off for Notebook!
+- [ ] Title bar to show what's open what tabs are off
+- [ ] Close all tabs option in tab context menu
+
+---
+
 - [ ] We're not accounting for scroll bars in resizing to fit in ImageFileView (so, starts Fit, looks fine, switch, then switch back, and we'll have a scroll bar sized gap)
 - [x] Clean ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView headers
 - [x] Isolate ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView repetitive code
