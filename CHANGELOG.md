@@ -93,6 +93,25 @@ Windows (x64), macOS (ARM), and Linux (x86_64).
 
 <a id="releases"></a>
 
+# 0.99.0-beta.22 (Testing / Soft Release) - tag v0.99.0-beta.22
+
+## What's New?
+
+**Image viewer rewrite.** `ImageFileView` now uses a `QGraphicsView`-based renderer instead of a `QLabel` in a `QScrollArea`. Images can be panned by click-dragging and zoomed with the scroll wheel. GIF animation works the same way (frame-by-frame pixmap updates to the graphics item)
+
+**Zoom state extracted.** `ZoomControl` no longer owns zoom mode/factor logic. A new `ZoomState` value type holds mode (Fit/Fixed), factor, and step/clamp math. Views own their `ZoomState`, mutate it in response to `ZoomControl` signals, then push display text back
+
+**Icons extracted from StyleContext.** SVG icon rendering moved to a standalone `Icons` namespace and `UiIcon` enum in Icons.h. `StyleContext` still provides the themed-and-cached API for widgets, but the registry and render logic are no longer its responsibility. Zoom control buttons now use SVG icons instead of text glyphs
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+
+---
+
 # 0.99.0-beta.21 (Testing / Soft Release) - tag v0.99.0-beta.21
 
 ## What's New?
