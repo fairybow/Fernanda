@@ -30,6 +30,7 @@
 
 #include "core/Debug.h"
 #include "modules/StyleContext.h"
+#include "ui/Icons.h"
 
 namespace Fernanda {
 
@@ -57,20 +58,17 @@ public:
         update();
     }
 
-    std::optional<StyleContext::Icon> icon() const noexcept { return icon_; }
+    std::optional<UiIcon> icon() const noexcept { return icon_; }
 
-    void setIcon(StyleContext::Icon icon)
+    void setIcon(UiIcon icon)
     {
         icon_ = icon;
         update();
     }
 
-    std::optional<StyleContext::Icon> flagIcon() const noexcept
-    {
-        return flagIcon_;
-    }
+    std::optional<UiIcon> flagIcon() const noexcept { return flagIcon_; }
 
-    void setFlagIcon(StyleContext::Icon icon)
+    void setFlagIcon(UiIcon icon)
     {
         flagIcon_ = icon;
         update();
@@ -141,8 +139,8 @@ private:
     static constexpr auto HIGHLIGHT_CORNER_RADIUS_ = 4;
     static constexpr auto HIGHLIGHT_INSET_ = 2;
 
-    std::optional<StyleContext::Icon> icon_{};
-    std::optional<StyleContext::Icon> flagIcon_{};
+    std::optional<UiIcon> icon_{};
+    std::optional<UiIcon> flagIcon_{};
     QSize iconSize_{ 16, 16 };
     bool flagged_ = false;
 
@@ -153,7 +151,7 @@ private:
         setAttribute(Qt::WA_Hover, true);
     }
 
-    std::optional<StyleContext::Icon> currentIcon_() const
+    std::optional<UiIcon> currentIcon_() const
     {
         if (flagged_ && flagIcon_ && !underMouse()) return flagIcon_;
         return icon_;

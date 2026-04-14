@@ -31,6 +31,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 // Text document implementation using QTextDocument (editing, undo/redo, and
 // modification tracking). Provides automatic title generation for unsaved files
 class TextFileModel : public AbstractFileModel
@@ -434,7 +436,7 @@ private slots:
                 } else if (
                     meta->fileType() == Files::Fountain
                     && block_text.startsWith(
-                        QStringLiteral("Title:"),
+                        u"Title:"_s,
                         Qt::CaseInsensitive)) {
                     block_text = block_text.mid(6).trimmed();
                     if (block_text.isEmpty()) continue;
@@ -446,7 +448,7 @@ private slots:
 
                 // TODO: I'd prefer just "rounding" to nearest word for the save
                 // file name for unsaved file
-                if (block_text.length() > 27) title += QStringLiteral("...");
+                if (block_text.length() > 27) title += u"..."_s;
 
                 meta->setTitleOverride(title);
                 return;

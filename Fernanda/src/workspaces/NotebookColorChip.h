@@ -33,6 +33,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 class NotebookColorChip : public QWidget
 {
     Q_OBJECT
@@ -161,7 +163,7 @@ private:
         // TODO: Common method w/ TextFileModel::onDocContentsChanged
         auto fnx_name = fnx_.nameQString();
         auto new_name = fnx_name.left(27);
-        if (fnx_name.length() > 27) new_name += QStringLiteral("...");
+        if (fnx_name.length() > 27) new_name += u"..."_s;
         name_ = new_name;
 
         generatedColor_ = colorFromName_(name_);

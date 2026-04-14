@@ -65,7 +65,7 @@ inline const QIcon& folder()
     return icon;
 }
 
-inline const QIcon& icon(Files::Type type)
+inline const QIcon& file(Files::Type type)
 {
     static QHash<Files::Type, QIcon> cache{};
 

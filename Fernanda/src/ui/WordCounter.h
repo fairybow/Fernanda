@@ -33,6 +33,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 // Status bar widget displaying document line, word, and char counts with cursor
 // position. Base counts are cached and updated on text changes (debounced, with
 // manual refresh fallback for large documents), while selection counts are
@@ -401,8 +403,7 @@ private:
                 if (hasSelectionReplacement_)
                     display = sel;
                 else
-                    display = cachedBaseCounts_ + QStringLiteral(" (") + sel
-                              + QStringLiteral(")");
+                    display = cachedBaseCounts_ + u" ("_s + sel + u")"_s;
             }
         } else {
             // All counts off (!any) but selection on (since we didn't hit (!any
@@ -434,11 +435,11 @@ private:
         auto cursor = textEdit_->textCursor();
 
         if (hasLinePos_)
-            elements << Tr::wordCounterLinePos() + QStringLiteral(" ")
+            elements << Tr::wordCounterLinePos() + u" "_s
                             + QString::number(cursor.blockNumber() + 1);
 
         if (hasColPos_)
-            elements << Tr::wordCounterColPos() + QStringLiteral(" ")
+            elements << Tr::wordCounterColPos() + u" "_s
                             + QString::number(cursor.positionInBlock() + 1);
 
         return elements.join(DELIMITER_);

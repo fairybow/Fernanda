@@ -27,6 +27,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 class MarkdownFileView : public AbstractMarkupFileView
 {
     Q_OBJECT
@@ -44,7 +46,7 @@ public:
 protected:
     virtual QStringView css() const override
     {
-        static const auto s = QStringLiteral(R"CSS(
+        static const auto s = uR"CSS(
 * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -136,7 +138,7 @@ p, h1, h2, h3, h4, h5, h6,
 blockquote, pre, table, ul, ol, hr {
     contain: layout style;
 }
-)CSS");
+)CSS"_s;
 
         return s;
     }
@@ -259,7 +261,7 @@ private:
                 found_block.start,
                 found_block.injectAt - found_block.start));
 
-            block.append(QStringLiteral(" data-idx='%1'").arg(index++));
+            block.append(u" data-idx='%1'"_s.arg(index++));
 
             block.append(QStringView(html).mid(
                 found_block.injectAt,

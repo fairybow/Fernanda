@@ -5,6 +5,7 @@
         <file>ui/ChevronRight.svg</file>
         <file>ui/ChevronUp.svg</file>
         <file>ui/Dot.svg</file>
+        <file>ui/Minus.svg</file>
         <file>ui/Plus.svg</file>
         <file>ui/X.svg</file>
     </qresource>

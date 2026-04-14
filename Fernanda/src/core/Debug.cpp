@@ -37,11 +37,13 @@
 
 namespace Fernanda::Debug {
 
+using namespace Qt::StringLiterals;
+
 namespace {
 
     constexpr auto VOC_FORMAT_ = "In {}: {}";
     constexpr auto MSG_FORMAT_ = "{} | {} | {}";
-    auto LOG_EXT_ = QStringLiteral(".log");
+    auto LOG_EXT_ = u".log"_s;
 
     std::atomic<QtMsgType> minimumLevel_{ QtFatalMsg };
     std::atomic<uint64_t> logEntryCount_{ 0 };

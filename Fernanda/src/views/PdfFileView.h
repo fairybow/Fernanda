@@ -12,14 +12,13 @@
 
 #pragma once
 
-#include <QPdfPageNavigator>
 #include <QPdfView>
 #include <QWidget>
 
 #include "core/Debug.h"
-#include "models/AbstractFileModel.h"
 #include "models/PdfFileModel.h"
 #include "ui/ZoomControl.h"
+#include "ui/ZoomState.h"
 #include "views/AbstractFileView.h"
 
 namespace Fernanda {
@@ -45,39 +44,32 @@ protected:
     virtual QWidget* setupWidget() override
     {
         pdfView_->setPageMode(QPdfView::PageMode::MultiPage);
-        pdfView_->setZoomMode(QPdfView::ZoomMode::FitToWidth);
 
         auto pdf_model = qobject_cast<PdfFileModel*>(model());
         ASSERT(pdf_model, "PdfFileModel cast failed!");
 
-        auto document = pdf_model->document();
-        pdfView_->setDocument(document);
-        // pageCount_->setPageCount(document->pageCount());
-
-        // connect(
-        //     pdfView_->pageNavigator(),
-        //     &QPdfPageNavigator::currentPageChanged,
-        //     pageCount_,
-        //     &PdfPageCountWidget::setCurrentPage);
-
-        // connect(
-        //     document,
-        //     &QPdfDocument::pageCountChanged,
-        //     pageCount_,
-        //     &PdfPageCountWidget::setPageCount);
+        pdfView_->setDocument(pdf_model->document());
 
         connect(
             zoomControl_,
-            &ZoomControl::zoomChanged,
+            &ZoomControl::stepRequested,
             this,
-            [this](ZoomControl::Mode mode, qreal factor) {
-                if (mode == ZoomControl::Fit) {
-                    pdfView_->setZoomMode(QPdfView::ZoomMode::FitToWidth);
-                } else {
-                    pdfView_->setZoomMode(QPdfView::ZoomMode::Custom);
-                    pdfView_->setZoomFactor(factor);
-                }
+            [this](ZoomState::Step s) {
+                zoom_.step(s);
+                applyZoom_();
             });
+
+        connect(zoomControl_, &ZoomControl::toggleModeRequested, this, [this] {
+            zoom_.toggleMode();
+            applyZoom_();
+        });
+
+        connect(zoomControl_, &ZoomControl::resetRequested, this, [this] {
+            zoom_.reset();
+            applyZoom_();
+        });
+
+        applyZoom_();
 
         return pdfView_;
     }
@@ -85,6 +77,19 @@ protected:
 private:
     QPdfView* pdfView_ = new QPdfView(this);
     ZoomControl* zoomControl_ = new ZoomControl(pdfView_);
+    ZoomState zoom_{};
+
+    void applyZoom_()
+    {
+        if (zoom_.mode() == ZoomState::Fit) {
+            pdfView_->setZoomMode(QPdfView::ZoomMode::FitToWidth);
+        } else {
+            pdfView_->setZoomMode(QPdfView::ZoomMode::Custom);
+            pdfView_->setZoomFactor(zoom_.factor());
+        }
+
+        zoomControl_->setDisplayText(zoom_.displayText());
+    }
 };
 
 } // namespace Fernanda

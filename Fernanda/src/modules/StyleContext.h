@@ -12,27 +12,22 @@
 
 #pragma once
 
-#include <QByteArray>
 #include <QColor>
 #include <QHash>
 #include <QObject>
-#include <QPainter>
 #include <QPixmap>
 #include <QPointF>
-#include <QRectF>
 #include <QSet>
 #include <QSize>
-#include <QSizeF>
 #include <QString>
-#include <QSvgRenderer>
 #include <QWidget>
 
-#include <Coco/Utility.h>
-
 #include "core/Debug.h"
-#include "core/Io.h"
+#include "ui/Icons.h"
 
 namespace Fernanda {
+
+using namespace Qt::StringLiterals;
 
 class StyleContext : public QObject
 {
@@ -41,32 +36,19 @@ class StyleContext : public QObject
 public:
     static constexpr auto PROPERTY_KEY = "_styleContext";
 
-    enum class Icon
-    {
-        ChevronDown,
-        ChevronLeft,
-        ChevronRight,
-        ChevronUp,
-        Dot,
-        Plus,
-        X
-    };
-
     explicit StyleContext(QObject* parent = nullptr)
         : QObject(parent)
     {
-        setup_();
     }
 
     virtual ~StyleContext() override { TRACER; }
 
     // Static API for widgets
 
-    static QPixmap icon(QWidget* widget, Icon type, const QSize& size)
+    static QPixmap icon(QWidget* widget, UiIcon type, const QSize& size)
     {
         auto context = forWidget_(widget);
         if (!context) return {};
-
         return context->icon_(type, size, widget->devicePixelRatio());
     }
 
@@ -97,25 +79,10 @@ public:
     // Other setters...
 
 private:
-    static constexpr auto SVG_PLACEHOLDER_COLOR_ = "#00ff00";
     static constexpr auto DEFAULT_ICON_COLOR_ = "#404040";
     QColor iconColor_{};
-    QHash<Icon, QString> iconRegistry_{};
     mutable QHash<QString, QPixmap> iconCache_{};
-    //...
-
     mutable QSet<QWidget*> requesters_{};
-
-    void setup_()
-    {
-        iconRegistry_[Icon::ChevronDown] = ":/ui/ChevronDown.svg";
-        iconRegistry_[Icon::ChevronLeft] = ":/ui/ChevronLeft.svg";
-        iconRegistry_[Icon::ChevronRight] = ":/ui/ChevronRight.svg";
-        iconRegistry_[Icon::ChevronUp] = ":/ui/ChevronUp.svg";
-        iconRegistry_[Icon::Dot] = ":/ui/Dot.svg";
-        iconRegistry_[Icon::Plus] = ":/ui/Plus.svg";
-        iconRegistry_[Icon::X] = ":/ui/X.svg";
-    }
 
     // TODO: Better/clearer name?
     static StyleContext* forWidget_(QWidget* widget)
@@ -139,69 +106,30 @@ private:
 
     void updateRequesters_()
     {
-        for (auto& requester : requesters_)
+        for (auto& requester : requesters_) {
             if (requester) requester->update();
+        }
     }
 
-    QString iconCacheKey_(Icon type, const QSize& size, qreal dpr) const
+    QString iconCacheKey_(UiIcon type, const QSize& size, qreal dpr) const
     {
-        return QString("%1_%2x%3@%4_%5")
-            .arg(static_cast<int>(type))
+        return u"%1_%2x%3@%4_%5"_s.arg(static_cast<int>(type))
             .arg(size.width())
             .arg(size.height())
             .arg(dpr)
             .arg(iconColor_.name());
     }
 
-    QPixmap renderSvg_(const QString& path, const QSize& size, qreal dpr) const
-    {
-        auto data = Io::read(path);
-        if (data.isEmpty()) {
-            WARN("Failed to read SVG [{}]", path);
-            return {};
-        }
-
-        // Colorize
-        auto color_hex = iconColor_.name().toUtf8(); // "#rrggbb"
-        data.replace(SVG_PLACEHOLDER_COLOR_, color_hex);
-
-        QSvgRenderer renderer(data);
-        if (!renderer.isValid()) {
-            WARN("Invalid SVG [{}]", path);
-            return {};
-        }
-
-        QPixmap pixmap(size * dpr);
-        pixmap.setDevicePixelRatio(dpr);
-        pixmap.fill(Qt::transparent);
-
-        QPainter painter(&pixmap);
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-
-        // Render to logical bounds
-        renderer.render(&painter, QRectF({ 0, 0 }, size));
-
-        return pixmap;
-    }
-
-    QPixmap icon_(Icon type, const QSize& size, qreal dpr) const
+    QPixmap icon_(UiIcon type, const QSize& size, qreal dpr) const
     {
         if (!size.isValid()) return {};
 
         auto key = iconCacheKey_(type, size, dpr);
-        if (iconCache_.contains(key)) return iconCache_[key];
+        if (auto it = iconCache_.find(key); it != iconCache_.end()) {
+            return it.value();
+        }
 
-        auto path = iconRegistry_.value(type);
-
-        ASSERT(
-            !path.isEmpty(),
-            "Path not set for icon [{}]",
-            static_cast<int>(type));
-
-        if (path.isEmpty()) return {};
-
-        auto pixmap = renderSvg_(path, size, dpr);
+        auto pixmap = Icons::get(type, size, iconColor_, dpr);
         if (!pixmap.isNull()) iconCache_[key] = pixmap;
         return pixmap;
     }

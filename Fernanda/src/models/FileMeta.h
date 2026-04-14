@@ -23,6 +23,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 // File metadata and path management separate from content (file path, display
 // title, tooltip, on-disk status, and path changes)
 class FileMeta : public QObject
@@ -123,10 +125,10 @@ private:
             title_ = path_.stemQString();
         } else {
             // TODO: Tr-aware in future?
-            title_ = QStringLiteral("Untitled");
+            title_ = u"Untitled"_s;
         }
 
-        auto tool_tip_fmt = QStringLiteral("Title: %0\nPath: %1\nType: %2");
+        auto tool_tip_fmt = u"Title: %0\nPath: %1\nType: %2"_s;
         auto type_name = Files::name(fileType_);
 
         QString path_str{};

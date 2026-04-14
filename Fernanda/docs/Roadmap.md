@@ -2,7 +2,36 @@
 
 Also, go through all docs and make sure they're up to date and follow doc style
 
+## Follow-up Tags
+
+Tags for working code that is a draft and/or needs more scrutiny/cleaning:
+
+- TODO TD (tab dragging)
+- TODO TVT (tree view toggle)
+- TODO PD (prime doc)
+- TODO FT (file types)
+- TODO XP (cross platform)
+- TODO STYLE
+- TODO BA (backup/autosave)
+- TODO MU (markups)
+- TODO NF (new file options (e.g., new Markdown)
+- TODO IV (image views)
+
+---
+
 ## Current
+
+- [x] Clean ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView headers
+- [x] Isolate ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView repetitive code
+- [x] ZoomState extraction (see above)
+- [ ] GIFs may need loading mask
+- [ ] If so, extract common loading mask code (including maybe warmup mask) somehow (in WebEngineView and AbstractMarkupFileView)
+- [ ] ^ WebEngineView itself can have a first load / warm up static bool which consumers can check against to apply a warm-up mask to their entire widget (AMUFV and HTML view)
+- [x] ZoomControl-owned (not StyleContext) plus/minus SVGs
+- [x] (No) Maybe separate UI folder, then, and make StyleContextIcons or something
+- [ ] Check all enums and don't first one = 0 if it isn't treated as a sentinel anywhere
+- [x] Use using namespace Qt::StringLiterals throughout (not just where it can't leak)?
+- [ ] Remove unnecessary includes for AbstractFileModel or AbstractFileView (kind of a bridge too far in terms of being explicit about types included)
 
 - [ ] Sample stuff (a folder in Docs/Fernanda with samples of each type - can be recreated from the Help menu)
 - [ ] Use QIconEngine for StyleContext icons?
@@ -23,7 +52,7 @@ Also, go through all docs and make sure they're up to date and follow doc style
 - [ ] *maybe* Remove Formatters and std::format. We only ever use {} args, no special specifiers. We could make ToString very robust and just do our own string replacements
 - [ ] ^ Add regular ptr to ToString; add toQString wrappers for QString::number, etc, to reduce constexpr chain in Debug
 - [ ] ^ Also maybe move the format code to a "Format" header
-- [ ] typedef int Index? Will I be laughed at?
+- [x] (Nah) typedef int Index? Will I be laughed at?
 - [ ] MAYBE use clang InsertBraces = true plus remove virtual on overrides
 - [ ] SoC Audit!
 - [ ] Audit FileService's file opening functions (newOnDisk vs newOffDisk; only plain text types are creatable; is naming appropriate for each?; does each methods usage in Notepad vs Notebook make sense?; are the methods themselves handling their responsibilities correctly?; does everything in each method belong specifically in that method?; etc)
@@ -42,7 +71,7 @@ Also, go through all docs and make sure they're up to date and follow doc style
 - [ ] ^ Added release logging, log viewer, and automatic Notebook TreeView expansion to help find this. It easily could have been an overlooked add-as-child, which didn't expand before
 - [ ] One thing I think I would like to fix in the future is keeping file nesting but having operations like import or new file or whatever else resolve to the parent directory instead of the file, if the currently selected item is a file. This wound not apply to right click context menu actions
 - [ ] Notebook TreeView multiple item selection, drag, delete, restore, etc
-- [ ] Replace QStringLiteral with u*_s?
+- [x] Replace QStringLiteral with u*_s?
 - [ ] ToString's kind of a hot mess
 - [ ] Re: `treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT` in Notepad and Notebook (is a singular menu item in Workspace appropriate if it means we have to have such a silly virtual for each Workspace to override? At least, it seems silly to me right now)
 - [ ] ^ Related: Right now, no way past having Ini::LocalKeys defaults in regular defaults function (because settings get command gets the default for all Ini keys internally - TreeViewService would need to be able to choose to use a localDefaults map or SettingsService could have a second command getter for Workspace-local settings...)
@@ -77,20 +106,6 @@ From the file-types branch. See FileHandling.md for design details.
 - [ ] Model/view re-evaluation on rename: when a file's extension changes, the system should swap to the appropriate model/view pair. Only affects Tier 2 types (special text), since Tier 1 (magic bytes) types are identified by content. Applies to both Notepad (filesystem rename) and Notebook (tree view rename).
 - [ ] Consider NoOp for large unsupported binary files (e.g., images) where opening as text would be wasteful. Later-problem.
 - [ ] FNX files within FNX archives: deliberately deferred. Nested archive lifecycle management conflicts with current architecture. See FileHandling.md for rationale.
-
-## Follow-up Tags
-
-Tags for working code that is a draft and/or needs more scrutiny/cleaning:
-
-- TODO TD (tab dragging)
-- TODO TVT (tree view toggle)
-- TODO PD (prime doc)
-- TODO FT (file types)
-- TODO XP (cross platform)
-- TODO STYLE
-- TODO BA (backup/autosave)
-- TODO MU (markups)
-- TODO NF (new file options (e.g., new Markdown)
 
 ## Features
 

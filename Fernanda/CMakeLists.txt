@@ -153,6 +153,7 @@ set(FERNANDA_HEADERS
     src/ui/DisplaySlider.h
     src/ui/DrawerWidget.h
     src/ui/DrawerWidgetHeader.h
+    src/ui/Icons.h
     src/ui/MultiSwitch.h
     src/ui/Painting.h
     src/ui/PlainTextEdit.h
@@ -168,12 +169,14 @@ set(FERNANDA_HEADERS
     src/ui/Window.h
     src/ui/WordCounter.h
     src/ui/ZoomControl.h
+    src/ui/ZoomState.h
 
     src/views/AbstractFileView.h
     src/views/AbstractMarkupFileView.h
     src/views/FountainFileView.h
     src/views/HtmlFileView.h
     src/views/ImageFileView.h
+    src/views/ImageGraphicsView.h
     src/views/KeyFilters.h
     src/views/MarkdownFileView.h
     src/views/MarkupWebcode.h

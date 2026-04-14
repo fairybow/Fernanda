@@ -39,6 +39,8 @@
 
 namespace Fernanda {
 
+using namespace Qt::StringLiterals;
+
 // Manages Window lifecycle, creation/destruction, focus tracking, z-order
 // management, and window cycling with configurable close handling across the
 // Workspace. It allows our application windows to function as siblings (but
@@ -269,9 +271,8 @@ private:
     QString windowTitle_() const
     {
         // * subtitle - title
-        QString title = windowsFlagged_ ? QStringLiteral("* ") : "";
-        if (!windowsSubtitle_.isEmpty())
-            title += windowsSubtitle_ + QStringLiteral(" - ");
+        QString title = windowsFlagged_ ? u"* "_s : "";
+        if (!windowsSubtitle_.isEmpty()) title += windowsSubtitle_ + u" - "_s;
         title += VERSION_APP_NAME_STRING;
         return title;
     }
