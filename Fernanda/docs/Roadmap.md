@@ -24,6 +24,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 Pain points while using:
 
 - [ ] Side-by-side tabs
+- [ ] Sessions (tab splits, open tabs, pinned tabs (future), window positions, TreeView sizes)
 - [ ] Option to disallow multiple tabs onto same model
 - [ ] Option to turn tabs off for Notebook!
 - [ ] Title bar to show what's open what tabs are off
