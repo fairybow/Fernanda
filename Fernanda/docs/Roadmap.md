@@ -27,8 +27,8 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] GIFs may need loading mask
 - [ ] If so, extract common loading mask code (including maybe warmup mask) somehow (in WebEngineView and AbstractMarkupFileView)
 - [ ] ^ WebEngineView itself can have a first load / warm up static bool which consumers can check against to apply a warm-up mask to their entire widget (AMUFV and HTML view)
-- [ ] ZoomControl-owned (not StyleContext) plus/minus SVGs
-- [ ] Maybe separate UI folder, then, and make StyleContextIcons or something
+- [x] ZoomControl-owned (not StyleContext) plus/minus SVGs
+- [x] (No) Maybe separate UI folder, then, and make StyleContextIcons or something
 - [ ] Check all enums and don't first one = 0 if it isn't treated as a sentinel anywhere
 - [x] Use using namespace Qt::StringLiterals throughout (not just where it can't leak)?
 - [ ] Remove unnecessary includes for AbstractFileModel or AbstractFileView (kind of a bridge too far in terms of being explicit about types included)
