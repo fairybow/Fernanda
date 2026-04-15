@@ -140,12 +140,11 @@ protected:
     // toggle menu item saves the setting per-Workspace subclass
     virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
 
-    virtual bool canCloseTab(Window*, [[maybe_unused]] int index)
-    {
-        return true;
-    }
+    /// TODO TS
+    virtual bool canCloseTab(Window*, AbstractFileModel*) { return true; }
 
-    virtual bool canCloseTabEverywhere(Window*, [[maybe_unused]] int index)
+    /// TODO TS
+    virtual bool canCloseTabEverywhere(Window*, AbstractFileModel*)
     {
         return true;
     }

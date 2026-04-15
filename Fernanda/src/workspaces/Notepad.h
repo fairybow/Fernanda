@@ -228,27 +228,23 @@ protected:
         return Ini::LocalKeys::NOTEPAD_TREE_VIEW_DOCK;
     }
 
-    virtual bool canCloseTab(Window* window, int index) override
+    /// TODO TS
+    virtual bool canCloseTab(Window* window, AbstractFileModel* model) override
     {
-        auto model = views->fileModelAt(window, index);
         if (!model) return false;
-
-        // If this model has other views (and so won't be closed with the view),
-        // we don't need to worry about saving
         if (!model->isModified() || views->countFor(model) > 1) return true;
 
-        views->raise(window, index);
+        views->raise(model);
         return promptSingleModelClosingSave_(model, window);
     }
 
-    virtual bool canCloseTabEverywhere(Window* window, int index) override
+    /// TODO TS
+    virtual bool
+    canCloseTabEverywhere(Window* window, AbstractFileModel* model) override
     {
-        auto model = views->fileModelAt(window, index);
         if (!model) return false;
-
         if (!model->isModified()) return true;
 
-        // Called via menu (on current window + tab), so no need to raise
         return promptSingleModelClosingSave_(model, window);
     }
 

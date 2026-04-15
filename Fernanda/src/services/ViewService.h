@@ -40,6 +40,7 @@
 #include "services/ReloadPrompt.h"
 #include "settings/Ini.h"
 #include "ui/PlainTextEdit.h"
+#include "ui/TabSurface.h"
 #include "ui/TabWidget.h"
 #include "ui/Window.h"
 #include "views/AbstractFileView.h"
@@ -70,13 +71,15 @@ public:
 
     virtual ~ViewService() override { TRACER; }
 
+    /// TODO TS
     DECLARE_HOOK(
-        std::function<bool(Window*, int index)>,
+        std::function<bool(Window*, AbstractFileModel*)>,
         canCloseTabHook,
         setCanCloseTabHook)
 
+    /// TODO TS
     DECLARE_HOOK(
-        std::function<bool(Window*, int index)>,
+        std::function<bool(Window*, AbstractFileModel*)>,
         canCloseTabEverywhereHook,
         setCanCloseTabEverywhereHook)
 
@@ -94,7 +97,7 @@ public:
     // Insert a dragged tab into a window's TabWidget
     void insertTabSpec(Window* window, const TabWidget::TabSpec& tabSpec)
     {
-        auto tab_widget = tabWidget_(window);
+        auto tab_widget = activeTabWidget_(window);
         if (!tab_widget || !tabSpec.isValid()) return;
 
         auto index = tab_widget->addTab(tabSpec.widget, tabSpec.text);
@@ -114,7 +117,7 @@ public:
     // Raises Window and tab at index
     void raise(Window* window, int index) const
     {
-        auto tab_widget = tabWidget_(window);
+        auto tab_widget = activeTabWidget_(window);
         if (!tab_widget) return;
 
         window->activate();
@@ -122,55 +125,68 @@ public:
     }
 
     // Raises Window and model, if found
+    /// TODO TS
     void raise(Window* window, AbstractFileModel* model) const
     {
         if (!window || !model) return;
-        auto i = indexOfModel_(tabWidget_(window), model);
-        if (i >= 0) raise(window, i);
+
+        for (auto tab_widget : tabWidgets_(window)) {
+            auto i = indexOfModel_(tab_widget, model);
+            if (i >= 0) {
+                window->activate();
+                tab_widget->setCurrentIndex(i);
+                return;
+            }
+        }
     }
 
     // Raises first Window found (from top to bottom) containing model (and
     // raises model), if any, and returns the window
     // TODO: Should this return nullptr if the model isn't found?
+    /// TODO TS
     Window* raise(AbstractFileModel* model) const
     {
         if (!model) return nullptr;
 
         for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-            auto i = indexOfModel_(tabWidget_(window), model);
-
-            if (i >= 0) {
-                raise(window, i);
-                return window;
+            for (auto tab_widget : tabWidgets_(window)) {
+                auto i = indexOfModel_(tab_widget, model);
+                if (i >= 0) {
+                    window->activate();
+                    tab_widget->setCurrentIndex(i);
+                    return window;
+                }
             }
         }
 
         return nullptr;
     }
 
+    /// TODO TS
     bool isMultiWindow(AbstractFileModel* fileModel) const
     {
         if (!fileModel) return false;
 
         auto window_count = 0;
         for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
-            if (indexOfModel_(tabWidget_(window), fileModel) >= 0) {
-                if (++window_count >= 2) return true;
+            for (auto tab_widget : tabWidgets_(window)) {
+                if (indexOfModel_(tab_widget, fileModel) >= 0) {
+                    if (++window_count >= 2) return true;
+                    break; // Found in this window, move to next
+                }
             }
         }
 
         return false;
     }
 
+    /// TODO TS
     bool anyViews() const
     {
-        auto windows = bus->call<QSet<Window*>>(Bus::WINDOWS_SET);
-
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
-
-            if (!tab_widget->isEmpty()) return true;
+        for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
+            for (auto tab_widget : tabWidgets_(window)) {
+                if (!tab_widget->isEmpty()) return true;
+            }
         }
 
         return false;
@@ -179,7 +195,7 @@ public:
     // Index -1 = current
     AbstractFileView* fileViewAt(Window* window, int index) const
     {
-        auto tab_widget = tabWidget_(window);
+        auto tab_widget = activeTabWidget_(window);
         if (!tab_widget) return nullptr;
 
         auto i = normalizeIndex_(tab_widget, index);
@@ -197,16 +213,18 @@ public:
 
     // TODO: May use this for applying settings! If not, though, make private or
     // remove
+    /// TODO TS
     QList<AbstractFileView*> fileViewsIn(Window* window) const
     {
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget) return {};
-
         QList<AbstractFileView*> views{};
 
-        for (auto i = 0; i < tab_widget->count(); ++i)
-            if (auto view = tab_widget->widgetAt<AbstractFileView*>(i))
-                views << view;
+        for (auto tab_widget : tabWidgets_(window)) {
+            for (auto i = 0; i < tab_widget->count(); ++i) {
+                if (auto view = tab_widget->widgetAt<AbstractFileView*>(i)) {
+                    views << view;
+                }
+            }
+        }
 
         return views;
     }
@@ -227,20 +245,20 @@ public:
 
     // TODO: May use this for applying settings! If not, though, make private or
     // remove
+    /// TODO TS
     QList<AbstractFileView*> fileViews() const
     {
-        auto windows = bus->call<QList<Window*>>(Bus::WINDOWS);
-        if (windows.isEmpty()) return {};
-
         QList<AbstractFileView*> views{};
 
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
-
-            for (auto i = 0; i < tab_widget->count(); ++i)
-                if (auto view = tab_widget->widgetAt<AbstractFileView*>(i))
-                    views << view;
+        for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
+            for (auto tab_widget : tabWidgets_(window)) {
+                for (auto i = 0; i < tab_widget->count(); ++i) {
+                    if (auto view =
+                            tab_widget->widgetAt<AbstractFileView*>(i)) {
+                        views << view;
+                    }
+                }
+            }
         }
 
         return views;
@@ -291,7 +309,7 @@ public:
     {
         auto model = fileModelAt(window, index);
         if (!model) return;
-        auto tab_widget = tabWidget_(window);
+        auto tab_widget = activeTabWidget_(window);
         if (!tab_widget) return;
 
         auto i = normalizeIndex_(tab_widget, index);
@@ -310,62 +328,49 @@ public:
     }
 
     // No hook!
+    /// TODO TS
     void closeViewsForModels(const QSet<AbstractFileModel*>& fileModels)
     {
         if (fileModels.isEmpty()) return;
 
-        auto windows = bus->call<QList<Window*>>(Bus::WINDOWS);
-        if (windows.isEmpty()) return;
-
-        for (auto& window : windows) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget || tab_widget->isEmpty()) continue;
-
-            // Iterate backward to avoid index shifting issues
-            for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (view && fileModels.contains(view->model()))
-                    deleteFileViewAt_(window, i);
+        for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
+            for (auto tab_widget : tabWidgets_(window)) {
+                for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                    if (view && fileModels.contains(view->model()))
+                        deleteFileViewAt_(tab_widget, i);
+                }
             }
         }
     }
 
+    /// TODO TS
     void closeTab(Window* window, int index = -1)
     {
-        auto tab_widget = tabWidget_(window);
+        auto tab_widget = activeTabWidget_(window);
         if (!tab_widget) return;
         auto i = normalizeIndex_(tab_widget, index);
         if (i < 0) return;
-        // Check for view here; if the hook approves but the view is somehow
-        // null, we silently return without emitting viewDestroyed
-        auto view = fileViewAt(window, i);
-        if (!view) return;
-
-        // Proceed if no hook is set, or if hook approves the close
-        if (!canCloseTabHook_ || canCloseTabHook_(window, i))
-            deleteFileViewAt_(window, i);
+        closeTabIn_(tab_widget, i);
     }
 
+    /// TODO TS
     void closeTabEverywhere(Window* window, int index = -1)
     {
         auto target_model = fileModelAt(window, index);
         if (!target_model) return;
 
-        // Proceed if no hook is set, or if hook approves the close
         if (!canCloseTabEverywhereHook_
-            || canCloseTabEverywhereHook_(window, index)) {
-            auto windows = bus->call<QList<Window*>>(Bus::WINDOWS);
-            if (windows.isEmpty()) return;
+            || canCloseTabEverywhereHook_(window, target_model)) {
 
-            for (auto& window : windows) {
-                auto tab_widget = tabWidget_(window);
-                if (!tab_widget || tab_widget->isEmpty()) continue;
-
-                // Iterate backward to avoid index shifting issues
-                for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                    if (view && view->model() == target_model)
-                        deleteFileViewAt_(window, i);
+            for (auto& w : bus->call<QList<Window*>>(Bus::WINDOWS)) {
+                for (auto tab_widget : tabWidgets_(w)) {
+                    for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                        auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                        if (view && view->model() == target_model) {
+                            deleteFileViewAt_(tab_widget, i);
+                        }
+                    }
                 }
             }
         }
@@ -605,10 +610,38 @@ private:
         }
     }
 
-    TabWidget* tabWidget_(Window* window) const
+    /// TODO TS
+    TabSurface* tabSurface_(Window* window) const
     {
         if (!window) return nullptr;
-        return qobject_cast<TabWidget*>(window->centralWidget());
+        return qobject_cast<TabSurface*>(window->centralWidget());
+    }
+
+    /// TODO TS
+    TabWidget* activeTabWidget_(Window* window) const
+    {
+        auto surface = tabSurface_(window);
+        return surface ? surface->activeTabWidget() : nullptr;
+    }
+
+    /// TODO TS
+    QList<TabWidget*> tabWidgets_(Window* window) const
+    {
+        auto surface = tabSurface_(window);
+        return surface ? surface->tabWidgets() : QList<TabWidget*>{};
+    }
+
+    /// TODO TS
+    void closeTabIn_(TabWidget* tabWidget, int index)
+    {
+        if (!tabWidget || index < 0) return;
+        auto view = tabWidget->widgetAt<AbstractFileView*>(index);
+        if (!view) return;
+        auto model = view->model();
+        auto window = Coco::findParent<Window*>(tabWidget);
+
+        if (!canCloseTabHook_ || canCloseTabHook_(window, model))
+            deleteFileViewAt_(tabWidget, index);
     }
 
     // If index is -1, it will become current index
@@ -620,31 +653,28 @@ private:
     }
 
     // Index -1 = current
-    void deleteFileViewAt_(Window* window, int index)
+    /// TODO TS
+    void deleteFileViewAt_(TabWidget* tabWidget, int index)
     {
-        if (!window) return;
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget) return;
-
-        auto i = normalizeIndex_(tab_widget, index);
+        if (!tabWidget) return;
+        auto i = normalizeIndex_(tabWidget, index);
         if (i < 0) return;
 
-        auto view = tab_widget->removeTab<AbstractFileView*>(i);
+        auto view = tabWidget->removeTab<AbstractFileView*>(i);
         if (!view) return;
 
         delete view;
     }
 
+    /// TODO TS
     void deleteAllFileViewsIn_(Window* window)
     {
-        auto tab_widget = tabWidget_(window);
-        if (!tab_widget) return;
-
-        auto views = tab_widget->clear<AbstractFileView*>();
-        if (views.isEmpty()) return;
-
-        for (auto& view : views)
-            delete view;
+        for (auto tab_widget : tabWidgets_(window)) {
+            auto views = tab_widget->clear<AbstractFileView*>();
+            for (auto& view : views) {
+                delete view;
+            }
+        }
     }
 
     // Active file view can be set nullptr!
@@ -672,11 +702,40 @@ private:
         return view;
     }
 
-    void addTabWidget_(Window* window)
+    /// TODO TS
+    void addTabSurface_(Window* window)
     {
         if (!window) return;
 
-        auto tab_widget = new TabWidget(window);
+        auto tab_surface = new TabSurface(window);
+        window->setCentralWidget(tab_surface);
+
+        connect(
+            tab_surface,
+            &TabSurface::splitAdded,
+            this,
+            &ViewService::wireTabWidget_);
+
+        connect(
+            tab_surface,
+            &TabSurface::activeTabWidgetChanged,
+            this,
+            [this, window](TabWidget* tw) {
+                auto index = tw ? tw->currentIndex() : -1;
+                setActiveFileView_(window, index);
+            });
+
+        // Create the initial split (triggers splitAdded -> wireTabWidget_)
+        tab_surface->addSplit();
+    }
+
+    /// TODO TS
+    void wireTabWidget_(TabWidget* tab_widget)
+    {
+        if (!tab_widget) return;
+
+        auto window = Coco::findParent<Window*>(tab_widget);
+        if (!window) return;
 
         tab_widget->setElideMode(Qt::ElideRight);
         tab_widget->setDragValidator(
@@ -684,13 +743,15 @@ private:
             &ViewService::tabWidgetDragValidator_);
         tab_widget->setTabsDraggable(true);
 
-        window->setCentralWidget(tab_widget);
-
         connect(
             tab_widget,
             &TabWidget::currentChanged,
             this,
-            [this, window](int index) { setActiveFileView_(window, index); });
+            [this, window, tab_widget](int index) {
+                // Only update active view if this is the active split
+                if (activeTabWidget_(window) == tab_widget)
+                    setActiveFileView_(window, index);
+            });
 
         connect(tab_widget, &TabWidget::addTabRequested, this, [this, window] {
             emit addTabRequested(window);
@@ -700,7 +761,7 @@ private:
             tab_widget,
             &TabWidget::closeTabRequested,
             this,
-            [this, window](int index) { closeTab(window, index); });
+            [this, tab_widget](int index) { closeTabIn_(tab_widget, index); });
 
         /// TODO TD
         connect(
@@ -715,10 +776,6 @@ private:
             &TabWidget::tabDraggedOutside,
             this,
             &ViewService::onTabDraggedOutside_);
-
-        // connect(tab_widget, &TabWidget::tabCountChanged, this, [this] {
-        //     //...
-        // });
 
         connect(
             tab_widget,
@@ -754,15 +811,18 @@ private:
         return is_valid;
     }
 
+    /// TODO TS
     template <typename ViewT, typename CallableT>
     void forEachFileView_(CallableT&& callable)
     {
         for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
-
-            for (auto i = 0; i < tab_widget->count(); ++i)
-                if (auto view = tab_widget->widgetAt<ViewT>(i)) callable(view);
+            for (auto tab_widget : tabWidgets_(window)) {
+                for (auto i = 0; i < tab_widget->count(); ++i) {
+                    if (auto view = tab_widget->widgetAt<ViewT>(i)) {
+                        callable(view);
+                    }
+                }
+            }
         }
     }
 
@@ -772,16 +832,16 @@ private:
         forEachFileView_<TextFileView*>(std::forward<CallableT>(callable));
     }
 
+    /// TODO TS
     template <typename CallableT>
     void forEachTabOfModel_(AbstractFileModel* model, CallableT&& callable)
     {
         for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
-            auto tab_widget = tabWidget_(window);
-            if (!tab_widget) continue;
-
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (view && view->model() == model) callable(tab_widget, i);
+            for (auto tab_widget : tabWidgets_(window)) {
+                for (auto i = 0; i < tab_widget->count(); ++i) {
+                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                    if (view && view->model() == model) callable(tab_widget, i);
+                }
             }
         }
     }
@@ -888,10 +948,11 @@ private:
     }
 
 private slots:
+    /// TODO TS
     void onBusWindowCreated_(Window* window)
     {
         if (!window) return;
-        addTabWidget_(window);
+        addTabSurface_(window);
     }
 
     void onBusWindowDestroyed_(Window* window)
@@ -904,7 +965,7 @@ private slots:
     void onBusFileModelReadied_(Window* window, AbstractFileModel* fileModel)
     {
         if (!window || !fileModel) return;
-        auto tab_widget = tabWidget_(window);
+        auto tab_widget = activeTabWidget_(window);
         if (!tab_widget) return;
 
         auto view = createFileView_(window, fileModel);
