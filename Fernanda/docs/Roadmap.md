@@ -29,8 +29,9 @@ Pain points while using:
 - [x] ViewService refactor for multiple TabWidgets
 - [x] VS resolves to model before allowing hook (See below)
 - [x] Workspace hook refactor (Window + AFM, not Window + index)
+- [x] moveToSplit_ does a raw removeTab + addTab rather than going through the hook system, since it isn't a close operation. The view stays alive and just moves to a different container. If the source split ends up empty after the move, splitEmpty will fire from TabSurface, and we can decide later whether to auto-collapse it or leave it
 - [ ] Tab dragging
-- [ ] Menu commands (split right/left; should move the active tab in active TabWidget to left or right, into existing TabWidget if present or creating a new one)
+- [x] Menu commands (split right/left; should move the active tab in active TabWidget to left or right, into existing TabWidget if present or creating a new one)
 - [ ] Sessions (tab splits, open tabs, pinned tabs (future), window positions, TreeView sizes)
 - [ ] Option to disallow multiple tabs onto same model
 - [ ] Option to turn tabs off for Notebook!

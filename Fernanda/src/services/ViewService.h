@@ -396,6 +396,47 @@ public:
                 deleteAllFileViewsIn_(window);
     }
 
+    /// TODO TS
+    void splitLeft(Window* window)
+    {
+        moveToSplit_(window, SplitDirection_::Left);
+    }
+
+    /// TODO TS
+    void splitRight(Window* window)
+    {
+        moveToSplit_(window, SplitDirection_::Right);
+    }
+
+    /// TODO TS
+    void duplicateToSplitLeft(Window* window)
+    {
+        duplicateToSplit_(window, SplitDirection_::Left);
+    }
+
+    /// TODO TS
+    void duplicateToSplitRight(Window* window)
+    {
+        duplicateToSplit_(window, SplitDirection_::Right);
+    }
+
+    /// TODO TS
+    void closeSplit(Window* window)
+    {
+        auto surface = tabSurface_(window);
+        if (!surface || surface->splitCount() <= 1) return;
+
+        auto tab_widget = surface->activeTabWidget();
+        if (!tab_widget) return;
+
+        // Close all views in this split (triggers hooks per-tab)
+        for (auto i = tab_widget->count() - 1; i >= 0; --i)
+            closeTabIn_(tab_widget, i);
+
+        // If all closed (hooks may have prevented some), remove the split
+        if (tab_widget->isEmpty()) surface->removeSplit(tab_widget);
+    }
+
     void undo(Window* window, int index = -1)
     {
         auto model = fileModelAt(window, index);
@@ -644,6 +685,94 @@ private:
             deleteFileViewAt_(tabWidget, index);
     }
 
+    /// TODO TS
+    enum class SplitDirection_
+    {
+        Left,
+        Right
+    };
+
+    /// TODO TS
+    TabWidget* findOrCreateSplit_(
+        TabSurface* surface,
+        TabWidget* current,
+        SplitDirection_ direction)
+    {
+        if (!surface || !current) return nullptr;
+
+        auto neighbor = (direction == SplitDirection_::Left)
+                            ? surface->leftOf(current)
+                            : surface->rightOf(current);
+
+        if (neighbor) return neighbor;
+
+        return (direction == SplitDirection_::Left)
+                   ? surface->addSplitBefore(current)
+                   : surface->addSplitAfter(current);
+    }
+
+    /// TODO TS
+    void moveToSplit_(Window* window, SplitDirection_ direction)
+    {
+        auto surface = tabSurface_(window);
+        if (!surface) return;
+
+        auto source = surface->activeTabWidget();
+        if (!source || source->isEmpty()) return;
+
+        auto i = source->currentIndex();
+        if (i < 0) return;
+
+        auto target = findOrCreateSplit_(surface, source, direction);
+        if (!target) return;
+
+        // Extract tab spec before removing
+        auto view = source->widgetAt<AbstractFileView*>(i);
+        if (!view) return;
+
+        auto text = source->tabText(i);
+        auto tool_tip = source->tabToolTip(i);
+        auto flagged = source->tabFlagged(i);
+        auto alert = source->tabAlertMessage(i);
+
+        // Remove without deleting (removeTab returns the widget)
+        source->removeTab(i);
+
+        // Insert into target
+        auto new_index = target->addTab(view, text);
+        target->setTabToolTip(new_index, tool_tip);
+        target->setTabFlagged(new_index, flagged);
+        if (!alert.isEmpty()) target->setTabAlert(new_index, alert);
+        target->setCurrentIndex(new_index);
+        view->setFocus();
+    }
+
+    /// TODO TS
+    void duplicateToSplit_(Window* window, SplitDirection_ direction)
+    {
+        auto surface = tabSurface_(window);
+        if (!surface) return;
+
+        auto source = surface->activeTabWidget();
+        if (!source || source->isEmpty()) return;
+
+        auto model = fileModelAt(window, -1);
+        if (!model) return;
+
+        auto target = findOrCreateSplit_(surface, source, direction);
+        if (!target) return;
+
+        auto view = createFileView_(window, model);
+        if (!view) return;
+
+        auto meta = model->meta();
+        auto new_index = target->addTab(view, meta->title());
+        target->setTabFlagged(new_index, model->isModified());
+        target->setTabToolTip(new_index, meta->toolTip());
+        target->setCurrentIndex(new_index);
+        view->setFocus();
+    }
+
     // If index is -1, it will become current index
     int normalizeIndex_(TabWidget* tabWidget, int index) const
     {
@@ -715,6 +844,15 @@ private:
             &TabSurface::splitAdded,
             this,
             &ViewService::wireTabWidget_);
+
+        connect(
+            tab_surface,
+            &TabSurface::splitEmpty,
+            this,
+            [tab_surface](TabWidget* tabWidget) {
+                if (tab_surface->splitCount() > 1)
+                    tab_surface->removeSplit(tabWidget);
+            });
 
         connect(
             tab_surface,

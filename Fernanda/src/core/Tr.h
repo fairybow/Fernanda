@@ -353,6 +353,14 @@ namespace Tr {
     TR_(chipColor, tr("Chip color..."));
     TR_(chipTextColor, tr("Text color..."));
 
+    /// TODO TS
+    TR_(nxSplit, tr("Split"));
+    TR_(nxSplitLeft, tr("Move tab to split left"));
+    TR_(nxSplitRight, tr("Move tab to split right"));
+    TR_(nxDuplicateToSplitLeft, tr("Duplicate tab to split left"));
+    TR_(nxDuplicateToSplitRight, tr("Duplicate tab to split right"));
+    TR_(nxCloseSplit, tr("Close split"));
+
 } // namespace Tr
 
 } // namespace Fernanda

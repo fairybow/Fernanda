@@ -150,6 +150,49 @@ void Workspace::createWindowMenuBar_(Window* window)
             MenuScope::ActiveTab,
             [this, window] { return views->fileViewAt(window, -1); })
         .separator()
+        .submenu(Tr::nxSplit())
+        .action(Tr::nxSplitLeft())
+        .onUserTrigger(this, [this, window] { views->splitLeft(window); })
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] { return views->fileViewAt(window, -1); })
+        .action(Tr::nxSplitRight())
+        .onUserTrigger(this, [this, window] { views->splitRight(window); })
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] { return views->fileViewAt(window, -1); })
+        .separator()
+        .action(Tr::nxDuplicateToSplitLeft())
+        .onUserTrigger(
+            this,
+            [this, window] { views->duplicateToSplitLeft(window); })
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] { return views->fileViewAt(window, -1); })
+        .action(Tr::nxDuplicateToSplitRight())
+        .onUserTrigger(
+            this,
+            [this, window] { views->duplicateToSplitRight(window); })
+        .enabledToggle(
+            state,
+            MenuScope::ActiveTab,
+            [this, window] { return views->fileViewAt(window, -1); })
+        .separator()
+        .action(Tr::nxCloseSplit())
+        .onUserTrigger(this, [this, window] { views->closeSplit(window); })
+        .enabledToggle(
+            state,
+            MenuScope::Window,
+            [this, window] {
+                auto surface =
+                    qobject_cast<TabSurface*>(window->centralWidget());
+                return surface && surface->splitCount() > 1;
+            })
+        .endSubmenu()
+        .separator()
         .submenu(Tr::nxClose())
         .action(Tr::nxCloseTab())
         .onUserTrigger(this, [this, window] { views->closeTab(window, -1); })

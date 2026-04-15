@@ -55,24 +55,7 @@ public:
 
     int splitCount() const { return splitter_->count(); }
 
-    TabWidget* addSplit()
-    {
-        auto tab_widget = new TabWidget(splitter_);
-        splitter_->addWidget(tab_widget);
-
-        connect(
-            tab_widget,
-            &TabWidget::tabCountChanged,
-            this,
-            [this, tab_widget] {
-                if (tab_widget->isEmpty()) emit splitEmpty(tab_widget);
-            });
-
-        if (!activeTabWidget_) setActiveTabWidget_(tab_widget);
-
-        emit splitAdded(tab_widget);
-        return tab_widget;
-    }
+    TabWidget* addSplit() { return insertSplit_(splitter_->count()); }
 
     void removeSplit(TabWidget* tabWidget)
     {
@@ -90,6 +73,48 @@ public:
         }
     }
 
+    int indexOf(TabWidget* tabWidget) const
+    {
+        for (auto i = 0; i < splitter_->count(); ++i) {
+            if (splitter_->widget(i) == tabWidget) return i;
+        }
+
+        return -1;
+    }
+
+    TabWidget* tabWidgetAt(int index) const
+    {
+        if (index < 0 || index >= splitter_->count()) return nullptr;
+        return qobject_cast<TabWidget*>(splitter_->widget(index));
+    }
+
+    TabWidget* leftOf(TabWidget* tabWidget) const
+    {
+        auto i = indexOf(tabWidget);
+        return (i > 0) ? tabWidgetAt(i - 1) : nullptr;
+    }
+
+    TabWidget* rightOf(TabWidget* tabWidget) const
+    {
+        auto i = indexOf(tabWidget);
+        return (i >= 0 && i < splitter_->count() - 1) ? tabWidgetAt(i + 1)
+                                                      : nullptr;
+    }
+
+    TabWidget* addSplitBefore(TabWidget* tabWidget)
+    {
+        auto i = indexOf(tabWidget);
+        if (i < 0) return nullptr;
+        return insertSplit_(i);
+    }
+
+    TabWidget* addSplitAfter(TabWidget* tabWidget)
+    {
+        auto i = indexOf(tabWidget);
+        if (i < 0) return nullptr;
+        return insertSplit_(i + 1);
+    }
+
 signals:
     void activeTabWidgetChanged(TabWidget* tabWidget);
     void splitAdded(TabWidget* tabWidget);
@@ -101,6 +126,8 @@ private:
 
     void setup_()
     {
+        splitter_->setChildrenCollapsible(false);
+
         auto layout = new QHBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(splitter_);
@@ -128,6 +155,27 @@ private:
         if (activeTabWidget_ == tabWidget) return;
         activeTabWidget_ = tabWidget;
         emit activeTabWidgetChanged(tabWidget);
+    }
+
+    TabWidget* insertSplit_(int index)
+    {
+        auto tab_widget = new TabWidget(nullptr);
+
+        // QSplitter::insertWidget takes ownership
+        splitter_->insertWidget(index, tab_widget);
+
+        connect(
+            tab_widget,
+            &TabWidget::tabCountChanged,
+            this,
+            [this, tab_widget] {
+                if (tab_widget->isEmpty()) emit splitEmpty(tab_widget);
+            });
+
+        if (!activeTabWidget_) setActiveTabWidget_(tab_widget);
+
+        emit splitAdded(tab_widget);
+        return tab_widget;
     }
 };
 
