@@ -60,7 +60,7 @@ signals:
         Window* context,
         AbstractFileView* fileView); // Active view can be nullptr!
     void fileViewCreated(AbstractFileView* fileView);
-    void splitCountChanged(Window* context);
+    void splitCountChanged(Window* context); /// TODO TS
     void fileModelReadied(Window* context, AbstractFileModel* fileModel);
     void
     fileModelModificationChanged(AbstractFileModel* fileModel, bool modified);
