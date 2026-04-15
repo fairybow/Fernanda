@@ -25,10 +25,10 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 Pain points while using:
 
 - [ ] Side-by-side tabs
-- [ ] New tab area container widget
-- [ ] ViewService refactor for multiple TabWidgets
-- [ ] VS resolves to model before allowing hook (See below)
-- [ ] Workspace hook refactor (Window + AFM, not Window + index)
+- [x] New tab area container widget
+- [x] ViewService refactor for multiple TabWidgets
+- [x] VS resolves to model before allowing hook (See below)
+- [x] Workspace hook refactor (Window + AFM, not Window + index)
 - [ ] Tab dragging
 - [ ] Menu commands (split right/left; should move the active tab in active TabWidget to left or right, into existing TabWidget if present or creating a new one)
 - [ ] Sessions (tab splits, open tabs, pinned tabs (future), window positions, TreeView sizes)
