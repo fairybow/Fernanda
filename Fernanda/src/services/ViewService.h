@@ -397,27 +397,27 @@ public:
     }
 
     /// TODO TS
-    void splitLeft(Window* window)
+    void splitLeft(Window* window, int index = -1)
     {
-        moveToSplit_(window, SplitDirection_::Left);
+        moveToSplit_(window, SplitDirection_::Left, index);
     }
 
     /// TODO TS
-    void splitRight(Window* window)
+    void splitRight(Window* window, int index = -1)
     {
-        moveToSplit_(window, SplitDirection_::Right);
+        moveToSplit_(window, SplitDirection_::Right, index);
     }
 
     /// TODO TS
-    void duplicateToSplitLeft(Window* window)
+    void duplicateToSplitLeft(Window* window, int index = -1)
     {
-        duplicateToSplit_(window, SplitDirection_::Left);
+        duplicateToSplit_(window, SplitDirection_::Left, index);
     }
 
     /// TODO TS
-    void duplicateToSplitRight(Window* window)
+    void duplicateToSplitRight(Window* window, int index = -1)
     {
-        duplicateToSplit_(window, SplitDirection_::Right);
+        duplicateToSplit_(window, SplitDirection_::Right, index);
     }
 
     /// TODO TS
@@ -429,12 +429,17 @@ public:
         auto tab_widget = surface->activeTabWidget();
         if (!tab_widget) return;
 
-        // Close all views in this split (triggers hooks per-tab)
+        suppressAutoCollapse_ = true;
+
         for (auto i = tab_widget->count() - 1; i >= 0; --i)
             closeTabIn_(tab_widget, i);
 
-        // If all closed (hooks may have prevented some), remove the split
-        if (tab_widget->isEmpty()) surface->removeSplit(tab_widget);
+        suppressAutoCollapse_ = false;
+
+        if (tab_widget->isEmpty()) {
+            surface->removeSplit(tab_widget);
+            emit bus->splitCountChanged(window);
+        }
     }
 
     void undo(Window* window, int index = -1)
@@ -556,6 +561,11 @@ protected:
     }
 
 private:
+    // Prevents auto-collapse from deleting a TabWidget while closeSplit is
+    // iterating over its tabs (closeSplit handles removal itself after the
+    // loop)
+    bool suppressAutoCollapse_ = false; /// TODO TS
+
     QHash<Window*, AbstractFileView*> activeFileViews_{};
     QHash<AbstractFileModel*, int> fileViewsPerModel_{};
 
@@ -712,7 +722,7 @@ private:
     }
 
     /// TODO TS
-    void moveToSplit_(Window* window, SplitDirection_ direction)
+    void moveToSplit_(Window* window, SplitDirection_ direction, int index = -1)
     {
         auto surface = tabSurface_(window);
         if (!surface) return;
@@ -720,13 +730,12 @@ private:
         auto source = surface->activeTabWidget();
         if (!source || source->isEmpty()) return;
 
-        auto i = source->currentIndex();
+        auto i = normalizeIndex_(source, index);
         if (i < 0) return;
 
         auto target = findOrCreateSplit_(surface, source, direction);
         if (!target) return;
 
-        // Extract tab spec before removing
         auto view = source->widgetAt<AbstractFileView*>(i);
         if (!view) return;
 
@@ -735,10 +744,8 @@ private:
         auto flagged = source->tabFlagged(i);
         auto alert = source->tabAlertMessage(i);
 
-        // Remove without deleting (removeTab returns the widget)
         source->removeTab(i);
 
-        // Insert into target
         auto new_index = target->addTab(view, text);
         target->setTabToolTip(new_index, tool_tip);
         target->setTabFlagged(new_index, flagged);
@@ -748,7 +755,8 @@ private:
     }
 
     /// TODO TS
-    void duplicateToSplit_(Window* window, SplitDirection_ direction)
+    void
+    duplicateToSplit_(Window* window, SplitDirection_ direction, int index = -1)
     {
         auto surface = tabSurface_(window);
         if (!surface) return;
@@ -756,7 +764,12 @@ private:
         auto source = surface->activeTabWidget();
         if (!source || source->isEmpty()) return;
 
-        auto model = fileModelAt(window, -1);
+        auto i = normalizeIndex_(source, index);
+        if (i < 0) return;
+
+        auto view_at_i = source->widgetAt<AbstractFileView*>(i);
+        if (!view_at_i) return;
+        auto model = view_at_i->model();
         if (!model) return;
 
         auto target = findOrCreateSplit_(surface, source, direction);
@@ -847,11 +860,21 @@ private:
 
         connect(
             tab_surface,
+            &TabSurface::splitAdded,
+            this,
+            [this, window]([[maybe_unused]] TabWidget*) {
+                emit bus->splitCountChanged(window);
+            });
+
+        connect(
+            tab_surface,
             &TabSurface::splitEmpty,
             this,
-            [tab_surface](TabWidget* tabWidget) {
-                if (tab_surface->splitCount() > 1)
+            [this, tab_surface, window](TabWidget* tabWidget) {
+                if (!suppressAutoCollapse_ && tab_surface->splitCount() > 1) {
                     tab_surface->removeSplit(tabWidget);
+                    emit bus->splitCountChanged(window);
+                }
             });
 
         connect(

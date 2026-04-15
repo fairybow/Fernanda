@@ -291,6 +291,10 @@ private:
             this,
             &Workspace::onBusActiveFileViewChanged_);
 
+        connect(bus, &Bus::splitCountChanged, this, [this](Window* window) {
+            refreshMenus(window, MenuScope::Window);
+        });
+
         connect(
             bus,
             &Bus::fileModelReadied,
@@ -418,6 +422,7 @@ private slots:
         }
     }
 
+    /// TODO TS
     void onTabContextMenuRequested_(
         Window* window,
         int index,
@@ -425,11 +430,35 @@ private slots:
     {
         if (!window || globalPos.isNull()) return;
 
+        auto surface = qobject_cast<TabSurface*>(window->centralWidget());
+
         MenuBuilder(MenuBuilder::ContextMenu, window)
             .action(Tr::nxDuplicateTab())
             .onUserTrigger(
                 this,
                 [this, window, index] { views->duplicateTab(window, index); })
+            .separator()
+            .action(Tr::nxSplitLeft())
+            .onUserTrigger(
+                this,
+                [this, window, index] { views->splitLeft(window, index); })
+            .action(Tr::nxSplitRight())
+            .onUserTrigger(
+                this,
+                [this, window, index] { views->splitRight(window, index); })
+            .separator()
+            .action(Tr::nxDuplicateToSplitLeft())
+            .onUserTrigger(
+                this,
+                [this, window, index] {
+                    views->duplicateToSplitLeft(window, index);
+                })
+            .action(Tr::nxDuplicateToSplitRight())
+            .onUserTrigger(
+                this,
+                [this, window, index] {
+                    views->duplicateToSplitRight(window, index);
+                })
             .separator()
             .apply([this, window, index](MenuBuilder& b) {
                 tabContextMenuSaveActions(b, window, index);
@@ -444,13 +473,8 @@ private slots:
                 [this, window, index] {
                     views->closeTabEverywhere(window, index);
                 })
-            .separator()
-            .action(Tr::nxCloseWindowTabs())
-            .onUserTrigger(
-                this,
-                [this, window] { views->closeWindowTabs(window); })
-            .action(Tr::nxCloseAllTabs())
-            .onUserTrigger(this, [this] { views->closeAllTabs(); })
+            .actionIf(surface && surface->splitCount() > 1, Tr::nxCloseSplit())
+            .onUserTrigger(this, [this, window] { views->closeSplit(window); })
             .popup(globalPos);
     }
 
