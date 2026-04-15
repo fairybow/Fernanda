@@ -100,11 +100,7 @@ public:
         auto tab_widget = activeTabWidget_(window);
         if (!tab_widget || !tabSpec.isValid()) return;
 
-        auto index = tab_widget->addTab(tabSpec.widget, tabSpec.text);
-        tab_widget->setTabData(index, tabSpec.userData);
-        tab_widget->setTabToolTip(index, tabSpec.toolTip);
-        tab_widget->setTabAlert(index, tabSpec.alertMessage);
-        tab_widget->setTabFlagged(index, tabSpec.isFlagged);
+        auto index = tab_widget->addTab(tabSpec);
         tab_widget->setCurrentIndex(index);
     }
 
@@ -736,22 +732,18 @@ private:
         auto target = findOrCreateSplit_(surface, source, direction);
         if (!target) return;
 
-        auto view = source->widgetAt<AbstractFileView*>(i);
-        if (!view) return;
-
-        auto text = source->tabText(i);
-        auto tool_tip = source->tabToolTip(i);
-        auto flagged = source->tabFlagged(i);
-        auto alert = source->tabAlertMessage(i);
+        auto spec = source->tabSpecAt(i);
+        if (!spec.isValid()) return;
 
         source->removeTab(i);
 
-        auto new_index = target->addTab(view, text);
-        target->setTabToolTip(new_index, tool_tip);
-        target->setTabFlagged(new_index, flagged);
-        if (!alert.isEmpty()) target->setTabAlert(new_index, alert);
+        auto new_index = target->addTab(spec);
         target->setCurrentIndex(new_index);
-        view->setFocus();
+
+        /// TODO TS: Should we be setting widget focus, too, every where we call
+        /// setCurrentIndex for a tab drop (here or maybe also in TabWidget) (I
+        /// think maybe we already do here in ViewService)?
+        if (spec.widget) spec.widget->setFocus();
     }
 
     /// TODO TS
@@ -1281,6 +1273,11 @@ private slots:
     }
 
     /// TODO TS
+    // Drag-to-split always creates a new split at the drop location, even if a
+    // neighbor already exists. This is intentional: the drag gesture targets a
+    // specific visual position ("put a new split here"), unlike the menu
+    // actions (splitLeft/splitRight) which reuse an existing neighbor when
+    // available
     void onTabDraggedToSplitEdge_(
         TabWidget* source,
         TabWidget* dropTarget,
@@ -1301,12 +1298,7 @@ private slots:
 
         if (!new_split) return;
 
-        auto new_index = new_split->addTab(tabSpec.widget, tabSpec.text);
-        new_split->setTabData(new_index, tabSpec.userData);
-        new_split->setTabToolTip(new_index, tabSpec.toolTip);
-        new_split->setTabFlagged(new_index, tabSpec.isFlagged);
-        if (!tabSpec.alertMessage.isEmpty())
-            new_split->setTabAlert(new_index, tabSpec.alertMessage);
+        auto new_index = new_split->addTab(tabSpec);
         new_split->setCurrentIndex(new_index);
 
         if (tabSpec.widget) tabSpec.widget->setFocus();

@@ -62,14 +62,18 @@ public:
         if (!tabWidget || splitCount() <= 1) return;
 
         auto was_active = (tabWidget == activeTabWidget_);
+        auto old_index = indexOf(tabWidget);
 
         tabWidget->setParent(nullptr);
         delete tabWidget;
 
         if (was_active) {
-            auto remaining = tabWidgets();
-            setActiveTabWidget_(
-                remaining.isEmpty() ? nullptr : remaining.last());
+            auto clamped = qBound(0, old_index, splitter_->count() - 1);
+            setActiveTabWidget_(tabWidgetAt(clamped));
+
+            /// TODO TS: Should we set widget focus here? (If so, should
+            /// TabWidget set focus proxy and we always call setFocus there
+            /// instead of at every/many call sites?)
         }
     }
 

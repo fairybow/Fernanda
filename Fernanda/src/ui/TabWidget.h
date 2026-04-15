@@ -123,7 +123,10 @@ public:
 
     /// TODO: Rename a lot of these (e.g., textAt instead of tabText, maybe)
 
+    TabSpec tabSpecAt(int index) const;
     int addTab(QWidget* widget, const QString& tabText);
+    int addTab(const TabSpec& tabSpec);
+
     int insertTab(int index, QWidget* widget, const QString& tabText);
     QWidget* removeTab(int index);
 
@@ -310,7 +313,6 @@ private:
     void startDrag_(int index);
     QByteArray serialize_(const TabDragContext_& dragContext);
     TabDragContext_ deserialize_(QByteArray& data);
-    int addDroppedTab_(const TabSpec& tabSpec);
     QPixmap dragPixmap_(const QString& tabText) const;
 
     /// TODO TS

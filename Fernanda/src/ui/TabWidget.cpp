@@ -189,9 +189,30 @@ QList<QWidget*> TabWidget::widgets() const
 
 // --- Tabs ---
 
+TabWidget::TabSpec TabWidget::tabSpecAt(int index) const
+{
+    return { widgetAt(index),   tabData(index),         tabText(index),
+             tabToolTip(index), tabAlertMessage(index), tabFlagged(index) };
+}
+
 int TabWidget::addTab(QWidget* widget, const QString& tabText)
 {
     return addOrInsertTab_(-1, widget, tabText);
+}
+
+int TabWidget::addTab(const TabSpec& tabSpec)
+{
+    auto index = addTab(tabSpec.widget, tabSpec.text);
+
+    setTabData(index, tabSpec.userData);
+    setTabToolTip(index, tabSpec.toolTip);
+    setTabFlagged(index, tabSpec.isFlagged);
+
+    if (!tabSpec.alertMessage.isEmpty()) {
+        setTabAlert(index, tabSpec.alertMessage);
+    }
+
+    return index;
 }
 
 int TabWidget::insertTab(int index, QWidget* widget, const QString& tabText)
@@ -464,7 +485,8 @@ void TabWidget::dropEvent(QDropEvent* event)
     /// TODO TS
     switch (dropZone_(event->position().toPoint())) {
     case DropZone_::TabBar: {
-        auto new_index = addDroppedTab_(tab_assembly.tabSpec);
+        auto new_index = addTab(tab_assembly.tabSpec);
+        setCurrentIndex(new_index);
         emit tabDragged(
             { tab_assembly.origin, tab_assembly.originIndex },
             { this, new_index });
@@ -701,17 +723,10 @@ void TabWidget::startDrag_(int index)
         QPoint(tab_rect.width() / 2, tab_rect.height() / 2);
 
     // Store tab data BEFORE removing
-    TabDragContext_ drag_context{
-        this,
-        index,
-        TabSpec{ widget,
-                 tabData(index),
-                 tabText(index),
-                 tabToolTip(index),
-                 tabAlertMessage(index),
-                 tabFlagged(index),
-                 TabSpec::getOffsetRatios(tab_rect, offset_within_tab) }
-    };
+    auto spec = tabSpecAt(index);
+    spec.offsetRatios = TabSpec::getOffsetRatios(tab_rect, offset_within_tab);
+
+    TabDragContext_ drag_context{ this, index, spec };
 
     // Store necessary information
     mime_data->setData(MIME_TYPE_, serialize_(drag_context));
@@ -798,17 +813,6 @@ TabWidget::TabDragContext_ TabWidget::deserialize_(QByteArray& data)
                       alert_message,
                       is_flagged,
                       offset_ratio } };
-}
-
-int TabWidget::addDroppedTab_(const TabSpec& tabSpec)
-{
-    auto new_index = addTab(tabSpec.widget, tabSpec.text);
-    setTabData(new_index, tabSpec.userData);
-    setTabToolTip(new_index, tabSpec.toolTip);
-    setTabAlert(new_index, tabSpec.alertMessage);
-    setTabFlagged(new_index, tabSpec.isFlagged);
-    setCurrentIndex(new_index);
-    return new_index;
 }
 
 QPixmap TabWidget::dragPixmap_(const QString& tabText) const
