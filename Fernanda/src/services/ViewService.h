@@ -938,6 +938,24 @@ private:
             this,
             &ViewService::onTabDraggedOutside_);
 
+        /// TODO TS
+        connect(
+            tab_widget,
+            &TabWidget::tabDraggedToSplitEdge,
+            this,
+            &ViewService::onTabDraggedToSplitEdge_);
+
+        /// TODO TS
+        connect(tab_widget, &TabWidget::dragStarted, this, [this] {
+            suppressAutoCollapse_ = true;
+        });
+
+        /// TODO TS
+        connect(tab_widget, &TabWidget::dragEnded, this, [this] {
+            suppressAutoCollapse_ = false;
+            cleanupEmptySplits_();
+        });
+
         connect(
             tab_widget,
             &TabWidget::tabContextMenuRequested,
@@ -970,6 +988,26 @@ private:
         if (!is_valid) INFO("Rejected tab drag between different Workspaces");
 
         return is_valid;
+    }
+
+    /// TODO TS
+    void cleanupEmptySplits_()
+    {
+        for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
+            auto surface = tabSurface_(window);
+            if (!surface) continue;
+
+            QList<TabWidget*> empty{};
+            for (auto tw : surface->tabWidgets())
+                if (tw->isEmpty()) empty << tw;
+
+            for (auto tw : empty) {
+                if (surface->splitCount() > 1) {
+                    surface->removeSplit(tw);
+                    emit bus->splitCountChanged(window);
+                }
+            }
+        }
     }
 
     /// TODO TS
@@ -1240,6 +1278,41 @@ private slots:
 
         auto source_window = Coco::findParent<Window*>(source);
         emit tabDraggedToNewWindow(source_window, dropPos, tabSpec);
+    }
+
+    /// TODO TS
+    void onTabDraggedToSplitEdge_(
+        TabWidget* source,
+        TabWidget* dropTarget,
+        const TabWidget::TabSpec& tabSpec,
+        TabWidget::SplitSide side)
+    {
+        if (!tabSpec.isValid() || !dropTarget) return;
+
+        auto window = Coco::findParent<Window*>(dropTarget);
+        if (!window) return;
+
+        auto surface = tabSurface_(window);
+        if (!surface) return;
+
+        auto new_split = (side == TabWidget::SplitSide::Left)
+                             ? surface->addSplitBefore(dropTarget)
+                             : surface->addSplitAfter(dropTarget);
+
+        if (!new_split) return;
+
+        auto new_index = new_split->addTab(tabSpec.widget, tabSpec.text);
+        new_split->setTabData(new_index, tabSpec.userData);
+        new_split->setTabToolTip(new_index, tabSpec.toolTip);
+        new_split->setTabFlagged(new_index, tabSpec.isFlagged);
+        if (!tabSpec.alertMessage.isEmpty())
+            new_split->setTabAlert(new_index, tabSpec.alertMessage);
+        new_split->setCurrentIndex(new_index);
+
+        if (tabSpec.widget) tabSpec.widget->setFocus();
+
+        auto source_window = Coco::findParent<Window*>(source);
+        emit tabDragCompleted(source_window, window);
     }
 };
 

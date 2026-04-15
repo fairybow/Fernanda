@@ -432,11 +432,9 @@ void TabWidget::dragMoveEvent(QDragMoveEvent* event)
         return;
     }
 
-    // Only accept drops directly on the tab bar
-    auto pos_in_tab_bar = tabBar_->mapFrom(this, event->position().toPoint());
-
-    tabBar_->rect().contains(pos_in_tab_bar) ? event->acceptProposedAction()
-                                             : event->ignore();
+    /// TODO TS
+    auto zone = dropZone_(event->position().toPoint());
+    zone != DropZone_::None ? event->acceptProposedAction() : event->ignore();
 }
 
 void TabWidget::dropEvent(QDropEvent* event)
@@ -452,7 +450,6 @@ void TabWidget::dropEvent(QDropEvent* event)
     auto item_data = mime_data->data(MIME_TYPE_);
     auto tab_assembly = deserialize_(item_data);
 
-    // Validate the extracted data
     if (!tab_assembly.isValid()) {
         event->ignore();
         return;
@@ -464,12 +461,39 @@ void TabWidget::dropEvent(QDropEvent* event)
         return;
     }
 
-    // Drop and notify about successful drag
-    auto new_index = addDroppedTab_(tab_assembly.tabSpec);
-    emit tabDragged(
-        { tab_assembly.origin, tab_assembly.originIndex },
-        { this, new_index });
-    event->acceptProposedAction();
+    /// TODO TS
+    switch (dropZone_(event->position().toPoint())) {
+    case DropZone_::TabBar: {
+        auto new_index = addDroppedTab_(tab_assembly.tabSpec);
+        emit tabDragged(
+            { tab_assembly.origin, tab_assembly.originIndex },
+            { this, new_index });
+        event->acceptProposedAction();
+        break;
+    }
+
+    case DropZone_::SplitLeft:
+        emit tabDraggedToSplitEdge(
+            tab_assembly.origin,
+            this,
+            tab_assembly.tabSpec,
+            SplitSide::Left);
+        event->acceptProposedAction();
+        break;
+
+    case DropZone_::SplitRight:
+        emit tabDraggedToSplitEdge(
+            tab_assembly.origin,
+            this,
+            tab_assembly.tabSpec,
+            SplitSide::Right);
+        event->acceptProposedAction();
+        break;
+
+    case DropZone_::None:
+        event->ignore();
+        break;
+    }
 }
 
 // --- Private ---
@@ -680,7 +704,6 @@ void TabWidget::startDrag_(int index)
     TabDragContext_ drag_context{
         this,
         index,
-
         TabSpec{ widget,
                  tabData(index),
                  tabText(index),
@@ -693,6 +716,9 @@ void TabWidget::startDrag_(int index)
     // Store necessary information
     mime_data->setData(MIME_TYPE_, serialize_(drag_context));
     drag->setMimeData(mime_data);
+
+    /// TODO TS
+    emit dragStarted();
 
     // Remove the tab before dragging
     removeTab(index);
@@ -722,6 +748,9 @@ void TabWidget::startDrag_(int index)
         // Fernanda (e.g., a browser). Open in a new window.
         emit tabDraggedOutside(this, QCursor::pos(), drag_context.tabSpec);
     }
+
+    /// TODO TS
+    emit dragEnded();
 }
 
 QByteArray TabWidget::serialize_(const TabDragContext_& dragContext)

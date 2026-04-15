@@ -194,6 +194,13 @@ public:
 
     // --- Tab dragging ---
 
+    /// TODO TS
+    enum class SplitSide
+    {
+        Left,
+        Right
+    };
+
     DragValidator dragValidator() const noexcept;
     void setDragValidator(const DragValidator& validator);
 
@@ -224,6 +231,13 @@ signals:
         TabWidget* source,
         const QPoint& dropPos,
         const TabSpec& tabSpec); /// TODO TD
+    void tabDraggedToSplitEdge(
+        TabWidget* source,
+        TabWidget* dropTarget,
+        const TabSpec& tabSpec,
+        SplitSide side); /// TODO TS
+    void dragStarted(); /// TODO TS
+    void dragEnded(); /// TODO TS
     void tabContextMenuRequested(int index, const QPoint& globalPos);
     void addButtonContextMenuRequested(const QPoint& globalPos);
 
@@ -298,6 +312,34 @@ private:
     TabDragContext_ deserialize_(QByteArray& data);
     int addDroppedTab_(const TabSpec& tabSpec);
     QPixmap dragPixmap_(const QString& tabText) const;
+
+    /// TODO TS
+    enum class DropZone_
+    {
+        TabBar,
+        SplitLeft,
+        SplitRight,
+        None
+    };
+
+    /// TODO TS
+    DropZone_ dropZone_(const QPoint& pos) const
+    {
+        auto pos_in_tab_bar = tabBar_->mapFrom(this, pos);
+        if (tabBar_->rect().contains(pos_in_tab_bar)) return DropZone_::TabBar;
+
+        // Content area (below tab bar)
+        auto content_rect = rect().adjusted(0, tabBar_->height(), 0, 0);
+        if (!content_rect.contains(pos)) return DropZone_::None;
+
+        auto edge_width = content_rect.width() / 4;
+        if (pos.x() < content_rect.left() + edge_width)
+            return DropZone_::SplitLeft;
+        if (pos.x() > content_rect.right() - edge_width)
+            return DropZone_::SplitRight;
+
+        return DropZone_::None;
+    }
 
 private slots:
     void onTabBarCurrentChanged_(int index);
