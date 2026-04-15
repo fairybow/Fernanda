@@ -377,21 +377,17 @@ private slots:
     }
 
     /// TODO TD: Remove toWindow?
+    /// TODO TS
     void
     onTabDragCompleted_(Window* fromWindow, [[maybe_unused]] Window* toWindow)
     {
         refreshMenus(MenuScope::Window);
         refreshMenus(MenuScope::Workspace);
-
-        // Close the source window if it has no remaining tabs
-        auto source_tab_widget =
-            qobject_cast<TabWidget*>(fromWindow->centralWidget());
-
-        if (source_tab_widget && source_tab_widget->isEmpty())
-            fromWindow->close();
+        if (views->fileViewsIn(fromWindow).isEmpty()) fromWindow->close();
     }
 
     /// TODO TD
+    /// TODO TS
     // TODO: Currently, we have the new window's origin right at the drop point.
     // Later, we may want to find a way to instead position the window such that
     // the dropped tab is aligned with the tab's future position in the new
@@ -414,11 +410,9 @@ private slots:
 
         // Close the source window if it has no remaining tabs
         if (sourceWindow) {
-            auto source_tab_widget =
-                qobject_cast<TabWidget*>(sourceWindow->centralWidget());
-
-            if (source_tab_widget && source_tab_widget->isEmpty())
+            if (views->fileViewsIn(sourceWindow).isEmpty()) {
                 sourceWindow->close();
+            }
         }
     }
 
