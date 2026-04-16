@@ -933,7 +933,12 @@ TabWidget::DropZone_ TabWidget::dropZone_(const QPoint& pos) const
 
 void TabWidget::onTabBarCurrentChanged_(int index)
 {
-    if (auto widget = widgetAt(index)) widgetStack_->setCurrentWidget(widget);
+    if (auto widget = widgetAt(index)) {
+        widgetStack_->setCurrentWidget(widget);
+        setFocusProxy(widget);
+    } else {
+        setFocusProxy(nullptr);
+    }
 
     emit currentChanged(index);
 }

@@ -107,7 +107,10 @@ public:
         if (!tab_widget || !tabSpec.isValid()) return;
 
         auto index = tab_widget->addTab(tabSpec);
+
+        /// TODO TS: Should we set index and focus here or should caller?
         tab_widget->setCurrentIndex(index);
+        tab_widget->setFocus();
     }
 
     int countFor(AbstractFileModel* fileModel) const
@@ -342,7 +345,7 @@ public:
         tab_widget->setTabFlagged(new_index, model->isModified());
         tab_widget->setTabToolTip(new_index, meta->toolTip());
         tab_widget->setCurrentIndex(new_index);
-        view->setFocus();
+        tab_widget->setFocus();
     }
 
     // No hook!
@@ -786,11 +789,7 @@ private:
 
         auto new_index = target->addTab(spec);
         target->setCurrentIndex(new_index);
-
-        /// TODO TS: Should we be setting widget focus, too, every where we call
-        /// setCurrentIndex for a tab drop (here or maybe also in TabWidget) (I
-        /// think maybe we already do here in ViewService)?
-        if (spec.widget) spec.widget->setFocus();
+        target->setFocus();
     }
 
     /// TODO TS
@@ -822,7 +821,7 @@ private:
         target->setTabFlagged(new_index, model->isModified());
         target->setTabToolTip(new_index, meta->toolTip());
         target->setCurrentIndex(new_index);
-        view->setFocus();
+        target->setFocus();
     }
 
     // If index is -1, it will become current index
@@ -1214,7 +1213,7 @@ private slots:
         tab_widget->setTabFlagged(index, fileModel->isModified());
         tab_widget->setTabToolTip(index, meta->toolTip());
         tab_widget->setCurrentIndex(index);
-        view->setFocus();
+        tab_widget->setFocus();
     }
 
     void onBusFileModelModificationChanged_(
@@ -1302,7 +1301,7 @@ private slots:
         if (old_window == new_window) return;
 
         new_window->activate();
-        if (auto view = fileViewAt(new_window, now.index)) view->setFocus();
+        now.tabWidget->setFocus();
 
         emit tabDragCompleted(old_window, new_window);
     }
@@ -1347,8 +1346,7 @@ private slots:
 
         auto new_index = new_split->addTab(tabSpec);
         new_split->setCurrentIndex(new_index);
-
-        if (tabSpec.widget) tabSpec.widget->setFocus();
+        new_split->setFocus();
 
         auto source_window = Coco::findParent<Window*>(source);
         emit tabDragCompleted(source_window, window);

@@ -409,7 +409,6 @@ private slots:
         if (!new_window) return;
 
         views->insertTabSpec(new_window, tabSpec);
-        tabSpec.widget->setFocus();
 
         refreshMenus(MenuScope::Window);
         refreshMenus(MenuScope::Workspace);

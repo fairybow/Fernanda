@@ -69,11 +69,9 @@ public:
 
         if (was_active) {
             auto clamped = qBound(0, old_index, splitter_->count() - 1);
-            setActiveTabWidget_(tabWidgetAt(clamped));
-
-            /// TODO TS: Should we set widget focus here? (If so, should
-            /// TabWidget set focus proxy and we always call setFocus there
-            /// instead of at every/many call sites?)
+            auto new_active = tabWidgetAt(clamped);
+            setActiveTabWidget_(new_active);
+            if (new_active) new_active->setFocus();
         }
     }
 
