@@ -62,14 +62,24 @@ public:
         if (!tabWidget || splitCount() <= 1) return;
 
         auto was_active = (tabWidget == activeTabWidget_);
-        auto old_index = indexOf(tabWidget);
+
+        // Pre-select the replacement using visual adjacency. Prefer the right
+        // neighbor (fills the vacated position), fall back to the left
+        TabWidget* new_active = nullptr;
+
+        if (was_active) {
+            new_active = rightOf(tabWidget);
+            if (!new_active) new_active = leftOf(tabWidget);
+
+            // Clear before delete so focusChanged events during destruction
+            // don't race against our explicit assignment below
+            activeTabWidget_ = nullptr;
+        }
 
         tabWidget->setParent(nullptr);
         delete tabWidget;
 
         if (was_active) {
-            auto clamped = qBound(0, old_index, splitter_->count() - 1);
-            auto new_active = tabWidgetAt(clamped);
             setActiveTabWidget_(new_active);
             if (new_active) new_active->setFocus();
         }
