@@ -460,6 +460,13 @@ public:
         emit bus->splitCountChanged(window);
     }
 
+    /// TODO TS
+    int splitCount(Window* window) const
+    {
+        auto surface = tabSurface_(window);
+        return surface ? surface->splitCount() : 1;
+    }
+
     void undo(Window* window, int index = -1)
     {
         auto model = fileModelAt(window, index);

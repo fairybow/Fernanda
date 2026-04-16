@@ -386,6 +386,9 @@ private slots:
     {
         refreshMenus(MenuScope::Window);
         refreshMenus(MenuScope::Workspace);
+
+        // fileViewsIn checks actual views, not split count, so this is safe
+        // even while suppressAutoCollapse_ defers empty-split cleanup
         if (views->fileViewsIn(fromWindow).isEmpty()) fromWindow->close();
     }
 
@@ -426,8 +429,6 @@ private slots:
         const QPoint& globalPos)
     {
         if (!window || globalPos.isNull()) return;
-
-        auto surface = qobject_cast<TabSurface*>(window->centralWidget());
 
         MenuBuilder(MenuBuilder::ContextMenu, window)
             .action(Tr::nxDuplicateTab())
@@ -470,7 +471,7 @@ private slots:
                 [this, window, index] {
                     views->closeTabEverywhere(window, index);
                 })
-            .actionIf(surface && surface->splitCount() > 1, Tr::nxCloseSplit())
+            .actionIf(views->splitCount(window) > 1, Tr::nxCloseSplit())
             .onUserTrigger(this, [this, window] { views->closeSplit(window); })
             .popup(globalPos);
     }

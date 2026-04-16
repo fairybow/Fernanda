@@ -186,11 +186,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         .enabledToggle(
             state,
             MenuScope::Window,
-            [this, window] {
-                auto surface =
-                    qobject_cast<TabSurface*>(window->centralWidget());
-                return surface && surface->splitCount() > 1;
-            })
+            [this, window] { return views->splitCount(window) > 1; })
         .endSubmenu()
         .separator()
         .submenu(Tr::nxClose())
