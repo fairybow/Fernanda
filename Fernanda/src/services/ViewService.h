@@ -858,8 +858,9 @@ private:
 
         AbstractFileView* active = nullptr;
 
-        if (index > -1)
+        if (index > -1) {
             if (auto view = fileViewAt(window, index)) active = view;
+        }
 
         activeFileViews_[window] = active;
         INFO("Active file view changed in [{}] to [{}]", window, active);
@@ -892,14 +893,6 @@ private:
 
         connect(
             tab_surface,
-            &TabSurface::splitAdded,
-            this,
-            [this, window]([[maybe_unused]] TabWidget*) {
-                emit bus->splitCountChanged(window);
-            });
-
-        connect(
-            tab_surface,
             &TabSurface::splitEmpty,
             this,
             [this, tab_surface, window](TabWidget* tabWidget) {
@@ -923,87 +916,91 @@ private:
     }
 
     /// TODO TS
-    void wireTabWidget_(TabWidget* tab_widget)
+    void wireTabWidget_(TabWidget* tabWidget)
     {
-        if (!tab_widget) return;
+        if (!tabWidget) return;
 
-        auto window = Coco::findParent<Window*>(tab_widget);
+        auto window = Coco::findParent<Window*>(tabWidget);
         if (!window) return;
 
-        tab_widget->setElideMode(Qt::ElideRight);
-        tab_widget->setDragValidator(
+        tabWidget->setElideMode(Qt::ElideRight);
+        tabWidget->setDragValidator(
             this,
             &ViewService::tabWidgetDragValidator_);
-        tab_widget->setTabsDraggable(true);
+        tabWidget->setTabsDraggable(true);
 
         connect(
-            tab_widget,
+            tabWidget,
             &TabWidget::currentChanged,
             this,
-            [this, window, tab_widget](int index) {
+            [this, window, tabWidget](int index) {
                 // Only update active view if this is the active split
-                if (activeTabWidget_(window) == tab_widget)
+                if (activeTabWidget_(window) == tabWidget) {
                     setActiveFileView_(window, index);
+                }
             });
 
-        connect(tab_widget, &TabWidget::addTabRequested, this, [this, window] {
+        connect(tabWidget, &TabWidget::addTabRequested, this, [this, window] {
             emit addTabRequested(window);
         });
 
         connect(
-            tab_widget,
+            tabWidget,
             &TabWidget::closeTabRequested,
             this,
-            [this, tab_widget](int index) { closeTabIn_(tab_widget, index); });
+            [this, tabWidget](int index) { closeTabIn_(tabWidget, index); });
 
         /// TODO TD
         connect(
-            tab_widget,
+            tabWidget,
             &TabWidget::tabDragged,
             this,
             &ViewService::onTabDragged_);
 
         /// TODO TD
         connect(
-            tab_widget,
+            tabWidget,
             &TabWidget::tabDraggedOutside,
             this,
             &ViewService::onTabDraggedOutside_);
 
         /// TODO TS
         connect(
-            tab_widget,
+            tabWidget,
             &TabWidget::tabDraggedToSplitEdge,
             this,
             &ViewService::onTabDraggedToSplitEdge_);
 
         /// TODO TS
-        connect(tab_widget, &TabWidget::dragStarted, this, [this] {
+        connect(tabWidget, &TabWidget::dragStarted, this, [this] {
             suppressAutoCollapse_ = true;
         });
 
         /// TODO TS
-        connect(tab_widget, &TabWidget::dragEnded, this, [this] {
+        connect(tabWidget, &TabWidget::dragEnded, this, [this] {
             suppressAutoCollapse_ = false;
             cleanupEmptySplits_();
         });
 
        connect(
-            tab_widget,
+            tabWidget,
             &TabWidget::tabContextMenuRequested,
             this,
-            [this, window, tab_widget](int index, const QPoint& globalPos) {
-                tab_widget->setFocus();
+            [this, window, tabWidget](int index, const QPoint& globalPos) {
+                tabWidget->setFocus();
                 emit tabContextMenuRequested(window, index, globalPos);
             });
 
         connect(
-            tab_widget,
+            tabWidget,
             &TabWidget::addButtonContextMenuRequested,
             this,
             [this, window](const QPoint& globalPos) {
                 emit addButtonContextMenuRequested(window, globalPos);
             });
+
+        /// TODO TS: Is this the right place to emit this?
+        emit bus->splitCountChanged(window);
     }
 
     /// TODO TD
@@ -1031,8 +1028,10 @@ private:
             if (!surface) continue;
 
             QList<TabWidget*> empty{};
-            for (auto tw : surface->tabWidgets())
+
+            for (auto tw : surface->tabWidgets()) {
                 if (tw->isEmpty()) empty << tw;
+            }
 
             for (auto tw : empty) {
                 if (surface->splitCount() > 1) {
