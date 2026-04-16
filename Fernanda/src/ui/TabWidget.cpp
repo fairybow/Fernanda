@@ -733,7 +733,13 @@ void TabWidget::startDrag_(int index)
     mime_data->setData(MIME_TYPE_, serialize_(drag_context));
     drag->setMimeData(mime_data);
 
-    /// TODO TS
+    /// TODO TS: Consider DragScrop_ RAII guard
+    // dragStarted/dragEnded bracket the entire drag lifecycle. drag->exec()
+    // runs a modal event loop, so the target's dropEvent (which may emit
+    // tabDraggedToSplitEdge and create new splits) completes synchronously
+    // before exec() returns. This guarantees suppressAutoCollapse is active
+    // throughout: remove the tab here (possibly leaving source empty), the
+    // drop creates new splits or windows, then dragEnded runs cleanup
     emit dragStarted();
 
     // Remove the tab before dragging
