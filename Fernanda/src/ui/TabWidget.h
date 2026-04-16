@@ -321,7 +321,7 @@ private:
         TabBar,
         SplitLeft,
         SplitRight,
-        None
+        Passthrough
     };
 
     /// TODO TS

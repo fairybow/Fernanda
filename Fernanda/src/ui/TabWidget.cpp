@@ -455,7 +455,7 @@ void TabWidget::dragMoveEvent(QDragMoveEvent* event)
 
     /// TODO TS
     auto zone = dropZone_(event->position().toPoint());
-    zone != DropZone_::None ? event->acceptProposedAction() : event->ignore();
+    zone != DropZone_::Passthrough ? event->acceptProposedAction() : event->ignore();
 }
 
 void TabWidget::dropEvent(QDropEvent* event)
@@ -512,7 +512,7 @@ void TabWidget::dropEvent(QDropEvent* event)
         event->acceptProposedAction();
         break;
 
-    case DropZone_::None:
+    case DropZone_::Passthrough:
         event->ignore();
         break;
     }
@@ -917,7 +917,7 @@ TabWidget::DropZone_ TabWidget::dropZone_(const QPoint& pos) const
 
     // Content area (below tab bar)
     auto content_rect = rect().adjusted(0, tabBar_->height(), 0, 0);
-    if (!content_rect.contains(pos)) return DropZone_::None;
+    if (!content_rect.contains(pos)) return DropZone_::Passthrough;
 
     auto edge_width = content_rect.width() / 4;
 
@@ -926,7 +926,7 @@ TabWidget::DropZone_ TabWidget::dropZone_(const QPoint& pos) const
         return DropZone_::SplitRight;
     }
 
-    return DropZone_::None;
+    return DropZone_::Passthrough;
 }
 
 // --- Private slots ---
