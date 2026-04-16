@@ -898,6 +898,17 @@ private:
             this,
             &ViewService::wireTabWidget_);
 
+        connect(tab_surface, &TabSurface::splitAdded, this, [this, window] {
+            // Suppress on initial split (count 1 is the baseline, not a
+            // change). Subsequent splits fire this because QSplitter insertion
+            // happens before splitAdded, so splitCount() is already >= 2 when
+            // we arrive here
+            auto surface = tabSurface_(window);
+            if (surface && surface->splitCount() > 1) {
+                emit bus->splitCountChanged(window);
+            }
+        });
+
         connect(
             tab_surface,
             &TabSurface::splitEmpty,
@@ -1006,8 +1017,6 @@ private:
             [this, window](const QPoint& globalPos) {
                 emit addButtonContextMenuRequested(window, globalPos);
             });
-
-        emit bus->splitCountChanged(window);
     }
 
     /// TODO TD
