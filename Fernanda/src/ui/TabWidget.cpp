@@ -606,6 +606,7 @@ void TabWidget::initializeTabBarPropagatedSignals_()
     });
 }
 
+// TODO: QSignalBlocker in here?
 int
 TabWidget::addOrInsertTab_(int index, QWidget* widget, const QString& tabText)
 {
@@ -641,7 +642,13 @@ TabWidget::addOrInsertTab_(int index, QWidget* widget, const QString& tabText)
 
     // If this was the first tab, emit the signal manually after everything
     // is set up
-    if (tabBar_->count() == 1) emit currentChanged(0);
+    if (tabBar_->count() == 1) {
+        // Call the slot directly because tab bar signals were blocked during
+        // setup to prevent consumers seeing a tab with no data yet. The slot
+        // sets up the focus proxy and widget stack in addition to emitting
+        // currentChanged, all of which needs to happen for the first tab
+        onTabBarCurrentChanged_(0);
+    }
 
     tabInserted(new_index); // Hook
     emit tabCountChanged(); // Right place for this?

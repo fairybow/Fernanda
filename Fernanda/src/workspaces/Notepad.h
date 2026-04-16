@@ -228,6 +228,11 @@ protected:
         return Ini::LocalKeys::NOTEPAD_TREE_VIEW_DOCK;
     }
 
+    virtual QString uniqueTabsIniKey() const override
+    {
+        return Ini::LocalKeys::NOTEPAD_UNIQUE_TABS;
+    }
+
     /// TODO TS
     virtual bool canCloseTab(Window* window, AbstractFileModel* model) override
     {
@@ -279,15 +284,6 @@ protected:
             windows.last(),
             nullptr,
             true);
-    }
-
-    // TODO: Do this for TreeView setting above? (Maybe - if both Workspaces
-    // share this settings call, it almost makes more sense to just return the
-    // key alone as above)
-    virtual bool
-    shouldOpenTab(Window* window, AbstractFileModel* model) override
-    {
-        return !settings->get<bool>(Ini::LocalKeys::NOTEPAD_UNIQUE_TABS);
     }
 
     virtual bool canCloseWindow(Window* window) override

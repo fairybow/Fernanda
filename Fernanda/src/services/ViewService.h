@@ -1204,9 +1204,8 @@ private:
         return view;
     }
 
-    // Searches all tab widgets in `window` for a tab bound to `model`.
-    // If found, activates that split, sets the tab current, and focuses.
-    // Returns true if a tab was found and focused.
+    // Searches all tab widgets in `window` for a tab bound to `model`. If
+    // found, sets the tab current and focuses. Returns true if focused
     bool focusExistingTabForModel_(Window* window, AbstractFileModel* model)
     {
         if (!window || !model) return false;
@@ -1217,8 +1216,6 @@ private:
 
             tab_widget->setCurrentIndex(index);
             tab_widget->setFocus();
-            window->raise();
-            window->activateWindow();
             return true;
         }
 

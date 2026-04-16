@@ -361,6 +361,8 @@ namespace Tr {
     TR_(nxDuplicateToSplitRight, tr("Duplicate tab to split right"));
     TR_(nxCloseSplit, tr("Close split"));
 
+    TR_(nxUniqueTabs, tr("Unique tabs"));
+
 } // namespace Tr
 
 } // namespace Fernanda

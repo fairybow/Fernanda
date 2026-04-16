@@ -13,6 +13,7 @@
 #include "workspaces/Workspace.h"
 
 #include <QAction>
+#include <QSignalBlocker>
 #include <QString>
 
 #include "core/Application.h"
@@ -61,6 +62,8 @@ void Workspace::createWindowMenuBar_(Window* window)
 
     auto state = new MenuState(window, this);
     menuStates_[window] = state;
+
+    QAction* unique_tabs = nullptr;
 
     MenuBuilder(MenuBuilder::MenuBar, window)
 
@@ -312,6 +315,14 @@ void Workspace::createWindowMenuBar_(Window* window)
                 if (!window || !window->isVisible()) return;
                 settings->set(treeViewDockIniKey(), checked);
             })
+        .action(Tr::nxUniqueTabs())
+        .checkable(settings->get<bool>(uniqueTabsIniKey()))
+        .capture(&unique_tabs)
+        .onToggle(
+            this,
+            [this](bool checked) {
+                settings->set(uniqueTabsIniKey(), checked);
+            })
 
         .barAction(Tr::nxSettingsMenu())
         .onUserTrigger(this, [this] { settings->openDialog(); })
@@ -324,6 +335,16 @@ void Workspace::createWindowMenuBar_(Window* window)
         .onUserTrigger(this, [] { UpdateDialog::exec(); })
 
         .set();
+
+    connect(
+        bus,
+        &Bus::settingChanged,
+        unique_tabs,
+        [this, unique_tabs](const QString& key, const QVariant& value) {
+            if (key != uniqueTabsIniKey()) return;
+            QSignalBlocker blocker(unique_tabs);
+            unique_tabs->setChecked(value.toBool());
+        });
 }
 
 } // namespace Fernanda

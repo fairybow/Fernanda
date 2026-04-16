@@ -139,6 +139,8 @@ protected:
     // This hook looks ridiculous but right now is how the common TreeView
     // toggle menu item saves the setting per-Workspace subclass
     virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
+    // Returns the local Ini key for this Workspace's "unique tabs" setting
+    virtual QString uniqueTabsIniKey() const = 0;
 
     /// TODO TS
     virtual bool canCloseTab(Window*, AbstractFileModel*) { return true; }
@@ -153,7 +155,6 @@ protected:
     virtual bool canCloseSplit(Window*) { return true; }
     virtual bool canCloseWindowTabs(Window*) { return true; }
     virtual bool canCloseAllTabs(const QList<Window*>&) { return true; }
-    virtual bool shouldOpenTab(Window*, AbstractFileModel*) { return true; }
     virtual bool canCloseWindow(Window*) { return true; }
     virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
 
@@ -218,7 +219,9 @@ private:
         views->setCanCloseSplitHook(this, &Workspace::canCloseSplit);
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
-        views->setShouldOpenTabHook(this, &Workspace::shouldOpenTab);
+        views->setShouldOpenTabHook([this](Window*, AbstractFileModel*) {
+            return !settings->get<bool>(uniqueTabsIniKey());
+        });
 
         connect(
             views,

@@ -212,10 +212,9 @@ protected:
         return Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK;
     }
 
-    virtual bool
-    shouldOpenTab(Window* window, AbstractFileModel* model) override
+    virtual QString uniqueTabsIniKey() const override
     {
-        return !settings->get<bool>(Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS);
+        return Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS;
     }
 
     virtual bool canCloseWindow(Window* window) override
