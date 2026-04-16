@@ -124,6 +124,7 @@ public:
     /// TODO: Rename a lot of these (e.g., textAt instead of tabText, maybe)
 
     TabSpec tabSpecAt(int index) const;
+
     int addTab(QWidget* widget, const QString& tabText);
     int addTab(const TabSpec& tabSpec);
 

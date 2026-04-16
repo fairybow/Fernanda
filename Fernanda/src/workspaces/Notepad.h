@@ -228,6 +228,11 @@ protected:
         return Ini::LocalKeys::NOTEPAD_TREE_VIEW_DOCK;
     }
 
+    virtual QString uniqueTabsIniKey() const override
+    {
+        return Ini::LocalKeys::NOTEPAD_UNIQUE_TABS;
+    }
+
     /// TODO TS
     virtual bool canCloseTab(Window* window, AbstractFileModel* model) override
     {

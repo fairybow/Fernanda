@@ -63,6 +63,8 @@ namespace Keys {
 // Per-workspace-type keys that don't cascade through TieredSettings
 namespace LocalKeys {
 
+    inline const auto NOTEPAD_UNIQUE_TABS = u"Notepad/UniqueTabs"_s;
+    inline const auto NOTEBOOK_UNIQUE_TABS = u"Notebook/UniqueTabs"_s;
     inline const auto NOTEPAD_TREE_VIEW_DOCK = u"Notepad/TreeViewDock"_s;
     inline const auto NOTEBOOK_TREE_VIEW_DOCK = u"Notebook/TreeViewDock"_s;
     inline const auto NOTEBOOK_CHIP_COLOR = u"Notebook/ChipColor"_s;
@@ -123,6 +125,8 @@ inline const Map& defaults()
         { Keys::COLOR_BAR_POSITION, qVar(ColorBar::Top) },
 
         // Local (per-Workspace)
+        { LocalKeys::NOTEPAD_UNIQUE_TABS, true },
+        { LocalKeys::NOTEBOOK_UNIQUE_TABS, true },
         { LocalKeys::NOTEPAD_TREE_VIEW_DOCK, false },
         { LocalKeys::NOTEBOOK_TREE_VIEW_DOCK, true },
         { LocalKeys::NOTEBOOK_CHIP_COLOR, u""_s },

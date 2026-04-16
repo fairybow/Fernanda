@@ -134,8 +134,6 @@ public:
             &SettingsDialog::settingChanged,
             this,
             [this](const QString& key, const QVariant& value) {
-                emit bus->settingChanged(key, value);
-
                 if (debouncers_.contains(key))
                     queueDebouncedSet_(key, value);
                 else
@@ -173,25 +171,20 @@ public:
 
         settings_->setValue(key, value);
         INFO("Setting changed: {} = {}", key, value);
+        emit bus->settingChanged(key, value);
     }
 
 protected:
     virtual void registerBusCommands() override
     {
         bus->addCommandHandler(Bus::GET_SETTING, [this](const Command& cmd) {
-            auto key = cmd.param<QString>("key");
-            return settings_->value(key, Ini::defaults()[key]);
+            return get(cmd.param<QString>("key"));
         });
 
-        // bus->addCommandHandler(Bus::SET_SETTING, [this](const Command& cmd) {
-        //     auto key = cmd.param<QString>("key");
-        //     if (!settings_->isWritable()) {
-        //         WARN("Settings not writable; cannot set key: {}", key);
-        //         return;
-        //     }
-        //
-        //    settings_->setValue(key, cmd.param<QVariant>("value"));
-        // });
+        // TODO: Unused at the moment
+        bus->addCommandHandler(Bus::SET_SETTING, [this](const Command& cmd) {
+            set(cmd.param<QString>("key"), cmd.param<QVariant>("value"));
+        });
     }
 
     virtual void connectBusEvents() override

@@ -52,6 +52,11 @@ public:
     virtual ~SettingsDialog() override { TRACER; }
 
 signals:
+    // NB: One-way! dialog -> outside. The dialog does not listen for external
+    // setting changes, so values changed elsewhere (e.g., via menu toggles)
+    // while the dialog is open will not sync back into its controls. Right now,
+    // no setting is exposed in both places, but if that changes, panels  will
+    // need a way to accept external value updates
     void settingChanged(const QString& key, const QVariant& value);
 
 private:
