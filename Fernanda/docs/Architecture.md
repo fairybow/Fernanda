@@ -293,13 +293,11 @@ sequenceDiagram
 
 ### Closing a Window
 
-Window and tab closure involves hooks, deferred close coalescing, and batch
-flags. See [`Closures.md`](Closures.md) for the full breakdown.
+Window and tab closure involves hooks, deferred close coalescing, and batch flags. See [`Closures.md`](Closures.md) for the full breakdown.
 
 ### Opening a File
 
-This example shows the Workspace acting as coordinator between Services. It
-demonstrates events, the Bus, and the Workspace-as-policy-layer pattern.
+This example shows the Workspace acting as coordinator between Services. It demonstrates events, the Bus, and the Workspace-as-policy-layer pattern.
 
 ```mermaid
 sequenceDiagram
@@ -321,16 +319,16 @@ sequenceDiagram
         FS->>B: emit fileModelReadied(window, newModel)
     end
     B->>VS: fileModelReadied signal
-    VS->>VS: createFileView_(window, model)
-    VS->>VS: Add tab to TabWidget
+    VS->>W: shouldOpenTabHook(window, model)
+    alt Hook denies and existing tab found in window
+        VS->>VS: Focus existing tab
+    else
+        VS->>VS: createFileView_(window, model)
+        VS->>VS: Add tab to TabWidget
+    end
 ```
 
-The Workspace never touches the model or view directly. It translates the
-TreeView index into a path (policy: Notepad uses QFileSystemModel paths, Notebook
-uses FnxModel paths resolved against a working directory) and delegates to
-FileService. FileService handles deduplication (reusing an existing model if the
-file is already open) and creation. ViewService reacts to the Bus event
-independently.
+The Workspace never touches the model or view directly. It translates the TreeView index into a path (policy: Notepad uses QFileSystemModel paths, Notebook uses FnxModel paths resolved against a working directory) and delegates to FileService. FileService handles deduplication (reusing an existing model if the file is already open) and creation. ViewService reacts to the Bus event independently. It consults a Workspace hook before adding a tab, allowing per-workspace policy on whether to add a new tab or focus an existing one for the same model.
 
 ### Cross-Service Query
 

@@ -142,6 +142,11 @@ Shared capabilities:
 - Multiple windows per workspace
 - Window title updates reflecting current file and modification state
 - Tab duplication (even for unsaved files)
+- Tab splits: move or duplicate a tab to a left/right split, creating a new side-by-side TabWidget if one doesn't exist in that direction
+- Tab drag to split edge: drag a tab near the left or right edge of a split to move it into a new split there
+- Close split: close all tabs in the active split (removing the split if more than one exists)
+- Auto-collapse of empty splits (with suppression during drag operations)
+- Unique tabs option (per-workspace): opening an already-open file raises its existing tab instead of creating a new one
 
 ---
 
