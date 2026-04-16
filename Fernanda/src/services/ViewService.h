@@ -982,7 +982,7 @@ private:
             cleanupEmptySplits_();
         });
 
-       connect(
+        connect(
             tabWidget,
             &TabWidget::tabContextMenuRequested,
             this,
