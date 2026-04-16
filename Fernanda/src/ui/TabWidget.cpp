@@ -909,6 +909,26 @@ QPixmap TabWidget::dragPixmap_(const QString& tabText) const
     return pixmap;
 }
 
+/// TODO TS
+TabWidget::DropZone_ TabWidget::dropZone_(const QPoint& pos) const
+{
+    auto pos_in_tab_bar = tabBar_->mapFrom(this, pos);
+    if (tabBar_->rect().contains(pos_in_tab_bar)) return DropZone_::TabBar;
+
+    // Content area (below tab bar)
+    auto content_rect = rect().adjusted(0, tabBar_->height(), 0, 0);
+    if (!content_rect.contains(pos)) return DropZone_::None;
+
+    auto edge_width = content_rect.width() / 4;
+
+    if (pos.x() < content_rect.left() + edge_width) return DropZone_::SplitLeft;
+    if (pos.x() > content_rect.right() - edge_width) {
+        return DropZone_::SplitRight;
+    }
+
+    return DropZone_::None;
+}
+
 // --- Private slots ---
 
 void TabWidget::onTabBarCurrentChanged_(int index)
