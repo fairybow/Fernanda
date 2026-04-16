@@ -38,7 +38,10 @@ Pain points while using:
 - [ ] Sessions (tab splits, open tabs, pinned tabs (future), window positions, TreeView sizes)
 - [x] Option to disallow multiple tabs onto same model
 - [ ] Option to turn tabs off for Notebook!
-- [ ] Title bar to show what's open what tabs are off
+- [ ] ^ Title bar to show what's open when tabs are off
+- [ ] ^ Context menu for title bar to close split (if not last split) and duplicate open document, plus anything else relevant
+- [ ] ^ Handle existing menu item toggling or visibility (what actions in File menu won't be applicable with no tabs)?
+- [ ] ^ For Notebook, we can just close all tabs whenever, no saving needed, so toggling the feature on could probably just close all tabs?
 - [x] Close all tabs option in tab context menu
 - [ ] (Update all documentation)
 - [ ] Investigate large (new file count) Notebook saves (maybe choked a little when saving Save the Cat! template)
