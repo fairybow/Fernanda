@@ -733,7 +733,7 @@ void TabWidget::startDrag_(int index)
     mime_data->setData(MIME_TYPE_, serialize_(drag_context));
     drag->setMimeData(mime_data);
 
-    /// TODO TS: Consider DragScrop_ RAII guard
+    /// TODO TS: Consider DragScrope_ RAII guard
     // dragStarted/dragEnded bracket the entire drag lifecycle. drag->exec()
     // runs a modal event loop, so the target's dropEvent (which may emit
     // tabDraggedToSplitEdge and create new splits) completes synchronously
