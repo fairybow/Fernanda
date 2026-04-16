@@ -455,7 +455,8 @@ void TabWidget::dragMoveEvent(QDragMoveEvent* event)
 
     /// TODO TS
     auto zone = dropZone_(event->position().toPoint());
-    zone != DropZone_::Passthrough ? event->acceptProposedAction() : event->ignore();
+    zone != DropZone_::Passthrough ? event->acceptProposedAction()
+                                   : event->ignore();
 }
 
 void TabWidget::dropEvent(QDropEvent* event)
