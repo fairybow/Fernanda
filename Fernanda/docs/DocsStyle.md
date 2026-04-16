@@ -5,3 +5,9 @@ Documentation describes workflows and processes that are not on their own self-e
 Documentation should be somewhat abstracted from the source code where possible, to minimize stale code references.
 
 A good piece of documentation usually doesn't document a specific file. Rather, it will document a workflow or process that certian files participate in.
+
+## Reference Implementations
+
+The following doc(s) demonstrate clean implementation of standards:
+
+- [Splits.md](Splits.md)
