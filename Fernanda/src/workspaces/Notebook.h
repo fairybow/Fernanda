@@ -212,6 +212,12 @@ protected:
         return Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK;
     }
 
+    virtual bool
+    shouldOpenTab(Window* window, AbstractFileModel* model) override
+    {
+        return !settings->get<bool>(Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS);
+    }
+
     virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1) return true;

@@ -153,6 +153,7 @@ protected:
     virtual bool canCloseSplit(Window*) { return true; }
     virtual bool canCloseWindowTabs(Window*) { return true; }
     virtual bool canCloseAllTabs(const QList<Window*>&) { return true; }
+    virtual bool shouldOpenTab(Window*, AbstractFileModel*) { return true; }
     virtual bool canCloseWindow(Window*) { return true; }
     virtual bool canCloseAllWindows(const QList<Window*>&) { return true; }
 
@@ -206,8 +207,9 @@ private:
                                                       treeViews,
                                                       colorBars,
                                                       styling,
-                                                      wordCounters })
+                                                      wordCounters }) {
             service->initialize();
+        }
 
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
@@ -216,6 +218,7 @@ private:
         views->setCanCloseSplitHook(this, &Workspace::canCloseSplit);
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
+        views->setShouldOpenTabHook(this, &Workspace::shouldOpenTab);
 
         connect(
             views,

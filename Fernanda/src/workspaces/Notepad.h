@@ -281,6 +281,13 @@ protected:
             true);
     }
 
+    // TODO: Do this for TreeView setting above?
+    virtual bool
+    shouldOpenTab(Window* window, AbstractFileModel* model) override
+    {
+        return !settings->get<bool>(Ini::LocalKeys::NOTEPAD_UNIQUE_TABS);
+    }
+
     virtual bool canCloseWindow(Window* window) override
     {
         // Collect unique modified models that only exist in this window

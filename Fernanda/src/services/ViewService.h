@@ -58,6 +58,10 @@ namespace Fernanda {
 // Creates and manages program views (TabWidgets and FileViews) within
 // Windows, routes editing commands, handles view lifecycles, propagates
 // TabWidget signals, and tracks the number of views per model
+//
+/// TODO TS: Finally time to split this into header/source. Give it the same
+/// treatment as TabWidget (organization by section)
+/// ^ Also, deeply need to review for redundancy
 class ViewService : public AbstractService
 {
     Q_OBJECT
@@ -98,6 +102,11 @@ public:
         std::function<bool(const QList<Window*>&)>,
         canCloseAllTabsHook,
         setCanCloseAllTabsHook)
+
+    DECLARE_HOOK(
+        std::function<bool(Window*, AbstractFileModel*)>,
+        shouldOpenTabHook,
+        setShouldOpenTabHook)
 
     /// TODO TD
     // Insert a dragged tab into a window's TabWidget
@@ -1195,6 +1204,27 @@ private:
         return view;
     }
 
+    // Searches all tab widgets in `window` for a tab bound to `model`.
+    // If found, activates that split, sets the tab current, and focuses.
+    // Returns true if a tab was found and focused.
+    bool focusExistingTabForModel_(Window* window, AbstractFileModel* model)
+    {
+        if (!window || !model) return false;
+
+        for (auto& tab_widget : tabWidgets_(window)) {
+            auto index = indexOfModel_(tab_widget, model);
+            if (index < 0) continue;
+
+            tab_widget->setCurrentIndex(index);
+            tab_widget->setFocus();
+            window->raise();
+            window->activateWindow();
+            return true;
+        }
+
+        return false;
+    }
+
 private slots:
     /// TODO TS
     void onBusWindowCreated_(Window* window)
@@ -1216,6 +1246,11 @@ private slots:
         if (!window || !fileModel) return;
         auto tab_widget = activeTabWidget_(window);
         if (!tab_widget) return;
+
+        if (shouldOpenTabHook_ && !shouldOpenTabHook_(window, fileModel)) {
+            if (focusExistingTabForModel_(window, fileModel)) return;
+            // No existing tab in this window (fallthrough to normal add)
+        }
 
         auto view = createFileView_(window, fileModel);
         if (!view) return;
