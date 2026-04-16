@@ -42,6 +42,7 @@ Pain points while using:
 - [ ] ^ Context menu for title bar to close split (if not last split) and duplicate open document, plus anything else relevant
 - [ ] ^ Handle existing menu item toggling or visibility (what actions in File menu won't be applicable with no tabs)?
 - [ ] ^ For Notebook, we can just close all tabs whenever, no saving needed, so toggling the feature on could probably just close all tabs?
+- [ ] ^ we'd probably want this setting to override unique tabs (mandating unique tabs for the Notebook workspace)
 - [x] Close all tabs option in tab context menu
 - [ ] (Update all documentation)
 - [ ] Investigate large (new file count) Notebook saves (maybe choked a little when saving Save the Cat! template)
