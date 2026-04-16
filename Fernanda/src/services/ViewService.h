@@ -135,7 +135,7 @@ public:
     {
         if (!window || !model) return;
 
-        for (auto tab_widget : tabWidgets_(window)) {
+        for (auto& tab_widget : tabWidgets_(window)) {
             auto i = indexOfModel_(tab_widget, model);
             if (i >= 0) {
                 window->activate();
@@ -154,7 +154,7 @@ public:
         if (!model) return nullptr;
 
         for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-            for (auto tab_widget : tabWidgets_(window)) {
+            for (auto& tab_widget : tabWidgets_(window)) {
                 auto i = indexOfModel_(tab_widget, model);
                 if (i >= 0) {
                     window->activate();
@@ -171,7 +171,7 @@ public:
     bool anyViews() const
     {
         for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
-            for (auto tab_widget : tabWidgets_(window)) {
+            for (auto& tab_widget : tabWidgets_(window)) {
                 if (!tab_widget->isEmpty()) return true;
             }
         }
@@ -205,7 +205,7 @@ public:
     {
         QList<AbstractFileView*> views{};
 
-        for (auto tab_widget : tabWidgets_(window)) {
+        for (auto& tab_widget : tabWidgets_(window)) {
             for (auto i = 0; i < tab_widget->count(); ++i) {
                 if (auto view = tab_widget->widgetAt<AbstractFileView*>(i)) {
                     views << view;
@@ -238,7 +238,7 @@ public:
         QList<AbstractFileView*> views{};
 
         for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-            for (auto tab_widget : tabWidgets_(window)) {
+            for (auto& tab_widget : tabWidgets_(window)) {
                 for (auto i = 0; i < tab_widget->count(); ++i) {
                     if (auto view =
                             tab_widget->widgetAt<AbstractFileView*>(i)) {
@@ -263,7 +263,7 @@ public:
         // order
         QList<AbstractFileModel*> result{};
 
-        for (auto view : fileViewsIn(window)) {
+        for (auto& view : fileViewsIn(window)) {
             if (!view) continue;
             auto model = view->model();
             if (!model || !model->isModified()) continue;
@@ -314,7 +314,7 @@ public:
     {
         QList<AbstractFileModel*> result{};
 
-        for (auto view : fileViews()) {
+        for (auto& view : fileViews()) {
             if (!view) continue;
             auto model = view->model();
             if (!model || !model->isModified()) continue;
@@ -355,7 +355,7 @@ public:
         if (fileModels.isEmpty()) return;
 
         for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-            for (auto tab_widget : tabWidgets_(window)) {
+            for (auto& tab_widget : tabWidgets_(window)) {
                 for (auto i = tab_widget->count() - 1; i >= 0; --i) {
                     auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                     if (view && fileModels.contains(view->model()))
@@ -385,7 +385,7 @@ public:
             || canCloseTabEverywhereHook_(window, target_model)) {
 
             for (auto& w : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-                for (auto tab_widget : tabWidgets_(w)) {
+                for (auto& tab_widget : tabWidgets_(w)) {
                     for (auto i = tab_widget->count() - 1; i >= 0; --i) {
                         auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                         if (view && view->model() == target_model) {
@@ -452,12 +452,13 @@ public:
 
         if (canCloseSplitHook_ && !canCloseSplitHook_(window)) return;
 
-        suppressAutoCollapse_ = true;
+        suppressAutoCollapse_[window] = true;
 
-        for (auto i = tab_widget->count() - 1; i >= 0; --i)
+        for (auto i = tab_widget->count() - 1; i >= 0; --i) {
             deleteFileViewAt_(tab_widget, i);
+        }
 
-        suppressAutoCollapse_ = false;
+        suppressAutoCollapse_.remove(window);
 
         surface->removeSplit(tab_widget);
         emit bus->splitCountChanged(window);
@@ -592,8 +593,7 @@ private:
     // Prevents auto-collapse from deleting a TabWidget while closeSplit is
     // iterating over its tabs (closeSplit handles removal itself after the
     // loop)
-    // NB: This is not per-Window and assumes no concurrent drags
-    bool suppressAutoCollapse_ = false; /// TODO TS
+    QHash<Window*, bool> suppressAutoCollapse_{}; /// TODO TS
 
     QHash<Window*, AbstractFileView*> activeFileViews_{};
     QHash<AbstractFileModel*, int> fileViewsPerModel_{};
@@ -697,7 +697,7 @@ private:
 
         auto window_count = 0;
         for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
-            for (auto tab_widget : tabWidgets_(window)) {
+            for (auto& tab_widget : tabWidgets_(window)) {
                 if (indexOfModel_(tab_widget, fileModel) >= 0) {
                     if (++window_count >= 2) return true;
                     break; // Found in this window, move to next
@@ -850,7 +850,7 @@ private:
     /// TODO TS
     void deleteAllFileViewsIn_(Window* window)
     {
-        for (auto tab_widget : tabWidgets_(window)) {
+        for (auto& tab_widget : tabWidgets_(window)) {
             auto views = tab_widget->clear<AbstractFileView*>();
             for (auto& view : views) {
                 delete view;
@@ -903,7 +903,8 @@ private:
             &TabSurface::splitEmpty,
             this,
             [this, tab_surface, window](TabWidget* tabWidget) {
-                if (!suppressAutoCollapse_ && tab_surface->splitCount() > 1) {
+                if (!suppressAutoCollapse_.value(window)
+                    && tab_surface->splitCount() > 1) {
                     tab_surface->removeSplit(tabWidget);
                     emit bus->splitCountChanged(window);
                 }
@@ -979,13 +980,13 @@ private:
             &ViewService::onTabDraggedToSplitEdge_);
 
         /// TODO TS
-        connect(tabWidget, &TabWidget::dragStarted, this, [this] {
-            suppressAutoCollapse_ = true;
+        connect(tabWidget, &TabWidget::dragStarted, this, [this, window] {
+            suppressAutoCollapse_[window] = true;
         });
 
         /// TODO TS
-        connect(tabWidget, &TabWidget::dragEnded, this, [this] {
-            suppressAutoCollapse_ = false;
+        connect(tabWidget, &TabWidget::dragEnded, this, [this, window] {
+            suppressAutoCollapse_.remove(window);
             cleanupEmptySplits_();
         });
 
@@ -1030,16 +1031,17 @@ private:
     void cleanupEmptySplits_()
     {
         for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
+            if (suppressAutoCollapse_.value(window)) continue;
             auto surface = tabSurface_(window);
             if (!surface) continue;
 
             QList<TabWidget*> empty{};
 
-            for (auto tw : surface->tabWidgets()) {
+            for (auto& tw : surface->tabWidgets()) {
                 if (tw->isEmpty()) empty << tw;
             }
 
-            for (auto tw : empty) {
+            for (auto& tw : empty) {
                 if (surface->splitCount() > 1) {
                     surface->removeSplit(tw);
                     emit bus->splitCountChanged(window);
@@ -1053,7 +1055,7 @@ private:
     void forEachFileView_(CallableT&& callable)
     {
         for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
-            for (auto tab_widget : tabWidgets_(window)) {
+            for (auto& tab_widget : tabWidgets_(window)) {
                 for (auto i = 0; i < tab_widget->count(); ++i) {
                     if (auto view = tab_widget->widgetAt<ViewT>(i)) {
                         callable(view);
@@ -1074,7 +1076,7 @@ private:
     void forEachTabOfModel_(AbstractFileModel* model, CallableT&& callable)
     {
         for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
-            for (auto tab_widget : tabWidgets_(window)) {
+            for (auto& tab_widget : tabWidgets_(window)) {
                 for (auto i = 0; i < tab_widget->count(); ++i) {
                     auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                     if (view && view->model() == model) callable(tab_widget, i);
@@ -1196,6 +1198,7 @@ private slots:
     {
         if (!window) return;
         activeFileViews_.remove(window);
+        suppressAutoCollapse_.remove(window);
     }
 
     // TODO: New view settings
