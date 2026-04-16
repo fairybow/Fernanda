@@ -83,6 +83,12 @@ public:
         canCloseTabEverywhereHook,
         setCanCloseTabEverywhereHook)
 
+    /// TODO TS
+    DECLARE_HOOK(
+        std::function<bool(Window*)>,
+        canCloseSplitHook,
+        setCanCloseSplitHook)
+
     DECLARE_HOOK(
         std::function<bool(Window*)>,
         canCloseWindowTabsHook,
@@ -156,24 +162,6 @@ public:
         }
 
         return nullptr;
-    }
-
-    /// TODO TS
-    bool isMultiWindow(AbstractFileModel* fileModel) const
-    {
-        if (!fileModel) return false;
-
-        auto window_count = 0;
-        for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
-            for (auto tab_widget : tabWidgets_(window)) {
-                if (indexOfModel_(tab_widget, fileModel) >= 0) {
-                    if (++window_count >= 2) return true;
-                    break; // Found in this window, move to next
-                }
-            }
-        }
-
-        return false;
     }
 
     /// TODO TS
@@ -276,8 +264,42 @@ public:
             if (!view) continue;
             auto model = view->model();
             if (!model || !model->isModified()) continue;
-            if (excludeMultiWindow && isMultiWindow(model)) continue;
+            if (excludeMultiWindow && isMultiWindow_(model)) continue;
             if (result.contains(model)) continue;
+
+            result << model;
+        }
+
+        return result;
+    }
+
+    /// TODO TS
+    // Modified models in the active split that would be lost if the split
+    // were closed (i.e., no other views exist elsewhere)
+    QList<AbstractFileModel*>
+    modifiedViewModelsInActiveSplit(Window* window) const
+    {
+        auto tab_widget = activeTabWidget_(window);
+        if (!tab_widget) return {};
+
+        QList<AbstractFileModel*> result{};
+
+        for (auto i = 0; i < tab_widget->count(); ++i) {
+            auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+            if (!view) continue;
+            auto model = view->model();
+            if (!model || !model->isModified()) continue;
+            if (result.contains(model)) continue;
+
+            // Count how many views of this model are in this split
+            auto count_in_split = 0;
+            for (auto j = 0; j < tab_widget->count(); ++j) {
+                auto v = tab_widget->widgetAt<AbstractFileView*>(j);
+                if (v && v->model() == model) ++count_in_split;
+            }
+
+            // Model survives if it has views outside this split
+            if (countFor(model) > count_in_split) continue;
 
             result << model;
         }
@@ -425,17 +447,17 @@ public:
         auto tab_widget = surface->activeTabWidget();
         if (!tab_widget) return;
 
+        if (canCloseSplitHook_ && !canCloseSplitHook_(window)) return;
+
         suppressAutoCollapse_ = true;
 
         for (auto i = tab_widget->count() - 1; i >= 0; --i)
-            closeTabIn_(tab_widget, i);
+            deleteFileViewAt_(tab_widget, i);
 
         suppressAutoCollapse_ = false;
 
-        if (tab_widget->isEmpty()) {
-            surface->removeSplit(tab_widget);
-            emit bus->splitCountChanged(window);
-        }
+        surface->removeSplit(tab_widget);
+        emit bus->splitCountChanged(window);
     }
 
     void undo(Window* window, int index = -1)
@@ -655,6 +677,24 @@ private:
                 });
             };
         }
+    }
+
+    /// TODO TS
+    bool isMultiWindow_(AbstractFileModel* fileModel) const
+    {
+        if (!fileModel) return false;
+
+        auto window_count = 0;
+        for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
+            for (auto tab_widget : tabWidgets_(window)) {
+                if (indexOfModel_(tab_widget, fileModel) >= 0) {
+                    if (++window_count >= 2) return true;
+                    break; // Found in this window, move to next
+                }
+            }
+        }
+
+        return false;
     }
 
     /// TODO TS
@@ -948,11 +988,12 @@ private:
             cleanupEmptySplits_();
         });
 
-        connect(
+       connect(
             tab_widget,
             &TabWidget::tabContextMenuRequested,
             this,
-            [this, window](int index, const QPoint& globalPos) {
+            [this, window, tab_widget](int index, const QPoint& globalPos) {
+                tab_widget->setFocus();
                 emit tabContextMenuRequested(window, index, globalPos);
             });
 

@@ -149,6 +149,8 @@ protected:
         return true;
     }
 
+    /// TODO TS
+    virtual bool canCloseSplit(Window*) { return true; }
     virtual bool canCloseWindowTabs(Window*) { return true; }
     virtual bool canCloseAllTabs(const QList<Window*>&) { return true; }
     virtual bool canCloseWindow(Window*) { return true; }
@@ -211,6 +213,7 @@ private:
         views->setCanCloseTabEverywhereHook(
             this,
             &Workspace::canCloseTabEverywhere);
+        views->setCanCloseSplitHook(this, &Workspace::canCloseSplit);
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
 

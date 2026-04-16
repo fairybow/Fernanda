@@ -248,6 +248,15 @@ protected:
         return promptSingleModelClosingSave_(model, window);
     }
 
+    /// TODO TS
+    virtual bool canCloseSplit(Window* window) override
+    {
+        auto modified = views->modifiedViewModelsInActiveSplit(window);
+        if (modified.isEmpty()) return true;
+
+        return promptMultiModelClosingSave_(modified, window, window, true);
+    }
+
     virtual bool canCloseWindowTabs(Window* window) override
     {
         // Collect unique modified models that only exist in this window
