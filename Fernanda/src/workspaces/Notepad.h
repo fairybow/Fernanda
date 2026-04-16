@@ -281,7 +281,9 @@ protected:
             true);
     }
 
-    // TODO: Do this for TreeView setting above?
+    // TODO: Do this for TreeView setting above? (Maybe - if both Workspaces
+    // share this settings call, it almost makes more sense to just return the
+    // key alone as above)
     virtual bool
     shouldOpenTab(Window* window, AbstractFileModel* model) override
     {
