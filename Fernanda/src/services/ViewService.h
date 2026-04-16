@@ -592,6 +592,7 @@ private:
     // Prevents auto-collapse from deleting a TabWidget while closeSplit is
     // iterating over its tabs (closeSplit handles removal itself after the
     // loop)
+    // NB: This is not per-Window and assumes no concurrent drags
     bool suppressAutoCollapse_ = false; /// TODO TS
 
     QHash<Window*, AbstractFileView*> activeFileViews_{};
