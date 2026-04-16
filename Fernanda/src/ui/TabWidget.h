@@ -123,7 +123,10 @@ public:
 
     /// TODO: Rename a lot of these (e.g., textAt instead of tabText, maybe)
 
+    TabSpec tabSpecAt(int index) const;
     int addTab(QWidget* widget, const QString& tabText);
+    int addTab(const TabSpec& tabSpec);
+
     int insertTab(int index, QWidget* widget, const QString& tabText);
     QWidget* removeTab(int index);
 
@@ -194,6 +197,13 @@ public:
 
     // --- Tab dragging ---
 
+    /// TODO TS
+    enum class SplitSide
+    {
+        Left,
+        Right
+    };
+
     DragValidator dragValidator() const noexcept;
     void setDragValidator(const DragValidator& validator);
 
@@ -224,6 +234,13 @@ signals:
         TabWidget* source,
         const QPoint& dropPos,
         const TabSpec& tabSpec); /// TODO TD
+    void tabDraggedToSplitEdge(
+        TabWidget* source,
+        TabWidget* dropTarget,
+        const TabSpec& tabSpec,
+        SplitSide side); /// TODO TS
+    void dragStarted(); /// TODO TS
+    void dragEnded(); /// TODO TS
     void tabContextMenuRequested(int index, const QPoint& globalPos);
     void addButtonContextMenuRequested(const QPoint& globalPos);
 
@@ -296,8 +313,19 @@ private:
     void startDrag_(int index);
     QByteArray serialize_(const TabDragContext_& dragContext);
     TabDragContext_ deserialize_(QByteArray& data);
-    int addDroppedTab_(const TabSpec& tabSpec);
     QPixmap dragPixmap_(const QString& tabText) const;
+
+    /// TODO TS
+    enum class DropZone_
+    {
+        TabBar,
+        SplitLeft,
+        SplitRight,
+        Passthrough
+    };
+
+    /// TODO TS
+    DropZone_ dropZone_(const QPoint& pos) const;
 
 private slots:
     void onTabBarCurrentChanged_(int index);

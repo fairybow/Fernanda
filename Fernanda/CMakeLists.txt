@@ -158,6 +158,7 @@ set(FERNANDA_HEADERS
     src/ui/Painting.h
     src/ui/PlainTextEdit.h
     src/ui/SelectionHandleOverlay.h
+    src/ui/TabSurface.h
     src/ui/TabWidget.h
     src/ui/TabWidgetAlertWidget.h
     src/ui/TabWidgetButton.h

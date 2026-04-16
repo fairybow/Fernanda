@@ -140,16 +140,17 @@ protected:
     // toggle menu item saves the setting per-Workspace subclass
     virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
 
-    virtual bool canCloseTab(Window*, [[maybe_unused]] int index)
+    /// TODO TS
+    virtual bool canCloseTab(Window*, AbstractFileModel*) { return true; }
+
+    /// TODO TS
+    virtual bool canCloseTabEverywhere(Window*, AbstractFileModel*)
     {
         return true;
     }
 
-    virtual bool canCloseTabEverywhere(Window*, [[maybe_unused]] int index)
-    {
-        return true;
-    }
-
+    /// TODO TS
+    virtual bool canCloseSplit(Window*) { return true; }
     virtual bool canCloseWindowTabs(Window*) { return true; }
     virtual bool canCloseAllTabs(const QList<Window*>&) { return true; }
     virtual bool canCloseWindow(Window*) { return true; }
@@ -212,6 +213,7 @@ private:
         views->setCanCloseTabEverywhereHook(
             this,
             &Workspace::canCloseTabEverywhere);
+        views->setCanCloseSplitHook(this, &Workspace::canCloseSplit);
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
 
@@ -291,6 +293,10 @@ private:
             &Bus::activeFileViewChanged,
             this,
             &Workspace::onBusActiveFileViewChanged_);
+
+        connect(bus, &Bus::splitCountChanged, this, [this](Window* window) {
+            refreshMenus(window, MenuScope::Window);
+        });
 
         connect(
             bus,
@@ -374,21 +380,25 @@ private slots:
     }
 
     /// TODO TD: Remove toWindow?
+    /// TODO TS
     void
     onTabDragCompleted_(Window* fromWindow, [[maybe_unused]] Window* toWindow)
     {
         refreshMenus(MenuScope::Window);
         refreshMenus(MenuScope::Workspace);
 
-        // Close the source window if it has no remaining tabs
-        auto source_tab_widget =
-            qobject_cast<TabWidget*>(fromWindow->centralWidget());
+        // TODO: Assert below?
 
-        if (source_tab_widget && source_tab_widget->isEmpty())
+        // fromWindow may be null (highly unlikely, purely defensive).
+        // fileViewsIn checks actual views, not split count, so this is safe
+        // even while suppressAutoCollapse_ defers empty-split cleanup
+        if (fromWindow && views->fileViewsIn(fromWindow).isEmpty()) {
             fromWindow->close();
+        }
     }
 
     /// TODO TD
+    /// TODO TS
     // TODO: Currently, we have the new window's origin right at the drop point.
     // Later, we may want to find a way to instead position the window such that
     // the dropped tab is aligned with the tab's future position in the new
@@ -404,21 +414,20 @@ private slots:
         if (!new_window) return;
 
         views->insertTabSpec(new_window, tabSpec);
-        tabSpec.widget->setFocus();
 
         refreshMenus(MenuScope::Window);
         refreshMenus(MenuScope::Workspace);
 
-        // Close the source window if it has no remaining tabs
-        if (sourceWindow) {
-            auto source_tab_widget =
-                qobject_cast<TabWidget*>(sourceWindow->centralWidget());
-
-            if (source_tab_widget && source_tab_widget->isEmpty())
-                sourceWindow->close();
+        // sourceWindow may be null. The tab has already been removed in
+        // startDrag_, so the new window must be created regardless.
+        // Source close is a cleanup concern that only runs if we know the
+        // origin
+        if (sourceWindow && views->fileViewsIn(sourceWindow).isEmpty()) {
+            sourceWindow->close();
         }
     }
 
+    /// TODO TS
     void onTabContextMenuRequested_(
         Window* window,
         int index,
@@ -431,6 +440,28 @@ private slots:
             .onUserTrigger(
                 this,
                 [this, window, index] { views->duplicateTab(window, index); })
+            .separator()
+            .action(Tr::nxSplitLeft())
+            .onUserTrigger(
+                this,
+                [this, window, index] { views->splitLeft(window, index); })
+            .action(Tr::nxSplitRight())
+            .onUserTrigger(
+                this,
+                [this, window, index] { views->splitRight(window, index); })
+            .separator()
+            .action(Tr::nxDuplicateToSplitLeft())
+            .onUserTrigger(
+                this,
+                [this, window, index] {
+                    views->duplicateToSplitLeft(window, index);
+                })
+            .action(Tr::nxDuplicateToSplitRight())
+            .onUserTrigger(
+                this,
+                [this, window, index] {
+                    views->duplicateToSplitRight(window, index);
+                })
             .separator()
             .apply([this, window, index](MenuBuilder& b) {
                 tabContextMenuSaveActions(b, window, index);
@@ -445,13 +476,8 @@ private slots:
                 [this, window, index] {
                     views->closeTabEverywhere(window, index);
                 })
-            .separator()
-            .action(Tr::nxCloseWindowTabs())
-            .onUserTrigger(
-                this,
-                [this, window] { views->closeWindowTabs(window); })
-            .action(Tr::nxCloseAllTabs())
-            .onUserTrigger(this, [this] { views->closeAllTabs(); })
+            .actionIf(views->splitCount(window) > 1, Tr::nxCloseSplit())
+            .onUserTrigger(this, [this, window] { views->closeSplit(window); })
             .popup(globalPos);
     }
 

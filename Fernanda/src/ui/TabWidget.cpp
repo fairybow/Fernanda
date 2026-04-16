@@ -189,9 +189,30 @@ QList<QWidget*> TabWidget::widgets() const
 
 // --- Tabs ---
 
+TabWidget::TabSpec TabWidget::tabSpecAt(int index) const
+{
+    return { widgetAt(index),   tabData(index),         tabText(index),
+             tabToolTip(index), tabAlertMessage(index), tabFlagged(index) };
+}
+
 int TabWidget::addTab(QWidget* widget, const QString& tabText)
 {
     return addOrInsertTab_(-1, widget, tabText);
+}
+
+int TabWidget::addTab(const TabSpec& tabSpec)
+{
+    auto index = addTab(tabSpec.widget, tabSpec.text);
+
+    setTabData(index, tabSpec.userData);
+    setTabToolTip(index, tabSpec.toolTip);
+    setTabFlagged(index, tabSpec.isFlagged);
+
+    if (!tabSpec.alertMessage.isEmpty()) {
+        setTabAlert(index, tabSpec.alertMessage);
+    }
+
+    return index;
 }
 
 int TabWidget::insertTab(int index, QWidget* widget, const QString& tabText)
@@ -432,11 +453,10 @@ void TabWidget::dragMoveEvent(QDragMoveEvent* event)
         return;
     }
 
-    // Only accept drops directly on the tab bar
-    auto pos_in_tab_bar = tabBar_->mapFrom(this, event->position().toPoint());
-
-    tabBar_->rect().contains(pos_in_tab_bar) ? event->acceptProposedAction()
-                                             : event->ignore();
+    /// TODO TS
+    auto zone = dropZone_(event->position().toPoint());
+    zone != DropZone_::Passthrough ? event->acceptProposedAction()
+                                   : event->ignore();
 }
 
 void TabWidget::dropEvent(QDropEvent* event)
@@ -452,7 +472,6 @@ void TabWidget::dropEvent(QDropEvent* event)
     auto item_data = mime_data->data(MIME_TYPE_);
     auto tab_assembly = deserialize_(item_data);
 
-    // Validate the extracted data
     if (!tab_assembly.isValid()) {
         event->ignore();
         return;
@@ -464,12 +483,40 @@ void TabWidget::dropEvent(QDropEvent* event)
         return;
     }
 
-    // Drop and notify about successful drag
-    auto new_index = addDroppedTab_(tab_assembly.tabSpec);
-    emit tabDragged(
-        { tab_assembly.origin, tab_assembly.originIndex },
-        { this, new_index });
-    event->acceptProposedAction();
+    /// TODO TS
+    switch (dropZone_(event->position().toPoint())) {
+    case DropZone_::TabBar: {
+        auto new_index = addTab(tab_assembly.tabSpec);
+        setCurrentIndex(new_index);
+        emit tabDragged(
+            { tab_assembly.origin, tab_assembly.originIndex },
+            { this, new_index });
+        event->acceptProposedAction();
+        break;
+    }
+
+    case DropZone_::SplitLeft:
+        emit tabDraggedToSplitEdge(
+            tab_assembly.origin,
+            this,
+            tab_assembly.tabSpec,
+            SplitSide::Left);
+        event->acceptProposedAction();
+        break;
+
+    case DropZone_::SplitRight:
+        emit tabDraggedToSplitEdge(
+            tab_assembly.origin,
+            this,
+            tab_assembly.tabSpec,
+            SplitSide::Right);
+        event->acceptProposedAction();
+        break;
+
+    case DropZone_::Passthrough:
+        event->ignore();
+        break;
+    }
 }
 
 // --- Private ---
@@ -677,22 +724,23 @@ void TabWidget::startDrag_(int index)
         QPoint(tab_rect.width() / 2, tab_rect.height() / 2);
 
     // Store tab data BEFORE removing
-    TabDragContext_ drag_context{
-        this,
-        index,
+    auto spec = tabSpecAt(index);
+    spec.offsetRatios = TabSpec::getOffsetRatios(tab_rect, offset_within_tab);
 
-        TabSpec{ widget,
-                 tabData(index),
-                 tabText(index),
-                 tabToolTip(index),
-                 tabAlertMessage(index),
-                 tabFlagged(index),
-                 TabSpec::getOffsetRatios(tab_rect, offset_within_tab) }
-    };
+    TabDragContext_ drag_context{ this, index, spec };
 
     // Store necessary information
     mime_data->setData(MIME_TYPE_, serialize_(drag_context));
     drag->setMimeData(mime_data);
+
+    /// TODO TS: Consider DragScrope_ RAII guard
+    // dragStarted/dragEnded bracket the entire drag lifecycle. drag->exec()
+    // runs a modal event loop, so the target's dropEvent (which may emit
+    // tabDraggedToSplitEdge and create new splits) completes synchronously
+    // before exec() returns. This guarantees suppressAutoCollapse is active
+    // throughout: remove the tab here (possibly leaving source empty), the
+    // drop creates new splits or windows, then dragEnded runs cleanup
+    emit dragStarted();
 
     // Remove the tab before dragging
     removeTab(index);
@@ -722,6 +770,9 @@ void TabWidget::startDrag_(int index)
         // Fernanda (e.g., a browser). Open in a new window.
         emit tabDraggedOutside(this, QCursor::pos(), drag_context.tabSpec);
     }
+
+    /// TODO TS
+    emit dragEnded();
 }
 
 QByteArray TabWidget::serialize_(const TabDragContext_& dragContext)
@@ -769,17 +820,6 @@ TabWidget::TabDragContext_ TabWidget::deserialize_(QByteArray& data)
                       alert_message,
                       is_flagged,
                       offset_ratio } };
-}
-
-int TabWidget::addDroppedTab_(const TabSpec& tabSpec)
-{
-    auto new_index = addTab(tabSpec.widget, tabSpec.text);
-    setTabData(new_index, tabSpec.userData);
-    setTabToolTip(new_index, tabSpec.toolTip);
-    setTabAlert(new_index, tabSpec.alertMessage);
-    setTabFlagged(new_index, tabSpec.isFlagged);
-    setCurrentIndex(new_index);
-    return new_index;
 }
 
 QPixmap TabWidget::dragPixmap_(const QString& tabText) const
@@ -876,11 +916,36 @@ QPixmap TabWidget::dragPixmap_(const QString& tabText) const
     return pixmap;
 }
 
+/// TODO TS
+TabWidget::DropZone_ TabWidget::dropZone_(const QPoint& pos) const
+{
+    auto pos_in_tab_bar = tabBar_->mapFrom(this, pos);
+    if (tabBar_->rect().contains(pos_in_tab_bar)) return DropZone_::TabBar;
+
+    // Content area (below tab bar)
+    auto content_rect = rect().adjusted(0, tabBar_->height(), 0, 0);
+    if (!content_rect.contains(pos)) return DropZone_::Passthrough;
+
+    auto edge_width = content_rect.width() / 4;
+
+    if (pos.x() < content_rect.left() + edge_width) return DropZone_::SplitLeft;
+    if (pos.x() > content_rect.right() - edge_width) {
+        return DropZone_::SplitRight;
+    }
+
+    return DropZone_::Passthrough;
+}
+
 // --- Private slots ---
 
 void TabWidget::onTabBarCurrentChanged_(int index)
 {
-    if (auto widget = widgetAt(index)) widgetStack_->setCurrentWidget(widget);
+    if (auto widget = widgetAt(index)) {
+        widgetStack_->setCurrentWidget(widget);
+        setFocusProxy(widget);
+    } else {
+        setFocusProxy(nullptr);
+    }
 
     emit currentChanged(index);
 }
