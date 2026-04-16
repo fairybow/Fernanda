@@ -1006,7 +1006,6 @@ private:
                 emit addButtonContextMenuRequested(window, globalPos);
             });
 
-        /// TODO TS: Is this the right place to emit this?
         emit bus->splitCountChanged(window);
     }
 
