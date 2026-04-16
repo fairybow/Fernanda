@@ -387,9 +387,14 @@ private slots:
         refreshMenus(MenuScope::Window);
         refreshMenus(MenuScope::Workspace);
 
+        // TODO: Assert below?
+
+        // fromWindow may be null (highly unlikely, purely defensive).
         // fileViewsIn checks actual views, not split count, so this is safe
         // even while suppressAutoCollapse_ defers empty-split cleanup
-        if (views->fileViewsIn(fromWindow).isEmpty()) fromWindow->close();
+        if (fromWindow && views->fileViewsIn(fromWindow).isEmpty()) {
+            fromWindow->close();
+        }
     }
 
     /// TODO TD
@@ -413,11 +418,12 @@ private slots:
         refreshMenus(MenuScope::Window);
         refreshMenus(MenuScope::Workspace);
 
-        // Close the source window if it has no remaining tabs
-        if (sourceWindow) {
-            if (views->fileViewsIn(sourceWindow).isEmpty()) {
-                sourceWindow->close();
-            }
+        // sourceWindow may be null. The tab has already been removed in
+        // startDrag_, so the new window must be created regardless.
+        // Source close is a cleanup concern that only runs if we know the
+        // origin
+        if (sourceWindow && views->fileViewsIn(sourceWindow).isEmpty()) {
+            sourceWindow->close();
         }
     }
 

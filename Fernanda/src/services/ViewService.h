@@ -1333,7 +1333,12 @@ private slots:
         const TabWidget::TabSpec& tabSpec,
         TabWidget::SplitSide side)
     {
-        if (!tabSpec.isValid() || !dropTarget) return;
+        // NB: source is intentionally not null-checked. The tab has already
+        // been removed from its origin in startDrag_, so the split creation
+        // above must run regardless. A null source just means we can't report
+        // the origin window in tabDragCompleted. Coco::findParent handles null
+        // safely, and onTabDragCompleted_ guards fromWindow before use
+        if (!dropTarget || !tabSpec.isValid()) return;
 
         auto window = Coco::findParent<Window*>(dropTarget);
         if (!window) return;
