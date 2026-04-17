@@ -158,8 +158,9 @@ public:
     {
         headersHidden_ = hidden;
 
-        for (auto& tree_view : treeViews_)
+        for (auto& tree_view : treeViews_) {
             tree_view->setHeaderHidden(hidden);
+        }
     }
 
     void setVisibilityKey(const QString& iniKey) { visibilityIniKey_ = iniKey; }
@@ -218,10 +219,7 @@ private:
         auto dock_widget = new QDockWidget(window);
         dockWidgets_[window] = dock_widget;
 
-        /// TODO TVT
         dock_widget->toggleViewAction()->setText(Tr::nxTreeView());
-
-        /// TODO TVT
         dock_widget->setVisible(bus->call<bool>(
             Bus::GET_SETTING,
             { { "key", visibilityIniKey_ } }));

@@ -56,18 +56,6 @@ void changeEvent(QEvent* event) override
 
 Might be simple actually, but tedious. We'll do it later.
 
-## Clean-up/Refinement Tags
-
-Follow-up Tags for working code that is a draft and needs more scrutiny/cleaning:
-
-- TODO TD (tab dragging)
-- TODO TVT (tree view toggle)
-- TODO KFS (key filters settings)
-- TODO ES (editor settings)
-- TODO GH (grabbable highlight)
-- TODO PD (prime doc)
-- TODO FT (file types)
-
 ## MVP
 
 - [ ] Ensure we are using terms around checkable items correctly in code! The term toggle is being used in a few different ways, I think. We should ensure checkable actions are called checkables or something. Also sort out the other uses of "toggle"

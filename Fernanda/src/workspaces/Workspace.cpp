@@ -302,8 +302,6 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto view = views->fileViewAt(window, -1);
                 return view && view->isUserEditable();
             })
-
-        /// TODO TVT
         .menu(Tr::nxViewMenu())
         .addAction(treeViews->dockToggleViewAction(window))
         .onToggle(

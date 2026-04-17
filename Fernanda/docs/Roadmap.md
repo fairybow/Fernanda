@@ -7,7 +7,6 @@ Also, go through all docs and make sure they're up to date and follow doc style
 Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 - TODO TD (tab dragging)
-- TODO TVT (tree view toggle)
 - TODO PD (prime doc)
 - TODO FT (file types)
 - TODO XP (cross platform)
@@ -122,7 +121,7 @@ POSSIBLY switch members and methods for private only
 - [ ] Notebook TreeView multiple item selection, drag, delete, restore, etc
 - [x] Replace QStringLiteral with u*_s?
 - [ ] ToString's kind of a hot mess
-- [ ] Re: `treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT` in Notepad and Notebook (is a singular menu item in Workspace appropriate if it means we have to have such a silly virtual for each Workspace to override? At least, it seems silly to me right now)
+- [x] Re: `treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT` in Notepad and Notebook (is a singular menu item in Workspace appropriate if it means we have to have such a silly virtual for each Workspace to override? At least, it seems silly to me right now)
 - [ ] ^ Related: Right now, no way past having Ini::LocalKeys defaults in regular defaults function (because settings get command gets the default for all Ini keys internally - TreeViewService would need to be able to choose to use a localDefaults map or SettingsService could have a second command getter for Workspace-local settings...)
 - [ ] Recovery prompts! We want just one big prompt with checkboxes for each recovered file (including Notebooks in with other file types (can have a visual cue to make them stand out))
 - [ ] BUG: On Notepad recovery, there's a delay between displaying the first recovered tab and any subsequent recovered tabs (recovery prompt may or may not help)
