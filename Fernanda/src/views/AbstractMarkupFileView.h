@@ -155,7 +155,7 @@ protected:
                 &QWebEnginePage::loadFinished,
                 this,
                 [this, warmup_mask] {
-                    Time::delay(250, this, [this, warmup_mask] {
+                    Time::delay(250, this, [warmup_mask] {
                         warmup_mask->deactivate(true);
                     });
                 },

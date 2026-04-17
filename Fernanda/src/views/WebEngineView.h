@@ -64,7 +64,7 @@ private:
             this,
             &WebEngineView::loadFinished,
             this,
-            [this] {
+            [] {
                 if (firstEverLoad_) firstEverLoad_ = false;
             },
             Qt::SingleShotConnection);
