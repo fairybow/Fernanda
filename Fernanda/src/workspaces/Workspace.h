@@ -424,21 +424,14 @@ private slots:
     {
         if (!window || globalPos.isNull()) return;
 
+        auto has_multiple_splits = views->splitCount(window) > 1;
+
         MenuBuilder(MenuBuilder::ContextMenu, window)
+            .submenu(Tr::nxDuplicate())
             .action(Tr::nxDuplicateTab())
             .onUserTrigger(
                 this,
                 [this, window, index] { views->duplicateTab(window, index); })
-            .separator()
-            .action(Tr::nxSplitLeft())
-            .onUserTrigger(
-                this,
-                [this, window, index] { views->splitLeft(window, index); })
-            .action(Tr::nxSplitRight())
-            .onUserTrigger(
-                this,
-                [this, window, index] { views->splitRight(window, index); })
-            .separator()
             .action(Tr::nxDuplicateToSplitLeft())
             .onUserTrigger(
                 this,
@@ -451,10 +444,22 @@ private slots:
                 [this, window, index] {
                     views->duplicateToSplitRight(window, index);
                 })
+            .endSubmenu()
+            .submenu(Tr::nxSplit())
+            .action(Tr::nxSplitLeft())
+            .onUserTrigger(
+                this,
+                [this, window, index] { views->splitLeft(window, index); })
+            .action(Tr::nxSplitRight())
+            .onUserTrigger(
+                this,
+                [this, window, index] { views->splitRight(window, index); })
+            .endSubmenu()
             .separator()
             .apply([this, window, index](MenuBuilder& b) {
                 tabContextMenuSaveActions(b, window, index);
             })
+            .separator()
             .action(Tr::nxCloseTab())
             .onUserTrigger(
                 this,
@@ -465,7 +470,14 @@ private slots:
                 [this, window, index] {
                     views->closeTabEverywhere(window, index);
                 })
-            .actionIf(views->splitCount(window) > 1, Tr::nxCloseSplit())
+            .action(Tr::nxCloseWindowTabs())
+            .onUserTrigger(
+                this,
+                [this, window] { views->closeWindowTabs(window); })
+            .action(Tr::nxCloseAllTabs())
+            .onUserTrigger(this, [this] { views->closeAllTabs(); })
+            .separatorIf(has_multiple_splits)
+            .actionIf(has_multiple_splits, Tr::nxCloseSplit())
             .onUserTrigger(this, [this, window] { views->closeSplit(window); })
             .popup(globalPos);
     }

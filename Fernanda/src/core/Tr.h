@@ -363,6 +363,8 @@ namespace Tr {
 
     TR_(nxUniqueTabs, tr("Unique tabs"));
 
+    TR_(nxDuplicate, tr("Duplicate"));
+
 } // namespace Tr
 
 } // namespace Fernanda
