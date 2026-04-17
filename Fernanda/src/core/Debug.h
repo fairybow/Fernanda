@@ -12,20 +12,18 @@
 
 #pragma once
 
-#include <format>
 #include <functional>
-#include <string>
-#include <string_view>
 #include <utility>
 
 #include <QObject>
+#include <QString>
+#include <QStringView>
 #include <QtLogging>
 
 #include <Coco/Path.h>
 
-#include "core/Formatters.h"
-#include "core/ToString.h"
 #include "core/Version.h"
+#include "fmt/Fmt.h"
 
 namespace Fernanda::Debug {
 
@@ -40,34 +38,6 @@ void initialize(
 
 void setLogSink(LogSink sink);
 QtMsgType minimumLevel() noexcept;
-
-namespace Internal {
-
-#ifdef Q_OS_MACOS
-
-    // libc++ fails to match certain std::formatter specializations during its
-    // internal formattability check. On macOS, affected args are pre-converted
-    // to std::string instead
-    template <typename T> decltype(auto) sanitizeArg_macOS_(T&& arg)
-    {
-        if constexpr (requires { Fernanda::toString(arg); }) {
-            return Fernanda::toString(arg);
-        } else if constexpr (requires {
-                                 {
-                                     arg.toString()
-                                 } -> std::convertible_to<std::string>;
-                             }) {
-            return arg.toString();
-        } else if constexpr (std::is_same_v<std::remove_cvref_t<T>, QString>) {
-            return arg.toStdString();
-        } else {
-            return std::forward<T>(arg);
-        }
-    }
-
-#endif
-
-} // namespace Internal
 
 struct Log
 {
@@ -86,33 +56,42 @@ struct Log
 
     template <typename... Args>
     inline void
-    print(const QObject* obj, std::string_view format, Args&&... args) const
+    print(const QObject* obj, QStringView format, Args&&... args) const
     {
         if (type != QtFatalMsg && type < minimumLevel()) return;
 
-        std::string msg{};
-
-        if constexpr (sizeof...(args) > 0) {
-
-#ifndef Q_OS_MACOS
-            msg = std::vformat(format, std::make_format_args(args...));
-#else
-            msg = std::vformat(
-                format,
-                std::make_format_args(Internal::sanitizeArg_macOS_(args)...));
-#endif
-
-        } else {
-            msg = format;
-        }
+        QString msg = sizeof...(Args) > 0
+                          ? Fmt::format(format, std::forward<Args>(args)...)
+                          : format.toString();
 
         dispatch_(type, file, line, function, obj, std::move(msg));
     }
 
     template <typename... Args>
-    inline void print(std::string_view format, Args&&... args) const
+    inline void print(QStringView format, Args&&... args) const
     {
-        return print(nullptr, format, std::forward<Args>(args)...);
+        return print(
+            static_cast<const QObject*>(nullptr),
+            format,
+            std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    inline void
+    print(const QObject* obj, const char* format, Args&&... args) const
+    {
+        auto q_format = QString::fromUtf8(format);
+        print(obj, QStringView(q_format), std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    inline void print(const char* format, Args&&... args) const
+    {
+        auto q_format = QString::fromUtf8(format);
+        print(
+            static_cast<const QObject*>(nullptr),
+            QStringView(q_format),
+            std::forward<Args>(args)...);
     }
 
 private:
@@ -122,7 +101,7 @@ private:
         int line,
         const char* function,
         const QObject* obj,
-        std::string msg) const;
+        QString msg) const;
 };
 
 namespace Internal {
@@ -132,12 +111,12 @@ namespace Internal {
         const char* file,
         int line,
         const char* function,
-        std::string_view message = {})
+        QStringView message = {})
     {
-        auto msg = message.empty()
-                       ? std::format("Assertion failed:\n{}", condition)
-                       : std::format(
-                             "Assertion failed:\n{}\n\n{}",
+        auto msg = message.isEmpty()
+                       ? Fmt::format(u"Assertion failed:\n{}"_s, condition)
+                       : Fmt::format(
+                             u"Assertion failed:\n{}\n\n{}"_s,
                              condition,
                              message);
 
@@ -150,19 +129,48 @@ namespace Internal {
         const char* file,
         int line,
         const char* function,
-        std::string_view format,
+        QStringView format,
         Args&&... args)
     {
-
-#ifndef Q_OS_MACOS
-        auto message = std::vformat(format, std::make_format_args(args...));
-#else
-        auto message = std::vformat(
-            format,
-            std::make_format_args(sanitizeArg_macOS_(args)...));
-#endif
-
+        auto message = Fmt::format(format, std::forward<Args>(args)...);
         assertionFailed_(condition, file, line, function, message);
+    }
+
+    // Message-only, const char*
+    inline void assertionFailed_(
+        const char* condition,
+        const char* file,
+        int line,
+        const char* function,
+        const char* message)
+    {
+        auto q_message = QString::fromUtf8(message);
+        assertionFailed_(
+            condition,
+            file,
+            line,
+            function,
+            QStringView(q_message));
+    }
+
+    // Variadic, const char* format
+    template <typename... Args>
+    inline void assertionFailed_(
+        const char* condition,
+        const char* file,
+        int line,
+        const char* function,
+        const char* format,
+        Args&&... args)
+    {
+        auto q_format = QString::fromUtf8(format);
+        assertionFailed_(
+            condition,
+            file,
+            line,
+            function,
+            QStringView(q_format),
+            std::forward<Args>(args)...);
     }
 
 } // namespace Internal

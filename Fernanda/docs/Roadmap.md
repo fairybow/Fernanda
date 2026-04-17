@@ -83,7 +83,7 @@ POSSIBLY switch members and methods for private only
 
 - [ ] Sample stuff (a folder in Docs/Fernanda with samples of each type - can be recreated from the Help menu)
 - [ ] Use QIconEngine for StyleContext icons?
-- [ ] Probably add a warm-up mask to the web engine view itself, too (in addition to the AMUFV as a whole?)
+- [x] Probably add a warm-up mask to the web engine view itself, too (in addition to the AMUFV as a whole?)
 - [x] HtmlFileView (This will not be editable, like other markups - this is for research, essentially, saved pages)
 - [x] Combine ImageFileModel and HtmlFileModel into Blob/Raw/GenericFileModel (no functionality, just byte bag)
 - [x] Figure out how to open correctly in FileService
@@ -120,7 +120,7 @@ POSSIBLY switch members and methods for private only
 - [ ] One thing I think I would like to fix in the future is keeping file nesting but having operations like import or new file or whatever else resolve to the parent directory instead of the file, if the currently selected item is a file. This wound not apply to right click context menu actions
 - [ ] Notebook TreeView multiple item selection, drag, delete, restore, etc
 - [x] Replace QStringLiteral with u*_s?
-- [ ] ToString's kind of a hot mess
+- [x] ToString's kind of a hot mess
 - [x] Re: `treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT` in Notepad and Notebook (is a singular menu item in Workspace appropriate if it means we have to have such a silly virtual for each Workspace to override? At least, it seems silly to me right now)
 - [ ] ^ Related: Right now, no way past having Ini::LocalKeys defaults in regular defaults function (because settings get command gets the default for all Ini keys internally - TreeViewService would need to be able to choose to use a localDefaults map or SettingsService could have a second command getter for Workspace-local settings...)
 - [ ] Recovery prompts! We want just one big prompt with checkboxes for each recovered file (including Notebooks in with other file types (can have a visual cue to make them stand out))
@@ -131,7 +131,7 @@ POSSIBLY switch members and methods for private only
 - [ ] Add doc style doc
 - [ ] Dialog overhaul - need a base for some of these (like a ScrollableDialog or Dialog with a central widget setter) and normalization between them
 - [ ] Both the recovery dialogs and existing multi save prompt should use a path display dialog that displays parent directories as a collapsible header with checkbox beside it and each of its children (the files within)
-- [ ] HTML special plain-text type
+- [x] HTML special plain-text type
 - [ ] Styling for the focused indicator strip on bottom of plain text edit
 - [ ] Also ^, there's a faint border area around QPlainTextEdit - currently, it is styled same as text edit background but might be nice to leave it "widget colored"
 - [ ] Possible to make Workspace-modal dialogs (for something like close all windows or tabs)?

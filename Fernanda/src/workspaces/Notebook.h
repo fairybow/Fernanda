@@ -470,7 +470,7 @@ private:
                 CRITICAL(
                     "Notebook autosave failed for {} (result: {})!",
                     model,
-                    toString(result));
+                    toQString(result));
             }
 
             dirty_uuids << Fnx::Io::uuid(meta->path());
@@ -1070,7 +1070,7 @@ private slots:
                 "Notebook undo-to-clean write-back failed for {} (result: "
                 "{})!",
                 fileModel,
-                toString(result));
+                toQString(result));
         }
     }
 };

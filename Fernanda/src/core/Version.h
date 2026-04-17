@@ -37,7 +37,7 @@
 #define VERSION_MAJOR                           0
 #define VERSION_MINOR                           99
 #define VERSION_PATCH                           0
-#define VERSION_PRERELEASE_STRING               "beta.24"
+#define VERSION_PRERELEASE_STRING               "beta.25"
 
 // Major.Minor.Patch
 #define VERSION_3                               \
