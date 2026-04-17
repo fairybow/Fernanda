@@ -138,13 +138,7 @@ QList<AbstractFileView*> ViewService::fileViews() const
     QList<AbstractFileView*> views{};
 
     for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-        for (auto& tab_widget : tabWidgets_(window)) {
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                if (auto view = tab_widget->widgetAt<AbstractFileView*>(i)) {
-                    views << view;
-                }
-            }
-        }
+        views << fileViewsIn(window);
     }
 
     return views;
