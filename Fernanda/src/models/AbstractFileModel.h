@@ -40,8 +40,6 @@ public:
     {
     }
 
-    virtual ~AbstractFileModel() = default;
-
     FileMeta* meta() const noexcept { return meta_; }
 
     // These two are the contract. The rest is optional:

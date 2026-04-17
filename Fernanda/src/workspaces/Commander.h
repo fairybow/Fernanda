@@ -108,12 +108,12 @@ class Commander : public QObject
     Q_OBJECT
 
 public:
+    // NB: Commander's execute/call methods should not be const!
+
     explicit Commander(QObject* parent = nullptr)
         : QObject(parent)
     {
     }
-
-    virtual ~Commander() = default;
 
     template <typename HandlerT>
     void addCommandHandler(const QString& id, HandlerT&& handler)

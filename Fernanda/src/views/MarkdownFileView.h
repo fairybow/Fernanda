@@ -41,8 +41,6 @@ public:
     {
     }
 
-    virtual ~MarkdownFileView() override {}
-
 protected:
     virtual QStringView css() const override
     {

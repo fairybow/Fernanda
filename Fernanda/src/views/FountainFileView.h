@@ -49,8 +49,6 @@ public:
     {
     }
 
-    virtual ~FountainFileView() override {}
-
 protected:
     virtual QStringView css() const override
     {

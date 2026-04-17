@@ -69,8 +69,6 @@ public:
     {
     }
 
-    virtual ~AbstractMarkupFileView() override {}
-
     Mode mode() const noexcept { return mode_; }
 
     void setMode(Mode mode)

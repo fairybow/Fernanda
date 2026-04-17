@@ -32,8 +32,6 @@ public:
     {
     }
 
-    virtual ~AbstractService() = default;
-
     void initialize()
     {
         if (initialized_) return;

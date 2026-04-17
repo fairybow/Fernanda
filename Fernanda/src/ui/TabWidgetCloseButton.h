@@ -34,8 +34,6 @@ public:
         setup_();
     }
 
-    virtual ~TabWidgetCloseButton() override {}
-
 signals:
     void clickedAt(int index);
 

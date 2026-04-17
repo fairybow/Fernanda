@@ -48,8 +48,6 @@ public:
         layout_->setSpacing(0);
     }
 
-    virtual ~AbstractFileView() = default;
-
     // Warning! Each view must be initialized after creation.
     void initialize()
     {
