@@ -131,20 +131,17 @@ public:
     QString name() const { return fnxPath_.nameQString(); }
 
 protected:
-    /// TODO BA
     virtual void autosave() override
     {
         TRACER;
         writeLockfile_();
     }
 
-    /// TODO NF
     virtual void newFile(Window* window, Files::Type plainTextFileType) override
     {
         newFile_(window, treeViews->currentIndex(window), plainTextFileType);
     }
 
-    /// TODO NF
     virtual void
     importFiles(Window* window, const QList<Coco::Path>& paths) override
     {
@@ -185,7 +182,6 @@ protected:
         }
     }
 
-    /// TODO NF
     virtual QString importFilter() const override
     {
         return Files::filters(Files::All, Files::conversionImportsFilter());
@@ -303,8 +299,9 @@ private:
 
     void setup_()
     {
-        if (!workingDir_.isValid())
+        if (!workingDir_.isValid()) {
             FATAL("Notebook working directory creation failed!");
+        }
 
         auto working_dir_path = workingDir_.path();
 
@@ -489,8 +486,9 @@ private:
     /// TODO BA
     void applyRecoveryState_()
     {
-        for (auto& uuid : recoveryDirtyUuids_)
+        for (auto& uuid : recoveryDirtyUuids_) {
             fnxModel_->setFileEdited(uuid, true);
+        }
 
         files->setAfterModelCreatedHook([this](AbstractFileModel* model) {
             auto meta = model->meta();
@@ -772,17 +770,20 @@ private:
         auto working_dir_path = workingDir_.path();
         QSet<Coco::Path> paths{};
 
-        for (auto& info : file_infos)
+        for (auto& info : file_infos) {
             paths << working_dir_path / info.relPath;
+        }
 
         auto models = files->modelsFor(paths);
 
         views->closeViewsForModels(models);
         files->deleteModels(models);
 
-        for (auto& path : paths)
-            if (!Coco::remove(path))
+        for (auto& path : paths) {
+            if (!Coco::remove(path)) {
                 CRITICAL("Failed to delete [{}] from disk!", path);
+            }
+        }
 
         return true;
     }
@@ -802,8 +803,9 @@ private:
     void emptyTrash_(Window* window)
     {
         // The trash element itself (tag "trash") isn't a file, so it's skipped
-        if (trashPromptAndDelete_(window, fnxModel_->trashIndex()))
+        if (trashPromptAndDelete_(window, fnxModel_->trashIndex())) {
             fnxModel_->clearTrash();
+        }
     }
 
     void save_(Window* window)
@@ -1055,19 +1057,20 @@ private slots:
         // Notebook's individual archive files should always have a path.
         fnxModel_->setFileEdited(Fnx::Io::uuid(path), modified);
 
-        /// TODO BA
-        if (!modified) {
-            auto result = files->save(fileModel, ClearModified::No);
-            if (result == FileService::Success) {
-                auto uuid = Fnx::Io::uuid(path);
-                recoveryDirtyUuids_.remove(uuid);
-            } else if (result == FileService::Failure) {
-                CRITICAL(
-                    "Notebook undo-to-clean write-back failed for {} (result: "
-                    "{})!",
-                    fileModel,
-                    toString(result));
-            }
+        /// TODO BA:
+
+        if (modified) return;
+
+        auto result = files->save(fileModel, ClearModified::No);
+        if (result == FileService::Success) {
+            auto uuid = Fnx::Io::uuid(path);
+            recoveryDirtyUuids_.remove(uuid);
+        } else if (result == FileService::Failure) {
+            CRITICAL(
+                "Notebook undo-to-clean write-back failed for {} (result: "
+                "{})!",
+                fileModel,
+                toString(result));
         }
     }
 };
