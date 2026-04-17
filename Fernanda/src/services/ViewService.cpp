@@ -858,6 +858,7 @@ ViewService::focusExistingTabForModel_(Window* window, AbstractFileModel* model)
 
         tab_widget->setCurrentIndex(index);
         tab_widget->setFocus();
+        window->activate();
         return true;
     }
 
@@ -1094,6 +1095,13 @@ void ViewService::onBusFileModelReadied_(
     if (!tab_widget) return;
 
     if (shouldOpenTabHook_ && !shouldOpenTabHook_(window, fileModel)) {
+        // Just re-focus view if already was the active model
+        auto active_view = activeFileViews_.value(window);
+        if (active_view && active_view->model() == fileModel) {
+            tab_widget->setFocus();
+            return;
+        }
+
         if (focusExistingTabForModel_(window, fileModel)) return;
         // No existing tab in this window (fallthrough to normal add)
     }
