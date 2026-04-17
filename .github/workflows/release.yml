@@ -45,6 +45,7 @@ jobs:
       app_name_lower:  ${{ steps.v.outputs.app_name_lower }}
       version_full:    ${{ steps.v.outputs.version_full }}
       version_numeric: ${{ steps.v.outputs.version_numeric }}
+      is_prerelease:   ${{ steps.v.outputs.is_prerelease }}
     steps:
       - uses: actions/checkout@v5
 
@@ -68,10 +69,11 @@ jobs:
             full="${numeric}"
           fi
 
-          echo "app_name=${app}"                >> "$GITHUB_OUTPUT"
-          echo "app_name_lower=${app_lower}"    >> "$GITHUB_OUTPUT"
-          echo "version_full=${full}"           >> "$GITHUB_OUTPUT"
-          echo "version_numeric=${numeric}"     >> "$GITHUB_OUTPUT"
+          echo "app_name=${app}" >> "$GITHUB_OUTPUT"
+          echo "app_name_lower=${app_lower}" >> "$GITHUB_OUTPUT"
+          echo "version_full=${full}" >> "$GITHUB_OUTPUT"
+          echo "version_numeric=${numeric}" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$([ "$is_pre" = "1" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
           echo "Parsed: ${app} ${full} (numeric: ${numeric})"
 
@@ -351,6 +353,7 @@ jobs:
         with:
           name: ${{ steps.body.outputs.release_title }}
           body_path: RELEASE_BODY.md
+          prerelease: ${{ needs.parse-version.outputs.is_prerelease }}
           files: |
             ${{ env.APP }}_*.AppImage
             ${{ env.APP }}_*.dmg
