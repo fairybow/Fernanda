@@ -341,7 +341,7 @@ jobs:
       - name: Assemble release body
         id: body
         run: |
-          python3 .github/scripts/build_release_body.py \
+          python3 .github/scripts/build_release_text.py \
             --changelog CHANGELOG.md \
             --version "${{ env.VER }}" \
             --output RELEASE_BODY.md
