@@ -227,7 +227,7 @@ private:
 
     // Adds view + model as a tab to tabWidget, sets flag/tooltip/current/focus.
     // If insertAt >= 0, inserts at that index, otherwise appends
-    int addViewTab_(
+    void addViewTab_(
         TabWidget* tabWidget,
         AbstractFileView* view,
         AbstractFileModel* model,

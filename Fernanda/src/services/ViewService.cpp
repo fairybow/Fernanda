@@ -835,7 +835,7 @@ void ViewService::applyInitialTextFileViewSettings_(TextFileView* textFileView)
 
 // --- Tab helpers ---
 
-int ViewService::addViewTab_(
+void ViewService::addViewTab_(
     TabWidget* tabWidget,
     AbstractFileView* view,
     AbstractFileModel* model,
