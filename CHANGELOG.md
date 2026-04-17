@@ -93,6 +93,31 @@ Windows (x64), macOS (ARM), and Linux (x86_64).
 
 <a id="releases"></a>
 
+# 0.99.0-beta.23 (Testing / Soft Release) - tag v0.99.0-beta.23
+
+## What's New?
+
+**Tab splits.** TabWidgets can now be arranged side-by-side within a Window. Move or duplicate the active tab left/right via the File > Split submenu or tab context menu, or drag a tab near the left/right edge of a TabWidget to drop it into a new split there. Empty splits auto-collapse. New [Splits.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Splits.md) doc
+
+**Unique tabs option.** Per-workspace toggle (View menu). When enabled, opening an already-open file raises its existing tab instead of creating a duplicate. Defaults on. Implemented via a new `shouldOpenTabHook` on `ViewService` (tabs can still be duplicated while this mode is on via menus and turning this mode on will not delete existing duplicates)
+
+**New `TabSurface` widget.** The Window's central widget is now a `TabSurface` that owns a horizontal `QSplitter` of `TabWidget`s and tracks the active split via focus changes. `ViewService` was split into header + source and restructured around multiple TabWidgets per window: queries, tab ops, and helpers all iterate splits, and close-tab/close-everywhere now operate on models rather than `(window, index)` pairs
+
+**Hook signature changes.** `canCloseTab` and `canCloseTabEverywhere` now take `(Window*, AbstractFileModel*)` instead of `(Window*, int index)`. New `canCloseSplit(Window*)` hook. New `Bus::splitCountChanged(Window*)` signal for menu state refresh
+
+**Workspace local Ini keys consolidated.** `Notepad` and `Notebook` now pass a `LocalIniKeys` struct to the `Workspace` base constructor (currently tree view dock visibility + unique tabs), replacing the `treeViewDockIniKey()` virtual
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- ImageFileView Fit-mode sizing doesn't account for scroll bar width (noticeable after switching zoom modes and back)
+- Session restore not yet implemented (splits, open tabs, window positions, expanded Notebook TreeView items, etc.)
+
+---
+
 # 0.99.0-beta.22 (Testing / Soft Release) - tag v0.99.0-beta.22
 
 ## What's New?
