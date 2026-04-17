@@ -127,20 +127,42 @@ inline QString toQString(const QDomElement& element)
 
     auto tag = element.tagName();
     auto attrs = element.attributes();
+    auto count = attrs.count();
 
-    if (attrs.isEmpty()) return QString(u"QDomElement(<%1>)"_s).arg(tag);
+    if (count == 0) {
+        QString out{};
+        out.reserve(tag.size() + 16); // "QDomElement(<>)" + tag
+        out.append(u"QDomElement(<"_s);
+        out.append(tag);
+        out.append(u">)"_s);
 
-    QStringList attr_list{};
-    attr_list.reserve(attrs.count());
-
-    for (auto i = 0; i < attrs.count(); ++i) {
-        auto attr = attrs.item(i).toAttr();
-        attr_list << QString(u"%1='%2'"_s).arg(attr.name()).arg(attr.value());
+        return out;
     }
 
-    return QString(u"QDomElement(<%1 %2>)"_s)
-        .arg(tag)
-        .arg(attr_list.join(u' '));
+    // Rough size estimate: tag + per-attr overhead + names/values
+    qsizetype estimate = tag.size() + 16;
+
+    for (auto i = 0; i < count; ++i) {
+        auto attr = attrs.item(i).toAttr();
+        estimate += attr.name().size() + attr.value().size() + 5; // " ='"
+    }
+
+    QString out{};
+    out.reserve(estimate);
+    out.append(u"QDomElement(<"_s);
+    out.append(tag);
+
+    for (auto i = 0; i < count; ++i) {
+        auto attr = attrs.item(i).toAttr();
+        out.append(u' ');
+        out.append(attr.name());
+        out.append(u"='"_s);
+        out.append(attr.value());
+        out.append(u'\'');
+    }
+
+    out.append(u">)"_s);
+    return out;
 }
 
 // --- Variant containers ---
@@ -188,36 +210,54 @@ inline QString toQString(const QVariantHash& variantHash)
 {
     if (variantHash.isEmpty()) return u"QVariantHash()"_s;
 
-    QStringList list{};
-    list.reserve(variantHash.size());
+    QString out{};
+    out.reserve(64 + variantHash.size() * 32); // rough guess
+    out.append(u"QVariantHash("_s);
+
+    auto first = true;
     QHashIterator<QString, QVariant> it(variantHash);
 
     while (it.hasNext()) {
         it.next();
-        list << QString(u"{ \"%0\", %1 }"_s)
-                    .arg(it.key())
-                    .arg(toQString(it.value()));
+        if (!first) out.append(u", "_s);
+        first = false;
+
+        out.append(u"{ \""_s);
+        out.append(it.key());
+        out.append(u"\", "_s);
+        out.append(toQString(it.value()));
+        out.append(u" }"_s);
     }
 
-    return QString(u"QVariantHash(%0)"_s).arg(list.join(u", "_s));
+    out.append(u')');
+    return out;
 }
 
 inline QString toQString(const QVariantMap& variantMap)
 {
     if (variantMap.isEmpty()) return u"QVariantMap()"_s;
 
-    QStringList list{};
-    list.reserve(variantMap.size());
+    QString out{};
+    out.reserve(64 + variantMap.size() * 32); // rough guess
+    out.append(u"QVariantMap("_s);
+
+    auto first = true;
     QMapIterator<QString, QVariant> it(variantMap);
 
     while (it.hasNext()) {
         it.next();
-        list << QString(u"{ \"%0\", %1 }"_s)
-                    .arg(it.key())
-                    .arg(toQString(it.value()));
+        if (!first) out.append(u", "_s);
+        first = false;
+
+        out.append(u"{ \""_s);
+        out.append(it.key());
+        out.append(u"\", "_s);
+        out.append(toQString(it.value()));
+        out.append(u" }"_s);
     }
 
-    return QString(u"QVariantMap(%0)"_s).arg(list.join(u", "_s));
+    out.append(u')');
+    return out;
 }
 
 // --- Coco types ---
@@ -229,9 +269,7 @@ inline QString toQString(const Coco::Path& path) { return path.toQString(); }
 // "TagName::No"
 template <typename TagT> inline QString toQString(const Coco::Bool<TagT>& b)
 {
-    return QString(u"%0::%1"_s)
-        .arg(QString::fromUtf8(TagT::name()))
-        .arg(b ? u"Yes"_s : u"No"_s);
+    return QString::asprintf("%s::%s", TagT::name(), b ? "Yes" : "No");
 }
 
 } // namespace Fernanda
