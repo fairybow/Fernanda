@@ -48,6 +48,7 @@ Pain points while using:
 - [ ] Investigate large (new file count) Notebook saves (maybe choked a little when saving Save the Cat! template)
 - [ ] Clean Workspace
 - [ ] Refactor ViewService
+- [ ] Code clean-up: try to remove basically all onXHappened_ slots (because it is not descriptive - if only one thing is happening, just name it appropriately); only give it onXHappened_ name if it wraps multiple function calls
 - [ ] Code clean-up (tweak, add to CodeStyle.md):
 
 ```

@@ -186,6 +186,18 @@ private:
 
     void setup_()
     {
+        initializeServices_();
+
+        wireViewService_();
+        wireWindowService_();
+        wireTreeViewService_();
+
+        connectBusEvents_();
+        autosaveCue_->start();
+    }
+
+    void initializeServices_()
+    {
         for (auto& service :
              std::initializer_list<AbstractService*>{ settings,
                                                       windows,
@@ -197,7 +209,10 @@ private:
                                                       wordCounters }) {
             service->initialize();
         }
+    }
 
+    void wireViewService_()
+    {
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
             this,
@@ -243,23 +258,26 @@ private:
             &ViewService::addButtonContextMenuRequested,
             this,
             &Workspace::onAddButtonContextMenuRequested_);
+    }
 
+    void wireWindowService_()
+    {
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
         connect(windows, &WindowService::lastWindowClosed, this, [this] {
             emit lastWindowClosed(); // Propagate this signal to App for each
                                      // individual Workspace
         });
+    }
 
+    void wireTreeViewService_()
+    {
         treeViews->setDockWidgetFeatures(
             QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable
             | QDockWidget::DockWidgetFloatable);
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
         treeViews->setVisibilityKey(localIniKeys.treeViewDock);
-
-        connectBusEvents_();
-        autosaveCue_->start();
     }
 
     void connectBusEvents_()
