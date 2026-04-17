@@ -290,13 +290,7 @@ void ViewService::duplicateTab(Window* window, int index)
     auto view = createFileView_(window, model);
     if (!view) return;
 
-    auto meta = model->meta();
-    auto insert_at = i + 1;
-    auto new_index = tab_widget->insertTab(insert_at, view, meta->title());
-    tab_widget->setTabFlagged(new_index, model->isModified());
-    tab_widget->setTabToolTip(new_index, meta->toolTip());
-    tab_widget->setCurrentIndex(new_index);
-    tab_widget->setFocus();
+    addViewTab_(tab_widget, view, model, i + 1);
 }
 
 /// TODO TS
@@ -841,6 +835,20 @@ void ViewService::applyInitialTextFileViewSettings_(TextFileView* textFileView)
 
 // --- Tab helpers ---
 
+int ViewService::addViewTab_(
+    TabWidget* tabWidget,
+    AbstractFileView* view,
+    AbstractFileModel* model,
+    int insertAt)
+{
+    auto meta = model->meta();
+    auto new_index = tabWidget->insertTab(insertAt, view, meta->title());
+    tabWidget->setTabFlagged(new_index, model->isModified());
+    tabWidget->setTabToolTip(new_index, meta->toolTip());
+    tabWidget->setCurrentIndex(new_index);
+    tabWidget->setFocus();
+}
+
 /// TODO TS
 void ViewService::closeTabIn_(TabWidget* tabWidget, int index)
 {
@@ -983,12 +991,7 @@ void ViewService::duplicateToSplit_(
     auto view = createFileView_(window, model);
     if (!view) return;
 
-    auto meta = model->meta();
-    auto new_index = target->addTab(view, meta->title());
-    target->setTabFlagged(new_index, model->isModified());
-    target->setTabToolTip(new_index, meta->toolTip());
-    target->setCurrentIndex(new_index);
-    target->setFocus();
+    addViewTab_(target, view, model);
 }
 
 /// TODO TS
@@ -1114,12 +1117,7 @@ void ViewService::onBusFileModelReadied_(
     auto view = createFileView_(window, fileModel);
     if (!view) return;
 
-    auto meta = fileModel->meta();
-    auto index = tab_widget->addTab(view, meta->title());
-    tab_widget->setTabFlagged(index, fileModel->isModified());
-    tab_widget->setTabToolTip(index, meta->toolTip());
-    tab_widget->setCurrentIndex(index);
-    tab_widget->setFocus();
+    addViewTab_(tab_widget, view, fileModel);
 }
 
 void ViewService::onBusFileModelModificationChanged_(

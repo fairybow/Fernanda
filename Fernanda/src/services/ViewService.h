@@ -225,6 +225,13 @@ private:
 
     // --- Tab helpers ---
 
+    // Adds view + model as a tab to tabWidget, sets flag/tooltip/current/focus.
+    // If insertAt >= 0, inserts at that index, otherwise appends
+    int addViewTab_(
+        TabWidget* tabWidget,
+        AbstractFileView* view,
+        AbstractFileModel* model,
+        int insertAt = -1);
     void closeTabIn_(TabWidget* tabWidget, int index);
 
     // Searches all tab widgets in `window` for a tab bound to `model`. If
