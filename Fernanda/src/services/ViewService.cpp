@@ -138,13 +138,7 @@ QList<AbstractFileView*> ViewService::fileViews() const
     QList<AbstractFileView*> views{};
 
     for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-        for (auto& tab_widget : tabWidgets_(window)) {
-            for (auto i = 0; i < tab_widget->count(); ++i) {
-                if (auto view = tab_widget->widgetAt<AbstractFileView*>(i)) {
-                    views << view;
-                }
-            }
-        }
+        views << fileViewsIn(window);
     }
 
     return views;
@@ -296,13 +290,7 @@ void ViewService::duplicateTab(Window* window, int index)
     auto view = createFileView_(window, model);
     if (!view) return;
 
-    auto meta = model->meta();
-    auto insert_at = i + 1;
-    auto new_index = tab_widget->insertTab(insert_at, view, meta->title());
-    tab_widget->setTabFlagged(new_index, model->isModified());
-    tab_widget->setTabToolTip(new_index, meta->toolTip());
-    tab_widget->setCurrentIndex(new_index);
-    tab_widget->setFocus();
+    addViewTab_(tab_widget, view, model, i + 1);
 }
 
 /// TODO TS
@@ -321,20 +309,12 @@ void ViewService::closeTabEverywhere(Window* window, int index)
     auto target_model = fileModelAt(window, index);
     if (!target_model) return;
 
-    if (!canCloseTabEverywhereHook_
-        || canCloseTabEverywhereHook_(window, target_model)) {
+    if (canCloseTabEverywhereHook_
+        && !canCloseTabEverywhereHook_(window, target_model))
+        return;
 
-        for (auto& w : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-            for (auto& tab_widget : tabWidgets_(w)) {
-                for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                    if (view && view->model() == target_model) {
-                        deleteFileViewAt_(tab_widget, i);
-                    }
-                }
-            }
-        }
-    }
+    closeMatchingViews_(
+        [target_model](AbstractFileModel* m) { return m == target_model; });
 }
 
 /// TODO TS
@@ -343,16 +323,8 @@ ViewService::closeViewsForModels(const QSet<AbstractFileModel*>& fileModels)
 {
     if (fileModels.isEmpty()) return;
 
-    for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-        for (auto& tab_widget : tabWidgets_(window)) {
-            for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (view && fileModels.contains(view->model())) {
-                    deleteFileViewAt_(tab_widget, i);
-                }
-            }
-        }
-    }
+    closeMatchingViews_(
+        [&fileModels](AbstractFileModel* m) { return fileModels.contains(m); });
 }
 
 void ViewService::closeWindowTabs(Window* window)
@@ -847,6 +819,20 @@ void ViewService::applyInitialTextFileViewSettings_(TextFileView* textFileView)
 
 // --- Tab helpers ---
 
+void ViewService::addViewTab_(
+    TabWidget* tabWidget,
+    AbstractFileView* view,
+    AbstractFileModel* model,
+    int insertAt)
+{
+    auto meta = model->meta();
+    auto new_index = tabWidget->insertTab(insertAt, view, meta->title());
+    tabWidget->setTabFlagged(new_index, model->isModified());
+    tabWidget->setTabToolTip(new_index, meta->toolTip());
+    tabWidget->setCurrentIndex(new_index);
+    tabWidget->setFocus();
+}
+
 /// TODO TS
 void ViewService::closeTabIn_(TabWidget* tabWidget, int index)
 {
@@ -989,12 +975,7 @@ void ViewService::duplicateToSplit_(
     auto view = createFileView_(window, model);
     if (!view) return;
 
-    auto meta = model->meta();
-    auto new_index = target->addTab(view, meta->title());
-    target->setTabFlagged(new_index, model->isModified());
-    target->setTabToolTip(new_index, meta->toolTip());
-    target->setCurrentIndex(new_index);
-    target->setFocus();
+    addViewTab_(target, view, model);
 }
 
 /// TODO TS
@@ -1120,12 +1101,7 @@ void ViewService::onBusFileModelReadied_(
     auto view = createFileView_(window, fileModel);
     if (!view) return;
 
-    auto meta = fileModel->meta();
-    auto index = tab_widget->addTab(view, meta->title());
-    tab_widget->setTabFlagged(index, fileModel->isModified());
-    tab_widget->setTabToolTip(index, meta->toolTip());
-    tab_widget->setCurrentIndex(index);
-    tab_widget->setFocus();
+    addViewTab_(tab_widget, view, fileModel);
 }
 
 void ViewService::onBusFileModelModificationChanged_(

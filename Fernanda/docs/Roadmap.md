@@ -33,7 +33,7 @@ Pain points while using:
 - [x] Tab dragging
 - [x] Menu commands (split right/left; should move the active tab in active TabWidget to left or right, into existing TabWidget if present or creating a new one)
 - [ ] Drop zone visual feedback
-- [ ] Valid cursor for passthrough drop path
+- [x] Valid cursor for passthrough drop path
 - [x] For review: TabSurface.h; ViewService.h (TabSurface integration, split operations, hook signature changes, auto-collapse suppression, cleanup); Workspace.h (hook signature changes, context menu split actions, bus event for split count, fixed centralWidget casts); Workspace.cpp (File menu Split submenu); Bus.h (new splitCountChanged signal); Notepad.h (hook signatures: canCloseTab, canCloseTabEverywhere); TabWidget.h (new SplitSide enum, tabDraggedToSplitEdge signal, dragStarted/dragEnded signals, DropZone_ enum, dropZone_ helper); TabWidget.cpp (dragMoveEvent, dropEvent edge zone handling, startDrag_ drag lifecycle signals)
 - [ ] Sessions (tab splits, open tabs, pinned tabs (future), window positions, TreeView sizes)
 - [x] Option to disallow multiple tabs onto same model
@@ -46,6 +46,26 @@ Pain points while using:
 - [x] Close all tabs option in tab context menu
 - [ ] (Update all documentation)
 - [ ] Investigate large (new file count) Notebook saves (maybe choked a little when saving Save the Cat! template)
+- [ ] Clean Workspace
+- [ ] Refactor ViewService
+- [ ] Code clean-up: try to remove basically all onXHappened_ slots (because it is not descriptive - if only one thing is happening, just name it appropriately); only give it onXHappened_ name if it wraps multiple function calls
+- [ ] Code clean-up: drop unneeded connection slot/lambda parameters, instead of [[maybe_unused]]
+- [ ] Code clean-up: also drop param names on virtuals when they're self explanatory (e.g., not Window* window)
+- [ ] Code clean-up (tweak, add to CodeStyle.md):
+
+```
+Within each access section, order members as:
+
+Type aliases and nested types
+Constructors
+Destructor
+Methods (ordered: static, virtual/overrides, regular, unless sectioned in a specific way)
+Data members
+
+This ordering applies uniformly to public, protected, and private sections. Readers encounter what the class is and does before its internal state.
+
+POSSIBLY switch members and methods for private only
+```
 
 ---
 

@@ -225,6 +225,13 @@ private:
 
     // --- Tab helpers ---
 
+    // Adds view + model as a tab to tabWidget, sets flag/tooltip/current/focus.
+    // If insertAt >= 0, inserts at that index, otherwise appends
+    void addViewTab_(
+        TabWidget* tabWidget,
+        AbstractFileView* view,
+        AbstractFileModel* model,
+        int insertAt = -1);
     void closeTabIn_(TabWidget* tabWidget, int index);
 
     // Searches all tab widgets in `window` for a tab bound to `model`. If
@@ -284,6 +291,20 @@ private:
                 for (auto i = 0; i < tab_widget->count(); ++i) {
                     auto view = tab_widget->widgetAt<AbstractFileView*>(i);
                     if (view && view->model() == model) callable(tab_widget, i);
+                }
+            }
+        }
+    }
+
+    template <typename MatcherT> void closeMatchingViews_(MatcherT&& match)
+    {
+        for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
+            for (auto& tab_widget : tabWidgets_(window)) {
+                for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                    if (view && match(view->model())) {
+                        deleteFileViewAt_(tab_widget, i);
+                    }
                 }
             }
         }

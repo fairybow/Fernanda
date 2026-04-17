@@ -86,7 +86,10 @@ class Notebook : public Workspace
 
 public:
     explicit Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
-        : Workspace(parent)
+        : Workspace(
+              { Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK,
+                Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS },
+              parent)
         , fnxPath_(fnxPath)
         , workingDir_(newWorkingDirPath_(fnxPath))
     {
@@ -118,30 +121,27 @@ public:
             parent);
     }
 
-    Coco::Path fnxPath() const noexcept { return fnxPath_; }
-    QString name() const { return fnxPath_.nameQString(); }
-
     virtual bool tryQuit() override
     {
         // Delegates to the canCloseAllWindows hook
         return windows->closeAll();
     }
 
+    Coco::Path fnxPath() const noexcept { return fnxPath_; }
+    QString name() const { return fnxPath_.nameQString(); }
+
 protected:
-    /// TODO BA
     virtual void autosave() override
     {
         TRACER;
         writeLockfile_();
     }
 
-    /// TODO NF
     virtual void newFile(Window* window, Files::Type plainTextFileType) override
     {
         newFile_(window, treeViews->currentIndex(window), plainTextFileType);
     }
 
-    /// TODO NF
     virtual void
     importFiles(Window* window, const QList<Coco::Path>& paths) override
     {
@@ -182,7 +182,6 @@ protected:
         }
     }
 
-    /// TODO NF
     virtual QString importFilter() const override
     {
         return Files::filters(Files::All, Files::conversionImportsFilter());
@@ -205,16 +204,6 @@ protected:
         // ensuring new files and folders are parented under <notebook> rather
         // than accidentally becoming siblings of <notebook> and <trash>.
         return fnxModel_->notebookIndex();
-    }
-
-    virtual QString treeViewDockIniKey() const override
-    {
-        return Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK;
-    }
-
-    virtual QString uniqueTabsIniKey() const override
-    {
-        return Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS;
     }
 
     virtual bool canCloseWindow(Window* window) override
@@ -263,6 +252,30 @@ protected:
     }
 
 private:
+    struct MultiSaveResult_
+    {
+        QList<AbstractFileModel*> failed{};
+        explicit operator bool() const noexcept { return failed.isEmpty(); }
+    };
+
+    // Private recovery constructor
+    /// TODO BA
+    explicit Notebook(
+        const Coco::Path& fnxPath,
+        WorkingDir&& orphan,
+        QSet<QString>&& dirtyUuids,
+        QObject* parent = nullptr)
+        : Workspace(
+              { Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK,
+                Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS },
+              parent)
+        , fnxPath_(fnxPath)
+        , workingDir_(std::move(orphan))
+        , recoveryDirtyUuids_(std::move(dirtyUuids))
+    {
+        setup_();
+    }
+
     Coco::Path fnxPath_; // Intended path (may not exist yet)
     WorkingDir workingDir_; // Working directory path/name will remain unchanged
                             // for Notebook's lifetime even when changing
@@ -278,21 +291,6 @@ private:
 
     QHash<Window*, NotebookColorChip*> colorChips_{};
 
-    // Private recovery constructor
-    /// TODO BA
-    explicit Notebook(
-        const Coco::Path& fnxPath,
-        WorkingDir&& orphan,
-        QSet<QString>&& dirtyUuids,
-        QObject* parent = nullptr)
-        : Workspace(parent)
-        , fnxPath_(fnxPath)
-        , workingDir_(std::move(orphan))
-        , recoveryDirtyUuids_(std::move(dirtyUuids))
-    {
-        setup_();
-    }
-
     static Coco::Path newWorkingDirPath_(const Coco::Path& fnxPath)
     {
         return AppDirs::tempNotebooks()
@@ -301,14 +299,14 @@ private:
 
     void setup_()
     {
-        if (!workingDir_.isValid())
+        if (!workingDir_.isValid()) {
             FATAL("Notebook working directory creation failed!");
+        }
 
         auto working_dir_path = workingDir_.path();
 
         treeViews->setHeadersHidden(true);
         treeViews->setDockWidgetHook(this, &Notebook::treeViewDockWidgetHook_);
-        treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT
 
         connect(
             treeViews,
@@ -488,8 +486,9 @@ private:
     /// TODO BA
     void applyRecoveryState_()
     {
-        for (auto& uuid : recoveryDirtyUuids_)
+        for (auto& uuid : recoveryDirtyUuids_) {
             fnxModel_->setFileEdited(uuid, true);
+        }
 
         files->setAfterModelCreatedHook([this](AbstractFileModel* model) {
             auto meta = model->meta();
@@ -642,12 +641,6 @@ private:
 
     void updateWindowsFlags_() { windows->setFlagged(isModified_()); }
 
-    struct MultiSaveResult_
-    {
-        QList<AbstractFileModel*> failed{};
-        explicit operator bool() const noexcept { return failed.isEmpty(); }
-    };
-
     MultiSaveResult_ saveModifiedModels_() const
     {
         // No save prompts for Notebook's always-on-disk files
@@ -777,17 +770,20 @@ private:
         auto working_dir_path = workingDir_.path();
         QSet<Coco::Path> paths{};
 
-        for (auto& info : file_infos)
+        for (auto& info : file_infos) {
             paths << working_dir_path / info.relPath;
+        }
 
         auto models = files->modelsFor(paths);
 
         views->closeViewsForModels(models);
         files->deleteModels(models);
 
-        for (auto& path : paths)
-            if (!Coco::remove(path))
+        for (auto& path : paths) {
+            if (!Coco::remove(path)) {
                 CRITICAL("Failed to delete [{}] from disk!", path);
+            }
+        }
 
         return true;
     }
@@ -807,8 +803,9 @@ private:
     void emptyTrash_(Window* window)
     {
         // The trash element itself (tag "trash") isn't a file, so it's skipped
-        if (trashPromptAndDelete_(window, fnxModel_->trashIndex()))
+        if (trashPromptAndDelete_(window, fnxModel_->trashIndex())) {
             fnxModel_->clearTrash();
+        }
     }
 
     void save_(Window* window)
@@ -1060,19 +1057,20 @@ private slots:
         // Notebook's individual archive files should always have a path.
         fnxModel_->setFileEdited(Fnx::Io::uuid(path), modified);
 
-        /// TODO BA
-        if (!modified) {
-            auto result = files->save(fileModel, ClearModified::No);
-            if (result == FileService::Success) {
-                auto uuid = Fnx::Io::uuid(path);
-                recoveryDirtyUuids_.remove(uuid);
-            } else if (result == FileService::Failure) {
-                CRITICAL(
-                    "Notebook undo-to-clean write-back failed for {} (result: "
-                    "{})!",
-                    fileModel,
-                    toString(result));
-            }
+        /// TODO BA:
+
+        if (modified) return;
+
+        auto result = files->save(fileModel, ClearModified::No);
+        if (result == FileService::Success) {
+            auto uuid = Fnx::Io::uuid(path);
+            recoveryDirtyUuids_.remove(uuid);
+        } else if (result == FileService::Failure) {
+            CRITICAL(
+                "Notebook undo-to-clean write-back failed for {} (result: "
+                "{})!",
+                fileModel,
+                toString(result));
         }
     }
 };

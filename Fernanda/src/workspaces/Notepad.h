@@ -66,7 +66,10 @@ public:
     using PathInterceptor = std::function<bool(const Coco::Path&)>;
 
     Notepad(QObject* parent = nullptr)
-        : Workspace(parent)
+        : Workspace(
+              { Ini::LocalKeys::NOTEPAD_TREE_VIEW_DOCK,
+                Ini::LocalKeys::NOTEPAD_UNIQUE_TABS },
+              parent)
     {
         setup_();
     }
@@ -75,6 +78,11 @@ public:
     {
         TRACER;
         deleteAllRecoveryEntries_(); /// TODO BA
+    }
+
+    virtual bool tryQuit() override
+    {
+        return windows->count() < 1 || windows->closeAll();
     }
 
     void openFiles(const Coco::PathList& paths)
@@ -156,13 +164,7 @@ public:
         // problem
     }
 
-    virtual bool tryQuit() override
-    {
-        return windows->count() < 1 || windows->closeAll();
-    }
-
 protected:
-    /// TODO BA
     virtual void autosave() override
     {
         TRACER;
@@ -186,13 +188,11 @@ protected:
         }
     }
 
-    /// TODO NF
     virtual void newFile(Window* window, Files::Type fileType) override
     {
         newTab_(window, fileType);
     }
 
-    /// TODO NF
     virtual void
     importFiles(Window* window, const Coco::PathList& paths) override
     {
@@ -207,7 +207,6 @@ protected:
         }
     }
 
-    /// TODO NF
     virtual QString importFilter() const override
     {
         return Files::conversionImportsFilter();
@@ -223,17 +222,6 @@ protected:
         return fsModel_->index(currentRootDir.toQString());
     }
 
-    virtual QString treeViewDockIniKey() const override
-    {
-        return Ini::LocalKeys::NOTEPAD_TREE_VIEW_DOCK;
-    }
-
-    virtual QString uniqueTabsIniKey() const override
-    {
-        return Ini::LocalKeys::NOTEPAD_UNIQUE_TABS;
-    }
-
-    /// TODO TS
     virtual bool canCloseTab(Window* window, AbstractFileModel* model) override
     {
         if (!model) return false;
@@ -243,7 +231,6 @@ protected:
         return promptSingleModelClosingSave_(model, window);
     }
 
-    /// TODO TS
     virtual bool
     canCloseTabEverywhere(Window* window, AbstractFileModel* model) override
     {
@@ -253,7 +240,6 @@ protected:
         return promptSingleModelClosingSave_(model, window);
     }
 
-    /// TODO TS
     virtual bool canCloseSplit(Window* window) override
     {
         auto modified = views->modifiedViewModelsInActiveSplit(window);
@@ -430,7 +416,6 @@ private:
 
         treeViews->setHeadersHidden(false);
         treeViews->setDockWidgetHook(this, &Notepad::treeViewDockWidgetHook_);
-        treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT
 
         /// TODO BA
         files->setBeforeWriteHook([](const Coco::Path& path) {
@@ -877,8 +862,9 @@ private:
         auto result = multiSave_(modified_models, window);
 
         /// TODO BA
-        for (auto model : result.succeeded)
+        for (auto model : result.succeeded) {
             deleteRecoveryEntry_(model);
+        }
 
         // Fails take priority
         if (result.anyFails()) {

@@ -26,12 +26,15 @@
 #include <QFontMetrics>
 #include <QHBoxLayout>
 #include <QIODevice>
+#include <QIcon>
 #include <QLinearGradient>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPixmap>
 #include <QPoint>
+#include <QStyle>
 #include <QVBoxLayout>
 
 #include "core/Application.h"
@@ -758,14 +761,14 @@ void TabWidget::startDrag_(int index)
     drag->setHotSpot(
         drag_context.tabSpec.relPos(pixmap.width(), pixmap.height()));
 
-    // Works to hide the "no" sign on valid desktop drags, but not having a
-    // cursor at all is bad
-    // QPixmap transparent_pixmap(1, 1);
-    // transparent_pixmap.fill(Qt::transparent);
-    // drag->setDragCursor(transparent_pixmap, Qt::IgnoreAction);
-    // drag->setDragCursor(transparent_pixmap, Qt::MoveAction);
-    // drag->setDragCursor(transparent_pixmap, Qt::CopyAction);
-    // drag->setDragCursor(transparent_pixmap, Qt::LinkAction);
+    // TODO: Replace with hand cursor
+    auto style = Application::style();
+    auto icon = style->standardIcon(QStyle::SP_FileIcon);
+    auto cursor_pm = icon.pixmap(16, 16);
+    drag->setDragCursor(cursor_pm, Qt::MoveAction);
+    drag->setDragCursor(cursor_pm, Qt::IgnoreAction);
+    drag->setDragCursor(cursor_pm, Qt::CopyAction);
+    drag->setDragCursor(cursor_pm, Qt::LinkAction);
 
     /// TODO TD:
     // Execute

@@ -66,7 +66,6 @@ void Workspace::createWindowMenuBar_(Window* window)
     QAction* unique_tabs = nullptr;
 
     MenuBuilder(MenuBuilder::MenuBar, window)
-
         .menu(Tr::nxFileMenu())
         .submenu(Tr::nxNew())
         .action(Tr::nxNewTab())
@@ -75,20 +74,19 @@ void Workspace::createWindowMenuBar_(Window* window)
             [this, window] { newFile(window, Files::PlainText); })
         .shortcut(MenuShortcuts::NEW_TAB)
         .separator()
-        .apply([this, window](MenuBuilder& builder) {
+        .apply([this, window](MenuBuilder& b) {
             for (auto type : Files::workspaceCreatableTypes()) {
                 if (type == Files::PlainText) continue;
 
-                builder.action(Files::name(type))
+                b.action(Files::name(type))
                     .onUserTrigger(this, [this, window, type] {
                         newFile(window, type);
                     });
             }
         })
         .endSubmenu()
-        .apply([this, window](MenuBuilder& builder) {
-            fileMenuOpenActions(builder, window);
-        })
+        .apply(
+            [this, window](MenuBuilder& b) { fileMenuOpenActions(b, window); })
         .action(Tr::workspaceImport())
         .onUserTrigger(
             this,
@@ -140,8 +138,8 @@ void Workspace::createWindowMenuBar_(Window* window)
                 emit openNotebookRequested(path);
             })
         .separator()
-        .apply([this, state, window](MenuBuilder& builder) {
-            fileMenuSaveActions(builder, state, window);
+        .apply([this, state, window](MenuBuilder& b) {
+            fileMenuSaveActions(b, state, window);
         })
         .separator()
         .action(Tr::nxDuplicateTab())
@@ -313,15 +311,15 @@ void Workspace::createWindowMenuBar_(Window* window)
             this,
             [this, window](bool checked) {
                 if (!window || !window->isVisible()) return;
-                settings->set(treeViewDockIniKey(), checked);
+                settings->set(localIniKeys.treeViewDock, checked);
             })
         .action(Tr::nxUniqueTabs())
-        .checkable(settings->get<bool>(uniqueTabsIniKey()))
+        .checkable(settings->get<bool>(localIniKeys.uniqueTabs))
         .capture(&unique_tabs)
         .onToggle(
             this,
             [this](bool checked) {
-                settings->set(uniqueTabsIniKey(), checked);
+                settings->set(localIniKeys.uniqueTabs, checked);
             })
 
         .barAction(Tr::nxSettingsMenu())
@@ -341,7 +339,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         &Bus::settingChanged,
         unique_tabs,
         [this, unique_tabs](const QString& key, const QVariant& value) {
-            if (key != uniqueTabsIniKey()) return;
+            if (key != localIniKeys.uniqueTabs) return;
             QSignalBlocker blocker(unique_tabs);
             unique_tabs->setChecked(value.toBool());
         });

@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <tuple>
+#include <utility>
 
 #include <QAbstractItemModel>
 #include <QKeySequence>
@@ -59,13 +59,7 @@ class Workspace : public QObject
     Q_OBJECT
 
 public:
-    Workspace(QObject* parent = nullptr)
-        : QObject(parent)
-    {
-        setup_();
-    }
-
-    virtual ~Workspace() override = default;
+    virtual bool tryQuit() = 0;
 
     void beCute() const
     {
@@ -76,8 +70,9 @@ public:
 
     void activate() const
     {
-        if (auto active_window = windows->active())
+        if (auto active_window = windows->active()) {
             active_window->activate(); // Stack under will raise any others
+        }
     }
 
     // Activates if the Workspace already has windows
@@ -90,8 +85,6 @@ public:
         }
     }
 
-    virtual bool tryQuit() = 0;
-
 signals:
     void lastWindowClosed();
     void openNotepadRequested();
@@ -99,8 +92,29 @@ signals:
     void openNotebookRequested(const Coco::Path& fnxPath);
 
 protected:
-    Bus* bus = new Bus(this);
+    struct LocalIniKeys
+    {
+        QString treeViewDock;
+        QString uniqueTabs;
+    };
 
+    enum class MenuScope
+    {
+        ActiveTab = 0,
+        Window,
+        Workspace
+    };
+
+    explicit Workspace(LocalIniKeys localIniKeys, QObject* parent = nullptr)
+        : QObject(parent)
+        , localIniKeys(std::move(localIniKeys))
+    {
+        setup_();
+    }
+
+    const LocalIniKeys localIniKeys;
+
+    Bus* bus = new Bus(this);
     SettingsService* settings =
         new SettingsService(AppDirs::userData() / "Settings.ini", bus, this);
     WindowService* windows = new WindowService(bus, this);
@@ -111,47 +125,26 @@ protected:
     StyleModule* styling = new StyleModule(bus, this);
     WordCounterModule* wordCounters = new WordCounterModule(bus, this);
 
-    Coco::Path currentRootDir =
-        AppDirs::defaultDocs(); // Since this is currently hardcoded, it goes
-                                // here to be shared between Workspace types.
-                                // When it's made configurable, it will likely
-                                // belong to App
+    // TODO: Local settings maybe
+    Coco::Path currentRootDir = AppDirs::defaultDocs();
     Coco::Path rollingOpenStartDir = currentRootDir;
 
-    /// TODO BA: May need to be protected in order set auto-save interval via
-    /// settings? (Would, in that case, also not need to have the interval set
-    /// here.)
-    Time::Ticker* autosaveCue =
-        Time::newTicker(this, &Workspace::autosave, 15000);
     virtual void autosave() {};
 
-    // TODO: Rename?
-    virtual void newFile(Window* window, Files::Type fileType) = 0;
-
-    /// TODO NF
-    virtual void importFiles(Window* window, const Coco::PathList& paths) = 0;
-    /// TODO NF
+    virtual void newFile(Window*, Files::Type) = 0;
+    virtual void importFiles(Window*, const Coco::PathList&) = 0;
     virtual QString importFilter() const = 0;
-
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
 
-    // This hook looks ridiculous but right now is how the common TreeView
-    // toggle menu item saves the setting per-Workspace subclass
-    virtual QString treeViewDockIniKey() const = 0; /// TODO TVT
-    // Returns the local Ini key for this Workspace's "unique tabs" setting
-    virtual QString uniqueTabsIniKey() const = 0;
+    // Default `true` for Workspaces with whole-workspace save semantics
+    // (Notebook). File-per-document Workspaces (Notepad) override:
 
-    /// TODO TS
     virtual bool canCloseTab(Window*, AbstractFileModel*) { return true; }
-
-    /// TODO TS
     virtual bool canCloseTabEverywhere(Window*, AbstractFileModel*)
     {
         return true;
     }
-
-    /// TODO TS
     virtual bool canCloseSplit(Window*) { return true; }
     virtual bool canCloseWindowTabs(Window*) { return true; }
     virtual bool canCloseAllTabs(const QList<Window*>&) { return true; }
@@ -161,30 +154,19 @@ protected:
     /// TODO NF: Consider only having the New submenu (with Notepad having all
     /// "kinds" and Notebook having same + new folder; although, Notepad could
     /// be allowed to make folders, it would just have to handle it differently)
-    virtual void fileMenuOpenActions(MenuBuilder& builder, Window* window) = 0;
-    virtual void fileMenuSaveActions(
-        MenuBuilder& builder,
-        MenuState* state,
-        Window* window) = 0;
+    virtual void fileMenuOpenActions(MenuBuilder&, Window*) = 0;
+    virtual void fileMenuSaveActions(MenuBuilder&, MenuState*, Window*) = 0;
 
-    virtual void tabContextMenuSaveActions(
-        [[maybe_unused]] MenuBuilder& builder,
-        [[maybe_unused]] Window* window,
-        [[maybe_unused]] int index)
+    virtual void
+    tabContextMenuSaveActions(MenuBuilder&, Window*, [[maybe_unused]] int index)
     {
     }
 
-    enum class MenuScope
-    {
-        ActiveTab = 0,
-        Window,
-        Workspace
-    };
-
     void refreshMenus(MenuScope scope)
     {
-        for (auto state : menuStates_)
+        for (auto state : menuStates_) {
             state->refresh(scope);
+        }
     }
 
     void refreshMenus(Window* window, MenuScope scope)
@@ -194,11 +176,24 @@ protected:
 
 private:
     Coco::Path rollingOpenFnxStartDir_ = currentRootDir;
-
     QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
     QHash<Window*, MenuState*> menuStates_{};
+    Time::Ticker* autosaveCue_ = // TODO: Make configurable?
+        Time::newTicker(this, &Workspace::autosave, 15000);
 
     void setup_()
+    {
+        initializeServices_();
+
+        wireViewService_();
+        wireWindowService_();
+        wireTreeViewService_();
+
+        connectBusEvents_();
+        autosaveCue_->start();
+    }
+
+    void initializeServices_()
     {
         for (auto& service :
              std::initializer_list<AbstractService*>{ settings,
@@ -211,7 +206,10 @@ private:
                                                       wordCounters }) {
             service->initialize();
         }
+    }
 
+    void wireViewService_()
+    {
         views->setCanCloseTabHook(this, &Workspace::canCloseTab);
         views->setCanCloseTabEverywhereHook(
             this,
@@ -220,17 +218,12 @@ private:
         views->setCanCloseWindowTabsHook(this, &Workspace::canCloseWindowTabs);
         views->setCanCloseAllTabsHook(this, &Workspace::canCloseAllTabs);
         views->setShouldOpenTabHook([this](Window*, AbstractFileModel*) {
-            return !settings->get<bool>(uniqueTabsIniKey());
+            return !settings->get<bool>(localIniKeys.uniqueTabs);
         });
 
-        connect(
-            views,
-            &ViewService::fileViewDestroyed,
-            this,
-            [this]([[maybe_unused]] AbstractFileView* fileView) {
-                refreshMenus(MenuScope::Window);
-                refreshMenus(MenuScope::Workspace);
-            });
+        connect(views, &ViewService::fileViewDestroyed, this, [this] {
+            refreshWindowAndWorkspaceMenus_();
+        });
 
         /// TODO TD
         connect(
@@ -257,30 +250,32 @@ private:
             &ViewService::addButtonContextMenuRequested,
             this,
             &Workspace::onAddButtonContextMenuRequested_);
+    }
 
+    void wireWindowService_()
+    {
         windows->setCanCloseHook(this, &Workspace::canCloseWindow);
         windows->setCanCloseAllHook(this, &Workspace::canCloseAllWindows);
         connect(windows, &WindowService::lastWindowClosed, this, [this] {
             emit lastWindowClosed(); // Propagate this signal to App for each
                                      // individual Workspace
         });
+    }
 
+    void wireTreeViewService_()
+    {
         treeViews->setDockWidgetFeatures(
             QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable
             | QDockWidget::DockWidgetFloatable);
         treeViews->setModelHook(this, &Workspace::treeViewModel);
         treeViews->setRootIndexHook(this, &Workspace::treeViewRootIndex);
-
-        connectBusEvents_();
-
-        /// TODO BA
-        autosaveCue->start();
+        treeViews->setVisibilityKey(localIniKeys.treeViewDock);
     }
 
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, [this](Window* window) {
-            std::ignore = window->statusBar(); // Ensure status bar
+            window->statusBar(); // Ensure status bar
             createWindowMenuBar_(window);
         });
 
@@ -289,9 +284,7 @@ private:
 
             disconnectOldActiveTab_(window);
             activeTabConnections_.remove(window);
-
-            refreshMenus(MenuScope::Window);
-            refreshMenus(MenuScope::Workspace);
+            refreshWindowAndWorkspaceMenus_();
         });
 
         connect(
@@ -304,27 +297,13 @@ private:
             refreshMenus(window, MenuScope::Window);
         });
 
-        connect(
-            bus,
-            &Bus::fileModelReadied,
-            this,
-            [this](
-                [[maybe_unused]] Window* window,
-                [[maybe_unused]] AbstractFileModel* fileModel) {
-                refreshMenus(MenuScope::Window);
-                refreshMenus(MenuScope::Workspace);
-            });
+        connect(bus, &Bus::fileModelReadied, this, [this] {
+            refreshWindowAndWorkspaceMenus_();
+        });
 
-        connect(
-            bus,
-            &Bus::fileModelModificationChanged,
-            this,
-            [this](
-                [[maybe_unused]] AbstractFileModel* fileModel,
-                [[maybe_unused]] bool modified) {
-                refreshMenus(MenuScope::Window);
-                refreshMenus(MenuScope::Workspace);
-            });
+        connect(bus, &Bus::fileModelModificationChanged, this, [this] {
+            refreshWindowAndWorkspaceMenus_();
+        });
     }
 
     void createWindowMenuBar_(Window* window);
@@ -334,9 +313,16 @@ private:
         if (!window) return;
 
         if (auto old = activeTabConnections_.take(window); !old.isEmpty()) {
-            for (auto& connection : old)
+            for (auto& connection : old) {
                 disconnect(connection);
+            }
         }
+    }
+
+    void refreshWindowAndWorkspaceMenus_()
+    {
+        refreshMenus(MenuScope::Window);
+        refreshMenus(MenuScope::Workspace);
     }
 
 private slots:
@@ -390,8 +376,7 @@ private slots:
     void
     onTabDragCompleted_(Window* fromWindow, [[maybe_unused]] Window* toWindow)
     {
-        refreshMenus(MenuScope::Window);
-        refreshMenus(MenuScope::Workspace);
+        refreshWindowAndWorkspaceMenus_();
 
         // TODO: Assert below?
 
@@ -420,9 +405,7 @@ private slots:
         if (!new_window) return;
 
         views->insertTabSpec(new_window, tabSpec);
-
-        refreshMenus(MenuScope::Window);
-        refreshMenus(MenuScope::Workspace);
+        refreshWindowAndWorkspaceMenus_();
 
         // sourceWindow may be null. The tab has already been removed in
         // startDrag_, so the new window must be created regardless.
@@ -493,9 +476,9 @@ private slots:
         if (!window || globalPos.isNull()) return;
 
         MenuBuilder(MenuBuilder::ContextMenu, window)
-            .apply([this, window](MenuBuilder& builder) {
+            .apply([this, window](MenuBuilder& b) {
                 for (auto type : Files::workspaceCreatableTypes()) {
-                    builder.action(Files::name(type))
+                    b.action(Files::name(type))
                         .onUserTrigger(this, [this, window, type] {
                             newFile(window, type);
                         });
