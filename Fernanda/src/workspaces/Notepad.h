@@ -80,6 +80,11 @@ public:
         deleteAllRecoveryEntries_(); /// TODO BA
     }
 
+        virtual bool tryQuit() override
+    {
+        return windows->count() < 1 || windows->closeAll();
+    }
+
     void openFiles(const Coco::PathList& paths)
     {
         if (auto window = windows->active()) openFiles_(window, paths);
@@ -157,11 +162,6 @@ public:
         // off_disk_entries may not be empty if some openOffDiskPlainTextFileIn
         // calls failed to create models, but that would indicate a deeper
         // problem
-    }
-
-    virtual bool tryQuit() override
-    {
-        return windows->count() < 1 || windows->closeAll();
     }
 
 protected:
@@ -869,8 +869,9 @@ private:
         auto result = multiSave_(modified_models, window);
 
         /// TODO BA
-        for (auto model : result.succeeded)
+        for (auto model : result.succeeded) {
             deleteRecoveryEntry_(model);
+        }
 
         // Fails take priority
         if (result.anyFails()) {

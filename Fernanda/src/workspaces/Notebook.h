@@ -121,14 +121,14 @@ public:
             parent);
     }
 
-    Coco::Path fnxPath() const noexcept { return fnxPath_; }
-    QString name() const { return fnxPath_.nameQString(); }
-
     virtual bool tryQuit() override
     {
         // Delegates to the canCloseAllWindows hook
         return windows->closeAll();
     }
+
+    Coco::Path fnxPath() const noexcept { return fnxPath_; }
+    QString name() const { return fnxPath_.nameQString(); }
 
 protected:
     /// TODO BA
