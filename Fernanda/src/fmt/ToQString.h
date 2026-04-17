@@ -12,104 +12,159 @@
 
 #pragma once
 
-#include <string>
+#include <concepts>
+#include <type_traits>
 
 #include <QDomAttr>
 #include <QDomElement>
 #include <QDomNamedNodeMap>
 #include <QHashIterator>
+#include <QLatin1StringView>
 #include <QMapIterator>
 #include <QMetaObject>
+#include <QMetaType>
 #include <QModelIndex>
 #include <QObject>
 #include <QPoint>
 #include <QString>
 #include <QStringList>
+#include <QStringView>
 #include <QVariant>
 #include <QVariantHash>
 #include <QVariantMap>
 
+#include <Coco/Bool.h>
 #include <Coco/Concepts.h>
-#include <Coco/Utility.h>
+#include <Coco/Path.h>
 
 namespace Fernanda {
 
-// Ptr cannot be nullptr
-template <typename T> inline QString ptrAddress(const T* ptr)
+using namespace Qt::StringLiterals;
+
+// Forward declarations for mutually-recursive overloads. QVariant can hold any
+// of these, and the container overloads call back into toQString for values
+QString toQString(const QVariant& variant);
+QString toQString(const QVariantHash& variantHash);
+QString toQString(const QVariantMap& variantMap);
+
+// --- Strings ---
+
+// Passthrough (implicitly shared, no copy)
+inline QString toQString(const QString& s) { return s; }
+inline QString toQString(QStringView s) { return s.toString(); }
+inline QString toQString(QLatin1StringView s) { return s.toString(); }
+inline QString toQString(const char* s) { return QString::fromUtf8(s); }
+
+// --- Bool ---
+
+inline QString toQString(bool b) { return b ? u"true"_s : u"false"_s; }
+
+// --- Numerics ---
+
+template <typename T>
+    requires std::integral<T> && (!std::same_as<T, bool>)
+             && (!std::same_as<T, char>)
+inline QString toQString(T value)
 {
-    return QString::asprintf("%p", static_cast<const void*>(ptr));
+    return QString::number(value);
 }
 
-// Ptr cannot be nullptr
-template <Coco::Concepts::QObjectDerived T>
-inline QString qObjectPtrAddress(const T* ptr)
+template <std::floating_point T> inline QString toQString(T value)
 {
-    return QString("%0(%1)")
-        .arg(ptr->metaObject()->className())
-        .arg(ptrAddress<T>(ptr));
+    return QString::number(value);
 }
+
+// --- Pointers ---
 
 // Ptr can be nullptr
+template <typename T> inline QString toQString(const T* ptr)
+{
+    if (!ptr) return u"nullptr"_s;
+
+    // TODO: Untested - check print output (implementation defined)
+    return QString(u"%0(%1)"_s)
+        .arg(typeid(ptr).name())
+        .arg(QString::asprintf("%p", static_cast<const void*>(ptr)));
+}
+
+// Ptr can be nullptr. Overrides the generic pointer overload via partial
+// ordering when T derives from QObject
 template <Coco::Concepts::QObjectDerived T>
 inline QString toQString(const T* ptr)
 {
-    return ptr ? qObjectPtrAddress<T>(ptr) : "nullptr";
+    if (!ptr) return u"nullptr"_s;
+
+    return QString(u"%0(%1)"_s)
+        .arg(QString::fromUtf8(ptr->metaObject()->className()))
+        .arg(QString::asprintf("%p", static_cast<const void*>(ptr)));
 }
+
+// --- Qt value types ---
 
 inline QString toQString(const QModelIndex& index)
 {
-    if (!index.isValid()) return "QModelIndex(Invalid)";
+    if (!index.isValid()) return u"QModelIndex(Invalid)"_s;
 
-    return QString("QModelIndex(row:%1, col:%2, %3)")
+    return QString(u"QModelIndex(row:%1, col:%2, %3)"_s)
         .arg(index.row())
         .arg(index.column())
-        .arg(ptrAddress(index.internalPointer()));
+        .arg(QString::asprintf("%p", index.internalPointer()));
 }
 
 inline QString toQString(const QPoint& point)
 {
-    return QString("QPoint(x:%0, y:%1)").arg(point.x()).arg(point.y());
+    return QString(u"QPoint(x:%0, y:%1)"_s).arg(point.x()).arg(point.y());
 }
 
-inline QString toQString(const QStringList& stringList)
-{
-    return stringList.join(", ");
-}
+inline QString toQString(const QStringList& list) { return list.join(u", "_s); }
 
 inline QString toQString(const QDomElement& element)
 {
-    if (element.isNull()) return "QDomElement(Null)";
+    if (element.isNull()) return u"QDomElement(Null)"_s;
 
     auto tag = element.tagName();
     auto attrs = element.attributes();
-    if (attrs.isEmpty()) return QString("QDomElement(\"<%1>\")").arg(tag);
+
+    if (attrs.isEmpty()) return QString(u"QDomElement(<%1>)"_s).arg(tag);
 
     QStringList attr_list{};
+    attr_list.reserve(attrs.count());
 
     for (auto i = 0; i < attrs.count(); ++i) {
         auto attr = attrs.item(i).toAttr();
-        attr_list << QString("%1='%2'").arg(attr.name()).arg(attr.value());
+        attr_list << QString(u"%1='%2'"_s).arg(attr.name()).arg(attr.value());
     }
 
-    return QString("QDomElement(<%1 %2>)").arg(tag).arg(attr_list.join(" "));
+    return QString(u"QDomElement(<%1 %2>)"_s)
+        .arg(tag)
+        .arg(attr_list.join(u' '));
 }
 
-// Like QVariant::toString, we won't generally print "QVariant(value)"
+// --- Variant containers ---
+
+// Like QVariant::toString, we don't wrap printable values in "QVariant(...)"
 inline QString toQString(const QVariant& variant)
 {
-    if (!variant.isValid()) return "QVariant(Invalid)";
-    if (variant.isNull()) return "QVariant(Null)";
+    if (!variant.isValid()) return u"QVariant(Invalid)"_s;
+    if (variant.isNull()) return u"QVariant(Null)"_s;
 
-    if (variant.canConvert<QDomElement>())
-        return toQString(variant.value<QDomElement>());
-
-    if (variant.canConvert<QObject*>())
+    // Check for QObject-derived pointer types via meta-type flags (the
+    // documented-correct way). canConvert<QObject*>() + value<QObject*>() is
+    // unreliable for subclasses
+    if (variant.metaType().flags() & QMetaType::PointerToQObject) {
         return toQString(variant.value<QObject*>());
+    }
+
+    if (variant.canConvert<QDomElement>()) {
+        return toQString(variant.value<QDomElement>());
+    }
 
     switch (variant.typeId()) {
-        // TODO: Would need source file to do QVariantMap here
-        /*case QMetaType::QVariantMap:
-            return toQString(variant.value<QVariantMap>());*/
+    case QMetaType::QVariantMap:
+        return toQString(variant.value<QVariantMap>());
+
+    case QMetaType::QVariantHash:
+        return toQString(variant.value<QVariantHash>());
 
     case QMetaType::QModelIndex:
         return toQString(variant.value<QModelIndex>());
@@ -117,77 +172,66 @@ inline QString toQString(const QVariant& variant)
     case QMetaType::QPoint:
         return toQString(variant.value<QPoint>());
 
-        // This doesn't work for subclasses apparently:
-        /*case QMetaType::QObjectStar:
-            return toQString(variant.value<QObject*>());*/
-
     case QMetaType::QStringList:
-        return variant.value<QStringList>().join(", ");
+        return toQString(variant.value<QStringList>());
 
     default:
         auto text = variant.toString();
-        return text.isEmpty() ? "QVariant(Non-printable)" : text;
+        return text.isEmpty() ? u"QVariant(Non-printable)"_s : text;
     }
 }
 
 inline QString toQString(const QVariantHash& variantHash)
 {
-    if (variantHash.isEmpty()) return "QVariantHash()";
-    constexpr auto inner_format = "{ \"%0\", %1 }";
-    constexpr auto outer_format = "QVariantHash(%0)";
+    if (variantHash.isEmpty()) return u"QVariantHash()"_s;
+
     QStringList list{};
+    list.reserve(variantHash.size());
     QHashIterator<QString, QVariant> it(variantHash);
 
     while (it.hasNext()) {
         it.next();
-        list << QString(inner_format).arg(it.key()).arg(toQString(it.value()));
+        list << QString(u"{ \"%0\", %1 }"_s)
+                    .arg(it.key())
+                    .arg(toQString(it.value()));
     }
 
-    return QString(outer_format).arg(list.join(", "));
+    return QString(u"QVariantHash(%0)"_s).arg(list.join(u", "_s));
 }
 
 inline QString toQString(const QVariantMap& variantMap)
 {
-    if (variantMap.isEmpty()) return "QVariantMap()";
-    constexpr auto inner_format = "{ \"%0\", %1 }";
-    constexpr auto outer_format = "QVariantMap(%0)";
+    if (variantMap.isEmpty()) return u"QVariantMap()"_s;
+
     QStringList list{};
+    list.reserve(variantMap.size());
     QMapIterator<QString, QVariant> it(variantMap);
 
     while (it.hasNext()) {
         it.next();
-        list << QString(inner_format).arg(it.key()).arg(toQString(it.value()));
+        list << QString(u"{ \"%0\", %1 }"_s)
+                    .arg(it.key())
+                    .arg(toQString(it.value()));
     }
 
-    return QString(outer_format).arg(list.join(", "));
+    return QString(u"QVariantMap(%0)"_s).arg(list.join(u", "_s));
 }
 
-// Std
+// --- Coco types ---
 
-// Ptr can be nullptr
-template <Coco::Concepts::QObjectDerived T>
-inline std::string toString(const T* ptr)
+inline QString toQString(const Coco::Path& path) { return path.toQString(); }
+
+// TODO: Add Coco::Bool::toString/toQString
+// Reproduces Coco::Bool's QDebug/formatter output: "TagName::Yes" or
+// "TagName::No"
+template <typename TagT> inline QString toQString(const Coco::Bool<TagT>& b)
 {
-    return toQString<T>(ptr).toStdString();
+    return QString(u"%0::%1"_s)
+        .arg(QString::fromUtf8(TagT::name()))
+        .arg(b ? u"Yes"_s : u"No"_s);
 }
-
-#define TO_STD_(Type, ArgName)                                                 \
-    inline std::string toString(const Type& ArgName)                           \
-    {                                                                          \
-        return toQString(ArgName).toStdString();                               \
-    }
-
-TO_STD_(QModelIndex, index)
-TO_STD_(QPoint, point)
-TO_STD_(QStringList, stringList)
-TO_STD_(QDomElement, element)
-TO_STD_(QVariant, variant)
-TO_STD_(QVariantHash, variantHash)
-TO_STD_(QVariantMap, variantMap)
 
 } // namespace Fernanda
-
-#undef TO_STD_
 
 // QVariant Output Test:
 

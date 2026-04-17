@@ -13,14 +13,12 @@
 #include "core/Debug.h"
 
 #include <atomic>
-#include <format>
 #include <functional>
 #include <mutex>
-#include <string>
-#include <string_view>
 #include <utility>
 
 #include <QByteArray>
+#include <QFile>
 #include <QIODevice>
 #include <QMessageLogContext>
 #include <QMessageLogger>
@@ -33,7 +31,7 @@
 
 #include "core/Disk.h"
 #include "core/Time.h"
-#include "core/ToString.h"
+#include "fmt/Fmt.h"
 
 namespace Fernanda::Debug {
 
@@ -41,8 +39,8 @@ using namespace Qt::StringLiterals;
 
 namespace {
 
-    constexpr auto VOC_FORMAT_ = "In {}: {}";
-    constexpr auto MSG_FORMAT_ = "{} | {} | {}";
+    constexpr auto VOC_FORMAT_ = u"In {}: {}";
+    constexpr auto MSG_FORMAT_ = u"{} | {} | {}";
     auto LOG_EXT_ = u".log"_s;
 
     std::atomic<QtMsgType> minimumLevel_{ QtFatalMsg };
@@ -55,13 +53,22 @@ namespace {
     LogSink logSink_{};
     QtMessageHandler qtHandler_ = nullptr;
 
-    std::string timestamp_()
+    QString timestamp_()
     {
-        std::string_view format = "{:%Y-%m-%d | %H:%M:%S}.{:03d}";
         auto now = Time::now();
-        return std::vformat(
-            format,
-            std::make_format_args(now.seconds, now.milliseconds));
+        auto days = std::chrono::floor<std::chrono::days>(now.seconds);
+        std::chrono::year_month_day ymd{ days };
+        std::chrono::hh_mm_ss hms{ now.seconds - days };
+
+        return QString::asprintf(
+            "%04d-%02d-%02d | %02d:%02d:%02d.%03d",
+            static_cast<int>(ymd.year()),
+            static_cast<unsigned>(ymd.month()),
+            static_cast<unsigned>(ymd.day()),
+            static_cast<int>(hms.hours().count()),
+            static_cast<int>(hms.minutes().count()),
+            static_cast<int>(hms.seconds().count()),
+            static_cast<int>(now.milliseconds));
     }
 
     QString logFileName_()
@@ -90,32 +97,26 @@ namespace {
         const QString& msg)
     {
         if (type != QtFatalMsg
-            && type < minimumLevel_.load(std::memory_order::relaxed))
+            && type < minimumLevel_.load(std::memory_order::relaxed)) {
             return;
+        }
 
         auto count = logEntryCount_.fetch_add(1, std::memory_order::relaxed);
-        auto msg_str = msg.toUtf8();
-        auto new_msg = std::format(
-            MSG_FORMAT_,
-            count,
-            timestamp_(),
-            std::string_view(msg_str.constData(), msg_str.size()));
+        auto new_msg = Fmt::format(MSG_FORMAT_, count, timestamp_(), msg);
 
         QtMessageHandler qt_handler = nullptr;
         LogSink log_sink{};
-
-        auto q_msg = QString::fromUtf8(new_msg);
 
         {
             std::lock_guard<std::mutex> lock(mutex_);
             qt_handler = qtHandler_;
             log_sink = logSink_;
 
-            if (logStream_.device()) logStream_ << q_msg << Qt::endl;
+            if (logStream_.device()) logStream_ << new_msg << Qt::endl;
         }
 
-        if (log_sink) log_sink(q_msg);
-        if (qt_handler) qt_handler(type, context, q_msg);
+        if (log_sink) log_sink(new_msg);
+        if (qt_handler) qt_handler(type, context, new_msg);
     }
 
 } // namespace
@@ -167,35 +168,32 @@ void Log::dispatch_(
     int line,
     const char* function,
     const QObject* obj,
-    std::string msg) const
+    QString msg) const
 {
     // Right now, VOC_FORMAT_ is the only reason this needs to be in the
     // source file, which is fine, but worth pointing out
-#ifndef Q_OS_MACOS
-    if (obj) { msg = std::format(VOC_FORMAT_, obj, msg); }
-#else
-    if (obj) { msg = std::format(VOC_FORMAT_, Fernanda::toString(obj), msg); }
-#endif
+    if (obj) msg = Fmt::format(VOC_FORMAT_, obj, msg);
 
     auto logger = QMessageLogger(file, line, function);
     constexpr auto fmt = "%s";
+    auto utf8 = msg.toUtf8();
 
     switch (type) {
     case QtDebugMsg:
-        logger.debug(fmt, msg.c_str());
+        logger.debug(fmt, utf8.constData());
         break;
     case QtInfoMsg:
-        logger.info(fmt, msg.c_str());
+        logger.info(fmt, utf8.constData());
         break;
     case QtWarningMsg:
-        logger.warning(fmt, msg.c_str());
+        logger.warning(fmt, utf8.constData());
         break;
     case QtCriticalMsg:
-        logger.critical(fmt, msg.c_str());
+        logger.critical(fmt, utf8.constData());
         break;
     default:
     case QtFatalMsg:
-        logger.fatal(fmt, msg.c_str());
+        logger.fatal(fmt, utf8.constData());
         break;
     }
 }

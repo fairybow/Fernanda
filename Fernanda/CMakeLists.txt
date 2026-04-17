@@ -92,14 +92,12 @@ set(FERNANDA_HEADERS
     src/core/Debug.h
     src/core/Disk.h
     src/core/Files.h
-    src/core/Formatters.h
     src/core/Hash.h
     src/core/Io.h
     src/core/LogViewer.h
     src/core/MagicBytes.h
     src/core/Random.h
     src/core/Time.h
-    src/core/ToString.h
     src/core/Tr.h
     src/core/Version.h
     src/core/XPlatform.h
@@ -107,6 +105,9 @@ set(FERNANDA_HEADERS
     src/dialogs/AboutDialog.h
     src/dialogs/BetaAlert.h
     src/dialogs/UpdateDialog.h
+
+    src/fmt/Fmt.h
+    src/fmt/ToQString.h
 
     src/fnx/Fnx.h
     src/fnx/FnxModel.h
