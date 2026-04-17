@@ -66,7 +66,10 @@ public:
     using PathInterceptor = std::function<bool(const Coco::Path&)>;
 
     Notepad(QObject* parent = nullptr)
-        : Workspace(parent)
+        : Workspace(
+              { Ini::LocalKeys::NOTEPAD_TREE_VIEW_DOCK,
+                Ini::LocalKeys::NOTEPAD_UNIQUE_TABS },
+              parent)
     {
         setup_();
     }
@@ -221,16 +224,6 @@ protected:
         // separately or retrieve via Model::setRootPath)
         if (!fsModel_) return {};
         return fsModel_->index(currentRootDir.toQString());
-    }
-
-    virtual QString treeViewDockIniKey() const override
-    {
-        return Ini::LocalKeys::NOTEPAD_TREE_VIEW_DOCK;
-    }
-
-    virtual QString uniqueTabsIniKey() const override
-    {
-        return Ini::LocalKeys::NOTEPAD_UNIQUE_TABS;
     }
 
     /// TODO TS
@@ -430,7 +423,6 @@ private:
 
         treeViews->setHeadersHidden(false);
         treeViews->setDockWidgetHook(this, &Notepad::treeViewDockWidgetHook_);
-        treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT
 
         /// TODO BA
         files->setBeforeWriteHook([](const Coco::Path& path) {

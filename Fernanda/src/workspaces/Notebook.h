@@ -86,7 +86,10 @@ class Notebook : public Workspace
 
 public:
     explicit Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
-        : Workspace(parent)
+        : Workspace(
+              { Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK,
+                Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS },
+              parent)
         , fnxPath_(fnxPath)
         , workingDir_(newWorkingDirPath_(fnxPath))
     {
@@ -207,16 +210,6 @@ protected:
         return fnxModel_->notebookIndex();
     }
 
-    virtual QString treeViewDockIniKey() const override
-    {
-        return Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK;
-    }
-
-    virtual QString uniqueTabsIniKey() const override
-    {
-        return Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS;
-    }
-
     virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1) return true;
@@ -263,6 +256,30 @@ protected:
     }
 
 private:
+    struct MultiSaveResult_
+    {
+        QList<AbstractFileModel*> failed{};
+        explicit operator bool() const noexcept { return failed.isEmpty(); }
+    };
+
+    // Private recovery constructor
+    /// TODO BA
+    explicit Notebook(
+        const Coco::Path& fnxPath,
+        WorkingDir&& orphan,
+        QSet<QString>&& dirtyUuids,
+        QObject* parent = nullptr)
+        : Workspace(
+              { Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK,
+                Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS },
+              parent)
+        , fnxPath_(fnxPath)
+        , workingDir_(std::move(orphan))
+        , recoveryDirtyUuids_(std::move(dirtyUuids))
+    {
+        setup_();
+    }
+
     Coco::Path fnxPath_; // Intended path (may not exist yet)
     WorkingDir workingDir_; // Working directory path/name will remain unchanged
                             // for Notebook's lifetime even when changing
@@ -277,21 +294,6 @@ private:
         "Notebook file entries must have an extant path! [{}]";
 
     QHash<Window*, NotebookColorChip*> colorChips_{};
-
-    // Private recovery constructor
-    /// TODO BA
-    explicit Notebook(
-        const Coco::Path& fnxPath,
-        WorkingDir&& orphan,
-        QSet<QString>&& dirtyUuids,
-        QObject* parent = nullptr)
-        : Workspace(parent)
-        , fnxPath_(fnxPath)
-        , workingDir_(std::move(orphan))
-        , recoveryDirtyUuids_(std::move(dirtyUuids))
-    {
-        setup_();
-    }
 
     static Coco::Path newWorkingDirPath_(const Coco::Path& fnxPath)
     {
@@ -308,7 +310,6 @@ private:
 
         treeViews->setHeadersHidden(true);
         treeViews->setDockWidgetHook(this, &Notebook::treeViewDockWidgetHook_);
-        treeViews->setVisibilityKey(treeViewDockIniKey()); /// TODO TVT
 
         connect(
             treeViews,
@@ -641,12 +642,6 @@ private:
     }
 
     void updateWindowsFlags_() { windows->setFlagged(isModified_()); }
-
-    struct MultiSaveResult_
-    {
-        QList<AbstractFileModel*> failed{};
-        explicit operator bool() const noexcept { return failed.isEmpty(); }
-    };
 
     MultiSaveResult_ saveModifiedModels_() const
     {

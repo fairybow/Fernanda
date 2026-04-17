@@ -313,15 +313,15 @@ void Workspace::createWindowMenuBar_(Window* window)
             this,
             [this, window](bool checked) {
                 if (!window || !window->isVisible()) return;
-                settings->set(treeViewDockIniKey(), checked);
+                settings->set(localIniKeys.treeViewDock, checked);
             })
         .action(Tr::nxUniqueTabs())
-        .checkable(settings->get<bool>(uniqueTabsIniKey()))
+        .checkable(settings->get<bool>(localIniKeys.uniqueTabs))
         .capture(&unique_tabs)
         .onToggle(
             this,
             [this](bool checked) {
-                settings->set(uniqueTabsIniKey(), checked);
+                settings->set(localIniKeys.uniqueTabs, checked);
             })
 
         .barAction(Tr::nxSettingsMenu())
@@ -341,7 +341,7 @@ void Workspace::createWindowMenuBar_(Window* window)
         &Bus::settingChanged,
         unique_tabs,
         [this, unique_tabs](const QString& key, const QVariant& value) {
-            if (key != uniqueTabsIniKey()) return;
+            if (key != localIniKeys.uniqueTabs) return;
             QSignalBlocker blocker(unique_tabs);
             unique_tabs->setChecked(value.toBool());
         });

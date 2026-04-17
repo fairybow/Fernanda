@@ -48,6 +48,21 @@ Pain points while using:
 - [ ] Investigate large (new file count) Notebook saves (maybe choked a little when saving Save the Cat! template)
 - [ ] Clean Workspace
 - [ ] Refactor ViewService
+- [ ] Code clean-up (tweak, add to CodeStyle.md):
+
+```
+Within each access section, order members as:
+
+Type aliases and nested types
+Constructors
+Destructor
+Methods (ordered: static, virtual/overrides, regular, unless sectioned in a specific way)
+Data members
+
+This ordering applies uniformly to public, protected, and private sections. Readers encounter what the class is and does before its internal state.
+
+POSSIBLY switch members and methods for private only
+```
 
 ---
 
