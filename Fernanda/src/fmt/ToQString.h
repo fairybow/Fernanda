@@ -82,9 +82,10 @@ template <typename T> inline QString toQString(const T* ptr)
     if (!ptr) return u"nullptr"_s;
 
     // TODO: Untested - check print output (implementation defined)
-    return QString(u"%0(%1)"_s)
-        .arg(typeid(ptr).name())
-        .arg(QString::asprintf("%p", static_cast<const void*>(ptr)));
+    return QString::asprintf(
+        "%s(%p)",
+        typeid(T).name(),
+        static_cast<const void*>(ptr));
 }
 
 // Ptr can be nullptr. Overrides the generic pointer overload via partial
@@ -94,9 +95,10 @@ inline QString toQString(const T* ptr)
 {
     if (!ptr) return u"nullptr"_s;
 
-    return QString(u"%0(%1)"_s)
-        .arg(QString::fromUtf8(ptr->metaObject()->className()))
-        .arg(QString::asprintf("%p", static_cast<const void*>(ptr)));
+    return QString::asprintf(
+        "%s(%p)",
+        ptr->metaObject()->className(),
+        static_cast<const void*>(ptr));
 }
 
 // --- Qt value types ---
@@ -105,15 +107,16 @@ inline QString toQString(const QModelIndex& index)
 {
     if (!index.isValid()) return u"QModelIndex(Invalid)"_s;
 
-    return QString(u"QModelIndex(row:%1, col:%2, %3)"_s)
-        .arg(index.row())
-        .arg(index.column())
-        .arg(QString::asprintf("%p", index.internalPointer()));
+    return QString::asprintf(
+        "QModelIndex(row:%d, col:%d, %p)",
+        index.row(),
+        index.column(),
+        index.internalPointer());
 }
 
 inline QString toQString(const QPoint& point)
 {
-    return QString(u"QPoint(x:%0, y:%1)"_s).arg(point.x()).arg(point.y());
+    return QString::asprintf("QPoint(x:%d, y:%d)", point.x(), point.y());
 }
 
 inline QString toQString(const QStringList& list) { return list.join(u", "_s); }
