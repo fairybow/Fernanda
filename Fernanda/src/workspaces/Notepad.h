@@ -165,7 +165,6 @@ public:
     }
 
 protected:
-    /// TODO BA
     virtual void autosave() override
     {
         TRACER;
@@ -189,13 +188,11 @@ protected:
         }
     }
 
-    /// TODO NF
     virtual void newFile(Window* window, Files::Type fileType) override
     {
         newTab_(window, fileType);
     }
 
-    /// TODO NF
     virtual void
     importFiles(Window* window, const Coco::PathList& paths) override
     {
@@ -210,7 +207,6 @@ protected:
         }
     }
 
-    /// TODO NF
     virtual QString importFilter() const override
     {
         return Files::conversionImportsFilter();
@@ -226,7 +222,6 @@ protected:
         return fsModel_->index(currentRootDir.toQString());
     }
 
-    /// TODO TS
     virtual bool canCloseTab(Window* window, AbstractFileModel* model) override
     {
         if (!model) return false;
@@ -236,7 +231,6 @@ protected:
         return promptSingleModelClosingSave_(model, window);
     }
 
-    /// TODO TS
     virtual bool
     canCloseTabEverywhere(Window* window, AbstractFileModel* model) override
     {
@@ -246,7 +240,6 @@ protected:
         return promptSingleModelClosingSave_(model, window);
     }
 
-    /// TODO TS
     virtual bool canCloseSplit(Window* window) override
     {
         auto modified = views->modifiedViewModelsInActiveSplit(window);
