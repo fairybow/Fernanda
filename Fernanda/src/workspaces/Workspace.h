@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <tuple>
 #include <utility>
 
 #include <QAbstractItemModel>
@@ -60,6 +59,8 @@ class Workspace : public QObject
     Q_OBJECT
 
 public:
+    virtual bool tryQuit() = 0;
+
     void beCute() const
     {
         Time::delay(1200, this, [this] { colorBars->pastel(); });
@@ -69,8 +70,9 @@ public:
 
     void activate() const
     {
-        if (auto active_window = windows->active())
+        if (auto active_window = windows->active()) {
             active_window->activate(); // Stack under will raise any others
+        }
     }
 
     // Activates if the Workspace already has windows
@@ -82,8 +84,6 @@ public:
             activate();
         }
     }
-
-    virtual bool tryQuit() = 0;
 
 signals:
     void lastWindowClosed();
@@ -131,8 +131,8 @@ protected:
 
     virtual void autosave() {};
 
-    virtual void newFile(Window* window, Files::Type fileType) = 0;
-    virtual void importFiles(Window* window, const Coco::PathList& paths) = 0;
+    virtual void newFile(Window*, Files::Type) = 0;
+    virtual void importFiles(Window*, const Coco::PathList&) = 0;
     virtual QString importFilter() const = 0;
     virtual QAbstractItemModel* treeViewModel() = 0;
     virtual QModelIndex treeViewRootIndex() = 0;
@@ -154,11 +154,8 @@ protected:
     /// TODO NF: Consider only having the New submenu (with Notepad having all
     /// "kinds" and Notebook having same + new folder; although, Notepad could
     /// be allowed to make folders, it would just have to handle it differently)
-    virtual void fileMenuOpenActions(MenuBuilder& builder, Window* window) = 0;
-    virtual void fileMenuSaveActions(
-        MenuBuilder& builder,
-        MenuState* state,
-        Window* window) = 0;
+    virtual void fileMenuOpenActions(MenuBuilder&, Window*) = 0;
+    virtual void fileMenuSaveActions(MenuBuilder&, MenuState*, Window*) = 0;
 
     virtual void
     tabContextMenuSaveActions(MenuBuilder&, Window*, [[maybe_unused]] int index)
@@ -224,14 +221,9 @@ private:
             return !settings->get<bool>(localIniKeys.uniqueTabs);
         });
 
-        connect(
-            views,
-            &ViewService::fileViewDestroyed,
-            this,
-            [this]([[maybe_unused]] AbstractFileView* fileView) {
-                refreshMenus(MenuScope::Window);
-                refreshMenus(MenuScope::Workspace);
-            });
+        connect(views, &ViewService::fileViewDestroyed, this, [this] {
+            refreshWindowAndWorkspaceMenus_();
+        });
 
         /// TODO TD
         connect(
@@ -283,7 +275,7 @@ private:
     void connectBusEvents_()
     {
         connect(bus, &Bus::windowCreated, this, [this](Window* window) {
-            std::ignore = window->statusBar(); // Ensure status bar
+            window->statusBar(); // Ensure status bar
             createWindowMenuBar_(window);
         });
 
@@ -292,9 +284,7 @@ private:
 
             disconnectOldActiveTab_(window);
             activeTabConnections_.remove(window);
-
-            refreshMenus(MenuScope::Window);
-            refreshMenus(MenuScope::Workspace);
+            refreshWindowAndWorkspaceMenus_();
         });
 
         connect(
@@ -307,27 +297,13 @@ private:
             refreshMenus(window, MenuScope::Window);
         });
 
-        connect(
-            bus,
-            &Bus::fileModelReadied,
-            this,
-            [this](
-                [[maybe_unused]] Window* window,
-                [[maybe_unused]] AbstractFileModel* fileModel) {
-                refreshMenus(MenuScope::Window);
-                refreshMenus(MenuScope::Workspace);
-            });
+        connect(bus, &Bus::fileModelReadied, this, [this] {
+            refreshWindowAndWorkspaceMenus_();
+        });
 
-        connect(
-            bus,
-            &Bus::fileModelModificationChanged,
-            this,
-            [this](
-                [[maybe_unused]] AbstractFileModel* fileModel,
-                [[maybe_unused]] bool modified) {
-                refreshMenus(MenuScope::Window);
-                refreshMenus(MenuScope::Workspace);
-            });
+        connect(bus, &Bus::fileModelModificationChanged, this, [this] {
+            refreshWindowAndWorkspaceMenus_();
+        });
     }
 
     void createWindowMenuBar_(Window* window);
@@ -337,9 +313,16 @@ private:
         if (!window) return;
 
         if (auto old = activeTabConnections_.take(window); !old.isEmpty()) {
-            for (auto& connection : old)
+            for (auto& connection : old) {
                 disconnect(connection);
+            }
         }
+    }
+
+    void refreshWindowAndWorkspaceMenus_()
+    {
+        refreshMenus(MenuScope::Window);
+        refreshMenus(MenuScope::Workspace);
     }
 
 private slots:
@@ -393,8 +376,7 @@ private slots:
     void
     onTabDragCompleted_(Window* fromWindow, [[maybe_unused]] Window* toWindow)
     {
-        refreshMenus(MenuScope::Window);
-        refreshMenus(MenuScope::Workspace);
+        refreshWindowAndWorkspaceMenus_();
 
         // TODO: Assert below?
 
@@ -423,9 +405,7 @@ private slots:
         if (!new_window) return;
 
         views->insertTabSpec(new_window, tabSpec);
-
-        refreshMenus(MenuScope::Window);
-        refreshMenus(MenuScope::Workspace);
+        refreshWindowAndWorkspaceMenus_();
 
         // sourceWindow may be null. The tab has already been removed in
         // startDrag_, so the new window must be created regardless.
@@ -496,9 +476,9 @@ private slots:
         if (!window || globalPos.isNull()) return;
 
         MenuBuilder(MenuBuilder::ContextMenu, window)
-            .apply([this, window](MenuBuilder& builder) {
+            .apply([this, window](MenuBuilder& b) {
                 for (auto type : Files::workspaceCreatableTypes()) {
-                    builder.action(Files::name(type))
+                    b.action(Files::name(type))
                         .onUserTrigger(this, [this, window, type] {
                             newFile(window, type);
                         });
