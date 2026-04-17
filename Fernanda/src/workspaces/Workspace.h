@@ -181,7 +181,7 @@ private:
     Coco::Path rollingOpenFnxStartDir_ = currentRootDir;
     QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
     QHash<Window*, MenuState*> menuStates_{};
-    Time::Ticker* autosaveCue_ =
+    Time::Ticker* autosaveCue_ = // TODO: Make configurable?
         Time::newTicker(this, &Workspace::autosave, 15000);
 
     void setup_()
