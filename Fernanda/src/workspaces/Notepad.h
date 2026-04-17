@@ -80,7 +80,7 @@ public:
         deleteAllRecoveryEntries_(); /// TODO BA
     }
 
-        virtual bool tryQuit() override
+    virtual bool tryQuit() override
     {
         return windows->count() < 1 || windows->closeAll();
     }
