@@ -327,17 +327,30 @@ jobs:
       contents: write
     env:
       APP: ${{ needs.parse-version.outputs.app_name }}
+      VER: ${{ needs.parse-version.outputs.version_full }}
     steps:
+      - uses: actions/checkout@v5
+
       - uses: actions/download-artifact@v7
         with:
           merge-multiple: true
 
       - name: Create Version.txt
-        run: echo "${{ needs.parse-version.outputs.version_full }}" > Version.txt
+        run: echo "${{ env.VER }}" > Version.txt
+
+      - name: Assemble release body
+        id: body
+        run: |
+          python3 .github/scripts/build_release_body.py \
+            --changelog CHANGELOG.md \
+            --version "${{ env.VER }}" \
+            --output RELEASE_BODY.md
 
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
+          name: ${{ steps.body.outputs.release_title }}
+          body_path: RELEASE_BODY.md
           files: |
             ${{ env.APP }}_*.AppImage
             ${{ env.APP }}_*.dmg
