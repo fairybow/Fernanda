@@ -69,6 +69,7 @@ set(FERNANDA_SOURCES
     src/core/Tr.cpp
     src/dialogs/AboutDialog.cpp
     src/fnx/FnxModel.cpp
+    src/services/ViewService.cpp
     src/services/WindowService.cpp
     src/ui/PlainTextEdit.cpp
     src/ui/TabWidget.cpp

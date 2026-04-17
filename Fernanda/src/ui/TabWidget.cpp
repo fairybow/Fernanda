@@ -66,8 +66,6 @@ QPoint TabWidget::TabSpec::relPos(int width, int height) const noexcept
     return pf.toPoint();
 }
 
-// --- Queries ---
-
 bool TabWidget::TabSpec::isValid() const noexcept { return widget; }
 
 TabWidget::TabWidget(QWidget* parent)
@@ -154,6 +152,8 @@ bool TabWidget::eventFilter(QObject* watched, QEvent* event)
 
     return QWidget::eventFilter(watched, event);
 }
+
+// --- Queries ---
 
 bool TabWidget::isEmpty() const { return tabBar_->count() < 1; }
 
