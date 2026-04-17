@@ -79,11 +79,11 @@ Log files are stored in `~/.fernanda/logs/` and pruned automatically.
 
 Hey! Read Fernanda's Code! (I'm proud of it.)
 
-Fernanda prioritizes readable, maintainable code and follows conventional best practices pragmatically (not dogmatically). Objects and namespaces stay focused, and most files are just a few hundred lines, with one barely exceeding 1,000. You will not find a 10,000 line `MainWindow` or anything like it.
+Fernanda's [architecture](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Architecture.md) was carefully considered. I've landed on what I think is a simple but flexible interworking of common architectural patterns designed to keep things in their lanes while allowing lateral communication across a given Workspace (Notepad or Notebook).
 
-Fernanda's [architecture](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Architecture.md) was carefully considered. I've landed on what I think is a simple but highly flexible interworking of common architectural patterns designed to keep service objects in their lanes while allowing lateral communication across a given Workspace.
+I try to keep it clean and focused, and most files are only a few hundred lines long.
 
-But, that all said, there are always things to improve, I'm always learning, and I'll always need some help. Take a look around the repository and get to know the code. If something seems off to you or you have something new in mind, take a look at [CONTRIBUTING.md](https://github.com/fairybow/Fernanda/blob/main/CONTRIBUTING.md), open an issue, and we'll discuss a PR.
+That said, there will always be something to improve. Take a look around the repository and get to know the code. If something seems off to you or you have something new in mind, take a look at [CONTRIBUTING.md](https://github.com/fairybow/Fernanda/blob/main/CONTRIBUTING.md), open an issue, and we'll discuss a PR.
 
 ## License
 
