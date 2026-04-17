@@ -296,6 +296,20 @@ private:
         }
     }
 
+    template <typename MatcherT> void closeMatchingViews_(MatcherT&& match)
+    {
+        for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
+            for (auto& tab_widget : tabWidgets_(window)) {
+                for (auto i = tab_widget->count() - 1; i >= 0; --i) {
+                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
+                    if (view && match(view->model())) {
+                        deleteFileViewAt_(tab_widget, i);
+                    }
+                }
+            }
+        }
+    }
+
     // --- Text view settings ---
 
     // Maps each Ini key to a function that applies the value to a view. Used in

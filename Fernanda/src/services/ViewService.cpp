@@ -309,20 +309,12 @@ void ViewService::closeTabEverywhere(Window* window, int index)
     auto target_model = fileModelAt(window, index);
     if (!target_model) return;
 
-    if (!canCloseTabEverywhereHook_
-        || canCloseTabEverywhereHook_(window, target_model)) {
+    if (canCloseTabEverywhereHook_
+        && !canCloseTabEverywhereHook_(window, target_model))
+        return;
 
-        for (auto& w : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-            for (auto& tab_widget : tabWidgets_(w)) {
-                for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-                    auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                    if (view && view->model() == target_model) {
-                        deleteFileViewAt_(tab_widget, i);
-                    }
-                }
-            }
-        }
-    }
+    closeMatchingViews_(
+        [target_model](AbstractFileModel* m) { return m == target_model; });
 }
 
 /// TODO TS
@@ -331,16 +323,8 @@ ViewService::closeViewsForModels(const QSet<AbstractFileModel*>& fileModels)
 {
     if (fileModels.isEmpty()) return;
 
-    for (auto& window : bus->call<QList<Window*>>(Bus::WINDOWS)) {
-        for (auto& tab_widget : tabWidgets_(window)) {
-            for (auto i = tab_widget->count() - 1; i >= 0; --i) {
-                auto view = tab_widget->widgetAt<AbstractFileView*>(i);
-                if (view && fileModels.contains(view->model())) {
-                    deleteFileViewAt_(tab_widget, i);
-                }
-            }
-        }
-    }
+    closeMatchingViews_(
+        [&fileModels](AbstractFileModel* m) { return fileModels.contains(m); });
 }
 
 void ViewService::closeWindowTabs(Window* window)
