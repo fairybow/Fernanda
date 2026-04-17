@@ -16,6 +16,7 @@
 #include <utility>
 
 #include <QChar>
+#include <QLatin1StringView>
 #include <QString>
 #include <QStringView>
 
@@ -27,17 +28,78 @@ using namespace Qt::StringLiterals;
 
 namespace Internal {
 
-    // Expand each arg to a QString once (NB: QString args pass through via the
-    // implicit-share overload in ToQString.h, no copy)
-    template <typename... Args>
-    inline std::array<QString, sizeof...(Args)> expand_(Args&&... args)
+    // Per-arg wrapper that either borrows (QString/QStringView paths, zero
+    // alloc) or owns (fallback path, one alloc via toQString). `view` is the
+    // canonical appendable form. `owned` is the backing store when we have to
+    // materialize one
+    //
+    // Non-movable and non-copyable. `view` may point into this object's own
+    // `owned` member, so relocation would invalidate it. Elements are
+    // constructed in place in the std::array below via braced aggregate init,
+    // which is guaranteed to avoid copies/moves in C++20
+    struct ArgView_
     {
-        return { toQString(std::forward<Args>(args))... };
+        QStringView view;
+        QString owned;
+
+        ArgView_() = default;
+
+        ArgView_(QStringView v)
+            : view(v)
+        {
+        }
+
+        ArgView_(QString&& s)
+            : owned(std::move(s))
+        {
+            view = owned;
+        }
+
+        ArgView_(const ArgView_&) = delete;
+        ArgView_& operator=(const ArgView_&) = delete;
+        ArgView_(ArgView_&&) = delete;
+        ArgView_& operator=(ArgView_&&) = delete;
+
+        qsizetype size() const noexcept { return view.size(); }
+        void appendTo(QString& out) const { out.append(view); }
+    };
+
+    // --- Borrowing builders (zero-alloc) ---
+
+    inline ArgView_ makeArg_(const QString& s)
+    {
+        return ArgView_(QStringView(s));
+    }
+    inline ArgView_ makeArg_(QStringView s) { return ArgView_(s); }
+
+    // --- Owning builders (one alloc) ---
+
+    inline ArgView_ makeArg_(QLatin1StringView s)
+    {
+        return ArgView_(s.toString());
+    }
+    inline ArgView_ makeArg_(const char* s)
+    {
+        return ArgView_(QString::fromUtf8(s));
+    }
+
+    // Generic fallback (anything ToQString.h knows how to handle)
+    template <typename T> inline ArgView_ makeArg_(T&& value)
+    {
+        return ArgView_(toQString(std::forward<T>(value)));
+    }
+
+    // Expand each arg to an ArgView_. QString/QStringView args take the
+    // zero-alloc path (everything else routes through toQString)
+    template <typename... Args>
+    inline std::array<ArgView_, sizeof...(Args)> expand_(Args&&... args)
+    {
+        return { makeArg_(std::forward<Args>(args))... };
     }
 
     // Estimated final size, minimizes reallocations during the walk
     inline qsizetype
-    estimateSize_(QStringView tmpl, const QString* values, qsizetype count)
+    estimateSize_(QStringView tmpl, const ArgView_* values, qsizetype count)
     {
         auto total = tmpl.size();
 
@@ -51,7 +113,7 @@ namespace Internal {
     // Single-pass walker. Copies literal runs in bulk via append(QStringView)
     // and substitutes args at each {}. Supports {{ and }} as literal braces
     inline QString
-    format_(QStringView tmpl, const QString* values, qsizetype count)
+    format_(QStringView tmpl, const ArgView_* values, qsizetype count)
     {
         QString out{};
         out.reserve(estimateSize_(tmpl, values, count));
@@ -84,7 +146,7 @@ namespace Internal {
                 // lone '{' as a literal)
                 if (i + 1 < size && data[i + 1] == u'}') {
                     if (next_arg < count) {
-                        out.append(values[next_arg]);
+                        values[next_arg].appendTo(out);
                         ++next_arg;
                     }
 
