@@ -60,7 +60,7 @@ public:
         auto args = arguments();
 
         Debug::initialize(
-            Version::isDebug || args.contains("--verbose"),
+            VERSION_IS_DEBUG || args.contains("--verbose"),
             AppDirs::logs(),
             VERSION_APP_NAME_STRING);
 
@@ -73,7 +73,7 @@ public:
         initializeNotepad_();
 
         // Let this block, so we don't interfere with any recovery prompt
-        if (Version::isPrerelease) BetaAlert::exec();
+        if (VERSION_IS_PRERELEASE) BetaAlert::exec();
 
         // Handle before args, in case an arg needs recovered instead
         maybeRecover_(); /// TODO BA

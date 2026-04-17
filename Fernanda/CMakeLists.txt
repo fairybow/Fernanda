@@ -319,6 +319,10 @@ if(WIN32)
     )
 endif()
 
+target_compile_definitions(Fernanda PRIVATE
+    $<$<CONFIG:Debug>:VERSION_DEBUG>
+)
+
 # --- miniz (built from source via submodule) ---
 
 add_subdirectory(submodules/fountain.h/fountain.h EXCLUDE_FROM_ALL)

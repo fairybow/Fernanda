@@ -12,34 +12,14 @@
 
 #pragma once
 
+// Manual toggle!
 #define VERSION_IS_PRERELEASE 1 // 1 = prerelease, 0 = stable
 
-namespace Fernanda::Version {
-
-// Visual Studio automatically defines _DEBUG in Debug builds
-/// TODO XP!
-#if defined(_DEBUG)
-
-inline constexpr bool isDebug = true;
-#    define VERSION_DEBUG
-
+#if defined(VERSION_DEBUG)
+#    define VERSION_IS_DEBUG 1
 #else
-
-inline constexpr bool isDebug = false;
-
+#    define VERSION_IS_DEBUG 0
 #endif
-
-#if VERSION_IS_PRERELEASE
-
-inline constexpr bool isPrerelease = true;
-
-#else
-
-inline constexpr bool isPrerelease = false;
-
-#endif
-
-} // namespace Fernanda::Version
 
 // clang-format off
 
