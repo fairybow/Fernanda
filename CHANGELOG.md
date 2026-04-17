@@ -73,6 +73,13 @@ Windows (x64), macOS (ARM), and Linux (x86_64).
 - For release note links: use `blob/main` for evergreen links; use `blob/<tag>` for links to a specific release's snapshot!
 - For diffing against previous release: `https://github.com/fairybow/Fernanda/compare/<tag>...main.diff`
 
+Release:
+
+```
+git tag v0.99.0-beta.24 [must match tag part of entry title (see below)]
+git push origin v0.99.0-beta.24
+```
+
 ---
 
 <a id="releases"></a>
