@@ -57,6 +57,9 @@ public:
 
     void fitToView()
     {
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
         if (pixmapItem_->pixmap().isNull()) return;
 
         // Don't upscale past native resolution

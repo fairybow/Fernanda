@@ -68,7 +68,7 @@ POSSIBLY switch members and methods for private only
 
 ---
 
-- [ ] We're not accounting for scroll bars in resizing to fit in ImageFileView (so, starts Fit, looks fine, switch, then switch back, and we'll have a scroll bar sized gap)
+- [x] We're not accounting for scroll bars in resizing to fit in ImageFileView (so, starts Fit, looks fine, switch, then switch back, and we'll have a scroll bar sized gap)
 - [x] Clean ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView headers
 - [x] Isolate ImageFileView, ImageGraphicsView, ZoomControl, and PdfFileView repetitive code
 - [x] ZoomState extraction (see above)

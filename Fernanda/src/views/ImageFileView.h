@@ -61,12 +61,16 @@ protected:
             movieBuffer_->open(QIODevice::ReadOnly);
 
             movie_ = new QMovie(movieBuffer_, {}, this);
-            movie_->start();
 
             connect(movie_, &QMovie::frameChanged, this, [this] {
                 graphicsView_->setPixmap(
                     QPixmap::fromImage(movie_->currentImage()));
             });
+
+            movie_->jumpToFrame(0);
+            graphicsView_->setPixmap(
+                QPixmap::fromImage(movie_->currentImage()));
+            movie_->start();
 
         } else {
             QPixmap pixmap{};
