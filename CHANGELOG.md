@@ -88,7 +88,13 @@ git push origin v0.99.0-beta.24
 
 ## What's New?
 
-...
+**Custom format machinery.** Replaced the `std::format`-based ecosystem (Formatters.h + ToString.h) with a new Fmt::format built on `QString`/`QStringView`, plus a consolidated ToQString.h under a new fmt/ directory. The new log formatting is less flexible but does all we need it to (just curly brace replacements, no specifiers)
+
+**Build-time debug flag.** VERSION_DEBUG now comes from CMake instead of relying on MSVC's `_DEBUG`, so Debug builds behave consistently across Windows, macOS, and Linux
+
+**ImageFileView Fit-mode scroll bar gap fix.** Scroll bars are now disabled in Fit mode, so switching zoom modes and back no longer leaves a scroll-bar-sized gap
+
+**Unique-tabs focus refinement.** When unique tabs is on and the requested model is already the active view, the tab widget now re-focuses instead of searching from scratch for the requested model (and possibly activating a different tab)
 
 ## Known Issues
 
