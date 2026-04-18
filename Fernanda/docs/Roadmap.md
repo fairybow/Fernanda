@@ -34,7 +34,7 @@ Pain points while using:
 - [ ] Drop zone visual feedback
 - [x] Valid cursor for passthrough drop path
 - [x] For review: TabSurface.h; ViewService.h (TabSurface integration, split operations, hook signature changes, auto-collapse suppression, cleanup); Workspace.h (hook signature changes, context menu split actions, bus event for split count, fixed centralWidget casts); Workspace.cpp (File menu Split submenu); Bus.h (new splitCountChanged signal); Notepad.h (hook signatures: canCloseTab, canCloseTabEverywhere); TabWidget.h (new SplitSide enum, tabDraggedToSplitEdge signal, dragStarted/dragEnded signals, DropZone_ enum, dropZone_ helper); TabWidget.cpp (dragMoveEvent, dropEvent edge zone handling, startDrag_ drag lifecycle signals)
-- [ ] Sessions (tab splits, open tabs, pinned tabs (future), window positions, TreeView sizes)
+- [ ] Sessions (tab splits, open tabs, pinned tabs (future), window positions, TreeView sizes, Notebook expanded items)
 - [x] Option to disallow multiple tabs onto same model
 - [ ] Option to turn tabs off for Notebook!
 - [ ] ^ Title bar to show what's open when tabs are off
