@@ -45,8 +45,8 @@ Pain points while using:
 - [x] Close all tabs option in tab context menu
 - [ ] (Update all documentation)
 - [ ] Investigate large (new file count) Notebook saves (maybe choked a little when saving Save the Cat! template)
-- [ ] Clean Workspace
-- [ ] Refactor ViewService
+- [x] Clean Workspace
+- [x] Refactor ViewService
 - [ ] Code clean-up: try to remove basically all onXHappened_ slots (because it is not descriptive - if only one thing is happening, just name it appropriately); only give it onXHappened_ name if it wraps multiple function calls
 - [ ] Code clean-up: drop unneeded connection slot/lambda parameters, instead of [[maybe_unused]]
 - [ ] Code clean-up: also drop param names on virtuals when they're self explanatory (e.g., not Window* window)
