@@ -423,7 +423,6 @@ if(UNIX AND NOT APPLE)
         DESTINATION share/applications
     )
 
-    # App icon
     foreach(SIZE 16 22 24 32 48 64 128 256 512)
         set(_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icons/Hearth-${SIZE}.png")
         if(EXISTS "${_icon}")
@@ -438,28 +437,6 @@ if(UNIX AND NOT APPLE)
         DESTINATION share/icons/hicolor/scalable/apps
     )
 
-    # MIME type icon
-    foreach(SIZE 16 22 24 32 48 64 128 256 512)
-        set(_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icons/Flame-${SIZE}.png")
-        if(EXISTS "${_icon}")
-            install(FILES ${_icon}
-                DESTINATION share/icons/hicolor/${SIZE}x${SIZE}/mimetypes
-                RENAME application-x-hearth-notebook.png
-            )
-        endif()
-    endforeach()
-
-    install(FILES resources/app-icons/proof/Flame.svg
-        DESTINATION share/icons/hicolor/scalable/mimetypes
-        RENAME application-x-hearth-notebook.svg
-    )
-
-    # MIME type definition
-    install(FILES resources/hearth.xml
-        DESTINATION share/mime/packages
-    )
-
-    # Translations
     install(FILES ${QM_FILES}
         DESTINATION share/Hearth/translations
     )
