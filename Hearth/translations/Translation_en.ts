@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
-    <name>Fernanda::Tr</name>
+    <name>Hearth::Tr</name>
     <message numerus="yes">
         <location filename="../src/Tr.h" line="148"/>
         <source>Are you sure you want to delete %n file(s)? &lt;b&gt;This cannot be undone.&lt;/b&gt;</source>

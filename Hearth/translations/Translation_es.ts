@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="es_ES">
 <context>
-    <name>Fernanda::Tr</name>
+    <name>Hearth::Tr</name>
     <message>
         <location filename="../src/Tr.h" line="45"/>
         <source>OK</source>
@@ -40,8 +40,8 @@
         <translation>Abrir archivo</translation>
     </message>
     <message>
-        <source>Plain text files (*.txt);;Fernanda Notebook files (*.fnx);;All files (*)</source>
-        <translation type="vanished">Archivos de texto plano (*.txt);;Archivos de cuaderno Fernanda (*.fnx);;Todos los archivos (*)</translation>
+        <source>Plain text files (*.txt);;Hearth Notebook files (*.fnx);;All files (*)</source>
+        <translation type="vanished">Archivos de texto plano (*.txt);;Archivos de cuaderno Hearth (*.fnx);;Todos los archivos (*)</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="132"/>
@@ -65,8 +65,8 @@
     <message>
         <location filename="../src/Tr.h" line="67"/>
         <location filename="../src/Tr.h" line="141"/>
-        <source>Fernanda Notebook files (*.fnx)</source>
-        <translation>Archivos de cuaderno Fernanda (*.fnx)</translation>
+        <source>Hearth Notebook files (*.fnx)</source>
+        <translation>Archivos de cuaderno Hearth (*.fnx)</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/Tr.h" line="148"/>
@@ -113,8 +113,8 @@
     </message>
     <message>
         <location filename="../src/Tr.h" line="78"/>
-        <source>&lt;b&gt;Fernanda&lt;/b&gt; is a plain text editor for drafting long-form fiction. (At least, that&apos;s the plan.)</source>
-        <translation>&lt;b&gt;Fernanda&lt;/b&gt; es un editor de texto plano para redactar ficción de formato largo. (Al menos, ese es el plan.)</translation>
+        <source>&lt;b&gt;Hearth&lt;/b&gt; is a plain text editor for drafting long-form fiction. (At least, that&apos;s the plan.)</source>
+        <translation>&lt;b&gt;Hearth&lt;/b&gt; es un editor de texto plano para redactar ficción de formato largo. (Al menos, ese es el plan.)</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="84"/>
