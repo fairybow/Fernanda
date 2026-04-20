@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/fairybow/Hearth/blob/main/Hearth/resources/app-icons/Hearth-256.png" alt="Hearth icon">
+    <img src="https://github.com/fairybow/Hearth/blob/main/Hearth/resources/app-icons/Hearth-128.png" alt="Hearth icon">
 </p>
 <p align="center"><b>A plain-text-first workbench for creative writing</b></p>
 <p align="center">
