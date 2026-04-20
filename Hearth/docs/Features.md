@@ -172,7 +172,7 @@ Shared capabilities:
 > Known issue: Window themes not yet implemented
 
 > [!TIP]
-> User themes supported (place in `~/.hearth/themes`), with hot reload. See an example theme [here](../resources/themes/Pocket.fernanda_editor)
+> User themes supported (place in `~/.hearth/themes`), with hot reload. See an example theme [here](../resources/themes/Pocket.hearth_editor)
 
 ---
 

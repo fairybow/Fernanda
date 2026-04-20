@@ -108,7 +108,7 @@ private:
     QString templateQss_() const
     {
         static const auto data = QString::fromUtf8(
-            Io::read(":/themes/Window.fernanda_qss_template"));
+            Io::read(":/themes/Window.hearth_qss_template"));
         return data;
     }
 };
@@ -141,7 +141,7 @@ private:
     QString templateQss_() const
     {
         static const auto data = QString::fromUtf8(
-            Io::read(":/themes/Editor.fernanda_qss_template"));
+            Io::read(":/themes/Editor.hearth_qss_template"));
         return data;
     }
 };
