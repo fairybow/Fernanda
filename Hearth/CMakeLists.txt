@@ -1,10 +1,10 @@
-# Fernanda — a plain-text-first workbench for creative writing
-# https://github.com/fairybow/Fernanda
+# Hearth — a plain-text-first workbench for creative writing
+# https://github.com/fairybow/Hearth
 
 cmake_minimum_required(VERSION 3.21)
-project(Fernanda LANGUAGES CXX C)
+project(Hearth LANGUAGES CXX C)
 
-set_property(GLOBAL PROPERTY VS_STARTUP_PROJECT Fernanda)
+set_property(GLOBAL PROPERTY VS_STARTUP_PROJECT Hearth)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -50,20 +50,20 @@ foreach(_line ${_ver_lines})
     endif()
 endforeach()
 
-set(FERNANDA_VERSION "${_ver_major}.${_ver_minor}.${_ver_patch}")
+set(HEARTH_VERSION "${_ver_major}.${_ver_minor}.${_ver_patch}")
 if(_ver_is_pre STREQUAL "1" AND _ver_pre)
-    string(APPEND FERNANDA_VERSION "-${_ver_pre}")
+    string(APPEND HEARTH_VERSION "-${_ver_pre}")
 endif()
 
-message(STATUS "Fernanda version: ${FERNANDA_VERSION}")
+message(STATUS "Hearth version: ${HEARTH_VERSION}")
 
 # =============================================================================
 # File lists
 # =============================================================================
 
-# --- Fernanda sources ---
+# --- Hearth sources ---
 
-set(FERNANDA_SOURCES
+set(HEARTH_SOURCES
     src/Main.cpp
     src/core/Debug.cpp
     src/core/Tr.cpp
@@ -79,12 +79,12 @@ set(FERNANDA_SOURCES
 )
 
 if(APPLE)
-    list(APPEND FERNANDA_SOURCES src/core/XPlatform_macOS.mm)
+    list(APPEND HEARTH_SOURCES src/core/XPlatform_macOS.mm)
 endif()
 
-# --- Fernanda headers ---
+# --- Hearth headers ---
 
-set(FERNANDA_HEADERS
+set(HEARTH_HEADERS
     src/core/AppDirs.h
     src/core/Application.h
     src/core/BuildMessages.h
@@ -210,7 +210,7 @@ set(FERNANDA_HEADERS
     src/workspaces/Workspace.h
 )
 
-# --- Coco (compiled as part of Fernanda) ---
+# --- Coco (compiled as part of Hearth) ---
 
 set(COCO_SOURCES
     submodules/Coco/Coco/src/Path.cpp
@@ -229,7 +229,7 @@ set(COCO_HEADERS
 
 # --- Resources ---
 
-set(FERNANDA_RESOURCES
+set(HEARTH_RESOURCES
     external/External.qrc
     resources/AppIcons.qrc
     resources/Themes.qrc
@@ -237,7 +237,7 @@ set(FERNANDA_RESOURCES
 )
 
 if(WIN32)
-    list(APPEND FERNANDA_RESOURCES resources/Fernanda.rc)
+    list(APPEND HEARTH_RESOURCES resources/Hearth.rc)
 endif()
 
 # =============================================================================
@@ -250,27 +250,27 @@ elseif(APPLE)
     set(PLATFORM_EXE_FLAGS MACOSX_BUNDLE)
 endif()
 
-qt_add_executable(Fernanda ${PLATFORM_EXE_FLAGS}
-    ${FERNANDA_SOURCES}
-    ${FERNANDA_HEADERS}
+qt_add_executable(Hearth ${PLATFORM_EXE_FLAGS}
+    ${HEARTH_SOURCES}
+    ${HEARTH_HEADERS}
     ${COCO_SOURCES}
     ${COCO_HEADERS}
-    ${FERNANDA_RESOURCES}
+    ${HEARTH_RESOURCES}
 )
 
 # --- macOS bundle ---
 
 if(APPLE)
-    set(MACOS_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icons/Fernanda.icns)
+    set(MACOS_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icons/Hearth.icns)
     set_source_files_properties(${MACOS_ICON} PROPERTIES
         MACOSX_PACKAGE_LOCATION "Resources"
     )
-    target_sources(Fernanda PRIVATE ${MACOS_ICON})
+    target_sources(Hearth PRIVATE ${MACOS_ICON})
 
-set_target_properties(Fernanda PROPERTIES
+set_target_properties(Hearth PROPERTIES
         MACOSX_BUNDLE_BUNDLE_NAME "${_ver_app_name}"
         MACOSX_BUNDLE_GUI_IDENTIFIER "com.${_ver_author}.${_ver_app_name}"
-        MACOSX_BUNDLE_BUNDLE_VERSION "${FERNANDA_VERSION}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${HEARTH_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${_ver_major}.${_ver_minor}.${_ver_patch}"
         MACOSX_BUNDLE_COPYRIGHT "${_ver_copyright}"
         MACOSX_BUNDLE_ICON_FILE "${_ver_app_name}.icns"
@@ -284,11 +284,11 @@ endif()
 # NB: Even though some modules pull in others, I'd prefer to be explicit and
 # always include what's used
 
-# Pass cmake -DFERNANDA_USE_SYSTEM_LIBS=ON -B build
-option(FERNANDA_USE_SYSTEM_LIBS "Use system-installed md4c and miniz" OFF)
+# Pass cmake -DHEARTH_USE_SYSTEM_LIBS=ON -B build
+option(HEARTH_USE_SYSTEM_LIBS "Use system-installed md4c and miniz" OFF)
 
-if(FERNANDA_USE_SYSTEM_LIBS)
-    # Fernanda's bundled submodules pin md4c 0.5.2 and miniz 3.1.1. md4c's
+if(HEARTH_USE_SYSTEM_LIBS)
+    # Hearth's bundled submodules pin md4c 0.5.2 and miniz 3.1.1. md4c's
     # CMake doesn't populate its version in the exported config, so
     # find_package can't verify it. Version omitted here as a workaround.
     # 0.5.2 is the expected version
@@ -304,23 +304,23 @@ endif()
 # CMake requires absolute paths for include directories when they come from
 # generator expressions. The non-conditional paths get resolved automatically,
 # but genexpr contents don't get that treatment
-target_include_directories(Fernanda PRIVATE
+target_include_directories(Hearth PRIVATE
     src
     submodules/Coco/Coco/include
     submodules/fountain.h/fountain.h/include
-    $<$<NOT:$<BOOL:${FERNANDA_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/md4c/src>
-    $<$<NOT:$<BOOL:${FERNANDA_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/md4c/md2html>
-    $<$<NOT:$<BOOL:${FERNANDA_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/miniz>
+    $<$<NOT:$<BOOL:${HEARTH_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/md4c/src>
+    $<$<NOT:$<BOOL:${HEARTH_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/md4c/md2html>
+    $<$<NOT:$<BOOL:${HEARTH_USE_SYSTEM_LIBS}>>:${CMAKE_CURRENT_SOURCE_DIR}/submodules/miniz>
 )
 
 if(WIN32)
-    target_compile_definitions(Fernanda PRIVATE
+    target_compile_definitions(Hearth PRIVATE
         NOMINMAX
         WIN32_LEAN_AND_MEAN
     )
 endif()
 
-target_compile_definitions(Fernanda PRIVATE
+target_compile_definitions(Hearth PRIVATE
     $<$<CONFIG:Debug>:VERSION_DEBUG>
 )
 
@@ -328,7 +328,7 @@ target_compile_definitions(Fernanda PRIVATE
 
 add_subdirectory(submodules/fountain.h/fountain.h EXCLUDE_FROM_ALL)
 
-if(NOT FERNANDA_USE_SYSTEM_LIBS)
+if(NOT HEARTH_USE_SYSTEM_LIBS)
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     add_subdirectory(submodules/md4c EXCLUDE_FROM_ALL)
     add_subdirectory(submodules/miniz EXCLUDE_FROM_ALL)
@@ -336,7 +336,7 @@ endif()
 
 # --- Linking ---
 
-target_link_libraries(Fernanda PRIVATE
+target_link_libraries(Hearth PRIVATE
     fountain_h
     ${MD4C_TARGETS}
     ${MINIZ_TARGETS}
@@ -353,10 +353,10 @@ target_link_libraries(Fernanda PRIVATE
 if(UNIX AND NOT APPLE)
     find_package(X11 COMPONENTS xcb)
     if(X11_xcb_FOUND)
-        target_link_libraries(Fernanda PRIVATE X11::xcb)
+        target_link_libraries(Hearth PRIVATE X11::xcb)
     endif()
 elseif(APPLE)
-    target_link_libraries(Fernanda PRIVATE
+    target_link_libraries(Hearth PRIVATE
         "-framework AppKit"
         objc
     )
@@ -365,23 +365,23 @@ endif()
 # --- Compiler options ---
 
 if(MSVC)
-    target_compile_options(Fernanda PRIVATE
+    target_compile_options(Hearth PRIVATE
         /W3 /MP /sdl /permissive- /bigobj /EHsc /Zc:preprocessor
     )
-    target_compile_options(Fernanda PRIVATE
+    target_compile_options(Hearth PRIVATE
         $<$<CONFIG:Release>:/GL /Gy /Oi>
     )
-    target_link_options(Fernanda PRIVATE
+    target_link_options(Hearth PRIVATE
         $<$<CONFIG:Release>:/OPT:REF /OPT:ICF /LTCG>
     )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(Fernanda PRIVATE
+    target_compile_options(Hearth PRIVATE
         -Wall -Wextra -Wpedantic -fexceptions
     )
-    target_compile_options(Fernanda PRIVATE
+    target_compile_options(Hearth PRIVATE
         $<$<CONFIG:Release>:-O2>
     )
-    target_compile_options(Fernanda PRIVATE
+    target_compile_options(Hearth PRIVATE
         $<$<CONFIG:Debug>:-g>
     )
 endif()
@@ -390,22 +390,22 @@ endif()
 # Translations
 # =============================================================================
 
-set(FERNANDA_TS_FILES
+set(HEARTH_TS_FILES
     translations/Translation_en.ts
     translations/Translation_es.ts
 )
 
-qt_add_lupdate(Fernanda
+qt_add_lupdate(Hearth
     TS_FILES translations/Translation_en.ts
     OPTIONS -pluralonly
 )
 
-qt_add_lupdate(Fernanda
+qt_add_lupdate(Hearth
     TS_FILES translations/Translation_es.ts
 )
 
-qt_add_lrelease(Fernanda
-    TS_FILES ${FERNANDA_TS_FILES}
+qt_add_lrelease(Hearth
+    TS_FILES ${HEARTH_TS_FILES}
     QM_FILES_OUTPUT_VARIABLE QM_FILES
 )
 
@@ -413,32 +413,32 @@ qt_add_lrelease(Fernanda
 # Install
 # =============================================================================
 
-install(TARGETS Fernanda
+install(TARGETS Hearth
     RUNTIME DESTINATION bin
     BUNDLE DESTINATION .
 )
 
 if(UNIX AND NOT APPLE)
-    install(FILES resources/Fernanda.desktop
+    install(FILES resources/Hearth.desktop
         DESTINATION share/applications
     )
 
     foreach(SIZE 16 22 24 32 48 64 128 256 512)
-        set(_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icons/Fernanda-${SIZE}.png")
+        set(_icon "${CMAKE_CURRENT_SOURCE_DIR}/resources/app-icons/Hearth-${SIZE}.png")
         if(EXISTS "${_icon}")
             install(FILES ${_icon}
                 DESTINATION share/icons/hicolor/${SIZE}x${SIZE}/apps
-                RENAME Fernanda.png
+                RENAME Hearth.png
             )
         endif()
     endforeach()
 
-    install(FILES resources/app-icons/proof/Fernanda.svg
+    install(FILES resources/app-icons/proof/Hearth.svg
         DESTINATION share/icons/hicolor/scalable/apps
     )
 
     install(FILES ${QM_FILES}
-        DESTINATION share/Fernanda/translations
+        DESTINATION share/Hearth/translations
     )
 else()
     install(FILES ${QM_FILES} DESTINATION bin)
