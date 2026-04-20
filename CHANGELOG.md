@@ -239,7 +239,7 @@ I think it's a fitting name. I always imagined this software would eventually be
 
 ## What's New?
 
-**Upping Qt 6.10 (a GitHub CI release workflow tmpoerary reversion) to 6.11.**
+**Upping Qt 6.10 (a GitHub CI release workflow temporary reversion) to 6.11.**
 
 ## Known Issues
 
