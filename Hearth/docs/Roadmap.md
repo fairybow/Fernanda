@@ -24,6 +24,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 - [ ] Change ColorBar colors, add Warm
 - [ ] Remove .hearthx from Notebook color chip
+- [ ] Clarity around NBX vs hearthx vs Hearth Notebook. If the former is the spec and the latter two are the extension and Hearth-specific usage of NBX, then there's still incorrect usage in code (e.g., isNbxFile checks for the extension, which is not defined by NBX but by Hearth, so it should be isHearthxFile or similar)
 
 Pain points while using:
 
