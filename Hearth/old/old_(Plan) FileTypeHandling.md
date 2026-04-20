@@ -2,7 +2,7 @@
 
 Tag: TODO FT
 
-How Fernanda resolves, models, views, and persists different file types across its Workspace system.
+How Hearth resolves, models, views, and persists different file types across its Workspace system.
 
 See: [`MagicBytes.h`](../src/core/MagicBytes.h) (formerly `FileTypes.h`), [`FileService.h`](../src/services/FileService.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), [`AbstractFileView.h`](../src/views/AbstractFileView.h), [`Fnx.h`](../src/fnx/Fnx.h)
 
@@ -24,7 +24,7 @@ See: [`MagicBytes.h`](../src/core/MagicBytes.h) (formerly `FileTypes.h`), [`File
 
 ### Note on file dialog filters
 
-All non-FNX file dialog filters have been removed. Save As dialogs offer no filter, so Qt does not auto-append any extension. The suggested filename (via `start_path`) already has the right extension from `preferredExtension()`, which nudges the user without forcing anything. If the user changes or removes the extension, that is their choice. Changing a file's extension changes how Fernanda handles it (e.g., renaming `.md` to `.txt` makes it plain text instead of Markdown). This is intentional and consistent with other editors.
+All non-FNX file dialog filters have been removed. Save As dialogs offer no filter, so Qt does not auto-append any extension. The suggested filename (via `start_path`) already has the right extension from `preferredExtension()`, which nudges the user without forcing anything. If the user changes or removes the extension, that is their choice. Changing a file's extension changes how Hearth handles it (e.g., renaming `.md` to `.txt` makes it plain text instead of Markdown). This is intentional and consistent with other editors.
 
 New files get their extension suggested through the pre-filled dialog name (e.g., `Untitled.txt`). If the user removes it, the file is saved with no extension and opens as plain text.
 
@@ -92,7 +92,7 @@ A visual planning tool for organizing story elements. Corkboard files are JSON s
 
 | | |
 |---|---|
-| **Extension** | `.fcb` (Fernanda Corkboard) |
+| **Extension** | `.hcb` (Hearth Corkboard) |
 | **Model** | `CorkboardFileModel`: JSON data |
 | **View** | `CorkboardFileView`: interactive board of movable index cards |
 | **Modification** | Yes |
@@ -104,13 +104,13 @@ Cards can be linked to existing text files (within the same Notebook or on disk)
 
 #### Theme Editor (Long-Term)
 
-Custom views for Fernanda's own window and editor theme files. These are two distinct file types (Fernanda Window theme and Fernanda Editor theme) that share a similar editing approach. The underlying data is JSON. Detected by extension (Tier 2).
+Custom views for Hearth's own window and editor theme files. These are two distinct file types (Hearth Window theme and Hearth Editor theme) that share a similar editing approach. The underlying data is JSON. Detected by extension (Tier 2).
 
 This is **way down the road**. The initial concept is not necessarily a fully custom view: it may be a text view augmented with properties that show color pickers beside existing value fields, where the user can still type directly and pickers pop up contextually. The view would draw on a theme API exposed from `Themes.h`.
 
 | | |
 |---|---|
-| **Extensions** | Fernanda window theme ext, Fernanda editor theme ext (TBD) |
+| **Extensions** | Hearth window theme ext, Hearth editor theme ext (TBD) |
 | **Model** | Possibly `TextFileModel` or a thin subclass |
 | **View** | Augmented text view with color pickers / form fields |
 | **Modification** | Yes |
@@ -201,7 +201,7 @@ The existing `FileTypes` namespace has been renamed to `MagicBytes` (byte-level 
 - `fromPath(const Coco::Path&)`: resolves a file's extension to a Kind (PlainText for anything unrecognized)
 - Eventually: a dynamic filter string builder (deferred due to Tr circular dependency concerns)
 
-The relationship between `FileTypes` (registry) and `MagicBytes` (detection): they solve different problems. `MagicBytes` answers "what *is* this file?" `FileTypes` answers "what can Fernanda *do* with this file?" They remain separate; FileService bridges them via the two-tier resolution.
+The relationship between `FileTypes` (registry) and `MagicBytes` (detection): they solve different problems. `MagicBytes` answers "what *is* this file?" `FileTypes` answers "what can Hearth *do* with this file?" They remain separate; FileService bridges them via the two-tier resolution.
 
 ## FileService Resolution Flow
 

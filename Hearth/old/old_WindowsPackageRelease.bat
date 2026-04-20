@@ -17,7 +17,7 @@ set ISS_COMPILER=C:\PROGRA~2\Inno Setup 6\ISCC.exe
 set ISS=.\WindowsInstaller.iss
 set RELEASE_DIR=..\out\build\release
 
-set RELEASE_EXE=%RELEASE_DIR%\Fernanda.exe
+set RELEASE_EXE=%RELEASE_DIR%\Hearth.exe
 set RELEASE_VERSION_TXT=%RELEASE_DIR%\Version.txt
 set README=..\..\README.md
 set LICENSE=..\..\LICENSE
@@ -31,7 +31,7 @@ REM ============================================================================
 
 echo.
 echo ========================================
-echo Fernanda Inno Installer Build
+echo Hearth Inno Installer Build
 echo ========================================
 echo.
 
@@ -81,7 +81,7 @@ echo [2/%STEPS%] Cleaning temp directory...
 if exist "%TEMP_DIR%" rmdir /s /q "%TEMP_DIR%"
 mkdir "%TEMP_DIR%"
 
-echo [3/%STEPS%] Copying Fernanda.exe...
+echo [3/%STEPS%] Copying Hearth.exe...
 copy "%RELEASE_EXE%" "%TEMP_DIR%\" > nul
 
 echo [4/%STEPS%] Copying translation files...
@@ -94,17 +94,17 @@ echo [5/%STEPS%] Running windeployqt...
     --no-system-d3d-compiler ^
     --no-opengl-sw ^
     --skip-plugin-types generic,networkinformation ^
-    "%TEMP_DIR%\Fernanda.exe"
+    "%TEMP_DIR%\Hearth.exe"
 
 REM Final contents of "temp" folder:
 REM temp/
-REM |-- Fernanda.exe
+REM |-- Hearth.exe
 REM |-- *.qm (translation files)
 REM +-- [Qt DLLs, plugins, etc. from windeployqt]
 REM
-REM Inno installs to {app} (Program Files/Fernanda/):
+REM Inno installs to {app} (Program Files/Hearth/):
 REM {app}/
-REM |-- Fernanda.lnk (shortcut to data/Fernanda.exe)
+REM |-- Hearth.lnk (shortcut to data/Hearth.exe)
 REM |-- README.md
 REM |-- LICENSE
 REM +-- data/

@@ -43,7 +43,7 @@
 
 #       - name: Configure
 #         run: |
-#           cmake -B build -S Fernanda \
+#           cmake -B build -S Hearth \
 #             -DCMAKE_BUILD_TYPE=Debug \
 #             -DCMAKE_C_COMPILER=gcc-13 \
 #             -DCMAKE_CXX_COMPILER=g++-13 \
@@ -51,7 +51,7 @@
 
 #       - name: Run clang-tidy
 #         run: |
-#           find Fernanda/src -name '*.cpp' | xargs \
+#           find Hearth/src -name '*.cpp' | xargs \
 #             clang-tidy-18 -p build --quiet 2>&1 | tee clang-tidy-output.txt
 
 #           if grep -q 'warning:' clang-tidy-output.txt; then

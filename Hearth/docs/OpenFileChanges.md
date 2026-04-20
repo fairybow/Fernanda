@@ -6,7 +6,7 @@ See: [`FileService.h`](../src/services/FileService.h), [`FileMeta.h`](../src/mod
 
 ## Overview
 
-Files opened in Fernanda can change while they are open. Changes can originate from inside Fernanda (`TreeView` rename or drag-and-drop move) or from outside (user edits the file in another program, deletes it, moves it via the OS, or unmounts the volume). The system detects these changes and either updates the path transparently (internal changes) or alerts the user (external changes).
+Files opened in Hearth can change while they are open. Changes can originate from inside Hearth (`TreeView` rename or drag-and-drop move) or from outside (user edits the file in another program, deletes it, moves it via the OS, or unmounts the volume). The system detects these changes and either updates the path transparently (internal changes) or alerts the user (external changes).
 
 The detection layer lives in `FileService`, which owns a `QFileSystemWatcher` monitoring all on-disk file models. The UI response layer lives in `ViewService`, which sets tab alerts when `Bus` signals fire. Workspaces handle internal path corrections (`Notepad` connects to `NotepadFileSystemModel` signals to call `meta->setPath()`).
 
@@ -86,7 +86,7 @@ In both cases, the tab alerts are cleared after the prompt is dismissed.
 
 ### Self-write suppression
 
-`Io::write` uses `QSaveFile` (atomic write: write to temp, rename over original), which causes the watcher to fire `fileChanged` for Fernanda's own saves. `FileService` suppresses this with a `recentlyWritten_` set: paths are added before writing and checked (and removed) at the top of the watcher handler. Because the write completes synchronously and the watcher signal arrives via queued connection, the path is always in the set by the time the signal is processed.
+`Io::write` uses `QSaveFile` (atomic write: write to temp, rename over original), which causes the watcher to fire `fileChanged` for Hearth's own saves. `FileService` suppresses this with a `recentlyWritten_` set: paths are added before writing and checked (and removed) at the top of the watcher handler. Because the write completes synchronously and the watcher signal arrives via queued connection, the path is always in the set by the time the signal is processed.
 
 ## Not Yet Implemented
 

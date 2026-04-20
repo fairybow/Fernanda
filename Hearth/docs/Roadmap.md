@@ -81,7 +81,7 @@ POSSIBLY switch members and methods for private only
 - [x] Use using namespace Qt::StringLiterals throughout (not just where it can't leak)?
 - [ ] Remove unnecessary includes for AbstractFileModel or AbstractFileView (kind of a bridge too far in terms of being explicit about types included)
 
-- [ ] Sample stuff (a folder in Docs/Fernanda with samples of each type - can be recreated from the Help menu)
+- [ ] Sample stuff (a folder in Docs/Hearth with samples of each type - can be recreated from the Help menu)
 - [ ] Use QIconEngine for StyleContext icons?
 - [x] Probably add a warm-up mask to the web engine view itself, too (in addition to the AMUFV as a whole?)
 - [x] HtmlFileView (This will not be editable, like other markups - this is for research, essentially, saved pages)
@@ -142,7 +142,7 @@ POSSIBLY switch members and methods for private only
 - [ ] These filters should be set to list multiple extensions where applicable (meaning FileTypes needs an "all extensions" function to return canonical + aliases (JPG is the only one right now, when that's supported)
 - [ ] Save As options could show a second (or third) filter (in addition to all files and/or all supported files) for the canonical type
 - [ ] Need a function to return all extensions from the map (canonical + aliases)
-- [ ] Maybe clean-up MagicBytes + FileTypes enums, make sure they're consistent (or, better yet, maybe they share an enum from a new header that holds an enum val for every type Fernanda recognizes for any reason)
+- [ ] Maybe clean-up MagicBytes + FileTypes enums, make sure they're consistent (or, better yet, maybe they share an enum from a new header that holds an enum val for every type Hearth recognizes for any reason)
 - [ ] Add a button to the open/import dialogs to navigate back to home (startDir)
 - [ ] For Multi-file save prompt, can organize by directory, so we aren't repeating path for every file (just show parent as collapsible list and each individual name with check box (could also allow the list to be checked))
 

@@ -17,7 +17,7 @@
 #include <AppKit/AppKit.h>
 #pragma pop_macro("DEBUG")
 
-namespace Fernanda::XPlatform::Internal {
+namespace Hearth::XPlatform::Internal {
 
 /// TODO XP: Untested!
 void stackUnder_macOS_(const QList<Window*>& windows, Window* top)
@@ -38,4 +38,4 @@ void stackUnder_macOS_(const QList<Window*>& windows, Window* top)
     }
 }
 
-} // namespace Fernanda::XPlatform::Internal
+} // namespace Hearth::XPlatform::Internal
