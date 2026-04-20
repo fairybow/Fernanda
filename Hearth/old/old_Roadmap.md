@@ -26,7 +26,7 @@ After rename, clean this file and then merge in any unfinished work from Plan do
 
 TODO: Redo/reorganize the below
 
-New: PDF Import/Extension handling: For PDFs, need to handle Fnx extension, NbxModel and Notebook import methods. Files imported can be of different types (PDF or TXT).
+New: PDF Import/Extension handling: For PDFs, need to handle Nbx extension, NbxModel and Notebook import methods. Files imported can be of different types (PDF or TXT).
 
 New: Add note to AbstractFileView explaining why it needs two-step initialization! (Or, if it doesn't, remove it)
 
@@ -235,7 +235,7 @@ Might be simple actually, but tedious. We'll do it later.
 - [x] Window titles and flag (TODO NBM)
 - [x] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query NbxModel for it somehow? Possible?
 - [x] Marking Notebook as modified (TODO NBM)
-- [x] Fnx file elements, add or remove edited attribute when model modification changes (TODO NBM)
+- [x] Nbx file elements, add or remove edited attribute when model modification changes (TODO NBM)
 - [x] NbxModel storing original DOM string + modified check method (TODO NBM)
 
 ## Closures

@@ -12,7 +12,7 @@ See: [`MagicBytes.h`](../src/core/MagicBytes.h) (formerly `FileTypes.h`), [`File
 - [x] `FileTypes` header (central type registry, canonical extensions). Existing `FileTypes` namespace renamed to `MagicBytes`
 - [x] Two-tier resolution in `FileService::newDiskFileModel_`: magic bytes first for binary formats, then extension check for special plaintext types, fallthrough to plaintext for everything else
 - [x] Remove non-NBX file dialog filters (was causing Qt to auto-append `.txt` to Save As filenames). Save As uses no filter; user gets exactly what they type. Open dialogs can be revisited later.
-- [x] Centralize how models get their extension: `FileMeta::preferredExt()` draws from path if on disk, `FileTypes::canonicalExt(kind)` if off-disk. Fnx uses the same sources (see Implementation Step 7).
+- [x] Centralize how models get their extension: `FileMeta::preferredExt()` draws from path if on disk, `FileTypes::canonicalExt(kind)` if off-disk. Nbx uses the same sources (see Implementation Step 7).
 - [ ] Address remaining NBX-related filters (Open Notebook, Save As Notebook, Import). These still need the `.hearthx` extension filter. Consider a small Filters header/namespace that pulls the translatable name from Tr and the extension from `Nbx::Io::EXT` (and eventually from `FileTypes` for import filters)
 - [x] Generalize NBX import to accept any file type and preserve source extension. Also generalized new file creation to accept a `FileTypes::Kind`.
 - [x] (Decided: keep) NBX manifest `extension` attribute. See "NBX extension attribute" section below.
@@ -239,9 +239,9 @@ Work should happen on a **`file-types`** branch.
 4. (DONE) **`FileTypes` header**: Central registry with constexpr extension table, `canonicalExt(Kind)`, and `fromPath(path)`.
 5. (DONE) **Two-tier resolution in FileService**: Refactor `newDiskFileModel_` to check magic bytes first (Tier 1) for binary formats, then extension (Tier 2) for special text types, with universal fallthrough to PlainText.
 6. (DONE) **Remove non-NBX file dialog filters**: Eliminates Qt auto-appending extensions on Save As. User gets exactly what they type.
-7. (DONE) **Centralize model extensions**: `FileMeta::preferredExt()` draws from the file's path if on disk, or from `FileTypes::canonicalExt(kind)` if off-disk. Fnx no longer hardcodes extensions: `addNewFile` takes a `FileTypes::Kind` and resolves via `canonicalExt`, `importFile` reads the source path's extension directly.
+7. (DONE) **Centralize model extensions**: `FileMeta::preferredExt()` draws from the file's path if on disk, or from `FileTypes::canonicalExt(kind)` if off-disk. Nbx no longer hardcodes extensions: `addNewFile` takes a `FileTypes::Kind` and resolves via `canonicalExt`, `importFile` reads the source path's extension directly.
 8. **NBX filter cleanup**: Remaining NBX-related filters (Open Notebook, Save As Notebook, Import) need the `.hearthx` extension. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Nbx::Io::EXT` / `FileTypes`.
-9. (DONE) **NBX all-file-type support**: `importTextFile` -> `importFile` (preserves source extension via `fsPath.extQString()`). `addNewTextFile` -> `addNewFile(FileTypes::Kind)` (resolves extension via `FileTypes::canonicalExt`). Renamed through `NbxModel` (`importFiles`, `addNewFile`) and `Notebook` call sites. No hardcoded extensions remain in Fnx. Import dialog has no filter (accepts all files).
+9. (DONE) **NBX all-file-type support**: `importTextFile` -> `importFile` (preserves source extension via `fsPath.extQString()`). `addNewTextFile` -> `addNewFile(FileTypes::Kind)` (resolves extension via `FileTypes::canonicalExt`). Renamed through `NbxModel` (`importFiles`, `addNewFile`) and `Notebook` call sites. No hardcoded extensions remain in Nbx. Import dialog has no filter (accepts all files).
 10. **Tree view icons by type**: File-type-appropriate icons with a generic fallback for unrecognized types.
 
 ## Documents That Need Updating
