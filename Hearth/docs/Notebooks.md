@@ -139,15 +139,15 @@ When using "Save As" to save a Notebook under a new name, the working directory 
 - Prevents file locking issues during rename
 - The working directory is temporary and invisible to users
 
-## FnxModel
+## NbxModel
 
-`FnxModel` is the Qt `QAbstractItemModel` implementation that bridges the DOM and Qt's model/view framework.
+`NbxModel` is the Qt `QAbstractItemModel` implementation that bridges the DOM and Qt's model/view framework.
 
 ### Design Principles
 
-1. **DOM ownership**: FnxModel owns the `QDomDocument`
-2. **Encapsulation**: Public methods return `QModelIndex` for operations (add, import, move); `FileInfo` is available on request via `fileInfoAt()` (metadata provided by `Fnx`)
-3. **Stable references**: Uses `FnxModelCache` for UUID-based element tracking
+1. **DOM ownership**: NbxModel owns the `QDomDocument`
+2. **Encapsulation**: Public methods return `QModelIndex` for operations (add, import, move); `FileInfo` is available on request via `fileInfoAt()` (metadata provided by `Nbx`)
+3. **Stable references**: Uses `NbxModelCache` for UUID-based element tracking
 
 ### FileInfo Struct
 
@@ -161,14 +161,14 @@ struct FileInfo {
 
 ### Modification Tracking
 
-FnxModel tracks modifications via DOM snapshot comparison:
+NbxModel tracks modifications via DOM snapshot comparison:
 - `resetSnapshot()`: Stores current DOM state as baseline
 - `isModified()`: Compares current DOM against snapshot
 - DOM string comparison is deterministic for identical structures
 
 ### Edit State Display
 
-FnxModel shows two levels of edit state in the TreeView:
+NbxModel shows two levels of edit state in the TreeView:
 
 | Indicator | Meaning | Appearance |
 |---|---|---|
@@ -179,9 +179,9 @@ Both indicators can appear simultaneously on a file that is itself edited and al
 
 When `setFileEdited()` is called, `dataChanged` is emitted for the file itself and for all its ancestors up to the document root, so that `(*)` indicators update throughout the tree.
 
-The edited-descendant check (`Fnx::Xml::hasEditedDescendant()`) performs a recursive DOM subtree walk. This is consistent with other recursive traversals already in FnxModel (descendant counting, file info collection, UUID search).
+The edited-descendant check (`Nbx::Xml::hasEditedDescendant()`) performs a recursive DOM subtree walk. This is consistent with other recursive traversals already in NbxModel (descendant counting, file info collection, UUID search).
 
-### Cache System (FnxModelCache)
+### Cache System (NbxModelCache)
 
 The cache solves a critical problem: `QModelIndex::internalPointer()` becomes invalid when DOM elements move or are deleted. The cache provides:
 
@@ -191,11 +191,11 @@ The cache solves a critical problem: `QModelIndex::internalPointer()` becomes in
 
 Cache keys:
 - User elements: UUID attribute
-- Structural elements: Tag name (`fnx`, `notebook`, `trash`)
+- Structural elements: Tag name (`nbx`, `notebook`, `trash`)
 
 ## TreeView Integration
 
-Notebook displays two TreeViews sharing the same `FnxModel`:
+Notebook displays two TreeViews sharing the same `NbxModel`:
 
 1. **Main TreeView**: Rooted at `<notebook>` element
 2. **Trash TreeView**: Rooted at `<trash>` element (shown TreeView drawer)

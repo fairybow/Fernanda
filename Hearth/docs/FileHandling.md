@@ -203,7 +203,7 @@ Files inside a Notebook ZIP archive live in a `content/` directory, named by UUI
 <file name="Reference" uuid="def-456" extension=".pdf" />
 ```
 
-The `extension` attribute is the index that `Fnx::Xml::relPath()` uses to reconstruct the content path (`uuid + ext`). It is populated from reality: `fsPath.extQString()` on import, `FileTypes::canonicalExt(type)` for new files. The `name` attribute is the user-facing display name shown in the tree view.
+The `extension` attribute is the index that `Nbx::Xml::relPath()` uses to reconstruct the content path (`uuid + ext`). It is populated from reality: `fsPath.extQString()` on import, `FileTypes::canonicalExt(type)` for new files. The `name` attribute is the user-facing display name shown in the tree view.
 
 For files with compound extensions (e.g., `archive.tar.gz`), `std::filesystem::path::extension()` returns only the final extension (`.gz`), and the stem (`archive.tar`) becomes the display name. The full original filename can be reconstructed on export by joining `name + ext`.
 
@@ -243,10 +243,10 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 
 | Operation | Description | Filter |
 |---|---|---|
-| **New File** | Creates a new file inside the archive via `Fnx::Xml::addNewFile(type)` (no dialog). Currently only creates plain text (`FileTypes::PlainText`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
+| **New File** | Creates a new file inside the archive via `Nbx::Xml::addNewFile(type)` (no dialog). Currently only creates plain text (`FileTypes::PlainText`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
 | **New Folder** | Creates a new virtual folder in the archive's XML manifest. No file is created. | None |
 | **Import Files** | File dialog for selecting files from disk. Accepts any file type (no filter). Selected files are copied into the archive's `content/` directory as `{uuid}.{ext}` (extension taken from source path via `fsPath.extQString()`). The source file's stem becomes the display name in the manifest. Imported files are opened after import. | All files |
-| **Export File** | Save As dialog for exporting a single file from the archive to disk. Available from the tree view context menu for file elements only (`FnxModel::isFile`). The suggested filename is reconstructed from `name + ext`. Copies the file from the working directory to the chosen destination. | All files |
+| **Export File** | Save As dialog for exporting a single file from the archive to disk. Available from the tree view context menu for file elements only (`NbxModel::isFile`). The suggested filename is reconstructed from `name + ext`. Copies the file from the working directory to the chosen destination. | All files |
 | **TreeView double-click** | Opens the selected file from the archive via `FileService` (two-tier). No `isNbxFile` check. | None |
 | **Save** | Saves the Notebook archive. Prompts Save As if the archive is not yet on disk. Also saves all modified file models within the archive. | None (or `*.hearthx` if prompting) |
 | **Save As** | File dialog for saving the Notebook archive to a new `.hearthx` path. | `*.hearthx` |
