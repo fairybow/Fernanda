@@ -268,7 +268,7 @@ private:
     static constexpr auto ADD_BUTTON_SIZE_ = QSize(30, 30);
     static constexpr auto CLOSE_BUTTON_SIZE_ = QSize(24, 24);
     static constexpr auto BUTTON_SVG_SIZE_ = QSize(18, 18);
-    static constexpr auto MIME_TYPE_ = "application/x-fernanda-tab-widget-tab";
+    static constexpr auto MIME_TYPE_ = "application/x-hearth-tab-widget-tab";
 
     struct TabDragContext_
     {

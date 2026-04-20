@@ -37,7 +37,7 @@
 #define VERSION_MAJOR                           0
 #define VERSION_MINOR                           99
 #define VERSION_PATCH                           0
-#define VERSION_PRERELEASE_STRING               "beta.25"
+#define VERSION_PRERELEASE_STRING               "beta.26"
 
 // Major.Minor.Patch
 #define VERSION_3                               \
@@ -81,11 +81,11 @@
 /// ======================================================================== ///
 
 #define VERSION_AUTHOR_STRING                   "fairybow"
-#define VERSION_APP_NAME_STRING                 "Fernanda"
-#define VERSION_APP_NAME_STRING_L               "fernanda"
+#define VERSION_APP_NAME_STRING                 "Hearth"
+#define VERSION_APP_NAME_STRING_L               "hearth"
 #define VERSION_RELEASE_NAME_STRING             "Bashō"
 #define VERSION_COPYRIGHT_STRING                "Copyright (C) 2025-2026 fairybow"
-#define VERSION_DOMAIN                          "https://github.com/fairybow/Fernanda"
+#define VERSION_DOMAIN                          "https://github.com/fairybow/Hearth"
 
 #if defined(Q_OS_WIN)
 #    define VERSION_FILE_STRING                 VERSION_APP_NAME_STRING ".exe"

@@ -293,7 +293,7 @@ New Notebooks (created via "New Notebook" rather than opening an existing `.fnx`
 ## Drag and Drop
 
 FnxModel supports internal drag-and-drop for reorganizing items:
-- Uses custom MIME type: `application/x-fernanda-fnx-element`
+- Uses custom MIME type: `application/x-hearth-fnx-element`
 - Only `MoveAction` is supported
 - Items can be dragged between notebook and trash
 - Moving to own subtree is prevented
