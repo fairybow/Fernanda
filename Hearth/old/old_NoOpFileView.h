@@ -1,5 +1,5 @@
 /*
- * Fernanda  Copyright (C) 2025-2026  fairybow
+ * Hearth  Copyright (C) 2025-2026  fairybow
  *
  * Licensed under GPL 3 with additional terms under Section 7. See LICENSE and
  * ADDITIONAL_TERMS files, or visit: <https://www.gnu.org/licenses/>
@@ -21,7 +21,7 @@
 #include "core/Debug.h"
 #include "NoOpFileModel.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 /// TODO FT: Could rescue for blocking large binariy display from falling
 /// through to plaintext
@@ -57,4 +57,4 @@ protected:
     }
 };
 
-} // namespace Fernanda*/
+} // namespace Hearth*/

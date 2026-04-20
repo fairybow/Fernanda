@@ -35,7 +35,7 @@
 // - Rethink Root:
 // - May want to change Workspace root member. Notebooks will take the archive
 // path on construction, but their "root" for working documents will be
-// TempExtractionDir/Content/. For Notepad, this root will be Documents/Fernanda
+// TempExtractionDir/Content/. For Notepad, this root will be Documents/Hearth
 // (for now always, but later settable)
 // - New Notebook file in Notepad menu (will create and then open)
 // - Open Notebook file in Notepad menu (will filter specifically for .fnx)
@@ -103,7 +103,7 @@
 // continue
 // - Query results not printing for window sets (likely just not able to
 // print Qt containers)
-// - A Fernanda::isDebug function. Its return should be defaulted to the
+// - A Hearth::isDebug function. Its return should be defaulted to the
 // build type but also toggleable at runtime
 // - ViewService::onFileModificationChanged runs on every key stroke!
 // Might be fine, might not be

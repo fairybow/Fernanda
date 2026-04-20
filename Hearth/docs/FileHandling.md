@@ -149,7 +149,7 @@ Previously served as a catch-all for unrecognized file types. Currently not used
 
 ## Extensions and User Choice
 
-Fernanda does not force or auto-append file extensions. When saving, the suggested filename includes an appropriate extension (drawn from `FileMeta::preferredExt()`, which uses the file's existing path extension if on disk or `Files::canonicalExt(type)` if off-disk), but if the user changes or removes it, that choice is honored.
+Hearth does not force or auto-append file extensions. When saving, the suggested filename includes an appropriate extension (drawn from `FileMeta::preferredExt()`, which uses the file's existing path extension if on disk or `Files::canonicalExt(type)` if off-disk), but if the user changes or removes it, that choice is honored.
 
 This means a file's extension can affect how it is handled:
 

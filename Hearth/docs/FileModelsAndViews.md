@@ -1,6 +1,6 @@
 # File Models and Views
 
-Fernanda separates file content management from its visual representation using paired abstract classes: `AbstractFileModel` (content and state) and `AbstractFileView` (display and interaction).
+Hearth separates file content management from its visual representation using paired abstract classes: `AbstractFileModel` (content and state) and `AbstractFileView` (display and interaction).
 
 See: [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), [`AbstractFileView.h`](../src/views/AbstractFileView.h), [`FileMeta.h`](../src/models/FileMeta.h), [`TextFileModel.h`](../src/models/TextFileModel.h), [`TextFileView.h`](../src/views/TextFileView.h), [`PdfFileModel.h`](../src/models/PdfFileModel.h), and [`PdfFileView.h`](../src/views/PdfFileView.h)
 

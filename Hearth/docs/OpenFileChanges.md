@@ -1,6 +1,6 @@
 # Open File Changes
 
-How Fernanda detects and responds to changes in open files, including renames, moves, deletions, and external content modifications.
+How Hearth detects and responds to changes in open files, including renames, moves, deletions, and external content modifications.
 
 See: [`FileService.h`](../src/services/FileService.h), [`FileMeta.h`](../src/models/FileMeta.h), [`ViewService.h`](../src/services/ViewService.h), [`NotepadFileSystemModel.h`](../src/workspaces/NotepadFileSystemModel.h), [`Notepad.h`](../src/workspaces/Notepad.h), and [`Bus.h`](../src/workspaces/Bus.h)
 

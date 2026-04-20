@@ -2,10 +2,10 @@
 setlocal
 
 REM ============================================================================
-REM Fernanda Release Packaging Script (Windows)
+REM Hearth Release Packaging Script (Windows)
 REM ============================================================================
 
-set INSTALLER_NAME=FernandaInstaller
+set INSTALLER_NAME=HearthInstaller
 
 for /f "delims=" %%q in ('powershell -NoProfile -Command "(Get-Content '..\CMakeUserPresets.json' | ConvertFrom-Json).configurePresets | Where-Object { $_.environment.QTDIR } | Select-Object -First 1 -ExpandProperty environment | Select-Object -ExpandProperty QTDIR"') do set QT_DIR=%%q
 

@@ -1,7 +1,7 @@
 # Openings (Draft)
 
 **General notes:**
-- There is only ever 1 Fernanda instance; relaunch is guarded and new args are passed to the current instance
+- There is only ever 1 Hearth instance; relaunch is guarded and new args are passed to the current instance
 - There is only ever 1 Notepad instance (created at startup); there can be multiple (or zero) Notebook instances
 - Notepad exists for the application lifetime, even with no windows
 - Files can be opened multiple times (creating multiple views on the same model)
