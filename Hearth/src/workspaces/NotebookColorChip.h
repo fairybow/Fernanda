@@ -40,21 +40,21 @@ class NotebookColorChip : public QWidget
     Q_OBJECT
 
 public:
-    NotebookColorChip(const Coco::Path& fnx, QWidget* parent = nullptr)
+    NotebookColorChip(const Coco::Path& nbx, QWidget* parent = nullptr)
         : QWidget(parent)
-        , fnx_(fnx)
+        , nbx_(nbx)
     {
         setup_();
     }
 
     virtual ~NotebookColorChip() override { TRACER; }
 
-    Coco::Path fnx() const noexcept { return fnx_; }
+    Coco::Path nbx() const noexcept { return nbx_; }
 
-    void setFnx(const Coco::Path& fnx)
+    void setNbx(const Coco::Path& nbx)
     {
-        if (fnx_ == fnx) return;
-        fnx_ = fnx;
+        if (nbx_ == nbx) return;
+        nbx_ = nbx;
         updateDerivedProperties_();
     }
 
@@ -122,7 +122,7 @@ protected:
     }
 
 private:
-    Coco::Path fnx_;
+    Coco::Path nbx_;
 
     QString name_{};
     QColor generatedColor_{};
@@ -158,12 +158,12 @@ private:
 
     void updateDerivedProperties_()
     {
-        setToolTip(fnx_.prettyQString());
+        setToolTip(nbx_.prettyQString());
 
         // TODO: Common method w/ TextFileModel::onDocContentsChanged
-        auto fnx_name = fnx_.nameQString();
-        auto new_name = fnx_name.left(27);
-        if (fnx_name.length() > 27) new_name += u"..."_s;
+        auto nbx_name = nbx_.nameQString();
+        auto new_name = nbx_name.left(27);
+        if (nbx_name.length() > 27) new_name += u"..."_s;
         name_ = new_name;
 
         generatedColor_ = colorFromName_(name_);

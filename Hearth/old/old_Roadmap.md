@@ -98,7 +98,7 @@ Might be simple actually, but tedious. We'll do it later.
 
 - [ ] Shorter size abbreviations in Notepad TreeViews
 - [ ] Tab bar tabs should not resize while user's mouse is over it (to enable rapid tab closing)
-- [ ] .fnx Notebook icon
+- [ ] .hearthx Notebook icon
 
 ## Docs
 
@@ -116,7 +116,7 @@ Might be simple actually, but tedious. We'll do it later.
 - [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
 - [ ] Save backups (with auto-cleaning) and backup folder
 - [ ] Notebook export file (context menu)
-- [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
+- [ ] Backup folders for Notebook (NBX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [ ] Refactor common context menu stuff / TreeView hookup
 - [ ] Trash count (maybe, maybe not - if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
 - [ ] Icon instead of trash text?
@@ -162,7 +162,7 @@ Might be simple actually, but tedious. We'll do it later.
 
 ## MVP/Misc
 
-- [x] FNX (extract, compress, model, model manipulation, saving)
+- [x] NBX (extract, compress, model, model manipulation, saving)
 - [x] Menu item state toggling
 - [x] Fully functioning Notepad (complete file/edit menus, open files, save them)
 - [x] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
@@ -321,9 +321,9 @@ Might be simple actually, but tedious. We'll do it later.
 
 - [x] New Notebook: Naming dialog (no path chosen)
 - [x] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
-- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
+- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .hearthx
 - [x] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later (only problem is which settings? We have notepad and individual Notebook INIs...do we want/need an application-wide settings? How should we display that in the settings dialog for each Workspace?)
-- [x] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
+- [x] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change nbxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
 - [x] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed
 - [x] New Notebook: For closure/quit, archive will be created and saved. If successful, we close the Notebook as normal (I think??? Am I missing anything?)
 - [x] New Notebook: For Save / Save As (the former will trigger the latter anyway), the new Notebook will be saved like in the existing Save As handler. However, we'd only need to change the working directory if the path stem changed? This is a good argument for either just using a UUID or random string as the name (or simply keeping whatever name the Notebook had when it was opened/created, even if it's inconsistent with current name)

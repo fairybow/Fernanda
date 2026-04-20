@@ -30,7 +30,6 @@
 #include "core/Files.h"
 #include "core/Time.h"
 #include "core/Tr.h"
-#include "fnx/Fnx.h"
 #include "menus/MenuBuilder.h"
 #include "menus/MenuShortcuts.h"
 #include "menus/MenuState.h"
@@ -38,6 +37,7 @@
 #include "modules/ColorBarModule.h"
 #include "modules/StyleModule.h"
 #include "modules/WordCounterModule.h"
+#include "nbx/Nbx.h"
 #include "services/FileService.h"
 #include "services/SettingsService.h"
 #include "services/TreeViewService.h"
@@ -89,8 +89,8 @@ public:
 signals:
     void lastWindowClosed();
     void openNotepadRequested();
-    void newNotebookRequested(const Coco::Path& fnxPath);
-    void openNotebookRequested(const Coco::Path& fnxPath);
+    void newNotebookRequested(const Coco::Path& nbxPath);
+    void openNotebookRequested(const Coco::Path& nbxPath);
 
 protected:
     struct LocalIniKeys
@@ -176,7 +176,7 @@ protected:
     }
 
 private:
-    Coco::Path rollingOpenFnxStartDir_ = currentRootDir;
+    Coco::Path rollingOpenNbxStartDir_ = currentRootDir;
     QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
     QHash<Window*, MenuState*> menuStates_{};
     Time::Ticker* autosaveCue_ = // TODO: Make configurable?

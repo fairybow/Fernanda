@@ -2,7 +2,7 @@
 
 Pre-save backups that preserve the previous version of a file or archive before overwrite.
 
-See: [`Backup.h`](../src/workspaces/Backup.h), [`FileService.h`](../src/services/FileService.h), [`Fnx.h`](../src/fnx/Fnx.h), [`Notepad.h`](../src/workspaces/Notepad.h), and [`Notebook.h`](../src/workspaces/Notebook.h).
+See: [`Backup.h`](../src/workspaces/Backup.h), [`FileService.h`](../src/services/FileService.h), [`Nbx.h`](../src/nbx/Nbx.h), [`Notepad.h`](../src/workspaces/Notepad.h), and [`Notebook.h`](../src/workspaces/Notebook.h).
 
 ## Overview
 
@@ -13,7 +13,7 @@ Notepad and Notebook hook at different levels because their units of committed c
 | Workspace | Unit | Hook point | Backup directory |
 |---|---|---|---|
 | Notepad | Individual file | `FileService::beforeWriteHook` | `~/.hearth/backups/notepad/` |
-| Notebook | `.fnx` archive | `Fnx::Io::BeforeOverwriteHook` | `~/.hearth/backups/notebooks/` |
+| Notebook | `.hearthx` archive | `Nbx::Io::BeforeOverwriteHook` | `~/.hearth/backups/notebooks/` |
 
 ## Filename Scheme
 
@@ -38,7 +38,7 @@ Example: `a1b2c3d4_chapter-one.20260320-143022-123.txt`
 
 ### Notebook
 
-`Notebook::makeBackupHook_()` returns an `Fnx::Io::BeforeOverwriteHook` lambda passed to `Fnx::Io::compress()`. The hook skips new Notebooks that have not yet been saved to disk.
+`Notebook::makeBackupHook_()` returns an `Nbx::Io::BeforeOverwriteHook` lambda passed to `Nbx::Io::compress()`. The hook skips new Notebooks that have not yet been saved to disk.
 
 ## Pruning
 

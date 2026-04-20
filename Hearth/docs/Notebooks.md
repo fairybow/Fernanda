@@ -1,14 +1,14 @@
 # Notebooks
 
-Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard ZIP archive containing files and an XML manifest describing the virtual directory structure.
+Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.hearthx` archive file, a standard ZIP archive containing files and an XML manifest describing the virtual directory structure.
 
-See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), [`FnxModel.h`](../src/fnx/FnxModel.h), [`FnxModelCache.h`](../src/fnx/FnxModelCache.h), [`Workspace.h`](../src/workspaces/Workspace.h), and [`WorkingDir.h`](../src/workspaces/WorkingDir.h)
+See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Nbx.h`](../src/nbx/Nbx.h), [`NbxModel.h`](../src/nbx/NbxModel.h), [`NbxModelCache.h`](../src/nbx/NbxModelCache.h), [`Workspace.h`](../src/workspaces/Workspace.h), and [`WorkingDir.h`](../src/workspaces/WorkingDir.h)
 
 ## Overview
 
 A Notebook provides:
 - **Virtual organization**: Files and folders arranged independently of their physical storage
-- **Self-contained projects**: Everything lives in one portable `.fnx` file
+- **Self-contained projects**: Everything lives in one portable `.hearthx` file
 - **Recoverability**: Standard ZIP format means content remains accessible outside Hearth
 - **Multiple instances**: Unlike Notepad (singleton), any number of Notebooks can be open simultaneously
 
@@ -16,9 +16,9 @@ A Notebook provides:
 
 ```
 Notebook Workspace
-|-- fnxPath_        -> Path to .fnx archive (may not exist yet for new Notebooks)
+|-- nbxPath_        -> Path to `.hearthx` archive (may not exist yet for new Notebooks)
 |-- workingDir_     -> Temporary directory for extracted content
-|-- fnxModel_       -> Qt model adapter for DOM + TreeView
+|-- nbxModel_       -> Qt model adapter for DOM + TreeView
 +-- Services        -> (inherited from Workspace)
 ```
 
@@ -34,12 +34,12 @@ Notebook Workspace
 | `Fnx::Io` | Archive extraction/compression, working directory setup |
 | `Fnx::Xml` | DOM element factories and queries (stateless helpers) |
 
-## The FNX File Format
+## The NBX File Format
 
-An `.fnx` file is a ZIP archive with a rigid internal structure:
+An `.hearthx` file is a ZIP archive with a rigid internal structure:
 
 ```
-MyNovel.fnx (ZIP archive)
+MyNovel.hearthx (ZIP archive)
 |-- Manifest.xml        # Virtual directory structure
 |-- Settings.ini        # Notebook-specific settings (optional)
 +-- content/            # Physical file storage
@@ -59,7 +59,7 @@ Files in `content/` are named by UUID with normalized extensions:
 
 ```xml
 <?xml version="1.0"?>
-<fnx version="1.0">
+<nbx version="1.0">
   <notebook>
     <vfolder name="Chapter 1" uuid="xxx1">
       <file name="Scene 1" uuid="xxx2" extension=".txt"/>
@@ -72,14 +72,14 @@ Files in `content/` are named by UUID with normalized extensions:
   <trash>
     <!-- Deleted items live here until emptied -->
   </trash>
-</fnx>
+</nbx>
 ```
 
 #### Element Tags
 
 | Tag | Description |
 |---|---|
-| `fnx` | Document root (contains `notebook` and `trash`) |
+| `nbx` | Document root (contains `notebook` and `trash`) |
 | `notebook` | User-visible root for active content |
 | `trash` | Container for soft-deleted items |
 | `vfolder` | Virtual folder (organizational only, no physical file) |
@@ -116,10 +116,10 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 
 ## Working Directory
 
-When a Notebook is opened, Hearth extracts the `.fnx` archive to a temporary working directory:
+When a Notebook is opened, Hearth extracts the `.hearthx` archive to a temporary working directory:
 
 ```
-{temp}/MyNovel.fnx~XXXXXXXX/
+{temp}/MyNovel.hearthx~XXXXXXXX/
 |-- Manifest.xml
 |-- Settings.ini
 +-- content/
@@ -128,7 +128,7 @@ When a Notebook is opened, Hearth extracts the `.fnx` archive to a temporary wor
 
 ### Key Behaviors
 
-- **Naming**: Working directory name is the `.fnx` filename plus a random 8-character suffix
+- **Naming**: Working directory name is the `.hearthx` filename plus a random 8-character suffix
 - **Persistence**: The working directory name remains unchanged for the Notebook's lifetime, even after "Save As" to a different filename
 - **Cleanup**: Working directory is automatically deleted when the Notebook is safely closed
 
@@ -139,15 +139,15 @@ When using "Save As" to save a Notebook under a new name, the working directory 
 - Prevents file locking issues during rename
 - The working directory is temporary and invisible to users
 
-## FnxModel
+## NbxModel
 
-`FnxModel` is the Qt `QAbstractItemModel` implementation that bridges the DOM and Qt's model/view framework.
+`NbxModel` is the Qt `QAbstractItemModel` implementation that bridges the DOM and Qt's model/view framework.
 
 ### Design Principles
 
-1. **DOM ownership**: FnxModel owns the `QDomDocument`
-2. **Encapsulation**: Public methods return `QModelIndex` for operations (add, import, move); `FileInfo` is available on request via `fileInfoAt()` (metadata provided by `Fnx`)
-3. **Stable references**: Uses `FnxModelCache` for UUID-based element tracking
+1. **DOM ownership**: NbxModel owns the `QDomDocument`
+2. **Encapsulation**: Public methods return `QModelIndex` for operations (add, import, move); `FileInfo` is available on request via `fileInfoAt()` (metadata provided by `Nbx`)
+3. **Stable references**: Uses `NbxModelCache` for UUID-based element tracking
 
 ### FileInfo Struct
 
@@ -161,14 +161,14 @@ struct FileInfo {
 
 ### Modification Tracking
 
-FnxModel tracks modifications via DOM snapshot comparison:
+NbxModel tracks modifications via DOM snapshot comparison:
 - `resetSnapshot()`: Stores current DOM state as baseline
 - `isModified()`: Compares current DOM against snapshot
 - DOM string comparison is deterministic for identical structures
 
 ### Edit State Display
 
-FnxModel shows two levels of edit state in the TreeView:
+NbxModel shows two levels of edit state in the TreeView:
 
 | Indicator | Meaning | Appearance |
 |---|---|---|
@@ -179,9 +179,9 @@ Both indicators can appear simultaneously on a file that is itself edited and al
 
 When `setFileEdited()` is called, `dataChanged` is emitted for the file itself and for all its ancestors up to the document root, so that `(*)` indicators update throughout the tree.
 
-The edited-descendant check (`Fnx::Xml::hasEditedDescendant()`) performs a recursive DOM subtree walk. This is consistent with other recursive traversals already in FnxModel (descendant counting, file info collection, UUID search).
+The edited-descendant check (`Nbx::Xml::hasEditedDescendant()`) performs a recursive DOM subtree walk. This is consistent with other recursive traversals already in NbxModel (descendant counting, file info collection, UUID search).
 
-### Cache System (FnxModelCache)
+### Cache System (NbxModelCache)
 
 The cache solves a critical problem: `QModelIndex::internalPointer()` becomes invalid when DOM elements move or are deleted. The cache provides:
 
@@ -191,11 +191,11 @@ The cache solves a critical problem: `QModelIndex::internalPointer()` becomes in
 
 Cache keys:
 - User elements: UUID attribute
-- Structural elements: Tag name (`fnx`, `notebook`, `trash`)
+- Structural elements: Tag name (`nbx`, `notebook`, `trash`)
 
 ## TreeView Integration
 
-Notebook displays two TreeViews sharing the same `FnxModel`:
+Notebook displays two TreeViews sharing the same `NbxModel`:
 
 1. **Main TreeView**: Rooted at `<notebook>` element
 2. **Trash TreeView**: Rooted at `<trash>` element (shown TreeView drawer)
@@ -244,7 +244,7 @@ All modified `AbstractFileModel`s are saved to the working directory via `FileSe
 
 ### Tier 2: Archive
 1. `FnxModel::write()` writes `Manifest.xml` to working directory
-2. `Fnx::Io::compress()` creates or replaces the archive at the `.fnx` path
+2. `Fnx::Io::compress()` creates or replaces the archive at the `.hearthx` path
 3. On success: Reset DOM snapshot, clear window modification flags
 
 ### Save Scenarios
@@ -261,7 +261,7 @@ All modified `AbstractFileModel`s are saved to the working directory via `FileSe
 
 ### New Notebooks
 
-New Notebooks (created via "New Notebook" rather than opening an existing `.fnx`):
+New Notebooks (created via "New Notebook" rather than opening an existing `.hearthx`):
 - Have `fnxPath_` set to intended location but archive doesn't exist yet
 - Are always considered "modified" (`!fnxPath_.exists()`)
 - First save triggers Save As dialog to create the archive
@@ -336,7 +336,7 @@ flowchart TD
     LoadModel --> Work[User edits content]
     Work --> Save{Save triggered?}
     Save -->|Yes| SaveAs[Save As dialog]
-    SaveAs --> Compress[Compress to .fnx]
+    SaveAs --> Compress[Compress to .hearthx]
     Compress --> Work
 ```
 
@@ -344,7 +344,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Start([User: Open .fnx]) --> Validate[Validate ZIP format]
+    Start([User: Open .hearthx]) --> Validate[Validate ZIP format]
     Validate --> CreateTemp[Create temp working directory]
     CreateTemp --> Extract[Extract archive]
     Extract --> LoadModel[FnxModel loads Manifest.xml]

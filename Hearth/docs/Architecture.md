@@ -328,7 +328,7 @@ sequenceDiagram
     end
 ```
 
-The Workspace never touches the model or view directly. It translates the TreeView index into a path (policy: Notepad uses QFileSystemModel paths, Notebook uses FnxModel paths resolved against a working directory) and delegates to FileService. FileService handles deduplication (reusing an existing model if the file is already open) and creation. ViewService reacts to the Bus event independently. It consults a Workspace hook before adding a tab, allowing per-workspace policy on whether to add a new tab or focus an existing one for the same model.
+The Workspace never touches the model or view directly. It translates the TreeView index into a path (policy: Notepad uses QFileSystemModel paths, Notebook uses NbxModel paths resolved against a working directory) and delegates to FileService. FileService handles deduplication (reusing an existing model if the file is already open) and creation. ViewService reacts to the Bus event independently. It consults a Workspace hook before adding a tab, allowing per-workspace policy on whether to add a new tab or focus an existing one for the same model.
 
 ### Cross-Service Query
 

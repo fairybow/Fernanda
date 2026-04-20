@@ -105,7 +105,7 @@ public slots:
             notepad_->openFiles(parsed.regularFiles);
         }
 
-        for (auto& path : parsed.fnxFiles)
+        for (auto& path : parsed.nbxFiles)
             openOrActivateNotebook_(path);
     }
 
@@ -124,12 +124,12 @@ public slots:
 private:
     struct ParsedArgs_
     {
-        Coco::PathList fnxFiles{};
+        Coco::PathList nbxFiles{};
         Coco::PathList regularFiles{};
 
         bool isEmpty() const noexcept
         {
-            return fnxFiles.isEmpty() && regularFiles.isEmpty();
+            return nbxFiles.isEmpty() && regularFiles.isEmpty();
         }
     };
 
@@ -211,14 +211,14 @@ private:
         auto parsed = parseArgs_(args);
 
         // Show notepad if we have regular files or nothing at all
-        if (!parsed.regularFiles.isEmpty() || parsed.fnxFiles.isEmpty()) {
+        if (!parsed.regularFiles.isEmpty() || parsed.nbxFiles.isEmpty()) {
             auto was_open = notepad_->hasWindows();
             notepad_->show();
             notepad_->openFiles(parsed.regularFiles); // No-op if empty
             if (!was_open) notepad_->beCute();
         }
 
-        for (auto& path : parsed.fnxFiles)
+        for (auto& path : parsed.nbxFiles)
             openOrActivateNotebook_(path);
     }
 
@@ -248,9 +248,9 @@ private:
         }
     }
 
-    Notebook* makeNotebook_(const Coco::Path& fnxPath)
+    Notebook* makeNotebook_(const Coco::Path& nbxPath)
     {
-        return registerNotebook_(new Notebook(fnxPath, this));
+        return registerNotebook_(new Notebook(nbxPath, this));
     }
 
     Notebook* registerNotebook_(Notebook* notebook)
@@ -282,19 +282,19 @@ private:
             workspace,
             &Workspace::newNotebookRequested,
             this,
-            [this](const Coco::Path& fnxPath) { openNotebook_(fnxPath); });
+            [this](const Coco::Path& nbxPath) { openNotebook_(nbxPath); });
 
         connect(
             workspace,
             &Workspace::openNotebookRequested,
             this,
-            [this](const Coco::Path& fnxPath) {
+            [this](const Coco::Path& nbxPath) {
                 /// TODO FT: This note is now maybe inconsistent with design!
-                // Shouldn't need to check Fnx::isFnxFile. The promise of this
+                // Shouldn't need to check Nbx::isNbxFile. The promise of this
                 // signal is "open Notebook" not "open maybe a Notebook"!
                 // TODO: Although, we may need to do some redesign if we want to
-                // prompt for files that are .fnx by extension only...
-                openOrActivateNotebook_(fnxPath);
+                // prompt for files that are .hearthx by extension only...
+                openOrActivateNotebook_(nbxPath);
             });
     }
 
@@ -307,31 +307,31 @@ private:
             Coco::Path path(args.at(i));
             if (!path.exists() || path.isDir()) continue;
 
-            Files::isFnxFile(path) ? result.fnxFiles << path
+            Files::isNbxFile(path) ? result.nbxFiles << path
                                    : result.regularFiles << path;
         }
 
         return result;
     }
 
-    void openNotebook_(const Coco::Path& fnxPath)
+    void openNotebook_(const Coco::Path& nbxPath)
     {
-        if (auto notebook = makeNotebook_(fnxPath)) {
+        if (auto notebook = makeNotebook_(nbxPath)) {
             notebook->show();
             notebook->beCute();
         }
     }
 
-    void openOrActivateNotebook_(const Coco::Path& fnxPath)
+    void openOrActivateNotebook_(const Coco::Path& nbxPath)
     {
         for (auto& notebook : notebooks_) {
-            if (notebook->fnxPath() == fnxPath) {
+            if (notebook->nbxPath() == nbxPath) {
                 notebook->activate();
                 return;
             }
         }
 
-        openNotebook_(fnxPath);
+        openNotebook_(nbxPath);
     }
 
 private slots:

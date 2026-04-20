@@ -10,7 +10,7 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
-#include "fnx/FnxModel.h"
+#include "nbx/NbxModel.h"
 
 #include <QDomElement>
 #include <QFont>
@@ -22,15 +22,15 @@
 
 #include "core/Application.h"
 #include "core/Debug.h"
-#include "fnx/Fnx.h"
-#include "fnx/FnxModelIcons.h"
+#include "nbx/Nbx.h"
+#include "nbx/NbxModelIcons.h"
 
 namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
 // TODO: Tooltip with metadata on file/folder
-QVariant FnxModel::data(const QModelIndex& index, int role) const
+QVariant NbxModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) return {};
 
@@ -39,12 +39,12 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
 
     switch (role) {
     case Qt::DisplayRole: {
-        auto display_name = Fnx::Xml::name(element);
+        auto display_name = Nbx::Xml::name(element);
 
-        if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element)) {
+        if (Nbx::Xml::isFile(element) && Nbx::Xml::isEdited(element)) {
             display_name.prepend(u"* "_s);
         }
-        if (Fnx::Xml::hasEditedDescendant(element)) {
+        if (Nbx::Xml::hasEditedDescendant(element)) {
             display_name += u" (*)"_s;
         }
 
@@ -52,10 +52,10 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
     }
 
     case Qt::EditRole:
-        return Fnx::Xml::name(element);
+        return Nbx::Xml::name(element);
 
     case Qt::FontRole: {
-        if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element)) {
+        if (Nbx::Xml::isFile(element) && Nbx::Xml::isEdited(element)) {
             QFont font{};
             font.setItalic(true);
             return font;
@@ -69,15 +69,15 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
         // here. When opened, Hearth handles it correctly: it would fail a
         // magic byte check and fall through to plain text
     case Qt::DecorationRole: {
-        if (Fnx::Xml::isVirtualFolder(element)) {
-            return FnxModelIcons::folder();
+        if (Nbx::Xml::isVirtualFolder(element)) {
+            return NbxModelIcons::folder();
 
-        } else if (Fnx::Xml::isFile(element)) {
-            auto type = Files::fromPath(Fnx::Xml::relPath(element));
-            return FnxModelIcons::file(type);
+        } else if (Nbx::Xml::isFile(element)) {
+            auto type = Files::fromPath(Nbx::Xml::relPath(element));
+            return NbxModelIcons::file(type);
         }
 
-        UNREACHABLE("FnxModel::data Qt::DecorationRole case");
+        UNREACHABLE("NbxModel::data Qt::DecorationRole case");
         return {};
     }
 

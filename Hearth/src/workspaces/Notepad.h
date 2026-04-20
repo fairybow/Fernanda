@@ -33,11 +33,11 @@
 #include "core/Time.h"
 #include "core/Tr.h"
 #include "core/Version.h"
-#include "fnx/Fnx.h"
 #include "menus/MenuBuilder.h"
 #include "menus/MenuShortcuts.h"
 #include "menus/MenuState.h"
 #include "models/AbstractFileModel.h"
+#include "nbx/Nbx.h"
 #include "services/SettingsService.h"
 #include "services/TreeViewService.h"
 #include "services/ViewService.h"
@@ -784,7 +784,7 @@ private:
         for (auto& path : paths) {
             if (!path.exists()) continue;
 
-            Files::isFnxFile(path) ? emit openNotebookRequested(path)
+            Files::isNbxFile(path) ? emit openNotebookRequested(path)
                                    : files->openFilePathIn(window, path);
         }
     }
@@ -913,7 +913,7 @@ private slots:
         auto path = Coco::Path(fsModel_->filePath(index));
         if (path.isDir()) return;
 
-        Files::isFnxFile(path) ? emit openNotebookRequested(path)
+        Files::isNbxFile(path) ? emit openNotebookRequested(path)
                                : files->openFilePathIn(window, path);
     }
 };

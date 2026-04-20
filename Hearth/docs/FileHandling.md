@@ -4,7 +4,7 @@ TODO: Make sure this is consistent with code (and reduce direct code references)
 
 How Hearth identifies, opens, and saves files.
 
-See: [`FileService.h`](../src/services/FileService.h), [`Files.h`](../src/core/Files.h), [`MagicBytes.h`](../src/core/MagicBytes.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), and [`Fnx.h`](../src/fnx/Fnx.h)
+See: [`FileService.h`](../src/services/FileService.h), [`Files.h`](../src/core/Files.h), [`MagicBytes.h`](../src/core/MagicBytes.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), and [`Nbx.h`](../src/nbx/Nbx.h)
 
 ## Overview
 
@@ -161,40 +161,40 @@ This behavior is intentional and consistent with other editors. The extension is
 
 In the future, renaming a file's extension while it is open will trigger a view re-evaluation, swapping to the appropriate handler without needing to close and reopen the file. This only applies to Tier 2 types (text-based), since Tier 1 types are identified by content regardless of name.
 
-## FNX Archives
+## NBX Archives
 
-FNX files (`.fnx`) are Hearth Notebook archives. They are the only file type handled outside the two-tier identification system. `Application` and Workspaces intercept FNX files before they ever reach `FileService`.
+NBX files (`.hearthx`) are Hearth Notebook archives. They are the only file type handled outside the two-tier identification system. `Application` and Workspaces intercept NBX files before they ever reach `FileService`.
 
-### How FNX files are detected
+### How NBX files are detected
 
-`Fnx::Io::isFnxFile` checks two things: the file must have the `.fnx` extension *and* must be a valid ZIP archive (verified by magic bytes). Both checks must pass.
+`Nbx::Io::isNbxFile` checks two things: the file must have the `.hearthx` extension *and* must be a valid ZIP archive (verified by magic bytes). Both checks must pass.
 
-### How FNX files enter the system
+### How NBX files enter the system
 
-Several paths through the application encounter files that might be FNX archives:
+Several paths through the application encounter files that might be NBX archives:
 
-- **Command-line arguments** (including drag-onto-exe and relaunch): `Application::parseArgs_` runs `isFnxFile` on each argument. Passing files are routed to a Notebook Workspace. Failing files (including corrupt or renamed FNX archives) are routed to Notepad as regular files.
-- **Notepad "Open file" dialog**: After the user selects files, each is checked with `isFnxFile`. Passing files emit `openNotebookRequested`. Failing files are opened normally via `FileService` (two-tier identification).
-- **Notepad TreeView double-click**: Same `isFnxFile` check and routing as the Open dialog.
-- **"Open Notebook" menu** (available in all Workspaces): The file dialog is filtered to `.fnx` files. After selection, `isFnxFile` validates the file. If the check fails, the file is silently not opened. This is the only path that refuses rather than falling through.
+- **Command-line arguments** (including drag-onto-exe and relaunch): `Application::parseArgs_` runs `isNbxFile` on each argument. Passing files are routed to a Notebook Workspace. Failing files (including corrupt or renamed NBX archives) are routed to Notepad as regular files.
+- **Notepad "Open file" dialog**: After the user selects files, each is checked with `isNbxFile`. Passing files emit `openNotebookRequested`. Failing files are opened normally via `FileService` (two-tier identification).
+- **Notepad TreeView double-click**: Same `isNbxFile` check and routing as the Open dialog.
+- **"Open Notebook" menu** (available in all Workspaces): The file dialog is filtered to `.hearthx` files. After selection, `isNbxFile` validates the file. If the check fails, the file is silently not opened. This is the only path that refuses rather than falling through.
 
-### What happens when FNX detection fails
+### What happens when NBX detection fails
 
-In most code paths, a file that looks like it might be an FNX archive but fails `isFnxFile` is simply opened as a regular file. This means the user may see binary content (the raw ZIP data rendered as text). This is consistent with the general principle that Hearth opens anything: the file is not an FNX archive as far as the system is concerned, so it is treated like any other file.
+In most code paths, a file that looks like it might be an NBX archive but fails `isNbxFile` is simply opened as a regular file. This means the user may see binary content (the raw ZIP data rendered as text). This is consistent with the general principle that Hearth opens anything: the file is not an NBX archive as far as the system is concerned, so it is treated like any other file.
 
 The one exception is the "Open Notebook" menu dialog, which is specifically for opening Notebooks and silently refuses invalid files.
 
-### What happens when an FNX extension is changed
+### What happens when an NBX extension is changed
 
-If an FNX file is renamed (e.g., `MyProject.fnx` to `MyProject.zip`, even though it IS a ZIP), `isFnxFile` will fail because the extension check fails. The file will not be recognized as a Notebook from any path. It will be opened as a regular file by Notepad, showing binary content.
+If an NBX file is renamed (e.g., `MyProject.hearthx` to `MyProject.zip`, even though it IS a ZIP), `isNbxFile` will fail because the extension check fails. The file will not be recognized as a Notebook from any path. It will be opened as a regular file by Notepad, showing binary content.
 
-### FNX files inside FNX archives
+### NBX files inside NBX archives
 
-Individual files within an FNX archive go through the same two-tier identification as any other file when opened. A user can import an FNX archive into another Notebook (import accepts any file type). If opened from within the Notebook, it goes through `FileService` with no `isFnxFile` intercept. MagicBytes detects the ZIP signature, but since there is no dedicated handler for ZIP archives in `FileService`, it falls through to plain text. The user sees binary content. This is expected and not a supported workflow.
+Individual files within an NBX archive go through the same two-tier identification as any other file when opened. A user can import an NBX archive into another Notebook (import accepts any file type). If opened from within the Notebook, it goes through `FileService` with no `isNbxFile` intercept. MagicBytes detects the ZIP signature, but since there is no dedicated handler for ZIP archives in `FileService`, it falls through to plain text. The user sees binary content. This is expected and not a supported workflow.
 
-Opening an inner FNX as a functional Notebook was considered and deliberately deferred. The implementation would require nested archive lifecycle management (extraction, save propagation, closure coordination), which conflicts with the current architecture where Workspaces are independent peers. A simpler "open as independent Notebook" approach was also considered, but it creates a confusing UX: edits to the inner Notebook would not propagate back to the outer archive, contradicting user expectations.
+Opening an inner NBX as a functional Notebook was considered and deliberately deferred. The implementation would require nested archive lifecycle management (extraction, save propagation, closure coordination), which conflicts with the current architecture where Workspaces are independent peers. A simpler "open as independent Notebook" approach was also considered, but it creates a confusing UX: edits to the inner Notebook would not propagate back to the outer archive, contradicting user expectations.
 
-### How files are stored in FNX archives
+### How files are stored in NBX archives
 
 Files inside a Notebook ZIP archive live in a `content/` directory, named by UUID with their real extension (e.g., `content/{uuid}.txt`, `content/{uuid}.pdf`). The XML manifest tracks metadata for each file:
 
@@ -203,7 +203,7 @@ Files inside a Notebook ZIP archive live in a `content/` directory, named by UUI
 <file name="Reference" uuid="def-456" extension=".pdf" />
 ```
 
-The `extension` attribute is the index that `Fnx::Xml::relPath()` uses to reconstruct the content path (`uuid + ext`). It is populated from reality: `fsPath.extQString()` on import, `FileTypes::canonicalExt(type)` for new files. The `name` attribute is the user-facing display name shown in the tree view.
+The `extension` attribute is the index that `Nbx::Xml::relPath()` uses to reconstruct the content path (`uuid + ext`). It is populated from reality: `fsPath.extQString()` on import, `FileTypes::canonicalExt(type)` for new files. The `name` attribute is the user-facing display name shown in the tree view.
 
 For files with compound extensions (e.g., `archive.tar.gz`), `std::filesystem::path::extension()` returns only the final extension (`.gz`), and the stem (`archive.tar`) becomes the display name. The full original filename can be reconstructed on export by joining `name + ext`.
 
@@ -215,7 +215,7 @@ All file operations that involve user interaction (dialogs, prompts) are listed 
 
 | Operation | Description | Filter |
 |---|---|---|
-| **Args / drag-to-open / relaunch** | Files passed via command line or drag-onto-exe. `isFnxFile` partitions into Notebook files and regular files. Regular files go to Notepad. | None (filesystem) |
+| **Args / drag-to-open / relaunch** | Files passed via command line or drag-onto-exe. `isNbxFile` partitions into Notebook files and regular files. Regular files go to Notepad. | None (filesystem) |
 
 ### All Workspaces
 
@@ -223,17 +223,17 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 
 | Operation | Description | Filter |
 |---|---|---|
-| **New Notebook** | Prompts for a name, creates a new `.fnx` path, and emits `newNotebookRequested`. No file dialog. | None (name prompt only) |
-| **Open Notebook** | File dialog for selecting a `.fnx` file. Validates with `isFnxFile` after selection. Silently refuses if invalid. | `*.fnx` |
+| **New Notebook** | Prompts for a name, creates a new `.hearthx` path, and emits `newNotebookRequested`. No file dialog. | None (name prompt only) |
+| **Open Notebook** | File dialog for selecting a `.hearthx` file. Validates with `isNbxFile` after selection. Silently refuses if invalid. | `*.hearthx` |
 
 ### Notepad
 
 | Operation | Description | Filter |
 |---|---|---|
 | **New Tab** | Creates an off-disk text file (no dialog). Will eventually expand to offer other creatable types (Markdown, Corkboard, etc.) via an overflow menu or right-click on the new tab button. | None |
-| **Open File** | File dialog for selecting files. Each file is checked with `isFnxFile`; passing files go to a Notebook, others open via `FileService` (two-tier). | All files |
-| **TreeView double-click** | Same `isFnxFile` routing as Open File. | None (filesystem) |
-| **TreeView rename** | Inline rename via selected-click or F2. Renames the file on disk via `QFileSystemModel`. If the file has an open model, its path is updated via `FileMeta::setPath`, which cascades through FileService's path hash and updates tab titles. Directory rename is disabled (stripped from `flags()` via `NotepadFileSystemModel_`). Renaming an open Notebook's `.fnx` file is not currently prevented and can cause the Notebook's save target to become stale. | None (filesystem) |
+| **Open File** | File dialog for selecting files. Each file is checked with `isNbxFile`; passing files go to a Notebook, others open via `FileService` (two-tier). | All files |
+| **TreeView double-click** | Same `isNbxFile` routing as Open File. | None (filesystem) |
+| **TreeView rename** | Inline rename via selected-click or F2. Renames the file on disk via `QFileSystemModel`. If the file has an open model, its path is updated via `FileMeta::setPath`, which cascades through FileService's path hash and updates tab titles. Directory rename is disabled (stripped from `flags()` via `NotepadFileSystemModel_`). Renaming an open Notebook's `.hearthx` file is not currently prevented and can cause the Notebook's save target to become stale. | None (filesystem) |
 | **Save** | Writes modified content to the file's existing path. Only operates on modifiable models with changes. | None |
 | **Save As** | File dialog for choosing a new path. Writes the model's data to that path. No extension is forced. The suggested filename comes from `FileMeta`, which provides the appropriate extension. | All files |
 | **Save All in Window** | Saves all modified models in the current window. Prompts Save As for any that are not yet on disk. | Per-file as needed |
@@ -243,10 +243,10 @@ These operations appear in the menu bar of every Workspace (Notepad and all Note
 
 | Operation | Description | Filter |
 |---|---|---|
-| **New File** | Creates a new file inside the archive via `Fnx::Xml::addNewFile(type)` (no dialog). Currently only creates plain text (`FileTypes::PlainText`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
+| **New File** | Creates a new file inside the archive via `Nbx::Xml::addNewFile(type)` (no dialog). Currently only creates plain text (`FileTypes::PlainText`). Will eventually expand to other creatable types, matching Notepad's future expansion. | None |
 | **New Folder** | Creates a new virtual folder in the archive's XML manifest. No file is created. | None |
 | **Import Files** | File dialog for selecting files from disk. Accepts any file type (no filter). Selected files are copied into the archive's `content/` directory as `{uuid}.{ext}` (extension taken from source path via `fsPath.extQString()`). The source file's stem becomes the display name in the manifest. Imported files are opened after import. | All files |
-| **Export File** | Save As dialog for exporting a single file from the archive to disk. Available from the tree view context menu for file elements only (`FnxModel::isFile`). The suggested filename is reconstructed from `name + ext`. Copies the file from the working directory to the chosen destination. | All files |
-| **TreeView double-click** | Opens the selected file from the archive via `FileService` (two-tier). No `isFnxFile` check. | None |
-| **Save** | Saves the Notebook archive. Prompts Save As if the archive is not yet on disk. Also saves all modified file models within the archive. | None (or `*.fnx` if prompting) |
-| **Save As** | File dialog for saving the Notebook archive to a new `.fnx` path. | `*.fnx` |
+| **Export File** | Save As dialog for exporting a single file from the archive to disk. Available from the tree view context menu for file elements only (`NbxModel::isFile`). The suggested filename is reconstructed from `name + ext`. Copies the file from the working directory to the chosen destination. | All files |
+| **TreeView double-click** | Opens the selected file from the archive via `FileService` (two-tier). No `isNbxFile` check. | None |
+| **Save** | Saves the Notebook archive. Prompts Save As if the archive is not yet on disk. Also saves all modified file models within the archive. | None (or `*.hearthx` if prompting) |
+| **Save As** | File dialog for saving the Notebook archive to a new `.hearthx` path. | `*.hearthx` |

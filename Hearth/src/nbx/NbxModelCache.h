@@ -22,17 +22,17 @@
 #include <Coco/Bool.h>
 
 #include "core/Debug.h"
-#include "fnx/Fnx.h"
+#include "nbx/Nbx.h"
 
 namespace Hearth {
 
-class FnxModelCache
+class NbxModelCache
 {
 public:
     COCO_BOOL(OnError)
 
-    FnxModelCache() = default;
-    virtual ~FnxModelCache() { TRACER; }
+    NbxModelCache() = default;
+    virtual ~NbxModelCache() { TRACER; }
 
     void clear(OnError onError = OnError::No)
     {
@@ -40,7 +40,7 @@ public:
         keyToId_.clear();
         idToElement_.clear();
         structure_.clear();
-        if (onError) CRITICAL("FnxModelCache cleared due to error!");
+        if (onError) CRITICAL("NbxModelCache cleared due to error!");
     }
 
     void cache(const QDomElement& element) { std::ignore = idOf(element); }
@@ -61,7 +61,7 @@ public:
     bool containsId(quintptr id) const { return idToElement_.contains(id); }
 
     // Returns stable key for element: UUID for user content, tag name for
-    // structural elements (fnx, notebook, trash). Returns empty string for
+    // structural elements (nbx, notebook, trash). Returns empty string for
     // null elements
     static QString keyOf(const QDomElement& element)
     {
@@ -69,14 +69,14 @@ public:
 
         // Structural elements use tag name as key (no UUID)
         auto tag = element.tagName();
-        if (tag == Fnx::Xml::DOCUMENT_ELEMENT_TAG
-            || tag == Fnx::Xml::NOTEBOOK_TAG || tag == Fnx::Xml::TRASH_TAG) {
+        if (tag == Nbx::Xml::DOCUMENT_ELEMENT_TAG
+            || tag == Nbx::Xml::NOTEBOOK_TAG || tag == Nbx::Xml::TRASH_TAG) {
             return tag;
         }
 
         // User elements require UUID
-        auto uuid = Fnx::Xml::uuid(element);
-        if (uuid.isEmpty()) WARN("FnxModelCache: Missing UUID!");
+        auto uuid = Nbx::Xml::uuid(element);
+        if (uuid.isEmpty()) WARN("NbxModelCache: Missing UUID!");
         return uuid;
     }
 
@@ -207,7 +207,7 @@ public:
         auto index = children.indexOf(child);
 
         if (index < 0) {
-            WARN("FnxModelCache::recordRemoval: child not in parent's cache!");
+            WARN("NbxModelCache::recordRemoval: child not in parent's cache!");
             return;
         }
 
@@ -284,8 +284,8 @@ private:
     QHash<QString, Entry> structure_{};
 
     // Non-copyable (contains mutable state tied to specific DOM)
-    FnxModelCache(const FnxModelCache&) = delete;
-    FnxModelCache& operator=(const FnxModelCache&) = delete;
+    NbxModelCache(const NbxModelCache&) = delete;
+    NbxModelCache& operator=(const NbxModelCache&) = delete;
 
     Entry& ensureEntry_(const QString& key)
     {

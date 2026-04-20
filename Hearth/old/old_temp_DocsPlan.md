@@ -5,7 +5,7 @@ Introduction:
 - Brief architecture summary
 - User data folders
 
-FNX:
+NBX:
 
 ...
 

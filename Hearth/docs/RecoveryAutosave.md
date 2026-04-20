@@ -72,8 +72,8 @@ The lockfile path is computed by `NotebookLockfile::path()` from the recovery di
 Plain text, one key per line:
 
 ```
-fnx=/path/to/MyNovel.fnx
-working_dir=/home/user/.hearth/~temp/notebooks/MyNovel.fnx~a1b2c3d4
+fnx=/path/to/MyNovel.hearthx
+working_dir=/home/user/.hearth/~temp/notebooks/MyNovel.hearthx~a1b2c3d4
 dirty_uuids=3f2a1b4c-...,8e7d6c5b-...
 ```
 

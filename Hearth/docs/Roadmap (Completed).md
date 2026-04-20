@@ -2,7 +2,7 @@
 
 ## MVP/Misc
 
-- [x] FNX (extract, compress, model, model manipulation, saving)
+- [x] NBX (extract, compress, model, model manipulation, saving)
 - [x] Menu item state toggling
 - [x] Fully functioning Notepad (complete file/edit menus, open files, save them)
 - [x] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
@@ -23,7 +23,7 @@
 - [x] NewTab behavior for both Workspaces
 - [x] Opening files via Menu in Notepad (Notebook menu won't open, just import)
 - [x] Notebook Import
-- [x] Granular FnxModel DOM updates
+- [x] Granular NbxModel DOM updates
 - [x] Renaming files in tree view updates the tab text
 - [x] Moving/reorganizing Notebook files in TreeView
 - [x] Replace Coco/TextIo with project version
@@ -55,7 +55,7 @@
 - [x] Saves
 - [x] Working dir renames
 - [x] New Notebook dialog
-- [x] FnxModel + TreeView element removal
+- [x] NbxModel + TreeView element removal
 - [x] Trash view
 - [x] Better arrow icon
 - [x] Drag and drop from main to trash and back
@@ -88,7 +88,7 @@
 - [x] BUG: ^ Actually, this happens when you open two windows (no tabs) and add a tab to each (no dragging) then right click taskbar icon > close all. Hitting "don't save" on one of those windows doesn't close that window or the tab in it. UNLESS you hit "don't save" on the top window first. Then everything seems to work as normal. Sounds like we're failing somewhere in WindowService with z-ordering. However, we can still edit the file (so the file model isn't being deleted, I guess), and closing the tab itself seems to prompt to save correctly (but not closing the window).
 - [x] Backup namespace
 - [x] ^ Ability to clean up oldest backup past set limit
-- [x] Hook spot in Fnx::compress
+- [x] Hook spot in Nbx::compress
 - [x] Hook spot in FilService (for Notepad to use)?
 - [x] Notebook implementation
 - [x] Notepad implementation
@@ -106,7 +106,7 @@
 - [x] Contributions file?
 - [x] Find places to use Debug ASSERT
 - [x] [[maybe_unused]] instead of C-style void cast or Q_UNUSED
-- [x] ^ also check `(void)idOf(element);` and similar (FnxModelCache)
+- [x] ^ also check `(void)idOf(element);` and similar (NbxModelCache)
 - [x] Add special plain text formats to tags as implemented (e.g., Markdown, Fountain, ...)
 - [x] May want the temp AppDir to go away and have `~recovery` and `~notebooks`
 - [x] Organize code style
@@ -159,19 +159,19 @@
 - [x] Consequentially, may want to remove the Workspace menu entirely and add Open Notepad to Notebook's File menu
 - [x] Get Qt 6.11 on CI release?
 - [x] Super need to rework Files filter functions for better API
-- [x] Icons for FnxModel
+- [x] Icons for NbxModel
 
 
 ## File Types
 
-- [x] Tree view icons by file type: file-type-appropriate icons with a generic fallback for unrecognized types. `FnxModel::data()` can read `Fnx::Xml::ext(element)` and map through `FileTypes::fromPath()` for the `Qt::DecorationRole` case.
+- [x] Tree view icons by file type: file-type-appropriate icons with a generic fallback for unrecognized types. `NbxModel::data()` can read `Nbx::Xml::ext(element)` and map through `FileTypes::fromPath()` for the `Qt::DecorationRole` case.
 - [x] AbstractFileModel rework (pure virtual data/setData, virtual supportsModification)
 - [x] FileTypes header (central type registry, canonical extensions)
 - [x] Two-tier resolution in FileService (magic bytes first, extension second, plaintext fallthrough)
-- [x] Remove non-FNX file dialog filters
+- [x] Remove non-NBX file dialog filters
 - [x] Centralize model extensions (FileMeta::preferredExt)
-- [x] Generalize FNX import (any file type, preserve source extension)
-- [x] Generalize FNX new file creation (addNewFile takes FileTypes::Kind)
+- [x] Generalize NBX import (any file type, preserve source extension)
+- [x] Generalize NBX new file creation (addNewFile takes FileTypes::Kind)
 - [x] Extension attribute decision (kept in manifest, populated from reality)
 - [x] Notepad rename from TreeView
 - [x] Notebook export file
@@ -182,10 +182,10 @@
 ## Modifications
 
 - [x] Window titles and flag (TODO NBM)
-- [x] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query FnxModel for it somehow? Possible?
+- [x] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query NbxModel for it somehow? Possible?
 - [x] Marking Notebook as modified (TODO NBM)
-- [x] Fnx file elements, add or remove edited attribute when model modification changes (TODO NBM)
-- [x] FnxModel storing original DOM string + modified check method (TODO NBM)
+- [x] Nbx file elements, add or remove edited attribute when model modification changes (TODO NBM)
+- [x] NbxModel storing original DOM string + modified check method (TODO NBM)
 
 ## Closures
 
@@ -270,9 +270,9 @@
 
 - [x] New Notebook: Naming dialog (no path chosen)
 - [x] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
-- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
+- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .hearthx
 - [x] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later (only problem is which settings? We have notepad and individual Notebook INIs...do we want/need an application-wide settings? How should we display that in the settings dialog for each Workspace?)
-- [x] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
+- [x] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change nbxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
 - [x] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed
 - [x] New Notebook: For closure/quit, archive will be created and saved. If successful, we close the Notebook as normal (I think??? Am I missing anything?)
 - [x] New Notebook: For Save / Save As (the former will trigger the latter anyway), the new Notebook will be saved like in the existing Save As handler. However, we'd only need to change the working directory if the path stem changed? This is a good argument for either just using a UUID or random string as the name (or simply keeping whatever name the Notebook had when it was opened/created, even if it's inconsistent with current name)

@@ -31,14 +31,14 @@
 #include "core/Files.h"
 #include "core/Io.h"
 
-// .fnx file format specification and utilities
-// - Fnx::Io: Archive and working directory operations
-// - Fnx::Xml: DOM element factories and queries (stateless helpers)
+// .hearthx file format specification and utilities
+// - Nbx::Io: Archive and working directory operations
+// - Nbx::Xml: DOM element factories and queries (stateless helpers)
 //
 // TODO: Are all these element.isNull checks necessary? Not sure...
 // TODO: For mutators, probably pass QDomElement by value (otherwise by const
 // ref). There are issues with passing QDomElement& for mutators
-namespace Hearth::Fnx {
+namespace Hearth::Nbx {
 
 namespace Internal {
 
@@ -54,8 +54,8 @@ namespace Internal {
 
     constexpr auto XML_INDENT_ = 2;
 
-    constexpr auto XML_FNX_VERSION_ATTR_ = "version";
-    constexpr auto XML_FNX_VERSION_ = "1.0";
+    constexpr auto XML_NBX_VERSION_ATTR_ = "version";
+    constexpr auto XML_NBX_VERSION_ = "1.0";
 
     constexpr auto XML_VFOLDER_TAG_ = "vfolder";
     constexpr auto XML_FILE_TAG_ = "file";
@@ -76,10 +76,10 @@ namespace Internal {
 
 } // namespace Internal
 
-// Used by FnxModel
+// Used by NbxModel
 namespace Xml {
 
-    constexpr auto DOCUMENT_ELEMENT_TAG = "fnx";
+    constexpr auto DOCUMENT_ELEMENT_TAG = "nbx";
     constexpr auto NOTEBOOK_TAG = "notebook";
     constexpr auto TRASH_TAG = "trash";
 
@@ -307,7 +307,7 @@ namespace Io {
 
     /// TODO BA
     using BeforeOverwriteHook =
-        std::function<void(const Coco::Path& originalFnx)>;
+        std::function<void(const Coco::Path& originalNbx)>;
 
     inline void makeNewWorkingDir(const Coco::Path& workingDir)
     {
@@ -323,8 +323,8 @@ namespace Io {
         xml.writeStartDocument();
         xml.writeStartElement(Xml::DOCUMENT_ELEMENT_TAG);
         xml.writeAttribute(
-            Internal::XML_FNX_VERSION_ATTR_,
-            Internal::XML_FNX_VERSION_);
+            Internal::XML_NBX_VERSION_ATTR_,
+            Internal::XML_NBX_VERSION_);
 
         xml.writeStartElement(Xml::NOTEBOOK_TAG);
         xml.writeEndElement();
@@ -360,7 +360,7 @@ namespace Io {
         // Read it
         if (!mz_zip_reader_init_file(&zip, archivePath.toString().c_str(), 0)) {
             CRITICAL(
-                "FNX archive read failed! Error: {}",
+                "NBX archive read failed! Error: {}",
                 mz_zip_get_error_string(mz_zip_get_last_error(&zip)));
             return;
         }
@@ -420,7 +420,7 @@ namespace Io {
 
         if (!mz_zip_writer_init_file(&zip, temp_path.c_str(), 0)) {
             CRITICAL(
-                "FNX temp archive creation failed! Error: {}",
+                "NBX temp archive creation failed! Error: {}",
                 mz_zip_get_error_string(mz_zip_get_last_error(&zip)));
             return false;
         }
@@ -452,7 +452,7 @@ namespace Io {
         if (ok) ok = mz_zip_writer_finalize_archive(&zip);
 
         if (!ok) {
-            CRITICAL("FNX archive compression failed!");
+            CRITICAL("NBX archive compression failed!");
             Coco::remove(temp_path);
             return false;
         }
@@ -472,4 +472,4 @@ namespace Io {
 
 } // namespace Io
 
-} // namespace Hearth::Fnx
+} // namespace Hearth::Nbx

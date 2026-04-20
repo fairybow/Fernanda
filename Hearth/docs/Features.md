@@ -32,10 +32,10 @@ Shared capabilities:
 
 ### Notebook (0 or more instances)
 
-- Archive-based workspace: all project content lives inside a single portable `.fnx` file (standard ZIP)
+- Archive-based workspace: all project content lives inside a single portable `.hearthx` file (standard ZIP)
 - Virtual directory structure via XML manifest (organize files and folders independently of physical storage)
 - Create new Notebooks from scratch (name prompt, deferred first save)
-- Open existing `.fnx` archives (extraction, validation, working directory setup)
+- Open existing `.hearthx` archives (extraction, validation, working directory setup)
 - Multiple Notebooks can be open simultaneously
 - Recoverable (standard ZIP format means content remains accessible outside Hearth)
 - File imports: any file can be imported into a Notebook (DOCX and RTF are converted to plain text; all other files are passed through with their original type preserved)
@@ -97,7 +97,7 @@ Shared capabilities:
 ## Saving
 
 - **Notepad**: per-file saves to the OS filesystem, Save / Save As dialogs, preferred extension for untitled files
-- **Notebook**: two-tier save (individual file models saved to working directory, then archive compressed and written to `.fnx` path)
+- **Notebook**: two-tier save (individual file models saved to working directory, then archive compressed and written to `.hearthx` path)
 - Multi-file save prompts with checkable file list (select which files to save)
 - Save As with path and name selection
 - New Notebooks trigger Save As on first save
@@ -122,7 +122,7 @@ Shared capabilities:
 
 - Periodic flush of dirty buffers for crash recovery (15 second interval)
 - Autosave never triggers backups, save prompts, tab indicators, or modification state changes
-- Notebook: dirty files written to working directory, lockfile tracks FNX path, working directory, and dirty UUIDs
+- Notebook: dirty files written to working directory, lockfile tracks NBX path, working directory, and dirty UUIDs
 - Notepad: dirty files written to shadow recovery directory with buffer and metadata per file
 - Recovery data cleaned up on successful save, discard, undo-to-clean, and clean exit
 - On crash, orphaned recovery data persists and is detected on next launch
@@ -254,7 +254,7 @@ Shared capabilities:
 ## File Type Detection
 
 - Two-tier identification: magic bytes first (for binary formats), then extension matching (for text-based formats)
-- Recognized binary signatures: PDF, PNG, JPEG, GIF, TIFF, BMP, WebP, ZIP (used for DOCX and FNX identification)
+- Recognized binary signatures: PDF, PNG, JPEG, GIF, TIFF, BMP, WebP, ZIP (used for DOCX and NBX identification)
 - Recognized text extensions: `.txt`, `.md`, `.markdown`, `.fountain`, `.html`, `.htm`, `.rtf`, and others
 - Unrecognized files default to plain text
 - File type registry (`Files.h`) centralizes extensions, type metadata, translatable names, dialog filter generation, and compound identification checks
@@ -280,5 +280,5 @@ Shared capabilities:
 ## Planned
 
 - Small utilities (like a pomodoro timer)
-- FNX compilation/export
+- NBX compilation/export
 - Corkboard files (a slightly different approach to corkboards: standalone files that, when opened in Hearth, display a corkboard and index cards that can be linked to existing files; would work in Notepad or Notebook)

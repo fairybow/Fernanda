@@ -40,12 +40,12 @@
 #include "core/Files.h"
 #include "core/Random.h"
 #include "core/Tr.h"
-#include "fnx/Fnx.h"
-#include "fnx/FnxModel.h"
 #include "menus/MenuBuilder.h"
 #include "menus/MenuShortcuts.h"
 #include "menus/MenuState.h"
 #include "models/AbstractFileModel.h"
+#include "nbx/Nbx.h"
+#include "nbx/NbxModel.h"
 #include "services/AbstractService.h"
 #include "services/FileService.h"
 #include "services/SettingsService.h"
@@ -69,9 +69,9 @@
 
 namespace Hearth {
 
-// A binder-style Workspace for working within FNX files.
+// A binder-style Workspace for working within NBX files.
 //
-// Owns the archive path and working directory. Uses FnxModel's public API
+// Owns the archive path and working directory. Uses NbxModel's public API
 // exclusively, never accesses DOM elements directly.
 //
 // There can be any number of Notebooks open during the application lifetime.
@@ -85,13 +85,13 @@ class Notebook : public Workspace
     Q_OBJECT
 
 public:
-    explicit Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
+    explicit Notebook(const Coco::Path& nbxPath, QObject* parent = nullptr)
         : Workspace(
               { Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK,
                 Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS },
               parent)
-        , fnxPath_(fnxPath)
-        , workingDir_(newWorkingDirPath_(fnxPath))
+        , nbxPath_(nbxPath)
+        , workingDir_(newWorkingDirPath_(nbxPath))
     {
         setup_();
     }
@@ -112,10 +112,10 @@ public:
         if (entry.workingDirPath.isEmpty() || !entry.workingDirPath.exists())
             return nullptr;
 
-        if (entry.fnxPath.isEmpty()) return nullptr; // Corrupted lockfile
+        if (entry.nbxPath.isEmpty()) return nullptr; // Corrupted lockfile
 
         return new Notebook(
-            entry.fnxPath,
+            entry.nbxPath,
             WorkingDir(entry.workingDirPath),
             std::move(entry.dirtyUuids),
             parent);
@@ -127,8 +127,8 @@ public:
         return windows->closeAll();
     }
 
-    Coco::Path fnxPath() const noexcept { return fnxPath_; }
-    QString name() const { return fnxPath_.nameQString(); }
+    Coco::Path nbxPath() const noexcept { return nbxPath_; }
+    QString name() const { return nbxPath_.nameQString(); }
 
 protected:
     virtual void autosave() override
@@ -158,20 +158,20 @@ protected:
         QModelIndex last_index{};
 
         for (const auto& result : results) {
-            auto new_index = fnxModel_->addNewFile(
+            auto new_index = nbxModel_->addNewFile(
                 result.type,
                 result.ext,
                 working_dir_path,
                 parent_index);
             if (!new_index.isValid()) continue;
 
-            auto info = fnxModel_->fileInfoAt(new_index);
+            auto info = nbxModel_->fileInfoAt(new_index);
             if (!info.isValid()) continue;
 
             auto file_path = working_dir_path / info.relPath;
             Io::write(result.content, file_path);
 
-            fnxModel_->setData(new_index, result.suggestedName, Qt::EditRole);
+            nbxModel_->setData(new_index, result.suggestedName, Qt::EditRole);
             files->openFilePathIn(window, file_path, result.suggestedName);
             last_index = new_index;
         }
@@ -187,7 +187,7 @@ protected:
         return Files::filters(Files::All, Files::conversionImportsFilter());
     }
 
-    virtual QAbstractItemModel* treeViewModel() override { return fnxModel_; }
+    virtual QAbstractItemModel* treeViewModel() override { return nbxModel_; }
 
     virtual QModelIndex treeViewRootIndex() override
     {
@@ -195,21 +195,21 @@ protected:
         // user-visible root. When nothing is selected, TreeView::currentIndex()
         // returns an invalid QModelIndex.
         //
-        // However, FnxModel::elementAt_({}) maps invalid indices to
-        // dom_.documentElement(), which is <fnx> (the true DOM root containing
+        // However, NbxModel::elementAt_({}) maps invalid indices to
+        // dom_.documentElement(), which is <nbx> (the true DOM root containing
         // both <notebook> and <trash>).
         //
         // This mismatch means Notebook item adding methods must explicitly pass
         // notebookIndex() as a fallback when currentIndex() is invalid,
         // ensuring new files and folders are parented under <notebook> rather
         // than accidentally becoming siblings of <notebook> and <trash>.
-        return fnxModel_->notebookIndex();
+        return nbxModel_->notebookIndex();
     }
 
     virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1) return true;
-        if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
+        if (nbxPath_.exists() && !nbxModel_->isModified()) return true;
 
         // Last window and needs saving
         return promptWorkspaceClosingSave_(window);
@@ -217,7 +217,7 @@ protected:
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
-        if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
+        if (nbxPath_.exists() && !nbxModel_->isModified()) return true;
         return promptWorkspaceClosingSave_(windows.last());
     }
 
@@ -261,7 +261,7 @@ private:
     // Private recovery constructor
     /// TODO BA
     explicit Notebook(
-        const Coco::Path& fnxPath,
+        const Coco::Path& nbxPath,
         WorkingDir&& orphan,
         QSet<QString>&& dirtyUuids,
         QObject* parent = nullptr)
@@ -269,19 +269,19 @@ private:
               { Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK,
                 Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS },
               parent)
-        , fnxPath_(fnxPath)
+        , nbxPath_(nbxPath)
         , workingDir_(std::move(orphan))
         , recoveryDirtyUuids_(std::move(dirtyUuids))
     {
         setup_();
     }
 
-    Coco::Path fnxPath_; // Intended path (may not exist yet)
+    Coco::Path nbxPath_; // Intended path (may not exist yet)
     WorkingDir workingDir_; // Working directory path/name will remain unchanged
                             // for Notebook's lifetime even when changing
                             // Notebook name via Save As
 
-    FnxModel* fnxModel_ = new FnxModel(this);
+    NbxModel* nbxModel_ = new NbxModel(this);
 
     // This should be cleared after the first save or discard
     QSet<QString> recoveryDirtyUuids_{}; /// TODO BA
@@ -291,10 +291,10 @@ private:
 
     QHash<Window*, NotebookColorChip*> colorChips_{};
 
-    static Coco::Path newWorkingDirPath_(const Coco::Path& fnxPath)
+    static Coco::Path newWorkingDirPath_(const Coco::Path& nbxPath)
     {
         return AppDirs::tempNotebooks()
-               / (fnxPath.nameQString() + "~" + Random::token(8));
+               / (nbxPath.nameQString() + "~" + Random::token(8));
     }
 
     void setup_()
@@ -339,13 +339,13 @@ private:
         if (workingDir_.wasAdopted()) {
             // Recovery: working dir already contains autosaved content
 
-        } else if (!fnxPath_.exists()) {
-            Fnx::Io::makeNewWorkingDir(working_dir_path);
+        } else if (!nbxPath_.exists()) {
+            Nbx::Io::makeNewWorkingDir(working_dir_path);
 
             //...
 
         } else {
-            Fnx::Io::extract(fnxPath_, working_dir_path);
+            Nbx::Io::extract(nbxPath_, working_dir_path);
             // TODO: Verification (comparing Manifest file elements to
             // content dir files, i.e. making sure Trash exists, checking
             // all file UUIDs have corresponding files, etc.)
@@ -356,19 +356,19 @@ private:
             working_dir_path
             / "Settings.ini"); // This needs to be after extraction!
 
-        fnxModel_->load(working_dir_path);
+        nbxModel_->load(working_dir_path);
 
         connect(
-            fnxModel_,
-            &FnxModel::domChanged,
+            nbxModel_,
+            &NbxModel::domChanged,
             this,
-            &Notebook::onFnxModelDomChanged_);
+            &Notebook::onNbxModelDomChanged_);
 
         connect(
-            fnxModel_,
-            &FnxModel::fileRenamed,
+            nbxModel_,
+            &NbxModel::fileRenamed,
             this,
-            &Notebook::onFnxModelFileRenamed_);
+            &Notebook::onNbxModelFileRenamed_);
 
         connectBusEvents_();
 
@@ -395,7 +395,7 @@ private:
         if (!window) return;
 
         // TODO: Tracking/clean-up helper
-        auto chip = new NotebookColorChip(fnxPath_);
+        auto chip = new NotebookColorChip(nbxPath_);
         colorChips_[window] = chip;
         connect(chip, &QObject::destroyed, this, [this, window] {
             colorChips_.remove(window);
@@ -464,7 +464,7 @@ private:
             // backup hook in writeModelToDisk_ is not triggered. If we ever
             // need to use the beforeWriteHook_ in Notebook, then the solution
             // is to have a separate backupHook_ (or similarly named) that
-            // Notebook will never need to use, since it does backups via Fnx
+            // Notebook will never need to use, since it does backups via Nbx
             auto result = files->save(model, ClearModified::No);
             if (result != FileService::Success) {
                 CRITICAL(
@@ -473,12 +473,12 @@ private:
                     toQString(result));
             }
 
-            dirty_uuids << Fnx::Io::uuid(meta->path());
+            dirty_uuids << Nbx::Io::uuid(meta->path());
         }
 
         NotebookLockfile::write(
             lockfilePath_(),
-            fnxPath_,
+            nbxPath_,
             workingDir_.path(),
             dirty_uuids);
     }
@@ -487,13 +487,13 @@ private:
     void applyRecoveryState_()
     {
         for (auto& uuid : recoveryDirtyUuids_) {
-            fnxModel_->setFileEdited(uuid, true);
+            nbxModel_->setFileEdited(uuid, true);
         }
 
         files->setAfterModelCreatedHook([this](AbstractFileModel* model) {
             auto meta = model->meta();
             if (!meta) return;
-            auto uuid = Fnx::Io::uuid(meta->path());
+            auto uuid = Nbx::Io::uuid(meta->path());
             if (recoveryDirtyUuids_.contains(uuid)) model->setModified(true);
         });
     }
@@ -502,16 +502,16 @@ private:
     {
         if (!window) return false;
 
-        switch (SavePrompt::exec(fnxPath_, window)) {
+        switch (SavePrompt::exec(nbxPath_, window)) {
 
         default:
         case SavePrompt::Cancel:
             return false;
 
         case SavePrompt::Save: {
-            Coco::Path path = fnxPath_;
+            Coco::Path path = nbxPath_;
 
-            if (!fnxPath_.exists()) {
+            if (!nbxPath_.exists()) {
                 path = promptSaveAs_(window);
                 if (path.isEmpty()) return false;
             }
@@ -525,10 +525,10 @@ private:
                 return false;
             }
 
-            fnxModel_->write(workingDir_.path());
+            nbxModel_->write(workingDir_.path());
 
             /// TODO BA
-            if (!Fnx::Io::compress(
+            if (!Nbx::Io::compress(
                     path,
                     workingDir_.path(),
                     makeBackupHook_())) {
@@ -551,12 +551,12 @@ private:
 
     bool isModified_() const
     {
-        return !fnxPath_.exists() || fnxModel_->isModified();
+        return !nbxPath_.exists() || nbxModel_->isModified();
     }
 
     QModelIndex resolveNotebookIndex_(const QModelIndex& index) const
     {
-        return index.isValid() ? index : fnxModel_->notebookIndex();
+        return index.isValid() ? index : nbxModel_->notebookIndex();
     }
 
     // New file will be under selected TreeView model index (or notebook element
@@ -576,10 +576,10 @@ private:
         auto parent_index = resolveNotebookIndex_(index);
 
         auto new_index =
-            fnxModel_->addNewFile(fileType, working_dir_path, parent_index);
+            nbxModel_->addNewFile(fileType, working_dir_path, parent_index);
         if (!new_index.isValid()) return;
 
-        auto info = fnxModel_->fileInfoAt(new_index);
+        auto info = nbxModel_->fileInfoAt(new_index);
         if (!info.isValid()) return;
 
         treeViews->expand(window, parent_index);
@@ -601,7 +601,7 @@ private:
 
         auto parent_index = resolveNotebookIndex_(index);
 
-        auto new_index = fnxModel_->addNewVirtualFolder(parent_index);
+        auto new_index = nbxModel_->addNewVirtualFolder(parent_index);
         if (!new_index.isValid()) return;
 
         treeViews->expand(window, parent_index);
@@ -615,7 +615,7 @@ private:
         if (!window || !index.isValid()) return;
         if (!workingDir_.isValid()) return;
 
-        auto info = fnxModel_->fileInfoAt(index);
+        auto info = nbxModel_->fileInfoAt(index);
         if (!info.isValid()) return;
 
         auto source = workingDir_.path() / info.relPath;
@@ -702,11 +702,11 @@ private:
     {
         if (!window) return {};
 
-        // Save As start path will always be fnxPath_
+        // Save As start path will always be nbxPath_
         return Coco::getSaveFile(
             window,
             Tr::nbSaveAsCaption(),
-            fnxPath_,
+            nbxPath_,
             Files::filters(Files::Notebook));
     }
 
@@ -718,8 +718,8 @@ private:
         // Trash view
         auto trash_view = new TreeView(window);
         trash_view->setHeaderHidden(true);
-        trash_view->setModel(fnxModel_);
-        trash_view->setRootIndex(fnxModel_->trashIndex());
+        trash_view->setModel(nbxModel_);
+        trash_view->setRootIndex(nbxModel_->trashIndex());
 
         auto drawer = new DrawerWidget(Tr::nbTrash(), trash_view, splitter);
         splitter->addWidget(drawer);
@@ -760,13 +760,13 @@ private:
         if (!window || !index.isValid()) return false;
         if (!workingDir_.isValid()) return false;
 
-        auto count = fnxModel_->descendantCount(index);
-        if (index != fnxModel_->trashIndex()) ++count;
+        auto count = nbxModel_->descendantCount(index);
+        if (index != nbxModel_->trashIndex()) ++count;
         if (count == 0) return false;
 
         if (!TrashPrompt::exec(count, window)) return false;
 
-        auto file_infos = fnxModel_->fileInfosAt(index);
+        auto file_infos = nbxModel_->fileInfosAt(index);
         auto working_dir_path = workingDir_.path();
         QSet<Coco::Path> paths{};
 
@@ -790,12 +790,12 @@ private:
 
     void deleteTrashItem_(Window* window, const QModelIndex& index)
     {
-        if (trashPromptAndDelete_(window, index)) fnxModel_->remove(index);
+        if (trashPromptAndDelete_(window, index)) nbxModel_->remove(index);
     }
 
     void restoreTrashItem_(Window* window, const QModelIndex& index)
     {
-        auto new_index = fnxModel_->moveToNotebook(index);
+        auto new_index = nbxModel_->moveToNotebook(index);
         if (!new_index.isValid()) return;
         treeViews->expand(window, new_index.parent());
     }
@@ -803,20 +803,20 @@ private:
     void emptyTrash_(Window* window)
     {
         // The trash element itself (tag "trash") isn't a file, so it's skipped
-        if (trashPromptAndDelete_(window, fnxModel_->trashIndex())) {
-            fnxModel_->clearTrash();
+        if (trashPromptAndDelete_(window, nbxModel_->trashIndex())) {
+            nbxModel_->clearTrash();
         }
     }
 
     void save_(Window* window)
     {
         if (!window) return;
-        if (fnxPath_.exists() && !fnxModel_->isModified()) return;
+        if (nbxPath_.exists() && !nbxModel_->isModified()) return;
 
-        Coco::Path path = fnxPath_;
+        Coco::Path path = nbxPath_;
         auto saved_as = false;
 
-        if (!fnxPath_.exists()) {
+        if (!nbxPath_.exists()) {
             path = promptSaveAs_(window);
             if (path.isEmpty()) return;
             saved_as = true;
@@ -831,10 +831,10 @@ private:
             return;
         }
 
-        fnxModel_->write(workingDir_.path());
+        nbxModel_->write(workingDir_.path());
 
         /// TODO BA
-        if (!Fnx::Io::compress(path, workingDir_.path(), makeBackupHook_())) {
+        if (!Nbx::Io::compress(path, workingDir_.path(), makeBackupHook_())) {
             colorBars->red();
             SaveFailMessageBox::exec(path, window);
 
@@ -844,11 +844,11 @@ private:
         clearRecoveryState_(); /// TODO BA
 
         if (saved_as) {
-            fnxPath_ = path;
+            nbxPath_ = path;
             windows->setSubtitle(name());
         }
 
-        fnxModel_->resetSnapshot();
+        nbxModel_->resetSnapshot();
         updateWindowsFlags_();
         refreshMenus(MenuScope::Workspace);
         colorBars->green();
@@ -870,10 +870,10 @@ private:
             return;
         }
 
-        fnxModel_->write(workingDir_.path());
+        nbxModel_->write(workingDir_.path());
 
         /// TODO BA
-        if (!Fnx::Io::compress(
+        if (!Nbx::Io::compress(
                 new_path,
                 workingDir_.path(),
                 makeBackupHook_())) {
@@ -885,13 +885,13 @@ private:
 
         clearRecoveryState_(); /// TODO BA
 
-        fnxPath_ = new_path;
+        nbxPath_ = new_path;
         windows->setSubtitle(name());
         for (auto& chip : colorChips_) {
-            chip->setFnx(fnxPath_);
+            chip->setNbx(nbxPath_);
         }
 
-        fnxModel_->resetSnapshot();
+        nbxModel_->resetSnapshot();
         updateWindowsFlags_();
         refreshMenus(MenuScope::Workspace);
         colorBars->green();
@@ -904,10 +904,10 @@ private:
         const QModelIndex& index)
     {
         if (!window) return;
-        if (!fnxModel_->hasTrash()) return;
+        if (!nbxModel_->hasTrash()) return;
 
         auto valid = index.isValid();
-        auto has_children = fnxModel_->hasChildren(index);
+        auto has_children = nbxModel_->hasChildren(index);
         auto is_expanded = has_children && trashView->isExpanded(index);
 
         MenuBuilder(MenuBuilder::ContextMenu, window)
@@ -928,7 +928,7 @@ private:
                 this,
                 [this, window, index] { restoreTrashItem_(window, index); })
             .actionIf(
-                valid && fnxModel_->isFile(index),
+                valid && nbxModel_->isFile(index),
                 Tr::nbExport()) /// TODO FT: Folder export
             .onUserTrigger(
                 this,
@@ -944,7 +944,7 @@ private:
     }
 
     /// TODO BA
-    Fnx::Io::BeforeOverwriteHook makeBackupHook_() const
+    Nbx::Io::BeforeOverwriteHook makeBackupHook_() const
     {
         return [](const Coco::Path& original) {
             if (!original.exists()) return;
@@ -956,17 +956,17 @@ private:
 private slots:
     // TODO: Could remove working dir validity check; also writeManifest could
     // return bool?
-    void onFnxModelDomChanged_()
+    void onNbxModelDomChanged_()
     {
         // Initial DOM load emission doesn't call this slot
         if (!workingDir_.isValid()) return;
 
-        fnxModel_->write(workingDir_.path());
+        nbxModel_->write(workingDir_.path());
         updateWindowsFlags_();
         refreshMenus(MenuScope::Workspace);
     }
 
-    void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
+    void onNbxModelFileRenamed_(const NbxModel::FileInfo& info)
     {
         if (!info.isValid()) return;
         if (!workingDir_.isValid()) return;
@@ -983,7 +983,7 @@ private slots:
     {
         if (!window || !index.isValid()) return;
         if (!workingDir_.isValid()) return;
-        auto info = fnxModel_->fileInfoAt(index);
+        auto info = nbxModel_->fileInfoAt(index);
         if (!info.isValid()) return;
 
         files->openFilePathIn(
@@ -1004,7 +1004,7 @@ private slots:
         if (!window) return;
 
         auto valid = index.isValid();
-        auto has_children = fnxModel_->hasChildren(index);
+        auto has_children = nbxModel_->hasChildren(index);
         auto is_expanded = has_children && treeViews->isExpanded(window, index);
 
         MenuBuilder(MenuBuilder::ContextMenu, window)
@@ -1034,9 +1034,9 @@ private slots:
             .actionIf(valid, Tr::nbRemove())
             .onUserTrigger(
                 this,
-                [this, index] { fnxModel_->moveToTrash(index); })
+                [this, index] { nbxModel_->moveToTrash(index); })
             .actionIf(
-                valid && fnxModel_->isFile(index),
+                valid && nbxModel_->isFile(index),
                 Tr::nbExport()) /// TODO FT: Folder export
             .onUserTrigger(
                 this,
@@ -1055,7 +1055,7 @@ private slots:
         if (!path.exists()) FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
 
         // Notebook's individual archive files should always have a path.
-        fnxModel_->setFileEdited(Fnx::Io::uuid(path), modified);
+        nbxModel_->setFileEdited(Nbx::Io::uuid(path), modified);
 
         /// TODO BA:
 
@@ -1063,7 +1063,7 @@ private slots:
 
         auto result = files->save(fileModel, ClearModified::No);
         if (result == FileService::Success) {
-            auto uuid = Fnx::Io::uuid(path);
+            auto uuid = Nbx::Io::uuid(path);
             recoveryDirtyUuids_.remove(uuid);
         } else if (result == FileService::Failure) {
             CRITICAL(

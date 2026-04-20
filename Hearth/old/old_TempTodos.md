@@ -38,7 +38,7 @@
 // TempExtractionDir/Content/. For Notepad, this root will be Documents/Hearth
 // (for now always, but later settable)
 // - New Notebook file in Notepad menu (will create and then open)
-// - Open Notebook file in Notepad menu (will filter specifically for .fnx)
+// - Open Notebook file in Notepad menu (will filter specifically for .hearthx)
 // - Open Notepad in Notebook menu
 // - Import/Export in Notebook menu
 // - How do we handle saving as each window closes when we are closing the
@@ -52,7 +52,7 @@
 // correlated with Model.xml, which provides the visual information users see in
 // a Notebook TreeView
 
-// Archive structure (i.e. MyProject.fnx):
+// Archive structure (i.e. MyProject.hearthx):
 // - Content (single-level working directory containing all files, named for
 // their UUIDs)
 // - Trash/Reference/Etc is conceptual. All is in content, but separated in view
