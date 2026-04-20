@@ -126,7 +126,7 @@
 // - Comments on declarations that we want viewable on Intellisense popup
 // for things goes above them, otherwise add a space (like for a subheading)
 // - Probably merge calls/commands?
-// - "Scope" the version macros (prepending FERNANDA_)?
+// - "Scope" the version macros (prepending HEARTH_)?
 // - Check if we need active Window signal
 // - Make WindowService::add private
 // - In MenuMod toggles, note what each toggle's conditions are and when
