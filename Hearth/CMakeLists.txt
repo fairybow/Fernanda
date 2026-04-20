@@ -68,7 +68,7 @@ set(HEARTH_SOURCES
     src/core/Debug.cpp
     src/core/Tr.cpp
     src/dialogs/AboutDialog.cpp
-    src/fnx/FnxModel.cpp
+    src/nbx/NbxModel.cpp
     src/services/ViewService.cpp
     src/services/WindowService.cpp
     src/ui/PlainTextEdit.cpp
@@ -109,11 +109,6 @@ set(HEARTH_HEADERS
     src/fmt/Fmt.h
     src/fmt/ToQString.h
 
-    src/fnx/Fnx.h
-    src/fnx/FnxModel.h
-    src/fnx/FnxModelCache.h
-    src/fnx/FnxModelIcons.h
-
     src/menus/MenuBuilder.h
     src/menus/MenuShortcuts.h
     src/menus/MenuState.h
@@ -130,6 +125,11 @@ set(HEARTH_HEADERS
     src/modules/StyleModule.h
     src/modules/Themes.h
     src/modules/WordCounterModule.h
+
+    src/nbx/Nbx.h
+    src/nbx/NbxModel.h
+    src/nbx/NbxModelCache.h
+    src/nbx/NbxModelIcons.h
 
     src/services/AbstractService.h
     src/services/FileService.h

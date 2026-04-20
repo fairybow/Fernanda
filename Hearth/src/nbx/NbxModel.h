@@ -30,8 +30,8 @@
 
 #include "core/Debug.h"
 #include "core/Files.h"
-#include "fnx/Fnx.h"
-#include "fnx/FnxModelCache.h"
+#include "nbx/Nbx.h"
+#include "nbx/NbxModelCache.h"
 
 namespace Hearth {
 

@@ -10,7 +10,7 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
-#include "fnx/FnxModel.h"
+#include "nbx/NbxModel.h"
 
 #include <QDomElement>
 #include <QFont>
@@ -22,8 +22,8 @@
 
 #include "core/Application.h"
 #include "core/Debug.h"
-#include "fnx/Fnx.h"
-#include "fnx/FnxModelIcons.h"
+#include "nbx/Nbx.h"
+#include "nbx/NbxModelIcons.h"
 
 namespace Hearth {
 

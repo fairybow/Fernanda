@@ -24,7 +24,7 @@
 #include <Coco/Path.h>
 
 #include "core/Tr.h"
-#include "fnx/Fnx.h"
+#include "nbx/Nbx.h"
 
 // Application modal
 namespace Hearth::NewNotebookPrompt {

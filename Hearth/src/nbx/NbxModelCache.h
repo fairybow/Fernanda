@@ -22,7 +22,7 @@
 #include <Coco/Bool.h>
 
 #include "core/Debug.h"
-#include "fnx/Fnx.h"
+#include "nbx/Nbx.h"
 
 namespace Hearth {
 
