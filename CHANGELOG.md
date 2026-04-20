@@ -89,7 +89,16 @@ git push origin v0.99.0-beta.24
 
 ## What's New?
 
-...
+Fernanda is now *Hearth*.
+
+I think it's a fitting name. I always imagined this software would eventually be a kind of "place" for me to go, one dedicated solely to writing. Most writing apps' names are about the profession or the product (Scrivener, iA Writer, Manuskript, and so on). To me, "Hearth" means a place to go for writing, but with Hearth on your laptop, that place can be partly in your mind and anywhere you like. It also represents what was, for most of our history, before televisions and the Internet, the absolute center of dwellings and gathering places, where people would eat, drink, sing, and tell thousand-year-old stories by the firelight. These were stories that hadn't yet been written down, and they changed a little each time they were told.
+
+> [!TIP]
+> To "convert" an existing FNX file to `.hearthx`:
+>
+> 1. Change the file extension from `.fnx` to `.hearthx`
+> 2. Open the archive in 7-Zip (or similar), find `Manifest.xml`, and change its opening and closing tags from `fnx` to `nbx` (`<nbx version="1.0"> [...entire Notebook/Trash...] </nbx>`)
+> 3. Save `Manifest.xml` back into the archive
 
 ## Known Issues
 
