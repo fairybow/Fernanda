@@ -1,14 +1,14 @@
 <RCC>
     <qresource prefix="/">
-        <file>themes/Amber.fernanda_editor</file>
-        <file>themes/Blue.fernanda_editor</file>
-        <file>themes/Editor.fernanda_qss_template</file>
-        <file>themes/Green.fernanda_editor</file>
-        <file>themes/Grey.fernanda_editor</file>
-        <file>themes/Pocket (Alt).fernanda_editor</file>
-        <file>themes/Pocket.fernanda_editor</file>
-        <file>themes/Snooze (Alt).fernanda_editor</file>
-        <file>themes/Snooze.fernanda_editor</file>
-        <file>themes/Window.fernanda_qss_template</file>
+        <file>themes/Amber.hearth_editor</file>
+        <file>themes/Blue.hearth_editor</file>
+        <file>themes/Editor.hearth_qss_template</file>
+        <file>themes/Green.hearth_editor</file>
+        <file>themes/Grey.hearth_editor</file>
+        <file>themes/Pocket (Alt).hearth_editor</file>
+        <file>themes/Pocket.hearth_editor</file>
+        <file>themes/Snooze (Alt).hearth_editor</file>
+        <file>themes/Snooze.hearth_editor</file>
+        <file>themes/Window.hearth_qss_template</file>
     </qresource>
 </RCC>
