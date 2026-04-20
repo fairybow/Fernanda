@@ -69,13 +69,13 @@ public:
 
         // Structural elements use tag name as key (no UUID)
         auto tag = element.tagName();
-        if (tag == Fnx::Xml::DOCUMENT_ELEMENT_TAG
-            || tag == Fnx::Xml::NOTEBOOK_TAG || tag == Fnx::Xml::TRASH_TAG) {
+        if (tag == Nbx::Xml::DOCUMENT_ELEMENT_TAG
+            || tag == Nbx::Xml::NOTEBOOK_TAG || tag == Nbx::Xml::TRASH_TAG) {
             return tag;
         }
 
         // User elements require UUID
-        auto uuid = Fnx::Xml::uuid(element);
+        auto uuid = Nbx::Xml::uuid(element);
         if (uuid.isEmpty()) WARN("FnxModelCache: Missing UUID!");
         return uuid;
     }

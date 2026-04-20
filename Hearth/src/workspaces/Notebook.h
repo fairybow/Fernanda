@@ -69,7 +69,7 @@
 
 namespace Hearth {
 
-// A binder-style Workspace for working within FNX files.
+// A binder-style Workspace for working within NBX files.
 //
 // Owns the archive path and working directory. Uses FnxModel's public API
 // exclusively, never accesses DOM elements directly.
@@ -340,12 +340,12 @@ private:
             // Recovery: working dir already contains autosaved content
 
         } else if (!fnxPath_.exists()) {
-            Fnx::Io::makeNewWorkingDir(working_dir_path);
+            Nbx::Io::makeNewWorkingDir(working_dir_path);
 
             //...
 
         } else {
-            Fnx::Io::extract(fnxPath_, working_dir_path);
+            Nbx::Io::extract(fnxPath_, working_dir_path);
             // TODO: Verification (comparing Manifest file elements to
             // content dir files, i.e. making sure Trash exists, checking
             // all file UUIDs have corresponding files, etc.)
@@ -464,7 +464,7 @@ private:
             // backup hook in writeModelToDisk_ is not triggered. If we ever
             // need to use the beforeWriteHook_ in Notebook, then the solution
             // is to have a separate backupHook_ (or similarly named) that
-            // Notebook will never need to use, since it does backups via Fnx
+            // Notebook will never need to use, since it does backups via Nbx
             auto result = files->save(model, ClearModified::No);
             if (result != FileService::Success) {
                 CRITICAL(
@@ -473,7 +473,7 @@ private:
                     toQString(result));
             }
 
-            dirty_uuids << Fnx::Io::uuid(meta->path());
+            dirty_uuids << Nbx::Io::uuid(meta->path());
         }
 
         NotebookLockfile::write(
@@ -493,7 +493,7 @@ private:
         files->setAfterModelCreatedHook([this](AbstractFileModel* model) {
             auto meta = model->meta();
             if (!meta) return;
-            auto uuid = Fnx::Io::uuid(meta->path());
+            auto uuid = Nbx::Io::uuid(meta->path());
             if (recoveryDirtyUuids_.contains(uuid)) model->setModified(true);
         });
     }
@@ -528,7 +528,7 @@ private:
             fnxModel_->write(workingDir_.path());
 
             /// TODO BA
-            if (!Fnx::Io::compress(
+            if (!Nbx::Io::compress(
                     path,
                     workingDir_.path(),
                     makeBackupHook_())) {
@@ -834,7 +834,7 @@ private:
         fnxModel_->write(workingDir_.path());
 
         /// TODO BA
-        if (!Fnx::Io::compress(path, workingDir_.path(), makeBackupHook_())) {
+        if (!Nbx::Io::compress(path, workingDir_.path(), makeBackupHook_())) {
             colorBars->red();
             SaveFailMessageBox::exec(path, window);
 
@@ -873,7 +873,7 @@ private:
         fnxModel_->write(workingDir_.path());
 
         /// TODO BA
-        if (!Fnx::Io::compress(
+        if (!Nbx::Io::compress(
                 new_path,
                 workingDir_.path(),
                 makeBackupHook_())) {
@@ -944,7 +944,7 @@ private:
     }
 
     /// TODO BA
-    Fnx::Io::BeforeOverwriteHook makeBackupHook_() const
+    Nbx::Io::BeforeOverwriteHook makeBackupHook_() const
     {
         return [](const Coco::Path& original) {
             if (!original.exists()) return;
@@ -1055,7 +1055,7 @@ private slots:
         if (!path.exists()) FATAL(PATHLESS_FILE_ENTRY_FMT_, path);
 
         // Notebook's individual archive files should always have a path.
-        fnxModel_->setFileEdited(Fnx::Io::uuid(path), modified);
+        fnxModel_->setFileEdited(Nbx::Io::uuid(path), modified);
 
         /// TODO BA:
 
@@ -1063,7 +1063,7 @@ private slots:
 
         auto result = files->save(fileModel, ClearModified::No);
         if (result == FileService::Success) {
-            auto uuid = Fnx::Io::uuid(path);
+            auto uuid = Nbx::Io::uuid(path);
             recoveryDirtyUuids_.remove(uuid);
         } else if (result == FileService::Failure) {
             CRITICAL(

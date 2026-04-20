@@ -132,7 +132,7 @@ void Workspace::createWindowMenuBar_(Window* window)
                     Tr::nxOpenNotebookCaption(),
                     rollingOpenFnxStartDir_,
                     Files::filters(Files::Notebook));
-                if (path.isEmpty() || !Files::isFnxFile(path)) return;
+                if (path.isEmpty() || !Files::isNbxFile(path)) return;
 
                 rollingOpenFnxStartDir_ = path.parent();
                 emit openNotebookRequested(path);

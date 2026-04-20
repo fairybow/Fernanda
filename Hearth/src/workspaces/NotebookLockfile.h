@@ -38,7 +38,7 @@ inline const auto EXT = u".lock"_s;
 
 namespace Internal {
 
-    inline const auto FNX_KEY_ = u"fnx="_s;
+    inline const auto NBX_KEY_ = u"nbx="_s;
     inline const auto DIR_KEY_ = u"working_dir="_s;
     inline const auto DIRTY_KEY_ = u"dirty_uuids="_s;
 
@@ -48,7 +48,7 @@ namespace Internal {
         const QSet<QString>& dirtyUuids)
     {
         QString content{};
-        content += FNX_KEY_ + fnxPath.toQString() + u"\n"_s;
+        content += NBX_KEY_ + fnxPath.toQString() + u"\n"_s;
         content += DIR_KEY_ + workingDirPath.toQString() + u"\n"_s;
         content += DIRTY_KEY_
                    + QStringList(dirtyUuids.begin(), dirtyUuids.end()).join(',')
@@ -63,8 +63,8 @@ namespace Internal {
         Entry entry{};
 
         for (auto& line : content.split('\n', Qt::SkipEmptyParts)) {
-            if (line.startsWith(FNX_KEY_)) {
-                entry.fnxPath = line.mid(FNX_KEY_.size());
+            if (line.startsWith(NBX_KEY_)) {
+                entry.fnxPath = line.mid(NBX_KEY_.size());
             } else if (line.startsWith(DIR_KEY_)) {
                 entry.workingDirPath = line.mid(DIR_KEY_.size());
             } else if (line.startsWith(DIRTY_KEY_)) {
@@ -86,7 +86,7 @@ path(const Coco::Path& recoveryDir, const Coco::Path& workingDirPath)
 }
 
 /// TODO BA: Should WorkingDir store UUIDs if adopted? Should it also store
-/// original FNX path?
+/// original NBX path?
 inline void write(
     const Coco::Path& lockfilePath,
     const Coco::Path& fnxPath,

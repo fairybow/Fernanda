@@ -290,7 +290,7 @@ private:
             this,
             [this](const Coco::Path& fnxPath) {
                 /// TODO FT: This note is now maybe inconsistent with design!
-                // Shouldn't need to check Fnx::isFnxFile. The promise of this
+                // Shouldn't need to check Nbx::isNbxFile. The promise of this
                 // signal is "open Notebook" not "open maybe a Notebook"!
                 // TODO: Although, we may need to do some redesign if we want to
                 // prompt for files that are .fnx by extension only...
@@ -307,7 +307,7 @@ private:
             Coco::Path path(args.at(i));
             if (!path.exists() || path.isDir()) continue;
 
-            Files::isFnxFile(path) ? result.fnxFiles << path
+            Files::isNbxFile(path) ? result.fnxFiles << path
                                    : result.regularFiles << path;
         }
 

@@ -153,10 +153,10 @@ POSSIBLY switch members and methods for private only
 
 From the file-types branch. See FileHandling.md for design details.
 
-- [ ] FNX filter cleanup: Open Notebook, Save As Notebook, and Import dialogs still need `.fnx` filters. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
+- [ ] NBX filter cleanup: Open Notebook, Save As Notebook, and Import dialogs still need `.fnx` filters. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
 - [ ] Model/view re-evaluation on rename: when a file's extension changes, the system should swap to the appropriate model/view pair. Only affects Tier 2 types (special text), since Tier 1 (magic bytes) types are identified by content. Applies to both Notepad (filesystem rename) and Notebook (tree view rename).
 - [ ] Consider NoOp for large unsupported binary files (e.g., images) where opening as text would be wasteful. Later-problem.
-- [ ] FNX files within FNX archives: deliberately deferred. Nested archive lifecycle management conflicts with current architecture. See FileHandling.md for rationale.
+- [ ] NBX files within NBX archives: deliberately deferred. Nested archive lifecycle management conflicts with current architecture. See FileHandling.md for rationale.
 
 ## Features
 

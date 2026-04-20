@@ -116,7 +116,7 @@ Might be simple actually, but tedious. We'll do it later.
 - [ ] May want to remove commands for NxMenuModule to Workspace (can use signals). Would still need them for lateral NxMenuModule to other Service (like undo, redo, etc)
 - [ ] Save backups (with auto-cleaning) and backup folder
 - [ ] Notebook export file (context menu)
-- [ ] Backup folders for Notebook (FNX files only, not individual files) and Notepad saves, with auto clean up after n-files
+- [ ] Backup folders for Notebook (NBX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [ ] Refactor common context menu stuff / TreeView hookup
 - [ ] Trash count (maybe, maybe not - if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
 - [ ] Icon instead of trash text?
@@ -162,7 +162,7 @@ Might be simple actually, but tedious. We'll do it later.
 
 ## MVP/Misc
 
-- [x] FNX (extract, compress, model, model manipulation, saving)
+- [x] NBX (extract, compress, model, model manipulation, saving)
 - [x] Menu item state toggling
 - [x] Fully functioning Notepad (complete file/edit menus, open files, save them)
 - [x] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)

@@ -34,7 +34,7 @@ Notebook Workspace
 | `Fnx::Io` | Archive extraction/compression, working directory setup |
 | `Fnx::Xml` | DOM element factories and queries (stateless helpers) |
 
-## The FNX File Format
+## The NBX File Format
 
 An `.fnx` file is a ZIP archive with a rigid internal structure:
 

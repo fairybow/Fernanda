@@ -784,7 +784,7 @@ private:
         for (auto& path : paths) {
             if (!path.exists()) continue;
 
-            Files::isFnxFile(path) ? emit openNotebookRequested(path)
+            Files::isNbxFile(path) ? emit openNotebookRequested(path)
                                    : files->openFilePathIn(window, path);
         }
     }
@@ -913,7 +913,7 @@ private slots:
         auto path = Coco::Path(fsModel_->filePath(index));
         if (path.isDir()) return;
 
-        Files::isFnxFile(path) ? emit openNotebookRequested(path)
+        Files::isNbxFile(path) ? emit openNotebookRequested(path)
                                : files->openFilePathIn(window, path);
     }
 };

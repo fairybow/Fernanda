@@ -39,12 +39,12 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
 
     switch (role) {
     case Qt::DisplayRole: {
-        auto display_name = Fnx::Xml::name(element);
+        auto display_name = Nbx::Xml::name(element);
 
-        if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element)) {
+        if (Nbx::Xml::isFile(element) && Nbx::Xml::isEdited(element)) {
             display_name.prepend(u"* "_s);
         }
-        if (Fnx::Xml::hasEditedDescendant(element)) {
+        if (Nbx::Xml::hasEditedDescendant(element)) {
             display_name += u" (*)"_s;
         }
 
@@ -52,10 +52,10 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
     }
 
     case Qt::EditRole:
-        return Fnx::Xml::name(element);
+        return Nbx::Xml::name(element);
 
     case Qt::FontRole: {
-        if (Fnx::Xml::isFile(element) && Fnx::Xml::isEdited(element)) {
+        if (Nbx::Xml::isFile(element) && Nbx::Xml::isEdited(element)) {
             QFont font{};
             font.setItalic(true);
             return font;
@@ -69,11 +69,11 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
         // here. When opened, Hearth handles it correctly: it would fail a
         // magic byte check and fall through to plain text
     case Qt::DecorationRole: {
-        if (Fnx::Xml::isVirtualFolder(element)) {
+        if (Nbx::Xml::isVirtualFolder(element)) {
             return FnxModelIcons::folder();
 
-        } else if (Fnx::Xml::isFile(element)) {
-            auto type = Files::fromPath(Fnx::Xml::relPath(element));
+        } else if (Nbx::Xml::isFile(element)) {
+            auto type = Files::fromPath(Nbx::Xml::relPath(element));
             return FnxModelIcons::file(type);
         }
 

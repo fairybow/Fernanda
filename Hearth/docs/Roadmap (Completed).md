@@ -2,7 +2,7 @@
 
 ## MVP/Misc
 
-- [x] FNX (extract, compress, model, model manipulation, saving)
+- [x] NBX (extract, compress, model, model manipulation, saving)
 - [x] Menu item state toggling
 - [x] Fully functioning Notepad (complete file/edit menus, open files, save them)
 - [x] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
@@ -168,10 +168,10 @@
 - [x] AbstractFileModel rework (pure virtual data/setData, virtual supportsModification)
 - [x] FileTypes header (central type registry, canonical extensions)
 - [x] Two-tier resolution in FileService (magic bytes first, extension second, plaintext fallthrough)
-- [x] Remove non-FNX file dialog filters
+- [x] Remove non-NBX file dialog filters
 - [x] Centralize model extensions (FileMeta::preferredExt)
-- [x] Generalize FNX import (any file type, preserve source extension)
-- [x] Generalize FNX new file creation (addNewFile takes FileTypes::Kind)
+- [x] Generalize NBX import (any file type, preserve source extension)
+- [x] Generalize NBX new file creation (addNewFile takes FileTypes::Kind)
 - [x] Extension attribute decision (kept in manifest, populated from reality)
 - [x] Notepad rename from TreeView
 - [x] Notebook export file

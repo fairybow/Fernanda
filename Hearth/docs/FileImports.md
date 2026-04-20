@@ -13,7 +13,7 @@ The two workspaces have fundamentally different import goals:
 | Workspace | Goal | Accepted files | Output |
 |---|---|---|---|
 | Notepad | Convert to plain text and open in new tab(s) | Conversion-only (DOCX and RTF) | Off-disk `TextFileModel` with converted content |
-| Notebook | Add file(s) to the archive and open in new tab(s) | Any file (converts DOCX and RTF) | New content entry in the FNX archive |
+| Notebook | Add file(s) to the archive and open in new tab(s) | Any file (converts DOCX and RTF) | New content entry in the NBX archive |
 
 ## Notepad
 

@@ -85,7 +85,7 @@ namespace Internal {
 
     constexpr ExtensionEntry_ EXTENSIONS_[] = {
         { PlainText, ".txt" },
-        { Notebook, ".fnx" },
+        { Notebook, ".hearthx" },
         { Markdown, ".md" },
         { Markdown, ".markdown" },
         { Fountain, ".fountain" },
@@ -269,7 +269,7 @@ inline QString conversionImportsFilter()
 
 /// TODO NF: Generalize, if possible:
 
-inline bool isFnxFile(const Coco::Path& path)
+inline bool isNbxFile(const Coco::Path& path)
 {
     return path.ext() == canonicalExt(Notebook)
            && MagicBytes::is(MagicBytes::Zip, path);

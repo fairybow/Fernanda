@@ -161,40 +161,40 @@ This behavior is intentional and consistent with other editors. The extension is
 
 In the future, renaming a file's extension while it is open will trigger a view re-evaluation, swapping to the appropriate handler without needing to close and reopen the file. This only applies to Tier 2 types (text-based), since Tier 1 types are identified by content regardless of name.
 
-## FNX Archives
+## NBX Archives
 
-FNX files (`.fnx`) are Hearth Notebook archives. They are the only file type handled outside the two-tier identification system. `Application` and Workspaces intercept FNX files before they ever reach `FileService`.
+NBX files (`.fnx`) are Hearth Notebook archives. They are the only file type handled outside the two-tier identification system. `Application` and Workspaces intercept NBX files before they ever reach `FileService`.
 
-### How FNX files are detected
+### How NBX files are detected
 
 `Fnx::Io::isFnxFile` checks two things: the file must have the `.fnx` extension *and* must be a valid ZIP archive (verified by magic bytes). Both checks must pass.
 
-### How FNX files enter the system
+### How NBX files enter the system
 
-Several paths through the application encounter files that might be FNX archives:
+Several paths through the application encounter files that might be NBX archives:
 
-- **Command-line arguments** (including drag-onto-exe and relaunch): `Application::parseArgs_` runs `isFnxFile` on each argument. Passing files are routed to a Notebook Workspace. Failing files (including corrupt or renamed FNX archives) are routed to Notepad as regular files.
+- **Command-line arguments** (including drag-onto-exe and relaunch): `Application::parseArgs_` runs `isFnxFile` on each argument. Passing files are routed to a Notebook Workspace. Failing files (including corrupt or renamed NBX archives) are routed to Notepad as regular files.
 - **Notepad "Open file" dialog**: After the user selects files, each is checked with `isFnxFile`. Passing files emit `openNotebookRequested`. Failing files are opened normally via `FileService` (two-tier identification).
 - **Notepad TreeView double-click**: Same `isFnxFile` check and routing as the Open dialog.
 - **"Open Notebook" menu** (available in all Workspaces): The file dialog is filtered to `.fnx` files. After selection, `isFnxFile` validates the file. If the check fails, the file is silently not opened. This is the only path that refuses rather than falling through.
 
-### What happens when FNX detection fails
+### What happens when NBX detection fails
 
-In most code paths, a file that looks like it might be an FNX archive but fails `isFnxFile` is simply opened as a regular file. This means the user may see binary content (the raw ZIP data rendered as text). This is consistent with the general principle that Hearth opens anything: the file is not an FNX archive as far as the system is concerned, so it is treated like any other file.
+In most code paths, a file that looks like it might be an NBX archive but fails `isFnxFile` is simply opened as a regular file. This means the user may see binary content (the raw ZIP data rendered as text). This is consistent with the general principle that Hearth opens anything: the file is not an NBX archive as far as the system is concerned, so it is treated like any other file.
 
 The one exception is the "Open Notebook" menu dialog, which is specifically for opening Notebooks and silently refuses invalid files.
 
-### What happens when an FNX extension is changed
+### What happens when an NBX extension is changed
 
-If an FNX file is renamed (e.g., `MyProject.fnx` to `MyProject.zip`, even though it IS a ZIP), `isFnxFile` will fail because the extension check fails. The file will not be recognized as a Notebook from any path. It will be opened as a regular file by Notepad, showing binary content.
+If an NBX file is renamed (e.g., `MyProject.fnx` to `MyProject.zip`, even though it IS a ZIP), `isFnxFile` will fail because the extension check fails. The file will not be recognized as a Notebook from any path. It will be opened as a regular file by Notepad, showing binary content.
 
-### FNX files inside FNX archives
+### NBX files inside NBX archives
 
-Individual files within an FNX archive go through the same two-tier identification as any other file when opened. A user can import an FNX archive into another Notebook (import accepts any file type). If opened from within the Notebook, it goes through `FileService` with no `isFnxFile` intercept. MagicBytes detects the ZIP signature, but since there is no dedicated handler for ZIP archives in `FileService`, it falls through to plain text. The user sees binary content. This is expected and not a supported workflow.
+Individual files within an NBX archive go through the same two-tier identification as any other file when opened. A user can import an NBX archive into another Notebook (import accepts any file type). If opened from within the Notebook, it goes through `FileService` with no `isFnxFile` intercept. MagicBytes detects the ZIP signature, but since there is no dedicated handler for ZIP archives in `FileService`, it falls through to plain text. The user sees binary content. This is expected and not a supported workflow.
 
-Opening an inner FNX as a functional Notebook was considered and deliberately deferred. The implementation would require nested archive lifecycle management (extraction, save propagation, closure coordination), which conflicts with the current architecture where Workspaces are independent peers. A simpler "open as independent Notebook" approach was also considered, but it creates a confusing UX: edits to the inner Notebook would not propagate back to the outer archive, contradicting user expectations.
+Opening an inner NBX as a functional Notebook was considered and deliberately deferred. The implementation would require nested archive lifecycle management (extraction, save propagation, closure coordination), which conflicts with the current architecture where Workspaces are independent peers. A simpler "open as independent Notebook" approach was also considered, but it creates a confusing UX: edits to the inner Notebook would not propagate back to the outer archive, contradicting user expectations.
 
-### How files are stored in FNX archives
+### How files are stored in NBX archives
 
 Files inside a Notebook ZIP archive live in a `content/` directory, named by UUID with their real extension (e.g., `content/{uuid}.txt`, `content/{uuid}.pdf`). The XML manifest tracks metadata for each file:
 

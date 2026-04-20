@@ -41,7 +41,7 @@ namespace Hearth {
 // Qt Model/View adapter for .fnx virtual directory structure.
 //
 // Owns the internal QDomDocument. Public methods return FileInfo structs, never
-// raw DOM elements. Uses Fnx::Xml helpers internally for DOM operations.
+// raw DOM elements. Uses Nbx::Xml helpers internally for DOM operations.
 //
 // TODO: Double clicking on files should maybe not expand (if they have
 // children), since they also open with double clicks?
@@ -56,8 +56,8 @@ public:
         QString name{};
 
         FileInfo(const QDomElement& element)
-            : relPath(Fnx::Xml::relPath(element))
-            , name(Fnx::Xml::name(element))
+            : relPath(Nbx::Xml::relPath(element))
+            , name(Nbx::Xml::name(element))
         {
         }
 
@@ -78,7 +78,7 @@ public:
     void load(const Coco::Path& workingDir)
     {
         beginResetModel();
-        dom_ = Fnx::Xml::makeDom(workingDir);
+        dom_ = Nbx::Xml::makeDom(workingDir);
         domSnapshot_ = dom_.toString();
         cache_.clear();
         endResetModel();
@@ -88,7 +88,7 @@ public:
 
     void write(const Coco::Path& workingDir) const
     {
-        Fnx::Xml::writeManifest(workingDir, dom_);
+        Nbx::Xml::writeManifest(workingDir, dom_);
         INFO("DOM written to manifest: {}", dom_.toString());
     }
 
@@ -109,19 +109,19 @@ public:
 
     QModelIndex notebookIndex() const
     {
-        auto notebook = Fnx::Xml::notebookElement(dom_);
+        auto notebook = Nbx::Xml::notebookElement(dom_);
         return indexFromElement_(notebook);
     }
 
     QModelIndex trashIndex() const
     {
-        auto trash = Fnx::Xml::trashElement(dom_);
+        auto trash = Nbx::Xml::trashElement(dom_);
         return indexFromElement_(trash);
     }
 
     bool hasTrash() const
     {
-        return !Fnx::Xml::trashElement(dom_).firstChildElement().isNull();
+        return !Nbx::Xml::trashElement(dom_).firstChildElement().isNull();
     }
 
     void setFileEdited(const QString& uuid, bool edited)
@@ -133,10 +133,10 @@ public:
             return;
         }
 
-        if (!Fnx::Xml::isFile(element)) return;
-        if (Fnx::Xml::isEdited(element) == edited) return;
+        if (!Nbx::Xml::isFile(element)) return;
+        if (Nbx::Xml::isEdited(element) == edited) return;
 
-        Fnx::Xml::setEdited(element, edited);
+        Nbx::Xml::setEdited(element, edited);
 
         auto index = indexFromElement_(element);
 
@@ -165,13 +165,13 @@ public:
     bool isFile(const QModelIndex& index) const
     {
         if (!index.isValid()) return false;
-        return Fnx::Xml::isFile(elementAt_(index));
+        return Nbx::Xml::isFile(elementAt_(index));
     }
 
     bool isVirtualFolder(const QModelIndex& index) const
     {
         if (!index.isValid()) return false;
-        return Fnx::Xml::isVirtualFolder(elementAt_(index));
+        return Nbx::Xml::isVirtualFolder(elementAt_(index));
     }
 
     FileInfo fileInfoAt(const QModelIndex& index) const
@@ -200,7 +200,7 @@ public:
         const QModelIndex& parentIndex = {})
     {
         auto element =
-            Fnx::Xml::addNewFile(fileType, extension, workingDir, dom_);
+            Nbx::Xml::addNewFile(fileType, extension, workingDir, dom_);
         if (element.isNull()) return {};
 
         auto parent = resolveParent_(parentIndex);
@@ -219,7 +219,7 @@ public:
 
     QModelIndex addNewVirtualFolder(const QModelIndex& parentIndex = {})
     {
-        auto element = Fnx::Xml::addVirtualFolder(dom_);
+        auto element = Nbx::Xml::addVirtualFolder(dom_);
         if (element.isNull()) return {};
 
         auto parent = resolveParent_(parentIndex);
@@ -237,12 +237,12 @@ public:
 
         // Store original parent's UUID for potential restore
         auto parent = element.parentNode().toElement();
-        auto parent_uuid = Fnx::Xml::uuid(parent);
+        auto parent_uuid = Nbx::Xml::uuid(parent);
         if (!parent_uuid.isEmpty()) {
-            Fnx::Xml::setRestoreParentUuid(element, parent_uuid);
+            Nbx::Xml::setRestoreParentUuid(element, parent_uuid);
         }
 
-        auto trash = Fnx::Xml::trashElement(dom_);
+        auto trash = Nbx::Xml::trashElement(dom_);
         moveElement_(element, trash, -1);
     }
 
@@ -254,18 +254,18 @@ public:
         if (element.isNull()) return {};
 
         // Try to find original parent
-        auto old_parent_uuid = Fnx::Xml::restoreParentUuid(element);
-        QDomElement destination = Fnx::Xml::notebookElement(dom_);
+        auto old_parent_uuid = Nbx::Xml::restoreParentUuid(element);
+        QDomElement destination = Nbx::Xml::notebookElement(dom_);
 
         if (!old_parent_uuid.isEmpty()) {
             auto old_parent = findElementByUuid_(old_parent_uuid);
             if (!old_parent.isNull()
-                && !Fnx::Xml::isInTrash(dom_, old_parent)) {
+                && !Nbx::Xml::isInTrash(dom_, old_parent)) {
                 destination = old_parent;
             }
         }
 
-        Fnx::Xml::clearRestoreParentUuid(element);
+        Nbx::Xml::clearRestoreParentUuid(element);
 
         if (!moveElement_(element, destination, -1)) return {};
 
@@ -302,7 +302,7 @@ public:
 
     bool clearTrash()
     {
-        auto trash = Fnx::Xml::trashElement(dom_);
+        auto trash = Nbx::Xml::trashElement(dom_);
 
         ASSERT(
             isValid_(trash),
@@ -372,10 +372,10 @@ public:
             auto new_name = value.toString();
             if (new_name.isEmpty()) return false;
 
-            Fnx::Xml::rename(element, new_name);
+            Nbx::Xml::rename(element, new_name);
 
             emit dataChanged(index, index, { Qt::DisplayRole, Qt::EditRole });
-            if (Fnx::Xml::isFile(element)) emit fileRenamed({ element });
+            if (Nbx::Xml::isFile(element)) emit fileRenamed({ element });
             emit domChanged();
 
             return true;
@@ -597,7 +597,7 @@ private:
         auto child = parent.firstChildElement();
 
         while (!child.isNull()) {
-            if (Fnx::Xml::uuid(child) == uuid) {
+            if (Nbx::Xml::uuid(child) == uuid) {
                 cache_.cache(child);
                 return child;
             }
@@ -617,7 +617,7 @@ private:
     {
         if (element.isNull()) return;
 
-        if (Fnx::Xml::isFile(element)) outInfos << element;
+        if (Nbx::Xml::isFile(element)) outInfos << element;
 
         auto child = element.firstChildElement();
         while (!child.isNull()) {
