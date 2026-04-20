@@ -61,9 +61,10 @@ class Workspace : public QObject
 public:
     virtual bool tryQuit() = 0;
 
+    /// TODO RN: "Warm" colors?
     void beCute() const
     {
-        Time::delay(1200, this, [this] { colorBars->pastel(); });
+        Time::delay(1200, this, [this] { colorBars->green(); });
     }
 
     bool hasWindows() const { return windows->count() > 0; }

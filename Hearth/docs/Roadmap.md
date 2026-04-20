@@ -16,10 +16,13 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - TODO NF (new file options (e.g., new Markdown)
 - TODO IV (image views)
 - TODO TS (tab splits)
+- TODO RN (program rename)
 
 ---
 
 ## Current
+
+- [ ] Change ColorBar colors, add Warm
 
 Pain points while using:
 

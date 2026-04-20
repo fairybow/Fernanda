@@ -76,11 +76,12 @@ protected:
             image_size);
 
         // This looks fine honestly:
-        auto pixmap = QPixmap(":/app-icons/Hearth-128.png");
+        auto pixmap = QPixmap(":/app-icons/Flame-128.png");
         pixmap = Coco::Fx::toGreyscale(pixmap);
+        pixmap = Coco::Fx::apply(pixmap, Coco::FxOp::brightness(50));
 
         // Draw with opacity to let background show through
-        painter.setOpacity(0.4);
+        painter.setOpacity(0.2);
         painter.drawPixmap(image_rect, pixmap);
         painter.setOpacity(1.0); // Reset
     }

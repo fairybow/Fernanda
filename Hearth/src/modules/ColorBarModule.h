@@ -43,11 +43,6 @@ public:
 
     void red(Window* window = nullptr) const { run(ColorBar::Red, window); }
 
-    void pastel(Window* window = nullptr) const
-    {
-        run(ColorBar::Pastel, window);
-    }
-
     void run(ColorBar::Color color, Window* window = nullptr) const
     {
         if (colorBars_.isEmpty()) return;
@@ -131,8 +126,9 @@ private:
 
     template <typename CallableT> void forEachColorBar_(CallableT&& callable)
     {
-        for (auto& cb : colorBars_)
+        for (auto& cb : colorBars_) {
             if (cb) callable(cb);
+        }
     }
 
 private slots:

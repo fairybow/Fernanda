@@ -57,8 +57,7 @@ public:
     enum Color
     {
         Green,
-        Red,
-        Pastel
+        Red
     };
 
     explicit ColorBar(QMainWindow* parentWindow = nullptr)
@@ -76,7 +75,7 @@ public:
     {
         if (active_ == active) return;
         active_ = active;
-        active_ ? run(Pastel) : killAnimation_();
+        active_ ? run(Green) : killAnimation_();
     }
 
     Position position() const noexcept { return position_; }
@@ -88,7 +87,7 @@ public:
         killAnimation_();
         position_ = position;
         updateGeometry_();
-        run(Pastel);
+        run(Green);
     }
 
     void run(Color color, int delay = 0)
@@ -145,13 +144,13 @@ private:
     static constexpr qreal MIN_RANGE_ = 0.0;
     static constexpr qreal MAX_RANGE_ = 100.00;
     qreal currentProgress_ = MIN_RANGE_;
-    Color currentColor_ = Pastel;
+    Color currentColor_ = Green;
     Time::Delayer* linger_ = Time::newDelayer(this, &ColorBar::reset_, 1000);
     QTimeLine* activeTimeLine_ = nullptr;
 
     void setup_()
     {
-        setFixedHeight(3);
+        setFixedHeight(2);
         setAttribute(Qt::WA_TransparentForMouseEvents);
 
         if (window_) {
@@ -229,17 +228,6 @@ private:
         switch (color) {
 
         default:
-        case Pastel:
-            return Coco::Fx::bandedGradient(
-                0,
-                0,
-                width(),
-                0,
-                "#7ce1f9",
-                "#3bb0f3",
-                "#9194f2",
-                "#f9b3f9");
-
         case Green:
             return Coco::Fx::bandedGradient(
                 0,
