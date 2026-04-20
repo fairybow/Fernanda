@@ -7,6 +7,7 @@ set COCO_SRC_DIR=%~dp0..\submodules\Coco\Coco\src
 set FOUNTAIN_H_INCLUDE_DIR=%~dp0..\submodules\fountain.h\fountain.h\include
 set FOUNTAIN_H_SRC_DIR=%~dp0..\submodules\fountain.h\fountain.h\src
 set DOCS_DIR=%~dp0..\docs
+set RC_DIR=%~dp0..\resources
 set PROJ_DIR=%~dp0..
 set ROOT_DIR=%~dp0..\..
 set OUT_DIR=%~dp0..\..\..\HearthSrc
@@ -37,6 +38,10 @@ for /r "%SRC_DIR%" %%f in (*) do (
 for /r "%DOCS_DIR%" %%f in (*) do (
     copy "%%f" "%OUT_DIR%\" > nul
 )
+
+copy "%RC_DIR%\Hearth.desktop" "%OUT_DIR%\" > nul
+copy "%RC_DIR%\Hearth.rc" "%OUT_DIR%\" > nul
+copy "%RC_DIR%\hearth.xml" "%OUT_DIR%\" > nul
 
 copy "%ROOT_DIR%\.github\workflows\release.yml" "%OUT_DIR%\" > nul
 copy "%ROOT_DIR%\CHANGELOG.md" "%OUT_DIR%\" > nul

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+	<mime-type type="application/x-hearth-notebook">
+		<comment>Hearth Notebook</comment>
+		<glob pattern="*.hearthx"/>
+		<icon name="application-x-hearth-notebook"/>
+	</mime-type>
+</mime-info>

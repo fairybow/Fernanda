@@ -7,6 +7,7 @@
 
 // Icon
 IDI_ICON1           ICON "app-icons/Hearth.ico"
+IDI_ICON2           ICON "app-icons/Flame.ico"
 
 // Version info
 VS_VERSION_INFO     VERSIONINFO

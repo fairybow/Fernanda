@@ -71,7 +71,7 @@ Filename: "{app}\data\vc_redist.x64.exe"; Parameters: "/install /quiet /norestar
 ; Define the ProgID
 Root: HKA; Subkey: "Software\Classes\Hearth.Notebook"; ValueType: string; ValueData: "Hearth Notebook"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\Hearth.Notebook"; ValueType: string; ValueName: "FriendlyTypeName"; ValueData: "Hearth Notebook"
-Root: HKA; Subkey: "Software\Classes\Hearth.Notebook\DefaultIcon"; ValueType: string; ValueData: "{app}\data\Hearth.exe,0"
+Root: HKA; Subkey: "Software\Classes\Hearth.Notebook\DefaultIcon"; ValueType: string; ValueData: "{app}\data\Hearth.exe,1"
 ; ^ TODO: Change this to Notebook icon once it exists
 Root: HKA; Subkey: "Software\Classes\Hearth.Notebook\shell\open\command"; ValueType: string; ValueData: """{app}\data\Hearth.exe"" ""%1"""
 
