@@ -1,6 +1,3 @@
-<p align="center">
-    <img src="https://github.com/fairybow/Hearth/blob/main/Hearth/resources/banner/Readme Banner.png" alt="ASCII banner" width="640">
-</p>
 <p align="center"><b>A plain-text-first workbench for creative writing</b></p>
 <p align="center">
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%203-red.svg?style=flat-square" alt="License GPL 3"></a>
@@ -11,7 +8,7 @@
     <a href="https://github.com/fairybow/Hearth/blob/main/Hearth/docs"><b>Documentation</b></a>
 </p>
 
-![screenshot](https://github.com/fairybow/Hearth/blob/main/Hearth/resources/screenshots/1.apng)
+![screenshot](https://github.com/fairybow/Hearth/blob/main/Hearth/resources/app-icons/Hearth-256.png)
 
 Hearth is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Notebooks.md).
 
