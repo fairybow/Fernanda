@@ -7,7 +7,7 @@ See: [`AppDirs.h`](../src/core/AppDirs.h)
 ## Directory Structure
 
 ```
-~/.fernanda/
+~/.hearth/
 |-- ~notebooks/                 Notebook working directories
 |-- ~recovery/
 |   |-- notebooks/              Notebook crash recovery
@@ -30,7 +30,7 @@ These paths are managed by `AppDirs` and created on demand. Recovery and working
 Each Notebook can override these settings with its own `Settings.ini` stored inside the working directory (and copied to the archive on save). When a Notebook opens, its settings are layered on top of the base:
 
 ```
-Base settings (~/.fernanda/Settings.ini)
+Base settings (~/.hearth/Settings.ini)
     +-- Notebook override (in working directory)
 ```
 

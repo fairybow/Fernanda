@@ -102,8 +102,8 @@ namespace Internal {
         { WebP, ".webp" },
         { MicrosoftWord, ".docx" },
         { RichText, ".rtf" },
-        { WindowTheme, ".fernanda_window" },
-        { EditorTheme, ".fernanda_editor" },
+        { WindowTheme, ".hearth_window" },
+        { EditorTheme, ".hearth_editor" },
     };
 
 } // namespace Internal

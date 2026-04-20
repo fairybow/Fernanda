@@ -113,7 +113,7 @@ Shared capabilities:
 - Automatic pre-overwrite backups for both Notepad and Notebook saves
 - Notepad: backup created before each file write via `beforeWriteHook_`
 - Notebook: backup created before archive compression via `BeforeOverwriteHook`
-- Backups stored in `~/.fernanda/backups/notepad/` and `~/.fernanda/backups/notebooks/`
+- Backups stored in `~/.hearth/backups/notepad/` and `~/.hearth/backups/notebooks/`
 - Automatic pruning (oldest backups removed when cap is exceeded)
 
 ---
@@ -163,7 +163,7 @@ Shared capabilities:
 
 ## Themes & Styling
 
-- Editor themes (`.fernanda_editor` files; JSON-based with QSS template rendering)
+- Editor themes (`.hearth_editor` files; JSON-based with QSS template rendering)
 - Theme selector in settings dialog with separate window and editor theme dropdowns
 - Icon color support in window themes
 - QSS template system with variable substitution
@@ -172,7 +172,7 @@ Shared capabilities:
 > Known issue: Window themes not yet implemented
 
 > [!TIP]
-> User themes supported (place in `~/.fernanda/themes`), with hot reload. See an example theme [here](../resources/themes/Pocket.fernanda_editor)
+> User themes supported (place in `~/.hearth/themes`), with hot reload. See an example theme [here](../resources/themes/Pocket.fernanda_editor)
 
 ---
 

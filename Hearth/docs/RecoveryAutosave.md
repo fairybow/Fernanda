@@ -12,8 +12,8 @@ Autosave never triggers backups, save prompts, tab indicators, or modification s
 
 | Workspace | Flush target | Recovery breadcrumb | Breadcrumb location |
 |---|---|---|---|
-| Notebook | Working directory (existing file paths) | `.lock` file (fnx path, working dir path, dirty UUIDs) | `~/.fernanda/~temp/recovery/notebooks/` |
-| Notepad | Shadow recovery directory (`AppDirs::tempNotepadRecovery()`) | Per-file recovery entries (subdirectories with buffer + meta) | `~/.fernanda/~temp/recovery/notepad/` |
+| Notebook | Working directory (existing file paths) | `.lock` file (fnx path, working dir path, dirty UUIDs) | `~/.hearth/~temp/recovery/notebooks/` |
+| Notepad | Shadow recovery directory (`AppDirs::tempNotepadRecovery()`) | Per-file recovery entries (subdirectories with buffer + meta) | `~/.hearth/~temp/recovery/notepad/` |
 
 ## Timer
 
@@ -73,7 +73,7 @@ Plain text, one key per line:
 
 ```
 fnx=/path/to/MyNovel.fnx
-working_dir=/home/user/.fernanda/~temp/notebooks/MyNovel.fnx~a1b2c3d4
+working_dir=/home/user/.hearth/~temp/notebooks/MyNovel.fnx~a1b2c3d4
 dirty_uuids=3f2a1b4c-...,8e7d6c5b-...
 ```
 

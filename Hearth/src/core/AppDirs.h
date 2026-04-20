@@ -28,7 +28,7 @@ namespace Hearth::AppDirs {
 //
 // Structure:
 //
-// ~/.fernanda/
+// ~/.hearth/
 // |-- ~notebooks/
 // |-- ~recovery/
 // |   |-- notebooks/
@@ -63,7 +63,7 @@ namespace Internal {
         return dir;                                                            \
     }
 
-GEN_DIR_METHOD_(userData, Coco::Path::Home(".fernanda"))
+GEN_DIR_METHOD_(userData, Coco::Path::Home(".hearth"))
 GEN_DIR_METHOD_(tempNotebooks, userData() / "~notebooks")
 GEN_DIR_METHOD_(tempRecovery, userData() / "~recovery")
 GEN_DIR_METHOD_(tempNotebookRecovery, tempRecovery() / "notebooks")
