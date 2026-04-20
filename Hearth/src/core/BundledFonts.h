@@ -21,7 +21,7 @@
 // NB: Keep in sync with External.qrc fonts! Doing all this programmatically on
 // import would be maybe more trouble than it's worth
 
-namespace Fernanda::BundledFonts {
+namespace Hearth::BundledFonts {
 
 using namespace Qt::StringLiterals;
 
@@ -135,4 +135,4 @@ inline const QString& cssAtRules()
     return s;
 }
 
-} // namespace Fernanda::BundledFonts
+} // namespace Hearth::BundledFonts

@@ -24,7 +24,7 @@
 #include "ui/Window.h"
 
 // Cross-platform functions
-namespace Fernanda::XPlatform {
+namespace Hearth::XPlatform {
 
 namespace Internal {
 
@@ -108,4 +108,4 @@ inline void stackUnder(const QList<Window*>& windows, Window* top)
 #endif
 }
 
-} // namespace Fernanda::XPlatform
+} // namespace Hearth::XPlatform

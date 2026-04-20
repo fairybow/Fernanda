@@ -33,7 +33,7 @@
 #include "fnx/Fnx.h"
 #include "fnx/FnxModelCache.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // See:
 // https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
@@ -802,7 +802,7 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth
 
 // Tests:
 

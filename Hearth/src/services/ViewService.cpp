@@ -44,7 +44,7 @@
 #include "views/TextFileView.h"
 #include "workspaces/Bus.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 ViewService::ViewService(Bus* bus, QObject* parent)
     : AbstractService(bus, parent)
@@ -1250,4 +1250,4 @@ void ViewService::onTabDraggedToSplitEdge_(
     emit tabDragCompleted(source_window, window);
 }
 
-} // namespace Fernanda
+} // namespace Hearth

@@ -18,7 +18,7 @@
 
 #include "core/Files.h"
 
-namespace Fernanda::FnxModelIcons {
+namespace Hearth::FnxModelIcons {
 
 using namespace Qt::StringLiterals;
 
@@ -28,7 +28,7 @@ namespace Internal {
     {
         switch (type) {
         case Files::Notebook:
-            return u":/app-icons/Fernanda-32.png"_s;
+            return u":/app-icons/Hearth-32.png"_s;
         case Files::Markdown:
             return u":/breeze-icons/icons/mimetypes/32/text-x-markdown.svg"_s;
         case Files::Html:
@@ -73,4 +73,4 @@ inline const QIcon& file(Files::Type type)
     return cache[type] = QIcon(Internal::qrcPath_(type));
 }
 
-} // namespace Fernanda::FnxModelIcons
+} // namespace Hearth::FnxModelIcons

@@ -23,7 +23,7 @@
 #include "core/Files.h"
 #include "models/AbstractFileModel.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class PdfFileModel : public AbstractFileModel
 {
@@ -70,4 +70,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

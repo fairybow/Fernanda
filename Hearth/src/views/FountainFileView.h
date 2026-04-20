@@ -29,7 +29,7 @@
 #include "models/TextFileModel.h"
 #include "views/AbstractMarkupFileView.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -218,4 +218,4 @@ hr {
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

@@ -27,7 +27,7 @@
 
 #include "core/Application.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 PlainTextEdit::PlainTextEdit(QWidget* parent)
     : QPlainTextEdit(parent)
@@ -154,4 +154,4 @@ void PlainTextEdit::updateLineNumberArea_(const QRect& rect, int deltaY)
     if (rect.contains(viewport()->rect())) updateViewportMargins_();
 }
 
-} // namespace Fernanda
+} // namespace Hearth

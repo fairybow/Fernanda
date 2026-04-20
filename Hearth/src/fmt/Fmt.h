@@ -22,7 +22,7 @@
 
 #include "fmt/ToQString.h"
 
-namespace Fernanda::Fmt {
+namespace Hearth::Fmt {
 
 using namespace Qt::StringLiterals;
 
@@ -203,4 +203,4 @@ inline QString format(QStringView tmpl, Args&&... args)
     return Internal::format_(tmpl, values.data(), values.size());
 }
 
-} // namespace Fernanda::Fmt
+} // namespace Hearth::Fmt

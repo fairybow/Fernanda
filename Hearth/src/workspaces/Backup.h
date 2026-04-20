@@ -21,7 +21,7 @@
 #include "core/Hash.h"
 #include "core/Time.h"
 
-namespace Fernanda::Backup {
+namespace Hearth::Backup {
 
 namespace Internal {
 
@@ -99,4 +99,4 @@ inline void createAndPrune(
     Disk::prune(backupDir, data.prefix, filePath.extQString(), pruneCap);
 }
 
-} // namespace Fernanda::Backup
+} // namespace Hearth::Backup

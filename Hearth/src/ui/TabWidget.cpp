@@ -44,7 +44,7 @@
 #include "ui/TabWidgetAlertWidget.h"
 #include "ui/TabWidgetCloseButton.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 bool TabWidget::Location::isValid() const noexcept
 {
@@ -777,7 +777,7 @@ void TabWidget::startDrag_(int index)
 
     if (result != Qt::DropAction::MoveAction || !target) {
         // Drop was either rejected or accepted by something outside
-        // Fernanda (e.g., a browser). Open in a new window.
+        // Hearth (e.g., a browser). Open in a new window.
         emit tabDraggedOutside(this, QCursor::pos(), drag_context.tabSpec);
     }
 
@@ -969,4 +969,4 @@ void TabWidget::onWidgetStackCurrentChanged_(
                           : mainStack_->setCurrentWidget(underlay_);
 }
 
-} // namespace Fernanda
+} // namespace Hearth

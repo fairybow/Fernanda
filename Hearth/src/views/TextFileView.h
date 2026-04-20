@@ -27,7 +27,7 @@
 #include "views/AbstractFileView.h"
 #include "views/KeyFilters.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Text editing view using PlainTextEdit for content display and editing
 // operations (cut/copy/paste/select/undo/redo) with clipboard- and
@@ -170,4 +170,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

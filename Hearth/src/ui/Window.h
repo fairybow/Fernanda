@@ -19,7 +19,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class WindowService;
 
@@ -64,4 +64,4 @@ private:
     WindowService* service_ = nullptr;
 };
 
-} // namespace Fernanda
+} // namespace Hearth

@@ -28,7 +28,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 struct Command
 {
@@ -248,4 +248,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

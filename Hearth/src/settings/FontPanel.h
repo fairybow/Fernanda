@@ -32,7 +32,7 @@
 #include "settings/SettingsPanel.h"
 #include "ui/DisplaySlider.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Font selection widget with family dropdown, bold/italic toggles, and size
 // slider. Emits currentChanged on every user interaction for live update (write
@@ -150,4 +150,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

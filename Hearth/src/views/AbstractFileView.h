@@ -19,7 +19,7 @@
 #include "core/Debug.h"
 #include "models/AbstractFileModel.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Abstract UI interface for file content display and editing, providing common
 // view operations (cut/copy/paste/select) and view state management without
@@ -94,4 +94,4 @@ private:
     QWidget* widget_ = nullptr;
 };
 
-} // namespace Fernanda
+} // namespace Hearth

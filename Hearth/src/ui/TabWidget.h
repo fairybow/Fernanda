@@ -39,7 +39,7 @@
 #include "ui/TabWidgetTabBar.h"
 #include "ui/TabWidgetUnderlay.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Tabbed interface for multiple file views within a Window, supporting tab
 // creation/closing, drag-and-drop between Windows, active tab management, and
@@ -333,4 +333,4 @@ private slots:
     void onWidgetStackCurrentChanged_(int index);
 };
 
-} // namespace Fernanda
+} // namespace Hearth

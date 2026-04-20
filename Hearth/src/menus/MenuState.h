@@ -24,7 +24,7 @@
 #include "core/Debug.h"
 #include "ui/Window.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Manages dynamic menu action states for a window. Actions are bound to
 // predicate functions via MenuBuilder::toggle(), grouped by int keys. Calling
@@ -95,4 +95,4 @@ private:
     QHash<int, QList<Toggle_>> toggles_{};
 };
 
-} // namespace Fernanda
+} // namespace Hearth

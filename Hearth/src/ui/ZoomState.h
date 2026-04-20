@@ -14,7 +14,7 @@
 
 #include <QString>
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -71,4 +71,4 @@ private:
     static constexpr auto MAX_FACTOR_ = 3.0;
 };
 
-} // namespace Fernanda
+} // namespace Hearth

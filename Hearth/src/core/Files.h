@@ -28,7 +28,7 @@
 /// TODO NF: Since most MagicBytes stuff runs through here now, we may want to
 /// find other spots using it and centralize here (like the tiered filtering
 /// logic in FileService)
-namespace Fernanda::Files {
+namespace Hearth::Files {
 
 using namespace Qt::StringLiterals;
 
@@ -288,4 +288,4 @@ inline bool isRtfFile(const Coco::Path& path)
     return MagicBytes::is(MagicBytes::Rtf, path);
 }
 
-} // namespace Fernanda::Files
+} // namespace Hearth::Files

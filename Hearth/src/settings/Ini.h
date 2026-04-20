@@ -24,7 +24,7 @@
 #include "core/BundledFonts.h"
 #include "ui/ColorBar.h"
 
-namespace Fernanda::Ini {
+namespace Hearth::Ini {
 
 using namespace Qt::StringLiterals;
 
@@ -136,4 +136,4 @@ inline const Map& defaults()
     return map;
 }
 
-} // namespace Fernanda::Ini
+} // namespace Hearth::Ini

@@ -22,7 +22,7 @@
 #include "settings/Ini.h"
 #include "settings/SettingsPanel.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class WordCounterPanel : public SettingsPanel
 {
@@ -103,4 +103,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

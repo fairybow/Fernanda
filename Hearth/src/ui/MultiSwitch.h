@@ -30,7 +30,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // A segmented toggle with N labels and a sliding highlight pill. Emits
 // indexChanged(int) when the active segment changes (by click or setIndex)
@@ -226,4 +226,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

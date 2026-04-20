@@ -32,7 +32,7 @@
 #include "modules/StyleContext.h"
 #include "ui/Icons.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Tab button widget with SVG icon support, hover states, and optional flagged
 // state
@@ -179,4 +179,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

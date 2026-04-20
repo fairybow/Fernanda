@@ -12,9 +12,9 @@
 
 #pragma once
 
-namespace Fernanda::AboutDialog {
+namespace Hearth::AboutDialog {
 
 // Application-modal
 void exec();
 
-} // namespace Fernanda::AboutDialog
+} // namespace Hearth::AboutDialog

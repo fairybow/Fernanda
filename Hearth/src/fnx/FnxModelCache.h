@@ -24,7 +24,7 @@
 #include "core/Debug.h"
 #include "fnx/Fnx.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class FnxModelCache
 {
@@ -362,4 +362,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

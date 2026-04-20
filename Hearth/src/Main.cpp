@@ -23,13 +23,13 @@ int main(int argc, char* argv[])
     Coco::StartCop cop(VERSION_APP_NAME_STRING, argc, argv);
     if (cop.isRunning()) return 0;
 
-    Fernanda::Application app(argc, argv);
+    Hearth::Application app(argc, argv);
 
     app.connect(
         &cop,
         &Coco::StartCop::appRelaunched,
         &app,
-        &Fernanda::Application::onStartCopAppRelaunched);
+        &Hearth::Application::onStartCopAppRelaunched);
 
     app.initialize();
     return app.exec();

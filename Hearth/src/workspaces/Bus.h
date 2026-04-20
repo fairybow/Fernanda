@@ -22,7 +22,7 @@
 #include "views/AbstractFileView.h"
 #include "workspaces/Commander.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -71,4 +71,4 @@ signals:
     void settingChanged(const QString& key, const QVariant& value);
 };
 
-} // namespace Fernanda
+} // namespace Hearth

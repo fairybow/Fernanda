@@ -21,7 +21,7 @@
 #include "ui/ZoomState.h"
 #include "views/AbstractFileView.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // TODO: Show page number on scroll!
 // TODO: Ensure when we have zoom out that the background / non-PDF area is
@@ -92,4 +92,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

@@ -20,7 +20,7 @@
 
 #include <Coco/Path.h>
 
-namespace Fernanda::Docx {
+namespace Hearth::Docx {
 
 inline QString toPlainText(const Coco::Path& path)
 {
@@ -68,4 +68,4 @@ inline QString toPlainText(const Coco::Path& path)
     return result;
 }
 
-} // namespace Fernanda::Docx
+} // namespace Hearth::Docx

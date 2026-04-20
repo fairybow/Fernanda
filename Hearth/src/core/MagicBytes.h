@@ -24,7 +24,7 @@
 
 // Detects file types by analyzing file signatures (magic bytes) rather than
 // extensions
-namespace Fernanda::MagicBytes {
+namespace Hearth::MagicBytes {
 
 enum Type
 {
@@ -107,4 +107,4 @@ inline Type type(const Coco::Path& path, const QList<Type>& filter = {})
 
 inline bool is(Type t, const Coco::Path& path) { return t == type(path); }
 
-} // namespace Fernanda::MagicBytes
+} // namespace Hearth::MagicBytes

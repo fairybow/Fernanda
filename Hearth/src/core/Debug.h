@@ -25,7 +25,7 @@
 #include "core/Version.h"
 #include "fmt/Fmt.h"
 
-namespace Fernanda::Debug {
+namespace Hearth::Debug {
 
 using LogSink = std::function<void(const QString&)>;
 
@@ -175,10 +175,10 @@ namespace Internal {
 
 } // namespace Internal
 
-} // namespace Fernanda::Debug
+} // namespace Hearth::Debug
 
 #define LOG(Level)                                                             \
-    Fernanda::Debug::Log(Level, __FILE__, __LINE__, __FUNCTION__).print
+    Hearth::Debug::Log(Level, __FILE__, __LINE__, __FUNCTION__).print
 #define DEBUG LOG(QtDebugMsg)
 #define INFO LOG(QtInfoMsg)
 #define WARN LOG(QtWarningMsg)
@@ -190,7 +190,7 @@ namespace Internal {
 #ifdef VERSION_DEBUG // TODO: Generalize / accept an arg?
 #    define ASSERT(condition, ...)                                             \
         ((condition) ? static_cast<void>(0)                                    \
-                     : Fernanda::Debug::Internal::assertionFailed_(            \
+                     : Hearth::Debug::Internal::assertionFailed_(            \
                            #condition,                                         \
                            __FILE__,                                           \
                            __LINE__,                                           \
@@ -200,7 +200,7 @@ namespace Internal {
 #endif
 
 #define UNREACHABLE(...)                                                       \
-    Fernanda::Debug::Internal::assertionFailed_(                               \
+    Hearth::Debug::Internal::assertionFailed_(                               \
         "UNREACHABLE",                                                         \
         __FILE__,                                                              \
         __LINE__,                                                              \

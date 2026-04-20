@@ -27,7 +27,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Background placeholder widget displayed when TabWidget contains no tabs,
 // showing a centered, semi-transparent logo with responsive sizing
@@ -76,7 +76,7 @@ protected:
             image_size);
 
         // This looks fine honestly:
-        auto pixmap = QPixmap(":/app-icons/Fernanda-128.png");
+        auto pixmap = QPixmap(":/app-icons/Hearth-128.png");
         pixmap = Coco::Fx::toGreyscale(pixmap);
 
         // Draw with opacity to let background show through
@@ -97,4 +97,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

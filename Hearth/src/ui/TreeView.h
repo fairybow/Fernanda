@@ -19,7 +19,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class TreeView : public QTreeView
 {
@@ -70,4 +70,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

@@ -19,7 +19,7 @@
 
 #include "core/Io.h"
 
-namespace Fernanda::Rtf {
+namespace Hearth::Rtf {
 
 /// TODO NF: Review this!
 inline QString toPlainText(const Coco::Path& path)
@@ -145,4 +145,4 @@ inline QString toPlainText(const Coco::Path& path)
     return result;
 }
 
-} // namespace Fernanda::Rtf
+} // namespace Hearth::Rtf

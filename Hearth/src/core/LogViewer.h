@@ -20,7 +20,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class LogViewer : public QPlainTextEdit
 {
@@ -30,7 +30,7 @@ public:
     explicit LogViewer(QWidget* parent = nullptr)
         : QPlainTextEdit(parent)
     {
-        setWindowTitle("Fernanda Log");
+        setWindowTitle("Hearth Log");
         setReadOnly(true);
         setFont(QFont("Consolas", 9));
         setStyleSheet(R"(
@@ -63,4 +63,4 @@ public:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

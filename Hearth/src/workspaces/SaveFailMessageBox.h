@@ -23,7 +23,7 @@
 #include "core/Tr.h"
 
 // TODO: Display error(s) from FileService/Io
-namespace Fernanda::SaveFailMessageBox {
+namespace Hearth::SaveFailMessageBox {
 
 using namespace Qt::StringLiterals;
 
@@ -73,4 +73,4 @@ inline void exec(const Coco::PathList& paths, QWidget* parent = nullptr)
     box.exec();
 }
 
-} // namespace Fernanda::SaveFailMessageBox
+} // namespace Hearth::SaveFailMessageBox

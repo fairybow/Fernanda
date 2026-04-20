@@ -36,7 +36,7 @@
 #include "views/WebEnginePage.h"
 #include "views/WebEngineView.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 /// TODO MU: Scroll lock
 /// TODO MU: Preview auto-scroll for new content added (like a soft scroll lock
@@ -316,4 +316,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

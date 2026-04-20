@@ -16,7 +16,7 @@
 #include <QUrl>
 #include <QWebEnginePage>
 
-namespace Fernanda {
+namespace Hearth {
 
 class WebEnginePage : public QWebEnginePage
 {
@@ -41,4 +41,4 @@ protected:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

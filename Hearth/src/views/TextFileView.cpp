@@ -24,7 +24,7 @@
 #include "ui/PlainTextEdit.h"
 #include "views/KeyFilters.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 /// TODO PD
 QWidget* TextFileView::setupWidget()
@@ -90,4 +90,4 @@ QWidget* TextFileView::setupWidget()
     return editor_;
 }
 
-} // namespace Fernanda
+} // namespace Hearth

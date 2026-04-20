@@ -17,7 +17,7 @@
 
 #include <Coco/Path.h>
 
-namespace Fernanda::Disk {
+namespace Hearth::Disk {
 
 inline void
 prune(const Coco::Path& dir, const QString& prefix, const QString& ext, int cap)
@@ -42,4 +42,4 @@ prune(const Coco::Path& dir, const QString& prefix, const QString& ext, int cap)
         Coco::remove(dir / matches[i]);
 }
 
-} // namespace Fernanda::Disk
+} // namespace Hearth::Disk

@@ -20,7 +20,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class NotepadFileSystemModel : public QFileSystemModel
 {
@@ -97,4 +97,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

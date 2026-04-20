@@ -22,7 +22,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Wraps a QSlider with QLabel showing the current value
 class DisplaySlider : public QWidget
@@ -159,4 +159,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

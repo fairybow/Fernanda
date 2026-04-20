@@ -25,7 +25,7 @@
 // Window-modal dialog for prompting the user when a file has been modified
 // externally. Returns true if the user wants to reload from disk, false if they
 // want to keep their in-memory version
-namespace Fernanda::ReloadPrompt {
+namespace Hearth::ReloadPrompt {
 
 COCO_BOOL(Reload)
 
@@ -52,4 +52,4 @@ inline Reload exec(const Coco::Path& path, QWidget* parent = nullptr)
     return (box.clickedButton() == reload) ? Reload::Yes : Reload::No;
 }
 
-} // namespace Fernanda::ReloadPrompt
+} // namespace Hearth::ReloadPrompt

@@ -18,7 +18,7 @@
 
 #include "core/Tr.h"
 
-namespace Fernanda::BetaAlert {
+namespace Hearth::BetaAlert {
 
 // Application-modal
 inline void exec()
@@ -36,4 +36,4 @@ inline void exec()
     box.exec();
 }
 
-} // namespace Fernanda::BetaAlert
+} // namespace Hearth::BetaAlert

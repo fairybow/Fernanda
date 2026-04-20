@@ -19,7 +19,7 @@
 
 #include "ui/TabWidgetButton.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Index-"aware" tab close button
 class TabWidgetCloseButton : public TabWidgetButton
@@ -60,4 +60,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

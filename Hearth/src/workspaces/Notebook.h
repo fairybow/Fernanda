@@ -67,7 +67,7 @@
 #include "workspaces/WorkingDir.h"
 #include "workspaces/Workspace.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // A binder-style Workspace for working within FNX files.
 //
@@ -1075,4 +1075,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

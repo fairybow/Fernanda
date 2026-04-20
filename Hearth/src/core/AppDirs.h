@@ -22,7 +22,7 @@
 // initialized before Qt has been initialized)
 //
 // TODO: Create these on demand?
-namespace Fernanda::AppDirs {
+namespace Hearth::AppDirs {
 
 // clang-format off
 //
@@ -39,7 +39,7 @@ namespace Fernanda::AppDirs {
 // |-- logs/
 // +-- themes/
 // 
-// ~/Documents/Fernanda/
+// ~/Documents/Hearth/
 //
 // clang-format on
 
@@ -91,4 +91,4 @@ inline void cleanup()
     }
 }
 
-} // namespace Fernanda::AppDirs
+} // namespace Hearth::AppDirs

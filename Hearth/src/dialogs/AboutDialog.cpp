@@ -21,14 +21,14 @@
 #include "core/Application.h"
 #include "core/Tr.h"
 
-namespace Fernanda::AboutDialog {
+namespace Hearth::AboutDialog {
 
 void exec()
 {
     QMessageBox box{};
 
     box.setWindowModality(Qt::ApplicationModal);
-    box.setIconPixmap(QPixmap(":/app-icons/Fernanda-64.png"));
+    box.setIconPixmap(QPixmap(":/app-icons/Hearth-64.png"));
     box.setWindowTitle(Tr::nxAboutTitle());
     box.setText(Tr::nxAboutBody());
     box.setTextInteractionFlags(Qt::LinksAccessibleByMouse);
@@ -47,4 +47,4 @@ void exec()
     box.exec();
 }
 
-} // namespace Fernanda::AboutDialog
+} // namespace Hearth::AboutDialog

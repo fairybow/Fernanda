@@ -27,7 +27,7 @@
 #include "fnx/Fnx.h"
 
 // Application modal
-namespace Fernanda::NewNotebookPrompt {
+namespace Hearth::NewNotebookPrompt {
 
 // TODO: Filter platform-forbidden characters!
 inline QString exec()
@@ -93,4 +93,4 @@ inline QString exec()
     return {};
 }
 
-} // namespace Fernanda::NewNotebookPrompt
+} // namespace Hearth::NewNotebookPrompt

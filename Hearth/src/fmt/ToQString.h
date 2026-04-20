@@ -37,7 +37,7 @@
 #include <Coco/Concepts.h>
 #include <Coco/Path.h>
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -272,7 +272,7 @@ template <typename TagT> inline QString toQString(const Coco::Bool<TagT>& b)
     return QString::asprintf("%s::%s", TagT::name(), b ? "Yes" : "No");
 }
 
-} // namespace Fernanda
+} // namespace Hearth
 
 // QVariant Output Test:
 

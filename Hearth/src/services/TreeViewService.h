@@ -35,7 +35,7 @@
 #include "ui/Window.h"
 #include "workspaces/Bus.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Coordinator for Window TreeViews
 // TODO: Ensure we have appropriate names for members/functions! If it deals
@@ -310,4 +310,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

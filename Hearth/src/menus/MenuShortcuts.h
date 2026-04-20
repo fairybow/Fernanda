@@ -14,7 +14,7 @@
 
 #include <QKeyCombination>
 
-namespace Fernanda::MenuShortcuts {
+namespace Hearth::MenuShortcuts {
 
 // TODO: Any remaining key sequences
 // TODO: Use platform independent key sequences where applicable
@@ -38,4 +38,4 @@ constexpr auto PASTE = Qt::CTRL | Qt::Key_V;
 constexpr auto DEL = Qt::Key_Delete;
 constexpr auto SELECT_ALL = Qt::CTRL | Qt::Key_A;
 
-} // namespace Fernanda::MenuShortcuts
+} // namespace Hearth::MenuShortcuts

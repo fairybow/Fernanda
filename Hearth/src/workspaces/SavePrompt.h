@@ -32,7 +32,7 @@
 
 // Window-modal dialog utilities for prompting users to save, discard, or cancel
 // unsaved changes, supporting both single and multiple file (with selection)
-namespace Fernanda::SavePrompt {
+namespace Hearth::SavePrompt {
 
 using namespace Qt::StringLiterals;
 
@@ -192,4 +192,4 @@ exec(const Coco::PathList& paths, QWidget* parent = nullptr)
     }
 }
 
-} // namespace Fernanda::SavePrompt
+} // namespace Hearth::SavePrompt

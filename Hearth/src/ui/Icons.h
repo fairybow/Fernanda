@@ -25,7 +25,7 @@
 #include "core/Debug.h"
 #include "core/Io.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 enum class UiIcon
 {
@@ -107,4 +107,4 @@ namespace Icons {
 
 } // namespace Icons
 
-} // namespace Fernanda
+} // namespace Hearth

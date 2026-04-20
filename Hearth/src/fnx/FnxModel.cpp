@@ -25,7 +25,7 @@
 #include "fnx/Fnx.h"
 #include "fnx/FnxModelIcons.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -66,7 +66,7 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
 
         // Icon is based on extension, not the "true" file type. If someone
         // imports a text file with a .pdf extension, it will show the PDF icon
-        // here. When opened, Fernanda handles it correctly: it would fail a
+        // here. When opened, Hearth handles it correctly: it would fail a
         // magic byte check and fall through to plain text
     case Qt::DecorationRole: {
         if (Fnx::Xml::isVirtualFolder(element)) {
@@ -86,4 +86,4 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
     }
 }
 
-} // namespace Fernanda
+} // namespace Hearth

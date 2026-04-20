@@ -31,7 +31,7 @@
 #include "core/Tr.h"
 #include "menus/MenuBuilder.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -212,4 +212,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

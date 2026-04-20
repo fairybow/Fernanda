@@ -25,7 +25,7 @@
 #include "views/TextFileView.h"
 #include "workspaces/Bus.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Coordinator for Window WordCounters
 class WordCounterModule : public AbstractService
@@ -188,4 +188,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

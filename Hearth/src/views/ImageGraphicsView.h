@@ -26,7 +26,7 @@
 #include "core/Debug.h"
 #include "ui/ZoomState.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Pannable, zoomable QGraphicsView for image display. Forwards wheel zoom
 // requests to its owner rather than handling zoom state itself
@@ -105,4 +105,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

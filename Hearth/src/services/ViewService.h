@@ -36,7 +36,7 @@
 #include "views/TextFileView.h"
 #include "workspaces/Bus.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class ViewService : public AbstractService
 {
@@ -353,4 +353,4 @@ private slots:
         TabWidget::SplitSide side);
 };
 
-} // namespace Fernanda
+} // namespace Hearth

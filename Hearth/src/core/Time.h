@@ -19,7 +19,7 @@
 #include <QObject>
 #include <QTimer>
 
-namespace Fernanda::Time {
+namespace Hearth::Time {
 
 struct LocalTime
 {
@@ -97,4 +97,4 @@ inline Debouncer* newDebouncer(QObject* parent, SlotT slot, int msec = -1)
     return newDelayer<SlotT>(parent, slot, msec);
 }
 
-} // namespace Fernanda::Time
+} // namespace Hearth::Time

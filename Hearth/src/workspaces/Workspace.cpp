@@ -31,7 +31,7 @@
 #include "ui/Window.h"
 #include "views/AbstractFileView.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class Notepad;
 
@@ -342,4 +342,4 @@ void Workspace::createWindowMenuBar_(Window* window)
         });
 }
 
-} // namespace Fernanda
+} // namespace Hearth

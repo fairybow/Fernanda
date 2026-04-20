@@ -35,7 +35,7 @@
 #include "core/Debug.h"
 #include "ui/SelectionHandleOverlay.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class LineNumberArea; /// TODO LNA
 
@@ -283,4 +283,4 @@ private:
     PlainTextEdit* plainTextEdit_;
 };
 
-} // namespace Fernanda
+} // namespace Hearth

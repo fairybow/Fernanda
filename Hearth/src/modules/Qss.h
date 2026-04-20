@@ -38,7 +38,7 @@
 // - A line with `{{` in a comment would be processed
 // - Line-based only, can't span variables across multiple lines
 
-namespace Fernanda::Qss {
+namespace Hearth::Qss {
 
 using namespace Qt::StringLiterals;
 
@@ -131,4 +131,4 @@ inline QString render(
     return qss_lines.join('\n');
 }
 
-} // namespace Fernanda::Qss
+} // namespace Hearth::Qss

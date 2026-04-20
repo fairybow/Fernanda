@@ -17,7 +17,7 @@
 
 #include "services/WindowService.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 void Window::closeEvent(QCloseEvent* event)
 {
@@ -31,4 +31,4 @@ void Window::closeEvent(QCloseEvent* event)
     service_->deferClose_(this);
 }
 
-} // namespace Fernanda
+} // namespace Hearth

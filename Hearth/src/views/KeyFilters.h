@@ -25,7 +25,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -393,4 +393,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

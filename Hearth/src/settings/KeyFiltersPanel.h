@@ -23,7 +23,7 @@
 #include "settings/SettingsPanel.h"
 #include "ui/ControlField.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class KeyFiltersPanel : public SettingsPanel
 {
@@ -72,4 +72,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

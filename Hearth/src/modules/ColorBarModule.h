@@ -22,7 +22,7 @@
 #include "ui/Window.h"
 #include "workspaces/Bus.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Coordinator for Window ColorBars
 // TODO: Commands for setting position
@@ -166,4 +166,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

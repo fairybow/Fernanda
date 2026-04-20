@@ -29,7 +29,7 @@
 #include "core/Io.h"
 #include "modules/Qss.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // TODO: I do not like how separate yet not separate the theme classes are. Fix
 // it! Somehow! Base class (See: StyleModule::sortThemes_)?
@@ -146,4 +146,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

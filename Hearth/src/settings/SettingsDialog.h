@@ -31,7 +31,7 @@
 #include "settings/ThemesPanel.h"
 #include "settings/WordCounterPanel.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class SettingsDialog : public QDialog
 {
@@ -119,4 +119,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

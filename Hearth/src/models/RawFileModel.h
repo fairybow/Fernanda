@@ -20,7 +20,7 @@
 #include "core/Files.h"
 #include "models/AbstractFileModel.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class RawFileModel : public AbstractFileModel
 {
@@ -44,4 +44,4 @@ private:
     QByteArray data_{};
 };
 
-} // namespace Fernanda
+} // namespace Hearth

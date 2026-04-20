@@ -26,7 +26,7 @@
 #include "ui/ControlField.h"
 #include "ui/DisplaySlider.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class EditorPanel : public SettingsPanel
 {
@@ -147,4 +147,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

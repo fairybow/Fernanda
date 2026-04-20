@@ -31,7 +31,7 @@
 #include "modules/StyleContext.h"
 #include "ui/Icons.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class DrawerWidgetHeader : public QAbstractButton
 {
@@ -166,4 +166,4 @@ private:
     // }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

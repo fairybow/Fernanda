@@ -28,7 +28,7 @@
 #include "core/Debug.h"
 #include "ui/Painting.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class TabWidgetAlertWidget : public QWidget
 {
@@ -124,4 +124,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

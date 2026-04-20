@@ -28,7 +28,7 @@
 #define TRN_(Name, TrCall)                                                     \
     inline QString Name(int n) { return TrCall; }
 
-namespace Fernanda {
+namespace Hearth {
 
 QString
 tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1);
@@ -44,7 +44,7 @@ namespace Tr {
     // "document", "file", etc - but if one lives here, they all should
 
     TR_(filesPlainText, tr("Plain text"));
-    TR_(filesNotebook, tr("Fernanda Notebook"));
+    TR_(filesNotebook, tr("Hearth Notebook"));
     TR_(filesMarkdown, tr("Markdown source"));
     TR_(filesFountain, tr("Fountain screenplay"));
     TR_(filesHtml, tr("Hypertext Markup Language (HTML)"));
@@ -57,8 +57,8 @@ namespace Tr {
     TR_(filesWebP, tr("WebP"));
     TR_(filesMsWord, tr("Microsoft Word (Office Open XML) document"));
     TR_(filesRichText, tr("Rich Text Format (RTF)"));
-    TR_(filesWindowTheme, tr("Fernanda Window Theme"));
-    TR_(filesEditorTheme, tr("Fernanda Editor Theme"));
+    TR_(filesWindowTheme, tr("Hearth Window Theme"));
+    TR_(filesEditorTheme, tr("Hearth Editor Theme"));
 
     TR_(filesFilterAll, tr("All files"));
     TR_(filesFilterImportAsPlainText, tr("Import as plain text"));
@@ -78,9 +78,9 @@ namespace Tr {
     TR_(fileMetaNotOnDisk, tr("[Not on disk]"));
     TR_(fileMetaStale, tr("[Stale]"));
     TR_(fileModifiedExternally,
-        tr("This file has been modified outside Fernanda"));
+        tr("This file has been modified outside Hearth"));
     TR_(filePathInvalidated,
-        tr("This file has been renamed, moved, or deleted outside Fernanda"));
+        tr("This file has been renamed, moved, or deleted outside Hearth"));
 
     /// Buttons
 
@@ -113,7 +113,7 @@ namespace Tr {
     {
         auto arg_0 = [] {
             return tr(
-                "<b>Fernanda</b> is a plain text editor for drafting "
+                "<b>Hearth</b> is a plain text editor for drafting "
                 "long-form fiction. (At least, that's the plan.)");
         };
 
@@ -163,7 +163,7 @@ namespace Tr {
     TR_(nxUpdateFailMissingAsset,
         tr("No Version.txt asset found in latest release!"));
     TR_(nxReloadPromptBodyFormat,
-        tr("This content of %0 has changed outside Fernanda. Reload?"));
+        tr("This content of %0 has changed outside Hearth. Reload?"));
     TR_(nxReloadPromptReload, tr("Reload"));
     TR_(nxReloadPromptKeep, tr("Keep mine"));
 
@@ -367,7 +367,7 @@ namespace Tr {
 
 } // namespace Tr
 
-} // namespace Fernanda
+} // namespace Hearth
 
 #undef TR_
 #undef TRN_

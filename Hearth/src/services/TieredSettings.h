@@ -25,7 +25,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Layered settings object that can set an override config. When the override is
 // present, the base will not be written to and instead be used to retrieve
@@ -196,4 +196,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

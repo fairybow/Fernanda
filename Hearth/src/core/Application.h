@@ -31,7 +31,7 @@
 #include "workspaces/Notebook.h"
 #include "workspaces/Notepad.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Top-level application coordinator and entry point that creates and manages
 // Workspaces and handles application lifecycle
@@ -87,7 +87,7 @@ public:
 public slots:
     void onStartCopAppRelaunched(const QStringList& args)
     {
-        // These args are received via trying to reopen Fernanda (via, while
+        // These args are received via trying to reopen Hearth (via, while
         // running, clicking the application, clicking associated file types, or
         // dragging a file onto the application icon)
         auto parsed = parseArgs_(args);
@@ -172,7 +172,7 @@ private:
         if (!loaded) {
             loaded = translator_->load(
                 "Translation_en.qm",
-                applicationDirPath() + u"/../share/Fernanda/translations");
+                applicationDirPath() + u"/../share/Hearth/translations");
         }
 
 #endif
@@ -359,4 +359,4 @@ inline Application* app()
     return static_cast<Application*>(QCoreApplication::instance());
 }
 
-} // namespace Fernanda
+} // namespace Hearth

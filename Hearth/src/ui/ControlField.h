@@ -30,7 +30,7 @@
 #include "core/Time.h"
 #include "ui/Painting.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 enum class FieldKind
 {
@@ -223,4 +223,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

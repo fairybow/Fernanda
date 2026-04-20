@@ -22,7 +22,7 @@
 #include "core/Tr.h"
 
 // TODO: Rename NotebookTrashPrompt
-namespace Fernanda::TrashPrompt {
+namespace Hearth::TrashPrompt {
 
 inline bool exec(int count, QWidget* parent = nullptr)
 {
@@ -63,4 +63,4 @@ inline bool exec(int count, QWidget* parent = nullptr)
     return (dialog.exec() == QDialog::Accepted);
 }
 
-} // namespace Fernanda::TrashPrompt
+} // namespace Hearth::TrashPrompt

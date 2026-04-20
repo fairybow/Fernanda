@@ -15,7 +15,7 @@
 #include "core/Application.h"
 #include "workspaces/Bus.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 void WindowService::setup_()
 {
@@ -26,4 +26,4 @@ void WindowService::setup_()
         &WindowService::onApplicationFocusChanged_);
 }
 
-} // namespace Fernanda
+} // namespace Hearth

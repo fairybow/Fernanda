@@ -36,7 +36,7 @@
 #include "views/TextFileView.h"
 #include "workspaces/Bus.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -451,4 +451,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

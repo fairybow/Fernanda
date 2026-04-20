@@ -23,7 +23,7 @@
 #include "core/Io.h"
 
 /// TODO BA
-namespace Fernanda::NotebookLockfile {
+namespace Hearth::NotebookLockfile {
 
 using namespace Qt::StringLiterals;
 
@@ -122,4 +122,4 @@ inline QList<Entry> readAll(const Coco::Path& recoveryDir)
     return entries;
 }
 
-} // namespace Fernanda::NotebookLockfile
+} // namespace Hearth::NotebookLockfile

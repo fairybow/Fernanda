@@ -21,7 +21,7 @@
 #include "views/WebEnginePage.h"
 #include "views/WebEngineView.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class HtmlFileView : public AbstractFileView
 {
@@ -53,4 +53,4 @@ private:
     WebEngineView* webView_ = new WebEngineView(this);
 };
 
-} // namespace Fernanda
+} // namespace Hearth

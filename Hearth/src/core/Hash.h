@@ -18,7 +18,7 @@
 
 #include <Coco/Path.h>
 
-namespace Fernanda::Hash {
+namespace Hearth::Hash {
 
 // Truncated SHA-256 hex of the full path. Used to group files by source in flat
 // directories (backups, recovery entries)
@@ -34,4 +34,4 @@ inline QString fromPath(const Coco::Path& path)
         .left(8);
 }
 
-} // namespace Fernanda::Hash
+} // namespace Hearth::Hash

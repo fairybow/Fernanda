@@ -33,7 +33,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Transparent overlay that draws teardrop-shaped selection handles on top of a
 // QPlainTextEdit viewport. Uses an event filter on the viewport for mouse input
@@ -346,4 +346,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

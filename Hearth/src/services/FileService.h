@@ -40,7 +40,7 @@
 #include "views/AbstractFileView.h"
 #include "workspaces/Bus.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 /// TODO BA
 COCO_BOOL(ClearModified)
@@ -525,4 +525,4 @@ inline QString toQString(FileService::SaveResult saveResult) noexcept
     }
 }
 
-} // namespace Fernanda
+} // namespace Hearth

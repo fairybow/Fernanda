@@ -17,12 +17,12 @@
 #include "core/Application.h"
 #include "core/Version.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 QString tr(const char* sourceText, const char* disambiguation, int n)
 {
-    constexpr auto context = "Fernanda::Tr";
+    constexpr auto context = "Hearth::Tr";
     return Application::translate(context, sourceText, disambiguation, n);
 }
 
-} // namespace Fernanda
+} // namespace Hearth

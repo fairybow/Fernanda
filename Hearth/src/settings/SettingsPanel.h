@@ -24,7 +24,7 @@
 #include "settings/Ini.h"
 #include "ui/DisplaySlider.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class SettingsPanel : public QWidget
 {
@@ -99,4 +99,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

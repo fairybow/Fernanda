@@ -33,7 +33,7 @@
 #include "core/Time.h"
 #include "fmt/Fmt.h"
 
-namespace Fernanda::Debug {
+namespace Hearth::Debug {
 
 using namespace Qt::StringLiterals;
 
@@ -198,4 +198,4 @@ void Log::dispatch_(
     }
 }
 
-} // namespace Fernanda::Debug
+} // namespace Hearth::Debug

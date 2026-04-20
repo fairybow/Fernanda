@@ -29,7 +29,7 @@
 #include "models/AbstractFileModel.h"
 #include "models/FileMeta.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -459,4 +459,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

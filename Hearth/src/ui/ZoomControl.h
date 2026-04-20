@@ -31,7 +31,7 @@
 #include "ui/Icons.h"
 #include "ui/ZoomState.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 using namespace Qt::StringLiterals;
 
@@ -184,4 +184,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

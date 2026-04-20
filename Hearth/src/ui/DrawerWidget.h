@@ -24,7 +24,7 @@
 #include "core/Debug.h"
 #include "ui/DrawerWidgetHeader.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // TODO: Right-click to reset size
 // TODO: Rename SplitterDrawer (or, if probably never needed elsewhere, can
@@ -171,4 +171,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

@@ -14,7 +14,7 @@
 
 #include <Coco/Path.h>
 
-namespace Fernanda {
+namespace Hearth {
 
 // TODO: Rename NotebookWorkingDir
 class WorkingDir
@@ -42,4 +42,4 @@ private:
     bool wasAdopted_;
 };
 
-} // namespace Fernanda
+} // namespace Hearth

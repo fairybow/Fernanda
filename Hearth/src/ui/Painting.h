@@ -17,7 +17,7 @@
 #include <QRectF>
 #include <QString>
 
-namespace Fernanda::Painting {
+namespace Hearth::Painting {
 
 // Centers horizontally only
 inline QRectF
@@ -34,4 +34,4 @@ centeredGlyphRect(const QFont& font, const QString& glyph, const QRectF& bounds)
     return bounds.adjusted(correction, 0, correction, 0);
 }
 
-} // namespace Fernanda::Painting
+} // namespace Hearth::Painting

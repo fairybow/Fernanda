@@ -33,7 +33,7 @@
 #include "core/Debug.h"
 #include "menus/MenuState.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Declarative builder for menu bars and context menus. For menu bars, begin
 // with .menu(), chain actions and modifiers, and finalize with .set(). For
@@ -385,4 +385,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

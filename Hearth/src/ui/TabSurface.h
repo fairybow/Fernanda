@@ -22,7 +22,7 @@
 #include "core/Debug.h"
 #include "ui/TabWidget.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Creates TabWidgets and manages them (TabWidgets wired by ViewService)
 class TabSurface : public QWidget
@@ -191,4 +191,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

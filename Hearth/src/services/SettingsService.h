@@ -37,7 +37,7 @@
 #include "ui/ColorBar.h"
 #include "workspaces/Bus.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Shared settings accessor for the Workspace. Provides Bus-based access to the
 // layered Settings object, allowing Services to get/set configuration values
@@ -242,4 +242,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

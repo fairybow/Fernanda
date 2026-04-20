@@ -15,7 +15,7 @@
 #include <QRandomGenerator>
 #include <QString>
 
-namespace Fernanda::Random {
+namespace Hearth::Random {
 
 inline QString token(int length)
 {
@@ -33,4 +33,4 @@ inline QString token(int length)
     return result;
 }
 
-} // namespace Fernanda::Random
+} // namespace Hearth::Random

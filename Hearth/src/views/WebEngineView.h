@@ -20,7 +20,7 @@
 #include "core/Time.h"
 #include "ui/WidgetMask.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class WebEngineView : public QWebEngineView
 {
@@ -71,4 +71,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

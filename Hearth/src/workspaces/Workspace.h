@@ -49,7 +49,7 @@
 #include "workspaces/Bus.h"
 #include "workspaces/NewNotebookPrompt.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Base class for Notepad and Notebook workspaces (collection of windows, their
 // files, and the filesystems on which they operate). Owns and initializes
@@ -500,4 +500,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

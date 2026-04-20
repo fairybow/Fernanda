@@ -20,7 +20,7 @@
 
 #include "models/FileMeta.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class AbstractFileModel : public QObject
 {
@@ -72,4 +72,4 @@ private:
     bool isModified_ = false;
 };
 
-} // namespace Fernanda
+} // namespace Hearth

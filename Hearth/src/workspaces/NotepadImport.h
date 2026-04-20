@@ -21,7 +21,7 @@
 #include "workspaces/Docx.h"
 #include "workspaces/Rtf.h"
 
-namespace Fernanda::NotepadImport {
+namespace Hearth::NotepadImport {
 
 struct Result
 {
@@ -64,4 +64,4 @@ inline QList<Result> process(const QList<Coco::Path>& paths)
     return results;
 }
 
-} // namespace Fernanda::NotepadImport
+} // namespace Hearth::NotepadImport

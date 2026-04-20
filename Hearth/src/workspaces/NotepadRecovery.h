@@ -25,7 +25,7 @@
 #include "core/Random.h"
 
 /// TODO BA
-namespace Fernanda::NotepadRecovery {
+namespace Hearth::NotepadRecovery {
 
 using namespace Qt::StringLiterals;
 
@@ -126,4 +126,4 @@ inline QList<Entry> readAll(const Coco::Path& recoveryDir)
     return entries;
 }
 
-} // namespace Fernanda::NotepadRecovery
+} // namespace Hearth::NotepadRecovery

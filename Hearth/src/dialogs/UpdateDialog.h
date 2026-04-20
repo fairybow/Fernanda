@@ -44,14 +44,14 @@
 // TODO: May later want to move to non-prerelease only or provide a check box to
 // include or not include them or similar
 // TODO: Explain update process in body (just install over the old version)
-namespace Fernanda::UpdateDialog {
+namespace Hearth::UpdateDialog {
 
 namespace Internal {
 
     constexpr auto GITHUB_API_URL_ =
-        "https://api.github.com/repos/fairybow/Fernanda/releases";
+        "https://api.github.com/repos/fairybow/Hearth/releases";
     constexpr auto GITHUB_RELEASE_URL_ =
-        "https://github.com/fairybow/Fernanda/releases";
+        "https://github.com/fairybow/Hearth/releases";
     constexpr auto VERSION_ASSET_NAME_ = "Version.txt";
 
     inline void showDialog_(const QString& message)
@@ -165,4 +165,4 @@ inline void exec()
     });
 }
 
-} // namespace Fernanda::UpdateDialog
+} // namespace Hearth::UpdateDialog

@@ -30,7 +30,7 @@
 #include "views/AbstractFileView.h"
 #include "views/ImageGraphicsView.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // TODO: Support SVG
 class ImageFileView : public AbstractFileView
@@ -147,4 +147,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

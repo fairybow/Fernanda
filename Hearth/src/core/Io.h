@@ -23,7 +23,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda::Io {
+namespace Hearth::Io {
 
 COCO_BOOL(CreateDirs)
 
@@ -94,4 +94,4 @@ inline bool write(
     return true;
 }
 
-} // namespace Fernanda::Io
+} // namespace Hearth::Io

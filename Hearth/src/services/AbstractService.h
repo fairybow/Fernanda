@@ -17,7 +17,7 @@
 
 #include <QObject>
 
-namespace Fernanda {
+namespace Hearth {
 
 class Bus;
 
@@ -75,4 +75,4 @@ public:                                                                        \
         };                                                                     \
     }
 
-} // namespace Fernanda
+} // namespace Hearth

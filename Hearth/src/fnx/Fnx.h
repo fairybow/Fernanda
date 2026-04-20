@@ -38,7 +38,7 @@
 // TODO: Are all these element.isNull checks necessary? Not sure...
 // TODO: For mutators, probably pass QDomElement by value (otherwise by const
 // ref). There are issues with passing QDomElement& for mutators
-namespace Fernanda::Fnx {
+namespace Hearth::Fnx {
 
 namespace Internal {
 
@@ -201,7 +201,7 @@ namespace Xml {
 
         QDomDocument doc{};
         auto content =
-            Fernanda::Io::read(workingDir / Internal::IO_MANIFEST_FILE_NAME_);
+            Hearth::Io::read(workingDir / Internal::IO_MANIFEST_FILE_NAME_);
         auto result = doc.setContent(content);
 
         if (!result) {
@@ -234,7 +234,7 @@ namespace Xml {
         auto xml = dom.toByteArray(Internal::XML_INDENT_);
         auto path = workingDir / Internal::IO_MANIFEST_FILE_NAME_;
 
-        if (!Fernanda::Io::write(xml, path))
+        if (!Hearth::Io::write(xml, path))
             CRITICAL("Failed to write manifest to {}!", path);
     }
 
@@ -260,7 +260,7 @@ namespace Xml {
         auto file_name = uuid + ext;
         auto path = workingDir / Internal::IO_CONTENT_DIR_NAME_ / file_name;
 
-        if (!Fernanda::Io::write({}, path)) {
+        if (!Hearth::Io::write({}, path)) {
             WARN("Failed to create text file at {}", path);
             return {};
         }
@@ -334,7 +334,7 @@ namespace Io {
         xml.writeEndElement();
         xml.writeEndDocument();
 
-        Fernanda::Io::write(
+        Hearth::Io::write(
             xml_content,
             workingDir / Internal::IO_MANIFEST_FILE_NAME_);
     }
@@ -472,4 +472,4 @@ namespace Io {
 
 } // namespace Io
 
-} // namespace Fernanda::Fnx
+} // namespace Hearth::Fnx

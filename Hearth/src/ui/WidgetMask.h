@@ -19,7 +19,7 @@
 #include "core/Debug.h"
 #include "core/Time.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class WidgetMask : public QWidget
 {
@@ -86,4 +86,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

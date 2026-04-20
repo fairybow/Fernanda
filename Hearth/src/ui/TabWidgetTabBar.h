@@ -21,7 +21,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class TabWidgetTabBar : public QTabBar
 {
@@ -89,4 +89,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

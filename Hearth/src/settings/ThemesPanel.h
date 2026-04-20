@@ -27,7 +27,7 @@
 #include "settings/SettingsPanel.h"
 #include "ui/ControlField.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Theme selection widget with editor and window theme dropdowns.
 // Emits signals on every user interaction for live update (write should be
@@ -118,4 +118,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

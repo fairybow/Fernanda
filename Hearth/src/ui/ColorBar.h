@@ -33,7 +33,7 @@
 #include "core/Debug.h"
 #include "core/Time.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 template <typename T>
 concept QMenuOrStatusBar = Coco::Concepts::DerivedPointer<QMenuBar, T>
@@ -297,4 +297,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

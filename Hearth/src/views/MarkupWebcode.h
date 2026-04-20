@@ -15,7 +15,7 @@
 #include <QString>
 #include <QStringView>
 
-namespace Fernanda::MarkupWebcode {
+namespace Hearth::MarkupWebcode {
 
 using namespace Qt::StringLiterals;
 
@@ -78,4 +78,4 @@ requestAnimationFrame(function() {
     return s.arg(body);
 }
 
-} // namespace Fernanda::MarkupWebcode
+} // namespace Hearth::MarkupWebcode

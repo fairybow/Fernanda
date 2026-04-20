@@ -24,7 +24,7 @@
 #include "ui/ColorBar.h"
 #include "ui/ControlField.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 class ColorBarPanel : public SettingsPanel
 {
@@ -72,4 +72,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

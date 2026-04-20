@@ -24,7 +24,7 @@
 
 #include "core/Debug.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // Captures a pixmap snapshot of a target widget and displays it as a floating
 // overlay, positioned via global coordinate mapping. Used to freeze visual
@@ -158,4 +158,4 @@ private:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth

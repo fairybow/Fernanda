@@ -54,7 +54,7 @@
 #include "workspaces/SavePrompt.h"
 #include "workspaces/Workspace.h"
 
-namespace Fernanda {
+namespace Hearth {
 
 // A Workspace that operates on the OS filesystem. There is only 1 Notepad
 // during the application lifetime
@@ -918,4 +918,4 @@ private slots:
     }
 };
 
-} // namespace Fernanda
+} // namespace Hearth
