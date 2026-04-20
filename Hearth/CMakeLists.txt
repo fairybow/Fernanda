@@ -437,6 +437,10 @@ if(UNIX AND NOT APPLE)
         DESTINATION share/icons/hicolor/scalable/apps
     )
 
+    install(FILES resources/hearth.xml
+        DESTINATION share/mime/packages
+    )
+
     install(FILES ${QM_FILES}
         DESTINATION share/Hearth/translations
     )
