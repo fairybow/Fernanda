@@ -9,7 +9,7 @@ set FOUNTAIN_H_SRC_DIR=%~dp0..\submodules\fountain.h\fountain.h\src
 set DOCS_DIR=%~dp0..\docs
 set PROJ_DIR=%~dp0..
 set ROOT_DIR=%~dp0..\..
-set OUT_DIR=%~dp0..\..\..\FernandaSrc
+set OUT_DIR=%~dp0..\..\..\HearthSrc
 
 if exist "%OUT_DIR%" rmdir /s /q "%OUT_DIR%"
 mkdir "%OUT_DIR%"
