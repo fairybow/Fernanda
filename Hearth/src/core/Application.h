@@ -248,9 +248,9 @@ private:
         }
     }
 
-    Notebook* makeNotebook_(const Coco::Path& fnxPath)
+    Notebook* makeNotebook_(const Coco::Path& nbxPath)
     {
-        return registerNotebook_(new Notebook(fnxPath, this));
+        return registerNotebook_(new Notebook(nbxPath, this));
     }
 
     Notebook* registerNotebook_(Notebook* notebook)
@@ -282,19 +282,19 @@ private:
             workspace,
             &Workspace::newNotebookRequested,
             this,
-            [this](const Coco::Path& fnxPath) { openNotebook_(fnxPath); });
+            [this](const Coco::Path& nbxPath) { openNotebook_(nbxPath); });
 
         connect(
             workspace,
             &Workspace::openNotebookRequested,
             this,
-            [this](const Coco::Path& fnxPath) {
+            [this](const Coco::Path& nbxPath) {
                 /// TODO FT: This note is now maybe inconsistent with design!
                 // Shouldn't need to check Nbx::isNbxFile. The promise of this
                 // signal is "open Notebook" not "open maybe a Notebook"!
                 // TODO: Although, we may need to do some redesign if we want to
                 // prompt for files that are .hearthx by extension only...
-                openOrActivateNotebook_(fnxPath);
+                openOrActivateNotebook_(nbxPath);
             });
     }
 
@@ -314,24 +314,24 @@ private:
         return result;
     }
 
-    void openNotebook_(const Coco::Path& fnxPath)
+    void openNotebook_(const Coco::Path& nbxPath)
     {
-        if (auto notebook = makeNotebook_(fnxPath)) {
+        if (auto notebook = makeNotebook_(nbxPath)) {
             notebook->show();
             notebook->beCute();
         }
     }
 
-    void openOrActivateNotebook_(const Coco::Path& fnxPath)
+    void openOrActivateNotebook_(const Coco::Path& nbxPath)
     {
         for (auto& notebook : notebooks_) {
-            if (notebook->nbxPath() == fnxPath) {
+            if (notebook->nbxPath() == nbxPath) {
                 notebook->activate();
                 return;
             }
         }
 
-        openNotebook_(fnxPath);
+        openNotebook_(nbxPath);
     }
 
 private slots:

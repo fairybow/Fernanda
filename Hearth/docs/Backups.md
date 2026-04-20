@@ -2,7 +2,7 @@
 
 Pre-save backups that preserve the previous version of a file or archive before overwrite.
 
-See: [`Backup.h`](../src/workspaces/Backup.h), [`FileService.h`](../src/services/FileService.h), [`Fnx.h`](../src/fnx/Fnx.h), [`Notepad.h`](../src/workspaces/Notepad.h), and [`Notebook.h`](../src/workspaces/Notebook.h).
+See: [`Backup.h`](../src/workspaces/Backup.h), [`FileService.h`](../src/services/FileService.h), [`Nbx.h`](../src/nbx/Nbx.h), [`Notepad.h`](../src/workspaces/Notepad.h), and [`Notebook.h`](../src/workspaces/Notebook.h).
 
 ## Overview
 

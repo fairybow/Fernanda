@@ -112,10 +112,10 @@ public:
         if (entry.workingDirPath.isEmpty() || !entry.workingDirPath.exists())
             return nullptr;
 
-        if (entry.fnxPath.isEmpty()) return nullptr; // Corrupted lockfile
+        if (entry.nbxPath.isEmpty()) return nullptr; // Corrupted lockfile
 
         return new Notebook(
-            entry.fnxPath,
+            entry.nbxPath,
             WorkingDir(entry.workingDirPath),
             std::move(entry.dirtyUuids),
             parent);
@@ -196,7 +196,7 @@ protected:
         // returns an invalid QModelIndex.
         //
         // However, FnxModel::elementAt_({}) maps invalid indices to
-        // dom_.documentElement(), which is <fnx> (the true DOM root containing
+        // dom_.documentElement(), which is <nbx> (the true DOM root containing
         // both <notebook> and <trash>).
         //
         // This mismatch means Notebook item adding methods must explicitly pass
@@ -261,7 +261,7 @@ private:
     // Private recovery constructor
     /// TODO BA
     explicit Notebook(
-        const Coco::Path& fnxPath,
+        const Coco::Path& nbxPath,
         WorkingDir&& orphan,
         QSet<QString>&& dirtyUuids,
         QObject* parent = nullptr)
@@ -269,7 +269,7 @@ private:
               { Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK,
                 Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS },
               parent)
-        , nbxPath_(fnxPath)
+        , nbxPath_(nbxPath)
         , workingDir_(std::move(orphan))
         , recoveryDirtyUuids_(std::move(dirtyUuids))
     {
@@ -291,10 +291,10 @@ private:
 
     QHash<Window*, NotebookColorChip*> colorChips_{};
 
-    static Coco::Path newWorkingDirPath_(const Coco::Path& fnxPath)
+    static Coco::Path newWorkingDirPath_(const Coco::Path& nbxPath)
     {
         return AppDirs::tempNotebooks()
-               / (fnxPath.nameQString() + "~" + Random::token(8));
+               / (nbxPath.nameQString() + "~" + Random::token(8));
     }
 
     void setup_()

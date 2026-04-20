@@ -4,7 +4,7 @@ Tag: TODO FT
 
 How Hearth resolves, models, views, and persists different file types across its Workspace system.
 
-See: [`MagicBytes.h`](../src/core/MagicBytes.h) (formerly `FileTypes.h`), [`FileService.h`](../src/services/FileService.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), [`AbstractFileView.h`](../src/views/AbstractFileView.h), [`Fnx.h`](../src/fnx/Fnx.h)
+See: [`MagicBytes.h`](../src/core/MagicBytes.h) (formerly `FileTypes.h`), [`FileService.h`](../src/services/FileService.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), [`AbstractFileView.h`](../src/views/AbstractFileView.h), [`Nbx.h`](../src/nbx/Nbx.h)
 
 ## Next Steps
 

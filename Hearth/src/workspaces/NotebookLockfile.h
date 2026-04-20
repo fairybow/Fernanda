@@ -29,7 +29,7 @@ using namespace Qt::StringLiterals;
 
 struct Entry
 {
-    Coco::Path fnxPath{};
+    Coco::Path nbxPath{};
     Coco::Path workingDirPath{};
     QSet<QString> dirtyUuids{};
 };
@@ -43,12 +43,12 @@ namespace Internal {
     inline const auto DIRTY_KEY_ = u"dirty_uuids="_s;
 
     inline QByteArray toData_(
-        const Coco::Path& fnxPath,
+        const Coco::Path& nbxPath,
         const Coco::Path& workingDirPath,
         const QSet<QString>& dirtyUuids)
     {
         QString content{};
-        content += NBX_KEY_ + fnxPath.toQString() + u"\n"_s;
+        content += NBX_KEY_ + nbxPath.toQString() + u"\n"_s;
         content += DIR_KEY_ + workingDirPath.toQString() + u"\n"_s;
         content += DIRTY_KEY_
                    + QStringList(dirtyUuids.begin(), dirtyUuids.end()).join(',')
@@ -64,7 +64,7 @@ namespace Internal {
 
         for (auto& line : content.split('\n', Qt::SkipEmptyParts)) {
             if (line.startsWith(NBX_KEY_)) {
-                entry.fnxPath = line.mid(NBX_KEY_.size());
+                entry.nbxPath = line.mid(NBX_KEY_.size());
             } else if (line.startsWith(DIR_KEY_)) {
                 entry.workingDirPath = line.mid(DIR_KEY_.size());
             } else if (line.startsWith(DIRTY_KEY_)) {

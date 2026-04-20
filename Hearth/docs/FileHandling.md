@@ -4,7 +4,7 @@ TODO: Make sure this is consistent with code (and reduce direct code references)
 
 How Hearth identifies, opens, and saves files.
 
-See: [`FileService.h`](../src/services/FileService.h), [`Files.h`](../src/core/Files.h), [`MagicBytes.h`](../src/core/MagicBytes.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), and [`Fnx.h`](../src/fnx/Fnx.h)
+See: [`FileService.h`](../src/services/FileService.h), [`Files.h`](../src/core/Files.h), [`MagicBytes.h`](../src/core/MagicBytes.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), and [`Nbx.h`](../src/nbx/Nbx.h)
 
 ## Overview
 

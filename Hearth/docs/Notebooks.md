@@ -2,7 +2,7 @@
 
 Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.hearthx` archive file, a standard ZIP archive containing files and an XML manifest describing the virtual directory structure.
 
-See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), [`FnxModel.h`](../src/fnx/FnxModel.h), [`FnxModelCache.h`](../src/fnx/FnxModelCache.h), [`Workspace.h`](../src/workspaces/Workspace.h), and [`WorkingDir.h`](../src/workspaces/WorkingDir.h)
+See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Nbx.h`](../src/nbx/Nbx.h), [`NbxModel.h`](../src/nbx/NbxModel.h), [`NbxModelCache.h`](../src/nbx/NbxModelCache.h), [`Workspace.h`](../src/workspaces/Workspace.h), and [`WorkingDir.h`](../src/workspaces/WorkingDir.h)
 
 ## Overview
 
@@ -16,9 +16,9 @@ A Notebook provides:
 
 ```
 Notebook Workspace
-|-- fnxPath_        -> Path to .hearthx archive (may not exist yet for new Notebooks)
+|-- nbxPath_        -> Path to `.hearthx` archive (may not exist yet for new Notebooks)
 |-- workingDir_     -> Temporary directory for extracted content
-|-- fnxModel_       -> Qt model adapter for DOM + TreeView
+|-- nbxModel_       -> Qt model adapter for DOM + TreeView
 +-- Services        -> (inherited from Workspace)
 ```
 
@@ -59,7 +59,7 @@ Files in `content/` are named by UUID with normalized extensions:
 
 ```xml
 <?xml version="1.0"?>
-<fnx version="1.0">
+<nbx version="1.0">
   <notebook>
     <vfolder name="Chapter 1" uuid="xxx1">
       <file name="Scene 1" uuid="xxx2" extension=".txt"/>
@@ -72,14 +72,14 @@ Files in `content/` are named by UUID with normalized extensions:
   <trash>
     <!-- Deleted items live here until emptied -->
   </trash>
-</fnx>
+</nbx>
 ```
 
 #### Element Tags
 
 | Tag | Description |
 |---|---|
-| `fnx` | Document root (contains `notebook` and `trash`) |
+| `nbx` | Document root (contains `notebook` and `trash`) |
 | `notebook` | User-visible root for active content |
 | `trash` | Container for soft-deleted items |
 | `vfolder` | Virtual folder (organizational only, no physical file) |
