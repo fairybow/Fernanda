@@ -10,7 +10,7 @@
 
 <!-- release-preamble-start -->
 
-**Hearth is a plain-text-first workbench for creative writing.** Work on single files like a notepad or organize whole projects in Notebooks (`.fnx`).
+**Hearth is a plain-text-first workbench for creative writing.** Work on single files like a notepad or organize whole projects in Notebooks (`.hearthx`).
 
 This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Features.md). For past release details, see [CHANGELOG.md](https://github.com/fairybow/Hearth/blob/main/CHANGELOG.md)
 
@@ -96,13 +96,13 @@ git push origin v0.99.0-beta.24
 - TreeView root directory is locked in-place for now (Notepad)
 - Window themes not yet implemented
 - Notebook settings won't persist unless the Notebook itself is saved
-- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Renaming an open Notebook's `.hearthx` file in Notepad's TreeView can cause the Notebook's save target to go stale
 - Session restore not yet implemented (splits, open tabs, window positions, expanded Notebook TreeView items, etc.)
 
 ---
 
 > [!INFORMATION]
-> Prior to v0.99.0-beta.26, Hearth was known as "Fernanda"
+> Prior to v0.99.0-beta.26, Hearth was known as "Fernanda" and the `.hearthx` extension was `.fnx`
 
 # 0.99.0-beta.25 (Testing / Soft Release) - tag v0.99.0-beta.25
 
