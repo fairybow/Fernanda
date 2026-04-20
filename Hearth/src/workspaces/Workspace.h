@@ -89,8 +89,8 @@ public:
 signals:
     void lastWindowClosed();
     void openNotepadRequested();
-    void newNotebookRequested(const Coco::Path& fnxPath);
-    void openNotebookRequested(const Coco::Path& fnxPath);
+    void newNotebookRequested(const Coco::Path& nbxPath);
+    void openNotebookRequested(const Coco::Path& nbxPath);
 
 protected:
     struct LocalIniKeys

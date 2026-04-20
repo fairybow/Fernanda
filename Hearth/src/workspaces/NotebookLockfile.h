@@ -89,12 +89,12 @@ path(const Coco::Path& recoveryDir, const Coco::Path& workingDirPath)
 /// original NBX path?
 inline void write(
     const Coco::Path& lockfilePath,
-    const Coco::Path& fnxPath,
+    const Coco::Path& nbxPath,
     const Coco::Path& workingDirPath,
     const QSet<QString>& dirtyUuids)
 {
     Io::write(
-        Internal::toData_(fnxPath, workingDirPath, dirtyUuids),
+        Internal::toData_(nbxPath, workingDirPath, dirtyUuids),
         lockfilePath);
 }
 
