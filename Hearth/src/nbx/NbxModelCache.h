@@ -61,7 +61,7 @@ public:
     bool containsId(quintptr id) const { return idToElement_.contains(id); }
 
     // Returns stable key for element: UUID for user content, tag name for
-    // structural elements (fnx, notebook, trash). Returns empty string for
+    // structural elements (nbx, notebook, trash). Returns empty string for
     // null elements
     static QString keyOf(const QDomElement& element)
     {

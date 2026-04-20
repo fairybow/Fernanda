@@ -85,13 +85,13 @@ class Notebook : public Workspace
     Q_OBJECT
 
 public:
-    explicit Notebook(const Coco::Path& fnxPath, QObject* parent = nullptr)
+    explicit Notebook(const Coco::Path& nbxPath, QObject* parent = nullptr)
         : Workspace(
               { Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK,
                 Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS },
               parent)
-        , fnxPath_(fnxPath)
-        , workingDir_(newWorkingDirPath_(fnxPath))
+        , nbxPath_(nbxPath)
+        , workingDir_(newWorkingDirPath_(nbxPath))
     {
         setup_();
     }
@@ -127,8 +127,8 @@ public:
         return windows->closeAll();
     }
 
-    Coco::Path fnxPath() const noexcept { return fnxPath_; }
-    QString name() const { return fnxPath_.nameQString(); }
+    Coco::Path nbxPath() const noexcept { return nbxPath_; }
+    QString name() const { return nbxPath_.nameQString(); }
 
 protected:
     virtual void autosave() override
@@ -209,7 +209,7 @@ protected:
     virtual bool canCloseWindow(Window* window) override
     {
         if (windows->count() > 1) return true;
-        if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
+        if (nbxPath_.exists() && !fnxModel_->isModified()) return true;
 
         // Last window and needs saving
         return promptWorkspaceClosingSave_(window);
@@ -217,7 +217,7 @@ protected:
 
     virtual bool canCloseAllWindows(const QList<Window*>& windows) override
     {
-        if (fnxPath_.exists() && !fnxModel_->isModified()) return true;
+        if (nbxPath_.exists() && !fnxModel_->isModified()) return true;
         return promptWorkspaceClosingSave_(windows.last());
     }
 
@@ -269,14 +269,14 @@ private:
               { Ini::LocalKeys::NOTEBOOK_TREE_VIEW_DOCK,
                 Ini::LocalKeys::NOTEBOOK_UNIQUE_TABS },
               parent)
-        , fnxPath_(fnxPath)
+        , nbxPath_(fnxPath)
         , workingDir_(std::move(orphan))
         , recoveryDirtyUuids_(std::move(dirtyUuids))
     {
         setup_();
     }
 
-    Coco::Path fnxPath_; // Intended path (may not exist yet)
+    Coco::Path nbxPath_; // Intended path (may not exist yet)
     WorkingDir workingDir_; // Working directory path/name will remain unchanged
                             // for Notebook's lifetime even when changing
                             // Notebook name via Save As
@@ -339,13 +339,13 @@ private:
         if (workingDir_.wasAdopted()) {
             // Recovery: working dir already contains autosaved content
 
-        } else if (!fnxPath_.exists()) {
+        } else if (!nbxPath_.exists()) {
             Nbx::Io::makeNewWorkingDir(working_dir_path);
 
             //...
 
         } else {
-            Nbx::Io::extract(fnxPath_, working_dir_path);
+            Nbx::Io::extract(nbxPath_, working_dir_path);
             // TODO: Verification (comparing Manifest file elements to
             // content dir files, i.e. making sure Trash exists, checking
             // all file UUIDs have corresponding files, etc.)
@@ -395,7 +395,7 @@ private:
         if (!window) return;
 
         // TODO: Tracking/clean-up helper
-        auto chip = new NotebookColorChip(fnxPath_);
+        auto chip = new NotebookColorChip(nbxPath_);
         colorChips_[window] = chip;
         connect(chip, &QObject::destroyed, this, [this, window] {
             colorChips_.remove(window);
@@ -478,7 +478,7 @@ private:
 
         NotebookLockfile::write(
             lockfilePath_(),
-            fnxPath_,
+            nbxPath_,
             workingDir_.path(),
             dirty_uuids);
     }
@@ -502,16 +502,16 @@ private:
     {
         if (!window) return false;
 
-        switch (SavePrompt::exec(fnxPath_, window)) {
+        switch (SavePrompt::exec(nbxPath_, window)) {
 
         default:
         case SavePrompt::Cancel:
             return false;
 
         case SavePrompt::Save: {
-            Coco::Path path = fnxPath_;
+            Coco::Path path = nbxPath_;
 
-            if (!fnxPath_.exists()) {
+            if (!nbxPath_.exists()) {
                 path = promptSaveAs_(window);
                 if (path.isEmpty()) return false;
             }
@@ -551,7 +551,7 @@ private:
 
     bool isModified_() const
     {
-        return !fnxPath_.exists() || fnxModel_->isModified();
+        return !nbxPath_.exists() || fnxModel_->isModified();
     }
 
     QModelIndex resolveNotebookIndex_(const QModelIndex& index) const
@@ -702,11 +702,11 @@ private:
     {
         if (!window) return {};
 
-        // Save As start path will always be fnxPath_
+        // Save As start path will always be nbxPath_
         return Coco::getSaveFile(
             window,
             Tr::nbSaveAsCaption(),
-            fnxPath_,
+            nbxPath_,
             Files::filters(Files::Notebook));
     }
 
@@ -811,12 +811,12 @@ private:
     void save_(Window* window)
     {
         if (!window) return;
-        if (fnxPath_.exists() && !fnxModel_->isModified()) return;
+        if (nbxPath_.exists() && !fnxModel_->isModified()) return;
 
-        Coco::Path path = fnxPath_;
+        Coco::Path path = nbxPath_;
         auto saved_as = false;
 
-        if (!fnxPath_.exists()) {
+        if (!nbxPath_.exists()) {
             path = promptSaveAs_(window);
             if (path.isEmpty()) return;
             saved_as = true;
@@ -844,7 +844,7 @@ private:
         clearRecoveryState_(); /// TODO BA
 
         if (saved_as) {
-            fnxPath_ = path;
+            nbxPath_ = path;
             windows->setSubtitle(name());
         }
 
@@ -885,10 +885,10 @@ private:
 
         clearRecoveryState_(); /// TODO BA
 
-        fnxPath_ = new_path;
+        nbxPath_ = new_path;
         windows->setSubtitle(name());
         for (auto& chip : colorChips_) {
-            chip->setFnx(fnxPath_);
+            chip->setFnx(nbxPath_);
         }
 
         fnxModel_->resetSnapshot();

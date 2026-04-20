@@ -105,7 +105,7 @@ public slots:
             notepad_->openFiles(parsed.regularFiles);
         }
 
-        for (auto& path : parsed.fnxFiles)
+        for (auto& path : parsed.nbxFiles)
             openOrActivateNotebook_(path);
     }
 
@@ -124,12 +124,12 @@ public slots:
 private:
     struct ParsedArgs_
     {
-        Coco::PathList fnxFiles{};
+        Coco::PathList nbxFiles{};
         Coco::PathList regularFiles{};
 
         bool isEmpty() const noexcept
         {
-            return fnxFiles.isEmpty() && regularFiles.isEmpty();
+            return nbxFiles.isEmpty() && regularFiles.isEmpty();
         }
     };
 
@@ -211,14 +211,14 @@ private:
         auto parsed = parseArgs_(args);
 
         // Show notepad if we have regular files or nothing at all
-        if (!parsed.regularFiles.isEmpty() || parsed.fnxFiles.isEmpty()) {
+        if (!parsed.regularFiles.isEmpty() || parsed.nbxFiles.isEmpty()) {
             auto was_open = notepad_->hasWindows();
             notepad_->show();
             notepad_->openFiles(parsed.regularFiles); // No-op if empty
             if (!was_open) notepad_->beCute();
         }
 
-        for (auto& path : parsed.fnxFiles)
+        for (auto& path : parsed.nbxFiles)
             openOrActivateNotebook_(path);
     }
 
@@ -307,7 +307,7 @@ private:
             Coco::Path path(args.at(i));
             if (!path.exists() || path.isDir()) continue;
 
-            Files::isNbxFile(path) ? result.fnxFiles << path
+            Files::isNbxFile(path) ? result.nbxFiles << path
                                    : result.regularFiles << path;
         }
 
@@ -325,7 +325,7 @@ private:
     void openOrActivateNotebook_(const Coco::Path& fnxPath)
     {
         for (auto& notebook : notebooks_) {
-            if (notebook->fnxPath() == fnxPath) {
+            if (notebook->nbxPath() == fnxPath) {
                 notebook->activate();
                 return;
             }

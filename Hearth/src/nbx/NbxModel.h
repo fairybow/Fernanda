@@ -523,7 +523,7 @@ signals:
 
 private:
     COCO_BOOL(AllowOrphaned_)
-    static constexpr auto MIME_TYPE_ = "application/x-hearth-fnx-element";
+    static constexpr auto MIME_TYPE_ = "application/x-hearth-nbx-element";
     QDomDocument dom_{};
     QString domSnapshot_{};
     mutable FnxModelCache cache_{};
