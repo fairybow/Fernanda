@@ -215,7 +215,7 @@ private:
             auto was_open = notepad_->hasWindows();
             notepad_->show();
             notepad_->openFiles(parsed.regularFiles); // No-op if empty
-            if (!was_open) notepad_->beCute();
+            // if (!was_open) notepad_->beCute();
         }
 
         for (auto& path : parsed.nbxFiles)
@@ -232,7 +232,7 @@ private:
             if (auto notebook = Notebook::recover(lockfile, this)) {
                 registerNotebook_(notebook);
                 notebook->show();
-                notebook->beCute();
+                // notebook->beCute();
             } else {
                 // Stale lockfile (working dir missing)
                 Coco::remove(lockfile);
@@ -244,7 +244,7 @@ private:
             bool was_open = notepad_->hasWindows();
             notepad_->show();
             notepad_->recover();
-            if (!was_open) notepad_->beCute();
+            // if (!was_open) notepad_->beCute();
         }
     }
 
@@ -318,7 +318,7 @@ private:
     {
         if (auto notebook = makeNotebook_(nbxPath)) {
             notebook->show();
-            notebook->beCute();
+            // notebook->beCute();
         }
     }
 
