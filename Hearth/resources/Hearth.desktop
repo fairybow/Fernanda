@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=Fernanda
+Name=Hearth
 GenericName=Text Editor
 Comment=A plain-text-first workbench for creative writing
-Exec=Fernanda
-Icon=Fernanda
+Exec=Hearth
+Icon=Hearth
 Categories=Utility;TextEditor;
