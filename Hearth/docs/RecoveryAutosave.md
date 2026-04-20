@@ -103,7 +103,7 @@ Additionally, `writeLockfile_()` performs partial cleanup (lockfile deletion, UU
 
 On recovery, dirty UUIDs from the lockfile are stashed in `recoveryDirtyUuids_`. At the end of `setup_()`, `applyRecoveryState_()`:
 
-1. Marks each UUID as edited in `FnxModel` (so the TreeView shows them dirty immediately)
+1. Marks each UUID as edited in `NbxModel` (so the TreeView shows them dirty immediately)
 2. Sets a `FileService::afterModelCreatedHook` that calls `setModified(true)` on models whose UUIDs match the set
 
 Recovered files are born dirty: the hook fires before `connectNewModel_()`, so the first `modificationChanged` emission reports the correct state.

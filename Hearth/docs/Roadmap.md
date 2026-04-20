@@ -94,7 +94,7 @@ POSSIBLY switch members and methods for private only
 - [x] Subclass web engine view and remove the context menu for now (has options we probably won't want used, e.g. view source)
 - [x] HtmlFileView web engine view needs the same masking the markup views have for resize / init (probably add the the webengineview subclass?)
 - [x] Animated Gifs
-- [ ] FnxModel::data file/folder metadata tooltip
+- [ ] NbxModel::data file/folder metadata tooltip
 - [x] ControlField tooltip quicker popup time? Possible?
 - [x] ^ OR, allow click to show tooltip, too (or both)
 - [ ] DisplaySlider click to edit and set value (clamp)

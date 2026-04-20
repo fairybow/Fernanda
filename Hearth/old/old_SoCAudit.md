@@ -55,7 +55,7 @@ The alternative (pure signals) would add complexity without real benefit. As lon
 | 7 | Notebook status indicator | Workspace modifies Window | Low | Service/Module handles |
 | 8 | ~~Window::service_~~ | ~~Bidirectional coupling~~ | - | *Intentional: cohesive unit* |
 | 9 | SavePrompt | Takes domain types | Medium | Use DTOs |
-| 10 | FnxModel::FileInfo | Public ctor takes DOM | Low | Private ctor |
+| 10 | NbxModel::FileInfo | Public ctor takes DOM | Low | Private ctor |
 | 11 | Menus quit action | Calls app() directly | Low | Use Bus command |
 
 ---
@@ -231,16 +231,16 @@ Actually, looking at `WindowService.cpp`, it already uses an event filter. The `
 
 ---
 
-## 10. **FnxModel::FileInfo Constructor Takes QDomElement**
+## 10. **NbxModel::FileInfo Constructor Takes QDomElement**
 
-**Location:** `FnxModel.h:54-57`
+**Location:** `NbxModel.h:54-57`
 
 **Violation:** `FileInfo` is supposed to be a public DTO, but its constructor takes internal `QDomElement`. External code could theoretically construct invalid FileInfo.
 
 **Fix:**
 - Make the `QDomElement` constructor private
 - Add a public constructor: `FileInfo(Coco::Path relPath, QString name)`
-- FnxModel internally uses the private constructor
+- NbxModel internally uses the private constructor
 
 ```cpp
 struct FileInfo {
@@ -250,7 +250,7 @@ struct FileInfo {
     bool isValid() const { return !relPath.isEmpty() && !name.isEmpty(); }
     
 private:
-    friend class FnxModel;
+    friend class NbxModel;
     FileInfo(const QDomElement& element);  // Internal only
     
 public:
@@ -286,7 +286,7 @@ public:
 | 7 | Notebook status indicator | Workspace modifies Window | Low | Service/Module handles |
 | 8 | Window::service_ | Bidirectional coupling | Low | Verify if needed |
 | 9 | SavePrompt | Takes domain types | Medium | Use DTOs |
-| 10 | FnxModel::FileInfo | Public ctor takes DOM | Low | Private ctor |
+| 10 | NbxModel::FileInfo | Public ctor takes DOM | Low | Private ctor |
 | 11 | Menus quit action | Calls app() directly | Low | Use Bus command |
 
 ---

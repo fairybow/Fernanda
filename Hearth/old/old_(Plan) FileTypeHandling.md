@@ -241,7 +241,7 @@ Work should happen on a **`file-types`** branch.
 6. (DONE) **Remove non-NBX file dialog filters**: Eliminates Qt auto-appending extensions on Save As. User gets exactly what they type.
 7. (DONE) **Centralize model extensions**: `FileMeta::preferredExt()` draws from the file's path if on disk, or from `FileTypes::canonicalExt(kind)` if off-disk. Fnx no longer hardcodes extensions: `addNewFile` takes a `FileTypes::Kind` and resolves via `canonicalExt`, `importFile` reads the source path's extension directly.
 8. **NBX filter cleanup**: Remaining NBX-related filters (Open Notebook, Save As Notebook, Import) need the `.hearthx` extension. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
-9. (DONE) **NBX all-file-type support**: `importTextFile` -> `importFile` (preserves source extension via `fsPath.extQString()`). `addNewTextFile` -> `addNewFile(FileTypes::Kind)` (resolves extension via `FileTypes::canonicalExt`). Renamed through `FnxModel` (`importFiles`, `addNewFile`) and `Notebook` call sites. No hardcoded extensions remain in Fnx. Import dialog has no filter (accepts all files).
+9. (DONE) **NBX all-file-type support**: `importTextFile` -> `importFile` (preserves source extension via `fsPath.extQString()`). `addNewTextFile` -> `addNewFile(FileTypes::Kind)` (resolves extension via `FileTypes::canonicalExt`). Renamed through `NbxModel` (`importFiles`, `addNewFile`) and `Notebook` call sites. No hardcoded extensions remain in Fnx. Import dialog has no filter (accepts all files).
 10. **Tree view icons by type**: File-type-appropriate icons with a generic fallback for unrecognized types.
 
 ## Documents That Need Updating
