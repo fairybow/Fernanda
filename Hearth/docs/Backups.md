@@ -13,7 +13,7 @@ Notepad and Notebook hook at different levels because their units of committed c
 | Workspace | Unit | Hook point | Backup directory |
 |---|---|---|---|
 | Notepad | Individual file | `FileService::beforeWriteHook` | `~/.hearth/backups/notepad/` |
-| Notebook | `.hearthx` archive | `Fnx::Io::BeforeOverwriteHook` | `~/.hearth/backups/notebooks/` |
+| Notebook | `.hearthx` archive | `Nbx::Io::BeforeOverwriteHook` | `~/.hearth/backups/notebooks/` |
 
 ## Filename Scheme
 
@@ -38,7 +38,7 @@ Example: `a1b2c3d4_chapter-one.20260320-143022-123.txt`
 
 ### Notebook
 
-`Notebook::makeBackupHook_()` returns an `Fnx::Io::BeforeOverwriteHook` lambda passed to `Fnx::Io::compress()`. The hook skips new Notebooks that have not yet been saved to disk.
+`Notebook::makeBackupHook_()` returns an `Nbx::Io::BeforeOverwriteHook` lambda passed to `Nbx::Io::compress()`. The hook skips new Notebooks that have not yet been saved to disk.
 
 ## Pruning
 
