@@ -118,12 +118,12 @@ void exec()
     // auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok, &dialog);
     // buttons->button(QDialogButtonBox::Ok)->setText(Tr::ok());
 
-    auto fernanda = app();
+    auto hearth = app();
     // move to strings for this and get name from app too
-    for (auto& code : fernanda->languageCodes())
-        selector->addItem(fernanda->languageName(code), code);
+    for (auto& code : hearth->languageCodes())
+        selector->addItem(hearth->languageName(code), code);
 
-    selector->setCurrentIndex(selector->findData(fernanda->languageCode()));
+    selector->setCurrentIndex(selector->findData(hearth->languageCode()));
 
     auto main_layout = new QVBoxLayout(&dialog);
     main_layout->addWidget(selector);
@@ -139,8 +139,8 @@ void exec()
         selector,
         &QComboBox::currentIndexChanged,
         &dialog,
-        [selector, fernanda](int index) {
-            fernanda->setLanguageCode(selector->itemData(index).toString());
+        [selector, hearth](int index) {
+            hearth->setLanguageCode(selector->itemData(index).toString());
         });
 
     // TODO: Move to open/show later (not yet)

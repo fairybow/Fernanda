@@ -94,7 +94,7 @@
 - [x] Notepad implementation
 - [x] Comprehensive plan doc for backups/autosave
 - [x] Backup folder in AppDirs
-- [x] Update docs (changelog, I think) re uninstalling (why .fernanda isn't deleted - contains backups)
+- [x] Update docs (changelog, I think) re uninstalling (why .hearth isn't deleted - contains backups)
 - [x] Autosave
 - [x] Save backups
 - [x] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
