@@ -26,7 +26,7 @@ After rename, clean this file and then merge in any unfinished work from Plan do
 
 TODO: Redo/reorganize the below
 
-New: PDF Import/Extension handling: For PDFs, need to handle Fnx extension, FnxModel and Notebook import methods. Files imported can be of different types (PDF or TXT).
+New: PDF Import/Extension handling: For PDFs, need to handle Nbx extension, NbxModel and Notebook import methods. Files imported can be of different types (PDF or TXT).
 
 New: Add note to AbstractFileView explaining why it needs two-step initialization! (Or, if it doesn't, remove it)
 
@@ -118,7 +118,7 @@ Might be simple actually, but tedious. We'll do it later.
 - [ ] Notebook export file (context menu)
 - [ ] Backup folders for Notebook (NBX files only, not individual files) and Notepad saves, with auto clean up after n-files
 - [ ] Refactor common context menu stuff / TreeView hookup
-- [ ] Trash count (maybe, maybe not - if not, remove CollapsibleWidget's item count code + FnxModel trash count code)
+- [ ] Trash count (maybe, maybe not - if not, remove CollapsibleWidget's item count code + NbxModel trash count code)
 - [ ] Icon instead of trash text?
 - [ ] Maybe get feedback on Accordion behavior/sizing (also that potential cap of 400 should maybe be adjusted based on parent window size?)
 - [ ] Another SoC audit, plus general audit, plus specifically Notepad/Notebook save and close code + Notebook trash code
@@ -183,7 +183,7 @@ Might be simple actually, but tedious. We'll do it later.
 - [x] NewTab behavior for both Workspaces
 - [x] Opening files via Menu in Notepad (Notebook menu won't open, just import)
 - [x] Notebook Import
-- [x] Granular FnxModel DOM updates
+- [x] Granular NbxModel DOM updates
 - [x] Renaming files in tree view updates the tab text
 - [x] Moving/reorganizing Notebook files in TreeView
 - [x] Replace Coco/TextIo with project version
@@ -215,7 +215,7 @@ Might be simple actually, but tedious. We'll do it later.
 - [x] Saves
 - [x] Working dir renames
 - [x] New Notebook dialog
-- [x] FnxModel + TreeView element removal
+- [x] NbxModel + TreeView element removal
 - [x] Trash view
 - [x] Better arrow icon
 - [x] Drag and drop from main to trash and back
@@ -233,10 +233,10 @@ Might be simple actually, but tedious. We'll do it later.
 ## Modifications
 
 - [x] Window titles and flag (TODO NBM)
-- [x] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query FnxModel for it somehow? Possible?
+- [x] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query NbxModel for it somehow? Possible?
 - [x] Marking Notebook as modified (TODO NBM)
-- [x] Fnx file elements, add or remove edited attribute when model modification changes (TODO NBM)
-- [x] FnxModel storing original DOM string + modified check method (TODO NBM)
+- [x] Nbx file elements, add or remove edited attribute when model modification changes (TODO NBM)
+- [x] NbxModel storing original DOM string + modified check method (TODO NBM)
 
 ## Closures
 

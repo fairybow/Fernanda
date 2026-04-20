@@ -29,10 +29,10 @@ Notebook Workspace
 | Class/Namespace | Responsibility |
 |---|---|
 | `Notebook` | Policy, working directory lifecycle, wires components together |
-| `FnxModel` | Qt model/view adapter, DOM ownership, tree operations |
-| `FnxModelCache` | Stable ID tracking for DOM elements (prevents QPersistentModelIndex crashes) |
-| `Fnx::Io` | Archive extraction/compression, working directory setup |
-| `Fnx::Xml` | DOM element factories and queries (stateless helpers) |
+| `NbxModel` | Qt model/view adapter, DOM ownership, tree operations |
+| `NbxModelCache` | Stable ID tracking for DOM elements (prevents QPersistentModelIndex crashes) |
+| `Nbx::Io` | Archive extraction/compression, working directory setup |
+| `Nbx::Xml` | DOM element factories and queries (stateless helpers) |
 
 ## The NBX File Format
 
@@ -204,11 +204,11 @@ Notebook displays two TreeViews sharing the same `NbxModel`:
 
 ```cpp
 QModelIndex treeViewRootIndex() {
-    return fnxModel_->notebookIndex();  // Children of <notebook>
+    return nbxModel_->notebookIndex();  // Children of <notebook>
 }
 ```
 
-When nothing is selected, `TreeView::currentIndex()` returns an invalid `QModelIndex`. However, `FnxModel::elementAt_({})` maps invalid indices to the document root (`<fnx>`), not `<notebook>`. This requires explicit handling when adding items to ensure they're parented under `<notebook>`.
+When nothing is selected, `TreeView::currentIndex()` returns an invalid `QModelIndex`. However, `NbxModel::elementAt_({})` maps invalid indices to the document root (`<nbx>`), not `<notebook>`. This requires explicit handling when adding items to ensure they're parented under `<notebook>`.
 
 ## Trash System
 
@@ -243,8 +243,8 @@ Notebook save is a two-tier process:
 All modified `AbstractFileModel`s are saved to the working directory via `FileService::save()`.
 
 ### Tier 2: Archive
-1. `FnxModel::write()` writes `Manifest.xml` to working directory
-2. `Fnx::Io::compress()` creates or replaces the archive at the `.hearthx` path
+1. `NbxModel::write()` writes `Manifest.xml` to working directory
+2. `Nbx::Io::compress()` creates or replaces the archive at the `.hearthx` path
 3. On success: Reset DOM snapshot, clear window modification flags
 
 ### Save Scenarios
@@ -262,8 +262,8 @@ All modified `AbstractFileModel`s are saved to the working directory via `FileSe
 ### New Notebooks
 
 New Notebooks (created via "New Notebook" rather than opening an existing `.hearthx`):
-- Have `fnxPath_` set to intended location but archive doesn't exist yet
-- Are always considered "modified" (`!fnxPath_.exists()`)
+- Have `nbxPath_` set to intended location but archive doesn't exist yet
+- Are always considered "modified" (`!nbxPath_.exists()`)
 - First save triggers Save As dialog to create the archive
 
 ## Context Menus
@@ -292,8 +292,8 @@ New Notebooks (created via "New Notebook" rather than opening an existing `.hear
 
 ## Drag and Drop
 
-FnxModel supports internal drag-and-drop for reorganizing items:
-- Uses custom MIME type: `application/x-hearth-fnx-element`
+NbxModel supports internal drag-and-drop for reorganizing items:
+- Uses custom MIME type: `application/x-hearth-nbx-element`
 - Only `MoveAction` is supported
 - Items can be dragged between notebook and trash
 - Moving to own subtree is prevented
@@ -310,7 +310,7 @@ Each Notebook can have its own `Settings.ini` stored in the archive. This file w
 
 ## Signals
 
-### FnxModel Signals
+### NbxModel Signals
 
 | Signal | Emitted When |
 |---|---|
@@ -332,7 +332,7 @@ flowchart TD
     Start([User: New Notebook]) --> NamePrompt[Show name dialog]
     NamePrompt --> CreateTemp[Create temp working directory]
     CreateTemp --> GenXML[Generate empty Manifest.xml]
-    GenXML --> LoadModel[FnxModel loads DOM]
+    GenXML --> LoadModel[NbxModel loads DOM]
     LoadModel --> Work[User edits content]
     Work --> Save{Save triggered?}
     Save -->|Yes| SaveAs[Save As dialog]
@@ -347,7 +347,7 @@ flowchart TD
     Start([User: Open .hearthx]) --> Validate[Validate ZIP format]
     Validate --> CreateTemp[Create temp working directory]
     CreateTemp --> Extract[Extract archive]
-    Extract --> LoadModel[FnxModel loads Manifest.xml]
+    Extract --> LoadModel[NbxModel loads Manifest.xml]
     LoadModel --> Work[User edits content]
 ```
 

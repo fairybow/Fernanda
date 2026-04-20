@@ -6,7 +6,7 @@
 - Notepad exists for the application lifetime, even with no windows
 - Files can be opened multiple times (creating multiple views on the same model)
 - Notepad works on OS filesystem paths; Notebook works on extracted archive files with UUID-based naming
-- Tab titles in Notepad derive from file paths; tab titles in Notebook use FnxModel display names
+- Tab titles in Notepad derive from file paths; tab titles in Notebook use NbxModel display names
 - FileService tracks models by path and reuses existing models when opening the same file twice
 
 ## Application startup
@@ -23,7 +23,7 @@
 - Notebook creates temp working directory
 - If new archive: creates empty working directory structure
 - If existing archive: extracts contents to working directory
-- Loads FnxModel from Model.xml
+- Loads NbxModel from Model.xml
 - Opens with initial window
 
 ## New window
@@ -65,8 +65,8 @@ Triggered by menu, tree view double-click, or internal command.
 - Tree view uses filesystem paths directly
 
 **Notebook-specific:**
-- Tree view translates FnxModel index to working directory path + display name
-- Title override set from FnxModel's user-facing name (not UUID filename)
+- Tree view translates NbxModel index to working directory path + display name
+- Title override set from NbxModel's user-facing name (not UUID filename)
 
 ## Import file (Notebook)
 
@@ -87,7 +87,7 @@ Triggered by menu, tree view double-click, or internal command.
 - Tooltip shows full path
 
 **Notebook:**
-- Title from FnxModel display name (user-editable)
+- Title from NbxModel display name (user-editable)
 - Renaming in tree view updates tab titles via metadata change
 
 ## Model lifecycle

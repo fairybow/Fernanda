@@ -29,4 +29,4 @@ Notebook imports accept any file. The file dialog offers "All Files" and a group
 
 **Passthrough files** (everything else): Read as raw bytes. The file's type is resolved via two-tier identification (magic bytes first, then extension). The original extension is preserved.
 
-Each result is added to the archive via `FnxModel::addNewFile`, which delegates to `Fnx::Xml::addNewFile`. The extension parameter flows into the XML manifest's `extension` attribute and determines the on-disk content filename (`{uuid}{ext}`). The source file's stem becomes the display name. Imported files are opened after insertion, and the tree view expands to show the last imported file.
+Each result is added to the archive via `NbxModel::addNewFile`, which delegates to `Nbx::Xml::addNewFile`. The extension parameter flows into the XML manifest's `extension` attribute and determines the on-disk content filename (`{uuid}{ext}`). The source file's stem becomes the display name. Imported files are opened after insertion, and the tree view expands to show the last imported file.

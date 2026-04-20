@@ -12,7 +12,7 @@ Autosave never triggers backups, save prompts, tab indicators, or modification s
 
 | Workspace | Flush target | Recovery breadcrumb | Breadcrumb location |
 |---|---|---|---|
-| Notebook | Working directory (existing file paths) | `.lock` file (fnx path, working dir path, dirty UUIDs) | `~/.hearth/~temp/recovery/notebooks/` |
+| Notebook | Working directory (existing file paths) | `.lock` file (NBX path, working dir path, dirty UUIDs) | `~/.hearth/~temp/recovery/notebooks/` |
 | Notepad | Shadow recovery directory (`AppDirs::tempNotepadRecovery()`) | Per-file recovery entries (subdirectories with buffer + meta) | `~/.hearth/~temp/recovery/notepad/` |
 
 ## Timer
@@ -25,7 +25,7 @@ Autosave never triggers backups, save prompts, tab indicators, or modification s
 
 Notebook autosave uses `files->save(model, ClearModified::No)` rather than direct `Io::write()` because Notebook files are registered with `QFileSystemWatcher`. Direct writes would bypass the `recentlyWritten_` suppression in `writeModelToDisk_()`, causing spurious `fileModelExternallyModified` signals (and reload prompts) on every autosave tick. Notepad autosave bypasses `FileService` entirely because its recovery writes go to a separate shadow directory, not to the watched file paths.
 
-Notebook does not set a `beforeWriteHook_`, so the backup hook in `writeModelToDisk_()` is not triggered during autosave. Notebook's backups go through `Fnx::Io::compress()` instead. If Notebook ever needs to use `beforeWriteHook_`, the solution is a separate dedicated backup hook.
+Notebook does not set a `beforeWriteHook_`, so the backup hook in `writeModelToDisk_()` is not triggered during autosave. Notebook's backups go through `Nbx::Io::compress()` instead. If Notebook ever needs to use `beforeWriteHook_`, the solution is a separate dedicated backup hook.
 
 ## Undo-to-Clean Cleanup
 
@@ -51,7 +51,7 @@ Checks `AppDirs::tempNotepadRecovery()` for recovery entries. If any exist, show
 
 ### Working Directory
 
-`WorkingDir` does not auto-remove on destruction. Cleanup requires an explicit `remove()` call, ensuring the working directory survives a crash. It tracks whether it created the directory or adopted an existing one (`wasAdopted()`). Directory names use `{fnxName}~{randomSuffix}`.
+`WorkingDir` does not auto-remove on destruction. Cleanup requires an explicit `remove()` call, ensuring the working directory survives a crash. It tracks whether it created the directory or adopted an existing one (`wasAdopted()`). Directory names use `{nbxName}~{randomSuffix}`.
 
 `Notebook::~Notebook()` calls `clearRecoveryState_()` and removes the working directory. On crash, neither runs, and both persist.
 
@@ -72,7 +72,7 @@ The lockfile path is computed by `NotebookLockfile::path()` from the recovery di
 Plain text, one key per line:
 
 ```
-fnx=/path/to/MyNovel.hearthx
+nbx=/path/to/MyNovel.hearthx
 working_dir=/home/user/.hearth/~temp/notebooks/MyNovel.hearthx~a1b2c3d4
 dirty_uuids=3f2a1b4c-...,8e7d6c5b-...
 ```
@@ -89,7 +89,7 @@ Serialization and I/O are handled by the `NotebookLockfile` namespace. `Internal
 
 Call sites:
 
-- After a successful `Fnx::Io::compress()` in `save_()`, `saveAs_()`, `canCloseWindow()`, and `canCloseAllWindows()`
+- After a successful `Nbx::Io::compress()` in `save_()`, `saveAs_()`, `canCloseWindow()`, and `canCloseAllWindows()`
 - In the Discard branch of `canCloseWindow()` and `canCloseAllWindows()`
 - In `~Notebook()` (safety net)
 
@@ -97,13 +97,13 @@ Additionally, `writeLockfile_()` performs partial cleanup (lockfile deletion, UU
 
 ### Recovery Construction
 
-`Notebook::recover(lockfilePath)` is a static factory that reads the lockfile via `NotebookLockfile::read()`. It returns `nullptr` if the working directory is missing or the fnx path is empty (corrupted lockfile). Otherwise, it constructs a `WorkingDir` from the orphaned directory path (which `WorkingDir` adopts rather than creating) and calls a private constructor. `Notebook::setup_()` checks `workingDir_.wasAdopted()` to skip the normal extraction/creation step.
+`Notebook::recover(lockfilePath)` is a static factory that reads the lockfile via `NotebookLockfile::read()`. It returns `nullptr` if the working directory is missing or the NBX path is empty (corrupted lockfile). Otherwise, it constructs a `WorkingDir` from the orphaned directory path (which `WorkingDir` adopts rather than creating) and calls a private constructor. `Notebook::setup_()` checks `workingDir_.wasAdopted()` to skip the normal extraction/creation step.
 
 ### Recovery Dirty State
 
 On recovery, dirty UUIDs from the lockfile are stashed in `recoveryDirtyUuids_`. At the end of `setup_()`, `applyRecoveryState_()`:
 
-1. Marks each UUID as edited in `FnxModel` (so the TreeView shows them dirty immediately)
+1. Marks each UUID as edited in `NbxModel` (so the TreeView shows them dirty immediately)
 2. Sets a `FileService::afterModelCreatedHook` that calls `setModified(true)` on models whose UUIDs match the set
 
 Recovered files are born dirty: the hook fires before `connectNewModel_()`, so the first `modificationChanged` emission reports the correct state.
