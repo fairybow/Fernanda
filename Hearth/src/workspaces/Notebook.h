@@ -368,7 +368,7 @@ private:
             nbxModel_,
             &NbxModel::fileRenamed,
             this,
-            &Notebook::onFnxModelFileRenamed_);
+            &Notebook::onNbxModelFileRenamed_);
 
         connectBusEvents_();
 
@@ -966,7 +966,7 @@ private slots:
         refreshMenus(MenuScope::Workspace);
     }
 
-    void onFnxModelFileRenamed_(const NbxModel::FileInfo& info)
+    void onNbxModelFileRenamed_(const NbxModel::FileInfo& info)
     {
         if (!info.isValid()) return;
         if (!workingDir_.isValid()) return;
