@@ -56,7 +56,7 @@ bld/
 #!**/[Bb]in/*.refresh
 
 # Visual Studio 2015/2017 cache/options directory
-#.vs/
+.vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
@@ -452,9 +452,6 @@ CMakeUserPresets.json
 #cmake-build-*
 
 ### Custom
-
-**/.vs/*
-!Hearth/.vs/launch.vs.json
 
 *.diff
 *.patch
