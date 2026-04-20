@@ -204,11 +204,11 @@ Notebook displays two TreeViews sharing the same `NbxModel`:
 
 ```cpp
 QModelIndex treeViewRootIndex() {
-    return fnxModel_->notebookIndex();  // Children of <notebook>
+    return nbxModel_->notebookIndex();  // Children of <notebook>
 }
 ```
 
-When nothing is selected, `TreeView::currentIndex()` returns an invalid `QModelIndex`. However, `NbxModel::elementAt_({})` maps invalid indices to the document root (`<fnx>`), not `<notebook>`. This requires explicit handling when adding items to ensure they're parented under `<notebook>`.
+When nothing is selected, `TreeView::currentIndex()` returns an invalid `QModelIndex`. However, `NbxModel::elementAt_({})` maps invalid indices to the document root (`<nbx>`), not `<notebook>`. This requires explicit handling when adding items to ensure they're parented under `<notebook>`.
 
 ## Trash System
 
@@ -262,8 +262,8 @@ All modified `AbstractFileModel`s are saved to the working directory via `FileSe
 ### New Notebooks
 
 New Notebooks (created via "New Notebook" rather than opening an existing `.hearthx`):
-- Have `fnxPath_` set to intended location but archive doesn't exist yet
-- Are always considered "modified" (`!fnxPath_.exists()`)
+- Have `nbxPath_` set to intended location but archive doesn't exist yet
+- Are always considered "modified" (`!nbxPath_.exists()`)
 - First save triggers Save As dialog to create the archive
 
 ## Context Menus
@@ -293,7 +293,7 @@ New Notebooks (created via "New Notebook" rather than opening an existing `.hear
 ## Drag and Drop
 
 NbxModel supports internal drag-and-drop for reorganizing items:
-- Uses custom MIME type: `application/x-hearth-fnx-element`
+- Uses custom MIME type: `application/x-hearth-nbx-element`
 - Only `MoveAction` is supported
 - Items can be dragged between notebook and trash
 - Moving to own subtree is prevented

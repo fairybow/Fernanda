@@ -12,7 +12,7 @@ Autosave never triggers backups, save prompts, tab indicators, or modification s
 
 | Workspace | Flush target | Recovery breadcrumb | Breadcrumb location |
 |---|---|---|---|
-| Notebook | Working directory (existing file paths) | `.lock` file (fnx path, working dir path, dirty UUIDs) | `~/.hearth/~temp/recovery/notebooks/` |
+| Notebook | Working directory (existing file paths) | `.lock` file (NBX path, working dir path, dirty UUIDs) | `~/.hearth/~temp/recovery/notebooks/` |
 | Notepad | Shadow recovery directory (`AppDirs::tempNotepadRecovery()`) | Per-file recovery entries (subdirectories with buffer + meta) | `~/.hearth/~temp/recovery/notepad/` |
 
 ## Timer
@@ -51,7 +51,7 @@ Checks `AppDirs::tempNotepadRecovery()` for recovery entries. If any exist, show
 
 ### Working Directory
 
-`WorkingDir` does not auto-remove on destruction. Cleanup requires an explicit `remove()` call, ensuring the working directory survives a crash. It tracks whether it created the directory or adopted an existing one (`wasAdopted()`). Directory names use `{fnxName}~{randomSuffix}`.
+`WorkingDir` does not auto-remove on destruction. Cleanup requires an explicit `remove()` call, ensuring the working directory survives a crash. It tracks whether it created the directory or adopted an existing one (`wasAdopted()`). Directory names use `{nbxName}~{randomSuffix}`.
 
 `Notebook::~Notebook()` calls `clearRecoveryState_()` and removes the working directory. On crash, neither runs, and both persist.
 
@@ -72,7 +72,7 @@ The lockfile path is computed by `NotebookLockfile::path()` from the recovery di
 Plain text, one key per line:
 
 ```
-fnx=/path/to/MyNovel.hearthx
+nbx=/path/to/MyNovel.hearthx
 working_dir=/home/user/.hearth/~temp/notebooks/MyNovel.hearthx~a1b2c3d4
 dirty_uuids=3f2a1b4c-...,8e7d6c5b-...
 ```
@@ -97,7 +97,7 @@ Additionally, `writeLockfile_()` performs partial cleanup (lockfile deletion, UU
 
 ### Recovery Construction
 
-`Notebook::recover(lockfilePath)` is a static factory that reads the lockfile via `NotebookLockfile::read()`. It returns `nullptr` if the working directory is missing or the fnx path is empty (corrupted lockfile). Otherwise, it constructs a `WorkingDir` from the orphaned directory path (which `WorkingDir` adopts rather than creating) and calls a private constructor. `Notebook::setup_()` checks `workingDir_.wasAdopted()` to skip the normal extraction/creation step.
+`Notebook::recover(lockfilePath)` is a static factory that reads the lockfile via `NotebookLockfile::read()`. It returns `nullptr` if the working directory is missing or the NBX path is empty (corrupted lockfile). Otherwise, it constructs a `WorkingDir` from the orphaned directory path (which `WorkingDir` adopts rather than creating) and calls a private constructor. `Notebook::setup_()` checks `workingDir_.wasAdopted()` to skip the normal extraction/creation step.
 
 ### Recovery Dirty State
 
