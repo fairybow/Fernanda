@@ -325,4 +325,4 @@ Good example of:
 - Qt ownership patterns (parent-child relationships, proper signal connections)
 - Modern C++ where appropriate (concepts, template constraints)
 
-Unlike most of Fernanda's objects and widgets (which are intentionally specialized), MenuBuilder is a good example of a general-purpose (but Qt-specific) utility class.
+Unlike most of Hearth's objects and widgets (which are intentionally specialized), MenuBuilder is a good example of a general-purpose (but Qt-specific) utility class.

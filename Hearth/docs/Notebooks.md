@@ -9,7 +9,7 @@ See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), 
 A Notebook provides:
 - **Virtual organization**: Files and folders arranged independently of their physical storage
 - **Self-contained projects**: Everything lives in one portable `.fnx` file
-- **Recoverability**: Standard ZIP format means content remains accessible outside Fernanda
+- **Recoverability**: Standard ZIP format means content remains accessible outside Hearth
 - **Multiple instances**: Unlike Notepad (singleton), any number of Notebooks can be open simultaneously
 
 ## Architecture
@@ -116,7 +116,7 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 
 ## Working Directory
 
-When a Notebook is opened, Fernanda extracts the `.fnx` archive to a temporary working directory:
+When a Notebook is opened, Hearth extracts the `.fnx` archive to a temporary working directory:
 
 ```
 {temp}/MyNovel.fnx~XXXXXXXX/

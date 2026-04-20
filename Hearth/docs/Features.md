@@ -4,7 +4,7 @@ Current version: v0.99.0-beta.18
 
 ## Separate Workspaces
 
-Fernanda has two workspace types that share a common architecture (services, bus, hooks) but differ in how they manage files.
+Hearth has two workspace types that share a common architecture (services, bus, hooks) but differ in how they manage files.
 
 Shared capabilities:
 
@@ -23,7 +23,7 @@ Shared capabilities:
 - Operates directly on the OS filesystem
 - Tree View showing real directory structure
 - Open, edit, and save any plain text file on disk
-- Opening arguments support (double-click/drag a file in your OS to open it in Fernanda)
+- Opening arguments support (double-click/drag a file in your OS to open it in Hearth)
 - TreeView file renaming
 - File imports: DOCX and RTF converted to plain text and opened as unsaved tabs
 
@@ -37,7 +37,7 @@ Shared capabilities:
 - Create new Notebooks from scratch (name prompt, deferred first save)
 - Open existing `.fnx` archives (extraction, validation, working directory setup)
 - Multiple Notebooks can be open simultaneously
-- Recoverable (standard ZIP format means content remains accessible outside Fernanda)
+- Recoverable (standard ZIP format means content remains accessible outside Hearth)
 - File imports: any file can be imported into a Notebook (DOCX and RTF are converted to plain text; all other files are passed through with their original type preserved)
 - Single file export (planned: multiple files, directories, as well as, eventually, full archive export/compilation)
 
@@ -269,7 +269,7 @@ Shared capabilities:
 - Hook-based policy injection (Services define decision points, Workspaces implement behavior)
 - Two-phase initialization for safe cross-service communication
 - Bus isolation per Workspace (no cross-contamination)
-- Commander pattern for generic command dispatch (reusable, separable from Fernanda)
+- Commander pattern for generic command dispatch (reusable, separable from Hearth)
 - Custom debug/logging system with `std::format` integration and custom Qt type formatters
 - Prerelease dialog
 - About dialog
@@ -281,4 +281,4 @@ Shared capabilities:
 
 - Small utilities (like a pomodoro timer)
 - FNX compilation/export
-- Corkboard files (a slightly different approach to corkboards: standalone files that, when opened in Fernanda, display a corkboard and index cards that can be linked to existing files; would work in Notepad or Notebook)
+- Corkboard files (a slightly different approach to corkboards: standalone files that, when opened in Hearth, display a corkboard and index cards that can be linked to existing files; would work in Notepad or Notebook)

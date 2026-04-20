@@ -2,13 +2,13 @@
 
 TODO: Make sure this is consistent with code (and reduce direct code references)
 
-How Fernanda identifies, opens, and saves files.
+How Hearth identifies, opens, and saves files.
 
 See: [`FileService.h`](../src/services/FileService.h), [`Files.h`](../src/core/Files.h), [`MagicBytes.h`](../src/core/MagicBytes.h), [`AbstractFileModel.h`](../src/models/AbstractFileModel.h), and [`Fnx.h`](../src/fnx/Fnx.h)
 
 ## Overview
 
-Fernanda aims to open any file correctly regardless of its name. A PDF with the wrong extension still opens as a PDF. A text file with no extension opens as text. The user's choice of filename is always respected.
+Hearth aims to open any file correctly regardless of its name. A PDF with the wrong extension still opens as a PDF. A text file with no extension opens as text. The user's choice of filename is always respected.
 
 File handling has two distinct concerns:
 
@@ -19,21 +19,21 @@ File handling has two distinct concerns:
 
 ## How Files Are Identified
 
-When a file is opened, Fernanda uses a two-tier identification strategy.
+When a file is opened, Hearth uses a two-tier identification strategy.
 
 ### Tier 1: Content Signatures (Magic Bytes)
 
-Binary formats (PDF, and eventually images, etc.) embed recognizable byte patterns at the start of their data. Fernanda checks these first. If a file's bytes match a known binary format, it is identified by its content regardless of what extension the file has. A PDF named `chapter-notes.xyz` is still a PDF.
+Binary formats (PDF, and eventually images, etc.) embed recognizable byte patterns at the start of their data. Hearth checks these first. If a file's bytes match a known binary format, it is identified by its content regardless of what extension the file has. A PDF named `chapter-notes.xyz` is still a PDF.
 
 This tier is authoritative for any format that has a signature. Extension is irrelevant.
 
 ### Tier 2: Extension
 
-Text-based formats have no distinguishing byte signature. A Markdown file, a Fountain screenplay, and a plain `.txt` file are all just text at the byte level. For these formats, the file's extension is the only available signal. Fernanda checks the extension against its registry of known text-based types and routes accordingly.
+Text-based formats have no distinguishing byte signature. A Markdown file, a Fountain screenplay, and a plain `.txt` file are all just text at the byte level. For these formats, the file's extension is the only available signal. Hearth checks the extension against its registry of known text-based types and routes accordingly.
 
 ### Fallthrough
 
-If neither tier produces a match (no recognized signature and no special extension), the file opens as plain text. This is also the fallthrough for binary signatures that Fernanda recognizes but does not yet have a dedicated viewer for.
+If neither tier produces a match (no recognized signature and no special extension), the file opens as plain text. This is also the fallthrough for binary signatures that Hearth recognizes but does not yet have a dedicated viewer for.
 
 ```
 Open file
@@ -50,7 +50,7 @@ Known byte signature?
 
 Extensions and type metadata needed across the application are centralized in the `Files` namespace. It provides a constexpr table of supported types mapped to their canonical extensions (with aliases like `.jpg` for `.jpeg`), `canonicalExt(Type)` to retrieve the canonical extension for a type, and `fromPath(path)` to resolve a file's extension to a Type (Plain text for anything unrecognized).
 
-`FileTypes` and `MagicBytes` solve different problems and remain separate. `MagicBytes` answers "what is this file?" by inspecting bytes. `FileTypes` answers "what can Fernanda do with this file?" by mapping extensions to known types. `FileService` bridges them via the two-tier resolution.
+`FileTypes` and `MagicBytes` solve different problems and remain separate. `MagicBytes` answers "what is this file?" by inspecting bytes. `FileTypes` answers "what can Hearth do with this file?" by mapping extensions to known types. `FileService` bridges them via the two-tier resolution.
 
 ## File Types
 
@@ -74,7 +74,7 @@ A visual planning tool for organizing story elements. Corkboard files are JSON s
 
 | | |
 |---|---|
-| **Extension** | `.fcb` (Fernanda Corkboard) |
+| **Extension** | `.hcb` (Hearth Corkboard) |
 | **Model** | `CorkboardFileModel`: JSON data |
 | **View** | `CorkboardFileView`: interactive board of movable index cards |
 | **Modification** | Yes |
@@ -86,13 +86,13 @@ Cards can be linked to existing text files (within the same Notebook or on disk)
 
 ### Theme Editor (Long-Term)
 
-Custom views for Fernanda's own window and editor theme files. These are two distinct file types (Fernanda Window theme and Fernanda Editor theme) that share a similar editing approach. The underlying data is JSON. Detected by extension (Tier 2).
+Custom views for Hearth's own window and editor theme files. These are two distinct file types (Hearth Window theme and Hearth Editor theme) that share a similar editing approach. The underlying data is JSON. Detected by extension (Tier 2).
 
 This is way down the road. The initial concept is not necessarily a fully custom view: it may be a text view augmented with properties that show color pickers beside existing value fields, where the user can still type directly and pickers pop up contextually. The view would draw on a theme API exposed from `Themes.h`.
 
 | | |
 |---|---|
-| **Extensions** | Fernanda window theme ext, Fernanda editor theme ext (TBD) |
+| **Extensions** | Hearth window theme ext, Hearth editor theme ext (TBD) |
 | **Model** | Possibly `TextFileModel` or a thin subclass |
 | **View** | Augmented text view with color pickers / form fields |
 | **Modification** | Yes |
@@ -153,7 +153,7 @@ Fernanda does not force or auto-append file extensions. When saving, the suggest
 
 This means a file's extension can affect how it is handled:
 
-- Renaming `notes.md` to `notes.txt` means Fernanda will treat it as plain text instead of Markdown the next time it is opened. The content is unchanged, only the handling differs.
+- Renaming `notes.md` to `notes.txt` means Hearth will treat it as plain text instead of Markdown the next time it is opened. The content is unchanged, only the handling differs.
 - Removing a file's extension entirely causes it to fall through to plain text.
 - Changing the extension of a binary file (e.g., renaming a PDF to `.txt`) has no effect on identification, since Tier 1 (byte signature) takes priority over extension.
 
@@ -163,7 +163,7 @@ In the future, renaming a file's extension while it is open will trigger a view 
 
 ## FNX Archives
 
-FNX files (`.fnx`) are Fernanda Notebook archives. They are the only file type handled outside the two-tier identification system. `Application` and Workspaces intercept FNX files before they ever reach `FileService`.
+FNX files (`.fnx`) are Hearth Notebook archives. They are the only file type handled outside the two-tier identification system. `Application` and Workspaces intercept FNX files before they ever reach `FileService`.
 
 ### How FNX files are detected
 
@@ -180,7 +180,7 @@ Several paths through the application encounter files that might be FNX archives
 
 ### What happens when FNX detection fails
 
-In most code paths, a file that looks like it might be an FNX archive but fails `isFnxFile` is simply opened as a regular file. This means the user may see binary content (the raw ZIP data rendered as text). This is consistent with the general principle that Fernanda opens anything: the file is not an FNX archive as far as the system is concerned, so it is treated like any other file.
+In most code paths, a file that looks like it might be an FNX archive but fails `isFnxFile` is simply opened as a regular file. This means the user may see binary content (the raw ZIP data rendered as text). This is consistent with the general principle that Hearth opens anything: the file is not an FNX archive as far as the system is concerned, so it is treated like any other file.
 
 The one exception is the "Open Notebook" menu dialog, which is specifically for opening Notebooks and silently refuses invalid files.
 

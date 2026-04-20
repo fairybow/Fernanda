@@ -6,7 +6,7 @@ See: [`Backup.h`](../src/workspaces/Backup.h), [`FileService.h`](../src/services
 
 ## Overview
 
-When the user explicitly saves, Fernanda copies the existing committed content to a backup directory before overwriting it. This covers "I saved something I didn't mean to." Backups are permanent until pruned. Autosave never triggers backups.
+When the user explicitly saves, Hearth copies the existing committed content to a backup directory before overwriting it. This covers "I saved something I didn't mean to." Backups are permanent until pruned. Autosave never triggers backups.
 
 Notepad and Notebook hook at different levels because their units of committed content differ:
 

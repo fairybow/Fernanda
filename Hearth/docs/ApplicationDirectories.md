@@ -1,6 +1,6 @@
 # Application Directories
 
-Fernanda uses a few standard locations for storing data.
+Hearth uses a few standard locations for storing data.
 
 See: [`AppDirs.h`](../src/core/AppDirs.h)
 
@@ -18,7 +18,7 @@ See: [`AppDirs.h`](../src/core/AppDirs.h)
 |-- logs/
 +-- themes/
 
-~/Documents/Fernanda/           Default location for file dialogs
+~/Documents/Hearth/           Default location for file dialogs
 ```
 
 These paths are managed by `AppDirs` and created on demand. Recovery and working directories are cleaned up on exit via `AppDirs::cleanup()`.

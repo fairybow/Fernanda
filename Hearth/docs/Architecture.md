@@ -1,6 +1,6 @@
 # Architecture
 
-Fernanda uses an event-driven architecture with clear separation between mechanics and policy. This document explains the structural patterns and their rationale.
+Hearth uses an event-driven architecture with clear separation between mechanics and policy. This document explains the structural patterns and their rationale.
 
 See: [`Application.h`](../src/core/Application.h), [`Bus.h`](../src/workspaces/Bus.h), [`Commander.h`](../src/workspaces/Commander.h), [`AbstractService.h`](../src/services/AbstractService.h), [`Workspace.h`](../src/workspaces/Workspace.h), [`WindowService.h`](../src/services/WindowService.h), and [`ViewService.h`](../src/services/ViewService.h)
 
@@ -91,7 +91,7 @@ signals:
 
 #### Commander vs. Bus
 
-`Commander` is a reusable, generic command registration/dispatch system, it could be extracted to another project (or moved to Coco as a general-purpose utility). `Bus` is the Fernanda-specific subclass that:
+`Commander` is a reusable, generic command registration/dispatch system, it could be extracted to another project (or moved to Coco as a general-purpose utility). `Bus` is the Hearth-specific subclass that:
 
 1. Inherits `Commander` to *be* a commander
 2. Adds the application-specific Qt signals (events)

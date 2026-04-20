@@ -79,12 +79,12 @@ void initializeSettings_()
 
 #pragma once
 
-namespace Fernanda::LanguageDialog {
+namespace Hearth::LanguageDialog {
 
 // Application-modal
 void exec();
 
-} // namespace Fernanda::LanguageDialog
+} // namespace Hearth::LanguageDialog
 
 //==========================================
 
@@ -104,7 +104,7 @@ void exec();
 
 // TODO: Decide on button box. This is a live settings changer, like
 // SettingsDialog which doesn't have a button. Should this match?
-namespace Fernanda::LanguageDialog {
+namespace Hearth::LanguageDialog {
 
 void exec()
 {
@@ -147,5 +147,5 @@ void exec()
     dialog.exec();
 }
 
-} // namespace Fernanda::LanguageDialog
+} // namespace Hearth::LanguageDialog
 ```
