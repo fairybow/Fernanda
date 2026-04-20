@@ -307,7 +307,7 @@ namespace Io {
 
     /// TODO BA
     using BeforeOverwriteHook =
-        std::function<void(const Coco::Path& originalFnx)>;
+        std::function<void(const Coco::Path& originalNbx)>;
 
     inline void makeNewWorkingDir(const Coco::Path& workingDir)
     {

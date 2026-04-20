@@ -362,7 +362,7 @@ private:
             nbxModel_,
             &NbxModel::domChanged,
             this,
-            &Notebook::onFnxModelDomChanged_);
+            &Notebook::onNbxModelDomChanged_);
 
         connect(
             nbxModel_,
@@ -956,7 +956,7 @@ private:
 private slots:
     // TODO: Could remove working dir validity check; also writeManifest could
     // return bool?
-    void onFnxModelDomChanged_()
+    void onNbxModelDomChanged_()
     {
         // Initial DOM load emission doesn't call this slot
         if (!workingDir_.isValid()) return;

@@ -809,7 +809,7 @@ private:
 /*#include <QElapsedTimer>
 #include <atomic>
 
-namespace FnxModelProfile {
+namespace NbxModelProfile {
 
 inline std::atomic<int> indexCalls{ 0 };
 inline std::atomic<int> parentCalls{ 0 };
@@ -828,4 +828,4 @@ inline void report()
     indexCalls = parentCalls = rowCountCalls = dataCalls = isValidCalls = 0;
 }
 
-} // namespace FnxModelProfile*/
+} // namespace NbxModelProfile*/
