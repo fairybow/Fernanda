@@ -7,7 +7,7 @@ if "%~1"=="" (
 
 set "STEM=%~n1"
 
-magick "%~1" -density 600 -transparent white -background transparent -alpha on -channel RGBA -colorspace sRGB -filter Lanczos -depth 8 -define png:compression-level=0 -define png:compression-filter=0 ^
+magick -background none -density 1200 "%~1" -filter Lanczos -colorspace sRGB -depth 8 -define png:compression-level=0 -define png:compression-filter=0 ^
   ( +clone -resize 2048x2048 -write "../%STEM%-2048.png" +delete ) ^
   ( +clone -resize 1024x1024 -write "../%STEM%-1024.png" +delete ) ^
   ( +clone -resize 512x512 -write "../%STEM%-512.png" +delete ) ^
