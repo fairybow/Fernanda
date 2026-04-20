@@ -190,7 +190,7 @@ namespace Internal {
 #ifdef VERSION_DEBUG // TODO: Generalize / accept an arg?
 #    define ASSERT(condition, ...)                                             \
         ((condition) ? static_cast<void>(0)                                    \
-                     : Hearth::Debug::Internal::assertionFailed_(            \
+                     : Hearth::Debug::Internal::assertionFailed_(              \
                            #condition,                                         \
                            __FILE__,                                           \
                            __LINE__,                                           \
@@ -200,7 +200,7 @@ namespace Internal {
 #endif
 
 #define UNREACHABLE(...)                                                       \
-    Hearth::Debug::Internal::assertionFailed_(                               \
+    Hearth::Debug::Internal::assertionFailed_(                                 \
         "UNREACHABLE",                                                         \
         __FILE__,                                                              \
         __LINE__,                                                              \
