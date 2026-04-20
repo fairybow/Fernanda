@@ -456,3 +456,4 @@ CMakeUserPresets.json
 *.diff
 *.patch
 tree.txt
+!Hearth/.vs/launch.vs.json
