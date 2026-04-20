@@ -118,7 +118,7 @@ POSSIBLY switch members and methods for private only
 - [ ] Highlight/Q_PROPERTY for all buttons (before tackling window style/themes)
 - [ ] drop `auto` ???
 - [ ] AbsMarkupFileView mode bar needs visual distinction on bottom and maybe top, like a thin line
-- [ ] BUG: Unsure how it occurred, but opened Candide.fnx and moved several files to trash (all but chapter 1) and then deleted them all. Then when I imported a PNG, it opened in a tab but did not appear in the TreeView...
+- [ ] BUG: Unsure how it occurred, but opened Candide.hearthx and moved several files to trash (all but chapter 1) and then deleted them all. Then when I imported a PNG, it opened in a tab but did not appear in the TreeView...
 - [ ] ^ Added release logging, log viewer, and automatic Notebook TreeView expansion to help find this. It easily could have been an overlooked add-as-child, which didn't expand before
 - [ ] One thing I think I would like to fix in the future is keeping file nesting but having operations like import or new file or whatever else resolve to the parent directory instead of the file, if the currently selected item is a file. This wound not apply to right click context menu actions
 - [ ] Notebook TreeView multiple item selection, drag, delete, restore, etc
@@ -141,7 +141,7 @@ POSSIBLY switch members and methods for private only
 - [ ] ^ If so, do a modality overhaul, checking dialogs and call sites for what window or workspace to pass (or set app modal, like for quit)
 - [ ] Backups prune cap setting
 - [ ] Coco CMake?
-- [ ] Have two "supported files" filters in addition to the "all files" (one for Notebook and one for Notepad which will also contain .fnx)
+- [ ] Have two "supported files" filters in addition to the "all files" (one for Notebook and one for Notepad which will also contain .hearthx)
 - [ ] These filters should be set to list multiple extensions where applicable (meaning FileTypes needs an "all extensions" function to return canonical + aliases (JPG is the only one right now, when that's supported)
 - [ ] Save As options could show a second (or third) filter (in addition to all files and/or all supported files) for the canonical type
 - [ ] Need a function to return all extensions from the map (canonical + aliases)
@@ -153,7 +153,7 @@ POSSIBLY switch members and methods for private only
 
 From the file-types branch. See FileHandling.md for design details.
 
-- [ ] NBX filter cleanup: Open Notebook, Save As Notebook, and Import dialogs still need `.fnx` filters. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
+- [ ] NBX filter cleanup: Open Notebook, Save As Notebook, and Import dialogs still need `.hearthx` filters. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
 - [ ] Model/view re-evaluation on rename: when a file's extension changes, the system should swap to the appropriate model/view pair. Only affects Tier 2 types (special text), since Tier 1 (magic bytes) types are identified by content. Applies to both Notepad (filesystem rename) and Notebook (tree view rename).
 - [ ] Consider NoOp for large unsupported binary files (e.g., images) where opening as text would be wasteful. Later-problem.
 - [ ] NBX files within NBX archives: deliberately deferred. Nested archive lifecycle management conflicts with current architecture. See FileHandling.md for rationale.
@@ -234,7 +234,7 @@ Might be simple but tedious. Later.
 
 - [ ] Shorter size abbreviations in Notepad TreeViews
 - [ ] Tab bar tabs should not resize while user's mouse is over it (to enable rapid tab closing)
-- [ ] .fnx Notebook icon
+- [ ] .hearthx Notebook icon
 - [ ] Icon instead of trash text?
 - [ ] Maybe stuff some of the closures in sub menus
 - [ ] MenuBar highlight on hover, modeled after TabWidgetButton highlight (radius, color, etc.)

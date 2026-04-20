@@ -38,7 +38,7 @@ namespace Hearth {
 // See:
 // https://doc.qt.io/qt-6/model-view-programming.html#model-subclassing-reference
 //
-// Qt Model/View adapter for .fnx virtual directory structure.
+// Qt Model/View adapter for .hearthx virtual directory structure.
 //
 // Owns the internal QDomDocument. Public methods return FileInfo structs, never
 // raw DOM elements. Uses Nbx::Xml helpers internally for DOM operations.

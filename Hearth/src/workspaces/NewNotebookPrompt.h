@@ -44,7 +44,7 @@ inline QString exec()
     label->setTextInteractionFlags(Qt::NoTextInteraction);
     layout->addWidget(label);
 
-    // Input row ([QLineEdit][.fnx])
+    // Input row ([QLineEdit][.hearthx])
     auto input_layout = new QHBoxLayout;
     auto line_edit = new QLineEdit(&dialog);
     auto suffix_label =

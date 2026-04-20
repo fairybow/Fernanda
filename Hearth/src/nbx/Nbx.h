@@ -31,7 +31,7 @@
 #include "core/Files.h"
 #include "core/Io.h"
 
-// .fnx file format specification and utilities
+// .hearthx file format specification and utilities
 // - Nbx::Io: Archive and working directory operations
 // - Nbx::Xml: DOM element factories and queries (stateless helpers)
 //

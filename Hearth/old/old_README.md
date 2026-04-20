@@ -13,14 +13,14 @@
 
 ![screenshot](https://github.com/fairybow/Fernanda/blob/main/Fernanda/resources/screenshots/1.apng)
 
-Fernanda is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.fnx`)](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Notebooks.md).
+Fernanda is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.hearthx`)](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Notebooks.md).
 
 > [!NOTE]
 > macOS and Linux builds are available but not well-tested. Bug reports are welcome!
 
 ## Features
 
-Fernanda offers two workspace types: a **Notepad** for working directly on the OS filesystem and **Notebooks** for organizing whole projects inside a single, portable `.fnx` archive. Both support multiple windows, tabbed editing, and drag-and-drop.
+Fernanda offers two workspace types: a **Notepad** for working directly on the OS filesystem and **Notebooks** for organizing whole projects inside a single, portable `.hearthx` archive. Both support multiple windows, tabbed editing, and drag-and-drop.
 
 - Distraction-free editor with line numbers, current line highlight, and selection handles (all togglable)
 - Key filters for auto-close, smart quotes, and other typing enhancements
@@ -42,7 +42,7 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/F
 
 ## Usage
 
-Fernanda accepts file paths as arguments. Valid `.fnx` files open in their own Notebook, and everything else opens in Notepad.
+Fernanda accepts file paths as arguments. Valid `.hearthx` files open in their own Notebook, and everything else opens in Notepad.
 
 Optional flags:
 

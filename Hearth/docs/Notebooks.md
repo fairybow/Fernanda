@@ -1,6 +1,6 @@
 # Notebooks
 
-Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.fnx` archive file, a standard ZIP archive containing files and an XML manifest describing the virtual directory structure.
+Notebooks are archive-based Workspaces for organizing writing projects. Unlike Notepad (which works directly on the OS filesystem), Notebooks store all content inside a single `.hearthx` archive file, a standard ZIP archive containing files and an XML manifest describing the virtual directory structure.
 
 See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), [`FnxModel.h`](../src/fnx/FnxModel.h), [`FnxModelCache.h`](../src/fnx/FnxModelCache.h), [`Workspace.h`](../src/workspaces/Workspace.h), and [`WorkingDir.h`](../src/workspaces/WorkingDir.h)
 
@@ -8,7 +8,7 @@ See: [`Notebook.h`](../src/workspaces/Notebook.h), [`Fnx.h`](../src/fnx/Fnx.h), 
 
 A Notebook provides:
 - **Virtual organization**: Files and folders arranged independently of their physical storage
-- **Self-contained projects**: Everything lives in one portable `.fnx` file
+- **Self-contained projects**: Everything lives in one portable `.hearthx` file
 - **Recoverability**: Standard ZIP format means content remains accessible outside Hearth
 - **Multiple instances**: Unlike Notepad (singleton), any number of Notebooks can be open simultaneously
 
@@ -16,7 +16,7 @@ A Notebook provides:
 
 ```
 Notebook Workspace
-|-- fnxPath_        -> Path to .fnx archive (may not exist yet for new Notebooks)
+|-- fnxPath_        -> Path to .hearthx archive (may not exist yet for new Notebooks)
 |-- workingDir_     -> Temporary directory for extracted content
 |-- fnxModel_       -> Qt model adapter for DOM + TreeView
 +-- Services        -> (inherited from Workspace)
@@ -36,10 +36,10 @@ Notebook Workspace
 
 ## The NBX File Format
 
-An `.fnx` file is a ZIP archive with a rigid internal structure:
+An `.hearthx` file is a ZIP archive with a rigid internal structure:
 
 ```
-MyNovel.fnx (ZIP archive)
+MyNovel.hearthx (ZIP archive)
 |-- Manifest.xml        # Virtual directory structure
 |-- Settings.ini        # Notebook-specific settings (optional)
 +-- content/            # Physical file storage
@@ -116,10 +116,10 @@ Both `vfolder` and `file` elements may contain nested children. Files can have c
 
 ## Working Directory
 
-When a Notebook is opened, Hearth extracts the `.fnx` archive to a temporary working directory:
+When a Notebook is opened, Hearth extracts the `.hearthx` archive to a temporary working directory:
 
 ```
-{temp}/MyNovel.fnx~XXXXXXXX/
+{temp}/MyNovel.hearthx~XXXXXXXX/
 |-- Manifest.xml
 |-- Settings.ini
 +-- content/
@@ -128,7 +128,7 @@ When a Notebook is opened, Hearth extracts the `.fnx` archive to a temporary wor
 
 ### Key Behaviors
 
-- **Naming**: Working directory name is the `.fnx` filename plus a random 8-character suffix
+- **Naming**: Working directory name is the `.hearthx` filename plus a random 8-character suffix
 - **Persistence**: The working directory name remains unchanged for the Notebook's lifetime, even after "Save As" to a different filename
 - **Cleanup**: Working directory is automatically deleted when the Notebook is safely closed
 
@@ -244,7 +244,7 @@ All modified `AbstractFileModel`s are saved to the working directory via `FileSe
 
 ### Tier 2: Archive
 1. `FnxModel::write()` writes `Manifest.xml` to working directory
-2. `Fnx::Io::compress()` creates or replaces the archive at the `.fnx` path
+2. `Fnx::Io::compress()` creates or replaces the archive at the `.hearthx` path
 3. On success: Reset DOM snapshot, clear window modification flags
 
 ### Save Scenarios
@@ -261,7 +261,7 @@ All modified `AbstractFileModel`s are saved to the working directory via `FileSe
 
 ### New Notebooks
 
-New Notebooks (created via "New Notebook" rather than opening an existing `.fnx`):
+New Notebooks (created via "New Notebook" rather than opening an existing `.hearthx`):
 - Have `fnxPath_` set to intended location but archive doesn't exist yet
 - Are always considered "modified" (`!fnxPath_.exists()`)
 - First save triggers Save As dialog to create the archive
@@ -336,7 +336,7 @@ flowchart TD
     LoadModel --> Work[User edits content]
     Work --> Save{Save triggered?}
     Save -->|Yes| SaveAs[Save As dialog]
-    SaveAs --> Compress[Compress to .fnx]
+    SaveAs --> Compress[Compress to .hearthx]
     Compress --> Work
 ```
 
@@ -344,7 +344,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Start([User: Open .fnx]) --> Validate[Validate ZIP format]
+    Start([User: Open .hearthx]) --> Validate[Validate ZIP format]
     Validate --> CreateTemp[Create temp working directory]
     CreateTemp --> Extract[Extract archive]
     Extract --> LoadModel[FnxModel loads Manifest.xml]

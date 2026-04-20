@@ -293,7 +293,7 @@ private:
                 // Shouldn't need to check Nbx::isNbxFile. The promise of this
                 // signal is "open Notebook" not "open maybe a Notebook"!
                 // TODO: Although, we may need to do some redesign if we want to
-                // prompt for files that are .fnx by extension only...
+                // prompt for files that are .hearthx by extension only...
                 openOrActivateNotebook_(fnxPath);
             });
     }

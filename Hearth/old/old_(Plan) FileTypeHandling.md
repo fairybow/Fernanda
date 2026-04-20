@@ -13,7 +13,7 @@ See: [`MagicBytes.h`](../src/core/MagicBytes.h) (formerly `FileTypes.h`), [`File
 - [x] Two-tier resolution in `FileService::newDiskFileModel_`: magic bytes first for binary formats, then extension check for special plaintext types, fallthrough to plaintext for everything else
 - [x] Remove non-NBX file dialog filters (was causing Qt to auto-append `.txt` to Save As filenames). Save As uses no filter; user gets exactly what they type. Open dialogs can be revisited later.
 - [x] Centralize how models get their extension: `FileMeta::preferredExt()` draws from path if on disk, `FileTypes::canonicalExt(kind)` if off-disk. Fnx uses the same sources (see Implementation Step 7).
-- [ ] Address remaining NBX-related filters (Open Notebook, Save As Notebook, Import). These still need the `.fnx` extension filter. Consider a small Filters header/namespace that pulls the translatable name from Tr and the extension from `Fnx::Io::EXT` (and eventually from `FileTypes` for import filters)
+- [ ] Address remaining NBX-related filters (Open Notebook, Save As Notebook, Import). These still need the `.hearthx` extension filter. Consider a small Filters header/namespace that pulls the translatable name from Tr and the extension from `Fnx::Io::EXT` (and eventually from `FileTypes` for import filters)
 - [x] Generalize NBX import to accept any file type and preserve source extension. Also generalized new file creation to accept a `FileTypes::Kind`.
 - [x] (Decided: keep) NBX manifest `extension` attribute. See "NBX extension attribute" section below.
 - [ ] Tree view icons by file type
@@ -44,7 +44,7 @@ This approach ensures that any file can use any extension and still be opened co
 
 ### NBX Archives
 
-NBX files (`.fnx`) are a special case handled at the Application level, not by FileService's type resolution. Application detects NBX files and routes them to Notebook Workspaces. Within a Notebook, individual files go through the same two-tier resolution when opened.
+NBX files (`.hearthx`) are a special case handled at the Application level, not by FileService's type resolution. Application detects NBX files and routes them to Notebook Workspaces. Within a Notebook, individual files go through the same two-tier resolution when opened.
 
 ### Rename-Triggered Resolution
 
@@ -193,7 +193,7 @@ Opening an inner NBX as a functional Notebook was considered and deliberately de
 
 ## FileTypes Registry
 
-Extensions and type metadata needed across the application (themes need theme extensions, Application needs `.fnx`, Workspaces need `.pdf`, Tr needs type names for filter strings, etc.) should draw on a central registry.
+Extensions and type metadata needed across the application (themes need theme extensions, Application needs `.hearthx`, Workspaces need `.pdf`, Tr needs type names for filter strings, etc.) should draw on a central registry.
 
 The existing `FileTypes` namespace has been renamed to `MagicBytes` (byte-level signature detection). The `FileTypes` name is now free for a new header providing:
 - A constexpr table of supported types mapped to their canonical extensions (with aliases like `.jpg` for `.jpeg`)
@@ -240,7 +240,7 @@ Work should happen on a **`file-types`** branch.
 5. (DONE) **Two-tier resolution in FileService**: Refactor `newDiskFileModel_` to check magic bytes first (Tier 1) for binary formats, then extension (Tier 2) for special text types, with universal fallthrough to PlainText.
 6. (DONE) **Remove non-NBX file dialog filters**: Eliminates Qt auto-appending extensions on Save As. User gets exactly what they type.
 7. (DONE) **Centralize model extensions**: `FileMeta::preferredExt()` draws from the file's path if on disk, or from `FileTypes::canonicalExt(kind)` if off-disk. Fnx no longer hardcodes extensions: `addNewFile` takes a `FileTypes::Kind` and resolves via `canonicalExt`, `importFile` reads the source path's extension directly.
-8. **NBX filter cleanup**: Remaining NBX-related filters (Open Notebook, Save As Notebook, Import) need the `.fnx` extension. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
+8. **NBX filter cleanup**: Remaining NBX-related filters (Open Notebook, Save As Notebook, Import) need the `.hearthx` extension. Consider a Filters header/namespace pulling translatable names from Tr and extensions from `Fnx::Io::EXT` / `FileTypes`.
 9. (DONE) **NBX all-file-type support**: `importTextFile` -> `importFile` (preserves source extension via `fsPath.extQString()`). `addNewTextFile` -> `addNewFile(FileTypes::Kind)` (resolves extension via `FileTypes::canonicalExt`). Renamed through `FnxModel` (`importFiles`, `addNewFile`) and `Notebook` call sites. No hardcoded extensions remain in Fnx. Import dialog has no filter (accepts all files).
 10. **Tree view icons by type**: File-type-appropriate icons with a generic fallback for unrecognized types.
 

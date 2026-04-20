@@ -8,10 +8,10 @@ flowchart TD
     StartCop -->|No| InitApp["Initialize Application (Called before Qt event loop)"]
 
     InitApp --> InitNotepad["Initialize Notepad (no window yet)"]
-    InitNotepad --> CheckArgs{"Check for path args:<br>- Notepad [.txt, ...]<br>- Notebook [.fnx]"}
+    InitNotepad --> CheckArgs{"Check for path args:<br>- Notepad [.txt, ...]<br>- Notebook [.hearthx]"}
 
     CheckArgs -->|"[.txt, ...] only"| ArgsTxtOpenNotepad["Open Notepad with a tab for each [.txt, ...] path"]
-    CheckArgs -->|"[.fnx] only"| ArgsFnxOpenNotebook["Open Notebook for each [.fnx] path"]
-    CheckArgs -->|"Both [.txt, ...] & [.fnx]"| ArgsTxtFnxOpenNotepadNotebook["Open Notepad with a tab for each [.txt, ...] path & open Notebook for each [.fnx] path"]
+    CheckArgs -->|"[.hearthx] only"| ArgsFnxOpenNotebook["Open Notebook for each [.hearthx] path"]
+    CheckArgs -->|"Both [.txt, ...] & [.hearthx]"| ArgsTxtFnxOpenNotepadNotebook["Open Notepad with a tab for each [.txt, ...] path & open Notebook for each [.hearthx] path"]
     CheckArgs -->|"Empty"| ArgsNoneOpenNotepad["Open Notepad with a tab for an empty, unsaved file"]
 ```

@@ -40,8 +40,8 @@
         <translation>Abrir archivo</translation>
     </message>
     <message>
-        <source>Plain text files (*.txt);;Hearth Notebook files (*.fnx);;All files (*)</source>
-        <translation type="vanished">Archivos de texto plano (*.txt);;Archivos de cuaderno Hearth (*.fnx);;Todos los archivos (*)</translation>
+        <source>Plain text files (*.txt);;Hearth Notebook files (*.hearthx);;All files (*)</source>
+        <translation type="vanished">Archivos de texto plano (*.txt);;Archivos de cuaderno Hearth (*.hearthx);;Todos los archivos (*)</translation>
     </message>
     <message>
         <location filename="../src/Tr.h" line="132"/>
@@ -65,8 +65,8 @@
     <message>
         <location filename="../src/Tr.h" line="67"/>
         <location filename="../src/Tr.h" line="141"/>
-        <source>Hearth Notebook files (*.fnx)</source>
-        <translation>Archivos de cuaderno Hearth (*.fnx)</translation>
+        <source>Hearth Notebook files (*.hearthx)</source>
+        <translation>Archivos de cuaderno Hearth (*.hearthx)</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/Tr.h" line="148"/>

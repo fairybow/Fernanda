@@ -13,7 +13,7 @@ Notepad and Notebook hook at different levels because their units of committed c
 | Workspace | Unit | Hook point | Backup directory |
 |---|---|---|---|
 | Notepad | Individual file | `FileService::beforeWriteHook` | `~/.hearth/backups/notepad/` |
-| Notebook | `.fnx` archive | `Fnx::Io::BeforeOverwriteHook` | `~/.hearth/backups/notebooks/` |
+| Notebook | `.hearthx` archive | `Fnx::Io::BeforeOverwriteHook` | `~/.hearth/backups/notebooks/` |
 
 ## Filename Scheme
 

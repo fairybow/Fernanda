@@ -32,10 +32,10 @@ Shared capabilities:
 
 ### Notebook (0 or more instances)
 
-- Archive-based workspace: all project content lives inside a single portable `.fnx` file (standard ZIP)
+- Archive-based workspace: all project content lives inside a single portable `.hearthx` file (standard ZIP)
 - Virtual directory structure via XML manifest (organize files and folders independently of physical storage)
 - Create new Notebooks from scratch (name prompt, deferred first save)
-- Open existing `.fnx` archives (extraction, validation, working directory setup)
+- Open existing `.hearthx` archives (extraction, validation, working directory setup)
 - Multiple Notebooks can be open simultaneously
 - Recoverable (standard ZIP format means content remains accessible outside Hearth)
 - File imports: any file can be imported into a Notebook (DOCX and RTF are converted to plain text; all other files are passed through with their original type preserved)
@@ -97,7 +97,7 @@ Shared capabilities:
 ## Saving
 
 - **Notepad**: per-file saves to the OS filesystem, Save / Save As dialogs, preferred extension for untitled files
-- **Notebook**: two-tier save (individual file models saved to working directory, then archive compressed and written to `.fnx` path)
+- **Notebook**: two-tier save (individual file models saved to working directory, then archive compressed and written to `.hearthx` path)
 - Multi-file save prompts with checkable file list (select which files to save)
 - Save As with path and name selection
 - New Notebooks trigger Save As on first save

@@ -98,7 +98,7 @@ Might be simple actually, but tedious. We'll do it later.
 
 - [ ] Shorter size abbreviations in Notepad TreeViews
 - [ ] Tab bar tabs should not resize while user's mouse is over it (to enable rapid tab closing)
-- [ ] .fnx Notebook icon
+- [ ] .hearthx Notebook icon
 
 ## Docs
 
@@ -321,7 +321,7 @@ Might be simple actually, but tedious. We'll do it later.
 
 - [x] New Notebook: Naming dialog (no path chosen)
 - [x] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
-- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
+- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .hearthx
 - [x] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later (only problem is which settings? We have notepad and individual Notebook INIs...do we want/need an application-wide settings? How should we display that in the settings dialog for each Workspace?)
 - [x] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
 - [x] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed

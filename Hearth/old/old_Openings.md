@@ -61,7 +61,7 @@ Triggered by menu, tree view double-click, or internal command.
 - Tracks view count per model
 
 **Notepad-specific:**
-- Path interceptor checks for `.fnx` files and redirects to Notebook
+- Path interceptor checks for `.hearthx` files and redirects to Notebook
 - Tree view uses filesystem paths directly
 
 **Notebook-specific:**
