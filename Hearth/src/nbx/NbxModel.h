@@ -45,7 +45,7 @@ namespace Hearth {
 //
 // TODO: Double clicking on files should maybe not expand (if they have
 // children), since they also open with double clicks?
-class FnxModel : public QAbstractItemModel
+class NbxModel : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -67,13 +67,13 @@ public:
         bool isValid() const { return !relPath.isEmpty() && !name.isEmpty(); }
     };
 
-    explicit FnxModel(QObject* parent = nullptr)
+    explicit NbxModel(QObject* parent = nullptr)
         : QAbstractItemModel(parent)
     {
         setup_();
     }
 
-    virtual ~FnxModel() override { TRACER; }
+    virtual ~NbxModel() override { TRACER; }
 
     void load(const Coco::Path& workingDir)
     {
@@ -465,7 +465,7 @@ public:
         auto element = elementAt_(index);
         if (element.isNull()) return nullptr;
 
-        auto key = FnxModelCache::keyOf(element);
+        auto key = NbxModelCache::keyOf(element);
         auto mime_data = new QMimeData{};
         mime_data->setData(MIME_TYPE_, key.toUtf8());
 
@@ -504,7 +504,7 @@ public:
         auto element = cache_.elementAt(element_id);
         if (!isValid_(element)) {
             WARN("Drop: invalid element for ID: {}", element_id);
-            cache_.clear(FnxModelCache::OnError::Yes);
+            cache_.clear(NbxModelCache::OnError::Yes);
             return false;
         }
 
@@ -526,7 +526,7 @@ private:
     static constexpr auto MIME_TYPE_ = "application/x-hearth-nbx-element";
     QDomDocument dom_{};
     QString domSnapshot_{};
-    mutable FnxModelCache cache_{};
+    mutable NbxModelCache cache_{};
 
     void setup_()
     {
@@ -819,7 +819,7 @@ inline std::atomic<int> isValidCalls{ 0 };
 
 inline void report()
 {
-    DEBUG("=== FnxModel Call Counts ===");
+    DEBUG("=== NbxModel Call Counts ===");
     DEBUG("index(): {}", indexCalls.load());
     DEBUG("parent(): {}", parentCalls.load());
     DEBUG("rowCount(): {}", rowCountCalls.load());

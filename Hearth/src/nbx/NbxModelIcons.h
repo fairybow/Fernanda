@@ -18,7 +18,7 @@
 
 #include "core/Files.h"
 
-namespace Hearth::FnxModelIcons {
+namespace Hearth::NbxModelIcons {
 
 using namespace Qt::StringLiterals;
 
@@ -73,4 +73,4 @@ inline const QIcon& file(Files::Type type)
     return cache[type] = QIcon(Internal::qrcPath_(type));
 }
 
-} // namespace Hearth::FnxModelIcons
+} // namespace Hearth::NbxModelIcons

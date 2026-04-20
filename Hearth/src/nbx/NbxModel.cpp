@@ -30,7 +30,7 @@ namespace Hearth {
 using namespace Qt::StringLiterals;
 
 // TODO: Tooltip with metadata on file/folder
-QVariant FnxModel::data(const QModelIndex& index, int role) const
+QVariant NbxModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) return {};
 
@@ -70,14 +70,14 @@ QVariant FnxModel::data(const QModelIndex& index, int role) const
         // magic byte check and fall through to plain text
     case Qt::DecorationRole: {
         if (Nbx::Xml::isVirtualFolder(element)) {
-            return FnxModelIcons::folder();
+            return NbxModelIcons::folder();
 
         } else if (Nbx::Xml::isFile(element)) {
             auto type = Files::fromPath(Nbx::Xml::relPath(element));
-            return FnxModelIcons::file(type);
+            return NbxModelIcons::file(type);
         }
 
-        UNREACHABLE("FnxModel::data Qt::DecorationRole case");
+        UNREACHABLE("NbxModel::data Qt::DecorationRole case");
         return {};
     }
 

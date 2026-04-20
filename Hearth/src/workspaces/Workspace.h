@@ -176,7 +176,7 @@ protected:
     }
 
 private:
-    Coco::Path rollingOpenFnxStartDir_ = currentRootDir;
+    Coco::Path rollingOpenNbxStartDir_ = currentRootDir;
     QHash<Window*, QList<QMetaObject::Connection>> activeTabConnections_{};
     QHash<Window*, MenuState*> menuStates_{};
     Time::Ticker* autosaveCue_ = // TODO: Make configurable?

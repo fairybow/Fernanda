@@ -51,7 +51,7 @@ public:
 
     Coco::Path nbx() const noexcept { return nbx_; }
 
-    void setFnx(const Coco::Path& nbx)
+    void setNbx(const Coco::Path& nbx)
     {
         if (nbx_ == nbx) return;
         nbx_ = nbx;

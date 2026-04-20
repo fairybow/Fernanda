@@ -130,11 +130,11 @@ void Workspace::createWindowMenuBar_(Window* window)
                 auto path = Coco::getFile(
                     nullptr,
                     Tr::nxOpenNotebookCaption(),
-                    rollingOpenFnxStartDir_,
+                    rollingOpenNbxStartDir_,
                     Files::filters(Files::Notebook));
                 if (path.isEmpty() || !Files::isNbxFile(path)) return;
 
-                rollingOpenFnxStartDir_ = path.parent();
+                rollingOpenNbxStartDir_ = path.parent();
                 emit openNotebookRequested(path);
             })
         .separator()

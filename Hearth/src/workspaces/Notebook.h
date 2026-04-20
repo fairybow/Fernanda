@@ -71,7 +71,7 @@ namespace Hearth {
 
 // A binder-style Workspace for working within NBX files.
 //
-// Owns the archive path and working directory. Uses FnxModel's public API
+// Owns the archive path and working directory. Uses NbxModel's public API
 // exclusively, never accesses DOM elements directly.
 //
 // There can be any number of Notebooks open during the application lifetime.
@@ -195,7 +195,7 @@ protected:
         // user-visible root. When nothing is selected, TreeView::currentIndex()
         // returns an invalid QModelIndex.
         //
-        // However, FnxModel::elementAt_({}) maps invalid indices to
+        // However, NbxModel::elementAt_({}) maps invalid indices to
         // dom_.documentElement(), which is <nbx> (the true DOM root containing
         // both <notebook> and <trash>).
         //
@@ -281,7 +281,7 @@ private:
                             // for Notebook's lifetime even when changing
                             // Notebook name via Save As
 
-    FnxModel* nbxModel_ = new FnxModel(this);
+    NbxModel* nbxModel_ = new NbxModel(this);
 
     // This should be cleared after the first save or discard
     QSet<QString> recoveryDirtyUuids_{}; /// TODO BA
@@ -360,13 +360,13 @@ private:
 
         connect(
             nbxModel_,
-            &FnxModel::domChanged,
+            &NbxModel::domChanged,
             this,
             &Notebook::onFnxModelDomChanged_);
 
         connect(
             nbxModel_,
-            &FnxModel::fileRenamed,
+            &NbxModel::fileRenamed,
             this,
             &Notebook::onFnxModelFileRenamed_);
 
@@ -888,7 +888,7 @@ private:
         nbxPath_ = new_path;
         windows->setSubtitle(name());
         for (auto& chip : colorChips_) {
-            chip->setFnx(nbxPath_);
+            chip->setNbx(nbxPath_);
         }
 
         nbxModel_->resetSnapshot();
@@ -966,7 +966,7 @@ private slots:
         refreshMenus(MenuScope::Workspace);
     }
 
-    void onFnxModelFileRenamed_(const FnxModel::FileInfo& info)
+    void onFnxModelFileRenamed_(const NbxModel::FileInfo& info)
     {
         if (!info.isValid()) return;
         if (!workingDir_.isValid()) return;

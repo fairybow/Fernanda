@@ -76,7 +76,7 @@ namespace Internal {
 
 } // namespace Internal
 
-// Used by FnxModel
+// Used by NbxModel
 namespace Xml {
 
     constexpr auto DOCUMENT_ELEMENT_TAG = "nbx";
