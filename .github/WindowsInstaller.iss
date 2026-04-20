@@ -75,5 +75,5 @@ Root: HKA; Subkey: "Software\Classes\Hearth.Notebook\DefaultIcon"; ValueType: st
 ; ^ TODO: Change this to Notebook icon once it exists
 Root: HKA; Subkey: "Software\Classes\Hearth.Notebook\shell\open\command"; ValueType: string; ValueData: """{app}\data\Hearth.exe"" ""%1"""
 
-; Associate .fnx extension with ProgID
-Root: HKA; Subkey: "Software\Classes\.fnx"; ValueType: string; ValueData: "Hearth.Notebook"; Flags: uninsdeletevalue
+; Associate .hearthx extension with ProgID
+Root: HKA; Subkey: "Software\Classes\.hearthx"; ValueType: string; ValueData: "Hearth.Notebook"; Flags: uninsdeletevalue
