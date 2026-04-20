@@ -6,13 +6,13 @@
 
 # Boilerplate
 
-(See [build_release_text.py](https://github.com/fairybow/Fernanda/blob/main/.github/scripts/build_release_text.py))
+(See [build_release_text.py](https://github.com/fairybow/Hearth/blob/main/.github/scripts/build_release_text.py))
 
 <!-- release-preamble-start -->
 
-**Fernanda is a plain-text-first workbench for creative writing.** Work on single files like a notepad or organize whole projects in Notebooks (`.fnx`).
+**Hearth is a plain-text-first workbench for creative writing.** Work on single files like a notepad or organize whole projects in Notebooks (`.fnx`).
 
-This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md). For past release details, see [CHANGELOG.md](https://github.com/fairybow/Fernanda/blob/main/CHANGELOG.md)
+This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Features.md). For past release details, see [CHANGELOG.md](https://github.com/fairybow/Hearth/blob/main/CHANGELOG.md)
 
 > [!WARNING]
 > You should not trust your writing with any version of this software less than 1.0.0! Regardless, always make regular backups of your work.
@@ -25,7 +25,7 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 
 **Windows:** Download and run the installer below.
 
-**macOS:** Download the `.dmg`, open it, and drag Fernanda to Applications.
+**macOS:** Download the `.dmg`, open it, and drag Hearth to Applications.
 
 **Linux:** Download the `.AppImage`, make it executable (`chmod +x`), and run.
 
@@ -36,7 +36,7 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 
 ## Updating
 
-**Windows:** Download the newest installer, ensure Fernanda is closed, then run the installer and install to the same directory (default `C:/Program Files`), overwriting.
+**Windows:** Download the newest installer, ensure Hearth is closed, then run the installer and install to the same directory (default `C:/Program Files`), overwriting.
 
 **macOS:** Replace the app in Applications with the new version from the `.dmg`.
 
@@ -46,16 +46,16 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 
 **Windows:** Run the uninstaller (`unins000.exe`) or remove via **Add or Remove Programs** as usual.
 
-**macOS:** Drag Fernanda from Applications to the Trash.
+**macOS:** Drag Hearth from Applications to the Trash.
 
 **Linux:** Delete the `.AppImage`.
 
-Fernanda doesn't delete its data folders on uninstall since they may contain writing. You may want to remove them manually:
+Hearth doesn't delete its data folders on uninstall since they may contain writing. You may want to remove them manually:
 
-| Folder | Location | Contents |
-|---|---|---|
-| User Data | `~/.fernanda/` | Settings, backups, temp files, themes |
-| Default Docs | `~/Documents/Fernanda/` | Default location for file dialogs |
+| Folder       | Location              | Contents                              |
+| ------------ | --------------------- | ------------------------------------- |
+| User Data    | `~/.hearth/`          | Settings, backups, temp files, themes |
+| Default Docs | `~/Documents/Hearth/` | Default location for file dialogs     |
 
 ## Platforms
 
@@ -73,8 +73,9 @@ Windows (x64), macOS (ARM), and Linux (x86_64).
 # Notes
 
 - For release note links: use `blob/main` for evergreen links; use `blob/<tag>` for links to a specific release's snapshot!
-- For diffing against previous release: `https://github.com/fairybow/Fernanda/compare/<tag>...main.diff`
+- For diffing against previous release: `https://github.com/fairybow/Hearth/compare/<tag>...main.diff`
 - Release commands:
+
 ```
 git tag v0.99.0-beta.24 [must match tag part of entry title (see below)]
 git push origin v0.99.0-beta.24
@@ -83,6 +84,25 @@ git push origin v0.99.0-beta.24
 ---
 
 <a id="releases"></a>
+
+# 0.99.0-beta.26 (Testing / Soft Release) - tag v0.99.0-beta.26
+
+## What's New?
+
+...
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.fnx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Session restore not yet implemented (splits, open tabs, window positions, expanded Notebook TreeView items, etc.)
+
+---
+
+> [!INFORMATION]
+> Prior to v0.99.0-beta.26, Hearth was known as "Fernanda"
 
 # 0.99.0-beta.25 (Testing / Soft Release) - tag v0.99.0-beta.25
 
@@ -310,7 +330,7 @@ For once, it won't be me. This one goes to libc++ (see [Debug.h](https://github.
 
 **Markup preview mode switch.** The cycling button is now a segmented `MultiSwitch` widget (Edit / Split / Preview) with an animated sliding highlight pill.
 
-**Markup preview polish.** The first-ever `QWebEngineView` load flicker (noted in beta.14) *should* now be masked by a new, dedicated warm-up overlay
+**Markup preview polish.** The first-ever `QWebEngineView` load flicker (noted in beta.14) _should_ now be masked by a new, dedicated warm-up overlay
 
 **Word counter click-to-refresh.** The "Refresh" button for large documents is gone. Instead, when auto-count is disabled (500k+ chars), the counts display dims to indicate staleness, and clicking anywhere on the word counter triggers a manual recount. Selection counts remain bright while a selection is active. `WordCounter` moved from `modules/` to `ui/`
 
@@ -351,7 +371,7 @@ For once, it won't be me. This one goes to libc++ (see [Debug.h](https://github.
 
 ## What's New?
 
-**Notebook UI.** Parent items (folders or files) now display "(*)" when any descendant file is modified.
+**Notebook UI.** Parent items (folders or files) now display "(\*)" when any descendant file is modified.
 
 **Settings improved.** `GET_SETTING` Bus command resolves defaults automatically (no passing `defaultValue` at every call site anymore)
 
@@ -441,7 +461,7 @@ For once, it won't be me. This one goes to libc++ (see [Debug.h](https://github.
 
 **Replaced bit7z (7-Zip) with miniz (ZIP).** FNX files are now standard ZIP archives (just like DOCX, EPUB, and others), not 7-Zip. This eliminates runtime FNX read/write dependencies, reduces the application's footprint, and quickens build times. Old FNX files will not open correctly but are still recoverable with [7-Zip](https://www.7-zip.org/).
 
-*This should be the last breaking change related to FNX files.*
+_This should be the last breaking change related to FNX files._
 
 ## Known Issues
 
@@ -865,7 +885,7 @@ With a semi-colon for good measure. It's amazing.
 
 I've been at this for a while now, and though I think my code's improved a lot, I still find the occasional gems (sometimes something from last week). I wish I'd kept better track of older code from this last rewrite, as I'm sure it was full of questionable choices, but since I only thought about showcasing my worst code last minute, I had to settle for what was here now (or used to be).
 
-Normally, I might save this section for dumb-yet-harmless code that's still in-place. Unfortunately, though, this one *had* to be removed.
+Normally, I might save this section for dumb-yet-harmless code that's still in-place. Unfortunately, though, this one _had_ to be removed.
 
 So, without further ado, here's the erstwhile `wordCount_` from `WordCounter`:
 
@@ -880,4 +900,4 @@ int wordCount_(const QString& text) const
 
 (See commented-out code at the bottom of [WordCounter.h (ee9a5c0)](https://github.com/fairybow/Fernanda/blob/8d59f04dd1bd05cc81d5756e5e548725b9a71d0d/Fernanda/src/WordCounter.h))
 
-On a document the size of Moby Dick, the old word counter allocated and destroyed, *I think*, 215,831 individual heap objects on every keystroke to produce a single number. The new one uses an int and a bool.
+On a document the size of Moby Dick, the old word counter allocated and destroyed, _I think_, 215,831 individual heap objects on every keystroke to produce a single number. The new one uses an int and a bool.

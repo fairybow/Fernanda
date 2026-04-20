@@ -1,4 +1,4 @@
 * text=auto
-Fernanda/src/BuildMessages.h linguist-language=C++
-Fernanda/src/Version.h linguist-language=C++
-Fernanda/external/* linguist-vendored=true
+Hearth/src/BuildMessages.h linguist-language=C++
+Hearth/src/Version.h linguist-language=C++
+Hearth/external/* linguist-vendored=true
