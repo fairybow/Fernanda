@@ -1,0 +1,12 @@
+[submodule "Hearth/submodules/Coco"]
+	path = Hearth/submodules/Coco
+	url = https://github.com/fairybow/Coco.git
+[submodule "Hearth/submodules/miniz"]
+	path = Hearth/submodules/miniz
+	url = https://github.com/fairybow/Hearth-miniz.git
+[submodule "Hearth/submodules/md4c"]
+	path = Hearth/submodules/md4c
+	url = https://github.com/fairybow/Hearth-md4c.git
+[submodule "Hearth/submodules/fountain.h"]
+	path = Hearth/submodules/fountain.h
+	url = https://github.com/fairybow/fountain.h

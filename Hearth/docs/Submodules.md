@@ -6,7 +6,7 @@ Clone somewhere temporary, reset, and force push. Force push may trigger a brows
 
 ```bash
 cd C:\Dev
-git clone https://github.com/fairybow/Fernanda-miniz.git temp-miniz
+git clone https://github.com/fairybow/Hearth-miniz.git temp-miniz
 cd temp-miniz
 git reset --hard d10b03c
 git push --force
@@ -16,10 +16,10 @@ git push --force
 
 ## 2. Add the submodule
 
-From the project directory (e.g., `Fernanda/`):
+From the project directory (e.g., `Hearth/`):
 
 ```bash
-git submodule add https://github.com/fairybow/Fernanda-miniz.git submodules/miniz
+git submodule add https://github.com/fairybow/Hearth-miniz.git submodules/miniz
 git add submodules/miniz
 git commit -m "Add miniz submodule at v3.1.1 (d10b03c)"
 ```
