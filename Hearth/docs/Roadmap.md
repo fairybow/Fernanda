@@ -23,6 +23,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 ## Current
 
 - [ ] Change ColorBar colors, add Warm
+- [ ] Remove .hearthx from Notebook color chip
 
 Pain points while using:
 
