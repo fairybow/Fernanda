@@ -31,8 +31,8 @@ Notebook Workspace
 | `Notebook` | Policy, working directory lifecycle, wires components together |
 | `NbxModel` | Qt model/view adapter, DOM ownership, tree operations |
 | `NbxModelCache` | Stable ID tracking for DOM elements (prevents QPersistentModelIndex crashes) |
-| `Fnx::Io` | Archive extraction/compression, working directory setup |
-| `Fnx::Xml` | DOM element factories and queries (stateless helpers) |
+| `Nbx::Io` | Archive extraction/compression, working directory setup |
+| `Nbx::Xml` | DOM element factories and queries (stateless helpers) |
 
 ## The NBX File Format
 
@@ -244,7 +244,7 @@ All modified `AbstractFileModel`s are saved to the working directory via `FileSe
 
 ### Tier 2: Archive
 1. `NbxModel::write()` writes `Manifest.xml` to working directory
-2. `Fnx::Io::compress()` creates or replaces the archive at the `.hearthx` path
+2. `Nbx::Io::compress()` creates or replaces the archive at the `.hearthx` path
 3. On success: Reset DOM snapshot, clear window modification flags
 
 ### Save Scenarios

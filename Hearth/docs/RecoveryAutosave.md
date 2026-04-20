@@ -25,7 +25,7 @@ Autosave never triggers backups, save prompts, tab indicators, or modification s
 
 Notebook autosave uses `files->save(model, ClearModified::No)` rather than direct `Io::write()` because Notebook files are registered with `QFileSystemWatcher`. Direct writes would bypass the `recentlyWritten_` suppression in `writeModelToDisk_()`, causing spurious `fileModelExternallyModified` signals (and reload prompts) on every autosave tick. Notepad autosave bypasses `FileService` entirely because its recovery writes go to a separate shadow directory, not to the watched file paths.
 
-Notebook does not set a `beforeWriteHook_`, so the backup hook in `writeModelToDisk_()` is not triggered during autosave. Notebook's backups go through `Fnx::Io::compress()` instead. If Notebook ever needs to use `beforeWriteHook_`, the solution is a separate dedicated backup hook.
+Notebook does not set a `beforeWriteHook_`, so the backup hook in `writeModelToDisk_()` is not triggered during autosave. Notebook's backups go through `Nbx::Io::compress()` instead. If Notebook ever needs to use `beforeWriteHook_`, the solution is a separate dedicated backup hook.
 
 ## Undo-to-Clean Cleanup
 
@@ -89,7 +89,7 @@ Serialization and I/O are handled by the `NotebookLockfile` namespace. `Internal
 
 Call sites:
 
-- After a successful `Fnx::Io::compress()` in `save_()`, `saveAs_()`, `canCloseWindow()`, and `canCloseAllWindows()`
+- After a successful `Nbx::Io::compress()` in `save_()`, `saveAs_()`, `canCloseWindow()`, and `canCloseAllWindows()`
 - In the Discard branch of `canCloseWindow()` and `canCloseAllWindows()`
 - In `~Notebook()` (safety net)
 
