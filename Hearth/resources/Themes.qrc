@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>themes/Amber.hearth_editor</file>
+        <file>themes/Blue.hearth_editor</file>
+        <file>themes/Editor.hearth_qss_template</file>
+        <file>themes/Green.hearth_editor</file>
+        <file>themes/Grey.hearth_editor</file>
+        <file>themes/Pocket (Alt).hearth_editor</file>
+        <file>themes/Pocket.hearth_editor</file>
+        <file>themes/Snooze (Alt).hearth_editor</file>
+        <file>themes/Snooze.hearth_editor</file>
+        <file>themes/Window.hearth_qss_template</file>
+    </qresource>
+</RCC>

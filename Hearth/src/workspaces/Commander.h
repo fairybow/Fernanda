@@ -1,0 +1,251 @@
+/*
+ * Hearth — a plain-text-first workbench for creative writing
+ * Copyright (C) 2025-2026 fairybow
+ *
+ * This program is free software, redistributable and/or modifiable under the
+ * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
+ * but without any warranty (even the implied warranty of merchantability or
+ * fitness for a particular purpose)
+ *
+ * See the LICENSE file or visit <https://www.gnu.org/licenses/>
+ */
+
+#pragma once
+
+#include <concepts>
+#include <functional>
+#include <tuple>
+#include <type_traits>
+#include <utility>
+
+#include <QHash>
+#include <QList>
+#include <QObject>
+#include <QString>
+#include <QVariant>
+
+#include <Coco/Utility.h>
+
+#include "core/Debug.h"
+
+namespace Hearth {
+
+struct Command
+{
+    // Embarrassing note, but:
+    // Can't have a type/kind enum for registration type (has return, has
+    // command, etc) because there's nothing to store it in! We aren't
+    // registering commands but handlers, obviously (plus, how would "has no
+    // command" make any sense even if we were)?
+
+    using Params = QHash<QString, QVariant>;
+
+    Params params{};
+
+    Command(const Params& params = {})
+        : params(params)
+    {
+    }
+
+    // Without default value, will log unfound parameter but still return
+    // invalid QVariant
+    [[nodiscard]] QVariant param(const QString& key) const
+    {
+        if (!params.contains(key)) {
+            INFO("Parameter {} not found in command params!", key);
+        }
+
+        return params.value(key);
+    }
+
+    [[nodiscard]] QVariant
+    param(const QString& key, const QVariant& defaultValue) const
+    {
+        return params.value(key, defaultValue);
+    }
+
+    template <typename T> [[nodiscard]] T param(const QString& key) const
+    {
+        return param(key).value<T>();
+    }
+
+    template <typename T>
+    [[nodiscard]] T param(const QString& key, const T& defaultValue) const
+    {
+        auto variant = params.value(key);
+        if (!variant.isValid() || !variant.canConvert<T>()) return defaultValue;
+        return variant.value<T>();
+    }
+};
+
+template <typename T>
+concept HandlerWithCommandReturnsVoid =
+    std::same_as<void, std::invoke_result_t<T, const Command&>>;
+
+template <typename T>
+concept HandlerWithCommandReturnsValue =
+    std::is_invocable_v<T, const Command&>
+    && !std::same_as<void, std::invoke_result_t<T, const Command&>>;
+
+template <typename T>
+concept HandlerWithoutCommandReturnsVoid =
+    std::is_invocable_v<T> && std::same_as<void, std::invoke_result_t<T>>
+    && !std::is_invocable_v<T, const Command&>;
+
+template <typename T>
+concept HandlerWithoutCommandReturnsValue =
+    std::is_invocable_v<T> && !std::same_as<void, std::invoke_result_t<T>>
+    && !std::is_invocable_v<T, const Command&>;
+
+template <typename T, typename... Args>
+concept ReturnsQVariant = std::is_invocable_r_v<QVariant, T, Args...>;
+
+// Interceptors have been removed, because I think the need for one at all may
+// be a strong sign that a command is being registered in the wrong place! NO
+// queries. Calls can be used as queries. It isn't a big deal!
+class Commander : public QObject
+{
+    Q_OBJECT
+
+public:
+    // NB: Commander's execute/call methods should not be const!
+
+    explicit Commander(QObject* parent = nullptr)
+        : QObject(parent)
+    {
+    }
+
+    template <typename HandlerT>
+    void addCommandHandler(const QString& id, HandlerT&& handler)
+    {
+        // Handles:
+        // (const Command&)->void,
+        // (const Command&)->T,
+        // ()->void, and
+        // ()->T
+
+        INFO("Registering handler for: {}", id);
+
+        if constexpr (HandlerWithCommandReturnsVoid<HandlerT>) {
+            INFO("-> HandlerWithCommandReturnsVoid branch");
+
+            // (const Command&)->void
+            commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
+                                       const Command& cmd) {
+                handler(cmd);
+                return QVariant{};
+            };
+
+        } else if constexpr (HandlerWithCommandReturnsValue<HandlerT>) {
+            INFO("-> HandlerWithCommandReturnsValue branch");
+
+            // (const Command&)->T
+            commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
+                                       const Command& cmd) {
+                if constexpr (ReturnsQVariant<HandlerT, const Command&>) {
+                    return handler(cmd);
+                } else {
+                    return qVar(handler(cmd));
+                }
+            };
+
+        } else if constexpr (HandlerWithoutCommandReturnsVoid<HandlerT>) {
+            INFO("-> HandlerWithoutCommandReturnsVoid branch");
+
+            // ()->void
+            commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
+                                       [[maybe_unused]] const Command& cmd) {
+                handler();
+                return QVariant{};
+            };
+
+        } else if constexpr (HandlerWithoutCommandReturnsValue<HandlerT>) {
+            INFO("-> HandlerWithoutCommandReturnsValue branch");
+
+            // ()->T
+            commandHandlers_[id] = [handler = std::forward<HandlerT>(handler)](
+                                       [[maybe_unused]] const Command& cmd) {
+                if constexpr (ReturnsQVariant<HandlerT>) {
+                    return handler();
+                } else {
+                    return qVar(handler());
+                }
+            };
+
+        } else {
+
+            ASSERT(
+                HandlerWithCommandReturnsVoid<HandlerT>
+                    || HandlerWithCommandReturnsValue<HandlerT>
+                    || HandlerWithoutCommandReturnsVoid<HandlerT>
+                    || HandlerWithoutCommandReturnsValue<HandlerT>,
+                "Command handler must be callable as (const Command&)->T, "
+                "(const Command&)->void, ()->T or ()->void");
+        }
+    }
+
+    void execute(const QString& id, const Command& cmd = {})
+    {
+        std::ignore = runCommand_(id, cmd);
+    }
+
+    void execute(const QString& id, const Command::Params& params)
+    {
+        std::ignore = runCommand_(id, { params });
+    }
+
+    [[nodiscard]] QVariant call(const QString& id, const Command& cmd = {})
+    {
+        return runCommand_(id, cmd);
+    }
+
+    [[nodiscard]] QVariant
+    call(const QString& id, const Command::Params& params)
+    {
+        return runCommand_(id, { params });
+    }
+
+    template <typename T>
+    [[nodiscard]] T call(const QString& id, const Command& cmd = {})
+    {
+        return runCommand_(id, cmd).value<T>();
+    }
+
+    template <typename T>
+    [[nodiscard]] T call(const QString& id, const Command::Params& params)
+    {
+        return runCommand_(id, { params }).value<T>();
+    }
+
+private:
+    QHash<QString, std::function<QVariant(const Command&)>> commandHandlers_{};
+
+    [[nodiscard]] QVariant runCommand_(const QString& id, const Command& cmd)
+    {
+        if (auto handler = commandHandlers_.value(id)) {
+            auto result = handler(cmd);
+            logCommandRan_(id, cmd, result);
+            return result;
+        } else {
+            logCommandNoHandler_(id, cmd);
+            return {};
+        }
+    }
+
+    void logCommandRan_(
+        const QString& id,
+        const Command& cmd,
+        const QVariant& result) const
+    {
+        constexpr auto log_format = "Executed: {}\n\tParams: {}\n\tResult: {}";
+        INFO(log_format, id, cmd.params, result);
+    }
+
+    void logCommandNoHandler_(const QString& id, const Command& cmd) const
+    {
+        constexpr auto log_format = "No handler found!: {}\n\tParams: {}";
+        INFO(log_format, id, cmd.params);
+    }
+};
+
+} // namespace Hearth

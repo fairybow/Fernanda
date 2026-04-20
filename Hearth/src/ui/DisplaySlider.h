@@ -1,0 +1,162 @@
+/*
+ * Hearth — a plain-text-first workbench for creative writing
+ * Copyright (C) 2025-2026 fairybow
+ *
+ * This program is free software, redistributable and/or modifiable under the
+ * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
+ * but without any warranty (even the implied warranty of merchantability or
+ * fitness for a particular purpose)
+ *
+ * See the LICENSE file or visit <https://www.gnu.org/licenses/>
+ */
+
+#pragma once
+
+#include <QFontMetrics>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QObject>
+#include <QSlider>
+#include <QString>
+#include <QWidget>
+
+#include "core/Debug.h"
+
+namespace Hearth {
+
+// Wraps a QSlider with QLabel showing the current value
+class DisplaySlider : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit DisplaySlider(QWidget* parent = nullptr)
+        : QWidget(parent)
+    {
+        setup_();
+    }
+
+    virtual ~DisplaySlider() override { TRACER; }
+
+    int minimum() const { return slider_->minimum(); }
+    int maximum() const { return slider_->maximum(); }
+    int value() const { return slider_->value(); }
+    int tickInterval() const { return slider_->tickInterval(); }
+    QString unitText() const { return unit_->text(); }
+
+    void setMinimum(int min)
+    {
+        slider_->setMinimum(min);
+        setDisplayText_();
+    }
+
+    void setMaximum(int max)
+    {
+        slider_->setMaximum(max);
+        updateDisplayWidth_();
+        setDisplayText_();
+    }
+
+    void setRange(int min, int max)
+    {
+        slider_->setRange(min, max);
+        updateDisplayWidth_();
+        setDisplayText_();
+    }
+
+    void setValue(int value)
+    {
+        slider_->setValue(value);
+        setDisplayText_();
+    }
+
+    void setTickInterval(int tickInterval)
+    {
+        slider_->setTickInterval(tickInterval);
+    }
+
+    void setUnitText(const QString& unitText)
+    {
+        unit_->setText(unitText);
+        unit_->setVisible(!unitText.isEmpty());
+    }
+
+signals:
+    void valueChanged(int value);
+    void rangeChanged(int min, int max);
+    void sliderMoved(int value);
+    void sliderPressed();
+    void sliderReleased();
+
+private:
+    QSlider* slider_ = new QSlider(Qt::Horizontal, this);
+    QLabel* display_ = new QLabel(this);
+    QLabel* unit_ = new QLabel(this);
+
+    void setup_()
+    {
+        // Setup
+        unit_->setVisible(false);
+        slider_->setTickPosition(QSlider::NoTicks);
+        slider_->setTickInterval(1);
+        slider_->setRange(0, 100);
+        updateDisplayWidth_();
+
+        // Populate
+        slider_->setValue(100);
+        setDisplayText_();
+
+        // Layout
+        auto main_layout = new QHBoxLayout(this);
+        main_layout->setContentsMargins(0, 0, 0, 0);
+        // Keep normal spacing
+
+        auto value_layout = new QHBoxLayout;
+        value_layout->setContentsMargins(0, 0, 0, 0);
+        value_layout->setSpacing(1);
+        value_layout->addWidget(display_);
+        value_layout->addWidget(unit_);
+
+        main_layout->addWidget(slider_);
+        main_layout->addLayout(value_layout);
+
+        // Connect
+        connect(slider_, &QSlider::valueChanged, this, [this](int value) {
+            setDisplayText_();
+            emit valueChanged(value);
+        });
+
+        connect(
+            slider_,
+            &QSlider::rangeChanged,
+            this,
+            [this](int min, int max) { emit rangeChanged(min, max); });
+
+        connect(slider_, &QSlider::sliderMoved, this, [this](int value) {
+            emit sliderMoved(value);
+        });
+
+        connect(slider_, &QSlider::sliderPressed, this, [this] {
+            emit sliderPressed();
+        });
+
+        connect(slider_, &QSlider::sliderReleased, this, [this] {
+            emit sliderReleased();
+        });
+    }
+
+    void updateDisplayWidth_()
+    {
+        auto max_text = QString::number(slider_->maximum());
+        auto width = display_->fontMetrics().horizontalAdvance(max_text);
+        display_->setFixedWidth(width);
+        display_->setAlignment(Qt::AlignRight);
+    }
+
+    void setDisplayText_()
+    {
+        display_->setText(QString::number(slider_->value()));
+    }
+};
+
+} // namespace Hearth

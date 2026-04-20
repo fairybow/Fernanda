@@ -1,0 +1,19 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define Q_OBJECT public: QT_WARNING_PUSH Q_OBJECT_NO_OVERRIDE_WARNING static const QMetaObject staticMetaObject; virtual const QMetaObject *metaObject() const; virtual void *qt_metacast(const char *); virtual int qt_metacall(QMetaObject::Call, int, void **); QT_TR_FUNCTIONS private: QT_OBJECT_GADGET_COMMON QT_DEFINE_TAG_STRUCT(QPrivateSignal); QT_WARNING_POP QT_ANNOTATE_CLASS(qt_qobject, "")
+#define Q_OBJECT
+#define emit
+#define signals
+#define slots
+#define TRACER INFO(__FUNCTION__)
+#define INFO LOG(QtInfoMsg)
+#define DEBUG LOG(QtDebugMsg)
+#define WARN LOG(QtWarningMsg)
+#define CRITICAL LOG(QtCriticalMsg)
+#define FATAL LOG(QtFatalMsg)
+#define DECLARE_HOOK(Type, GetterName, SetterName) private: Type GetterName##_{}; public: Type GetterName() const noexcept { return GetterName##_; } void SetterName(const Type& hook) { GetterName##_ = hook; } template <typename ClassT, typename ReturnT, typename... Args> void SetterName(ClassT* object, ReturnT (ClassT::*hook)(Args...)) { GetterName##_ = [object, hook](Args... args) -> ReturnT { return (object->*hook)(std::forward<Args>(args)...); }; }
+#define COCO_BOOL(Name) struct Name##Tag { static constexpr const char* name() { return #Name; } }; using Name = Coco::Bool<Name##Tag>;
+#define TR_(Name, TrCall) inline QString Name() { return TrCall; }
+#define ASSERT(condition, __VA_ARGS__) ((condition) ? static_cast<void>(0) : Hearth::Debug::Internal::assertionFailed_( #condition, __FILE__, __LINE__, __FUNCTION__ __VA_OPT__(, ) __VA_ARGS__))
+#define ASSERT(condition, __VA_ARGS__) static_cast<void>(false && (condition))

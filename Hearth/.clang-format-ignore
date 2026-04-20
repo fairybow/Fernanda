@@ -1,0 +1,4 @@
+# Clang VS extension does not respect this file!
+Hearth/external/*
+Hearth/submodules/*
+Hearth/src/Version.h

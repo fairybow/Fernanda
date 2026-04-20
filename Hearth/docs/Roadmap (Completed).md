@@ -1,0 +1,291 @@
+# Roadmap (Completed)
+
+## MVP/Misc
+
+- [x] FNX (extract, compress, model, model manipulation, saving)
+- [x] Menu item state toggling
+- [x] Fully functioning Notepad (complete file/edit menus, open files, save them)
+- [x] Fully functioning Notebooks (complete file/edit menus, open archive, make files, save archive, element removal)
+- [x] Tab dragging (tab to window, tab to new window)
+- [x] Basic key filters
+- [x] Basic editor settings
+- [x] Installer
+- [x] Opening args
+- [x] (Hopefully fixed) Bug: ColorBar sticking around - need an automatic shut off if still visible
+- [x] View menu > toggle tree view (both Workspaces) > INI default (notepad off / notebook on) > write settings value either for an individual window toggle, switching current window, or both
+- [x] Key filter settings toggles
+- [x] Editor settings toggles
+- [x] Grabbable selection
+- [x] Moving preloaded fonts to top of selection box
+- [x] Need a "dirty" mark on Notebook files in TreeView
+- [x] Remove tab drop to new window positioning calculations and just start fresh!
+- [x] Opening files via TreeView in both Workspaces
+- [x] NewTab behavior for both Workspaces
+- [x] Opening files via Menu in Notepad (Notebook menu won't open, just import)
+- [x] Notebook Import
+- [x] Granular FnxModel DOM updates
+- [x] Renaming files in tree view updates the tab text
+- [x] Moving/reorganizing Notebook files in TreeView
+- [x] Replace Coco/TextIo with project version
+- [x] Openings.md to explain New Tab procedures (and Notebook tab titles, too) and perhaps new windows and app open
+- [x] Mononoki & OpenDyslexic
+- [x] Settings dialog should have workspace name
+- [x] Might be nice to have selection option for modified files in Notebook save, to exclude some changes from the archive save; would need to consult with FileService instead of ViewService and get all modified models (which, until/if LRU cache, remain open)
+- [x] Change Notepad TreeView column (for filename) default width (too short)
+- [x] Notebook Trash
+- [x] Make cursor restart blink when clicking? Right now it looks like a delay or something
+- [x] Allow double clicking to highlight white space (2 or more)
+- [x] Update check
+- [x] Align tab display text to not have leftmost text go past left side
+- [x] Notebook (and Notepad, kinda) TreeView items indent too far
+- [x] Choose most appropriate columns for Notepad TreeView
+- [x] Remove unneeded menu items
+- [x] Add window or view menu (or special Notebook menu that has import/export/open notepad/and anything else unique to NB)
+- [x] Open notepad to window or view
+- [x] Also need to have trash appear at the bottom
+- [x] That might ensure, then, that the TreeView is stretched all the way and we can click anywhere not on an index to unselect the selected index
+- [x] Removing unified New Tab command
+- [x] Replacing New Tab with New Tab in Notepad, New File and New Folder in Notebook
+- [x] Ensuring Notepad's ViewService uses New Tab for plus button, while NB's uses New File
+- [x] Menu changes to accomodate, which includes an extra inserter
+- [x] Ensuring all NB context menu items are added only when index is valid for them
+- [x] TreeView toggling/redocking
+- [x] Menu action toggling based on current view/model, window, workspace states
+- [x] Save prompts
+- [x] Saves
+- [x] Working dir renames
+- [x] New Notebook dialog
+- [x] FnxModel + TreeView element removal
+- [x] Trash view
+- [x] Better arrow icon
+- [x] Drag and drop from main to trash and back
+- [x] Remove action sending to trash
+- [x] Restore from trash
+- [x] File opening and other main-like connections for trash view
+- [x] Delete one item in trash (prompt, then delete/close model, file in working dir, and all views)
+- [x] Empty trash (prompt, then delete/close all models/views/files from working dir)
+- [x] No tree view for Notepad by default (but option to enable)?
+- [x] Try Inno? (Follow-up: it's good!)
+- [x] Ensure installer has: batchfile automated, optional shortcut, uses windeployqt6, also copies a shortcut to repo, copies inside a data folder with shortcut to exe inside at top level, and installer dir output is separated by platform somehow
+- [x] Handle opening args!
+- [x] Toggle logging based on VERSION_DEBUG in Version.h
+- [x] Transition to CMake
+- [x] Ini key to defaults map
+- [x] Uniform path display in save and reload prompts
+- [x] Add a rolling last used dir variable to Workspace (alongside startDir) that subclasses can use for their open/import dialogs
+- [x] Pull theme extensions from FileTypes
+- [x] Will have to figure out how to reconcile the types ctor arg for models/metas with image types, as we'll only have one (ideally) ImageFileModel/View but several supported types for them
+- [x] These filters should be dynamically created in a Namespace that pulls from Tr for type names
+- [x] Update Readme build section
+- [x] Clean up after file-types branch work (remove Plan document, update references)
+- [x] Update documentation: FileModelsAndViews, FileHandling, Notebooks, Architecture
+- [x] Replace bit7z with miniz
+- [x] Remove 7-Zip type from MagicBytes
+- [x] Check for other bit7z/7-Zip references ("7-Zip" to ZIP or `.zip`)
+- [x] BUG: Notepad TreeView allows moving files, which means FileMeta paths can become stale
+- [x] BUG: Pulling tab off the tab bar after dragging it to a new position causes the dragged tab to be the other tab that was originally in that position!
+- [x] BUG: Open several tabs and edit them. Then drag them all to new windows. Now, right click taskbar icon and close all windows. We'll see several pop-ups, one in each window with something unsaved. Hit "don't save" and the window should close with the tab. However, the window doesn't close (nor does the file). Then you can then close the window (with unsaved tab) and no pop-up shows to save, the window just closes (so either the file was closed without closing the tab the first time, or we aren't closing the file the second time maybe)?
+- [x] BUG: ^ Actually, this happens when you open two windows (no tabs) and add a tab to each (no dragging) then right click taskbar icon > close all. Hitting "don't save" on one of those windows doesn't close that window or the tab in it. UNLESS you hit "don't save" on the top window first. Then everything seems to work as normal. Sounds like we're failing somewhere in WindowService with z-ordering. However, we can still edit the file (so the file model isn't being deleted, I guess), and closing the tab itself seems to prompt to save correctly (but not closing the window).
+- [x] Backup namespace
+- [x] ^ Ability to clean up oldest backup past set limit
+- [x] Hook spot in Fnx::compress
+- [x] Hook spot in FilService (for Notepad to use)?
+- [x] Notebook implementation
+- [x] Notepad implementation
+- [x] Comprehensive plan doc for backups/autosave
+- [x] Backup folder in AppDirs
+- [x] Update docs (changelog, I think) re uninstalling (why .hearth isn't deleted - contains backups)
+- [x] Autosave
+- [x] Save backups
+- [x] BUG: trash view: Just clicking the splitter handle will size trash view's closed state up to the splitter handle position. Additionally, trash view cannot be shrunk below the minimum we set
+- [x] Refactor save code in Notepad and Notebook
+- [x] Add note to AbstractFileView explaining why it needs two-step initialization (or remove it if unnecessary)
+- [x] AbstractFileModel and View usage and purpose documentation
+- [x] How files get titles doc?
+- [x] Eventually, implement own Fountain parser
+- [x] Contributions file?
+- [x] Find places to use Debug ASSERT
+- [x] [[maybe_unused]] instead of C-style void cast or Q_UNUSED
+- [x] ^ also check `(void)idOf(element);` and similar (FnxModelCache)
+- [x] Add special plain text formats to tags as implemented (e.g., Markdown, Fountain, ...)
+- [x] May want the temp AppDir to go away and have `~recovery` and `~notebooks`
+- [x] Organize code style
+- [x] Refactor notebook can close hooks since much the same
+- [x] Refactor notepad save code after tentatively finalizing restore code
+- [x] Find/bring symmetry to the autosave recovery code even though they're fairly different. There are still places where there will be symmetry (making sure autosave data is deleted on save or discard, for example, in both paths - or a function that wraps the lockfile deletion plus UUID list clearing, if appropriate)
+- [x] Do we nullptr the file service hook in Notebook?
+- [x] on-demand AppDirs (create on any call if needed, no initialize - but keep cleanup)
+- [x] AutosaveRecovery.md
+- [x] Bus's parameters QVariantMap to Bus::ParamMap? For readability and could swap to QHash
+- [x] Log files
+- [x] Release logging at certain level
+- [x] Guaranteed working dir persistence on crash
+- [x] ClearModified option in FileService
+- [x] Workspace autosave timer
+- [x] Hook up Notebook (scan models and save dirty ones, without changing modification)
+- [x] Collect UUIDs in flush function
+- [x] Write lockfile in flush function
+- [x] Delete lockfile on save (compress) and dtor
+- [x] Unique name generation function
+- [x] Make working dir non-QTemporaryDir, so we can re-use on recovery
+- [x] Hook up Notepad
+- [x] For Notepad, if the exist at all, a recovered file means dirty
+- [x] Make buffer .txt (NO - don't do this - it won't always be text)
+- [x] Check that window is right arg for Notepad restore (REMOVED)
+- [x] BUG: Stale recovery data on undo-to-clean (both workspaces)
+- [x] BUG: Notepad recovery purges data before fresh autosave can run
+- [x] BUG: Notebook lockfile not deleted when all files become clean
+- [x] Notebook folder should show dirty status if any of its child files (if applicable) are dirty and the folder is collapsed (should display normally when expanded)
+- [x] We also need to use the snapshot overlay when dragging window maybe (QWebEngineView lags when resizing window)
+- [x] Fountain.h to C? Need more speed!
+- [x] Better refresh button for word counter
+- [x] Better mode switch for markup file view
+- [x] We don't currently use Window context in commands. Could remove - plus reconsider if it's a Commander/Bud or a Query-er/Bus
+- [x] Settle on FileType "kind" terminology (see Kind use vs meta->fileType())
+- [x] Add file type "kind" to recovery keys for Notepad (otherwise we lose kind on recovery) (need to fix the else branch with the note in Notepad::recover)
+- [x] Tab context menu (would have duplicate, save, save as, etc)
+- [x] Model File Menu New submenu after Close (move Add Tab (with shortcut) to the submenu (and add "Plain Text" in parentheses). Get only special plain text types from FileTypes and add those programmatically
+- [x] "New file" overflow with Markdown and Fountain options
+- [x] Add Tab context menu with the overflow options ^
+- [x] Gutter size + setting on text edits
+- [x] Search "type" and find ambiguous parameter names
+- [x] Also search "kind"
+- [x] New import submenu in File for both Workspaces
+- [x] Add Word (.docx) option to submenu (only one for now)
+- [x] Docx namespace with toPlainText function
+- [x] Decide how to handle Notebook's import (in Notebook menu)
+- [x] ^ Probably want to have it apply our import process for supported types to those supported types (like DOCX) instead of just copying them in - after all, it does already do processing (rename the underlying file, etc)
+- [x] ^ May want to then also add the action into Notebook's Import (File) menu. Import for Notepad means just processing and opening as unsaved, but import for Notebook means something a little different (copying the file into the working dir and processing it and opening it, too); it feels weird to have this live in the same setting a little, but it ALREADY handles DOCX differently and other same-named operations are different between the two Workspace types (Save, for example)
+- [x] Consequentially, may want to remove the Workspace menu entirely and add Open Notepad to Notebook's File menu
+- [x] Get Qt 6.11 on CI release?
+- [x] Super need to rework Files filter functions for better API
+- [x] Icons for FnxModel
+
+
+## File Types
+
+- [x] Tree view icons by file type: file-type-appropriate icons with a generic fallback for unrecognized types. `FnxModel::data()` can read `Fnx::Xml::ext(element)` and map through `FileTypes::fromPath()` for the `Qt::DecorationRole` case.
+- [x] AbstractFileModel rework (pure virtual data/setData, virtual supportsModification)
+- [x] FileTypes header (central type registry, canonical extensions)
+- [x] Two-tier resolution in FileService (magic bytes first, extension second, plaintext fallthrough)
+- [x] Remove non-FNX file dialog filters
+- [x] Centralize model extensions (FileMeta::preferredExt)
+- [x] Generalize FNX import (any file type, preserve source extension)
+- [x] Generalize FNX new file creation (addNewFile takes FileTypes::Kind)
+- [x] Extension attribute decision (kept in manifest, populated from reality)
+- [x] Notepad rename from TreeView
+- [x] Notebook export file
+- [x] Settings converter pipeline (TieredSettings key-based converters for INI readability)
+- [x] Notepad Save As custom extension fix
+- [x] Pretty string for tab tooltip path
+
+## Modifications
+
+- [x] Window titles and flag (TODO NBM)
+- [x] Need a method to modify elements via Notebook. Probably by UUID, which should be gotten from FileInfo and mapped maybe - how many problems would this cause? Maybe just query FnxModel for it somehow? Possible?
+- [x] Marking Notebook as modified (TODO NBM)
+- [x] Fnx file elements, add or remove edited attribute when model modification changes (TODO NBM)
+- [x] FnxModel storing original DOM string + modified check method (TODO NBM)
+
+## Closures
+
+- [x] At each step of the way, decide what the "ideal" hook looks like, with proper encapsulation / separation of concerns in mind
+- [x] Consider IService Coco::Bool or enum Accept/Reject for clarity
+- [x] CLOSE_TAB in ViewService
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_TAB virtual hook in Workspace
+- [x] CLOSE_TAB hook implementation in Notepad
+- [x] CLOSE_TAB hook implementation in Notebook
+- [x] CLOSE_TAB_EVERYWHERE in ViewService
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_TAB_EVERYWHERE virtual hook in Workspace
+- [x] CLOSE_TAB_EVERYWHERE hook implementation in Notepad
+- [x] CLOSE_TAB_EVERYWHERE hook implementation in Notebook
+- [x] CLOSE_WINDOW_TABS in ViewService
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_WINDOW_TABS virtual hook in Workspace
+- [x] CLOSE_WINDOW_TABS hook implementation in Notepad
+- [x] CLOSE_WINDOW_TABS hook implementation in Notebook
+- [x] CLOSE_ALL_TABS in ViewService
+- [x] Hook type in ViewService
+- [x] Hook setter in ViewService
+- [x] CLOSE_ALL_TABS virtual hook in Workspace
+- [x] CLOSE_ALL_TABS hook implementation in Notepad
+- [x] CLOSE_ALL_TABS hook implementation in Notebook
+- [x] AT THIS POINT: Doublecheck ViewServices implementations and hooks
+- [x] Windows close via close method
+- [x] WindowService flag for individual window closes during a multi-window close
+- [x] Hook type in WindowService
+- [x] Hook setter in WindowService
+- [x] CLOSE_WINDOW virtual hook in Workspace
+- [x] CLOSE_WINDOW hook implementation in Notepad
+- [x] CLOSE_WINDOW hook implementation in Notebook
+- [x] CLOSE_ALL_WINDOWS in WindowService
+- [x] Hook type in WindowService
+- [x] Hook setter in WindowService
+- [x] CLOSE_ALL_WINDOWS virtual hook in Workspace
+- [x] CLOSE_ALL_WINDOWS hook implementation in Notepad
+- [x] CLOSE_ALL_WINDOWS hook implementation in Notebook
+- [x] Quit virtual in Workspace
+- [x] Quit implementation in Notepad
+- [x] Quit implementation in Notebook
+- [x] App's quit routine (for each N in Notebooks, N->quit(); Notepad->quit(); App quits)
+- [x] App's passive quit (when no windows are open)
+- [x] Ensure system shutdown is handled with app's quit routine
+- [x] As part of Window/WindowService cleanup, ensure we still need custom Window::destroyed signal (`connect(view, &QObject::destroyed, this, [this, view] { /*clear view from a list*/ })` works fine)
+- [x] Decide if Acceptor can be generalized AFTER. Don't get clever early!
+
+- [x] SavePrompt: Save prompt should take either one Path or a list, and open the correct prompt type for either (and if the list has one item, open the single prompt there, too)
+- [x] SavePrompt: Notepad save prompts
+- [x] SavePrompt: Notebook save prompts
+
+## Saves
+
+- [x] Saves: FileService should be saving, not AbstractFileModel
+- [x] Saves: AbstractFileModel needs some sort of content function returning QByteArray
+- [x] Saves: TextIo can probably be more generalized and work on QByteArray
+- [x] Saves: Notepad and Notebook would register their respective "Save" command handlers, since their saves are different and not just FileService::save
+- [x] Saves: Notepad does just call FS::save
+- [x] Saves: Notepad success on multi-save should just run green color bar; failure, though, should show red color bar and a pop-up of which specific files failed to save
+- [x] Saves: Notebook performs two-tier save, first calling FS::save for all modified models and saving to working dir, then compressing and saving archive
+- [x] Saves: (Notebook) Ensure edited attributes are cleared and written before compressing and replacing archive
+- [x] Saves: (Notebook) Ensure DOM snapshot is replaced on save
+- [x] Saves: Remove red color bar on Save As dialog abort
+- [x] Saves: Decide how to handle red color bar on Notepad multiSave_
+- [x] Saves: Bug: Can't see green color bar on window close, as expected, so remove them
+- [x] Saves: Bug: Notepad isn't closing models sometimes (repro: have 1 NP window, open two files, edit both, close window, prompt save, uncheck one file, save the other, reopen notepad, open both files, the skipped one is still edited (model never died))
+- [x] Saves: Bug(?): Notebook working dir/temp folder name doesn't change after Save As, and I'm not sure if that matters other than a user might expect a change if they ever need to access temp folders somehow
+- [x] Saves: Bug: (EASY - missing return statement for single-item delegation in SaveFailMessageBox::exec for string list) Unknown repro: had SaveFailMessageBox showing the successful files as a test, and when I added a new tab to a Notebook and then used Save As, I received two SaveFailMessageBox prompts for some reason? Should have only been one. I think they were for the same file, but not sure. Seems concerning!
+- [x] Saves: MultiSave struct: add success count and aborted bool, allowing us to show no color bar if only aborted, green color bar if no fails but any successes before aborted, and red if any fails before aborted
+- [x] Saves: MultiSave struct: General preference for color bar: failures take priority (any fails, show red); no saving means no color bar (so canceling a Save As and aborting early or on single file); if no failures and any success, show green
+- [x] Saves: Change to normal order for file views collected
+- [x] Saves: Consolidate Notepad Save As dialog occurences into one function
+- [x] Saves: Preferred extension for off-disk files
+- [x] CRITICAL BUG: Occasionally, saving Paradise Lost, I'll see a save fail prompt. It happens without the beforeWriteHook_ but not often. The hook doesn't seem to affect the frequency. Problem might be in Io::write and with QSaveFile? Here's the debug output that shows up related to this: `239 | 2026-03-20 | 22:11:19.360 | Failed to commit file at C:/.../Documents/Hearth/Paradise Lost.txt (Error: Access is denied.)!` (see FileService writeModelToDisk_ for the fix)
+
+## New Notebooks
+
+- [x] New Notebook: Naming dialog (no path chosen)
+- [x] New Notebook: Create new Notebook with the chosen name (no archive on disk, just working dir, will be modified)
+- [x] New Notebook: On last window closure, app quit, or save/save as, prompt Save As with a base dir / Chosen name + .fnx
+- [x] New Notebook: This base dir could replace Notepad's current working dir, would go in Workspace and be used by both Workspace types, settable by settings later (only problem is which settings? We have notepad and individual Notebook INIs...do we want/need an application-wide settings? How should we display that in the settings dialog for each Workspace?)
+- [x] New Notebook: Isolate Save As logic from Notebook Save As (if trigger is closure/quit, we don't need to change fnxPath_, switch working dir, rebase model paths, change settings, or any of that stuff at the end of Notebook Save As handler; we also technically don't need to reset DOM snapshot or mark unmodified at the end of saveArchive_
+- [x] New Notebook: May need to "unfactor" saveArchive_ to ensure we only do what's needed
+- [x] New Notebook: For closure/quit, archive will be created and saved. If successful, we close the Notebook as normal (I think??? Am I missing anything?)
+- [x] New Notebook: For Save / Save As (the former will trigger the latter anyway), the new Notebook will be saved like in the existing Save As handler. However, we'd only need to change the working directory if the path stem changed? This is a good argument for either just using a UUID or random string as the name (or simply keeping whatever name the Notebook had when it was opened/created, even if it's inconsistent with current name)
+- [x] Need starting paths for Open Notebook, New Notebook (maybe). It's possible we may want Notepad to use an application wide base path (maybe set in Workspace and all Workspaces can access it) and settings can adjust it?
+
+## Coco
+
+- [x] Ability to log Coco::Bool
+- [x] Remove any macros that take slots/lambdas, since a comma in the capture breaks them!
+- [x] Redo path, potentially reintegrate PathUtil with Path (or Io umbrella file)
+- [x] Figure out Path string caching
+- [x] Ensure Path's shared data works
+- [x] Path::isFolder to isDir
+- [x] Path::copy (or Coco::copy)?
+- [x] Move mkdir top level (Coco::mkdir) or Path?
+- [x] Remove always inline macro!

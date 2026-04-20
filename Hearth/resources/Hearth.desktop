@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Hearth
+GenericName=Text Editor
+Comment=A plain-text-first workbench for creative writing
+Exec=Hearth
+Icon=Hearth
+Categories=Utility;TextEditor;

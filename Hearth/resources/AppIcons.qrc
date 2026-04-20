@@ -1,0 +1,33 @@
+<RCC>
+    <qresource prefix="/">
+        <file>app-icons/proof/Flame.svg</file>
+        <file>app-icons/proof/Hearth.svg</file>
+        <file>app-icons/Flame.icns</file>
+        <file>app-icons/Flame.ico</file>
+        <file>app-icons/Flame-16.png</file>
+        <file>app-icons/Flame-22.png</file>
+        <file>app-icons/Flame-24.png</file>
+        <file>app-icons/Flame-32.png</file>
+        <file>app-icons/Flame-48.png</file>
+        <file>app-icons/Flame-64.png</file>
+        <file>app-icons/Flame-128.png</file>
+        <file>app-icons/Flame-256.png</file>
+        <file>app-icons/Flame-512.png</file>
+        <file>app-icons/Flame-1024.png</file>
+        <file>app-icons/Flame-2048.png</file>
+        <file>app-icons/Hearth.icns</file>
+        <file>app-icons/Hearth.ico</file>
+        <file>app-icons/Hearth-16.png</file>
+        <file>app-icons/Hearth-22.png</file>
+        <file>app-icons/Hearth-24.png</file>
+        <file>app-icons/Hearth-32.png</file>
+        <file>app-icons/Hearth-48.png</file>
+        <file>app-icons/Hearth-64.png</file>
+        <file>app-icons/Hearth-128.png</file>
+        <file>app-icons/Hearth-256.png</file>
+        <file>app-icons/Hearth-512.png</file>
+        <file>app-icons/Hearth-1024.png</file>
+        <file>app-icons/Hearth-2048.png</file>
+        <file>app-icons/Qt.ico</file>
+    </qresource>
+</RCC>
