@@ -26,6 +26,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] Extend line highlight across whole editor?
 - [ ] ^ Also, a bug with line highlight - sometimes white vertical line appears in it
 - [x] Dividing line between line number area and text
+- [ ] Open blank tab on Notepad startup with no other args
 
 - [ ] Change ColorBar colors, add Warm (re-add beCute?)
 - [x] Remove .hearthx from Notebook color chip
