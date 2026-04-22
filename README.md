@@ -1,8 +1,8 @@
 <p align="center">
     <img src="https://github.com/fairybow/Hearth/blob/main/Hearth/resources/app-icons/Hearth-128.png" alt="Hearth icon">
-</p>
-<p align="center"><b>A plain-text-first workbench for creative writing</b></p>
-<p align="center">
+    <br>
+    <b>A plain-text-first workbench for creative writing</b>
+    <br>
     <img src="https://img.shields.io/badge/C++20-blue?style=flat-square" alt="C++20">
     <a href="https://qt.io/"><img src="https://img.shields.io/badge/Qt%206.11-brightgreen?style=flat-square" alt="Qt-6.11"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/GPL%203-red.svg?style=flat-square" alt="GPL 3 license"></a>
@@ -12,13 +12,10 @@
     <a href="https://github.com/fairybow/Hearth/releases"><b>Releases</b></a> •
     <a href="https://github.com/fairybow/Hearth/blob/main/Hearth/docs"><b>Documentation</b></a>
 </p>
-
 <p>&nbsp</p>
-
 <p align="center">
     <img src="https://github.com/fairybow/Hearth/blob/main/Hearth/resources/screenshots/2.png" alt="Screenshot" width="640">
 </p>
-
 <p>&nbsp</p>
 
 Hearth :fire: is a cross-platform, plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.hearthx`)](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Notebooks.md).
