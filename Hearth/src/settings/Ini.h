@@ -92,7 +92,7 @@ inline const Map& defaults()
         // Themes
         { Keys::WINDOW_THEME, qVar(Coco::Path{}) },
         { Keys::EDITOR_THEME,
-          qVar(Coco::Path(":/themes/Pocket.hearth_editor")) },
+          qVar(Coco::Path(":/themes/Paper.hearth_editor")) },
 
         // Key filters
         { Keys::KEY_FILTERS_ACTIVE, true },

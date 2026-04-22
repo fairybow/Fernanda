@@ -1,0 +1,13 @@
+{
+  "name": "Paper",
+  "values": {
+    "base": "#f6efe1",
+    "text": "#1a2438",
+    "highlight": "",
+    "highlightedText": "",
+    "lineNumbersBackgroundColor": "#f6efe1",
+    "lineNumbersColor": "#1a2438",
+    "lineNumbersBorderColor": "#1a2438",
+    "lineHighlightColor": ""
+  }
+}

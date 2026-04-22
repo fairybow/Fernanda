@@ -31,25 +31,26 @@ constexpr auto EDITOR_SIZE_MAX = 144;
 inline Coco::PathList qrcPaths()
 {
     return Coco::filePaths(
-        { ":/courier-prime/", ":/mononoki/", ":/opendyslexic/" },
+        { ":/courier-prime/", ":/mononoki/", ":/literata/", ":/opendyslexic/" },
         { "*.otf", "*.ttf" });
 }
 
 inline const QString& editorDefaultFamily()
 {
-    static const auto s = u"mononoki"_s;
+    static const auto s = u"Literata"_s;
     return s;
 }
 
 inline const QFont& editorDefault()
 {
-    static const QFont f(editorDefaultFamily(), 16, QFont::Bold, false);
+    static const QFont f(editorDefaultFamily(), 12);
     return f;
 }
 
 inline const QStringList& families()
 {
     static const QStringList bundled = { "Courier Prime",
+                                         "Literata",
                                          "mononoki",
                                          "OpenDyslexic" };
     return bundled;
@@ -81,6 +82,18 @@ inline const QString& cssAtRules()
     font-weight: bold;
     font-style: italic;
     src: url(qrc:/courier-prime/Courier Prime Bold Italic.ttf) format("truetype");
+}
+@font-face {
+    font-family: "Literata";
+    font-weight: 100 900;
+    font-style: normal;
+    src: url(qrc:/literata/Literata-VariableFont_opsz,wght.ttf) format("truetype-variations");
+}
+@font-face {
+    font-family: "Literata";
+    font-weight: 100 900;
+    font-style: italic;
+    src: url(qrc:/literata/Literata-Italic-VariableFont_opsz,wght.ttf) format("truetype-variations");
 }
 @font-face {
     font-family: "mononoki";

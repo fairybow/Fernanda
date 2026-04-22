@@ -152,8 +152,9 @@ private:
 
         userThemePaths = { user_paths.begin(), user_paths.end() };
 
-        for (auto& path : qrc_paths + user_paths)
+        for (auto& path : qrc_paths + user_paths) {
             themes << ThemeT{ path };
+        }
 
         sortThemes_<ThemeT>(themes);
     }
@@ -183,14 +184,19 @@ private:
         // Clear all and re-add
 
         auto current_files = userThemeWatcher_->files();
-        if (!current_files.isEmpty())
+        if (!current_files.isEmpty()) {
             userThemeWatcher_->removePaths(current_files);
+        }
 
         QStringList qstr_paths{};
-        for (auto& path : userWindowThemePaths_)
+
+        for (auto& path : userWindowThemePaths_) {
             qstr_paths << path.toQString();
-        for (auto& path : userEditorThemePaths_)
+        }
+
+        for (auto& path : userEditorThemePaths_) {
             qstr_paths << path.toQString();
+        }
 
         if (!qstr_paths.isEmpty()) userThemeWatcher_->addPaths(qstr_paths);
     }
@@ -202,8 +208,9 @@ private:
         QList<std::pair<QString, Coco::Path>> result{};
         result.reserve(themes.size());
 
-        for (auto& theme : themes)
+        for (auto& theme : themes) {
             result << std::make_pair(theme.name(), theme.path());
+        }
 
         return result;
     }
@@ -213,8 +220,9 @@ private:
     {
         if (path.isEmpty()) return {};
 
-        for (auto& theme : themes)
+        for (auto& theme : themes) {
             if (theme.path() == path) return theme;
+        }
 
         return {};
     }
@@ -322,32 +330,38 @@ private slots:
         }
 
         // Apply additions
-        for (auto& path : added_window)
+        for (auto& path : added_window) {
             windowThemes_ << WindowTheme{ path };
+        }
 
-        for (auto& path : added_editor)
+        for (auto& path : added_editor) {
             editorThemes_ << EditorTheme{ path };
+        }
 
         // Update tracked paths
         userWindowThemePaths_ = current_window_set;
         userEditorThemePaths_ = current_editor_set;
 
         // Sort if changed
-        if (!added_window.isEmpty() || !removed_window.isEmpty())
+        if (!added_window.isEmpty() || !removed_window.isEmpty()) {
             sortThemes_(windowThemes_);
+        }
 
-        if (!added_editor.isEmpty() || !removed_editor.isEmpty())
+        if (!added_editor.isEmpty() || !removed_editor.isEmpty()) {
             sortThemes_(editorThemes_);
+        }
 
         // Sync file watches
         updateWatchedFiles_();
 
         // Reapply if current theme was just (re-)added
-        if (added_window.contains(currentWindowThemePath_))
+        if (added_window.contains(currentWindowThemePath_)) {
             reapplyWindowThemeIfCurrent_(currentWindowThemePath_);
+        }
 
-        if (added_editor.contains(currentEditorThemePath_))
+        if (added_editor.contains(currentEditorThemePath_)) {
             reapplyEditorThemeIfCurrent_(currentEditorThemePath_);
+        }
     }
 
     void onBusSettingChanged_(const QString& key, const QVariant& value)

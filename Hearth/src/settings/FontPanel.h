@@ -81,8 +81,9 @@ private:
         bundled.removeAll(main);
 
         // Remove bundled fonts from system list to avoid duplicates
-        for (const auto& name : BundledFonts::families())
+        for (const auto& name : BundledFonts::families()) {
             families.removeAll(name);
+        }
 
         // Default -> separator -> other bundled fonts -> separator -> system
         fontsBox_->addItem(main);

@@ -203,6 +203,8 @@ private:
 
     void setup_()
     {
+        // TODO: Which ones do we want to be more responsive? Would it be
+        // feasible to just debounce with 0 timer?
         setupDebouncer_(Ini::Keys::EDITOR_FONT);
         setupDebouncer_(Ini::Keys::WINDOW_THEME);
         setupDebouncer_(Ini::Keys::EDITOR_THEME);
