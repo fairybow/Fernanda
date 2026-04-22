@@ -19,6 +19,8 @@
     <img src="https://github.com/fairybow/Hearth/blob/main/Hearth/resources/screenshots/2.png" alt="Screenshot" width="640">
 </p>
 
+<p>&nbsp</p>
+
 Hearth :fire: is a cross-platform, plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.hearthx`)](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Notebooks.md).
 
 > [!NOTE]
