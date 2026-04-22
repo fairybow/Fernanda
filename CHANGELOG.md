@@ -89,7 +89,11 @@ git push origin v0.99.0-beta.24
 
 ## What's New?
 
-...
+**New default font and theme.** Literata (bundled) 12 pt and a generic "Paper" theme. Several other default values were switched off (line highlight, line number area, etc.)
+
+**Line number area refinements.** A new `lineNumbersBorderColor` editor theme variable, draws a thin divider between the gutter and the text area (transparent default)
+
+**Notebook color chip shows stem only.** The chip now displays the Notebook name without the `.hearthx` extension
 
 ## Known Issues
 
