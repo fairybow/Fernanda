@@ -22,6 +22,7 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 ## Current
 
+- [ ] BUG: Color chip not updating across windows
 - [ ] Themed focus indicator color for plain text edit
 - [ ] Extend line highlight across whole editor?
 - [ ] ^ Also, a bug with line highlight - sometimes white vertical line appears in it
