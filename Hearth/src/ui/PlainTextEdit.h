@@ -49,7 +49,7 @@ namespace Internal {
 
 } // namespace Internal
 
-class LineNumberArea; /// TODO LNA
+class LineNumberArea;
 
 // TODO: Setting for changing which line numbers display (every 5, every 4, etc,
 // maybe)
@@ -156,10 +156,8 @@ public:
         highlightCurrentLine_();
     }
 
-    /// TODO LNA
     void lineNumberAreaPaintEvent(QPaintEvent* event);
 
-    /// TODO LNA
     int lineNumberAreaWidth()
     {
         if (!lineNumbers_) return 0;
@@ -217,14 +215,12 @@ protected:
         QPlainTextEdit::mouseDoubleClickEvent(event);
     }
 
-    /// TODO LNA
     virtual void resizeEvent(QResizeEvent* event) override;
 
 private:
     SelectionHandleOverlay* selectionHandles_ =
         new SelectionHandleOverlay(this);
 
-    /// TODO LNA
     QWidget* lineNumberArea_ = nullptr;
 
     bool doubleClickWhitespace_ = true;
@@ -232,7 +228,7 @@ private:
     bool lineHighlight_ = true;
     int leftRightMargin_ = 0;
 
-    // TODO: Pull QSS template values from here if possible
+    // TODO: Pull QSS template values from here if possible (maybe?)
     QColor lineNumbersBackgroundColor_{ "#d0d0d0" };
     QColor lineNumbersColor_{ "#808080" };
     QColor lineNumbersBorderColor_{ Qt::transparent };
@@ -259,7 +255,6 @@ private:
 private slots:
     void resetCursorBlink_();
 
-    /// TODO LNA
     void highlightCurrentLine_()
     {
         QList<QTextEdit::ExtraSelection> extra_selections{};
@@ -278,11 +273,9 @@ private slots:
         setExtraSelections(extra_selections);
     }
 
-    /// TODO LNA
     void updateLineNumberArea_(const QRect& rect, int deltaY);
 };
 
-/// TODO LNA
 // See:
 // https://doc.qt.io/archives/qt-5.15/qtwidgets-widgets-codeeditor-example.html
 class LineNumberArea : public QWidget

@@ -35,7 +35,6 @@ PlainTextEdit::PlainTextEdit(QWidget* parent)
     setup_();
 }
 
-/// TODO LNA
 void PlainTextEdit::setLineNumbers(bool lineNumbers)
 {
     lineNumbers_ = lineNumbers;
@@ -43,7 +42,6 @@ void PlainTextEdit::setLineNumbers(bool lineNumbers)
     updateViewportMargins_();
 }
 
-/// TODO LNA
 void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
 {
     QPainter painter(lineNumberArea_);
@@ -96,7 +94,6 @@ void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
         lineNumbersBorderColor_);
 }
 
-/// TODO LNA
 void PlainTextEdit::resizeEvent(QResizeEvent* event)
 {
     updateViewportMargins_();
@@ -112,8 +109,6 @@ void PlainTextEdit::setup_()
     lineNumberArea_ = new LineNumberArea(this);
     lineNumberArea_->setVisible(lineNumbers_);
 
-    // TODO: Unsure on frame:
-    // setFrameShape(QFrame::NoFrame);
     setViewportMargins(0, 0, 0, 0);
 
     connect(
@@ -160,7 +155,6 @@ void PlainTextEdit::resetCursorBlink_()
     Application::setCursorFlashTime(original_flash_time);
 }
 
-/// TODO LNA
 void PlainTextEdit::updateLineNumberArea_(const QRect& rect, int deltaY)
 {
     if (deltaY) {
