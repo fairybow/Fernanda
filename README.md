@@ -6,9 +6,9 @@
     <img src="https://img.shields.io/badge/C++20-blue?style=flat-square" alt="C++20">
     <a href="https://qt.io/"><img src="https://img.shields.io/badge/Qt%206.11-brightgreen?style=flat-square" alt="Qt-6.11"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/GPL%203-red.svg?style=flat-square" alt="GPL 3 license"></a>
+    <br>
     <a href="https://github.com/fairybow/Hearth/releases"><img src="https://img.shields.io/badge/Windows%20|%20macOS%20|%20Linux-blue.svg?style=flat-square" alt="Platforms: Windows, macOS, Linux"></a>
-</p>
-<p align="center">
+    <br>
     <a href="https://github.com/fairybow/Hearth/releases"><b>Releases</b></a> •
     <a href="https://github.com/fairybow/Hearth/blob/main/Hearth/docs"><b>Documentation</b></a>
 </p>
