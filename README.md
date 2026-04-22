@@ -11,7 +11,7 @@
     <a href="https://github.com/fairybow/Hearth/blob/main/Hearth/docs"><b>Documentation</b></a>
 </p>
 
-Hearth :fire: is a plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.hearthx`)](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Notebooks.md).
+Hearth :fire: is a cross-platform, plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.hearthx`)](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Notebooks.md).
 
 > [!NOTE]
 > macOS and Linux builds are available but not well-tested. Bug reports are welcome!
