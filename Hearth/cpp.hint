@@ -17,3 +17,5 @@
 #define TR_(Name, TrCall) inline QString Name() { return TrCall; }
 #define ASSERT(condition, __VA_ARGS__) ((condition) ? static_cast<void>(0) : Hearth::Debug::Internal::assertionFailed_( #condition, __FILE__, __LINE__, __FUNCTION__ __VA_OPT__(, ) __VA_ARGS__))
 #define ASSERT(condition, __VA_ARGS__) static_cast<void>(false && (condition))
+#define Q_PROPERTY(__VA_ARGS__) QT_ANNOTATE_CLASS(qt_property, __VA_ARGS__)
+#define Q_PROPERTY(text) Q_PROPERTY(text)

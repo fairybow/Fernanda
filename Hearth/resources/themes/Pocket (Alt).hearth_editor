@@ -5,8 +5,9 @@
     "text": "#0f380f",
     "highlight": "#0f380f",
     "highlightedText": "#9bbc0f",
-    "lineNumbersBackgroundColor": "#0f380f",
-    "lineNumbersColor": "#9bbc0f",
+    "lineNumbersBackgroundColor": "#9bbc0f",
+    "lineNumbersColor": "#0f380f",
+    "lineNumbersBorderColor": "#0f380f",
     "lineHighlightColor": "rgba(255, 255, 255, 64)"
   }
 }

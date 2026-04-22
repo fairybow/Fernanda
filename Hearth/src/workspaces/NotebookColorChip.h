@@ -161,7 +161,7 @@ private:
         setToolTip(nbx_.prettyQString());
 
         // TODO: Common method w/ TextFileModel::onDocContentsChanged
-        auto nbx_name = nbx_.nameQString();
+        auto nbx_name = nbx_.stemQString();
         auto new_name = nbx_name.left(27);
         if (nbx_name.length() > 27) new_name += u"..."_s;
         name_ = new_name;

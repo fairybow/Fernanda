@@ -47,7 +47,17 @@ void PlainTextEdit::setLineNumbers(bool lineNumbers)
 void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
 {
     QPainter painter(lineNumberArea_);
-    painter.fillRect(event->rect(), lineNumbersBackgroundColor_);
+
+    auto bg_width = lineNumberArea_->width() - Internal::LNA_LINE_RIGHT_PADDING_
+                    - Internal::LNA_LINE_THICKNESS_;
+
+    painter.fillRect(
+        event->rect().left(),
+        event->rect().top(),
+        bg_width - event->rect().left(),
+        event->rect().height(),
+        lineNumbersBackgroundColor_);
+
     painter.setFont(font());
 
     auto block = firstVisibleBlock();
@@ -63,7 +73,7 @@ void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
             painter.drawText(
                 0,
                 top,
-                lineNumberArea_->width(),
+                lineNumberArea_->width() - Internal::LNA_RIGHT_RESERVATION_,
                 fontMetrics().height(),
                 Qt::AlignRight,
                 number);
@@ -75,6 +85,15 @@ void PlainTextEdit::lineNumberAreaPaintEvent(QPaintEvent* event)
 
         ++block_number;
     }
+
+    // LNA separator
+    painter.fillRect(
+        lineNumberArea_->width() - Internal::LNA_LINE_RIGHT_PADDING_
+            - Internal::LNA_LINE_THICKNESS_,
+        event->rect().top(),
+        Internal::LNA_LINE_THICKNESS_,
+        event->rect().height(),
+        lineNumbersBorderColor_);
 }
 
 /// TODO LNA

@@ -37,6 +37,18 @@
 
 namespace Hearth {
 
+namespace Internal {
+
+    inline constexpr int LINE_NUMBERS_LEFT_PADDING_ = 5;
+    inline constexpr int LNA_LINE_LEFT_PADDING_ = 5;
+    inline constexpr int LNA_LINE_RIGHT_PADDING_ = 5;
+    inline constexpr int LNA_LINE_THICKNESS_ = 2;
+
+    inline constexpr int LNA_RIGHT_RESERVATION_ =
+        LNA_LINE_LEFT_PADDING_ + LNA_LINE_THICKNESS_ + LNA_LINE_RIGHT_PADDING_;
+
+} // namespace Internal
+
 class LineNumberArea; /// TODO LNA
 
 // TODO: Setting for changing which line numbers display (every 5, every 4, etc,
@@ -58,6 +70,11 @@ class PlainTextEdit : public QPlainTextEdit
             setLineNumbersBackgroundColor)
     Q_PROPERTY(
         QColor lineNumbersColor READ lineNumbersColor WRITE setLineNumbersColor)
+
+    Q_PROPERTY(
+        QColor lineNumbersBorderColor READ lineNumbersBorderColor WRITE
+            setLineNumbersBorderColor)
+
     Q_PROPERTY(
         QColor lineHighlightColor READ lineHighlightColor WRITE
             setLineHighlightColor)
@@ -105,6 +122,14 @@ public:
         if (lineNumberArea_) lineNumberArea_->update();
     }
 
+    QColor lineNumbersBorderColor() const { return lineNumbersBorderColor_; }
+
+    void setLineNumbersBorderColor(const QColor& color)
+    {
+        lineNumbersBorderColor_ = color;
+        if (lineNumberArea_) lineNumberArea_->update();
+    }
+
     QColor lineHighlightColor() const { return lineHighlightColor_; }
 
     void setLineHighlightColor(const QColor& color)
@@ -148,7 +173,9 @@ public:
         }
 
         auto space =
-            3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
+            Internal::LINE_NUMBERS_LEFT_PADDING_
+            + Internal::LNA_RIGHT_RESERVATION_
+            + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
 
         return space;
     }
@@ -208,6 +235,7 @@ private:
     // TODO: Pull QSS template values from here if possible
     QColor lineNumbersBackgroundColor_{ "#d0d0d0" };
     QColor lineNumbersColor_{ "#808080" };
+    QColor lineNumbersBorderColor_{ Qt::transparent };
     QColor lineHighlightColor_{ 251, 247, 25, 191 };
 
     void setup_();

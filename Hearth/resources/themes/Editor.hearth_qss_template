@@ -5,5 +5,6 @@ Hearth--PlainTextEdit {
     selection-color: {{highlightedText|#fbfbfb}};
     qproperty-lineNumbersBackgroundColor: {{lineNumbersBackgroundColor|#d0d0d0}};
     qproperty-lineNumbersColor: {{lineNumbersColor|#808080}};
+    qproperty-lineNumbersBorderColor: {{lineNumbersBorderColor|transparent}};
     qproperty-lineHighlightColor: {{lineHighlightColor|rgba(251, 247, 25, 191)}};
 }
