@@ -105,9 +105,9 @@ inline const Map& defaults()
         { Keys::EDITOR_TAB_STOP_DISTANCE, 40 },
         { Keys::EDITOR_WRAP_MODE, qVar(QTextOption::WordWrap) },
         { Keys::EDITOR_DBL_CLICK_WHITESPACE, true },
-        { Keys::EDITOR_LINE_NUMBERS, true },
-        { Keys::EDITOR_LINE_HIGHLIGHT, true },
-        { Keys::EDITOR_SELECTION_HANDLES, true },
+        { Keys::EDITOR_LINE_NUMBERS, false },
+        { Keys::EDITOR_LINE_HIGHLIGHT, false },
+        { Keys::EDITOR_SELECTION_HANDLES, false },
         { Keys::EDITOR_LR_MARGIN, 0 },
 
         // Word counter
