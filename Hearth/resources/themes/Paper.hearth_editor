@@ -1,11 +1,11 @@
 {
   "name": "Paper",
   "values": {
-    "base": "#f6efe1",
+    "base": "#f4efe6",
     "text": "#1a2438",
     "highlight": "",
     "highlightedText": "",
-    "lineNumbersBackgroundColor": "#f6efe1",
+    "lineNumbersBackgroundColor": "#f4efe6",
     "lineNumbersColor": "#1a2438",
     "lineNumbersBorderColor": "#1a2438",
     "lineHighlightColor": ""
