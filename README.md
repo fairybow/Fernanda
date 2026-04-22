@@ -13,11 +13,13 @@
     <a href="https://github.com/fairybow/Hearth/releases"><b>Releases</b></a> •
     <a href="https://github.com/fairybow/Hearth/blob/main/Hearth/docs"><b>Documentation</b></a>
 </p>
-<p>&nbsp</p>
 <p align="center">
+    &nbsp
+    <br>
     <img src="https://github.com/fairybow/Hearth/blob/main/Hearth/resources/screenshots/2.png" alt="Screenshot" width="640">
+    <br>
+    &nbsp
 </p>
-<p>&nbsp</p>
 
 Hearth :fire: is a cross-platform, plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.hearthx`)](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Notebooks.md).
 
