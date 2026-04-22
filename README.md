@@ -3,8 +3,10 @@
 </p>
 <p align="center"><b>A plain-text-first workbench for creative writing</b></p>
 <p align="center">
+    <img src="https://img.shields.io/badge/C++20-blue?style=flat-square&logo=C%2B%2B" alt="C++20">
+    <a href="https://qt.io/"><img src="https://img.shields.io/badge/Qt-6.11-brightgreen?style=flat-square&logo=qt" alt="Qt-6.11"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL%203-red.svg?style=flat-square" alt="License GPL 3"></a>
-    <img src="https://img.shields.io/badge/Platforms-Windows%20|%20macOS%20|%20Linux-blue.svg?style=flat-square" alt="Platforms: Windows, macOS, Linux">
+    <a href="https://github.com/fairybow/Hearth/releases"><img src="https://img.shields.io/badge/Platforms-Windows%20|%20macOS%20|%20Linux-blue.svg?style=flat-square" alt="Platforms: Windows, macOS, Linux"></a>
 </p>
 <p align="center">
     <a href="https://github.com/fairybow/Hearth/releases"><b>Releases</b></a> •
@@ -53,15 +55,9 @@ Optional flags:
 
 Log files are stored in `~/.hearth/logs/` and pruned automatically.
 
-## Built with
-
-![C++](https://img.shields.io/badge/C++-20-blue?style=for-the-badge&logo=C%2B%2B)
-[![Qt](https://img.shields.io/badge/Qt-6.10-brightgreen?style=for-the-badge&logo=qt)](https://qt.io/)
-[![miniz](https://img.shields.io/badge/miniz-3.1-yellow.svg?style=for-the-badge)](https://github.com/richgel999/miniz)
-
-(See [Dependencies.md](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Dependencies.md))
-
 ## Building
+
+See [Dependencies.md](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Dependencies.md)
 
 ### Requirements
 
