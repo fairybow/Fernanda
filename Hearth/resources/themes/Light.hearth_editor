@@ -1,0 +1,13 @@
+{
+  "name": "Light",
+  "values": {
+    "base": "#f8f8f6",
+    "text": "#1f1f1e",
+    "highlight": "#1f1f1e",
+    "highlightedText": "#f8f8f6",
+    "lineNumbersBackgroundColor": "",
+    "lineNumbersColor": "#1f1f1e",
+    "lineNumbersBorderColor": "#1f1f1e",
+    "lineHighlightColor": "rgba(255, 255, 255, 64)"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Dark",
+  "values": {
+    "base": "#1f1f1e",
+    "text": "#f8f8f6",
+    "highlight": "#f8f8f6",
+    "highlightedText": "#1f1f1e",
+    "lineNumbersBackgroundColor": "",
+    "lineNumbersColor": "#f8f8f6",
+    "lineNumbersBorderColor": "#f8f8f6",
+    "lineHighlightColor": "rgba(255, 255, 255, 64)"
+  }
+}

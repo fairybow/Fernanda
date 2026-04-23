@@ -5,7 +5,7 @@
     "text": "#ff0000",
     "highlight": "#ff0000",
     "highlightedText": "#1d0202",
-    "lineNumbersBackgroundColor": "#1d0202",
+    "lineNumbersBackgroundColor": "",
     "lineNumbersColor": "#ff0000",
     "lineNumbersBorderColor": "#ff0000",
     "lineHighlightColor": "rgba(255, 255, 255, 64)"
