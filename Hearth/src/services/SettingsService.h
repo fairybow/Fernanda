@@ -201,13 +201,13 @@ private:
     {
         // TODO: Which ones do we want to be more responsive? Would it be
         // feasible to just debounce with 0 timer?
-        //setupDebouncer_(Ini::Keys::EDITOR_FONT);
-        //setupDebouncer_(Ini::Keys::WINDOW_THEME);
-        //setupDebouncer_(Ini::Keys::EDITOR_THEME);
-        //setupDebouncer_(Ini::Keys::EDITOR_TAB_STOP_DISTANCE);
-        //setupDebouncer_(Ini::Keys::EDITOR_WRAP_MODE);
-        //setupDebouncer_(Ini::Keys::EDITOR_LR_MARGIN);
-        //setupDebouncer_(Ini::Keys::COLOR_BAR_POSITION);
+        // setupDebouncer_(Ini::Keys::EDITOR_FONT);
+        // setupDebouncer_(Ini::Keys::WINDOW_THEME);
+        // setupDebouncer_(Ini::Keys::EDITOR_THEME);
+        // setupDebouncer_(Ini::Keys::EDITOR_TAB_STOP_DISTANCE);
+        // setupDebouncer_(Ini::Keys::EDITOR_WRAP_MODE);
+        // setupDebouncer_(Ini::Keys::EDITOR_LR_MARGIN);
+        // setupDebouncer_(Ini::Keys::COLOR_BAR_POSITION);
 
         /// TODO FT: Right place to register these?
         settings_->setKeyConverters(
