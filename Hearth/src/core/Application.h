@@ -218,8 +218,9 @@ private:
             // if (!was_open) notepad_->beCute();
         }
 
-        for (auto& path : parsed.nbxFiles)
+        for (auto& path : parsed.nbxFiles) {
             openOrActivateNotebook_(path);
+        }
     }
 
     /// TODO BA

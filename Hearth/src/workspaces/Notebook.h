@@ -410,13 +410,37 @@ private:
         if (!text_color.isEmpty()) chip->setTextColor(text_color);
 
         connect(chip, &NotebookColorChip::colorChanged, this, [this, chip] {
+            auto chip_color = chip->chipColor();
+            auto text_color = chip->textColor();
+
+            for (auto& other_chip : colorChips_) {
+                if (other_chip == chip) continue;
+                other_chip->setChipColor(chip_color);
+                other_chip->setTextColor(text_color);
+            }
+
             settings->set(
                 Ini::LocalKeys::NOTEBOOK_CHIP_COLOR,
-                chip->chipColor().name());
+                chip_color.name());
             settings->set(
                 Ini::LocalKeys::NOTEBOOK_CHIP_TEXT_COLOR,
-                chip->textColor().name());
+                text_color.name());
         });
+
+        connect(
+            chip,
+            &NotebookColorChip::previewColorChanged,
+            this,
+            [this, chip] {
+                auto chip_color = chip->chipColor();
+                auto text_color = chip->textColor();
+
+                for (auto& other_chip : colorChips_) {
+                    if (other_chip == chip) continue;
+                    other_chip->setChipColor(chip_color);
+                    other_chip->setTextColor(text_color);
+                }
+            });
 
         window->statusBar()->addPermanentWidget(chip);
     }

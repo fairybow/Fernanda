@@ -84,6 +84,7 @@ public:
 
 signals:
     void colorChanged();
+    void previewColorChanged();
 
 protected:
     virtual void paintEvent([[maybe_unused]] QPaintEvent* event) override
@@ -192,6 +193,7 @@ private:
             [this, targetMember](const QColor& color) {
                 *targetMember = color;
                 update();
+                emit previewColorChanged();
             });
 
         connect(
