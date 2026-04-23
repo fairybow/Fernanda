@@ -16,7 +16,7 @@
 <p align="center">
     &nbsp
     <br>
-    <img src="https://github.com/fairybow/Hearth/blob/main/Hearth/resources/screenshots/2.png" alt="Screenshot" width="640">
+    <img src="https://github.com/fairybow/Hearth/blob/main/Hearth/resources/banner/Banner.png" alt="Screenshot" width="640">
     <br>
     &nbsp
 </p>
