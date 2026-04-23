@@ -333,10 +333,6 @@ namespace Tr {
     TR_(colorBarPanelAboveStatusBar, tr("Above status bar"));
     TR_(colorBarPanelBottom, tr("Bottom"));
 
-    /// Settings
-
-    TR_(noTheme, tr("No theme"));
-
     /// Settings Dialog
 
     TR_(settingsTitle, tr("Settings"));

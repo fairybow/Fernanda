@@ -92,9 +92,6 @@ public:
 
         QList<ThemesPanel::Entry> window_theme_entries{};
 
-        // Add themeless option using empty path
-        window_theme_entries << ThemesPanel::Entry{ Tr::noTheme(), {} };
-
         // TODO: Don't use pair. Find a sensible location for using a struct
         // with explicit names! Could have all involved (this, SettingsDialog,
         // StyleModule) reuse ThemeSelector::Entry, maybe
@@ -106,7 +103,6 @@ public:
         }
 
         QList<ThemesPanel::Entry> editor_theme_entries{};
-        editor_theme_entries << ThemesPanel::Entry{ Tr::noTheme(), {} };
 
         for (auto& theme : bus->call<QList<std::pair<QString, Coco::Path>>>(
                  Bus::EDITOR_THEMES)) {

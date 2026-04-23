@@ -1,12 +1,12 @@
 {
-  "name": "Dark",
+  "name": "1",
   "values": {
-    "base": "#1f1f1e",
-    "text": "#f8f8f6",
+    "base": "#fdf6e3",
+    "text": "#594e36",
     "highlight": "",
     "highlightedText": "",
     "lineNumbersBackgroundColor": "",
-    "lineNumbersColor": "",
+    "lineNumbersColor": "#594e36",
     "lineNumbersBorderColor": "",
     "lineHighlightColor": ""
   }

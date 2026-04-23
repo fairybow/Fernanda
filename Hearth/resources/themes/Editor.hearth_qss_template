@@ -1,10 +1,10 @@
 Hearth--PlainTextEdit {
-    background-color: {{base|#fbfbfb}};
-    color: {{text|#2d2d2d}};
+    background-color: {{base|#f8f8f6}};
+    color: {{text|#1f1f1e}};
     selection-background-color: {{highlight|#0096ff}};
-    selection-color: {{highlightedText|#fbfbfb}};
+    selection-color: {{highlightedText|#f8f8f6}};
     qproperty-lineNumbersBackgroundColor: {{lineNumbersBackgroundColor|transparent}};
-    qproperty-lineNumbersColor: {{lineNumbersColor|#2d2d2d}};
+    qproperty-lineNumbersColor: {{lineNumbersColor|#ccc}};
     qproperty-lineNumbersBorderColor: {{lineNumbersBorderColor|transparent}};
-    qproperty-lineHighlightColor: {{lineHighlightColor|rgba(251, 247, 25, 191)}};
+    qproperty-lineHighlightColor: {{lineHighlightColor|rgba(255, 255, 0, 128)}};
 }
