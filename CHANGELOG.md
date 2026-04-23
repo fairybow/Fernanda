@@ -89,7 +89,9 @@ git push origin v0.99.0-beta.24
 
 ## What's New?
 
-...
+**Notebook color chip syncs across windows.** Changing a Notebook's color chip (including live preview while picking) now updates all open windows of that Notebook simultaneously
+
+**Editor theme refresh.** New `Light` and `Dark` themes, and the older `Amber`, `Blue`, `Green`, and `Grey` themes have been retired (moved to `old/`). Default `lineNumbersBackgroundColor` is now transparent and the line highlight is a softer yellow. The "No theme" option has been removed from the Settings themes list (the new `Light` theme serves that role)
 
 ## Known Issues
 
