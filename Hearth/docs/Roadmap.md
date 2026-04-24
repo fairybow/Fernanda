@@ -27,8 +27,8 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 - [ ] Extend line highlight across whole editor?
 - [ ] ^ Also, a bug with line highlight - sometimes white vertical line appears in it
 - [x] Dividing line between line number area and text
-- [ ] Open blank tab on Notepad startup with no other args
-- [ ] Icon chevron ("hearth") looks floppy at small scale
+- [x] Open blank tab on Notepad startup with no other args
+- [x] Icon chevron ("hearth") looks floppy at small scale
 - [ ] Icon is also set a little high on taskbar for some reason
 
 - [ ] Change ColorBar colors, add Warm (re-add beCute?)

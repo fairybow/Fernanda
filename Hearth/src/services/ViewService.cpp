@@ -56,13 +56,22 @@ ViewService::~ViewService() { TRACER; }
 
 // --- Queries ---
 
+bool ViewService::anyViewsIn(Window* window) const
+{
+    if (!window) return false;
+
+    for (auto& tab_widget : tabWidgets_(window)) {
+        if (!tab_widget->isEmpty()) return true;
+    }
+
+    return false;
+}
+
 /// TODO TS
 bool ViewService::anyViews() const
 {
     for (auto& window : bus->call<QSet<Window*>>(Bus::WINDOWS_SET)) {
-        for (auto& tab_widget : tabWidgets_(window)) {
-            if (!tab_widget->isEmpty()) return true;
-        }
+        if (anyViewsIn(window)) return true;
     }
 
     return false;

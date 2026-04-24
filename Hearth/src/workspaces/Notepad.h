@@ -90,6 +90,15 @@ public:
         if (auto window = windows->active()) openFiles_(window, paths);
     }
 
+    void ensureTab()
+    {
+        auto window = windows->active();
+        if (!window) return;
+
+        if (views->anyViewsIn(window)) return;
+        newFile(window, Files::PlainText);
+    }
+
     /// TODO BA
     void recover()
     {

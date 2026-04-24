@@ -85,6 +85,7 @@ public:
 
     COCO_BOOL(ExcludeMultiWindow)
 
+    bool anyViewsIn(Window* window) const;
     bool anyViews() const;
     bool anyModifiedFileModelsIn(Window* window) const;
     int countFor(AbstractFileModel* fileModel) const;

@@ -215,6 +215,7 @@ private:
             auto was_open = notepad_->hasWindows();
             notepad_->show();
             notepad_->openFiles(parsed.regularFiles); // No-op if empty
+            notepad_->ensureTab();
             // if (!was_open) notepad_->beCute();
         }
 

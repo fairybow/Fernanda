@@ -85,6 +85,24 @@ git push origin v0.99.0-beta.24
 
 <a id="releases"></a>
 
+# 0.99.0-beta.29 (Testing / Soft Release) - tag v0.99.0-beta.29
+
+## What's New?
+
+**Ensuring start-up tab.**
+
+**Icon adjustment.**
+
+## Known Issues
+
+- TreeView root directory is locked in-place for now (Notepad)
+- Window themes not yet implemented
+- Notebook settings won't persist unless the Notebook itself is saved
+- Renaming an open Notebook's `.hearthx` file in Notepad's TreeView can cause the Notebook's save target to go stale
+- Session restore not yet implemented (splits, open tabs, window positions, expanded Notebook TreeView items, etc.)
+
+---
+
 # 0.99.0-beta.28 (Testing / Soft Release) - tag v0.99.0-beta.28
 
 ## What's New?
