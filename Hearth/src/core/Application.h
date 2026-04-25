@@ -270,6 +270,7 @@ private:
 
         connect(notebook, &Notebook::openNotepadRequested, this, [this] {
             notepad_->show();
+            notepad_->ensureTab();
         });
 
         return notebook;
