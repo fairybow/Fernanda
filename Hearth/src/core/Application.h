@@ -322,6 +322,8 @@ private:
         if (auto notebook = makeNotebook_(nbxPath)) {
             notebook->show();
             // notebook->beCute();
+
+            notepad_->closeIfPristine();
         }
     }
 

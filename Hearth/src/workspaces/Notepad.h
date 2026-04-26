@@ -99,6 +99,33 @@ public:
         newFile(window, Files::PlainText);
     }
 
+    // Closes the Notepad window if it hasn't been touched yet
+    void closeIfPristine()
+    {
+        // If the user opened a second window, then there's maybe an intent to
+        // keep the Notepad around, so we shouldn't close it
+        if (windows->count() != 1) return;
+
+        auto window = windows->active();
+        if (!window) return;
+
+        auto views_in_window = views->fileViewsIn(window);
+
+        if (views_in_window.isEmpty()) {
+            windows->closeAll();
+            return;
+        }
+
+        // Single untouched off-disk tab
+        if (views_in_window.size() == 1) {
+            auto model = views_in_window.first()->model();
+            if (model && !model->isModified()) {
+                auto meta = model->meta();
+                if (meta && !meta->isOnDisk()) { windows->closeAll(); }
+            }
+        }
+    }
+
     /// TODO BA
     void recover()
     {

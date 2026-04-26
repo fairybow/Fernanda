@@ -37,6 +37,9 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 Pain points while using:
 
+- [ ] Could make LNA divider a toggle and all themes can use it (the built in ones would all use it)
+- [ ] Need maybe different LNA numbers for Light/Dark, or just use font?
+- [ ] ^ OR, should a default themes use a fainter color than text color?
 - [x] Side-by-side tabs
 - [x] New tab area container widget
 - [x] ViewService refactor for multiple TabWidgets

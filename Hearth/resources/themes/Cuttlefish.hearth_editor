@@ -1,0 +1,13 @@
+{
+  "name": "Cuttlefish",
+  "values": {
+    "base": "#f2ebdb",
+    "text": "#222126",
+    "highlight": "",
+    "highlightedText": "",
+    "lineNumbersBackgroundColor": "",
+    "lineNumbersColor": "#222126",
+    "lineNumbersBorderColor": "",
+    "lineHighlightColor": ""
+  }
+}
