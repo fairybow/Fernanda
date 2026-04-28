@@ -24,6 +24,8 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 - [ ] Probably disallow files as children of other files in Notebooks
 - [ ] Change barge from double Space / Enter to Shift+Space or Enter?
+- [ ] BUG: Barging busted for single quote, need to fix this while redoing barging keys
+- [ ] Lighter LNA color for dark/cuttlefish/etc if needed
 - [x] BUG: Color chip not updating across windows
 - [ ] Themed focus indicator color for plain text edit
 - [ ] Extend line highlight across whole editor?
