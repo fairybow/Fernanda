@@ -22,6 +22,8 @@ Tags for working code that is a draft and/or needs more scrutiny/cleaning:
 
 ## Current
 
+- [ ] Probably disallow files as children of other files in Notebooks
+- [ ] Change barge from double Space / Enter to Shift+Space or Enter?
 - [x] BUG: Color chip not updating across windows
 - [ ] Themed focus indicator color for plain text edit
 - [ ] Extend line highlight across whole editor?
