@@ -21,10 +21,13 @@
     &nbsp
 </p>
 
-Hearth :fire: is a cross-platform, plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.hearthx`)](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Notebooks.md).
+> [!IMPORTANT]
+> **A couple notes on this project:**
+> First, I'm taking a little break from this and trying to dedicate more time to writing right now (this project is, after all, just extravagant procrastination). While I'm doing that, I'll be assessing what I really want in a writing tool, and I expect the design of this to change dramatically yet again.
+> Second, I noticed there's another piece of writing software using the name Hearth (it's newer, but I still must have missed it when I checked this name out), so I'll change the name (again) at some point in the future.
+> - fairybow
 
-> [!NOTE]
-> macOS and Linux builds are available but not well-tested. Bug reports are welcome!
+Hearth :fire: is a cross-platform, plain-text-first workbench for creative writing. Work on single files like a notepad or organize whole projects in [Notebooks (`.hearthx`)](https://github.com/fairybow/Hearth/blob/main/Hearth/docs/Notebooks.md).
 
 ## Hearth?
 
