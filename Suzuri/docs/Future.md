@@ -13,7 +13,6 @@ Nothing here is a promise or a schedule.
 
 ### Go to File
 
-- Create a file from the switcher: Enter with no match creates a file with the typed name. Needs a default extension and a ruling on folders in the typed text (`drafts/Chapter 2`)
 - Fuzzy matching
 
 ### Command palette and hotkeys
@@ -105,6 +104,7 @@ Committing a vault to a repository, for backup and history.
 - **Dragging a file out to the desktop** as a shortcut that opens it in its vault
 - **Detecting and converting older text encodings** (Windows-1252 and others), in place of the warning
 - **Patterns in Find** (regular expressions). Needs a way to show a pattern that doesn't parse, and a syntax for using what was matched in the replacement. Worth building if plain text with Whole word proves too blunt
+- **A default folder for new files,** like Obsidian's "Default location for new notes": the current file's folder, or a chosen one. New files from Ctrl+N and from Go to File go to the vault's root. Worth building if typing the folder in Go to File proves tedious
 - **Several spelling languages at once.** A view checks against one dictionary. Several would mean asking each one about every word, merging their suggestions, and deciding which one Add to dictionary answers to. Worth building if writing in two languages in one vault proves common
 - **Managing the dictionary in Suzuri.** Removing an added word means editing `.suzuri/dictionary.txt` by hand, as in Obsidian. A list in Settings would do it in place. Worth building if hand editing proves awkward
 - **Searching the whole vault.** A separate feature from Find, with its own list of results. Obsidian's is a plugin of its own

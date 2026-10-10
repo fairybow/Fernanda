@@ -407,7 +407,9 @@ Three classes, divided by who touches vault folders on disk.
 
 **Every source of a vault path arrives at one slot in `App`,** which takes a folder that already exists. The picker creates a new vault's folder before asking. One entry point means a mistyped path from any future source can't silently create a vault.
 
-**Validation in a dialog is advisory; the operation is the authority.** The new-vault and rename dialogs check names as they are typed, to say what is wrong. The folder can still appear or vanish before the operation runs, so the operation's own result decides. Both checks are needed.
+**Validation in a dialog is advisory; the operation is the authority.** The new-vault and rename dialogs, and Go to File's line under its field, check names as they are typed, to say what is wrong. The folder can still appear or vanish before the operation runs, so the operation's own result decides. Both checks are needed.
+
+**Go to File picks; it doesn't create.** A pick for a file that isn't there yet says so, and `VaultWindow` creates it with `Vault::createFileAt` before opening it. The switcher reads the disk only to ask whether the typed file exists. It never writes. `createFileAt` makes the folders in the typed path, where `createFile` (Ctrl+N, New file) refuses a missing folder rather than recreate one deleted outside Suzuri.
 
 `ManageVaults` is a modeless window that deletes itself on close, not a modal dialog: it has to coexist with open vault windows, and `App` raises, closes, and reacts to it like any window.
 

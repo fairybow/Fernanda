@@ -98,6 +98,9 @@ Ctrl+O, or "Go to file" on a new tab. A search field over every file in the vaul
 - Enter opens the file in the current tab. Ctrl+Enter opens it in a new tab
 - Common Vault files are labeled COMMON
 - Recent files are remembered per vault
+- To create a file, type its name: Enter creates it when nothing matches, and Shift+Enter creates it even when something does. Hold Ctrl as well to open it in a new tab. A line under the field says which file Enter or Shift+Enter would create, or what is wrong with the name
+- A new file's name counts from the vault's root, and `/` puts it in folders, which are made if they're missing (`drafts/Chapter 2`). A name without `.txt`, `.md`, `.markdown`, or `.fountain` gets `.txt`. If the file is already there, it opens instead
+- New files go in the window's own vault, never the Common Vault (unless that is the window's vault)
 
 ## Tabs, panes, and windows
 
@@ -237,6 +240,7 @@ Suzuri follows Obsidian's behavior wherever it has no reason not to. Where it di
 - **A margin setting** in place of "Readable line length", and a switch to turn wrapping off
 - **Find has Match case and Whole word.** Obsidian's search in a file has neither. Suzuri's highlights also stay while you edit, until the bar is closed
 - **Go to File lists every file with nothing typed,** the recent ones first. Obsidian's Quick switcher lists only the recent ones
+- **Files created from Go to File are `.txt`** unless the name has another text extension. Obsidian's are Markdown. They always start at the vault's root; Obsidian follows its "Default location for new notes" setting, whose default is also the root
 - **Delete and Select All in the right-click menu.** Obsidian's editor menu has only Cut, Copy, and Paste
 - **One spelling language per vault.** Obsidian can check several at once
 - **TIFF images** are supported. SVG and AVIF are not
