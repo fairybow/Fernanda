@@ -102,6 +102,33 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.5.0-beta.0 (Go to File) - tag v0.5.0-beta.0
+
+## What's New?
+
+Go to File (Ctrl+O) can now take you back to recent files and create new ones.
+
+- **Recent files come first.** With nothing typed, the files you've opened most recently are listed at the top, newest first and labeled RECENT, followed by every other file. If the top one is the file you're already in, the next one is selected, so Ctrl+O then Enter takes you back to the file before. Recent files are remembered per vault
+- Common Vault files are now labeled COMMON instead of marked with an icon
+- **Create a file by typing its name.** Enter creates it when nothing matches; Shift+Enter creates it even when something does. Hold Ctrl as well to open it in a new tab. A line under the search field shows what will be created, or what's wrong with the name
+- Type a path to put the new file in folders, which are made if they don't exist yet (`drafts/Chapter 2`). New files are `.txt` unless you name them `.md`, `.markdown`, or `.fountain`. If the file already exists, it opens instead
+
+Also in this release:
+
+- **Fixed:** focus now lands in the editor after restoring a session, on the first click of a tab, and after dragging a tab to another pane or window
+- A spelling language in a hand-edited `settings.json` must now be a plain dictionary name. Anything else is treated as not installed
+
+## Known Issues
+
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- macOS and Linux builds are not well-tested
+
+---
+
+---
+
 # 0.4.0-beta.0 (Licenses) - tag v0.4.0-beta.0
 
 ## What's New?
