@@ -433,6 +433,86 @@ private slots:
         QVERIFY(!f.exists(u"gone"_s));
     }
 
+    void createFileAtMakesTheFoldersAboveIt()
+    {
+        Fixture_ f{};
+
+        QVERIFY(
+            f.vault.createFileAt(Coco::Path("drafts/part one/Chapter 2.txt")));
+
+        QVERIFY(QFileInfo(f.folder.filePath(u"drafts/part one"_s)).isDir());
+        QCOMPARE(f.read(u"drafts/part one/Chapter 2.txt"_s), QByteArray(""));
+        QVERIFY(f.open(u"drafts/part one/Chapter 2.txt"_s));
+    }
+
+    void createFileAtInAFolderThatIsThere()
+    {
+        Fixture_ f{};
+        f.makeFolder(u"one"_s);
+
+        QVERIFY(f.vault.createFileAt(Coco::Path("one/Notes.md")));
+        QVERIFY(f.vault.createFileAt(Coco::Path("Script.fountain")));
+
+        QVERIFY(f.exists(u"one/Notes.md"_s));
+        QVERIFY(f.exists(u"Script.fountain"_s));
+    }
+
+    // The file is left as it was
+    void createFileAtAnExistingFileIsRefused()
+    {
+        Fixture_ f{};
+        f.write(u"a.txt"_s, "kept");
+
+        QVERIFY(!f.vault.createFileAt(Coco::Path("a.txt")));
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("kept"));
+    }
+
+    // A part of the path is a file, so there is no folder to make
+    void createFileAtThroughAFileFails()
+    {
+        Fixture_ f{};
+        f.write(u"a.txt"_s, "kept");
+
+        QVERIFY(!f.vault.createFileAt(Coco::Path("a.txt/b.txt")));
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("kept"));
+    }
+
+    void createFileAtRefusesWhatIsNotAKey()
+    {
+        Fixture_ f{};
+        auto escapee = QFileInfo(f.folder.path()).fileName() + u"-out.txt"_s;
+
+        QVERIFY(!f.vault.createFileAt(Coco::Path{}));
+        QVERIFY(!f.vault.createFileAt(Coco::Path(u"../"_s + escapee)));
+        QVERIFY(!f.vault.createFileAt(Coco::Path("a/../b.txt")));
+        QVERIFY(!f.vault.createFileAt(Coco::Path("a/./b.txt")));
+        QVERIFY(!f.vault.createFileAt(f.absolute(u"b.txt"_s)));
+
+        QVERIFY(!QFileInfo(QFileInfo(f.folder.path()).dir().filePath(escapee))
+                     .exists());
+        QVERIFY(!f.exists(u"a"_s));
+        QVERIFY(!f.exists(u"b.txt"_s));
+    }
+
+    void createFileAtRefusesHiddenNamesAndOtherTypes()
+    {
+        Fixture_ f{};
+
+        QVERIFY(!f.vault.createFileAt(Coco::Path(".hidden.txt")));
+        QVERIFY(!f.vault.createFileAt(Coco::Path(".notes/a.txt")));
+        QVERIFY(!f.vault.createFileAt(Coco::Path("one/.notes/a.txt")));
+        QVERIFY(!f.vault.createFileAt(Coco::Path("scan.pdf")));
+        QVERIFY(!f.vault.createFileAt(Coco::Path("picture.png")));
+        QVERIFY(!f.vault.createFileAt(Coco::Path("Chapter 2")));
+
+        QVERIFY(!f.exists(u".hidden.txt"_s));
+        QVERIFY(!f.exists(u".notes"_s));
+        QVERIFY(!f.exists(u"one"_s));
+        QVERIFY(!f.exists(u"scan.pdf"_s));
+        QVERIFY(!f.exists(u"picture.png"_s));
+        QVERIFY(!f.exists(u"Chapter 2"_s));
+    }
+
     // --- Renaming -----------------------------------------------------------
 
     void renameAFile()

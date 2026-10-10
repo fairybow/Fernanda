@@ -355,6 +355,74 @@ public:
         return relativePathOf(absolute);
     }
 
+    // Create an empty file at a vault-relative path named in full, making any
+    // missing folders above it. This is Go to File's create: the user typed
+    // the path, so the folders in it are theirs to make, where createFile's
+    // folder must already be there. The vault's own folder is never recreated.
+    //
+    // Returns false, having made nothing, for a path that isn't a key (see
+    // isKey_), has a hidden name anywhere along it, isn't a text file (an empty
+    // PDF or image is no file at all), or already exists. Also false when the
+    // disk refuses, as when a part of the path is a file; folders made before
+    // the refusal stay, and the tree finds them by its watcher.
+    //
+    // The tree is told about the highest entry made, so a new folder appears
+    // with the file inside it. The tree can't place the file itself while the
+    // folder holding it has no row
+    bool createFileAt(const Coco::Path& relative)
+    {
+        if (!isKey_(relative)) {
+            WARN(
+                "Can't create {}: not a path inside the vault!",
+                relative.prettyQString());
+            return false;
+        }
+
+        for (auto part = relative; !part.isEmpty(); part = part.parent()) {
+            if (FileTypes::isHiddenName(part.nameQString())) {
+                WARN(
+                    "Can't create {}: a name begins with a period!",
+                    relative.prettyQString());
+                return false;
+            }
+        }
+
+        if (FileTypes::typeOf(relative) != FileTypes::Type::Text) {
+            WARN("Can't create {}: not a text file!", relative.prettyQString());
+            return false;
+        }
+
+        if (!root_.isDir()) {
+            WARN(
+                "Can't create {}: the vault folder is gone!",
+                relative.prettyQString());
+            return false;
+        }
+
+        auto absolute = absolutePathOf(relative);
+
+        if (absolute.exists()) {
+            WARN("Can't create {}: it already exists!", absolute);
+            return false;
+        }
+
+        auto highest = absolute;
+
+        for (auto folder = absolute.parent();
+             folder.isUnder(root_) && !folder.exists();
+             folder = folder.parent()) {
+            highest = folder;
+        }
+
+        if (!Io::write(QByteArray{}, absolute, Io::CreateDirs::Yes)) {
+            WARN("Failed to create a new file at {}!", absolute);
+            return false;
+        }
+
+        treeModel_->applyAddition(highest);
+        return true;
+    }
+
     // Rename a file or folder in place — same parent, new leaf name.
     // absoluteOld is an existing entry in this vault; newLeaf is its new
     // on-disk name (a file's extension is already reattached by the caller —

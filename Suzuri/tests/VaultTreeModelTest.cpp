@@ -396,6 +396,37 @@ private slots:
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s, u"Untitled"_s }));
     }
 
+    // The new folder is one row, holding the rest of the path, which is listed
+    // when first opened. Without the tester, which would list the new folder
+    // from inside the signal announcing it
+    void aFileCreatedInNewFoldersAppearsWithThem()
+    {
+        Fixture_ f{};
+        f.makeFile(u"Apple.txt"_s);
+        f.startWithoutTester();
+
+        QSignalSpy inserted(f.model, &VaultTreeModel::rowsInserted);
+
+        QVERIFY(f.vault->createFileAt(Coco::Path("new/deeper/a.txt")));
+
+        QCOMPARE(inserted.count(), 1);
+        QCOMPARE(f.rows(), QStringList({ u"new"_s, u"Apple"_s }));
+        QCOMPARE(f.rows(u"new"_s), QStringList({ u"deeper"_s }));
+        QCOMPARE(f.rows(u"new/deeper"_s), QStringList({ u"a"_s }));
+    }
+
+    void aFileCreatedAtAPathAppearsInAListedFolder()
+    {
+        Fixture_ f{};
+        f.makeFile(u"one/a.txt"_s);
+        f.start();
+        QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s }));
+
+        QVERIFY(f.vault->createFileAt(Coco::Path("one/b.txt")));
+
+        QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s, u"b"_s }));
+    }
+
     // The row is the same row afterward: a view keeps it selected, and keeps
     // a folder's children expanded
     void aRenamedFileKeepsItsRowAndMovesToItsPlace()
