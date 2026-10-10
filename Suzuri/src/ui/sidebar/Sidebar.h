@@ -254,7 +254,7 @@ private:
             tree,
             &VaultFileTree::newFolderRequested,
             this,
-            [this, vault](const Coco::Path& absoluteDir) {
+            [vault](const Coco::Path& absoluteDir) {
                 vault->createFolder(absoluteDir);
             });
 
