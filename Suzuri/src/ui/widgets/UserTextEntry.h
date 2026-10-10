@@ -123,7 +123,8 @@ enum class Problem
 }
 
 // The forbidden characters, spaced for a legible message (kept in sync with
-// isForbiddenChar_'s switch by hand — the set is tiny and rarely changes)
+// isForbiddenChar_'s switch by hand — the set is tiny and rarely changes, and
+// describeInPath has the same list without "/")
 [[nodiscard]] inline QString forbiddenCharsDisplay()
 {
     return uR"(\ / : * ? " < > |)"_s;
@@ -158,6 +159,20 @@ enum class Problem
     }
 
     return {};
+}
+
+// describe for a name typed as one part of a path (Go to File), where "/"
+// separates the names and so isn't listed as forbidden in one
+[[nodiscard]] inline QString describeInPath(Problem problem)
+{
+    if (problem == Problem::ForbiddenChar) {
+        return QCoreApplication::translate(
+                   "UserTextEntry",
+                   "A name cannot contain any of:  %1")
+            .arg(uR"(\ : * ? " < > |)"_s);
+    }
+
+    return describe(problem);
 }
 
 } // namespace Suzuri::Ui::UserTextEntry

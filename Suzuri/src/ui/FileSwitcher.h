@@ -444,7 +444,7 @@ private:
             }
 
             if (problem != UserTextEntry::Problem::None) {
-                showHint_(UserTextEntry::describe(problem));
+                showHint_(UserTextEntry::describeInPath(problem));
                 return;
             }
         }
