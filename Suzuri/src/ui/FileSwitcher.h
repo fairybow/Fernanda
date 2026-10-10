@@ -20,6 +20,7 @@
 #include <QEvent>
 #include <QGuiApplication>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QLineEdit>
 #include <QList>
 #include <QListWidget>
@@ -27,6 +28,7 @@
 #include <QModelIndex>
 #include <QObject>
 #include <QPainter>
+#include <QPalette>
 #include <QSet>
 #include <QString>
 #include <QStringList>
@@ -40,12 +42,16 @@
 #include <Coco/Path.h>
 
 #include "core/FileRef.h"
+#include "core/FileTypes.h"
 #include "core/Vault.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/RowBadges.h"
+#include "ui/widgets/UserTextEntry.h"
 
 namespace Suzuri::Ui {
+
+using namespace Qt::StringLiterals;
 
 namespace Internal {
 
@@ -120,8 +126,17 @@ public:
 // appear somewhere in the vault-relative path. Rows whose FILE NAME holds every
 // term rank above path-only matches; within a tier, project files come before
 // Common Vault files, then alphabetical by path. Recent files get no extra
-// weight. Divergences from Obsidian (docs/Future.md, "Go to File"): no fuzzy
-// scoring, and Enter with no match does nothing rather than creating a note.
+// weight. No fuzzy scoring, unlike Obsidian (docs/Future.md, "Go to File").
+//
+// Creating: the typed text, trimmed, also names a file in the window's own
+// vault, counted from its root. "/" separates folders, each part must pass
+// UserTextEntry, and a name without a text extension gets ".txt". Enter with
+// no match picks it, and Shift+Enter picks it whatever matches; Obsidian's
+// quick switcher does the same. If the file is already there, the pick is that
+// file's row, so it opens rather than being made again. A line under the field
+// says what Enter or Shift+Enter would create, or why the text can't be a
+// name. The switcher never touches the disk: a new file's pick says so
+// (Pick::isNew), and the caller creates it (Vault::createFileAt).
 //
 // A recent file's row says RECENT at its right end, wherever it appears, and a
 // Common Vault file's says COMMON (Internal::FileSwitcherDelegate_). A recent
@@ -129,9 +144,9 @@ public:
 //
 // Keys: focus never leaves the field. Up/Down/PageUp/PageDown are forwarded to
 // the list; Enter opens the current row as ReplaceActive, Ctrl+Enter as NewTab
-// (Cmd+Enter on macOS — Qt maps Cmd to ControlModifier); Esc cancels (the line
-// edit ignores it, so QDialog rejects). A click opens the same way, honoring a
-// held Ctrl
+// (Cmd+Enter on macOS — Qt maps Cmd to ControlModifier), and Ctrl holds the
+// same way for a create; Esc cancels (the line edit ignores it, so QDialog
+// rejects). A click opens the same way, honoring a held Ctrl
 class FileSwitcher : public QDialog
 {
     Q_OBJECT
@@ -141,6 +156,9 @@ public:
     {
         FileRef fileRef{};
         OpenMode mode{};
+
+        // The file isn't on disk yet. The caller creates it before opening
+        bool isNew = false;
     };
 
     // parentWindow is the window the switcher opens over — the one hosting the
@@ -154,6 +172,7 @@ public:
         const QList<FileRef>& recentFiles,
         const FileRef& current)
         : QDialog(parentWindow)
+        , vault_(vault)
     {
         setup_(vault, commonVault, recentFiles, current);
     }
@@ -183,9 +202,18 @@ protected:
             return true;
 
         case Qt::Key_Return:
-        case Qt::Key_Enter:
-            acceptRow_(list_->currentRow(), modeFor_(key_event->modifiers()));
+        case Qt::Key_Enter: {
+            auto modifiers = key_event->modifiers();
+            auto row = list_->currentRow();
+
+            if ((modifiers & Qt::ShiftModifier) || row < 0) {
+                acceptTarget_(modeFor_(modifiers));
+            } else {
+                acceptRow_(row, modeFor_(modifiers));
+            }
+
             return true;
+        }
 
         default:
             return QDialog::eventFilter(watched, event);
@@ -203,6 +231,8 @@ private:
         bool isCommon = false;
     };
 
+    Vault* vault_;
+
     QList<Entry_> entries_{};  // presorted: project first, then by path
     QList<qsizetype> shown_{}; // entries_ indices, in list-row order
 
@@ -213,7 +243,13 @@ private:
     QSet<qsizetype> recentSet_{};
     int emptyQueryRow_ = 0;
 
+    // The file the typed text names (see class note): empty when it names
+    // none; and, when that file is already there, its entries_ index
+    Coco::Path target_{};
+    qsizetype targetEntry_ = -1;
+
     QLineEdit* queryEdit_ = nullptr;
+    QLabel* hint_ = nullptr;
     QListWidget* list_ = nullptr;
     Pick pick_{};
 
@@ -299,6 +335,11 @@ private:
             this,
             &FileSwitcher::refilter_);
 
+        hint_ = new QLabel(this);
+        hint_->setTextFormat(Qt::PlainText);
+        hint_->setForegroundRole(QPalette::PlaceholderText);
+        hint_->hide();
+
         list_ = new QListWidget(this);
         list_->setFocusPolicy(Qt::NoFocus); // typing always lands in the field
         list_->setUniformItemSizes(true);   // cheap layout for long listings
@@ -316,6 +357,7 @@ private:
 
         auto root_layout = new QVBoxLayout(this);
         root_layout->addWidget(queryEdit_);
+        root_layout->addWidget(hint_);
         root_layout->addWidget(list_);
 
         queryEdit_->setFocus();
@@ -356,6 +398,7 @@ private:
             }
 
             rebuildList_(emptyQueryRow_);
+            findTarget_();
             return;
         }
 
@@ -373,6 +416,95 @@ private:
         });
 
         rebuildList_(0);
+        findTarget_();
+    }
+
+    // Reads the typed text as a file to create (see class note), and says on
+    // the hint line what Enter or Shift+Enter would do with it. A part left
+    // empty ("drafts/" while typing on) is a neutral state, as an empty name
+    // is to UserTextEntry, and shows nothing
+    void findTarget_()
+    {
+        target_ = {};
+        targetEntry_ = -1;
+        hint_->hide();
+
+        auto text = queryEdit_->text().trimmed();
+        if (text.isEmpty()) {
+            return;
+        }
+
+        auto parts = text.split(u'/');
+
+        for (const auto& part : parts) {
+            auto problem = UserTextEntry::problemOf(part);
+
+            if (problem == UserTextEntry::Problem::Empty) {
+                return;
+            }
+
+            if (problem != UserTextEntry::Problem::None) {
+                showHint_(UserTextEntry::describe(problem));
+                return;
+            }
+        }
+
+        if (FileTypes::typeOf(Coco::Path(parts.last())) !=
+            FileTypes::Type::Text) {
+            parts.last() += u".txt"_s;
+        }
+
+        auto relative = Coco::Path(parts.join(u'/'));
+        auto path = relative.prettyQString();
+
+        // On disk, by the disk's own rule for letter case. The row, if any,
+        // gives the file's own spelling, which is the only key it may open by
+        if (vault_->absolutePathOf(relative).exists()) {
+            targetEntry_ = findEntry_(path);
+
+            if (targetEntry_ < 0) {
+                showHint_(tr("\"%1\" already exists.").arg(path));
+            }
+
+            return;
+        }
+
+        target_ = relative;
+        showHint_(
+            shown_.isEmpty() ? tr("Enter to create \"%1\"").arg(path)
+                             : tr("Shift+Enter to create \"%1\"").arg(path));
+    }
+
+    void showHint_(const QString& text)
+    {
+        hint_->setText(text);
+        hint_->show();
+    }
+
+    // The window's own vault's row for a vault-relative path: the same
+    // spelling if there is one, or else one differing only in letter case
+    [[nodiscard]] qsizetype findEntry_(const QString& path) const
+    {
+        auto found = qsizetype{ -1 };
+
+        for (qsizetype i = 0; i < entries_.size(); ++i) {
+            const auto& entry = entries_[i];
+
+            if (entry.fileRef.vault != vault_) {
+                continue;
+            }
+
+            if (entry.path == path) {
+                return i;
+            }
+
+            if (found < 0 &&
+                entry.path.compare(path, Qt::CaseInsensitive) == 0) {
+                found = i;
+            }
+        }
+
+        return found;
     }
 
     // currentRow is the row to select, when there is one
@@ -404,8 +536,7 @@ private:
         list_->setUpdatesEnabled(true);
     }
 
-    // No row (an empty listing, or no match) does nothing and keeps the
-    // switcher open. Creating a file from here isn't built
+    // No row does nothing and keeps the switcher open
     void acceptRow_(int row, OpenMode mode)
     {
         if (row < 0 || row >= shown_.size()) {
@@ -413,6 +544,25 @@ private:
         }
 
         pick_ = { entries_[shown_[row]].fileRef, mode };
+        accept();
+    }
+
+    // The typed text's file: its row if it's there, or else a new file. Text
+    // that names no file does nothing and keeps the switcher open
+    void acceptTarget_(OpenMode mode)
+    {
+        if (targetEntry_ >= 0) {
+            pick_ = { entries_[targetEntry_].fileRef, mode };
+        } else if (!target_.isEmpty()) {
+            pick_ = {
+                { vault_, target_ },
+                mode,
+                true
+            };
+        } else {
+            return;
+        }
+
         accept();
     }
 

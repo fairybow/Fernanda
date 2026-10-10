@@ -506,7 +506,7 @@ private:
     // the pick says — Enter replaces the active tab, as a tree double-click
     // does; Ctrl+Enter adds a new one. Rows carry their own vault's FileRef, so
     // a Common Vault file opens from the common vault, and nothing outside the
-    // two vaults can be picked
+    // two vaults can be picked. A new file is created first
     void onGoToFileRequested_()
     {
         auto* view = activeFileView();
@@ -522,7 +522,34 @@ private:
         }
 
         auto pick = switcher.pick();
+        if (!createIfNew_(pick, this)) {
+            return;
+        }
+
         openFile(pick.fileRef, pick.mode);
+    }
+
+    // A Go to File pick naming a file that isn't there yet is created here,
+    // before it opens. The user typed the name, so a failure is said, over
+    // parentWindow (the window the switcher was over). True when the file is
+    // there to open
+    bool createIfNew_(const FileSwitcher::Pick& pick, QWidget* parentWindow)
+    {
+        if (!pick.isNew) {
+            return true;
+        }
+
+        if (pick.fileRef.vault->createFileAt(pick.fileRef.relative)) {
+            return true;
+        }
+
+        QMessageBox::warning(
+            parentWindow,
+            tr("Couldn't create file"),
+            tr("Could not create \"%1\". A file may be in the way, or a "
+               "folder may be locked.")
+                .arg(pick.fileRef.relative.prettyQString()));
+        return false;
     }
 
     // Settings: show this vault's settings dialog, window-modal. open(), never
@@ -1135,7 +1162,7 @@ private:
         // this window — and the pick fills the page whatever its mode: the page
         // exists to be filled. The host tree is resolved AFTER exec, not
         // before, so the lookup reflects where the page lives once the modal
-        // loop returns
+        // loop returns. A new file is created first
         connect(page, &NewTabPage::openRequested, this, [this, page] {
             FileSwitcher switcher(
                 page->window(),
@@ -1152,7 +1179,12 @@ private:
                 return;
             }
 
-            openInto_(tree, page, switcher.pick().fileRef);
+            auto pick = switcher.pick();
+            if (!createIfNew_(pick, page->window())) {
+                return;
+            }
+
+            openInto_(tree, page, pick.fileRef);
         });
 
         connect(page, &NewTabPage::closeRequested, this, [this, page] {
