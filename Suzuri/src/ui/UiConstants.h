@@ -25,7 +25,10 @@ using namespace Qt::StringLiterals;
 // tuning. -1 uses Qt's default
 inline constexpr int MIN_TAB_WIDTH = 75;
 inline constexpr int MAX_TAB_WIDTH = 225;
-inline constexpr int TAB_HEIGHT = 30;
+inline constexpr int TAB_HEIGHT = 36;
+
+// The space between the pane's left edge and its first tab
+inline constexpr int TAB_ROW_LEFT_MARGIN = 6;
 
 // The close/unpin button on each tab (TabCloseButton). EXTENT is the button's
 // square size within the tab; ICON_EXTENT is the square glyph centered inside
@@ -88,7 +91,7 @@ inline constexpr auto SETTINGS_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto TAB_CLOSE_ICON_ROLE = QPalette::WindowText;
 inline constexpr auto TAB_PIN_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto NEW_TAB_ICON_ROLE = QPalette::WindowText;
-inline constexpr auto TAB_COMMON_VAULT_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto TAB_MARK_ICON_ROLE = QPalette::PlaceholderText;
 
 inline constexpr int DEFAULT_VAULT_WINDOW_WIDTH = 800;
 inline constexpr int DEFAULT_VAULT_WINDOW_HEIGHT = 600;
@@ -274,5 +277,54 @@ inline constexpr int FILE_SWITCHER_TOP_OFFSET = 80;
 // side sit twice that apart
 inline constexpr auto STATUS_BAR_TEXT_ROLE = QPalette::PlaceholderText;
 inline constexpr int STATUS_BAR_ITEM_H_PADDING = 8;
+
+// Suzuri's style (Style). Shades the palette has no role for are its text
+// color at an alpha (Style::wash_): HOVER under the pointer, PRESSED held down
+// (and a checked tool button), SELECTED for a selected row or menu item (and
+// SELECTED_HOVER for one that's both), DIVIDER for the one-pixel lines
+// (splitter handles, between tabs), CONTROL_BORDER around a button, combo box,
+// or field. RADIUS values round corners: a tool button's hover, a push button
+// or field, an item-view row or menu item, and the current tab's top. A row's
+// wash is inset ROW_INSET from the view's sides, and a menu item's
+// MENU_ITEM_INSET. TAB_TOP_GAP is left above every tab, so the current one's
+// rounded top shows against the bar; a hovered tab's wash is inset
+// TAB_HOVER_INSET, and the divider between tabs stops TAB_DIVIDER_MARGIN short
+// of the tab's top and bottom. A tab that isn't current has its title at
+// TAB_MUTED_TEXT_ALPHA, as does a combo box's arrow, inset COMBO_ARROW_INSET
+// within its sub-rect. Scroll bars are SCROLL_BAR_EXTENT across, with a handle
+// no shorter than SCROLL_BAR_HANDLE_MIN, inset SCROLL_BAR_HANDLE_INSET from the
+// bar's edges, at SCROLL_BAR_ALPHA (HOVER_ and PRESSED_ when the pointer is on
+// it or dragging it). An item-view row is ROW_V_PADDING taller above and below
+// its text, and keeps its text ROW_TEXT_MARGIN from its sides. A slider's track
+// is SLIDER_TRACK_HEIGHT tall, at SLIDER_TRACK_ALPHA where it isn't filled, and
+// its handle SLIDER_HANDLE_DIAMETER across
+inline constexpr qreal STYLE_HOVER_ALPHA = 0.06;
+inline constexpr qreal STYLE_PRESSED_ALPHA = 0.12;
+inline constexpr qreal STYLE_SELECTED_ALPHA = 0.10;
+inline constexpr qreal STYLE_SELECTED_HOVER_ALPHA = 0.14;
+inline constexpr qreal STYLE_DIVIDER_ALPHA = 0.12;
+inline constexpr qreal STYLE_CONTROL_BORDER_ALPHA = 0.18;
+inline constexpr int STYLE_TOOL_BUTTON_RADIUS = 4;
+inline constexpr int STYLE_CONTROL_RADIUS = 6;
+inline constexpr int STYLE_ROW_RADIUS = 4;
+inline constexpr int STYLE_TAB_RADIUS = 6;
+inline constexpr int STYLE_ROW_INSET = 4;
+inline constexpr int STYLE_MENU_ITEM_INSET = 4;
+inline constexpr int STYLE_TAB_TOP_GAP = 6;
+inline constexpr int STYLE_TAB_HOVER_INSET = 3;
+inline constexpr int STYLE_TAB_DIVIDER_MARGIN = 8;
+inline constexpr qreal STYLE_TAB_MUTED_TEXT_ALPHA = 0.6;
+inline constexpr int STYLE_COMBO_ARROW_INSET = 2;
+inline constexpr int STYLE_ROW_V_PADDING = 3;
+inline constexpr int STYLE_ROW_TEXT_MARGIN = 6;
+inline constexpr int STYLE_SLIDER_TRACK_HEIGHT = 4;
+inline constexpr int STYLE_SLIDER_HANDLE_DIAMETER = 14;
+inline constexpr qreal STYLE_SLIDER_TRACK_ALPHA = 0.15;
+inline constexpr int STYLE_SCROLL_BAR_EXTENT = 10;
+inline constexpr int STYLE_SCROLL_BAR_HANDLE_MIN = 32;
+inline constexpr qreal STYLE_SCROLL_BAR_HANDLE_INSET = 2.0;
+inline constexpr qreal STYLE_SCROLL_BAR_ALPHA = 0.22;
+inline constexpr qreal STYLE_SCROLL_BAR_HOVER_ALPHA = 0.35;
+inline constexpr qreal STYLE_SCROLL_BAR_PRESSED_ALPHA = 0.45;
 
 } // namespace Suzuri::Ui

@@ -18,6 +18,7 @@
 #include <QEvent>
 #include <QFont>
 #include <QFontMetricsF>
+#include <QFrame>
 #include <QList>
 #include <QMargins>
 #include <QMimeData>
@@ -429,6 +430,9 @@ private:
 
     void setup_()
     {
+        // The editor is the pane: nothing is drawn around it
+        setFrameShape(QFrame::NoFrame);
+
         // The margins around the viewport are this widget's surface. Fill it
         // as the viewport fills itself, so the text margin reads as part of
         // the text area
@@ -502,12 +506,13 @@ private:
     }
 
     // The one place the viewport's margins are set: the gutter's width plus
-    // the text margin on the left, the text margin on the right. Set only
-    // when they differ, since setting them lays the viewport out again
-    // (see resizeEvent)
+    // the text margin on the left, the text margin on the right, and the
+    // padding that keeps the text off the pane's edges on both. Set only when
+    // they differ, since setting them lays the viewport out again (see
+    // resizeEvent)
     void updateViewportMargins_()
     {
-        auto text_margin = textMargin_();
+        auto text_margin = textMargin_() + TEXT_SIDE_PADDING;
         QMargins margins(
             lineNumberAreaWidth_() + text_margin,
             0,

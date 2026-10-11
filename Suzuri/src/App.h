@@ -40,6 +40,7 @@
 #include "core/Version.h"
 #include "core/spell/SpellCheckers.h"
 #include "ui/ManageVaults.h"
+#include "ui/Style.h"
 #include "ui/VaultWindow.h"
 
 namespace Suzuri {
@@ -221,6 +222,10 @@ private:
         setWindowIcon(icon);
 
 #endif
+
+        // Before any window, so every widget is made in Suzuri's style. It
+        // replaces whatever style a -style argument asked for
+        setStyle(new Ui::Style);
 
         setQuitOnLastWindowClosed(false);
 

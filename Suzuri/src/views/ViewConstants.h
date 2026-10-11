@@ -50,6 +50,11 @@ inline constexpr int LINE_NUMBER_MIN_DIGITS = 1;
 inline constexpr int LINE_NUMBER_LEFT_PADDING = 8;
 inline constexpr int LINE_NUMBER_RIGHT_PADDING = 8;
 
+// Space always kept between the text and the editor's sides, so text never
+// runs against the pane's edge or the divider beside it. The left/right margin
+// setting adds to it
+inline constexpr int TEXT_SIDE_PADDING = 16;
+
 // The editor's current-line highlight (TextEditor): the band behind the row
 // the text cursor is on, filled with this role's brush
 inline constexpr auto LINE_HIGHLIGHT_ROLE = QPalette::AlternateBase;

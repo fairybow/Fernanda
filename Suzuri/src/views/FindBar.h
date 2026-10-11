@@ -240,6 +240,11 @@ private:
 
     void setup_()
     {
+        // The bar sits on the page, in the page's own color, so the current
+        // tab, the bar, and the text read as one surface
+        setBackgroundRole(QPalette::Base);
+        setAutoFillBackground(true);
+
         setupField_(term_, tr("Find"));
         setupField_(replacement_, tr("Replace with"));
 
