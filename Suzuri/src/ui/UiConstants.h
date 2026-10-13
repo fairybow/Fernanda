@@ -28,7 +28,7 @@ inline constexpr int MAX_TAB_WIDTH = 225;
 inline constexpr int TAB_HEIGHT = 36;
 
 // The space between the pane's left edge and its first tab
-inline constexpr int TAB_ROW_LEFT_MARGIN = 6;
+inline constexpr int TAB_ROW_LEFT_MARGIN = 4;
 
 // The close/unpin button on each tab (TabCloseButton). EXTENT is the button's
 // square size within the tab; ICON_EXTENT is the square glyph centered inside
@@ -356,7 +356,7 @@ inline constexpr int STYLE_ROW_RADIUS = 4;
 inline constexpr int STYLE_TAB_RADIUS = 6;
 inline constexpr int STYLE_ROW_INSET = 4;
 inline constexpr int STYLE_MENU_ITEM_INSET = 4;
-inline constexpr int STYLE_TAB_TOP_GAP = 6;
+inline constexpr int STYLE_TAB_TOP_GAP = 4;
 inline constexpr int STYLE_TAB_HOVER_INSET = 3;
 inline constexpr int STYLE_TAB_DIVIDER_MARGIN = 8;
 inline constexpr qreal STYLE_TAB_MUTED_TEXT_ALPHA = 0.6;
