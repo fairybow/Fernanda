@@ -359,14 +359,15 @@ private:
         // widget contributes nothing to the layout, so without this the row
         // would collapse to the + button's height and lift the button out of
         // the vertical centering it has against the tabs. A zero-width Fixed
-        // spacer reserves TAB_HEIGHT and nothing else — no horizontal effect,
-        // so the button still pins to the right edge. It's a layout item, not a
+        // spacer reserves the bar's height (TAB_HEIGHT, plus the gap the style
+        // leaves above every tab) and nothing else — no horizontal effect, so
+        // the button still pins to the right edge. It's a layout item, not a
         // widget (same reasoning as the stretch above). TAB_HEIGHT < 0 means
         // Qt-default tab sizing, where we don't know the height, so skip it
         if (TAB_HEIGHT >= 0) {
             top->addItem(new QSpacerItem(
                 0,
-                TAB_HEIGHT,
+                TAB_HEIGHT + STYLE_TAB_TOP_GAP,
                 QSizePolicy::Fixed,
                 QSizePolicy::Fixed));
         }

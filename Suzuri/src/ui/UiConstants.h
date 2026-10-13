@@ -22,7 +22,10 @@ using namespace Qt::StringLiterals;
 // TODO: Layout spacing (e.g., V_LAYOUT_SPACING_1 = 12)
 
 // Preferred (max) and floor (min) tab widths. No setters: nothing needs per-bar
-// tuning. -1 uses Qt's default
+// tuning. -1 uses Qt's default. TAB_HEIGHT is the height of a tab as it's
+// drawn; the bar is STYLE_TAB_TOP_GAP taller, for the space the style leaves
+// above every tab, so the two are set independently. -1 uses Qt's default
+// height, with the gap still added
 inline constexpr int MIN_TAB_WIDTH = 75;
 inline constexpr int MAX_TAB_WIDTH = 225;
 inline constexpr int TAB_HEIGHT = 36;
@@ -318,16 +321,17 @@ inline constexpr int STATUS_BAR_ITEM_H_PADDING = 8;
 // or field, an item-view row or menu item, and the current tab's top. A row's
 // wash is inset ROW_INSET from the view's sides, and a menu item's
 // MENU_ITEM_INSET. TAB_TOP_GAP is left above every tab, so the current one's
-// rounded top shows against the bar; a hovered tab's wash is inset
-// TAB_HOVER_INSET, and the divider between tabs stops TAB_DIVIDER_MARGIN short
-// of the tab's top and bottom. A tab that isn't current has its title at
-// TAB_MUTED_TEXT_ALPHA, as does a combo box's arrow, inset COMBO_ARROW_INSET
-// within its sub-rect. Scroll bars are SCROLL_BAR_EXTENT across, with a handle
-// no shorter than SCROLL_BAR_HANDLE_MIN, inset SCROLL_BAR_HANDLE_INSET from the
-// bar's edges, at SCROLL_BAR_ALPHA (HOVER_ and PRESSED_ when the pointer is on
-// it or dragging it). An item-view row is ROW_V_PADDING taller above and below
-// its text, and keeps its text ROW_TEXT_MARGIN from its sides. A slider's track
-// is SLIDER_TRACK_HEIGHT tall, at SLIDER_TRACK_ALPHA where it isn't filled, and
+// rounded top shows against the bar (the bar is TAB_HEIGHT plus this); a
+// hovered tab's wash is inset TAB_HOVER_INSET, and the divider between tabs
+// stops TAB_DIVIDER_MARGIN short of the tab's top and bottom. A tab that isn't
+// current has its title at TAB_MUTED_TEXT_ALPHA, as does a combo box's arrow,
+// inset COMBO_ARROW_INSET within its sub-rect. Scroll bars are
+// SCROLL_BAR_EXTENT across, with a handle no shorter than
+// SCROLL_BAR_HANDLE_MIN, inset SCROLL_BAR_HANDLE_INSET from the bar's edges, at
+// SCROLL_BAR_ALPHA (HOVER_ and PRESSED_ when the pointer is on it or dragging
+// it). An item-view row is ROW_V_PADDING taller above and below its text, and
+// keeps its text ROW_TEXT_MARGIN from its sides. A slider's track is
+// SLIDER_TRACK_HEIGHT tall, at SLIDER_TRACK_ALPHA where it isn't filled, and
 // its handle SLIDER_HANDLE_DIAMETER across. In a light palette, the window's
 // color is moved WINDOW_TOWARD_BASE of the way to the page's (0 is the
 // platform's own, 1 is the page's). A menu's panel is rounded to MENU_RADIUS
