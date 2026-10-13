@@ -47,8 +47,11 @@ inline constexpr int TAB_BUTTON_ICON_EXTENT = 12;
 inline constexpr int NEW_TAB_BUTTON_EXTENT = 20;
 inline constexpr int NEW_TAB_BUTTON_ICON_EXTENT = 12;
 
-// The space between the last tab and the + button
+// The space between the last tab and the + button, and between the button and
+// the pane's right edge. The right gap only shows once the tabs fill the row;
+// until then the row's slack is already there
 inline constexpr int NEW_TAB_BUTTON_LEFT_GAP = 4;
+inline constexpr int NEW_TAB_BUTTON_RIGHT_GAP = 6;
 
 // The Common Vault glyph, shared by the Common Vault drawer's header and the
 // tab mark on a Common Vault file's tab. One path so swapping the Lucide icon
