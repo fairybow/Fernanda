@@ -47,6 +47,9 @@ inline constexpr int TAB_BUTTON_ICON_EXTENT = 12;
 inline constexpr int NEW_TAB_BUTTON_EXTENT = 20;
 inline constexpr int NEW_TAB_BUTTON_ICON_EXTENT = 12;
 
+// The space between the last tab and the + button
+inline constexpr int NEW_TAB_BUTTON_LEFT_GAP = 4;
+
 // The Common Vault glyph, shared by the Common Vault drawer's header and the
 // tab mark on a Common Vault file's tab. One path so swapping the Lucide icon
 // is a one-place edit
@@ -180,10 +183,17 @@ inline constexpr int VAULT_SWITCHER_ICON_EXTENT = 14;
 // The settings gear right of the vault switcher (SettingsButton), Obsidian's
 // vault profile row. EXTENT/ICON_EXTENT mean what the tab buttons' pair means;
 // EXTENT is seeded to VAULT_SWITCHER_HEIGHT so the gear is a square the row's
-// own height. RIGHT_MARGIN insets it from the sidebar's right edge
+// own height
 inline constexpr int SETTINGS_BUTTON_EXTENT = VAULT_SWITCHER_HEIGHT;
 inline constexpr int SETTINGS_BUTTON_ICON_EXTENT = 16;
-inline constexpr int SETTINGS_BUTTON_RIGHT_MARGIN = 4;
+
+// The space around the sidebar's footer, the row holding the vault switcher
+// and the gear (Sidebar): from the sidebar's left edge, from the line above
+// it, from the sidebar's right edge, and from the window's bottom edge
+inline constexpr int SIDEBAR_FOOTER_LEFT_MARGIN = 4;
+inline constexpr int SIDEBAR_FOOTER_TOP_MARGIN = 4;
+inline constexpr int SIDEBAR_FOOTER_RIGHT_MARGIN = 0;
+inline constexpr int SIDEBAR_FOOTER_BOTTOM_MARGIN = 0;
 
 // The settings dialog (SettingsDialog): its opening size; the navigation
 // column's fixed width, and the margin around (and gap within) that column;
@@ -307,7 +317,12 @@ inline constexpr int STATUS_BAR_ITEM_H_PADDING = 8;
 // which is up to MENU_SHADOW_ALPHA black; its items are inset MENU_PADDING from
 // the panel's edges, each MENU_ITEM_V_PADDING taller above and below. A text
 // field keeps its text FIELD_H_PADDING from its sides, and is FIELD_V_PADDING
-// taller above and below
+// taller above and below. A list's rows (any item view but a tree) are
+// LIST_ROW_V_PADDING taller above and below their text and keep it
+// LIST_ROW_TEXT_MARGIN from their sides; a framed list's rows are
+// LIST_FRAME_PADDING inside its border. A list's selected row is marked by a
+// rounded bar in the accent, LIST_INDICATOR_WIDTH by LIST_INDICATOR_HEIGHT,
+// LIST_INDICATOR_INSET inside the row's wash
 inline constexpr qreal STYLE_HOVER_ALPHA = 0.06;
 inline constexpr qreal STYLE_PRESSED_ALPHA = 0.12;
 inline constexpr qreal STYLE_SELECTED_ALPHA = 0.10;
@@ -333,7 +348,13 @@ inline constexpr int STYLE_MENU_PADDING = 4;
 inline constexpr int STYLE_MENU_ITEM_V_PADDING = 2;
 inline constexpr int STYLE_ROW_V_PADDING = 3;
 inline constexpr int STYLE_FIELD_H_PADDING = 6;
-inline constexpr int STYLE_FIELD_V_PADDING = 4;
+inline constexpr int STYLE_FIELD_V_PADDING = 2;
+inline constexpr int STYLE_LIST_ROW_V_PADDING = 9;
+inline constexpr int STYLE_LIST_ROW_TEXT_MARGIN = 12;
+inline constexpr int STYLE_LIST_FRAME_PADDING = 4;
+inline constexpr int STYLE_LIST_INDICATOR_WIDTH = 3;
+inline constexpr int STYLE_LIST_INDICATOR_HEIGHT = 16;
+inline constexpr int STYLE_LIST_INDICATOR_INSET = 1;
 inline constexpr int STYLE_ROW_TEXT_MARGIN = 6;
 inline constexpr int STYLE_SLIDER_TRACK_HEIGHT = 4;
 inline constexpr int STYLE_SLIDER_HANDLE_DIAMETER = 14;

@@ -592,11 +592,16 @@ private:
 
     // The + button, centered on the tabs as they're drawn rather than on the
     // whole row: the style leaves a gap above every tab (STYLE_TAB_TOP_GAP), so
-    // the button's column has the same gap above it
+    // the button's column has the same gap above it. NEW_TAB_BUTTON_LEFT_GAP
+    // keeps its hover wash off the last tab
     [[nodiscard]] QVBoxLayout* addButtonColumn_()
     {
         auto* column = new QVBoxLayout;
-        column->setContentsMargins(0, STYLE_TAB_TOP_GAP, 0, 0);
+        column->setContentsMargins(
+            NEW_TAB_BUTTON_LEFT_GAP,
+            STYLE_TAB_TOP_GAP,
+            0,
+            0);
         column->setSpacing(0);
         column->addWidget(addButton_, 0, Qt::AlignVCenter);
         return column;

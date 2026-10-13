@@ -16,6 +16,7 @@
 #include <QAbstractScrollArea>
 #include <QBrush>
 #include <QColor>
+#include <QFrame>
 #include <QMenu>
 #include <QPainter>
 #include <QPainterPath>
@@ -67,8 +68,10 @@ using namespace Qt::StringLiterals;
 //   content's own background
 // - Item-view rows (the file trees, Go to File, the settings nav) get a rounded
 //   wash for hover and selection rather than the accent, and keep their text
-//   and icon colors. In a tree it reaches back over the row's chevron. No
-//   dotted focus rectangle
+//   and icon colors. In a tree it reaches back over the row's chevron. A
+//   list's rows are taller, and its selected row is marked in the accent at
+//   its left end. No dotted focus rectangle
+// - A framed item view is a rounded panel with its rows inset from the border
 // - Push buttons, combo boxes, and line edits are rounded and flat, with a
 //   hairline border. A default button takes the accent. A focused field's
 //   border does too, and a field's text has room around it
@@ -89,6 +92,14 @@ public:
     Style()
         : QProxyStyle(QStyleFactory::create(u"Fusion"_s))
     {
+    }
+
+    // The one-pixel lines between things: splitter handles, the short marks
+    // between tabs, and the Common Vault drawer's bottom edge when it's
+    // collapsed. Public so a widget that draws its own line matches these
+    [[nodiscard]] static QColor divider(const QPalette& palette)
+    {
+        return wash_(palette, STYLE_DIVIDER_ALPHA);
     }
 
     using QProxyStyle::polish;
@@ -135,6 +146,14 @@ public:
         QProxyStyle::polish(widget);
         setHoverTracked_(widget, true);
 
+        // An item view's frame paints its background, rounded
+        // (drawItemViewFrame_), so the view's square viewport mustn't paint
+        // over it. A view without a frame shows what's behind it, which for
+        // the file trees is the sidebar's own color
+        if (auto* view = qobject_cast<QAbstractItemView*>(widget)) {
+            view->viewport()->setAutoFillBackground(false);
+        }
+
         if (qobject_cast<QMenu*>(widget)) {
             widget->setWindowFlags(widget->windowFlags() | MENU_WINDOW_FLAGS_);
             widget->setAttribute(Qt::WA_TranslucentBackground, true);
@@ -162,9 +181,21 @@ public:
             return 1;
         case PM_FocusFrameHMargin:
             // An item's text sits this far (plus one) from its row's edges,
-            // inside the wash, which is inset STYLE_ROW_INSET
-            if (qobject_cast<const QAbstractItemView*>(widget)) {
+            // inside the wash, which is inset STYLE_ROW_INSET. A list's rows
+            // stand alone, so their text has more room than a tree's, whose
+            // icons already set it off
+            if (qobject_cast<const QTreeView*>(widget)) {
                 return STYLE_ROW_TEXT_MARGIN;
+            }
+            if (qobject_cast<const QAbstractItemView*>(widget)) {
+                return STYLE_LIST_ROW_TEXT_MARGIN;
+            }
+            break;
+        case PM_DefaultFrameWidth:
+            // A framed item view's rows sit inside its rounded panel, not
+            // against the border
+            if (qobject_cast<const QAbstractItemView*>(widget)) {
+                return STYLE_LIST_FRAME_PADDING;
             }
             break;
         case PM_MenuPanelWidth:
@@ -217,7 +248,9 @@ public:
         // Rows and menu items with room around their text, for the wash to
         // sit in
         if (type == CT_ItemViewItem) {
-            result.rheight() += 2 * STYLE_ROW_V_PADDING;
+            result.rheight() += 2 * (qobject_cast<const QTreeView*>(widget)
+                                         ? STYLE_ROW_V_PADDING
+                                         : STYLE_LIST_ROW_V_PADDING);
         } else if (type == CT_LineEdit) {
             // A field with room around its text (see SE_LineEditContents)
             result +=
@@ -347,8 +380,14 @@ public:
     {
         switch (element) {
         case CE_Splitter:
-            painter->fillRect(option->rect, divider_(option->palette));
+            painter->fillRect(option->rect, divider(option->palette));
             return;
+
+        case CE_ShapedFrame:
+            if (drawItemViewFrame_(option, painter, widget)) {
+                return;
+            }
+            break;
 
         case CE_SizeGrip:
         case CE_MenuEmptyArea:
@@ -540,11 +579,6 @@ private:
             from.greenF() + (to.greenF() - from.greenF()) * amount,
             from.blueF() + (to.blueF() - from.blueF()) * amount,
             from.alphaF() + (to.alphaF() - from.alphaF()) * amount);
-    }
-
-    [[nodiscard]] static QColor divider_(const QPalette& palette)
-    {
-        return wash_(palette, STYLE_DIVIDER_ALPHA);
     }
 
     static void setAllGroups_(
@@ -892,7 +926,7 @@ private:
             // next: its own shape separates them
             auto x = rect.right() - 0.5;
             auto margin = STYLE_TAB_DIVIDER_MARGIN;
-            painter->setPen(QPen(divider_(palette), 1.0));
+            painter->setPen(QPen(divider(palette), 1.0));
             painter->drawLine(
                 QPointF(x, rect.top() + margin),
                 QPointF(x, rect.bottom() - margin));
@@ -926,11 +960,56 @@ private:
         const QWidget* widget)
     {
         auto rect = QRectF(item->rect);
-        if (auto* tree = qobject_cast<const QTreeView*>(widget)) {
+        auto* tree = qobject_cast<const QTreeView*>(widget);
+        if (tree) {
             rect.setLeft(qMax(qreal(0), rect.left() - tree->indentation()));
         }
 
         fillRowWash_(item, rect, painter);
+
+        // A list's selected row is marked at its left end in the accent, as
+        // the rows of a navigation list are. A tree's selection is the wash
+        // alone, since its rows are files rather than places to go
+        if (!tree && (item->state & State_Selected)) {
+            auto height = qMin(
+                qreal(STYLE_LIST_INDICATOR_HEIGHT),
+                rect.height() - 2 * STYLE_ROW_INSET);
+            auto indicator = QRectF(
+                rect.left() + STYLE_ROW_INSET + STYLE_LIST_INDICATOR_INSET,
+                rect.center().y() - height / 2,
+                STYLE_LIST_INDICATOR_WIDTH,
+                height);
+            fillRounded_(
+                painter,
+                indicator,
+                STYLE_LIST_INDICATOR_WIDTH / 2.0,
+                item->palette.color(QPalette::Highlight));
+        }
+    }
+
+    // A framed item view (Go to File's list, a dialog's list) is a rounded
+    // panel in its viewport's color, with a hairline border. The viewport
+    // paints no background of its own (polish), so the panel shows through it
+    // and its rounded corners aren't covered by the viewport's square ones.
+    // False for any other frame, which is Fusion's
+    static bool drawItemViewFrame_(
+        const QStyleOption* option,
+        QPainter* painter,
+        const QWidget* widget)
+    {
+        auto* view = qobject_cast<const QAbstractItemView*>(widget);
+        auto* frame = qstyleoption_cast<const QStyleOptionFrame*>(option);
+        if (!view || !frame || frame->frameShape != QFrame::StyledPanel) {
+            return false;
+        }
+
+        auto* viewport = view->viewport();
+        drawBordered_(
+            painter,
+            option->rect,
+            viewport->palette().brush(viewport->backgroundRole()),
+            wash_(option->palette, STYLE_CONTROL_BORDER_ALPHA));
+        return true;
     }
 
     static void fillRowWash_(

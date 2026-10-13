@@ -34,6 +34,7 @@
 #include <Coco/Time.h>
 
 #include "core/WorkspaceKeys.h"
+#include "ui/Style.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/Glyph.h"
 
@@ -285,12 +286,11 @@ protected:
             return;
         }
 
+        // The collapsed drawer's bottom edge, drawn as the splitter handle
+        // above it is: a divider line across the sidebar's whole width
         QPainter painter(this);
-        painter.setPen(palette().color(QPalette::AlternateBase));
-
-        auto y = height() - 1;
-        constexpr auto margin = 8;
-        painter.drawLine(margin, y, width() - margin, y);
+        painter
+            .fillRect(0, height() - 1, width(), 1, Style::divider(palette()));
     }
 
     // Restore's deferred splitter sizing, one tick past the first show — the

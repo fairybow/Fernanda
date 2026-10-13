@@ -18,7 +18,6 @@
 #include <QCoreApplication>
 #include <QDialog>
 #include <QEvent>
-#include <QFrame>
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QLabel>
@@ -344,7 +343,6 @@ private:
         list_ = new QListWidget(this);
         list_->setFocusPolicy(Qt::NoFocus); // typing always lands in the field
         list_->setUniformItemSizes(true);   // cheap layout for long listings
-        list_->setFrameShape(QFrame::NoFrame);
         list_->setItemDelegate(new Internal::FileSwitcherDelegate_(list_));
 
         connect(
