@@ -25,6 +25,8 @@
 #include <QSize>
 #include <QSplitter>
 #include <QString>
+#include <QStyle>
+#include <QStyleOption>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtMinMax>
@@ -104,6 +106,22 @@ protected:
     {
         QPainter painter(this);
 
+        // The style's hover and press wash, the one every flat button in the
+        // sidebar shows, inset as a tree row's is so the header reads as one
+        // more row. Being open isn't a pressed state: the chevron says that
+        QStyleOptionToolButton option{};
+        option.initFrom(this);
+        option.rect = rect().adjusted(STYLE_ROW_INSET, 1, -STYLE_ROW_INSET, -1);
+        option.state |= QStyle::State_AutoRaise;
+        if (isDown()) {
+            option.state |= QStyle::State_Sunken;
+        }
+        style()->drawPrimitive(
+            QStyle::PE_PanelButtonTool,
+            &option,
+            &painter,
+            this);
+
         auto rect = contentsRect();
         auto x = rect.x() + DRAWER_HEADER_LEFT_PADDING;
 
@@ -152,6 +170,7 @@ private:
     {
         setCheckable(true);
         setFocusPolicy(Qt::NoFocus);
+        setAttribute(Qt::WA_Hover, true); // for the hover wash
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         setFixedHeight(DRAWER_HEADER_HEIGHT);
     }

@@ -262,6 +262,7 @@ set(APP_HEADERS
     src/ui/NewVaultDialog.h
     src/ui/OpenMode.h
     src/ui/PopoutWindow.h
+    src/ui/Style.h
     src/ui/UiConstants.h
     src/ui/UiUtility.h
     src/ui/VaultWindow.h
