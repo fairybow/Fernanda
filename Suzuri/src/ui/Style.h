@@ -16,6 +16,7 @@
 #include <QAbstractScrollArea>
 #include <QBrush>
 #include <QColor>
+#include <QMenu>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPalette>
@@ -70,10 +71,15 @@ using namespace Qt::StringLiterals;
 //   dotted focus rectangle
 // - Push buttons, combo boxes, and line edits are rounded and flat, with a
 //   hairline border. A default button takes the accent. A focused field's
-//   border does too
+//   border does too, and a field's text has room around it
 // - Sliders are a thin rounded track, filled with the accent up to a round
 //   handle
-// - Menu items and menu bar items are highlighted with the rounded wash
+// - Menus are rounded panels in the page's color, with a hairline border and
+//   a soft shadow, and their items and the menu bar's are highlighted with
+//   the rounded wash
+// - In a light palette, the window's color is moved toward the page's
+//   (polish), so the sidebar, tab bar, and dialogs are lighter than the
+//   platform's grey
 // - The status bar's size grip isn't drawn (it still works)
 //
 // Everything else is Fusion's
@@ -88,16 +94,60 @@ public:
     using QProxyStyle::polish;
     using QProxyStyle::unpolish;
 
+    // In a light palette, the window's color is lightened toward the page's,
+    // as the platforms' greys are heavier than Suzuri wants beside white text
+    // pages. A dark palette is left as it is: there, moving the window toward
+    // the page would only blur the line between the sidebar and the text. Qt
+    // runs the application's palette through this whenever it builds it,
+    // including after an OS light or dark switch, so every surface that uses
+    // the window's color (the sidebar, the tab bar, dialogs) follows
+    void polish(QPalette& palette) override
+    {
+        QProxyStyle::polish(palette);
+
+        if (palette.color(QPalette::Window).lightness() < 128) {
+            return;
+        }
+
+        for (auto group :
+             { QPalette::Active, QPalette::Inactive, QPalette::Disabled }) {
+            palette.setColor(
+                group,
+                QPalette::Window,
+                blend_(
+                    palette.color(group, QPalette::Window),
+                    palette.color(group, QPalette::Base),
+                    STYLE_WINDOW_TOWARD_BASE));
+        }
+    }
+
     // Fusion asks for hover events on buttons, combo boxes, sliders, and scroll
-    // bars, but not on tab bars or item views, whose hover washes need them
+    // bars, but not on tab bars or item views, whose hover washes need them.
+    //
+    // A menu is drawn with rounded corners and a soft shadow (drawMenuPanel_),
+    // so its window has to be see-through around them, and the system's own
+    // square shadow is turned off. Both are set here, before the menu's window
+    // is first made. On Windows a window is see-through only if it's also
+    // frameless (Qt::WA_TranslucentBackground), and a popup doesn't count as
+    // frameless unless it says so, so the flag is set first
     void polish(QWidget* widget) override
     {
         QProxyStyle::polish(widget);
         setHoverTracked_(widget, true);
+
+        if (qobject_cast<QMenu*>(widget)) {
+            widget->setWindowFlags(widget->windowFlags() | MENU_WINDOW_FLAGS_);
+            widget->setAttribute(Qt::WA_TranslucentBackground, true);
+        }
     }
 
     void unpolish(QWidget* widget) override
     {
+        if (qobject_cast<QMenu*>(widget)) {
+            widget->setAttribute(Qt::WA_TranslucentBackground, false);
+            widget->setWindowFlags(widget->windowFlags() & ~MENU_WINDOW_FLAGS_);
+        }
+
         setHoverTracked_(widget, false);
         QProxyStyle::unpolish(widget);
     }
@@ -117,6 +167,12 @@ public:
                 return STYLE_ROW_TEXT_MARGIN;
             }
             break;
+        case PM_MenuPanelWidth:
+            // The shadow's margin and the border inside it
+            return STYLE_MENU_SHADOW + 1;
+        case PM_MenuHMargin:
+        case PM_MenuVMargin:
+            return STYLE_MENU_PADDING;
         case PM_ScrollBarExtent:
             return STYLE_SCROLL_BAR_EXTENT;
         case PM_ScrollBarSliderMin:
@@ -158,9 +214,19 @@ public:
     {
         auto result = QProxyStyle::sizeFromContents(type, option, size, widget);
 
-        // Rows with room around their text, for the wash to sit in
+        // Rows and menu items with room around their text, for the wash to
+        // sit in
         if (type == CT_ItemViewItem) {
             result.rheight() += 2 * STYLE_ROW_V_PADDING;
+        } else if (type == CT_LineEdit) {
+            // A field with room around its text (see SE_LineEditContents)
+            result +=
+                QSize(2 * STYLE_FIELD_H_PADDING, 2 * STYLE_FIELD_V_PADDING);
+        } else if (type == CT_MenuItem) {
+            auto* item = qstyleoption_cast<const QStyleOptionMenuItem*>(option);
+            if (item && item->menuItemType != QStyleOptionMenuItem::Separator) {
+                result.rheight() += 2 * STYLE_MENU_ITEM_V_PADDING;
+            }
         }
 
         return result;
@@ -173,10 +239,22 @@ public:
     {
         auto rect = QProxyStyle::subElementRect(element, option, widget);
 
-        // A tab's contents are centered in the part of the tab that's drawn,
-        // below the gap at its top (see drawTabShape_)
+        // A tab's buttons are centered in the part of the tab that's drawn,
+        // below the gap at its top (see drawTabShape_). Its text and icon are
+        // too, by the label's own rect (CE_TabBarTabLabel)
         switch (element) {
-        case SE_TabBarTabText:
+        case SE_LineEditContents:
+            // The text keeps clear of the field's rounded border
+            if (auto* frame =
+                    qstyleoption_cast<const QStyleOptionFrame*>(option);
+                frame && frame->lineWidth > 0) {
+                return rect.adjusted(
+                    STYLE_FIELD_H_PADDING,
+                    0,
+                    -STYLE_FIELD_H_PADDING,
+                    0);
+            }
+            return rect;
         case SE_TabBarTabLeftButton:
         case SE_TabBarTabRightButton:
             return rect.translated(0, STYLE_TAB_TOP_GAP / 2);
@@ -239,6 +317,14 @@ public:
             // Rows aren't banded, and selection is the item's to draw
             return;
 
+        case PE_PanelMenu:
+            drawMenuPanel_(option, painter);
+            return;
+
+        case PE_FrameMenu:
+            drawMenuBorder_(option, painter);
+            return;
+
         case PE_FrameFocusRect:
             // The rows' wash already says which one is current
             if (qobject_cast<const QAbstractItemView*>(widget)) {
@@ -265,6 +351,8 @@ public:
             return;
 
         case CE_SizeGrip:
+        case CE_MenuEmptyArea:
+            // The menu's panel is already drawn, corners and all
             return;
 
         case CE_TabBarTabShape:
@@ -276,8 +364,12 @@ public:
 
         case CE_TabBarTabLabel:
             if (auto* tab = qstyleoption_cast<const QStyleOptionTab*>(option)) {
-                // A tab that isn't current reads quieter than the current one
+                // The label (icon and title together) is laid out in the part
+                // of the tab that's drawn, below the gap at its top, so both
+                // center there. A tab that isn't current reads quieter than
+                // the current one
                 QStyleOptionTab copy(*tab);
+                copy.rect.setTop(copy.rect.top() + STYLE_TAB_TOP_GAP);
                 if (!(tab->state & State_Selected)) {
                     setAllGroups_(
                         copy.palette,
@@ -418,6 +510,9 @@ public:
     }
 
 private:
+    static constexpr auto MENU_WINDOW_FLAGS_ =
+        Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint;
+
     static void setHoverTracked_(QWidget* widget, bool on)
     {
         if (qobject_cast<QTabBar*>(widget)) {
@@ -435,6 +530,16 @@ private:
         auto color = palette.color(QPalette::WindowText);
         color.setAlphaF(alpha);
         return color;
+    }
+
+    [[nodiscard]] static QColor
+    blend_(const QColor& from, const QColor& to, qreal amount)
+    {
+        return QColor::fromRgbF(
+            from.redF() + (to.redF() - from.redF()) * amount,
+            from.greenF() + (to.greenF() - from.greenF()) * amount,
+            from.blueF() + (to.blueF() - from.blueF()) * amount,
+            from.alphaF() + (to.alphaF() - from.alphaF()) * amount);
     }
 
     [[nodiscard]] static QColor divider_(const QPalette& palette)
@@ -683,6 +788,55 @@ private:
                     slider->state & State_Sunken ? STYLE_PRESSED_ALPHA
                                                  : STYLE_HOVER_ALPHA));
         }
+    }
+
+    // --- Menus -------------------------------------------------------------
+
+    // The menu's panel inside its window, which is see-through (polish): the
+    // window's margin (PM_MenuPanelWidth) holds a soft shadow, built from
+    // rounded rectangles stepping outward and fading
+    [[nodiscard]] static QRectF menuPanelRect_(const QStyleOption* option)
+    {
+        auto margin = qreal(STYLE_MENU_SHADOW);
+        return QRectF(option->rect).adjusted(margin, margin, -margin, -margin);
+    }
+
+    static void drawMenuPanel_(const QStyleOption* option, QPainter* painter)
+    {
+        auto panel = menuPanelRect_(option);
+        auto radius = qreal(STYLE_MENU_RADIUS);
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+        painter->setPen(Qt::NoPen);
+
+        for (auto step = STYLE_MENU_SHADOW; step > 0; --step) {
+            auto alpha = STYLE_MENU_SHADOW_ALPHA *
+                         (STYLE_MENU_SHADOW - step + 1) / STYLE_MENU_SHADOW;
+            painter->setBrush(QColor::fromRgbF(0, 0, 0, alpha));
+            painter->drawRoundedRect(
+                panel.adjusted(-step, -step + 1, step, step + 1),
+                radius + step,
+                radius + step);
+        }
+
+        painter->setBrush(option->palette.brush(QPalette::Base));
+        painter->drawRoundedRect(panel, radius, radius);
+        painter->restore();
+    }
+
+    static void drawMenuBorder_(const QStyleOption* option, QPainter* painter)
+    {
+        auto panel = menuPanelRect_(option).adjusted(0.5, 0.5, -0.5, -0.5);
+        auto radius = qreal(STYLE_MENU_RADIUS);
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+        painter->setPen(
+            QPen(wash_(option->palette, STYLE_CONTROL_BORDER_ALPHA), 1.0));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRoundedRect(panel, radius, radius);
+        painter->restore();
     }
 
     // --- Tabs --------------------------------------------------------------

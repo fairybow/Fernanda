@@ -266,10 +266,13 @@ inline constexpr int FONT_FAMILY_BOX_MIN_CHARS = 24;
 
 // The Go to File switcher (FileSwitcher), placed top-center over its host
 // window. WIDTH is clamped to the host's width; TOP_OFFSET is the gap between
-// the host's top edge and the switcher's
+// the host's top edge and the switcher's. MARGIN surrounds its contents and
+// SPACING separates the field, the hint, and the list
 inline constexpr int FILE_SWITCHER_WIDTH = 560;
 inline constexpr int FILE_SWITCHER_HEIGHT = 360;
 inline constexpr int FILE_SWITCHER_TOP_OFFSET = 80;
+inline constexpr int FILE_SWITCHER_MARGIN = 12;
+inline constexpr int FILE_SWITCHER_SPACING = 8;
 
 // The window status bar's items (WordCounter, CursorPosition). TEXT_ROLE is the
 // pen their text is drawn with, muted like the sidebar's chrome. ITEM_H_PADDING
@@ -297,7 +300,14 @@ inline constexpr int STATUS_BAR_ITEM_H_PADDING = 8;
 // it or dragging it). An item-view row is ROW_V_PADDING taller above and below
 // its text, and keeps its text ROW_TEXT_MARGIN from its sides. A slider's track
 // is SLIDER_TRACK_HEIGHT tall, at SLIDER_TRACK_ALPHA where it isn't filled, and
-// its handle SLIDER_HANDLE_DIAMETER across
+// its handle SLIDER_HANDLE_DIAMETER across. In a light palette, the window's
+// color is moved WINDOW_TOWARD_BASE of the way to the page's (0 is the
+// platform's own, 1 is the page's). A menu's panel is rounded to MENU_RADIUS
+// inside a margin of MENU_SHADOW pixels that holds its shadow, each step of
+// which is up to MENU_SHADOW_ALPHA black; its items are inset MENU_PADDING from
+// the panel's edges, each MENU_ITEM_V_PADDING taller above and below. A text
+// field keeps its text FIELD_H_PADDING from its sides, and is FIELD_V_PADDING
+// taller above and below
 inline constexpr qreal STYLE_HOVER_ALPHA = 0.06;
 inline constexpr qreal STYLE_PRESSED_ALPHA = 0.12;
 inline constexpr qreal STYLE_SELECTED_ALPHA = 0.10;
@@ -315,7 +325,15 @@ inline constexpr int STYLE_TAB_HOVER_INSET = 3;
 inline constexpr int STYLE_TAB_DIVIDER_MARGIN = 8;
 inline constexpr qreal STYLE_TAB_MUTED_TEXT_ALPHA = 0.6;
 inline constexpr int STYLE_COMBO_ARROW_INSET = 2;
+inline constexpr qreal STYLE_WINDOW_TOWARD_BASE = 0.6;
+inline constexpr int STYLE_MENU_RADIUS = 8;
+inline constexpr int STYLE_MENU_SHADOW = 6;
+inline constexpr qreal STYLE_MENU_SHADOW_ALPHA = 0.05;
+inline constexpr int STYLE_MENU_PADDING = 4;
+inline constexpr int STYLE_MENU_ITEM_V_PADDING = 2;
 inline constexpr int STYLE_ROW_V_PADDING = 3;
+inline constexpr int STYLE_FIELD_H_PADDING = 6;
+inline constexpr int STYLE_FIELD_V_PADDING = 4;
 inline constexpr int STYLE_ROW_TEXT_MARGIN = 6;
 inline constexpr int STYLE_SLIDER_TRACK_HEIGHT = 4;
 inline constexpr int STYLE_SLIDER_HANDLE_DIAMETER = 14;
