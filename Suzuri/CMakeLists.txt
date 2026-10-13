@@ -245,6 +245,7 @@ set(APP_HEADERS
     src/ui/tabs/TabPaneLeaf.h
     src/ui/tabs/TabPaneTree.h
 
+    src/ui/widgets/ButtonWash.h
     src/ui/widgets/DisplaySlider.h
     src/ui/widgets/Glyph.h
     src/ui/widgets/GlyphButton.h

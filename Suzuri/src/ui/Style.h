@@ -94,6 +94,17 @@ public:
     {
     }
 
+    // A flat button's hover or press shade, for a widget that fills its own
+    // shape with it rather than having the style draw a button's rounded one
+    // (the drawer header's Band)
+    [[nodiscard]] static QColor
+    buttonWash(const QPalette& palette, bool pressed)
+    {
+        return wash_(
+            palette,
+            pressed ? STYLE_PRESSED_ALPHA : STYLE_HOVER_ALPHA);
+    }
+
     // The one-pixel lines between things: splitter handles, the short marks
     // between tabs, and the Common Vault drawer's bottom edge when it's
     // collapsed. Public so a widget that draws its own line matches these
@@ -202,8 +213,9 @@ public:
             // The shadow's margin and the border inside it
             return STYLE_MENU_SHADOW + 1;
         case PM_MenuHMargin:
+            return STYLE_MENU_H_PADDING;
         case PM_MenuVMargin:
-            return STYLE_MENU_PADDING;
+            return STYLE_MENU_V_PADDING;
         case PM_ScrollBarExtent:
             return STYLE_SCROLL_BAR_EXTENT;
         case PM_ScrollBarSliderMin:
@@ -259,6 +271,10 @@ public:
             auto* item = qstyleoption_cast<const QStyleOptionMenuItem*>(option);
             if (item && item->menuItemType != QStyleOptionMenuItem::Separator) {
                 result.rheight() += 2 * STYLE_MENU_ITEM_V_PADDING;
+
+                if (trimsMenuText_(item)) {
+                    result.rwidth() -= STYLE_MENU_TEXT_TRIM;
+                }
             }
         }
 
@@ -456,24 +472,8 @@ public:
         case CE_MenuItem:
             if (auto* item =
                     qstyleoption_cast<const QStyleOptionMenuItem*>(option)) {
-                if (item->state & State_Selected &&
-                    item->menuItemType != QStyleOptionMenuItem::Separator) {
-                    fillRounded_(
-                        painter,
-                        QRectF(item->rect)
-                            .adjusted(
-                                STYLE_MENU_ITEM_INSET,
-                                1,
-                                -STYLE_MENU_ITEM_INSET,
-                                -1),
-                        STYLE_ROW_RADIUS,
-                        wash_(item->palette, STYLE_SELECTED_ALPHA));
-
-                    QStyleOptionMenuItem copy(*item);
-                    copy.state &= ~State_Selected;
-                    QProxyStyle::drawControl(element, &copy, painter, widget);
-                    return;
-                }
+                drawMenuItem_(item, painter, widget);
+                return;
             }
             break;
 
@@ -638,13 +638,8 @@ private:
             return;
         }
 
-        qreal alpha = 0;
-
-        if (option->state & (State_Sunken | State_On)) {
-            alpha = STYLE_PRESSED_ALPHA;
-        } else if (option->state & State_MouseOver) {
-            alpha = STYLE_HOVER_ALPHA;
-        } else {
+        auto pressed = bool(option->state & (State_Sunken | State_On));
+        if (!pressed && !(option->state & State_MouseOver)) {
             return;
         }
 
@@ -652,7 +647,7 @@ private:
             painter,
             QRectF(option->rect),
             STYLE_TOOL_BUTTON_RADIUS,
-            wash_(option->palette, alpha));
+            buttonWash(option->palette, pressed));
     }
 
     // --- Push buttons, combo boxes, line edits -----------------------------
@@ -825,6 +820,56 @@ private:
     }
 
     // --- Menus -------------------------------------------------------------
+
+    // Fusion keeps room left of every item's text for a check mark or an
+    // icon, even in a menu that has neither. There, some of that room is taken
+    // back (STYLE_MENU_TEXT_TRIM)
+    [[nodiscard]] static bool trimsMenuText_(const QStyleOptionMenuItem* item)
+    {
+        return item->maxIconWidth == 0 && !item->menuHasCheckableItems;
+    }
+
+    // A selected item gets the rounded wash and is then drawn by Fusion as if
+    // unselected, so its text keeps its color. Where the text is trimmed,
+    // Fusion is handed a rect that starts further left, clipped to the item's
+    // own, so the text moves left and nothing is drawn outside the item
+    void drawMenuItem_(
+        const QStyleOptionMenuItem* item,
+        QPainter* painter,
+        const QWidget* widget) const
+    {
+        if (item->menuItemType == QStyleOptionMenuItem::Separator) {
+            QProxyStyle::drawControl(CE_MenuItem, item, painter, widget);
+            return;
+        }
+
+        QStyleOptionMenuItem copy(*item);
+
+        if (item->state & State_Selected) {
+            fillRounded_(
+                painter,
+                QRectF(item->rect)
+                    .adjusted(
+                        STYLE_MENU_ITEM_INSET,
+                        1,
+                        -STYLE_MENU_ITEM_INSET,
+                        -1),
+                STYLE_ROW_RADIUS,
+                wash_(item->palette, STYLE_SELECTED_ALPHA));
+            copy.state &= ~State_Selected;
+        }
+
+        if (!trimsMenuText_(item)) {
+            QProxyStyle::drawControl(CE_MenuItem, &copy, painter, widget);
+            return;
+        }
+
+        painter->save();
+        painter->setClipRect(item->rect);
+        copy.rect.setLeft(copy.rect.left() - STYLE_MENU_TEXT_TRIM);
+        QProxyStyle::drawControl(CE_MenuItem, &copy, painter, widget);
+        painter->restore();
+    }
 
     // The menu's panel inside its window, which is see-through (polish): the
     // window's margin (PM_MenuPanelWidth) holds a soft shadow, built from

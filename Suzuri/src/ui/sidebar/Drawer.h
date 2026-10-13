@@ -25,8 +25,6 @@
 #include <QSize>
 #include <QSplitter>
 #include <QString>
-#include <QStyle>
-#include <QStyleOption>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtMinMax>
@@ -38,6 +36,7 @@
 #include "core/WorkspaceKeys.h"
 #include "ui/Style.h"
 #include "ui/UiConstants.h"
+#include "ui/widgets/ButtonWash.h"
 #include "ui/widgets/Glyph.h"
 
 namespace Suzuri::Ui {
@@ -96,7 +95,7 @@ public:
             width += fontMetrics().horizontalAdvance(text());
         }
 
-        return { width, DRAWER_HEADER_HEIGHT };
+        return { width, height_() };
     }
 
     QSize minimumSizeHint() const override { return sizeHint(); }
@@ -105,22 +104,7 @@ protected:
     void paintEvent([[maybe_unused]] QPaintEvent* event) override
     {
         QPainter painter(this);
-
-        // The style's hover and press wash, the one every flat button in the
-        // sidebar shows, inset as a tree row's is so the header reads as one
-        // more row. Being open isn't a pressed state: the chevron says that
-        QStyleOptionToolButton option{};
-        option.initFrom(this);
-        option.rect = rect().adjusted(STYLE_ROW_INSET, 1, -STYLE_ROW_INSET, -1);
-        option.state |= QStyle::State_AutoRaise;
-        if (isDown()) {
-            option.state |= QStyle::State_Sunken;
-        }
-        style()->drawPrimitive(
-            QStyle::PE_PanelButtonTool,
-            &option,
-            &painter,
-            this);
+        paintWash_(painter);
 
         auto rect = contentsRect();
         auto x = rect.x() + DRAWER_HEADER_LEFT_PADDING;
@@ -166,13 +150,47 @@ private:
     Glyph::Cache chevron_{};
     Glyph::Cache commonVaultIcon_{};
 
+    // The row's height, with the padding a Row wash keeps above and below
+    // itself. A Band fills the header, so it adds none
+    [[nodiscard]] static constexpr int height_()
+    {
+        return DRAWER_HEADER_WASH == DrawerHeaderWash::Row
+                   ? DRAWER_HEADER_HEIGHT + 2 * DRAWER_HEADER_ROW_PADDING
+                   : DRAWER_HEADER_HEIGHT;
+    }
+
+    // Hover and press, per DRAWER_HEADER_WASH. Row is a flat button's wash
+    // (ButtonWash), inset as a tree row's is, so the header reads as one more
+    // row. Band fills the header square and edge to edge, in the same color,
+    // short of its bottom pixel, where the collapsed drawer draws its line.
+    // Being open isn't a pressed state either way: the chevron says that
+    void paintWash_(QPainter& painter) const
+    {
+        if constexpr (DRAWER_HEADER_WASH == DrawerHeaderWash::Row) {
+            ButtonWash::paint(
+                painter,
+                this,
+                rect().adjusted(
+                    STYLE_ROW_INSET,
+                    DRAWER_HEADER_ROW_PADDING,
+                    -STYLE_ROW_INSET,
+                    -DRAWER_HEADER_ROW_PADDING));
+        } else {
+            if (isEnabled() && (underMouse() || isDown())) {
+                painter.fillRect(
+                    rect().adjusted(0, 0, 0, -1),
+                    Style::buttonWash(palette(), isDown()));
+            }
+        }
+    }
+
     void setup_()
     {
         setCheckable(true);
         setFocusPolicy(Qt::NoFocus);
         setAttribute(Qt::WA_Hover, true); // for the hover wash
+        setFixedHeight(height_());
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        setFixedHeight(DRAWER_HEADER_HEIGHT);
     }
 
     // One glyph at x, vertically centered in rect. Clamped to the row, so an

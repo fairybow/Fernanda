@@ -22,12 +22,12 @@
 #include <QPixmap>
 #include <QString>
 #include <QStyle>
-#include <QStyleOptionToolButton>
 #include <QWidget>
 #include <QtMinMax>
 
 #include <Coco/Path.h>
 
+#include "ui/widgets/ButtonWash.h"
 #include "ui/widgets/Glyph.h"
 
 namespace Suzuri::Ui {
@@ -108,23 +108,9 @@ protected:
     {
         QPainter painter(this);
 
-        // Auto-raise tool-button panel: flat at rest, the style's outline only
-        // on hover/press. We hand the style the exact option state a flat
-        // QToolButton builds — State_AutoRaise always, State_Sunken when down,
-        // State_MouseOver carried in by initFrom — and let it draw the panel.
-        // The style suppresses the bevel while flat, so at rest only the glyph
-        // shows
-        QStyleOptionToolButton option{};
-        option.initFrom(this); // carries State_MouseOver from underMouse()
-        option.state |= QStyle::State_AutoRaise;
-        if (isDown()) {
-            option.state |= QStyle::State_Sunken;
-        }
-        style()->drawPrimitive(
-            QStyle::PE_PanelButtonTool,
-            &option,
-            &painter,
-            this);
+        // A flat button's panel: nothing at rest, the style's wash on hover and
+        // press
+        ButtonWash::paint(painter, this, rect());
 
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
@@ -147,14 +133,14 @@ protected:
 
         // Sink the glyph with the panel on press. The metrics are 0 on styles
         // that don't shift, so this is a no-op there
-        if (option.state & QStyle::State_Sunken) {
+        if (isDown()) {
             x += style()->pixelMetric(
                 QStyle::PM_ButtonShiftHorizontal,
-                &option,
+                nullptr,
                 this);
             y += style()->pixelMetric(
                 QStyle::PM_ButtonShiftVertical,
-                &option,
+                nullptr,
                 this);
         }
 

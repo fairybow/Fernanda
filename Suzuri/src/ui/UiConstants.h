@@ -155,6 +155,21 @@ enum class DrawerLabel
 
 inline constexpr auto COMMON_DRAWER_LABEL = DrawerLabel::Icon;
 
+// How the Common Vault drawer's header shows hover and press (Drawer). Row is
+// the rounded wash a tree row or flat button shows, inset STYLE_ROW_INSET from
+// the header's sides and DRAWER_HEADER_ROW_PADDING from its top and bottom;
+// the header grows by that padding above and below, so the wash keeps
+// DRAWER_HEADER_HEIGHT. Band fills the whole header, square, and adds no
+// padding
+enum class DrawerHeaderWash
+{
+    Row,
+    Band
+};
+
+inline constexpr auto DRAWER_HEADER_WASH = DrawerHeaderWash::Band;
+inline constexpr int DRAWER_HEADER_ROW_PADDING = 3;
+
 // The Common Vault drawer's header row (Drawer): chevron, then the Common
 // Vault glyph and/or the title, per COMMON_DRAWER_LABEL. HEIGHT is the row's
 // fixed height, and so also the collapsed drawer's height; LEFT_PADDING insets
@@ -192,7 +207,7 @@ inline constexpr int SETTINGS_BUTTON_ICON_EXTENT = 16;
 // it, from the sidebar's right edge, and from the window's bottom edge
 inline constexpr int SIDEBAR_FOOTER_LEFT_MARGIN = 4;
 inline constexpr int SIDEBAR_FOOTER_TOP_MARGIN = 4;
-inline constexpr int SIDEBAR_FOOTER_RIGHT_MARGIN = 0;
+inline constexpr int SIDEBAR_FOOTER_RIGHT_MARGIN = 4;
 inline constexpr int SIDEBAR_FOOTER_BOTTOM_MARGIN = 0;
 
 // The settings dialog (SettingsDialog): its opening size; the navigation
@@ -314,11 +329,14 @@ inline constexpr int STATUS_BAR_ITEM_H_PADDING = 8;
 // color is moved WINDOW_TOWARD_BASE of the way to the page's (0 is the
 // platform's own, 1 is the page's). A menu's panel is rounded to MENU_RADIUS
 // inside a margin of MENU_SHADOW pixels that holds its shadow, each step of
-// which is up to MENU_SHADOW_ALPHA black; its items are inset MENU_PADDING from
-// the panel's edges, each MENU_ITEM_V_PADDING taller above and below. A text
-// field keeps its text FIELD_H_PADDING from its sides, and is FIELD_V_PADDING
-// taller above and below. A list's rows (any item view but a tree) are
-// LIST_ROW_V_PADDING taller above and below their text and keep it
+// which is up to MENU_SHADOW_ALPHA black; its items are inset MENU_H_PADDING
+// from the panel's sides and MENU_V_PADDING from its top and bottom, each
+// MENU_ITEM_V_PADDING taller above and below. Fusion leaves room left of an
+// item's text for a check mark or icon; in a menu with neither, MENU_TEXT_TRIM
+// pixels of that room are taken back, from the text's left and the menu's
+// width. A text field keeps its text FIELD_H_PADDING from its sides, and is
+// FIELD_V_PADDING taller above and below. A list's rows (any item view but a
+// tree) are LIST_ROW_V_PADDING taller above and below their text and keep it
 // LIST_ROW_TEXT_MARGIN from their sides; a framed list's rows are
 // LIST_FRAME_PADDING inside its border. A list's selected row is marked by a
 // rounded bar in the accent, LIST_INDICATOR_WIDTH by LIST_INDICATOR_HEIGHT,
@@ -344,7 +362,9 @@ inline constexpr qreal STYLE_WINDOW_TOWARD_BASE = 0.6;
 inline constexpr int STYLE_MENU_RADIUS = 8;
 inline constexpr int STYLE_MENU_SHADOW = 6;
 inline constexpr qreal STYLE_MENU_SHADOW_ALPHA = 0.05;
-inline constexpr int STYLE_MENU_PADDING = 4;
+inline constexpr int STYLE_MENU_H_PADDING = 2;
+inline constexpr int STYLE_MENU_V_PADDING = 4;
+inline constexpr int STYLE_MENU_TEXT_TRIM = 12;
 inline constexpr int STYLE_MENU_ITEM_V_PADDING = 2;
 inline constexpr int STYLE_ROW_V_PADDING = 3;
 inline constexpr int STYLE_FIELD_H_PADDING = 6;
