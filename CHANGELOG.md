@@ -102,6 +102,35 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.6.0-beta.0 (New Look) - tag v0.6.0-beta.0
+
+## What's New?
+
+Suzuri has a new look: flat, quiet, and rounded, and the same on Windows, macOS, and Linux.
+
+- **Light and dark follow your system,** including when you switch while Suzuri is running. Your system's accent color marks the default button, a focused field, and the selected row in a list
+- **Tabs:** the current tab is the color of the page below it, and the others are quieter until you hover over them
+- **The sidebar** is lighter in light mode. Rows in the file tree get a soft highlight on hover and when selected, and a folder's highlight takes in its arrow. The Common Vault drawer's header highlights on hover too
+- **Menus** are rounded, with a soft shadow
+- **Go to File** has roomier rows, and the selected one is marked with a bar in the accent color
+- **The editor** keeps a little space between the text and the pane's edges. The current line highlight is a soft blue on a light page and a muted red on a dark one
+- Scroll bars are thin and have no arrows. The find bar sits on the page in the page's color
+
+Also in this release:
+
+- **Fixed:** the Common Vault mark on a tab now changes color with a light or dark switch
+
+## Known Issues
+
+- Drop-down lists (in Settings, for example) are square, unlike the menus
+- On Linux without a compositing window manager, menus may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.5.0-beta.0 (Go to File) - tag v0.5.0-beta.0
 
 ## What's New?
@@ -124,8 +153,6 @@ Also in this release:
 - Spelling suggestions can take a moment to appear for a long or badly garbled word
 - Pop-out windows can reopen behind their vault window
 - macOS and Linux builds are not well-tested
-
----
 
 ---
 
