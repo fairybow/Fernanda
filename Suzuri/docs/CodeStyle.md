@@ -14,6 +14,7 @@ Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80
 ## Files
 
 - Code is header-only, apart from `Main.cpp` and the tests (see [Tests](#tests)). A header is named for the main class it holds.
+- Every source file is listed in `CMakeLists.txt`, headers included, even where the build would work without it.
 - Every file starts with the license statement (`wintools/ApplyLicenseStatement.bat`).
 - A file goes in the folder of the feature it belongs to; "Source layout" in [Architecture.md](Architecture.md) lists the folders. A control that knows nothing of the app goes in `ui/widgets/`. Something only views use goes in `views/`.
 - Includes run one way, as that section sets out: nothing in `core/` or `models/` includes `views/` or `ui/`, and `views/` takes only `ui/widgets/` from `ui/`.

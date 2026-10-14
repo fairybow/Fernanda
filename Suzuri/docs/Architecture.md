@@ -33,11 +33,11 @@ Everything is under `Suzuri/src/`, in the `Suzuri` namespace. Apart from `Main.c
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `models/` | One buffer class per file type, and the prime document |
 | `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles, the find bar and the search functions behind it, and the zoom control with its state |
-| `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, the status bar items |
+| `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, the status bar items. Also the application's style |
 | `ui/tabs/` | The split tree, its leaves, the tab bar and its buttons, the new-tab page |
 | `ui/sidebar/` | The sidebar, the file trees, the common drawer, the vault switcher |
 | `ui/settings/` | The settings dialog, its pages, and their rows |
-| `ui/widgets/` | Controls that know nothing of the app: glyph rendering, the toggle switch, the slider, name checking, the row labels shared by the file tree and Go to File |
+| `ui/widgets/` | Controls that know nothing of the app: glyph rendering, the flat-button wash, the toggle switch, the slider, name checking, the row labels shared by the file tree and Go to File |
 
 Folders are for finding files; they don't set namespaces. Everything under `ui/` is in `Suzuri::Ui`, whatever its subfolder; everything else is in `Suzuri`.
 
@@ -141,7 +141,7 @@ A tab's content is a page, and a page is a plain `QWidget`. `TabPaneLeaf` and `T
 
 - A file view is an `AbstractFileView`, one view of one file. Each file type has its own subclass.
 - A new tab holds a `NewTabPage`. It is not a file view: a tab with no file has no buffer, and a placeholder buffer would be exactly the off-disk buffer the design rules out. Choosing a file replaces the page in place.
-- What a tab needs from its page travels on the page widget: the title is its window title, and pin state and the tab icon are properties read through small helper headers. They follow the page through reorders, drags between panes and windows, and restore, with nothing else carrying them.
+- What a tab needs from its page travels on the page widget: the title is its window title, and pin state and the tab's mark (which glyph, as an SVG path) are properties read through small helper headers. They follow the page through reorders, drags between panes and windows, and restore, with nothing else carrying them.
 - Anything that asks "which file is in this tab?" casts the page to `AbstractFileView` and handles null.
 
 `TextFileView` can't itself be a `QPlainTextEdit`, since views share the `AbstractFileView` base. It holds one: `TextEditor`, a `QPlainTextEdit` subclass that draws the line-number gutter, margins, highlight, and selection handles.
@@ -435,8 +435,22 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 
 ## Painting
 
-- Icons are Lucide SVGs, rendered and tinted through `ui/widgets/Glyph.h`. Each consumer keeps a small cache keyed on everything that affects the render.
-- Colors come from palette roles, each named by a constant in `ui/UiConstants.h` (or `views/ViewConstants.h`, for the editor and zoom parts), so a tint can be changed in one place.
+### The style
+
+`Ui::Style` draws every standard control. It is a `QProxyStyle` over Qt's Fusion, and `App` installs it for the whole application before any window exists, so it replaces whatever a `-style` argument asks for.
+
+- **Fusion on every platform.** Suzuri looks the same everywhere, and Fusion draws every control from the palette alone. The palette is what follows the system's light or dark mode, so everything Fusion draws follows it too, on Windows 10 as well.
+- **Shapes in the style, colors in the palette.** The style decides shape, spacing, and which palette color goes where; it introduces no colors of its own. A shade the palette has no role for (a hover, a selected row, a divider) is the palette's text color at a low alpha, a wash, so it lands right over any background, light or dark.
+- **Every number the style draws with is a knob** in `ui/UiConstants.h`, prefixed `STYLE_` and grouped by what it shapes. Layout values that belong to a widget rather than the style (the tab height, the margins around the sidebar's footer) sit with that widget's other constants.
+- **A widget that paints itself uses the style's drawing, not a copy of it.** One that should look like a flat button asks the style for a tool button's panel through `ui/widgets/ButtonWash.h`. One that fills a shape of its own takes the color from `Style::buttonWash` or `Style::divider`.
+- **In a light palette, the window color is moved toward the page's**, in `Style::polish(QPalette&)`. Qt passes the application's palette through it whenever it builds one, including after a light or dark switch.
+
+### Following the palette
+
+- Icons are Lucide SVGs, rendered and tinted through `ui/widgets/Glyph.h`. Each consumer keeps a small cache keyed on everything that affects the render, and asks it for the glyph each time it paints, so a new palette re-renders it.
+- **Anything rendered once keeps the colors of the moment.** A widget that holds a rendered glyph (a tab's icon) renders it again when its palette, its style, or its window's activation changes. This is why a page carries which glyph marks its tab, not a rendered icon.
+- **A palette change reaches a parent before its children.** A widget reacting to its own palette change reads its own palette: a child's still holds the old one.
+- Colors come from palette roles, each named by a constant in `ui/UiConstants.h` (or `views/ViewConstants.h`, for the editor and zoom parts), so a tint can be changed in one place. The editor's current-line highlight is the exception: a fixed color for a light page and another for a dark one.
 - The tree model carries no icons. The tree's delegate and view paint the glyphs, extension labels, and chevrons, which keeps the model free of GUI types.
 
 ## Coming from Hearth
@@ -472,5 +486,6 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **`QTextDocument::find` for search.** It builds a cursor per match and took a hundred times as long as searching each line's text directly, on a common word in a long file. The search runs on every keystroke in the find field.
 - **`QSettings`.** The app-level data is structured, the vault files are meant to be read and diffed, and INI-style settings are what grew Hearth's tiered settings.
 - **A process-wide pixmap cache for icons.** A global store, against the no-singletons rule.
+- **Each platform's own style.** The Windows styles draw parts of themselves in colors of their own rather than the palette's, and Windows 10's has no dark mode. Fusion draws from the palette alone, so one style follows light and dark everywhere.
 - **Painting selection handles on an overlay widget.** Hearth's approach. The overlay had to be realigned with the editor on every update; painted by the editor, the handles scroll with the text.
 - **Moving a vault from inside the app.** See [Future.md](Future.md).

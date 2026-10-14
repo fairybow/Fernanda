@@ -8,7 +8,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] "Go to file" on a new tab in a pop-out used to activate the main window and never return focus to the pop-out. Likely fixed now that the switcher opens over the page's own window: verify
 - [ ] Pop-out Z-order isn't restored: a pop-out that was in front of its vault window comes back behind it. Vault windows restore in the right order among themselves, so this may be pop-outs only, and may not be fixable (which would be fine)
 - [ ] Opening the file that is already in the active, unpinned tab should do nothing
-- [ ] Minor: dragging a file quickly from near its row's bottom edge moves the selection band (grey, blue left edge) down to the next row, though that row isn't selected
+- [ ] Minor: dragging a file quickly from near its row's bottom edge moves the selection highlight down to the next row, though that row isn't selected
 - [ ] The "Options" heading in the settings dialog can be hovered or selected and probably shouldn't be
 - [x] A window's current tab didn't have focus after restore. The tab pages were focused while the window was still hidden, which a widget can't take, so `BaseWindow` now focuses the active page on its first show
 - [x] After restore, the first click on a tab didn't focus its widget. Focus was moved on `QTabBar::tabBarClicked`, which comes before the bar changes the current tab, so the tab switch then took it. `TabBar` now reports a press after the bar has handled it
@@ -31,6 +31,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] When `Vault::addToDictionary` can't write `dictionary.txt`, the failure is only logged: the word is accepted until the vault closes and is gone the next time it opens, with nothing shown
 - [ ] A bundled dictionary is copied to the dictionaries folder once and never replaced, so a newer one in a later release doesn't reach an existing install
 - [ ] If a file reloads from disk while the editor's context menu is open, a suggestion chosen afterward is inserted wherever the word's cursor ended up, not over the word
+- [ ] Menus are drawn rounded in a see-through window, which needs a compositor on Linux. Without one, the corners may show dark. `Style` could draw square menus there instead
 - [ ] A web address or a file path is spellchecked piece by piece, so "github" and "com" are marked
 - [ ] Unverified: text in decomposed Unicode form (a letter followed by a separate combining accent) is probably marked as misspelled against a dictionary that stores the single-character form. If so, normalize a word before it is checked
 
@@ -53,6 +54,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] A shared `TabPage` base for tab pages, holding title and pin state as typed members in place of the window title and a dynamic property. It would trade the leaf's property reads for a cast. Worth doing once a third such value appears
 - [x] Run the tests on every push, for Suzuri and for Coco's smoke test. `release.yml` runs only on a version tag, and now builds the tests too: pass `-DAPP_BUILD_TESTS=OFF` there
 - [ ] `AbstractFileView` has `setSpellChecker` and `setAcceptedWords`, which only `TextFileView` implements, and `VaultWindow::makeView_` already holds the `TextFileView` when it makes one. Wiring spelling there would take both off the base, and `hunspell.hxx` out of every view's includes
+- [ ] Two tests decide whether a palette is dark: `Style` reads the window color, `TextEditor` the page color. Settle one rule with themes, which need it too. `views/` can't include `ui/Style.h`, so a shared one needs a home both can reach
 - [ ] CI has no Windows job. Qt 6.11 installs on Windows only through the official installer, which needs a Qt account (see `release.yml`). Add the job once the open-source installer handles it
 
 ## Untested
