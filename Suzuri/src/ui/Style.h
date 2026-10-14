@@ -196,7 +196,7 @@ public:
             // stand alone, so their text has more room than a tree's, whose
             // icons already set it off
             if (qobject_cast<const QTreeView*>(widget)) {
-                return STYLE_ROW_TEXT_MARGIN;
+                return STYLE_TREE_ROW_TEXT_MARGIN;
             }
             if (qobject_cast<const QAbstractItemView*>(widget)) {
                 return STYLE_LIST_ROW_TEXT_MARGIN;
@@ -257,11 +257,11 @@ public:
     {
         auto result = QProxyStyle::sizeFromContents(type, option, size, widget);
 
-        // Rows and menu items with room around their text, for the wash to
-        // sit in
+        // Rows, fields, and menu items with room around their text: for a
+        // row's or item's wash to sit in, and for a field's rounded border
         if (type == CT_ItemViewItem) {
             result.rheight() += 2 * (qobject_cast<const QTreeView*>(widget)
-                                         ? STYLE_ROW_V_PADDING
+                                         ? STYLE_TREE_ROW_V_PADDING
                                          : STYLE_LIST_ROW_V_PADDING);
         } else if (type == CT_LineEdit) {
             // A field with room around its text (see SE_LineEditContents)
@@ -288,9 +288,6 @@ public:
     {
         auto rect = QProxyStyle::subElementRect(element, option, widget);
 
-        // A tab's buttons are centered in the part of the tab that's drawn,
-        // below the gap at its top (see drawTabShape_). Its text and icon are
-        // too, by the label's own rect (CE_TabBarTabLabel)
         switch (element) {
         case SE_LineEditContents:
             // The text keeps clear of the field's rounded border
@@ -306,6 +303,9 @@ public:
             return rect;
         case SE_TabBarTabLeftButton:
         case SE_TabBarTabRightButton:
+            // A tab's buttons are centered in the part of the tab that's
+            // drawn, below the gap at its top (see drawTabShape_). Its text
+            // and icon are too, by the label's own rect (CE_TabBarTabLabel)
             return rect.translated(0, STYLE_TAB_TOP_GAP / 2);
         default:
             return rect;
@@ -429,7 +429,7 @@ public:
                     setAllGroups_(
                         copy.palette,
                         QPalette::WindowText,
-                        wash_(tab->palette, STYLE_TAB_MUTED_TEXT_ALPHA));
+                        wash_(tab->palette, STYLE_MUTED_TEXT_ALPHA));
                 }
                 QProxyStyle::drawControl(element, &copy, painter, widget);
                 return;
@@ -673,7 +673,10 @@ private:
     }
 
     // The neutral raised surface shared by push buttons and combo boxes: the
-    // window's own color, a hairline border, and a wash on hover and press
+    // palette's button color, a hairline border, and a wash on hover and
+    // press. polish lightens a light palette's window color but not its
+    // button color, so there a button is usually a shade darker than the
+    // window around it
     static void drawPlainPanel_(
         const QStyleOption* option,
         QPainter* painter,
@@ -746,7 +749,7 @@ private:
         setAllGroups_(
             arrow.palette,
             QPalette::ButtonText,
-            wash_(combo->palette, STYLE_TAB_MUTED_TEXT_ALPHA));
+            wash_(combo->palette, STYLE_MUTED_TEXT_ALPHA));
         QProxyStyle::drawPrimitive(
             PE_IndicatorArrowDown,
             &arrow,

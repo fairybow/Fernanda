@@ -313,79 +313,97 @@ inline constexpr auto STATUS_BAR_TEXT_ROLE = QPalette::PlaceholderText;
 inline constexpr int STATUS_BAR_ITEM_H_PADDING = 8;
 
 // Suzuri's style (Style). Shades the palette has no role for are its text
-// color at an alpha (Style::wash_): HOVER under the pointer, PRESSED held down
-// (and a checked tool button), SELECTED for a selected row or menu item (and
-// SELECTED_HOVER for one that's both), DIVIDER for the one-pixel lines
-// (splitter handles, between tabs), CONTROL_BORDER around a button, combo box,
-// or field. RADIUS values round corners: a tool button's hover, a push button
-// or field, an item-view row or menu item, and the current tab's top. A row's
-// wash is inset ROW_INSET from the view's sides, and a menu item's
-// MENU_ITEM_INSET. TAB_TOP_GAP is left above every tab, so the current one's
-// rounded top shows against the bar (the bar is TAB_HEIGHT plus this); a
-// hovered tab's wash is inset TAB_HOVER_INSET, and the divider between tabs
-// stops TAB_DIVIDER_MARGIN short of the tab's top and bottom. A tab that isn't
-// current has its title at TAB_MUTED_TEXT_ALPHA, as does a combo box's arrow,
-// inset COMBO_ARROW_INSET within its sub-rect. Scroll bars are
-// SCROLL_BAR_EXTENT across, with a handle no shorter than
-// SCROLL_BAR_HANDLE_MIN, inset SCROLL_BAR_HANDLE_INSET from the bar's edges, at
-// SCROLL_BAR_ALPHA (HOVER_ and PRESSED_ when the pointer is on it or dragging
-// it). An item-view row is ROW_V_PADDING taller above and below its text, and
-// keeps its text ROW_TEXT_MARGIN from its sides. A slider's track is
-// SLIDER_TRACK_HEIGHT tall, at SLIDER_TRACK_ALPHA where it isn't filled, and
-// its handle SLIDER_HANDLE_DIAMETER across. In a light palette, the window's
-// color is moved WINDOW_TOWARD_BASE of the way to the page's (0 is the
-// platform's own, 1 is the page's). A menu's panel is rounded to MENU_RADIUS
-// inside a margin of MENU_SHADOW pixels that holds its shadow, each step of
-// which is up to MENU_SHADOW_ALPHA black; its items are inset MENU_H_PADDING
-// from the panel's sides and MENU_V_PADDING from its top and bottom, each
-// MENU_ITEM_V_PADDING taller above and below. Fusion leaves room left of an
-// item's text for a check mark or icon; in a menu with neither, MENU_TEXT_TRIM
-// pixels of that room are taken back, from the text's left and the menu's
-// width. A text field keeps its text FIELD_H_PADDING from its sides, and is
-// FIELD_V_PADDING taller above and below. A list's rows (any item view but a
-// tree) are LIST_ROW_V_PADDING taller above and below their text and keep it
-// LIST_ROW_TEXT_MARGIN from their sides; a framed list's rows are
-// LIST_FRAME_PADDING inside its border. A list's selected row is marked by a
-// rounded bar in the accent, LIST_INDICATOR_WIDTH by LIST_INDICATOR_HEIGHT,
-// LIST_INDICATOR_INSET inside the row's wash
+// color at an alpha, drawn over whatever is behind them: HOVER under the
+// pointer, PRESSED held down (and a checked tool button), SELECTED for a
+// selected row or menu item (SELECTED_HOVER for one that's both), DIVIDER for
+// the one-pixel lines (splitter handles, between tabs), CONTROL_BORDER around
+// a button, combo box, field, framed list, or menu. MUTED_TEXT is the title of
+// a tab that isn't current, and a combo box's arrow
 inline constexpr qreal STYLE_HOVER_ALPHA = 0.06;
 inline constexpr qreal STYLE_PRESSED_ALPHA = 0.12;
 inline constexpr qreal STYLE_SELECTED_ALPHA = 0.10;
 inline constexpr qreal STYLE_SELECTED_HOVER_ALPHA = 0.14;
 inline constexpr qreal STYLE_DIVIDER_ALPHA = 0.12;
 inline constexpr qreal STYLE_CONTROL_BORDER_ALPHA = 0.18;
+inline constexpr qreal STYLE_MUTED_TEXT_ALPHA = 0.6;
+
+// Rounded corners (Style): a tool button's wash (and a hovered tab's), a push
+// button, combo box, field, or framed list, an item-view row's wash (and a
+// menu item's), and the current tab's top
 inline constexpr int STYLE_TOOL_BUTTON_RADIUS = 4;
 inline constexpr int STYLE_CONTROL_RADIUS = 6;
 inline constexpr int STYLE_ROW_RADIUS = 4;
 inline constexpr int STYLE_TAB_RADIUS = 6;
-inline constexpr int STYLE_ROW_INSET = 4;
-inline constexpr int STYLE_MENU_ITEM_INSET = 4;
+
+// In a light palette, the window's color is moved this far toward the page's
+// (Style): 0 keeps the platform's own, 1 is the page's. A dark palette is left
+// as it is
+inline constexpr qreal STYLE_WINDOW_TOWARD_BASE = 0.6;
+
+// Tabs (Style). TAB_TOP_GAP is left above every tab, so the current one's
+// rounded top shows against the bar (the bar is TAB_HEIGHT plus this). A
+// hovered tab's wash is inset TAB_HOVER_INSET, and the divider between tabs
+// stops TAB_DIVIDER_MARGIN short of the tab's top and bottom
 inline constexpr int STYLE_TAB_TOP_GAP = 4;
 inline constexpr int STYLE_TAB_HOVER_INSET = 3;
 inline constexpr int STYLE_TAB_DIVIDER_MARGIN = 8;
-inline constexpr qreal STYLE_TAB_MUTED_TEXT_ALPHA = 0.6;
-inline constexpr int STYLE_COMBO_ARROW_INSET = 2;
-inline constexpr qreal STYLE_WINDOW_TOWARD_BASE = 0.6;
-inline constexpr int STYLE_MENU_RADIUS = 8;
-inline constexpr int STYLE_MENU_SHADOW = 6;
-inline constexpr qreal STYLE_MENU_SHADOW_ALPHA = 0.05;
-inline constexpr int STYLE_MENU_H_PADDING = 2;
-inline constexpr int STYLE_MENU_V_PADDING = 4;
-inline constexpr int STYLE_MENU_TEXT_TRIM = 12;
-inline constexpr int STYLE_MENU_ITEM_V_PADDING = 2;
-inline constexpr int STYLE_ROW_V_PADDING = 3;
-inline constexpr int STYLE_FIELD_H_PADDING = 6;
-inline constexpr int STYLE_FIELD_V_PADDING = 2;
+
+// Item-view rows (Style). Every row's wash, in a tree or a list, is inset
+// ROW_INSET from the view's sides (the drawer header's Row wash is too). A
+// tree's rows are TREE_ROW_V_PADDING taller above and below their text, and
+// keep it TREE_ROW_TEXT_MARGIN (plus one) from their sides
+inline constexpr int STYLE_ROW_INSET = 4;
+inline constexpr int STYLE_TREE_ROW_V_PADDING = 3;
+inline constexpr int STYLE_TREE_ROW_TEXT_MARGIN = 6;
+
+// Lists, any item view but a tree (Style): Go to File, the settings
+// navigation. Their rows are LIST_ROW_V_PADDING taller above and below their
+// text and keep it LIST_ROW_TEXT_MARGIN (plus one) from their sides; a framed
+// list's rows are LIST_FRAME_PADDING inside its border. The selected row is
+// marked by a rounded bar in the accent, LIST_INDICATOR_WIDTH by
+// LIST_INDICATOR_HEIGHT, LIST_INDICATOR_INSET inside the row's wash
 inline constexpr int STYLE_LIST_ROW_V_PADDING = 9;
 inline constexpr int STYLE_LIST_ROW_TEXT_MARGIN = 12;
 inline constexpr int STYLE_LIST_FRAME_PADDING = 4;
 inline constexpr int STYLE_LIST_INDICATOR_WIDTH = 3;
 inline constexpr int STYLE_LIST_INDICATOR_HEIGHT = 16;
 inline constexpr int STYLE_LIST_INDICATOR_INSET = 1;
-inline constexpr int STYLE_ROW_TEXT_MARGIN = 6;
+
+// Text fields and combo boxes (Style). A framed field keeps its text
+// FIELD_H_PADDING from its sides and is FIELD_V_PADDING taller above and
+// below. A combo box's arrow is inset COMBO_ARROW_INSET within its sub-rect
+inline constexpr int STYLE_FIELD_H_PADDING = 6;
+inline constexpr int STYLE_FIELD_V_PADDING = 2;
+inline constexpr int STYLE_COMBO_ARROW_INSET = 2;
+
+// Menus (Style). The panel is rounded to MENU_RADIUS inside a margin of
+// MENU_SHADOW pixels that holds its shadow, each step of which is up to
+// MENU_SHADOW_ALPHA black. Items sit MENU_H_PADDING from the panel's sides
+// and MENU_V_PADDING from its top and bottom; each is MENU_ITEM_V_PADDING
+// taller above and below its text, and its wash is inset MENU_ITEM_INSET from
+// its sides. Fusion leaves room left of an item's text for a check mark or
+// icon; in a menu with neither, MENU_TEXT_TRIM pixels of that room are taken
+// back, from the text's left and the menu's width
+inline constexpr int STYLE_MENU_RADIUS = 8;
+inline constexpr int STYLE_MENU_SHADOW = 6;
+inline constexpr qreal STYLE_MENU_SHADOW_ALPHA = 0.05;
+inline constexpr int STYLE_MENU_H_PADDING = 2;
+inline constexpr int STYLE_MENU_V_PADDING = 4;
+inline constexpr int STYLE_MENU_ITEM_V_PADDING = 2;
+inline constexpr int STYLE_MENU_ITEM_INSET = 4;
+inline constexpr int STYLE_MENU_TEXT_TRIM = 12;
+
+// Sliders (Style): a track SLIDER_TRACK_HEIGHT tall, at SLIDER_TRACK_ALPHA
+// where it isn't filled with the accent, and a round handle
+// SLIDER_HANDLE_DIAMETER across
 inline constexpr int STYLE_SLIDER_TRACK_HEIGHT = 4;
-inline constexpr int STYLE_SLIDER_HANDLE_DIAMETER = 14;
 inline constexpr qreal STYLE_SLIDER_TRACK_ALPHA = 0.15;
+inline constexpr int STYLE_SLIDER_HANDLE_DIAMETER = 14;
+
+// Scroll bars (Style): SCROLL_BAR_EXTENT across, with a handle no shorter
+// than SCROLL_BAR_HANDLE_MIN, inset SCROLL_BAR_HANDLE_INSET from the bar's
+// edges. The handle is the text color at SCROLL_BAR_ALPHA, or HOVER_ and
+// PRESSED_ while the pointer is on it or dragging it
 inline constexpr int STYLE_SCROLL_BAR_EXTENT = 10;
 inline constexpr int STYLE_SCROLL_BAR_HANDLE_MIN = 32;
 inline constexpr qreal STYLE_SCROLL_BAR_HANDLE_INSET = 2.0;

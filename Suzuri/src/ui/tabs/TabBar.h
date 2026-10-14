@@ -154,6 +154,7 @@ protected:
 
 private:
     QPoint dragStartPos_{};
+    int dragPressIndex_ = -1;
 
     // A tab's full height: TAB_HEIGHT (or, at -1, the height Qt would give it)
     // plus STYLE_TAB_TOP_GAP, which the style leaves empty above the tab
@@ -162,7 +163,6 @@ private:
     {
         return (TAB_HEIGHT >= 0 ? TAB_HEIGHT : qtHeight) + STYLE_TAB_TOP_GAP;
     }
-    int dragPressIndex_ = -1;
 
     void setup_()
     {
