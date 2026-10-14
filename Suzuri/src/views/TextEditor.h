@@ -119,7 +119,8 @@ private:
 //
 // The current-line highlight is a band across the row the text cursor is on:
 // one visual row of a wrapped paragraph, not the whole paragraph. It is an
-// extra selection, as in Qt's example, in a palette role (LINE_HIGHLIGHT_ROLE).
+// extra selection, as in Qt's example, in the light or dark page's color
+// (LINE_HIGHLIGHT_LIGHT, LINE_HIGHLIGHT_DARK).
 // Shown whether or not the editor has focus.
 //
 // Double-click whitespace: a double-click on a run of whitespace selects the
@@ -537,6 +538,16 @@ private:
         setTabStopDistance(tabWidth_ * metrics.horizontalAdvance(QChar(u' ')));
     }
 
+    // The band's color for this editor's page, light or dark (see
+    // LINE_HIGHLIGHT_LIGHT). Read when the band is built, which a palette
+    // change does again (changeEvent), so an OS light/dark switch recolors it
+    [[nodiscard]] QColor lineHighlightColor_() const
+    {
+        auto dark = palette().color(QPalette::Base).lightness() < 128;
+        auto color = dark ? LINE_HIGHLIGHT_DARK : LINE_HIGHLIGHT_LIGHT;
+        return color.isValid() ? color : palette().color(LINE_HIGHLIGHT_ROLE);
+    }
+
     // The editor's extra selections: the current-line band, or none. The band
     // is a selection-less copy of the text cursor flagged full-width, which
     // QPlainTextEdit paints across the whole row that position is on. The
@@ -548,7 +559,7 @@ private:
 
         if (lineHighlight_) {
             QTextEdit::ExtraSelection band{};
-            band.format.setBackground(palette().brush(LINE_HIGHLIGHT_ROLE));
+            band.format.setBackground(lineHighlightColor_());
             band.format.setProperty(QTextFormat::FullWidthSelection, true);
             band.cursor = textCursor();
             band.cursor.clearSelection();
