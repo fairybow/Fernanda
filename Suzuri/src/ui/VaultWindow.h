@@ -17,7 +17,6 @@
 
 #include <QAction>
 #include <QCloseEvent>
-#include <QIcon>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
@@ -57,7 +56,6 @@
 #include "ui/tabs/PageIcon.h"
 #include "ui/tabs/PagePin.h"
 #include "ui/tabs/TabPaneTree.h"
-#include "ui/widgets/Glyph.h"
 #include "views/AbstractFileView.h"
 #include "views/ImageFileView.h"
 #include "views/PdfFileView.h"
@@ -244,10 +242,6 @@ private:
     // behind its owner. Siblings can — but Qt doesn't reap them when we close,
     // so we own their lifetime here. A pop-out never outlives its VaultWindow
     QList<PopoutWindow*> popouts_{};
-
-    // This window's Common Vault tab mark, rendered on first use. Stays null in
-    // the Common Vault's own window, where no tab can be a guest
-    QIcon commonTabIcon_{};
 
     // This vault's settings. Built on first use and kept — hidden, not
     // destroyed, between opens — so it reopens on the page last viewed. A Qt
@@ -707,27 +701,14 @@ private:
     // pop-out and a workspace restore, and it never needs updating: a file
     // can't change vaults under a view (Vault::relocate_ keeps both ends inside
     // one vault), and a tab dragged into another window's family is refused by
-    // familyId.
-    //
-    // Rendered on first use, not in the constructor: devicePixelRatioF is only
-    // meaningful once the window is on a screen, and a window that never opens
-    // a common file never pays for it
+    // familyId. The leaf renders the glyph in its own colors
     void markIfGuest_(AbstractFileView* view, const FileRef& fileRef)
     {
         if (fileRef.vault == vault_) {
             return;
         }
 
-        if (commonTabIcon_.isNull()) {
-            commonTabIcon_ = QIcon(
-                Glyph::render(
-                    QString::fromLatin1(COMMON_VAULT_ICON_PATH),
-                    TAB_ICON_EXTENT,
-                    palette().color(TAB_COMMON_VAULT_ICON_ROLE),
-                    devicePixelRatioF()));
-        }
-
-        setPageIcon(view, commonTabIcon_);
+        setPageIconPath(view, QString::fromLatin1(COMMON_VAULT_ICON_PATH));
     }
 
     // Open view into tree's active leaf, taking over the current tab unless

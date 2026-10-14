@@ -356,6 +356,12 @@ private:
             });
 
         auto root_layout = new QVBoxLayout(this);
+        root_layout->setContentsMargins(
+            FILE_SWITCHER_MARGIN,
+            FILE_SWITCHER_MARGIN,
+            FILE_SWITCHER_MARGIN,
+            FILE_SWITCHER_MARGIN);
+        root_layout->setSpacing(FILE_SWITCHER_SPACING);
         root_layout->addWidget(queryEdit_);
         root_layout->addWidget(hint_);
         root_layout->addWidget(list_);

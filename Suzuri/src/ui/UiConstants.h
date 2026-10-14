@@ -22,10 +22,16 @@ using namespace Qt::StringLiterals;
 // TODO: Layout spacing (e.g., V_LAYOUT_SPACING_1 = 12)
 
 // Preferred (max) and floor (min) tab widths. No setters: nothing needs per-bar
-// tuning. -1 uses Qt's default
+// tuning. -1 uses Qt's default. TAB_HEIGHT is the height of a tab as it's
+// drawn; the bar is STYLE_TAB_TOP_GAP taller, for the space the style leaves
+// above every tab, so the two are set independently. -1 uses Qt's default
+// height, with the gap still added
 inline constexpr int MIN_TAB_WIDTH = 75;
 inline constexpr int MAX_TAB_WIDTH = 225;
-inline constexpr int TAB_HEIGHT = 30;
+inline constexpr int TAB_HEIGHT = 36;
+
+// The space between the pane's left edge and its first tab
+inline constexpr int TAB_ROW_LEFT_MARGIN = 4;
 
 // The close/unpin button on each tab (TabCloseButton). EXTENT is the button's
 // square size within the tab; ICON_EXTENT is the square glyph centered inside
@@ -43,6 +49,12 @@ inline constexpr int TAB_BUTTON_ICON_EXTENT = 12;
 // button. Seeded equal to the close button's values; tune here
 inline constexpr int NEW_TAB_BUTTON_EXTENT = 20;
 inline constexpr int NEW_TAB_BUTTON_ICON_EXTENT = 12;
+
+// The space between the last tab and the + button, and between the button and
+// the pane's right edge. The right gap only shows once the tabs fill the row;
+// until then the row's slack is already there
+inline constexpr int NEW_TAB_BUTTON_LEFT_GAP = 4;
+inline constexpr int NEW_TAB_BUTTON_RIGHT_GAP = 6;
 
 // The Common Vault glyph, shared by the Common Vault drawer's header and the
 // tab mark on a Common Vault file's tab. One path so swapping the Lucide icon
@@ -88,7 +100,7 @@ inline constexpr auto SETTINGS_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto TAB_CLOSE_ICON_ROLE = QPalette::WindowText;
 inline constexpr auto TAB_PIN_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto NEW_TAB_ICON_ROLE = QPalette::WindowText;
-inline constexpr auto TAB_COMMON_VAULT_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto TAB_MARK_ICON_ROLE = QPalette::PlaceholderText;
 
 inline constexpr int DEFAULT_VAULT_WINDOW_WIDTH = 800;
 inline constexpr int DEFAULT_VAULT_WINDOW_HEIGHT = 600;
@@ -149,6 +161,21 @@ enum class DrawerLabel
 
 inline constexpr auto COMMON_DRAWER_LABEL = DrawerLabel::Icon;
 
+// How the Common Vault drawer's header shows hover and press (Drawer). Row is
+// the rounded wash a tree row or flat button shows, inset STYLE_ROW_INSET from
+// the header's sides and DRAWER_HEADER_ROW_PADDING from its top and bottom;
+// the header grows by that padding above and below, so the wash keeps
+// DRAWER_HEADER_HEIGHT. Band fills the whole header, square, and adds no
+// padding
+enum class DrawerHeaderWash
+{
+    Row,
+    Band
+};
+
+inline constexpr auto DRAWER_HEADER_WASH = DrawerHeaderWash::Band;
+inline constexpr int DRAWER_HEADER_ROW_PADDING = 3;
+
 // The Common Vault drawer's header row (Drawer): chevron, then the Common
 // Vault glyph and/or the title, per COMMON_DRAWER_LABEL. HEIGHT is the row's
 // fixed height, and so also the collapsed drawer's height; LEFT_PADDING insets
@@ -177,10 +204,17 @@ inline constexpr int VAULT_SWITCHER_ICON_EXTENT = 14;
 // The settings gear right of the vault switcher (SettingsButton), Obsidian's
 // vault profile row. EXTENT/ICON_EXTENT mean what the tab buttons' pair means;
 // EXTENT is seeded to VAULT_SWITCHER_HEIGHT so the gear is a square the row's
-// own height. RIGHT_MARGIN insets it from the sidebar's right edge
+// own height
 inline constexpr int SETTINGS_BUTTON_EXTENT = VAULT_SWITCHER_HEIGHT;
 inline constexpr int SETTINGS_BUTTON_ICON_EXTENT = 16;
-inline constexpr int SETTINGS_BUTTON_RIGHT_MARGIN = 4;
+
+// The space around the sidebar's footer, the row holding the vault switcher
+// and the gear (Sidebar): from the sidebar's left edge, from the line above
+// it, from the sidebar's right edge, and from the window's bottom edge
+inline constexpr int SIDEBAR_FOOTER_LEFT_MARGIN = 4;
+inline constexpr int SIDEBAR_FOOTER_TOP_MARGIN = 4;
+inline constexpr int SIDEBAR_FOOTER_RIGHT_MARGIN = 4;
+inline constexpr int SIDEBAR_FOOTER_BOTTOM_MARGIN = 0;
 
 // The settings dialog (SettingsDialog): its opening size; the navigation
 // column's fixed width, and the margin around (and gap within) that column;
@@ -263,10 +297,13 @@ inline constexpr int FONT_FAMILY_BOX_MIN_CHARS = 24;
 
 // The Go to File switcher (FileSwitcher), placed top-center over its host
 // window. WIDTH is clamped to the host's width; TOP_OFFSET is the gap between
-// the host's top edge and the switcher's
+// the host's top edge and the switcher's. MARGIN surrounds its contents and
+// SPACING separates the field, the hint, and the list
 inline constexpr int FILE_SWITCHER_WIDTH = 560;
 inline constexpr int FILE_SWITCHER_HEIGHT = 360;
 inline constexpr int FILE_SWITCHER_TOP_OFFSET = 80;
+inline constexpr int FILE_SWITCHER_MARGIN = 12;
+inline constexpr int FILE_SWITCHER_SPACING = 8;
 
 // The window status bar's items (WordCounter, CursorPosition). TEXT_ROLE is the
 // pen their text is drawn with, muted like the sidebar's chrome. ITEM_H_PADDING
@@ -274,5 +311,104 @@ inline constexpr int FILE_SWITCHER_TOP_OFFSET = 80;
 // side sit twice that apart
 inline constexpr auto STATUS_BAR_TEXT_ROLE = QPalette::PlaceholderText;
 inline constexpr int STATUS_BAR_ITEM_H_PADDING = 8;
+
+// Suzuri's style (Style). Shades the palette has no role for are its text
+// color at an alpha, drawn over whatever is behind them: HOVER under the
+// pointer, PRESSED held down (and a checked tool button), SELECTED for a
+// selected row or menu item (SELECTED_HOVER for one that's both), DIVIDER for
+// the one-pixel lines (splitter handles, between tabs), CONTROL_BORDER around
+// a button, combo box, field, framed list, or menu. MUTED_TEXT is the title of
+// a tab that isn't current, and a combo box's arrow
+inline constexpr qreal STYLE_HOVER_ALPHA = 0.06;
+inline constexpr qreal STYLE_PRESSED_ALPHA = 0.12;
+inline constexpr qreal STYLE_SELECTED_ALPHA = 0.10;
+inline constexpr qreal STYLE_SELECTED_HOVER_ALPHA = 0.14;
+inline constexpr qreal STYLE_DIVIDER_ALPHA = 0.12;
+inline constexpr qreal STYLE_CONTROL_BORDER_ALPHA = 0.18;
+inline constexpr qreal STYLE_MUTED_TEXT_ALPHA = 0.6;
+
+// Rounded corners (Style): a tool button's wash (and a hovered tab's), a push
+// button, combo box, field, or framed list, an item-view row's wash (and a
+// menu item's), and the current tab's top
+inline constexpr int STYLE_TOOL_BUTTON_RADIUS = 4;
+inline constexpr int STYLE_CONTROL_RADIUS = 6;
+inline constexpr int STYLE_ROW_RADIUS = 4;
+inline constexpr int STYLE_TAB_RADIUS = 6;
+
+// In a light palette, the window's color is moved this far toward the page's
+// (Style): 0 keeps the platform's own, 1 is the page's. A dark palette is left
+// as it is
+inline constexpr qreal STYLE_WINDOW_TOWARD_BASE = 0.6;
+
+// Tabs (Style). TAB_TOP_GAP is left above every tab, so the current one's
+// rounded top shows against the bar (the bar is TAB_HEIGHT plus this). A
+// hovered tab's wash is inset TAB_HOVER_INSET, and the divider between tabs
+// stops TAB_DIVIDER_MARGIN short of the tab's top and bottom
+inline constexpr int STYLE_TAB_TOP_GAP = 4;
+inline constexpr int STYLE_TAB_HOVER_INSET = 3;
+inline constexpr int STYLE_TAB_DIVIDER_MARGIN = 8;
+
+// Item-view rows (Style). Every row's wash, in a tree or a list, is inset
+// ROW_INSET from the view's sides (the drawer header's Row wash is too). A
+// tree's rows are TREE_ROW_V_PADDING taller above and below their text, and
+// keep it TREE_ROW_TEXT_MARGIN (plus one) from their sides
+inline constexpr int STYLE_ROW_INSET = 4;
+inline constexpr int STYLE_TREE_ROW_V_PADDING = 3;
+inline constexpr int STYLE_TREE_ROW_TEXT_MARGIN = 6;
+
+// Lists, any item view but a tree (Style): Go to File, the settings
+// navigation. Their rows are LIST_ROW_V_PADDING taller above and below their
+// text and keep it LIST_ROW_TEXT_MARGIN (plus one) from their sides; a framed
+// list's rows are LIST_FRAME_PADDING inside its border. The selected row is
+// marked by a rounded bar in the accent, LIST_INDICATOR_WIDTH by
+// LIST_INDICATOR_HEIGHT, LIST_INDICATOR_INSET inside the row's wash
+inline constexpr int STYLE_LIST_ROW_V_PADDING = 9;
+inline constexpr int STYLE_LIST_ROW_TEXT_MARGIN = 12;
+inline constexpr int STYLE_LIST_FRAME_PADDING = 4;
+inline constexpr int STYLE_LIST_INDICATOR_WIDTH = 3;
+inline constexpr int STYLE_LIST_INDICATOR_HEIGHT = 16;
+inline constexpr int STYLE_LIST_INDICATOR_INSET = 1;
+
+// Text fields and combo boxes (Style). A framed field keeps its text
+// FIELD_H_PADDING from its sides and is FIELD_V_PADDING taller above and
+// below. A combo box's arrow is inset COMBO_ARROW_INSET within its sub-rect
+inline constexpr int STYLE_FIELD_H_PADDING = 6;
+inline constexpr int STYLE_FIELD_V_PADDING = 2;
+inline constexpr int STYLE_COMBO_ARROW_INSET = 2;
+
+// Menus (Style). The panel is rounded to MENU_RADIUS inside a margin of
+// MENU_SHADOW pixels that holds its shadow, each step of which is up to
+// MENU_SHADOW_ALPHA black. Items sit MENU_H_PADDING from the panel's sides
+// and MENU_V_PADDING from its top and bottom; each is MENU_ITEM_V_PADDING
+// taller above and below its text, and its wash is inset MENU_ITEM_INSET from
+// its sides. Fusion leaves room left of an item's text for a check mark or
+// icon; in a menu with neither, MENU_TEXT_TRIM pixels of that room are taken
+// back, from the text's left and the menu's width
+inline constexpr int STYLE_MENU_RADIUS = 8;
+inline constexpr int STYLE_MENU_SHADOW = 6;
+inline constexpr qreal STYLE_MENU_SHADOW_ALPHA = 0.05;
+inline constexpr int STYLE_MENU_H_PADDING = 2;
+inline constexpr int STYLE_MENU_V_PADDING = 4;
+inline constexpr int STYLE_MENU_ITEM_V_PADDING = 2;
+inline constexpr int STYLE_MENU_ITEM_INSET = 4;
+inline constexpr int STYLE_MENU_TEXT_TRIM = 12;
+
+// Sliders (Style): a track SLIDER_TRACK_HEIGHT tall, at SLIDER_TRACK_ALPHA
+// where it isn't filled with the accent, and a round handle
+// SLIDER_HANDLE_DIAMETER across
+inline constexpr int STYLE_SLIDER_TRACK_HEIGHT = 4;
+inline constexpr qreal STYLE_SLIDER_TRACK_ALPHA = 0.15;
+inline constexpr int STYLE_SLIDER_HANDLE_DIAMETER = 14;
+
+// Scroll bars (Style): SCROLL_BAR_EXTENT across, with a handle no shorter
+// than SCROLL_BAR_HANDLE_MIN, inset SCROLL_BAR_HANDLE_INSET from the bar's
+// edges. The handle is the text color at SCROLL_BAR_ALPHA, or HOVER_ and
+// PRESSED_ while the pointer is on it or dragging it
+inline constexpr int STYLE_SCROLL_BAR_EXTENT = 10;
+inline constexpr int STYLE_SCROLL_BAR_HANDLE_MIN = 32;
+inline constexpr qreal STYLE_SCROLL_BAR_HANDLE_INSET = 2.0;
+inline constexpr qreal STYLE_SCROLL_BAR_ALPHA = 0.22;
+inline constexpr qreal STYLE_SCROLL_BAR_HOVER_ALPHA = 0.35;
+inline constexpr qreal STYLE_SCROLL_BAR_PRESSED_ALPHA = 0.45;
 
 } // namespace Suzuri::Ui

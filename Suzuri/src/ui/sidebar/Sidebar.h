@@ -187,9 +187,14 @@ private:
             &QAction::trigger);
 
         // Obsidian's vault profile row: the switcher takes the width, the gear
-        // sits at its right
+        // sits at its right. The margins keep the pair's hover washes off the
+        // line above and the window's edge
         auto* profile_row = new QHBoxLayout;
-        profile_row->setContentsMargins(0, 0, SETTINGS_BUTTON_RIGHT_MARGIN, 0);
+        profile_row->setContentsMargins(
+            SIDEBAR_FOOTER_LEFT_MARGIN,
+            SIDEBAR_FOOTER_TOP_MARGIN,
+            SIDEBAR_FOOTER_RIGHT_MARGIN,
+            SIDEBAR_FOOTER_BOTTOM_MARGIN);
         profile_row->setSpacing(0);
         profile_row->addWidget(switcher_, 1);
         profile_row->addWidget(settingsButton_, 0);

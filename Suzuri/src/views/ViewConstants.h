@@ -50,8 +50,20 @@ inline constexpr int LINE_NUMBER_MIN_DIGITS = 1;
 inline constexpr int LINE_NUMBER_LEFT_PADDING = 8;
 inline constexpr int LINE_NUMBER_RIGHT_PADDING = 8;
 
+// Space always kept between the text and the editor's sides, so text never
+// runs against the pane's edge or the divider beside it. The left/right margin
+// setting adds to it
+inline constexpr int TEXT_SIDE_PADDING = 16;
+
 // The editor's current-line highlight (TextEditor): the band behind the row
-// the text cursor is on, filled with this role's brush
+// the text cursor is on. LIGHT colors it on a light page and DARK on a dark one
+// (a page is dark when its color's lightness is under half). A color with an
+// alpha below 255 tints the page rather than covering it. An invalid color,
+// QColor(), uses ROLE from the palette instead. In Fusion that's a pale grey on
+// a light page; on a dark Windows page it's the darkest shade of the Windows
+// accent color, which Qt's Windows dark palette puts in AlternateBase
+inline constexpr auto LINE_HIGHLIGHT_LIGHT = QColor(0, 120, 215, 46);
+inline constexpr auto LINE_HIGHLIGHT_DARK = QColor(230, 70, 70, 72);
 inline constexpr auto LINE_HIGHLIGHT_ROLE = QPalette::AlternateBase;
 
 // What a search found, tinted over the text (TextEditor): this role's color

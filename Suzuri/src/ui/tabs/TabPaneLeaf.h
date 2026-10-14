@@ -13,7 +13,9 @@
 #pragma once
 
 #include <QAction>
+#include <QEvent>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QMenu>
 #include <QPoint>
 #include <QSizePolicy>
@@ -27,11 +29,13 @@
 
 #include <Coco/Debug.h>
 
+#include "ui/UiConstants.h"
 #include "ui/tabs/NewTabButton.h"
 #include "ui/tabs/PageIcon.h"
 #include "ui/tabs/PagePin.h"
 #include "ui/tabs/TabBar.h"
 #include "ui/tabs/TabCloseButton.h"
+#include "ui/widgets/Glyph.h"
 
 namespace Suzuri::Ui {
 
@@ -290,6 +294,25 @@ signals:
     // window's active page (TabPaneTree::activePageChanged)
     void currentPageChanged(QWidget* page);
 
+protected:
+    // A mark is rendered once into the tab's icon, in the colors of the moment,
+    // so whatever changes those colors renders every tab's mark again: a new
+    // palette or style (an OS light/dark switch), which reaches every widget in
+    // the window, and the window gaining or losing focus, which moves the
+    // palette between its Active and Inactive colors
+    void changeEvent(QEvent* event) override
+    {
+        QWidget::changeEvent(event);
+
+        if (event->type() == QEvent::PaletteChange ||
+            event->type() == QEvent::StyleChange ||
+            event->type() == QEvent::ActivationChange) {
+            for (auto i = 0; i < bar_->count(); ++i) {
+                applyPageIcon_(i, pageAt(i));
+            }
+        }
+    }
+
 private:
     TabBar* bar_ = new TabBar(this);
     NewTabButton* addButton_ = new NewTabButton(this);
@@ -299,6 +322,9 @@ private:
 
     // See ~TabPaneLeaf and bindPageLifetime_
     bool tearingDown_ = false;
+
+    // Every mark today is the same glyph, so one slot serves every tab
+    Glyph::Cache markGlyph_{};
 
     // Which tab side the close/unpin button occupies — set in setup_ from the
     // style (see there). addPage installs the button here
@@ -322,10 +348,10 @@ private:
         // collapse under the button, pinning it to the right edge while the bar
         // scrolls. addStretch is a layout item, so no spacer widget is needed
         auto* top = new QHBoxLayout;
-        top->setContentsMargins(0, 0, 0, 0);
+        top->setContentsMargins(TAB_ROW_LEFT_MARGIN, 0, 0, 0);
         top->setSpacing(0);
         top->addWidget(bar_, 0);
-        top->addWidget(addButton_, 0);
+        top->addLayout(addButtonColumn_(), 0);
         top->addStretch(1);
 
         // Hold the row one tab tall regardless of the bar's visibility.
@@ -333,14 +359,15 @@ private:
         // widget contributes nothing to the layout, so without this the row
         // would collapse to the + button's height and lift the button out of
         // the vertical centering it has against the tabs. A zero-width Fixed
-        // spacer reserves TAB_HEIGHT and nothing else — no horizontal effect,
-        // so the button still pins to the right edge. It's a layout item, not a
+        // spacer reserves the bar's height (TAB_HEIGHT, plus the gap the style
+        // leaves above every tab) and nothing else — no horizontal effect, so
+        // the button still pins to the right edge. It's a layout item, not a
         // widget (same reasoning as the stretch above). TAB_HEIGHT < 0 means
         // Qt-default tab sizing, where we don't know the height, so skip it
         if (TAB_HEIGHT >= 0) {
             top->addItem(new QSpacerItem(
                 0,
-                TAB_HEIGHT,
+                TAB_HEIGHT + STYLE_TAB_TOP_GAP,
                 QSizePolicy::Fixed,
                 QSizePolicy::Fixed));
         }
@@ -513,17 +540,36 @@ private:
     }
 
     // Draw the page's tab mark, if it has one (PageIcon). Called wherever a tab
-    // gains a page: addPage for a new or dropped one, replacePage for the
-    // new-tab -> editor swap. A page with no mark clears the tab's icon, so a
-    // marked page replaced by an unmarked one leaves nothing behind. The leaf
-    // never asks what the mark means
+    // gains a page (addPage for a new or dropped one, replacePage for the
+    // new-tab -> editor swap) and for every tab when the colors change
+    // (changeEvent). A page with no mark clears the tab's icon, so a marked
+    // page replaced by an unmarked one leaves nothing behind. The leaf never
+    // asks what the mark means.
+    //
+    // The color is the leaf's, which the bar shares (neither sets a palette of
+    // its own). It's read from the leaf, not the bar, because a palette change
+    // reaches a parent before its children: changeEvent runs this while the
+    // bar still holds the old palette
     void applyPageIcon_(int index, QWidget* page)
     {
         if (index < 0 || index >= bar_->count()) {
             return;
         }
 
-        bar_->setTabIcon(index, pageIcon(page));
+        auto path = pageIconPath(page);
+
+        if (path.isEmpty()) {
+            bar_->setTabIcon(index, QIcon{});
+            return;
+        }
+
+        bar_->setTabIcon(
+            index,
+            markGlyph_.icon(
+                path,
+                TAB_ICON_EXTENT,
+                palette().color(TAB_MARK_ICON_ROLE),
+                devicePixelRatioF()));
     }
 
     // Repoint an existing tab's button at a new page (replacePage: the tab
@@ -543,6 +589,25 @@ private:
         if (auto* button = closeButtonAt_(index)) {
             button->update();
         }
+    }
+
+    // The + button, centered on the tabs as they're drawn rather than on the
+    // whole row: the style leaves a gap above every tab (STYLE_TAB_TOP_GAP), so
+    // the button's column has the same gap above it. NEW_TAB_BUTTON_LEFT_GAP
+    // keeps its hover wash off the last tab, and NEW_TAB_BUTTON_RIGHT_GAP keeps
+    // it off the pane's right edge once the tabs fill the row: the column
+    // holds that space, so the bar gives it up instead
+    [[nodiscard]] QVBoxLayout* addButtonColumn_()
+    {
+        auto* column = new QVBoxLayout;
+        column->setContentsMargins(
+            NEW_TAB_BUTTON_LEFT_GAP,
+            STYLE_TAB_TOP_GAP,
+            NEW_TAB_BUTTON_RIGHT_GAP,
+            0);
+        column->setSpacing(0);
+        column->addWidget(addButton_, 0, Qt::AlignVCenter);
+        return column;
     }
 
     [[nodiscard]] TabCloseButton* closeButtonAt_(int index) const

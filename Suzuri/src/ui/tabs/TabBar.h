@@ -84,7 +84,8 @@ signals:
 
 protected:
     // Preferred tab width: a lone tab is comfortably wide, and tabs stay
-    // uniform and compress together as the bar fills. Height untouched
+    // uniform and compress together as the bar fills. The height is the tab's
+    // as drawn plus the gap the style leaves above it (rowHeight_)
     QSize tabSizeHint(int index) const override
     {
         auto size = QTabBar::tabSizeHint(index);
@@ -93,10 +94,7 @@ protected:
             size.setWidth(MAX_TAB_WIDTH);
         }
 
-        if (TAB_HEIGHT >= 0) {
-            size.setHeight(TAB_HEIGHT);
-        }
-
+        size.setHeight(rowHeight_(size.height()));
         return size;
     }
 
@@ -109,10 +107,7 @@ protected:
             size.setWidth(MIN_TAB_WIDTH);
         }
 
-        if (TAB_HEIGHT >= 0) {
-            size.setHeight(TAB_HEIGHT);
-        }
-
+        size.setHeight(rowHeight_(size.height()));
         return size;
     }
 
@@ -160,6 +155,14 @@ protected:
 private:
     QPoint dragStartPos_{};
     int dragPressIndex_ = -1;
+
+    // A tab's full height: TAB_HEIGHT (or, at -1, the height Qt would give it)
+    // plus STYLE_TAB_TOP_GAP, which the style leaves empty above the tab
+    // (Style::drawTabShape_)
+    [[nodiscard]] static int rowHeight_(int qtHeight)
+    {
+        return (TAB_HEIGHT >= 0 ? TAB_HEIGHT : qtHeight) + STYLE_TAB_TOP_GAP;
+    }
 
     void setup_()
     {

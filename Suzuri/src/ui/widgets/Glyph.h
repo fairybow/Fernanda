@@ -93,10 +93,10 @@ public:
     }
 
     // For consumers that hand the glyph to the style as a QIcon (the tree
-    // delegate's row decorations). Built lazily from the cached pixmap and kept
-    // alongside it, so the style's generated modes (the Selected wash), which
-    // the icon's engine caches per instance, survive across paints. Discarded
-    // whenever the pixmap re-renders
+    // delegate's row decorations, a tab's mark). Built lazily from the cached
+    // pixmap and kept alongside it, so any mode the style asks the icon for
+    // (Disabled, say), which the icon's engine caches per instance, survives
+    // across paints. Discarded whenever the pixmap re-renders
     [[nodiscard]] QIcon
     icon(const Coco::Path& svgPath, int extent, const QColor& color, qreal dpr)
         const

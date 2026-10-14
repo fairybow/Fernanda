@@ -22,6 +22,7 @@
 #include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QEvent>
+#include <QFrame>
 #include <QHoverEvent>
 #include <QList>
 #include <QModelIndex>
@@ -310,6 +311,12 @@ private:
     void setup_()
     {
         setModel(treeModel_);
+
+        // Part of the sidebar's surface: no frame of its own, and the window's
+        // color behind the rows rather than the editor's (Base), so the sidebar
+        // reads as one panel beside the text
+        setFrameShape(QFrame::NoFrame);
+        viewport()->setBackgroundRole(QPalette::Window);
 
         // Each file row's right-anchored extension badge
         setItemDelegate(new VaultTreeItemDelegate(treeModel_, this));

@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <QIcon>
+#include <QString>
 #include <QVariant>
 #include <QWidget>
 
@@ -28,9 +28,15 @@ namespace Suzuri::Ui {
 //
 // A dynamic property, rather than a typed member, keeps this decoupled from the
 // two unrelated page types: AbstractFileView and NewTabPage share only QWidget.
-// A TabPaneLeaf reads pageIcon to draw the tab exactly as it reads windowTitle
-// for the tab text and isPagePinned for the button glyph, so it stays
-// page-type-ignorant. The one stringly-typed key is centralized here.
+// A TabPaneLeaf reads pageIconPath to draw the tab exactly as it reads
+// windowTitle for the tab text and isPagePinned for the button glyph, so it
+// stays page-type-ignorant. The one stringly-typed key is centralized here.
+//
+// The page carries which glyph (an SVG resource path), never a rendered icon.
+// The leaf renders it in its own colors and renders it again when those change
+// (TabPaneLeaf::changeEvent), so a mark follows a light or dark switch like
+// every other glyph. An icon rendered once and carried here would keep the
+// colors of the moment it was made.
 //
 // What a mark MEANS is the window's business, not the leaf's. VaultWindow sets
 // one on a view whose file belongs to a vault other than the window's own — a
@@ -48,19 +54,21 @@ namespace Suzuri::Ui {
 // QWidget base carrying pin, title, and mark as typed members would unite what
 // currently hangs off QWidget in three places
 
-inline constexpr auto PAGE_ICON_PROPERTY = "suzuri_pageIcon";
+inline constexpr auto PAGE_ICON_PATH_PROPERTY = "suzuri_pageIconPath";
 
-[[nodiscard]] inline QIcon pageIcon(QWidget* page)
+// Empty when the page has no mark
+[[nodiscard]] inline QString pageIconPath(QWidget* page)
 {
-    return page ? page->property(PAGE_ICON_PROPERTY).value<QIcon>() : QIcon{};
+    return page ? page->property(PAGE_ICON_PATH_PROPERTY).toString()
+                : QString{};
 }
 
 // Set by VaultWindow when it builds a view (makeView_); read by the leaf when a
-// tab gains a page (addPage, replacePage). A null icon clears the tab's mark
-inline void setPageIcon(QWidget* page, const QIcon& icon)
+// tab gains a page (addPage, replacePage). An empty path clears the tab's mark
+inline void setPageIconPath(QWidget* page, const QString& svgPath)
 {
     if (page) {
-        page->setProperty(PAGE_ICON_PROPERTY, QVariant::fromValue(icon));
+        page->setProperty(PAGE_ICON_PATH_PROPERTY, svgPath);
     }
 }
 

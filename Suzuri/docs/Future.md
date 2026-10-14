@@ -39,6 +39,7 @@ Nothing here is a promise or a schedule.
 ### Tabs, panes, and windows
 
 - Drop a tab at the position it is dropped, not at the end of the bar
+- A tab's close button shown only on the current tab and the one under the pointer, as in Obsidian
 - A toggle to show or hide the sidebar, remembered per vault
 - Remember whether the menu bar is shown
 - Grey out Undo and Redo when there is nothing to undo or redo
@@ -48,11 +49,11 @@ Nothing here is a promise or a schedule.
 ### Appearance
 
 - Themes, for the window and for the editor, saved in `.suzuri/appearance.json`
-- Icons and text that follow a light or dark switch made while Suzuri is running. A few are colored once and kept
 - A reset button beside the font size slider
 - Font previews in the font list
 - Separate interface and monospace font settings
 - Hearth's color bar
+- Combo box drop-down lists drawn like the menus: rounded, with a border and a shadow. Qt draws them in a container of its own, not as a menu
 
 ### Editor details
 
@@ -114,6 +115,7 @@ Committing a vault to a repository, for backup and history.
 - **Grouping or nesting files** under one another in the tree
 - **A corkboard**
 - **Converting files from the command line** (text to PDF, for instance)
+- **Style sheet snippets,** like Obsidian's CSS snippets: a vault's own Qt style sheet laid over the look. A style sheet takes over drawing from Suzuri's style for whatever it touches, so the two would be hard to keep in step. Worth considering once themes exist
 - **A confirmation before a folder becomes a vault.** Opening any folder as a vault silently adds `.suzuri/` to it; Obsidian asks first
 
 ## Not planned

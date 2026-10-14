@@ -21,13 +21,12 @@
 #include <QPalette>
 #include <QPixmap>
 #include <QString>
-#include <QStyle>
-#include <QStyleOptionToolButton>
 #include <QWidget>
 #include <QtMinMax>
 
 #include <Coco/Path.h>
 
+#include "ui/widgets/ButtonWash.h"
 #include "ui/widgets/Glyph.h"
 
 namespace Suzuri::Ui {
@@ -50,11 +49,10 @@ namespace Suzuri::Ui {
 // so a live swap (pin/unpin, a palette or color-group change) costs one render
 // and every other repaint — hover, press, release — costs none.
 //
-// The frame is the style's auto-raise tool-button panel (flat at rest, the
-// style's outline on hover, sunk on press, with the glyph shifting along with
-// it). Every subclass paints the identical panel from this identical code, so
-// none can drift from another on any platform style — there is no "real"
-// QToolButton for any of them to chase.
+// The panel is the style's flat tool-button panel (ButtonWash): nothing at
+// rest, a wash on hover, a deeper one on press. Every subclass paints the
+// identical panel from this identical code, so none can drift from another —
+// there is no "real" QToolButton for any of them to chase.
 //
 // Deliberately behavior-free: it emits clicked() (from QAbstractButton) and
 // nothing more. What a click means is wired per button by the owner (on the
@@ -95,36 +93,22 @@ protected:
     void enterEvent(QEnterEvent* event) override
     {
         QAbstractButton::enterEvent(event);
-        update(); // show the auto-raise frame on hover
+        update(); // show the wash on hover
     }
 
     void leaveEvent(QEvent* event) override
     {
         QAbstractButton::leaveEvent(event);
-        update(); // drop the frame when the pointer leaves
+        update(); // drop the wash when the pointer leaves
     }
 
     void paintEvent([[maybe_unused]] QPaintEvent* event) override
     {
         QPainter painter(this);
 
-        // Auto-raise tool-button panel: flat at rest, the style's outline only
-        // on hover/press. We hand the style the exact option state a flat
-        // QToolButton builds — State_AutoRaise always, State_Sunken when down,
-        // State_MouseOver carried in by initFrom — and let it draw the panel.
-        // The style suppresses the bevel while flat, so at rest only the glyph
-        // shows
-        QStyleOptionToolButton option{};
-        option.initFrom(this); // carries State_MouseOver from underMouse()
-        option.state |= QStyle::State_AutoRaise;
-        if (isDown()) {
-            option.state |= QStyle::State_Sunken;
-        }
-        style()->drawPrimitive(
-            QStyle::PE_PanelButtonTool,
-            &option,
-            &painter,
-            this);
+        // A flat button's panel: nothing at rest, the style's wash on hover and
+        // press
+        ButtonWash::paint(painter, this, rect());
 
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
@@ -144,20 +128,6 @@ protected:
 
         auto x = (width() - extent) / 2;
         auto y = (height() - extent) / 2;
-
-        // Sink the glyph with the panel on press. The metrics are 0 on styles
-        // that don't shift, so this is a no-op there
-        if (option.state & QStyle::State_Sunken) {
-            x += style()->pixelMetric(
-                QStyle::PM_ButtonShiftHorizontal,
-                &option,
-                this);
-            y += style()->pixelMetric(
-                QStyle::PM_ButtonShiftVertical,
-                &option,
-                this);
-        }
-
         painter.drawPixmap(x, y, pixmap);
     }
 
@@ -167,9 +137,7 @@ private:
 
     void setup_(int extent)
     {
-        setAttribute(
-            Qt::WA_Hover,
-            true); // hover state for the auto-raise frame
+        setAttribute(Qt::WA_Hover, true); // hover state for the wash
         setFocusPolicy(Qt::NoFocus);
         setCursor(Qt::ArrowCursor);
         setFixedSize(extent, extent);

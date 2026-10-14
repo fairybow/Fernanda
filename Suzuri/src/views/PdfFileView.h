@@ -15,6 +15,7 @@
 #include <optional>
 
 #include <QEvent>
+#include <QFrame>
 #include <QJsonObject>
 #include <QPdfDocument>
 #include <QPdfView>
@@ -207,6 +208,7 @@ private:
         // there's one source of truth
         pdfView_ = new QPdfView(this);
         pdfView_->setPageMode(QPdfView::PageMode::MultiPage);
+        pdfView_->setFrameShape(QFrame::NoFrame); // the view is the pane
         pdfView_->setDocument(model_->document());
 
         // Ctrl+wheel zoom — the filter goes on the viewport, where a scroll

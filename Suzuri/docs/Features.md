@@ -184,6 +184,16 @@ Shown in vault windows and pop-outs, for the active text tab. Empty over a PDF, 
 - Characters count what you see: an emoji or an accented letter is one. Spaces are included, line breaks are not
 - Lines are paragraphs, not wrapped rows
 
+## Look
+
+Suzuri draws its own interface, the same on every operating system: flat and quiet, with rounded corners, in the colors of the system's light or dark mode.
+
+- It follows the system's light or dark mode, and switches with it while Suzuri is running
+- The system's accent color marks the default button in a dialog, a focused text field, the selected row of a list, and a slider's filled track
+- The current tab is the color of the page below it
+- Menus are rounded, with a soft shadow
+- The current line highlight is a soft blue on a light page and a muted red on a dark one
+
 ## Settings
 
 Ctrl+, or the gear beside the vault switcher. Settings belong to the vault and apply as you change them.
@@ -250,6 +260,7 @@ Suzuri follows Obsidian's behavior wherever it has no reason not to. Where it di
 - **A vault whose folder vanishes has its window closed**, after a message, where Obsidian leaves an empty window open
 - **No in-app vault moving.** Move the folder in your file manager, then open it from its new place
 - **Licenses are in the app.** Obsidian lists its third-party credits on its help site
+- **No light or dark setting.** Suzuri always follows the system. Obsidian follows it by default and can be set to light or dark
 
 ## Known limits
 
@@ -259,4 +270,5 @@ Suzuri follows Obsidian's behavior wherever it has no reason not to. Where it di
 - Word counts run low for Thai, Lao, Khmer, and Myanmar text
 - Spelling suggestions can take a moment to appear for a long or badly garbled word
 - Right-to-left layouts are not supported
+- On Linux without a compositing window manager, menus may show dark corners outside their rounded edges
 - macOS and Linux builds exist but are not well tested
