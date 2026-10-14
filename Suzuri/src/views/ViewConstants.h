@@ -62,8 +62,8 @@ inline constexpr int TEXT_SIDE_PADDING = 16;
 // QColor(), uses ROLE from the palette instead. In Fusion that's a pale grey on
 // a light page; on a dark Windows page it's the darkest shade of the Windows
 // accent color, which Qt's Windows dark palette puts in AlternateBase
-inline constexpr auto LINE_HIGHLIGHT_LIGHT = QColor();
-inline constexpr auto LINE_HIGHLIGHT_DARK = QColor();
+inline constexpr auto LINE_HIGHLIGHT_LIGHT = QColor(0, 120, 215, 46);
+inline constexpr auto LINE_HIGHLIGHT_DARK = QColor(230, 70, 70, 72);
 inline constexpr auto LINE_HIGHLIGHT_ROLE = QPalette::AlternateBase;
 
 // What a search found, tinted over the text (TextEditor): this role's color
