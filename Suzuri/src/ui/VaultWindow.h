@@ -37,6 +37,7 @@
 #include "core/AppActions.h"
 #include "core/FileRef.h"
 #include "core/RecentFiles.h"
+#include "core/Updater.h"
 #include "core/Vault.h"
 #include "core/VaultEntry.h"
 #include "core/WorkspaceKeys.h"
@@ -74,19 +75,22 @@ public:
     // is App's vaultEntries(), passed straight to the Sidebar's switcher.
     // appActions are App's own actions: the base adopts them, and this window
     // hands the set on to every pop-out it makes. spellCheckers is App's too,
-    // and is where each text view's dictionary comes from
+    // and is where each text view's dictionary comes from. So is updater,
+    // which the settings dialog's General page shows
     VaultWindow(
         Vault* borrowedVault,
         Vault* commonVault,
         std::function<QList<VaultEntry>()> vaultsProvider,
         const AppActions& appActions,
-        SpellCheckers* spellCheckers)
+        SpellCheckers* spellCheckers,
+        Updater* updater)
         : BaseWindow(appActions)
         , vault_(borrowedVault)
         , commonVault_(commonVault)
         , vaultsProvider_(std::move(vaultsProvider))
         , appActions_(appActions)
         , spellCheckers_(spellCheckers)
+        , updater_(updater)
     {
         setup_();
     }
@@ -221,6 +225,9 @@ private:
 
     // App's dictionaries, which makeView_ takes each view's from. Not owned
     SpellCheckers* spellCheckers_ = nullptr;
+
+    // App's update checker, for the settings dialog. Not owned
+    Updater* updater_ = nullptr;
 
     Sidebar* sidebar_ = nullptr;
 
@@ -557,6 +564,7 @@ private:
             settingsDialog_ = new SettingsDialog(
                 vault_,
                 spellCheckers_,
+                updater_,
                 action(ActionIds::APP_QUIT),
                 this);
         }

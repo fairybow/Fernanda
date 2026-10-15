@@ -40,7 +40,8 @@ namespace Suzuri::Ui {
 // (Vault::onConfigChanged_). Nothing flows back: a page is the only editor of
 // its settings while it's open (one window per vault, one dialog per window),
 // so its controls can't go stale. A hand edit of a config file is read only
-// when the vault next opens
+// when the vault next opens. The General page is the exception: its settings
+// are App's, shared by every vault's dialog, so it follows them (see there)
 class SettingsPage : public QScrollArea
 {
     Q_OBJECT

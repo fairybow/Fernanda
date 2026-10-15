@@ -538,7 +538,8 @@ private:
             commonVault_,
             [this] { return vaultEntries(); },
             appActions_,
-            &spellCheckers_);
+            &spellCheckers_,
+            &updater_);
 
         openVaults_.insert(vaultRoot, { vault, window });
 
