@@ -78,6 +78,24 @@ public:
 
     void setNewVaultMruDir(const Coco::Path& dir) { newVaultMruDir_ = dir; }
 
+    // Whether Suzuri checks for updates on its own (Updater). On unless
+    // switched off, as Obsidian's automatic updates are
+    [[nodiscard]] bool checksForUpdates() const noexcept
+    {
+        return checksForUpdates_;
+    }
+
+    void setChecksForUpdates(bool on) noexcept { checksForUpdates_ = on; }
+
+    // The version whose update notice was dismissed (Updater). Empty when
+    // none has been
+    [[nodiscard]] QString dismissedUpdate() const { return dismissedUpdate_; }
+
+    void setDismissedUpdate(const QString& version)
+    {
+        dismissedUpdate_ = version;
+    }
+
     // The vaults list, most-recently-used first — the backing store for the
     // surfaces ManageVaults' recents column and each VaultSwitcher render.
     // Derived: the registry sorted by lastUsedEpochMs descending. Like
@@ -185,6 +203,9 @@ public:
         assignPath_(root, u"commonVaultPath"_s, commonVaultPath_);
         assignPath_(root, u"newVaultMruDir"_s, newVaultMruDir_);
 
+        checksForUpdates_ = root.value(u"checkForUpdates"_s).toBool(true);
+        dismissedUpdate_ = root.value(u"dismissedUpdate"_s).toString();
+
         vaults_ = readVaults_(root.value(u"vaults"_s).toArray());
     }
 
@@ -204,6 +225,14 @@ public:
             root[u"newVaultMruDir"_s] = newVaultMruDir_.prettyQString();
         }
 
+        if (!checksForUpdates_) {
+            root[u"checkForUpdates"_s] = false;
+        }
+
+        if (!dismissedUpdate_.isEmpty()) {
+            root[u"dismissedUpdate"_s] = dismissedUpdate_;
+        }
+
         if (!vaults_.isEmpty()) {
             root[u"vaults"_s] = writeVaults_();
         }
@@ -215,6 +244,10 @@ private:
     // Empty == unset; the getter substitutes the AppDirs default
     Coco::Path commonVaultPath_{};
     Coco::Path newVaultMruDir_{};
+
+    // Written only when off, like a vault's open flag only when true
+    bool checksForUpdates_ = true;
+    QString dismissedUpdate_{};
 
     // One registry entry: path is identity, lastUsedEpochMs is a recency stamp
     // (ms since the Unix epoch, Coco::Time::epoch) that orders the list and the
