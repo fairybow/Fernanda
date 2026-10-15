@@ -15,6 +15,7 @@
 #include <Coco/Debug.h>
 
 #include "core/AppActions.h"
+#include "core/Updater.h"
 #include "ui/BaseWindow.h"
 #include "ui/UiConstants.h"
 
@@ -33,15 +34,16 @@ public:
     // Takes AppActions only to pass up: a pop-out has no menu, so it displays
     // none of them, but adopting gives it their shortcuts — Ctrl+Q works from a
     // focused pop-out, and it reaches App directly rather than being relayed
-    // through the owning VaultWindow.
+    // through the owning VaultWindow. The Updater is App's too, for the status
+    // bar's update notice, whose click the VaultWindow wires.
     //
     // Deliberately no closeEvent: a pop-out has no state to flush. Buffers live
     // in the Vault, so the one flush in VaultWindow::closeEvent covers the
     // files open here too. Closing a pop-out on its own saves nothing and loses
     // nothing — the buffer stays in the Vault, whether or not it's open
     // elsewhere
-    explicit PopoutWindow(const AppActions& appActions)
-        : BaseWindow(appActions)
+    PopoutWindow(const AppActions& appActions, Updater* updater)
+        : BaseWindow(appActions, updater)
     {
         setup_();
     }

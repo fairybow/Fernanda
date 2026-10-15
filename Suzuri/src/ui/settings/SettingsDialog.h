@@ -31,11 +31,13 @@
 
 #include <Coco/Debug.h>
 
+#include "core/Updater.h"
 #include "core/Vault.h"
 #include "core/spell/SpellCheckers.h"
 #include "ui/UiConstants.h"
 #include "ui/settings/SettingsAppearancePage.h"
 #include "ui/settings/SettingsEditorPage.h"
+#include "ui/settings/SettingsGeneralPage.h"
 #include "ui/settings/SettingsStatusBarPage.h"
 
 namespace Suzuri::Ui {
@@ -63,7 +65,8 @@ namespace Suzuri::Ui {
 // a session. It borrows the Vault, the same object the window borrows; pages
 // edit settings through Vault::setConfig, which applies and saves them. No
 // setting-changed signal leaves the dialog. It borrows App's SpellCheckers too,
-// for the Editor page's list of languages
+// for the Editor page's list of languages, and App's Updater, for the General
+// page
 class SettingsDialog : public QDialog
 {
     Q_OBJECT
@@ -72,16 +75,22 @@ public:
     SettingsDialog(
         Vault* vault,
         SpellCheckers* spellCheckers,
+        Updater* updater,
         QAction* quitAction,
         QWidget* parentVaultWindow)
         : QDialog(parentVaultWindow)
         , vault_(vault)
         , spellCheckers_(spellCheckers)
+        , updater_(updater)
     {
         setup_(quitAction);
     }
 
     ~SettingsDialog() override { TRACER; }
+
+    // Select the General page, as the status bar's update notice does before
+    // it opens the dialog
+    void showGeneralPage() { selectPage_(generalPage_); }
 
 protected:
     void changeEvent(QEvent* event) override
@@ -102,9 +111,13 @@ private:
     // App's dictionaries, for the Editor page's language list. Not owned
     SpellCheckers* spellCheckers_ = nullptr;
 
+    // App's update checker, for the General page. Not owned
+    Updater* updater_ = nullptr;
+
     QLabel* vaultName_ = new QLabel(this);
     QListWidget* nav_ = new QListWidget(this);
     QStackedWidget* pages_ = new QStackedWidget(this);
+    SettingsGeneralPage* generalPage_ = nullptr;
 
     // The nav's group-title rows, recolored on palette change. Owned by nav_
     QList<QListWidgetItem*> groupTitles_{};
@@ -120,6 +133,8 @@ private:
         setupNavColumn_(name);
 
         addGroupTitle_(tr("Options"));
+        generalPage_ = new SettingsGeneralPage(vault_, updater_, this);
+        addPage_(tr("General"), generalPage_);
         addPage_(
             tr("Editor"),
             new SettingsEditorPage(vault_, spellCheckers_, this));
@@ -225,6 +240,20 @@ private:
         auto index = pages_->addWidget(page);
         auto* item = new QListWidgetItem(label, nav_);
         item->setData(PAGE_INDEX_ROLE_, index);
+    }
+
+    void selectPage_(QWidget* page)
+    {
+        auto index = pages_->indexOf(page);
+
+        for (auto row = 0; row < nav_->count(); ++row) {
+            auto* item = nav_->item(row);
+            if ((item->flags() & Qt::ItemIsSelectable) &&
+                item->data(PAGE_INDEX_ROLE_).toInt() == index) {
+                nav_->setCurrentItem(item);
+                return;
+            }
+        }
     }
 
     void selectFirstPage_()

@@ -35,6 +35,7 @@
 #include "core/CMakeMacroGuard.h"
 #include "core/Clargs.h"
 #include "core/Publication.h"
+#include "core/Updater.h"
 #include "core/Vault.h"
 #include "core/VaultEntry.h"
 #include "core/Version.h"
@@ -87,6 +88,10 @@ public:
 
         initCommonVault_();
         restoreSessionOrShowManageVaults_();
+
+        updater_.start(
+            appConfig_.checksForUpdates(),
+            appConfig_.dismissedUpdate());
 
         initialized_ = true;
         DEBUG(this, "Initialized");
@@ -191,6 +196,10 @@ private:
     // window. Windows borrow it; App outlives them all
     SpellCheckers spellCheckers_{ AppDirs::dictionaries() };
 
+    // Whether a newer Suzuri has been released. Windows show what it found;
+    // App saves its settings
+    Updater updater_{};
+
     static void raiseWindow_(QWidget* window)
     {
         window->isMinimized() ? window->showNormal() : window->show();
@@ -242,6 +251,12 @@ private:
             &App::applicationStateChanged,
             this,
             &App::onApplicationStateChanged_);
+
+        connect(
+            &updater_,
+            &Updater::settingsChanged,
+            this,
+            &App::onUpdaterSettingsChanged_);
 
         buildActions_();
     }
@@ -523,7 +538,8 @@ private:
             commonVault_,
             [this] { return vaultEntries(); },
             appActions_,
-            &spellCheckers_);
+            &spellCheckers_,
+            &updater_);
 
         openVaults_.insert(vaultRoot, { vault, window });
 
@@ -717,6 +733,15 @@ private:
         }
 
         flushAllVaults_();
+    }
+
+    // The updater's two settings live in suzuri.json, written when either
+    // changes
+    void onUpdaterSettingsChanged_()
+    {
+        appConfig_.setChecksForUpdates(updater_.checksAutomatically());
+        appConfig_.setDismissedUpdate(updater_.dismissedVersion());
+        appConfig_.save();
     }
 
     void onAboutToQuit_()

@@ -36,7 +36,9 @@ namespace Suzuri::Ui {
 //
 // The row takes ownership of the control (the layout reparents it) and knows
 // nothing about what it does: the page connects the control to the Vault. An
-// empty description leaves the name alone, centered on the control.
+// empty description leaves the name alone, centered on the control. A page
+// whose description reports something that changes (the General page's update
+// check) sets it again with setDescription.
 //
 // Text colors are roles set with setForegroundRole, not colors read once, so
 // they follow palette and color-group changes like everything Qt paints
@@ -57,33 +59,38 @@ public:
 
     ~SettingRow() override { TRACER; }
 
+    // Replace the description. An empty one hides it, leaving the name alone
+    void setDescription(const QString& description)
+    {
+        if (!description_) {
+            if (description.isEmpty()) {
+                return;
+            }
+
+            addDescription_();
+        }
+
+        description_->setText(description);
+        description_->setVisible(!description.isEmpty());
+    }
+
 private:
+    QVBoxLayout* info_ = new QVBoxLayout;
+
+    // Made when the row first has a description
+    QLabel* description_ = nullptr;
+
     void
     setup_(const QString& name, const QString& description, QWidget* control)
     {
-        auto* info = new QVBoxLayout;
-        info->setContentsMargins(0, 0, 0, 0);
-        info->setSpacing(SETTING_ROW_INFO_SPACING);
+        info_->setContentsMargins(0, 0, 0, 0);
+        info_->setSpacing(SETTING_ROW_INFO_SPACING);
 
         auto* name_label = new QLabel(name, this);
         name_label->setWordWrap(true);
-        info->addWidget(name_label);
+        info_->addWidget(name_label);
 
-        if (!description.isEmpty()) {
-            auto* description_label = new QLabel(description, this);
-            description_label->setWordWrap(true);
-            description_label->setForegroundRole(SETTING_DESCRIPTION_ROLE);
-
-            // A font set in pixels reports no point size; it stays full size
-            auto font = description_label->font();
-            if (font.pointSizeF() > 0) {
-                font.setPointSizeF(
-                    font.pointSizeF() * SETTING_DESCRIPTION_FONT_SCALE);
-                description_label->setFont(font);
-            }
-
-            info->addWidget(description_label);
-        }
+        setDescription(description);
 
         auto* layout = new QHBoxLayout(this);
         layout->setContentsMargins(
@@ -92,8 +99,25 @@ private:
             0,
             SETTING_ROW_V_PADDING);
         layout->setSpacing(SETTING_ROW_CONTROL_SPACING);
-        layout->addLayout(info, 1);
+        layout->addLayout(info_, 1);
         layout->addWidget(control, 0, Qt::AlignVCenter);
+    }
+
+    void addDescription_()
+    {
+        description_ = new QLabel(this);
+        description_->setWordWrap(true);
+        description_->setForegroundRole(SETTING_DESCRIPTION_ROLE);
+
+        // A font set in pixels reports no point size; it stays full size
+        auto font = description_->font();
+        if (font.pointSizeF() > 0) {
+            font.setPointSizeF(
+                font.pointSizeF() * SETTING_DESCRIPTION_FONT_SCALE);
+            description_->setFont(font);
+        }
+
+        info_->addWidget(description_);
     }
 };
 

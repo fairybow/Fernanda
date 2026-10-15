@@ -312,6 +312,14 @@ inline constexpr int FILE_SWITCHER_SPACING = 8;
 inline constexpr auto STATUS_BAR_TEXT_ROLE = QPalette::PlaceholderText;
 inline constexpr int STATUS_BAR_ITEM_H_PADDING = 8;
 
+// The status bar's update notice (UpdateNotice), left of the other items.
+// EXTENT/ICON_EXTENT mean what the tab buttons' pair means. The glyph is in the
+// accent color, to be noticed
+inline constexpr auto UPDATE_NOTICE_ICON_PATH = ":/lucide/ArrowDownToLine.svg";
+inline constexpr int UPDATE_NOTICE_EXTENT = 20;
+inline constexpr int UPDATE_NOTICE_ICON_EXTENT = 14;
+inline constexpr auto UPDATE_NOTICE_ICON_ROLE = QPalette::Accent;
+
 // Suzuri's style (Style). Shades the palette has no role for are its text
 // color at an alpha, drawn over whatever is behind them: HOVER under the
 // pointer, PRESSED held down (and a checked tool button), SELECTED for a

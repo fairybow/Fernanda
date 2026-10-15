@@ -10,6 +10,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Opening the file that is already in the active, unpinned tab should do nothing
 - [ ] Minor: dragging a file quickly from near its row's bottom edge moves the selection highlight down to the next row, though that row isn't selected
 - [ ] The "Options" heading in the settings dialog can be hovered or selected and probably shouldn't be
+- [ ] Translations don't work. Nothing installs a `QTranslator`, so the embedded `.qm` files are never loaded, and both `.ts` files are still empty: the `update_translations` target that fills them has never been run
 - [x] A window's current tab didn't have focus after restore. The tab pages were focused while the window was still hidden, which a widget can't take, so `BaseWindow` now focuses the active page on its first show
 - [x] After restore, the first click on a tab didn't focus its widget. Focus was moved on `QTabBar::tabBarClicked`, which comes before the bar changes the current tab, so the tab switch then took it. `TabBar` now reports a press after the bar has handled it
 - [x] A dropped tab's window wasn't activated, so its page didn't get the keyboard. The tree now raises and activates its window after a drop
@@ -61,6 +62,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 What the tests in `Suzuri/tests/` don't reach.
 
+- [ ] `Updater`'s request to GitHub and its handling of the reply. The decision it makes from the reply is tested (`UpdateCheckTest`)
 - [ ] A failed write: the buffer stays modified, and `Vault::flush` names the file. There is no portable way to make a write fail on demand
 - [ ] The autosave debounce starting again on each edit. Proving it needs timing tight enough to fail on a slow machine
 - [ ] A successful `Vault::moveToTrash`. It would put a file in the real system trash on every run

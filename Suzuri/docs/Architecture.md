@@ -73,7 +73,7 @@ flowchart TD
 
 | Owner | Owns |
 |---|---|
-| `App` | The common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`). Tracks each `VaultWindow` and the `ManageVaults` window |
+| `App` | The common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`). Tracks each `VaultWindow` and the `ManageVaults` window |
 | `Vault` | Its file buffers, a watcher over its open files, its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.suzuri/` folder |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
 | `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows two vaults |
@@ -334,7 +334,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 
 | What | File | Type | Owner |
 |---|---|---|---|
-| Known vaults, session, last-used folder | `suzuri.json` in the app data folder | `AppConfig` | `App` |
+| Known vaults, session, last-used folder, update settings | `suzuri.json` in the app data folder | `AppConfig` | `App` |
 | Per-vault settings | `.suzuri/settings.json`, `.suzuri/appearance.json` | `VaultConfig` | `Vault` |
 | Window and tab layout | `.suzuri/workspace.json` | `WorkspaceFile` | `VaultWindow` |
 | A vault's dictionary | `.suzuri/dictionary.txt`, one word per line | `WordList` | `Vault` |
@@ -423,6 +423,17 @@ Every user-facing command is a `QAction` in its window's registry, keyed by a st
 - **Sharing one action between windows is safe.** A window shortcut fires only in the active window.
 - **The editor's context menu has its own Undo and Redo,** aimed at that editor's buffer. The window's actions mean "undo in the active pane", which would be the wrong document for an editor that isn't active.
 - **Clipboard and selection commands follow keyboard focus.** The `text.` actions (cut, copy, paste, delete, select all) act on the text widget that has focus, the editor or a text field, and on nothing else. A menu doesn't take focus, so from the Edit menu they reach the field the user was in. Their keys are not bound to the window: every text widget handles them itself, and a window binding would fire only when something else had focus, taking Del from the file tree. The menu shows each key as a hint that binds nothing.
+
+## Checking for updates
+
+Suzuri tells the user about a newer release and links to it. It doesn't download or install anything; see [Future.md](Future.md) for why.
+
+- **The decision is apart from the request.** `core/UpdateCheck.h` holds free functions, tested in `UpdateCheckTest`: Semantic Versioning precedence, and the newest release in GitHub's list that is newer than the running version. `Updater` fetches the list and asks. Versions are compared by precedence, never as strings or by the order GitHub lists releases in.
+- **A release's version is its tag.** `release.yml` requires the tag to be "v" plus `VERSION_FULL_STRING`, so the tag alone says whether a release is a prerelease. A prerelease build is offered prereleases; a stable build is only if `STABLE_BUILDS_SEE_PRERELEASES` says so.
+- **One `Updater`, owned by `App` and handed down.** `App` passes it to each `VaultWindow`, which passes it to its settings dialog and its pop-outs. The General page and every window's status-bar notice read it and follow its signals directly. `App` saves its two settings, whether it checks on its own and which version's notice was dismissed, to `suzuri.json`.
+- **The General page is the one page that follows a signal.** Its settings are `App`'s, shared by every vault's dialog, so it can't seed its controls once as the vault pages do.
+- **An automatic check that fails is only logged,** and the state goes back to what it was. A check the user asked for reports why it failed. One check runs at a time.
+- **The notice's click belongs to `VaultWindow`.** It wires the notice in its own status bar and in each pop-out's: dismiss the notice, which hides it in every window, and open the vault's settings on General.
 
 ## Dialogs and event loops
 

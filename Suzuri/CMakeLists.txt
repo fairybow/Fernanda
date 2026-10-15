@@ -203,6 +203,8 @@ set(APP_HEADERS
     src/core/Publication.h
     src/core/RecentFiles.h
     src/core/TextCounts.h
+    src/core/UpdateCheck.h
+    src/core/Updater.h
     src/core/Vault.h
     src/core/VaultConfig.h
     src/core/VaultDotDir.h
@@ -223,6 +225,7 @@ set(APP_HEADERS
     src/ui/settings/SettingsAppearancePage.h
     src/ui/settings/SettingsDialog.h
     src/ui/settings/SettingsEditorPage.h
+    src/ui/settings/SettingsGeneralPage.h
     src/ui/settings/SettingsPage.h
     src/ui/settings/SettingsStatusBarPage.h
 
@@ -266,6 +269,7 @@ set(APP_HEADERS
     src/ui/Style.h
     src/ui/UiConstants.h
     src/ui/UiUtility.h
+    src/ui/UpdateNotice.h
     src/ui/VaultWindow.h
     src/ui/WordCounter.h
     src/ui/WorkspaceFile.h
