@@ -204,6 +204,7 @@ set(APP_HEADERS
     src/core/RecentFiles.h
     src/core/TextCounts.h
     src/core/UpdateCheck.h
+    src/core/Updater.h
     src/core/Vault.h
     src/core/VaultConfig.h
     src/core/VaultDotDir.h
