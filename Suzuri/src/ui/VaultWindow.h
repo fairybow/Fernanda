@@ -15,6 +15,7 @@
 #include <functional>
 #include <utility>
 
+#include <QAbstractButton>
 #include <QAction>
 #include <QCloseEvent>
 #include <QJsonArray>
@@ -84,7 +85,7 @@ public:
         const AppActions& appActions,
         SpellCheckers* spellCheckers,
         Updater* updater)
-        : BaseWindow(appActions)
+        : BaseWindow(appActions, updater)
         , vault_(borrowedVault)
         , commonVault_(commonVault)
         , vaultsProvider_(std::move(vaultsProvider))
@@ -226,7 +227,8 @@ private:
     // App's dictionaries, which makeView_ takes each view's from. Not owned
     SpellCheckers* spellCheckers_ = nullptr;
 
-    // App's update checker, for the settings dialog. Not owned
+    // App's update checker, for the settings dialog and the status bar's
+    // update notice. Not owned
     Updater* updater_ = nullptr;
 
     Sidebar* sidebar_ = nullptr;
@@ -375,11 +377,18 @@ private:
         workspaceFile_->restore();
 
         // The status bar's settings (BaseWindow::applyConfig): now, and on
-        // every change. Pop-outs get the same in makeWiredPopout_
+        // every change. Pop-outs get the same in makeWiredPopout_, as they do
+        // the update notice's click
         applyConfig(vault_->config());
         connect(vault_, &Vault::configChanged, this, [this] {
             applyConfig(vault_->config());
         });
+
+        connect(
+            updateNotice(),
+            &QAbstractButton::clicked,
+            this,
+            &VaultWindow::onUpdateNoticeClicked_);
     }
 
     // VaultWindow's own actions, added to the registry the base started. The
@@ -553,12 +562,23 @@ private:
         return false;
     }
 
-    // Settings: show this vault's settings dialog, window-modal. open(), never
-    // exec() — see SettingsDialog for why a nested event loop here is unsafe.
-    // Built on first use; after that the same dialog is shown again, still on
-    // the page it was left on. The quit action is handed in so Ctrl+Q works
-    // while the dialog has focus
-    void onSettingsRequested_()
+    void onSettingsRequested_() { showSettings_(); }
+
+    // The status bar's update notice, here or in a pop-out: the notice goes
+    // from every window, and this vault's settings open on the General page,
+    // where the update is
+    void onUpdateNoticeClicked_()
+    {
+        updater_->dismiss();
+        showSettings_(true);
+    }
+
+    // Show this vault's settings dialog, window-modal. open(), never exec() —
+    // see SettingsDialog for why a nested event loop here is unsafe. Built on
+    // first use; after that the same dialog is shown again, still on the page
+    // it was left on unless onGeneralPage asks for General. The quit action is
+    // handed in so Ctrl+Q works while the dialog has focus
+    void showSettings_(bool onGeneralPage = false)
     {
         if (!settingsDialog_) {
             settingsDialog_ = new SettingsDialog(
@@ -567,6 +587,10 @@ private:
                 updater_,
                 action(ActionIds::APP_QUIT),
                 this);
+        }
+
+        if (onGeneralPage) {
+            settingsDialog_->showGeneralPage();
         }
 
         settingsDialog_->open();
@@ -1019,7 +1043,7 @@ private:
     // callers show it (drag path) or let WorkspaceFile decide (restore)
     PopoutWindow* makeWiredPopout_()
     {
-        auto* popout = new PopoutWindow(appActions_);
+        auto* popout = new PopoutWindow(appActions_, updater_);
         addPopout_(popout);
 
         auto* tree = popout->tabPaneTree();
@@ -1072,6 +1096,12 @@ private:
         connect(vault, &Vault::configChanged, popout, [popout, vault] {
             popout->applyConfig(vault->config());
         });
+
+        connect(
+            popout->updateNotice(),
+            &QAbstractButton::clicked,
+            this,
+            &VaultWindow::onUpdateNoticeClicked_);
 
         // Persist this pop-out too: its geometry and tab layout ride in
         // workspace.json alongside the main window. Guarded because a pop-out

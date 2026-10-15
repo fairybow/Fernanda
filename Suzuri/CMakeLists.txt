@@ -269,6 +269,7 @@ set(APP_HEADERS
     src/ui/Style.h
     src/ui/UiConstants.h
     src/ui/UiUtility.h
+    src/ui/UpdateNotice.h
     src/ui/VaultWindow.h
     src/ui/WordCounter.h
     src/ui/WorkspaceFile.h

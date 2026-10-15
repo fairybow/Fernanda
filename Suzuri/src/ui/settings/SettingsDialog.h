@@ -88,6 +88,10 @@ public:
 
     ~SettingsDialog() override { TRACER; }
 
+    // Select the General page, as the status bar's update notice does before
+    // it opens the dialog
+    void showGeneralPage() { selectPage_(generalPage_); }
+
 protected:
     void changeEvent(QEvent* event) override
     {
@@ -113,6 +117,7 @@ private:
     QLabel* vaultName_ = new QLabel(this);
     QListWidget* nav_ = new QListWidget(this);
     QStackedWidget* pages_ = new QStackedWidget(this);
+    SettingsGeneralPage* generalPage_ = nullptr;
 
     // The nav's group-title rows, recolored on palette change. Owned by nav_
     QList<QListWidgetItem*> groupTitles_{};
@@ -128,9 +133,8 @@ private:
         setupNavColumn_(name);
 
         addGroupTitle_(tr("Options"));
-        addPage_(
-            tr("General"),
-            new SettingsGeneralPage(vault_, updater_, this));
+        generalPage_ = new SettingsGeneralPage(vault_, updater_, this);
+        addPage_(tr("General"), generalPage_);
         addPage_(
             tr("Editor"),
             new SettingsEditorPage(vault_, spellCheckers_, this));
@@ -236,6 +240,20 @@ private:
         auto index = pages_->addWidget(page);
         auto* item = new QListWidgetItem(label, nav_);
         item->setData(PAGE_INDEX_ROLE_, index);
+    }
+
+    void selectPage_(QWidget* page)
+    {
+        auto index = pages_->indexOf(page);
+
+        for (auto row = 0; row < nav_->count(); ++row) {
+            auto* item = nav_->item(row);
+            if ((item->flags() & Qt::ItemIsSelectable) &&
+                item->data(PAGE_INDEX_ROLE_).toInt() == index) {
+                nav_->setCurrentItem(item);
+                return;
+            }
+        }
     }
 
     void selectFirstPage_()

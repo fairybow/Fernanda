@@ -33,9 +33,11 @@
 
 #include "core/ActionIds.h"
 #include "core/AppActions.h"
+#include "core/Updater.h"
 #include "core/VaultConfig.h"
 #include "models/AbstractFileModel.h"
 #include "ui/CursorPosition.h"
+#include "ui/UpdateNotice.h"
 #include "ui/WordCounter.h"
 #include "ui/tabs/TabPaneTree.h"
 #include "views/AbstractFileView.h"
@@ -82,14 +84,16 @@ using namespace Qt::StringLiterals;
 // is a text view, and hide when it isn't — over a PDF, an image, a New Tab
 // page, or an empty pane the bar stays up, empty. It doesn't come and go with
 // the page type, which would change the height of everything above it on
-// each tab switch
+// each tab switch. The update notice (UpdateNotice) sits at the left of the
+// items, and keeps the bar up while it shows
 class BaseWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit BaseWindow(const AppActions& appActions)
+    BaseWindow(const AppActions& appActions, Updater* updater)
         : QMainWindow(nullptr)
+        , updater_(updater)
     {
         setup_(appActions);
     }
@@ -100,21 +104,29 @@ public:
     // configure the trees of the pop-outs it creates
     [[nodiscard]] TabPaneTree* tabPaneTree() const noexcept { return tree_; }
 
+    // The status bar's update notice. Public so VaultWindow can wire its
+    // click, here and in each pop-out it makes
+    [[nodiscard]] UpdateNotice* updateNotice() const noexcept
+    {
+        return updateNotice_;
+    }
+
     // The status bar's settings, from the hosting vault's config. A window
     // doesn't know its vault — a pop-out has none of its own — so the
     // VaultWindow calls this on itself and on each pop-out it makes, at
     // construction and on every Vault::configChanged; the same arrangement, and
     // the same hosting-vault rule, as the views' applyConfig. With both items
-    // switched off the bar itself hides, giving its strip back to the editor.
-    // With either on it stays, even over a page that leaves it empty (see class
-    // note)
+    // switched off the bar itself hides, giving its strip back to the editor,
+    // unless the update notice is showing. With either on it stays, even over
+    // a page that leaves it empty (see class note)
     void applyConfig(const VaultConfig& config)
     {
         wordCounter_->applyConfig(config);
         cursorPosition_->applyConfig(config);
 
-        statusBar()->setVisible(
-            config.wordCounterEnabled() || config.cursorPositionEnabled());
+        itemsEnabled_ =
+            config.wordCounterEnabled() || config.cursorPositionEnabled();
+        showStatusBar_();
     }
 
 signals:
@@ -263,9 +275,16 @@ protected:
 
 private:
     bool shown_ = false;
+    // App's update checker, which the notice shows. Not owned
+    Updater* updater_ = nullptr;
+
     TabPaneTree* tree_ = new TabPaneTree(this);
     WordCounter* wordCounter_ = new WordCounter(this);
     CursorPosition* cursorPosition_ = new CursorPosition(this);
+    UpdateNotice* updateNotice_ = new UpdateNotice(updater_, this);
+
+    // Whether either item is switched on (applyConfig)
+    bool itemsEnabled_ = true;
 
     // The per-window action registry. Private so every entry arrives through
     // registerAction or adoptAction and nothing bypasses the window-add;
@@ -307,6 +326,7 @@ private:
     {
         auto* bar = statusBar();
         bar->setSizeGripEnabled(false);
+        bar->addPermanentWidget(updateNotice_);
         bar->addPermanentWidget(wordCounter_);
         bar->addPermanentWidget(cursorPosition_);
 
@@ -315,6 +335,17 @@ private:
             &TabPaneTree::activePageChanged,
             this,
             &BaseWindow::onActivePageChanged_);
+
+        connect(
+            updater_,
+            &Updater::stateChanged,
+            this,
+            &BaseWindow::showStatusBar_);
+    }
+
+    void showStatusBar_()
+    {
+        statusBar()->setVisible(itemsEnabled_ || updater_->hasNotice());
     }
 
     // The items read a text editor, so only a text view gives them one; any
