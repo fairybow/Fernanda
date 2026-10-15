@@ -102,6 +102,28 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.7.0-beta.0 (Updates) - tag v0.7.0-beta.0
+
+## What's New?
+
+Suzuri can now tell you when a newer version is out.
+
+- **Settings → General** is a new page. It shows the version you have and a **Check for updates** button. When a newer version is out, it names it, and **Open release page** takes you to the download
+- **Suzuri checks on its own,** a few seconds after it starts and then once a day while it runs. To stop it, turn off **Check for updates automatically** in General. A check is one request to GitHub for the list of releases, and sends nothing about you or your files
+- **A "download arrow" icon appears in the status bar** of every window when a newer version is found. Click it to see the update in General. It then stays hidden until a still newer version comes out
+- Suzuri doesn't download or install updates itself. To update, download the installer from the release page and run it, just as you installed Suzuri
+
+## Known Issues
+
+- Drop-down lists (in Settings, for example) are square, unlike the menus
+- On Linux without a compositing window manager, menus may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.6.0-beta.0 (New Look) - tag v0.6.0-beta.0
 
 ## What's New?
