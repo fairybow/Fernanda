@@ -183,6 +183,7 @@ Shown in vault windows and pop-outs, for the active text tab. Empty over a PDF, 
 - Words: "don't", "well-known", "e.g.", and "1,000" each count as one. Dashes, slashes, and markup symbols are not words. Chinese and Japanese text counts one word per character
 - Characters count what you see: an emoji or an accented letter is one. Spaces are included, line breaks are not
 - Lines are paragraphs, not wrapped rows
+- An arrow at its left appears when a newer version of Suzuri is out (see [Updates](#updates)). The status bar shows while it does, even with both items switched off
 
 ## Look
 
@@ -196,13 +197,23 @@ Suzuri draws its own interface, the same on every operating system: flat and qui
 
 ## Settings
 
-Ctrl+, or the gear beside the vault switcher. Settings belong to the vault and apply as you change them.
+Ctrl+, or the gear beside the vault switcher. Settings belong to the vault and apply as you change them, apart from General's, which belong to Suzuri as a whole.
 
+- **General**: the version, Check for updates, and whether Suzuri checks on its own
 - **Editor**: line numbers, wrap lines, left/right margin, highlight current line, selection handles, tab width, center on scroll, double-click selects whitespace, check spelling, spelling language
 - **Appearance**: text font, bold, italic, font size
 - **Status bar**: the word counter and the cursor position, and which parts of each to show
 
 A Common Vault file opened in a project's window uses that project's settings.
+
+## Updates
+
+Suzuri tells you when a newer version is out. It doesn't download or install it: to update, download the installer from the release page and run it, as you installed Suzuri.
+
+- Settings → General shows the version you have and a Check for updates button. When a newer version is out, it names it, and Open release page takes you to it
+- Suzuri also checks on its own, a few seconds after it starts and then once a day while it runs. "Check for updates automatically", in General, turns this off. A check is one request to GitHub for the list of releases, and sends nothing about you or your files
+- When a newer version is found, an arrow appears in the status bar of every window. Clicking it opens General. It then stays hidden until a still newer version comes out
+- While Suzuri is in beta, every release counts, betas included
 
 ## What Suzuri keeps in a vault
 
@@ -261,6 +272,7 @@ Suzuri follows Obsidian's behavior wherever it has no reason not to. Where it di
 - **No in-app vault moving.** Move the folder in your file manager, then open it from its new place
 - **Licenses are in the app.** Obsidian lists its third-party credits on its help site
 - **No light or dark setting.** Suzuri always follows the system. Obsidian follows it by default and can be set to light or dark
+- **Updates aren't installed for you.** Suzuri says a newer version is out and links to it. Obsidian downloads updates itself and applies them when it restarts
 
 ## Known limits
 
