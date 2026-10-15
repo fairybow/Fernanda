@@ -126,7 +126,7 @@ public:
 
         itemsEnabled_ =
             config.wordCounterEnabled() || config.cursorPositionEnabled();
-        showStatusBar_();
+        updateStatusBar_();
     }
 
 signals:
@@ -340,10 +340,10 @@ private:
             updater_,
             &Updater::stateChanged,
             this,
-            &BaseWindow::showStatusBar_);
+            &BaseWindow::updateStatusBar_);
     }
 
-    void showStatusBar_()
+    void updateStatusBar_()
     {
         statusBar()->setVisible(itemsEnabled_ || updater_->hasNotice());
     }

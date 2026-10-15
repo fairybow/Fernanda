@@ -17,7 +17,8 @@ namespace Suzuri {
 inline constexpr auto WORKSPACE_FILE_NAME = "workspace.json";
 
 // Whether a stable build is offered prereleases when it checks for updates. A
-// prerelease build always is (see UpdateCheck::availableUpdate)
+// prerelease build always is (Updater, which passes the answer to
+// UpdateCheck::availableUpdate)
 inline constexpr bool STABLE_BUILDS_SEE_PRERELEASES = true;
 
 // Where Updater asks for the list of releases: GitHub's releases endpoint for
