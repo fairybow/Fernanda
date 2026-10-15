@@ -225,6 +225,7 @@ set(APP_HEADERS
     src/ui/settings/SettingsAppearancePage.h
     src/ui/settings/SettingsDialog.h
     src/ui/settings/SettingsEditorPage.h
+    src/ui/settings/SettingsGeneralPage.h
     src/ui/settings/SettingsPage.h
     src/ui/settings/SettingsStatusBarPage.h
 
