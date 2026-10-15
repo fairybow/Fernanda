@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>lucide/ArrowDownToLine.svg</file>
         <file>lucide/Box.svg</file>
         <file>lucide/ChevronDown.svg</file>
         <file>lucide/ChevronLeft.svg</file>
