@@ -102,6 +102,25 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.8.1-beta.0 (Fixes) - tag v0.8.1-beta.0
+
+## What's New?
+
+- **Fixed:** drop-down lists (in Settings, for example) showed a second, square edge around their rounded one, and could be too narrow for their longest choice. They're now drawn like the menus: rounded, with a soft shadow, and as wide as their box
+- **Fixed:** a drop-down box's longest choice could lose its last character, as in "English (United States)"
+- **Fixed:** clicking **Check for updates** moved the keyboard focus to the next setting
+
+## Known Issues
+
+- The Spanish translation is an unreviewed draft
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.8.0-beta.0 (Languages) - tag v0.8.0-beta.0
 
 ## What's New?
