@@ -10,15 +10,15 @@
     <message numerus="yes">
         <source>%n line(s) contain characters Suzuri can&apos;t read. They&apos;ll open as:</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%n línea contiene caracteres que Suzuri no puede leer. Se abrirá así:</numerusform>
+            <numerusform>%n líneas contienen caracteres que Suzuri no puede leer. Se abrirán así:</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>…and %n more.</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>…y %n más.</numerusform>
+            <numerusform>…y %n más.</numerusform>
         </translation>
     </message>
     <message>

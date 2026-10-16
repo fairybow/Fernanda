@@ -5,16 +5,16 @@
     <name>LossyOpenPrompt</name>
     <message numerus="yes">
         <source>%n line(s) contain characters Suzuri can&apos;t read. They&apos;ll open as:</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n line contains characters Suzuri can&apos;t read. It&apos;ll open as:</numerusform>
+            <numerusform>%n lines contain characters Suzuri can&apos;t read. They&apos;ll open as:</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>…and %n more.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>…and %n more.</numerusform>
+            <numerusform>…and %n more.</numerusform>
         </translation>
     </message>
 </context>
