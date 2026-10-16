@@ -73,7 +73,7 @@ flowchart TD
 
 | Owner | Owns |
 |---|---|
-| `App` | The common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`). Tracks each `VaultWindow` and the `ManageVaults` window |
+| `App` | The common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
 | `Vault` | Its file buffers, a watcher over its open files, its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.suzuri/` folder |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
 | `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows two vaults |
@@ -334,7 +334,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 
 | What | File | Type | Owner |
 |---|---|---|---|
-| Known vaults, session, last-used folder, update settings | `suzuri.json` in the app data folder | `AppConfig` | `App` |
+| Known vaults, session, last-used folder, update settings, interface language | `suzuri.json` in the app data folder | `AppConfig` | `App` |
 | Per-vault settings | `.suzuri/settings.json`, `.suzuri/appearance.json` | `VaultConfig` | `Vault` |
 | Window and tab layout | `.suzuri/workspace.json` | `WorkspaceFile` | `VaultWindow` |
 | A vault's dictionary | `.suzuri/dictionary.txt`, one word per line | `WordList` | `Vault` |
@@ -435,6 +435,17 @@ Suzuri tells the user about a newer release and links to it. It doesn't download
 - **An automatic check that fails is only logged,** and the state goes back to what it was. A check the user asked for reports why it failed. One check runs at a time.
 - **The notice's click belongs to `VaultWindow`.** It wires the notice in its own status bar and in each pop-out's: dismiss the notice, which hides it in every window, and open the vault's settings on General.
 
+## Translations
+
+Every user-facing string is wrapped in `tr()` where it is used, in a class with `Q_OBJECT` (or in `QCoreApplication::translate` with a named context, where there is no such class). `lupdate` files each string under its class's name, and that is the context it is looked up in at run time.
+
+- **The catalogs are embedded.** `qt_add_translations` builds a `.qm` file from each `.ts` file and embeds it under `:/i18n`, beside Qt's own `qtbase_<lang>.qm` from the Qt install. Every platform loads them from the same place, and nothing is installed. `APP_LANGUAGES` in `CMakeLists.txt` lists the languages; `Translations` finds them at run time by looking in `:/i18n`, so there is no second list.
+- **English has a catalog too.** `Translation_en.ts` holds only plural forms, so that `tr("%Ln word(s)", nullptr, n)` reads "1 word" and "2 words".
+- **Translators are installed before any text is made.** Text is set once, as each widget and action is built, so `App::init` loads `suzuri.json`, installs the translators, and only then builds its actions and windows. For the same reason a new language setting takes effect at the next launch.
+- **Relaunch is Quit, then a new process.** The General page's Relaunch triggers an `App` action that quits by the usual path (so every window closes and saves, and a failed save refuses) and marks the quit as a restart. `main` starts the next copy only after `App` and its single-instance guard (`Coco::StartCop`) are destroyed: a copy started while the guard still listens would hand itself to this one and exit. An AppImage restarts from the path in `APPIMAGE`, since the folder it runs from is unmounted when it exits.
+- **The language is the setting, or the system's.** `Translations::pick` takes the saved setting if it is available, otherwise the first of the system's preferred languages that is, otherwise English. Numbers and dates follow the system's regional format regardless; only text follows the language.
+- **`lupdate` is a manual step.** It rewrites the tracked `.ts` files, so it isn't part of the build; see "Translations" in [CodeStyle.md](CodeStyle.md). `lrelease` is, so a `.ts` change reaches the app on the next build.
+
 ## Dialogs and event loops
 
 A dialog run with `exec()` spins a nested event loop on its caller's stack. If the caller is destroyed inside that loop, the return lands in freed memory.
@@ -459,6 +470,7 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 ### Following the palette
 
 - Icons are Lucide SVGs, rendered and tinted through `ui/widgets/Glyph.h`. Each consumer keeps a small cache keyed on everything that affects the render, and asks it for the glyph each time it paints, so a new palette re-renders it.
+- **Glyphs are drawn four times larger and scaled down** (`Glyph::render`). Lucide's stroke is a twelfth of the glyph, so a 12-pixel glyph at 100% scale has a 1-pixel stroke, and Qt draws lines that thin with a separate stroker that puts them half a pixel off, spreads each evenly over two pixels, and drops round caps: an X or a chevron comes out lopsided. Drawn larger, every stroke goes through the ordinary stroker, and scaling down averages each block into the coverage the glyph has at its own size. Two alternatives were tried and rejected. Shifting the drawing half a pixel does nothing for diagonals (it moves them along themselves) and blurs the glyphs whose lines fall on odd units, such as the pin and the vault mark. Drawing a glyph one pixel smaller, so its middle lines land on pixels, sharpens a + or a chevron and blurs a file or folder. No one glyph size is sharp at every scale either: a + at 12 is soft at 100% and sharp at 125%, at 13 the reverse
 - **Anything rendered once keeps the colors of the moment.** A widget that holds a rendered glyph (a tab's icon) renders it again when its palette, its style, or its window's activation changes. This is why a page carries which glyph marks its tab, not a rendered icon.
 - **A palette change reaches a parent before its children.** A widget reacting to its own palette change reads its own palette: a child's still holds the old one.
 - Colors come from palette roles, each named by a constant in `ui/UiConstants.h` (or `views/ViewConstants.h`, for the editor and zoom parts), so a tint can be changed in one place. The editor's current-line highlight is the exception: a fixed color for a light page and another for a dark one.
@@ -500,3 +512,4 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **Each platform's own style.** The Windows styles draw parts of themselves in colors of their own rather than the palette's, and Windows 10's has no dark mode. Fusion draws from the palette alone, so one style follows light and dark everywhere.
 - **Painting selection handles on an overlay widget.** Hearth's approach. The overlay had to be realigned with the editor on every update; painted by the editor, the handles scroll with the text.
 - **Moving a vault from inside the app.** See [Future.md](Future.md).
+- **One file of named strings for translation** (Hearth's `Tr.h`: a function per string, all under one context). It would put all the text in one place and keep `lupdate` from filing a string under the wrong class. But every string would move away from the code that shows it, each would need a name kept in step with its text, and one context would merge strings that a language may need to translate differently (a tab's "Close" and the find bar's "Close"). Seeing all the text in one place is what Qt Linguist and the `.ts` files already give, and Linguist offers an existing translation when the same English comes up again. `tr()` where the text is used is how Qt expects it to be done. `lupdate`'s misreadings are rare and easy to spot; see "Translations" in [CodeStyle.md](CodeStyle.md).

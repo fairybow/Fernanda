@@ -66,6 +66,14 @@ Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80
 - Use `Coco::Path` functions in place of `QDir`. Add one to Coco if it is missing.
 - String literals use the `u"..."_s` form (`Qt::StringLiterals`). `QStringLiteral` is for `Publication.h` and `Version.h` only.
 
+## Translations
+
+- Wrap every user-facing string in `tr()` where it is used, in a class with `Q_OBJECT`. Where there is no such class, use `QCoreApplication::translate` with a context named for the code.
+- Never build a count by hand ("1 match" and "%1 matches"). Use `tr("%Ln match(es)", nullptr, n)`, so each language gets its own plural forms and the number its locale's format. Add the English forms to `Translation_en.ts`.
+- Never glue a sentence together from translated pieces. Translate the whole sentence, with `%1` for what goes in it, so a language can put the parts in its own order.
+- After changing any translatable text, build the `update_translations` target, translate in Qt Linguist, and commit the `.ts` files. A new string is marked unfinished until it is translated.
+- Check the contexts `update_translations` produces. A context that isn't a class's full name (`TabPaneTree` where `Suzuri::Ui::TabPaneTree` is meant, or a class that doesn't call `tr()`) is `lupdate` misreading the code, and its strings are never looked up. The known cause is a function whose return type is qualified (`TabPaneTree::RestoredPage buildPage_()`): `lupdate` takes the function for a member of the qualifying class. Give the type a private alias in the calling class and use that.
+
 ## Namespaces
 
 - One blank line after a namespace opens and one before it closes.

@@ -1,6 +1,6 @@
 # Features
 
-Current version: 0.7.0-beta.0
+Current version: 0.8.0-beta.0
 
 What Suzuri does today. For what is planned, undecided, or deliberately left out, see [Future.md](Future.md). For how it is built, see [Architecture.md](Architecture.md).
 
@@ -199,7 +199,7 @@ Suzuri draws its own interface, the same on every operating system: flat and qui
 
 Ctrl+, or the gear beside the vault switcher. Settings belong to the vault and apply as you change them, apart from General's, which belong to Suzuri as a whole.
 
-- **General**: the version, Check for updates, and whether Suzuri checks on its own
+- **General**: the version, Check for updates, whether Suzuri checks on its own, and the interface language
 - **Editor**: line numbers, wrap lines, left/right margin, highlight current line, selection handles, tab width, center on scroll, double-click selects whitespace, check spelling, spelling language
 - **Appearance**: text font, bold, italic, font size
 - **Status bar**: the word counter and the cursor position, and which parts of each to show
@@ -214,6 +214,15 @@ Suzuri tells you when a newer version is out. It doesn't download or install it:
 - Suzuri also checks on its own, a few seconds after it starts and then once a day while it runs. "Check for updates automatically", in General, turns this off. A check is one request to GitHub for the list of releases, and sends nothing about you or your files
 - When a newer version is found, an arrow appears in the status bar of every window. Clicking it opens General. It then stays hidden until a still newer version comes out
 - While Suzuri is in beta, every release counts, betas included
+
+## Language
+
+Suzuri's menus, settings, and messages are in English and Spanish.
+
+- By default Suzuri uses your system's language, if it's one of these, and English otherwise
+- Settings → General → Language picks one instead. The change takes effect the next time Suzuri starts, and a Relaunch button beside the setting restarts Suzuri to apply it, saving everything first as Quit does
+- Standard parts of dialogs, such as their Cancel buttons, follow the same language
+- Numbers and dates keep your system's regional format whatever the language
 
 ## What Suzuri keeps in a vault
 

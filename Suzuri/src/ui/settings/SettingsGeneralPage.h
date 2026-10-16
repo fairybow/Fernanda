@@ -13,15 +13,19 @@
 #pragma once
 
 #include <QAbstractButton>
+#include <QAction>
+#include <QComboBox>
 #include <QDesktopServices>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QString>
 #include <QWidget>
+#include <QtMinMax>
 
 #include <Coco/Debug.h>
 
 #include "core/Publication.h"
+#include "core/Translations.h"
 #include "core/Updater.h"
 #include "core/Vault.h"
 #include "core/Version.h"
@@ -32,13 +36,15 @@
 namespace Suzuri::Ui {
 
 // The settings dialog's General page, Obsidian's: the running version, a check
-// for a newer one, and whether Suzuri checks on its own. Suzuri doesn't
-// download or install updates; a found one is linked to its release page.
+// for a newer one, whether Suzuri checks on its own, and the interface
+// language. Suzuri doesn't download or install updates; a found one is linked
+// to its release page.
 //
 // Unlike the other pages, nothing here belongs to the vault. The settings are
-// App's (Updater), so every vault's General page shows the same ones, and
-// each follows the Updater's signals rather than seeding itself once: another
-// vault's dialog can change them, and a check finishes while the page is open
+// App's (Updater, Translations), so every vault's General page shows the same
+// ones, and each follows its owner's signals rather than seeding itself once:
+// another vault's dialog can change them, and a check finishes while the page
+// is open
 class SettingsGeneralPage : public SettingsPage
 {
     Q_OBJECT
@@ -47,9 +53,13 @@ public:
     SettingsGeneralPage(
         Vault* vault,
         Updater* updater,
+        Translations* translations,
+        QAction* restartAction,
         QWidget* parentSettingsDialog)
         : SettingsPage(vault, parentSettingsDialog)
         , updater_(updater)
+        , translations_(translations)
+        , restartAction_(restartAction)
     {
         setup_();
     }
@@ -58,17 +68,24 @@ public:
 
 private:
     Updater* updater_ = nullptr;
+    Translations* translations_ = nullptr;
+
+    // App's Relaunch, which quits as Quit does and starts Suzuri again
+    QAction* restartAction_ = nullptr;
 
     SettingRow* versionRow_ = nullptr;
     QPushButton* openRelease_ = nullptr;
     QPushButton* check_ = nullptr;
     ToggleSwitch* automatic_ = nullptr;
+    QComboBox* language_ = nullptr;
+    QPushButton* relaunch_ = nullptr;
 
     void setup_()
     {
         addHeading(tr("App"));
         setupVersionRow_();
         setupAutomaticRow_();
+        setupLanguageRow_();
 
         connect(
             updater_,
@@ -131,6 +148,63 @@ private:
             tr("Check when Suzuri starts, then once a day. Suzuri only "
                "tells you about an update; it downloads nothing."),
             automatic_);
+    }
+
+    // The system's language first, then each there's a translation for, by
+    // its own name. A saved language that's no longer available shows as the
+    // system's, which is what the app falls back to. Relaunch shows while the
+    // choice differs from the language in use, since a choice takes effect
+    // only when Suzuri starts again
+    void setupLanguageRow_()
+    {
+        auto* control = new QWidget(content());
+        auto* control_layout = new QHBoxLayout(control);
+        control_layout->setContentsMargins(0, 0, 0, 0);
+
+        relaunch_ = new QPushButton(tr("Relaunch"), control);
+        relaunch_->setAutoDefault(false);
+        control_layout->addWidget(relaunch_);
+
+        language_ = new QComboBox(control);
+        language_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        control_layout->addWidget(language_);
+
+        language_->addItem(tr("System default"), QString{});
+
+        for (const auto& language : Translations::available()) {
+            language_->addItem(Translations::displayName(language), language);
+        }
+
+        showLanguage_();
+
+        connect(language_, &QComboBox::activated, this, [this](int index) {
+            translations_->setSetting(language_->itemData(index).toString());
+        });
+
+        connect(
+            translations_,
+            &Translations::settingChanged,
+            this,
+            &SettingsGeneralPage::showLanguage_);
+
+        connect(
+            relaunch_,
+            &QPushButton::clicked,
+            restartAction_,
+            &QAction::trigger);
+
+        addRow(
+            tr("Language"),
+            tr("The language of Suzuri's menus, settings, and messages. "
+               "Takes effect the next time Suzuri starts."),
+            control);
+    }
+
+    void showLanguage_()
+    {
+        auto index = language_->findData(translations_->setting());
+        language_->setCurrentIndex(qMax(0, index));
+        relaunch_->setVisible(translations_->needsRestart());
     }
 
     void showState_()

@@ -87,5 +87,6 @@ inline const QString VAULT_OPEN_SETTINGS = u"vault.openSettings"_s;
 
 inline const QString APP_MANAGE_VAULTS = u"app.manageVaults"_s;
 inline const QString APP_QUIT = u"app.quit"_s;
+inline const QString APP_RESTART = u"app.restart"_s;
 
 } // namespace Suzuri::ActionIds

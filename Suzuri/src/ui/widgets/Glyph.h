@@ -14,16 +14,24 @@
 
 #include <QColor>
 #include <QIcon>
+#include <QImage>
 #include <QPainter>
 #include <QPixmap>
 #include <QRectF>
-#include <QSize>
 #include <QSvgRenderer>
 #include <QtMinMax>
 
 #include <Coco/Path.h>
 
 namespace Suzuri::Ui::Glyph {
+
+namespace Internal {
+
+// How many times larger than its canvas a glyph is drawn before it's scaled
+// down to it (render)
+inline constexpr int SUPERSAMPLE_ = 4;
+
+} // namespace Internal
 
 // Render a Lucide SVG into a tinted pixmap ourselves (Qt SVG), so the caller
 // owns its size and color rather than handing it to a QIcon theme. SourceIn
@@ -38,21 +46,46 @@ namespace Suzuri::Ui::Glyph {
 //
 // Styling is deliberately minimal. If this ever routes through an SVG-in-QSS
 // pipeline, how and where this renders can change without touching any consumer
-// that calls it
+// that calls it.
+//
+// The glyph is drawn SUPERSAMPLE_ times larger and scaled down, rather than
+// drawn at its size. Lucide's stroke is a twelfth of the glyph, so a 12-pixel
+// glyph on a 100% display has a 1-pixel stroke, and Qt draws lines that thin
+// with a separate, faster stroker. That one places lines half a pixel off and
+// spreads each across two pixels evenly, so diagonals come out as uneven
+// staircases (a lopsided X or chevron) and round caps are lost. Drawn larger,
+// every stroke is several pixels wide and goes through the ordinary stroker;
+// scaling down then averages each block of pixels into one, which is the
+// coverage the glyph would have at its own size
 [[nodiscard]] inline QPixmap
 render(const Coco::Path& svgPath, int extent, const QColor& color, qreal dpr)
 {
     dpr = qMax(qreal(1), dpr);
     QSvgRenderer renderer(svgPath.toQString());
 
-    QPixmap pixmap(QSize(extent, extent) * dpr);
-    pixmap.setDevicePixelRatio(dpr);
-    pixmap.fill(Qt::transparent);
+    auto pixels = qRound(extent * dpr);
+    auto large = pixels * Internal::SUPERSAMPLE_;
 
-    QPainter painter(&pixmap);
-    renderer.render(&painter, QRectF(0, 0, extent, extent));
+    QImage image(large, large, QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+
+    QPainter painter(&image);
+    renderer.render(&painter, QRectF(0, 0, large, large));
+    painter.end();
+
+    image = image.scaled(
+        pixels,
+        pixels,
+        Qt::IgnoreAspectRatio,
+        Qt::SmoothTransformation);
+
+    painter.begin(&image);
     painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-    painter.fillRect(QRectF(0, 0, extent, extent), color);
+    painter.fillRect(image.rect(), color);
+    painter.end();
+
+    auto pixmap = QPixmap::fromImage(image);
+    pixmap.setDevicePixelRatio(dpr);
     return pixmap;
 }
 

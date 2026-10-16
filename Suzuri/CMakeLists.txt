@@ -203,6 +203,7 @@ set(APP_HEADERS
     src/core/Publication.h
     src/core/RecentFiles.h
     src/core/TextCounts.h
+    src/core/Translations.h
     src/core/UpdateCheck.h
     src/core/Updater.h
     src/core/Vault.h
@@ -400,35 +401,58 @@ endif()
 # Translations
 # =============================================================================
 
-# WIP
+# The languages Suzuri is translated into besides English, each with a
+# translations/Translation_<lang>.ts. Translation_en.ts holds only English
+# plural forms ("%n word(s)" as "1 word", "2 words"), so English is never listed
+# here. Adding a language is adding it to this list.
+#
+# lupdate is not part of the build: it rewrites the .ts files, which are
+# tracked. Build the update_translations target after changing any translatable
+# text, translate in Qt Linguist, and commit the .ts files. lrelease is part of
+# the build, and the .qm files it makes are embedded under :/i18n, so every
+# platform loads them from the same place and nothing needs installing. Strings
+# are recorded without their source locations, so moving code doesn't change the
+# .ts files
+set(APP_LANGUAGES es)
 
-set(APP_TS_FILES
-    translations/Translation_en.ts
-    translations/Translation_es.ts
+set(_app_ts_files "")
+foreach(_language IN LISTS APP_LANGUAGES)
+    list(APPEND _app_ts_files translations/Translation_${_language}.ts)
+endforeach()
+
+qt_add_translations(
+    TARGETS Suzuri
+    SOURCE_TARGETS Suzuri
+    TS_FILES ${_app_ts_files}
+    PLURALS_TS_FILE translations/Translation_en.ts
+    RESOURCE_PREFIX /i18n
+    LUPDATE_OPTIONS -locations none
 )
 
-qt_add_lupdate(Suzuri
-    TS_FILES translations/Translation_en.ts
-    OPTIONS -pluralonly
-)
+# Qt's own text in each language (standard dialog buttons, a text field's
+# right-click menu), from the Qt install, embedded beside Suzuri's as
+# :/i18n/qtbase_<lang>.qm. A Qt install without its translations still builds;
+# that text then stays in English
+set(_qt_translations_dir "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_TRANSLATIONS}")
+set(_qt_qm_files "")
 
-qt_add_lupdate(Suzuri
-    TS_FILES translations/Translation_es.ts
-)
+foreach(_language IN LISTS APP_LANGUAGES)
+    set(_qm "${_qt_translations_dir}/qtbase_${_language}.qm")
 
-qt_add_lrelease(Suzuri
-    TS_FILES ${APP_TS_FILES}
-    QM_FILES_OUTPUT_VARIABLE QM_FILES
-)
+    if(EXISTS "${_qm}")
+        list(APPEND _qt_qm_files "${_qm}")
+    else()
+        message(WARNING "Qt's ${_language} translation not found: ${_qm}")
+    endif()
+endforeach()
 
-# Embedded, so every platform loads from the same path (e.g.
-# `:/i18n/Translation_en.qm`) and nothing needs installing. lrelease writes the
-# .qm files flat into the binary dir, which BASE strips from the alias
-qt_add_resources(Suzuri "translations"
-    PREFIX "/i18n"
-    BASE ${CMAKE_CURRENT_BINARY_DIR}
-    FILES ${QM_FILES}
-)
+if(_qt_qm_files)
+    qt_add_resources(Suzuri "qt_translations"
+        PREFIX "/i18n"
+        BASE "${_qt_translations_dir}"
+        FILES ${_qt_qm_files}
+    )
+endif()
 
 # =============================================================================
 # Install

@@ -38,6 +38,7 @@
 #include "core/AppActions.h"
 #include "core/FileRef.h"
 #include "core/RecentFiles.h"
+#include "core/Translations.h"
 #include "core/Updater.h"
 #include "core/Vault.h"
 #include "core/VaultEntry.h"
@@ -76,15 +77,16 @@ public:
     // is App's vaultEntries(), passed straight to the Sidebar's switcher.
     // appActions are App's own actions: the base adopts them, and this window
     // hands the set on to every pop-out it makes. spellCheckers is App's too,
-    // and is where each text view's dictionary comes from. So is updater,
-    // which the settings dialog's General page shows
+    // and is where each text view's dictionary comes from. So are updater
+    // and translations, which the settings dialog's General page shows
     VaultWindow(
         Vault* borrowedVault,
         Vault* commonVault,
         std::function<QList<VaultEntry>()> vaultsProvider,
         const AppActions& appActions,
         SpellCheckers* spellCheckers,
-        Updater* updater)
+        Updater* updater,
+        Translations* translations)
         : BaseWindow(appActions, updater)
         , vault_(borrowedVault)
         , commonVault_(commonVault)
@@ -92,6 +94,7 @@ public:
         , appActions_(appActions)
         , spellCheckers_(spellCheckers)
         , updater_(updater)
+        , translations_(translations)
     {
         setup_();
     }
@@ -213,6 +216,12 @@ protected:
     }
 
 private:
+    // buildPage_'s return type. lupdate reads a function whose return type is
+    // qualified (TabPaneTree::RestoredPage) as a member of the qualifying
+    // class, and files its tr() text under that class's name, where the
+    // translation is never looked up
+    using RestoredPage_ = TabPaneTree::RestoredPage;
+
     Vault* vault_ = nullptr;
     Vault* commonVault_ = nullptr;
 
@@ -230,6 +239,9 @@ private:
     // App's update checker, for the settings dialog and the status bar's
     // update notice. Not owned
     Updater* updater_ = nullptr;
+
+    // App's interface language, for the settings dialog. Not owned
+    Translations* translations_ = nullptr;
 
     Sidebar* sidebar_ = nullptr;
 
@@ -585,7 +597,9 @@ private:
                 vault_,
                 spellCheckers_,
                 updater_,
+                translations_,
                 action(ActionIds::APP_QUIT),
+                action(ActionIds::APP_RESTART),
                 this);
         }
 
@@ -900,7 +914,7 @@ private:
     // silently dropped — then mints a view on the (deduped) model exactly as
     // openFile does and hands it its own state blob to restore. Non-const:
     // makeView_ opens a model, mutating the Vault's map
-    [[nodiscard]] TabPaneTree::RestoredPage buildPage_(const QJsonValue& value)
+    [[nodiscard]] RestoredPage_ buildPage_(const QJsonValue& value)
     {
         namespace WK = WorkspaceKeys;
 
