@@ -1126,13 +1126,17 @@ private:
         return true;
     }
 
+    // A disabled row (a settings group title) gets no hover wash: an item
+    // view marks the row under the mouse as hovered whether or not it's
+    // enabled
     static void fillRowWash_(
         const QStyleOption* option,
         const QRectF& rect,
         QPainter* painter)
     {
         auto selected = option->state & State_Selected;
-        auto hovered = option->state & State_MouseOver;
+        auto hovered = (option->state & State_MouseOver) &&
+                       (option->state & State_Enabled);
         if (!selected && !hovered) {
             return;
         }

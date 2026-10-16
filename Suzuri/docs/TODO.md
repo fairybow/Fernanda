@@ -9,7 +9,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Pop-out Z-order isn't restored: a pop-out that was in front of its vault window comes back behind it. Vault windows restore in the right order among themselves, so this may be pop-outs only, and may not be fixable (which would be fine)
 - [ ] Opening the file that is already in the active, unpinned tab should do nothing
 - [ ] Minor: dragging a file quickly from near its row's bottom edge moves the selection highlight down to the next row, though that row isn't selected
-- [ ] The "Options" heading in the settings dialog can be hovered or selected and probably shouldn't be
+- [x] The "Options" heading in the settings dialog took the hover wash, as if it could be chosen. An item view marks the row under the mouse as hovered even when it's disabled, so `Style` now gives a disabled row no hover wash
 - [x] Clicking "Check for updates" moved focus to the next control. The button was disabled while a check ran, and a disabled widget gives up focus. It now stays enabled: asking again starts no second check
 - [x] A combo box's drop-down list showed two edges, a rounded panel inside a square window, and was narrower than its box, cutting off "System default". `Style` now draws the list's window as a menu's (see "The style" in [Architecture.md](Architecture.md))
 - [x] A combo box's longest value could lose its last character ("English (United States)" at 125%). Qt left no room after the text once the scroll bars were made thin; `Style` adds `STYLE_FIELD_H_PADDING`
