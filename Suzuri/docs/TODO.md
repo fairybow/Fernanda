@@ -10,6 +10,9 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Opening the file that is already in the active, unpinned tab should do nothing
 - [ ] Minor: dragging a file quickly from near its row's bottom edge moves the selection highlight down to the next row, though that row isn't selected
 - [ ] The "Options" heading in the settings dialog can be hovered or selected and probably shouldn't be
+- [x] Clicking "Check for updates" moved focus to the next control. The button was disabled while a check ran, and a disabled widget gives up focus. It now stays enabled: asking again starts no second check
+- [x] A combo box's drop-down list showed two edges, a rounded panel inside a square window, and was narrower than its box, cutting off "System default". `Style` now draws the list's window as a menu's (see "The style" in [Architecture.md](Architecture.md))
+- [x] A combo box's longest value could lose its last character ("English (United States)" at 125%). Qt left no room after the text once the scroll bars were made thin; `Style` adds `STYLE_FIELD_H_PADDING`
 - [x] At 100% scale, the tab close X and the tree's chevrons were lopsided. At 12 pixels Lucide's stroke is 1 pixel, and Qt draws a line that thin with a stroker that misplaces it by half a pixel. `Glyph::render` now draws larger and scales down (see "Following the palette" in [Architecture.md](Architecture.md))
 - [x] Translations didn't work. Nothing installed a `QTranslator`, and both `.ts` files were empty, since the `update_translations` target that fills them had never been run. `Translations` now installs them at launch, and the `.ts` files are filled
 - [x] A window's current tab didn't have focus after restore. The tab pages were focused while the window was still hidden, which a widget can't take, so `BaseWindow` now focuses the active page on its first show
@@ -33,7 +36,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] When `Vault::addToDictionary` can't write `dictionary.txt`, the failure is only logged: the word is accepted until the vault closes and is gone the next time it opens, with nothing shown
 - [ ] A bundled dictionary is copied to the dictionaries folder once and never replaced, so a newer one in a later release doesn't reach an existing install
 - [ ] If a file reloads from disk while the editor's context menu is open, a suggestion chosen afterward is inserted wherever the word's cursor ended up, not over the word
-- [ ] Menus are drawn rounded in a see-through window, which needs a compositor on Linux. Without one, the corners may show dark. `Style` could draw square menus there instead
+- [ ] Menus and drop-down lists are drawn rounded in a see-through window, which needs a compositor on Linux. Without one, the corners may show dark. `Style` could draw them square there instead
 - [ ] A web address or a file path is spellchecked piece by piece, so "github" and "com" are marked
 - [ ] Unverified: text in decomposed Unicode form (a letter followed by a separate combining accent) is probably marked as misspelled against a dictionary that stores the single-character form. If so, normalize a word before it is checked
 

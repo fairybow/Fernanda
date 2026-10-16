@@ -192,7 +192,7 @@ Suzuri draws its own interface, the same on every operating system: flat and qui
 - It follows the system's light or dark mode, and switches with it while Suzuri is running
 - The system's accent color marks the default button in a dialog, a focused text field, the selected row of a list, and a slider's filled track
 - The current tab is the color of the page below it
-- Menus are rounded, with a soft shadow
+- Menus are rounded, with a soft shadow, and so are the drop-down lists of choices in Settings
 - The current line highlight is a soft blue on a light page and a muted red on a dark one
 
 ## Settings
@@ -291,5 +291,5 @@ Suzuri follows Obsidian's behavior wherever it has no reason not to. Where it di
 - Word counts run low for Thai, Lao, Khmer, and Myanmar text
 - Spelling suggestions can take a moment to appear for a long or badly garbled word
 - Right-to-left layouts are not supported
-- On Linux without a compositing window manager, menus may show dark corners outside their rounded edges
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
 - macOS and Linux builds exist but are not well tested

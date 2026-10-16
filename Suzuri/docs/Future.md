@@ -53,7 +53,6 @@ Nothing here is a promise or a schedule.
 - Font previews in the font list
 - Separate interface and monospace font settings
 - Hearth's color bar
-- Combo box drop-down lists drawn like the menus: rounded, with a border and a shadow. Qt draws them in a container of its own, not as a menu
 
 ### Editor details
 
