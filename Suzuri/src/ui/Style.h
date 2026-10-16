@@ -16,6 +16,7 @@
 #include <QAbstractScrollArea>
 #include <QBrush>
 #include <QColor>
+#include <QComboBox>
 #include <QFrame>
 #include <QMenu>
 #include <QPainter>
@@ -79,7 +80,7 @@ using namespace Qt::StringLiterals;
 //   handle
 // - Menus are rounded panels in the page's color, with a hairline border and
 //   a soft shadow, and their items and the menu bar's are highlighted with
-//   the rounded wash
+//   the rounded wash. A combo box's drop-down list is drawn the same way
 // - In a light palette, the window's color is moved toward the page's
 //   (polish), so the sidebar, tab bar, and dialogs are lighter than the
 //   platform's grey
@@ -151,7 +152,11 @@ public:
     // square shadow is turned off. Both are set here, before the menu's window
     // is first made. On Windows a window is see-through only if it's also
     // frameless (Qt::WA_TranslucentBackground), and a popup doesn't count as
-    // frameless unless it says so, so the flag is set first
+    // frameless unless it says so, so the flag is set first.
+    //
+    // A combo box's drop-down list gets the same (isComboPopup_): Qt fills
+    // its window with the menu panel, which an opaque, square window would
+    // show inside a second edge
     void polish(QWidget* widget) override
     {
         QProxyStyle::polish(widget);
@@ -165,7 +170,7 @@ public:
             view->viewport()->setAutoFillBackground(false);
         }
 
-        if (qobject_cast<QMenu*>(widget)) {
+        if (qobject_cast<QMenu*>(widget) || isComboPopup_(widget)) {
             widget->setWindowFlags(widget->windowFlags() | MENU_WINDOW_FLAGS_);
             widget->setAttribute(Qt::WA_TranslucentBackground, true);
         }
@@ -173,7 +178,7 @@ public:
 
     void unpolish(QWidget* widget) override
     {
-        if (qobject_cast<QMenu*>(widget)) {
+        if (qobject_cast<QMenu*>(widget) || isComboPopup_(widget)) {
             widget->setAttribute(Qt::WA_TranslucentBackground, false);
             widget->setWindowFlags(widget->windowFlags() & ~MENU_WINDOW_FLAGS_);
         }
@@ -203,6 +208,12 @@ public:
             }
             break;
         case PM_DefaultFrameWidth:
+            // A drop-down list's frame is a menu's margin: the shadow and the
+            // border inside it, which keep its rows inside the panel
+            if (isComboPopup_(widget)) {
+                return STYLE_MENU_SHADOW + 1;
+            }
+
             // A framed item view's rows sit inside its rounded panel, not
             // against the border
             if (qobject_cast<const QAbstractItemView*>(widget)) {
@@ -263,6 +274,15 @@ public:
             result.rheight() += 2 * (qobject_cast<const QTreeView*>(widget)
                                          ? STYLE_TREE_ROW_V_PADDING
                                          : STYLE_LIST_ROW_V_PADDING);
+        } else if (type == CT_ComboBox) {
+            // Qt sizes a combo box so its longest text exactly fills the room
+            // before the arrow. Under Fusion a few pixels are left over, from
+            // QCommonStyle's allowance for the arrow, which follows the scroll
+            // bar's width; Suzuri's thinner scroll bars take them away, and
+            // text drawn a fraction wider than measured (as at 125% scale)
+            // loses its end. The text gets FIELD_H_PADDING after it instead,
+            // as it has before it
+            result.rwidth() += STYLE_FIELD_H_PADDING;
         } else if (type == CT_LineEdit) {
             // A field with room around its text (see SE_LineEditContents)
             result +=
@@ -318,6 +338,29 @@ public:
         SubControl subControl,
         const QWidget* widget = nullptr) const override
     {
+        // A drop-down list's window reaches past its combo box on both sides
+        // (see STYLE_COMBO_POPUP_OVERHANG), so its rows' text lines up with
+        // the box's and has the box's room
+        if (control == CC_ComboBox && subControl == SC_ComboBoxListBoxPopup) {
+            auto rect = QProxyStyle::subControlRect(
+                control,
+                option,
+                subControl,
+                widget);
+
+            if (auto* combo =
+                    qstyleoption_cast<const QStyleOptionComboBox*>(option);
+                combo && !combo->editable) {
+                return rect.adjusted(
+                    -STYLE_COMBO_POPUP_OVERHANG,
+                    0,
+                    STYLE_COMBO_POPUP_OVERHANG,
+                    0);
+            }
+
+            return rect;
+        }
+
         if (control == CC_ScrollBar) {
             if (auto* bar =
                     qstyleoption_cast<const QStyleOptionSlider*>(option)) {
@@ -373,6 +416,14 @@ public:
         case PE_FrameMenu:
             drawMenuBorder_(option, painter);
             return;
+
+        case PE_Frame:
+            // A drop-down list's window is a QFrame, framed by this
+            if (isComboPopup_(widget)) {
+                drawMenuBorder_(option, painter);
+                return;
+            }
+            break;
 
         case PE_FrameFocusRect:
             // The rows' wash already says which one is current
@@ -551,6 +602,21 @@ public:
 private:
     static constexpr auto MENU_WINDOW_FLAGS_ =
         Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint;
+
+    // A combo box's drop-down list: the popup window Qt makes for it, as a
+    // child of the combo box. Its class is private to Qt, so it's known by
+    // where it sits instead. Only a combo box that can't be typed in gets a
+    // menu-style list (Fusion's SH_ComboBox_Popup), whose window Qt fills with
+    // the menu panel; an editable one's list is left as Fusion draws it
+    [[nodiscard]] static bool isComboPopup_(const QWidget* widget)
+    {
+        if (!widget || widget->windowType() != Qt::Popup) {
+            return false;
+        }
+
+        auto* combo = qobject_cast<const QComboBox*>(widget->parentWidget());
+        return combo && !combo->isEditable();
+    }
 
     static void setHoverTracked_(QWidget* widget, bool on)
     {

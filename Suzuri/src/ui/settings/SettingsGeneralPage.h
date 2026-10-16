@@ -75,7 +75,6 @@ private:
 
     SettingRow* versionRow_ = nullptr;
     QPushButton* openRelease_ = nullptr;
-    QPushButton* check_ = nullptr;
     ToggleSwitch* automatic_ = nullptr;
     QComboBox* language_ = nullptr;
     QPushButton* relaunch_ = nullptr;
@@ -111,18 +110,21 @@ private:
         openRelease_ = new QPushButton(tr("Open release page"), control);
         control_layout->addWidget(openRelease_);
 
-        check_ = new QPushButton(tr("Check for updates"), control);
-        control_layout->addWidget(check_);
+        auto* check = new QPushButton(tr("Check for updates"), control);
+        control_layout->addWidget(check);
 
         // Neither is the dialog's default button, which Enter would press
         openRelease_->setAutoDefault(false);
-        check_->setAutoDefault(false);
+        check->setAutoDefault(false);
 
         connect(openRelease_, &QPushButton::clicked, this, [this] {
             QDesktopServices::openUrl(updater_->release().pageUrl);
         });
 
-        connect(check_, &QPushButton::clicked, updater_, &Updater::check);
+        // Check stays enabled while a check runs. Asking again starts no
+        // second one (Updater::check), and disabling the button would move
+        // focus off it to the next control
+        connect(check, &QPushButton::clicked, updater_, &Updater::check);
 
         // The description is the check's result, which showState_ fills in
         versionRow_ = addRow(
@@ -213,7 +215,6 @@ private:
 
         versionRow_->setDescription(stateText_(state));
         openRelease_->setVisible(state == Updater::State::Available);
-        check_->setEnabled(state != Updater::State::Checking);
     }
 
     [[nodiscard]] QString stateText_(Updater::State state) const
