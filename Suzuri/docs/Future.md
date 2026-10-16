@@ -91,7 +91,7 @@ Committing a vault to a repository, for backup and history.
 
 ### Translations
 
-- Singular and plural forms for the word counter's text ("1 word", "2 words")
+- A Relaunch button beside the Language setting, as Obsidian has. Starting a second copy of Suzuri while the first is still quitting hands it straight to the first, so a relaunch needs the first to finish before the second starts
 
 ## Maybe
 

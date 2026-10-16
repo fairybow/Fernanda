@@ -73,7 +73,7 @@ flowchart TD
 
 | Owner | Owns |
 |---|---|
-| `App` | The common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`). Tracks each `VaultWindow` and the `ManageVaults` window |
+| `App` | The common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
 | `Vault` | Its file buffers, a watcher over its open files, its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.suzuri/` folder |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
 | `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows two vaults |
@@ -334,7 +334,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 
 | What | File | Type | Owner |
 |---|---|---|---|
-| Known vaults, session, last-used folder, update settings | `suzuri.json` in the app data folder | `AppConfig` | `App` |
+| Known vaults, session, last-used folder, update settings, interface language | `suzuri.json` in the app data folder | `AppConfig` | `App` |
 | Per-vault settings | `.suzuri/settings.json`, `.suzuri/appearance.json` | `VaultConfig` | `Vault` |
 | Window and tab layout | `.suzuri/workspace.json` | `WorkspaceFile` | `VaultWindow` |
 | A vault's dictionary | `.suzuri/dictionary.txt`, one word per line | `WordList` | `Vault` |
@@ -435,6 +435,16 @@ Suzuri tells the user about a newer release and links to it. It doesn't download
 - **An automatic check that fails is only logged,** and the state goes back to what it was. A check the user asked for reports why it failed. One check runs at a time.
 - **The notice's click belongs to `VaultWindow`.** It wires the notice in its own status bar and in each pop-out's: dismiss the notice, which hides it in every window, and open the vault's settings on General.
 
+## Translations
+
+Every user-facing string is wrapped in `tr()` where it is used, in a class with `Q_OBJECT` (or in `QCoreApplication::translate` with a named context, where there is no such class). `lupdate` files each string under its class's name, and that is the context it is looked up in at run time.
+
+- **The catalogs are embedded.** `qt_add_translations` builds a `.qm` file from each `.ts` file and embeds it under `:/i18n`, beside Qt's own `qtbase_<lang>.qm` from the Qt install. Every platform loads them from the same place, and nothing is installed. `APP_LANGUAGES` in `CMakeLists.txt` lists the languages; `Translations` finds them at run time by looking in `:/i18n`, so there is no second list.
+- **English has a catalog too.** `Translation_en.ts` holds only plural forms, so that `tr("%Ln word(s)", nullptr, n)` reads "1 word" and "2 words".
+- **Translators are installed before any text is made.** Text is set once, as each widget and action is built, so `App::init` loads `suzuri.json`, installs the translators, and only then builds its actions and windows. For the same reason a new language setting takes effect at the next launch.
+- **The language is the setting, or the system's.** `Translations::pick` takes the saved setting if it is available, otherwise the first of the system's preferred languages that is, otherwise English. Numbers and dates follow the system's regional format regardless; only text follows the language.
+- **`lupdate` is a manual step.** It rewrites the tracked `.ts` files, so it isn't part of the build; see "Translations" in [CodeStyle.md](CodeStyle.md). `lrelease` is, so a `.ts` change reaches the app on the next build.
+
 ## Dialogs and event loops
 
 A dialog run with `exec()` spins a nested event loop on its caller's stack. If the caller is destroyed inside that loop, the return lands in freed memory.
@@ -500,3 +510,4 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **Each platform's own style.** The Windows styles draw parts of themselves in colors of their own rather than the palette's, and Windows 10's has no dark mode. Fusion draws from the palette alone, so one style follows light and dark everywhere.
 - **Painting selection handles on an overlay widget.** Hearth's approach. The overlay had to be realigned with the editor on every update; painted by the editor, the handles scroll with the text.
 - **Moving a vault from inside the app.** See [Future.md](Future.md).
+- **One file of named strings for translation** (Hearth's `Tr.h`: a function per string, all under one context). It would put all the text in one place and keep `lupdate` from filing a string under the wrong class. But every string would move away from the code that shows it, each would need a name kept in step with its text, and one context would merge strings that a language may need to translate differently (a tab's "Close" and the find bar's "Close"). Seeing all the text in one place is what Qt Linguist and the `.ts` files already give, and Linguist offers an existing translation when the same English comes up again. `tr()` where the text is used is how Qt expects it to be done. `lupdate`'s misreadings are rare and easy to spot; see "Translations" in [CodeStyle.md](CodeStyle.md).
