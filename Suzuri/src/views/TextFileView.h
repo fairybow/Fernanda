@@ -22,7 +22,6 @@
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QList>
-#include <QLocale>
 #include <QMenu>
 #include <QPlainTextDocumentLayout>
 #include <QPlainTextEdit>
@@ -547,11 +546,8 @@ private:
             findBar_->replacement(),
             findBar_->options());
 
-        if (replaced == 1) {
-            findBar_->setMessage(tr("1 replaced"));
-        } else if (replaced > 1) {
-            findBar_->setMessage(
-                tr("%1 replaced").arg(QLocale().toString(replaced)));
+        if (replaced > 0) {
+            findBar_->setMessage(tr("%Ln replaced", nullptr, replaced));
         }
     }
 

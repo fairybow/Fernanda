@@ -161,10 +161,8 @@ public:
             count_->clear();
         } else if (total == 0) {
             count_->setText(tr("No matches"));
-        } else if (current < 0 && total == 1) {
-            count_->setText(tr("1 match"));
         } else if (current < 0) {
-            count_->setText(tr("%1 matches").arg(locale.toString(total)));
+            count_->setText(tr("%Ln match(es)", nullptr, total));
         } else {
             count_->setText(
                 tr("%1 of %2")

@@ -216,6 +216,12 @@ protected:
     }
 
 private:
+    // buildPage_'s return type. lupdate reads a function whose return type is
+    // qualified (TabPaneTree::RestoredPage) as a member of the qualifying
+    // class, and files its tr() text under that class's name, where the
+    // translation is never looked up
+    using RestoredPage_ = TabPaneTree::RestoredPage;
+
     Vault* vault_ = nullptr;
     Vault* commonVault_ = nullptr;
 
@@ -907,7 +913,7 @@ private:
     // silently dropped — then mints a view on the (deduped) model exactly as
     // openFile does and hands it its own state blob to restore. Non-const:
     // makeView_ opens a model, mutating the Vault's map
-    [[nodiscard]] TabPaneTree::RestoredPage buildPage_(const QJsonValue& value)
+    [[nodiscard]] RestoredPage_ buildPage_(const QJsonValue& value)
     {
         namespace WK = WorkspaceKeys;
 

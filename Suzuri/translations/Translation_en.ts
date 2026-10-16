@@ -1,6 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-Run the update_translations CMake target to populate the source strings in this file.
--->
 <!DOCTYPE TS>
-<TS version="2.1" language="en" sourcelanguage="en"/>
+<TS version="2.1" language="en" sourcelanguage="en">
+<context>
+    <name>Suzuri::FindBar</name>
+    <message numerus="yes">
+        <source>%Ln match(es)</source>
+        <translation>
+            <numerusform>%Ln match</numerusform>
+            <numerusform>%Ln matches</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Suzuri::TextFileView</name>
+    <message numerus="yes">
+        <source>%Ln replaced</source>
+        <translation>
+            <numerusform>%Ln replaced</numerusform>
+            <numerusform>%Ln replaced</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Suzuri::Ui::WordCounter</name>
+    <message numerus="yes">
+        <source>%L1 of %Ln word(s)</source>
+        <extracomment>Status bar word count. The first form is the whole document; the second is shown while text is selected, where %L1 is the selection&apos;s word count and %Ln the document&apos;s.</extracomment>
+        <translation>
+            <numerusform>%L1 of %Ln word</numerusform>
+            <numerusform>%L1 of %Ln words</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln word(s)</source>
+        <translation>
+            <numerusform>%Ln word</numerusform>
+            <numerusform>%Ln words</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%L1 of %Ln character(s)</source>
+        <extracomment>Status bar character count; forms as for the word count.</extracomment>
+        <translation>
+            <numerusform>%L1 of %Ln character</numerusform>
+            <numerusform>%L1 of %Ln characters</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln character(s)</source>
+        <translation>
+            <numerusform>%Ln character</numerusform>
+            <numerusform>%Ln characters</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%L1 of %Ln line(s)</source>
+        <extracomment>Status bar line count; forms as for the word count.</extracomment>
+        <translation>
+            <numerusform>%L1 of %Ln line</numerusform>
+            <numerusform>%L1 of %Ln lines</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln line(s)</source>
+        <translation>
+            <numerusform>%Ln line</numerusform>
+            <numerusform>%Ln lines</numerusform>
+        </translation>
+    </message>
+</context>
+</TS>
