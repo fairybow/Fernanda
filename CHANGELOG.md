@@ -102,6 +102,33 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.8.0-beta.0 (Languages) - tag v0.8.0-beta.0
+
+## What's New?
+
+Suzuri can now be used in another language, starting with Spanish.
+
+- **Settings → General → Language** chooses the language of Suzuri's menus, settings, and messages. **System default** uses your system's language when Suzuri has it, and English otherwise
+- **A new language takes effect when Suzuri starts again.** After you choose one, a **Relaunch** button appears next to the list. It closes Suzuri as Quit does and reopens it in the new language
+- Text that Qt draws itself, such as the buttons in standard dialogs, follows the language too. Numbers and dates keep your system's format
+- **The Spanish translation is a first draft** and hasn't been reviewed yet. Expect some awkward or mistaken wording
+
+Also in this release:
+
+- **Fixed:** at 100% display scaling, the X on tabs and the arrows in the file tree were drawn lopsided
+
+## Known Issues
+
+- The Spanish translation is an unreviewed draft
+- Drop-down lists (in Settings, for example) are square, unlike the menus
+- On Linux without a compositing window manager, menus may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.7.0-beta.0 (Updates) - tag v0.7.0-beta.0
 
 ## What's New?
