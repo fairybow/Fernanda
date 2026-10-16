@@ -89,10 +89,6 @@ Committing a vault to a repository, for backup and history.
 - The repository is found by walking up from the vault's folder, as Git does. One repository may hold several vaults, and a vault may have none
 - Status and commit would therefore belong to the repository, not the vault. Otherwise a commit from one vault would silently include another's changes
 
-### Translations
-
-- A Relaunch button beside the Language setting, as Obsidian has. Starting a second copy of Suzuri while the first is still quitting hands it straight to the first, so a relaunch needs the first to finish before the second starts
-
 ## Maybe
 
 - **Moving the Common Vault.** Would let it live somewhere other than `Documents/Suzuri/Common Vault`. See "Moving a vault from inside Suzuri" below for why this is hard
@@ -135,6 +131,7 @@ Committing a vault to a repository, for backup and history.
 - **Renaming in place in the file tree** (F2). Rename uses a dialog, which checks the name as it is typed
 - **File associations.** Suzuri doesn't register itself for any file type
 - **Right-to-left layouts**
+- **Switching language without a restart.** Qt can swap translations while running, but every widget would have to set its text again when told, and Suzuri sets its text once, as each widget is built. Every class with text would need a second path for it, and a string missed in one would leave a window half in each language. Relaunch, beside the Language setting, does the job as Obsidian's does
 
 ## Open questions
 

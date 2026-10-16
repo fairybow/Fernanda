@@ -13,6 +13,7 @@
 #pragma once
 
 #include <QAbstractButton>
+#include <QAction>
 #include <QComboBox>
 #include <QDesktopServices>
 #include <QHBoxLayout>
@@ -53,10 +54,12 @@ public:
         Vault* vault,
         Updater* updater,
         Translations* translations,
+        QAction* restartAction,
         QWidget* parentSettingsDialog)
         : SettingsPage(vault, parentSettingsDialog)
         , updater_(updater)
         , translations_(translations)
+        , restartAction_(restartAction)
     {
         setup_();
     }
@@ -67,11 +70,15 @@ private:
     Updater* updater_ = nullptr;
     Translations* translations_ = nullptr;
 
+    // App's Relaunch, which quits as Quit does and starts Suzuri again
+    QAction* restartAction_ = nullptr;
+
     SettingRow* versionRow_ = nullptr;
     QPushButton* openRelease_ = nullptr;
     QPushButton* check_ = nullptr;
     ToggleSwitch* automatic_ = nullptr;
     QComboBox* language_ = nullptr;
+    QPushButton* relaunch_ = nullptr;
 
     void setup_()
     {
@@ -145,11 +152,23 @@ private:
 
     // The system's language first, then each there's a translation for, by
     // its own name. A saved language that's no longer available shows as the
-    // system's, which is what the app falls back to
+    // system's, which is what the app falls back to. Relaunch shows while the
+    // choice differs from the language in use, since a choice takes effect
+    // only when Suzuri starts again
     void setupLanguageRow_()
     {
-        language_ = new QComboBox(content());
+        auto* control = new QWidget(content());
+        auto* control_layout = new QHBoxLayout(control);
+        control_layout->setContentsMargins(0, 0, 0, 0);
+
+        relaunch_ = new QPushButton(tr("Relaunch"), control);
+        relaunch_->setAutoDefault(false);
+        control_layout->addWidget(relaunch_);
+
+        language_ = new QComboBox(control);
         language_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        control_layout->addWidget(language_);
+
         language_->addItem(tr("System default"), QString{});
 
         for (const auto& language : Translations::available()) {
@@ -168,17 +187,24 @@ private:
             this,
             &SettingsGeneralPage::showLanguage_);
 
+        connect(
+            relaunch_,
+            &QPushButton::clicked,
+            restartAction_,
+            &QAction::trigger);
+
         addRow(
             tr("Language"),
             tr("The language of Suzuri's menus, settings, and messages. "
                "Takes effect the next time Suzuri starts."),
-            language_);
+            control);
     }
 
     void showLanguage_()
     {
         auto index = language_->findData(translations_->setting());
         language_->setCurrentIndex(qMax(0, index));
+        relaunch_->setVisible(translations_->needsRestart());
     }
 
     void showState_()

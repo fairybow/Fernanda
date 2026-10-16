@@ -53,6 +53,10 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <translation type="unfinished">Administrar bóvedas</translation>
     </message>
     <message>
+        <source>Relaunch</source>
+        <translation type="unfinished">Reiniciar</translation>
+    </message>
+    <message>
         <source>The folder for vault &quot;%1&quot; was moved or deleted outside %2, so its window will close.</source>
         <translation type="unfinished">La carpeta de la bóveda &quot;%1&quot; se movió o se eliminó fuera de %2, así que su ventana se cerrará.</translation>
     </message>
@@ -677,6 +681,10 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     <message>
         <source>Open release page</source>
         <translation type="unfinished">Abrir página de la versión</translation>
+    </message>
+    <message>
+        <source>Relaunch</source>
+        <translation type="unfinished">Reiniciar</translation>
     </message>
     <message>
         <source>Check for updates</source>

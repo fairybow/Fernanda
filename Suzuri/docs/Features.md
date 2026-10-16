@@ -220,7 +220,7 @@ Suzuri tells you when a newer version is out. It doesn't download or install it:
 Suzuri's menus, settings, and messages are in English and Spanish.
 
 - By default Suzuri uses your system's language, if it's one of these, and English otherwise
-- Settings → General → Language picks one instead. The change takes effect the next time Suzuri starts
+- Settings → General → Language picks one instead. The change takes effect the next time Suzuri starts, and a Relaunch button beside the setting restarts Suzuri to apply it, saving everything first as Quit does
 - Standard parts of dialogs, such as their Cancel buttons, follow the same language
 - Numbers and dates keep your system's regional format whatever the language
 

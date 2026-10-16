@@ -599,6 +599,7 @@ private:
                 updater_,
                 translations_,
                 action(ActionIds::APP_QUIT),
+                action(ActionIds::APP_RESTART),
                 this);
         }
 

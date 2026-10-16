@@ -113,6 +113,14 @@ public:
     // The language in use since launch
     [[nodiscard]] const QString& language() const noexcept { return language_; }
 
+    // Whether the setting picks a language other than the one in use, so
+    // Suzuri has to start again to show it
+    [[nodiscard]] bool needsRestart() const
+    {
+        return pick(available(), setting_, QLocale::system().uiLanguages()) !=
+               language_;
+    }
+
     // Takes effect at the next launch
     void setSetting(const QString& setting)
     {

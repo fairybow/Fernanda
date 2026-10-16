@@ -79,6 +79,7 @@ public:
         Updater* updater,
         Translations* translations,
         QAction* quitAction,
+        QAction* restartAction,
         QWidget* parentVaultWindow)
         : QDialog(parentVaultWindow)
         , vault_(vault)
@@ -86,7 +87,7 @@ public:
         , updater_(updater)
         , translations_(translations)
     {
-        setup_(quitAction);
+        setup_(quitAction, restartAction);
     }
 
     ~SettingsDialog() override { TRACER; }
@@ -127,7 +128,7 @@ private:
     // The nav's group-title rows, recolored on palette change. Owned by nav_
     QList<QListWidgetItem*> groupTitles_{};
 
-    void setup_(QAction* quitAction)
+    void setup_(QAction* quitAction, QAction* restartAction)
     {
         auto name = vault_->root().nameQString();
         setWindowTitle(tr("Settings — %1").arg(name));
@@ -138,8 +139,12 @@ private:
         setupNavColumn_(name);
 
         addGroupTitle_(tr("Options"));
-        generalPage_ =
-            new SettingsGeneralPage(vault_, updater_, translations_, this);
+        generalPage_ = new SettingsGeneralPage(
+            vault_,
+            updater_,
+            translations_,
+            restartAction,
+            this);
         addPage_(tr("General"), generalPage_);
         addPage_(
             tr("Editor"),

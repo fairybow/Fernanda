@@ -151,6 +151,14 @@ public:
         return entries;
     }
 
+    // Whether the app quit to start again (the General page's Relaunch). Read
+    // by main once the event loop has returned, after every window has closed
+    // and saved
+    [[nodiscard]] bool restartRequested() const noexcept
+    {
+        return restartRequested_;
+    }
+
 signals:
     // The vaults list OR its derived open-state changed — a vault opened,
     // closed, removed, or renamed. A live ManageVaults rebuilds its recents
@@ -175,6 +183,10 @@ private:
     // by onVaultWindowDestroyed_ so the teardown that follows doesn't clear the
     // very flags we just persisted
     bool quitting_ = false;
+
+    // Set by onRestartRequested_ for main to read. Not to be confused with
+    // onRelaunch, which is a second launch handing its arguments to this one
+    bool restartRequested_ = false;
 
     // Set while checkVaultFolders_ has its message up, so switching away and
     // back meanwhile doesn't run the check again and stack a second box
@@ -276,10 +288,10 @@ private:
     }
 
     // Wire the App-owned actions, from init, once the translators are in. One
-    // connect each, for the whole program: a
-    // window adopts these pointers to display them and to bind their shortcuts,
-    // and never relays a triggered signal back up. Adding one here is all it
-    // takes — every window adopts the set wholesale.
+    // connect each, for the whole program: a window adopts these pointers to
+    // display them and to bind their shortcuts, and never relays a triggered
+    // signal back up. Adding one here is all it takes — every window adopts the
+    // set wholesale.
     //
     // Quit must route through the graceful close path, which can still REFUSE
     // on a failed write — onQuitRequested_ does that; qApp->quit() would skip
@@ -301,6 +313,10 @@ private:
             this,
             &App::openManageVaults_);
         appActions_.insert(ActionIds::APP_MANAGE_VAULTS, manage_vaults);
+
+        auto* restart = new QAction(tr("Relaunch"), this);
+        connect(restart, &QAction::triggered, this, &App::onRestartRequested_);
+        appActions_.insert(ActionIds::APP_RESTART, restart);
     }
 
     void initDebug_(const QStringList& args)
@@ -726,6 +742,18 @@ private:
 
         if (manageVaults_) {
             manageVaults_->close();
+        }
+    }
+
+    // Quit by the usual path, then main starts Suzuri again once this copy is
+    // gone. A quit refused over a failed write starts nothing
+    void onRestartRequested_()
+    {
+        restartRequested_ = true;
+        onQuitRequested_();
+
+        if (!quitting_) {
+            restartRequested_ = false;
         }
     }
 

@@ -10,6 +10,12 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
+#include <QCoreApplication>
+#include <QProcess>
+#include <QString>
+#include <QStringList>
+#include <QtEnvironmentVariables>
+
 #include <Coco/StartCop.h>
 
 #include "App.h"
@@ -17,19 +23,44 @@
 
 int main(int argc, char* argv[])
 {
-    Coco::StartCop cop(PUB_APP_NAME_STRING, argc, argv);
+    auto exit_code = 0;
+    auto restart = false;
+    QString program{};
+    QStringList arguments{};
 
-    if (cop.isRunning()) {
-        return 0;
+    // The app and the single-instance guard live in this scope, so both are
+    // gone before a restart starts the next copy. A copy started while the
+    // guard is still listening would hand itself to this one and exit
+    {
+        Coco::StartCop cop(PUB_APP_NAME_STRING, argc, argv);
+
+        if (cop.isRunning()) {
+            return 0;
+        }
+
+        Suzuri::App app(argc, argv);
+        app.connect(
+            &cop,
+            &Coco::StartCop::relaunched,
+            &app,
+            &Suzuri::App::onRelaunch);
+        app.init();
+
+        exit_code = app.exec();
+        restart = app.restartRequested();
+
+        // An AppImage runs from a folder that's unmounted when it exits, so
+        // the next copy starts from the AppImage itself, which names itself in
+        // APPIMAGE
+        program = qEnvironmentVariableIsSet("APPIMAGE")
+                      ? qEnvironmentVariable("APPIMAGE")
+                      : QCoreApplication::applicationFilePath();
+        arguments = QCoreApplication::arguments().mid(1);
     }
 
-    Suzuri::App app(argc, argv);
-    app.connect(
-        &cop,
-        &Coco::StartCop::relaunched,
-        &app,
-        &Suzuri::App::onRelaunch);
-    app.init();
+    if (restart) {
+        QProcess::startDetached(program, arguments);
+    }
 
-    return app.exec();
+    return exit_code;
 }
