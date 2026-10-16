@@ -146,6 +146,8 @@ A tab's content is a page, and a page is a plain `QWidget`. `TabPaneLeaf` and `T
 
 `TextFileView` can't itself be a `QPlainTextEdit`, since views share the `AbstractFileView` base. It holds one: `TextEditor`, a `QPlainTextEdit` subclass that draws the line-number gutter, margins, highlight, and selection handles.
 
+- **The handles need room inside the viewport.** They are painted into it, so they scroll with the text, and nothing there can be drawn past its edges. The space between the text and the editor's sides is therefore split: the document's margin (`TEXT_DOCUMENT_MARGIN`, wide enough for a handle's bulb) is inside the viewport, and the rest of `TEXT_SIDE_PADDING`, with the left/right margin setting, is viewport margin outside it. Qt applies a document margin on all four sides, so it is also the space above the first line. A handle under the last visible row can still be cut off by the viewport's bottom until the text scrolls.
+
 ## The split tree
 
 `TabPaneTree` is the pane area of a window: nested `QSplitter`s as branches, `TabPaneLeaf`s as leaves, each leaf holding a tab bar and its pages.

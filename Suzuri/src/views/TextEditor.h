@@ -506,14 +506,22 @@ private:
         return width() * leftRightMargin_ / 100;
     }
 
-    // The one place the viewport's margins are set: the gutter's width plus
-    // the text margin on the left, the text margin on the right, and the
-    // padding that keeps the text off the pane's edges on both. Set only when
-    // they differ, since setting them lays the viewport out again (see
-    // resizeEvent)
+    // The one place the space around the text is set: the gutter's width
+    // plus the text margin on the left, the text margin on the right, and the
+    // padding that keeps the text off the pane's edges on both. The padding is
+    // split between the document's margin, inside the viewport, where the
+    // selection handles need room (TEXT_DOCUMENT_MARGIN), and the viewport's
+    // margins, outside it. Each is set only when it differs, since setting
+    // either lays the text out again (see resizeEvent). The editor resizes
+    // before it first paints, so its document has the margin by then
     void updateViewportMargins_()
     {
-        auto text_margin = textMargin_() + TEXT_SIDE_PADDING;
+        if (document()->documentMargin() != TEXT_DOCUMENT_MARGIN) {
+            document()->setDocumentMargin(TEXT_DOCUMENT_MARGIN);
+        }
+
+        auto text_margin =
+            textMargin_() + TEXT_SIDE_PADDING - TEXT_DOCUMENT_MARGIN;
         QMargins margins(
             lineNumberAreaWidth_() + text_margin,
             0,

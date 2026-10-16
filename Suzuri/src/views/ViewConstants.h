@@ -52,8 +52,9 @@ inline constexpr int LINE_NUMBER_RIGHT_PADDING = 8;
 
 // Space always kept between the text and the editor's sides, so text never
 // runs against the pane's edge or the divider beside it. The left/right margin
-// setting adds to it
-inline constexpr int TEXT_SIDE_PADDING = 16;
+// setting adds to it. TEXT_DOCUMENT_MARGIN of it is inside the viewport, and
+// the rest outside
+inline constexpr int TEXT_SIDE_PADDING = 20;
 
 // The editor's current-line highlight (TextEditor): the band behind the row
 // the text cursor is on. LIGHT colors it on a light page and DARK on a dark one
@@ -114,5 +115,16 @@ inline constexpr qreal SELECTION_HANDLE_BORDER_WIDTH = 1.0;
 inline constexpr qreal SELECTION_HANDLE_RADIUS = 7.0;
 inline constexpr qreal SELECTION_HANDLE_STEM_HEIGHT = 4.0;
 inline constexpr qreal SELECTION_HANDLE_HIT_RADIUS = 14.0;
+
+// The document's margin: the space inside the viewport between the text and
+// the viewport's edges. The handles are painted into the viewport, so this is
+// wide enough for a handle's bulb, its border, and a pixel for antialiasing,
+// and a handle at the start or end of a line isn't cut off. Qt applies it on
+// all four sides, so it is also the space above the first line and below the
+// last. It is part of TEXT_SIDE_PADDING, not added to it
+inline constexpr int TEXT_DOCUMENT_MARGIN =
+    int(SELECTION_HANDLE_RADIUS + SELECTION_HANDLE_BORDER_WIDTH) + 1;
+
+static_assert(TEXT_DOCUMENT_MARGIN <= TEXT_SIDE_PADDING);
 
 } // namespace Suzuri
