@@ -38,6 +38,7 @@
 #include "core/AppActions.h"
 #include "core/FileRef.h"
 #include "core/RecentFiles.h"
+#include "core/Translations.h"
 #include "core/Updater.h"
 #include "core/Vault.h"
 #include "core/VaultEntry.h"
@@ -76,15 +77,16 @@ public:
     // is App's vaultEntries(), passed straight to the Sidebar's switcher.
     // appActions are App's own actions: the base adopts them, and this window
     // hands the set on to every pop-out it makes. spellCheckers is App's too,
-    // and is where each text view's dictionary comes from. So is updater,
-    // which the settings dialog's General page shows
+    // and is where each text view's dictionary comes from. So are updater
+    // and translations, which the settings dialog's General page shows
     VaultWindow(
         Vault* borrowedVault,
         Vault* commonVault,
         std::function<QList<VaultEntry>()> vaultsProvider,
         const AppActions& appActions,
         SpellCheckers* spellCheckers,
-        Updater* updater)
+        Updater* updater,
+        Translations* translations)
         : BaseWindow(appActions, updater)
         , vault_(borrowedVault)
         , commonVault_(commonVault)
@@ -92,6 +94,7 @@ public:
         , appActions_(appActions)
         , spellCheckers_(spellCheckers)
         , updater_(updater)
+        , translations_(translations)
     {
         setup_();
     }
@@ -230,6 +233,9 @@ private:
     // App's update checker, for the settings dialog and the status bar's
     // update notice. Not owned
     Updater* updater_ = nullptr;
+
+    // App's interface language, for the settings dialog. Not owned
+    Translations* translations_ = nullptr;
 
     Sidebar* sidebar_ = nullptr;
 
@@ -585,6 +591,7 @@ private:
                 vault_,
                 spellCheckers_,
                 updater_,
+                translations_,
                 action(ActionIds::APP_QUIT),
                 this);
         }

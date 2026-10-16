@@ -31,6 +31,7 @@
 
 #include <Coco/Debug.h>
 
+#include "core/Translations.h"
 #include "core/Updater.h"
 #include "core/Vault.h"
 #include "core/spell/SpellCheckers.h"
@@ -65,8 +66,8 @@ namespace Suzuri::Ui {
 // a session. It borrows the Vault, the same object the window borrows; pages
 // edit settings through Vault::setConfig, which applies and saves them. No
 // setting-changed signal leaves the dialog. It borrows App's SpellCheckers too,
-// for the Editor page's list of languages, and App's Updater, for the General
-// page
+// for the Editor page's list of languages, and App's Updater and Translations,
+// for the General page
 class SettingsDialog : public QDialog
 {
     Q_OBJECT
@@ -76,12 +77,14 @@ public:
         Vault* vault,
         SpellCheckers* spellCheckers,
         Updater* updater,
+        Translations* translations,
         QAction* quitAction,
         QWidget* parentVaultWindow)
         : QDialog(parentVaultWindow)
         , vault_(vault)
         , spellCheckers_(spellCheckers)
         , updater_(updater)
+        , translations_(translations)
     {
         setup_(quitAction);
     }
@@ -111,8 +114,10 @@ private:
     // App's dictionaries, for the Editor page's language list. Not owned
     SpellCheckers* spellCheckers_ = nullptr;
 
-    // App's update checker, for the General page. Not owned
+    // App's update checker and interface language, for the General page. Not
+    // owned
     Updater* updater_ = nullptr;
+    Translations* translations_ = nullptr;
 
     QLabel* vaultName_ = new QLabel(this);
     QListWidget* nav_ = new QListWidget(this);
@@ -133,7 +138,8 @@ private:
         setupNavColumn_(name);
 
         addGroupTitle_(tr("Options"));
-        generalPage_ = new SettingsGeneralPage(vault_, updater_, this);
+        generalPage_ =
+            new SettingsGeneralPage(vault_, updater_, translations_, this);
         addPage_(tr("General"), generalPage_);
         addPage_(
             tr("Editor"),

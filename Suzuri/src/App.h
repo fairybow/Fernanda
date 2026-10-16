@@ -35,6 +35,7 @@
 #include "core/CMakeMacroGuard.h"
 #include "core/Clargs.h"
 #include "core/Publication.h"
+#include "core/Translations.h"
 #include "core/Updater.h"
 #include "core/Vault.h"
 #include "core/VaultEntry.h"
@@ -85,6 +86,11 @@ public:
         // value at its AppDirs default. Load before the common vault so its
         // relocatable path is known when we construct it
         appConfig_.load();
+
+        // Before any text is made, App's actions included, since text is
+        // translated as it's made. The language comes from suzuri.json
+        translations_.install(appConfig_.language());
+        buildActions_();
 
         initCommonVault_();
         restoreSessionOrShowManageVaults_();
@@ -200,6 +206,10 @@ private:
     // App saves its settings
     Updater updater_{};
 
+    // The interface language. Installed in init; the General page changes the
+    // setting, which App saves
+    Translations translations_{};
+
     static void raiseWindow_(QWidget* window)
     {
         window->isMinimized() ? window->showNormal() : window->show();
@@ -258,10 +268,15 @@ private:
             this,
             &App::onUpdaterSettingsChanged_);
 
-        buildActions_();
+        connect(
+            &translations_,
+            &Translations::settingChanged,
+            this,
+            &App::onLanguageChanged_);
     }
 
-    // Wire the App-owned actions. One connect each, for the whole program: a
+    // Wire the App-owned actions, from init, once the translators are in. One
+    // connect each, for the whole program: a
     // window adopts these pointers to display them and to bind their shortcuts,
     // and never relays a triggered signal back up. Adding one here is all it
     // takes — every window adopts the set wholesale.
@@ -539,7 +554,8 @@ private:
             [this] { return vaultEntries(); },
             appActions_,
             &spellCheckers_,
-            &updater_);
+            &updater_,
+            &translations_);
 
         openVaults_.insert(vaultRoot, { vault, window });
 
@@ -741,6 +757,12 @@ private:
     {
         appConfig_.setChecksForUpdates(updater_.checksAutomatically());
         appConfig_.setDismissedUpdate(updater_.dismissedVersion());
+        appConfig_.save();
+    }
+
+    void onLanguageChanged_()
+    {
+        appConfig_.setLanguage(translations_.setting());
         appConfig_.save();
     }
 

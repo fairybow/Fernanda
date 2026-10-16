@@ -203,6 +203,7 @@ set(APP_HEADERS
     src/core/Publication.h
     src/core/RecentFiles.h
     src/core/TextCounts.h
+    src/core/Translations.h
     src/core/UpdateCheck.h
     src/core/Updater.h
     src/core/Vault.h

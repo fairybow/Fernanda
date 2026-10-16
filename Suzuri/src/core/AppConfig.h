@@ -96,6 +96,12 @@ public:
         dismissedUpdate_ = version;
     }
 
+    // The interface language (Translations): a language code, or empty to
+    // follow the system
+    [[nodiscard]] QString language() const { return language_; }
+
+    void setLanguage(const QString& language) { language_ = language; }
+
     // The vaults list, most-recently-used first — the backing store for the
     // surfaces ManageVaults' recents column and each VaultSwitcher render.
     // Derived: the registry sorted by lastUsedEpochMs descending. Like
@@ -205,6 +211,7 @@ public:
 
         checksForUpdates_ = root.value(u"checkForUpdates"_s).toBool(true);
         dismissedUpdate_ = root.value(u"dismissedUpdate"_s).toString();
+        language_ = root.value(u"language"_s).toString();
 
         vaults_ = readVaults_(root.value(u"vaults"_s).toArray());
     }
@@ -233,6 +240,10 @@ public:
             root[u"dismissedUpdate"_s] = dismissedUpdate_;
         }
 
+        if (!language_.isEmpty()) {
+            root[u"language"_s] = language_;
+        }
+
         if (!vaults_.isEmpty()) {
             root[u"vaults"_s] = writeVaults_();
         }
@@ -248,6 +259,7 @@ private:
     // Written only when off, like a vault's open flag only when true
     bool checksForUpdates_ = true;
     QString dismissedUpdate_{};
+    QString language_{};
 
     // One registry entry: path is identity, lastUsedEpochMs is a recency stamp
     // (ms since the Unix epoch, Coco::Time::epoch) that orders the list and the
