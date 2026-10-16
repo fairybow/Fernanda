@@ -7,6 +7,20 @@
         <source>Line %1: %2</source>
         <translation type="unfinished">Línea %1: %2</translation>
     </message>
+    <message numerus="yes">
+        <source>%n line(s) contain characters Suzuri can&apos;t read. They&apos;ll open as:</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>…and %n more.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
         <source>Not UTF-8</source>
         <translation type="unfinished">No es UTF-8</translation>

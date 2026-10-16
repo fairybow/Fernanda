@@ -2,6 +2,23 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en" sourcelanguage="en">
 <context>
+    <name>LossyOpenPrompt</name>
+    <message numerus="yes">
+        <source>%n line(s) contain characters Suzuri can&apos;t read. They&apos;ll open as:</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>…and %n more.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>Suzuri::FindBar</name>
     <message numerus="yes">
         <source>%Ln match(es)</source>
