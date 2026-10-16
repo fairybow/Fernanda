@@ -1,6 +1,6 @@
 # Features
 
-Current version: 0.7.0-beta.0
+Current version: 0.8.0-beta.0
 
 What Suzuri does today. For what is planned, undecided, or deliberately left out, see [Future.md](Future.md). For how it is built, see [Architecture.md](Architecture.md).
 

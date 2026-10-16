@@ -10,6 +10,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Opening the file that is already in the active, unpinned tab should do nothing
 - [ ] Minor: dragging a file quickly from near its row's bottom edge moves the selection highlight down to the next row, though that row isn't selected
 - [ ] The "Options" heading in the settings dialog can be hovered or selected and probably shouldn't be
+- [x] At 100% scale, the tab close X and the tree's chevrons were lopsided. At 12 pixels Lucide's stroke is 1 pixel, and Qt draws a line that thin with a stroker that misplaces it by half a pixel. `Glyph::render` now draws larger and scales down (see "Following the palette" in [Architecture.md](Architecture.md))
 - [x] Translations didn't work. Nothing installed a `QTranslator`, and both `.ts` files were empty, since the `update_translations` target that fills them had never been run. `Translations` now installs them at launch, and the `.ts` files are filled
 - [x] A window's current tab didn't have focus after restore. The tab pages were focused while the window was still hidden, which a widget can't take, so `BaseWindow` now focuses the active page on its first show
 - [x] After restore, the first click on a tab didn't focus its widget. Focus was moved on `QTabBar::tabBarClicked`, which comes before the bar changes the current tab, so the tab switch then took it. `TabBar` now reports a press after the bar has handled it
