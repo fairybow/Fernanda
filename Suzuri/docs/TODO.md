@@ -9,6 +9,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Pop-out Z-order isn't restored: a pop-out that was in front of its vault window comes back behind it. Vault windows restore in the right order among themselves, so this may be pop-outs only, and may not be fixable (which would be fine)
 - [ ] Opening the file that is already in the active, unpinned tab should do nothing
 - [ ] Minor: dragging a file quickly from near its row's bottom edge moves the selection highlight down to the next row, though that row isn't selected
+- [x] The Editor settings page's "Open folder" button was the dialog's default, so Enter on that page opened the dictionaries folder. A `QDialog` makes a push button auto-default unless told otherwise; `SettingsPage::addRow` now turns that off for every button in a row
 - [x] The "Options" heading in the settings dialog took the hover wash, as if it could be chosen. An item view marks the row under the mouse as hovered even when it's disabled, so `Style` now gives a disabled row no hover wash
 - [x] Clicking "Check for updates" moved focus to the next control. The button was disabled while a check ran, and a disabled widget gives up focus. It now stays enabled: asking again starts no second check
 - [x] A combo box's drop-down list showed two edges, a rounded panel inside a square window, and was narrower than its box, cutting off "System default". `Style` now draws the list's window as a menu's (see "The style" in [Architecture.md](Architecture.md))

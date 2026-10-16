@@ -454,6 +454,7 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 - The licenses dialog is window-modal over Manage Vaults, opened without `exec()`, and deletes itself when closed.
 - Go to File does use `exec()`, and is application-modal so that no other window can close its host meanwhile.
 - No dialog is shown while a window is being constructed. Workspace restore, which runs then, refuses a file that would need a prompt.
+- The settings dialog has no default button. In a `QDialog` every push button is auto-default unless told otherwise, so one would become the default, take the accent, and be pressed by Enter anywhere in the dialog. `SettingsPage::addRow` turns auto-default off for every button in a row's control, so a page's buttons need nothing of their own.
 
 ## Painting
 

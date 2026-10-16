@@ -113,10 +113,6 @@ private:
         auto* check = new QPushButton(tr("Check for updates"), control);
         control_layout->addWidget(check);
 
-        // Neither is the dialog's default button, which Enter would press
-        openRelease_->setAutoDefault(false);
-        check->setAutoDefault(false);
-
         connect(openRelease_, &QPushButton::clicked, this, [this] {
             QDesktopServices::openUrl(updater_->release().pageUrl);
         });
@@ -164,7 +160,6 @@ private:
         control_layout->setContentsMargins(0, 0, 0, 0);
 
         relaunch_ = new QPushButton(tr("Relaunch"), control);
-        relaunch_->setAutoDefault(false);
         control_layout->addWidget(relaunch_);
 
         language_ = new QComboBox(control);

@@ -14,6 +14,7 @@
 
 #include <QAbstractButton>
 #include <QFrame>
+#include <QPushButton>
 #include <QScrollArea>
 #include <QString>
 #include <QVBoxLayout>
@@ -71,10 +72,14 @@ protected:
     // A setting row, with the rule above it — the first row under a heading
     // included, whose rule is the line beneath the heading. Returns the row
     // for a page that needs to disable it (a setting that only applies while
-    // another is on); most callers ignore it
+    // another is on); most callers ignore it.
+    //
+    // No button in the control is ever the dialog's default
+    // (clearAutoDefaults_)
     SettingRow*
     addRow(const QString& name, const QString& description, QWidget* control)
     {
+        clearAutoDefaults_(control);
         insert_(new SettingRule(content_));
 
         auto* row = new SettingRow(name, description, control, content_);
@@ -131,6 +136,22 @@ private:
         layout_->addStretch(1);
 
         setWidget(content_);
+    }
+
+    // The settings dialog has nothing for Enter to confirm. In a QDialog,
+    // though, a push button is auto-default unless told otherwise: with
+    // nothing else the default, one becomes it, Enter anywhere presses it,
+    // and the style marks it in the accent. So no button in a row is
+    // auto-default, the control itself included when it's a button
+    static void clearAutoDefaults_(QWidget* control)
+    {
+        if (auto* button = qobject_cast<QPushButton*>(control)) {
+            button->setAutoDefault(false);
+        }
+
+        for (auto* button : control->findChildren<QPushButton*>()) {
+            button->setAutoDefault(false);
+        }
     }
 
     // Append above the trailing stretch, which keeps the column top-aligned
