@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=@_pub_app_name@
-Comment=A plain-text editor for creative writing
+Comment=A plain-text writing app for fiction, poetry, and long projects
 Exec=@_pub_app_name@
 Icon=@_pub_app_id@
 Terminal=false
