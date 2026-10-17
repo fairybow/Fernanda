@@ -128,6 +128,10 @@ Plain text. Suzuri does not render Markdown or Fountain; those files are edited 
 - Current line highlight
 - Double-click a run of spaces or tabs to select the whole run
 - Selection handles: a draggable handle under each end of a selection, for adjusting it. They appear once the selection is made: when the mouse button is let go
+- Typing helpers (on by default), each with its own switch and one switch for both:
+  - **Auto-pair brackets and quotes.** Typing `(`, `[`, `{`, a quote, or a backtick adds its closer, when what follows is a space, the end of the line, or another closer; before a word it types just the opener. Straight quotes don't pair after a letter or digit, so `don't` and `5'` are left alone. Curly quotes and guillemets (`“”`, `‘’`, `«»`, `‹›`) pair with their own closers. Typing a closer that was added this way steps over it, Backspace between an empty pair deletes both, and typing an opener with text selected wraps the text
+  - **Step past closing punctuation.** A second space typed just before a closing bracket or quote moves past it: `(word |)` becomes `(word) |`. Enter does the same when only closers are left on the line. A comma, period, question mark, exclamation mark, semicolon, or colon typed straight after goes before the space: `(word), `
+  - Each change undoes in one step
 - Font family, size, bold, and italic for the text. Courier Prime, Literata (the default), mononoki, and OpenDyslexic are bundled
 
 ## Find and replace
@@ -200,7 +204,7 @@ Suzuri draws its own interface, the same on every operating system: flat and qui
 Ctrl+, or the gear beside the vault switcher. Settings belong to the vault and apply as you change them, apart from General's, which belong to Suzuri as a whole.
 
 - **General**: the version, Check for updates, whether Suzuri checks on its own, and the interface language
-- **Editor**: line numbers, wrap lines, left/right margin, highlight current line, selection handles, tab width, center on scroll, double-click selects whitespace, check spelling, spelling language
+- **Editor**: line numbers, wrap lines, left/right margin, highlight current line, selection handles, tab width, center on scroll, double-click selects whitespace, typing helpers (auto-pair brackets and quotes, step past closing punctuation), check spelling, spelling language
 - **Appearance**: text font, bold, italic, font size
 - **Status bar**: the word counter and the cursor position, and which parts of each to show
 
@@ -281,6 +285,8 @@ Suzuri follows Obsidian's behavior wherever it has no reason not to. Where it di
 - **No in-app vault moving.** Move the folder in your file manager, then open it from its new place
 - **Licenses are in the app.** Obsidian lists its third-party credits on its help site
 - **No light or dark setting.** Suzuri always follows the system. Obsidian follows it by default and can be set to light or dark
+- **Stepping past closing punctuation** is Suzuri's own, as is the switch over both typing helpers
+- **No Markdown pairing.** Obsidian's "Auto pair Markdown syntax" pairs `*`, `_`, and the like, and applies them to selected text. Suzuri pairs brackets and quotes only
 - **Updates aren't installed for you.** Suzuri says a newer version is out and links to it. Obsidian downloads updates itself and applies them when it restarts
 
 ## Known limits

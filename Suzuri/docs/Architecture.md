@@ -32,7 +32,7 @@ Everything is under `Suzuri/src/`, in the `Suzuri` namespace. Apart from `Main.c
 | `core/` | `Vault`, the vault tree model, configuration, file IO, file types, action ids |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `models/` | One buffer class per file type, and the prime document |
-| `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles, the find bar and the search functions behind it, and the zoom control with its state |
+| `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles and typing helpers, the find bar and the search functions behind it, and the zoom control with its state |
 | `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, the status bar items. Also the application's style |
 | `ui/tabs/` | The split tree, its leaves, the tab bar and its buttons, the new-tab page |
 | `ui/sidebar/` | The sidebar, the file trees, the common drawer, the vault switcher |
@@ -144,7 +144,10 @@ A tab's content is a page, and a page is a plain `QWidget`. `TabPaneLeaf` and `T
 - What a tab needs from its page travels on the page widget: the title is its window title, and pin state and the tab's mark (which glyph, as an SVG path) are properties read through small helper headers. They follow the page through reorders, drags between panes and windows, and restore, with nothing else carrying them.
 - Anything that asks "which file is in this tab?" casts the page to `AbstractFileView` and handles null.
 
-`TextFileView` can't itself be a `QPlainTextEdit`, since views share the `AbstractFileView` base. It holds one: `TextEditor`, a `QPlainTextEdit` subclass that draws the line-number gutter, margins, highlight, and selection handles.
+`TextFileView` can't itself be a `QPlainTextEdit`, since views share the `AbstractFileView` base. It holds one: `TextEditor`, a `QPlainTextEdit` subclass that draws the line-number gutter, margins, highlight, and selection handles, and runs the typing helpers.
+
+- **The editor's parts get its events first.** `SelectionHandles` and `TypingHelpers` are plain classes the editor owns, not widgets or event filters. The editor offers them each mouse event or key press before handling it, and one they take goes no further.
+- **A typing helper's change is one edit block** in the view's document. The document reports a block as one change, so it reaches the buffer as one edit, and the buffer undoes it in one step. Replace All works the same way.
 
 - **The handles need room inside the viewport.** They are painted into it, so they scroll with the text, and nothing there can be drawn past its edges. The space between the text and the editor's sides is therefore split: the document's margin (`TEXT_DOCUMENT_MARGIN`, wide enough for a handle's bulb) is inside the viewport, and the rest of `TEXT_SIDE_PADDING`, with the left/right margin setting, is viewport margin outside it. Qt applies a document margin on all four sides, so it is also the space above the first line. A handle under the last visible row can still be cut off by the viewport's bottom until the text scrolls.
 
@@ -514,6 +517,8 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **`QSettings`.** The app-level data is structured, the vault files are meant to be read and diffed, and INI-style settings are what grew Hearth's tiered settings.
 - **A process-wide pixmap cache for icons.** A global store, against the no-singletons rule.
 - **Each platform's own style.** The Windows styles draw parts of themselves in colors of their own rather than the palette's, and Windows 10's has no dark mode. Fusion draws from the palette alone, so one style follows light and dark everywhere.
+- **Compound edits opened on the buffer** (Hearth's way of grouping a typing helper's steps into one undo). An edit block in the view already arrives as one edit.
+- **An event filter for the typing helpers** (Hearth's `KeyFilters`). The editor already overrides its key handling, so offering the key there first is one call and keeps the order with Qt's own handling plain.
 - **Painting selection handles on an overlay widget.** Hearth's approach. The overlay had to be realigned with the editor on every update; painted by the editor, the handles scroll with the text.
 - **Moving a vault from inside the app.** See [Future.md](Future.md).
 - **One file of named strings for translation** (Hearth's `Tr.h`: a function per string, all under one context). It would put all the text in one place and keep `lupdate` from filing a string under the wrong class. But every string would move away from the code that shows it, each would need a name kept in step with its text, and one context would merge strings that a language may need to translate differently (a tab's "Close" and the find bar's "Close"). Seeing all the text in one place is what Qt Linguist and the `.ts` files already give, and Linguist offers an existing translation when the same English comes up again. `tr()` where the text is used is how Qt expects it to be done. `lupdate`'s misreadings are rare and easy to spot; see "Translations" in [CodeStyle.md](CodeStyle.md).

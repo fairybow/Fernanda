@@ -21,10 +21,6 @@ Nothing here is a promise or a schedule.
 - Rebindable hotkeys, saved per vault in `.suzuri/hotkeys.json`. An override has to carry a list of key sequences, since standard shortcuts expand to more than one (Redo is Ctrl+Y and Ctrl+Shift+Z)
 - One header holding every default shortcut, with per-platform variation where a binding differs. The editor's own handling of the undo and redo keys, and its context menu's labels, would read from it too
 
-### Editing
-
-- Hearth's typing helpers: auto-closing pairs, delete-pair, skip-closer, and barging past closing punctuation
-
 ### Files and file trees
 
 - Delete key in the file tree
@@ -113,6 +109,8 @@ Committing a vault to a repository, for backup and history.
 - **Style sheet snippets,** like Obsidian's CSS snippets: a vault's own Qt style sheet laid over the look. A style sheet takes over drawing from Suzuri's style for whatever it touches, so the two would be hard to keep in step. Worth considering once themes exist
 - **Installing updates automatically.** Suzuri says a newer version is out and links to it. Every update is a whole new installer (there is no smaller part to swap, as Obsidian swaps its app files), so installing for the user means running the installer silently. On Windows that needs a per-user install, since the current all-users installer asks for administrator rights even when silent, and with it the C++ runtime shipped beside the app in place of its installer, and a one-time move off Program Files that would leave an old copy behind. Releases would also need a way to say that a version must be installed by hand. Worth building if downloading the installer proves a real burden
 - **A setting for receiving betas,** like Obsidian's early access. Today `STABLE_BUILDS_SEE_PRERELEASES` decides, for every user, whether a stable build is offered prereleases. Worth building once there are stable releases
+- **Pairing Markdown syntax,** like Obsidian's "Auto pair Markdown syntax": `*`, `_`, `==`, and the like, paired as brackets are and wrapped around a selection. Most likely for Markdown files only, or Markdown and Fountain, and not plain text, where an asterisk is just an asterisk
+- **Smart quotes:** straight quotes typed as curly ones, opening or closing by what's before them
 - **A confirmation before a folder becomes a vault.** Opening any folder as a vault silently adds `.suzuri/` to it; Obsidian asks first
 
 ## Not planned
