@@ -102,6 +102,25 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.9.1-beta.0 (Fixes) - tag v0.9.1-beta.0
+
+## What's New?
+
+- **Fixed:** typing a space after punctuation that had gone before a closing bracket or quote gave two spaces: `(word), ` and a space became `(word),  `. That space now counts as the one you'd type next, and Enter there no longer leaves a space at the end of the line
+- **Fixed:** closing a window with tabs open ran code on part of the window that had already been taken apart. No problems were seen from it, but it was the kind of mistake that can cause a crash
+- Suzuri's description, shown in the Windows file properties and the Linux app menu, now reads "A plain-text writing app for fiction, poetry, and long projects"
+
+## Known Issues
+
+- The Spanish translation is an unreviewed draft, and the typing helper settings aren't translated yet
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.9.0-beta.0 (Typing Helpers) - tag v0.9.0-beta.0
 
 ## What's New?

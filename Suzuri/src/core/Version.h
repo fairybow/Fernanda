@@ -32,7 +32,7 @@
 
 #define VERSION_MAJOR                           0
 #define VERSION_MINOR                           9
-#define VERSION_PATCH                           0
+#define VERSION_PATCH                           1
 #define VERSION_PRERELEASE_STRING               "beta.0"
 
 // Major.Minor.Patch
