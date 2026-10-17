@@ -21,7 +21,7 @@
 <p align="center">
     &nbsp
     <br>
-    <img src="Suzuri/resources/social/SuzuriWindow.png" alt="Screenshot" width="640">
+    <img src="Suzuri/resources/social/SuzuriWindowComposite.png" alt="Screenshot" width="720">
     <br>
     &nbsp
 </p>
