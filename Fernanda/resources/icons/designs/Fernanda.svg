@@ -18,7 +18,24 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg"><defs
-   id="defs10"><inkscape:path-effect
+   id="defs10"><linearGradient
+   id="linearGradient2"
+   inkscape:collect="always"><stop
+     style="stop-color:#7ce1f9;stop-opacity:1;"
+     offset="0"
+     id="stop2" /><stop
+     style="stop-color:#3bb0f3;stop-opacity:1;"
+     offset="0.25078371"
+     id="stop4" /><stop
+     style="stop-color:#9194f2;stop-opacity:1;"
+     offset="0.50156742"
+     id="stop5" /><stop
+     style="stop-color:#9194f2;stop-opacity:1;"
+     offset="0.75235105"
+     id="stop6" /><stop
+     style="stop-color:#f9b3f9;stop-opacity:1;"
+     offset="1"
+     id="stop3" /></linearGradient><inkscape:path-effect
    effect="fillet_chamfer"
    id="path-effect1119"
    is_visible="true"
@@ -1182,7 +1199,15 @@
      operator="over"
      in="SourceGraphic"
      in2="comp1"
-     id="feComposite18" /></filter></defs><sodipodi:namedview
+     id="feComposite18" /></filter><linearGradient
+   inkscape:collect="always"
+   xlink:href="#linearGradient2"
+   id="linearGradient3"
+   x1="116.35322"
+   y1="116.35329"
+   x2="523.64673"
+   y2="523.64679"
+   gradientUnits="userSpaceOnUse" /></defs><sodipodi:namedview
    id="namedview10"
    pagecolor="#ffffff"
    bordercolor="#000000"
@@ -1192,8 +1217,8 @@
    inkscape:pagecheckerboard="true"
    inkscape:deskcolor="#d1d1d1"
    inkscape:zoom="0.35355339"
-   inkscape:cx="510.5311"
-   inkscape:cy="487.90368"
+   inkscape:cx="-233.34524"
+   inkscape:cy="586.89863"
    inkscape:window-width="1920"
    inkscape:window-height="991"
    inkscape:window-x="-9"
@@ -1229,7 +1254,11 @@
 
 <path
    id="path11063-5"
-   style="fill:#ff7900;fill-opacity:1;stroke-width:3.73467;stroke-linecap:round;stroke-linejoin:round"
+   style="fill:url(#linearGradient3);fill-opacity:1;stroke-width:12.8;stroke-linecap:round;stroke-linejoin:round;stroke:#dce7ff;stroke-opacity:1;stroke-dasharray:none"
    inkscape:label="Circle"
-   d="M 320,32.000009 A 288,288 0 0 0 32.000001,319.99999 288,288 0 0 0 320,607.99999 a 288,288 0 0 0 288,-288 A 288,288 0 0 0 320,32.000009 Z m -1.4325,128.000001 a 160,160 0 0 1 160,159.99998 160,160 0 0 1 -160,160 160,160 0 0 1 -160,-160 160,160 0 0 1 160,-159.99998 z"
+   d="M 320,32.000009 A 288,288 0 0 0 32.000001,319.99999 288,288 0 0 0 320,607.99999 a 288,288 0 0 0 288,-288 A 288,288 0 0 0 320,32.000009 Z m 0,128.000001 a 160,160 0 0 1 160,159.99998 160,160 0 0 1 -160,160 160,160 0 0 1 -160,-160 160,160 0 0 1 160,-159.99998 z" /><path
+   id="path11063-5-9"
+   style="fill:#ff7900;fill-opacity:1;stroke-width:3.73467;stroke-linecap:round;stroke-linejoin:round"
+   inkscape:label="Circle (Original)"
+   d="m -481.22182,-56.07185 a 288,288 0 0 0 -288,287.99998 288,288 0 0 0 288,288 288,288 0 0 0 288,-288 288,288 0 0 0 -288,-287.99998 z m 0,128 a 160,160 0 0 1 160,159.99998 160,160 0 0 1 -160,160 160,160 0 0 1 -160,-160 160,160 0 0 1 160,-159.99998 z"
    sodipodi:insensitive="true" /></svg>
