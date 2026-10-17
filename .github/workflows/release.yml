@@ -1,5 +1,5 @@
 # =============================================================================
-# Suzuri: Release
+# Fernanda: Release
 # =============================================================================
 #
 # Triggered by pushing a tag matching "v*" (e.g., v0.0.0-beta.0). The tag must
@@ -17,9 +17,9 @@
 #   (.github/workflows/release.yml)
 #   .github/WindowsInstaller.iss
 #   .github/scripts/build_release_text.py
-#   Suzuri/                          (CMake source dir)
-#   Suzuri/src/core/Version.h
-#   Suzuri/src/core/Publication.h
+#   Fernanda/                        (CMake source dir)
+#   Fernanda/src/core/Version.h
+#   Fernanda/src/core/Publication.h
 #   CHANGELOG.md
 #   README.md
 #   LICENSE
@@ -62,8 +62,8 @@ jobs:
       - name: Extract version and app name
         id: v
         run: |
-          VER_FILE=Suzuri/src/core/Version.h
-          PUB_FILE=Suzuri/src/core/Publication.h
+          VER_FILE=Fernanda/src/core/Version.h
+          PUB_FILE=Fernanda/src/core/Publication.h
 
           # NB: Each grep fails the step (bash -e) if its define is missing
           major=$(grep -oP '#define VERSION_MAJOR\s+\K[0-9]+' "$VER_FILE")
@@ -130,7 +130,7 @@ jobs:
 
       - name: Configure
         run: |
-          cmake -B build -S Suzuri \
+          cmake -B build -S Fernanda \
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -DCMAKE_INSTALL_PREFIX=/usr \
             -DCMAKE_C_COMPILER=gcc-13 \
@@ -195,7 +195,7 @@ jobs:
 
       - name: Configure
         run: |
-          cmake -B build -S Suzuri \
+          cmake -B build -S Fernanda \
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -DAPP_BUILD_TESTS=OFF
 
@@ -271,7 +271,7 @@ jobs:
 
       - name: Configure
         run: |
-          cmake -B build -S Suzuri -G Ninja `
+          cmake -B build -S Fernanda -G Ninja `
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} `
             -DCMAKE_C_COMPILER=cl `
             -DCMAKE_CXX_COMPILER=cl `

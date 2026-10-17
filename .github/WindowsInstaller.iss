@@ -1,4 +1,4 @@
-; Suzuri Inno Setup Script (https://jrsoftware.org/isdl.php#stable)
+; Fernanda Inno Setup Script (https://jrsoftware.org/isdl.php#stable)
 ; Required: Pass /DVariableName=x from command line
 
 #ifndef AppVersion
@@ -20,15 +20,15 @@
   #error "OutputDir not defined. Pass /DOutputDir=path"
 #endif
 
-#define AppName "Suzuri"
-#define AppExeName "Suzuri.exe"
+#define AppName "Fernanda"
+#define AppExeName "Fernanda.exe"
 
 [Setup]
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 ; NB: Never change or reuse. Windows identifies the installed app by this, so a
 ; reused ID makes the installer treat another app's install as its own
-AppId={{3CB2D7E7-7801-43F7-8310-51E8FC0A6410}
+AppId={{252bd008-ddc1-4de4-8e79-4f9d55db5e00}
 AppName={#AppName}
 AppPublisher=fairybow
 AppVerName={#AppName}

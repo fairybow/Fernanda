@@ -1,5 +1,5 @@
 # =============================================================================
-# Suzuri: CI
+# Fernanda: CI
 # =============================================================================
 #
 # Builds the app and its tests, then runs the tests. Triggered by a push to any
@@ -17,7 +17,7 @@
 # The Linux build reports memory errors and undefined behavior as they happen,
 # which a test can otherwise pass straight through (a member read after its
 # object's destructor has run, say). Any report fails the test it happened in.
-# Leak checking is off: Qt's own libraries report leaks that aren't Suzuri's.
+# Leak checking is off: Qt's own libraries report leaks that aren't Fernanda's.
 # macOS builds without the sanitizers, so the plain build is still checked
 #
 # There is no Windows job. Qt 6.11 on Windows installs only through the
@@ -29,8 +29,8 @@
 #
 # Path assumptions (from repo root):
 #   (.github/workflows/ci.yml)
-#   Suzuri/                          (CMake source dir)
-#   Suzuri/tests/                    (built when APP_BUILD_TESTS is ON)
+#   Fernanda/                        (CMake source dir)
+#   Fernanda/tests/                  (built when APP_BUILD_TESTS is ON)
 
 name: CI
 
@@ -42,13 +42,13 @@ on:
       - '**.md'
       - 'LICENSE'
       - '.github/FUNDING.yml'
-      - 'Suzuri/resources/social/**'
+      - 'Fernanda/resources/social/**'
   pull_request:
     paths-ignore:
       - '**.md'
       - 'LICENSE'
       - '.github/FUNDING.yml'
-      - 'Suzuri/resources/social/**'
+      - 'Fernanda/resources/social/**'
   workflow_dispatch:
 
 # A newer push to the same branch replaces a run still in progress
@@ -98,7 +98,7 @@ jobs:
       # default it's only printed and the test can still pass
       - name: Configure
         run: |
-          cmake -B build -S Suzuri \
+          cmake -B build -S Fernanda \
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -DCMAKE_C_COMPILER=gcc-13 \
             -DCMAKE_CXX_COMPILER=g++-13 \
@@ -136,7 +136,7 @@ jobs:
 
       - name: Configure
         run: |
-          cmake -B build -S Suzuri \
+          cmake -B build -S Fernanda \
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -DAPP_BUILD_TESTS=ON
 
