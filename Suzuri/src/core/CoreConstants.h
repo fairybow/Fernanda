@@ -12,7 +12,7 @@
 
 #pragma once
 
-namespace Suzuri {
+namespace Fernanda {
 
 inline constexpr auto WORKSPACE_FILE_NAME = "workspace.json";
 
@@ -33,4 +33,4 @@ inline constexpr int UPDATE_FIRST_CHECK_DELAY_MS = 5 * 1000;
 inline constexpr int UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 inline constexpr int UPDATE_CHECK_TIMEOUT_MS = 15 * 1000;
 
-} // namespace Suzuri
+} // namespace Fernanda

@@ -22,7 +22,7 @@
 #include "core/FileRef.h"
 #include "models/AbstractFileModel.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // A read-only PDF buffer. No prime, no undo, no per-view documents: a PDF is
 // never edited in Suzuri, so the base's inert defaults (isModified /
@@ -113,4 +113,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

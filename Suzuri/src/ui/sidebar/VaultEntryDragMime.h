@@ -19,7 +19,7 @@
 
 #include <Coco/Path.h>
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The drag-and-drop contract for vault entries (files or folders) moved within,
 // or opened from, the file tree. One private MIME type, shared by the drag
@@ -77,4 +77,4 @@ fromVaultEntryDragMime(const QMimeData* mime)
     return out;
 }
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

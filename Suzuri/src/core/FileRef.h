@@ -14,7 +14,7 @@
 
 #include <Coco/Path.h>
 
-namespace Suzuri {
+namespace Fernanda {
 
 class Vault;
 
@@ -30,4 +30,4 @@ struct FileRef
     bool operator==(const FileRef&) const = default;
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

@@ -37,7 +37,7 @@
 //
 // This is not TextCounts::wordCount's rule, though it is close. A count wants
 // "e.g." and snake_case as one word each; a spelling check wants their parts
-namespace Suzuri::SpellWords {
+namespace Fernanda::SpellWords {
 
 // A word's place in its line, in UTF-16 code units, as QString indexes them
 struct Range
@@ -153,4 +153,4 @@ enum class Kind_
     return words;
 }
 
-} // namespace Suzuri::SpellWords
+} // namespace Fernanda::SpellWords

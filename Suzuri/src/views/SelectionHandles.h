@@ -31,7 +31,7 @@
 
 #include "views/ViewConstants.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // The two teardrop handles that hang under the ends of a text selection and can
 // be dragged to move them.
@@ -437,4 +437,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

@@ -35,7 +35,7 @@
 #include "core/FileTypes.h"
 #include "core/VaultTreeNode.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // The vault's file tree. One per Vault, owned by it, and shared by every tree
 // view of that vault — for the Common Vault, every window's common drawer.
@@ -721,4 +721,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

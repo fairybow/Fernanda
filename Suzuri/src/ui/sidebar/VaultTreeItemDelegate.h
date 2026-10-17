@@ -36,7 +36,7 @@
 #include "ui/widgets/Glyph.h"
 #include "ui/widgets/RowBadges.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // Paints each row of a vault tree with a Lucide glyph left of the name (File,
 // or Folder / FolderOpen by expansion) and each file row with an extension
@@ -189,4 +189,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

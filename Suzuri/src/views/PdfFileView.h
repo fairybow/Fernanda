@@ -35,7 +35,7 @@
 #include "views/ZoomControl.h"
 #include "views/ZoomState.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // A read-only PDF view over a PdfFileModel. Holds a QPdfView pointing at the
 // model's shared QPdfDocument — the PDF analogue of TextFileView holding its
@@ -322,4 +322,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

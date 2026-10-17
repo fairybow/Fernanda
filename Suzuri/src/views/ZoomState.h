@@ -21,7 +21,7 @@
 
 #include "core/WorkspaceKeys.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
@@ -147,4 +147,4 @@ private:
     qreal factor_ = 1.0;
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

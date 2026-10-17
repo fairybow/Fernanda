@@ -19,7 +19,7 @@
 #include "ui/BaseWindow.h"
 #include "ui/UiConstants.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // TODO: Should this just be a QWidget?
 class PopoutWindow : public BaseWindow
@@ -60,4 +60,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

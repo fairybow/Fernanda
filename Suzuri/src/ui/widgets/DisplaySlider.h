@@ -24,7 +24,7 @@
 
 #include "ui/UiConstants.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // A horizontal slider with its current value shown to its right: a fixed range
 // and starting value at construction, and valueChanged.
@@ -82,4 +82,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

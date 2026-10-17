@@ -48,7 +48,7 @@
 #include "views/TextSearch.h"
 #include "views/ViewConstants.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // A text editor over a TextFileModel. Owns its own QTextDocument so its layout
 // (line wrapping) is independent of every other view on the same file; the
@@ -702,4 +702,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

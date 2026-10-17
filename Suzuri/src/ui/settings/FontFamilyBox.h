@@ -26,7 +26,7 @@
 #include "core/VaultConfig.h"
 #include "ui/UiConstants.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // A font family picker. The list runs, separated into groups:
 //
@@ -124,4 +124,4 @@ private:
     void addFamily_(const QString& family) { addItem(family, family); }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

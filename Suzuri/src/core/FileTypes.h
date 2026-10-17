@@ -28,7 +28,7 @@
 // extension (a .docx, an .svg, a file with no extension at all) is
 // Unsupported and never reaches a TextFileModel, where one stray keystroke
 // would autosave mangled UTF-8 over the original
-namespace Suzuri::FileTypes {
+namespace Fernanda::FileTypes {
 
 enum class Type
 {
@@ -111,4 +111,4 @@ inline constexpr ExtensionEntry_ EXTENSIONS_[] = {
     return name.startsWith(u'.');
 }
 
-} // namespace Suzuri::FileTypes
+} // namespace Fernanda::FileTypes

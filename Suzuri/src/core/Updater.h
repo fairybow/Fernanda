@@ -30,7 +30,7 @@
 #include "core/UpdateCheck.h"
 #include "core/Version.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
@@ -274,4 +274,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

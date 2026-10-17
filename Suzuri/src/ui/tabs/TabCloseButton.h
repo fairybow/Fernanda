@@ -21,7 +21,7 @@
 #include "ui/tabs/PagePin.h"
 #include "ui/widgets/GlyphButton.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
@@ -88,4 +88,4 @@ private:
     QWidget* page_;
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

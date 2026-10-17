@@ -22,7 +22,7 @@
 #include "core/UpdateCheck.h"
 
 using namespace Qt::StringLiterals;
-using namespace Suzuri;
+using namespace Fernanda;
 
 // Whether a newer release exists (core/UpdateCheck.h): how two versions
 // compare, and which release in a list GitHub returned is offered. A list is

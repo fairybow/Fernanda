@@ -25,7 +25,7 @@
 #include "ui/widgets/DisplaySlider.h"
 #include "ui/widgets/ToggleSwitch.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The settings dialog's Appearance page, Obsidian's Appearance tab: where the
 // text font lives. The column, and how a page talks to its Vault, are
@@ -98,4 +98,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

@@ -43,7 +43,7 @@
 #include "views/AbstractFileView.h"
 #include "views/TextFileView.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
@@ -604,4 +604,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

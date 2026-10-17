@@ -48,7 +48,7 @@
 #include "ui/sidebar/VaultTreeItemDelegate.h"
 #include "ui/widgets/Glyph.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
@@ -552,4 +552,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

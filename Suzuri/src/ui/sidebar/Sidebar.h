@@ -36,7 +36,7 @@
 #include "ui/sidebar/VaultFileTree.h"
 #include "ui/sidebar/VaultSwitcher.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The vault window's left column, top to bottom:
 //
@@ -351,4 +351,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

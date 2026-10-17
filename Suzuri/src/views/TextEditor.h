@@ -58,7 +58,7 @@
 #include "views/TypingHelpers.h"
 #include "views/ViewConstants.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 class TextEditor;
 
@@ -993,4 +993,4 @@ inline void LineNumberArea_::paintEvent(QPaintEvent* event)
 
 } // namespace Internal
 
-} // namespace Suzuri
+} // namespace Fernanda

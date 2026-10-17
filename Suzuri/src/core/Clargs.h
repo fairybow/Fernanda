@@ -12,9 +12,9 @@
 
 #pragma once
 
-namespace Suzuri::Clargs {
+namespace Fernanda::Clargs {
 
 inline constexpr const char* VERBOSE = "--verbose";
 inline constexpr const char* LOG_VIEW = "--log-view";
 
-} // namespace Suzuri::Clargs
+} // namespace Fernanda::Clargs

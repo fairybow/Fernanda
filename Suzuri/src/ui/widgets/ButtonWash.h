@@ -18,7 +18,7 @@
 #include <QStyle>
 #include <QStyleOption>
 
-namespace Suzuri::Ui::ButtonWash {
+namespace Fernanda::Ui::ButtonWash {
 
 // The hover and press wash of a flat button, drawn by the style into rect:
 // nothing at rest, a wash under the pointer, a deeper one while held down. The
@@ -42,4 +42,4 @@ paint(QPainter& painter, const QAbstractButton* button, const QRect& rect)
         ->drawPrimitive(QStyle::PE_PanelButtonTool, &option, &painter, button);
 }
 
-} // namespace Suzuri::Ui::ButtonWash
+} // namespace Fernanda::Ui::ButtonWash

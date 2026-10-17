@@ -46,7 +46,7 @@
 #include "views/ZoomControl.h"
 #include "views/ZoomState.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // A read-only image view over an ImageFileModel. Shows the model's shared
 // pixmap in a QGraphicsView — one per view, so each keeps its own zoom and
@@ -498,4 +498,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

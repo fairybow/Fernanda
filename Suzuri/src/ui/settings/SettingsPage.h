@@ -28,7 +28,7 @@
 #include "ui/settings/SettingRow.h"
 #include "ui/widgets/ToggleSwitch.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The base of every page in the settings dialog: a scroll area over a single
 // column of headings and rows, top-aligned by a trailing stretch, so a page
@@ -161,4 +161,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

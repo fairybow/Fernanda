@@ -29,7 +29,7 @@
 #include "ui/widgets/ButtonWash.h"
 #include "ui/widgets/Glyph.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The shared base for small square glyph buttons that sit on the style's own
 // chrome: a Lucide glyph, tinted from the palette, centered on the style's
@@ -144,4 +144,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

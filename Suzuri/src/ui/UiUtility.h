@@ -24,7 +24,7 @@
 
 #include "ui/UiConstants.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 template <typename SlotT>
 inline QPushButton*
@@ -75,4 +75,4 @@ inline void setTabularNumerals(QWidget* widget)
     return pixmap;
 }
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

@@ -19,7 +19,7 @@
 
 #include <Coco/Debug.h>
 
-namespace Suzuri {
+namespace Fernanda {
 
 class LogView : public QPlainTextEdit
 {
@@ -59,4 +59,4 @@ public:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

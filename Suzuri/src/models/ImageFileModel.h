@@ -26,7 +26,7 @@
 #include "core/FileRef.h"
 #include "models/AbstractFileModel.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // A read-only image buffer. Like PdfFileModel, it inherits every read-only
 // default from the base (isModified / isUserEditable false, undo inert,
@@ -146,4 +146,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

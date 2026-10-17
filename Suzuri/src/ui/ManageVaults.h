@@ -42,7 +42,7 @@
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 class ManageVaults : public QWidget
 {
@@ -430,4 +430,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

@@ -20,7 +20,7 @@
 #include "ui/UiConstants.h"
 #include "ui/widgets/GlyphButton.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
@@ -54,4 +54,4 @@ protected:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

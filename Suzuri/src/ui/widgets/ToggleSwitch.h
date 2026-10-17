@@ -32,7 +32,7 @@
 
 #include "ui/UiConstants.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // A pill-shaped on/off switch with a round thumb, the control every yes/no
 // setting uses — Obsidian's settings use its toggle for every boolean, never a
@@ -225,4 +225,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

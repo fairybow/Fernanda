@@ -56,7 +56,7 @@
 //
 // QtCore-only, like the Vault: it stores the font's parts, and the view that
 // applies them builds the QFont (TextFileView::applyConfig)
-namespace Suzuri {
+namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
@@ -742,4 +742,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

@@ -23,7 +23,7 @@
 
 #include <Coco/Path.h>
 
-namespace Suzuri::Ui::Glyph {
+namespace Fernanda::Ui::Glyph {
 
 namespace Internal {
 
@@ -170,4 +170,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui::Glyph
+} // namespace Fernanda::Ui::Glyph

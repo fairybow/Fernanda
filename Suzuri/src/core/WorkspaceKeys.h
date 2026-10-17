@@ -14,7 +14,7 @@
 
 #include <QString>
 
-namespace Suzuri::WorkspaceKeys {
+namespace Fernanda::WorkspaceKeys {
 
 using namespace Qt::StringLiterals;
 
@@ -136,4 +136,4 @@ inline const QString VIEW_ZOOM_FACTOR = u"zoomFactor"_s;
 inline const QString VIEW_ZOOM_FIT = u"fit"_s;     // ZOOM_MODE value
 inline const QString VIEW_ZOOM_FIXED = u"fixed"_s; // ZOOM_MODE value
 
-} // namespace Suzuri::WorkspaceKeys
+} // namespace Fernanda::WorkspaceKeys

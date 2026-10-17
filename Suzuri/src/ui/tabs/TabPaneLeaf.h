@@ -37,7 +37,7 @@
 #include "ui/tabs/TabCloseButton.h"
 #include "ui/widgets/Glyph.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // One leaf of the split tree: a tab bar over a stack of pages. Pages are plain
 // QWidget* — a file view, or the empty new-tab page — never AbstractFileView*.
@@ -662,4 +662,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

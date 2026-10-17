@@ -33,7 +33,7 @@
 // A space and a no-break space match each other, in either direction, so a
 // phrase is found whichever of the two its words are joined with. Replacing
 // writes the replacement as given
-namespace Suzuri::TextSearch {
+namespace Fernanda::TextSearch {
 
 struct Options
 {
@@ -207,4 +207,4 @@ inline int replaceAll(
     return replaced;
 }
 
-} // namespace Suzuri::TextSearch
+} // namespace Fernanda::TextSearch

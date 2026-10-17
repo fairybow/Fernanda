@@ -40,7 +40,7 @@
 #include "ui/UiConstants.h"
 #include "ui/widgets/Glyph.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 namespace Internal {
 
@@ -289,4 +289,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

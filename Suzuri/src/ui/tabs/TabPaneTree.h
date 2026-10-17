@@ -46,7 +46,7 @@
 #include "ui/sidebar/VaultEntryDragMime.h"
 #include "ui/tabs/TabPaneLeaf.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The split tree. A QWidget owning a *replaceable* root QSplitter — NOT a
 // QSplitter itself. Splitting the root against its orientation wraps it in a
@@ -1220,4 +1220,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

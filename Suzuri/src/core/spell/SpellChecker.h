@@ -33,7 +33,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-namespace Suzuri {
+namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
@@ -304,4 +304,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

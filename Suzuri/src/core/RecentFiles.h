@@ -17,7 +17,7 @@
 
 #include "core/FileRef.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // The files a vault window and its pop-outs have shown most recently, newest
 // first: Go to File lists them when nothing has been typed. A plain value.
@@ -65,4 +65,4 @@ private:
     QList<FileRef> files_{};
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

@@ -32,7 +32,7 @@
 // registering them first. registerFonts() checks the two agree and warns on
 // drift, so a stale entry shows up in the log instead of as a picker item that
 // silently renders in a fallback font
-namespace Suzuri::BundledFonts {
+namespace Fernanda::BundledFonts {
 
 using namespace Qt::StringLiterals;
 
@@ -85,4 +85,4 @@ inline void registerFonts()
         QStringList(registered.cbegin(), registered.cend()).join(u", "_s));
 }
 
-} // namespace Suzuri::BundledFonts
+} // namespace Fernanda::BundledFonts

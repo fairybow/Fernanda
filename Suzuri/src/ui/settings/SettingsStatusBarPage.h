@@ -25,7 +25,7 @@
 #include "ui/settings/SettingsPage.h"
 #include "ui/widgets/ToggleSwitch.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The settings dialog's Status bar page: what the window status bar shows. One
 // section per item (ui/WordCounter.h, ui/CursorPosition.h), each led by the
@@ -152,4 +152,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

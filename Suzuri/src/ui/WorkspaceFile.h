@@ -39,7 +39,7 @@
 #include "ui/sidebar/VaultFileTree.h"
 #include "ui/tabs/TabPaneTree.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // Machine-local workspace persistence for one VaultWindow AND its pop-outs. A
 // small QObject owning a debounce timer and a set of connections to the windows
@@ -431,4 +431,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

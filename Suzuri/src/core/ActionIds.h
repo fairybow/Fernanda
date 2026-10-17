@@ -14,7 +14,7 @@
 
 #include <QString>
 
-namespace Suzuri::ActionIds {
+namespace Fernanda::ActionIds {
 
 using namespace Qt::StringLiterals;
 
@@ -89,4 +89,4 @@ inline const QString APP_MANAGE_VAULTS = u"app.manageVaults"_s;
 inline const QString APP_QUIT = u"app.quit"_s;
 inline const QString APP_RESTART = u"app.restart"_s;
 
-} // namespace Suzuri::ActionIds
+} // namespace Fernanda::ActionIds

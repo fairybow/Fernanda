@@ -49,7 +49,7 @@
 #include "ui/widgets/RowBadges.h"
 #include "ui/widgets/UserTextEntry.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
@@ -590,4 +590,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

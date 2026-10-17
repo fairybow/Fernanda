@@ -25,7 +25,7 @@
 #include "core/spell/WordList.h"
 #include "models/AbstractFileModel.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // One view of one file. A QWidget base so file types are handled
 // polymorphically (text, PDF, image), which is why TextFileView holds a
@@ -213,4 +213,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

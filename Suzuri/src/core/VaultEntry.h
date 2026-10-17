@@ -16,7 +16,7 @@
 
 #include <Coco/Path.h>
 
-namespace Suzuri {
+namespace Fernanda {
 
 // One row of the vaults list. A plain value, like FileRef: nobody owns it, and
 // App builds a fresh QList<VaultEntry> on demand from AppConfig's recents,
@@ -59,4 +59,4 @@ struct VaultEntry
     bool isCommon = false; // this row is the Common Vault
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

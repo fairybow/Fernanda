@@ -23,7 +23,7 @@
 // Every function takes ONE LINE's text (a QTextBlock's), never text holding
 // line breaks: a word or a character never spans a line, so a document's
 // count is the sum of its lines' counts, and callers walk the blocks
-namespace Suzuri::TextCounts {
+namespace Fernanda::TextCounts {
 
 namespace Internal {
 
@@ -204,4 +204,4 @@ enum class Kind_
     return count;
 }
 
-} // namespace Suzuri::TextCounts
+} // namespace Fernanda::TextCounts

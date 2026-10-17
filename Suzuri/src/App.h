@@ -45,7 +45,7 @@
 #include "ui/Style.h"
 #include "ui/VaultWindow.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
@@ -833,4 +833,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

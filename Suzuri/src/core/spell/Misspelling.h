@@ -37,7 +37,7 @@
 // - A hyphenated word with an accepted word among its parts: "Pangloss-like"
 //   is correct when each part is, by any of the above. The checker splits a
 //   hyphenated word too, but tries each part against the dictionary alone
-namespace Suzuri::Misspelling {
+namespace Fernanda::Misspelling {
 
 namespace Internal {
 
@@ -120,4 +120,4 @@ namespace Internal {
     return false;
 }
 
-} // namespace Suzuri::Misspelling
+} // namespace Fernanda::Misspelling

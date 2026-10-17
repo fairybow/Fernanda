@@ -15,7 +15,7 @@
 #include <QVariant>
 #include <QWidget>
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // Pinned state for a tab page. It lives ON the page widget, not on the hosting
 // tab, because the page pointer is the identity that already rides through
@@ -52,4 +52,4 @@ inline void setPagePinned(QWidget* page, bool pinned)
     }
 }
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

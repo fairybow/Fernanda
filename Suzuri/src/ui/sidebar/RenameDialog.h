@@ -25,7 +25,7 @@
 
 #include "ui/widgets/UserTextEntry.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // One-field rename prompt for a tree entry. The user edits the STEM — a file's
 // extension is preserved and reattached in newLeaf(), a folder has none.
@@ -173,4 +173,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

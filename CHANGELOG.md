@@ -6,13 +6,13 @@
 
 # Boilerplate
 
-(See [build_release_text.py](https://github.com/fairybow/Suzuri/blob/main/.github/scripts/build_release_text.py))
+(See [build_release_text.py](https://github.com/fairybow/Fernanda/blob/main/.github/scripts/build_release_text.py))
 
 <!-- release-preamble-start -->
 
-**Suzuri is a plain-text writing app for fiction, poetry, and long projects.**
+**Fernanda is a plain-text writing app for fiction, poetry, and long projects.**
 
-This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Suzuri/blob/main/Suzuri/docs/Features.md). For past release details, see [CHANGELOG.md](https://github.com/fairybow/Suzuri/blob/main/CHANGELOG.md)
+This is a soft release. For a full feature list, see [Features.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md). For past release details, see [CHANGELOG.md](https://github.com/fairybow/Fernanda/blob/main/CHANGELOG.md)
 
 > [!WARNING]
 > You should not trust your writing with any version of this software less than 1.0.0! Regardless, always make regular backups of your work.
@@ -25,7 +25,7 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 
 **Windows:** Download and run the installer below.
 
-**macOS:** Download the `.dmg`, open it, and drag Suzuri to Applications.
+**macOS:** Download the `.dmg`, open it, and drag Fernanda to Applications.
 
 **Linux:** Download the `.AppImage`, make it executable (`chmod +x`), and run.
 
@@ -36,7 +36,7 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 
 ## Updating
 
-**Windows:** Download the newest installer, ensure Suzuri is closed, then run the installer and install to the same directory (default `C:/Program Files`), overwriting.
+**Windows:** Download the newest installer, ensure Fernanda is closed, then run the installer and install to the same directory (default `C:/Program Files`), overwriting.
 
 **macOS:** Replace the app in Applications with the new version from the `.dmg`.
 
@@ -46,17 +46,17 @@ This is a soft release. For a full feature list, see [Features.md](https://githu
 
 **Windows:** Run the uninstaller (`unins000.exe`) or remove via **Add or Remove Programs** as usual.
 
-**macOS:** Drag Suzuri from Applications to the Trash.
+**macOS:** Drag Fernanda from Applications to the Trash.
 
 **Linux:** Delete the `.AppImage`.
 
-Uninstalling leaves these folders in place. The first holds only app data and is safe to remove. Each vault's `.suzuri/` holds its settings and the words you've added to its dictionary. `Documents/Suzuri/` holds your writing: delete it only if you mean to.
+Uninstalling leaves these folders in place. The first holds only app data and is safe to remove. Each vault's `.fernanda/` holds its settings and the words you've added to its dictionary. `Documents/Fernanda/` holds your writing: delete it only if you mean to.
 
 | Folder | Location | Contents |
 |---|---|---|
-| App data | `AppData/Local/Suzuri` (Windows), `~/Library/Application Support/Suzuri` (macOS), `~/.local/share/Suzuri` (Linux) | Known vaults, session, logs, spelling dictionaries |
-| Default vault location | `Documents/Suzuri/` | Your vaults and the Common Vault |
-| Per-vault settings | `.suzuri/` inside each vault | Settings, layout, and the vault's dictionary |
+| App data | `AppData/Local/Fernanda` (Windows), `~/Library/Application Support/Fernanda` (macOS), `~/.local/share/Fernanda` (Linux) | Known vaults, session, logs, spelling dictionaries |
+| Default vault location | `Documents/Fernanda/` | Your vaults and the Common Vault |
+| Per-vault settings | `.fernanda/` inside each vault | Settings, layout, and the vault's dictionary |
 
 ## Platforms
 
@@ -74,7 +74,7 @@ Windows (x64), macOS (ARM), and Linux (x86_64).
 # Notes
 
 - For release note links: use `blob/main` for evergreen links; use `blob/<tag>` for links to a specific release's snapshot!
-- For diffing against previous release: `https://github.com/fairybow/Suzuri/compare/<tag>...main.diff`
+- For diffing against previous release: `https://github.com/fairybow/Fernanda/compare/<tag>...main.diff`
 - Release commands:
 
 ```

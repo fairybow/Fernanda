@@ -16,7 +16,7 @@
 #include <QHash>
 #include <QString>
 
-namespace Suzuri {
+namespace Fernanda {
 
 // The actions App owns and windows only display, keyed by the same ids the
 // windows file them under (ActionIds). App is the only object that can perform
@@ -48,4 +48,4 @@ namespace Suzuri {
 // no window type revisited
 using AppActions = QHash<QString, QAction*>;
 
-} // namespace Suzuri
+} // namespace Fernanda

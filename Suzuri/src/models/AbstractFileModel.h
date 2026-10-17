@@ -20,7 +20,7 @@
 
 #include "core/FileRef.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // One buffer per open file, plus that file's identity. GUI-free, and
 // filesystem-free: the Vault owns all disk IO. data() and setData() are the
@@ -207,4 +207,4 @@ private:
     int viewCount_ = 0;
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

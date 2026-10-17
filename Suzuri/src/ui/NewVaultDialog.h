@@ -28,7 +28,7 @@
 #include "ui/UiUtility.h"
 #include "ui/widgets/UserTextEntry.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 class NewVaultDialog : public QDialog
 {
@@ -195,4 +195,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

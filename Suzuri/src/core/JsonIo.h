@@ -30,7 +30,7 @@
 // Reuses Io::CreateDirs rather than defining a second bool type: config files
 // live under dirs that may not exist yet (.suzuri/, appData()), so the write
 // forwards the same dir-ensuring behavior Io already has.
-namespace Suzuri::JsonIo {
+namespace Fernanda::JsonIo {
 
 // Returns the root object, or an empty object on any failure — a missing file
 // (normal on first run), a read error, malformed JSON, or a non-object root.
@@ -82,4 +82,4 @@ inline bool write(
     return Io::write(bytes, path, createDirs);
 }
 
-} // namespace Suzuri::JsonIo
+} // namespace Fernanda::JsonIo

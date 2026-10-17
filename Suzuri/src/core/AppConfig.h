@@ -47,7 +47,7 @@
 // up at the last exit. Reopen keys entirely off open — there's no timestamp
 // fallback — so an empty open set means "show the picker", not "guess the
 // newest vault". Matching Obsidian, open is written only when true.
-namespace Suzuri {
+namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
@@ -362,4 +362,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

@@ -25,7 +25,7 @@
 
 #include "ui/UiConstants.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // One setting on a settings page — Obsidian's setting item: the setting's name,
 // and under it a smaller muted description, on the left; its control on the
@@ -185,4 +185,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

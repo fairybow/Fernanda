@@ -41,7 +41,7 @@
 #include "ui/settings/SettingsGeneralPage.h"
 #include "ui/settings/SettingsStatusBarPage.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // One vault's settings, modeled on Obsidian's settings modal: the vault's name
 // and a navigation list down the left — pages under group titles ("Options") —
@@ -279,4 +279,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

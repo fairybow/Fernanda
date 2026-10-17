@@ -19,7 +19,7 @@
 
 #include <Coco/Debug.h>
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The empty page shown in a fresh tab. A plain QWidget, not an AbstractFileView
 // — a new tab has no file, and a NoOpModel would be exactly the off-disk buffer
@@ -88,4 +88,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

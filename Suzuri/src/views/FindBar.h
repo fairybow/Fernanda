@@ -32,7 +32,7 @@
 #include "views/TextSearch.h"
 #include "views/ViewConstants.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
@@ -357,4 +357,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

@@ -22,7 +22,7 @@
 // For creating and retrieving non-configurable application paths
 // (NB: Coco::Path::SystemDir methods won't work as static member variables,
 // since they'll be initialized before Qt has been initialized, which will fail)
-namespace Suzuri::AppDirs {
+namespace Fernanda::AppDirs {
 
 namespace Internal {
 
@@ -59,4 +59,4 @@ GEN_DIR_METHOD_(dictionaries, appData() / "dictionaries")
 
 #undef GEN_DIR_METHOD_
 
-} // namespace Suzuri::AppDirs
+} // namespace Fernanda::AppDirs

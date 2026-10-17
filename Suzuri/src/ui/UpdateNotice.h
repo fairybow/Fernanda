@@ -23,7 +23,7 @@
 #include "ui/UiConstants.h"
 #include "ui/widgets/GlyphButton.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The status bar's update notice: a glyph in the accent color, shown while
 // the Updater has an update the user hasn't dismissed (Updater::hasNotice),
@@ -82,4 +82,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

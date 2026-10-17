@@ -25,7 +25,7 @@
 #include "models/AbstractFileModel.h"
 #include "models/PrimeDocument.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
@@ -262,4 +262,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

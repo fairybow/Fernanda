@@ -31,7 +31,7 @@
 // Vault::openModel saves it at once, so the file on disk becomes the UTF-8 the
 // buffer shows. That immediate save is why accepting IS the loss, and why the
 // wording says so plainly. A free function, so VaultWindow stays slim
-namespace Suzuri::LossyOpenPrompt {
+namespace Fernanda::LossyOpenPrompt {
 
 namespace Internal {
 
@@ -170,4 +170,4 @@ confirm(const Coco::Path& relative, const QByteArray& data, QWidget* parent)
     return box.clickedButton() == open;
 }
 
-} // namespace Suzuri::LossyOpenPrompt
+} // namespace Fernanda::LossyOpenPrompt

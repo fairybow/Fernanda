@@ -38,7 +38,7 @@
 // paints each label (paint). The letters are the palette's placeholder color,
 // resolved for the row's state (colorGroupOf), and a label may have a thin
 // rounded border of the same color, which tells two labels side by side apart
-namespace Suzuri::Ui::RowBadges {
+namespace Fernanda::Ui::RowBadges {
 
 // The palette group an item paints in right now, the way QWidget::palette()
 // picks one for a widget: Disabled if disabled, Normal (Active) if the view's
@@ -152,4 +152,4 @@ inline void paint(
     painter->restore();
 }
 
-} // namespace Suzuri::Ui::RowBadges
+} // namespace Fernanda::Ui::RowBadges

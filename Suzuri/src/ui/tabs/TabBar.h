@@ -23,7 +23,7 @@
 
 #include "ui/UiConstants.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // A plain QTabBar with three behaviors:
 //
@@ -208,4 +208,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

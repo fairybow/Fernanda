@@ -32,7 +32,7 @@
 #include "ui/sidebar/RenameDialog.h"
 #include "ui/sidebar/VaultTreeView.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // A tree view over its vault's VaultTreeModel. The model is the Vault's and is
 // shared by every tree of that vault — every window's common drawer sits on the
@@ -433,4 +433,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

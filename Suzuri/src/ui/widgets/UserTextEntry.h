@@ -17,7 +17,7 @@
 #include <QString>
 #include <QStringList>
 
-namespace Suzuri::Ui::UserTextEntry {
+namespace Fernanda::Ui::UserTextEntry {
 
 using namespace Qt::StringLiterals;
 
@@ -175,4 +175,4 @@ enum class Problem
     return describe(problem);
 }
 
-} // namespace Suzuri::Ui::UserTextEntry
+} // namespace Fernanda::Ui::UserTextEntry

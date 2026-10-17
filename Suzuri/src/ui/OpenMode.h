@@ -12,7 +12,7 @@
 
 #pragma once
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // How a file-open request should place its view. A double-click in a
 // VaultFileTree — and creating a new file — opens with ReplaceActive: the file
@@ -29,4 +29,4 @@ enum class OpenMode
     NewWindow
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

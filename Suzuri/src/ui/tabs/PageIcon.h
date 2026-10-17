@@ -16,7 +16,7 @@
 #include <QVariant>
 #include <QWidget>
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // A tab mark for a page: the small glyph its tab draws ahead of the title. It
 // lives ON the page widget for the same reasons the pin does (PagePin): the
@@ -72,4 +72,4 @@ inline void setPageIconPath(QWidget* page, const QString& svgPath)
     }
 }
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

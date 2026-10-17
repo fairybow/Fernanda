@@ -15,7 +15,7 @@
 #include <QPalette>
 #include <QString>
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
@@ -424,4 +424,4 @@ inline constexpr qreal STYLE_SCROLL_BAR_ALPHA = 0.22;
 inline constexpr qreal STYLE_SCROLL_BAR_HOVER_ALPHA = 0.35;
 inline constexpr qreal STYLE_SCROLL_BAR_PRESSED_ALPHA = 0.45;
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

@@ -24,7 +24,7 @@
 
 #include "core/CMakeMacroGuard.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 // TODO: Verify, and find a more descriptive name
 
@@ -481,4 +481,4 @@ private:
     }
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

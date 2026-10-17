@@ -16,7 +16,7 @@
 
 #include <Coco/Path.h>
 
-namespace Suzuri {
+namespace Fernanda {
 
 // What a listing reports for one entry, and what a node is keyed by: a
 // child is "the same" across re-lists only if name AND kind match
@@ -48,4 +48,4 @@ struct VaultTreeNode
     QList<VaultTreeNode*> children{};
 };
 
-} // namespace Suzuri
+} // namespace Fernanda

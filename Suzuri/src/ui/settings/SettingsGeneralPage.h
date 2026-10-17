@@ -33,7 +33,7 @@
 #include "ui/settings/SettingsPage.h"
 #include "ui/widgets/ToggleSwitch.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The settings dialog's General page, Obsidian's: the running version, a check
 // for a newer one, whether Suzuri checks on its own, and the interface
@@ -232,4 +232,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

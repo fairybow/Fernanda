@@ -35,7 +35,7 @@
 // first, which a fix to an older line breaks). A release's version is its
 // tag, which release.yml requires to be "v" plus VERSION_FULL_STRING, so the
 // tag alone says whether a release is a prerelease
-namespace Suzuri::UpdateCheck {
+namespace Fernanda::UpdateCheck {
 
 // A release newer than the running version: its version without the tag's
 // "v", and the release's own page
@@ -281,4 +281,4 @@ compareVersions(const QString& a, const QString& b)
     return found;
 }
 
-} // namespace Suzuri::UpdateCheck
+} // namespace Fernanda::UpdateCheck

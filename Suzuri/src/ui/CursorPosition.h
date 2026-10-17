@@ -27,7 +27,7 @@
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 // The status bar's cursor position: the line and column of the caret in the
 // window's active text view, as "Ln 12, Col 5". Shown only while it has an
@@ -185,4 +185,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui

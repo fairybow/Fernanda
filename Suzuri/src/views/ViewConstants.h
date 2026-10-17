@@ -16,7 +16,7 @@
 #include <QPalette>
 #include <QtTypes>
 
-namespace Suzuri {
+namespace Fernanda {
 
 // Values tuned by hand for the parts the views are built from: the text editor
 // (TextEditor), its selection handles (SelectionHandles), and the zoom control
@@ -127,4 +127,4 @@ inline constexpr int TEXT_DOCUMENT_MARGIN =
 
 static_assert(TEXT_DOCUMENT_MARGIN <= TEXT_SIDE_PADDING);
 
-} // namespace Suzuri
+} // namespace Fernanda

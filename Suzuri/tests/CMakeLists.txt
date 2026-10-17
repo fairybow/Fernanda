@@ -1,4 +1,4 @@
-# Suzuri — A plain-text writing app for fiction, poetry, and long projects
+# Fernanda — A plain-text writing app for fiction, poetry, and long projects
 # Copyright (C) 2026 fairybow
 #
 # This program is free software, redistributable and/or modifiable under the

@@ -22,7 +22,7 @@
 #include "core/Io.h"
 #include "core/Publication.h"
 
-namespace Suzuri {
+namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
@@ -67,4 +67,4 @@ inline bool ensureVaultDotDir(const Coco::Path& root)
     return dot_dir.exists();
 }
 
-} // namespace Suzuri
+} // namespace Fernanda

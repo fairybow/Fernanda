@@ -26,7 +26,7 @@
 // Stateless file IO, as free functions: JSON and text IO are functions, not an
 // object. Kept in Suzuri rather than Coco until proven — the Coco::Disk relic
 // is deliberately not used here
-namespace Suzuri::Io {
+namespace Fernanda::Io {
 
 inline QByteArray read(const Coco::Path& path)
 {
@@ -143,4 +143,4 @@ write(const QByteArray& data, const Coco::Path& path, CreateDirs createDirs)
     return true;
 }
 
-} // namespace Suzuri::Io
+} // namespace Fernanda::Io

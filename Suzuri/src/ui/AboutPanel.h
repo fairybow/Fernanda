@@ -24,7 +24,7 @@
 #include "core/Version.h"
 #include "ui/LicensesDialog.h"
 
-namespace Suzuri::Ui {
+namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
@@ -102,4 +102,4 @@ private:
     }
 };
 
-} // namespace Suzuri::Ui
+} // namespace Fernanda::Ui
