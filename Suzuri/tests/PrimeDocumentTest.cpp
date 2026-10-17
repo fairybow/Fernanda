@@ -539,6 +539,40 @@ private slots:
         VERIFY_ALL_HOLD(f, u"one (two)"_s);
     }
 
+    // Qt reports a change to a view's format (its margin) as a change to all
+    // its text. That is no edit: nothing to undo, nothing modified, and the
+    // other view's format left alone
+    void aFormatChangeInAViewIsNotAnEdit()
+    {
+        Fixture_ f(u"one\ntwo"_s);
+        f.prime.setModified(false); // as a loaded file is
+        auto margin = f.b.documentMargin();
+
+        f.a.setDocumentMargin(margin + 5);
+
+        VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
+        QVERIFY(!f.prime.isUndoAvailable());
+        QVERIFY(!f.prime.isModified());
+        QCOMPARE(f.b.documentMargin(), margin);
+    }
+
+    // Replacing text with as many characters of other text still is one
+    void aSameLengthReplacementIsAnEdit()
+    {
+        Fixture_ f(u"one\ntwo"_s);
+
+        QTextCursor cursor(&f.a);
+        cursor.setPosition(4);
+        cursor.setPosition(7, QTextCursor::KeepAnchor);
+        cursor.insertText(u"six"_s);
+
+        VERIFY_ALL_HOLD(f, u"one\nsix"_s);
+        QVERIFY(f.prime.isUndoAvailable());
+
+        f.prime.undo();
+        VERIFY_ALL_HOLD(f, u"one\ntwo"_s);
+    }
+
     // --- Changes made on the prime ------------------------------------------
 
     void setTextReachesEveryViewAndClearsUndo()

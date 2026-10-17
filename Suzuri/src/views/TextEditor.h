@@ -28,6 +28,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPen>
+#include <QPlainTextDocumentLayout>
 #include <QPlainTextEdit>
 #include <QPoint>
 #include <QPointF>
@@ -37,6 +38,7 @@
 #include <QString>
 #include <QTextBlock>
 #include <QTextCursor>
+#include <QTextDocument>
 #include <QTextEdit>
 #include <QTextFormat>
 #include <QTextLayout>
@@ -156,6 +158,23 @@ public:
     }
 
     ~TextEditor() override { TRACER; }
+
+    // A document for this editor to show, with Qt's plain-text layout and the
+    // margin the selection handles need (TEXT_DOCUMENT_MARGIN). Owned by the
+    // editor; the caller shares it with the buffer, then sets it.
+    //
+    // Its formatting is all set here, before the buffer shares it
+    // (PrimeDocument::registerView). Qt reports a change to a document's
+    // format, such as its margin, as a change to all its text, and a shared
+    // document's changes are edits to the file
+    [[nodiscard]] QTextDocument* buildDocument()
+    {
+        auto* document = new QTextDocument(this);
+        document->setDocumentLayout(new QPlainTextDocumentLayout(document));
+        document->setDocumentMargin(TEXT_DOCUMENT_MARGIN);
+
+        return document;
+    }
 
     [[nodiscard]] bool lineNumbers() const noexcept { return lineNumbers_; }
 
@@ -542,20 +561,16 @@ private:
         return width() * leftRightMargin_ / 100;
     }
 
-    // The one place the space around the text is set: the gutter's width
-    // plus the text margin on the left, the text margin on the right, and the
+    // The one place the viewport's margins are set: the gutter's width plus
+    // the text margin on the left, the text margin on the right, and the
     // padding that keeps the text off the pane's edges on both. The padding is
     // split between the document's margin, inside the viewport, where the
-    // selection handles need room (TEXT_DOCUMENT_MARGIN), and the viewport's
-    // margins, outside it. Each is set only when it differs, since setting
-    // either lays the text out again (see resizeEvent). The editor resizes
-    // before it first paints, so its document has the margin by then
+    // selection handles need room (TEXT_DOCUMENT_MARGIN, set by
+    // buildDocument), and the viewport's margins, outside it. Set only when
+    // they differ, since setting them lays the viewport out again (see
+    // resizeEvent)
     void updateViewportMargins_()
     {
-        if (document()->documentMargin() != TEXT_DOCUMENT_MARGIN) {
-            document()->setDocumentMargin(TEXT_DOCUMENT_MARGIN);
-        }
-
         auto text_margin =
             textMargin_() + TEXT_SIDE_PADDING - TEXT_DOCUMENT_MARGIN;
         QMargins margins(

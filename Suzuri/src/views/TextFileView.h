@@ -23,7 +23,6 @@
 #include <QKeySequence>
 #include <QList>
 #include <QMenu>
-#include <QPlainTextDocumentLayout>
 #include <QPlainTextEdit>
 #include <QPoint>
 #include <QScrollBar>
@@ -360,9 +359,7 @@ private:
 
         // Each view gets its own document for independent layout. The model
         // routes content between it, the prime, and the other views' documents
-        auto* view_doc = new QTextDocument(editor_);
-        auto* layout = new QPlainTextDocumentLayout(view_doc);
-        view_doc->setDocumentLayout(layout);
+        auto* view_doc = editor_->buildDocument();
 
         // Register BEFORE handing the doc to the editor: registerView seeds it
         // with the prime's current text and disables its per-document undo so

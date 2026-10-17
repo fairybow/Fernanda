@@ -267,7 +267,16 @@ private:
     QTextDocument* document_ = new QTextDocument(this);
     QList<QTextDocument*> viewDocuments_{};
 
-    // A view's document changed. Route the delta to prime and the other views
+    // A view's document changed. Route the delta to prime and the other views.
+    //
+    // A change that leaves the text as it was is no edit, and goes nowhere.
+    // Qt reports a change to a document's format (its margin, say) as a
+    // change to all its text, removed and added again unchanged; applied to
+    // the prime, that would be an undo step and a modified file. Views set
+    // their format before they're registered (TextEditor::buildDocument), and
+    // this keeps one set later from becoming an edit. Only a change that
+    // removes as many characters as it adds can leave the text as it was, so
+    // only that one is compared
     void onViewContentsChange_(
         QTextDocument* source,
         int pos,
@@ -280,6 +289,11 @@ private:
 
         RoutingScope_ scope(routing_);
         auto added_text = extractText_(source, pos, added);
+
+        if (removed == added &&
+            extractText_(document_, pos, removed) == added_text) {
+            return;
+        }
 
         applyDelta_(document_, pos, removed, added_text);
         routeDelta_(source, pos, removed, added_text);
