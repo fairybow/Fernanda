@@ -18,7 +18,7 @@ Nothing here is a promise or a schedule.
 ### Command palette and hotkeys
 
 - A command palette over the actions each window already registers. Every action has a stable id named for the thing it acts on, so the palette is a list and a filter with no changes to the actions themselves
-- Rebindable hotkeys, saved per vault in `.suzuri/hotkeys.json`. An override has to carry a list of key sequences, since standard shortcuts expand to more than one (Redo is Ctrl+Y and Ctrl+Shift+Z)
+- Rebindable hotkeys, saved per vault in `.fernanda/hotkeys.json`. An override has to carry a list of key sequences, since standard shortcuts expand to more than one (Redo is Ctrl+Y and Ctrl+Shift+Z)
 - One header holding every default shortcut, with per-platform variation where a binding differs. The editor's own handling of the undo and redo keys, and its context menu's labels, would read from it too
 
 ### Files and file trees
@@ -44,7 +44,7 @@ Nothing here is a promise or a schedule.
 
 ### Appearance
 
-- Themes, for the window and for the editor, saved in `.suzuri/appearance.json`
+- Themes, for the window and for the editor, saved in `.fernanda/appearance.json`
 - A reset button beside the font size slider
 - Font previews in the font list
 - Separate interface and monospace font settings
@@ -98,7 +98,7 @@ Committing a vault to a repository, for backup and history.
 - **Patterns in Find** (regular expressions). Needs a way to show a pattern that doesn't parse, and a syntax for using what was matched in the replacement. Worth building if plain text with Whole word proves too blunt
 - **A default folder for new files,** like Obsidian's "Default location for new notes": the current file's folder, or a chosen one. New files from Ctrl+N and from Go to File go to the vault's root. Worth building if typing the folder in Go to File proves tedious
 - **Several spelling languages at once.** A view checks against one dictionary. Several would mean asking each one about every word, merging their suggestions, and deciding which one Add to dictionary answers to. Worth building if writing in two languages in one vault proves common
-- **Managing the dictionary in Suzuri.** Removing an added word means editing `.suzuri/dictionary.txt` by hand, as in Obsidian. A list in Settings would do it in place. Worth building if hand editing proves awkward
+- **Managing the dictionary in Suzuri.** Removing an added word means editing `.fernanda/dictionary.txt` by hand, as in Obsidian. A list in Settings would do it in place. Worth building if hand editing proves awkward
 - **Searching the whole vault.** A separate feature from Find, with its own list of results. Obsidian's is a plugin of its own
 - **An overwrite toggle on the Insert key,** per editor, with a status bar indicator
 - **Drop zones that move.** While a tab is dragged over a pane's edge, the pane would shrink aside to show where the new pane will land
@@ -111,7 +111,7 @@ Committing a vault to a repository, for backup and history.
 - **A setting for receiving betas,** like Obsidian's early access. Today `STABLE_BUILDS_SEE_PRERELEASES` decides, for every user, whether a stable build is offered prereleases. Worth building once there are stable releases
 - **Pairing Markdown syntax,** like Obsidian's "Auto pair Markdown syntax": `*`, `_`, `==`, and the like, paired as brackets are and wrapped around a selection. Most likely for Markdown files only, or Markdown and Fountain, and not plain text, where an asterisk is just an asterisk
 - **Smart quotes:** straight quotes typed as curly ones, opening or closing by what's before them
-- **A confirmation before a folder becomes a vault.** Opening any folder as a vault silently adds `.suzuri/` to it; Obsidian asks first
+- **A confirmation before a folder becomes a vault.** Opening any folder as a vault silently adds `.fernanda/` to it; Obsidian asks first
 
 ## Not planned
 

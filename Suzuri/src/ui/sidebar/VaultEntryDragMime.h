@@ -37,7 +37,7 @@ namespace Fernanda::Ui {
 // for it now means that feature never has to version the format. Receivers that
 // only handle one entry check the count and refuse the rest
 inline constexpr auto VAULT_ENTRY_DRAG_MIME_TYPE =
-    "application/x-suzuri-vault-entry";
+    "application/x-fernanda-vault-entry";
 
 // The mime data for a drag of these entries. Caller passes it to
 // QDrag::setMimeData, which takes ownership

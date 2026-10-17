@@ -6,7 +6,7 @@ What Suzuri does today. For what is planned, undecided, or deliberately left out
 
 ## Vaults
 
-A vault is a folder on your computer. Suzuri adds one hidden folder to it, `.suzuri/`, and otherwise leaves it alone: your files stay ordinary files that any other program can open.
+A vault is a folder on your computer. Suzuri adds one hidden folder to it, `.fernanda/`, and otherwise leaves it alone: your files stay ordinary files that any other program can open.
 
 - A vault can live anywhere. Opening a folder as a vault is all it takes to make one
 - Several vaults can be open at once, each in its own window
@@ -162,7 +162,7 @@ Misspelled words are underlined with a red wave as you write. Spelling is checke
 - An added or ignored word is accepted as a possessive too, and as a part of a hyphenated word: with "Pangloss" added, so are "Pangloss's" and "Pangloss-like"
 - "don't" and "well-known" are each checked as one word. A hyphenated word is accepted when each of its parts is
 - Words with a digit in them aren't checked, and neither is Chinese or Japanese text
-- A vault's dictionary is `.suzuri/dictionary.txt`, one word per line, and can be edited by hand. A hand edit takes effect when the vault is next opened, or when a word is next added from the menu
+- A vault's dictionary is `.fernanda/dictionary.txt`, one word per line, and can be edited by hand. A hand edit takes effect when the vault is next opened, or when a word is next added from the menu
 - Checking can be turned off, and the language chosen, per vault in Settings
 - For another language, put its dictionary's two files (`.aff` and `.dic`) in Suzuri's dictionaries folder. The Open folder button beside the language list opens it. A dictionary the vault names but the folder doesn't have is listed as not installed, and nothing is checked
 - A dictionary in a text encoding Suzuri can't convert is listed as an unsupported encoding, and nothing is checked while it is chosen. UTF-8 and Latin-1 (ISO 8859-1) dictionaries always work; whether others do depends on how Qt was built
@@ -232,13 +232,13 @@ Suzuri's menus, settings, and messages are in English and Spanish.
 
 | File | Holds | Meant to be committed or synced? |
 |---|---|---|
-| `.suzuri/settings.json` | Editor, spelling, and status bar settings | Yes |
-| `.suzuri/dictionary.txt` | Words added to the vault's dictionary | Yes |
-| `.suzuri/appearance.json` | Font settings | Yes |
-| `.suzuri/workspace.json` | Window, pane, and tab layout | No, it is specific to one machine |
-| `.suzuri/.gitignore` | Ignores `workspace.json` | Yes |
+| `.fernanda/settings.json` | Editor, spelling, and status bar settings | Yes |
+| `.fernanda/dictionary.txt` | Words added to the vault's dictionary | Yes |
+| `.fernanda/appearance.json` | Font settings | Yes |
+| `.fernanda/workspace.json` | Window, pane, and tab layout | No, it is specific to one machine |
+| `.fernanda/.gitignore` | Ignores `workspace.json` | Yes |
 
-Deleting `.suzuri/` while the vault is closed resets its settings, layout, and dictionary, and nothing else.
+Deleting `.fernanda/` while the vault is closed resets its settings, layout, and dictionary, and nothing else.
 
 The list of known vaults is kept outside any vault, in Suzuri's application data folder. So are the spelling dictionaries, in its `dictionaries` folder. The bundled one is copied there on launch if it's missing, and never overwritten.
 

@@ -16,7 +16,7 @@
 
 #define PUB_AUTHOR_STRING                       "fairybow"
 #define PUB_APP_NAME_STRING                     "Suzuri"
-#define PUB_APP_NAME_LOWER_STRING               "suzuri"
+#define PUB_APP_NAME_LOWER_STRING               "fernanda"
 #define PUB_RELEASE_NAME_STRING                 "Bashō"
 #define PUB_COPYRIGHT_STRING                    "Copyright (C) 2026 fairybow"
 #define PUB_DOMAIN_STRING                       "https://github.com/fairybow/Suzuri"

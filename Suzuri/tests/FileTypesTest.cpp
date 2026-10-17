@@ -110,7 +110,7 @@ private slots:
         QTest::addColumn<QString>("name");
         QTest::addColumn<bool>("expected");
 
-        QTest::newRow("vault folder") << u".suzuri"_s << true;
+        QTest::newRow("vault folder") << u".fernanda"_s << true;
         QTest::newRow("git folder") << u".git"_s << true;
         QTest::newRow("dotfile") << u".gitignore"_s << true;
         QTest::newRow("file") << u"a.txt"_s << false;

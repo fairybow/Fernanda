@@ -98,7 +98,7 @@ inline constexpr ExtensionEntry_ EXTENSIONS_[] = {
 }
 
 // Is an entry hidden from Suzuri's listings — the vault trees and the
-// FileSwitcher? Any name beginning with a dot: the vault marker .suzuri/, plus
+// FileSwitcher? Any name beginning with a dot: the vault marker .fernanda/, plus
 // .git/, .gitignore, and every other dotfile or dot-folder, as Obsidian hides
 // its own .obsidian/. A hidden folder hides everything beneath it. Name-based
 // because on Windows a leading dot carries no hidden attribute, so QDir::Hidden

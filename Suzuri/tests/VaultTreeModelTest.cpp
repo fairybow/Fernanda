@@ -214,7 +214,7 @@ private slots:
         f.makeFolder(u".cache"_s);
         f.start();
 
-        // The vault's own .suzuri folder is hidden like any other
+        // The vault's own .fernanda folder is hidden like any other
         QCOMPARE(f.rows(), QStringList({ u"a"_s }));
     }
 

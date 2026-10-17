@@ -31,20 +31,20 @@ using namespace Qt::StringLiterals;
     return root / (u"."_s + PUB_APP_NAME_LOWER_QSTRING);
 }
 
-// Seed the ignore ONCE, at first creation — keyed on .suzuri/'s absence, not
+// Seed the ignore ONCE, at first creation — keyed on .fernanda/'s absence, not
 // the .gitignore's. If the dot-folder already exists the vault is established
 // and its contents are the user's: a .gitignore they deleted stays deleted,
 // never rewritten behind their back. The write also makes the folder
 // (Io::write, CreateDirs::Yes), so "the folder is absent" IS "this is initial
-// creation" — no separate first-run flag needed. A .suzuri/ deleted while the
+// creation" — no separate first-run flag needed. A .fernanda/ deleted while the
 // vault is open is recreated at the next workspace save, as Obsidian does with
 // .obsidian.
 //
 // It never creates the vault root itself. Every open path has already checked
 // the root exists, so a missing root here means the vault folder was deleted or
-// moved outside Suzuri mid-session — and reading .suzuri/'s absence as "new
+// moved outside Suzuri mid-session — and reading .fernanda/'s absence as "new
 // vault" would recreate the root, leaving a ghost folder where the vault was.
-// Returns whether .suzuri/ exists afterward, so a caller about to write into it
+// Returns whether .fernanda/ exists afterward, so a caller about to write into it
 // (WorkspaceFile) can skip instead
 inline bool ensureVaultDotDir(const Coco::Path& root)
 {
@@ -58,7 +58,7 @@ inline bool ensureVaultDotDir(const Coco::Path& root)
         return true;
     }
 
-    // Makes only .suzuri/ itself: the root was checked above
+    // Makes only .fernanda/ itself: the root was checked above
     Io::write(
         QByteArray(WORKSPACE_FILE_NAME) + '\n',
         dot_dir / u".gitignore"_s,

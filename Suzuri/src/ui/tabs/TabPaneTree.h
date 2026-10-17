@@ -435,7 +435,7 @@ private:
         QString title{};
     };
 
-    static constexpr auto MIME_TYPE_ = "application/x-suzuri-tab";
+    static constexpr auto MIME_TYPE_ = "application/x-fernanda-tab";
     static constexpr qreal EDGE_FRACTION_ = 0.30;
 
     QVBoxLayout* layout_ = nullptr;

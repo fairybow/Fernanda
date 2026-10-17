@@ -82,13 +82,13 @@ public:
         // as it's made
         SpellCheckers::installBundled(AppDirs::dictionaries());
 
-        // suzuri.json is machine-local; a missing file (first run) leaves every
+        // fernanda.json is machine-local; a missing file (first run) leaves every
         // value at its AppDirs default. Load before the common vault so its
         // relocatable path is known when we construct it
         appConfig_.load();
 
         // Before any text is made, App's actions included, since text is
-        // translated as it's made. The language comes from suzuri.json
+        // translated as it's made. The language comes from fernanda.json
         translations_.install(appConfig_.language());
         buildActions_();
 
@@ -664,7 +664,7 @@ private:
     // switch-to-a-vault-makes-it-recent. This names no reopen target — the open
     // flag does that — it's purely recency for ordering. Memory only:
     // activation fires on every focus change and the timestamp is read only at
-    // launch, so persisting each would churn suzuri.json for nothing; it
+    // launch, so persisting each would churn fernanda.json for nothing; it
     // reaches disk at exit (onAboutToQuit_/ onCommitDataRequest_). Pop-out
     // activation isn't tracked; recency is vault-granular and the main window
     // covers the common case
@@ -779,7 +779,7 @@ private:
         flushAllVaults_();
     }
 
-    // The updater's two settings live in suzuri.json, written when either
+    // The updater's two settings live in fernanda.json, written when either
     // changes
     void onUpdaterSettingsChanged_()
     {

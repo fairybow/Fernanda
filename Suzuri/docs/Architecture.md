@@ -74,7 +74,7 @@ flowchart TD
 | Owner | Owns |
 |---|---|
 | `App` | The common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
-| `Vault` | Its file buffers, a watcher over its open files, its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.suzuri/` folder |
+| `Vault` | Its file buffers, a watcher over its open files, its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.fernanda/` folder |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
 | `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows two vaults |
 | `PopoutWindow` | Nothing of its own. Its `VaultWindow` wires it |
@@ -342,10 +342,10 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 
 | What | File | Type | Owner |
 |---|---|---|---|
-| Known vaults, session, last-used folder, update settings, interface language | `suzuri.json` in the app data folder | `AppConfig` | `App` |
-| Per-vault settings | `.suzuri/settings.json`, `.suzuri/appearance.json` | `VaultConfig` | `Vault` |
-| Window and tab layout | `.suzuri/workspace.json` | `WorkspaceFile` | `VaultWindow` |
-| A vault's dictionary | `.suzuri/dictionary.txt`, one word per line | `WordList` | `Vault` |
+| Known vaults, session, last-used folder, update settings, interface language | `fernanda.json` in the app data folder | `AppConfig` | `App` |
+| Per-vault settings | `.fernanda/settings.json`, `.fernanda/appearance.json` | `VaultConfig` | `Vault` |
+| Window and tab layout | `.fernanda/workspace.json` | `WorkspaceFile` | `VaultWindow` |
+| A vault's dictionary | `.fernanda/dictionary.txt`, one word per line | `WordList` | `Vault` |
 
 - **Each config type holds its own defaults.** A missing key falls to the default. There is no chain of fallbacks between vault and app settings.
 - **Only set keys are written.**
@@ -356,7 +356,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 
 ### The known-vaults list
 
-`suzuri.json` holds one array of vaults, each with its path, when it was last used, and whether it is open.
+`fernanda.json` holds one array of vaults, each with its path, when it was last used, and whether it is open.
 
 - The last-used time orders the list. Activating a vault's window updates it in memory; it reaches disk at exit.
 - The open flag is the session: at launch, every vault flagged open whose folder exists is reopened, oldest first, so the most recent ends up in front. If none qualifies, the vault picker is shown.
@@ -390,7 +390,7 @@ flowchart TD
 
 - **One checker per language, shared by every vault.** A dictionary takes a moment and several megabytes to load, so `SpellCheckers` loads one the first time a language is asked for and keeps it. Dictionaries are read from the dictionaries folder in the app data folder, where any pair of `.aff` and `.dic` files is a language. A language must be a single file name, as a vault path must be plain, so a hand-edited setting can't name a file outside the folder; anything else is treated as not installed. Hunspell reads from disk, so the bundled one is copied out of the resources at launch, and a file already there is never replaced.
 - **A checker's answers never change,** because nothing is added to it after it loads. So it keeps every answer, and the editor can ask about each word in view at every paint.
-- **A vault's own words are held apart from the checker.** A checker shared by every vault can't hold one vault's words. `Vault` holds its dictionary (from `.suzuri/dictionary.txt`) and its ignored words as `WordList`s, which apply Hunspell's rule for added words: lowercase also accepts capitals, capitals accept only themselves.
+- **A vault's own words are held apart from the checker.** A checker shared by every vault can't hold one vault's words. `Vault` holds its dictionary (from `.fernanda/dictionary.txt`) and its ignored words as `WordList`s, which apply Hunspell's rule for added words: lowercase also accepts capitals, capitals accept only themselves.
 - **The window's vault decides, as for settings.** `VaultWindow::makeView_` hands each text view the checker for its vault's language (none while spellcheck is off) and one combined list: its vault's dictionary and ignored words, and the Common Vault's dictionary. It hands them over again on `configChanged`, and on `wordsChanged` from either vault.
 - **Views don't know their vault.** Add to dictionary and Ignore leave the view as signals, which `makeView_` connects to the window's vault.
 - **Adding a word reads the file first.** The file, with the word added, becomes the dictionary, so a hand edit made while the vault is open isn't written over. A file that exists but can't be read is never written.
@@ -408,7 +408,7 @@ Three classes, divided by who touches vault folders on disk.
 | Offer create, open, and the known vaults | `ManageVaults` |
 | Gather a name and location | `NewVaultDialog` |
 | Create or rename a vault's folder | `ManageVaults` |
-| Create `.suzuri/` | `Vault`, when constructed |
+| Create `.fernanda/` | `Vault`, when constructed |
 | Check whether the vault is already open | `App` |
 | Construct the `Vault` and its window | `App` |
 | Update the known-vaults list | `App` |
@@ -438,7 +438,7 @@ Suzuri tells the user about a newer release and links to it. It doesn't download
 
 - **The decision is apart from the request.** `core/UpdateCheck.h` holds free functions, tested in `UpdateCheckTest`: Semantic Versioning precedence, and the newest release in GitHub's list that is newer than the running version. `Updater` fetches the list and asks. Versions are compared by precedence, never as strings or by the order GitHub lists releases in.
 - **A release's version is its tag.** `release.yml` requires the tag to be "v" plus `VERSION_FULL_STRING`, so the tag alone says whether a release is a prerelease. A prerelease build is offered prereleases; a stable build is only if `STABLE_BUILDS_SEE_PRERELEASES` says so.
-- **One `Updater`, owned by `App` and handed down.** `App` passes it to each `VaultWindow`, which passes it to its settings dialog and its pop-outs. The General page and every window's status-bar notice read it and follow its signals directly. `App` saves its two settings, whether it checks on its own and which version's notice was dismissed, to `suzuri.json`.
+- **One `Updater`, owned by `App` and handed down.** `App` passes it to each `VaultWindow`, which passes it to its settings dialog and its pop-outs. The General page and every window's status-bar notice read it and follow its signals directly. `App` saves its two settings, whether it checks on its own and which version's notice was dismissed, to `fernanda.json`.
 - **The General page is the one page that follows a signal.** Its settings are `App`'s, shared by every vault's dialog, so it can't seed its controls once as the vault pages do.
 - **An automatic check that fails is only logged,** and the state goes back to what it was. A check the user asked for reports why it failed. One check runs at a time.
 - **The notice's click belongs to `VaultWindow`.** It wires the notice in its own status bar and in each pop-out's: dismiss the notice, which hides it in every window, and open the vault's settings on General.
@@ -449,7 +449,7 @@ Every user-facing string is wrapped in `tr()` where it is used, in a class with 
 
 - **The catalogs are embedded.** `qt_add_translations` builds a `.qm` file from each `.ts` file and embeds it under `:/i18n`, beside Qt's own `qtbase_<lang>.qm` from the Qt install. Every platform loads them from the same place, and nothing is installed. `APP_LANGUAGES` in `CMakeLists.txt` lists the languages; `Translations` finds them at run time by looking in `:/i18n`, so there is no second list.
 - **English has a catalog too.** `Translation_en.ts` holds only plural forms, so that `tr("%Ln word(s)", nullptr, n)` reads "1 word" and "2 words".
-- **Translators are installed before any text is made.** Text is set once, as each widget and action is built, so `App::init` loads `suzuri.json`, installs the translators, and only then builds its actions and windows. For the same reason a new language setting takes effect at the next launch.
+- **Translators are installed before any text is made.** Text is set once, as each widget and action is built, so `App::init` loads `fernanda.json`, installs the translators, and only then builds its actions and windows. For the same reason a new language setting takes effect at the next launch.
 - **Relaunch is Quit, then a new process.** The General page's Relaunch triggers an `App` action that quits by the usual path (so every window closes and saves, and a failed save refuses) and marks the quit as a restart. `main` starts the next copy only after `App` and its single-instance guard (`Coco::StartCop`) are destroyed: a copy started while the guard still listens would hand itself to this one and exit. An AppImage restarts from the path in `APPIMAGE`, since the folder it runs from is unmounted when it exits.
 - **The language is the setting, or the system's.** `Translations::pick` takes the saved setting if it is available, otherwise the first of the system's preferred languages that is, otherwise English. Numbers and dates follow the system's regional format regardless; only text follows the language.
 - **`lupdate` is a manual step.** It rewrites the tracked `.ts` files, so it isn't part of the build; see "Translations" in [CodeStyle.md](CodeStyle.md). `lrelease` is, so a `.ts` change reaches the app on the next build.

@@ -115,7 +115,7 @@ public:
     // Walked fresh on each call: no index and no watcher, so the list is a
     // snapshot of the moment it's asked for. Agrees with the trees by
     // construction — the same two predicates VaultTreeModel lists by. A hidden
-    // folder (.suzuri/, .git/) is pruned, never walked; a file must be neither
+    // folder (.fernanda/, .git/) is pruned, never walked; a file must be neither
     // hidden nor unsupported. Unsorted
     [[nodiscard]] Coco::PathList visibleFiles() const
     {
@@ -658,7 +658,7 @@ public:
     // --- Spelling ------------------------------------------------------------
 
     // The vault's own dictionary: words to take as correctly spelled in this
-    // vault, kept in .suzuri/dictionary.txt and committed with the vault. Read
+    // vault, kept in .fernanda/dictionary.txt and committed with the vault. Read
     // at construction; a change made to the file by hand shows the next time
     // the vault opens, or at the next addToDictionary
     [[nodiscard]] const WordList& dictionary() const noexcept
@@ -986,7 +986,7 @@ private:
     [[nodiscard]] Coco::Path uniqueSiblingTemp_(const Coco::Path& sibling) const
     {
         auto dir = sibling.parent();
-        auto base = sibling.nameQString() + u".suzuri-rename"_s;
+        auto base = sibling.nameQString() + u".fernanda-rename"_s;
 
         auto candidate = dir / base;
         auto n = 0;

@@ -91,7 +91,7 @@ COCO_BOOL(CreateDirs)
 // recognizes the resulting change event as its own (Vault::writeModel_)
 //
 // createDirs has no default: whether a write may invent missing folders is a
-// real choice at each call site. Config files say Yes (.suzuri/ or appData()
+// real choice at each call site. Config files say Yes (.fernanda/ or appData()
 // may not exist yet); a buffer's write and a new file say No, so a folder
 // deleted or moved outside Suzuri is never recreated behind the user
 inline bool

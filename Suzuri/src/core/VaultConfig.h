@@ -25,7 +25,7 @@
 #include "core/JsonIo.h"
 #include "core/VaultDotDir.h"
 
-// Per-vault configuration — the committed files in <vaultRoot>/.suzuri/, the
+// Per-vault configuration — the committed files in <vaultRoot>/.fernanda/, the
 // vault-local counterpart of AppConfig. Owned by Vault as a plain by-value
 // member; the settings dialog edits it through Vault::setConfig, never
 // directly, so every change is announced and saved.
@@ -427,7 +427,7 @@ public:
     // --- IO ------------------------------------------------------------------
 
     // Read the vault's config files into memory. A missing file (a new vault,
-    // or a deleted .suzuri/) or a missing key leaves that value unset, so its
+    // or a deleted .fernanda/) or a missing key leaves that value unset, so its
     // getter returns the default. A value of the wrong JSON type is ignored the
     // same way; an out-of-range number is clamped. JsonIo has already warned
     // about a genuinely corrupt file

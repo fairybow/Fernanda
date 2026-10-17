@@ -23,12 +23,12 @@
 #include "core/Io.h"
 
 // The JSON layer over Suzuri::Io. JsonIo reads and serializes; Io moves the
-// bytes. Every config file (suzuri.json, settings.json, workspace.json) is a
+// bytes. Every config file (fernanda.json, settings.json, workspace.json) is a
 // JSON *object*, so the API is object-in / object-out — QJsonDocument stays an
 // internal detail. Stateless free functions, like Io itself.
 //
 // Reuses Io::CreateDirs rather than defining a second bool type: config files
-// live under dirs that may not exist yet (.suzuri/, appData()), so the write
+// live under dirs that may not exist yet (.fernanda/, appData()), so the write
 // forwards the same dir-ensuring behavior Io already has.
 namespace Fernanda::JsonIo {
 
@@ -70,7 +70,7 @@ inline QJsonObject read(const Coco::Path& path)
 
 // Serialize the object and hand the bytes to Io::write (atomic via QSaveFile).
 // Indented so the committed vault files stay diffable and hand-editable;
-// harmless for the machine-local suzuri.json. Returns Io::write's result — it
+// harmless for the machine-local fernanda.json. Returns Io::write's result — it
 // already logs a failed write, and leaves any existing file untouched on a
 // failed commit
 inline bool write(

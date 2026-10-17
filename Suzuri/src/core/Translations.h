@@ -29,7 +29,7 @@ using namespace Qt::StringLiterals;
 
 // The language of Suzuri's interface, and the translators that put it there.
 // Owned by App, which installs them at launch, before any text is made, and
-// saves the setting (suzuri.json); the General settings page shows and
+// saves the setting (fernanda.json); the General settings page shows and
 // changes it. Text is set once, as each widget is built, so a new setting
 // takes effect at the next launch.
 //

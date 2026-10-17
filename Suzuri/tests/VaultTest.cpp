@@ -196,7 +196,7 @@ private slots:
     {
         Fixture_ f{};
 
-        QVERIFY(QFileInfo(f.folder.filePath(u".suzuri"_s)).isDir());
+        QVERIFY(QFileInfo(f.folder.filePath(u".fernanda"_s)).isDir());
     }
 
     // What the vault lists is what it will open, and nothing hidden
@@ -1156,7 +1156,7 @@ private slots:
             Vault first(root, nullptr);
         }
 
-        QFile file(folder.filePath(u".suzuri/dictionary.txt"_s));
+        QFile file(folder.filePath(u".fernanda/dictionary.txt"_s));
         QVERIFY(file.open(QIODevice::WriteOnly));
         file.write("Pangloss\nCunegonde\n");
         file.close();
@@ -1180,7 +1180,7 @@ private slots:
         QCOMPARE(changed.count(), 2);
         QVERIFY(f.vault.dictionary().contains(u"Pangloss"_s));
         QCOMPARE(
-            f.read(u".suzuri/dictionary.txt"_s),
+            f.read(u".fernanda/dictionary.txt"_s),
             QByteArray("Cunegonde\nPangloss\n"));
 
         // A word already there is no change
@@ -1195,11 +1195,11 @@ private slots:
         Fixture_ f{};
         f.vault.addToDictionary(u"Pangloss"_s);
 
-        f.write(u".suzuri/dictionary.txt"_s, "Candide\n");
+        f.write(u".fernanda/dictionary.txt"_s, "Candide\n");
         f.vault.addToDictionary(u"Cunegonde"_s);
 
         QCOMPARE(
-            f.read(u".suzuri/dictionary.txt"_s),
+            f.read(u".fernanda/dictionary.txt"_s),
             QByteArray("Candide\nCunegonde\n"));
         QVERIFY(f.vault.dictionary().contains(u"Candide"_s));
         QVERIFY(!f.vault.dictionary().contains(u"Pangloss"_s));
@@ -1218,7 +1218,7 @@ private slots:
         QCOMPARE(changed.count(), 1);
         QVERIFY(f.vault.ignoredWords().contains(u"Thunder"_s));
         QVERIFY(!f.vault.dictionary().contains(u"Thunder"_s));
-        QVERIFY(!f.exists(u".suzuri/dictionary.txt"_s));
+        QVERIFY(!f.exists(u".fernanda/dictionary.txt"_s));
     }
 
     // --- Trash refusals -----------------------------------------------------

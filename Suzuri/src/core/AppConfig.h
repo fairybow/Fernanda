@@ -26,7 +26,7 @@
 #include "core/JsonIo.h"
 #include "core/Publication.h"
 
-// App-level configuration — the machine-local suzuri.json in appData(),
+// App-level configuration — the machine-local fernanda.json in appData(),
 // mirroring Obsidian's obsidian.json. Owned by App as a plain by-value member:
 // "only one exists" because App is one, not because it's a singleton. Nothing
 // here ports to another machine.
@@ -198,7 +198,7 @@ public:
         }
     }
 
-    // Read suzuri.json into memory. A missing file (first run) or an absent
+    // Read fernanda.json into memory. A missing file (first run) or an absent
     // "vaults" key leaves the registry empty and every path value unset, so
     // every getter returns its default. JsonIo/Io have already logged a
     // genuinely corrupt file; a missing one is silent

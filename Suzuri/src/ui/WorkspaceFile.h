@@ -45,8 +45,8 @@ namespace Fernanda::Ui {
 // small QObject owning a debounce timer and a set of connections to the windows
 // it watches. It persists workspace; it coordinates nothing.
 //
-// Writes <vaultRoot>/.suzuri/workspace.json, NOT committed: a
-// .suzuri/.gitignore naming it is written when the dot-folder is first created
+// Writes <vaultRoot>/.fernanda/workspace.json, NOT committed: a
+// .fernanda/.gitignore naming it is written when the dot-folder is first created
 // (ensureVaultDotDir). Workspace refs are vault-relative PATHS, with no id.
 //
 // The FileRef<->view translation, the recent files, and the pop-out lifecycle
@@ -419,7 +419,7 @@ private:
 
     // Skipped when the vault folder is gone: ensureVaultDotDir refuses to
     // recreate the root, so there's nowhere to write. CreateDirs::No because
-    // .suzuri/ is guaranteed by then — so this write can't recreate the root
+    // .fernanda/ is guaranteed by then — so this write can't recreate the root
     // either, even if it vanishes between the check and the write
     void writeToDisk_()
     {
