@@ -7,11 +7,18 @@
 # change to nothing but docs doesn't trigger it.
 #
 # Jobs:
-#   linux  -> ubuntu-22.04, gcc-13
+#   linux  -> ubuntu-22.04, gcc-13, with AddressSanitizer and
+#             UndefinedBehaviorSanitizer
 #   macos  -> macos-14 (ARM / Apple Silicon), Apple clang
 #
 # Both match release.yml's runner and compiler, so a pass here means those two
 # platforms still build.
+#
+# The Linux build reports memory errors and undefined behavior as they happen,
+# which a test can otherwise pass straight through (a member read after its
+# object's destructor has run, say). Any report fails the test it happened in.
+# Leak checking is off: Qt's own libraries report leaks that aren't Suzuri's.
+# macOS builds without the sanitizers, so the plain build is still checked
 #
 # There is no Windows job. Qt 6.11 on Windows installs only through the
 # official installer, which needs the QT_EMAIL / QT_PW secrets (see
@@ -61,7 +68,10 @@ jobs:
 
   linux:
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 45
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      UBSAN_OPTIONS: print_stacktrace=1
     steps:
       - uses: actions/checkout@v5
         with:
@@ -84,13 +94,17 @@ jobs:
             libxcb1-dev libx11-xcb-dev libxkbcommon-dev \
             libgl1-mesa-dev
 
+      # -fno-sanitize-recover makes undefined behavior stop the test, where by
+      # default it's only printed and the test can still pass
       - name: Configure
         run: |
           cmake -B build -S Suzuri \
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -DCMAKE_C_COMPILER=gcc-13 \
             -DCMAKE_CXX_COMPILER=g++-13 \
-            -DAPP_BUILD_TESTS=ON
+            -DAPP_BUILD_TESTS=ON \
+            "-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer" \
+            "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined"
 
       - name: Build
         run: cmake --build build --parallel

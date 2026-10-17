@@ -65,13 +65,18 @@ public:
         setup_();
     }
 
-    // Set the teardown flag BEFORE ~QWidget deletes the pages, so a page dying
-    // as part of the leaf's own destruction doesn't try to prune a tab from a
-    // half-destroyed bar (see bindPageLifetime_)
+    // The pages die with the leaf, but only after this: ~QWidget deletes the
+    // page stack, and every page in it, once this destructor has finished and
+    // the leaf is no longer a TabPaneLeaf. A page's connections to the leaf
+    // (bindPage_) are still live then, since Qt cuts a receiver's connections
+    // only in its own ~QObject, so they're cut here, while the leaf is whole
     ~TabPaneLeaf() override
     {
         TRACER;
-        tearingDown_ = true;
+
+        for (auto i = 0; i < bar_->count(); ++i) {
+            pageAt(i)->disconnect(this);
+        }
     }
 
     // --- Queries -----------------------------------------------------------
@@ -320,9 +325,6 @@ private:
     QStackedWidget* pageStack_ = new QStackedWidget(this);
     QWidget* underlay_ = new QWidget(this);
 
-    // See ~TabPaneLeaf and bindPageLifetime_
-    bool tearingDown_ = false;
-
     // Every mark today is the same glyph, so one slot serves every tab
     Glyph::Cache markGlyph_{};
 
@@ -443,15 +445,10 @@ private:
     // rename (fanned out from the shared model) reaches the tab here without
     // the leaf learning it holds a file view. takePage drops both bindings when
     // a page leaves under an explicit move; addPage rebinds at the destination.
-    // Guarded against teardown so a leaf dying with tabs leaves the bar alone
-    // (~TabPaneLeaf set the flag first)
+    // A leaf dying with its pages cuts both first (~TabPaneLeaf)
     void bindPage_(QWidget* page)
     {
         connect(page, &QObject::destroyed, this, [this, page] {
-            if (tearingDown_) {
-                return;
-            }
-
             if (auto index = indexOf(page); index > -1) {
                 bar_->removeTab(index);
                 updateEmptyState_();

@@ -38,6 +38,7 @@ function(app_configure_test_target name)
         Qt6::Core
         Qt6::Gui
         Qt6::PdfWidgets
+        Qt6::Svg
         Qt6::Widgets
         Qt6::Test
     )
@@ -70,6 +71,11 @@ add_library(AppTestMocs OBJECT
     ${PROJECT_SOURCE_DIR}/src/models/PdfFileModel.h
     ${PROJECT_SOURCE_DIR}/src/models/PrimeDocument.h
     ${PROJECT_SOURCE_DIR}/src/models/TextFileModel.h
+    ${PROJECT_SOURCE_DIR}/src/ui/tabs/NewTabButton.h
+    ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabBar.h
+    ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabCloseButton.h
+    ${PROJECT_SOURCE_DIR}/src/ui/tabs/TabPaneLeaf.h
+    ${PROJECT_SOURCE_DIR}/src/ui/widgets/GlyphButton.h
 )
 
 app_configure_test_target(AppTestMocs)
@@ -98,6 +104,7 @@ app_add_test(RecentFilesTest)
 app_add_test(SpellCheckerTest)
 app_add_test(SpellCheckersTest)
 app_add_test(SpellWordsTest)
+app_add_test(TabPaneLeafTest)
 app_add_test(TextCountsTest)
 app_add_test(TextFileModelTest)
 app_add_test(TextSearchTest)

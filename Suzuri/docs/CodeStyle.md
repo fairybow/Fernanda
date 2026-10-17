@@ -94,7 +94,7 @@ Tests are Qt Test, in `Suzuri/tests/`. The `APP_BUILD_TESTS` CMake option builds
 - A test asserts what the code's comments and the docs promise. When one fails, decide which of the two is wrong before changing either.
 - A known bug gets a test marked `QEXPECT_FAIL`, and an entry in [TODO.md](TODO.md). The run stays green, and reports the test once the bug is fixed.
 - Make sure a new test can fail: break the code it guards, once, and watch it fail.
-- Every push builds the app and runs the tests on Linux and macOS (`.github/workflows/ci.yml`). Windows isn't covered there, so run the tests on Windows before pushing.
+- Every push builds the app and runs the tests on Linux and macOS (`.github/workflows/ci.yml`). The Linux build runs under AddressSanitizer and UndefinedBehaviorSanitizer, so a memory error or undefined behavior fails the test it happens in. Windows isn't covered there, so run the tests on Windows before pushing.
 
 ## Comments
 
