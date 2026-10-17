@@ -129,6 +129,10 @@ public:
         editor_->setLineHighlight(config.lineHighlight());
         editor_->setDoubleClickWhitespace(config.doubleClickWhitespace());
         editor_->setSelectionHandles(config.selectionHandles());
+
+        // The typing helpers' switch turns them all off, each keeping its own
+        // setting for when it's turned back on
+        editor_->setAutoPairs(config.typingHelpers() && config.autoPairs());
     }
 
     void setSpellChecker(SpellChecker* borrowedSpellChecker) override

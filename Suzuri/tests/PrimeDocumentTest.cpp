@@ -515,35 +515,28 @@ private slots:
         QCOMPARE(hint.takeFirst().first().toInt(), 6);
     }
 
-    void compoundEditUndoesAsOneStep()
+    // An edit block in a view reaches the prime as one edit, so it undoes as
+    // one step. The typing helpers rely on this (a pair inserted, a selection
+    // wrapped), as Replace All does
+    void editBlockInAViewUndoesAsOneStep()
     {
-        Fixture_ f(u"one\ntwo\nthree"_s);
-
-        f.prime.beginCompoundEdit();
+        Fixture_ f(u"one two"_s);
 
         QTextCursor cursor(&f.a);
-        cursor.insertText(u"A"_s);
-        cursor.movePosition(QTextCursor::End);
-        cursor.insertText(u"Z"_s);
+        cursor.beginEditBlock();
+        cursor.setPosition(7);
+        cursor.insertText(u")"_s);
+        cursor.setPosition(4);
+        cursor.insertText(u"("_s);
+        cursor.endEditBlock();
 
-        f.prime.endCompoundEdit();
-
-        VERIFY_ALL_HOLD(f, u"Aone\ntwo\nthreeZ"_s);
+        VERIFY_ALL_HOLD(f, u"one (two)"_s);
 
         f.prime.undo();
-        VERIFY_ALL_HOLD(f, u"one\ntwo\nthree"_s);
+        VERIFY_ALL_HOLD(f, u"one two"_s);
 
         f.prime.redo();
-        VERIFY_ALL_HOLD(f, u"Aone\ntwo\nthreeZ"_s);
-    }
-
-    void endCompoundEditWithoutBeginIsHarmless()
-    {
-        Fixture_ f(u"one"_s);
-
-        f.prime.endCompoundEdit();
-
-        VERIFY_ALL_HOLD(f, u"one"_s);
+        VERIFY_ALL_HOLD(f, u"one (two)"_s);
     }
 
     // --- Changes made on the prime ------------------------------------------

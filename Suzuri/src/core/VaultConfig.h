@@ -108,6 +108,12 @@ public:
     static constexpr bool DEFAULT_DOUBLE_CLICK_WHITESPACE = true;
     static constexpr bool DEFAULT_SELECTION_HANDLES = false;
 
+    // The typing helpers (views/TypingHelpers.h): a switch for all of them,
+    // and one for each. A helper keeps its own value while the switch is off,
+    // as the status bar's parts do. Auto-pairing is on, as Obsidian's is
+    static constexpr bool DEFAULT_TYPING_HELPERS = true;
+    static constexpr bool DEFAULT_AUTO_PAIRS = true;
+
     // Spellcheck (core/spell/SpellChecker.h). The language is a dictionary's
     // name, the stem of its .aff and .dic files (core/spell/SpellCheckers.h)
     static constexpr bool DEFAULT_SPELLCHECK = true;
@@ -226,6 +232,16 @@ public:
     [[nodiscard]] bool selectionHandles() const
     {
         return selectionHandles_.value_or(DEFAULT_SELECTION_HANDLES);
+    }
+
+    [[nodiscard]] bool typingHelpers() const
+    {
+        return typingHelpers_.value_or(DEFAULT_TYPING_HELPERS);
+    }
+
+    [[nodiscard]] bool autoPairs() const
+    {
+        return autoPairs_.value_or(DEFAULT_AUTO_PAIRS);
     }
 
     [[nodiscard]] bool spellcheck() const
@@ -371,6 +387,16 @@ public:
         return setBool_(selectionHandles_, selectionHandles(), shown);
     }
 
+    [[nodiscard]] bool setTypingHelpers(bool enabled)
+    {
+        return setBool_(typingHelpers_, typingHelpers(), enabled);
+    }
+
+    [[nodiscard]] bool setAutoPairs(bool enabled)
+    {
+        return setBool_(autoPairs_, autoPairs(), enabled);
+    }
+
     [[nodiscard]] bool setSpellcheck(bool enabled)
     {
         return setBool_(spellcheck_, spellcheck(), enabled);
@@ -449,6 +475,8 @@ public:
             DOUBLE_CLICK_WHITESPACE_KEY_,
             doubleClickWhitespace_);
         readBool_(settings, SELECTION_HANDLES_KEY_, selectionHandles_);
+        readBool_(settings, TYPING_HELPERS_KEY_, typingHelpers_);
+        readBool_(settings, AUTO_PAIRS_KEY_, autoPairs_);
         readBool_(settings, SPELLCHECK_KEY_, spellcheck_);
 
         if (auto value = settings.value(SPELLCHECK_LANGUAGE_KEY_);
@@ -513,6 +541,8 @@ public:
             DOUBLE_CLICK_WHITESPACE_KEY_,
             doubleClickWhitespace_);
         writeBool_(settings, SELECTION_HANDLES_KEY_, selectionHandles_);
+        writeBool_(settings, TYPING_HELPERS_KEY_, typingHelpers_);
+        writeBool_(settings, AUTO_PAIRS_KEY_, autoPairs_);
         writeBool_(settings, SPELLCHECK_KEY_, spellcheck_);
 
         if (!spellcheckLanguage_.isEmpty()) {
@@ -567,6 +597,8 @@ private:
     static inline const QString DOUBLE_CLICK_WHITESPACE_KEY_ =
         u"doubleClickWhitespace"_s;
     static inline const QString SELECTION_HANDLES_KEY_ = u"selectionHandles"_s;
+    static inline const QString TYPING_HELPERS_KEY_ = u"typingHelpers"_s;
+    static inline const QString AUTO_PAIRS_KEY_ = u"autoPairs"_s;
     static inline const QString SPELLCHECK_KEY_ = u"spellcheck"_s;
     static inline const QString SPELLCHECK_LANGUAGE_KEY_ =
         u"spellcheckLanguage"_s;
@@ -595,6 +627,8 @@ private:
     std::optional<bool> lineHighlight_{};
     std::optional<bool> doubleClickWhitespace_{};
     std::optional<bool> selectionHandles_{};
+    std::optional<bool> typingHelpers_{};
+    std::optional<bool> autoPairs_{};
 
     std::optional<bool> spellcheck_{};
     QString spellcheckLanguage_{};

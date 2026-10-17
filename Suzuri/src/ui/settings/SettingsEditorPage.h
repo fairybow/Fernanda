@@ -28,8 +28,10 @@
 #include "core/Vault.h"
 #include "core/VaultConfig.h"
 #include "core/spell/SpellCheckers.h"
+#include "ui/settings/SettingRow.h"
 #include "ui/settings/SettingsPage.h"
 #include "ui/widgets/DisplaySlider.h"
+#include "ui/widgets/ToggleSwitch.h"
 
 namespace Suzuri::Ui {
 
@@ -43,9 +45,13 @@ using namespace Qt::StringLiterals;
 // numbers sit in it there too ("Show line numbers"), and the left/right margin
 // stands where Obsidian has "Readable line length". Behavior is how it
 // responds: the tab width is Obsidian's "Indent visual width", which it keeps
-// under Behavior as well. The rest — wrapping, the current-line highlight,
-// selection handles, center on scroll, double-click whitespace — are Suzuri's
+// under Behavior as well, and auto-pairing is its "Auto pair brackets". The
+// rest — wrapping, the current-line highlight, selection handles, center on
+// scroll, double-click whitespace, the typing helpers' switch — are Suzuri's
 // own, which Obsidian doesn't have.
+//
+// The typing helpers' rows hang on their switch: disabled while it's off,
+// each keeping its own value.
 //
 // Spelling is a section of its own; Obsidian's Editor tab has a "Spellcheck"
 // switch too. Its language list offers the dictionaries in the dictionaries
@@ -172,6 +178,38 @@ private:
             tr("Double-click a run of spaces or tabs to select all of it."),
             config.doubleClickWhitespace(),
             &VaultConfig::setDoubleClickWhitespace);
+
+        setupTypingHelpers_();
+    }
+
+    void setupTypingHelpers_()
+    {
+        const auto& config = vault()->config();
+
+        auto helpers = addSwitch(
+            tr("Typing helpers"),
+            tr("Help with brackets and quotes as you type. Each helper below "
+               "can be turned off on its own."),
+            config.typingHelpers(),
+            &VaultConfig::setTypingHelpers);
+
+        auto pairs = addSwitch(
+            tr("Auto-pair brackets and quotes"),
+            tr("Typing an opening bracket or quote adds its closing one. "
+               "Typing the closing one steps past it, Backspace between an "
+               "empty pair deletes both, and typing an opening one with text "
+               "selected wraps the text."),
+            config.autoPairs(),
+            &VaultConfig::setAutoPairs);
+
+        hangOn_(helpers.toggle, pairs.row);
+    }
+
+    // A row enabled only while a switch is on
+    void hangOn_(ToggleSwitch* toggle, SettingRow* row)
+    {
+        row->setEnabled(toggle->isChecked());
+        connect(toggle, &QAbstractButton::toggled, row, &QWidget::setEnabled);
     }
 
     void setupSpellingSection_()
@@ -220,12 +258,7 @@ private:
                "folder."),
             control);
 
-        row->setEnabled(check.toggle->isChecked());
-        connect(
-            check.toggle,
-            &QAbstractButton::toggled,
-            row,
-            &QWidget::setEnabled);
+        hangOn_(check.toggle, row);
     }
 
     // List the installed dictionaries, each under its language's name, and

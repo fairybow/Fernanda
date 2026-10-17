@@ -19,6 +19,7 @@
 #include <QFont>
 #include <QFontMetricsF>
 #include <QFrame>
+#include <QKeyEvent>
 #include <QList>
 #include <QMargins>
 #include <QMimeData>
@@ -52,6 +53,7 @@
 #include "core/spell/WordList.h"
 #include "views/SelectionHandles.h"
 #include "views/TextSearch.h"
+#include "views/TypingHelpers.h"
 #include "views/ViewConstants.h"
 
 namespace Suzuri {
@@ -136,7 +138,11 @@ private:
 //
 // Selection handles (views/SelectionHandles.h): two draggable teardrops under
 // the ends of a selection. The editor's part is to paint them after the text
-// and to offer them each mouse event before handling it itself
+// and to offer them each mouse event before handling it itself.
+//
+// Typing helpers (views/TypingHelpers.h): auto-pairing of brackets and quotes.
+// The editor offers them each key press before handling it itself, and tells
+// them when the caret moves
 class TextEditor : public QPlainTextEdit
 {
     Q_OBJECT
@@ -302,6 +308,14 @@ public:
         selectionHandles_.setEnabled(shown);
     }
 
+    [[nodiscard]] bool autoPairs() const noexcept
+    {
+        return typingHelpers_.autoPairs();
+    }
+
+    // Returns early when unchanged, as the others do
+    void setAutoPairs(bool enabled) { typingHelpers_.setAutoPairs(enabled); }
+
 protected:
     // What a copy, a cut, or a drag of the selection carries: the selected
     // text exactly as stored, as plain text only, with paragraph breaks as
@@ -345,6 +359,18 @@ protected:
         paintSearchMatches_(event);
         paintMisspellings_(event);
         selectionHandles_.paint();
+    }
+
+    // The typing helpers get each key press first, and one they take goes no
+    // further: the base would type the character a second time
+    void keyPressEvent(QKeyEvent* event) override
+    {
+        if (typingHelpers_.keyPress(event)) {
+            event->accept();
+            return;
+        }
+
+        QPlainTextEdit::keyPressEvent(event);
     }
 
     // The selection handles get each mouse event first, and one they take
@@ -428,6 +454,7 @@ private:
     int caretBlock_ = 0;
     bool doubleClickWhitespace_ = false;
     SelectionHandles selectionHandles_{ this };
+    TypingHelpers typingHelpers_{ this };
 
     void setup_()
     {
@@ -763,6 +790,7 @@ private:
         }
 
         caretBlock_ = block_number;
+        typingHelpers_.caretMoved();
     }
 
     // Repaint the rows of two blocks (or of one, given twice), where in view.

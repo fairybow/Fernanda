@@ -176,27 +176,6 @@ public:
         });
     }
 
-    // --- Compound edits ----------------------------------------------------
-
-    // Call before a sequence of edits that should undo/redo as one step. Opens
-    // an edit block on the prime so deltas arriving from a view are grouped
-    // into a single undo operation
-    void beginCompoundEdit()
-    {
-        editBlockCursor_ = QTextCursor(document_);
-        editBlockCursor_.beginEditBlock();
-    }
-
-    void endCompoundEdit()
-    {
-        if (editBlockCursor_.isNull()) {
-            return;
-        }
-
-        editBlockCursor_.endEditBlock();
-        editBlockCursor_ = QTextCursor{}; // release
-    }
-
     // --- Undo / redo -------------------------------------------------------
 
     [[nodiscard]] bool isUndoAvailable() const
@@ -287,7 +266,6 @@ private:
 
     QTextDocument* document_ = new QTextDocument(this);
     QList<QTextDocument*> viewDocuments_{};
-    QTextCursor editBlockCursor_{};
 
     // A view's document changed. Route the delta to prime and the other views
     void onViewContentsChange_(
@@ -315,11 +293,12 @@ private:
         RoutingScope_ scope(routing_);
         auto hint_pos = -1;
 
-        // TODO: hint_pos reflects the LAST contentsChange during a compound
-        // undo/redo. For adjacent edits (auto-close, barge, delete-pair) it's
-        // fine. If a future compound edit spans distant positions, the cursor
-        // hint may land at the wrong site. A fix might be to track all delta
-        // positions and pick the most useful one (e.g., earliest)
+        // TODO: hint_pos reflects the LAST contentsChange of an undo/redo that
+        // makes several. For one edit, or edits close together (a pair the
+        // typing helpers inserted, a selection they wrapped), it's fine. If
+        // one ever spans distant positions, the cursor hint may land at the
+        // wrong site. A fix might be to track all delta positions and pick the
+        // most useful one (e.g., earliest)
 
         auto conn = connect(
             document_,

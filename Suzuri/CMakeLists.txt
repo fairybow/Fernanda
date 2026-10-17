@@ -283,6 +283,7 @@ set(APP_HEADERS
     src/views/TextEditor.h
     src/views/TextFileView.h
     src/views/TextSearch.h
+    src/views/TypingHelpers.h
     src/views/ViewConstants.h
     src/views/ZoomControl.h
     src/views/ZoomState.h

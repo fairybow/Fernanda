@@ -81,12 +81,6 @@ public:
     void undo() override { prime_->undo(); }
     void redo() override { prime_->redo(); }
 
-    // Group a sequence of edits into a single undo step. No driver yet —
-    // Suzuri has no key-filter behaviors (auto-close pairs, etc.) that would
-    // open a block; kept because the prime already supports it
-    void beginCompoundEdit() { prime_->beginCompoundEdit(); }
-    void endCompoundEdit() { prime_->endCompoundEdit(); }
-
     // --- AbstractFileModel contract ----------------------------------------
 
     // Do these bytes decode cleanly as UTF-8? Vault::openModel asks before
