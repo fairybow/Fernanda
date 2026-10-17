@@ -61,6 +61,10 @@ using namespace Qt::StringLiterals;
 //   "(word), ". Enter there drops the space. Any other key, or moving the
 //   caret, ends the chance. ' and * aren't among them, since they so often
 //   start the next word
+// - The space after that punctuation is the one already typed, moved, so a
+//   space typed straight after it is taken as that one and adds nothing:
+//   "(word), " and a space stay "(word), ". Enter drops it, and more of the
+//   punctuation goes before it ("?!"), as straight after a step
 //
 // Each change is one edit block in the view's document, so it reaches the
 // shared buffer as one edit and undoes as one step.
@@ -101,6 +105,7 @@ public:
 
         barging_ = enabled;
         steppedTo_ = -1;
+        closedGap_ = false;
     }
 
     // True means the key press was handled here, and the editor must not
@@ -130,8 +135,12 @@ public:
 
         auto character = event->text().at(0);
 
+        // A space after a closed gap is the moved one, and is taken before
+        // it can step past a closer: in "(word), " inside a quote, it's the
+        // space after the comma, not the end of the quote
         if (barging_ && !has_selection &&
-            ((character == u' ' && stepPastCloser_()) ||
+            (absorbSpace_(character) ||
+             (character == u' ' && stepPastCloser_()) ||
              closeGap_(character))) {
             return true;
         }
@@ -152,6 +161,7 @@ public:
     void caretMoved()
     {
         steppedTo_ = -1;
+        closedGap_ = false;
 
         if (insertedClosers_.isEmpty()) {
             return;
@@ -200,9 +210,12 @@ private:
     bool barging_ = false;
     QList<InsertedCloser_> insertedClosers_{};
 
-    // Where the caret was left by a step past a closer, while the next key
-    // can still close the gap; -1 otherwise
+    // Where the caret was left by a step past a closer, or by punctuation
+    // put before its space, while the next key can still close the gap; -1
+    // otherwise. closedGap_ says it was punctuation, so a space typed next is
+    // the one already there
     int steppedTo_ = -1;
+    bool closedGap_ = false;
 
     [[nodiscard]] static const Pair_* pairOpenedBy_(QChar character)
     {
@@ -434,6 +447,7 @@ private:
 
         // After setTextCursor, whose caretMoved would clear it
         steppedTo_ = cursor.position();
+        closedGap_ = false;
 
         return true;
     }
@@ -453,6 +467,25 @@ private:
         cursor.endEditBlock();
 
         editor_->setTextCursor(cursor);
+
+        // After setTextCursor, whose caretMoved would clear them
+        steppedTo_ = cursor.position();
+        closedGap_ = true;
+
+        return true;
+    }
+
+    // A space typed straight after a closed gap: the space is already there,
+    // so nothing is added, and the chance is over
+    bool absorbSpace_(QChar character)
+    {
+        if (character != u' ' || !closedGap_ || !isRightAfterStep_()) {
+            return false;
+        }
+
+        steppedTo_ = -1;
+        closedGap_ = false;
+
         return true;
     }
 
@@ -474,9 +507,9 @@ private:
         return true;
     }
 
-    // The caret is where a step left it, with the space it put there before
-    // it. The text there can have changed since without the caret moving (an
-    // edit in another view of the file), hence the space
+    // The caret is where a step (or a closed gap) left it, with the space it
+    // put there before it. The text there can have changed since without the
+    // caret moving (an edit in another view of the file), hence the space
     [[nodiscard]] bool isRightAfterStep_() const
     {
         auto cursor = editor_->textCursor();

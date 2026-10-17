@@ -517,6 +517,86 @@ private slots:
         QCOMPARE(editor.toPlainText(), u"(word) ,"_s);
     }
 
+    void aSpaceAfterAClosedGapIsTheOneAlreadyThere()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  , then"_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word), then"_s);
+    }
+
+    void aWordAfterAClosedGapKeepsTheSpace()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  ,then"_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word), then"_s);
+    }
+
+    void onlyOneSpaceAfterAClosedGapIsTaken()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  ,  "_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word),  "_s);
+    }
+
+    void aSpaceAfterAClosedGapIsTypedOnceTheCaretMoves()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  ,"_s);
+
+        auto cursor = editor.textCursor();
+        cursor.movePosition(QTextCursor::Left);
+        editor.setTextCursor(cursor);
+        cursor.movePosition(QTextCursor::Right);
+        editor.setTextCursor(cursor);
+
+        type_(editor, u" "_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word),  "_s);
+    }
+
+    // Inside a quote, the space belongs after the comma rather than ending
+    // the quote
+    void aSpaceAfterAClosedGapDoesNotStepPastACloser()
+    {
+        Editor_ editor{};
+        set_(editor, u"\"(word)\""_s, 6);
+        type_(editor, u"  , "_s);
+
+        QCOMPARE(editor.toPlainText(), u"\"(word), \""_s);
+        QCOMPARE(caret_(editor), 9);
+    }
+
+    void moreMarksAfterAClosedGapGoBeforeTheSpace()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  ?! "_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word)?! "_s);
+        QCOMPARE(caret_(editor), 9);
+    }
+
+    void enterAfterAClosedGapDropsTheSpace()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  ."_s);
+        enter_(editor);
+
+        QCOMPARE(editor.toPlainText(), u"(word).\n"_s);
+        QCOMPARE(caret_(editor), 8);
+    }
+
+    void aSpaceTakenAfterAClosedGapLeavesNothingToUndo()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  , "_s);
+        editor.undo();
+
+        QCOMPARE(editor.toPlainText(), u"(word) "_s);
+    }
+
     void enterRightAfterAStepDropsTheSpace()
     {
         Editor_ editor{};
