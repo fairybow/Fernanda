@@ -1,4 +1,4 @@
-; Suzuri Inno Setup Script (https://jrsoftware.org/isdl.php#stable)
+; Fernanda Inno Setup Script (https://jrsoftware.org/isdl.php#stable)
 ; Required: Pass /DVariableName=x from command line
 
 #ifndef AppVersion
@@ -20,8 +20,8 @@
   #error "OutputDir not defined. Pass /DOutputDir=path"
 #endif
 
-#define AppName "Suzuri"
-#define AppExeName "Suzuri.exe"
+#define AppName "Fernanda"
+#define AppExeName "Fernanda.exe"
 
 [Setup]
 ArchitecturesAllowed=x64compatible
