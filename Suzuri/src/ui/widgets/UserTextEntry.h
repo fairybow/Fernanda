@@ -31,7 +31,7 @@ enum class Problem
     Empty,
     ForbiddenChar,     // a control char, or one of  \ / : * ? " < > |
     ReservedName,      // CON / PRN / AUX / NUL / COM1-9 / LPT1-9 (Windows)
-    LeadingDot,        // dot-entries are hidden from the tree (Suzuri rule)
+    LeadingDot,        // dot-entries are hidden from the tree (Fernanda rule)
     TrailingDotOrSpace // Windows silently strips these from the end
 };
 
@@ -99,7 +99,7 @@ enum class Problem
         }
     }
 
-    // Leading dot is a Suzuri rule, not an OS one: dot-entries are hidden from
+    // Leading dot is a Fernanda rule, not an OS one: dot-entries are hidden from
     // the tree (VaultTreeModel), so a created or renamed ".foo" would land
     // on disk and immediately vanish from view
     if (name.startsWith(u'.')) {

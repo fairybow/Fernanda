@@ -32,7 +32,7 @@ namespace Fernanda::Ui {
 //
 //   [missing]  the current family, when this machine doesn't have it
 //   default    the default text font (VaultConfig), bundled
-//   bundled    the other fonts Suzuri ships (BundledFonts)
+//   bundled    the other fonts Fernanda ships (BundledFonts)
 //   system     every other family the font database knows
 //
 // Bundled families are registered with the application's font database, so

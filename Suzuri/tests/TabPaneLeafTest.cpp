@@ -19,7 +19,7 @@
 #include "ui/tabs/TabPaneLeaf.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::Ui::TabPaneLeaf;
+using Fernanda::Ui::TabPaneLeaf;
 
 // A leaf and the lifetimes of its pages (ui/tabs/TabPaneLeaf.h): a page that
 // dies on its own takes its tab with it, and a leaf that dies takes its pages

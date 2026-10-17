@@ -44,7 +44,7 @@ public:
     ~AboutPanel() override { TRACER; }
 
 private:
-    static constexpr auto ICON_PATH_ = ":/icons/Suzuri-128.png";
+    static constexpr auto ICON_PATH_ = ":/icons/Fernanda-128.png";
     static constexpr auto ICON_SIZE_ = 128;
 
     void setup_()

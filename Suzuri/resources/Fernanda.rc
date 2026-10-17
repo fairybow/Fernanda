@@ -25,7 +25,7 @@
 // clang-format off
 
 // Icon
-IDI_ICON1           ICON "icons/Suzuri.ico"
+IDI_ICON1           ICON "icons/Fernanda.ico"
 
 // Flags (test values, never `defined()`: both macros are always defined)
 #if APP_DEBUG

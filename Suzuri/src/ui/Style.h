@@ -42,17 +42,17 @@ namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
-// Suzuri's look: Fusion, with Suzuri's own refinements on top. App installs
+// Fernanda's look: Fusion, with Fernanda's own refinements on top. App installs
 // one for the whole application before any window exists.
 //
-// Fusion rather than each platform's own style, for two reasons. Suzuri looks
+// Fusion rather than each platform's own style, for two reasons. Fernanda looks
 // the same on every OS. And Fusion draws every standard control from the
 // palette alone, which is what follows the OS's light or dark mode (on Windows
 // 10 too, where the native style has no dark mode). The platform styles draw
 // parts of themselves in colors of their own.
 //
-// The proxy is where Suzuri changes how Fusion draws: flatter, rounder, and
-// quieter. Every color still comes from the palette. Where Suzuri wants a
+// The proxy is where Fernanda changes how Fusion draws: flatter, rounder, and
+// quieter. Every color still comes from the palette. Where Fernanda wants a
 // shade the palette has no role for (a hover, a divider), it's a palette color
 // at a low alpha (wash_), so it lands right over any background and in light
 // or dark alike. What's overridden:
@@ -118,7 +118,7 @@ public:
     using QProxyStyle::unpolish;
 
     // In a light palette, the window's color is lightened toward the page's,
-    // as the platforms' greys are heavier than Suzuri wants beside white text
+    // as the platforms' greys are heavier than Fernanda wants beside white text
     // pages. A dark palette is left as it is: there, moving the window toward
     // the page would only blur the line between the sidebar and the text. Qt
     // runs the application's palette through this whenever it builds it,
@@ -278,7 +278,7 @@ public:
             // Qt sizes a combo box so its longest text exactly fills the room
             // before the arrow. Under Fusion a few pixels are left over, from
             // QCommonStyle's allowance for the arrow, which follows the scroll
-            // bar's width; Suzuri's thinner scroll bars take them away, and
+            // bar's width; Fernanda's thinner scroll bars take them away, and
             // text drawn a fraction wider than measured (as at 125% scale)
             // loses its end. The text gets FIELD_H_PADDING after it instead,
             // as it has before it

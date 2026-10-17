@@ -1,6 +1,6 @@
 # Future
 
-What Suzuri doesn't do yet, might do, and won't do. For what it does today, see [Features.md](Features.md). Bugs and code chores are in [TODO.md](TODO.md).
+What Fernanda doesn't do yet, might do, and won't do. For what it does today, see [Features.md](Features.md). Bugs and code chores are in [TODO.md](TODO.md).
 
 Nothing here is a promise or a schedule.
 
@@ -73,9 +73,9 @@ Nothing here is a promise or a schedule.
 - Pick up edits made to the settings files or the vault's dictionary, by hand or by a sync, while the vault is open
 - A trash destination setting, and with it permanent delete
 
-### Opening from outside Suzuri
+### Opening from outside Fernanda
 
-- Open a file or a vault passed on the command line, in the most recently used window. This is what makes "Open with Suzuri" and dragging a file onto the app work. Wanted after beta
+- Open a file or a vault passed on the command line, in the most recently used window. This is what makes "Open with Fernanda" and dragging a file onto the app work. Wanted after beta
 
 ### Git
 
@@ -86,19 +86,19 @@ Committing a vault to a repository, for backup and history.
 
 ## Maybe
 
-- **Moving the Common Vault.** Would let it live somewhere other than `Documents/Suzuri/Common Vault`. See "Moving a vault from inside Suzuri" below for why this is hard
-- **Recovery copies of files that vanish.** When a file is deleted outside Suzuri while open, its tab closes and up to three seconds of typing can go with it. Before closing, Suzuri could write the text to a recovery folder off the vault's drive and say so once. Periodic snapshots kept outside the vault (Obsidian's File Recovery) are the larger version. Worth building if a real loss is reported
+- **Moving the Common Vault.** Would let it live somewhere other than `Documents/Fernanda/Common Vault`. See "Moving a vault from inside Fernanda" below for why this is hard
+- **Recovery copies of files that vanish.** When a file is deleted outside Fernanda while open, its tab closes and up to three seconds of typing can go with it. Before closing, Fernanda could write the text to a recovery folder off the vault's drive and say so once. Periodic snapshots kept outside the vault (Obsidian's File Recovery) are the larger version. Worth building if a real loss is reported
 - **Refusing an outside change.** Outside changes are always adopted, undoably. A file could instead be held against them: during a merge, or when explicitly locked
 - **Ignoring a format-only outside change.** When another program changes only a file's line endings or byte order mark, the reload adds an undo step that visibly changes nothing and moves every cursor. The reload could be skipped. Leaning toward leaving it alone
 - **A trash folder inside the vault,** used when the system trash refuses. Its one real use is a vault on a network share, which has no system trash and so can't delete in-app at all
-- **Watching a whole vault through one handle.** Would end the Windows limit where other programs can't rename a folder Suzuri has listed. It needs a separate implementation per platform. Worth building if that limit becomes a real complaint
-- **Checking open files when Suzuri regains focus.** On some platforms a file whose folder was renamed outside Suzuri keeps its tab until typed into. A check on return would close it sooner
+- **Watching a whole vault through one handle.** Would end the Windows limit where other programs can't rename a folder Fernanda has listed. It needs a separate implementation per platform. Worth building if that limit becomes a real complaint
+- **Checking open files when Fernanda regains focus.** On some platforms a file whose folder was renamed outside Fernanda keeps its tab until typed into. A check on return would close it sooner
 - **Dragging a file out to the desktop** as a shortcut that opens it in its vault
 - **Detecting and converting older text encodings** (Windows-1252 and others), in place of the warning
 - **Patterns in Find** (regular expressions). Needs a way to show a pattern that doesn't parse, and a syntax for using what was matched in the replacement. Worth building if plain text with Whole word proves too blunt
 - **A default folder for new files,** like Obsidian's "Default location for new notes": the current file's folder, or a chosen one. New files from Ctrl+N and from Go to File go to the vault's root. Worth building if typing the folder in Go to File proves tedious
 - **Several spelling languages at once.** A view checks against one dictionary. Several would mean asking each one about every word, merging their suggestions, and deciding which one Add to dictionary answers to. Worth building if writing in two languages in one vault proves common
-- **Managing the dictionary in Suzuri.** Removing an added word means editing `.fernanda/dictionary.txt` by hand, as in Obsidian. A list in Settings would do it in place. Worth building if hand editing proves awkward
+- **Managing the dictionary in Fernanda.** Removing an added word means editing `.fernanda/dictionary.txt` by hand, as in Obsidian. A list in Settings would do it in place. Worth building if hand editing proves awkward
 - **Searching the whole vault.** A separate feature from Find, with its own list of results. Obsidian's is a plugin of its own
 - **An overwrite toggle on the Insert key,** per editor, with a status bar indicator
 - **Drop zones that move.** While a tab is dragged over a pane's edge, the pane would shrink aside to show where the new pane will land
@@ -106,8 +106,8 @@ Committing a vault to a repository, for backup and history.
 - **Grouping or nesting files** under one another in the tree
 - **A corkboard**
 - **Converting files from the command line** (text to PDF, for instance)
-- **Style sheet snippets,** like Obsidian's CSS snippets: a vault's own Qt style sheet laid over the look. A style sheet takes over drawing from Suzuri's style for whatever it touches, so the two would be hard to keep in step. Worth considering once themes exist
-- **Installing updates automatically.** Suzuri says a newer version is out and links to it. Every update is a whole new installer (there is no smaller part to swap, as Obsidian swaps its app files), so installing for the user means running the installer silently. On Windows that needs a per-user install, since the current all-users installer asks for administrator rights even when silent, and with it the C++ runtime shipped beside the app in place of its installer, and a one-time move off Program Files that would leave an old copy behind. Releases would also need a way to say that a version must be installed by hand. Worth building if downloading the installer proves a real burden
+- **Style sheet snippets,** like Obsidian's CSS snippets: a vault's own Qt style sheet laid over the look. A style sheet takes over drawing from Fernanda's style for whatever it touches, so the two would be hard to keep in step. Worth considering once themes exist
+- **Installing updates automatically.** Fernanda says a newer version is out and links to it. Every update is a whole new installer (there is no smaller part to swap, as Obsidian swaps its app files), so installing for the user means running the installer silently. On Windows that needs a per-user install, since the current all-users installer asks for administrator rights even when silent, and with it the C++ runtime shipped beside the app in place of its installer, and a one-time move off Program Files that would leave an old copy behind. Releases would also need a way to say that a version must be installed by hand. Worth building if downloading the installer proves a real burden
 - **A setting for receiving betas,** like Obsidian's early access. Today `STABLE_BUILDS_SEE_PRERELEASES` decides, for every user, whether a stable build is offered prereleases. Worth building once there are stable releases
 - **Pairing Markdown syntax,** like Obsidian's "Auto pair Markdown syntax": `*`, `_`, `==`, and the like, paired as brackets are and wrapped around a selection. Most likely for Markdown files only, or Markdown and Fountain, and not plain text, where an asterisk is just an asterisk
 - **Smart quotes:** straight quotes typed as curly ones, opening or closing by what's before them
@@ -115,20 +115,20 @@ Committing a vault to a repository, for backup and history.
 
 ## Not planned
 
-- **Links, backlinks, and tags.** Suzuri is for plain text. Without links there is nothing to index and nothing to rewrite when a file is renamed
+- **Links, backlinks, and tags.** Fernanda is for plain text. Without links there is nothing to index and nothing to rewrite when a file is renamed
 - **Unsaved documents and save prompts.** Every file is on disk and always saved. An untitled, in-memory document would bring back the prompts, the modified markers, and the recovery machinery this design removes
-- **Moving a vault from inside Suzuri.** Built once, for the Common Vault, then removed. On Windows other programs (the folder picker, the shell, the indexer, antivirus) hold handles on the folders being moved, and the old folders can't be deleted while they do. Suzuri can't release handles it doesn't own. Moving the folder in a file manager and opening it again does the same job
-- **Renaming the Common Vault.** Its location is fixed, and every window depends on it while Suzuri runs
+- **Moving a vault from inside Fernanda.** Built once, for the Common Vault, then removed. On Windows other programs (the folder picker, the shell, the indexer, antivirus) hold handles on the folders being moved, and the old folders can't be deleted while they do. Fernanda can't release handles it doesn't own. Moving the folder in a file manager and opening it again does the same job
+- **Renaming the Common Vault.** Its location is fixed, and every window depends on it while Fernanda runs
 - **Deleting a vault's folder from Manage Vaults.** It is someone's writing. "Remove from list" forgets the vault and leaves the folder alone
-- **Showing unsupported file types.** Obsidian has a setting for this. Suzuri hides them: a file it can't open only adds noise to the tree
+- **Showing unsupported file types.** Obsidian has a setting for this. Fernanda hides them: a file it can't open only adds noise to the tree
 - **Readable line length.** The left/right margin setting does this job and leaves the width to the writer
 - **An overwrite mode setting.** Overwrite is a typing mode, not a preference. Saved as a setting it would silently eat text
-- **A conflict prompt when a file changes outside Suzuri.** Built once, then removed. With saves this frequent, an open file almost never differs from disk when an outside change arrives, and the reload can be undone
+- **A conflict prompt when a file changes outside Fernanda.** Built once, then removed. With saves this frequent, an open file almost never differs from disk when an outside change arrives, and the reload can be undone
 - **Go to File (Ctrl+O) in pop-out windows.** A pop-out's new tab page already offers it. A shortcut would need a copy of the action for every pop-out, which wasn't worth it
 - **Renaming in place in the file tree** (F2). Rename uses a dialog, which checks the name as it is typed
-- **File associations.** Suzuri doesn't register itself for any file type
+- **File associations.** Fernanda doesn't register itself for any file type
 - **Right-to-left layouts**
-- **Switching language without a restart.** Qt can swap translations while running, but every widget would have to set its text again when told, and Suzuri sets its text once, as each widget is built. Every class with text would need a second path for it, and a string missed in one would leave a window half in each language. Relaunch, beside the Language setting, does the job as Obsidian's does
+- **Switching language without a restart.** Qt can swap translations while running, but every widget would have to set its text again when told, and Fernanda sets its text once, as each widget is built. Every class with text would need a second path for it, and a string missed in one would leave a window half in each language. Relaunch, beside the Language setting, does the job as Obsidian's does
 
 ## Open questions
 

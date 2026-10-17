@@ -4,10 +4,10 @@
 <context>
     <name>LossyOpenPrompt</name>
     <message numerus="yes">
-        <source>%n line(s) contain characters Suzuri can&apos;t read. They&apos;ll open as:</source>
+        <source>%n line(s) contain characters Fernanda can&apos;t read. They&apos;ll open as:</source>
         <translation>
-            <numerusform>%n line contains characters Suzuri can&apos;t read. It&apos;ll open as:</numerusform>
-            <numerusform>%n lines contain characters Suzuri can&apos;t read. They&apos;ll open as:</numerusform>
+            <numerusform>%n line contains characters Fernanda can&apos;t read. It&apos;ll open as:</numerusform>
+            <numerusform>%n lines contain characters Fernanda can&apos;t read. They&apos;ll open as:</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -19,7 +19,7 @@
     </message>
 </context>
 <context>
-    <name>Suzuri::FindBar</name>
+    <name>Fernanda::FindBar</name>
     <message numerus="yes">
         <source>%Ln match(es)</source>
         <translation>
@@ -29,7 +29,7 @@
     </message>
 </context>
 <context>
-    <name>Suzuri::TextFileView</name>
+    <name>Fernanda::TextFileView</name>
     <message numerus="yes">
         <source>%Ln replaced</source>
         <translation>
@@ -39,7 +39,7 @@
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::WordCounter</name>
+    <name>Fernanda::Ui::WordCounter</name>
     <message numerus="yes">
         <source>%L1 of %Ln word(s)</source>
         <extracomment>Status bar word count. The first form is the whole document; the second is shown while text is selected, where %L1 is the selection&apos;s word count and %Ln the document&apos;s.</extracomment>

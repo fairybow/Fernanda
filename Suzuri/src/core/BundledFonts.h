@@ -20,7 +20,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-// The fonts Suzuri ships, compiled in from resources/Fonts.qrc and registered
+// The fonts Fernanda ships, compiled in from resources/Fonts.qrc and registered
 // with the application's font database at startup, so any vault can name them
 // whether or not they're installed on the machine.
 //

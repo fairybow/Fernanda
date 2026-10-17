@@ -21,9 +21,9 @@
 #include "core/RecentFiles.h"
 #include "core/Vault.h"
 
-using Suzuri::FileRef;
-using Suzuri::RecentFiles;
-using Suzuri::Vault;
+using Fernanda::FileRef;
+using Fernanda::RecentFiles;
+using Fernanda::Vault;
 
 // The files a window has made active most recently (core/RecentFiles.h): the
 // order they're kept in, the limit, and a list restored from a save. Two vaults

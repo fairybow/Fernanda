@@ -16,7 +16,7 @@
 #include <QStringView>
 #include <QTextBoundaryFinder>
 
-// What Suzuri counts in a piece of text, and how. Free functions in core, so
+// What Fernanda counts in a piece of text, and how. Free functions in core, so
 // the status bar's items (ui/WordCounter.h, ui/CursorPosition.h) share one
 // definition and it can be read in one place. QtCore-only.
 //

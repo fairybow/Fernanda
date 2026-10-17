@@ -36,8 +36,8 @@
 namespace Fernanda::Ui {
 
 // The settings dialog's General page, Obsidian's: the running version, a check
-// for a newer one, whether Suzuri checks on its own, and the interface
-// language. Suzuri doesn't download or install updates; a found one is linked
+// for a newer one, whether Fernanda checks on its own, and the interface
+// language. Fernanda doesn't download or install updates; a found one is linked
 // to its release page.
 //
 // Unlike the other pages, nothing here belongs to the vault. The settings are
@@ -70,7 +70,7 @@ private:
     Updater* updater_ = nullptr;
     Translations* translations_ = nullptr;
 
-    // App's Relaunch, which quits as Quit does and starts Suzuri again
+    // App's Relaunch, which quits as Quit does and starts Fernanda again
     QAction* restartAction_ = nullptr;
 
     SettingRow* versionRow_ = nullptr;
@@ -143,7 +143,7 @@ private:
 
         addRow(
             tr("Check for updates automatically"),
-            tr("Check when Suzuri starts, then once a day. Suzuri only "
+            tr("Check when Fernanda starts, then once a day. Fernanda only "
                "tells you about an update; it downloads nothing."),
             automatic_);
     }
@@ -152,7 +152,7 @@ private:
     // its own name. A saved language that's no longer available shows as the
     // system's, which is what the app falls back to. Relaunch shows while the
     // choice differs from the language in use, since a choice takes effect
-    // only when Suzuri starts again
+    // only when Fernanda starts again
     void setupLanguageRow_()
     {
         auto* control = new QWidget(content());
@@ -192,8 +192,8 @@ private:
 
         addRow(
             tr("Language"),
-            tr("The language of Suzuri's menus, settings, and messages. "
-               "Takes effect the next time Suzuri starts."),
+            tr("The language of Fernanda's menus, settings, and messages. "
+               "Takes effect the next time Fernanda starts."),
             control);
     }
 
@@ -218,7 +218,7 @@ private:
         case Updater::State::Checking:
             return tr("Checking for updates...");
         case Updater::State::UpToDate:
-            return tr("Suzuri is up to date.");
+            return tr("Fernanda is up to date.");
         case Updater::State::Available:
             return tr("Version %1 is available.")
                 .arg(updater_->release().version);

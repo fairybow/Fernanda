@@ -49,7 +49,7 @@ inline const Coco::Path& ensured(const Coco::Path& dir)
 GEN_DIR_METHOD_(defaultDocs, Coco::Path::Documents(PUB_APP_NAME_STRING))
 GEN_DIR_METHOD_(defaultCommonVault, defaultDocs() / "Common Vault")
 
-// user/AppData/Local/Suzuri on Windows
+// user/AppData/Local/Fernanda on Windows
 GEN_DIR_METHOD_(appData, Coco::Path::GenericData(PUB_APP_NAME_STRING))
 GEN_DIR_METHOD_(logs, appData() / "logs")
 

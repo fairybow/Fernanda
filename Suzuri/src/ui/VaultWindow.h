@@ -1009,7 +1009,7 @@ private:
         box.setIcon(QMessageBox::Warning);
         box.setWindowTitle(tr("Couldn't save"));
         box.setText(
-            tr("Suzuri couldn't save these files:%1\n\nThe window will stay "
+            tr("Fernanda couldn't save these files:%1\n\nThe window will stay "
                "open so you don't lose your changes. Once the problem is "
                "resolved (for example, freeing disk space or reconnecting a "
                "drive), close again to retry.")

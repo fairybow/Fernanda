@@ -26,7 +26,7 @@
 #include "models/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::TextFileModel;
+using Fernanda::TextFileModel;
 
 // What a text buffer does to a file's bytes (models/TextFileModel.h): what it
 // hands back unchanged, what it changes, what it accepts as UTF-8, and how an
@@ -67,7 +67,7 @@ private:
     };
 
     // No vault is needed: the model only stores the reference
-    [[nodiscard]] static Suzuri::FileRef fileRef_()
+    [[nodiscard]] static Fernanda::FileRef fileRef_()
     {
         return { nullptr, Coco::Path("a.txt") };
     }
@@ -271,10 +271,10 @@ private slots:
 
         QSignalSpy content_changed(
             &model,
-            &Suzuri::AbstractFileModel::contentChanged);
+            &Fernanda::AbstractFileModel::contentChanged);
         QSignalSpy modification_changed(
             &model,
-            &Suzuri::AbstractFileModel::modificationChanged);
+            &Fernanda::AbstractFileModel::modificationChanged);
 
         ViewDocument_ view(model);
         QCOMPARE(content_changed.count(), 0);

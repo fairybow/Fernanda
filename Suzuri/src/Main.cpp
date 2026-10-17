@@ -38,12 +38,12 @@ int main(int argc, char* argv[])
             return 0;
         }
 
-        Suzuri::App app(argc, argv);
+        Fernanda::App app(argc, argv);
         app.connect(
             &cop,
             &Coco::StartCop::relaunched,
             &app,
-            &Suzuri::App::onRelaunch);
+            &Fernanda::App::onRelaunch);
         app.init();
 
         exit_code = app.exec();

@@ -21,7 +21,7 @@
 #include "views/TypingHelpers.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::TypingHelpers;
+using Fernanda::TypingHelpers;
 
 // Auto-pairing and stepping past closers (views/TypingHelpers.h), typed into a
 // real QPlainTextEdit

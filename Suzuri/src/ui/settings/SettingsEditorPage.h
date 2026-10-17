@@ -48,7 +48,7 @@ using namespace Qt::StringLiterals;
 // under Behavior as well, and auto-pairing is its "Auto pair brackets". The
 // rest — wrapping, the current-line highlight, selection handles, center on
 // scroll, double-click whitespace, the typing helpers' switch, stepping past
-// closing punctuation — are Suzuri's own, which Obsidian doesn't have.
+// closing punctuation — are Fernanda's own, which Obsidian doesn't have.
 //
 // The typing helpers' rows hang on their switch: disabled while it's off,
 // each keeping its own value.

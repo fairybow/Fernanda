@@ -17,7 +17,7 @@
 
 #include <Coco/Path.h>
 
-// The one authority on which files Suzuri opens, and as what. Extension-based,
+// The one authority on which files Fernanda opens, and as what. Extension-based,
 // like Obsidian's own dispatch: no IO decides a type. Free functions in core so
 // both sides of the GUI line can ask the same question — Vault::makeModel_
 // dispatches on typeOf, and VaultTreeModel leaves out whatever typeOf calls
@@ -49,7 +49,7 @@ struct ExtensionEntry_
 // Matched case-insensitively, so .TXT and .Md are the same types.
 //
 // Against Obsidian's image list (avif, bmp, gif, jpeg, jpg, png, svg, webp),
-// TIFF is a Suzuri addition, and SVG and AVIF are deferred: SVG is vector and
+// TIFF is a Fernanda addition, and SVG and AVIF are deferred: SVG is vector and
 // wants re-rendering per zoom level rather than a scaled bitmap; AVIF has no Qt
 // imageformats plugin. The extension only DISPATCHES — ImageFileModel decodes
 // by content, so a mislabeled file still decodes. TIFF and WebP decode through
@@ -97,7 +97,7 @@ inline constexpr ExtensionEntry_ EXTENSIONS_[] = {
     return typeOf(path) != Type::Unsupported;
 }
 
-// Is an entry hidden from Suzuri's listings — the vault trees and the
+// Is an entry hidden from Fernanda's listings — the vault trees and the
 // FileSwitcher? Any name beginning with a dot: the vault marker .fernanda/, plus
 // .git/, .gitignore, and every other dotfile or dot-folder, as Obsidian hides
 // its own .obsidian/. A hidden folder hides everything beneath it. Name-based

@@ -20,12 +20,12 @@
 #include "core/FileTypes.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::FileTypes::Type;
+using Fernanda::FileTypes::Type;
 
 // Lets a Type sit in a test table's column
-Q_DECLARE_METATYPE(Suzuri::FileTypes::Type)
+Q_DECLARE_METATYPE(Fernanda::FileTypes::Type)
 
-// Which files Suzuri opens, and as what (core/FileTypes.h).
+// Which files Fernanda opens, and as what (core/FileTypes.h).
 //
 // Qt Test runs every private slot as a test. A slot named <test>_data fills a
 // table, and <test> then runs once per row, reported under the row's name
@@ -88,7 +88,7 @@ private slots:
         QFETCH(QString, path);
         QFETCH(Type, expected);
 
-        QCOMPARE(Suzuri::FileTypes::typeOf(Coco::Path(path)), expected);
+        QCOMPARE(Fernanda::FileTypes::typeOf(Coco::Path(path)), expected);
     }
 
     // isSupported is "typeOf isn't Unsupported", for every row of typeOf's
@@ -101,7 +101,7 @@ private slots:
         QFETCH(Type, expected);
 
         QCOMPARE(
-            Suzuri::FileTypes::isSupported(Coco::Path(path)),
+            Fernanda::FileTypes::isSupported(Coco::Path(path)),
             expected != Type::Unsupported);
     }
 
@@ -124,7 +124,7 @@ private slots:
         QFETCH(QString, name);
         QFETCH(bool, expected);
 
-        QCOMPARE(Suzuri::FileTypes::isHiddenName(name), expected);
+        QCOMPARE(Fernanda::FileTypes::isHiddenName(name), expected);
     }
 };
 

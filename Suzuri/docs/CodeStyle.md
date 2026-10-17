@@ -1,6 +1,6 @@
 # Code Style
 
-Conventions for Suzuri's code, comments, and docs. For the design these serve, see [Architecture.md](Architecture.md).
+Conventions for Fernanda's code, comments, and docs. For the design these serve, see [Architecture.md](Architecture.md).
 
 Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80 columns, 4 spaces, braces on every block, CRLF line endings. This document covers what a formatter can't.
 
@@ -72,7 +72,7 @@ Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80
 - Never build a count by hand ("1 match" and "%1 matches"). Use `tr("%Ln match(es)", nullptr, n)`, so each language gets its own plural forms and the number its locale's format. Add the English forms to `Translation_en.ts`.
 - Never glue a sentence together from translated pieces. Translate the whole sentence, with `%1` for what goes in it, so a language can put the parts in its own order.
 - After changing any translatable text, build the `update_translations` target, translate in Qt Linguist, and commit the `.ts` files. A new string is marked unfinished until it is translated.
-- Check the contexts `update_translations` produces. A context that isn't a class's full name (`TabPaneTree` where `Suzuri::Ui::TabPaneTree` is meant, or a class that doesn't call `tr()`) is `lupdate` misreading the code, and its strings are never looked up. The known cause is a function whose return type is qualified (`TabPaneTree::RestoredPage buildPage_()`): `lupdate` takes the function for a member of the qualifying class. Give the type a private alias in the calling class and use that.
+- Check the contexts `update_translations` produces. A context that isn't a class's full name (`TabPaneTree` where `Fernanda::Ui::TabPaneTree` is meant, or a class that doesn't call `tr()`) is `lupdate` misreading the code, and its strings are never looked up. The known cause is a function whose return type is qualified (`TabPaneTree::RestoredPage buildPage_()`): `lupdate` takes the function for a member of the qualifying class. Give the type a private alias in the calling class and use that.
 
 ## Namespaces
 
@@ -80,7 +80,7 @@ Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80
 
 ## Tests
 
-Tests are Qt Test, in `Suzuri/tests/`. The `APP_BUILD_TESTS` CMake option builds them and CTest runs them.
+Tests are Qt Test, in `Fernanda/tests/`. The `APP_BUILD_TESTS` CMake option builds them and CTest runs them.
 
 - One `.cpp` per test class, named for the class (`VaultTest.cpp`) and built as its own executable. Register it with `app_add_test` in `tests/CMakeLists.txt`.
 - A test of a class with `Q_OBJECT` needs that class's header, and the header of each `QObject` base class, listed in `AppTestMocs` in the same file. A missing one shows as a link error naming the class's `staticMetaObject`.

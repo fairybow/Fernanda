@@ -39,7 +39,7 @@ namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
-// The licenses of Suzuri and of everything it bundles, opened from the About
+// The licenses of Fernanda and of everything it bundles, opened from the About
 // panel. A list down the left, one item per work; for the one selected, what
 // it is, its license and home page, and the license's full text.
 //
@@ -64,7 +64,7 @@ public:
     ~LicensesDialog() override { TRACER; }
 
 private:
-    // One work: its name, what Suzuri uses it for (rich text, so it can
+    // One work: its name, what Fernanda uses it for (rich text, so it can
     // carry links), the license it is used under, its home page, and the
     // resources holding its license text. Several files are shown one after
     // another
@@ -184,7 +184,7 @@ private:
         return QString::fromUtf8(file.readAll());
     }
 
-    // Suzuri first, then what it is built on, then what it bundles
+    // Fernanda first, then what it is built on, then what it bundles
     [[nodiscard]] static QList<Entry_> makeEntries_()
     {
         auto font = tr("A font bundled for the text.");
@@ -193,11 +193,11 @@ private:
         QList<Entry_> entries{};
 
         entries.append(
-            { u"Suzuri"_s,
+            { u"Fernanda"_s,
               tr("This program, and Coco, its support library."),
               u"GNU GPL v3"_s,
-              u"https://github.com/fairybow/Suzuri"_s,
-              { u":/licenses/Suzuri"_s } });
+              u"https://github.com/fairybow/Fernanda"_s,
+              { u":/licenses/Fernanda"_s } });
 
         entries.append(
             { u"Qt"_s,
@@ -208,7 +208,7 @@ private:
                  "with their licenses at "
                  "<a href=\"https://doc.qt.io/qt-6/licenses-used-in-qt.html\">"
                  "doc.qt.io</a>. The LGPL is a set of extra permissions on "
-                 "top of the GNU GPL v3, whose full text is under the Suzuri "
+                 "top of the GNU GPL v3, whose full text is under the Fernanda "
                  "entry.")
                   .arg(QString::fromLatin1(qVersion())),
               u"GNU LGPL v3"_s,

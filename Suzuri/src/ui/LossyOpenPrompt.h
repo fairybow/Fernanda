@@ -25,7 +25,7 @@
 
 #include "models/TextFileModel.h"
 
-// The warning before Suzuri opens a text file that isn't valid UTF-8. Suzuri
+// The warning before Fernanda opens a text file that isn't valid UTF-8. Fernanda
 // reads only UTF-8, matching Obsidian, and does no conversion: accepting opens
 // the file with every undecodable sequence shown as U+FFFD, and
 // Vault::openModel saves it at once, so the file on disk becomes the UTF-8 the
@@ -99,7 +99,7 @@ inline constexpr qsizetype MAX_PREVIEW_LINE_CHARS_ = 200;
 
     parts << QCoreApplication::translate(
         "LossyOpenPrompt",
-        "%n line(s) contain characters Suzuri can't read. They'll open as:",
+        "%n line(s) contain characters Fernanda can't read. They'll open as:",
         nullptr,
         static_cast<int>(affected_count));
 
@@ -147,9 +147,9 @@ confirm(const Coco::Path& relative, const QByteArray& data, QWidget* parent)
     box.setInformativeText(
         QCoreApplication::translate(
             "LossyOpenPrompt",
-            "Suzuri reads only UTF-8. Opening this file saves it as UTF-8 "
+            "Fernanda reads only UTF-8. Opening this file saves it as UTF-8 "
             "right "
-            "away, and every character Suzuri can't read (often curly quotes, "
+            "away, and every character Fernanda can't read (often curly quotes, "
             "dashes, and accented letters) is permanently replaced with "
             "\uFFFD.\n\n"
             "To keep those characters, cancel, then re-save the file as UTF-8 "

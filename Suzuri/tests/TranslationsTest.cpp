@@ -18,7 +18,7 @@
 #include "core/Translations.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::Translations;
+using Fernanda::Translations;
 
 // Which language the interface uses (core/Translations.h): the setting when
 // there's a translation for it, else the system's preferred languages in

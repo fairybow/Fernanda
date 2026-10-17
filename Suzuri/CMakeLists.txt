@@ -9,9 +9,9 @@
 # See the LICENSE file or visit <https://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.21)
-project(Suzuri LANGUAGES CXX C)
+project(Fernanda LANGUAGES CXX C)
 
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Suzuri)
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Fernanda)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -49,7 +49,7 @@ add_subdirectory(submodules/Coco/Coco)
 
 # Hunspell has no CMake build of its own, so its library is compiled here from
 # its sources. HUNSPELL_STATIC stops its headers marking symbols for a DLL.
-# Its headers are SYSTEM so they raise no warnings in Suzuri's code, and its
+# Its headers are SYSTEM so they raise no warnings in Fernanda's code, and its
 # own warnings are off: they aren't ours to fix. None of it is Qt code, so the
 # Qt code generators are off for it
 set(_hunspell_dir submodules/hunspell/src/hunspell)
@@ -304,15 +304,15 @@ set(APP_RESOURCES
 
 if(WIN32)
     list(APPEND APP_RESOURCES
-        resources/Suzuri.rc
+        resources/Fernanda.rc
     )
 elseif(APPLE)
     list(APPEND APP_RESOURCES
-        resources/icons/Suzuri.icns
+        resources/icons/Fernanda.icns
     )
 
-    # Copied into Suzuri.app/Contents/Resources (see MACOSX_BUNDLE_ICON_FILE)
-    set_source_files_properties(resources/icons/Suzuri.icns PROPERTIES
+    # Copied into Fernanda.app/Contents/Resources (see MACOSX_BUNDLE_ICON_FILE)
+    set_source_files_properties(resources/icons/Fernanda.icns PROPERTIES
         MACOSX_PACKAGE_LOCATION Resources
     )
 endif()
@@ -322,7 +322,7 @@ endif()
 # =============================================================================
 
 # NB: Each flag is ignored on the platforms it doesn't apply to
-qt_add_executable(Suzuri WIN32 MACOSX_BUNDLE
+qt_add_executable(Fernanda WIN32 MACOSX_BUNDLE
     ${APP_SOURCES}
     ${APP_HEADERS}
     ${APP_RESOURCES}
@@ -330,16 +330,16 @@ qt_add_executable(Suzuri WIN32 MACOSX_BUNDLE
 
 # --- macOS bundle ---
 
-# NB: Unset, Qt fills in com.yourcompany.Suzuri and version 1.0.0. Qt's
+# NB: Unset, Qt fills in com.yourcompany.Fernanda and version 1.0.0. Qt's
 # Info.plist template has no document types, so no file associations
 if(APPLE)
-    set_target_properties(Suzuri PROPERTIES
+    set_target_properties(Fernanda PROPERTIES
         MACOSX_BUNDLE_BUNDLE_NAME "${_pub_app_name}"
         MACOSX_BUNDLE_GUI_IDENTIFIER "${_pub_app_id}"
         MACOSX_BUNDLE_BUNDLE_VERSION "${APP_VERSION_NUMERIC}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${APP_VERSION_NUMERIC}"
         MACOSX_BUNDLE_COPYRIGHT "${_pub_copyright}"
-        MACOSX_BUNDLE_ICON_FILE Suzuri.icns
+        MACOSX_BUNDLE_ICON_FILE Fernanda.icns
     )
 endif()
 
@@ -350,24 +350,24 @@ endif()
 # NB: Even though some modules pull in others, I'd prefer to be explicit and
 # always include what's used
 
-target_include_directories(Suzuri PRIVATE
+target_include_directories(Fernanda PRIVATE
     src
 )
 
 if(WIN32)
-    target_compile_definitions(Suzuri PRIVATE
+    target_compile_definitions(Fernanda PRIVATE
         NOMINMAX
         WIN32_LEAN_AND_MEAN
     )
 endif()
 
-target_compile_definitions(Suzuri PRIVATE
+target_compile_definitions(Fernanda PRIVATE
     APP_DEBUG=$<IF:$<CONFIG:Debug>,1,0>
 )
 
 # --- Linking ---
 
-target_link_libraries(Suzuri PRIVATE
+target_link_libraries(Fernanda PRIVATE
     Coco::Coco
     hunspell
     Qt6::Core
@@ -381,19 +381,19 @@ target_link_libraries(Suzuri PRIVATE
 # --- Compiler options ---
 
 if(MSVC)
-    target_compile_options(Suzuri PRIVATE
+    target_compile_options(Fernanda PRIVATE
         /W3 /MP /sdl /permissive- /bigobj /EHsc /Zc:preprocessor
     )
-    target_compile_options(Suzuri PRIVATE
+    target_compile_options(Fernanda PRIVATE
         $<$<CONFIG:Release>:/GL /Gy /Oi>
     )
-    target_link_options(Suzuri PRIVATE
+    target_link_options(Fernanda PRIVATE
         $<$<CONFIG:Release>:/OPT:REF /OPT:ICF /LTCG>
     )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # NB: Qt's include directories arrive as system includes, so these don't
     # report warnings from Qt's headers
-    target_compile_options(Suzuri PRIVATE
+    target_compile_options(Fernanda PRIVATE
         -Wall -Wextra -Wpedantic
     )
 endif()
@@ -402,7 +402,7 @@ endif()
 # Translations
 # =============================================================================
 
-# The languages Suzuri is translated into besides English, each with a
+# The languages Fernanda is translated into besides English, each with a
 # translations/Translation_<lang>.ts. Translation_en.ts holds only English
 # plural forms ("%n word(s)" as "1 word", "2 words"), so English is never listed
 # here. Adding a language is adding it to this list.
@@ -422,8 +422,8 @@ foreach(_language IN LISTS APP_LANGUAGES)
 endforeach()
 
 qt_add_translations(
-    TARGETS Suzuri
-    SOURCE_TARGETS Suzuri
+    TARGETS Fernanda
+    SOURCE_TARGETS Fernanda
     TS_FILES ${_app_ts_files}
     PLURALS_TS_FILE translations/Translation_en.ts
     RESOURCE_PREFIX /i18n
@@ -431,7 +431,7 @@ qt_add_translations(
 )
 
 # Qt's own text in each language (standard dialog buttons, a text field's
-# right-click menu), from the Qt install, embedded beside Suzuri's as
+# right-click menu), from the Qt install, embedded beside Fernanda's as
 # :/i18n/qtbase_<lang>.qm. A Qt install without its translations still builds;
 # that text then stays in English
 set(_qt_translations_dir "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_TRANSLATIONS}")
@@ -448,7 +448,7 @@ foreach(_language IN LISTS APP_LANGUAGES)
 endforeach()
 
 if(_qt_qm_files)
-    qt_add_resources(Suzuri "qt_translations"
+    qt_add_resources(Fernanda "qt_translations"
         PREFIX "/i18n"
         BASE "${_qt_translations_dir}"
         FILES ${_qt_qm_files}
@@ -459,7 +459,7 @@ endif()
 # Install
 # =============================================================================
 
-install(TARGETS Suzuri
+install(TARGETS Fernanda
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     BUNDLE DESTINATION .
 )
@@ -470,7 +470,7 @@ if(UNIX AND NOT APPLE)
     # Named for the app ID so it matches setDesktopFileName (Wayland app_id)
     set(_desktop_file ${CMAKE_CURRENT_BINARY_DIR}/${_pub_app_id}.desktop)
 
-    configure_file(resources/linux/Suzuri.desktop.in ${_desktop_file} @ONLY)
+    configure_file(resources/linux/Fernanda.desktop.in ${_desktop_file} @ONLY)
 
     install(FILES ${_desktop_file}
         DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
@@ -479,7 +479,7 @@ if(UNIX AND NOT APPLE)
     # --- Icons (hicolor theme tops out at 512; 1024/2048 are qrc-only) ---
 
     foreach(_size 16 22 24 32 48 64 128 256 512)
-        install(FILES resources/icons/Suzuri-${_size}.png
+        install(FILES resources/icons/Fernanda-${_size}.png
             DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/${_size}x${_size}/apps
             RENAME ${_pub_app_id}.png
         )

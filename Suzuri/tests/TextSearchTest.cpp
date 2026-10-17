@@ -23,11 +23,11 @@
 #include "views/TextSearch.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::PrimeDocument;
-using Suzuri::TextSearch::Match;
-using Suzuri::TextSearch::Options;
+using Fernanda::PrimeDocument;
+using Fernanda::TextSearch::Match;
+using Fernanda::TextSearch::Options;
 
-namespace TextSearch = Suzuri::TextSearch;
+namespace TextSearch = Fernanda::TextSearch;
 
 // What counts as a match, and what replacing does to a document
 // (views/TextSearch.h). The last tests replace through a view's document on a

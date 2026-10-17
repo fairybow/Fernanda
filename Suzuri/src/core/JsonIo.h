@@ -22,7 +22,7 @@
 
 #include "core/Io.h"
 
-// The JSON layer over Suzuri::Io. JsonIo reads and serializes; Io moves the
+// The JSON layer over Fernanda::Io. JsonIo reads and serializes; Io moves the
 // bytes. Every config file (fernanda.json, settings.json, workspace.json) is a
 // JSON *object*, so the API is object-in / object-out — QJsonDocument stays an
 // internal detail. Stateless free functions, like Io itself.

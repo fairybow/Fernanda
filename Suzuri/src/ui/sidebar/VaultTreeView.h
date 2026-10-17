@@ -114,7 +114,7 @@ protected:
     //
     // Children as QTreeView itself caches them: an unlisted folder claims
     // children so it shows a chevron; a listed empty one doesn't. Left-to-right
-    // only — QTreeView mirrors the gutter under RTL, which Suzuri doesn't
+    // only — QTreeView mirrors the gutter under RTL, which Fernanda doesn't
     // support
     void drawBranches(
         QPainter* painter,

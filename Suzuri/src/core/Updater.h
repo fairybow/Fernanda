@@ -34,10 +34,10 @@ namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
-// Whether a newer Suzuri has been released, and what the user has said about
+// Whether a newer Fernanda has been released, and what the user has said about
 // it. Owned by App, which saves its two settings to fernanda.json and hands it to
 // every window that shows update state: the General settings page and the
-// status bar's notice both read it here. Suzuri only tells the user; the
+// status bar's notice both read it here. Fernanda only tells the user; the
 // release page is where they download and install.
 //
 // A check asks GitHub for the repository's releases and leaves the decision to

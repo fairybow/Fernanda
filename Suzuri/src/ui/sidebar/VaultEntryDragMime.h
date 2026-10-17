@@ -25,7 +25,7 @@ namespace Fernanda::Ui {
 // or opened from, the file tree. One private MIME type, shared by the drag
 // source (VaultTreeView) and every surface that accepts the drop — the file
 // tree itself (a move) and an editor pane (an open). Private on purpose:
-// nothing outside Suzuri accepts it, so an Explorer/Desktop drop is a silent
+// nothing outside Fernanda accepts it, so an Explorer/Desktop drop is a silent
 // no-op, and folders can't leave the app at all. Dragging a file out to the OS
 // as a link-like object, if ever built, would add a SECOND, external format
 // alongside this one rather than changing it.

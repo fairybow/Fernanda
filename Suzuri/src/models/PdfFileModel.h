@@ -25,7 +25,7 @@
 namespace Fernanda {
 
 // A read-only PDF buffer. No prime, no undo, no per-view documents: a PDF is
-// never edited in Suzuri, so the base's inert defaults (isModified /
+// never edited in Fernanda, so the base's inert defaults (isModified /
 // isUserEditable false, undo no-op, reloadContent -> setData) are exactly
 // right, and only data() / setData() need implementing.
 //

@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="licenses/Suzuri">../../LICENSE</file>
+        <file alias="licenses/Fernanda">../../LICENSE</file>
         <file alias="licenses/Qt">qt/LICENSE</file>
         <file alias="licenses/Hunspell">../submodules/hunspell/license.hunspell</file>
         <file alias="licenses/MySpell">../submodules/hunspell/license.myspell</file>

@@ -25,7 +25,7 @@
 #include <QtMinMax>
 #include <QtTypes>
 
-// Whether a newer Suzuri has been released, decided from GitHub's list of
+// Whether a newer Fernanda has been released, decided from GitHub's list of
 // releases (the JSON array the releases endpoint returns). Free functions with
 // no network, so the decision is testable on its own; Updater fetches the list
 // and asks.

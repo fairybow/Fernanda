@@ -34,9 +34,9 @@
 #include "models/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::AbstractFileModel;
-using Suzuri::TextFileModel;
-using Suzuri::Vault;
+using Fernanda::AbstractFileModel;
+using Fernanda::TextFileModel;
+using Fernanda::Vault;
 
 // What a Vault does a moment later (core/Vault.h): saving after typing, and
 // taking in changes made to its open files by other programs. Both run on

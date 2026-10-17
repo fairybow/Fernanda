@@ -28,10 +28,10 @@
 
 using namespace Qt::StringLiterals;
 
-using Suzuri::SpellChecker;
-using Suzuri::WordList;
+using Fernanda::SpellChecker;
+using Fernanda::WordList;
 
-namespace Misspelling = Suzuri::Misspelling;
+namespace Misspelling = Fernanda::Misspelling;
 
 // Whether a word is misspelled, given a dictionary and a list of accepted
 // words (core/spell/Misspelling.h). Each test writes a dictionary of a few

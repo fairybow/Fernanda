@@ -27,7 +27,7 @@ namespace Fernanda {
 
 using namespace Qt::StringLiterals;
 
-// The language of Suzuri's interface, and the translators that put it there.
+// The language of Fernanda's interface, and the translators that put it there.
 // Owned by App, which installs them at launch, before any text is made, and
 // saves the setting (fernanda.json); the General settings page shows and
 // changes it. Text is set once, as each widget is built, so a new setting
@@ -114,7 +114,7 @@ public:
     [[nodiscard]] const QString& language() const noexcept { return language_; }
 
     // Whether the setting picks a language other than the one in use, so
-    // Suzuri has to start again to show it
+    // Fernanda has to start again to show it
     [[nodiscard]] bool needsRestart() const
     {
         return pick(available(), setting_, QLocale::system().uiLanguages()) !=

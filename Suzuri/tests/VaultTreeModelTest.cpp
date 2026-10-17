@@ -32,8 +32,8 @@
 #include "core/VaultTreeModel.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::Vault;
-using Suzuri::VaultTreeModel;
+using Fernanda::Vault;
+using Fernanda::VaultTreeModel;
 
 // The file tree every view of a vault shares (core/VaultTreeModel.h): what it
 // lists and in what order, how it follows the vault's own file operations,

@@ -42,7 +42,7 @@ using namespace Qt::StringLiterals;
 //
 // It never creates the vault root itself. Every open path has already checked
 // the root exists, so a missing root here means the vault folder was deleted or
-// moved outside Suzuri mid-session — and reading .fernanda/'s absence as "new
+// moved outside Fernanda mid-session — and reading .fernanda/'s absence as "new
 // vault" would recreate the root, leaving a ghost folder where the vault was.
 // Returns whether .fernanda/ exists afterward, so a caller about to write into it
 // (WorkspaceFile) can skip instead

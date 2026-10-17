@@ -8,10 +8,10 @@
         <translation type="unfinished">Línea %1: %2</translation>
     </message>
     <message numerus="yes">
-        <source>%n line(s) contain characters Suzuri can&apos;t read. They&apos;ll open as:</source>
+        <source>%n line(s) contain characters Fernanda can&apos;t read. They&apos;ll open as:</source>
         <translation type="unfinished">
-            <numerusform>%n línea contiene caracteres que Suzuri no puede leer. Se abrirá así:</numerusform>
-            <numerusform>%n líneas contienen caracteres que Suzuri no puede leer. Se abrirán así:</numerusform>
+            <numerusform>%n línea contiene caracteres que Fernanda no puede leer. Se abrirá así:</numerusform>
+            <numerusform>%n líneas contienen caracteres que Fernanda no puede leer. Se abrirán así:</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -30,10 +30,10 @@
         <translation type="unfinished">&quot;%1&quot; no es UTF-8 válido. Probablemente se guardó con una codificación más antigua, como Windows-1252.</translation>
     </message>
     <message>
-        <source>Suzuri reads only UTF-8. Opening this file saves it as UTF-8 right away, and every character Suzuri can&apos;t read (often curly quotes, dashes, and accented letters) is permanently replaced with �.
+        <source>Fernanda reads only UTF-8. Opening this file saves it as UTF-8 right away, and every character Fernanda can&apos;t read (often curly quotes, dashes, and accented letters) is permanently replaced with �.
 
 To keep those characters, cancel, then re-save the file as UTF-8 in another program first.</source>
-        <translation type="unfinished">Suzuri solo lee UTF-8. Al abrir este archivo, se guarda en UTF-8 de inmediato, y cada carácter que Suzuri no puede leer (a menudo comillas tipográficas, rayas y letras acentuadas) se sustituye para siempre por �.
+        <translation type="unfinished">Fernanda solo lee UTF-8. Al abrir este archivo, se guarda en UTF-8 de inmediato, y cada carácter que Fernanda no puede leer (a menudo comillas tipográficas, rayas y letras acentuadas) se sustituye para siempre por �.
 
 Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8 en otro programa primero.</translation>
     </message>
@@ -43,7 +43,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::App</name>
+    <name>Fernanda::App</name>
     <message>
         <source>Quit</source>
         <translation type="unfinished">Salir</translation>
@@ -70,7 +70,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::FindBar</name>
+    <name>Fernanda::FindBar</name>
     <message>
         <source>Hide replace</source>
         <translation type="unfinished">Ocultar reemplazo</translation>
@@ -132,21 +132,21 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::ImageFileView</name>
+    <name>Fernanda::ImageFileView</name>
     <message>
         <source>This image couldn&apos;t be opened.</source>
         <translation type="unfinished">No se pudo abrir esta imagen.</translation>
     </message>
 </context>
 <context>
-    <name>Suzuri::PdfFileView</name>
+    <name>Fernanda::PdfFileView</name>
     <message>
         <source>This PDF couldn&apos;t be opened.</source>
         <translation type="unfinished">No se pudo abrir este PDF.</translation>
     </message>
 </context>
 <context>
-    <name>Suzuri::TextFileView</name>
+    <name>Fernanda::TextFileView</name>
     <message numerus="yes">
         <source>%Ln replaced</source>
         <translation type="unfinished">
@@ -196,14 +196,14 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::AboutPanel</name>
+    <name>Fernanda::Ui::AboutPanel</name>
     <message>
         <source>Licenses</source>
         <translation type="unfinished">Licencias</translation>
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::BaseWindow</name>
+    <name>Fernanda::Ui::BaseWindow</name>
     <message>
         <source>Undo</source>
         <translation type="unfinished">Deshacer</translation>
@@ -262,7 +262,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::CursorPosition</name>
+    <name>Fernanda::Ui::CursorPosition</name>
     <message>
         <source>Ln %L1, Col %L2</source>
         <extracomment>The caret&apos;s line and column in the status bar: %L1 is the line number, %L2 the column number.</extracomment>
@@ -280,7 +280,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::FileSwitcher</name>
+    <name>Fernanda::Ui::FileSwitcher</name>
     <message>
         <source>Go to File</source>
         <translation type="unfinished">Ir a archivo</translation>
@@ -315,14 +315,14 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::FontFamilyBox</name>
+    <name>Fernanda::Ui::FontFamilyBox</name>
     <message>
         <source>%1 (not installed)</source>
         <translation type="unfinished">%1 (no instalada)</translation>
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::LicensesDialog</name>
+    <name>Fernanda::Ui::LicensesDialog</name>
     <message>
         <source>Licenses</source>
         <translation type="unfinished">Licencias</translation>
@@ -344,8 +344,8 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <translation type="unfinished">Este programa y Coco, su biblioteca de apoyo.</translation>
     </message>
     <message>
-        <source>The application framework, version %1. Its source is available from &lt;a href=&quot;https://download.qt.io/official_releases/qt/&quot;&gt;download.qt.io&lt;/a&gt;. Qt includes other libraries, listed with their licenses at &lt;a href=&quot;https://doc.qt.io/qt-6/licenses-used-in-qt.html&quot;&gt;doc.qt.io&lt;/a&gt;. The LGPL is a set of extra permissions on top of the GNU GPL v3, whose full text is under the Suzuri entry.</source>
-        <translation type="unfinished">El marco de aplicaciones, versión %1. Su código fuente está disponible en &lt;a href=&quot;https://download.qt.io/official_releases/qt/&quot;&gt;download.qt.io&lt;/a&gt;. Qt incluye otras bibliotecas, que se enumeran con sus licencias en &lt;a href=&quot;https://doc.qt.io/qt-6/licenses-used-in-qt.html&quot;&gt;doc.qt.io&lt;/a&gt;. La LGPL es un conjunto de permisos adicionales sobre la GNU GPL v3, cuyo texto completo está en la entrada de Suzuri.</translation>
+        <source>The application framework, version %1. Its source is available from &lt;a href=&quot;https://download.qt.io/official_releases/qt/&quot;&gt;download.qt.io&lt;/a&gt;. Qt includes other libraries, listed with their licenses at &lt;a href=&quot;https://doc.qt.io/qt-6/licenses-used-in-qt.html&quot;&gt;doc.qt.io&lt;/a&gt;. The LGPL is a set of extra permissions on top of the GNU GPL v3, whose full text is under the Fernanda entry.</source>
+        <translation type="unfinished">El marco de aplicaciones, versión %1. Su código fuente está disponible en &lt;a href=&quot;https://download.qt.io/official_releases/qt/&quot;&gt;download.qt.io&lt;/a&gt;. Qt incluye otras bibliotecas, que se enumeran con sus licencias en &lt;a href=&quot;https://doc.qt.io/qt-6/licenses-used-in-qt.html&quot;&gt;doc.qt.io&lt;/a&gt;. La LGPL es un conjunto de permisos adicionales sobre la GNU GPL v3, cuyo texto completo está en la entrada de Fernanda.</translation>
     </message>
     <message>
         <source>Spellcheck. Used under the GNU GPL v2 or later, one of its three licenses. It includes MySpell, whose notice follows its own.</source>
@@ -369,7 +369,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::ManageVaults</name>
+    <name>Fernanda::Ui::ManageVaults</name>
     <message>
         <source>No recent vaults yet.</source>
         <translation type="unfinished">Todavía no hay bóvedas recientes.</translation>
@@ -428,7 +428,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::NewTabPage</name>
+    <name>Fernanda::Ui::NewTabPage</name>
     <message>
         <source>Create a new file</source>
         <translation type="unfinished">Crear un archivo nuevo</translation>
@@ -443,7 +443,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::NewVaultDialog</name>
+    <name>Fernanda::Ui::NewVaultDialog</name>
     <message>
         <source>Create new vault</source>
         <translation type="unfinished">Crear bóveda nueva</translation>
@@ -482,7 +482,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::RenameDialog</name>
+    <name>Fernanda::Ui::RenameDialog</name>
     <message>
         <source>Rename</source>
         <translation type="unfinished">Cambiar nombre</translation>
@@ -493,7 +493,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::SettingsAppearancePage</name>
+    <name>Fernanda::Ui::SettingsAppearancePage</name>
     <message>
         <source>Font</source>
         <translation type="unfinished">Fuente</translation>
@@ -532,14 +532,14 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::SettingsButton</name>
+    <name>Fernanda::Ui::SettingsButton</name>
     <message>
         <source>Settings</source>
         <translation type="unfinished">Configuración</translation>
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::SettingsDialog</name>
+    <name>Fernanda::Ui::SettingsDialog</name>
     <message>
         <source>Settings — %1</source>
         <translation type="unfinished">Configuración — %1</translation>
@@ -566,7 +566,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::SettingsEditorPage</name>
+    <name>Fernanda::Ui::SettingsEditorPage</name>
     <message>
         <source>Display</source>
         <translation type="unfinished">Visualización</translation>
@@ -673,7 +673,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::SettingsGeneralPage</name>
+    <name>Fernanda::Ui::SettingsGeneralPage</name>
     <message>
         <source>App</source>
         <translation type="unfinished">Aplicación</translation>
@@ -699,8 +699,8 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <translation type="unfinished">Buscar actualizaciones automáticamente</translation>
     </message>
     <message>
-        <source>Check when Suzuri starts, then once a day. Suzuri only tells you about an update; it downloads nothing.</source>
-        <translation type="unfinished">Busca al iniciar Suzuri y luego una vez al día. Suzuri solo te avisa de una actualización; no descarga nada.</translation>
+        <source>Check when Fernanda starts, then once a day. Fernanda only tells you about an update; it downloads nothing.</source>
+        <translation type="unfinished">Busca al iniciar Fernanda y luego una vez al día. Fernanda solo te avisa de una actualización; no descarga nada.</translation>
     </message>
     <message>
         <source>System default</source>
@@ -711,16 +711,16 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <translation type="unfinished">Idioma</translation>
     </message>
     <message>
-        <source>The language of Suzuri&apos;s menus, settings, and messages. Takes effect the next time Suzuri starts.</source>
-        <translation type="unfinished">El idioma de los menús, la configuración y los mensajes de Suzuri. Se aplica la próxima vez que se inicie Suzuri.</translation>
+        <source>The language of Fernanda&apos;s menus, settings, and messages. Takes effect the next time Fernanda starts.</source>
+        <translation type="unfinished">El idioma de los menús, la configuración y los mensajes de Fernanda. Se aplica la próxima vez que se inicie Fernanda.</translation>
     </message>
     <message>
         <source>Checking for updates...</source>
         <translation type="unfinished">Buscando actualizaciones...</translation>
     </message>
     <message>
-        <source>Suzuri is up to date.</source>
-        <translation type="unfinished">Suzuri está actualizado.</translation>
+        <source>Fernanda is up to date.</source>
+        <translation type="unfinished">Fernanda está actualizado.</translation>
     </message>
     <message>
         <source>Version %1 is available.</source>
@@ -736,7 +736,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::SettingsStatusBarPage</name>
+    <name>Fernanda::Ui::SettingsStatusBarPage</name>
     <message>
         <source>Word counter</source>
         <translation type="unfinished">Contador de palabras</translation>
@@ -811,7 +811,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::Sidebar</name>
+    <name>Fernanda::Ui::Sidebar</name>
     <message>
         <source>Common Vault</source>
         <translation type="unfinished">Bóveda común</translation>
@@ -850,7 +850,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::TabPaneLeaf</name>
+    <name>Fernanda::Ui::TabPaneLeaf</name>
     <message>
         <source>Close</source>
         <translation type="unfinished">Cerrar</translation>
@@ -865,14 +865,14 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::UpdateNotice</name>
+    <name>Fernanda::Ui::UpdateNotice</name>
     <message>
-        <source>Suzuri %1 is available</source>
-        <translation type="unfinished">Suzuri %1 está disponible</translation>
+        <source>Fernanda %1 is available</source>
+        <translation type="unfinished">Fernanda %1 está disponible</translation>
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::VaultFileTree</name>
+    <name>Fernanda::Ui::VaultFileTree</name>
     <message>
         <source>New file</source>
         <translation type="unfinished">Archivo nuevo</translation>
@@ -927,7 +927,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::VaultSwitcher</name>
+    <name>Fernanda::Ui::VaultSwitcher</name>
     <message>
         <source>Vault</source>
         <translation type="unfinished">Bóveda</translation>
@@ -942,7 +942,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::VaultWindow</name>
+    <name>Fernanda::Ui::VaultWindow</name>
     <message>
         <source>New File</source>
         <translation type="unfinished">Archivo nuevo</translation>
@@ -992,16 +992,16 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <translation type="unfinished">No se pudo guardar</translation>
     </message>
     <message>
-        <source>Suzuri couldn&apos;t save these files:%1
+        <source>Fernanda couldn&apos;t save these files:%1
 
 The window will stay open so you don&apos;t lose your changes. Once the problem is resolved (for example, freeing disk space or reconnecting a drive), close again to retry.</source>
-        <translation type="unfinished">Suzuri no pudo guardar estos archivos:%1
+        <translation type="unfinished">Fernanda no pudo guardar estos archivos:%1
 
 La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva el problema (por ejemplo, liberando espacio en disco o volviendo a conectar una unidad), ciérrala de nuevo para reintentarlo.</translation>
     </message>
 </context>
 <context>
-    <name>Suzuri::Ui::WordCounter</name>
+    <name>Fernanda::Ui::WordCounter</name>
     <message numerus="yes">
         <source>%L1 of %Ln word(s)</source>
         <extracomment>Status bar word count. The first form is the whole document; the second is shown while text is selected, where %L1 is the selection&apos;s word count and %Ln the document&apos;s.</extracomment>
@@ -1049,14 +1049,14 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
     </message>
 </context>
 <context>
-    <name>Suzuri::Updater</name>
+    <name>Fernanda::Updater</name>
     <message>
         <source>GitHub&apos;s reply wasn&apos;t a list of releases.</source>
         <translation type="unfinished">La respuesta de GitHub no era una lista de versiones.</translation>
     </message>
 </context>
 <context>
-    <name>Suzuri::ZoomControl</name>
+    <name>Fernanda::ZoomControl</name>
     <message>
         <source>Fit</source>
         <translation type="unfinished">Ajustar</translation>

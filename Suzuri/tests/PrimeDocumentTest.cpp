@@ -25,7 +25,7 @@
 #include "models/PrimeDocument.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::PrimeDocument;
+using Fernanda::PrimeDocument;
 
 // An edit as a user makes one: something done with a cursor on a view's
 // document

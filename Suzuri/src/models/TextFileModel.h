@@ -90,7 +90,7 @@ public:
     // this class is the one place bytes become text.
     //
     // Asks the decoder, not the decoded text: a file may legitimately contain
-    // U+FFFD — every lossy open Suzuri accepts saves some — so searching for it
+    // U+FFFD — every lossy open Fernanda accepts saves some — so searching for it
     // would flag such a file forever. Stateless, because a stateful decoder
     // holds a truncated final sequence as pending state instead of counting it
     // invalid. A BOM is valid UTF-8, so it needs no special case

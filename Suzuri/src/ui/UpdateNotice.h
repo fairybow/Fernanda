@@ -77,7 +77,7 @@ private:
     void refresh_()
     {
         setToolTip(
-            tr("Suzuri %1 is available").arg(updater_->release().version));
+            tr("Fernanda %1 is available").arg(updater_->release().version));
         setVisible(updater_->hasNotice());
     }
 };

@@ -90,7 +90,7 @@ public:
     static constexpr bool DEFAULT_CURSOR_POSITION_LINE = true;
     static constexpr bool DEFAULT_CURSOR_POSITION_COLUMN = true;
 
-    // The editor's line-number gutter (views/TextEditor.h). Off: Suzuri is for
+    // The editor's line-number gutter (views/TextEditor.h). Off: Fernanda is for
     // prose, where a line is a paragraph
     static constexpr bool DEFAULT_LINE_NUMBERS = false;
 
@@ -500,7 +500,7 @@ public:
 
     // Serialize the set keys and write both files, each atomically. Both are
     // attempted even if the first fails, so one bad file doesn't cost the other
-    // its changes. Never recreates a vault folder deleted outside Suzuri:
+    // its changes. Never recreates a vault folder deleted outside Fernanda:
     // ensureVaultDotDir refuses a missing root, and the writes themselves make
     // no directories. Returns false on that refusal or if either write failed —
     // already logged

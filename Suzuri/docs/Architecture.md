@@ -1,6 +1,6 @@
 # Architecture
 
-How Suzuri is put together, and why. For what it does, see [Features.md](Features.md); for what it doesn't do yet, [Future.md](Future.md); for code conventions, [CodeStyle.md](CodeStyle.md).
+How Fernanda is put together, and why. For what it does, see [Features.md](Features.md); for what it doesn't do yet, [Future.md](Future.md); for code conventions, [CodeStyle.md](CodeStyle.md).
 
 This document covers what spans several files: who owns what, what is guaranteed, and the reasoning that no single header can hold. Each class's own header comment covers the rest.
 
@@ -20,11 +20,11 @@ Four structural commitments follow from them:
 - **No signal relays.** A signal is emitted by the object that owns the fact. It is not echoed up a chain of parents. Where an action belongs to a distant owner, the owner creates the action and hands the pointer down.
 - **One process.** `App` is a `QApplication`, and every open vault lives inside it. A second launch hands its arguments to the running instance and exits.
 
-Obsidian is the behavioral reference. Where Suzuri's intended behavior is unclear, Obsidian's is looked up and either matched or diverged from on purpose. The divergences are listed in [Features.md](Features.md).
+Obsidian is the behavioral reference. Where Fernanda's intended behavior is unclear, Obsidian's is looked up and either matched or diverged from on purpose. The divergences are listed in [Features.md](Features.md).
 
 ## Source layout
 
-Everything is under `Suzuri/src/`, in the `Suzuri` namespace. Apart from `Main.cpp`, the code is header-only. The tests sit beside it in `Suzuri/tests/`; see "Tests" in [CodeStyle.md](CodeStyle.md).
+Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Main.cpp`, the code is header-only. The tests sit beside it in `Fernanda/tests/`; see "Tests" in [CodeStyle.md](CodeStyle.md).
 
 | Folder | Holds |
 |---|---|
@@ -39,19 +39,19 @@ Everything is under `Suzuri/src/`, in the `Suzuri` namespace. Apart from `Main.c
 | `ui/settings/` | The settings dialog, its pages, and their rows |
 | `ui/widgets/` | Controls that know nothing of the app: glyph rendering, the flat-button wash, the toggle switch, the slider, name checking, the row labels shared by the file tree and Go to File |
 
-Folders are for finding files; they don't set namespaces. Everything under `ui/` is in `Suzuri::Ui`, whatever its subfolder; everything else is in `Suzuri`.
+Folders are for finding files; they don't set namespaces. Everything under `ui/` is in `Fernanda::Ui`, whatever its subfolder; everything else is in `Fernanda`.
 
 Includes run one way, from the top of this list down:
 
 - `App` includes anything.
 - `ui/` includes `views/`, `models/`, and `core/`.
 - `views/` includes `models/` and `core/`. From `ui/` it takes only `ui/widgets/`.
-- `ui/widgets/` takes nothing from the app but `ui/UiConstants.h`, which itself includes nothing of Suzuri's.
+- `ui/widgets/` takes nothing from the app but `ui/UiConstants.h`, which itself includes nothing of Fernanda's.
 - `core/` and `models/` include each other, and nothing from `views/` or `ui/`.
 
 `Vault` and everything it owns create no window or widget and refer to none, so the data layer can't come to depend on one. They are not limited to QtCore: a text buffer is a `QTextDocument` with a plain-text layout (QtGui and QtWidgets), an image buffer holds a `QPixmap`, and a PDF buffer a `QPdfDocument`. `VaultTreeModel` and the configuration types are QtCore only.
 
-[Coco](https://github.com/fairybow/Coco), a submodule, supplies paths (`Coco::Path`), logging, debounce timers, and the single-instance guard. [Hunspell](https://github.com/hunspell/hunspell), also a submodule and pinned to a release tag, checks spelling. It has no CMake build of its own, so Suzuri's CMake builds its sources as a static library, with its warnings off.
+[Coco](https://github.com/fairybow/Coco), a submodule, supplies paths (`Coco::Path`), logging, debounce timers, and the single-instance guard. [Hunspell](https://github.com/hunspell/hunspell), also a submodule and pinned to a release tag, checks spelling. It has no CMake build of its own, so Fernanda's CMake builds its sources as a static library, with its warnings off.
 
 ## Ownership
 
@@ -266,7 +266,7 @@ The debounce restarts on every edit and fires when typing pauses. The ceiling st
 
 ### A save never creates
 
-A buffer's file is always on disk. If it is missing at save time, it was deleted or moved outside Suzuri and the watcher hasn't said so yet. The save writes nothing, creates no folders, and hands the path to the watcher's reconcile, which closes the buffer. This is not reported as a save failure.
+A buffer's file is always on disk. If it is missing at save time, it was deleted or moved outside Fernanda and the watcher hasn't said so yet. The save writes nothing, creates no folders, and hands the path to the watcher's reconcile, which closes the buffer. This is not reported as a save failure.
 
 The same rule holds one level up: a workspace save never creates a missing vault folder.
 
@@ -294,7 +294,7 @@ Change events are collected and handled together a moment later, so a Git checko
 For each changed path:
 
 - **Gone:** the buffer is discarded and its views close themselves, in every window.
-- **Bytes equal to what Suzuri last wrote:** ignored. The vault records a hash of each write, and compares disk against that hash, not against the live buffer, which typing may have moved on.
+- **Bytes equal to what Fernanda last wrote:** ignored. The vault records a hash of each write, and compares disk against that hash, not against the live buffer, which typing may have moved on.
 - **Bytes equal to the buffer:** ignored.
 - **Anything else:** reloaded into the buffer as one undoable edit.
 
@@ -302,23 +302,23 @@ Two details matter on every platform. Many programs save by writing a temporary 
 
 ### Vault folders
 
-When Suzuri becomes the active application again, `App` checks that every open vault's folder still exists. A missing project vault has its window closed; a missing Common Vault folder is recreated. The watchers aren't relied on for this: whether a folder's own removal is reported varies by platform.
+When Fernanda becomes the active application again, `App` checks that every open vault's folder still exists. A missing project vault has its window closed; a missing Common Vault folder is recreated. The watchers aren't relied on for this: whether a folder's own removal is reported varies by platform.
 
 ## The vault tree model
 
 `VaultTreeModel` is one model per vault, owned by the `Vault`. Every tree view of that vault sits on it: the vault's own tree, and for the Common Vault the drawer in every window. Expansion and selection belong to each view.
 
-**Why the vault owns it.** On Windows, a watched folder is an open handle, and a handle on a folder blocks renaming, moving, or deleting any folder above it. Qt's own file system model keeps a private watcher with no way to release a folder, so one model per tree view meant Suzuri's own folder operations failed whenever any tree had listed a subfolder. Owning the model gives the `Vault` control of the watcher that holds the handles.
+**Why the vault owns it.** On Windows, a watched folder is an open handle, and a handle on a folder blocks renaming, moving, or deleting any folder above it. Qt's own file system model keeps a private watcher with no way to release a folder, so one model per tree view meant Fernanda's own folder operations failed whenever any tree had listed a subfolder. Owning the model gives the `Vault` control of the watcher that holds the handles.
 
 - **Listing is lazy and synchronous.** A folder is read the first time a view asks for its children.
 - **The watched set is the listed set.** There is no separate record.
 - **Hidden and unsupported entries are never listed,** so they are never watched. Nothing under `.git/` holds a handle.
 - **A node stores only its name.** A path is built by walking up to the root, so renaming or moving a folder changes one node.
 - **Outside changes re-list the folder as a diff.** Unchanged entries keep their nodes, so views keep their expansion and selection. A re-list that finds nothing to do is harmless, so the model needs no suppression of its own writes.
-- **Suzuri's own operations update the model directly.** Before a rename, move, or delete, the vault releases the watches at or under the entry; afterward it moves or removes the node itself. A moved folder's node is the same object, so it stays expanded in every view.
+- **Fernanda's own operations update the model directly.** Before a rename, move, or delete, the vault releases the watches at or under the entry; afterward it moves or removes the node itself. A moved folder's node is the same object, so it stays expanded in every view.
 - **Paths are typed.** Views read a `Coco::Path` and an is-folder flag from the model, not Qt item roles.
 
-Outside programs are still blocked from renaming a folder that Suzuri has listed a subfolder of. See "Watching a whole vault through one handle" in [Future.md](Future.md).
+Outside programs are still blocked from renaming a folder that Fernanda has listed a subfolder of. See "Watching a whole vault through one handle" in [Future.md](Future.md).
 
 ## Identity
 
@@ -417,7 +417,7 @@ Three classes, divided by who touches vault folders on disk.
 
 **Validation in a dialog is advisory; the operation is the authority.** The new-vault and rename dialogs, and Go to File's line under its field, check names as they are typed, to say what is wrong. The folder can still appear or vanish before the operation runs, so the operation's own result decides. Both checks are needed.
 
-**Go to File picks; it doesn't create.** A pick for a file that isn't there yet says so, and `VaultWindow` creates it with `Vault::createFileAt` before opening it. The switcher reads the disk only to ask whether the typed file exists. It never writes. `createFileAt` makes the folders in the typed path, where `createFile` (Ctrl+N, New file) refuses a missing folder rather than recreate one deleted outside Suzuri.
+**Go to File picks; it doesn't create.** A pick for a file that isn't there yet says so, and `VaultWindow` creates it with `Vault::createFileAt` before opening it. The switcher reads the disk only to ask whether the typed file exists. It never writes. `createFileAt` makes the folders in the typed path, where `createFile` (Ctrl+N, New file) refuses a missing folder rather than recreate one deleted outside Fernanda.
 
 `ManageVaults` is a modeless window that deletes itself on close, not a modal dialog: it has to coexist with open vault windows, and `App` raises, closes, and reacts to it like any window.
 
@@ -434,7 +434,7 @@ Every user-facing command is a `QAction` in its window's registry, keyed by a st
 
 ## Checking for updates
 
-Suzuri tells the user about a newer release and links to it. It doesn't download or install anything; see [Future.md](Future.md) for why.
+Fernanda tells the user about a newer release and links to it. It doesn't download or install anything; see [Future.md](Future.md) for why.
 
 - **The decision is apart from the request.** `core/UpdateCheck.h` holds free functions, tested in `UpdateCheckTest`: Semantic Versioning precedence, and the newest release in GitHub's list that is newer than the running version. `Updater` fetches the list and asks. Versions are compared by precedence, never as strings or by the order GitHub lists releases in.
 - **A release's version is its tag.** `release.yml` requires the tag to be "v" plus `VERSION_FULL_STRING`, so the tag alone says whether a release is a prerelease. A prerelease build is offered prereleases; a stable build is only if `STABLE_BUILDS_SEE_PRERELEASES` says so.
@@ -470,11 +470,11 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 
 `Ui::Style` draws every standard control. It is a `QProxyStyle` over Qt's Fusion, and `App` installs it for the whole application before any window exists, so it replaces whatever a `-style` argument asks for.
 
-- **Fusion on every platform.** Suzuri looks the same everywhere, and Fusion draws every control from the palette alone. The palette is what follows the system's light or dark mode, so everything Fusion draws follows it too, on Windows 10 as well.
+- **Fusion on every platform.** Fernanda looks the same everywhere, and Fusion draws every control from the palette alone. The palette is what follows the system's light or dark mode, so everything Fusion draws follows it too, on Windows 10 as well.
 - **Shapes in the style, colors in the palette.** The style decides shape, spacing, and which palette color goes where; it introduces no colors of its own. A shade the palette has no role for (a hover, a selected row, a divider) is the palette's text color at a low alpha, a wash, so it lands right over any background, light or dark.
 - **Every number the style draws with is a knob** in `ui/UiConstants.h`, prefixed `STYLE_` and grouped by what it shapes. Layout values that belong to a widget rather than the style (the tab height, the margins around the sidebar's footer) sit with that widget's other constants.
 - **A widget that paints itself uses the style's drawing, not a copy of it.** One that should look like a flat button asks the style for a tool button's panel through `ui/widgets/ButtonWash.h`. One that fills a shape of its own takes the color from `Style::buttonWash` or `Style::divider`.
-- **A combo box's drop-down list is drawn as a menu.** Fusion has Qt fill the list's window with the menu panel, so the style treats that window as it does a menu's: see-through and frameless (`polish`), its frame the menu's shadow margin and border, and wider than the box on each side (`STYLE_COMBO_POPUP_OVERHANG`) so the rows' text lines up with the box's. The window's class is private to Qt, so `Style` knows it as a popup whose parent is a combo box that can't be typed in. A combo box is also `STYLE_FIELD_H_PADDING` wider than Qt would make it: Qt's own allowance after the text follows the scroll bar's width, which Suzuri's thin scroll bars leave at nothing.
+- **A combo box's drop-down list is drawn as a menu.** Fusion has Qt fill the list's window with the menu panel, so the style treats that window as it does a menu's: see-through and frameless (`polish`), its frame the menu's shadow margin and border, and wider than the box on each side (`STYLE_COMBO_POPUP_OVERHANG`) so the rows' text lines up with the box's. The window's class is private to Qt, so `Style` knows it as a popup whose parent is a combo box that can't be typed in. A combo box is also `STYLE_FIELD_H_PADDING` wider than Qt would make it: Qt's own allowance after the text follows the scroll bar's width, which Fernanda's thin scroll bars leave at nothing.
 - **In a light palette, the window color is moved toward the page's**, in `Style::polish(QPalette&)`. Qt passes the application's palette through it whenever it builds one, including after a light or dark switch.
 
 ### Following the palette
@@ -488,9 +488,9 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 
 ## Coming from Hearth
 
-Suzuri is the successor to [Hearth](https://github.com/fairybow/Hearth) and reuses parts of it. Most differences follow from two decisions: no off-disk buffers, and one kind of workspace.
+Fernanda is the successor to [Hearth](https://github.com/fairybow/Hearth) and reuses parts of it. Most differences follow from two decisions: no off-disk buffers, and one kind of workspace.
 
-| Hearth | Suzuri |
+| Hearth | Fernanda |
 |---|---|
 | `FileService`, one map of buffers | `Vault`, one map per vault |
 | `FileMeta` | `FileRef`. Title overrides and on-disk checks existed for unsaved files and are gone |

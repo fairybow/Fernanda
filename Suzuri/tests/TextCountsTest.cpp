@@ -95,7 +95,7 @@ private slots:
         QFETCH(QString, text);
         QFETCH(int, expected);
 
-        QCOMPARE(Suzuri::TextCounts::wordCount(text), expected);
+        QCOMPARE(Fernanda::TextCounts::wordCount(text), expected);
     }
 
     void characterCount_data()
@@ -121,7 +121,7 @@ private slots:
         QFETCH(QString, text);
         QFETCH(int, expected);
 
-        QCOMPARE(Suzuri::TextCounts::characterCount(text), expected);
+        QCOMPARE(Fernanda::TextCounts::characterCount(text), expected);
     }
 };
 

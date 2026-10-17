@@ -78,7 +78,7 @@ public:
 
     void setNewVaultMruDir(const Coco::Path& dir) { newVaultMruDir_ = dir; }
 
-    // Whether Suzuri checks for updates on its own (Updater). On unless
+    // Whether Fernanda checks for updates on its own (Updater). On unless
     // switched off, as Obsidian's automatic updates are
     [[nodiscard]] bool checksForUpdates() const noexcept
     {

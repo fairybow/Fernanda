@@ -41,7 +41,7 @@ private:
         return QJsonObject{
             { u"tag_name"_s, tag                                         },
             { u"html_url"_s,
-             u"https://github.com/fairybow/Suzuri/releases/tag/"_s + tag },
+             u"https://github.com/fairybow/Fernanda/releases/tag/"_s + tag },
             { u"draft"_s,    draft                                       },
         };
     }
@@ -149,7 +149,7 @@ private slots:
         QCOMPARE(
             update->pageUrl,
             QUrl(
-                u"https://github.com/fairybow/Suzuri/releases/tag/"
+                u"https://github.com/fairybow/Fernanda/releases/tag/"
                 u"v0.7.0-beta.0"_s));
     }
 

@@ -320,7 +320,7 @@ inline constexpr int UPDATE_NOTICE_EXTENT = 20;
 inline constexpr int UPDATE_NOTICE_ICON_EXTENT = 14;
 inline constexpr auto UPDATE_NOTICE_ICON_ROLE = QPalette::Accent;
 
-// Suzuri's style (Style). Shades the palette has no role for are its text
+// Fernanda's style (Style). Shades the palette has no role for are its text
 // color at an alpha, drawn over whatever is behind them: HOVER under the
 // pointer, PRESSED held down (and a checked tool button), SELECTED for a
 // selected row or menu item (SELECTED_HOVER for one that's both), DIVIDER for

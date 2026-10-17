@@ -55,7 +55,7 @@ namespace Fernanda {
 // truthful whichever drove the change): the window's view.zoom* actions via
 // AbstractFileView's zoom virtuals; Ctrl+wheel; and a floating ZoomControl pill
 // (-, a Fit/percent readout that toggles Fit on click, +). A step always
-// switches to Fixed; reset returns to Fit at the 1.0 baseline (Suzuri opens
+// switches to Fixed; reset returns to Fit at the 1.0 baseline (Fernanda opens
 // PDFs fitted, so "reset" means "how it opened", not 100% actual size).
 //
 // The Fit→Fixed baseline jump is a QPdfView constraint, not a bug: zoomFactor()

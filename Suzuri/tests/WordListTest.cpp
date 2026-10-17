@@ -26,7 +26,7 @@
 
 using namespace Qt::StringLiterals;
 
-using Suzuri::WordList;
+using Fernanda::WordList;
 
 // A set of words to take as correctly spelled (core/spell/WordList.h): which
 // forms of a stored word it accepts, and its file.

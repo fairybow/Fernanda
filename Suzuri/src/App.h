@@ -214,7 +214,7 @@ private:
     // window. Windows borrow it; App outlives them all
     SpellCheckers spellCheckers_{ AppDirs::dictionaries() };
 
-    // Whether a newer Suzuri has been released. Windows show what it found;
+    // Whether a newer Fernanda has been released. Windows show what it found;
     // App saves its settings
     Updater updater_{};
 
@@ -242,19 +242,19 @@ private:
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 
-        // NB: Windows takes its window icon from IDI_ICON1 (Suzuri.rc) and
+        // NB: Windows takes its window icon from IDI_ICON1 (Fernanda.rc) and
         // macOS from the bundle's icns; X11 has neither
         QIcon icon{};
 
         for (auto size : { 16, 22, 24, 32, 48, 64, 128, 256, 512 }) {
-            icon.addFile(u":/icons/Suzuri-%1.png"_s.arg(size));
+            icon.addFile(u":/icons/Fernanda-%1.png"_s.arg(size));
         }
 
         setWindowIcon(icon);
 
 #endif
 
-        // Before any window, so every widget is made in Suzuri's style. It
+        // Before any window, so every widget is made in Fernanda's style. It
         // replaces whatever style a -style argument asked for
         setStyle(new Ui::Style);
 
@@ -443,7 +443,7 @@ private:
         }
     }
 
-    // A vault's folder deleted or moved outside Suzuri. The user contract is
+    // A vault's folder deleted or moved outside Fernanda. The user contract is
     // "don't do that", so nothing is rescued: an open project vault's window
     // closes — its buffers' files are gone, so its flush reports nothing, and
     // its workspace save is skipped (a missing root is never recreated) — and
@@ -453,9 +453,9 @@ private:
     // message first, naming what happened — before anything closes, because
     // closing the last window starts the quit.
     //
-    // Run when Suzuri becomes active again: deleting a vault's folder means
+    // Run when Fernanda becomes active again: deleting a vault's folder means
     // going to a file manager, and coming back is the moment to look. The
-    // watchers can't be relied on here — on Windows Suzuri's own watches
+    // watchers can't be relied on here — on Windows Fernanda's own watches
     // often stop Explorer taking the folder at all, and where it does go,
     // whether the folder's own removal is reported varies by platform
     void checkVaultFolders_()
@@ -745,7 +745,7 @@ private:
         }
     }
 
-    // Quit by the usual path, then main starts Suzuri again once this copy is
+    // Quit by the usual path, then main starts Fernanda again once this copy is
     // gone. A quit refused over a failed write starts nothing
     void onRestartRequested_()
     {

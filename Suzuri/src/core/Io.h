@@ -24,7 +24,7 @@
 #include <Coco/Path.h>
 
 // Stateless file IO, as free functions: JSON and text IO are functions, not an
-// object. Kept in Suzuri rather than Coco until proven — the Coco::Disk relic
+// object. Kept in Fernanda rather than Coco until proven — the Coco::Disk relic
 // is deliberately not used here
 namespace Fernanda::Io {
 
@@ -93,7 +93,7 @@ COCO_BOOL(CreateDirs)
 // createDirs has no default: whether a write may invent missing folders is a
 // real choice at each call site. Config files say Yes (.fernanda/ or appData()
 // may not exist yet); a buffer's write and a new file say No, so a folder
-// deleted or moved outside Suzuri is never recreated behind the user
+// deleted or moved outside Fernanda is never recreated behind the user
 inline bool
 write(const QByteArray& data, const Coco::Path& path, CreateDirs createDirs)
 {

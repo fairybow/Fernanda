@@ -28,7 +28,7 @@
 #include "core/spell/SpellChecker.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::SpellChecker;
+using Fernanda::SpellChecker;
 
 // What the spelling checker takes for a correctly spelled word
 // (core/spell/SpellChecker.h). Each test writes a dictionary of a few words to

@@ -37,7 +37,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] In a release build, `PrimeDocument` notices a view document out of step with the prime only when their lengths differ. An edit applied at the wrong position keeps the lengths equal and goes unnoticed until they diverge. A full comparison when a save reads the text would catch it before it reaches disk
 - [ ] When `PrimeDocument` resets a view that was out of step, that view's cursor goes to the start of the file
 - [ ] A pane whose files were all deleted between sessions is restored as an empty pane inside a split, where in use a pane closes with its last tab. `TabPaneTree::restore` builds the saved shape and prunes nothing. A split left with one child (by this, or by a hand-edited `workspace.json`) is kept the same way
-- [ ] On Windows, deleting a folder that a tree has listed, from outside Suzuri, logs Qt's "FindNextChangeNotification failed ... (Access is denied.)" once per watched folder. Harmless: the rows still go
+- [ ] On Windows, deleting a folder that a tree has listed, from outside Fernanda, logs Qt's "FindNextChangeNotification failed ... (Access is denied.)" once per watched folder. Harmless: the rows still go
 - [ ] When `Vault::addToDictionary` can't write `dictionary.txt`, the failure is only logged: the word is accepted until the vault closes and is gone the next time it opens, with nothing shown
 - [ ] A bundled dictionary is copied to the dictionaries folder once and never replaced, so a newer one in a later release doesn't reach an existing install
 - [ ] If a file reloads from disk while the editor's context menu is open, a suggestion chosen afterward is inserted wherever the word's cursor ended up, not over the word
@@ -52,7 +52,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
 - [x] Need the remaining Edit menu and text editor context menu options (cut, copy, paste, select all, delete)
-- [x] A licenses dialog crediting what Suzuri bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
+- [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
 
 ## Code
 
@@ -63,14 +63,14 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] `AbstractFileModel` has `notifyX()` functions that only emit a signal. Could they just be signals (perhaps named `notify...`)?
 - [ ] Decide whether static helpers go before other functions, per access level
 - [ ] A shared `TabPage` base for tab pages, holding title and pin state as typed members in place of the window title and a dynamic property. It would trade the leaf's property reads for a cast. Worth doing once a third such value appears
-- [x] Run the tests on every push, for Suzuri and for Coco's smoke test. `release.yml` runs only on a version tag, and now builds the tests too: pass `-DAPP_BUILD_TESTS=OFF` there
+- [x] Run the tests on every push, for Fernanda and for Coco's smoke test. `release.yml` runs only on a version tag, and now builds the tests too: pass `-DAPP_BUILD_TESTS=OFF` there
 - [ ] `AbstractFileView` has `setSpellChecker` and `setAcceptedWords`, which only `TextFileView` implements, and `VaultWindow::makeView_` already holds the `TextFileView` when it makes one. Wiring spelling there would take both off the base, and `hunspell.hxx` out of every view's includes
 - [ ] Two tests decide whether a palette is dark: `Style` reads the window color, `TextEditor` the page color. Settle one rule with themes, which need it too. `views/` can't include `ui/Style.h`, so a shared one needs a home both can reach
 - [ ] CI has no Windows job. Qt 6.11 installs on Windows only through the official installer, which needs a Qt account (see `release.yml`). Add the job once the open-source installer handles it
 
 ## Untested
 
-What the tests in `Suzuri/tests/` don't reach.
+What the tests in `Fernanda/tests/` don't reach.
 
 - [ ] `Updater`'s request to GitHub and its handling of the reply. The decision it makes from the reply is tested (`UpdateCheckTest`)
 - [ ] A failed write: the buffer stays modified, and `Vault::flush` names the file. There is no portable way to make a write fail on demand

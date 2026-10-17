@@ -15,16 +15,16 @@
 // clang-format off
 
 #define PUB_AUTHOR_STRING                       "fairybow"
-#define PUB_APP_NAME_STRING                     "Suzuri"
+#define PUB_APP_NAME_STRING                     "Fernanda"
 #define PUB_APP_NAME_LOWER_STRING               "fernanda"
 #define PUB_RELEASE_NAME_STRING                 "Bashō"
 #define PUB_COPYRIGHT_STRING                    "Copyright (C) 2026 fairybow"
-#define PUB_DOMAIN_STRING                       "https://github.com/fairybow/Suzuri"
+#define PUB_DOMAIN_STRING                       "https://github.com/fairybow/Fernanda"
 
 // NB: Reverse-DNS app ID (macOS bundle ID, .desktop name, Wayland app_id).
 // Intentionally a literal, not derived from PUB_APP_NAME_STRING: it must never
 // change, or user state the OS keys to it is orphaned
-#define PUB_APP_ID_STRING                       "io.github.fairybow.Suzuri"
+#define PUB_APP_ID_STRING                       "io.github.fairybow.Fernanda"
 
 #ifndef RC_INVOKED
 

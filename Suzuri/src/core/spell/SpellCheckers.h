@@ -90,7 +90,7 @@ public:
     }
 
     // The languages with both files in the folder, by name, in order. Read
-    // from the folder on each call, so a dictionary added while Suzuri runs
+    // from the folder on each call, so a dictionary added while Fernanda runs
     // is found
     [[nodiscard]] QStringList languages() const
     {

@@ -23,7 +23,7 @@ namespace Fernanda::Ui {
 
 // The empty page shown in a fresh tab. A plain QWidget, not an AbstractFileView
 // — a new tab has no file, and a NoOpModel would be exactly the off-disk buffer
-// Suzuri doesn't have. It emits intent; VaultWindow performs it and replaces
+// Fernanda doesn't have. It emits intent; VaultWindow performs it and replaces
 // this page in place with the editor.
 //
 // Styling is deliberately bare: three functional buttons, centered. The

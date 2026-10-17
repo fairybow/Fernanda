@@ -37,10 +37,10 @@
 #include "models/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
-using Suzuri::AbstractFileModel;
-using Suzuri::TextFileModel;
-using Suzuri::Vault;
-using Suzuri::VaultConfig;
+using Fernanda::AbstractFileModel;
+using Fernanda::TextFileModel;
+using Fernanda::Vault;
+using Fernanda::VaultConfig;
 
 // What a Vault does with files and their buffers (core/Vault.h), for
 // everything that happens at once: opening, creating, renaming, moving,
@@ -267,12 +267,12 @@ private slots:
         QVERIFY(qobject_cast<TextFileModel*>(f.open(u"a.fountain"_s)));
 
         auto* image = f.open(u"a.png"_s);
-        QVERIFY(qobject_cast<Suzuri::ImageFileModel*>(image));
+        QVERIFY(qobject_cast<Fernanda::ImageFileModel*>(image));
         QVERIFY(!image->isUserEditable());
         QCOMPARE(image->data(), pngBytes_());
 
         auto* pdf = f.open(u"a.pdf"_s);
-        QVERIFY(qobject_cast<Suzuri::PdfFileModel*>(pdf));
+        QVERIFY(qobject_cast<Fernanda::PdfFileModel*>(pdf));
         QVERIFY(!pdf->isUserEditable());
         QCOMPARE(pdf->data(), QByteArray("%PDF-1.4\n"));
     }

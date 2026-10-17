@@ -153,7 +153,7 @@ public:
     // dedup point that makes "same file open twice" and "common file open in
     // two windows" both resolve to a single model.
     //
-    // Returns nullptr for a file Suzuri won't open: a path that isn't a
+    // Returns nullptr for a file Fernanda won't open: a path that isn't a
     // vault-relative key (see isKey_), an unsupported type, a file it can't
     // read — gone since it was listed, or locked — or a text file that
     // isn't valid UTF-8 whose open the caller declined. This is the
@@ -207,7 +207,7 @@ public:
         }
 
         // Text that isn't valid UTF-8 — usually an older encoding like
-        // Windows-1252, or a binary under a text extension. Suzuri does no
+        // Windows-1252, or a binary under a text extension. Fernanda does no
         // conversion, so the caller decides: open anyway, or refuse. Asked
         // before a model exists, so a declined file never becomes a buffer
         auto decodes_lossily =
@@ -590,7 +590,7 @@ public:
         return true;
     }
 
-    // The vault's folder was deleted or moved outside Suzuri: make it again,
+    // The vault's folder was deleted or moved outside Fernanda: make it again,
     // empty, in place. Only App calls this, and only for the Common Vault — a
     // standing folder, rebuilt at startup anyway — while a project vault whose
     // folder vanishes has its window closed instead. The same Vault object
@@ -1031,7 +1031,7 @@ private:
     }
 
     // What writeModel_ did. FileGone isn't a save failure: the file was deleted
-    // or moved outside Suzuri — or its folder was — and the watcher hasn't
+    // or moved outside Fernanda — or its folder was — and the watcher hasn't
     // reported it. Callers that report failures leave it out
     enum class WriteResult_
     {
@@ -1048,7 +1048,7 @@ private:
     // it.
     //
     // It only ever OVERWRITES. A live buffer's file is always on disk, so a
-    // missing file means it was deleted or moved outside Suzuri, its folder
+    // missing file means it was deleted or moved outside Fernanda, its folder
     // included, and the watcher hasn't said so — deleting or renaming a PARENT
     // folder may produce no fileChanged for the file under it. Writing anyway
     // would recreate the file, and with CreateDirs its whole folder chain,

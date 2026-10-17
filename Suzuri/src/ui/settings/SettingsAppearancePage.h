@@ -33,7 +33,7 @@ namespace Fernanda::Ui {
 //
 // The Font section, in Obsidian's order where it has the setting: the text
 // font's family, Bold and Italic, then its size. Obsidian has no bold or italic
-// for its text font; Suzuri keeps them because it's plain-text first — there's
+// for its text font; Fernanda keeps them because it's plain-text first — there's
 // no Markdown styling to carry emphasis instead. Obsidian's size slider has a
 // reset button beside it; this one doesn't
 class SettingsAppearancePage : public SettingsPage

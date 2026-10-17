@@ -21,7 +21,7 @@
 
 using namespace Qt::StringLiterals;
 
-namespace SpellWords = Suzuri::SpellWords;
+namespace SpellWords = Fernanda::SpellWords;
 
 // Which stretches of a line are words to check the spelling of
 // (core/spell/SpellWords.h).
