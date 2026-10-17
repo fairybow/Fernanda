@@ -267,6 +267,7 @@ The menu bar is hidden until asked for. Every shortcut works without it.
 Suzuri follows Obsidian's behavior wherever it has no reason not to. Where it differs:
 
 - **Plain text first.** `.txt` is the default type (Obsidian doesn't open it). There is no Markdown rendering, and no links, backlinks, tags, or metadata
+- **A Common Vault shared by every vault** (see [The Common Vault](#the-common-vault)). Obsidian has no way to share files between vaults; its help advises against the symlinks people use for it
 - **Line endings are preserved.** Obsidian rewrites them to LF
 - **A failed save refuses the window close.** Obsidian shows a notice and closes
 - **A dropped file opens.** A file dragged onto an editor opens there; in Obsidian it inserts a link

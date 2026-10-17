@@ -64,6 +64,7 @@ The full list is in [Features.md](Suzuri/docs/Features.md), and what's planned i
 Suzuri works the way Obsidian does wherever it can, so vaults, tabs, splits, Go to File, and the settings will feel familiar. Where it differs, it's mostly because it's built for long-form prose in plain text:
 
 - **`.txt` is a first-class file type,** and the default for new files. Obsidian doesn't open `.txt` at all
+- **A Common Vault shared by every project,** for templates, notes, and research you want in reach whatever you're working on. Every window shows it in a drawer under its own files, and a Common Vault file open in two windows stays in sync as you type. Obsidian vaults can't share files, short of the symlinks its help advises against
 - **Your files come back exactly as they went in.** Line endings are kept as they were (Obsidian rewrites them to LF), along with byte order marks, no-break spaces, and other special characters
 - **A save that fails stops the window from closing,** so nothing is lost silently. Obsidian shows a notice and closes
 - **Bold and italic for the text font,** since there's no Markdown styling to carry emphasis, and **a margin setting** in place of "Readable line length," with a switch to turn wrapping off
