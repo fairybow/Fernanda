@@ -28,7 +28,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 ; NB: Never change or reuse. Windows identifies the installed app by this, so a
 ; reused ID makes the installer treat another app's install as its own
-AppId={{3CB2D7E7-7801-43F7-8310-51E8FC0A6410}
+AppId={{D4256C3D-1DC7-41C3-ABD2-CE97BCAA228D}
 AppName={#AppName}
 AppPublisher=fairybow
 AppVerName={#AppName}
