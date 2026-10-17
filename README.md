@@ -1,16 +1,21 @@
 <p align="center">
     <img src="Suzuri/resources/icons/Suzuri-128.png" alt="Suzuri icon">
     <br>
-    <b>A plain-text editor for creative writing</b>
+    <b>A plain-text writing app for fiction, poetry, and long projects</b>
+    <br>
+    Obsidian-style vaults. Your files stay plain text, on disk.
 </p>
 <p align="center">
     <a href="LICENSE"><img src="https://img.shields.io/badge/GPL%203-red.svg?style=flat-square" alt="GPL 3 license"></a>
     <a href="https://qt.io/"><img src="https://img.shields.io/badge/Qt%206.11-brightgreen?style=flat-square" alt="Qt-6.11"></a>
     <a href="https://github.com/fairybow/Suzuri/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/fairybow/Suzuri/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status"></a>
     <br>
+    <a href="https://github.com/fairybow/Suzuri/releases"><img src="https://img.shields.io/github/v/release/fairybow/Suzuri?include_prereleases&style=flat-square&label=release" alt="Latest release"></a>
     <a href="https://github.com/fairybow/Suzuri/releases"><img src="https://img.shields.io/badge/Windows%20|%20macOS%20|%20Linux-grey.svg?style=flat-square" alt="Platforms: Windows, macOS, Linux"></a>
     <br>
-    <a href="https://github.com/fairybow/Suzuri/releases"><b>Releases</b></a> •
+    <a href="https://github.com/fairybow/Suzuri/releases"><b>Download</b></a> •
+    <a href="#coming-from-obsidian"><b>Coming from Obsidian?</b></a> •
+    <a href="Suzuri/docs/Features.md"><b>Features</b></a> •
     <a href="Suzuri/docs"><b>Documentation</b></a>
 </p>
 <p align="center">
@@ -25,7 +30,7 @@
 
 I'm a writer, and Suzuri is a personal project: the writing app I've wanted for myself.
 
-Its design is based on [Obsidian](https://obsidian.md/), where a vault is just a folder on your computer. But Suzuri is meant for novel writing, and everything you write stays in plain-text files you own and can open in any editor.
+Its design is based on [Obsidian](https://obsidian.md/), where a vault is just a folder on your computer. But Suzuri is meant for writing projects (novels, poetry, collections), and everything you write stays in plain-text files you own and can open in any editor.
 
 Suzuri is early in development, and more features are planned. I expect to keep working on it for a long time.
 
@@ -46,15 +51,33 @@ Suzuri is early in development, and more features are planned. I expect to keep 
 - **Spellcheck** as you write, with suggestions and a dictionary of your own words for each vault. US English is bundled, and other Hunspell dictionaries can be added
 - **Changes made elsewhere are picked up.** A file edited in another program, by Git, or by a sync client reloads in place, as one undo step
 - **PDFs and images** open read-only beside your text
+- **Typing helpers** that pair brackets and quotes, and let you step past a closing one with a second space
 - **A word counter**, bundled fonts for prose, and settings kept per vault
+- **English and Spanish,** with Spanish still a draft
 
 Suzuri edits plain text. Markdown and Fountain files open as the text they are, with no rendering for now. There are no links, tags, or metadata.
 
 The full list is in [Features.md](Suzuri/docs/Features.md), and what's planned is in [Future.md](Suzuri/docs/Future.md).
 
+## Coming from Obsidian?
+
+Suzuri works the way Obsidian does wherever it can, so vaults, tabs, splits, Go to File, and the settings will feel familiar. Where it differs, it's mostly because it's built for long-form prose in plain text:
+
+- **`.txt` is a first-class file type,** and the default for new files. Obsidian doesn't open `.txt` at all
+- **Your files come back exactly as they went in.** Line endings are kept as they were (Obsidian rewrites them to LF), along with byte order marks, no-break spaces, and other special characters
+- **A save that fails stops the window from closing,** so nothing is lost silently. Obsidian shows a notice and closes
+- **Bold and italic for the text font,** since there's no Markdown styling to carry emphasis, and **a margin setting** in place of "Readable line length," with a switch to turn wrapping off
+- **Find has Match case and Whole word,** and its highlights stay while you edit
+- **Go to File lists every file** with nothing typed, the recent ones first
+- **Stepping past closing punctuation:** a second space before a closing bracket or quote moves past it, and the comma or period after goes before the space
+- **Images zoom** like PDFs, and TIFF images open
+- **Free and open source** under the GPL, and a native desktop app built with Qt, not Electron
+
+There's more, and the full list is in [Features.md](Suzuri/docs/Features.md#differences-from-obsidian).
+
 ## Installing
 
-Download the latest build for Windows, macOS, or Linux from [Releases](https://github.com/fairybow/Suzuri/releases). Each release's notes cover installing, updating, and uninstalling.
+Download the latest build for Windows, macOS, or Linux from [Releases](https://github.com/fairybow/Suzuri/releases). Each release's notes cover installing, updating, and uninstalling. Suzuri tells you when a newer version is out (you can turn that off in Settings → General), and links you to it.
 
 The builds are unsigned, so Windows and macOS will warn you the first time you run one. The macOS and Linux builds aren't well tested yet.
 
