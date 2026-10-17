@@ -110,9 +110,11 @@ public:
 
     // The typing helpers (views/TypingHelpers.h): a switch for all of them,
     // and one for each. A helper keeps its own value while the switch is off,
-    // as the status bar's parts do. Auto-pairing is on, as Obsidian's is
+    // as the status bar's parts do. Auto-pairing is on, as Obsidian's is, and
+    // so is stepping past closers (barging), as Hearth's was
     static constexpr bool DEFAULT_TYPING_HELPERS = true;
     static constexpr bool DEFAULT_AUTO_PAIRS = true;
+    static constexpr bool DEFAULT_BARGING = true;
 
     // Spellcheck (core/spell/SpellChecker.h). The language is a dictionary's
     // name, the stem of its .aff and .dic files (core/spell/SpellCheckers.h)
@@ -242,6 +244,11 @@ public:
     [[nodiscard]] bool autoPairs() const
     {
         return autoPairs_.value_or(DEFAULT_AUTO_PAIRS);
+    }
+
+    [[nodiscard]] bool barging() const
+    {
+        return barging_.value_or(DEFAULT_BARGING);
     }
 
     [[nodiscard]] bool spellcheck() const
@@ -397,6 +404,11 @@ public:
         return setBool_(autoPairs_, autoPairs(), enabled);
     }
 
+    [[nodiscard]] bool setBarging(bool enabled)
+    {
+        return setBool_(barging_, barging(), enabled);
+    }
+
     [[nodiscard]] bool setSpellcheck(bool enabled)
     {
         return setBool_(spellcheck_, spellcheck(), enabled);
@@ -477,6 +489,7 @@ public:
         readBool_(settings, SELECTION_HANDLES_KEY_, selectionHandles_);
         readBool_(settings, TYPING_HELPERS_KEY_, typingHelpers_);
         readBool_(settings, AUTO_PAIRS_KEY_, autoPairs_);
+        readBool_(settings, BARGING_KEY_, barging_);
         readBool_(settings, SPELLCHECK_KEY_, spellcheck_);
 
         if (auto value = settings.value(SPELLCHECK_LANGUAGE_KEY_);
@@ -543,6 +556,7 @@ public:
         writeBool_(settings, SELECTION_HANDLES_KEY_, selectionHandles_);
         writeBool_(settings, TYPING_HELPERS_KEY_, typingHelpers_);
         writeBool_(settings, AUTO_PAIRS_KEY_, autoPairs_);
+        writeBool_(settings, BARGING_KEY_, barging_);
         writeBool_(settings, SPELLCHECK_KEY_, spellcheck_);
 
         if (!spellcheckLanguage_.isEmpty()) {
@@ -599,6 +613,7 @@ private:
     static inline const QString SELECTION_HANDLES_KEY_ = u"selectionHandles"_s;
     static inline const QString TYPING_HELPERS_KEY_ = u"typingHelpers"_s;
     static inline const QString AUTO_PAIRS_KEY_ = u"autoPairs"_s;
+    static inline const QString BARGING_KEY_ = u"barging"_s;
     static inline const QString SPELLCHECK_KEY_ = u"spellcheck"_s;
     static inline const QString SPELLCHECK_LANGUAGE_KEY_ =
         u"spellcheckLanguage"_s;
@@ -629,6 +644,7 @@ private:
     std::optional<bool> selectionHandles_{};
     std::optional<bool> typingHelpers_{};
     std::optional<bool> autoPairs_{};
+    std::optional<bool> barging_{};
 
     std::optional<bool> spellcheck_{};
     QString spellcheckLanguage_{};

@@ -23,7 +23,8 @@
 using namespace Qt::StringLiterals;
 using Suzuri::TypingHelpers;
 
-// Auto-pairing (views/TypingHelpers.h), typed into a real QPlainTextEdit
+// Auto-pairing and stepping past closers (views/TypingHelpers.h), typed into a
+// real QPlainTextEdit
 // that offers its key presses to the helpers first and tells them when the
 // caret moves, as TextEditor does. Each test checks the text and where the
 // caret (or the selection) ends up.
@@ -40,6 +41,7 @@ private:
         Editor_()
         {
             helpers.setAutoPairs(true);
+            helpers.setBarging(true);
             connect(this, &QPlainTextEdit::cursorPositionChanged, this, [this] {
                 helpers.caretMoved();
             });
@@ -79,6 +81,11 @@ private:
     static void backspace_(QPlainTextEdit& editor)
     {
         QTest::keyClick(&editor, Qt::Key_Backspace);
+    }
+
+    static void enter_(QPlainTextEdit& editor)
+    {
+        QTest::keyClick(&editor, Qt::Key_Return);
     }
 
     // Text, with the caret at caret
@@ -375,6 +382,187 @@ private slots:
         backspace_(editor);
 
         QCOMPARE(editor.toPlainText(), u"]"_s);
+    }
+
+    // --- Stepping past closers ---------------------------------------------
+
+    void aSecondSpaceBeforeACloserStepsPastIt()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  "_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word) "_s);
+        QCOMPARE(caret_(editor), 7);
+    }
+
+    void oneSpaceBeforeACloserIsJustASpace()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word "_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word )"_s);
+        QCOMPARE(caret_(editor), 6);
+    }
+
+    void aCloserAlreadyInTheTextIsSteppedPast()
+    {
+        Editor_ editor{};
+        set_(editor, u"(word) more"_s, 5);
+        type_(editor, u"  "_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word)  more"_s);
+        QCOMPARE(caret_(editor), 7);
+    }
+
+    void eachSecondSpaceStepsPastOneCloser()
+    {
+        Editor_ editor{};
+        type_(editor, u"(\"a   "_s);
+
+        QCOMPARE(editor.toPlainText(), u"(\"a\") "_s);
+        QCOMPARE(caret_(editor), 6);
+    }
+
+    void stepsWorkWithAutoPairingOff()
+    {
+        Editor_ editor{};
+        editor.helpers.setAutoPairs(false);
+        set_(editor, u"(word)"_s, 5);
+        type_(editor, u"  "_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word) "_s);
+    }
+
+    void aStepUndoesAsOneStep()
+    {
+        Editor_ editor{};
+        set_(editor, u"(word )"_s, 6);
+        type_(editor, u" "_s);
+        editor.undo();
+
+        QCOMPARE(editor.toPlainText(), u"(word )"_s);
+    }
+
+    void punctuationRightAfterAStepGoesBeforeTheSpace_data()
+    {
+        QTest::addColumn<QString>("punctuation");
+
+        for (const auto& mark :
+             { u","_s, u"."_s, u"?"_s, u"!"_s, u";"_s, u":"_s }) {
+            QTest::newRow(qPrintable(mark)) << mark;
+        }
+    }
+
+    void punctuationRightAfterAStepGoesBeforeTheSpace()
+    {
+        QFETCH(QString, punctuation);
+
+        Editor_ editor{};
+        type_(editor, u"(word  "_s + punctuation);
+
+        QCOMPARE(editor.toPlainText(), u"(word)"_s + punctuation + u" "_s);
+        QCOMPARE(caret_(editor), 8);
+    }
+
+    // ' and * so often start the next word
+    void anAsteriskAfterAStepStaysAfterTheSpace()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  *"_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word) *"_s);
+    }
+
+    void anApostropheAfterAStepStaysAfterTheSpace()
+    {
+        Editor_ editor{};
+        editor.helpers.setAutoPairs(false);
+        set_(editor, u"(word)"_s, 5);
+        type_(editor, u"  '"_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word) '"_s);
+    }
+
+    void punctuationAfterAnotherKeyStaysPut()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  a,"_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word) a,"_s);
+    }
+
+    void punctuationAfterTheCaretMovesStaysPut()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  "_s);
+
+        auto cursor = editor.textCursor();
+        cursor.movePosition(QTextCursor::Left);
+        editor.setTextCursor(cursor);
+        cursor.movePosition(QTextCursor::Right);
+        editor.setTextCursor(cursor);
+
+        type_(editor, u","_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word) ,"_s);
+    }
+
+    // Punctuation after a space and a closer the user typed is theirs
+    void punctuationAfterATypedSpaceStaysPut()
+    {
+        Editor_ editor{};
+        set_(editor, u"(word) "_s, 7);
+        type_(editor, u","_s);
+
+        QCOMPARE(editor.toPlainText(), u"(word) ,"_s);
+    }
+
+    void enterRightAfterAStepDropsTheSpace()
+    {
+        Editor_ editor{};
+        type_(editor, u"(word  "_s);
+        enter_(editor);
+
+        QCOMPARE(editor.toPlainText(), u"(word)\n"_s);
+        QCOMPARE(caret_(editor), 7);
+    }
+
+    void enterBeforeClosersEndingALineStepsPastThem()
+    {
+        Editor_ editor{};
+        type_(editor, u"(\"a"_s);
+        enter_(editor);
+
+        QCOMPARE(editor.toPlainText(), u"(\"a\")\n"_s);
+        QCOMPARE(caret_(editor), 6);
+    }
+
+    void enterBeforeACloserMidLineIsLeftAlone()
+    {
+        Editor_ editor{};
+        set_(editor, u"(a) b"_s, 2);
+        enter_(editor);
+
+        QCOMPARE(editor.toPlainText(), u"(a\n) b"_s);
+    }
+
+    void enterAtTheEndOfALineIsLeftAlone()
+    {
+        Editor_ editor{};
+        set_(editor, u"abc"_s, 3);
+        enter_(editor);
+
+        QCOMPARE(editor.toPlainText(), u"abc\n"_s);
+    }
+
+    void nothingStepsWhenOff()
+    {
+        Editor_ editor{};
+        editor.helpers.setBarging(false);
+        type_(editor, u"(word  "_s);
+        enter_(editor);
+
+        QCOMPARE(editor.toPlainText(), u"(word  \n)"_s);
     }
 
     // --- When the helpers stay out of it ------------------------------------

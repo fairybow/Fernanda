@@ -133,6 +133,7 @@ public:
         // The typing helpers' switch turns them all off, each keeping its own
         // setting for when it's turned back on
         editor_->setAutoPairs(config.typingHelpers() && config.autoPairs());
+        editor_->setBarging(config.typingHelpers() && config.barging());
     }
 
     void setSpellChecker(SpellChecker* borrowedSpellChecker) override

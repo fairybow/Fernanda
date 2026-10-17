@@ -26,7 +26,10 @@ namespace Suzuri {
 using namespace Qt::StringLiterals;
 
 // Help with punctuation while typing in the text editor: auto-pairing of
-// brackets and quotes.
+// brackets and quotes, and stepping past closing punctuation. Each can be
+// turned on or off alone.
+//
+// Auto-pairing:
 //
 // - Typing an opener inserts its closer after the caret, when what follows
 //   the caret is a space, the end of the line, or a closer (as CodeMirror,
@@ -44,15 +47,30 @@ using namespace Qt::StringLiterals;
 //   the caret leaves their line or the closer is gone
 // - Backspace between an empty pair deletes both
 //
+// Stepping past closing punctuation (Hearth's "barging"), for finishing a
+// bracket or quote without reaching for the closer:
+//
+// - A second space typed just before a closer moves past it: "(word |)"
+//   becomes "(word) |". The closer can be any pair's, typed or inserted
+// - Enter, with nothing but closers between the caret and the end of the
+//   line, moves past them before starting the next line, so a paragraph that
+//   ends inside a bracket or quote ends after it. Elsewhere, Enter is left
+//   alone
+// - Straight after a step, with the caret still where it left it, typing
+//   , . ? ! ; or : goes before the space: "(word) " and a comma become
+//   "(word), ". Enter there drops the space. Any other key, or moving the
+//   caret, ends the chance. ' and * aren't among them, since they so often
+//   start the next word
+//
 // Each change is one edit block in the view's document, so it reaches the
 // shared buffer as one edit and undoes as one step.
 //
 // Not a widget or an event filter: the editor owns it by value and offers it
 // each key press first (TextEditor::keyPressEvent), as it does the mouse to
 // SelectionHandles. Only a key press that would type a character, or a plain
-// Backspace, is considered: one Qt itself wouldn't type (a Ctrl shortcut) is
-// left alone. Ctrl+Alt is how Windows reports AltGr, which types brackets on
-// many layouts, so it is allowed
+// Backspace or Enter, is considered: one Qt itself wouldn't type (a Ctrl
+// shortcut) is left alone. Ctrl+Alt is how Windows reports AltGr, which types
+// brackets on many layouts, so it is allowed
 class TypingHelpers
 {
 public:
@@ -73,16 +91,37 @@ public:
         insertedClosers_.clear();
     }
 
+    [[nodiscard]] bool barging() const noexcept { return barging_; }
+
+    void setBarging(bool enabled)
+    {
+        if (enabled == barging_) {
+            return;
+        }
+
+        barging_ = enabled;
+        steppedTo_ = -1;
+    }
+
     // True means the key press was handled here, and the editor must not
     // handle it too
     bool keyPress(const QKeyEvent* event)
     {
-        if (!autoPairs_ || editor_->isReadOnly()) {
+        if (editor_->isReadOnly()) {
             return false;
         }
 
+        auto has_selection = editor_->textCursor().hasSelection();
+
         if (event->key() == Qt::Key_Backspace) {
-            return isPlainBackspace_(event) && deletePair_();
+            return autoPairs_ && !has_selection &&
+                   isPlainModifiers_(event, Qt::ShiftModifier) && deletePair_();
+        }
+
+        if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+            return barging_ && !has_selection &&
+                   isPlainModifiers_(event, Qt::NoModifier) &&
+                   (closeGapForEnter_() || stepPastClosersForEnter_());
         }
 
         if (!typesText_(event)) {
@@ -91,16 +130,29 @@ public:
 
         auto character = event->text().at(0);
 
-        if (editor_->textCursor().hasSelection()) {
+        if (barging_ && !has_selection &&
+            ((character == u' ' && stepPastCloser_()) ||
+             closeGap_(character))) {
+            return true;
+        }
+
+        if (!autoPairs_) {
+            return false;
+        }
+
+        if (has_selection) {
             return isOpener_(character) && wrapSelection_(character);
         }
 
         return stepOverCloser_(character) || insertPair_(character);
     }
 
-    // The caret moved. Inserted closers on other lines are forgotten
+    // The caret moved. A step past a closer is over, and inserted closers on
+    // other lines are forgotten
     void caretMoved()
     {
+        steppedTo_ = -1;
+
         if (insertedClosers_.isEmpty()) {
             return;
         }
@@ -145,7 +197,12 @@ private:
 
     QPlainTextEdit* editor_;
     bool autoPairs_ = false;
+    bool barging_ = false;
     QList<InsertedCloser_> insertedClosers_{};
+
+    // Where the caret was left by a step past a closer, while the next key
+    // can still close the gap; -1 otherwise
+    int steppedTo_ = -1;
 
     [[nodiscard]] static const Pair_* pairOpenedBy_(QChar character)
     {
@@ -167,6 +224,25 @@ private:
     {
         auto* pair = pairOpenedBy_(character);
         return pair && pair->opener == pair->closer;
+    }
+
+    // Any pair's closer, including the quotes that open too
+    [[nodiscard]] static bool isCloser_(QChar character)
+    {
+        for (const auto& pair : PAIRS_) {
+            if (pair.closer == character) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Punctuation that goes before the space a step past a closer left
+    [[nodiscard]] static bool isGapPunctuation_(QChar character)
+    {
+        return character == u',' || character == u'.' || character == u'?' ||
+               character == u'!' || character == u';' || character == u':';
     }
 
     // A closer that isn't also an opener: ) ] } ” ’ » ›
@@ -197,12 +273,15 @@ private:
                modifiers != (Qt::ControlModifier | Qt::ShiftModifier);
     }
 
-    // Backspace alone, or with Shift, which Qt treats the same. Ctrl deletes
-    // a word, and isn't for this
-    [[nodiscard]] static bool isPlainBackspace_(const QKeyEvent* event)
+    // A key alone, or with only the one modifier allowed: Shift with
+    // Backspace, which Qt treats the same as Backspace alone. Ctrl+Backspace
+    // deletes a word, and Shift+Enter breaks the line within the paragraph,
+    // and neither is for this
+    [[nodiscard]] static bool
+    isPlainModifiers_(const QKeyEvent* event, Qt::KeyboardModifier allowed)
     {
         auto modifiers = event->modifiers() & ~Qt::KeypadModifier;
-        return modifiers == Qt::NoModifier || modifiers == Qt::ShiftModifier;
+        return modifiers == Qt::NoModifier || modifiers == allowed;
     }
 
     // The character at a document position in the caret's block, or a null
@@ -317,11 +396,6 @@ private:
     bool deletePair_()
     {
         auto cursor = editor_->textCursor();
-
-        if (cursor.hasSelection()) {
-            return false;
-        }
-
         auto position = cursor.position();
         auto* pair = pairOpenedBy_(characterInBlock_(cursor, position - 1));
 
@@ -332,6 +406,106 @@ private:
         cursor.beginEditBlock();
         cursor.deletePreviousChar();
         cursor.deleteChar();
+        cursor.endEditBlock();
+
+        editor_->setTextCursor(cursor);
+        return true;
+    }
+
+    // A second space, typed between a space and a closer: the space moves
+    // past the closer, and the caret with it
+    bool stepPastCloser_()
+    {
+        auto cursor = editor_->textCursor();
+        auto position = cursor.position();
+
+        if (characterInBlock_(cursor, position - 1) != u' ' ||
+            !isCloser_(characterInBlock_(cursor, position))) {
+            return false;
+        }
+
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar();
+        cursor.movePosition(QTextCursor::NextCharacter);
+        cursor.insertText(u" "_s);
+        cursor.endEditBlock();
+
+        editor_->setTextCursor(cursor);
+
+        // After setTextCursor, whose caretMoved would clear it
+        steppedTo_ = cursor.position();
+
+        return true;
+    }
+
+    // Punctuation typed straight after a step, which goes before the space
+    bool closeGap_(QChar character)
+    {
+        if (!isGapPunctuation_(character) || !isRightAfterStep_()) {
+            return false;
+        }
+
+        auto cursor = editor_->textCursor();
+
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar();
+        cursor.insertText(QString(character) + u' ');
+        cursor.endEditBlock();
+
+        editor_->setTextCursor(cursor);
+        return true;
+    }
+
+    // Enter straight after a step, which drops the space
+    bool closeGapForEnter_()
+    {
+        if (!isRightAfterStep_()) {
+            return false;
+        }
+
+        auto cursor = editor_->textCursor();
+
+        cursor.beginEditBlock();
+        cursor.deletePreviousChar();
+        cursor.insertBlock();
+        cursor.endEditBlock();
+
+        editor_->setTextCursor(cursor);
+        return true;
+    }
+
+    // The caret is where a step left it, with the space it put there before
+    // it. The text there can have changed since without the caret moving (an
+    // edit in another view of the file), hence the space
+    [[nodiscard]] bool isRightAfterStep_() const
+    {
+        auto cursor = editor_->textCursor();
+        auto position = cursor.position();
+
+        return position == steppedTo_ &&
+               characterInBlock_(cursor, position - 1) == u' ';
+    }
+
+    // Enter with only closers between the caret and the end of its line:
+    // the caret moves past them, and the line breaks there
+    bool stepPastClosersForEnter_()
+    {
+        auto cursor = editor_->textCursor();
+        auto rest = cursor.block().text().mid(cursor.positionInBlock());
+
+        if (rest.isEmpty()) {
+            return false;
+        }
+
+        for (auto character : rest) {
+            if (!isCloser_(character)) {
+                return false;
+            }
+        }
+
+        cursor.beginEditBlock();
+        cursor.movePosition(QTextCursor::EndOfBlock);
+        cursor.insertBlock();
         cursor.endEditBlock();
 
         editor_->setTextCursor(cursor);

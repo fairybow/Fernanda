@@ -47,8 +47,8 @@ using namespace Qt::StringLiterals;
 // responds: the tab width is Obsidian's "Indent visual width", which it keeps
 // under Behavior as well, and auto-pairing is its "Auto pair brackets". The
 // rest — wrapping, the current-line highlight, selection handles, center on
-// scroll, double-click whitespace, the typing helpers' switch — are Suzuri's
-// own, which Obsidian doesn't have.
+// scroll, double-click whitespace, the typing helpers' switch, stepping past
+// closing punctuation — are Suzuri's own, which Obsidian doesn't have.
 //
 // The typing helpers' rows hang on their switch: disabled while it's off,
 // each keeping its own value.
@@ -188,8 +188,8 @@ private:
 
         auto helpers = addSwitch(
             tr("Typing helpers"),
-            tr("Help with brackets and quotes as you type. Each helper below "
-               "can be turned off on its own."),
+            tr("Help with brackets, quotes, and the punctuation after them as "
+               "you type. Each helper below can be turned off on its own."),
             config.typingHelpers(),
             &VaultConfig::setTypingHelpers);
 
@@ -202,7 +202,16 @@ private:
             config.autoPairs(),
             &VaultConfig::setAutoPairs);
 
+        auto barging = addSwitch(
+            tr("Step past closing punctuation"),
+            tr("Typing a second space before a closing bracket or quote moves "
+               "past it, as does Enter at the end of a line. A comma, period, "
+               "or similar typed right after goes before the space."),
+            config.barging(),
+            &VaultConfig::setBarging);
+
         hangOn_(helpers.toggle, pairs.row);
+        hangOn_(helpers.toggle, barging.row);
     }
 
     // A row enabled only while a switch is on

@@ -140,7 +140,8 @@ private:
 // the ends of a selection. The editor's part is to paint them after the text
 // and to offer them each mouse event before handling it itself.
 //
-// Typing helpers (views/TypingHelpers.h): auto-pairing of brackets and quotes.
+// Typing helpers (views/TypingHelpers.h): auto-pairing of brackets and quotes,
+// and stepping past closing punctuation.
 // The editor offers them each key press before handling it itself, and tells
 // them when the caret moves
 class TextEditor : public QPlainTextEdit
@@ -315,6 +316,14 @@ public:
 
     // Returns early when unchanged, as the others do
     void setAutoPairs(bool enabled) { typingHelpers_.setAutoPairs(enabled); }
+
+    [[nodiscard]] bool barging() const noexcept
+    {
+        return typingHelpers_.barging();
+    }
+
+    // Returns early when unchanged, as the others do
+    void setBarging(bool enabled) { typingHelpers_.setBarging(enabled); }
 
 protected:
     // What a copy, a cut, or a drag of the selection carries: the selected
