@@ -1,6 +1,0 @@
-[submodule "Suzuri/submodules/Coco"]
-	path = Suzuri/submodules/Coco
-	url = https://github.com/fairybow/Coco
-[submodule "Suzuri/submodules/hunspell"]
-	path = Suzuri/submodules/hunspell
-	url = https://github.com/hunspell/hunspell
