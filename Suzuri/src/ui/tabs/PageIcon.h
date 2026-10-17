@@ -54,7 +54,7 @@ namespace Fernanda::Ui {
 // QWidget base carrying pin, title, and mark as typed members would unite what
 // currently hangs off QWidget in three places
 
-inline constexpr auto PAGE_ICON_PATH_PROPERTY = "suzuri_pageIconPath";
+inline constexpr auto PAGE_ICON_PATH_PROPERTY = "fernanda_pageIconPath";
 
 // Empty when the page has no mark
 [[nodiscard]] inline QString pageIconPath(QWidget* page)

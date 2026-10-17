@@ -36,7 +36,7 @@ namespace Fernanda::Ui {
 // off QWidget in two places. It trades a qobject_cast in the leaf for that
 // consolidation
 
-inline constexpr auto PAGE_PINNED_PROPERTY = "suzuri_pagePinned";
+inline constexpr auto PAGE_PINNED_PROPERTY = "fernanda_pagePinned";
 
 [[nodiscard]] inline bool isPagePinned(QWidget* page)
 {
