@@ -10,7 +10,7 @@
     <a href="https://qt.io/"><img src="https://img.shields.io/badge/Qt%206.11-brightgreen?style=flat-square" alt="Qt-6.11"></a>
     <a href="https://github.com/fairybow/Suzuri/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/fairybow/Suzuri/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status"></a>
     <br>
-    <a href="https://github.com/fairybow/Suzuri/releases"><img src="https://img.shields.io/github/v/release/fairybow/Suzuri?include_prereleases&style=flat-square&label=release" alt="Latest release"></a>
+    <a href="https://github.com/fairybow/Suzuri/releases"><img src="https://img.shields.io/github/v/tag/fairybow/Suzuri?sort=semver&style=flat-square&label=release" alt="Latest release"></a>
     <a href="https://github.com/fairybow/Suzuri/releases"><img src="https://img.shields.io/badge/Windows%20|%20macOS%20|%20Linux-grey.svg?style=flat-square" alt="Platforms: Windows, macOS, Linux"></a>
     <br>
     <a href="https://github.com/fairybow/Suzuri/releases"><b>Download</b></a> •
