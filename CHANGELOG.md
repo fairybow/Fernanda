@@ -102,6 +102,40 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.9.0-beta.0 (Typing Helpers) - tag v0.9.0-beta.0
+
+## What's New?
+
+Suzuri can now help with brackets, quotes, and the punctuation after them as you type. Both helpers are on by default, and each can be turned off in **Settings → Editor → Behavior**, along with a switch for both.
+
+- **Auto-pair brackets and quotes.** Typing `(`, `[`, `{`, a quote, or a backtick adds its closing match, when the cursor is at the end of a line or before a space or another closer. Before a word, you get just the opening character, so you can wrap text that's already there
+  - Straight quotes don't pair after a letter or a number, so `don't` and `5'` are typed as they are
+  - Curly quotes and guillemets (`“”`, `‘’`, `«»`, `‹›`) pair with their own closers
+  - Typing the closer that was added steps over it, and Backspace between an empty pair deletes both
+  - With text selected, typing an opening character wraps the text in the pair
+- **Step past closing punctuation.** A second space typed just before a closing bracket or quote moves past it: `(word |)` becomes `(word) |`
+  - Enter does the same when only closing characters are left on the line, so a paragraph that ends inside a bracket or quote ends after it
+  - A comma, period, question mark, exclamation mark, semicolon, or colon typed straight after goes before the space: `(word), `
+- Each of these undoes in one step
+
+Also in this release:
+
+- **Fixed:** a selection handle at the very start or end of a line was cut off by the edge of the text area
+- **Fixed:** on the Editor settings page, Enter opened the dictionaries folder, as **Open folder** had become the page's default button. No button in Settings is a default now
+- **Fixed:** the **Options** heading in Settings lit up on hover, as if it could be chosen
+- The text in the editor now starts slightly lower on the page, leaving room for the selection handles
+
+## Known Issues
+
+- The Spanish translation is an unreviewed draft, and the new settings aren't translated yet
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.8.1-beta.0 (Fixes) - tag v0.8.1-beta.0
 
 ## What's New?
