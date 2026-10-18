@@ -1255,10 +1255,11 @@
 <path
    id="path11063-5"
    style="fill:url(#linearGradient3);fill-opacity:1;stroke:#5a5ec8;stroke-width:12.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-   inkscape:label="Circle"
-   d="M 320,32.000009 A 288,288 0 0 0 32.000001,319.99999 288,288 0 0 0 320,607.99999 a 288,288 0 0 0 288,-288 A 288,288 0 0 0 320,32.000009 Z m 0,128.000001 a 160,160 0 0 1 160,159.99998 160,160 0 0 1 -160,160 160,160 0 0 1 -160,-160 160,160 0 0 1 160,-159.99998 z" /><path
+   inkscape:label="Ring"
+   d="M 320,32.000009 A 288,288 0 0 0 32.000001,319.99999 288,288 0 0 0 320,607.99999 a 288,288 0 0 0 288,-288 A 288,288 0 0 0 320,32.000009 Z m 0,128.000001 a 160,160 0 0 1 160,159.99998 160,160 0 0 1 -160,160 160,160 0 0 1 -160,-160 160,160 0 0 1 160,-159.99998 z"
+   sodipodi:insensitive="true" /><path
    id="path11063-5-9"
    style="fill:#ff7900;fill-opacity:1;stroke-width:3.73467;stroke-linecap:round;stroke-linejoin:round"
-   inkscape:label="Circle (Original)"
+   inkscape:label="Ring (Original)"
    d="m -481.22182,-56.07185 a 288,288 0 0 0 -288,287.99998 288,288 0 0 0 288,288 288,288 0 0 0 288,-288 288,288 0 0 0 -288,-287.99998 z m 0,128 a 160,160 0 0 1 160,159.99998 160,160 0 0 1 -160,160 160,160 0 0 1 -160,-160 160,160 0 0 1 160,-159.99998 z"
    sodipodi:insensitive="true" /></svg>
