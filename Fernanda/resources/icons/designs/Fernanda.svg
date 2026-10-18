@@ -1218,8 +1218,7 @@
    y1="116.35329"
    x2="523.64673"
    y2="523.64679"
-   gradientUnits="userSpaceOnUse"
-   gradientTransform="translate(-1e-6)" /><linearGradient
+   gradientUnits="userSpaceOnUse" /><linearGradient
    inkscape:collect="always"
    xlink:href="#linearGradient14"
    id="linearGradient15"
@@ -1276,9 +1275,10 @@
    id="path11063-5"
    style="display:inline;fill:url(#linearGradient3);fill-opacity:1;stroke:url(#linearGradient15);stroke-width:12.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
    inkscape:label="Ring (dark gradient stroke)"
-   d="M 320,32.00002 A 288,288 0 0 0 31.999999,320 288,288 0 0 0 320,607.99998 288,288 0 0 0 608,320 288,288 0 0 0 320,32.00002 Z m 0,128 A 160,160 0 0 1 480,320 160,160 0 0 1 320,479.99998 160,160 0 0 1 160,320 160,160 0 0 1 320,160.00002 Z" /><path
+   d="M 320,32.00002 A 288,288 0 0 0 31.999999,320 288,288 0 0 0 320,607.99998 288,288 0 0 0 608,320 288,288 0 0 0 320,32.00002 Z m 0,128 A 160,160 0 0 1 480,320 160,160 0 0 1 320,479.99998 160,160 0 0 1 160,320 160,160 0 0 1 320,160.00002 Z"
+   sodipodi:insensitive="true" /><path
    id="path11063-5-9"
    style="fill:#ff7900;fill-opacity:1;stroke-width:3.73467;stroke-linecap:round;stroke-linejoin:round"
-   inkscape:label="Ring (Original)"
+   inkscape:label="Ring (original)"
    d="m -481.22182,-56.07185 a 288,288 0 0 0 -288,287.99998 288,288 0 0 0 288,288 288,288 0 0 0 288,-288 288,288 0 0 0 -288,-287.99998 z m 0,128 a 160,160 0 0 1 160,159.99998 160,160 0 0 1 -160,160 160,160 0 0 1 -160,-160 160,160 0 0 1 160,-159.99998 z"
    sodipodi:insensitive="true" /></svg>
