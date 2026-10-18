@@ -1219,7 +1219,7 @@
    x2="523.64673"
    y2="523.64679"
    gradientUnits="userSpaceOnUse"
-   gradientTransform="translate(-1.5e-6)" /><linearGradient
+   gradientTransform="translate(-1e-6)" /><linearGradient
    inkscape:collect="always"
    xlink:href="#linearGradient14"
    id="linearGradient15"
@@ -1227,8 +1227,7 @@
    y1="111.82774"
    x2="528.1723"
    y2="528.17224"
-   gradientUnits="userSpaceOnUse"
-   gradientTransform="translate(1e-6)" /></defs><sodipodi:namedview
+   gradientUnits="userSpaceOnUse" /></defs><sodipodi:namedview
    id="namedview10"
    pagecolor="#ffffff"
    bordercolor="#000000"
@@ -1238,7 +1237,7 @@
    inkscape:pagecheckerboard="true"
    inkscape:deskcolor="#d1d1d1"
    inkscape:zoom="0.35355339"
-   inkscape:cx="-337.99704"
+   inkscape:cx="-332.34019"
    inkscape:cy="864.08449"
    inkscape:window-width="1920"
    inkscape:window-height="991"
@@ -1276,9 +1275,8 @@
 <path
    id="path11063-5"
    style="display:inline;fill:url(#linearGradient3);fill-opacity:1;stroke:url(#linearGradient15);stroke-width:12.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
-   inkscape:label="Ring (dark gradient stoke)"
-   d="M 320,32.00002 A 288,288 0 0 0 31.999999,320 288,288 0 0 0 320,607.99998 288,288 0 0 0 608,320 288,288 0 0 0 320,32.00002 Z m 0,128 A 160,160 0 0 1 480,320 160,160 0 0 1 320,479.99998 160,160 0 0 1 160,320 160,160 0 0 1 320,160.00002 Z"
-   sodipodi:insensitive="true" /><path
+   inkscape:label="Ring (dark gradient stroke)"
+   d="M 320,32.00002 A 288,288 0 0 0 31.999999,320 288,288 0 0 0 320,607.99998 288,288 0 0 0 608,320 288,288 0 0 0 320,32.00002 Z m 0,128 A 160,160 0 0 1 480,320 160,160 0 0 1 320,479.99998 160,160 0 0 1 160,320 160,160 0 0 1 320,160.00002 Z" /><path
    id="path11063-5-9"
    style="fill:#ff7900;fill-opacity:1;stroke-width:3.73467;stroke-linecap:round;stroke-linejoin:round"
    inkscape:label="Ring (Original)"
