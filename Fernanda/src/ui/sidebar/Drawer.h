@@ -13,6 +13,8 @@
 #pragma once
 
 #include <QAbstractButton>
+#include <QApplication>
+#include <QCursor>
 #include <QFontMetrics>
 #include <QJsonObject>
 #include <QPaintEvent>
@@ -314,6 +316,11 @@ signals:
     // toggle's emission covers it
     void stateChanged();
 
+    // A toggle's layout has settled, one tick after the toggle. The header and
+    // the content have moved under a cursor that didn't, so anything showing
+    // hover (the trees' rows) re-reads what's under the cursor here
+    void expansionSettled();
+
 protected:
     void paintEvent(QPaintEvent* event) override
     {
@@ -522,6 +529,27 @@ private:
     {
         applyExpansion_(checked, true);
         emit stateChanged();
+
+        Coco::Time::onNextTick(this, [this] {
+            syncHeaderHover_();
+            emit expansionSettled();
+        });
+    }
+
+    // Qt marks which widget is under the mouse only when the mouse moves (or a
+    // widget is shown or hidden). A toggle moves the header away from a cursor
+    // that stays put, so the header stays marked as under the mouse, and keeps
+    // its wash, until the next move. widgetAt finds what that move would, and
+    // the move sets the same flag again, so this only brings it forward
+    void syncHeaderHover_()
+    {
+        auto hovered = QApplication::widgetAt(QCursor::pos()) == header_;
+        if (header_->underMouse() == hovered) {
+            return;
+        }
+
+        header_->setAttribute(Qt::WA_UnderMouse, hovered);
+        header_->update();
     }
 };
 

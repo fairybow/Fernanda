@@ -54,6 +54,10 @@ public:
 
     ~VaultFileTree() override { TRACER; }
 
+    // Hover the row under the cursor, or none, after the tree has moved under
+    // a still cursor (see VaultTreeView::syncHover)
+    void syncHover() { tree_->syncHover(); }
+
     // Persist which folders are expanded, as an opaque blob for WorkspaceFile
     // to place in workspace.json. VaultFileTree owns the SHAPE of its own
     // state; WorkspaceFile owns WHERE it lives and under which key — the same

@@ -149,6 +149,21 @@ private:
                 new Drawer(tr("Common Vault"), commonTree_, splitter_);
             splitter_->addWidget(commonDrawer_);
             wireTree_(commonTree_, commonVault_);
+
+            // A toggle moves both trees under a cursor that stays put: opening
+            // slides the common tree in under it, and closing leaves this
+            // vault's tree there. Each re-reads its hovered row once the
+            // drawer has settled
+            connect(
+                commonDrawer_,
+                &Drawer::expansionSettled,
+                fileTree_,
+                &VaultFileTree::syncHover);
+            connect(
+                commonDrawer_,
+                &Drawer::expansionSettled,
+                commonTree_,
+                &VaultFileTree::syncHover);
         }
 
         splitter_->setChildrenCollapsible(false);

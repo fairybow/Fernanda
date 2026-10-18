@@ -16,6 +16,7 @@
 #include <QApplication>
 #include <QColor>
 #include <QCoreApplication>
+#include <QCursor>
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QDragLeaveEvent>
@@ -90,6 +91,26 @@ public:
     }
 
     ~VaultTreeView() override { TRACER; }
+
+    // Hover the row under the cursor, or none when the cursor isn't over the
+    // rows. Qt updates hover only when the mouse moves, so after the view or
+    // its rows move under a still cursor, the hovered row is wherever the
+    // cursor was before. A HoverMove is what a real move sends, and
+    // QAbstractItemView answers it by hovering the row at its position
+    void syncHover()
+    {
+        auto global = QCursor::pos();
+
+        if (!viewport()->isVisible() ||
+            QApplication::widgetAt(global) != viewport()) {
+            clearHover_();
+            return;
+        }
+
+        auto local = QPointF(viewport()->mapFromGlobal(global));
+        QHoverEvent move(QEvent::HoverMove, local, QPointF(global), local);
+        QCoreApplication::sendEvent(viewport(), &move);
+    }
 
 signals:
     // A committed move-drop: move absoluteSource into absoluteDestDir (an
