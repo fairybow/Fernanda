@@ -76,7 +76,12 @@ echo Building %STEM%.ico...
 "!MAGICK!" "%OUT_DIR%\%STEM%-16.png" "%OUT_DIR%\%STEM%-24.png" "%OUT_DIR%\%STEM%-32.png" "%OUT_DIR%\%STEM%-48.png" "%OUT_DIR%\%STEM%-64.png" "%OUT_DIR%\%STEM%-128.png" "%OUT_DIR%\%STEM%-256.png" "%OUT_DIR%\%STEM%.ico"
 
 echo Building %STEM%.icns...
-"!MAGICK!" "%OUT_DIR%\%STEM%-16.png" "%OUT_DIR%\%STEM%-32.png" "%OUT_DIR%\%STEM%-64.png" "%OUT_DIR%\%STEM%-128.png" "%OUT_DIR%\%STEM%-256.png" "%OUT_DIR%\%STEM%-512.png" "%OUT_DIR%\%STEM%-1024.png" "%OUT_DIR%\%STEM%.icns"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0MakeIcns.ps1" -Dir "%OUT_DIR%" -Stem "%STEM%"
+if errorlevel 1 (
+    echo Could not build %STEM%.icns.
+    pause
+    exit /b 1
+)
 
 echo.
 echo Done. Output in "%OUT_DIR%".
