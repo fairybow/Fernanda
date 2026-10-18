@@ -102,6 +102,23 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.10.1-beta.0 (New Icon) - tag v0.10.1-beta.0
+
+## What's New?
+
+- A refined icon: the ring's colors now blend with a long, soft middle, and its edges are a darker shade of the same colors
+
+## Known Issues
+
+- The Spanish translation is an unreviewed draft, and the typing helper settings aren't translated yet
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.10.0-beta.0 (Fernanda) - tag v0.10.0-beta.0
 
 ## What's New?
