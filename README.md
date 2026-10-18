@@ -1,6 +1,9 @@
-<p align="center">
-    <img src="Fernanda/resources/icons/Fernanda-128.png" alt="Fernanda icon">
+<h1 align="center">
+    <img src="Fernanda/resources/icons/Fernanda-128.png" alt="" width="128">
     <br>
+    Fernanda
+</h1>
+<p align="center">
     <b>A plain-text writing app for fiction, poetry, and long projects</b>
     <br>
     Obsidian-style vaults. Your files stay plain text, on disk.
