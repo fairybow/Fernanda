@@ -39,10 +39,10 @@ private:
     release_(const QString& tag, bool draft = false)
     {
         return QJsonObject{
-            { u"tag_name"_s, tag                                         },
+            { u"tag_name"_s, tag                                           },
             { u"html_url"_s,
              u"https://github.com/fairybow/Fernanda/releases/tag/"_s + tag },
-            { u"draft"_s,    draft                                       },
+            { u"draft"_s,    draft                                         },
         };
     }
 

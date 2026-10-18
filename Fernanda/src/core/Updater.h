@@ -35,8 +35,8 @@ namespace Fernanda {
 using namespace Qt::StringLiterals;
 
 // Whether a newer Fernanda has been released, and what the user has said about
-// it. Owned by App, which saves its two settings to fernanda.json and hands it to
-// every window that shows update state: the General settings page and the
+// it. Owned by App, which saves its two settings to fernanda.json and hands it
+// to every window that shows update state: the General settings page and the
 // status bar's notice both read it here. Fernanda only tells the user; the
 // release page is where they download and install.
 //

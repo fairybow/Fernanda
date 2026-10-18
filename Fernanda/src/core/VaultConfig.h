@@ -90,8 +90,8 @@ public:
     static constexpr bool DEFAULT_CURSOR_POSITION_LINE = true;
     static constexpr bool DEFAULT_CURSOR_POSITION_COLUMN = true;
 
-    // The editor's line-number gutter (views/TextEditor.h). Off: Fernanda is for
-    // prose, where a line is a paragraph
+    // The editor's line-number gutter (views/TextEditor.h). Off: Fernanda is
+    // for prose, where a line is a paragraph
     static constexpr bool DEFAULT_LINE_NUMBERS = false;
 
     // The rest of the editor's settings (views/TextEditor.h). Wrapping on is

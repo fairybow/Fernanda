@@ -115,8 +115,8 @@ public:
     // Walked fresh on each call: no index and no watcher, so the list is a
     // snapshot of the moment it's asked for. Agrees with the trees by
     // construction — the same two predicates VaultTreeModel lists by. A hidden
-    // folder (.fernanda/, .git/) is pruned, never walked; a file must be neither
-    // hidden nor unsupported. Unsorted
+    // folder (.fernanda/, .git/) is pruned, never walked; a file must be
+    // neither hidden nor unsupported. Unsorted
     [[nodiscard]] Coco::PathList visibleFiles() const
     {
         auto absolutes =
@@ -658,9 +658,9 @@ public:
     // --- Spelling ------------------------------------------------------------
 
     // The vault's own dictionary: words to take as correctly spelled in this
-    // vault, kept in .fernanda/dictionary.txt and committed with the vault. Read
-    // at construction; a change made to the file by hand shows the next time
-    // the vault opens, or at the next addToDictionary
+    // vault, kept in .fernanda/dictionary.txt and committed with the vault.
+    // Read at construction; a change made to the file by hand shows the next
+    // time the vault opens, or at the next addToDictionary
     [[nodiscard]] const WordList& dictionary() const noexcept
     {
         return dictionary_;

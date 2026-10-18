@@ -99,8 +99,8 @@ enum class Problem
         }
     }
 
-    // Leading dot is a Fernanda rule, not an OS one: dot-entries are hidden from
-    // the tree (VaultTreeModel), so a created or renamed ".foo" would land
+    // Leading dot is a Fernanda rule, not an OS one: dot-entries are hidden
+    // from the tree (VaultTreeModel), so a created or renamed ".foo" would land
     // on disk and immediately vanish from view
     if (name.startsWith(u'.')) {
         return Problem::LeadingDot;

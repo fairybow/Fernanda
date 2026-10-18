@@ -17,12 +17,13 @@
 
 #include <Coco/Path.h>
 
-// The one authority on which files Fernanda opens, and as what. Extension-based,
-// like Obsidian's own dispatch: no IO decides a type. Free functions in core so
-// both sides of the GUI line can ask the same question — Vault::makeModel_
-// dispatches on typeOf, and VaultTreeModel leaves out whatever typeOf calls
-// Unsupported. isHiddenName is the other half of what the listings show. One
-// table, so what the tree shows and what the Vault will open can't drift apart.
+// The one authority on which files Fernanda opens, and as what.
+// Extension-based, like Obsidian's own dispatch: no IO decides a type. Free
+// functions in core so both sides of the GUI line can ask the same question —
+// Vault::makeModel_ dispatches on typeOf, and VaultTreeModel leaves out
+// whatever typeOf calls Unsupported. isHiddenName is the other half of what the
+// listings show. One table, so what the tree shows and what the Vault will open
+// can't drift apart.
 //
 // "Text" means LISTED as text — not "anything that isn't a PDF". An unlisted
 // extension (a .docx, an .svg, a file with no extension at all) is
@@ -98,11 +99,11 @@ inline constexpr ExtensionEntry_ EXTENSIONS_[] = {
 }
 
 // Is an entry hidden from Fernanda's listings — the vault trees and the
-// FileSwitcher? Any name beginning with a dot: the vault marker .fernanda/, plus
-// .git/, .gitignore, and every other dotfile or dot-folder, as Obsidian hides
-// its own .obsidian/. A hidden folder hides everything beneath it. Name-based
-// because on Windows a leading dot carries no hidden attribute, so QDir::Hidden
-// never excludes these there.
+// FileSwitcher? Any name beginning with a dot: the vault marker .fernanda/,
+// plus .git/, .gitignore, and every other dotfile or dot-folder, as Obsidian
+// hides its own .obsidian/. A hidden folder hides everything beneath it.
+// Name-based because on Windows a leading dot carries no hidden attribute, so
+// QDir::Hidden never excludes these there.
 //
 // Not a type question, but it sits beside isSupported because the same two
 // listings ask both, and one header keeps them from drifting apart

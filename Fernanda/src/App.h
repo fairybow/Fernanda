@@ -82,9 +82,9 @@ public:
         // as it's made
         SpellCheckers::installBundled(AppDirs::dictionaries());
 
-        // fernanda.json is machine-local; a missing file (first run) leaves every
-        // value at its AppDirs default. Load before the common vault so its
-        // relocatable path is known when we construct it
+        // fernanda.json is machine-local; a missing file (first run) leaves
+        // every value at its AppDirs default. Load before the common vault so
+        // its relocatable path is known when we construct it
         appConfig_.load();
 
         // Before any text is made, App's actions included, since text is

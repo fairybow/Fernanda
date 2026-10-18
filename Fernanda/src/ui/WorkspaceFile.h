@@ -46,8 +46,9 @@ namespace Fernanda::Ui {
 // it watches. It persists workspace; it coordinates nothing.
 //
 // Writes <vaultRoot>/.fernanda/workspace.json, NOT committed: a
-// .fernanda/.gitignore naming it is written when the dot-folder is first created
-// (ensureVaultDotDir). Workspace refs are vault-relative PATHS, with no id.
+// .fernanda/.gitignore naming it is written when the dot-folder is first
+// created (ensureVaultDotDir). Workspace refs are vault-relative PATHS, with no
+// id.
 //
 // The FileRef<->view translation, the recent files, and the pop-out lifecycle
 // all belong to VaultWindow (the composition root), so they arrive as Hooks:

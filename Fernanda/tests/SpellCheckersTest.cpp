@@ -32,9 +32,9 @@ using Fernanda::SpellCheckers;
 
 // Which dictionaries a folder offers, and the checkers made from them
 // (core/spell/SpellCheckers.h). The first tests write small dictionaries of
-// their own. The last ones install the dictionary that ships with Fernanda, which
-// is compiled into this test as it is into the app, and check it against a few
-// English words.
+// their own. The last ones install the dictionary that ships with Fernanda,
+// which is compiled into this test as it is into the app, and check it against
+// a few English words.
 //
 // Qt Test runs every private slot as a test
 class SpellCheckersTest : public QObject
@@ -196,7 +196,8 @@ private slots:
         }
     }
 
-    // --- The dictionary that ships with Fernanda ------------------------------
+    // --- The dictionary that ships with Fernanda
+    // ------------------------------
 
     void installBundledPutsEnglishInTheFolder()
     {

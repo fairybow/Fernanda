@@ -25,9 +25,9 @@
 
 #include "models/TextFileModel.h"
 
-// The warning before Fernanda opens a text file that isn't valid UTF-8. Fernanda
-// reads only UTF-8, matching Obsidian, and does no conversion: accepting opens
-// the file with every undecodable sequence shown as U+FFFD, and
+// The warning before Fernanda opens a text file that isn't valid UTF-8.
+// Fernanda reads only UTF-8, matching Obsidian, and does no conversion:
+// accepting opens the file with every undecodable sequence shown as U+FFFD, and
 // Vault::openModel saves it at once, so the file on disk becomes the UTF-8 the
 // buffer shows. That immediate save is why accepting IS the loss, and why the
 // wording says so plainly. A free function, so VaultWindow stays slim
@@ -149,7 +149,8 @@ confirm(const Coco::Path& relative, const QByteArray& data, QWidget* parent)
             "LossyOpenPrompt",
             "Fernanda reads only UTF-8. Opening this file saves it as UTF-8 "
             "right "
-            "away, and every character Fernanda can't read (often curly quotes, "
+            "away, and every character Fernanda can't read (often curly "
+            "quotes, "
             "dashes, and accented letters) is permanently replaced with "
             "\uFFFD.\n\n"
             "To keep those characters, cancel, then re-save the file as UTF-8 "
