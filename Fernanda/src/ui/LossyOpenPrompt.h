@@ -148,14 +148,11 @@ confirm(const Coco::Path& relative, const QByteArray& data, QWidget* parent)
         QCoreApplication::translate(
             "LossyOpenPrompt",
             "Fernanda reads only UTF-8. Opening this file saves it as UTF-8 "
-            "right "
-            "away, and every character Fernanda can't read (often curly "
-            "quotes, "
-            "dashes, and accented letters) is permanently replaced with "
-            "\uFFFD.\n\n"
+            "right away, and every character Fernanda can't read (often curly "
+            "quotes, dashes, and accented letters) is permanently replaced "
+            "with \uFFFD.\n\n"
             "To keep those characters, cancel, then re-save the file as UTF-8 "
-            "in "
-            "another program first."));
+            "in another program first."));
 
     box.setDetailedText(Internal::affectedLines_(data));
 

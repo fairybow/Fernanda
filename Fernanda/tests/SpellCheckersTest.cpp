@@ -196,8 +196,7 @@ private slots:
         }
     }
 
-    // --- The dictionary that ships with Fernanda
-    // ------------------------------
+    // --- The dictionary that ships with Fernanda ----------------------------
 
     void installBundledPutsEnglishInTheFolder()
     {
