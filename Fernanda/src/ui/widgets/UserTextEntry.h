@@ -69,7 +69,9 @@ enum class Problem
 
 // Windows reserves these device names with OR without an extension, so the base
 // before the first dot is what matters: "CON", "con.txt", "COM1.log" are all
-// reserved. Case-insensitive
+// reserved. Case-insensitive. Windows also reads the superscript digits one,
+// two, and three as digits in a port name, so COM and LPT with one of those are
+// reserved too
 [[nodiscard]] inline bool isReservedName_(const QString& name)
 {
     auto dot = name.indexOf(u'.');
@@ -80,6 +82,9 @@ enum class Problem
         for (auto i = 1; i <= 9; ++i) {
             list << u"COM"_s + QString::number(i)
                  << u"LPT"_s + QString::number(i);
+        }
+        for (auto digit : { u'\u00B9', u'\u00B2', u'\u00B3' }) {
+            list << u"COM"_s + QChar(digit) << u"LPT"_s + QChar(digit);
         }
         return list;
     }();
