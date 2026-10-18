@@ -102,6 +102,37 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.10.0-beta.0 (Fernanda) - tag v0.10.0-beta.0
+
+## What's New?
+
+**Suzuri is now Fernanda.** Another writing app already uses the name Suzuri, so this one goes back to the name its earliest versions had. Nothing about how the app works has changed.
+
+- A new icon
+- **Fixed:** on macOS, the app's icon file held only a 16-pixel image, so the app showed a blurry or generic icon. It now has every size up to 1024 pixels
+- The app's folders now carry the new name: its settings and data live in a `Fernanda` folder, new vaults go in `Documents/Fernanda/`, and each vault keeps its settings in `.fernanda/`
+
+### Coming from Suzuri
+
+Fernanda installs as a new app, next to Suzuri rather than over it, and doesn't pick up Suzuri's settings on its own. To carry everything over:
+
+1. **Windows:** uninstall Suzuri, then install Fernanda. **macOS:** replace Suzuri in Applications with Fernanda. **Linux:** replace the Suzuri AppImage with the Fernanda one
+2. In each vault, rename the `.suzuri` folder to `.fernanda`. It holds the vault's settings, layout, and dictionary
+3. To keep your list of vaults and your other settings, copy the app data folder `Suzuri` to `Fernanda` (in `AppData/Local` on Windows, `~/Library/Application Support` on macOS, `~/.local/share` on Linux), then rename `suzuri.json` inside it to `fernanda.json`. (You may also want to rename paths within that JSON that reference the old name)
+
+Your vaults themselves can stay where they are. If you skip step 3, open them again from **Manage Vaults**.
+
+## Known Issues
+
+- The Spanish translation is an unreviewed draft, and the typing helper settings aren't translated yet
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.9.1-beta.0 (Fixes) - tag v0.9.1-beta.0
 
 ## What's New?
