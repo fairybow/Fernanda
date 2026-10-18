@@ -10,20 +10,17 @@ A ring, drawn in `resources/icons/designs/Fernanda.svg`.
 - **Outer circle**: radius 288, centered at (320, 320)
 - **Inner circle** (the hole): radius 160, centered at (320, 320)
 
-Only the ring on the canvas is exported. Two other versions are kept in the SVG off the canvas, each locked:
-
-- **Ring (light gradient stroke)**: the ring with the Light gradient stroke below, ready to swap in
-- **Ring (Original)**: the first icon, a flat orange ring (`#FF7900`), kept as the template and a reminder of the plain first design
+Only the ring on the canvas is exported. The first icon, a flat orange ring (`#FF7900`), is kept in the SVG off the canvas, locked, as the template and a reminder of the plain first design.
 
 ### Fill
 
-A linear gradient from the ring's top-left edge to its bottom-right edge, from (116.35, 116.35) to (523.65, 523.65), where a 45° line meets the outer circle. The colors are old Fernanda's "pastels", spaced evenly.
+A linear gradient from the ring's top-left edge to its bottom-right edge, from (116.35, 116.35) to (523.65, 523.65), where a 45° line meets the outer circle. The colors are old Fernanda's "pastels", spaced as its color bar spaced them: short ends, and a long blend from sky blue to periwinkle across the middle.
 
 | Offset | Color |
 |---|---|
 | 0 | `#7CE1F9` |
-| 33% | `#3BB0F3` |
-| 67% | `#9194F2` |
+| 25% | `#3BB0F3` |
+| 75% | `#9194F2` |
 | 100% | `#F9B3F9` |
 
 ### Fill options
@@ -32,15 +29,24 @@ The same four colors can be spaced three ways. [FillOptions.png](../resources/ic
 
 | Layout | Offsets | How it reads |
 |---|---|---|
-| **Even** (in use) | 0, 33%, 67%, 100% | Each color gets an equal share; the most varied of the three |
-| Old bar | 0, 25%, 75%, 100% | Sky blue fades into periwinkle across the whole middle, as old Fernanda's color bar did |
+| **Old bar** (in use) | 0, 25%, 75%, 100% | Sky blue fades into periwinkle across the whole middle, as old Fernanda's color bar did |
+| Even | 0, 33%, 67%, 100% | Each color gets an equal share; the most varied of the three |
 | Held periwinkle | 0, 25%, 50%, 75%, 100%, with `#9194F2` at both 50% and 75% | A flat periwinkle band across the lower right; the most purple of the three |
 
 At 16–32 px all three average out to nearly the same blue-violet; the difference shows from 64 px up.
 
 ### Stroke
 
-`#5A5EC8`, 12.8 wide, on both edges of the ring. A stroke is centered on its edge, so it also makes the ring slightly wider than its circles: outer edge about 294, hole about 154.
+The Dark gradient below, 12.8 wide, on both edges of the ring: each color is a darker version of the fill color at the same offset, so the stroke reads as the ring's own edge rather than an outline. Its stops and end points are the fill's.
+
+| Offset | Color |
+|---|---|
+| 0 | `#2A9AC8` |
+| 25% | `#1A7FC4` |
+| 75% | `#5A5EC8` |
+| 100% | `#C46AC8` |
+
+A stroke is centered on its edge, so it also makes the ring slightly wider than its circles: outer edge about 294, hole about 154.
 
 ### Stroke options
 
@@ -50,19 +56,19 @@ The options tried, at the same width. [StrokeOptions.png](../resources/icons/des
 |---|---|---|
 | Pale | `#DCE7FF` | A rim on dark; almost gone on white |
 | White 60% | `#FFFFFF` at 60% opacity | Like Pale, a little cleaner on dark |
-| **Deep periwinkle** (in use) | `#5A5EC8` | Shows on both; one flat color around the ring |
-| Dark gradient | Below | Shows on both; follows the fill, so it reads as the ring's own edge |
+| Deep periwinkle | `#5A5EC8` | Shows on both; one flat color around the ring, which reads as drawn on where it meets the cyan |
+| **Dark gradient** (in use) | Below | Shows on both; follows the fill, so it reads as the ring's own edge |
 | Light gradient | Below | A rim on dark; soft on white |
 | Navy 35% | `#141E50` at 35% opacity | Crisp on white; gone on dark |
 
-A gradient stroke has a color for each fill color, at the fill's offsets, and runs the same way as the fill:
+A gradient stroke has a color for each fill color, at the fill's offsets, along the fill's line from (116.35, 116.35) to (523.65, 523.65). If the stroke's stops or end points differ from the fill's, its colors change in different places and the edge stops tracking the fill.
 
-| Offset | Fill | Dark gradient | Light gradient |
-|---|---|---|---|
-| 0 | `#7CE1F9` | `#2A9AC8` | `#C8F3FF` |
-| 33% | `#3BB0F3` | `#1A7FC4` | `#A8DCFF` |
-| 67% | `#9194F2` | `#5A5EC8` | `#CFD0FF` |
-| 100% | `#F9B3F9` | `#C46AC8` | `#FFE0FF` |
+| Fill | Dark gradient | Light gradient |
+|---|---|---|
+| `#7CE1F9` | `#2A9AC8` | `#C8F3FF` |
+| `#3BB0F3` | `#1A7FC4` | `#A8DCFF` |
+| `#9194F2` | `#5A5EC8` | `#CFD0FF` |
+| `#F9B3F9` | `#C46AC8` | `#FFE0FF` |
 
 With the held-periwinkle fill, a gradient stroke holds its third color across 50% and 75% too.
 
