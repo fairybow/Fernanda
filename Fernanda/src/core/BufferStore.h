@@ -81,13 +81,12 @@ public:
     // two windows" both resolve to a single model.
     //
     // Returns nullptr for a file Fernanda won't open: an empty key, an
-    // unsupported type, a file it can't
-    // read — gone since it was listed, or locked — or a text file that
-    // isn't valid UTF-8 whose open the caller declined. This is the
-    // AUTHORITATIVE refusal: the tree and the FileSwitcher hide unsupported
-    // files, but those are advisory, and this is the one gate every open path —
-    // tree, switcher, drop, restore, and later CLI — funnels through. Callers
-    // treat null as "nothing to open".
+    // unsupported type, a file it can't read — gone since it was listed, or
+    // locked — or a text file that isn't valid UTF-8 whose open the caller
+    // declined. This is the AUTHORITATIVE refusal: the tree and the
+    // FileSwitcher hide unsupported files, but those are advisory, and this is
+    // the one gate every open path — tree, switcher, drop, restore, and later
+    // CLI — funnels through. Callers treat null as "nothing to open".
     //
     // confirmLossyOpen is asked only on a fresh read that fails to decode — a
     // dedup hit returns above it, so an open buffer never prompts twice (a
@@ -289,7 +288,9 @@ public:
     void applyRelocation(const PathKey& oldEntry, const PathKey& newEntry)
     {
         for (auto* tree : trees_) {
-            tree->applyRelocation(oldEntry.path(), newEntry.path());
+            tree->applyRelocation(
+                spelledIn_(tree, oldEntry),
+                spelledIn_(tree, newEntry));
         }
 
         for (auto* model : modelsAtOrUnder_(oldEntry)) {
@@ -325,7 +326,7 @@ public:
     qsizetype applyRemoval(const PathKey& entry)
     {
         for (auto* tree : trees_) {
-            tree->applyRemoval(entry.path());
+            tree->applyRemoval(spelledIn_(tree, entry));
         }
 
         auto affected = modelsAtOrUnder_(entry);
@@ -475,6 +476,12 @@ private:
     // the map key, the write-fingerprint, and the watch, then updates identity
     // (which fans the retitle out to views).
     //
+    // The disk op refuses a target that exists, so a buffer already under the
+    // new key is one whose file was deleted outside Fernanda before the
+    // watcher's report was reconciled. It's discarded as that reconcile would
+    // discard it, so the map never holds two buffers for one key and the
+    // moved buffer doesn't take over the other's fingerprint.
+    //
     // Each entry is removed before it is put back: a change of letter case
     // alone gives an equal key where case is ignored, and inserting first
     // would leave the old spelling in the map
@@ -485,6 +492,10 @@ private:
     {
         auto old_key = model->key();
         auto new_key = old_key.rebased(oldBase, newBase);
+
+        if (auto* stale = models_.value(new_key); stale && stale != model) {
+            discardModel_(stale);
+        }
 
         models_.remove(old_key);
         models_.insert(new_key, model);
@@ -683,7 +694,33 @@ private:
     watchedPathIn_(const VaultTreeModel* tree, const PathKey& entry)
     {
         auto root = tree->root();
-        return PathKey::of(root).isUnder(entry) ? root : entry.path();
+
+        return PathKey::of(root).isUnder(entry) ? root
+                                                : spelledIn_(tree, entry);
+    }
+
+    // The entry as one tree spells it: the tree's own root, then the entry's
+    // path below that root. A tree finds its rows by comparing names exactly,
+    // and where letter case is ignored, two vaults' roots may spell the
+    // folders above them differently: one opened as "C:/Users/me/x", another
+    // as "c:/users/me/x/y". Below a root, every tree lists the same folders
+    // from disk, so the names agree. An entry outside the tree is returned as
+    // it is, and the tree finds nothing there
+    [[nodiscard]] static Coco::Path
+    spelledIn_(const VaultTreeModel* tree, const PathKey& entry)
+    {
+        auto root = tree->root();
+        auto root_key = PathKey::of(root);
+
+        if (entry == root_key) {
+            return root;
+        }
+
+        if (entry.isUnder(root_key)) {
+            return root / entry.relativeTo(root_key);
+        }
+
+        return entry.path();
     }
 
     // Write one buffer if it's modified. A buffer already matching disk is

@@ -519,6 +519,32 @@ private slots:
         QCOMPARE(f.open(u"a.txt"_s), model);
     }
 
+    // A file deleted outside Fernanda keeps its buffer until the watcher's
+    // report is reconciled. A rename onto its name in the meantime discards
+    // that buffer, as the reconcile would, and the renamed file's buffer takes
+    // the name
+    void renameOntoANameJustDeletedOutsideReplacesItsBuffer()
+    {
+        Fixture_ f{};
+        f.write(u"a.txt"_s, "a");
+        f.write(u"b.txt"_s, "b");
+        auto* a = f.open(u"a.txt"_s);
+        auto* b = f.open(u"b.txt"_s);
+        QVERIFY(a && b);
+
+        QSignalSpy removed(b, &AbstractFileModel::removedFromDisk);
+        QVERIFY(QFile::remove(f.folder.filePath(u"b.txt"_s)));
+
+        QCOMPARE(
+            f.vault.rename(f.key(u"a.txt"_s), u"b.txt"_s),
+            f.key(u"b.txt"_s));
+
+        QCOMPARE(removed.count(), 1);
+        QCOMPARE(a->key(), f.key(u"b.txt"_s));
+        QCOMPARE(f.open(u"b.txt"_s), a);
+        QCOMPARE(f.read(u"b.txt"_s), QByteArray("a"));
+    }
+
     void renameAMissingEntryFails()
     {
         Fixture_ f{};

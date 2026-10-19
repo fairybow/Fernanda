@@ -120,10 +120,11 @@ public:
 
         // Asked of the live Vault, not of AppConfig: commonVault_ is the object
         // a rename would strand, so its own root is the honest comparand. A
-        // null commonVault_ yields an empty path, which no recents path matches
-        // — readVaults_ skips blank-path records
-        const auto common_root =
-            commonVault_ ? commonVault_->root() : Coco::Path{};
+        // null commonVault_ yields an empty key, which no recents path matches
+        // — readVaults_ skips blank-path records, and an empty key is never
+        // taken for a match below
+        const auto common_key =
+            commonVault_ ? commonVault_->rootKey() : PathKey{};
 
         QList<VaultEntry> entries{};
         entries.reserve(recents.size());
@@ -143,11 +144,13 @@ public:
         // a live Vault behind it. That is exactly why isCommon is a separate
         // field and not something a surface infers from open
         for (const auto& root : recents) {
+            auto key = PathKey::of(root);
+
             entries << VaultEntry{ root,
                                    root.nameQString(),
                                    !root.exists(),
-                                   openVaults_.contains(root),
-                                   root == common_root };
+                                   openVaults_.contains(key),
+                                   !key.isEmpty() && key == common_key };
         }
 
         return entries;
@@ -209,7 +212,10 @@ private:
     BufferStore* bufferStore_ = new BufferStore(this);
 
     Vault* commonVault_ = nullptr;
-    QHash<Coco::Path, OpenVault_> openVaults_{};
+
+    // Keyed by each vault's root as a PathKey, so every spelling of one folder
+    // finds the one entry, letter case included where the platform ignores it
+    QHash<PathKey, OpenVault_> openVaults_{};
 
     // The actions App owns and every window merely displays. Minted and
     // connected in buildActions_, filed under the ids the windows adopt them
@@ -490,17 +496,18 @@ private:
         // A window already closed by an earlier pass is hidden but stays in
         // openVaults_ until its deferred delete runs, and an activation can
         // land in between — skip it, or it'd be announced twice
-        Coco::PathList missing_roots{};
+        QList<PathKey> missing_roots{};
         for (auto it = openVaults_.constBegin(); it != openVaults_.constEnd();
              ++it) {
             auto* window = it.value().vaultWindow;
-            if (!it.key().isDir() && window && window->isVisible()) {
+            if (!it.key().path().isDir() && window && window->isVisible()) {
                 missing_roots << it.key();
             }
         }
 
-        const auto common_root =
-            commonVault_ ? commonVault_->root() : Coco::Path{};
+        const auto common_key =
+            commonVault_ ? commonVault_->rootKey() : PathKey{};
+        const auto common_root = common_key.path();
         auto common_missing = commonVault_ && !common_root.isDir();
 
         if (missing_roots.isEmpty() && !common_missing) {
@@ -511,13 +518,13 @@ private:
 
         QStringList lines{};
         for (const auto& root : missing_roots) {
-            if (root == common_root) {
+            if (root == common_key) {
                 continue; // named below, with what happens next
             }
 
             lines << tr("The folder for vault \"%1\" was moved or deleted "
                         "outside %2, so its window will close.")
-                         .arg(root.nameQString(), PUB_APP_NAME_QSTRING);
+                         .arg(root.path().nameQString(), PUB_APP_NAME_QSTRING);
         }
 
         if (common_missing) {
@@ -568,13 +575,15 @@ private:
         }
     }
 
-    // requestedRoot is resolved first, so the open-vaults map, the known-vaults
-    // list, and the common-root check below all see one spelling per folder
+    // requestedRoot is resolved first, so the known-vaults list records one
+    // spelling per folder, and the open-vaults map and the common-root check
+    // below compare keys, so any spelling of an open folder finds it
     void onOpenOrMakeVaultRequested_(const Coco::Path& requestedRoot)
     {
         auto vaultRoot = resolvedRoot_(requestedRoot);
+        auto root_key = PathKey::of(vaultRoot);
 
-        if (auto it = openVaults_.constFind(vaultRoot);
+        if (auto it = openVaults_.constFind(root_key);
             it != openVaults_.constEnd()) {
             raiseWindow_(it.value().vaultWindow);
             return;
@@ -582,13 +591,12 @@ private:
 
         // One Vault per root. The common root opened as its own window reuses
         // App's common Vault rather than building a second over the same
-        // folder: two Vaults on one root means two models per file, so a common
-        // file open in a project window (through commonVault_) and in this
-        // window would be two buffers, each autosaving over the other. With one
-        // Vault this window's vault_ IS its commonVault_, and every "is this
-        // the Common Vault?" question downstream — the Sidebar's drawer, the
-        // FileSwitcher's second listing, the tab indicator — answers itself
-        auto* vault = (PathKey::of(vaultRoot) == commonVault_->rootKey())
+        // folder, which would split the folder's settings and dictionary
+        // between two objects. With one Vault this window's vault_ IS its
+        // commonVault_, and every "is this the Common Vault?" question
+        // downstream — the Sidebar's drawer, the FileSwitcher's second listing,
+        // the tab indicator — answers itself
+        auto* vault = (root_key == commonVault_->rootKey())
                           ? commonVault_
                           : new Vault(vaultRoot, bufferStore_, this);
 
@@ -602,7 +610,7 @@ private:
             &updater_,
             &translations_);
 
-        openVaults_.insert(vaultRoot, { vault, window });
+        openVaults_.insert(root_key, { vault, window });
 
         // Every committed create/open converges here, so this is the one
         // authoritative site for the persisted app state that tracks vault use.
@@ -622,8 +630,8 @@ private:
 
         emit vaultsChanged();
 
-        connect(window, &QObject::destroyed, this, [this, vaultRoot] {
-            onVaultWindowDestroyed_(vaultRoot);
+        connect(window, &QObject::destroyed, this, [this, root_key] {
+            onVaultWindowDestroyed_(root_key);
         });
 
         // Follow focus so recency tracks the vault the user is actually in, not
@@ -650,9 +658,11 @@ private:
         }
     }
 
-    void onVaultWindowDestroyed_(const Coco::Path& vaultRoot)
+    // rootKey's path is spelled as onOpenOrMakeVaultRequested_ recorded the
+    // vault in AppConfig, so it finds the same record
+    void onVaultWindowDestroyed_(const PathKey& rootKey)
     {
-        auto entry = openVaults_.take(vaultRoot);
+        auto entry = openVaults_.take(rootKey);
 
         // ~QObject emits destroyed BEFORE deleting its children, so the
         // window's views may still be alive. Their models are the store's, not
@@ -671,7 +681,7 @@ private:
         // clearing here as the windows tear down would erase exactly the set
         // restore needs, so skip it
         if (!quitting_ && !openVaults_.isEmpty()) {
-            appConfig_.setVaultOpen(vaultRoot, false);
+            appConfig_.setVaultOpen(rootKey.path(), false);
             appConfig_.save();
         }
 
@@ -706,7 +716,7 @@ private:
     {
         // The picker gates this to closed vaults, but guard anyway — forgetting
         // an open vault would desync the list from openVaults_
-        if (openVaults_.contains(vaultRoot)) {
+        if (openVaults_.contains(PathKey::of(vaultRoot))) {
             return;
         }
 

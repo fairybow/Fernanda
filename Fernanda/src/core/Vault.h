@@ -312,8 +312,7 @@ public:
     // Returns false with nothing changed on disk or in any buffer. One bool,
     // but each refusal logs its own reason, so the log says which it was: out
     // of scope, the root, already gone, a failed flush (the store names the
-    // file), or
-    // the system trash refusing. There is no local-trash fallback
+    // file), or the system trash refusing. There is no local-trash fallback
     bool moveToTrash(const PathKey& entry)
     {
         // Same authority relocate_ holds: an entry outside this vault isn't
@@ -653,8 +652,7 @@ private:
     }
 
     // The debounced settings write, also forced by saveSettingsNow. Stops the
-    // timer so
-    // a forced write doesn't repeat when the timer would have fired
+    // timer so a forced write doesn't repeat when the timer would have fired
     void saveConfig_()
     {
         configSaveTimer_->stop();

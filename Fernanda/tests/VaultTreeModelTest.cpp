@@ -821,6 +821,43 @@ private slots:
         QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"renamed"_s }));
     }
 
+    // Where letter case is ignored, an inner vault's root may be spelled in
+    // another case than the outer vault's tree spells its folder. A rename
+    // through the outer vault still finds the inner tree's row
+    void aRenameThroughAnOuterVaultFindsAnInnerTreeSpelledInAnotherCase()
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+
+        Fixture_ f{};
+        f.makeFile(u"inner/sub/a.txt"_s);
+        f.start();
+
+        if (!f.absolute(u"INNER"_s).isDir()) {
+            QSKIP("This file system respects letter case");
+        }
+
+        Vault inner(f.absolute(u"INNER"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"sub"_s }));
+
+        QPersistentModelIndex sub(
+            inner_model->indexOf(f.absolute(u"INNER/sub"_s)));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(
+            !f.vault->rename(f.key(u"inner/sub"_s), u"renamed"_s).isEmpty());
+
+        QVERIFY(sub.isValid());
+        QCOMPARE(sub.data().toString(), u"renamed"_s);
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+#else
+
+        QSKIP("Letter case counts in paths on this platform");
+
+#endif
+    }
+
     // After a trash the entry's row leaves every tree. The trash itself needs
     // a system trash, so the store is called as Vault::moveToTrash calls it
     // once the disk op is done
