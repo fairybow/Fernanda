@@ -30,6 +30,7 @@
 #include "core/FileTypes.h"
 #include "core/Io.h"
 #include "core/PathKey.h"
+#include "core/VaultTreeModel.h"
 #include "models/AbstractFileModel.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
@@ -45,7 +46,10 @@ namespace Fernanda {
 // Which files a window may open is the window's to decide
 // (VaultWindow::vaultOf_); the store holds whatever it's asked to. A Vault's
 // rename, move, and trash tell the store what moved or went, so every buffer
-// at or under an entry follows it, whichever vault's window shows it.
+// at or under an entry follows it, whichever vault's window shows it. Around
+// those disk operations the store also lets go of every vault tree's folder
+// watches inside the entry, since vaults can nest and another vault's tree
+// may hold one (unwatchAtOrUnder says why that matters).
 //
 // The store owns all buffer IO. Models are pure buffers: the store reads bytes
 // and hands them to setData() on open, and reads data() back to write. One
@@ -227,17 +231,40 @@ public:
     // --- Following a Vault's file operations ---------------------------------
     //
     // A Vault renames, moves, and trashes entries on disk; these keep the
-    // buffers at or under an entry in step. Each works on every buffer at or
-    // under the key, so a folder's whole contents follow it
+    // buffers at or under an entry in step, and every vault's tree with them,
+    // since vaults can nest and any of them may show the entry. Each works on
+    // every buffer at or under the key, so a folder's whole contents follow it
 
-    // Drop the watches before the disk op, so the entry's disappearance isn't
-    // read as an outside deletion that closes its views. rewatchAtOrUnder
-    // undoes it when the disk op fails; rekeyAtOrUnder re-arms them under the
-    // new path when it succeeds
+    // A vault's file tree, which the functions below reach along with the
+    // buffers. Every Vault adds its own at construction; it
+    // leaves the list when it's destroyed
+    void addTree(VaultTreeModel* tree)
+    {
+        trees_ << tree;
+
+        connect(tree, &QObject::destroyed, this, [this, tree] {
+            trees_.removeOne(tree);
+        });
+    }
+
+    // Drop every watch inside the entry before the disk op. The buffers'
+    // watches, so the entry's disappearance isn't read as an outside deletion
+    // that closes its views. And every tree's folder watches, the acting
+    // vault's and any other's: on Windows each is a directory handle, and a
+    // handle inside a folder stops it being renamed, moved, or trashed,
+    // whichever vault's window holds it.
+    //
+    // rewatchAtOrUnder undoes it all when the disk op fails. When it succeeds,
+    // applyRelocation or applyRemoval updates every tree, which watches its
+    // folders again where they now are, and re-arms the buffers' watches
     void unwatchAtOrUnder(const PathKey& entry)
     {
         for (auto* model : modelsAtOrUnder_(entry)) {
             watcher_->removePath(model->key().path().toQString());
+        }
+
+        for (auto* tree : trees_) {
+            tree->releaseWatches(watchedPathIn_(tree, entry));
         }
     }
 
@@ -246,12 +273,25 @@ public:
         for (auto* model : modelsAtOrUnder_(entry)) {
             watcher_->addPath(model->key().path().toQString());
         }
+
+        for (auto* tree : trees_) {
+            tree->restoreWatches(watchedPathIn_(tree, entry));
+        }
     }
 
-    // After the disk op moved oldEntry to newEntry: every buffer at or under
-    // it takes its new key, and its views retitle
-    void rekeyAtOrUnder(const PathKey& oldEntry, const PathKey& newEntry)
+    // After the disk op moved oldEntry to newEntry. Every tree moves its row
+    // (VaultTreeModel::applyRelocation), so each window keeps the entry and
+    // what's under it expanded and selected; left to find out from its own
+    // watcher, a tree would re-list the folder and see a new entry, collapsed.
+    // A tree with no row there, old or new, does nothing. Then every buffer at
+    // or under the entry takes its new key, and its views retitle. Trees
+    // first, so views already show the new place when the retitles fan out
+    void applyRelocation(const PathKey& oldEntry, const PathKey& newEntry)
     {
+        for (auto* tree : trees_) {
+            tree->applyRelocation(oldEntry.path(), newEntry.path());
+        }
+
         for (auto* model : modelsAtOrUnder_(oldEntry)) {
             rekeyModel_(model, oldEntry, newEntry);
         }
@@ -279,10 +319,15 @@ public:
         return true;
     }
 
-    // After a trash: the buffers at or under the entry follow their files,
-    // and every view on them closes, in every window. Returns how many went
-    qsizetype discardAtOrUnder(const PathKey& entry)
+    // After a trash: the entry's row leaves every tree, and the buffers at or
+    // under it follow their files, so every view on them closes, in every
+    // window. Returns how many buffers went
+    qsizetype applyRemoval(const PathKey& entry)
     {
+        for (auto* tree : trees_) {
+            tree->applyRemoval(entry.path());
+        }
+
         auto affected = modelsAtOrUnder_(entry);
 
         for (auto* model : affected) {
@@ -319,7 +364,7 @@ public:
 private:
     // Keyed by each file's PathKey. Models are parented to the store. A model
     // is freed when its file is deleted on disk (external deletion, below) or
-    // trashed in-app (discardAtOrUnder) — both through discardModel_ — or when
+    // trashed in-app (applyRemoval) — both through discardModel_ — or when
     // its last view closes, in any window (eviction — evictModel_); otherwise
     // it lives as long as the store
     QHash<PathKey, AbstractFileModel*> models_{};
@@ -327,6 +372,9 @@ private:
     // Watches the absolute path of every open file. Only files we hold buffers
     // for — the trees' folders are each VaultTreeModel's own watcher's concern
     QFileSystemWatcher* watcher_ = new QFileSystemWatcher(this);
+
+    // Every Vault's tree (addTree), for its folder watches around a disk op
+    QList<VaultTreeModel*> trees_{};
 
     // Self-write suppression. writeModel_ records a hash of the bytes it wrote
     // here, keyed like models_. The reconcile pass compares disk against
@@ -542,7 +590,7 @@ private:
     }
 
     // A buffer's file is gone — deleted externally (reconcileChanges_) or
-    // trashed in-app (discardAtOrUnder). One step for both, since they're the
+    // trashed in-app (applyRemoval). One step for both, since they're the
     // same event from different sources. No off-disk buffers, so the buffer
     // follows the file: drop it from the map, stop watching, forget its
     // fingerprint, announce (every view on it self-closes — this window's
@@ -626,6 +674,16 @@ private:
                 writeModel_(model);
             }
         }
+    }
+
+    // Where an entry's folder watches are in one tree: the entry itself, or,
+    // when the entry holds that tree's vault folder, the whole tree. A tree
+    // with nothing listed there does nothing (VaultTreeModel::releaseWatches)
+    [[nodiscard]] static Coco::Path
+    watchedPathIn_(const VaultTreeModel* tree, const PathKey& entry)
+    {
+        auto root = tree->root();
+        return PathKey::of(root).isUnder(entry) ? root : entry.path();
     }
 
     // Write one buffer if it's modified. A buffer already matching disk is

@@ -350,18 +350,14 @@ public:
             return false;
         }
 
-        // Unwatch before the disk op, as relocate_ does, so the entry's
-        // disappearance isn't queued as an external deletion. (A flush's own
-        // watcher echo may still be queued; by the time it's reconciled the
-        // buffer is gone from the store, so it's skipped.) The tree's folder
-        // watches inside the entry go too: on Windows each is a directory
-        // handle, and any handle inside a folder stops the trash taking it
+        // Unwatch before the disk op, as relocate_ does: every watch inside
+        // the entry, buffers' and trees' (BufferStore::unwatchAtOrUnder says
+        // why). A flush's own watcher echo may still be queued; by the time
+        // it's reconciled the buffer is gone from the store, so it's skipped
         bufferStore_->unwatchAtOrUnder(entry);
-        treeModel_->releaseWatches(absolute);
 
         if (!Coco::moveToTrash(absolute)) {
             bufferStore_->rewatchAtOrUnder(entry);
-            treeModel_->restoreWatches(absolute);
 
             WARN(
                 "Trash refused — the system trash wouldn't take {}!",
@@ -371,8 +367,7 @@ public:
 
         // No event-loop turn between the disk op and here, so no autosave tick
         // can write a buffer back into the gap and resurrect the entry
-        treeModel_->applyRemoval(absolute);
-        auto discarded = bufferStore_->discardAtOrUnder(entry);
+        auto discarded = bufferStore_->applyRemoval(entry);
 
         DEBUG(
             this,
@@ -527,6 +522,10 @@ private:
         ensureVaultDotDir(root_);
         config_.load(root_);
         dictionary_ = WordList::read(dictionaryPath_()).value_or(WordList{});
+
+        // So the store can let go of this tree's folder watches around any
+        // vault's disk operation, where the vaults nest
+        bufferStore_->addTree(treeModel_);
     }
 
     [[nodiscard]] Coco::Path dictionaryPath_() const
@@ -577,24 +576,20 @@ private:
         auto old_path = oldKey.path();
         auto new_path = newKey.path();
 
-        // The tree's folder watches inside the entry are released with the
-        // buffers': on Windows each is a directory handle, and any handle
-        // inside a folder stops it being renamed or moved
+        // Every watch inside the entry goes first, the buffers' and every
+        // vault tree's, this one's included (BufferStore::unwatchAtOrUnder
+        // says why)
         bufferStore_->unwatchAtOrUnder(oldKey);
-        treeModel_->releaseWatches(old_path);
 
         if (!renameOnDisk_(old_path, new_path)) {
             bufferStore_->rewatchAtOrUnder(oldKey);
-            treeModel_->restoreWatches(old_path);
 
             WARN("Failed to relocate {} to {}!", old_path, new_path);
             return {};
         }
 
-        // The tree first, so views already show the new place when the
-        // buffers' retitles fan out
-        treeModel_->applyRelocation(old_path, new_path);
-        bufferStore_->rekeyAtOrUnder(oldKey, newKey);
+        // Every vault's tree, this one's included, then the buffers
+        bufferStore_->applyRelocation(oldKey, newKey);
 
         DEBUG(this, "Relocated {} -> {}", old_path, new_path);
         return newKey;

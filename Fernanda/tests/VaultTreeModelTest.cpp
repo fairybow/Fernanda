@@ -51,7 +51,7 @@ using Fernanda::VaultTreeModel;
 // about folders nobody has opened run without it.
 //
 // The last section waits on the file watcher, so it takes real time. See
-// VaultTimedTest.cpp for how those waits are written.
+// BufferStoreTimedTest.cpp for how those waits are written.
 //
 // Qt Test runs every private slot as a test
 class VaultTreeModelTest : public QObject
@@ -157,6 +157,24 @@ private:
             return model->indexOf(absolute(relative));
         }
     };
+
+    // The rows under a folder of some other vault's tree, as rows() gives
+    // them for the fixture's. Lists the folder first if nothing has yet
+    [[nodiscard]] static QStringList
+    rowsOf_(VaultTreeModel* model, const QModelIndex& parent)
+    {
+        if (model->canFetchMore(parent)) {
+            model->fetchMore(parent);
+        }
+
+        QStringList shown{};
+
+        for (auto row = 0; row < model->rowCount(parent); ++row) {
+            shown << model->index(row, 0, parent).data().toString();
+        }
+
+        return shown;
+    }
 
 private slots:
     // The model sorts by the default locale's rules. Under the "C" locale,
@@ -765,6 +783,90 @@ private slots:
         QCOMPARE(inserted.count() + removed.count(), 0);
         QVERIFY(z.isValid());
         QCOMPARE(f.rows(), QStringList({ u"m"_s, u"z"_s }));
+    }
+
+    // --- A vault inside the fixture's ---------------------------------------
+    //
+    // The inner vault is lent the fixture's store, as App lends its one store
+    // to every vault, and is made after the fixture, so it's destroyed first
+
+    // The inner vault's tree moves the same row, as the outer's does, so a
+    // window showing it keeps the folder and what's in it open
+    void aRenameThroughAnOuterVaultMovesTheInnerTreesRow()
+    {
+        Fixture_ f{};
+        f.makeFile(u"inner/sub/a.txt"_s);
+        f.start();
+
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"sub"_s }));
+
+        QPersistentModelIndex sub(
+            inner_model->indexOf(f.absolute(u"inner/sub"_s)));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(
+            !f.vault->rename(f.key(u"inner/sub"_s), u"renamed"_s).isEmpty());
+
+        QVERIFY(sub.isValid());
+        QCOMPARE(sub.data().toString(), u"renamed"_s);
+        QVERIFY(!inner_model->canFetchMore(sub));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"renamed"_s }));
+
+        // The watcher's later report of the same rename changes nothing
+        QTest::qWait(SETTLE_MS_);
+        QVERIFY(sub.isValid());
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"renamed"_s }));
+    }
+
+    // After a trash the entry's row leaves every tree. The trash itself needs
+    // a system trash, so the store is called as Vault::moveToTrash calls it
+    // once the disk op is done
+    void aRemovalThroughTheStoreLeavesEveryTree()
+    {
+        Fixture_ f{};
+        f.makeFile(u"inner/sub/a.txt"_s);
+        f.makeFile(u"inner/b.txt"_s);
+        f.start();
+
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"sub"_s, u"b"_s }));
+        QCOMPARE(f.rows(u"inner"_s), QStringList({ u"sub"_s, u"b"_s }));
+
+        QVERIFY(QDir(f.folder.filePath(u"inner/sub"_s)).removeRecursively());
+        f.store.applyRemoval(f.key(u"inner/sub"_s));
+
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"b"_s }));
+        QCOMPARE(f.rows(u"inner"_s), QStringList({ u"b"_s }));
+    }
+
+    // The outer vault's rename lets go of the inner tree's watches inside the
+    // folder, and a failed one gives them back: a later change inside the
+    // folder still shows in the inner tree
+    void aFailedRenameThroughAnOuterVaultLeavesTheInnerTreeWatching()
+    {
+        Fixture_ f{};
+        f.makeFile(u"inner/sub/a.txt"_s);
+        f.makeFile(u"inner/taken.txt"_s);
+        f.start();
+
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        rowsOf_(inner_model, {});
+        auto sub = inner_model->indexOf(f.absolute(u"inner/sub"_s));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(
+            f.vault->rename(f.key(u"inner/sub"_s), u"taken.txt"_s).isEmpty());
+
+        f.makeFile(u"inner/sub/b.txt"_s);
+
+        QTRY_COMPARE(
+            rowsOf_(inner_model, sub),
+            QStringList({ u"a"_s, u"b"_s }));
     }
 };
 

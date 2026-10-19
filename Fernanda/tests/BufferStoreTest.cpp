@@ -550,7 +550,7 @@ private slots:
 
     // --- Following a vault's file operations --------------------------------
 
-    void rekeyMovesEveryBufferAtOrUnder()
+    void applyRelocationRekeysEveryBufferAtOrUnder()
     {
         Fixture_ f{};
         f.write(u"one/a.txt"_s, "a");
@@ -563,7 +563,7 @@ private slots:
 
         QSignalSpy renamed(a, &AbstractFileModel::renamed);
 
-        f.store.rekeyAtOrUnder(f.key(u"one"_s), f.key(u"uno"_s));
+        f.store.applyRelocation(f.key(u"one"_s), f.key(u"uno"_s));
 
         QCOMPARE(renamed.count(), 1);
         QCOMPARE(a->key(), f.key(u"uno/a.txt"_s));
@@ -590,7 +590,7 @@ private slots:
     }
 
     // Every view on a discarded buffer is told, and the buffer is freed
-    void discardAtOrUnderFreesThoseBuffers()
+    void applyRemovalFreesThoseBuffers()
     {
         Fixture_ f{};
         f.write(u"one/a.txt"_s, "a");
@@ -602,7 +602,7 @@ private slots:
         QSignalSpy removed(a, &AbstractFileModel::removedFromDisk);
         QSignalSpy destroyed(a, &QObject::destroyed);
 
-        QCOMPARE(f.store.discardAtOrUnder(f.key(u"one"_s)), 1);
+        QCOMPARE(f.store.applyRemoval(f.key(u"one"_s)), 1);
 
         QCOMPARE(removed.count(), 1);
         QTRY_COMPARE(destroyed.count(), 1);

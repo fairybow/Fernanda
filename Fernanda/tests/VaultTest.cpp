@@ -879,6 +879,89 @@ private slots:
         QVERIFY(!f.exists(u".fernanda/dictionary.txt"_s));
     }
 
+    // --- Vaults inside vaults -----------------------------------------------
+
+    // Each test makes an inner vault in a folder of the fixture's, lent the
+    // same store, as App lends its one store to every vault. The inner vault
+    // is made after the fixture, so it's destroyed first
+
+    void aFileInsideTwoVaultsIsOneBuffer()
+    {
+        Fixture_ f{};
+        f.write(u"inner/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto key = f.key(u"inner/notes.txt"_s);
+        auto* model = f.open(key);
+
+        QVERIFY(model);
+        QVERIFY(f.vault.contains(key));
+        QVERIFY(inner.contains(key));
+        QCOMPARE(
+            f.open(PathKey::of(inner.root() / Coco::Path(u"notes.txt"_s))),
+            model);
+    }
+
+    // The buffer follows a rename made through the outer vault, typing and
+    // all, and is saved where the file now is
+    void aRenameThroughTheOuterVaultCarriesTheBuffer()
+    {
+        Fixture_ f{};
+        f.write(u"inner/sub/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto* model = f.open(u"inner/sub/notes.txt"_s);
+        QVERIFY(model);
+        type_(model, u"!"_s);
+
+        QCOMPARE(
+            f.vault.rename(f.key(u"inner/sub"_s), u"renamed"_s),
+            f.key(u"inner/renamed"_s));
+
+        QCOMPARE(model->key(), f.key(u"inner/renamed/notes.txt"_s));
+        QVERIFY(inner.contains(model->key()));
+        QVERIFY(f.store.flush().isEmpty());
+        QCOMPARE(f.read(u"inner/renamed/notes.txt"_s), QByteArray("hello!"));
+        QVERIFY(!f.exists(u"inner/sub"_s));
+    }
+
+    // The same buffer, so the outer vault finds it under the new name
+    void aRenameThroughTheInnerVaultIsSeenByTheOuter()
+    {
+        Fixture_ f{};
+        f.write(u"inner/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto* model = f.open(u"inner/notes.txt"_s);
+        QVERIFY(model);
+
+        inner.rename(
+            PathKey::of(inner.root() / Coco::Path(u"notes.txt"_s)),
+            u"renamed.txt"_s);
+
+        QCOMPARE(f.open(u"inner/renamed.txt"_s), model);
+    }
+
+    // Moved out of the inner vault, the file is no longer the inner vault's,
+    // and its buffer goes with it
+    void aMoveOutOfTheInnerVaultCarriesTheBuffer()
+    {
+        Fixture_ f{};
+        f.write(u"inner/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto* model = f.open(u"inner/notes.txt"_s);
+        QVERIFY(model);
+
+        QCOMPARE(
+            f.vault.move(f.key(u"inner/notes.txt"_s), f.rootKey()),
+            f.key(u"notes.txt"_s));
+
+        QCOMPARE(model->key(), f.key(u"notes.txt"_s));
+        QVERIFY(!inner.contains(model->key()));
+        QCOMPARE(f.read(u"notes.txt"_s), QByteArray("hello"));
+    }
+
     // --- Trash refusals -----------------------------------------------------
 
     // Each of these is refused before the system trash is asked for anything
