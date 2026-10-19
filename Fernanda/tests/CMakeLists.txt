@@ -97,6 +97,7 @@ function(app_add_test name)
     )
 endfunction()
 
+app_add_test(CanonicalPathTest)
 app_add_test(FileTypesTest)
 app_add_test(MisspellingTest)
 app_add_test(PrimeDocumentTest)

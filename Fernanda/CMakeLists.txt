@@ -193,6 +193,7 @@ set(APP_HEADERS
     src/core/AppConfig.h
     src/core/AppDirs.h
     src/core/BundledFonts.h
+    src/core/CanonicalPath.h
     src/core/Clargs.h
     src/core/CMakeMacroGuard.h
     src/core/CoreConstants.h
