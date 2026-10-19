@@ -28,10 +28,12 @@
 
 #include <Coco/Path.h>
 
+#include "core/PathKey.h"
 #include "core/Vault.h"
 #include "core/VaultTreeModel.h"
 
 using namespace Qt::StringLiterals;
+using Fernanda::PathKey;
 using Fernanda::Vault;
 using Fernanda::VaultTreeModel;
 
@@ -101,6 +103,12 @@ private:
         [[nodiscard]] Coco::Path absolute(const QString& relative) const
         {
             return root / Coco::Path(relative);
+        }
+
+        // An empty path is the vault's root
+        [[nodiscard]] PathKey key(const QString& relative = {}) const
+        {
+            return PathKey::of(absolute(relative));
         }
 
         void makeFolder(const QString& relative) const
@@ -362,7 +370,7 @@ private slots:
 
         QSignalSpy inserted(f.model, &VaultTreeModel::rowsInserted);
 
-        QCOMPARE(f.vault->createFile(f.root), Coco::Path("Untitled.txt"));
+        QCOMPARE(f.vault->createFile(f.key()), f.key(u"Untitled.txt"_s));
 
         QCOMPARE(inserted.count(), 1);
         QCOMPARE(
@@ -377,7 +385,7 @@ private slots:
         f.makeFolder(u"zeta"_s);
         f.start();
 
-        f.vault->createFolder(f.root);
+        f.vault->createFolder(f.key());
 
         QCOMPARE(
             f.rows(),
@@ -391,7 +399,7 @@ private slots:
         f.start();
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s }));
 
-        f.vault->createFile(f.absolute(u"one"_s));
+        f.vault->createFile(f.key(u"one"_s));
 
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s, u"Untitled"_s }));
     }
@@ -407,7 +415,7 @@ private slots:
 
         QSignalSpy inserted(f.model, &VaultTreeModel::rowsInserted);
 
-        QVERIFY(f.vault->createFileAt(Coco::Path("new/deeper/a.txt")));
+        QVERIFY(f.vault->createFileAt(f.key(u"new/deeper/a.txt"_s)));
 
         QCOMPARE(inserted.count(), 1);
         QCOMPARE(f.rows(), QStringList({ u"new"_s, u"Apple"_s }));
@@ -422,7 +430,7 @@ private slots:
         f.start();
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s }));
 
-        QVERIFY(f.vault->createFileAt(Coco::Path("one/b.txt")));
+        QVERIFY(f.vault->createFileAt(f.key(u"one/b.txt"_s)));
 
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s, u"b"_s }));
     }
@@ -440,7 +448,7 @@ private slots:
         QPersistentModelIndex a(f.index(u"a.txt"_s));
         QSignalSpy moved(f.model, &VaultTreeModel::rowsMoved);
 
-        f.vault->rename(f.absolute(u"a.txt"_s), u"x.txt"_s);
+        f.vault->rename(f.key(u"a.txt"_s), u"x.txt"_s);
 
         QCOMPARE(f.rows(), QStringList({ u"m"_s, u"x"_s, u"z"_s }));
         QCOMPARE(moved.count(), 1);
@@ -464,7 +472,7 @@ private slots:
         QSignalSpy moved(f.model, &VaultTreeModel::rowsMoved);
         QSignalSpy changed(f.model, &VaultTreeModel::dataChanged);
 
-        f.vault->rename(f.absolute(u"m.txt"_s), u"n.txt"_s);
+        f.vault->rename(f.key(u"m.txt"_s), u"n.txt"_s);
 
         QCOMPARE(f.rows(), QStringList({ u"a"_s, u"n"_s, u"z"_s }));
         QCOMPARE(moved.count(), 0);
@@ -483,10 +491,10 @@ private slots:
         f.makeFile(u"y.txt"_s);
         f.start();
 
-        f.vault->rename(f.absolute(u"b.txt"_s), u"z.txt"_s);
+        f.vault->rename(f.key(u"b.txt"_s), u"z.txt"_s);
         QCOMPARE(f.rows(), QStringList({ u"m"_s, u"y"_s, u"z"_s }));
 
-        f.vault->rename(f.absolute(u"z.txt"_s), u"a.txt"_s);
+        f.vault->rename(f.key(u"z.txt"_s), u"a.txt"_s);
         QCOMPARE(f.rows(), QStringList({ u"a"_s, u"m"_s, u"y"_s }));
     }
 
@@ -502,7 +510,7 @@ private slots:
         QPersistentModelIndex one(f.index(u"one"_s));
         QPersistentModelIndex a(f.index(u"one/two/a.txt"_s));
 
-        f.vault->rename(f.absolute(u"one"_s), u"uno"_s);
+        f.vault->rename(f.key(u"one"_s), u"uno"_s);
 
         QCOMPARE(f.rows(), QStringList({ u"uno"_s, u"zeta"_s }));
         QVERIFY(one.isValid());
@@ -524,7 +532,7 @@ private slots:
 
         QPersistentModelIndex a(f.index(u"a.txt"_s));
 
-        f.vault->rename(f.absolute(u"a.txt"_s), u"a.docx"_s);
+        f.vault->rename(f.key(u"a.txt"_s), u"a.docx"_s);
 
         QCOMPARE(f.rows(), QStringList({ u"b"_s }));
         QVERIFY(!a.isValid());
@@ -540,7 +548,7 @@ private slots:
 
         QPersistentModelIndex a(f.index(u"a.txt"_s));
 
-        f.vault->move(f.absolute(u"a.txt"_s), f.absolute(u"one"_s));
+        f.vault->move(f.key(u"a.txt"_s), f.key(u"one"_s));
 
         QCOMPARE(f.rows(), QStringList({ u"one"_s }));
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s, u"b"_s }));
@@ -561,7 +569,7 @@ private slots:
 
         QPersistentModelIndex a(f.index(u"a.txt"_s));
 
-        f.vault->move(f.absolute(u"a.txt"_s), f.absolute(u"one"_s));
+        f.vault->move(f.key(u"a.txt"_s), f.key(u"one"_s));
 
         QVERIFY(!a.isValid());
         QCOMPARE(f.rows(), QStringList({ u"one"_s }));
@@ -578,7 +586,7 @@ private slots:
 
         QPersistentModelIndex a(f.index(u"one/two/a.txt"_s));
 
-        f.vault->move(f.absolute(u"one"_s), f.absolute(u"other"_s));
+        f.vault->move(f.key(u"one"_s), f.key(u"other"_s));
 
         QCOMPARE(f.rows(), QStringList({ u"other"_s }));
         QCOMPARE(f.rows(u"other"_s), QStringList({ u"one"_s }));
@@ -598,7 +606,7 @@ private slots:
         QSignalSpy removed(f.model, &VaultTreeModel::rowsRemoved);
         QSignalSpy changed(f.model, &VaultTreeModel::dataChanged);
 
-        QVERIFY(f.vault->rename(f.absolute(u"a.txt"_s), u"b.txt"_s).isEmpty());
+        QVERIFY(f.vault->rename(f.key(u"a.txt"_s), u"b.txt"_s).isEmpty());
 
         QCOMPARE(f.rows(), QStringList({ u"a"_s, u"b"_s }));
         QCOMPARE(moved.count() + removed.count() + changed.count(), 0);
@@ -743,7 +751,7 @@ private slots:
         f.makeFile(u"m.txt"_s);
         f.start();
 
-        f.vault->rename(f.absolute(u"a.txt"_s), u"z.txt"_s);
+        f.vault->rename(f.key(u"a.txt"_s), u"z.txt"_s);
         QPersistentModelIndex z(f.index(u"z.txt"_s));
 
         QSignalSpy inserted(f.model, &VaultTreeModel::rowsInserted);

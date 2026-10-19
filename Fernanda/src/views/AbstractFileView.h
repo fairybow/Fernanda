@@ -36,8 +36,8 @@ namespace Fernanda {
 // constructed, so there's no dispatch-to-base problem and no second-phase call
 // to forget.
 //
-// Borrows its model from the Vault; never owns it. Holds no FileRef of its own
-// — model()->fileRef() is the single source.
+// Borrows its model from the Vault; never owns it. Holds no path of its own —
+// model()->key() is the single source.
 //
 // Built parentless: every view is made by VaultWindow::makeView_ and handed to
 // a TabPaneLeaf, whose page stack parents it on add. So there is no parent

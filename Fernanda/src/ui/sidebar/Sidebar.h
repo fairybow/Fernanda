@@ -26,7 +26,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 #include "core/Vault.h"
 #include "core/VaultEntry.h"
 #include "ui/OpenMode.h"
@@ -47,9 +47,9 @@ namespace Fernanda::Ui {
 //      right]
 //
 // Borrows both Vaults (project + common) from the window. It needs them to root
-// each tree and to mint FileRefs from the absolute paths the trees emit — the
-// tree that fired decides which Vault the file belongs to. That is the whole of
-// the "which vault?" translation; the trees stay Vault-free.
+// each tree and to send each tree's file operations to the Vault that tree
+// shows. The trees emit absolute paths and stay Vault-free; here those paths
+// become keys.
 //
 // The switcher's vault list comes from a provider App threads down; the Sidebar
 // hands it through and relays the switcher's choice back up to the window
@@ -99,18 +99,18 @@ public:
     [[nodiscard]] Drawer* commonDrawer() const { return commonDrawer_; }
 
 signals:
-    // The one intent the window acts on. A common-vault file carries the common
-    // Vault in its FileRef, so it resolves to the shared model. The mode says
-    // whether to take over the active tab or force a new one — a double-click
-    // and a new file replace-active, the tree's "Open in new tab" adds
-    void fileActivated(const FileRef& fileRef, OpenMode mode);
+    // The one intent the window acts on. The window decides from the key which
+    // of its vaults the file is in. The mode says whether to take over the
+    // active tab or force a new one — a double-click and a new file
+    // replace-active, the tree's "Open in new tab" adds
+    void fileActivated(const PathKey& key, OpenMode mode);
 
     // Relayed from the VaultSwitcher: the user picked another known vault. The
     // window forwards it to App's one convergence point
     void switchVaultRequested(const Coco::Path& vaultRoot);
 
     // A rename or a move landed on disk. The window persists workspace now,
-    // since the relocated buffer's FileRef — and so what workspace.json records
+    // since the relocated buffer's key — and so what workspace.json records
     // for its tabs — just changed but no structural tree event fired
     void entryRelocated();
 
@@ -217,35 +217,33 @@ private:
         layout->addLayout(profile_row, 0);
     }
 
-    // Wire one tree to its owning Vault — the whole of the "which vault?"
-    // translation, in one place for both the project tree and the common one.
-    // The trees stay Vault-free; this is where their absolute paths become
-    // Vault operations
+    // Wire one tree to the Vault it shows, in one place for both the project
+    // tree and the common one. The trees stay Vault-free; this is where their
+    // absolute paths become keys and Vault operations
     void wireTree_(VaultFileTree* tree, Vault* vault)
     {
-        // A double-click: tag the absolute path with this Vault and re-emit as
-        // a FileRef the window opens into the active tab, replacing it unless
-        // that tab is pinned
+        // A double-click: re-emit as a key the window opens into the active
+        // tab, replacing it unless that tab is pinned
         connect(
             tree,
             &VaultFileTree::fileActivated,
             this,
-            [this, vault](const Coco::Path& absolute) {
+            [this](const Coco::Path& absolute) {
                 emit fileActivated(
-                    vault->makeFileRef(absolute),
+                    PathKey::of(absolute),
                     OpenMode::ReplaceActive);
             });
 
         // A file context-menu open carries its own placement: the menu item
-        // chose NewTab / SplitRight / NewWindow. Same FileRef mapping as a
+        // chose NewTab / SplitRight / NewWindow. Same mapping as a
         // double-click, but the mode rides through instead of being resolved
         // downstream
         connect(
             tree,
             &VaultFileTree::openRequested,
             this,
-            [this, vault](const Coco::Path& absolute, OpenMode mode) {
-                emit fileActivated(vault->makeFileRef(absolute), mode);
+            [this](const Coco::Path& absolute, OpenMode mode) {
+                emit fileActivated(PathKey::of(absolute), mode);
             });
 
         // New file: the Vault creates it (all disk IO is the Vault's), then we
@@ -257,13 +255,11 @@ private:
             &VaultFileTree::newFileRequested,
             this,
             [this, vault](const Coco::Path& absoluteDir) {
-                auto relative = vault->createFile(absoluteDir);
-                if (relative.isEmpty()) {
+                auto key = vault->createFile(PathKey::of(absoluteDir));
+                if (key.isEmpty()) {
                     return;
                 }
-                emit fileActivated(
-                    FileRef{ vault, relative },
-                    OpenMode::ReplaceActive);
+                emit fileActivated(key, OpenMode::ReplaceActive);
             });
 
         // New folder: create and stop — nothing to open. The Vault inserts the
@@ -275,7 +271,7 @@ private:
             &VaultFileTree::newFolderRequested,
             this,
             [vault](const Coco::Path& absoluteDir) {
-                vault->createFolder(absoluteDir);
+                vault->createFolder(PathKey::of(absoluteDir));
             });
 
         // Rename: the Vault renames on disk and re-keys any open buffer, then
@@ -288,7 +284,8 @@ private:
             this,
             [this,
              vault](const Coco::Path& absoluteOld, const QString& newLeaf) {
-                if (vault->rename(absoluteOld, newLeaf).isEmpty()) {
+                if (vault->rename(PathKey::of(absoluteOld), newLeaf)
+                        .isEmpty()) {
                     QMessageBox::warning(
                         this,
                         tr("Rename failed"),
@@ -312,7 +309,7 @@ private:
             &VaultFileTree::deleteRequested,
             this,
             [this, vault](const Coco::Path& absolute) {
-                if (vault->moveToTrash(absolute)) {
+                if (vault->moveToTrash(PathKey::of(absolute))) {
                     return;
                 }
 
@@ -332,7 +329,7 @@ private:
         // specifically (matching Obsidian, which refuses rather than suffixing
         // or overwriting); the Vault's authoritative empty return covers the
         // rest (locked, gone, disk error). On success, nudge a workspace save —
-        // a moved buffer's FileRef, and so what workspace.json records, changed
+        // a moved buffer's key, and so what workspace.json records, changed
         connect(
             tree,
             &VaultFileTree::moveRequested,
@@ -351,7 +348,11 @@ private:
                     return;
                 }
 
-                if (vault->move(absoluteSource, absoluteDestDir).isEmpty()) {
+                if (vault
+                        ->move(
+                            PathKey::of(absoluteSource),
+                            PathKey::of(absoluteDestDir))
+                        .isEmpty()) {
                     QMessageBox::warning(
                         this,
                         tr("Move failed"),

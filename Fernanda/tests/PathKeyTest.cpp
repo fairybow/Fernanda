@@ -10,10 +10,8 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
-#include <QByteArray>
 #include <QDir>
 #include <QFile>
-#include <QFileInfo>
 #include <QHash>
 #include <QIODevice>
 #include <QObject>
@@ -24,24 +22,24 @@
 
 #include <Coco/Path.h>
 
-#include "core/CanonicalPath.h"
+#include "core/PathKey.h"
 
 using namespace Qt::StringLiterals;
 
-using Fernanda::CanonicalPath;
+using Fernanda::PathKey;
 
-// How a path becomes a key that is the same for every spelling of one place on
-// disk (core/CanonicalPath.h): resolving existing and missing paths, letter
-// case, containment, and re-keying under a renamed folder.
+// How a path becomes a key that is the same for every spelling of one path
+// (core/PathKey.h): normalizing, letter case, containment, and re-keying under
+// a renamed folder. Keys are made from the path alone, so only the tests about
+// the file system's part (a file created later, a symlink) make real files.
 //
 // Each test works in its own temporary folder
-class CanonicalPathTest : public QObject
+class PathKeyTest : public QObject
 {
     Q_OBJECT
 
 private:
-    // A temporary folder, and the file work a test does in it. Paths given to
-    // these functions are relative to the folder
+    // A temporary folder. Paths given to these functions are relative to it
     struct Fixture_
     {
         QTemporaryDir folder{};
@@ -52,23 +50,18 @@ private:
             return root / Coco::Path(relative);
         }
 
-        [[nodiscard]] CanonicalPath key(const QString& relative) const
+        [[nodiscard]] PathKey key(const QString& relative) const
         {
-            return CanonicalPath::of(absolute(relative));
-        }
-
-        void makeFolder(const QString& relative) const
-        {
-            QVERIFY(QDir(folder.path()).mkpath(relative));
+            return PathKey::of(absolute(relative));
         }
 
         // Creates the folders above the file too
         void write(const QString& relative) const
         {
-            QFileInfo info(folder.filePath(relative));
-            QVERIFY(QDir().mkpath(info.path()));
+            auto path = absolute(relative);
+            QVERIFY(QDir().mkpath(path.parent().toQString()));
 
-            QFile file(info.filePath());
+            QFile file(path.toQString());
             QVERIFY(file.open(QIODevice::WriteOnly));
         }
     };
@@ -76,68 +69,63 @@ private:
 private slots:
     void emptyAndRelativePathsGiveAnEmptyKey()
     {
-        QVERIFY(CanonicalPath::of({}).isEmpty());
-        QVERIFY(CanonicalPath::of(Coco::Path(u"a/b.txt"_s)).isEmpty());
-        QVERIFY(CanonicalPath().isEmpty());
+        QVERIFY(PathKey::of({}).isEmpty());
+        QVERIFY(PathKey::of(Coco::Path(u"a/b.txt"_s)).isEmpty());
+        QVERIFY(PathKey().isEmpty());
     }
 
     void dotAndDotDotGiveTheSameKeyAsThePlainPath()
     {
         Fixture_ f{};
-        f.makeFolder(u"sub"_s);
-        f.write(u"notes.txt"_s);
-
         auto plain = f.key(u"notes.txt"_s);
 
         QVERIFY(!plain.isEmpty());
         QVERIFY(f.key(u"sub/../notes.txt"_s) == plain);
         QVERIFY(f.key(u"./notes.txt"_s) == plain);
+        QVERIFY(f.key(u"a/b/../../notes.txt"_s) == plain);
     }
 
-    void trailingSeparatorGivesTheSameKey()
+    void separatorsGiveTheSameKey()
     {
         Fixture_ f{};
-        f.makeFolder(u"folder"_s);
 
+        QVERIFY(f.key(u"a//b.txt"_s) == f.key(u"a/b.txt"_s));
         QVERIFY(f.key(u"folder/"_s) == f.key(u"folder"_s));
-        QVERIFY(f.key(u"missing/"_s) == f.key(u"missing"_s));
+
+#if defined(Q_OS_WIN)
+
+        QVERIFY(f.key(u"a\\b.txt"_s) == f.key(u"a/b.txt"_s));
+
+#endif
     }
 
-    void missingFileKeyEqualsTheKeyOnceCreated()
+    // So a key's path reads the same on every platform, in logs and in
+    // anything built from it
+    void thePathIsWrittenWithForwardSlashes()
     {
         Fixture_ f{};
-        auto before = f.key(u"new.txt"_s);
+        auto key = f.key(u"a/b/notes.txt"_s);
 
-        QVERIFY(!before.isEmpty());
-        QCOMPARE(before.path().nameQString(), u"new.txt"_s);
+        QVERIFY(!key.path().toQString().contains(u'\\'));
+        QVERIFY(!key.path().toQString().endsWith(u'/'));
+        QCOMPARE(key.path().nameQString(), u"notes.txt"_s);
+    }
 
-        f.write(u"new.txt"_s);
-        auto after = f.key(u"new.txt"_s);
+    void aFileCreatedLaterKeepsItsKey()
+    {
+        Fixture_ f{};
+        auto before = f.key(u"a/new.txt"_s);
+
+        f.write(u"a/new.txt"_s);
+        auto after = f.key(u"a/new.txt"_s);
 
         QVERIFY(before == after);
         QCOMPARE(qHash(before), qHash(after));
     }
 
-    void missingFoldersResolveThroughTheNearestExistingOne()
-    {
-        Fixture_ f{};
-        auto before = f.key(u"a/b/c.txt"_s);
-
-        QCOMPARE(before.relativeTo(f.key({})), Coco::Path(u"a/b/c.txt"_s));
-
-        f.write(u"a/b/c.txt"_s);
-
-        QVERIFY(f.key(u"a/b/c.txt"_s) == before);
-    }
-
-    void dotDotInAMissingPathIsResolvedAsWritten()
-    {
-        Fixture_ f{};
-
-        QVERIFY(f.key(u"a/b/../c.txt"_s) == f.key(u"a/c.txt"_s));
-    }
-
-    void symlinkedFolderGivesTheSameKeyAsItsTarget()
+    // Symlinks aren't followed: a folder linked into a vault keeps its files'
+    // paths inside the vault
+    void aSymlinkedFolderIsNotFollowed()
     {
 #if defined(Q_OS_WIN)
 
@@ -154,8 +142,10 @@ private slots:
                 f.absolute(u"real"_s).toQString(),
                 f.absolute(u"link"_s).toQString()));
 
-        QVERIFY(f.key(u"link/notes.txt"_s) == f.key(u"real/notes.txt"_s));
-        QVERIFY(f.key(u"link/new.txt"_s) == f.key(u"real/new.txt"_s));
+        auto through_link = f.key(u"link/notes.txt"_s);
+
+        QVERIFY(!(through_link == f.key(u"real/notes.txt"_s)));
+        QVERIFY(through_link.isUnder(f.key({})));
 
 #endif
     }
@@ -191,8 +181,21 @@ private slots:
         QVERIFY(base.isAtOrUnder(base));
         QVERIFY(!f.key(u"ab/notes.txt"_s).isUnder(base));
         QVERIFY(!f.key(u"notes.txt"_s).isUnder(base));
-        QVERIFY(!f.key(u"a/notes.txt"_s).isUnder(CanonicalPath()));
-        QVERIFY(!CanonicalPath().isAtOrUnder(CanonicalPath()));
+        QVERIFY(!f.key(u"a/../notes.txt"_s).isUnder(base));
+        QVERIFY(!f.key(u"a/notes.txt"_s).isUnder(PathKey()));
+        QVERIFY(!PathKey().isAtOrUnder(PathKey()));
+    }
+
+    // A root's own spelling ends in a separator ("/", "C:/"), which the
+    // comparison has to allow for
+    void aFileIsUnderTheFileSystemRoot()
+    {
+        auto root = PathKey::of(Coco::Path::Root());
+        auto file = PathKey::of(Coco::Path::Root() / Coco::Path(u"a/b.txt"_s));
+
+        QVERIFY(!root.isEmpty());
+        QVERIFY(file.isUnder(root));
+        QCOMPARE(file.relativeTo(root), Coco::Path(u"a/b.txt"_s));
     }
 
     void relativeToGivesThePathBelowTheBase()
@@ -221,17 +224,29 @@ private slots:
             f.key(u"other/notes.txt"_s).rebased(old_base, new_base).isEmpty());
     }
 
+    // Where case is ignored the two bases are equal keys, but the files below
+    // still take the new spelling
+    void rebasedFollowsACaseOnlyRename()
+    {
+        Fixture_ f{};
+        auto rebased = f.key(u"notes/a.txt"_s)
+                           .rebased(f.key(u"notes"_s), f.key(u"Notes"_s));
+
+        QCOMPARE(rebased.path().parent().nameQString(), u"Notes"_s);
+        QCOMPARE(rebased.path().nameQString(), u"a.txt"_s);
+    }
+
     void anySpellingFindsTheSameHashEntry()
     {
         Fixture_ f{};
-        f.makeFolder(u"sub"_s);
 
-        QHash<CanonicalPath, int> hash{};
+        QHash<PathKey, int> hash{};
         hash.insert(f.key(u"notes.txt"_s), 1);
 
         QCOMPARE(hash.value(f.key(u"sub/../notes.txt"_s)), 1);
     }
 };
 
-QTEST_GUILESS_MAIN(CanonicalPathTest)
-#include "CanonicalPathTest.moc"
+QTEST_GUILESS_MAIN(PathKeyTest)
+
+#include "PathKeyTest.moc"

@@ -27,9 +27,9 @@
 #include <Coco/Path.h>
 #include <Coco/Time.h>
 
-#include "core/FileRef.h"
 #include "core/FileTypes.h"
 #include "core/Io.h"
+#include "core/PathKey.h"
 #include "core/VaultConfig.h"
 #include "core/VaultDotDir.h"
 #include "core/VaultTreeModel.h"
@@ -47,6 +47,10 @@ using namespace Qt::StringLiterals;
 // buffers, a watcher over those files, and the file tree every view of this
 // vault shares. No GUI types. Owned by App; borrowed by a VaultWindow.
 //
+// Files are named by PathKey: absolute, so a key means the same file whichever
+// vault or window holds it. Paths relative to the root are only for showing
+// and saving (the switcher's rows, workspace.json).
+//
 // The Vault owns all disk IO. Models are pure buffers: the Vault reads bytes
 // and hands them to setData() on open, and reads data() back to write on flush.
 // One place writes, so one place suppresses the watcher's self-write.
@@ -57,9 +61,12 @@ class Vault : public QObject
     Q_OBJECT
 
 public:
+    // root is used as given. App resolves it through symlinks first, so one
+    // folder is one Vault however it was reached
     Vault(const Coco::Path& root, QObject* parentApp)
         : QObject(parentApp)
-        , root_(root)
+        , rootKey_(PathKey::of(root))
+        , root_(rootKey_.path())
     {
         setup_();
     }
@@ -68,6 +75,9 @@ public:
 
     [[nodiscard]] Coco::Path root() const noexcept { return root_; }
 
+    // The root as a key, for asking whether a key is this vault's
+    [[nodiscard]] PathKey rootKey() const { return rootKey_; }
+
     // The vault's file tree, shared by every tree view of this vault in every
     // window. Views borrow it; the Vault owns it
     [[nodiscard]] VaultTreeModel* treeModel() const noexcept
@@ -75,56 +85,29 @@ public:
         return treeModel_;
     }
 
-    // Absolute <-> vault-relative. The map and FileRefs are relative; disk IO
-    // is absolute. Callers with an absolute path (a tree click, an open dialog)
-    // go through makeFileRef to enter the relative world
-    [[nodiscard]] Coco::Path absolutePathOf(const Coco::Path& relative) const
+    // Is this the root or something inside it? Every public function that
+    // takes a key answers to this, or to its stricter form (inside, and not
+    // the root itself). A key is normalized, so "<root>/a/../.." is a key
+    // outside the root and refused here
+    [[nodiscard]] bool contains(const PathKey& key) const
     {
-        return root_ / relative;
+        return key.isAtOrUnder(rootKey_);
     }
 
-    [[nodiscard]] Coco::Path relativePathOf(const Coco::Path& absolute) const
-    {
-        return absolute.lexicallyRelative(root_);
-    }
-
-    [[nodiscard]] FileRef makeFileRef(const Coco::Path& absolute)
-    {
-        return { this, relativePathOf(absolute) };
-    }
-
-    // Does an absolute path belong to this vault — is it root or nested under
-    // it? Routes a file dropped on an editor to the owning vault. Rejects a
-    // path outside the root, where relativePathOf would produce a "../"-laden
-    // key, so a drag from another window's vault opens nothing here.
-    //
-    // The path must also be plain (Coco::Path::isPlain). isAtOrUnder compares
-    // the path as written, and "<root>/a/../.." is written under the root it
-    // climbs out of; a plain path has no such segment, so written under the
-    // root means under the root. A second spelling of an inside path
-    // ("<root>/a/./b") is refused as well, never normalized: its relative form
-    // would be a second key for one file.
-    //
-    // Every public function that takes an absolute path answers to this
-    [[nodiscard]] bool contains(const Coco::Path& absolute) const
-    {
-        return absolute.isPlain() && absolute.isAtOrUnder(root_);
-    }
-
-    // Every file this vault shows, vault-relative — the FileSwitcher's listing.
+    // Every file this vault shows — the FileSwitcher's listing.
     // Walked fresh on each call: no index and no watcher, so the list is a
     // snapshot of the moment it's asked for. Agrees with the trees by
     // construction — the same two predicates VaultTreeModel lists by. A hidden
     // folder (.fernanda/, .git/) is pruned, never walked; a file must be
     // neither hidden nor unsupported. Unsorted
-    [[nodiscard]] Coco::PathList visibleFiles() const
+    [[nodiscard]] QList<PathKey> visibleFiles() const
     {
         auto absolutes =
             Coco::walkFilePaths(root_, [](const Coco::Path& subdir) {
                 return !FileTypes::isHiddenName(subdir.nameQString());
             });
 
-        Coco::PathList result{};
+        QList<PathKey> result{};
 
         for (const auto& absolute : absolutes) {
             if (FileTypes::isHiddenName(absolute.nameQString())) {
@@ -135,26 +118,25 @@ public:
                 continue;
             }
 
-            result << relativePathOf(absolute);
+            result << PathKey::of(absolute);
         }
 
         return result;
     }
 
     // Asked by openModel when a text file doesn't decode cleanly as UTF-8: true
-    // opens it anyway, false refuses the open. Given the vault-relative path
-    // and the raw bytes, so a GUI caller can name the file and preview the
-    // damage. A plain callable keeps the Vault GUI-free — the window supplies
-    // the prompt
+    // opens it anyway, false refuses the open. Given the file's key and the raw
+    // bytes, so a GUI caller can name the file and preview the damage. A plain
+    // callable keeps the Vault GUI-free — the window supplies the prompt
     using ConfirmLossyOpen =
-        std::function<bool(const Coco::Path& relative, const QByteArray& data)>;
+        std::function<bool(const PathKey& key, const QByteArray& data)>;
 
     // Return the existing buffer for this file, or create one. This is the
     // dedup point that makes "same file open twice" and "common file open in
     // two windows" both resolve to a single model.
     //
-    // Returns nullptr for a file Fernanda won't open: a path that isn't a
-    // vault-relative key (see isKey_), an unsupported type, a file it can't
+    // Returns nullptr for a file Fernanda won't open: a key that isn't inside
+    // the vault, an unsupported type, a file it can't
     // read — gone since it was listed, or locked — or a text file that
     // isn't valid UTF-8 whose open the caller declined. This is the
     // AUTHORITATIVE refusal: the tree and the FileSwitcher hide unsupported
@@ -165,30 +147,27 @@ public:
     // confirmLossyOpen is asked only on a fresh read that fails to decode — a
     // dedup hit returns above it, so an open buffer never prompts twice (a
     // common file opened from a second window included)
-    [[nodiscard]] AbstractFileModel* openModel(
-        const Coco::Path& relative,
-        const ConfirmLossyOpen& confirmLossyOpen)
+    [[nodiscard]] AbstractFileModel*
+    openModel(const PathKey& key, const ConfirmLossyOpen& confirmLossyOpen)
     {
-        // Before anything else: a key that isn't one can't be in the map, and
-        // absolutePathOf would turn it into a path outside the vault
-        if (!isKey_(relative)) {
+        // Before anything else: the root, or a key outside it, is no file of
+        // this vault's
+        if (!key.isUnder(rootKey_)) {
             WARN(
-                "Refusing to open {}: not a path inside the vault!",
-                relative.prettyQString());
+                "Refusing to open {}: not a file inside the vault!",
+                key.path());
             return nullptr;
         }
 
-        if (auto it = models_.constFind(relative); it != models_.constEnd()) {
+        if (auto it = models_.constFind(key); it != models_.constEnd()) {
             return it.value();
         }
 
         // Refuse BEFORE the read: an unsupported file may be large (a video)
         // and there is no reason to pull it into memory just to discard it
-        auto type = FileTypes::typeOf(relative);
+        auto type = FileTypes::typeOf(key.path());
         if (type == FileTypes::Type::Unsupported) {
-            WARN(
-                "Refusing to open unsupported file type: {}",
-                relative.prettyQString());
+            WARN("Refusing to open unsupported file type: {}", key.path());
             return nullptr;
         }
 
@@ -198,11 +177,9 @@ public:
         // keystroke would autosave it back into existence, or over the locked
         // original once the lock clears. tryRead, unlike read, tells an empty
         // file from a failed read, and has already logged which failure
-        auto data = Io::tryRead(absolutePathOf(relative));
+        auto data = Io::tryRead(key.path());
         if (!data) {
-            WARN(
-                "Refusing to open unreadable file: {}",
-                relative.prettyQString());
+            WARN("Refusing to open unreadable file: {}", key.path());
             return nullptr;
         }
 
@@ -213,25 +190,22 @@ public:
         auto decodes_lossily =
             type == FileTypes::Type::Text && !TextFileModel::isValidUtf8(*data);
 
-        if (decodes_lossily && !confirmLossyOpen(relative, *data)) {
-            INFO(
-                "Declined opening non-UTF-8 file: {}",
-                relative.prettyQString());
+        if (decodes_lossily && !confirmLossyOpen(key, *data)) {
+            INFO("Declined opening non-UTF-8 file: {}", key.path());
             return nullptr;
         }
 
         // Dispatch by file type. The dedup above means one buffer per file
         // regardless of type
-        FileRef ref{ this, relative };
-        auto* model = makeModel_(ref, type);
+        auto* model = makeModel_(key, type);
 
         model->setData(*data);
-        models_.insert(relative, model);
+        models_.insert(key, model);
 
         // Start watching now that a buffer exists. Removed again on eviction or
         // external deletion; dropped and re-added around our own writes in
         // writeModel_ so a save isn't read back as an external change
-        watcher_->addPath(absolutePathOf(relative).toQString());
+        watcher_->addPath(key.path().toQString());
 
         // An accepted lossy open is committed NOW, not on the first edit: the
         // write replaces the undecodable bytes with the U+FFFD the buffer
@@ -267,14 +241,14 @@ public:
         DEBUG(
             this,
             "Opened model for {} (total: {})",
-            relative,
+            key.path(),
             models_.size());
 
         return model;
     }
 
-    // Write every modified buffer back to disk. Returns the vault-relative
-    // paths that FAILED to write (empty == all good; a buffer whose file is
+    // Write every modified buffer back to disk. Returns the keys of the files
+    // that FAILED to write (empty == all good; a buffer whose file is
     // gone from disk doesn't count), so a caller — VaultWindow::closeEvent —
     // can name them in the one surviving prompt and refuse the close.
     //
@@ -285,13 +259,13 @@ public:
     // written now rather than left to a timer that may never fire, since every
     // exit path runs through here. Its failure isn't reported — a settings file
     // is never worth refusing a close over, and Io logged it
-    Coco::PathList flush()
+    QList<PathKey> flush()
     {
         if (configSaveTimer_->isActive()) {
             saveConfig_();
         }
 
-        Coco::PathList failed{};
+        QList<PathKey> failed{};
 
         for (auto* model : models_) {
             if (!model->isModified()) {
@@ -302,27 +276,25 @@ public:
             // to save it, and the reconcile pass writeModel_ queued is about to
             // close its views — so it isn't reported
             if (writeModel_(model) == WriteResult_::Failed) {
-                failed << model->fileRef().relative;
+                failed << model->key();
             }
         }
 
         return failed;
     }
 
-    // Create a new empty file / new folder inside an absolute directory (a
-    // vault folder, or the vault root) and return its vault-relative path
-    // (empty on failure). Callers hand an absolute path — a tree click or the
-    // new-tab page's root — and get back the relative key the model map and
-    // FileRefs speak in. All disk IO is the Vault's; there are no off-disk
-    // buffers, so the file exists on disk before any buffer opens it
-    Coco::Path createFile(const Coco::Path& absoluteDir)
+    // Create a new empty file / new folder inside a directory (a vault folder,
+    // or the vault root) and return its key (empty on failure). All disk IO is
+    // the Vault's; there are no off-disk buffers, so the file exists on disk
+    // before any buffer opens it
+    PathKey createFile(const PathKey& dir)
     {
-        if (!contains(absoluteDir)) {
-            WARN("Can't create a file in {}: outside the vault!", absoluteDir);
+        if (!contains(dir)) {
+            WARN("Can't create a file in {}: outside the vault!", dir.path());
             return {};
         }
 
-        auto absolute = uniqueChildPath_(absoluteDir, u"Untitled"_s, u".txt"_s);
+        auto absolute = uniqueChildPath_(dir.path(), u"Untitled"_s, u".txt"_s);
 
         // CreateDirs::No: a folder deleted between the right-click and the
         // click stays deleted, and the create fails
@@ -332,19 +304,17 @@ public:
         }
 
         treeModel_->applyAddition(absolute);
-        return relativePathOf(absolute);
+        return PathKey::of(absolute);
     }
 
-    Coco::Path createFolder(const Coco::Path& absoluteDir)
+    PathKey createFolder(const PathKey& dir)
     {
-        if (!contains(absoluteDir)) {
-            WARN(
-                "Can't create a folder in {}: outside the vault!",
-                absoluteDir);
+        if (!contains(dir)) {
+            WARN("Can't create a folder in {}: outside the vault!", dir.path());
             return {};
         }
 
-        auto absolute = uniqueChildPath_(absoluteDir, u"Untitled"_s, QString{});
+        auto absolute = uniqueChildPath_(dir.path(), u"Untitled"_s, QString{});
 
         if (!Coco::mkdir(absolute)) {
             WARN("Failed to create a new folder at {}!", absolute);
@@ -352,54 +322,52 @@ public:
         }
 
         treeModel_->applyAddition(absolute);
-        return relativePathOf(absolute);
+        return PathKey::of(absolute);
     }
 
-    // Create an empty file at a vault-relative path named in full, making any
+    // Create an empty file at a key named in full, making any
     // missing folders above it. This is Go to File's create: the user typed
     // the path, so the folders in it are theirs to make, where createFile's
     // folder must already be there. The vault's own folder is never recreated.
     //
-    // Returns false, having made nothing, for a path that isn't a key (see
-    // isKey_), has a hidden name anywhere along it, isn't a text file (an empty
-    // PDF or image is no file at all), or already exists. Also false when the
-    // disk refuses, as when a part of the path is a file; folders made before
-    // the refusal stay, and the tree finds them by its watcher.
+    // Returns false, having made nothing, for a key that isn't inside the
+    // vault, has a hidden name anywhere below the root, isn't a text file (an
+    // empty PDF or image is no file at all), or already exists. Also false when
+    // the disk refuses, as when a part of the path is a file; folders made
+    // before the refusal stay, and the tree finds them by its watcher.
     //
     // The tree is told about the highest entry made, so a new folder appears
     // with the file inside it. The tree can't place the file itself while the
     // folder holding it has no row
-    bool createFileAt(const Coco::Path& relative)
+    bool createFileAt(const PathKey& key)
     {
-        if (!isKey_(relative)) {
-            WARN(
-                "Can't create {}: not a path inside the vault!",
-                relative.prettyQString());
+        if (!key.isUnder(rootKey_)) {
+            WARN("Can't create {}: not a path inside the vault!", key.path());
             return false;
         }
+
+        auto relative = key.relativeTo(rootKey_);
 
         for (auto part = relative; !part.isEmpty(); part = part.parent()) {
             if (FileTypes::isHiddenName(part.nameQString())) {
                 WARN(
                     "Can't create {}: a name begins with a period!",
-                    relative.prettyQString());
+                    key.path());
                 return false;
             }
         }
 
-        if (FileTypes::typeOf(relative) != FileTypes::Type::Text) {
-            WARN("Can't create {}: not a text file!", relative.prettyQString());
+        auto absolute = key.path();
+
+        if (FileTypes::typeOf(absolute) != FileTypes::Type::Text) {
+            WARN("Can't create {}: not a text file!", absolute);
             return false;
         }
 
         if (!root_.isDir()) {
-            WARN(
-                "Can't create {}: the vault folder is gone!",
-                relative.prettyQString());
+            WARN("Can't create {}: the vault folder is gone!", absolute);
             return false;
         }
-
-        auto absolute = absolutePathOf(relative);
 
         if (absolute.exists()) {
             WARN("Can't create {}: it already exists!", absolute);
@@ -409,7 +377,7 @@ public:
         auto highest = absolute;
 
         for (auto folder = absolute.parent();
-             folder.isUnder(root_) && !folder.exists();
+             PathKey::of(folder).isUnder(rootKey_) && !folder.exists();
              folder = folder.parent()) {
             highest = folder;
         }
@@ -423,40 +391,39 @@ public:
         return true;
     }
 
-    // Rename a file or folder in place — same parent, new leaf name.
-    // absoluteOld is an existing entry in this vault; newLeaf is its new
-    // on-disk name (a file's extension is already reattached by the caller —
-    // the tree hides it). Returns the new vault-relative path (empty on
-    // failure). A rename is a relocation whose parent doesn't change, so it
-    // funnels through relocate_ (below) exactly as a move does — the disk op,
-    // watcher suppression, and buffer re-keying are shared. Declines cleanly on
-    // a locked entry, never corrupts.
+    // Rename a file or folder in place — same parent, new leaf name. entry is
+    // an existing entry in this vault; newLeaf is its new on-disk name (a
+    // file's extension is already reattached by the caller — the tree hides
+    // it). Returns the new key (empty on failure). A rename is a relocation
+    // whose parent doesn't change, so it funnels through relocate_ (below)
+    // exactly as a move does — the disk op, watcher suppression, and buffer
+    // re-keying are shared. Declines cleanly on a locked entry, never corrupts.
     //
     // newLeaf must be one name. Anything with a separator, a "." or "..", or a
     // root would make this a move, and is refused
-    Coco::Path rename(const Coco::Path& absoluteOld, const QString& newLeaf)
+    PathKey rename(const PathKey& entry, const QString& newLeaf)
     {
         auto leaf = Coco::Path(newLeaf);
 
         if (leaf.isEmpty() || !leaf.isPlain() || leaf.name() != leaf) {
             WARN(
                 "Can't rename {} to {}: not a single name!",
-                absoluteOld,
+                entry.path(),
                 leaf);
             return {};
         }
 
-        return relocate_(absoluteOld, absoluteOld.parent() / newLeaf);
+        return relocate_(entry, PathKey::of(entry.path().parent() / newLeaf));
     }
 
     // Move a file or folder into a different directory. A move is a rename with
     // a new parent, so it shares relocate_'s core: the leaf name is preserved,
-    // so the new path is absoluteDestDir/name. absoluteEntry is an existing
-    // entry in this vault; absoluteDestDir is where it lands (a tree folder, or
-    // the vault root for a drop on empty space). Any open buffer at or under
-    // the entry is re-keyed just as a folder rename does. Returns the new
-    // vault-relative path (empty on failure — a name collision, a locked entry,
-    // or an invalid target). Declines cleanly, never corrupts.
+    // so the new path is destDir/name. entry is an existing entry in this
+    // vault; destDir is where it lands (a tree folder, or the vault root for a
+    // drop on empty space). Any open buffer at or under the entry is re-keyed
+    // just as a folder rename does. Returns the new key (empty on failure — a
+    // name collision, a locked entry, or an invalid target). Declines cleanly,
+    // never corrupts.
     //
     // The guards below are defensive, behind the tree's advisory ones: the tree
     // suppresses these drops (no indicator, ignored), but the disk op stays
@@ -466,29 +433,30 @@ public:
     // parent) is the tree's to filter — it's a pure path comparison needing no
     // Vault, and letting it reach here would only turn a harmless nothing into
     // a spurious failure warning
-    Coco::Path
-    move(const Coco::Path& absoluteEntry, const Coco::Path& absoluteDestDir)
+    PathKey move(const PathKey& entry, const PathKey& destDir)
     {
-        if (!absoluteDestDir.isDir()) {
-            WARN("Move target {} is not a directory!", absoluteDestDir);
+        if (!destDir.path().isDir()) {
+            WARN("Move target {} is not a directory!", destDir.path());
             return {};
         }
 
-        // Nothing can move into itself or its own descendant. isAtOrUnder walks
-        // parents component-wise (no false prefix hit) and covers the
+        // Nothing can move into itself or its own descendant. isAtOrUnder
+        // compares whole names (no false prefix hit) and covers the
         // entry-onto-itself case in the same call. Only folders can fail this:
         // the destination is a directory, and a directory is never at or under
         // a file
-        if (absoluteDestDir.isAtOrUnder(absoluteEntry)) {
-            WARN("Can't move {} into itself or a descendant!", absoluteEntry);
+        if (destDir.isAtOrUnder(entry)) {
+            WARN("Can't move {} into itself or a descendant!", entry.path());
             return {};
         }
 
-        return relocate_(absoluteEntry, absoluteDestDir / absoluteEntry.name());
+        return relocate_(
+            entry,
+            PathKey::of(destDir.path() / entry.path().name()));
     }
 
-    // Move a file or folder to the system trash. absoluteEntry is an existing
-    // entry in this vault — never the root. Every open buffer at or under it is
+    // Move a file or folder to the system trash. entry is an existing entry in
+    // this vault — never the root. Every open buffer at or under it is
     // flushed first, so the trashed copy holds the latest text, then discarded
     // once the entry is gone: the same step the watcher's deletion branch
     // takes, so every view on those buffers — every window's, for a common file
@@ -498,34 +466,33 @@ public:
     // but each refusal logs its own reason, so the log says which it was: out
     // of scope, the root, already gone, a failed flush (naming the file), or
     // the system trash refusing. There is no local-trash fallback
-    bool moveToTrash(const Coco::Path& absoluteEntry)
+    bool moveToTrash(const PathKey& entry)
     {
-        // Same authority relocate_ holds: relativePathOf would answer a
-        // "../"-laden path for an outside entry, and modelsAtOrUnder_ would
-        // then match nothing and the disk op would still run. contains also
-        // refuses every other spelling of the root ("<root>/a/..", "<root>/"),
-        // which the comparison below would not recognize
-        if (!contains(absoluteEntry)) {
-            WARN("Trash refused — {} is outside the vault!", absoluteEntry);
+        // Same authority relocate_ holds: an outside entry would match no
+        // buffer, and the disk op would still run
+        if (!contains(entry)) {
+            WARN("Trash refused — {} is outside the vault!", entry.path());
             return false;
         }
 
         // The tree never offers the root, but this is the one place a future
-        // caller has to be stopped from trashing the whole vault
-        if (absoluteEntry == root_) {
-            WARN("Trash refused — {} is the vault root!", absoluteEntry);
+        // caller has to be stopped from trashing the whole vault. Keys are
+        // normalized, so every spelling of the root compares equal here
+        if (entry == rootKey_) {
+            WARN("Trash refused — {} is the vault root!", entry.path());
             return false;
         }
+
+        auto absolute = entry.path();
 
         // Named here rather than left to read as the system trash refusing.
         // If it held open buffers, the watcher's deletion branch handles them
-        if (!absoluteEntry.exists()) {
-            WARN("Trash refused — {} no longer exists!", absoluteEntry);
+        if (!absolute.exists()) {
+            WARN("Trash refused — {} no longer exists!", absolute);
             return false;
         }
 
-        auto relative = relativePathOf(absoluteEntry);
-        auto affected = modelsAtOrUnder_(relative);
+        auto affected = modelsAtOrUnder_(entry);
 
         // Flush BEFORE unwatching: writeModel_ drops and re-adds its own watch
         // around the write, which would undo an earlier unwatch. A viewless
@@ -540,8 +507,8 @@ public:
                 writeModel_(model) == WriteResult_::Failed) {
                 WARN(
                     "Trash refused — {} couldn't be saved first: {}",
-                    absoluteEntry,
-                    model->fileRef().relative);
+                    absolute,
+                    model->key().path());
                 return false;
             }
         }
@@ -553,29 +520,27 @@ public:
         // watches inside the entry go too: on Windows each is a directory
         // handle, and any handle inside a folder stops the trash taking it
         for (auto* model : affected) {
-            watcher_->removePath(
-                absolutePathOf(model->fileRef().relative).toQString());
+            watcher_->removePath(model->key().path().toQString());
         }
 
-        treeModel_->releaseWatches(absoluteEntry);
+        treeModel_->releaseWatches(absolute);
 
-        if (!Coco::moveToTrash(absoluteEntry)) {
+        if (!Coco::moveToTrash(absolute)) {
             for (auto* model : affected) {
-                watcher_->addPath(
-                    absolutePathOf(model->fileRef().relative).toQString());
+                watcher_->addPath(model->key().path().toQString());
             }
 
-            treeModel_->restoreWatches(absoluteEntry);
+            treeModel_->restoreWatches(absolute);
 
             WARN(
                 "Trash refused — the system trash wouldn't take {}!",
-                absoluteEntry);
+                absolute);
             return false;
         }
 
         // No event-loop turn between the disk op and here, so no autosave tick
         // can write a buffer back into the gap and resurrect the entry
-        treeModel_->applyRemoval(absoluteEntry);
+        treeModel_->applyRemoval(absolute);
 
         for (auto* model : affected) {
             discardModel_(model);
@@ -584,7 +549,7 @@ public:
         DEBUG(
             this,
             "Moved {} to the system trash ({} open buffer(s) discarded)",
-            relative,
+            absolute,
             affected.size());
 
         return true;
@@ -609,8 +574,7 @@ public:
         treeModel_->relistRoot();
 
         for (auto* model : models_) {
-            auto abs = absolutePathOf(model->fileRef().relative);
-            pendingChanged_ << abs.toQString();
+            pendingChanged_ << model->key().path().toQString();
         }
 
         if (!pendingChanged_.isEmpty()) {
@@ -723,7 +687,8 @@ signals:
     void wordsChanged();
 
 private:
-    Coco::Path root_;
+    PathKey rootKey_;
+    Coco::Path root_; // rootKey_'s path, declared after it to be made from it
 
     // Per-vault settings, read at construction and saved a beat after the last
     // change: a dragged size slider changes it many times a second, and one
@@ -744,27 +709,27 @@ private:
     // hold buffers for, this one the folders the trees show
     VaultTreeModel* treeModel_ = new VaultTreeModel(root_, this);
 
-    // Keyed by vault-relative path. Models are parented to the Vault. A model
+    // Keyed by each file's PathKey. Models are parented to the Vault. A model
     // is freed when its file is deleted on disk (external deletion, below) or
     // trashed in-app (moveToTrash) — both through discardModel_ — or when its
     // last view closes (eviction — evictModel_); otherwise it lives for the
     // Vault's lifetime
-    QHash<Coco::Path, AbstractFileModel*> models_{};
+    QHash<PathKey, AbstractFileModel*> models_{};
 
     // Watches the absolute path of every open file. Only files we hold buffers
     // for — the tree's folders are treeModel_'s own watcher's concern
     QFileSystemWatcher* watcher_ = new QFileSystemWatcher(this);
 
     // Self-write suppression. writeModel_ records a hash of the bytes it wrote
-    // here, keyed by absolute path. The reconcile pass compares disk against
+    // here, keyed like models_. The reconcile pass compares disk against
     // THIS fingerprint, not the live buffer — so our own save is recognized
     // however far typing has since moved the buffer on, and a genuine later
     // change (different bytes, different hash) is never mistaken for it. A
     // one-shot "ignore the next event" flag would not do: on a platform that
     // sends no echo it lingers and eats the next real change, where a
-    // fingerprint can't be "used up". Same strings we pass to addPath, so the
-    // keys match. Entries are dropped when a buffer is discarded or evicted
-    QHash<QString, size_t> lastWrittenHash_{};
+    // fingerprint can't be "used up". Entries are dropped when a buffer is
+    // discarded or evicted
+    QHash<PathKey, size_t> lastWrittenHash_{};
 
     // Watcher events are coalesced here and processed one debounce later, so a
     // git checkout or Dropbox sync rewriting many watched files becomes one
@@ -796,15 +761,6 @@ private:
     int autosaveDebounceMs_ = 1000;
     int autosaveCeilingMs_ = 3000;
 
-    // Is this a vault-relative key — the form models_ and FileRefs hold? It
-    // names something, has no root (appending a rooted path to root_ replaces
-    // part of root_ rather than nesting under it), and is plain, so it stays
-    // under the root and is the only spelling of its file
-    [[nodiscard]] bool isKey_(const Coco::Path& relative) const
-    {
-        return !relative.isEmpty() && !relative.hasRoot() && relative.isPlain();
-    }
-
     void setup_()
     {
         ensureVaultDotDir(root_);
@@ -828,7 +784,7 @@ private:
 
     // "Untitled.txt", then "Untitled 1.txt", ... — the first not already
     // present inside absoluteDir. An empty ext gives a folder name. Absolute
-    // in, absolute out; the caller relativizes. Deliberately not translated:
+    // in, absolute out; the caller makes the key. Deliberately not translated:
     // this is on-disk identity, and the user renames it from the tree
     Coco::Path uniqueChildPath_(
         const Coco::Path& absoluteDir,
@@ -851,15 +807,15 @@ private:
     // fallthrough to text: openModel has already refused Unsupported, so
     // reaching that case here is a bug
     [[nodiscard]] AbstractFileModel*
-    makeModel_(const FileRef& ref, FileTypes::Type type)
+    makeModel_(const PathKey& key, FileTypes::Type type)
     {
         switch (type) {
         case FileTypes::Type::Text:
-            return new TextFileModel(ref, this);
+            return new TextFileModel(key, this);
         case FileTypes::Type::Pdf:
-            return new PdfFileModel(ref, this);
+            return new PdfFileModel(key, this);
         case FileTypes::Type::Image:
-            return new ImageFileModel(ref, this);
+            return new ImageFileModel(key, this);
         case FileTypes::Type::Unsupported:
             break;
         }
@@ -868,17 +824,17 @@ private:
         return nullptr;
     }
 
-    // Open buffers whose file is AT rel (a file relocation) or UNDER it (a
+    // Open buffers whose file is AT entry (a file relocation) or UNDER it (a
     // folder's). Collected before any mutation so the relocate loop can re-key
-    // safely. Coco::Path::isAtOrUnder walks parents component-wise, so
-    // "notes/a.txt" is not "under" "notes/a" by string prefix
+    // safely. PathKey::isAtOrUnder compares whole names, so "notes/a.txt" is
+    // not under "notes/a"
     [[nodiscard]] QList<AbstractFileModel*>
-    modelsAtOrUnder_(const Coco::Path& rel) const
+    modelsAtOrUnder_(const PathKey& entry) const
     {
         QList<AbstractFileModel*> out{};
 
         for (auto it = models_.constBegin(); it != models_.constEnd(); ++it) {
-            if (it.key().isAtOrUnder(rel)) {
+            if (it.key().isAtOrUnder(entry)) {
                 out << it.value();
             }
         }
@@ -887,67 +843,62 @@ private:
     }
 
     // The shared core of rename (in-place) and move (new parent): both relocate
-    // an entry from absoluteOld to absoluteNew, and everything past the target
+    // an entry from oldKey to newKey, and everything past the target
     // path is identical. Suppress the watcher on every buffer AT or UNDER the
     // old path BEFORE the disk op, or the disappearance of `old` reports as an
     // external deletion and closes its views (as writeModel_ suppresses around
     // a write). Snapshot that set now — reused to re-key after, or to restore
     // watches on a failed disk op, where nothing else changes. Returns the new
-    // vault-relative path (empty on failure)
-    Coco::Path
-    relocate_(const Coco::Path& absoluteOld, const Coco::Path& absoluteNew)
+    // key (empty on failure)
+    PathKey relocate_(const PathKey& oldKey, const PathKey& newKey)
     {
-        // Both ends must be inside this vault. relativePathOf is
-        // lexicallyRelative, which answers "../../elsewhere/note.txt" for a
-        // path outside the root rather than failing — and that string would go
-        // on to become a models_ key, a watched path, and the FileRef
-        // workspace.json persists. The tree already refuses these, but this is
-        // the authoritative refusal the callers are entitled to assume
-        if (!contains(absoluteOld) || !contains(absoluteNew)) {
+        // Both ends must be inside this vault, or a buffer would be keyed, and
+        // workspace.json would save a path, outside it. The tree already
+        // refuses these, but this is the authoritative refusal the callers are
+        // entitled to assume
+        if (!contains(oldKey) || !contains(newKey)) {
             WARN(
                 "Relocation of {} to {} leaves the vault!",
-                absoluteOld,
-                absoluteNew);
+                oldKey.path(),
+                newKey.path());
             return {};
         }
 
-        auto rel_old = relativePathOf(absoluteOld);
-        auto rel_new = relativePathOf(absoluteNew);
+        auto old_path = oldKey.path();
+        auto new_path = newKey.path();
 
         // The tree's folder watches inside the entry are released with the
         // buffers': on Windows each is a directory handle, and any handle
         // inside a folder stops it being renamed or moved
-        auto affected = modelsAtOrUnder_(rel_old);
+        auto affected = modelsAtOrUnder_(oldKey);
 
         for (auto* model : affected) {
-            watcher_->removePath(
-                absolutePathOf(model->fileRef().relative).toQString());
+            watcher_->removePath(model->key().path().toQString());
         }
 
-        treeModel_->releaseWatches(absoluteOld);
+        treeModel_->releaseWatches(old_path);
 
-        if (!renameOnDisk_(absoluteOld, absoluteNew)) {
+        if (!renameOnDisk_(old_path, new_path)) {
             for (auto* model : affected) {
-                watcher_->addPath(
-                    absolutePathOf(model->fileRef().relative).toQString());
+                watcher_->addPath(model->key().path().toQString());
             }
 
-            treeModel_->restoreWatches(absoluteOld);
+            treeModel_->restoreWatches(old_path);
 
-            WARN("Failed to relocate {} to {}!", absoluteOld, absoluteNew);
+            WARN("Failed to relocate {} to {}!", old_path, new_path);
             return {};
         }
 
         // The tree first, so views already show the new place when the
         // buffers' retitles fan out
-        treeModel_->applyRelocation(absoluteOld, absoluteNew);
+        treeModel_->applyRelocation(old_path, new_path);
 
         for (auto* model : affected) {
-            rekeyModel_(model, rel_old, rel_new);
+            rekeyModel_(model, oldKey, newKey);
         }
 
-        DEBUG(this, "Relocated {} -> {}", rel_old, rel_new);
-        return rel_new;
+        DEBUG(this, "Relocated {} -> {}", old_path, new_path);
+        return newKey;
     }
 
     // The disk rename, with the case-only special case. A pure case change
@@ -998,36 +949,34 @@ private:
         return candidate;
     }
 
-    // Re-key one buffer from the old path to the new after the disk rename.
-    // relOld/relNew are the renamed entry's own paths for a file, or the
-    // folder's for a folder rename — in which case the buffer's tail below
-    // relOld is transplanted under relNew. Moves the map key, the
-    // write-fingerprint, and the watch, then updates identity (which fans the
-    // retitle out to views)
+    // Re-key one buffer after the disk rename. oldBase/newBase are the renamed
+    // entry's own keys for a file, or the folder's for a folder rename — in
+    // which case the buffer's tail below oldBase is moved under newBase. Moves
+    // the map key, the write-fingerprint, and the watch, then updates identity
+    // (which fans the retitle out to views).
+    //
+    // Each entry is removed before it is put back: a change of letter case
+    // alone gives an equal key where case is ignored, and inserting first
+    // would leave the old spelling in the map
     void rekeyModel_(
         AbstractFileModel* model,
-        const Coco::Path& relOld,
-        const Coco::Path& relNew)
+        const PathKey& oldBase,
+        const PathKey& newBase)
     {
-        auto old_rel = model->fileRef().relative;
-        auto new_rel = (old_rel == relOld)
-                           ? relNew
-                           : relNew / old_rel.lexicallyRelative(relOld);
+        auto old_key = model->key();
+        auto new_key = old_key.rebased(oldBase, newBase);
 
-        auto old_abs = absolutePathOf(old_rel).toQString();
-        auto new_abs = absolutePathOf(new_rel).toQString();
+        models_.remove(old_key);
+        models_.insert(new_key, model);
 
-        models_.remove(old_rel);
-        models_.insert(new_rel, model);
-
-        if (auto it = lastWrittenHash_.constFind(old_abs);
-            it != lastWrittenHash_.constEnd()) {
-            lastWrittenHash_.insert(new_abs, it.value());
-            lastWrittenHash_.remove(old_abs);
+        if (lastWrittenHash_.contains(old_key)) {
+            auto hash = lastWrittenHash_.take(old_key);
+            lastWrittenHash_.insert(new_key, hash);
         }
 
-        watcher_->addPath(new_abs); // dropped before the disk op, re-armed here
-        model->renameTo(FileRef{ this, new_rel });
+        // Dropped before the disk op, re-armed here
+        watcher_->addPath(new_key.path().toQString());
+        model->renameTo(new_key);
     }
 
     // What writeModel_ did. FileGone isn't a save failure: the file was deleted
@@ -1061,7 +1010,8 @@ private:
     // discarded
     WriteResult_ writeModel_(AbstractFileModel* model)
     {
-        auto abs = absolutePathOf(model->fileRef().relative);
+        auto key = model->key();
+        auto abs = key.path();
         auto q_abs = abs.toQString();
 
         if (!abs.exists()) {
@@ -1110,7 +1060,7 @@ private:
         // Fingerprint exactly what we wrote, then re-watch. reconcileChanges_
         // compares disk to this, so our own save — and its watcher echo — is
         // recognized and ignored no matter what the buffer does next
-        lastWrittenHash_.insert(q_abs, qHash(bytes));
+        lastWrittenHash_.insert(key, qHash(bytes));
         watcher_->addPath(q_abs);
 
         model->setModified(false);
@@ -1128,12 +1078,11 @@ private:
     // then lands on evictModel_'s stale-signal guard
     void discardModel_(AbstractFileModel* model)
     {
-        auto relative = model->fileRef().relative;
-        auto q_abs = absolutePathOf(relative).toQString();
+        auto key = model->key();
 
-        models_.remove(relative);
-        watcher_->removePath(q_abs);
-        lastWrittenHash_.remove(q_abs);
+        models_.remove(key);
+        watcher_->removePath(key.path().toQString());
+        lastWrittenHash_.remove(key);
         model->notifyRemovedFromDisk();
         model->deleteLater();
     }
@@ -1155,15 +1104,15 @@ private:
     // dies, and no closingDown() guard is needed
     void evictModel_(AbstractFileModel* model)
     {
-        auto relative = model->fileRef().relative;
+        auto key = model->key();
 
         // Stale-signal guard. External deletion (reconcileChanges_) already
         // dropped this model from the map and deleteLater'd it; its views then
         // self-close on removedFromDisk, and the LAST one firing lastViewClosed
         // lands here on a model already gone. The identity check additionally
-        // refuses to free a DIFFERENT model re-inserted under the same relative
+        // refuses to free a DIFFERENT model re-inserted under the same key
         // (delete + recreate + reopen) off an old model's late signal
-        auto it = models_.constFind(relative);
+        auto it = models_.constFind(key);
 
         if (it == models_.constEnd() || it.value() != model) {
             return;
@@ -1179,16 +1128,15 @@ private:
             return;
         }
 
-        auto q_abs = absolutePathOf(relative).toQString();
-        models_.remove(relative);
-        watcher_->removePath(q_abs);
-        lastWrittenHash_.remove(q_abs);
+        models_.remove(key);
+        watcher_->removePath(key.path().toQString());
+        lastWrittenHash_.remove(key);
         model->deleteLater();
 
         DEBUG(
             this,
             "Evicted viewless model for {} (total: {})",
-            relative,
+            key.path(),
             models_.size());
     }
 
@@ -1263,9 +1211,9 @@ private:
 
         for (const auto& q_abs : changed) {
             auto abs = Coco::Path(q_abs);
-            auto relative = relativePathOf(abs);
+            auto key = PathKey::of(abs);
 
-            auto it = models_.constFind(relative);
+            auto it = models_.constFind(key);
 
             if (it == models_.constEnd()) {
                 continue; // not a file we hold a buffer for
@@ -1308,7 +1256,7 @@ private:
             // recorded. True regardless of how far the buffer has advanced —
             // which is why we compare to the fingerprint and not to the live
             // buffer. Ignore it
-            if (auto h = lastWrittenHash_.constFind(q_abs);
+            if (auto h = lastWrittenHash_.constFind(key);
                 h != lastWrittenHash_.constEnd() && *h == disk_hash) {
                 continue;
             }
@@ -1317,7 +1265,7 @@ private:
             // already hold, there is nothing to do — sync our fingerprint and
             // move on, so a no-op change is silent
             if (*disk == model->data()) {
-                lastWrittenHash_.insert(q_abs, disk_hash);
+                lastWrittenHash_.insert(key, disk_hash);
                 DEBUG(
                     this,
                     "External no-op (disk == buffer): {}",
@@ -1330,7 +1278,7 @@ private:
             // undecodable sequences become U+FFFD in the buffer and reach disk
             // at the next edit. Rare, and accepted — logged so it's findable
             // when someone asks where their quotes went
-            if (FileTypes::typeOf(relative) == FileTypes::Type::Text &&
+            if (FileTypes::typeOf(abs) == FileTypes::Type::Text &&
                 !TextFileModel::isValidUtf8(*disk)) {
                 WARN(
                     this,
@@ -1348,7 +1296,7 @@ private:
             // — the gate goes here, on model->isModified().)
             DEBUG(this, "External change — reload: {}", abs.prettyQString());
             model->reloadContent(*disk);
-            lastWrittenHash_.insert(q_abs, disk_hash);
+            lastWrittenHash_.insert(key, disk_hash);
             model->notifyReloaded();
         }
     }

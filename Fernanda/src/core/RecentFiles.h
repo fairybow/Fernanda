@@ -15,7 +15,7 @@
 #include <QList>
 #include <QtTypes>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 
 namespace Fernanda {
 
@@ -31,19 +31,19 @@ class RecentFiles
 public:
     static constexpr qsizetype MAX = 10;
 
-    [[nodiscard]] const QList<FileRef>& files() const noexcept
+    [[nodiscard]] const QList<PathKey>& files() const noexcept
     {
         return files_;
     }
 
-    void record(const FileRef& fileRef)
+    void record(const PathKey& key)
     {
-        if (!fileRef.vault || fileRef.relative.isEmpty()) {
+        if (key.isEmpty()) {
             return;
         }
 
-        files_.removeAll(fileRef);
-        files_.prepend(fileRef);
+        files_.removeAll(key);
+        files_.prepend(key);
 
         if (files_.size() > MAX) {
             files_.resize(MAX);
@@ -52,7 +52,7 @@ public:
 
     // Replace the list, as when it is restored: the first is the newest. A
     // repeat keeps its first place; past MAX, the rest are dropped
-    void setFiles(const QList<FileRef>& files)
+    void setFiles(const QList<PathKey>& files)
     {
         files_.clear();
 
@@ -62,7 +62,7 @@ public:
     }
 
 private:
-    QList<FileRef> files_{};
+    QList<PathKey> files_{};
 };
 
 } // namespace Fernanda

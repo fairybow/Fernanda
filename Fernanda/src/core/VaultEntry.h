@@ -18,7 +18,7 @@
 
 namespace Fernanda {
 
-// One row of the vaults list. A plain value, like FileRef: nobody owns it, and
+// One row of the vaults list. A plain value, like PathKey: nobody owns it, and
 // App builds a fresh QList<VaultEntry> on demand from AppConfig's recents,
 // handing it to the two surfaces that render the list — ManageVaults' recents
 // column and each window's VaultSwitcher menu.

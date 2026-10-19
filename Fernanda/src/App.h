@@ -34,6 +34,7 @@
 #include "core/BundledFonts.h"
 #include "core/CMakeMacroGuard.h"
 #include "core/Clargs.h"
+#include "core/PathKey.h"
 #include "core/Publication.h"
 #include "core/Translations.h"
 #include "core/Updater.h"
@@ -229,6 +230,16 @@ private:
         window->activateWindow();
     }
 
+    // A vault folder as App keys it: resolved through symlinks, so one folder
+    // reached two ways is one Vault, and every file key made under it starts
+    // from the same spelling. A folder that isn't there yet can't be resolved,
+    // and is only normalized. Either way it's spelled as PathKey spells paths
+    [[nodiscard]] static Coco::Path resolvedRoot_(const Coco::Path& root)
+    {
+        auto resolved = root.canonical();
+        return PathKey::of(resolved.isEmpty() ? root : resolved).path();
+    }
+
     void setup_()
     {
         // NB: Logging will not work in this function! (It's initialized in
@@ -334,7 +345,8 @@ private:
     {
         // commonVaultPath() falls back to AppDirs::defaultCommonVault()
         // when unset
-        commonVault_ = new Vault(appConfig_.commonVaultPath(), this);
+        commonVault_ =
+            new Vault(resolvedRoot_(appConfig_.commonVaultPath()), this);
     }
 
     // Restore last session's vaults: reopen every vault marked open whose
@@ -544,8 +556,12 @@ private:
         }
     }
 
-    void onOpenOrMakeVaultRequested_(const Coco::Path& vaultRoot)
+    // requestedRoot is resolved first, so the open-vaults map, the known-vaults
+    // list, and the common-root check below all see one spelling per folder
+    void onOpenOrMakeVaultRequested_(const Coco::Path& requestedRoot)
     {
+        auto vaultRoot = resolvedRoot_(requestedRoot);
+
         if (auto it = openVaults_.constFind(vaultRoot);
             it != openVaults_.constEnd()) {
             raiseWindow_(it.value().vaultWindow);
@@ -560,7 +576,7 @@ private:
         // Vault this window's vault_ IS its commonVault_, and every "is this
         // the Common Vault?" question downstream — the Sidebar's drawer, the
         // FileSwitcher's second listing, the tab indicator — answers itself
-        auto* vault = (vaultRoot == commonVault_->root())
+        auto* vault = (PathKey::of(vaultRoot) == commonVault_->rootKey())
                           ? commonVault_
                           : new Vault(vaultRoot, this);
 

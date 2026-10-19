@@ -29,12 +29,14 @@
 
 #include <Coco/Path.h>
 
+#include "core/PathKey.h"
 #include "core/Vault.h"
 #include "models/AbstractFileModel.h"
 #include "models/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;
+using Fernanda::PathKey;
 using Fernanda::TextFileModel;
 using Fernanda::Vault;
 
@@ -114,8 +116,8 @@ private:
         [[nodiscard]] AbstractFileModel* open(const QString& relative)
         {
             return vault.openModel(
-                Coco::Path(relative),
-                [](const Coco::Path&, const QByteArray&) { return false; });
+                PathKey::of(root / Coco::Path(relative)),
+                [](const PathKey&, const QByteArray&) { return false; });
         }
     };
 

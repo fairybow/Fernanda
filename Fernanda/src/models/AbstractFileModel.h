@@ -18,7 +18,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 
 namespace Fernanda {
 
@@ -31,30 +31,28 @@ namespace Fernanda {
 // all handle the base type; only the Vault's model factory names a concrete
 // one.
 //
-// Owned by the Vault (QObject parent). No back-pointer to any window — the
-// FileRef carries the vault it belongs to, and that is enough.
+// Owned by the Vault (QObject parent). No back-pointer to any window or vault:
+// the key says which file it is, and each window works out from the key which
+// of its vaults the file belongs to.
 class AbstractFileModel : public QObject
 {
     Q_OBJECT
 
 public:
-    AbstractFileModel(const FileRef& fileRef, QObject* parentVault)
+    AbstractFileModel(const PathKey& key, QObject* parentVault)
         : QObject(parentVault)
-        , fileRef_(fileRef)
+        , key_(key)
     {
     }
 
     ~AbstractFileModel() override = default;
 
-    [[nodiscard]] FileRef fileRef() const noexcept { return fileRef_; }
+    [[nodiscard]] PathKey key() const { return key_; }
 
-    // The relative path is the buffer's identity within its vault; its stem is
-    // the display title. No title-override machinery — files are always on
-    // disk, so the filename is always the name
-    [[nodiscard]] QString title() const
-    {
-        return fileRef_.relative.stemQString();
-    }
+    // The key is the buffer's identity; its stem is the display title. No
+    // title-override machinery — files are always on disk, so the filename is
+    // always the name
+    [[nodiscard]] QString title() const { return key_.path().stemQString(); }
 
     // The contract. Everything else is optional and defaulted for the
     // non-editable types (image, PDF), whose save() would be a lie
@@ -72,14 +70,14 @@ public:
 
     // Re-point this buffer after its file — or an ancestor folder — was renamed
     // in place. The Vault owns identity and calls this after the on-disk rename
-    // and map re-key; the vault is unchanged, only the relative path moves.
+    // and map re-key.
     // Emits renamed() so views retitle: a direct file rename changes title()
     // (the stem); an ancestor-folder rename leaves the stem the same, and the
     // view's windowTitle simply doesn't re-emit when the text is unchanged, so
     // a folder rename re-keys with no tab churn
-    void renameTo(const FileRef& newRef)
+    void renameTo(const PathKey& newKey)
     {
-        fileRef_ = newRef;
+        key_ = newKey;
         emit renamed();
     }
 
@@ -128,14 +126,14 @@ public:
         DEBUG(
             this,
             "View added to model [{}] — total views: {}",
-            fileRef_.relative,
+            key_.path(),
             viewCount_);
 
         connect(view, &QObject::destroyed, this, [this] {
             DEBUG(
                 this,
                 "View removed from model [{}] — total views: {}",
-                fileRef_.relative,
+                key_.path(),
                 viewCount_ - 1);
 
             if (--viewCount_ == 0) {
@@ -180,7 +178,7 @@ signals:
     // The buffer was replaced from disk after an external change
     void reloaded();
 
-    // The file was renamed in place, or an ancestor folder was — fileRef() and
+    // The file was renamed in place, or an ancestor folder was — key() and
     // title() now reflect the new path. Views retitle their tab; a shared
     // common-vault file has one model, so every window's views react together
     void renamed();
@@ -200,7 +198,7 @@ signals:
     void redoAvailable(bool available);
 
 private:
-    FileRef fileRef_;
+    PathKey key_;
 
     // Views borrowing this model. Not the view objects themselves — just how
     // many — since the only consumer is the last-view-close eviction edge

@@ -23,7 +23,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 #include "models/AbstractFileModel.h"
 
 namespace Fernanda {
@@ -70,8 +70,8 @@ class ImageFileModel : public AbstractFileModel
     Q_OBJECT
 
 public:
-    ImageFileModel(const FileRef& fileRef, QObject* parentVault)
-        : AbstractFileModel(fileRef, parentVault)
+    ImageFileModel(const PathKey& key, QObject* parentVault)
+        : AbstractFileModel(key, parentVault)
     {
     }
 
@@ -136,7 +136,7 @@ private:
             // as "Unsupported image format"
             WARN(
                 "Image decode failed for {}: {}",
-                fileRef().relative,
+                key().path(),
                 reader.errorString());
             return;
         }

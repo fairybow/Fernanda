@@ -193,14 +193,13 @@ set(APP_HEADERS
     src/core/AppConfig.h
     src/core/AppDirs.h
     src/core/BundledFonts.h
-    src/core/CanonicalPath.h
     src/core/Clargs.h
     src/core/CMakeMacroGuard.h
     src/core/CoreConstants.h
-    src/core/FileRef.h
     src/core/FileTypes.h
     src/core/Io.h
     src/core/JsonIo.h
+    src/core/PathKey.h
     src/core/Publication.h
     src/core/RecentFiles.h
     src/core/TextCounts.h

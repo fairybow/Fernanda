@@ -50,7 +50,7 @@ namespace Fernanda::Ui {
 // created (ensureVaultDotDir). Workspace refs are vault-relative PATHS, with no
 // id.
 //
-// The FileRef<->view translation, the recent files, and the pop-out lifecycle
+// The path<->view translation, the recent files, and the pop-out lifecycle
 // all belong to VaultWindow (the composition root), so they arrive as Hooks:
 // this class knows geometry, sidebar sizes, and the opaque tree blob — never
 // what a page IS or how a window is made. The recent files are read when a save
@@ -77,7 +77,7 @@ public:
     };
 
     // Everything VaultWindow provides that this class can't know itself: the
-    // page<->JSON translation (FileRef resolution lives in VaultWindow) and the
+    // page<->JSON translation (path resolution lives in VaultWindow) and the
     // pop-out lifecycle (VaultWindow is the single owner of creation). Bundled
     // so the constructor stays readable
     struct Hooks

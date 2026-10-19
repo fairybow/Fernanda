@@ -21,7 +21,7 @@
 
 #include <Coco/Path.h>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 #include "models/AbstractFileModel.h"
 #include "models/TextFileModel.h"
 
@@ -66,10 +66,10 @@ private:
         QTextDocument document_{};
     };
 
-    // No vault is needed: the model only stores the reference
-    [[nodiscard]] static Fernanda::FileRef fileRef_()
+    // No file is needed: the model only stores its key
+    [[nodiscard]] static Fernanda::PathKey key_()
     {
-        return { nullptr, Coco::Path("a.txt") };
+        return Fernanda::PathKey::of(Coco::Path::Temp("a.txt"));
     }
 
 private slots:
@@ -147,7 +147,7 @@ private slots:
     {
         QFETCH(QByteArray, bytes);
 
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData(bytes);
 
         QCOMPARE(model.data(), bytes);
@@ -201,7 +201,7 @@ private slots:
         QFETCH(QByteArray, bytes);
         QFETCH(QByteArray, expected);
 
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData(bytes);
 
         QCOMPARE(model.data(), expected);
@@ -266,7 +266,7 @@ private slots:
 
     void editMarksModifiedAndAnnounces()
     {
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData("one\n");
 
         QSignalSpy content_changed(
@@ -314,7 +314,7 @@ private slots:
         QFETCH(QByteArray, bytes);
         QFETCH(QByteArray, expected);
 
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData(bytes);
 
         ViewDocument_ view(model);
@@ -325,7 +325,7 @@ private slots:
 
     void undoAndRedoAnEdit()
     {
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData("one\n");
         QVERIFY(!model.isUndoAvailable());
 
@@ -348,7 +348,7 @@ private slots:
     // setData is the open path: nothing from before it can be undone
     void setDataClearsUndo()
     {
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData("one\n");
 
         ViewDocument_ view(model);
@@ -366,7 +366,7 @@ private slots:
     // again, and undo brings back what it held before
     void reloadIsUndoable()
     {
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData("one\n");
 
         model.reloadContent("two\n");
@@ -389,7 +389,7 @@ private slots:
     // A reload over unsaved typing loses nothing: undo restores the typing
     void reloadKeepsUnsavedEditsOnTheUndoStack()
     {
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData("one\n");
 
         ViewDocument_ view(model);
@@ -408,7 +408,7 @@ private slots:
     // would write it over the external change
     void typingAfterAReloadUndoesOnItsOwn()
     {
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData("one");
 
         ViewDocument_ view(model);
@@ -429,7 +429,7 @@ private slots:
     // text only, so the restored text is saved in the adopted format
     void reloadAdoptsFormat()
     {
-        TextFileModel model(fileRef_(), nullptr);
+        TextFileModel model(key_(), nullptr);
         model.setData("a\nb\n");
 
         model.reloadContent(

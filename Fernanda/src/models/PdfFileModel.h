@@ -19,7 +19,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 #include "models/AbstractFileModel.h"
 
 namespace Fernanda {
@@ -45,8 +45,8 @@ class PdfFileModel : public AbstractFileModel
     Q_OBJECT
 
 public:
-    PdfFileModel(const FileRef& fileRef, QObject* parentVault)
-        : AbstractFileModel(fileRef, parentVault)
+    PdfFileModel(const PathKey& key, QObject* parentVault)
+        : AbstractFileModel(key, parentVault)
     {
         setup_();
     }
@@ -107,7 +107,7 @@ private:
             this,
             [this](QPdfDocument::Status status) {
                 if (status == QPdfDocument::Status::Error) {
-                    WARN("PDF load failed for {}!", fileRef().relative);
+                    WARN("PDF load failed for {}!", key().path());
                 }
             });
     }

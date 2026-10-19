@@ -21,7 +21,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 #include "models/AbstractFileModel.h"
 #include "models/PrimeDocument.h"
 
@@ -45,8 +45,8 @@ class TextFileModel : public AbstractFileModel
     Q_OBJECT
 
 public:
-    TextFileModel(const FileRef& fileRef, QObject* parentVault)
-        : AbstractFileModel(fileRef, parentVault)
+    TextFileModel(const PathKey& key, QObject* parentVault)
+        : AbstractFileModel(key, parentVault)
     {
         setup_();
     }
