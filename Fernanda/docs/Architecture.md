@@ -29,7 +29,7 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | Folder | Holds |
 |---|---|
 | `src/` | `Main.cpp`, `App`, and the log window |
-| `core/` | `Vault`, the vault tree model, configuration, file IO, file types, action ids |
+| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `models/` | One buffer class per file type, and the prime document |
 | `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles and typing helpers, the find bar and the search functions behind it, and the zoom control with its state |
@@ -49,7 +49,7 @@ Includes run one way, from the top of this list down:
 - `ui/widgets/` takes nothing from the app but `ui/UiConstants.h`, which itself includes nothing of Fernanda's.
 - `core/` and `models/` include each other, and nothing from `views/` or `ui/`.
 
-`Vault` and everything it owns create no window or widget and refer to none, so the data layer can't come to depend on one. They are not limited to QtCore: a text buffer is a `QTextDocument` with a plain-text layout (QtGui and QtWidgets), an image buffer holds a `QPixmap`, and a PDF buffer a `QPdfDocument`. `VaultTreeModel` and the configuration types are QtCore only.
+`Vault`, `BufferStore`, and everything they own create no window or widget and refer to none, so the data layer can't come to depend on one. They are not limited to QtCore: a text buffer is a `QTextDocument` with a plain-text layout (QtGui and QtWidgets), an image buffer holds a `QPixmap`, and a PDF buffer a `QPdfDocument`. `VaultTreeModel` and the configuration types are QtCore only.
 
 [Coco](https://github.com/fairybow/Coco), a submodule, supplies paths (`Coco::Path`), logging, debounce timers, and the single-instance guard. [Hunspell](https://github.com/hunspell/hunspell), also a submodule and pinned to a release tag, checks spelling. It has no CMake build of its own, so Fernanda's CMake builds its sources as a static library, with its warnings off.
 
@@ -59,6 +59,7 @@ Includes run one way, from the top of this list down:
 flowchart TD
     App["App : QApplication"]
 
+    App -->|owns, exactly one| BS["BufferStore"]
     App -->|owns, exactly one| CV["Vault (common)"]
     App -->|owns, 0..N| VA["Vault A"]
     App -->|owns, 0..N| VB["Vault B"]
@@ -69,19 +70,27 @@ flowchart TD
     WB -.->|borrows| VB
     WA -.->|borrows| CV
     WB -.->|borrows| CV
+    WA -.->|borrows| BS
+    WB -.->|borrows| BS
+    VA -.->|borrows| BS
+    VB -.->|borrows| BS
+    CV -.->|borrows| BS
 ```
 
 | Owner | Owns |
 |---|---|
-| `App` | The common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
-| `Vault` | Its file buffers, a watcher over its open files, its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.fernanda/` folder |
+| `App` | The `BufferStore`, the common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
+| `BufferStore` | Every open file's buffer, the watcher over open files, the autosave timers. Keeps a list of every vault's `VaultTreeModel`, which it doesn't own |
+| `Vault` | Its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.fernanda/` folder. Borrows the store |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
-| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows two vaults |
+| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows two vaults and the store |
 | `PopoutWindow` | Nothing of its own. Its `VaultWindow` wires it |
 
 **`App` owns every `Vault`.** If windows owned their vaults, `Vault` would have two kinds of owner: `App` for the common one, a window for the rest. Owning them all in one place makes the Common Vault an ordinary `Vault` that happens to have no window.
 
-**One `Vault` per folder.** `App` enforces it. The Common Vault can be opened as a window of its own, and that window is given the `Vault` that `App` already holds. A second `Vault` over the same folder would mean two buffers for one file, each autosaving over the other. Because of this, "is this window the Common Vault's own?" is a pointer comparison everywhere it is asked.
+**One store for every buffer.** A file has one buffer however many windows show it and however many vaults contain it: vaults may nest, and a project vault may contain the Common Vault. If each vault kept its own buffers, a file inside two vaults would have two, each autosaving over the other and each reloading the other's saves as outside changes, and a rename in one vault would discard the other's buffer with its unsaved text. So `App` makes one `BufferStore` before any `Vault` and lends it to every `Vault` and every window. A `Vault` keeps what is its folder's alone: the tree, the settings, and the dictionary.
+
+**One `Vault` per folder.** `App` enforces it, comparing folders after resolving them through symlinks (see "Identity"). The Common Vault can be opened as a window of its own, and that window is given the `Vault` that `App` already holds. A second `Vault` over one folder would split its settings and dictionary between two objects. Because of this, "is this window the Common Vault's own?" is a pointer comparison everywhere it is asked.
 
 **Windows are tracked, not owned.** They are parentless top-level widgets that delete themselves on close. `App` holds pointers to them and reacts to their `destroyed` signal.
 
@@ -91,10 +100,10 @@ These rules are easy to break and expensive to rediscover.
 
 - **`destroyed` arrives from a half-dead object.** It is emitted from `~QObject`, after the derived parts are gone, so the sender can't be cast back to its type. A handler that needs to know which window died captures the key (the vault's path) in the connection.
 - **A child's signals can reach a parent whose destructor has finished.** A widget deletes its children in `~QWidget`, after its own class's destructor has run, and Qt cuts a receiver's connections only in its `~QObject`, later still. So a parent's handler for a child's `destroyed` can run on an object that is no longer its own type, and reading any of its members then is undefined behavior. A parent that handles its children's `destroyed` cuts those connections in its own destructor, as `TabPaneLeaf` does with its pages.
-- **A `Vault` is disposed with `deleteLater`, never `delete`.** `destroyed` is emitted before the object's children are deleted, so the window's views may still be alive and holding the vault's buffers. Deferring puts the vault's deletion after the window is fully gone.
-- **The common `Vault` is never disposed by a window closing.** It belongs to `App` and other windows still hold its buffers.
+- **A `Vault` is disposed with `deleteLater`, never `delete`.** `destroyed` is emitted before the object's children are deleted, so the window's views and sidebar may still be alive and connected to the vault. Deferring puts the vault's deletion after the window is fully gone.
+- **The common `Vault` is never disposed by a window closing.** It belongs to `App`, and other windows still show its tree.
 - **Buffers watch `destroyed`; views don't call back.** A buffer counts its views by connecting to each one's `destroyed`. No view destructor calls into its buffer, so teardown order doesn't matter.
-- **A view always outlives its reach into the vault.** A window and its views are destroyed a full event-loop pass before its vault is. At quit, Qt destroys top-level windows before `App`'s children. So the last view closing always finds a live `Vault`.
+- **A view always outlives its reach into the store.** The store is `App`'s and never dies with a window, and at quit Qt destroys top-level windows before `App`'s children. So the last view closing always finds a live `BufferStore`.
 - **`App` decides when to quit.** Quit-on-last-window is off. The app quits when no vault window is open and the vault picker isn't up.
 - **Quit goes through each window's close.** The Quit action closes each vault window in turn and stops at the first refusal. It never calls `quit()` directly, which would skip the final save and the chance to refuse.
 - **Pop-outs are siblings of their vault window,** not Qt children: a child window can never be stacked behind its parent. The vault window keeps a list of its pop-outs and closes them itself.
@@ -128,7 +137,7 @@ flowchart TD
 
 - **`BaseWindow`** is what both window types share: a `TabPaneTree`, the action registry, the status bar, and the actions any window can perform itself (undo, redo, zoom).
 - **`VaultWindow`** adds the sidebar, file opening, workspace persistence, and the settings dialog. It is the only place pop-outs are created, and it wires every pop-out's tree the same way it wires its own.
-- **`PopoutWindow`** adds nothing. It has no close logic, because it has no state: buffers live in the `Vault`.
+- **`PopoutWindow`** adds nothing. It has no close logic, because it has no state: buffers live in the `BufferStore`.
 
 ### The composition rule
 
@@ -190,21 +199,23 @@ A file dragged from a file tree uses a separate private format carrying absolute
 
 ### One buffer per file
 
-Each `Vault` keeps one buffer for each of its open files, keyed by the file's path relative to the vault. Every view of that file, in any tab, pane, or window, shares it. Since every window borrows the same common `Vault`, a Common Vault file open in two project windows is one buffer, and live sync between windows needs no mechanism of its own.
+The `BufferStore` keeps one buffer for each open file, keyed by the file's `PathKey`. Every view of that file, in any tab, pane, or window, shares it, so a file open in two windows is one buffer, and live sync between windows needs no mechanism of its own. The same holds for a file inside two vaults: it has one key, so it has one buffer.
 
-A buffer is freed when its last view closes, after a final save. If that save fails, the buffer is kept.
+A buffer is freed when its last view closes, in any window, after a final save. If that save fails, the buffer is kept.
 
 Closing a tab does no file IO. It destroys a view, not a buffer.
 
 ### File identity
 
-A file is identified by a `FileRef`: a vault and a path relative to it. A bare path isn't enough, because one window reaches two vaults. `Vault::makeFileRef` is the single place an absolute path becomes a `FileRef`.
+A file is identified by its `PathKey`: its absolute path, normalized (see "Identity"). A model holds its key; nothing in a model or a view points at a `Vault`.
 
-The file tree hands out absolute paths and never a `FileRef`; the sidebar knows which vault each tree belongs to.
+Which vault a file belongs to is a question each window asks, not something the file carries: in a window, a file inside the window's own vault is that vault's, even when the Common Vault contains it too, and otherwise it is the Common Vault's when that contains it (`VaultWindow::vaultOf_`). Opening, the guest mark on a tab, and `workspace.json` all go by that answer. So one buffer can be a project file in one window and a Common Vault file in another.
+
+The file trees hand out absolute paths; the sidebar makes them keys.
 
 ### Buffers
 
-`AbstractFileModel` is the base: its `FileRef`, its bytes in and out, modified state, undo, and the view count. A buffer does no file IO. The `Vault` reads bytes and gives them to the buffer, and takes bytes from it to write.
+`AbstractFileModel` is the base: its key, its bytes in and out, modified state, undo, and the view count. A buffer does no file IO. The store reads bytes and gives them to the buffer, and takes bytes from it to write.
 
 | Class | Holds |
 |---|---|
@@ -212,7 +223,7 @@ The file tree hands out absolute paths and never a `FileRef`; the sidebar knows 
 | `PdfFileModel` | The file's bytes and one parsed PDF document, shared by every view |
 | `ImageFileModel` | The file's bytes and one decoded image, shared by every view |
 
-Which class a file gets is decided by its extension, from one table in `core/FileTypes.h`. The same table decides what the file trees and Go to File list, so they can't disagree with what the vault will open. `Vault::openModel` refuses anything not in the table before reading it; that refusal is the authority, and the hiding upstream is a courtesy.
+Which class a file gets is decided by its extension, from one table in `core/FileTypes.h`. The same table decides what the file trees and Go to File list, so they can't disagree with what the vault will open. `BufferStore::openModel` refuses anything not in the table before reading it; that refusal is the authority, and the hiding upstream is a courtesy.
 
 PDF and image buffers share no base beyond `AbstractFileModel`. What they have in common is one byte array.
 
@@ -251,18 +262,20 @@ Nothing here is user-facing. There is no modified marker and no save command. A 
 
 ### One write site
 
-Every save, whatever triggered it, goes through one private function in `Vault`. That is where the write is fingerprinted for the watcher, where a failure is logged, and where a missing file is detected. A failed write leaves the buffer modified, so the next trigger retries it.
+Every save, whatever triggered it, goes through one private function in `BufferStore`. That is where the write is fingerprinted for the watcher, where a failure is logged, and where a missing file is detected. A failed write leaves the buffer modified, so the next trigger retries it.
 
 | Trigger | Where |
 |---|---|
-| Typing | `Vault`: one debounce and one ceiling timer for the whole vault |
+| Typing | `BufferStore`: one debounce and one ceiling timer for every buffer |
 | App loses focus | `App` |
-| A window closes | `VaultWindow`, before it accepts the close |
-| Quit | `App`. The common `Vault` has no window, so nothing else would save it |
+| A window closes | `VaultWindow`, before it accepts the close: the files its views show, in it and its pop-outs |
+| Quit | `App`: every buffer, including one no window shows |
 | OS logout | `App`. Logout never delivers a close event |
-| A buffer's last view closes | `Vault` |
+| A buffer's last view closes | `BufferStore` |
 
-The debounce restarts on every edit and fires when typing pauses. The ceiling starts once per burst and is never restarted, so it still fires under input that never pauses. Whichever fires first saves every modified buffer. One pair per vault is enough: one writer types one burst at a time.
+The debounce restarts on every edit and fires when typing pauses. The ceiling starts once per burst and is never restarted, so it still fires under input that never pauses. Whichever fires first saves every modified buffer. One pair for the whole app is enough: one writer types one burst at a time.
+
+A window close saves only the files the window shows, so a file that fails to save in another window can't hold this one open. A buffer no window shows, kept after its last view's save failed, is retried on focus loss and at quit. Each of these exit paths also writes its vault's pending settings change (`Vault::saveSettingsNow`).
 
 ### A save never creates
 
@@ -282,10 +295,10 @@ A text file is written back as it was read, apart from the user's edits. The pri
 
 ## Watching the filesystem
 
-A `Vault` has two watchers, because they track different things with different lifetimes.
+Two kinds of watcher track different things with different lifetimes.
 
-- **The buffer watcher** watches each open file, for as long as it is open.
-- **The tree model's watcher** watches each folder a tree view has listed.
+- **The buffer watcher**, one in the `BufferStore`, watches each open file, for as long as it is open.
+- **Each tree model's watcher** watches each folder a view of that vault's tree has listed.
 
 ### Open files
 
@@ -294,11 +307,11 @@ Change events are collected and handled together a moment later, so a Git checko
 For each changed path:
 
 - **Gone:** the buffer is discarded and its views close themselves, in every window.
-- **Bytes equal to what Fernanda last wrote:** ignored. The vault records a hash of each write, and compares disk against that hash, not against the live buffer, which typing may have moved on.
+- **Bytes equal to what Fernanda last wrote:** ignored. The store records a hash of each write, and compares disk against that hash, not against the live buffer, which typing may have moved on.
 - **Bytes equal to the buffer:** ignored.
 - **Anything else:** reloaded into the buffer as one undoable edit.
 
-Two details matter on every platform. Many programs save by writing a temporary file and renaming it, which drops the path from the watcher, so a path is re-added after any change. And the vault's own saves work the same way, so the watch is removed around each write and restored after.
+Two details matter on every platform. Many programs save by writing a temporary file and renaming it, which drops the path from the watcher, so a path is re-added after any change. And Fernanda's own saves work the same way, so the watch is removed around each write and restored after.
 
 ### Vault folders
 
@@ -315,7 +328,7 @@ When Fernanda becomes the active application again, `App` checks that every open
 - **Hidden and unsupported entries are never listed,** so they are never watched. Nothing under `.git/` holds a handle.
 - **A node stores only its name.** A path is built by walking up to the root, so renaming or moving a folder changes one node.
 - **Outside changes re-list the folder as a diff.** Unchanged entries keep their nodes, so views keep their expansion and selection. A re-list that finds nothing to do is harmless, so the model needs no suppression of its own writes.
-- **Fernanda's own operations update the model directly.** Before a rename, move, or delete, the vault releases the watches at or under the entry; afterward it moves or removes the node itself. A moved folder's node is the same object, so it stays expanded in every view.
+- **Fernanda's own operations update the model directly.** Before a rename, move, or delete, the store releases the watches at or under the entry in every vault's tree, not only the acting vault's: vaults can nest, and another vault's window may have listed a folder inside the entry. Afterward it moves or removes the node in every tree. A moved folder's node is the same object, so it stays expanded in every view, in every vault's window. Left to its own watcher, another vault's tree would re-list the folder and see a new, collapsed entry.
 - **Paths are typed.** Views read a `Coco::Path` and an is-folder flag from the model, not Qt item roles.
 
 Outside programs are still blocked from renaming a folder that Fernanda has listed a subfolder of. See "Watching a whole vault through one handle" in [Future.md](Future.md).
@@ -326,15 +339,20 @@ Outside programs are still blocked from renaming a folder that Fernanda has list
 
 The cost is that a moved vault is a new vault. The benefit is that a copied vault folder is simply a second vault, with nothing to collide.
 
-Paths are compared as values, element by element, so slash direction and repeated slashes don't matter. A trailing slash, `.` and `..` segments, relative paths, letter case on Windows, and symlinks do. Paths from the folder picker and from the known-vaults list are already clean; command-line arguments are the one input that will need normalizing. `Coco::Path` is deliberately not canonical on construction: that would make it impossible to name a path that doesn't exist yet, and would put a filesystem call in a value type.
+**A file is its `PathKey`.** `Coco::Path` compares paths as written, so a trailing slash, `.` and `..` segments, and letter case make two spellings of one file differ. `Coco::Path` is deliberately not canonical on construction: that would make it impossible to name a path that doesn't exist yet, and would put a filesystem call in a value type. `PathKey` (`core/PathKey.h`) is the normalized form every buffer and file operation goes by:
 
-**`Vault` takes only plain paths.** A plain path is a list of names: no `.` or `..` segment and no trailing slash (`Coco::Path::isPlain`). Because paths are compared as written, `<vault>/a/../..` reads as under the vault it climbs out of, and `a/./b` is a second key for the buffer at `a/b`. So every public `Vault` function that takes a path refuses one that isn't plain, and never normalizes it:
+- **Made from the path alone.** `.` and `..` are removed, separators become single forward slashes, and a trailing one is dropped. Nothing asks the disk, so a file that doesn't exist yet (a new file, a rename's target) has the key it will have once it does. A relative path gives an empty key.
+- **Letter case is compared as the platform's file systems do.** On Windows and macOS, which ignore case by default, keys compare case-folded; elsewhere exactly. Qt reports a path in the case it was written, not the case on disk, so this can't be settled by asking. The path keeps the case it was written in, for display and for file operations.
+- **Symlinks are not followed.** A file reached through a symlinked folder keeps a path inside the vault the link sits in, so a folder linked into a vault works as part of it, as in Obsidian. The cost is that a file reachable two ways through a link has two keys, and so two buffers. Obsidian asks for the same thing: link targets "fully disjoint from the vault root or any other symlink targets".
+- **Vault roots are resolved through symlinks, once.** `App` resolves a vault's folder (`Coco::Path::canonical`) before it looks for an open `Vault`, so one folder reached two ways is one `Vault`, and every key made under a root starts from the same spelling.
 
-- An absolute path must be plain and at or under the root. `Vault::contains` is that test, and creating, renaming, moving, and trashing all answer to it.
-- A vault-relative key must be non-empty, plain, and without a root (`/a` and, on Windows, `C:a` both replace part of the root when appended to it). `Vault::openModel` refuses anything else, which covers a path read from a hand-edited `workspace.json`.
+**A path is normalized, not refused.** Every public `Vault` function takes keys. `Vault::contains` asks whether a key is the root or inside it, and creating, renaming, moving, and trashing all answer to it. Because a key is normalized, `<vault>/a/../..` is outside the vault and refused, and `<vault>/a/./b` is simply `<vault>/a/b`, the same file and the same buffer.
+
 - A rename's new name must be a single name.
+- A path read from `workspace.json` must be relative and plain before it is joined to a root, so a hand-edited entry can't name a file outside its vault.
+- `BufferStore::openModel` refuses only an empty key. Which files a window may open is the window's to decide: one inside either of its vaults.
 
-`relativePathOf`, `absolutePathOf`, and `makeFileRef` only convert; a caller holding a path from outside checks `contains` first. The vault's own root is assumed plain.
+`workspace.json` stores each tab and recent file as a vault label and a path relative to that vault's root: "this" for a file inside the window's vault, "common" otherwise.
 
 ## Configuration and persistence
 
@@ -349,7 +367,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 
 - **Each config type holds its own defaults.** A missing key falls to the default. There is no chain of fallbacks between vault and app settings.
 - **Only set keys are written.**
-- **Config types are plain values, not `QObject`s.** `Vault` announces a settings change with one signal, and saves a moment later so a dragged slider writes once.
+- **Config types are plain values, not `QObject`s.** `Vault` announces a settings change with one signal, and saves a moment later so a dragged slider writes once, or at once when a window closes or Fernanda quits.
 - **A vault setting changes one way.** `Vault::setConfig` takes the `VaultConfig` setter to call and the value. It announces and saves only if that setter reports a change, so no setting has code of its own in `Vault` to get wrong.
 - **Settings are applied from the window's vault.** A Common Vault file in a project window takes the project's settings. A tab can only move within one window family, so a view's settings source never changes.
 - **`ui/UiConstants.h` and `views/ViewConstants.h` are not configuration.** They hold values tuned in code and constants shared between classes.
@@ -388,7 +406,7 @@ flowchart TD
     E -.->|borrows| C
 ```
 
-- **One checker per language, shared by every vault.** A dictionary takes a moment and several megabytes to load, so `SpellCheckers` loads one the first time a language is asked for and keeps it. Dictionaries are read from the dictionaries folder in the app data folder, where any pair of `.aff` and `.dic` files is a language. A language must be a single file name, as a vault path must be plain, so a hand-edited setting can't name a file outside the folder; anything else is treated as not installed. Hunspell reads from disk, so the bundled one is copied out of the resources at launch, and a file already there is never replaced.
+- **One checker per language, shared by every vault.** A dictionary takes a moment and several megabytes to load, so `SpellCheckers` loads one the first time a language is asked for and keeps it. Dictionaries are read from the dictionaries folder in the app data folder, where any pair of `.aff` and `.dic` files is a language. A language must be a single file name, as a path read from `workspace.json` must be plain, so a hand-edited setting can't name a file outside the folder; anything else is treated as not installed. Hunspell reads from disk, so the bundled one is copied out of the resources at launch, and a file already there is never replaced.
 - **A checker's answers never change,** because nothing is added to it after it loads. So it keeps every answer, and the editor can ask about each word in view at every paint.
 - **A vault's own words are held apart from the checker.** A checker shared by every vault can't hold one vault's words. `Vault` holds its dictionary (from `.fernanda/dictionary.txt`) and its ignored words as `WordList`s, which apply Hunspell's rule for added words: lowercase also accepts capitals, capitals accept only themselves.
 - **The window's vault decides, as for settings.** `VaultWindow::makeView_` hands each text view the checker for its vault's language (none while spellcheck is off) and one combined list: its vault's dictionary and ignored words, and the Common Vault's dictionary. It hands them over again on `configChanged`, and on `wordsChanged` from either vault.
@@ -492,8 +510,8 @@ Fernanda is the successor to [Hearth](https://github.com/fairybow/Hearth) and re
 
 | Hearth | Fernanda |
 |---|---|
-| `FileService`, one map of buffers | `Vault`, one map per vault |
-| `FileMeta` | `FileRef`. Title overrides and on-disk checks existed for unsaved files and are gone |
+| `FileService`, one map of buffers | `BufferStore`, one map for every vault and window |
+| `FileMeta` | `PathKey`. Title overrides and on-disk checks existed for unsaved files and are gone |
 | `TabWidget` | `TabPaneLeaf` |
 | A flat row of splits | `TabPaneTree`, nested in both directions |
 | Services, a bus, commands, hooks | Direct calls between known objects, and Qt signals from the object that owns the fact |
@@ -509,10 +527,13 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **Releasing and reloading the tree models around each folder operation.** A workaround for the above. Every tree collapsed and re-expanded on each operation, and the model became replaceable under the views.
 - **A conflict banner for outside changes.** Built, then removed. It could only appear when a buffer was modified at the moment an outside change landed, which frequent saves make rare, and the reload is undoable anyway.
 - **A one-time "ignore the next change" flag for the vault's own writes.** On a platform that sent no change event, the flag stayed set and swallowed the next real change. A hash of what was written can't be used up.
-- **A save timer per buffer.** One pair per vault coalesces just as well.
+- **A save timer per buffer.** One pair for the whole app coalesces just as well.
+- **Buffers kept by each `Vault`, and a file named by its vault and a path inside it** (`FileRef`). Built, then replaced by the `BufferStore` and `PathKey`. A file inside two vaults (nested vaults, or a project vault containing the Common Vault) had a buffer in each: each autosave came back to the other as an outside change, reloaded as an undo step, and a rename or delete in one vault discarded the other's buffer with up to three seconds of typing.
+- **Following symlinks for every key.** A folder linked into a vault would have had keys outside the vault: its tabs marked as guests, dropped from `workspace.json`, and its files refused by the vault's own operations. Only vault roots are resolved; see "Identity".
+- **Releasing only the acting vault's tree watches around a folder operation.** Another vault's window that had listed a folder inside the entry kept a handle on it, and the operation failed on Windows. And left to re-list on its own, that tree collapsed the moved folder.
 - **A base class for PDF and image buffers.** They share one member.
 - **A placeholder buffer for empty tabs.** An off-disk buffer by another name.
-- **A separate object tracking views per buffer.** The buffer already is that record, and the vault's map already is the registry.
+- **A separate object tracking views per buffer.** The buffer already is that record, and the store's map already is the registry.
 - **A central table of hotkeys consulted when actions are created.** A window created before a rebind would keep its old keys either way. Defaults stay where each action is created, and a rebinding layer will walk each window's registry.
 - **A table of settings in `VaultConfig`** (rows of key, type, default, and range, read by key). It would remove the per-setting getter, setter, and read and write lines, but callers would lose typed getters like `config.lineNumbers()`, and the file as it stands is long but plain.
 - **Search highlights as the editor's extra selections.** Qt checks every extra selection against every paragraph and line it paints, so the cost grows faster than the number in view, and a single letter matches hundreds of times on a screen of prose. The editor paints one rectangle per visible match itself.

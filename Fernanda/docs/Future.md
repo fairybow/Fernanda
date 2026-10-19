@@ -128,6 +128,7 @@ Committing a vault to a repository, for backup and history.
 - **Renaming in place in the file tree** (F2). Rename uses a dialog, which checks the name as it is typed
 - **File associations.** Fernanda doesn't register itself for any file type
 - **Right-to-left layouts**
+- **Telling files apart by following symlinks.** A file is named by the path it was reached by, so a folder linked into a vault stays part of that vault. Following links would name it by its target, outside the vault, and break it there. A file reachable two ways through a link is two documents; Obsidian asks for link targets to be kept apart in the same way. Only a vault's own folder is followed through a link, so one folder opened two ways is one vault
 - **Switching language without a restart.** Qt can swap translations while running, but every widget would have to set its text again when told, and Fernanda sets its text once, as each widget is built. Every class with text would need a second path for it, and a string missed in one would leave a window half in each language. Relaunch, beside the Language setting, does the job as Obsidian's does
 
 ## Open questions

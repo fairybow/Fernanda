@@ -11,7 +11,8 @@ A vault is a folder on your computer. Fernanda adds one hidden folder to it, `.f
 - A vault can live anywhere. Opening a folder as a vault is all it takes to make one
 - Several vaults can be open at once, each in its own window
 - Quitting and relaunching reopens every vault that was open, with its windows, tabs, and layout
-- Vaults may be nested inside one another, and may sit inside a Git repository
+- Vaults may be nested inside one another, and may sit inside a Git repository. A project vault may even contain the Common Vault
+- A file inside two open vaults is one document in every window. Renaming, moving, or deleting it from either vault carries every window's tabs with it, and a folder expanded in one window stays expanded after another window renames or moves it
 - One Fernanda process holds every open vault
 
 ### The Common Vault
@@ -21,7 +22,7 @@ One vault is shared by every project: the Common Vault, for templates, notes, an
 - Lives at `Documents/Fernanda/Common Vault`, and is created for you
 - Every vault window shows it in a collapsible drawer under the vault's own file tree
 - A Common Vault file open in two windows is one document: an edit in one appears in the other as you type
-- Tabs holding a Common Vault file are marked with a box icon
+- Tabs holding a Common Vault file are marked with a box icon, in the windows of vaults that don't contain the Common Vault. In a vault that does, its files are that vault's own
 - Can be opened as a window of its own, from the vault switcher
 - If its folder is deleted, Fernanda recreates it empty
 
@@ -46,7 +47,7 @@ There is no Save command and no unsaved state.
 
 - Every file exists on disk from the moment it is created. There are no untitled, in-memory documents
 - Changes are written about a second after you stop typing, and at least every three seconds while you keep typing
-- Everything is also written when Fernanda loses focus, when a window closes, on quit, and on logout
+- Everything is also written when Fernanda loses focus, on quit, and on logout. A window that closes writes the files it shows
 - If a file can't be saved, the window refuses to close and names the files, so nothing is lost by closing
 - Text is written back exactly as it was read, apart from your edits: line endings (LF or CRLF), a byte order mark, no-break spaces, and other special characters are preserved. A new file uses LF
 
@@ -96,7 +97,7 @@ Ctrl+O, or "Go to file" on a new tab. A search field over every file in the vaul
 - Matches in the file name rank above matches in the folder path
 - With nothing typed, the files you opened most recently come first, newest first and labeled RECENT, followed by every other file. If the top one is the file you're in, the next is selected, so Ctrl+O then Enter goes back to the previous file
 - Enter opens the file in the current tab. Ctrl+Enter opens it in a new tab
-- Common Vault files are labeled COMMON
+- Common Vault files are labeled COMMON. A file the window's own vault also contains is listed once, as the window's own
 - Recent files are remembered per vault
 - To create a file, type its name: Enter creates it when nothing matches, and Shift+Enter creates it even when something does. Hold Ctrl as well to open it in a new tab. A line under the field says which file Enter or Shift+Enter would create, or what is wrong with the name
 - A new file's name counts from the vault's root, and `/` puts it in folders, which are made if they're missing (`drafts/Chapter 2`). A name without `.txt`, `.md`, `.markdown`, or `.fountain` gets `.txt`. If the file is already there, it opens instead
@@ -268,6 +269,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 
 - **Plain text first.** `.txt` is the default type (Obsidian doesn't open it). There is no Markdown rendering, and no links, backlinks, tags, or metadata
 - **A Common Vault shared by every vault** (see [The Common Vault](#the-common-vault)). Obsidian has no way to share files between vaults; its help advises against the symlinks people use for it
+- **Vaults inside vaults are supported.** A file inside two open vaults is one document in every window, and the vaults' file operations keep every window in step. Obsidian's help has recommended against nesting vaults
 - **Line endings are preserved.** Obsidian rewrites them to LF
 - **A failed save refuses the window close.** Obsidian shows a notice and closes
 - **A dropped file opens.** A file dragged onto an editor opens there; in Obsidian it inserts a link
@@ -295,6 +297,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - A file name with a period and no real extension (`Chapter 1. The Start`) is read as having an unsupported extension, so the file is hidden
 - On Windows, while Fernanda is open, other programs can't rename or delete a folder if one of its subfolders has been expanded in a file tree or holds an open file. Fernanda's own rename, move, and delete are unaffected
 - A moved or renamed vault folder is a new vault to Fernanda: open it again from its new place. Its settings and layout travel with it
+- A folder linked into a vault (a symlink or junction) works as part of the vault. A file that can be reached two ways, through a link and directly, is two documents, which can save over each other. Keep a linked folder's target outside every vault, as Obsidian also asks
 - Word counts run low for Thai, Lao, Khmer, and Myanmar text
 - Spelling suggestions can take a moment to appear for a long or badly garbled word
 - Right-to-left layouts are not supported
