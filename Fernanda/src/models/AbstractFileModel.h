@@ -23,15 +23,15 @@
 namespace Fernanda {
 
 // One buffer per open file, plus that file's identity. GUI-free, and
-// filesystem-free: the Vault owns all disk IO. data() and setData() are the
-// boundary the Vault moves bytes across — on open it reads from disk and calls
-// setData(); on flush it reads data() and writes.
+// filesystem-free: the BufferStore owns all buffer IO. data() and setData()
+// are the boundary the store moves bytes across — on open it reads from disk
+// and calls setData(); on flush it reads data() and writes.
 //
-// Polymorphic by file type: text, PDF, image. Views, tabs, and the Vault's map
-// all handle the base type; only the Vault's model factory names a concrete
+// Polymorphic by file type: text, PDF, image. Views, tabs, and the store's map
+// all handle the base type; only the store's model factory names a concrete
 // one.
 //
-// Owned by the Vault (QObject parent). No back-pointer to any window or vault:
+// Owned by the store (QObject parent). No back-pointer to any window or vault:
 // the key says which file it is, and each window works out from the key which
 // of its vaults the file belongs to.
 class AbstractFileModel : public QObject
@@ -39,8 +39,8 @@ class AbstractFileModel : public QObject
     Q_OBJECT
 
 public:
-    AbstractFileModel(const PathKey& key, QObject* parentVault)
-        : QObject(parentVault)
+    AbstractFileModel(const PathKey& key, QObject* parentStore)
+        : QObject(parentStore)
         , key_(key)
     {
     }
@@ -69,9 +69,9 @@ public:
     virtual void reloadContent(const QByteArray& data) { setData(data); }
 
     // Re-point this buffer after its file — or an ancestor folder — was renamed
-    // in place. The Vault owns identity and calls this after the on-disk rename
-    // and map re-key.
-    // Emits renamed() so views retitle: a direct file rename changes title()
+    // in place. The store owns identity and calls this after the on-disk rename
+    // and map re-key. Emits renamed() so views retitle: a direct file rename
+    // changes title()
     // (the stem); an ancestor-folder rename leaves the stem the same, and the
     // view's windowTitle simply doesn't re-emit when the text is unchanged, so
     // a folder rename re-keys with no tab churn
@@ -108,7 +108,7 @@ public:
 
     // --- Views / eviction ----------------------------------------
 
-    // Count the views borrowing this model, so the Vault can evict the buffer
+    // Count the views borrowing this model, so the store can evict the buffer
     // once the last one closes. This lives on the base — not on TextFileModel's
     // PrimeDocument — because every file type has views but only text has a
     // prime: image/PDF models reuse this untouched. Kept GUI-free by taking a
@@ -146,15 +146,14 @@ public:
 
     // --- External-change notifications ----------------------
 
-    // The Vault owns IO, so it decides what happened on disk and makes these
+    // The store owns IO, so it decides what happened on disk and makes these
     // calls; keeping the emits here leaves each signal owned by the model that
-    // declares it. Views borrowing this model react, and because a shared
-    // common-vault file has ONE model, every window's views react together —
-    // pop-outs included.
+    // declares it. Views borrowing this model react, and because a file has ONE
+    // model, every window's views react together — pop-outs included.
 
     // The file vanished from disk while open — deleted or moved. Views
     // self-close: the buffer they showed no longer has a home on disk (no
-    // off-disk buffers). The Vault frees the model right after
+    // off-disk buffers). The store frees the model right after
     void notifyRemovedFromDisk() { emit removedFromDisk(); }
 
     // The buffer was replaced from disk after an external change. Text views
@@ -167,7 +166,7 @@ signals:
     void modificationChanged(bool modified);
 
     // Every edit, not just the clean->dirty transition that modificationChanged
-    // reports. The Vault restarts its autosave debounce on this, so a write
+    // reports. The store restarts its autosave debounce on this, so a write
     // lands after typing pauses rather than mid-burst. Editable models only —
     // image/PDF never mutate, so they never emit it
     void contentChanged();
@@ -183,7 +182,7 @@ signals:
     // common-vault file has one model, so every window's views react together
     void renamed();
 
-    // The last view borrowing this model closed. The Vault flushes any unsaved
+    // The last view borrowing this model closed. The store flushes any unsaved
     // bytes and frees the buffer on this, so models_ doesn't grow without bound
     // as tabs open and close. Emitted from addView's per-view destroyed handler
     // when the count returns to zero

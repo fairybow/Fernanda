@@ -10,13 +10,11 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
-#include <QBuffer>
 #include <QByteArray>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QIODevice>
-#include <QImage>
 #include <QObject>
 #include <QPlainTextDocumentLayout>
 #include <QSignalSpy>
@@ -29,27 +27,26 @@
 
 #include <Coco/Path.h>
 
+#include "core/BufferStore.h"
 #include "core/PathKey.h"
 #include "core/Vault.h"
 #include "core/VaultConfig.h"
 #include "models/AbstractFileModel.h"
-#include "models/ImageFileModel.h"
-#include "models/PdfFileModel.h"
 #include "models/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;
+using Fernanda::BufferStore;
 using Fernanda::PathKey;
 using Fernanda::TextFileModel;
 using Fernanda::Vault;
 using Fernanda::VaultConfig;
 
-// What a Vault does with files and their buffers (core/Vault.h), for
-// everything that happens at once: opening, creating, renaming, moving,
-// flushing, and freeing. What waits on a timer or the file watcher (autosave,
-// external changes) is not covered here.
+// What a Vault does with the files inside it (core/Vault.h): creating,
+// renaming, moving, and trashing, with the open buffers following, and its
+// settings and dictionary. The buffers themselves are BufferStoreTest's.
 //
-// Each test gets its own vault in a temporary folder.
+// Each test gets its own vault in a temporary folder, with its own store.
 //
 // Qt Test runs every private slot as a test
 class VaultTest : public QObject
@@ -57,15 +54,18 @@ class VaultTest : public QObject
     Q_OBJECT
 
 private:
-    // A vault in a temporary folder, and the file work a test does around it.
-    // Paths given to these functions are relative to the vault's root.
+    // A vault in a temporary folder, the store it's lent, and the file work a
+    // test does around them. Paths given to these functions are relative to
+    // the vault's root.
     //
-    // The vault is declared after the folder so it is destroyed first
+    // Declared in the order they're made, so each is destroyed before what it
+    // depends on
     struct Fixture_
     {
         QTemporaryDir folder{};
         Coco::Path root{ folder.path() };
-        Vault vault{ root, nullptr };
+        BufferStore store{ nullptr };
+        Vault vault{ root, &store, nullptr };
 
         [[nodiscard]] Coco::Path absolute(const QString& relative) const
         {
@@ -122,12 +122,12 @@ private:
         }
 
         // Opens a file that needs no question asked. The test fails if the
-        // vault asks one
+        // store asks one
         [[nodiscard]] AbstractFileModel* open(const PathKey& key)
         {
             auto asked = false;
 
-            auto* model = vault.openModel(
+            auto* model = store.openModel(
                 key,
                 [&asked](const PathKey&, const QByteArray&) {
                     asked = true;
@@ -136,7 +136,7 @@ private:
 
             if (asked) {
                 QTest::qFail(
-                    "The vault asked about a lossy open",
+                    "The store asked about a lossy open",
                     __FILE__,
                     __LINE__);
             }
@@ -163,19 +163,6 @@ private:
         QTextCursor cursor(&document);
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(text);
-    }
-
-    [[nodiscard]] static QByteArray pngBytes_()
-    {
-        QImage image(2, 2, QImage::Format_RGB32);
-        image.fill(Qt::red);
-
-        QByteArray bytes{};
-        QBuffer buffer(&bytes);
-        buffer.open(QIODevice::WriteOnly);
-        image.save(&buffer, "PNG");
-
-        return bytes;
     }
 
 private slots:
@@ -236,152 +223,6 @@ private slots:
         QCOMPARE(
             listed,
             QStringList({ u"a.txt"_s, u"one/b.md"_s, u"one/two/c.pdf"_s }));
-    }
-
-    // --- Opening ------------------------------------------------------------
-
-    void openGivesABufferHoldingTheFile()
-    {
-        Fixture_ f{};
-        f.write(u"one/a.txt"_s, "hello\n");
-
-        auto* model = f.open(u"one/a.txt"_s);
-
-        QVERIFY(model);
-        QCOMPARE(model->data(), QByteArray("hello\n"));
-        QCOMPARE(model->key(), f.key(u"one/a.txt"_s));
-        QCOMPARE(model->title(), u"a"_s);
-        QVERIFY(!model->isModified());
-    }
-
-    void openTheSameFileTwiceGivesOneBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello\n");
-
-        auto* first = f.open(u"a.txt"_s);
-        auto* second = f.open(u"a.txt"_s);
-
-        QVERIFY(first);
-        QCOMPARE(first, second);
-    }
-
-    void openGivesEachTypeItsOwnKindOfBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "text");
-        f.write(u"a.md"_s, "text");
-        f.write(u"a.fountain"_s, "text");
-        f.write(u"a.png"_s, pngBytes_());
-        f.write(u"a.pdf"_s, "%PDF-1.4\n");
-
-        QVERIFY(qobject_cast<TextFileModel*>(f.open(u"a.txt"_s)));
-        QVERIFY(qobject_cast<TextFileModel*>(f.open(u"a.md"_s)));
-        QVERIFY(qobject_cast<TextFileModel*>(f.open(u"a.fountain"_s)));
-
-        auto* image = f.open(u"a.png"_s);
-        QVERIFY(qobject_cast<Fernanda::ImageFileModel*>(image));
-        QVERIFY(!image->isUserEditable());
-        QCOMPARE(image->data(), pngBytes_());
-
-        auto* pdf = f.open(u"a.pdf"_s);
-        QVERIFY(qobject_cast<Fernanda::PdfFileModel*>(pdf));
-        QVERIFY(!pdf->isUserEditable());
-        QCOMPARE(pdf->data(), QByteArray("%PDF-1.4\n"));
-    }
-
-    void openRefusesAnUnsupportedType()
-    {
-        Fixture_ f{};
-        f.write(u"a.docx"_s, "text");
-        f.write(u"Makefile"_s, "text");
-
-        QVERIFY(!f.open(u"a.docx"_s));
-        QVERIFY(!f.open(u"Makefile"_s));
-    }
-
-    // A buffer over nothing would be written into existence by the first
-    // keystroke
-    void openRefusesAMissingFile()
-    {
-        Fixture_ f{};
-
-        QVERIFY(!f.open(u"gone.txt"_s));
-        QVERIFY(!f.exists(u"gone.txt"_s));
-    }
-
-    void openAnEmptyFile()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "");
-
-        auto* model = f.open(u"a.txt"_s);
-
-        QVERIFY(model);
-        QCOMPARE(model->data(), QByteArray(""));
-    }
-
-    // --- Opening text that isn't valid UTF-8 --------------------------------
-
-    void openAsksAboutInvalidUtf8AndRefusesOnNo()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "caf\xE9");
-
-        auto asked = 0;
-        PathKey asked_about{};
-        QByteArray asked_with{};
-
-        auto* model = f.vault.openModel(
-            f.key(u"a.txt"_s),
-            [&](const PathKey& key, const QByteArray& data) {
-                ++asked;
-                asked_about = key;
-                asked_with = data;
-                return false;
-            });
-
-        QVERIFY(!model);
-        QCOMPARE(asked, 1);
-        QCOMPARE(asked_about, f.key(u"a.txt"_s));
-        QCOMPARE(asked_with, QByteArray("caf\xE9"));
-
-        // Declined, so the file is as it was
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("caf\xE9"));
-    }
-
-    // An accepted file is written back as valid UTF-8 straight away, so it
-    // never needs asking about again
-    void openRewritesInvalidUtf8OnYes()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "caf\xE9");
-
-        auto asked = 0;
-        auto accept = [&asked](const PathKey&, const QByteArray&) {
-            ++asked;
-            return true;
-        };
-
-        auto* model = f.vault.openModel(f.key(u"a.txt"_s), accept);
-
-        QVERIFY(model);
-        QCOMPARE(model->data(), QByteArray("caf\xEF\xBF\xBD"));
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("caf\xEF\xBF\xBD"));
-        QVERIFY(!model->isModified());
-
-        // The open buffer answers a second open, and nothing is asked
-        QCOMPARE(f.vault.openModel(f.key(u"a.txt"_s), accept), model);
-        QCOMPARE(asked, 1);
-    }
-
-    // Only text is asked about: other types are never decoded
-    void openNeverAsksAboutAnImage()
-    {
-        Fixture_ f{};
-        f.write(u"a.png"_s, "\xFF\xFE not an image");
-
-        QVERIFY(f.open(u"a.png"_s));
     }
 
     // --- Creating -----------------------------------------------------------
@@ -581,7 +422,7 @@ private slots:
         f.vault.rename(f.key(u"a.txt"_s), u"b.txt"_s);
         type_(model, u"!"_s);
 
-        QVERIFY(f.vault.flush().isEmpty());
+        QVERIFY(f.store.flush().isEmpty());
         QCOMPARE(f.read(u"b.txt"_s), QByteArray("hello!"));
         QVERIFY(!f.exists(u"a.txt"_s));
     }
@@ -601,7 +442,7 @@ private slots:
         QVERIFY(model->isModified());
         QCOMPARE(model->data(), QByteArray("hello!"));
 
-        QVERIFY(f.vault.flush().isEmpty());
+        QVERIFY(f.store.flush().isEmpty());
         QCOMPARE(f.read(u"b.txt"_s), QByteArray("hello!"));
     }
 
@@ -707,45 +548,6 @@ private slots:
             PathKey::of(Coco::Path(f.folder.path() + u"/"_s))));
         QVERIFY(!f.vault.contains(f.key(u"one/../.."_s)));
         QVERIFY(!f.vault.contains(f.key(u"../x.txt"_s)));
-    }
-
-    void anotherSpellingOpensTheSameBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"one/a.txt"_s, "hello");
-
-        auto* model = f.open(u"one/a.txt"_s);
-
-        QVERIFY(model);
-        QCOMPARE(f.open(u"one/../one/a.txt"_s), model);
-        QCOMPARE(f.open(u"./one/a.txt"_s), model);
-        QCOMPARE(f.open(u"one//a.txt"_s), model);
-    }
-
-    void openRefusesWhatIsNotAFileInside()
-    {
-        Fixture_ f{};
-        auto escapee = QFileInfo(f.folder.path()).fileName() + u"-out.txt"_s;
-        auto outside = QFileInfo(f.folder.path()).dir().filePath(escapee);
-
-        QFile file(outside);
-        QVERIFY(file.open(QIODevice::WriteOnly));
-        file.write("outside");
-        file.close();
-
-        QTemporaryDir elsewhere{};
-        QFile other(elsewhere.filePath(u"b.txt"_s));
-        QVERIFY(other.open(QIODevice::WriteOnly));
-        other.close();
-
-        auto* out = f.open(u"../"_s + escapee);
-        QFile::remove(outside);
-
-        QVERIFY(!out);
-        QVERIFY(
-            !f.open(PathKey::of(Coco::Path(elsewhere.filePath(u"b.txt"_s)))));
-        QVERIFY(!f.open(PathKey{}));
-        QVERIFY(!f.open(f.rootKey()));
     }
 
     void createOutsideTheVaultIsRefused()
@@ -961,186 +763,16 @@ private slots:
         QVERIFY(!QFileInfo::exists(elsewhere.filePath(u"a.txt"_s)));
     }
 
-    // --- Flushing -----------------------------------------------------------
-
-    void flushWritesAnEdit()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        type_(model, u" world"_s);
-        QVERIFY(model->isModified());
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("hello"));
-
-        QVERIFY(f.vault.flush().isEmpty());
-
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("hello world"));
-        QVERIFY(!model->isModified());
-    }
-
-    void flushKeepsTheFilesLineEndingAndMark()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "\xEF\xBB\xBFone\r\n");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        type_(model, u"two\nthree"_s);
-        QVERIFY(f.vault.flush().isEmpty());
-
-        QCOMPARE(
-            f.read(u"a.txt"_s),
-            QByteArray("\xEF\xBB\xBFone\r\ntwo\r\nthree"));
-    }
-
-    // Shown by changing the file behind an unmodified buffer: a flush that
-    // wrote would put the buffer's text back
-    void flushWritesNothingForAnUnmodifiedBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        f.write(u"a.txt"_s, "changed outside");
-
-        QVERIFY(f.vault.flush().isEmpty());
-
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("changed outside"));
-    }
-
-    void flushWritesOnlyTheModifiedBuffers()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "a");
-        f.write(u"b.txt"_s, "b");
-        auto* a = f.open(u"a.txt"_s);
-        auto* b = f.open(u"b.txt"_s);
-        QVERIFY(a && b);
-
-        type_(a, u"!"_s);
-        f.write(u"b.txt"_s, "changed outside");
-
-        QVERIFY(f.vault.flush().isEmpty());
-
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("a!"));
-        QCOMPARE(f.read(u"b.txt"_s), QByteArray("changed outside"));
-    }
-
-    // A save only ever overwrites. A file deleted outside is not written
-    // back, and that isn't reported as a failed save
-    void flushDoesNotRecreateADeletedFile()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-        type_(model, u"!"_s);
-
-        QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
-
-        QVERIFY(f.vault.flush().isEmpty());
-        QVERIFY(!f.exists(u"a.txt"_s));
-    }
-
-    // Nor is a deleted folder rebuilt around it
-    void flushDoesNotRecreateADeletedFolder()
-    {
-        Fixture_ f{};
-        f.write(u"one/two/a.txt"_s, "hello");
-        auto* model = f.open(u"one/two/a.txt"_s);
-        QVERIFY(model);
-        type_(model, u"!"_s);
-
-        QVERIFY(QDir(f.folder.filePath(u"one"_s)).removeRecursively());
-
-        QVERIFY(f.vault.flush().isEmpty());
-        QVERIFY(!f.exists(u"one"_s));
-    }
-
-    // --- Freeing a buffer ---------------------------------------------------
-
-    // A plain QObject stands in for a view: the buffer only counts its views
-    // and watches for each one's destruction
-    void closingTheLastViewSavesAndFreesTheBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        QSignalSpy destroyed(model, &QObject::destroyed);
-
-        {
-            QObject view{};
-            model->addView(&view);
-            type_(model, u"!"_s);
-        }
-
-        // Saved at once, freed a moment later
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("hello!"));
-        QTRY_COMPARE(destroyed.count(), 1);
-
-        // A later open reads the file again, into a new buffer
-        auto* reopened = f.open(u"a.txt"_s);
-        QVERIFY(reopened);
-        QCOMPARE(reopened->data(), QByteArray("hello!"));
-        QVERIFY(!reopened->isUndoAvailable());
-    }
-
-    void closingOneOfTwoViewsKeepsTheBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        QObject first{};
-        model->addView(&first);
-
-        {
-            QObject second{};
-            model->addView(&second);
-            type_(model, u"!"_s);
-        }
-
-        // Nothing is saved or freed while a view remains
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("hello"));
-        QVERIFY(model->isModified());
-        QCOMPARE(f.open(u"a.txt"_s), model);
-    }
-
-    // The file was deleted outside, so there is nowhere to save: the last
-    // view closing writes nothing
-    void closingTheLastViewDoesNotRecreateADeletedFile()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        {
-            QObject view{};
-            model->addView(&view);
-            type_(model, u"!"_s);
-
-            QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
-        }
-
-        QVERIFY(!f.exists(u"a.txt"_s));
-    }
-
     // --- Settings -----------------------------------------------------------
 
-    void aSettingIsAnnouncedOnceAndSavedByFlush()
+    void aSettingIsAnnouncedOnceAndSavedOnRequest()
     {
         QTemporaryDir folder{};
         Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
 
         {
-            Vault vault(root, nullptr);
+            Vault vault(root, &store, nullptr);
             QSignalSpy changed(&vault, &Vault::configChanged);
 
             auto size = vault.config().textFontSize() + 3;
@@ -1155,11 +787,11 @@ private slots:
             vault.setConfig(&VaultConfig::setTextFontSize, size);
             QCOMPARE(changed.count(), 2);
 
-            vault.flush();
+            vault.saveSettingsNow();
         }
 
         // A second vault on the same folder reads what the first saved
-        Vault reopened(root, nullptr);
+        Vault reopened(root, &store, nullptr);
 
         QCOMPARE(
             reopened.config().textFontSize(),
@@ -1176,9 +808,10 @@ private slots:
     {
         QTemporaryDir folder{};
         Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
 
         {
-            Vault first(root, nullptr);
+            Vault first(root, &store, nullptr);
         }
 
         QFile file(folder.filePath(u".fernanda/dictionary.txt"_s));
@@ -1186,7 +819,7 @@ private slots:
         file.write("Pangloss\nCunegonde\n");
         file.close();
 
-        Vault vault(root, nullptr);
+        Vault vault(root, &store, nullptr);
 
         QVERIFY(vault.dictionary().contains(u"Pangloss"_s));
         QVERIFY(vault.dictionary().contains(u"Cunegonde"_s));

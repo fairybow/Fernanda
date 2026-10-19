@@ -31,6 +31,7 @@
 #include "core/AppActions.h"
 #include "core/AppConfig.h"
 #include "core/AppDirs.h"
+#include "core/BufferStore.h"
 #include "core/BundledFonts.h"
 #include "core/CMakeMacroGuard.h"
 #include "core/Clargs.h"
@@ -202,6 +203,11 @@ private:
     AppConfig appConfig_{};
     Ui::ManageVaults* manageVaults_ = nullptr;
 
+    // Every open file's buffer, for every vault and window. Made before any
+    // Vault, which is given it, and a child of App, so it outlives every
+    // window and every view of its buffers
+    BufferStore* bufferStore_ = new BufferStore(this);
+
     Vault* commonVault_ = nullptr;
     QHash<Coco::Path, OpenVault_> openVaults_{};
 
@@ -345,8 +351,10 @@ private:
     {
         // commonVaultPath() falls back to AppDirs::defaultCommonVault()
         // when unset
-        commonVault_ =
-            new Vault(resolvedRoot_(appConfig_.commonVaultPath()), this);
+        commonVault_ = new Vault(
+            resolvedRoot_(appConfig_.commonVaultPath()),
+            bufferStore_,
+            this);
     }
 
     // Restore last session's vaults: reopen every vault marked open whose
@@ -436,22 +444,25 @@ private:
         manageVaults_->show();
     }
 
-    // The final-save sweep for every teardown that isn't a window close:
-    // aboutToQuit and OS logout. flush() skips buffers already matching disk,
+    // The final-save sweep for every teardown that isn't a window close —
+    // aboutToQuit and OS logout — and for focus loss: every buffer, then every
+    // vault's pending settings. The flush skips buffers already matching disk,
     // so calling this after the while-typing autosave already caught everything
     // is a cheap no-op. Failures can't be refused here (unlike a window close),
-    // so the per-vault failure lists are discarded — writeModel_ already logged
-    // them and left the buffers dirty
-    void flushAllVaults_()
+    // so the failure list is discarded — the store already logged them and
+    // left the buffers dirty
+    void flushAll_()
     {
+        bufferStore_->flush();
+
         for (auto& entry : openVaults_) {
             if (entry.vault) {
-                entry.vault->flush();
+                entry.vault->saveSettingsNow();
             }
         }
 
         if (commonVault_) {
-            commonVault_->flush();
+            commonVault_->saveSettingsNow();
         }
     }
 
@@ -541,12 +552,13 @@ private:
         checkingVaultFolders_ = false;
     }
 
-    // The workspace twin of flushAllVaults_: the exit paths that DON'T run each
+    // The workspace twin of flushAll_: the exit paths that DON'T run each
     // window's closeEvent — a multi-window quit, an OS logout — still need
     // every open window's workspace.json written. saveWorkspaceNow flushes each
     // window's pending debounce synchronously. In the ordinary single-window
     // path this iterates nothing (the window already saved and left openVaults_
-    // via its closeEvent), exactly like flushAllVaults_
+    // via its closeEvent), as flushAll_ reduces to the buffers no window
+    // flushed
     void saveAllWorkspaces_()
     {
         for (auto& entry : openVaults_) {
@@ -578,11 +590,12 @@ private:
         // FileSwitcher's second listing, the tab indicator — answers itself
         auto* vault = (PathKey::of(vaultRoot) == commonVault_->rootKey())
                           ? commonVault_
-                          : new Vault(vaultRoot, this);
+                          : new Vault(vaultRoot, bufferStore_, this);
 
         auto window = new Ui::VaultWindow(
             vault,
             commonVault_,
+            bufferStore_,
             [this] { return vaultEntries(); },
             appActions_,
             &spellCheckers_,
@@ -642,10 +655,10 @@ private:
         auto entry = openVaults_.take(vaultRoot);
 
         // ~QObject emits destroyed BEFORE deleting its children, so the
-        // window's views may still be alive and holding models this Vault
-        // owns. The common Vault is App's, not the window's: project windows
-        // still hold its models, and it outlives every window onto it, so
-        // closing its own window never disposes it
+        // window's views may still be alive. Their models are the store's, not
+        // this Vault's, so disposing it can't free a buffer under a view. The
+        // common Vault is App's, not the window's: it outlives every window
+        // onto it, so closing its own window never disposes it
         if (entry.vault && entry.vault != commonVault_) {
             entry.vault->deleteLater();
         }
@@ -776,9 +789,9 @@ private:
     // Obsidian flushes on focus loss; mirror it. Mostly redundant with the
     // debounce (defocusing is itself a pause), but it closes the sliver where
     // you switch away within the debounce window, and it's a boundary a writer
-    // hits constantly. flush() returns per-vault failure lists — discarded
-    // here: writeModel_ already logged them, and an autosave-class trigger
-    // doesn't prompt. The dirty buffers stay dirty and retry.
+    // hits constantly. Failures are discarded here: the store already logged
+    // them, and an autosave-class trigger doesn't prompt. The dirty buffers
+    // stay dirty and retry.
     //
     // Coming back, check every vault's folder is still there
     void onApplicationStateChanged_(Qt::ApplicationState state)
@@ -792,7 +805,7 @@ private:
             return;
         }
 
-        flushAllVaults_();
+        flushAll_();
     }
 
     // The updater's two settings live in fernanda.json, written when either
@@ -817,14 +830,15 @@ private:
         // it tells the window-destroyed handlers firing during teardown to
         // leave the open flags alone, so the open set we save just below
         // survives to next launch. Then flush everything — in the normal path
-        // the project vaults were already flushed and removed by their
-        // closeEvents, so this reduces to the windowless common vault; a
-        // still-open window is caught too. The save persists the open set and
+        // each window already flushed the buffers it showed in its closeEvent,
+        // so this reduces to any buffer no window showed (a viewless one whose
+        // eviction flush failed) and the settings; a still-open window is
+        // caught too. The save persists the open set and
         // the last-used timestamps bumped in memory on activation since the
         // last open
         quitting_ = true;
 
-        flushAllVaults_();
+        flushAll_();
         saveAllWorkspaces_();
         appConfig_.save();
     }
@@ -843,7 +857,7 @@ private:
         // aboutToQuit — so onAboutToQuit_ has already set it. If the SM instead
         // hard-kills us right after this returns, nothing is destroyed and
         // there's nothing to guard
-        flushAllVaults_();
+        flushAll_();
         saveAllWorkspaces_();
         appConfig_.save();
     }

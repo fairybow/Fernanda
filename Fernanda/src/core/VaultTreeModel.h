@@ -48,9 +48,9 @@ namespace Fernanda {
 //
 // The listing admits exactly what the vault shows: no hidden entries
 // (FileTypes::isHiddenName) and no unsupported files (FileTypes::isSupported)
-// — the same predicates Vault::visibleFiles and Vault::openModel use. A hidden
-// folder is never listed, so it is never watched: nothing under .git/ ever
-// holds a directory handle.
+// — the same predicates Vault::visibleFiles and BufferStore::openModel use. A
+// hidden folder is never listed, so it is never watched: nothing under .git/
+// ever holds a directory handle.
 //
 // Every listed folder is watched — the watched set IS the listed set, with no
 // separate bookkeeping. On Windows each watch is an open directory handle, and
@@ -320,7 +320,7 @@ private:
 
     // Folders reported changed, re-listed together one debounce later so a git
     // checkout or a sync burst is one pass, not N — the same coalescing, and
-    // the same interval, as Vault's buffer reconcile
+    // the same interval, as the BufferStore's buffer reconcile
     Coco::PathList pendingDirs_{};
     Coco::Time::Debouncer* reconcileTimer_ =
         Coco::Time::newDebouncer(this, &VaultTreeModel::reconcile_);

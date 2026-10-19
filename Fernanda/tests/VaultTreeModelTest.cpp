@@ -28,11 +28,13 @@
 
 #include <Coco/Path.h>
 
+#include "core/BufferStore.h"
 #include "core/PathKey.h"
 #include "core/Vault.h"
 #include "core/VaultTreeModel.h"
 
 using namespace Qt::StringLiterals;
+using Fernanda::BufferStore;
 using Fernanda::PathKey;
 using Fernanda::Vault;
 using Fernanda::VaultTreeModel;
@@ -66,11 +68,12 @@ private:
     // changes as far as the vault can tell.
     //
     // The vault is made by start(), after the first files, and is destroyed
-    // before the folder
+    // before the store it's lent, and that before the folder
     struct Fixture_
     {
         QTemporaryDir folder{};
         Coco::Path root{ folder.path() };
+        BufferStore store{ nullptr };
         Vault* vault = nullptr;
         VaultTreeModel* model = nullptr;
         QAbstractItemModelTester* tester = nullptr;
@@ -96,7 +99,7 @@ private:
         // Leaves every folder but the root unlisted
         void startWithoutTester()
         {
-            vault = new Vault(root, nullptr);
+            vault = new Vault(root, &store, nullptr);
             model = vault->treeModel();
         }
 

@@ -179,8 +179,8 @@ public:
         startObserving_();
     }
 
-    // A guaranteed synchronous write — the workspace twin of Vault::flush at
-    // close. Flushes any pending debounce, then writes
+    // A guaranteed synchronous write — the workspace twin of the buffer flush
+    // at close. Flushes any pending debounce, then writes
     void saveNow()
     {
         debounce_->stop();

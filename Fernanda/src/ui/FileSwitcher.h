@@ -116,7 +116,8 @@ public:
 // file.
 //
 // The list is a snapshot taken at construction. A file deleted before the pick
-// is refused by Vault::openModel, which is the authoritative gate either way.
+// is refused by BufferStore::openModel, which is the authoritative gate either
+// way.
 //
 // An empty query lists the window's recent files first (RecentFiles), newest
 // first, then every other file in the presorted order below. When the newest

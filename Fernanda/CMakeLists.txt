@@ -192,6 +192,7 @@ set(APP_HEADERS
     src/core/AppActions.h
     src/core/AppConfig.h
     src/core/AppDirs.h
+    src/core/BufferStore.h
     src/core/BundledFonts.h
     src/core/Clargs.h
     src/core/CMakeMacroGuard.h

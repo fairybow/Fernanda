@@ -33,20 +33,20 @@ using namespace Qt::StringLiterals;
 // content and the single shared undo stack; each view registers its own
 // QTextDocument (for independent layout) and the prime keeps them in sync.
 //
-// One per open file. Because the common Vault is shared by every window, a
-// common file's single model gives cross-window live sync for free — no
-// propagation protocol.
+// One per open file. Because the BufferStore holds one buffer per file for
+// every window, a file's single model gives cross-window live sync for free —
+// no propagation protocol.
 //
 // This is a thin adapter: it *is* an AbstractFileModel (so views, tabs, and the
-// Vault map handle it polymorphically) and *has* a PrimeDocument (which is not
-// itself a model). All the document work lives in the prime; this forwards.
+// store's map handle it polymorphically) and *has* a PrimeDocument (which is
+// not itself a model). All the document work lives in the prime; this forwards.
 class TextFileModel : public AbstractFileModel
 {
     Q_OBJECT
 
 public:
-    TextFileModel(const PathKey& key, QObject* parentVault)
-        : AbstractFileModel(key, parentVault)
+    TextFileModel(const PathKey& key, QObject* parentStore)
+        : AbstractFileModel(key, parentStore)
     {
         setup_();
     }
@@ -83,8 +83,8 @@ public:
 
     // --- AbstractFileModel contract ----------------------------------------
 
-    // Do these bytes decode cleanly as UTF-8? Vault::openModel asks before
-    // building a text buffer, because QString::fromUtf8 (in
+    // Do these bytes decode cleanly as UTF-8? BufferStore::openModel asks
+    // before building a text buffer, because QString::fromUtf8 (in
     // adoptFormatAndDecode_) silently turns every invalid sequence into U+FFFD,
     // and a buffer built that way isn't faithful to disk. It sits here because
     // this class is the one place bytes become text.
@@ -137,7 +137,7 @@ public:
         prime_->setModified(false);
     }
 
-    // Reload from disk as an UNDOABLE replace. Every external change the Vault
+    // Reload from disk as an UNDOABLE replace. Every external change the store
     // adopts lands here; setData (the initial-open path) would clear undo via
     // setPlainText, so this uses the prime's undoable whole-document replace
     // instead, then marks clean — the buffer now matches disk, and Ctrl+Z
@@ -220,7 +220,7 @@ private:
             &AbstractFileModel::modificationChanged);
 
         // Every edit bubbles up as contentChanged (the base signal drops the
-        // delta args we don't need here). The Vault hangs its autosave debounce
+        // delta args we don't need here). The store hangs its autosave debounce
         // on this
         connect(
             prime_,

@@ -36,6 +36,7 @@
 
 #include "core/ActionIds.h"
 #include "core/AppActions.h"
+#include "core/BufferStore.h"
 #include "core/PathKey.h"
 #include "core/RecentFiles.h"
 #include "core/Translations.h"
@@ -73,7 +74,8 @@ class VaultWindow : public BaseWindow
     Q_OBJECT
 
 public:
-    // Borrows both its own Vault and the common Vault from App. vaultsProvider
+    // Borrows both its own Vault and the common Vault from App, and App's
+    // BufferStore, where every file this window opens is held. vaultsProvider
     // is App's vaultEntries(), passed straight to the Sidebar's switcher.
     // appActions are App's own actions: the base adopts them, and this window
     // hands the set on to every pop-out it makes. spellCheckers is App's too,
@@ -82,6 +84,7 @@ public:
     VaultWindow(
         Vault* borrowedVault,
         Vault* commonVault,
+        BufferStore* bufferStore,
         std::function<QList<VaultEntry>()> vaultsProvider,
         const AppActions& appActions,
         SpellCheckers* spellCheckers,
@@ -90,6 +93,7 @@ public:
         : BaseWindow(appActions, updater)
         , vault_(borrowedVault)
         , commonVault_(commonVault)
+        , bufferStore_(bufferStore)
         , vaultsProvider_(std::move(vaultsProvider))
         , appActions_(appActions)
         , spellCheckers_(spellCheckers)
@@ -120,7 +124,7 @@ public:
     {
         auto* view = makeView_(key, lossyOpenPrompt_(this));
         if (!view) {
-            return; // refused — unsupported or unreadable; Vault warned
+            return; // refused — unsupported or unreadable; the store warned
         }
 
         auto title = view->model()->title();
@@ -174,14 +178,16 @@ signals:
 protected:
     void closeEvent(QCloseEvent* event) override
     {
-        // Final flush lives here and only here. Buffers belong to the Vault,
-        // not to any window, so a file open in a pop-out and the same file open
-        // in this window are one shared buffer — this single flush catches
-        // every view everywhere, pop-outs included. It's also the only teardown
-        // that can still refuse, so it runs before any: on a failed write we
-        // name the files, keep the window open (the buffers stay dirty and keep
-        // retrying), and bail before touching the pop-outs
-        if (auto failed = vault_->flush(); !failed.isEmpty()) {
+        // Final flush lives here and only here: the buffers this window's views
+        // show, in it and its pop-outs. Buffers belong to the BufferStore, not
+        // to any window, so a file this window and another both show is one
+        // buffer, flushed here; a file only another window shows is left to
+        // that window, so a failure there can't hold this one open. It's also
+        // the only teardown that can still refuse, so it runs before any: on a
+        // failed write we name the files, keep the window open (the buffers
+        // stay dirty and keep retrying), and bail before touching the pop-outs
+        if (auto failed = bufferStore_->flush(shownKeys_());
+            !failed.isEmpty()) {
             // Refuse: these buffers are the only copy, so we keep the window
             // open rather than lose them. That can trap the user if the vault's
             // location is permanently unwritable (drive gone, read-only). The
@@ -197,20 +203,22 @@ protected:
             return;
         }
 
+        // A settings change a moment old is written now, not left to a timer
+        // that may never fire
+        vault_->saveSettingsNow();
+
         // Committed to closing: persist final workspace before tearing anything
         // down. saveNow flushes any pending debounce — the guaranteed capture
-        // point for a single-window close, the workspace twin of the vault
+        // point for a single-window close, the workspace twin of the buffer
         // flush above. Runs before closePopouts_ so the pop-outs' trees are
         // still alive to serialize
         workspaceFile_->saveNow();
 
         // Flush done: now close the pop-outs. They're siblings, so Qt won't
         // take them down with us — we do. Files open only in a pop-out were
-        // already flushed above; nothing about this close is per-window.
-        //
-        // NB: the common vault is deliberately NOT flushed here — it's shared
-        // by every window, so one window closing can't refuse on its behalf.
-        // Its final save is the app-quit sweep (App::onAboutToQuit_)
+        // already flushed above. A buffer no window shows (a viewless one
+        // whose eviction flush failed) waits for the app-quit sweep
+        // (App::onAboutToQuit_)
         closePopouts_();
 
         event->accept();
@@ -225,6 +233,7 @@ private:
 
     Vault* vault_ = nullptr;
     Vault* commonVault_ = nullptr;
+    BufferStore* bufferStore_ = nullptr;
 
     // App's vaultEntries() — handed to the Sidebar's VaultSwitcher for its
     // "other vaults" menu. Held so setup_ can pass it on
@@ -636,27 +645,26 @@ private:
     }
 
     // Build a fresh view on the file's (deduped) model, choosing the view by
-    // the model's concrete type. The model is owned by the vault vaultOf_
-    // names; openModel dedups it, so opening the same file twice shares one
-    // buffer and one document/prime. Returns the base type — callers work
-    // through it, and the one text-only touch (cursor/scroll restore) casts
-    // down in buildPage_. Returns nullptr for a file in neither of this
-    // window's vaults, and when the Vault refuses the file (an unsupported
-    // type, an unreadable file, or a non-UTF-8 one the caller's
-    // confirmLossyOpen declined) — every caller early-returns on it
+    // the model's concrete type. The model is the BufferStore's; openModel
+    // dedups it, so opening the same file twice — here, in a pop-out, or in
+    // another window — shares one buffer and one document/prime. Returns the
+    // base type — callers work through it, and the one text-only touch
+    // (cursor/scroll restore) casts down in buildPage_. Returns nullptr for a
+    // file in neither of this window's vaults, and when the store refuses the
+    // file (an unsupported type, an unreadable file, or a non-UTF-8 one the
+    // caller's confirmLossyOpen declined) — every caller early-returns on it
     [[nodiscard]] AbstractFileView* makeView_(
         const PathKey& key,
-        const Vault::ConfirmLossyOpen& confirmLossyOpen)
+        const BufferStore::ConfirmLossyOpen& confirmLossyOpen)
     {
-        auto* owner = vaultOf_(key);
-        if (!owner) {
+        if (!vaultOf_(key)) {
             WARN(
                 "Refusing to open {}: in neither of this window's vaults!",
                 key.path());
             return nullptr;
         }
 
-        auto* model = owner->openModel(key, confirmLossyOpen);
+        auto* model = bufferStore_->openModel(key, confirmLossyOpen);
         if (!model) {
             return nullptr;
         }
@@ -741,7 +749,7 @@ private:
     // the user is looking at — this one, or the pop-out whose tree the open
     // came from — so the warning lands over it rather than over a main window
     // that may be behind or elsewhere
-    [[nodiscard]] Vault::ConfirmLossyOpen
+    [[nodiscard]] BufferStore::ConfirmLossyOpen
     lossyOpenPrompt_(QWidget* parent) const
     {
         return [this, parent](const PathKey& key, const QByteArray& data) {
@@ -784,6 +792,28 @@ private:
         } else {
             tree->addToActiveLeaf(view, title);
         }
+    }
+
+    // The files this window's views show, in it and in its pop-outs. A
+    // pop-out has no parent, so it isn't among this window's children and is
+    // searched on its own. A file shown twice is listed twice
+    [[nodiscard]] QList<PathKey> shownKeys_() const
+    {
+        QList<PathKey> keys{};
+
+        auto collect = [&keys](const QObject* window) {
+            for (auto* view : window->findChildren<AbstractFileView*>()) {
+                keys << view->model()->key();
+            }
+        };
+
+        collect(this);
+
+        for (auto* popout : popouts_) {
+            collect(popout);
+        }
+
+        return keys;
     }
 
     // Which of this window's vaults a file belongs to: this window's own for
@@ -948,7 +978,7 @@ private:
     // (this/common), checks the file still exists — a moved/deleted file is
     // silently dropped — then mints a view on the (deduped) model exactly as
     // openFile does and hands it its own state blob to restore. Non-const:
-    // makeView_ opens a model, mutating the Vault's map
+    // makeView_ opens a model, mutating the store's map
     [[nodiscard]] RestoredPage_ buildPage_(const QJsonValue& value)
     {
         namespace WK = WorkspaceKeys;

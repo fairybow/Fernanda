@@ -57,7 +57,7 @@ using namespace Qt::StringLiterals;
 // dragging an entry to move it.
 //
 // It does NOT use the item view's built-in model DnD. A model-driven drop would
-// move the file on disk behind the Vault's buffer re-keying, watcher, and
+// move the file on disk behind the BufferStore's re-keying, watcher, and
 // write-fingerprint moves, so the model carries no DnD flags and stays out of
 // it: DropOnly disables the base's model-driven drag start (we start our own
 // QDrag, TabBar-style), while leaving the view a drop target so our own

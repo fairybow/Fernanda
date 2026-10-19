@@ -45,8 +45,8 @@ class PdfFileModel : public AbstractFileModel
     Q_OBJECT
 
 public:
-    PdfFileModel(const PathKey& key, QObject* parentVault)
-        : AbstractFileModel(key, parentVault)
+    PdfFileModel(const PathKey& key, QObject* parentStore)
+        : AbstractFileModel(key, parentStore)
     {
         setup_();
     }
@@ -67,9 +67,9 @@ public:
 
     // --- AbstractFileModel contract ----------------------------------------
 
-    // The raw file bytes, exactly as setData last received them. The Vault
+    // The raw file bytes, exactly as setData last received them. The store
     // never writes a PDF (nothing marks one modified), so this is read back
-    // only by the Vault's own machinery, but it stays truthful
+    // only by the store's own machinery, but it stays truthful
     [[nodiscard]] QByteArray data() const override { return data_; }
 
     // Load — or reload — the document from fresh bytes. Re-seat the buffer over
@@ -96,7 +96,7 @@ private:
 
     void setup_()
     {
-        // The Vault owns IO and never surfaces a read failure here — data() is
+        // The store owns IO and never surfaces a read failure here — data() is
         // whatever it handed us — so a load failure is a corrupt, locked, or
         // password-protected PDF. Log it; the view swaps to its error
         // placeholder off this same statusChanged (PdfFileView). There is no

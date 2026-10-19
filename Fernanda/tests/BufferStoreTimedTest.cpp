@@ -29,20 +29,20 @@
 
 #include <Coco/Path.h>
 
+#include "core/BufferStore.h"
 #include "core/PathKey.h"
-#include "core/Vault.h"
 #include "models/AbstractFileModel.h"
 #include "models/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;
+using Fernanda::BufferStore;
 using Fernanda::PathKey;
 using Fernanda::TextFileModel;
-using Fernanda::Vault;
 
-// What a Vault does a moment later (core/Vault.h): saving after typing, and
-// taking in changes made to its open files by other programs. Both run on
-// real timers and the real file watcher, so these tests take real time.
+// What the buffer store does a moment later (core/BufferStore.h): saving after
+// typing, and taking in changes made to its open files by other programs. Both
+// run on real timers and the real file watcher, so these tests take real time.
 //
 // Something expected to happen is waited for with QTRY_COMPARE and
 // QTRY_VERIFY, which return as soon as it does and fail after five seconds.
@@ -50,31 +50,31 @@ using Fernanda::Vault;
 // slow machine can only make the second kind pass when it shouldn't, never
 // fail when it shouldn't.
 //
-// Each test gets its own vault in a temporary folder.
+// Each test gets its own store, and its files in a temporary folder.
 //
 // Qt Test runs every private slot as a test. A slot named <test>_data fills a
 // table, and <test> then runs once per row, reported under the row's name
-class VaultTimedTest : public QObject
+class BufferStoreTimedTest : public QObject
 {
     Q_OBJECT
 
 private:
-    // Longer than the vault's wait before it handles file changes, with room
+    // Longer than the store's wait before it handles file changes, with room
     // for the watcher to report them
     static constexpr int SETTLE_MS_ = 700;
 
     // Far enough off that the timer it is given to can't fire during a test
     static constexpr int NEVER_MS_ = 60 * 60 * 1000;
 
-    // A vault in a temporary folder, and the file work a test does around it.
-    // Paths given to these functions are relative to the vault's root.
+    // A store, a temporary folder, and the file work a test does around them.
+    // Paths given to these functions are relative to the folder.
     //
-    // The vault is declared after the folder so it is destroyed first
+    // The store is declared after the folder so it is destroyed first
     struct Fixture_
     {
         QTemporaryDir folder{};
         Coco::Path root{ folder.path() };
-        Vault vault{ root, nullptr };
+        BufferStore store{ nullptr };
 
         // Written the way most editors and sync tools save: to a temporary
         // file that then replaces the original
@@ -115,7 +115,7 @@ private:
 
         [[nodiscard]] AbstractFileModel* open(const QString& relative)
         {
-            return vault.openModel(
+            return store.openModel(
                 PathKey::of(root / Coco::Path(relative)),
                 [](const PathKey&, const QByteArray&) { return false; });
         }
@@ -157,7 +157,7 @@ private slots:
     {
         Fixture_ f{};
         f.replace(u"a.txt"_s, "hello");
-        f.vault.setAutosaveTiming(100, NEVER_MS_);
+        f.store.setAutosaveTiming(100, NEVER_MS_);
 
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
@@ -177,7 +177,7 @@ private slots:
     {
         Fixture_ f{};
         f.replace(u"a.txt"_s, "hello");
-        f.vault.setAutosaveTiming(NEVER_MS_, 300);
+        f.store.setAutosaveTiming(NEVER_MS_, 300);
 
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
@@ -193,7 +193,7 @@ private slots:
     {
         Fixture_ f{};
         f.replace(u"a.txt"_s, "hello");
-        f.vault.setAutosaveTiming(NEVER_MS_, 200);
+        f.store.setAutosaveTiming(NEVER_MS_, 200);
 
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
@@ -205,14 +205,14 @@ private slots:
         QTRY_COMPARE(f.read(u"a.txt"_s), QByteArray("hello!?"));
     }
 
-    // One pair of timers serves the whole vault: one save pass writes every
+    // One pair of timers serves the whole store: one save pass writes every
     // modified buffer
     void oneSaveWritesEveryModifiedBuffer()
     {
         Fixture_ f{};
         f.replace(u"a.txt"_s, "a");
         f.replace(u"one/b.txt"_s, "b");
-        f.vault.setAutosaveTiming(100, NEVER_MS_);
+        f.store.setAutosaveTiming(100, NEVER_MS_);
 
         auto* a = f.open(u"a.txt"_s);
         auto* b = f.open(u"one/b.txt"_s);
@@ -263,7 +263,7 @@ private slots:
         QCOMPARE(model->data(), QByteArray("one\n"));
     }
 
-    // Replacing a file drops it from the watcher. If the vault didn't watch
+    // Replacing a file drops it from the watcher. If the store didn't watch
     // it again, the first outside change would be the last one seen
     void aSecondOutsideChangeIsTakenInToo()
     {
@@ -287,7 +287,7 @@ private slots:
     {
         Fixture_ f{};
         f.replace(u"a.txt"_s, "one\n");
-        f.vault.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
+        f.store.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
 
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
@@ -333,7 +333,7 @@ private slots:
         QTRY_COMPARE(reloaded.count(), 1);
     }
 
-    // --- The vault's own saves ----------------------------------------------
+    // --- The store's own saves ----------------------------------------------
 
     // A save is a change to a watched file, and must not come back as an
     // outside change. The danger is typing done after the save: a reload
@@ -342,7 +342,7 @@ private slots:
     {
         Fixture_ f{};
         f.replace(u"a.txt"_s, "one\n");
-        f.vault.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
+        f.store.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
 
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
@@ -350,7 +350,7 @@ private slots:
         QSignalSpy reloaded(model, &AbstractFileModel::reloaded);
 
         type_(model, u"two"_s);
-        QVERIFY(f.vault.flush().isEmpty());
+        QVERIFY(f.store.flush().isEmpty());
 
         // The buffer moves on before the watcher has reported the save
         type_(model, u" three"_s);
@@ -363,17 +363,17 @@ private slots:
         QVERIFY(model->isModified());
     }
 
-    // The same, with the report forced: whether a save of the vault's own is
+    // The same, with the report forced: whether a save of the store's own is
     // reported at all depends on the platform, so here another program
-    // writes the file again with the very bytes the vault last saved. The
-    // vault knows those bytes as its own and leaves the buffer alone. Judged
+    // writes the file again with the very bytes the store last saved. The
+    // store knows those bytes as its own and leaves the buffer alone. Judged
     // against the buffer instead, they would look like an outside change,
     // and the later typing would be lost
-    void bytesTheVaultLastSavedAreNeverTakenIn()
+    void bytesTheStoreLastSavedAreNeverTakenIn()
     {
         Fixture_ f{};
         f.replace(u"a.txt"_s, "one\n");
-        f.vault.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
+        f.store.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
 
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
@@ -381,7 +381,7 @@ private slots:
         QSignalSpy reloaded(model, &AbstractFileModel::reloaded);
 
         type_(model, u"two"_s);
-        QVERIFY(f.vault.flush().isEmpty());
+        QVERIFY(f.store.flush().isEmpty());
         type_(model, u" three"_s);
 
         f.replace(u"a.txt"_s, "one\ntwo");
@@ -392,18 +392,18 @@ private slots:
         QVERIFY(model->isModified());
     }
 
-    // After its own save the vault still sees a real outside change
+    // After its own save the store still sees a real outside change
     void anOutsideChangeAfterOwnSaveIsTakenIn()
     {
         Fixture_ f{};
         f.replace(u"a.txt"_s, "one\n");
-        f.vault.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
+        f.store.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
 
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
 
         type_(model, u"two"_s);
-        QVERIFY(f.vault.flush().isEmpty());
+        QVERIFY(f.store.flush().isEmpty());
         QTest::qWait(SETTLE_MS_);
 
         f.replace(u"a.txt"_s, "outside\n");
@@ -437,7 +437,7 @@ private slots:
     {
         Fixture_ f{};
         f.replace(u"a.txt"_s, "one\n");
-        f.vault.setAutosaveTiming(100, NEVER_MS_);
+        f.store.setAutosaveTiming(100, NEVER_MS_);
 
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
@@ -460,7 +460,7 @@ private slots:
     {
         Fixture_ f{};
         f.replace(u"one/two/a.txt"_s, "one\n");
-        f.vault.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
+        f.store.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
 
         auto* model = f.open(u"one/two/a.txt"_s);
         QVERIFY(model);
@@ -470,13 +470,13 @@ private slots:
         type_(model, u"unsaved"_s);
         QVERIFY(QDir(f.folder.filePath(u"one"_s)).removeRecursively());
 
-        QVERIFY(f.vault.flush().isEmpty());
+        QVERIFY(f.store.flush().isEmpty());
 
         QTRY_COMPARE(removed.count(), 1);
         QVERIFY(!f.exists(u"one"_s));
     }
 };
 
-QTEST_MAIN(VaultTimedTest)
+QTEST_MAIN(BufferStoreTimedTest)
 
-#include "VaultTimedTest.moc"
+#include "BufferStoreTimedTest.moc"
