@@ -44,11 +44,13 @@ namespace Fernanda::Ui {
 // own window, where the two vaults are one object. The leaf just draws whatever
 // it finds, so a later use (per-file-type glyphs, say) needs nothing here.
 //
-// Set once, at view construction, and never updated: a file can't change vaults
-// under a view (Vault::relocate_ keeps both ends inside one vault), and a tab
-// dragged into another window's family is refused by familyId. So unlike the
-// title, there is no change signal for the leaf to bind — the leaf applies the
-// mark wherever a tab gains a page.
+// Set at view construction, and again when a file renamed or moved from another
+// vault (vaults nest) lands in the other of the window's two vaults. The leaf
+// applies the mark wherever a tab gains a page; a change made under a tab is
+// drawn when the window asks (TabPaneTree::refreshPageIcon), since unlike the
+// title there is no change signal for the leaf to bind. A tab dragged into
+// another window's family is refused by familyId, so a mark never needs to
+// change for that.
 //
 // The consolidation noted in PagePin would cover this too: a shared TabPage :
 // QWidget base carrying pin, title, and mark as typed members would unite what
@@ -63,8 +65,9 @@ inline constexpr auto PAGE_ICON_PATH_PROPERTY = "fernanda_pageIconPath";
                 : QString{};
 }
 
-// Set by VaultWindow when it builds a view (makeView_); read by the leaf when a
-// tab gains a page (addPage, replacePage). An empty path clears the tab's mark
+// Set by VaultWindow; read by the leaf when a tab gains a page (addPage,
+// replacePage) or when asked (refreshPageIcon). An empty path clears the tab's
+// mark
 inline void setPageIconPath(QWidget* page, const QString& svgPath)
 {
     if (page) {

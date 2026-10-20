@@ -741,7 +741,13 @@ private:
             connect(commonVault_, &Vault::wordsChanged, view, apply_words);
         }
 
-        markIfGuest_(view, key);
+        // A rename or move, from this window or another, may take the file
+        // out of this window's vaults or into the other of them
+        connect(model, &AbstractFileModel::renamed, view, [this, view] {
+            onViewFileRelocated_(view);
+        });
+
+        applyGuestMark_(view, key);
         return view;
     }
 
@@ -757,22 +763,52 @@ private:
         };
     }
 
-    // Mark a guest tab: a file outside this window's own vault, which means a
-    // Common Vault file open in a project window that doesn't contain it. A
-    // Common Vault file inside this vault is this vault's, and in the Common
-    // Vault's own window every file is, so nothing is marked there. The mark
-    // rides the page (PageIcon), so it survives a drag into a pop-out and a
-    // workspace restore, and it never needs updating: a file can't change
-    // vaults under a view (Vault::relocate_ keeps both ends inside one vault),
-    // and a tab dragged into another window's family is refused by familyId.
-    // The leaf renders the glyph in its own colors
-    void markIfGuest_(AbstractFileView* view, const PathKey& key)
+    // Mark a guest tab, or clear the mark: a guest is a file outside this
+    // window's own vault, which means a Common Vault file open in a project
+    // window that doesn't contain it. A Common Vault file inside this vault is
+    // this vault's, and in the Common Vault's own window every file is, so
+    // nothing is marked there. The mark rides the page (PageIcon), so it
+    // survives a drag into a pop-out and a workspace restore. It changes only
+    // when a rename or move takes the file between this window's two vaults
+    // (onViewFileRelocated_). The leaf renders the glyph in its own colors.
+    // True when the mark changed
+    bool applyGuestMark_(AbstractFileView* view, const PathKey& key)
     {
-        if (vault_->contains(key)) {
-            return;
+        auto path = vault_->contains(key)
+                        ? QString{}
+                        : QString::fromLatin1(COMMON_VAULT_ICON_PATH);
+
+        if (pageIconPath(view) == path) {
+            return false;
         }
 
-        setPageIconPath(view, QString::fromLatin1(COMMON_VAULT_ICON_PATH));
+        setPageIconPath(view, path);
+        return true;
+    }
+
+    // A view's file was renamed or moved, by this window or by another: vaults
+    // nest, so another vault's window can move a file this window shows. In
+    // this window, the file may now be in neither of its vaults, and the view
+    // closes; the buffer lives on in any window that still shows it, or, if
+    // none does, its last view's save writes any unsaved text to the file's
+    // new place. Or the file may now be in the other of the two vaults, and
+    // its guest mark follows. Either way workspace.json records the old path,
+    // so a save is scheduled
+    void onViewFileRelocated_(AbstractFileView* view)
+    {
+        auto key = view->model()->key();
+
+        if (!vaultOf_(key)) {
+            view->deleteLater();
+        } else if (applyGuestMark_(view, key)) {
+            if (auto* tree = treeHosting_(view)) {
+                tree->refreshPageIcon(view);
+            }
+        }
+
+        if (workspaceFile_) {
+            workspaceFile_->scheduleSave();
+        }
     }
 
     // Open view into tree's active leaf, taking over the current tab unless

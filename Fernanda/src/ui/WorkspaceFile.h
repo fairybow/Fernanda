@@ -187,6 +187,11 @@ public:
         writeToDisk_();
     }
 
+    // A write a moment from now, coalesced with any other change in the
+    // meantime. For a change this class can't observe itself, such as an open
+    // file renamed or moved, which changes the path workspace.json records
+    void scheduleSave() { debounce_->start(debounceMs_); }
+
     // Observe a pop-out for saves: its geometry, its tree's structure, and its
     // destruction (closing one changes the persisted workspace). VaultWindow
     // calls this whenever it makes a pop-out — the drag-out path and restore
@@ -197,19 +202,19 @@ public:
             window,
             &BaseWindow::geometryChanged,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         connect(
             tree,
             &TabPaneTree::layoutChanged,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         connect(
             window,
             &QObject::destroyed,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
     }
 
 private:
@@ -256,19 +261,19 @@ private:
             window_,
             &BaseWindow::geometryChanged,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         connect(
             tree_,
             &TabPaneTree::layoutChanged,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         connect(
             sidebarSplitter_,
             &QSplitter::splitterMoved,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         // Folder expansion. Wired AFTER restore, like the rest here, so
         // restoring expansion doesn't schedule a save; the restore's own
@@ -278,7 +283,7 @@ private:
                 fileTree_,
                 &VaultFileTree::expansionChanged,
                 this,
-                &WorkspaceFile::scheduleSave_);
+                &WorkspaceFile::scheduleSave);
         }
 
         if (commonTree_) {
@@ -286,7 +291,7 @@ private:
                 commonTree_,
                 &VaultFileTree::expansionChanged,
                 this,
-                &WorkspaceFile::scheduleSave_);
+                &WorkspaceFile::scheduleSave);
         }
 
         // Drawer toggles and tree | drawer handle drags. A toggle resizes
@@ -297,11 +302,9 @@ private:
                 commonDrawer_,
                 &Drawer::stateChanged,
                 this,
-                &WorkspaceFile::scheduleSave_);
+                &WorkspaceFile::scheduleSave);
         }
     }
-
-    void scheduleSave_() { debounce_->start(debounceMs_); }
 
     // Both sidebar trees' expansion as { this, common } — opaque arrays this
     // class places but never reads into. commonTree_ is null for a common-vault

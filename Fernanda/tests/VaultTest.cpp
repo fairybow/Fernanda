@@ -1016,6 +1016,34 @@ private slots:
         QCOMPARE(f.read(u"notes.txt"_s), QByteArray("hello"));
     }
 
+    // Typing not yet saved, in a file shown only in the inner vault's window,
+    // survives the outer vault moving the file out of the inner vault. The
+    // buffer follows the file, and when the inner window closes its view, the
+    // last view's save writes the text to the file's new place
+    void unsavedTypingFollowsAMoveOutOfTheInnerVault()
+    {
+        Fixture_ f{};
+        f.write(u"inner/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto* model = f.open(u"inner/notes.txt"_s);
+        QVERIFY(model);
+
+        {
+            QObject inner_view{};
+            model->addView(&inner_view);
+            type_(model, u"!"_s);
+
+            QCOMPARE(
+                f.vault.move(f.key(u"inner/notes.txt"_s), f.rootKey()),
+                f.key(u"notes.txt"_s));
+            QVERIFY(!inner.contains(model->key()));
+        }
+
+        QCOMPARE(f.read(u"notes.txt"_s), QByteArray("hello!"));
+        QVERIFY(!f.exists(u"inner/notes.txt"_s));
+    }
+
     // --- Trash refusals -----------------------------------------------------
 
     // Each of these is refused before the system trash is asked for anything
