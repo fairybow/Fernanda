@@ -636,7 +636,6 @@ private slots:
         QCOMPARE(f.open(u"other.txt"_s), other);
     }
 
-
     // The removal is announced once, after every buffer under the entry was
     // let go
     void applyRemovalIsAnnouncedAfterTheBuffersGo()
