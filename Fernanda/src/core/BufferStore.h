@@ -284,10 +284,26 @@ public:
     // watcher, a tree would re-list the folder and see a new entry, collapsed.
     // A tree with no row there, old or new, does nothing. Then every buffer at
     // or under the entry takes its new key, and its views retitle. Trees
-    // first, so views already show the new place when the retitles fan out
+    // first, so views already show the new place when the retitles fan out.
+    //
+    // A tree whose vault folder was inside the entry has no row for it, and
+    // the entry's departure took that whole vault. Its folder is still there
+    // only after a change of letter case alone, where case is ignored, and
+    // then its watches come back; otherwise App closes that vault's window
+    // when it hears entryRelocated, announced last
     void applyRelocation(const PathKey& oldEntry, const PathKey& newEntry)
     {
         for (auto* tree : trees_) {
+            auto root = tree->root();
+
+            if (PathKey::of(root).isAtOrUnder(oldEntry)) {
+                if (root.isDir()) {
+                    tree->restoreWatches(root);
+                }
+
+                continue;
+            }
+
             tree->applyRelocation(
                 spelledIn_(tree, oldEntry),
                 spelledIn_(tree, newEntry));
@@ -296,6 +312,8 @@ public:
         for (auto* model : modelsAtOrUnder_(oldEntry)) {
             rekeyModel_(model, oldEntry, newEntry);
         }
+
+        emit entryRelocated(oldEntry, newEntry);
     }
 
     // Before a trash: write every modified buffer at or under the entry, so the
@@ -322,7 +340,9 @@ public:
 
     // After a trash: the entry's row leaves every tree, and the buffers at or
     // under it follow their files, so every view on them closes, in every
-    // window. Returns how many buffers went
+    // window. A tree whose vault folder was inside the entry has no row for
+    // it and does nothing; App closes that vault's window when it hears
+    // entryRemoved, announced last. Returns how many buffers went
     qsizetype applyRemoval(const PathKey& entry)
     {
         for (auto* tree : trees_) {
@@ -335,6 +355,7 @@ public:
             discardModel_(model);
         }
 
+        emit entryRemoved(entry);
         return affected.size();
     }
 
@@ -361,6 +382,16 @@ public:
         autosaveDebounceMs_ = debounceMs;
         autosaveCeilingMs_ = ceilingMs;
     }
+
+signals:
+    // A Vault's rename or move took oldEntry to newEntry, and every tree and
+    // buffer has followed it. Vaults nest, so the entry may have held another
+    // vault's folder: App closes that vault's window, or makes the Common
+    // Vault's folder again
+    void entryRelocated(const PathKey& oldEntry, const PathKey& newEntry);
+
+    // The same for a trash, once every tree and buffer has let the entry go
+    void entryRemoved(const PathKey& entry);
 
 private:
     // Keyed by each file's PathKey. Models are parented to the store. A model

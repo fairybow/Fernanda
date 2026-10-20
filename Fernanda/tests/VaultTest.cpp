@@ -905,6 +905,34 @@ private slots:
         QVERIFY(!f.exists(u".fernanda/dictionary.txt"_s));
     }
 
+    // A vault folder made again after it vanished holds no settings and no
+    // words, and the vault takes that on, announcing both so every window
+    // applies it. The words ignored in the old folder go too
+    void recreateRootStartsFromTheNewFolder()
+    {
+        Fixture_ f{};
+        auto default_size = f.vault.config().textFontSize();
+
+        f.vault.setConfig(&VaultConfig::setTextFontSize, default_size + 3);
+        f.vault.saveSettingsNow();
+        f.vault.addToDictionary(u"Pangloss"_s);
+        f.vault.ignoreWord(u"Thunder"_s);
+
+        QVERIFY(QDir(f.folder.path()).removeRecursively());
+
+        QSignalSpy config_changed(&f.vault, &Vault::configChanged);
+        QSignalSpy words_changed(&f.vault, &Vault::wordsChanged);
+
+        QVERIFY(f.vault.recreateRoot());
+
+        QVERIFY(f.root.isDir());
+        QCOMPARE(config_changed.count(), 1);
+        QCOMPARE(words_changed.count(), 1);
+        QCOMPARE(f.vault.config().textFontSize(), default_size);
+        QVERIFY(f.vault.dictionary().isEmpty());
+        QVERIFY(f.vault.ignoredWords().isEmpty());
+    }
+
     // --- Vaults inside vaults -----------------------------------------------
 
     // Each test makes an inner vault in a folder of the fixture's, lent the

@@ -377,14 +377,20 @@ public:
         return true;
     }
 
-    // The vault's folder was deleted or moved outside Fernanda: make it again,
-    // empty, in place. Only App calls this, and only for the Common Vault — a
-    // standing folder, rebuilt at startup anyway — while a project vault whose
-    // folder vanishes has its window closed instead. The same Vault object
-    // stays, since every project window holds a pointer to it. Every open
-    // buffer under the root is also rechecked: their files went with the
-    // folder, and a clean buffer the watcher missed would otherwise sit open
-    // until typed into. Returns false if the folder can't be made
+    // The vault's folder was deleted or moved, outside Fernanda or from inside
+    // another vault: make it again, empty, in place. Only App calls this, and
+    // only for the Common Vault — a standing folder, rebuilt at startup anyway
+    // — while a project vault whose folder vanishes has its window closed
+    // instead. The same Vault object stays, since every project window holds a
+    // pointer to it. Every open buffer under the root is also rechecked: their
+    // files went with the folder, and a clean buffer the watcher missed would
+    // otherwise sit open until typed into.
+    //
+    // The settings and words are taken again from the new folder, which has
+    // none, so they return to their defaults and every window applies them. A
+    // pending settings save is dropped first, so the old settings aren't
+    // written into the new folder. The ignored words go too: they were ignored
+    // in the folder that's gone. Returns false if the folder can't be made
     bool recreateRoot()
     {
         if (!root_.isDir() && !Coco::mkpath(root_)) {
@@ -395,6 +401,15 @@ public:
         ensureVaultDotDir(root_);
         treeModel_->relistRoot();
         bufferStore_->recheckAtOrUnder(rootKey_);
+
+        configSaveTimer_->stop();
+        config_ = VaultConfig{};
+        config_.load(root_);
+        dictionary_ = WordList::read(dictionaryPath_()).value_or(WordList{});
+        ignoredWords_ = WordList{};
+
+        emit configChanged();
+        emit wordsChanged();
 
         INFO(this, "Recreated vault folder {}", root_);
         return true;

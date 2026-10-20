@@ -858,6 +858,42 @@ private slots:
 #endif
     }
 
+    // Where letter case is ignored, renaming a folder that holds an inner
+    // vault's folder by letter case alone leaves the inner vault in place. Its
+    // tree's watches, released around the rename, come back
+    void aCaseOnlyRenameAboveAnInnerVaultKeepsItsTreeWatching()
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+
+        Fixture_ f{};
+        f.makeFile(u"box/inner/sub/a.txt"_s);
+        f.start();
+
+        if (!f.absolute(u"BOX"_s).isDir()) {
+            QSKIP("This file system respects letter case");
+        }
+
+        Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        rowsOf_(inner_model, {});
+        auto sub = inner_model->indexOf(f.absolute(u"box/inner/sub"_s));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(!f.vault->rename(f.key(u"box"_s), u"BOX"_s).isEmpty());
+
+        f.makeFile(u"BOX/inner/sub/b.txt"_s);
+
+        QTRY_COMPARE(
+            rowsOf_(inner_model, sub),
+            QStringList({ u"a"_s, u"b"_s }));
+
+#else
+
+        QSKIP("Letter case counts in paths on this platform");
+
+#endif
+    }
+
     // After a trash the entry's row leaves every tree. The trash itself needs
     // a system trash, so the store is called as Vault::moveToTrash calls it
     // once the disk op is done

@@ -25,6 +25,7 @@
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
+#include <Coco/Time.h>
 
 #include "LogView.h"
 #include "core/ActionIds.h"
@@ -297,6 +298,27 @@ private:
             this,
             &App::onApplicationStateChanged_);
 
+        // Handled a tick later (onVaultFoldersLeft_ says why)
+        connect(
+            bufferStore_,
+            &BufferStore::entryRelocated,
+            this,
+            [this](const PathKey& oldEntry, const PathKey& newEntry) {
+                Coco::Time::onNextTick(this, [this, oldEntry, newEntry] {
+                    onVaultFoldersLeft_(oldEntry, newEntry);
+                });
+            });
+
+        connect(
+            bufferStore_,
+            &BufferStore::entryRemoved,
+            this,
+            [this](const PathKey& entry) {
+                Coco::Time::onNextTick(this, [this, entry] {
+                    onVaultFoldersLeft_(entry, PathKey{});
+                });
+            });
+
         connect(
             &updater_,
             &Updater::settingsChanged,
@@ -514,8 +536,6 @@ private:
             return;
         }
 
-        checkingVaultFolders_ = true;
-
         QStringList lines{};
         for (const auto& root : missing_roots) {
             if (root == common_key) {
@@ -535,15 +555,120 @@ private:
                              common_root.prettyQString());
         }
 
-        QMessageBox::warning(
-            nullptr,
+        closeVaultsWithoutFolders_(
             tr("Vault Folder Missing"),
-            lines.join(u"\n\n"_s));
+            lines,
+            missing_roots,
+            common_missing);
+    }
+
+    // The in-app twin of checkVaultFolders_: a Vault's rename, move, or trash
+    // of entry took other vaults' folders with it. Vaults nest, so a folder
+    // inside one vault may hold another vault's folder, or the Common Vault's.
+    // Each is handled as a folder moved or deleted outside Fernanda: a project
+    // vault's window closes, and the Common Vault's folder is made again,
+    // empty, in its place, while the files that were in it stay where they
+    // went. Only the message differs, saying where each folder went. newEntry
+    // is where entry went, or empty for a trash.
+    //
+    // A vault folder still there afterward is left alone: where letter case is
+    // ignored, a change of case alone leaves every vault inside it in place.
+    // Called a tick after BufferStore announces the operation, so the Vault
+    // and the window that acted have finished before any window closes
+    void onVaultFoldersLeft_(const PathKey& entry, const PathKey& newEntry)
+    {
+        const auto common_key =
+            commonVault_ ? commonVault_->rootKey() : PathKey{};
+
+        QList<PathKey> roots{};
+        QStringList lines{};
+
+        for (auto it = openVaults_.constBegin(); it != openVaults_.constEnd();
+             ++it) {
+            const auto& root = it.key();
+            auto* window = it.value().vaultWindow;
+
+            if (!window || !window->isVisible() || !root.isAtOrUnder(entry) ||
+                root.path().isDir()) {
+                continue;
+            }
+
+            roots << root;
+
+            if (root == common_key) {
+                continue; // named below, with what happens next
+            }
+
+            auto name = root.path().nameQString();
+
+            if (newEntry.isEmpty()) {
+                lines << tr("The folder for vault \"%1\" was moved to the "
+                            "trash, so its window will close.")
+                             .arg(name);
+            } else {
+                lines << tr("The folder for vault \"%1\" was moved to %2, so "
+                            "its window will close.")
+                             .arg(
+                                 name,
+                                 root.rebased(entry, newEntry)
+                                     .path()
+                                     .prettyQString());
+            }
+        }
+
+        auto common_gone = commonVault_ && common_key.isAtOrUnder(entry) &&
+                           !common_key.path().isDir();
+
+        if (common_gone) {
+            auto common_root = common_key.path().prettyQString();
+
+            if (newEntry.isEmpty()) {
+                lines << tr("The Common Vault folder was moved to the trash. A "
+                            "new, empty one will be created at %1.")
+                             .arg(common_root);
+            } else {
+                lines << tr("The Common Vault folder was moved to %1, and its "
+                            "files are there now. A new, empty Common Vault "
+                            "will be created at %2.")
+                             .arg(
+                                 common_key.rebased(entry, newEntry)
+                                     .path()
+                                     .prettyQString(),
+                                 common_root);
+            }
+        }
+
+        if (lines.isEmpty()) {
+            return;
+        }
+
+        closeVaultsWithoutFolders_(
+            tr("Vault Folder Moved"),
+            lines,
+            roots,
+            common_gone);
+    }
+
+    // Say in one message what happened, then close the window of each vault
+    // in roots and, when recreateCommon, make the Common Vault's folder again.
+    // The message comes before anything closes, because closing the last
+    // window starts the quit. checkingVaultFolders_ is set while it's up, so
+    // switching away and back meanwhile doesn't run checkVaultFolders_ and
+    // stack a second one
+    void closeVaultsWithoutFolders_(
+        const QString& title,
+        const QStringList& lines,
+        const QList<PathKey>& roots,
+        bool recreateCommon)
+    {
+        checkingVaultFolders_ = true;
+
+        QMessageBox::warning(nullptr, title, lines.join(u"\n\n"_s));
 
         // Looked up again after the message: the box ran an event loop. Each
         // close runs the window's ordinary closeEvent, then WA_DeleteOnClose
         // and onVaultWindowDestroyed_ — which quits if it was the last
-        for (const auto& root : missing_roots) {
+        for (const auto& root : roots) {
             if (auto it = openVaults_.constFind(root);
                 it != openVaults_.constEnd() && it.value().vaultWindow) {
                 it.value().vaultWindow->close();
@@ -552,7 +677,7 @@ private:
 
         // After the Common Vault's own window has closed, so its workspace
         // save finds no folder and writes nothing into the new one
-        if (common_missing) {
+        if (recreateCommon) {
             commonVault_->recreateRoot();
         }
 

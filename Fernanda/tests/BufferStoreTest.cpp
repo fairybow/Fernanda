@@ -571,6 +571,33 @@ private slots:
         QCOMPARE(other->key(), f.key(u"other.txt"_s));
     }
 
+    // The relocation is announced once, after every buffer under the entry
+    // took its new key, so whoever hears it sees the store as it now is
+    void applyRelocationIsAnnouncedAfterTheBuffersFollow()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "a");
+        auto* a = f.open(u"one/a.txt"_s);
+        QVERIFY(a);
+
+        QList<PathKey> heard{};
+
+        QObject::connect(
+            &f.store,
+            &BufferStore::entryRelocated,
+            &f.store,
+            [&heard, a](const PathKey& oldEntry, const PathKey& newEntry) {
+                heard << oldEntry << newEntry << a->key();
+            });
+
+        f.store.applyRelocation(f.key(u"one"_s), f.key(u"uno"_s));
+
+        QCOMPARE(heard.size(), 3);
+        QVERIFY(heard[0] == f.key(u"one"_s));
+        QVERIFY(heard[1] == f.key(u"uno"_s));
+        QVERIFY(heard[2] == f.key(u"uno/a.txt"_s));
+    }
+
     // Only the modified buffers under the entry are written
     void flushAtOrUnderWritesOnlyThatEntry()
     {
@@ -607,6 +634,40 @@ private slots:
         QCOMPARE(removed.count(), 1);
         QTRY_COMPARE(destroyed.count(), 1);
         QCOMPARE(f.open(u"other.txt"_s), other);
+    }
+
+
+    // The removal is announced once, after every buffer under the entry was
+    // let go
+    void applyRemovalIsAnnouncedAfterTheBuffersGo()
+    {
+        Fixture_ f{};
+        f.write(u"one/a.txt"_s, "a");
+        auto* a = f.open(u"one/a.txt"_s);
+        QVERIFY(a);
+
+        auto a_removed = false;
+        QList<PathKey> heard{};
+
+        QObject::connect(
+            a,
+            &AbstractFileModel::removedFromDisk,
+            &f.store,
+            [&a_removed] { a_removed = true; });
+
+        QObject::connect(
+            &f.store,
+            &BufferStore::entryRemoved,
+            &f.store,
+            [&heard, &a_removed](const PathKey& entry) {
+                QVERIFY(a_removed);
+                heard << entry;
+            });
+
+        f.store.applyRemoval(f.key(u"one"_s));
+
+        QCOMPARE(heard.size(), 1);
+        QVERIFY(heard[0] == f.key(u"one"_s));
     }
 };
 
