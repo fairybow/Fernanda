@@ -80,7 +80,7 @@ flowchart TD
 | Owner | Owns |
 |---|---|
 | `App` | The `BufferStore`, the common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
-| `BufferStore` | Every open file's buffer, the watcher over open files, the autosave timers. Keeps a list of every vault's `VaultTreeModel`, which it doesn't own |
+| `BufferStore` | Every open file's buffer, the watcher over open files, the autosave timers. Keeps a list of every vault's `VaultTreeModel`, which it doesn't own, and announces each rename, move, and trash it follows |
 | `Vault` | Its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.fernanda/` folder. Borrows the store |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
 | `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows two vaults and the store |
@@ -211,6 +211,12 @@ A file is identified by its `PathKey`: its absolute path, normalized (see "Ident
 
 Which vault a file belongs to is a question each window asks, not something the file carries: in a window, a file inside the window's own vault is that vault's, even when the Common Vault contains it too, and otherwise it is the Common Vault's when that contains it (`VaultWindow::vaultOf_`). Opening, the guest mark on a tab, and `workspace.json` all go by that answer. So one buffer can be a project file in one window and a Common Vault file in another.
 
+The answer can change under an open tab. Vaults nest, so one vault's window can rename or move a file another window shows, out of that window's vaults or from one of them to the other. Each view's window asks again when its buffer reports a rename:
+
+- **In neither of its vaults:** the view closes. The buffer stays open in any window that still shows it. If none does, the last view's final save writes any unsaved text to the file's new place, so a move never loses typing.
+- **In the other of its two vaults:** the guest mark is set or cleared. A tab draws its mark only when it gains a page, so the window asks the tab to draw it again (`TabPaneTree::refreshPageIcon`).
+- **Either way,** the window schedules a workspace save, since `workspace.json` holds the old path.
+
 The file trees hand out absolute paths; the sidebar makes them keys.
 
 ### Buffers
@@ -317,6 +323,15 @@ Two details matter on every platform. Many programs save by writing a temporary 
 
 When Fernanda becomes the active application again, `App` checks that every open vault's folder still exists. A missing project vault has its window closed; a missing Common Vault folder is recreated. The watchers aren't relied on for this: whether a folder's own removal is reported varies by platform.
 
+A folder can also leave from inside Fernanda. Vaults nest, so a rename, move, or trash in one vault can take another open vault's folder, or the Common Vault's, with it. That is handled the same way and at once, not at the next activation:
+
+- **The store announces it.** `BufferStore` emits `entryRelocated` or `entryRemoved` once every tree and buffer has followed the entry. `App` acts a tick later, so the vault operation and the window that started it have finished before any window closes.
+- **The message says what happened inside Fernanda:** where each folder went, or that it went to the trash. Then the same steps as the outside case close the windows and recreate the Common Vault.
+- **A folder still there is left alone.** Where letter case is ignored, renaming a folder by case alone leaves every vault inside it in place. The store restores those vaults' tree watches, which it released for the rename.
+- **A moved vault is not followed.** It is a new vault at its new place (see "Identity"), and is opened from there like any other.
+
+A recreated Common Vault folder holds no settings and no dictionary, so `Vault::recreateRoot` takes them again from it: the defaults and an empty word list, announced so every window applies them. A pending settings save is dropped first, so the old settings aren't written into the new folder.
+
 ## The vault tree model
 
 `VaultTreeModel` is one model per vault, owned by the `Vault`. Every tree view of that vault sits on it: the vault's own tree, and for the Common Vault the drawer in every window. Expansion and selection belong to each view.
@@ -329,19 +344,21 @@ When Fernanda becomes the active application again, `App` checks that every open
 - **A node stores only its name.** A path is built by walking up to the root, so renaming or moving a folder changes one node.
 - **Outside changes re-list the folder as a diff.** Unchanged entries keep their nodes, so views keep their expansion and selection. A re-list that finds nothing to do is harmless, so the model needs no suppression of its own writes.
 - **Fernanda's own operations update the model directly.** Before a rename, move, or delete, the store releases the watches at or under the entry in every vault's tree, not only the acting vault's: vaults can nest, and another vault's window may have listed a folder inside the entry. Afterward it moves or removes the node in every tree. A moved folder's node is the same object, so it stays expanded in every view, in every vault's window. Left to its own watcher, another vault's tree would re-list the folder and see a new, collapsed entry.
+- **Each tree is handed the entry in its own spelling.** A tree finds its rows by comparing names exactly, and where letter case is ignored, two vaults' roots may spell the folders above them differently. So the store rebuilds the entry from the tree's own root and the part of the entry below it. Below a root every tree lists the same folders from disk, so those names agree.
+- **A tree whose vault folder is inside the entry has no row for it.** The whole vault went with the entry, and `App` closes its window (see "Vault folders").
 - **Paths are typed.** Views read a `Coco::Path` and an is-folder flag from the model, not Qt item roles.
 
 Outside programs are still blocked from renaming a folder that Fernanda has listed a subfolder of. See "Watching a whole vault through one handle" in [Future.md](Future.md).
 
 ## Identity
 
-**A vault is its path.** Nothing identifying is stored in the vault folder. The known-vaults list, the open-vaults map in `App`, and saved workspaces all resolve by path. This matches Obsidian, whose vault ids are opaque handles in a per-machine file.
+**A vault is its path.** Nothing identifying is stored in the vault folder. The known-vaults list, the open-vaults map in `App`, and saved workspaces all resolve by path. The open-vaults map is keyed by `PathKey`, so any spelling of an open folder finds its window. This matches Obsidian, whose vault ids are opaque handles in a per-machine file.
 
 The cost is that a moved vault is a new vault. The benefit is that a copied vault folder is simply a second vault, with nothing to collide.
 
 **A file is its `PathKey`.** `Coco::Path` compares paths as written, so a trailing slash, `.` and `..` segments, and letter case make two spellings of one file differ. `Coco::Path` is deliberately not canonical on construction: that would make it impossible to name a path that doesn't exist yet, and would put a filesystem call in a value type. `PathKey` (`core/PathKey.h`) is the normalized form every buffer and file operation goes by:
 
-- **Made from the path alone.** `.` and `..` are removed, separators become single forward slashes, and a trailing one is dropped. Nothing asks the disk, so a file that doesn't exist yet (a new file, a rename's target) has the key it will have once it does. A relative path gives an empty key.
+- **Made from the path alone.** `.` and `..` are removed, and the path is written in its pretty form (below). Nothing asks the disk, so a file that doesn't exist yet (a new file, a rename's target) has the key it will have once it does. A relative path gives an empty key.
 - **Letter case is compared as the platform's file systems do.** On Windows and macOS, which ignore case by default, keys compare case-folded; elsewhere exactly. Qt reports a path in the case it was written, not the case on disk, so this can't be settled by asking. The path keeps the case it was written in, for display and for file operations.
 - **Symlinks are not followed.** A file reached through a symlinked folder keeps a path inside the vault the link sits in, so a folder linked into a vault works as part of it, as in Obsidian. The cost is that a file reachable two ways through a link has two keys, and so two buffers. Obsidian asks for the same thing: link targets "fully disjoint from the vault root or any other symlink targets".
 - **Vault roots are resolved through symlinks, once.** `App` resolves a vault's folder (`Coco::Path::canonical`) before it looks for an open `Vault`, so one folder reached two ways is one `Vault`, and every key made under a root starts from the same spelling.
@@ -353,6 +370,8 @@ The cost is that a moved vault is a new vault. The benefit is that a copied vaul
 - `BufferStore::openModel` refuses only an empty key. Which files a window may open is the window's to decide: one inside either of its vaults.
 
 `workspace.json` stores each tab and recent file as a vault label and a path relative to that vault's root: "this" for a file inside the window's vault, "common" otherwise.
+
+**A path written as text is in its pretty form** (`Coco::Path::prettyQString`), in `workspace.json`, in `fernanda.json`, in a `PathKey`, and on screen: the root as the platform reads it (a UNC root keeps its two slashes), then the names, joined by single forward slashes, with none at the end. It is built from the path's own parts, so the platform decides what a separator is; on Linux and macOS a backslash is part of a name. `.` and `..` are kept. Reading the text back names the same path; a Windows device path (`\\?\...`), where `/` isn't a separator, is kept as written for that reason.
 
 ## Configuration and persistence
 
@@ -531,6 +550,8 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **Buffers kept by each `Vault`, and a file named by its vault and a path inside it** (`FileRef`). Built, then replaced by the `BufferStore` and `PathKey`. A file inside two vaults (nested vaults, or a project vault containing the Common Vault) had a buffer in each: each autosave came back to the other as an outside change, reloaded as an undo step, and a rename or delete in one vault discarded the other's buffer with up to three seconds of typing.
 - **Following symlinks for every key.** A folder linked into a vault would have had keys outside the vault: its tabs marked as guests, dropped from `workspace.json`, and its files refused by the vault's own operations. Only vault roots are resolved; see "Identity".
 - **Releasing only the acting vault's tree watches around a folder operation.** Another vault's window that had listed a folder inside the entry kept a handle on it, and the operation failed on Windows. And left to re-list on its own, that tree collapsed the moved folder.
+- **Refusing a folder operation that would take another open vault's folder.** It would have kept every `Vault`'s root fixed, but a vault folder moved from inside Fernanda would then be stuck, where one moved in a file manager is simply handled. Closing the vault, as for an outside move, treats both the same.
+- **Following a vault folder moved from inside another vault,** by re-rooting its `Vault` or reopening it at the new place. Every window holds pointers into its vaults, and a moved vault is a new vault under path identity. For the Common Vault, whose location is fixed, following is not possible at all.
 - **A base class for PDF and image buffers.** They share one member.
 - **A placeholder buffer for empty tabs.** An off-disk buffer by another name.
 - **A separate object tracking views per buffer.** The buffer already is that record, and the store's map already is the registry.

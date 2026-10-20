@@ -13,6 +13,8 @@ A vault is a folder on your computer. Fernanda adds one hidden folder to it, `.f
 - Quitting and relaunching reopens every vault that was open, with its windows, tabs, and layout
 - Vaults may be nested inside one another, and may sit inside a Git repository. A project vault may even contain the Common Vault
 - A file inside two open vaults is one document in every window. Renaming, moving, or deleting it from either vault carries every window's tabs with it, and a folder expanded in one window stays expanded after another window renames or moves it
+- A file moved out of a vault from another vault's window has its tabs closed in that vault's windows, and keeps them wherever it is still inside the window's vault. Typing not yet saved goes with the file
+- Moving, renaming, or deleting a folder that holds another open vault closes that vault's window, with a message saying where the folder went, as when its folder is moved outside Fernanda
 - One Fernanda process holds every open vault
 
 ### The Common Vault
@@ -22,9 +24,9 @@ One vault is shared by every project: the Common Vault, for templates, notes, an
 - Lives at `Documents/Fernanda/Common Vault`, and is created for you
 - Every vault window shows it in a collapsible drawer under the vault's own file tree
 - A Common Vault file open in two windows is one document: an edit in one appears in the other as you type
-- Tabs holding a Common Vault file are marked with a box icon, in the windows of vaults that don't contain the Common Vault. In a vault that does, its files are that vault's own
+- Tabs holding a Common Vault file are marked with a box icon, in the windows of vaults that don't contain the Common Vault. In a vault that does, its files are that vault's own. The icon follows its file: a file moved between the Common Vault and a window's own vault gains or loses it in place
 - Can be opened as a window of its own, from the vault switcher
-- If its folder is deleted, Fernanda recreates it empty
+- If its folder is deleted or moved, outside Fernanda or from a vault that contains it, Fernanda recreates it empty in the same place, with default settings and an empty dictionary. A moved folder's files stay where they went, as ordinary files
 
 ### Manage Vaults
 
@@ -284,8 +286,8 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **Images zoom**, like PDFs
 - **File and folder icons** in the file tree
 - **No fallback trash.** If the system trash refuses an entry, Fernanda declines; Obsidian moves it to a `.trash` folder in the vault
-- **A vault whose folder vanishes has its window closed**, after a message, where Obsidian leaves an empty window open
-- **No in-app vault moving.** Move the folder in your file manager, then open it from its new place
+- **A vault whose folder vanishes has its window closed**, after a message, where Obsidian leaves an empty window open. This includes a vault folder moved or deleted from inside another vault
+- **No in-app vault moving.** Move the folder in your file manager, or from the file tree of a vault that contains it, then open it from its new place
 - **Licenses are in the app.** Obsidian lists its third-party credits on its help site
 - **No light or dark setting.** Fernanda always follows the system. Obsidian follows it by default and can be set to light or dark
 - **Stepping past closing punctuation** is Fernanda's own, as is the switch over both typing helpers
@@ -296,7 +298,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 
 - A file name with a period and no real extension (`Chapter 1. The Start`) is read as having an unsupported extension, so the file is hidden
 - On Windows, while Fernanda is open, other programs can't rename or delete a folder if one of its subfolders has been expanded in a file tree or holds an open file. Fernanda's own rename, move, and delete are unaffected
-- A moved or renamed vault folder is a new vault to Fernanda: open it again from its new place. Its settings and layout travel with it
+- A moved or renamed vault folder is a new vault to Fernanda, whether it was moved in a file manager or from inside another vault: open it again from its new place. Its settings and layout travel with it
 - A folder linked into a vault (a symlink or junction) works as part of the vault. A file that can be reached two ways, through a link and directly, is two documents, which can save over each other. Keep a linked folder's target outside every vault, as Obsidian also asks
 - Word counts run low for Thai, Lao, Khmer, and Myanmar text
 - Spelling suggestions can take a moment to appear for a long or badly garbled word

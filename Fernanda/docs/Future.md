@@ -118,7 +118,8 @@ Committing a vault to a repository, for backup and history.
 - **Links, backlinks, and tags.** Fernanda is for plain text. Without links there is nothing to index and nothing to rewrite when a file is renamed
 - **Unsaved documents and save prompts.** Every file is on disk and always saved. An untitled, in-memory document would bring back the prompts, the modified markers, and the recovery machinery this design removes
 - **Moving a vault from inside Fernanda.** Built once, for the Common Vault, then removed. On Windows other programs (the folder picker, the shell, the indexer, antivirus) hold handles on the folders being moved, and the old folders can't be deleted while they do. Fernanda can't release handles it doesn't own. Moving the folder in a file manager and opening it again does the same job
-- **Renaming the Common Vault.** Its location is fixed, and every window depends on it while Fernanda runs
+- **Renaming the Common Vault.** Its location is fixed, and every window depends on it while Fernanda runs. Renaming or moving its folder from inside a vault that contains it leaves its files where they went, as that vault's own, and an empty Common Vault is made in its place
+- **Following a vault folder moved from inside another vault.** Its window closes, as when it is moved in a file manager, and the vault is opened again from its new place. A moved vault is a new vault
 - **Deleting a vault's folder from Manage Vaults.** It is someone's writing. "Remove from list" forgets the vault and leaves the folder alone
 - **Showing unsupported file types.** Obsidian has a setting for this. Fernanda hides them: a file it can't open only adds noise to the tree
 - **Readable line length.** The left/right margin setting does this job and leaves the width to the writer
