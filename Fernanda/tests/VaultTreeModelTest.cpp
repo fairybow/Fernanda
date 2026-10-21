@@ -785,6 +785,49 @@ private slots:
         QCOMPARE(f.rows(), QStringList({ u"m"_s, u"z"_s }));
     }
 
+    // A root spelled anew keeps its rows, builds every path from the new
+    // spelling, and watches its listed folders under it: a change reported
+    // only under the old spelling would be outside the root and ignored. A
+    // symlink to the folder stands in for another letter case, which only
+    // Windows and macOS have
+    void aRespelledRootKeepsItsRowsAndWatchesUnderTheNewSpelling()
+    {
+#if defined(Q_OS_WIN)
+
+        // QFile::link makes a .lnk shortcut on Windows, not a link the file
+        // system follows
+        QSKIP("Needs a symlink");
+
+#else
+
+        Fixture_ f{};
+        f.makeFile(u"sub/a.txt"_s);
+        f.start();
+        QCOMPARE(f.rows(u"sub"_s), QStringList({ u"a"_s }));
+
+        QPersistentModelIndex sub(f.index(u"sub"_s));
+
+        QTemporaryDir elsewhere{};
+        auto link = Coco::Path(elsewhere.path()) / Coco::Path(u"link"_s);
+        QVERIFY(QFile::link(f.root.toQString(), link.toQString()));
+
+        f.model->respellRoot(link);
+
+        QCOMPARE(f.model->root(), link);
+        QVERIFY(sub.isValid());
+        QCOMPARE(f.model->pathOf(sub), link / Coco::Path(u"sub"_s));
+        QCOMPARE(
+            f.model->indexOf(link / Coco::Path(u"sub"_s)),
+            QModelIndex(sub));
+        QVERIFY(!f.model->indexOf(f.absolute(u"sub"_s)).isValid());
+
+        f.makeFile(u"sub/b.txt"_s);
+
+        QTRY_COMPARE(rowsOf_(f.model, sub), QStringList({ u"a"_s, u"b"_s }));
+
+#endif
+    }
+
     // --- A vault inside the fixture's ---------------------------------------
     //
     // The inner vault is lent the fixture's store, as App lends its one store

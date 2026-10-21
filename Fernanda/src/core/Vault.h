@@ -415,6 +415,38 @@ public:
         return true;
     }
 
+    // The vault's folder is where it was, spelled as root spells it: a folder
+    // at or above the root was renamed by letter case alone, where case is
+    // ignored. Only App calls this, when another vault's rename leaves this
+    // vault's folder in place. root, the tree, and every path they hand out
+    // take the new spelling, and rootRespelled is announced so the windows'
+    // own copies follow.
+    //
+    // Refused for a key that names another folder: a vault doesn't follow its
+    // folder to a new place (see docs/Architecture.md, "Identity"). A spelling
+    // that is already the vault's changes nothing and announces nothing
+    void respellRoot(const PathKey& root)
+    {
+        if (root.isEmpty() || !(root == rootKey_)) {
+            WARN(
+                "Can't respell vault {} as {}: not the same folder!",
+                root_,
+                root.path());
+            return;
+        }
+
+        if (root.path() == root_) {
+            return;
+        }
+
+        rootKey_ = root;
+        root_ = rootKey_.path();
+        treeModel_->respellRoot(root_);
+
+        INFO(this, "Vault folder now spelled {}", root_);
+        emit rootRespelled();
+    }
+
     // --- Per-vault settings --------------------------------------------------
 
     // The vault's config, loaded at construction. Read-only here: every change
@@ -506,6 +538,10 @@ signals:
     // each one — and so does every text view of every vault when the changed
     // vault is the Common Vault
     void wordsChanged();
+
+    // root() and rootKey() are spelled anew (respellRoot), for anything that
+    // keeps its own copy of the root's spelling
+    void rootRespelled();
 
 private:
     PathKey rootKey_;

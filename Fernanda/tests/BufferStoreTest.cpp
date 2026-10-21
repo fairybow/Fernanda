@@ -646,6 +646,7 @@ private slots:
         QVERIFY(a);
 
         auto a_removed = false;
+        auto a_removed_when_heard = false;
         QList<PathKey> heard{};
 
         QObject::connect(
@@ -658,8 +659,8 @@ private slots:
             &f.store,
             &BufferStore::entryRemoved,
             &f.store,
-            [&heard, &a_removed](const PathKey& entry) {
-                QVERIFY(a_removed);
+            [&heard, &a_removed, &a_removed_when_heard](const PathKey& entry) {
+                a_removed_when_heard = a_removed;
                 heard << entry;
             });
 
@@ -667,6 +668,7 @@ private slots:
 
         QCOMPARE(heard.size(), 1);
         QVERIFY(heard[0] == f.key(u"one"_s));
+        QVERIFY(a_removed_when_heard);
     }
 };
 

@@ -192,6 +192,24 @@ private slots:
         QVERIFY(f.vault.createFile(f.rootKey()).path().isUnder(f.vault.root()));
     }
 
+    // A key for another folder is refused, and the vault's own spelling again
+    // is no change: neither touches the root or announces anything
+    void respellRootRefusesAnotherFolder()
+    {
+        Fixture_ f{};
+        auto root = f.vault.root();
+        QSignalSpy respelled(&f.vault, &Vault::rootRespelled);
+
+        f.vault.respellRoot(f.key(u"sub"_s));
+        f.vault.respellRoot(PathKey::of(root.parent()));
+        f.vault.respellRoot(PathKey{});
+        f.vault.respellRoot(f.rootKey());
+
+        QCOMPARE(f.vault.root(), root);
+        QCOMPARE(f.vault.treeModel()->root(), root);
+        QCOMPARE(respelled.count(), 0);
+    }
+
     // The vault's own folder is made with the vault
     void constructionMakesTheDotFolder()
     {
@@ -1042,6 +1060,45 @@ private slots:
 
         QCOMPARE(f.read(u"notes.txt"_s), QByteArray("hello!"));
         QVERIFY(!f.exists(u"inner/notes.txt"_s));
+    }
+
+    // Where letter case is ignored, the outer vault renaming a folder above
+    // the inner vault's by letter case alone leaves the inner vault in place.
+    // Respelled, as App does then, the inner vault's root, its tree, and the
+    // files it lists all take the new spelling
+    void respellRootTakesTheNewLetterCase()
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+
+        Fixture_ f{};
+        f.write(u"box/inner/sub/a.txt"_s, "a");
+        Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
+
+        if (!f.absolute(u"BOX"_s).isDir()) {
+            QSKIP("This file system respects letter case");
+        }
+
+        QCOMPARE(f.vault.rename(f.key(u"box"_s), u"BOX"_s), f.key(u"BOX"_s));
+
+        QSignalSpy respelled(&inner, &Vault::rootRespelled);
+        inner.respellRoot(
+            inner.rootKey().rebased(f.key(u"box"_s), f.key(u"BOX"_s)));
+
+        QCOMPARE(respelled.count(), 1);
+        QCOMPARE(inner.root().parent().nameQString(), u"BOX"_s);
+        QCOMPARE(inner.rootKey().path(), inner.root());
+        QCOMPARE(inner.treeModel()->root(), inner.root());
+        QVERIFY(inner.contains(f.key(u"box/inner/sub/a.txt"_s)));
+
+        auto files = inner.visibleFiles();
+        QCOMPARE(files.size(), 1);
+        QVERIFY(files.first().path().isUnder(inner.root()));
+
+#else
+
+        QSKIP("Letter case counts in paths on this platform");
+
+#endif
     }
 
     // --- Trash refusals -----------------------------------------------------
