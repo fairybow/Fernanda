@@ -25,6 +25,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QMetaObject>
 #include <QPalette>
 #include <QPoint>
 #include <QSplitter>
@@ -77,12 +78,12 @@ public:
     // Borrows both its own Vault and the Common Vault from App, and App's
     // BufferStore, where every file this window opens is held. commonVault is
     // null when there is no Common Vault, and is the window's own Vault in the
-    // Common Vault's own window. vaultsProvider
-    // is App's vaultEntries(), passed straight to the Sidebar's switcher.
-    // appActions are App's own actions: the base adopts them, and this window
-    // hands the set on to every pop-out it makes. spellCheckers is App's too,
-    // and is where each text view's dictionary comes from. So are updater
-    // and translations, which the settings dialog's General page shows
+    // Common Vault's own window. It can change later (setCommonVault).
+    // vaultsProvider is App's vaultEntries(), passed straight to the Sidebar's
+    // switcher. appActions are App's own actions: the base adopts them, and
+    // this window hands the set on to every pop-out it makes. spellCheckers is
+    // App's too, and is where each text view's dictionary comes from. So are
+    // updater and translations, which the settings dialog's General page shows
     VaultWindow(
         Vault* borrowedVault,
         Vault* commonVault,
@@ -162,6 +163,33 @@ public:
         }
     }
 
+    // The Common Vault changed, or there's none now (App::setCommonVault_).
+    // The sidebar's drawer is replaced or removed, and WorkspaceFile handed the
+    // new one. Every text view takes its words again, since the Common Vault's
+    // dictionary applies here. And every tab, here and in the pop-outs, is
+    // looked at again as if its file had moved: one in neither of this
+    // window's vaults now closes, and the rest are marked as guests or not
+    void setCommonVault(Vault* commonVault)
+    {
+        if (commonVault == commonVault_) {
+            return;
+        }
+
+        commonVault_ = commonVault;
+        connectCommonWords_();
+
+        sidebar_->setCommonVault(commonVault_);
+        workspaceFile_->setCommonDrawer(
+            sidebar_->commonTree(),
+            sidebar_->commonDrawer());
+
+        emit commonWordsChanged();
+
+        for (auto* view : fileViews_()) {
+            reconsiderView_(view);
+        }
+    }
+
     // App calls this in its exit sweeps for windows that won't get a closeEvent
     // of their own — a multi-window quit or OS logout. Idempotent with the
     // closeEvent save below; flushes any pending workspace debounce
@@ -176,6 +204,13 @@ signals:
     // Relayed up from the Sidebar: the user picked another known vault in the
     // switcher. App's convergence point opens or raises it
     void vaultSwitchRequested(const Coco::Path& vaultRoot);
+
+    // The Common Vault's dictionary changed, or the Common Vault did. Every
+    // text view this window and its pop-outs host takes its words again
+    // (makeView_). Relayed here, rather than each view connecting to the
+    // Common Vault, so a change of Common Vault is one reconnection
+    // (connectCommonWords_)
+    void commonWordsChanged();
 
 protected:
     void closeEvent(QCloseEvent* event) override
@@ -237,6 +272,9 @@ private:
     Vault* commonVault_ = nullptr;
     BufferStore* bufferStore_ = nullptr;
 
+    // The Common Vault's wordsChanged, relayed as commonWordsChanged
+    QMetaObject::Connection commonWordsConnection_{};
+
     // App's vaultEntries() — handed to the Sidebar's VaultSwitcher for its
     // "other vaults" menu. Held so setup_ can pass it on
     std::function<QList<VaultEntry>()> vaultsProvider_;
@@ -296,6 +334,8 @@ private:
                 .openSettings = action(ActionIds::VAULT_OPEN_SETTINGS) },
             vaultsProvider_,
             this);
+
+        connectCommonWords_();
 
         connect(
             sidebar_,
@@ -729,13 +769,15 @@ private:
         // The words to take as correct: this window's vault's dictionary and
         // ignored words, and the Common Vault's dictionary, if there is one,
         // which applies in every vault. Taken again when either vault's words
-        // change
-        auto apply_words = [view, vault, common = commonVault_] {
-            auto words = vault->dictionary();
-            words.unite(vault->ignoredWords());
+        // change, or the Common Vault does. The Common Vault is read when the
+        // words are taken, since it can change; the view dies before this
+        // window (pop-outs close with it), so capturing this is safe
+        auto apply_words = [this, view] {
+            auto words = vault_->dictionary();
+            words.unite(vault_->ignoredWords());
 
-            if (common && common != vault) {
-                words.unite(common->dictionary());
+            if (commonVault_ && commonVault_ != vault_) {
+                words.unite(commonVault_->dictionary());
             }
 
             view->setAcceptedWords(words);
@@ -743,10 +785,7 @@ private:
 
         apply_words();
         connect(vault, &Vault::wordsChanged, view, apply_words);
-
-        if (commonVault_ && commonVault_ != vault) {
-            connect(commonVault_, &Vault::wordsChanged, view, apply_words);
-        }
+        connect(this, &VaultWindow::commonWordsChanged, view, apply_words);
 
         // A rename or move, from this window or another, may take the file
         // out of this window's vaults or into the other of them
@@ -776,9 +815,9 @@ private:
     // this vault's, and in the Common Vault's own window every file is, so
     // nothing is marked there. The mark rides the page (PageIcon), so it
     // survives a drag into a pop-out and a workspace restore. It changes only
-    // when a rename or move takes the file between this window's two vaults
-    // (onViewFileRelocated_). The leaf renders the glyph in its own colors.
-    // True when the mark changed
+    // when a rename or move takes the file between this window's two vaults,
+    // or the Common Vault changes (reconsiderView_). The leaf renders the
+    // glyph in its own colors. True when the mark changed
     bool applyGuestMark_(AbstractFileView* view, const PathKey& key)
     {
         auto path = vault_->contains(key)
@@ -794,27 +833,52 @@ private:
     }
 
     // A view's file was renamed or moved, by this window or by another: vaults
-    // nest, so another vault's window can move a file this window shows. In
-    // this window, the file may now be in neither of its vaults, and the view
-    // closes; the buffer lives on in any window that still shows it, or, if
-    // none does, its last view's save writes any unsaved text to the file's
-    // new place. Or the file may now be in the other of the two vaults, and
-    // its guest mark follows. Either way workspace.json records the old path,
-    // so a save is scheduled
+    // nest, so another vault's window can move a file this window shows.
+    // workspace.json records the old path, so a save is scheduled
     void onViewFileRelocated_(AbstractFileView* view)
+    {
+        reconsiderView_(view);
+
+        if (workspaceFile_) {
+            workspaceFile_->scheduleSave();
+        }
+    }
+
+    // Which of this window's vaults a view's file is in may have changed: its
+    // file moved, or the Common Vault did. In neither, the view closes; the
+    // buffer lives on in any window that still shows it, or, if none does, its
+    // last view's save writes any unsaved text to the file. Otherwise its
+    // guest mark follows the vault it's in now
+    void reconsiderView_(AbstractFileView* view)
     {
         auto key = view->model()->key();
 
         if (!vaultOf_(key)) {
             view->deleteLater();
-        } else if (applyGuestMark_(view, key)) {
+            return;
+        }
+
+        if (applyGuestMark_(view, key)) {
             if (auto* tree = treeHosting_(view)) {
                 tree->refreshPageIcon(view);
             }
         }
+    }
 
-        if (workspaceFile_) {
-            workspaceFile_->scheduleSave();
+    // Relay the Common Vault's wordsChanged as commonWordsChanged, dropping
+    // the relay from the one before. None when there's no Common Vault, or
+    // this window is it: then its words are this vault's, which every view
+    // already follows
+    void connectCommonWords_()
+    {
+        disconnect(commonWordsConnection_);
+
+        if (commonVault_ && commonVault_ != vault_) {
+            commonWordsConnection_ = connect(
+                commonVault_,
+                &Vault::wordsChanged,
+                this,
+                &VaultWindow::commonWordsChanged);
         }
     }
 
@@ -837,23 +901,28 @@ private:
         }
     }
 
-    // The files this window's views show, in it and in its pop-outs. A
-    // pop-out has no parent, so it isn't among this window's children and is
-    // searched on its own. A file shown twice is listed twice
+    // The file views in this window and in its pop-outs. A pop-out has no
+    // parent, so it isn't among this window's children and is searched on its
+    // own
+    [[nodiscard]] QList<AbstractFileView*> fileViews_() const
+    {
+        auto views = findChildren<AbstractFileView*>();
+
+        for (auto* popout : popouts_) {
+            views << popout->findChildren<AbstractFileView*>();
+        }
+
+        return views;
+    }
+
+    // The files this window's views show, in it and in its pop-outs. A file
+    // shown twice is listed twice
     [[nodiscard]] QList<PathKey> shownKeys_() const
     {
         QList<PathKey> keys{};
 
-        auto collect = [&keys](const QObject* window) {
-            for (auto* view : window->findChildren<AbstractFileView*>()) {
-                keys << view->model()->key();
-            }
-        };
-
-        collect(this);
-
-        for (auto* popout : popouts_) {
-            collect(popout);
+        for (auto* view : fileViews_()) {
+            keys << view->model()->key();
         }
 
         return keys;

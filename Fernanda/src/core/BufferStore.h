@@ -359,21 +359,6 @@ public:
         return affected.size();
     }
 
-    // Check every buffer at or under the entry against disk at the next
-    // reconcile, as if the watcher had reported each: a vault folder that
-    // vanished and was made again (Vault::recreateRoot) may have taken files
-    // the watcher never reported
-    void recheckAtOrUnder(const PathKey& entry)
-    {
-        for (auto* model : modelsAtOrUnder_(entry)) {
-            pendingChanged_ << model->key().path().toQString();
-        }
-
-        if (!pendingChanged_.isEmpty()) {
-            watchReconcileTimer_->start(watchReconcileMs_);
-        }
-    }
-
     // Adjust the while-typing autosave: the debounce (write this long after
     // typing pauses) and the ceiling (write ANYWAY this long into unbroken
     // input). Not a saved setting yet
