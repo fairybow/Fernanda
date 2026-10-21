@@ -918,7 +918,7 @@ private slots:
 
         Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
         auto* inner_model = inner.treeModel();
-        rowsOf_(inner_model, {});
+        (void)rowsOf_(inner_model, {});
         auto sub = inner_model->indexOf(f.absolute(u"box/inner/sub"_s));
         QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
 
@@ -971,7 +971,7 @@ private slots:
 
         Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
         auto* inner_model = inner.treeModel();
-        rowsOf_(inner_model, {});
+        (void)rowsOf_(inner_model, {});
         auto sub = inner_model->indexOf(f.absolute(u"inner/sub"_s));
         QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
 
