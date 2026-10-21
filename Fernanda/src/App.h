@@ -119,11 +119,10 @@ public:
     {
         const auto recents = appConfig_.recentVaults();
 
-        // Asked of the live Vault, not of AppConfig: commonVault_ is the object
-        // a rename would strand, so its own root is the honest comparand. A
-        // null commonVault_ yields an empty key, which no recents path matches
-        // — readVaults_ skips blank-path records, and an empty key is never
-        // taken for a match below
+        // The Common Vault's root as its live Vault has it. With no Common
+        // Vault it's an empty key, which no row matches — readVaults_ skips
+        // blank-path records, and an empty key is never taken for a match
+        // below
         const auto common_key =
             commonVault_ ? commonVault_->rootKey() : PathKey{};
 
@@ -463,9 +462,9 @@ private:
             &App::onOpenOrMakeVaultRequested_);
 
         // Per-row actions on the recents column route back here:
-        // remove-from-list and rename are registry edits App owns. Rename's
-        // folder op already ran in ManageVaults; these slots only fix the
-        // persisted state to match
+        // remove-from-list, rename, and setting or unsetting the Common Vault
+        // are registry edits App owns. Rename's folder op already ran in
+        // ManageVaults; its slot only fixes the persisted state to match
         connect(
             manageVaults_,
             &Ui::ManageVaults::forgetVaultRequested,
@@ -477,6 +476,18 @@ private:
             &Ui::ManageVaults::vaultRenamed,
             this,
             &App::onVaultRenamed_);
+
+        connect(
+            manageVaults_,
+            &Ui::ManageVaults::commonVaultSetRequested,
+            this,
+            &App::setCommonVault_);
+
+        connect(
+            manageVaults_,
+            &Ui::ManageVaults::commonVaultUnsetRequested,
+            this,
+            [this] { setCommonVault_({}); });
 
         connect(
             manageVaults_,
@@ -1109,9 +1120,9 @@ private:
     // ManageVaults already renamed the FOLDER on disk; App fixes the registry
     // to match. One in-place path swap — lastUsedEpochMs and open ride along,
     // so the entry keeps its recents position (a rename isn't a use) and its
-    // open/anchor role if it had one. Rename is gated to closed vaults, so no
-    // live Vault or window is keyed on oldRoot to re-point. save +
-    // vaultsChanged refreshes the list with the new name
+    // open/anchor role if it had one. Rename is gated to closed vaults that
+    // aren't the Common Vault, so no live Vault or window is keyed on oldRoot
+    // to re-point. save + vaultsChanged refreshes the list with the new name
     void onVaultRenamed_(const Coco::Path& oldRoot, const Coco::Path& newRoot)
     {
         appConfig_.renameVault(oldRoot, newRoot);
