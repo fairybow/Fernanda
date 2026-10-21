@@ -86,8 +86,8 @@ public:
         SpellCheckers::installBundled(AppDirs::dictionaries());
 
         // fernanda.json is machine-local; a missing file (first run) leaves
-        // every value at its AppDirs default. Load before the common vault so
-        // its relocatable path is known when we construct it
+        // every value at its AppDirs default. Loaded before the Common Vault,
+        // which it names
         appConfig_.load();
 
         // Before any text is made, App's actions included, since text is
@@ -376,14 +376,35 @@ private:
         }
     }
 
+    // The Common Vault, if there is one. The first run sets one up, made at
+    // AppDirs::defaultCommonVault; after that there is one only while the
+    // user has one set. A set one whose folder is gone is unset, and stays
+    // unset until the user sets another: the folder was deleted or moved
+    // outside Fernanda, and where it went can't be known. Its record stays,
+    // listed as missing
     void initCommonVault_()
     {
-        // commonVaultPath() falls back to AppDirs::defaultCommonVault()
-        // when unset
-        commonVault_ = new Vault(
-            resolvedRoot_(appConfig_.commonVaultPath()),
-            bufferStore_,
-            this);
+        if (!appConfig_.isCommonVaultSetUp()) {
+            appConfig_.setCommonVaultPath(
+                resolvedRoot_(AppDirs::defaultCommonVault()));
+            appConfig_.save();
+        }
+
+        auto path = appConfig_.commonVaultPath();
+        if (path.isEmpty()) {
+            return;
+        }
+
+        auto root = resolvedRoot_(path);
+
+        if (!root.isDir()) {
+            INFO("Common Vault folder {} is gone; unsetting it", root);
+            appConfig_.setCommonVaultPath({});
+            appConfig_.save();
+            return;
+        }
+
+        commonVault_ = new Vault(root, bufferStore_, this);
     }
 
     // Restore last session's vaults: reopen every vault marked open whose
@@ -814,15 +835,13 @@ private:
     }
 
     // Make the Common Vault's folder again, at its usual place and in its usual
-    // spelling. The spelling App kept for it (respellVaults_) was the old
-    // folder's, which is gone, so it's cleared: commonVaultPath only ever
-    // holds a respelling of the usual place. A record for the Common Vault,
-    // opened as its own window, takes the same spelling; the record is matched
-    // by key, so renameVault finds it however it's spelled
+    // spelling, which replaces any spelling App kept for the folder that's
+    // gone (respellVaults_). Its record takes the same spelling; the record is
+    // matched by key, so renameVault finds it however it's spelled
     void recreateCommonVault_()
     {
-        appConfig_.setCommonVaultPath({});
-        auto root = resolvedRoot_(appConfig_.commonVaultPath());
+        auto root = resolvedRoot_(AppDirs::defaultCommonVault());
+        appConfig_.setCommonVaultPath(root);
 
         commonVault_->recreateRoot(PathKey::of(root));
 
@@ -869,7 +888,7 @@ private:
         // commonVault_, and every "is this the Common Vault?" question
         // downstream — the Sidebar's drawer, the FileSwitcher's second listing,
         // the tab indicator — answers itself
-        auto* vault = (root_key == commonVault_->rootKey())
+        auto* vault = (commonVault_ && root_key == commonVault_->rootKey())
                           ? commonVault_
                           : new Vault(vaultRoot, bufferStore_, this);
 

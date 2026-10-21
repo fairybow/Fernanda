@@ -157,17 +157,20 @@ private:
 } // namespace Internal
 
 // Obsidian-style vault switcher: shows the current vault's name, and pops a
-// menu of the OTHER openable vaults plus permanent "Manage Vaults" and "Open
-// Common Vault" items. The vault list is read live from a provider App threads
-// down and rebuilt on every aboutToShow, so it always reflects the current
-// recents without this widget observing a signal. Two things are handed in
-// rather than owned:
+// menu of the OTHER openable vaults plus a permanent "Manage Vaults" item, and
+// "Open Common Vault" while there is one to open. The vault list is read live
+// from a provider App threads down and rebuilt on every aboutToShow, so it
+// always reflects the current recents without this widget observing a signal.
+// Two things are handed in rather than owned:
 //
-//   - manageVaultsAction — a QAction owned and wired upstream
-//   (VaultWindow/App);
-//     the switcher only displays it and forwards no signal of its own for it.
+//   - manageVaultsAction — a QAction owned and wired upstream (VaultWindow,
+//     App); the switcher only displays it and forwards no signal of its own
+//     for it.
 //   - vaultsProvider — App's vaultEntries(), the same source the ManageVaults
 //     recents column reads.
+//
+// The two roots are this window's vault's and the Common Vault's, which is
+// empty when there's none.
 //
 // Choosing a vault emits vaultActivated with its root; the Sidebar relays it up
 // to App's one convergence point, so switching and opening share a path
@@ -193,8 +196,9 @@ public:
 
     ~VaultSwitcher() override { TRACER; }
 
-    // Either root spelled anew (Vault::respellRoot). The button shows the new
-    // name at once; the menu is rebuilt on each show anyway
+    // Either root spelled anew (Vault::respellRoot), or the Common Vault's
+    // changed. The button shows the new name at once; the menu is rebuilt on
+    // each show anyway
     void setVaultRoots(
         const Coco::Path& currentVaultRoot,
         const Coco::Path& commonVaultRoot)
@@ -300,9 +304,12 @@ private:
         // recents — so it gets a permanent item rather than riding the provider
         // list (from which it's filtered above). Same convergence as any
         // switch: emit its root and App opens it or raises the existing window.
-        // Omitted when this window already IS the common vault — there'd be
-        // nothing to open
-        if (currentVaultRoot_ != commonVaultRoot_) {
+        // Omitted when there is no Common Vault, or this window already IS it
+        // — there'd be nothing to open
+        auto is_common_window =
+            PathKey::of(currentVaultRoot_) == PathKey::of(commonVaultRoot_);
+
+        if (!commonVaultRoot_.isEmpty() && !is_common_window) {
             auto open_common = menu_->addAction(tr("Open Common Vault"));
             connect(open_common, &QAction::triggered, this, [this] {
                 emit vaultActivated(commonVaultRoot_);

@@ -48,8 +48,9 @@ namespace Fernanda::Ui {
 //
 // Borrows both Vaults (project + common) from the window. It needs them to root
 // each tree and to send each tree's file operations to the Vault that tree
-// shows. The trees emit absolute paths and stay Vault-free; here those paths
-// become keys.
+// shows. The Common Vault may be null, when there is none, and then there's no
+// drawer, as in the Common Vault's own window. The trees emit absolute paths
+// and stay Vault-free; here those paths become keys.
 //
 // The switcher's vault list comes from a provider App threads down; the Sidebar
 // hands it through and relays the switcher's choice back up to the window
@@ -87,15 +88,15 @@ public:
     // construction like the sidebar splitter — WorkspaceFile reads their opaque
     // expansion blobs and observes their expansionChanged; it never drives
     // them, so this is composition-time handoff, not the reach-through that
-    // would drive a component's behaviour. commonTree() is null when this
-    // window IS the common vault (no common drawer — Sidebar::setup_)
+    // would drive a component's behaviour. commonTree() is null when there is
+    // no common drawer: there's no Common Vault, or this window IS it
     [[nodiscard]] VaultFileTree* fileTree() const { return fileTree_; }
     [[nodiscard]] VaultFileTree* commonTree() const { return commonTree_; }
 
     // The common drawer, whose { collapsed, height } WorkspaceFile persists —
     // the same handoff as the trees: it reads the drawer's opaque state blob
-    // and observes stateChanged. Null when this window IS the common vault,
-    // like commonTree()
+    // and observes stateChanged. Null when there is no common drawer, like
+    // commonTree()
     [[nodiscard]] Drawer* commonDrawer() const { return commonDrawer_; }
 
 signals:
@@ -128,25 +129,23 @@ private:
 
     void setup_(const Actions& actions)
     {
-        auto vault_root = vault_->root();
-        auto common_vault_root = commonVault_->root();
-
         // Main tree
         fileTree_ = new VaultFileTree(vault_->treeModel(), splitter_);
         splitter_->addWidget(fileTree_);
         wireTree_(fileTree_, vault_);
 
-        // Common vault tree — omitted when this window IS the Common Vault. A
-        // pointer test: App hands the common root's window App's own common
-        // Vault rather than a second one over the same folder, so "same Vault"
-        // is the single fact every consumer asks (this drawer, the
-        // FileSwitcher's second listing, the tab indicator). Comparing roots
-        // answers the same question, but only as long as the two stay in step
-        if (vault_ != commonVault_) {
+        // Common vault tree — omitted when there is no Common Vault, or this
+        // window IS it. A pointer test: App hands the common root's window
+        // App's own common Vault rather than a second one over the same
+        // folder, so "same Vault" is the single fact every consumer asks (this
+        // drawer, the FileSwitcher's second listing, the tab indicator).
+        // Comparing roots answers the same question, but only as long as the
+        // two stay in step
+        if (hasCommonDrawer_()) {
             commonTree_ =
                 new VaultFileTree(commonVault_->treeModel(), splitter_);
             commonDrawer_ =
-                new Drawer(tr("Common Vault"), commonTree_, splitter_);
+                new Drawer(commonDrawerTitle_(), commonTree_, splitter_);
             splitter_->addWidget(commonDrawer_);
             wireTree_(commonTree_, commonVault_);
 
@@ -177,10 +176,11 @@ private:
 
         // The switcher — a fixed-height bar below the splitter, not a pane.
         // Handed this vault's root so it can drop itself from the "other
-        // vaults" menu, and the provider so its list stays live
+        // vaults" menu, the Common Vault's (empty when there's none) for its
+        // own item, and the provider so its list stays live
         switcher_ = new VaultSwitcher(
-            vault_root,
-            common_vault_root,
+            vault_->root(),
+            commonVault_ ? commonVault_->root() : Coco::Path{},
             actions.manageVaults,
             vaultsProvider_,
             this);
@@ -192,19 +192,15 @@ private:
             &Sidebar::switchVaultRequested);
 
         // Either vault respelled while open (Vault::respellRoot) hands the
-        // switcher both roots again
-        auto respell_switcher = [this] {
-            switcher_->setVaultRoots(vault_->root(), commonVault_->root());
-        };
+        // switcher both roots again, and the drawer its title
+        connect(vault_, &Vault::rootRespelled, this, &Sidebar::onRespelled_);
 
-        connect(vault_, &Vault::rootRespelled, switcher_, respell_switcher);
-
-        if (vault_ != commonVault_) {
+        if (commonVault_ && commonVault_ != vault_) {
             connect(
                 commonVault_,
                 &Vault::rootRespelled,
-                switcher_,
-                respell_switcher);
+                this,
+                &Sidebar::onRespelled_);
         }
 
         // The gear. A click triggers the window's own action, the same one
@@ -231,6 +227,31 @@ private:
         profile_row->addWidget(settingsButton_, 0);
 
         layout->addLayout(profile_row, 0);
+    }
+
+    [[nodiscard]] bool hasCommonDrawer_() const
+    {
+        return commonVault_ && commonVault_ != vault_;
+    }
+
+    // The Common Vault's folder name, which the drawer's header carries as its
+    // title (painted or not, per COMMON_DRAWER_LABEL). A folder with no name,
+    // a drive's root, falls back to "Common Vault"
+    [[nodiscard]] QString commonDrawerTitle_() const
+    {
+        auto name = commonVault_->root().nameQString();
+        return name.isEmpty() ? tr("Common Vault") : name;
+    }
+
+    void onRespelled_()
+    {
+        switcher_->setVaultRoots(
+            vault_->root(),
+            commonVault_ ? commonVault_->root() : Coco::Path{});
+
+        if (commonDrawer_) {
+            commonDrawer_->setTitle(commonDrawerTitle_());
+        }
     }
 
     // Wire one tree to the Vault it shows, in one place for both the project

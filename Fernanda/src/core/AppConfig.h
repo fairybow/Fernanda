@@ -13,9 +13,11 @@
 #pragma once
 
 #include <algorithm>
+#include <optional>
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QList>
 #include <QString>
 
@@ -59,19 +61,30 @@ class AppConfig
 public:
     AppConfig() = default;
 
-    // The Common Vault root. Unset ⇒ AppDirs::defaultCommonVault(). Read by
-    // App::init before it constructs the windowless common Vault. In-app
-    // relocation isn't offered: App sets this only when a rename inside
-    // another vault changes the folder's letter case alone, where case is
-    // ignored, so the next launch spells the same folder as the disk now does
-    // (App::respellVaults_)
+    // The Common Vault: one of the known vaults, whose files every window
+    // shows beside its own. Empty when there is none: before the first run
+    // sets one up, or once the user unsets it or its folder goes
     [[nodiscard]] Coco::Path commonVaultPath() const
     {
-        return commonVaultPath_.isEmpty() ? AppDirs::defaultCommonVault()
-                                          : commonVaultPath_;
+        return commonVaultPath_.value_or(Coco::Path{});
     }
 
-    void setCommonVaultPath(const Coco::Path& path) { commonVaultPath_ = path; }
+    // False only until the first run sets up the Common Vault
+    // (App::initCommonVault_). After that the user's choice stands, even a
+    // choice of none
+    [[nodiscard]] bool isCommonVaultSetUp() const noexcept
+    {
+        return commonVaultPath_.has_value();
+    }
+
+    // Set the Common Vault, or unset it with an empty path; either way it's set
+    // up from then on. A Common Vault is always a known vault, so a path the
+    // list lacks is added to it, as never used
+    void setCommonVaultPath(const Coco::Path& path)
+    {
+        commonVaultPath_ = path;
+        listCommonVault_();
+    }
 
     // The starting directory for the create/open flow — the last place a vault
     // was created from or opened at. Unset ⇒ AppDirs::defaultDocs()
@@ -178,9 +191,15 @@ public:
 
     // Remove-from-list: drop one record, folder untouched. Returns whether
     // anything was removed, so App can skip a spurious save + signal when the
-    // path wasn't listed
+    // path wasn't listed. The Common Vault's record is refused: it stays
+    // listed while it's set
     bool forgetVault(const Coco::Path& root)
     {
+        if (auto common = commonVaultPath();
+            !common.isEmpty() && sameVault_(common, root)) {
+            return false;
+        }
+
         return vaults_.removeIf([&root](const VaultRecord_& record) {
             return sameVault_(record.path, root);
         });
@@ -200,12 +219,22 @@ public:
     // Read fernanda.json into memory. A missing file (first run) or an absent
     // "vaults" key leaves the registry empty and every path value unset, so
     // every getter returns its default. JsonIo/Io have already logged a
-    // genuinely corrupt file; a missing one is silent
+    // genuinely corrupt file; a missing one is silent.
+    //
+    // The Common Vault's key is read for three states: absent (not set up),
+    // null (unset), or its path. A path with no record (a hand-edited file) is
+    // listed
     void load()
     {
         auto root = JsonIo::read(filePath_());
 
-        assignPath_(root, u"commonVaultPath"_s, commonVaultPath_);
+        if (root.contains(COMMON_VAULT_PATH_KEY_)) {
+            commonVaultPath_ =
+                Coco::Path(root.value(COMMON_VAULT_PATH_KEY_).toString());
+        } else {
+            commonVaultPath_.reset();
+        }
+
         assignPath_(root, u"newVaultMruDir"_s, newVaultMruDir_);
 
         checksForUpdates_ = root.value(u"checkForUpdates"_s).toBool(true);
@@ -213,18 +242,24 @@ public:
         language_ = root.value(u"language"_s).toString();
 
         vaults_ = readVaults_(root.value(u"vaults"_s).toArray());
+        listCommonVault_();
     }
 
     // Serialize the set keys and write atomically. Only keys with a value are
     // written, so "unset ⇒ absent ⇒ default" round-trips cleanly and the file
-    // stays minimal. Returns JsonIo/Io's success; App may ignore it for
-    // non-critical values
+    // stays minimal. The Common Vault is the exception: once set up it's
+    // always written, as null when unset, since its absence means the first
+    // run hasn't set one up. Returns JsonIo/Io's success; App may ignore it
+    // for non-critical values
     bool save() const
     {
         QJsonObject root{};
 
-        if (!commonVaultPath_.isEmpty()) {
-            root[u"commonVaultPath"_s] = commonVaultPath_.prettyQString();
+        if (commonVaultPath_) {
+            root[COMMON_VAULT_PATH_KEY_] =
+                commonVaultPath_->isEmpty()
+                    ? QJsonValue(QJsonValue::Null)
+                    : QJsonValue(commonVaultPath_->prettyQString());
         }
 
         if (!newVaultMruDir_.isEmpty()) {
@@ -251,8 +286,12 @@ public:
     }
 
 private:
+    static inline const QString COMMON_VAULT_PATH_KEY_ = u"commonVaultPath"_s;
+
+    // No value until set up; then an empty path while unset, else the path
+    std::optional<Coco::Path> commonVaultPath_{};
+
     // Empty == unset; the getter substitutes the AppDirs default
-    Coco::Path commonVaultPath_{};
     Coco::Path newVaultMruDir_{};
 
     // Written only when off, like a vault's open flag only when true
@@ -303,6 +342,17 @@ private:
         }
 
         return nullptr;
+    }
+
+    // A set Common Vault that has no record gets one: never used, so last in
+    // the recents, and not open
+    void listCommonVault_()
+    {
+        auto common = commonVaultPath();
+
+        if (!common.isEmpty() && !recordOf_(common)) {
+            vaults_ << VaultRecord_{ common, 0, false };
+        }
     }
 
     static Coco::Path filePath_()

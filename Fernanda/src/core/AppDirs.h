@@ -44,8 +44,9 @@ inline const Coco::Path& ensured(const Coco::Path& dir)
         return dir;                                                            \
     }
 
-// TODO: Make configurable (via settings, not here - these are the hardcoded
-// defaults); in usage, check JSON settings file first, then fallback to these
+// Where the create/open dialogs start before any vault has been made there
+// (AppConfig::newVaultMruDir), and where the first run makes the Common Vault
+// (App::initCommonVault_). Each is made the first time it's asked for
 GEN_DIR_METHOD_(defaultDocs, Coco::Path::Documents(PUB_APP_NAME_STRING))
 GEN_DIR_METHOD_(defaultCommonVault, defaultDocs() / "Common Vault")
 

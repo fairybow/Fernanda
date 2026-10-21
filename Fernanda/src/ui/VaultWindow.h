@@ -74,8 +74,10 @@ class VaultWindow : public BaseWindow
     Q_OBJECT
 
 public:
-    // Borrows both its own Vault and the common Vault from App, and App's
-    // BufferStore, where every file this window opens is held. vaultsProvider
+    // Borrows both its own Vault and the Common Vault from App, and App's
+    // BufferStore, where every file this window opens is held. commonVault is
+    // null when there is no Common Vault, and is the window's own Vault in the
+    // Common Vault's own window. vaultsProvider
     // is App's vaultEntries(), passed straight to the Sidebar's switcher.
     // appActions are App's own actions: the base adopts them, and this window
     // hands the set on to every pop-out it makes. spellCheckers is App's too,
@@ -725,13 +727,14 @@ private:
         connect(vault, &Vault::configChanged, view, apply);
 
         // The words to take as correct: this window's vault's dictionary and
-        // ignored words, and the Common Vault's dictionary, which applies in
-        // every vault. Taken again when either vault's words change
+        // ignored words, and the Common Vault's dictionary, if there is one,
+        // which applies in every vault. Taken again when either vault's words
+        // change
         auto apply_words = [view, vault, common = commonVault_] {
             auto words = vault->dictionary();
             words.unite(vault->ignoredWords());
 
-            if (common != vault) {
+            if (common && common != vault) {
                 words.unite(common->dictionary());
             }
 
@@ -741,7 +744,7 @@ private:
         apply_words();
         connect(vault, &Vault::wordsChanged, view, apply_words);
 
-        if (commonVault_ != vault) {
+        if (commonVault_ && commonVault_ != vault) {
             connect(commonVault_, &Vault::wordsChanged, view, apply_words);
         }
 
