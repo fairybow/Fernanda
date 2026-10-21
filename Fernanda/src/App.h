@@ -299,12 +299,16 @@ private:
             this,
             &App::onApplicationStateChanged_);
 
-        // Handled a tick later (onVaultFoldersLeft_ says why)
+        // The Common Vault follows its folder at once (followCommonVault_
+        // says why), and the rest is handled a tick later
+        // (onVaultFoldersLeft_ says why)
         connect(
             bufferStore_,
             &BufferStore::entryRelocated,
             this,
             [this](const PathKey& oldEntry, const PathKey& newEntry) {
+                followCommonVault_(oldEntry, newEntry);
+
                 Coco::Time::onNextTick(this, [this, oldEntry, newEntry] {
                     onEntryRelocated_(oldEntry, newEntry);
                 });
@@ -584,17 +588,45 @@ private:
             common_missing);
     }
 
+    // A Vault's rename or move took the Common Vault's folder, or a folder
+    // holding it, to a new place. The Common Vault is a role any folder can
+    // have, and this is the same folder, so the Common Vault follows it: a new
+    // Vault there takes the role (setCommonVault_). Its own window, if it has
+    // one, closes like any moved vault's (onVaultFoldersLeft_), and its record
+    // follows like theirs (moveVaultRecords_).
+    //
+    // Done as soon as the store announces the move, not a tick later: each
+    // window looks at its tabs again a tick after their files move
+    // (VaultWindow::makeView_), and by then the Common Vault's files must be in
+    // the new Common Vault, or their tabs would close. A change of letter case
+    // alone, where case is ignored, leaves the folder where it was, and
+    // respellVaults_ gives it the new spelling instead
+    void followCommonVault_(const PathKey& entry, const PathKey& newEntry)
+    {
+        if (!commonVault_) {
+            return;
+        }
+
+        auto key = commonVault_->rootKey();
+
+        if (!key.isAtOrUnder(entry) || key.path().isDir()) {
+            return;
+        }
+
+        setCommonVault_(key.rebased(entry, newEntry).path());
+    }
+
     // A Vault's rename or move took entry to newEntry. Vaults nest, so entry
     // may have held other vaults' folders. Vaults whose folders are still in
     // place take the new spelling, the windows of those whose folders left
-    // close, and the known-vaults records of those follow their folders.
+    // close, and the known-vaults records of those follow their folders. The
+    // Common Vault has already followed its folder (followCommonVault_).
     //
     // In that order because the message before the windows close runs an
     // event loop, in which any vault window can be activated, and activation
     // records a vault's use by its root's path (touchVault, which adds a
     // record it doesn't find). Until a window closes, its vault's record must
-    // stay where the vault's root is. A Common Vault whose folder left is
-    // unset before the records move, so its record moves like any other
+    // stay where the vault's root is
     void onEntryRelocated_(const PathKey& entry, const PathKey& newEntry)
     {
         respellVaults_(entry, newEntry);
@@ -713,7 +745,9 @@ private:
     // Each is handled as a folder moved or deleted outside Fernanda: a vault's
     // window closes, and a Common Vault whose folder went is unset. Only the
     // message differs, saying where each folder went. newEntry is where entry
-    // went, or empty for a trash.
+    // went, or empty for a trash. A moved Common Vault has already followed
+    // its folder (followCommonVault_), so it's unset here only after a trash,
+    // or if a Vault couldn't be made at the new place.
     //
     // A vault folder still there afterward stays open: where letter case is
     // ignored, a change of case alone leaves every vault inside it in place,

@@ -110,6 +110,30 @@ private slots:
         QVERIFY(config.recentVaults().isEmpty());
     }
 
+    // Renamed onto a folder that already has a record, the two are one: the
+    // more recent timestamp, and open if either was
+    void renameOntoAKnownFolderMerges()
+    {
+        QTemporaryDir vault{};
+        QTemporaryDir elsewhere{};
+        Coco::Path root(vault.path());
+        Coco::Path moved(elsewhere.path());
+        AppConfig config{};
+
+        config.touchVault(moved);
+        config.touchVault(root);
+        config.setVaultOpen(moved, true);
+
+        config.renameVault(root, otherSpelling_(moved));
+
+        QCOMPARE(
+            config.recentVaults(),
+            Coco::PathList({ otherSpelling_(moved) }));
+        QCOMPARE(
+            config.openVaultPaths(),
+            Coco::PathList({ otherSpelling_(moved) }));
+    }
+
     // Where letter case is ignored, a folder spelled in another case is the
     // same vault. Elsewhere it's another folder, and another record
     void letterCaseCountsOnlyWhereTheFileSystemsDo()

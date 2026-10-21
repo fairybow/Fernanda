@@ -34,6 +34,7 @@
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
+#include <Coco/Time.h>
 
 #include "core/ActionIds.h"
 #include "core/AppActions.h"
@@ -788,9 +789,14 @@ private:
         connect(this, &VaultWindow::commonWordsChanged, view, apply_words);
 
         // A rename or move, from this window or another, may take the file
-        // out of this window's vaults or into the other of them
+        // out of this window's vaults or into the other of them. Looked at a
+        // tick later, once App has seen the move through: a move of the Common
+        // Vault's folder makes a new Common Vault there
+        // (App::followCommonVault_), and its files are still a Common Vault's
         connect(model, &AbstractFileModel::renamed, view, [this, view] {
-            onViewFileRelocated_(view);
+            Coco::Time::onNextTick(view, [this, view] {
+                onViewFileRelocated_(view);
+            });
         });
 
         applyGuestMark_(view, key);

@@ -208,12 +208,35 @@ public:
     // Rename in place: swap one record's path, keeping its timestamp and open
     // flag. The vault keeps its recents position (a rename isn't a use). The
     // one way a record's spelling changes, so a change of letter case alone
-    // is a rename too. No-op if the old path isn't listed
+    // is a rename too. No-op if the old path isn't listed.
+    //
+    // A record already naming the new folder (one listed as missing there, or
+    // the Common Vault's, listed when it was set there) is merged in, as load
+    // merges: the more recent timestamp, and open if either was. So no two
+    // records ever name one folder
     void renameVault(const Coco::Path& oldRoot, const Coco::Path& newRoot)
     {
-        if (auto* record = recordOf_(oldRoot)) {
-            record->path = newRoot;
+        auto* record = recordOf_(oldRoot);
+        if (!record) {
+            return;
         }
+
+        auto* existing = recordOf_(newRoot);
+
+        if (existing && existing != record) {
+            record->lastUsedEpochMs =
+                std::max(record->lastUsedEpochMs, existing->lastUsedEpochMs);
+            record->open = record->open || existing->open;
+            record->path = newRoot;
+
+            vaults_.removeIf([existing](const VaultRecord_& other) {
+                return &other == existing;
+            });
+
+            return;
+        }
+
+        record->path = newRoot;
     }
 
     // Read fernanda.json into memory. A missing file (first run) or an absent
