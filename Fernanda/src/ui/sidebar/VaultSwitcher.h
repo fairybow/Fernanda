@@ -36,6 +36,7 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
+#include "core/PathKey.h"
 #include "core/VaultEntry.h"
 #include "ui/UiConstants.h"
 #include "ui/widgets/Glyph.h"
@@ -192,6 +193,17 @@ public:
 
     ~VaultSwitcher() override { TRACER; }
 
+    // Either root spelled anew (Vault::respellRoot). The button shows the new
+    // name at once; the menu is rebuilt on each show anyway
+    void setVaultRoots(
+        const Coco::Path& currentVaultRoot,
+        const Coco::Path& commonVaultRoot)
+    {
+        currentVaultRoot_ = currentVaultRoot;
+        commonVaultRoot_ = commonVaultRoot;
+        showName_();
+    }
+
 signals:
     // The user picked another known vault. Carries its root — the Sidebar
     // relays this to App::onOpenOrMakeVaultRequested_
@@ -217,8 +229,7 @@ private:
         // tooltips unless asked
         menu_->setToolTipsVisible(true);
 
-        auto name = currentVaultRoot_.nameQString();
-        button_->setText(name.isEmpty() ? tr("Vault") : name);
+        showName_();
         button_->setMenu(menu_);
         button_->setPopupMode(QToolButton::InstantPopup);
         // The button paints its own glyph and name (VaultSwitcherButton_), so
@@ -231,6 +242,12 @@ private:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
         layout->addWidget(button_);
+    }
+
+    void showName_()
+    {
+        auto name = currentVaultRoot_.nameQString();
+        button_->setText(name.isEmpty() ? tr("Vault") : name);
     }
 
     // Wipe and repopulate from the live provider. menu_->clear() deletes the
@@ -248,9 +265,14 @@ private:
             // never rides the recents list here), and missing/moved ones — you
             // can't switch to a folder that isn't there. Those surface (with a
             // warning and a remove action) in ManageVaults, which is what the
-            // permanent "Manage Vaults" item below is for
-            if (entry.root == currentVaultRoot_ ||
-                entry.root == commonVaultRoot_ || entry.missing) {
+            // permanent "Manage Vaults" item below is for.
+            //
+            // Compared as keys, not as written: a record can spell a folder
+            // otherwise than the live Vault does. The Common Vault's root is
+            // spelled from its fixed place at each launch, though its record
+            // may have been respelled in an earlier one
+            if (entry.isCommon || entry.missing ||
+                PathKey::of(entry.root) == PathKey::of(currentVaultRoot_)) {
                 continue;
             }
 

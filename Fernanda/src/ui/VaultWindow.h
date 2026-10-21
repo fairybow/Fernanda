@@ -398,6 +398,10 @@ private:
 
         workspaceFile_->restore();
 
+        connect(vault_, &Vault::rootRespelled, workspaceFile_, [this] {
+            workspaceFile_->setVaultRoot(vault_->root());
+        });
+
         // The status bar's settings (BaseWindow::applyConfig): now, and on
         // every change. Pop-outs get the same in makeWiredPopout_, as they do
         // the update notice's click

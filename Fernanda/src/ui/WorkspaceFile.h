@@ -187,6 +187,10 @@ public:
         writeToDisk_();
     }
 
+    // The vault's folder, spelled anew (Vault::respellRoot): workspace.json is
+    // read and written under the new spelling from here on
+    void setVaultRoot(const Coco::Path& vaultRoot) { vaultRoot_ = vaultRoot; }
+
     // A write a moment from now, coalesced with any other change in the
     // meantime. For a change this class can't observe itself, such as an open
     // file renamed or moved, which changes the path workspace.json records

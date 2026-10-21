@@ -191,6 +191,22 @@ private:
             this,
             &Sidebar::switchVaultRequested);
 
+        // Either vault respelled while open (Vault::respellRoot) hands the
+        // switcher both roots again
+        auto respell_switcher = [this] {
+            switcher_->setVaultRoots(vault_->root(), commonVault_->root());
+        };
+
+        connect(vault_, &Vault::rootRespelled, switcher_, respell_switcher);
+
+        if (vault_ != commonVault_) {
+            connect(
+                commonVault_,
+                &Vault::rootRespelled,
+                switcher_,
+                respell_switcher);
+        }
+
         // The gear. A click triggers the window's own action, the same one
         // Ctrl+, and the File menu fire, so there is one path to the dialog and
         // the sidebar knows nothing about it
