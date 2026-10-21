@@ -24,6 +24,7 @@
 
 #include "core/AppDirs.h"
 #include "core/JsonIo.h"
+#include "core/PathKey.h"
 #include "core/Publication.h"
 
 // App-level configuration — the machine-local fernanda.json in appData(),
@@ -39,7 +40,9 @@
 // explicit rather than hiding inside a mutator.
 //
 // The vaults registry (path is identity, no id) is one array of { path,
-// lastUsedEpochMs, open } records. The two data fields carry distinct jobs:
+// lastUsedEpochMs, open } records. Paths are compared as PathKeys, so every
+// spelling of one folder finds its one record, which keeps the spelling it was
+// recorded or renamed with. The two data fields carry distinct jobs:
 // lastUsedEpochMs is a recency stamp (bumped on open and on activation) that
 // orders the recents list and, on restore, the stacking order — nothing more;
 // open marks a vault as part of the session to restore, maintained live as
@@ -56,10 +59,12 @@ class AppConfig
 public:
     AppConfig() = default;
 
-    // The relocatable Common Vault root. Unset ⇒ AppDirs::defaultCommonVault().
-    // In-app relocation isn't offered; this is only the read side, which
-    // resolves App::init's common-vault location before it constructs the
-    // windowless common Vault
+    // The Common Vault root. Unset ⇒ AppDirs::defaultCommonVault(). Read by
+    // App::init before it constructs the windowless common Vault. In-app
+    // relocation isn't offered: App sets this only when a rename inside
+    // another vault changes the folder's letter case alone, where case is
+    // ignored, so the next launch spells the same folder as the disk now does
+    // (App::respellVaults_)
     [[nodiscard]] Coco::Path commonVaultPath() const
     {
         return commonVaultPath_.isEmpty() ? AppDirs::defaultCommonVault()
@@ -143,18 +148,17 @@ public:
 
     // Promote a vault to most-recently-used by stamping its lastUsedEpochMs
     // with now — an upsert: a first-time vault is appended (open false, the
-    // caller sets it), a known one is bumped. Used by both the open convergence
+    // caller sets it), a known one is bumped and keeps the spelling it was
+    // recorded with. Used by both the open convergence
     // point and window activation, so recency tracks last USE, not merely last
     // open. Memory only; the caller saves
     void touchVault(const Coco::Path& root)
     {
         auto last_used = Coco::Time::epoch();
 
-        for (auto& record : vaults_) {
-            if (record.path == root) {
-                record.lastUsedEpochMs = last_used;
-                return;
-            }
+        if (auto* record = recordOf_(root)) {
+            record->lastUsedEpochMs = last_used;
+            return;
         }
 
         vaults_ << VaultRecord_{ root, last_used, false };
@@ -167,11 +171,8 @@ public:
     // already upserted the record. Memory only; the caller saves
     void setVaultOpen(const Coco::Path& root, bool open)
     {
-        for (auto& record : vaults_) {
-            if (record.path == root) {
-                record.open = open;
-                return;
-            }
+        if (auto* record = recordOf_(root)) {
+            record->open = open;
         }
     }
 
@@ -181,20 +182,18 @@ public:
     bool forgetVault(const Coco::Path& root)
     {
         return vaults_.removeIf([&root](const VaultRecord_& record) {
-            return record.path == root;
+            return sameVault_(record.path, root);
         });
     }
 
     // Rename in place: swap one record's path, keeping its timestamp and open
-    // flag. The vault keeps its recents position (a rename isn't a use). No-op
-    // if the old path isn't listed
+    // flag. The vault keeps its recents position (a rename isn't a use). The
+    // one way a record's spelling changes, so a change of letter case alone
+    // is a rename too. No-op if the old path isn't listed
     void renameVault(const Coco::Path& oldRoot, const Coco::Path& newRoot)
     {
-        for (auto& record : vaults_) {
-            if (record.path == oldRoot) {
-                record.path = newRoot;
-                return;
-            }
+        if (auto* record = recordOf_(oldRoot)) {
+            record->path = newRoot;
         }
     }
 
@@ -274,8 +273,37 @@ private:
     };
 
     // The vault registry. Unordered here — reads sort on demand, and the key is
-    // the path, so array position carries no meaning
+    // the path, so array position carries no meaning. No two records name the
+    // same folder: every mutator matches by sameVault_, and load merges any
+    // the file holds
     QList<VaultRecord_> vaults_{};
+
+    // Whether a and b name the same folder: compared as PathKeys, so a trailing
+    // separator, "." and "..", and (on Windows and macOS) letter case don't
+    // split one vault into two records. A path that makes no key (a relative
+    // one, from a hand-edited file) is compared as written
+    [[nodiscard]] static bool
+    sameVault_(const Coco::Path& a, const Coco::Path& b)
+    {
+        auto a_key = PathKey::of(a);
+
+        if (a_key.isEmpty()) {
+            return a == b;
+        }
+
+        return a_key == PathKey::of(b);
+    }
+
+    [[nodiscard]] VaultRecord_* recordOf_(const Coco::Path& root)
+    {
+        for (auto& record : vaults_) {
+            if (sameVault_(record.path, root)) {
+                return &record;
+            }
+        }
+
+        return nullptr;
+    }
 
     static Coco::Path filePath_()
     {
@@ -296,7 +324,11 @@ private:
 
     // { path, lastUsedEpochMs, open }[] ⇒ records. Blank-path entries are
     // skipped defensively (hand-trimmed file); an absent timestamp falls to 0
-    // and an absent open to false — the Obsidian-style omitted-when-false form
+    // and an absent open to false — the Obsidian-style omitted-when-false form.
+    //
+    // Records naming one folder (sameVault_) are merged, as a file written
+    // before paths were compared as keys can hold: the most recently used
+    // one's spelling and timestamp, and open if any of them was
     static QList<VaultRecord_> readVaults_(const QJsonArray& array)
     {
         QList<VaultRecord_> records{};
@@ -310,11 +342,28 @@ private:
                 continue;
             }
 
-            records << VaultRecord_{
-                Coco::Path(path),
-                object.value(u"lastUsedEpochMs"_s).toInteger(),
-                object.value(u"open"_s).toBool()
-            };
+            VaultRecord_ read{ Coco::Path(path),
+                               object.value(u"lastUsedEpochMs"_s).toInteger(),
+                               object.value(u"open"_s).toBool() };
+
+            auto same = std::find_if(
+                records.begin(),
+                records.end(),
+                [&read](const VaultRecord_& record) {
+                    return sameVault_(record.path, read.path);
+                });
+
+            if (same == records.end()) {
+                records << read;
+                continue;
+            }
+
+            if (read.lastUsedEpochMs > same->lastUsedEpochMs) {
+                same->path = read.path;
+                same->lastUsedEpochMs = read.lastUsedEpochMs;
+            }
+
+            same->open = same->open || read.open;
         }
 
         return records;

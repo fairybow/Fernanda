@@ -98,6 +98,7 @@ function(app_add_test name)
     )
 endfunction()
 
+app_add_test(AppConfigTest)
 app_add_test(BufferStoreTest)
 app_add_test(BufferStoreTimedTest)
 app_add_test(FileTypesTest)

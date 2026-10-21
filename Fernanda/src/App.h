@@ -571,8 +571,8 @@ private:
     // In that order because the message before the windows close runs an
     // event loop, in which any vault window can be activated, and activation
     // records a vault's use by its root's path (touchVault, which adds a
-    // record it doesn't find). Until a window closes, its vault's root and its
-    // record must be spelled alike
+    // record it doesn't find). Until a window closes, its vault's record must
+    // stay where the vault's root is
     void onEntryRelocated_(const PathKey& entry, const PathKey& newEntry)
     {
         respellVaults_(entry, newEntry);
@@ -587,10 +587,14 @@ private:
     // window. A Vault's tree and every window's copy of its root follow
     // through rootRespelled. Then openVaults_ is keyed again: a QHash keeps the
     // key an entry was inserted with, and onVaultWindowDestroyed_ reads the
-    // record's path from it
+    // record's path from it.
+    //
+    // The Common Vault's new spelling is also kept as its path in AppConfig.
+    // Its root is built from that path at each launch, so the next launch
+    // spells it as this one now does, and as its record does
     void respellVaults_(const PathKey& entry, const PathKey& newEntry)
     {
-        auto records_changed = false;
+        auto config_changed = false;
 
         for (const auto& root : appConfig_.recentVaults()) {
             auto key = PathKey::of(root);
@@ -599,7 +603,7 @@ private:
                 appConfig_.renameVault(
                     root,
                     key.rebased(entry, newEntry).path());
-                records_changed = true;
+                config_changed = true;
             }
         }
 
@@ -612,7 +616,13 @@ private:
         };
 
         if (commonVault_) {
+            auto old_root = commonVault_->root();
             respell(commonVault_);
+
+            if (commonVault_->root() != old_root) {
+                appConfig_.setCommonVaultPath(commonVault_->root());
+                config_changed = true;
+            }
         }
 
         QList<PathKey> respelled{};
@@ -637,7 +647,7 @@ private:
             openVaults_.insert(open_vault.vault->rootKey(), open_vault);
         }
 
-        if (records_changed) {
+        if (config_changed) {
             appConfig_.save();
             emit vaultsChanged();
         }
