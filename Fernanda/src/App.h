@@ -807,10 +807,29 @@ private:
         // After the Common Vault's own window has closed, so its workspace
         // save finds no folder and writes nothing into the new one
         if (recreateCommon) {
-            commonVault_->recreateRoot();
+            recreateCommonVault_();
         }
 
         checkingVaultFolders_ = false;
+    }
+
+    // Make the Common Vault's folder again, at its usual place and in its usual
+    // spelling. The spelling App kept for it (respellVaults_) was the old
+    // folder's, which is gone, so it's cleared: commonVaultPath only ever
+    // holds a respelling of the usual place. A record for the Common Vault,
+    // opened as its own window, takes the same spelling; the record is matched
+    // by key, so renameVault finds it however it's spelled
+    void recreateCommonVault_()
+    {
+        appConfig_.setCommonVaultPath({});
+        auto root = resolvedRoot_(appConfig_.commonVaultPath());
+
+        commonVault_->recreateRoot(PathKey::of(root));
+
+        appConfig_.renameVault(root, root);
+        appConfig_.save();
+
+        emit vaultsChanged();
     }
 
     // The workspace twin of flushAll_: the exit paths that DON'T run each

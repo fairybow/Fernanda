@@ -941,7 +941,7 @@ private slots:
         QSignalSpy config_changed(&f.vault, &Vault::configChanged);
         QSignalSpy words_changed(&f.vault, &Vault::wordsChanged);
 
-        QVERIFY(f.vault.recreateRoot());
+        QVERIFY(f.vault.recreateRoot(f.rootKey()));
 
         QVERIFY(f.root.isDir());
         QCOMPARE(config_changed.count(), 1);
@@ -949,6 +949,53 @@ private slots:
         QCOMPARE(f.vault.config().textFontSize(), default_size);
         QVERIFY(f.vault.dictionary().isEmpty());
         QVERIFY(f.vault.ignoredWords().isEmpty());
+    }
+
+    // A key for another folder is refused, and nothing is made
+    void recreateRootRefusesAnotherFolder()
+    {
+        Fixture_ f{};
+        QVERIFY(QDir(f.folder.path()).removeRecursively());
+
+        QVERIFY(!f.vault.recreateRoot(f.key(u"sub"_s)));
+        QVERIFY(!f.vault.recreateRoot(PathKey{}));
+
+        QVERIFY(!f.root.exists());
+        QVERIFY(!f.absolute(u"sub"_s).exists());
+    }
+
+    // Where letter case is ignored, the folder can be made again in another
+    // case: on disk, as the root, and in the tree, announced so the windows'
+    // copies of the root follow
+    void recreateRootMakesTheFolderInTheGivenSpelling()
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+
+        Fixture_ f{};
+        auto upper_name = f.root.nameQString().toUpper();
+        auto upper = f.root.parent() / Coco::Path(upper_name);
+
+        if (!upper.isDir()) {
+            QSKIP("This file system respects letter case");
+        }
+
+        QVERIFY(QDir(f.folder.path()).removeRecursively());
+        QSignalSpy respelled(&f.vault, &Vault::rootRespelled);
+
+        QVERIFY(f.vault.recreateRoot(PathKey::of(upper)));
+
+        QCOMPARE(respelled.count(), 1);
+        QCOMPARE(f.vault.root().nameQString(), upper_name);
+        QCOMPARE(f.vault.treeModel()->root(), f.vault.root());
+        auto names = QDir(f.root.parent().toQString())
+                         .entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        QVERIFY(names.contains(upper_name));
+
+#else
+
+        QSKIP("Letter case counts in paths on this platform");
+
+#endif
     }
 
     // --- Vaults inside vaults -----------------------------------------------
