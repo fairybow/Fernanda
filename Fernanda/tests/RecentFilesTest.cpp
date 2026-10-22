@@ -27,8 +27,9 @@ using Fernanda::PathKey;
 using Fernanda::RecentFiles;
 
 // The files a window has made active most recently (core/RecentFiles.h): the
-// order they're kept in, the limit, and a list restored from a save. Two
-// temporary folders stand for a project vault and the Common Vault.
+// order they're kept in, the limit, a list restored from a save, and how they
+// follow a rename. Two temporary folders stand for a project vault and the
+// Common Vault.
 //
 // Qt Test runs every private slot as a test
 class RecentFilesTest : public QObject
@@ -121,6 +122,31 @@ private slots:
         recent.record(PathKey::of(Coco::Path(u"relative.txt"_s)));
 
         QVERIFY(recent.files().isEmpty());
+    }
+
+    // A renamed folder takes the files under it along, each in its place.
+    // One that lands on a file nearer the front is dropped, so it still
+    // appears once
+    void rebaseFollowsARenamedFolder()
+    {
+        Fixture_ f{};
+        RecentFiles recent{};
+
+        recent.setFiles(
+            { f.inProject(u"new/a.txt"_s),
+              f.inProject(u"old/b.txt"_s),
+              f.inCommon(u"old/c.txt"_s),
+              f.inProject(u"old/a.txt"_s),
+              f.inProject(u"older/d.txt"_s) });
+
+        recent.rebase(f.inProject(u"old"_s), f.inProject(u"new"_s));
+
+        QCOMPARE(
+            recent.files(),
+            (QList<PathKey>{ f.inProject(u"new/a.txt"_s),
+                             f.inProject(u"new/b.txt"_s),
+                             f.inCommon(u"old/c.txt"_s),
+                             f.inProject(u"older/d.txt"_s) }));
     }
 
     // A restored list keeps its order. A repeat keeps its first place, and

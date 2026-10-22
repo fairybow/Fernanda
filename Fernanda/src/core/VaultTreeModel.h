@@ -208,14 +208,13 @@ public:
         watchSubtree_(node);
     }
 
-    // The vault's folder is where it was, spelled differently: a folder at or
-    // above the root was renamed by letter case alone, where case is ignored.
-    // Every path the model hands out is built from the root, so they all take
-    // the new spelling. A watch is compared in the exact string it was added
-    // with, so each listed folder is watched again under the new one. Nothing
-    // is re-listed, and no node changes, so every view keeps its expansion and
-    // selection
-    void respellRoot(const Coco::Path& root)
+    // The vault's folder is at root now, moved or spelled anew with everything
+    // in it (Vault::moveRoot). Nothing is re-listed, and no node changes, so
+    // every view keeps its expansion and selection. Every path the model hands
+    // out is built from the root, so they all take the new one. A watch is
+    // compared in the exact string it was added with, so each listed folder is
+    // watched again under the new root
+    void moveRoot(const Coco::Path& root)
     {
         unwatchSubtree_(rootNode_);
         root_ = root;

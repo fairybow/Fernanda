@@ -192,22 +192,20 @@ private slots:
         QVERIFY(f.vault.createFile(f.rootKey()).path().isUnder(f.vault.root()));
     }
 
-    // A key for another folder is refused, and the vault's own spelling again
-    // is no change: neither touches the root or announces anything
-    void respellRootRefusesAnotherFolder()
+    // An empty key is refused, and the root the vault already has is no
+    // change: neither touches the root or announces anything
+    void moveRootRefusesAnEmptyKeyAndIgnoresItsOwn()
     {
         Fixture_ f{};
         auto root = f.vault.root();
-        QSignalSpy respelled(&f.vault, &Vault::rootRespelled);
+        QSignalSpy moved(&f.vault, &Vault::rootMoved);
 
-        f.vault.respellRoot(f.key(u"sub"_s));
-        f.vault.respellRoot(PathKey::of(root.parent()));
-        f.vault.respellRoot(PathKey{});
-        f.vault.respellRoot(f.rootKey());
+        f.vault.moveRoot(PathKey{});
+        f.vault.moveRoot(f.rootKey());
 
         QCOMPARE(f.vault.root(), root);
         QCOMPARE(f.vault.treeModel()->root(), root);
-        QCOMPARE(respelled.count(), 0);
+        QCOMPARE(moved.count(), 0);
     }
 
     // The vault's own folder is made with the vault
@@ -1034,11 +1032,45 @@ private slots:
         QVERIFY(!f.exists(u"inner/notes.txt"_s));
     }
 
+    // The outer vault renaming a folder above the inner vault's takes the
+    // inner vault's folder with it. Moved there, as App does then, the inner
+    // vault's root, its tree, and the files it lists all take the new place,
+    // and what it writes for itself is written there
+    void moveRootFollowsAFolderRenamedAboveIt()
+    {
+        Fixture_ f{};
+        f.write(u"box/inner/sub/a.txt"_s, "a");
+        Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
+
+        QCOMPARE(
+            f.vault.rename(f.key(u"box"_s), u"crate"_s),
+            f.key(u"crate"_s));
+
+        QSignalSpy moved(&inner, &Vault::rootMoved);
+        inner.moveRoot(
+            inner.rootKey().rebased(f.key(u"box"_s), f.key(u"crate"_s)));
+
+        QCOMPARE(moved.count(), 1);
+        QCOMPARE(inner.rootKey(), f.key(u"crate/inner"_s));
+        QCOMPARE(inner.rootKey().path(), inner.root());
+        QCOMPARE(inner.treeModel()->root(), inner.root());
+        QVERIFY(inner.contains(f.key(u"crate/inner/sub/a.txt"_s)));
+        QVERIFY(!inner.contains(f.key(u"box/inner/sub/a.txt"_s)));
+        QCOMPARE(
+            inner.visibleFiles(),
+            QList<PathKey>({ f.key(u"crate/inner/sub/a.txt"_s) }));
+
+        inner.addToDictionary(u"Zyzzogeton"_s);
+
+        QVERIFY(f.exists(u"crate/inner/.fernanda/dictionary.txt"_s));
+        QVERIFY(!f.exists(u"box"_s));
+    }
+
     // Where letter case is ignored, the outer vault renaming a folder above
     // the inner vault's by letter case alone leaves the inner vault in place.
-    // Respelled, as App does then, the inner vault's root, its tree, and the
-    // files it lists all take the new spelling
-    void respellRootTakesTheNewLetterCase()
+    // Moved to the new spelling, as App does then, the inner vault's root, its
+    // tree, and the files it lists all take it
+    void moveRootTakesTheNewLetterCase()
     {
 #if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
 
@@ -1052,11 +1084,11 @@ private slots:
 
         QCOMPARE(f.vault.rename(f.key(u"box"_s), u"BOX"_s), f.key(u"BOX"_s));
 
-        QSignalSpy respelled(&inner, &Vault::rootRespelled);
-        inner.respellRoot(
+        QSignalSpy moved(&inner, &Vault::rootMoved);
+        inner.moveRoot(
             inner.rootKey().rebased(f.key(u"box"_s), f.key(u"BOX"_s)));
 
-        QCOMPARE(respelled.count(), 1);
+        QCOMPARE(moved.count(), 1);
         QCOMPARE(inner.root().parent().nameQString(), u"BOX"_s);
         QCOMPARE(inner.rootKey().path(), inner.root());
         QCOMPARE(inner.treeModel()->root(), inner.root());

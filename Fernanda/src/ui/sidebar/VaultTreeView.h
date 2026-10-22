@@ -82,7 +82,7 @@ public:
     // Sits on its vault's shared VaultTreeModel and reads paths and kinds back
     // from it directly, the root included: the model's root scopes the drag,
     // so an entry outside it is a foreign or cross-vault source. The root is
-    // asked for each time, since the model can respell it (respellRoot) and
+    // asked for each time, since the model can move it (moveRoot) and
     // every path it hands out follows
     VaultTreeView(VaultTreeModel* treeModel, QWidget* parentVaultFileTree)
         : QTreeView(parentVaultFileTree)

@@ -175,10 +175,10 @@ private:
             this,
             &Sidebar::switchVaultRequested);
 
-        // This vault respelled while open (Vault::respellRoot) hands the
-        // switcher both roots again. The Common Vault's is connected with its
-        // drawer (addCommonDrawer_)
-        connect(vault_, &Vault::rootRespelled, this, &Sidebar::refreshRoots_);
+        // This vault moved while open (Vault::moveRoot) hands the switcher
+        // both roots again. The Common Vault's is connected with its drawer
+        // (addCommonDrawer_)
+        connect(vault_, &Vault::rootMoved, this, &Sidebar::refreshRoots_);
 
         // The gear. A click triggers the window's own action, the same one
         // Ctrl+, and the File menu fire, so there is one path to the dialog and
@@ -245,13 +245,9 @@ private:
             commonTree_,
             &VaultFileTree::syncHover);
 
-        // The Common Vault respelled while open (Vault::respellRoot) hands the
+        // The Common Vault moved while open (Vault::moveRoot) hands the
         // switcher both roots again, and the drawer its title
-        connect(
-            commonVault_,
-            &Vault::rootRespelled,
-            this,
-            &Sidebar::refreshRoots_);
+        connect(commonVault_, &Vault::rootMoved, this, &Sidebar::refreshRoots_);
     }
 
     // Hidden at once, so the splitter lays out without it, and deleted when
@@ -265,7 +261,7 @@ private:
 
         disconnect(
             commonVault_,
-            &Vault::rootRespelled,
+            &Vault::rootMoved,
             this,
             &Sidebar::refreshRoots_);
 
@@ -285,7 +281,7 @@ private:
     }
 
     // Both roots, to the switcher, and the Common Vault's name to the drawer:
-    // either vault was respelled, or the Common Vault changed
+    // either vault moved, or the Common Vault changed
     void refreshRoots_()
     {
         switcher_->setVaultRoots(

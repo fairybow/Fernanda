@@ -286,11 +286,12 @@ public:
     // or under the entry takes its new key, and its views retitle. Trees
     // first, so views already show the new place when the retitles fan out.
     //
-    // A tree whose vault folder was inside the entry has no row for it, and
-    // the entry's departure took that whole vault. Its folder is still there
-    // only after a change of letter case alone, where case is ignored, and
-    // then its watches come back; otherwise App closes that vault's window
-    // when it hears entryRelocated, announced last
+    // A tree whose vault folder was inside the entry has no row for it: the
+    // whole vault went with the entry. After a change of letter case alone,
+    // where case is ignored, its folder is still there and its watches come
+    // back here. Either way App moves its Vault to the new place when it hears
+    // entryRelocated, announced last, and the tree watches again from there
+    // (Vault::moveRoot)
     void applyRelocation(const PathKey& oldEntry, const PathKey& newEntry)
     {
         for (auto* tree : trees_) {
@@ -370,12 +371,12 @@ public:
 
 signals:
     // A Vault's rename or move took oldEntry to newEntry, and every tree and
-    // buffer has followed it. Vaults nest, so the entry may have held another
-    // vault's folder: App closes that vault's window, or makes the Common
-    // Vault's folder again
+    // buffer has followed it. Vaults nest, so the entry may have been, or
+    // held, another vault's folder: App moves that vault to follow it
     void entryRelocated(const PathKey& oldEntry, const PathKey& newEntry);
 
-    // The same for a trash, once every tree and buffer has let the entry go
+    // The same for a trash, once every tree and buffer has let the entry go.
+    // A vault whose folder was in it has its window closed by App
     void entryRemoved(const PathKey& entry);
 
 private:

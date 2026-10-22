@@ -441,9 +441,19 @@ private:
 
         workspaceFile_->restore();
 
-        connect(vault_, &Vault::rootRespelled, workspaceFile_, [this] {
+        connect(vault_, &Vault::rootMoved, workspaceFile_, [this] {
             workspaceFile_->setVaultRoot(vault_->root());
         });
+
+        // A renamed or moved file is recorded by its new key, whichever window
+        // moved it, and so is every file in a moved vault
+        connect(
+            bufferStore_,
+            &BufferStore::entryRelocated,
+            this,
+            [this](const PathKey& oldEntry, const PathKey& newEntry) {
+                recentFiles_.rebase(oldEntry, newEntry);
+            });
 
         // The status bar's settings (BaseWindow::applyConfig): now, and on
         // every change. Pop-outs get the same in makeWiredPopout_, as they do
@@ -780,9 +790,9 @@ private:
 
         // A rename or move, from this window or another, may take the file
         // out of this window's vaults or into the other of them. Looked at a
-        // tick later, once App has seen the move through: a move of the Common
-        // Vault's folder makes a new Common Vault there
-        // (App::followCommonVault_), and its files are still a Common Vault's
+        // tick later, once App has seen the move through: a vault whose folder
+        // moved has moved with it (App::followVaults_), so its files are still
+        // that vault's
         connect(model, &AbstractFileModel::renamed, view, [this, view] {
             Coco::Time::onNextTick(view, [this, view] {
                 onViewFileRelocated_(view);

@@ -187,8 +187,8 @@ public:
         writeToDisk_();
     }
 
-    // The vault's folder, spelled anew (Vault::respellRoot): workspace.json is
-    // read and written under the new spelling from here on
+    // The vault's folder moved, or is spelled anew (Vault::moveRoot):
+    // workspace.json is read and written there from here on
     void setVaultRoot(const Coco::Path& vaultRoot) { vaultRoot_ = vaultRoot; }
 
     // The common drawer and its tree were replaced, or removed (both null),

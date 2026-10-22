@@ -377,23 +377,21 @@ public:
         return true;
     }
 
-    // The vault's folder is where it was, spelled as root spells it: a folder
-    // at or above the root was renamed by letter case alone, where case is
-    // ignored. Only App calls this, when another vault's rename leaves this
-    // vault's folder in place. root, the tree, and every path they hand out
-    // take the new spelling, and rootRespelled is announced so the windows'
-    // own copies follow.
+    // The vault's folder is at root now: a rename or move inside Fernanda
+    // took it, or a folder holding it, there. Only App calls this
+    // (App::followVaults_). The folder is the same, with everything in it, so
+    // the Vault carries on: its root, its tree and every path they hand out,
+    // and where its settings and words are written, all take the new place,
+    // and rootMoved is announced so the windows' own copies follow. A change
+    // of letter case alone, where case is ignored, is a move to a new
+    // spelling of the same place.
     //
-    // Refused for a key that names another folder: a vault doesn't follow its
-    // folder to a new place (see docs/Architecture.md, "Identity"). A spelling
-    // that is already the vault's changes nothing and announces nothing
-    void respellRoot(const PathKey& root)
+    // An empty key is refused. The root the vault already has, spelled the
+    // same, changes nothing and announces nothing
+    void moveRoot(const PathKey& root)
     {
-        if (root.isEmpty() || !(root == rootKey_)) {
-            WARN(
-                "Can't respell vault {} as {}: not the same folder!",
-                root_,
-                root.path());
+        if (root.isEmpty()) {
+            WARN("Can't move vault {} to an empty path!", root_);
             return;
         }
 
@@ -403,10 +401,10 @@ public:
 
         rootKey_ = root;
         root_ = rootKey_.path();
-        treeModel_->respellRoot(root_);
+        treeModel_->moveRoot(root_);
 
-        INFO(this, "Vault folder now spelled {}", root_);
-        emit rootRespelled();
+        INFO(this, "Vault folder now at {}", root_);
+        emit rootMoved();
     }
 
     // --- Per-vault settings --------------------------------------------------
@@ -501,9 +499,9 @@ signals:
     // vault is the Common Vault
     void wordsChanged();
 
-    // root() and rootKey() are spelled anew (respellRoot), for anything that
-    // keeps its own copy of the root's spelling
-    void rootRespelled();
+    // root() and rootKey() have moved, or are spelled anew (moveRoot), for
+    // anything that keeps its own copy of the root
+    void rootMoved();
 
 private:
     PathKey rootKey_;

@@ -171,7 +171,7 @@ signals:
     // the VaultSwitcher menus rebuild on aboutToShow instead, so they don't
     // need this. Fired from onOpenOrMakeVaultRequested_ (after save) on open,
     // from onVaultWindowDestroyed_ on close, from the registry-edit slots on
-    // remove / rename, and from moveVaultRecords_ when an in-app rename or move
+    // remove / rename, and from followVaults_ when an in-app rename or move
     // takes known vaults' folders with it
     void vaultsChanged();
 
@@ -298,20 +298,13 @@ private:
             this,
             &App::onApplicationStateChanged_);
 
-        // The Common Vault follows its folder at once (followCommonVault_
-        // says why), and the rest is handled a tick later
-        // (onVaultFoldersLeft_ says why)
+        // Vaults follow a rename or move at once (followVaults_ says why); a
+        // trash is handled a tick later (onVaultFoldersTrashed_ says why)
         connect(
             bufferStore_,
             &BufferStore::entryRelocated,
             this,
-            [this](const PathKey& oldEntry, const PathKey& newEntry) {
-                followCommonVault_(oldEntry, newEntry);
-
-                Coco::Time::onNextTick(this, [this, oldEntry, newEntry] {
-                    onEntryRelocated_(oldEntry, newEntry);
-                });
-            });
+            &App::followVaults_);
 
         connect(
             bufferStore_,
@@ -319,7 +312,7 @@ private:
             this,
             [this](const PathKey& entry) {
                 Coco::Time::onNextTick(this, [this, entry] {
-                    onVaultFoldersLeft_(entry, PathKey{});
+                    onVaultFoldersTrashed_(entry);
                 });
             });
 
@@ -599,98 +592,62 @@ private:
             common_missing);
     }
 
-    // A Vault's rename or move took the Common Vault's folder, or a folder
-    // holding it, to a new place. The Common Vault is a role any folder can
-    // have, and this is the same folder, so the Common Vault follows it: a new
-    // Vault there takes the role (setCommonVault_). Its own window, if it has
-    // one, closes like any moved vault's (onVaultFoldersLeft_), and its record
-    // follows like theirs (moveVaultRecords_).
-    //
-    // Done as soon as the store announces the move, not a tick later: each
-    // window looks at its tabs again a tick after their files move
-    // (VaultWindow::makeView_), and by then the Common Vault's files must be in
-    // the new Common Vault, or their tabs would close. A change of letter case
-    // alone, where case is ignored, leaves the folder where it was, and
-    // respellVaults_ gives it the new spelling instead
-    void followCommonVault_(const PathKey& entry, const PathKey& newEntry)
-    {
-        if (!commonVault_) {
-            return;
-        }
-
-        auto key = commonVault_->rootKey();
-
-        if (!key.isAtOrUnder(entry) || key.path().isDir()) {
-            return;
-        }
-
-        setCommonVault_(key.rebased(entry, newEntry).path());
-    }
-
     // A Vault's rename or move took entry to newEntry. Vaults nest, so entry
-    // may have held other vaults' folders. Vaults whose folders are still in
-    // place take the new spelling, the windows of those whose folders left
-    // close, and the known-vaults records of those follow their folders. The
-    // Common Vault has already followed its folder (followCommonVault_).
+    // may be, or hold, other vaults' folders, the Common Vault's among them.
+    // Each vault follows its folder: the folder is the same, with everything
+    // in it, so its Vault carries on at the new place (Vault::moveRoot), and
+    // its window stays open. A change of letter case alone, where case is
+    // ignored, is the same folder spelled anew, and is followed the same way.
     //
-    // In that order because the message before the windows close runs an
-    // event loop, in which any vault window can be activated, and activation
-    // records a vault's use by its root's path (touchVault, which adds a
-    // record it doesn't find). Until a window closes, its vault's record must
-    // stay where the vault's root is
-    void onEntryRelocated_(const PathKey& entry, const PathKey& newEntry)
-    {
-        respellVaults_(entry, newEntry);
-        onVaultFoldersLeft_(entry, newEntry);
-        moveVaultRecords_(entry, newEntry);
-    }
-
-    // Where letter case is ignored, renaming a folder by case alone leaves
-    // every vault inside it in place, spelled the old way. Each such vault
-    // takes the new spelling: its known-vaults record, open or not, and every
-    // live Vault (Vault::respellRoot), the Common Vault and each vault with a
-    // window. A Vault's tree and every window's copy of its root follow
-    // through rootRespelled. Then openVaults_ is keyed again: a QHash keeps the
-    // key an entry was inserted with, and onVaultWindowDestroyed_ reads the
-    // record's path from it.
+    //   - Every known vault's record at or under entry takes its folder's new
+    //     path, open or not, keeping its place in the recents and its open
+    //     flag.
+    //   - Every live Vault there moves: the Common Vault, and each vault with
+    //     a window. Its tree and every window's copy of its root follow
+    //     through rootMoved.
+    //   - openVaults_ is keyed again, since a QHash keeps the key an entry was
+    //     inserted with.
+    //   - The Common Vault's path in AppConfig follows it, so the next launch
+    //     finds it there.
     //
-    // The Common Vault's new spelling is also kept as its path in AppConfig.
-    // Its root is built from that path at each launch, so the next launch
-    // spells it as this one now does, and as its record does
-    void respellVaults_(const PathKey& entry, const PathKey& newEntry)
+    // Done as soon as the store announces the move, before anything else
+    // reacts: each window looks at its relocated tabs a tick later
+    // (VaultWindow::makeView_), and by then their files must be in the moved
+    // vaults, or their tabs would close. And nothing runs an event loop in
+    // between, so no window can be activated with its record and its root out
+    // of step: activation records a vault's use by its root's path
+    void followVaults_(const PathKey& entry, const PathKey& newEntry)
     {
-        auto config_changed = false;
+        auto changed = false;
 
         for (const auto& root : appConfig_.recentVaults()) {
             auto key = PathKey::of(root);
 
-            if (key.isAtOrUnder(entry) && root.isDir()) {
+            if (key.isAtOrUnder(entry)) {
                 appConfig_.renameVault(
                     root,
                     key.rebased(entry, newEntry).path());
-                config_changed = true;
+                changed = true;
             }
         }
 
-        auto respell = [&entry, &newEntry](Vault* vault) {
+        auto move = [&entry, &newEntry](Vault* vault) {
             auto key = vault->rootKey();
 
-            if (key.isAtOrUnder(entry) && vault->root().isDir()) {
-                vault->respellRoot(key.rebased(entry, newEntry));
+            if (!key.isAtOrUnder(entry)) {
+                return false;
             }
+
+            vault->moveRoot(key.rebased(entry, newEntry));
+            return true;
         };
 
-        if (commonVault_) {
-            auto old_root = commonVault_->root();
-            respell(commonVault_);
-
-            if (commonVault_->root() != old_root) {
-                appConfig_.setCommonVaultPath(commonVault_->root());
-                config_changed = true;
-            }
+        if (commonVault_ && move(commonVault_)) {
+            appConfig_.setCommonVaultPath(commonVault_->root());
+            changed = true;
         }
 
-        QList<PathKey> respelled{};
+        QList<PathKey> moved{};
 
         for (auto it = openVaults_.constBegin(); it != openVaults_.constEnd();
              ++it) {
@@ -700,48 +657,18 @@ private:
                 continue;
             }
 
-            respell(vault);
+            if (vault != commonVault_) {
+                move(vault);
+            }
 
             if (it.key().path() != vault->root()) {
-                respelled << it.key();
+                moved << it.key();
             }
         }
 
-        for (const auto& key : respelled) {
+        for (const auto& key : moved) {
             auto open_vault = openVaults_.take(key);
             openVaults_.insert(open_vault.vault->rootKey(), open_vault);
-        }
-
-        if (config_changed) {
-            appConfig_.save();
-            emit vaultsChanged();
-        }
-    }
-
-    // The known-vaults record of each vault whose folder left with entry, open
-    // or not, takes its folder's new path and keeps its place in the recents.
-    // So the vault switchers and Manage Vaults list a moved vault at its new
-    // place, not as missing.
-    //
-    // A moved vault isn't followed: its window has closed
-    // (onVaultFoldersLeft_), and it's opened again from its new place like
-    // any other. Its open flag is cleared here, since that window's own close
-    // looks for the record under the old path and finds nothing
-    void moveVaultRecords_(const PathKey& entry, const PathKey& newEntry)
-    {
-        auto changed = false;
-
-        for (const auto& root : appConfig_.recentVaults()) {
-            auto key = PathKey::of(root);
-
-            if (!key.isAtOrUnder(entry) || root.isDir()) {
-                continue;
-            }
-
-            auto new_root = key.rebased(entry, newEntry).path();
-            appConfig_.renameVault(root, new_root);
-            appConfig_.setVaultOpen(new_root, false);
-            changed = true;
         }
 
         if (changed) {
@@ -750,22 +677,15 @@ private:
         }
     }
 
-    // The in-app twin of checkVaultFolders_: a Vault's rename, move, or trash
-    // of entry took other vaults' folders with it. Vaults nest, so a folder
-    // inside one vault may hold another vault's folder, or the Common Vault's.
-    // Each is handled as a folder moved or deleted outside Fernanda: a vault's
-    // window closes, and a Common Vault whose folder went is unset. Only the
-    // message differs, saying where each folder went. newEntry is where entry
-    // went, or empty for a trash. A moved Common Vault has already followed
-    // its folder (followCommonVault_), so it's unset here only after a trash,
-    // or if a Vault couldn't be made at the new place.
-    //
-    // A vault folder still there afterward stays open: where letter case is
-    // ignored, a change of case alone leaves every vault inside it in place,
-    // and respellVaults_ has already given it the new spelling. Called a tick
-    // after BufferStore announces the operation, so the Vault and the window
-    // that acted have finished before any window closes
-    void onVaultFoldersLeft_(const PathKey& entry, const PathKey& newEntry)
+    // The in-app twin of checkVaultFolders_: a Vault's trash of entry took
+    // other vaults' folders with it. Vaults nest, so a folder inside one vault
+    // may hold another vault's folder, or the Common Vault's. Each is handled
+    // as a folder deleted outside Fernanda: a vault's window closes, and a
+    // Common Vault whose folder went is unset. Only the message differs,
+    // saying the folder went to the trash. Called a tick after BufferStore
+    // announces the trash, so the Vault and the window that acted have
+    // finished before any window closes
+    void onVaultFoldersTrashed_(const PathKey& entry)
     {
         const auto common_key =
             commonVault_ ? commonVault_->rootKey() : PathKey{};
@@ -789,44 +709,19 @@ private:
                 continue; // named below, with what happens next
             }
 
-            auto name = root.path().nameQString();
-
-            if (newEntry.isEmpty()) {
-                lines << tr("The folder for vault \"%1\" was moved to the "
-                            "trash, so its window will close.")
-                             .arg(name);
-            } else {
-                lines << tr("The folder for vault \"%1\" was moved to %2, so "
-                            "its window will close.")
-                             .arg(
-                                 name,
-                                 root.rebased(entry, newEntry)
-                                     .path()
-                                     .prettyQString());
-            }
+            lines << tr("The folder for vault \"%1\" was moved to the trash, "
+                        "so its window will close.")
+                         .arg(root.path().nameQString());
         }
 
         auto common_gone = commonVault_ && common_key.isAtOrUnder(entry) &&
                            !common_key.path().isDir();
 
         if (common_gone) {
-            auto name = common_key.path().nameQString();
-
-            if (newEntry.isEmpty()) {
-                lines << tr("The Common Vault's folder, \"%1\", was moved to "
-                            "the trash. There is no Common Vault until you set "
-                            "one in Manage Vaults.")
-                             .arg(name);
-            } else {
-                lines << tr("The Common Vault's folder, \"%1\", was moved to "
-                            "%2. There is no Common Vault until you set one in "
-                            "Manage Vaults.")
-                             .arg(
-                                 name,
-                                 common_key.rebased(entry, newEntry)
-                                     .path()
-                                     .prettyQString());
-            }
+            lines << tr("The Common Vault's folder, \"%1\", was moved to the "
+                        "trash. There is no Common Vault until you set one in "
+                        "Manage Vaults.")
+                         .arg(common_key.path().nameQString());
         }
 
         if (lines.isEmpty()) {
@@ -834,7 +729,7 @@ private:
         }
 
         closeVaultsWithoutFolders_(
-            tr("Vault Folder Moved"),
+            tr("Vault Folder Deleted"),
             lines,
             roots,
             common_gone);
@@ -1006,14 +901,14 @@ private:
 
         emit vaultsChanged();
 
-        connect(window, &QObject::destroyed, this, [this, root_key] {
-            onVaultWindowDestroyed_(root_key);
+        connect(window, &QObject::destroyed, this, [this, vault] {
+            onVaultWindowDestroyed_(vault);
         });
 
         // Follow focus so recency tracks the vault the user is actually in, not
-        // just the last opened. Memory-only per activation; persisted at exit
-        // The vault's root is asked for each time, since respellVaults_ can
-        // change its spelling, and the record with it
+        // just the last opened. Memory-only per activation; persisted at exit.
+        // The vault's root is asked for each time, since it can move while
+        // the window is open (followVaults_), and its record with it
         connect(window, &Ui::VaultWindow::windowActivated, this, [this, vault] {
             onVaultWindowActivated_(vault->root());
         });
@@ -1034,19 +929,24 @@ private:
         }
     }
 
-    // The record's path is the open-vaults map's key, not rootKey: both are
-    // spelled as onOpenOrMakeVaultRequested_ recorded the vault in AppConfig,
-    // but a vault respelled while open (respellVaults_) has its record and its
-    // map key respelled with it, while rootKey keeps the old spelling
-    void onVaultWindowDestroyed_(const PathKey& rootKey)
+    // The window's entry is found by its Vault, which is still whole here,
+    // not by the window, whose own parts are already gone when destroyed is
+    // emitted (docs/Architecture.md, "Lifetimes"), nor by the vault's root,
+    // which can have moved while the window was open (followVaults_). One
+    // window per Vault, so the Vault finds one entry. Its key is the root as
+    // it is now, which is how its record is spelled
+    void onVaultWindowDestroyed_(const Vault* vault)
     {
-        auto root = rootKey.path();
+        Coco::Path root{};
         OpenVault_ entry{};
 
-        if (auto it = openVaults_.find(rootKey); it != openVaults_.end()) {
-            root = it.key().path();
-            entry = it.value();
-            openVaults_.erase(it);
+        for (auto it = openVaults_.begin(); it != openVaults_.end(); ++it) {
+            if (it.value().vault == vault) {
+                root = it.key().path();
+                entry = it.value();
+                openVaults_.erase(it);
+                break;
+            }
         }
 
         // ~QObject emits destroyed BEFORE deleting its children, so the

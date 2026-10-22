@@ -196,7 +196,7 @@ public:
 
     ~VaultSwitcher() override { TRACER; }
 
-    // Either root spelled anew (Vault::respellRoot), or the Common Vault's
+    // Either root moved (Vault::moveRoot), or the Common Vault's
     // changed. The button shows the new name at once; the menu is rebuilt on
     // each show anyway
     void setVaultRoots(

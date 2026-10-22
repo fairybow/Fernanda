@@ -790,7 +790,7 @@ private slots:
     // only under the old spelling would be outside the root and ignored. A
     // symlink to the folder stands in for another letter case, which only
     // Windows and macOS have
-    void aRespelledRootKeepsItsRowsAndWatchesUnderTheNewSpelling()
+    void aRootSpelledAnewKeepsItsRowsAndWatchesUnderTheNewSpelling()
     {
 #if defined(Q_OS_WIN)
 
@@ -811,7 +811,7 @@ private slots:
         auto link = Coco::Path(elsewhere.path()) / Coco::Path(u"link"_s);
         QVERIFY(QFile::link(f.root.toQString(), link.toQString()));
 
-        f.model->respellRoot(link);
+        f.model->moveRoot(link);
 
         QCOMPARE(f.model->root(), link);
         QVERIFY(sub.isValid());
@@ -935,6 +935,38 @@ private slots:
         QSKIP("Letter case counts in paths on this platform");
 
 #endif
+    }
+
+    // Renaming a folder that holds an inner vault's folder takes the folder
+    // with it. Moved there, the inner tree keeps its rows, builds its paths
+    // from the new place, and watches its listed folders there
+    void aRootMovedWithAFolderAboveItKeepsItsRowsAndWatches()
+    {
+        Fixture_ f{};
+        f.makeFile(u"box/inner/sub/a.txt"_s);
+        f.start();
+
+        Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        (void)rowsOf_(inner_model, {});
+        QPersistentModelIndex sub(
+            inner_model->indexOf(f.absolute(u"box/inner/sub"_s)));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(!f.vault->rename(f.key(u"box"_s), u"crate"_s).isEmpty());
+        inner_model->moveRoot(f.absolute(u"crate/inner"_s));
+
+        QVERIFY(sub.isValid());
+        QCOMPARE(inner_model->pathOf(sub), f.absolute(u"crate/inner/sub"_s));
+        QCOMPARE(
+            inner_model->indexOf(f.absolute(u"crate/inner/sub"_s)),
+            QModelIndex(sub));
+
+        f.makeFile(u"crate/inner/sub/b.txt"_s);
+
+        QTRY_COMPARE(
+            rowsOf_(inner_model, sub),
+            QStringList({ u"a"_s, u"b"_s }));
     }
 
     // After a trash the entry's row leaves every tree. The trash itself needs
