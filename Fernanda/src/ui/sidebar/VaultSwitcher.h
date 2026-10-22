@@ -265,16 +265,16 @@ private:
 
         for (const auto& entry : vaultsProvider_()) {
             // Switcher = OTHER, openable vaults. Skip this window's own vault,
-            // the common vault (it has its own permanent item below, so it
-            // never rides the recents list here), and missing/moved ones — you
+            // the Common Vault (it has an item of its own below while there is
+            // one, so it never rides the recents list here), and missing/moved
+            // ones — you
             // can't switch to a folder that isn't there. Those surface (with a
             // warning and a remove action) in ManageVaults, which is what the
             // permanent "Manage Vaults" item below is for.
             //
-            // Compared as keys, not as written: a record can spell a folder
-            // otherwise than the live Vault does. The Common Vault's root is
-            // spelled from its fixed place at each launch, though its record
-            // may have been respelled in an earlier one
+            // This window's vault is compared as a key, not as written: a
+            // record keeps the spelling it was first made with, and the vault
+            // may have been opened by another
             if (entry.isCommon || entry.missing ||
                 PathKey::of(entry.root) == PathKey::of(currentVaultRoot_)) {
                 continue;
@@ -300,12 +300,12 @@ private:
         menu_->addSeparator();
         menu_->addAction(manageVaultsAction_);
 
-        // The common vault is always openable as its own window, independent of
-        // recents — so it gets a permanent item rather than riding the provider
-        // list (from which it's filtered above). Same convergence as any
-        // switch: emit its root and App opens it or raises the existing window.
-        // Omitted when there is no Common Vault, or this window already IS it
-        // — there'd be nothing to open
+        // The Common Vault, while there is one, is openable as its own window
+        // independent of recents — so it gets an item of its own rather than
+        // riding the provider list (from which it's filtered above). Same
+        // convergence as any switch: emit its root and App opens it or raises
+        // the existing window. Omitted when there is no Common Vault, or this
+        // window already IS it — there'd be nothing to open
         auto is_common_window =
             PathKey::of(currentVaultRoot_) == PathKey::of(commonVaultRoot_);
 

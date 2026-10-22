@@ -45,7 +45,8 @@ namespace Fernanda::Ui {
 // it finds, so a later use (per-file-type glyphs, say) needs nothing here.
 //
 // Set at view construction, and again when a file renamed or moved from another
-// vault (vaults nest) lands in the other of the window's two vaults. The leaf
+// vault (vaults nest) lands in the other of the window's two vaults, or the
+// Common Vault changes. The leaf
 // applies the mark wherever a tab gains a page; a change made under a tab is
 // drawn when the window asks (TabPaneTree::refreshPageIcon), since unlike the
 // title there is no change signal for the leaf to bind. A tab dragged into

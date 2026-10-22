@@ -25,7 +25,6 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
-#include <QMetaObject>
 #include <QPalette>
 #include <QPoint>
 #include <QSplitter>
@@ -166,27 +165,40 @@ public:
 
     // The Common Vault changed, or there's none now (App::setCommonVault_).
     // The sidebar's drawer is replaced or removed, and WorkspaceFile handed the
-    // new one. Every text view takes its words again, since the Common Vault's
-    // dictionary applies here. And every tab, here and in the pop-outs, is
-    // looked at again as if its file had moved: one in neither of this
-    // window's vaults now closes, and the rest are marked as guests or not
+    // new one. Every view, here and in the pop-outs, follows the new Common
+    // Vault's words in place of the old one's and takes its words again, since
+    // the Common Vault's dictionary applies here. And every tab is looked at
+    // again as if its file had moved: one in neither of this window's vaults
+    // now closes, and the rest are marked as guests or not.
+    //
+    // A view is disconnected from the old Common Vault by name, not every
+    // connection from it, and not when it was this window's own vault: then
+    // the connection is the view's to its own vault's words, which stays
     void setCommonVault(Vault* commonVault)
     {
         if (commonVault == commonVault_) {
             return;
         }
 
+        auto* old_common = commonVault_;
+        auto views = fileViews_();
+
+        if (old_common && old_common != vault_) {
+            for (auto* view : views) {
+                disconnect(old_common, &Vault::wordsChanged, view, nullptr);
+            }
+        }
+
         commonVault_ = commonVault;
-        connectCommonWords_();
 
         sidebar_->setCommonVault(commonVault_);
         workspaceFile_->setCommonDrawer(
             sidebar_->commonTree(),
             sidebar_->commonDrawer());
 
-        emit commonWordsChanged();
-
-        for (auto* view : fileViews_()) {
+        for (auto* view : views) {
+            followCommonWords_(view);
+            applyWords_(view);
             reconsiderView_(view);
         }
     }
@@ -205,13 +217,6 @@ signals:
     // Relayed up from the Sidebar: the user picked another known vault in the
     // switcher. App's convergence point opens or raises it
     void vaultSwitchRequested(const Coco::Path& vaultRoot);
-
-    // The Common Vault's dictionary changed, or the Common Vault did. Every
-    // text view this window and its pop-outs host takes its words again
-    // (makeView_). Relayed here, rather than each view connecting to the
-    // Common Vault, so a change of Common Vault is one reconnection
-    // (connectCommonWords_)
-    void commonWordsChanged();
 
 protected:
     void closeEvent(QCloseEvent* event) override
@@ -273,9 +278,6 @@ private:
     Vault* commonVault_ = nullptr;
     BufferStore* bufferStore_ = nullptr;
 
-    // The Common Vault's wordsChanged, relayed as commonWordsChanged
-    QMetaObject::Connection commonWordsConnection_{};
-
     // App's vaultEntries() — handed to the Sidebar's VaultSwitcher for its
     // "other vaults" menu. Held so setup_ can pass it on
     std::function<QList<VaultEntry>()> vaultsProvider_;
@@ -335,8 +337,6 @@ private:
                 .openSettings = action(ActionIds::VAULT_OPEN_SETTINGS) },
             vaultsProvider_,
             this);
-
-        connectCommonWords_();
 
         connect(
             sidebar_,
@@ -767,26 +767,16 @@ private:
         apply();
         connect(vault, &Vault::configChanged, view, apply);
 
-        // The words to take as correct: this window's vault's dictionary and
-        // ignored words, and the Common Vault's dictionary, if there is one,
-        // which applies in every vault. Taken again when either vault's words
-        // change, or the Common Vault does. The Common Vault is read when the
-        // words are taken, since it can change; the view dies before this
-        // window (pop-outs close with it), so capturing this is safe
-        auto apply_words = [this, view] {
-            auto words = vault_->dictionary();
-            words.unite(vault_->ignoredWords());
+        // The words to take as correct (applyWords_), taken now and again when
+        // either vault's words change. The view dies before this window
+        // (pop-outs close with it), so capturing this is safe
+        applyWords_(view);
 
-            if (commonVault_ && commonVault_ != vault_) {
-                words.unite(commonVault_->dictionary());
-            }
+        connect(vault, &Vault::wordsChanged, view, [this, view] {
+            applyWords_(view);
+        });
 
-            view->setAcceptedWords(words);
-        };
-
-        apply_words();
-        connect(vault, &Vault::wordsChanged, view, apply_words);
-        connect(this, &VaultWindow::commonWordsChanged, view, apply_words);
+        followCommonWords_(view);
 
         // A rename or move, from this window or another, may take the file
         // out of this window's vaults or into the other of them. Looked at a
@@ -871,20 +861,32 @@ private:
         }
     }
 
-    // Relay the Common Vault's wordsChanged as commonWordsChanged, dropping
-    // the relay from the one before. None when there's no Common Vault, or
-    // this window is it: then its words are this vault's, which every view
-    // already follows
-    void connectCommonWords_()
+    // The words a view takes as correct: this window's vault's dictionary and
+    // ignored words, and the Common Vault's dictionary, if there is one, which
+    // applies in every vault. Read when called, since the Common Vault can
+    // change
+    void applyWords_(AbstractFileView* view) const
     {
-        disconnect(commonWordsConnection_);
+        auto words = vault_->dictionary();
+        words.unite(vault_->ignoredWords());
 
         if (commonVault_ && commonVault_ != vault_) {
-            commonWordsConnection_ = connect(
-                commonVault_,
-                &Vault::wordsChanged,
-                this,
-                &VaultWindow::commonWordsChanged);
+            words.unite(commonVault_->dictionary());
+        }
+
+        view->setAcceptedWords(words);
+    }
+
+    // The view takes its words again when the Common Vault's words change.
+    // Nothing
+    // when there's no Common Vault, or this window is it: then its words are
+    // this vault's, which the view already follows
+    void followCommonWords_(AbstractFileView* view)
+    {
+        if (commonVault_ && commonVault_ != vault_) {
+            connect(commonVault_, &Vault::wordsChanged, view, [this, view] {
+                applyWords_(view);
+            });
         }
     }
 

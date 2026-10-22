@@ -1052,8 +1052,10 @@ private:
         // ~QObject emits destroyed BEFORE deleting its children, so the
         // window's views may still be alive. Their models are the store's, not
         // this Vault's, so disposing it can't free a buffer under a view. The
-        // common Vault is App's, not the window's: it outlives every window
-        // onto it, so closing its own window never disposes it
+        // Common Vault is App's, not the window's: while it's the Common Vault
+        // it outlives every window onto it, so closing its own window never
+        // disposes it. Unset in the meantime, it's an ordinary vault, disposed
+        // with its window
         if (entry.vault && entry.vault != commonVault_) {
             entry.vault->deleteLater();
         }

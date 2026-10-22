@@ -55,14 +55,15 @@ inline const QString TREE = u"tree"_s;
 inline const QString EXPANDED = u"expanded"_s;
 
 // Keys of the EXPANDED object: this vault's file tree, and the common drawer
-// tree (absent when this window IS the common vault). Same spelling as
+// tree (absent when the window has no common drawer: there's no Common Vault,
+// or this window is it). Same spelling as
 // VAULT_THIS / VAULT_COMMON below but a different role — kept separate so the
 // two can never be conflated or drift together
 inline const QString EXPANDED_THIS = u"this"_s;
 inline const QString EXPANDED_COMMON = u"common"_s;
 
-// The common drawer's state; main only, absent when this window IS the common
-// vault. A Drawer-produced blob, like the trees' expansion arrays
+// The common drawer's state; main only, absent when the window has no common
+// drawer. A Drawer-produced blob, like the trees' expansion arrays
 inline const QString COMMON_DRAWER = u"commonDrawer"_s;
 
 // Keys of the COMMON_DRAWER object, written and read by Drawer. Obsidian's

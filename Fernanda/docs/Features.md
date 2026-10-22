@@ -14,19 +14,24 @@ A vault is a folder on your computer. Fernanda adds one hidden folder to it, `.f
 - Vaults may be nested inside one another, and may sit inside a Git repository. A project vault may even contain the Common Vault
 - A file inside two open vaults is one document in every window. Renaming, moving, or deleting it from either vault carries every window's tabs with it, and a folder expanded in one window stays expanded after another window renames or moves it
 - A file moved out of a vault from another vault's window has its tabs closed in that vault's windows, and keeps them wherever it is still inside the window's vault. Typing not yet saved goes with the file
-- Moving, renaming, or deleting a folder that holds another open vault closes that vault's window, with a message saying where the folder went, as when its folder is moved outside Fernanda
+- Moving, renaming, or deleting a folder that holds another open vault closes that vault's window, with a message saying where the folder went, as when its folder is moved outside Fernanda. A moved vault's entry in the vault list moves with it, so it can be opened again from its new place
+- On Windows and macOS, renaming a folder that holds other open vaults by letter case alone leaves them open, under the new spelling
 - One Fernanda process holds every open vault
 
 ### The Common Vault
 
-One vault is shared by every project: the Common Vault, for templates, notes, and reference material you want within reach whatever you are working on.
+One vault can be shared by every project: the Common Vault, for templates, notes, and reference material you want within reach whatever you are working on.
 
-- Lives at `Documents/Fernanda/Common Vault`, and is created for you
-- Every vault window shows it in a collapsible drawer under the vault's own file tree
+- On first launch, Fernanda makes one at `Documents/Fernanda/Common Vault`
+- Any vault can be the Common Vault: right-click it in Manage Vaults and choose Set as Common Vault. Unset Common Vault leaves you with none
+- Every vault window shows it in a collapsible drawer under the vault's own file tree. Hovering over the drawer's header shows the Common Vault's name. The Common Vault's own window has no drawer
 - A Common Vault file open in two windows is one document: an edit in one appears in the other as you type
 - Tabs holding a Common Vault file are marked with a box icon, in the windows of vaults that don't contain the Common Vault. In a vault that does, its files are that vault's own. The icon follows its file: a file moved between the Common Vault and a window's own vault gains or loses it in place
+- Words in its dictionary are accepted in every vault
 - Can be opened as a window of its own, from the vault switcher
-- If its folder is deleted or moved, outside Fernanda or from a vault that contains it, Fernanda recreates it empty in the same place, with default settings and an empty dictionary. A moved folder's files stay where they went, as ordinary files
+- Setting another Common Vault, or none, takes effect at once in every window: drawers appear or go, and a tab on a file that no longer belongs to either of its window's vaults closes
+- Renaming or moving its folder from a vault that contains it keeps it the Common Vault, at the new place
+- If its folder is deleted or moved outside Fernanda, or deleted from a vault that contains it, there is no Common Vault until you set one
 
 ### Manage Vaults
 
@@ -35,13 +40,14 @@ The vault picker. It opens on first launch, whenever there is no vault to reopen
 - Create new vault (a name and a location)
 - Open folder as vault
 - Recent vaults, most recently used first. A vault whose folder is gone is shown as missing
-- Right-click a vault to rename it, reveal it in the file explorer, or remove it from the list. Removing never touches the folder
-- A vault that is open can't be renamed or removed until its window is closed. The Common Vault can't be renamed at all
+- Right-click a vault to rename it, reveal it in the file explorer, set it as the Common Vault, or remove it from the list. Removing never touches the folder. The Common Vault's own entry offers Unset Common Vault in place of Set and Remove
+- A vault that is open can't be renamed or removed until its window is closed. The Common Vault can't be renamed here until it's unset, and is removed from the list by unsetting it, then removing it
+- A new name is checked by the same rules as a new vault's
 - **Licenses**, under the version, lists Fernanda and everything it is built on or bundles (Qt, Hunspell, the dictionary, the fonts, and the icons), each with its license text
 
 ### Vault switcher
 
-At the bottom of the sidebar. Lists your other vaults, opens the Common Vault, and opens Manage Vaults. Choosing a vault that is already open brings its window forward.
+At the bottom of the sidebar. Lists your other vaults, opens the Common Vault (when there is one), and opens Manage Vaults. Choosing a vault that is already open brings its window forward.
 
 ## Saving
 
@@ -60,7 +66,7 @@ Files are expected to be edited elsewhere too: in another editor, by Git, by a s
 - A file changed outside Fernanda reloads in place. The reload is one undo step, so Ctrl+Z brings back what you had
 - A file deleted, moved, or renamed outside Fernanda has its tabs closed, in every window
 - Files and folders created, renamed, or removed outside Fernanda appear in the file trees on their own
-- If an open vault's folder is deleted or moved, Fernanda tells you and closes that vault's window when you return to it. It never recreates the folder
+- If an open vault's folder is deleted or moved, Fernanda tells you and closes that vault's window when you return to it. It never recreates the folder. If it was the Common Vault's, there is no Common Vault until you set one
 - Many files changing at once (a Git checkout, a sync) are handled as one pass
 
 ## Files
@@ -243,7 +249,7 @@ Fernanda's menus, settings, and messages are in English and Spanish.
 
 Deleting `.fernanda/` while the vault is closed resets its settings, layout, and dictionary, and nothing else.
 
-The list of known vaults is kept outside any vault, in Fernanda's application data folder. So are the spelling dictionaries, in its `dictionaries` folder. The bundled one is copied there on launch if it's missing, and never overwritten.
+The list of known vaults, and which of them is the Common Vault, is kept outside any vault, in Fernanda's application data folder. So are the spelling dictionaries, in its `dictionaries` folder. The bundled one is copied there on launch if it's missing, and never overwritten.
 
 ## Keyboard shortcuts
 
@@ -287,7 +293,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **File and folder icons** in the file tree
 - **No fallback trash.** If the system trash refuses an entry, Fernanda declines; Obsidian moves it to a `.trash` folder in the vault
 - **A vault whose folder vanishes has its window closed**, after a message, where Obsidian leaves an empty window open. This includes a vault folder moved or deleted from inside another vault
-- **No in-app vault moving.** Move the folder in your file manager, or from the file tree of a vault that contains it, then open it from its new place
+- **No Move Vault command.** Obsidian's vault switcher can move a vault to another folder. In Fernanda, move the folder in your file manager, or from the file tree of a vault that contains it, then open it from its new place
 - **Licenses are in the app.** Obsidian lists its third-party credits on its help site
 - **No light or dark setting.** Fernanda always follows the system. Obsidian follows it by default and can be set to light or dark
 - **Stepping past closing punctuation** is Fernanda's own, as is the switch over both typing helpers
@@ -298,7 +304,8 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 
 - A file name with a period and no real extension (`Chapter 1. The Start`) is read as having an unsupported extension, so the file is hidden
 - On Windows, while Fernanda is open, other programs can't rename or delete a folder if one of its subfolders has been expanded in a file tree or holds an open file. Fernanda's own rename, move, and delete are unaffected
-- A moved or renamed vault folder is a new vault to Fernanda, whether it was moved in a file manager or from inside another vault: open it again from its new place. Its settings and layout travel with it
+- A moved or renamed vault folder is a new vault to Fernanda, whether it was moved in a file manager or from inside another vault: open it again from its new place. Its settings and layout travel with it, and when it was moved from inside another vault, its entry in the vault list does too
+- A Common Vault whose folder can't be found at launch, such as one on a drive that isn't connected, is unset as if the folder were gone. Set it again from Manage Vaults
 - A folder linked into a vault (a symlink or junction) works as part of the vault. A file that can be reached two ways, through a link and directly, is two documents, which can save over each other. Keep a linked folder's target outside every vault, as Obsidian also asks
 - Word counts run low for Thai, Lao, Khmer, and Myanmar text
 - Spelling suggestions can take a moment to appear for a long or badly garbled word

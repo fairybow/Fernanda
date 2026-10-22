@@ -34,12 +34,13 @@
 // "only one exists" because App is one, not because it's a singleton. Nothing
 // here ports to another machine.
 //
-// A plain value type, not a QObject. Getters fall back to the AppDirs defaults
-// when a key is unset, so a caller never has to know whether the value came
-// from disk or the default. The vault registry is mutated through intent verbs
-// (touchVault / setVaultOpen / forgetVault / renameVault); every mutator
-// touches memory only, and App calls save() at the commit points — IO stays
-// explicit rather than hiding inside a mutator.
+// A plain value type, not a QObject. Most getters fall back to a default when
+// their key is unset, so a caller never has to know whether the value came
+// from disk; the Common Vault has three states instead (commonVaultPath). The
+// vault registry is mutated through intent verbs (touchVault / setVaultOpen /
+// forgetVault / renameVault); every mutator touches memory only, and App calls
+// save() at the commit points — IO stays explicit rather than hiding inside a
+// mutator.
 //
 // The vaults registry (path is identity, no id) is one array of { path,
 // lastUsedEpochMs, open } records. Paths are compared as PathKeys, so every
