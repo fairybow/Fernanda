@@ -377,67 +377,6 @@ public:
         return true;
     }
 
-    // The vault's folder was deleted or moved, outside Fernanda or from inside
-    // another vault: make it again, empty, in place, spelled as root spells it.
-    // Only App calls this, and only for the Common Vault — a standing folder,
-    // rebuilt at startup anyway — while a project vault whose folder vanishes
-    // has its window closed instead. The same Vault object stays, since every
-    // project window holds a pointer to it. Every open buffer under the root is
-    // also rechecked: their files went with the folder, and a clean buffer the
-    // watcher missed would otherwise sit open until typed into.
-    //
-    // root names the same place, and may spell it differently: where letter
-    // case is ignored, the folder that left may have been respelled
-    // (respellRoot), and the new one is made in the spelling App gives. A
-    // changed spelling is announced (rootRespelled). Refused for a key that
-    // names another folder: this makes the vault's folder again, and doesn't
-    // move it.
-    //
-    // The settings and words are taken again from the new folder, which has
-    // none, so they return to their defaults and every window applies them. A
-    // pending settings save is dropped first, so the old settings aren't
-    // written into the new folder. The ignored words go too: they were ignored
-    // in the folder that's gone. Returns false if the folder can't be made
-    bool recreateRoot(const PathKey& root)
-    {
-        if (root.isEmpty() || !(root == rootKey_)) {
-            WARN(
-                "Can't recreate vault {} as {}: not the same folder!",
-                root_,
-                root.path());
-            return false;
-        }
-
-        if (!root.path().isDir() && !Coco::mkpath(root.path())) {
-            CRITICAL(this, "Couldn't recreate vault folder {}!", root.path());
-            return false;
-        }
-
-        auto respelled = root.path() != root_;
-        rootKey_ = root;
-        root_ = rootKey_.path();
-
-        ensureVaultDotDir(root_);
-        treeModel_->relistRoot(root_);
-        bufferStore_->recheckAtOrUnder(rootKey_);
-
-        configSaveTimer_->stop();
-        config_ = VaultConfig{};
-        config_.load(root_);
-        dictionary_ = WordList::read(dictionaryPath_()).value_or(WordList{});
-        ignoredWords_ = WordList{};
-
-        emit configChanged();
-        emit wordsChanged();
-
-        if (respelled) {
-            emit rootRespelled();
-        }
-
-        INFO(this, "Recreated vault folder {}", root_);
-        return true;
-    }
-
     // The vault's folder is where it was, spelled as root spells it: a folder
     // at or above the root was renamed by letter case alone, where case is
     // ignored. Only App calls this, when another vault's rename leaves this
@@ -562,9 +501,8 @@ signals:
     // vault is the Common Vault
     void wordsChanged();
 
-    // root() and rootKey() are spelled anew (respellRoot, or recreateRoot
-    // making the folder in another spelling), for anything that keeps its own
-    // copy of the root's spelling
+    // root() and rootKey() are spelled anew (respellRoot), for anything that
+    // keeps its own copy of the root's spelling
     void rootRespelled();
 
 private:

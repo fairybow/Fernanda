@@ -40,16 +40,17 @@ namespace Fernanda::Ui {
 
 // The vault window's left column, top to bottom:
 //
-//   1. VaultFileTree  — this vault's tree              [splitter pane]
-//   2. Drawer(Common) — the common vault, collapsible  [splitter pane]
-//   3. VaultSwitcher  — other vaults + Manage Vaults    [fixed bar, with
-//      SettingsButton   — this vault's settings  the gear on its
-//      right]
+//   1. VaultFileTree   — this vault's tree              [splitter pane]
+//   2. Drawer          — the Common Vault, collapsible  [splitter pane]
+//   3. VaultSwitcher   — other vaults + Manage Vaults   [fixed bar]
+//      SettingsButton  — this vault's settings, at the bar's right
 //
 // Borrows both Vaults (project + common) from the window. It needs them to root
 // each tree and to send each tree's file operations to the Vault that tree
-// shows. The trees emit absolute paths and stay Vault-free; here those paths
-// become keys.
+// shows. The Common Vault may be null, when there is none, and then there's no
+// drawer, as in the Common Vault's own window. It can change while the window
+// is open (setCommonVault), and the drawer comes and goes with it. The trees
+// emit absolute paths and stay Vault-free; here those paths become keys.
 //
 // The switcher's vault list comes from a provider App threads down; the Sidebar
 // hands it through and relays the switcher's choice back up to the window
@@ -83,19 +84,32 @@ public:
 
     ~Sidebar() override { TRACER; }
 
+    // The Common Vault changed (App::setCommonVault_), or there's none now.
+    // The drawer for the old one goes, and one for the new one comes unless
+    // this window IS it; the switcher takes the new root. The window hands the
+    // new drawer to WorkspaceFile (VaultWindow::setCommonVault)
+    void setCommonVault(Vault* commonVault)
+    {
+        removeCommonDrawer_();
+        commonVault_ = commonVault;
+        addCommonDrawer_();
+        refreshRoots_();
+    }
+
     // The two trees WorkspaceFile persists folder expansion for. Handed over at
-    // construction like the sidebar splitter — WorkspaceFile reads their opaque
-    // expansion blobs and observes their expansionChanged; it never drives
-    // them, so this is composition-time handoff, not the reach-through that
-    // would drive a component's behaviour. commonTree() is null when this
-    // window IS the common vault (no common drawer — Sidebar::setup_)
+    // construction like the sidebar splitter, and again whenever the common
+    // drawer is replaced — WorkspaceFile reads their opaque expansion blobs and
+    // observes their expansionChanged; it never drives them, so this is a
+    // handoff, not the reach-through that would drive a component's behaviour.
+    // commonTree() is null when there is no common drawer: there's no Common
+    // Vault, or this window IS it
     [[nodiscard]] VaultFileTree* fileTree() const { return fileTree_; }
     [[nodiscard]] VaultFileTree* commonTree() const { return commonTree_; }
 
     // The common drawer, whose { collapsed, height } WorkspaceFile persists —
     // the same handoff as the trees: it reads the drawer's opaque state blob
-    // and observes stateChanged. Null when this window IS the common vault,
-    // like commonTree()
+    // and observes stateChanged. Null when there is no common drawer, like
+    // commonTree()
     [[nodiscard]] Drawer* commonDrawer() const { return commonDrawer_; }
 
 signals:
@@ -128,43 +142,12 @@ private:
 
     void setup_(const Actions& actions)
     {
-        auto vault_root = vault_->root();
-        auto common_vault_root = commonVault_->root();
-
         // Main tree
         fileTree_ = new VaultFileTree(vault_->treeModel(), splitter_);
         splitter_->addWidget(fileTree_);
         wireTree_(fileTree_, vault_);
 
-        // Common vault tree — omitted when this window IS the Common Vault. A
-        // pointer test: App hands the common root's window App's own common
-        // Vault rather than a second one over the same folder, so "same Vault"
-        // is the single fact every consumer asks (this drawer, the
-        // FileSwitcher's second listing, the tab indicator). Comparing roots
-        // answers the same question, but only as long as the two stay in step
-        if (vault_ != commonVault_) {
-            commonTree_ =
-                new VaultFileTree(commonVault_->treeModel(), splitter_);
-            commonDrawer_ =
-                new Drawer(tr("Common Vault"), commonTree_, splitter_);
-            splitter_->addWidget(commonDrawer_);
-            wireTree_(commonTree_, commonVault_);
-
-            // A toggle moves both trees under a cursor that stays put: opening
-            // slides the common tree in under it, and closing leaves this
-            // vault's tree there. Each re-reads its hovered row once the
-            // drawer has settled
-            connect(
-                commonDrawer_,
-                &Drawer::expansionSettled,
-                fileTree_,
-                &VaultFileTree::syncHover);
-            connect(
-                commonDrawer_,
-                &Drawer::expansionSettled,
-                commonTree_,
-                &VaultFileTree::syncHover);
-        }
+        addCommonDrawer_();
 
         splitter_->setChildrenCollapsible(false);
         splitter_->setStretchFactor(0, 1); // tree grows; drawer stays put
@@ -177,10 +160,11 @@ private:
 
         // The switcher — a fixed-height bar below the splitter, not a pane.
         // Handed this vault's root so it can drop itself from the "other
-        // vaults" menu, and the provider so its list stays live
+        // vaults" menu, the Common Vault's (empty when there's none) for its
+        // own item, and the provider so its list stays live
         switcher_ = new VaultSwitcher(
-            vault_root,
-            common_vault_root,
+            vault_->root(),
+            commonVault_ ? commonVault_->root() : Coco::Path{},
             actions.manageVaults,
             vaultsProvider_,
             this);
@@ -191,21 +175,10 @@ private:
             this,
             &Sidebar::switchVaultRequested);
 
-        // Either vault respelled while open (Vault::respellRoot) hands the
-        // switcher both roots again
-        auto respell_switcher = [this] {
-            switcher_->setVaultRoots(vault_->root(), commonVault_->root());
-        };
-
-        connect(vault_, &Vault::rootRespelled, switcher_, respell_switcher);
-
-        if (vault_ != commonVault_) {
-            connect(
-                commonVault_,
-                &Vault::rootRespelled,
-                switcher_,
-                respell_switcher);
-        }
+        // This vault respelled while open (Vault::respellRoot) hands the
+        // switcher both roots again. The Common Vault's is connected with its
+        // drawer (addCommonDrawer_)
+        connect(vault_, &Vault::rootRespelled, this, &Sidebar::refreshRoots_);
 
         // The gear. A click triggers the window's own action, the same one
         // Ctrl+, and the File menu fire, so there is one path to the dialog and
@@ -231,6 +204,97 @@ private:
         profile_row->addWidget(settingsButton_, 0);
 
         layout->addLayout(profile_row, 0);
+    }
+
+    // A pointer test: App hands the Common Vault's own window App's own
+    // common Vault rather than a second one over the same folder, so "same
+    // Vault" is the single fact every consumer asks (this drawer, the
+    // FileSwitcher's second listing, the tab indicator). Comparing roots
+    // answers the same question, but only as long as the two stay in step
+    [[nodiscard]] bool hasCommonDrawer_() const
+    {
+        return commonVault_ && commonVault_ != vault_;
+    }
+
+    // The Common Vault's tree, in a drawer below this vault's, when there's a
+    // Common Vault and this window isn't it. A new drawer starts collapsed
+    void addCommonDrawer_()
+    {
+        if (!hasCommonDrawer_()) {
+            return;
+        }
+
+        commonTree_ = new VaultFileTree(commonVault_->treeModel(), splitter_);
+        commonDrawer_ =
+            new Drawer(commonDrawerTitle_(), commonTree_, splitter_);
+        splitter_->addWidget(commonDrawer_);
+        wireTree_(commonTree_, commonVault_);
+
+        // A toggle moves both trees under a cursor that stays put: opening
+        // slides the common tree in under it, and closing leaves this vault's
+        // tree there. Each re-reads its hovered row once the drawer has
+        // settled
+        connect(
+            commonDrawer_,
+            &Drawer::expansionSettled,
+            fileTree_,
+            &VaultFileTree::syncHover);
+        connect(
+            commonDrawer_,
+            &Drawer::expansionSettled,
+            commonTree_,
+            &VaultFileTree::syncHover);
+
+        // The Common Vault respelled while open (Vault::respellRoot) hands the
+        // switcher both roots again, and the drawer its title
+        connect(
+            commonVault_,
+            &Vault::rootRespelled,
+            this,
+            &Sidebar::refreshRoots_);
+    }
+
+    // Hidden at once, so the splitter lays out without it, and deleted when
+    // control returns to the event loop, since its tree may be the one whose
+    // signal led here. Its tree goes with it
+    void removeCommonDrawer_()
+    {
+        if (!commonDrawer_) {
+            return;
+        }
+
+        disconnect(
+            commonVault_,
+            &Vault::rootRespelled,
+            this,
+            &Sidebar::refreshRoots_);
+
+        commonDrawer_->hide();
+        commonDrawer_->deleteLater();
+        commonDrawer_ = nullptr;
+        commonTree_ = nullptr;
+    }
+
+    // The Common Vault's folder name, which the drawer's header carries as its
+    // title (painted or not, per COMMON_DRAWER_LABEL). A folder with no name,
+    // a drive's root, falls back to "Common Vault"
+    [[nodiscard]] QString commonDrawerTitle_() const
+    {
+        auto name = commonVault_->root().nameQString();
+        return name.isEmpty() ? tr("Common Vault") : name;
+    }
+
+    // Both roots, to the switcher, and the Common Vault's name to the drawer:
+    // either vault was respelled, or the Common Vault changed
+    void refreshRoots_()
+    {
+        switcher_->setVaultRoots(
+            vault_->root(),
+            commonVault_ ? commonVault_->root() : Coco::Path{});
+
+        if (commonDrawer_) {
+            commonDrawer_->setTitle(commonDrawerTitle_());
+        }
     }
 
     // Wire one tree to the Vault it shows, in one place for both the project

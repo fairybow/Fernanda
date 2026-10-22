@@ -41,6 +41,7 @@
 #include "ui/NewVaultDialog.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
+#include "ui/widgets/UserTextEntry.h"
 
 namespace Fernanda::Ui {
 
@@ -102,6 +103,12 @@ signals:
     // this tells App to fix the registry to match — swap the path in the vaults
     // list. Both roots are absolute
     void vaultRenamed(const Coco::Path& oldRoot, const Coco::Path& newRoot);
+
+    // Make the vault at vaultRoot the Common Vault, or have none. App owns the
+    // choice (it's saved in fernanda.json) and every window's drawer, so these
+    // route there
+    void commonVaultSetRequested(const Coco::Path& vaultRoot);
+    void commonVaultUnsetRequested();
 
 private:
     // Yields the directory the create/open dialogs should start in — the
@@ -290,23 +297,17 @@ private:
         emit openOrMakeVaultRequested(root);
     }
 
-    // Build the per-row menu on demand from the item's stashed flags. Two
-    // different refusal idioms, deliberately:
+    // Build the per-row menu on demand from the item's stashed flags. A
+    // condition that gates an item greys it: rename greys while the vault is
+    // in use — open in a window, or the Common Vault, whose Vault is live and
+    // watches the folder — and on a missing folder; remove-from-list greys
+    // while the vault is open; Set as Common Vault greys on a missing folder.
     //
-    //   - GREYED means a condition gates the item. A project vault's rename and
-    //     remove-from-list grey while it's open, and rename also greys on a
-    //     missing folder — close the window, or restore the folder, and they
-    //     come back.
-    //   - ABSENT means never. The Common Vault gets no rename and no
-    //     remove-from-list at all, because there is no state in which either is
-    //     allowed: its folder is resolved at launch from AppConfig rather than
-    //     from this list, and its Vault is live and windowless, so a rename
-    //     would strand it on a dead root while open buffers kept saving there.
-    //     Greying it would advertise a door that doesn't exist.
-    //
-    // Reveal is the whole menu on a Common Vault row. Gating is enforced here
-    // AND upstream in App (guarded slots): the UI shows what's possible, App
-    // refuses what shouldn't slip through
+    // The Common Vault's row offers Unset Common Vault in place of Set as
+    // Common Vault and remove-from-list: it can be removed once it's unset, on
+    // the next right-click. Gating is enforced here AND upstream (App's guarded
+    // slots, AppConfig refusing to forget the Common Vault): the UI shows
+    // what's possible, and what shouldn't slip through is refused there
     void onRecentsContextMenu_(const QPoint& pos)
     {
         auto item = recentsList_->itemAt(pos);
@@ -327,31 +328,41 @@ private:
 
         QMenu menu(this);
 
-        // Rename is a folder op: disabled on an open vault (its live Vault
+        // Rename is a folder op: disabled on a vault in use (its live Vault
         // holds the root and buffers — renaming underneath invalidates them)
         // and on a missing folder (nothing there to rename)
-        if (!is_common) {
-            auto rename_action = menu.addAction(tr("Rename…"));
-            rename_action->setEnabled(!open && !missing);
-            connect(rename_action, &QAction::triggered, this, [this, root] {
-                onRenameVault_(root, false);
-            });
-        }
+        auto rename_action = menu.addAction(tr("Rename…"));
+        rename_action->setEnabled(!open && !is_common && !missing);
+        connect(rename_action, &QAction::triggered, this, [this, root] {
+            onRenameVault_(root);
+        });
 
         // Reveal is purely local — no registry, no App — and only meaningful
-        // for a folder that's actually there. Every row offers it, the Common
-        // Vault included
+        // for a folder that's actually there
         auto reveal_action = menu.addAction(tr("Reveal in file explorer"));
         reveal_action->setEnabled(!missing);
         connect(reveal_action, &QAction::triggered, this, [root] {
             QDesktopServices::openUrl(QUrl::fromLocalFile(root.toQString()));
         });
 
-        // Remove-from-list drops the recents entry only (files untouched).
-        // Disabled on an open vault — an on-screen vault shouldn't vanish from
-        // the list under itself — but enabled on a missing one, the case it's
-        // most for
-        if (!is_common) {
+        menu.addSeparator();
+
+        if (is_common) {
+            auto unset_action = menu.addAction(tr("Unset Common Vault"));
+            connect(unset_action, &QAction::triggered, this, [this] {
+                emit commonVaultUnsetRequested();
+            });
+        } else {
+            auto set_action = menu.addAction(tr("Set as Common Vault"));
+            set_action->setEnabled(!missing);
+            connect(set_action, &QAction::triggered, this, [this, root] {
+                emit commonVaultSetRequested(root);
+            });
+
+            // Remove-from-list drops the recents entry only (files untouched).
+            // Disabled on an open vault — an on-screen vault shouldn't vanish
+            // from the list under itself — but enabled on a missing one, the
+            // case it's most for
             menu.addSeparator();
 
             auto remove_action = menu.addAction(tr("Remove from list"));
@@ -367,22 +378,11 @@ private:
     // Gather a new name and perform the folder rename here — ManageVaults owns
     // disk. On success App fixes the registry via vaultRenamed; on any failure
     // the folder is unchanged, so we just report and leave the list alone. The
-    // pre-checks mirror NewVaultDialog's advisory validation; the rename call
-    // is the authority.
-    //
-    // isCommon is taken as an argument rather than re-derived: the fact comes
-    // off the row, exactly as oldRoot does, and with no default argument (house
-    // rule) every caller has to answer the question. The menu above already
-    // omits Rename on a Common Vault row, so nothing reaches here with it set
-    // today — but the disk op is this function's, so the refusal belongs at the
-    // op and not only at the surface that offers it
-    void onRenameVault_(const Coco::Path& oldRoot, bool isCommon)
+    // name is checked by the same rules as a new vault's (UserTextEntry);
+    // like those, the checks are advisory, and the rename call is the
+    // authority
+    void onRenameVault_(const Coco::Path& oldRoot)
     {
-        if (isCommon) {
-            WARN("Refusing to rename the Common Vault!");
-            return;
-        }
-
         auto current_name = oldRoot.nameQString();
 
         auto ok = false;
@@ -399,11 +399,12 @@ private:
             return;
         }
 
-        if (new_name.contains('/') || new_name.contains('\\')) {
+        if (auto problem = UserTextEntry::problemOf(new_name);
+            problem != UserTextEntry::Problem::None) {
             QMessageBox::warning(
                 this,
                 tr("Rename vault"),
-                tr("A vault name cannot contain slashes."));
+                UserTextEntry::describe(problem));
             return;
         }
 

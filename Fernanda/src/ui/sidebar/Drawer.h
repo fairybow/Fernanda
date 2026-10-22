@@ -270,6 +270,19 @@ public:
 
     bool isExpanded() const noexcept { return expanded_; }
 
+    // The header's title. Painted or not per COMMON_DRAWER_LABEL, but set in
+    // every mode: it's the header's accessible name (QAbstractButton reads
+    // text()), and in Icon it's the tooltip, so a hover explains the lone
+    // glyph. The header's width hint follows it (setText updates it)
+    void setTitle(const QString& title)
+    {
+        header_->setText(title);
+
+        if constexpr (COMMON_DRAWER_LABEL == DrawerLabel::Icon) {
+            header_->setToolTip(title);
+        }
+    }
+
     // Ground truth, no parallel bookkeeping: collapsed is !expanded_, and the
     // height is the open one (see openHeight_). Height is omitted until the
     // drawer has been opened once, so the first open keeps its fallback
@@ -376,13 +389,7 @@ private:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
 
-        // Set in every mode: Icon doesn't paint it, but it stays the header's
-        // accessible name (QAbstractButton reads text()), and there it's the
-        // tooltip, so a hover explains the lone glyph
-        header_->setText(title);
-        if constexpr (COMMON_DRAWER_LABEL == DrawerLabel::Icon) {
-            header_->setToolTip(title);
-        }
+        setTitle(title);
 
         content_->setParent(this);
         content_->setVisible(false);

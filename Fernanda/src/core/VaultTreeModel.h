@@ -208,21 +208,6 @@ public:
         watchSubtree_(node);
     }
 
-    // The vault's root folder was recreated after vanishing, spelled as root
-    // spells it (the same folder, perhaps in another letter case). The listing
-    // still holds what was there before — the reconcile skips a missing folder
-    // — and the root's watch, if Qt kept it at all, may still follow the old
-    // folder wherever it went. So every watch is dropped, under the spelling it
-    // was added with, the root takes its spelling, the root is watched afresh,
-    // and the listing is diffed against the new disk: stale rows go, and
-    // anything already back keeps its node
-    void relistRoot(const Coco::Path& root)
-    {
-        unwatchSubtree_(rootNode_);
-        root_ = root;
-        rewatchAndRelistSubtree_(rootNode_);
-    }
-
     // The vault's folder is where it was, spelled differently: a folder at or
     // above the root was renamed by letter case alone, where case is ignored.
     // Every path the model hands out is built from the root, so they all take

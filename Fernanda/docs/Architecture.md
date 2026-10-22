@@ -60,7 +60,7 @@ flowchart TD
     App["App : QApplication"]
 
     App -->|owns, exactly one| BS["BufferStore"]
-    App -->|owns, exactly one| CV["Vault (common)"]
+    App -->|owns, 0..1| CV["Vault (common)"]
     App -->|owns, 0..N| VA["Vault A"]
     App -->|owns, 0..N| VB["Vault B"]
     App -.->|tracks| WA["VaultWindow A"]
@@ -79,18 +79,18 @@ flowchart TD
 
 | Owner | Owns |
 |---|---|
-| `App` | The `BufferStore`, the common `Vault`, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
+| `App` | The `BufferStore`, the Common Vault's `Vault` when there is one, every project `Vault`, `AppConfig`, the app-wide actions, the spelling dictionaries (`SpellCheckers`), the update checker (`Updater`), the interface language (`Translations`). Tracks each `VaultWindow` and the `ManageVaults` window |
 | `BufferStore` | Every open file's buffer, the watcher over open files, the autosave timers. Keeps a list of every vault's `VaultTreeModel`, which it doesn't own, and announces each rename, move, and trash it follows |
 | `Vault` | Its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.fernanda/` folder. Borrows the store |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
-| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows two vaults and the store |
+| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows its vault, the Common Vault (if there is one), and the store |
 | `PopoutWindow` | Nothing of its own. Its `VaultWindow` wires it |
 
-**`App` owns every `Vault`.** If windows owned their vaults, `Vault` would have two kinds of owner: `App` for the common one, a window for the rest. Owning them all in one place makes the Common Vault an ordinary `Vault` that happens to have no window.
+**`App` owns every `Vault`.** If windows owned their vaults, `Vault` would have two kinds of owner: `App` for the common one, a window for the rest. Owning them all in one place makes the Common Vault an ordinary `Vault` with a role, which `App` can give to any vault, or to none (see "The Common Vault").
 
 **One store for every buffer.** A file has one buffer however many windows show it and however many vaults contain it: vaults may nest, and a project vault may contain the Common Vault. If each vault kept its own buffers, a file inside two vaults would have two, each autosaving over the other and each reloading the other's saves as outside changes, and a rename in one vault would discard the other's buffer with its unsaved text. So `App` makes one `BufferStore` before any `Vault` and lends it to every `Vault` and every window. A `Vault` keeps what is its folder's alone: the tree, the settings, and the dictionary.
 
-**One `Vault` per folder.** `App` enforces it, comparing folders after resolving them through symlinks (see "Identity"). The Common Vault can be opened as a window of its own, and that window is given the `Vault` that `App` already holds. A second `Vault` over one folder would split its settings and dictionary between two objects. Because of this, "is this window the Common Vault's own?" is a pointer comparison everywhere it is asked.
+**One `Vault` per folder.** `App` enforces it, comparing folders after resolving them through symlinks (see "Identity"). The Common Vault can be opened as a window of its own, and that window is given the `Vault` that `App` already holds. A vault set as the Common Vault while it's open in a window becomes the Common Vault as it is. A second `Vault` over one folder would split its settings and dictionary between two objects. Because of this, "is this window the Common Vault's own?" is a pointer comparison everywhere it is asked.
 
 **Windows are tracked, not owned.** They are parentless top-level widgets that delete themselves on close. `App` holds pointers to them and reacts to their `destroyed` signal.
 
@@ -101,7 +101,7 @@ These rules are easy to break and expensive to rediscover.
 - **`destroyed` arrives from a half-dead object.** It is emitted from `~QObject`, after the derived parts are gone, so the sender can't be cast back to its type. A handler that needs to know which window died captures the key (the vault's path) in the connection.
 - **A child's signals can reach a parent whose destructor has finished.** A widget deletes its children in `~QWidget`, after its own class's destructor has run, and Qt cuts a receiver's connections only in its `~QObject`, later still. So a parent's handler for a child's `destroyed` can run on an object that is no longer its own type, and reading any of its members then is undefined behavior. A parent that handles its children's `destroyed` cuts those connections in its own destructor, as `TabPaneLeaf` does with its pages.
 - **A `Vault` is disposed with `deleteLater`, never `delete`.** `destroyed` is emitted before the object's children are deleted, so the window's views and sidebar may still be alive and connected to the vault. Deferring puts the vault's deletion after the window is fully gone.
-- **The common `Vault` is never disposed by a window closing.** It belongs to `App`, and other windows still show its tree.
+- **The Common Vault's `Vault` is never disposed by a window closing** while it's the Common Vault. It belongs to `App`, and other windows still show its tree. When another vault is set, or none, the old one is disposed at once if no window holds it, and otherwise with its window.
 - **Buffers watch `destroyed`; views don't call back.** A buffer counts its views by connecting to each one's `destroyed`. No view destructor calls into its buffer, so teardown order doesn't matter.
 - **A view always outlives its reach into the store.** The store is `App`'s and never dies with a window, and at quit Qt destroys top-level windows before `App`'s children. So the last view closing always finds a live `BufferStore`.
 - **`App` decides when to quit.** Quit-on-last-window is off. The app quits when no vault window is open and the vault picker isn't up.
@@ -119,7 +119,7 @@ flowchart TD
 
     VW -->|owns| SB["Sidebar"]
     SB --> FT["VaultFileTree (this vault)"]
-    SB --> DR["Drawer: VaultFileTree (Common Vault)"]
+    SB --> DR["Drawer: VaultFileTree (Common Vault, if any)"]
     SB --> VS["VaultSwitcher + settings button"]
 
     VW -->|owns| T1["TabPaneTree"]
@@ -211,7 +211,7 @@ A file is identified by its `PathKey`: its absolute path, normalized (see "Ident
 
 Which vault a file belongs to is a question each window asks, not something the file carries: in a window, a file inside the window's own vault is that vault's, even when the Common Vault contains it too, and otherwise it is the Common Vault's when that contains it (`VaultWindow::vaultOf_`). Opening, the guest mark on a tab, and `workspace.json` all go by that answer. So one buffer can be a project file in one window and a Common Vault file in another.
 
-The answer can change under an open tab. Vaults nest, so one vault's window can rename or move a file another window shows, out of that window's vaults or from one of them to the other. Each view's window asks again when its buffer reports a rename:
+The answer can change under an open tab. Vaults nest, so one vault's window can rename or move a file another window shows, out of that window's vaults or from one of them to the other; and the Common Vault can change. Each view's window asks again a tick after its buffer reports a rename, by which time `App` has followed a moved Common Vault, and for every tab when the Common Vault changes:
 
 - **In neither of its vaults:** the view closes. The buffer stays open in any window that still shows it. If none does, the last view's final save writes any unsaved text to the file's new place, so a move never loses typing.
 - **In the other of its two vaults:** the guest mark is set or cleared. A tab draws its mark only when it gains a page, so the window asks the tab to draw it again (`TabPaneTree::refreshPageIcon`).
@@ -321,16 +321,17 @@ Two details matter on every platform. Many programs save by writing a temporary 
 
 ### Vault folders
 
-When Fernanda becomes the active application again, `App` checks that every open vault's folder still exists. A missing project vault has its window closed; a missing Common Vault folder is recreated. The watchers aren't relied on for this: whether a folder's own removal is reported varies by platform.
+When Fernanda becomes the active application again, `App` checks that every open vault's folder still exists. A missing vault has its window closed, and a missing Common Vault is unset, since where its folder went can't be known. The watchers aren't relied on for this: whether a folder's own removal is reported varies by platform.
 
-A folder can also leave from inside Fernanda. Vaults nest, so a rename, move, or trash in one vault can take another open vault's folder, or the Common Vault's, with it. That is handled the same way and at once, not at the next activation:
+A folder can also leave from inside Fernanda. Vaults nest, so a rename, move, or trash in one vault can take another open vault's folder, or the Common Vault's, with it. That is handled at once, not at the next activation:
 
-- **The store announces it.** `BufferStore` emits `entryRelocated` or `entryRemoved` once every tree and buffer has followed the entry. `App` acts a tick later, so the vault operation and the window that started it have finished before any window closes.
-- **The message says what happened inside Fernanda:** where each folder went, or that it went to the trash. Then the same steps as the outside case close the windows and recreate the Common Vault.
-- **A folder still there is left alone.** Where letter case is ignored, renaming a folder by case alone leaves every vault inside it in place. The store restores those vaults' tree watches, which it released for the rename.
-- **A moved vault is not followed.** It is a new vault at its new place (see "Identity"), and is opened from there like any other.
+- **The store announces it.** `BufferStore` emits `entryRelocated` or `entryRemoved` once every tree and buffer has followed the entry.
+- **The Common Vault follows a rename or move** straight away, in `App`'s slot for the announcement, so its files are still a Common Vault's when the windows look at their tabs (see "The Common Vault"). A trash unsets it.
+- **The rest waits a tick,** so the vault operation and the window that started it have finished before any window closes. Then one message says where each folder went, or that it went to the trash, and the windows close as in the outside case.
+- **A folder still there is re-spelled.** Where letter case is ignored, renaming a folder by case alone leaves every vault inside it in place, spelled the old way. Each such vault takes the new spelling (`Vault::respellRoot`): its root; its tree, which watches every listed folder again under the new spelling; every window's copy (the switcher's, `WorkspaceFile`'s); `App`'s open-vaults map, which is keyed again; and its record. For the Common Vault, `commonVaultPath` too, so the next launch spells it the same way.
+- **A moved vault is not followed, but its record is.** It is a new vault at its new place (see "Identity"), opened from there like any other. Its known-vaults record moves with its folder and keeps its place in the list, so it isn't shown as missing.
 
-A recreated Common Vault folder holds no settings and no dictionary, so `Vault::recreateRoot` takes them again from it: the defaults and an empty word list, announced so every window applies them. A pending settings save is dropped first, so the old settings aren't written into the new folder.
+These run in order: vaults still in place are re-spelled, then the message shows and the windows close, then the moved vaults' records follow. The message runs an event loop in which any window can be activated, and activation records a vault's use by its root's path, adding a record it doesn't find. Until a window closes, its vault's record has to stay where the vault's root is.
 
 ## The vault tree model
 
@@ -345,16 +346,17 @@ A recreated Common Vault folder holds no settings and no dictionary, so `Vault::
 - **Outside changes re-list the folder as a diff.** Unchanged entries keep their nodes, so views keep their expansion and selection. A re-list that finds nothing to do is harmless, so the model needs no suppression of its own writes.
 - **Fernanda's own operations update the model directly.** Before a rename, move, or delete, the store releases the watches at or under the entry in every vault's tree, not only the acting vault's: vaults can nest, and another vault's window may have listed a folder inside the entry. Afterward it moves or removes the node in every tree. A moved folder's node is the same object, so it stays expanded in every view, in every vault's window. Left to its own watcher, another vault's tree would re-list the folder and see a new, collapsed entry.
 - **Each tree is handed the entry in its own spelling.** A tree finds its rows by comparing names exactly, and where letter case is ignored, two vaults' roots may spell the folders above them differently. So the store rebuilds the entry from the tree's own root and the part of the entry below it. Below a root every tree lists the same folders from disk, so those names agree.
-- **A tree whose vault folder is inside the entry has no row for it.** The whole vault went with the entry, and `App` closes its window (see "Vault folders").
+- **A tree whose vault folder is inside the entry has no row for it.** The whole vault went with the entry, and `App` closes its window, or, for the Common Vault, follows its folder (see "Vault folders"). After a change of letter case alone, where case is ignored, the folder is still there: the store gives the tree its watches back, and `App` re-spells it.
+- **A tree's root can be re-spelled** (`VaultTreeModel::respellRoot`). Every path the model hands out is built from it, so a tree view asks the model for the root each time rather than keep a copy.
 - **Paths are typed.** Views read a `Coco::Path` and an is-folder flag from the model, not Qt item roles.
 
 Outside programs are still blocked from renaming a folder that Fernanda has listed a subfolder of. See "Watching a whole vault through one handle" in [Future.md](Future.md).
 
 ## Identity
 
-**A vault is its path.** Nothing identifying is stored in the vault folder. The known-vaults list, the open-vaults map in `App`, and saved workspaces all resolve by path. The open-vaults map is keyed by `PathKey`, so any spelling of an open folder finds its window. This matches Obsidian, whose vault ids are opaque handles in a per-machine file.
+**A vault is its path.** Nothing identifying is stored in the vault folder. The known-vaults list, the open-vaults map in `App`, and saved workspaces all resolve by path. The open-vaults map is keyed by `PathKey`, so any spelling of an open folder finds its window, and the known-vaults list matches its records by `PathKey` (see "The known-vaults list"). This matches Obsidian, whose vault ids are opaque handles in a per-machine file.
 
-The cost is that a moved vault is a new vault. The benefit is that a copied vault folder is simply a second vault, with nothing to collide.
+The cost is that a moved vault is a new vault, though its record follows a move made inside Fernanda. The benefit is that a copied vault folder is simply a second vault, with nothing to collide.
 
 **A file is its `PathKey`.** `Coco::Path` compares paths as written, so a trailing slash, `.` and `..` segments, and letter case make two spellings of one file differ. `Coco::Path` is deliberately not canonical on construction: that would make it impossible to name a path that doesn't exist yet, and would put a filesystem call in a value type. `PathKey` (`core/PathKey.h`) is the normalized form every buffer and file operation goes by:
 
@@ -373,19 +375,33 @@ The cost is that a moved vault is a new vault. The benefit is that a copied vaul
 
 **A path written as text is in its pretty form** (`Coco::Path::prettyQString`), in `workspace.json`, in `fernanda.json`, in a `PathKey`, and on screen: the root as the platform reads it (a UNC root keeps its two slashes), then the names, joined by single forward slashes, with none at the end. It is built from the path's own parts, so the platform decides what a separator is; on Linux and macOS a backslash is part of a name. `.` and `..` are kept. Reading the text back names the same path; a Windows device path (`\\?\...`), where `/` isn't a separator, is kept as written for that reason.
 
+## The Common Vault
+
+The Common Vault is a role, not a place: one known vault whose files every window shows in a drawer beside its own, and whose dictionary applies in every vault. Any vault can have the role, or none.
+
+- **`fernanda.json` records it in one key, `commonVaultPath`, with three states.** Absent: the first run hasn't set one up, so it makes `Documents/Fernanda/Common Vault` and sets it. `null`: the user unset it, or its folder went. A path: the Common Vault. Once one has been set up, the user's choice stands, including a choice of none.
+- **It is always a known vault.** Setting a path that isn't listed adds a record for it, and `AppConfig` refuses to forget the Common Vault's record: it is unset first.
+- **A Common Vault whose folder is gone is unset,** at launch or when Fernanda becomes active, and stays unset until the user sets another. Its record stays, listed as missing.
+- **It changes in one place.** `App::setCommonVault_` takes a path, or none. It keeps one `Vault` per folder: a vault open in a window becomes the Common Vault as it is. The old one stays with its window as an ordinary vault, or is disposed if it has none. Then each window is told (`VaultWindow::setCommonVault`):
+  - the sidebar's drawer is replaced or removed, and `WorkspaceFile` observes the new one;
+  - every view moves its connection from the old Common Vault's `wordsChanged` to the new one's, and takes its words again. Each view is disconnected from the old Common Vault by name, since the old one may be the window's own vault, whose connections stay;
+  - every tab is looked at again, as for a moved file: one in neither of the window's vaults closes, and the rest are marked as guests or not.
+- **It follows its folder when Fernanda moves it.** A rename or move from a containing vault's tree takes the folder to a new place, and the Common Vault follows: a new `Vault` there takes the role. This happens directly in `App`'s slot for the store's announcement, before anything else reacts. Each window looks at its relocated tabs a tick later (`VaultWindow::makeView_`), so the moved files are found in the new Common Vault and their tabs stay open. The Common Vault's own window, if open, closes like any moved vault's. A trash unsets it.
+- **The drawer's title is the Common Vault's folder name.** The header paints only the box glyph (`COMMON_DRAWER_LABEL`), so the name is its tooltip and accessible name, and is painted if the label is switched on. It follows a re-spelling and a change of Common Vault.
+
 ## Configuration and persistence
 
 All of it but a vault's dictionary is JSON, read and written by stateless free functions (`core/JsonIo.h` over `core/Io.h`, which writes atomically). A missing or unreadable file reads as an empty object, so callers fall to their defaults.
 
 | What | File | Type | Owner |
 |---|---|---|---|
-| Known vaults, session, last-used folder, update settings, interface language | `fernanda.json` in the app data folder | `AppConfig` | `App` |
+| Known vaults, the Common Vault, session, last-used folder, update settings, interface language | `fernanda.json` in the app data folder | `AppConfig` | `App` |
 | Per-vault settings | `.fernanda/settings.json`, `.fernanda/appearance.json` | `VaultConfig` | `Vault` |
 | Window and tab layout | `.fernanda/workspace.json` | `WorkspaceFile` | `VaultWindow` |
 | A vault's dictionary | `.fernanda/dictionary.txt`, one word per line | `WordList` | `Vault` |
 
 - **Each config type holds its own defaults.** A missing key falls to the default. There is no chain of fallbacks between vault and app settings.
-- **Only set keys are written.**
+- **Only set keys are written.** The Common Vault's is the exception: once set up, it is always written, as `null` when unset, since an absent key means the first run hasn't set one up.
 - **Config types are plain values, not `QObject`s.** `Vault` announces a settings change with one signal, and saves a moment later so a dragged slider writes once, or at once when a window closes or Fernanda quits.
 - **A vault setting changes one way.** `Vault::setConfig` takes the `VaultConfig` setter to call and the value. It announces and saves only if that setter reports a change, so no setting has code of its own in `Vault` to get wrong.
 - **Settings are applied from the window's vault.** A Common Vault file in a project window takes the project's settings. A tab can only move within one window family, so a view's settings source never changes.
@@ -398,8 +414,11 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 - The last-used time orders the list. Activating a vault's window updates it in memory; it reaches disk at exit.
 - The open flag is the session: at launch, every vault flagged open whose folder exists is reopened, oldest first, so the most recent ends up in front. If none qualifies, the vault picker is shown.
 - The flag is kept live: set on open, cleared on close. The last vault to close keeps it, and so does every vault open at quit.
+- **Records are matched by `PathKey`, and one folder has one record.** A touch, an open, a rename, or a forget finds a folder's record by any spelling. A file with two records for one folder has them merged when it's loaded, and a record renamed onto a folder that already has one is merged with it: the more recent timestamp, and open if either was.
+- A record keeps the spelling it was made with until it's renamed. A case-only rename that leaves a vault in place renames its record to the new spelling.
+- A record follows its folder when the folder is renamed or moved inside Fernanda (see "Vault folders"). After an outside move it is shown as missing.
 
-`App` derives a display entry per vault on demand (`VaultEntry`: name, missing, open, is-common) and hands the picker and each vault switcher a function that returns the current list. "Open" means a window holds the vault. It is not the same as "a `Vault` object exists", which for the Common Vault is always true, and which is why is-common is a separate flag.
+`App` derives a display entry per vault on demand (`VaultEntry`: name, missing, open, is-common) and hands the picker and each vault switcher a function that returns the current list. "Open" means a window holds the vault. It is not the same as "a `Vault` object exists", which for the Common Vault is true even with no window, and which is why is-common is a separate flag.
 
 ### Workspace
 
@@ -428,7 +447,7 @@ flowchart TD
 - **One checker per language, shared by every vault.** A dictionary takes a moment and several megabytes to load, so `SpellCheckers` loads one the first time a language is asked for and keeps it. Dictionaries are read from the dictionaries folder in the app data folder, where any pair of `.aff` and `.dic` files is a language. A language must be a single file name, as a path read from `workspace.json` must be plain, so a hand-edited setting can't name a file outside the folder; anything else is treated as not installed. Hunspell reads from disk, so the bundled one is copied out of the resources at launch, and a file already there is never replaced.
 - **A checker's answers never change,** because nothing is added to it after it loads. So it keeps every answer, and the editor can ask about each word in view at every paint.
 - **A vault's own words are held apart from the checker.** A checker shared by every vault can't hold one vault's words. `Vault` holds its dictionary (from `.fernanda/dictionary.txt`) and its ignored words as `WordList`s, which apply Hunspell's rule for added words: lowercase also accepts capitals, capitals accept only themselves.
-- **The window's vault decides, as for settings.** `VaultWindow::makeView_` hands each text view the checker for its vault's language (none while spellcheck is off) and one combined list: its vault's dictionary and ignored words, and the Common Vault's dictionary. It hands them over again on `configChanged`, and on `wordsChanged` from either vault.
+- **The window's vault decides, as for settings.** `VaultWindow::makeView_` hands each text view the checker for its vault's language (none while spellcheck is off) and one combined list: its vault's dictionary and ignored words, and the Common Vault's dictionary, if there is one. It hands them over again on `configChanged`, on `wordsChanged` from either vault, and when the Common Vault changes.
 - **Views don't know their vault.** Add to dictionary and Ignore leave the view as signals, which `makeView_` connects to the window's vault.
 - **Adding a word reads the file first.** The file, with the word added, becomes the dictionary, so a hand edit made while the vault is open isn't written over. A file that exists but can't be read is never written.
 - **One rule judges a word.** `core/spell/Misspelling.h` takes the checker and the combined list, for the underlines and for the context menu. The checker is asked first, since it remembers its answers and most words are in the dictionary. Holding the vault's words apart has a cost that this rule pays: Hunspell accepts a possessive or a hyphenated word by its own rules, from its own words alone, so the rule tries an accepted word's possessive, and a hyphenated word's parts, itself. Add to dictionary and Ignore store a possessive without its 's for the same reason.
@@ -445,6 +464,8 @@ Three classes, divided by who touches vault folders on disk.
 | Offer create, open, and the known vaults | `ManageVaults` |
 | Gather a name and location | `NewVaultDialog` |
 | Create or rename a vault's folder | `ManageVaults` |
+| Offer setting or unsetting the Common Vault | `ManageVaults` |
+| Set or unset the Common Vault | `App` |
 | Create `.fernanda/` | `Vault`, when constructed |
 | Check whether the vault is already open | `App` |
 | Construct the `Vault` and its window | `App` |
@@ -551,7 +572,10 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **Following symlinks for every key.** A folder linked into a vault would have had keys outside the vault: its tabs marked as guests, dropped from `workspace.json`, and its files refused by the vault's own operations. Only vault roots are resolved; see "Identity".
 - **Releasing only the acting vault's tree watches around a folder operation.** Another vault's window that had listed a folder inside the entry kept a handle on it, and the operation failed on Windows. And left to re-list on its own, that tree collapsed the moved folder.
 - **Refusing a folder operation that would take another open vault's folder.** It would have kept every `Vault`'s root fixed, but a vault folder moved from inside Fernanda would then be stuck, where one moved in a file manager is simply handled. Closing the vault, as for an outside move, treats both the same.
-- **Following a vault folder moved from inside another vault,** by re-rooting its `Vault` or reopening it at the new place. Every window holds pointers into its vaults, and a moved vault is a new vault under path identity. For the Common Vault, whose location is fixed, following is not possible at all.
+- **Following a vault folder moved from inside another vault,** by re-rooting its `Vault` or reopening it at the new place. Every window holds pointers into its vaults, and a moved vault is a new vault under path identity. The Common Vault is the exception, being a role: it follows its folder as a new `Vault` there (see "The Common Vault").
+- **A Common Vault at a fixed place, recreated empty when its folder went.** Built, then replaced by the role. A moved or renamed Common Vault left its files behind as ordinary files and a new, empty folder in its place. A case-only rename on Windows and macOS was re-spelled for the session but reverted at the next launch, and two spellings split its record in two. Recreating needed a settings and dictionary reset of its own.
+- **Refusing to rename, move, or trash the Common Vault's folder from inside Fernanda.** Considered when the fixed-place rules had grown unwieldy. Every `Vault` would have needed the Common Vault's root to refuse with, and outside moves would still have needed handling. A role that follows its folder, and is unset when its folder goes, was simpler.
+- **A window re-sending the Common Vault's `wordsChanged` to its views,** so that a change of Common Vault would be one reconnection. Built, then replaced: it was a signal relay, against the principle. Each view connects to the Common Vault directly, and the window moves those connections when the Common Vault changes.
 - **A base class for PDF and image buffers.** They share one member.
 - **A placeholder buffer for empty tabs.** An off-disk buffer by another name.
 - **A separate object tracking views per buffer.** The buffer already is that record, and the store's map already is the registry.

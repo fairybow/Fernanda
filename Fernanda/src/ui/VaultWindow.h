@@ -33,6 +33,7 @@
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
+#include <Coco/Time.h>
 
 #include "core/ActionIds.h"
 #include "core/AppActions.h"
@@ -74,13 +75,15 @@ class VaultWindow : public BaseWindow
     Q_OBJECT
 
 public:
-    // Borrows both its own Vault and the common Vault from App, and App's
-    // BufferStore, where every file this window opens is held. vaultsProvider
-    // is App's vaultEntries(), passed straight to the Sidebar's switcher.
-    // appActions are App's own actions: the base adopts them, and this window
-    // hands the set on to every pop-out it makes. spellCheckers is App's too,
-    // and is where each text view's dictionary comes from. So are updater
-    // and translations, which the settings dialog's General page shows
+    // Borrows both its own Vault and the Common Vault from App, and App's
+    // BufferStore, where every file this window opens is held. commonVault is
+    // null when there is no Common Vault, and is the window's own Vault in the
+    // Common Vault's own window. It can change later (setCommonVault).
+    // vaultsProvider is App's vaultEntries(), passed straight to the Sidebar's
+    // switcher. appActions are App's own actions: the base adopts them, and
+    // this window hands the set on to every pop-out it makes. spellCheckers is
+    // App's too, and is where each text view's dictionary comes from. So are
+    // updater and translations, which the settings dialog's General page shows
     VaultWindow(
         Vault* borrowedVault,
         Vault* commonVault,
@@ -157,6 +160,46 @@ public:
             }
             return;
         }
+        }
+    }
+
+    // The Common Vault changed, or there's none now (App::setCommonVault_).
+    // The sidebar's drawer is replaced or removed, and WorkspaceFile handed the
+    // new one. Every view, here and in the pop-outs, follows the new Common
+    // Vault's words in place of the old one's and takes its words again, since
+    // the Common Vault's dictionary applies here. And every tab is looked at
+    // again as if its file had moved: one in neither of this window's vaults
+    // now closes, and the rest are marked as guests or not.
+    //
+    // A view is disconnected from the old Common Vault by name, not every
+    // connection from it, and not when it was this window's own vault: then
+    // the connection is the view's to its own vault's words, which stays
+    void setCommonVault(Vault* commonVault)
+    {
+        if (commonVault == commonVault_) {
+            return;
+        }
+
+        auto* old_common = commonVault_;
+        auto views = fileViews_();
+
+        if (old_common && old_common != vault_) {
+            for (auto* view : views) {
+                disconnect(old_common, &Vault::wordsChanged, view, nullptr);
+            }
+        }
+
+        commonVault_ = commonVault;
+
+        sidebar_->setCommonVault(commonVault_);
+        workspaceFile_->setCommonDrawer(
+            sidebar_->commonTree(),
+            sidebar_->commonDrawer());
+
+        for (auto* view : views) {
+            followCommonWords_(view);
+            applyWords_(view);
+            reconsiderView_(view);
         }
     }
 
@@ -724,31 +767,26 @@ private:
         apply();
         connect(vault, &Vault::configChanged, view, apply);
 
-        // The words to take as correct: this window's vault's dictionary and
-        // ignored words, and the Common Vault's dictionary, which applies in
-        // every vault. Taken again when either vault's words change
-        auto apply_words = [view, vault, common = commonVault_] {
-            auto words = vault->dictionary();
-            words.unite(vault->ignoredWords());
+        // The words to take as correct (applyWords_), taken now and again when
+        // either vault's words change. The view dies before this window
+        // (pop-outs close with it), so capturing this is safe
+        applyWords_(view);
 
-            if (common != vault) {
-                words.unite(common->dictionary());
-            }
+        connect(vault, &Vault::wordsChanged, view, [this, view] {
+            applyWords_(view);
+        });
 
-            view->setAcceptedWords(words);
-        };
-
-        apply_words();
-        connect(vault, &Vault::wordsChanged, view, apply_words);
-
-        if (commonVault_ != vault) {
-            connect(commonVault_, &Vault::wordsChanged, view, apply_words);
-        }
+        followCommonWords_(view);
 
         // A rename or move, from this window or another, may take the file
-        // out of this window's vaults or into the other of them
+        // out of this window's vaults or into the other of them. Looked at a
+        // tick later, once App has seen the move through: a move of the Common
+        // Vault's folder makes a new Common Vault there
+        // (App::followCommonVault_), and its files are still a Common Vault's
         connect(model, &AbstractFileModel::renamed, view, [this, view] {
-            onViewFileRelocated_(view);
+            Coco::Time::onNextTick(view, [this, view] {
+                onViewFileRelocated_(view);
+            });
         });
 
         applyGuestMark_(view, key);
@@ -773,9 +811,9 @@ private:
     // this vault's, and in the Common Vault's own window every file is, so
     // nothing is marked there. The mark rides the page (PageIcon), so it
     // survives a drag into a pop-out and a workspace restore. It changes only
-    // when a rename or move takes the file between this window's two vaults
-    // (onViewFileRelocated_). The leaf renders the glyph in its own colors.
-    // True when the mark changed
+    // when a rename or move takes the file between this window's two vaults,
+    // or the Common Vault changes (reconsiderView_). The leaf renders the
+    // glyph in its own colors. True when the mark changed
     bool applyGuestMark_(AbstractFileView* view, const PathKey& key)
     {
         auto path = vault_->contains(key)
@@ -791,27 +829,64 @@ private:
     }
 
     // A view's file was renamed or moved, by this window or by another: vaults
-    // nest, so another vault's window can move a file this window shows. In
-    // this window, the file may now be in neither of its vaults, and the view
-    // closes; the buffer lives on in any window that still shows it, or, if
-    // none does, its last view's save writes any unsaved text to the file's
-    // new place. Or the file may now be in the other of the two vaults, and
-    // its guest mark follows. Either way workspace.json records the old path,
-    // so a save is scheduled
+    // nest, so another vault's window can move a file this window shows.
+    // workspace.json records the old path, so a save is scheduled
     void onViewFileRelocated_(AbstractFileView* view)
+    {
+        reconsiderView_(view);
+
+        if (workspaceFile_) {
+            workspaceFile_->scheduleSave();
+        }
+    }
+
+    // Which of this window's vaults a view's file is in may have changed: its
+    // file moved, or the Common Vault did. In neither, the view closes; the
+    // buffer lives on in any window that still shows it, or, if none does, its
+    // last view's save writes any unsaved text to the file. Otherwise its
+    // guest mark follows the vault it's in now
+    void reconsiderView_(AbstractFileView* view)
     {
         auto key = view->model()->key();
 
         if (!vaultOf_(key)) {
             view->deleteLater();
-        } else if (applyGuestMark_(view, key)) {
+            return;
+        }
+
+        if (applyGuestMark_(view, key)) {
             if (auto* tree = treeHosting_(view)) {
                 tree->refreshPageIcon(view);
             }
         }
+    }
 
-        if (workspaceFile_) {
-            workspaceFile_->scheduleSave();
+    // The words a view takes as correct: this window's vault's dictionary and
+    // ignored words, and the Common Vault's dictionary, if there is one, which
+    // applies in every vault. Read when called, since the Common Vault can
+    // change
+    void applyWords_(AbstractFileView* view) const
+    {
+        auto words = vault_->dictionary();
+        words.unite(vault_->ignoredWords());
+
+        if (commonVault_ && commonVault_ != vault_) {
+            words.unite(commonVault_->dictionary());
+        }
+
+        view->setAcceptedWords(words);
+    }
+
+    // The view takes its words again when the Common Vault's words change.
+    // Nothing
+    // when there's no Common Vault, or this window is it: then its words are
+    // this vault's, which the view already follows
+    void followCommonWords_(AbstractFileView* view)
+    {
+        if (commonVault_ && commonVault_ != vault_) {
+            connect(commonVault_, &Vault::wordsChanged, view, [this, view] {
+                applyWords_(view);
+            });
         }
     }
 
@@ -834,23 +909,28 @@ private:
         }
     }
 
-    // The files this window's views show, in it and in its pop-outs. A
-    // pop-out has no parent, so it isn't among this window's children and is
-    // searched on its own. A file shown twice is listed twice
+    // The file views in this window and in its pop-outs. A pop-out has no
+    // parent, so it isn't among this window's children and is searched on its
+    // own
+    [[nodiscard]] QList<AbstractFileView*> fileViews_() const
+    {
+        auto views = findChildren<AbstractFileView*>();
+
+        for (auto* popout : popouts_) {
+            views << popout->findChildren<AbstractFileView*>();
+        }
+
+        return views;
+    }
+
+    // The files this window's views show, in it and in its pop-outs. A file
+    // shown twice is listed twice
     [[nodiscard]] QList<PathKey> shownKeys_() const
     {
         QList<PathKey> keys{};
 
-        auto collect = [&keys](const QObject* window) {
-            for (auto* view : window->findChildren<AbstractFileView*>()) {
-                keys << view->model()->key();
-            }
-        };
-
-        collect(this);
-
-        for (auto* popout : popouts_) {
-            collect(popout);
+        for (auto* view : fileViews_()) {
+            keys << view->model()->key();
         }
 
         return keys;
