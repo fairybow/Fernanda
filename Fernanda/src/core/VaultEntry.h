@@ -31,8 +31,8 @@ namespace Fernanda {
 //
 // `open` reads in-memory state rather than the disk: it's true when a window
 // currently holds this vault (openVaults_). ManageVaults gates on it — a row's
-// rename and remove-from-list are disabled while that vault is open — so
-// keeping it on the entry puts the open-vault knowledge in one place. It's
+// remove-from-list is disabled while that vault is open — so keeping it on
+// the entry puts the open-vault knowledge in one place. It's
 // fresh per build and the surfaces rebuild on vaultsChanged (which fires on
 // close as well as open), so it never goes stale under a live picker.
 //
@@ -40,9 +40,8 @@ namespace Fernanda {
 // by App for the same reason as the rest: App is the only object that holds
 // commonVault_, so it answers by the live Vault's root. ManageVaults offers
 // Unset Common Vault on that row, in place of Set as Common Vault and
-// remove-from-list, and greys its rename as it does an open vault's: its Vault
-// is live and watches the folder. VaultSwitcher leaves it out of its other
-// vaults, since it has an item of its own.
+// remove-from-list. VaultSwitcher leaves it out of its other vaults, since it
+// has an item of its own.
 //
 // No id field. A vault is its path, and the list resolves entirely by it — name
 // from the folder, missing from exists(), open by path, open-target the path.

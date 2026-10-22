@@ -30,10 +30,9 @@ namespace Fernanda::Ui {
 // One-field rename prompt for a tree entry. The user edits the STEM — a file's
 // extension is preserved and reattached in newLeaf(), a folder has none.
 // Validation mirrors NewVaultDialog: character/reserved rules from
-// UserTextEntry, then a collision check, both advisory — the Vault's
-// Coco::rename is authoritative. A case-only edit ("foo" -> "Foo") is allowed
-// through: it resolves to the same file, which the Vault renames via a temp
-// step
+// UserTextEntry, then a collision check, both advisory — the Vault's rename
+// is authoritative. A case-only edit ("foo" -> "Foo") is allowed through: it
+// resolves to the same file, which Io::rename renames via a temp step
 class RenameDialog : public QDialog
 {
     Q_OBJECT

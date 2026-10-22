@@ -36,6 +36,7 @@
 #include "core/BundledFonts.h"
 #include "core/CMakeMacroGuard.h"
 #include "core/Clargs.h"
+#include "core/Io.h"
 #include "core/PathKey.h"
 #include "core/Publication.h"
 #include "core/Translations.h"
@@ -132,8 +133,8 @@ public:
         // open is derived here alongside missing, but from the in-memory
         // openVaults_ registry rather than the disk: a recents path is "open"
         // when a window currently holds it. ManageVaults gates on it — a row's
-        // rename and remove-from-list are disabled while that vault is open —
-        // so the open-vault knowledge lives in one place. Fresh each call, so
+        // remove-from-list is disabled while that vault is open — so the
+        // open-vault knowledge lives in one place. Fresh each call, so
         // it reflects opens AND closes; the surfaces rebuild on vaultsChanged,
         // which fires on both.
         //
@@ -442,10 +443,14 @@ private:
         // Two live providers, read at click/refresh time rather than
         // snapshotted: the create/open MRU dir, and the MRO vaults list.
         // ManageVaults can outlive a vault open, so both must reflect App's
-        // current state
+        // current state. Rename comes here too, so every vault's folder is
+        // renamed the one way
         manageVaults_ = new Ui::ManageVaults(
             [this] { return appConfig_.newVaultMruDir(); },
             [this] { return vaultEntries(); },
+            [this](const Coco::Path& oldRoot, const Coco::Path& newRoot) {
+                return renameVaultFolder_(oldRoot, newRoot);
+            },
             appActions_.value(ActionIds::APP_QUIT));
 
         connect(
@@ -455,20 +460,13 @@ private:
             &App::onOpenOrMakeVaultRequested_);
 
         // Per-row actions on the recents column route back here:
-        // remove-from-list, rename, and setting or unsetting the Common Vault
-        // are registry edits App owns. Rename's folder op already ran in
-        // ManageVaults; its slot only fixes the persisted state to match
+        // remove-from-list, and setting or unsetting the Common Vault, are
+        // registry edits App owns
         connect(
             manageVaults_,
             &Ui::ManageVaults::forgetVaultRequested,
             this,
             &App::onForgetVaultRequested_);
-
-        connect(
-            manageVaults_,
-            &Ui::ManageVaults::vaultRenamed,
-            this,
-            &App::onVaultRenamed_);
 
         connect(
             manageVaults_,
@@ -592,8 +590,9 @@ private:
             common_missing);
     }
 
-    // A Vault's rename or move took entry to newEntry. Vaults nest, so entry
-    // may be, or hold, other vaults' folders, the Common Vault's among them.
+    // A rename or move took entry to newEntry: a Vault's, or Manage Vaults'
+    // (renameVaultFolder_). Vaults nest, so entry may be, or hold, vaults'
+    // folders, the Common Vault's among them.
     // Each vault follows its folder: the folder is the same, with everything
     // in it, so its Vault carries on at the new place (Vault::moveRoot), and
     // its window stays open. A change of letter case alone, where case is
@@ -675,6 +674,36 @@ private:
             appConfig_.save();
             emit vaultsChanged();
         }
+    }
+
+    // Manage Vaults' rename of a vault's folder, in place. No Vault does it,
+    // since the vault may not be open, so it's done here as a Vault does its
+    // own (Vault::relocate_): the store lets go of every watch inside the
+    // folder, every buffer's and every tree's, then the folder is renamed, and
+    // then the store moves every tree's row and every buffer, and announces
+    // the move. From there it's any other move of a folder holding vaults:
+    // the vault's record, and its Vault if it's open or the Common Vault,
+    // follow it (followVaults_). On failure the watches come back and nothing
+    // else changes
+    bool
+    renameVaultFolder_(const Coco::Path& oldRoot, const Coco::Path& newRoot)
+    {
+        auto old_key = PathKey::of(oldRoot);
+        auto new_key = PathKey::of(newRoot);
+
+        bufferStore_->unwatchAtOrUnder(old_key);
+
+        if (!Io::rename(oldRoot, newRoot)) {
+            bufferStore_->rewatchAtOrUnder(old_key);
+
+            WARN("Failed to rename vault folder {} to {}!", oldRoot, newRoot);
+            return false;
+        }
+
+        bufferStore_->applyRelocation(old_key, new_key);
+
+        INFO("Renamed vault folder {} -> {}", oldRoot, newRoot);
+        return true;
     }
 
     // The in-app twin of checkVaultFolders_: a Vault's trash of entry took
@@ -1014,20 +1043,6 @@ private:
             return;
         }
 
-        appConfig_.save();
-
-        emit vaultsChanged();
-    }
-
-    // ManageVaults already renamed the FOLDER on disk; App fixes the registry
-    // to match. One in-place path swap — lastUsedEpochMs and open ride along,
-    // so the entry keeps its recents position (a rename isn't a use) and its
-    // open/anchor role if it had one. Rename is gated to closed vaults that
-    // aren't the Common Vault, so no live Vault or window is keyed on oldRoot
-    // to re-point. save + vaultsChanged refreshes the list with the new name
-    void onVaultRenamed_(const Coco::Path& oldRoot, const Coco::Path& newRoot)
-    {
-        appConfig_.renameVault(oldRoot, newRoot);
         appConfig_.save();
 
         emit vaultsChanged();

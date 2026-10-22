@@ -53,14 +53,19 @@ public:
     // Two live providers, not cached values: ManageVaults can stay open while
     // vaults are opened from elsewhere, so it reads App's current state at
     // click/refresh time. startDirProvider yields the create/open MRU dir;
-    // vaultsProvider yields the MRO vaults list for the recents column
+    // vaultsProvider yields the MRO vaults list for the recents column.
+    // vaultRenamer renames a vault's folder in place, from its old root to its
+    // new one, and says whether it did: App's, so every vault's rename goes
+    // through App
     ManageVaults(
         std::function<Coco::Path()> startDirProvider,
         std::function<QList<VaultEntry>()> vaultsProvider,
+        std::function<bool(const Coco::Path&, const Coco::Path&)> vaultRenamer,
         QAction* quitAction)
         : QWidget(nullptr)
         , startDirProvider_(std::move(startDirProvider))
         , vaultsProvider_(std::move(vaultsProvider))
+        , vaultRenamer_(std::move(vaultRenamer))
     {
         setup_(quitAction);
     }
@@ -97,13 +102,6 @@ signals:
     // routes there rather than ManageVaults editing AppConfig
     void forgetVaultRequested(const Coco::Path& vaultRoot);
 
-    // Rename renames the FOLDER in place (same parent, new leaf name) — the one
-    // vault folder op that stays in the app; relocating/moving a vault is done
-    // by hand from outside. ManageVaults owns disk, so the rename runs here;
-    // this tells App to fix the registry to match — swap the path in the vaults
-    // list. Both roots are absolute
-    void vaultRenamed(const Coco::Path& oldRoot, const Coco::Path& newRoot);
-
     // Make the vault at vaultRoot the Common Vault, or have none. App owns the
     // choice (it's saved in fernanda.json) and every window's drawer, so these
     // route there
@@ -121,6 +119,10 @@ private:
     // Yields the MRO vaults list for the recents column. Same live-read
     // rationale as startDirProvider_ — App owns the data, this reads it fresh
     std::function<QList<VaultEntry>()> vaultsProvider_;
+
+    // Renames a vault's folder. App's, since App owns the vaults, open or not,
+    // and everything that follows a folder when it's renamed
+    std::function<bool(const Coco::Path&, const Coco::Path&)> vaultRenamer_;
 
     QListWidget* recentsList_ = nullptr;
 
@@ -298,10 +300,9 @@ private:
     }
 
     // Build the per-row menu on demand from the item's stashed flags. A
-    // condition that gates an item greys it: rename greys while the vault is
-    // in use — open in a window, or the Common Vault, whose Vault is live and
-    // watches the folder — and on a missing folder; remove-from-list greys
-    // while the vault is open; Set as Common Vault greys on a missing folder.
+    // condition that gates an item greys it: rename, reveal, and Set as Common
+    // Vault grey on a missing folder, and remove-from-list while the vault is
+    // open.
     //
     // The Common Vault's row offers Unset Common Vault in place of Set as
     // Common Vault and remove-from-list: it can be removed once it's unset, on
@@ -328,11 +329,11 @@ private:
 
         QMenu menu(this);
 
-        // Rename is a folder op: disabled on a vault in use (its live Vault
-        // holds the root and buffers — renaming underneath invalidates them)
-        // and on a missing folder (nothing there to rename)
+        // Rename is a folder op, so there must be a folder to rename. An open
+        // vault, or the Common Vault, follows its folder to the new name
+        // (App::followVaults_)
         auto rename_action = menu.addAction(tr("Rename…"));
-        rename_action->setEnabled(!open && !is_common && !missing);
+        rename_action->setEnabled(!missing);
         connect(rename_action, &QAction::triggered, this, [this, root] {
             onRenameVault_(root);
         });
@@ -375,12 +376,13 @@ private:
         menu.exec(recentsList_->viewport()->mapToGlobal(pos));
     }
 
-    // Gather a new name and perform the folder rename here — ManageVaults owns
-    // disk. On success App fixes the registry via vaultRenamed; on any failure
-    // the folder is unchanged, so we just report and leave the list alone. The
+    // Gather a new name and have App rename the folder. On success the list
+    // refreshes with the new name, through vaultsChanged; on any failure the
+    // folder is unchanged, so we just report and leave the list alone. The
     // name is checked by the same rules as a new vault's (UserTextEntry);
-    // like those, the checks are advisory, and the rename call is the
-    // authority
+    // like those, the checks are advisory, and the rename is the authority. A
+    // change of letter case alone is the same folder, so it isn't counted as
+    // one already there
     void onRenameVault_(const Coco::Path& oldRoot)
     {
         auto current_name = oldRoot.nameQString();
@@ -409,8 +411,10 @@ private:
         }
 
         auto new_root = oldRoot.parent() / new_name;
+        auto same_folder =
+            new_name.compare(current_name, Qt::CaseInsensitive) == 0;
 
-        if (new_root.exists()) {
+        if (!same_folder && new_root.exists()) {
             QMessageBox::warning(
                 this,
                 tr("Rename vault"),
@@ -418,16 +422,13 @@ private:
             return;
         }
 
-        if (!Coco::rename(oldRoot, new_root)) {
+        if (!vaultRenamer_(oldRoot, new_root)) {
             QMessageBox::warning(
                 this,
                 tr("Rename vault"),
                 tr("Couldn't rename the folder. It may be in use or "
                    "read-only."));
-            return;
         }
-
-        emit vaultRenamed(oldRoot, new_root);
     }
 };
 

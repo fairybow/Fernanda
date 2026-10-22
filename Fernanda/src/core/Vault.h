@@ -591,7 +591,7 @@ private:
         // says why)
         bufferStore_->unwatchAtOrUnder(oldKey);
 
-        if (!renameOnDisk_(old_path, new_path)) {
+        if (!Io::rename(old_path, new_path)) {
             bufferStore_->rewatchAtOrUnder(oldKey);
 
             WARN("Failed to relocate {} to {}!", old_path, new_path);
@@ -603,54 +603,6 @@ private:
 
         DEBUG(this, "Relocated {} -> {}", old_path, new_path);
         return newKey;
-    }
-
-    // The disk rename, with the case-only special case. A pure case change
-    // ("foo" -> "Foo") on a case-insensitive filesystem is refused by
-    // QFile::rename, which sees the target already existing (it's the same
-    // file), so route it through a temporary name. Best-effort restore if the
-    // second leg fails, so a half-rename never strands the file at the temp
-    // name
-    [[nodiscard]] bool
-    renameOnDisk_(const Coco::Path& oldPath, const Coco::Path& newPath) const
-    {
-        auto old_name = oldPath.nameQString();
-        auto new_name = newPath.nameQString();
-
-        if (old_name != new_name &&
-            old_name.compare(new_name, Qt::CaseInsensitive) == 0) {
-            auto temp = uniqueSiblingTemp_(oldPath);
-
-            if (!Coco::rename(oldPath, temp)) {
-                return false;
-            }
-
-            if (!Coco::rename(temp, newPath)) {
-                Coco::rename(temp, oldPath); // best-effort restore
-                return false;
-            }
-
-            return true;
-        }
-
-        return Coco::rename(oldPath, newPath);
-    }
-
-    // A path in `sibling`'s directory guaranteed not to exist, for the
-    // case-only rename's intermediate step
-    [[nodiscard]] Coco::Path uniqueSiblingTemp_(const Coco::Path& sibling) const
-    {
-        auto dir = sibling.parent();
-        auto base = sibling.nameQString() + u".fernanda-rename"_s;
-
-        auto candidate = dir / base;
-        auto n = 0;
-
-        while (candidate.exists()) {
-            candidate = dir / (base + QString::number(++n));
-        }
-
-        return candidate;
     }
 
     // A setter changed the config: show it now, write it a beat later.

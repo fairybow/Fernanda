@@ -18,6 +18,8 @@
 #include <QFile>
 #include <QIODevice>
 #include <QSaveFile>
+#include <QString>
+#include <Qt>
 
 #include <Coco/Bool.h>
 #include <Coco/Debug.h>
@@ -27,6 +29,8 @@
 // object. Kept in Fernanda rather than Coco until proven — the Coco::Disk relic
 // is deliberately not used here
 namespace Fernanda::Io {
+
+using namespace Qt::StringLiterals;
 
 inline QByteArray read(const Coco::Path& path)
 {
@@ -137,6 +141,43 @@ write(const QByteArray& data, const Coco::Path& path, CreateDirs createDirs)
             "Failed to commit file at {} (Error: {})!",
             path.prettyQString(),
             err);
+        return false;
+    }
+
+    return true;
+}
+
+// Rename or move a file or folder. Refused, changing nothing, when something
+// is already at newPath, unless it's the same entry spelled in another letter
+// case. A change of case alone ("foo" to "Foo") is refused by QFile::rename
+// where case is ignored, since the target exists (it's the same entry), so it
+// goes through a temporary name in the same folder. When the second step
+// fails, the entry is put back if it can be, so it's never left at the
+// temporary name
+inline bool rename(const Coco::Path& oldPath, const Coco::Path& newPath)
+{
+    auto old_name = oldPath.nameQString();
+    auto new_name = newPath.nameQString();
+
+    if (old_name == new_name ||
+        old_name.compare(new_name, Qt::CaseInsensitive) != 0) {
+        return Coco::rename(oldPath, newPath);
+    }
+
+    auto base = old_name + u".fernanda-rename"_s;
+    auto temp = oldPath.parent() / base;
+    auto n = 0;
+
+    while (temp.exists()) {
+        temp = oldPath.parent() / (base + QString::number(++n));
+    }
+
+    if (!Coco::rename(oldPath, temp)) {
+        return false;
+    }
+
+    if (!Coco::rename(temp, newPath)) {
+        Coco::rename(temp, oldPath);
         return false;
     }
 
