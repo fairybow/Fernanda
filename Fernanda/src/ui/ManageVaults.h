@@ -17,10 +17,9 @@
 
 #include <QAction>
 #include <QDesktopServices>
+#include <QDialog>
 #include <QHBoxLayout>
-#include <QInputDialog>
 #include <QLabel>
-#include <QLineEdit>
 #include <QList>
 #include <QListWidget>
 #include <QMenu>
@@ -41,7 +40,7 @@
 #include "ui/NewVaultDialog.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
-#include "ui/widgets/UserTextEntry.h"
+#include "ui/sidebar/RenameDialog.h"
 
 namespace Fernanda::Ui {
 
@@ -376,53 +375,24 @@ private:
         menu.exec(recentsList_->viewport()->mapToGlobal(pos));
     }
 
-    // Gather a new name and have App rename the folder. On success the list
-    // refreshes with the new name, through vaultsChanged; on any failure the
-    // folder is unchanged, so we just report and leave the list alone. The
-    // name is checked by the same rules as a new vault's (UserTextEntry);
-    // like those, the checks are advisory, and the rename is the authority. A
-    // change of letter case alone is the same folder, so it isn't counted as
-    // one already there
+    // Gather a new name and have App rename the folder. The dialog checks the
+    // name as it's typed, by the same rules as a new vault's (UserTextEntry),
+    // and against the folders beside it; like those, the checks are advisory,
+    // and the rename is the authority. On success the list refreshes with the
+    // new name, through vaultsChanged; on failure the folder is unchanged, so
+    // we just report and leave the list alone
     void onRenameVault_(const Coco::Path& oldRoot)
     {
-        auto current_name = oldRoot.nameQString();
+        auto name = oldRoot.nameQString();
 
-        auto ok = false;
-        auto new_name = QInputDialog::getText(
-                            this,
-                            tr("Rename vault"),
-                            tr("New name:"),
-                            QLineEdit::Normal,
-                            current_name,
-                            &ok)
-                            .trimmed();
+        RenameDialog
+            dialog(this, tr("Rename vault"), oldRoot.parent(), name, name, {});
 
-        if (!ok || new_name.isEmpty() || new_name == current_name) {
+        if (dialog.exec() != QDialog::Accepted) {
             return;
         }
 
-        if (auto problem = UserTextEntry::problemOf(new_name);
-            problem != UserTextEntry::Problem::None) {
-            QMessageBox::warning(
-                this,
-                tr("Rename vault"),
-                UserTextEntry::describe(problem));
-            return;
-        }
-
-        auto new_root = oldRoot.parent() / new_name;
-        auto same_folder =
-            new_name.compare(current_name, Qt::CaseInsensitive) == 0;
-
-        if (!same_folder && new_root.exists()) {
-            QMessageBox::warning(
-                this,
-                tr("Rename vault"),
-                tr("A folder named \"%1\" already exists here.").arg(new_name));
-            return;
-        }
-
-        if (!vaultRenamer_(oldRoot, new_root)) {
+        if (!vaultRenamer_(oldRoot, oldRoot.parent() / dialog.newLeaf())) {
             QMessageBox::warning(
                 this,
                 tr("Rename vault"),

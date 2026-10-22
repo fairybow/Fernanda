@@ -341,8 +341,13 @@ private:
             suffix = name.mid(initial_stem.size());
         }
 
-        RenameDialog
-            dialog(this, absolute.parent(), name, initial_stem, suffix);
+        RenameDialog dialog(
+            this,
+            tr("Rename"),
+            absolute.parent(),
+            name,
+            initial_stem,
+            suffix);
         if (dialog.exec() != QDialog::Accepted) {
             return;
         }
