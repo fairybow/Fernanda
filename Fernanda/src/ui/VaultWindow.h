@@ -888,9 +888,8 @@ private:
     }
 
     // The view takes its words again when the Common Vault's words change.
-    // Nothing
-    // when there's no Common Vault, or this window is it: then its words are
-    // this vault's, which the view already follows
+    // Nothing when there's no Common Vault, or this window is it: then its
+    // words are this vault's, which the view already follows
     void followCommonWords_(AbstractFileView* view)
     {
         if (commonVault_ && commonVault_ != vault_) {
