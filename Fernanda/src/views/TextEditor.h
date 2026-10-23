@@ -124,8 +124,8 @@ private:
 // The current-line highlight is a band across the row the text cursor is on:
 // one visual row of a wrapped paragraph, not the whole paragraph. It is an
 // extra selection, as in Qt's example, in the light or dark page's color
-// (LINE_HIGHLIGHT_LIGHT, LINE_HIGHLIGHT_DARK).
-// Shown whether or not the editor has focus.
+// (LINE_HIGHLIGHT_LIGHT, LINE_HIGHLIGHT_DARK). Shown whether or not the editor
+// has focus.
 //
 // Double-click whitespace: a double-click on a run of whitespace selects the
 // run (Qt's own double-click selects a word, and does nothing useful on
@@ -143,9 +143,8 @@ private:
 // and to offer them each mouse event before handling it itself.
 //
 // Typing helpers (views/TypingHelpers.h): auto-pairing of brackets and quotes,
-// and stepping past closing punctuation.
-// The editor offers them each key press before handling it itself, and tells
-// them when the caret moves
+// and stepping past closing punctuation. The editor offers them each key press
+// before handling it itself, and tells them when the caret moves
 class TextEditor : public QPlainTextEdit
 {
     Q_OBJECT

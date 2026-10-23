@@ -71,10 +71,9 @@ public:
     // Re-point this buffer after its file — or an ancestor folder — was renamed
     // in place. The store owns identity and calls this after the on-disk rename
     // and map re-key. Emits renamed() so views retitle: a direct file rename
-    // changes title()
-    // (the stem); an ancestor-folder rename leaves the stem the same, and the
-    // view's windowTitle simply doesn't re-emit when the text is unchanged, so
-    // a folder rename re-keys with no tab churn
+    // changes title() (the stem); an ancestor-folder rename leaves the stem the
+    // same, and the view's windowTitle simply doesn't re-emit when the text is
+    // unchanged, so a folder rename re-keys with no tab churn
     void renameTo(const PathKey& newKey)
     {
         key_ = newKey;

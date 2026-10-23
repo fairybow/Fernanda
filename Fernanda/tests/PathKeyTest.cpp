@@ -144,7 +144,7 @@ private slots:
 
         auto through_link = f.key(u"link/notes.txt"_s);
 
-        QVERIFY(!(through_link == f.key(u"real/notes.txt"_s)));
+        QVERIFY(through_link != f.key(u"real/notes.txt"_s));
         QVERIFY(through_link.isUnder(f.key({})));
 
 #endif
@@ -163,7 +163,7 @@ private slots:
 
 #else
 
-        QVERIFY(!(lower == upper));
+        QVERIFY(lower != upper);
 
 #endif
 

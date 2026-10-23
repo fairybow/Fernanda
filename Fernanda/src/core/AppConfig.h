@@ -163,9 +163,9 @@ public:
     // Promote a vault to most-recently-used by stamping its lastUsedEpochMs
     // with now — an upsert: a first-time vault is appended (open false, the
     // caller sets it), a known one is bumped and keeps the spelling it was
-    // recorded with. Used by both the open convergence
-    // point and window activation, so recency tracks last USE, not merely last
-    // open. Memory only; the caller saves
+    // recorded with. Used by both the open convergence point and window
+    // activation, so recency tracks last USE, not merely last open. Memory
+    // only; the caller saves
     void touchVault(const Coco::Path& root)
     {
         auto last_used = Coco::Time::epoch();

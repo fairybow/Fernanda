@@ -159,8 +159,10 @@ inline bool rename(const Coco::Path& oldPath, const Coco::Path& newPath)
     auto old_name = oldPath.nameQString();
     auto new_name = newPath.nameQString();
 
-    if (old_name == new_name ||
-        old_name.compare(new_name, Qt::CaseInsensitive) != 0) {
+    auto case_only = old_name != new_name &&
+                     old_name.compare(new_name, Qt::CaseInsensitive) == 0;
+
+    if (!case_only) {
         return Coco::rename(oldPath, newPath);
     }
 

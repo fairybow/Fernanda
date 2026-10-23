@@ -56,9 +56,9 @@ inline const QString EXPANDED = u"expanded"_s;
 
 // Keys of the EXPANDED object: this vault's file tree, and the common drawer
 // tree (absent when the window has no common drawer: there's no Common Vault,
-// or this window is it). Same spelling as
-// VAULT_THIS / VAULT_COMMON below but a different role — kept separate so the
-// two can never be conflated or drift together
+// or this window is it). Same spelling as VAULT_THIS / VAULT_COMMON below but a
+// different role — kept separate so the two can never be conflated or drift
+// together
 inline const QString EXPANDED_THIS = u"this"_s;
 inline const QString EXPANDED_COMMON = u"common"_s;
 

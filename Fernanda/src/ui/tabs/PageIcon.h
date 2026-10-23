@@ -46,12 +46,11 @@ namespace Fernanda::Ui {
 //
 // Set at view construction, and again when a file renamed or moved from another
 // vault (vaults nest) lands in the other of the window's two vaults, or the
-// Common Vault changes. The leaf
-// applies the mark wherever a tab gains a page; a change made under a tab is
-// drawn when the window asks (TabPaneTree::refreshPageIcon), since unlike the
-// title there is no change signal for the leaf to bind. A tab dragged into
-// another window's family is refused by familyId, so a mark never needs to
-// change for that.
+// Common Vault changes. The leaf applies the mark wherever a tab gains a page;
+// a change made under a tab is drawn when the window asks
+// (TabPaneTree::refreshPageIcon), since unlike the title there is no change
+// signal for the leaf to bind. A tab dragged into another window's family is
+// refused by familyId, so a mark never needs to change for that.
 //
 // The consolidation noted in PagePin would cover this too: a shared TabPage :
 // QWidget base carrying pin, title, and mark as typed members would unite what

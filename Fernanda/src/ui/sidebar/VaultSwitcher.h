@@ -196,9 +196,9 @@ public:
 
     ~VaultSwitcher() override { TRACER; }
 
-    // Either root moved (Vault::moveRoot), or the Common Vault's
-    // changed. The button shows the new name at once; the menu is rebuilt on
-    // each show anyway
+    // Either root moved (Vault::moveRoot), or the Common Vault's changed. The
+    // button shows the new name at once; the menu is rebuilt on each show
+    // anyway
     void setVaultRoots(
         const Coco::Path& currentVaultRoot,
         const Coco::Path& commonVaultRoot)
@@ -267,10 +267,9 @@ private:
             // Switcher = OTHER, openable vaults. Skip this window's own vault,
             // the Common Vault (it has an item of its own below while there is
             // one, so it never rides the recents list here), and missing/moved
-            // ones — you
-            // can't switch to a folder that isn't there. Those surface (with a
-            // warning and a remove action) in ManageVaults, which is what the
-            // permanent "Manage Vaults" item below is for.
+            // ones — you can't switch to a folder that isn't there. Those
+            // surface (with a warning and a remove action) in ManageVaults,
+            // which is what the permanent "Manage Vaults" item below is for.
             //
             // This window's vault is compared as a key, not as written: a
             // record keeps the spelling it was first made with, and the vault

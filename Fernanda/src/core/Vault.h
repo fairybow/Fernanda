@@ -91,12 +91,12 @@ public:
         return key.isAtOrUnder(rootKey_);
     }
 
-    // Every file this vault shows — the FileSwitcher's listing.
-    // Walked fresh on each call: no index and no watcher, so the list is a
-    // snapshot of the moment it's asked for. Agrees with the trees by
-    // construction — the same two predicates VaultTreeModel lists by. A hidden
-    // folder (.fernanda/, .git/) is pruned, never walked; a file must be
-    // neither hidden nor unsupported. Unsorted
+    // Every file this vault shows — the FileSwitcher's listing. Walked fresh on
+    // each call: no index and no watcher, so the list is a snapshot of the
+    // moment it's asked for. Agrees with the trees by construction — the same
+    // two predicates VaultTreeModel lists by. A hidden folder (.fernanda/,
+    // .git/) is pruned, never walked; a file must be neither hidden nor
+    // unsupported. Unsorted
     [[nodiscard]] QList<PathKey> visibleFiles() const
     {
         auto absolutes =
@@ -173,10 +173,10 @@ public:
         return PathKey::of(absolute);
     }
 
-    // Create an empty file at a key named in full, making any
-    // missing folders above it. This is Go to File's create: the user typed
-    // the path, so the folders in it are theirs to make, where createFile's
-    // folder must already be there. The vault's own folder is never recreated.
+    // Create an empty file at a key named in full, making any missing folders
+    // above it. This is Go to File's create: the user typed the path, so the
+    // folders in it are theirs to make, where createFile's folder must already
+    // be there. The vault's own folder is never recreated.
     //
     // Returns false, having made nothing, for a key that isn't inside the
     // vault, has a hidden name anywhere below the root, isn't a text file (an

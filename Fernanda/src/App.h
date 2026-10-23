@@ -167,13 +167,15 @@ public:
 
 signals:
     // The vaults list OR its derived open-state changed — a vault opened,
-    // closed, removed, or renamed. A live ManageVaults rebuilds its recents
-    // column and re-evaluates its per-row gates (rename / remove-from-list);
-    // the VaultSwitcher menus rebuild on aboutToShow instead, so they don't
-    // need this. Fired from onOpenOrMakeVaultRequested_ (after save) on open,
-    // from onVaultWindowDestroyed_ on close, from the registry-edit slots on
-    // remove / rename, and from followVaults_ when an in-app rename or move
-    // takes known vaults' folders with it
+    // closed, removed, renamed, or moved. A live ManageVaults rebuilds its
+    // recents column and re-evaluates its per-row gates (remove-from-list
+    // greys while a vault is open); the VaultSwitcher menus rebuild on
+    // aboutToShow instead, so they don't need this. Fired from
+    // onOpenOrMakeVaultRequested_ (after save) on open, from
+    // onVaultWindowDestroyed_ on close, from onForgetVaultRequested_ on
+    // remove, from setCommonVault_, and from followVaults_ when a rename or
+    // move, in a vault's tree or in Manage Vaults, takes known vaults' folders
+    // with it
     void vaultsChanged();
 
 public slots:
@@ -487,10 +489,10 @@ private:
             &App::onManageVaultsDestroyed_);
 
         // Keep a picker left open in sync when the list changes under it — a
-        // vault opened from a CLI arg, or removed / renamed via a row action.
-        // onOpenOrMakeVaultRequested_ emits vaultsChanged after each committed
-        // open; manageVaults_ as the receiver auto-disconnects when it's
-        // destroyed
+        // vault opened from a CLI arg, removed via a row action, or renamed or
+        // moved (followVaults_). onOpenOrMakeVaultRequested_ emits
+        // vaultsChanged after each committed open; manageVaults_ as the
+        // receiver auto-disconnects when it's destroyed
         connect(
             this,
             &App::vaultsChanged,
@@ -593,6 +595,7 @@ private:
     // A rename or move took entry to newEntry: a Vault's, or Manage Vaults'
     // (renameVaultFolder_). Vaults nest, so entry may be, or hold, vaults'
     // folders, the Common Vault's among them.
+    //
     // Each vault follows its folder: the folder is the same, with everything
     // in it, so its Vault carries on at the new place (Vault::moveRoot), and
     // its window stays open. A change of letter case alone, where case is
@@ -1002,8 +1005,8 @@ private:
         }
 
         // A close changes derived open-state, so a picker left up re-enables
-        // this row's rename / remove-from-list. The entry left openVaults_
-        // above, so vaultEntries() already sees this vault as closed
+        // this row's remove-from-list. The entry left openVaults_ above, so
+        // vaultEntries() already sees this vault as closed
         emit vaultsChanged();
 
         // Last vault gone. Quit unless the picker is up for the user to reopen
@@ -1145,9 +1148,8 @@ private:
         // each window already flushed the buffers it showed in its closeEvent,
         // so this reduces to any buffer no window showed (a viewless one whose
         // eviction flush failed) and the settings; a still-open window is
-        // caught too. The save persists the open set and
-        // the last-used timestamps bumped in memory on activation since the
-        // last open
+        // caught too. The save persists the open set and the last-used
+        // timestamps bumped in memory on activation since the last open
         quitting_ = true;
 
         flushAll_();

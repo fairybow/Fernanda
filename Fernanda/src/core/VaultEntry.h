@@ -31,10 +31,10 @@ namespace Fernanda {
 //
 // `open` reads in-memory state rather than the disk: it's true when a window
 // currently holds this vault (openVaults_). ManageVaults gates on it — a row's
-// remove-from-list is disabled while that vault is open — so keeping it on
-// the entry puts the open-vault knowledge in one place. It's
-// fresh per build and the surfaces rebuild on vaultsChanged (which fires on
-// close as well as open), so it never goes stale under a live picker.
+// remove-from-list is disabled while that vault is open — so keeping it on the
+// entry puts the open-vault knowledge in one place. It's fresh per build and
+// the surfaces rebuild on vaultsChanged (which fires on close as well as open),
+// so it never goes stale under a live picker.
 //
 // `isCommon` marks the row that IS the Common Vault, when there is one. Derived
 // by App for the same reason as the rest: App is the only object that holds

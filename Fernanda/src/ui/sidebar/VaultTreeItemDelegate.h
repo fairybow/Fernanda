@@ -42,10 +42,10 @@ namespace Fernanda::Ui {
 // or Folder / FolderOpen by expansion) and each file row with an extension
 // badge: the extension, uppercased, in muted letters against the view's right
 // edge (ui/widgets/RowBadges.h, without a border), the way Obsidian marks its
-// non-Markdown files. The row's text is
-// only the file's stem (VaultTreeModel::data), so the badge is the one place
-// the extension shows. Every file but a .txt gets one; folders never do. As
-// the view narrows, the name elides; the badge never does.
+// non-Markdown files. The row's text is only the file's stem
+// (VaultTreeModel::data), so the badge is the one place the extension shows.
+// Every file but a .txt gets one; folders never do. As the view narrows, the
+// name elides; the badge never does.
 //
 // The glyphs are a deliberate divergence: core Obsidian's explorer shows none.
 // They live here, not in the model, because the model is QtCore-only and a

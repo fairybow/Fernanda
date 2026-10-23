@@ -235,8 +235,8 @@ public:
     // every buffer at or under the key, so a folder's whole contents follow it
 
     // A vault's file tree, which the functions below reach along with the
-    // buffers. Every Vault adds its own at construction; it
-    // leaves the list when it's destroyed
+    // buffers. Every Vault adds its own at construction; it leaves the list
+    // when it's destroyed
     void addTree(VaultTreeModel* tree)
     {
         trees_ << tree;
