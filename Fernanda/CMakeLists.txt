@@ -232,7 +232,6 @@ set(APP_HEADERS
     src/ui/settings/SettingsStatusBarPage.h
 
     src/ui/sidebar/Drawer.h
-    src/ui/sidebar/RenameDialog.h
     src/ui/sidebar/SettingsButton.h
     src/ui/sidebar/Sidebar.h
     src/ui/sidebar/VaultEntryDragMime.h
@@ -268,6 +267,7 @@ set(APP_HEADERS
     src/ui/NewVaultDialog.h
     src/ui/OpenMode.h
     src/ui/PopoutWindow.h
+    src/ui/RenameDialog.h
     src/ui/Style.h
     src/ui/UiConstants.h
     src/ui/UiUtility.h

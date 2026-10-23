@@ -38,9 +38,9 @@
 #include "core/VaultEntry.h"
 #include "ui/AboutPanel.h"
 #include "ui/NewVaultDialog.h"
+#include "ui/RenameDialog.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
-#include "ui/sidebar/RenameDialog.h"
 
 namespace Fernanda::Ui {
 
