@@ -327,6 +327,24 @@ public:
             // drawn, below the gap at its top (see drawTabShape_). Its text
             // and icon are too, by the label's own rect (CE_TabBarTabLabel)
             return rect.translated(0, STYLE_TAB_TOP_GAP / 2);
+        case SE_ItemViewItemText:
+            // In a list, an item's text keeps the list's margin from the row's
+            // edges, and a tree's from an icon before it, as in a tree. Left to
+            // the list's margin there too, the text sits well away from its
+            // icon, which itself is where the other rows' text begins
+            if (auto* item =
+                    qstyleoption_cast<const QStyleOptionViewItem*>(option);
+                item &&
+                (item->features & QStyleOptionViewItem::HasDecoration) &&
+                qobject_cast<const QAbstractItemView*>(widget) &&
+                !qobject_cast<const QTreeView*>(widget)) {
+                return rect.adjusted(
+                    STYLE_TREE_ROW_TEXT_MARGIN - STYLE_LIST_ROW_TEXT_MARGIN,
+                    0,
+                    0,
+                    0);
+            }
+            return rect;
         default:
             return rect;
         }

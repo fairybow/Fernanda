@@ -18,16 +18,18 @@
 #include <QAction>
 #include <QDesktopServices>
 #include <QDialog>
+#include <QEvent>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QLabel>
 #include <QList>
 #include <QListWidget>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPalette>
 #include <QPoint>
 #include <QPushButton>
 #include <QSize>
-#include <QStyle>
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -41,8 +43,11 @@
 #include "ui/RenameDialog.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
+#include "ui/widgets/Glyph.h"
 
 namespace Fernanda::Ui {
+
+using namespace Qt::StringLiterals;
 
 class ManageVaults : public QWidget
 {
@@ -106,6 +111,19 @@ signals:
     // route there
     void commonVaultSetRequested(const Coco::Path& vaultRoot);
     void commonVaultUnsetRequested();
+
+protected:
+    // The missing rows' glyph is tinted from the palette when the list is
+    // built, so a new palette (the system switching between light and dark)
+    // builds the list again
+    void changeEvent(QEvent* event) override
+    {
+        QWidget::changeEvent(event);
+
+        if (event->type() == QEvent::PaletteChange && recentsList_) {
+            refreshRecents();
+        }
+    }
 
 private:
     // Yields the directory the create/open dialogs should start in — the
@@ -204,6 +222,16 @@ private:
 
         recentsList_ = new QListWidget(this);
 
+        // Only a missing row has an icon. The icon size is the glyph's, so its
+        // name sits beside the glyph; left unset, the list makes room for the
+        // largest size the icon offers. And every row gets one height: the
+        // style lays out a row with an icon a couple of pixels taller than one
+        // without, however small the icon
+        recentsList_->setIconSize(QSize(
+            MANAGE_VAULTS_MISSING_ICON_EXTENT,
+            MANAGE_VAULTS_MISSING_ICON_EXTENT));
+        recentsList_->setUniformItemSizes(true);
+
         // Activation (double-click / Enter) opens; a stray single click while
         // scanning the list shouldn't launch a window. Single-click-to-open is
         // a one-line switch to itemClicked if we want Obsidian's exact feel
@@ -232,7 +260,7 @@ private:
     }
 
     // One row. Text is the vault name; the open target and the three gate flags
-    // ride in item data. A missing folder gets the standard warning icon and is
+    // ride in item data. A missing folder gets the warning glyph and is
     // disabled, so it can't activate — the teeth of the missing state
     QListWidgetItem* buildRecentItem_(const VaultEntry& entry)
     {
@@ -243,7 +271,7 @@ private:
         item->setData(CommonRole_, entry.isCommon);
 
         if (entry.missing) {
-            item->setIcon(style()->standardIcon(QStyle::SP_MessageBoxWarning));
+            item->setIcon(missingIcon_());
             item->setToolTip(
                 tr("Folder not found — %1").arg(entry.root.prettyQString()));
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
@@ -252,6 +280,25 @@ private:
         }
 
         return item;
+    }
+
+    // The warning glyph, tinted as the disabled row's name is. Given for the
+    // Disabled mode too, since the row is always disabled: the style would
+    // otherwise grey the tinted glyph a second time
+    [[nodiscard]] QIcon missingIcon_() const
+    {
+        auto pixmap = Glyph::render(
+            u":/lucide/TriangleAlert.svg"_s,
+            MANAGE_VAULTS_MISSING_ICON_EXTENT,
+            recentsList_->palette().color(
+                QPalette::Disabled,
+                MANAGE_VAULTS_MISSING_ICON_ROLE),
+            recentsList_->devicePixelRatioF());
+
+        QIcon icon{};
+        icon.addPixmap(pixmap, QIcon::Normal);
+        icon.addPixmap(pixmap, QIcon::Disabled);
+        return icon;
     }
 
     void onNewVaultClicked_()

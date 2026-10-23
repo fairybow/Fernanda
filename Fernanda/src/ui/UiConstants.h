@@ -233,6 +233,12 @@ inline constexpr auto SETTINGS_NAV_GROUP_TITLE_ROLE = QPalette::PlaceholderText;
 inline constexpr int MANAGE_VAULTS_WIDTH = 560;
 inline constexpr int MANAGE_VAULTS_HEIGHT = 380;
 
+// The glyph beside a vault whose folder is missing, in the vault picker's
+// list. EXTENT is its square size, the vault trees' icon size. Tinted with ROLE
+// from the Disabled group, as the row's greyed name is drawn
+inline constexpr int MANAGE_VAULTS_MISSING_ICON_EXTENT = TREE_ICON_EXTENT;
+inline constexpr auto MANAGE_VAULTS_MISSING_ICON_ROLE = QPalette::Text;
+
 // The licenses dialog (LicensesDialog): its opening size, and the width of the
 // list of works down its left
 inline constexpr int LICENSES_DIALOG_WIDTH = 860;
