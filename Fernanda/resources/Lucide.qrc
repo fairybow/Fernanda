@@ -18,6 +18,7 @@
         <file>lucide/Pin.svg</file>
         <file>lucide/Plus.svg</file>
         <file>lucide/Settings.svg</file>
+        <file>lucide/TriangleAlert.svg</file>
         <file>lucide/X.svg</file>
     </qresource>
 </RCC>
