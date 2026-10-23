@@ -176,6 +176,14 @@ protected:
 
     void mousePressEvent(QMouseEvent* event) override
     {
+        // A press off every row, with either button, clears the selection and
+        // the current row, as the system's file explorers do. Obsidian keeps
+        // its selection until another entry is clicked
+        if (!indexAt(event->pos()).isValid()) {
+            clearSelection();
+            selectionModel()->clearCurrentIndex();
+        }
+
         if (event->button() == Qt::LeftButton) {
             dragStartPos_ = event->pos();
 

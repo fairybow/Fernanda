@@ -4,6 +4,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
+- [ ] May want to allow clicking to left or right of file in tree to also clear selection (right now clearing selection only works when clicking below all files in a tree)
 - [ ] VaultSwitcher's menu should open upward
 - [ ] "Go to file" on a new tab in a pop-out used to activate the main window and never return focus to the pop-out. Likely fixed now that the switcher opens over the page's own window: verify
 - [ ] Pop-out Z-order isn't restored: a pop-out that was in front of its vault window comes back behind it. Vault windows restore in the right order among themselves, so this may be pop-outs only, and may not be fixable (which would be fine)
