@@ -11,19 +11,27 @@ A vault is a folder on your computer. Fernanda adds one hidden folder to it, `.f
 - A vault can live anywhere. Opening a folder as a vault is all it takes to make one
 - Several vaults can be open at once, each in its own window
 - Quitting and relaunching reopens every vault that was open, with its windows, tabs, and layout
-- Vaults may be nested inside one another, and may sit inside a Git repository
+- Vaults may be nested inside one another, and may sit inside a Git repository. A project vault may even contain the Common Vault
+- A file inside two open vaults is one document in every window. Renaming, moving, or deleting it from either vault carries every window's tabs with it, and a folder expanded in one window stays expanded after another window renames or moves it
+- A file moved out of a vault from another vault's window has its tabs closed in that vault's windows, and keeps them wherever it is still inside the window's vault. Typing not yet saved goes with the file
+- Renaming or moving a vault's folder from the file tree of a vault that contains it keeps the vault open at its new place: its window, tabs, settings, dictionary, recent files, and entry in the vault list all follow. So does renaming or moving a folder that holds other vaults' folders
+- Deleting a folder that holds another open vault closes that vault's window, with a message, as when its folder is deleted outside Fernanda
 - One Fernanda process holds every open vault
 
 ### The Common Vault
 
-One vault is shared by every project: the Common Vault, for templates, notes, and reference material you want within reach whatever you are working on.
+One vault can be shared by every project: the Common Vault, for templates, notes, and reference material you want within reach whatever you are working on.
 
-- Lives at `Documents/Fernanda/Common Vault`, and is created for you
-- Every vault window shows it in a collapsible drawer under the vault's own file tree
+- On first launch, Fernanda makes one at `Documents/Fernanda/Common Vault`
+- Any vault can be the Common Vault: right-click it in Manage Vaults and choose Set as Common Vault. Unset Common Vault leaves you with none
+- Every vault window shows it in a collapsible drawer under the vault's own file tree. Hovering over the drawer's header shows the Common Vault's name. The Common Vault's own window has no drawer
 - A Common Vault file open in two windows is one document: an edit in one appears in the other as you type
-- Tabs holding a Common Vault file are marked with a box icon
+- Tabs holding a Common Vault file are marked with a box icon, in the windows of vaults that don't contain the Common Vault. In a vault that does, its files are that vault's own. The icon follows its file: a file moved between the Common Vault and a window's own vault gains or loses it in place
+- Words in its dictionary are accepted in every vault
 - Can be opened as a window of its own, from the vault switcher
-- If its folder is deleted, Fernanda recreates it empty
+- Setting another Common Vault, or none, takes effect at once in every window: drawers appear or go, and a tab on a file that no longer belongs to either of its window's vaults closes
+- Renaming it in Manage Vaults, or renaming or moving its folder from a vault that contains it, keeps it the Common Vault at the new place. Its own window, if open, stays open
+- If its folder is deleted or moved outside Fernanda, or deleted from a vault that contains it, there is no Common Vault until you set one
 
 ### Manage Vaults
 
@@ -32,13 +40,15 @@ The vault picker. It opens on first launch, whenever there is no vault to reopen
 - Create new vault (a name and a location)
 - Open folder as vault
 - Recent vaults, most recently used first. A vault whose folder is gone is shown as missing
-- Right-click a vault to rename it, reveal it in the file explorer, or remove it from the list. Removing never touches the folder
-- A vault that is open can't be renamed or removed until its window is closed. The Common Vault can't be renamed at all
+- Right-click a vault to rename it, reveal it in the file explorer, set it as the Common Vault, or remove it from the list. Removing never touches the folder. The Common Vault's own entry offers Unset Common Vault in place of Set and Remove
+- Renaming a vault renames its folder. A vault that is open, and the Common Vault, stay open under the new name
+- A vault that is open can't be removed from the list until its window is closed. The Common Vault is removed by unsetting it, then removing it
+- A new name is checked as you type, by the same rules as a new vault's
 - **Licenses**, under the version, lists Fernanda and everything it is built on or bundles (Qt, Hunspell, the dictionary, the fonts, and the icons), each with its license text
 
 ### Vault switcher
 
-At the bottom of the sidebar. Lists your other vaults, opens the Common Vault, and opens Manage Vaults. Choosing a vault that is already open brings its window forward.
+At the bottom of the sidebar. Lists your other vaults, opens the Common Vault (when there is one), and opens Manage Vaults. Choosing a vault that is already open brings its window forward.
 
 ## Saving
 
@@ -46,7 +56,7 @@ There is no Save command and no unsaved state.
 
 - Every file exists on disk from the moment it is created. There are no untitled, in-memory documents
 - Changes are written about a second after you stop typing, and at least every three seconds while you keep typing
-- Everything is also written when Fernanda loses focus, when a window closes, on quit, and on logout
+- Everything is also written when Fernanda loses focus, on quit, and on logout. A window that closes writes the files it shows
 - If a file can't be saved, the window refuses to close and names the files, so nothing is lost by closing
 - Text is written back exactly as it was read, apart from your edits: line endings (LF or CRLF), a byte order mark, no-break spaces, and other special characters are preserved. A new file uses LF
 
@@ -57,7 +67,7 @@ Files are expected to be edited elsewhere too: in another editor, by Git, by a s
 - A file changed outside Fernanda reloads in place. The reload is one undo step, so Ctrl+Z brings back what you had
 - A file deleted, moved, or renamed outside Fernanda has its tabs closed, in every window
 - Files and folders created, renamed, or removed outside Fernanda appear in the file trees on their own
-- If an open vault's folder is deleted or moved, Fernanda tells you and closes that vault's window when you return to it. It never recreates the folder
+- If an open vault's folder is deleted or moved, Fernanda tells you and closes that vault's window when you return to it. It never recreates the folder. If it was the Common Vault's, there is no Common Vault until you set one
 - Many files changing at once (a Git checkout, a sync) are handled as one pass
 
 ## Files
@@ -96,7 +106,7 @@ Ctrl+O, or "Go to file" on a new tab. A search field over every file in the vaul
 - Matches in the file name rank above matches in the folder path
 - With nothing typed, the files you opened most recently come first, newest first and labeled RECENT, followed by every other file. If the top one is the file you're in, the next is selected, so Ctrl+O then Enter goes back to the previous file
 - Enter opens the file in the current tab. Ctrl+Enter opens it in a new tab
-- Common Vault files are labeled COMMON
+- Common Vault files are labeled COMMON. A file the window's own vault also contains is listed once, as the window's own
 - Recent files are remembered per vault
 - To create a file, type its name: Enter creates it when nothing matches, and Shift+Enter creates it even when something does. Hold Ctrl as well to open it in a new tab. A line under the field says which file Enter or Shift+Enter would create, or what is wrong with the name
 - A new file's name counts from the vault's root, and `/` puts it in folders, which are made if they're missing (`drafts/Chapter 2`). A name without `.txt`, `.md`, `.markdown`, or `.fountain` gets `.txt`. If the file is already there, it opens instead
@@ -240,7 +250,7 @@ Fernanda's menus, settings, and messages are in English and Spanish.
 
 Deleting `.fernanda/` while the vault is closed resets its settings, layout, and dictionary, and nothing else.
 
-The list of known vaults is kept outside any vault, in Fernanda's application data folder. So are the spelling dictionaries, in its `dictionaries` folder. The bundled one is copied there on launch if it's missing, and never overwritten.
+The list of known vaults, and which of them is the Common Vault, is kept outside any vault, in Fernanda's application data folder. So are the spelling dictionaries, in its `dictionaries` folder. The bundled one is copied there on launch if it's missing, and never overwritten.
 
 ## Keyboard shortcuts
 
@@ -268,6 +278,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 
 - **Plain text first.** `.txt` is the default type (Obsidian doesn't open it). There is no Markdown rendering, and no links, backlinks, tags, or metadata
 - **A Common Vault shared by every vault** (see [The Common Vault](#the-common-vault)). Obsidian has no way to share files between vaults; its help advises against the symlinks people use for it
+- **Vaults inside vaults are supported.** A file inside two open vaults is one document in every window, and the vaults' file operations keep every window in step. Obsidian's help has recommended against nesting vaults
 - **Line endings are preserved.** Obsidian rewrites them to LF
 - **A failed save refuses the window close.** Obsidian shows a notice and closes
 - **A dropped file opens.** A file dragged onto an editor opens there; in Obsidian it inserts a link
@@ -282,8 +293,8 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **Images zoom**, like PDFs
 - **File and folder icons** in the file tree
 - **No fallback trash.** If the system trash refuses an entry, Fernanda declines; Obsidian moves it to a `.trash` folder in the vault
-- **A vault whose folder vanishes has its window closed**, after a message, where Obsidian leaves an empty window open
-- **No in-app vault moving.** Move the folder in your file manager, then open it from its new place
+- **A vault whose folder vanishes has its window closed**, after a message, where Obsidian leaves an empty window open. This includes a vault folder deleted from inside another vault
+- **No Move Vault command.** Obsidian's vault switcher can move a vault to another folder. In Fernanda, move the folder from the file tree of a vault that contains it, and the vault follows; or move it in your file manager, then open it from its new place
 - **Licenses are in the app.** Obsidian lists its third-party credits on its help site
 - **No light or dark setting.** Fernanda always follows the system. Obsidian follows it by default and can be set to light or dark
 - **Stepping past closing punctuation** is Fernanda's own, as is the switch over both typing helpers
@@ -294,7 +305,9 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 
 - A file name with a period and no real extension (`Chapter 1. The Start`) is read as having an unsupported extension, so the file is hidden
 - On Windows, while Fernanda is open, other programs can't rename or delete a folder if one of its subfolders has been expanded in a file tree or holds an open file. Fernanda's own rename, move, and delete are unaffected
-- A moved or renamed vault folder is a new vault to Fernanda: open it again from its new place. Its settings and layout travel with it
+- A vault folder moved or renamed outside Fernanda is a new vault to Fernanda: open it again from its new place. Its settings and layout travel with it
+- A Common Vault whose folder can't be found at launch, such as one on a drive that isn't connected, is unset as if the folder were gone. Set it again from Manage Vaults
+- A folder linked into a vault (a symlink or junction) works as part of the vault. A file that can be reached two ways, through a link and directly, is two documents, which can save over each other. Keep a linked folder's target outside every vault, as Obsidian also asks
 - Word counts run low for Thai, Lao, Khmer, and Myanmar text
 - Spelling suggestions can take a moment to appear for a long or badly garbled word
 - Right-to-left layouts are not supported

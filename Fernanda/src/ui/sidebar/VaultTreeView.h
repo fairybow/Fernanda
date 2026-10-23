@@ -57,7 +57,7 @@ using namespace Qt::StringLiterals;
 // dragging an entry to move it.
 //
 // It does NOT use the item view's built-in model DnD. A model-driven drop would
-// move the file on disk behind the Vault's buffer re-keying, watcher, and
+// move the file on disk behind the BufferStore's re-keying, watcher, and
 // write-fingerprint moves, so the model carries no DnD flags and stays out of
 // it: DropOnly disables the base's model-driven drag start (we start our own
 // QDrag, TabBar-style), while leaving the view a drop target so our own
@@ -66,10 +66,10 @@ using namespace Qt::StringLiterals;
 // Vault's move.
 //
 // Scope is the vault root: a drag is accepted only if its source path lives
-// under root_, which forbids cross-vault drops (the common tree's root differs)
-// and rejects any foreign/OS drag for free. The move itself is same-tree; a
-// drop onto an editor pane (opening the file) is a separate accept site
-// (TabPaneTree).
+// under the model's root, which forbids cross-vault drops (the common tree's
+// root differs) and rejects any foreign/OS drag for free. The move itself is
+// same-tree; a drop onto an editor pane (opening the file) is a separate accept
+// site (TabPaneTree).
 //
 // And it paints its own expand / collapse chevrons: Lucide ChevronRight /
 // ChevronDown in one muted tint, collapsed or expanded, in place of the style's
@@ -80,12 +80,13 @@ class VaultTreeView : public QTreeView
 
 public:
     // Sits on its vault's shared VaultTreeModel and reads paths and kinds back
-    // from it directly. root_ scopes the drag: an entry outside it is a foreign
-    // or cross-vault source
+    // from it directly, the root included: the model's root scopes the drag,
+    // so an entry outside it is a foreign or cross-vault source. The root is
+    // asked for each time, since the model can move it (moveRoot) and
+    // every path it hands out follows
     VaultTreeView(VaultTreeModel* treeModel, QWidget* parentVaultFileTree)
         : QTreeView(parentVaultFileTree)
         , treeModel_(treeModel)
-        , root_(treeModel->root())
     {
         setup_();
     }
@@ -299,7 +300,6 @@ protected:
 
 private:
     VaultTreeModel* treeModel_;
-    Coco::Path root_;
 
     QWidget* overlay_ = nullptr; // the target highlight
     QPoint dragStartPos_{};
@@ -379,7 +379,7 @@ private:
     [[nodiscard]] Coco::Path destDirOf_(const Entry_& entry) const
     {
         if (!entry.valid) {
-            return root_;
+            return treeModel_->root();
         }
 
         return entry.isDir ? entry.absolute : entry.absolute.parent();
@@ -431,8 +431,10 @@ private:
         }
 
         auto absolute = paths.first();
-        if (absolute.isEmpty() || absolute == root_ ||
-            !absolute.isAtOrUnder(root_)) {
+        auto root = treeModel_->root();
+
+        if (absolute.isEmpty() || absolute == root ||
+            !absolute.isAtOrUnder(root)) {
             return {};
         }
 

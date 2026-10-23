@@ -33,10 +33,12 @@
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
+#include <Coco/Time.h>
 
 #include "core/ActionIds.h"
 #include "core/AppActions.h"
-#include "core/FileRef.h"
+#include "core/BufferStore.h"
+#include "core/PathKey.h"
 #include "core/RecentFiles.h"
 #include "core/Translations.h"
 #include "core/Updater.h"
@@ -73,15 +75,19 @@ class VaultWindow : public BaseWindow
     Q_OBJECT
 
 public:
-    // Borrows both its own Vault and the common Vault from App. vaultsProvider
-    // is App's vaultEntries(), passed straight to the Sidebar's switcher.
-    // appActions are App's own actions: the base adopts them, and this window
-    // hands the set on to every pop-out it makes. spellCheckers is App's too,
-    // and is where each text view's dictionary comes from. So are updater
-    // and translations, which the settings dialog's General page shows
+    // Borrows both its own Vault and the Common Vault from App, and App's
+    // BufferStore, where every file this window opens is held. commonVault is
+    // null when there is no Common Vault, and is the window's own Vault in the
+    // Common Vault's own window. It can change later (setCommonVault).
+    // vaultsProvider is App's vaultEntries(), passed straight to the Sidebar's
+    // switcher. appActions are App's own actions: the base adopts them, and
+    // this window hands the set on to every pop-out it makes. spellCheckers is
+    // App's too, and is where each text view's dictionary comes from. So are
+    // updater and translations, which the settings dialog's General page shows
     VaultWindow(
         Vault* borrowedVault,
         Vault* commonVault,
+        BufferStore* bufferStore,
         std::function<QList<VaultEntry>()> vaultsProvider,
         const AppActions& appActions,
         SpellCheckers* spellCheckers,
@@ -90,6 +96,7 @@ public:
         : BaseWindow(appActions, updater)
         , vault_(borrowedVault)
         , commonVault_(commonVault)
+        , bufferStore_(bufferStore)
         , vaultsProvider_(std::move(vaultsProvider))
         , appActions_(appActions)
         , spellCheckers_(spellCheckers)
@@ -113,13 +120,14 @@ public:
     //     the file until it's used).
     //   NewWindow — the menu's "Open in new window" — opens in a fresh pop-out.
     // Duping is allowed and we never focus an already-open file, matching
-    // Obsidian. The model comes from the FileRef's own vault, so a common-vault
-    // file resolves to the shared model and syncs across windows for free
-    void openFile(const FileRef& fileRef, OpenMode mode)
+    // Obsidian. The model comes from the vault vaultOf_ names, so a Common
+    // Vault file outside this vault resolves to the Common Vault's shared model
+    // and syncs across windows for free
+    void openFile(const PathKey& key, OpenMode mode)
     {
-        auto* view = makeView_(fileRef, lossyOpenPrompt_(this));
+        auto* view = makeView_(key, lossyOpenPrompt_(this));
         if (!view) {
-            return; // refused — unsupported or unreadable; Vault warned
+            return; // refused — unsupported or unreadable; the store warned
         }
 
         auto title = view->model()->title();
@@ -155,6 +163,46 @@ public:
         }
     }
 
+    // The Common Vault changed, or there's none now (App::setCommonVault_).
+    // The sidebar's drawer is replaced or removed, and WorkspaceFile handed the
+    // new one. Every view, here and in the pop-outs, follows the new Common
+    // Vault's words in place of the old one's and takes its words again, since
+    // the Common Vault's dictionary applies here. And every tab is looked at
+    // again as if its file had moved: one in neither of this window's vaults
+    // now closes, and the rest are marked as guests or not.
+    //
+    // A view is disconnected from the old Common Vault by name, not every
+    // connection from it, and not when it was this window's own vault: then
+    // the connection is the view's to its own vault's words, which stays
+    void setCommonVault(Vault* commonVault)
+    {
+        if (commonVault == commonVault_) {
+            return;
+        }
+
+        auto* old_common = commonVault_;
+        auto views = fileViews_();
+
+        if (old_common && old_common != vault_) {
+            for (auto* view : views) {
+                disconnect(old_common, &Vault::wordsChanged, view, nullptr);
+            }
+        }
+
+        commonVault_ = commonVault;
+
+        sidebar_->setCommonVault(commonVault_);
+        workspaceFile_->setCommonDrawer(
+            sidebar_->commonTree(),
+            sidebar_->commonDrawer());
+
+        for (auto* view : views) {
+            followCommonWords_(view);
+            applyWords_(view);
+            reconsiderView_(view);
+        }
+    }
+
     // App calls this in its exit sweeps for windows that won't get a closeEvent
     // of their own — a multi-window quit or OS logout. Idempotent with the
     // closeEvent save below; flushes any pending workspace debounce
@@ -173,14 +221,16 @@ signals:
 protected:
     void closeEvent(QCloseEvent* event) override
     {
-        // Final flush lives here and only here. Buffers belong to the Vault,
-        // not to any window, so a file open in a pop-out and the same file open
-        // in this window are one shared buffer — this single flush catches
-        // every view everywhere, pop-outs included. It's also the only teardown
-        // that can still refuse, so it runs before any: on a failed write we
-        // name the files, keep the window open (the buffers stay dirty and keep
-        // retrying), and bail before touching the pop-outs
-        if (auto failed = vault_->flush(); !failed.isEmpty()) {
+        // Final flush lives here and only here: the buffers this window's views
+        // show, in it and its pop-outs. Buffers belong to the BufferStore, not
+        // to any window, so a file this window and another both show is one
+        // buffer, flushed here; a file only another window shows is left to
+        // that window, so a failure there can't hold this one open. It's also
+        // the only teardown that can still refuse, so it runs before any: on a
+        // failed write we name the files, keep the window open (the buffers
+        // stay dirty and keep retrying), and bail before touching the pop-outs
+        if (auto failed = bufferStore_->flush(shownKeys_());
+            !failed.isEmpty()) {
             // Refuse: these buffers are the only copy, so we keep the window
             // open rather than lose them. That can trap the user if the vault's
             // location is permanently unwritable (drive gone, read-only). The
@@ -196,20 +246,22 @@ protected:
             return;
         }
 
+        // A settings change a moment old is written now, not left to a timer
+        // that may never fire
+        vault_->saveSettingsNow();
+
         // Committed to closing: persist final workspace before tearing anything
         // down. saveNow flushes any pending debounce — the guaranteed capture
-        // point for a single-window close, the workspace twin of the vault
+        // point for a single-window close, the workspace twin of the buffer
         // flush above. Runs before closePopouts_ so the pop-outs' trees are
         // still alive to serialize
         workspaceFile_->saveNow();
 
         // Flush done: now close the pop-outs. They're siblings, so Qt won't
         // take them down with us — we do. Files open only in a pop-out were
-        // already flushed above; nothing about this close is per-window.
-        //
-        // NB: the common vault is deliberately NOT flushed here — it's shared
-        // by every window, so one window closing can't refuse on its behalf.
-        // Its final save is the app-quit sweep (App::onAboutToQuit_)
+        // already flushed above. A buffer no window shows (a viewless one
+        // whose eviction flush failed) waits for the app-quit sweep
+        // (App::onAboutToQuit_)
         closePopouts_();
 
         event->accept();
@@ -224,6 +276,7 @@ private:
 
     Vault* vault_ = nullptr;
     Vault* commonVault_ = nullptr;
+    BufferStore* bufferStore_ = nullptr;
 
     // App's vaultEntries() — handed to the Sidebar's VaultSwitcher for its
     // "other vaults" menu. Held so setup_ can pass it on
@@ -340,7 +393,7 @@ private:
         // file refuses visibly. The lambda outlives nothing — a pop-out is
         // closed by this window before it dies
         tree->setEntryOpenFilter([this](const Coco::Path& absolute) {
-            return fileRefFor_(absolute).vault != nullptr;
+            return vaultOf_(PathKey::of(absolute)) != nullptr;
         });
 
         // Sidebar left, editor tree centre. WorkspaceFile persists the split
@@ -358,7 +411,7 @@ private:
         // window, its tree, and the sidebar splitter. restore() runs now —
         // before App shows us — so geometry, the reopened files, and the
         // pop-outs land pre-show. The Hooks keep the two things this class
-        // can't know here, in the one place that owns them: the FileRef<->view
+        // can't know here, in the one place that owns them: the path<->view
         // translation (describe/build) and pop-out creation
         workspaceFile_ = new WorkspaceFile(
             this,
@@ -387,6 +440,20 @@ private:
             this);
 
         workspaceFile_->restore();
+
+        connect(vault_, &Vault::rootMoved, workspaceFile_, [this] {
+            workspaceFile_->setVaultRoot(vault_->root());
+        });
+
+        // A renamed or moved file is recorded by its new key, whichever window
+        // moved it, and so is every file in a moved vault
+        connect(
+            bufferStore_,
+            &BufferStore::entryRelocated,
+            this,
+            [this](const PathKey& oldEntry, const PathKey& newEntry) {
+                recentFiles_.rebase(oldEntry, newEntry);
+            });
 
         // The status bar's settings (BaseWindow::applyConfig): now, and on
         // every change. Pop-outs get the same in makeWiredPopout_, as they do
@@ -516,19 +583,19 @@ private:
     // drop
     void onNewFileRequested_()
     {
-        auto relative = vault_->createFile(vault_->root());
-        if (relative.isEmpty()) {
+        auto key = vault_->createFile(vault_->rootKey());
+        if (key.isEmpty()) {
             return;
         }
 
-        openFile(FileRef{ vault_, relative }, OpenMode::ReplaceActive);
+        openFile(key, OpenMode::ReplaceActive);
     }
 
     // Go to File: pick with the FileSwitcher over this window and open the way
     // the pick says — Enter replaces the active tab, as a tree double-click
-    // does; Ctrl+Enter adds a new one. Rows carry their own vault's FileRef, so
-    // a Common Vault file opens from the common vault, and nothing outside the
-    // two vaults can be picked. A new file is created first
+    // does; Ctrl+Enter adds a new one. Rows carry keys from the two vaults'
+    // listings, so nothing outside them can be picked. A new file is created
+    // first
     void onGoToFileRequested_()
     {
         auto* view = activeFileView();
@@ -538,7 +605,7 @@ private:
             vault_,
             commonVault_,
             recentFiles_.files(),
-            view ? view->model()->fileRef() : FileRef{});
+            view ? view->model()->key() : PathKey{});
         if (switcher.exec() != QDialog::Accepted) {
             return;
         }
@@ -548,20 +615,20 @@ private:
             return;
         }
 
-        openFile(pick.fileRef, pick.mode);
+        openFile(pick.key, pick.mode);
     }
 
     // A Go to File pick naming a file that isn't there yet is created here,
-    // before it opens. The user typed the name, so a failure is said, over
-    // parentWindow (the window the switcher was over). True when the file is
-    // there to open
+    // before it opens, in this window's vault: the switcher names new files
+    // there. The user typed the name, so a failure is said, over parentWindow
+    // (the window the switcher was over). True when the file is there to open
     bool createIfNew_(const FileSwitcher::Pick& pick, QWidget* parentWindow)
     {
         if (!pick.isNew) {
             return true;
         }
 
-        if (pick.fileRef.vault->createFileAt(pick.fileRef.relative)) {
+        if (vault_->createFileAt(pick.key)) {
             return true;
         }
 
@@ -570,7 +637,7 @@ private:
             tr("Couldn't create file"),
             tr("Could not create \"%1\". A file may be in the way, or a "
                "folder may be locked.")
-                .arg(pick.fileRef.relative.prettyQString()));
+                .arg(displayPathOf_(pick.key).prettyQString()));
         return false;
     }
 
@@ -616,7 +683,7 @@ private:
     // folder isn't a file — so there's nothing more to do; the sidebar tree
     // reflects it exactly as the tree's own New Folder does. createFolder warns
     // and no-ops on failure
-    void onNewFolderRequested_() { vault_->createFolder(vault_->root()); }
+    void onNewFolderRequested_() { vault_->createFolder(vault_->rootKey()); }
 
     // Ctrl+M / View menu: flip the menu bar's visibility. The shortcut is
     // window-owned, so it works while the bar is hidden — the way back from a
@@ -635,19 +702,26 @@ private:
     }
 
     // Build a fresh view on the file's (deduped) model, choosing the view by
-    // the model's concrete type. The model is owned by the FileRef's vault;
-    // openModel dedups it, so opening the same file twice shares one buffer and
-    // one document/prime. Returns the base type — callers work through it, and
-    // the one text-only touch (cursor/scroll restore) casts down in buildPage_.
-    // Returns nullptr when the Vault refuses the file (an unsupported type, an
-    // unreadable file, or a non-UTF-8 one the caller's confirmLossyOpen
-    // declined) — every caller early-returns on it
+    // the model's concrete type. The model is the BufferStore's; openModel
+    // dedups it, so opening the same file twice — here, in a pop-out, or in
+    // another window — shares one buffer and one document/prime. Returns the
+    // base type — callers work through it, and the one text-only touch
+    // (cursor/scroll restore) casts down in buildPage_. Returns nullptr for a
+    // file in neither of this window's vaults, and when the store refuses the
+    // file (an unsupported type, an unreadable file, or a non-UTF-8 one the
+    // caller's confirmLossyOpen declined) — every caller early-returns on it
     [[nodiscard]] AbstractFileView* makeView_(
-        const FileRef& fileRef,
-        const Vault::ConfirmLossyOpen& confirmLossyOpen)
+        const PathKey& key,
+        const BufferStore::ConfirmLossyOpen& confirmLossyOpen)
     {
-        auto* model =
-            fileRef.vault->openModel(fileRef.relative, confirmLossyOpen);
+        if (!vaultOf_(key)) {
+            WARN(
+                "Refusing to open {}: in neither of this window's vaults!",
+                key.path());
+            return nullptr;
+        }
+
+        auto* model = bufferStore_->openModel(key, confirmLossyOpen);
         if (!model) {
             return nullptr;
         }
@@ -703,28 +777,29 @@ private:
         apply();
         connect(vault, &Vault::configChanged, view, apply);
 
-        // The words to take as correct: this window's vault's dictionary and
-        // ignored words, and the Common Vault's dictionary, which applies in
-        // every vault. Taken again when either vault's words change
-        auto apply_words = [view, vault, common = commonVault_] {
-            auto words = vault->dictionary();
-            words.unite(vault->ignoredWords());
+        // The words to take as correct (applyWords_), taken now and again when
+        // either vault's words change. The view dies before this window
+        // (pop-outs close with it), so capturing this is safe
+        applyWords_(view);
 
-            if (common != vault) {
-                words.unite(common->dictionary());
-            }
+        connect(vault, &Vault::wordsChanged, view, [this, view] {
+            applyWords_(view);
+        });
 
-            view->setAcceptedWords(words);
-        };
+        followCommonWords_(view);
 
-        apply_words();
-        connect(vault, &Vault::wordsChanged, view, apply_words);
+        // A rename or move, from this window or another, may take the file
+        // out of this window's vaults or into the other of them. Looked at a
+        // tick later, once App has seen the move through: a vault whose folder
+        // moved has moved with it (App::followVaults_), so its files are still
+        // that vault's
+        connect(model, &AbstractFileModel::renamed, view, [this, view] {
+            Coco::Time::onNextTick(view, [this, view] {
+                onViewFileRelocated_(view);
+            });
+        });
 
-        if (commonVault_ != vault) {
-            connect(commonVault_, &Vault::wordsChanged, view, apply_words);
-        }
-
-        markIfGuest_(view, fileRef);
+        applyGuestMark_(view, key);
         return view;
     }
 
@@ -732,29 +807,96 @@ private:
     // the user is looking at — this one, or the pop-out whose tree the open
     // came from — so the warning lands over it rather than over a main window
     // that may be behind or elsewhere
-    [[nodiscard]] static Vault::ConfirmLossyOpen
-    lossyOpenPrompt_(QWidget* parent)
+    [[nodiscard]] BufferStore::ConfirmLossyOpen
+    lossyOpenPrompt_(QWidget* parent) const
     {
-        return [parent](const Coco::Path& relative, const QByteArray& data) {
-            return LossyOpenPrompt::confirm(relative, data, parent);
+        return [this, parent](const PathKey& key, const QByteArray& data) {
+            return LossyOpenPrompt::confirm(displayPathOf_(key), data, parent);
         };
     }
 
-    // Mark a guest tab: a file from a vault other than this window's own, which
-    // today means a Common Vault file open in a project window. In the Common
-    // Vault's own window vault_ IS commonVault_, so nothing is ever marked
-    // there. The mark rides the page (PageIcon), so it survives a drag into a
-    // pop-out and a workspace restore, and it never needs updating: a file
-    // can't change vaults under a view (Vault::relocate_ keeps both ends inside
-    // one vault), and a tab dragged into another window's family is refused by
-    // familyId. The leaf renders the glyph in its own colors
-    void markIfGuest_(AbstractFileView* view, const FileRef& fileRef)
+    // Mark a guest tab, or clear the mark: a guest is a file outside this
+    // window's own vault, which means a Common Vault file open in a project
+    // window that doesn't contain it. A Common Vault file inside this vault is
+    // this vault's, and in the Common Vault's own window every file is, so
+    // nothing is marked there. The mark rides the page (PageIcon), so it
+    // survives a drag into a pop-out and a workspace restore. It changes only
+    // when a rename or move takes the file between this window's two vaults,
+    // or the Common Vault changes (reconsiderView_). The leaf renders the
+    // glyph in its own colors. True when the mark changed
+    bool applyGuestMark_(AbstractFileView* view, const PathKey& key)
     {
-        if (fileRef.vault == vault_) {
+        auto path = vault_->contains(key)
+                        ? QString{}
+                        : QString::fromLatin1(COMMON_VAULT_ICON_PATH);
+
+        if (pageIconPath(view) == path) {
+            return false;
+        }
+
+        setPageIconPath(view, path);
+        return true;
+    }
+
+    // A view's file was renamed or moved, by this window or by another: vaults
+    // nest, so another vault's window can move a file this window shows.
+    // workspace.json records the old path, so a save is scheduled
+    void onViewFileRelocated_(AbstractFileView* view)
+    {
+        reconsiderView_(view);
+
+        if (workspaceFile_) {
+            workspaceFile_->scheduleSave();
+        }
+    }
+
+    // Which of this window's vaults a view's file is in may have changed: its
+    // file moved, or the Common Vault did. In neither, the view closes; the
+    // buffer lives on in any window that still shows it, or, if none does, its
+    // last view's save writes any unsaved text to the file. Otherwise its
+    // guest mark follows the vault it's in now
+    void reconsiderView_(AbstractFileView* view)
+    {
+        auto key = view->model()->key();
+
+        if (!vaultOf_(key)) {
+            view->deleteLater();
             return;
         }
 
-        setPageIconPath(view, QString::fromLatin1(COMMON_VAULT_ICON_PATH));
+        if (applyGuestMark_(view, key)) {
+            if (auto* tree = treeHosting_(view)) {
+                tree->refreshPageIcon(view);
+            }
+        }
+    }
+
+    // The words a view takes as correct: this window's vault's dictionary and
+    // ignored words, and the Common Vault's dictionary, if there is one, which
+    // applies in every vault. Read when called, since the Common Vault can
+    // change
+    void applyWords_(AbstractFileView* view) const
+    {
+        auto words = vault_->dictionary();
+        words.unite(vault_->ignoredWords());
+
+        if (commonVault_ && commonVault_ != vault_) {
+            words.unite(commonVault_->dictionary());
+        }
+
+        view->setAcceptedWords(words);
+    }
+
+    // The view takes its words again when the Common Vault's words change.
+    // Nothing when there's no Common Vault, or this window is it: then its
+    // words are this vault's, which the view already follows
+    void followCommonWords_(AbstractFileView* view)
+    {
+        if (commonVault_ && commonVault_ != vault_) {
+            connect(commonVault_, &Vault::wordsChanged, view, [this, view] {
+                applyWords_(view);
+            });
+        }
     }
 
     // Open view into tree's active leaf, taking over the current tab unless
@@ -776,21 +918,97 @@ private:
         }
     }
 
-    // Which of this window's vaults owns an absolute path — the project vault
-    // first, then the common one — or a null-vault FileRef if neither. contains
-    // rejects a path outside a root, so makeFileRef never builds a "../"-laden
-    // key from a foreign path
-    [[nodiscard]] FileRef fileRefFor_(const Coco::Path& absolute)
+    // The file views in this window and in its pop-outs. A pop-out has no
+    // parent, so it isn't among this window's children and is searched on its
+    // own
+    [[nodiscard]] QList<AbstractFileView*> fileViews_() const
     {
-        if (vault_->contains(absolute)) {
-            return vault_->makeFileRef(absolute);
+        auto views = findChildren<AbstractFileView*>();
+
+        for (auto* popout : popouts_) {
+            views << popout->findChildren<AbstractFileView*>();
         }
 
-        if (commonVault_ && commonVault_->contains(absolute)) {
-            return commonVault_->makeFileRef(absolute);
+        return views;
+    }
+
+    // The files this window's views show, in it and in its pop-outs. A file
+    // shown twice is listed twice
+    [[nodiscard]] QList<PathKey> shownKeys_() const
+    {
+        QList<PathKey> keys{};
+
+        for (auto* view : fileViews_()) {
+            keys << view->model()->key();
         }
 
-        return {};
+        return keys;
+    }
+
+    // Which of this window's vaults a file belongs to: this window's own for
+    // any file inside its root, even where the vaults nest and the Common
+    // Vault lists it too; else the Common Vault for a file inside that; else
+    // none. Opening, the guest mark, and workspace.json all go by this, so in
+    // one window a file belongs to one vault
+    [[nodiscard]] Vault* vaultOf_(const PathKey& key) const
+    {
+        if (vault_->contains(key)) {
+            return vault_;
+        }
+
+        if (commonVault_ && commonVault_->contains(key)) {
+            return commonVault_;
+        }
+
+        return nullptr;
+    }
+
+    // A file's path as this window's trees show it: relative to the root of
+    // the vault it belongs to here. The whole path for a file in neither
+    [[nodiscard]] Coco::Path displayPathOf_(const PathKey& key) const
+    {
+        auto* owner = vaultOf_(key);
+        return owner ? key.relativeTo(owner->rootKey()) : key.path();
+    }
+
+    // A file as workspace.json names it: "vault" (this/common, from this
+    // window's point of view) and "file", a path relative to that vault's
+    // root. False, writing nothing, for a file in neither of this window's
+    // vaults. In the Common Vault's own window the two vaults are one object
+    // (App reuses its common Vault), so every file there is written as this
+    // window's; both labels resolve to the same Vault on restore in that window
+    bool describeFile_(const PathKey& key, QJsonObject& obj) const
+    {
+        namespace WK = WorkspaceKeys;
+
+        auto* owner = vaultOf_(key);
+        if (!owner) {
+            return false;
+        }
+
+        obj[WK::VAULT] = (owner == vault_) ? WK::VAULT_THIS : WK::VAULT_COMMON;
+        obj[WK::FILE_PATH] = key.relativeTo(owner->rootKey()).prettyQString();
+        return true;
+    }
+
+    // The reverse of describeFile_. Empty for a vault this window doesn't have,
+    // or a path that isn't a plain relative one, so a hand-edited entry can't
+    // name a file outside its vault
+    [[nodiscard]] PathKey keyFromWorkspace_(const QJsonObject& obj) const
+    {
+        namespace WK = WorkspaceKeys;
+
+        auto relative = Coco::Path(obj.value(WK::FILE_PATH).toString());
+        auto* vault = (obj.value(WK::VAULT).toString() == WK::VAULT_COMMON)
+                          ? commonVault_
+                          : vault_;
+
+        if (!vault || relative.isEmpty() || !relative.isPlain() ||
+            relative.hasRoot()) {
+            return {};
+        }
+
+        return PathKey::of(vault->root() / relative);
     }
 
     // Persist one page as a workspace.json tab entry, or drop it. File views
@@ -798,9 +1016,7 @@ private:
     // returns a null value the tree omits. The envelope (type/vault/file/
     // pinned) is owned here; per-view viewport state nests under "state" as an
     // opaque blob this method never reads into — the view owns its schema
-    // (Obsidian's state shape). "vault" is this/common so a common-vault file
-    // restores into the common Vault; the vault-relative path is the whole ref
-    // (path is identity)
+    // (Obsidian's state shape). The file is written by describeFile_
     [[nodiscard]] QJsonValue describePage_(QWidget* page) const
     {
         namespace WK = WorkspaceKeys;
@@ -819,18 +1035,11 @@ private:
             return QJsonValue{}; // an unknown page type — still dropped
         }
 
-        auto ref = view->model()->fileRef();
-
         QJsonObject obj{};
-        // Which vault, from this window's point of view. Asked as "is it mine?"
-        // rather than "is it the common one?": in the Common Vault's own window
-        // the two vaults are one object (App reuses its common Vault), and
-        // every tab there is this window's own, not a guest from elsewhere.
-        // Both labels resolve to the same Vault on restore in that window, so
-        // either reads back correctly
-        obj[WK::VAULT] =
-            (ref.vault == vault_) ? WK::VAULT_THIS : WK::VAULT_COMMON;
-        obj[WK::FILE_PATH] = ref.relative.prettyQString();
+        if (!describeFile_(view->model()->key(), obj)) {
+            return QJsonValue{};
+        }
+
         obj[WK::PINNED] = isPagePinned(page);
 
         // The view fills its own state; omit the key when it writes nothing
@@ -848,62 +1057,47 @@ private:
     void recordRecentFile_(QWidget* page)
     {
         if (auto* view = qobject_cast<AbstractFileView*>(page)) {
-            recentFiles_.record(view->model()->fileRef());
+            recentFiles_.record(view->model()->key());
         }
     }
 
-    // The recent files as workspace.json keeps them: each with its vault
-    // (this/common, as describePage_ writes it) and vault-relative path. A
-    // file no longer on disk is left out, so a deleted or moved file drops
-    // out of the list at the next save
+    // The recent files as workspace.json keeps them, each written as
+    // describeFile_ writes a tab's file. A file no longer on disk is left out,
+    // so a deleted or moved file drops out of the list at the next save
     [[nodiscard]] QJsonValue describeRecentFiles_() const
     {
-        namespace WK = WorkspaceKeys;
-
         QJsonArray array{};
 
-        for (const auto& ref : recentFiles_.files()) {
-            if (!ref.vault->absolutePathOf(ref.relative).exists()) {
+        for (const auto& key : recentFiles_.files()) {
+            if (!key.path().exists()) {
                 continue;
             }
 
             QJsonObject obj{};
-            obj[WK::VAULT] =
-                (ref.vault == vault_) ? WK::VAULT_THIS : WK::VAULT_COMMON;
-            obj[WK::FILE_PATH] = ref.relative.prettyQString();
-            array.append(obj);
+            if (describeFile_(key, obj)) {
+                array.append(obj);
+            }
         }
 
         return array;
     }
 
     // The saved list replaces whatever restoring the tabs recorded. A
-    // workspace saved before there was a list has none, and keeps those.
-    // Only entries naming a plain path are kept: the vault refuses any other
-    // when it is opened
+    // workspace saved before there was a list has none, and keeps those. An
+    // entry keyFromWorkspace_ can't read is left out
     void restoreRecentFiles_(const QJsonValue& value)
     {
-        namespace WK = WorkspaceKeys;
-
         if (!value.isArray()) {
             return;
         }
 
-        QList<FileRef> files{};
+        QList<PathKey> files{};
 
         for (const auto& entry : value.toArray()) {
-            auto obj = entry.toObject();
-            auto relative = Coco::Path(obj.value(WK::FILE_PATH).toString());
-            auto* vault = (obj.value(WK::VAULT).toString() == WK::VAULT_COMMON)
-                              ? commonVault_
-                              : vault_;
-
-            if (!vault || relative.isEmpty() || !relative.isPlain() ||
-                relative.hasRoot()) {
-                continue;
+            if (auto key = keyFromWorkspace_(entry.toObject());
+                !key.isEmpty()) {
+                files << key;
             }
-
-            files << FileRef{ vault, relative };
         }
 
         recentFiles_.setFiles(files);
@@ -913,7 +1107,7 @@ private:
     // (this/common), checks the file still exists — a moved/deleted file is
     // silently dropped — then mints a view on the (deduped) model exactly as
     // openFile does and hands it its own state blob to restore. Non-const:
-    // makeView_ opens a model, mutating the Vault's map
+    // makeView_ opens a model, mutating the store's map
     [[nodiscard]] RestoredPage_ buildPage_(const QJsonValue& value)
     {
         namespace WK = WorkspaceKeys;
@@ -929,12 +1123,8 @@ private:
             return { page, tr("New tab") };
         }
 
-        auto which = obj.value(WK::VAULT).toString();
-        auto relative = Coco::Path(obj.value(WK::FILE_PATH).toString());
-
-        auto* vault = (which == WK::VAULT_COMMON) ? commonVault_ : vault_;
-
-        if (!vault || relative.isEmpty()) {
+        auto key = keyFromWorkspace_(obj);
+        if (key.isEmpty()) {
             return {};
         }
 
@@ -942,11 +1132,11 @@ private:
         // file itself, so this check is advisory — kept for its specific DEBUG
         // line, which says WHY a tab fell out of the workspace where
         // openModel's refusal is a generic WARN
-        if (!vault->absolutePathOf(relative).exists()) {
+        if (!key.path().exists()) {
             DEBUG(
                 this,
                 "Workspace restore: dropping missing file {}",
-                relative);
+                key.path());
             return {};
         }
 
@@ -958,13 +1148,12 @@ private:
         // an accepted lossy open is saved as UTF-8 at once, so only a file
         // re-encoded between sessions lands here. Either way the tab is gone
         // for good, as for a missing file
-        auto* view = makeView_(
-            FileRef{ vault, relative },
-            [this](const Coco::Path& droppedRelative, const QByteArray&) {
+        auto* view =
+            makeView_(key, [this](const PathKey& dropped, const QByteArray&) {
                 DEBUG(
                     this,
                     "Workspace restore: dropping non-UTF-8 file {}",
-                    droppedRelative);
+                    dropped.path());
                 return false;
             });
         if (!view) {
@@ -983,9 +1172,9 @@ private:
 
     // The new-tab page becomes the editor in place: same tab, page swapped, in
     // whichever tree the "+" came from
-    void openInto_(TabPaneTree* tree, NewTabPage* page, const FileRef& fileRef)
+    void openInto_(TabPaneTree* tree, NewTabPage* page, const PathKey& key)
     {
-        auto* view = makeView_(fileRef, lossyOpenPrompt_(tree->window()));
+        auto* view = makeView_(key, lossyOpenPrompt_(tree->window()));
         if (!view) {
             return; // refused (unsupported or unreadable) — the new tab page
                     // stays as it was
@@ -1000,10 +1189,15 @@ private:
     // message says as much. Names the files (vault-relative, as the tree shows
     // them) and offers only OK: the window stays open, and the dirty buffers
     // keep retrying on every autosave tick and on the next close attempt
-    void showSaveFailure_(const Coco::PathList& failed)
+    void showSaveFailure_(const QList<PathKey>& failed)
     {
+        QStringList names{};
+        for (const auto& key : failed) {
+            names << displayPathOf_(key).prettyQString();
+        }
+
         auto bullet = u"\n\u2022 "_s;
-        auto list = bullet + Coco::toPrettyQStringList(failed).join(bullet);
+        auto list = bullet + names.join(bullet);
 
         QMessageBox box(this);
         box.setIcon(QMessageBox::Warning);
@@ -1093,7 +1287,7 @@ private:
         // file refuses visibly. The lambda outlives nothing — a pop-out is
         // closed by this window before it dies
         tree->setEntryOpenFilter([this](const Coco::Path& absolute) {
-            return fileRefFor_(absolute).vault != nullptr;
+            return vaultOf_(PathKey::of(absolute)) != nullptr;
         });
 
         // Its last tab closing leaves the pop-out with nothing to show, so
@@ -1182,12 +1376,12 @@ private:
                 return;
             }
 
-            auto relative = vault_->createFile(vault_->root());
-            if (relative.isEmpty()) {
+            auto key = vault_->createFile(vault_->rootKey());
+            if (key.isEmpty()) {
                 return; // Vault already warned
             }
 
-            openInto_(tree, page, FileRef{ vault_, relative });
+            openInto_(tree, page, key);
         });
 
         // Go to file from an empty tab. The switcher opens over the window
@@ -1202,7 +1396,7 @@ private:
                 vault_,
                 commonVault_,
                 recentFiles_.files(),
-                FileRef{});
+                PathKey{});
             if (switcher.exec() != QDialog::Accepted) {
                 return;
             }
@@ -1217,7 +1411,7 @@ private:
                 return;
             }
 
-            openInto_(tree, page, pick.fileRef);
+            openInto_(tree, page, pick.key);
         });
 
         connect(page, &NewTabPage::closeRequested, this, [this, page] {
@@ -1270,12 +1464,12 @@ private:
             return;
         }
 
-        auto ref = fileRefFor_(absolute);
-        if (!ref.vault) {
+        auto key = PathKey::of(absolute);
+        if (!vaultOf_(key)) {
             return;
         }
 
-        auto* view = makeView_(ref, lossyOpenPrompt_(tree->window()));
+        auto* view = makeView_(key, lossyOpenPrompt_(tree->window()));
         if (!view) {
             return; // refused (unsupported or unreadable)
         }

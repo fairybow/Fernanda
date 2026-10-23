@@ -48,9 +48,9 @@ namespace Fernanda {
 //
 // The listing admits exactly what the vault shows: no hidden entries
 // (FileTypes::isHiddenName) and no unsupported files (FileTypes::isSupported)
-// — the same predicates Vault::visibleFiles and Vault::openModel use. A hidden
-// folder is never listed, so it is never watched: nothing under .git/ ever
-// holds a directory handle.
+// — the same predicates Vault::visibleFiles and BufferStore::openModel use. A
+// hidden folder is never listed, so it is never watched: nothing under .git/
+// ever holds a directory handle.
 //
 // Every listed folder is watched — the watched set IS the listed set, with no
 // separate bookkeeping. On Windows each watch is an open directory handle, and
@@ -208,16 +208,17 @@ public:
         watchSubtree_(node);
     }
 
-    // The vault's root folder was recreated after vanishing. The listing still
-    // holds what was there before — the reconcile skips a missing folder — and
-    // the root's watch, if Qt kept it at all, may still follow the old folder
-    // wherever it went. So every watch is dropped, the root is watched afresh,
-    // and the listing is diffed against the new disk: stale rows go, and
-    // anything already back keeps its node
-    void relistRoot()
+    // The vault's folder is at root now, moved or spelled anew with everything
+    // in it (Vault::moveRoot). Nothing is re-listed, and no node changes, so
+    // every view keeps its expansion and selection. Every path the model hands
+    // out is built from the root, so they all take the new one. A watch is
+    // compared in the exact string it was added with, so each listed folder is
+    // watched again under the new root
+    void moveRoot(const Coco::Path& root)
     {
         unwatchSubtree_(rootNode_);
-        rewatchAndRelistSubtree_(rootNode_);
+        root_ = root;
+        watchSubtree_(rootNode_);
     }
 
     // --- QAbstractItemModel ------------------------------------------------
@@ -320,7 +321,7 @@ private:
 
     // Folders reported changed, re-listed together one debounce later so a git
     // checkout or a sync burst is one pass, not N — the same coalescing, and
-    // the same interval, as Vault's buffer reconcile
+    // the same interval, as the BufferStore's buffer reconcile
     Coco::PathList pendingDirs_{};
     Coco::Time::Debouncer* reconcileTimer_ =
         Coco::Time::newDebouncer(this, &VaultTreeModel::reconcile_);

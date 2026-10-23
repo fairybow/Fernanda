@@ -130,13 +130,20 @@ private:
 
     void setup_(QAction* quitAction, QAction* restartAction)
     {
-        auto name = vault_->root().nameQString();
-        setWindowTitle(tr("Settings — %1").arg(name));
         resize(SETTINGS_DIALOG_WIDTH, SETTINGS_DIALOG_HEIGHT);
 
         addAction(quitAction);
 
-        setupNavColumn_(name);
+        setupNavColumn_();
+
+        // The dialog is kept between opens, so it follows its vault's folder
+        // when that moves while the vault is open (Vault::moveRoot)
+        showVaultName_();
+        connect(
+            vault_,
+            &Vault::rootMoved,
+            this,
+            &SettingsDialog::showVaultName_);
 
         addGroupTitle_(tr("Options"));
         generalPage_ = new SettingsGeneralPage(
@@ -197,15 +204,30 @@ private:
         layout->addWidget(pages_, 1);
     }
 
+    // The vault's name in the title and above the list, and its path as the
+    // name's tooltip. A folder with no name of its own, a drive's root, shows
+    // its path
+    void showVaultName_()
+    {
+        auto root = vault_->root();
+        auto name = root.nameQString();
+
+        if (name.isEmpty()) {
+            name = root.prettyQString();
+        }
+
+        setWindowTitle(tr("Settings — %1").arg(name));
+        vaultName_->setText(name);
+        vaultName_->setToolTip(root.prettyQString());
+    }
+
     // The vault's name above the list, so it's plain whose settings these are
     // — the dialog belongs to one vault, and several can be open at once
-    void setupNavColumn_(const QString& name)
+    void setupNavColumn_()
     {
         auto font = vaultName_->font();
         font.setBold(true);
         vaultName_->setFont(font);
-        vaultName_->setText(name);
-        vaultName_->setToolTip(vault_->root().prettyQString());
 
         nav_->setFrameShape(QFrame::NoFrame);
         nav_->setSelectionMode(QAbstractItemView::SingleSelection);

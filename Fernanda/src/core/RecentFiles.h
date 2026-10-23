@@ -15,7 +15,7 @@
 #include <QList>
 #include <QtTypes>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 
 namespace Fernanda {
 
@@ -31,28 +31,49 @@ class RecentFiles
 public:
     static constexpr qsizetype MAX = 10;
 
-    [[nodiscard]] const QList<FileRef>& files() const noexcept
+    [[nodiscard]] const QList<PathKey>& files() const noexcept
     {
         return files_;
     }
 
-    void record(const FileRef& fileRef)
+    void record(const PathKey& key)
     {
-        if (!fileRef.vault || fileRef.relative.isEmpty()) {
+        if (key.isEmpty()) {
             return;
         }
 
-        files_.removeAll(fileRef);
-        files_.prepend(fileRef);
+        files_.removeAll(key);
+        files_.prepend(key);
 
         if (files_.size() > MAX) {
             files_.resize(MAX);
         }
     }
 
+    // An entry was renamed or moved from oldEntry to newEntry: each file at or
+    // under it takes its new key, in place. One that becomes the same file as
+    // a file nearer the front (a recent file deleted from the new place) is
+    // dropped, so a file still appears once
+    void rebase(const PathKey& oldEntry, const PathKey& newEntry)
+    {
+        QList<PathKey> rebased{};
+
+        for (const auto& key : files_) {
+            auto now = key.isAtOrUnder(oldEntry)
+                           ? key.rebased(oldEntry, newEntry)
+                           : key;
+
+            if (!rebased.contains(now)) {
+                rebased << now;
+            }
+        }
+
+        files_ = rebased;
+    }
+
     // Replace the list, as when it is restored: the first is the newest. A
     // repeat keeps its first place; past MAX, the rest are dropped
-    void setFiles(const QList<FileRef>& files)
+    void setFiles(const QList<PathKey>& files)
     {
         files_.clear();
 
@@ -62,7 +83,7 @@ public:
     }
 
 private:
-    QList<FileRef> files_{};
+    QList<PathKey> files_{};
 };
 
 } // namespace Fernanda

@@ -36,8 +36,8 @@ namespace Fernanda {
 // constructed, so there's no dispatch-to-base problem and no second-phase call
 // to forget.
 //
-// Borrows its model from the Vault; never owns it. Holds no FileRef of its own
-// — model()->fileRef() is the single source.
+// Borrows its model from the BufferStore; never owns it. Holds no path of its
+// own — model()->key() is the single source.
 //
 // Built parentless: every view is made by VaultWindow::makeView_ and handed to
 // a TabPaneLeaf, whose page stack parents it on add. So there is no parent
@@ -177,7 +177,7 @@ private:
 
     void setup_()
     {
-        // Count this view against the model, so the Vault can evict the buffer
+        // Count this view against the model, so the store can evict the buffer
         // when the last view closes. The model watches our destroyed and never
         // dereferences us, so this stays GUI-free on the model side. Exactly
         // one registration per view — this is the single call site
@@ -187,13 +187,12 @@ private:
         layout_->setContentsMargins(0, 0, 0, 0);
         layout_->setSpacing(0);
 
-        // Self-close if the file is deleted on disk while open. The Vault's
+        // Self-close if the file is deleted on disk while open. The store's
         // watcher fires removedFromDisk, then frees the model; every view on
-        // that model (this window's pop-outs, or — for a common-vault file —
-        // any window) drops itself. deleteLater is submitted before the Vault
-        // frees the model, so the view tears down first and never touches a
-        // dead model; the leaf hosting this page removes its tab as the page is
-        // destroyed
+        // that model, in any window, drops itself. deleteLater is submitted
+        // before the store frees the model, so the view tears down first and
+        // never touches a dead model; the leaf hosting this page removes its
+        // tab as the page is destroyed
         connect(
             model_,
             &AbstractFileModel::removedFromDisk,

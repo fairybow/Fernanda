@@ -86,7 +86,6 @@ Committing a vault to a repository, for backup and history.
 
 ## Maybe
 
-- **Moving the Common Vault.** Would let it live somewhere other than `Documents/Fernanda/Common Vault`. See "Moving a vault from inside Fernanda" below for why this is hard
 - **Recovery copies of files that vanish.** When a file is deleted outside Fernanda while open, its tab closes and up to three seconds of typing can go with it. Before closing, Fernanda could write the text to a recovery folder off the vault's drive and say so once. Periodic snapshots kept outside the vault (Obsidian's File Recovery) are the larger version. Worth building if a real loss is reported
 - **Refusing an outside change.** Outside changes are always adopted, undoably. A file could instead be held against them: during a merge, or when explicitly locked
 - **Ignoring a format-only outside change.** When another program changes only a file's line endings or byte order mark, the reload adds an undo step that visibly changes nothing and moves every cursor. The reload could be skipped. Leaning toward leaving it alone
@@ -117,8 +116,7 @@ Committing a vault to a repository, for backup and history.
 
 - **Links, backlinks, and tags.** Fernanda is for plain text. Without links there is nothing to index and nothing to rewrite when a file is renamed
 - **Unsaved documents and save prompts.** Every file is on disk and always saved. An untitled, in-memory document would bring back the prompts, the modified markers, and the recovery machinery this design removes
-- **Moving a vault from inside Fernanda.** Built once, for the Common Vault, then removed. On Windows other programs (the folder picker, the shell, the indexer, antivirus) hold handles on the folders being moved, and the old folders can't be deleted while they do. Fernanda can't release handles it doesn't own. Moving the folder in a file manager and opening it again does the same job
-- **Renaming the Common Vault.** Its location is fixed, and every window depends on it while Fernanda runs
+- **A Move Vault command.** Built once, for the Common Vault, then removed. On Windows other programs (the folder picker, the shell, the indexer, antivirus) hold handles on the folders being moved, and the old folders can't be deleted while they do. Fernanda can't release handles it doesn't own. Moving the folder from the file tree of a vault that contains it, which the vault follows, or in a file manager and opening it again, does the same job. Any vault can now be set as the Common Vault, which was what the command was for
 - **Deleting a vault's folder from Manage Vaults.** It is someone's writing. "Remove from list" forgets the vault and leaves the folder alone
 - **Showing unsupported file types.** Obsidian has a setting for this. Fernanda hides them: a file it can't open only adds noise to the tree
 - **Readable line length.** The left/right margin setting does this job and leaves the width to the writer
@@ -128,6 +126,7 @@ Committing a vault to a repository, for backup and history.
 - **Renaming in place in the file tree** (F2). Rename uses a dialog, which checks the name as it is typed
 - **File associations.** Fernanda doesn't register itself for any file type
 - **Right-to-left layouts**
+- **Telling files apart by following symlinks.** A file is named by the path it was reached by, so a folder linked into a vault stays part of that vault. Following links would name it by its target, outside the vault, and break it there. A file reachable two ways through a link is two documents; Obsidian asks for link targets to be kept apart in the same way. Only a vault's own folder is followed through a link, so one folder opened two ways is one vault
 - **Switching language without a restart.** Qt can swap translations while running, but every widget would have to set its text again when told, and Fernanda sets its text once, as each widget is built. Every class with text would need a second path for it, and a string missed in one would leave a window half in each language. Relaunch, beside the Language setting, does the job as Obsidian's does
 
 ## Open questions

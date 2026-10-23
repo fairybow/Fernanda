@@ -27,13 +27,14 @@
 
 namespace Fernanda::Ui {
 
-// One-field rename prompt for a tree entry. The user edits the STEM — a file's
-// extension is preserved and reattached in newLeaf(), a folder has none.
-// Validation mirrors NewVaultDialog: character/reserved rules from
-// UserTextEntry, then a collision check, both advisory — the Vault's
-// Coco::rename is authoritative. A case-only edit ("foo" -> "Foo") is allowed
-// through: it resolves to the same file, which the Vault renames via a temp
-// step
+// One-field rename prompt for a file or folder: a tree entry, or a vault's
+// folder from Manage Vaults. The caller names it in the title. The user edits
+// the STEM — a file's extension is preserved and reattached in newLeaf(), a
+// folder has none. Validation mirrors NewVaultDialog: character/reserved
+// rules from UserTextEntry, then a collision check, both advisory — the
+// rename itself is authoritative. A case-only edit ("foo" -> "Foo") is
+// allowed through: it resolves to the same file, which Io::rename renames via
+// a temp step
 class RenameDialog : public QDialog
 {
     Q_OBJECT
@@ -41,6 +42,7 @@ class RenameDialog : public QDialog
 public:
     RenameDialog(
         QWidget* parent,
+        const QString& title,
         const Coco::Path& parentDir,
         const QString& originalLeaf,
         const QString& initialStem,
@@ -50,7 +52,7 @@ public:
         , originalLeaf_(originalLeaf)
         , suffix_(suffix)
     {
-        setup_(initialStem);
+        setup_(title, initialStem);
     }
 
     ~RenameDialog() override { TRACER; }
@@ -70,9 +72,9 @@ private:
     QString originalLeaf_;
     QString suffix_;
 
-    void setup_(const QString& initialStem)
+    void setup_(const QString& title, const QString& initialStem)
     {
-        setWindowTitle(tr("Rename"));
+        setWindowTitle(title);
         setMinimumWidth(360);
 
         setupUi_(initialStem);

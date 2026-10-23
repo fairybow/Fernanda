@@ -264,6 +264,9 @@ public:
         }
     }
 
+    // Draw page's tab mark again, after its mark changed (setPageIconPath)
+    void refreshPageIcon(QWidget* page) { applyPageIcon_(indexOf(page), page); }
+
 signals:
     // The + button was clicked. VaultWindow makes a NewTabPage and adds it —
     // the leaf stays ignorant of page types
@@ -538,10 +541,11 @@ private:
 
     // Draw the page's tab mark, if it has one (PageIcon). Called wherever a tab
     // gains a page (addPage for a new or dropped one, replacePage for the
-    // new-tab -> editor swap) and for every tab when the colors change
-    // (changeEvent). A page with no mark clears the tab's icon, so a marked
-    // page replaced by an unmarked one leaves nothing behind. The leaf never
-    // asks what the mark means.
+    // new-tab -> editor swap), for every tab when the colors change
+    // (changeEvent), and for one page when its mark changes (refreshPageIcon).
+    // A page with no mark clears the tab's icon, so a marked page replaced by
+    // an unmarked one leaves nothing behind. The leaf never asks what the mark
+    // means.
     //
     // The color is the leaf's, which the bar shares (neither sets a palette of
     // its own). It's read from the leaf, not the bar, because a palette change

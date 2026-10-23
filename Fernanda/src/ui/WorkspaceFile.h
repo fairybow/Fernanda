@@ -50,7 +50,7 @@ namespace Fernanda::Ui {
 // created (ensureVaultDotDir). Workspace refs are vault-relative PATHS, with no
 // id.
 //
-// The FileRef<->view translation, the recent files, and the pop-out lifecycle
+// The path<->view translation, the recent files, and the pop-out lifecycle
 // all belong to VaultWindow (the composition root), so they arrive as Hooks:
 // this class knows geometry, sidebar sizes, and the opaque tree blob — never
 // what a page IS or how a window is made. The recent files are read when a save
@@ -77,7 +77,7 @@ public:
     };
 
     // Everything VaultWindow provides that this class can't know itself: the
-    // page<->JSON translation (FileRef resolution lives in VaultWindow) and the
+    // page<->JSON translation (path resolution lives in VaultWindow) and the
     // pop-out lifecycle (VaultWindow is the single owner of creation). Bundled
     // so the constructor stays readable
     struct Hooks
@@ -179,13 +179,34 @@ public:
         startObserving_();
     }
 
-    // A guaranteed synchronous write — the workspace twin of Vault::flush at
-    // close. Flushes any pending debounce, then writes
+    // A guaranteed synchronous write — the workspace twin of the buffer flush
+    // at close. Flushes any pending debounce, then writes
     void saveNow()
     {
         debounce_->stop();
         writeToDisk_();
     }
+
+    // The vault's folder moved, or is spelled anew (Vault::moveRoot):
+    // workspace.json is read and written there from here on
+    void setVaultRoot(const Coco::Path& vaultRoot) { vaultRoot_ = vaultRoot; }
+
+    // The common drawer and its tree were replaced, or removed (both null),
+    // when the Common Vault changed (VaultWindow::setCommonVault). The new ones
+    // are observed like the first, and the change itself is saved. The old
+    // ones' connections go when they're deleted
+    void setCommonDrawer(VaultFileTree* commonTree, Drawer* commonDrawer)
+    {
+        commonTree_ = commonTree;
+        commonDrawer_ = commonDrawer;
+        observeCommonDrawer_();
+        scheduleSave();
+    }
+
+    // A write a moment from now, coalesced with any other change in the
+    // meantime. For a change this class can't observe itself, such as an open
+    // file renamed or moved, which changes the path workspace.json records
+    void scheduleSave() { debounce_->start(debounceMs_); }
 
     // Observe a pop-out for saves: its geometry, its tree's structure, and its
     // destruction (closing one changes the persisted workspace). VaultWindow
@@ -197,19 +218,19 @@ public:
             window,
             &BaseWindow::geometryChanged,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         connect(
             tree,
             &TabPaneTree::layoutChanged,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         connect(
             window,
             &QObject::destroyed,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
     }
 
 private:
@@ -220,9 +241,9 @@ private:
     QSplitter* sidebarSplitter_ = nullptr;
 
     // The two sidebar trees whose folder expansion rides in workspace.json.
-    // commonTree_ is null when this window is the common vault itself (no
-    // common drawer). Opaque to this class — it calls their serialize/restore
-    // and observes expansionChanged, nothing more
+    // commonTree_ is null when there is no common drawer: there's no Common
+    // Vault, or this window is it. Opaque to this class — it calls their
+    // serialize/restore and observes expansionChanged, nothing more
     VaultFileTree* fileTree_ = nullptr;
     VaultFileTree* commonTree_ = nullptr;
 
@@ -256,19 +277,19 @@ private:
             window_,
             &BaseWindow::geometryChanged,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         connect(
             tree_,
             &TabPaneTree::layoutChanged,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         connect(
             sidebarSplitter_,
             &QSplitter::splitterMoved,
             this,
-            &WorkspaceFile::scheduleSave_);
+            &WorkspaceFile::scheduleSave);
 
         // Folder expansion. Wired AFTER restore, like the rest here, so
         // restoring expansion doesn't schedule a save; the restore's own
@@ -278,34 +299,37 @@ private:
                 fileTree_,
                 &VaultFileTree::expansionChanged,
                 this,
-                &WorkspaceFile::scheduleSave_);
+                &WorkspaceFile::scheduleSave);
         }
 
+        observeCommonDrawer_();
+    }
+
+    // The common tree's expansion, and the drawer's toggles and tree | drawer
+    // handle drags. A toggle resizes through setSizes, which never emits
+    // splitterMoved, hence the drawer's own signal
+    void observeCommonDrawer_()
+    {
         if (commonTree_) {
             connect(
                 commonTree_,
                 &VaultFileTree::expansionChanged,
                 this,
-                &WorkspaceFile::scheduleSave_);
+                &WorkspaceFile::scheduleSave);
         }
 
-        // Drawer toggles and tree | drawer handle drags. A toggle resizes
-        // through setSizes, which never emits splitterMoved, hence the drawer's
-        // own signal
         if (commonDrawer_) {
             connect(
                 commonDrawer_,
                 &Drawer::stateChanged,
                 this,
-                &WorkspaceFile::scheduleSave_);
+                &WorkspaceFile::scheduleSave);
         }
     }
 
-    void scheduleSave_() { debounce_->start(debounceMs_); }
-
     // Both sidebar trees' expansion as { this, common } — opaque arrays this
-    // class places but never reads into. commonTree_ is null for a common-vault
-    // window, so only "this" is written there
+    // class places but never reads into. With no common drawer only "this" is
+    // written
     [[nodiscard]] QJsonObject serializeExpansion_() const
     {
         QJsonObject expanded{};
@@ -326,8 +350,10 @@ private:
     // Re-expand each tree from its saved array. Runs during restore(), before
     // startObserving_ and before the window is shown; the trees expand
     // synchronously, since their shared model lists any folder on demand. An
-    // absent key (older workspace.json, or a common-vault window) yields an
-    // empty array and restores nothing
+    // absent key (saved with no common drawer) yields an empty array and
+    // restores nothing. The common tree's paths are relative to whichever
+    // Common Vault was set when they were saved; after it changes, a path the
+    // new one also has expands there, and the rest find nothing
     void restoreExpansion_(const QJsonObject& expanded)
     {
         if (fileTree_) {

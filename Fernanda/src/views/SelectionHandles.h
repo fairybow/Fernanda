@@ -173,6 +173,7 @@ public:
     // the mouse, less the offset the press measured: the point that started
     // in the middle of the handle's row. Dragging past the fixed end simply
     // selects the other way.
+    //
     // Not dragging, only the hover cursor changes, and the move is left to
     // the editor. A move with the button up ends a selection whose release
     // never arrived

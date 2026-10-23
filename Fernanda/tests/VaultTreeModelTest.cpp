@@ -28,10 +28,14 @@
 
 #include <Coco/Path.h>
 
+#include "core/BufferStore.h"
+#include "core/PathKey.h"
 #include "core/Vault.h"
 #include "core/VaultTreeModel.h"
 
 using namespace Qt::StringLiterals;
+using Fernanda::BufferStore;
+using Fernanda::PathKey;
 using Fernanda::Vault;
 using Fernanda::VaultTreeModel;
 
@@ -47,7 +51,7 @@ using Fernanda::VaultTreeModel;
 // about folders nobody has opened run without it.
 //
 // The last section waits on the file watcher, so it takes real time. See
-// VaultTimedTest.cpp for how those waits are written.
+// BufferStoreTimedTest.cpp for how those waits are written.
 //
 // Qt Test runs every private slot as a test
 class VaultTreeModelTest : public QObject
@@ -64,11 +68,12 @@ private:
     // changes as far as the vault can tell.
     //
     // The vault is made by start(), after the first files, and is destroyed
-    // before the folder
+    // before the store it's lent, and that before the folder
     struct Fixture_
     {
         QTemporaryDir folder{};
         Coco::Path root{ folder.path() };
+        BufferStore store{ nullptr };
         Vault* vault = nullptr;
         VaultTreeModel* model = nullptr;
         QAbstractItemModelTester* tester = nullptr;
@@ -94,13 +99,19 @@ private:
         // Leaves every folder but the root unlisted
         void startWithoutTester()
         {
-            vault = new Vault(root, nullptr);
+            vault = new Vault(root, &store, nullptr);
             model = vault->treeModel();
         }
 
         [[nodiscard]] Coco::Path absolute(const QString& relative) const
         {
             return root / Coco::Path(relative);
+        }
+
+        // An empty path is the vault's root
+        [[nodiscard]] PathKey key(const QString& relative = {}) const
+        {
+            return PathKey::of(absolute(relative));
         }
 
         void makeFolder(const QString& relative) const
@@ -146,6 +157,24 @@ private:
             return model->indexOf(absolute(relative));
         }
     };
+
+    // The rows under a folder of some other vault's tree, as rows() gives
+    // them for the fixture's. Lists the folder first if nothing has yet
+    [[nodiscard]] static QStringList
+    rowsOf_(VaultTreeModel* model, const QModelIndex& parent)
+    {
+        if (model->canFetchMore(parent)) {
+            model->fetchMore(parent);
+        }
+
+        QStringList shown{};
+
+        for (auto row = 0; row < model->rowCount(parent); ++row) {
+            shown << model->index(row, 0, parent).data().toString();
+        }
+
+        return shown;
+    }
 
 private slots:
     // The model sorts by the default locale's rules. Under the "C" locale,
@@ -362,7 +391,7 @@ private slots:
 
         QSignalSpy inserted(f.model, &VaultTreeModel::rowsInserted);
 
-        QCOMPARE(f.vault->createFile(f.root), Coco::Path("Untitled.txt"));
+        QCOMPARE(f.vault->createFile(f.key()), f.key(u"Untitled.txt"_s));
 
         QCOMPARE(inserted.count(), 1);
         QCOMPARE(
@@ -377,7 +406,7 @@ private slots:
         f.makeFolder(u"zeta"_s);
         f.start();
 
-        f.vault->createFolder(f.root);
+        f.vault->createFolder(f.key());
 
         QCOMPARE(
             f.rows(),
@@ -391,7 +420,7 @@ private slots:
         f.start();
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s }));
 
-        f.vault->createFile(f.absolute(u"one"_s));
+        f.vault->createFile(f.key(u"one"_s));
 
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s, u"Untitled"_s }));
     }
@@ -407,7 +436,7 @@ private slots:
 
         QSignalSpy inserted(f.model, &VaultTreeModel::rowsInserted);
 
-        QVERIFY(f.vault->createFileAt(Coco::Path("new/deeper/a.txt")));
+        QVERIFY(f.vault->createFileAt(f.key(u"new/deeper/a.txt"_s)));
 
         QCOMPARE(inserted.count(), 1);
         QCOMPARE(f.rows(), QStringList({ u"new"_s, u"Apple"_s }));
@@ -422,7 +451,7 @@ private slots:
         f.start();
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s }));
 
-        QVERIFY(f.vault->createFileAt(Coco::Path("one/b.txt")));
+        QVERIFY(f.vault->createFileAt(f.key(u"one/b.txt"_s)));
 
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s, u"b"_s }));
     }
@@ -440,7 +469,7 @@ private slots:
         QPersistentModelIndex a(f.index(u"a.txt"_s));
         QSignalSpy moved(f.model, &VaultTreeModel::rowsMoved);
 
-        f.vault->rename(f.absolute(u"a.txt"_s), u"x.txt"_s);
+        f.vault->rename(f.key(u"a.txt"_s), u"x.txt"_s);
 
         QCOMPARE(f.rows(), QStringList({ u"m"_s, u"x"_s, u"z"_s }));
         QCOMPARE(moved.count(), 1);
@@ -464,7 +493,7 @@ private slots:
         QSignalSpy moved(f.model, &VaultTreeModel::rowsMoved);
         QSignalSpy changed(f.model, &VaultTreeModel::dataChanged);
 
-        f.vault->rename(f.absolute(u"m.txt"_s), u"n.txt"_s);
+        f.vault->rename(f.key(u"m.txt"_s), u"n.txt"_s);
 
         QCOMPARE(f.rows(), QStringList({ u"a"_s, u"n"_s, u"z"_s }));
         QCOMPARE(moved.count(), 0);
@@ -483,10 +512,10 @@ private slots:
         f.makeFile(u"y.txt"_s);
         f.start();
 
-        f.vault->rename(f.absolute(u"b.txt"_s), u"z.txt"_s);
+        f.vault->rename(f.key(u"b.txt"_s), u"z.txt"_s);
         QCOMPARE(f.rows(), QStringList({ u"m"_s, u"y"_s, u"z"_s }));
 
-        f.vault->rename(f.absolute(u"z.txt"_s), u"a.txt"_s);
+        f.vault->rename(f.key(u"z.txt"_s), u"a.txt"_s);
         QCOMPARE(f.rows(), QStringList({ u"a"_s, u"m"_s, u"y"_s }));
     }
 
@@ -502,7 +531,7 @@ private slots:
         QPersistentModelIndex one(f.index(u"one"_s));
         QPersistentModelIndex a(f.index(u"one/two/a.txt"_s));
 
-        f.vault->rename(f.absolute(u"one"_s), u"uno"_s);
+        f.vault->rename(f.key(u"one"_s), u"uno"_s);
 
         QCOMPARE(f.rows(), QStringList({ u"uno"_s, u"zeta"_s }));
         QVERIFY(one.isValid());
@@ -524,7 +553,7 @@ private slots:
 
         QPersistentModelIndex a(f.index(u"a.txt"_s));
 
-        f.vault->rename(f.absolute(u"a.txt"_s), u"a.docx"_s);
+        f.vault->rename(f.key(u"a.txt"_s), u"a.docx"_s);
 
         QCOMPARE(f.rows(), QStringList({ u"b"_s }));
         QVERIFY(!a.isValid());
@@ -540,7 +569,7 @@ private slots:
 
         QPersistentModelIndex a(f.index(u"a.txt"_s));
 
-        f.vault->move(f.absolute(u"a.txt"_s), f.absolute(u"one"_s));
+        f.vault->move(f.key(u"a.txt"_s), f.key(u"one"_s));
 
         QCOMPARE(f.rows(), QStringList({ u"one"_s }));
         QCOMPARE(f.rows(u"one"_s), QStringList({ u"a"_s, u"b"_s }));
@@ -561,7 +590,7 @@ private slots:
 
         QPersistentModelIndex a(f.index(u"a.txt"_s));
 
-        f.vault->move(f.absolute(u"a.txt"_s), f.absolute(u"one"_s));
+        f.vault->move(f.key(u"a.txt"_s), f.key(u"one"_s));
 
         QVERIFY(!a.isValid());
         QCOMPARE(f.rows(), QStringList({ u"one"_s }));
@@ -578,7 +607,7 @@ private slots:
 
         QPersistentModelIndex a(f.index(u"one/two/a.txt"_s));
 
-        f.vault->move(f.absolute(u"one"_s), f.absolute(u"other"_s));
+        f.vault->move(f.key(u"one"_s), f.key(u"other"_s));
 
         QCOMPARE(f.rows(), QStringList({ u"other"_s }));
         QCOMPARE(f.rows(u"other"_s), QStringList({ u"one"_s }));
@@ -598,7 +627,7 @@ private slots:
         QSignalSpy removed(f.model, &VaultTreeModel::rowsRemoved);
         QSignalSpy changed(f.model, &VaultTreeModel::dataChanged);
 
-        QVERIFY(f.vault->rename(f.absolute(u"a.txt"_s), u"b.txt"_s).isEmpty());
+        QVERIFY(f.vault->rename(f.key(u"a.txt"_s), u"b.txt"_s).isEmpty());
 
         QCOMPARE(f.rows(), QStringList({ u"a"_s, u"b"_s }));
         QCOMPARE(moved.count() + removed.count() + changed.count(), 0);
@@ -743,7 +772,7 @@ private slots:
         f.makeFile(u"m.txt"_s);
         f.start();
 
-        f.vault->rename(f.absolute(u"a.txt"_s), u"z.txt"_s);
+        f.vault->rename(f.key(u"a.txt"_s), u"z.txt"_s);
         QPersistentModelIndex z(f.index(u"z.txt"_s));
 
         QSignalSpy inserted(f.model, &VaultTreeModel::rowsInserted);
@@ -754,6 +783,238 @@ private slots:
         QCOMPARE(inserted.count() + removed.count(), 0);
         QVERIFY(z.isValid());
         QCOMPARE(f.rows(), QStringList({ u"m"_s, u"z"_s }));
+    }
+
+    // A root spelled anew keeps its rows, builds every path from the new
+    // spelling, and watches its listed folders under it: a change reported
+    // only under the old spelling would be outside the root and ignored. A
+    // symlink to the folder stands in for another letter case, which only
+    // Windows and macOS have
+    void aRootSpelledAnewKeepsItsRowsAndWatchesUnderTheNewSpelling()
+    {
+#if defined(Q_OS_WIN)
+
+        // QFile::link makes a .lnk shortcut on Windows, not a link the file
+        // system follows
+        QSKIP("Needs a symlink");
+
+#else
+
+        Fixture_ f{};
+        f.makeFile(u"sub/a.txt"_s);
+        f.start();
+        QCOMPARE(f.rows(u"sub"_s), QStringList({ u"a"_s }));
+
+        QPersistentModelIndex sub(f.index(u"sub"_s));
+
+        QTemporaryDir elsewhere{};
+        auto link = Coco::Path(elsewhere.path()) / Coco::Path(u"link"_s);
+        QVERIFY(QFile::link(f.root.toQString(), link.toQString()));
+
+        f.model->moveRoot(link);
+
+        QCOMPARE(f.model->root(), link);
+        QVERIFY(sub.isValid());
+        QCOMPARE(f.model->pathOf(sub), link / Coco::Path(u"sub"_s));
+        QCOMPARE(
+            f.model->indexOf(link / Coco::Path(u"sub"_s)),
+            QModelIndex(sub));
+        QVERIFY(!f.model->indexOf(f.absolute(u"sub"_s)).isValid());
+
+        f.makeFile(u"sub/b.txt"_s);
+
+        QTRY_COMPARE(rowsOf_(f.model, sub), QStringList({ u"a"_s, u"b"_s }));
+
+#endif
+    }
+
+    // --- A vault inside the fixture's ---------------------------------------
+    //
+    // The inner vault is lent the fixture's store, as App lends its one store
+    // to every vault, and is made after the fixture, so it's destroyed first
+
+    // The inner vault's tree moves the same row, as the outer's does, so a
+    // window showing it keeps the folder and what's in it open
+    void aRenameThroughAnOuterVaultMovesTheInnerTreesRow()
+    {
+        Fixture_ f{};
+        f.makeFile(u"inner/sub/a.txt"_s);
+        f.start();
+
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"sub"_s }));
+
+        QPersistentModelIndex sub(
+            inner_model->indexOf(f.absolute(u"inner/sub"_s)));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(
+            !f.vault->rename(f.key(u"inner/sub"_s), u"renamed"_s).isEmpty());
+
+        QVERIFY(sub.isValid());
+        QCOMPARE(sub.data().toString(), u"renamed"_s);
+        QVERIFY(!inner_model->canFetchMore(sub));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"renamed"_s }));
+
+        // The watcher's later report of the same rename changes nothing
+        QTest::qWait(SETTLE_MS_);
+        QVERIFY(sub.isValid());
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"renamed"_s }));
+    }
+
+    // Where letter case is ignored, an inner vault's root may be spelled in
+    // another case than the outer vault's tree spells its folder. A rename
+    // through the outer vault still finds the inner tree's row
+    void aRenameThroughAnOuterVaultFindsAnInnerTreeSpelledInAnotherCase()
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+
+        Fixture_ f{};
+        f.makeFile(u"inner/sub/a.txt"_s);
+        f.start();
+
+        if (!f.absolute(u"INNER"_s).isDir()) {
+            QSKIP("This file system respects letter case");
+        }
+
+        Vault inner(f.absolute(u"INNER"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"sub"_s }));
+
+        QPersistentModelIndex sub(
+            inner_model->indexOf(f.absolute(u"INNER/sub"_s)));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(
+            !f.vault->rename(f.key(u"inner/sub"_s), u"renamed"_s).isEmpty());
+
+        QVERIFY(sub.isValid());
+        QCOMPARE(sub.data().toString(), u"renamed"_s);
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+#else
+
+        QSKIP("Letter case counts in paths on this platform");
+
+#endif
+    }
+
+    // Where letter case is ignored, renaming a folder that holds an inner
+    // vault's folder by letter case alone leaves the inner vault in place. Its
+    // tree's watches, released around the rename, come back
+    void aCaseOnlyRenameAboveAnInnerVaultKeepsItsTreeWatching()
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+
+        Fixture_ f{};
+        f.makeFile(u"box/inner/sub/a.txt"_s);
+        f.start();
+
+        if (!f.absolute(u"BOX"_s).isDir()) {
+            QSKIP("This file system respects letter case");
+        }
+
+        Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        (void)rowsOf_(inner_model, {});
+        auto sub = inner_model->indexOf(f.absolute(u"box/inner/sub"_s));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(!f.vault->rename(f.key(u"box"_s), u"BOX"_s).isEmpty());
+
+        f.makeFile(u"BOX/inner/sub/b.txt"_s);
+
+        QTRY_COMPARE(
+            rowsOf_(inner_model, sub),
+            QStringList({ u"a"_s, u"b"_s }));
+
+#else
+
+        QSKIP("Letter case counts in paths on this platform");
+
+#endif
+    }
+
+    // Renaming a folder that holds an inner vault's folder takes the folder
+    // with it. Moved there, the inner tree keeps its rows, builds its paths
+    // from the new place, and watches its listed folders there
+    void aRootMovedWithAFolderAboveItKeepsItsRowsAndWatches()
+    {
+        Fixture_ f{};
+        f.makeFile(u"box/inner/sub/a.txt"_s);
+        f.start();
+
+        Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        (void)rowsOf_(inner_model, {});
+        QPersistentModelIndex sub(
+            inner_model->indexOf(f.absolute(u"box/inner/sub"_s)));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(!f.vault->rename(f.key(u"box"_s), u"crate"_s).isEmpty());
+        inner_model->moveRoot(f.absolute(u"crate/inner"_s));
+
+        QVERIFY(sub.isValid());
+        QCOMPARE(inner_model->pathOf(sub), f.absolute(u"crate/inner/sub"_s));
+        QCOMPARE(
+            inner_model->indexOf(f.absolute(u"crate/inner/sub"_s)),
+            QModelIndex(sub));
+
+        f.makeFile(u"crate/inner/sub/b.txt"_s);
+
+        QTRY_COMPARE(
+            rowsOf_(inner_model, sub),
+            QStringList({ u"a"_s, u"b"_s }));
+    }
+
+    // After a trash the entry's row leaves every tree. The trash itself needs
+    // a system trash, so the store is called as Vault::moveToTrash calls it
+    // once the disk op is done
+    void aRemovalThroughTheStoreLeavesEveryTree()
+    {
+        Fixture_ f{};
+        f.makeFile(u"inner/sub/a.txt"_s);
+        f.makeFile(u"inner/b.txt"_s);
+        f.start();
+
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"sub"_s, u"b"_s }));
+        QCOMPARE(f.rows(u"inner"_s), QStringList({ u"sub"_s, u"b"_s }));
+
+        QVERIFY(QDir(f.folder.filePath(u"inner/sub"_s)).removeRecursively());
+        f.store.applyRemoval(f.key(u"inner/sub"_s));
+
+        QCOMPARE(rowsOf_(inner_model, {}), QStringList({ u"b"_s }));
+        QCOMPARE(f.rows(u"inner"_s), QStringList({ u"b"_s }));
+    }
+
+    // The outer vault's rename lets go of the inner tree's watches inside the
+    // folder, and a failed one gives them back: a later change inside the
+    // folder still shows in the inner tree
+    void aFailedRenameThroughAnOuterVaultLeavesTheInnerTreeWatching()
+    {
+        Fixture_ f{};
+        f.makeFile(u"inner/sub/a.txt"_s);
+        f.makeFile(u"inner/taken.txt"_s);
+        f.start();
+
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+        auto* inner_model = inner.treeModel();
+        (void)rowsOf_(inner_model, {});
+        auto sub = inner_model->indexOf(f.absolute(u"inner/sub"_s));
+        QCOMPARE(rowsOf_(inner_model, sub), QStringList({ u"a"_s }));
+
+        QVERIFY(
+            f.vault->rename(f.key(u"inner/sub"_s), u"taken.txt"_s).isEmpty());
+
+        f.makeFile(u"inner/sub/b.txt"_s);
+
+        QTRY_COMPARE(
+            rowsOf_(inner_model, sub),
+            QStringList({ u"a"_s, u"b"_s }));
     }
 };
 

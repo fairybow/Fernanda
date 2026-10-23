@@ -24,7 +24,7 @@ Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80
 
 ## Includes
 
-- First-party includes use the full path from `src/`, even for a file in the same folder: `"core/FileRef.h"`, not `"FileRef.h"`. A file in `src/` itself is just its name: `"App.h"`.
+- First-party includes use the full path from `src/`, even for a file in the same folder: `"core/PathKey.h"`, not `"PathKey.h"`. A file in `src/` itself is just its name: `"App.h"`.
 - Order, each group separated by a blank line: standard library, Qt, Coco, first-party.
 - Include what a file names. Don't rely on another header pulling it in.
 
@@ -90,7 +90,7 @@ Tests are Qt Test, in `Fernanda/tests/`. The `APP_BUILD_TESTS` CMake option buil
 - Each test builds what it needs and shares nothing with the others, so they run in any order. Files go in a `QTemporaryDir`.
 - Write text outside ASCII as escapes (`u"\u00E9"`, `"\xC3\xA9"`), never as the characters themselves, so a case doesn't depend on how a compiler or an editor reads the file.
 - For something that should happen later, wait with `QTRY_COMPARE` or `QTRY_VERIFY`, never a fixed sleep. For something that should not happen, wait a fixed time and then check. A slow machine can then only make a test pass when it shouldn't, never fail when it shouldn't.
-- Keep tests that wait on a timer or the file watcher apart from tests that don't (`VaultTimedTest.cpp` beside `VaultTest.cpp`).
+- Keep tests that wait on a timer or the file watcher apart from tests that don't (`BufferStoreTimedTest.cpp` beside `BufferStoreTest.cpp`).
 - A test asserts what the code's comments and the docs promise. When one fails, decide which of the two is wrong before changing either.
 - A known bug gets a test marked `QEXPECT_FAIL`, and an entry in [TODO.md](TODO.md). The run stays green, and reports the test once the bug is fixed.
 - Make sure a new test can fail: break the code it guards, once, and watch it fail.

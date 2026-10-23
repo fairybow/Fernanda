@@ -10,13 +10,11 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
-#include <QBuffer>
 #include <QByteArray>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QIODevice>
-#include <QImage>
 #include <QObject>
 #include <QPlainTextDocumentLayout>
 #include <QSignalSpy>
@@ -29,25 +27,26 @@
 
 #include <Coco/Path.h>
 
+#include "core/BufferStore.h"
+#include "core/PathKey.h"
 #include "core/Vault.h"
 #include "core/VaultConfig.h"
 #include "models/AbstractFileModel.h"
-#include "models/ImageFileModel.h"
-#include "models/PdfFileModel.h"
 #include "models/TextFileModel.h"
 
 using namespace Qt::StringLiterals;
 using Fernanda::AbstractFileModel;
+using Fernanda::BufferStore;
+using Fernanda::PathKey;
 using Fernanda::TextFileModel;
 using Fernanda::Vault;
 using Fernanda::VaultConfig;
 
-// What a Vault does with files and their buffers (core/Vault.h), for
-// everything that happens at once: opening, creating, renaming, moving,
-// flushing, and freeing. What waits on a timer or the file watcher (autosave,
-// external changes) is not covered here.
+// What a Vault does with the files inside it (core/Vault.h): creating,
+// renaming, moving, and trashing, with the open buffers following, and its
+// settings and dictionary. The buffers themselves are BufferStoreTest's.
 //
-// Each test gets its own vault in a temporary folder.
+// Each test gets its own vault in a temporary folder, with its own store.
 //
 // Qt Test runs every private slot as a test
 class VaultTest : public QObject
@@ -55,20 +54,32 @@ class VaultTest : public QObject
     Q_OBJECT
 
 private:
-    // A vault in a temporary folder, and the file work a test does around it.
-    // Paths given to these functions are relative to the vault's root.
+    // A vault in a temporary folder, the store it's lent, and the file work a
+    // test does around them. Paths given to these functions are relative to
+    // the vault's root.
     //
-    // The vault is declared after the folder so it is destroyed first
+    // Declared in the order they're made, so each is destroyed before what it
+    // depends on
     struct Fixture_
     {
         QTemporaryDir folder{};
         Coco::Path root{ folder.path() };
-        Vault vault{ root, nullptr };
+        BufferStore store{ nullptr };
+        Vault vault{ root, &store, nullptr };
 
         [[nodiscard]] Coco::Path absolute(const QString& relative) const
         {
             return root / Coco::Path(relative);
         }
+
+        // The key of a path written relative to the root. Not checked, so a
+        // test can name a path outside the vault ("../x") to see it refused
+        [[nodiscard]] PathKey key(const QString& relative) const
+        {
+            return PathKey::of(absolute(relative));
+        }
+
+        [[nodiscard]] PathKey rootKey() const { return vault.rootKey(); }
 
         void makeFolder(const QString& relative) const
         {
@@ -111,26 +122,31 @@ private:
         }
 
         // Opens a file that needs no question asked. The test fails if the
-        // vault asks one
-        [[nodiscard]] AbstractFileModel* open(const QString& relative)
+        // store asks one
+        [[nodiscard]] AbstractFileModel* open(const PathKey& key)
         {
             auto asked = false;
 
-            auto* model = vault.openModel(
-                Coco::Path(relative),
-                [&asked](const Coco::Path&, const QByteArray&) {
+            auto* model = store.openModel(
+                key,
+                [&asked](const PathKey&, const QByteArray&) {
                     asked = true;
                     return false;
                 });
 
             if (asked) {
                 QTest::qFail(
-                    "The vault asked about a lossy open",
+                    "The store asked about a lossy open",
                     __FILE__,
                     __LINE__);
             }
 
             return model;
+        }
+
+        [[nodiscard]] AbstractFileModel* open(const QString& relative)
+        {
+            return open(key(relative));
         }
     };
 
@@ -149,19 +165,6 @@ private:
         cursor.insertText(text);
     }
 
-    [[nodiscard]] static QByteArray pngBytes_()
-    {
-        QImage image(2, 2, QImage::Format_RGB32);
-        image.fill(Qt::red);
-
-        QByteArray bytes{};
-        QBuffer buffer(&bytes);
-        buffer.open(QIODevice::WriteOnly);
-        image.save(&buffer, "PNG");
-
-        return bytes;
-    }
-
 private slots:
     // --- Paths --------------------------------------------------------------
 
@@ -169,26 +172,40 @@ private slots:
     {
         Fixture_ f{};
 
-        QVERIFY(f.vault.contains(f.root));
-        QVERIFY(f.vault.contains(f.absolute(u"a.txt"_s)));
-        QVERIFY(f.vault.contains(f.absolute(u"one/two/a.txt"_s)));
+        QVERIFY(f.vault.contains(f.rootKey()));
+        QVERIFY(f.vault.contains(f.key(u"a.txt"_s)));
+        QVERIFY(f.vault.contains(f.key(u"one/two/a.txt"_s)));
 
         // A sibling folder whose name starts with the vault's name
-        QVERIFY(!f.vault.contains(Coco::Path(f.folder.path() + u"x"_s)));
-        QVERIFY(!f.vault.contains(f.root.parent()));
+        QVERIFY(!f.vault.contains(
+            PathKey::of(Coco::Path(f.folder.path() + u"x"_s))));
+        QVERIFY(!f.vault.contains(PathKey::of(f.root.parent())));
     }
 
-    void relativeAndAbsoluteAreInverses()
+    // The vault's root is spelled as keys spell paths, so the keys it hands
+    // out start with it
+    void theRootIsTheKeysPath()
     {
         Fixture_ f{};
-        auto absolute = f.absolute(u"one/a.txt"_s);
 
-        QCOMPARE(f.vault.relativePathOf(absolute), Coco::Path("one/a.txt"));
-        QCOMPARE(f.vault.absolutePathOf(Coco::Path("one/a.txt")), absolute);
+        QCOMPARE(f.vault.root(), f.rootKey().path());
+        QVERIFY(f.vault.createFile(f.rootKey()).path().isUnder(f.vault.root()));
+    }
 
-        auto ref = f.vault.makeFileRef(absolute);
-        QCOMPARE(ref.vault, &f.vault);
-        QCOMPARE(ref.relative, Coco::Path("one/a.txt"));
+    // An empty key is refused, and the root the vault already has is no
+    // change: neither touches the root or announces anything
+    void moveRootRefusesAnEmptyKeyAndIgnoresItsOwn()
+    {
+        Fixture_ f{};
+        auto root = f.vault.root();
+        QSignalSpy moved(&f.vault, &Vault::rootMoved);
+
+        f.vault.moveRoot(PathKey{});
+        f.vault.moveRoot(f.rootKey());
+
+        QCOMPARE(f.vault.root(), root);
+        QCOMPARE(f.vault.treeModel()->root(), root);
+        QCOMPARE(moved.count(), 0);
     }
 
     // The vault's own folder is made with the vault
@@ -213,8 +230,8 @@ private slots:
 
         QStringList listed{};
 
-        for (const auto& path : f.vault.visibleFiles()) {
-            listed << path.prettyQString();
+        for (const auto& key : f.vault.visibleFiles()) {
+            listed << key.relativeTo(f.rootKey()).prettyQString();
         }
 
         listed.sort();
@@ -224,162 +241,15 @@ private slots:
             QStringList({ u"a.txt"_s, u"one/b.md"_s, u"one/two/c.pdf"_s }));
     }
 
-    // --- Opening ------------------------------------------------------------
-
-    void openGivesABufferHoldingTheFile()
-    {
-        Fixture_ f{};
-        f.write(u"one/a.txt"_s, "hello\n");
-
-        auto* model = f.open(u"one/a.txt"_s);
-
-        QVERIFY(model);
-        QCOMPARE(model->data(), QByteArray("hello\n"));
-        QCOMPARE(model->fileRef().vault, &f.vault);
-        QCOMPARE(model->fileRef().relative, Coco::Path("one/a.txt"));
-        QCOMPARE(model->title(), u"a"_s);
-        QVERIFY(!model->isModified());
-    }
-
-    void openTheSameFileTwiceGivesOneBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello\n");
-
-        auto* first = f.open(u"a.txt"_s);
-        auto* second = f.open(u"a.txt"_s);
-
-        QVERIFY(first);
-        QCOMPARE(first, second);
-    }
-
-    void openGivesEachTypeItsOwnKindOfBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "text");
-        f.write(u"a.md"_s, "text");
-        f.write(u"a.fountain"_s, "text");
-        f.write(u"a.png"_s, pngBytes_());
-        f.write(u"a.pdf"_s, "%PDF-1.4\n");
-
-        QVERIFY(qobject_cast<TextFileModel*>(f.open(u"a.txt"_s)));
-        QVERIFY(qobject_cast<TextFileModel*>(f.open(u"a.md"_s)));
-        QVERIFY(qobject_cast<TextFileModel*>(f.open(u"a.fountain"_s)));
-
-        auto* image = f.open(u"a.png"_s);
-        QVERIFY(qobject_cast<Fernanda::ImageFileModel*>(image));
-        QVERIFY(!image->isUserEditable());
-        QCOMPARE(image->data(), pngBytes_());
-
-        auto* pdf = f.open(u"a.pdf"_s);
-        QVERIFY(qobject_cast<Fernanda::PdfFileModel*>(pdf));
-        QVERIFY(!pdf->isUserEditable());
-        QCOMPARE(pdf->data(), QByteArray("%PDF-1.4\n"));
-    }
-
-    void openRefusesAnUnsupportedType()
-    {
-        Fixture_ f{};
-        f.write(u"a.docx"_s, "text");
-        f.write(u"Makefile"_s, "text");
-
-        QVERIFY(!f.open(u"a.docx"_s));
-        QVERIFY(!f.open(u"Makefile"_s));
-    }
-
-    // A buffer over nothing would be written into existence by the first
-    // keystroke
-    void openRefusesAMissingFile()
-    {
-        Fixture_ f{};
-
-        QVERIFY(!f.open(u"gone.txt"_s));
-        QVERIFY(!f.exists(u"gone.txt"_s));
-    }
-
-    void openAnEmptyFile()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "");
-
-        auto* model = f.open(u"a.txt"_s);
-
-        QVERIFY(model);
-        QCOMPARE(model->data(), QByteArray(""));
-    }
-
-    // --- Opening text that isn't valid UTF-8 --------------------------------
-
-    void openAsksAboutInvalidUtf8AndRefusesOnNo()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "caf\xE9");
-
-        auto asked = 0;
-        Coco::Path asked_about{};
-        QByteArray asked_with{};
-
-        auto* model = f.vault.openModel(
-            Coco::Path("a.txt"),
-            [&](const Coco::Path& relative, const QByteArray& data) {
-                ++asked;
-                asked_about = relative;
-                asked_with = data;
-                return false;
-            });
-
-        QVERIFY(!model);
-        QCOMPARE(asked, 1);
-        QCOMPARE(asked_about, Coco::Path("a.txt"));
-        QCOMPARE(asked_with, QByteArray("caf\xE9"));
-
-        // Declined, so the file is as it was
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("caf\xE9"));
-    }
-
-    // An accepted file is written back as valid UTF-8 straight away, so it
-    // never needs asking about again
-    void openRewritesInvalidUtf8OnYes()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "caf\xE9");
-
-        auto asked = 0;
-        auto accept = [&asked](const Coco::Path&, const QByteArray&) {
-            ++asked;
-            return true;
-        };
-
-        auto* model = f.vault.openModel(Coco::Path("a.txt"), accept);
-
-        QVERIFY(model);
-        QCOMPARE(model->data(), QByteArray("caf\xEF\xBF\xBD"));
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("caf\xEF\xBF\xBD"));
-        QVERIFY(!model->isModified());
-
-        // The open buffer answers a second open, and nothing is asked
-        QCOMPARE(f.vault.openModel(Coco::Path("a.txt"), accept), model);
-        QCOMPARE(asked, 1);
-    }
-
-    // Only text is asked about: other types are never decoded
-    void openNeverAsksAboutAnImage()
-    {
-        Fixture_ f{};
-        f.write(u"a.png"_s, "\xFF\xFE not an image");
-
-        QVERIFY(f.open(u"a.png"_s));
-    }
-
     // --- Creating -----------------------------------------------------------
 
     void createFileNamesAreUnique()
     {
         Fixture_ f{};
 
-        QCOMPARE(f.vault.createFile(f.root), Coco::Path("Untitled.txt"));
-        QCOMPARE(f.vault.createFile(f.root), Coco::Path("Untitled 1.txt"));
-        QCOMPARE(f.vault.createFile(f.root), Coco::Path("Untitled 2.txt"));
+        QCOMPARE(f.vault.createFile(f.rootKey()), f.key(u"Untitled.txt"_s));
+        QCOMPARE(f.vault.createFile(f.rootKey()), f.key(u"Untitled 1.txt"_s));
+        QCOMPARE(f.vault.createFile(f.rootKey()), f.key(u"Untitled 2.txt"_s));
 
         QVERIFY(f.exists(u"Untitled.txt"_s));
         QVERIFY(f.exists(u"Untitled 1.txt"_s));
@@ -391,8 +261,8 @@ private slots:
     {
         Fixture_ f{};
 
-        QCOMPARE(f.vault.createFolder(f.root), Coco::Path("Untitled"));
-        QCOMPARE(f.vault.createFolder(f.root), Coco::Path("Untitled 1"));
+        QCOMPARE(f.vault.createFolder(f.rootKey()), f.key(u"Untitled"_s));
+        QCOMPARE(f.vault.createFolder(f.rootKey()), f.key(u"Untitled 1"_s));
 
         QVERIFY(QFileInfo(f.folder.filePath(u"Untitled"_s)).isDir());
         QVERIFY(QFileInfo(f.folder.filePath(u"Untitled 1"_s)).isDir());
@@ -404,20 +274,20 @@ private slots:
         f.makeFolder(u"one"_s);
 
         QCOMPARE(
-            f.vault.createFile(f.absolute(u"one"_s)),
-            Coco::Path("one/Untitled.txt"));
+            f.vault.createFile(f.key(u"one"_s)),
+            f.key(u"one/Untitled.txt"_s));
         QCOMPARE(
-            f.vault.createFolder(f.absolute(u"one"_s)),
-            Coco::Path("one/Untitled"));
+            f.vault.createFolder(f.key(u"one"_s)),
+            f.key(u"one/Untitled"_s));
     }
 
     // A new file can be opened at once
     void createdFileOpens()
     {
         Fixture_ f{};
-        auto relative = f.vault.createFile(f.root);
+        auto key = f.vault.createFile(f.rootKey());
 
-        auto* model = f.open(relative.toQString());
+        auto* model = f.open(key);
 
         QVERIFY(model);
         QCOMPARE(model->data(), QByteArray(""));
@@ -428,8 +298,8 @@ private slots:
     {
         Fixture_ f{};
 
-        QVERIFY(f.vault.createFile(f.absolute(u"gone"_s)).isEmpty());
-        QVERIFY(f.vault.createFolder(f.absolute(u"gone"_s)).isEmpty());
+        QVERIFY(f.vault.createFile(f.key(u"gone"_s)).isEmpty());
+        QVERIFY(f.vault.createFolder(f.key(u"gone"_s)).isEmpty());
         QVERIFY(!f.exists(u"gone"_s));
     }
 
@@ -438,7 +308,7 @@ private slots:
         Fixture_ f{};
 
         QVERIFY(
-            f.vault.createFileAt(Coco::Path("drafts/part one/Chapter 2.txt")));
+            f.vault.createFileAt(f.key(u"drafts/part one/Chapter 2.txt"_s)));
 
         QVERIFY(QFileInfo(f.folder.filePath(u"drafts/part one"_s)).isDir());
         QCOMPARE(f.read(u"drafts/part one/Chapter 2.txt"_s), QByteArray(""));
@@ -450,8 +320,8 @@ private slots:
         Fixture_ f{};
         f.makeFolder(u"one"_s);
 
-        QVERIFY(f.vault.createFileAt(Coco::Path("one/Notes.md")));
-        QVERIFY(f.vault.createFileAt(Coco::Path("Script.fountain")));
+        QVERIFY(f.vault.createFileAt(f.key(u"one/Notes.md"_s)));
+        QVERIFY(f.vault.createFileAt(f.key(u"Script.fountain"_s)));
 
         QVERIFY(f.exists(u"one/Notes.md"_s));
         QVERIFY(f.exists(u"Script.fountain"_s));
@@ -463,7 +333,7 @@ private slots:
         Fixture_ f{};
         f.write(u"a.txt"_s, "kept");
 
-        QVERIFY(!f.vault.createFileAt(Coco::Path("a.txt")));
+        QVERIFY(!f.vault.createFileAt(f.key(u"a.txt"_s)));
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("kept"));
     }
 
@@ -473,37 +343,47 @@ private slots:
         Fixture_ f{};
         f.write(u"a.txt"_s, "kept");
 
-        QVERIFY(!f.vault.createFileAt(Coco::Path("a.txt/b.txt")));
+        QVERIFY(!f.vault.createFileAt(f.key(u"a.txt/b.txt"_s)));
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("kept"));
     }
 
-    void createFileAtRefusesWhatIsNotAKey()
+    void createFileAtRefusesWhatIsNotAFileInside()
     {
         Fixture_ f{};
         auto escapee = QFileInfo(f.folder.path()).fileName() + u"-out.txt"_s;
 
-        QVERIFY(!f.vault.createFileAt(Coco::Path{}));
-        QVERIFY(!f.vault.createFileAt(Coco::Path(u"../"_s + escapee)));
-        QVERIFY(!f.vault.createFileAt(Coco::Path("a/../b.txt")));
-        QVERIFY(!f.vault.createFileAt(Coco::Path("a/./b.txt")));
-        QVERIFY(!f.vault.createFileAt(f.absolute(u"b.txt"_s)));
+        QVERIFY(!f.vault.createFileAt(PathKey{}));
+        QVERIFY(!f.vault.createFileAt(f.key(u"../"_s + escapee)));
+        QVERIFY(!f.vault.createFileAt(f.rootKey()));
 
         QVERIFY(!QFileInfo(QFileInfo(f.folder.path()).dir().filePath(escapee))
                      .exists());
+    }
+
+    // A key is normalized, so a path through "." or ".." names the file it
+    // ends at, and only that file's folders are made
+    void createFileAtTakesAnySpelling()
+    {
+        Fixture_ f{};
+
+        QVERIFY(f.vault.createFileAt(f.key(u"a/../b.txt"_s)));
+        QVERIFY(f.vault.createFileAt(f.key(u"c/./d.txt"_s)));
+
+        QVERIFY(f.exists(u"b.txt"_s));
+        QVERIFY(f.exists(u"c/d.txt"_s));
         QVERIFY(!f.exists(u"a"_s));
-        QVERIFY(!f.exists(u"b.txt"_s));
     }
 
     void createFileAtRefusesHiddenNamesAndOtherTypes()
     {
         Fixture_ f{};
 
-        QVERIFY(!f.vault.createFileAt(Coco::Path(".hidden.txt")));
-        QVERIFY(!f.vault.createFileAt(Coco::Path(".notes/a.txt")));
-        QVERIFY(!f.vault.createFileAt(Coco::Path("one/.notes/a.txt")));
-        QVERIFY(!f.vault.createFileAt(Coco::Path("scan.pdf")));
-        QVERIFY(!f.vault.createFileAt(Coco::Path("picture.png")));
-        QVERIFY(!f.vault.createFileAt(Coco::Path("Chapter 2")));
+        QVERIFY(!f.vault.createFileAt(f.key(u".hidden.txt"_s)));
+        QVERIFY(!f.vault.createFileAt(f.key(u".notes/a.txt"_s)));
+        QVERIFY(!f.vault.createFileAt(f.key(u"one/.notes/a.txt"_s)));
+        QVERIFY(!f.vault.createFileAt(f.key(u"scan.pdf"_s)));
+        QVERIFY(!f.vault.createFileAt(f.key(u"picture.png"_s)));
+        QVERIFY(!f.vault.createFileAt(f.key(u"Chapter 2"_s)));
 
         QVERIFY(!f.exists(u".hidden.txt"_s));
         QVERIFY(!f.exists(u".notes"_s));
@@ -520,9 +400,9 @@ private slots:
         Fixture_ f{};
         f.write(u"a.txt"_s, "hello");
 
-        auto renamed = f.vault.rename(f.absolute(u"a.txt"_s), u"b.txt"_s);
+        auto renamed = f.vault.rename(f.key(u"a.txt"_s), u"b.txt"_s);
 
-        QCOMPARE(renamed, Coco::Path("b.txt"));
+        QCOMPARE(renamed, f.key(u"b.txt"_s));
         QVERIFY(!f.exists(u"a.txt"_s));
         QCOMPARE(f.read(u"b.txt"_s), QByteArray("hello"));
     }
@@ -537,10 +417,10 @@ private slots:
 
         QSignalSpy renamed(model, &AbstractFileModel::renamed);
 
-        f.vault.rename(f.absolute(u"a.txt"_s), u"b.txt"_s);
+        f.vault.rename(f.key(u"a.txt"_s), u"b.txt"_s);
 
         QCOMPARE(renamed.count(), 1);
-        QCOMPARE(model->fileRef().relative, Coco::Path("b.txt"));
+        QCOMPARE(model->key(), f.key(u"b.txt"_s));
         QCOMPARE(model->title(), u"b"_s);
         QCOMPARE(f.open(u"b.txt"_s), model);
         QVERIFY(!f.open(u"a.txt"_s));
@@ -555,10 +435,10 @@ private slots:
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
 
-        f.vault.rename(f.absolute(u"a.txt"_s), u"b.txt"_s);
+        f.vault.rename(f.key(u"a.txt"_s), u"b.txt"_s);
         type_(model, u"!"_s);
 
-        QVERIFY(f.vault.flush().isEmpty());
+        QVERIFY(f.store.flush().isEmpty());
         QCOMPARE(f.read(u"b.txt"_s), QByteArray("hello!"));
         QVERIFY(!f.exists(u"a.txt"_s));
     }
@@ -573,12 +453,12 @@ private slots:
         QVERIFY(model);
         type_(model, u"!"_s);
 
-        f.vault.rename(f.absolute(u"a.txt"_s), u"b.txt"_s);
+        f.vault.rename(f.key(u"a.txt"_s), u"b.txt"_s);
 
         QVERIFY(model->isModified());
         QCOMPARE(model->data(), QByteArray("hello!"));
 
-        QVERIFY(f.vault.flush().isEmpty());
+        QVERIFY(f.store.flush().isEmpty());
         QCOMPARE(f.read(u"b.txt"_s), QByteArray("hello!"));
     }
 
@@ -595,12 +475,12 @@ private slots:
         auto* other = f.open(u"other.txt"_s);
         QVERIFY(a && b && other);
 
-        auto renamed = f.vault.rename(f.absolute(u"one"_s), u"uno"_s);
+        auto renamed = f.vault.rename(f.key(u"one"_s), u"uno"_s);
 
-        QCOMPARE(renamed, Coco::Path("uno"));
-        QCOMPARE(a->fileRef().relative, Coco::Path("uno/a.txt"));
-        QCOMPARE(b->fileRef().relative, Coco::Path("uno/two/b.txt"));
-        QCOMPARE(other->fileRef().relative, Coco::Path("other.txt"));
+        QCOMPARE(renamed, f.key(u"uno"_s));
+        QCOMPARE(a->key(), f.key(u"uno/a.txt"_s));
+        QCOMPARE(b->key(), f.key(u"uno/two/b.txt"_s));
+        QCOMPARE(other->key(), f.key(u"other.txt"_s));
 
         QCOMPARE(f.open(u"uno/a.txt"_s), a);
         QCOMPARE(f.open(u"uno/two/b.txt"_s), b);
@@ -618,9 +498,9 @@ private slots:
         auto* b = f.open(u"one more/b.txt"_s);
         QVERIFY(b);
 
-        f.vault.rename(f.absolute(u"one"_s), u"uno"_s);
+        f.vault.rename(f.key(u"one"_s), u"uno"_s);
 
-        QCOMPARE(b->fileRef().relative, Coco::Path("one more/b.txt"));
+        QCOMPARE(b->key(), f.key(u"one more/b.txt"_s));
         QVERIFY(f.exists(u"one more/b.txt"_s));
     }
 
@@ -631,12 +511,12 @@ private slots:
         auto* model = f.open(u"one/a.txt"_s);
         QVERIFY(model);
 
-        auto renamed = f.vault.rename(f.absolute(u"one/a.txt"_s), u"A.TXT"_s);
+        auto renamed = f.vault.rename(f.key(u"one/a.txt"_s), u"A.TXT"_s);
 
-        QCOMPARE(renamed, Coco::Path("one/A.TXT"));
+        QCOMPARE(renamed, f.key(u"one/A.TXT"_s));
         QCOMPARE(f.namesIn(u"one"_s), QStringList({ u"A.TXT"_s }));
         QCOMPARE(f.read(u"one/A.TXT"_s), QByteArray("hello"));
-        QCOMPARE(model->fileRef().relative, Coco::Path("one/A.TXT"));
+        QCOMPARE(model->key(), f.key(u"one/A.TXT"_s));
     }
 
     void renameOntoATakenNameFailsAndChangesNothing()
@@ -647,100 +527,96 @@ private slots:
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
 
-        QVERIFY(f.vault.rename(f.absolute(u"a.txt"_s), u"b.txt"_s).isEmpty());
+        QVERIFY(f.vault.rename(f.key(u"a.txt"_s), u"b.txt"_s).isEmpty());
 
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("a"));
         QCOMPARE(f.read(u"b.txt"_s), QByteArray("b"));
-        QCOMPARE(model->fileRef().relative, Coco::Path("a.txt"));
+        QCOMPARE(model->key(), f.key(u"a.txt"_s));
         QCOMPARE(f.open(u"a.txt"_s), model);
+    }
+
+    // A file deleted outside Fernanda keeps its buffer until the watcher's
+    // report is reconciled. A rename onto its name in the meantime discards
+    // that buffer, as the reconcile would, and the renamed file's buffer takes
+    // the name
+    void renameOntoANameJustDeletedOutsideReplacesItsBuffer()
+    {
+        Fixture_ f{};
+        f.write(u"a.txt"_s, "a");
+        f.write(u"b.txt"_s, "b");
+        auto* a = f.open(u"a.txt"_s);
+        auto* b = f.open(u"b.txt"_s);
+        QVERIFY(a && b);
+
+        QSignalSpy removed(b, &AbstractFileModel::removedFromDisk);
+        QVERIFY(QFile::remove(f.folder.filePath(u"b.txt"_s)));
+
+        QCOMPARE(
+            f.vault.rename(f.key(u"a.txt"_s), u"b.txt"_s),
+            f.key(u"b.txt"_s));
+
+        QCOMPARE(removed.count(), 1);
+        QCOMPARE(a->key(), f.key(u"b.txt"_s));
+        QCOMPARE(f.open(u"b.txt"_s), a);
+        QCOMPARE(f.read(u"b.txt"_s), QByteArray("a"));
     }
 
     void renameAMissingEntryFails()
     {
         Fixture_ f{};
 
-        QVERIFY(
-            f.vault.rename(f.absolute(u"gone.txt"_s), u"b.txt"_s).isEmpty());
+        QVERIFY(f.vault.rename(f.key(u"gone.txt"_s), u"b.txt"_s).isEmpty());
         QVERIFY(!f.exists(u"b.txt"_s));
     }
 
-    // --- Paths that are not plain -------------------------------------------
+    // --- Paths, however they're spelled ------------------------------------
 
-    // The vault takes a path only as a list of names: no "." or "..", no
-    // trailing separator, and for a relative path no root. Anything else is
-    // refused, whether or not it would land inside the vault.
+    // A key is normalized, so "." and ".." name where they end up: inside the
+    // vault, the same file as the plain path; outside it, refused like any
+    // other path outside.
     //
     // Where a test tries to put a file outside the vault, the file's name is
     // built from the temporary folder's own name, so if it does get out it is
     // found and removed, and nothing else beside the folder can share its name
 
-    void containsRefusesAPathThatIsNotPlain()
+    void containsGoesByWhereAPathEnds()
     {
         Fixture_ f{};
-        f.makeFolder(u"one"_s);
 
-        QVERIFY(!f.vault.contains(f.absolute(u"one/.."_s)));
-        QVERIFY(!f.vault.contains(f.absolute(u"one/../.."_s)));
-        QVERIFY(!f.vault.contains(f.absolute(u"one/./a.txt"_s)));
-        QVERIFY(!f.vault.contains(f.absolute(u"one/../one/a.txt"_s)));
-        QVERIFY(!f.vault.contains(Coco::Path(f.folder.path() + u"/"_s)));
-        QVERIFY(!f.vault.contains(Coco::Path(f.folder.path() + u"/."_s)));
-    }
-
-    void openRefusesAPathThroughDots()
-    {
-        Fixture_ f{};
-        auto escapee = QFileInfo(f.folder.path()).fileName() + u"-out.txt"_s;
-        auto outside = QFileInfo(f.folder.path()).dir().filePath(escapee);
-        f.write(u"one/a.txt"_s, "hello");
-
-        QFile file(outside);
-        QVERIFY(file.open(QIODevice::WriteOnly));
-        file.write("outside");
-        file.close();
-
-        auto* out = f.open(u"../"_s + escapee);
-        auto* around = f.open(u"one/../one/a.txt"_s);
-        auto* dotted = f.open(u"./one/a.txt"_s);
-
-        QFile::remove(outside);
-
-        QVERIFY(!out);
-        QVERIFY(!around);
-        QVERIFY(!dotted);
-    }
-
-    void openRefusesAnAbsolutePath()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-
-        QTemporaryDir elsewhere{};
-        QFile outside(elsewhere.filePath(u"b.txt"_s));
-        QVERIFY(outside.open(QIODevice::WriteOnly));
-        outside.close();
-
-        QVERIFY(!f.open(elsewhere.filePath(u"b.txt"_s)));
-        QVERIFY(!f.open(f.absolute(u"a.txt"_s).toQString()));
-        QVERIFY(!f.open(QString{}));
+        QVERIFY(f.vault.contains(f.key(u"one/.."_s)));
+        QVERIFY(f.vault.contains(f.key(u"one/./a.txt"_s)));
+        QVERIFY(f.vault.contains(f.key(u"one/../one/a.txt"_s)));
+        QVERIFY(f.vault.contains(
+            PathKey::of(Coco::Path(f.folder.path() + u"/"_s))));
+        QVERIFY(!f.vault.contains(f.key(u"one/../.."_s)));
+        QVERIFY(!f.vault.contains(f.key(u"../x.txt"_s)));
     }
 
     void createOutsideTheVaultIsRefused()
     {
         Fixture_ f{};
-        f.makeFolder(u"one"_s);
         QTemporaryDir elsewhere{};
+        auto elsewhere_key = PathKey::of(Coco::Path(elsewhere.path()));
 
-        QVERIFY(f.vault.createFile(Coco::Path(elsewhere.path())).isEmpty());
-        QVERIFY(f.vault.createFolder(Coco::Path(elsewhere.path())).isEmpty());
+        QVERIFY(f.vault.createFile(elsewhere_key).isEmpty());
+        QVERIFY(f.vault.createFolder(elsewhere_key).isEmpty());
         QVERIFY(QDir(elsewhere.path())
                     .entryList(QDir::AllEntries | QDir::NoDotAndDotDot)
                     .isEmpty());
+    }
 
-        // A folder inside the vault, by a path that is not plain
-        QVERIFY(f.vault.createFile(f.absolute(u"one/../one"_s)).isEmpty());
-        QVERIFY(f.vault.createFolder(f.absolute(u"one/."_s)).isEmpty());
-        QVERIFY(f.namesIn(u"one"_s).isEmpty());
+    // A folder inside the vault, by a path through "." or ".."
+    void createInAFolderByAnySpelling()
+    {
+        Fixture_ f{};
+        f.makeFolder(u"one"_s);
+
+        QCOMPARE(
+            f.vault.createFile(f.key(u"one/../one"_s)),
+            f.key(u"one/Untitled.txt"_s));
+        QCOMPARE(
+            f.vault.createFolder(f.key(u"one/."_s)),
+            f.key(u"one/Untitled"_s));
     }
 
     void renameCannotLeaveTheVault()
@@ -751,7 +627,7 @@ private slots:
         f.write(u"one/a.txt"_s, "hello");
 
         auto renamed =
-            f.vault.rename(f.absolute(u"one/a.txt"_s), u"../../"_s + escapee);
+            f.vault.rename(f.key(u"one/a.txt"_s), u"../../"_s + escapee);
 
         auto left = QFileInfo::exists(outside);
         QFile::remove(outside);
@@ -769,7 +645,7 @@ private slots:
         auto* model = f.open(u"one/a.txt"_s);
         QVERIFY(model);
 
-        auto old = f.absolute(u"one/a.txt"_s);
+        auto old = f.key(u"one/a.txt"_s);
 
         QVERIFY(f.vault.rename(old, u"../moved.txt"_s).isEmpty());
         QVERIFY(f.vault.rename(old, u"../two/moved.txt"_s).isEmpty());
@@ -782,7 +658,7 @@ private slots:
         QVERIFY(f.exists(u"one/a.txt"_s));
         QVERIFY(!f.exists(u"moved.txt"_s));
         QVERIFY(f.namesIn(u"two"_s).isEmpty());
-        QCOMPARE(model->fileRef().relative, Coco::Path("one/a.txt"));
+        QCOMPARE(model->key(), f.key(u"one/a.txt"_s));
     }
 
     void moveCannotLeaveTheVault()
@@ -793,9 +669,8 @@ private slots:
         f.write(u"one/"_s + escapee, "hello");
 
         // The folder above the vault, written as a path under the vault
-        auto moved = f.vault.move(
-            f.absolute(u"one/"_s + escapee),
-            f.absolute(u"one/../.."_s));
+        auto moved =
+            f.vault.move(f.key(u"one/"_s + escapee), f.key(u"one/../.."_s));
 
         auto left = QFileInfo::exists(outside);
         QFile::remove(outside);
@@ -805,23 +680,17 @@ private slots:
         QVERIFY(f.exists(u"one/"_s + escapee));
     }
 
-    void moveRefusesAPathThatIsNotPlain()
+    void moveTakesAnySpelling()
     {
         Fixture_ f{};
         f.write(u"a.txt"_s, "hello");
         f.makeFolder(u"one"_s);
         f.makeFolder(u"two"_s);
 
-        // Both would land inside the vault
-        QVERIFY(
-            f.vault.move(f.absolute(u"a.txt"_s), f.absolute(u"two/../one"_s))
-                .isEmpty());
-        QVERIFY(
-            f.vault.move(f.absolute(u"one/../a.txt"_s), f.absolute(u"one"_s))
-                .isEmpty());
-
-        QVERIFY(f.exists(u"a.txt"_s));
-        QVERIFY(f.namesIn(u"one"_s).isEmpty());
+        QCOMPARE(
+            f.vault.move(f.key(u"two/../a.txt"_s), f.key(u"one/../two/."_s)),
+            f.key(u"two/a.txt"_s));
+        QVERIFY(f.exists(u"two/a.txt"_s));
     }
 
     // --- Moving -------------------------------------------------------------
@@ -834,12 +703,12 @@ private slots:
         auto* model = f.open(u"a.txt"_s);
         QVERIFY(model);
 
-        auto moved = f.vault.move(f.absolute(u"a.txt"_s), f.absolute(u"one"_s));
+        auto moved = f.vault.move(f.key(u"a.txt"_s), f.key(u"one"_s));
 
-        QCOMPARE(moved, Coco::Path("one/a.txt"));
+        QCOMPARE(moved, f.key(u"one/a.txt"_s));
         QVERIFY(!f.exists(u"a.txt"_s));
         QCOMPARE(f.read(u"one/a.txt"_s), QByteArray("hello"));
-        QCOMPARE(model->fileRef().relative, Coco::Path("one/a.txt"));
+        QCOMPARE(model->key(), f.key(u"one/a.txt"_s));
         QCOMPARE(f.open(u"one/a.txt"_s), model);
     }
 
@@ -848,9 +717,9 @@ private slots:
         Fixture_ f{};
         f.write(u"one/a.txt"_s, "hello");
 
-        auto moved = f.vault.move(f.absolute(u"one/a.txt"_s), f.root);
+        auto moved = f.vault.move(f.key(u"one/a.txt"_s), f.rootKey());
 
-        QCOMPARE(moved, Coco::Path("a.txt"));
+        QCOMPARE(moved, f.key(u"a.txt"_s));
         QVERIFY(f.exists(u"a.txt"_s));
     }
 
@@ -862,10 +731,10 @@ private slots:
         auto* model = f.open(u"one/two/a.txt"_s);
         QVERIFY(model);
 
-        auto moved = f.vault.move(f.absolute(u"one"_s), f.absolute(u"other"_s));
+        auto moved = f.vault.move(f.key(u"one"_s), f.key(u"other"_s));
 
-        QCOMPARE(moved, Coco::Path("other/one"));
-        QCOMPARE(model->fileRef().relative, Coco::Path("other/one/two/a.txt"));
+        QCOMPARE(moved, f.key(u"other/one"_s));
+        QCOMPARE(model->key(), f.key(u"other/one/two/a.txt"_s));
         QVERIFY(f.exists(u"other/one/two/a.txt"_s));
         QVERIFY(!f.exists(u"one"_s));
     }
@@ -875,10 +744,8 @@ private slots:
         Fixture_ f{};
         f.write(u"one/two/a.txt"_s, "hello");
 
-        QVERIFY(
-            f.vault.move(f.absolute(u"one"_s), f.absolute(u"one"_s)).isEmpty());
-        QVERIFY(f.vault.move(f.absolute(u"one"_s), f.absolute(u"one/two"_s))
-                    .isEmpty());
+        QVERIFY(f.vault.move(f.key(u"one"_s), f.key(u"one"_s)).isEmpty());
+        QVERIFY(f.vault.move(f.key(u"one"_s), f.key(u"one/two"_s)).isEmpty());
 
         QVERIFY(f.exists(u"one/two/a.txt"_s));
     }
@@ -889,8 +756,7 @@ private slots:
         f.write(u"a.txt"_s, "top");
         f.write(u"one/a.txt"_s, "inner");
 
-        QVERIFY(f.vault.move(f.absolute(u"a.txt"_s), f.absolute(u"one"_s))
-                    .isEmpty());
+        QVERIFY(f.vault.move(f.key(u"a.txt"_s), f.key(u"one"_s)).isEmpty());
 
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("top"));
         QCOMPARE(f.read(u"one/a.txt"_s), QByteArray("inner"));
@@ -902,10 +768,8 @@ private slots:
         f.write(u"a.txt"_s, "a");
         f.write(u"b.txt"_s, "b");
 
-        QVERIFY(f.vault.move(f.absolute(u"a.txt"_s), f.absolute(u"b.txt"_s))
-                    .isEmpty());
-        QVERIFY(f.vault.move(f.absolute(u"a.txt"_s), f.absolute(u"gone"_s))
-                    .isEmpty());
+        QVERIFY(f.vault.move(f.key(u"a.txt"_s), f.key(u"b.txt"_s)).isEmpty());
+        QVERIFY(f.vault.move(f.key(u"a.txt"_s), f.key(u"gone"_s)).isEmpty());
 
         QVERIFY(f.exists(u"a.txt"_s));
     }
@@ -922,12 +786,17 @@ private slots:
         outside.close();
 
         // Out of the vault
-        QVERIFY(
-            f.vault.move(f.absolute(u"a.txt"_s), Coco::Path(elsewhere.path()))
-                .isEmpty());
+        QVERIFY(f.vault
+                    .move(
+                        f.key(u"a.txt"_s),
+                        PathKey::of(Coco::Path(elsewhere.path())))
+                    .isEmpty());
 
         // Into the vault
-        QVERIFY(f.vault.move(Coco::Path(elsewhere.filePath(u"b.txt"_s)), f.root)
+        QVERIFY(f.vault
+                    .move(
+                        PathKey::of(Coco::Path(elsewhere.filePath(u"b.txt"_s))),
+                        f.rootKey())
                     .isEmpty());
 
         QVERIFY(f.exists(u"a.txt"_s));
@@ -936,186 +805,16 @@ private slots:
         QVERIFY(!QFileInfo::exists(elsewhere.filePath(u"a.txt"_s)));
     }
 
-    // --- Flushing -----------------------------------------------------------
-
-    void flushWritesAnEdit()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        type_(model, u" world"_s);
-        QVERIFY(model->isModified());
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("hello"));
-
-        QVERIFY(f.vault.flush().isEmpty());
-
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("hello world"));
-        QVERIFY(!model->isModified());
-    }
-
-    void flushKeepsTheFilesLineEndingAndMark()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "\xEF\xBB\xBFone\r\n");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        type_(model, u"two\nthree"_s);
-        QVERIFY(f.vault.flush().isEmpty());
-
-        QCOMPARE(
-            f.read(u"a.txt"_s),
-            QByteArray("\xEF\xBB\xBFone\r\ntwo\r\nthree"));
-    }
-
-    // Shown by changing the file behind an unmodified buffer: a flush that
-    // wrote would put the buffer's text back
-    void flushWritesNothingForAnUnmodifiedBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        f.write(u"a.txt"_s, "changed outside");
-
-        QVERIFY(f.vault.flush().isEmpty());
-
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("changed outside"));
-    }
-
-    void flushWritesOnlyTheModifiedBuffers()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "a");
-        f.write(u"b.txt"_s, "b");
-        auto* a = f.open(u"a.txt"_s);
-        auto* b = f.open(u"b.txt"_s);
-        QVERIFY(a && b);
-
-        type_(a, u"!"_s);
-        f.write(u"b.txt"_s, "changed outside");
-
-        QVERIFY(f.vault.flush().isEmpty());
-
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("a!"));
-        QCOMPARE(f.read(u"b.txt"_s), QByteArray("changed outside"));
-    }
-
-    // A save only ever overwrites. A file deleted outside is not written
-    // back, and that isn't reported as a failed save
-    void flushDoesNotRecreateADeletedFile()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-        type_(model, u"!"_s);
-
-        QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
-
-        QVERIFY(f.vault.flush().isEmpty());
-        QVERIFY(!f.exists(u"a.txt"_s));
-    }
-
-    // Nor is a deleted folder rebuilt around it
-    void flushDoesNotRecreateADeletedFolder()
-    {
-        Fixture_ f{};
-        f.write(u"one/two/a.txt"_s, "hello");
-        auto* model = f.open(u"one/two/a.txt"_s);
-        QVERIFY(model);
-        type_(model, u"!"_s);
-
-        QVERIFY(QDir(f.folder.filePath(u"one"_s)).removeRecursively());
-
-        QVERIFY(f.vault.flush().isEmpty());
-        QVERIFY(!f.exists(u"one"_s));
-    }
-
-    // --- Freeing a buffer ---------------------------------------------------
-
-    // A plain QObject stands in for a view: the buffer only counts its views
-    // and watches for each one's destruction
-    void closingTheLastViewSavesAndFreesTheBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        QSignalSpy destroyed(model, &QObject::destroyed);
-
-        {
-            QObject view{};
-            model->addView(&view);
-            type_(model, u"!"_s);
-        }
-
-        // Saved at once, freed a moment later
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("hello!"));
-        QTRY_COMPARE(destroyed.count(), 1);
-
-        // A later open reads the file again, into a new buffer
-        auto* reopened = f.open(u"a.txt"_s);
-        QVERIFY(reopened);
-        QCOMPARE(reopened->data(), QByteArray("hello!"));
-        QVERIFY(!reopened->isUndoAvailable());
-    }
-
-    void closingOneOfTwoViewsKeepsTheBuffer()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        QObject first{};
-        model->addView(&first);
-
-        {
-            QObject second{};
-            model->addView(&second);
-            type_(model, u"!"_s);
-        }
-
-        // Nothing is saved or freed while a view remains
-        QCOMPARE(f.read(u"a.txt"_s), QByteArray("hello"));
-        QVERIFY(model->isModified());
-        QCOMPARE(f.open(u"a.txt"_s), model);
-    }
-
-    // The file was deleted outside, so there is nowhere to save: the last
-    // view closing writes nothing
-    void closingTheLastViewDoesNotRecreateADeletedFile()
-    {
-        Fixture_ f{};
-        f.write(u"a.txt"_s, "hello");
-        auto* model = f.open(u"a.txt"_s);
-        QVERIFY(model);
-
-        {
-            QObject view{};
-            model->addView(&view);
-            type_(model, u"!"_s);
-
-            QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
-        }
-
-        QVERIFY(!f.exists(u"a.txt"_s));
-    }
-
     // --- Settings -----------------------------------------------------------
 
-    void aSettingIsAnnouncedOnceAndSavedByFlush()
+    void aSettingIsAnnouncedOnceAndSavedOnRequest()
     {
         QTemporaryDir folder{};
         Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
 
         {
-            Vault vault(root, nullptr);
+            Vault vault(root, &store, nullptr);
             QSignalSpy changed(&vault, &Vault::configChanged);
 
             auto size = vault.config().textFontSize() + 3;
@@ -1130,11 +829,11 @@ private slots:
             vault.setConfig(&VaultConfig::setTextFontSize, size);
             QCOMPARE(changed.count(), 2);
 
-            vault.flush();
+            vault.saveSettingsNow();
         }
 
         // A second vault on the same folder reads what the first saved
-        Vault reopened(root, nullptr);
+        Vault reopened(root, &store, nullptr);
 
         QCOMPARE(
             reopened.config().textFontSize(),
@@ -1151,9 +850,10 @@ private slots:
     {
         QTemporaryDir folder{};
         Coco::Path root(folder.path());
+        BufferStore store{ nullptr };
 
         {
-            Vault first(root, nullptr);
+            Vault first(root, &store, nullptr);
         }
 
         QFile file(folder.filePath(u".fernanda/dictionary.txt"_s));
@@ -1161,7 +861,7 @@ private slots:
         file.write("Pangloss\nCunegonde\n");
         file.close();
 
-        Vault vault(root, nullptr);
+        Vault vault(root, &store, nullptr);
 
         QVERIFY(vault.dictionary().contains(u"Pangloss"_s));
         QVERIFY(vault.dictionary().contains(u"Cunegonde"_s));
@@ -1221,6 +921,190 @@ private slots:
         QVERIFY(!f.exists(u".fernanda/dictionary.txt"_s));
     }
 
+    // --- Vaults inside vaults -----------------------------------------------
+
+    // Each test makes an inner vault in a folder of the fixture's, lent the
+    // same store, as App lends its one store to every vault. The inner vault
+    // is made after the fixture, so it's destroyed first
+
+    void aFileInsideTwoVaultsIsOneBuffer()
+    {
+        Fixture_ f{};
+        f.write(u"inner/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto key = f.key(u"inner/notes.txt"_s);
+        auto* model = f.open(key);
+
+        QVERIFY(model);
+        QVERIFY(f.vault.contains(key));
+        QVERIFY(inner.contains(key));
+        QCOMPARE(
+            f.open(PathKey::of(inner.root() / Coco::Path(u"notes.txt"_s))),
+            model);
+    }
+
+    // The buffer follows a rename made through the outer vault, typing and
+    // all, and is saved where the file now is
+    void aRenameThroughTheOuterVaultCarriesTheBuffer()
+    {
+        Fixture_ f{};
+        f.write(u"inner/sub/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto* model = f.open(u"inner/sub/notes.txt"_s);
+        QVERIFY(model);
+        type_(model, u"!"_s);
+
+        QCOMPARE(
+            f.vault.rename(f.key(u"inner/sub"_s), u"renamed"_s),
+            f.key(u"inner/renamed"_s));
+
+        QCOMPARE(model->key(), f.key(u"inner/renamed/notes.txt"_s));
+        QVERIFY(inner.contains(model->key()));
+        QVERIFY(f.store.flush().isEmpty());
+        QCOMPARE(f.read(u"inner/renamed/notes.txt"_s), QByteArray("hello!"));
+        QVERIFY(!f.exists(u"inner/sub"_s));
+    }
+
+    // The same buffer, so the outer vault finds it under the new name
+    void aRenameThroughTheInnerVaultIsSeenByTheOuter()
+    {
+        Fixture_ f{};
+        f.write(u"inner/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto* model = f.open(u"inner/notes.txt"_s);
+        QVERIFY(model);
+
+        inner.rename(
+            PathKey::of(inner.root() / Coco::Path(u"notes.txt"_s)),
+            u"renamed.txt"_s);
+
+        QCOMPARE(f.open(u"inner/renamed.txt"_s), model);
+    }
+
+    // Moved out of the inner vault, the file is no longer the inner vault's,
+    // and its buffer goes with it
+    void aMoveOutOfTheInnerVaultCarriesTheBuffer()
+    {
+        Fixture_ f{};
+        f.write(u"inner/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto* model = f.open(u"inner/notes.txt"_s);
+        QVERIFY(model);
+
+        QCOMPARE(
+            f.vault.move(f.key(u"inner/notes.txt"_s), f.rootKey()),
+            f.key(u"notes.txt"_s));
+
+        QCOMPARE(model->key(), f.key(u"notes.txt"_s));
+        QVERIFY(!inner.contains(model->key()));
+        QCOMPARE(f.read(u"notes.txt"_s), QByteArray("hello"));
+    }
+
+    // Typing not yet saved, in a file shown only in the inner vault's window,
+    // survives the outer vault moving the file out of the inner vault. The
+    // buffer follows the file, and when the inner window closes its view, the
+    // last view's save writes the text to the file's new place
+    void unsavedTypingFollowsAMoveOutOfTheInnerVault()
+    {
+        Fixture_ f{};
+        f.write(u"inner/notes.txt"_s, "hello");
+        Vault inner(f.absolute(u"inner"_s), &f.store, nullptr);
+
+        auto* model = f.open(u"inner/notes.txt"_s);
+        QVERIFY(model);
+
+        {
+            QObject inner_view{};
+            model->addView(&inner_view);
+            type_(model, u"!"_s);
+
+            QCOMPARE(
+                f.vault.move(f.key(u"inner/notes.txt"_s), f.rootKey()),
+                f.key(u"notes.txt"_s));
+            QVERIFY(!inner.contains(model->key()));
+        }
+
+        QCOMPARE(f.read(u"notes.txt"_s), QByteArray("hello!"));
+        QVERIFY(!f.exists(u"inner/notes.txt"_s));
+    }
+
+    // The outer vault renaming a folder above the inner vault's takes the
+    // inner vault's folder with it. Moved there, as App does then, the inner
+    // vault's root, its tree, and the files it lists all take the new place,
+    // and what it writes for itself is written there
+    void moveRootFollowsAFolderRenamedAboveIt()
+    {
+        Fixture_ f{};
+        f.write(u"box/inner/sub/a.txt"_s, "a");
+        Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
+
+        QCOMPARE(
+            f.vault.rename(f.key(u"box"_s), u"crate"_s),
+            f.key(u"crate"_s));
+
+        QSignalSpy moved(&inner, &Vault::rootMoved);
+        inner.moveRoot(
+            inner.rootKey().rebased(f.key(u"box"_s), f.key(u"crate"_s)));
+
+        QCOMPARE(moved.count(), 1);
+        QCOMPARE(inner.rootKey(), f.key(u"crate/inner"_s));
+        QCOMPARE(inner.rootKey().path(), inner.root());
+        QCOMPARE(inner.treeModel()->root(), inner.root());
+        QVERIFY(inner.contains(f.key(u"crate/inner/sub/a.txt"_s)));
+        QVERIFY(!inner.contains(f.key(u"box/inner/sub/a.txt"_s)));
+        QCOMPARE(
+            inner.visibleFiles(),
+            QList<PathKey>({ f.key(u"crate/inner/sub/a.txt"_s) }));
+
+        inner.addToDictionary(u"Zyzzogeton"_s);
+
+        QVERIFY(f.exists(u"crate/inner/.fernanda/dictionary.txt"_s));
+        QVERIFY(!f.exists(u"box"_s));
+    }
+
+    // Where letter case is ignored, the outer vault renaming a folder above
+    // the inner vault's by letter case alone leaves the inner vault in place.
+    // Moved to the new spelling, as App does then, the inner vault's root, its
+    // tree, and the files it lists all take it
+    void moveRootTakesTheNewLetterCase()
+    {
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+
+        Fixture_ f{};
+        f.write(u"box/inner/sub/a.txt"_s, "a");
+        Vault inner(f.absolute(u"box/inner"_s), &f.store, nullptr);
+
+        if (!f.absolute(u"BOX"_s).isDir()) {
+            QSKIP("This file system respects letter case");
+        }
+
+        QCOMPARE(f.vault.rename(f.key(u"box"_s), u"BOX"_s), f.key(u"BOX"_s));
+
+        QSignalSpy moved(&inner, &Vault::rootMoved);
+        inner.moveRoot(
+            inner.rootKey().rebased(f.key(u"box"_s), f.key(u"BOX"_s)));
+
+        QCOMPARE(moved.count(), 1);
+        QCOMPARE(inner.root().parent().nameQString(), u"BOX"_s);
+        QCOMPARE(inner.rootKey().path(), inner.root());
+        QCOMPARE(inner.treeModel()->root(), inner.root());
+        QVERIFY(inner.contains(f.key(u"box/inner/sub/a.txt"_s)));
+
+        auto files = inner.visibleFiles();
+        QCOMPARE(files.size(), 1);
+        QVERIFY(files.first().path().isUnder(inner.root()));
+
+#else
+
+        QSKIP("Letter case counts in paths on this platform");
+
+#endif
+    }
+
     // --- Trash refusals -----------------------------------------------------
 
     // Each of these is refused before the system trash is asked for anything
@@ -1235,16 +1119,18 @@ private slots:
         QVERIFY(outside.open(QIODevice::WriteOnly));
         outside.close();
 
-        QVERIFY(
-            !f.vault.moveToTrash(Coco::Path(elsewhere.filePath(u"b.txt"_s))));
-        QVERIFY(!f.vault.moveToTrash(f.root));
-        QVERIFY(!f.vault.moveToTrash(f.absolute(u"gone.txt"_s)));
+        QVERIFY(!f.vault.moveToTrash(
+            PathKey::of(Coco::Path(elsewhere.filePath(u"b.txt"_s)))));
+        QVERIFY(!f.vault.moveToTrash(f.rootKey()));
+        QVERIFY(!f.vault.moveToTrash(f.key(u"gone.txt"_s)));
+        QVERIFY(!f.vault.moveToTrash(f.key(u"../x.txt"_s)));
 
-        // The root and a file, by paths that are not plain
-        QVERIFY(!f.vault.moveToTrash(Coco::Path(f.folder.path() + u"/"_s)));
-        QVERIFY(!f.vault.moveToTrash(Coco::Path(f.folder.path() + u"/."_s)));
-        QVERIFY(!f.vault.moveToTrash(f.absolute(u"one/.."_s)));
-        QVERIFY(!f.vault.moveToTrash(f.absolute(u"one/../a.txt"_s)));
+        // The root, by other spellings
+        QVERIFY(!f.vault.moveToTrash(
+            PathKey::of(Coco::Path(f.folder.path() + u"/"_s))));
+        QVERIFY(!f.vault.moveToTrash(
+            PathKey::of(Coco::Path(f.folder.path() + u"/."_s))));
+        QVERIFY(!f.vault.moveToTrash(f.key(u"one/.."_s)));
 
         QVERIFY(QFileInfo::exists(elsewhere.filePath(u"b.txt"_s)));
         QVERIFY(QFileInfo(f.folder.path()).isDir());

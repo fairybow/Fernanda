@@ -23,7 +23,7 @@ using namespace Qt::StringLiterals;
 
 // Why a file / folder / vault name might be rejected. Advisory: the create and
 // rename dialogs disable their accept button and show describe(problem), but
-// the disk operation (mkdir / Coco::rename) stays authoritative. Shared by
+// the disk operation (mkdir / Io::rename) stays authoritative. Shared by
 // vault creation (NewVaultDialog) and file + folder rename
 enum class Problem
 {

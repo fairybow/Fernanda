@@ -12,22 +12,24 @@
 
 #include <QList>
 #include <QObject>
+#include <QString>
 #include <QTemporaryDir>
 #include <QTest>
 
 #include <Coco/Path.h>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 #include "core/RecentFiles.h"
-#include "core/Vault.h"
 
-using Fernanda::FileRef;
+using namespace Qt::StringLiterals;
+
+using Fernanda::PathKey;
 using Fernanda::RecentFiles;
-using Fernanda::Vault;
 
 // The files a window has made active most recently (core/RecentFiles.h): the
-// order they're kept in, the limit, and a list restored from a save. Two vaults
-// in temporary folders stand for a project vault and the Common Vault.
+// order they're kept in, the limit, a list restored from a save, and how they
+// follow a rename. Two temporary folders stand for a project vault and the
+// Common Vault.
 //
 // Qt Test runs every private slot as a test
 class RecentFilesTest : public QObject
@@ -35,22 +37,19 @@ class RecentFilesTest : public QObject
     Q_OBJECT
 
 private:
-    // The vaults are declared after their folders, so destroyed first
     struct Fixture_
     {
         QTemporaryDir projectFolder{};
         QTemporaryDir commonFolder{};
-        Vault project{ Coco::Path(projectFolder.path()), nullptr };
-        Vault common{ Coco::Path(commonFolder.path()), nullptr };
 
-        [[nodiscard]] FileRef inProject(const char* relative)
+        [[nodiscard]] PathKey inProject(const QString& relative) const
         {
-            return { &project, Coco::Path(relative) };
+            return PathKey::of(Coco::Path(projectFolder.filePath(relative)));
         }
 
-        [[nodiscard]] FileRef inCommon(const char* relative)
+        [[nodiscard]] PathKey inCommon(const QString& relative) const
         {
-            return { &common, Coco::Path(relative) };
+            return PathKey::of(Coco::Path(commonFolder.filePath(relative)));
         }
     };
 
@@ -60,15 +59,15 @@ private slots:
         Fixture_ f{};
         RecentFiles recent{};
 
-        recent.record(f.inProject("a.txt"));
-        recent.record(f.inProject("b.txt"));
-        recent.record(f.inCommon("c.txt"));
+        recent.record(f.inProject(u"a.txt"_s));
+        recent.record(f.inProject(u"b.txt"_s));
+        recent.record(f.inCommon(u"c.txt"_s));
 
         QCOMPARE(
             recent.files(),
-            (QList<FileRef>{ f.inCommon("c.txt"),
-                             f.inProject("b.txt"),
-                             f.inProject("a.txt") }));
+            (QList<PathKey>{ f.inCommon(u"c.txt"_s),
+                             f.inProject(u"b.txt"_s),
+                             f.inProject(u"a.txt"_s) }));
     }
 
     // Recorded again, a file moves to the front rather than appearing twice
@@ -77,23 +76,24 @@ private slots:
         Fixture_ f{};
         RecentFiles recent{};
 
-        recent.record(f.inProject("a.txt"));
-        recent.record(f.inProject("b.txt"));
-        recent.record(f.inProject("a.txt"));
+        recent.record(f.inProject(u"a.txt"_s));
+        recent.record(f.inProject(u"b.txt"_s));
+        recent.record(f.inProject(u"a.txt"_s));
 
         QCOMPARE(
             recent.files(),
-            (QList<FileRef>{ f.inProject("a.txt"), f.inProject("b.txt") }));
+            (QList<PathKey>{ f.inProject(u"a.txt"_s),
+                             f.inProject(u"b.txt"_s) }));
     }
 
-    // The same path in two vaults is two files
-    void theVaultIsPartOfTheFile()
+    // The same name in two folders is two files
+    void theFolderIsPartOfTheFile()
     {
         Fixture_ f{};
         RecentFiles recent{};
 
-        recent.record(f.inProject("a.txt"));
-        recent.record(f.inCommon("a.txt"));
+        recent.record(f.inProject(u"a.txt"_s));
+        recent.record(f.inCommon(u"a.txt"_s));
 
         QCOMPARE(recent.files().size(), 2);
     }
@@ -104,25 +104,49 @@ private slots:
         RecentFiles recent{};
 
         for (auto i = 0; i <= RecentFiles::MAX; ++i) {
-            recent.record({ &f.project, Coco::Path(QString::number(i)) });
+            recent.record(f.inProject(QString::number(i)));
         }
 
         QCOMPARE(recent.files().size(), RecentFiles::MAX);
         QCOMPARE(
-            recent.files().first().relative,
-            Coco::Path(QString::number(RecentFiles::MAX)));
-        QCOMPARE(recent.files().last().relative, Coco::Path("1"));
+            recent.files().first(),
+            f.inProject(QString::number(RecentFiles::MAX)));
+        QCOMPARE(recent.files().last(), f.inProject(u"1"_s));
     }
 
-    void anEmptyRefIsNotRecorded()
+    void anEmptyKeyIsNotRecorded()
+    {
+        RecentFiles recent{};
+
+        recent.record(PathKey{});
+        recent.record(PathKey::of(Coco::Path(u"relative.txt"_s)));
+
+        QVERIFY(recent.files().isEmpty());
+    }
+
+    // A renamed folder takes the files under it along, each in its place.
+    // One that lands on a file nearer the front is dropped, so it still
+    // appears once
+    void rebaseFollowsARenamedFolder()
     {
         Fixture_ f{};
         RecentFiles recent{};
 
-        recent.record(FileRef{});
-        recent.record({ &f.project, Coco::Path() });
+        recent.setFiles(
+            { f.inProject(u"new/a.txt"_s),
+              f.inProject(u"old/b.txt"_s),
+              f.inCommon(u"old/c.txt"_s),
+              f.inProject(u"old/a.txt"_s),
+              f.inProject(u"older/d.txt"_s) });
 
-        QVERIFY(recent.files().isEmpty());
+        recent.rebase(f.inProject(u"old"_s), f.inProject(u"new"_s));
+
+        QCOMPARE(
+            recent.files(),
+            (QList<PathKey>{ f.inProject(u"new/a.txt"_s),
+                             f.inProject(u"new/b.txt"_s),
+                             f.inCommon(u"old/c.txt"_s),
+                             f.inProject(u"older/d.txt"_s) }));
     }
 
     // A restored list keeps its order. A repeat keeps its first place, and
@@ -131,32 +155,32 @@ private slots:
     {
         Fixture_ f{};
         RecentFiles recent{};
-        recent.record(f.inProject("old.txt"));
+        recent.record(f.inProject(u"old.txt"_s));
 
         recent.setFiles(
-            { f.inProject("a.txt"),
-              f.inCommon("b.txt"),
-              f.inProject("a.txt"),
-              f.inProject("c.txt") });
+            { f.inProject(u"a.txt"_s),
+              f.inCommon(u"b.txt"_s),
+              f.inProject(u"a.txt"_s),
+              f.inProject(u"c.txt"_s) });
 
         QCOMPARE(
             recent.files(),
-            (QList<FileRef>{ f.inProject("a.txt"),
-                             f.inCommon("b.txt"),
-                             f.inProject("c.txt") }));
+            (QList<PathKey>{ f.inProject(u"a.txt"_s),
+                             f.inCommon(u"b.txt"_s),
+                             f.inProject(u"c.txt"_s) }));
 
-        QList<FileRef> many{};
+        QList<PathKey> many{};
         for (auto i = 0; i < RecentFiles::MAX + 3; ++i) {
-            many << FileRef{ &f.project, Coco::Path(QString::number(i)) };
+            many << f.inProject(QString::number(i));
         }
 
         recent.setFiles(many);
 
         QCOMPARE(recent.files().size(), RecentFiles::MAX);
-        QCOMPARE(recent.files().first().relative, Coco::Path("0"));
+        QCOMPARE(recent.files().first(), f.inProject(u"0"_s));
         QCOMPARE(
-            recent.files().last().relative,
-            Coco::Path(QString::number(RecentFiles::MAX - 1)));
+            recent.files().last(),
+            f.inProject(QString::number(RecentFiles::MAX - 1)));
     }
 };
 

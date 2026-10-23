@@ -164,6 +164,15 @@ public:
         }
     }
 
+    // Page-addressed, like closePage: draw page's tab mark again after it
+    // changed (setPageIconPath)
+    void refreshPageIcon(QWidget* page)
+    {
+        if (auto* leaf = leafFor_(page)) {
+            leaf->refreshPageIcon(page);
+        }
+    }
+
     // --- Splits ------------------------------------------------------------
 
     // Split the active leaf, adding a fresh empty leaf beside (Horizontal) or

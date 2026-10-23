@@ -41,8 +41,8 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
-#include "core/FileRef.h"
 #include "core/FileTypes.h"
+#include "core/PathKey.h"
 #include "core/Vault.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
@@ -109,12 +109,15 @@ public:
 // Go to File: an Obsidian-style quick switcher — a filter field over a flat
 // list of every file the window's two vaults show. The listing is
 // Vault::visibleFiles, so it agrees with the sidebar trees by construction (no
-// dot-entries, nothing unsupported), and every row carries the FileRef of the
-// vault that listed it: nothing outside a vault can be picked, so no caller
-// ever resolves an absolute path.
+// dot-entries, nothing unsupported), and every row carries its file's key:
+// nothing outside the two vaults can be picked. A file is listed once. One
+// inside the window's own vault is the window's, so where the vaults nest, a
+// file both list is shown as the window's own and not again as a Common Vault
+// file.
 //
 // The list is a snapshot taken at construction. A file deleted before the pick
-// is refused by Vault::openModel, which is the authoritative gate either way.
+// is refused by BufferStore::openModel, which is the authoritative gate either
+// way.
 //
 // An empty query lists the window's recent files first (RecentFiles), newest
 // first, then every other file in the presorted order below. When the newest
@@ -123,7 +126,7 @@ public:
 // on the recent files.
 //
 // Matching: case-insensitive; the query splits on spaces and every term must
-// appear somewhere in the vault-relative path. Rows whose FILE NAME holds every
+// appear somewhere in the row's path. Rows whose FILE NAME holds every
 // term rank above path-only matches; within a tier, project files come before
 // Common Vault files, then alphabetical by path. Recent files get no extra
 // weight. No fuzzy scoring, unlike Obsidian (docs/Future.md, "Go to File").
@@ -154,7 +157,7 @@ class FileSwitcher : public QDialog
 public:
     struct Pick
     {
-        FileRef fileRef{};
+        PathKey key{};
         OpenMode mode{};
 
         // The file isn't on disk yet. The caller creates it before opening
@@ -169,8 +172,8 @@ public:
         QWidget* parentWindow,
         Vault* vault,
         Vault* commonVault,
-        const QList<FileRef>& recentFiles,
-        const FileRef& current)
+        const QList<PathKey>& recentFiles,
+        const PathKey& current)
         : QDialog(parentWindow)
         , vault_(vault)
     {
@@ -225,8 +228,8 @@ private:
     // so a keystroke's refilter does no path work
     struct Entry_
     {
-        FileRef fileRef{};
-        QString path{}; // vault-relative, forward slashes
+        PathKey key{};
+        QString path{}; // relative to its vault's root, forward slashes
         QString name{};
         bool isCommon = false;
     };
@@ -245,7 +248,7 @@ private:
 
     // The file the typed text names (see class note): empty when it names
     // none; and, when that file is already there, its entries_ index
-    Coco::Path target_{};
+    PathKey target_{};
     qsizetype targetEntry_ = -1;
 
     QLineEdit* queryEdit_ = nullptr;
@@ -256,8 +259,8 @@ private:
     void setup_(
         Vault* vault,
         Vault* commonVault,
-        const QList<FileRef>& recentFiles,
-        const FileRef& current)
+        const QList<PathKey>& recentFiles,
+        const PathKey& current)
     {
         setWindowTitle(tr("Go to File"));
         setWindowModality(Qt::ApplicationModal);
@@ -274,13 +277,22 @@ private:
         refilter_();
     }
 
+    // A Common Vault file inside the window's own vault is already listed as
+    // the window's own, so it's skipped (see class note)
     void collect_(Vault* vault, bool isCommon)
     {
-        for (const auto& relative : vault->visibleFiles()) {
+        auto root_key = vault->rootKey();
+        auto own_root_key = vault_->rootKey();
+
+        for (const auto& key : vault->visibleFiles()) {
+            if (isCommon && key.isUnder(own_root_key)) {
+                continue;
+            }
+
             entries_ << Entry_{
-                .fileRef = { vault, relative },
-                .path = relative.prettyQString(),
-                .name = relative.nameQString(),
+                .key = key,
+                .path = key.relativeTo(root_key).prettyQString(),
+                .name = key.path().nameQString(),
                 .isCommon = isCommon,
             };
         }
@@ -305,11 +317,11 @@ private:
 
     // Each recent file that is in the listing, in the recent order. One that
     // isn't (deleted or moved since) is skipped
-    void findRecent_(const QList<FileRef>& recentFiles, const FileRef& current)
+    void findRecent_(const QList<PathKey>& recentFiles, const PathKey& current)
     {
-        for (const auto& ref : recentFiles) {
+        for (const auto& key : recentFiles) {
             for (qsizetype i = 0; i < entries_.size(); ++i) {
-                if (entries_[i].fileRef == ref) {
+                if (entries_[i].key == key) {
                     recent_ << i;
                     recentSet_ << i;
                     break;
@@ -317,8 +329,7 @@ private:
             }
         }
 
-        if (recent_.size() > 1 &&
-            entries_[recent_.first()].fileRef == current) {
+        if (recent_.size() > 1 && entries_[recent_.first()].key == current) {
             emptyQueryRow_ = 1;
         }
     }
@@ -462,11 +473,12 @@ private:
 
         auto relative = Coco::Path(parts.join(u'/'));
         auto path = relative.prettyQString();
+        auto key = PathKey::of(vault_->root() / relative);
 
         // On disk, by the disk's own rule for letter case. The row, if any,
-        // gives the file's own spelling, which is the only key it may open by
-        if (vault_->absolutePathOf(relative).exists()) {
-            targetEntry_ = findEntry_(path);
+        // gives the file's own spelling, so the pick takes the row's key
+        if (key.path().exists()) {
+            targetEntry_ = findEntry_(key);
 
             if (targetEntry_ < 0) {
                 showHint_(tr("\"%1\" already exists.").arg(path));
@@ -475,7 +487,7 @@ private:
             return;
         }
 
-        target_ = relative;
+        target_ = key;
         showHint_(
             shown_.isEmpty() ? tr("Enter to create \"%1\"").arg(path)
                              : tr("Shift+Enter to create \"%1\"").arg(path));
@@ -487,30 +499,20 @@ private:
         hint_->show();
     }
 
-    // The window's own vault's row for a vault-relative path: the same
-    // spelling if there is one, or else one differing only in letter case
-    [[nodiscard]] qsizetype findEntry_(const QString& path) const
+    // The window's own vault's row for a key, or -1. Keys compare letter
+    // case as the platform's file systems do, so on Windows and macOS a row
+    // differing only in case is found
+    [[nodiscard]] qsizetype findEntry_(const PathKey& key) const
     {
-        auto found = qsizetype{ -1 };
-
         for (qsizetype i = 0; i < entries_.size(); ++i) {
             const auto& entry = entries_[i];
 
-            if (entry.fileRef.vault != vault_) {
-                continue;
-            }
-
-            if (entry.path == path) {
+            if (!entry.isCommon && entry.key == key) {
                 return i;
-            }
-
-            if (found < 0 &&
-                entry.path.compare(path, Qt::CaseInsensitive) == 0) {
-                found = i;
             }
         }
 
-        return found;
+        return -1;
     }
 
     // currentRow is the row to select, when there is one
@@ -549,7 +551,7 @@ private:
             return;
         }
 
-        pick_ = { entries_[shown_[row]].fileRef, mode };
+        pick_ = { entries_[shown_[row]].key, mode };
         accept();
     }
 
@@ -558,13 +560,9 @@ private:
     void acceptTarget_(OpenMode mode)
     {
         if (targetEntry_ >= 0) {
-            pick_ = { entries_[targetEntry_].fileRef, mode };
+            pick_ = { entries_[targetEntry_].key, mode };
         } else if (!target_.isEmpty()) {
-            pick_ = {
-                { vault_, target_ },
-                mode,
-                true
-            };
+            pick_ = { target_, mode, true };
         } else {
             return;
         }

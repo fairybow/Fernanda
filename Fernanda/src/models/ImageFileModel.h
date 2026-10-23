@@ -23,7 +23,7 @@
 
 #include <Coco/Debug.h>
 
-#include "core/FileRef.h"
+#include "core/PathKey.h"
 #include "models/AbstractFileModel.h"
 
 namespace Fernanda {
@@ -35,7 +35,7 @@ namespace Fernanda {
 // Holds three things:
 //
 //   data_   — the file's bytes, RETAINED. data() stays truthful, so the
-//             Vault's external-change no-op check (disk == data()) still
+//             store's external-change no-op check (disk == data()) still
 //             works; an animated image needs a live QIODevice over them for
 //             its QMovie; and it costs only the compressed size. No base
 //             shared with PdfFileModel: what the two have in common is one
@@ -64,14 +64,14 @@ namespace Fernanda {
 // it, the read fails and the view shows the placeholder.
 //
 // QPixmap needs the GUI application, so this model is GUI-bound in the way
-// PdfFileModel (QtPdf) already is; it's built on the GUI thread by the Vault
+// PdfFileModel (QtPdf) already is; it's built on the GUI thread by the store
 class ImageFileModel : public AbstractFileModel
 {
     Q_OBJECT
 
 public:
-    ImageFileModel(const FileRef& fileRef, QObject* parentVault)
-        : AbstractFileModel(fileRef, parentVault)
+    ImageFileModel(const PathKey& key, QObject* parentStore)
+        : AbstractFileModel(key, parentStore)
     {
     }
 
@@ -92,7 +92,7 @@ public:
     [[nodiscard]] QByteArray data() const override { return data_; }
 
     // Load — or reload — from fresh bytes. Called on open, and again on an
-    // external change via the base's reloadContent -> setData; the Vault then
+    // external change via the base's reloadContent -> setData; the store then
     // emits reloaded(), which is what views re-read the pixmap on (unlike PDF,
     // whose views ride QPdfDocument::statusChanged)
     void setData(const QByteArray& data) override
@@ -136,7 +136,7 @@ private:
             // as "Unsupported image format"
             WARN(
                 "Image decode failed for {}: {}",
-                fileRef().relative,
+                key().path(),
                 reader.errorString());
             return;
         }

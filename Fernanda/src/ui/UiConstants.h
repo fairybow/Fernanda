@@ -378,12 +378,12 @@ inline constexpr int STYLE_LIST_INDICATOR_HEIGHT = 16;
 inline constexpr int STYLE_LIST_INDICATOR_INSET = 1;
 
 // Text fields and combo boxes (Style). A framed field keeps its text
-// FIELD_H_PADDING from its sides and is FIELD_V_PADDING taller above and
-// below. A combo box has FIELD_H_PADDING between its text and its arrow, and
-// the arrow is inset COMBO_ARROW_INSET within its sub-rect.
-// Its drop-down list, drawn as a menu, has its window COMBO_POPUP_OVERHANG
-// wider than the box on each side: the menu's shadow margin, plus enough
-// that the rows' text starts where the box's does
+// FIELD_H_PADDING from its sides and is FIELD_V_PADDING taller above and below.
+// A combo box has FIELD_H_PADDING between its text and its arrow, and the arrow
+// is inset COMBO_ARROW_INSET within its sub-rect. Its drop-down list, drawn as
+// a menu, has its window COMBO_POPUP_OVERHANG wider than the box on each side:
+// the menu's shadow margin, plus enough that the rows' text starts where the
+// box's does
 inline constexpr int STYLE_FIELD_H_PADDING = 6;
 inline constexpr int STYLE_FIELD_V_PADDING = 2;
 inline constexpr int STYLE_COMBO_ARROW_INSET = 2;

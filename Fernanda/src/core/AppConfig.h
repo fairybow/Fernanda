@@ -13,9 +13,11 @@
 #pragma once
 
 #include <algorithm>
+#include <optional>
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QList>
 #include <QString>
 
@@ -24,6 +26,7 @@
 
 #include "core/AppDirs.h"
 #include "core/JsonIo.h"
+#include "core/PathKey.h"
 #include "core/Publication.h"
 
 // App-level configuration — the machine-local fernanda.json in appData(),
@@ -31,15 +34,18 @@
 // "only one exists" because App is one, not because it's a singleton. Nothing
 // here ports to another machine.
 //
-// A plain value type, not a QObject. Getters fall back to the AppDirs defaults
-// when a key is unset, so a caller never has to know whether the value came
-// from disk or the default. The vault registry is mutated through intent verbs
-// (touchVault / setVaultOpen / forgetVault / renameVault); every mutator
-// touches memory only, and App calls save() at the commit points — IO stays
-// explicit rather than hiding inside a mutator.
+// A plain value type, not a QObject. Most getters fall back to a default when
+// their key is unset, so a caller never has to know whether the value came
+// from disk; the Common Vault has three states instead (commonVaultPath). The
+// vault registry is mutated through intent verbs (touchVault / setVaultOpen /
+// forgetVault / renameVault); every mutator touches memory only, and App calls
+// save() at the commit points — IO stays explicit rather than hiding inside a
+// mutator.
 //
 // The vaults registry (path is identity, no id) is one array of { path,
-// lastUsedEpochMs, open } records. The two data fields carry distinct jobs:
+// lastUsedEpochMs, open } records. Paths are compared as PathKeys, so every
+// spelling of one folder finds its one record, which keeps the spelling it was
+// recorded or renamed with. The two data fields carry distinct jobs:
 // lastUsedEpochMs is a recency stamp (bumped on open and on activation) that
 // orders the recents list and, on restore, the stacking order — nothing more;
 // open marks a vault as part of the session to restore, maintained live as
@@ -56,17 +62,30 @@ class AppConfig
 public:
     AppConfig() = default;
 
-    // The relocatable Common Vault root. Unset ⇒ AppDirs::defaultCommonVault().
-    // In-app relocation isn't offered; this is only the read side, which
-    // resolves App::init's common-vault location before it constructs the
-    // windowless common Vault
+    // The Common Vault: one of the known vaults, whose files every window
+    // shows beside its own. Empty when there is none: before the first run
+    // sets one up, or once the user unsets it or its folder goes
     [[nodiscard]] Coco::Path commonVaultPath() const
     {
-        return commonVaultPath_.isEmpty() ? AppDirs::defaultCommonVault()
-                                          : commonVaultPath_;
+        return commonVaultPath_.value_or(Coco::Path{});
     }
 
-    void setCommonVaultPath(const Coco::Path& path) { commonVaultPath_ = path; }
+    // False only until the first run sets up the Common Vault
+    // (App::initCommonVault_). After that the user's choice stands, even a
+    // choice of none
+    [[nodiscard]] bool isCommonVaultSetUp() const noexcept
+    {
+        return commonVaultPath_.has_value();
+    }
+
+    // Set the Common Vault, or unset it with an empty path; either way it's set
+    // up from then on. A Common Vault is always a known vault, so a path the
+    // list lacks is added to it, as never used
+    void setCommonVaultPath(const Coco::Path& path)
+    {
+        commonVaultPath_ = path;
+        listCommonVault_();
+    }
 
     // The starting directory for the create/open flow — the last place a vault
     // was created from or opened at. Unset ⇒ AppDirs::defaultDocs()
@@ -143,18 +162,17 @@ public:
 
     // Promote a vault to most-recently-used by stamping its lastUsedEpochMs
     // with now — an upsert: a first-time vault is appended (open false, the
-    // caller sets it), a known one is bumped. Used by both the open convergence
-    // point and window activation, so recency tracks last USE, not merely last
-    // open. Memory only; the caller saves
+    // caller sets it), a known one is bumped and keeps the spelling it was
+    // recorded with. Used by both the open convergence point and window
+    // activation, so recency tracks last USE, not merely last open. Memory
+    // only; the caller saves
     void touchVault(const Coco::Path& root)
     {
         auto last_used = Coco::Time::epoch();
 
-        for (auto& record : vaults_) {
-            if (record.path == root) {
-                record.lastUsedEpochMs = last_used;
-                return;
-            }
+        if (auto* record = recordOf_(root)) {
+            record->lastUsedEpochMs = last_used;
+            return;
         }
 
         vaults_ << VaultRecord_{ root, last_used, false };
@@ -167,46 +185,80 @@ public:
     // already upserted the record. Memory only; the caller saves
     void setVaultOpen(const Coco::Path& root, bool open)
     {
-        for (auto& record : vaults_) {
-            if (record.path == root) {
-                record.open = open;
-                return;
-            }
+        if (auto* record = recordOf_(root)) {
+            record->open = open;
         }
     }
 
     // Remove-from-list: drop one record, folder untouched. Returns whether
     // anything was removed, so App can skip a spurious save + signal when the
-    // path wasn't listed
+    // path wasn't listed. The Common Vault's record is refused: it stays
+    // listed while it's set
     bool forgetVault(const Coco::Path& root)
     {
+        if (auto common = commonVaultPath();
+            !common.isEmpty() && sameVault_(common, root)) {
+            return false;
+        }
+
         return vaults_.removeIf([&root](const VaultRecord_& record) {
-            return record.path == root;
+            return sameVault_(record.path, root);
         });
     }
 
     // Rename in place: swap one record's path, keeping its timestamp and open
-    // flag. The vault keeps its recents position (a rename isn't a use). No-op
-    // if the old path isn't listed
+    // flag. The vault keeps its recents position (a rename isn't a use). The
+    // one way a record's spelling changes, so a change of letter case alone
+    // is a rename too. No-op if the old path isn't listed.
+    //
+    // A record already naming the new folder (one listed as missing there, or
+    // the Common Vault's, listed when it was set there) is merged in, as load
+    // merges: the more recent timestamp, and open if either was. So no two
+    // records ever name one folder
     void renameVault(const Coco::Path& oldRoot, const Coco::Path& newRoot)
     {
-        for (auto& record : vaults_) {
-            if (record.path == oldRoot) {
-                record.path = newRoot;
-                return;
-            }
+        auto* record = recordOf_(oldRoot);
+        if (!record) {
+            return;
         }
+
+        auto* existing = recordOf_(newRoot);
+
+        if (existing && existing != record) {
+            record->lastUsedEpochMs =
+                std::max(record->lastUsedEpochMs, existing->lastUsedEpochMs);
+            record->open = record->open || existing->open;
+            record->path = newRoot;
+
+            vaults_.removeIf([existing](const VaultRecord_& other) {
+                return &other == existing;
+            });
+
+            return;
+        }
+
+        record->path = newRoot;
     }
 
     // Read fernanda.json into memory. A missing file (first run) or an absent
     // "vaults" key leaves the registry empty and every path value unset, so
     // every getter returns its default. JsonIo/Io have already logged a
-    // genuinely corrupt file; a missing one is silent
+    // genuinely corrupt file; a missing one is silent.
+    //
+    // The Common Vault's key is read for three states: absent (not set up),
+    // null (unset), or its path. A path with no record (a hand-edited file) is
+    // listed
     void load()
     {
         auto root = JsonIo::read(filePath_());
 
-        assignPath_(root, u"commonVaultPath"_s, commonVaultPath_);
+        if (root.contains(COMMON_VAULT_PATH_KEY_)) {
+            commonVaultPath_ =
+                Coco::Path(root.value(COMMON_VAULT_PATH_KEY_).toString());
+        } else {
+            commonVaultPath_.reset();
+        }
+
         assignPath_(root, u"newVaultMruDir"_s, newVaultMruDir_);
 
         checksForUpdates_ = root.value(u"checkForUpdates"_s).toBool(true);
@@ -214,18 +266,24 @@ public:
         language_ = root.value(u"language"_s).toString();
 
         vaults_ = readVaults_(root.value(u"vaults"_s).toArray());
+        listCommonVault_();
     }
 
     // Serialize the set keys and write atomically. Only keys with a value are
     // written, so "unset ⇒ absent ⇒ default" round-trips cleanly and the file
-    // stays minimal. Returns JsonIo/Io's success; App may ignore it for
-    // non-critical values
+    // stays minimal. The Common Vault is the exception: once set up it's
+    // always written, as null when unset, since its absence means the first
+    // run hasn't set one up. Returns JsonIo/Io's success; App may ignore it
+    // for non-critical values
     bool save() const
     {
         QJsonObject root{};
 
-        if (!commonVaultPath_.isEmpty()) {
-            root[u"commonVaultPath"_s] = commonVaultPath_.prettyQString();
+        if (commonVaultPath_) {
+            root[COMMON_VAULT_PATH_KEY_] =
+                commonVaultPath_->isEmpty()
+                    ? QJsonValue(QJsonValue::Null)
+                    : QJsonValue(commonVaultPath_->prettyQString());
         }
 
         if (!newVaultMruDir_.isEmpty()) {
@@ -252,8 +310,12 @@ public:
     }
 
 private:
+    static inline const QString COMMON_VAULT_PATH_KEY_ = u"commonVaultPath"_s;
+
+    // No value until set up; then an empty path while unset, else the path
+    std::optional<Coco::Path> commonVaultPath_{};
+
     // Empty == unset; the getter substitutes the AppDirs default
-    Coco::Path commonVaultPath_{};
     Coco::Path newVaultMruDir_{};
 
     // Written only when off, like a vault's open flag only when true
@@ -274,8 +336,48 @@ private:
     };
 
     // The vault registry. Unordered here — reads sort on demand, and the key is
-    // the path, so array position carries no meaning
+    // the path, so array position carries no meaning. No two records name the
+    // same folder: every mutator matches by sameVault_, and load merges any
+    // the file holds
     QList<VaultRecord_> vaults_{};
+
+    // Whether a and b name the same folder: compared as PathKeys, so a trailing
+    // separator, "." and "..", and (on Windows and macOS) letter case don't
+    // split one vault into two records. A path that makes no key (a relative
+    // one, from a hand-edited file) is compared as written
+    [[nodiscard]] static bool
+    sameVault_(const Coco::Path& a, const Coco::Path& b)
+    {
+        auto a_key = PathKey::of(a);
+
+        if (a_key.isEmpty()) {
+            return a == b;
+        }
+
+        return a_key == PathKey::of(b);
+    }
+
+    [[nodiscard]] VaultRecord_* recordOf_(const Coco::Path& root)
+    {
+        for (auto& record : vaults_) {
+            if (sameVault_(record.path, root)) {
+                return &record;
+            }
+        }
+
+        return nullptr;
+    }
+
+    // A set Common Vault that has no record gets one: never used, so last in
+    // the recents, and not open
+    void listCommonVault_()
+    {
+        auto common = commonVaultPath();
+
+        if (!common.isEmpty() && !recordOf_(common)) {
+            vaults_ << VaultRecord_{ common, 0, false };
+        }
+    }
 
     static Coco::Path filePath_()
     {
@@ -296,7 +398,11 @@ private:
 
     // { path, lastUsedEpochMs, open }[] ⇒ records. Blank-path entries are
     // skipped defensively (hand-trimmed file); an absent timestamp falls to 0
-    // and an absent open to false — the Obsidian-style omitted-when-false form
+    // and an absent open to false — the Obsidian-style omitted-when-false form.
+    //
+    // Records naming one folder (sameVault_) are merged, as a file written
+    // before paths were compared as keys can hold: the most recently used
+    // one's spelling and timestamp, and open if any of them was
     static QList<VaultRecord_> readVaults_(const QJsonArray& array)
     {
         QList<VaultRecord_> records{};
@@ -310,11 +416,28 @@ private:
                 continue;
             }
 
-            records << VaultRecord_{
-                Coco::Path(path),
-                object.value(u"lastUsedEpochMs"_s).toInteger(),
-                object.value(u"open"_s).toBool()
-            };
+            VaultRecord_ read{ Coco::Path(path),
+                               object.value(u"lastUsedEpochMs"_s).toInteger(),
+                               object.value(u"open"_s).toBool() };
+
+            auto same = std::find_if(
+                records.begin(),
+                records.end(),
+                [&read](const VaultRecord_& record) {
+                    return sameVault_(record.path, read.path);
+                });
+
+            if (same == records.end()) {
+                records << read;
+                continue;
+            }
+
+            if (read.lastUsedEpochMs > same->lastUsedEpochMs) {
+                same->path = read.path;
+                same->lastUsedEpochMs = read.lastUsedEpochMs;
+            }
+
+            same->open = same->open || read.open;
         }
 
         return records;
