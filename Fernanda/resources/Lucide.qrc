@@ -1,12 +1,15 @@
 <RCC>
     <qresource prefix="/">
+        <file>lucide/ArrowDownAZ.svg</file>
         <file>lucide/ArrowDownToLine.svg</file>
+        <file>lucide/ArrowDownZA.svg</file>
         <file>lucide/Box.svg</file>
         <file>lucide/ChevronDown.svg</file>
         <file>lucide/ChevronLeft.svg</file>
         <file>lucide/ChevronRight.svg</file>
         <file>lucide/ChevronsUpDown.svg</file>
         <file>lucide/ChevronUp.svg</file>
+        <file>lucide/ClockArrowDown.svg</file>
         <file>lucide/File.svg</file>
         <file>lucide/Folder.svg</file>
         <file>lucide/FolderOpen.svg</file>
