@@ -28,6 +28,7 @@
 #include "core/JsonIo.h"
 #include "core/PathKey.h"
 #include "core/Publication.h"
+#include "core/VaultOrder.h"
 
 // App-level configuration — the machine-local fernanda.json in appData(),
 // mirroring Obsidian's obsidian.json. Owned by App as a plain by-value member:
@@ -120,6 +121,11 @@ public:
     [[nodiscard]] QString language() const { return language_; }
 
     void setLanguage(const QString& language) { language_ = language; }
+
+    // The order of Manage Vaults' list. Recent unless another was chosen
+    [[nodiscard]] VaultOrder vaultOrder() const noexcept { return vaultOrder_; }
+
+    void setVaultOrder(VaultOrder order) noexcept { vaultOrder_ = order; }
 
     // The vaults list, most-recently-used first — the backing store for the
     // surfaces ManageVaults' recents column and each VaultSwitcher render.
@@ -264,6 +270,7 @@ public:
         checksForUpdates_ = root.value(u"checkForUpdates"_s).toBool(true);
         dismissedUpdate_ = root.value(u"dismissedUpdate"_s).toString();
         language_ = root.value(u"language"_s).toString();
+        vaultOrder_ = vaultOrderOf_(root.value(VAULT_ORDER_KEY_).toString());
 
         vaults_ = readVaults_(root.value(u"vaults"_s).toArray());
         listCommonVault_();
@@ -302,6 +309,10 @@ public:
             root[u"language"_s] = language_;
         }
 
+        if (vaultOrder_ != VaultOrder::Recent) {
+            root[VAULT_ORDER_KEY_] = nameOf_(vaultOrder_);
+        }
+
         if (!vaults_.isEmpty()) {
             root[u"vaults"_s] = writeVaults_();
         }
@@ -311,6 +322,11 @@ public:
 
 private:
     static inline const QString COMMON_VAULT_PATH_KEY_ = u"commonVaultPath"_s;
+
+    // The vault order is written by name, and only when it isn't Recent
+    static inline const QString VAULT_ORDER_KEY_ = u"vaultOrder"_s;
+    static inline const QString NAME_ASCENDING_ = u"nameAscending"_s;
+    static inline const QString NAME_DESCENDING_ = u"nameDescending"_s;
 
     // No value until set up; then an empty path while unset, else the path
     std::optional<Coco::Path> commonVaultPath_{};
@@ -322,6 +338,7 @@ private:
     bool checksForUpdates_ = true;
     QString dismissedUpdate_{};
     QString language_{};
+    VaultOrder vaultOrder_ = VaultOrder::Recent;
 
     // One registry entry: path is identity, lastUsedEpochMs is a recency stamp
     // (ms since the Unix epoch, Coco::Time::epoch) that orders the list and the
@@ -377,6 +394,34 @@ private:
         if (!common.isEmpty() && !recordOf_(common)) {
             vaults_ << VaultRecord_{ common, 0, false };
         }
+    }
+
+    // A name the file doesn't know (edited by hand) reads as Recent
+    [[nodiscard]] static VaultOrder vaultOrderOf_(const QString& name)
+    {
+        if (name == NAME_ASCENDING_) {
+            return VaultOrder::NameAscending;
+        }
+
+        if (name == NAME_DESCENDING_) {
+            return VaultOrder::NameDescending;
+        }
+
+        return VaultOrder::Recent;
+    }
+
+    [[nodiscard]] static QString nameOf_(VaultOrder order)
+    {
+        switch (order) {
+        case VaultOrder::NameAscending:
+            return NAME_ASCENDING_;
+        case VaultOrder::NameDescending:
+            return NAME_DESCENDING_;
+        case VaultOrder::Recent:
+            break;
+        }
+
+        return {};
     }
 
     static Coco::Path filePath_()

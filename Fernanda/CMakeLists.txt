@@ -211,6 +211,7 @@ set(APP_HEADERS
     src/core/VaultConfig.h
     src/core/VaultDotDir.h
     src/core/VaultEntry.h
+    src/core/VaultOrder.h
     src/core/VaultTreeModel.h
     src/core/VaultTreeNode.h
     src/core/Version.h
@@ -272,6 +273,7 @@ set(APP_HEADERS
     src/ui/UiConstants.h
     src/ui/UiUtility.h
     src/ui/UpdateNotice.h
+    src/ui/VaultOrderButton.h
     src/ui/VaultWindow.h
     src/ui/WordCounter.h
     src/ui/WorkspaceFile.h

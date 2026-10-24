@@ -43,6 +43,7 @@
 #include "core/Updater.h"
 #include "core/Vault.h"
 #include "core/VaultEntry.h"
+#include "core/VaultOrder.h"
 #include "core/Version.h"
 #include "core/spell/SpellCheckers.h"
 #include "ui/ManageVaults.h"
@@ -446,13 +447,14 @@ private:
         // snapshotted: the create/open MRU dir, and the MRO vaults list.
         // ManageVaults can outlive a vault open, so both must reflect App's
         // current state. Rename comes here too, so every vault's folder is
-        // renamed the one way
+        // renamed the one way. The list starts in the order last chosen
         manageVaults_ = new Ui::ManageVaults(
             [this] { return appConfig_.newVaultMruDir(); },
             [this] { return vaultEntries(); },
             [this](const Coco::Path& oldRoot, const Coco::Path& newRoot) {
                 return renameVaultFolder_(oldRoot, newRoot);
             },
+            appConfig_.vaultOrder(),
             appActions_.value(ActionIds::APP_QUIT));
 
         connect(
@@ -481,6 +483,12 @@ private:
             &Ui::ManageVaults::commonVaultUnsetRequested,
             this,
             [this] { setCommonVault_({}); });
+
+        connect(
+            manageVaults_,
+            &Ui::ManageVaults::vaultOrderChanged,
+            this,
+            &App::onVaultOrderChanged_);
 
         connect(
             manageVaults_,
@@ -1049,6 +1057,14 @@ private:
         appConfig_.save();
 
         emit vaultsChanged();
+    }
+
+    // Saved at once, as the other choices made in Manage Vaults are, rather
+    // than left to the save at exit
+    void onVaultOrderChanged_(VaultOrder order)
+    {
+        appConfig_.setVaultOrder(order);
+        appConfig_.save();
     }
 
     void onManageVaultsDestroyed_()

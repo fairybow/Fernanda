@@ -97,6 +97,7 @@ inline constexpr auto DRAWER_COMMON_VAULT_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto DRAWER_TITLE_ROLE = QPalette::PlaceholderText;
 inline constexpr auto VAULT_SWITCHER_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto SETTINGS_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto VAULT_ORDER_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto TAB_CLOSE_ICON_ROLE = QPalette::WindowText;
 inline constexpr auto TAB_PIN_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto NEW_TAB_ICON_ROLE = QPalette::WindowText;
@@ -238,6 +239,11 @@ inline constexpr int MANAGE_VAULTS_HEIGHT = 380;
 // from the Disabled group, as the row's greyed name is drawn
 inline constexpr int MANAGE_VAULTS_MISSING_ICON_EXTENT = TREE_ICON_EXTENT;
 inline constexpr auto MANAGE_VAULTS_MISSING_ICON_ROLE = QPalette::Text;
+
+// The order button over the vault picker's list (VaultOrderButton), level with
+// the list's title. EXTENT/ICON_EXTENT mean what the tab buttons' pair means
+inline constexpr int VAULT_ORDER_BUTTON_EXTENT = 24;
+inline constexpr int VAULT_ORDER_BUTTON_ICON_EXTENT = 16;
 
 // The licenses dialog (LicensesDialog): its opening size, and the width of the
 // list of works down its left

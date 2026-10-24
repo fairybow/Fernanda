@@ -12,10 +12,12 @@
 
 #pragma once
 
+#include <algorithm>
 #include <functional>
 #include <utility>
 
 #include <QAction>
+#include <QCollator>
 #include <QDesktopServices>
 #include <QDialog>
 #include <QEvent>
@@ -38,11 +40,13 @@
 #include <Coco/Path.h>
 
 #include "core/VaultEntry.h"
+#include "core/VaultOrder.h"
 #include "ui/AboutPanel.h"
 #include "ui/NewVaultDialog.h"
 #include "ui/RenameDialog.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
+#include "ui/VaultOrderButton.h"
 #include "ui/widgets/Glyph.h"
 
 namespace Fernanda::Ui {
@@ -60,16 +64,18 @@ public:
     // vaultsProvider yields the MRO vaults list for the recents column.
     // vaultRenamer renames a vault's folder in place, from its old root to its
     // new one, and says whether it did: App's, so every vault's rename goes
-    // through App
+    // through App. vaultOrder is the list's order to start in, App's saved one
     ManageVaults(
         std::function<Coco::Path()> startDirProvider,
         std::function<QList<VaultEntry>()> vaultsProvider,
         std::function<bool(const Coco::Path&, const Coco::Path&)> vaultRenamer,
+        VaultOrder vaultOrder,
         QAction* quitAction)
         : QWidget(nullptr)
         , startDirProvider_(std::move(startDirProvider))
         , vaultsProvider_(std::move(vaultsProvider))
         , vaultRenamer_(std::move(vaultRenamer))
+        , vaultOrder_(vaultOrder)
     {
         setup_(quitAction);
     }
@@ -79,12 +85,12 @@ public:
     // Rebuild the recents column from the live provider. App connects this to
     // its vaultsChanged signal, so a picker left open reflects a vault opened,
     // closed, removed, or renamed under it. Cheap and wholesale — the list is
-    // short
+    // short. In the order the button shows
     void refreshRecents()
     {
         recentsList_->clear();
 
-        const auto entries = vaultsProvider_();
+        const auto entries = ordered_(vaultsProvider_());
 
         if (entries.isEmpty()) {
             auto placeholder = new QListWidgetItem(tr("No recent vaults yet."));
@@ -111,6 +117,10 @@ signals:
     // route there
     void commonVaultSetRequested(const Coco::Path& vaultRoot);
     void commonVaultUnsetRequested();
+
+    // The order button moved the list to a new order. App keeps it in
+    // fernanda.json, so the next Manage Vaults starts in it
+    void vaultOrderChanged(VaultOrder order);
 
 protected:
     // The missing rows' glyph is tinted from the palette when the list is
@@ -141,6 +151,9 @@ private:
     // and everything that follows a folder when it's renamed
     std::function<bool(const Coco::Path&, const Coco::Path&)> vaultRenamer_;
 
+    VaultOrder vaultOrder_;
+
+    VaultOrderButton* orderButton_ = nullptr;
     QListWidget* recentsList_ = nullptr;
 
     // Item-data roles for a recents row: the open target (at UserRole) plus the
@@ -218,7 +231,19 @@ private:
         auto column_layout = new QVBoxLayout;
         column_layout->setSpacing(12);
 
-        column_layout->addWidget(new QLabel(tr("Recent vaults"), this));
+        // The title, and the order button level with it at the list's right
+        orderButton_ = new VaultOrderButton(vaultOrder_, this);
+        connect(
+            orderButton_,
+            &VaultOrderButton::clicked,
+            this,
+            &ManageVaults::onVaultOrderClicked_);
+
+        auto title_layout = new QHBoxLayout;
+        title_layout->addWidget(new QLabel(tr("Recent vaults"), this));
+        title_layout->addStretch();
+        title_layout->addWidget(orderButton_);
+        column_layout->addLayout(title_layout);
 
         recentsList_ = new QListWidget(this);
 
@@ -299,6 +324,65 @@ private:
         icon.addPixmap(pixmap, QIcon::Normal);
         icon.addPixmap(pixmap, QIcon::Disabled);
         return icon;
+    }
+
+    // The vaults in the list's order. The provider gives them most recently
+    // used first. By name, they're compared as the file tree compares names
+    // (letter case ignored, a number in a name read as a number), and two
+    // with one name by their paths, so they keep one order
+    [[nodiscard]] QList<VaultEntry> ordered_(QList<VaultEntry> entries) const
+    {
+        if (vaultOrder_ == VaultOrder::Recent) {
+            return entries;
+        }
+
+        QCollator collator{};
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+
+        auto before = [&collator](const VaultEntry& a, const VaultEntry& b) {
+            if (auto by_name = collator.compare(a.name, b.name); by_name != 0) {
+                return by_name < 0;
+            }
+
+            return collator.compare(
+                       a.root.prettyQString(),
+                       b.root.prettyQString()) < 0;
+        };
+
+        if (vaultOrder_ == VaultOrder::NameAscending) {
+            std::sort(entries.begin(), entries.end(), before);
+        } else {
+            std::sort(
+                entries.begin(),
+                entries.end(),
+                [&before](const VaultEntry& a, const VaultEntry& b) {
+                    return before(b, a);
+                });
+        }
+
+        return entries;
+    }
+
+    // Recent, then name A to Z, then Z to A, then recent again
+    void onVaultOrderClicked_()
+    {
+        switch (vaultOrder_) {
+        case VaultOrder::Recent:
+            vaultOrder_ = VaultOrder::NameAscending;
+            break;
+        case VaultOrder::NameAscending:
+            vaultOrder_ = VaultOrder::NameDescending;
+            break;
+        case VaultOrder::NameDescending:
+            vaultOrder_ = VaultOrder::Recent;
+            break;
+        }
+
+        orderButton_->setOrder(vaultOrder_);
+        refreshRecents();
+
+        emit vaultOrderChanged(vaultOrder_);
     }
 
     void onNewVaultClicked_()
