@@ -39,7 +39,7 @@ The vault picker. It opens on first launch, whenever there is no vault to reopen
 
 - Create new vault (a name and a location)
 - Open folder as vault
-- Recent vaults, most recently used first. A vault whose folder is gone is shown as missing
+- Recent vaults, most recently used first, or by name, A to Z or Z to A. The button beside the list's title moves between the three orders, and the one chosen is kept. A vault whose folder is gone is shown as missing
 - Right-click a vault to rename it, reveal it in the file explorer, set it as the Common Vault, or remove it from the list. Removing never touches the folder. The Common Vault's own entry offers Unset Common Vault in place of Set and Remove
 - Renaming a vault renames its folder. A vault that is open, and the Common Vault, stay open under the new name
 - A vault that is open can't be removed from the list until its window is closed. The Common Vault is removed by unsetting it, then removing it
@@ -48,7 +48,7 @@ The vault picker. It opens on first launch, whenever there is no vault to reopen
 
 ### Vault switcher
 
-At the bottom of the sidebar. Lists your other vaults, opens the Common Vault (when there is one), and opens Manage Vaults. Choosing a vault that is already open brings its window forward.
+At the bottom of the sidebar. Lists your other vaults, most recently used first, opens the Common Vault (when there is one), and opens Manage Vaults. Choosing a vault that is already open brings its window forward.
 
 ## Saving
 
@@ -93,6 +93,8 @@ Text files are read as UTF-8. A text file that isn't valid UTF-8 (an old Windows
 - Right-click a file: Open in new tab, Open to the right, Open in new window, Rename, Delete
 - Right-click a folder: New file, New folder, Rename, Delete
 - Right-click empty space: New file, New folder (at the vault root)
+- New file and New folder open the folder they're made in, and select the new entry. A new file opens in the editor too
+- Click anywhere off the rows to clear the selection
 - Drag a file or folder onto a folder to move it there, or onto empty space to move it to the vault root. Folders expand when hovered and the tree scrolls while dragging
 - Drag a file onto an editor pane to open it there
 - Delete always asks first, and moves the entry to the system trash. If the trash refuses it (a network share, for instance), nothing is deleted
@@ -292,6 +294,8 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **TIFF images** are supported. SVG and AVIF are not
 - **Images zoom**, like PDFs
 - **File and folder icons** in the file tree
+- **Clicking off the file tree's rows clears its selection.** Obsidian keeps a selection until another entry is clicked
+- **Manage Vaults can list vaults by name.** Obsidian's vault list is always most recently used first
 - **No fallback trash.** If the system trash refuses an entry, Fernanda declines; Obsidian moves it to a `.trash` folder in the vault
 - **A vault whose folder vanishes has its window closed**, after a message, where Obsidian leaves an empty window open. This includes a vault folder deleted from inside another vault
 - **No Move Vault command.** Obsidian's vault switcher can move a vault to another folder. In Fernanda, move the folder from the file tree of a vault that contains it, and the vault follows; or move it in your file manager, then open it from its new place

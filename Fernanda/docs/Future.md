@@ -27,7 +27,6 @@ Nothing here is a promise or a schedule.
 - Selecting and dragging several entries at once
 - A command or menu route to move a file ("Move file to..."), so dragging isn't the only way
 - Delete or rename the current file from its tab
-- After New file or New folder inside a collapsed folder, expand the folder and select the new entry
 - A "Don't ask again" option on the delete confirmation
 - Show the operating system's own reason when the trash refuses an entry
 - Name checks beyond forbidden characters: names differing only by case, Unicode normalization, and length limits
