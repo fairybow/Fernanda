@@ -4,11 +4,15 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
+- [x] May want to allow clicking to left or right of file in tree to also clear selection (right now clearing selection only works when clicking below all files in a tree)
 - [ ] VaultSwitcher's menu should open upward
+- [ ] Closing every window from the Windows taskbar (right-click the icon, Close all windows) reopens only one vault next launch. To Fernanda the closes look like closing each window by hand, which clears that vault's open flag while another is still open; only the last keeps it. Pop-outs can be lost the same way, if one closes before its vault window saves the layout. A short grace period before a closed window's flag is cleared, dropped if the app quits first, would cover vault windows; pop-outs would need their layout kept for that time too
 - [ ] "Go to file" on a new tab in a pop-out used to activate the main window and never return focus to the pop-out. Likely fixed now that the switcher opens over the page's own window: verify
 - [ ] Pop-out Z-order isn't restored: a pop-out that was in front of its vault window comes back behind it. Vault windows restore in the right order among themselves, so this may be pop-outs only, and may not be fixable (which would be fine)
 - [ ] Opening the file that is already in the active, unpinned tab should do nothing
 - [ ] Minor: dragging a file quickly from near its row's bottom edge moves the selection highlight down to the next row, though that row isn't selected
+- [x] New file and New folder in a collapsed folder left it collapsed, so the new entry couldn't be seen. The tree that asked now opens the folders above it and selects it
+- [x] Manage Vaults' row for a vault whose folder is missing was taller than the others, and its name sat far from its warning icon. The list sizes its icons to the glyph, gives every row one height, and `Style` keeps a list item's text the tree's margin from its icon
 - [x] A file inside two open vaults (nested vaults, or a project vault containing the Common Vault) had a buffer in each. Each autosave came back to the other as an outside change and reloaded as an undo step, and a rename, move, or delete in one vault discarded the other's buffer, losing up to three seconds of typing. Buffers now live in one `BufferStore` for every vault and window, keyed by `PathKey` (see "One store for every buffer" in [Architecture.md](Architecture.md))
 - [x] On Windows, renaming, moving, or deleting a folder failed when another vault's window had expanded a folder inside it, since that tree's watch is an open handle; and once that worked, the other window's tree collapsed the moved folder. The store now releases and updates every vault's tree around a folder operation
 - [x] Moving, renaming, or trashing a folder that held another open vault's folder, from inside Fernanda, left that vault's window open over a missing folder, with a dead file tree, until Fernanda next became the active app. Its message then said the folder was moved outside Fernanda. The store now announces the operation and `App` handles it at once, saying where the folder went

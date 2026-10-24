@@ -13,6 +13,7 @@
 #pragma once
 
 #include <QAction>
+#include <QItemSelectionModel>
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QMenu>
@@ -97,6 +98,29 @@ public:
             tree_->expand(index);
             --applyingRestore_;
         }
+    }
+
+    // Show an entry this tree has just made: open every folder above it,
+    // select it, and scroll it into view. The folders opened count as the
+    // user's own, so they're saved with the workspace (expansionChanged). An
+    // entry the model can't find, as when its folder went in the meantime, is
+    // left alone
+    void reveal(const Coco::Path& absolute)
+    {
+        auto index = model_->indexOf(absolute);
+        if (!index.isValid()) {
+            return;
+        }
+
+        for (auto folder = index.parent(); folder.isValid();
+             folder = folder.parent()) {
+            tree_->expand(folder);
+        }
+
+        tree_->selectionModel()->setCurrentIndex(
+            index,
+            QItemSelectionModel::ClearAndSelect);
+        tree_->scrollTo(index);
     }
 
 signals:

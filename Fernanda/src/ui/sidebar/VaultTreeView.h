@@ -43,6 +43,7 @@
 #include <Coco/Path.h>
 
 #include "core/VaultTreeModel.h"
+#include "ui/Style.h"
 #include "ui/UiConstants.h"
 #include "ui/UiUtility.h"
 #include "ui/sidebar/VaultEntryDragMime.h"
@@ -113,6 +114,28 @@ public:
         QCoreApplication::sendEvent(viewport(), &move);
     }
 
+    // The row at a point, but only within the row's wash (Style::itemWashRect):
+    // beside it, left of a nested row or in the margin at either side, is no
+    // row. The wash is what shows a row's extent, so a point outside it is
+    // empty space everywhere the view asks: a press there clears the
+    // selection, hover there shows no row, a right-click there gets the vault
+    // root's menu, and a drop there lands in the vault root. Only the wash's
+    // sides count; the pixel it leaves between two rows still belongs to them
+    [[nodiscard]] QModelIndex indexAt(const QPoint& point) const override
+    {
+        auto index = QTreeView::indexAt(point);
+        if (!index.isValid()) {
+            return {};
+        }
+
+        auto wash = Style::itemWashRect(visualRect(index), this);
+        if (point.x() < wash.left() || point.x() >= wash.right()) {
+            return {};
+        }
+
+        return index;
+    }
+
 signals:
     // A committed move-drop: move absoluteSource into absoluteDestDir (an
     // existing folder in this vault, or the vault root). Only fired for a
@@ -176,13 +199,26 @@ protected:
 
     void mousePressEvent(QMouseEvent* event) override
     {
+        // A press off every row (indexAt), with either button, clears the
+        // selection and the current row, as the system's file explorers do,
+        // and does nothing else. Obsidian keeps its selection until another
+        // entry is clicked. QTreeView isn't given the press: it finds a
+        // folder's chevron by its whole indentation step, and the wash's inset
+        // leaves the left edge of that step off the row, where a press would
+        // still open or close the folder
+        if (!indexAt(event->pos()).isValid()) {
+            clearSelection();
+            selectionModel()->clearCurrentIndex();
+            return;
+        }
+
         if (event->button() == Qt::LeftButton) {
             dragStartPos_ = event->pos();
 
             // Never from empty space — and never from the expand/collapse
-            // arrow. indexAt answers for the whole row including the branch
-            // gutter left of the item rect, so without the x check a small
-            // movement off the twisty would move the folder instead of
+            // arrow. indexAt answers for the row's wash, which takes in the
+            // chevron's step left of the item rect, so without the x check a
+            // small movement off the chevron would move the folder instead of
             // toggling it (Explorer and Obsidian both toggle)
             auto index = indexAt(event->pos());
             dragArmed_ =
@@ -210,6 +246,19 @@ protected:
     {
         dragArmed_ = false;
         QTreeView::mouseReleaseEvent(event);
+    }
+
+    // A double-click beside a row's wash is on no row (indexAt), so it does
+    // nothing, as a press there does nothing but clear the selection.
+    // QTreeView finds the row by height alone here, and would open or close a
+    // folder
+    void mouseDoubleClickEvent(QMouseEvent* event) override
+    {
+        if (!indexAt(event->pos()).isValid()) {
+            return;
+        }
+
+        QTreeView::mouseDoubleClickEvent(event);
     }
 
     // --- Drop target -------------------------------------------------------

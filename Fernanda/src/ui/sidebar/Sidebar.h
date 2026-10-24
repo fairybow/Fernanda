@@ -322,32 +322,38 @@ private:
                 emit fileActivated(PathKey::of(absolute), mode);
             });
 
-        // New file: the Vault creates it (all disk IO is the Vault's), then we
-        // open it just as a double-click would — replacing the active tab
-        // unless it's pinned. Empty return == create failed; the Vault already
-        // warned
+        // New file: the Vault creates it (all disk IO is the Vault's), the tree
+        // that asked shows it, and we open it just as a double-click would —
+        // replacing the active tab unless it's pinned. Empty return == create
+        // failed; the Vault already warned
         connect(
             tree,
             &VaultFileTree::newFileRequested,
             this,
-            [this, vault](const Coco::Path& absoluteDir) {
+            [this, vault, tree](const Coco::Path& absoluteDir) {
                 auto key = vault->createFile(PathKey::of(absoluteDir));
                 if (key.isEmpty()) {
                     return;
                 }
+
+                tree->reveal(key.path());
                 emit fileActivated(key, OpenMode::ReplaceActive);
             });
 
-        // New folder: create and stop — nothing to open. The Vault inserts the
-        // row into the shared tree model before returning. TODO: expand
-        // absoluteDir if it's collapsed so the new child is visible, and select
-        // it
+        // New folder: create it and show it in the tree that asked, with
+        // nothing to open. Only that tree opens the folders above it; other
+        // windows' trees of the vault are left as they are
         connect(
             tree,
             &VaultFileTree::newFolderRequested,
             this,
-            [vault](const Coco::Path& absoluteDir) {
-                vault->createFolder(PathKey::of(absoluteDir));
+            [vault, tree](const Coco::Path& absoluteDir) {
+                auto key = vault->createFolder(PathKey::of(absoluteDir));
+                if (key.isEmpty()) {
+                    return;
+                }
+
+                tree->reveal(key.path());
             });
 
         // Rename: the Vault renames on disk and re-keys any open buffer, then

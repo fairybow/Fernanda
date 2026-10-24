@@ -106,6 +106,15 @@ public:
             pressed ? STYLE_PRESSED_ALPHA : STYLE_HOVER_ALPHA);
     }
 
+    // Where an item view paints the wash of the item whose cell is itemRect:
+    // the hover and selection shade. Public so a view can take the wash as
+    // the extent of its row, as VaultTreeView does
+    [[nodiscard]] static QRectF
+    itemWashRect(const QRect& itemRect, const QWidget* widget)
+    {
+        return washRect_(itemRowRect_(itemRect, widget));
+    }
+
     // The one-pixel lines between things: splitter handles, the short marks
     // between tabs, and the Common Vault drawer's bottom edge when it's
     // collapsed. Public so a widget that draws its own line matches these
@@ -327,6 +336,24 @@ public:
             // drawn, below the gap at its top (see drawTabShape_). Its text
             // and icon are too, by the label's own rect (CE_TabBarTabLabel)
             return rect.translated(0, STYLE_TAB_TOP_GAP / 2);
+        case SE_ItemViewItemText:
+            // In a list, an item's text keeps the list's margin from the row's
+            // edges, and a tree's from an icon before it, as in a tree. Left to
+            // the list's margin there too, the text sits well away from its
+            // icon, which itself is where the other rows' text begins
+            if (auto* item =
+                    qstyleoption_cast<const QStyleOptionViewItem*>(option);
+                item &&
+                (item->features & QStyleOptionViewItem::HasDecoration) &&
+                qobject_cast<const QAbstractItemView*>(widget) &&
+                !qobject_cast<const QTreeView*>(widget)) {
+                return rect.adjusted(
+                    STYLE_TREE_ROW_TEXT_MARGIN - STYLE_LIST_ROW_TEXT_MARGIN,
+                    0,
+                    0,
+                    0);
+            }
+            return rect;
         default:
             return rect;
         }
@@ -1066,18 +1093,27 @@ private:
     }
 
     // A tree row's cell starts after its indentation, and the chevron sits in
-    // the last indentation step before the cell. The wash reaches back over
-    // that step, so a folder's highlight takes in its chevron
+    // the last indentation step before the cell. The row's wash reaches back
+    // over that step, so a folder's highlight takes in its chevron
+    [[nodiscard]] static QRectF
+    itemRowRect_(const QRect& itemRect, const QWidget* widget)
+    {
+        auto rect = QRectF(itemRect);
+
+        if (auto* tree = qobject_cast<const QTreeView*>(widget)) {
+            rect.setLeft(qMax(qreal(0), rect.left() - tree->indentation()));
+        }
+
+        return rect;
+    }
+
     static void drawItemWash_(
         const QStyleOptionViewItem* item,
         QPainter* painter,
         const QWidget* widget)
     {
-        auto rect = QRectF(item->rect);
+        auto rect = itemRowRect_(item->rect, widget);
         auto* tree = qobject_cast<const QTreeView*>(widget);
-        if (tree) {
-            rect.setLeft(qMax(qreal(0), rect.left() - tree->indentation()));
-        }
 
         fillRowWash_(item, rect, painter);
 
@@ -1147,9 +1183,16 @@ private:
 
         fillRounded_(
             painter,
-            rect.adjusted(STYLE_ROW_INSET, 1, -STYLE_ROW_INSET, -1),
+            washRect_(rect),
             STYLE_ROW_RADIUS,
             wash_(option->palette, alpha));
+    }
+
+    // A row's wash is inset from the view's sides, and a pixel from the rows
+    // above and below, so neighboring washes don't touch
+    [[nodiscard]] static QRectF washRect_(const QRectF& rowRect)
+    {
+        return rowRect.adjusted(STYLE_ROW_INSET, 1, -STYLE_ROW_INSET, -1);
     }
 
     // --- Scroll bars -------------------------------------------------------

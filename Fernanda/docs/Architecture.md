@@ -417,7 +417,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 - A record keeps the spelling it was made with until it's renamed. A case-only rename that leaves a vault in place renames its record to the new spelling.
 - A record follows its folder when the folder is renamed or moved inside Fernanda (see "Vault folders"). After an outside move it is shown as missing.
 
-`App` derives a display entry per vault on demand (`VaultEntry`: name, missing, open, is-common) and hands the picker and each vault switcher a function that returns the current list. "Open" means a window holds the vault. It is not the same as "a `Vault` object exists", which for the Common Vault is true even with no window, and which is why is-common is a separate flag.
+`App` derives a display entry per vault on demand (`VaultEntry`: name, missing, open, is-common) and hands the picker and each vault switcher a function that returns the current list, most recently used first. The picker can show it by name instead (`VaultOrder`, kept in `fernanda.json` as `vaultOrder` and written only when it isn't the recent order). The order is the picker's alone, so the picker sorts its own copy and the switchers keep the recent order. "Open" means a window holds the vault. It is not the same as "a `Vault` object exists", which for the Common Vault is true even with no window, and which is why is-common is a separate flag.
 
 ### Workspace
 
@@ -534,6 +534,7 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 - **Every number the style draws with is a knob** in `ui/UiConstants.h`, prefixed `STYLE_` and grouped by what it shapes. Layout values that belong to a widget rather than the style (the tab height, the margins around the sidebar's footer) sit with that widget's other constants.
 - **A widget that paints itself uses the style's drawing, not a copy of it.** One that should look like a flat button asks the style for a tool button's panel through `ui/widgets/ButtonWash.h`. One that fills a shape of its own takes the color from `Style::buttonWash` or `Style::divider`.
 - **A combo box's drop-down list is drawn as a menu.** Fusion has Qt fill the list's window with the menu panel, so the style treats that window as it does a menu's: see-through and frameless (`polish`), its frame the menu's shadow margin and border, and wider than the box on each side (`STYLE_COMBO_POPUP_OVERHANG`) so the rows' text lines up with the box's. The window's class is private to Qt, so `Style` knows it as a popup whose parent is a combo box that can't be typed in. A combo box is also `STYLE_FIELD_H_PADDING` wider than Qt would make it: Qt's own allowance after the text follows the scroll bar's width, which Fernanda's thin scroll bars leave at nothing.
+- **In a list, an item's text keeps the tree's margin from an icon before it.** A list's text otherwise keeps the list's wider margin from whatever is before it, which leaves a name well away from its icon. Its outer margin is unchanged, so an icon lines up with the other rows' text.
 - **In a light palette, the window color is moved toward the page's**, in `Style::polish(QPalette&)`. Qt passes the application's palette through it whenever it builds one, including after a light or dark switch.
 
 ### Following the palette

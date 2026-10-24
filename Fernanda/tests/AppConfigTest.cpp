@@ -31,10 +31,11 @@
 using namespace Qt::StringLiterals;
 
 using Fernanda::AppConfig;
+using Fernanda::VaultOrder;
 
 // The app's own settings file (core/AppConfig.h): the known-vaults list, whose
-// records name folders by any spelling, the Common Vault's three states, and
-// what survives a save and a load.
+// records name folders by any spelling, the Common Vault's three states, the
+// vault list's order, and what survives a save and a load.
 //
 // Qt's test mode puts the settings file in a folder of its own, away from the
 // real one, and each test starts with no file there. The vault folders are
@@ -273,6 +274,52 @@ private slots:
         config.setCommonVaultPath({});
         QVERIFY(config.forgetVault(root));
         QVERIFY(config.recentVaults().isEmpty());
+    }
+
+    // --- The vault list's order ---------------------------------------------
+
+    // Recent until another is chosen, and not written while it's Recent
+    void theVaultOrderStartsRecent()
+    {
+        AppConfig config{};
+        config.load();
+        QCOMPARE(config.vaultOrder(), VaultOrder::Recent);
+
+        QVERIFY(config.save());
+        QFile file(filePath_().toQString());
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QVERIFY(!QJsonDocument::fromJson(file.readAll())
+                     .object()
+                     .contains(u"vaultOrder"_s));
+    }
+
+    // Each order survives a save and a load
+    void aVaultOrderIsSavedAndLoaded()
+    {
+        for (auto order : { VaultOrder::NameAscending,
+                            VaultOrder::NameDescending,
+                            VaultOrder::Recent }) {
+            AppConfig config{};
+            config.setVaultOrder(order);
+            QVERIFY(config.save());
+
+            AppConfig reloaded{};
+            reloaded.load();
+            QCOMPARE(reloaded.vaultOrder(), order);
+        }
+    }
+
+    // A name the file doesn't know (edited by hand) reads as Recent
+    void anUnknownVaultOrderReadsAsRecent()
+    {
+        QJsonObject file{};
+        file[u"vaultOrder"_s] = u"byColor"_s;
+        writeFile_(file);
+
+        AppConfig config{};
+        config.load();
+
+        QCOMPARE(config.vaultOrder(), VaultOrder::Recent);
     }
 };
 
