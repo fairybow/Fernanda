@@ -31,8 +31,8 @@
 // | PRERELEASE | Optional label: alpha.1, beta.1, rc.1, etc.                  |
 
 #define VERSION_MAJOR                           0
-#define VERSION_MINOR                           10
-#define VERSION_PATCH                           1
+#define VERSION_MINOR                           11
+#define VERSION_PATCH                           0
 #define VERSION_PRERELEASE_STRING               "beta.0"
 
 // Major.Minor.Patch

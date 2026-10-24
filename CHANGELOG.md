@@ -102,6 +102,55 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.11.0-beta.0 (Common Vault Rework and Nested Vaults) - tag v0.11.0-beta.0
+
+## What's New?
+
+**The Common Vault is now a role any vault can have.** Right-click a vault in **Manage Vaults** and choose **Set as Common Vault**, or **Unset Common Vault** to have none. Every open window follows at once. Your current Common Vault stays the Common Vault.
+
+- If the Common Vault's folder is deleted, or moved outside Fernanda, it's no longer recreated empty: there's no Common Vault until you set one
+- Hovering over the drawer's header shows the Common Vault's name
+
+**Nested vaults work together.** Vaults can sit inside one another, and a project vault can contain the Common Vault. Every window now shares one set of open files, so vaults that overlap stay in step:
+
+- A file inside two open vaults is one document in every window. Before, each vault kept its own copy, so their autosaves could overwrite each other, and a rename in one could lose a few seconds of typing in the other
+- Renaming, moving, or deleting a file or folder from either vault carries every window's tabs with it. A folder expanded in one window stays expanded after another window moves it
+- A file moved out of a vault from another vault's window has its tabs closed in that vault's windows, and unsaved typing goes with the file. A file moved between a window's vault and the Common Vault gains or loses its Common Vault mark in place
+- Renaming or moving a folder that holds another vault keeps that vault open at its new place, with its tabs, settings, dictionary, and spot in the vault list. Deleting one closes the vault's window at once, with a message
+
+**Manage Vaults**
+
+- **Rename** works on open vaults and the Common Vault too, which stay open under the new name. It checks the new name as you type, and allows a change of letter case alone
+- A button beside **Recent vaults** lists vaults by name, A to Z or Z to A, or most recently used first. Your choice is kept
+- A vault whose folder is missing no longer has a taller row
+
+**File tree**
+
+- **New file** and **New folder** open the folder they're made in, and select the new entry
+- Clicking anywhere off a row's highlight clears the selection
+
+**Fixed**
+
+- A vault on a network share (`\\server\share`) showed as missing after a relaunch
+- On Linux and macOS, a backslash in a file name was taken for a folder separator
+- On Windows and macOS, one folder opened by two letter cases opened two windows
+- Names Windows reserves, such as `COM¹`, were allowed in some places
+- A rename onto the name of a file just deleted outside Fernanda could leave the deleted file open
+- Opening or closing the Common Vault drawer could leave a row lit under the pointer
+
+## Known Issues
+
+- The Spanish translation is an unreviewed draft, and some newer text isn't translated yet
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- Closing all windows at once from the Windows taskbar reopens only one vault on the next launch
+- A file that can be reached two ways, through a symlinked folder and directly, is two documents, which can save over each other
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.10.1-beta.0 (New Icon) - tag v0.10.1-beta.0
 
 ## What's New?
