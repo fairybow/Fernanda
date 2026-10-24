@@ -45,7 +45,7 @@ Fernanda is early in development, and more features are planned. I expect to kee
 ## Features
 
 - **A vault is a folder.** Open any folder as a vault. Fernanda adds one hidden folder for its settings and leaves the rest alone
-- **No Save command.** Every file exists on disk from the moment it's created, and changes are written about a second after you stop typing
+- **No Save command.** Every file exists on disk from the moment it's created, and changes are written as you type
 - **Your text is written back as it was read.** Line endings, byte order marks, no-break spaces, and other special characters are preserved
 - **Tabs, split panes, and pop-out windows.** The same file can be open in any number of them, in sync, with one undo history
 - **A Common Vault** shared by every project, for templates, notes, and reference material
