@@ -130,6 +130,6 @@ Pass `-DAPP_BUILD_TESTS=OFF` to skip building the tests.
 
 ## Support
 
-I enjoy working on Fernanda, and I'm genuinely grateful for any support. You can do that [here](https://ko-fi.com/fairybow).
+I enjoy working on Fernanda, and I'm genuinely grateful for any support. You can give on [Ko-fi](https://ko-fi.com/fairybow) or [Buy Me a Coffee](https://buymeacoffee.com/fairybow).
 
-But if you're going to give anywhere, I'd rather you please give to [United24 🇺🇦](https://u24.gov.ua/) and help defend Ukraine. Civilians there are under attack every day, and your money will do far more good that way.
+Please also consider donating to [United24 🇺🇦](https://u24.gov.ua/) and help defend Ukraine. Civilians there are under attack every day, and your money will do far more good that way.
