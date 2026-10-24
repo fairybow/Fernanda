@@ -81,9 +81,13 @@ There's more, and the full list is in [Features.md](Fernanda/docs/Features.md#di
 
 ## Installing
 
-Download the latest build for Windows, macOS, or Linux from [Releases](https://github.com/fairybow/Fernanda/releases). Each release's notes cover installing, updating, and uninstalling. Fernanda tells you when a newer version is out (you can turn that off in Settings → General), and links you to it.
+Download the latest build for Windows, macOS, or Linux from [Releases](https://github.com/fairybow/Fernanda/releases). Each release's notes cover installing, updating, and uninstalling. Fernanda tells you when a newer version is out, and links you to it. You can turn that off when installing on Windows, or in Settings → General.
 
 The builds are unsigned, so Windows and macOS will warn you the first time you run one. The macOS and Linux builds aren't well tested yet.
+
+## Privacy
+
+Fernanda never sends your writing anywhere. The only thing it sends on its own is the update check, a request to GitHub for the list of releases. The [privacy statement](PRIVACY.md) has the details.
 
 ## Building
 
