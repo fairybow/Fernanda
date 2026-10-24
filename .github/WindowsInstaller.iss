@@ -16,6 +16,9 @@
 #ifndef LicensePath
   #error "LicensePath not defined. Pass /DLicensePath=path"
 #endif
+#ifndef PrivacyPath
+  #error "PrivacyPath not defined. Pass /DPrivacyPath=path"
+#endif
 #ifndef OutputDir
   #error "OutputDir not defined. Pass /DOutputDir=path"
 #endif
@@ -38,6 +41,9 @@ CloseApplicationsFilter={#AppExeName}
 Compression=lzma2
 DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
+; The privacy statement, shown before the tasks page, where its update check
+; can be switched off
+InfoBeforeFile={#PrivacyPath}
 LicenseFile={#LicensePath}
 MinVersion=10
 OutputBaseFilename={#InstallerName}
@@ -55,12 +61,21 @@ Type: filesandordirs; Name: "{app}\data\*"
 [Tasks]
 Name: "startmenu"; Description: "Create a &Start Menu folder"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
 Name: "desktopicon"; Description: "Create a &Desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: checkedonce
+; Checked unless a previous install unchecked it. Fernanda reads the choice
+; from install.ini ([INI]) as its default (AppConfig)
+Name: "updatecheck"; Description: "Check for &updates automatically"; GroupDescription: "Updates:"
 
 [Files]
 Source: "temp\*"; Excludes: "vc_redist.x64.exe"; DestDir: "{app}\data"; Flags: recursesubdirs ignoreversion
 Source: "temp\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "{#ReadmePath}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#LicensePath}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PrivacyPath}"; DestDir: "{app}"; Flags: ignoreversion
+
+[INI]
+; Written only when the update check is unchecked. [InstallDelete] clears it
+; first, so checking the box again on a reinstall removes it
+Filename: "{app}\data\install.ini"; Section: "Updates"; Key: "CheckAutomatically"; String: "false"; Tasks: not updatecheck
 
 [Icons]
 ; Always installed
@@ -70,6 +85,14 @@ Name: "{app}\{#AppName}"; Filename: "{app}\data\{#AppExeName}"
 Name: "{group}\{#AppName}"; Filename: "{app}\data\{#AppExeName}"; Tasks: startmenu
 Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"; Tasks: startmenu
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\data\{#AppExeName}"; Tasks: desktopicon
+
+[UninstallDelete]
+; install.ini isn't an installed file, so the uninstaller doesn't remove it on
+; its own. These run last, so the folders it held are removed here too, if
+; nothing else is left in them
+Type: files; Name: "{app}\data\install.ini"
+Type: dirifempty; Name: "{app}\data"
+Type: dirifempty; Name: "{app}"
 
 [Run]
 Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "Installing Visual C++ Runtime..."; Flags: waituntilterminated

@@ -23,6 +23,7 @@
 #   CHANGELOG.md
 #   README.md
 #   LICENSE
+#   PRIVACY.md
 #
 # Secrets (Windows Qt install): QT_EMAIL, QT_PW
 #
@@ -329,6 +330,7 @@ jobs:
             /DInstallerName="${{ env.APP }}Installer" `
             /DReadmePath="..\README.md" `
             /DLicensePath="..\LICENSE" `
+            /DPrivacyPath="..\PRIVACY.md" `
             /DOutputDir="..\output" `
             ".github/WindowsInstaller.iss"
 

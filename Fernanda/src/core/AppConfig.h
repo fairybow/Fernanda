@@ -19,6 +19,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QList>
+#include <QSettings>
 #include <QString>
 
 #include <Coco/Path.h>
@@ -98,8 +99,10 @@ public:
 
     void setNewVaultMruDir(const Coco::Path& dir) { newVaultMruDir_ = dir; }
 
-    // Whether Fernanda checks for updates on its own (Updater). On unless
-    // switched off, as Obsidian's automatic updates are
+    // Whether Fernanda checks for updates on its own (Updater). Absent from
+    // fernanda.json, it follows the install (installChecksForUpdates_): on, as
+    // Obsidian's automatic updates are, unless the installer's box was
+    // unchecked
     [[nodiscard]] bool checksForUpdates() const noexcept
     {
         return checksForUpdates_;
@@ -267,7 +270,9 @@ public:
 
         assignPath_(root, u"newVaultMruDir"_s, newVaultMruDir_);
 
-        checksForUpdates_ = root.value(u"checkForUpdates"_s).toBool(true);
+        installChecksForUpdates_ = readInstallChecksForUpdates_();
+        checksForUpdates_ =
+            root.value(u"checkForUpdates"_s).toBool(installChecksForUpdates_);
         dismissedUpdate_ = root.value(u"dismissedUpdate"_s).toString();
         language_ = root.value(u"language"_s).toString();
         vaultOrder_ = vaultOrderOf_(root.value(VAULT_ORDER_KEY_).toString());
@@ -297,8 +302,8 @@ public:
             root[u"newVaultMruDir"_s] = newVaultMruDir_.prettyQString();
         }
 
-        if (!checksForUpdates_) {
-            root[u"checkForUpdates"_s] = false;
+        if (checksForUpdates_ != installChecksForUpdates_) {
+            root[u"checkForUpdates"_s] = checksForUpdates_;
         }
 
         if (!dismissedUpdate_.isEmpty()) {
@@ -334,8 +339,10 @@ private:
     // Empty == unset; the getter substitutes the AppDirs default
     Coco::Path newVaultMruDir_{};
 
-    // Written only when off, like a vault's open flag only when true
+    // Written only when it differs from the install's default. An unwritten
+    // value follows that default, including one a later install changes
     bool checksForUpdates_ = true;
+    bool installChecksForUpdates_ = true;
     QString dismissedUpdate_{};
     QString language_{};
     VaultOrder vaultOrder_ = VaultOrder::Recent;
@@ -427,6 +434,18 @@ private:
     static Coco::Path filePath_()
     {
         return AppDirs::appData() / (PUB_APP_NAME_LOWER_QSTRING + u".json"_s);
+    }
+
+    // The Windows installer's "Check for updates automatically" box, for
+    // everyone who uses this install. The installer (WindowsInstaller.iss)
+    // records it beside the executable, in install.ini, only when unchecked.
+    // No file or no key, as on macOS, Linux, and a build run in place, is on
+    static bool readInstallChecksForUpdates_()
+    {
+        auto path = Coco::Path::AppDir("install.ini");
+        QSettings ini(path.toQString(), QSettings::IniFormat);
+
+        return ini.value(u"Updates/CheckAutomatically"_s, true).toBool();
     }
 
     // Only overwrite the target when the key is present and non-empty, so a

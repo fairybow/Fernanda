@@ -94,6 +94,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 What the tests in `Fernanda/tests/` don't reach.
 
 - [ ] `Updater`'s request to GitHub and its handling of the reply. The decision it makes from the reply is tested (`UpdateCheckTest`)
+- [ ] The installer's update-check choice: the Windows installer writing and removing `install.ini`, and `AppConfig` reading it as the default. A test would have to put a file beside its own executable, in the build folder
 - [ ] A failed write: the buffer stays modified, and `BufferStore::flush` names the file. There is no portable way to make a write fail on demand
 - [ ] The autosave debounce starting again on each edit. Proving it needs timing tight enough to fail on a slow machine
 - [ ] A successful `Vault::moveToTrash`. It would put a file in the real system trash on every run. The store's part after the trash (`BufferStore::applyRemoval`) is tested
