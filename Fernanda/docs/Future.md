@@ -83,6 +83,10 @@ Committing a vault to a repository, for backup and history.
 - The repository is found by walking up from the vault's folder, as Git does. One repository may hold several vaults, and a vault may have none
 - Status and commit would therefore belong to the repository, not the vault. Otherwise a commit from one vault would silently include another's changes
 
+### Releases
+
+- A signed Windows installer, through the SignPath Foundation's free code signing for open source. The installer already shows the privacy statement and offers to turn off the update check, as its conditions ask. Once the project is accepted, the README and every release page need a section titled "Code signing policy", naming who signs and the team's roles and linking the privacy statement, and the release notes' warning about an unsigned build goes. Until then, that section would claim something untrue
+
 ## Maybe
 
 - **Recovery copies of files that vanish.** When a file is deleted outside Fernanda while open, its tab closes and up to three seconds of typing can go with it. Before closing, Fernanda could write the text to a recovery folder off the vault's drive and say so once. Periodic snapshots kept outside the vault (Obsidian's File Recovery) are the larger version. Worth building if a real loss is reported

@@ -227,7 +227,8 @@ A Common Vault file opened in a project's window uses that project's settings.
 Fernanda tells you when a newer version is out. It doesn't download or install it: to update, download the installer from the release page and run it, as you installed Fernanda.
 
 - Settings → General shows the version you have and a Check for updates button. When a newer version is out, it names it, and Open release page takes you to it
-- Fernanda also checks on its own, a few seconds after it starts and then once a day while it runs. "Check for updates automatically", in General, turns this off. A check is one request to GitHub for the list of releases, and sends nothing about you or your files
+- Fernanda also checks on its own, a few seconds after it starts and then once a day while it runs. A check is one request to GitHub for the list of releases. It sends nothing from your vaults or files, but like any web request it shows GitHub your IP address, and it names Fernanda's version. The [privacy statement](../../PRIVACY.md) has the details
+- "Check for updates automatically", in General, turns this off. The Windows installer asks too: its answer is the starting point for everyone who uses that install, and the switch in General changes it for you. The macOS and Linux builds have no installer, so there it starts on
 - When a newer version is found, an arrow appears in the status bar of every window. Clicking it opens General. It then stays hidden until a still newer version comes out
 - While Fernanda is in beta, every release counts, betas included
 

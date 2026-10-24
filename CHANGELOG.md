@@ -65,6 +65,10 @@ Windows (x64), macOS (ARM), and Linux (x86_64).
 > [!NOTE]
 > macOS and Linux builds are available but not well-tested. Bug reports are welcome!
 
+## Privacy
+
+Fernanda never sends your writing anywhere. The only thing it sends on its own is a daily check with GitHub for a newer version, which you can turn off when installing on Windows or in Settings → General. See the [privacy statement](https://github.com/fairybow/Fernanda/blob/main/PRIVACY.md).
+
 :heart:
 
 <!-- release-footer-end -->
