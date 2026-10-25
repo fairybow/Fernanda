@@ -6,7 +6,10 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 - [ ] Switch line highlights back to QPalette roles? What were they before QColor?
 - [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
-- [ ] Better git diff colors (red and green)
+- [ ] Need padding in GitView file lists on left side (check boxes, especially top level, are too close to edge) (may want to make them inline with a distinguished header, like in GitHub Desktop)
+- [ ] The GitView check boxes are ugly lol
+- [ ] I swear, there's a little jump/resize after opening the same tab from GitView (thus having two of the same tab open, which also should be fixed), and then closing that newly opened version (closing is when I notice the jump)
+- [ ] When opening from GitView, if the opened tab is the same as active tab, just show it (focus if needed)
 - [ ] Git diffs don't show new line at end of file
 - [ ] Hide word counter in Git view probably
 - [ ] Potentially use mononoki always for Git view diffs

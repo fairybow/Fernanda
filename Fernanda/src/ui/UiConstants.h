@@ -383,6 +383,13 @@ inline constexpr auto GIT_DELETED_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto GIT_RENAMED_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto GIT_CONFLICTED_ICON_ROLE = QPalette::PlaceholderText;
 
+// The Git view's commit box, below its list: COMMIT_MARGIN around it and
+// COMMIT_SPACING between the summary, the description, and the button. The
+// description is DESCRIPTION_LINES lines of its font tall
+inline constexpr int GIT_VIEW_COMMIT_MARGIN = 6;
+inline constexpr int GIT_VIEW_COMMIT_SPACING = 6;
+inline constexpr int GIT_VIEW_DESCRIPTION_LINES = 4;
+
 // The Git view's diff (GitDiffView). An added line is tinted ADDED_BACKGROUND
 // and a removed one REMOVED_BACKGROUND, across the text and the gutter. Each
 // has an alpha, so it tints the page rather than covering it, on a light page

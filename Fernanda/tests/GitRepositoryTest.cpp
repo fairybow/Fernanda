@@ -113,6 +113,31 @@ private:
             }
         }
 
+        // What git prints in the folder, trimmed. Empty if it fails
+        [[nodiscard]] QString gitOutput(const QStringList& arguments) const
+        {
+            QProcess process{};
+            process.setWorkingDirectory(folder.path());
+            process.start(u"git"_s, arguments);
+
+            if (!process.waitForFinished() || process.exitCode() != 0) {
+                return {};
+            }
+
+            return QString::fromUtf8(process.readAllStandardOutput()).trimmed();
+        }
+
+        // A repository whose own config names who commits and turns signing
+        // off, so the GitRepository's commits, which don't go through git
+        // above, can be made on a machine with neither set
+        void initRepository() const
+        {
+            git({ u"init"_s, u"-q"_s });
+            git({ u"config"_s, u"user.name"_s, u"Test"_s });
+            git({ u"config"_s, u"user.email"_s, u"test@example.com"_s });
+            git({ u"config"_s, u"commit.gpgsign"_s, u"false"_s });
+        }
+
         // Creates the folders above the file too
         void write(const QString& relative, const QByteArray& bytes) const
         {
@@ -220,6 +245,64 @@ private:
 
         disconnect(read);
         disconnect(fail);
+        return answer;
+    }
+
+    // Commits the changed files at paths, as their status lists them, and
+    // waits for the answer. The error, empty on success, or a failure message
+    // if a path isn't listed as changed or no answer came
+    [[nodiscard]] static QString commitOf_(
+        Fixture_& f,
+        const QStringList& paths,
+        const QString& summary,
+        const QString& description)
+    {
+        f.repository.detect();
+
+        if (!QTest::qWaitFor([&] { return f.repository.isFound(); })) {
+            return u"No repository found"_s;
+        }
+
+        f.repository.refresh();
+        QList<GitStatus::Entry> entries{};
+
+        for (const auto& path : paths) {
+            if (!QTest::qWaitFor([&] { return entry_(f.repository, path); })) {
+                return u"Not listed as changed: "_s + path;
+            }
+
+            entries << *entry_(f.repository, path);
+        }
+
+        auto error = commitEntries_(f, entries, summary, description);
+        return error ? *error : u"No answer"_s;
+    }
+
+    // Commits the entries and waits for the answer: the error, empty on
+    // success, or nothing if no answer came
+    [[nodiscard]] static std::optional<QString> commitEntries_(
+        Fixture_& f,
+        const QList<GitStatus::Entry>& entries,
+        const QString& summary,
+        const QString& description)
+    {
+        std::optional<QString> answer{};
+
+        auto done = connect(&f.repository, &GitRepository::committed, [&] {
+            answer = QString{};
+        });
+
+        auto failed = connect(
+            &f.repository,
+            &GitRepository::commitFailed,
+            [&](const QString& error) { answer = error; });
+
+        f.repository.commit(entries, summary, description);
+        [[maybe_unused]] auto answered =
+            QTest::qWaitFor([&] { return answer.has_value(); });
+
+        disconnect(done);
+        disconnect(failed);
         return answer;
     }
 
@@ -608,6 +691,148 @@ private slots:
         QTRY_COMPARE(answered, QStringList{ u"b.txt"_s });
         QTest::qWait(QUIET_WAIT_MS_);
         QCOMPARE(answered, QStringList{ u"b.txt"_s });
+    }
+
+    // --- Committing ---------------------------------------------------------
+
+    void commitRecordsOnlyTheGivenFiles()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.write(u"b.txt"_s, "b\n");
+        f.git({ u"add"_s, u"."_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.write(u"a.txt"_s, "A\n");
+        f.write(u"b.txt"_s, "B\n");
+
+        auto error = commitOf_(f, { u"a.txt"_s }, u"Second"_s, {});
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            f.gitOutput({ u"show"_s, u"--name-status"_s, u"--format="_s }),
+            u"M\ta.txt"_s);
+        // The status read after the commit no longer lists a.txt
+        QTRY_VERIFY(!entry_(f.repository, u"a.txt"_s));
+        QVERIFY(entry_(f.repository, u"b.txt"_s));
+    }
+
+    void commitWritesTheSummaryAndDescription()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+
+        auto error = commitOf_(
+            f,
+            { u"a.txt"_s },
+            u"Chapter one"_s,
+            u"First draft.\nStill rough."_s);
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            f.gitOutput({ u"log"_s, u"-1"_s, u"--format=%B"_s }),
+            u"Chapter one\n\nFirst draft.\nStill rough."_s);
+    }
+
+    // What was staged in a terminal stays staged, and stays out
+    void commitLeavesOtherStagedFilesStaged()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.write(u"b.txt"_s, "b\n");
+        f.git({ u"add"_s, u"."_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.write(u"a.txt"_s, "A\n");
+        f.write(u"b.txt"_s, "B\n");
+        f.git({ u"add"_s, u"b.txt"_s });
+
+        auto error = commitOf_(f, { u"a.txt"_s }, u"Second"_s, {});
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            f.gitOutput({ u"show"_s, u"--name-only"_s, u"--format="_s }),
+            u"a.txt"_s);
+        QCOMPARE(
+            f.gitOutput({ u"diff"_s, u"--cached"_s, u"--name-only"_s }),
+            u"b.txt"_s);
+    }
+
+    void commitAddsAnUntrackedFileBeforeTheFirstCommit()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"Chapter One/a.md"_s, "a\n");
+        f.write(u"b.md"_s, "b\n");
+
+        auto error = commitOf_(f, { u"Chapter One/a.md"_s }, u"First"_s, {});
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            f.gitOutput({ u"show"_s, u"--name-status"_s, u"--format="_s }),
+            u"A\tChapter One/a.md"_s);
+    }
+
+    void commitRecordsARenameWithItsOldPath()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"old.txt"_s, "one\ntwo\nthree\nfour\n");
+        f.git({ u"add"_s, u"old.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"mv"_s, u"old.txt"_s, u"new.txt"_s });
+
+        auto error = commitOf_(f, { u"new.txt"_s }, u"Rename"_s, {});
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            f.gitOutput(
+                { u"show"_s, u"-M"_s, u"--name-status"_s, u"--format="_s }),
+            u"R100\told.txt\tnew.txt"_s);
+    }
+
+    // "[a].txt" as a pattern would match "a.txt" too. Git already takes a
+    // path it knows as itself before trying it as a pattern, and every path
+    // given comes from the status, so this passes without
+    // --literal-pathspecs as well; the option makes it so in every case
+    void commitTakesAPathAsItself()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"[a].txt"_s, "x\n");
+        f.write(u"a.txt"_s, "y\n");
+
+        auto error = commitOf_(f, { u"[a].txt"_s }, u"Brackets"_s, {});
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            f.gitOutput({ u"show"_s, u"--name-only"_s, u"--format="_s }),
+            u"[a].txt"_s);
+    }
+
+    // The same entry again has nothing left to commit. Git says so on its
+    // standard output, which becomes the error
+    void commitWithNothingToCommitFails()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.write(u"b.txt"_s, "b\n");
+        f.git({ u"add"_s, u"b.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"Second"_s });
+
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
+
+        GitStatus::Entry entry{ GitStatus::Change::Modified, u"a.txt"_s };
+        auto error = commitEntries_(f, { entry }, u"Nothing"_s, {});
+
+        QVERIFY(error);
+        QVERIFY(!error->isEmpty());
+        QVERIFY(!f.repository.isCommitting());
     }
 
     // Asking again while a status waits adds nothing, and the waiting one

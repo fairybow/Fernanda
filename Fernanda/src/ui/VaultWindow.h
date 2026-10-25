@@ -40,6 +40,7 @@
 #include "core/ActionIds.h"
 #include "core/AppActions.h"
 #include "core/BufferStore.h"
+#include "core/FileTypes.h"
 #include "core/FocusCycle.h"
 #include "core/FocusTimer.h"
 #include "core/PathKey.h"
@@ -732,6 +733,31 @@ private:
         updateStatusBar();
     }
 
+    // The Git view, opening files the way the file tree's menu does in a new
+    // tab, after the view closes. Only a file in one of this window's
+    // vaults, of a type Fernanda opens, and still on disk (not one whose
+    // change is its deletion) is offered
+    [[nodiscard]] GitView* buildGitView_()
+    {
+        auto* view = new GitView(gitRepository_, vault_, centralStack_);
+
+        view->setOpenFilter([this](const PathKey& key) {
+            return vaultOf_(key) && FileTypes::isSupported(key.path()) &&
+                   key.path().isFile();
+        });
+
+        connect(
+            view,
+            &GitView::openRequested,
+            this,
+            [this](const PathKey& key) {
+                setGitViewShown_(false);
+                openFile(key, OpenMode::NewTab);
+            });
+
+        return view;
+    }
+
     [[nodiscard]] bool isGitViewShown_() const
     {
         return gitView_ && centralStack_->currentWidget() == gitView_;
@@ -748,8 +774,7 @@ private:
         if (shown != isGitViewShown_()) {
             if (shown) {
                 if (!gitView_) {
-                    gitView_ =
-                        new GitView(gitRepository_, vault_, centralStack_);
+                    gitView_ = buildGitView_();
                     centralStack_->addWidget(gitView_);
                 }
 

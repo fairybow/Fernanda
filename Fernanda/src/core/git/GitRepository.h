@@ -39,8 +39,9 @@ namespace Fernanda {
 using namespace Qt::StringLiterals;
 
 // The Git repository a vault's folder is in, as one vault window sees it.
-// Finds the repository and reads its status by running the git installed on
-// the computer, and announces each answer. A status covers the whole
+// Finds the repository, reads its status and its diffs, and commits, by
+// running the git installed on the computer, and announces each answer. A
+// status covers the whole
 // repository, which may hold more than the vault: other vaults, or files that
 // aren't Fernanda's at all.
 //
@@ -60,9 +61,11 @@ using namespace Qt::StringLiterals;
 //   status as soon as a vault opens, and a vault can come from anyone, so
 //   that program must never run unasked
 // - core.quotePath off, so paths in Git's output are plain UTF-8
-// - GIT_TERMINAL_PROMPT=0 and an empty standard input, so a command that
-//   wants to ask something fails instead of waiting forever for an answer
-//   no one can type
+// - --literal-pathspecs, so a path given to git names only itself: a file
+//   named "[draft].md" isn't a pattern that also matches "d.md"
+// - GIT_TERMINAL_PROMPT=0, and nothing on standard input beyond the paths a
+//   command is given there, so a command that wants to ask something fails
+//   instead of waiting forever for an answer no one can type
 class GitRepository : public QObject
 {
     Q_OBJECT
@@ -173,6 +176,92 @@ public:
               u"--untracked-files=all"_s });
     }
 
+    // Whether a commit is underway: from commit until committed or
+    // commitFailed
+    [[nodiscard]] bool isCommitting() const noexcept { return committing_; }
+
+    // Commit these files' changes, and nothing else, with summary as the
+    // message's first line and description, if any, as its body after a blank
+    // line. committed or commitFailed answers, and the status is read again
+    // either way.
+    //
+    // Every modified buffer in the repository is saved first; if one can't
+    // be, nothing is committed. A file git doesn't track yet is added first,
+    // since a commit takes only files git knows. Then git commits only the
+    // given paths' contents as they are on disk (commit --only), so what's
+    // been staged for other files, by Fernanda or in a terminal, stays staged
+    // and stays out of the commit. A renamed file's old path goes in too, so
+    // its removal is committed with it. Git refuses this kind of commit
+    // during a merge, and says so.
+    //
+    // The paths go to git on its standard input, so there's no limit on how
+    // many
+    void commit(
+        const QList<GitStatus::Entry>& entries,
+        const QString& summary,
+        const QString& description)
+    {
+        if (!isFound() || committing_ || entries.isEmpty()) {
+            return;
+        }
+
+        if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
+            emit commitFailed(
+                tr("A file couldn't be saved, so nothing was committed."));
+            return;
+        }
+
+        QByteArray untracked{};
+        QByteArray paths{};
+
+        for (const auto& entry : entries) {
+            auto path = pathspecOf_(entry.path);
+
+            if (entry.change == GitStatus::Change::Untracked) {
+                untracked += path;
+            }
+
+            if (!entry.originalPath.isEmpty()) {
+                paths += pathspecOf_(entry.originalPath);
+            }
+
+            paths += path;
+        }
+
+        committing_ = true;
+
+        Command_ command{};
+        command.kind = Kind_::Commit;
+        command.folder = root_;
+        command.arguments = QStringList{ u"commit"_s,
+                                         u"--quiet"_s,
+                                         u"--only"_s,
+                                         u"--message"_s,
+                                         summary };
+
+        if (!description.trimmed().isEmpty()) {
+            command.arguments << u"--message"_s << description;
+        }
+
+        command.arguments << u"--pathspec-from-file=-"_s
+                          << u"--pathspec-file-nul"_s;
+        command.input = paths;
+
+        if (!untracked.isEmpty()) {
+            Command_ add{};
+            add.kind = Kind_::Add;
+            add.folder = root_;
+            add.arguments = QStringList{ u"add"_s,
+                                         u"--all"_s,
+                                         u"--pathspec-from-file=-"_s,
+                                         u"--pathspec-file-nul"_s };
+            add.input = untracked;
+            enqueue_(std::move(add));
+        }
+
+        enqueue_(std::move(command));
+    }
+
     // Read one changed file's diff against the last commit, which is what
     // committing it would record. diffRead or diffFailed answers, with the
     // entry's path. A file git doesn't track yet, and every file before the
@@ -230,6 +319,7 @@ public:
     {
         queue_.clear();
         ++generation_;
+        committing_ = false;
 
         if (root_.isEmpty()) {
             return;
@@ -256,12 +346,21 @@ signals:
     // readDiff's git failed, for the file at path. error is git's own message
     void diffFailed(const Coco::Path& path, const QString& error);
 
+    // The commit asked for was made
+    void committed();
+
+    // The commit asked for wasn't made. error says why, most often in git's
+    // own words
+    void commitFailed(const QString& error);
+
 private:
     enum class Kind_
     {
         Detect,
         Status,
-        Diff
+        Diff,
+        Add,
+        Commit
     };
 
     struct Command_
@@ -279,6 +378,10 @@ private:
 
         // A diff with --no-index, which exits with 1 when the files differ
         bool comparesWithNothing = false;
+
+        // What git reads on its standard input: the paths, each ended by a
+        // NUL, for a command given --pathspec-from-file=-. Empty for most
+        QByteArray input{};
 
         // generation_ when it was asked for. An answer from before the last
         // forget is ignored
@@ -317,6 +420,8 @@ private:
     // Counts forgets (forget)
     int generation_ = 0;
 
+    bool committing_ = false;
+
     void setup_()
     {
         program_ = QStandardPaths::findExecutable(u"git"_s);
@@ -328,6 +433,13 @@ private:
 
         environment_ = QProcessEnvironment::systemEnvironment();
         environment_.insert(u"GIT_TERMINAL_PROMPT"_s, u"0"_s);
+    }
+
+    // A path for --pathspec-from-file with --pathspec-file-nul: UTF-8,
+    // ended by a NUL
+    [[nodiscard]] static QByteArray pathspecOf_(const Coco::Path& path)
+    {
+        return path.prettyQString().toUtf8() + '\0';
     }
 
     [[nodiscard]] bool isQueued_(Kind_ kind) const
@@ -368,6 +480,7 @@ private:
             u"core.fsmonitor=false"_s,
             u"-c"_s,
             u"core.quotePath=false"_s,
+            u"--literal-pathspecs"_s,
         };
 
         arguments << running_.arguments;
@@ -377,7 +490,9 @@ private:
         process_->setArguments(arguments);
         process_->setWorkingDirectory(running_.folder.toQString());
         process_->setProcessEnvironment(environment_);
-        process_->setStandardInputFile(QProcess::nullDevice());
+        if (running_.input.isEmpty()) {
+            process_->setStandardInputFile(QProcess::nullDevice());
+        }
 
         connect(
             process_,
@@ -392,6 +507,13 @@ private:
             &GitRepository::onProcessError_);
 
         process_->start();
+
+        // Written once git has started, then closed, so git sees the end of
+        // the paths
+        if (!running_.input.isEmpty()) {
+            process_->write(running_.input);
+            process_->closeWriteChannel();
+        }
     }
 
     void onProcessFinished_(int exitCode, QProcess::ExitStatus exitStatus)
@@ -402,6 +524,11 @@ private:
         result.output = process_->readAllStandardOutput();
         result.error =
             QString::fromUtf8(process_->readAllStandardError()).trimmed();
+
+        // Some failures are told on standard output: "nothing to commit"
+        if (!result.succeeded && result.error.isEmpty()) {
+            result.error = QString::fromUtf8(result.output).trimmed();
+        }
 
         if (!result.succeeded && result.error.isEmpty()) {
             result.error = process_->errorString();
@@ -446,6 +573,10 @@ private:
             break;
         case Kind_::Diff:
             onDiffRead_(command, result);
+            break;
+        case Kind_::Add:
+        case Kind_::Commit:
+            onCommitStep_(command, result);
             break;
         }
 
@@ -522,6 +653,44 @@ private:
         }
 
         emit diffRead(command.subject, GitDiff::parse(result.output));
+    }
+
+    // One step of a commit. A failed step ends the commit, and the step after
+    // it, already waiting, is dropped. The commit is the last step
+    void onCommitStep_(const Command_& command, const Result_& result)
+    {
+        if (!result.succeeded) {
+            queue_.removeIf([](const Command_& waiting) {
+                return waiting.kind == Kind_::Commit;
+            });
+
+            WARN(
+                "Git {} failed in {}: {}",
+                command.arguments.first(),
+                command.folder,
+                result.error);
+            finishCommit_(result.error);
+            return;
+        }
+
+        if (command.kind == Kind_::Commit) {
+            INFO("Committed in {}", command.folder);
+            finishCommit_({});
+        }
+    }
+
+    // An empty error is success
+    void finishCommit_(const QString& error)
+    {
+        committing_ = false;
+
+        if (error.isEmpty()) {
+            emit committed();
+        } else {
+            emit commitFailed(error);
+        }
+
+        refresh();
     }
 };
 
