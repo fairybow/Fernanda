@@ -306,6 +306,45 @@ private:
         return answer;
     }
 
+    // Finds the repository and reads its status, does what ask does, which
+    // should switch or make a branch, and waits for the answer: the error,
+    // empty on success
+    template <typename AskT>
+    [[nodiscard]] static QString switchOf_(Fixture_& f, AskT ask)
+    {
+        f.repository.detect();
+
+        if (!QTest::qWaitFor([&] { return f.repository.isFound(); })) {
+            return u"No repository found"_s;
+        }
+
+        QSignalSpy status_read(&f.repository, &GitRepository::statusChanged);
+        f.repository.refresh();
+
+        if (!status_read.wait()) {
+            return u"No status read"_s;
+        }
+
+        std::optional<QString> answer{};
+
+        auto done = connect(&f.repository, &GitRepository::switched, [&] {
+            answer = QString{};
+        });
+
+        auto failed = connect(
+            &f.repository,
+            &GitRepository::switchFailed,
+            [&](const QString& error) { answer = error; });
+
+        ask();
+        [[maybe_unused]] auto answered =
+            QTest::qWaitFor([&] { return answer.has_value(); });
+
+        disconnect(done);
+        disconnect(failed);
+        return answer ? *answer : u"No answer"_s;
+    }
+
     // Types at the end of a text buffer, as a view's editor would
     static void type_(AbstractFileModel* model, const QString& text)
     {
@@ -833,6 +872,139 @@ private slots:
         QVERIFY(error);
         QVERIFY(!error->isEmpty());
         QVERIFY(!f.repository.isBusy());
+    }
+
+    // --- Branches -----------------------------------------------------------
+
+    void listBranchesReadsLocalBranches()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"branch"_s, u"draft-two"_s });
+        f.git({ u"branch"_s, u"notes/ideas"_s });
+
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
+
+        QStringList names{};
+        connect(
+            &f.repository,
+            &GitRepository::branchesRead,
+            this,
+            [&names](const QStringList& read) { names = read; });
+
+        f.repository.listBranches();
+
+        QTRY_COMPARE(names.size(), 3);
+        QVERIFY(names.contains(u"draft-two"_s));
+        QVERIFY(names.contains(u"notes/ideas"_s));
+    }
+
+    void switchBranchSwitches()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"branch"_s, u"draft-two"_s });
+
+        auto error =
+            switchOf_(f, [&f] { f.repository.switchBranch(u"draft-two"_s); });
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            f.gitOutput({ u"branch"_s, u"--show-current"_s }),
+            u"draft-two"_s);
+        QTRY_COMPARE(f.repository.status().branch.name, u"draft-two"_s);
+    }
+
+    // A changed file git tracks would follow, or stop the switch
+    void switchBranchIsRefusedWithTrackedChanges()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"branch"_s, u"draft-two"_s });
+        f.write(u"a.txt"_s, "changed\n");
+
+        auto error =
+            switchOf_(f, [&f] { f.repository.switchBranch(u"draft-two"_s); });
+        QVERIFY(!error.isEmpty());
+        QVERIFY(
+            f.gitOutput({ u"branch"_s, u"--show-current"_s }) !=
+            u"draft-two"_s);
+    }
+
+    // An untracked file stays where it is on every branch
+    void switchBranchIgnoresUntrackedFiles()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"branch"_s, u"draft-two"_s });
+        f.write(u"new.md"_s, "new\n");
+
+        auto error =
+            switchOf_(f, [&f] { f.repository.switchBranch(u"draft-two"_s); });
+        QCOMPARE(error, QString{});
+        QCOMPARE(f.read(u"new.md"_s), QByteArray("new\n"));
+    }
+
+    // The changes come along to the new branch
+    void createBranchSwitchesToIt()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.write(u"a.txt"_s, "changed\n");
+
+        auto error =
+            switchOf_(f, [&f] { f.repository.createBranch(u"draft-two"_s); });
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            f.gitOutput({ u"branch"_s, u"--show-current"_s }),
+            u"draft-two"_s);
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("changed\n"));
+    }
+
+    void createBranchReportsANameGitRefuses()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+
+        auto error =
+            switchOf_(f, [&f] { f.repository.createBranch(u"two words"_s); });
+        QVERIFY(!error.isEmpty());
+        QVERIFY(!f.repository.isBusy());
+    }
+
+    // Before the first commit, the unborn branch is renamed
+    void createBranchWorksBeforeTheFirstCommit()
+    {
+        Fixture_ f{};
+        f.initRepository();
+
+        auto error =
+            switchOf_(f, [&f] { f.repository.createBranch(u"draft"_s); });
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            f.gitOutput({ u"symbolic-ref"_s, u"--short"_s, u"HEAD"_s }),
+            u"draft"_s);
     }
 
     // Asking again while a status waits adds nothing, and the waiting one

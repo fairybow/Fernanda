@@ -40,8 +40,8 @@ namespace Fernanda {
 using namespace Qt::StringLiterals;
 
 // The Git repository a vault's folder is in, as one vault window sees it.
-// Finds the repository, reads its status and its diffs, commits, and
-// discards a file's changes, by
+// Finds the repository, reads its status, its diffs, and its branches,
+// commits, discards a file's changes, and switches and makes branches, by
 // running the git installed on the computer, and announces each answer. A
 // status covers the whole
 // repository, which may hold more than the vault: other vaults, or files that
@@ -178,9 +178,10 @@ public:
               u"--untracked-files=all"_s });
     }
 
-    // Whether a commit or a discard is underway: from commit until committed
-    // or commitFailed, or from discard until discarded or discardFailed. One
-    // waits for the other, so their steps can't interleave
+    // Whether a commit, a discard, or a switch is underway: from asking until
+    // its answer (committed or commitFailed, discarded or discardFailed,
+    // switched or switchFailed). Each waits for the others, so their steps
+    // can't interleave
     [[nodiscard]] bool isBusy() const noexcept
     {
         return operation_ != Operation_::None;
@@ -385,6 +386,76 @@ public:
         }
     }
 
+    // Switch to another local branch (switch). switched or switchFailed
+    // answers, and the status is read again either way. Refused, with no git
+    // run, while a file git tracks has uncommitted changes, by the last
+    // status read: they'd follow to the other branch, or stop the switch,
+    // and either is a surprise. A file git doesn't track doesn't count, since
+    // git leaves it where it is on every branch. Every modified buffer in the
+    // repository is saved first, so the last status saw the text on screen.
+    //
+    // Files the switch changes on disk reload in their views as outside
+    // changes do, and a view of a file the other branch doesn't have closes
+    void switchBranch(const QString& name)
+    {
+        if (!isFound() || isBusy() || name.isEmpty()) {
+            return;
+        }
+
+        if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
+            emit switchFailed(
+                tr("A file couldn't be saved, so the branch wasn't "
+                   "switched."));
+            return;
+        }
+
+        const auto& entries = status_.entries;
+        auto has_changes = std::any_of(
+            entries.cbegin(),
+            entries.cend(),
+            [](const GitStatus::Entry& entry) {
+                return entry.change != GitStatus::Change::Untracked;
+            });
+
+        if (has_changes) {
+            emit switchFailed(tr("Commit or discard your changes first."));
+            return;
+        }
+
+        enqueueSwitch_({ u"switch"_s, u"--quiet"_s, u"--no-guess"_s, name });
+    }
+
+    // Make a branch at the current commit and switch to it (switch
+    // --create). switched or switchFailed answers, with git's own words for
+    // a name it won't take. Uncommitted changes come along, as they do in
+    // GitHub Desktop: the new branch starts where the current one is, so
+    // nothing on disk changes
+    void createBranch(const QString& name)
+    {
+        if (!isFound() || isBusy() || name.isEmpty()) {
+            return;
+        }
+
+        enqueueSwitch_({ u"switch"_s, u"--quiet"_s, u"--create"_s, name });
+    }
+
+    // Read the local branches' names, sorted as git sorts them. branchesRead
+    // answers. A repository before its first commit has none, though it has
+    // a branch name (GitStatus::Branch::name)
+    void listBranches()
+    {
+        if (!isFound() || isQueued_(Kind_::Branches)) {
+            return;
+        }
+
+        enqueue_(
+            Kind_::Branches,
+            root_,
+            { u"for-each-ref"_s,
+              u"--format=%(refname:lstrip=2)"_s,
+              u"refs/heads"_s });
+    }
+
     // Read one changed file's diff against the last commit, which is what
     // committing it would record. diffRead or diffFailed answers, with the
     // entry's path. A file git doesn't track yet, and every file before the
@@ -483,6 +554,15 @@ signals:
     // trash before a git step failed stays there. error says why
     void discardFailed(const QString& error);
 
+    // A switch or a new branch asked for was made
+    void switched();
+
+    // A switch or a new branch asked for wasn't made. error says why
+    void switchFailed(const QString& error);
+
+    // The local branches listBranches asked for
+    void branchesRead(const QStringList& names);
+
 private:
     enum class Kind_
     {
@@ -492,7 +572,9 @@ private:
         Add,
         Commit,
         Remove,
-        Restore
+        Restore,
+        Switch,
+        Branches
     };
 
     // What a command is a step of, beyond answering on its own
@@ -500,7 +582,8 @@ private:
     {
         None,
         Commit,
-        Discard
+        Discard,
+        Switch
     };
 
     struct Command_
@@ -723,7 +806,11 @@ private:
         case Kind_::Commit:
         case Kind_::Remove:
         case Kind_::Restore:
+        case Kind_::Switch:
             onStep_(command, result);
+            break;
+        case Kind_::Branches:
+            onBranchesRead_(command, result);
             break;
         }
 
@@ -804,9 +891,48 @@ private:
 
     // One step of a commit. A failed step ends the commit, and the step after
     // it, already waiting, is dropped. The commit is the last step
-    // One step of a commit or a discard. A failed step ends its operation,
-    // and the steps after it, already waiting, are dropped. The last step's
-    // success ends it too
+    // A switch is one step, and the whole of its operation
+    void enqueueSwitch_(const QStringList& arguments)
+    {
+        operation_ = Operation_::Switch;
+
+        Command_ command{};
+        command.kind = Kind_::Switch;
+        command.operation = Operation_::Switch;
+        command.finishes = true;
+        command.folder = root_;
+        command.arguments = arguments;
+        enqueue_(std::move(command));
+    }
+
+    void onBranchesRead_(const Command_& command, const Result_& result)
+    {
+        if (PathKey::of(command.folder) != PathKey::of(root_)) {
+            return;
+        }
+
+        if (!result.succeeded) {
+            WARN(
+                "Git couldn't list branches in {}: {}",
+                command.folder,
+                result.error);
+            return;
+        }
+
+        QStringList names{};
+
+        for (const auto& line : QString::fromUtf8(result.output).split(u'\n')) {
+            if (auto name = line.trimmed(); !name.isEmpty()) {
+                names << name;
+            }
+        }
+
+        emit branchesRead(names);
+    }
+
+    // One step of a commit, a discard, or a switch. A failed step ends its
+    // operation, and the steps after it, already waiting, are dropped. The
+    // last step's success ends it too
     void onStep_(const Command_& command, const Result_& result)
     {
         if (!result.succeeded) {
@@ -850,6 +976,13 @@ private:
                 emit discarded();
             } else {
                 emit discardFailed(error);
+            }
+            break;
+        case Operation_::Switch:
+            if (error.isEmpty()) {
+                emit switched();
+            } else {
+                emit switchFailed(error);
             }
             break;
         case Operation_::None:

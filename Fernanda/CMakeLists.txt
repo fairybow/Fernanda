@@ -229,9 +229,13 @@ set(APP_HEADERS
     src/models/PrimeDocument.h
     src/models/TextFileModel.h
 
+    src/ui/git/GitBarItem.h
+    src/ui/git/GitBranchPopup.h
     src/ui/git/GitButton.h
     src/ui/git/GitChangeDelegate.h
     src/ui/git/GitDiffView.h
+    src/ui/git/GitNewBranchDialog.h
+    src/ui/git/GitTopBar.h
     src/ui/git/GitView.h
 
     src/ui/settings/FontFamilyBox.h

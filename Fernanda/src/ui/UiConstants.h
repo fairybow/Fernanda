@@ -390,6 +390,28 @@ inline constexpr int GIT_VIEW_COMMIT_MARGIN = 6;
 inline constexpr int GIT_VIEW_COMMIT_SPACING = 6;
 inline constexpr int GIT_VIEW_DESCRIPTION_LINES = 4;
 
+// The Git view's top bar (GitTopBar) and its sections (GitBarItem), each
+// HEIGHT tall and ITEM_WIDTH wide, narrowing to ITEM_MIN_WIDTH when there
+// isn't room. A section is ITEM_PADDING from its edges, its glyph ICON_EXTENT
+// square and ICON_SPACING from the text, its chevron CHEVRON_EXTENT square.
+// The caption above the name is the font at CAPTION_SCALE, in CAPTION_ROLE
+inline constexpr int GIT_BAR_HEIGHT = 48;
+inline constexpr int GIT_BAR_ITEM_WIDTH = 240;
+inline constexpr int GIT_BAR_ITEM_MIN_WIDTH = 140;
+inline constexpr int GIT_BAR_ITEM_PADDING = 12;
+inline constexpr int GIT_BAR_ICON_EXTENT = 16;
+inline constexpr int GIT_BAR_ICON_SPACING = 10;
+inline constexpr int GIT_BAR_CHEVRON_EXTENT = 12;
+inline constexpr qreal GIT_BAR_CAPTION_SCALE = 0.85;
+inline constexpr auto GIT_BAR_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_BAR_CAPTION_ROLE = QPalette::PlaceholderText;
+
+// The list of branches the top bar drops (GitBranchPopup): at least
+// MIN_WIDTH wide, HEIGHT tall, with MARGIN around and between its parts
+inline constexpr int GIT_BRANCH_POPUP_MIN_WIDTH = 300;
+inline constexpr int GIT_BRANCH_POPUP_HEIGHT = 360;
+inline constexpr int GIT_BRANCH_POPUP_MARGIN = 6;
+
 // The Git view's diff (GitDiffView). An added line is tinted ADDED_BACKGROUND
 // and a removed one REMOVED_BACKGROUND, across the text and the gutter. Each
 // has an alpha, so it tints the page rather than covering it, on a light page

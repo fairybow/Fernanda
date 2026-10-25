@@ -52,16 +52,18 @@
 #include "ui/UiConstants.h"
 #include "ui/git/GitChangeDelegate.h"
 #include "ui/git/GitDiffView.h"
+#include "ui/git/GitTopBar.h"
 
 namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
 // What a vault window shows in place of its sidebar and tabs while its Git
-// view is open, laid out as GitHub Desktop lays out its Changes tab: a narrow
-// column on the left listing the repository's changed files, and the rest on
-// the right. The list covers the whole repository, which may hold more than
-// the vault.
+// view is open, laid out as GitHub Desktop lays out its Changes tab: a bar
+// across the top naming the repository and its branch (GitTopBar), then a
+// narrow column on the left listing the repository's changed files, and the
+// rest on the right. The list covers the whole repository, which may hold more
+// than the vault.
 //
 // It shows the repository's last status and follows statusChanged; when to
 // read the status is the window's to decide. Paths are relative to the
@@ -165,7 +167,9 @@ private:
 
         auto* layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(splitter);
+        layout->setSpacing(0);
+        layout->addWidget(new GitTopBar(repository_, this));
+        layout->addWidget(splitter, 1);
 
         setFocusProxy(list_);
 
