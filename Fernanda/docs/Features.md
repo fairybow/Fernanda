@@ -201,6 +201,19 @@ Shown in vault windows and pop-outs, for the active text tab. Empty over a PDF, 
 - Lines are paragraphs, not wrapped rows
 - An arrow at its left appears when a newer version of Fernanda is out (see [Updates](#updates)). The status bar shows while it does, even with both items switched off
 
+## Focus timer
+
+A timer for writing in focus periods, with a short break after each and a longer one after several, after the Pomodoro technique. Off until you turn it on for a vault, in Settings → Focus timer.
+
+- A button beside the gear at the bottom of the sidebar. Its icon is a stopwatch for focus and a cup for a break, and a ring around it empties as the period runs. Paused, the ring is grey
+- Click it to start, pause, or resume. Right-click it to skip to the next period or to reset, and to see the time left and how many focus periods you've completed. Hovering over it shows the same
+- When a period ends, the ring fills and the next period waits for a click: nothing starts on its own. If you're in another program, Fernanda's taskbar entry flashes. There is no sound
+- A long break follows every fourth focus period. A skipped focus period doesn't count toward it
+- Focus is 25 minutes, a short break 5, and a long break 15. All three, and how many focus periods come before a long break, can be changed in Settings. A new length applies from the next period
+- Each vault's window has a timer of its own. Pop-outs don't show one
+- The timer stops when its window closes, and nothing about it is saved. Turning it off resets it
+- Time passes while the computer sleeps: a period that ran out meanwhile ends when it wakes
+
 ## Look
 
 Fernanda draws its own interface, the same on every operating system: flat and quiet, with rounded corners, in the colors of the system's light or dark mode.
@@ -219,6 +232,7 @@ Ctrl+, or the gear beside the vault switcher. Settings belong to the vault and a
 - **Editor**: line numbers, wrap lines, left/right margin, highlight current line, selection handles, tab width, center on scroll, double-click selects whitespace, typing helpers (auto-pair brackets and quotes, step past closing punctuation), check spelling, spelling language
 - **Appearance**: text font, bold, italic, font size
 - **Status bar**: the word counter and the cursor position, and which parts of each to show
+- **Focus timer**: whether it shows, the lengths of focus and of each break, and how many focus periods come before a long break
 
 A Common Vault file opened in a project's window uses that project's settings.
 
@@ -245,7 +259,7 @@ Fernanda's menus, settings, and messages are in English and Spanish.
 
 | File | Holds | Meant to be committed or synced? |
 |---|---|---|
-| `.fernanda/settings.json` | Editor, spelling, and status bar settings | Yes |
+| `.fernanda/settings.json` | Editor, spelling, status bar, and focus timer settings | Yes |
 | `.fernanda/dictionary.txt` | Words added to the vault's dictionary | Yes |
 | `.fernanda/appearance.json` | Font settings | Yes |
 | `.fernanda/workspace.json` | Window, pane, and tab layout | No, it is specific to one machine |
@@ -304,6 +318,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **No light or dark setting.** Fernanda always follows the system. Obsidian follows it by default and can be set to light or dark
 - **Stepping past closing punctuation** is Fernanda's own, as is the switch over both typing helpers
 - **No Markdown pairing.** Obsidian's "Auto pair Markdown syntax" pairs `*`, `_`, and the like, and applies them to selected text. Fernanda pairs brackets and quotes only
+- **A focus timer is built in.** Obsidian has none; community plugins add one, and some of them log each session to a note. Fernanda's settings are kept per vault, as a plugin's are, and it writes nothing into the vault
 - **Updates aren't installed for you.** Fernanda says a newer version is out and links to it. Obsidian downloads updates itself and applies them when it restarts
 
 ## Known limits

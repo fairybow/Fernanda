@@ -4,6 +4,13 @@ How Fernanda is put together, and why. For what it does, see [Features.md](Featu
 
 This document covers what spans several files: who owns what, what is guaranteed, and the reasoning that no single header can hold. Each class's own header comment covers the rest.
 
+> [!NOTE]
+> Fernanda is developed with AI assistance. I decide what Fernanda does and how it's designed, and I review and test every change before it goes in. [TODO.md](TODO.md) tracks known bugs and what the tests don't yet cover.
+>
+> Every push builds Fernanda and runs its [test suite](../tests) on Linux and macOS, with the Linux build using AddressSanitizer and UndefinedBehaviorSanitizer. I run the tests on Windows before pushing.
+>
+> If you find a problem, in the app, the code, or their documentation, please [open an issue](https://github.com/fairybow/Fernanda/issues).
+
 ## Principles
 
 Two rules decide most questions, in this order:
@@ -29,7 +36,7 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | Folder | Holds |
 |---|---|
 | `src/` | `Main.cpp`, `App`, and the log window |
-| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids |
+| `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
 | `models/` | One buffer class per file type, and the prime document |
 | `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles and typing helpers, the find bar and the search functions behind it, and the zoom control with its state |
@@ -51,7 +58,7 @@ Includes run one way, from the top of this list down:
 
 `Vault`, `BufferStore`, and everything they own create no window or widget and refer to none, so the data layer can't come to depend on one. They are not limited to QtCore: a text buffer is a `QTextDocument` with a plain-text layout (QtGui and QtWidgets), an image buffer holds a `QPixmap`, and a PDF buffer a `QPdfDocument`. `VaultTreeModel` and the configuration types are QtCore only.
 
-[Coco](https://github.com/fairybow/Coco), a submodule, supplies paths (`Coco::Path`), logging, debounce timers, and the single-instance guard. [Hunspell](https://github.com/hunspell/hunspell), also a submodule and pinned to a release tag, checks spelling. It has no CMake build of its own, so Fernanda's CMake builds its sources as a static library, with its warnings off.
+[Coco](https://github.com/fairybow/Coco), a submodule, supplies paths (`Coco::Path`), logging, debounce timers, the countdown the focus timer runs on, and the single-instance guard. [Hunspell](https://github.com/hunspell/hunspell), also a submodule and pinned to a release tag, checks spelling. It has no CMake build of its own, so Fernanda's CMake builds its sources as a static library, with its warnings off.
 
 ## Ownership
 
@@ -83,7 +90,7 @@ flowchart TD
 | `BufferStore` | Every open file's buffer, the watcher over open files, the autosave timers. Keeps a list of every vault's `VaultTreeModel`, which it doesn't own, and announces each rename, move, and trash it follows |
 | `Vault` | Its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.fernanda/` folder. Borrows the store |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
-| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, and the creation of its pop-outs. Borrows its vault, the Common Vault (if there is one), and the store |
+| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, its `FocusTimer`, and the creation of its pop-outs. Borrows its vault, the Common Vault (if there is one), and the store |
 | `PopoutWindow` | Nothing of its own. Its `VaultWindow` wires it |
 
 **`App` owns every `Vault`.** If windows owned their vaults, `Vault` would have two kinds of owner: `App` for the common one, a window for the rest. Owning them all in one place makes the Common Vault an ordinary `Vault` with a role, which `App` can give to any vault, or to none (see "The Common Vault").
@@ -454,6 +461,25 @@ flowchart TD
 - **One rule finds the words.** `core/spell/SpellWords.h` decides what a word is, for the underlines and for the context menu. It is not the word counter's rule: a count wants "e.g." as one word, a spelling check wants its parts.
 - **Underlines are painted by the editor,** over the text and for the visible blocks only, as search highlights are. Nothing is stored about the text, so an edit needs no bookkeeping: the next paint finds the words again.
 
+## The focus timer
+
+```mermaid
+flowchart TD
+    VW["VaultWindow"] -->|owns| FT["FocusTimer"]
+    FT -->|owns| FC["FocusCycle"]
+    FC -->|holds| CD["Coco::Time::Countdown"]
+    VW -->|owns| SB["Sidebar"]
+    SB -->|owns| B["FocusTimerButton"]
+    B -.->|borrows| FT
+```
+
+- **The rules are a plain value, given the time.** `FocusCycle` decides which period comes next, when a long break is due, and what pause, skip, and reset do. It holds no clock and no timer: every call that depends on the time takes it as an argument, so `FocusCycleTest` runs whole cycles on made-up times without waiting. It keeps each period as an end time (`Coco::Time::Countdown`), not as ticks counted, so nothing drifts however late it's asked.
+- **A period ends only when told to.** `FocusCycle::tick` ends a period that has run out, once, however late the tick comes. Nothing starts on its own.
+- **`FocusTimer` gives the cycle the time.** It passes `Coco::Time::epoch()`, and runs a one-second ticker only while a period runs. It announces each change, and a period's end, and decides nothing itself.
+- **The wall clock, not a monotonic one.** Whether a monotonic clock counts while the computer sleeps differs by platform. The wall clock counts on everywhere, so a period that ran out during sleep ends on waking, on every platform. Setting the system clock by hand moves the timer; daylight saving time doesn't touch it.
+- **One timer per vault window, set from the vault's settings.** The window owns it, so it stops with the window, and two vault windows run two timers. The window gives it new lengths on each `configChanged`, which apply from the next period, and resets it while the setting is off. A `Vault` couldn't own it: the Common Vault's lives on with no window, where a timer would run unseen.
+- **The button reads and drives the timer directly.** The `Sidebar` shows it while the vault's setting is on, following `configChanged` itself, so the window never reaches into it. The button repaints on the timer's `changed`, and when a period ends it flashes its own window (`QApplication::alert`). Pop-outs have no sidebar and so no button.
+
 ## Opening and creating vaults
 
 Divided by who touches vault folders on disk.
@@ -587,6 +613,8 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **A table of settings in `VaultConfig`** (rows of key, type, default, and range, read by key). It would remove the per-setting getter, setter, and read and write lines, but callers would lose typed getters like `config.lineNumbers()`, and the file as it stands is long but plain.
 - **Search highlights as the editor's extra selections.** Qt checks every extra selection against every paragraph and line it paints, so the cost grows faster than the number in view, and a single letter matches hundreds of times on a screen of prose. The editor paints one rectangle per visible match itself.
 - **`QTextDocument::find` for search.** It builds a cursor per match and took a hundred times as long as searching each line's text directly, on a common word in a long file. The search runs on every keystroke in the find field.
+- **A focus timer in a window floating over the desktop.** Wayland lets an application neither place its windows nor keep one on top, macOS hides a tool window while the application isn't active, and on Windows it covers other programs. The button lives in the sidebar instead.
+- **Focus timer settings kept for the whole app, with one timer.** One timer would need one set of lengths, and with two vaults open there's no good answer to whose. Per vault, the settings work like every other vault setting. See [Future.md](Future.md) for one timer as a possibility.
 - **`QSettings`.** The app-level data is structured, the vault files are meant to be read and diffed, and INI-style settings are what grew Hearth's tiered settings.
 - **A process-wide pixmap cache for icons.** A global store, against the no-singletons rule.
 - **Each platform's own style.** The Windows styles draw parts of themselves in colors of their own rather than the palette's, and Windows 10's has no dark mode. Fusion draws from the palette alone, so one style follows light and dark everywhere.

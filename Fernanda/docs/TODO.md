@@ -4,6 +4,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
+- [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
 - [x] May want to allow clicking to left or right of file in tree to also clear selection (right now clearing selection only works when clicking below all files in a tree)
 - [ ] VaultSwitcher's menu should open upward
 - [ ] Closing every window from the Windows taskbar (right-click the icon, Close all windows) reopens only one vault next launch. To Fernanda the closes look like closing each window by hand, which clears that vault's open flag while another is still open; only the last keeps it. Pop-outs can be lost the same way, if one closes before its vault window saves the layout. A short grace period before a closed window's flag is cleared, dropped if the app quits first, would cover vault windows; pop-outs would need their layout kept for that time too
@@ -45,9 +46,11 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] The text editor's context menu opened to the left of the pointer, by the width of the line-number gutter and the margin. Qt gives a scroll area's menu position in its viewport's coordinates, and it was mapped from the editor's
 - [x] The spelling language in `settings.json` was used as a file name without being checked, so a hand-edited `../x` named a dictionary outside the dictionaries folder. `SpellCheckers` now takes only a single name, and treats anything else as not installed
 - [x] A path with a `..` segment passed `Vault::contains`, so a rename or move could take an entry out of the vault, and `Vault::openModel` opened a `../` or absolute path from a hand-edited `workspace.json`. Paths are now normalized into keys, and one that climbs out of the vault is refused (see "Identity" in [Architecture.md](Architecture.md))
+- [x] Log lines and log file names were stamped in UTC while reading as local time. `Coco::Time::now` labeled the UTC count as local without adding the offset; the timestamps now come from `QDateTime` in local time (`Coco::Time::nowQString`)
 
 ## Rough edges
 
+- [ ] Decide if all Lucide icons should be in constants file or only things accessed from multiple places (the latter being what I lean toward right now, as those *Constants files are for non-settings tweakable values (shared or unshared) or shared constants generally)
 - [ ] The licenses dialog's Qt entry links to Qt's list of the libraries Qt itself bundles (PDFium in Qt PDF, among others) rather than showing their notices. Shipping their texts would mean collecting them from the Qt build in use
 - [ ] Tabs can be dragged past the left or right end of the tab bar without starting a drag; may want to clamp them
 - [ ] No auto-scroll while dragging a tab in an overflowing bar (close to impossible with Qt)
@@ -65,6 +68,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Menus and drop-down lists are drawn rounded in a see-through window, which needs a compositor on Linux. Without one, the corners may show dark. `Style` could draw them square there instead
 - [ ] A web address or a file path is spellchecked piece by piece, so "github" and "com" are marked
 - [ ] Unverified: text in decomposed Unicode form (a letter followed by a separate combining accent) is probably marked as misspelled against a dictionary that stores the single-character form. If so, normalize a word before it is checked
+- [x] Settings sliders whose ranges differed in digits (1 to 60 and 1 to 120) were different lengths, since each readout was as wide as its own largest number. Every readout now makes room for three digits (`DISPLAY_SLIDER_READOUT_DIGITS`)
 
 ## Before release
 
@@ -81,6 +85,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Rename `BaseWindow`'s protected members that have a trailing underscore
 - [ ] Bring `MenuBuilder` over from Hearth (maybe into Coco)?
 - [x] Decide on `private slots:`. It isn't used consistently, and using it properly would break up sections that are organized by purpose. Either remove the keyword everywhere or sort slots into it everywhere
+- [ ] `SettingsEditorPage` has its own `hangOn_`, which does what `SettingsPage::enableWith` does, one row at a time. Use `enableWith`
 - [ ] `AbstractFileModel` has `notifyX()` functions that only emit a signal. Could they just be signals (perhaps named `notify...`)?
 - [ ] Decide whether static helpers go before other functions, per access level
 - [ ] A shared `TabPage` base for tab pages, holding title and pin state as typed members in place of the window title and a dynamic property. It would trade the leaf's property reads for a cast. Worth doing once a third such value appears
@@ -93,6 +98,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 What the tests in `Fernanda/tests/` don't reach.
 
+- [ ] `FocusTimer`'s ticker and signals, and the sidebar's focus timer button. The rules the timer runs are tested (`FocusCycleTest`)
 - [ ] `Updater`'s request to GitHub and its handling of the reply. The decision it makes from the reply is tested (`UpdateCheckTest`)
 - [ ] The installer's update-check choice: the Windows installer writing and removing `install.ini`, and `AppConfig` reading it as the default. A test would have to put a file beside its own executable, in the build folder
 - [ ] A failed write: the buffer stays modified, and `BufferStore::flush` names the file. There is no portable way to make a write fail on demand

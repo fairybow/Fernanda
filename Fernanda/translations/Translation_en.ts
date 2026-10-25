@@ -2,23 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en" sourcelanguage="en">
 <context>
-    <name>LossyOpenPrompt</name>
-    <message numerus="yes">
-        <source>%n line(s) contain characters Fernanda can&apos;t read. They&apos;ll open as:</source>
-        <translation>
-            <numerusform>%n line contains characters Fernanda can&apos;t read. It&apos;ll open as:</numerusform>
-            <numerusform>%n lines contain characters Fernanda can&apos;t read. They&apos;ll open as:</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>…and %n more.</source>
-        <translation>
-            <numerusform>…and %n more.</numerusform>
-            <numerusform>…and %n more.</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
     <name>Fernanda::FindBar</name>
     <message numerus="yes">
         <source>%Ln match(es)</source>
@@ -35,6 +18,16 @@
         <translation>
             <numerusform>%Ln replaced</numerusform>
             <numerusform>%Ln replaced</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Fernanda::Ui::FocusTimerButton</name>
+    <message numerus="yes">
+        <source>%Ln focus period(s) completed</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -83,6 +76,23 @@
         <translation>
             <numerusform>%Ln line</numerusform>
             <numerusform>%Ln lines</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>LossyOpenPrompt</name>
+    <message numerus="yes">
+        <source>%n line(s) contain characters Fernanda can&apos;t read. They&apos;ll open as:</source>
+        <translation>
+            <numerusform>%n line contains characters Fernanda can&apos;t read. It&apos;ll open as:</numerusform>
+            <numerusform>%n lines contain characters Fernanda can&apos;t read. They&apos;ll open as:</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>…and %n more.</source>
+        <translation>
+            <numerusform>…and %n more.</numerusform>
+            <numerusform>…and %n more.</numerusform>
         </translation>
     </message>
 </context>

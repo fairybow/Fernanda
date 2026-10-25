@@ -14,6 +14,7 @@
 
 #include <QAbstractButton>
 #include <QFrame>
+#include <QList>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QString>
@@ -114,6 +115,21 @@ protected:
             });
 
         return { toggle, addRow(name, description, toggle) };
+    }
+
+    // Keep rows enabled only while toggle is on: now, and on every flip. A
+    // disabled row greys its text and its control and takes no input. For a
+    // switch that other rows hang on, as a status bar item's parts do
+    void enableWith(ToggleSwitch* toggle, const QList<SettingRow*>& rows)
+    {
+        auto apply = [rows](bool enabled) {
+            for (auto* row : rows) {
+                row->setEnabled(enabled);
+            }
+        };
+
+        apply(toggle->isChecked());
+        connect(toggle, &QAbstractButton::toggled, this, apply);
     }
 
 private:

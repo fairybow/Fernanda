@@ -35,7 +35,7 @@ Nothing here is a promise or a schedule.
 
 - Drop a tab at the position it is dropped, not at the end of the bar
 - A tab's close button shown only on the current tab and the one under the pointer, as in Obsidian
-- A toggle to show or hide the sidebar, remembered per vault
+- A toggle to show or hide the sidebar, remembered per vault. A hidden sidebar hides the focus timer's button with it, so the timer would need somewhere else to show
 - Remember whether the menu bar is shown
 - Grey out Undo and Redo when there is nothing to undo or redo
 - Shortcuts for splitting a pane
@@ -114,6 +114,13 @@ Committing a vault to a repository, for backup and history.
 - **Pairing Markdown syntax,** like Obsidian's "Auto pair Markdown syntax": `*`, `_`, `==`, and the like, paired as brackets are and wrapped around a selection. Most likely for Markdown files only, or Markdown and Fountain, and not plain text, where an asterisk is just an asterisk
 - **Smart quotes:** straight quotes typed as curly ones, opening or closing by what's before them
 - **A confirmation before a folder becomes a vault.** Opening any folder as a vault silently adds `.fernanda/` to it; Obsidian asks first
+- **The focus timer in one window only.** Every vault window shows its own timer's button. It could show only in the window used last, following activation through that window's pop-outs. Worth building if the button in several windows proves distracting
+- **One focus timer for the whole app.** Each vault window runs its own timer, so two can run at once, and moving to another vault's window doesn't carry a running period with it. Starting one timer could reset the others, but that would make several timers act as one without being one. If one timer is what's wanted, it should be one timer, with the question of whose lengths it uses settled. Worth considering if two timers running at once proves confusing
+- **More from the focus timer:** starting the next period on its own, a sound when a period ends (which needs Qt Multimedia), and a system notification. Each is a setting Obsidian's timer plugins have. Worth building if the taskbar flash proves too easy to miss
+- **The focus timer's time over the text:** a small box at the top of the pane area showing the countdown, which clicks pass through. The ring shows the time only roughly, on purpose. Worth building if that proves too little. A box floating over the whole desktop was considered and set aside: Wayland can't place one or keep it on top, macOS hides one while Fernanda isn't active, and on Windows it covers other programs
+- **Commands for the focus timer** (start or pause, skip, reset), as `timer.` actions, once there is a command palette to reach them from
+- **Two tools from the original Fernanda:** keeping a window on top of other programs, and keeping the computer awake while writing. Staying awake needs code for each platform
+- **Importing Word documents** as plain text into a vault folder, as Hearth did. Hearth's converter needs work before it's brought over: it takes field codes and deleted tracked changes for text, writes text boxes twice, and drops tabs and line breaks. It needs a zip reader (miniz, under the MIT license). Footnotes, list numbering, and italics would be lost in plain text. Hearth's RTF import could follow the same path. Worth building if drafts often come in from Word
 
 ## Not planned
 

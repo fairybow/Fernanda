@@ -26,12 +26,14 @@
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
+#include "core/FocusTimer.h"
 #include "core/PathKey.h"
 #include "core/Vault.h"
 #include "core/VaultEntry.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
 #include "ui/sidebar/Drawer.h"
+#include "ui/sidebar/FocusTimerButton.h"
 #include "ui/sidebar/SettingsButton.h"
 #include "ui/sidebar/VaultFileTree.h"
 #include "ui/sidebar/VaultSwitcher.h"
@@ -42,8 +44,9 @@ namespace Fernanda::Ui {
 //
 //   1. VaultFileTree   — this vault's tree              [splitter pane]
 //   2. Drawer          — the Common Vault, collapsible  [splitter pane]
-//   3. VaultSwitcher   — other vaults + Manage Vaults   [fixed bar]
-//      SettingsButton  — this vault's settings, at the bar's right
+//   3. VaultSwitcher    — other vaults + Manage Vaults   [fixed bar]
+//      FocusTimerButton — the window's focus timer, while it's switched on
+//      SettingsButton   — this vault's settings, at the bar's right
 //
 // Borrows both Vaults (project + common) from the window. It needs them to root
 // each tree and to send each tree's file operations to the Vault that tree
@@ -53,7 +56,10 @@ namespace Fernanda::Ui {
 // emit absolute paths and stay Vault-free; here those paths become keys.
 //
 // The switcher's vault list comes from a provider App threads down; the Sidebar
-// hands it through and relays the switcher's choice back up to the window
+// hands it through and relays the switcher's choice back up to the window.
+//
+// The focus timer is the window's; the Sidebar only holds its button, which
+// it shows while the vault's settings switch the timer on
 class Sidebar : public QWidget
 {
     Q_OBJECT
@@ -72,6 +78,7 @@ public:
         Vault* vault,
         Vault* commonVault,
         const Actions& actions,
+        FocusTimer* focusTimer,
         std::function<QList<VaultEntry>()> vaultsProvider,
         QWidget* parentVaultWindow)
         : QWidget(parentVaultWindow)
@@ -79,7 +86,7 @@ public:
         , commonVault_(commonVault)
         , vaultsProvider_(std::move(vaultsProvider))
     {
-        setup_(actions);
+        setup_(actions, focusTimer);
     }
 
     ~Sidebar() override { TRACER; }
@@ -138,9 +145,10 @@ private:
     VaultFileTree* commonTree_ = nullptr;
     Drawer* commonDrawer_ = nullptr;
     VaultSwitcher* switcher_ = nullptr;
+    FocusTimerButton* focusTimerButton_ = nullptr;
     SettingsButton* settingsButton_ = nullptr;
 
-    void setup_(const Actions& actions)
+    void setup_(const Actions& actions, FocusTimer* focusTimer)
     {
         // Main tree
         fileTree_ = new VaultFileTree(vault_->treeModel(), splitter_);
@@ -190,9 +198,19 @@ private:
             actions.openSettings,
             &QAction::trigger);
 
-        // Obsidian's vault profile row: the switcher takes the width, the gear
-        // sits at its right. The margins keep the pair's hover washes off the
-        // line above and the window's edge
+        // The focus timer's button, shown while the vault's settings switch
+        // the timer on: now, and on every settings change
+        focusTimerButton_ = new FocusTimerButton(focusTimer, this);
+        showFocusTimerButton_();
+        connect(
+            vault_,
+            &Vault::configChanged,
+            this,
+            &Sidebar::showFocusTimerButton_);
+
+        // Obsidian's vault profile row: the switcher takes the width, the
+        // focus timer and the gear sit at its right. The margins keep the
+        // buttons' hover washes off the line above and the window's edge
         auto* profile_row = new QHBoxLayout;
         profile_row->setContentsMargins(
             SIDEBAR_FOOTER_LEFT_MARGIN,
@@ -201,9 +219,15 @@ private:
             SIDEBAR_FOOTER_BOTTOM_MARGIN);
         profile_row->setSpacing(0);
         profile_row->addWidget(switcher_, 1);
+        profile_row->addWidget(focusTimerButton_, 0);
         profile_row->addWidget(settingsButton_, 0);
 
         layout->addLayout(profile_row, 0);
+    }
+
+    void showFocusTimerButton_()
+    {
+        focusTimerButton_->setVisible(vault_->config().focusTimerEnabled());
     }
 
     // A pointer test: App hands the Common Vault's own window App's own

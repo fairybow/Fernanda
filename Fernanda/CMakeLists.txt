@@ -198,6 +198,8 @@ set(APP_HEADERS
     src/core/CMakeMacroGuard.h
     src/core/CoreConstants.h
     src/core/FileTypes.h
+    src/core/FocusCycle.h
+    src/core/FocusTimer.h
     src/core/Io.h
     src/core/JsonIo.h
     src/core/PathKey.h
@@ -228,11 +230,13 @@ set(APP_HEADERS
     src/ui/settings/SettingsAppearancePage.h
     src/ui/settings/SettingsDialog.h
     src/ui/settings/SettingsEditorPage.h
+    src/ui/settings/SettingsFocusTimerPage.h
     src/ui/settings/SettingsGeneralPage.h
     src/ui/settings/SettingsPage.h
     src/ui/settings/SettingsStatusBarPage.h
 
     src/ui/sidebar/Drawer.h
+    src/ui/sidebar/FocusTimerButton.h
     src/ui/sidebar/SettingsButton.h
     src/ui/sidebar/Sidebar.h
     src/ui/sidebar/VaultEntryDragMime.h

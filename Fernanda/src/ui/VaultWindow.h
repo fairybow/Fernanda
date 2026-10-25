@@ -30,6 +30,7 @@
 #include <QSplitter>
 #include <QString>
 #include <QStringList>
+#include <QtTypes>
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
@@ -38,11 +39,14 @@
 #include "core/ActionIds.h"
 #include "core/AppActions.h"
 #include "core/BufferStore.h"
+#include "core/FocusCycle.h"
+#include "core/FocusTimer.h"
 #include "core/PathKey.h"
 #include "core/RecentFiles.h"
 #include "core/Translations.h"
 #include "core/Updater.h"
 #include "core/Vault.h"
+#include "core/VaultConfig.h"
 #include "core/VaultEntry.h"
 #include "core/WorkspaceKeys.h"
 #include "core/spell/SpellCheckers.h"
@@ -322,6 +326,11 @@ private:
     // child, so it goes with the window
     SettingsDialog* settingsDialog_ = nullptr;
 
+    // This window's focus timer, set from its vault's settings
+    // (applyFocusTimerConfig_) and shown by the sidebar's button. A Qt child,
+    // so it stops with the window
+    FocusTimer* focusTimer_ = nullptr;
+
     void setup_()
     {
         resize(DEFAULT_VAULT_WINDOW_WIDTH, DEFAULT_VAULT_WINDOW_HEIGHT);
@@ -329,12 +338,15 @@ private:
         buildActions_();
         buildMenuBar_();
 
+        focusTimer_ = new FocusTimer(focusLengths_(vault_->config()), this);
+
         sidebar_ = new Sidebar(
             vault_,
             commonVault_,
             Sidebar::Actions{
                 .manageVaults = action(ActionIds::APP_MANAGE_VAULTS),
                 .openSettings = action(ActionIds::VAULT_OPEN_SETTINGS) },
+            focusTimer_,
             vaultsProvider_,
             this);
 
@@ -459,8 +471,10 @@ private:
         // every change. Pop-outs get the same in makeWiredPopout_, as they do
         // the update notice's click
         applyConfig(vault_->config());
+        applyFocusTimerConfig_();
         connect(vault_, &Vault::configChanged, this, [this] {
             applyConfig(vault_->config());
+            applyFocusTimerConfig_();
         });
 
         connect(
@@ -677,6 +691,32 @@ private:
         settingsDialog_->open();
         settingsDialog_->raise();
         settingsDialog_->activateWindow();
+    }
+
+    // The vault's focus timer settings, applied to this window's timer: new
+    // lengths, which take effect from the next period, and a reset while it's
+    // switched off, so it comes back on from the start
+    void applyFocusTimerConfig_()
+    {
+        const auto& config = vault_->config();
+        focusTimer_->setLengths(focusLengths_(config));
+
+        if (!config.focusTimerEnabled()) {
+            focusTimer_->reset();
+        }
+    }
+
+    // The settings keep minutes; the cycle counts milliseconds
+    static FocusCycle::Lengths focusLengths_(const VaultConfig& config)
+    {
+        constexpr qint64 MS_PER_MINUTE = 60'000;
+
+        return {
+            .focusMs = config.focusTimerFocus() * MS_PER_MINUTE,
+            .shortBreakMs = config.focusTimerShortBreak() * MS_PER_MINUTE,
+            .longBreakMs = config.focusTimerLongBreak() * MS_PER_MINUTE,
+            .longBreakEvery = config.focusTimerLongBreakEvery(),
+        };
     }
 
     // New Folder: create an empty folder at the vault root. No view to open — a

@@ -2,47 +2,6 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="es" sourcelanguage="en">
 <context>
-    <name>LossyOpenPrompt</name>
-    <message>
-        <source>Line %1: %2</source>
-        <translation type="unfinished">Línea %1: %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n line(s) contain characters Fernanda can&apos;t read. They&apos;ll open as:</source>
-        <translation type="unfinished">
-            <numerusform>%n línea contiene caracteres que Fernanda no puede leer. Se abrirá así:</numerusform>
-            <numerusform>%n líneas contienen caracteres que Fernanda no puede leer. Se abrirán así:</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>…and %n more.</source>
-        <translation type="unfinished">
-            <numerusform>…y %n más.</numerusform>
-            <numerusform>…y %n más.</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Not UTF-8</source>
-        <translation type="unfinished">No es UTF-8</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; isn&apos;t valid UTF-8. It was probably saved in an older encoding, such as Windows-1252.</source>
-        <translation type="unfinished">&quot;%1&quot; no es UTF-8 válido. Probablemente se guardó con una codificación más antigua, como Windows-1252.</translation>
-    </message>
-    <message>
-        <source>Fernanda reads only UTF-8. Opening this file saves it as UTF-8 right away, and every character Fernanda can&apos;t read (often curly quotes, dashes, and accented letters) is permanently replaced with �.
-
-To keep those characters, cancel, then re-save the file as UTF-8 in another program first.</source>
-        <translation type="unfinished">Fernanda solo lee UTF-8. Al abrir este archivo, se guarda en UTF-8 de inmediato, y cada carácter que Fernanda no puede leer (a menudo comillas tipográficas, rayas y letras acentuadas) se sustituye para siempre por �.
-
-Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8 en otro programa primero.</translation>
-    </message>
-    <message>
-        <source>Open Anyway</source>
-        <translation type="unfinished">Abrir de todos modos</translation>
-    </message>
-</context>
-<context>
     <name>Fernanda::App</name>
     <message>
         <source>Quit</source>
@@ -61,8 +20,24 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <translation type="unfinished">La carpeta de la bóveda &quot;%1&quot; se movió o se eliminó fuera de %2, así que su ventana se cerrará.</translation>
     </message>
     <message>
+        <source>The Common Vault&apos;s folder, &quot;%1&quot;, was moved or deleted outside %2. There is no Common Vault until you set one in Manage Vaults.</source>
+        <translation type="unfinished">La carpeta de la Bóveda común, &quot;%1&quot;, se movió o se eliminó fuera de %2. No habrá Bóveda común hasta que establezcas una en Administrar bóvedas.</translation>
+    </message>
+    <message>
+        <source>The folder for vault &quot;%1&quot; was moved to the trash, so its window will close.</source>
+        <translation type="unfinished">La carpeta de la bóveda &quot;%1&quot; se movió a la papelera, así que su ventana se cerrará.</translation>
+    </message>
+    <message>
+        <source>The Common Vault&apos;s folder, &quot;%1&quot;, was moved to the trash. There is no Common Vault until you set one in Manage Vaults.</source>
+        <translation type="unfinished">La carpeta de la Bóveda común, &quot;%1&quot;, se movió a la papelera. No habrá Bóveda común hasta que establezcas una en Administrar bóvedas.</translation>
+    </message>
+    <message>
+        <source>Vault Folder Deleted</source>
+        <translation type="unfinished">Carpeta de la bóveda eliminada</translation>
+    </message>
+    <message>
         <source>The Common Vault folder was moved or deleted outside %1. A new, empty one will be created at %2.</source>
-        <translation type="unfinished">La carpeta de la Bóveda común se movió o se eliminó fuera de %1. Se creará una nueva y vacía en %2.</translation>
+        <translation type="obsolete">La carpeta de la Bóveda común se movió o se eliminó fuera de %1. Se creará una nueva y vacía en %2.</translation>
     </message>
     <message>
         <source>Vault Folder Missing</source>
@@ -315,6 +290,68 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
 </context>
 <context>
+    <name>Fernanda::Ui::FocusTimerButton</name>
+    <message>
+        <source>Skip to break</source>
+        <translation type="unfinished">Saltar al descanso</translation>
+    </message>
+    <message>
+        <source>Skip to focus</source>
+        <translation type="unfinished">Saltar a la concentración</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Restablecer</translation>
+    </message>
+    <message>
+        <source>Pause</source>
+        <translation type="unfinished">Pausar</translation>
+    </message>
+    <message>
+        <source>Resume</source>
+        <translation type="unfinished">Reanudar</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation type="unfinished">Iniciar</translation>
+    </message>
+    <message>
+        <source>Short break</source>
+        <translation type="unfinished">Descanso corto</translation>
+    </message>
+    <message>
+        <source>Long break</source>
+        <translation type="unfinished">Descanso largo</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation type="unfinished">Concentración</translation>
+    </message>
+    <message>
+        <source>%1, %2 left</source>
+        <translation type="unfinished">%1, quedan %2</translation>
+    </message>
+    <message>
+        <source>%1, paused with %2 left</source>
+        <translation type="unfinished">%1, en pausa, quedan %2</translation>
+    </message>
+    <message>
+        <source>Time&apos;s up. Next: %1, %2</source>
+        <translation type="unfinished">Se acabó el tiempo. Siguiente: %1, %2</translation>
+    </message>
+    <message>
+        <source>%1, %2, ready to start</source>
+        <translation type="unfinished">%1, %2, por empezar</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln focus period(s) completed</source>
+        <translation type="unfinished">
+            <numerusform>%Ln período de concentración completado</numerusform>
+            <numerusform>%Ln períodos de concentración completados</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>Fernanda::Ui::FontFamilyBox</name>
     <message>
         <source>%1 (not installed)</source>
@@ -403,6 +440,14 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <translation type="unfinished">Mostrar en el explorador de archivos</translation>
     </message>
     <message>
+        <source>Unset Common Vault</source>
+        <translation type="unfinished">Quitar como Bóveda común</translation>
+    </message>
+    <message>
+        <source>Set as Common Vault</source>
+        <translation type="unfinished">Establecer como Bóveda común</translation>
+    </message>
+    <message>
         <source>Remove from list</source>
         <translation type="unfinished">Quitar de la lista</translation>
     </message>
@@ -412,15 +457,15 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     </message>
     <message>
         <source>New name:</source>
-        <translation type="unfinished">Nombre nuevo:</translation>
+        <translation type="obsolete">Nombre nuevo:</translation>
     </message>
     <message>
         <source>A vault name cannot contain slashes.</source>
-        <translation type="unfinished">El nombre de una bóveda no puede contener barras.</translation>
+        <translation type="obsolete">El nombre de una bóveda no puede contener barras.</translation>
     </message>
     <message>
         <source>A folder named &quot;%1&quot; already exists here.</source>
-        <translation type="unfinished">Ya existe una carpeta llamada &quot;%1&quot; aquí.</translation>
+        <translation type="obsolete">Ya existe una carpeta llamada &quot;%1&quot; aquí.</translation>
     </message>
     <message>
         <source>Couldn&apos;t rename the folder. It may be in use or read-only.</source>
@@ -485,7 +530,7 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     <name>Fernanda::Ui::RenameDialog</name>
     <message>
         <source>Rename</source>
-        <translation type="unfinished">Cambiar nombre</translation>
+        <translation type="obsolete">Cambiar nombre</translation>
     </message>
     <message>
         <source>&quot;%1&quot; already exists here.</source>
@@ -564,6 +609,10 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <source>Status bar</source>
         <translation type="unfinished">Barra de estado</translation>
     </message>
+    <message>
+        <source>Focus timer</source>
+        <translation type="unfinished">Temporizador de concentración</translation>
+    </message>
 </context>
 <context>
     <name>Fernanda::Ui::SettingsEditorPage</name>
@@ -640,6 +689,30 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <translation type="unfinished">Hacer doble clic en una serie de espacios o tabulaciones para seleccionarla entera.</translation>
     </message>
     <message>
+        <source>Typing helpers</source>
+        <translation type="unfinished">Ayudas de escritura</translation>
+    </message>
+    <message>
+        <source>Help with brackets, quotes, and the punctuation after them as you type. Each helper below can be turned off on its own.</source>
+        <translation type="unfinished">Ayuda con los paréntesis, las comillas y la puntuación que los sigue mientras escribes. Cada ayuda de abajo se puede desactivar por separado.</translation>
+    </message>
+    <message>
+        <source>Auto-pair brackets and quotes</source>
+        <translation type="unfinished">Cerrar paréntesis y comillas automáticamente</translation>
+    </message>
+    <message>
+        <source>Typing an opening bracket or quote adds its closing one. Typing the closing one steps past it, Backspace between an empty pair deletes both, and typing an opening one with text selected wraps the text.</source>
+        <translation type="unfinished">Al escribir un paréntesis o unas comillas de apertura se añade el cierre. Al escribir el cierre se pasa por encima de él, Retroceso entre un par vacío borra los dos, y escribir una apertura con texto seleccionado lo encierra.</translation>
+    </message>
+    <message>
+        <source>Step past closing punctuation</source>
+        <translation type="unfinished">Saltar la puntuación de cierre</translation>
+    </message>
+    <message>
+        <source>Typing a second space before a closing bracket or quote moves past it, as does Enter at the end of a line. A comma, period, or similar typed right after goes before the space.</source>
+        <translation type="unfinished">Escribir un segundo espacio antes de un paréntesis o unas comillas de cierre pasa por encima de ellos, igual que Enter al final de una línea. Una coma, un punto o algo similar escrito justo después va antes del espacio.</translation>
+    </message>
+    <message>
         <source>Spelling</source>
         <translation type="unfinished">Ortografía</translation>
     </message>
@@ -670,6 +743,53 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     <message>
         <source>%1 (not installed)</source>
         <translation type="unfinished">%1 (no instalado)</translation>
+    </message>
+</context>
+<context>
+    <name>Fernanda::Ui::SettingsFocusTimerPage</name>
+    <message>
+        <source>Focus timer</source>
+        <translation type="unfinished">Temporizador de concentración</translation>
+    </message>
+    <message>
+        <source>Show focus timer</source>
+        <translation type="unfinished">Mostrar el temporizador de concentración</translation>
+    </message>
+    <message>
+        <source>Show a timer in the sidebar for working in focus periods, with a break after each and a longer break after several.</source>
+        <translation type="unfinished">Mostrar en la barra lateral un temporizador para trabajar en períodos de concentración, con un descanso después de cada uno y un descanso más largo después de varios.</translation>
+    </message>
+    <message>
+        <source>Focus</source>
+        <translation type="unfinished">Concentración</translation>
+    </message>
+    <message>
+        <source>Length of a focus period, in minutes.</source>
+        <translation type="unfinished">Duración de un período de concentración, en minutos.</translation>
+    </message>
+    <message>
+        <source>Short break</source>
+        <translation type="unfinished">Descanso corto</translation>
+    </message>
+    <message>
+        <source>Length of a short break, in minutes.</source>
+        <translation type="unfinished">Duración de un descanso corto, en minutos.</translation>
+    </message>
+    <message>
+        <source>Long break</source>
+        <translation type="unfinished">Descanso largo</translation>
+    </message>
+    <message>
+        <source>Length of a long break, in minutes.</source>
+        <translation type="unfinished">Duración de un descanso largo, en minutos.</translation>
+    </message>
+    <message>
+        <source>Long break after</source>
+        <translation type="unfinished">Descanso largo tras</translation>
+    </message>
+    <message>
+        <source>Number of focus periods before each long break.</source>
+        <translation type="unfinished">Número de períodos de concentración antes de cada descanso largo.</translation>
     </message>
 </context>
 <context>
@@ -898,6 +1018,10 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
         <translation type="unfinished">Cambiar nombre…</translation>
     </message>
     <message>
+        <source>Rename</source>
+        <translation type="unfinished">Cambiar nombre</translation>
+    </message>
+    <message>
         <source>Delete</source>
         <translation type="unfinished">Eliminar</translation>
     </message>
@@ -924,6 +1048,25 @@ Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8
     <message>
         <source>It will be moved to the system trash.</source>
         <translation type="unfinished">Se moverá a la papelera del sistema.</translation>
+    </message>
+</context>
+<context>
+    <name>Fernanda::Ui::VaultOrderButton</name>
+    <message>
+        <source>Vault order</source>
+        <translation type="unfinished">Orden de las bóvedas</translation>
+    </message>
+    <message>
+        <source>Recently opened first</source>
+        <translation type="unfinished">Abiertas recientemente primero</translation>
+    </message>
+    <message>
+        <source>Name (A to Z)</source>
+        <translation type="unfinished">Nombre (A a Z)</translation>
+    </message>
+    <message>
+        <source>Name (Z to A)</source>
+        <translation type="unfinished">Nombre (Z a A)</translation>
     </message>
 </context>
 <context>
@@ -1060,6 +1203,47 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
     <message>
         <source>Fit</source>
         <translation type="unfinished">Ajustar</translation>
+    </message>
+</context>
+<context>
+    <name>LossyOpenPrompt</name>
+    <message>
+        <source>Line %1: %2</source>
+        <translation type="unfinished">Línea %1: %2</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n line(s) contain characters Fernanda can&apos;t read. They&apos;ll open as:</source>
+        <translation type="unfinished">
+            <numerusform>%n línea contiene caracteres que Fernanda no puede leer. Se abrirá así:</numerusform>
+            <numerusform>%n líneas contienen caracteres que Fernanda no puede leer. Se abrirán así:</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>…and %n more.</source>
+        <translation type="unfinished">
+            <numerusform>…y %n más.</numerusform>
+            <numerusform>…y %n más.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Not UTF-8</source>
+        <translation type="unfinished">No es UTF-8</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; isn&apos;t valid UTF-8. It was probably saved in an older encoding, such as Windows-1252.</source>
+        <translation type="unfinished">&quot;%1&quot; no es UTF-8 válido. Probablemente se guardó con una codificación más antigua, como Windows-1252.</translation>
+    </message>
+    <message>
+        <source>Fernanda reads only UTF-8. Opening this file saves it as UTF-8 right away, and every character Fernanda can&apos;t read (often curly quotes, dashes, and accented letters) is permanently replaced with  .
+
+To keep those characters, cancel, then re-save the file as UTF-8 in another program first.</source>
+        <translation type="unfinished">Fernanda solo lee UTF-8. Al abrir este archivo, se guarda en UTF-8 de inmediato, y cada carácter que Fernanda no puede leer (a menudo comillas tipográficas, rayas y letras acentuadas) se sustituye para siempre por  .
+
+Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8 en otro programa primero.</translation>
+    </message>
+    <message>
+        <source>Open Anyway</source>
+        <translation type="unfinished">Abrir de todos modos</translation>
     </message>
 </context>
 <context>

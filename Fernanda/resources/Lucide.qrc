@@ -10,6 +10,7 @@
         <file>lucide/ChevronsUpDown.svg</file>
         <file>lucide/ChevronUp.svg</file>
         <file>lucide/ClockArrowDown.svg</file>
+        <file>lucide/Coffee.svg</file>
         <file>lucide/File.svg</file>
         <file>lucide/Folder.svg</file>
         <file>lucide/FolderOpen.svg</file>
@@ -18,6 +19,7 @@
         <file>lucide/Pin.svg</file>
         <file>lucide/Plus.svg</file>
         <file>lucide/Settings.svg</file>
+        <file>lucide/Timer.svg</file>
         <file>lucide/TriangleAlert.svg</file>
         <file>lucide/X.svg</file>
     </qresource>
