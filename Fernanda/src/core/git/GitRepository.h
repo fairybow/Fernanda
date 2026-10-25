@@ -23,6 +23,7 @@
 #include <QStandardPaths>
 #include <QString>
 #include <QStringList>
+#include <QTemporaryDir>
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
@@ -39,7 +40,8 @@ namespace Fernanda {
 using namespace Qt::StringLiterals;
 
 // The Git repository a vault's folder is in, as one vault window sees it.
-// Finds the repository, reads its status and its diffs, and commits, by
+// Finds the repository, reads its status and its diffs, commits, and
+// discards a file's changes, by
 // running the git installed on the computer, and announces each answer. A
 // status covers the whole
 // repository, which may hold more than the vault: other vaults, or files that
@@ -176,9 +178,13 @@ public:
               u"--untracked-files=all"_s });
     }
 
-    // Whether a commit is underway: from commit until committed or
-    // commitFailed
-    [[nodiscard]] bool isCommitting() const noexcept { return committing_; }
+    // Whether a commit or a discard is underway: from commit until committed
+    // or commitFailed, or from discard until discarded or discardFailed. One
+    // waits for the other, so their steps can't interleave
+    [[nodiscard]] bool isBusy() const noexcept
+    {
+        return operation_ != Operation_::None;
+    }
 
     // Commit these files' changes, and nothing else, with summary as the
     // message's first line and description, if any, as its body after a blank
@@ -201,7 +207,7 @@ public:
         const QString& summary,
         const QString& description)
     {
-        if (!isFound() || committing_ || entries.isEmpty()) {
+        if (!isFound() || isBusy() || entries.isEmpty()) {
             return;
         }
 
@@ -228,10 +234,12 @@ public:
             paths += path;
         }
 
-        committing_ = true;
+        operation_ = Operation_::Commit;
 
         Command_ command{};
         command.kind = Kind_::Commit;
+        command.operation = Operation_::Commit;
+        command.finishes = true;
         command.folder = root_;
         command.arguments = QStringList{ u"commit"_s,
                                          u"--quiet"_s,
@@ -250,6 +258,7 @@ public:
         if (!untracked.isEmpty()) {
             Command_ add{};
             add.kind = Kind_::Add;
+            add.operation = Operation_::Commit;
             add.folder = root_;
             add.arguments = QStringList{ u"add"_s,
                                          u"--all"_s,
@@ -260,6 +269,120 @@ public:
         }
 
         enqueue_(std::move(command));
+    }
+
+    // Throw one file's changes away, returning it to the last commit, the
+    // index included, as GitHub Desktop does. discarded or discardFailed
+    // answers, and the status is read again either way. Every modified buffer
+    // in the repository is saved first; if one can't be, nothing is
+    // discarded. A conflicted file isn't discarded: that's a merge's to
+    // settle.
+    //
+    // What's thrown away goes to the system trash first, and if it can't,
+    // nothing is discarded, since git itself keeps no copy of changes never
+    // committed:
+    // - A file in the last commit is copied, under its own name, into a
+    //   temporary folder, the copy goes to the trash, and git then restores
+    //   the file in place (restore --source=HEAD --staged --worktree). The
+    //   file is never missing, so a view open on it reloads it as one
+    //   undoable change rather than closing. The trash records the temporary
+    //   folder as where the copy came from, so putting it back puts it there
+    // - A file not in the last commit (untracked, newly added, or a rename's
+    //   new path) goes to the trash itself, and leaves the index (rm
+    //   --cached). A view open on it closes, as for any file deleted outside
+    //   Fernanda
+    //
+    // A renamed file is both: its new path goes, and its old path is
+    // restored. Before the first commit, every file is new
+    void discard(const GitStatus::Entry& entry)
+    {
+        if (!isFound() || isBusy() ||
+            entry.change == GitStatus::Change::Conflicted) {
+            return;
+        }
+
+        if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
+            emit discardFailed(
+                tr("A file couldn't be saved, so nothing was discarded."));
+            return;
+        }
+
+        // The path git restores from the last commit, and the path that goes
+        Coco::Path restored{};
+        Coco::Path removed{};
+
+        if (status_.branch.unborn) {
+            removed = entry.path;
+        } else {
+            switch (entry.change) {
+            case GitStatus::Change::Modified:
+            case GitStatus::Change::Deleted:
+                restored = entry.path;
+                break;
+            case GitStatus::Change::Renamed:
+                restored = entry.originalPath;
+                removed = entry.path;
+                break;
+            case GitStatus::Change::Added:
+            case GitStatus::Change::Untracked:
+            case GitStatus::Change::Conflicted:
+                removed = entry.path;
+                break;
+            }
+        }
+
+        if ((!restored.isEmpty() && !trashCopyOf_(root_ / restored)) ||
+            (!removed.isEmpty() && !trash_(root_ / removed))) {
+            emit discardFailed(
+                tr("The changes couldn't be moved to the trash, so nothing "
+                   "was discarded."));
+            return;
+        }
+
+        QList<Command_> steps{};
+
+        // An untracked file was never in the index
+        if (!removed.isEmpty() &&
+            entry.change != GitStatus::Change::Untracked) {
+            Command_ remove{};
+            remove.kind = Kind_::Remove;
+            remove.arguments = QStringList{ u"rm"_s,
+                                            u"--cached"_s,
+                                            u"--quiet"_s,
+                                            u"--ignore-unmatch"_s,
+                                            u"--pathspec-from-file=-"_s,
+                                            u"--pathspec-file-nul"_s };
+            remove.input = pathspecOf_(removed);
+            steps << remove;
+        }
+
+        if (!restored.isEmpty()) {
+            Command_ restore{};
+            restore.kind = Kind_::Restore;
+            restore.arguments = QStringList{ u"restore"_s,
+                                             u"--source=HEAD"_s,
+                                             u"--staged"_s,
+                                             u"--worktree"_s,
+                                             u"--pathspec-from-file=-"_s,
+                                             u"--pathspec-file-nul"_s };
+            restore.input = pathspecOf_(restored);
+            steps << restore;
+        }
+
+        operation_ = Operation_::Discard;
+
+        if (steps.isEmpty()) {
+            finish_(Operation_::Discard, {});
+            return;
+        }
+
+        steps.last().finishes = true;
+
+        for (auto& step : steps) {
+            step.operation = Operation_::Discard;
+            step.folder = root_;
+            enqueue_(std::move(step));
+        }
     }
 
     // Read one changed file's diff against the last commit, which is what
@@ -319,7 +442,7 @@ public:
     {
         queue_.clear();
         ++generation_;
-        committing_ = false;
+        operation_ = Operation_::None;
 
         if (root_.isEmpty()) {
             return;
@@ -353,6 +476,13 @@ signals:
     // own words
     void commitFailed(const QString& error);
 
+    // The discard asked for was done
+    void discarded();
+
+    // The discard asked for wasn't done, or not wholly: what went to the
+    // trash before a git step failed stays there. error says why
+    void discardFailed(const QString& error);
+
 private:
     enum class Kind_
     {
@@ -360,7 +490,17 @@ private:
         Status,
         Diff,
         Add,
-        Commit
+        Commit,
+        Remove,
+        Restore
+    };
+
+    // What a command is a step of, beyond answering on its own
+    enum class Operation_
+    {
+        None,
+        Commit,
+        Discard
     };
 
     struct Command_
@@ -382,6 +522,10 @@ private:
         // What git reads on its standard input: the paths, each ended by a
         // NUL, for a command given --pathspec-from-file=-. Empty for most
         QByteArray input{};
+
+        // The operation it's a step of, and whether it's the last step
+        Operation_ operation = Operation_::None;
+        bool finishes = false;
 
         // generation_ when it was asked for. An answer from before the last
         // forget is ignored
@@ -420,7 +564,8 @@ private:
     // Counts forgets (forget)
     int generation_ = 0;
 
-    bool committing_ = false;
+    // The commit or discard underway, if any
+    Operation_ operation_ = Operation_::None;
 
     void setup_()
     {
@@ -576,7 +721,9 @@ private:
             break;
         case Kind_::Add:
         case Kind_::Commit:
-            onCommitStep_(command, result);
+        case Kind_::Remove:
+        case Kind_::Restore:
+            onStep_(command, result);
             break;
         }
 
@@ -657,11 +804,14 @@ private:
 
     // One step of a commit. A failed step ends the commit, and the step after
     // it, already waiting, is dropped. The commit is the last step
-    void onCommitStep_(const Command_& command, const Result_& result)
+    // One step of a commit or a discard. A failed step ends its operation,
+    // and the steps after it, already waiting, are dropped. The last step's
+    // success ends it too
+    void onStep_(const Command_& command, const Result_& result)
     {
         if (!result.succeeded) {
-            queue_.removeIf([](const Command_& waiting) {
-                return waiting.kind == Kind_::Commit;
+            queue_.removeIf([&command](const Command_& waiting) {
+                return waiting.operation == command.operation;
             });
 
             WARN(
@@ -669,28 +819,80 @@ private:
                 command.arguments.first(),
                 command.folder,
                 result.error);
-            finishCommit_(result.error);
+            finish_(command.operation, result.error);
             return;
         }
 
-        if (command.kind == Kind_::Commit) {
-            INFO("Committed in {}", command.folder);
-            finishCommit_({});
+        if (command.finishes) {
+            finish_(command.operation, {});
         }
     }
 
     // An empty error is success
-    void finishCommit_(const QString& error)
+    void finish_(Operation_ operation, const QString& error)
     {
-        committing_ = false;
+        operation_ = Operation_::None;
 
         if (error.isEmpty()) {
-            emit committed();
-        } else {
-            emit commitFailed(error);
+            INFO("Git operation done in {}", root_);
+        }
+
+        switch (operation) {
+        case Operation_::Commit:
+            if (error.isEmpty()) {
+                emit committed();
+            } else {
+                emit commitFailed(error);
+            }
+            break;
+        case Operation_::Discard:
+            if (error.isEmpty()) {
+                emit discarded();
+            } else {
+                emit discardFailed(error);
+            }
+            break;
+        case Operation_::None:
+            break;
         }
 
         refresh();
+    }
+
+    // A copy of the file, under its own name, to the trash, by way of a
+    // temporary folder. A file that isn't there has nothing to keep
+    [[nodiscard]] static bool trashCopyOf_(const Coco::Path& file)
+    {
+        if (!file.isFile()) {
+            return true;
+        }
+
+        QTemporaryDir folder{};
+        auto copy = Coco::Path(folder.path()) / file.name();
+
+        if (!folder.isValid() || !Coco::copy(file, copy) ||
+            !Coco::moveToTrash(copy)) {
+            WARN("Couldn't move a copy of {} to the trash", file);
+            return false;
+        }
+
+        return true;
+    }
+
+    // The file itself to the trash. A file that isn't there has nothing to
+    // keep
+    [[nodiscard]] static bool trash_(const Coco::Path& file)
+    {
+        if (!file.exists()) {
+            return true;
+        }
+
+        if (!Coco::moveToTrash(file)) {
+            WARN("Couldn't move {} to the trash", file);
+            return false;
+        }
+
+        return true;
     }
 };
 

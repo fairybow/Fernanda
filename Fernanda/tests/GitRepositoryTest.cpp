@@ -832,7 +832,7 @@ private slots:
 
         QVERIFY(error);
         QVERIFY(!error->isEmpty());
-        QVERIFY(!f.repository.isCommitting());
+        QVERIFY(!f.repository.isBusy());
     }
 
     // Asking again while a status waits adds nothing, and the waiting one

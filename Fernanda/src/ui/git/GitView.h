@@ -88,7 +88,13 @@ using namespace Qt::StringLiterals;
 //
 // A file can be opened from its right-click menu, or by double-clicking it.
 // The view only asks (openRequested); which files can be opened is the
-// window's to say (setOpenFilter), and the menu is offered only for those
+// window's to say (setOpenFilter), and Open is offered only for those.
+//
+// The same menu discards a file's changes (GitRepository::discard), after
+// asking, with Cancel the default. The question says where the changes go:
+// to the trash, the file going back to its last commit, or, for a file the
+// last commit doesn't have, the file itself to the trash. Not offered for a
+// conflicted file, or while a commit or discard is underway
 class GitView : public QWidget
 {
     Q_OBJECT
@@ -216,6 +222,18 @@ private:
             &GitRepository::commitFailed,
             this,
             &GitView::onCommitFailed_);
+
+        connect(
+            repository_,
+            &GitRepository::discarded,
+            this,
+            &GitView::updateCommitBox_);
+
+        connect(
+            repository_,
+            &GitRepository::discardFailed,
+            this,
+            &GitView::onDiscardFailed_);
 
         applyFont_();
         connect(vault_, &Vault::configChanged, this, &GitView::applyFont_);
@@ -457,7 +475,7 @@ private:
                                   : tr("Commit to %1").arg(branch.name));
 
         commitButton_->setEnabled(
-            !repository_->isCommitting() && checked > 0 &&
+            !repository_->isBusy() && checked > 0 &&
             !summaryEdit_->text().trimmed().isEmpty());
     }
 
@@ -489,19 +507,75 @@ private:
         updateCommitBox_();
     }
 
-    // Shown without exec: the window may close while it's up
     void onCommitFailed_(const QString& error)
     {
         updateCommitBox_();
+        showFailure_(tr("Commit failed"), tr("Nothing was committed."), error);
+    }
 
+    void onDiscardFailed_(const QString& error)
+    {
+        updateCommitBox_();
+        showFailure_(
+            tr("Discard failed"),
+            tr("The changes weren't discarded."),
+            error);
+    }
+
+    // Shown without exec: the window may close while it's up
+    void showFailure_(
+        const QString& title,
+        const QString& text,
+        const QString& error)
+    {
         auto* box = new QMessageBox(
             QMessageBox::Warning,
-            tr("Commit failed"),
-            tr("Nothing was committed."),
+            title,
+            text,
             QMessageBox::Ok,
             this);
         box->setInformativeText(error);
         box->setAttribute(Qt::WA_DeleteOnClose);
+        box->open();
+    }
+
+    // Asked first, without exec, with Cancel the default. The entry is the
+    // one asked about, even if a new status comes while the question is up
+    void confirmDiscard_(const GitStatus::Entry& entry)
+    {
+        auto name = entry.path.nameQString();
+        auto is_new = entry.change == GitStatus::Change::Untracked ||
+                      entry.change == GitStatus::Change::Added ||
+                      repository_->status().branch.unborn;
+
+        auto* box = new QMessageBox(
+            QMessageBox::Question,
+            tr("Discard changes"),
+            is_new ? tr("Discard “%1”?").arg(name)
+                   : tr("Discard the changes to “%1”?").arg(name),
+            QMessageBox::NoButton,
+            this);
+
+        box->setInformativeText(
+            is_new ? tr("It isn't in the last commit, so the file itself "
+                        "goes to the system trash.")
+                   : tr("The changed file goes to the system trash, and the "
+                        "file goes back to how it was in the last commit."));
+
+        auto* discard =
+            box->addButton(tr("Discard"), QMessageBox::DestructiveRole);
+        box->setDefaultButton(box->addButton(QMessageBox::Cancel));
+        box->setAttribute(Qt::WA_DeleteOnClose);
+
+        connect(box, &QMessageBox::finished, this, [this, box, discard, entry] {
+            if (box->clickedButton() != discard) {
+                return;
+            }
+
+            repository_->discard(entry);
+            updateCommitBox_();
+        });
+
         box->open();
     }
 
@@ -531,16 +605,35 @@ private:
             return;
         }
 
-        auto key = openableKey_(list_->row(item));
+        auto row = list_->row(item);
+        auto key = openableKey_(row);
+        const auto& entry = entries_[row];
 
-        if (key.isEmpty()) {
+        auto can_discard = !repository_->isBusy() &&
+                           entry.change != GitStatus::Change::Conflicted;
+
+        if (key.isEmpty() && !can_discard) {
             return;
         }
 
         QMenu menu(this);
-        menu.addAction(tr("Open"), this, [this, key] {
-            emit openRequested(key);
-        });
+
+        if (!key.isEmpty()) {
+            menu.addAction(tr("Open"), this, [this, key] {
+                emit openRequested(key);
+            });
+        }
+
+        if (can_discard) {
+            if (!key.isEmpty()) {
+                menu.addSeparator();
+            }
+
+            menu.addAction(tr("Discard Changes…"), this, [this, entry] {
+                confirmDiscard_(entry);
+            });
+        }
+
         menu.exec(list_->viewport()->mapToGlobal(position));
     }
 
