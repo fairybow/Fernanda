@@ -198,6 +198,7 @@ set(APP_HEADERS
     src/core/CMakeMacroGuard.h
     src/core/CoreConstants.h
     src/core/FileTypes.h
+    src/core/FocusCycle.h
     src/core/Io.h
     src/core/JsonIo.h
     src/core/PathKey.h
