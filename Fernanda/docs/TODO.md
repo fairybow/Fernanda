@@ -7,6 +7,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] GitView delete changes dialog is chonky/ugly/bad/etc
 - [ ] Branch popup is too square + clicking it again should probably close + hover wash doesn't go away when clicking outside of the menu to close it until you move mouse over and off it again
 - [ ] New branch button has no hover wash, no obvious visual feedback
+- [ ] Current branch is not selected when opening the branch menu after making a new branch (still has main as selection!)
 - [ ] Branch naming should have filtering to prevent bad names
 - [ ] Switch line highlights back to QPalette roles? What were they before QColor?
 - [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
