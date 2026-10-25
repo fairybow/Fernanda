@@ -6,6 +6,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 - [ ] Switch line highlights back to QPalette roles? What were they before QColor?
 - [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
+- [ ] Better git diff colors (red and green)
 - [ ] Git diffs don't show new line at end of file
 - [ ] Hide word counter in Git view probably
 - [ ] Potentially use mononoki always for Git view diffs
