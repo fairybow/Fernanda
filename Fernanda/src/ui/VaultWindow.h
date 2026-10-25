@@ -748,7 +748,8 @@ private:
         if (shown != isGitViewShown_()) {
             if (shown) {
                 if (!gitView_) {
-                    gitView_ = new GitView(gitRepository_, centralStack_);
+                    gitView_ =
+                        new GitView(gitRepository_, vault_, centralStack_);
                     centralStack_->addWidget(gitView_);
                 }
 

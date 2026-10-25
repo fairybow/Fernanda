@@ -11,6 +11,7 @@
  */
 
 #include <algorithm>
+#include <optional>
 
 #include <QByteArray>
 #include <QDir>
@@ -34,6 +35,7 @@
 #include "core/BufferStore.h"
 #include "core/PathKey.h"
 #include "core/Vault.h"
+#include "core/git/GitDiff.h"
 #include "core/git/GitRepository.h"
 #include "core/git/GitStatus.h"
 #include "models/AbstractFileModel.h"
@@ -177,6 +179,48 @@ private:
             });
 
         return it == entries.cend() ? nullptr : &*it;
+    }
+
+    // Finds the repository, reads its status, and asks for the diff of the
+    // changed file at path. Nothing if the file isn't listed as changed, or
+    // git fails
+    [[nodiscard]] static std::optional<GitDiff::Diff>
+    diffOf_(Fixture_& f, const QString& path)
+    {
+        f.repository.detect();
+
+        if (!QTest::qWaitFor([&] { return f.repository.isFound(); })) {
+            return std::nullopt;
+        }
+
+        f.repository.refresh();
+
+        if (!QTest::qWaitFor([&] { return entry_(f.repository, path); })) {
+            return std::nullopt;
+        }
+
+        std::optional<GitDiff::Diff> answer{};
+        auto failed = false;
+
+        auto read = connect(
+            &f.repository,
+            &GitRepository::diffRead,
+            [&answer](const Coco::Path&, const GitDiff::Diff& diff) {
+                answer = diff;
+            });
+
+        auto fail = connect(
+            &f.repository,
+            &GitRepository::diffFailed,
+            [&failed](const Coco::Path&, const QString&) { failed = true; });
+
+        f.repository.readDiff(*entry_(f.repository, path));
+        [[maybe_unused]] auto done =
+            QTest::qWaitFor([&] { return answer || failed; });
+
+        disconnect(read);
+        disconnect(fail);
+        return answer;
     }
 
     // Types at the end of a text buffer, as a view's editor would
@@ -439,6 +483,131 @@ private slots:
         QVERIFY(file.open(QIODevice::ReadOnly));
         QCOMPARE(file.readAll(), QByteArray("hello world"));
 #endif
+    }
+
+    // --- Diffs --------------------------------------------------------------
+
+    void readDiffShowsAChangedLine()
+    {
+        Fixture_ f{};
+        f.git({ u"init"_s, u"-q"_s });
+        f.write(u"a.txt"_s, "one\ntwo\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.write(u"a.txt"_s, "one\nTwo\n");
+
+        auto diff = diffOf_(f, u"a.txt"_s);
+        QVERIFY(diff);
+        QVERIFY(!diff->binary);
+        QCOMPARE(diff->hunks.size(), 1);
+
+        const auto& lines = diff->hunks[0].lines;
+        QCOMPARE(lines.size(), 3);
+        QCOMPARE(lines[1].kind, GitDiff::Line::Kind::Removed);
+        QCOMPARE(lines[1].text, u"two"_s);
+        QCOMPARE(lines[2].kind, GitDiff::Line::Kind::Added);
+        QCOMPARE(lines[2].text, u"Two"_s);
+    }
+
+    void readDiffShowsAnUntrackedFileAsAdded()
+    {
+        Fixture_ f{};
+        f.git({ u"init"_s, u"-q"_s });
+        f.write(u"a.txt"_s, "first\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.write(u"Chapter One/new.md"_s, "one\ntwo\n");
+
+        auto diff = diffOf_(f, u"Chapter One/new.md"_s);
+        QVERIFY(diff);
+        QCOMPARE(diff->hunks.size(), 1);
+        QCOMPARE(diff->hunks[0].lines.size(), 2);
+        QCOMPARE(diff->hunks[0].lines[0].kind, GitDiff::Line::Kind::Added);
+        QCOMPARE(diff->hunks[0].lines[1].text, u"two"_s);
+    }
+
+    // There is no HEAD to compare with, so every file is compared with
+    // nothing
+    void readDiffWorksBeforeTheFirstCommit()
+    {
+        Fixture_ f{};
+        f.git({ u"init"_s, u"-q"_s });
+        f.write(u"a.txt"_s, "hello\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+
+        auto diff = diffOf_(f, u"a.txt"_s);
+        QVERIFY(diff);
+        QCOMPARE(diff->hunks.size(), 1);
+        QCOMPARE(diff->hunks[0].lines[0].text, u"hello"_s);
+    }
+
+    void readDiffComparesARenamedFileWithWhereItWas()
+    {
+        Fixture_ f{};
+        f.git({ u"init"_s, u"-q"_s });
+        f.write(u"old.txt"_s, "one\ntwo\nthree\nfour\n");
+        f.git({ u"add"_s, u"old.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"mv"_s, u"old.txt"_s, u"new.txt"_s });
+        f.write(u"new.txt"_s, "one\ntwo\nthree\nFour\n");
+        f.git({ u"add"_s, u"new.txt"_s });
+
+        auto diff = diffOf_(f, u"new.txt"_s);
+        QVERIFY(diff);
+        QCOMPARE(diff->hunks.size(), 1);
+
+        // Only the changed line, not the whole file as removed and added
+        const auto& lines = diff->hunks[0].lines;
+        auto changed = std::count_if(
+            lines.cbegin(),
+            lines.cend(),
+            [](const GitDiff::Line& line) {
+                return line.kind != GitDiff::Line::Kind::Context;
+            });
+        QCOMPARE(changed, 2);
+    }
+
+    void binaryFileIsSaidToBe()
+    {
+        Fixture_ f{};
+        f.git({ u"init"_s, u"-q"_s });
+        f.write(u"map.png"_s, QByteArray("\x89PNG\0\x01\x02", 7));
+
+        auto diff = diffOf_(f, u"map.png"_s);
+        QVERIFY(diff);
+        QVERIFY(diff->binary);
+    }
+
+    // Two asked for at once: only the second is answered
+    void readDiffAskedAgainReplacesTheWaitingOne()
+    {
+        Fixture_ f{};
+        f.git({ u"init"_s, u"-q"_s });
+        f.write(u"a.txt"_s, "a\n");
+        f.write(u"b.txt"_s, "b\n");
+
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
+        f.repository.refresh();
+        QTRY_VERIFY(entry_(f.repository, u"b.txt"_s));
+
+        QStringList answered{};
+        connect(
+            &f.repository,
+            &GitRepository::diffRead,
+            this,
+            [&answered](const Coco::Path& path, const GitDiff::Diff&) {
+                answered << path.prettyQString();
+            });
+
+        // A status first, so both diffs wait behind it
+        f.repository.refresh();
+        f.repository.readDiff(*entry_(f.repository, u"a.txt"_s));
+        f.repository.readDiff(*entry_(f.repository, u"b.txt"_s));
+
+        QTRY_COMPARE(answered, QStringList{ u"b.txt"_s });
+        QTest::qWait(QUIET_WAIT_MS_);
+        QCOMPARE(answered, QStringList{ u"b.txt"_s });
     }
 
     // Asking again while a status waits adds nothing, and the waiting one

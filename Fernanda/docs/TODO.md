@@ -4,6 +4,8 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
+- [ ] Hide word counter in Git view probably
+- [ ] Potentially use mononoki always for Git view diffs
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
 - [ ] Perhaps change FocusTimer icon to hourglass
 - [x] May want to allow clicking to left or right of file in tree to also clear selection (right now clearing selection only works when clicking below all files in a tree)
@@ -52,6 +54,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Rough edges
 
 - [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
+- [ ] Same for error report strings from outside Fernanda, like GitRepository's "result.error" usage, which should probably be quoted
 - [ ] Decide if all Lucide icons should be in constants file or only things accessed from multiple places (the latter being what I lean toward right now, as those *Constants files are for non-settings tweakable values (shared or unshared) or shared constants generally)
 - [ ] The licenses dialog's Qt entry links to Qt's list of the libraries Qt itself bundles (PDFium in Qt PDF, among others) rather than showing their notices. Shipping their texts would mean collecting them from the Qt build in use
 - [ ] Tabs can be dragged past the left or right end of the tab bar without starting a drag; may want to clamp them
@@ -121,7 +124,7 @@ Passes over the whole codebase against [CodeStyle.md](CodeStyle.md).
 - [ ] Signals that only ever drive one slot in the same class
 - [ ] Consistent terms: what is a pane, a leaf, a view, a page
 - [ ] Naming and casing of types, functions, and members, including trailing underscores on private members
-- [ ] Parent parameters not named for their parent type
+- [ ] Parent parameters not named for their parent type/object
 - [ ] Widgets that start without a parent and are inserted into one later: name the parameter to say so
 - [ ] Constructor work outside `setup_`
 - [ ] `const`, `[[nodiscard]]`, `[[maybe_unused]]`
@@ -134,3 +137,5 @@ Passes over the whole codebase against [CodeStyle.md](CodeStyle.md).
 - [ ] Order of sections within classes
 - [ ] Helper classes used in one header that could move to its `Internal` namespace (`ZoomButton` in `ZoomControl.h`, for example)
 - [ ] `TODO` comments in the source
+- [ ] Things that could move into Coco
+- [ ] Things that could be replace with a call to Coco

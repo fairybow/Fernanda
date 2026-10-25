@@ -31,6 +31,7 @@
 #include "core/CoreConstants.h"
 #include "core/PathKey.h"
 #include "core/Vault.h"
+#include "core/git/GitDiff.h"
 #include "core/git/GitStatus.h"
 
 namespace Fernanda {
@@ -172,6 +173,56 @@ public:
               u"--untracked-files=all"_s });
     }
 
+    // Read one changed file's diff against the last commit, which is what
+    // committing it would record. diffRead or diffFailed answers, with the
+    // entry's path. A file git doesn't track yet, and every file before the
+    // first commit, is compared with nothing (diff --no-index against
+    // /dev/null), so all of it shows as added. A renamed file is compared with
+    // where it was. Asking again while one waits replaces the waiting one:
+    // only the file asked for last is still wanted.
+    //
+    // External diff programs and text conversions are off. A repository's own
+    // config can name either, and git would run it here; and the view wants
+    // the file's own lines
+    void readDiff(const GitStatus::Entry& entry)
+    {
+        if (!isFound()) {
+            return;
+        }
+
+        queue_.removeIf([](const Command_& command) {
+            return command.kind == Kind_::Diff;
+        });
+
+        Command_ command{};
+        command.kind = Kind_::Diff;
+        command.folder = root_;
+        command.subject = entry.path;
+        command.comparesWithNothing =
+            entry.change == GitStatus::Change::Untracked ||
+            status_.branch.unborn;
+
+        command.arguments = QStringList{ u"diff"_s,
+                                         u"--no-color"_s,
+                                         u"--no-ext-diff"_s,
+                                         u"--no-textconv"_s };
+
+        if (command.comparesWithNothing) {
+            command.arguments << u"--no-index"_s << u"--"_s << u"/dev/null"_s
+                              << entry.path.prettyQString();
+        } else {
+            command.arguments << u"-M"_s << u"HEAD"_s << u"--"_s;
+
+            if (!entry.originalPath.isEmpty()) {
+                command.arguments << entry.originalPath.prettyQString();
+            }
+
+            command.arguments << entry.path.prettyQString();
+        }
+
+        enqueue_(std::move(command));
+    }
+
     // Drop what's known: the repository, its status, and every command not
     // yet answered. A command already running finishes, and its answer is
     // ignored. foundChanged says so when a repository had been found
@@ -198,11 +249,19 @@ signals:
 
     void statusChanged();
 
+    // The diff readDiff asked for, of the file at path (relative to the
+    // repository's folder)
+    void diffRead(const Coco::Path& path, const Fernanda::GitDiff::Diff& diff);
+
+    // readDiff's git failed, for the file at path. error is git's own message
+    void diffFailed(const Coco::Path& path, const QString& error);
+
 private:
     enum class Kind_
     {
         Detect,
-        Status
+        Status,
+        Diff
     };
 
     struct Command_
@@ -215,6 +274,12 @@ private:
         // Git's own arguments, after the ones every command gets
         QStringList arguments{};
 
+        // A diff's file, relative to the repository's folder
+        Coco::Path subject{};
+
+        // A diff with --no-index, which exits with 1 when the files differ
+        bool comparesWithNothing = false;
+
         // generation_ when it was asked for. An answer from before the last
         // forget is ignored
         int generation = 0;
@@ -224,6 +289,10 @@ private:
     {
         // Git ran and exited with 0
         bool succeeded = false;
+
+        // What git exited with. -1 when it didn't start or didn't exit
+        // normally
+        int exitCode = -1;
 
         QByteArray output{};
 
@@ -272,7 +341,17 @@ private:
     void
     enqueue_(Kind_ kind, const Coco::Path& folder, const QStringList& arguments)
     {
-        queue_ << Command_{ kind, folder, arguments, generation_ };
+        Command_ command{};
+        command.kind = kind;
+        command.folder = folder;
+        command.arguments = arguments;
+        enqueue_(std::move(command));
+    }
+
+    void enqueue_(Command_ command)
+    {
+        command.generation = generation_;
+        queue_ << std::move(command);
         runNext_();
     }
 
@@ -319,6 +398,7 @@ private:
     {
         Result_ result{};
         result.succeeded = exitStatus == QProcess::NormalExit && exitCode == 0;
+        result.exitCode = exitStatus == QProcess::NormalExit ? exitCode : -1;
         result.output = process_->readAllStandardOutput();
         result.error =
             QString::fromUtf8(process_->readAllStandardError()).trimmed();
@@ -363,6 +443,9 @@ private:
             break;
         case Kind_::Status:
             onStatusRead_(command, result);
+            break;
+        case Kind_::Diff:
+            onDiffRead_(command, result);
             break;
         }
 
@@ -414,6 +497,31 @@ private:
 
         status_ = GitStatus::parse(result.output);
         emit statusChanged();
+    }
+
+    // A --no-index diff exits with 1 when the files differ, which is the
+    // answer wanted; git's own errors exit with 1 too, but print no diff
+    void onDiffRead_(const Command_& command, const Result_& result)
+    {
+        if (PathKey::of(command.folder) != PathKey::of(root_)) {
+            return;
+        }
+
+        auto answered = result.succeeded ||
+                        (command.comparesWithNothing && result.exitCode == 1 &&
+                         !result.output.isEmpty());
+
+        if (!answered) {
+            WARN(
+                "Git diff failed for {} in {}: {}",
+                command.subject,
+                command.folder,
+                result.error);
+            emit diffFailed(command.subject, result.error);
+            return;
+        }
+
+        emit diffRead(command.subject, GitDiff::parse(result.output));
     }
 };
 

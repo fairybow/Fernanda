@@ -182,6 +182,7 @@ set(APP_SOURCES
 # --- Headers ---
 
 set(APP_HEADERS
+    src/core/git/GitDiff.h
     src/core/git/GitRepository.h
     src/core/git/GitStatus.h
 
@@ -230,6 +231,7 @@ set(APP_HEADERS
 
     src/ui/git/GitButton.h
     src/ui/git/GitChangeDelegate.h
+    src/ui/git/GitDiffView.h
     src/ui/git/GitView.h
 
     src/ui/settings/FontFamilyBox.h

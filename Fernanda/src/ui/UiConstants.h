@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <QColor>
 #include <QPalette>
 #include <QString>
 
@@ -381,6 +382,21 @@ inline constexpr auto GIT_MODIFIED_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto GIT_DELETED_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto GIT_RENAMED_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto GIT_CONFLICTED_ICON_ROLE = QPalette::PlaceholderText;
+
+// The Git view's diff (GitDiffView). An added line is tinted ADDED_BACKGROUND
+// and a removed one REMOVED_BACKGROUND, across the text and the gutter. Each
+// has an alpha, so it tints the page rather than covering it, on a light page
+// or a dark one. HEADER_ROLE is the pen of each hunk's @@ line, and
+// NUMBER_ROLE the gutter's. The gutter is GUTTER_PADDING on each side of its
+// two columns of numbers, which are GUTTER_SPACING apart, and TEXT_PADDING
+// more on its right, between the numbers and the text
+inline constexpr auto GIT_DIFF_ADDED_BACKGROUND = QColor(46, 160, 67, 56);
+inline constexpr auto GIT_DIFF_REMOVED_BACKGROUND = QColor(248, 81, 73, 56);
+inline constexpr auto GIT_DIFF_HEADER_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_DIFF_NUMBER_ROLE = QPalette::PlaceholderText;
+inline constexpr int GIT_DIFF_GUTTER_PADDING = 8;
+inline constexpr int GIT_DIFF_GUTTER_SPACING = 8;
+inline constexpr int GIT_DIFF_TEXT_PADDING = 8;
 
 // Fernanda's style (Style). Shades the palette has no role for are its text
 // color at an alpha, drawn over whatever is behind them: HOVER under the
