@@ -4,6 +4,9 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
+- [ ] Switch line highlights back to QPalette roles? What were they before QColor?
+- [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
+- [ ] Git diffs don't show new line at end of file
 - [ ] Hide word counter in Git view probably
 - [ ] Potentially use mononoki always for Git view diffs
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
