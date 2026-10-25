@@ -28,6 +28,7 @@
 #include <QPalette>
 #include <QPoint>
 #include <QSplitter>
+#include <QStackedWidget>
 #include <QString>
 #include <QStringList>
 #include <QtTypes>
@@ -49,6 +50,7 @@
 #include "core/VaultConfig.h"
 #include "core/VaultEntry.h"
 #include "core/WorkspaceKeys.h"
+#include "core/git/GitRepository.h"
 #include "core/spell/SpellCheckers.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
@@ -59,6 +61,8 @@
 #include "ui/PopoutWindow.h"
 #include "ui/UiConstants.h"
 #include "ui/WorkspaceFile.h"
+#include "ui/git/GitButton.h"
+#include "ui/git/GitView.h"
 #include "ui/settings/SettingsDialog.h"
 #include "ui/sidebar/Sidebar.h"
 #include "ui/tabs/NewTabPage.h"
@@ -331,9 +335,25 @@ private:
     // so it stops with the window
     FocusTimer* focusTimer_ = nullptr;
 
+    // The window's content: the sidebar splitter, or the Git view in its
+    // place while that's open. The status bar stays below either
+    QStackedWidget* centralStack_ = nullptr;
+
+    // The Git repository the vault is in, if any, as this window sees it. A
+    // Qt child, so a command still running is seen out with the window
+    GitRepository* gitRepository_ = nullptr;
+
+    // The status bar's Git button, shown while the vault is in a repository
+    GitButton* gitButton_ = nullptr;
+
+    // Built the first time it's opened, and kept, hidden, after
+    GitView* gitView_ = nullptr;
+
     void setup_()
     {
         resize(DEFAULT_VAULT_WINDOW_WIDTH, DEFAULT_VAULT_WINDOW_HEIGHT);
+
+        gitRepository_ = new GitRepository(vault_, bufferStore_, this);
 
         buildActions_();
         buildMenuBar_();
@@ -417,7 +437,9 @@ private:
         splitter_->setStretchFactor(1, 1); // editor takes the slack
         splitter_->setSizes({ 260, 740 });
 
-        setCentralWidget(splitter_);
+        centralStack_ = new QStackedWidget(this);
+        centralStack_->addWidget(splitter_);
+        setCentralWidget(centralStack_);
 
         // Workspace persistence, constructed last so it can observe this
         // window, its tree, and the sidebar splitter. restore() runs now —
@@ -482,6 +504,46 @@ private:
             &QAbstractButton::clicked,
             this,
             &VaultWindow::onUpdateNoticeClicked_);
+
+        setupGit_();
+    }
+
+    // The Git button and view follow the repository: shown while the vault
+    // is in one, and the view closed when it no longer is. The repository is
+    // looked for now, after the vault's folder moves, and whenever this
+    // window becomes active, since a repository can be made or removed
+    // outside Fernanda; becoming active reads the status again too, for the
+    // button's branch and the view's list
+    void setupGit_()
+    {
+        gitButton_ = new GitButton(gitRepository_, this);
+        gitButton_->hide();
+        addStatusBarButton(gitButton_);
+
+        connect(
+            gitButton_,
+            &QAbstractButton::clicked,
+            action(ActionIds::REPOSITORY_TOGGLE_VIEW),
+            &QAction::trigger);
+
+        connect(
+            gitRepository_,
+            &GitRepository::foundChanged,
+            this,
+            &VaultWindow::onGitFoundChanged_);
+
+        connect(
+            vault_,
+            &Vault::rootMoved,
+            gitRepository_,
+            &GitRepository::detect);
+
+        connect(this, &BaseWindow::windowActivated, this, [this] {
+            gitRepository_->detect();
+            gitRepository_->refresh();
+        });
+
+        gitRepository_->detect();
     }
 
     // VaultWindow's own actions, added to the registry the base started. The
@@ -544,6 +606,21 @@ private:
             &QAction::triggered,
             this,
             &VaultWindow::onToggleMenuBar_);
+
+        // Checked while the Git view is open. Disabled until the vault is
+        // found to be in a repository (onGitFoundChanged_). Ctrl+Shift+G is
+        // VS Code's key for its Source Control view
+        auto* toggle_git = registerAction(
+            ActionIds::REPOSITORY_TOGGLE_VIEW,
+            tr("Git"),
+            QKeySequence(u"Ctrl+Shift+G"_s));
+        toggle_git->setCheckable(true);
+        toggle_git->setEnabled(false);
+        connect(
+            toggle_git,
+            &QAction::toggled,
+            this,
+            &VaultWindow::setGitViewShown_);
     }
 
     // The menu bar shows the registry's actions — it doesn't own them. Hidden
@@ -582,12 +659,75 @@ private:
 
         auto* view_menu = bar->addMenu(tr("View"));
         view_menu->addAction(action(ActionIds::WINDOW_TOGGLE_MENU_BAR));
+        view_menu->addAction(action(ActionIds::REPOSITORY_TOGGLE_VIEW));
         view_menu->addSeparator();
         view_menu->addAction(action(ActionIds::VIEW_ZOOM_IN));
         view_menu->addAction(action(ActionIds::VIEW_ZOOM_OUT));
         view_menu->addAction(action(ActionIds::VIEW_ZOOM_RESET));
 
         bar->hide();
+    }
+
+    // The vault was found to be in a repository, in none, or in another. The
+    // button and the action follow; a view open on a repository that's gone
+    // closes first, so the window's actions are unlocked
+    void onGitFoundChanged_()
+    {
+        auto found = gitRepository_->isFound();
+
+        if (!found) {
+            setGitViewShown_(false);
+        }
+
+        action(ActionIds::REPOSITORY_TOGGLE_VIEW)->setEnabled(found);
+        gitButton_->setVisible(found);
+        updateStatusBar();
+
+        if (found) {
+            gitRepository_->refresh();
+        }
+    }
+
+    [[nodiscard]] bool isGitViewShown_() const
+    {
+        return gitView_ && centralStack_->currentWidget() == gitView_;
+    }
+
+    // Open or close the Git view in place of the sidebar and tabs. While it's
+    // open, the window's own actions are locked: they act on the tabs, which
+    // can't be seen. The toggle stays live, to close it, and so do the text.
+    // actions, which act on whatever text field has focus, the view's
+    // included. The action and the button are set to match, so opening from
+    // either one, or the key, shows in both
+    void setGitViewShown_(bool shown)
+    {
+        if (shown != isGitViewShown_()) {
+            if (shown) {
+                if (!gitView_) {
+                    gitView_ = new GitView(gitRepository_, centralStack_);
+                    centralStack_->addWidget(gitView_);
+                }
+
+                lockActions(
+                    { ActionIds::REPOSITORY_TOGGLE_VIEW,
+                      ActionIds::TEXT_CUT,
+                      ActionIds::TEXT_COPY,
+                      ActionIds::TEXT_PASTE,
+                      ActionIds::TEXT_DELETE,
+                      ActionIds::TEXT_SELECT_ALL });
+
+                centralStack_->setCurrentWidget(gitView_);
+                gitView_->setFocus();
+                gitRepository_->refresh();
+            } else {
+                centralStack_->setCurrentWidget(splitter_);
+                unlockActions();
+                tabPaneTree()->focusActivePage();
+            }
+        }
+
+        action(ActionIds::REPOSITORY_TOGGLE_VIEW)->setChecked(shown);
+        gitButton_->setChecked(shown);
     }
 
     // New File: create an empty file at the vault root and open it over the

@@ -228,6 +228,10 @@ set(APP_HEADERS
     src/models/PrimeDocument.h
     src/models/TextFileModel.h
 
+    src/ui/git/GitButton.h
+    src/ui/git/GitChangeDelegate.h
+    src/ui/git/GitView.h
+
     src/ui/settings/FontFamilyBox.h
     src/ui/settings/SettingRow.h
     src/ui/settings/SettingsAppearancePage.h

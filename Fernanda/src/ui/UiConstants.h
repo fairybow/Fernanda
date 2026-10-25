@@ -351,6 +351,37 @@ inline constexpr int UPDATE_NOTICE_EXTENT = 20;
 inline constexpr int UPDATE_NOTICE_ICON_EXTENT = 14;
 inline constexpr auto UPDATE_NOTICE_ICON_ROLE = QPalette::Accent;
 
+// A checkable GlyphButton while it's checked: its panel filled with
+// CHECKED_PANEL_ROLE, and its glyph in CHECKED_ICON_ROLE in place of its own
+// tint, the pen that reads on the accent (as a toggle switch's thumb does)
+inline constexpr auto GLYPH_BUTTON_CHECKED_PANEL_ROLE = QPalette::Accent;
+inline constexpr auto GLYPH_BUTTON_CHECKED_ICON_ROLE =
+    QPalette::HighlightedText;
+
+// The status bar's Git button (GitButton), at the bar's left, shown while the
+// vault is in a Git repository. EXTENT/ICON_EXTENT mean what the update
+// notice's pair means. Filled with the accent while the Git view is open
+inline constexpr int GIT_BUTTON_EXTENT = 20;
+inline constexpr int GIT_BUTTON_ICON_EXTENT = 14;
+inline constexpr auto GIT_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
+
+// The Git view (GitView). CHANGES_WIDTH is the first width of its left column,
+// the list of changed files; the rest goes to the right. HEADER_H_MARGIN and
+// HEADER_V_MARGIN surround the count of changed files above the list.
+// MUTED_TEXT_ROLE is the pen of the line on the right when there's nothing to
+// show. Each row of the list has its change's glyph, CHANGE_ICON_EXTENT
+// square, against the list's right edge, in its own tint
+inline constexpr int GIT_VIEW_CHANGES_WIDTH = 280;
+inline constexpr int GIT_VIEW_HEADER_H_MARGIN = 6;
+inline constexpr int GIT_VIEW_HEADER_V_MARGIN = 6;
+inline constexpr auto GIT_VIEW_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
+inline constexpr int GIT_CHANGE_ICON_EXTENT = 14;
+inline constexpr auto GIT_ADDED_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_MODIFIED_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_DELETED_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_RENAMED_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_CONFLICTED_ICON_ROLE = QPalette::PlaceholderText;
+
 // Fernanda's style (Style). Shades the palette has no role for are its text
 // color at an alpha, drawn over whatever is behind them: HOVER under the
 // pointer, PRESSED held down (and a checked tool button), SELECTED for a
