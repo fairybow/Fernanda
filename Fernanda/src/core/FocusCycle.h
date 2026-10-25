@@ -228,8 +228,7 @@ private:
         }
 
         auto completes_set =
-            completed
-            && completedFocusCount_ % lengths_.longBreakEvery == 0;
+            completed && completedFocusCount_ % lengths_.longBreakEvery == 0;
 
         return completes_set ? Period::LongBreak : Period::ShortBreak;
     }

@@ -130,8 +130,9 @@ protected:
         }
 
         auto paused = cycle_().state() == FocusCycle::State::Paused;
-        pen.setColor(palette().color(
-            paused ? FOCUS_TIMER_PAUSED_RING_ROLE : FOCUS_TIMER_RING_ROLE));
+        pen.setColor(
+            palette().color(
+                paused ? FOCUS_TIMER_PAUSED_RING_ROLE : FOCUS_TIMER_RING_ROLE));
         pen.setCapStyle(fraction < 1.0 ? Qt::RoundCap : Qt::FlatCap);
         painter.setPen(pen);
 
@@ -140,10 +141,7 @@ protected:
         // arc left shrinks back toward twelve as the period runs
         constexpr auto TWELVE_O_CLOCK = 90 * 16;
         constexpr auto FULL_CIRCLE = 360 * 16;
-        painter.drawArc(
-            ring,
-            TWELVE_O_CLOCK,
-            -qRound(fraction * FULL_CIRCLE));
+        painter.drawArc(ring, TWELVE_O_CLOCK, -qRound(fraction * FULL_CIRCLE));
     }
 
     void contextMenuEvent(QContextMenuEvent* event) override
@@ -245,9 +243,9 @@ private:
     // Nothing to reset: focus queued, not started, nothing counted
     [[nodiscard]] bool isAtStart_() const
     {
-        return cycle_().state() == FocusCycle::State::Idle
-               && cycle_().period() == FocusCycle::Period::Focus
-               && cycle_().completedFocusCount() == 0;
+        return cycle_().state() == FocusCycle::State::Idle &&
+               cycle_().period() == FocusCycle::Period::Focus &&
+               cycle_().completedFocusCount() == 0;
     }
 
     // How much of the ring to draw: what is left of a period running or
