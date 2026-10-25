@@ -119,10 +119,18 @@ public:
     }
 
     // Find the repository the vault's folder is in. Git is asked from the
-    // folder (rev-parse --show-toplevel), so the answer follows Git's own
-    // rules: it walks up to find a repository, follows a worktree's or
-    // submodule's .git file, and refuses a folder it doesn't trust.
-    // foundChanged says when the answer differs from the last one
+    // folder, so the answer follows Git's own rules: it walks up to find a
+    // repository, follows a worktree's or submodule's .git file, and refuses
+    // a folder it doesn't trust. foundChanged says when the answer differs
+    // from the last one.
+    //
+    // Git is asked how far up the repository's folder is (rev-parse
+    // --show-cdup), not where it is (--show-toplevel), and the root is made
+    // by walking up from the vault's folder. Git reports a folder with every
+    // symlink above it resolved, as macOS's temporary folders are, and a key
+    // made from that spelling wouldn't contain the keys the store's buffers
+    // are opened by, so refresh would save none of them. Walked up from the
+    // vault's folder, the root is spelled as everything else in the vault is
     void detect()
     {
         if (!hasGit() || isQueued_(Kind_::Detect)) {
@@ -132,7 +140,7 @@ public:
         enqueue_(
             Kind_::Detect,
             vault_->root(),
-            { u"rev-parse"_s, u"--show-toplevel"_s });
+            { u"rev-parse"_s, u"--show-cdup"_s });
     }
 
     // Read the branch and every changed file. Every modified buffer in the
@@ -334,8 +342,11 @@ private:
     {
         Coco::Path found{};
 
+        // Empty output means the vault's folder is the repository's. The
+        // key removes the ".." steps
         if (result.succeeded) {
-            found = QString::fromUtf8(result.output).trimmed();
+            auto up = QString::fromUtf8(result.output).trimmed();
+            found = PathKey::of(command.folder / Coco::Path(up)).path();
         } else {
             // Most often the folder simply isn't in a repository
             DEBUG("No Git repository for {}: {}", command.folder, result.error);

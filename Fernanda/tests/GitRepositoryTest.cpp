@@ -132,11 +132,11 @@ private:
             return file.readAll();
         }
 
-        // The folder as git reports it: with any symlink above it resolved,
-        // as on macOS, where the temporary folder is under one
-        [[nodiscard]] PathKey canonicalKey() const
+        // The folder as the vault spells it, which the repository's root
+        // must match even where git would resolve a symlink above it
+        [[nodiscard]] PathKey folderKey() const
         {
-            return PathKey::of(Coco::Path(folder.path()).canonical());
+            return PathKey::of(Coco::Path(folder.path()));
         }
 
     private:
@@ -214,7 +214,7 @@ private slots:
         f.repository.detect();
 
         QTRY_VERIFY(f.repository.isFound());
-        QCOMPARE(PathKey::of(f.repository.root()), f.canonicalKey());
+        QCOMPARE(PathKey::of(f.repository.root()), f.folderKey());
     }
 
     void findsARepositoryAboveTheVaultsFolder()
@@ -225,7 +225,7 @@ private slots:
         f.repository.detect();
 
         QTRY_VERIFY(f.repository.isFound());
-        QCOMPARE(PathKey::of(f.repository.root()), f.canonicalKey());
+        QCOMPARE(PathKey::of(f.repository.root()), f.folderKey());
     }
 
     // The temporary folder could itself be inside a repository (a home
@@ -347,6 +347,61 @@ private slots:
         QCOMPARE(
             entry_(f.repository, u"a.txt"_s)->change,
             GitStatus::Change::Modified);
+    }
+
+    // Git reports a folder with the symlinks above it resolved. The root must
+    // keep the vault's spelling, or a refresh can't find the buffers to save:
+    // their keys are made under the vault's folder as it was given. macOS's
+    // temporary folders sit under a symlink; this makes one everywhere it can
+    // be made without special permission
+    void refreshSavesTypingUnderASymlinkedFolder()
+    {
+#ifdef Q_OS_WIN
+        QSKIP("Making a symlink needs special permission on Windows");
+#else
+        QTemporaryDir folder{};
+        QDir(folder.path()).mkpath(u"Real/Vault"_s);
+        QVERIFY(
+            QFile::link(
+                folder.filePath(u"Real"_s),
+                folder.filePath(u"Link"_s)));
+
+        auto real = Coco::Path(folder.path()) / Coco::Path(u"Real"_s);
+        auto vault_root =
+            Coco::Path(folder.path()) / Coco::Path(u"Link/Vault"_s);
+
+        QProcess init{};
+        init.setWorkingDirectory(real.toQString());
+        init.start(u"git"_s, { u"init"_s, u"-q"_s });
+        QVERIFY(init.waitForFinished());
+        QCOMPARE(init.exitCode(), 0);
+
+        QFile file((vault_root / Coco::Path(u"a.txt"_s)).toQString());
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write("hello");
+        file.close();
+
+        BufferStore store{ nullptr };
+        Vault vault{ vault_root, &store, nullptr };
+        GitRepository repository{ &vault, &store, nullptr };
+
+        repository.detect();
+        QTRY_VERIFY(repository.isFound());
+        QCOMPARE(
+            PathKey::of(repository.root()),
+            PathKey::of(Coco::Path(folder.path()) / Coco::Path(u"Link"_s)));
+
+        auto* model = store.openModel(
+            PathKey::of(vault_root / Coco::Path(u"a.txt"_s)),
+            [](const PathKey&, const QByteArray&) { return false; });
+        QVERIFY(model);
+
+        type_(model, u" world"_s);
+        repository.refresh();
+
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QCOMPARE(file.readAll(), QByteArray("hello world"));
+#endif
     }
 
     // Asking again while a status waits adds nothing, and the waiting one
