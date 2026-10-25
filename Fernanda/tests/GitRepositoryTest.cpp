@@ -20,6 +20,7 @@
 #include <QObject>
 #include <QPlainTextDocumentLayout>
 #include <QProcess>
+#include <QSignalSpy>
 #include <QStandardPaths>
 #include <QString>
 #include <QStringList>
@@ -264,6 +265,42 @@ private slots:
 
         QTRY_VERIFY(!f.repository.isFound());
         QVERIFY(f.repository.status().entries.isEmpty());
+    }
+
+    void forgetDropsTheRepository()
+    {
+        Fixture_ f{};
+        f.git({ u"init"_s, u"-q"_s });
+        f.write(u"a.txt"_s, "hello");
+
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
+        f.repository.refresh();
+        QTRY_VERIFY(!f.repository.status().entries.isEmpty());
+
+        QSignalSpy found_changed(&f.repository, &GitRepository::foundChanged);
+        f.repository.forget();
+
+        QCOMPARE(found_changed.count(), 1);
+        QVERIFY(!f.repository.isFound());
+        QVERIFY(f.repository.status().entries.isEmpty());
+    }
+
+    // The detection is running when forget comes, so its answer arrives
+    // after, and must not bring the repository back
+    void forgetIgnoresAnAnswerStillToCome()
+    {
+        Fixture_ f{};
+        f.git({ u"init"_s, u"-q"_s });
+
+        f.repository.detect();
+        f.repository.forget();
+        QTest::qWait(QUIET_WAIT_MS_);
+
+        QVERIFY(!f.repository.isFound());
+
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
     }
 
     // --- Status -------------------------------------------------------------

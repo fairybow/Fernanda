@@ -239,6 +239,7 @@ set(APP_HEADERS
     src/ui/settings/SettingsEditorPage.h
     src/ui/settings/SettingsFocusTimerPage.h
     src/ui/settings/SettingsGeneralPage.h
+    src/ui/settings/SettingsGitPage.h
     src/ui/settings/SettingsPage.h
     src/ui/settings/SettingsStatusBarPage.h
 

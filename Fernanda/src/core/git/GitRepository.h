@@ -172,6 +172,25 @@ public:
               u"--untracked-files=all"_s });
     }
 
+    // Drop what's known: the repository, its status, and every command not
+    // yet answered. A command already running finishes, and its answer is
+    // ignored. foundChanged says so when a repository had been found
+    void forget()
+    {
+        queue_.clear();
+        ++generation_;
+
+        if (root_.isEmpty()) {
+            return;
+        }
+
+        root_ = {};
+        status_ = {};
+
+        emit foundChanged();
+        emit statusChanged();
+    }
+
 signals:
     // The vault's folder was found to be in a repository, in none, or in a
     // different one. The status is empty after
@@ -195,6 +214,10 @@ private:
 
         // Git's own arguments, after the ones every command gets
         QStringList arguments{};
+
+        // generation_ when it was asked for. An answer from before the last
+        // forget is ignored
+        int generation = 0;
     };
 
     struct Result_
@@ -222,6 +245,9 @@ private:
     QProcess* process_ = nullptr;
     Command_ running_{};
 
+    // Counts forgets (forget)
+    int generation_ = 0;
+
     void setup_()
     {
         program_ = QStandardPaths::findExecutable(u"git"_s);
@@ -246,7 +272,7 @@ private:
     void
     enqueue_(Kind_ kind, const Coco::Path& folder, const QStringList& arguments)
     {
-        queue_ << Command_{ kind, folder, arguments };
+        queue_ << Command_{ kind, folder, arguments, generation_ };
         runNext_();
     }
 
@@ -325,6 +351,11 @@ private:
 
         auto command = std::move(running_);
         running_ = {};
+
+        if (command.generation != generation_) {
+            runNext_();
+            return;
+        }
 
         switch (command.kind) {
         case Kind_::Detect:

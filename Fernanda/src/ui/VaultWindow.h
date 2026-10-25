@@ -349,6 +349,10 @@ private:
     // Built the first time it's opened, and kept, hidden, after
     GitView* gitView_ = nullptr;
 
+    // The vault's Git setting as last applied (applyGitConfig_). Starts off,
+    // so the first application, in setupGit_, sees it turned on
+    bool gitEnabled_ = false;
+
     void setup_()
     {
         resize(DEFAULT_VAULT_WINDOW_WIDTH, DEFAULT_VAULT_WINDOW_HEIGHT);
@@ -495,6 +499,7 @@ private:
         applyConfig(vault_->config());
         applyFocusTimerConfig_();
         connect(vault_, &Vault::configChanged, this, [this] {
+            applyGitConfig_();
             applyConfig(vault_->config());
             applyFocusTimerConfig_();
         });
@@ -509,11 +514,13 @@ private:
     }
 
     // The Git button and view follow the repository: shown while the vault
-    // is in one, and the view closed when it no longer is. The repository is
+    // is in one and the vault's Git setting is on, and the view closed when
+    // either stops being so. While the setting is on, the repository is
     // looked for now, after the vault's folder moves, and whenever this
     // window becomes active, since a repository can be made or removed
     // outside Fernanda; becoming active reads the status again too, for the
-    // button's branch and the view's list
+    // button's branch and the view's list. While it's off, nothing here runs
+    // git
     void setupGit_()
     {
         gitButton_ = new GitButton(gitRepository_, this);
@@ -532,18 +539,42 @@ private:
             this,
             &VaultWindow::onGitFoundChanged_);
 
-        connect(
-            vault_,
-            &Vault::rootMoved,
-            gitRepository_,
-            &GitRepository::detect);
-
-        connect(this, &BaseWindow::windowActivated, this, [this] {
-            gitRepository_->detect();
-            gitRepository_->refresh();
+        connect(vault_, &Vault::rootMoved, this, [this] {
+            if (gitEnabled_) {
+                gitRepository_->detect();
+            }
         });
 
-        gitRepository_->detect();
+        connect(this, &BaseWindow::windowActivated, this, [this] {
+            if (gitEnabled_) {
+                gitRepository_->detect();
+                gitRepository_->refresh();
+            }
+        });
+
+        applyGitConfig_();
+    }
+
+    // The vault's Git setting, applied when it changes. configChanged comes
+    // for every setting, so the last value is kept to tell. Turned on, the
+    // repository is looked for. Turned off, the repository is forgotten,
+    // which hides the button and closes the view, so turning it on again
+    // shows nothing until git has been asked afresh
+    void applyGitConfig_()
+    {
+        auto enabled = vault_->config().gitEnabled();
+
+        if (enabled == gitEnabled_) {
+            return;
+        }
+
+        gitEnabled_ = enabled;
+
+        if (gitEnabled_) {
+            gitRepository_->detect();
+        } else {
+            gitRepository_->forget();
+        }
     }
 
     // VaultWindow's own actions, added to the registry the base started. The
@@ -673,19 +704,32 @@ private:
     // closes first, so the window's actions are unlocked
     void onGitFoundChanged_()
     {
-        auto found = gitRepository_->isFound();
+        updateGitAvailable_();
 
-        if (!found) {
+        if (isGitAvailable_()) {
+            gitRepository_->refresh();
+        }
+    }
+
+    [[nodiscard]] bool isGitAvailable_() const
+    {
+        return gitEnabled_ && gitRepository_->isFound();
+    }
+
+    // The button, the action, and the view follow isGitAvailable_. A view
+    // open when it stops being so closes first, so the window's actions are
+    // unlocked
+    void updateGitAvailable_()
+    {
+        auto available = isGitAvailable_();
+
+        if (!available) {
             setGitViewShown_(false);
         }
 
-        action(ActionIds::REPOSITORY_TOGGLE_VIEW)->setEnabled(found);
-        gitButton_->setVisible(found);
+        action(ActionIds::REPOSITORY_TOGGLE_VIEW)->setEnabled(available);
+        gitButton_->setVisible(available);
         updateStatusBar();
-
-        if (found) {
-            gitRepository_->refresh();
-        }
     }
 
     [[nodiscard]] bool isGitViewShown_() const
