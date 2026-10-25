@@ -299,9 +299,11 @@ inline constexpr auto TOGGLE_FOCUS_RING_ROLE = QPalette::WindowText;
 
 // The slider with a value readout (DisplaySlider), as on the settings page's
 // Font size row: MIN_WIDTH is the slider's least width, READOUT_SPACING the
-// gap between it and the number
+// gap between it and the number, and READOUT_DIGITS the fewest digits the
+// readout makes room for, so every slider in the settings is one length
 inline constexpr int DISPLAY_SLIDER_MIN_WIDTH = 160;
 inline constexpr int DISPLAY_SLIDER_READOUT_SPACING = 8;
+inline constexpr int DISPLAY_SLIDER_READOUT_DIGITS = 3;
 
 // The font family picker (FontFamilyBox) is as wide as this many characters,
 // however long the longest installed family name is

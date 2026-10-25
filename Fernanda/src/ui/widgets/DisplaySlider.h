@@ -29,10 +29,13 @@ namespace Fernanda::Ui {
 // A horizontal slider with its current value shown to its right: a fixed range
 // and starting value at construction, and valueChanged.
 //
-// The readout is fixed to the width of the widest value in the range, so it
+// The readout is fixed to a width that fits every value in the range, so it
 // doesn't jitter as the digits change, and right-aligned so the numbers line
-// up. Tracking is on: valueChanged fires as the handle moves, so the setting
-// applies live while dragging (the Vault debounces the save)
+// up. It is never narrower than DISPLAY_SLIDER_READOUT_DIGITS digits, so
+// sliders whose ranges differ in digits (1-60 and 1-120) are the same length
+// and line up on a page. Tracking is on: valueChanged fires as the handle
+// moves, so the setting applies live while dragging (the Vault debounces the
+// save)
 class DisplaySlider : public QWidget
 {
     Q_OBJECT
@@ -65,6 +68,10 @@ private:
         auto widest = qMax(
             metrics.horizontalAdvance(QString::number(minimum)),
             metrics.horizontalAdvance(QString::number(maximum)));
+        widest = qMax(
+            widest,
+            metrics.horizontalAdvance(
+                QString(DISPLAY_SLIDER_READOUT_DIGITS, u'0')));
         readout_->setFixedWidth(widest);
         readout_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         readout_->setNum(slider_->value());
