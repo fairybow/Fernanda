@@ -5,6 +5,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Bugs
 
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
+- [ ] Perhaps change FocusTimer icon to hourglass
 - [x] May want to allow clicking to left or right of file in tree to also clear selection (right now clearing selection only works when clicking below all files in a tree)
 - [ ] VaultSwitcher's menu should open upward
 - [ ] Closing every window from the Windows taskbar (right-click the icon, Close all windows) reopens only one vault next launch. To Fernanda the closes look like closing each window by hand, which clears that vault's open flag while another is still open; only the last keeps it. Pop-outs can be lost the same way, if one closes before its vault window saves the layout. A short grace period before a closed window's flag is cleared, dropped if the app quits first, would cover vault windows; pop-outs would need their layout kept for that time too
