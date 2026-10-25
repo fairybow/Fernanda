@@ -45,6 +45,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] The text editor's context menu opened to the left of the pointer, by the width of the line-number gutter and the margin. Qt gives a scroll area's menu position in its viewport's coordinates, and it was mapped from the editor's
 - [x] The spelling language in `settings.json` was used as a file name without being checked, so a hand-edited `../x` named a dictionary outside the dictionaries folder. `SpellCheckers` now takes only a single name, and treats anything else as not installed
 - [x] A path with a `..` segment passed `Vault::contains`, so a rename or move could take an entry out of the vault, and `Vault::openModel` opened a `../` or absolute path from a hand-edited `workspace.json`. Paths are now normalized into keys, and one that climbs out of the vault is refused (see "Identity" in [Architecture.md](Architecture.md))
+- [x] Log lines and log file names were stamped in UTC while reading as local time. `Coco::Time::now` labeled the UTC count as local without adding the offset; the timestamps now come from `QDateTime` in local time (`Coco::Time::nowQString`)
 
 ## Rough edges
 
@@ -66,6 +67,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Menus and drop-down lists are drawn rounded in a see-through window, which needs a compositor on Linux. Without one, the corners may show dark. `Style` could draw them square there instead
 - [ ] A web address or a file path is spellchecked piece by piece, so "github" and "com" are marked
 - [ ] Unverified: text in decomposed Unicode form (a letter followed by a separate combining accent) is probably marked as misspelled against a dictionary that stores the single-character form. If so, normalize a word before it is checked
+- [x] Settings sliders whose ranges differed in digits (1 to 60 and 1 to 120) were different lengths, since each readout was as wide as its own largest number. Every readout now makes room for three digits (`DISPLAY_SLIDER_READOUT_DIGITS`)
 
 ## Before release
 
@@ -82,6 +84,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Rename `BaseWindow`'s protected members that have a trailing underscore
 - [ ] Bring `MenuBuilder` over from Hearth (maybe into Coco)?
 - [x] Decide on `private slots:`. It isn't used consistently, and using it properly would break up sections that are organized by purpose. Either remove the keyword everywhere or sort slots into it everywhere
+- [ ] `SettingsEditorPage` has its own `hangOn_`, which does what `SettingsPage::enableWith` does, one row at a time. Use `enableWith`
 - [ ] `AbstractFileModel` has `notifyX()` functions that only emit a signal. Could they just be signals (perhaps named `notify...`)?
 - [ ] Decide whether static helpers go before other functions, per access level
 - [ ] A shared `TabPage` base for tab pages, holding title and pin state as typed members in place of the window title and a dynamic property. It would trade the leaf's property reads for a cast. Worth doing once a third such value appears
@@ -94,6 +97,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 What the tests in `Fernanda/tests/` don't reach.
 
+- [ ] `FocusTimer`'s ticker and signals, and the sidebar's focus timer button. The rules the timer runs are tested (`FocusCycleTest`)
 - [ ] `Updater`'s request to GitHub and its handling of the reply. The decision it makes from the reply is tested (`UpdateCheckTest`)
 - [ ] The installer's update-check choice: the Windows installer writing and removing `install.ini`, and `AppConfig` reading it as the default. A test would have to put a file beside its own executable, in the build folder
 - [ ] A failed write: the buffer stays modified, and `BufferStore::flush` names the file. There is no portable way to make a write fail on demand
