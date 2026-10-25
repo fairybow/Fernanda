@@ -33,4 +33,8 @@ inline constexpr int UPDATE_FIRST_CHECK_DELAY_MS = 5 * 1000;
 inline constexpr int UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 inline constexpr int UPDATE_CHECK_TIMEOUT_MS = 15 * 1000;
 
+// How long a GitRepository being destroyed waits for a running git command to
+// finish before stopping it
+inline constexpr int GIT_EXIT_WAIT_MS = 3 * 1000;
+
 } // namespace Fernanda

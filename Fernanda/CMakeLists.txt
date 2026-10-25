@@ -182,6 +182,9 @@ set(APP_SOURCES
 # --- Headers ---
 
 set(APP_HEADERS
+    src/core/git/GitRepository.h
+    src/core/git/GitStatus.h
+
     src/core/spell/Misspelling.h
     src/core/spell/SpellChecker.h
     src/core/spell/SpellCheckers.h

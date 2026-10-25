@@ -317,19 +317,20 @@ public:
         emit entryRelocated(oldEntry, newEntry);
     }
 
-    // Before a trash: write every modified buffer at or under the entry, so the
-    // trashed copy holds the latest text. A viewless dirty buffer (a failed
-    // eviction flush) gets its retry here. False when any write fails — the
-    // trash must not go ahead, or that text is lost — having logged which. A
-    // buffer whose file is already gone has nothing to trash and isn't a
-    // failure. Call before unwatchAtOrUnder: a write drops and re-adds its own
-    // watch, which would undo an earlier unwatch
+    // Write every modified buffer at or under the entry, for whatever reads
+    // the files from disk next: a trash, so the trashed copy holds the latest
+    // text, and Git, so a status sees the text on screen. A viewless dirty
+    // buffer (a failed eviction flush) gets its retry here. False when any
+    // write fails, having logged which; the buffers after it are left
+    // unwritten. A buffer whose file is already gone isn't a failure. Before
+    // a trash, call this before unwatchAtOrUnder: a write drops and re-adds
+    // its own watch, which would undo an earlier unwatch
     [[nodiscard]] bool flushAtOrUnder(const PathKey& entry)
     {
         for (auto* model : modelsAtOrUnder_(entry)) {
             if (flushOne_(model) == WriteResult_::Failed) {
                 WARN(
-                    "Couldn't save {} before removing {}!",
+                    "Couldn't save {} while saving everything in {}!",
                     model->key().path(),
                     entry.path());
                 return false;

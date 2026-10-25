@@ -64,6 +64,7 @@ endfunction()
 # class's staticMetaObject: add its header, and the header of each QObject
 # base class.
 add_library(AppTestMocs OBJECT
+    ${PROJECT_SOURCE_DIR}/src/core/git/GitRepository.h
     ${PROJECT_SOURCE_DIR}/src/core/BufferStore.h
     ${PROJECT_SOURCE_DIR}/src/core/Vault.h
     ${PROJECT_SOURCE_DIR}/src/core/VaultTreeModel.h
@@ -103,6 +104,8 @@ app_add_test(BufferStoreTest)
 app_add_test(BufferStoreTimedTest)
 app_add_test(FileTypesTest)
 app_add_test(FocusCycleTest)
+app_add_test(GitRepositoryTest)
+app_add_test(GitStatusTest)
 app_add_test(IoTest)
 app_add_test(MisspellingTest)
 app_add_test(PrimeDocumentTest)
