@@ -52,7 +52,8 @@
 // The status bar's settings are two groups, one per item (ui/WordCounter.h,
 // ui/CursorPosition.h): a switch for the item itself, and one for each thing
 // it can show. An item's parts keep their values while the item is off, so
-// turning it back on restores what it showed.
+// turning it back on restores what it showed. The focus timer's settings
+// (core/FocusTimer.h) are the same shape: a switch, then its lengths.
 //
 // QtCore-only, like the Vault: it stores the font's parts, and the view that
 // applies them builds the QFont (TextFileView::applyConfig)
@@ -126,6 +127,26 @@ public:
 
     static constexpr int MIN_TAB_WIDTH = 1;
     static constexpr int MAX_TAB_WIDTH = 16;
+
+    // The focus timer (core/FocusTimer.h): off, and when on, the usual 25
+    // minutes of focus, 5 of short break, and 15 of long break after every 4
+    // focus periods. Lengths are in minutes. The MIN/MAX bounds are the
+    // sliders' ranges and clamp a hand-edited file on load
+    static constexpr bool DEFAULT_FOCUS_TIMER_ENABLED = false;
+    static constexpr int DEFAULT_FOCUS_TIMER_FOCUS = 25;
+    static constexpr int DEFAULT_FOCUS_TIMER_SHORT_BREAK = 5;
+    static constexpr int DEFAULT_FOCUS_TIMER_LONG_BREAK = 15;
+    static constexpr int DEFAULT_FOCUS_TIMER_LONG_BREAK_EVERY = 4;
+
+    static constexpr int MIN_FOCUS_TIMER_FOCUS = 1;
+    static constexpr int MAX_FOCUS_TIMER_FOCUS = 120;
+
+    // Short and long breaks share one range
+    static constexpr int MIN_FOCUS_TIMER_BREAK = 1;
+    static constexpr int MAX_FOCUS_TIMER_BREAK = 60;
+
+    static constexpr int MIN_FOCUS_TIMER_LONG_BREAK_EVERY = 1;
+    static constexpr int MAX_FOCUS_TIMER_LONG_BREAK_EVERY = 10;
 
     VaultConfig() = default;
 
@@ -261,6 +282,36 @@ public:
         return spellcheckLanguage_.isEmpty()
                    ? QString::fromLatin1(DEFAULT_SPELLCHECK_LANGUAGE)
                    : spellcheckLanguage_;
+    }
+
+    [[nodiscard]] bool focusTimerEnabled() const
+    {
+        return focusTimerEnabled_.value_or(DEFAULT_FOCUS_TIMER_ENABLED);
+    }
+
+    // In minutes
+    [[nodiscard]] int focusTimerFocus() const
+    {
+        return focusTimerFocus_.value_or(DEFAULT_FOCUS_TIMER_FOCUS);
+    }
+
+    // In minutes
+    [[nodiscard]] int focusTimerShortBreak() const
+    {
+        return focusTimerShortBreak_.value_or(DEFAULT_FOCUS_TIMER_SHORT_BREAK);
+    }
+
+    // In minutes
+    [[nodiscard]] int focusTimerLongBreak() const
+    {
+        return focusTimerLongBreak_.value_or(DEFAULT_FOCUS_TIMER_LONG_BREAK);
+    }
+
+    // Focus periods before each long break
+    [[nodiscard]] int focusTimerLongBreakEvery() const
+    {
+        return focusTimerLongBreakEvery_.value_or(
+            DEFAULT_FOCUS_TIMER_LONG_BREAK_EVERY);
     }
 
     // --- Setters -------------------------------------------------------------
@@ -424,6 +475,51 @@ public:
         return true;
     }
 
+    [[nodiscard]] bool setFocusTimerEnabled(bool enabled)
+    {
+        return setBool_(focusTimerEnabled_, focusTimerEnabled(), enabled);
+    }
+
+    [[nodiscard]] bool setFocusTimerFocus(int minutes)
+    {
+        return setInt_(
+            focusTimerFocus_,
+            focusTimerFocus(),
+            minutes,
+            MIN_FOCUS_TIMER_FOCUS,
+            MAX_FOCUS_TIMER_FOCUS);
+    }
+
+    [[nodiscard]] bool setFocusTimerShortBreak(int minutes)
+    {
+        return setInt_(
+            focusTimerShortBreak_,
+            focusTimerShortBreak(),
+            minutes,
+            MIN_FOCUS_TIMER_BREAK,
+            MAX_FOCUS_TIMER_BREAK);
+    }
+
+    [[nodiscard]] bool setFocusTimerLongBreak(int minutes)
+    {
+        return setInt_(
+            focusTimerLongBreak_,
+            focusTimerLongBreak(),
+            minutes,
+            MIN_FOCUS_TIMER_BREAK,
+            MAX_FOCUS_TIMER_BREAK);
+    }
+
+    [[nodiscard]] bool setFocusTimerLongBreakEvery(int focusPeriods)
+    {
+        return setInt_(
+            focusTimerLongBreakEvery_,
+            focusTimerLongBreakEvery(),
+            focusPeriods,
+            MIN_FOCUS_TIMER_LONG_BREAK_EVERY,
+            MAX_FOCUS_TIMER_LONG_BREAK_EVERY);
+    }
+
     // --- IO ------------------------------------------------------------------
 
     // Read the vault's config files into memory. A missing file (a new vault,
@@ -496,6 +592,32 @@ public:
             value.isString() && !value.toString().isEmpty()) {
             spellcheckLanguage_ = value.toString();
         }
+
+        readBool_(settings, FOCUS_TIMER_ENABLED_KEY_, focusTimerEnabled_);
+        readInt_(
+            settings,
+            FOCUS_TIMER_FOCUS_KEY_,
+            focusTimerFocus_,
+            MIN_FOCUS_TIMER_FOCUS,
+            MAX_FOCUS_TIMER_FOCUS);
+        readInt_(
+            settings,
+            FOCUS_TIMER_SHORT_BREAK_KEY_,
+            focusTimerShortBreak_,
+            MIN_FOCUS_TIMER_BREAK,
+            MAX_FOCUS_TIMER_BREAK);
+        readInt_(
+            settings,
+            FOCUS_TIMER_LONG_BREAK_KEY_,
+            focusTimerLongBreak_,
+            MIN_FOCUS_TIMER_BREAK,
+            MAX_FOCUS_TIMER_BREAK);
+        readInt_(
+            settings,
+            FOCUS_TIMER_LONG_BREAK_EVERY_KEY_,
+            focusTimerLongBreakEvery_,
+            MIN_FOCUS_TIMER_LONG_BREAK_EVERY,
+            MAX_FOCUS_TIMER_LONG_BREAK_EVERY);
     }
 
     // Serialize the set keys and write both files, each atomically. Both are
@@ -563,6 +685,18 @@ public:
             settings[SPELLCHECK_LANGUAGE_KEY_] = spellcheckLanguage_;
         }
 
+        writeBool_(settings, FOCUS_TIMER_ENABLED_KEY_, focusTimerEnabled_);
+        writeInt_(settings, FOCUS_TIMER_FOCUS_KEY_, focusTimerFocus_);
+        writeInt_(
+            settings,
+            FOCUS_TIMER_SHORT_BREAK_KEY_,
+            focusTimerShortBreak_);
+        writeInt_(settings, FOCUS_TIMER_LONG_BREAK_KEY_, focusTimerLongBreak_);
+        writeInt_(
+            settings,
+            FOCUS_TIMER_LONG_BREAK_EVERY_KEY_,
+            focusTimerLongBreakEvery_);
+
         auto appearance_saved = JsonIo::write(
             appearance,
             appearancePath_(vaultRoot),
@@ -617,6 +751,14 @@ private:
     static inline const QString SPELLCHECK_KEY_ = u"spellcheck"_s;
     static inline const QString SPELLCHECK_LANGUAGE_KEY_ =
         u"spellcheckLanguage"_s;
+    static inline const QString FOCUS_TIMER_ENABLED_KEY_ = u"focusTimer"_s;
+    static inline const QString FOCUS_TIMER_FOCUS_KEY_ = u"focusTimerFocus"_s;
+    static inline const QString FOCUS_TIMER_SHORT_BREAK_KEY_ =
+        u"focusTimerShortBreak"_s;
+    static inline const QString FOCUS_TIMER_LONG_BREAK_KEY_ =
+        u"focusTimerLongBreak"_s;
+    static inline const QString FOCUS_TIMER_LONG_BREAK_EVERY_KEY_ =
+        u"focusTimerLongBreakEvery"_s;
 
     // Empty / nullopt == unset; the getter substitutes the default
     QString textFontFamily_{};
@@ -648,6 +790,12 @@ private:
 
     std::optional<bool> spellcheck_{};
     QString spellcheckLanguage_{};
+
+    std::optional<bool> focusTimerEnabled_{};
+    std::optional<int> focusTimerFocus_{};
+    std::optional<int> focusTimerShortBreak_{};
+    std::optional<int> focusTimerLongBreak_{};
+    std::optional<int> focusTimerLongBreakEvery_{};
 
     static Coco::Path appearancePath_(const Coco::Path& vaultRoot)
     {

@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <QAbstractButton>
 #include <QList>
 #include <QString>
 #include <QWidget>
@@ -23,7 +22,6 @@
 #include "core/VaultConfig.h"
 #include "ui/settings/SettingRow.h"
 #include "ui/settings/SettingsPage.h"
-#include "ui/widgets/ToggleSwitch.h"
 
 namespace Fernanda::Ui {
 
@@ -102,7 +100,7 @@ private:
                      &VaultConfig::setWordCounterSelection)
                      .row;
 
-        enableWith_(item.toggle, parts);
+        enableWith(item.toggle, parts);
     }
 
     void setupCursorPositionSection_()
@@ -134,21 +132,7 @@ private:
                      &VaultConfig::setCursorPositionColumn)
                      .row;
 
-        enableWith_(item.toggle, parts);
-    }
-
-    // Keep rows enabled only while toggle is on: now, and on every flip. A
-    // disabled row greys its text and its switch and takes no input
-    void enableWith_(ToggleSwitch* toggle, const QList<SettingRow*>& rows)
-    {
-        auto apply = [rows](bool enabled) {
-            for (auto* row : rows) {
-                row->setEnabled(enabled);
-            }
-        };
-
-        apply(toggle->isChecked());
-        connect(toggle, &QAbstractButton::toggled, this, apply);
+        enableWith(item.toggle, parts);
     }
 };
 
