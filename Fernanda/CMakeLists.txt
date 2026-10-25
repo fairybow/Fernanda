@@ -236,6 +236,7 @@ set(APP_HEADERS
     src/ui/settings/SettingsStatusBarPage.h
 
     src/ui/sidebar/Drawer.h
+    src/ui/sidebar/FocusTimerButton.h
     src/ui/sidebar/SettingsButton.h
     src/ui/sidebar/Sidebar.h
     src/ui/sidebar/VaultEntryDragMime.h

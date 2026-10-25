@@ -327,7 +327,8 @@ private:
     SettingsDialog* settingsDialog_ = nullptr;
 
     // This window's focus timer, set from its vault's settings
-    // (applyFocusTimerConfig_). A Qt child, so it stops with the window
+    // (applyFocusTimerConfig_) and shown by the sidebar's button. A Qt child,
+    // so it stops with the window
     FocusTimer* focusTimer_ = nullptr;
 
     void setup_()
@@ -345,6 +346,7 @@ private:
             Sidebar::Actions{
                 .manageVaults = action(ActionIds::APP_MANAGE_VAULTS),
                 .openSettings = action(ActionIds::VAULT_OPEN_SETTINGS) },
+            focusTimer_,
             vaultsProvider_,
             this);
 

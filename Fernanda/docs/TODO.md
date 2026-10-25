@@ -48,6 +48,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Rough edges
 
+- [ ] Decide if all Lucide icons should be in constants file or only things accessed from multiple places (the latter being what I lean toward right now, as those *Constants files are for non-settings tweakable values (shared or unshared) or shared constants generally)
 - [ ] The licenses dialog's Qt entry links to Qt's list of the libraries Qt itself bundles (PDFium in Qt PDF, among others) rather than showing their notices. Shipping their texts would mean collecting them from the Qt build in use
 - [ ] Tabs can be dragged past the left or right end of the tab bar without starting a drag; may want to clamp them
 - [ ] No auto-scroll while dragging a tab in an overflowing bar (close to impossible with Qt)

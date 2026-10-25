@@ -97,6 +97,7 @@ inline constexpr auto DRAWER_COMMON_VAULT_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto DRAWER_TITLE_ROLE = QPalette::PlaceholderText;
 inline constexpr auto VAULT_SWITCHER_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto SETTINGS_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto FOCUS_TIMER_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto VAULT_ORDER_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto TAB_CLOSE_ICON_ROLE = QPalette::WindowText;
 inline constexpr auto TAB_PIN_ICON_ROLE = QPalette::PlaceholderText;
@@ -208,6 +209,22 @@ inline constexpr int VAULT_SWITCHER_ICON_EXTENT = 14;
 // own height
 inline constexpr int SETTINGS_BUTTON_EXTENT = VAULT_SWITCHER_HEIGHT;
 inline constexpr int SETTINGS_BUTTON_ICON_EXTENT = 16;
+
+// The focus timer's button left of the gear (FocusTimerButton), the gear's
+// size. Its glyph is smaller, to sit inside a ring showing what is left of
+// the period: RING_INSET is the ring's distance from the button's edge and
+// RING_WIDTH its stroke. The ring is drawn in RING_ROLE while a period runs
+// and once one has run out, PAUSED_RING_ROLE while paused, and its track in
+// the style's divider. The glyph's tint is FOCUS_TIMER_ICON_ROLE, with the
+// other glyphs' roles
+inline constexpr int FOCUS_TIMER_BUTTON_EXTENT = SETTINGS_BUTTON_EXTENT;
+inline constexpr int FOCUS_TIMER_BUTTON_ICON_EXTENT = 12;
+inline constexpr qreal FOCUS_TIMER_RING_INSET = 3.0;
+inline constexpr qreal FOCUS_TIMER_RING_WIDTH = 1.5;
+inline constexpr auto FOCUS_TIMER_RING_ROLE = QPalette::Accent;
+inline constexpr auto FOCUS_TIMER_PAUSED_RING_ROLE = QPalette::PlaceholderText;
+inline constexpr auto FOCUS_TIMER_FOCUS_ICON_PATH = ":/lucide/Timer.svg";
+inline constexpr auto FOCUS_TIMER_BREAK_ICON_PATH = ":/lucide/Coffee.svg";
 
 // The space around the sidebar's footer, the row holding the vault switcher
 // and the gear (Sidebar): from the sidebar's left edge, from the line above
