@@ -4,6 +4,13 @@ How Fernanda is put together, and why. For what it does, see [Features.md](Featu
 
 This document covers what spans several files: who owns what, what is guaranteed, and the reasoning that no single header can hold. Each class's own header comment covers the rest.
 
+> [!NOTE]
+> Fernanda is developed with AI assistance. I decide what Fernanda does and how it's designed, and I review and test every change before it goes in. [TODO.md](TODO.md) tracks known bugs and what the tests don't yet cover.
+>
+> Every push builds Fernanda and runs its [test suite](../tests) on Linux and macOS, with the Linux build using AddressSanitizer and UndefinedBehaviorSanitizer. I run the tests on Windows before pushing.
+>
+> If you find a problem, in the app, the code, or their documentation, please [open an issue](https://github.com/fairybow/Fernanda/issues).
+
 ## Principles
 
 Two rules decide most questions, in this order:
