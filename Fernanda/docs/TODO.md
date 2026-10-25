@@ -4,6 +4,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
+- [ ] GitView delete changes dialog is chonky/ugly/bad/etc
 - [ ] Switch line highlights back to QPalette roles? What were they before QColor?
 - [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
 - [ ] Need padding in GitView file lists on left side (check boxes, especially top level, are too close to edge) (may want to make them inline with a distinguished header, like in GitHub Desktop)
