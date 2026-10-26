@@ -4,8 +4,9 @@ Bugs and code chores, and for now the Git features not yet built. Other features
 
 ## Git TODOs (move to appropriate sections when all finished)
 
+- [ ] Find ALL places we do a hover wash sync/fix for widget movement/expansion/change, and centralize it (or them) somewhere appropriate (hover wash staying visible even though the widget has moved, but Qt has not updated its state based on mouse position, and Qt still considers the widget under mouse until the mouse is put back into the widget and then taken out again, usually - one place I know is Drawer, but I think there may be another place where a hover wash fix was needed (maybe not the same fix) before that)
 - [ ] Commit description field doesn't have rounded corners, but summary field does
-- [ ] There are lines between the "repo", "branch", and "fetch buttons", making them look fully rectangular, but their hover washes have rounded corners - looks quite bad
+- [ ] There are lines between the "repo", "branch", and "fetch buttons", making them look fully rectangular, but their hover washes have rounded corners - looks quite bad - I would probably prefer to have their washes fill the squares
 - [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
 - [ ] Need padding in GitView file lists on left side (check boxes, especially top level, are too close to edge) (may want to make them all inline with a distinguished header, like in GitHub Desktop)
 - [ ] The GitView check boxes are ugly lol
