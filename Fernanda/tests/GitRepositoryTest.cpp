@@ -1351,26 +1351,41 @@ private slots:
     }
 
     // Remote names can hold a slash: with remotes "a" and "a/b", a branch
-    // tracking a/b's main syncs with a/b
+    // tracking a/b's main syncs with a/b. Newer git refuses to add a remote
+    // nested in another's name, but a repository can still have them, made
+    // by an older git or written into its config, as here. Nothing is
+    // fetched, so the upstream is named but not found, which is enough
     void remoteOfTakesTheLongestRemoteName()
     {
         Fixture_ f{};
-        Remote_ a{};
-        Remote_ a_b{};
         f.initRepository();
         f.write(u"a.txt"_s, "a\n");
         f.git({ u"add"_s, u"a.txt"_s });
         f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
-        f.git({ u"remote"_s, u"add"_s, u"a"_s, a.path() });
-        f.git({ u"remote"_s, u"add"_s, u"a/b"_s, a_b.path() });
-        f.git({ u"push"_s, u"-q"_s, u"--set-upstream"_s, u"a/b"_s, u"HEAD"_s });
+
+        for (const auto& remote : { u"a"_s, u"a/b"_s }) {
+            f.git(
+                { u"config"_s,
+                  u"remote."_s + remote + u".url"_s,
+                  u"https://example.com/"_s + remote });
+            f.git(
+                { u"config"_s,
+                  u"remote."_s + remote + u".fetch"_s,
+                  u"+refs/heads/*:refs/remotes/"_s + remote + u"/*"_s });
+        }
+
+        auto branch = f.gitOutput({ u"branch"_s, u"--show-current"_s });
+        f.git({ u"config"_s, u"branch."_s + branch + u".remote"_s, u"a/b"_s });
+        f.git(
+            { u"config"_s,
+              u"branch."_s + branch + u".merge"_s,
+              u"refs/heads/main"_s });
 
         f.repository.detect();
         QTRY_VERIFY(f.repository.isFound());
         f.repository.refresh();
         QTRY_COMPARE(f.repository.remotes().size(), 2);
-        QTRY_VERIFY(
-            f.repository.status().branch.upstream.startsWith(u"a/b/"_s));
+        QTRY_COMPARE(f.repository.status().branch.upstream, u"a/b/main"_s);
 
         QCOMPARE(f.repository.remoteOf(u"a/b/main"_s), u"a/b"_s);
         QCOMPARE(f.repository.remoteOf(u"a/main"_s), u"a"_s);

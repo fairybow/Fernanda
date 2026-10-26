@@ -228,9 +228,11 @@ public:
     }
 
     // Which known remote a remote branch's name ("origin/draft") belongs to.
-    // A remote's name can hold a slash, so the names are matched rather than
-    // split, and the longest that matches wins: "a/b/main" is a/b's, not
-    // a's, when both remotes exist. Empty when none matches
+    // A remote's name can hold a slash (newer git refuses to add one nested
+    // in another's name, but a repository made earlier can have both), so the
+    // names are matched rather than split, and the longest that matches wins:
+    // "a/b/main" is a/b's, not a's, when both remotes exist. Empty when none
+    // matches
     [[nodiscard]] QString remoteOf(const QString& remoteBranch) const
     {
         QString found{};
