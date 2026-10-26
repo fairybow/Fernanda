@@ -49,9 +49,9 @@ using namespace Qt::StringLiterals;
 //
 // The row itself is painted by the style, as the file tree's are: the name is
 // only shortened to the room left of the folder before the style draws it, so
-// selection, hover, and text colors are what any row gets. A row's change is
-// read from CHANGE_ROLE and its folder, relative to the repository, from
-// FOLDER_ROLE (empty for a file at the repository's top)
+// the checkbox, selection, hover, and text colors are what any row gets. A
+// row's change is read from CHANGE_ROLE and its folder, relative to the
+// repository, from FOLDER_ROLE (empty for a file at the repository's top)
 class GitChangeDelegate : public QStyledItemDelegate
 {
     Q_OBJECT

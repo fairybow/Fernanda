@@ -23,6 +23,7 @@
 #include <QPainterPath>
 #include <QPalette>
 #include <QPen>
+#include <QPlainTextEdit>
 #include <QPointF>
 #include <QProxyStyle>
 #include <QRect>
@@ -32,6 +33,7 @@
 #include <QStyleFactory>
 #include <QStyleOption>
 #include <QTabBar>
+#include <QTextEdit>
 #include <QTreeView>
 #include <QWidget>
 #include <QtMinMax>
@@ -235,6 +237,12 @@ public:
             if (qobject_cast<const QAbstractItemView*>(widget)) {
                 return STYLE_LIST_FRAME_PADDING;
             }
+
+            // A framed text box's text sits inside its rounded border, past
+            // the corners
+            if (isTextBox_(widget)) {
+                return STYLE_TEXT_BOX_FRAME_WIDTH;
+            }
             break;
         case PM_MenuPanelWidth:
             // The shadow's margin and the border inside it
@@ -425,6 +433,11 @@ public:
             drawCommandPanel_(option, painter);
             return;
 
+        case PE_IndicatorCheckBox:
+        case PE_IndicatorItemViewItemCheck:
+            drawCheckIndicator_(option, painter);
+            return;
+
         case PE_PanelLineEdit:
             if (drawLineEditPanel_(option, painter)) {
                 return;
@@ -455,6 +468,12 @@ public:
             // A drop-down list's window is a QFrame, framed by this
             if (isComboPopup_(widget)) {
                 drawMenuBorder_(option, painter);
+                return;
+            }
+
+            // A framed text box is drawn as a field is, its border taking the
+            // accent while it has focus
+            if (isTextBox_(widget) && drawLineEditPanel_(option, painter)) {
                 return;
             }
             break;
@@ -803,6 +822,86 @@ private:
                     palette,
                     pressed ? STYLE_PRESSED_ALPHA : STYLE_HOVER_ALPHA));
         }
+    }
+
+    // A multi-line text box: a QPlainTextEdit or a QTextEdit. Framed, it's
+    // drawn as a field (PE_Frame); frameless, as the text editor and the diff
+    // are, it has nothing to draw
+    [[nodiscard]] static bool isTextBox_(const QWidget* widget)
+    {
+        return qobject_cast<const QPlainTextEdit*>(widget) ||
+               qobject_cast<const QTextEdit*>(widget);
+    }
+
+    // A checkbox, a QCheckBox's or an item view's, in the indicator's rect:
+    // a rounded square, bordered as a field when off, and filled with the
+    // accent and holding a check (on) or a dash (partly on) otherwise
+    static void
+    drawCheckIndicator_(const QStyleOption* option, QPainter* painter)
+    {
+        const auto& palette = option->palette;
+        auto side = qMin(option->rect.width(), option->rect.height());
+        QRectF box(
+            option->rect.x() + (option->rect.width() - side) / 2.0,
+            option->rect.y() + (option->rect.height() - side) / 2.0,
+            side,
+            side);
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+
+        if (!(option->state & State_Enabled)) {
+            painter->setOpacity(STYLE_CHECKBOX_DISABLED_OPACITY);
+        }
+
+        auto on = option->state & State_On;
+        auto partly = option->state & State_NoChange;
+
+        if (!on && !partly) {
+            painter->setPen(
+                QPen(wash_(palette, STYLE_CONTROL_BORDER_ALPHA), 1.0));
+            painter->setBrush(palette.brush(QPalette::Base));
+            painter->drawRoundedRect(
+                box.adjusted(0.5, 0.5, -0.5, -0.5),
+                STYLE_CHECKBOX_RADIUS,
+                STYLE_CHECKBOX_RADIUS);
+            painter->restore();
+            return;
+        }
+
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(palette.color(STYLE_CHECKBOX_ON_ROLE));
+        painter->drawRoundedRect(
+            box,
+            STYLE_CHECKBOX_RADIUS,
+            STYLE_CHECKBOX_RADIUS);
+
+        QPen mark(palette.color(STYLE_CHECKBOX_MARK_ROLE));
+        mark.setWidthF(STYLE_CHECKBOX_MARK_WIDTH);
+        mark.setCapStyle(Qt::RoundCap);
+        mark.setJoinStyle(Qt::RoundJoin);
+        painter->setPen(mark);
+        painter->setBrush(Qt::NoBrush);
+
+        // The marks are laid out in the box's own proportions, so they scale
+        // with it
+        auto at = [&box](qreal x, qreal y) {
+            return QPointF(
+                box.left() + x * box.width(),
+                box.top() + y * box.height());
+        };
+
+        if (partly) {
+            painter->drawLine(at(0.28, 0.5), at(0.72, 0.5));
+        } else {
+            QPainterPath check{};
+            check.moveTo(at(0.26, 0.52));
+            check.lineTo(at(0.43, 0.68));
+            check.lineTo(at(0.74, 0.34));
+            painter->drawPath(check);
+        }
+
+        painter->restore();
     }
 
     // False when there's no frame to draw (a frameless field), which Fusion

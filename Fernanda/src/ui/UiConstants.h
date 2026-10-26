@@ -262,6 +262,16 @@ inline constexpr auto SIDEBAR_GIT_ICON_PATH = ":/lucide/GitBranch.svg";
 // removed, and these read on a light page and a dark one alike. A folder's
 // label is never wider than FOLDER_MAX_PERCENT of the row
 inline constexpr auto GIT_PAGE_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
+
+// The Git page's check-all box, above the list, HEADER_V_MARGIN above and
+// below; its left edge lines up with the rows' checkboxes on its own. The
+// commit box below the list is COMMIT_MARGIN from the page's edges, with
+// COMMIT_SPACING between the summary, the description, and the button. The
+// description is DESCRIPTION_LINES lines of its font tall
+inline constexpr int GIT_PAGE_HEADER_V_MARGIN = 6;
+inline constexpr int GIT_PAGE_COMMIT_MARGIN = 4;
+inline constexpr int GIT_PAGE_COMMIT_SPACING = 6;
+inline constexpr int GIT_PAGE_DESCRIPTION_LINES = 3;
 inline constexpr int GIT_CHANGE_ICON_EXTENT = 14;
 inline constexpr int GIT_CHANGE_FOLDER_MAX_PERCENT = 50;
 inline constexpr auto GIT_ADDED_COLOR = QColor(46, 160, 67);
@@ -478,6 +488,22 @@ inline constexpr int STYLE_LIST_INDICATOR_INSET = 1;
 // box's does
 inline constexpr int STYLE_FIELD_H_PADDING = 6;
 inline constexpr int STYLE_FIELD_V_PADDING = 2;
+
+// Multi-line text boxes with a frame (Style), such as the Git page's
+// description: framed as a field is, with the text TEXT_BOX_FRAME_WIDTH inside
+// the border, enough to clear its rounded corners
+inline constexpr int STYLE_TEXT_BOX_FRAME_WIDTH = 3;
+
+// Checkboxes (Style), a QCheckBox's and an item view's: a rounded square,
+// CHECKBOX_RADIUS at its corners. Off, it's the page's color inside a field's
+// border. On, or partly on, it's filled with CHECKBOX_ON_ROLE, and holds a
+// check, or a dash, in CHECKBOX_MARK_ROLE, CHECKBOX_MARK_WIDTH thick. A
+// disabled one is drawn at CHECKBOX_DISABLED_OPACITY
+inline constexpr int STYLE_CHECKBOX_RADIUS = 3;
+inline constexpr auto STYLE_CHECKBOX_ON_ROLE = QPalette::Accent;
+inline constexpr auto STYLE_CHECKBOX_MARK_ROLE = QPalette::HighlightedText;
+inline constexpr qreal STYLE_CHECKBOX_MARK_WIDTH = 1.5;
+inline constexpr qreal STYLE_CHECKBOX_DISABLED_OPACITY = 0.4;
 inline constexpr int STYLE_COMBO_ARROW_INSET = 2;
 inline constexpr int STYLE_COMBO_POPUP_OVERHANG = 9;
 
