@@ -27,7 +27,6 @@
 #include <QShowEvent>
 #include <QStatusBar>
 #include <QString>
-#include <QStringList>
 #include <QWidget>
 
 #include <Coco/Debug.h>
@@ -86,14 +85,7 @@ using namespace Qt::StringLiterals;
 // page, or an empty pane the bar stays up, empty. It doesn't come and go with
 // the page type, which would change the height of everything above it on
 // each tab switch. The update notice (UpdateNotice) sits at the left of the
-// items, and keeps the bar up while it shows. A subclass can put buttons of
-// its own at the bar's far left (addStatusBarButton), which keep it up too
-// while they aren't hidden.
-//
-// The window's own actions can be locked (lockActions): disabled, so neither
-// their shortcuts nor their menu items do anything, while the window shows
-// something they don't act on. App's adopted actions are never locked, since
-// each is one QAction shared by every window
+// items, and keeps the bar up while it shows
 class BaseWindow : public QMainWindow
 {
     Q_OBJECT
@@ -134,7 +126,7 @@ public:
 
         itemsEnabled_ =
             config.wordCounterEnabled() || config.cursorPositionEnabled();
-        updateStatusBar();
+        updateStatusBar_();
     }
 
 signals:
@@ -220,66 +212,6 @@ protected:
         return found;
     }
 
-    // Put a button at the status bar's far left, before everything else.
-    // While it isn't hidden it keeps the bar up, as the update notice does; a
-    // subclass that shows or hides one calls updateStatusBar after. Nothing
-    // shows a temporary message on the bar, which would cover it
-    void addStatusBarButton(QWidget* button)
-    {
-        statusBar()->addWidget(button);
-        statusBarButtons_ << button;
-        updateStatusBar();
-    }
-
-    // Show the bar while an item is switched on, the update notice is showing,
-    // or a button added by addStatusBarButton isn't hidden; hide it otherwise
-    void updateStatusBar()
-    {
-        auto shown = itemsEnabled_ || updater_->hasNotice();
-
-        for (auto* button : statusBarButtons_) {
-            shown = shown || !button->isHidden();
-        }
-
-        statusBar()->setVisible(shown);
-    }
-
-    // Disable every action this window created, except those named in
-    // exceptIds, until unlockActions. App's adopted actions are left alone:
-    // each is shared by every window, so disabling one here would disable it
-    // everywhere. Only actions enabled now are disabled, and only those are
-    // enabled again, so an action disabled for its own reason stays disabled.
-    // Locking while locked changes nothing
-    void lockActions(const QStringList& exceptIds)
-    {
-        if (!lockedActions_.isEmpty()) {
-            return;
-        }
-
-        for (auto it = actionRegistry_.cbegin(), end = actionRegistry_.cend();
-             it != end;
-             ++it) {
-            auto* action = it.value();
-
-            if (action->parent() != this || exceptIds.contains(it.key()) ||
-                !action->isEnabled()) {
-                continue;
-            }
-
-            action->setEnabled(false);
-            lockedActions_ << action;
-        }
-    }
-
-    void unlockActions()
-    {
-        for (auto* action : lockedActions_) {
-            action->setEnabled(true);
-        }
-
-        lockedActions_.clear();
-    }
-
     // The active view of THIS window's tree — the current page of the active
     // leaf when it's a file view, else nullptr (an empty leaf, or a
     // NewTabPage). The active leaf follows focus, so with splits this is the
@@ -354,12 +286,6 @@ private:
     // Whether either item is switched on (applyConfig)
     bool itemsEnabled_ = true;
 
-    // A subclass's buttons at the bar's far left (addStatusBarButton)
-    QList<QWidget*> statusBarButtons_{};
-
-    // The actions lockActions disabled, which unlockActions enables again
-    QList<QAction*> lockedActions_{};
-
     // The per-window action registry. Private so every entry arrives through
     // registerAction or adoptAction and nothing bypasses the window-add;
     // subclasses read it through action(). A command palette would index this.
@@ -414,7 +340,12 @@ private:
             updater_,
             &Updater::stateChanged,
             this,
-            &BaseWindow::updateStatusBar);
+            &BaseWindow::updateStatusBar_);
+    }
+
+    void updateStatusBar_()
+    {
+        statusBar()->setVisible(itemsEnabled_ || updater_->hasNotice());
     }
 
     // The items read a text editor, so only a text view gives them one; any

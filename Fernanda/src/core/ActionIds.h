@@ -44,9 +44,6 @@ using namespace Qt::StringLiterals;
 //   vault.      the vault as a whole, beyond any one file or folder in it — its
 //               settings. Per-window like file., since each window edits its
 //               own vault
-//   repository. the Git repository the window's vault is in, which may hold
-//               more than the vault. Per-window, since each window has its own
-//               view of it
 //   text.       the text that has keyboard focus: the editor, or a text
 //               field such as the find bar's. The clipboard and selection
 //               commands act there, where the keys for them already work, so
@@ -87,8 +84,6 @@ inline const QString VIEW_FIND_NEXT = u"view.findNext"_s;
 inline const QString VIEW_FIND_PREVIOUS = u"view.findPrevious"_s;
 
 inline const QString VAULT_OPEN_SETTINGS = u"vault.openSettings"_s;
-
-inline const QString REPOSITORY_TOGGLE_VIEW = u"repository.toggleView"_s;
 
 inline const QString APP_MANAGE_VAULTS = u"app.manageVaults"_s;
 inline const QString APP_QUIT = u"app.quit"_s;

@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <QColor>
 #include <QPalette>
 #include <QString>
 
@@ -358,83 +357,6 @@ inline constexpr auto UPDATE_NOTICE_ICON_ROLE = QPalette::Accent;
 inline constexpr auto GLYPH_BUTTON_CHECKED_PANEL_ROLE = QPalette::Accent;
 inline constexpr auto GLYPH_BUTTON_CHECKED_ICON_ROLE =
     QPalette::HighlightedText;
-
-// The status bar's Git button (GitButton), at the bar's left, shown while the
-// vault is in a Git repository. EXTENT/ICON_EXTENT mean what the update
-// notice's pair means. Filled with the accent while the Git view is open
-inline constexpr int GIT_BUTTON_EXTENT = 20;
-inline constexpr int GIT_BUTTON_ICON_EXTENT = 14;
-inline constexpr auto GIT_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
-
-// The Git view (GitView). CHANGES_WIDTH is the first width of its left column,
-// the list of changed files; the rest goes to the right. HEADER_H_MARGIN and
-// HEADER_V_MARGIN surround the count of changed files above the list.
-// MUTED_TEXT_ROLE is the pen of the line on the right when there's nothing to
-// show. Each row of the list has its change's glyph, CHANGE_ICON_EXTENT
-// square, against the list's right edge, in its own tint
-inline constexpr int GIT_VIEW_CHANGES_WIDTH = 280;
-inline constexpr int GIT_VIEW_HEADER_H_MARGIN = 6;
-inline constexpr int GIT_VIEW_HEADER_V_MARGIN = 6;
-inline constexpr auto GIT_VIEW_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
-inline constexpr int GIT_CHANGE_ICON_EXTENT = 14;
-inline constexpr auto GIT_ADDED_ICON_ROLE = QPalette::PlaceholderText;
-inline constexpr auto GIT_MODIFIED_ICON_ROLE = QPalette::PlaceholderText;
-inline constexpr auto GIT_DELETED_ICON_ROLE = QPalette::PlaceholderText;
-inline constexpr auto GIT_RENAMED_ICON_ROLE = QPalette::PlaceholderText;
-inline constexpr auto GIT_CONFLICTED_ICON_ROLE = QPalette::PlaceholderText;
-
-// The Git view's commit box, below its list: COMMIT_MARGIN around it and
-// COMMIT_SPACING between the summary, the description, and the button. The
-// description is DESCRIPTION_LINES lines of its font tall
-inline constexpr int GIT_VIEW_COMMIT_MARGIN = 6;
-inline constexpr int GIT_VIEW_COMMIT_SPACING = 6;
-inline constexpr int GIT_VIEW_DESCRIPTION_LINES = 4;
-
-// The Git view's top bar (GitTopBar) and its sections (GitBarItem), each
-// HEIGHT tall and ITEM_WIDTH wide, narrowing to ITEM_MIN_WIDTH when there
-// isn't room. A section is ITEM_PADDING from its edges, its glyph ICON_EXTENT
-// square and ICON_SPACING from the text, its chevron CHEVRON_EXTENT square.
-// The caption above the name is the font at CAPTION_SCALE, in CAPTION_ROLE
-inline constexpr int GIT_BAR_HEIGHT = 48;
-inline constexpr int GIT_BAR_ITEM_WIDTH = 240;
-inline constexpr int GIT_BAR_ITEM_MIN_WIDTH = 140;
-inline constexpr int GIT_BAR_ITEM_PADDING = 12;
-inline constexpr int GIT_BAR_ICON_EXTENT = 16;
-inline constexpr int GIT_BAR_ICON_SPACING = 10;
-inline constexpr int GIT_BAR_CHEVRON_EXTENT = 12;
-inline constexpr qreal GIT_BAR_CAPTION_SCALE = 0.85;
-inline constexpr auto GIT_BAR_ICON_ROLE = QPalette::PlaceholderText;
-inline constexpr auto GIT_BAR_CAPTION_ROLE = QPalette::PlaceholderText;
-
-// The list of branches the top bar drops (GitBranchPopup): at least
-// MIN_WIDTH wide, HEIGHT tall, with MARGIN around and between its parts
-inline constexpr int GIT_BRANCH_POPUP_MIN_WIDTH = 300;
-inline constexpr int GIT_BRANCH_POPUP_HEIGHT = 360;
-inline constexpr int GIT_BRANCH_POPUP_MARGIN = 6;
-
-// The New Branch dialog (GitNewBranchDialog) is at least MIN_WIDTH wide
-inline constexpr int GIT_NEW_BRANCH_DIALOG_MIN_WIDTH = 360;
-
-// The Git view's diff (GitDiffView). An added line is tinted ADDED_BACKGROUND
-// and a removed one REMOVED_BACKGROUND, across the text and the gutter. Each
-// has an alpha, so it tints the page rather than covering it, on a light page
-// or a dark one. The words that changed within a line are tinted again, with
-// ADDED_WORD_BACKGROUND or REMOVED_WORD_BACKGROUND over the line's tint.
-// HEADER_ROLE is the pen of each hunk's @@ line and of git's note that a file
-// ends without a line break, and NUMBER_ROLE the gutter's. The gutter is
-// GUTTER_PADDING on each side of its two columns of numbers, which are
-// GUTTER_SPACING apart, and TEXT_PADDING more on its right, between the numbers
-// and the text
-inline constexpr auto GIT_DIFF_ADDED_BACKGROUND = QColor(46, 160, 67, 56);
-inline constexpr auto GIT_DIFF_REMOVED_BACKGROUND = QColor(248, 81, 73, 56);
-inline constexpr auto GIT_DIFF_ADDED_WORD_BACKGROUND = QColor(46, 160, 67, 110);
-inline constexpr auto GIT_DIFF_REMOVED_WORD_BACKGROUND =
-    QColor(248, 81, 73, 110);
-inline constexpr auto GIT_DIFF_HEADER_ROLE = QPalette::PlaceholderText;
-inline constexpr auto GIT_DIFF_NUMBER_ROLE = QPalette::PlaceholderText;
-inline constexpr int GIT_DIFF_GUTTER_PADDING = 8;
-inline constexpr int GIT_DIFF_GUTTER_SPACING = 8;
-inline constexpr int GIT_DIFF_TEXT_PADDING = 8;
 
 // Fernanda's style (Style). Shades the palette has no role for are its text
 // color at an alpha, drawn over whatever is behind them: HOVER under the

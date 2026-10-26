@@ -53,8 +53,7 @@
 // ui/CursorPosition.h): a switch for the item itself, and one for each thing
 // it can show. An item's parts keep their values while the item is off, so
 // turning it back on restores what it showed. The focus timer's settings
-// (core/FocusTimer.h) are the same shape: a switch, then its lengths. The Git
-// view has one switch (core/git/GitRepository.h).
+// (core/FocusTimer.h) are the same shape: a switch, then its lengths.
 //
 // QtCore-only, like the Vault: it stores the font's parts, and the view that
 // applies them builds the QFont (TextFileView::applyConfig)
@@ -138,12 +137,6 @@ public:
     static constexpr int DEFAULT_FOCUS_TIMER_SHORT_BREAK = 5;
     static constexpr int DEFAULT_FOCUS_TIMER_LONG_BREAK = 15;
     static constexpr int DEFAULT_FOCUS_TIMER_LONG_BREAK_EVERY = 4;
-
-    // The Git view (core/git/GitRepository.h): on. While it's on, a window
-    // runs the installed git to find the vault's repository and read its
-    // status; while it's off, git is never run for the vault. A vault outside
-    // any repository shows nothing either way
-    static constexpr bool DEFAULT_GIT_ENABLED = true;
 
     static constexpr int MIN_FOCUS_TIMER_FOCUS = 1;
     static constexpr int MAX_FOCUS_TIMER_FOCUS = 120;
@@ -294,11 +287,6 @@ public:
     [[nodiscard]] bool focusTimerEnabled() const
     {
         return focusTimerEnabled_.value_or(DEFAULT_FOCUS_TIMER_ENABLED);
-    }
-
-    [[nodiscard]] bool gitEnabled() const
-    {
-        return gitEnabled_.value_or(DEFAULT_GIT_ENABLED);
     }
 
     // In minutes
@@ -492,11 +480,6 @@ public:
         return setBool_(focusTimerEnabled_, focusTimerEnabled(), enabled);
     }
 
-    [[nodiscard]] bool setGitEnabled(bool enabled)
-    {
-        return setBool_(gitEnabled_, gitEnabled(), enabled);
-    }
-
     [[nodiscard]] bool setFocusTimerFocus(int minutes)
     {
         return setInt_(
@@ -635,8 +618,6 @@ public:
             focusTimerLongBreakEvery_,
             MIN_FOCUS_TIMER_LONG_BREAK_EVERY,
             MAX_FOCUS_TIMER_LONG_BREAK_EVERY);
-
-        readBool_(settings, GIT_ENABLED_KEY_, gitEnabled_);
     }
 
     // Serialize the set keys and write both files, each atomically. Both are
@@ -716,8 +697,6 @@ public:
             FOCUS_TIMER_LONG_BREAK_EVERY_KEY_,
             focusTimerLongBreakEvery_);
 
-        writeBool_(settings, GIT_ENABLED_KEY_, gitEnabled_);
-
         auto appearance_saved = JsonIo::write(
             appearance,
             appearancePath_(vaultRoot),
@@ -780,7 +759,6 @@ private:
         u"focusTimerLongBreak"_s;
     static inline const QString FOCUS_TIMER_LONG_BREAK_EVERY_KEY_ =
         u"focusTimerLongBreakEvery"_s;
-    static inline const QString GIT_ENABLED_KEY_ = u"git"_s;
 
     // Empty / nullopt == unset; the getter substitutes the default
     QString textFontFamily_{};
@@ -818,8 +796,6 @@ private:
     std::optional<int> focusTimerShortBreak_{};
     std::optional<int> focusTimerLongBreak_{};
     std::optional<int> focusTimerLongBreakEvery_{};
-
-    std::optional<bool> gitEnabled_{};
 
     static Coco::Path appearancePath_(const Coco::Path& vaultRoot)
     {

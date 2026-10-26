@@ -40,7 +40,6 @@
 #include "ui/settings/SettingsEditorPage.h"
 #include "ui/settings/SettingsFocusTimerPage.h"
 #include "ui/settings/SettingsGeneralPage.h"
-#include "ui/settings/SettingsGitPage.h"
 #include "ui/settings/SettingsStatusBarPage.h"
 
 namespace Fernanda::Ui {
@@ -161,7 +160,6 @@ private:
         addPage_(tr("Appearance"), new SettingsAppearancePage(vault_, this));
         addPage_(tr("Status bar"), new SettingsStatusBarPage(vault_, this));
         addPage_(tr("Focus timer"), new SettingsFocusTimerPage(vault_, this));
-        addPage_(tr("Git"), new SettingsGitPage(vault_, this));
 
         // Selecting a page row shows its page. Group titles can't be selected
         // (addGroupTitle_), so every row that becomes current is a page row
