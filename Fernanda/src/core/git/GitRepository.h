@@ -61,7 +61,8 @@ using namespace Qt::StringLiterals;
 // repository's index for most commands, so two at once could fail each
 // other. Asking for a detection, a status, a branch list, or the remotes
 // while the same is already waiting adds nothing: the waiting one will read
-// the newer state. Asking for a diff while one waits replaces it.
+// the newer state. Asking for a file's diff while one of the same file waits
+// replaces it.
 //
 // Every command runs with:
 // - core.fsmonitor off. A repository's own config can name a program for Git
@@ -637,8 +638,9 @@ public:
     // entry's path. A file git doesn't track yet, and every file before the
     // first commit, is compared with nothing (diff --no-index against
     // /dev/null), so all of it shows as added. A renamed file is compared with
-    // where it was. Asking again while one waits replaces the waiting one:
-    // only the file asked for last is still wanted.
+    // where it was. Asking again for a file whose diff waits replaces the
+    // waiting one, which would read the same file; diffs of different files
+    // are each answered, since several diffs can be open at once.
     //
     // External diff programs and text conversions are off. A repository's own
     // config can name either, and git would run it here; and the view wants
@@ -649,8 +651,8 @@ public:
             return;
         }
 
-        queue_.removeIf([](const Command_& command) {
-            return command.kind == Kind_::Diff;
+        queue_.removeIf([&entry](const Command_& command) {
+            return command.kind == Kind_::Diff && command.subject == entry.path;
         });
 
         Command_ command{};

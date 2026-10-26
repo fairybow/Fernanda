@@ -854,8 +854,9 @@ private slots:
         QVERIFY(diff->binary);
     }
 
-    // Two asked for at once: only the second is answered
-    void readDiffAskedAgainReplacesTheWaitingOne()
+    // Two files' diffs asked for at once: both are answered, since two diff
+    // tabs can be open at once
+    void readDiffsOfTwoFilesAreBothAnswered()
     {
         Fixture_ f{};
         f.git({ u"init"_s, u"-q"_s });
@@ -879,6 +880,36 @@ private slots:
         // A status first, so both diffs wait behind it
         f.repository.refresh();
         f.repository.readDiff(*entry_(f.repository, u"a.txt"_s));
+        f.repository.readDiff(*entry_(f.repository, u"b.txt"_s));
+
+        QTRY_COMPARE(answered, (QStringList{ u"a.txt"_s, u"b.txt"_s }));
+    }
+
+    // The same file's diff asked for twice at once: it's answered once
+    void readDiffAskedAgainForAFileReplacesTheWaitingOne()
+    {
+        Fixture_ f{};
+        f.git({ u"init"_s, u"-q"_s });
+        f.write(u"a.txt"_s, "a\n");
+        f.write(u"b.txt"_s, "b\n");
+
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
+        f.repository.refresh();
+        QTRY_VERIFY(entry_(f.repository, u"b.txt"_s));
+
+        QStringList answered{};
+        connect(
+            &f.repository,
+            &GitRepository::diffRead,
+            this,
+            [&answered](const Coco::Path& path, const GitDiff::Diff&) {
+                answered << path.prettyQString();
+            });
+
+        // A status first, so both diffs wait behind it
+        f.repository.refresh();
+        f.repository.readDiff(*entry_(f.repository, u"b.txt"_s));
         f.repository.readDiff(*entry_(f.repository, u"b.txt"_s));
 
         QTRY_COMPARE(answered, QStringList{ u"b.txt"_s });

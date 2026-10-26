@@ -20,14 +20,12 @@
 #include <QPainter>
 #include <QPalette>
 #include <QPixmap>
-#include <QRectF>
 #include <QString>
 #include <QWidget>
 #include <QtMinMax>
 
 #include <Coco/Path.h>
 
-#include "ui/UiConstants.h"
 #include "ui/widgets/ButtonWash.h"
 #include "ui/widgets/Glyph.h"
 
@@ -46,13 +44,6 @@ namespace Fernanda::Ui {
 // page's pin bit) needs no cached flag and no manual sync — pin/unpin anywhere
 // shows up on the next repaint. A subclass with a fixed glyph just returns
 // constants.
-//
-// A checkable button, while it's checked, fills its panel with
-// GLYPH_BUTTON_CHECKED_PANEL_ROLE (the accent) and draws its glyph in
-// GLYPH_BUTTON_CHECKED_ICON_ROLE in place of glyphRole(), so "on" reads at a
-// glance, as a toggle switch that's on does. The hover and press wash still go
-// over the fill. A button that isn't checkable is never checked, so it never
-// has the fill.
 //
 // The render goes through one Glyph::Cache. Path and tint are both in its key,
 // so a live swap (pin/unpin, a palette or color-group change) costs one render
@@ -115,23 +106,12 @@ protected:
     {
         QPainter painter(this);
 
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-
-        // Checked: the accent, in the shape the style gives a tool button's
-        // panel
-        if (isChecked()) {
-            painter.setPen(Qt::NoPen);
-            painter.setBrush(palette().color(GLYPH_BUTTON_CHECKED_PANEL_ROLE));
-            painter.drawRoundedRect(
-                QRectF(rect()),
-                STYLE_TOOL_BUTTON_RADIUS,
-                STYLE_TOOL_BUTTON_RADIUS);
-        }
-
         // A flat button's panel: nothing at rest, the style's wash on hover and
         // press
         ButtonWash::paint(painter, this, rect());
+
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
         // Glyph clamped to the button so an over-large constant fills it rather
         // than overflowing
@@ -140,11 +120,10 @@ protected:
             return;
         }
 
-        auto role = isChecked() ? GLYPH_BUTTON_CHECKED_ICON_ROLE : glyphRole();
         auto pixmap = glyph_.pixmap(
             glyphPath(),
             extent,
-            palette().color(role),
+            palette().color(glyphRole()),
             devicePixelRatioF());
 
         auto x = (width() - extent) / 2;

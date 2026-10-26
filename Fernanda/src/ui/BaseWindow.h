@@ -14,7 +14,6 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QChar>
 #include <QEvent>
 #include <QHash>
 #include <QKeySequence>
@@ -40,6 +39,7 @@
 #include "ui/UpdateNotice.h"
 #include "ui/WordCounter.h"
 #include "ui/tabs/TabPaneTree.h"
+#include "ui/widgets/MenuText.h"
 #include "views/AbstractFileView.h"
 #include "views/TextFileView.h"
 
@@ -397,11 +397,11 @@ private:
         // does. Their keys are not bound here: every text widget already
         // handles them itself, and a window binding would only ever fire with
         // something else focused, taking Del from the file tree. So each shows
-        // its key as a hint (hintedText_) and binds none. Always enabled, like
-        // undo. Delete removes the selection only
+        // its key as a hint (MenuText::withKey) and binds none. Always enabled,
+        // like undo. Delete removes the selection only
         auto* cut = registerAction(
             ActionIds::TEXT_CUT,
-            hintedText_(tr("Cut"), QKeySequence::Cut),
+            MenuText::withKey(tr("Cut"), QKeySequence::Cut),
             QKeySequence{});
         connect(cut, &QAction::triggered, this, [] {
             applyToFocusedText_(
@@ -411,7 +411,7 @@ private:
 
         auto* copy = registerAction(
             ActionIds::TEXT_COPY,
-            hintedText_(tr("Copy"), QKeySequence::Copy),
+            MenuText::withKey(tr("Copy"), QKeySequence::Copy),
             QKeySequence{});
         connect(copy, &QAction::triggered, this, [] {
             applyToFocusedText_(
@@ -421,7 +421,7 @@ private:
 
         auto* paste = registerAction(
             ActionIds::TEXT_PASTE,
-            hintedText_(tr("Paste"), QKeySequence::Paste),
+            MenuText::withKey(tr("Paste"), QKeySequence::Paste),
             QKeySequence{});
         connect(paste, &QAction::triggered, this, [] {
             applyToFocusedText_(
@@ -431,7 +431,7 @@ private:
 
         auto* remove = registerAction(
             ActionIds::TEXT_DELETE,
-            hintedText_(tr("Delete"), QKeySequence::Delete),
+            MenuText::withKey(tr("Delete"), QKeySequence::Delete),
             QKeySequence{});
         connect(remove, &QAction::triggered, this, [] {
             applyToFocusedText_(
@@ -449,7 +449,7 @@ private:
 
         auto* select_all = registerAction(
             ActionIds::TEXT_SELECT_ALL,
-            hintedText_(tr("Select All"), QKeySequence::SelectAll),
+            MenuText::withKey(tr("Select All"), QKeySequence::SelectAll),
             QKeySequence{});
         connect(select_all, &QAction::triggered, this, [] {
             applyToFocusedText_(
@@ -554,15 +554,6 @@ private:
         } else if (auto* text = qobject_cast<QPlainTextEdit*>(focus)) {
             onTextEdit(text);
         }
-    }
-
-    // An action's text with a key after a tab, which a menu shows right-
-    // aligned as it would a bound shortcut's. Display only: it binds nothing
-    [[nodiscard]] static QString
-    hintedText_(const QString& text, QKeySequence::StandardKey key)
-    {
-        return text + QChar(QChar::Tabulation) +
-               QKeySequence(key).toString(QKeySequence::NativeText);
     }
 
     // Take App's actions into the registry. Both window types adopt the whole

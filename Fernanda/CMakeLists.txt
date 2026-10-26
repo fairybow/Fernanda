@@ -230,6 +230,11 @@ set(APP_HEADERS
     src/models/PrimeDocument.h
     src/models/TextFileModel.h
 
+    src/ui/git/GitChangeDelegate.h
+    src/ui/git/GitDiffPage.h
+    src/ui/git/GitDiffView.h
+    src/ui/git/GitPage.h
+
     src/ui/settings/FontFamilyBox.h
     src/ui/settings/SettingRow.h
     src/ui/settings/SettingsAppearancePage.h
@@ -237,6 +242,7 @@ set(APP_HEADERS
     src/ui/settings/SettingsEditorPage.h
     src/ui/settings/SettingsFocusTimerPage.h
     src/ui/settings/SettingsGeneralPage.h
+    src/ui/settings/SettingsGitPage.h
     src/ui/settings/SettingsPage.h
     src/ui/settings/SettingsStatusBarPage.h
 
@@ -244,6 +250,7 @@ set(APP_HEADERS
     src/ui/sidebar/FocusTimerButton.h
     src/ui/sidebar/SettingsButton.h
     src/ui/sidebar/Sidebar.h
+    src/ui/sidebar/SidebarPages.h
     src/ui/sidebar/VaultEntryDragMime.h
     src/ui/sidebar/VaultFileTree.h
     src/ui/sidebar/VaultSwitcher.h
@@ -263,6 +270,7 @@ set(APP_HEADERS
     src/ui/widgets/DisplaySlider.h
     src/ui/widgets/Glyph.h
     src/ui/widgets/GlyphButton.h
+    src/ui/widgets/MenuText.h
     src/ui/widgets/RowBadges.h
     src/ui/widgets/ToggleSwitch.h
     src/ui/widgets/UserTextEntry.h

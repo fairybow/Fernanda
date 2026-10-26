@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <QColor>
 #include <QPalette>
 #include <QString>
 
@@ -234,6 +235,66 @@ inline constexpr int SIDEBAR_FOOTER_TOP_MARGIN = 4;
 inline constexpr int SIDEBAR_FOOTER_RIGHT_MARGIN = 4;
 inline constexpr int SIDEBAR_FOOTER_BOTTOM_MARGIN = 0;
 
+// The row of page buttons at the top of the sidebar (SidebarPages), shown
+// while there's more than one page: Files, and Git. Each button is EXTENT
+// square, the footer's buttons' size, with its glyph ICON_EXTENT square. A
+// button's glyph is in ICON_ROLE, muted, and the active page's in
+// ACTIVE_ICON_ROLE, the text's own color, over the selected-row shade
+// (Style::selectedWash). The margins keep the washes off the sidebar's edges
+// and the page below, as the footer's do
+inline constexpr int SIDEBAR_PAGE_BUTTON_EXTENT = SETTINGS_BUTTON_EXTENT;
+inline constexpr int SIDEBAR_PAGE_BUTTON_ICON_EXTENT = 16;
+inline constexpr auto SIDEBAR_PAGE_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto SIDEBAR_PAGE_BUTTON_ACTIVE_ICON_ROLE =
+    QPalette::ButtonText;
+inline constexpr int SIDEBAR_PAGES_LEFT_MARGIN = 4;
+inline constexpr int SIDEBAR_PAGES_TOP_MARGIN = 4;
+inline constexpr int SIDEBAR_PAGES_RIGHT_MARGIN = 4;
+inline constexpr int SIDEBAR_PAGES_BOTTOM_MARGIN = 4;
+inline constexpr auto SIDEBAR_FILES_ICON_PATH = ":/lucide/ListTree.svg";
+inline constexpr auto SIDEBAR_GIT_ICON_PATH = ":/lucide/GitBranch.svg";
+
+// The sidebar's Git page (GitPage): the list of changed files, and
+// MUTED_TEXT_ROLE for the line shown in its place when there are none. Each
+// row has its file's folder after its name, as a muted label (RowBadges), and
+// its change's mark against its right edge, CHANGE_ICON_EXTENT square, in a
+// fixed color for each kind of change: the palette has no role for added or
+// removed, and these read on a light page and a dark one alike. A folder's
+// label is never wider than FOLDER_MAX_PERCENT of the row
+inline constexpr auto GIT_PAGE_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
+inline constexpr int GIT_CHANGE_ICON_EXTENT = 14;
+inline constexpr int GIT_CHANGE_FOLDER_MAX_PERCENT = 50;
+inline constexpr auto GIT_ADDED_COLOR = QColor(46, 160, 67);
+inline constexpr auto GIT_MODIFIED_COLOR = QColor(210, 153, 34);
+inline constexpr auto GIT_DELETED_COLOR = QColor(248, 81, 73);
+inline constexpr auto GIT_RENAMED_COLOR = QColor(56, 139, 253);
+inline constexpr auto GIT_CONFLICTED_COLOR = QColor(248, 81, 73);
+
+// A diff's tab (GitDiffPage, GitDiffView). The tab is marked with
+// DIFF_PAGE_ICON_PATH, so it isn't taken for its file's own tab. An added
+// line is tinted ADDED_BACKGROUND and a removed one REMOVED_BACKGROUND, across
+// the text and the gutter. Each has an alpha, so it tints the page rather than
+// covering it, on a light page or a dark one. The words that changed within a
+// line are tinted again, with ADDED_WORD_BACKGROUND or REMOVED_WORD_BACKGROUND
+// over the line's tint. HEADER_ROLE is the pen of each hunk's @@ line and of
+// the note that a file ends without a line break, and NUMBER_ROLE the
+// gutter's. The gutter is GUTTER_PADDING on each side of its two columns of
+// numbers, which are GUTTER_SPACING apart, and TEXT_PADDING more on its right,
+// between the numbers and the text. MUTED_TEXT_ROLE is the pen of the line
+// shown in the diff's place when there's none to show
+inline constexpr auto GIT_DIFF_PAGE_ICON_PATH = ":/lucide/GitBranch.svg";
+inline constexpr auto GIT_DIFF_ADDED_BACKGROUND = QColor(46, 160, 67, 56);
+inline constexpr auto GIT_DIFF_REMOVED_BACKGROUND = QColor(248, 81, 73, 56);
+inline constexpr auto GIT_DIFF_ADDED_WORD_BACKGROUND = QColor(46, 160, 67, 110);
+inline constexpr auto GIT_DIFF_REMOVED_WORD_BACKGROUND =
+    QColor(248, 81, 73, 110);
+inline constexpr auto GIT_DIFF_HEADER_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_DIFF_NUMBER_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_DIFF_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
+inline constexpr int GIT_DIFF_GUTTER_PADDING = 8;
+inline constexpr int GIT_DIFF_GUTTER_SPACING = 8;
+inline constexpr int GIT_DIFF_TEXT_PADDING = 8;
+
 // The settings dialog (SettingsDialog): its opening size; the navigation
 // column's fixed width, and the margin around (and gap within) that column;
 // the margin around a page's rows. GROUP_TITLE_ROLE tints the nav's group
@@ -350,13 +411,6 @@ inline constexpr auto UPDATE_NOTICE_ICON_PATH = ":/lucide/ArrowDownToLine.svg";
 inline constexpr int UPDATE_NOTICE_EXTENT = 20;
 inline constexpr int UPDATE_NOTICE_ICON_EXTENT = 14;
 inline constexpr auto UPDATE_NOTICE_ICON_ROLE = QPalette::Accent;
-
-// A checkable GlyphButton while it's checked: its panel filled with
-// CHECKED_PANEL_ROLE, and its glyph in CHECKED_ICON_ROLE in place of its own
-// tint, the pen that reads on the accent (as a toggle switch's thumb does)
-inline constexpr auto GLYPH_BUTTON_CHECKED_PANEL_ROLE = QPalette::Accent;
-inline constexpr auto GLYPH_BUTTON_CHECKED_ICON_ROLE =
-    QPalette::HighlightedText;
 
 // Fernanda's style (Style). Shades the palette has no role for are its text
 // color at an alpha, drawn over whatever is behind them: HOVER under the

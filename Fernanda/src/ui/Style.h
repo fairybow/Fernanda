@@ -106,6 +106,13 @@ public:
             pressed ? STYLE_PRESSED_ALPHA : STYLE_HOVER_ALPHA);
     }
 
+    // The shade of a selected row, for a widget that marks itself as chosen
+    // the way a list marks its selection (the sidebar's active page button)
+    [[nodiscard]] static QColor selectedWash(const QPalette& palette)
+    {
+        return wash_(palette, STYLE_SELECTED_ALPHA);
+    }
+
     // Where an item view paints the wash of the item whose cell is itemRect:
     // the hover and selection shade. Public so a view can take the wash as
     // the extent of its row, as VaultTreeView does

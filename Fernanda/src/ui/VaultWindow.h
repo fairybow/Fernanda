@@ -39,6 +39,7 @@
 #include "core/ActionIds.h"
 #include "core/AppActions.h"
 #include "core/BufferStore.h"
+#include "core/FileTypes.h"
 #include "core/FocusCycle.h"
 #include "core/FocusTimer.h"
 #include "core/PathKey.h"
@@ -49,6 +50,8 @@
 #include "core/VaultConfig.h"
 #include "core/VaultEntry.h"
 #include "core/WorkspaceKeys.h"
+#include "core/git/GitRepository.h"
+#include "core/git/GitStatus.h"
 #include "core/spell/SpellCheckers.h"
 #include "models/ImageFileModel.h"
 #include "models/PdfFileModel.h"
@@ -59,6 +62,8 @@
 #include "ui/PopoutWindow.h"
 #include "ui/UiConstants.h"
 #include "ui/WorkspaceFile.h"
+#include "ui/git/GitDiffPage.h"
+#include "ui/git/GitPage.h"
 #include "ui/settings/SettingsDialog.h"
 #include "ui/sidebar/Sidebar.h"
 #include "ui/tabs/NewTabPage.h"
@@ -134,37 +139,7 @@ public:
             return; // refused — unsupported or unreadable; the store warned
         }
 
-        auto title = view->model()->title();
-
-        switch (mode) {
-        case OpenMode::NewWindow:
-            openInNewWindow_(view, title);
-            return;
-
-        case OpenMode::SplitRight: {
-            // Split the active leaf to the right — a fresh empty leaf, now
-            // active — and drop the view there. splitActiveLeaf changes the
-            // active leaf, so this must run before addToActiveLeaf
-            auto* tree = tabPaneTree();
-            tree->splitActiveLeaf(Qt::Horizontal);
-            tree->addToActiveLeaf(view, title);
-            return;
-        }
-
-        case OpenMode::ReplaceActive:
-        case OpenMode::NewTab: {
-            auto* tree = tabPaneTree();
-
-            // ReplaceActive takes over the active tab unless pinned — shared
-            // with a file dropped on this window's editor; NewTab always adds
-            if (mode == OpenMode::ReplaceActive) {
-                openReplacingActive_(tree, view, title);
-            } else {
-                tree->addToActiveLeaf(view, title);
-            }
-            return;
-        }
-        }
+        placePage_(view, view->model()->title(), mode);
     }
 
     // The Common Vault changed, or there's none now (App::setCommonVault_).
@@ -331,6 +306,16 @@ private:
     // so it stops with the window
     FocusTimer* focusTimer_ = nullptr;
 
+    // The Git repository the vault is in, if any, as this window sees it. A
+    // Qt child, so a command still running is seen out with the window. The
+    // sidebar shows its Git page; diff tabs, here and in the pop-outs, read
+    // from it
+    GitRepository* gitRepository_ = nullptr;
+
+    // The vault's Git setting as last applied (applyGitConfig_). Starts off,
+    // so the first application, in setupGit_, sees it turned on
+    bool gitEnabled_ = false;
+
     void setup_()
     {
         resize(DEFAULT_VAULT_WINDOW_WIDTH, DEFAULT_VAULT_WINDOW_HEIGHT);
@@ -339,14 +324,17 @@ private:
         buildMenuBar_();
 
         focusTimer_ = new FocusTimer(focusLengths_(vault_->config()), this);
+        gitRepository_ = new GitRepository(vault_, bufferStore_, this);
 
         sidebar_ = new Sidebar(
             vault_,
             commonVault_,
             Sidebar::Actions{
                 .manageVaults = action(ActionIds::APP_MANAGE_VAULTS),
-                .openSettings = action(ActionIds::VAULT_OPEN_SETTINGS) },
+                .openSettings = action(ActionIds::VAULT_OPEN_SETTINGS),
+                .toggleGit = action(ActionIds::REPOSITORY_TOGGLE_VIEW) },
             focusTimer_,
+            gitRepository_,
             vaultsProvider_,
             this);
 
@@ -475,6 +463,7 @@ private:
         connect(vault_, &Vault::configChanged, this, [this] {
             applyConfig(vault_->config());
             applyFocusTimerConfig_();
+            applyGitConfig_();
         });
 
         connect(
@@ -482,6 +471,136 @@ private:
             &QAbstractButton::clicked,
             this,
             &VaultWindow::onUpdateNoticeClicked_);
+
+        setupGit_();
+    }
+
+    // When git runs, and what the Git page asks for. While the vault's Git
+    // setting is on, the repository is looked for now, after the vault's
+    // folder moves, and whenever this window becomes active, since a
+    // repository can be made or removed outside Fernanda; becoming active
+    // reads the status again too, as does finding the repository. While it's
+    // off, nothing here runs git. The sidebar adds and removes its Git page
+    // itself, from the setting and the repository
+    void setupGit_()
+    {
+        connect(vault_, &Vault::rootMoved, this, [this] {
+            if (gitEnabled_) {
+                gitRepository_->detect();
+            }
+        });
+
+        connect(this, &BaseWindow::windowActivated, this, [this] {
+            if (gitEnabled_) {
+                gitRepository_->detect();
+                gitRepository_->refresh();
+            }
+        });
+
+        connect(gitRepository_, &GitRepository::foundChanged, this, [this] {
+            if (gitRepository_->isFound()) {
+                gitRepository_->refresh();
+            }
+        });
+
+        auto* git_page = sidebar_->gitPage();
+
+        // Only a file in one of this window's vaults, of a type Fernanda
+        // opens, and still on disk (not one whose change is its deletion)
+        git_page->setOpenFilter([this](const PathKey& key) {
+            return vaultOf_(key) && FileTypes::isSupported(key.path()) &&
+                   key.path().isFile();
+        });
+
+        connect(
+            git_page,
+            &GitPage::diffRequested,
+            this,
+            &VaultWindow::openDiff_);
+        connect(
+            git_page,
+            &GitPage::fileRequested,
+            this,
+            &VaultWindow::openGitFile_);
+
+        applyGitConfig_();
+    }
+
+    // The vault's Git setting, applied when it changes. configChanged comes
+    // for every setting, so the last value is kept to tell. Turned on, the
+    // repository is looked for. Turned off, the repository is forgotten, so
+    // turning it on again shows nothing until git has been asked afresh
+    void applyGitConfig_()
+    {
+        auto enabled = vault_->config().gitEnabled();
+
+        if (enabled == gitEnabled_) {
+            return;
+        }
+
+        gitEnabled_ = enabled;
+
+        if (gitEnabled_) {
+            gitRepository_->detect();
+        } else {
+            gitRepository_->forget();
+        }
+    }
+
+    // A diff's tab, placed as a file's would be (placePage_)
+    void openDiff_(const GitStatus::Entry& entry, OpenMode mode)
+    {
+        auto* page = new GitDiffPage(gitRepository_, vault_, entry);
+        placePage_(page, page->windowTitle(), mode);
+    }
+
+    // The Git page's Open file. A file that's already the active tab is
+    // shown, not opened a second time; any other opens in a new tab
+    void openGitFile_(const PathKey& key)
+    {
+        if (auto* view = activeFileView();
+            view && view->model()->key() == key) {
+            tabPaneTree()->focusActivePage();
+            return;
+        }
+
+        openFile(key, OpenMode::NewTab);
+    }
+
+    // Put page where mode says, as openFile describes: over the active tab
+    // unless it's pinned, in a new tab, in a new split to the right, or in a
+    // new pop-out. Shared by files and diffs
+    void placePage_(QWidget* page, const QString& title, OpenMode mode)
+    {
+        switch (mode) {
+        case OpenMode::NewWindow:
+            openInNewWindow_(page, title);
+            return;
+
+        case OpenMode::SplitRight: {
+            // Split the active leaf to the right — a fresh empty leaf, now
+            // active — and drop the page there. splitActiveLeaf changes the
+            // active leaf, so this must run before addToActiveLeaf
+            auto* tree = tabPaneTree();
+            tree->splitActiveLeaf(Qt::Horizontal);
+            tree->addToActiveLeaf(page, title);
+            return;
+        }
+
+        case OpenMode::ReplaceActive:
+        case OpenMode::NewTab: {
+            auto* tree = tabPaneTree();
+
+            // ReplaceActive takes over the active tab unless pinned — shared
+            // with a file dropped on this window's editor; NewTab always adds
+            if (mode == OpenMode::ReplaceActive) {
+                openReplacingActive_(tree, page, title);
+            } else {
+                tree->addToActiveLeaf(page, title);
+            }
+            return;
+        }
+        }
     }
 
     // VaultWindow's own actions, added to the registry the base started. The
@@ -544,6 +663,15 @@ private:
             &QAction::triggered,
             this,
             &VaultWindow::onToggleMenuBar_);
+
+        // Switches the sidebar to its Git page and back. The Sidebar connects
+        // it and enables it while it has a Git page. Ctrl+Shift+G is VS Code's
+        // key for its Source Control view
+        registerAction(
+            ActionIds::REPOSITORY_TOGGLE_VIEW,
+            tr("Git"),
+            QKeySequence(u"Ctrl+Shift+G"_s))
+            ->setEnabled(false);
     }
 
     // The menu bar shows the registry's actions — it doesn't own them. Hidden
@@ -582,6 +710,7 @@ private:
 
         auto* view_menu = bar->addMenu(tr("View"));
         view_menu->addAction(action(ActionIds::WINDOW_TOGGLE_MENU_BAR));
+        view_menu->addAction(action(ActionIds::REPOSITORY_TOGGLE_VIEW));
         view_menu->addSeparator();
         view_menu->addAction(action(ActionIds::VIEW_ZOOM_IN));
         view_menu->addAction(action(ActionIds::VIEW_ZOOM_OUT));
