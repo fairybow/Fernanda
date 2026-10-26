@@ -80,6 +80,8 @@ private slots:
         QTest::newRow("added") << QByteArray("A.") << GitStatus::Change::Added;
         QTest::newRow("added, then modified")
             << QByteArray("AM") << GitStatus::Change::Added;
+        QTest::newRow("added, then deleted")
+            << QByteArray("AD") << GitStatus::Change::Added;
         QTest::newRow("deleted in the working tree")
             << QByteArray(".D") << GitStatus::Change::Deleted;
         QTest::newRow("deleted in the index")
@@ -223,6 +225,7 @@ private slots:
         QVERIFY(!status.branch.detached);
         QVERIFY(!status.branch.unborn);
         QCOMPARE(status.branch.upstream, u"origin/main"_s);
+        QVERIFY(status.branch.upstreamFound);
         QCOMPARE(status.branch.ahead, 3);
         QCOMPARE(status.branch.behind, 1);
         QVERIFY(status.entries.isEmpty());
@@ -238,8 +241,24 @@ private slots:
 
         QCOMPARE(status.branch.name, u"draft-two"_s);
         QVERIFY(status.branch.upstream.isEmpty());
+        QVERIFY(!status.branch.upstreamFound);
         QCOMPARE(status.branch.ahead, 0);
         QCOMPARE(status.branch.behind, 0);
+    }
+
+    // Git names an upstream that's gone from the remote, but has nothing to
+    // count against, so it prints no branch.ab
+    void upstreamGoneFromTheRemoteIsNotFound()
+    {
+        auto status = GitStatus::parse(output_(
+            {
+                "# branch.oid 0123456789abcdef0123456789abcdef01234567",
+                "# branch.head draft",
+                "# branch.upstream origin/draft",
+            }));
+
+        QCOMPARE(status.branch.upstream, u"origin/draft"_s);
+        QVERIFY(!status.branch.upstreamFound);
     }
 
     void detachedHeadHasNoName()
@@ -277,6 +296,7 @@ private slots:
                 "# branch.ab 3 1",
             }));
 
+        QVERIFY(!status.branch.upstreamFound);
         QCOMPARE(status.branch.ahead, 0);
         QCOMPARE(status.branch.behind, 0);
     }

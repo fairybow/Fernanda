@@ -215,12 +215,9 @@ public:
     // the only remote there is. Empty with none
     [[nodiscard]] QString syncRemote() const
     {
-        const auto& upstream = status_.branch.upstream;
-
-        for (auto it = remotes_.cbegin(); it != remotes_.cend(); ++it) {
-            if (upstream.startsWith(it.key() + u'/')) {
-                return it.key();
-            }
+        if (auto remote = remoteOf(status_.branch.upstream);
+            !remote.isEmpty()) {
+            return remote;
         }
 
         if (remotes_.contains(u"origin"_s)) {
@@ -228,6 +225,24 @@ public:
         }
 
         return remotes_.size() == 1 ? remotes_.firstKey() : QString{};
+    }
+
+    // Which known remote a remote branch's name ("origin/draft") belongs to.
+    // A remote's name can hold a slash, so the names are matched rather than
+    // split, and the longest that matches wins: "a/b/main" is a/b's, not
+    // a's, when both remotes exist. Empty when none matches
+    [[nodiscard]] QString remoteOf(const QString& remoteBranch) const
+    {
+        QString found{};
+
+        for (auto it = remotes_.cbegin(); it != remotes_.cend(); ++it) {
+            if (it.key().size() > found.size() &&
+                remoteBranch.startsWith(it.key() + u'/')) {
+                found = it.key();
+            }
+        }
+
+        return found;
     }
 
     // A remote's default branch ("main"), as its HEAD named it at the last
@@ -369,7 +384,11 @@ public:
     //   the file in place (restore --source=HEAD --staged --worktree). The
     //   file is never missing, so a view open on it reloads it as one
     //   undoable change rather than closing. The trash records the temporary
-    //   folder as where the copy came from, so putting it back puts it there
+    //   folder as where the copy came from, so putting it back puts it there.
+    //   The folder is in Fernanda's own data folder, not the system's
+    //   temporary one, which can be a separate disk (Linux's /tmp, often): a
+    //   file trashed from another disk goes to that disk's own trash, which
+    //   for /tmp is cleared when the computer restarts
     // - A file not in the last commit (untracked, newly added, or a rename's
     //   new path) goes to the trash itself, and leaves the index (rm
     //   --cached). A view open on it closes, as for any file deleted outside
@@ -521,7 +540,8 @@ public:
     //   diverged need a merge or a rebase, which this doesn't do; git says so
     // - Push: to the branch's upstream
     // - Publish: push --set-upstream, so the branch tracks its copy on the
-    //   remote from then on
+    //   remote from then on. For a branch with no upstream, or one whose
+    //   upstream is gone from the remote
     //
     // Git signs in its own way: a credential manager's window, an SSH agent.
     // A sync gets GIT_NETWORK_TIMEOUT_MS, and is stopped after
@@ -737,6 +757,10 @@ signals:
     void syncFailed(const QString& error);
 
 private:
+    // The folder, in Fernanda's data folder, that a discarded file's copy is
+    // made in on its way to the trash (trashCopyOf_)
+    static constexpr auto DISCARD_FOLDER_NAME_ = "Discarded";
+
     enum class Kind_
     {
         Detect,
@@ -956,11 +980,16 @@ private:
             this,
             &GitRepository::onProcessFinished_);
 
+        // Queued: on Windows a process that can't start reports it from
+        // inside start(), and completing the command there would start the
+        // next one under this function, which goes on to the input and the
+        // timer below
         connect(
             process_,
             &QProcess::errorOccurred,
             this,
-            &GitRepository::onProcessError_);
+            &GitRepository::onProcessError_,
+            Qt::QueuedConnection);
 
         process_->start();
 
@@ -999,15 +1028,18 @@ private:
         if (timedOut_) {
             result.succeeded = false;
             result.error =
-                tr("Git took longer than %1 seconds, so it was stopped.")
-                    .arg(running_.timeoutMs / 1000);
+                tr("Git took longer than %Ln second(s), so it was stopped.",
+                   nullptr,
+                   running_.timeoutMs / 1000);
         }
 
         complete_(result);
     }
 
     // A process that never started reports nothing else, so this completes
-    // its command. Every other error is followed by finished
+    // its command. Every other error is followed by finished, which has
+    // completed it by the time this queued call arrives. A process that
+    // never started is still process_ here: nothing else completes it
     void onProcessError_(QProcess::ProcessError error)
     {
         if (error != QProcess::FailedToStart) {
@@ -1207,7 +1239,7 @@ private:
             auto name = ref.mid(remotes.size());
 
             if (!target.isEmpty()) {
-                auto remote_name = remoteOf_(name);
+                auto remote_name = remoteOf(name);
                 auto prefix = remotes + remote_name + u'/';
 
                 if (!remote_name.isEmpty() && target.startsWith(prefix)) {
@@ -1223,20 +1255,6 @@ private:
         }
 
         emit branchesRead(local, remote);
-    }
-
-    // Which known remote a remote branch's name ("origin/draft") starts
-    // with. A remote's name can hold a slash, so the names are matched, not
-    // split. Empty when none matches
-    [[nodiscard]] QString remoteOf_(const QString& remoteBranch) const
-    {
-        for (auto it = remotes_.cbegin(); it != remotes_.cend(); ++it) {
-            if (remoteBranch.startsWith(it.key() + u'/')) {
-                return it.key();
-            }
-        }
-
-        return {};
     }
 
     // Lines of "remote.<name>.url <url>". git exits with 1, printing
@@ -1371,14 +1389,25 @@ private:
     }
 
     // A copy of the file, under its own name, to the trash, by way of a
-    // temporary folder. A file that isn't there has nothing to keep
+    // temporary folder in Fernanda's data folder (discard). A file that isn't
+    // there has nothing to keep
     [[nodiscard]] static bool trashCopyOf_(const Coco::Path& file)
     {
         if (!file.isFile()) {
             return true;
         }
 
-        QTemporaryDir folder{};
+        auto parent = Coco::Path::AppLocalData(DISCARD_FOLDER_NAME_);
+
+        if (!Coco::mkpath(parent)) {
+            WARN(
+                "Couldn't make {}, to copy {} into before a discard",
+                parent,
+                file);
+            return false;
+        }
+
+        QTemporaryDir folder((parent / u"XXXXXX"_s).toQString());
         auto copy = Coco::Path(folder.path()) / file.name();
 
         if (!folder.isValid() || !Coco::copy(file, copy) ||

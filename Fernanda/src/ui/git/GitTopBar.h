@@ -55,13 +55,13 @@ using namespace Qt::StringLiterals;
 // changes stop a switch until they're committed or discarded.
 //
 // The sync button does what the branch needs, as GitHub Desktop's does, in
-// this order: publish a branch that has no upstream; pull when the remote
-// has commits this branch doesn't; push when this branch has commits the
-// remote doesn't; otherwise fetch. Its caption says when the repository last
-// fetched, from git, so a fetch in a terminal counts too. It does nothing
-// until clicked: Fernanda never fetches on its own. While it runs it says
-// what it's doing, and a failure shows git's words. With no remote, it says
-// so and does nothing.
+// this order: publish a branch that has no upstream, or whose upstream is gone
+// from the remote; pull when the remote has commits this branch doesn't; push
+// when this branch has commits the remote doesn't; otherwise fetch. Its caption
+// says when the repository last fetched, from git, so a fetch in a terminal
+// counts too. It does nothing until clicked: Fernanda never fetches on its own.
+// While it runs it says what it's doing, and a failure shows git's words. With
+// no remote, it says so and does nothing.
 //
 // The branch list offers Create Pull Request when the branch is published to
 // a remote on github.com and isn't that remote's default branch. It opens
@@ -227,7 +227,7 @@ private:
         syncItem_->setEnabled(true);
         syncItem_->setCaption(lastFetchedText_());
 
-        if (branch.upstream.isEmpty() && !branch.detached && !branch.unborn) {
+        if (!branch.upstreamFound && !branch.detached && !branch.unborn) {
             syncAction_ = SyncAction_::Publish;
             syncItem_->setGlyph(u":/lucide/CloudUpload.svg"_s);
             syncItem_->setCaption(tr("Publish this branch to %1").arg(remote));
@@ -369,15 +369,15 @@ private:
     }
 
     // GitHub's page for a pull request from this branch, or nothing: the
-    // branch has to be published to a remote on github.com, and not be that
-    // remote's default branch. The remote's name for the branch is used,
-    // which may differ from the local one
+    // branch has to be published to a remote on github.com, still be there,
+    // and not be that remote's default branch. The remote's name for the
+    // branch is used, which may differ from the local one
     [[nodiscard]] QUrl pullRequestUrl_() const
     {
         const auto& branch = repository_->status().branch;
         auto remote = repository_->syncRemote();
 
-        if (branch.detached || remote.isEmpty() ||
+        if (branch.detached || !branch.upstreamFound || remote.isEmpty() ||
             !branch.upstream.startsWith(remote + u'/')) {
             return {};
         }

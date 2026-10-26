@@ -70,7 +70,9 @@ private slots:
 
         const auto& hunk = diff.hunks[0];
         QCOMPARE(hunk.oldStart, 1);
+        QCOMPARE(hunk.oldCount, 3);
         QCOMPARE(hunk.newStart, 1);
+        QCOMPARE(hunk.newCount, 3);
         QCOMPARE(hunk.header, u"@@ -1,3 +1,3 @@"_s);
         QCOMPARE(hunk.lines.size(), 4);
 
@@ -130,7 +132,47 @@ private slots:
 
         QCOMPARE(diff.hunks.size(), 1);
         QCOMPARE(diff.hunks[0].oldStart, 5);
+        QCOMPARE(diff.hunks[0].oldCount, 1);
+        QCOMPARE(diff.hunks[0].newCount, 1);
         QCOMPARE(diff.hunks[0].lines[1].newNumber, 5);
+    }
+
+    // Under diff.suppressBlankEmpty, git writes a blank context line as an
+    // empty line, without its space. The hunk's counts say it's still in
+    // the hunk, and the lines after it are read
+    void blankContextLineLeftEmptyIsKept()
+    {
+        auto diff = GitDiff::parse(
+            "@@ -1,3 +1,3 @@\n"
+            " a\n"
+            "\n"
+            "-b\n"
+            "+B\n");
+
+        const auto& lines = diff.hunks[0].lines;
+        QCOMPARE(lines.size(), 4);
+        QCOMPARE(lines[1].kind, Kind_::Context);
+        QVERIFY(lines[1].text.isEmpty());
+        QCOMPARE(lines[1].oldNumber, 2);
+        QCOMPARE(lines[2].kind, Kind_::Removed);
+        QCOMPARE(lines[2].oldNumber, 3);
+        QCOMPARE(lines[3].kind, Kind_::Added);
+        QCOMPARE(lines[3].newNumber, 3);
+    }
+
+    // Once a hunk holds as many lines as its @@ line says, what follows
+    // isn't read into it, even a line that would fit
+    void hunkEndsAtItsCounts()
+    {
+        auto diff = GitDiff::parse(
+            "@@ -1 +1 @@\n"
+            "-old\n"
+            "+new\n"
+            "-stray\n"
+            " stray\n");
+
+        QCOMPARE(diff.hunks.size(), 1);
+        QCOMPARE(diff.hunks[0].lines.size(), 2);
     }
 
     void addedFileIsAllAdded()

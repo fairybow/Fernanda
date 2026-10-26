@@ -1287,6 +1287,62 @@ private slots:
         QCOMPARE(f.repository.defaultBranchOf(u"origin"_s), branch);
     }
 
+    // A branch deleted on the remote and pruned by a fetch leaves its
+    // upstream named but gone
+    void upstreamDeletedOnTheRemoteIsNotFound()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+        f.git({ u"switch"_s, u"-q"_s, u"--create"_s, u"draft"_s });
+        f.git(
+            { u"push"_s,
+              u"-q"_s,
+              u"--set-upstream"_s,
+              u"origin"_s,
+              u"HEAD"_s });
+
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
+        f.repository.refresh();
+        QTRY_VERIFY(f.repository.status().branch.upstreamFound);
+
+        runGit_(remote.path(), { u"branch"_s, u"-q"_s, u"-D"_s, u"draft"_s });
+        f.git({ u"fetch"_s, u"-q"_s, u"--prune"_s });
+        f.repository.refresh();
+
+        QTRY_VERIFY(!f.repository.status().branch.upstreamFound);
+        QCOMPARE(f.repository.status().branch.upstream, u"origin/draft"_s);
+    }
+
+    // Remote names can hold a slash: with remotes "a" and "a/b", a branch
+    // tracking a/b's main syncs with a/b
+    void remoteOfTakesTheLongestRemoteName()
+    {
+        Fixture_ f{};
+        Remote_ a{};
+        Remote_ a_b{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"remote"_s, u"add"_s, u"a"_s, a.path() });
+        f.git({ u"remote"_s, u"add"_s, u"a/b"_s, a_b.path() });
+        f.git({ u"push"_s, u"-q"_s, u"--set-upstream"_s, u"a/b"_s, u"HEAD"_s });
+
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
+        f.repository.refresh();
+        QTRY_COMPARE(f.repository.remotes().size(), 2);
+        QTRY_VERIFY(
+            f.repository.status().branch.upstream.startsWith(u"a/b/"_s));
+
+        QCOMPARE(f.repository.remoteOf(u"a/b/main"_s), u"a/b"_s);
+        QCOMPARE(f.repository.remoteOf(u"a/main"_s), u"a"_s);
+        QVERIFY(f.repository.remoteOf(u"c/main"_s).isEmpty());
+        QCOMPARE(f.repository.syncRemote(), u"a/b"_s);
+    }
+
     void switchToRemoteBranchTracksIt()
     {
         Fixture_ f{};

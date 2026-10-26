@@ -258,21 +258,16 @@ private:
     }
 
     // Whether a remote branch ("origin/drafts/two") has a local branch of
-    // the name past its remote's ("drafts/two"). A remote's name can hold a
-    // slash, so it's matched against the remotes, not split off
+    // the name past its remote's ("drafts/two") (GitRepository::remoteOf)
     [[nodiscard]] bool hasLocal_(const QString& remoteBranch) const
     {
-        const auto& remotes = repository_->remotes();
+        auto remote = repository_->remoteOf(remoteBranch);
 
-        for (auto it = remotes.cbegin(); it != remotes.cend(); ++it) {
-            auto prefix = it.key() + u'/';
-
-            if (remoteBranch.startsWith(prefix)) {
-                return local_.contains(remoteBranch.mid(prefix.size()));
-            }
+        if (remote.isEmpty()) {
+            return false;
         }
 
-        return false;
+        return local_.contains(remoteBranch.mid(remote.size() + 1));
     }
 
     // A heading has no data, and isn't chosen

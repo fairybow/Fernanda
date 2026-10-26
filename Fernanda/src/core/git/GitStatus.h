@@ -68,8 +68,14 @@ struct Branch
     // The branch it tracks, such as origin/main. Empty when none
     QString upstream{};
 
+    // Whether the upstream exists, so ahead and behind are known. False with
+    // no upstream, and when the upstream is named but gone: deleted on the
+    // remote and pruned by a fetch. Git prints how far ahead and behind the
+    // branch is only when it has an upstream to count against
+    bool upstreamFound = false;
+
     // Commits this branch has that its upstream lacks, and the reverse.
-    // Both zero when there is no upstream
+    // Both zero unless upstreamFound
     int ahead = 0;
     int behind = 0;
 };
@@ -112,16 +118,18 @@ pathAfter_(QByteArrayView record, int fieldsBefore)
 }
 
 // One change for an ordinary record's index (x) and working tree (y)
-// letters. A deletion on either side is a deletion; a file added to the index
-// is added; anything else (modified, type changed) is modified
+// letters. A file added to the index is added, even if it's since been
+// deleted from the working tree: it isn't in the last commit, so it's new
+// either way. Otherwise a deletion on either side is a deletion, and anything
+// else (modified, type changed) is modified
 [[nodiscard]] inline Change changeOf_(char x, char y)
 {
-    if (x == 'D' || y == 'D') {
-        return Change::Deleted;
-    }
-
     if (x == 'A') {
         return Change::Added;
+    }
+
+    if (x == 'D' || y == 'D') {
+        return Change::Deleted;
     }
 
     return Change::Modified;
@@ -148,6 +156,7 @@ inline void readAheadBehind_(QByteArrayView value, Branch& branch)
     auto behind_count = behind.sliced(1).toInt(&ok_behind);
 
     if (ok_ahead && ok_behind) {
+        branch.upstreamFound = true;
         branch.ahead = ahead_count;
         branch.behind = behind_count;
     }

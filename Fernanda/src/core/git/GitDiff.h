@@ -32,9 +32,13 @@
 // Only the hunks are read. The lines before the first one (diff --git, index,
 // the --- and +++ names, mode changes) say what GitRepository already knows,
 // apart from whether the file is binary, which git says there instead of
-// giving hunks. Inside a hunk every line starts with a space, a plus, a minus,
-// or a backslash (git's "\ No newline at end of file", after the line it's
-// about), so any other line ends it.
+// giving hunks. A hunk's @@ line says how many lines it holds from each file,
+// and the hunk is read to those counts: a context line starts with a space,
+// a removed one with a minus, an added one with a plus, and git's "\ No
+// newline at end of file" follows the line it's about. A line left empty is
+// a blank context line, as git writes one under diff.suppressBlankEmpty.
+// Counting, rather than stopping at the first line that doesn't fit, keeps
+// that setting from cutting a hunk short.
 //
 // A line's text is UTF-8, without its line break. A carriage return before
 // the break, from a file with Windows line endings, is dropped from every
@@ -88,9 +92,11 @@ struct Line
 
 struct Hunk
 {
-    // Where the hunk starts in each file
+    // Where the hunk starts in each file, and how many of its lines it holds
     int oldStart = 0;
+    int oldCount = 0;
     int newStart = 0;
+    int newCount = 0;
 
     // The @@ line as git wrote it, which may end with the nearest line above
     // that git took for a heading
@@ -329,16 +335,33 @@ inline void markMiddle_(
     }
 }
 
-// "12" or "12,4" (a start, then a count this doesn't need)
-[[nodiscard]] inline std::optional<int> startOf_(QByteArrayView range)
+struct Range_
+{
+    int start = 0;
+    int count = 0;
+};
+
+// "12,4" (a start, then a count), or "12", whose count is 1
+[[nodiscard]] inline std::optional<Range_> rangeOf_(QByteArrayView range)
 {
     auto comma = range.indexOf(',');
     auto start = comma < 0 ? range : range.first(comma);
 
+    Range_ read{};
     auto ok = false;
-    auto value = start.toInt(&ok);
+    read.start = start.toInt(&ok);
 
-    return ok ? std::optional<int>(value) : std::nullopt;
+    if (!ok) {
+        return std::nullopt;
+    }
+
+    if (comma < 0) {
+        read.count = 1;
+        return read;
+    }
+
+    read.count = range.sliced(comma + 1).toInt(&ok);
+    return ok ? std::optional<Range_>(read) : std::nullopt;
 }
 
 // "@@ -12,4 +12,5 @@ heading". Nothing when the line isn't one
@@ -355,23 +378,26 @@ inline void markMiddle_(
         return std::nullopt;
     }
 
-    auto old_start = startOf_(line.sliced(4, plus - 4));
-    auto new_start = startOf_(line.sliced(plus + 2, end - plus - 2));
+    auto old_range = rangeOf_(line.sliced(4, plus - 4));
+    auto new_range = rangeOf_(line.sliced(plus + 2, end - plus - 2));
 
-    if (!old_start || !new_start) {
+    if (!old_range || !new_range) {
         return std::nullopt;
     }
 
     Hunk hunk{};
-    hunk.oldStart = *old_start;
-    hunk.newStart = *new_start;
+    hunk.oldStart = old_range->start;
+    hunk.oldCount = old_range->count;
+    hunk.newStart = new_range->start;
+    hunk.newCount = new_range->count;
     hunk.header = QString::fromUtf8(line);
     return hunk;
 }
 
+// A line's text, after its first character. An empty line has none
 [[nodiscard]] inline QString textOf_(QByteArrayView line)
 {
-    return QString::fromUtf8(line.sliced(1));
+    return line.isEmpty() ? QString{} : QString::fromUtf8(line.sliced(1));
 }
 
 [[nodiscard]] inline QString noteOf_(QByteArrayView line)
@@ -515,10 +541,13 @@ inline void markWordChanges_(Hunk& hunk)
 {
     Diff diff{};
 
-    // The hunk being read, and the next line numbers in it
+    // The hunk being read, the next line numbers in it, and how many lines
+    // of each file it still holds
     Hunk* hunk = nullptr;
     auto old_number = 0;
     auto new_number = 0;
+    auto old_left = 0;
+    auto new_left = 0;
 
     for (QByteArrayView line : output.split('\n')) {
         if (line.endsWith('\r')) {
@@ -526,35 +555,43 @@ inline void markWordChanges_(Hunk& hunk)
         }
 
         if (hunk) {
-            if (line.startsWith(' ')) {
-                hunk->lines << Line{ Line::Kind::Context,
-                                     Internal::textOf_(line),
-                                     old_number++,
-                                     new_number++ };
-                continue;
-            }
-
-            if (line.startsWith('+')) {
-                hunk->lines << Line{ Line::Kind::Added,
-                                     Internal::textOf_(line),
-                                     0,
-                                     new_number++ };
-                continue;
-            }
-
-            if (line.startsWith('-')) {
-                hunk->lines << Line{ Line::Kind::Removed,
-                                     Internal::textOf_(line),
-                                     old_number++,
-                                     0 };
-                continue;
-            }
-
+            // Git's note can follow the hunk's last line, after the counts
+            // have run out
             if (line.startsWith('\\')) {
                 hunk->lines << Line{ Line::Kind::NoNewline,
                                      Internal::noteOf_(line),
                                      0,
                                      0 };
+                continue;
+            }
+
+            auto is_context = line.isEmpty() || line.startsWith(' ');
+
+            if (is_context && old_left > 0 && new_left > 0) {
+                hunk->lines << Line{ Line::Kind::Context,
+                                     Internal::textOf_(line),
+                                     old_number++,
+                                     new_number++ };
+                --old_left;
+                --new_left;
+                continue;
+            }
+
+            if (line.startsWith('-') && old_left > 0) {
+                hunk->lines << Line{ Line::Kind::Removed,
+                                     Internal::textOf_(line),
+                                     old_number++,
+                                     0 };
+                --old_left;
+                continue;
+            }
+
+            if (line.startsWith('+') && new_left > 0) {
+                hunk->lines << Line{ Line::Kind::Added,
+                                     Internal::textOf_(line),
+                                     0,
+                                     new_number++ };
+                --new_left;
                 continue;
             }
 
@@ -566,6 +603,8 @@ inline void markWordChanges_(Hunk& hunk)
             hunk = &diff.hunks.last();
             old_number = hunk->oldStart;
             new_number = hunk->newStart;
+            old_left = hunk->oldCount;
+            new_left = hunk->newCount;
             continue;
         }
 
