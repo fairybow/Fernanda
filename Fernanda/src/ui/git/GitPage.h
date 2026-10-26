@@ -89,7 +89,15 @@ using namespace Qt::StringLiterals;
 // opens it over the active tab unless that one is pinned, and the right-click
 // menu opens it in a new tab, to the right, or in a new window. The same menu
 // opens the file itself, when the window says it can (setOpenFilter). The page
-// only asks (diffRequested, fileRequested); the window opens
+// only asks (diffRequested, fileRequested); the window opens.
+//
+// The menu also discards a file's changes (GitRepository::discard), after
+// asking, as the file tree asks before a delete: Cancel is the default and
+// the escape button. The question says where the changes go: a copy of the
+// file to the trash, the file going back to its last commit, or, for a file
+// the last commit doesn't have, the file itself to the trash. Not offered for
+// a conflicted file, which is a merge's to settle, nor while the repository
+// is busy. A discard that fails shows why in a message
 class GitPage : public QWidget
 {
     Q_OBJECT
@@ -192,6 +200,12 @@ private:
             &GitRepository::commitFailed,
             this,
             &GitPage::onCommitFailed_);
+
+        connect(
+            repository_,
+            &GitRepository::discardFailed,
+            this,
+            &GitPage::onDiscardFailed_);
 
         rebuild_();
     }
@@ -493,17 +507,83 @@ private:
         descriptionEdit_->clear();
     }
 
-    // Shown without exec: the window may close while it's up
     void onCommitFailed_(const QString& error)
+    {
+        showFailure_(tr("Commit failed"), tr("Nothing was committed."), error);
+    }
+
+    void onDiscardFailed_(const QString& error)
+    {
+        showFailure_(
+            tr("Discard failed"),
+            tr("The changes weren't discarded."),
+            error);
+    }
+
+    // Shown without exec: the window may close while it's up
+    void showFailure_(
+        const QString& title,
+        const QString& text,
+        const QString& error)
     {
         auto* box = new QMessageBox(
             QMessageBox::Warning,
-            tr("Commit failed"),
-            tr("Nothing was committed."),
+            title,
+            text,
             QMessageBox::Ok,
             this);
         box->setInformativeText(error);
         box->setAttribute(Qt::WA_DeleteOnClose);
+        box->open();
+    }
+
+    // Asked first, as the file tree asks before a delete, and shown without
+    // exec: the window may close while it's up. The entry is the one asked
+    // about, even if a new status comes while the question is up
+    void confirmDiscard_(const GitStatus::Entry& entry)
+    {
+        auto name = entry.path.nameQString();
+        auto is_new = entry.change == GitStatus::Change::Untracked ||
+                      entry.change == GitStatus::Change::Added ||
+                      repository_->status().branch.unborn;
+
+        auto* box = new QMessageBox(this);
+        box->setIcon(QMessageBox::Warning);
+        box->setWindowTitle(tr("Discard changes"));
+
+        if (is_new) {
+            box->setText(
+                tr("Are you sure you want to discard \"%1\"?").arg(name));
+            box->setInformativeText(
+                tr("It isn't in the last commit, so the file itself will be "
+                   "moved to the system trash."));
+        } else {
+            box->setText(
+                tr("Are you sure you want to discard the changes to \"%1\"?")
+                    .arg(name));
+            box->setInformativeText(
+                tr("A copy of the changed file will be moved to the system "
+                   "trash, and the file will go back to how it was in the "
+                   "last commit."));
+        }
+
+        auto* discard_button =
+            box->addButton(tr("Discard"), QMessageBox::DestructiveRole);
+        auto* cancel_button = box->addButton(QMessageBox::Cancel);
+        box->setDefaultButton(cancel_button);
+        box->setEscapeButton(cancel_button);
+        box->setAttribute(Qt::WA_DeleteOnClose);
+
+        connect(
+            box,
+            &QMessageBox::finished,
+            this,
+            [this, box, discard_button, entry] {
+                if (box->clickedButton() == discard_button) {
+                    repository_->discard(entry);
+                }
+            });
+
         box->open();
     }
 
@@ -526,7 +606,7 @@ private:
     }
 
     // The diff's three placements, as the file tree's menu offers a file's,
-    // then the file itself
+    // then the file itself, then discarding its changes
     void showContextMenu_(const QPoint& position)
     {
         auto* item = list_->itemAt(position);
@@ -554,6 +634,16 @@ private:
             menu.addSeparator();
             menu.addAction(tr("Open file"), this, [this, key] {
                 emit fileRequested(key);
+            });
+        }
+
+        const auto& entry = entries_[row];
+
+        if (!repository_->isBusy() &&
+            entry.change != GitStatus::Change::Conflicted) {
+            menu.addSeparator();
+            menu.addAction(tr("Discard changes…"), this, [this, entry] {
+                confirmDiscard_(entry);
             });
         }
 
