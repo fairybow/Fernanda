@@ -4,23 +4,29 @@ Bugs and code chores, and for now the Git features not yet built. Other features
 
 ## Git TODOs (move to appropriate sections when all finished)
 
+- [ ] Commit description field doesn't have rounded corners, but summary field does
+- [ ] There are lines between the "repo", "branch", and "fetch buttons", making them look fully rectangular, but their hover washes have rounded corners - looks quite bad
 - [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
-- [ ] Need padding in GitView file lists on left side (check boxes, especially top level, are too close to edge) (may want to make them inline with a distinguished header, like in GitHub Desktop)
+- [ ] Need padding in GitView file lists on left side (check boxes, especially top level, are too close to edge) (may want to make them all inline with a distinguished header, like in GitHub Desktop)
 - [ ] The GitView check boxes are ugly lol
 - [ ] I swear, there's a little jump/resize after opening the same tab from GitView (thus having two of the same tab open, which also should be fixed), and then closing that newly opened version (closing is when I notice the jump)
 - [ ] When opening from GitView, if the opened tab is the same as active tab, just show it (focus if needed)
 - [ ] Git diffs don't show new line at end of file
-- [ ] Hide word counter in Git view probably
+- [ ] Hide word counter while in Git view probably
 - [ ] Potentially use mononoki always for Git view diffs
 - [ ] Need some padding (UiConstants), tweakable, for left and right sides of status bar
 - [ ] Loading circle for branch publishing needs animating (and wherever else it would appear)
-- [ ] GitView top bar's repo name box needs to have its right edge attached to the left hand column, as in GH Desktop - probably need a new layout :grimace:
-- [ ] GitView delete changes dialog is chonky/ugly/bad/etc
-- [ ] Branch popup is too square + clicking it again should probably close + hover wash doesn't go away when clicking outside of the menu to close it until you move mouse over and off it again
-- [ ] Overall, branch menu/popup feels jank
-- [ ] New branch button has no hover wash, no obvious visual feedback
+- [ ] GitView top bar's repo name box needs to have its right edge attached to the left hand column, as in GH Desktop - probably need a new layout :grimace: (essentially, in Desktop, the repo name box and the rest of the left-hand column, containing changed files and commit info entry fields, are all one single column)
+- [ ] GitView delete changes dialog is chonky/ugly/bad/etc - it's like fully square almost even though it contains a fair amount of text
+- [ ] Branch popup is too square, should probably look like a regular menu (like Vault Switcher), with rounded corners
+- [ ] Clicking branch menu again should probably close it - right now, it closes and reopens
+- [ ] Branch menu's hover wash doesn't go away when clicking outside of the menu to close it - you have to then pass the mouse over it again to get the hover wash to go away
+- [ ] Branch menu has visible lag when loading - you can almost see the widgets cascade in - very ugly
+- [ ] Overall, branch menu/popup feels jank and is bad
+- [ ] New branch and pull request buttons have no hover wash and no obvious visual feedback - I think even though Fernanda's buttons usually have no borders, these probably should
+- [ ] Probably should not even have the pull request button? Generally, don't people using GitHub Desktop do so by clicking the Fetch chip/box (it changes to open a pull request after pushing, I believe). If we keep the pull request button, then probably put them side-by-side, instead of on top of one another
 - [ ] Current branch is not selected when opening the branch menu after making a new branch (still has main as selection!)
-- [ ] Branch naming should have filtering to prevent bad names
+- [ ] Branch naming should have filtering to prevent bad names, rather than relying on Git to inform after clicking Enter
 - [ ] `GitRepository`'s class comment has two lines broken short (after "by" and "the whole"). Rewrap it
 - [ ] Run `update_translations` for the Git view's strings, add the English plural forms of "%Ln changed file(s)" and "Last fetched %Ln minute(s) ago" (and its hour and day forms) to `Translation_en.ts`, and translate them into Spanish
 
