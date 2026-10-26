@@ -1,6 +1,6 @@
 # Future
 
-What Fernanda doesn't do yet, might do, and won't do. For what it does today, see [Features.md](Features.md). Bugs and code chores are in [TODO.md](TODO.md).
+What Fernanda doesn't do yet, might do, and won't do. For what it does today, see [Features.md](Features.md). Bugs and code chores are in [TODO.md](TODO.md), and for now so are the Git features not yet built.
 
 Nothing here is a promise or a schedule.
 
@@ -76,13 +76,6 @@ Nothing here is a promise or a schedule.
 
 - Open a file or a vault passed on the command line, in the most recently used window. This is what makes "Open with Fernanda" and dragging a file onto the app work. Wanted after beta
 
-### Git
-
-Committing a vault to a repository, for backup and history.
-
-- The repository is found by walking up from the vault's folder, as Git does. One repository may hold several vaults, and a vault may have none
-- Status and commit would therefore belong to the repository, not the vault. Otherwise a commit from one vault would silently include another's changes
-
 ### Releases
 
 - A signed Windows installer, through the SignPath Foundation's free code signing for open source. The installer already shows the privacy statement and offers to turn off the update check, as its conditions ask. Once the project is accepted, the README and every release page need a section titled "Code signing policy", naming who signs and the team's roles and linking the privacy statement, and the release notes' warning about an unsigned build goes. Until then, that section would claim something untrue
@@ -136,6 +129,7 @@ Committing a vault to a repository, for backup and history.
 - **Renaming in place in the file tree** (F2). Rename uses a dialog, which checks the name as it is typed
 - **File associations.** Fernanda doesn't register itself for any file type
 - **Right-to-left layouts**
+- **Fetching on a timer.** GitHub Desktop fetches every hour. Fernanda's Git view contacts the repository's remote only when its sync button is clicked, so opening a vault never reaches the network on its own. The time of the last fetch is shown, so a stale view is visible
 - **Telling files apart by following symlinks.** A file is named by the path it was reached by, so a folder linked into a vault stays part of that vault. Following links would name it by its target, outside the vault, and break it there. A file reachable two ways through a link is two documents; Obsidian asks for link targets to be kept apart in the same way. Only a vault's own folder is followed through a link, so one folder opened two ways is one vault
 - **Switching language without a restart.** Qt can swap translations while running, but every widget would have to set its text again when told, and Fernanda sets its text once, as each widget is built. Every class with text would need a second path for it, and a string missed in one would leave a window half in each language. Relaunch, beside the Language setting, does the job as Obsidian's does
 
@@ -143,7 +137,6 @@ Committing a vault to a repository, for backup and history.
 
 - **The word "vault".** The per-project container might become a Project or a Notebook, and the shared one simply the Vault
 - **Autosave timing.** One second after typing stops and three seconds at most are working defaults, not settled numbers
-- **Git: bundle a library or call the installed `git`?** Calling it adds no dependency but requires Git on the machine and makes errors harder to read
 - **Sort order with hidden extensions.** Files sort by full name, so `a b.md` comes before `a.md` and the tree reads "a b", then "a". Whether to sort by the name shown is undecided
 - **Markdown rendering.** Not ruled out, and probably not the way Obsidian does it. What form it would take is undecided: styling in place with the markup left visible, a separate read-only preview, or something else. Whatever it is, the file stays plain text and is written back unchanged
 - **Folder links in the file tree.** The tree shows and expands symlinked folders; Go to File skips them. One of the two should change

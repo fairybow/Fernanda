@@ -1,6 +1,6 @@
 # TODO
 
-Bugs and code chores. Features that aren't built yet are in [Future.md](Future.md); conventions are in [CodeStyle.md](CodeStyle.md).
+Bugs and code chores, and for now the Git features not yet built. Other features that aren't built yet are in [Future.md](Future.md); conventions are in [CodeStyle.md](CodeStyle.md).
 
 ## Bugs
 
@@ -72,11 +72,16 @@ Not built yet. Here for review alongside the Git bugs.
 
 - [ ] History: the current branch's commits, newest first, each showing its message and the files it changed, with a diff of the one selected, as in GitHub Desktop's History tab
 - [ ] Stashing: setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead without committing or discarding first, as GitHub Desktop offers when switching branches
+- [ ] Merging: a pull only fast-forwards, and a branch can't be merged into another from the view. Merging means handling conflicts: showing the conflicted files, and committing once they're resolved. Git itself refuses to commit only some files mid-merge, so the commit box would need to say so
+- [ ] Committing part of a file: checking single hunks or lines, as GitHub Desktop does by clicking in the diff's gutter
+- [ ] Amending the last commit
+- [ ] Discarding every change at once (GitHub Desktop's Discard All Changes), and discarding several selected files
 
 ## Rough edges
 
 - [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
 - [ ] Same for error report strings from outside Fernanda, like GitRepository's "result.error" usage, which should probably be quoted
+- [ ] A vault's `.fernanda/settings.json`, `appearance.json`, and `dictionary.txt` are meant to be committed, so a setting changed or a word added makes a tracked change, which stops a branch switch or a pull until it's committed or discarded
 - [ ] Decide if all Lucide icons should be in constants file or only things accessed from multiple places (the latter being what I lean toward right now, as those *Constants files are for non-settings tweakable values (shared or unshared) or shared constants generally)
 - [ ] The licenses dialog's Qt entry links to Qt's list of the libraries Qt itself bundles (PDFium in Qt PDF, among others) rather than showing their notices. Shipping their texts would mean collecting them from the Qt build in use
 - [ ] Tabs can be dragged past the left or right end of the tab bar without starting a drag; may want to clamp them
@@ -103,12 +108,14 @@ Not built yet. Here for review alongside the Git bugs.
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
+- [ ] Run `update_translations` for the Git view's strings, add the English plural forms of "%Ln changed file(s)" and "Last fetched %Ln minute(s) ago" (and its hour and day forms) to `Translation_en.ts`, and translate them into Spanish
 - [x] Need the remaining Edit menu and text editor context menu options (cut, copy, paste, select all, delete)
 - [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
 
 ## Code
 
 - [ ] Verify the `PrimeDocument` header, and rename it
+- [ ] `GitRepository`'s class comment has two lines broken short (after "by" and "the whole"). Rewrap it
 - [ ] Rename `BaseWindow`'s protected members that have a trailing underscore
 - [ ] Bring `MenuBuilder` over from Hearth (maybe into Coco)?
 - [x] Decide on `private slots:`. It isn't used consistently, and using it properly would break up sections that are organized by purpose. Either remove the keyword everywhere or sort slots into it everywhere
@@ -136,6 +143,9 @@ What the tests in `Fernanda/tests/` don't reach.
 - [ ] `App` following vaults whose folders were moved or renamed in-app (`App::followVaults_`, `App::renameVaultFolder_`), and closing one whose folder was trashed; setting and unsetting the Common Vault; and each window's response to a moved vault or a new Common Vault (`VaultWindow::setCommonVault`). The store's announcement, `Vault::moveRoot`, `RecentFiles::rebase`, and `AppConfig`'s records are tested
 - [ ] The letter-case cases (an inner vault's root spelled in another case, and a rename by case alone above an inner vault) run only where case is ignored: on Windows and macOS
 - [ ] A file that starts with two byte-order marks. On Qt 6.4 one is dropped on load, which the comment on the mark in `TextFileModel.h` says can't happen. Check it on the Qt in use
+- [ ] Discarding a file's changes sends a real copy to the system trash, so `GitRepositoryTest` doesn't reach it, as with `Vault::moveToTrash`. What runs after the trash (the restore, and removing a new file from the index) is plain git
+- [ ] The two-minute limit on a fetch, pull, or push (`GIT_NETWORK_TIMEOUT_MS`). A test would need a remote that never answers
+- [ ] Signing in to a real remote, through a credential manager, and failing cleanly where Git would ask in a terminal. The tests sync with a bare repository in a temporary folder
 - [ ] `JsonIo`, `WorkspaceFile`, and everything in `views/` (apart from `TextSearch`) and `ui/`. The find bar and the way `TextFileView` drives a search are among them, as are the misspelling underlines and the spelling items in the editor's context menu. Considered for `TabPaneTree`'s save and restore and left out: a mistake there costs a layout, not text, and shows on the next launch
 
 ## Audits

@@ -38,12 +38,14 @@ Everything is under `Fernanda/src/`, in the `Fernanda` namespace. Apart from `Ma
 | `src/` | `Main.cpp`, `App`, and the log window |
 | `core/` | `Vault`, the buffer store, file keys, the vault tree model, configuration, file IO, file types, action ids, the focus timer and its rules |
 | `core/spell/` | Spellcheck: the dictionaries, the word rules, and the vault's word lists |
+| `core/git/` | The repository a vault is in, and reading what `git` prints: status, diffs, remote addresses |
 | `models/` | One buffer class per file type, and the prime document |
 | `views/` | One view class per file type, and the parts only views use: the text editor with its selection handles and typing helpers, the find bar and the search functions behind it, and the zoom control with its state |
 | `ui/` | The windows and what they open directly: workspace persistence, Go to File, the vault picker, the status bar items. Also the application's style |
 | `ui/tabs/` | The split tree, its leaves, the tab bar and its buttons, the new-tab page |
 | `ui/sidebar/` | The sidebar, the file trees, the common drawer, the vault switcher |
 | `ui/settings/` | The settings dialog, its pages, and their rows |
+| `ui/git/` | The Git view, its status bar button, the top bar with its branch list and New Branch dialog, the changes list's delegate, and the diff |
 | `ui/widgets/` | Controls that know nothing of the app: glyph rendering, the flat-button wash, the toggle switch, the slider, name checking, the row labels shared by the file tree and Go to File |
 
 Folders are for finding files; they don't set namespaces. Everything under `ui/` is in `Fernanda::Ui`, whatever its subfolder; everything else is in `Fernanda`.
@@ -90,7 +92,7 @@ flowchart TD
 | `BufferStore` | Every open file's buffer, the watcher over open files, the autosave timers. Keeps a list of every vault's `VaultTreeModel`, which it doesn't own, and announces each rename, move, and trash it follows |
 | `Vault` | Its `VaultTreeModel`, its `VaultConfig`, its dictionary and ignored words, its `.fernanda/` folder. Borrows the store |
 | `BaseWindow` | The window's `TabPaneTree`, its action registry, its status bar |
-| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, its `FocusTimer`, and the creation of its pop-outs. Borrows its vault, the Common Vault (if there is one), and the store |
+| `VaultWindow` | Its `Sidebar`, its `WorkspaceFile`, its settings dialog, its `FocusTimer`, its `GitRepository` and `GitView`, and the creation of its pop-outs. Borrows its vault, the Common Vault (if there is one), and the store |
 | `PopoutWindow` | Nothing of its own. Its `VaultWindow` wires it |
 
 **`App` owns every `Vault`.** If windows owned their vaults, `Vault` would have two kinds of owner: `App` for the common one, a window for the rest. Owning them all in one place makes the Common Vault an ordinary `Vault` with a role, which `App` can give to any vault, or to none (see "The Common Vault").
@@ -480,6 +482,30 @@ flowchart TD
 - **One timer per vault window, set from the vault's settings.** The window owns it, so it stops with the window, and two vault windows run two timers. The window gives it new lengths on each `configChanged`, which apply from the next period, and resets it while the setting is off. A `Vault` couldn't own it: the Common Vault's lives on with no window, where a timer would run unseen.
 - **The button reads and drives the timer directly.** The `Sidebar` shows it while the vault's setting is on, following `configChanged` itself, so the window never reaches into it. The button repaints on the timer's `changed`, and when a period ends it flashes its own window (`QApplication::alert`). Pop-outs have no sidebar and so no button.
 
+## Git
+
+```mermaid
+flowchart TD
+    VW["VaultWindow"] -->|owns| GR["GitRepository"]
+    VW -->|owns, once opened| GV["GitView"]
+    GV -.->|borrows| GR
+    GR -.->|borrows| BS["BufferStore"]
+    GR -->|runs, one at a time| G["git"]
+```
+
+- **The installed `git`, not a library.** `GitRepository` runs `git` through `QProcess`, asynchronously, and reads its output. Fernanda gains no dependency to build on every platform, and Git's own configuration and sign-in (credential managers, SSH agents) work as they do in a terminal. A machine without Git shows no Git view.
+- **One `GitRepository` per vault window, owned by it.** The window decides when to ask: it detects the repository when the vault opens, when its folder moves, and when the window comes forward, which also reads the status again. Two windows over one repository have one each; the repository on disk is the shared state. Nothing runs `git` on its own, and nothing reaches the remote unless the sync button is clicked.
+- **One command at a time, in a queue.** Git locks the index for most commands, so two at once could fail each other. A detection, status, diff, branch list, or remote list asked for while the same kind waits adds nothing, or replaces the waiting one. A commit, discard, switch, or sync is one operation of several steps: a step that fails drops the rest, and the status is read again either way. One operation waits for another.
+- **Every command runs with `core.fsmonitor` off, `core.quotePath` off, and `--literal-pathspecs`, with no terminal prompt and nothing on standard input** beyond paths passed there. A repository's own config can name a program for `git status` to run as its file monitor, and a vault can come from anyone. Diffs also run with `--no-ext-diff` and `--no-textconv`, for the same reason and to show the file's own lines. A command that wants to ask something fails rather than waiting for an answer no one can type. Network commands are stopped after `GIT_NETWORK_TIMEOUT_MS`.
+- **Saved first.** Status, commit, discard, switch, and pull each have `BufferStore` save every modified buffer at or under the repository's folder, so Git sees the text on screen. If one can't be saved, the operation doesn't run.
+- **The root is spelled the vault's way.** Git is asked how far up the repository is (`rev-parse --show-cdup`), and the root is made by walking up from the vault's folder. Git's own answer (`--show-toplevel`) resolves symlinks above the folder, as macOS's temporary folders have, and keys made from it wouldn't match the store's, so the save would miss every buffer.
+- **Commits leave the index alone.** The checked files are committed with `commit --only`, which takes those paths as they are on disk and leaves what's staged for other files staged and out of the commit. Git itself refuses this kind of commit during a merge.
+- **Discarding keeps a copy.** Git keeps none of changes never committed. A file in the last commit is copied into a temporary folder, the copy goes to the system trash, and only then does Git restore the file in place. The file never goes missing, so an open tab reloads it as one undoable change rather than closing. A file not in the last commit goes to the trash itself. If the trash refuses, nothing is discarded.
+- **Switching and pulling are refused while a tracked file has uncommitted changes,** by the last status, before `git` is run. Untracked files don't count, since Git leaves them where they are on every branch. Files a switch or a pull rewrites reach open tabs through the file watcher, as any outside change does.
+- **Reading Git's output is plain functions, tested on their own.** `GitStatus` reads porcelain v2 status, `GitDiff` reads unified diffs and marks the words that changed in paired lines, and `GitRemote` reads a remote's address. `GitRepository` runs `git` and asks them. `GitRepositoryTest` runs the real `git` in a temporary folder, with a bare repository standing in for a remote.
+- **The view takes the window's place, and locks its actions.** The window's central widget is a stack of the tab area and the `GitView`, built the first time it opens. While the view shows, `BaseWindow::lockActions` disables the window's own actions, since they act on tabs that can't be seen, apart from the toggle and the `text.` actions, which act on the view's own fields. Actions adopted from `App` are left alone. The status bar button and the toggle action are one path: the button triggers the action, and the window sets both checked from the view.
+- **Diff tints are fixed colors with an alpha,** not palette roles: the palette has no role for added or removed. With an alpha they tint a light page and a dark one alike.
+
 ## Opening and creating vaults
 
 Divided by who touches vault folders on disk.
@@ -547,6 +573,7 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 - The settings dialog is window-modal and opened without `exec()`: Quit can be triggered from inside it and deletes its window.
 - The licenses dialog is window-modal over Manage Vaults, opened without `exec()`, and deletes itself when closed.
 - Go to File does use `exec()`, and is application-modal so that no other window can close its host meanwhile.
+- The Git view's confirmations, failure messages, and New Branch dialog are opened with `open()` and delete themselves when closed.
 - No dialog is shown while a window is being constructed. Workspace restore, which runs then, refuses a file that would need a prompt.
 - The settings dialog has no default button. In a `QDialog` every push button is auto-default unless told otherwise, so one would become the default, take the accent, and be pressed by Enter anywhere in the dialog. `SettingsPage::addRow` turns auto-default off for every button in a row's control, so a page's buttons need nothing of their own.
 
@@ -570,7 +597,7 @@ A dialog run with `exec()` spins a nested event loop on its caller's stack. If t
 - **Glyphs are drawn four times larger and scaled down** (`Glyph::render`). Lucide's stroke is a twelfth of the glyph, so a 12-pixel glyph at 100% scale has a 1-pixel stroke, and Qt draws lines that thin with a separate stroker that puts them half a pixel off, spreads each evenly over two pixels, and drops round caps: an X or a chevron comes out lopsided. Drawn larger, every stroke goes through the ordinary stroker, and scaling down averages each block into the coverage the glyph has at its own size. Two alternatives were tried and rejected. Shifting the drawing half a pixel does nothing for diagonals (it moves them along themselves) and blurs the glyphs whose lines fall on odd units, such as the pin and the vault mark. Drawing a glyph one pixel smaller, so its middle lines land on pixels, sharpens a + or a chevron and blurs a file or folder. No one glyph size is sharp at every scale either: a + at 12 is soft at 100% and sharp at 125%, at 13 the reverse
 - **Anything rendered once keeps the colors of the moment.** A widget that holds a rendered glyph (a tab's icon) renders it again when its palette, its style, or its window's activation changes. This is why a page carries which glyph marks its tab, not a rendered icon.
 - **A palette change reaches a parent before its children.** A widget reacting to its own palette change reads its own palette: a child's still holds the old one.
-- Colors come from palette roles, each named by a constant in `ui/UiConstants.h` (or `views/ViewConstants.h`, for the editor and zoom parts), so a tint can be changed in one place. The editor's current-line highlight is the exception: a fixed color for a light page and another for a dark one.
+- Colors come from palette roles, each named by a constant in `ui/UiConstants.h` (or `views/ViewConstants.h`, for the editor and zoom parts), so a tint can be changed in one place. The exceptions are the editor's current-line highlight, a fixed color for a light page and another for a dark one, and the Git diff's tints, fixed colors with an alpha.
 - The tree model carries no icons. The tree's delegate and view paint the glyphs, extension labels, and chevrons, which keeps the model free of GUI types.
 
 ## Coming from Hearth
@@ -622,4 +649,8 @@ Each of these was built or seriously considered. They are recorded so they aren'
 - **An event filter for the typing helpers** (Hearth's `KeyFilters`). The editor already overrides its key handling, so offering the key there first is one call and keeps the order with Qt's own handling plain.
 - **Painting selection handles on an overlay widget.** Hearth's approach. The overlay had to be realigned with the editor on every update; painted by the editor, the handles scroll with the text.
 - **Moving a vault from inside the app.** See [Future.md](Future.md).
+- **Discarding by trashing the file and then restoring it.** The file would be gone for a moment, so the watcher would close its tabs, and the undoable reload, a second way back to the changes, would be lost. A copy goes to the trash instead, and the file is restored in place.
+- **A library (libgit2) in place of the installed `git`.** A dependency to build and ship on every platform, and sign-in, which Git's credential managers and SSH agents already handle, would become Fernanda's to do. Calling `git` costs only needing it installed.
+- **GitHub Desktop's way of marking changed words:** one stretch from the first changed character to the last, skipped for a line of 1,024 characters or more. In prose a paragraph is one line, so two small edits far apart would mark nearly all of it, and most paragraphs would be skipped. Words are compared instead, with a limit on how large a comparison may grow.
+- **`git diff --word-diff` for the changed words.** It prints words between markers rather than the lines the view is built on, needs a second run of `git` per file, and takes its idea of a word from the repository's config.
 - **One file of named strings for translation** (Hearth's `Tr.h`: a function per string, all under one context). It would put all the text in one place and keep `lupdate` from filing a string under the wrong class. But every string would move away from the code that shows it, each would need a name kept in step with its text, and one context would merge strings that a language may need to translate differently (a tab's "Close" and the find bar's "Close"). Seeing all the text in one place is what Qt Linguist and the `.ts` files already give, and Linguist offers an existing translation when the same English comes up again. `tr()` where the text is used is how Qt expects it to be done. `lupdate`'s misreadings are rare and easy to spot; see "Translations" in [CodeStyle.md](CodeStyle.md).
