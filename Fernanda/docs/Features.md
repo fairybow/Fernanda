@@ -216,39 +216,50 @@ A timer for writing in focus periods, with a short break after each and a longer
 
 ## Git
 
-For a vault inside a Git repository, Fernanda can show the repository's changes, commit them, and work with its branches and its remote, after GitHub Desktop. It uses the Git installed on your computer. Without Git, or for a vault in no repository, none of this shows.
+For a vault inside a Git repository, Fernanda can show the repository's changes, commit them, and work with its branches and its remote. It does what GitHub Desktop does, in Fernanda's own sidebar and tabs. It uses the Git installed on your computer. Without Git, or for a vault in no repository, none of this shows.
 
-- A branch button appears at the left of the status bar when the vault is in a repository. Hovering over it names the current branch
-- Click it, press Ctrl+Shift+G, or choose View → Git to open the Git view in place of the sidebar and tabs, and again to close it. The button is filled with the accent color while the view is open
-- While the view is open, the window's other commands are unavailable, apart from Quit, Manage Vaults, and cut, copy, paste, delete, and select all in the view's text fields
-- The repository is the one the vault's folder is in, found as Git finds it, by looking upward. It may hold more than the vault (other vaults, or files Fernanda doesn't open), and the view shows every change in it
+- When the vault is in a repository, two buttons appear at the top of the sidebar: Files and Git. Git shows the repository's page in the sidebar; Files goes back to the file tree and the Common Vault. The current one is shaded. Without a repository the buttons aren't there, and the sidebar looks as it always has
+- Ctrl+Shift+G, or View → Git, switches between the two
+- The rest of the window works as usual while the Git page shows
+- The repository is the one the vault's folder is in, found as Git finds it, by looking upward. It may hold more than the vault (other vaults, or files Fernanda doesn't open), and the Git page shows every change in it
 - Show Git, in Settings → Git, turns it off for a vault. It starts on
-- What the view shows is read again when it opens and whenever the window comes forward
+- The Git page reads the repository again each time it shows, and whenever the window comes forward
 
-### Changes and commits
+### Changes and diffs
 
-- The left column lists every changed file, with a mark for added, modified, deleted, renamed, or conflicted. Each has a checkbox, and one box above them checks or clears all of them and gives the count
-- Selecting a file shows its diff on the right: removed lines in red and added lines in green, each with its line numbers in the old file and the new one. Within a changed line, the words that changed are marked more strongly. A line rewritten almost entirely gets no word marks, since nearly every word would have them. Lines wrap to the width of the view
+- The Git page lists every changed file by name, with its folder after it in muted letters and a mark at the right in the change's color: green for added, amber for modified, red for deleted, blue for renamed, and a warning triangle for a file left conflicted by a merge
+- Double-click a file, or press Enter, to open its diff in a tab, over the current tab unless that one is pinned, as a file opens from the file tree. Right-click for Open in new tab, Open to the right, and Open in new window
+- Right-click a file for **Open file** too, which opens the file itself in a new tab (for a file in the window's vaults that Fernanda can open). If it's already the current tab, it's just shown
+- A diff's tab is marked with the branch glyph, so it isn't taken for the file's own tab. Removed lines are red and added lines green, each with its line numbers in the old file and the new one. Within a changed line, the words that changed are marked more strongly. A line rewritten almost entirely gets no word marks, since nearly every word would have them. Lines wrap to the width of the tab, and the text is in the vault's font
 - When a file ends without a line break, the diff says so under its last line
-- The commit box takes a summary, which is required, and a description. "Commit to *branch*", or Ctrl+Enter, commits the checked files. Everything open is saved first
+- A diff follows its file: it updates when the file changes, keeping its place, and says there are no changes once the file is committed or discarded. Right-click for Copy and Select All
+- Diff tabs can be pinned, split, and moved to other windows, like any tab, but aren't restored on the next launch
+
+### Commits
+
+- Each file has a checkbox, and the box above them checks or clears all of them and gives the count. A file unchecked stays unchecked until it's checked again, or until it's committed
+- The commit box, at the bottom of the Git page, takes a summary, which is required, and a description. "Commit to *branch*", or Ctrl+Enter anywhere in the box, commits the checked files. Everything open is saved first
 - Only the checked files are committed. A file staged from a terminal and left unchecked stays staged
-- Right-click a file for **Open**, which closes the Git view and opens the file in a new tab (for a file in the window's vaults that Fernanda can open), and **Discard Changes…**
-- Discarding always asks first. A copy of the changed file goes to the system trash, and the file goes back to how it was in the last commit. A tab showing it reloads in place, so Ctrl+Z there brings the changes back too. A file that isn't in the last commit goes to the trash itself. A discarded copy restored from the trash comes back to a temporary folder, not to the vault
-- A conflicted file can't be discarded from the view. Settling a conflict is left to Git
+
+### Discarding
+
+- Right-click a file for **Discard changes…**. It always asks first, and Cancel is the default
+- A copy of the changed file goes to the system trash, and the file goes back to how it was in the last commit. A tab showing it reloads in place, so Ctrl+Z there brings the changes back too. A file that isn't in the last commit goes to the trash itself. A discarded copy restored from the trash comes back to a temporary folder, not to the vault
+- A conflicted file can't be discarded from the Git page. Settling a conflict is left to Git
 
 ### Branches
 
-- The top bar shows the repository, which is fixed, then the current branch, then the sync button
-- Clicking the current branch drops a list: New Branch…, a filter, the local branches with the current one in bold, and under Remote the branches on the remote that have no local copy
+- The branch button, at the top of the Git page, names the current branch. Click it for a menu: the local branches, with the current one checked; under **Remote branches**, the branches on the remote that have no local copy; **New branch…**; and **Create pull request**, when there's one to make
 - Choosing a local branch switches to it. Choosing a remote one makes a local branch that tracks it, and switches to that
-- New Branch… asks for a name and makes the branch from the current one, then switches to it, taking any uncommitted changes along. Git checks the name, and a name it refuses keeps the dialog open with Git's reason
-- **Create Pull Request** shows for a branch published to a remote on github.com, when it isn't the remote's default branch. It opens GitHub's page for a new pull request in your browser
+- New branch… asks for a name and makes the branch from the current one, then switches to it, taking any uncommitted changes along. The name is fixed as you type, as GitHub Desktop fixes it: spaces and characters Git refuses become hyphens, and a line under the field says what the branch will be called. Git still checks the name, and a name it refuses keeps the dialog open with Git's reason
+- **Create pull request** shows for a branch published to a remote on github.com, when it isn't the remote's default branch. It opens GitHub's page for a new pull request in your browser
 - Switching branches, and pulling, are refused while a file Git tracks has uncommitted changes: commit or discard them first. New files Git doesn't track yet don't count
 - Files a switch or a pull changes reload in their tabs, as any change made outside Fernanda does, and a tab on a file the other branch doesn't have closes
 
 ### Syncing
 
-- The sync button, after the current branch, offers what GitHub Desktop's does, in the same order: **Publish branch** for a branch the remote doesn't have yet, **Pull** with how many commits are waiting, **Push** with how many are to send, or else **Fetch**. Above the action it says when the repository last fetched
+- The sync button, right of the branch button, does what GitHub Desktop's does, in the same order: it publishes a branch the remote doesn't have (or no longer has), pulls when commits are waiting, pushes when there are commits to send, or else fetches. Its glyph says which, with how many commits are waiting (↓) and to send (↑) beside it
+- Hover over it to see what it will do and when the repository last fetched. The glyph turns while it runs
 - The remote is the one the branch tracks, otherwise `origin`, otherwise the only remote there is. With none, the button is disabled
 - Fernanda never fetches, pulls, or pushes on its own. Nothing contacts the remote until you click
 - A pull only fast-forwards. If the branches have both moved on, the pull is refused, with Git's reason, and nothing is merged
@@ -256,18 +267,20 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 
 ### Where it differs from GitHub Desktop
 
+- It lives in the sidebar, and each diff opens in a tab, rather than in a window of its own
 - Diff lines wrap, since a paragraph of prose is one line. Desktop's run off to the right
 - Each changed word in a line is marked. Desktop marks one stretch from the first changed character to the last, and nothing in a line of 1,024 characters or more
 - No fetch on a timer. Desktop fetches every hour
-- No stash. Desktop offers to set changes aside, or bring them along, when switching branches with changes
-- No history, no merges, and no committing part of a file
+- The branch list has no filter
+- No stash. Switching or pulling with changes is refused, where Desktop offers to set the changes aside, or bring them along
+- No history, no merges, no amending, no discarding every change at once, and no committing part of a file
 
 ## Look
 
 Fernanda draws its own interface, the same on every operating system: flat and quiet, with rounded corners, in the colors of the system's light or dark mode.
 
 - It follows the system's light or dark mode, and switches with it while Fernanda is running
-- The system's accent color marks the default button in a dialog, a focused text field, the selected row of a list, a slider's filled track, and a button that is switched on, such as the Git button while its view is open
+- The system's accent color marks the default button in a dialog, a focused text field, the selected row of a list, a slider's filled track, and a checked box
 - The current tab is the color of the page below it
 - Menus are rounded, with a soft shadow, and so are the drop-down lists of choices in Settings
 - The current line highlight is a soft blue on a light page and a muted red on a dark one
@@ -281,7 +294,7 @@ Ctrl+, or the gear beside the vault switcher. Settings belong to the vault and a
 - **Appearance**: text font, bold, italic, font size
 - **Status bar**: the word counter and the cursor position, and which parts of each to show
 - **Focus timer**: whether it shows, the lengths of focus and of each break, and how many focus periods come before a long break
-- **Git**: whether the Git button shows, for a vault in a repository
+- **Git**: whether the Git page shows in the sidebar, for a vault in a repository
 
 A Common Vault file opened in a project's window uses that project's settings.
 
@@ -333,8 +346,8 @@ The list of known vaults, and which of them is the Common Vault, is kept outside
 | Find and replace | Ctrl+H |
 | Next / previous match | F3 / Shift+F3 |
 | Zoom in / out / reset | Ctrl+= / Ctrl+- / Ctrl+0 |
-| Open or close the Git view | Ctrl+Shift+G |
-| Commit, in the Git view | Ctrl+Enter |
+| Switch the sidebar between the files and the Git page | Ctrl+Shift+G |
+| Commit, on the Git page | Ctrl+Enter |
 | Show or hide the menu bar | Ctrl+M |
 | Quit | Ctrl+Q |
 
@@ -370,7 +383,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 - **Stepping past closing punctuation** is Fernanda's own, as is the switch over both typing helpers
 - **No Markdown pairing.** Obsidian's "Auto pair Markdown syntax" pairs `*`, `_`, and the like, and applies them to selected text. Fernanda pairs brackets and quotes only
 - **A focus timer is built in.** Obsidian has none; community plugins add one, and some of them log each session to a note. Fernanda's settings are kept per vault, as a plugin's are, and it writes nothing into the vault
-- **Git is built in.** Obsidian has none; its community plugin Obsidian Git adds commits, pulls, and pushes, which it can also run on a schedule. Fernanda's Git view follows GitHub Desktop, and contacts the remote only when you click
+- **Git is built in.** Obsidian has none; its community plugin Obsidian Git adds commits, pulls, and pushes, which it can also run on a schedule. Fernanda's Git page does what GitHub Desktop does, and contacts the remote only when you click
 - **Updates aren't installed for you.** Fernanda says a newer version is out and links to it. Obsidian downloads updates itself and applies them when it restarts
 
 ## Known limits

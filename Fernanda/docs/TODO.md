@@ -1,47 +1,13 @@
 # TODO
 
-Bugs and code chores, and for now the Git features not yet built. Other features that aren't built yet are in [Future.md](Future.md); conventions are in [CodeStyle.md](CodeStyle.md).
-
-## Git TODOs (move to appropriate sections when all finished)
-
-- [ ] Find ALL places we do a hover wash sync/fix for widget movement/expansion/change, and centralize it (or them) somewhere appropriate (hover wash staying visible even though the widget has moved, but Qt has not updated its state based on mouse position, and Qt still considers the widget under mouse until the mouse is put back into the widget and then taken out again, usually - one place I know is Drawer, but I think there may be another place where a hover wash fix was needed (maybe not the same fix) before that)
-- [ ] Commit description field doesn't have rounded corners, but summary field does
-- [ ] There are lines between the "repo", "branch", and "fetch buttons", making them look fully rectangular, but their hover washes have rounded corners - looks quite bad - I would probably prefer to have their washes fill the squares
-- [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
-- [ ] Need padding in GitView file lists on left side (check boxes, especially top level, are too close to edge) (may want to make them all inline with a distinguished header, like in GitHub Desktop)
-- [ ] The GitView check boxes are ugly lol
-- [ ] I swear, there's a little jump/resize after opening the same tab from GitView (thus having two of the same tab open, which also should be fixed), and then closing that newly opened version (closing is when I notice the jump)
-- [ ] When opening from GitView, if the opened tab is the same as active tab, just show it (focus if needed)
-- [ ] Git diffs don't show new line at end of file
-- [ ] Hide word counter while in Git view probably
-- [ ] Potentially use mononoki always for Git view diffs
-- [ ] Need some padding (UiConstants), tweakable, for left and right sides of status bar
-- [ ] Loading circle for branch publishing needs animating (and wherever else it would appear)
-- [ ] GitView top bar's repo name box needs to have its right edge attached to the left hand column, as in GH Desktop - probably need a new layout :grimace: (essentially, in Desktop, the repo name box and the rest of the left-hand column, containing changed files and commit info entry fields, are all one single column)
-- [ ] GitView delete changes dialog is chonky/ugly/bad/etc - it's like fully square almost even though it contains a fair amount of text
-- [ ] Branch popup is too square, should probably look like a regular menu (like Vault Switcher), with rounded corners
-- [ ] Clicking branch menu again should probably close it - right now, it closes and reopens
-- [ ] Branch menu's hover wash doesn't go away when clicking outside of the menu to close it - you have to then pass the mouse over it again to get the hover wash to go away
-- [ ] Branch menu has visible lag when loading - you can almost see the widgets cascade in - very ugly
-- [ ] Overall, branch menu/popup feels jank and is bad
-- [ ] New branch and pull request buttons have no hover wash and no obvious visual feedback - I think even though Fernanda's buttons usually have no borders, these probably should
-- [ ] Probably should not even have the pull request button? Generally, don't people using GitHub Desktop do so by clicking the Fetch chip/box (it changes to open a pull request after pushing, I believe). If we keep the pull request button, then probably put them side-by-side, instead of on top of one another
-- [ ] Current branch is not selected when opening the branch menu after making a new branch (still has main as selection!)
-- [ ] Branch naming should have filtering to prevent bad names, rather than relying on Git to inform after clicking Enter
-- [ ] `GitRepository`'s class comment has two lines broken short (after "by" and "the whole"). Rewrap it
-- [ ] Run `update_translations` for the Git view's strings, add the English plural forms of "%Ln changed file(s)" and "Last fetched %Ln minute(s) ago" (and its hour and day forms) to `Translation_en.ts`, and translate them into Spanish
-
-Not built yet. Here for review alongside the Git bugs.
-
-- [ ] History: the current branch's commits, newest first, each showing its message and the files it changed, with a diff of the one selected, as in GitHub Desktop's History tab
-- [ ] Stashing: setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead without committing or discarding first, as GitHub Desktop offers when switching branches
-- [ ] Merging: a pull only fast-forwards, and a branch can't be merged into another from the view. Merging means handling conflicts: showing the conflicted files, and committing once they're resolved. Git itself refuses to commit only some files mid-merge, so the commit box would need to say so
-- [ ] Committing part of a file: checking single hunks or lines, as GitHub Desktop does by clicking in the diff's gutter
-- [ ] Amending the last commit
-- [ ] Discarding every change at once (GitHub Desktop's Discard All Changes), and discarding several selected files
+Bugs and code chores. Features that aren't built yet are in [Future.md](Future.md); conventions are in [CodeStyle.md](CodeStyle.md).
 
 ## Bugs
 
+- [ ] Sidebar page switch buttons need constant for padding between the buttons (right now they're completely adjacent)
+- [ ] Discard all for git
+- [ ] Stashing for git (and allowing branch switching while there are changes, and recovering stashed changes when switching back - essentially completing the full implementation of GitHub Desktop behavior in the new non-Desktop-based UI)
+- [ ] Need some padding (UiConstants), tweakable, for left and right sides of status bar
 - [ ] Switch line highlights (in editor, not diff) back to QPalette roles? What were they before QColor?
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
 - [ ] Perhaps change FocusTimer icon to hourglass
@@ -87,9 +53,15 @@ Not built yet. Here for review alongside the Git bugs.
 - [x] The spelling language in `settings.json` was used as a file name without being checked, so a hand-edited `../x` named a dictionary outside the dictionaries folder. `SpellCheckers` now takes only a single name, and treats anything else as not installed
 - [x] A path with a `..` segment passed `Vault::contains`, so a rename or move could take an entry out of the vault, and `Vault::openModel` opened a `../` or absolute path from a hand-edited `workspace.json`. Paths are now normalized into keys, and one that climbs out of the vault is refused (see "Identity" in [Architecture.md](Architecture.md))
 - [x] Log lines and log file names were stamped in UTC while reading as local time. `Coco::Time::now` labeled the UTC count as local without adding the offset; the timestamps now come from `QDateTime` in local time (`Coco::Time::nowQString`)
+- [x] The first Git view looked and behaved unlike the rest of Fernanda: square sections with rounded hover washes, a description field without the summary's rounded corners, Fusion's checkboxes against the list's edge, muted change marks, a still loading glyph, and a branch list in a square popup that reopened on a second click, kept its hover wash after closing, built visibly, and selected the wrong branch after a new one was made. The Git page replaces it: `Style` draws checkboxes and framed text boxes, the change marks are colored, the branch list is a real menu like the vault switcher's, and the sync glyph turns while it runs
+- [x] The Git view took the window's place, so the window's actions were locked while it showed, the word counter stayed up, and opening a file from it could open a second tab of the file already in front, with a small jump on closing it. Git is now a page of the sidebar and diffs are tabs, so the window works as usual, and Open file only shows a file that's already the current tab
+- [x] Diffs didn't show that a file ends without a line break. The diff says so under its last line
+- [x] A new branch's name was judged only by Git, on Create. It's now fixed as it's typed, as GitHub Desktop fixes it (`GitRefName`), and Git still has the last word
+- [x] Hover washes left on a widget that moved from under a still cursor were fixed in two places with two copies of the same code. Only the Common Vault drawer's header needs it now: the Git branch list, which had the other copy, is a real menu, and a menu needs none
 
 ## Rough edges
 
+- [ ] The Git page's discard question is a plain `QMessageBox`, worded as the file tree's Delete prompt is, and may still look too square for its text. If so, the fix belongs to every message box (the style, or a dialog of Fernanda's own), not to this one alone
 - [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
 - [ ] Same for error report strings from outside Fernanda, like GitRepository's "result.error" usage, which should probably be quoted
 - [ ] A vault's `.fernanda/settings.json`, `appearance.json`, and `dictionary.txt` are meant to be committed, so a setting changed or a word added makes a tracked change, which stops a branch switch or a pull until it's committed or discarded
@@ -116,6 +88,7 @@ Not built yet. Here for review alongside the Git bugs.
 ## Before release
 
 - [ ] Review the Spanish translations in Qt Linguist and mark each done. They are a draft, left marked unfinished
+- [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
@@ -124,6 +97,7 @@ Not built yet. Here for review alongside the Git bugs.
 
 ## Code
 
+- [x] `GitRepository`'s class comment had lines broken short. Rewrapped
 - [ ] Verify the `PrimeDocument` header, and rename it
 - [ ] Rename `BaseWindow`'s protected members that have a trailing underscore
 - [ ] Bring `MenuBuilder` over from Hearth (maybe into Coco)?

@@ -1,6 +1,6 @@
 # Future
 
-What Fernanda doesn't do yet, might do, and won't do. For what it does today, see [Features.md](Features.md). Bugs and code chores are in [TODO.md](TODO.md), and for now so are the Git features not yet built.
+What Fernanda doesn't do yet, might do, and won't do. For what it does today, see [Features.md](Features.md). Bugs and code chores are in [TODO.md](TODO.md).
 
 Nothing here is a promise or a schedule.
 
@@ -76,6 +76,18 @@ Nothing here is a promise or a schedule.
 
 - Open a file or a vault passed on the command line, in the most recently used window. This is what makes "Open with Fernanda" and dragging a file onto the app work. Wanted after beta
 
+### Git
+
+What GitHub Desktop does that the Git page doesn't yet. Each would follow the page's shape: a list in the sidebar, and what it shows in a tab.
+
+- History: the current branch's commits, newest first, each showing its message and the files it changed, with a diff of the one selected, as in GitHub Desktop's History tab
+- Stashing: setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead without committing or discarding first, as GitHub Desktop offers when switching branches
+- Merging: a pull only fast-forwards, and a branch can't be merged into another from the Git page. Merging means handling conflicts: showing the conflicted files, and committing once they're resolved. Git itself refuses to commit only some files mid-merge, so the commit box would need to say so
+- Committing part of a file: checking single hunks or lines, as GitHub Desktop does by clicking in the diff's gutter
+- Amending the last commit
+- Discarding every change at once (GitHub Desktop's Discard All Changes), and discarding several selected files
+- A filter in the branch list, as GitHub Desktop has, for a repository with many branches
+
 ### Releases
 
 - A signed Windows installer, through the SignPath Foundation's free code signing for open source. The installer already shows the privacy statement and offers to turn off the update check, as its conditions ask. Once the project is accepted, the README and every release page need a section titled "Code signing policy", naming who signs and the team's roles and linking the privacy statement, and the release notes' warning about an unsigned build goes. Until then, that section would claim something untrue
@@ -129,7 +141,8 @@ Nothing here is a promise or a schedule.
 - **Renaming in place in the file tree** (F2). Rename uses a dialog, which checks the name as it is typed
 - **File associations.** Fernanda doesn't register itself for any file type
 - **Right-to-left layouts**
-- **Fetching on a timer.** GitHub Desktop fetches every hour. Fernanda's Git view contacts the repository's remote only when its sync button is clicked, so opening a vault never reaches the network on its own. The time of the last fetch is shown, so a stale view is visible
+- **Fetching on a timer.** GitHub Desktop fetches every hour. Fernanda's Git page contacts the repository's remote only when its sync button is clicked, so opening a vault never reaches the network on its own. The sync button's tooltip says when the repository last fetched, so a stale page is visible
+- **Diffs in a monospace font.** A diff is in the vault's text font, so prose reads as it does in the editor
 - **Telling files apart by following symlinks.** A file is named by the path it was reached by, so a folder linked into a vault stays part of that vault. Following links would name it by its target, outside the vault, and break it there. A file reachable two ways through a link is two documents; Obsidian asks for link targets to be kept apart in the same way. Only a vault's own folder is followed through a link, so one folder opened two ways is one vault
 - **Switching language without a restart.** Qt can swap translations while running, but every widget would have to set its text again when told, and Fernanda sets its text once, as each widget is built. Every class with text would need a second path for it, and a string missed in one would leave a window half in each language. Relaunch, beside the Language setting, does the job as Obsidian's does
 
