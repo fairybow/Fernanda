@@ -66,6 +66,13 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] A path with a `..` segment passed `Vault::contains`, so a rename or move could take an entry out of the vault, and `Vault::openModel` opened a `../` or absolute path from a hand-edited `workspace.json`. Paths are now normalized into keys, and one that climbs out of the vault is refused (see "Identity" in [Architecture.md](Architecture.md))
 - [x] Log lines and log file names were stamped in UTC while reading as local time. `Coco::Time::now` labeled the UTC count as local without adding the offset; the timestamps now come from `QDateTime` in local time (`Coco::Time::nowQString`)
 
+## Git features
+
+Not built yet. Here for review alongside the Git bugs.
+
+- [ ] History: the current branch's commits, newest first, each showing its message and the files it changed, with a diff of the one selected, as in GitHub Desktop's History tab
+- [ ] Stashing: setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead without committing or discarding first, as GitHub Desktop offers when switching branches
+
 ## Rough edges
 
 - [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
