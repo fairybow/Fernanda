@@ -2,8 +2,16 @@
 
 Bugs and code chores, and for now the Git features not yet built. Other features that aren't built yet are in [Future.md](Future.md); conventions are in [CodeStyle.md](CodeStyle.md).
 
-## Bugs
+## Git TODOs (move to appropriate sections when all finished)
 
+- [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
+- [ ] Need padding in GitView file lists on left side (check boxes, especially top level, are too close to edge) (may want to make them inline with a distinguished header, like in GitHub Desktop)
+- [ ] The GitView check boxes are ugly lol
+- [ ] I swear, there's a little jump/resize after opening the same tab from GitView (thus having two of the same tab open, which also should be fixed), and then closing that newly opened version (closing is when I notice the jump)
+- [ ] When opening from GitView, if the opened tab is the same as active tab, just show it (focus if needed)
+- [ ] Git diffs don't show new line at end of file
+- [ ] Hide word counter in Git view probably
+- [ ] Potentially use mononoki always for Git view diffs
 - [ ] Need some padding (UiConstants), tweakable, for left and right sides of status bar
 - [ ] Loading circle for branch publishing needs animating (and wherever else it would appear)
 - [ ] GitView top bar's repo name box needs to have its right edge attached to the left hand column, as in GH Desktop - probably need a new layout :grimace:
@@ -13,15 +21,21 @@ Bugs and code chores, and for now the Git features not yet built. Other features
 - [ ] New branch button has no hover wash, no obvious visual feedback
 - [ ] Current branch is not selected when opening the branch menu after making a new branch (still has main as selection!)
 - [ ] Branch naming should have filtering to prevent bad names
+- [ ] `GitRepository`'s class comment has two lines broken short (after "by" and "the whole"). Rewrap it
+- [ ] Run `update_translations` for the Git view's strings, add the English plural forms of "%Ln changed file(s)" and "Last fetched %Ln minute(s) ago" (and its hour and day forms) to `Translation_en.ts`, and translate them into Spanish
+
+Not built yet. Here for review alongside the Git bugs.
+
+- [ ] History: the current branch's commits, newest first, each showing its message and the files it changed, with a diff of the one selected, as in GitHub Desktop's History tab
+- [ ] Stashing: setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead without committing or discarding first, as GitHub Desktop offers when switching branches
+- [ ] Merging: a pull only fast-forwards, and a branch can't be merged into another from the view. Merging means handling conflicts: showing the conflicted files, and committing once they're resolved. Git itself refuses to commit only some files mid-merge, so the commit box would need to say so
+- [ ] Committing part of a file: checking single hunks or lines, as GitHub Desktop does by clicking in the diff's gutter
+- [ ] Amending the last commit
+- [ ] Discarding every change at once (GitHub Desktop's Discard All Changes), and discarding several selected files
+
+## Bugs
+
 - [ ] Switch line highlights (in editor, not diff) back to QPalette roles? What were they before QColor?
-- [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
-- [ ] Need padding in GitView file lists on left side (check boxes, especially top level, are too close to edge) (may want to make them inline with a distinguished header, like in GitHub Desktop)
-- [ ] The GitView check boxes are ugly lol
-- [ ] I swear, there's a little jump/resize after opening the same tab from GitView (thus having two of the same tab open, which also should be fixed), and then closing that newly opened version (closing is when I notice the jump)
-- [ ] When opening from GitView, if the opened tab is the same as active tab, just show it (focus if needed)
-- [ ] Git diffs don't show new line at end of file
-- [ ] Hide word counter in Git view probably
-- [ ] Potentially use mononoki always for Git view diffs
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
 - [ ] Perhaps change FocusTimer icon to hourglass
 - [x] May want to allow clicking to left or right of file in tree to also clear selection (right now clearing selection only works when clicking below all files in a tree)
@@ -67,17 +81,6 @@ Bugs and code chores, and for now the Git features not yet built. Other features
 - [x] A path with a `..` segment passed `Vault::contains`, so a rename or move could take an entry out of the vault, and `Vault::openModel` opened a `../` or absolute path from a hand-edited `workspace.json`. Paths are now normalized into keys, and one that climbs out of the vault is refused (see "Identity" in [Architecture.md](Architecture.md))
 - [x] Log lines and log file names were stamped in UTC while reading as local time. `Coco::Time::now` labeled the UTC count as local without adding the offset; the timestamps now come from `QDateTime` in local time (`Coco::Time::nowQString`)
 
-## Git features
-
-Not built yet. Here for review alongside the Git bugs.
-
-- [ ] History: the current branch's commits, newest first, each showing its message and the files it changed, with a diff of the one selected, as in GitHub Desktop's History tab
-- [ ] Stashing: setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead without committing or discarding first, as GitHub Desktop offers when switching branches
-- [ ] Merging: a pull only fast-forwards, and a branch can't be merged into another from the view. Merging means handling conflicts: showing the conflicted files, and committing once they're resolved. Git itself refuses to commit only some files mid-merge, so the commit box would need to say so
-- [ ] Committing part of a file: checking single hunks or lines, as GitHub Desktop does by clicking in the diff's gutter
-- [ ] Amending the last commit
-- [ ] Discarding every change at once (GitHub Desktop's Discard All Changes), and discarding several selected files
-
 ## Rough edges
 
 - [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
@@ -109,14 +112,12 @@ Not built yet. Here for review alongside the Git bugs.
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
-- [ ] Run `update_translations` for the Git view's strings, add the English plural forms of "%Ln changed file(s)" and "Last fetched %Ln minute(s) ago" (and its hour and day forms) to `Translation_en.ts`, and translate them into Spanish
 - [x] Need the remaining Edit menu and text editor context menu options (cut, copy, paste, select all, delete)
 - [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
 
 ## Code
 
 - [ ] Verify the `PrimeDocument` header, and rename it
-- [ ] `GitRepository`'s class comment has two lines broken short (after "by" and "the whole"). Rewrap it
 - [ ] Rename `BaseWindow`'s protected members that have a trailing underscore
 - [ ] Bring `MenuBuilder` over from Hearth (maybe into Coco)?
 - [x] Decide on `private slots:`. It isn't used consistently, and using it properly would break up sections that are organized by purpose. Either remove the keyword everywhere or sort slots into it everywhere
