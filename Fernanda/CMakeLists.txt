@@ -183,6 +183,7 @@ set(APP_SOURCES
 
 set(APP_HEADERS
     src/core/git/GitDiff.h
+    src/core/git/GitRemote.h
     src/core/git/GitRepository.h
     src/core/git/GitStatus.h
 

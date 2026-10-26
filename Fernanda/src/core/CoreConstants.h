@@ -37,4 +37,10 @@ inline constexpr int UPDATE_CHECK_TIMEOUT_MS = 15 * 1000;
 // finish before stopping it
 inline constexpr int GIT_EXIT_WAIT_MS = 3 * 1000;
 
+
+// How long a GitRepository lets a fetch, a pull, or a push run before it
+// stops it, so a sign-in that can't be shown, or a remote that never answers,
+// can't hold the repository's other commands back forever
+inline constexpr int GIT_NETWORK_TIMEOUT_MS = 2 * 60 * 1000;
+
 } // namespace Fernanda

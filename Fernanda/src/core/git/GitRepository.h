@@ -13,10 +13,14 @@
 #pragma once
 
 #include <algorithm>
+#include <optional>
 #include <utility>
 
 #include <QByteArray>
+#include <QFileInfo>
+#include <QHash>
 #include <QList>
+#include <QMap>
 #include <QObject>
 #include <QProcess>
 #include <QProcessEnvironment>
@@ -24,6 +28,8 @@
 #include <QString>
 #include <QStringList>
 #include <QTemporaryDir>
+#include <QTimer>
+#include <QtTypes>
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
@@ -41,7 +47,8 @@ using namespace Qt::StringLiterals;
 
 // The Git repository a vault's folder is in, as one vault window sees it.
 // Finds the repository, reads its status, its diffs, and its branches,
-// commits, discards a file's changes, and switches and makes branches, by
+// commits, discards a file's changes, switches and makes branches, and
+// fetches, pulls, and pushes, by
 // running the git installed on the computer, and announces each answer. A
 // status covers the whole
 // repository, which may hold more than the vault: other vaults, or files that
@@ -73,6 +80,16 @@ class GitRepository : public QObject
     Q_OBJECT
 
 public:
+    // What sync does, chosen as GitHub Desktop's one button chooses: by what
+    // the branch needs
+    enum class SyncAction
+    {
+        Fetch,
+        Pull,
+        Push,
+        Publish
+    };
+
     // bufferStore is App's and vault is the window's; both outlive this
     GitRepository(
         Vault* vault,
@@ -176,12 +193,77 @@ public:
               u"--branch"_s,
               u"-z"_s,
               u"--untracked-files=all"_s });
+
+        // The remotes, which a sync needs, are read with the status: they
+        // change as rarely, and only outside Fernanda
+        if (!isQueued_(Kind_::Remotes)) {
+            enqueue_(
+                Kind_::Remotes,
+                root_,
+                { u"config"_s, u"--get-regexp"_s, u"^remote\\..*\\.url$"_s });
+        }
     }
 
-    // Whether a commit, a discard, or a switch is underway: from asking until
-    // its answer (committed or commitFailed, discarded or discardFailed,
-    // switched or switchFailed). Each waits for the others, so their steps
-    // can't interleave
+    // Each remote's name and URL, from the repository's config, as last read
+    // (refresh). remotesChanged says when they're read
+    [[nodiscard]] const QMap<QString, QString>& remotes() const noexcept
+    {
+        return remotes_;
+    }
+
+    // The remote this branch syncs with: its upstream's, else origin, else
+    // the only remote there is. Empty with none
+    [[nodiscard]] QString syncRemote() const
+    {
+        const auto& upstream = status_.branch.upstream;
+
+        for (auto it = remotes_.cbegin(); it != remotes_.cend(); ++it) {
+            if (upstream.startsWith(it.key() + u'/')) {
+                return it.key();
+            }
+        }
+
+        if (remotes_.contains(u"origin"_s)) {
+            return u"origin"_s;
+        }
+
+        return remotes_.size() == 1 ? remotes_.firstKey() : QString{};
+    }
+
+    // A remote's default branch ("main"), as its HEAD named it at the last
+    // listBranches. Empty when unknown
+    [[nodiscard]] QString defaultBranchOf(const QString& remote) const
+    {
+        return remoteDefaults_.value(remote);
+    }
+
+    // When this repository last fetched, in ms since the epoch: the time on
+    // FETCH_HEAD, which every fetch writes, from Fernanda or not. 0 when it
+    // never has
+    [[nodiscard]] qint64 lastFetchedEpochMs() const
+    {
+        if (fetchHead_.isEmpty()) {
+            return 0;
+        }
+
+        auto info = fetchHead_.toQFileInfo();
+        return info.exists() ? info.lastModified().toMSecsSinceEpoch() : 0;
+    }
+
+    // The sync underway, if any
+    [[nodiscard]] std::optional<SyncAction> syncing() const noexcept
+    {
+        if (operation_ != Operation_::Sync) {
+            return std::nullopt;
+        }
+
+        return syncAction_;
+    }
+
+    // Whether a commit, a discard, a switch, or a sync is underway: from
+    // asking until its answer (committed or commitFailed, discarded or
+    // discardFailed, switched or switchFailed, synced or syncFailed). Each
+    // waits for the others, so their steps can't interleave
     [[nodiscard]] bool isBusy() const noexcept
     {
         return operation_ != Operation_::None;
@@ -402,27 +484,100 @@ public:
             return;
         }
 
-        if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
-            emit switchFailed(
-                tr("A file couldn't be saved, so the branch wasn't "
-                   "switched."));
-            return;
-        }
-
-        const auto& entries = status_.entries;
-        auto has_changes = std::any_of(
-            entries.cbegin(),
-            entries.cend(),
-            [](const GitStatus::Entry& entry) {
-                return entry.change != GitStatus::Change::Untracked;
-            });
-
-        if (has_changes) {
-            emit switchFailed(tr("Commit or discard your changes first."));
+        if (auto refusal = changesRefusal_(); !refusal.isEmpty()) {
+            emit switchFailed(refusal);
             return;
         }
 
         enqueueSwitch_({ u"switch"_s, u"--quiet"_s, u"--no-guess"_s, name });
+    }
+
+    // Switch to a remote's branch ("origin/draft"), making a local branch of
+    // the same name that tracks it (switch --track), as GitHub Desktop does.
+    // Answered and refused as switchBranch is
+    void switchToRemoteBranch(const QString& remoteBranch)
+    {
+        if (!isFound() || isBusy() || remoteBranch.isEmpty()) {
+            return;
+        }
+
+        if (auto refusal = changesRefusal_(); !refusal.isEmpty()) {
+            emit switchFailed(refusal);
+            return;
+        }
+
+        enqueueSwitch_(
+            { u"switch"_s, u"--quiet"_s, u"--track"_s, remoteBranch });
+    }
+
+    // Talk to the branch's remote (syncRemote): fetch, pull, push, or
+    // publish. synced or syncFailed answers, and the status is read again
+    // either way, so the counts follow. Only ever run when asked: nothing
+    // here fetches on its own.
+    //
+    // - Fetch: fetch --prune, so a branch deleted on the remote goes here too
+    // - Pull: fast-forward only, without rebasing. Refused, as a switch is,
+    //   while a tracked file has uncommitted changes. Branches that have
+    //   diverged need a merge or a rebase, which this doesn't do; git says so
+    // - Push: to the branch's upstream
+    // - Publish: push --set-upstream, so the branch tracks its copy on the
+    //   remote from then on
+    //
+    // Git signs in its own way: a credential manager's window, an SSH agent.
+    // A sync gets GIT_NETWORK_TIMEOUT_MS, and is stopped after
+    void sync(SyncAction action)
+    {
+        if (!isFound() || isBusy()) {
+            return;
+        }
+
+        auto remote = syncRemote();
+
+        if (remote.isEmpty()) {
+            emit syncFailed(tr("This repository has no remote."));
+            return;
+        }
+
+        QStringList arguments{};
+
+        switch (action) {
+        case SyncAction::Fetch:
+            arguments = { u"fetch"_s, u"--quiet"_s, u"--prune"_s, remote };
+            break;
+        case SyncAction::Pull:
+            if (auto refusal = changesRefusal_(); !refusal.isEmpty()) {
+                emit syncFailed(refusal);
+                return;
+            }
+
+            arguments = { u"pull"_s,
+                          u"--quiet"_s,
+                          u"--no-rebase"_s,
+                          u"--ff-only"_s };
+            break;
+        case SyncAction::Push:
+            arguments = { u"push"_s, u"--quiet"_s };
+            break;
+        case SyncAction::Publish:
+            arguments = { u"push"_s,
+                          u"--quiet"_s,
+                          u"--set-upstream"_s,
+                          remote,
+                          u"HEAD"_s };
+            break;
+        }
+
+        operation_ = Operation_::Sync;
+        syncAction_ = action;
+
+        Command_ command{};
+        command.kind = Kind_::Sync;
+        command.operation = Operation_::Sync;
+        command.finishes = true;
+        command.folder = root_;
+        command.arguments = arguments;
+        command.timeoutMs = GIT_NETWORK_TIMEOUT_MS;
+        enqueue_(std::move(command));
     }
 
     // Make a branch at the current commit and switch to it (switch
@@ -439,9 +594,12 @@ public:
         enqueueSwitch_({ u"switch"_s, u"--quiet"_s, u"--create"_s, name });
     }
 
-    // Read the local branches' names, sorted as git sorts them. branchesRead
-    // answers. A repository before its first commit has none, though it has
-    // a branch name (GitStatus::Branch::name)
+    // Read the branches' names, local ("draft") and remote ("origin/draft"),
+    // each sorted as git sorts them, and each remote's default branch
+    // (defaultBranchOf), from the HEAD a clone or a fetch left it.
+    // branchesRead answers. A repository before its first commit has no local
+    // branch, though it has a branch name (GitStatus::Branch::name). The
+    // remote branches are as of the last fetch
     void listBranches()
     {
         if (!isFound() || isQueued_(Kind_::Branches)) {
@@ -452,8 +610,9 @@ public:
             Kind_::Branches,
             root_,
             { u"for-each-ref"_s,
-              u"--format=%(refname:lstrip=2)"_s,
-              u"refs/heads"_s });
+              u"--format=%(refname)%00%(symref)"_s,
+              u"refs/heads"_s,
+              u"refs/remotes"_s });
     }
 
     // Read one changed file's diff against the last commit, which is what
@@ -521,9 +680,13 @@ public:
 
         root_ = {};
         status_ = {};
+        remotes_ = {};
+        remoteDefaults_ = {};
+        fetchHead_ = {};
 
         emit foundChanged();
         emit statusChanged();
+        emit remotesChanged();
     }
 
 signals:
@@ -560,8 +723,18 @@ signals:
     // A switch or a new branch asked for wasn't made. error says why
     void switchFailed(const QString& error);
 
-    // The local branches listBranches asked for
-    void branchesRead(const QStringList& names);
+    // The branches listBranches asked for
+    void branchesRead(const QStringList& local, const QStringList& remote);
+
+    // The remotes were read (remotes)
+    void remotesChanged();
+
+    // The sync asked for was done
+    void synced();
+
+    // The sync asked for wasn't done. error says why, most often in git's
+    // own words
+    void syncFailed(const QString& error);
 
 private:
     enum class Kind_
@@ -574,7 +747,10 @@ private:
         Remove,
         Restore,
         Switch,
-        Branches
+        Branches,
+        Remotes,
+        GitPath,
+        Sync
     };
 
     // What a command is a step of, beyond answering on its own
@@ -583,7 +759,8 @@ private:
         None,
         Commit,
         Discard,
-        Switch
+        Switch,
+        Sync
     };
 
     struct Command_
@@ -613,6 +790,9 @@ private:
         // generation_ when it was asked for. An answer from before the last
         // forget is ignored
         int generation = 0;
+
+        // How long it may run before it's stopped. 0 is as long as it takes
+        int timeoutMs = 0;
     };
 
     struct Result_
@@ -647,8 +827,21 @@ private:
     // Counts forgets (forget)
     int generation_ = 0;
 
-    // The commit or discard underway, if any
+    // The operation underway, if any, and for a sync, which
     Operation_ operation_ = Operation_::None;
+    SyncAction syncAction_ = SyncAction::Fetch;
+
+    // Stops a command that runs past its timeoutMs
+    QTimer* timeout_ = new QTimer(this);
+    bool timedOut_ = false;
+
+    // remotes and defaultBranchOf, as last read
+    QMap<QString, QString> remotes_{};
+    QHash<QString, QString> remoteDefaults_{};
+
+    // FETCH_HEAD, where the repository keeps it. Empty until read, after the
+    // repository is found
+    Coco::Path fetchHead_{};
 
     void setup_()
     {
@@ -661,6 +854,41 @@ private:
 
         environment_ = QProcessEnvironment::systemEnvironment();
         environment_.insert(u"GIT_TERMINAL_PROMPT"_s, u"0"_s);
+
+        timeout_->setSingleShot(true);
+        connect(timeout_, &QTimer::timeout, this, [this] {
+            if (process_) {
+                WARN(
+                    "Stopping git, which ran past its time: {}",
+                    process_->arguments().join(u' '));
+                timedOut_ = true;
+                process_->kill();
+            }
+        });
+    }
+
+    // Why a pull or a switch can't go ahead, or nothing. Every modified
+    // buffer in the repository is saved first, so the last status saw the
+    // text on screen. Then any change to a file git tracks refuses it: the
+    // change would follow to the other branch, be mixed with what comes in,
+    // or stop git partway, and each is a surprise. A file git doesn't track
+    // doesn't count: git leaves it where it is
+    [[nodiscard]] QString changesRefusal_()
+    {
+        if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
+            return tr("A file couldn't be saved, so nothing was done.");
+        }
+
+        const auto& entries = status_.entries;
+        auto has_changes = std::any_of(
+            entries.cbegin(),
+            entries.cend(),
+            [](const GitStatus::Entry& entry) {
+                return entry.change != GitStatus::Change::Untracked;
+            });
+
+        return has_changes ? tr("Commit or discard your changes first.")
+                           : QString{};
     }
 
     // A path for --pathspec-from-file with --pathspec-file-nul: UTF-8,
@@ -742,6 +970,10 @@ private:
             process_->write(running_.input);
             process_->closeWriteChannel();
         }
+
+        if (running_.timeoutMs > 0) {
+            timeout_->start(running_.timeoutMs);
+        }
     }
 
     void onProcessFinished_(int exitCode, QProcess::ExitStatus exitStatus)
@@ -762,6 +994,15 @@ private:
             result.error = process_->errorString();
         }
 
+        // Stopped for running too long. A fetch stopped partway can leave a
+        // lock file behind, which the next fetch will name
+        if (timedOut_) {
+            result.succeeded = false;
+            result.error =
+                tr("Git took longer than %1 seconds, so it was stopped.")
+                    .arg(running_.timeoutMs / 1000);
+        }
+
         complete_(result);
     }
 
@@ -780,6 +1021,9 @@ private:
 
     void complete_(const Result_& result)
     {
+        timeout_->stop();
+        timedOut_ = false;
+
         auto* process = process_;
         process_ = nullptr;
         process->deleteLater();
@@ -807,10 +1051,17 @@ private:
         case Kind_::Remove:
         case Kind_::Restore:
         case Kind_::Switch:
+        case Kind_::Sync:
             onStep_(command, result);
             break;
         case Kind_::Branches:
             onBranchesRead_(command, result);
+            break;
+        case Kind_::Remotes:
+            onRemotesRead_(command, result);
+            break;
+        case Kind_::GitPath:
+            onGitPathRead_(command, result);
             break;
         }
 
@@ -838,14 +1089,25 @@ private:
         root_ = found;
         status_ = {};
 
+        remotes_ = {};
+        remoteDefaults_ = {};
+        fetchHead_ = {};
+
         if (root_.isEmpty()) {
             INFO("No Git repository for {}", command.folder);
         } else {
             INFO("Git repository for {}: {}", command.folder, root_);
+
+            // Where FETCH_HEAD is: in .git, or elsewhere for a worktree
+            enqueue_(
+                Kind_::GitPath,
+                root_,
+                { u"rev-parse"_s, u"--git-path"_s, u"FETCH_HEAD"_s });
         }
 
         emit foundChanged();
         emit statusChanged();
+        emit remotesChanged();
     }
 
     void onStatusRead_(const Command_& command, const Result_& result)
@@ -905,6 +1167,8 @@ private:
         enqueue_(std::move(command));
     }
 
+    // Each line is a ref's full name, a NUL, and what it points to, if it's
+    // a symbolic ref. A remote's HEAD is one, naming its default branch
     void onBranchesRead_(const Command_& command, const Result_& result)
     {
         if (PathKey::of(command.folder) != PathKey::of(root_)) {
@@ -919,19 +1183,126 @@ private:
             return;
         }
 
-        QStringList names{};
+        static const auto heads = u"refs/heads/"_s;
+        static const auto remotes = u"refs/remotes/"_s;
+
+        QStringList local{};
+        QStringList remote{};
+        remoteDefaults_.clear();
 
         for (const auto& line : QString::fromUtf8(result.output).split(u'\n')) {
-            if (auto name = line.trimmed(); !name.isEmpty()) {
-                names << name;
+            auto fields = line.trimmed().split(QChar(u'\0'));
+            const auto& ref = fields[0];
+            auto target = fields.size() > 1 ? fields[1] : QString{};
+
+            if (ref.startsWith(heads)) {
+                local << ref.mid(heads.size());
+                continue;
+            }
+
+            if (!ref.startsWith(remotes)) {
+                continue;
+            }
+
+            auto name = ref.mid(remotes.size());
+
+            if (!target.isEmpty()) {
+                auto remote_name = remoteOf_(name);
+                auto prefix = remotes + remote_name + u'/';
+
+                if (!remote_name.isEmpty() && target.startsWith(prefix)) {
+                    remoteDefaults_.insert(
+                        remote_name,
+                        target.mid(prefix.size()));
+                }
+
+                continue;
+            }
+
+            remote << name;
+        }
+
+        emit branchesRead(local, remote);
+    }
+
+    // Which known remote a remote branch's name ("origin/draft") starts
+    // with. A remote's name can hold a slash, so the names are matched, not
+    // split. Empty when none matches
+    [[nodiscard]] QString remoteOf_(const QString& remoteBranch) const
+    {
+        for (auto it = remotes_.cbegin(); it != remotes_.cend(); ++it) {
+            if (remoteBranch.startsWith(it.key() + u'/')) {
+                return it.key();
             }
         }
 
-        emit branchesRead(names);
+        return {};
     }
 
-    // One step of a commit, a discard, or a switch. A failed step ends its
-    // operation, and the steps after it, already waiting, are dropped. The
+    // Lines of "remote.<name>.url <url>". git exits with 1, printing
+    // nothing, when there are none
+    void onRemotesRead_(const Command_& command, const Result_& result)
+    {
+        if (PathKey::of(command.folder) != PathKey::of(root_)) {
+            return;
+        }
+
+        if (!result.succeeded && result.exitCode != 1) {
+            WARN(
+                "Git couldn't read the remotes in {}: {}",
+                command.folder,
+                result.error);
+            return;
+        }
+
+        static const auto prefix = u"remote."_s;
+        static const auto suffix = u".url"_s;
+
+        QMap<QString, QString> read{};
+
+        for (const auto& line : QString::fromUtf8(result.output).split(u'\n')) {
+            auto space = line.indexOf(u' ');
+
+            if (space < 0) {
+                continue;
+            }
+
+            auto key = line.left(space);
+
+            if (!key.startsWith(prefix) || !key.endsWith(suffix)) {
+                continue;
+            }
+
+            auto name = key.mid(
+                prefix.size(),
+                key.size() - prefix.size() - suffix.size());
+
+            // A remote may have several URLs; the first is the one fetched
+            if (!name.isEmpty() && !read.contains(name)) {
+                read.insert(name, line.mid(space + 1).trimmed());
+            }
+        }
+
+        if (read != remotes_) {
+            remotes_ = read;
+            emit remotesChanged();
+        }
+    }
+
+    // Relative to the repository's folder unless git gave it whole
+    void onGitPathRead_(const Command_& command, const Result_& result)
+    {
+        if (PathKey::of(command.folder) != PathKey::of(root_) ||
+            !result.succeeded) {
+            return;
+        }
+
+        Coco::Path path = QString::fromUtf8(result.output).trimmed();
+        fetchHead_ = path.toStd().is_absolute() ? path : root_ / path;
+    }
+
+    // One step of a commit, a discard, a switch, or a sync. A failed step ends
+    // its operation, and the steps after it, already waiting, are dropped. The
     // last step's success ends it too
     void onStep_(const Command_& command, const Result_& result)
     {
@@ -983,6 +1354,13 @@ private:
                 emit switched();
             } else {
                 emit switchFailed(error);
+            }
+            break;
+        case Operation_::Sync:
+            if (error.isEmpty()) {
+                emit synced();
+            } else {
+                emit syncFailed(error);
             }
             break;
         case Operation_::None:

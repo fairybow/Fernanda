@@ -345,6 +345,143 @@ private:
         return answer ? *answer : u"No answer"_s;
     }
 
+    // A bare repository in a temporary folder, standing in for a server
+    struct Remote_
+    {
+        QTemporaryDir folder{};
+
+        Remote_()
+        {
+            runGit_(folder.path(), { u"init"_s, u"-q"_s, u"--bare"_s });
+        }
+
+        [[nodiscard]] QString path() const { return folder.path(); }
+
+        [[nodiscard]] QString output(const QStringList& arguments) const
+        {
+            return outputOf_(folder.path(), arguments);
+        }
+    };
+
+    // Runs git in folder as a fixed person, unsigned, and fails the test if
+    // git does
+    static void runGit_(const QString& folder, const QStringList& arguments)
+    {
+        QProcess process{};
+        process.setWorkingDirectory(folder);
+        process.start(
+            u"git"_s,
+            QStringList{
+                u"-c"_s,
+                u"user.name=Test"_s,
+                u"-c"_s,
+                u"user.email=test@example.com"_s,
+                u"-c"_s,
+                u"commit.gpgsign=false"_s,
+            } + arguments);
+
+        QVERIFY(process.waitForFinished());
+
+        if (process.exitCode() != 0) {
+            QFAIL(qPrintable(u"git %1 failed: %2"_s.arg(
+                arguments.join(u' '),
+                QString::fromUtf8(process.readAllStandardError()))));
+        }
+    }
+
+    // What git prints in folder, trimmed. Empty if it fails
+    [[nodiscard]] static QString
+    outputOf_(const QString& folder, const QStringList& arguments)
+    {
+        QProcess process{};
+        process.setWorkingDirectory(folder);
+        process.start(u"git"_s, arguments);
+
+        if (!process.waitForFinished() || process.exitCode() != 0) {
+            return {};
+        }
+
+        return QString::fromUtf8(process.readAllStandardOutput()).trimmed();
+    }
+
+    // A repository with one commit (a.txt), published to remote as origin
+    static void publishedRepository_(Fixture_& f, const Remote_& remote)
+    {
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"remote"_s, u"add"_s, u"origin"_s, remote.path() });
+        f.git(
+            { u"push"_s,
+              u"-q"_s,
+              u"--set-upstream"_s,
+              u"origin"_s,
+              u"HEAD"_s });
+    }
+
+    // Another clone of remote rewrites a.txt and pushes it
+    static void commitFromAnotherClone_(const Remote_& remote, const char* text)
+    {
+        QTemporaryDir other{};
+        runGit_(other.path(), { u"clone"_s, u"-q"_s, remote.path(), u"."_s });
+
+        QFile file(QDir(other.path()).filePath(u"a.txt"_s));
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(text);
+        file.close();
+
+        runGit_(
+            other.path(),
+            { u"commit"_s, u"-q"_s, u"-a"_s, u"-m"_s, u"Elsewhere"_s });
+        runGit_(other.path(), { u"push"_s, u"-q"_s });
+    }
+
+    // Finds the repository, reads its status and, if one is expected, its
+    // remotes, asks for the sync, and waits for the answer: the error, empty
+    // on success
+    [[nodiscard]] static QString
+    syncOf_(Fixture_& f, GitRepository::SyncAction action, bool expectRemote)
+    {
+        f.repository.detect();
+
+        if (!QTest::qWaitFor([&] { return f.repository.isFound(); })) {
+            return u"No repository found"_s;
+        }
+
+        QSignalSpy status_read(&f.repository, &GitRepository::statusChanged);
+        f.repository.refresh();
+
+        if (!status_read.wait()) {
+            return u"No status read"_s;
+        }
+
+        if (expectRemote && !QTest::qWaitFor([&] {
+                return !f.repository.remotes().isEmpty();
+            })) {
+            return u"No remote read"_s;
+        }
+
+        std::optional<QString> answer{};
+
+        auto done = connect(&f.repository, &GitRepository::synced, [&] {
+            answer = QString{};
+        });
+
+        auto failed = connect(
+            &f.repository,
+            &GitRepository::syncFailed,
+            [&](const QString& error) { answer = error; });
+
+        f.repository.sync(action);
+        [[maybe_unused]] auto answered =
+            QTest::qWaitFor([&] { return answer.has_value(); }, 30000);
+
+        disconnect(done);
+        disconnect(failed);
+        return answer ? *answer : u"No answer"_s;
+    }
+
     // Types at the end of a text buffer, as a view's editor would
     static void type_(AbstractFileModel* model, const QString& text)
     {
@@ -1005,6 +1142,172 @@ private slots:
         QCOMPARE(
             f.gitOutput({ u"symbolic-ref"_s, u"--short"_s, u"HEAD"_s }),
             u"draft"_s);
+    }
+
+    // --- Syncing ------------------------------------------------------------
+    //
+    // A bare repository in a temporary folder stands in for GitHub: git
+    // fetches from and pushes to a folder just as it does to a server, with
+    // no network and no sign-in
+
+    void syncWithNoRemoteFails()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+
+        auto error = syncOf_(f, GitRepository::SyncAction::Fetch, false);
+        QVERIFY(!error.isEmpty());
+        QVERIFY(f.repository.syncRemote().isEmpty());
+    }
+
+    void publishSetsTheUpstream()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"remote"_s, u"add"_s, u"origin"_s, remote.path() });
+
+        auto error = syncOf_(f, GitRepository::SyncAction::Publish, true);
+        QCOMPARE(error, QString{});
+
+        auto branch = f.gitOutput({ u"branch"_s, u"--show-current"_s });
+        QCOMPARE(
+            f.gitOutput(
+                { u"rev-parse"_s,
+                  u"--abbrev-ref"_s,
+                  u"--symbolic-full-name"_s,
+                  u"@{upstream}"_s }),
+            u"origin/"_s + branch);
+        QTRY_COMPARE(
+            f.repository.status().branch.upstream,
+            u"origin/"_s + branch);
+    }
+
+    void pushSendsANewCommit()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+
+        f.write(u"a.txt"_s, "b\n");
+        f.git({ u"commit"_s, u"-q"_s, u"-a"_s, u"-m"_s, u"Second"_s });
+
+        auto error = syncOf_(f, GitRepository::SyncAction::Push, true);
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(
+            remote.output({ u"log"_s, u"-1"_s, u"--format=%s"_s }),
+            u"Second"_s);
+        QTRY_COMPARE(f.repository.status().branch.ahead, 0);
+    }
+
+    // Another clone pushes a commit; fetching sees it, and pulling takes it
+    void fetchThenPullFastForwards()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+        commitFromAnotherClone_(remote, "from elsewhere\n");
+
+        QCOMPARE(syncOf_(f, GitRepository::SyncAction::Fetch, true), QString{});
+        QTRY_COMPARE(f.repository.status().branch.behind, 1);
+        QVERIFY(f.repository.lastFetchedEpochMs() > 0);
+
+        QCOMPARE(syncOf_(f, GitRepository::SyncAction::Pull, true), QString{});
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("from elsewhere\n"));
+        QTRY_COMPARE(f.repository.status().branch.behind, 0);
+    }
+
+    void pullIsRefusedWithTrackedChanges()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+        commitFromAnotherClone_(remote, "from elsewhere\n");
+        f.git({ u"fetch"_s, u"-q"_s });
+        f.write(u"a.txt"_s, "mine\n");
+
+        auto error = syncOf_(f, GitRepository::SyncAction::Pull, true);
+        QVERIFY(!error.isEmpty());
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("mine\n"));
+    }
+
+    // Both sides committed: a fast-forward can't take the remote's
+    void pullFailsWhenTheBranchesHaveDiverged()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+        commitFromAnotherClone_(remote, "from elsewhere\n");
+        f.write(u"b.txt"_s, "mine\n");
+        f.git({ u"add"_s, u"b.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"Mine"_s });
+        f.git({ u"fetch"_s, u"-q"_s });
+
+        auto error = syncOf_(f, GitRepository::SyncAction::Pull, true);
+        QVERIFY(!error.isEmpty());
+        QVERIFY(!f.repository.isBusy());
+    }
+
+    void listBranchesReadsRemoteBranchesAndTheDefault()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+        f.git({ u"push"_s, u"-q"_s, u"origin"_s, u"HEAD:refs/heads/draft"_s });
+        f.git({ u"fetch"_s, u"-q"_s });
+        f.git({ u"remote"_s, u"set-head"_s, u"origin"_s, u"--auto"_s });
+
+        auto branch = f.gitOutput({ u"branch"_s, u"--show-current"_s });
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
+        f.repository.refresh();
+        QTRY_VERIFY(!f.repository.remotes().isEmpty());
+
+        QStringList remote_names{};
+        connect(
+            &f.repository,
+            &GitRepository::branchesRead,
+            this,
+            [&remote_names](const QStringList&, const QStringList& read) {
+                remote_names = read;
+            });
+
+        f.repository.listBranches();
+
+        QTRY_VERIFY(remote_names.contains(u"origin/draft"_s));
+        QVERIFY(remote_names.contains(u"origin/"_s + branch));
+        QVERIFY(!remote_names.contains(u"origin/HEAD"_s));
+        QCOMPARE(f.repository.defaultBranchOf(u"origin"_s), branch);
+    }
+
+    void switchToRemoteBranchTracksIt()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+        f.git({ u"push"_s, u"-q"_s, u"origin"_s, u"HEAD:refs/heads/draft"_s });
+        f.git({ u"fetch"_s, u"-q"_s });
+
+        auto error = switchOf_(f, [&f] {
+            f.repository.switchToRemoteBranch(u"origin/draft"_s);
+        });
+        QCOMPARE(error, QString{});
+
+        QCOMPARE(f.gitOutput({ u"branch"_s, u"--show-current"_s }), u"draft"_s);
+        QCOMPARE(
+            f.gitOutput(
+                { u"rev-parse"_s,
+                  u"--abbrev-ref"_s,
+                  u"--symbolic-full-name"_s,
+                  u"@{upstream}"_s }),
+            u"origin/draft"_s);
     }
 
     // Asking again while a status waits adds nothing, and the waiting one

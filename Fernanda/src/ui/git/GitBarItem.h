@@ -44,28 +44,59 @@ using namespace Qt::StringLiterals;
 // A section that does something is a flat button, with the style's wash on
 // hover and press (ButtonWash). One that only shows something (the
 // repository) is made inert: it takes no mouse events, so it has no wash
-// either. What a click means is its owner's (GitTopBar)
+// either. What a click means is its owner's (GitTopBar). The glyph, the
+// caption, and the name can each change (the sync section's do)
 class GitBarItem : public QAbstractButton
 {
     Q_OBJECT
 
 public:
-    // glyphPath and caption are fixed; the name is set later (setName).
-    // opensMenu adds the chevron and makes the section a button
+    enum class Role
+    {
+        // Only shows something
+        Label,
+
+        // Does something when clicked
+        Button,
+
+        // Opens a menu when clicked, and has a chevron to say so
+        Menu
+    };
+
     GitBarItem(
         const QString& glyphPath,
         const QString& caption,
-        bool opensMenu,
+        Role role,
         QWidget* parentTopBar)
         : QAbstractButton(parentTopBar)
         , glyphPath_(glyphPath)
         , caption_(caption)
-        , opensMenu_(opensMenu)
+        , role_(role)
     {
         setup_();
     }
 
     ~GitBarItem() override { TRACER; }
+
+    void setGlyph(const QString& glyphPath)
+    {
+        if (glyphPath == glyphPath_) {
+            return;
+        }
+
+        glyphPath_ = glyphPath;
+        update();
+    }
+
+    void setCaption(const QString& caption)
+    {
+        if (caption == caption_) {
+            return;
+        }
+
+        caption_ = caption;
+        update();
+    }
 
     void setName(const QString& name)
     {
@@ -88,7 +119,7 @@ protected:
     {
         QPainter painter(this);
 
-        if (opensMenu_) {
+        if (role_ != Role::Label) {
             ButtonWash::paint(painter, this, rect());
         }
 
@@ -101,7 +132,7 @@ protected:
 
         auto right = width() - GIT_BAR_ITEM_PADDING;
 
-        if (opensMenu_) {
+        if (role_ == Role::Menu) {
             auto chevron_x = right - GIT_BAR_CHEVRON_EXTENT;
             paintGlyph_(
                 painter,
@@ -118,7 +149,7 @@ protected:
 private:
     QString glyphPath_;
     QString caption_;
-    bool opensMenu_;
+    Role role_;
 
     Glyph::Cache glyph_{};
     Glyph::Cache chevron_{};
@@ -129,10 +160,10 @@ private:
         setFixedHeight(GIT_BAR_HEIGHT);
         setMinimumWidth(GIT_BAR_ITEM_MIN_WIDTH);
 
-        if (opensMenu_) {
-            setAttribute(Qt::WA_Hover, true);
-        } else {
+        if (role_ == Role::Label) {
             setAttribute(Qt::WA_TransparentForMouseEvents, true);
+        } else {
+            setAttribute(Qt::WA_Hover, true);
         }
     }
 

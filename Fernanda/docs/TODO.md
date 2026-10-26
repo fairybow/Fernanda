@@ -4,8 +4,11 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
+- [ ] Need some padding (UiConstants), tweakable, for left and right sides of status bar
+- [ ] Loading circle for branch publishing needs animating (and wherever else it would appear)
 - [ ] GitView delete changes dialog is chonky/ugly/bad/etc
 - [ ] Branch popup is too square + clicking it again should probably close + hover wash doesn't go away when clicking outside of the menu to close it until you move mouse over and off it again
+- [ ] Overall, branch menu/popup feels jank
 - [ ] New branch button has no hover wash, no obvious visual feedback
 - [ ] Current branch is not selected when opening the branch menu after making a new branch (still has main as selection!)
 - [ ] Branch naming should have filtering to prevent bad names
