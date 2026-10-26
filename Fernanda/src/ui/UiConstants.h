@@ -96,7 +96,7 @@ inline constexpr auto TREE_CHEVRON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto DRAWER_CHEVRON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto DRAWER_COMMON_VAULT_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto DRAWER_TITLE_ROLE = QPalette::PlaceholderText;
-inline constexpr auto VAULT_SWITCHER_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto MENU_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto SETTINGS_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto FOCUS_TIMER_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto VAULT_ORDER_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
@@ -195,14 +195,15 @@ inline constexpr int DRAWER_COMMON_VAULT_ICON_SPACING = 6;
 inline constexpr int DRAWER_CHEVRON_EXTENT = 12;
 inline constexpr int DRAWER_COMMON_VAULT_ICON_EXTENT = 12;
 
-// The vault switcher's button (VaultSwitcher): ChevronsUpDown, then the vault
-// name. The four knobs mean what the drawer header's do. LEFT_PADDING is
-// measured from the button's own edge, frame included; 4 is where the style's
-// own label would put the glyph
+// A button that opens a menu (MenuButton): its glyph, then its text, as the
+// vault switcher shows ChevronsUpDown and the vault name. The three knobs mean
+// what the drawer header's do. LEFT_PADDING is measured from the button's own
+// edge, frame included; 4 is where the style's own label would put the glyph.
+// The vault switcher's is VAULT_SWITCHER_HEIGHT tall
+inline constexpr int MENU_BUTTON_LEFT_PADDING = 8;
+inline constexpr int MENU_BUTTON_ICON_SPACING = 6;
+inline constexpr int MENU_BUTTON_ICON_EXTENT = 14;
 inline constexpr int VAULT_SWITCHER_HEIGHT = 28;
-inline constexpr int VAULT_SWITCHER_LEFT_PADDING = 8;
-inline constexpr int VAULT_SWITCHER_ICON_SPACING = 6;
-inline constexpr int VAULT_SWITCHER_ICON_EXTENT = 14;
 
 // The settings gear right of the vault switcher (SettingsButton), Obsidian's
 // vault profile row. EXTENT/ICON_EXTENT mean what the tab buttons' pair means;
@@ -269,6 +270,30 @@ inline constexpr auto GIT_PAGE_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
 // COMMIT_SPACING between the summary, the description, and the button. The
 // description is DESCRIPTION_LINES lines of its font tall
 inline constexpr int GIT_PAGE_HEADER_V_MARGIN = 6;
+
+// The row at the top of the Git page: the branch button (GitBranchButton),
+// taking the width, and the sync button (GitSyncButton) at its right, both
+// VAULT_SWITCHER_HEIGHT tall. The margins keep their washes off the sidebar's
+// edges and the page buttons above, as the footer's do. The sync button keeps
+// SYNC_BUTTON_PADDING at its sides, has its glyph SYNC_BUTTON_ICON_EXTENT
+// square in SYNC_BUTTON_ICON_ROLE, and its counts SYNC_BUTTON_SPACING after
+// the glyph. While a sync runs the glyph turns SYNC_SPIN_DEGREES every
+// SYNC_SPIN_INTERVAL_MS
+inline constexpr int GIT_PAGE_TOP_ROW_LEFT_MARGIN = 4;
+inline constexpr int GIT_PAGE_TOP_ROW_TOP_MARGIN = 0;
+inline constexpr int GIT_PAGE_TOP_ROW_RIGHT_MARGIN = 4;
+inline constexpr int GIT_PAGE_TOP_ROW_BOTTOM_MARGIN = 0;
+inline constexpr int GIT_SYNC_BUTTON_PADDING = 8;
+inline constexpr int GIT_SYNC_BUTTON_ICON_EXTENT = 14;
+inline constexpr int GIT_SYNC_BUTTON_SPACING = 4;
+inline constexpr auto GIT_SYNC_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr int GIT_SYNC_SPIN_INTERVAL_MS = 30;
+inline constexpr qreal GIT_SYNC_SPIN_DEGREES = 12.0;
+
+// The New Branch dialog (GitNewBranchDialog): at least MIN_WIDTH wide. The
+// line saying what a fixed name becomes is in NOTE_ROLE
+inline constexpr int GIT_NEW_BRANCH_DIALOG_MIN_WIDTH = 360;
+inline constexpr auto GIT_NEW_BRANCH_NOTE_ROLE = QPalette::PlaceholderText;
 inline constexpr int GIT_PAGE_COMMIT_MARGIN = 4;
 inline constexpr int GIT_PAGE_COMMIT_SPACING = 6;
 inline constexpr int GIT_PAGE_DESCRIPTION_LINES = 3;

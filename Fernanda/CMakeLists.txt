@@ -183,6 +183,7 @@ set(APP_SOURCES
 
 set(APP_HEADERS
     src/core/git/GitDiff.h
+    src/core/git/GitRefName.h
     src/core/git/GitRemote.h
     src/core/git/GitRepository.h
     src/core/git/GitStatus.h
@@ -230,10 +231,13 @@ set(APP_HEADERS
     src/models/PrimeDocument.h
     src/models/TextFileModel.h
 
+    src/ui/git/GitBranchButton.h
     src/ui/git/GitChangeDelegate.h
     src/ui/git/GitDiffPage.h
     src/ui/git/GitDiffView.h
+    src/ui/git/GitNewBranchDialog.h
     src/ui/git/GitPage.h
+    src/ui/git/GitSyncButton.h
 
     src/ui/settings/FontFamilyBox.h
     src/ui/settings/SettingRow.h
@@ -270,6 +274,7 @@ set(APP_HEADERS
     src/ui/widgets/DisplaySlider.h
     src/ui/widgets/Glyph.h
     src/ui/widgets/GlyphButton.h
+    src/ui/widgets/MenuButton.h
     src/ui/widgets/MenuText.h
     src/ui/widgets/RowBadges.h
     src/ui/widgets/ToggleSwitch.h

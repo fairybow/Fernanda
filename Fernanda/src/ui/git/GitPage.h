@@ -51,14 +51,18 @@
 #include "core/git/GitStatus.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
+#include "ui/git/GitBranchButton.h"
 #include "ui/git/GitChangeDelegate.h"
+#include "ui/git/GitSyncButton.h"
 
 namespace Fernanda::Ui {
 
 using namespace Qt::StringLiterals;
 
-// The sidebar's Git page: the repository's changed files, one row each
-// (GitChangeDelegate), and below them the commit box. The list covers the
+// The sidebar's Git page: a row with the current branch, whose menu switches
+// and makes branches (GitBranchButton), and the sync button
+// (GitSyncButton); then the repository's changed files, one row each
+// (GitChangeDelegate); and below them the commit box. The list covers the
 // whole repository, which may hold more than the vault. A renamed file is
 // listed at its new path.
 //
@@ -159,6 +163,7 @@ private:
         auto* layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
+        layout->addLayout(buildTopRow_());
         layout->addWidget(stack_, 1);
         layout->addWidget(buildCommitBox_(this));
 
@@ -189,6 +194,22 @@ private:
             &GitPage::onCommitFailed_);
 
         rebuild_();
+    }
+
+    // The branch button, taking the width, and the sync button at its right
+    [[nodiscard]] QHBoxLayout* buildTopRow_()
+    {
+        auto* row = new QHBoxLayout;
+        row->setContentsMargins(
+            GIT_PAGE_TOP_ROW_LEFT_MARGIN,
+            GIT_PAGE_TOP_ROW_TOP_MARGIN,
+            GIT_PAGE_TOP_ROW_RIGHT_MARGIN,
+            GIT_PAGE_TOP_ROW_BOTTOM_MARGIN);
+        row->setSpacing(0);
+        row->addWidget(new GitBranchButton(repository_, this), 1);
+        row->addWidget(new GitSyncButton(repository_, this), 0);
+
+        return row;
     }
 
     // The check-all box over the list
