@@ -36,6 +36,7 @@
 #include <QWidget>
 #include <QtMath>
 #include <QtMinMax>
+#include <QtTypes>
 
 #include <Coco/Debug.h>
 
@@ -81,11 +82,18 @@ private:
 // would otherwise run far off the right edge. The font is the vault's text
 // font (setFont, from the Git view), so prose reads as it does in the editor.
 //
+// The words that changed within a line (GitDiff::Line::changes) are tinted
+// again, with GIT_DIFF_ADDED_WORD_BACKGROUND or GIT_DIFF_REMOVED_WORD_
+// BACKGROUND. Git's note that a file ends without a line break is shown as
+// its own line, under the line it's about, like the @@ lines.
+//
 // The tints are colors with an alpha, so they tint the page rather than cover
-// it and serve a light page and a dark one alike. They're a block format's
-// background, which QPlainTextEdit paints across the whole width itself. The
-// @@ lines are in GIT_DIFF_HEADER_ROLE, set as each line's text color when
-// the document is built, so a palette change builds it again.
+// it and serve a light page and a dark one alike. A line's is its block
+// format's background, which QPlainTextEdit paints across the whole width
+// itself; a word's is its character format's, painted over the line's, so
+// the two alphas add up. The @@ lines and the notes are in
+// GIT_DIFF_HEADER_ROLE, set as each line's text color when the document is
+// built, so a palette change builds it again.
 //
 // The gutter's shape follows TextEditor's: numbers drawn on each block's
 // first-line baseline, tabular digits, and block tops accumulated as qreal.
@@ -136,6 +144,7 @@ private:
     enum class Kind_
     {
         Header,
+        Note,
         Context,
         Added,
         Removed
@@ -195,15 +204,24 @@ private:
         auto first = true;
 
         for (const auto& hunk : diff_.hunks) {
-            appendBlock_(cursor, first, { Kind_::Header, 0, 0 }, hunk.header);
+            appendBlock_(
+                cursor,
+                first,
+                { Kind_::Header, 0, 0 },
+                hunk.header,
+                {});
             first = false;
 
             for (const auto& line : hunk.lines) {
+                auto kind = kindOf_(line.kind);
+
                 appendBlock_(
                     cursor,
                     false,
-                    { kindOf_(line.kind), line.oldNumber, line.newNumber },
-                    line.text);
+                    { kind, line.oldNumber, line.newNumber },
+                    kind == Kind_::Note ? tr("No newline at end of file")
+                                        : line.text,
+                    line.changes);
 
                 digits_ = qMax(
                     digits_,
@@ -219,25 +237,31 @@ private:
     }
 
     // The first block is the document's own, so it's formatted in place
-    // rather than inserted after an empty one
+    // rather than inserted after an empty one. The text goes in piece by
+    // piece, each changed span with the word tint
     void appendBlock_(
         QTextCursor& cursor,
         bool first,
         const BlockInfo_& info,
-        const QString& text)
+        const QString& text,
+        const QList<GitDiff::Span>& changes)
     {
         QTextBlockFormat block_format{};
         QTextCharFormat char_format{};
+        QTextCharFormat word_format{};
 
         switch (info.kind) {
         case Kind_::Header:
+        case Kind_::Note:
             char_format.setForeground(palette().color(GIT_DIFF_HEADER_ROLE));
             break;
         case Kind_::Added:
             block_format.setBackground(GIT_DIFF_ADDED_BACKGROUND);
+            word_format.setBackground(GIT_DIFF_ADDED_WORD_BACKGROUND);
             break;
         case Kind_::Removed:
             block_format.setBackground(GIT_DIFF_REMOVED_BACKGROUND);
+            word_format.setBackground(GIT_DIFF_REMOVED_WORD_BACKGROUND);
             break;
         case Kind_::Context:
             break;
@@ -250,7 +274,17 @@ private:
             cursor.insertBlock(block_format, char_format);
         }
 
-        cursor.insertText(text, char_format);
+        qsizetype at = 0;
+
+        for (const auto& span : changes) {
+            cursor.insertText(text.sliced(at, span.start - at), char_format);
+            cursor.insertText(
+                text.sliced(span.start, span.length),
+                word_format);
+            at = span.start + span.length;
+        }
+
+        cursor.insertText(text.sliced(at), char_format);
         blocks_ << info;
     }
 
@@ -261,6 +295,8 @@ private:
             return Kind_::Added;
         case GitDiff::Line::Kind::Removed:
             return Kind_::Removed;
+        case GitDiff::Line::Kind::NoNewline:
+            return Kind_::Note;
         case GitDiff::Line::Kind::Context:
             return Kind_::Context;
         }

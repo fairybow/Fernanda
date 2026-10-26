@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <QtTypes>
+
 namespace Fernanda {
 
 inline constexpr auto WORKSPACE_FILE_NAME = "workspace.json";
@@ -37,10 +39,18 @@ inline constexpr int UPDATE_CHECK_TIMEOUT_MS = 15 * 1000;
 // finish before stopping it
 inline constexpr int GIT_EXIT_WAIT_MS = 3 * 1000;
 
-
 // How long a GitRepository lets a fetch, a pull, or a push run before it
 // stops it, so a sign-in that can't be shown, or a remote that never answers,
 // can't hold the repository's other commands back forever
 inline constexpr int GIT_NETWORK_TIMEOUT_MS = 2 * 60 * 1000;
+
+// How GitDiff::wordChanges marks the words that changed in a line. A line
+// marks nothing when less than MIN_UNCHANGED_PERCENT of its characters
+// (leaving out whitespace) are unchanged. The middles of two lines, after
+// their matching ends, are compared in a table of one cell per pair of words;
+// past MAX_CELLS (a few megabytes, held only while comparing) the middle is
+// marked as one span instead
+inline constexpr int GIT_WORD_DIFF_MIN_UNCHANGED_PERCENT = 50;
+inline constexpr qint64 GIT_WORD_DIFF_MAX_CELLS = 1000 * 1000;
 
 } // namespace Fernanda

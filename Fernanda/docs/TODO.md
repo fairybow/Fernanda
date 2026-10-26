@@ -12,7 +12,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] New branch button has no hover wash, no obvious visual feedback
 - [ ] Current branch is not selected when opening the branch menu after making a new branch (still has main as selection!)
 - [ ] Branch naming should have filtering to prevent bad names
-- [ ] Switch line highlights back to QPalette roles? What were they before QColor?
+- [ ] Switch line highlights (in editor, not diff) back to QPalette roles? What were they before QColor?
 - [ ] Color the git diff icons (square plus, square dot, square minus; green, yellow, red respectively)
 - [ ] Need padding in GitView file lists on left side (check boxes, especially top level, are too close to edge) (may want to make them inline with a distinguished header, like in GitHub Desktop)
 - [ ] The GitView check boxes are ugly lol
