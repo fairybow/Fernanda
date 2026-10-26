@@ -27,6 +27,7 @@
 #include <QRect>
 #include <QRectF>
 #include <QResizeEvent>
+#include <QScrollBar>
 #include <QString>
 #include <QTextBlock>
 #include <QTextBlockFormat>
@@ -81,6 +82,9 @@ private:
 // unlike GitHub Desktop's: in prose a paragraph is one line, and a diff of it
 // would otherwise run far off the right edge. The font is the vault's text
 // font (setFont, from the Git view), so prose reads as it does in the editor.
+// Showing a diff either keeps where the view is scrolled to (Scroll::Kept),
+// for the same file read again, or goes to its top; a rebuild for a palette
+// change keeps it.
 //
 // The words that changed within a line (GitDiff::Line::changes) are tinted
 // again, with GIT_DIFF_ADDED_WORD_BACKGROUND or GIT_DIFF_REMOVED_WORD_
@@ -111,11 +115,22 @@ public:
 
     ~GitDiffView() override { TRACER; }
 
-    // Replace what's shown with this diff, scrolled to its top
-    void showDiff(const GitDiff::Diff& diff)
+    // Where showDiff leaves the view scrolled
+    enum class Scroll
+    {
+        ToTop,
+        Kept
+    };
+
+    // Replace what's shown with this diff
+    void showDiff(const GitDiff::Diff& diff, Scroll scroll)
     {
         diff_ = diff;
         build_();
+
+        if (scroll == Scroll::ToTop) {
+            verticalScrollBar()->setValue(0);
+        }
     }
 
 protected:
@@ -192,8 +207,11 @@ private:
         updateViewportMargins_();
     }
 
+    // Built again from diff_, scrolled where it was. The text cursor goes to
+    // the start, where the cleared document left it
     void build_()
     {
+        auto scrolled = verticalScrollBar()->value();
         clear();
         blocks_.clear();
         digits_ = 1;
@@ -232,6 +250,7 @@ private:
         cursor.endEditBlock();
 
         moveCursor(QTextCursor::Start);
+        verticalScrollBar()->setValue(scrolled);
         updateViewportMargins_();
         gutter_->update();
     }

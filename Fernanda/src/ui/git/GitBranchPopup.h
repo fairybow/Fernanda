@@ -16,6 +16,7 @@
 #include <utility>
 
 #include <QApplication>
+#include <QCloseEvent>
 #include <QEvent>
 #include <QFont>
 #include <QFrame>
@@ -47,10 +48,12 @@ using namespace Qt::StringLiterals;
 // branches below it as it's typed in. The local branches come first, the
 // current one in bold. Under a "Remote" heading come the remote branches
 // that have no local branch of the same name ("origin/draft" when there's no
-// "draft"). A click on a branch, or Enter on the one selected, chooses it; Up
-// and Down in the field move the selection; Escape, or a click elsewhere,
-// closes it. The branches are read when it shows
-// (GitRepository::listBranches).
+// "draft"). The current branch is selected when it's listed, otherwise the
+// first branch. A click on a branch, or Enter on the one selected, chooses it;
+// Up and Down in the field move the selection; Escape, or a click elsewhere,
+// closes it. A click on the button that opened it only closes it: the click
+// isn't passed on to the button, which would open it again. The branches are
+// read when it shows (GitRepository::listBranches).
 //
 // It only asks: what choosing a branch, New Branch, or Create Pull Request
 // means is its owner's (GitTopBar), and so is whether there's a pull request
@@ -92,7 +95,16 @@ signals:
     void pullRequestRequested();
     void newBranchRequested();
 
+    // It closed, by any means: a choice, Escape, or a click elsewhere
+    void closed();
+
 protected:
+    void closeEvent(QCloseEvent* event) override
+    {
+        QWidget::closeEvent(event);
+        emit closed();
+    }
+
     void keyPressEvent(QKeyEvent* event) override
     {
         if (event->key() == Qt::Key_Escape) {
@@ -137,6 +149,7 @@ private:
     void setup_()
     {
         setAttribute(Qt::WA_DeleteOnClose);
+        setAttribute(Qt::WA_NoMouseReplay);
 
         auto* new_branch = new QPushButton(tr("New Branch…"), this);
         new_branch->setFlat(true);
@@ -207,11 +220,13 @@ private:
     }
 
     // The branches whose names hold the filter's text, ignoring case, with
-    // the first selected
+    // the current branch selected if it's among them, otherwise the first
+    // branch (never the Remote heading)
     void rebuild_()
     {
         auto filter = filterEdit_->text().trimmed();
         const auto& current = repository_->status().branch.name;
+        auto selected_row = -1;
 
         list_->clear();
 
@@ -226,6 +241,7 @@ private:
                 auto font = item->font();
                 font.setBold(true);
                 item->setFont(font);
+                selected_row = list_->row(item);
             }
         }
 
@@ -247,7 +263,23 @@ private:
             }
         }
 
-        list_->setCurrentRow(list_->count() > 0 ? 0 : -1);
+        if (selected_row < 0) {
+            selected_row = firstBranchRow_();
+        }
+
+        list_->setCurrentRow(selected_row);
+    }
+
+    // The first row that's a branch, not a heading. -1 with none
+    [[nodiscard]] int firstBranchRow_() const
+    {
+        for (auto row = 0; row < list_->count(); ++row) {
+            if (list_->item(row)->data(IS_REMOTE_ROLE_).isValid()) {
+                return row;
+            }
+        }
+
+        return -1;
     }
 
     QListWidgetItem* addBranch_(const QString& name, bool isRemote)

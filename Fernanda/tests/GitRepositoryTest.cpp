@@ -893,6 +893,41 @@ private slots:
         QVERIFY(entry_(f.repository, u"b.txt"_s));
     }
 
+    // busyChanged comes as the commit starts and again as it ends, before
+    // its answer, so whatever follows it reads the repository as free
+    void busyChangedMarksAnOperationsStartAndEnd()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+
+        f.repository.detect();
+        QTRY_VERIFY(f.repository.isFound());
+        f.repository.refresh();
+        QTRY_VERIFY(entry_(f.repository, u"a.txt"_s));
+
+        QList<bool> busy_at_change{};
+        connect(&f.repository, &GitRepository::busyChanged, this, [&] {
+            busy_at_change << f.repository.isBusy();
+        });
+
+        std::optional<bool> busy_at_answer{};
+        connect(&f.repository, &GitRepository::committed, this, [&] {
+            busy_at_answer = f.repository.isBusy();
+        });
+
+        f.repository.commit(
+            { *entry_(f.repository, u"a.txt"_s) },
+            u"First"_s,
+            {});
+
+        QCOMPARE(busy_at_change, QList<bool>{ true });
+
+        QTRY_VERIFY(busy_at_answer.has_value());
+        QCOMPARE(busy_at_change, (QList<bool>{ true, false }));
+        QVERIFY(!*busy_at_answer);
+    }
+
     void commitWritesTheSummaryAndDescription()
     {
         Fixture_ f{};

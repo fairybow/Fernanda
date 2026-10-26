@@ -6,6 +6,7 @@ Bugs and code chores, and for now the Git features not yet built. Other features
 
 - [ ] Need some padding (UiConstants), tweakable, for left and right sides of status bar
 - [ ] Loading circle for branch publishing needs animating (and wherever else it would appear)
+- [ ] GitView top bar's repo name box needs to have its right edge attached to the left hand column, as in GH Desktop - probably need a new layout :grimace:
 - [ ] GitView delete changes dialog is chonky/ugly/bad/etc
 - [ ] Branch popup is too square + clicking it again should probably close + hover wash doesn't go away when clicking outside of the menu to close it until you move mouse over and off it again
 - [ ] Overall, branch menu/popup feels jank

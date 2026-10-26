@@ -734,9 +734,10 @@ private:
     }
 
     // The Git view, opening files the way the file tree's menu does in a new
-    // tab, after the view closes. Only a file in one of this window's
-    // vaults, of a type Fernanda opens, and still on disk (not one whose
-    // change is its deletion) is offered
+    // tab, after the view closes. A file that's already the active tab is
+    // shown, not opened a second time: the view's closing alone shows it.
+    // Only a file in one of this window's vaults, of a type Fernanda opens,
+    // and still on disk (not one whose change is its deletion) is offered
     [[nodiscard]] GitView* buildGitView_()
     {
         auto* view = new GitView(gitRepository_, vault_, centralStack_);
@@ -752,6 +753,12 @@ private:
             this,
             [this](const PathKey& key) {
                 setGitViewShown_(false);
+
+                if (auto* view = activeFileView();
+                    view && view->model()->key() == key) {
+                    return;
+                }
+
                 openFile(key, OpenMode::NewTab);
             });
 

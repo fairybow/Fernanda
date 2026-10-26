@@ -20,6 +20,7 @@
 #include <QFont>
 #include <QFontMetrics>
 #include <QFrame>
+#include <QHBoxLayout>
 #include <QKeySequence>
 #include <QLabel>
 #include <QLineEdit>
@@ -33,6 +34,7 @@
 #include <QPushButton>
 #include <QSet>
 #include <QShortcut>
+#include <QShowEvent>
 #include <QSignalBlocker>
 #include <QSplitter>
 #include <QStackedWidget>
@@ -70,9 +72,12 @@ using namespace Qt::StringLiterals;
 // repository's folder, and a renamed file shows where it was and where it is.
 //
 // The selected file's diff is on the right (GitDiffView), asked for each time
-// a file is selected, and again when a new status leaves it selected, since
-// the file may have changed. A file stays selected across a new status while
-// it's still changed; with none selected, the first is, as in GitHub Desktop.
+// a file is selected, again when a new status leaves it selected, since the
+// file may have changed, and again when the view shows. A hidden view asks for
+// none: the window keeps it, hidden, after it's first opened. The same file's
+// diff read again keeps where it was scrolled to. A file stays selected across
+// a new status while it's still changed; with none selected, the first is, as
+// in GitHub Desktop.
 // In the diff's place, a line says when there's nothing to show: no changes,
 // a binary file, a file whose change has no lines (an empty file, or only its
 // mode changed), or git's own message when it failed.
@@ -86,7 +91,9 @@ using namespace Qt::StringLiterals;
 // Below the list, the commit box: a summary, which a commit needs, a
 // description, which it doesn't, and a button that commits the checked files
 // to the current branch (GitRepository::commit). Ctrl+Enter in the box does
-// the same. What the commit's git said, when it fails, is shown in a message.
+// the same. The button is disabled while the repository is busy with any
+// operation (GitRepository::busyChanged). What the commit's git said, when it
+// fails, is shown in a message.
 //
 // A file can be opened from its right-click menu, or by double-clicking it.
 // The view only asks (openRequested); which files can be opened is the
@@ -96,7 +103,7 @@ using namespace Qt::StringLiterals;
 // asking, with Cancel the default. The question says where the changes go:
 // to the trash, the file going back to its last commit, or, for a file the
 // last commit doesn't have, the file itself to the trash. Not offered for a
-// conflicted file, or while a commit or discard is underway
+// conflicted file, or while the repository is busy
 class GitView : public QWidget
 {
     Q_OBJECT
@@ -128,6 +135,14 @@ signals:
     // double-click, only for a file the open filter allows
     void openRequested(const PathKey& key);
 
+protected:
+    // Diffs aren't read while hidden, so the selected file's is read now
+    void showEvent(QShowEvent* event) override
+    {
+        QWidget::showEvent(event);
+        readSelectedDiff_();
+    }
+
 private:
     GitRepository* repository_;
     Vault* vault_;
@@ -150,6 +165,10 @@ private:
 
     // The selected file's path, whose diff is wanted. Empty with none selected
     Coco::Path selectedPath_{};
+
+    // The file whose diff the diff view shows. Empty while a message shows in
+    // its place
+    Coco::Path shownPath_{};
 
     // The files unchecked by hand, by path (prettyQString). They stay
     // unchecked while listed again, and while not
@@ -229,7 +248,7 @@ private:
 
         connect(
             repository_,
-            &GitRepository::discarded,
+            &GitRepository::busyChanged,
             this,
             &GitView::updateCommitBox_);
 
@@ -249,16 +268,22 @@ private:
     {
         auto* column = new QWidget(parentSplitter);
 
-        // Partly checked shows that some files are and some aren't. A click
-        // is settled by onAllBoxClicked_, not left to the box's own cycle,
-        // which would go to partly checked after unchecked
-        allBox_ = new QCheckBox(column);
-        allBox_->setTristate(true);
-        allBox_->setContentsMargins(
+        // A checkbox paints across its whole rect and takes no margins of
+        // its own, so they're the layout's around it
+        auto* header = new QWidget(column);
+        auto* header_layout = new QHBoxLayout(header);
+        header_layout->setContentsMargins(
             GIT_VIEW_HEADER_H_MARGIN,
             GIT_VIEW_HEADER_V_MARGIN,
             GIT_VIEW_HEADER_H_MARGIN,
             GIT_VIEW_HEADER_V_MARGIN);
+
+        // Partly checked shows that some files are and some aren't. A click
+        // is settled by onAllBoxClicked_, not left to the box's own cycle,
+        // which would go to partly checked after unchecked
+        allBox_ = new QCheckBox(header);
+        allBox_->setTristate(true);
+        header_layout->addWidget(allBox_);
 
         connect(allBox_, &QCheckBox::clicked, this, &GitView::onAllBoxClicked_);
 
@@ -274,7 +299,7 @@ private:
         auto* layout = new QVBoxLayout(column);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
-        layout->addWidget(allBox_);
+        layout->addWidget(header);
         layout->addWidget(list_, 1);
         layout->addWidget(buildCommitBox_(column));
 
@@ -499,8 +524,6 @@ private:
             entries,
             summaryEdit_->text().trimmed(),
             descriptionEdit_->toPlainText().trimmed());
-
-        updateCommitBox_();
     }
 
     // The status is read again after either answer, which rebuilds the list
@@ -508,18 +531,15 @@ private:
     {
         summaryEdit_->clear();
         descriptionEdit_->clear();
-        updateCommitBox_();
     }
 
     void onCommitFailed_(const QString& error)
     {
-        updateCommitBox_();
         showFailure_(tr("Commit failed"), tr("Nothing was committed."), error);
     }
 
     void onDiscardFailed_(const QString& error)
     {
-        updateCommitBox_();
         showFailure_(
             tr("Discard failed"),
             tr("The changes weren't discarded."),
@@ -577,7 +597,6 @@ private:
             }
 
             repository_->discard(entry);
-            updateCommitBox_();
         });
 
         box->open();
@@ -651,6 +670,22 @@ private:
         }
 
         selectedPath_ = entries_[row].path;
+        readSelectedDiff_();
+    }
+
+    // Only while the view shows: hidden, it would run git for nothing
+    void readSelectedDiff_()
+    {
+        if (!isVisible()) {
+            return;
+        }
+
+        auto row = list_->currentRow();
+
+        if (row < 0 || row >= entries_.size()) {
+            return;
+        }
+
         repository_->readDiff(entries_[row]);
     }
 
@@ -671,7 +706,11 @@ private:
             return;
         }
 
-        diffView_->showDiff(diff);
+        auto scroll = path == shownPath_ ? GitDiffView::Scroll::Kept
+                                         : GitDiffView::Scroll::ToTop;
+        shownPath_ = path;
+
+        diffView_->showDiff(diff, scroll);
         detail_->setCurrentWidget(diffView_);
     }
 
@@ -686,6 +725,7 @@ private:
 
     void showMessage_(const QString& text)
     {
+        shownPath_ = {};
         message_->setText(text);
         detail_->setCurrentWidget(message_);
     }

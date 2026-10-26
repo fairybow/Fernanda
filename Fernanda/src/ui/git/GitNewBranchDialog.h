@@ -102,6 +102,12 @@ private:
             this,
             &GitNewBranchDialog::updateCreate_);
 
+        connect(
+            repository_,
+            &GitRepository::busyChanged,
+            this,
+            &GitNewBranchDialog::updateCreate_);
+
         connect(repository_, &GitRepository::switched, this, [this] {
             if (waiting_) {
                 accept();
@@ -126,10 +132,13 @@ private:
         updateCreate_();
     }
 
+    // A name, and nothing underway: neither this dialog's own branch nor
+    // anything else the repository is busy with
     void updateCreate_()
     {
         createButton_->setEnabled(
-            !waiting_ && !nameEdit_->text().trimmed().isEmpty());
+            !waiting_ && !repository_->isBusy() &&
+            !nameEdit_->text().trimmed().isEmpty());
     }
 
     void create_()

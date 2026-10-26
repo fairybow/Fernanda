@@ -278,7 +278,8 @@ public:
     // Whether a commit, a discard, a switch, or a sync is underway: from
     // asking until its answer (committed or commitFailed, discarded or
     // discardFailed, switched or switchFailed, synced or syncFailed). Each
-    // waits for the others, so their steps can't interleave
+    // waits for the others, so their steps can't interleave. busyChanged
+    // says when this changes
     [[nodiscard]] bool isBusy() const noexcept
     {
         return operation_ != Operation_::None;
@@ -332,7 +333,7 @@ public:
             paths += path;
         }
 
-        operation_ = Operation_::Commit;
+        setOperation_(Operation_::Commit);
 
         Command_ command{};
         command.kind = Kind_::Commit;
@@ -471,7 +472,7 @@ public:
             steps << restore;
         }
 
-        operation_ = Operation_::Discard;
+        setOperation_(Operation_::Discard);
 
         if (steps.isEmpty()) {
             finish_(Operation_::Discard, {});
@@ -587,8 +588,8 @@ public:
             break;
         }
 
-        operation_ = Operation_::Sync;
         syncAction_ = action;
+        setOperation_(Operation_::Sync);
 
         Command_ command{};
         command.kind = Kind_::Sync;
@@ -692,7 +693,7 @@ public:
     {
         queue_.clear();
         ++generation_;
-        operation_ = Operation_::None;
+        setOperation_(Operation_::None);
 
         if (root_.isEmpty()) {
             return;
@@ -736,6 +737,10 @@ signals:
     // The discard asked for wasn't done, or not wholly: what went to the
     // trash before a git step failed stays there. error says why
     void discardFailed(const QString& error);
+
+    // isBusy changed: an operation started, or the one underway ended. It
+    // ends just before its answer (committed, commitFailed, and the rest)
+    void busyChanged();
 
     // A switch or a new branch asked for was made
     void switched();
@@ -1188,7 +1193,7 @@ private:
     // A switch is one step, and the whole of its operation
     void enqueueSwitch_(const QStringList& arguments)
     {
-        operation_ = Operation_::Switch;
+        setOperation_(Operation_::Switch);
 
         Command_ command{};
         command.kind = Kind_::Switch;
@@ -1343,10 +1348,21 @@ private:
         }
     }
 
+    // The operation underway, and busyChanged when that starts or ends one
+    void setOperation_(Operation_ operation)
+    {
+        auto was_busy = isBusy();
+        operation_ = operation;
+
+        if (isBusy() != was_busy) {
+            emit busyChanged();
+        }
+    }
+
     // An empty error is success
     void finish_(Operation_ operation, const QString& error)
     {
-        operation_ = Operation_::None;
+        setOperation_(Operation_::None);
 
         if (error.isEmpty()) {
             INFO("Git operation done in {}", root_);

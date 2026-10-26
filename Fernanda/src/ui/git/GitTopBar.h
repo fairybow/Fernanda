@@ -13,13 +13,18 @@
 #pragma once
 
 #include <QAbstractButton>
+#include <QApplication>
+#include <QCursor>
 #include <QDesktopServices>
 #include <QHBoxLayout>
+#include <QHideEvent>
 #include <QMessageBox>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPen>
+#include <QShowEvent>
 #include <QString>
+#include <QTimer>
 #include <QUrl>
 #include <QWidget>
 
@@ -46,7 +51,8 @@ using namespace Qt::StringLiterals;
 //
 // The names follow the repository's status. A detached HEAD is named so;
 // before the first commit, the branch is the one git will make, which git
-// already names.
+// already names. The branch and sync sections are disabled while the
+// repository is busy with any operation (GitRepository::busyChanged).
 //
 // Choosing a branch asks the repository to switch (GitRepository::
 // switchBranch, or switchToRemoteBranch for a remote one); New Branch opens
@@ -59,9 +65,10 @@ using namespace Qt::StringLiterals;
 // from the remote; pull when the remote has commits this branch doesn't; push
 // when this branch has commits the remote doesn't; otherwise fetch. Its caption
 // says when the repository last fetched, from git, so a fetch in a terminal
-// counts too. It does nothing until clicked: Fernanda never fetches on its own.
-// While it runs it says what it's doing, and a failure shows git's words. With
-// no remote, it says so and does nothing.
+// counts too, and is read again each minute while the bar shows. It does
+// nothing until clicked: Fernanda never fetches on its own. While it runs it
+// says what it's doing, and a failure shows git's words. With no remote, it
+// says so and does nothing.
 //
 // The branch list offers Create Pull Request when the branch is published to
 // a remote on github.com and isn't that remote's default branch. It opens
@@ -82,6 +89,21 @@ public:
     ~GitTopBar() override { TRACER; }
 
 protected:
+    // "Last fetched" is relative to now, so it's read again on a timer, but
+    // only while the bar shows
+    void showEvent(QShowEvent* event) override
+    {
+        QWidget::showEvent(event);
+        updateSync_();
+        lastFetchedTimer_->start();
+    }
+
+    void hideEvent(QHideEvent* event) override
+    {
+        QWidget::hideEvent(event);
+        lastFetchedTimer_->stop();
+    }
+
     void paintEvent([[maybe_unused]] QPaintEvent* event) override
     {
         QPainter painter(this);
@@ -106,9 +128,13 @@ private:
     GitBarItem* branchItem_ = nullptr;
     GitBarItem* syncItem_ = nullptr;
 
-    // Whether this bar asked for a switch, or a sync, and awaits the answer
+    // Whether this bar asked for a switch and awaits the answer. The New
+    // Branch dialog switches too, and shows its own failures
     bool switching_ = false;
-    bool syncing_ = false;
+
+    // How often "Last fetched" is read again while the bar shows
+    static constexpr int LAST_FETCHED_INTERVAL_MS_ = 60 * 1000;
+    QTimer* lastFetchedTimer_ = new QTimer(this);
 
     // What the sync button does when clicked, as last shown
     SyncAction_ syncAction_ = SyncAction_::Fetch;
@@ -149,6 +175,13 @@ private:
 
         connect(syncItem_, &QAbstractButton::clicked, this, &GitTopBar::sync_);
 
+        lastFetchedTimer_->setInterval(LAST_FETCHED_INTERVAL_MS_);
+        connect(
+            lastFetchedTimer_,
+            &QTimer::timeout,
+            this,
+            &GitTopBar::updateSync_);
+
         connect(
             repository_,
             &GitRepository::statusChanged,
@@ -167,6 +200,12 @@ private:
             this,
             &GitTopBar::updateAll_);
 
+        connect(
+            repository_,
+            &GitRepository::busyChanged,
+            this,
+            &GitTopBar::updateAll_);
+
         connect(repository_, &GitRepository::switched, this, [this] {
             switching_ = false;
         });
@@ -176,11 +215,6 @@ private:
             &GitRepository::switchFailed,
             this,
             &GitTopBar::onSwitchFailed_);
-
-        connect(repository_, &GitRepository::synced, this, [this] {
-            syncing_ = false;
-            updateSync_();
-        });
 
         connect(
             repository_,
@@ -198,6 +232,7 @@ private:
         const auto& branch = repository_->status().branch;
         branchItem_->setName(
             branch.detached ? tr("Detached HEAD") : branch.name);
+        branchItem_->setEnabled(!repository_->isBusy());
 
         updateSync_();
     }
@@ -224,7 +259,7 @@ private:
             return;
         }
 
-        syncItem_->setEnabled(true);
+        syncItem_->setEnabled(!repository_->isBusy());
         syncItem_->setCaption(lastFetchedText_());
 
         if (!branch.upstreamFound && !branch.detached && !branch.unborn) {
@@ -298,21 +333,12 @@ private:
             return;
         }
 
-        syncing_ = true;
         repository_->sync(syncAction_);
-        updateSync_();
     }
 
-    // Shown without exec: the window may close while it's up
+    // Only this bar asks for a sync, so every failure is its own to show
     void onSyncFailed_(const QString& error)
     {
-        updateSync_();
-
-        if (!syncing_) {
-            return;
-        }
-
-        syncing_ = false;
         showFailure_(tr("Sync failed"), syncFailureText_(), error);
     }
 
@@ -365,7 +391,29 @@ private:
             }
         });
 
+        // On the next tick, once the popup is hidden. Destroyed with the bar,
+        // this cancels the call
+        connect(popup, &GitBranchPopup::closed, this, [this] {
+            Coco::Time::onNextTick(this, [this] { syncBranchItemHover_(); });
+        });
+
         popup->showBelow(branchItem_);
+    }
+
+    // Qt marks which widget is under the mouse only when the mouse moves. A
+    // popup closed by a click elsewhere leaves the branch section marked as
+    // under the mouse, and keeps its wash, until the mouse crosses it again.
+    // widgetAt finds what the next move would (as Drawer's header does)
+    void syncBranchItemHover_()
+    {
+        auto hovered = QApplication::widgetAt(QCursor::pos()) == branchItem_;
+
+        if (branchItem_->underMouse() == hovered) {
+            return;
+        }
+
+        branchItem_->setAttribute(Qt::WA_UnderMouse, hovered);
+        branchItem_->update();
     }
 
     // GitHub's page for a pull request from this branch, or nothing: the
