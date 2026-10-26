@@ -192,7 +192,7 @@ private slots:
             GitStatus::parse(output_({ ordinary_(".M", "Caf\xC3\xA9.txt") }));
 
         QCOMPARE(status.entries.size(), 1);
-        QCOMPARE(status.entries[0].path.prettyQString(), u"Café.txt"_s);
+        QCOMPARE(status.entries[0].path.prettyQString(), u"Caf\u00E9.txt"_s);
     }
 
     void malformedRecordIsSkipped()

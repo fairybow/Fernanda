@@ -236,7 +236,7 @@ private slots:
         const auto& lines = diff.hunks[0].lines;
         QCOMPARE(lines.size(), 4);
         QCOMPARE(lines[1].kind, Kind_::NoNewline);
-        QCOMPARE(lines[1].text, u"No newline at end of file"_s);
+        QVERIFY(lines[1].text.isEmpty());
         QCOMPARE(lines[1].oldNumber, 0);
         QCOMPARE(lines[1].newNumber, 0);
         QCOMPARE(lines[2].kind, Kind_::Added);
@@ -283,7 +283,7 @@ private slots:
             "-Cafe\n"
             "+Caf\xC3\xA9\n");
 
-        QCOMPARE(diff.hunks[0].lines[1].text, u"Café"_s);
+        QCOMPARE(diff.hunks[0].lines[1].text, u"Caf\u00E9"_s);
     }
 
     void binaryFileHasNoHunks()

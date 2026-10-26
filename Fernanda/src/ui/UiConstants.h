@@ -412,6 +412,9 @@ inline constexpr int GIT_BRANCH_POPUP_MIN_WIDTH = 300;
 inline constexpr int GIT_BRANCH_POPUP_HEIGHT = 360;
 inline constexpr int GIT_BRANCH_POPUP_MARGIN = 6;
 
+// The New Branch dialog (GitNewBranchDialog) is at least MIN_WIDTH wide
+inline constexpr int GIT_NEW_BRANCH_DIALOG_MIN_WIDTH = 360;
+
 // The Git view's diff (GitDiffView). An added line is tinted ADDED_BACKGROUND
 // and a removed one REMOVED_BACKGROUND, across the text and the gutter. Each
 // has an alpha, so it tints the page rather than covering it, on a light page

@@ -39,6 +39,7 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QString>
+#include <QTextDocument>
 #include <QVBoxLayout>
 #include <QWidget>
 

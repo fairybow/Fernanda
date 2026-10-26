@@ -50,7 +50,10 @@ using namespace Fernanda;
 // GitStatusTest's; these check that git is asked the right way, and that
 // what the store holds unsaved is saved before it is asked.
 //
-// Each test makes its own repository in a temporary folder.
+// Each test makes its own repository in a temporary folder. Git reads no
+// configuration but the repository's own (initTestCase), so a setting in the
+// machine's or the user's (a hook folder, a diff option, a default branch
+// name) can't change what a test sees.
 //
 // Qt Test runs every private slot as a test
 class GitRepositoryTest : public QObject
@@ -60,6 +63,9 @@ class GitRepositoryTest : public QObject
 private:
     // How long a test waits for something that should not happen
     static constexpr int QUIET_WAIT_MS_ = 1000;
+
+    // Holds the empty file git reads as the user's configuration
+    QTemporaryDir configFolder_{};
 
     // A temporary folder, which a test may make a repository, and the store
     // and vault a GitRepository borrows. vaultFolder is where the vault is,
@@ -498,11 +504,23 @@ private:
     }
 
 private slots:
+    // Set before any GitRepository is made: each copies the environment
+    // when it's constructed, and every git the tests run directly inherits it
     void initTestCase()
     {
         if (QStandardPaths::findExecutable(u"git"_s).isEmpty()) {
             QSKIP("Git isn't installed");
         }
+
+        QVERIFY(configFolder_.isValid());
+        auto global = configFolder_.filePath(u"gitconfig"_s);
+
+        QFile file(global);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.close();
+
+        qputenv("GIT_CONFIG_GLOBAL", global.toUtf8());
+        qputenv("GIT_CONFIG_NOSYSTEM", "1");
     }
 
     // --- Finding the repository ---------------------------------------------
@@ -512,7 +530,6 @@ private slots:
         Fixture_ f{};
         f.git({ u"init"_s, u"-q"_s });
 
-        QVERIFY(f.repository.hasGit());
         QVERIFY(!f.repository.isFound());
 
         f.repository.detect();
@@ -625,20 +642,20 @@ private slots:
             GitStatus::Change::Untracked);
     }
 
-    // "Café" is a name with an e-acute: git must hand it back as the
+    // "Caf\u00E9" is a name with an e-acute: git must hand it back as the
     // same name, not quoted or escaped
     void refreshReadsANameOutsideAscii()
     {
         Fixture_ f{};
         f.git({ u"init"_s, u"-q"_s });
-        f.write(u"Café.txt"_s, "hello");
+        f.write(u"Caf\u00E9.txt"_s, "hello");
 
         f.repository.detect();
         QTRY_VERIFY(f.repository.isFound());
 
         f.repository.refresh();
 
-        QTRY_VERIFY(entry_(f.repository, u"Café.txt"_s));
+        QTRY_VERIFY(entry_(f.repository, u"Caf\u00E9.txt"_s));
     }
 
     void refreshReadsTheBranch()

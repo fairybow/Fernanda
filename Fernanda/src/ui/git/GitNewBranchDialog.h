@@ -24,6 +24,7 @@
 #include <Coco/Debug.h>
 
 #include "core/git/GitRepository.h"
+#include "ui/UiConstants.h"
 
 namespace Fernanda::Ui {
 
@@ -67,7 +68,7 @@ private:
         setWindowTitle(tr("New Branch"));
         setWindowModality(Qt::WindowModal);
         setAttribute(Qt::WA_DeleteOnClose);
-        setMinimumWidth(360);
+        setMinimumWidth(GIT_NEW_BRANCH_DIALOG_MIN_WIDTH);
 
         nameEdit_ = new QLineEdit(this);
         nameEdit_->setPlaceholderText(tr("Branch name"));

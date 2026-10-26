@@ -105,16 +105,6 @@ protected:
         emit closed();
     }
 
-    void keyPressEvent(QKeyEvent* event) override
-    {
-        if (event->key() == Qt::Key_Escape) {
-            close();
-            return;
-        }
-
-        QWidget::keyPressEvent(event);
-    }
-
     // Up and Down in the field move the list's selection
     bool eventFilter(QObject* watched, QEvent* event) override
     {

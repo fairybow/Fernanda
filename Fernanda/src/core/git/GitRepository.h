@@ -17,7 +17,6 @@
 #include <utility>
 
 #include <QByteArray>
-#include <QFileInfo>
 #include <QHash>
 #include <QList>
 #include <QMap>
@@ -48,11 +47,10 @@ using namespace Qt::StringLiterals;
 // The Git repository a vault's folder is in, as one vault window sees it.
 // Finds the repository, reads its status, its diffs, and its branches,
 // commits, discards a file's changes, switches and makes branches, and
-// fetches, pulls, and pushes, by
-// running the git installed on the computer, and announces each answer. A
-// status covers the whole
-// repository, which may hold more than the vault: other vaults, or files that
-// aren't Fernanda's at all.
+// fetches, pulls, and pushes, by running the git installed on the computer,
+// and announces each answer. A status covers the whole repository, which may
+// hold more than the vault: other vaults, or files that aren't Fernanda's at
+// all.
 //
 // Owned by its VaultWindow, which decides when to ask. Nothing here runs git
 // on its own, so git runs only when the window asks. Two windows over one
@@ -61,14 +59,18 @@ using namespace Qt::StringLiterals;
 //
 // Commands run one at a time, in the order asked. Git takes a lock on the
 // repository's index for most commands, so two at once could fail each
-// other. Asking for a detection or a status while the same is already
-// waiting adds nothing: the waiting one will read the newer state.
+// other. Asking for a detection, a status, a branch list, or the remotes
+// while the same is already waiting adds nothing: the waiting one will read
+// the newer state. Asking for a diff while one waits replaces it.
 //
 // Every command runs with:
 // - core.fsmonitor off. A repository's own config can name a program for Git
 //   to run as its file monitor, and status runs it. Fernanda asks for a
 //   status as soon as a vault opens, and a vault can come from anyone, so
-//   that program must never run unasked
+//   that program must never run unasked. Other programs a repository's config
+//   can name still run, as they do for any Git client: a clean filter, when
+//   a status or a diff reads a changed file, and hooks, when a commit or a
+//   switch runs them
 // - core.quotePath off, so paths in Git's output are plain UTF-8
 // - --literal-pathspecs, so a path given to git names only itself: a file
 //   named "[draft].md" isn't a pattern that also matches "d.md"
@@ -125,9 +127,6 @@ public:
         }
     }
 
-    // Whether git was found on the computer
-    [[nodiscard]] bool hasGit() const noexcept { return !program_.isEmpty(); }
-
     // Whether the vault's folder is in a repository, as of the last detection
     [[nodiscard]] bool isFound() const noexcept { return !root_.isEmpty(); }
 
@@ -156,7 +155,7 @@ public:
     // vault's folder, the root is spelled as everything else in the vault is
     void detect()
     {
-        if (!hasGit() || isQueued_(Kind_::Detect)) {
+        if (!hasGit_() || isQueued_(Kind_::Detect)) {
             return;
         }
 
@@ -259,12 +258,7 @@ public:
     // never has
     [[nodiscard]] qint64 lastFetchedEpochMs() const
     {
-        if (fetchHead_.isEmpty()) {
-            return 0;
-        }
-
-        auto info = fetchHead_.toQFileInfo();
-        return info.exists() ? info.lastModified().toMSecsSinceEpoch() : 0;
+        return fetchHead_.isEmpty() ? 0 : fetchHead_.lastModifiedEpochMs();
     }
 
     // The sync underway, if any
@@ -848,6 +842,8 @@ private:
     QString program_{};
     QProcessEnvironment environment_{};
 
+    [[nodiscard]] bool hasGit_() const noexcept { return !program_.isEmpty(); }
+
     Coco::Path root_{};
     GitStatus::Status status_{};
 
@@ -1190,8 +1186,6 @@ private:
         emit diffRead(command.subject, GitDiff::parse(result.output));
     }
 
-    // One step of a commit. A failed step ends the commit, and the step after
-    // it, already waiting, is dropped. The commit is the last step
     // A switch is one step, and the whole of its operation
     void enqueueSwitch_(const QStringList& arguments)
     {

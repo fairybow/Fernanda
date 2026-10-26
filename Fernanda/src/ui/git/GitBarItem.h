@@ -25,7 +25,6 @@
 #include <QtMinMax>
 
 #include <Coco/Debug.h>
-#include <Coco/Path.h>
 
 #include "ui/UiConstants.h"
 #include "ui/widgets/ButtonWash.h"

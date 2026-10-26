@@ -51,8 +51,8 @@ namespace Fernanda::Ui {
 // GLYPH_BUTTON_CHECKED_PANEL_ROLE (the accent) and draws its glyph in
 // GLYPH_BUTTON_CHECKED_ICON_ROLE in place of glyphRole(), so "on" reads at a
 // glance, as a toggle switch that's on does. The hover and press wash still go
-// over the fill. A button that isn't checkable is never checked, and paints as
-// before.
+// over the fill. A button that isn't checkable is never checked, so it never
+// has the fill.
 //
 // The render goes through one Glyph::Cache. Path and tint are both in its key,
 // so a live swap (pin/unpin, a palette or color-group change) costs one render

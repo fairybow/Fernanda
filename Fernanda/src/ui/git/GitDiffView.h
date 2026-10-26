@@ -87,9 +87,10 @@ private:
 // change keeps it.
 //
 // The words that changed within a line (GitDiff::Line::changes) are tinted
-// again, with GIT_DIFF_ADDED_WORD_BACKGROUND or GIT_DIFF_REMOVED_WORD_
-// BACKGROUND. Git's note that a file ends without a line break is shown as
-// its own line, under the line it's about, like the @@ lines.
+// again, with GIT_DIFF_ADDED_WORD_BACKGROUND or
+// GIT_DIFF_REMOVED_WORD_BACKGROUND. Git's note that a file ends without a line
+// break is shown as its own line, in this view's words, under the line it's
+// about, like the @@ lines.
 //
 // The tints are colors with an alpha, so they tint the page rather than cover
 // it and serve a light page and a dark one alike. A line's is its block

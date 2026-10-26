@@ -72,7 +72,7 @@ struct Line
         Removed,
 
         // Git's note that the line before it has no line break after it,
-        // ending the file. Its text is git's, in English
+        // ending the file. It has no text: a view says it in its own words
         NoNewline
     };
 
@@ -400,11 +400,6 @@ struct Range_
     return line.isEmpty() ? QString{} : QString::fromUtf8(line.sliced(1));
 }
 
-[[nodiscard]] inline QString noteOf_(QByteArrayView line)
-{
-    return QString::fromUtf8(line.sliced(1)).trimmed();
-}
-
 } // namespace Internal
 
 // What changed between before and after, a line and the line it became, as
@@ -558,10 +553,7 @@ inline void markWordChanges_(Hunk& hunk)
             // Git's note can follow the hunk's last line, after the counts
             // have run out
             if (line.startsWith('\\')) {
-                hunk->lines << Line{ Line::Kind::NoNewline,
-                                     Internal::noteOf_(line),
-                                     0,
-                                     0 };
+                hunk->lines << Line{ Line::Kind::NoNewline, {}, 0, 0 };
                 continue;
             }
 
