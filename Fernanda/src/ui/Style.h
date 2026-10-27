@@ -435,7 +435,7 @@ public:
 
         case PE_IndicatorCheckBox:
         case PE_IndicatorItemViewItemCheck:
-            drawCheckIndicator_(option, painter);
+            drawCheckIndicator_(option, painter, widget);
             return;
 
         case PE_PanelLineEdit:
@@ -837,17 +837,21 @@ private:
     // a rounded square, bordered as a field when off, and filled with the
     // accent and holding a check (on) or a dash (partly on) otherwise.
     //
-    // The accent is the window's state's: an inactive window's is muted. The
-    // state is read from the option, not the palette's current group. A
-    // QCheckBox's palette is set to its window's group, but an item view
-    // leaves its rows' palettes active and says so in State_Active alone, as
-    // Qt's own item drawing reads it, so its rows would stay in the accent
-    static void
-    drawCheckIndicator_(const QStyleOption* option, QPainter* painter)
+    // The accent follows the window: an inactive window's is muted, and only
+    // then. The window is asked directly. A QCheckBox's palette is set to its
+    // window's group, but an item view leaves its rows' palettes active, and
+    // clears State_Active from its rows whenever the view itself lacks focus,
+    // as it dims a selection; read from either, a list's checkboxes would
+    // stay in the accent in an inactive window, or grey in an active one
+    static void drawCheckIndicator_(
+        const QStyleOption* option,
+        QPainter* painter,
+        const QWidget* widget)
     {
         const auto& palette = option->palette;
-        auto group = (option->state & State_Active) ? QPalette::Active
-                                                    : QPalette::Inactive;
+        auto active = widget ? widget->isActiveWindow()
+                             : bool(option->state & State_Active);
+        auto group = active ? QPalette::Active : QPalette::Inactive;
         auto side = qMin(option->rect.width(), option->rect.height());
         QRectF box(
             option->rect.x() + (option->rect.width() - side) / 2.0,

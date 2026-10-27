@@ -773,6 +773,8 @@ public:
         ++generation_;
         setOperation_(Operation_::None);
 
+        trustChecking_ = false;
+
         if (root_.isEmpty() && untrusted_.isEmpty()) {
             return;
         }
@@ -938,6 +940,10 @@ private:
 
     Coco::Path root_{};
     QString untrusted_{};
+
+    // A trust was written to the config, and the detection after it hasn't
+    // answered yet (onTrusted_)
+    bool trustChecking_ = false;
     GitStatus::Status status_{};
 
     QList<Command_> queue_{};
@@ -1288,6 +1294,14 @@ private:
             untrusted = GitSafeDirectory::folderOf(result.error);
         }
 
+        // The folder was added to safe.directory, and git still refuses it:
+        // the spelling git asked for didn't match, or another folder above
+        // it is refused too
+        if (std::exchange(trustChecking_, false) && !untrusted.isEmpty()) {
+            WARN("Git still doesn't trust {} after trusting it", untrusted);
+            emit trustFailed(tr("Git still doesn't trust this folder."));
+        }
+
         if (PathKey::of(found) == PathKey::of(root_) &&
             untrusted == untrusted_) {
             return;
@@ -1325,12 +1339,15 @@ private:
 
     // The folder is in the user's Git config now, or git said why not.
     // Detection runs again either way, and finds the repository once git
-    // trusts it
+    // trusts it. If git still refuses it after the config took it,
+    // onDetected_ says so (trustChecking_)
     void onTrusted_(const Result_& result)
     {
         if (!result.succeeded) {
             WARN("Git couldn't trust {}: {}", untrusted_, result.error);
             emit trustFailed(result.error);
+        } else {
+            trustChecking_ = true;
         }
 
         detect();

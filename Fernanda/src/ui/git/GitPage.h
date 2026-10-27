@@ -306,9 +306,11 @@ private:
         setFocusProxy(trustButton_);
     }
 
-    // Shown without exec: the window may close while it's up
+    // Shown without exec: the window may close while it's up. The button
+    // works again, so trusting can be tried again
     void onTrustFailed_(const QString& error)
     {
+        trustButton_->setEnabled(true);
         showFailure_(
             tr("Trust failed"),
             tr("The repository wasn't trusted."),
