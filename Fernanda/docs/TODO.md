@@ -61,6 +61,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] A folder holding its own repository, which Git lists as one entry, was listed with no name: its diff failed, committing it recorded a pointer to the other repository, and discarding it trashed that repository whole. It's now left out
 - [x] A file marked to be added (`git add -N`) was taken as modified, so discarding it asked Git to restore it from a commit that doesn't have it
 - [x] The Git page's right-click menu read its file by row when an item was chosen, so a status arriving while it was open could open another file's diff
+- [x] A pull was refused while any tracked file had uncommitted changes, even when the incoming commits touched none of them. Git already stops a pull that would change a file with changes, before changing anything, so the pull now goes ahead and keeps the changes, as GitHub Desktop's does
 - [x] The discard question was wrong for a renamed file and a deleted one, and a refused pull always blamed branches that had both moved on
 - [x] A switch refused by its changes check still ran. The check's status announced itself, and the branch button (or a diff tab) asked Git for something on hearing it; that ask started the next command in the queue, the switch, before the check had refused it. Where the changed files were the same on both branches, Git carried the changes across, and on a branch without the vault's `.fernanda/.gitignore` the switch took that file away. A command's answer is now handled whole before the next command starts
 - [x] A switch or a new branch that couldn't be asked for (no repository, Git busy, no name) returned silently, leaving the New Branch dialog waiting for an answer
@@ -101,7 +102,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
 - [ ] Add the Git page to `CHANGELOG.md`
-- [ ] Before the first release with Git, try every Git page action on Windows and macOS against a real GitHub remote, signing in through Git's credential manager: commit, discard (and restore the copy from the trash), switch, new branch, a remote branch, publish, push, fetch, pull, a refused pull, and Create pull request. Also a machine with no Git installed, where the Git page shouldn't show
+- [ ] Before the first release with Git, try every Git page action on Windows and macOS against a real GitHub remote, signing in through Git's credential manager: commit, discard (and restore the copy from the trash), switch, new branch, a remote branch, publish, push, fetch, pull with changes to other files, a pull refused for touching a changed file, and Create pull request. Also a machine with no Git installed, where the Git page shouldn't show
 - [x] Need the remaining Edit menu and text editor context menu options (cut, copy, paste, select all, delete)
 - [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
 

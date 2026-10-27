@@ -1361,7 +1361,31 @@ private slots:
         QTRY_COMPARE(f.repository.status().branch.behind, 0);
     }
 
-    void pullIsRefusedWithTrackedChanges()
+    // A change to a file the incoming commits don't touch stays as it is,
+    // uncommitted, and the commits come in around it
+    void pullKeepsChangesToOtherFiles()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+        f.write(u"b.txt"_s, "b\n");
+        f.git({ u"add"_s, u"b.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"Second"_s });
+        f.git({ u"push"_s, u"-q"_s });
+        commitFromAnotherClone_(remote, "from elsewhere\n");
+        f.git({ u"fetch"_s, u"-q"_s });
+        f.write(u"b.txt"_s, "mine\n");
+
+        auto error = syncOf_(f, GitRepository::SyncAction::Pull, true);
+        QCOMPARE(error, QString{});
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("from elsewhere\n"));
+        QCOMPARE(f.read(u"b.txt"_s), QByteArray("mine\n"));
+        QTRY_COMPARE(f.repository.status().branch.behind, 0);
+    }
+
+    // Git stops before changing anything when an incoming commit touches a
+    // file with uncommitted changes
+    void pullLeavesAChangedFileTheCommitsTouch()
     {
         Fixture_ f{};
         Remote_ remote{};
@@ -1373,6 +1397,7 @@ private slots:
         auto error = syncOf_(f, GitRepository::SyncAction::Pull, true);
         QVERIFY(!error.isEmpty());
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("mine\n"));
+        QVERIFY(!f.repository.isBusy());
     }
 
     // Both sides committed: a fast-forward can't take the remote's

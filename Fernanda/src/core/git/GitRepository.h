@@ -529,10 +529,12 @@ public:
     //
     // - Fetch: fetch --prune, so a branch deleted on the remote goes here too
     // - Pull: fast-forward only, without rebasing. Every modified buffer in
-    //   the repository is saved and the status read first, and the pull is
-    //   refused, as a switch is, while a tracked file has uncommitted changes
-    //   (enqueueChangesCheck_). Branches that have diverged need a merge or a
-    //   rebase, which this doesn't do; git says so
+    //   the repository is saved first. Uncommitted changes stay as they are,
+    //   as in GitHub Desktop: git takes in the commits only when none touches
+    //   a file with changes, or an untracked file in the way, and otherwise
+    //   stops before changing anything and names the files. Branches that
+    //   have diverged need a merge or a rebase, which this doesn't do; git
+    //   says so
     // - Push: to the branch's upstream
     // - Publish: push --set-upstream, so the branch tracks its copy on the
     //   remote from then on. For a branch with no upstream, or one whose
@@ -585,10 +587,6 @@ public:
 
         syncAction_ = action;
         setOperation_(Operation_::Sync);
-
-        if (action == SyncAction::Pull) {
-            enqueueChangesCheck_(Operation_::Sync);
-        }
 
         Command_ command{};
         command.kind = Kind_::Step;
@@ -929,16 +927,15 @@ private:
                  u"--untracked-files=all"_s };
     }
 
-    // The first step of a switch or a pull: a status read, made after the
-    // caller has saved every modified buffer in the repository, so it sees
-    // the text on screen. onStatusRead_ lets the steps after it run only
-    // while no file git tracks has uncommitted changes: they'd follow to the
-    // other branch, be mixed with what comes in, or stop git partway, and
-    // each is a surprise. A file git doesn't track doesn't count: git leaves
-    // it where it is.
+    // The first step of a switch: a status read, made after the caller has
+    // saved every modified buffer in the repository, so it sees the text on
+    // screen. onStatusRead_ lets the steps after it run only while no file
+    // git tracks has uncommitted changes: they'd follow to the other branch,
+    // or stop git partway, and either is a surprise. A file git doesn't track
+    // doesn't count: git leaves it where it is.
     //
-    // TODO: Offer to stash the changes instead, as GitHub Desktop does, so a
-    // switch or a pull can go ahead with them set aside
+    // TODO: Offer GitHub Desktop's choice instead, leaving the changes on
+    // this branch (stashed) or bringing them to the other
     void enqueueChangesCheck_(Operation_ operation)
     {
         Command_ check{};
@@ -1201,7 +1198,7 @@ private:
         emit remotesChanged();
     }
 
-    // A status read on its own, or as the first step of a switch or a pull
+    // A status read on its own, or as the first step of a switch
     // (enqueueChangesCheck_). A status read for a repository that has since
     // been lost or replaced is ignored. A first step that can't decide (that
     // repository, or a failed read) ends its operation as a refusal does

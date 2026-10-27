@@ -254,7 +254,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - Choosing a local branch switches to it. Choosing a remote one makes a local branch that tracks it, and switches to that
 - New branch… asks for a name and makes the branch from the current one, then switches to it, taking any uncommitted changes along. The name is fixed as you type, as GitHub Desktop fixes it: spaces and characters Git refuses become hyphens, and a line under the field says what the branch will be called. Git still checks the name, and a name it refuses keeps the dialog open with Git's reason
 - **Create pull request** shows for a branch published to a remote on github.com, when it isn't the remote's default branch. It opens GitHub's page for a new pull request in your browser
-- Switching branches, and pulling, are refused while a file Git tracks has uncommitted changes, including any typed a moment before: commit or discard them first. New files Git doesn't track yet don't count
+- Switching branches is refused while a file Git tracks has uncommitted changes, including any typed a moment before: commit or discard them first. New files Git doesn't track yet don't count
 - Files a switch or a pull changes reload in their tabs, as any change made outside Fernanda does, and a tab on a file the other branch doesn't have closes
 
 ### Syncing
@@ -263,6 +263,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - Hover over it to see what it will do and when the repository last fetched. The glyph turns while it runs
 - The remote is the one the branch tracks, otherwise `origin`, otherwise the only remote there is. With none, the button is disabled
 - Fernanda never fetches, pulls, or pushes on its own. Nothing contacts the remote until you click
+- A pull keeps your uncommitted changes, as GitHub Desktop's does: the commits come in around them, and the changes list still shows only your own. If an incoming commit changes a file you've changed, nothing is pulled and Git names the file: commit or discard it first
 - A pull only fast-forwards. If the branches have both moved on, the pull is refused, with Git's reason, and nothing is merged
 - Signing in to the remote is left to Git. A credential manager Git is set up with works as it does from a terminal; one that would ask for a password in a terminal fails instead. A fetch, pull, or push that hasn't finished after two minutes is stopped
 
@@ -274,7 +275,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - No fetch on a timer. Desktop fetches every hour
 - The branch list has no filter
 - A folder holding a repository of its own isn't listed. Desktop lists it as a new file, and committing it records only a pointer to that other repository's current commit
-- No stash. Switching or pulling with changes is refused, where Desktop offers to set the changes aside, or bring them along
+- No stash. Switching with changes is refused, where Desktop offers to set the changes aside, or bring them along. A pull that would change a file you've changed is refused, where Desktop offers to set the changes aside and pull
 - No history, no merges, no amending, no discarding every change at once, and no committing part of a file
 
 ## Look
