@@ -5,7 +5,6 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Bugs
 
 - [ ] Sidebar page switch buttons need constant for padding between the buttons (right now they're completely adjacent)
-- [ ] Need some padding (UiConstants), tweakable, for left and right sides of status bar
 - [ ] Switch line highlights (in editor, not diff) back to QPalette roles? What were they before QColor?
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
 - [ ] Perhaps change FocusTimer icon to hourglass
