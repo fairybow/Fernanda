@@ -5,8 +5,6 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Bugs
 
 - [ ] Sidebar page switch buttons need constant for padding between the buttons (right now they're completely adjacent)
-- [ ] Discard all for git
-- [ ] Stashing for git (and allowing branch switching while there are changes, and recovering stashed changes when switching back - essentially completing the full implementation of GitHub Desktop behavior in the new non-Desktop-based UI)
 - [ ] Need some padding (UiConstants), tweakable, for left and right sides of status bar
 - [ ] Switch line highlights (in editor, not diff) back to QPalette roles? What were they before QColor?
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
@@ -58,6 +56,13 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] Diffs didn't show that a file ends without a line break. The diff says so under its last line
 - [x] A new branch's name was judged only by Git, on Create. It's now fixed as it's typed, as GitHub Desktop fixes it (`GitRefName`), and Git still has the last word
 - [x] Hover washes left on a widget that moved from under a still cursor were fixed in two places with two copies of the same code. Only the Common Vault drawer's header needs it now: the Git branch list, which had the other copy, is a real menu, and a menu needs none
+- [x] A branch switch or a pull was refused, or not, by the last status read, which could be older than the text on screen: a change typed since was carried to the other branch. The status is now read again as the operation's first step
+- [x] Diff tabs and the Git page didn't follow saves, only the window coming forward, so a diff split beside its file never updated as it was typed. Both are now read again when a file in the repository is saved, renamed, moved, or trashed in Fernanda while either shows
+- [x] A folder holding its own repository, which Git lists as one entry, was listed with no name: its diff failed, committing it recorded a pointer to the other repository, and discarding it trashed that repository whole. It's now left out
+- [x] A file marked to be added (`git add -N`) was taken as modified, so discarding it asked Git to restore it from a commit that doesn't have it
+- [x] The Git page's right-click menu read its file by row when an item was chosen, so a status arriving while it was open could open another file's diff
+- [x] The discard question was wrong for a renamed file and a deleted one, and a refused pull always blamed branches that had both moved on
+- [x] A switch or a new branch that couldn't be asked for (no repository, Git busy, no name) returned silently, leaving the New Branch dialog waiting for an answer
 
 ## Rough edges
 
@@ -65,6 +70,8 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
 - [ ] Same for error report strings from outside Fernanda, like GitRepository's "result.error" usage, which should probably be quoted
 - [ ] A vault's `.fernanda/settings.json`, `appearance.json`, and `dictionary.txt` are meant to be committed, so a setting changed or a word added makes a tracked change, which stops a branch switch or a pull until it's committed or discarded
+- [ ] A new, empty file made from the file tree isn't written by the store, so the Git page lists it only once the window next comes forward
+- [ ] `Style` draws every framed `QPlainTextEdit` as a field, which takes in the log window and the licenses dialog's text: rounded, inset, with an accent border when focused. Check they look right
 - [ ] Decide if all Lucide icons should be in constants file or only things accessed from multiple places (the latter being what I lean toward right now, as those *Constants files are for non-settings tweakable values (shared or unshared) or shared constants generally)
 - [ ] The licenses dialog's Qt entry links to Qt's list of the libraries Qt itself bundles (PDFium in Qt PDF, among others) rather than showing their notices. Shipping their texts would mean collecting them from the Qt build in use
 - [ ] Tabs can be dragged past the left or right end of the tab bar without starting a drag; may want to clamp them
@@ -98,6 +105,9 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Code
 
 - [x] `GitRepository`'s class comment had lines broken short. Rewrapped
+- [x] Cleanup from the Git review: the six operation-step kinds in `GitRepository` are one, the toggle action is `repository.togglePage`, unused `using` lines are gone, the Git constants sit under their comments, and paths aren't written to a `git` that failed to start
+- [ ] Remove the unused `FolderGit2`, `GitBranchPlus`, and `GitPullRequestArrow` icons from `Lucide.qrc` and `resources/lucide/`
+- [ ] The Git page's branch and sync buttons are `VAULT_SWITCHER_HEIGHT` tall. A shared name for a menu button's height would say what it is
 - [ ] Verify the `PrimeDocument` header, and rename it
 - [ ] Rename `BaseWindow`'s protected members that have a trailing underscore
 - [ ] Bring `MenuBuilder` over from Hearth (maybe into Coco)?
@@ -127,6 +137,7 @@ What the tests in `Fernanda/tests/` don't reach.
 - [ ] The letter-case cases (an inner vault's root spelled in another case, and a rename by case alone above an inner vault) run only where case is ignored: on Windows and macOS
 - [ ] A file that starts with two byte-order marks. On Qt 6.4 one is dropped on load, which the comment on the mark in `TextFileModel.h` says can't happen. Check it on the Qt in use
 - [ ] Discarding a file's changes sends a real copy to the system trash, so `GitRepositoryTest` doesn't reach it, as with `Vault::moveToTrash`. What runs after the trash (the restore, and removing a new file from the index) is plain git
+- [ ] The Git page and diff tabs reading again after a save (`VaultWindow::onRepositoryChanged_`)
 - [ ] The two-minute limit on a fetch, pull, or push (`GIT_NETWORK_TIMEOUT_MS`). A test would need a remote that never answers
 - [ ] Signing in to a real remote, through a credential manager, and failing cleanly where Git would ask in a terminal. The tests sync with a bare repository in a temporary folder
 - [ ] `JsonIo`, `WorkspaceFile`, and everything in `views/` (apart from `TextSearch`) and `ui/`. The find bar and the way `TextFileView` drives a search are among them, as are the misspelling underlines and the spelling items in the editor's context menu. Considered for `TabPaneTree`'s save and restore and left out: a mistake there costs a layout, not text, and shows on the next launch

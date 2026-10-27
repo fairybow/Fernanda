@@ -81,7 +81,7 @@ Nothing here is a promise or a schedule.
 What GitHub Desktop does that the Git page doesn't yet. Each would follow the page's shape: a list in the sidebar, and what it shows in a tab.
 
 - History: the current branch's commits, newest first, each showing its message and the files it changed, with a diff of the one selected, as in GitHub Desktop's History tab
-- Stashing: setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead without committing or discarding first, as GitHub Desktop offers when switching branches
+- Stashing: setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead without committing or discarding first, as GitHub Desktop offers when switching branches. The refusal is a stand-in until then
 - Merging: a pull only fast-forwards, and a branch can't be merged into another from the Git page. Merging means handling conflicts: showing the conflicted files, and committing once they're resolved. Git itself refuses to commit only some files mid-merge, so the commit box would need to say so
 - Committing part of a file: checking single hunks or lines, as GitHub Desktop does by clicking in the diff's gutter
 - Amending the last commit
@@ -142,6 +142,7 @@ What GitHub Desktop does that the Git page doesn't yet. Each would follow the pa
 - **File associations.** Fernanda doesn't register itself for any file type
 - **Right-to-left layouts**
 - **Fetching on a timer.** GitHub Desktop fetches every hour. Fernanda's Git page contacts the repository's remote only when its sync button is clicked, so opening a vault never reaches the network on its own. The sync button's tooltip says when the repository last fetched, so a stale page is visible
+- **Committing or discarding a folder that holds its own repository.** Git lists one as a single entry without looking inside. Committing it records only a pointer to that repository's commit, so a clone gets an empty folder, and discarding it would trash the repository whole, its history included. The Git page leaves it out
 - **Diffs in a monospace font.** A diff is in the vault's text font, so prose reads as it does in the editor
 - **Telling files apart by following symlinks.** A file is named by the path it was reached by, so a folder linked into a vault stays part of that vault. Following links would name it by its target, outside the vault, and break it there. A file reachable two ways through a link is two documents; Obsidian asks for link targets to be kept apart in the same way. Only a vault's own folder is followed through a link, so one folder opened two ways is one vault
 - **Switching language without a restart.** Qt can swap translations while running, but every widget would have to set its text again when told, and Fernanda sets its text once, as each widget is built. Every class with text would need a second path for it, and a string missed in one would leave a window half in each language. Relaunch, beside the Language setting, does the job as Obsidian's does

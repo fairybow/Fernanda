@@ -1,6 +1,6 @@
 Fernanda Privacy Statement
 
-Fernanda keeps your writing on your computer. It never sends your vaults, your files, or anything you write on its own.
+Fernanda keeps your writing on your computer. On its own, it never sends your vaults, your files, or anything you write.
 
 The one thing it sends on its own is the update check. Unless it's turned off, Fernanda asks GitHub for its list of releases a few seconds after it starts and once a day while it runs. Each check is a single request to api.github.com. Like any web request, it shows GitHub your IP address, and it names Fernanda's version. GitHub's privacy statement covers what GitHub does with that:
 

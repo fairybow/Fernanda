@@ -223,16 +223,17 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - The rest of the window works as usual while the Git page shows
 - The repository is the one the vault's folder is in, found as Git finds it, by looking upward. It may hold more than the vault (other vaults, or files Fernanda doesn't open), and the Git page shows every change in it
 - Show Git, in Settings → Git, turns it off for a vault. It starts on
-- The Git page reads the repository again each time it shows, and whenever the window comes forward
+- The Git page reads the repository again each time it shows, whenever the window comes forward, and when a file in the repository is saved, renamed, moved, or trashed in Fernanda while the Git page or a diff shows
 
 ### Changes and diffs
 
 - The Git page lists every changed file by name, with its folder after it in muted letters and a mark at the right in the change's color: green for added, amber for modified, red for deleted, blue for renamed, and a warning triangle for a file left conflicted by a merge
+- A folder inside the repository that holds a Git repository of its own isn't listed
 - Double-click a file, or press Enter, to open its diff in a tab, over the current tab unless that one is pinned, as a file opens from the file tree. Right-click for Open in new tab, Open to the right, and Open in new window
 - Right-click a file for **Open file** too, which opens the file itself in a new tab (for a file in the window's vaults that Fernanda can open). If it's already the current tab, it's just shown
 - A diff's tab is marked with the branch glyph, so it isn't taken for the file's own tab. Removed lines are red and added lines green, each with its line numbers in the old file and the new one. Within a changed line, the words that changed are marked more strongly. A line rewritten almost entirely gets no word marks, since nearly every word would have them. Lines wrap to the width of the tab, and the text is in the vault's font
 - When a file ends without a line break, the diff says so under its last line
-- A diff follows its file: it updates when the file changes, keeping its place, and says there are no changes once the file is committed or discarded. Right-click for Copy and Select All
+- A diff follows its file: it updates as the file is saved in Fernanda, and when the window comes forward after a change made elsewhere, keeping its place, and says there are no changes once the file is committed or discarded. Right-click for Copy and Select All
 - Diff tabs can be pinned, split, and moved to other windows, like any tab, but aren't restored on the next launch
 
 ### Commits
@@ -244,7 +245,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 ### Discarding
 
 - Right-click a file for **Discard changes…**. It always asks first, and Cancel is the default
-- A copy of the changed file goes to the system trash, and the file goes back to how it was in the last commit. A tab showing it reloads in place, so Ctrl+Z there brings the changes back too. A file that isn't in the last commit goes to the trash itself. A discarded copy restored from the trash comes back to a temporary folder, not to the vault
+- A copy of the changed file goes to the system trash, and the file goes back to how it was in the last commit. A tab showing it reloads in place, so Ctrl+Z there brings the changes back too. A file that isn't in the last commit goes to the trash itself. A renamed file goes to the trash, and its old name comes back as it was. A deleted file just comes back. A discarded copy restored from the trash comes back to a temporary folder, not to the vault
 - A conflicted file can't be discarded from the Git page. Settling a conflict is left to Git
 
 ### Branches
@@ -253,7 +254,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - Choosing a local branch switches to it. Choosing a remote one makes a local branch that tracks it, and switches to that
 - New branch… asks for a name and makes the branch from the current one, then switches to it, taking any uncommitted changes along. The name is fixed as you type, as GitHub Desktop fixes it: spaces and characters Git refuses become hyphens, and a line under the field says what the branch will be called. Git still checks the name, and a name it refuses keeps the dialog open with Git's reason
 - **Create pull request** shows for a branch published to a remote on github.com, when it isn't the remote's default branch. It opens GitHub's page for a new pull request in your browser
-- Switching branches, and pulling, are refused while a file Git tracks has uncommitted changes: commit or discard them first. New files Git doesn't track yet don't count
+- Switching branches, and pulling, are refused while a file Git tracks has uncommitted changes, including any typed a moment before: commit or discard them first. New files Git doesn't track yet don't count
 - Files a switch or a pull changes reload in their tabs, as any change made outside Fernanda does, and a tab on a file the other branch doesn't have closes
 
 ### Syncing
@@ -272,6 +273,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - Each changed word in a line is marked. Desktop marks one stretch from the first changed character to the last, and nothing in a line of 1,024 characters or more
 - No fetch on a timer. Desktop fetches every hour
 - The branch list has no filter
+- A folder holding a repository of its own isn't listed. Desktop lists it as a new file, and committing it records only a pointer to that other repository's current commit
 - No stash. Switching or pulling with changes is refused, where Desktop offers to set the changes aside, or bring them along
 - No history, no merges, no amending, no discarding every change at once, and no committing part of a file
 
