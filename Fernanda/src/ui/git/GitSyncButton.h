@@ -358,15 +358,29 @@ private:
         box->open();
     }
 
+    // Both sides have commits the other lacks, which a fast-forward pull
+    // refuses. Only then does a failed pull name merging, so a pull refused
+    // for another reason (uncommitted changes, a remote that can't be
+    // reached) isn't blamed on it
+    [[nodiscard]] bool diverged_() const
+    {
+        const auto& branch = repository_->status().branch;
+        return branch.upstreamFound && branch.ahead > 0 && branch.behind > 0;
+    }
+
+    // The main line of a failure's message. The informative text under it
+    // gives the reason, most often in git's words
     [[nodiscard]] QString failureText_() const
     {
         switch (action_) {
         case SyncAction_::Fetch:
             return tr("Nothing was fetched.");
         case SyncAction_::Pull:
-            return tr(
-                "Nothing was pulled. If both this branch and its remote have "
-                "new commits, they need merging outside Fernanda.");
+            return diverged_()
+                       ? tr("Nothing was pulled. This branch and its remote "
+                            "both have new commits, which need merging "
+                            "outside Fernanda.")
+                       : tr("Nothing was pulled.");
         case SyncAction_::Push:
             return tr("Nothing was pushed.");
         case SyncAction_::Publish:

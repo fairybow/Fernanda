@@ -120,11 +120,12 @@ pathAfter_(QByteArrayView record, int fieldsBefore)
 // One change for an ordinary record's index (x) and working tree (y)
 // letters. A file added to the index is added, even if it's since been
 // deleted from the working tree: it isn't in the last commit, so it's new
-// either way. Otherwise a deletion on either side is a deletion, and anything
-// else (modified, type changed) is modified
+// either way. So is a file marked to be added (git add -N), whose letter is
+// on the working tree's side. Otherwise a deletion on either side is a
+// deletion, and anything else (modified, type changed) is modified
 [[nodiscard]] inline Change changeOf_(char x, char y)
 {
-    if (x == 'A') {
+    if (x == 'A' || y == 'A') {
         return Change::Added;
     }
 

@@ -93,11 +93,15 @@ using namespace Qt::StringLiterals;
 //
 // The menu also discards a file's changes (GitRepository::discard), after
 // asking, as the file tree asks before a delete: Cancel is the default and
-// the escape button. The question says where the changes go: a copy of the
-// file to the trash, the file going back to its last commit, or, for a file
-// the last commit doesn't have, the file itself to the trash. Not offered for
-// a conflicted file, which is a merge's to settle, nor while the repository
-// is busy. A discard that fails shows why in a message
+// the escape button. The question says what happens to the file: a changed
+// file's copy goes to the trash and the file goes back to its last commit; a
+// file the last commit doesn't have goes to the trash itself; a renamed file
+// goes to the trash and its old name comes back; a deleted file comes back.
+// Not offered for a conflicted file, which is a merge's to settle, nor while
+// the repository is busy. A discard that fails shows why in a message.
+//
+// The menu's items act on the file it was opened on, even if a new status
+// rebuilds the list while it's open
 class GitPage : public QWidget
 {
     Q_OBJECT
@@ -561,10 +565,7 @@ private:
             box->setText(
                 tr("Are you sure you want to discard the changes to \"%1\"?")
                     .arg(name));
-            box->setInformativeText(
-                tr("A copy of the changed file will be moved to the system "
-                   "trash, and the file will go back to how it was in the "
-                   "last commit."));
+            box->setInformativeText(discardOutcomeOf_(entry));
         }
 
         auto* discard_button =
@@ -587,6 +588,30 @@ private:
         box->open();
     }
 
+    // What a discard does to a file that's in the last commit
+    [[nodiscard]] static QString
+    discardOutcomeOf_(const GitStatus::Entry& entry)
+    {
+        switch (entry.change) {
+        case GitStatus::Change::Renamed:
+            return tr("It was renamed from \"%1\". The renamed file will be "
+                      "moved to the system trash, and \"%1\" will go back "
+                      "to how it was in the last commit.")
+                .arg(entry.originalPath.nameQString());
+        case GitStatus::Change::Deleted:
+            return tr("The file will come back as it was in the last commit.");
+        case GitStatus::Change::Modified:
+        case GitStatus::Change::Added:
+        case GitStatus::Change::Untracked:
+        case GitStatus::Change::Conflicted:
+            break;
+        }
+
+        return tr("A copy of the changed file will be moved to the system "
+                  "trash, and the file will go back to how it was in the "
+                  "last commit.");
+    }
+
     void requestDiff_(int row, OpenMode mode)
     {
         if (row >= 0 && row < entries_.size()) {
@@ -594,14 +619,14 @@ private:
         }
     }
 
-    // The file at row as a key, if the window says it can be opened
-    [[nodiscard]] PathKey openableKey_(int row) const
+    // The entry's file as a key, if the window says it can be opened
+    [[nodiscard]] PathKey openableKey_(const GitStatus::Entry& entry) const
     {
-        if (!canOpen_ || row < 0 || row >= entries_.size()) {
+        if (!canOpen_) {
             return {};
         }
 
-        auto key = PathKey::of(repository_->root() / entries_[row].path);
+        auto key = PathKey::of(repository_->root() / entry.path);
         return canOpen_(key) ? key : PathKey{};
     }
 
@@ -615,29 +640,35 @@ private:
             return;
         }
 
+        // A copy: a status that comes while the menu is open rebuilds
+        // entries_, and a row could then name another file
         auto row = list_->row(item);
+
+        if (row < 0 || row >= entries_.size()) {
+            return;
+        }
+
+        const auto entry = entries_[row];
         QMenu menu(this);
 
-        menu.addAction(tr("Open in new tab"), this, [this, row] {
-            requestDiff_(row, OpenMode::NewTab);
+        menu.addAction(tr("Open in new tab"), this, [this, entry] {
+            emit diffRequested(entry, OpenMode::NewTab);
         });
 
-        menu.addAction(tr("Open to the right"), this, [this, row] {
-            requestDiff_(row, OpenMode::SplitRight);
+        menu.addAction(tr("Open to the right"), this, [this, entry] {
+            emit diffRequested(entry, OpenMode::SplitRight);
         });
 
-        menu.addAction(tr("Open in new window"), this, [this, row] {
-            requestDiff_(row, OpenMode::NewWindow);
+        menu.addAction(tr("Open in new window"), this, [this, entry] {
+            emit diffRequested(entry, OpenMode::NewWindow);
         });
 
-        if (auto key = openableKey_(row); !key.isEmpty()) {
+        if (auto key = openableKey_(entry); !key.isEmpty()) {
             menu.addSeparator();
             menu.addAction(tr("Open file"), this, [this, key] {
                 emit fileRequested(key);
             });
         }
-
-        const auto& entry = entries_[row];
 
         if (!repository_->isBusy() &&
             entry.change != GitStatus::Change::Conflicted) {

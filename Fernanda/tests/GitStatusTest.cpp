@@ -82,6 +82,8 @@ private slots:
             << QByteArray("AM") << GitStatus::Change::Added;
         QTest::newRow("added, then deleted")
             << QByteArray("AD") << GitStatus::Change::Added;
+        QTest::newRow("marked to be added (add -N)")
+            << QByteArray(".A") << GitStatus::Change::Added;
         QTest::newRow("deleted in the working tree")
             << QByteArray(".D") << GitStatus::Change::Deleted;
         QTest::newRow("deleted in the index")

@@ -486,18 +486,20 @@ public:
     }
 
     // Switch to another local branch (switch). switched or switchFailed
-    // answers, and the status is read again either way. Refused, with no git
-    // run, while a file git tracks has uncommitted changes, by the last
-    // status read: they'd follow to the other branch, or stop the switch,
-    // and either is a surprise. A file git doesn't track doesn't count, since
-    // git leaves it where it is on every branch. Every modified buffer in the
-    // repository is saved first, so the last status saw the text on screen.
+    // answers every call, and the status is read again after a switch git
+    // ran, whatever its answer. Refused, with no git run, while a file git
+    // tracks has uncommitted changes, by the last status read: they'd follow
+    // to the other branch, or stop the switch, and either is a surprise. A
+    // file git doesn't track doesn't count, since git leaves it where it is
+    // on every branch. Every modified buffer in the repository is saved
+    // first, so the last status saw the text on screen.
     //
     // Files the switch changes on disk reload in their views as outside
     // changes do, and a view of a file the other branch doesn't have closes
     void switchBranch(const QString& name)
     {
-        if (!isFound() || isBusy() || name.isEmpty()) {
+        if (auto refusal = switchRefusal_(name); !refusal.isEmpty()) {
+            emit switchFailed(refusal);
             return;
         }
 
@@ -514,7 +516,8 @@ public:
     // Answered and refused as switchBranch is
     void switchToRemoteBranch(const QString& remoteBranch)
     {
-        if (!isFound() || isBusy() || remoteBranch.isEmpty()) {
+        if (auto refusal = switchRefusal_(remoteBranch); !refusal.isEmpty()) {
+            emit switchFailed(refusal);
             return;
         }
 
@@ -599,13 +602,14 @@ public:
     }
 
     // Make a branch at the current commit and switch to it (switch
-    // --create). switched or switchFailed answers, with git's own words for
-    // a name it won't take. Uncommitted changes come along, as they do in
-    // GitHub Desktop: the new branch starts where the current one is, so
+    // --create). switched or switchFailed answers every call, with git's own
+    // words for a name it won't take. Uncommitted changes come along, as they
+    // do in GitHub Desktop: the new branch starts where the current one is, so
     // nothing on disk changes
     void createBranch(const QString& name)
     {
-        if (!isFound() || isBusy() || name.isEmpty()) {
+        if (auto refusal = switchRefusal_(name); !refusal.isEmpty()) {
+            emit switchFailed(refusal);
             return;
         }
 
@@ -893,6 +897,24 @@ private:
         });
     }
 
+    // Why a switch or a new branch can't be asked for at all, or nothing
+    [[nodiscard]] QString switchRefusal_(const QString& name) const
+    {
+        if (!isFound()) {
+            return tr("No Git repository was found.");
+        }
+
+        if (isBusy()) {
+            return tr("Git is still busy with something else.");
+        }
+
+        if (name.isEmpty()) {
+            return tr("No branch was named.");
+        }
+
+        return {};
+    }
+
     // Why a pull or a switch can't go ahead, or nothing. Every modified
     // buffer in the repository is saved first, so the last status saw the
     // text on screen. Then any change to a file git tracks refuses it: the
@@ -995,9 +1017,11 @@ private:
 
         process_->start();
 
-        // Written once git has started, then closed, so git sees the end of
-        // the paths
-        if (!running_.input.isEmpty()) {
+        // Held by QProcess until git has started, then the channel closed, so
+        // git sees the end of the paths. A git that couldn't start (reported
+        // from start() itself on Windows) has no channel to write to
+        if (!running_.input.isEmpty() &&
+            process_->state() != QProcess::NotRunning) {
             process_->write(running_.input);
             process_->closeWriteChannel();
         }
