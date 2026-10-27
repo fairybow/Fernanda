@@ -106,6 +106,53 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.12.0-beta.0 (Git and Focus Timer) - tag v0.12.0-beta.0
+
+## What's New?
+
+**Git.** For a vault inside a Git repository, Fernanda can now show what's changed, commit it, and work with branches and the remote. It does what GitHub Desktop does, in Fernanda's own sidebar and tabs, using the Git installed on your computer. Without Git, or for a vault in no repository, nothing changes.
+
+- **Files** and **Git** buttons appear at the top of the sidebar when the vault is in a repository. Ctrl+Shift+G, or **View → Git**, switches between them. The rest of the window works as usual while the Git page shows
+- The Git page lists every changed file, with a colored mark for added, modified, deleted, or renamed. Double-click a file to open its diff in a tab: removed lines in red, added in green, and the words that changed marked within each line. A diff follows its file as you type and save
+- Check the files you want, write a summary, and **Commit to *branch*** (or Ctrl+Enter). Only the checked files are committed
+- Right-click a file to **Discard changes**. It always asks first, and a copy of what's discarded goes to the system trash. A tab showing the file reloads in place, so Ctrl+Z there brings the changes back
+- The branch button switches branches, makes a new one (taking your uncommitted changes along), switches to a branch from the remote, and opens GitHub's page for a new pull request
+- The sync button does what GitHub Desktop's does: publishes a new branch, pulls when commits are waiting, pushes when there are commits to send, or else fetches, with how many commits are waiting (↓) and to send (↑) beside it. A pull keeps your uncommitted changes
+- Typing while Git updates your files is never written over what Git brings in. If Git changes the file you're typing in, the tab shows Git's version, and Ctrl+Z brings back what you typed
+- Fernanda never contacts the remote on its own: only when you click the sync button. Signing in is left to Git, through whatever credential manager or SSH agent it's set up with
+- A repository owned by another user on your computer, as one on an exFAT USB drive often is, shows GitHub Desktop's **Trust repository** button instead of the changes (though note that, at this moment, Fernanda is not hardened to work with removable drive content)
+- **Show Git**, in Settings → Git, turns it off for a vault
+
+See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.12.0-beta.0/Fernanda/docs/Features.md#git) for everything the Git page does, and where it differs from GitHub Desktop (our exemplar for Git UI behavior).
+
+**Focus timer.** A timer for writing in focus periods, with a short break after each and a longer one after several. It's off until you turn it on for a vault, in Settings → Focus timer.
+
+- A button beside the gear at the bottom of the sidebar. Click it to start, pause, or resume. A ring around it empties as the period runs
+- Right-click it to skip to the next period or reset, and to see the time left and how many focus periods you've completed (though at the moment, the time left does not update in place)
+- When a period ends, the next one waits for a click, and Fernanda's taskbar entry flashes if you're in another program
+- Focus is 25 minutes, a short break 5, and a long break 15, after every fourth focus period. All of these can be changed in Settings
+
+**Privacy**
+
+- Fernanda has a [privacy statement](https://github.com/fairybow/Fernanda/blob/main/PRIVACY.md). In short: your writing never leaves your computer (aside from going to a repo, if you're using Git), and the only thing Fernanda sends on its own is the daily update check
+- The Windows installer now shows the privacy statement and asks whether to check for updates automatically
+
+## Known Issues
+
+- Switching branches is refused while you have uncommitted changes. Commit or discard them first. Setting them aside (stashing) is planned
+- A pull only fast-forwards: if you've committed on two computers, the next pull is refused and nothing is merged
+- The Git page has no commit history yet, and no way to undo or amend a commit. Both are planned
+- The Spanish translation is an unreviewed draft
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- Closing all windows at once from the Windows taskbar reopens only one vault on the next launch
+- A file that can be reached two ways, through a symlinked folder and directly, is two documents, which can save over each other
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.11.0-beta.0 (Common Vault Rework and Nested Vaults) - tag v0.11.0-beta.0
 
 ## What's New?

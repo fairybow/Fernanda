@@ -1,6 +1,6 @@
 # Features
 
-Current version: 0.11.0-beta.0
+Current version: 0.12.0-beta.0
 
 What Fernanda does today. For what is planned, undecided, or deliberately left out, see [Future.md](Future.md). For how it is built, see [Architecture.md](Architecture.md).
 
