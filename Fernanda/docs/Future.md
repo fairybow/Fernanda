@@ -78,15 +78,16 @@ Nothing here is a promise or a schedule.
 
 ### Git
 
-What GitHub Desktop does that the Git page doesn't yet. Each would follow the page's shape: a list in the sidebar, and what it shows in a tab.
+What GitHub Desktop does that the Git page doesn't yet, in the order it's planned. The Git page ships first as it is. Each of these follows the page's shape: a list in the sidebar, and what it shows in a tab.
 
-- History: the current branch's commits, newest first, each showing its message and the files it changed, with a diff of the one selected, as in GitHub Desktop's History tab
-- Stashing: setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead without committing or discarding first, as GitHub Desktop offers when switching branches. The refusal is a stand-in until then
-- Merging: a pull only fast-forwards, and a branch can't be merged into another from the Git page. Merging means handling conflicts: showing the conflicted files, and committing once they're resolved. Git itself refuses to commit only some files mid-merge, so the commit box would need to say so
-- Committing part of a file: checking single hunks or lines, as GitHub Desktop does by clicking in the diff's gutter
-- Amending the last commit
-- Discarding every change at once (GitHub Desktop's Discard All Changes), and discarding several selected files
-- A filter in the branch list, as GitHub Desktop has, for a repository with many branches
+1. **History.** The current branch's commits, newest first, each with its message and the files it changed, and a diff of the file selected, as in GitHub Desktop's History tab. From there: undo the last commit (its changes go back to the changes list, uncommitted), amend the last commit's message or add to it, and revert a commit (a new commit that undoes it, leaving history as it was)
+2. **A file's own history.** The commits that changed one file, from its right-click menu in the file tree, and its text at any of them, read-only, with a way to bring that version back as an ordinary, undoable change. GitHub Desktop's history is by branch only; a writer more often asks what one chapter looked like last week
+3. **Stashing.** Setting the uncommitted changes aside and bringing them back later. A switch or a pull is refused while a tracked file has changes; stashing would let them go ahead, with GitHub Desktop's choice when switching: leave the changes on the current branch, or bring them to the new one. The stash is listed so it can be restored or dropped. The refusal is a stand-in until then
+4. **Merging.** A pull only fast-forwards, so committing on two computers leaves the next pull refused. A pull would merge branches that have both moved on, as GitHub Desktop's does, and another branch could be merged into the current one. A merge that conflicts lists the conflicted files with each side's version to keep, and commits once they're settled. Git refuses to commit only some files mid-merge, so the commit box would say so
+5. **Discarding more, and managing branches.** Discard every change at once (GitHub Desktop's Discard All Changes) and several selected files, each to the trash as one file's discard is. Rename and delete a branch, the deletion asking first and refused for the current branch
+6. **Smaller conveniences.** A filter in the branch list. Ignore a file or every file with its extension, from the changes list's right-click menu, by adding it to `.gitignore`. Copy a changed file's path, and show it in the system's file manager
+7. **Starting a repository for a vault that isn't in one** (`git init`), from the Git settings page, so the Git page isn't only for vaults already in a repository. Publishing it is then the sync button's Publish, once a remote is added; making a repository on GitHub needs a sign-in, which is left to GitHub's website
+8. **Committing part of a file**, by clicking lines or hunks in the diff's gutter as in GitHub Desktop, and showing more of the file around a change. Last, since a paragraph of prose is one line, so a hunk is already about as small as a change gets
 
 ### Releases
 
@@ -128,6 +129,13 @@ What GitHub Desktop does that the Git page doesn't yet. Each would follow the pa
 - **Importing Word documents** as plain text into a vault folder, as Hearth did. Hearth's converter needs work before it's brought over: it takes field codes and deleted tracked changes for text, writes text boxes twice, and drops tabs and line breaks. It needs a zip reader (miniz, under the MIT license). Footnotes, list numbering, and italics would be lost in plain text. Hearth's RTF import could follow the same path. Worth building if drafts often come in from Word
 
 ## Not planned
+
+- **GitHub account features in the Git page.** Viewing pull requests and their checks, notifications, issues, warnings about protected branches and a repository's rules, making a repository on GitHub, and AI-written commit messages all need Fernanda signed in to GitHub's servers, which Git's own sign-in doesn't cover. They would also break the promise that only the sync button reaches the network. Create pull request opens GitHub's own page instead, and the rest is there too
+- **Rewriting history:** reordering, squashing, cherry-picking, rebasing, and resetting to an older commit. They tidy shared code history and are the easiest way to lose work, and a writer has little reason to reshape past commits. Undoing the last commit and amending cover the common mistakes, and reverting undoes an old commit without rewriting anything
+- **A side-by-side diff, hiding whitespace, and a diff tab size.** A paragraph is one line, so two half-width columns would wrap each into a tall narrow block, and hiding whitespace could hide a real change in prose, such as a double space. A diff has no tabs to size: it's in the vault's font
+- **Checking out an old commit.** It leaves the whole repository on no branch ("detached HEAD"), an easy state to get lost in. A file's own history shows an old version of one file, which is what a writer usually wants
+- **A list of repositories, cloning, and adding repositories,** as GitHub Desktop has. Fernanda opens vaults, and the repository is the one the vault is in. A clone is a folder to open as a vault
+- **Co-authors, skipping commit hooks, forks, and settings for large files (Git LFS) or worktrees.** Rare in solo writing. Git handles large files and worktrees without any interface, and Fernanda already follows a worktree's `.git` file
 
 - **Links, backlinks, and tags.** Fernanda is for plain text. Without links there is nothing to index and nothing to rewrite when a file is renamed
 - **Unsaved documents and save prompts.** Every file is on disk and always saved. An untitled, in-memory document would bring back the prompts, the modified markers, and the recovery machinery this design removes

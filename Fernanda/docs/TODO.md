@@ -99,6 +99,8 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
+- [ ] Add the Git page to `CHANGELOG.md`
+- [ ] Before the first release with Git, try every Git page action on Windows and macOS against a real GitHub remote, signing in through Git's credential manager: commit, discard (and restore the copy from the trash), switch, new branch, a remote branch, publish, push, fetch, pull, a refused pull, and Create pull request. Also a machine with no Git installed, where the Git page shouldn't show
 - [x] Need the remaining Edit menu and text editor context menu options (cut, copy, paste, select all, delete)
 - [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
 
