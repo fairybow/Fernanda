@@ -22,7 +22,6 @@
 #include <QObject>
 #include <QSet>
 #include <QString>
-#include <QStringList>
 #include <QtTypes>
 
 #include <Coco/Debug.h>
@@ -388,19 +387,19 @@ public:
         auto hold = *it;
         holds_.erase(it);
 
-        QStringList changed{};
+        Coco::PathList changed{};
 
         for (auto h = hold.diskHashes.cbegin(); h != hold.diskHashes.cend();
              ++h) {
             auto disk = Io::tryRead(h.key().path());
 
             if (!disk || qHash(*disk) != h.value()) {
-                changed << h.key().path().toQString();
+                changed << h.key().path();
             }
         }
 
-        for (const auto& path : changed) {
-            reconcileOne_(path);
+        for (const auto& changed_path : changed) {
+            reconcileOne_(changed_path);
         }
 
         for (auto* model : modelsAtOrUnder_(entry)) {
@@ -880,17 +879,16 @@ private:
         const auto changed = pendingChanged_;
         pendingChanged_.clear();
 
-        for (const auto& q_abs : changed) {
-            reconcileOne_(q_abs);
+        for (const auto& changed_path : changed) {
+            reconcileOne_(changed_path);
         }
     }
 
     // One file the watcher reported, or a held file at its release: take in
     // what's on disk if it differs from what this store last wrote there
-    void reconcileOne_(const QString& q_abs)
+    void reconcileOne_(const Coco::Path& path)
     {
-        auto abs = Coco::Path(q_abs);
-        auto key = PathKey::of(abs);
+        auto key = PathKey::of(path);
 
         auto it = models_.constFind(key);
 
@@ -902,11 +900,11 @@ private:
 
         // External deletion: the buffer follows the file, through the same
         // discard an in-app trash uses
-        if (!abs.exists()) {
+        if (!path.exists()) {
             DEBUG(
                 this,
                 "External deletion: {} — closing views",
-                abs.prettyQString());
+                path.prettyQString());
             discardModel_(model);
             return;
         }
@@ -916,18 +914,18 @@ private:
         // that as "now empty" could clobber the buffer. Re-add the watch (a
         // rename may have dropped it) and defer to the next pass, when the
         // tool's final rename will have fired another event
-        auto disk = Io::tryRead(abs);
+        auto disk = Io::tryRead(path);
 
         if (!disk) {
-            watcher_->addPath(q_abs);
-            pendingChanged_ << q_abs;
+            watcher_->addPath(path.toQString());
+            pendingChanged_ << path.toQString();
             watchReconcileTimer_->start(watchReconcileMs_);
             return;
         }
 
         // An external editor's atomic-rename save can also drop our watch;
         // re-add before any branch below returns
-        watcher_->addPath(q_abs);
+        watcher_->addPath(path.toQString());
 
         auto disk_hash = qHash(*disk);
 
@@ -948,7 +946,7 @@ private:
             DEBUG(
                 this,
                 "External no-op (disk == buffer): {}",
-                abs.prettyQString());
+                path.prettyQString());
             return;
         }
 
@@ -957,12 +955,12 @@ private:
         // undecodable sequences become U+FFFD in the buffer and reach disk
         // at the next edit. Rare, and accepted — logged so it's findable
         // when someone asks where their quotes went
-        if (FileTypes::typeOf(abs) == FileTypes::Type::Text &&
+        if (FileTypes::typeOf(path) == FileTypes::Type::Text &&
             !TextFileModel::isValidUtf8(*disk)) {
             WARN(
                 this,
                 "External change isn't valid UTF-8 — adopting lossily: {}",
-                abs.prettyQString());
+                path.prettyQString());
         }
 
         // Adopt the external change. reloadContent routes through the prime
@@ -973,7 +971,7 @@ private:
         // that the user can't get back. (If a future case ever needs to
         // BLOCK an external rewrite — a merge in progress, a protected file
         // — the gate goes here, on model->isModified().)
-        DEBUG(this, "External change — reload: {}", abs.prettyQString());
+        DEBUG(this, "External change — reload: {}", path.prettyQString());
         model->reloadContent(*disk);
         lastWrittenHash_.insert(key, disk_hash);
         model->notifyReloaded();
