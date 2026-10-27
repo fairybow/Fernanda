@@ -351,24 +351,51 @@ public:
             // drawn, below the gap at its top (see drawTabShape_). Its text
             // and icon are too, by the label's own rect (CE_TabBarTabLabel)
             return rect.translated(0, STYLE_TAB_TOP_GAP / 2);
-        case SE_ItemViewItemText:
+        case SE_ItemViewItemText: {
+            auto* item = qstyleoption_cast<const QStyleOptionViewItem*>(option);
+
+            if (!item || !qobject_cast<const QAbstractItemView*>(widget) ||
+                qobject_cast<const QTreeView*>(widget)) {
+                return rect;
+            }
+
             // In a list, an item's text keeps the list's margin from the row's
             // edges, and a tree's from an icon before it, as in a tree. Left to
             // the list's margin there too, the text sits well away from its
             // icon, which itself is where the other rows' text begins
-            if (auto* item =
-                    qstyleoption_cast<const QStyleOptionViewItem*>(option);
-                item &&
-                (item->features & QStyleOptionViewItem::HasDecoration) &&
-                qobject_cast<const QAbstractItemView*>(widget) &&
-                !qobject_cast<const QTreeView*>(widget)) {
+            if (item->features & QStyleOptionViewItem::HasDecoration) {
                 return rect.adjusted(
                     STYLE_TREE_ROW_TEXT_MARGIN - STYLE_LIST_ROW_TEXT_MARGIN,
                     0,
                     0,
                     0);
             }
+
+            // After a checkbox, the text starts as far from it as a
+            // QCheckBox's label starts from its box, asked of this style for a
+            // QCheckBox, so a list's checked rows line up with a QCheckBox
+            // over them, box under box and text under text. The style draws
+            // the text a margin inside this rect (QCommonStyle's
+            // PM_FocusFrameHMargin + 1), so the rect starts that much sooner
+            if (item->features & QStyleOptionViewItem::HasCheckIndicator) {
+                auto check = subElementRect(
+                    SE_ItemViewItemCheckIndicator,
+                    option,
+                    widget);
+
+                QStyleOptionButton box{};
+                box.rect = QRect(0, 0, rect.width(), check.height());
+                auto label_offset =
+                    subElementRect(SE_CheckBoxContents, &box, nullptr).left() -
+                    subElementRect(SE_CheckBoxIndicator, &box, nullptr).left();
+                auto text_margin =
+                    pixelMetric(PM_FocusFrameHMargin, nullptr, widget) + 1;
+
+                rect.setLeft(check.left() + label_offset - text_margin);
+            }
+
             return rect;
+        }
         default:
             return rect;
         }

@@ -35,10 +35,12 @@ namespace Fernanda::Ui {
 
 namespace Internal {
 
-// One page's button in SidebarPages' row. Not checkable: the row marks the
-// active page's button (setActive), which is drawn over the shade of a
-// selected row with its glyph in the text's own color, where the others' are
-// muted. Hover and press washes are any glyph button's
+// One page's button in SidebarPages' row. The row marks the active page's
+// button (setActive): its glyph is in the text's own color, where the others'
+// are muted, and it's marked as SIDEBAR_PAGE_BUTTON_ACTIVE_MARK says. For the
+// accent, the button is checkable and checked while active, and GlyphButton
+// draws it as it draws any checked one; otherwise it isn't checkable, so a
+// click doesn't toggle it. Hover and press washes are any glyph button's
 class SidebarPageButton_ : public GlyphButton
 {
 public:
@@ -49,10 +51,15 @@ public:
               parentRow)
         , glyphPath_(glyphPath)
     {
+        setCheckable(MARK_ == SidebarPageButtonMark::Accent);
     }
 
     void setActive(bool active)
     {
+        if (isCheckable()) {
+            setChecked(active);
+        }
+
         if (active != active_) {
             active_ = active;
             update();
@@ -68,11 +75,11 @@ protected:
                        : SIDEBAR_PAGE_BUTTON_ICON_ROLE;
     }
 
-    // The active shade, in the shape the style gives a tool button's panel,
-    // under what GlyphButton paints
+    // The active shade, for Wash, in the shape the style gives a tool
+    // button's panel, under what GlyphButton paints
     void paintEvent(QPaintEvent* event) override
     {
-        if (active_) {
+        if (active_ && MARK_ == SidebarPageButtonMark::Wash) {
             QPainter painter(this);
             painter.setRenderHint(QPainter::Antialiasing, true);
             painter.setPen(Qt::NoPen);
@@ -87,6 +94,8 @@ protected:
     }
 
 private:
+    static constexpr auto MARK_ = SIDEBAR_PAGE_BUTTON_ACTIVE_MARK;
+
     Coco::Path glyphPath_;
     bool active_ = false;
 };

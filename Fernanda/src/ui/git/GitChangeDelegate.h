@@ -13,6 +13,7 @@
 #pragma once
 
 #include <QApplication>
+#include <QChar>
 #include <QColor>
 #include <QFont>
 #include <QFontMetrics>
@@ -42,8 +43,10 @@ namespace Fernanda::Ui {
 // change's color (GIT_ADDED_COLOR and the rest). The mark is a square with a
 // plus (added, or new and untracked), a dot (modified), a minus (deleted), or
 // an arrow (renamed), and a warning triangle for a file left conflicted by a
-// merge. As the list narrows the name elides first, then the folder, from
-// its left, so its nearest folder stays; the mark never does.
+// merge. The name has first claim on the row: the folder's label takes only
+// the room the whole name leaves, shortened from its left so its nearest
+// folder stays, and is left out when no more than an ellipsis would fit. Only
+// then, when the name alone doesn't fit, is it shortened. The mark never is.
 //
 // The row itself is painted by the style, as the file tree's are: the name is
 // only shortened to the room left of the folder before the style draws it, so
@@ -83,11 +86,19 @@ public:
         auto label_row = opt.rect;
         label_row.setRight(icon_rect.left() - ROW_BADGE_SPACING);
 
+        // The room the whole name leaves for the folder's label: from GAP
+        // past the name's end to where RowBadges::rects puts a label's right
+        // edge, RIGHT_MARGIN inside the row's
+        auto name_right = RowBadges::nameLeft(opt, style) +
+                          QFontMetrics(opt.font).horizontalAdvance(opt.text);
+        auto folder_room = label_row.right() - ROW_BADGE_RIGHT_MARGIN -
+                           name_right - ROW_BADGE_GAP + 1;
+
         auto badge_font = RowBadges::font(opt.font);
         auto folder = elidedFolder_(
             index.data(FOLDER_ROLE).toString(),
             badge_font,
-            opt.rect.width() * GIT_CHANGE_FOLDER_MAX_PERCENT / 100);
+            folder_room);
 
         auto name_end = icon_rect.left();
         QRect folder_rect{};
@@ -157,7 +168,8 @@ private:
     }
 
     // The folder, elided from its left to fit maxWidth with the label's
-    // padding. Empty when it's empty, or when not even an ellipsis fits
+    // padding. Empty when it's empty, or when nothing of it but the ellipsis
+    // would fit, which would say only that a folder is there
     [[nodiscard]] static QString
     elidedFolder_(const QString& folder, const QFont& font, int maxWidth)
     {
@@ -167,7 +179,10 @@ private:
             return {};
         }
 
-        return QFontMetrics(font).elidedText(folder, Qt::ElideLeft, room);
+        auto elided =
+            QFontMetrics(font).elidedText(folder, Qt::ElideLeft, room);
+
+        return elided == QString(QChar(0x2026)) ? QString{} : elided;
     }
 
     [[nodiscard]] static const char* pathOf_(GitStatus::Change change)

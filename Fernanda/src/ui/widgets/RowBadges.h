@@ -93,13 +93,10 @@ rects(const QRect& rowRect, const QStringList& badges, const QFont& badgeFont)
     return result;
 }
 
-// The row's name, elided so it ends GAP short of x, the leftmost label's left
-// edge. The style draws text from its text rect's left edge plus a margin
-// (QCommonStyle's PM_FocusFrameHMargin + 1), so the room is measured from
-// there. A name that already fits comes back unchanged, and the style's own
-// elision then has nothing left to do
-[[nodiscard]] inline QString
-nameElidedBefore(const QStyleOptionViewItem& option, const QStyle* style, int x)
+// Where the style starts the row's name: its text rect's left edge plus a
+// margin (QCommonStyle's PM_FocusFrameHMargin + 1)
+[[nodiscard]] inline int
+nameLeft(const QStyleOptionViewItem& option, const QStyle* style)
 {
     auto text_rect = style->subElementRect(
         QStyle::SE_ItemViewItemText,
@@ -110,7 +107,18 @@ nameElidedBefore(const QStyleOptionViewItem& option, const QStyle* style, int x)
                            nullptr,
                            option.widget) +
                        1;
-    auto room = x - ROW_BADGE_GAP - (text_rect.left() + text_margin);
+
+    return text_rect.left() + text_margin;
+}
+
+// The row's name, elided so it ends GAP short of x, the leftmost label's left
+// edge, measured from where the style starts it (nameLeft). A name that
+// already fits comes back unchanged, and the style's own elision then has
+// nothing left to do
+[[nodiscard]] inline QString
+nameElidedBefore(const QStyleOptionViewItem& option, const QStyle* style, int x)
+{
+    auto room = x - ROW_BADGE_GAP - nameLeft(option, style);
 
     return QFontMetrics(option.font)
         .elidedText(option.text, option.textElideMode, qMax(room, 0));

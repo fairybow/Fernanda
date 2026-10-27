@@ -240,12 +240,26 @@ inline constexpr int SIDEBAR_FOOTER_BOTTOM_MARGIN = 0;
 // while there's more than one page: Files, and Git. Each button is EXTENT
 // square, the footer's buttons' size, with its glyph ICON_EXTENT square. A
 // button's glyph is in ICON_ROLE, muted, and the active page's in
-// ACTIVE_ICON_ROLE, the text's own color, over the selected-row shade
-// (Style::selectedWash). The buttons are SPACING apart. The margins keep the
+// ACTIVE_ICON_ROLE, the text's own color, marked as ACTIVE_MARK says. The
+// buttons are SPACING apart. The margins keep the
 // washes off the sidebar's edges and the page below, as the footer's do. Files
 // is FILES_ICON_PATH and Git is GIT_ICON_PATH, a folder with Git's mark, set
 // apart from the branch glyph the Git page's branch button shows
 inline constexpr int SIDEBAR_PAGE_BUTTON_EXTENT = SETTINGS_BUTTON_EXTENT;
+
+// How the active page's button is marked (SidebarPages), beyond its glyph's
+// color. None adds nothing; Wash lays the selected-row shade under it
+// (Style::selectedWash); Accent fills it with the accent, its glyph in the
+// accent's text color, as a checked GlyphButton is drawn
+enum class SidebarPageButtonMark
+{
+    None,
+    Wash,
+    Accent
+};
+
+inline constexpr auto SIDEBAR_PAGE_BUTTON_ACTIVE_MARK =
+    SidebarPageButtonMark::None;
 inline constexpr int SIDEBAR_PAGE_BUTTON_ICON_EXTENT = 16;
 inline constexpr auto SIDEBAR_PAGE_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto SIDEBAR_PAGE_BUTTON_ACTIVE_ICON_ROLE =
@@ -263,11 +277,10 @@ inline constexpr auto SIDEBAR_GIT_ICON_PATH = ":/lucide/FolderGit2.svg";
 // row has its file's folder after its name, as a muted label (RowBadges), and
 // its change's mark against its right edge, CHANGE_ICON_EXTENT square, in a
 // fixed color for each kind of change: the palette has no role for added or
-// removed, and these read on a light page and a dark one alike. A folder's
-// label is never wider than FOLDER_MAX_PERCENT of the row
+// removed, and these read on a light page and a dark one alike. A row's name
+// has first claim on its width, and the folder's label takes what's left
 inline constexpr auto GIT_PAGE_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
 inline constexpr int GIT_CHANGE_ICON_EXTENT = 14;
-inline constexpr int GIT_CHANGE_FOLDER_MAX_PERCENT = 50;
 inline constexpr auto GIT_ADDED_COLOR = QColor(46, 160, 67);
 inline constexpr auto GIT_MODIFIED_COLOR = QColor(210, 153, 34);
 inline constexpr auto GIT_DELETED_COLOR = QColor(248, 81, 73);
@@ -455,6 +468,13 @@ inline constexpr auto UPDATE_NOTICE_ICON_PATH = ":/lucide/ArrowDownToLine.svg";
 inline constexpr int UPDATE_NOTICE_EXTENT = 20;
 inline constexpr int UPDATE_NOTICE_ICON_EXTENT = 14;
 inline constexpr auto UPDATE_NOTICE_ICON_ROLE = QPalette::Accent;
+
+// A checkable GlyphButton while it's checked: its panel filled with
+// CHECKED_PANEL_ROLE, and its glyph in CHECKED_ICON_ROLE in place of its own
+// tint, the pen that reads on the accent (as a toggle switch's thumb does)
+inline constexpr auto GLYPH_BUTTON_CHECKED_PANEL_ROLE = QPalette::Accent;
+inline constexpr auto GLYPH_BUTTON_CHECKED_ICON_ROLE =
+    QPalette::HighlightedText;
 
 // Fernanda's style (Style). Shades the palette has no role for are its text
 // color at an alpha, drawn over whatever is behind them: HOVER under the

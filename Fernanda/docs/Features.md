@@ -228,7 +228,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 
 ### Changes and diffs
 
-- The Git page lists every changed file by name, with its folder after it in muted letters and a mark at the right in the change's color: green for added, amber for modified, red for deleted, blue for renamed, and a warning triangle for a file left conflicted by a merge
+- The Git page lists every changed file by name, with its folder after it in muted letters and a mark at the right in the change's color: green for added, amber for modified, red for deleted, blue for renamed, and a warning triangle for a file left conflicted by a merge. A file's name always shows whole while there's room for it: the folder is shortened first, from its start, and left out when nothing of it would fit
 - A folder inside the repository that holds a Git repository of its own isn't listed
 - Double-click a file, or press Enter, to open its diff in a tab, over the current tab unless that one is pinned, as a file opens from the file tree. Right-click for Open in new tab, Open to the right, and Open in new window
 - Right-click a file for **Open file** too, which opens the file itself in a new tab (for a file in the window's vaults that Fernanda can open). If it's already the current tab, it's just shown
