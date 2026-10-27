@@ -1184,6 +1184,37 @@ private slots:
         QVERIFY(!f.repository.isBusy());
     }
 
+    // The branch button reads the branches, and a diff tab its diff, on
+    // every statusChanged, the changes check's included. That ask must wait
+    // until the check has refused the switch, or the switch, next in the
+    // queue, runs anyway
+    void switchRefusedByItsCheckDoesNotRunWhenAStatusSlotAsksForMore()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"branch"_s, u"draft-two"_s });
+        f.write(u"a.txt"_s, "changed\n");
+
+        auto before = f.gitOutput({ u"branch"_s, u"--show-current"_s });
+
+        connect(&f.repository, &GitRepository::statusChanged, [&f] {
+            if (auto* entry = entry_(f.repository, u"a.txt"_s)) {
+                f.repository.readDiff(*entry);
+            }
+        });
+
+        auto error =
+            switchOf_(f, [&f] { f.repository.switchBranch(u"draft-two"_s); });
+        QVERIFY(!error.isEmpty());
+
+        QTest::qWait(QUIET_WAIT_MS_);
+        QCOMPARE(f.gitOutput({ u"branch"_s, u"--show-current"_s }), before);
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("changed\n"));
+    }
+
     // An untracked file stays where it is on every branch
     void switchBranchIgnoresUntrackedFiles()
     {

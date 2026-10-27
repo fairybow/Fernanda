@@ -62,6 +62,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] A file marked to be added (`git add -N`) was taken as modified, so discarding it asked Git to restore it from a commit that doesn't have it
 - [x] The Git page's right-click menu read its file by row when an item was chosen, so a status arriving while it was open could open another file's diff
 - [x] The discard question was wrong for a renamed file and a deleted one, and a refused pull always blamed branches that had both moved on
+- [x] A switch refused by its changes check still ran. The check's status announced itself, and the branch button (or a diff tab) asked Git for something on hearing it; that ask started the next command in the queue, the switch, before the check had refused it. Where the changed files were the same on both branches, Git carried the changes across, and on a branch without the vault's `.fernanda/.gitignore` the switch took that file away. A command's answer is now handled whole before the next command starts
 - [x] A switch or a new branch that couldn't be asked for (no repository, Git busy, no name) returned silently, leaving the New Branch dialog waiting for an answer
 
 ## Rough edges
@@ -108,7 +109,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 - [x] `GitRepository`'s class comment had lines broken short. Rewrapped
 - [x] Cleanup from the Git review: the six operation-step kinds in `GitRepository` are one, the toggle action is `repository.togglePage`, unused `using` lines are gone, the Git constants sit under their comments, and paths aren't written to a `git` that failed to start
-- [ ] Remove the unused `FolderGit2`, `GitBranchPlus`, and `GitPullRequestArrow` icons from `Lucide.qrc` and `resources/lucide/`
+- [x] Remove the unused `FolderGit2`, `GitBranchPlus`, and `GitPullRequestArrow` icons from `Lucide.qrc` and `resources/lucide/`
 - [ ] The Git page's branch and sync buttons are `VAULT_SWITCHER_HEIGHT` tall. A shared name for a menu button's height would say what it is
 - [ ] Verify the `PrimeDocument` header, and rename it
 - [ ] Rename `BaseWindow`'s protected members that have a trailing underscore

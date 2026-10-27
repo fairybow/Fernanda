@@ -1114,18 +1114,26 @@ private:
         timeout_->stop();
         timedOut_ = false;
 
-        auto* process = process_;
-        process_ = nullptr;
-        process->deleteLater();
-
         auto command = std::move(running_);
         running_ = {};
 
-        if (command.generation != generation_) {
-            runNext_();
-            return;
+        // process_ stays set while the answer is handled, so a command asked
+        // for from a slot of a signal emitted here (a diff tab reading its
+        // diff on statusChanged, say) waits in the queue rather than starting
+        // at once. Started now, it could be the next step of an operation the
+        // answer is still deciding to drop: a switch whose changes check is
+        // about to refuse it would run anyway
+        if (command.generation == generation_) {
+            answer_(command, result);
         }
 
+        process_->deleteLater();
+        process_ = nullptr;
+        runNext_();
+    }
+
+    void answer_(const Command_& command, const Result_& result)
+    {
         switch (command.kind) {
         case Kind_::Detect:
             onDetected_(command, result);
@@ -1149,8 +1157,6 @@ private:
             onGitPathRead_(command, result);
             break;
         }
-
-        runNext_();
     }
 
     void onDetected_(const Command_& command, const Result_& result)

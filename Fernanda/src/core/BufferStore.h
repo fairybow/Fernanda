@@ -381,7 +381,6 @@ signals:
     // A vault whose folder was in it has its window closed by App
     void entryRemoved(const PathKey& entry);
 
-
     // A buffer was written to its file: an autosave, a flush, any save.
     // Emitted from inside the write, which may be inside a caller's flush,
     // so a slot that would save or flush again should be queued
