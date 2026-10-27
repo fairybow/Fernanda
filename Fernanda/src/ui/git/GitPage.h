@@ -607,9 +607,10 @@ private:
             break;
         }
 
-        return tr("A copy of the changed file will be moved to the system "
-                  "trash, and the file will go back to how it was in the "
-                  "last commit.");
+        return tr(
+            "A copy of the changed file will be moved to the system "
+            "trash, and the file will go back to how it was in the "
+            "last commit.");
     }
 
     void requestDiff_(int row, OpenMode mode)
