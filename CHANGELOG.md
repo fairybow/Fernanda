@@ -106,7 +106,7 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
-# 0.12.0-beta.0 (Git and Focus Timer) - tag v0.12.0-beta.0
+# 0.12.0-beta.0 (Git! (and Focus Timer)) - tag v0.12.0-beta.0
 
 ## What's New?
 
