@@ -256,6 +256,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - **Create pull request** shows for a branch published to a remote on github.com, when it isn't the remote's default branch. It opens GitHub's page for a new pull request in your browser
 - Switching branches is refused while a file Git tracks has uncommitted changes, including any typed a moment before: commit or discard them first. New files Git doesn't track yet don't count
 - Files a switch or a pull changes reload in their tabs, as any change made outside Fernanda does, and a tab on a file the other branch doesn't have closes
+- Typing while a switch, pull, or discard runs is never written over what Git brings in. If Git changes the file you're typing in, the tab shows Git's version, and Ctrl+Z brings back what you typed
 
 ### Syncing
 

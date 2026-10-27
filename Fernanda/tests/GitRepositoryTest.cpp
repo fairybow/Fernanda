@@ -11,6 +11,7 @@
  */
 
 #include <algorithm>
+#include <functional>
 #include <optional>
 
 #include <QByteArray>
@@ -444,10 +445,13 @@ private:
     }
 
     // Finds the repository, reads its status and, if one is expected, its
-    // remotes, asks for the sync, and waits for the answer: the error, empty
-    // on success
-    [[nodiscard]] static QString
-    syncOf_(Fixture_& f, GitRepository::SyncAction action, bool expectRemote)
+    // remotes, asks for the sync, runs afterAsking if given (while the sync
+    // is underway), and waits for the answer: the error, empty on success
+    [[nodiscard]] static QString syncOf_(
+        Fixture_& f,
+        GitRepository::SyncAction action,
+        bool expectRemote,
+        const std::function<void()>& afterAsking = {})
     {
         f.repository.detect();
 
@@ -480,6 +484,11 @@ private:
             [&](const QString& error) { answer = error; });
 
         f.repository.sync(action);
+
+        if (afterAsking) {
+            afterAsking();
+        }
+
         [[maybe_unused]] auto answered =
             QTest::qWaitFor([&] { return answer.has_value(); }, 30000);
 
@@ -1381,6 +1390,83 @@ private slots:
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("from elsewhere\n"));
         QCOMPARE(f.read(u"b.txt"_s), QByteArray("mine\n"));
         QTRY_COMPARE(f.repository.status().branch.behind, 0);
+    }
+
+    // Typing in a file while a pull rewrites it: autosave is held until the
+    // pull ends, so it can't write the old text back over the incoming
+    // commit's. The buffer takes in the pulled text as one undoable change,
+    // and undoing it brings the typing back. The autosave is quickened so
+    // that, unheld, it would land between git's write and the watcher's
+    void typingDuringAPullNeitherRevertsThePullNorIsLost()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+        commitFromAnotherClone_(remote, "from elsewhere\n");
+        f.git({ u"fetch"_s, u"-q"_s });
+        f.store.setAutosaveTiming(150, 3000);
+
+        auto* model = qobject_cast<TextFileModel*>(f.store.openModel(
+            PathKey::of(f.absolute(u"a.txt"_s)),
+            [](const PathKey&, const QByteArray&) { return false; }));
+        QVERIFY(model);
+
+        QTextDocument document{};
+        document.setDocumentLayout(new QPlainTextDocumentLayout(&document));
+        model->registerView(&document);
+
+        auto typed = [&document] {
+            QTextCursor cursor(&document);
+            cursor.movePosition(QTextCursor::End);
+            cursor.insertText(u"typed during the pull\n"_s);
+        };
+
+        auto error = syncOf_(f, GitRepository::SyncAction::Pull, true, typed);
+        QCOMPARE(error, QString{});
+
+        QTest::qWait(QUIET_WAIT_MS_);
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("from elsewhere\n"));
+        QCOMPARE(document.toPlainText(), u"from elsewhere\n"_s);
+
+        model->undo();
+        QVERIFY(document.toPlainText().contains(u"typed during the pull"_s));
+    }
+
+    // Typing after a switch is asked for, and before it runs, is saved just
+    // before git switches, so git sees it and refuses to overwrite it
+    void typingBeforeASwitchRunsIsSeenByGit()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"switch"_s, u"-q"_s, u"-c"_s, u"draft-two"_s });
+        f.write(u"a.txt"_s, "other\n");
+        f.git({ u"commit"_s, u"-q"_s, u"-a"_s, u"-m"_s, u"Other"_s });
+        f.git({ u"switch"_s, u"-q"_s, u"-"_s });
+        auto before = f.gitOutput({ u"branch"_s, u"--show-current"_s });
+
+        auto* model = qobject_cast<TextFileModel*>(f.store.openModel(
+            PathKey::of(f.absolute(u"a.txt"_s)),
+            [](const PathKey&, const QByteArray&) { return false; }));
+        QVERIFY(model);
+
+        QTextDocument document{};
+        document.setDocumentLayout(new QPlainTextDocumentLayout(&document));
+        model->registerView(&document);
+
+        auto error = switchOf_(f, [&f, &document] {
+            f.repository.switchBranch(u"draft-two"_s);
+
+            QTextCursor cursor(&document);
+            cursor.movePosition(QTextCursor::End);
+            cursor.insertText(u"typed\n"_s);
+        });
+        QVERIFY(!error.isEmpty());
+
+        QCOMPARE(f.gitOutput({ u"branch"_s, u"--show-current"_s }), before);
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("a\ntyped\n"));
     }
 
     // Git stops before changing anything when an incoming commit touches a

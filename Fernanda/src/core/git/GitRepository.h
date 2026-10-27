@@ -20,6 +20,7 @@
 #include <QHash>
 #include <QList>
 #include <QMap>
+#include <QMetaObject>
 #include <QObject>
 #include <QProcess>
 #include <QProcessEnvironment>
@@ -107,7 +108,12 @@ public:
 
     // A command still running is given GIT_EXIT_WAIT_MS to finish before it
     // is stopped. Stopping git partway can leave its lock file behind, which
-    // blocks the next command until the file is removed by hand
+    // blocks the next command until the file is removed by hand.
+    //
+    // A step that rewrites files has its hold on the store's autosave
+    // released (holdWritesAtOrUnder), on the next turn of the event loop:
+    // the store outlives this, but the views its release may reload belong
+    // to a window being taken down now
     ~GitRepository() override
     {
         TRACER;
@@ -125,6 +131,15 @@ public:
                 process_->arguments().join(u' '));
             process_->kill();
             process_->waitForFinished(GIT_EXIT_WAIT_MS);
+        }
+
+        if (running_.rewritesFiles) {
+            QMetaObject::invokeMethod(
+                bufferStore_,
+                [store = bufferStore_, key = PathKey::of(running_.folder)] {
+                    store->releaseWritesAtOrUnder(key);
+                },
+                Qt::QueuedConnection);
         }
     }
 
@@ -455,6 +470,7 @@ public:
                                              u"--pathspec-from-file=-"_s,
                                              u"--pathspec-file-nul"_s };
             restore.input = pathspecOf_(restored);
+            restore.rewritesFiles = true;
             steps << restore;
         }
 
@@ -595,6 +611,7 @@ public:
         command.folder = root_;
         command.arguments = arguments;
         command.timeoutMs = GIT_NETWORK_TIMEOUT_MS;
+        command.rewritesFiles = action == SyncAction::Pull;
         enqueue_(std::move(command));
     }
 
@@ -820,6 +837,13 @@ private:
 
         // How long it may run before it's stopped. 0 is as long as it takes
         int timeoutMs = 0;
+
+        // It may rewrite files in the working tree (a switch, a pull, a
+        // discard's restore). Everything open in the repository is saved
+        // just before it starts, so git sees the text on screen and refuses
+        // rather than overwrite a change it would touch, and the store holds
+        // its autosave until it ends (BufferStore::holdWritesAtOrUnder)
+        bool rewritesFiles = false;
     };
 
     struct Result_
@@ -1008,6 +1032,15 @@ private:
 
         running_ = queue_.takeFirst();
 
+        // A failed save is logged by the store. The step still runs: the
+        // buffer keeps its text, and if git rewrites the file, the hold's
+        // release adopts git's as an undoable change
+        if (running_.rewritesFiles) {
+            auto key = PathKey::of(running_.folder);
+            [[maybe_unused]] auto saved = bufferStore_->flushAtOrUnder(key);
+            bufferStore_->holdWritesAtOrUnder(key);
+        }
+
         QStringList arguments{
             u"-c"_s,
             u"core.fsmonitor=false"_s,
@@ -1113,6 +1146,12 @@ private:
 
         auto command = std::move(running_);
         running_ = {};
+
+        // Released before the answer, so the buffers have taken in what git
+        // wrote by the time anything hears of it
+        if (command.rewritesFiles) {
+            bufferStore_->releaseWritesAtOrUnder(PathKey::of(command.folder));
+        }
 
         // process_ stays set while the answer is handled, so a command asked
         // for from a slot of a signal emitted here (a diff tab reading its
@@ -1275,6 +1314,7 @@ private:
         command.finishes = true;
         command.folder = root_;
         command.arguments = arguments;
+        command.rewritesFiles = true;
         enqueue_(std::move(command));
     }
 

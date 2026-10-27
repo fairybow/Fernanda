@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <functional>
 
 #include <QByteArray>
@@ -21,6 +22,7 @@
 #include <QObject>
 #include <QSet>
 #include <QString>
+#include <QStringList>
 #include <QtTypes>
 
 #include <Coco/Debug.h>
@@ -340,6 +342,43 @@ public:
         return true;
     }
 
+    // While something outside Fernanda rewrites files at or under the entry
+    // (a Git switch, pull, or discard), autosave leaves their buffers alone:
+    // typing goes on in the buffer, unwritten, so it can't land over what the
+    // other program writes. Without this, an autosave between that program's
+    // write and the watcher's reconcile would write the old text back over
+    // it, and the watcher would take that write for its own. Writes asked for
+    // outright (a flush, a window closing, a tab's last view closing) still
+    // happen: the text must never be dropped. Holds may overlap, from two
+    // windows over one repository; each hold is released once
+    void holdWritesAtOrUnder(const PathKey& entry) { heldEntries_ << entry; }
+
+    // The end of a hold. Each held buffer is first checked against its file,
+    // as the watcher would: a file the other program changed is adopted as
+    // one undoable change (reconcileChanges_), so typing made meanwhile is
+    // what Ctrl+Z brings back. Then autosave writes what's left modified
+    void releaseWritesAtOrUnder(const PathKey& entry)
+    {
+        heldEntries_.removeOne(entry);
+
+        QStringList paths{};
+
+        for (auto* model : modelsAtOrUnder_(entry)) {
+            paths << model->key().path().toQString();
+        }
+
+        for (const auto& path : paths) {
+            reconcileOne_(path);
+        }
+
+        for (auto* model : modelsAtOrUnder_(entry)) {
+            if (model->isModified()) {
+                onModelContentChanged_();
+                break;
+            }
+        }
+    }
+
     // After a trash: the entry's row leaves every tree, and the buffers at or
     // under it follow their files, so every view on them closes, in every
     // window. A tree whose vault folder was inside the entry has no row for
@@ -411,6 +450,20 @@ private:
     // fingerprint can't be "used up". Entries are dropped when a buffer is
     // discarded or evicted
     QHash<PathKey, size_t> lastWrittenHash_{};
+
+    // Entries whose buffers autosave leaves alone (holdWritesAtOrUnder). One
+    // per hold, so overlapping holds of one entry each count
+    QList<PathKey> heldEntries_{};
+
+    [[nodiscard]] bool isHeld_(const AbstractFileModel* model) const
+    {
+        const auto key = model->key();
+
+        return std::any_of(
+            heldEntries_.cbegin(),
+            heldEntries_.cend(),
+            [&key](const PathKey& entry) { return key.isAtOrUnder(entry); });
+    }
 
     // Watcher events are coalesced here and processed one debounce later, so a
     // git checkout or Dropbox sync rewriting many watched files becomes one
@@ -706,7 +759,7 @@ private:
         autosaveCeilingTimer_->stop();
 
         for (auto* model : models_) {
-            if (model->isModified()) {
+            if (model->isModified() && !isHeld_(model)) {
                 writeModel_(model);
             }
         }
@@ -789,95 +842,102 @@ private:
         pendingChanged_.clear();
 
         for (const auto& q_abs : changed) {
-            auto abs = Coco::Path(q_abs);
-            auto key = PathKey::of(abs);
-
-            auto it = models_.constFind(key);
-
-            if (it == models_.constEnd()) {
-                continue; // not a file we hold a buffer for
-            }
-
-            auto* model = it.value();
-
-            // External deletion: the buffer follows the file, through the same
-            // discard an in-app trash uses
-            if (!abs.exists()) {
-                DEBUG(
-                    this,
-                    "External deletion: {} — closing views",
-                    abs.prettyQString());
-                discardModel_(model);
-                continue;
-            }
-
-            // The file exists and changed. Read it — but never ACT on a failed
-            // read (a file locked mid-write by the external tool): treating
-            // that as "now empty" could clobber the buffer. Re-add the watch (a
-            // rename may have dropped it) and defer to the next pass, when the
-            // tool's final rename will have fired another event
-            auto disk = Io::tryRead(abs);
-
-            if (!disk) {
-                watcher_->addPath(q_abs);
-                pendingChanged_ << q_abs;
-                watchReconcileTimer_->start(watchReconcileMs_);
-                continue;
-            }
-
-            // An external editor's atomic-rename save can also drop our watch;
-            // re-add before any branch below returns
-            watcher_->addPath(q_abs);
-
-            auto disk_hash = qHash(*disk);
-
-            // Our own write: disk still matches the fingerprint writeModel_
-            // recorded. True regardless of how far the buffer has advanced —
-            // which is why we compare to the fingerprint and not to the live
-            // buffer. Ignore it
-            if (auto h = lastWrittenHash_.constFind(key);
-                h != lastWrittenHash_.constEnd() && *h == disk_hash) {
-                continue;
-            }
-
-            // A genuine external change. If the tool wrote exactly what we
-            // already hold, there is nothing to do — sync our fingerprint and
-            // move on, so a no-op change is silent
-            if (*disk == model->data()) {
-                lastWrittenHash_.insert(key, disk_hash);
-                DEBUG(
-                    this,
-                    "External no-op (disk == buffer): {}",
-                    abs.prettyQString());
-                continue;
-            }
-
-            // An external tool re-encoded the file out of UTF-8. There's no GUI
-            // here to ask, so it's adopted like any external change: the
-            // undecodable sequences become U+FFFD in the buffer and reach disk
-            // at the next edit. Rare, and accepted — logged so it's findable
-            // when someone asks where their quotes went
-            if (FileTypes::typeOf(abs) == FileTypes::Type::Text &&
-                !TextFileModel::isValidUtf8(*disk)) {
-                WARN(
-                    this,
-                    "External change isn't valid UTF-8 — adopting lossily: {}",
-                    abs.prettyQString());
-            }
-
-            // Adopt the external change. reloadContent routes through the prime
-            // as an UNDOABLE replace, so Ctrl+Z reverts it and the next
-            // autosave rewrites the buffer — the escape hatch that lets us
-            // adopt unconditionally rather than prompting. A dirty buffer's
-            // unsaved edits are exactly what undo restores, so nothing is lost
-            // that the user can't get back. (If a future case ever needs to
-            // BLOCK an external rewrite — a merge in progress, a protected file
-            // — the gate goes here, on model->isModified().)
-            DEBUG(this, "External change — reload: {}", abs.prettyQString());
-            model->reloadContent(*disk);
-            lastWrittenHash_.insert(key, disk_hash);
-            model->notifyReloaded();
+            reconcileOne_(q_abs);
         }
+    }
+
+    // One file the watcher reported, or a held file at its release: take in
+    // what's on disk if it differs from what this store last wrote there
+    void reconcileOne_(const QString& q_abs)
+    {
+        auto abs = Coco::Path(q_abs);
+        auto key = PathKey::of(abs);
+
+        auto it = models_.constFind(key);
+
+        if (it == models_.constEnd()) {
+            return; // not a file we hold a buffer for
+        }
+
+        auto* model = it.value();
+
+        // External deletion: the buffer follows the file, through the same
+        // discard an in-app trash uses
+        if (!abs.exists()) {
+            DEBUG(
+                this,
+                "External deletion: {} — closing views",
+                abs.prettyQString());
+            discardModel_(model);
+            return;
+        }
+
+        // The file exists and changed. Read it — but never ACT on a failed
+        // read (a file locked mid-write by the external tool): treating
+        // that as "now empty" could clobber the buffer. Re-add the watch (a
+        // rename may have dropped it) and defer to the next pass, when the
+        // tool's final rename will have fired another event
+        auto disk = Io::tryRead(abs);
+
+        if (!disk) {
+            watcher_->addPath(q_abs);
+            pendingChanged_ << q_abs;
+            watchReconcileTimer_->start(watchReconcileMs_);
+            return;
+        }
+
+        // An external editor's atomic-rename save can also drop our watch;
+        // re-add before any branch below returns
+        watcher_->addPath(q_abs);
+
+        auto disk_hash = qHash(*disk);
+
+        // Our own write: disk still matches the fingerprint writeModel_
+        // recorded. True regardless of how far the buffer has advanced —
+        // which is why we compare to the fingerprint and not to the live
+        // buffer. Ignore it
+        if (auto h = lastWrittenHash_.constFind(key);
+            h != lastWrittenHash_.constEnd() && *h == disk_hash) {
+            return;
+        }
+
+        // A genuine external change. If the tool wrote exactly what we
+        // already hold, there is nothing to do — sync our fingerprint and
+        // move on, so a no-op change is silent
+        if (*disk == model->data()) {
+            lastWrittenHash_.insert(key, disk_hash);
+            DEBUG(
+                this,
+                "External no-op (disk == buffer): {}",
+                abs.prettyQString());
+            return;
+        }
+
+        // An external tool re-encoded the file out of UTF-8. There's no GUI
+        // here to ask, so it's adopted like any external change: the
+        // undecodable sequences become U+FFFD in the buffer and reach disk
+        // at the next edit. Rare, and accepted — logged so it's findable
+        // when someone asks where their quotes went
+        if (FileTypes::typeOf(abs) == FileTypes::Type::Text &&
+            !TextFileModel::isValidUtf8(*disk)) {
+            WARN(
+                this,
+                "External change isn't valid UTF-8 — adopting lossily: {}",
+                abs.prettyQString());
+        }
+
+        // Adopt the external change. reloadContent routes through the prime
+        // as an UNDOABLE replace, so Ctrl+Z reverts it and the next
+        // autosave rewrites the buffer — the escape hatch that lets us
+        // adopt unconditionally rather than prompting. A dirty buffer's
+        // unsaved edits are exactly what undo restores, so nothing is lost
+        // that the user can't get back. (If a future case ever needs to
+        // BLOCK an external rewrite — a merge in progress, a protected file
+        // — the gate goes here, on model->isModified().)
+        DEBUG(this, "External change — reload: {}", abs.prettyQString());
+        model->reloadContent(*disk);
+        lastWrittenHash_.insert(key, disk_hash);
+        model->notifyReloaded();
     }
 };
 
