@@ -36,10 +36,6 @@
         <translation type="unfinished">Carpeta de la bóveda eliminada</translation>
     </message>
     <message>
-        <source>The Common Vault folder was moved or deleted outside %1. A new, empty one will be created at %2.</source>
-        <translation type="obsolete">La carpeta de la Bóveda común se movió o se eliminó fuera de %1. Se creará una nueva y vacía en %2.</translation>
-    </message>
-    <message>
         <source>Vault Folder Missing</source>
         <translation type="unfinished">Falta la carpeta de la bóveda</translation>
     </message>
@@ -110,54 +106,54 @@
     <name>Fernanda::GitRepository</name>
     <message>
         <source>A file couldn&apos;t be saved, so nothing was committed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se pudo guardar un archivo, así que no se confirmó nada.</translation>
     </message>
     <message>
         <source>A file couldn&apos;t be saved, so nothing was discarded.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se pudo guardar un archivo, así que no se descartó nada.</translation>
     </message>
     <message>
         <source>The changes couldn&apos;t be moved to the trash, so nothing was discarded.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Los cambios no se pudieron mover a la papelera, así que no se descartó nada.</translation>
     </message>
     <message>
         <source>A file couldn&apos;t be saved, so nothing was done.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se pudo guardar un archivo, así que no se hizo nada.</translation>
     </message>
     <message>
         <source>This repository has no remote.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Este repositorio no tiene remoto.</translation>
     </message>
     <message>
         <source>No Git repository was found.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se encontró ningún repositorio de Git.</translation>
     </message>
     <message>
         <source>Git is still busy with something else.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git sigue ocupado con otra cosa.</translation>
     </message>
     <message>
         <source>No branch was named.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se indicó ninguna rama.</translation>
     </message>
     <message numerus="yes">
         <source>Git took longer than %Ln second(s), so it was stopped.</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Git tardó más de %Ln segundo, así que se detuvo.</numerusform>
+            <numerusform>Git tardó más de %Ln segundos, así que se detuvo.</numerusform>
         </translation>
     </message>
     <message>
         <source>Git still doesn&apos;t trust this folder.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git todavía no confía en esta carpeta.</translation>
     </message>
     <message>
         <source>The repository changed, so nothing was done.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El repositorio cambió, así que no se hizo nada.</translation>
     </message>
     <message>
         <source>Commit or discard your changes first.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Primero confirma o descarta tus cambios.</translation>
     </message>
 </context>
 <context>
@@ -416,47 +412,48 @@
     <name>Fernanda::Ui::GitBranchButton</name>
     <message>
         <source>Detached HEAD</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">HEAD desacoplado</translation>
     </message>
     <message>
         <source>Remote branches</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ramas remotas</translation>
     </message>
     <message>
         <source>New branch…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nueva rama…</translation>
     </message>
     <message>
         <source>Create pull request</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear solicitud de incorporación de cambios</translation>
     </message>
     <message>
         <source>Switch failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al cambiar de rama</translation>
     </message>
     <message>
         <source>The branch wasn&apos;t switched.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se cambió de rama.</translation>
     </message>
 </context>
 <context>
     <name>Fernanda::Ui::GitDiffPage</name>
     <message>
         <source>No changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sin cambios</translation>
     </message>
     <message>
         <source>This binary file has changed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Este archivo binario ha cambiado.</translation>
     </message>
     <message>
         <source>This file has no changed lines to show.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Este archivo no tiene líneas cambiadas que mostrar.</translation>
     </message>
     <message>
         <source>Git couldn&apos;t show the changes:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git no pudo mostrar los cambios:
+%1</translation>
     </message>
 </context>
 <context>
@@ -471,18 +468,18 @@
     </message>
     <message>
         <source>No newline at end of file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sin salto de línea al final del archivo</translation>
     </message>
 </context>
 <context>
     <name>Fernanda::Ui::GitNewBranchDialog</name>
     <message>
         <source>New Branch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nueva rama</translation>
     </message>
     <message>
         <source>Branch name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre de la rama</translation>
     </message>
     <message>
         <source>Create</source>
@@ -490,105 +487,105 @@
     </message>
     <message>
         <source>Will be created as %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Se creará como %1</translation>
     </message>
 </context>
 <context>
     <name>Fernanda::Ui::GitPage</name>
     <message>
         <source>No changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sin cambios</translation>
     </message>
     <message>
         <source>This repository is potentially unsafe</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Este repositorio podría no ser seguro</translation>
     </message>
     <message>
         <source>Trust repository</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Confiar en el repositorio</translation>
     </message>
     <message>
         <source>The Git repository at %1 appears to be owned by another user on your computer. A repository&apos;s own settings can run programs, so Git won&apos;t work in it until you trust it. Trust it only if you trust its owner. Trusting it adds the folder to safe.directory in your own Git settings.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parece que el repositorio de Git en %1 pertenece a otro usuario de tu equipo. La configuración propia de un repositorio puede ejecutar programas, así que Git no funcionará en él hasta que confíes en él. Confía en él solo si confías en su propietario. Al confiar en él, la carpeta se añade a safe.directory en tu propia configuración de Git.</translation>
     </message>
     <message>
         <source>Trust failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al confiar</translation>
     </message>
     <message>
         <source>The repository wasn&apos;t trusted.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se confió en el repositorio.</translation>
     </message>
     <message>
         <source>Summary (required)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Resumen (obligatorio)</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Descripción</translation>
     </message>
     <message numerus="yes">
         <source>%Ln changed file(s)</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>%Ln archivo cambiado</numerusform>
+            <numerusform>%Ln archivos cambiados</numerusform>
         </translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Confirmar</translation>
     </message>
     <message>
         <source>Commit to %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Confirmar en %1</translation>
     </message>
     <message>
         <source>Commit failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al confirmar</translation>
     </message>
     <message>
         <source>Nothing was committed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se confirmó nada.</translation>
     </message>
     <message>
         <source>Discard failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al descartar</translation>
     </message>
     <message>
         <source>The changes weren&apos;t discarded.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se descartaron los cambios.</translation>
     </message>
     <message>
         <source>Discard changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Descartar cambios</translation>
     </message>
     <message>
         <source>Are you sure you want to discard &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¿Seguro que quieres descartar &quot;%1&quot;?</translation>
     </message>
     <message>
         <source>It isn&apos;t in the last commit, so the file itself will be moved to the system trash.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No está en la última confirmación, así que el propio archivo se moverá a la papelera del sistema.</translation>
     </message>
     <message>
         <source>Are you sure you want to discard the changes to &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¿Seguro que quieres descartar los cambios de &quot;%1&quot;?</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Descartar</translation>
     </message>
     <message>
         <source>It was renamed from &quot;%1&quot;. The renamed file will be moved to the system trash, and &quot;%1&quot; will go back to how it was in the last commit.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Antes se llamaba &quot;%1&quot;. El archivo con el nombre nuevo se moverá a la papelera del sistema, y &quot;%1&quot; volverá a como estaba en la última confirmación.</translation>
     </message>
     <message>
         <source>The file will come back as it was in the last commit.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El archivo volverá como estaba en la última confirmación.</translation>
     </message>
     <message>
         <source>A copy of the changed file will be moved to the system trash, and the file will go back to how it was in the last commit.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Una copia del archivo cambiado se moverá a la papelera del sistema, y el archivo volverá a como estaba en la última confirmación.</translation>
     </message>
     <message>
         <source>Open in new tab</source>
@@ -604,107 +601,107 @@
     </message>
     <message>
         <source>Open file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abrir archivo</translation>
     </message>
     <message>
         <source>Discard changes…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Descartar cambios…</translation>
     </message>
     <message>
         <source>%1 (renamed from %2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 (antes %2)</translation>
     </message>
 </context>
 <context>
     <name>Fernanda::Ui::GitSyncButton</name>
     <message>
         <source>Fetching %1…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Obteniendo de %1…</translation>
     </message>
     <message>
         <source>Pulling %1…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Trayendo de %1…</translation>
     </message>
     <message>
         <source>Pushing %1…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enviando a %1…</translation>
     </message>
     <message>
         <source>Publishing to %1…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Publicando en %1…</translation>
     </message>
     <message>
         <source>This repository has no remote</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Este repositorio no tiene remoto</translation>
     </message>
     <message>
         <source>Fetch %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Obtener de %1</translation>
     </message>
     <message>
         <source>Pull %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Traer de %1</translation>
     </message>
     <message>
         <source>Push %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enviar a %1</translation>
     </message>
     <message>
         <source>Publish this branch to %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Publicar esta rama en %1</translation>
     </message>
     <message>
         <source>Never fetched</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nunca se ha obtenido</translation>
     </message>
     <message>
         <source>Last fetched just now</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Última obtención: justo ahora</translation>
     </message>
     <message numerus="yes">
         <source>Last fetched %Ln minute(s) ago</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Última obtención: hace %Ln minuto</numerusform>
+            <numerusform>Última obtención: hace %Ln minutos</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Last fetched %Ln hour(s) ago</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Última obtención: hace %Ln hora</numerusform>
+            <numerusform>Última obtención: hace %Ln horas</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Last fetched %Ln day(s) ago</source>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Última obtención: hace %Ln día</numerusform>
+            <numerusform>Última obtención: hace %Ln días</numerusform>
         </translation>
     </message>
     <message>
         <source>Sync failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al sincronizar</translation>
     </message>
     <message>
         <source>Nothing was fetched.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se obtuvo nada.</translation>
     </message>
     <message>
         <source>Nothing was pulled. This branch and its remote both have new commits, which need merging outside Fernanda.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se trajo nada. Esta rama y su remoto tienen confirmaciones nuevas, que hay que combinar fuera de Fernanda.</translation>
     </message>
     <message>
         <source>Nothing was pulled.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se trajo nada.</translation>
     </message>
     <message>
         <source>Nothing was pushed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se envió nada.</translation>
     </message>
     <message>
         <source>The branch wasn&apos;t published.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se publicó la rama.</translation>
     </message>
 </context>
 <context>
@@ -805,18 +802,6 @@
         <translation type="unfinished">Cambiar nombre de la bóveda</translation>
     </message>
     <message>
-        <source>New name:</source>
-        <translation type="obsolete">Nombre nuevo:</translation>
-    </message>
-    <message>
-        <source>A vault name cannot contain slashes.</source>
-        <translation type="obsolete">El nombre de una bóveda no puede contener barras.</translation>
-    </message>
-    <message>
-        <source>A folder named &quot;%1&quot; already exists here.</source>
-        <translation type="obsolete">Ya existe una carpeta llamada &quot;%1&quot; aquí.</translation>
-    </message>
-    <message>
         <source>Couldn&apos;t rename the folder. It may be in use or read-only.</source>
         <translation type="unfinished">No se pudo cambiar el nombre de la carpeta. Puede que esté en uso o que sea de solo lectura.</translation>
     </message>
@@ -877,10 +862,6 @@
 </context>
 <context>
     <name>Fernanda::Ui::RenameDialog</name>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Cambiar nombre</translation>
-    </message>
     <message>
         <source>&quot;%1&quot; already exists here.</source>
         <translation type="unfinished">&quot;%1&quot; ya existe aquí.</translation>
@@ -964,7 +945,7 @@
     </message>
     <message>
         <source>Git</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git</translation>
     </message>
 </context>
 <context>
@@ -1212,15 +1193,15 @@
     <name>Fernanda::Ui::SettingsGitPage</name>
     <message>
         <source>Git</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git</translation>
     </message>
     <message>
         <source>Show Git</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar Git</translation>
     </message>
     <message>
         <source>When this vault is in a Git repository, show the repository&apos;s changes on a page of the sidebar. Uses the Git installed on your computer.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cuando esta bóveda esté en un repositorio de Git, mostrar los cambios del repositorio en una página de la barra lateral. Usa el Git instalado en tu equipo.</translation>
     </message>
 </context>
 <context>
@@ -1302,11 +1283,11 @@
     <name>Fernanda::Ui::Sidebar</name>
     <message>
         <source>Files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Archivos</translation>
     </message>
     <message>
         <source>Git</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git</translation>
     </message>
     <message>
         <source>Common Vault</source>
@@ -1484,7 +1465,7 @@
     </message>
     <message>
         <source>Git</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Git</translation>
     </message>
     <message>
         <source>File</source>
@@ -1617,13 +1598,7 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
         <source>Fernanda reads only UTF-8. Opening this file saves it as UTF-8 right away, and every character Fernanda can&apos;t read (often curly quotes, dashes, and accented letters) is permanently replaced with �.
 
 To keep those characters, cancel, then re-save the file as UTF-8 in another program first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fernanda reads only UTF-8. Opening this file saves it as UTF-8 right away, and every character Fernanda can&apos;t read (often curly quotes, dashes, and accented letters) is permanently replaced with  .
-
-To keep those characters, cancel, then re-save the file as UTF-8 in another program first.</source>
-        <translation type="obsolete">Fernanda solo lee UTF-8. Al abrir este archivo, se guarda en UTF-8 de inmediato, y cada carácter que Fernanda no puede leer (a menudo comillas tipográficas, rayas y letras acentuadas) se sustituye para siempre por  .
+        <translation type="unfinished">Fernanda solo lee UTF-8. Al abrir este archivo, se guarda en UTF-8 de inmediato, y cada carácter que Fernanda no puede leer (a menudo comillas tipográficas, rayas y letras acentuadas) se sustituye para siempre por �.
 
 Para conservar esos caracteres, cancela y vuelve a guardar el archivo como UTF-8 en otro programa primero.</translation>
     </message>
