@@ -30,6 +30,7 @@
 #include "core/git/GitRepository.h"
 #include "ui/UiConstants.h"
 #include "ui/git/GitNewBranchDialog.h"
+#include "ui/widgets/HoverSync.h"
 #include "ui/widgets/MenuButton.h"
 
 namespace Fernanda::Ui {
@@ -97,6 +98,10 @@ private:
         setPopupMode(QToolButton::InstantPopup);
         setFixedHeight(VAULT_SWITCHER_HEIGHT);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+        // It widens under a still pointer when the sync button beside it
+        // narrows, and is disabled while the repository is busy
+        HoverSync::follow(this);
 
         connect(
             menu_,

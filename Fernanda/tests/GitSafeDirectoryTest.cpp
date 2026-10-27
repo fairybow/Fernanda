@@ -10,7 +10,6 @@
  * See the LICENSE file or visit <https://www.gnu.org/licenses/>
  */
 
-
 #include <QObject>
 #include <QString>
 #include <QTest>

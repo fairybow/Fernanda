@@ -275,6 +275,7 @@ set(APP_HEADERS
     src/ui/widgets/DisplaySlider.h
     src/ui/widgets/Glyph.h
     src/ui/widgets/GlyphButton.h
+    src/ui/widgets/HoverSync.h
     src/ui/widgets/MenuButton.h
     src/ui/widgets/MenuText.h
     src/ui/widgets/RowBadges.h

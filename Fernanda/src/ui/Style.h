@@ -835,11 +835,19 @@ private:
 
     // A checkbox, a QCheckBox's or an item view's, in the indicator's rect:
     // a rounded square, bordered as a field when off, and filled with the
-    // accent and holding a check (on) or a dash (partly on) otherwise
+    // accent and holding a check (on) or a dash (partly on) otherwise.
+    //
+    // The accent is the window's state's: an inactive window's is muted. The
+    // state is read from the option, not the palette's current group. A
+    // QCheckBox's palette is set to its window's group, but an item view
+    // leaves its rows' palettes active and says so in State_Active alone, as
+    // Qt's own item drawing reads it, so its rows would stay in the accent
     static void
     drawCheckIndicator_(const QStyleOption* option, QPainter* painter)
     {
         const auto& palette = option->palette;
+        auto group = (option->state & State_Active) ? QPalette::Active
+                                                    : QPalette::Inactive;
         auto side = qMin(option->rect.width(), option->rect.height());
         QRectF box(
             option->rect.x() + (option->rect.width() - side) / 2.0,
@@ -870,13 +878,13 @@ private:
         }
 
         painter->setPen(Qt::NoPen);
-        painter->setBrush(palette.color(STYLE_CHECKBOX_ON_ROLE));
+        painter->setBrush(palette.color(group, STYLE_CHECKBOX_ON_ROLE));
         painter->drawRoundedRect(
             box,
             STYLE_CHECKBOX_RADIUS,
             STYLE_CHECKBOX_RADIUS);
 
-        QPen mark(palette.color(STYLE_CHECKBOX_MARK_ROLE));
+        QPen mark(palette.color(group, STYLE_CHECKBOX_MARK_ROLE));
         mark.setWidthF(STYLE_CHECKBOX_MARK_WIDTH);
         mark.setCapStyle(Qt::RoundCap);
         mark.setJoinStyle(Qt::RoundJoin);

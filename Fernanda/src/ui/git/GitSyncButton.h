@@ -38,6 +38,7 @@
 #include "ui/UiConstants.h"
 #include "ui/widgets/ButtonWash.h"
 #include "ui/widgets/Glyph.h"
+#include "ui/widgets/HoverSync.h"
 
 namespace Fernanda::Ui {
 
@@ -171,6 +172,10 @@ private:
     void setup_()
     {
         setAttribute(Qt::WA_Hover, true); // hover state for the wash
+
+        // Its counts come and go, so it narrows and widens under a still
+        // pointer, and it's disabled while the repository is busy
+        HoverSync::follow(this);
         setFocusPolicy(Qt::NoFocus);
         setCursor(Qt::ArrowCursor);
 

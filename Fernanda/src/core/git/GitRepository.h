@@ -32,7 +32,7 @@
 #include <QtTypes>
 
 #ifdef Q_OS_UNIX
-#include <unistd.h>
+#    include <unistd.h>
 #endif
 
 #include <Coco/Debug.h>
