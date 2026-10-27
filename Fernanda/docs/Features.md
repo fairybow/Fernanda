@@ -314,6 +314,7 @@ Fernanda tells you when a newer version is out. It doesn't download or install i
 - "Check for updates automatically", in General, turns this off. The Windows installer asks too: its answer is the starting point for everyone who uses that install, and the switch in General changes it for you. The macOS and Linux builds have no installer, so there it starts on
 - When a newer version is found, an arrow appears in the status bar of every window. Clicking it opens General. It then stays hidden until a still newer version comes out
 - While Fernanda is in beta, every release counts, betas included
+- While Fernanda is in beta, it warns at launch not to trust your writing entirely to a beta, and to keep backups. "Don't show this again for this version" silences it until the next version
 
 ## Language
 

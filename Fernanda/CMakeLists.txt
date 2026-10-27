@@ -284,6 +284,7 @@ set(APP_HEADERS
 
     src/ui/AboutPanel.h
     src/ui/BaseWindow.h
+    src/ui/BetaAlert.h
     src/ui/CursorPosition.h
     src/ui/FileSwitcher.h
     src/ui/LicensesDialog.h

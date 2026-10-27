@@ -403,7 +403,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 
 | What | File | Type | Owner |
 |---|---|---|---|
-| Known vaults, the Common Vault, session, last-used folder, update settings, interface language | `fernanda.json` in the app data folder | `AppConfig` | `App` |
+| Known vaults, the Common Vault, session, last-used folder, update settings, the version whose beta warning was muted, interface language | `fernanda.json` in the app data folder | `AppConfig` | `App` |
 | Per-vault settings | `.fernanda/settings.json`, `.fernanda/appearance.json` | `VaultConfig` | `Vault` |
 | Window and tab layout | `.fernanda/workspace.json` | `WorkspaceFile` | `VaultWindow` |
 | A vault's dictionary | `.fernanda/dictionary.txt`, one word per line | `WordList` | `Vault` |

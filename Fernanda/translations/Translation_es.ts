@@ -2,6 +2,21 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="es" sourcelanguage="en">
 <context>
+    <name>BetaAlert</name>
+    <message>
+        <source>Fernanda is in beta</source>
+        <translation type="unfinished">Fernanda está en beta</translation>
+    </message>
+    <message>
+        <source>Don&apos;t trust your writing entirely to beta versions of Fernanda. Still, whatever version you use, keep regular backups of your work.</source>
+        <translation type="unfinished">No confíes tu escritura por completo a las versiones beta de Fernanda. Aun así, uses la versión que uses, haz copias de seguridad de tu trabajo con regularidad.</translation>
+    </message>
+    <message>
+        <source>Don&apos;t show this again for this version</source>
+        <translation type="unfinished">No volver a mostrar en esta versión</translation>
+    </message>
+</context>
+<context>
     <name>Fernanda::App</name>
     <message>
         <source>Quit</source>

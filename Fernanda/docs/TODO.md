@@ -112,6 +112,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Add the Git page to `CHANGELOG.md`
 - [ ] The Git hand pass, below, on Windows and macOS. Use a scratch repository on GitHub, so pushes and pulls are real, and a vault inside it with a few files
 - [x] Need the remaining Edit menu and text editor context menu options (cut, copy, paste, select all, delete)
+- [x] A warning at launch while Fernanda is in beta (`BetaAlert`), as Hearth had, which can be muted until the next version
 - [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
 
 ### The Git hand pass

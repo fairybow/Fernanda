@@ -119,6 +119,18 @@ public:
         dismissedUpdate_ = version;
     }
 
+    // The version whose beta warning was muted (BetaAlert). Empty when none
+    // has been
+    [[nodiscard]] QString betaAlertMutedFor() const
+    {
+        return betaAlertMutedFor_;
+    }
+
+    void setBetaAlertMutedFor(const QString& version)
+    {
+        betaAlertMutedFor_ = version;
+    }
+
     // The interface language (Translations): a language code, or empty to
     // follow the system
     [[nodiscard]] QString language() const { return language_; }
@@ -274,6 +286,7 @@ public:
         checksForUpdates_ =
             root.value(u"checkForUpdates"_s).toBool(installChecksForUpdates_);
         dismissedUpdate_ = root.value(u"dismissedUpdate"_s).toString();
+        betaAlertMutedFor_ = root.value(u"betaAlertMutedFor"_s).toString();
         language_ = root.value(u"language"_s).toString();
         vaultOrder_ = vaultOrderOf_(root.value(VAULT_ORDER_KEY_).toString());
 
@@ -310,6 +323,10 @@ public:
             root[u"dismissedUpdate"_s] = dismissedUpdate_;
         }
 
+        if (!betaAlertMutedFor_.isEmpty()) {
+            root[u"betaAlertMutedFor"_s] = betaAlertMutedFor_;
+        }
+
         if (!language_.isEmpty()) {
             root[u"language"_s] = language_;
         }
@@ -344,6 +361,7 @@ private:
     bool checksForUpdates_ = true;
     bool installChecksForUpdates_ = true;
     QString dismissedUpdate_{};
+    QString betaAlertMutedFor_{};
     QString language_{};
     VaultOrder vaultOrder_ = VaultOrder::Recent;
 
