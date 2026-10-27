@@ -12,6 +12,16 @@
     </message>
 </context>
 <context>
+    <name>Fernanda::GitRepository</name>
+    <message numerus="yes">
+        <source>Git took longer than %Ln second(s), so it was stopped.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>Fernanda::TextFileView</name>
     <message numerus="yes">
         <source>%Ln replaced</source>
@@ -25,6 +35,40 @@
     <name>Fernanda::Ui::FocusTimerButton</name>
     <message numerus="yes">
         <source>%Ln focus period(s) completed</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Fernanda::Ui::GitPage</name>
+    <message numerus="yes">
+        <source>%Ln changed file(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Fernanda::Ui::GitSyncButton</name>
+    <message numerus="yes">
+        <source>Last fetched %Ln minute(s) ago</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Last fetched %Ln hour(s) ago</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Last fetched %Ln day(s) ago</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
