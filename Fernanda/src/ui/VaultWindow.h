@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <functional>
 #include <utility>
 
@@ -25,11 +26,13 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QMetaObject>
 #include <QPalette>
 #include <QPoint>
 #include <QSplitter>
 #include <QString>
 #include <QStringList>
+#include <QWidget>
 #include <QtTypes>
 
 #include <Coco/Debug.h>
@@ -479,9 +482,11 @@ private:
     // setting is on, the repository is looked for now, after the vault's
     // folder moves, and whenever this window becomes active, since a
     // repository can be made or removed outside Fernanda; becoming active
-    // reads the status again too, as does finding the repository. While it's
-    // off, nothing here runs git. The sidebar adds and removes its Git page
-    // itself, from the setting and the repository
+    // reads the status again too, as does finding the repository. So does a
+    // file in the repository saved, renamed, moved, or trashed from Fernanda,
+    // while the Git page or a diff tab shows (onRepositoryChanged_). While
+    // the setting is off, nothing here runs git. The sidebar adds and removes
+    // its Git page itself, from the setting and the repository
     void setupGit_()
     {
         connect(vault_, &Vault::rootMoved, this, [this] {
@@ -502,6 +507,27 @@ private:
                 gitRepository_->refresh();
             }
         });
+
+        connect(
+            bufferStore_,
+            &BufferStore::fileWritten,
+            this,
+            &VaultWindow::onRepositoryChanged_);
+
+        connect(
+            bufferStore_,
+            &BufferStore::entryRelocated,
+            this,
+            [this](const PathKey& oldEntry, const PathKey& newEntry) {
+                onRepositoryChanged_(oldEntry);
+                onRepositoryChanged_(newEntry);
+            });
+
+        connect(
+            bufferStore_,
+            &BufferStore::entryRemoved,
+            this,
+            &VaultWindow::onRepositoryChanged_);
 
         auto* git_page = sidebar_->gitPage();
 
@@ -524,6 +550,54 @@ private:
             &VaultWindow::openGitFile_);
 
         applyGitConfig_();
+    }
+
+    // Something at key changed on disk from Fernanda. When it's in the
+    // repository and something shows the repository's changes, the status is
+    // read again, which reads each showing diff again too. Every save comes
+    // here, so nothing is read while nothing shows. Queued: a save can come
+    // from inside a flush, a status's own included (GitRepository::refresh),
+    // and the read's flush would then run inside it
+    void onRepositoryChanged_(const PathKey& key)
+    {
+        if (!gitRepository_->isFound() ||
+            !key.isAtOrUnder(PathKey::of(gitRepository_->root())) ||
+            !isGitShowing_()) {
+            return;
+        }
+
+        QMetaObject::invokeMethod(
+            this,
+            [this] { gitRepository_->refresh(); },
+            Qt::QueuedConnection);
+    }
+
+    // Whether the Git page, or a diff tab here or in a pop-out, is showing
+    [[nodiscard]] bool isGitShowing_() const
+    {
+        if (sidebar_->gitPage()->isVisible()) {
+            return true;
+        }
+
+        auto shows_diff = [](const QWidget* window) {
+            const auto pages = window->findChildren<GitDiffPage*>();
+
+            return std::any_of(
+                pages.cbegin(),
+                pages.cend(),
+                [](const GitDiffPage* page) { return page->isVisible(); });
+        };
+
+        if (shows_diff(this)) {
+            return true;
+        }
+
+        return std::any_of(
+            popouts_.cbegin(),
+            popouts_.cend(),
+            [&shows_diff](const PopoutWindow* popout) {
+                return shows_diff(popout);
+            });
     }
 
     // The vault's Git setting, applied when it changes. configChanged comes

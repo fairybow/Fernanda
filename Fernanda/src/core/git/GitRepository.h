@@ -181,18 +181,7 @@ public:
             WARN("Reading Git status with an unsaved file in {}", root_);
         }
 
-        // --no-optional-locks: a status Fernanda reads for itself shouldn't
-        // take the index lock, which a git run elsewhere at the same moment
-        // would then fail on
-        enqueue_(
-            Kind_::Status,
-            root_,
-            { u"--no-optional-locks"_s,
-              u"status"_s,
-              u"--porcelain=v2"_s,
-              u"--branch"_s,
-              u"-z"_s,
-              u"--untracked-files=all"_s });
+        enqueue_(Kind_::Status, root_, statusArguments_());
 
         // The remotes, which a sync needs, are read with the status: they
         // change as rarely, and only outside Fernanda
@@ -487,12 +476,10 @@ public:
 
     // Switch to another local branch (switch). switched or switchFailed
     // answers every call, and the status is read again after a switch git
-    // ran, whatever its answer. Refused, with no git run, while a file git
-    // tracks has uncommitted changes, by the last status read: they'd follow
-    // to the other branch, or stop the switch, and either is a surprise. A
-    // file git doesn't track doesn't count, since git leaves it where it is
-    // on every branch. Every modified buffer in the repository is saved
-    // first, so the last status saw the text on screen.
+    // ran, whatever its answer. Every modified buffer in the repository is
+    // saved, and then the status is read, before git switches: while a file
+    // git tracks has uncommitted changes, the switch is refused
+    // (enqueueChangesCheck_).
     //
     // Files the switch changes on disk reload in their views as outside
     // changes do, and a view of a file the other branch doesn't have closes
@@ -503,12 +490,15 @@ public:
             return;
         }
 
-        if (auto refusal = changesRefusal_(); !refusal.isEmpty()) {
-            emit switchFailed(refusal);
+        if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
+            emit switchFailed(
+                tr("A file couldn't be saved, so nothing was done."));
             return;
         }
 
-        enqueueSwitch_({ u"switch"_s, u"--quiet"_s, u"--no-guess"_s, name });
+        enqueueSwitch_(
+            { u"switch"_s, u"--quiet"_s, u"--no-guess"_s, name },
+            true);
     }
 
     // Switch to a remote's branch ("origin/draft"), making a local branch of
@@ -521,13 +511,15 @@ public:
             return;
         }
 
-        if (auto refusal = changesRefusal_(); !refusal.isEmpty()) {
-            emit switchFailed(refusal);
+        if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
+            emit switchFailed(
+                tr("A file couldn't be saved, so nothing was done."));
             return;
         }
 
         enqueueSwitch_(
-            { u"switch"_s, u"--quiet"_s, u"--track"_s, remoteBranch });
+            { u"switch"_s, u"--quiet"_s, u"--track"_s, remoteBranch },
+            true);
     }
 
     // Talk to the branch's remote (syncRemote): fetch, pull, push, or
@@ -536,9 +528,11 @@ public:
     // here fetches on its own.
     //
     // - Fetch: fetch --prune, so a branch deleted on the remote goes here too
-    // - Pull: fast-forward only, without rebasing. Refused, as a switch is,
-    //   while a tracked file has uncommitted changes. Branches that have
-    //   diverged need a merge or a rebase, which this doesn't do; git says so
+    // - Pull: fast-forward only, without rebasing. Every modified buffer in
+    //   the repository is saved and the status read first, and the pull is
+    //   refused, as a switch is, while a tracked file has uncommitted changes
+    //   (enqueueChangesCheck_). Branches that have diverged need a merge or a
+    //   rebase, which this doesn't do; git says so
     // - Push: to the branch's upstream
     // - Publish: push --set-upstream, so the branch tracks its copy on the
     //   remote from then on. For a branch with no upstream, or one whose
@@ -566,8 +560,9 @@ public:
             arguments = { u"fetch"_s, u"--quiet"_s, u"--prune"_s, remote };
             break;
         case SyncAction::Pull:
-            if (auto refusal = changesRefusal_(); !refusal.isEmpty()) {
-                emit syncFailed(refusal);
+            if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
+                emit syncFailed(
+                    tr("A file couldn't be saved, so nothing was done."));
                 return;
             }
 
@@ -591,6 +586,10 @@ public:
         syncAction_ = action;
         setOperation_(Operation_::Sync);
 
+        if (action == SyncAction::Pull) {
+            enqueueChangesCheck_(Operation_::Sync);
+        }
+
         Command_ command{};
         command.kind = Kind_::Step;
         command.operation = Operation_::Sync;
@@ -613,7 +612,9 @@ public:
             return;
         }
 
-        enqueueSwitch_({ u"switch"_s, u"--quiet"_s, u"--create"_s, name });
+        enqueueSwitch_(
+            { u"switch"_s, u"--quiet"_s, u"--create"_s, name },
+            false);
     }
 
     // Read the branches' names, local ("draft") and remote ("origin/draft"),
@@ -915,28 +916,59 @@ private:
         return {};
     }
 
-    // Why a pull or a switch can't go ahead, or nothing. Every modified
-    // buffer in the repository is saved first, so the last status saw the
-    // text on screen. Then any change to a file git tracks refuses it: the
-    // change would follow to the other branch, be mixed with what comes in,
-    // or stop git partway, and each is a surprise. A file git doesn't track
-    // doesn't count: git leaves it where it is
-    [[nodiscard]] QString changesRefusal_()
+    // What every status read asks for. --no-optional-locks: a status
+    // Fernanda reads for itself shouldn't take the index lock, which a git run
+    // elsewhere at the same moment would then fail on
+    [[nodiscard]] static QStringList statusArguments_()
     {
-        if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
-            return tr("A file couldn't be saved, so nothing was done.");
-        }
+        return { u"--no-optional-locks"_s,
+                 u"status"_s,
+                 u"--porcelain=v2"_s,
+                 u"--branch"_s,
+                 u"-z"_s,
+                 u"--untracked-files=all"_s };
+    }
 
+    // The first step of a switch or a pull: a status read, made after the
+    // caller has saved every modified buffer in the repository, so it sees
+    // the text on screen. onStatusRead_ lets the steps after it run only
+    // while no file git tracks has uncommitted changes: they'd follow to the
+    // other branch, be mixed with what comes in, or stop git partway, and
+    // each is a surprise. A file git doesn't track doesn't count: git leaves
+    // it where it is.
+    //
+    // TODO: Offer to stash the changes instead, as GitHub Desktop does, so a
+    // switch or a pull can go ahead with them set aside
+    void enqueueChangesCheck_(Operation_ operation)
+    {
+        Command_ check{};
+        check.kind = Kind_::Status;
+        check.operation = operation;
+        check.folder = root_;
+        check.arguments = statusArguments_();
+        enqueue_(std::move(check));
+    }
+
+    // Whether the last status has a change to a file git tracks
+    [[nodiscard]] bool hasTrackedChanges_() const
+    {
         const auto& entries = status_.entries;
-        auto has_changes = std::any_of(
+
+        return std::any_of(
             entries.cbegin(),
             entries.cend(),
             [](const GitStatus::Entry& entry) {
                 return entry.change != GitStatus::Change::Untracked;
             });
+    }
 
-        return has_changes ? tr("Commit or discard your changes first.")
-                           : QString{};
+    // The steps of operation still waiting in the queue, dropped when an
+    // earlier one ends it
+    void dropSteps_(Operation_ operation)
+    {
+        queue_.removeIf([operation](const Command_& waiting) {
+            return waiting.operation == operation;
+        });
     }
 
     // A path for --pathspec-from-file with --pathspec-file-nul: UTF-8,
@@ -1163,20 +1195,39 @@ private:
         emit remotesChanged();
     }
 
+    // A status read on its own, or as the first step of a switch or a pull
+    // (enqueueChangesCheck_). A status read for a repository that has since
+    // been lost or replaced is ignored. A first step that can't decide (that
+    // repository, or a failed read) ends its operation as a refusal does
     void onStatusRead_(const Command_& command, const Result_& result)
     {
-        // Read for a repository that has since been lost or replaced
-        if (PathKey::of(command.folder) != PathKey::of(root_)) {
-            return;
-        }
+        auto current = PathKey::of(command.folder) == PathKey::of(root_);
 
-        if (!result.succeeded) {
+        if (current && result.succeeded) {
+            status_ = GitStatus::parse(result.output);
+            emit statusChanged();
+        } else if (current) {
             WARN("Git status failed in {}: {}", command.folder, result.error);
+        }
+
+        if (command.operation == Operation_::None) {
             return;
         }
 
-        status_ = GitStatus::parse(result.output);
-        emit statusChanged();
+        QString refusal{};
+
+        if (!current) {
+            refusal = tr("The repository changed, so nothing was done.");
+        } else if (!result.succeeded) {
+            refusal = result.error;
+        } else if (hasTrackedChanges_()) {
+            refusal = tr("Commit or discard your changes first.");
+        }
+
+        if (!refusal.isEmpty()) {
+            dropSteps_(command.operation);
+            finish_(command.operation, refusal);
+        }
     }
 
     // A --no-index diff exits with 1 when the files differ, which is the
@@ -1204,10 +1255,16 @@ private:
         emit diffRead(command.subject, GitDiff::parse(result.output));
     }
 
-    // A switch is one step, and the whole of its operation
-    void enqueueSwitch_(const QStringList& arguments)
+    // A switch is one git step, after the changes check when checksChanges
+    // (enqueueChangesCheck_). A new branch needs none: it starts where the
+    // current one is, so the changes stay as they are
+    void enqueueSwitch_(const QStringList& arguments, bool checksChanges)
     {
         setOperation_(Operation_::Switch);
+
+        if (checksChanges) {
+            enqueueChangesCheck_(Operation_::Switch);
+        }
 
         Command_ command{};
         command.kind = Kind_::Step;
@@ -1344,9 +1401,7 @@ private:
     void onStep_(const Command_& command, const Result_& result)
     {
         if (!result.succeeded) {
-            queue_.removeIf([&command](const Command_& waiting) {
-                return waiting.operation == command.operation;
-            });
+            dropSteps_(command.operation);
 
             WARN(
                 "Git {} failed in {}: {}",

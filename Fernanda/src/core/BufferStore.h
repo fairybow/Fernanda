@@ -381,6 +381,12 @@ signals:
     // A vault whose folder was in it has its window closed by App
     void entryRemoved(const PathKey& entry);
 
+
+    // A buffer was written to its file: an autosave, a flush, any save.
+    // Emitted from inside the write, which may be inside a caller's flush,
+    // so a slot that would save or flush again should be queued
+    void fileWritten(const PathKey& key);
+
 private:
     // Keyed by each file's PathKey. Models are parented to the store. A model
     // is freed when its file is deleted on disk (external deletion, below) or
@@ -616,6 +622,7 @@ private:
         model->setModified(false);
         DEBUG(this, "Save succeeded for {}!", abs.prettyQString());
 
+        emit fileWritten(key);
         return WriteResult_::Written;
     }
 

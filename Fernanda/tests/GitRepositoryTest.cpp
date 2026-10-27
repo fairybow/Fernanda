@@ -1161,6 +1161,29 @@ private slots:
             u"draft-two"_s);
     }
 
+    // A change made after the last status read still refuses the switch:
+    // the status is read again first. The file is the same on both branches,
+    // so git itself would carry the change across
+    void switchBranchIsRefusedWithChangesMadeSinceTheLastStatus()
+    {
+        Fixture_ f{};
+        f.initRepository();
+        f.write(u"a.txt"_s, "a\n");
+        f.git({ u"add"_s, u"a.txt"_s });
+        f.git({ u"commit"_s, u"-q"_s, u"-m"_s, u"First"_s });
+        f.git({ u"branch"_s, u"draft-two"_s });
+
+        auto error = switchOf_(f, [&f] {
+            f.write(u"a.txt"_s, "changed\n");
+            f.repository.switchBranch(u"draft-two"_s);
+        });
+        QVERIFY(!error.isEmpty());
+        QVERIFY(
+            f.gitOutput({ u"branch"_s, u"--show-current"_s }) !=
+            u"draft-two"_s);
+        QVERIFY(!f.repository.isBusy());
+    }
+
     // An untracked file stays where it is on every branch
     void switchBranchIgnoresUntrackedFiles()
     {

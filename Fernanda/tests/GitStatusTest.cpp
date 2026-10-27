@@ -115,6 +115,17 @@ private slots:
         QCOMPARE(status.entries[0].path.prettyQString(), u"notes/new.md"_s);
     }
 
+    // Git lists a folder holding its own repository as one entry, with a
+    // slash at the end
+    void folderHoldingARepositoryIsSkipped()
+    {
+        auto status =
+            GitStatus::parse(output_({ "? inner/", "? notes/new.md" }));
+
+        QCOMPARE(status.entries.size(), 1);
+        QCOMPARE(status.entries[0].path.prettyQString(), u"notes/new.md"_s);
+    }
+
     void renameKeepsTheOriginalPath()
     {
         auto status = GitStatus::parse(output_(

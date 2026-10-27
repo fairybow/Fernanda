@@ -32,7 +32,8 @@
 //
 // Each file gets one change, as GitHub Desktop shows it: the index and the
 // working tree are not told apart, since Fernanda stages for itself when it
-// commits
+// commits. A folder holding a repository of its own, which git lists as one
+// untracked entry, is left out (parse)
 namespace Fernanda::GitStatus {
 
 enum class Change
@@ -208,9 +209,17 @@ inline void readHeader_(QByteArrayView record, Branch& branch)
             continue;
         }
 
+        // A path ending in a slash is a folder holding a repository of its
+        // own, which git lists as one entry without looking inside. It's
+        // skipped: committing it would record only a pointer to the other
+        // repository's commit, and discarding it would trash that repository
+        // whole, its history included
         if (record.startsWith("? ")) {
-            status.entries << Entry{ Change::Untracked,
-                                     Internal::pathOf_(record.sliced(2)) };
+            if (!record.endsWith('/')) {
+                status.entries << Entry{ Change::Untracked,
+                                         Internal::pathOf_(record.sliced(2)) };
+            }
+
             continue;
         }
 
