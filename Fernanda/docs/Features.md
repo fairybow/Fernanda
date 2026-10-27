@@ -266,7 +266,8 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - Fernanda never fetches, pulls, or pushes on its own. Nothing contacts the remote until you click
 - A pull keeps your uncommitted changes, as GitHub Desktop's does: the commits come in around them, and the changes list still shows only your own. If an incoming commit changes a file you've changed, nothing is pulled and Git names the file: commit or discard it first
 - A pull only fast-forwards. If the branches have both moved on, the pull is refused, with Git's reason, and nothing is merged
-- Signing in to the remote is left to Git. A credential manager Git is set up with works as it does from a terminal; one that would ask for a password in a terminal fails instead. A fetch, pull, or push that hasn't finished after two minutes is stopped
+- Signing in to the remote is left to Git. A credential manager Git is set up with works as it does from a terminal, and so does an SSH agent. Anything that would ask for a password or a key's passphrase in a terminal fails instead
+- Reaching the remote is stopped if it hasn't finished after two minutes. A pull is stopped only while it fetches, never while it updates your files, so they're never left half updated
 
 ### Where it differs from GitHub Desktop
 

@@ -1392,19 +1392,16 @@ private slots:
         QTRY_COMPARE(f.repository.status().branch.behind, 0);
     }
 
-    // Typing in a file while a pull rewrites it: autosave is held until the
-    // pull ends, so it can't write the old text back over the incoming
-    // commit's. The buffer takes in the pulled text as one undoable change,
-    // and undoing it brings the typing back. The autosave is quickened so
-    // that, unheld, it would land between git's write and the watcher's
-    void typingDuringAPullNeitherRevertsThePullNorIsLost()
+    // Typing in a file while a pull fetches is saved before the pull's merge,
+    // so git sees it and refuses to overwrite it: the fetch happened, the
+    // merge didn't, and the typing is on disk. Typing during the merge itself
+    // is held from autosave (BufferStoreTimedTest)
+    void typingWhileAPullFetchesIsSeenByItsMerge()
     {
         Fixture_ f{};
         Remote_ remote{};
         publishedRepository_(f, remote);
         commitFromAnotherClone_(remote, "from elsewhere\n");
-        f.git({ u"fetch"_s, u"-q"_s });
-        f.store.setAutosaveTiming(150, 3000);
 
         auto* model = qobject_cast<TextFileModel*>(f.store.openModel(
             PathKey::of(f.absolute(u"a.txt"_s)),
@@ -1422,14 +1419,25 @@ private slots:
         };
 
         auto error = syncOf_(f, GitRepository::SyncAction::Pull, true, typed);
-        QCOMPARE(error, QString{});
+        QVERIFY(!error.isEmpty());
 
-        QTest::qWait(QUIET_WAIT_MS_);
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("a\ntyped during the pull\n"));
+        QCOMPARE(
+            f.gitOutput({ u"log"_s, u"-1"_s, u"--format=%s"_s }),
+            u"First"_s);
+        QTRY_COMPARE(f.repository.status().branch.behind, 1);
+    }
+
+    // A pull fetches for itself: no fetch beforehand is needed
+    void pullFetchesFirst()
+    {
+        Fixture_ f{};
+        Remote_ remote{};
+        publishedRepository_(f, remote);
+        commitFromAnotherClone_(remote, "from elsewhere\n");
+
+        QCOMPARE(syncOf_(f, GitRepository::SyncAction::Pull, true), QString{});
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("from elsewhere\n"));
-        QCOMPARE(document.toPlainText(), u"from elsewhere\n"_s);
-
-        model->undo();
-        QVERIFY(document.toPlainText().contains(u"typed during the pull"_s));
     }
 
     // Typing after a switch is asked for, and before it runs, is saved just

@@ -350,24 +350,56 @@ public:
     // it, and the watcher would take that write for its own. Writes asked for
     // outright (a flush, a window closing, a tab's last view closing) still
     // happen: the text must never be dropped. Holds may overlap, from two
-    // windows over one repository; each hold is released once
-    void holdWritesAtOrUnder(const PathKey& entry) { heldEntries_ << entry; }
-
-    // The end of a hold. Each held buffer is first checked against its file,
-    // as the watcher would: a file the other program changed is adopted as
-    // one undoable change (reconcileChanges_), so typing made meanwhile is
-    // what Ctrl+Z brings back. Then autosave writes what's left modified
-    void releaseWritesAtOrUnder(const PathKey& entry)
+    // windows over one repository; each hold is released once.
+    //
+    // What each held buffer's file holds now is noted, so the release can
+    // tell which files changed during the hold
+    void holdWritesAtOrUnder(const PathKey& entry)
     {
-        heldEntries_.removeOne(entry);
-
-        QStringList paths{};
+        Hold_ hold{};
+        hold.entry = entry;
 
         for (auto* model : modelsAtOrUnder_(entry)) {
-            paths << model->key().path().toQString();
+            if (auto disk = Io::tryRead(model->key().path())) {
+                hold.diskHashes.insert(model->key(), qHash(*disk));
+            }
         }
 
-        for (const auto& path : paths) {
+        holds_ << hold;
+    }
+
+    // The end of a hold. Each held file that changed during it is first
+    // taken in as the watcher would take it (reconcileOne_): adopted as one
+    // undoable change, so typing made meanwhile is what Ctrl+Z brings back.
+    // A file that didn't change is left alone, so typing in it stays. Then
+    // autosave writes what's left modified. A buffer opened during the hold
+    // has nothing noted, and is left to the watcher
+    void releaseWritesAtOrUnder(const PathKey& entry)
+    {
+        auto it = std::find_if(
+            holds_.cbegin(),
+            holds_.cend(),
+            [&entry](const Hold_& hold) { return hold.entry == entry; });
+
+        if (it == holds_.cend()) {
+            return;
+        }
+
+        auto hold = *it;
+        holds_.erase(it);
+
+        QStringList changed{};
+
+        for (auto h = hold.diskHashes.cbegin(); h != hold.diskHashes.cend();
+             ++h) {
+            auto disk = Io::tryRead(h.key().path());
+
+            if (!disk || qHash(*disk) != h.value()) {
+                changed << h.key().path().toQString();
+            }
+        }
+
+        for (const auto& path : changed) {
             reconcileOne_(path);
         }
 
@@ -451,18 +483,25 @@ private:
     // discarded or evicted
     QHash<PathKey, size_t> lastWrittenHash_{};
 
-    // Entries whose buffers autosave leaves alone (holdWritesAtOrUnder). One
-    // per hold, so overlapping holds of one entry each count
-    QList<PathKey> heldEntries_{};
+    // An entry whose buffers autosave leaves alone (holdWritesAtOrUnder),
+    // and what each held buffer's file held when the hold began
+    struct Hold_
+    {
+        PathKey entry{};
+        QHash<PathKey, size_t> diskHashes{};
+    };
+
+    // One per hold, so overlapping holds of one entry each count
+    QList<Hold_> holds_{};
 
     [[nodiscard]] bool isHeld_(const AbstractFileModel* model) const
     {
         const auto key = model->key();
 
         return std::any_of(
-            heldEntries_.cbegin(),
-            heldEntries_.cend(),
-            [&key](const PathKey& entry) { return key.isAtOrUnder(entry); });
+            holds_.cbegin(),
+            holds_.cend(),
+            [&key](const Hold_& hold) { return key.isAtOrUnder(hold.entry); });
     }
 
     // Watcher events are coalesced here and processed one debounce later, so a

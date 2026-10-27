@@ -31,6 +31,10 @@
 #include <QTimer>
 #include <QtTypes>
 
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#endif
+
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
 
@@ -76,9 +80,12 @@ using namespace Qt::StringLiterals;
 // - core.quotePath off, so paths in Git's output are plain UTF-8
 // - --literal-pathspecs, so a path given to git names only itself: a file
 //   named "[draft].md" isn't a pattern that also matches "d.md"
-// - GIT_TERMINAL_PROMPT=0, and nothing on standard input beyond the paths a
-//   command is given there, so a command that wants to ask something fails
-//   instead of waiting forever for an answer no one can type
+// - GIT_TERMINAL_PROMPT=0, nothing on standard input beyond the paths a
+//   command is given there, and, on macOS and Linux, no terminal: git runs
+//   in a session of its own (setsid). A command that wants to ask something
+//   fails instead of waiting forever for an answer no one can type. Without
+//   the last, ssh asks for a key's passphrase on the terminal Fernanda was
+//   started from, where no one is looking
 class GitRepository : public QObject
 {
     Q_OBJECT
@@ -107,8 +114,10 @@ public:
     }
 
     // A command still running is given GIT_EXIT_WAIT_MS to finish before it
-    // is stopped. Stopping git partway can leave its lock file behind, which
-    // blocks the next command until the file is removed by hand.
+    // is stopped, and a step that rewrites files GIT_REWRITE_EXIT_WAIT_MS.
+    // Stopping git partway can leave its lock file behind, which blocks the
+    // next command until the file is removed by hand, and a step that
+    // rewrites files would leave them half updated.
     //
     // A step that rewrites files has its hold on the store's autosave
     // released (holdWritesAtOrUnder), on the next turn of the event loop:
@@ -125,7 +134,10 @@ public:
 
         process_->disconnect(this);
 
-        if (!process_->waitForFinished(GIT_EXIT_WAIT_MS)) {
+        auto wait_ms = running_.rewritesFiles ? GIT_REWRITE_EXIT_WAIT_MS
+                                              : GIT_EXIT_WAIT_MS;
+
+        if (!process_->waitForFinished(wait_ms)) {
             WARN(
                 "Stopping git, which didn't finish in time: {}",
                 process_->arguments().join(u' '));
@@ -544,20 +556,23 @@ public:
     // here fetches on its own.
     //
     // - Fetch: fetch --prune, so a branch deleted on the remote goes here too
-    // - Pull: fast-forward only, without rebasing. Every modified buffer in
-    //   the repository is saved first. Uncommitted changes stay as they are,
-    //   as in GitHub Desktop: git takes in the commits only when none touches
-    //   a file with changes, or an untracked file in the way, and otherwise
-    //   stops before changing anything and names the files. Branches that
-    //   have diverged need a merge or a rebase, which this doesn't do; git
-    //   says so
+    // - Pull: what git pull does, in two steps: a fetch, then merge
+    //   --ff-only with the upstream, which only fast-forwards. Only the fetch
+    //   reaches the network, so only it can be stopped for taking too long;
+    //   the merge, which rewrites files, is never stopped partway. Every
+    //   modified buffer in the repository is saved first. Uncommitted changes
+    //   stay as they are, as in GitHub Desktop: git takes in the commits only
+    //   when none touches a file with changes, or an untracked file in the
+    //   way, and otherwise stops before changing anything and names the
+    //   files. Branches that have diverged need a merge or a rebase, which
+    //   this doesn't do; git says so
     // - Push: to the branch's upstream
     // - Publish: push --set-upstream, so the branch tracks its copy on the
     //   remote from then on. For a branch with no upstream, or one whose
     //   upstream is gone from the remote
     //
     // Git signs in its own way: a credential manager's window, an SSH agent.
-    // A sync gets GIT_NETWORK_TIMEOUT_MS, and is stopped after
+    // A fetch or a push gets GIT_NETWORK_TIMEOUT_MS, and is stopped after
     void sync(SyncAction action)
     {
         if (!isFound() || isBusy()) {
@@ -571,33 +586,31 @@ public:
             return;
         }
 
-        QStringList arguments{};
+        if (action == SyncAction::Pull &&
+            !bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
+            emit syncFailed(
+                tr("A file couldn't be saved, so nothing was done."));
+            return;
+        }
+
+        // What reaches the network: the whole of a fetch, a push, or a
+        // publish, and the first step of a pull
+        QStringList network{};
 
         switch (action) {
         case SyncAction::Fetch:
-            arguments = { u"fetch"_s, u"--quiet"_s, u"--prune"_s, remote };
-            break;
         case SyncAction::Pull:
-            if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
-                emit syncFailed(
-                    tr("A file couldn't be saved, so nothing was done."));
-                return;
-            }
-
-            arguments = { u"pull"_s,
-                          u"--quiet"_s,
-                          u"--no-rebase"_s,
-                          u"--ff-only"_s };
+            network = { u"fetch"_s, u"--quiet"_s, u"--prune"_s, remote };
             break;
         case SyncAction::Push:
-            arguments = { u"push"_s, u"--quiet"_s };
+            network = { u"push"_s, u"--quiet"_s };
             break;
         case SyncAction::Publish:
-            arguments = { u"push"_s,
-                          u"--quiet"_s,
-                          u"--set-upstream"_s,
-                          remote,
-                          u"HEAD"_s };
+            network = { u"push"_s,
+                        u"--quiet"_s,
+                        u"--set-upstream"_s,
+                        remote,
+                        u"HEAD"_s };
             break;
         }
 
@@ -607,12 +620,29 @@ public:
         Command_ command{};
         command.kind = Kind_::Step;
         command.operation = Operation_::Sync;
-        command.finishes = true;
+        command.finishes = action != SyncAction::Pull;
         command.folder = root_;
-        command.arguments = arguments;
+        command.arguments = network;
         command.timeoutMs = GIT_NETWORK_TIMEOUT_MS;
-        command.rewritesFiles = action == SyncAction::Pull;
         enqueue_(std::move(command));
+
+        if (action != SyncAction::Pull) {
+            return;
+        }
+
+        // The upstream as it is after the fetch. Nothing here reaches the
+        // network, so nothing stops it partway
+        Command_ merge{};
+        merge.kind = Kind_::Step;
+        merge.operation = Operation_::Sync;
+        merge.finishes = true;
+        merge.folder = root_;
+        merge.arguments = QStringList{ u"merge"_s,
+                                       u"--quiet"_s,
+                                       u"--ff-only"_s,
+                                       u"@{upstream}"_s };
+        merge.rewritesFiles = true;
+        enqueue_(std::move(merge));
     }
 
     // Make a branch at the current commit and switch to it (switch
@@ -1059,6 +1089,13 @@ private:
         if (running_.input.isEmpty()) {
             process_->setStandardInputFile(QProcess::nullDevice());
         }
+
+#ifdef Q_OS_UNIX
+        // In the child, before git starts: a session of its own has no
+        // terminal, so nothing git runs (ssh, a credential helper) can ask
+        // on the one Fernanda was started from
+        process_->setChildProcessModifier([] { ::setsid(); });
+#endif
 
         connect(
             process_,
