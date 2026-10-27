@@ -51,8 +51,6 @@
 
 namespace Fernanda::Ui {
 
-using namespace Qt::StringLiterals;
-
 class GitDiffView;
 
 namespace Internal {
@@ -77,8 +75,7 @@ private:
 } // namespace Internal
 
 // One file's diff, shown in its tab (GitDiffPage): every hunk, each under its
-// @@ line, with
-// added lines tinted GIT_DIFF_ADDED_BACKGROUND and removed lines
+// @@ line, with added lines tinted GIT_DIFF_ADDED_BACKGROUND and removed lines
 // GIT_DIFF_REMOVED_BACKGROUND, the way GitHub Desktop shows a file's changes.
 // A gutter on the left gives each line its number in the old file and in the
 // new one; an added line has only the second, and a removed line only the

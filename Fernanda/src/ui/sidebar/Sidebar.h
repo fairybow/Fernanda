@@ -71,7 +71,7 @@ namespace Fernanda::Ui {
 // it shows while the vault's settings switch the timer on. The Git repository
 // is the window's too, which decides when git runs; the Sidebar holds the Git
 // page, adds it and takes it away as the setting and the repository say, and
-// switches to it and back on the window's repository.toggleView action. What
+// switches to it and back on the window's repository.togglePage action. What
 // the page asks for, the window does (gitPage)
 class Sidebar : public QWidget
 {

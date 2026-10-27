@@ -36,8 +36,6 @@
 
 namespace Fernanda::Ui {
 
-using namespace Qt::StringLiterals;
-
 // Paints each row of the Git page's list of changed files: the file's name,
 // its folder after it as a muted label (as the file tree labels an
 // extension), and its change's mark against the row's right edge, in the

@@ -333,7 +333,7 @@ public:
         setOperation_(Operation_::Commit);
 
         Command_ command{};
-        command.kind = Kind_::Commit;
+        command.kind = Kind_::Step;
         command.operation = Operation_::Commit;
         command.finishes = true;
         command.folder = root_;
@@ -353,7 +353,7 @@ public:
 
         if (!untracked.isEmpty()) {
             Command_ add{};
-            add.kind = Kind_::Add;
+            add.kind = Kind_::Step;
             add.operation = Operation_::Commit;
             add.folder = root_;
             add.arguments = QStringList{ u"add"_s,
@@ -445,7 +445,7 @@ public:
         if (!removed.isEmpty() &&
             entry.change != GitStatus::Change::Untracked) {
             Command_ remove{};
-            remove.kind = Kind_::Remove;
+            remove.kind = Kind_::Step;
             remove.arguments = QStringList{ u"rm"_s,
                                             u"--cached"_s,
                                             u"--quiet"_s,
@@ -458,7 +458,7 @@ public:
 
         if (!restored.isEmpty()) {
             Command_ restore{};
-            restore.kind = Kind_::Restore;
+            restore.kind = Kind_::Step;
             restore.arguments = QStringList{ u"restore"_s,
                                              u"--source=HEAD"_s,
                                              u"--staged"_s,
@@ -589,7 +589,7 @@ public:
         setOperation_(Operation_::Sync);
 
         Command_ command{};
-        command.kind = Kind_::Sync;
+        command.kind = Kind_::Step;
         command.operation = Operation_::Sync;
         command.finishes = true;
         command.folder = root_;
@@ -764,20 +764,17 @@ private:
     // made in on its way to the trash (trashCopyOf_)
     static constexpr auto DISCARD_FOLDER_NAME_ = "Discarded";
 
+    // What a command answers. A step of an operation is answered by its
+    // operation (Command_::operation), whatever git command it runs
     enum class Kind_
     {
         Detect,
         Status,
         Diff,
-        Add,
-        Commit,
-        Remove,
-        Restore,
-        Switch,
         Branches,
         Remotes,
         GitPath,
-        Sync
+        Step
     };
 
     // What a command is a step of, beyond answering on its own
@@ -1083,12 +1080,7 @@ private:
         case Kind_::Diff:
             onDiffRead_(command, result);
             break;
-        case Kind_::Add:
-        case Kind_::Commit:
-        case Kind_::Remove:
-        case Kind_::Restore:
-        case Kind_::Switch:
-        case Kind_::Sync:
+        case Kind_::Step:
             onStep_(command, result);
             break;
         case Kind_::Branches:
@@ -1194,7 +1186,7 @@ private:
         setOperation_(Operation_::Switch);
 
         Command_ command{};
-        command.kind = Kind_::Switch;
+        command.kind = Kind_::Step;
         command.operation = Operation_::Switch;
         command.finishes = true;
         command.folder = root_;

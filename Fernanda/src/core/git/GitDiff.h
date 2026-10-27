@@ -600,8 +600,7 @@ inline void markWordChanges_(Hunk& hunk)
             continue;
         }
 
-        if (diff.hunks.isEmpty() && (line.startsWith("Binary files ") ||
-                                     line.startsWith("GIT binary patch"))) {
+        if (diff.hunks.isEmpty() && line.startsWith("Binary files ")) {
             diff.binary = true;
         }
     }

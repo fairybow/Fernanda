@@ -34,8 +34,6 @@
 
 namespace Fernanda::Ui {
 
-using namespace Qt::StringLiterals;
-
 // The Git page's branch button: the branch glyph and the current branch's
 // name (or that the HEAD is detached), opening a menu of what can be done with
 // branches. The menu lists the local branches, the current one checked, and

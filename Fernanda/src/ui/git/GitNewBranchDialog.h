@@ -29,8 +29,6 @@
 
 namespace Fernanda::Ui {
 
-using namespace Qt::StringLiterals;
-
 // Names a new branch, made at the current commit and switched to
 // (GitRepository::createBranch). The name is fixed as it's typed, as GitHub
 // Desktop fixes it (GitRefName::sanitized): when that changes it, a line under

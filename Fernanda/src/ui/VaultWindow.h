@@ -332,7 +332,7 @@ private:
             Sidebar::Actions{
                 .manageVaults = action(ActionIds::APP_MANAGE_VAULTS),
                 .openSettings = action(ActionIds::VAULT_OPEN_SETTINGS),
-                .toggleGit = action(ActionIds::REPOSITORY_TOGGLE_VIEW) },
+                .toggleGit = action(ActionIds::REPOSITORY_TOGGLE_PAGE) },
             focusTimer_,
             gitRepository_,
             vaultsProvider_,
@@ -668,7 +668,7 @@ private:
         // it and enables it while it has a Git page. Ctrl+Shift+G is VS Code's
         // key for its Source Control view
         registerAction(
-            ActionIds::REPOSITORY_TOGGLE_VIEW,
+            ActionIds::REPOSITORY_TOGGLE_PAGE,
             tr("Git"),
             QKeySequence(u"Ctrl+Shift+G"_s))
             ->setEnabled(false);
@@ -710,7 +710,7 @@ private:
 
         auto* view_menu = bar->addMenu(tr("View"));
         view_menu->addAction(action(ActionIds::WINDOW_TOGGLE_MENU_BAR));
-        view_menu->addAction(action(ActionIds::REPOSITORY_TOGGLE_VIEW));
+        view_menu->addAction(action(ActionIds::REPOSITORY_TOGGLE_PAGE));
         view_menu->addSeparator();
         view_menu->addAction(action(ActionIds::VIEW_ZOOM_IN));
         view_menu->addAction(action(ActionIds::VIEW_ZOOM_OUT));
@@ -1068,22 +1068,22 @@ private:
         }
     }
 
-    // Open view into tree's active leaf, taking over the current tab unless
-    // it's pinned or the leaf is empty (Obsidian's replace-active). Shared by
-    // the sidebar/menu ReplaceActive open on this window's tree and a file
-    // dropped on an editor — this window's tree or a pop-out's. The dropped-on
-    // leaf is made active by the tree before it signals, so "active leaf" there
-    // is the leaf the file landed on
+    // Open page (a file's view or a diff) into tree's active leaf, taking over
+    // the current tab unless it's pinned or the leaf is empty (Obsidian's
+    // replace-active). Shared by the sidebar/menu ReplaceActive open on this
+    // window's tree and a file dropped on an editor — this window's tree or a
+    // pop-out's. The dropped-on leaf is made active by the tree before it
+    // signals, so "active leaf" there is the leaf the file landed on
     void
-    openReplacingActive_(TabPaneTree* tree, QWidget* view, const QString& title)
+    openReplacingActive_(TabPaneTree* tree, QWidget* page, const QString& title)
     {
         auto* leaf = tree->activeLeaf();
         auto* current = leaf ? leaf->currentPage() : nullptr;
 
         if (current && !isPagePinned(current)) {
-            tree->replacePage(current, view, title);
+            tree->replacePage(current, page, title);
         } else {
-            tree->addToActiveLeaf(view, title);
+            tree->addToActiveLeaf(page, title);
         }
     }
 
@@ -1646,16 +1646,17 @@ private:
         openReplacingActive_(tree, view, view->model()->title());
     }
 
-    // "Open in new window": a fresh pop-out in this family, the view added to
-    // its (empty) active leaf. makeWiredPopout_ already handles the family
-    // stamp, request routing, persistence, and auto-close-when-emptied — same
-    // as a drag-born pop-out. The difference is placement: a drag drops at the
-    // cursor (onPopOutRequested_), but a menu open has no such point, so we
-    // cascade it off this window rather than land it under the menu
-    void openInNewWindow_(QWidget* view, const QString& title)
+    // "Open in new window": a fresh pop-out in this family, the page (a file's
+    // view or a diff) added to its (empty) active leaf. makeWiredPopout_
+    // already handles the family stamp, request routing, persistence, and
+    // auto-close-when-emptied — same as a drag-born pop-out. The difference is
+    // placement: a drag drops at the cursor (onPopOutRequested_), but a menu
+    // open has no such point, so we cascade it off this window rather than
+    // land it under the menu
+    void openInNewWindow_(QWidget* page, const QString& title)
     {
         auto* popout = makeWiredPopout_();
-        popout->tabPaneTree()->addToActiveLeaf(view, title);
+        popout->tabPaneTree()->addToActiveLeaf(page, title);
 
         popout->move(frameGeometry().topLeft() + QPoint(48, 48));
         popout->show();

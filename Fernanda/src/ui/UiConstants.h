@@ -263,6 +263,13 @@ inline constexpr auto SIDEBAR_GIT_ICON_PATH = ":/lucide/GitBranch.svg";
 // removed, and these read on a light page and a dark one alike. A folder's
 // label is never wider than FOLDER_MAX_PERCENT of the row
 inline constexpr auto GIT_PAGE_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
+inline constexpr int GIT_CHANGE_ICON_EXTENT = 14;
+inline constexpr int GIT_CHANGE_FOLDER_MAX_PERCENT = 50;
+inline constexpr auto GIT_ADDED_COLOR = QColor(46, 160, 67);
+inline constexpr auto GIT_MODIFIED_COLOR = QColor(210, 153, 34);
+inline constexpr auto GIT_DELETED_COLOR = QColor(248, 81, 73);
+inline constexpr auto GIT_RENAMED_COLOR = QColor(56, 139, 253);
+inline constexpr auto GIT_CONFLICTED_COLOR = QColor(248, 81, 73);
 
 // The Git page's check-all box, above the list, HEADER_V_MARGIN above and
 // below; its left edge lines up with the rows' checkboxes on its own. The
@@ -270,6 +277,9 @@ inline constexpr auto GIT_PAGE_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
 // COMMIT_SPACING between the summary, the description, and the button. The
 // description is DESCRIPTION_LINES lines of its font tall
 inline constexpr int GIT_PAGE_HEADER_V_MARGIN = 6;
+inline constexpr int GIT_PAGE_COMMIT_MARGIN = 4;
+inline constexpr int GIT_PAGE_COMMIT_SPACING = 6;
+inline constexpr int GIT_PAGE_DESCRIPTION_LINES = 3;
 
 // The row at the top of the Git page: the branch button (GitBranchButton),
 // taking the width, and the sync button (GitSyncButton) at its right, both
@@ -294,16 +304,6 @@ inline constexpr qreal GIT_SYNC_SPIN_DEGREES = 12.0;
 // line saying what a fixed name becomes is in NOTE_ROLE
 inline constexpr int GIT_NEW_BRANCH_DIALOG_MIN_WIDTH = 360;
 inline constexpr auto GIT_NEW_BRANCH_NOTE_ROLE = QPalette::PlaceholderText;
-inline constexpr int GIT_PAGE_COMMIT_MARGIN = 4;
-inline constexpr int GIT_PAGE_COMMIT_SPACING = 6;
-inline constexpr int GIT_PAGE_DESCRIPTION_LINES = 3;
-inline constexpr int GIT_CHANGE_ICON_EXTENT = 14;
-inline constexpr int GIT_CHANGE_FOLDER_MAX_PERCENT = 50;
-inline constexpr auto GIT_ADDED_COLOR = QColor(46, 160, 67);
-inline constexpr auto GIT_MODIFIED_COLOR = QColor(210, 153, 34);
-inline constexpr auto GIT_DELETED_COLOR = QColor(248, 81, 73);
-inline constexpr auto GIT_RENAMED_COLOR = QColor(56, 139, 253);
-inline constexpr auto GIT_CONFLICTED_COLOR = QColor(248, 81, 73);
 
 // A diff's tab (GitDiffPage, GitDiffView). The tab is marked with
 // DIFF_PAGE_ICON_PATH, so it isn't taken for its file's own tab. An added

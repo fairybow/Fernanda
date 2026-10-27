@@ -88,7 +88,7 @@ inline const QString VIEW_FIND_PREVIOUS = u"view.findPrevious"_s;
 
 inline const QString VAULT_OPEN_SETTINGS = u"vault.openSettings"_s;
 
-inline const QString REPOSITORY_TOGGLE_VIEW = u"repository.toggleView"_s;
+inline const QString REPOSITORY_TOGGLE_PAGE = u"repository.togglePage"_s;
 
 inline const QString APP_MANAGE_VAULTS = u"app.manageVaults"_s;
 inline const QString APP_QUIT = u"app.quit"_s;

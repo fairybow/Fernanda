@@ -33,8 +33,6 @@
 
 namespace Fernanda::Ui {
 
-using namespace Qt::StringLiterals;
-
 // A tab showing one changed file's diff (GitDiffView), opened from the
 // sidebar's Git page. It's its own kind of page, not a file view: a diff is
 // read from git and never edited, and the file it's of keeps its one buffer

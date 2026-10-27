@@ -55,7 +55,7 @@ private slots:
             << u"-+-name"_s << u"name"_s;
         QTest::newRow("a leading space") << u" name"_s << u"name"_s;
         QTest::newRow("a tab") << u"a\tb"_s << u"a-b"_s;
-        QTest::newRow("text outside ASCII") << u"café"_s << u"café"_s;
+        QTest::newRow("text outside ASCII") << u"caf\u00E9"_s << u"caf\u00E9"_s;
         QTest::newRow("nothing left") << u"   "_s << QString{};
         QTest::newRow("empty") << QString{} << QString{};
     }
