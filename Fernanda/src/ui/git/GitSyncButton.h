@@ -172,12 +172,12 @@ private:
     void setup_()
     {
         setAttribute(Qt::WA_Hover, true); // hover state for the wash
+        setFocusPolicy(Qt::NoFocus);
+        setCursor(Qt::ArrowCursor);
 
         // Its counts come and go, so it narrows and widens under a still
         // pointer, and it's disabled while the repository is busy
         HoverSync::follow(this);
-        setFocusPolicy(Qt::NoFocus);
-        setCursor(Qt::ArrowCursor);
 
         spinTimer_->setInterval(GIT_SYNC_SPIN_INTERVAL_MS);
         connect(spinTimer_, &QTimer::timeout, this, [this] {

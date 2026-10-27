@@ -277,6 +277,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - Each changed word in a line is marked. Desktop marks one stretch from the first changed character to the last, and nothing in a line of 1,024 characters or more
 - No fetch on a timer. Desktop fetches every hour
 - The branch list has no filter
+- A commit leaves what's staged for unchecked files staged. Desktop unstages everything before it commits, so a file staged from a terminal and left unchecked comes out unstaged
 - A folder holding a repository of its own isn't listed. Desktop lists it as a new file, and committing it records only a pointer to that other repository's current commit
 - No stash. Switching with changes is refused, where Desktop offers to set the changes aside, or bring them along. A pull that would change a file you've changed is refused, where Desktop offers to set the changes aside and pull
 - No history, no merges, no amending, no discarding every change at once, and no committing part of a file

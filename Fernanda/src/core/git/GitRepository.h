@@ -52,16 +52,18 @@ using namespace Qt::StringLiterals;
 
 // The Git repository a vault's folder is in, as one vault window sees it.
 // Finds the repository, reads its status, its diffs, and its branches,
-// commits, discards a file's changes, switches and makes branches, and
-// fetches, pulls, and pushes, by running the git installed on the computer,
-// and announces each answer. A status covers the whole repository, which may
-// hold more than the vault: other vaults, or files that aren't Fernanda's at
-// all.
+// commits, discards a file's changes, switches and makes branches, fetches,
+// pulls, and pushes, and trusts a repository git refuses, by running the git
+// installed on the computer, and announces each answer. A status covers the
+// whole repository, which may hold more than the vault: other vaults, or
+// files that aren't Fernanda's at all.
 //
 // Owned by its VaultWindow, which decides when to ask. Nothing here runs git
-// on its own, so git runs only when the window asks. Two windows over one
-// repository have one of these each; the repository itself is the shared
-// state, and each reads it when it needs to.
+// unasked: each command is one the window asked for, a step of an operation
+// it asked for, the status read that ends an operation, or the detection
+// that follows trusting. Two windows over one repository have one of these
+// each; the repository itself is the shared state, and each reads it when
+// it needs to.
 //
 // Commands run one at a time, in the order asked. Git takes a lock on the
 // repository's index for most commands, so two at once could fail each
@@ -906,8 +908,8 @@ private:
         // How long it may run before it's stopped. 0 is as long as it takes
         int timeoutMs = 0;
 
-        // It may rewrite files in the working tree (a switch, a pull, a
-        // discard's restore). Everything open in the repository is saved
+        // It may rewrite files in the working tree (a switch, a pull's merge,
+        // a discard's restore). Everything open in the repository is saved
         // just before it starts, so git sees the text on screen and refuses
         // rather than overwrite a change it would touch, and the store holds
         // its autosave until it ends (BufferStore::holdWritesAtOrUnder)

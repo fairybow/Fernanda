@@ -150,6 +150,7 @@ private:
     // The page's content, or the trust notice in its place (updateTrust_)
     QStackedLayout* pageStack_ = nullptr;
     QWidget* content_ = nullptr;
+    QWidget* trust_ = nullptr;
     QLabel* trustText_ = nullptr;
     QPushButton* trustButton_ = nullptr;
 
@@ -195,7 +196,8 @@ private:
 
         pageStack_ = new QStackedLayout(this);
         pageStack_->addWidget(content_);
-        pageStack_->addWidget(buildTrust_(this));
+        trust_ = buildTrust_(this);
+        pageStack_->addWidget(trust_);
 
         connect(
             repository_,
@@ -302,7 +304,7 @@ private:
                "to safe.directory in your own Git settings.")
                 .arg(folder));
         trustButton_->setEnabled(true);
-        pageStack_->setCurrentIndex(1);
+        pageStack_->setCurrentWidget(trust_);
         setFocusProxy(trustButton_);
     }
 
@@ -333,7 +335,7 @@ private:
         return row;
     }
 
-    // The check-all box over the list
+    // The changes list, with the check-all box over it
     [[nodiscard]] QWidget* buildChanges_(QWidget* parentStack)
     {
         changes_ = new QWidget(parentStack);
