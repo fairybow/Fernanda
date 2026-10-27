@@ -17,6 +17,7 @@
 
 #include <QAbstractItemView>
 #include <QCheckBox>
+#include <QFont>
 #include <QFontMetrics>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -36,6 +37,7 @@
 #include <QShowEvent>
 #include <QSignalBlocker>
 #include <QSizePolicy>
+#include <QStackedLayout>
 #include <QStackedWidget>
 #include <QString>
 #include <QStyle>
@@ -65,6 +67,10 @@ using namespace Qt::StringLiterals;
 // (GitChangeDelegate); and below them the commit box. The list covers the
 // whole repository, which may hold more than the vault. A renamed file is
 // listed at its new path.
+//
+// When git refuses to trust the repository (GitRepository::untrustedFolder),
+// a notice takes the page's place, worded as GitHub Desktop's, with its Trust
+// repository button (GitRepository::trust).
 //
 // It shows the repository's last status and follows statusChanged, and asks
 // for a new status each time it shows, since files may have changed while it
@@ -141,6 +147,12 @@ private:
     GitRepository* repository_;
     std::function<bool(const PathKey&)> canOpen_{};
 
+    // The page's content, or the trust notice in its place (updateTrust_)
+    QStackedLayout* pageStack_ = nullptr;
+    QWidget* content_ = nullptr;
+    QLabel* trustText_ = nullptr;
+    QPushButton* trustButton_ = nullptr;
+
     // The changes, or the line in their place
     QStackedWidget* stack_ = nullptr;
     QWidget* changes_ = nullptr;
@@ -168,18 +180,34 @@ private:
         message_->setWordWrap(true);
         message_->setForegroundRole(GIT_PAGE_MUTED_TEXT_ROLE);
 
-        stack_ = new QStackedWidget(this);
+        content_ = new QWidget(this);
+
+        stack_ = new QStackedWidget(content_);
         stack_->addWidget(buildChanges_(stack_));
         stack_->addWidget(message_);
 
-        auto* layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(0);
-        layout->addLayout(buildTopRow_());
-        layout->addWidget(stack_, 1);
-        layout->addWidget(buildCommitBox_(this));
+        auto* content_layout = new QVBoxLayout(content_);
+        content_layout->setContentsMargins(0, 0, 0, 0);
+        content_layout->setSpacing(0);
+        content_layout->addLayout(buildTopRow_());
+        content_layout->addWidget(stack_, 1);
+        content_layout->addWidget(buildCommitBox_(content_));
 
-        setFocusProxy(list_);
+        pageStack_ = new QStackedLayout(this);
+        pageStack_->addWidget(content_);
+        pageStack_->addWidget(buildTrust_(this));
+
+        connect(
+            repository_,
+            &GitRepository::foundChanged,
+            this,
+            &GitPage::updateTrust_);
+
+        connect(
+            repository_,
+            &GitRepository::trustFailed,
+            this,
+            &GitPage::onTrustFailed_);
 
         connect(
             repository_,
@@ -212,6 +240,79 @@ private:
             &GitPage::onDiscardFailed_);
 
         rebuild_();
+        updateTrust_();
+    }
+
+    // In the changes' place when git refuses to trust the repository, as
+    // GitHub Desktop words it, with its button
+    [[nodiscard]] QWidget* buildTrust_(QWidget* parentPage)
+    {
+        auto* trust = new QWidget(parentPage);
+
+        auto* title =
+            new QLabel(tr("This repository is potentially unsafe"), trust);
+        auto title_font = title->font();
+        title_font.setBold(true);
+        title->setFont(title_font);
+        title->setWordWrap(true);
+
+        trustText_ = new QLabel(trust);
+        trustText_->setWordWrap(true);
+        trustText_->setTextFormat(Qt::PlainText);
+
+        trustButton_ = new QPushButton(tr("Trust repository"), trust);
+
+        connect(trustButton_, &QPushButton::clicked, this, [this] {
+            trustButton_->setEnabled(false);
+            repository_->trust();
+        });
+
+        auto* layout = new QVBoxLayout(trust);
+        layout->setContentsMargins(
+            GIT_PAGE_TRUST_MARGIN,
+            GIT_PAGE_TRUST_MARGIN,
+            GIT_PAGE_TRUST_MARGIN,
+            GIT_PAGE_TRUST_MARGIN);
+        layout->setSpacing(GIT_PAGE_TRUST_SPACING);
+        layout->addWidget(title);
+        layout->addWidget(trustText_);
+        layout->addWidget(trustButton_, 0, Qt::AlignLeft);
+        layout->addStretch(1);
+
+        return trust;
+    }
+
+    // The trust notice while git refuses the repository, the changes
+    // otherwise, with the focus going to whichever shows
+    void updateTrust_()
+    {
+        auto folder = repository_->untrustedFolder();
+
+        if (folder.isEmpty()) {
+            pageStack_->setCurrentWidget(content_);
+            setFocusProxy(list_);
+            return;
+        }
+
+        trustText_->setText(
+            tr("The Git repository at %1 appears to be owned by another user "
+               "on your computer. A repository's own settings can run "
+               "programs, so Git won't work in it until you trust it. Trust "
+               "it only if you trust its owner. Trusting it adds the folder "
+               "to safe.directory in your own Git settings.")
+                .arg(folder));
+        trustButton_->setEnabled(true);
+        pageStack_->setCurrentIndex(1);
+        setFocusProxy(trustButton_);
+    }
+
+    // Shown without exec: the window may close while it's up
+    void onTrustFailed_(const QString& error)
+    {
+        showFailure_(
+            tr("Trust failed"),
+            tr("The repository wasn't trusted."),
+            error);
     }
 
     // The branch button, taking the width, and the sync button at its right

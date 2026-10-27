@@ -281,6 +281,12 @@ inline constexpr int GIT_PAGE_COMMIT_MARGIN = 4;
 inline constexpr int GIT_PAGE_COMMIT_SPACING = 6;
 inline constexpr int GIT_PAGE_DESCRIPTION_LINES = 3;
 
+// The notice in the Git page's place when Git refuses to trust the repository:
+// TRUST_MARGIN from the page's edges, with TRUST_SPACING between its title, its
+// text, and its button
+inline constexpr int GIT_PAGE_TRUST_MARGIN = 12;
+inline constexpr int GIT_PAGE_TRUST_SPACING = 8;
+
 // The row at the top of the Git page: the branch button (GitBranchButton),
 // taking the width, and the sync button (GitSyncButton) at its right, both
 // VAULT_SWITCHER_HEIGHT tall. The margins keep their washes off the sidebar's

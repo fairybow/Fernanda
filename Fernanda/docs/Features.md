@@ -222,6 +222,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - Ctrl+Shift+G, or View → Git, switches between the two
 - The rest of the window works as usual while the Git page shows
 - The repository is the one the vault's folder is in, found as Git finds it, by looking upward. It may hold more than the vault (other vaults, or files Fernanda doesn't open), and the Git page shows every change in it
+- Git refuses to work in a repository owned by another user on your computer, as one on a USB drive formatted exFAT, a network share, or WSL often is. The Git page then says so, as GitHub Desktop does, with a **Trust repository** button, which adds the folder to `safe.directory` in your own Git settings. Trust it only if you trust its owner: a repository's own settings can run programs
 - Show Git, in Settings → Git, turns it off for a vault. It starts on
 - The Git page reads the repository again each time it shows, whenever the window comes forward, and when a file in the repository is saved, renamed, moved, or trashed in Fernanda while the Git page or a diff shows
 

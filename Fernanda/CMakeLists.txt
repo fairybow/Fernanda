@@ -186,6 +186,7 @@ set(APP_HEADERS
     src/core/git/GitRefName.h
     src/core/git/GitRemote.h
     src/core/git/GitRepository.h
+    src/core/git/GitSafeDirectory.h
     src/core/git/GitStatus.h
 
     src/core/spell/Misspelling.h

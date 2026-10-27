@@ -53,6 +53,7 @@ namespace Fernanda::Ui {
 //        Drawer         — the Common Vault, collapsible  [splitter pane]
 //      GitPage          — the repository's changes, while the vault's Git
 //                         setting is on and the vault is in a repository
+//                         (or one git refuses to trust, which it offers to)
 //   2. VaultSwitcher    — other vaults + Manage Vaults   [fixed bar]
 //      FocusTimerButton — the window's focus timer, while it's switched on
 //      SettingsButton   — this vault's settings, at the bar's right
@@ -293,10 +294,13 @@ private:
         updateGitPage_();
     }
 
+    // A repository git refuses to trust gets the page too, which offers to
+    // trust it, as GitHub Desktop does
     void updateGitPage_()
     {
-        auto available =
-            vault_->config().gitEnabled() && gitRepository_->isFound();
+        auto available = vault_->config().gitEnabled() &&
+                         (gitRepository_->isFound() ||
+                          !gitRepository_->untrustedFolder().isEmpty());
 
         if (available && !pages_->hasPage(gitPage_)) {
             pages_->addPage(

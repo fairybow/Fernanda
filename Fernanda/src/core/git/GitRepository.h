@@ -43,6 +43,7 @@
 #include "core/PathKey.h"
 #include "core/Vault.h"
 #include "core/git/GitDiff.h"
+#include "core/git/GitSafeDirectory.h"
 #include "core/git/GitStatus.h"
 
 namespace Fernanda {
@@ -160,6 +161,13 @@ public:
 
     // The repository's folder. Empty when none was found
     [[nodiscard]] Coco::Path root() const noexcept { return root_; }
+
+    // The folder of a repository git found but refuses to trust, as the
+    // last detection saw it: owned by another user on the computer, as one
+    // on an exFAT drive or a network share often is (GitSafeDirectory).
+    // Spelled as git wants it added to safe.directory. Empty otherwise, and
+    // whenever a repository is found
+    [[nodiscard]] QString untrustedFolder() const { return untrusted_; }
 
     // The last status read. Empty until the first refresh, and again when
     // the repository is lost
@@ -734,19 +742,42 @@ public:
         enqueue_(std::move(command));
     }
 
+    // Trust the folder git refused (untrustedFolder), as GitHub Desktop's
+    // Trust repository does: add it to safe.directory in the user's own Git
+    // config (config --global), then look for the repository again. The only
+    // command here that writes outside the repository, so it runs only when
+    // asked. trustFailed answers a failure
+    void trust()
+    {
+        if (!hasGit_() || untrusted_.isEmpty() || isQueued_(Kind_::Trust)) {
+            return;
+        }
+
+        enqueue_(
+            Kind_::Trust,
+            vault_->root(),
+            { u"config"_s,
+              u"--global"_s,
+              u"--add"_s,
+              u"safe.directory"_s,
+              untrusted_ });
+    }
+
     // Drop what's known: the repository, its status, and every command not
     // yet answered. A command already running finishes, and its answer is
-    // ignored. foundChanged says so when a repository had been found
+    // ignored. foundChanged says so when a repository had been found, or
+    // refused
     void forget()
     {
         queue_.clear();
         ++generation_;
         setOperation_(Operation_::None);
 
-        if (root_.isEmpty()) {
+        if (root_.isEmpty() && untrusted_.isEmpty()) {
             return;
         }
 
+        untrusted_ = {};
         root_ = {};
         status_ = {};
         remotes_ = {};
@@ -760,7 +791,8 @@ public:
 
 signals:
     // The vault's folder was found to be in a repository, in none, or in a
-    // different one. The status is empty after
+    // different one, or in one git refuses to trust (untrustedFolder). The
+    // status is empty after
     void foundChanged();
 
     void statusChanged();
@@ -809,6 +841,9 @@ signals:
     // own words
     void syncFailed(const QString& error);
 
+    // trust couldn't add the folder to the user's Git config. error is git's
+    void trustFailed(const QString& error);
+
 private:
     // The folder, in Fernanda's data folder, that a discarded file's copy is
     // made in on its way to the trash (trashCopyOf_)
@@ -824,6 +859,7 @@ private:
         Branches,
         Remotes,
         GitPath,
+        Trust,
         Step
     };
 
@@ -901,6 +937,7 @@ private:
     [[nodiscard]] bool hasGit_() const noexcept { return !program_.isEmpty(); }
 
     Coco::Path root_{};
+    QString untrusted_{};
     GitStatus::Status status_{};
 
     QList<Command_> queue_{};
@@ -1229,12 +1266,16 @@ private:
         case Kind_::GitPath:
             onGitPathRead_(command, result);
             break;
+        case Kind_::Trust:
+            onTrusted_(result);
+            break;
         }
     }
 
     void onDetected_(const Command_& command, const Result_& result)
     {
         Coco::Path found{};
+        QString untrusted{};
 
         // Empty output means the vault's folder is the repository's. The
         // key removes the ".." steps
@@ -1244,12 +1285,15 @@ private:
         } else {
             // Most often the folder simply isn't in a repository
             DEBUG("No Git repository for {}: {}", command.folder, result.error);
+            untrusted = GitSafeDirectory::folderOf(result.error);
         }
 
-        if (PathKey::of(found) == PathKey::of(root_)) {
+        if (PathKey::of(found) == PathKey::of(root_) &&
+            untrusted == untrusted_) {
             return;
         }
 
+        untrusted_ = untrusted;
         root_ = found;
         status_ = {};
 
@@ -1257,7 +1301,12 @@ private:
         remoteDefaults_ = {};
         fetchHead_ = {};
 
-        if (root_.isEmpty()) {
+        if (!untrusted_.isEmpty()) {
+            INFO(
+                "Git doesn't trust {}, which holds {}",
+                untrusted_,
+                command.folder);
+        } else if (root_.isEmpty()) {
             INFO("No Git repository for {}", command.folder);
         } else {
             INFO("Git repository for {}: {}", command.folder, root_);
@@ -1272,6 +1321,19 @@ private:
         emit foundChanged();
         emit statusChanged();
         emit remotesChanged();
+    }
+
+    // The folder is in the user's Git config now, or git said why not.
+    // Detection runs again either way, and finds the repository once git
+    // trusts it
+    void onTrusted_(const Result_& result)
+    {
+        if (!result.succeeded) {
+            WARN("Git couldn't trust {}: {}", untrusted_, result.error);
+            emit trustFailed(result.error);
+        }
+
+        detect();
     }
 
     // A status read on its own, or as the first step of a switch
