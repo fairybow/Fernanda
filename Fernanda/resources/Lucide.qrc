@@ -15,7 +15,9 @@
         <file>lucide/CloudUpload.svg</file>
         <file>lucide/Coffee.svg</file>
         <file>lucide/File.svg</file>
+        <file>lucide/FileDiff.svg</file>
         <file>lucide/Folder.svg</file>
+        <file>lucide/FolderGit2.svg</file>
         <file>lucide/FolderOpen.svg</file>
         <file>lucide/GitBranch.svg</file>
         <file>lucide/ListTree.svg</file>
