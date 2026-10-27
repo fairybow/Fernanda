@@ -107,9 +107,67 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
 - [ ] Add the Git page to `CHANGELOG.md`
-- [ ] Before the first release with Git, try every Git page action on Windows and macOS against a real GitHub remote, signing in through Git's credential manager: commit, discard (and restore the copy from the trash), switch, new branch, a remote branch, publish, push, fetch, pull with changes to other files, a pull refused for touching a changed file, and Create pull request. Also a machine with no Git installed, where the Git page shouldn't show
+- [ ] The Git hand pass, below, on Windows and macOS. Use a scratch repository on GitHub, so pushes and pulls are real, and a vault inside it with a few files
 - [x] Need the remaining Edit menu and text editor context menu options (cut, copy, paste, select all, delete)
 - [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
+
+### The Git hand pass
+
+Run it once on each platform: on Windows signing in through Git Credential Manager over HTTPS, on macOS however Git is set up there. Each item is what should happen.
+
+**Setup**
+
+- [ ] A machine without Git: no Git page, no Files and Git buttons, and View → Git disabled
+- [ ] An SSH remote with an agent running: fetch, pull, and push work
+- [ ] An SSH remote whose key has a passphrase, with no agent, Fernanda started from a terminal (macOS): a sync fails at once with SSH's error rather than hanging
+- [ ] Show Git off in Settings: the buttons go, and Git isn't run for the vault. On again: they come back
+
+**Changes and diffs**
+
+- [ ] A new, a modified, a deleted, and a renamed (`git mv`) file each show the right mark and folder
+- [ ] Each one's diff is right, with changed words marked, and a file without a final line break says so
+- [ ] A diff split beside its file updates as you type, keeping its place
+- [ ] Saving, renaming, moving, and trashing from the file tree update the list while the Git page shows
+- [ ] A folder holding its own repository (`git init` inside the vault) isn't listed
+- [ ] Open file, Open in new tab, Open to the right, and Open in new window each land where expected
+
+**Commits**
+
+- [ ] Only checked files are committed; an unchecked one stays unchecked across new statuses
+- [ ] A file staged from a terminal and left unchecked stays staged and out of the commit
+- [ ] The summary is required, the description is optional, and Ctrl+Enter commits from anywhere in the box
+- [ ] A commit hook that fails shows its words, and nothing is committed
+
+**Discarding**
+
+- [ ] Discard a modified, a new, a renamed, and a deleted file. Each question says what will happen, and it does
+- [ ] Each copy can be restored from the system trash
+- [ ] With the discarded file open in a tab, Ctrl+Z there brings the changes back
+
+**Branches**
+
+- [ ] New branch, with a name that needs fixing (spaces, a colon): the note shows the fixed name, and the branch is made and switched to with the changes along
+- [ ] Switch with no changes; switch with a tracked change, which is refused
+- [ ] Type in a file and switch at once to a branch where that file differs: refused, and the text kept
+- [ ] Switch to a remote branch: a local branch tracking it is made
+- [ ] Create pull request opens GitHub's page for this branch, and isn't offered on the default branch
+
+**Syncing**
+
+- [ ] Publish a new branch, then push a commit
+- [ ] Commit on GitHub, then fetch: the counts and the tooltip's "Last fetched" follow
+- [ ] Pull with a change in another file: the commit comes in, and the change stays
+- [ ] Pull with a change in the file the commit changes: refused, naming the file, with the text kept
+- [ ] Click Pull and type at once in the file the commit changes: refused before it rewrites the file, with the text kept
+- [ ] Commit on both GitHub and here, then pull: refused with the merging message
+- [ ] Close the window during a push or a pull: it closes, and the repository works next time (no `index.lock` left)
+
+**Elsewhere**
+
+- [ ] A vault inside a repository that holds other vaults: every change is listed, and Open file is offered only for this window's files
+- [ ] A repository on a USB drive formatted exFAT (or owned by another user): the trust notice shows, and Trust repository brings up the changes
+- [ ] Two windows over one repository: committing in one shows in the other when it comes forward
+- [ ] Light and dark mode, an inactive window, and 125% and 150% scaling: marks, checkboxes, and washes look right
 
 ## Code
 
