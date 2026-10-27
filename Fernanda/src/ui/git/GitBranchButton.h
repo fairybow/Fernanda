@@ -62,7 +62,7 @@ class GitBranchButton : public MenuButton
 
 public:
     GitBranchButton(GitRepository* repository, QWidget* parentGitPage)
-        : MenuButton(QString::fromLatin1(SIDEBAR_GIT_ICON_PATH), parentGitPage)
+        : MenuButton(QString::fromLatin1(ICON_PATH_), parentGitPage)
         , repository_(repository)
     {
         setup_();
@@ -78,6 +78,8 @@ protected:
     }
 
 private:
+    static constexpr auto ICON_PATH_ = ":/lucide/GitBranch.svg";
+
     GitRepository* repository_;
     QMenu* menu_ = new QMenu(this);
 

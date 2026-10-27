@@ -37,7 +37,7 @@ namespace Fernanda::Ui {
 // sidebar's Git page. It's its own kind of page, not a file view: a diff is
 // read from git and never edited, and the file it's of keeps its one buffer
 // in the store, which its own tabs show. Its tab carries the file's name and
-// the Git mark (GIT_DIFF_PAGE_ICON_PATH), so it isn't taken for the file.
+// a diff mark (GIT_DIFF_PAGE_ICON_PATH), so it isn't taken for the file.
 // Like a file's, it opens over the active tab unless that one is pinned, and
 // can be pinned, split, or moved to a pop-out. It isn't saved with the
 // workspace.

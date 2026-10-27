@@ -241,19 +241,22 @@ inline constexpr int SIDEBAR_FOOTER_BOTTOM_MARGIN = 0;
 // square, the footer's buttons' size, with its glyph ICON_EXTENT square. A
 // button's glyph is in ICON_ROLE, muted, and the active page's in
 // ACTIVE_ICON_ROLE, the text's own color, over the selected-row shade
-// (Style::selectedWash). The margins keep the washes off the sidebar's edges
-// and the page below, as the footer's do
+// (Style::selectedWash). The buttons are SPACING apart. The margins keep the
+// washes off the sidebar's edges and the page below, as the footer's do. Files
+// is FILES_ICON_PATH and Git is GIT_ICON_PATH, a folder with Git's mark, set
+// apart from the branch glyph the Git page's branch button shows
 inline constexpr int SIDEBAR_PAGE_BUTTON_EXTENT = SETTINGS_BUTTON_EXTENT;
 inline constexpr int SIDEBAR_PAGE_BUTTON_ICON_EXTENT = 16;
 inline constexpr auto SIDEBAR_PAGE_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto SIDEBAR_PAGE_BUTTON_ACTIVE_ICON_ROLE =
     QPalette::ButtonText;
+inline constexpr int SIDEBAR_PAGE_BUTTON_SPACING = 2;
 inline constexpr int SIDEBAR_PAGES_LEFT_MARGIN = 4;
 inline constexpr int SIDEBAR_PAGES_TOP_MARGIN = 4;
 inline constexpr int SIDEBAR_PAGES_RIGHT_MARGIN = 4;
 inline constexpr int SIDEBAR_PAGES_BOTTOM_MARGIN = 4;
 inline constexpr auto SIDEBAR_FILES_ICON_PATH = ":/lucide/ListTree.svg";
-inline constexpr auto SIDEBAR_GIT_ICON_PATH = ":/lucide/GitBranch.svg";
+inline constexpr auto SIDEBAR_GIT_ICON_PATH = ":/lucide/FolderGit2.svg";
 
 // The sidebar's Git page (GitPage): the list of changed files, and
 // MUTED_TEXT_ROLE for the line shown in its place when there are none. Each
@@ -323,7 +326,7 @@ inline constexpr auto GIT_NEW_BRANCH_NOTE_ROLE = QPalette::PlaceholderText;
 // numbers, which are GUTTER_SPACING apart, and TEXT_PADDING more on its right,
 // between the numbers and the text. MUTED_TEXT_ROLE is the pen of the line
 // shown in the diff's place when there's none to show
-inline constexpr auto GIT_DIFF_PAGE_ICON_PATH = ":/lucide/GitBranch.svg";
+inline constexpr auto GIT_DIFF_PAGE_ICON_PATH = ":/lucide/FileDiff.svg";
 inline constexpr auto GIT_DIFF_ADDED_BACKGROUND = QColor(46, 160, 67, 56);
 inline constexpr auto GIT_DIFF_REMOVED_BACKGROUND = QColor(248, 81, 73, 56);
 inline constexpr auto GIT_DIFF_ADDED_WORD_BACKGROUND = QColor(46, 160, 67, 110);

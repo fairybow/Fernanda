@@ -194,7 +194,7 @@ private:
             SIDEBAR_PAGES_TOP_MARGIN,
             SIDEBAR_PAGES_RIGHT_MARGIN,
             SIDEBAR_PAGES_BOTTOM_MARGIN);
-        rowLayout_->setSpacing(0);
+        rowLayout_->setSpacing(SIDEBAR_PAGE_BUTTON_SPACING);
         rowLayout_->addStretch(1);
 
         stack_ = new QStackedWidget(this);
