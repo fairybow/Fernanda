@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fernanda: a plain-text writing app for fiction, poetry, and long projects</title>
+    <meta name="description" content="Fernanda is a free, open-source writing app for fiction, poetry, and long projects. Obsidian-style vaults, and your files stay plain text, on disk. For Windows, macOS, and Linux.">
+    <meta name="color-scheme" content="dark light">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Fernanda">
+    <meta property="og:description" content="A plain-text writing app for fiction, poetry, and long projects, with Obsidian-style vaults.">
+    <meta property="og:url" content="https://fairybow.github.io/Fernanda/">
+    <meta property="og:image" content="https://fairybow.github.io/Fernanda/assets/banner.jpg">
+    <meta property="og:image:width" content="1280">
+    <meta property="og:image:height" content="640">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/icon-64.png">
+    <link rel="apple-touch-icon" href="assets/icon-256.png">
+    <link rel="preload" href="assets/fonts/Literata.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+        <nav class="nav" aria-label="Main">
+            <a class="nav-brand" href="#top">
+                <img src="assets/icon-64.png" alt="" width="28" height="28">
+                <span>Fernanda</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#obsidian">Coming from Obsidian</a></li>
+                <li><a href="#download">Download</a></li>
+                <li><a href="https://github.com/fairybow/Fernanda">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="main">
+        <section class="hero" id="top">
+            <img class="hero-icon" src="assets/icon-256.png" alt="" width="128" height="128">
+            <h1>Fernanda</h1>
+            <p class="hero-tagline">A plain-text writing app for fiction, poetry, and long projects</p>
+            <p class="hero-sub">Obsidian-style vaults. Your files stay plain text, on disk.</p>
+            <div class="hero-actions">
+                <a class="button button-primary" href="https://github.com/fairybow/Fernanda/releases/latest">Download</a>
+                <a class="button button-secondary" href="https://github.com/fairybow/Fernanda">View on GitHub</a>
+            </div>
+            <p class="hero-meta">Free and open source &middot; Windows, macOS, and Linux</p>
+        </section>
+
+        <figure class="screenshot">
+            <picture>
+                <source srcset="assets/screenshot-dark.png" media="(prefers-color-scheme: dark)">
+                <img src="assets/screenshot-light.png" alt="Fernanda's window: a file tree of chapters and notes on the left, and the first chapter of Candide open in a tab on the right" width="1325" height="977">
+            </picture>
+        </figure>
+
+        <section class="intro prose">
+            <p>I'm a writer, and Fernanda is the writing app I've wanted for myself.</p>
+            <p>Its design is based on <a href="https://obsidian.md/">Obsidian</a>, where a vault is just a folder on your computer. But Fernanda is meant for writing projects (novels, poetry, collections), and everything you write stays in plain-text files you own and can open in any editor.</p>
+        </section>
+
+        <section class="section" id="features">
+            <h2 class="section-title">Built around your files</h2>
+            <div class="highlights">
+                <article class="highlight">
+                    <h3>A vault is a folder</h3>
+                    <p>Open any folder as a vault. Fernanda adds one hidden folder for its settings and leaves the rest alone, so your chapters stay ordinary files that any other program can open.</p>
+                </article>
+                <article class="highlight">
+                    <h3>Nothing to save</h3>
+                    <p>There's no Save command and no unsaved state. Every file exists on disk from the moment it's created, and changes are written as you type. If a save ever fails, the window won't close until it's dealt with.</p>
+                </article>
+                <article class="highlight">
+                    <h3>Written back exactly as it was read</h3>
+                    <p>Line endings, byte order marks, no-break spaces, and other special characters are kept as they were. Open a manuscript, fix a typo, and the only change on disk is the typo.</p>
+                </article>
+                <article class="highlight">
+                    <h3>A Common Vault for every project</h3>
+                    <p>Templates, notes, and research you want in reach whatever you're working on live in one shared vault, shown in a drawer under each project's own files. Open the same note in two windows and it stays in sync as you type.</p>
+                </article>
+                <article class="highlight">
+                    <h3>Git, built in</h3>
+                    <p>For a vault in a Git repository: see what's changed, with each changed word marked, then commit, discard, switch and make branches, and sync, much as GitHub Desktop does. It uses the Git on your computer, and reaches the remote only when you click.</p>
+                </article>
+                <article class="highlight">
+                    <h3>Works alongside everything else</h3>
+                    <p>Edit a file in another program, pull it with Git, or let a sync client update it, and it reloads in place as a single undo step. Many files changing at once are handled together.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">And the everyday things</h2>
+            <ul class="feature-list">
+                <li><strong>Tabs, split panes, and pop-out windows.</strong> The same file can be open in any number of them, in sync, with one undo history.</li>
+                <li><strong>Go to File</strong> (Ctrl+O) and a file tree with drag-and-drop moves and delete-to-trash.</li>
+                <li><strong>Find and replace,</strong> with match case and whole word.</li>
+                <li><strong>Spellcheck as you write,</strong> with suggestions and a dictionary of your own words for each vault. US English is bundled, and other Hunspell dictionaries can be added.</li>
+                <li><strong>A focus timer</strong> for writing in focus periods, with a short break after each and a longer one after several.</li>
+                <li><strong>PDFs and images</strong> open read-only beside your text.</li>
+                <li><strong>Typing helpers</strong> that pair brackets and quotes, and let you step past a closing one with a second space.</li>
+                <li><strong>A word counter,</strong> bundled fonts for prose, and settings kept per vault.</li>
+                <li><strong>English and Spanish,</strong> with Spanish still a draft.</li>
+            </ul>
+            <p class="section-note">The full list is in <a href="https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md">Features.md</a>, and what's planned is in <a href="https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Future.md">Future.md</a>.</p>
+        </section>
+
+        <section class="section" id="obsidian">
+            <h2 class="section-title">Coming from Obsidian?</h2>
+            <p class="section-lead">Vaults, tabs, splits, Go to File, and the settings will feel familiar. Where Fernanda differs, it's mostly because it's built for long-form prose in plain text.</p>
+            <ul class="compare-list">
+                <li><strong><code>.txt</code> is a first-class file type</strong> and the default for new files. Obsidian doesn't open <code>.txt</code> at all.</li>
+                <li><strong>Vaults can share files.</strong> Every window shows the Common Vault under its own files. In Obsidian, that takes the symlinks its help advises against.</li>
+                <li><strong>Your files come back exactly as they went in.</strong> Obsidian rewrites line endings to LF.</li>
+                <li><strong>A failed save stops the window from closing.</strong> Obsidian shows a notice and closes.</li>
+                <li><strong>Bold and italic for the text font,</strong> since there's no Markdown styling to carry emphasis, and a margin setting in place of "Readable line length."</li>
+                <li><strong>Git is built in.</strong> In Obsidian, it takes the community plugin Obsidian Git.</li>
+            </ul>
+            <p class="section-note">There's more in <a href="https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md#differences-from-obsidian">Differences from Obsidian</a>.</p>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Native, private, and free</h2>
+            <div class="pillars">
+                <article class="pillar">
+                    <h3>A native app</h3>
+                    <p>Built in C++ with Qt, not Electron: a desktop program, not a web page in a window.</p>
+                </article>
+                <article class="pillar">
+                    <h3>Your writing stays with you</h3>
+                    <p>Fernanda never sends your writing anywhere on its own. The only thing it sends unasked is an update check to GitHub, which you can turn off. The <a href="https://github.com/fairybow/Fernanda/blob/main/PRIVACY.md">privacy statement</a> has the details.</p>
+                </article>
+                <article class="pillar">
+                    <h3>Free and open source</h3>
+                    <p>Under the GPL 3. The code, the docs, and the plans are all on <a href="https://github.com/fairybow/Fernanda">GitHub</a>.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section download" id="download">
+            <h2 class="section-title">Download</h2>
+            <p class="section-lead">Get the latest build for Windows, macOS, or Linux. Each release's notes cover installing, updating, and uninstalling, and Fernanda tells you when a newer version is out.</p>
+            <div class="hero-actions">
+                <a class="button button-primary" href="https://github.com/fairybow/Fernanda/releases/latest">Get the latest release</a>
+                <a class="button button-secondary" href="https://github.com/fairybow/Fernanda#building">Build from source</a>
+            </div>
+            <div class="notice" role="note">
+                <p><strong>Fernanda hasn't reached 1.0 yet.</strong> Keep regular backups of your work.</p>
+                <p>The builds are unsigned, so Windows and macOS will warn you the first time you run one. The macOS and Linux builds aren't well tested yet. Fernanda edits plain text: Markdown and Fountain files open as the text they are, with no rendering for now, and there are no links, tags, or metadata.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>I enjoy working on Fernanda, and I'm genuinely grateful for any support. You can give on <a href="https://ko-fi.com/fairybow">Ko-fi</a> or <a href="https://buymeacoffee.com/fairybow">Buy Me a Coffee</a>.</p>
+        <p>Please also consider donating to <a href="https://u24.gov.ua/">United24</a> to help defend Ukraine.</p>
+        <p class="footer-fine">Fernanda is an independent project and isn't affiliated with or endorsed by Obsidian. &middot; <a href="https://github.com/fairybow/Fernanda/blob/main/LICENSE">License</a> &middot; <a href="https://github.com/fairybow/Fernanda/blob/main/PRIVACY.md">Privacy</a> &middot; <a href="https://github.com/fairybow/Fernanda/blob/main/CHANGELOG.md">Changelog</a></p>
+    </footer>
+</body>
+</html>

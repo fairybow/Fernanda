@@ -4,7 +4,7 @@
 #
 # Builds the app and its tests, then runs the tests. Triggered by a push to any
 # branch, by a pull request, and by hand (Actions tab, "Run workflow"). A
-# change to nothing but docs doesn't trigger it.
+# change to nothing but docs or the website doesn't trigger it.
 #
 # Jobs:
 #   linux  -> ubuntu-22.04, gcc-13, with AddressSanitizer and
@@ -43,12 +43,16 @@ on:
       - 'LICENSE'
       - '.github/FUNDING.yml'
       - 'Fernanda/resources/social/**'
+      - 'pages/**'
+      - '.github/workflows/pages.yml'
   pull_request:
     paths-ignore:
       - '**.md'
       - 'LICENSE'
       - '.github/FUNDING.yml'
       - 'Fernanda/resources/social/**'
+      - 'pages/**'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 # A newer push to the same branch replaces a run still in progress

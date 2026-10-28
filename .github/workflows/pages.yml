@@ -1,0 +1,56 @@
+# =============================================================================
+# Fernanda: Pages
+# =============================================================================
+#
+# Publishes the website in pages/ to GitHub Pages. Triggered by a push to main
+# that changes pages/ or this file, and by hand (Actions tab, "Run workflow").
+#
+# The site is pages/ as it stands: plain HTML and CSS, with no build step.
+# Without a custom domain it is served at https://fairybow.github.io/Fernanda/.
+# A pages/CNAME file holding the domain, plus the DNS record GitHub asks for,
+# moves it there.
+#
+# Needs Settings -> Pages -> Source set to "GitHub Actions" (once).
+#
+# Path assumptions (from repo root):
+#   (.github/workflows/pages.yml)
+#   pages/                           (the site, served as-is)
+
+name: Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'pages/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A newer push waits for a deployment in progress rather than cancelling it
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: pages
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
