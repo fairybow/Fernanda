@@ -206,6 +206,7 @@ code {
     font-size: clamp(2.75rem, 7vw, 4.25rem);
     margin: 0;
     letter-spacing: -0.01em;
+    font-weight: 500;
 }
 
 .hero-tagline {
