@@ -32,6 +32,7 @@ Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80
 
 - Types are `PascalCase`. Functions and members are `camelCase`. Local variables are `snake_case`. Constants are `UPPER_SNAKE_CASE`.
 - Descriptive beats short: `lastUsedEpochMs`, not `ts`.
+- **A function's name says all it does, in words that read plainly.** A name that can't do both is usually two functions in one: split it. So is a function whose outcome can't be summed up in a few words. A function that may do nothing says so with `maybe`: `maybeShowBetaAlert_` returns at once on a stable build, or when the user has muted this version's warning.
 - **Private members end with an underscore. Protected and public members don't.** This includes the members of a private nested struct or class when they are themselves private; a public member of a private struct has no underscore.
 - Anything private in spirit ends with an underscore too, such as a type in an `Internal` namespace that is technically reachable.
 - A helper type used only inside one header goes in that header's `Internal` namespace, with an underscore.
