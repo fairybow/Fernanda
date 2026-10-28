@@ -137,7 +137,7 @@ See [Features.md](https://github.com/fairybow/Fernanda/blob/v0.12.0-beta.0/Ferna
 - Fernanda has a [privacy statement](https://github.com/fairybow/Fernanda/blob/main/PRIVACY.md). In short: your writing never leaves your computer (aside from going to a repo, if you're using Git), and the only thing Fernanda sends on its own is the daily update check
 - The Windows installer now shows the privacy statement and asks whether to check for updates automatically
 
-**Finally,**
+**Beta alert**
 
 - Each beta now opens with a reminder not to trust your writing entirely to a beta version, and to keep backups. "Don't show this again for this version" silences it until the next release
 
