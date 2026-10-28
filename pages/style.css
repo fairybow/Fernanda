@@ -207,6 +207,7 @@ code {
     margin: 0;
     letter-spacing: -0.01em;
     font-weight: 500;
+    font-variation-settings: "opsz" 12;
 }
 
 .hero-tagline {
