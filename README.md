@@ -53,6 +53,8 @@ Fernanda is early in development, and more features are planned. I expect to kee
 - **Find and replace** in a file, with match case and whole word
 - **Spellcheck** as you write, with suggestions and a dictionary of your own words for each vault. US English is bundled, and other Hunspell dictionaries can be added
 - **Changes made elsewhere are picked up.** A file edited in another program, by Git, or by a sync client reloads in place, as one undo step
+- **Git, built in,** for a vault in a Git repository: see what's changed, with each changed word marked, then commit, discard, switch and make branches, and sync with the remote, as GitHub Desktop does. It uses the Git on your computer, and reaches the remote only when you click
+- **A focus timer** for writing in focus periods, with a short break after each and a longer one after several
 - **PDFs and images** open read-only beside your text
 - **Typing helpers** that pair brackets and quotes, and let you step past a closing one with a second space
 - **A word counter**, bundled fonts for prose, and settings kept per vault
@@ -73,6 +75,7 @@ Fernanda works the way Obsidian does wherever it can, so vaults, tabs, splits, G
 - **Bold and italic for the text font,** since there's no Markdown styling to carry emphasis, and **a margin setting** in place of "Readable line length," with a switch to turn wrapping off
 - **Find has Match case and Whole word,** and its highlights stay while you edit
 - **Go to File lists every file** with nothing typed, the recent ones first
+- **Git is built in,** working as GitHub Desktop does: what's changed and its diffs in the sidebar and tabs, commits, branches, and syncing. In Obsidian, Git takes the community plugin Obsidian Git
 - **Stepping past closing punctuation:** a second space before a closing bracket or quote moves past it, and the comma or period after goes before the space
 - **Images zoom** like PDFs, and TIFF images open
 - **Free and open source** under the GPL, and a native desktop app built with Qt, not Electron
@@ -87,7 +90,7 @@ The builds are unsigned, so Windows and macOS will warn you the first time you r
 
 ## Privacy
 
-Fernanda never sends your writing anywhere. The only thing it sends on its own is the update check, a request to GitHub for the list of releases. The [privacy statement](PRIVACY.md) has the details.
+Fernanda never sends your writing anywhere on its own. The only thing it sends unasked is the update check, a request to GitHub for the list of releases. If you use the Git page, your commits go to your repository's remote, and only when you click its sync button. The [privacy statement](PRIVACY.md) has the details.
 
 ## Building
 
