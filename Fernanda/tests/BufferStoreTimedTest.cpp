@@ -300,6 +300,59 @@ private slots:
         QCOMPARE(model->data(), QByteArray("one\nunsaved"));
     }
 
+    // While writes are held, typing isn't saved over a file another program
+    // rewrites. The autosave is quicker than the store's wait before it
+    // handles file changes, so unheld it would write the old text back first.
+    // Released, the buffer holds the other program's text, one undo from the
+    // typing
+    void heldWritesLeaveAnOutsideChangeInPlace()
+    {
+        Fixture_ f{};
+        f.replace(u"a.txt"_s, "one\n");
+        f.store.setAutosaveTiming(100, NEVER_MS_);
+
+        auto* model = f.open(u"a.txt"_s);
+        QVERIFY(model);
+
+        auto folder = PathKey::of(f.root);
+        f.store.holdWritesAtOrUnder(folder);
+        type_(model, u"typed"_s);
+        f.overwrite(u"a.txt"_s, "two\n");
+
+        QTest::qWait(SETTLE_MS_);
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("two\n"));
+
+        f.store.releaseWritesAtOrUnder(folder);
+        QCOMPARE(model->data(), QByteArray("two\n"));
+        QTest::qWait(SETTLE_MS_);
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("two\n"));
+
+        model->undo();
+        QCOMPARE(model->data(), QByteArray("one\ntyped"));
+    }
+
+    // Typing made while writes are held, with nothing changing the file, is
+    // saved once they're released
+    void typingWhileHeldIsSavedOnRelease()
+    {
+        Fixture_ f{};
+        f.replace(u"a.txt"_s, "one\n");
+        f.store.setAutosaveTiming(100, NEVER_MS_);
+
+        auto* model = f.open(u"a.txt"_s);
+        QVERIFY(model);
+
+        auto folder = PathKey::of(f.root);
+        f.store.holdWritesAtOrUnder(folder);
+        type_(model, u"typed"_s);
+
+        QTest::qWait(SETTLE_MS_);
+        QCOMPARE(f.read(u"a.txt"_s), QByteArray("one\n"));
+
+        f.store.releaseWritesAtOrUnder(folder);
+        QTRY_COMPARE(f.read(u"a.txt"_s), QByteArray("one\ntyped"));
+    }
+
     // A change that leaves the file holding what the buffer already holds is
     // not a reload
     void anOutsideChangeToTheSameBytesIsIgnored()

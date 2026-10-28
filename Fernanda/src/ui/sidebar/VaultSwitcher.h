@@ -16,22 +16,13 @@
 #include <utility>
 
 #include <QAction>
-#include <QFontMetrics>
-#include <QIcon>
 #include <QList>
 #include <QMenu>
-#include <QPaintEvent>
-#include <QPalette>
-#include <QRect>
 #include <QSizePolicy>
 #include <QString>
-#include <QStyle>
-#include <QStyleOptionToolButton>
-#include <QStylePainter>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <QtMinMax>
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
@@ -39,122 +30,11 @@
 #include "core/PathKey.h"
 #include "core/VaultEntry.h"
 #include "ui/UiConstants.h"
-#include "ui/widgets/Glyph.h"
+#include "ui/widgets/MenuButton.h"
 
 namespace Fernanda::Ui {
 
-namespace Internal {
-
-// The switcher's button: a QToolButton that paints Lucide ChevronsUpDown, then
-// the vault name left-aligned after it (Obsidian's Vault profile layout), in
-// place of the style's label and menu indicator.
-//
-// The style draws only the frame. paintEvent builds the option exactly as
-// QToolButton's own does, clears HasMenu (the style draws its bottom-right
-// indicator whenever the option carries it, and nothing short of QSS turns it
-// off), and empties the label, so CC_ToolButton paints the panel's hover,
-// press, and sunken-while-open states and nothing else. The glyph and name
-// are painted here, from the VAULT_SWITCHER_* knobs in UiConstants.h. The
-// style's label couldn't be kept: Qt 6.11's Windows 11 style centers the text
-// beside an icon where 6.10 left-aligned it. Owning the layout also elides a
-// long name on the right, and shows a name's '&' as itself rather than as a
-// mnemonic.
-//
-// Everything else stays QToolButton's: setMenu / InstantPopup still position
-// the popup (flipping it upward at the screen's bottom edge) and keep the
-// button sunken while the menu is open. Only the painted option changes; the
-// widget's own state never does. The glyph goes through a Glyph::Cache keyed on
-// its tint, so it follows the current color group with no refresh bookkeeping
-// and re-renders only when the resolved color (or the DPR) actually moves
-class VaultSwitcherButton_ : public QToolButton
-{
-    Q_OBJECT
-
-public:
-    explicit VaultSwitcherButton_(QWidget* parentVaultSwitcher)
-        : QToolButton(parentVaultSwitcher)
-    {
-    }
-
-    ~VaultSwitcherButton_() override { TRACER; }
-
-protected:
-    void paintEvent([[maybe_unused]] QPaintEvent* event) override
-    {
-        QStylePainter painter(this);
-
-        // Frame only: no indicator, no label
-        QStyleOptionToolButton option;
-        initStyleOption(&option);
-        option.features &= ~QStyleOptionToolButton::HasMenu;
-        option.text.clear();
-        option.icon = QIcon();
-        option.toolButtonStyle = Qt::ToolButtonTextOnly;
-        painter.drawComplexControl(QStyle::CC_ToolButton, option);
-
-        // Sink the content with the panel on press. The metrics are 0 on
-        // styles that don't shift, so this is a no-op there
-        auto content = rect();
-        if (option.state & QStyle::State_Sunken) {
-            content.translate(
-                style()->pixelMetric(
-                    QStyle::PM_ButtonShiftHorizontal,
-                    &option,
-                    this),
-                style()->pixelMetric(
-                    QStyle::PM_ButtonShiftVertical,
-                    &option,
-                    this));
-        }
-
-        auto glyph_x = content.x() + VAULT_SWITCHER_LEFT_PADDING;
-
-        // Clamped to the button, so an over-large extent fills it rather than
-        // overflowing
-        auto extent = qMin(VAULT_SWITCHER_ICON_EXTENT, content.height());
-        if (extent > 0) {
-            auto glyph = glyph_.pixmap(
-                QString::fromLatin1(ICON_PATH_),
-                extent,
-                palette().color(VAULT_SWITCHER_ICON_ROLE),
-                devicePixelRatioF());
-            painter.drawPixmap(
-                glyph_x,
-                content.y() + (content.height() - extent) / 2,
-                glyph);
-        }
-
-        // Measured from the unclamped slot, so the name never shifts with a
-        // clamp
-        auto text_x =
-            glyph_x + VAULT_SWITCHER_ICON_EXTENT + VAULT_SWITCHER_ICON_SPACING;
-        auto text_rect = QRect(
-            text_x,
-            content.y(),
-            content.right() + 1 - RIGHT_PADDING_ - text_x,
-            content.height());
-        if (text_rect.width() <= 0) {
-            return;
-        }
-
-        painter.setPen(palette().color(QPalette::ButtonText));
-        painter.drawText(
-            text_rect,
-            Qt::AlignLeft | Qt::AlignVCenter,
-            fontMetrics()
-                .elidedText(text(), Qt::ElideRight, text_rect.width()));
-    }
-
-private:
-    static constexpr auto ICON_PATH_ = ":/lucide/ChevronsUpDown.svg";
-
-    // Room kept right of the name when eliding
-    static constexpr auto RIGHT_PADDING_ = 8;
-
-    Glyph::Cache glyph_{};
-};
-
-} // namespace Internal
+using namespace Qt::StringLiterals;
 
 // Obsidian-style vault switcher: shows the current vault's name, and pops a
 // menu of the OTHER openable vaults plus a permanent "Manage Vaults" item, and
@@ -219,8 +99,8 @@ private:
     QAction* manageVaultsAction_ = nullptr;
     std::function<QList<VaultEntry>()> vaultsProvider_;
 
-    Internal::VaultSwitcherButton_* button_ =
-        new Internal::VaultSwitcherButton_(this);
+    MenuButton* button_ =
+        new MenuButton(u":/lucide/ChevronsUpDown.svg"_s, this);
     QMenu* menu_ = new QMenu(this);
 
     void setup_()
@@ -236,7 +116,7 @@ private:
         showName_();
         button_->setMenu(menu_);
         button_->setPopupMode(QToolButton::InstantPopup);
-        // The button paints its own glyph and name (VaultSwitcherButton_), so
+        // The button paints its own glyph and name (MenuButton), so
         // no tool-button style or icon size is declared; only the height is
         // ours
         button_->setFixedHeight(VAULT_SWITCHER_HEIGHT);

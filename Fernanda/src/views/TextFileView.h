@@ -42,6 +42,7 @@
 #include "core/spell/SpellChecker.h"
 #include "core/spell/WordList.h"
 #include "models/TextFileModel.h"
+#include "ui/widgets/MenuText.h"
 #include "views/AbstractFileView.h"
 #include "views/FindBar.h"
 #include "views/TextEditor.h"
@@ -573,9 +574,9 @@ private:
     // Undo/Redo are routed to the model's shared stack rather than the
     // editor's disabled document. The rest are the editor's own: an edit they
     // make reaches the buffer as typing does. Each shortcut is a display-only
-    // hint (menuText_), so nothing here registers a binding that competes
-    // with the window's actions or the editor's own keys. An item that can't
-    // apply is disabled, and a disabled item can't be chosen, so reading
+    // hint (Ui::MenuText::withKey), so nothing here registers a binding that
+    // competes with the window's actions or the editor's own keys. An item that
+    // can't apply is disabled, and a disabled item can't be chosen, so reading
     // exec()'s return needs no availability re-check. Delete removes the
     // selection only.
     //
@@ -614,32 +615,36 @@ private:
         auto has_selection = editor_->textCursor().hasSelection();
         auto writable = !editor_->isReadOnly();
 
-        auto* undo = menu.addAction(menuText_(tr("Undo"), QKeySequence::Undo));
+        auto* undo = menu.addAction(
+            Ui::MenuText::withKey(tr("Undo"), QKeySequence::Undo));
         undo->setEnabled(model_->isUndoAvailable());
 
-        auto* redo = menu.addAction(menuText_(tr("Redo"), QKeySequence::Redo));
+        auto* redo = menu.addAction(
+            Ui::MenuText::withKey(tr("Redo"), QKeySequence::Redo));
         redo->setEnabled(model_->isRedoAvailable());
 
         menu.addSeparator();
 
-        auto* cut = menu.addAction(menuText_(tr("Cut"), QKeySequence::Cut));
+        auto* cut =
+            menu.addAction(Ui::MenuText::withKey(tr("Cut"), QKeySequence::Cut));
         cut->setEnabled(has_selection && writable);
 
-        auto* copy = menu.addAction(menuText_(tr("Copy"), QKeySequence::Copy));
+        auto* copy = menu.addAction(
+            Ui::MenuText::withKey(tr("Copy"), QKeySequence::Copy));
         copy->setEnabled(has_selection);
 
-        auto* paste =
-            menu.addAction(menuText_(tr("Paste"), QKeySequence::Paste));
+        auto* paste = menu.addAction(
+            Ui::MenuText::withKey(tr("Paste"), QKeySequence::Paste));
         paste->setEnabled(editor_->canPaste());
 
-        auto* remove =
-            menu.addAction(menuText_(tr("Delete"), QKeySequence::Delete));
+        auto* remove = menu.addAction(
+            Ui::MenuText::withKey(tr("Delete"), QKeySequence::Delete));
         remove->setEnabled(has_selection && writable);
 
         menu.addSeparator();
 
         auto* select_all = menu.addAction(
-            menuText_(tr("Select All"), QKeySequence::SelectAll));
+            Ui::MenuText::withKey(tr("Select All"), QKeySequence::SelectAll));
         select_all->setEnabled(!editor_->document()->isEmpty());
 
         auto* chosen = menu.exec(editor_->viewport()->mapToGlobal(pos));
@@ -671,16 +676,6 @@ private:
             // the action, which a style may have given a shortcut marker
             word_cursor.insertText(suggestions.at(i));
         }
-    }
-
-    // A menu item's text with its shortcut after a tab, which a menu shows
-    // right-aligned as it would a bound shortcut's. Display only: it binds
-    // nothing
-    [[nodiscard]] static QString
-    menuText_(const QString& text, QKeySequence::StandardKey key)
-    {
-        return text + QChar(QChar::Tabulation) +
-               QKeySequence(key).toString(QKeySequence::NativeText);
     }
 
     // What the dictionary offers for a word. The dictionary gives a plain

@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <QColor>
 #include <QPalette>
 #include <QString>
 
@@ -95,7 +96,7 @@ inline constexpr auto TREE_CHEVRON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto DRAWER_CHEVRON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto DRAWER_COMMON_VAULT_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto DRAWER_TITLE_ROLE = QPalette::PlaceholderText;
-inline constexpr auto VAULT_SWITCHER_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto MENU_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto SETTINGS_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto FOCUS_TIMER_ICON_ROLE = QPalette::PlaceholderText;
 inline constexpr auto VAULT_ORDER_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
@@ -194,14 +195,15 @@ inline constexpr int DRAWER_COMMON_VAULT_ICON_SPACING = 6;
 inline constexpr int DRAWER_CHEVRON_EXTENT = 12;
 inline constexpr int DRAWER_COMMON_VAULT_ICON_EXTENT = 12;
 
-// The vault switcher's button (VaultSwitcher): ChevronsUpDown, then the vault
-// name. The four knobs mean what the drawer header's do. LEFT_PADDING is
-// measured from the button's own edge, frame included; 4 is where the style's
-// own label would put the glyph
+// A button that opens a menu (MenuButton): its glyph, then its text, as the
+// vault switcher shows ChevronsUpDown and the vault name. The three knobs mean
+// what the drawer header's do. LEFT_PADDING is measured from the button's own
+// edge, frame included; 4 is where the style's own label would put the glyph.
+// The vault switcher's is VAULT_SWITCHER_HEIGHT tall
+inline constexpr int MENU_BUTTON_LEFT_PADDING = 8;
+inline constexpr int MENU_BUTTON_ICON_SPACING = 6;
+inline constexpr int MENU_BUTTON_ICON_EXTENT = 14;
 inline constexpr int VAULT_SWITCHER_HEIGHT = 28;
-inline constexpr int VAULT_SWITCHER_LEFT_PADDING = 8;
-inline constexpr int VAULT_SWITCHER_ICON_SPACING = 6;
-inline constexpr int VAULT_SWITCHER_ICON_EXTENT = 14;
 
 // The settings gear right of the vault switcher (SettingsButton), Obsidian's
 // vault profile row. EXTENT/ICON_EXTENT mean what the tab buttons' pair means;
@@ -233,6 +235,122 @@ inline constexpr int SIDEBAR_FOOTER_LEFT_MARGIN = 4;
 inline constexpr int SIDEBAR_FOOTER_TOP_MARGIN = 4;
 inline constexpr int SIDEBAR_FOOTER_RIGHT_MARGIN = 4;
 inline constexpr int SIDEBAR_FOOTER_BOTTOM_MARGIN = 0;
+
+// The row of page buttons at the top of the sidebar (SidebarPages), shown
+// while there's more than one page: Files, and Git. Each button is EXTENT
+// square, the footer's buttons' size, with its glyph ICON_EXTENT square. A
+// button's glyph is in ICON_ROLE, muted, and the active page's in
+// ACTIVE_ICON_ROLE, the text's own color, marked as ACTIVE_MARK says. The
+// buttons are SPACING apart. The margins keep the
+// washes off the sidebar's edges and the page below, as the footer's do. Files
+// is FILES_ICON_PATH and Git is GIT_ICON_PATH, a folder with Git's mark, set
+// apart from the branch glyph the Git page's branch button shows
+inline constexpr int SIDEBAR_PAGE_BUTTON_EXTENT = SETTINGS_BUTTON_EXTENT;
+
+// How the active page's button is marked (SidebarPages), beyond its glyph's
+// color. None adds nothing; Wash lays the selected-row shade under it
+// (Style::selectedWash); Accent fills it with the accent, its glyph in the
+// accent's text color, as a checked GlyphButton is drawn
+enum class SidebarPageButtonMark
+{
+    None,
+    Wash,
+    Accent
+};
+
+inline constexpr auto SIDEBAR_PAGE_BUTTON_ACTIVE_MARK =
+    SidebarPageButtonMark::None;
+inline constexpr int SIDEBAR_PAGE_BUTTON_ICON_EXTENT = 16;
+inline constexpr auto SIDEBAR_PAGE_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr auto SIDEBAR_PAGE_BUTTON_ACTIVE_ICON_ROLE =
+    QPalette::ButtonText;
+inline constexpr int SIDEBAR_PAGE_BUTTON_SPACING = 2;
+inline constexpr int SIDEBAR_PAGES_LEFT_MARGIN = 4;
+inline constexpr int SIDEBAR_PAGES_TOP_MARGIN = 4;
+inline constexpr int SIDEBAR_PAGES_RIGHT_MARGIN = 4;
+inline constexpr int SIDEBAR_PAGES_BOTTOM_MARGIN = 4;
+inline constexpr auto SIDEBAR_FILES_ICON_PATH = ":/lucide/ListTree.svg";
+inline constexpr auto SIDEBAR_GIT_ICON_PATH = ":/lucide/FolderGit2.svg";
+
+// The sidebar's Git page (GitPage): the list of changed files, and
+// MUTED_TEXT_ROLE for the line shown in its place when there are none. Each
+// row has its file's folder after its name, as a muted label (RowBadges), and
+// its change's mark against its right edge, CHANGE_ICON_EXTENT square, in a
+// fixed color for each kind of change: the palette has no role for added or
+// removed, and these read on a light page and a dark one alike. A row's name
+// has first claim on its width, and the folder's label takes what's left
+inline constexpr auto GIT_PAGE_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
+inline constexpr int GIT_CHANGE_ICON_EXTENT = 14;
+inline constexpr auto GIT_ADDED_COLOR = QColor(46, 160, 67);
+inline constexpr auto GIT_MODIFIED_COLOR = QColor(210, 153, 34);
+inline constexpr auto GIT_DELETED_COLOR = QColor(248, 81, 73);
+inline constexpr auto GIT_RENAMED_COLOR = QColor(56, 139, 253);
+inline constexpr auto GIT_CONFLICTED_COLOR = QColor(248, 81, 73);
+
+// The Git page's check-all box, above the list, HEADER_V_MARGIN above and
+// below; its left edge lines up with the rows' checkboxes on its own. The
+// commit box below the list is COMMIT_MARGIN from the page's edges, with
+// COMMIT_SPACING between the summary, the description, and the button. The
+// description is DESCRIPTION_LINES lines of its font tall
+inline constexpr int GIT_PAGE_HEADER_V_MARGIN = 6;
+inline constexpr int GIT_PAGE_COMMIT_MARGIN = 4;
+inline constexpr int GIT_PAGE_COMMIT_SPACING = 6;
+inline constexpr int GIT_PAGE_DESCRIPTION_LINES = 3;
+
+// The notice in the Git page's place when Git refuses to trust the repository:
+// TRUST_MARGIN from the page's edges, with TRUST_SPACING between its title, its
+// text, and its button
+inline constexpr int GIT_PAGE_TRUST_MARGIN = 12;
+inline constexpr int GIT_PAGE_TRUST_SPACING = 8;
+
+// The row at the top of the Git page: the branch button (GitBranchButton),
+// taking the width, and the sync button (GitSyncButton) at its right, both
+// VAULT_SWITCHER_HEIGHT tall. The margins keep their washes off the sidebar's
+// edges and the page buttons above, as the footer's do. The sync button keeps
+// SYNC_BUTTON_PADDING at its sides, has its glyph SYNC_BUTTON_ICON_EXTENT
+// square in SYNC_BUTTON_ICON_ROLE, and its counts SYNC_BUTTON_SPACING after
+// the glyph. While a sync runs the glyph turns SYNC_SPIN_DEGREES every
+// SYNC_SPIN_INTERVAL_MS
+inline constexpr int GIT_PAGE_TOP_ROW_LEFT_MARGIN = 4;
+inline constexpr int GIT_PAGE_TOP_ROW_TOP_MARGIN = 0;
+inline constexpr int GIT_PAGE_TOP_ROW_RIGHT_MARGIN = 4;
+inline constexpr int GIT_PAGE_TOP_ROW_BOTTOM_MARGIN = 0;
+inline constexpr int GIT_SYNC_BUTTON_PADDING = 8;
+inline constexpr int GIT_SYNC_BUTTON_ICON_EXTENT = 14;
+inline constexpr int GIT_SYNC_BUTTON_SPACING = 4;
+inline constexpr auto GIT_SYNC_BUTTON_ICON_ROLE = QPalette::PlaceholderText;
+inline constexpr int GIT_SYNC_SPIN_INTERVAL_MS = 30;
+inline constexpr qreal GIT_SYNC_SPIN_DEGREES = 12.0;
+
+// The New Branch dialog (GitNewBranchDialog): at least MIN_WIDTH wide. The
+// line saying what a fixed name becomes is in NOTE_ROLE
+inline constexpr int GIT_NEW_BRANCH_DIALOG_MIN_WIDTH = 360;
+inline constexpr auto GIT_NEW_BRANCH_NOTE_ROLE = QPalette::PlaceholderText;
+
+// A diff's tab (GitDiffPage, GitDiffView). The tab is marked with
+// DIFF_PAGE_ICON_PATH, so it isn't taken for its file's own tab. An added
+// line is tinted ADDED_BACKGROUND and a removed one REMOVED_BACKGROUND, across
+// the text and the gutter. Each has an alpha, so it tints the page rather than
+// covering it, on a light page or a dark one. The words that changed within a
+// line are tinted again, with ADDED_WORD_BACKGROUND or REMOVED_WORD_BACKGROUND
+// over the line's tint. HEADER_ROLE is the pen of each hunk's @@ line and of
+// the note that a file ends without a line break, and NUMBER_ROLE the
+// gutter's. The gutter is GUTTER_PADDING on each side of its two columns of
+// numbers, which are GUTTER_SPACING apart, and TEXT_PADDING more on its right,
+// between the numbers and the text. MUTED_TEXT_ROLE is the pen of the line
+// shown in the diff's place when there's none to show
+inline constexpr auto GIT_DIFF_PAGE_ICON_PATH = ":/lucide/FileDiff.svg";
+inline constexpr auto GIT_DIFF_ADDED_BACKGROUND = QColor(46, 160, 67, 56);
+inline constexpr auto GIT_DIFF_REMOVED_BACKGROUND = QColor(248, 81, 73, 56);
+inline constexpr auto GIT_DIFF_ADDED_WORD_BACKGROUND = QColor(46, 160, 67, 110);
+inline constexpr auto GIT_DIFF_REMOVED_WORD_BACKGROUND =
+    QColor(248, 81, 73, 110);
+inline constexpr auto GIT_DIFF_HEADER_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_DIFF_NUMBER_ROLE = QPalette::PlaceholderText;
+inline constexpr auto GIT_DIFF_MUTED_TEXT_ROLE = QPalette::PlaceholderText;
+inline constexpr int GIT_DIFF_GUTTER_PADDING = 8;
+inline constexpr int GIT_DIFF_GUTTER_SPACING = 8;
+inline constexpr int GIT_DIFF_TEXT_PADDING = 8;
 
 // The settings dialog (SettingsDialog): its opening size; the navigation
 // column's fixed width, and the margin around (and gap within) that column;
@@ -351,6 +469,13 @@ inline constexpr int UPDATE_NOTICE_EXTENT = 20;
 inline constexpr int UPDATE_NOTICE_ICON_EXTENT = 14;
 inline constexpr auto UPDATE_NOTICE_ICON_ROLE = QPalette::Accent;
 
+// A checkable GlyphButton while it's checked: its panel filled with
+// CHECKED_PANEL_ROLE, and its glyph in CHECKED_ICON_ROLE in place of its own
+// tint, the pen that reads on the accent (as a toggle switch's thumb does)
+inline constexpr auto GLYPH_BUTTON_CHECKED_PANEL_ROLE = QPalette::Accent;
+inline constexpr auto GLYPH_BUTTON_CHECKED_ICON_ROLE =
+    QPalette::HighlightedText;
+
 // Fernanda's style (Style). Shades the palette has no role for are its text
 // color at an alpha, drawn over whatever is behind them: HOVER under the
 // pointer, PRESSED held down (and a checked tool button), SELECTED for a
@@ -417,6 +542,22 @@ inline constexpr int STYLE_LIST_INDICATOR_INSET = 1;
 // box's does
 inline constexpr int STYLE_FIELD_H_PADDING = 6;
 inline constexpr int STYLE_FIELD_V_PADDING = 2;
+
+// Multi-line text boxes with a frame (Style), such as the Git page's
+// description: framed as a field is, with the text TEXT_BOX_FRAME_WIDTH inside
+// the border, enough to clear its rounded corners
+inline constexpr int STYLE_TEXT_BOX_FRAME_WIDTH = 3;
+
+// Checkboxes (Style), a QCheckBox's and an item view's: a rounded square,
+// CHECKBOX_RADIUS at its corners. Off, it's the page's color inside a field's
+// border. On, or partly on, it's filled with CHECKBOX_ON_ROLE, and holds a
+// check, or a dash, in CHECKBOX_MARK_ROLE, CHECKBOX_MARK_WIDTH thick. A
+// disabled one is drawn at CHECKBOX_DISABLED_OPACITY
+inline constexpr int STYLE_CHECKBOX_RADIUS = 3;
+inline constexpr auto STYLE_CHECKBOX_ON_ROLE = QPalette::Accent;
+inline constexpr auto STYLE_CHECKBOX_MARK_ROLE = QPalette::HighlightedText;
+inline constexpr qreal STYLE_CHECKBOX_MARK_WIDTH = 1.5;
+inline constexpr qreal STYLE_CHECKBOX_DISABLED_OPACITY = 0.4;
 inline constexpr int STYLE_COMBO_ARROW_INSET = 2;
 inline constexpr int STYLE_COMBO_POPUP_OVERHANG = 9;
 

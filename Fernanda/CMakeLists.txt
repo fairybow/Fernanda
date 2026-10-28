@@ -182,6 +182,13 @@ set(APP_SOURCES
 # --- Headers ---
 
 set(APP_HEADERS
+    src/core/git/GitDiff.h
+    src/core/git/GitRefName.h
+    src/core/git/GitRemote.h
+    src/core/git/GitRepository.h
+    src/core/git/GitSafeDirectory.h
+    src/core/git/GitStatus.h
+
     src/core/spell/Misspelling.h
     src/core/spell/SpellChecker.h
     src/core/spell/SpellCheckers.h
@@ -225,6 +232,14 @@ set(APP_HEADERS
     src/models/PrimeDocument.h
     src/models/TextFileModel.h
 
+    src/ui/git/GitBranchButton.h
+    src/ui/git/GitChangeDelegate.h
+    src/ui/git/GitDiffPage.h
+    src/ui/git/GitDiffView.h
+    src/ui/git/GitNewBranchDialog.h
+    src/ui/git/GitPage.h
+    src/ui/git/GitSyncButton.h
+
     src/ui/settings/FontFamilyBox.h
     src/ui/settings/SettingRow.h
     src/ui/settings/SettingsAppearancePage.h
@@ -232,6 +247,7 @@ set(APP_HEADERS
     src/ui/settings/SettingsEditorPage.h
     src/ui/settings/SettingsFocusTimerPage.h
     src/ui/settings/SettingsGeneralPage.h
+    src/ui/settings/SettingsGitPage.h
     src/ui/settings/SettingsPage.h
     src/ui/settings/SettingsStatusBarPage.h
 
@@ -239,6 +255,7 @@ set(APP_HEADERS
     src/ui/sidebar/FocusTimerButton.h
     src/ui/sidebar/SettingsButton.h
     src/ui/sidebar/Sidebar.h
+    src/ui/sidebar/SidebarPages.h
     src/ui/sidebar/VaultEntryDragMime.h
     src/ui/sidebar/VaultFileTree.h
     src/ui/sidebar/VaultSwitcher.h
@@ -258,12 +275,16 @@ set(APP_HEADERS
     src/ui/widgets/DisplaySlider.h
     src/ui/widgets/Glyph.h
     src/ui/widgets/GlyphButton.h
+    src/ui/widgets/HoverSync.h
+    src/ui/widgets/MenuButton.h
+    src/ui/widgets/MenuText.h
     src/ui/widgets/RowBadges.h
     src/ui/widgets/ToggleSwitch.h
     src/ui/widgets/UserTextEntry.h
 
     src/ui/AboutPanel.h
     src/ui/BaseWindow.h
+    src/ui/BetaAlert.h
     src/ui/CursorPosition.h
     src/ui/FileSwitcher.h
     src/ui/LicensesDialog.h

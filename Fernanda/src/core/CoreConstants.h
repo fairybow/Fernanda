@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <QtTypes>
+
 namespace Fernanda {
 
 inline constexpr auto WORKSPACE_FILE_NAME = "workspace.json";
@@ -32,5 +34,27 @@ inline constexpr auto UPDATE_RELEASES_URL =
 inline constexpr int UPDATE_FIRST_CHECK_DELAY_MS = 5 * 1000;
 inline constexpr int UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 inline constexpr int UPDATE_CHECK_TIMEOUT_MS = 15 * 1000;
+
+// How long a GitRepository being destroyed waits for a running git command to
+// finish before stopping it. A step that rewrites files in the working tree (a
+// switch, a pull's merge, a discard's restore) gets the longer wait: stopped
+// partway, it would leave files half updated
+inline constexpr int GIT_EXIT_WAIT_MS = 3 * 1000;
+inline constexpr int GIT_REWRITE_EXIT_WAIT_MS = 30 * 1000;
+
+// How long a GitRepository lets a fetch or a push run before it stops it, so
+// a sign-in that can't be shown, or a remote that never answers, can't hold
+// the repository's other commands back forever. Neither touches the working
+// tree, so stopping one leaves no file half written
+inline constexpr int GIT_NETWORK_TIMEOUT_MS = 2 * 60 * 1000;
+
+// How GitDiff::wordChanges marks the words that changed in a line. A line
+// marks nothing when less than MIN_UNCHANGED_PERCENT of its characters
+// (leaving out whitespace) are unchanged. The middles of two lines, after
+// their matching ends, are compared in a table of one cell per pair of words;
+// past MAX_CELLS (a few megabytes, held only while comparing) the middle is
+// marked as one span instead
+inline constexpr int GIT_WORD_DIFF_MIN_UNCHANGED_PERCENT = 50;
+inline constexpr qint64 GIT_WORD_DIFF_MAX_CELLS = 1000 * 1000;
 
 } // namespace Fernanda

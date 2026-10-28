@@ -23,6 +23,7 @@
 #include <QPainterPath>
 #include <QPalette>
 #include <QPen>
+#include <QPlainTextEdit>
 #include <QPointF>
 #include <QProxyStyle>
 #include <QRect>
@@ -32,6 +33,7 @@
 #include <QStyleFactory>
 #include <QStyleOption>
 #include <QTabBar>
+#include <QTextEdit>
 #include <QTreeView>
 #include <QWidget>
 #include <QtMinMax>
@@ -104,6 +106,13 @@ public:
         return wash_(
             palette,
             pressed ? STYLE_PRESSED_ALPHA : STYLE_HOVER_ALPHA);
+    }
+
+    // The shade of a selected row, for a widget that marks itself as chosen
+    // the way a list marks its selection (the sidebar's active page button)
+    [[nodiscard]] static QColor selectedWash(const QPalette& palette)
+    {
+        return wash_(palette, STYLE_SELECTED_ALPHA);
     }
 
     // Where an item view paints the wash of the item whose cell is itemRect:
@@ -228,6 +237,12 @@ public:
             if (qobject_cast<const QAbstractItemView*>(widget)) {
                 return STYLE_LIST_FRAME_PADDING;
             }
+
+            // A framed text box's text sits inside its rounded border, past
+            // the corners
+            if (isTextBox_(widget)) {
+                return STYLE_TEXT_BOX_FRAME_WIDTH;
+            }
             break;
         case PM_MenuPanelWidth:
             // The shadow's margin and the border inside it
@@ -336,24 +351,51 @@ public:
             // drawn, below the gap at its top (see drawTabShape_). Its text
             // and icon are too, by the label's own rect (CE_TabBarTabLabel)
             return rect.translated(0, STYLE_TAB_TOP_GAP / 2);
-        case SE_ItemViewItemText:
+        case SE_ItemViewItemText: {
+            auto* item = qstyleoption_cast<const QStyleOptionViewItem*>(option);
+
+            if (!item || !qobject_cast<const QAbstractItemView*>(widget) ||
+                qobject_cast<const QTreeView*>(widget)) {
+                return rect;
+            }
+
             // In a list, an item's text keeps the list's margin from the row's
             // edges, and a tree's from an icon before it, as in a tree. Left to
             // the list's margin there too, the text sits well away from its
             // icon, which itself is where the other rows' text begins
-            if (auto* item =
-                    qstyleoption_cast<const QStyleOptionViewItem*>(option);
-                item &&
-                (item->features & QStyleOptionViewItem::HasDecoration) &&
-                qobject_cast<const QAbstractItemView*>(widget) &&
-                !qobject_cast<const QTreeView*>(widget)) {
+            if (item->features & QStyleOptionViewItem::HasDecoration) {
                 return rect.adjusted(
                     STYLE_TREE_ROW_TEXT_MARGIN - STYLE_LIST_ROW_TEXT_MARGIN,
                     0,
                     0,
                     0);
             }
+
+            // After a checkbox, the text starts as far from it as a
+            // QCheckBox's label starts from its box, asked of this style for a
+            // QCheckBox, so a list's checked rows line up with a QCheckBox
+            // over them, box under box and text under text. The style draws
+            // the text a margin inside this rect (QCommonStyle's
+            // PM_FocusFrameHMargin + 1), so the rect starts that much sooner
+            if (item->features & QStyleOptionViewItem::HasCheckIndicator) {
+                auto check = subElementRect(
+                    SE_ItemViewItemCheckIndicator,
+                    option,
+                    widget);
+
+                QStyleOptionButton box{};
+                box.rect = QRect(0, 0, rect.width(), check.height());
+                auto label_offset =
+                    subElementRect(SE_CheckBoxContents, &box, nullptr).left() -
+                    subElementRect(SE_CheckBoxIndicator, &box, nullptr).left();
+                auto text_margin =
+                    pixelMetric(PM_FocusFrameHMargin, nullptr, widget) + 1;
+
+                rect.setLeft(check.left() + label_offset - text_margin);
+            }
+
             return rect;
+        }
         default:
             return rect;
         }
@@ -418,6 +460,11 @@ public:
             drawCommandPanel_(option, painter);
             return;
 
+        case PE_IndicatorCheckBox:
+        case PE_IndicatorItemViewItemCheck:
+            drawCheckIndicator_(option, painter, widget);
+            return;
+
         case PE_PanelLineEdit:
             if (drawLineEditPanel_(option, painter)) {
                 return;
@@ -448,6 +495,12 @@ public:
             // A drop-down list's window is a QFrame, framed by this
             if (isComboPopup_(widget)) {
                 drawMenuBorder_(option, painter);
+                return;
+            }
+
+            // A framed text box is drawn as a field is, its border taking the
+            // accent while it has focus
+            if (isTextBox_(widget) && drawLineEditPanel_(option, painter)) {
                 return;
             }
             break;
@@ -796,6 +849,98 @@ private:
                     palette,
                     pressed ? STYLE_PRESSED_ALPHA : STYLE_HOVER_ALPHA));
         }
+    }
+
+    // A multi-line text box: a QPlainTextEdit or a QTextEdit. Framed, it's
+    // drawn as a field (PE_Frame); frameless, as the text editor and the diff
+    // are, it has nothing to draw
+    [[nodiscard]] static bool isTextBox_(const QWidget* widget)
+    {
+        return qobject_cast<const QPlainTextEdit*>(widget) ||
+               qobject_cast<const QTextEdit*>(widget);
+    }
+
+    // A checkbox, a QCheckBox's or an item view's, in the indicator's rect:
+    // a rounded square, bordered as a field when off, and filled with the
+    // accent and holding a check (on) or a dash (partly on) otherwise.
+    //
+    // The accent follows the window: an inactive window's is muted, and only
+    // then. The window is asked directly. A QCheckBox's palette is set to its
+    // window's group, but an item view leaves its rows' palettes active, and
+    // clears State_Active from its rows whenever the view itself lacks focus,
+    // as it dims a selection; read from either, a list's checkboxes would
+    // stay in the accent in an inactive window, or grey in an active one
+    static void drawCheckIndicator_(
+        const QStyleOption* option,
+        QPainter* painter,
+        const QWidget* widget)
+    {
+        const auto& palette = option->palette;
+        auto active = widget ? widget->isActiveWindow()
+                             : bool(option->state & State_Active);
+        auto group = active ? QPalette::Active : QPalette::Inactive;
+        auto side = qMin(option->rect.width(), option->rect.height());
+        QRectF box(
+            option->rect.x() + (option->rect.width() - side) / 2.0,
+            option->rect.y() + (option->rect.height() - side) / 2.0,
+            side,
+            side);
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+
+        if (!(option->state & State_Enabled)) {
+            painter->setOpacity(STYLE_CHECKBOX_DISABLED_OPACITY);
+        }
+
+        auto on = option->state & State_On;
+        auto partly = option->state & State_NoChange;
+
+        if (!on && !partly) {
+            painter->setPen(
+                QPen(wash_(palette, STYLE_CONTROL_BORDER_ALPHA), 1.0));
+            painter->setBrush(palette.brush(QPalette::Base));
+            painter->drawRoundedRect(
+                box.adjusted(0.5, 0.5, -0.5, -0.5),
+                STYLE_CHECKBOX_RADIUS,
+                STYLE_CHECKBOX_RADIUS);
+            painter->restore();
+            return;
+        }
+
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(palette.color(group, STYLE_CHECKBOX_ON_ROLE));
+        painter->drawRoundedRect(
+            box,
+            STYLE_CHECKBOX_RADIUS,
+            STYLE_CHECKBOX_RADIUS);
+
+        QPen mark(palette.color(group, STYLE_CHECKBOX_MARK_ROLE));
+        mark.setWidthF(STYLE_CHECKBOX_MARK_WIDTH);
+        mark.setCapStyle(Qt::RoundCap);
+        mark.setJoinStyle(Qt::RoundJoin);
+        painter->setPen(mark);
+        painter->setBrush(Qt::NoBrush);
+
+        // The marks are laid out in the box's own proportions, so they scale
+        // with it
+        auto at = [&box](qreal x, qreal y) {
+            return QPointF(
+                box.left() + x * box.width(),
+                box.top() + y * box.height());
+        };
+
+        if (partly) {
+            painter->drawLine(at(0.28, 0.5), at(0.72, 0.5));
+        } else {
+            QPainterPath check{};
+            check.moveTo(at(0.26, 0.52));
+            check.lineTo(at(0.43, 0.68));
+            check.lineTo(at(0.74, 0.34));
+            painter->drawPath(check);
+        }
+
+        painter->restore();
     }
 
     // False when there's no frame to draw (a frameless field), which Fusion

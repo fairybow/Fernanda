@@ -4,7 +4,10 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
+- [x] Sidebar page switch buttons need constant for padding between the buttons (right now they're completely adjacent)
+- [ ] Switch line highlights (in editor, not diff) back to QPalette roles? What were they before QColor?
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
+- [ ] Perhaps change FocusTimer icon to hourglass
 - [x] May want to allow clicking to left or right of file in tree to also clear selection (right now clearing selection only works when clicking below all files in a tree)
 - [ ] VaultSwitcher's menu should open upward
 - [ ] Closing every window from the Windows taskbar (right-click the icon, Close all windows) reopens only one vault next launch. To Fernanda the closes look like closing each window by hand, which clears that vault's open flag while another is still open; only the last keeps it. Pop-outs can be lost the same way, if one closes before its vault window saves the layout. A short grace period before a closed window's flag is cleared, dropped if the app quits first, would cover vault windows; pop-outs would need their layout kept for that time too
@@ -47,9 +50,38 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] The spelling language in `settings.json` was used as a file name without being checked, so a hand-edited `../x` named a dictionary outside the dictionaries folder. `SpellCheckers` now takes only a single name, and treats anything else as not installed
 - [x] A path with a `..` segment passed `Vault::contains`, so a rename or move could take an entry out of the vault, and `Vault::openModel` opened a `../` or absolute path from a hand-edited `workspace.json`. Paths are now normalized into keys, and one that climbs out of the vault is refused (see "Identity" in [Architecture.md](Architecture.md))
 - [x] Log lines and log file names were stamped in UTC while reading as local time. `Coco::Time::now` labeled the UTC count as local without adding the offset; the timestamps now come from `QDateTime` in local time (`Coco::Time::nowQString`)
+- [x] The first Git view looked and behaved unlike the rest of Fernanda: square sections with rounded hover washes, a description field without the summary's rounded corners, Fusion's checkboxes against the list's edge, muted change marks, a still loading glyph, and a branch list in a square popup that reopened on a second click, kept its hover wash after closing, built visibly, and selected the wrong branch after a new one was made. The Git page replaces it: `Style` draws checkboxes and framed text boxes, the change marks are colored, the branch list is a real menu like the vault switcher's, and the sync glyph turns while it runs
+- [x] The Git view took the window's place, so the window's actions were locked while it showed, the word counter stayed up, and opening a file from it could open a second tab of the file already in front, with a small jump on closing it. Git is now a page of the sidebar and diffs are tabs, so the window works as usual, and Open file only shows a file that's already the current tab
+- [x] Diffs didn't show that a file ends without a line break. The diff says so under its last line
+- [x] A new branch's name was judged only by Git, on Create. It's now fixed as it's typed, as GitHub Desktop fixes it (`GitRefName`), and Git still has the last word
+- [x] Hover washes left on a widget that moved from under a still cursor were fixed in two places with two copies of the same code. Only the Common Vault drawer's header needs it now: the Git branch list, which had the other copy, is a real menu, and a menu needs none
+- [x] A branch switch or a pull was refused, or not, by the last status read, which could be older than the text on screen: a change typed since was carried to the other branch. The status is now read again as the operation's first step
+- [x] Diff tabs and the Git page didn't follow saves, only the window coming forward, so a diff split beside its file never updated as it was typed. Both are now read again when a file in the repository is saved, renamed, moved, or trashed in Fernanda while either shows
+- [x] A folder holding its own repository, which Git lists as one entry, was listed with no name: its diff failed, committing it recorded a pointer to the other repository, and discarding it trashed that repository whole. It's now left out
+- [x] A file marked to be added (`git add -N`) was taken as modified, so discarding it asked Git to restore it from a commit that doesn't have it
+- [x] The Git page's right-click menu read its file by row when an item was chosen, so a status arriving while it was open could open another file's diff
+- [x] Typing while a pull, a switch, or a discard ran could be autosaved over the file Git had just rewritten, in the moment before the watcher noticed Git's write. A pulled change was then silently reverted, as an uncommitted change. Everything open is now saved again just before Git rewrites files, and autosave holds off for the repository's files until it's done
+- [x] A pull was one `git pull`, stopped as a whole after two minutes, and a window closing stopped any `git` after three seconds, so either could stop Git partway through updating files, leaving them half updated and the index locked. A pull is now a fetch, the only part timed out, then a merge; a window closing waits up to thirty seconds for a step that rewrites files
+- [x] An SSH key's passphrase was asked for on the terminal Fernanda was started from, so a sync hung unseen until its time ran out. On macOS and Linux, `git` now runs with no terminal and fails at once
+- [x] The Git page's file names were cut short as soon as the sidebar narrowed, since the folder's label took up to half of each row first. The name now has first claim, and the folder takes what's left, shortened from its start, or is left out
+- [x] The Git page's rows had a wide gap between each checkbox and its name. A checked list row's text now starts as far from its box as a `QCheckBox`'s label does, so the rows line up under the check-all box, box under box and text under text
+- [x] The Git page's row checkboxes followed the list's focus, not the window's: grey whenever anything else in the window had focus, and, before that, in the accent in an inactive window. The style now asks the checkbox's window whether it's active, so every checkbox dims only with its window
+- [x] A trust that failed, or that Git still refused after the config took it, left the Trust repository button disabled, so it couldn't be tried again. It works again after either
+- [x] The Git page's branch and sync buttons kept, or lacked, a hover wash after the sync button's counts changed its width under a still pointer, or after being disabled while the pointer passed. `HoverSync` now hands the window a mouse move at the pointer whenever either moves, resizes, or is enabled; the Common Vault drawer's header uses the same, in place of its own copy
+- [x] A repository Git refuses to trust (owned by another user, as on an exFAT drive) showed no Git page, as if there were no repository. It now shows GitHub Desktop's notice and Trust repository button
+- [x] A pull was refused while any tracked file had uncommitted changes, even when the incoming commits touched none of them. Git already stops a pull that would change a file with changes, before changing anything, so the pull now goes ahead and keeps the changes, as GitHub Desktop's does
+- [x] The discard question was wrong for a renamed file and a deleted one, and a refused pull always blamed branches that had both moved on
+- [x] A switch refused by its changes check still ran. The check's status announced itself, and the branch button (or a diff tab) asked Git for something on hearing it; that ask started the next command in the queue, the switch, before the check had refused it. Where the changed files were the same on both branches, Git carried the changes across, and on a branch without the vault's `.fernanda/.gitignore` the switch took that file away. A command's answer is now handled whole before the next command starts
+- [x] A switch or a new branch that couldn't be asked for (no repository, Git busy, no name) returned silently, leaving the New Branch dialog waiting for an answer
 
 ## Rough edges
 
+- [ ] The Git page's discard question is a plain `QMessageBox`, worded as the file tree's Delete prompt is, and may still look too square for its text. If so, the fix belongs to every message box (the style, or a dialog of Fernanda's own), not to this one alone
+- [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
+- [ ] Same for error report strings from outside Fernanda, like GitRepository's "result.error" usage, which should probably be quoted
+- [ ] A vault's `.fernanda/settings.json`, `appearance.json`, and `dictionary.txt` are meant to be committed, so a setting changed or a word added makes a tracked change, which stops a branch switch or a pull until it's committed or discarded
+- [ ] A new, empty file made from the file tree isn't written by the store, so the Git page lists it only once the window next comes forward
+- [ ] `Style` draws every framed `QPlainTextEdit` as a field, which takes in the log window and the licenses dialog's text: rounded, inset, with an accent border when focused. Check they look right
 - [ ] Decide if all Lucide icons should be in constants file or only things accessed from multiple places (the latter being what I lean toward right now, as those *Constants files are for non-settings tweakable values (shared or unshared) or shared constants generally)
 - [ ] The licenses dialog's Qt entry links to Qt's list of the libraries Qt itself bundles (PDFium in Qt PDF, among others) rather than showing their notices. Shipping their texts would mean collecting them from the Qt build in use
 - [ ] Tabs can be dragged past the left or right end of the tab bar without starting a drag; may want to clamp them
@@ -73,14 +105,80 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Before release
 
 - [ ] Review the Spanish translations in Qt Linguist and mark each done. They are a draft, left marked unfinished
+- [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
+- [ ] Add the Git page to `CHANGELOG.md`
+- [ ] The Git hand pass, below, on Windows and macOS. Use a scratch repository on GitHub, so pushes and pulls are real, and a vault inside it with a few files
 - [x] Need the remaining Edit menu and text editor context menu options (cut, copy, paste, select all, delete)
+- [x] A warning at launch while Fernanda is in beta (`BetaAlert`), as Hearth had, which can be muted until the next version
 - [x] A licenses dialog crediting what Fernanda bundles: Qt, Hunspell, the en_US dictionary, the fonts, and Lucide
+
+### The Git hand pass
+
+Run it once on each platform: on Windows signing in through Git Credential Manager over HTTPS, on macOS however Git is set up there. Each item is what should happen.
+
+**Setup**
+
+- [ ] A machine without Git: no Git page, no Files and Git buttons, and View → Git disabled
+- [ ] An SSH remote with an agent running: fetch, pull, and push work
+- [ ] An SSH remote whose key has a passphrase, with no agent, Fernanda started from a terminal (macOS): a sync fails at once with SSH's error rather than hanging
+- [ ] Show Git off in Settings: the buttons go, and Git isn't run for the vault. On again: they come back
+
+**Changes and diffs**
+
+- [ ] A new, a modified, a deleted, and a renamed (`git mv`) file each show the right mark and folder
+- [ ] Each one's diff is right, with changed words marked, and a file without a final line break says so
+- [ ] A diff split beside its file updates as you type, keeping its place
+- [ ] Saving, renaming, moving, and trashing from the file tree update the list while the Git page shows
+- [ ] A folder holding its own repository (`git init` inside the vault) isn't listed
+- [ ] Open file, Open in new tab, Open to the right, and Open in new window each land where expected
+
+**Commits**
+
+- [ ] Only checked files are committed; an unchecked one stays unchecked across new statuses
+- [ ] A file staged from a terminal and left unchecked stays staged and out of the commit
+- [ ] The summary is required, the description is optional, and Ctrl+Enter commits from anywhere in the box
+- [ ] A commit hook that fails shows its words, and nothing is committed
+
+**Discarding**
+
+- [ ] Discard a modified, a new, a renamed, and a deleted file. Each question says what will happen, and it does
+- [ ] Each copy can be restored from the system trash
+- [ ] With the discarded file open in a tab, Ctrl+Z there brings the changes back
+
+**Branches**
+
+- [ ] New branch, with a name that needs fixing (spaces, a colon): the note shows the fixed name, and the branch is made and switched to with the changes along
+- [ ] Switch with no changes; switch with a tracked change, which is refused
+- [ ] Type in a file and switch at once to a branch where that file differs: refused, and the text kept
+- [ ] Switch to a remote branch: a local branch tracking it is made
+- [ ] Create pull request opens GitHub's page for this branch, and isn't offered on the default branch
+
+**Syncing**
+
+- [ ] Publish a new branch, then push a commit
+- [ ] Commit on GitHub, then fetch: the counts and the tooltip's "Last fetched" follow
+- [ ] Pull with a change in another file: the commit comes in, and the change stays
+- [ ] Pull with a change in the file the commit changes: refused, naming the file, with the text kept
+- [ ] Click Pull and type at once in the file the commit changes: refused before it rewrites the file, with the text kept
+- [ ] Commit on both GitHub and here, then pull: refused with the merging message
+- [ ] Close the window during a push or a pull: it closes, and the repository works next time (no `index.lock` left)
+
+**Elsewhere**
+
+- [ ] A vault inside a repository that holds other vaults: every change is listed, and Open file is offered only for this window's files
+- [ ] A repository on a USB drive formatted exFAT (or owned by another user): the trust notice shows, and Trust repository brings up the changes
+- [ ] Two windows over one repository: committing in one shows in the other when it comes forward
+- [ ] Light and dark mode, an inactive window, and 125% and 150% scaling: marks, checkboxes, and washes look right
 
 ## Code
 
+- [x] `GitRepository`'s class comment had lines broken short. Rewrapped
+- [x] Cleanup from the Git review: the six operation-step kinds in `GitRepository` are one, the toggle action is `repository.togglePage`, unused `using` lines are gone, the Git constants sit under their comments, and paths aren't written to a `git` that failed to start
+- [x] Remove the unused `GitBranchPlus` and `GitPullRequestArrow` icons from `Lucide.qrc` and `resources/lucide/`
+- [ ] The Git page's branch and sync buttons are `VAULT_SWITCHER_HEIGHT` tall. A shared name for a menu button's height would say what it is
 - [ ] Verify the `PrimeDocument` header, and rename it
 - [ ] Rename `BaseWindow`'s protected members that have a trailing underscore
 - [ ] Bring `MenuBuilder` over from Hearth (maybe into Coco)?
@@ -109,6 +207,12 @@ What the tests in `Fernanda/tests/` don't reach.
 - [ ] `App` following vaults whose folders were moved or renamed in-app (`App::followVaults_`, `App::renameVaultFolder_`), and closing one whose folder was trashed; setting and unsetting the Common Vault; and each window's response to a moved vault or a new Common Vault (`VaultWindow::setCommonVault`). The store's announcement, `Vault::moveRoot`, `RecentFiles::rebase`, and `AppConfig`'s records are tested
 - [ ] The letter-case cases (an inner vault's root spelled in another case, and a rename by case alone above an inner vault) run only where case is ignored: on Windows and macOS
 - [ ] A file that starts with two byte-order marks. On Qt 6.4 one is dropped on load, which the comment on the mark in `TextFileModel.h` says can't happen. Check it on the Qt in use
+- [ ] Discarding a file's changes sends a real copy to the system trash, so `GitRepositoryTest` doesn't reach it, as with `Vault::moveToTrash`. What runs after the trash (the restore, and removing a new file from the index) is plain git
+- [ ] The Git page and diff tabs reading again after a save (`VaultWindow::onRepositoryChanged_`)
+- [ ] The two-minute limit on a fetch or push (`GIT_NETWORK_TIMEOUT_MS`), and the waits when a window closes with `git` running (`GIT_EXIT_WAIT_MS`, `GIT_REWRITE_EXIT_WAIT_MS`). A test would need a remote that never answers
+- [ ] Trusting a repository from the Git page. Git refuses only a folder owned by another user, which a test can't make without administrator rights. Reading Git's message is tested (`GitSafeDirectoryTest`)
+- [ ] `git` running without a terminal (`setsid`), so an SSH key's passphrase fails at once. The tests sync over a local path, without SSH
+- [ ] Signing in to a real remote, through a credential manager, and failing cleanly where Git would ask in a terminal. The tests sync with a bare repository in a temporary folder
 - [ ] `JsonIo`, `WorkspaceFile`, and everything in `views/` (apart from `TextSearch`) and `ui/`. The find bar and the way `TextFileView` drives a search are among them, as are the misspelling underlines and the spelling items in the editor's context menu. Considered for `TabPaneTree`'s save and restore and left out: a mistake there costs a layout, not text, and shows on the next launch
 
 ## Audits
@@ -119,7 +223,7 @@ Passes over the whole codebase against [CodeStyle.md](CodeStyle.md).
 - [ ] Signals that only ever drive one slot in the same class
 - [ ] Consistent terms: what is a pane, a leaf, a view, a page
 - [ ] Naming and casing of types, functions, and members, including trailing underscores on private members
-- [ ] Parent parameters not named for their parent type
+- [ ] Parent parameters not named for their parent type/object
 - [ ] Widgets that start without a parent and are inserted into one later: name the parameter to say so
 - [ ] Constructor work outside `setup_`
 - [ ] `const`, `[[nodiscard]]`, `[[maybe_unused]]`
@@ -132,3 +236,5 @@ Passes over the whole codebase against [CodeStyle.md](CodeStyle.md).
 - [ ] Order of sections within classes
 - [ ] Helper classes used in one header that could move to its `Internal` namespace (`ZoomButton` in `ZoomControl.h`, for example)
 - [ ] `TODO` comments in the source
+- [ ] Things that could move into Coco
+- [ ] Things that could be replace with a call to Coco

@@ -12,6 +12,16 @@
     </message>
 </context>
 <context>
+    <name>Fernanda::GitRepository</name>
+    <message numerus="yes">
+        <source>Git took longer than %Ln second(s), so it was stopped.</source>
+        <translation>
+            <numerusform>Git took longer than %Ln second, so it was stopped.</numerusform>
+            <numerusform>Git took longer than %Ln seconds, so it was stopped.</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>Fernanda::TextFileView</name>
     <message numerus="yes">
         <source>%Ln replaced</source>
@@ -25,9 +35,43 @@
     <name>Fernanda::Ui::FocusTimerButton</name>
     <message numerus="yes">
         <source>%Ln focus period(s) completed</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln focus period completed</numerusform>
+            <numerusform>%Ln focus periods completed</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Fernanda::Ui::GitPage</name>
+    <message numerus="yes">
+        <source>%Ln changed file(s)</source>
+        <translation>
+            <numerusform>%Ln changed file</numerusform>
+            <numerusform>%Ln changed files</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
+    <name>Fernanda::Ui::GitSyncButton</name>
+    <message numerus="yes">
+        <source>Last fetched %Ln minute(s) ago</source>
+        <translation>
+            <numerusform>Last fetched %Ln minute ago</numerusform>
+            <numerusform>Last fetched %Ln minutes ago</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Last fetched %Ln hour(s) ago</source>
+        <translation>
+            <numerusform>Last fetched %Ln hour ago</numerusform>
+            <numerusform>Last fetched %Ln hours ago</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Last fetched %Ln day(s) ago</source>
+        <translation>
+            <numerusform>Last fetched %Ln day ago</numerusform>
+            <numerusform>Last fetched %Ln days ago</numerusform>
         </translation>
     </message>
 </context>

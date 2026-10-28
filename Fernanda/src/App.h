@@ -22,6 +22,7 @@
 #include <QSet>
 #include <QString>
 #include <QStringList>
+#include <QWidget>
 
 #include <Coco/Debug.h>
 #include <Coco/Path.h>
@@ -46,6 +47,7 @@
 #include "core/VaultOrder.h"
 #include "core/Version.h"
 #include "core/spell/SpellCheckers.h"
+#include "ui/BetaAlert.h"
 #include "ui/ManageVaults.h"
 #include "ui/Style.h"
 #include "ui/VaultWindow.h"
@@ -98,7 +100,8 @@ public:
         buildActions_();
 
         initCommonVault_();
-        restoreSessionOrShowManageVaults_();
+        auto* front = restoreSessionOrShowManageVaults_();
+        maybeShowBetaAlert_(front);
 
         updater_.start(
             appConfig_.checksForUpdates(),
@@ -417,10 +420,11 @@ private:
     // is the per-candidate guard: any present folder is a valid vault, so only
     // a moved/deleted one is skipped. Each reopen reuses the one open/make
     // convergence point; the registry is path-keyed, so none early-returns as
-    // already-open
-    void restoreSessionOrShowManageVaults_()
+    // already-open. Returns the window left in front: the last vault's, or the
+    // picker
+    QWidget* restoreSessionOrShowManageVaults_()
     {
-        auto restored = false;
+        Coco::Path front{};
 
         for (const auto& root : appConfig_.openVaultPaths()) {
             if (!root.exists()) {
@@ -428,12 +432,30 @@ private:
             }
 
             onOpenOrMakeVaultRequested_(root);
-            restored = true;
+            front = root;
         }
 
-        if (!restored) {
+        if (front.isEmpty()) {
             openManageVaults_();
+            return manageVaults_;
         }
+
+        return openVaults_.value(PathKey::of(resolvedRoot_(front))).vaultWindow;
+    }
+
+    // The beta warning, over the window in front, unless this version's was
+    // muted (AppConfig::betaAlertMutedFor). A stable build has none
+    void maybeShowBetaAlert_(QWidget* front)
+    {
+        if (!VERSION_IS_PRERELEASE ||
+            appConfig_.betaAlertMutedFor() == VERSION_FULL_QSTRING) {
+            return;
+        }
+
+        BetaAlert::open(front, [this] {
+            appConfig_.setBetaAlertMutedFor(VERSION_FULL_QSTRING);
+            appConfig_.save();
+        });
     }
 
     void openManageVaults_()

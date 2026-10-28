@@ -20,6 +20,7 @@
 #include <QList>
 #include <QMessageBox>
 #include <QSplitter>
+#include <QString>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -30,11 +31,14 @@
 #include "core/PathKey.h"
 #include "core/Vault.h"
 #include "core/VaultEntry.h"
+#include "core/git/GitRepository.h"
 #include "ui/OpenMode.h"
 #include "ui/UiConstants.h"
+#include "ui/git/GitPage.h"
 #include "ui/sidebar/Drawer.h"
 #include "ui/sidebar/FocusTimerButton.h"
 #include "ui/sidebar/SettingsButton.h"
+#include "ui/sidebar/SidebarPages.h"
 #include "ui/sidebar/VaultFileTree.h"
 #include "ui/sidebar/VaultSwitcher.h"
 
@@ -42,9 +46,15 @@ namespace Fernanda::Ui {
 
 // The vault window's left column, top to bottom:
 //
-//   1. VaultFileTree   — this vault's tree              [splitter pane]
-//   2. Drawer          — the Common Vault, collapsible  [splitter pane]
-//   3. VaultSwitcher    — other vaults + Manage Vaults   [fixed bar]
+//   1. SidebarPages     — a row of page buttons, while there's more than one
+//                         page, over the page that shows:
+//      Files            — the splitter below, always the first page
+//        VaultFileTree  — this vault's tree              [splitter pane]
+//        Drawer         — the Common Vault, collapsible  [splitter pane]
+//      GitPage          — the repository's changes, while the vault's Git
+//                         setting is on and the vault is in a repository
+//                         (or one git refuses to trust, which it offers to)
+//   2. VaultSwitcher    — other vaults + Manage Vaults   [fixed bar]
 //      FocusTimerButton — the window's focus timer, while it's switched on
 //      SettingsButton   — this vault's settings, at the bar's right
 //
@@ -59,7 +69,11 @@ namespace Fernanda::Ui {
 // hands it through and relays the switcher's choice back up to the window.
 //
 // The focus timer is the window's; the Sidebar only holds its button, which
-// it shows while the vault's settings switch the timer on
+// it shows while the vault's settings switch the timer on. The Git repository
+// is the window's too, which decides when git runs; the Sidebar holds the Git
+// page, adds it and takes it away as the setting and the repository say, and
+// switches to it and back on the window's repository.togglePage action. What
+// the page asks for, the window does (gitPage)
 class Sidebar : public QWidget
 {
     Q_OBJECT
@@ -72,6 +86,11 @@ public:
     {
         QAction* manageVaults = nullptr; // the switcher's menu item
         QAction* openSettings = nullptr; // the gear
+
+        // Switches to the Git page and back. The window registers it, for its
+        // key and menu item; the Sidebar connects it and enables it while
+        // there's a Git page, since the pages are the Sidebar's
+        QAction* toggleGit = nullptr;
     };
 
     Sidebar(
@@ -79,11 +98,13 @@ public:
         Vault* commonVault,
         const Actions& actions,
         FocusTimer* focusTimer,
+        GitRepository* gitRepository,
         std::function<QList<VaultEntry>()> vaultsProvider,
         QWidget* parentVaultWindow)
         : QWidget(parentVaultWindow)
         , vault_(vault)
         , commonVault_(commonVault)
+        , gitRepository_(gitRepository)
         , vaultsProvider_(std::move(vaultsProvider))
     {
         setup_(actions, focusTimer);
@@ -119,6 +140,11 @@ public:
     // commonTree()
     [[nodiscard]] Drawer* commonDrawer() const { return commonDrawer_; }
 
+    // The Git page, for the window to connect what it asks for (opening a
+    // diff or a file) and to say which files it may offer to open. It exists
+    // for the sidebar's life, whether or not it's among the pages
+    [[nodiscard]] GitPage* gitPage() const { return gitPage_; }
+
 signals:
     // The one intent the window acts on. The window decides from the key which
     // of its vaults the file is in. The mode says whether to take over the
@@ -138,9 +164,13 @@ signals:
 private:
     Vault* vault_ = nullptr;
     Vault* commonVault_ = nullptr;
+    GitRepository* gitRepository_ = nullptr;
     std::function<QList<VaultEntry>()> vaultsProvider_;
 
+    SidebarPages* pages_ = new SidebarPages(this);
     QSplitter* splitter_ = new QSplitter(Qt::Vertical, this);
+    GitPage* gitPage_ = nullptr;
+    QAction* toggleGit_ = nullptr;
     VaultFileTree* fileTree_ = nullptr;
     VaultFileTree* commonTree_ = nullptr;
     Drawer* commonDrawer_ = nullptr;
@@ -161,10 +191,18 @@ private:
         splitter_->setStretchFactor(0, 1); // tree grows; drawer stays put
         splitter_->setHandleWidth(1);
 
+        // The files are the first page, and the one that shows at first
+        pages_->addPage(
+            splitter_,
+            QString::fromLatin1(SIDEBAR_FILES_ICON_PATH),
+            tr("Files"));
+
         auto* layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
-        layout->addWidget(splitter_);
+        layout->addWidget(pages_);
+
+        setupGitPage_(actions.toggleGit);
 
         // The switcher — a fixed-height bar below the splitter, not a pane.
         // Handed this vault's root so it can drop itself from the "other
@@ -228,6 +266,69 @@ private:
     void showFocusTimerButton_()
     {
         focusTimerButton_->setVisible(vault_->config().focusTimerEnabled());
+    }
+
+    // The Git page, built now and kept, added to the pages and taken away as
+    // the vault's Git setting and the repository say: on every settings
+    // change, and whenever the repository is found or lost
+    void setupGitPage_(QAction* toggleGit)
+    {
+        gitPage_ = new GitPage(gitRepository_, this);
+        gitPage_->hide();
+
+        toggleGit_ = toggleGit;
+        connect(
+            toggleGit_,
+            &QAction::triggered,
+            this,
+            &Sidebar::toggleGitPage_);
+
+        connect(vault_, &Vault::configChanged, this, &Sidebar::updateGitPage_);
+
+        connect(
+            gitRepository_,
+            &GitRepository::foundChanged,
+            this,
+            &Sidebar::updateGitPage_);
+
+        updateGitPage_();
+    }
+
+    // A repository git refuses to trust gets the page too, which offers to
+    // trust it, as GitHub Desktop does
+    void updateGitPage_()
+    {
+        auto available = vault_->config().gitEnabled() &&
+                         (gitRepository_->isFound() ||
+                          !gitRepository_->untrustedFolder().isEmpty());
+
+        if (available && !pages_->hasPage(gitPage_)) {
+            pages_->addPage(
+                gitPage_,
+                QString::fromLatin1(SIDEBAR_GIT_ICON_PATH),
+                tr("Git"));
+        } else if (!available && pages_->hasPage(gitPage_)) {
+            pages_->removePage(gitPage_);
+        }
+
+        toggleGit_->setEnabled(available);
+    }
+
+    // To the Git page, or back to the files when it shows, with the focus
+    // following: the Git page's list, or this vault's tree
+    void toggleGitPage_()
+    {
+        if (!pages_->hasPage(gitPage_)) {
+            return;
+        }
+
+        if (pages_->currentPage() == gitPage_) {
+            pages_->setCurrentPage(splitter_);
+            fileTree_->setFocus();
+        } else {
+            pages_->setCurrentPage(gitPage_);
+            gitPage_->setFocus();
+        }
     }
 
     // A pointer test: App hands the Common Vault's own window App's own

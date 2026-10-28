@@ -13,8 +13,6 @@
 #pragma once
 
 #include <QAbstractButton>
-#include <QApplication>
-#include <QCursor>
 #include <QFontMetrics>
 #include <QJsonObject>
 #include <QPaintEvent>
@@ -40,6 +38,7 @@
 #include "ui/UiConstants.h"
 #include "ui/widgets/ButtonWash.h"
 #include "ui/widgets/Glyph.h"
+#include "ui/widgets/HoverSync.h"
 
 namespace Fernanda::Ui {
 
@@ -537,26 +536,13 @@ private:
         applyExpansion_(checked, true);
         emit stateChanged();
 
+        // A toggle moves the header away from a pointer that stays put. It
+        // moves with the drawer, not within it, so HoverSync::follow wouldn't
+        // see it
         Coco::Time::onNextTick(this, [this] {
-            syncHeaderHover_();
+            HoverSync::sync(header_);
             emit expansionSettled();
         });
-    }
-
-    // Qt marks which widget is under the mouse only when the mouse moves (or a
-    // widget is shown or hidden). A toggle moves the header away from a cursor
-    // that stays put, so the header stays marked as under the mouse, and keeps
-    // its wash, until the next move. widgetAt finds what that move would, and
-    // the move sets the same flag again, so this only brings it forward
-    void syncHeaderHover_()
-    {
-        auto hovered = QApplication::widgetAt(QCursor::pos()) == header_;
-        if (header_->underMouse() == hovered) {
-            return;
-        }
-
-        header_->setAttribute(Qt::WA_UnderMouse, hovered);
-        header_->update();
     }
 };
 
