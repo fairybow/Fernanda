@@ -4,7 +4,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
-- [ ] Sidebar page switch buttons need constant for padding between the buttons (right now they're completely adjacent)
+- [x] Sidebar page switch buttons need constant for padding between the buttons (right now they're completely adjacent)
 - [ ] Switch line highlights (in editor, not diff) back to QPalette roles? What were they before QColor?
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
 - [ ] Perhaps change FocusTimer icon to hourglass
@@ -177,7 +177,7 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 
 - [x] `GitRepository`'s class comment had lines broken short. Rewrapped
 - [x] Cleanup from the Git review: the six operation-step kinds in `GitRepository` are one, the toggle action is `repository.togglePage`, unused `using` lines are gone, the Git constants sit under their comments, and paths aren't written to a `git` that failed to start
-- [x] Remove the unused `FolderGit2`, `GitBranchPlus`, and `GitPullRequestArrow` icons from `Lucide.qrc` and `resources/lucide/`
+- [x] Remove the unused `GitBranchPlus` and `GitPullRequestArrow` icons from `Lucide.qrc` and `resources/lucide/`
 - [ ] The Git page's branch and sync buttons are `VAULT_SWITCHER_HEIGHT` tall. A shared name for a menu button's height would say what it is
 - [ ] Verify the `PrimeDocument` header, and rename it
 - [ ] Rename `BaseWindow`'s protected members that have a trailing underscore
