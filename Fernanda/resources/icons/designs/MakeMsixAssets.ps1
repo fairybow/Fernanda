@@ -5,10 +5,12 @@
 #
 # Renders as DragForIconsFromSVG.bat does: each image from the vector at twice
 # its size, then one downscale. Needs ImageMagick (DragForIconsFromSVG.bat
-# installs it)
+# installs it). DragForIconsFromSVG.bat passes the magick it found, which may not
+# be on PATH yet in a session that has just installed it
 
 param(
-    [string] $Svg = (Join-Path $PSScriptRoot 'Fernanda.svg')
+    [string] $Svg = (Join-Path $PSScriptRoot 'Fernanda.svg'),
+    [string] $Magick = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -27,11 +29,13 @@ $images = @(
 $supersample = 2
 $lanczosMin = 64
 
-$magick = Get-Command 'magick' -ErrorAction SilentlyContinue
-if (-not $magick) {
-    throw 'ImageMagick not found. Install it, or run DragForIconsFromSVG.bat once, which installs it'
+if (-not $Magick) {
+    $command = Get-Command 'magick' -ErrorAction SilentlyContinue
+    if (-not $command) {
+        throw 'ImageMagick not found. Install it, or run DragForIconsFromSVG.bat once, which installs it'
+    }
+    $Magick = $command.Source
 }
-$magick = $magick.Source
 
 $Svg = (Resolve-Path $Svg).Path
 $outDir = Join-Path $PSScriptRoot '..\..\..\..\.github\msix\Assets'
@@ -39,7 +43,7 @@ New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $outDir = (Resolve-Path $outDir).Path
 
 # The SVG's size at 96 dpi, the basis for each image's render density
-$dims = (& $magick identify -format '%w %h' $Svg) -split ' '
+$dims = (& $Magick identify -format '%w %h' $Svg) -split ' '
 $maxDim = [Math]::Max([int]$dims[0], [int]$dims[1])
 
 foreach ($image in $images) {
@@ -50,7 +54,7 @@ foreach ($image in $images) {
     $filter = if ($icon -ge $lanczosMin) { 'Lanczos' } else { 'Robidoux' }
     $density = [Math]::Ceiling(96 * $icon * $supersample / $maxDim)
 
-    & $magick -background none -density $density $Svg `
+    & $Magick -background none -density $density $Svg `
         -filter $filter -resize "${icon}x${icon}" `
         -background none -gravity center -extent "${canvas}x${canvas}" `
         -depth 8 "PNG32:$(Join-Path $outDir $name)"

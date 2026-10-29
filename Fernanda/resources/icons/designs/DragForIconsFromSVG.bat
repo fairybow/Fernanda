@@ -7,7 +7,10 @@ if "%~1"=="" (
     exit /b 1
 )
 
-set "OUT_DIR=out"
+REM The icons go straight into resources/icons, beside this folder, replacing the
+REM ones there by name. Resolved from this script's own folder, since dragging a
+REM file onto a .bat doesn't reliably start it there
+for %%I in ("%~dp0..") do set "OUT_DIR=%%~fI"
 set "STEM=%~n1"
 set "SIZES=2048 1024 512 256 128 64 48 32 24 22 16"
 set "LANCZOS_MIN=64"
@@ -42,9 +45,6 @@ if errorlevel 1 (
         exit /b 1
     )
 )
-
-if exist "%OUT_DIR%" rmdir /s /q "%OUT_DIR%"
-mkdir "%OUT_DIR%"
 
 REM --- Read the SVG's intrinsic pixel size (at 96 dpi) so density math generalizes ---
 set "IW=" & set "IH="
@@ -83,7 +83,15 @@ if errorlevel 1 (
     exit /b 1
 )
 
+echo Building the Microsoft Store assets...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0MakeMsixAssets.ps1" -Svg "%~1" -Magick "!MAGICK!"
+if errorlevel 1 (
+    echo Could not build the Microsoft Store assets.
+    pause
+    exit /b 1
+)
+
 echo.
-echo Done. Output in "%OUT_DIR%".
+echo Done. Icons in "%OUT_DIR%", Store assets in .github\msix\Assets.
 endlocal
 pause
