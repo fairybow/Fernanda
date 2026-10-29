@@ -111,17 +111,33 @@ foreach ($size in 16, 24, 32, 48, 256) {
 # --- Package ---
 
 # resources.pri is the index Windows uses to pick among the assets' variants.
-# Its config stays outside the layout, so it isn't packaged
+# Its config and the index itself are written outside the layout, so makepri
+# doesn't index its own files, and only the index is moved in.
+#
+# NB: makepri's default config splits each scale into its own .pri, for the
+# resource packages of an .msixbundle. This is a single package, where Windows
+# reads only resources.pri, so the split would hide every scale-200 asset. The
+# config's packaging element is what asks for the split, so it is removed
 $priConfig = Join-Path $Output 'priconfig.xml'
+$pri = Join-Path $Output 'resources.pri'
 Invoke-Tool $makepri @('createconfig', '/cf', $priConfig, '/dq', 'en-US', '/pv', '10.0.0', '/o')
+
+$config = [xml]([IO.File]::ReadAllText($priConfig))
+$packaging = $config.SelectSingleNode('/resources/packaging')
+if ($packaging) {
+    $packaging.ParentNode.RemoveChild($packaging) | Out-Null
+}
+$config.Save($priConfig)
+
 Invoke-Tool $makepri @(
     'new',
     '/pr', $layout,
     '/cf', $priConfig,
     '/mn', (Join-Path $layout 'AppxManifest.xml'),
-    '/of', (Join-Path $layout 'resources.pri'),
+    '/of', $pri,
     '/o'
 )
+Move-Item -Path $pri -Destination $layout
 
 $msix = Join-Path $Output "Fernanda_${Version}_Windows-x64.msix"
 Invoke-Tool $makeappx @('pack', '/d', $layout, '/p', $msix, '/o')
