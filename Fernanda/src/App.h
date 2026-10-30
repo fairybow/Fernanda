@@ -38,6 +38,7 @@
 #include "core/CMakeMacroGuard.h"
 #include "core/Clargs.h"
 #include "core/Io.h"
+#include "core/Msix.h"
 #include "core/PathKey.h"
 #include "core/Publication.h"
 #include "core/Translations.h"
@@ -103,9 +104,13 @@ public:
         auto* front = restoreSessionOrShowManageVaults_();
         maybeShowBetaAlert_(front);
 
-        updater_.start(
-            appConfig_.checksForUpdates(),
-            appConfig_.dismissedUpdate());
+        // The Store updates its own version, and allows no other way to
+        // update, so the Store version never checks
+        if (!Msix::runsFromPackage()) {
+            updater_.start(
+                appConfig_.checksForUpdates(),
+                appConfig_.dismissedUpdate());
+        }
 
         initialized_ = true;
         DEBUG(this, "Initialized");

@@ -1164,6 +1164,10 @@
         <translation type="unfinished">Versión actual: %1 (%2)</translation>
     </message>
     <message>
+        <source>Updates come from the Microsoft Store.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Check for updates automatically</source>
         <translation type="unfinished">Buscar actualizaciones automáticamente</translation>
     </message>

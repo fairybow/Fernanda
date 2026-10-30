@@ -209,6 +209,7 @@ set(APP_HEADERS
     src/core/FocusTimer.h
     src/core/Io.h
     src/core/JsonIo.h
+    src/core/Msix.h
     src/core/PathKey.h
     src/core/Publication.h
     src/core/RecentFiles.h
