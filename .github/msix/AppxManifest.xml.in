@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Fernanda's MSIX manifest for the Microsoft Store. BuildMsix.ps1 replaces
+  @VERSION@ with Major.Minor.Patch.0 and writes the result into the package as
+  AppxManifest.xml.
+
+  NB: Identity Name, Publisher, and PublisherDisplayName are the product's
+  identity in Partner Center. Never change them: the Store matches every
+  submission to the product by them, and Windows keys the app's data to them
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap rescap">
+
+  <Identity
+    Name="fairybow.Fernanda"
+    Publisher="CN=E2FFD651-05B4-436E-9E13-6D91898FC718"
+    Version="@VERSION@"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Fernanda</DisplayName>
+    <PublisherDisplayName>fairybow</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <!-- 1809 is the oldest Windows the Store installs MSIX packages on -->
+  <Dependencies>
+    <TargetDeviceFamily
+      Name="Windows.Desktop"
+      MinVersion="10.0.17763.0"
+      MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <!-- The languages the Store listing can be written in -->
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application
+      Id="Fernanda"
+      Executable="Fernanda.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Fernanda"
+        Description="A plain-text writing app for fiction, poetry, and long projects"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png" />
+    </Application>
+  </Applications>
+
+  <!-- A desktop app runs with the user's ordinary rights -->
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+
+</Package>

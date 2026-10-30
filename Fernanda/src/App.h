@@ -1,6 +1,8 @@
 /*
  * Fernanda — A plain-text writing app for fiction, poetry, and long projects
  * Copyright (C) 2026 fairybow
+ * <https://fernanda.fairybow.com>
+ * <https://github.com/fairybow/Fernanda>
  *
  * This program is free software, redistributable and/or modifiable under the
  * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
@@ -38,6 +40,7 @@
 #include "core/CMakeMacroGuard.h"
 #include "core/Clargs.h"
 #include "core/Io.h"
+#include "core/Msix.h"
 #include "core/PathKey.h"
 #include "core/Publication.h"
 #include "core/Translations.h"
@@ -103,9 +106,13 @@ public:
         auto* front = restoreSessionOrShowManageVaults_();
         maybeShowBetaAlert_(front);
 
-        updater_.start(
-            appConfig_.checksForUpdates(),
-            appConfig_.dismissedUpdate());
+        // The Store updates its own version, and allows no other way to
+        // update, so the Store version never checks
+        if (!Msix::runsFromPackage()) {
+            updater_.start(
+                appConfig_.checksForUpdates(),
+                appConfig_.dismissedUpdate());
+        }
 
         initialized_ = true;
         DEBUG(this, "Initialized");

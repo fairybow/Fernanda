@@ -1,6 +1,8 @@
 /*
  * Fernanda — A plain-text writing app for fiction, poetry, and long projects
  * Copyright (C) 2026 fairybow
+ * <https://fernanda.fairybow.com>
+ * <https://github.com/fairybow/Fernanda>
  *
  * This program is free software, redistributable and/or modifiable under the
  * terms of the GNU GPL v3. It's distributed in the hope that it will be useful
@@ -24,6 +26,7 @@
 
 #include <Coco/Debug.h>
 
+#include "core/Msix.h"
 #include "core/Publication.h"
 #include "core/Translations.h"
 #include "core/Updater.h"
@@ -38,7 +41,9 @@ namespace Fernanda::Ui {
 // The settings dialog's General page, Obsidian's: the running version, a check
 // for a newer one, whether Fernanda checks on its own, and the interface
 // language. Fernanda doesn't download or install updates; a found one is linked
-// to its release page.
+// to its release page. The Microsoft Store version (Msix) never checks,
+// since the Store updates it, so its page has the version and the language
+// only.
 //
 // Unlike the other pages, nothing here belongs to the vault. The settings are
 // App's (Updater, Translations), so every vault's General page shows the same
@@ -82,21 +87,31 @@ private:
     void setup_()
     {
         addHeading(tr("App"));
-        setupVersionRow_();
-        setupAutomaticRow_();
+
+        if (Msix::runsFromPackage()) {
+            setupStoreVersionRow_();
+        } else {
+            setupVersionRow_();
+            setupAutomaticRow_();
+        }
+
         setupLanguageRow_();
+    }
 
-        connect(
-            updater_,
-            &Updater::stateChanged,
-            this,
-            &SettingsGeneralPage::showState_);
+    [[nodiscard]] QString versionText_() const
+    {
+        return tr("Current version: %1 (%2)")
+            .arg(VERSION_FULL_QSTRING, PUB_RELEASE_NAME_QSTRING);
+    }
 
-        connect(updater_, &Updater::settingsChanged, this, [this] {
-            automatic_->setChecked(updater_->checksAutomatically());
-        });
-
-        showState_();
+    // The version alone. A row takes a control, and this one has nothing to
+    // hold
+    void setupStoreVersionRow_()
+    {
+        addRow(
+            versionText_(),
+            tr("Updates come from the Microsoft Store."),
+            new QWidget(content()));
     }
 
     // The version, with the last check's result under it, and the buttons
@@ -123,11 +138,15 @@ private:
         connect(check, &QPushButton::clicked, updater_, &Updater::check);
 
         // The description is the check's result, which showState_ fills in
-        versionRow_ = addRow(
-            tr("Current version: %1 (%2)")
-                .arg(VERSION_FULL_QSTRING, PUB_RELEASE_NAME_QSTRING),
-            {},
-            control);
+        versionRow_ = addRow(versionText_(), {}, control);
+
+        connect(
+            updater_,
+            &Updater::stateChanged,
+            this,
+            &SettingsGeneralPage::showState_);
+
+        showState_();
     }
 
     void setupAutomaticRow_()
@@ -140,6 +159,10 @@ private:
             &QAbstractButton::toggled,
             updater_,
             &Updater::setChecksAutomatically);
+
+        connect(updater_, &Updater::settingsChanged, this, [this] {
+            automatic_->setChecked(updater_->checksAutomatically());
+        });
 
         addRow(
             tr("Check for updates automatically"),

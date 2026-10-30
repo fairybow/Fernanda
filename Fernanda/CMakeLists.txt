@@ -1,5 +1,7 @@
 # Fernanda — A plain-text writing app for fiction, poetry, and long projects
 # Copyright (C) 2026 fairybow
+# <https://fernanda.fairybow.com>
+# <https://github.com/fairybow/Fernanda>
 #
 # This program is free software, redistributable and/or modifiable under the
 # terms of the GNU GPL v3. It's distributed in the hope that it will be useful
@@ -209,6 +211,7 @@ set(APP_HEADERS
     src/core/FocusTimer.h
     src/core/Io.h
     src/core/JsonIo.h
+    src/core/Msix.h
     src/core/PathKey.h
     src/core/Publication.h
     src/core/RecentFiles.h
