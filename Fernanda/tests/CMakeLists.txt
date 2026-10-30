@@ -1,5 +1,6 @@
 # Fernanda — A plain-text writing app for fiction, poetry, and long projects
 # Copyright (C) 2026 fairybow
+#
 # <https://fernanda.fairybow.com>
 # <https://github.com/fairybow/Fernanda>
 #
