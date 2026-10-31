@@ -22,8 +22,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# The Store takes only four numbers ending in 0, so the prerelease label has no
-# place in the package's version
+# An MSIX version is Major.Minor.Build.Revision, and the Store requires the
+# Revision to be 0. Fernanda's Major.Minor.Patch fills the first three, so a
+# patch is an ordinary new version. There's no room for a prerelease label:
+# a beta and a release with the same three numbers would be the same version,
+# and the Store takes each version once
 if ($Version -notmatch '^\d+\.\d+\.\d+$') {
     throw "Version must be Major.Minor.Patch, not '$Version'"
 }

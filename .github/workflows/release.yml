@@ -105,9 +105,10 @@ jobs:
           echo "version_numeric=${numeric}" >> "$GITHUB_OUTPUT"
           echo "is_prerelease=$([ "$is_pre" = "1" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
-          # The Store takes a package only for a higher Major.Minor.Patch (its
-          # versions have no prerelease label), so a later prerelease of the
-          # same version gets none
+          # The Store takes each package version once, and only higher ones.
+          # Its version is Major.Minor.Patch.0 (BuildMsix.ps1), with no room
+          # for a prerelease label, so a later prerelease of the same version
+          # gets no package. Patches and every stable release do
           if [ "$is_pre" = "0" ] || [[ "$pre" =~ \.0$ ]]; then
             msix=true
           else
