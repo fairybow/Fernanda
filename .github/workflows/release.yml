@@ -11,12 +11,23 @@
 #   linux          -> AppImage (x86_64)
 #   macos          -> .dmg (ARM / Apple Silicon)
 #   windows        -> Inno Setup installer (.exe)
-#   release        -> Attaches all artifacts to the GitHub Release
+#   msix           -> MSIX package (.msix) for the Microsoft Store, from the
+#                     windows job's deployment. Uploaded to the run, never to
+#                     the release, and only for a stable version or a
+#                     prerelease whose label ends in .0
+#   release        -> Attaches the AppImage, .dmg, and installer to the GitHub
+#                     Release
+#
+# The release doesn't wait for msix, so a failed package never holds up the
+# release. Re-running the failed msix job builds the package again from the
+# same deployment, which stays on the run with the run's other artifacts
 #
 # Path assumptions (from repo root):
 #   (.github/workflows/release.yml)
 #   .github/WindowsInstaller.iss
+#   .github/msix/                    (manifest template and assets)
 #   .github/scripts/build_release_text.py
+#   .github/scripts/BuildMsix.ps1
 #   Fernanda/                        (CMake source dir)
 #   Fernanda/src/core/Version.h
 #   Fernanda/src/core/Publication.h
@@ -57,6 +68,7 @@ jobs:
       version_full:    ${{ steps.v.outputs.version_full }}
       version_numeric: ${{ steps.v.outputs.version_numeric }}
       is_prerelease:   ${{ steps.v.outputs.is_prerelease }}
+      msix:            ${{ steps.v.outputs.msix }}
     steps:
       - uses: actions/checkout@v5
 
@@ -93,7 +105,17 @@ jobs:
           echo "version_numeric=${numeric}" >> "$GITHUB_OUTPUT"
           echo "is_prerelease=$([ "$is_pre" = "1" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
-          echo "Parsed: ${app} ${full} (numeric: ${numeric})"
+          # The Store takes a package only for a higher Major.Minor.Patch (its
+          # versions have no prerelease label), so a later prerelease of the
+          # same version gets none
+          if [ "$is_pre" = "0" ] || [[ "$pre" =~ \.0$ ]]; then
+            msix=true
+          else
+            msix=false
+          fi
+          echo "msix=${msix}" >> "$GITHUB_OUTPUT"
+
+          echo "Parsed: ${app} ${full} (numeric: ${numeric}, MSIX: ${msix})"
 
   # ===========================================================================
   # Linux AppImage
@@ -306,6 +328,17 @@ jobs:
             --skip-plugin-types generic,networkinformation `
             "$temp/${{ env.APP }}.exe"
 
+      # For the msix job, before the installer's VC++ Redistributable joins
+      # the staging folder. NB: The path starts with a dot, so hidden files
+      # are included explicitly; the deployment itself has none
+      - name: Upload deployment for the MSIX
+        if: needs.parse-version.outputs.msix == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: windows-deploy
+          path: .github/temp/
+          include-hidden-files: true
+
       # Extracted to {tmp} and run by the installer, never installed
       # (WindowsInstaller.iss, [Files])
       - name: Download VC++ Redistributable
@@ -349,6 +382,47 @@ jobs:
           path: output/${{ env.APP }}_*.exe
 
   # ===========================================================================
+  # MSIX package (Microsoft Store)
+  # ===========================================================================
+  #
+  # Unsigned: Partner Center signs it on submission. Built from the windows
+  # job's deployment rather than a fresh build, so re-running this job alone
+  # packages the exact exe that was released. A Developer Command Prompt puts
+  # makeappx and makepri on PATH and sets VCToolsRedistDir (BuildMsix.ps1)
+
+  msix:
+    needs: [parse-version, windows]
+    if: needs.parse-version.outputs.msix == 'true'
+    runs-on: windows-latest
+    env:
+      APP: ${{ needs.parse-version.outputs.app_name }}
+      VER_NUMERIC: ${{ needs.parse-version.outputs.version_numeric }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: windows-deploy
+          path: deploy
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build MSIX
+        shell: pwsh
+        run: |
+          & .github/scripts/BuildMsix.ps1 `
+            -Deployment deploy `
+            -Version "${{ env.VER_NUMERIC }}" `
+            -Output msix
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: windows-msix
+          path: msix/${{ env.APP }}_*.msix
+
+  # ===========================================================================
   # Attach to GitHub Release
   # ===========================================================================
 
@@ -363,9 +437,19 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Each by name, so the msix job's artifacts (the deployment and the
+      # package) stay out of the release
       - uses: actions/download-artifact@v7
         with:
-          merge-multiple: true
+          name: linux-appimage
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: macos-dmg
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: windows-installer
 
       - name: Assemble release body
         id: body
