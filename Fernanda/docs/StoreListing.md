@@ -13,12 +13,14 @@ Fernanda (the reserved name; chosen from the drop-down)
 Shown at the top of the listing. Up to 1,000 characters, but some views show only the first 270, so it stays under that.
 
 ```
-A writing app for fiction, poetry, and long projects. Your work is plain-text files in a folder you choose, saved as you type, with tabs, split panes, spellcheck, a focus timer, and Git built in.
+A writing app for fiction, poetry, and long projects, where everything you write stays in plain-text files you own.
 ```
 
 ## Description
 
 Required. Up to 10,000 characters. The features list below shows beside it, so this says what Fernanda is for rather than listing everything.
+
+The last paragraph says that Fernanda is free on GitHub, so no one buys it without knowing. It names GitHub but gives no address: Paint.NET's listing, which has sold a paid edition beside its free download for years, frames a purchase as support and doesn't point to the free download at all, so an address would go further than any listing known to pass certification.
 
 ```
 I'm a writer, and Fernanda is the writing app I've wanted for myself.
@@ -33,9 +35,9 @@ Fernanda never sends your writing anywhere on its own. Git reaches your reposito
 
 Fernanda is still in beta, and new features should arrive somewhat regularly. Keep backups of your work.
 
-Fernanda is free and open source, under the GNU GPL. The same app is free to download on GitHub, along with its source code. Buying it here supports its development and gets you updates through the Microsoft Store.
-
 Fernanda is an independent project and isn't affiliated with or endorsed by Obsidian.
+
+Fernanda is free and open source, under the GNU GPL, and you can download it from GitHub at no cost. If you buy it here, you're supporting its development directly, and I love you for it. You also get easy installation and automatic updates through the Microsoft Store, with every new feature and fix.
 ```
 
 ## Product features
