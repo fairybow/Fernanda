@@ -1165,7 +1165,7 @@
     </message>
     <message>
         <source>Updates come from the Microsoft Store.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Las actualizaciones llegan a través de Microsoft Store.</translation>
     </message>
     <message>
         <source>Check for updates automatically</source>

@@ -106,6 +106,35 @@ git push origin v0.0.0-beta.0
 
 <a id="releases"></a>
 
+# 0.28.0-beta.0 (A New Number) - tag v0.28.0-beta.0
+
+## What's New?
+
+**Version 0.28.** The original Fernanda, from years ago, reached version 0.27.1, and some download sites and package managers still list it as the newest Fernanda. This release jumps past it, so they know this Fernanda is the newer one. The number is the only thing that jumped: this release follows 0.12.0-beta.0.
+
+**A website.** Fernanda now has a home at [fernanda.fairybow.com](https://fernanda.fairybow.com).
+
+**Coming to the Microsoft Store.** Fernanda will also be sold in the Microsoft Store, as a way to support its development. It stays free here, and the two are the same app. The Store keeps its own version up to date, so that version doesn't check GitHub for updates; the [privacy statement](https://github.com/fairybow/Fernanda/blob/v0.28.0-beta.0/PRIVACY.md) says so.
+
+- The macOS build is now made on macOS 15, since GitHub has retired the macOS 14 machines that made it
+
+## Known Issues
+
+- Starting Fernanda while it's already open doesn't bring its window forward
+- Switching branches is refused while you have uncommitted changes. Commit or discard them first. Setting them aside (stashing) is planned
+- A pull only fast-forwards: if you've committed on two computers, the next pull is refused and nothing is merged
+- The Git page has no commit history yet, and no way to undo or amend a commit. Both are planned
+- The Spanish translation is an unreviewed draft
+- On Linux without a compositing window manager, menus and drop-down lists may show dark corners outside their rounded edges
+- Web addresses and file paths are spellchecked piece by piece, so parts like "github" and "com" are marked
+- Spelling suggestions can take a moment to appear for a long or badly garbled word
+- Pop-out windows can reopen behind their vault window
+- Closing all windows at once from the Windows taskbar reopens only one vault on the next launch
+- A file that can be reached two ways, through a symlinked folder and directly, is two documents, which can save over each other
+- macOS and Linux builds are not well-tested
+
+---
+
 # 0.12.0-beta.0 (Git and Focus Timer) - tag v0.12.0-beta.0
 
 ## What's New?
