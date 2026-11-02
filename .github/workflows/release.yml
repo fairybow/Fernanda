@@ -13,8 +13,8 @@
 #   windows        -> Inno Setup installer (.exe)
 #   msix           -> MSIX package (.msix) for the Microsoft Store, from the
 #                     windows job's deployment. Uploaded to the run, never to
-#                     the release, and only for a stable version or a
-#                     prerelease whose label ends in .0
+#                     the release, and only for a stable version or, before
+#                     1.0, a prerelease whose label ends in .0
 #   release        -> Attaches the AppImage, .dmg, and installer to the GitHub
 #                     Release
 #
@@ -107,9 +107,13 @@ jobs:
 
           # The Store takes each package version once, and only higher ones.
           # Its version is Major.Minor.Patch.0 (BuildMsix.ps1), with no room
-          # for a prerelease label, so a later prerelease of the same version
-          # gets no package. Patches and every stable release do
-          if [ "$is_pre" = "0" ] || [[ "$pre" =~ \.0$ ]]; then
+          # for a prerelease label, so a prerelease and the release with its
+          # numbers would be one version. Before 1.0, every release has new
+          # numbers, so its first prerelease gets a package and later ones
+          # don't. From 1.0 on, a prerelease leads up to a release with its
+          # numbers, so only the release does. Patches and every stable
+          # release get one
+          if [ "$is_pre" = "0" ] || { [ "$major" = "0" ] && [[ "$pre" =~ \.0$ ]]; }; then
             msix=true
           else
             msix=false
