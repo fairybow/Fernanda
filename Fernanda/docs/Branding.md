@@ -76,10 +76,11 @@ A stroke lighter than the background disappears on white, and one darker than th
 
 ### Making the icon files
 
-Drag `Fernanda.svg` onto `resources/icons/designs/DragForIconsFromSVG.bat`. It writes every PNG size, `Fernanda.ico`, and `Fernanda.icns` to an `out` folder beside it; copy them into `resources/icons/`.
+Drag `Fernanda.svg` onto `resources/icons/designs/DragForIconsFromSVG.bat`. It writes every PNG size, `Fernanda.ico`, and `Fernanda.icns` into `resources/icons/`, over the files already there, and the Microsoft Store package's images into `.github/msix/Assets/`. Git's diff shows what changed.
 
 - ImageMagick renders the PNGs and the `.ico`. The script installs it with winget if it's missing.
 - ImageMagick can't write `.icns`, so `MakeIcns.ps1` packs the PNGs into one. An `.icns` holds PNGs unchanged, so it needs nothing else installed.
+- `MakeMsixAssets.ps1` renders the Store package's tile, Store logo, and scaled app icon, which have no matching size here. It can also be run on its own. The package's fixed-size app icons are the PNGs in `resources/icons/`, copied in when the package is built.
 
 ## The banner
 

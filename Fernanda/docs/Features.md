@@ -1,6 +1,6 @@
 # Features
 
-Current version: 0.12.0-beta.0
+Current version: 0.28.0-beta.0
 
 What Fernanda does today. For what is planned, undecided, or deliberately left out, see [Future.md](Future.md). For how it is built, see [Architecture.md](Architecture.md).
 
@@ -296,7 +296,7 @@ Fernanda draws its own interface, the same on every operating system: flat and q
 
 Ctrl+, or the gear beside the vault switcher. Settings belong to the vault and apply as you change them, apart from General's, which belong to Fernanda as a whole.
 
-- **General**: the version, Check for updates, whether Fernanda checks on its own, and the interface language
+- **General**: the version, Check for updates, whether Fernanda checks on its own, and the interface language. The Microsoft Store version has the version and the language only (see [Updates](#updates))
 - **Editor**: line numbers, wrap lines, left/right margin, highlight current line, selection handles, tab width, center on scroll, double-click selects whitespace, typing helpers (auto-pair brackets and quotes, step past closing punctuation), check spelling, spelling language
 - **Appearance**: text font, bold, italic, font size
 - **Status bar**: the word counter and the cursor position, and which parts of each to show
@@ -309,12 +309,23 @@ A Common Vault file opened in a project's window uses that project's settings.
 
 Fernanda tells you when a newer version is out. It doesn't download or install it: to update, download the installer from the release page and run it, as you installed Fernanda.
 
+The Microsoft Store version is the exception: the Store keeps it up to date, so it never checks, and nothing below applies to it. Its General page shows the version, with "Updates come from the Microsoft Store."
+
 - Settings → General shows the version you have and a Check for updates button. When a newer version is out, it names it, and Open release page takes you to it
 - Fernanda also checks on its own, a few seconds after it starts and then once a day while it runs. A check is one request to GitHub for the list of releases. It sends nothing from your vaults or files, but like any web request it shows GitHub your IP address, and it names Fernanda's version. The [privacy statement](../../PRIVACY.md) has the details
 - "Check for updates automatically", in General, turns this off. The Windows installer asks too: its answer is the starting point for everyone who uses that install, and the switch in General changes it for you. The macOS and Linux builds have no installer, so there it starts on
 - When a newer version is found, an arrow appears in the status bar of every window. Clicking it opens General. It then stays hidden until a still newer version comes out
 - While Fernanda is in beta, every release counts, betas included
 - While Fernanda is in beta, it warns at launch not to trust your writing entirely to a beta, and to keep backups. "Don't show this again for this version" silences it until the next version
+
+## The Microsoft Store version
+
+The same app, for Windows (x64), installed and updated through the Microsoft Store. It differs from the downloaded version in where it keeps its own settings, and in updates (see [Updates](#updates)).
+
+- On its first launch, it uses the downloaded version's settings and vault list, if they're on the computer
+- Otherwise it keeps its own, apart from the downloaded version's, and from then on always uses those, even if the downloaded version is installed later. The two then each keep their own
+- Uninstalling it removes only its own settings and vault list. The downloaded version's, and your vaults, are never touched
+- Only one Fernanda runs at a time, whichever version: starting one while the other is open does nothing
 
 ## Language
 
@@ -396,6 +407,7 @@ Fernanda follows Obsidian's behavior wherever it has no reason not to. Where it 
 
 ## Known limits
 
+- Starting Fernanda while it's already open doesn't bring its window forward
 - A file name with a period and no real extension (`Chapter 1. The Start`) is read as having an unsupported extension, so the file is hidden
 - On Windows, while Fernanda is open, other programs can't rename or delete a folder if one of its subfolders has been expanded in a file tree or holds an open file. Fernanda's own rename, move, and delete are unaffected
 - A vault folder moved or renamed outside Fernanda is a new vault to Fernanda: open it again from its new place. Its settings and layout travel with it

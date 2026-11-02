@@ -413,6 +413,7 @@ All of it but a vault's dictionary is JSON, read and written by stateless free f
 - **Config types are plain values, not `QObject`s.** `Vault` announces a settings change with one signal, and saves a moment later so a dragged slider writes once, or at once when a window closes or Fernanda quits.
 - **A vault setting changes one way.** `Vault::setConfig` takes the `VaultConfig` setter to call and the value. It announces and saves only if that setter reports a change, so no setting has code of its own in `Vault` to get wrong.
 - **Settings are applied from the window's vault.** A Common Vault file in a project window takes the project's settings. A tab can only move within one window family, so a view's settings source never changes.
+- **The Microsoft Store version's app data is filed by Windows.** For a packaged app, Windows creates a new file under AppData in the package's own storage, which uninstalling removes, and reads and writes a file already there in place. Once the package's copy of a file exists, it hides the real one. So the Store version uses the downloaded version's `fernanda.json` if it's there before the Store version first writes one, and its own from then on otherwise. Fernanda does nothing about it: `AppDirs` names the same paths in both versions.
 - **`ui/UiConstants.h` and `views/ViewConstants.h` are not configuration.** They hold values tuned in code and constants shared between classes.
 
 ### The known-vaults list
@@ -561,6 +562,17 @@ Fernanda tells the user about a newer release and links to it. It doesn't downlo
 - **The General page is the one page that follows a signal.** Its settings are `App`'s, shared by every vault's dialog, so it can't seed its controls once as the vault pages do.
 - **An automatic check that fails is only logged,** and the state goes back to what it was. A check the user asked for reports why it failed. One check runs at a time.
 - **The notice's click belongs to `VaultWindow`.** It wires the notice in its own status bar and in each pop-out's: dismiss the notice, which hides it in every window, and open the vault's settings on General.
+- **The Microsoft Store version never checks.** The Store updates it, and allows no other way to update. `Msix::runsFromPackage()` (`core/Msix.h`) asks Windows whether the process has a package identity. When it does, `App` never starts the `Updater`, so its state stays unchecked and no notice can show, and the General page shows the version without the update controls. The setting in `fernanda.json` is left as it was, so a downloaded version sharing the file keeps its choice.
+
+## The Microsoft Store package
+
+The Store sells an MSIX package, which Partner Center signs on submission. `.github/scripts/BuildMsix.ps1` builds it from a deployment (the exe and what `windeployqt` put beside it), with the manifest template and the images in `.github/msix/`.
+
+- **The release builds it in a job of its own.** The `windows` job uploads its deployment, and the `msix` job packages it. The release doesn't wait for `msix`, so a failed package never holds it up, and re-running `msix` alone packages the exe that was released.
+- **Each version goes to the Store once.** The Store takes only a higher version, written `Major.Minor.Build.Revision` with the revision 0. `BuildMsix.ps1` writes Fernanda's version there as `Major.Minor.Patch.0`, so a prerelease label has no place, and a prerelease and the release with its numbers would be one version. `release.yml` decides which releases get a package: every stable release, and before 1.0, a prerelease whose label ends in `.0`.
+- **The C++ runtime is in the package,** beside the exe, rather than taken from Microsoft's runtime package. Windows looks for a DLL beside the exe first, so the runtime is the one Fernanda and Qt were built against, not whichever version the machine has.
+- **The images have one index.** Windows chooses each image's size from `resources.pri`. `makepri`'s default configuration puts each scale in an index of its own, for the separate resource packages of a bundle; a single package reads only `resources.pri`, so `BuildMsix.ps1` removes that part of the configuration.
+- **The identity never changes.** The manifest's `Identity` and `PublisherDisplayName` are the product's in Partner Center. The Store matches every submission to the product by them, and Windows files the app's data under them.
 
 ## Translations
 

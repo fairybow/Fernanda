@@ -106,6 +106,9 @@ What GitHub Desktop does that the Git page doesn't yet, in the order it's planne
 
 ### Releases
 
+- **Publishing to the Microsoft Store from the release.** The release builds the Store's package (the `msix` job), and it's uploaded to Partner Center by hand. The Microsoft Store Developer CLI's GitHub Action can submit it instead. It needs the app live with one submission made by hand, and a Microsoft Entra app linked to the Partner Center account, whose credentials go in the repository's secrets
+- **A link to the Store listing** in the README and on the site, once the app is live. Its Store ID is `9NJMQV8QR056`
+- **An ARM64 Store package** beside the x64 one, which needs an ARM64 Windows build first
 - A signed Windows installer, through the SignPath Foundation's free code signing for open source. The installer already shows the privacy statement and offers to turn off the update check, as its conditions ask. Once the project is accepted, the README and every release page need a section titled "Code signing policy", naming who signs and the team's roles and linking the privacy statement, and the release notes' warning about an unsigned build goes. Until then, that section would claim something untrue
 
 ## Maybe
