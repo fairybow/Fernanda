@@ -24,7 +24,7 @@
 <p align="center">
     &nbsp
     <br>
-    <img src="pages/assets/screenshots/FernandaWindowComposite.png" alt="Screenshot" width="720">
+    <img src="pages/assets/screenshots/window-composite.png" alt="Screenshot" width="720">
     <br>
     &nbsp
 </p>
