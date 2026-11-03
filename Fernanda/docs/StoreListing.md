@@ -23,9 +23,7 @@ Required. Up to 10,000 characters. The features list below shows beside it, so t
 The last paragraph says that Fernanda is free on GitHub, so no one buys it without knowing. It names GitHub but gives no address: Paint.NET's listing, which has sold a paid edition beside its free download for years, frames a purchase as support and doesn't point to the free download at all, so an address would go further than any listing known to pass certification.
 
 ```
-I'm a writer, and Fernanda is the writing app I've wanted for myself.
-
-Fernanda is built for writing projects: novels, poetry, collections. A project is a vault, and a vault is just a folder on your computer. Everything you write stays in plain-text files you own, which any other program can open. Fernanda adds one hidden folder for its settings and leaves the rest alone.
+Fernanda is open-source* software built for writing projects: novels, poetry, collections. A project is a vault, and a vault is just a folder on your computer. Everything you write stays in plain-text files you own, which any other program can open. Fernanda adds one hidden folder for its settings and leaves the rest alone.
 
 There's no Save command and nothing to lose. Every file exists on disk from the moment it's created, and changes are written as you type. Your text is written back exactly as it was read, line endings and special characters included.
 
@@ -37,7 +35,7 @@ Fernanda is still in beta, and new features should arrive somewhat regularly. Ke
 
 Fernanda is an independent project and isn't affiliated with or endorsed by Obsidian.
 
-Fernanda is free and open source, under the GNU GPL, and you can download it from GitHub at no cost. If you buy it here, you're supporting its development directly, and I love you for it. You also get easy installation and automatic updates through the Microsoft Store, with every new feature and fix.
+*Fernanda is free and open source, under the GNU GPL, and you can download it from GitHub at no cost. If you buy it here, you're supporting its development directly, and I love you for it. You also get easy installation and automatic updates through the Microsoft Store, with every new feature and fix. In Ukraine, Fernanda is free in the Microsoft Store.
 ```
 
 ## Product features
@@ -71,12 +69,12 @@ Up to 1,500 characters. Leave it blank for the first submission. For each update
 Up to 7 terms, each up to 40 characters, and 21 different words in all. Not shown to customers.
 
 ```
-writing
-novel
+novel writing software
+poetry writing tool
+long-form prose editor
 plain text editor
-fiction writing
-poetry
 distraction free writing
+fiction writing
 manuscript
 ```
 
