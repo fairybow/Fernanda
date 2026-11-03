@@ -492,6 +492,24 @@ code {
             color: var(--muted);
         }
 
+/* Support */
+
+.support {
+    text-align: center;
+}
+
+.support-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+    .support-buttons img {
+        height: 3rem;
+        width: auto;
+    }
+
 /* Footer */
 
 .site-footer {
