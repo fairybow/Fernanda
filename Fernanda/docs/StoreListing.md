@@ -20,7 +20,7 @@ A writing app for fiction, poetry, and long projects, where everything you write
 
 Required. Up to 10,000 characters. The features list below shows beside it, so this says what Fernanda is for rather than listing everything.
 
-The last paragraph says that Fernanda is free on GitHub, so no one buys it without knowing. It names GitHub but gives no address: Paint.NET's listing, which has sold a paid edition beside its free download for years, frames a purchase as support and doesn't point to the free download at all, so an address would go further than any listing known to pass certification.
+The first sentence marks "open-source" with an asterisk, and the last paragraph is its footnote: Fernanda is free on GitHub, so no one buys it without knowing. It says "open-source" rather than "free" up front, since "free" beside a price could read as a claim about the price. It names GitHub but gives no address: Paint.NET's listing, which has sold a paid edition beside its free download for years, frames a purchase as support and doesn't point to the free download at all, so an address would go further than any listing known to pass certification.
 
 ```
 Fernanda is open-source* software built for writing projects: novels, poetry, collections. A project is a vault, and a vault is just a folder on your computer. Everything you write stays in plain-text files you own, which any other program can open. Fernanda adds one hidden folder for its settings and leaves the rest alone.
@@ -80,18 +80,30 @@ manuscript
 
 ## Screenshots
 
-At least one, and up to ten. Partner Center checks each image's size as it's uploaded. Taken at a normal window size, with a vault of sample writing rather than real work:
+At least one, and up to ten, each at least 1366 × 768. The screenshots are smaller than that, so each window is centered on the brand gradient, with the website's shadow, at its own size rather than scaled up. The files are in `Fernanda/resources/msstore/`, numbered in upload order:
 
-1. A vault window with a chapter open, the file tree beside it, and the Common Vault drawer showing
-2. Two panes side by side: a draft and its notes
-3. Find and replace in use
-4. The Git page, with a changed file's diff open
-5. Settings, on the Editor page
-6. Manage Vaults
+| File | Shows |
+| --- | --- |
+| `01-WindowComposite.png` | The vault window, split diagonally between light and dark |
+| `02-VaultLight.png`, `03-VaultDark.png` | A chapter open beside the file tree and the Common Vault drawer |
+| `04-SplitLight.png`, `05-SplitDark.png` | Two panes: a chapter and a PDF |
+| `06-GitLight.png`, `07-GitDark.png` | The Git page, with a diff open |
+| `08-SettingsLight.png`, `09-SettingsDark.png` | Settings, on the Editor page |
+| `10-ManageVaultsLight.png` | Manage Vaults |
 
 ## Store logos
 
-The 1:1 box art is required; Partner Center names its sizes on the page. Made from `Fernanda/resources/icons/designs/Fernanda.svg`, the ring centered on a plain background.
+Made from `Fernanda/resources/icons/designs/Fernanda.svg`, in `Fernanda/resources/msstore/`. Where a slot gives two sizes, it takes exactly one of them, and the larger is used.
+
+| Slot | File |
+| --- | --- |
+| 9:16 Poster art, the main logo on Windows | `PosterArt-1440x2160.png`: the ring on the brand gradient |
+| 1:1 Box art | `BoxArt-2160.png`: the ring on the brand gradient |
+| Store display images: 1:1 App tile icon, 300 × 300 | `AppTileIcon-300.png`: the ring on transparency |
+| Store display images: 1:1, 150 × 150 | `AppTileIcon-150.png` |
+| Store display images: 1:1, 71 × 71 | `AppTileIcon-71.png` |
+
+The trailer, the 16:9 Super hero art, and the Xbox images stay empty. The hero art is only needed with a trailer, and Fernanda isn't offered on Xbox.
 
 ## Additional information
 
@@ -102,6 +114,10 @@ The 1:1 box art is required; Partner Center names its sizes on the page. Made fr
 | Developed by | fairybow |
 
 A single URL in the license terms field shows as a link. Leaving it empty would put the app under Microsoft's Standard Application License Terms instead, which add restrictions the GPL doesn't allow.
+
+## Pricing and availability
+
+Every market, at a base price of $4.99, which Partner Center converts into each market's currency. Ukraine is its own market group at a price of 0, so it's free there. There's no free trial: the free download already lets anyone try it.
 
 ## Properties
 

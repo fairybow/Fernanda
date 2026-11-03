@@ -1,6 +1,6 @@
 # Branding
 
-Fernanda's icon, colors, and banner, and how the icon files are made. For the app's own look (its style and palette roles), see "The style" in [Architecture.md](Architecture.md).
+Fernanda's icon, colors, banner, and screenshots, and how the icon files are made. For the app's own look (its style and palette roles), see "The style" in [Architecture.md](Architecture.md).
 
 ## The icon
 
@@ -76,15 +76,16 @@ A stroke lighter than the background disappears on white, and one darker than th
 
 ### Making the icon files
 
-Drag `Fernanda.svg` onto `resources/icons/designs/DragForIconsFromSVG.bat`. It writes every PNG size, `Fernanda.ico`, and `Fernanda.icns` into `resources/icons/`, over the files already there, and the Microsoft Store package's images into `.github/msix/Assets/`. Git's diff shows what changed.
+Drag `Fernanda.svg` onto `resources/icons/designs/DragForIconsFromSVG.bat`. It writes every PNG size, `Fernanda.ico`, and `Fernanda.icns` into `resources/icons/`, over the files already there; the website's icons into `pages/assets/`; and the Microsoft Store package's images into `.github/msix/Assets/`. Git's diff shows what changed.
 
 - ImageMagick renders the PNGs and the `.ico`. The script installs it with winget if it's missing.
 - ImageMagick can't write `.icns`, so `MakeIcns.ps1` packs the PNGs into one. An `.icns` holds PNGs unchanged, so it needs nothing else installed.
+- The website's `icon-32.png`, `icon-64.png`, and `icon-256.png` are copies of the PNGs of those sizes, made in the same run. The site is published from `pages/` alone, so it can't use the files in `resources/icons/` directly.
 - `MakeMsixAssets.ps1` renders the Store package's tile, Store logo, and scaled app icon, which have no matching size here. It can also be run on its own. The package's fixed-size app icons are the PNGs in `resources/icons/`, copied in when the package is built.
 
 ## The banner
 
-GitHub's social preview, `resources/social/banner/GitHubSocialBanner.jpg`, made from `GitHubSocialBanner.kra` in Krita. It's uploaded by hand under the repo's Settings → Social preview; GitHub doesn't read it from the repo.
+Made in Krita from `resources/banner/GitHubSocialBanner.kra`, with its backgrounds beside it, and exported to `pages/assets/banner.jpg`. The website uses that file as its link preview image (`og:image`), and the same file is uploaded by hand as GitHub's social preview, under the repo's Settings → Social preview; GitHub doesn't read it from the repo.
 
 - **Size**: 1280 × 640
 - **Background**: `BG4.png`, a dark slate gradient from `#293642` at the top-left to `#181C27` at the bottom-right. `BG1`–`BG3` are the alternatives kept in the file
@@ -94,3 +95,10 @@ GitHub's social preview, `resources/social/banner/GitHubSocialBanner.jpg`, made 
 - **Icon**: `Fernanda-2048.png`, scaled
 
 Everything is centered horizontally, with the ring at the middle of the canvas.
+
+## Screenshots
+
+Taken on Windows of the Candide sample vault, light and dark, against a solid green background that nothing in the window uses. The green is then cut away: the window's outer pixel, blended with the green, is replaced by a 1-pixel border in grey `#707070` at 42% opacity, and the corners are rounded with a 10 px radius, both anti-aliased.
+
+- **`pages/assets/screenshots/`** holds them, as `<scene>-light.png` and `<scene>-dark.png`. The website shows each scene in the visitor's own scheme, and the README shows `window-composite.png`: the vault window split diagonally between light and dark, with a soft shadow, on a transparent background
+- **`resources/msstore/`** holds the Microsoft Store's versions: the same windows on the brand gradient, at the sizes the Store asks for, with the listing's logos. [StoreListing.md](StoreListing.md) says which file went where
