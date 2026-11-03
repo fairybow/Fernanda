@@ -279,6 +279,15 @@ code {
     background: var(--surface);
 }
 
+.button-disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.button-disabled:hover {
+    transform: none;
+}
+
 /* Screenshot */
 
 .screenshot {
