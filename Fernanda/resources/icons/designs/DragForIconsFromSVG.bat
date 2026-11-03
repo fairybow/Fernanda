@@ -11,6 +11,11 @@ REM The icons go straight into resources/icons, beside this folder, replacing th
 REM ones there by name. Resolved from this script's own folder, since dragging a
 REM file onto a .bat doesn't reliably start it there
 for %%I in ("%~dp0..") do set "OUT_DIR=%%~fI"
+
+REM The website's favicons and header icons are three of the same sizes, under
+REM pages/assets at the repository's root
+for %%I in ("%~dp0..\..\..\..\pages\assets") do set "SITE_DIR=%%~fI"
+
 set "STEM=%~n1"
 set "SIZES=2048 1024 512 256 128 64 48 32 24 22 16"
 set "LANCZOS_MIN=64"
@@ -83,6 +88,16 @@ if errorlevel 1 (
     exit /b 1
 )
 
+echo Copying the website's icons...
+for %%S in (32 64 256) do (
+    copy /y "%OUT_DIR%\%STEM%-%%S.png" "%SITE_DIR%\icon-%%S.png" >nul
+    if errorlevel 1 (
+        echo Could not copy icon-%%S.png to "%SITE_DIR%".
+        pause
+        exit /b 1
+    )
+)
+
 echo Building the Microsoft Store assets...
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0MakeMsixAssets.ps1" -Svg "%~1" -Magick "!MAGICK!"
 if errorlevel 1 (
@@ -92,6 +107,6 @@ if errorlevel 1 (
 )
 
 echo.
-echo Done. Icons in "%OUT_DIR%", Store assets in .github\msix\Assets.
+echo Done. Icons in "%OUT_DIR%", website icons in pages\assets, Store assets in .github\msix\Assets.
 endlocal
 pause
