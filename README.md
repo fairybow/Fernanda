@@ -88,6 +88,8 @@ Download the latest build for Windows, macOS, or Linux from [Releases](https://g
 
 The builds are unsigned, so Windows and macOS will warn you the first time you run one. The macOS and Linux builds aren't well tested yet.
 
+If something doesn't work, or you'd like Fernanda to do something it doesn't, please [open an issue](https://github.com/fairybow/Fernanda/issues/new/choose).
+
 ## Privacy
 
 Fernanda never sends your writing anywhere on its own. The only thing it sends unasked is the update check, a request to GitHub for the list of releases. If you use the Git page, your commits go to your repository's remote, and only when you click its sync button. The [privacy statement](PRIVACY.md) has the details.
