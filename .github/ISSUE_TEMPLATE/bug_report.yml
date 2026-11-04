@@ -1,0 +1,86 @@
+name: Bug report
+description: Something in Fernanda doesn't work as it should
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. The more of this form you fill in, the sooner it can be fixed.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What went wrong, as you saw it. Screenshots help; you can paste or drag them in.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What you did, in order, so it can be made to happen again. If it only happens sometimes, say so.
+      placeholder: |
+        1. Open a vault
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Fernanda version
+      description: Shown in Settings → General, and in Manage Vaults under the icon.
+      placeholder: e.g. 1.2.3 or 1.2.3-beta.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How you installed it
+      options:
+        - Windows installer (from GitHub)
+        - Microsoft Store
+        - macOS .dmg
+        - Linux AppImage
+        - Built from source
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system and version
+      placeholder: Windows 11 24H2, macOS 15.1, Ubuntu 24.04...
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log file
+      description: |
+        Fernanda writes a log for each launch, named for the date and time it started. Paste the one from when the problem happened, or the part of it around the problem. Logs can contain file and folder names, so check it before posting.
+
+        - **Windows (installer or built from source):** `%LOCALAPPDATA%\Fernanda\logs`
+        - **Microsoft Store:** the same folder if you used the downloaded version first; otherwise `%LOCALAPPDATA%\Packages\fairybow.Fernanda_rge2s2fqphndw\LocalCache\Local\Fernanda\logs`
+        - **macOS:** `~/Library/Application Support/Fernanda/logs`
+        - **Linux:** `~/.local/share/Fernanda/logs`
+
+        Starting Fernanda with `--verbose` writes more detail, if you can make the problem happen again that way.
+      render: text
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: Whatever else might matter, such as whether the vault is in a Git repository, synced by a service like OneDrive or Dropbox, on a network drive, or inside another vault.

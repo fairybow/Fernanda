@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Is it already planned?
+    url: https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Future.md
+    about: What's planned, what's undecided, and what's been decided against, with the reasons.
+  - name: What Fernanda does today
+    url: https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Features.md
+    about: Everything Fernanda does now, including where it differs from Obsidian.

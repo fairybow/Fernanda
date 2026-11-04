@@ -1,0 +1,36 @@
+name: Feature request
+description: Something Fernanda could do, or do better
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. Before you write it up, [Future.md](https://github.com/fairybow/Fernanda/blob/main/Fernanda/docs/Future.md) lists what's planned, what's undecided, and what's been decided against, with the reasons.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you're trying to do
+      description: The problem or need behind the idea. What gets in your way today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: What Fernanda could do about it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: obsidian
+    attributes:
+      label: How does Obsidian handle this?
+      description: Fernanda follows Obsidian's lead where it can. If Obsidian (or a plugin for it) does this, how does it work there? Leave this empty if you don't know.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: Other apps that do it well, sketches, or screenshots.
