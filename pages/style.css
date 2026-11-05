@@ -276,13 +276,14 @@ code {
     background: var(--surface);
 }
 
-.button-disabled {
-    opacity: 0.55;
-    cursor: default;
+.store-badge {
+    display: inline-block;
+    line-height: 0;
 }
 
-    .button-disabled:hover {
-        transform: none;
+    .store-badge img {
+        height: 3rem;
+        width: auto;
     }
 
 /* Screenshot */

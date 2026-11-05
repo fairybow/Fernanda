@@ -86,6 +86,8 @@ There's more, and the full list is in [Features.md](Fernanda/docs/Features.md#di
 
 Download the latest build for Windows, macOS, or Linux from [Releases](https://github.com/fairybow/Fernanda/releases). Each release's notes cover installing, updating, and uninstalling. Fernanda tells you when a newer version is out, and links you to it. You can turn that off when installing on Windows, or in Settings → General.
 
+Fernanda is also in the [Microsoft Store](https://apps.microsoft.com/detail/9NJMQV8QR056) for Windows. Buying it there supports Fernanda, and the Store keeps it up to date instead of Fernanda checking GitHub.
+
 The builds are unsigned, so Windows and macOS will warn you the first time you run one. The macOS and Linux builds aren't well tested yet.
 
 If something doesn't work, or you'd like Fernanda to do something it doesn't, please [open an issue](https://github.com/fairybow/Fernanda/issues/new/choose).
