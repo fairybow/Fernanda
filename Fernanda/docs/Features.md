@@ -97,7 +97,7 @@ Text files are read as UTF-8. A text file that isn't valid UTF-8 (an old Windows
 - Click anywhere off the rows to clear the selection
 - Drag a file or folder onto a folder to move it there, or onto empty space to move it to the vault root. Folders expand when hovered and the tree scrolls while dragging
 - Drag a file onto an editor pane to open it there
-- Delete always asks first, and moves the entry to the system trash. If the trash refuses it (a network share, for instance), nothing is deleted
+- Delete always asks first, and moves the entry to the system trash. If the trash refuses it (a network share, for instance), nothing is deleted. On macOS, Finder offers no Put Back for anything an app moves to the trash: drag it back instead
 - Names are checked as you type for characters and names the operating system forbids
 
 ### Go to File
@@ -230,6 +230,8 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 
 - The Git page lists every changed file by name, with its folder after it in muted letters and a mark at the right in the change's color: green for added, amber for modified, red for deleted, blue for renamed, and a warning triangle for a file left conflicted by a merge. A file's name always shows whole while there's room for it: the folder is shortened first, from its start, and left out when nothing of it would fit
 - A folder inside the repository that holds a Git repository of its own isn't listed
+- The list keeps Git's order, as GitHub Desktop's does: the changed files Git already tracks, then the new ones, each group by path
+- A file renamed or moved outside Git (in Fernanda's file tree, say) shows as two entries, the old name deleted and the new one added, as GitHub Desktop shows it. Committing both records the rename: Git and GitHub show it as one once it's committed
 - Double-click a file, or press Enter, to open its diff in a tab, over the current tab unless that one is pinned, as a file opens from the file tree. Right-click for Open in new tab, Open to the right, and Open in new window
 - Right-click a file for **Open file** too, which opens the file itself in a new tab (for a file in the window's vaults that Fernanda can open). If it's already the current tab, it's just shown
 - A diff's tab is marked with a diff glyph, a file with plus and minus, so it isn't taken for the file's own tab. Removed lines are red and added lines green, each with its line numbers in the old file and the new one. Within a changed line, the words that changed are marked more strongly. A line rewritten almost entirely gets no word marks, since nearly every word would have them. Lines wrap to the width of the tab, and the text is in the vault's font
@@ -245,9 +247,11 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 
 ### Discarding
 
-- Right-click a file for **Discard changes…**. It always asks first, and Cancel is the default
-- A copy of the changed file goes to the system trash, and the file goes back to how it was in the last commit. A tab showing it reloads in place, so Ctrl+Z there brings the changes back too. A file that isn't in the last commit goes to the trash itself. A renamed file goes to the trash, and its old name comes back as it was. A deleted file just comes back. A discarded copy restored from the trash comes back to a temporary folder, not to the vault
-- A conflicted file can't be discarded from the Git page. Settling a conflict is left to Git
+- Right-click a file for **Discard changes…**. Right-click the header above the list (the box that checks every file, and its count) for **Discard all changes…**, which discards every listed file, checked or not. Each always asks first, and Cancel is the default. The question for all changes names the files when there are ten or fewer, and otherwise gives their count
+- The changed file goes to the system trash, and the version from the last commit takes its place. A tab showing it reloads in place, so Ctrl+Z there brings the changes back too. A file that isn't in the last commit goes to the trash, and its tab closes. A renamed file goes to the trash, and its old name comes back as it was. A deleted file just comes back
+- A discarded file restored from the system trash goes back into the vault, over the last commit's version, so the changes come back. On macOS, Finder offers no Put Back for anything an app moves to the trash: drag it back instead
+- A file the trash refuses (on a network share, for instance) is left as it was, and a message names it. If the trash refuses every file, nothing is discarded
+- A conflicted file isn't discarded, on its own or with all changes, and the question for all changes says how many are left. Settling a conflict is left to Git
 
 ### Branches
 
@@ -280,7 +284,11 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - A commit leaves what's staged for unchecked files staged. Desktop unstages everything before it commits, so a file staged from a terminal and left unchecked comes out unstaged
 - A folder holding a repository of its own isn't listed. Desktop lists it as a new file, and committing it records only a pointer to that other repository's current commit
 - No stash. Switching with changes is refused, where Desktop offers to set the changes aside, or bring them along. A pull that would change a file you've changed is refused, where Desktop offers to set the changes aside and pull
-- No history, no merges, no amending, no discarding every change at once, and no committing part of a file
+- No history, no merges, no amending, and no committing part of a file
+- Discarding never deletes without the trash. When the trash refuses a file, Desktop offers to discard its changes permanently; Fernanda leaves the file as it was
+- Discard all changes leaves conflicted files out. Desktop discards them too, which keeps this branch's side and leaves the merge underway
+- Discard all changes is only on the list's header. Fernanda has no Branch menu, so there's no Ctrl+Shift+Backspace
+- The list takes one selection, so there's no discarding several selected files at once
 
 ## Look
 
