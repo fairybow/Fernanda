@@ -103,9 +103,9 @@ using namespace Qt::StringLiterals;
 // The menu also discards a file's changes (GitRepository::discard), after
 // asking, as the file tree asks before a delete: Cancel is the default and
 // the escape button. The question says what happens to the file: a changed
-// file's copy goes to the trash and the file goes back to its last commit; a
-// file the last commit doesn't have goes to the trash itself; a renamed file
-// goes to the trash and its old name comes back; a deleted file comes back.
+// file goes to the trash and the last commit's version takes its place; a
+// file the last commit doesn't have goes to the trash; a renamed file goes to
+// the trash and its old name comes back; a deleted file comes back.
 // Not offered for a conflicted file, which is a merge's to settle, nor while
 // the repository is busy. A discard that fails shows why in a message.
 //
@@ -667,8 +667,8 @@ private:
             box->setText(
                 tr("Are you sure you want to discard \"%1\"?").arg(name));
             box->setInformativeText(
-                tr("It isn't in the last commit, so the file itself will be "
-                   "moved to the system trash."));
+                tr("It isn't in the last commit, so the file will be moved "
+                   "to the system trash."));
         } else {
             box->setText(
                 tr("Are you sure you want to discard the changes to \"%1\"?")
@@ -716,9 +716,8 @@ private:
         }
 
         return tr(
-            "A copy of the changed file will be moved to the system "
-            "trash, and the file will go back to how it was in the "
-            "last commit.");
+            "The changed file will be moved to the system trash, and the "
+            "version from the last commit will take its place.");
     }
 
     void requestDiff_(int row, OpenMode mode)

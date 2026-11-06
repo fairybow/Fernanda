@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <utility>
 
 #include <QByteArray>
 #include <QFileSystemWatcher>
@@ -345,14 +346,26 @@ public:
     }
 
     // While something outside Fernanda rewrites files at or under the entry
-    // (a Git switch, pull, or discard), autosave leaves their buffers alone:
-    // typing goes on in the buffer, unwritten, so it can't land over what the
-    // other program writes. Without this, an autosave between that program's
-    // write and the watcher's reconcile would write the old text back over
-    // it, and the watcher would take that write for its own. Writes asked for
-    // outright (a flush, a window closing, a tab's last view closing) still
-    // happen: the text must never be dropped. Holds may overlap, from two
-    // windows over one repository; each hold is released once.
+    // (a Git switch, pull, or discard), the store leaves their buffers alone
+    // until it's done.
+    //
+    // Autosave doesn't write them: typing goes on in the buffer, unwritten,
+    // so it can't land over what the other program writes. Without this, an
+    // autosave between that program's write and the watcher's reconcile would
+    // write the old text back over it, and the watcher would take that write
+    // for its own. Writes asked for outright (a flush, a window closing, a
+    // tab's last view closing) still happen: the text must never be dropped.
+    // A file gone meanwhile is never written back (writeModel_), so one of
+    // these can't bring back a file the other program removed.
+    //
+    // And what the watcher reports about them waits for the release
+    // (reconcileOne_). A file the other program removes and then puts back (a
+    // discard trashes a file, and Git restores it) would otherwise be taken
+    // for deleted if the watcher's pass fell between the two, and its buffer
+    // and every view on it closed.
+    //
+    // Holds may overlap, from two windows over one repository; each hold is
+    // released once.
     //
     // What each held buffer's file holds now is noted, so the release can
     // tell which files changed during the hold
@@ -370,12 +383,13 @@ public:
         holds_ << hold;
     }
 
-    // The end of a hold. Each held file that changed during it is first
-    // taken in as the watcher would take it (reconcileOne_): adopted as one
-    // undoable change, so typing made meanwhile is what Ctrl+Z brings back.
-    // A file that didn't change is left alone, so typing in it stays. Then
-    // autosave writes what's left modified. A buffer opened during the hold
-    // has nothing noted, and is left to the watcher
+    // The end of a hold. Each held file that changed during it, and each the
+    // watcher reported meanwhile, is first taken in as the watcher would take
+    // it (reconcileOne_): a changed file is adopted as one undoable change,
+    // so typing made meanwhile is what Ctrl+Z brings back, and a file gone
+    // closes its buffer. A file that didn't change is left alone, so typing
+    // in it stays. Then autosave writes what's left modified. A file another
+    // hold still covers waits for that one's release
     void releaseWritesAtOrUnder(const PathKey& entry)
     {
         auto it = std::find_if(
@@ -390,19 +404,23 @@ public:
         auto hold = *it;
         holds_.erase(it);
 
-        Coco::PathList changed{};
+        QSet<PathKey> changed{};
 
         for (auto h = hold.diskHashes.cbegin(); h != hold.diskHashes.cend();
              ++h) {
             auto disk = Io::tryRead(h.key().path());
 
             if (!disk || qHash(*disk) != h.value()) {
-                changed << h.key().path();
+                changed << h.key();
             }
         }
 
-        for (const auto& changed_path : changed) {
-            reconcileOne_(changed_path);
+        for (const auto& key : std::exchange(heldChanges_, {})) {
+            changed << key;
+        }
+
+        for (const auto& key : changed) {
+            reconcileOne_(key.path());
         }
 
         for (auto* model : modelsAtOrUnder_(entry)) {
@@ -495,6 +513,10 @@ private:
 
     // One per hold, so overlapping holds of one entry each count
     QList<Hold_> holds_{};
+
+    // Files the watcher reported while a hold covered them, taken in at the
+    // release (releaseWritesAtOrUnder)
+    QSet<PathKey> heldChanges_{};
 
     [[nodiscard]] bool isHeld_(const AbstractFileModel* model) const
     {
@@ -888,7 +910,9 @@ private:
     }
 
     // One file the watcher reported, or a held file at its release: take in
-    // what's on disk if it differs from what this store last wrote there
+    // what's on disk if it differs from what this store last wrote there. A
+    // file a hold covers is set aside for the release
+    // (holdWritesAtOrUnder)
     void reconcileOne_(const Coco::Path& path)
     {
         auto key = PathKey::of(path);
@@ -900,6 +924,11 @@ private:
         }
 
         auto* model = it.value();
+
+        if (isHeld_(model)) {
+            heldChanges_ << key;
+            return;
+        }
 
         // External deletion: the buffer follows the file, through the same
         // discard an in-app trash uses

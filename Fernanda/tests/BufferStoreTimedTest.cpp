@@ -356,6 +356,61 @@ private slots:
         QTRY_COMPARE(f.read(u"a.txt"_s), QByteArray("one\ntyped"));
     }
 
+    // A file removed and put back while held, as a Git discard trashes a
+    // file and then restores it, keeps its buffer. Unheld, the watcher's pass
+    // between the two would close it. Released, the buffer holds the file's
+    // new text, one undo from the typing
+    void aFileRemovedAndBackWhileHeldStaysOpen()
+    {
+        Fixture_ f{};
+        f.replace(u"a.txt"_s, "one\n");
+        f.store.setAutosaveTiming(NEVER_MS_, NEVER_MS_);
+
+        auto* model = f.open(u"a.txt"_s);
+        QVERIFY(model);
+        QSignalSpy removed(model, &AbstractFileModel::removedFromDisk);
+
+        auto folder = PathKey::of(f.root);
+        f.store.holdWritesAtOrUnder(folder);
+        type_(model, u"typed"_s);
+        QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
+
+        QTest::qWait(SETTLE_MS_);
+        QCOMPARE(removed.count(), 0);
+
+        f.replace(u"a.txt"_s, "two\n");
+        f.store.releaseWritesAtOrUnder(folder);
+
+        QCOMPARE(removed.count(), 0);
+        QCOMPARE(model->data(), QByteArray("two\n"));
+
+        model->undo();
+        QCOMPARE(model->data(), QByteArray("one\ntyped"));
+    }
+
+    // A file removed while held, and still gone when the hold ends, closes
+    // its buffer then
+    void aFileGoneWhenAHoldEndsClosesItsBuffer()
+    {
+        Fixture_ f{};
+        f.replace(u"a.txt"_s, "one\n");
+
+        auto* model = f.open(u"a.txt"_s);
+        QVERIFY(model);
+        QSignalSpy removed(model, &AbstractFileModel::removedFromDisk);
+
+        auto folder = PathKey::of(f.root);
+        f.store.holdWritesAtOrUnder(folder);
+        QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
+
+        QTest::qWait(SETTLE_MS_);
+        QCOMPARE(removed.count(), 0);
+
+        f.store.releaseWritesAtOrUnder(folder);
+        QCOMPARE(removed.count(), 1);
+        QVERIFY(!f.exists(u"a.txt"_s));
+    }
+
     // A change that leaves the file holding what the buffer already holds is
     // not a reload
     void anOutsideChangeToTheSameBytesIsIgnored()
