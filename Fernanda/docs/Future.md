@@ -107,7 +107,7 @@ What GitHub Desktop does that the Git page doesn't yet, in the order it's planne
 ### Releases
 
 - **An ARM64 Store package** beside the x64 one, which needs an ARM64 Windows build first
-- A signed Windows installer, through the SignPath Foundation's free code signing for open source. The installer already shows the privacy statement and offers to turn off the update check, as its conditions ask. Once the project is accepted, the README and every release page need a section titled "Code signing policy", naming who signs and the team's roles and linking the privacy statement, and the release notes' warning about an unsigned build goes. Until then, that section would claim something untrue
+- A signed Windows installer, through the SignPath Foundation's free code signing for open source. The first application was declined for too little public visibility (stars, outside mentions, contributors), with an invitation to reapply once the project is better known. The installer already shows the privacy statement and offers to turn off the update check, as its conditions ask. Once the project is accepted, the README and every release page need a section titled "Code signing policy", naming who signs and the team's roles and linking the privacy statement, and the release notes' warning about an unsigned build goes. Until then, that section would claim something untrue. Paid signing (Azure Artifact Signing, or Certum's certificate for open-source developers) is the alternative; a new certificate still builds SmartScreen reputation slowly, so it doesn't remove the warning at first
 
 ## Maybe
 
