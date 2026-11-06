@@ -4,6 +4,8 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 ## Bugs
 
+- [ ] The Linux AppImage doesn't start on Ubuntu 22.04, Debian 12, Linux Mint 21, or other distros of that age. It carries no `libstdc++`, and Fernanda, built with g++ 13, needs `GLIBCXX_3.4.31`, which those distros' g++ 12 library doesn't have (the bundled Qt needs only `3.4.29`, and nothing needs a glibc newer than 2.34). It does start on Ubuntu 24.04, Debian 13, Fedora 38 and later, and Arch. Building with g++ 12 isn't an option, since Coco uses `<format>`. Until it's fixed, the README and release notes should give the minimum. The fix is to bundle g++ 13's `libstdc++` and `libgcc_s` and have the AppImage's launcher use them only when the system's are older, since an older `libstdc++` forced on a newer system breaks graphics drivers built against the system's. Linking `libstdc++` statically would leave two C++ runtimes in one process, Fernanda's and Qt's
+- [ ] The AppImage bundles only Qt's X11 platform plugin, so on a Wayland desktop Fernanda runs through XWayland, which can be blurry with fractional scaling. Bundling the Wayland plugin is a change to the AppImage step in `release.yml`
 - [x] Sidebar page switch buttons need constant for padding between the buttons (right now they're completely adjacent)
 - [ ] Switch line highlights (in editor, not diff) back to QPalette roles? What were they before QColor?
 - [ ] Would very much like a way to update the FocusTimer's current time in the context menu and tooltip in real time
@@ -102,7 +104,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] When `Vault::addToDictionary` can't write `dictionary.txt`, the failure is only logged: the word is accepted until the vault closes and is gone the next time it opens, with nothing shown
 - [ ] A bundled dictionary is copied to the dictionaries folder once and never replaced, so a newer one in a later release doesn't reach an existing install
 - [ ] If a file reloads from disk while the editor's context menu is open, a suggestion chosen afterward is inserted wherever the word's cursor ended up, not over the word
-- [ ] Menus and drop-down lists are drawn rounded in a see-through window, which needs a compositor on Linux. Without one, the corners may show dark. `Style` could draw them square there instead
+- [ ] Menus and drop-down lists are drawn rounded in a see-through window, which needs a compositor on Linux. Without one, the corners may show dark. `Style` could draw them square there instead. Under X11 with no compositor, a window drawn this way showed as a solid black box over Manage Vaults at first launch, where the beta warning opens
 - [ ] A web address or a file path is spellchecked piece by piece, so "github" and "com" are marked
 - [ ] Unverified: text in decomposed Unicode form (a letter followed by a separate combining accent) is probably marked as misspelled against a dictionary that stores the single-character form. If so, normalize a word before it is checked
 - [x] Settings sliders whose ranges differed in digits (1 to 60 and 1 to 120) were different lengths, since each readout was as wide as its own largest number. Every readout now makes room for three digits (`DISPLAY_SLIDER_READOUT_DIGITS`)
@@ -227,7 +229,6 @@ What the tests in `Fernanda/tests/` don't reach.
 - [ ] `Msix::runsFromPackage()` and the Store version's General page, which only a packaged run reaches. Checked by hand in a registered package
 - [ ] Signing in to a remote through Git Credential Manager from the Microsoft Store version: the Git hand pass's sync, in the packaged app
 - [ ] The macOS build's minimum version. Left to Qt, whose default for 6.11 is macOS 13: `otool -l Fernanda.app/Contents/MacOS/Fernanda | grep -A4 LC_BUILD_VERSION` should show `minos 13.0`. Needs a Mac
-- [ ] Whether the AppImage carries its own `libstdc++`. It's built with g++ 13 on Ubuntu 22.04, whose own is older, so without one inside it may not start on distros of that age. `ldd` on the binary inside the AppImage shows which it uses
 
 ## Audits
 
@@ -251,4 +252,4 @@ Passes over the whole codebase against [CodeStyle.md](CodeStyle.md).
 - [ ] Helper classes used in one header that could move to its `Internal` namespace (`ZoomButton` in `ZoomControl.h`, for example)
 - [ ] `TODO` comments in the source
 - [ ] Things that could move into Coco
-- [ ] Things that could be replace with a call to Coco
+- [ ] Things that could be replaced with a call to Coco
