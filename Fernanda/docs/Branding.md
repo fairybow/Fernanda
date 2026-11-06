@@ -96,9 +96,13 @@ Made in Krita from `resources/banner/GitHubSocialBanner.kra`, with its backgroun
 
 Everything is centered horizontally, with the ring at the middle of the canvas.
 
+## The Microsoft Store badge
+
+The website links to the Store listing with Microsoft's official badges, downloaded from Microsoft's badge generator and kept as Microsoft provides them in `pages/assets/microsoft-store/`: `badge-black.svg` for the light scheme and `badge-white.svg` for the dark one. The site serves its own copies rather than Microsoft's hosted ones, so a visit loads nothing from Microsoft.
+
 ## Screenshots
 
 Taken on Windows of the Candide sample vault, light and dark, against a solid green background that nothing in the window uses. The green is then cut away: the window's outer pixel, blended with the green, is replaced by a 1-pixel border in grey `#707070` at 42% opacity, and the corners are rounded with a 10 px radius, both anti-aliased.
 
 - **`pages/assets/screenshots/`** holds them, as `<scene>-light.png` and `<scene>-dark.png`. The website shows each scene in the visitor's own scheme, and the README shows `window-composite.png`: the vault window split diagonally between light and dark, with a soft shadow, on a transparent background
-- **`resources/msstore/`** holds the Microsoft Store's versions: the same windows on the brand gradient, at the sizes the Store asks for, with the listing's logos. [MicrosoftStoreListing.md](MicrosoftStoreListing.md) says which file went where
+- **`resources/microsoft-store/`** holds the Microsoft Store's versions: the same windows on the brand gradient, at the sizes the Store asks for, with the listing's logos. [MicrosoftStoreListing.md](MicrosoftStoreListing.md) says which file went where

@@ -37,6 +37,7 @@ Formatting is handled by `.clang-format` (run `wintools/ClangFormatAll.bat`): 80
 - Anything private in spirit ends with an underscore too, such as a type in an `Internal` namespace that is technically reachable.
 - A helper type used only inside one header goes in that header's `Internal` namespace, with an underscore.
 - `setupX` functions return nothing. `buildX` functions return what they built.
+- **The Microsoft Store is written out.** `microsoft-store` in file, folder, job, environment, and CSS names, and `MicrosoftStore` where a name is capitalized (`MicrosoftStoreListing.md`). `msix` and `Msix` name the package format, which is a different thing. Names Microsoft chose stay as Microsoft spells them: the manifest's `StoreLogo`, the `msstore` command.
 
 ## Classes
 

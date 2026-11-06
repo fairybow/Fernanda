@@ -80,7 +80,7 @@ manuscript
 
 ## Screenshots
 
-At least one, and up to ten, each at least 1366 × 768. The screenshots are smaller than that, so each window is centered on the brand gradient, with the website's shadow, at its own size rather than scaled up. The files are in `Fernanda/resources/msstore/`, numbered in upload order:
+At least one, and up to ten, each at least 1366 × 768. The screenshots are smaller than that, so each window is centered on the brand gradient, with the website's shadow, at its own size rather than scaled up. The files are in `Fernanda/resources/microsoft-store/`, numbered in upload order:
 
 | File | Shows |
 | --- | --- |
@@ -93,7 +93,7 @@ At least one, and up to ten, each at least 1366 × 768. The screenshots are smal
 
 ## Store logos
 
-Made from `Fernanda/resources/icons/designs/Fernanda.svg`, in `Fernanda/resources/msstore/`. Where a slot gives two sizes, it takes exactly one of them, and the larger is used.
+Made from `Fernanda/resources/icons/designs/Fernanda.svg`, in `Fernanda/resources/microsoft-store/`. Where a slot gives two sizes, it takes exactly one of them, and the larger is used.
 
 | Slot | File |
 | --- | --- |

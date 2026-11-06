@@ -79,6 +79,8 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 
 - [ ] The downloaded and Microsoft Store versions share one single-instance key (`Coco::StartCop`, keyed by the app's name), so they can't run at the same time: whichever starts second hands off to the first and exits. Worth knowing when testing the two side by side
 
+- [ ] The key the `microsoft-store` job signs in to Partner Center with expires; its date is on the Fernanda GitHub Actions application's page, under Partner Center's User management → Microsoft Entra applications. Before then, add a new key there, replace `PARTNER_CENTER_CLIENT_SECRET` in the `microsoft-store` environment, and delete the old key. Making a key needs the tenant's admin account, not the Outlook sign-in
+- [ ] The Partner Center application has the Manager role, which Microsoft's documentation gives for the submission API. The Developer role covers uploading packages and submitting; once a submission has gone through, try it, and go back to Manager if the next one is refused
 - [ ] The Git page's discard question is a plain `QMessageBox`, worded as the file tree's Delete prompt is, and may still look too square for its text. If so, the fix belongs to every message box (the style, or a dialog of Fernanda's own), not to this one alone
 - [ ] All logged paths, decide if we want to use pretty string or not, and also if we want them quoted or not (and if we want a method for Path to add quotes or something instead of adjusting all fmt strings)
 - [ ] Same for error report strings from outside Fernanda, like GitRepository's "result.error" usage, which should probably be quoted
@@ -108,7 +110,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Before release
 
 - [ ] Translate "Updates come from the Microsoft Store." into Spanish
-- [ ] Make the Store listing's box art and take its screenshots ([MicrosoftStoreListing.md](MicrosoftStoreListing.md))
+- [x] Make the Store listing's box art and take its screenshots ([MicrosoftStoreListing.md](MicrosoftStoreListing.md))
 - [ ] Review the Spanish translations in Qt Linguist and mark each done. They are a draft, left marked unfinished
 - [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
@@ -219,7 +221,9 @@ What the tests in `Fernanda/tests/` don't reach.
 - [ ] `git` running without a terminal (`setsid`), so an SSH key's passphrase fails at once. The tests sync over a local path, without SSH
 - [ ] Signing in to a real remote, through a credential manager, and failing cleanly where Git would ask in a terminal. The tests sync with a bare repository in a temporary folder
 - [ ] `JsonIo`, `WorkspaceFile`, and everything in `views/` (apart from `TextSearch`) and `ui/`. The find bar and the way `TextFileView` drives a search are among them, as are the misspelling underlines and the spelling items in the editor's context menu. Considered for `TabPaneTree`'s save and restore and left out: a mistake there costs a layout, not text, and shows on the next launch
-- [ ] The release's `msix` job, and re-running it alone. It runs only on a version tag, so the next `.0` release is its first run
+- [ ] Re-running the release's `msix` job alone, from the same run's deployment
+- [ ] The release's `microsoft-store` job. It runs only for a release that gets a package, so the next one is its first run
+- [ ] What Windows closing the Store version for an update keeps: whether that close goes through Quit, so the open windows and their layout are saved, or ends the process. Can be tried by registering a package layout with a higher version over the running app with `Add-AppxPackage -Register <manifest> -ForceApplicationShutdown`, then checking the log for the quit and the next launch for the layout
 - [ ] `Msix::runsFromPackage()` and the Store version's General page, which only a packaged run reaches. Checked by hand in a registered package
 - [ ] Signing in to a remote through Git Credential Manager from the Microsoft Store version: the Git hand pass's sync, in the packaged app
 - [ ] The macOS build's minimum version. Left to Qt, whose default for 6.11 is macOS 13: `otool -l Fernanda.app/Contents/MacOS/Fernanda | grep -A4 LC_BUILD_VERSION` should show `minos 13.0`. Needs a Mac
