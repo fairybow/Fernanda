@@ -369,7 +369,7 @@ public:
     //
     // What each held buffer's file holds now is noted, so the release can
     // tell which files changed during the hold
-    void holdWritesAtOrUnder(const PathKey& entry)
+    void holdAtOrUnder(const PathKey& entry)
     {
         Hold_ hold{};
         hold.entry = entry;
@@ -390,7 +390,7 @@ public:
     // closes its buffer. A file that didn't change is left alone, so typing
     // in it stays. Then autosave writes what's left modified. A file another
     // hold still covers waits for that one's release
-    void releaseWritesAtOrUnder(const PathKey& entry)
+    void releaseAtOrUnder(const PathKey& entry)
     {
         auto it = std::find_if(
             holds_.cbegin(),
@@ -503,7 +503,7 @@ private:
     // discarded or evicted
     QHash<PathKey, size_t> lastWrittenHash_{};
 
-    // An entry whose buffers autosave leaves alone (holdWritesAtOrUnder),
+    // An entry whose buffers autosave leaves alone (holdAtOrUnder),
     // and what each held buffer's file held when the hold began
     struct Hold_
     {
@@ -515,7 +515,7 @@ private:
     QList<Hold_> holds_{};
 
     // Files the watcher reported while a hold covered them, taken in at the
-    // release (releaseWritesAtOrUnder)
+    // release (releaseAtOrUnder)
     QSet<PathKey> heldChanges_{};
 
     [[nodiscard]] bool isHeld_(const AbstractFileModel* model) const
@@ -912,7 +912,7 @@ private:
     // One file the watcher reported, or a held file at its release: take in
     // what's on disk if it differs from what this store last wrote there. A
     // file a hold covers is set aside for the release
-    // (holdWritesAtOrUnder)
+    // (holdAtOrUnder)
     void reconcileOne_(const Coco::Path& path)
     {
         auto key = PathKey::of(path);

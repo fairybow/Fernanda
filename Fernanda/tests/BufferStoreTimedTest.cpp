@@ -318,14 +318,14 @@ private slots:
         QVERIFY(model);
 
         auto folder = PathKey::of(f.root);
-        f.store.holdWritesAtOrUnder(folder);
+        f.store.holdAtOrUnder(folder);
         type_(model, u"typed"_s);
         f.overwrite(u"a.txt"_s, "two\n");
 
         QTest::qWait(SETTLE_MS_);
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("two\n"));
 
-        f.store.releaseWritesAtOrUnder(folder);
+        f.store.releaseAtOrUnder(folder);
         QCOMPARE(model->data(), QByteArray("two\n"));
         QTest::qWait(SETTLE_MS_);
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("two\n"));
@@ -346,13 +346,13 @@ private slots:
         QVERIFY(model);
 
         auto folder = PathKey::of(f.root);
-        f.store.holdWritesAtOrUnder(folder);
+        f.store.holdAtOrUnder(folder);
         type_(model, u"typed"_s);
 
         QTest::qWait(SETTLE_MS_);
         QCOMPARE(f.read(u"a.txt"_s), QByteArray("one\n"));
 
-        f.store.releaseWritesAtOrUnder(folder);
+        f.store.releaseAtOrUnder(folder);
         QTRY_COMPARE(f.read(u"a.txt"_s), QByteArray("one\ntyped"));
     }
 
@@ -371,7 +371,7 @@ private slots:
         QSignalSpy removed(model, &AbstractFileModel::removedFromDisk);
 
         auto folder = PathKey::of(f.root);
-        f.store.holdWritesAtOrUnder(folder);
+        f.store.holdAtOrUnder(folder);
         type_(model, u"typed"_s);
         QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
 
@@ -379,7 +379,7 @@ private slots:
         QCOMPARE(removed.count(), 0);
 
         f.replace(u"a.txt"_s, "two\n");
-        f.store.releaseWritesAtOrUnder(folder);
+        f.store.releaseAtOrUnder(folder);
 
         QCOMPARE(removed.count(), 0);
         QCOMPARE(model->data(), QByteArray("two\n"));
@@ -400,13 +400,13 @@ private slots:
         QSignalSpy removed(model, &AbstractFileModel::removedFromDisk);
 
         auto folder = PathKey::of(f.root);
-        f.store.holdWritesAtOrUnder(folder);
+        f.store.holdAtOrUnder(folder);
         QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
 
         QTest::qWait(SETTLE_MS_);
         QCOMPARE(removed.count(), 0);
 
-        f.store.releaseWritesAtOrUnder(folder);
+        f.store.releaseAtOrUnder(folder);
         QCOMPARE(removed.count(), 1);
         QVERIFY(!f.exists(u"a.txt"_s));
     }

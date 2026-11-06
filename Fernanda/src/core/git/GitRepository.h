@@ -125,7 +125,7 @@ public:
     // rewrites files would leave them half updated.
     //
     // A step that rewrites files, and a discard underway, have their holds
-    // on the store (holdWritesAtOrUnder) released on the next turn of the
+    // on the store (holdAtOrUnder) released on the next turn of the
     // event loop: the store outlives this, but the views its release may
     // reload or close belong to a window being taken down now
     ~GitRepository() override
@@ -414,7 +414,7 @@ public:
     // Git runs at most those two commands, each given every file's path,
     // however many files there are.
     //
-    // The store is held for the whole discard (holdWritesAtOrUnder), from
+    // The store is held for the whole discard (holdAtOrUnder), from
     // just before the first file goes to the trash until the discard ends
     // (releaseDiscardHold_). A file git restores is missing until then, and
     // unheld, the store would take it for deleted and close every view on
@@ -436,7 +436,7 @@ public:
             return;
         }
 
-        bufferStore_->holdWritesAtOrUnder(root_key);
+        bufferStore_->holdAtOrUnder(root_key);
         discardHold_ = root_key;
         discardLeftOut_.clear();
 
@@ -928,7 +928,7 @@ private:
         // a discard's restore). Everything open in the repository is saved
         // just before it starts, so git sees the text on screen and refuses
         // rather than overwrite a change it would touch, and the store holds
-        // its autosave until it ends (BufferStore::holdWritesAtOrUnder)
+        // its autosave until it ends (BufferStore::holdAtOrUnder)
         bool rewritesFiles = false;
     };
 
@@ -976,7 +976,7 @@ private:
     SyncAction syncAction_ = SyncAction::Fetch;
 
     // The repository's folder while a discard holds the store
-    // (holdWritesAtOrUnder): from just before its first file goes to the
+    // (holdAtOrUnder): from just before its first file goes to the
     // trash until it ends (releaseDiscardHold_). Empty otherwise
     PathKey discardHold_{};
 
@@ -1138,7 +1138,7 @@ private:
         if (running_.rewritesFiles) {
             auto key = PathKey::of(running_.folder);
             [[maybe_unused]] auto saved = bufferStore_->flushAtOrUnder(key);
-            bufferStore_->holdWritesAtOrUnder(key);
+            bufferStore_->holdAtOrUnder(key);
         }
 
         QStringList arguments{
@@ -1257,7 +1257,7 @@ private:
         // Released before the answer, so the buffers have taken in what git
         // wrote by the time anything hears of it
         if (command.rewritesFiles) {
-            bufferStore_->releaseWritesAtOrUnder(PathKey::of(command.folder));
+            bufferStore_->releaseAtOrUnder(PathKey::of(command.folder));
         }
 
         // process_ stays set while the answer is handled, so a command asked
@@ -1667,7 +1667,7 @@ private:
     void releaseDiscardHold_()
     {
         if (!discardHold_.isEmpty()) {
-            bufferStore_->releaseWritesAtOrUnder(
+            bufferStore_->releaseAtOrUnder(
                 std::exchange(discardHold_, {}));
         }
     }
@@ -1678,7 +1678,7 @@ private:
         QMetaObject::invokeMethod(
             bufferStore_,
             [store = bufferStore_, key] {
-                store->releaseWritesAtOrUnder(key);
+                store->releaseAtOrUnder(key);
             },
             Qt::QueuedConnection);
     }

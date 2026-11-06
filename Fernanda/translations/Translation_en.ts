@@ -51,6 +51,20 @@
         </translation>
     </message>
     <message numerus="yes">
+        <source>Are you sure you want to discard all %Ln changed file(s)?</source>
+        <translation>
+            <numerusform>Are you sure you want to discard all %Ln changed file?</numerusform>
+            <numerusform>Are you sure you want to discard all %Ln changed files?</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln conflicted file(s) will be left as they are.</source>
+        <translation>
+            <numerusform>%Ln conflicted file will be left as it is.</numerusform>
+            <numerusform>%Ln conflicted files will be left as they are.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>%Ln file(s) couldn&apos;t be moved to the system trash, so their changes weren&apos;t discarded.</source>
         <translation>
             <numerusform>%Ln file couldn&apos;t be moved to the system trash, so its changes weren&apos;t discarded.</numerusform>

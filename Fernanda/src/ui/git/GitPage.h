@@ -19,6 +19,7 @@
 #include <utility>
 
 #include <QAbstractItemView>
+#include <QAction>
 #include <QCheckBox>
 #include <QFont>
 #include <QFontMetrics>
@@ -113,7 +114,16 @@ using namespace Qt::StringLiterals;
 // trash, names them.
 //
 // The menu's items act on the file it was opened on, even if a new status
-// rebuilds the list while it's open
+// rebuilds the list while it's open.
+//
+// The header's right-click menu (the check-all box and its count) discards
+// every change (Discard all changes…), as GitHub Desktop's does, whether a
+// file is checked or not. It asks first, with Desktop's question: the files
+// by path when there are no more than DISCARD_LIST_MAX_, otherwise their
+// count. Conflicted files are left out, and the question says how many. The
+// item is disabled while the repository is busy, or while every file is
+// conflicted. Like one file's, it acts on the files listed when the menu
+// opened
 class GitPage : public QWidget
 {
     Q_OBJECT
@@ -179,6 +189,10 @@ private:
     // The files unchecked by hand, by path (prettyQString), while they're
     // listed
     QSet<QString> unchecked_{};
+
+    // The most files the discard-all question names, as GitHub Desktop's
+    // names. More are given as a count
+    static constexpr auto DISCARD_LIST_MAX_ = 10;
 
     void setup_()
     {
@@ -389,6 +403,18 @@ private:
         layout->addWidget(list_, 1);
 
         connect(allBox_, &QCheckBox::clicked, this, &GitPage::onAllBoxClicked_);
+
+        // A right-click on the box itself reaches the header too: the box has
+        // no menu of its own, so it passes the event to its parent
+        header->setContextMenuPolicy(Qt::CustomContextMenu);
+
+        connect(
+            header,
+            &QWidget::customContextMenuRequested,
+            this,
+            [this, header](const QPoint& position) {
+                showHeaderContextMenu_(header->mapToGlobal(position));
+            });
 
         connect(
             list_,
@@ -812,6 +838,100 @@ private:
         }
 
         menu.exec(list_->viewport()->mapToGlobal(position));
+    }
+
+    // Discarding every change, as GitHub Desktop's changes header offers it
+    void showHeaderContextMenu_(const QPoint& globalPosition)
+    {
+        // A copy, as the file menu's: a status that comes while the menu is
+        // open rebuilds entries_
+        QList<GitStatus::Entry> discardable{};
+        auto conflicted_count = 0;
+
+        for (const auto& entry : entries_) {
+            if (entry.change == GitStatus::Change::Conflicted) {
+                ++conflicted_count;
+            } else {
+                discardable << entry;
+            }
+        }
+
+        QMenu menu(this);
+
+        auto* discard_all = menu.addAction(
+            tr("Discard all changes…"),
+            this,
+            [this, discardable, conflicted_count] {
+                confirmDiscardAll_(discardable, conflicted_count);
+            });
+
+        discard_all->setEnabled(
+            !repository_->isBusy() && !discardable.isEmpty());
+
+        menu.exec(globalPosition);
+    }
+
+    // Asked first, with GitHub Desktop's question, and shown without exec:
+    // the window may close while it's up. The entries are the ones asked
+    // about, even if a new status comes while the question is up
+    void confirmDiscardAll_(
+        const QList<GitStatus::Entry>& entries,
+        int conflictedCount)
+    {
+        auto* box = new QMessageBox(this);
+        box->setIcon(QMessageBox::Warning);
+        box->setWindowTitle(tr("Confirm discard all changes"));
+
+        QStringList details{};
+
+        if (entries.size() > DISCARD_LIST_MAX_) {
+            box->setText(
+                tr("Are you sure you want to discard all %Ln changed file(s)?",
+                   nullptr,
+                   int(entries.size())));
+        } else {
+            box->setText(
+                tr("Are you sure you want to discard all changes to:"));
+
+            QStringList paths{};
+
+            for (const auto& entry : entries) {
+                paths << entry.path.prettyQString();
+            }
+
+            details << paths.join(u'\n');
+        }
+
+        details << tr("Changes can be restored by retrieving them from the "
+                      "system trash.");
+
+        if (conflictedCount > 0) {
+            details << tr("%Ln conflicted file(s) will be left as they are.",
+                          nullptr,
+                          conflictedCount);
+        }
+
+        box->setInformativeText(details.join(u"\n\n"_s));
+
+        auto* discard_button = box->addButton(
+            tr("Discard all changes"),
+            QMessageBox::DestructiveRole);
+        auto* cancel_button = box->addButton(QMessageBox::Cancel);
+        box->setDefaultButton(cancel_button);
+        box->setEscapeButton(cancel_button);
+        box->setAttribute(Qt::WA_DeleteOnClose);
+
+        connect(
+            box,
+            &QMessageBox::finished,
+            this,
+            [this, box, discard_button, entries] {
+                if (box->clickedButton() == discard_button) {
+                    repository_->discard(entries);
+                }
+            });
+
+        box->open();
     }
 
     // The path from the repository's folder, and for a renamed file, where
