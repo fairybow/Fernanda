@@ -43,6 +43,7 @@
 #include <QStackedLayout>
 #include <QStackedWidget>
 #include <QString>
+#include <QStringList>
 #include <QStyle>
 #include <QTextDocument>
 #include <QVBoxLayout>
@@ -107,7 +108,9 @@ using namespace Qt::StringLiterals;
 // file the last commit doesn't have goes to the trash; a renamed file goes to
 // the trash and its old name comes back; a deleted file comes back.
 // Not offered for a conflicted file, which is a merge's to settle, nor while
-// the repository is busy. A discard that fails shows why in a message.
+// the repository is busy. A discard that fails shows why in a message, and
+// one that leaves files as they were, since their changes couldn't go to the
+// trash, names them.
 //
 // The menu's items act on the file it was opened on, even if a new status
 // rebuilds the list while it's open
@@ -237,6 +240,12 @@ private:
             &GitRepository::commitFailed,
             this,
             &GitPage::onCommitFailed_);
+
+        connect(
+            repository_,
+            &GitRepository::discarded,
+            this,
+            &GitPage::onDiscarded_);
 
         connect(
             repository_,
@@ -624,6 +633,22 @@ private:
         showFailure_(tr("Commit failed"), tr("Nothing was committed."), error);
     }
 
+    // Files whose changes couldn't go to the trash were left as they were
+    void onDiscarded_(const QStringList& leftOut)
+    {
+        if (leftOut.isEmpty()) {
+            return;
+        }
+
+        showFailure_(
+            tr("Discard incomplete"),
+            tr("%Ln file(s) couldn't be moved to the system trash, so their "
+               "changes weren't discarded.",
+               nullptr,
+               leftOut.size()),
+            leftOut.join(u'\n'));
+    }
+
     void onDiscardFailed_(const QString& error)
     {
         showFailure_(
@@ -689,7 +714,7 @@ private:
             this,
             [this, box, discard_button, entry] {
                 if (box->clickedButton() == discard_button) {
-                    repository_->discard(entry);
+                    repository_->discard({ entry });
                 }
             });
 

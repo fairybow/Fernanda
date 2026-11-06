@@ -563,6 +563,17 @@
         <translation type="unfinished">No se confirmó nada.</translation>
     </message>
     <message>
+        <source>Discard incomplete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln file(s) couldn&apos;t be moved to the system trash, so their changes weren&apos;t discarded.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
         <source>Discard failed</source>
         <translation type="unfinished">Error al descartar</translation>
     </message>
@@ -579,8 +590,16 @@
         <translation type="unfinished">¿Seguro que quieres descartar &quot;%1&quot;?</translation>
     </message>
     <message>
+        <source>It isn&apos;t in the last commit, so the file will be moved to the system trash.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The changed file will be moved to the system trash, and the version from the last commit will take its place.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>It isn&apos;t in the last commit, so the file itself will be moved to the system trash.</source>
-        <translation type="unfinished">No está en la última confirmación, así que el propio archivo se moverá a la papelera del sistema.</translation>
+        <translation type="obsolete">No está en la última confirmación, así que el propio archivo se moverá a la papelera del sistema.</translation>
     </message>
     <message>
         <source>Are you sure you want to discard the changes to &quot;%1&quot;?</source>
@@ -600,7 +619,7 @@
     </message>
     <message>
         <source>A copy of the changed file will be moved to the system trash, and the file will go back to how it was in the last commit.</source>
-        <translation type="unfinished">Una copia del archivo cambiado se moverá a la papelera del sistema, y el archivo volverá a como estaba en la última confirmación.</translation>
+        <translation type="obsolete">Una copia del archivo cambiado se moverá a la papelera del sistema, y el archivo volverá a como estaba en la última confirmación.</translation>
     </message>
     <message>
         <source>Open in new tab</source>

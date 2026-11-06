@@ -392,8 +392,8 @@ public:
         enqueue_(std::move(command));
     }
 
-    // Throw one file's changes away, returning it to the last commit, the
-    // index included, as GitHub Desktop does. discarded or discardFailed
+    // Throw these files' changes away, returning each to the last commit,
+    // the index included, as GitHub Desktop does. discarded or discardFailed
     // answers, and the status is read again either way. Every modified buffer
     // in the repository is saved first; if one can't be, nothing is
     // discarded. A conflicted file isn't discarded: that's a merge's to
@@ -401,15 +401,18 @@ public:
     //
     // What's thrown away goes to the system trash first, from where it is,
     // so the trash records the vault as where it came from and putting it
-    // back puts it there. If it can't go, nothing is discarded, since git
-    // itself keeps no copy of changes never committed:
+    // back puts it there. Git itself keeps no copy of changes never
+    // committed, so a file whose changes can't go to the trash is left as it
+    // was, and discarded names it. When none can go, nothing is discarded,
+    // and discardFailed says so (discardPathsOf_ says what goes for each
+    // kind of change):
     // - A file in the last commit goes to the trash, and git then restores
     //   it in place (restore --source=HEAD --staged --worktree)
     // - A file not in the last commit (untracked, newly added, or a rename's
     //   new path) goes to the trash, and leaves the index (rm --cached)
     //
-    // A renamed file is both: its new path goes, and its old path is
-    // restored. Before the first commit, every file is new.
+    // Git runs at most those two commands, each given every file's path,
+    // however many files there are.
     //
     // The store is held for the whole discard (holdWritesAtOrUnder), from
     // just before the first file goes to the trash until the discard ends
@@ -419,10 +422,9 @@ public:
     // takes that in as one undoable change, so Ctrl+Z in an open tab brings
     // the changes back. A file not in the last commit is still gone at the
     // release, and its views close, as for any file deleted outside Fernanda
-    void discard(const GitStatus::Entry& entry)
+    void discard(const QList<GitStatus::Entry>& entries)
     {
-        if (!isFound() || isBusy() ||
-            entry.change == GitStatus::Change::Conflicted) {
+        if (!isFound() || isBusy()) {
             return;
         }
 
@@ -434,48 +436,53 @@ public:
             return;
         }
 
-        // The path git restores from the last commit, and the path that only
-        // leaves the index
-        Coco::Path restored{};
-        Coco::Path removed{};
+        bufferStore_->holdWritesAtOrUnder(root_key);
+        discardHold_ = root_key;
+        discardLeftOut_.clear();
 
-        if (status_.branch.unborn) {
-            removed = entry.path;
-        } else {
-            switch (entry.change) {
-            case GitStatus::Change::Modified:
-            case GitStatus::Change::Deleted:
-                restored = entry.path;
-                break;
-            case GitStatus::Change::Renamed:
-                restored = entry.originalPath;
-                removed = entry.path;
-                break;
-            case GitStatus::Change::Added:
-            case GitStatus::Change::Untracked:
-            case GitStatus::Change::Conflicted:
-                removed = entry.path;
-                break;
+        // Each file's paths for the two git commands, NUL-ended
+        QByteArray removed_input{};
+        QByteArray restored_input{};
+        auto trashed_count = 0;
+
+        for (const auto& entry : entries) {
+            if (entry.change == GitStatus::Change::Conflicted) {
+                continue;
+            }
+
+            auto paths = discardPathsOf_(entry);
+
+            if (!trashDiscardPaths_(paths)) {
+                discardLeftOut_ << entry.path.prettyQString();
+                continue;
+            }
+
+            ++trashed_count;
+
+            if (paths.removedIsInIndex) {
+                removed_input += pathspecOf_(paths.removed);
+            }
+
+            if (!paths.restored.isEmpty()) {
+                restored_input += pathspecOf_(paths.restored);
             }
         }
 
-        bufferStore_->holdWritesAtOrUnder(root_key);
-        discardHold_ = root_key;
-
-        if ((!restored.isEmpty() && !trash_(root_ / restored)) ||
-            (!removed.isEmpty() && !trash_(root_ / removed))) {
+        if (trashed_count == 0) {
             releaseDiscardHold_();
-            emit discardFailed(
-                tr("The changes couldn't be moved to the trash, so nothing "
-                   "was discarded."));
+
+            if (!std::exchange(discardLeftOut_, {}).isEmpty()) {
+                emit discardFailed(
+                    tr("The changes couldn't be moved to the trash, so "
+                       "nothing was discarded."));
+            }
+
             return;
         }
 
         QList<Command_> steps{};
 
-        // An untracked file was never in the index
-        if (!removed.isEmpty() &&
-            entry.change != GitStatus::Change::Untracked) {
+        if (!removed_input.isEmpty()) {
             Command_ remove{};
             remove.kind = Kind_::Step;
             remove.arguments = QStringList{ u"rm"_s,
@@ -484,14 +491,14 @@ public:
                                             u"--ignore-unmatch"_s,
                                             u"--pathspec-from-file=-"_s,
                                             u"--pathspec-file-nul"_s };
-            remove.input = pathspecOf_(removed);
+            remove.input = removed_input;
             steps << remove;
         }
 
         // Marked as rewriting files, as well as held by the discard: if the
         // discard is dropped while git restores (forget), the step's own
         // hold keeps the store waiting until git has finished
-        if (!restored.isEmpty()) {
+        if (!restored_input.isEmpty()) {
             Command_ restore{};
             restore.kind = Kind_::Step;
             restore.arguments = QStringList{ u"restore"_s,
@@ -500,7 +507,7 @@ public:
                                              u"--worktree"_s,
                                              u"--pathspec-from-file=-"_s,
                                              u"--pathspec-file-nul"_s };
-            restore.input = pathspecOf_(restored);
+            restore.input = restored_input;
             restore.rewritesFiles = true;
             steps << restore;
         }
@@ -825,11 +832,14 @@ signals:
     // own words
     void commitFailed(const QString& error);
 
-    // The discard asked for was done
-    void discarded();
+    // The discard asked for was done. leftOut names the files whose changes
+    // couldn't be moved to the trash, and so were left as they were, by path
+    // from the repository's folder. Usually it's empty
+    void discarded(const QStringList& leftOut);
 
-    // The discard asked for wasn't done, or not wholly: what went to the
-    // trash before a git step failed stays there. error says why
+    // The discard asked for wasn't done: no file's changes could go to the
+    // trash, or a git step failed, in which case what went to the trash
+    // before it stays there. error says why
     void discardFailed(const QString& error);
 
     // isBusy changed: an operation started, or the one underway ended. It
@@ -969,6 +979,10 @@ private:
     // (holdWritesAtOrUnder): from just before its first file goes to the
     // trash until it ends (releaseDiscardHold_). Empty otherwise
     PathKey discardHold_{};
+
+    // The files the discard underway couldn't move to the trash, by path from
+    // the repository's folder (discarded)
+    QStringList discardLeftOut_{};
 
     // Stops a command that runs past its timeoutMs
     QTimer* timeout_ = new QTimer(this);
@@ -1622,8 +1636,9 @@ private:
             break;
         case Operation_::Discard:
             if (error.isEmpty()) {
-                emit discarded();
+                emit discarded(std::exchange(discardLeftOut_, {}));
             } else {
+                discardLeftOut_.clear();
                 emit discardFailed(error);
             }
             break;
@@ -1666,6 +1681,55 @@ private:
                 store->releaseWritesAtOrUnder(key);
             },
             Qt::QueuedConnection);
+    }
+
+    // What discarding one file does: the path git restores from the last
+    // commit, and the path that goes, either of which may be empty. A path
+    // that goes leaves the index too, unless git never had it there
+    struct DiscardPaths_
+    {
+        Coco::Path restored{};
+        Coco::Path removed{};
+        bool removedIsInIndex = false;
+    };
+
+    [[nodiscard]] DiscardPaths_
+    discardPathsOf_(const GitStatus::Entry& entry) const
+    {
+        DiscardPaths_ paths{};
+
+        if (status_.branch.unborn) {
+            paths.removed = entry.path;
+        } else {
+            switch (entry.change) {
+            case GitStatus::Change::Modified:
+            case GitStatus::Change::Deleted:
+                paths.restored = entry.path;
+                break;
+            case GitStatus::Change::Renamed:
+                paths.restored = entry.originalPath;
+                paths.removed = entry.path;
+                break;
+            case GitStatus::Change::Added:
+            case GitStatus::Change::Untracked:
+            case GitStatus::Change::Conflicted:
+                paths.removed = entry.path;
+                break;
+            }
+        }
+
+        paths.removedIsInIndex = !paths.removed.isEmpty() &&
+                                 entry.change != GitStatus::Change::Untracked;
+        return paths;
+    }
+
+    // One file's paths to the trash. The path that goes first, since for a
+    // rename it's the one holding the changes; if it can't go, nothing of the
+    // file has. A path that went stays in the trash if the next can't follow
+    [[nodiscard]] bool trashDiscardPaths_(const DiscardPaths_& paths) const
+    {
+        return (paths.removed.isEmpty() || trash_(root_ / paths.removed)) &&
+               (paths.restored.isEmpty() || trash_(root_ / paths.restored));
     }
 
     // A file to the trash, from where it is, so the trash records that as

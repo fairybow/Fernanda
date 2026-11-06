@@ -50,6 +50,13 @@
             <numerusform>%Ln changed files</numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln file(s) couldn&apos;t be moved to the system trash, so their changes weren&apos;t discarded.</source>
+        <translation>
+            <numerusform>%Ln file couldn&apos;t be moved to the system trash, so its changes weren&apos;t discarded.</numerusform>
+            <numerusform>%Ln files couldn&apos;t be moved to the system trash, so their changes weren&apos;t discarded.</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>Fernanda::Ui::GitSyncButton</name>
