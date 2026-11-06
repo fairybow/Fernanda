@@ -108,7 +108,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Before release
 
 - [ ] Translate "Updates come from the Microsoft Store." into Spanish
-- [ ] Make the Store listing's box art and take its screenshots ([StoreListing.md](StoreListing.md))
+- [ ] Make the Store listing's box art and take its screenshots ([MicrosoftStoreListing.md](MicrosoftStoreListing.md))
 - [ ] Review the Spanish translations in Qt Linguist and mark each done. They are a draft, left marked unfinished
 - [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag

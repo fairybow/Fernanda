@@ -6,20 +6,20 @@
 # equal "v" + VERSION_FULL_STRING from Version.h, or the run fails up front.
 #
 # Jobs:
-#   parse-version  -> Extracts app name (Publication.h) and version strings
-#                     (Version.h); checks them against the pushed tag
-#   linux          -> AppImage (x86_64)
-#   macos          -> .dmg (ARM / Apple Silicon)
-#   windows        -> Inno Setup installer (.exe)
-#   msix           -> MSIX package (.msix) for the Microsoft Store, from the
-#                     windows job's deployment. Uploaded to the run, never to
-#                     the release, and only for a stable version or, before
-#                     1.0, a prerelease whose label ends in .0
-#   ms-store       -> Submits the MSIX to Partner Center, after approval
-#   release        -> Attaches the AppImage, .dmg, and installer to the GitHub
-#                     Release
+#   parse-version   -> Extracts app name (Publication.h) and version strings
+#                      (Version.h); checks them against the pushed tag
+#   linux           -> AppImage (x86_64)
+#   macos           -> .dmg (ARM / Apple Silicon)
+#   windows         -> Inno Setup installer (.exe)
+#   msix            -> MSIX package (.msix) for the Microsoft Store, from the
+#                      windows job's deployment. Uploaded to the run, never to
+#                      the release, and only for a stable version or, before
+#                      1.0, a prerelease whose label ends in .0
+#   microsoft-store -> Submits the MSIX to Partner Center, after approval
+#   release         -> Attaches the AppImage, .dmg, and installer to the GitHub
+#                      Release
 #
-# The release doesn't wait for msix or ms-store, so a failed package or
+# The release doesn't wait for msix or microsoft-store, so a failed package or
 # submission never holds up the release. Re-running the failed msix job builds
 # the package again from the same deployment, which stays on the run with the
 # run's other artifacts
@@ -39,7 +39,7 @@
 #   PRIVACY.md
 #
 # Secrets (Windows Qt install): QT_EMAIL, QT_PW
-# Secrets (ms-store environment): PARTNER_CENTER_TENANT_ID,
+# Secrets (microsoft-store environment): PARTNER_CENTER_TENANT_ID,
 #   PARTNER_CENTER_SELLER_ID, PARTNER_CENTER_CLIENT_ID,
 #   PARTNER_CENTER_CLIENT_SECRET
 #
@@ -438,16 +438,16 @@ jobs:
   #
   # Sends the msix job's package to Partner Center as a new submission, which
   # goes through certification and then out to the Store. Only the package
-  # changes; the listing stays as it is in Partner Center. The ms-store
+  # changes; the listing stays as it is in Partner Center. The microsoft-store
   # environment holds the Partner Center credentials and waits for approval, so
   # nothing is submitted until the release has been checked. A new submission
   # replaces any draft in Partner Center, and can't be made while an earlier
   # one is still in certification. Skipped whenever msix is
 
-  ms-store:
+  microsoft-store:
     needs: [parse-version, msix]
     runs-on: windows-latest
-    environment: ms-store
+    environment: microsoft-store
     env:
       APP: ${{ needs.parse-version.outputs.app_name }}
       VER_NUMERIC: ${{ needs.parse-version.outputs.version_numeric }}

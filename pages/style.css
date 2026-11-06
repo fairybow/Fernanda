@@ -276,12 +276,12 @@ code {
     background: var(--surface);
 }
 
-.ms-store-badge {
+.microsoft-store-badge {
     display: inline-block;
     line-height: 0;
 }
 
-    .ms-store-badge img {
+    .microsoft-store-badge img {
         height: 3rem;
         width: auto;
     }
