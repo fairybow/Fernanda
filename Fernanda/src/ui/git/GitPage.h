@@ -675,11 +675,26 @@ private:
             leftOut.join(u'\n'));
     }
 
-    void onDiscardFailed_(const QString& error)
+    // Files already in the trash when git failed stay there, and the ones
+    // git was to restore are missing, listed as deleted. Discarding them
+    // again brings back the last commit's versions, since a file that's
+    // missing has nothing more to send to the trash
+    void onDiscardFailed_(const QString& error, bool trashed)
     {
+        if (!trashed) {
+            showFailure_(
+                tr("Discard failed"),
+                tr("The changes weren't discarded."),
+                error);
+            return;
+        }
+
         showFailure_(
-            tr("Discard failed"),
-            tr("The changes weren't discarded."),
+            tr("Discard incomplete"),
+            tr("Git stopped partway. The changes are in the system trash, but "
+               "the last commit's versions weren't all put back, so some "
+               "files may be listed as deleted. Discard them again to "
+               "finish."),
             error);
     }
 

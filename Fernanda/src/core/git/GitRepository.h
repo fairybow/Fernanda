@@ -440,7 +440,8 @@ public:
 
         if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
             emit discardFailed(
-                tr("A file couldn't be saved, so nothing was discarded."));
+                tr("A file couldn't be saved, so nothing was discarded."),
+                false);
             return;
         }
 
@@ -723,6 +724,7 @@ public:
         ++generation_;
         releaseDiscardHold_();
         discardAsked_.clear();
+        discardTrashed_ = false;
         setOperation_(Operation_::None);
 
         trustChecking_ = false;
@@ -770,10 +772,12 @@ signals:
     // from the repository's folder. Usually it's empty
     void discarded(const QStringList& leftOut);
 
-    // The discard asked for wasn't done: no file's changes could go to the
-    // trash, or a git step failed, in which case what went to the trash
-    // before it stays there. error says why
-    void discardFailed(const QString& error);
+    // The discard asked for wasn't done, or not wholly. error says why.
+    // trashed says whether files had gone to the trash when git failed: they
+    // stay there, and the ones git was to restore are missing from the
+    // repository's folder, listed as deleted until they're discarded again.
+    // Without it, nothing was changed
+    void discardFailed(const QString& error, bool trashed);
 
     // isBusy changed: an operation started, or the one underway ended. It
     // ends just before its answer (committed, commitFailed, and the rest)
@@ -921,6 +925,10 @@ private:
     // The files the discard underway couldn't move to the trash, by path from
     // the repository's folder (discarded)
     QStringList discardLeftOut_{};
+
+    // Whether the discard underway has moved files to the trash, so a git
+    // step failing after leaves them there (discardFailed)
+    bool discardTrashed_ = false;
 
     // Stops a command that runs past its timeoutMs
     QTimer* timeout_ = new QTimer(this);
@@ -1420,6 +1428,7 @@ private:
             return;
         }
 
+        discardTrashed_ = true;
         QList<Command_> steps{};
 
         if (!removed_input.isEmpty()) {
@@ -1672,6 +1681,7 @@ private:
     {
         releaseDiscardHold_();
         discardAsked_.clear();
+        auto discard_trashed = std::exchange(discardTrashed_, false);
         setOperation_(Operation_::None);
 
         if (error.isEmpty()) {
@@ -1691,7 +1701,7 @@ private:
                 emit discarded(std::exchange(discardLeftOut_, {}));
             } else {
                 discardLeftOut_.clear();
-                emit discardFailed(error);
+                emit discardFailed(error, discard_trashed);
             }
             break;
         case Operation_::Switch:
