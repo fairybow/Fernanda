@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QProcess>
 #include <QProcessEnvironment>
+#include <QSet>
 #include <QStandardPaths>
 #include <QString>
 #include <QStringList>
@@ -396,8 +397,17 @@ public:
     // the index included, as GitHub Desktop does. discarded or discardFailed
     // answers, and the status is read again either way. Every modified buffer
     // in the repository is saved first; if one can't be, nothing is
-    // discarded. A conflicted file isn't discarded: that's a merge's to
-    // settle.
+    // discarded.
+    //
+    // The entries name the files asked for, by path, and nothing more: the
+    // question asked about them may have been up for a while, and the files
+    // changed since, from a terminal, say. So the status is read again first,
+    // and each file's changes are thrown away as that status has them
+    // (discardAskedFiles_). A file no longer changed has nothing to discard,
+    // and a file conflicted by then isn't discarded: that's a merge's to
+    // settle. Deciding from the old entries could ask git to restore a path
+    // it no longer has, and git would then restore none of the files, all of
+    // them already in the trash.
     //
     // What's thrown away goes to the system trash first, from where it is,
     // so the trash records the vault as where it came from and putting it
@@ -414,118 +424,40 @@ public:
     // Git runs at most those two commands, each given every file's path,
     // however many files there are.
     //
-    // The store is held for the whole discard (holdAtOrUnder), from
-    // just before the first file goes to the trash until the discard ends
-    // (releaseDiscardHold_). A file git restores is missing until then, and
-    // unheld, the store would take it for deleted and close every view on
-    // it. Held, the release finds it back with the last commit's text and
-    // takes that in as one undoable change, so Ctrl+Z in an open tab brings
-    // the changes back. A file not in the last commit is still gone at the
-    // release, and its views close, as for any file deleted outside Fernanda
+    // The store is held from just before the first file goes to the trash
+    // until the discard ends (holdAtOrUnder, releaseDiscardHold_). A file
+    // git restores is missing until then, and unheld, the store would take
+    // it for deleted and close every view on it. Held, the release finds it
+    // back with the last commit's text and takes that in as one undoable
+    // change, so Ctrl+Z in an open tab brings the changes back. A file not in
+    // the last commit is still gone at the release, and its views close, as
+    // for any file deleted outside Fernanda
     void discard(const QList<GitStatus::Entry>& entries)
     {
         if (!isFound() || isBusy()) {
             return;
         }
 
-        auto root_key = PathKey::of(root_);
-
-        if (!bufferStore_->flushAtOrUnder(root_key)) {
+        if (!bufferStore_->flushAtOrUnder(PathKey::of(root_))) {
             emit discardFailed(
                 tr("A file couldn't be saved, so nothing was discarded."));
             return;
         }
 
-        bufferStore_->holdAtOrUnder(root_key);
-        discardHold_ = root_key;
-        discardLeftOut_.clear();
-
-        // Each file's paths for the two git commands, NUL-ended
-        QByteArray removed_input{};
-        QByteArray restored_input{};
-        auto trashed_count = 0;
+        discardAsked_.clear();
 
         for (const auto& entry : entries) {
-            if (entry.change == GitStatus::Change::Conflicted) {
-                continue;
-            }
-
-            auto paths = discardPathsOf_(entry);
-
-            if (!trashDiscardPaths_(paths)) {
-                discardLeftOut_ << entry.path.prettyQString();
-                continue;
-            }
-
-            ++trashed_count;
-
-            if (paths.removedIsInIndex) {
-                removed_input += pathspecOf_(paths.removed);
-            }
-
-            if (!paths.restored.isEmpty()) {
-                restored_input += pathspecOf_(paths.restored);
-            }
-        }
-
-        if (trashed_count == 0) {
-            releaseDiscardHold_();
-
-            if (!std::exchange(discardLeftOut_, {}).isEmpty()) {
-                emit discardFailed(
-                    tr("The changes couldn't be moved to the trash, so "
-                       "nothing was discarded."));
-            }
-
-            return;
-        }
-
-        QList<Command_> steps{};
-
-        if (!removed_input.isEmpty()) {
-            Command_ remove{};
-            remove.kind = Kind_::Step;
-            remove.arguments = QStringList{ u"rm"_s,
-                                            u"--cached"_s,
-                                            u"--quiet"_s,
-                                            u"--ignore-unmatch"_s,
-                                            u"--pathspec-from-file=-"_s,
-                                            u"--pathspec-file-nul"_s };
-            remove.input = removed_input;
-            steps << remove;
-        }
-
-        // Marked as rewriting files, as well as held by the discard: if the
-        // discard is dropped while git restores (forget), the step's own
-        // hold keeps the store waiting until git has finished
-        if (!restored_input.isEmpty()) {
-            Command_ restore{};
-            restore.kind = Kind_::Step;
-            restore.arguments = QStringList{ u"restore"_s,
-                                             u"--source=HEAD"_s,
-                                             u"--staged"_s,
-                                             u"--worktree"_s,
-                                             u"--pathspec-from-file=-"_s,
-                                             u"--pathspec-file-nul"_s };
-            restore.input = restored_input;
-            restore.rewritesFiles = true;
-            steps << restore;
+            discardAsked_ << entry.path.prettyQString();
         }
 
         setOperation_(Operation_::Discard);
 
-        if (steps.isEmpty()) {
-            finish_(Operation_::Discard, {});
-            return;
-        }
-
-        steps.last().finishes = true;
-
-        for (auto& step : steps) {
-            step.operation = Operation_::Discard;
-            step.folder = root_;
-            enqueue_(std::move(step));
-        }
+        Command_ check{};
+        check.kind = Kind_::Status;
+        check.operation = Operation_::Discard;
+        check.folder = root_;
+        check.arguments = statusArguments_();
+        enqueue_(std::move(check));
     }
 
     // Switch to another local branch (switch). switched or switchFailed
@@ -790,6 +722,7 @@ public:
         queue_.clear();
         ++generation_;
         releaseDiscardHold_();
+        discardAsked_.clear();
         setOperation_(Operation_::None);
 
         trustChecking_ = false;
@@ -979,6 +912,11 @@ private:
     // (holdAtOrUnder): from just before its first file goes to the
     // trash until it ends (releaseDiscardHold_). Empty otherwise
     PathKey discardHold_{};
+
+    // The files the discard underway was asked for, by path from the
+    // repository's folder, until its status read answers
+    // (discardAskedFiles_)
+    QSet<QString> discardAsked_{};
 
     // The files the discard underway couldn't move to the trash, by path from
     // the repository's folder (discarded)
@@ -1381,9 +1319,10 @@ private:
     }
 
     // A status read on its own, or as the first step of a switch
-    // (enqueueChangesCheck_). A status read for a repository that has since
-    // been lost or replaced is ignored. A first step that can't decide (that
-    // repository, or a failed read) ends its operation as a refusal does
+    // (enqueueChangesCheck_) or a discard (discard). A status read for a
+    // repository that has since been lost or replaced is ignored. A first
+    // step that can't decide (that repository, or a failed read) ends its
+    // operation as a refusal does. A discard goes on from what it read
     void onStatusRead_(const Command_& command, const Result_& result)
     {
         auto current = PathKey::of(command.folder) == PathKey::of(root_);
@@ -1405,13 +1344,125 @@ private:
             refusal = tr("The repository changed, so nothing was done.");
         } else if (!result.succeeded) {
             refusal = result.error;
-        } else if (hasTrackedChanges_()) {
+        } else if (
+            command.operation == Operation_::Switch && hasTrackedChanges_()) {
             refusal = tr("Commit or discard your changes first.");
         }
 
         if (!refusal.isEmpty()) {
             dropSteps_(command.operation);
             finish_(command.operation, refusal);
+            return;
+        }
+
+        if (command.operation == Operation_::Discard) {
+            discardAskedFiles_();
+        }
+    }
+
+    // The rest of a discard, once its status read has answered: each file
+    // asked for that the status still lists goes to the trash, and git's
+    // steps are queued after it (discard). They wait for this answer to be
+    // handled, since process_ stays set until then (complete_).
+    //
+    // Everything open in the repository is saved again first, so typing
+    // since the discard was asked for goes to the trash with the rest. A
+    // save that fails here doesn't stop it: the buffer keeps its text, and
+    // the hold's release takes in what git restores as an undoable change
+    void discardAskedFiles_()
+    {
+        auto root_key = PathKey::of(root_);
+        [[maybe_unused]] auto saved = bufferStore_->flushAtOrUnder(root_key);
+
+        bufferStore_->holdAtOrUnder(root_key);
+        discardHold_ = root_key;
+        discardLeftOut_.clear();
+
+        // Each file's paths for the two git commands, NUL-ended
+        QByteArray removed_input{};
+        QByteArray restored_input{};
+        auto trashed_count = 0;
+
+        for (const auto& entry : status_.entries) {
+            if (entry.change == GitStatus::Change::Conflicted ||
+                !discardAsked_.contains(entry.path.prettyQString())) {
+                continue;
+            }
+
+            auto paths = discardPathsOf_(entry);
+
+            if (!trashDiscardPaths_(paths)) {
+                discardLeftOut_ << entry.path.prettyQString();
+                continue;
+            }
+
+            ++trashed_count;
+
+            if (paths.removedIsInIndex) {
+                removed_input += pathspecOf_(paths.removed);
+            }
+
+            if (!paths.restored.isEmpty()) {
+                restored_input += pathspecOf_(paths.restored);
+            }
+        }
+
+        if (trashed_count == 0) {
+            QString error{};
+
+            if (!discardLeftOut_.isEmpty()) {
+                error =
+                    tr("The changes couldn't be moved to the trash, so "
+                       "nothing was discarded.");
+            }
+
+            finish_(Operation_::Discard, error);
+            return;
+        }
+
+        QList<Command_> steps{};
+
+        if (!removed_input.isEmpty()) {
+            Command_ remove{};
+            remove.kind = Kind_::Step;
+            remove.arguments = QStringList{ u"rm"_s,
+                                            u"--cached"_s,
+                                            u"--quiet"_s,
+                                            u"--ignore-unmatch"_s,
+                                            u"--pathspec-from-file=-"_s,
+                                            u"--pathspec-file-nul"_s };
+            remove.input = removed_input;
+            steps << remove;
+        }
+
+        // Marked as rewriting files, as well as held by the discard: if the
+        // discard is dropped while git restores (forget), the step's own
+        // hold keeps the store waiting until git has finished
+        if (!restored_input.isEmpty()) {
+            Command_ restore{};
+            restore.kind = Kind_::Step;
+            restore.arguments = QStringList{ u"restore"_s,
+                                             u"--source=HEAD"_s,
+                                             u"--staged"_s,
+                                             u"--worktree"_s,
+                                             u"--pathspec-from-file=-"_s,
+                                             u"--pathspec-file-nul"_s };
+            restore.input = restored_input;
+            restore.rewritesFiles = true;
+            steps << restore;
+        }
+
+        if (steps.isEmpty()) {
+            finish_(Operation_::Discard, {});
+            return;
+        }
+
+        steps.last().finishes = true;
+
+        for (auto& step : steps) {
+            step.operation = Operation_::Discard;
+            step.folder = root_;
+            enqueue_(std::move(step));
         }
     }
 
@@ -1620,6 +1671,7 @@ private:
     void finish_(Operation_ operation, const QString& error)
     {
         releaseDiscardHold_();
+        discardAsked_.clear();
         setOperation_(Operation_::None);
 
         if (error.isEmpty()) {
@@ -1667,8 +1719,7 @@ private:
     void releaseDiscardHold_()
     {
         if (!discardHold_.isEmpty()) {
-            bufferStore_->releaseAtOrUnder(
-                std::exchange(discardHold_, {}));
+            bufferStore_->releaseAtOrUnder(std::exchange(discardHold_, {}));
         }
     }
 
@@ -1677,9 +1728,7 @@ private:
     {
         QMetaObject::invokeMethod(
             bufferStore_,
-            [store = bufferStore_, key] {
-                store->releaseAtOrUnder(key);
-            },
+            [store = bufferStore_, key] { store->releaseAtOrUnder(key); },
             Qt::QueuedConnection);
     }
 

@@ -902,13 +902,15 @@ private:
             details << paths.join(u'\n');
         }
 
-        details << tr("Changes can be restored by retrieving them from the "
-                      "system trash.");
+        details << tr(
+            "Changes can be restored by retrieving them from the "
+            "system trash.");
 
         if (conflictedCount > 0) {
-            details << tr("%Ln conflicted file(s) will be left as they are.",
-                          nullptr,
-                          conflictedCount);
+            details << tr(
+                "%Ln conflicted file(s) will be left as they are.",
+                nullptr,
+                conflictedCount);
         }
 
         box->setInformativeText(details.join(u"\n\n"_s));
