@@ -411,6 +411,32 @@ private slots:
         QVERIFY(!f.exists(u"a.txt"_s));
     }
 
+    // A file reported while two holds cover it waits for both: releasing one
+    // leaves it for the other
+    void aReportUnderTwoHoldsWaitsForBoth()
+    {
+        Fixture_ f{};
+        f.replace(u"a.txt"_s, "one\n");
+
+        auto* model = f.open(u"a.txt"_s);
+        QVERIFY(model);
+        QSignalSpy removed(model, &AbstractFileModel::removedFromDisk);
+
+        auto folder = PathKey::of(f.root);
+        f.store.holdAtOrUnder(folder);
+        f.store.holdAtOrUnder(folder);
+        QVERIFY(QFile::remove(f.folder.filePath(u"a.txt"_s)));
+
+        QTest::qWait(SETTLE_MS_);
+        f.store.releaseAtOrUnder(folder);
+
+        QTest::qWait(SETTLE_MS_);
+        QCOMPARE(removed.count(), 0);
+
+        f.store.releaseAtOrUnder(folder);
+        QCOMPARE(removed.count(), 1);
+    }
+
     // A change that leaves the file holding what the buffer already holds is
     // not a reload
     void anOutsideChangeToTheSameBytesIsIgnored()
