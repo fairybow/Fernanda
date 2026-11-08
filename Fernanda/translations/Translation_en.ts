@@ -58,6 +58,13 @@
         </translation>
     </message>
     <message numerus="yes">
+        <source>%Ln of these file(s) are outside this vault.</source>
+        <translation>
+            <numerusform>%Ln of these files is outside this vault.</numerusform>
+            <numerusform>%Ln of these files are outside this vault.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>%Ln conflicted file(s) will be left as they are.</source>
         <translation>
             <numerusform>%Ln conflicted file will be left as it is.</numerusform>

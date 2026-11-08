@@ -582,6 +582,10 @@
         <translation type="unfinished">No se descartaron los cambios.</translation>
     </message>
     <message>
+        <source>Git stopped partway. The changes are in the system trash, but the last commit&apos;s versions weren&apos;t all put back, so some files may be listed as deleted. Discard them again to finish.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Discard changes</source>
         <translation type="unfinished">Descartar cambios</translation>
     </message>
@@ -640,6 +644,47 @@
     <message>
         <source>Discard changes…</source>
         <translation type="unfinished">Descartar cambios…</translation>
+    </message>
+    <message>
+        <source>Discard all changes…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm discard all changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to discard all %Ln changed file(s)?</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Are you sure you want to discard all changes to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln of these file(s) are outside this vault.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Changes can be restored by retrieving them from the system trash.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln conflicted file(s) will be left as they are.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Discard all changes</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 (renamed from %2)</source>

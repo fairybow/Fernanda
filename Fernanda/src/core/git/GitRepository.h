@@ -178,6 +178,21 @@ public:
         return status_;
     }
 
+    // Whether a changed file is outside the vault's folder, as the
+    // repository's other files are. A renamed file is outside if either its
+    // path or where it was is
+    [[nodiscard]] bool isOutsideVault(const GitStatus::Entry& entry) const
+    {
+        auto vault_key = PathKey::of(vault_->root());
+
+        auto outside = [this, &vault_key](const Coco::Path& path) {
+            return !path.isEmpty() &&
+                   !PathKey::of(root_ / path).isAtOrUnder(vault_key);
+        };
+
+        return outside(entry.path) || outside(entry.originalPath);
+    }
+
     // Find the repository the vault's folder is in. Git is asked from the
     // folder, so the answer follows Git's own rules: it walks up to find a
     // repository, follows a worktree's or submodule's .git file, and refuses
@@ -774,9 +789,10 @@ signals:
 
     // The discard asked for wasn't done, or not wholly. error says why.
     // trashed says whether files had gone to the trash when git failed: they
-    // stay there, and the ones git was to restore are missing from the
-    // repository's folder, listed as deleted until they're discarded again.
-    // Without it, nothing was changed
+    // stay there, and discarding them again finishes. A failed restore leaves
+    // the files it was to bring back missing, listed as deleted; a failed
+    // removal from the index leaves new files listed as added. Without it,
+    // nothing was changed
     void discardFailed(const QString& error, bool trashed);
 
     // isBusy changed: an operation started, or the one underway ended. It
@@ -926,8 +942,9 @@ private:
     // the repository's folder (discarded)
     QStringList discardLeftOut_{};
 
-    // Whether the discard underway has moved files to the trash, so a git
-    // step failing after leaves them there (discardFailed)
+    // Whether the discard underway has moved a file to the trash (trash_), so
+    // a git step failing after leaves it there (discardFailed). A file
+    // already missing, as a deleted one is, doesn't count
     bool discardTrashed_ = false;
 
     // Stops a command that runs past its timeoutMs
@@ -1389,7 +1406,7 @@ private:
         // Each file's paths for the two git commands, NUL-ended
         QByteArray removed_input{};
         QByteArray restored_input{};
-        auto trashed_count = 0;
+        auto discarding_count = 0;
 
         for (const auto& entry : status_.entries) {
             if (entry.change == GitStatus::Change::Conflicted ||
@@ -1404,7 +1421,7 @@ private:
                 continue;
             }
 
-            ++trashed_count;
+            ++discarding_count;
 
             if (paths.removedIsInIndex) {
                 removed_input += pathspecOf_(paths.removed);
@@ -1415,7 +1432,11 @@ private:
             }
         }
 
-        if (trashed_count == 0) {
+        // Git doesn't run, so no step can fail with files in the trash. The
+        // one thing that can be there is a rename's new path, trashed before
+        // its old path couldn't follow (trashDiscardPaths_)
+        if (discarding_count == 0) {
+            discardTrashed_ = false;
             QString error{};
 
             if (!discardLeftOut_.isEmpty()) {
@@ -1428,25 +1449,16 @@ private:
             return;
         }
 
-        discardTrashed_ = true;
         QList<Command_> steps{};
 
-        if (!removed_input.isEmpty()) {
-            Command_ remove{};
-            remove.kind = Kind_::Step;
-            remove.arguments = QStringList{ u"rm"_s,
-                                            u"--cached"_s,
-                                            u"--quiet"_s,
-                                            u"--ignore-unmatch"_s,
-                                            u"--pathspec-from-file=-"_s,
-                                            u"--pathspec-file-nul"_s };
-            remove.input = removed_input;
-            steps << remove;
-        }
-
+        // The restore first: if the discard is dropped after it (forget, or
+        // the window closing), the last commit's versions are back, and only
+        // new files whose changes went to the trash are left in the index.
+        // The other way round, the files git restores would be left missing.
+        //
         // Marked as rewriting files, as well as held by the discard: if the
-        // discard is dropped while git restores (forget), the step's own
-        // hold keeps the store waiting until git has finished
+        // discard is dropped while git restores, the step's own hold keeps
+        // the store waiting until git has finished
         if (!restored_input.isEmpty()) {
             Command_ restore{};
             restore.kind = Kind_::Step;
@@ -1459,6 +1471,19 @@ private:
             restore.input = restored_input;
             restore.rewritesFiles = true;
             steps << restore;
+        }
+
+        if (!removed_input.isEmpty()) {
+            Command_ remove{};
+            remove.kind = Kind_::Step;
+            remove.arguments = QStringList{ u"rm"_s,
+                                            u"--cached"_s,
+                                            u"--quiet"_s,
+                                            u"--ignore-unmatch"_s,
+                                            u"--pathspec-from-file=-"_s,
+                                            u"--pathspec-file-nul"_s };
+            remove.input = removed_input;
+            steps << remove;
         }
 
         if (steps.isEmpty()) {
@@ -1785,15 +1810,16 @@ private:
     // One file's paths to the trash. The path that goes first, since for a
     // rename it's the one holding the changes; if it can't go, nothing of the
     // file has. A path that went stays in the trash if the next can't follow
-    [[nodiscard]] bool trashDiscardPaths_(const DiscardPaths_& paths) const
+    [[nodiscard]] bool trashDiscardPaths_(const DiscardPaths_& paths)
     {
         return (paths.removed.isEmpty() || trash_(root_ / paths.removed)) &&
                (paths.restored.isEmpty() || trash_(root_ / paths.restored));
     }
 
     // A file to the trash, from where it is, so the trash records that as
-    // where it came from. A file that isn't there has nothing to keep
-    [[nodiscard]] static bool trash_(const Coco::Path& file)
+    // where it came from. A file that isn't there has nothing to keep, and
+    // isn't counted as trashed (discardTrashed_)
+    [[nodiscard]] bool trash_(const Coco::Path& file)
     {
         if (!file.exists()) {
             return true;
@@ -1804,6 +1830,7 @@ private:
             return false;
         }
 
+        discardTrashed_ = true;
         return true;
     }
 };

@@ -675,10 +675,10 @@ private:
             leftOut.join(u'\n'));
     }
 
-    // Files already in the trash when git failed stay there, and the ones
-    // git was to restore are missing, listed as deleted. Discarding them
-    // again brings back the last commit's versions, since a file that's
-    // missing has nothing more to send to the trash
+    // Files already in the trash when git failed stay there, and some are
+    // still listed (GitRepository::discardFailed). Discarding them again
+    // finishes, since a file that's missing has nothing more to send to the
+    // trash
     void onDiscardFailed_(const QString& error, bool trashed)
     {
         if (!trashed) {
@@ -915,6 +915,21 @@ private:
             }
 
             details << paths.join(u'\n');
+        }
+
+        auto outside_count = 0;
+
+        for (const auto& entry : entries) {
+            if (repository_->isOutsideVault(entry)) {
+                ++outside_count;
+            }
+        }
+
+        if (outside_count > 0) {
+            details << tr(
+                "%Ln of these file(s) are outside this vault.",
+                nullptr,
+                outside_count);
         }
 
         details << tr(
