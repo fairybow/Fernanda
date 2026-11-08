@@ -87,6 +87,8 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] A switch refused by its changes check still ran. The check's status announced itself, and the branch button (or a diff tab) asked Git for something on hearing it; that ask started the next command in the queue, the switch, before the check had refused it. Where the changed files were the same on both branches, Git carried the changes across, and on a branch without the vault's `.fernanda/.gitignore` the switch took that file away. A command's answer is now handled whole before the next command starts
 - [x] A switch or a new branch that couldn't be asked for (no repository, Git busy, no name) returned silently, leaving the New Branch dialog waiting for an answer
 - [x] A discarded file restored from the system trash came back to a temporary folder in Fernanda's data folder, not to the vault: what went to the trash was a copy, and the trash records where an item was trashed from. The file itself now goes to the trash from the vault, and the store's hold keeps its tabs open until Git has restored it
+- [x] A discard decided what to do with each file from the status the page showed when its question opened. A file changed since from a terminal (removed from the repository, or conflicted by a merge) made Git's one restore fail after every file was already in the trash, leaving them all missing from the vault, and the message said the changes weren't discarded. The status is now read as the discard's first step, and a failure after the trashing says what it left and how to finish
+- [x] A window closing between a discard's two Git steps left the files it was to restore missing from the vault. The restore now runs first
 - [ ] Starting Fernanda while it's open hands its arguments to the running copy and exits, but the running copy does nothing with them (`App::onRelaunch` is a stub), so no window comes forward
 
 ## Rough edges
@@ -109,6 +111,10 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] A vault whose root path was not plain (a trailing separator, a `.` or `..` segment) contained nothing by `Vault::contains`, so every create, rename, move, and delete in it was refused. Roots and every path under them are now normalized into keys
 - [ ] The known-vaults list can show one folder twice: a vault once opened by a symlinked path, and the same folder by its resolved path, which is what `App` records now. Records are matched by `PathKey`, which doesn't follow symlinks
 - [ ] A buffer kept after its last view's save failed is shown by no window, so no window close retries it. Focus loss and quit do
+- [ ] A discard sends its files to the trash one at a time, on the main thread, so Discard all changes over many files can freeze the window for a while. It slows GitHub Desktop too (desktop/desktop#10445). Measure on Windows with a few hundred files before moving it off the main thread
+- [ ] A renamed file whose new path goes to the trash and whose old path the trash then refuses (recreated, and open in another program) is named as left as it was, though its new path is in the trash
+- [ ] Discarding new files leaves the folders they emptied, which the file tree still shows. Check what GitHub Desktop does
+- [ ] Two windows over one repository each run their own Git operations. A switch in one can read the status in the moment a discard in the other has files in the trash, and be refused for changes that are about to go
 - [ ] A tab closed with unsaved typing in the moment a discard has its file in the trash leaves the buffer in the store, shown by no window, until quit: the close's save finds the file gone and keeps the buffer, and the hold's release then takes in Git's restored text rather than closing it
 - [ ] In a release build, `PrimeDocument` notices a view document out of step with the prime only when their lengths differ. An edit applied at the wrong position keeps the lengths equal and goes unnoticed until they diverge. A full comparison when a save reads the text would catch it before it reaches disk
 - [ ] When `PrimeDocument` resets a view that was out of step, that view's cursor goes to the start of the file
@@ -127,7 +133,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [ ] Translate "Updates come from the Microsoft Store." into Spanish
 - [x] Make the Store listing's box art and take its screenshots ([MicrosoftStoreListing.md](MicrosoftStoreListing.md))
 - [ ] Review the Spanish translations in Qt Linguist and mark each done. They are a draft, left marked unfinished
-- [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish. The discard messages' plural forms ("%Ln file(s) couldn't be moved to the system trash…", "Are you sure you want to discard all %Ln changed file(s)?", "%Ln conflicted file(s) will be left as they are.") are in `Translation_en.ts` already and need Spanish too
+- [ ] Run `update_translations` for the Git page's strings, add the English plural forms of "%Ln changed file(s)", "Last fetched %Ln minute(s) ago" (and its hour and day forms), and "Git took longer than %Ln second(s), so it was stopped." to `Translation_en.ts`, and translate them into Spanish. The discard messages' plural forms ("%Ln file(s) couldn't be moved to the system trash…", "Are you sure you want to discard all %Ln changed file(s)?", "%Ln of these file(s) are outside this vault.", "%Ln conflicted file(s) will be left as they are.") are in `Translation_en.ts` already and need Spanish too
 - [x] `LogView` opens on every launch, for testing. Put it behind its command-line flag
 - [x] `CHANGELOG.md` has only a placeholder release entry. Write the real notes before tagging
 - [ ] Test the OS logout save path (`App::onCommitDataRequest_`)
@@ -171,6 +177,9 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 - [ ] With the discarded file open in a tab, Ctrl+Z there brings the changes back
 - [ ] Discard all changes with ten files or fewer, and with more: the question names them, or gives their count, and every file is discarded
 - [ ] Discard all changes with a conflicted file listed: it's left as it is, and the question says so
+- [ ] Discard all changes in a vault inside a larger repository: the question says how many files are outside the vault
+- [ ] Leave a discard question up, commit one of its files from a terminal, then confirm: the rest are discarded, with no failure
+- [ ] With `.git/index.lock` made by hand, discard a modified file: the message says Git stopped partway and the file is listed as deleted. Remove the lock and discard it again: it comes back, and the trash keeps the changes
 
 **Branches**
 
@@ -208,6 +217,7 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 - [ ] Bring `MenuBuilder` over from Hearth (maybe into Coco)?
 - [x] Decide on `private slots:`. It isn't used consistently, and using it properly would break up sections that are organized by purpose. Either remove the keyword everywhere or sort slots into it everywhere
 - [ ] `SettingsEditorPage` has its own `hangOn_`, which does what `SettingsPage::enableWith` does, one row at a time. Use `enableWith`
+- [ ] `GitPage::onDiscarded_` passes `leftOut.size()` to `tr` as it is, where `confirmDiscardAll_` casts its count with `int()`. Make them match
 - [ ] `AbstractFileModel` has `notifyX()` functions that only emit a signal. Could they just be signals (perhaps named `notify...`)?
 - [ ] Decide whether static helpers go before other functions, per access level
 - [ ] A shared `TabPage` base for tab pages, holding title and pin state as typed members in place of the window title and a dynamic property. It would trade the leaf's property reads for a cast. Worth doing once a third such value appears
@@ -231,7 +241,7 @@ What the tests in `Fernanda/tests/` don't reach.
 - [ ] `App` following vaults whose folders were moved or renamed in-app (`App::followVaults_`, `App::renameVaultFolder_`), and closing one whose folder was trashed; setting and unsetting the Common Vault; and each window's response to a moved vault or a new Common Vault (`VaultWindow::setCommonVault`). The store's announcement, `Vault::moveRoot`, `RecentFiles::rebase`, and `AppConfig`'s records are tested
 - [ ] The letter-case cases (an inner vault's root spelled in another case, and a rename by case alone above an inner vault) run only where case is ignored: on Windows and macOS
 - [ ] A file that starts with two byte-order marks. On Qt 6.4 one is dropped on load, which the comment on the mark in `TextFileModel.h` says can't happen. Check it on the Qt in use
-- [ ] Discarding sends files to the real system trash, so `GitRepositoryTest` doesn't reach it, as with `Vault::moveToTrash`, nor a file the trash refuses. What runs after the trash (one restore, and one removal of new files from the index) is plain git, and the hold that keeps a trashed file's tabs open is tested (`BufferStoreTimedTest`)
+- [ ] Discarding a file that's on disk, which sends it to the real system trash, as `Vault::moveToTrash` would, and a file the trash refuses. `GitRepositoryTest` discards only files with nothing on disk to send there (deleted ones, and new or renamed ones whose files are gone), which covers the status read, what's done for each kind of change, and what a failure reports. The hold that keeps a trashed file's tabs open is tested (`BufferStoreTimedTest`)
 - [ ] The Git page and diff tabs reading again after a save (`VaultWindow::onRepositoryChanged_`)
 - [ ] The two-minute limit on a fetch or push (`GIT_NETWORK_TIMEOUT_MS`), and the waits when a window closes with `git` running (`GIT_EXIT_WAIT_MS`, `GIT_REWRITE_EXIT_WAIT_MS`). A test would need a remote that never answers
 - [ ] Trusting a repository from the Git page. Git refuses only a folder owned by another user, which a test can't make without administrator rights. Reading Git's message is tested (`GitSafeDirectoryTest`)

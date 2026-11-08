@@ -250,7 +250,10 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - Right-click a file for **Discard changes…**. Right-click the header above the list (the box that checks every file, and its count) for **Discard all changes…**, which discards every listed file, checked or not. Each always asks first, and Cancel is the default. The question for all changes names the files when there are ten or fewer, and otherwise gives their count
 - The changed file goes to the system trash, and the version from the last commit takes its place. A tab showing it reloads in place, so Ctrl+Z there brings the changes back too. A file that isn't in the last commit goes to the trash, and its tab closes. A renamed file goes to the trash, and its old name comes back as it was. A deleted file just comes back
 - A discarded file restored from the system trash goes back into the vault, over the last commit's version, so the changes come back. On macOS, Finder offers no Put Back for anything an app moves to the trash: drag it back instead
+- When the vault is inside a larger repository, the question for all changes says how many of the files are outside the vault: the list covers the whole repository
+- A file changed from elsewhere while the question is up (committed from a terminal, say) is discarded as it is when you confirm. One with nothing left to discard is skipped
 - A file the trash refuses (on a network share, for instance) is left as it was, and a message names it. If the trash refuses every file, nothing is discarded
+- If Git stops partway, after files have gone to the trash, a message says so. The changes are in the trash, and discarding the files still listed finishes
 - A conflicted file isn't discarded, on its own or with all changes, and the question for all changes says how many are left. Settling a conflict is left to Git
 
 ### Branches
