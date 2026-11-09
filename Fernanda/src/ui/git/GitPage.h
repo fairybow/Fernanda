@@ -120,10 +120,11 @@ using namespace Qt::StringLiterals;
 // every change (Discard all changes…), as GitHub Desktop's does, whether a
 // file is checked or not. It asks first, with Desktop's question: the files
 // by path when there are no more than DISCARD_LIST_MAX_, otherwise their
-// count. Conflicted files are left out, and the question says how many. The
-// item is disabled while the repository is busy, or while every file is
-// conflicted. Like one file's, it acts on the files listed when the menu
-// opened
+// count, and how many of them are outside the vault, if any. Conflicted
+// files are left out, and the question says how many. The item is disabled
+// while the repository is busy, or while every file is conflicted. Like one
+// file's, it acts on the files listed when the menu opened, as the status
+// has them when the discard runs (GitRepository::discard)
 class GitPage : public QWidget
 {
     Q_OBJECT
@@ -692,8 +693,7 @@ private:
         showFailure_(
             tr("Discard incomplete"),
             tr("Git stopped partway. The changes are in the system trash, but "
-               "the last commit's versions weren't all put back, so some "
-               "files may be listed as deleted. Discard them again to "
+               "some files may still be listed. Discard them again to "
                "finish."),
             error);
     }

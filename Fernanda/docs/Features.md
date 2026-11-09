@@ -254,6 +254,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - A file changed from elsewhere while the question is up (committed from a terminal, say) is discarded as it is when you confirm. One with nothing left to discard is skipped
 - A file the trash refuses (on a network share, for instance) is left as it was, and a message names it. If the trash refuses every file, nothing is discarded
 - If Git stops partway, after files have gone to the trash, a message says so. The changes are in the trash, and discarding the files still listed finishes
+- Discard all changes takes in the vault's own `.fernanda` files too, as GitHub Desktop takes in every changed file. A `.fernanda/.gitignore` not yet committed goes to the trash with the rest, and Fernanda doesn't write it again, so the workspace file then shows as a change. Restore the `.gitignore` from the trash, or commit it to keep it
 - A conflicted file isn't discarded, on its own or with all changes, and the question for all changes says how many are left. Settling a conflict is left to Git
 
 ### Branches
