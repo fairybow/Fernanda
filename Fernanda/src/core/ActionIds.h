@@ -83,13 +83,13 @@ inline const QString WINDOW_TOGGLE_MENU_BAR = u"window.toggleMenuBar"_s;
 inline const QString VIEW_ZOOM_IN = u"view.zoomIn"_s;
 inline const QString VIEW_ZOOM_OUT = u"view.zoomOut"_s;
 inline const QString VIEW_ZOOM_RESET = u"view.zoomReset"_s;
-
 inline const QString VIEW_FIND = u"view.find"_s;
 inline const QString VIEW_REPLACE = u"view.replace"_s;
 inline const QString VIEW_FIND_NEXT = u"view.findNext"_s;
 inline const QString VIEW_FIND_PREVIOUS = u"view.findPrevious"_s;
 
 inline const QString VAULT_OPEN_SETTINGS = u"vault.openSettings"_s;
+inline const QString VAULT_OPEN_WRITING_HISTORY = u"vault.openWritingHistory"_s;
 
 inline const QString REPOSITORY_TOGGLE_PAGE = u"repository.togglePage"_s;
 

@@ -129,6 +129,13 @@ public:
                     : nullptr;
     }
 
+    // The status bar's word counter. Public so VaultWindow can wire its
+    // click, here and in each pop-out it makes
+    [[nodiscard]] WordCounter* wordCounter() const noexcept
+    {
+        return wordCounter_;
+    }
+
     // The status bar's settings, from the hosting vault's config. A window
     // doesn't know its vault — a pop-out has none of its own — so the
     // VaultWindow calls this on itself and on each pop-out it makes, at

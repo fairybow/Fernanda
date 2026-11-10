@@ -517,7 +517,8 @@ public:
 
     // Record an edit made in this vault's window that changed the word count
     // by wordDelta, now. An edit that changed no count is still recorded, as
-    // time spent writing. Saved a while after the first unsaved edit, and by
+    // time spent writing. A change to the history is announced at once
+    // (historyChanged), and saved a while after the first unsaved edit, and by
     // saveHistoryNow, rather than after each one. Nothing is recorded when the
     // system gives no machine ID to name this machine's file by
     void recordEdit(int wordDelta)
@@ -526,8 +527,13 @@ public:
             return;
         }
 
-        if (history_.recordEdit(Coco::Time::epoch(), wordDelta) &&
-            !historySaveTimer_->isActive()) {
+        if (!history_.recordEdit(Coco::Time::epoch(), wordDelta)) {
+            return;
+        }
+
+        emit historyChanged();
+
+        if (!historySaveTimer_->isActive()) {
             historySaveTimer_->start(historySaveMs_);
         }
     }
@@ -544,6 +550,10 @@ signals:
     // each one — and so does every text view of every vault when the changed
     // vault is the Common Vault
     void wordsChanged();
+
+    // The writing history changed (recordEdit), for a WritingHistoryDialog
+    // showing it
+    void historyChanged();
 
     // root() and rootKey() have moved, or are spelled anew (moveRoot), for
     // anything that keeps its own copy of the root

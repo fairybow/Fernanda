@@ -307,6 +307,7 @@ set(APP_HEADERS
     src/ui/VaultWindow.h
     src/ui/WordCounter.h
     src/ui/WorkspaceFile.h
+    src/ui/WritingHistoryDialog.h
 
     src/views/AbstractFileView.h
     src/views/FindBar.h

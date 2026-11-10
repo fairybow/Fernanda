@@ -1020,6 +1020,24 @@ private slots:
         QCOMPARE(reread.readAll(), other);
     }
 
+    // Announced only when the history changed: a first edit that changed no
+    // words has no time before it to count, and changes nothing
+    void aChangeToTheHistoryIsAnnounced()
+    {
+        if (QSysInfo::machineUniqueId().isEmpty()) {
+            QSKIP("The system gives no machine ID");
+        }
+
+        Fixture_ f{};
+        QSignalSpy changed(&f.vault, &Vault::historyChanged);
+
+        f.vault.recordEdit(0);
+        QCOMPARE(changed.count(), 0);
+
+        f.vault.recordEdit(2);
+        QCOMPARE(changed.count(), 1);
+    }
+
     void nothingRecordedWritesNothing()
     {
         if (QSysInfo::machineUniqueId().isEmpty()) {

@@ -68,7 +68,9 @@
 #include "ui/OpenMode.h"
 #include "ui/PopoutWindow.h"
 #include "ui/UiConstants.h"
+#include "ui/WordCounter.h"
 #include "ui/WorkspaceFile.h"
+#include "ui/WritingHistoryDialog.h"
 #include "ui/git/GitDiffPage.h"
 #include "ui/git/GitPage.h"
 #include "ui/settings/SettingsDialog.h"
@@ -309,6 +311,10 @@ private:
     // child, so it goes with the window
     SettingsDialog* settingsDialog_ = nullptr;
 
+    // This vault's writing history while it shows. It deletes itself when
+    // closed, which clears this (showWritingHistory_)
+    WritingHistoryDialog* writingHistoryDialog_ = nullptr;
+
     // This window's focus timer, set from its vault's settings
     // (applyFocusTimerConfig_) and shown by the sidebar's button. A Qt child,
     // so it stops with the window
@@ -479,6 +485,12 @@ private:
             &QAbstractButton::clicked,
             this,
             &VaultWindow::onUpdateNoticeClicked_);
+
+        connect(
+            wordCounter(),
+            &WordCounter::clicked,
+            this,
+            &VaultWindow::showWritingHistory_);
 
         setupGit_();
     }
@@ -733,6 +745,16 @@ private:
             this,
             &VaultWindow::onSettingsRequested_);
 
+        auto* open_writing_history = registerAction(
+            ActionIds::VAULT_OPEN_WRITING_HISTORY,
+            tr("Writing History..."),
+            QKeySequence{});
+        connect(
+            open_writing_history,
+            &QAction::triggered,
+            this,
+            &VaultWindow::showWritingHistory_);
+
         auto* toggle_menu_bar = registerAction(
             ActionIds::WINDOW_TOGGLE_MENU_BAR,
             tr("Toggle Menu Bar"),
@@ -767,6 +789,7 @@ private:
         file_menu->addAction(action(ActionIds::FOLDER_NEW));
         file_menu->addSeparator();
         file_menu->addAction(action(ActionIds::VAULT_OPEN_SETTINGS));
+        file_menu->addAction(action(ActionIds::VAULT_OPEN_WRITING_HISTORY));
         file_menu->addAction(action(ActionIds::APP_MANAGE_VAULTS));
         file_menu->addSeparator();
         file_menu->addAction(action(ActionIds::APP_QUIT));
@@ -899,6 +922,29 @@ private:
         settingsDialog_->open();
         settingsDialog_->raise();
         settingsDialog_->activateWindow();
+    }
+
+    // Show this vault's writing history, window-modal over this window,
+    // whether asked for here or from a pop-out's word counter. A pop-out isn't
+    // blocked by it, so its counter can be clicked while the dialog shows:
+    // the one already open is brought forward rather than a second made
+    void showWritingHistory_()
+    {
+        if (!writingHistoryDialog_) {
+            writingHistoryDialog_ = new WritingHistoryDialog(
+                vault_,
+                action(ActionIds::APP_QUIT),
+                this);
+
+            connect(writingHistoryDialog_, &QObject::destroyed, this, [this] {
+                writingHistoryDialog_ = nullptr;
+            });
+
+            writingHistoryDialog_->open();
+        }
+
+        writingHistoryDialog_->raise();
+        writingHistoryDialog_->activateWindow();
     }
 
     // The vault's focus timer settings, applied to this window's timer: new
@@ -1592,6 +1638,12 @@ private:
             &QAbstractButton::clicked,
             this,
             &VaultWindow::onUpdateNoticeClicked_);
+
+        connect(
+            popout->wordCounter(),
+            &WordCounter::clicked,
+            this,
+            &VaultWindow::showWritingHistory_);
 
         // Persist this pop-out too: its geometry and tab layout ride in
         // workspace.json alongside the main window. Guarded because a pop-out

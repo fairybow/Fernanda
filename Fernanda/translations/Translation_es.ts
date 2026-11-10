@@ -1550,6 +1550,10 @@
         <translation type="unfinished">Configuración...</translation>
     </message>
     <message>
+        <source>Writing History...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Toggle Menu Bar</source>
         <translation type="unfinished">Mostrar u ocultar la barra de menús</translation>
     </message>
@@ -1596,6 +1600,10 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
 </context>
 <context>
     <name>Fernanda::Ui::WordCounter</name>
+    <message>
+        <source>Writing history</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message numerus="yes">
         <source>%L1 of %Ln word(s)</source>
         <extracomment>Status bar word count. The first form is the whole document; the second is shown while text is selected, where %L1 is the selection&apos;s word count and %Ln the document&apos;s.</extracomment>
@@ -1640,6 +1648,56 @@ La ventana seguirá abierta para que no pierdas tus cambios. Cuando se resuelva 
             <numerusform>%Ln línea</numerusform>
             <numerusform>%Ln líneas</numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>Fernanda::Ui::WritingHistoryDialog</name>
+    <message>
+        <source>Today</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Words</source>
+        <translation type="unfinished">Palabras</translation>
+    </message>
+    <message>
+        <source>Words written, less words deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Words added</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Words written, whatever was deleted after.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time writing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Time spent editing, leaving out any pause longer than %n minute(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Lifetime</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Days written</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Days with any writing recorded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Writing History — %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
