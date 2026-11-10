@@ -132,6 +132,7 @@ app_add_test(UserTextEntryTest)
 app_add_test(VaultTest)
 app_add_test(VaultTreeModelTest)
 app_add_test(WordListTest)
+app_add_test(WritingHistoryTest)
 
 # The dictionary that ships with the app, compiled into the one test that
 # installs it

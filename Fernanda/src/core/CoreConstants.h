@@ -60,4 +60,9 @@ inline constexpr int GIT_NETWORK_TIMEOUT_MS = 2 * 60 * 1000;
 inline constexpr int GIT_WORD_DIFF_MIN_UNCHANGED_PERCENT = 50;
 inline constexpr qint64 GIT_WORD_DIFF_MAX_CELLS = 1000 * 1000;
 
+// How long a pause between two edits can be and still count as writing time
+// (WritingHistory). A longer pause ends the stretch of writing, and adds
+// nothing
+inline constexpr qint64 WRITING_IDLE_LIMIT_MS = 5 * 60 * 1000;
+
 } // namespace Fernanda
