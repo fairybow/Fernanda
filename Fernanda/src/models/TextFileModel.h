@@ -174,6 +174,12 @@ signals:
     // focused view repositions its cursor to the change site
     void cursorPositionHint(int position);
 
+    // Forwarded from the prime: the user edited the text, changing its word
+    // count by wordDelta. sourceView is the view document the edit was typed
+    // in, or nullptr for an undo or redo. Opening and reloading the file
+    // announce nothing
+    void userEdited(const QTextDocument* sourceView, int wordDelta);
+
 private:
     // The line ending the file uses on disk, restored by data() on write. The
     // prime always holds '\n' (QTextDocument folds every break into a block).
@@ -213,6 +219,8 @@ private:
         return LineEnding_::Lf;
     }
 
+    // TODO: Note - we're bubbling signals up here. Avoidable? Worth avoiding,
+    // even if so?
     void setup_()
     {
         // Bubble the prime's state up as this model's own signals
@@ -236,6 +244,12 @@ private:
             &PrimeDocument::cursorPositionHint,
             this,
             &TextFileModel::cursorPositionHint);
+
+        connect(
+            prime_,
+            &PrimeDocument::userEdited,
+            this,
+            &TextFileModel::userEdited);
 
         connect(
             prime_,

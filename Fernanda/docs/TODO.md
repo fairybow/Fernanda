@@ -6,12 +6,14 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 ## Current (sort later)
 
 - [ ] Condense code comments
+- [ ] Places where logging would be useful but is missing
 - [ ] When scrolling the Git changes list (via grabbing the scroll bar handle, holding left click), if you move the mouse over an entry while still scrolling, the rows will show hover wash (good) but it won't go away when the mouse leaves the row (bad). Normally this doesn't happen, but it's happening presumably because we're holding left click when we pass over the row and because scrolling is happening?
 - [ ] Replace all C-style casts
 - [ ] Have installer(s) remove old or outdated files in app data directory? (Is this wise, on the off chance a user has put their own files in the directory? I would say this is a hard maybe, leaning toward don't do)
 - [ ] Re: menu and context menu items: for items that are not always doable (like Git page's discard, when a hold is active), I'd like to have a consistent rationale (documented) and implementation (visible? enabled vs disabled?)
 - [ ] Re-use Hearth's widget mask (or find better solution) for PDF jitter/flashing (occurs when the window/pane is resized - pretty sure it's unavoidable and normal, but we may want to just mask it)
-- [ ] Two bigger features I'd like sooner rather than later: dialy/lifetime words typed per vault and exporting functionality (may be a dialog (saved as config, so setup persists) where user can set a "root" for their export - so it doesn't include notes and the like; would perhaps be a draggable (for custom ordering) list of the files, with checkboxes (unselect = exclude from export), for essentially "compiling" to single file?)
+- [ ] Daily/lifetime words typed per vault
+- [ ] Exporting functionality (may be a dialog (saved as config, so setup persists) where user can set a "root" for their export - so it doesn't include notes and the like; would perhaps be a draggable (for custom ordering) list of the files, with checkboxes (unselect = exclude from export), for essentially "compiling" to single file?)
 - [ ] May want to subdivide core folder further (like add "vault"?); possibly ui as well
 
 ## Bugs
