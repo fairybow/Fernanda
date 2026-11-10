@@ -230,6 +230,7 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 
 - The Git page lists every changed file by name, with its folder after it in muted letters and a mark at the right in the change's color: green for added, amber for modified, red for deleted, blue for renamed, and a warning triangle for a file left conflicted by a merge. A file's name always shows whole while there's room for it: the folder is shortened first, from its start, and left out when nothing of it would fit
 - A folder inside the repository that holds a Git repository of its own isn't listed
+- A submodule is listed, as GitHub Desktop lists it, when it points at another commit than the one recorded or has changes inside it
 - The list keeps Git's order, as GitHub Desktop's does: the changed files Git already tracks, then the new ones, each group by path
 - A file renamed or moved outside Git (in Fernanda's file tree, say) shows as two entries, the old name deleted and the new one added, as GitHub Desktop shows it. Committing both records the rename: Git and GitHub show it as one once it's committed
 - Double-click a file, or press Enter, to open its diff in a tab, over the current tab unless that one is pinned, as a file opens from the file tree. Right-click for Open in new tab, Open to the right, and Open in new window
@@ -256,6 +257,8 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - If Git stops partway, after files have gone to the trash, a message says so. The changes are in the trash, and discarding the files still listed finishes
 - Discard all changes takes in the vault's own `.fernanda` files too, as GitHub Desktop takes in every changed file. A `.fernanda/.gitignore` not yet committed goes to the trash with the rest, and Fernanda doesn't write it again, so the workspace file then shows as a change. Restore the `.gitignore` from the trash, or commit it to keep it
 - A conflicted file isn't discarded, on its own or with all changes, and the question for all changes says how many are left. Settling a conflict is left to Git
+- A submodule isn't discarded either, and the question for all changes says how many are left. Its changes are in a repository of its own. To discard edits inside it through the trash, open its folder as a vault: its Git page is the submodule's own. From a terminal, `git submodule update -- <folder>` puts it back on the commit this repository records, keeping any commits made in it, and `git -C <folder> restore .` throws away the edits inside it for good
+- A file deleted and replaced by a folder of the same name comes back, and the folder goes to the trash with everything in it
 
 ### Branches
 
@@ -291,6 +294,8 @@ For a vault inside a Git repository, Fernanda can show the repository's changes,
 - No history, no merges, no amending, and no committing part of a file
 - Discarding never deletes without the trash. When the trash refuses a file, Desktop offers to discard its changes permanently; Fernanda leaves the file as it was
 - Discard all changes leaves conflicted files out. Desktop discards them too, which keeps this branch's side and leaves the merge underway
+- Submodules aren't discarded. Desktop resets one to the commit this repository records (`git submodule update --force`), which throws away the edits inside it for good
+- A folder standing where a deleted file was goes to the trash when the file is discarded. Desktop has Git put the file back, which deletes the folder and everything in it for good
 - Discard all changes is only on the list's header. Fernanda has no Branch menu, so there's no Ctrl+Shift+Backspace
 - The list takes one selection, so there's no discarding several selected files at once
 

@@ -71,6 +71,7 @@ Bugs and code chores. Features that aren't built yet are in [Future.md](Future.m
 - [x] A branch switch or a pull was refused, or not, by the last status read, which could be older than the text on screen: a change typed since was carried to the other branch. The status is now read again as the operation's first step
 - [x] Diff tabs and the Git page didn't follow saves, only the window coming forward, so a diff split beside its file never updated as it was typed. Both are now read again when a file in the repository is saved, renamed, moved, or trashed in Fernanda while either shows
 - [x] A folder holding its own repository, which Git lists as one entry, was listed with no name: its diff failed, committing it recorded a pointer to the other repository, and discarding it trashed that repository whole. It's now left out
+- [x] Discarding a changed submodule sent its whole folder to the trash, edits and untracked files inside it included, and Git then left the folder empty. `GitStatus` now marks submodules, and a discard leaves them out
 - [x] A file marked to be added (`git add -N`) was taken as modified, so discarding it asked Git to restore it from a commit that doesn't have it
 - [x] The Git page's right-click menu read its file by row when an item was chosen, so a status arriving while it was open could open another file's diff
 - [x] Typing while a pull, a switch, or a discard ran could be autosaved over the file Git had just rewritten, in the moment before the watcher noticed Git's write. A pulled change was then silently reverted, as an uncommitted change. Everything open is now saved again just before Git rewrites files, and autosave holds off for the repository's files until it's done
@@ -163,6 +164,7 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 - [ ] A diff split beside its file updates as you type, keeping its place
 - [ ] Saving, renaming, moving, and trashing from the file tree update the list while the Git page shows
 - [ ] A folder holding its own repository (`git init` inside the vault) isn't listed
+- [ ] A submodule with an edit inside it is listed as modified
 - [ ] Open file, Open in new tab, Open to the right, and Open in new window each land where expected
 
 **Commits**
@@ -179,6 +181,8 @@ Run it once on each platform: on Windows signing in through Git Credential Manag
 - [ ] With the discarded file open in a tab, Ctrl+Z there brings the changes back
 - [ ] Discard all changes with ten files or fewer, and with more: the question names them, or gives their count, and every file is discarded
 - [ ] Discard all changes with a conflicted file listed: it's left as it is, and the question says so
+- [ ] Discard all changes with a changed submodule listed: it's left as it is, and the question says so. Its own right-click menu has no Discard changes…, and with only a submodule listed, Discard all changes is disabled
+- [ ] Delete a tracked file and make a folder of the same name with a file in it, then discard the deleted file: it comes back, and the folder is in the trash with its file
 - [ ] Discard all changes in a vault inside a larger repository: the question says how many files are outside the vault
 - [ ] Leave a discard question up, commit one of its files from a terminal, then confirm: the rest are discarded, with no failure
 - [ ] With `.git/index.lock` made by hand, discard a modified file: the message says Git stopped partway and the file is listed as deleted. Remove the lock and discard it again: it comes back, and the trash keeps the changes
