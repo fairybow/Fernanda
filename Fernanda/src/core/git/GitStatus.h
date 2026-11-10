@@ -36,7 +36,8 @@
 // Each file gets one change, as GitHub Desktop shows it: the index and the
 // working tree are not told apart, since Fernanda stages for itself when it
 // commits. A folder holding a repository of its own, which git lists as one
-// untracked entry, is left out (parse)
+// untracked entry, is left out (parse). A submodule is listed, and marked
+// (Entry::submodule)
 namespace Fernanda::GitStatus {
 
 enum class Change
@@ -58,6 +59,11 @@ struct Entry
 
     // Where a renamed file was. Empty for any other change
     Coco::Path originalPath{};
+
+    // Whether the path is a submodule: a folder holding a repository that
+    // this one records a commit of. Its change is to that commit, or to the
+    // files in its folder
+    bool submodule = false;
 };
 
 struct Branch
@@ -114,6 +120,13 @@ pathAfter_(QByteArrayView record, int fieldsBefore)
     }
 
     return record.sliced(start);
+}
+
+// Whether a tracked record's path is a submodule. Its third field (sub) is
+// "N..." for a file and starts with S for a submodule
+[[nodiscard]] inline bool isSubmodule_(QByteArrayView record)
+{
+    return record.size() > 5 && record[5] == 'S';
 }
 
 [[nodiscard]] inline Coco::Path pathOf_(QByteArrayView bytes)
@@ -237,8 +250,10 @@ inline void readHeader_(QByteArrayView record, Branch& branch)
         // 1 XY sub mH mI mW hH hI path
         if (record.front() == '1') {
             if (auto path = Internal::pathAfter_(record, 8)) {
-                status.entries << Entry{ Internal::changeOf_(x, y),
-                                         Internal::pathOf_(*path) };
+                Entry entry{ Internal::changeOf_(x, y),
+                             Internal::pathOf_(*path) };
+                entry.submodule = Internal::isSubmodule_(record);
+                status.entries << entry;
             }
 
             continue;
@@ -259,14 +274,18 @@ inline void readHeader_(QByteArrayView record, Branch& branch)
                 continue;
             }
 
+            Entry entry{};
+
             if (x == 'R' || y == 'R') {
-                status.entries << Entry{ Change::Renamed,
-                                         Internal::pathOf_(*path),
-                                         Internal::pathOf_(original) };
+                entry = Entry{ Change::Renamed,
+                               Internal::pathOf_(*path),
+                               Internal::pathOf_(original) };
             } else {
-                status.entries
-                    << Entry{ Change::Added, Internal::pathOf_(*path) };
+                entry = Entry{ Change::Added, Internal::pathOf_(*path) };
             }
+
+            entry.submodule = Internal::isSubmodule_(record);
+            status.entries << entry;
 
             continue;
         }
@@ -274,8 +293,9 @@ inline void readHeader_(QByteArrayView record, Branch& branch)
         // u XY sub m1 m2 m3 mW h1 h2 h3 path
         if (record.front() == 'u') {
             if (auto path = Internal::pathAfter_(record, 10)) {
-                status.entries
-                    << Entry{ Change::Conflicted, Internal::pathOf_(*path) };
+                Entry entry{ Change::Conflicted, Internal::pathOf_(*path) };
+                entry.submodule = Internal::isSubmodule_(record);
+                status.entries << entry;
             }
 
             continue;

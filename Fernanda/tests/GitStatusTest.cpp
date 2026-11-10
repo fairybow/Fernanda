@@ -187,6 +187,45 @@ private slots:
         QCOMPARE(status.entries[0].path.prettyQString(), u"c.txt"_s);
     }
 
+    // A submodule's sub field starts with S, whatever kind of record it's in
+    void submoduleIsMarked()
+    {
+        auto status = GitStatus::parse(output_(
+            {
+                "1 .M S.M. 160000 160000 160000 aaaa bbbb lib",
+                "1 .M SC.. 160000 160000 160000 aaaa bbbb vendor",
+                "2 R. S... 160000 160000 160000 aaaa bbbb R100 moved",
+                "old",
+                "u UU S... 160000 160000 160000 160000 aaaa bbbb cccc ext",
+                "1 .M N... 100644 100644 100644 aaaa bbbb a.txt",
+            }));
+
+        QCOMPARE(status.entries.size(), 5);
+        QVERIFY(status.entries[0].submodule);
+        QCOMPARE(status.entries[0].change, GitStatus::Change::Modified);
+        QVERIFY(status.entries[1].submodule);
+        QVERIFY(status.entries[2].submodule);
+        QCOMPARE(status.entries[2].change, GitStatus::Change::Renamed);
+        QCOMPARE(status.entries[2].originalPath.prettyQString(), u"old"_s);
+        QVERIFY(status.entries[3].submodule);
+        QCOMPARE(status.entries[3].change, GitStatus::Change::Conflicted);
+        QVERIFY(!status.entries[4].submodule);
+    }
+
+    // A file, and an untracked entry, aren't submodules
+    void fileIsNotASubmodule()
+    {
+        auto status = GitStatus::parse(output_(
+            {
+                "1 .M N... 100644 100644 100644 aaaa bbbb a.txt",
+                "? b.txt",
+            }));
+
+        QCOMPARE(status.entries.size(), 2);
+        QVERIFY(!status.entries[0].submodule);
+        QVERIFY(!status.entries[1].submodule);
+    }
+
     // --- Paths --------------------------------------------------------------
 
     // Only the fields before the path are split on spaces
